@@ -79,11 +79,15 @@
     "momei",
     "nuxt3",
     "vue3",
-    "type-script",
+    "typescript",
     "blog",
     "markdown",
     "vue",
-    "nuxt"
+    "nuxt",
+    "墨梅",
+    "博客",
+    "墨梅博客",
+    "创作平台"
   ],
   "license": "MIT",
   "engines": {
