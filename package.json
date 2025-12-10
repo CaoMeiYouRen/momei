@@ -32,7 +32,8 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "@parcel/watcher",
-      "esbuild"
+      "esbuild",
+      "unrs-resolver"
     ],
     "overrides": {
       "vite": "$vite",
