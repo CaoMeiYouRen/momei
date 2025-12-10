@@ -5,6 +5,10 @@ on:
       - master
   pull_request:
   workflow_dispatch:
+
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Test
