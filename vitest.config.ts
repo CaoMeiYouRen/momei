@@ -1,4 +1,4 @@
-import path from 'path'
+import { resolve } from 'node:path'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -8,12 +8,9 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, 'src'),
+            '@': resolve(__dirname, './'),
+            'bun:test': resolve(__dirname, './tests/mocks/bun-test.ts'),
         },
     },
-    root: path.resolve('./'),
-    coverage: {
-        clean: true,
-        reportsDirectory: path.resolve('./coverage'),
-    },
+    root: resolve('./'),
 })
