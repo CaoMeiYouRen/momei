@@ -1,0 +1,23 @@
+name = "rsshub-never-die"
+# 默认为 Production 环境
+# main = "dist/app.mjs"
+minify = true
+compatibility_date = "2025-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+head_sampling_rate = 1 # optional. default = 1.
+
+[observability.logs]
+enabled = false
+head_sampling_rate = 1
+invocation_logs = true
+persist = true
+
+[vars]
+
+
+[env.dev]
+
+[env.dev.vars]

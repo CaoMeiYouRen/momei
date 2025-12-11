@@ -13,4 +13,10 @@ export default defineNuxtConfig({
             standalone: false,
         },
     },
+    nitro: {
+        prerender: {
+            // 为匹配 Cloudflare 路由匹配规则，设置 nitro 选项 autoSubfolderIndex 为 false 。
+            autoSubfolderIndex: false,
+        },
+    },
 })

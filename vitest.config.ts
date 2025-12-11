@@ -8,7 +8,7 @@ export default defineConfig({
         globals: true,
         environment: 'nuxt',
         // include: ['./**/*.spec.ts', './**/*.test.ts'],
-        include: ['tests/**/*.spec.ts', 'tests/**/*.test.ts'],
+        // include: ['tests/**/*.spec.ts', 'tests/**/*.test.ts'],
         exclude: ['**/node_modules/**', '**/.nuxt/**', '**/dist/**'],
     },
     resolve: {
