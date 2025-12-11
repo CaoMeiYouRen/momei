@@ -22,7 +22,8 @@ export default withNuxt(
     ]),
     {
         rules: {
-        // '@typescript-eslint/no-unused-vars': 1,
+            'max-lines': [1, { max: 800 }], // 强制文件的最大行数
+            'max-lines-per-function': [0, { max: 150 }], // 强制函数最大行数
         },
     },
 )
