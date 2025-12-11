@@ -1,0 +1,7 @@
+/dist/
+/test/
+*.min.css
+*.js
+*.ts
+_*
+/coverage
