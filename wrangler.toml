@@ -16,8 +16,3 @@ invocation_logs = true
 persist = true
 
 [vars]
-
-
-[env.dev]
-
-[env.dev.vars]
