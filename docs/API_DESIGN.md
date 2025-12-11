@@ -118,3 +118,11 @@ API 路由位于 `server/api` 目录下。
 -   **Docker**: 提供 `Dockerfile`，构建最小化镜像。
 -   **Vercel**: 确保 API 路由适配 Serverless Function 限制 (执行时间)。
 -   **Cloudflare Workers**: 需注意 Node.js 兼容性标志 (`nodejs_compat`) 和数据库驱动的选择。
+
+## 8. 相关文档
+
+-   [AI 代理配置 (AGENTS.md)](../AGENTS.md)
+-   [项目规划 (PLAN.md)](./PLAN.md)
+-   [开发规范 (DEVELOPMENT.md)](./DEVELOPMENT.md)
+-   [UI 设计 (UI_DESIGN.md)](./UI_DESIGN.md)
+-   [测试规范 (TESTING.md)](./TESTING.md)

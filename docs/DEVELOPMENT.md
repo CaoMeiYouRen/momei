@@ -89,7 +89,7 @@
 
 ## 6. 相关文档
 
--   [项目计划 (PLAN.md)](./PLAN.md)
+-   [AI 代理配置 (AGENTS.md)](../AGENTS.md)- [项目计划 (PLAN.md)](./PLAN.md)
 -   [UI 设计 (UI_DESIGN.md)](./UI_DESIGN.md)
 -   [API 设计 (API_DESIGN.md)](./API_DESIGN.md)
 -   [测试规范 (TESTING.md)](./TESTING.md)

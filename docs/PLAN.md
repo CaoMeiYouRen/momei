@@ -96,3 +96,11 @@
 -   **竞争对手**: WordPress (重型), Hexo/VuePress (静态/无后端), Medium/Dev.to (平台锁定)。
 -   **缺口**: 缺乏现代化的、自托管的、国际化优先且 AI 就绪的博客平台。
 -   **策略**: 瞄准希望拥有控制权 + 现代化技术栈 + 全球影响力的开发者。
+
+## 5. 相关文档
+
+-   [AI 代理配置 (AGENTS.md)](../AGENTS.md)
+-   [开发规范 (DEVELOPMENT.md)](./DEVELOPMENT.md)
+-   [UI 设计 (UI_DESIGN.md)](./UI_DESIGN.md)
+-   [API 设计 (API_DESIGN.md)](./API_DESIGN.md)
+-   [测试规范 (TESTING.md)](./TESTING.md)

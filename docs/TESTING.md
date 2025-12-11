@@ -26,7 +26,7 @@
 
 **示例结构**:
 
-```
+```plain
 utils/
   ├── date-formatter.ts
   └── date-formatter.test.ts  <-- 单元测试
@@ -106,3 +106,11 @@ pnpm run test:coverage
     -   确保所有现有测试用例通过。
 
 **注意**: 任何未通过上述检查的提交将被视为不合规，CI 流水线将会拦截此类合并请求。
+
+## 7. 相关文档
+
+-   [AI 代理配置 (AGENTS.md)](../AGENTS.md)
+-   [项目规划 (PLAN.md)](./PLAN.md)
+-   [开发规范 (DEVELOPMENT.md)](./DEVELOPMENT.md)
+-   [UI 设计 (UI_DESIGN.md)](./UI_DESIGN.md)
+-   [API 设计 (API_DESIGN.md)](./API_DESIGN.md)

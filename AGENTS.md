@@ -181,3 +181,7 @@ pnpm test
 ## 相关文档
 
 -   [项目规划 (PLAN.md)](./docs/PLAN.md)
+-   [开发规范 (DEVELOPMENT.md)](./docs/DEVELOPMENT.md)
+-   [UI 设计 (UI_DESIGN.md)](./docs/UI_DESIGN.md)
+-   [API 设计 (API_DESIGN.md)](./docs/API_DESIGN.md)
+-   [测试规范 (TESTING.md)](./docs/TESTING.md)
