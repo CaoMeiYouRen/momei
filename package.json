@@ -15,7 +15,10 @@
     "typecheck": "nuxt typecheck",
     "commit": "cz",
     "prepare": "husky",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "docs:dev": "vitepress dev docs --open",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
     "animate.css": "^4.1.1",
@@ -72,6 +75,7 @@
     "stylelint-config-cmyr": "^1.0.0",
     "typescript": "^5.9.3",
     "vite": "^7.2.6",
+    "vitepress": "^1.6.4",
     "vitest": "^4.0.15",
     "vue-tsc": "^3.1.8"
   },
