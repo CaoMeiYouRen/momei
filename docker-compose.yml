@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  server:
+    container_name: "momei"
+    image: ${DOCKER_IMAGE:-caomeiyouren/momei}
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      TZ: "Asia/Shanghai"
+
+    volumes:
+      - ./logs:/app/logs
+      - ./database:/app/database
