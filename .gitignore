@@ -25,3 +25,5 @@ logs
 
 
 !.nuxt/eslint.config.mjs
+
+/coverage
