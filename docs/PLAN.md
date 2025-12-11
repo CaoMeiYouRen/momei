@@ -32,7 +32,7 @@
 3.  **内容展示**
     -   **页面**: 首页 (分页)、文章详情 (目录 TOC)、归档。
     -   **搜索**: 基础关键词搜索 (标题/正文)，使用本地过滤或简单数据库查询。
-    -   **响应式**: 使用 Tailwind CSS 适配 PC 和移动端。
+    -   **响应式**: 使用 SCSS Media Queries 适配 PC 和移动端。
 4.  **国际化 (基础)**
     -   **UI**: 中英文切换。
     -   **路由**: `nuxt-i18n` 前缀策略 (`/en/...`)。
@@ -75,7 +75,7 @@
 ### 技术栈
 
 -   **前端/框架**: Nuxt 3 (Vue 3 + TypeScript)。
--   **样式**: Tailwind CSS。
+-   **样式**: SCSS。
 -   **数据库**: PostgreSQL (MVP 推荐使用 Supabase 或类似托管服务)。
 -   **认证**: NextAuth.js / NuxtAuth。
 -   **部署**: Vercel / Netlify / Docker。

@@ -5,6 +5,9 @@ export default defineNuxtConfig({
     modules: [
         '@nuxt/eslint',
     ],
+    css: [
+        '~/assets/styles/main.scss',
+    ],
     eslint: {
         config: {
             standalone: false,

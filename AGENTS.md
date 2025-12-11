@@ -8,7 +8,7 @@
 
 -   **项目名称**: 墨梅博客平台
 -   **框架**: Nuxt 3.x (Vue 3.x + TypeScript)
--   **UI 框架**: Tailwind CSS
+-   **UI 框架**: SCSS
 -   **包管理器**: PNPM
 -   **开发规范**: ESLint + Stylelint + Conventional Commits
 
@@ -20,7 +20,7 @@
 
 1.  **TypeScript 优先**: 所有新代码必须使用 TypeScript，严禁使用 `any` 类型，应定义明确的接口或类型。
 2.  **Vue 风格**: 使用 `<script setup lang="ts">` 语法。
-3.  **样式规范**: 优先使用 Tailwind CSS 工具类，避免编写自定义 CSS/SCSS，除非必要。
+3.  **样式规范**: 使用 SCSS 编写样式，遵循 BEM 命名规范，避免使用内联样式。
 4.  **国际化 (i18n)**: UI 文本必须使用 `nuxt-i18n` 的 `$t()` 函数包裹，禁止硬编码中文或英文字符串。
 5.  **文件命名**: 使用 kebab-case 格式 (如 `article-card.vue`)。
 
@@ -51,12 +51,12 @@
 
 ### 代码生成示例
 
-#### Vue 组件模板 (结合 Tailwind 和 i18n)
+#### Vue 组件模板 (结合 SCSS 和 i18n)
 
 ```vue
 <template>
-    <div class="p-4 rounded-lg shadow-md bg-white dark:bg-gray-800">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+    <div class="article-card">
+        <h2 class="article-card__title">
             {{ $t("components.title") }}
         </h2>
         <slot />
@@ -70,6 +70,30 @@ defineProps<{
     title?: string;
 }>();
 </script>
+
+<style lang="scss" scoped>
+.article-card {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    background-color: #fff;
+
+    &__title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111827;
+    }
+}
+
+// Dark mode example
+:global(.dark) .article-card {
+    background-color: #1f2937;
+
+    &__title {
+        color: #fff;
+    }
+}
+</style>
 ```
 
 #### API 路由模板
@@ -141,7 +165,7 @@ pnpm test
 
 1.  **上下文**: 在提问时提供相关的 `PLAN.md` 或现有代码片段。
 2.  **国际化意识**: 提醒 AI 生成的代码需考虑多语言支持。
-3.  **Tailwind**: 要求 AI 使用 Tailwind 类名而非 CSS。
+3.  **SCSS**: 要求 AI 使用 SCSS 编写样式。
 
 ## 安全要求
 
