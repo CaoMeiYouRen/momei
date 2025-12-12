@@ -87,7 +87,35 @@
     -   使用适当的清理库 (Sanitizer) 处理 HTML 内容。
     -   Vue 模板中默认自动转义，但在使用 `v-html` 时必须格外小心。
 
-## 6. 相关文档
+## 6. 提交前检查 (Pre-commit Checks)
+
+在提交代码 (Git Commit) 之前，开发者**必须**确保本地环境通过以下所有检查。建议配置 `husky` 的 `pre-commit` 钩子自动执行。
+
+1.  **代码风格检查**:
+
+    ```bash
+    pnpm run lint
+    ```
+
+    -   确保无 ESLint/Stylelint 报错。
+
+2.  **类型检查**:
+
+    ```bash
+    pnpm run typecheck
+    ```
+
+    -   确保无 TypeScript 类型错误。
+
+3.  **单元测试**:
+    ```bash
+    pnpm run test
+    ```
+    -   确保所有现有测试用例通过。
+
+**注意**: 任何未通过上述检查的提交将被视为不合规，CI 流水线将会拦截此类合并请求。
+
+## 7. 相关文档
 
 -   [AI 代理配置 (AGENTS.md)](../AGENTS.md)- [项目计划 (PLAN.md)](./PLAN.md)
 -   [UI 设计 (UI_DESIGN.md)](./UI_DESIGN.md)
