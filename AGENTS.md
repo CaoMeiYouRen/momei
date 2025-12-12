@@ -30,7 +30,7 @@
 
 ```typescript
 // 优先使用的库和工具
--useI18n() - // 国际化
+useI18n() - // 国际化
     useFetch() - // 数据获取
     navigateTo() - // 路由跳转
     useHead() - // SEO Meta 配置
@@ -131,8 +131,17 @@ pnpm dev
 # 代码检查
 pnpm lint
 
+# CSS 检查
+pnpm lint:css
+
+# 类型检查
+pnpm typecheck
+
 # 运行测试
 pnpm test
+
+# 构建生产版本
+pnpm build
 ```
 
 ### 2. 提交规范
@@ -146,6 +155,8 @@ pnpm test
 -   `refactor`: 代码重构
 -   `perf`: 性能优化
 -   `test`: 测试相关
+-   `ci`: CI 配置变更
+-   `build`: 构建相关
 -   `chore`: 构建/工具链变动
 
 ### 3. 部署
@@ -163,7 +174,7 @@ pnpm test
 
 ### AI 辅助开发
 
-1.  **上下文**: 在提问时提供相关的 `docs/plan/roadmap.md` 或现有代码片段。
+1.  **上下文**: 在提问时提供相关的 `docs/plan/roadmap.md`、`docs/plan/todo.md` 或现有代码片段。
 2.  **国际化意识**: 提醒 AI 生成的代码需考虑多语言支持。
 3.  **SCSS**: 要求 AI 使用 SCSS 编写样式。
 
@@ -181,7 +192,9 @@ pnpm test
 ## 相关文档
 
 -   [项目规划](./docs/plan/roadmap.md)
+-   [待办事项](./docs/plan/todo.md)
 -   [开发规范](./docs/standards/development.md)
+-   [测试规范](./docs/standards/testing.md)
+-   [API 规范](./docs/standards/api.md)
 -   [UI 设计](./docs/design/ui.md)
 -   [API 设计](./docs/design/api.md)
--   [测试规范](./docs/standards/testing.md)
