@@ -36,6 +36,10 @@
     -   `public/`: 公共静态资源目录（如图片、字体等）。
     -   `plugins/`: Nuxt 插件目录。
     -   `middleware/`: 路由中间件目录。
+    -   `composables/`：Vue 组合式 API 目录。
+    -   `layouts/`： 布局目录。
+    -   `libs/`: 第三方库封装目录。
+    -   `types`/: TypeScript 类型定义目录。
     -   `tests/`: 测试代码目录。
     -   `utils/`: 工具函数目录。
         -   `utils/shared/`: 不依赖 Nuxt/Node 的纯函数与常量，可直接被前后端复用。
@@ -49,7 +53,7 @@
 
 -   **依赖约束**:
     -   `shared` **不得引用** `web` 或 `server`。
-    -   `web` 可以引用 `shared`。
+    -   `web` 可以引用 `shared`，但 **禁止反向依赖**。
     -   `server` 可以引用 `shared`，但 **禁止反向依赖**。
     -   **入口管理**: 通过 `barrel` 文件（index.ts）暴露统一入口，避免跨层误引用。
 
