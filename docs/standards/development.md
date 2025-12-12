@@ -24,7 +24,7 @@
 ### 2.3 样式规范 (CSS/SCSS)
 
 -   **复用优先**: 优先使用 `assets/styles` 下定义的全局变量 (Variables) 和混合宏 (Mixins)。
--   **一致性**: 确保新样式符合 UI 设计文档 (`docs/UI_DESIGN.md`) 的整体风格。
+-   **一致性**: 确保新样式符合 UI 设计文档 (`../design/ui.md`) 的整体风格。
 
 ### 2.4 目录规划与依赖约束 (Directory Structure & Dependencies)
 
@@ -117,7 +117,8 @@
 
 ## 7. 相关文档
 
--   [AI 代理配置 (AGENTS.md)](../AGENTS.md)- [项目计划 (PLAN.md)](./PLAN.md)
--   [UI 设计 (UI_DESIGN.md)](./UI_DESIGN.md)
--   [API 设计 (API_DESIGN.md)](./API_DESIGN.md)
--   [测试规范 (TESTING.md)](./TESTING.md)
+-   [AI 代理配置](../../AGENTS.md)
+-   [项目计划](../plan/roadmap.md)
+-   [UI 设计](../design/ui.md)
+-   [API 设计](../design/api.md)
+-   [测试规范](./testing.md)

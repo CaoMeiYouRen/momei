@@ -99,8 +99,9 @@
 
 ## 5. 相关文档
 
--   [AI 代理配置 (AGENTS.md)](../AGENTS.md)
--   [开发规范 (DEVELOPMENT.md)](./DEVELOPMENT.md)
--   [UI 设计 (UI_DESIGN.md)](./UI_DESIGN.md)
--   [API 设计 (API_DESIGN.md)](./API_DESIGN.md)
--   [测试规范 (TESTING.md)](./TESTING.md)
+-   [AI 代理配置](../../AGENTS.md)
+-   [待办事项](./todo.md)
+-   [开发规范](../standards/development.md)
+-   [UI 设计](../design/ui.md)
+-   [API 设计](../design/api.md)
+-   [测试规范](../standards/testing.md)

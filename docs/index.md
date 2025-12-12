@@ -9,7 +9,7 @@ hero:
     actions:
         - theme: brand
           text: 开始阅读
-          link: /PLAN
+          link: /plan/roadmap
         - theme: alt
           text: GitHub
           link: https://github.com/CaoMeiYouRen/momei
@@ -17,19 +17,22 @@ hero:
 features:
     - title: 项目规划
       details: 了解项目的整体规划、MVP 目标及未来路线图。
-      link: /PLAN
-    - title: 开发指南
+      link: /plan/roadmap
+    - title: 待办事项
+      details: 查看当前阶段的具体开发任务和验收指标。
+      link: /plan/todo
+    - title: 开发规范
       details: 快速上手项目开发，掌握代码规范与最佳实践。
-      link: /DEVELOPMENT
-    - title: API 设计
-      details: 深入了解后端接口定义、数据结构与交互逻辑。
-      link: /API_DESIGN
-    - title: UI 设计
-      details: 探索设计系统、组件规范与视觉风格指南。
-      link: /UI_DESIGN
+      link: /standards/development
+    - title: API 规范
+      details: 了解后端接口的通用响应格式、状态码和校验规则。
+      link: /standards/api
+    - title: 设计文档
+      details: 深入了解 UI 设计系统和 API 业务设计。
+      link: /design/ui
     - title: 测试规范
       details: 学习单元测试与端到端测试的编写标准。
-      link: /TESTING
+      link: /standards/testing
     - title: AI 代理配置
       details: 了解如何配置与使用 GitHub Copilot 等 AI 辅助工具。
       link: /AGENTS

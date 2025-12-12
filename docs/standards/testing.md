@@ -109,8 +109,8 @@ pnpm run test:coverage
 
 ## 7. 相关文档
 
--   [AI 代理配置 (AGENTS.md)](../AGENTS.md)
--   [项目规划 (PLAN.md)](./PLAN.md)
--   [开发规范 (DEVELOPMENT.md)](./DEVELOPMENT.md)
--   [UI 设计 (UI_DESIGN.md)](./UI_DESIGN.md)
--   [API 设计 (API_DESIGN.md)](./API_DESIGN.md)
+-   [AI 代理配置](../../AGENTS.md)
+-   [项目计划](../plan/roadmap.md)
+-   [开发规范](./development.md)
+-   [UI 设计](../design/ui.md)
+-   [API 设计](../design/api.md)

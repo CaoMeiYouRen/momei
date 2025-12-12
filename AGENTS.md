@@ -163,7 +163,7 @@ pnpm test
 
 ### AI 辅助开发
 
-1.  **上下文**: 在提问时提供相关的 `PLAN.md` 或现有代码片段。
+1.  **上下文**: 在提问时提供相关的 `docs/plan/roadmap.md` 或现有代码片段。
 2.  **国际化意识**: 提醒 AI 生成的代码需考虑多语言支持。
 3.  **SCSS**: 要求 AI 使用 SCSS 编写样式。
 
@@ -180,8 +180,8 @@ pnpm test
 
 ## 相关文档
 
--   [项目规划 (PLAN.md)](./docs/PLAN.md)
--   [开发规范 (DEVELOPMENT.md)](./docs/DEVELOPMENT.md)
--   [UI 设计 (UI_DESIGN.md)](./docs/UI_DESIGN.md)
--   [API 设计 (API_DESIGN.md)](./docs/API_DESIGN.md)
--   [测试规范 (TESTING.md)](./docs/TESTING.md)
+-   [项目规划](./docs/plan/roadmap.md)
+-   [开发规范](./docs/standards/development.md)
+-   [UI 设计](./docs/design/ui.md)
+-   [API 设计](./docs/design/api.md)
+-   [测试规范](./docs/standards/testing.md)

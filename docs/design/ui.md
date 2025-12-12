@@ -109,8 +109,8 @@
 
 ## 7. 相关文档
 
--   [AI 代理配置 (AGENTS.md)](../AGENTS.md)
--   [项目规划 (PLAN.md)](./PLAN.md)
--   [开发规范 (DEVELOPMENT.md)](./DEVELOPMENT.md)
--   [API 设计 (API_DESIGN.md)](./API_DESIGN.md)
--   [测试规范 (TESTING.md)](./TESTING.md)
+-   [AI 代理配置](../../AGENTS.md)
+-   [项目计划](../plan/roadmap.md)
+-   [开发规范](../standards/development.md)
+-   [API 设计](./api.md)
+-   [测试规范](../standards/testing.md)
