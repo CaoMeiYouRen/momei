@@ -6,8 +6,12 @@ export default defineNuxtConfig({
         '@nuxt/eslint',
         '@nuxt/test-utils/module',
     ],
+    build: {
+        // 使用 Babel 转译不兼容的包
+        transpile: ['ms', (ctx) => !ctx.isDev && 'google-libphonenumber'],
+    },
     css: [
-        '~/styles/main.scss',
+        '@/styles/main.scss',
     ],
     eslint: {
         config: {

@@ -1,0 +1,61 @@
+import { parse } from 'better-bytes'
+import { ms } from 'ms'
+/**
+ * 基础配置
+ * 包含服务器基本设置、备案信息等
+ */
+// 雪花算法机器 ID。默认为进程 ID 对 1024 取余数，也可以手动指定
+export const MACHINE_ID = Number(process.env.MACHINE_ID || import.meta.server ? process.pid % 1024 : 0)
+// Better Auth 的基础 URL
+export const AUTH_BASE_URL = process.env.NUXT_PUBLIC_AUTH_BASE_URL || import.meta.env.NUXT_PUBLIC_AUTH_BASE_URL as string || ''
+// 联系邮箱
+export const CONTACT_EMAIL = import.meta.env.NUXT_PUBLIC_CONTACT_EMAIL as string
+// 用于加密、签名和哈希的密钥。生产环境必须设置
+export const AUTH_SECRET = process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET || ''
+// 应用名称
+export const APP_NAME = process.env.NUXT_PUBLIC_APP_NAME || import.meta.env.NUXT_PUBLIC_APP_NAME as string || '草梅Auth'
+
+// 是否写入日志到文件
+export const LOGFILES = process.env.LOGFILES === 'true'
+// 日志等级
+export const LOG_LEVEL = process.env.LOG_LEVEL || (process.env.NODE_ENV === 'development' ? 'silly' : 'http')
+// 日志文件目录
+export const LOG_DIR = process.env.LOG_DIR || 'logs'
+
+// Axiom 日志配置
+export const AXIOM_DATASET_NAME = process.env.AXIOM_DATASET_NAME
+export const AXIOM_API_TOKEN = process.env.AXIOM_API_TOKEN
+
+/**
+ * Demo 模式配置
+ */
+// 是否启用Demo模式
+export const DEMO_MODE = process.env.NUXT_PUBLIC_DEMO_MODE === 'true' || import.meta.env.NUXT_PUBLIC_DEMO_MODE === 'true'
+// Demo账号密码
+export const DEMO_PASSWORD = process.env.DEMO_PASSWORD || 'Demo@123456'
+
+
+/**
+ * 数据库配置
+ * 支持 SQLite、MySQL、PostgreSQL
+ */
+// 数据库类型：sqlite, mysql, postgres
+export const DATABASE_TYPE = DEMO_MODE ? 'sqlite' : (process.env.DATABASE_TYPE || 'sqlite')
+// 数据库连接 URL (MySQL和PostgreSQL使用)
+export const DATABASE_URL = process.env.DATABASE_URL
+// SQLite 数据库路径 (仅SQLite使用)
+export const DATABASE_PATH = DEMO_MODE ? ':memory:' : (process.env.DATABASE_PATH || 'database/caomei-auth.sqlite')
+// 是否启用 SSL 连接 (true/false)
+export const DATABASE_SSL = process.env.DATABASE_SSL === 'true'
+// 数据库字符集 (仅MySQL使用)
+export const DATABASE_CHARSET = process.env.DATABASE_CHARSET || 'utf8_general_ci'
+// 数据库时区 (仅MySQL使用)
+export const DATABASE_TIMEZONE = process.env.DATABASE_TIMEZONE || 'local'
+// 数据库表前缀
+export const DATABASE_ENTITY_PREFIX = process.env.DATABASE_ENTITY_PREFIX || 'momei_'
+
+/**
+ * Redis配置（可选）
+ */
+// Redis 连接地址
+export const REDIS_URL = process.env.REDIS_URL
