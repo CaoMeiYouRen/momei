@@ -1,4 +1,8 @@
-<h1 align="center">墨梅 (Momei)</h1>
+<h1 align="center">
+  <img src="./public/logo.png" alt="墨梅 (Momei)" width="128" />
+  <br />
+  墨梅 (Momei)
+</h1>
 <p>
   <img alt="Version" src="https://img.shields.io/github/package-json/v/CaoMeiYouRen/momei.svg" />
   <a href="https://hub.docker.com/r/caomeiyouren/momei" target="_blank">
@@ -20,6 +24,11 @@
   <a href="https://github.com/CaoMeiYouRen/momei/blob/master/LICENSE" target="_blank">
     <img alt="License: MIT" src="https://img.shields.io/github/license/CaoMeiYouRen/momei?color=yellow" />
   </a>
+</p>
+
+<p align="center">
+  <a href="https://momei.app/"><strong>🌐 主站</strong></a> &nbsp;|&nbsp;
+  <a href="https://docs.momei.app/"><strong>📚 文档站</strong></a>
 </p>
 
 > 墨梅 (Momei) - 专为技术开发者和跨境内容创作者量身定制的专业、高性能、国际化博客平台。
