@@ -193,7 +193,7 @@
                     <span class="footer__title">墨梅</span>
                 </div>
                 <p class="footer__copyright">
-                    &copy; 2025 墨梅博客平台 - 轻量创作，自在表达
+                    &copy; 2025 墨梅博客 - 轻量创作，自在表达
                 </p>
             </div>
         </footer>

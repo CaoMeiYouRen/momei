@@ -2,8 +2,8 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-    title: '墨梅博客平台',
-    description: '墨梅博客平台项目文档',
+    title: '墨梅博客',
+    description: '墨梅博客项目文档',
     lang: 'zh-CN',
     // 显示最后更新时间
     lastUpdated: true,
