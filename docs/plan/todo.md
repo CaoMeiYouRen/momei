@@ -17,7 +17,7 @@
     -   验收: ESLint, Stylelint, Commitlint 配置生效。
 -   [x] **CI/CD 基础**
     -   验收: GitHub Actions 配置完成，PR 自动运行 Lint 和 Test。
--   [ ] **数据库连接**
+-   [x] **数据库连接**
     -   验收: 本地 SQLite 连接成功，TypeORM 实体同步正常。
 
 ### 2. 用户系统 (User System)
