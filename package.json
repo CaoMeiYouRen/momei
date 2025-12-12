@@ -22,19 +22,25 @@
   },
   "dependencies": {
     "animate.css": "^4.1.1",
+    "better-sqlite3": "^12.5.0",
     "dayjs": "^1.11.19",
     "fs-extra": "^11.3.2",
     "lodash-es": "^4.17.21",
+    "mysql2": "^3.15.3",
     "normalize.css": "^8.0.1",
     "nuxt": "^4.2.2",
     "p-queue": "^9.0.1",
+    "pg": "^8.16.3",
     "push-all-in-one": "^4.5.1",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.28",
     "vue": "^3.5.25",
     "vue-router": "^4.6.3"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
       "@parcel/watcher",
+      "better-sqlite3",
       "esbuild",
       "unrs-resolver"
     ],
