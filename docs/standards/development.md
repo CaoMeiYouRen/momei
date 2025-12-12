@@ -32,7 +32,7 @@
 
     -   `components/`: Vue 组件目录。
     -   `pages/`: Nuxt 页面路由目录。
-    -   `assets/styles/`: 样式文件目录 (SCSS)。
+    -   `styles/`: 样式文件目录 (SCSS)。
     -   `public/`: 公共静态资源目录（如图片、字体等）。
     -   `plugins/`: Nuxt 插件目录。
     -   `middleware/`: 路由中间件目录。

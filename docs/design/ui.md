@@ -104,7 +104,7 @@
 
 1.  **安装 PrimeVue**: 配置 Nuxt 模块，引入 Aura 主题。
 2.  **定制主题**: 使用 PrimeVue 的 Design Token 或 CSS 变量覆盖默认颜色，匹配"墨梅"色调。
-3.  **全局样式**: 在 `assets/styles/main.scss` 中定义基础字体、重置样式和动画类。
+3.  **全局样式**: 在 `styles/main.scss` 中定义基础字体、重置样式和动画类。
 4.  **组件开发**: 逐步替换/开发 Header, Footer, ArticleCard 等核心组件。
 
 ## 7. 相关文档

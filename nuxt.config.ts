@@ -7,7 +7,7 @@ export default defineNuxtConfig({
         '@nuxt/test-utils/module',
     ],
     css: [
-        '~/assets/styles/main.scss',
+        '~/styles/main.scss',
     ],
     eslint: {
         config: {

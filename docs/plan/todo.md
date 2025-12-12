@@ -12,10 +12,10 @@
 
 ### 1. 基础设施与配置
 
--   [ ] **项目初始化**
+-   [x] **项目初始化**
     -   验收: Nuxt 3 项目结构建立，Git 仓库配置完成。
     -   验收: ESLint, Stylelint, Commitlint 配置生效。
--   [ ] **CI/CD 基础**
+-   [x] **CI/CD 基础**
     -   验收: GitHub Actions 配置完成，PR 自动运行 Lint 和 Test。
 -   [ ] **数据库连接**
     -   验收: 本地 SQLite 连接成功，TypeORM 实体同步正常。
