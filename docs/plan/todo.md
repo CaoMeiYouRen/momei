@@ -83,3 +83,12 @@
 -   [ ] 集成 AI 标题生成 (Post-MVP)
 -   [ ] RSS 订阅源 (Post-MVP)
 -   [ ] 评论系统 (长期)
+
+## 相关文档
+
+-   [AI 代理配置](../../AGENTS.md)
+-   [项目计划](./roadmap.md)
+-   [开发规范](../standards/development.md)
+-   [UI 设计](../design/ui.md)
+-   [API 设计](../design/api.md)
+-   [测试规范](../standards/testing.md)

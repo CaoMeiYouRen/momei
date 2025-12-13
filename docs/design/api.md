@@ -52,7 +52,19 @@ API 路由位于 `server/api` 目录下。
 
 -   `POST /api/auth/*`: better-auth 处理的所有认证路由。
 
-### 4.2 Posts
+### 4.2 Users (Custom APIs)
+
+大部分用户管理功能由 `better-auth` 及其 Admin 插件提供，无需重复开发。
+
+-   **Admin 功能**: 使用 `better-auth` Admin Plugin 提供的接口。
+    -   `listUsers`, `setRole`, `banUser`, `impersonateUser` 等。
+-   **User 功能**:
+    -   `getSession`: 获取当前用户信息。
+    -   `updateUser`: 更新个人资料。
+
+如果确有 `better-auth` 无法满足的特定业务逻辑（如复杂的头像上传处理），再考虑添加自定义接口。
+
+### 4.3 Posts
 
 -   `GET /api/posts`: 获取文章列表 (分页, 筛选)。
 -   `GET /api/posts/:id`: 获取文章详情。
