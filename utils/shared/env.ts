@@ -13,7 +13,7 @@ export const CONTACT_EMAIL = import.meta.env.NUXT_PUBLIC_CONTACT_EMAIL as string
 // 用于加密、签名和哈希的密钥。生产环境必须设置
 export const AUTH_SECRET = process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET || ''
 // 应用名称
-export const APP_NAME = process.env.NUXT_PUBLIC_APP_NAME || import.meta.env.NUXT_PUBLIC_APP_NAME as string || '草梅Auth'
+export const APP_NAME = process.env.NUXT_PUBLIC_APP_NAME || import.meta.env.NUXT_PUBLIC_APP_NAME as string || '墨梅博客'
 
 // 是否写入日志到文件
 export const LOGFILES = process.env.LOGFILES === 'true'
@@ -59,3 +59,33 @@ export const DATABASE_ENTITY_PREFIX = process.env.DATABASE_ENTITY_PREFIX || 'mom
  */
 // Redis 连接地址
 export const REDIS_URL = process.env.REDIS_URL
+
+
+/**
+ * 邮件服务配置
+ * SMTP 服务器配置和邮件发送限制
+ */
+// SMTP 服务器地址
+export const EMAIL_HOST = process.env.EMAIL_HOST
+// SMTP 服务器端口
+export const EMAIL_PORT = Number(process.env.EMAIL_PORT) || 587
+// 是否使用SSL连接邮件服务器
+export const EMAIL_SECURE = process.env.EMAIL_SECURE === 'true'
+// 邮件发送者地址
+export const EMAIL_USER = process.env.EMAIL_USER
+// 邮件发送者密码
+export const EMAIL_PASS = process.env.EMAIL_PASS
+// 默认邮件发送者名称和地址
+export const EMAIL_FROM = process.env.EMAIL_FROM
+// 邮箱验证码每日发送上限（全局限制）
+export const EMAIL_DAILY_LIMIT = Number(process.env.EMAIL_DAILY_LIMIT || 100)
+// 单个邮箱每日验证码发送上限
+export const EMAIL_SINGLE_USER_DAILY_LIMIT = Number(process.env.EMAIL_SINGLE_USER_DAILY_LIMIT || 5)
+// 限流时间窗口
+export const EMAIL_LIMIT_WINDOW = Number(process.env.EMAIL_LIMIT_WINDOW || ms('1d') / 1000)
+// 邮件验证码有效时间（秒）
+export const EMAIL_EXPIRES_IN = Number(process.env.EMAIL_EXPIRES_IN || 300)
+
+// 匿名和临时邮箱配置
+export const ANONYMOUS_EMAIL_DOMAIN_NAME = process.env.ANONYMOUS_EMAIL_DOMAIN_NAME || 'anonymous.com'
+export const TEMP_EMAIL_DOMAIN_NAME = process.env.TEMP_EMAIL_DOMAIN_NAME || 'example.com'
