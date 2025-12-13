@@ -22,12 +22,24 @@
 
 ### 2. 用户系统 (User System)
 
--   [ ] **集成 better-auth**
-    -   验收: 实现 邮箱密码登录 和 用户名密码登录 流程。
-    -   验收: 用户 Session 持久化 (Cookie)。
--   [ ] **用户角色管理**
-    -   验收: 数据库中区分 Admin 、Author、User、Visitor 等角色。
-    -   验收: 后端中间件能拦截非 Admin 用户的写操作。
+-   [ ] **数据库实体同步 (Database Entities)**
+    -   验收: 确认 `User`, `Account`, `Session`, `Verification`, `TwoFactor` 表结构正确创建。
+    -   验收: 数据库迁移/同步脚本执行无误。
+-   [ ] **集成 better-auth (Backend)**
+    -   验收: `/api/auth/*` 路由正常工作 (SignIn, SignUp, SignOut, Session)。
+    -   验收: 实现 邮箱/密码 注册与登录流程。
+    -   验收: 实现 GitHub OAuth 登录流程。
+    -   验收: 用户 Session 持久化 (Cookie) 且 SSR 兼容。
+-   [ ] **用户界面开发 (Frontend Pages)**
+    -   验收: **登录页 (`/login`)**: 包含邮箱登录表单和 OAuth 按钮。
+    -   验收: **注册页 (`/register`)**: 包含注册表单和验证逻辑。
+    -   验收: **个人设置页 (`/settings`)**: 允许用户修改昵称、头像。
+-   [ ] **用户角色与权限 (RBAC)**
+    -   验收: 数据库 `User` 表包含 `role` 字段 (Admin, Author, User, Visitor)。
+    -   验收: 实现后端中间件 `server/middleware/auth.ts` 拦截未授权请求。
+    -   验收: **管理后台-用户列表 (`/admin/users`)**: 仅管理员可访问，支持修改用户角色。
+-   [ ] **用户相关 API (Custom APIs)**
+    -   验收: `PUT /api/admin/users/:id/role`: (Admin) 修改用户角色。
 
 ### 3. 内容管理 (Content Management)
 

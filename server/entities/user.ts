@@ -65,7 +65,7 @@ export class User extends BaseEntity {
     /**
      * 用户的角色。默认为 user。管理员为 admin。
      */
-    @CustomColumn({ type: 'varchar', length: 32, nullable: true, default: 'user' })
+    @CustomColumn({ type: 'varchar', length: 128, nullable: true, default: '' })
     role: string
 
     /**

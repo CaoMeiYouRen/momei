@@ -17,6 +17,7 @@
 ## 2. 认证与权限设计 (Authentication & Authorization Design)
 
 采用 **better-auth** 进行全栈认证管理。
+相关文档（需要时必须读取）：https://www.better-auth.com/llms.txt
 
 -   **认证方式**: 支持 Email/Password, OAuth (GitHub, Google 等)。
 -   **权限控制**: 基于角色的访问控制 (RBAC)。
