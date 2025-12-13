@@ -44,7 +44,7 @@ export const DATABASE_TYPE = DEMO_MODE ? 'sqlite' : (process.env.DATABASE_TYPE |
 // 数据库连接 URL (MySQL和PostgreSQL使用)
 export const DATABASE_URL = process.env.DATABASE_URL
 // SQLite 数据库路径 (仅SQLite使用)
-export const DATABASE_PATH = DEMO_MODE ? ':memory:' : (process.env.DATABASE_PATH || 'database/caomei-auth.sqlite')
+export const DATABASE_PATH = DEMO_MODE ? ':memory:' : (process.env.DATABASE_PATH || 'database/momei.sqlite')
 // 是否启用 SSL 连接 (true/false)
 export const DATABASE_SSL = process.env.DATABASE_SSL === 'true'
 // 数据库字符集 (仅MySQL使用)

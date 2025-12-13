@@ -65,7 +65,7 @@ const format = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSSZ' }),
     winston.format.errors({ stack: true }),
     winston.format.splat(),
-    nestWinstonModuleUtilities.format.nestLike('caomei-auth', {
+    nestWinstonModuleUtilities.format.nestLike('momei', {
         colors: false,
         prettyPrint: true,
     }),
@@ -77,7 +77,7 @@ const consoleFormat = winston.format.combine(
     winston.format.errors({ stack: true }),
     winston.format.ms(),
     winston.format.splat(),
-    nestWinstonModuleUtilities.format.nestLike('caomei-auth', {
+    nestWinstonModuleUtilities.format.nestLike('momei', {
         colors: !isServerlessEnvironment(), // 在无服务器环境中禁用颜色
         prettyPrint: true,
     }),

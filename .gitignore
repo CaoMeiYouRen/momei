@@ -31,3 +31,5 @@ logs
 # VitePress
 docs/.vitepress/dist
 docs/.vitepress/cache
+
+*.sqlite
