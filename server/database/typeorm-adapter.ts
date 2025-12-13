@@ -48,8 +48,6 @@ function withApplyDefault(
 export const typeormAdapter =
     (dataSource: DataSource) => (options: BetterAuthOptions): DBAdapter => {
         const schema = getAuthTables(options)
-        // console.log('dataSource.options.entityPrefix', dataSource.options.entityPrefix)
-        // console.log('dataSource.options.namingStrategy', dataSource.options.namingStrategy)
         const createTransform = () => {
             function getField(model: string, field: string): string {
                 if (field === 'id') {
@@ -295,12 +293,6 @@ export const typeormAdapter =
                             transformedData[key] = data[field.fieldName || key]
                         }
                     }
-                    // console.log('transformOutput result keys:', Object.keys(transformedData))
-
-                    // Fix: Remove nested user field if present in user model
-                    // if (model === 'user' && 'user' in transformedData) {
-                    //     delete transformedData.user
-                    // }
 
                     return transformedData
                 },
