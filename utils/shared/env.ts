@@ -27,6 +27,13 @@ export const AXIOM_DATASET_NAME = process.env.AXIOM_DATASET_NAME
 export const AXIOM_API_TOKEN = process.env.AXIOM_API_TOKEN
 
 /**
+ * 管理员配置
+ */
+// 管理员用户ID列表
+export const ADMIN_USER_IDS = process.env.ADMIN_USER_IDS?.split(',').map((e) => e.trim()).filter(Boolean) || []
+
+
+/**
  * Demo 模式配置
  */
 // 是否启用Demo模式
@@ -89,3 +96,20 @@ export const EMAIL_EXPIRES_IN = Number(process.env.EMAIL_EXPIRES_IN || 300)
 // 匿名和临时邮箱配置
 export const ANONYMOUS_EMAIL_DOMAIN_NAME = process.env.ANONYMOUS_EMAIL_DOMAIN_NAME || 'anonymous.com'
 export const TEMP_EMAIL_DOMAIN_NAME = process.env.TEMP_EMAIL_DOMAIN_NAME || 'example.com'
+
+
+// 是否要求邮箱验证。若启用，则用户必须在登录前验证他们的邮箱。仅在使用邮箱密码登录时生效。
+export const EMAIL_REQUIRE_VERIFICATION = process.env.EMAIL_REQUIRE_VERIFICATION === 'true'
+
+
+// 短信验证码有效时间（秒）
+export const PHONE_EXPIRES_IN = Number(process.env.PHONE_EXPIRES_IN || 300)
+
+/**
+ * 社交登录配置
+ */
+// 匿名登录配置。如果启用，则允许用户不填写用户名、密码、邮箱的情况下即可直接登录
+export const ANONYMOUS_LOGIN_ENABLED = process.env.ANONYMOUS_LOGIN_ENABLED === 'true'
+// GitHub 配置
+export const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID
+export const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET
