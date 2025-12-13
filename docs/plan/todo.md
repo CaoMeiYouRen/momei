@@ -23,10 +23,10 @@
 ### 2. 用户系统 (User System)
 
 -   [ ] **集成 better-auth**
-    -   验收: 实现 GitHub OAuth 登录流程。
+    -   验收: 实现 邮箱密码登录 和 用户名密码登录 流程。
     -   验收: 用户 Session 持久化 (Cookie)。
 -   [ ] **用户角色管理**
-    -   验收: 数据库中区分 Admin 和 Visitor 角色。
+    -   验收: 数据库中区分 Admin 、Author、User、Visitor 等角色。
     -   验收: 后端中间件能拦截非 Admin 用户的写操作。
 
 ### 3. 内容管理 (Content Management)
