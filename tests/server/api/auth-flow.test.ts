@@ -1,10 +1,12 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest'
 import { setup } from '@nuxt/test-utils/e2e'
+import type { DataSource } from 'typeorm'
 import { generateRandomString } from '@/utils/shared/random'
+import type { auth as Auth } from '@/lib/auth'
 
 describe('Auth Flow (Direct API)', async () => {
-    let auth: any
-    let dataSource: any
+    let auth: typeof Auth
+    let dataSource: DataSource
 
     await setup({
         dev: true,
@@ -68,6 +70,7 @@ describe('Auth Flow (Direct API)', async () => {
     })
 
     const testUser = {
+        username: `testuser-${Date.now()}`,
         email: `test-direct-${Date.now()}@example.com`,
         password: 'password123',
         name: 'Test User',
@@ -80,6 +83,7 @@ describe('Auth Flow (Direct API)', async () => {
                 email: testUser.email,
                 password: testUser.password,
                 name: testUser.name,
+                username: testUser.username,
             },
         })
 
@@ -92,7 +96,7 @@ describe('Auth Flow (Direct API)', async () => {
         // console.log('SignUp Res:', signUpRes)
         // expect(signUpRes.session).toBeDefined()
 
-        // 2. Sign In
+        // 2. Sign In with Email
         const signInRes = await auth.api.signInEmail({
             body: {
                 email: testUser.email,
@@ -103,6 +107,19 @@ describe('Auth Flow (Direct API)', async () => {
         expect(signInRes).toBeDefined()
         expect(signInRes.user).toBeDefined()
         expect(signInRes.user.email).toBe(testUser.email)
+
+
+        // 2. Sign In with Username
+        const signInUsernameRes = await auth.api.signInUsername({
+            body: {
+                username: testUser.username,
+                password: testUser.password,
+            },
+        })
+
+        expect(signInUsernameRes).toBeDefined()
+        expect(signInUsernameRes?.user).toBeDefined()
+        expect(signInUsernameRes?.user?.username).toBe(testUser.username)
         // expect(signInRes.session).toBeDefined()
 
         // If session is not returned, it might be because we are not passing headers to store the cookie?
