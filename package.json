@@ -18,7 +18,8 @@
     "test:coverage": "vitest run --coverage",
     "docs:dev": "vitepress dev docs --open",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "deploy:wrangler": "wrangler deploy"
   },
   "dependencies": {
     "@axiomhq/winston": "^1.3.1",
@@ -60,7 +61,9 @@
       "@parcel/watcher",
       "better-sqlite3",
       "esbuild",
-      "unrs-resolver"
+      "sharp",
+      "unrs-resolver",
+      "workerd"
     ],
     "overrides": {
       "vite": "$vite",
@@ -106,7 +109,8 @@
     "vite": "^7.2.6",
     "vitepress": "^1.6.4",
     "vitest": "^4.0.15",
-    "vue-tsc": "^3.1.8"
+    "vue-tsc": "^3.1.8",
+    "wrangler": "^4.54.0"
   },
   "author": "CaoMeiYouRen",
   "description": "墨梅 - 轻量跨语言博客创作平台。支持旧博客无缝迁移、多语言内容管理、简洁 Markdown 创作，基于 Nuxt3/Vue/TS 构建，为创作者提供无冗余的高效内容工具。",
