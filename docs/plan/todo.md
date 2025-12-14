@@ -22,7 +22,7 @@
 
 ### 2. 用户系统 (User System)
 
--   [ ] **数据库实体同步 (Database Entities)**
+-   [x] **数据库实体同步 (Database Entities)**
     -   验收: 确认 `User`, `Account`, `Session`, `Verification`, `TwoFactor` 表结构正确创建。
     -   验收: 数据库迁移/同步脚本执行无误。
 -   [ ] **集成 better-auth (Backend)**

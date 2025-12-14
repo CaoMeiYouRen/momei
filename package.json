@@ -28,6 +28,7 @@
     "better-auth-localization": "^2.2.2",
     "better-bytes": "^1.2.4",
     "better-sqlite3": "^12.5.0",
+    "class-transformer": "^0.5.1",
     "dayjs": "^1.11.19",
     "fs-extra": "^11.3.2",
     "google-libphonenumber": "^3.2.43",
