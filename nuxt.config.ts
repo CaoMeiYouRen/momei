@@ -25,6 +25,10 @@ export default defineNuxtConfig({
             // 为匹配 Cloudflare 路由匹配规则，设置 nitro 选项 autoSubfolderIndex 为 false 。
             autoSubfolderIndex: false,
         },
+        // 可选：禁用 unenv 对 debug 的默认适配
+        unenv: {
+            external: ['debug'],
+        },
         esbuild: {
             options: {
                 target: 'esnext',
