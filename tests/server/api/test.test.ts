@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { setup, $fetch } from '@nuxt/test-utils/e2e'
-import { generateRandomString } from '../../../utils/shared/random'
+import { generateRandomString } from '@/utils/shared/random'
 
 describe('API test', async () => {
     await setup({

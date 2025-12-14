@@ -1,10 +1,26 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { DataSource } from 'typeorm'
+import { setup } from '@nuxt/test-utils/e2e'
 import { initializeDB } from '@/server/database/index'
 import { User } from '@/server/entities/user'
+import { generateRandomString } from '@/utils/shared/random'
 
-describe('Database Connection', () => {
+describe('Database Connection', async () => {
     let dataSource: DataSource
+
+    await setup({
+        // server: true,
+        // dev: true,
+        port: 3001,
+        env: {
+            DATABASE_TYPE: 'sqlite',
+            DATABASE_PATH: ':memory:',
+            LOGFILES: 'false',
+            LOG_LEVEL: 'error',
+            AUTH_SECRET: generateRandomString(32),
+            NODE_ENV: 'test',
+        },
+    })
 
     beforeAll(async () => {
         dataSource = await initializeDB()
