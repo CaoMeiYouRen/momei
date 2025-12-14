@@ -25,7 +25,7 @@
 -   [x] **数据库实体同步 (Database Entities)**
     -   验收: 确认 `User`, `Account`, `Session`, `Verification`, `TwoFactor` 表结构正确创建。
     -   验收: 数据库迁移/同步脚本执行无误。
--   [ ] **集成 better-auth (Backend)**
+-   [x] **集成 better-auth (Backend)**
     -   验收: `/api/auth/*` 路由正常工作 (SignIn, SignUp, SignOut, Session)。
     -   验收: 实现 邮箱/密码 注册与登录流程。
     -   验收: 实现 GitHub OAuth 登录流程。

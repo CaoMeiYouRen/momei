@@ -5,7 +5,7 @@ import { generateRandomString } from '@/utils/shared/random'
 describe('API test', async () => {
     await setup({
         // server: true,
-        // dev: true,
+        dev: true,
         env: {
             DATABASE_TYPE: 'sqlite',
             DATABASE_PATH: ':memory:',
