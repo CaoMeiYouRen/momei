@@ -1,4 +1,4 @@
-import { auth } from '@/libs/auth'
+import { auth } from '@/lib/auth'
 import { publicPaths } from '@/utils/shared/public-paths'
 import logger from '@/server/utils/logger'
 
@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
 
     // 白名单路径
     if (publicPaths.some((path) => event.path.startsWith(path))) {
-        
+
     }
 
 })

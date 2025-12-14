@@ -1,5 +1,5 @@
 import logger from '@/server/utils/logger'
-import { auth } from '@/libs/auth'
+import { auth } from '@/lib/auth'
 
 export default defineEventHandler(async (event) => {
     // 只记录 API 请求
