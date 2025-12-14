@@ -83,7 +83,7 @@
 -   **样式**: SCSS。
 -   **数据库**: PostgreSQL (MVP 推荐使用 Supabase 或类似托管服务)。
 -   **认证**: NextAuth.js / NuxtAuth。
--   **部署**: Vercel / Netlify / Docker。
+-   **部署**: Vercel / Netlify / Docker (注: 暂不支持 Cloudflare Workers，因 TypeORM/Debug 包兼容性问题)。
 
 ### 质量保证策略
 

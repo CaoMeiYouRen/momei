@@ -83,6 +83,16 @@
 -   Node.js >= 20
 -   PNPM (推荐)
 
+## ☁️ 部署说明
+
+### Cloudflare Workers 支持情况
+
+目前 **不支持** 部署到 Cloudflare Workers。
+
+**原因**: 项目依赖的 `typeorm` 和 `debug` 包在 Cloudflare Workers 的边缘运行时环境中存在兼容性问题。具体表现为 `unenv` 对 `debug` 包的适配不完整，导致打包时无法正确解析模块导出。
+
+建议使用 Vercel、Netlify 或 Docker 进行部署。
+
 ## 🚀 快速开始
 
 ### 安装依赖
