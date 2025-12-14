@@ -9,7 +9,7 @@ describe('Database Connection', async () => {
     let dataSource: DataSource
 
     await setup({
-        // server: true,
+        server: false,
         // dev: true,
         env: {
             DATABASE_TYPE: 'sqlite',
