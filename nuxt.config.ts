@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-    compatibilityDate: '2025-03-15',
+    compatibilityDate: '2025-12-01',
     devtools: { enabled: true },
     modules: [
         '@nuxt/eslint',
@@ -10,7 +10,7 @@ export default defineNuxtConfig({
     ],
     build: {
         // 使用 Babel 转译不兼容的包
-        transpile: ['ms', (ctx) => !ctx.isDev && 'google-libphonenumber'],
+        transpile: ['ms', 'debug', (ctx) => !ctx.isDev && 'google-libphonenumber'],
     },
     css: [
         '@/styles/main.scss',
@@ -21,9 +21,6 @@ export default defineNuxtConfig({
         },
     },
     nitro: {
-        alias: {
-            debug: fileURLToPath(new URL('./lib/debug-polyfill.ts', import.meta.url)),
-        },
         prerender: {
             // 为匹配 Cloudflare 路由匹配规则，设置 nitro 选项 autoSubfolderIndex 为 false 。
             autoSubfolderIndex: false,
