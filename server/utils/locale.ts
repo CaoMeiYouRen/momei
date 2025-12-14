@@ -3,7 +3,7 @@
  * 用于检测和管理用户的语言偏好
  */
 
-import type { H3Event } from 'h3'
+import { type H3Event, parseCookies, getHeader, setCookie } from 'h3'
 import { SUPPORTED_LOCALES, DEFAULT_LOCALE, FALLBACK_LOCALE, type SupportedLocale } from '@/utils/shared/locale'
 
 export { SUPPORTED_LOCALES, DEFAULT_LOCALE, FALLBACK_LOCALE, type SupportedLocale }

@@ -8,7 +8,10 @@ export class SnakeCaseNamingStrategy extends DefaultNamingStrategy implements Na
     }
 
     override columnName(propertyName: string, customName: string, embeddedPrefixes: string[]): string {
-        return snakeCase(embeddedPrefixes.join('_')) + (customName ? snakeCase(customName) : snakeCase(propertyName))
+        if (embeddedPrefixes.length) {
+            return `${snakeCase(embeddedPrefixes.join('_'))}_${customName ? snakeCase(customName) : snakeCase(propertyName)}`
+        }
+        return customName ? snakeCase(customName) : snakeCase(propertyName)
     }
 
     override relationName(propertyName: string): string {

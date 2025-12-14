@@ -1,4 +1,3 @@
-import { parse } from 'better-bytes'
 import { ms } from 'ms'
 /**
  * 基础配置

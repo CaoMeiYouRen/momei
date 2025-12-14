@@ -1,5 +1,13 @@
-import { describe, it, expect } from 'vitest'
-import { normalizeLocale, parseAcceptLanguage, DEFAULT_LOCALE } from './locale'
+import { describe, it, expect, vi } from 'vitest'
+import { parseCookies, getHeader, type H3Event } from 'h3'
+import { normalizeLocale, parseAcceptLanguage, DEFAULT_LOCALE, getLocaleFromCookie, getLocaleFromHeaders, detectUserLocale, getUserLocale } from './locale'
+
+// Mock h3 utils
+vi.mock('h3', () => ({
+    parseCookies: vi.fn(),
+    getHeader: vi.fn(),
+    setCookie: vi.fn(),
+}))
 
 describe('server/utils/locale.ts', () => {
     describe('normalizeLocale', () => {
@@ -52,6 +60,98 @@ describe('server/utils/locale.ts', () => {
 
         it('should return default if empty', () => {
             expect(parseAcceptLanguage('')).toEqual([DEFAULT_LOCALE])
+        })
+    })
+
+    describe('getLocaleFromCookie', () => {
+        it('should return locale from cookie', () => {
+            vi.mocked(parseCookies).mockReturnValue({ locale: 'zh-Hans' })
+            const event = {} as H3Event
+            expect(getLocaleFromCookie(event)).toBe('zh-Hans')
+        })
+
+        it('should normalize locale from cookie', () => {
+            vi.mocked(parseCookies).mockReturnValue({ locale: 'zh-CN' })
+            const event = {} as H3Event
+            expect(getLocaleFromCookie(event)).toBe('zh-Hans')
+        })
+
+        it('should return null if no locale in cookie', () => {
+            vi.mocked(parseCookies).mockReturnValue({})
+            const event = {} as H3Event
+            expect(getLocaleFromCookie(event)).toBeNull()
+        })
+    })
+
+    describe('getLocaleFromHeaders', () => {
+        it('should return locale from custom header', () => {
+            vi.mocked(getHeader).mockImplementation((event, name) => {
+                if (name === 'x-locale') {
+                    return 'zh-Hans'
+                }
+                return undefined
+            })
+            const event = {} as H3Event
+            expect(getLocaleFromHeaders(event)).toBe('zh-Hans')
+        })
+
+        it('should return locale from accept-language', () => {
+            vi.mocked(getHeader).mockImplementation((event, name) => {
+                if (name === 'accept-language') {
+                    return 'zh-CN'
+                }
+                return undefined
+            })
+            const event = {} as H3Event
+            expect(getLocaleFromHeaders(event)).toBe('zh-Hans')
+        })
+
+        it('should return default if no headers', () => {
+            vi.mocked(getHeader).mockReturnValue(undefined)
+            const event = {} as H3Event
+            expect(getLocaleFromHeaders(event)).toBe(DEFAULT_LOCALE)
+        })
+    })
+
+    describe('detectUserLocale', () => {
+        it('should prioritize cookie', () => {
+            vi.mocked(parseCookies).mockReturnValue({ locale: 'zh-Hans' })
+            vi.mocked(getHeader).mockReturnValue('en-US')
+            const event = {} as H3Event
+            expect(detectUserLocale(event)).toBe('zh-Hans')
+        })
+
+        it('should fallback to header', () => {
+            vi.mocked(parseCookies).mockReturnValue({})
+            vi.mocked(getHeader).mockImplementation((event, name) => {
+                if (name === 'accept-language') {
+                    return 'en-US'
+                }
+                return undefined
+            })
+            const event = {} as H3Event
+            expect(detectUserLocale(event)).toBe('default')
+        })
+    })
+
+    describe('getUserLocale', () => {
+        it('should get locale from url', () => {
+            const request = new Request('http://localhost/?locale=zh-Hans')
+            expect(getUserLocale(request)).toBe('zh-Hans')
+        })
+
+        it('should get locale from cookie header', () => {
+            const request = new Request('http://localhost/', {
+                headers: { cookie: 'locale=zh-Hans' },
+            })
+            expect(getUserLocale(request)).toBe('zh-Hans')
+        })
+
+        it('should get locale from accept-language header', () => {
+            const request = new Request('http://localhost/', {
+                headers: { 'accept-language': 'zh-CN' },
+            })
+            expect(getUserLocale(request)).toBe('zh-Hans')
         })
     })
 })

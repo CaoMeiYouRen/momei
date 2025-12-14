@@ -6,7 +6,6 @@ describe('API test', async () => {
     await setup({
         // server: true,
         // dev: true,
-        port: 3001,
         env: {
             DATABASE_TYPE: 'sqlite',
             DATABASE_PATH: ':memory:',

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { maskEmail, maskPhone } from './privacy'
+import { maskEmail, maskPhone, maskUserId, maskUsername, maskIP, maskString } from './privacy'
 
 describe('privacy.ts', () => {
     describe('maskEmail', () => {
@@ -43,18 +43,67 @@ describe('privacy.ts', () => {
             // If parsing fails, it strips non-digits and masks
             // 13800138000 is valid, so it gets formatted.
             expect(maskPhone('13800138000')).toBe('+86 138 **** 8000')
+        })
+    })
 
-            // Try a very long number that might cause parse to throw
-            // 20 digits
-            const longNum = '12345678901234567890'
-            // If parse throws, it should be masked as 123****7890
-            // If parse does NOT throw but is invalid, it returns original.
-            // Let's check what happens. If it returns original, we accept it.
-            // But to test fallback, we really need to trigger the catch block.
-            // If we can't easily trigger it, we might just skip this specific assertion or accept both.
-            // For now, let's assume the previous failure meant it didn't throw.
-            // Let's just remove the problematic assertion if we can't find a reliable way to trigger catch.
-            // Or we can mock phoneUtil to throw.
+    describe('maskUserId', () => {
+        it('should mask short user id', () => {
+            expect(maskUserId('12345678')).toBe('12***78')
+        })
+
+        it('should mask long user id', () => {
+            expect(maskUserId('1234567890')).toBe('1234****7890')
+        })
+
+        it('should return original if invalid', () => {
+            expect(maskUserId('')).toBe('')
+        })
+    })
+
+    describe('maskUsername', () => {
+        it('should not mask short username', () => {
+            expect(maskUsername('ab')).toBe('ab')
+        })
+
+        it('should mask medium username', () => {
+            expect(maskUsername('abcd')).toBe('a***d')
+        })
+
+        it('should mask long username', () => {
+            expect(maskUsername('abcde')).toBe('ab***de')
+        })
+
+        it('should return original if invalid', () => {
+            expect(maskUsername('')).toBe('')
+        })
+    })
+
+    describe('maskIP', () => {
+        it('should mask IPv4', () => {
+            expect(maskIP('192.168.1.1')).toBe('192.168.1.***')
+        })
+
+        it('should mask IPv6', () => {
+            expect(maskIP('2001:0db8:85a3:0000:0000:8a2e:0370:7334')).toBe('2001:0db8:85a3:0000:0000:8a2e:***:***')
+        })
+
+        it('should return original if invalid', () => {
+            expect(maskIP('invalid')).toBe('invalid')
+            expect(maskIP('')).toBe('')
+        })
+    })
+
+    describe('maskString', () => {
+        it('should mask string', () => {
+            expect(maskString('1234567890')).toBe('12***90')
+        })
+
+        it('should mask short string', () => {
+            expect(maskString('1234')).toBe('****')
+        })
+
+        it('should return original if invalid', () => {
+            expect(maskString('')).toBe('')
         })
     })
 })

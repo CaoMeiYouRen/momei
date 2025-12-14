@@ -11,13 +11,12 @@ describe('Database Connection', async () => {
     await setup({
         // server: true,
         // dev: true,
-        port: 3001,
         env: {
             DATABASE_TYPE: 'sqlite',
             DATABASE_PATH: ':memory:',
             LOGFILES: 'false',
             LOG_LEVEL: 'error',
-            AUTH_SECRET: generateRandomString(32),
+            // AUTH_SECRET: generateRandomString(32),
             NODE_ENV: 'test',
         },
     })
