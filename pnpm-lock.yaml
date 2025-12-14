@@ -128,6 +128,9 @@ importers:
       '@nuxt/test-utils':
         specifier: ^3.21.0
         version: 3.21.0(happy-dom@20.0.11)(magicast@0.5.1)(typescript@5.9.3)(vitest@4.0.15(@types/node@24.3.0)(happy-dom@20.0.11)(jiti@2.6.1)(sass@1.96.0)(terser@5.44.1)(yaml@2.8.2))
+      '@types/debug':
+        specifier: ^4.1.12
+        version: 4.1.12
       '@types/fs-extra':
         specifier: ^11.0.4
         version: 11.0.4
