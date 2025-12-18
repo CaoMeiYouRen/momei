@@ -28,7 +28,7 @@
 -   [x] **集成 better-auth (Backend)**
     -   [x] 验收: `/api/auth/*` 路由正常工作 (SignIn, SignUp, SignOut, Session)。
     -   [x] 验收: 实现 邮箱/密码 注册与登录流程；实现 用户名/密码 登录流程。
-    -   验收: 实现 GitHub OAuth 登录流程。
+    -   [-] 验收: 实现 GitHub OAuth 登录流程。
     -   验收: 用户 Session 持久化 (Cookie) 且 SSR 兼容。
 -   [ ] **用户界面开发 (Frontend Pages)**
     -   验收: **登录页 (`/login`)**: 包含邮箱登录表单和 OAuth 按钮。
@@ -37,9 +37,6 @@
 -   [ ] **用户角色与权限 (RBAC)**
     -   验收: 数据库 `User` 表包含 `role` 字段 (Admin, Author, User, Visitor)。
     -   验收: 实现后端中间件 `server/middleware/auth.ts` 拦截未授权请求。
-    -   验收: **管理后台-用户列表 (`/admin/users`)**: 仅管理员可访问，支持修改用户角色。
--   [ ] **用户相关 API (Custom APIs)**
-    -   验收: `PUT /api/admin/users/:id/role`: (Admin) 修改用户角色。
 
 ### 3. 内容管理 (Content Management)
 
