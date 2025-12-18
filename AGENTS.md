@@ -159,6 +159,8 @@ pnpm build
 -   `build`: 构建相关
 -   `chore`: 构建/工具链变动
 
+commit message 使用中文描述变更内容。
+
 ### 3. 部署
 
 -   支持 Vercel/Netlify 部署 (推荐)
@@ -174,9 +176,10 @@ pnpm build
 
 ### AI 辅助开发
 
-1.  **上下文**: 在提问时提供相关的 `docs/plan/roadmap.md`、`docs/plan/todo.md` 或现有代码片段。
-2.  **国际化意识**: 提醒 AI 生成的代码需考虑多语言支持。
-3.  **SCSS**: 要求 AI 使用 SCSS 编写样式。
+1.  **上下文理解**: 在使用 Copilot 时，确保提供足够的上下文信息。
+2.  **必备上下文**：必须读取[项目规划](./docs/plan/roadmap.md)和[待办事项](./docs/plan/todo.md)，明确当前任务和目标。
+3.  **遵守规范**: 在分析任务属于哪个模块后，严格遵守相关[开发规范](./docs/standards/development.md)、[测试规范](./docs/standards/testing.md)、[API 规范](./docs/standards/api.md)、[UI 设计](./docs/design/ui.md)和[API 设计](./docs/design/api.md)。
+4.  **使用 PDTFC 循环**：在进行代码生成或修改时，遵循计划需求(Plan)、生成代码(Do)、测试代码(Test)、修复错误(Fix)、提交代码(Commit)的循环流程，确保代码质量和符合项目要求。
 
 ## 安全要求
 
