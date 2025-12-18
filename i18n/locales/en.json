@@ -1,4 +1,10 @@
 {
+    "components": {
+        "header": {
+            "language": "Language",
+            "title": "Momei"
+        }
+    },
     "pages": {
         "login": {
             "title": "Welcome back, please login",

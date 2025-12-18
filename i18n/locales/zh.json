@@ -1,4 +1,10 @@
 {
+    "components": {
+        "header": {
+            "language": "语言",
+            "title": "墨梅"
+        }
+    },
     "pages": {
         "login": {
             "title": "欢迎回来，请登录",

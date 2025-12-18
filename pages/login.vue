@@ -171,8 +171,7 @@ definePageMeta({
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    background-color: var(--p-surface-50);
+    flex: 1;
     padding: 1rem;
 }
 
@@ -197,18 +196,21 @@ definePageMeta({
         font-size: 1.5rem;
         font-weight: 600;
         color: var(--p-text-color);
+        line-height: 1.5;
     }
 
     &__footer {
         text-align: center;
         font-size: 0.875rem;
         margin-top: 1rem;
+        line-height: 1.5;
     }
 
     &__register-link {
         color: var(--p-primary-color);
         text-decoration: none;
         transition: color 0.2s;
+        line-height: 1.5;
 
         &:hover {
             color: #f43f5e; // Rose 500 (Accent)
@@ -230,6 +232,7 @@ definePageMeta({
     &__divider-text {
         font-size: 0.875rem;
         color: #6b7280;
+        line-height: 1.5;
     }
 
     &__fields {
@@ -242,6 +245,10 @@ definePageMeta({
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+
+        label {
+            line-height: 1.5;
+        }
     }
 
     &__input {
@@ -259,6 +266,10 @@ definePageMeta({
         align-items: center;
         gap: 0.5rem;
         font-size: 0.875rem;
+
+        label {
+            line-height: 1.5;
+        }
     }
 
     &__forgot {
@@ -266,6 +277,7 @@ definePageMeta({
         color: var(--p-primary-color);
         text-decoration: none;
         transition: color 0.2s;
+        line-height: 1.5;
 
         &:hover {
             color: #f43f5e; // Rose 500 (Accent)
