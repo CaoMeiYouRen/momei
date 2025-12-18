@@ -1,4 +1,24 @@
 import { fileURLToPath } from 'node:url'
+import Aura from '@primevue/themes/aura'
+import { definePreset } from '@primevue/themes'
+
+const MomeiPreset = definePreset(Aura, {
+    semantic: {
+        primary: {
+            '50': '#f8fafc',
+            '100': '#f1f5f9',
+            '200': '#e2e8f0',
+            '300': '#cbd5e1',
+            '400': '#94a3b8',
+            '500': '#64748b',
+            '600': '#475569',
+            '700': '#334155',
+            '800': '#1e293b',
+            '900': '#0f172a',
+            '950': '#020617',
+        },
+    },
+})
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -7,7 +27,36 @@ export default defineNuxtConfig({
     modules: [
         '@nuxt/eslint',
         '@nuxt/test-utils/module',
+        '@primevue/nuxt-module',
+        '@nuxtjs/i18n',
     ],
+    primevue: {
+        options: {
+            theme: {
+                preset: MomeiPreset,
+                options: {
+                    darkModeSelector: '.dark',
+                },
+            },
+        },
+        components: {
+            include: '*',
+        },
+    },
+    i18n: {
+        locales: [
+            { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
+            { code: 'zh', language: 'zh-CN', name: '简体中文', file: 'zh.json' },
+        ],
+        defaultLocale: 'zh',
+        langDir: 'locales',
+        strategy: 'prefix_and_default',
+        detectBrowserLanguage: {
+            useCookie: true,
+            cookieKey: 'i18n_redirected',
+            redirectOn: 'root',
+        },
+    },
     build: {
         // 使用 Babel 转译不兼容的包
         transpile: ['ms', 'debug', (ctx) => !ctx.isDev && 'google-libphonenumber'],

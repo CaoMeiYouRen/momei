@@ -1,0 +1,17 @@
+{
+    "pages": {
+        "login": {
+            "title": "Welcome back, please login",
+            "email": "Email",
+            "password": "Password",
+            "remember_me": "Remember me",
+            "forgot_password": "Forgot password",
+            "submit": "Login",
+            "or_continue_with_email": "Or continue with email",
+            "no_account": "Don't have an account? Register now",
+            "github_login": "Login with GitHub",
+            "email_required": "Email is required",
+            "password_required": "Password is required"
+        }
+    }
+}

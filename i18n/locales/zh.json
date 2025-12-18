@@ -1,0 +1,17 @@
+{
+    "pages": {
+        "login": {
+            "title": "欢迎回来，请登录",
+            "email": "邮箱",
+            "password": "密码",
+            "remember_me": "记住我",
+            "forgot_password": "忘记密码",
+            "submit": "登录",
+            "or_continue_with_email": "或者使用邮箱继续",
+            "no_account": "还没有账号? 立即注册",
+            "github_login": "使用 GitHub 登录",
+            "email_required": "请输入邮箱",
+            "password_required": "请输入密码"
+        }
+    }
+}
