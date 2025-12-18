@@ -213,7 +213,7 @@ definePageMeta({
         line-height: 1.5;
 
         &:hover {
-            color: #f43f5e; // Rose 500 (Accent)
+            color: var(--p-primary-700);
             text-decoration: underline;
         }
     }
@@ -280,7 +280,7 @@ definePageMeta({
         line-height: 1.5;
 
         &:hover {
-            color: #f43f5e; // Rose 500 (Accent)
+            color: var(--p-primary-700);
             text-decoration: underline;
         }
     }
