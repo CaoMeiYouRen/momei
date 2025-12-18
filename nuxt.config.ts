@@ -62,6 +62,9 @@ export default defineNuxtConfig({
         transpile: ['ms', 'debug', (ctx) => !ctx.isDev && 'google-libphonenumber'],
     },
     css: [
+        'normalize.css/normalize.css',
+        // '@mdi/font/css/materialdesignicons.min.css',
+        'primeicons/primeicons.css',
         '@/styles/main.scss',
     ],
     eslint: {
