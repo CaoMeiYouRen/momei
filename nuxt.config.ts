@@ -30,6 +30,13 @@ export default defineNuxtConfig({
         '@primevue/nuxt-module',
         '@nuxtjs/i18n',
     ],
+    runtimeConfig: {
+        public: {
+            NODE_ENV: process.env.NODE_ENV,
+            appName: process.env.NUXT_PUBLIC_APP_NAME,
+            authBaseUrl: process.env.NUXT_PUBLIC_AUTH_BASE_URL,
+        },
+    },
     primevue: {
         options: {
             theme: {

@@ -3,9 +3,11 @@ import { usernameClient, magicLinkClient, emailOTPClient, inferAdditionalFields,
 import type { auth } from './auth'
 import { AUTH_BASE_URL } from '@/utils/shared/env'
 
+const baseURL = AUTH_BASE_URL || window?.__NUXT__?.publicRuntimeConfig?.authBaseUrl || window?.location.origin
+
 export const authClient = createAuthClient({
     /** 服务器的基础 URL（如果您使用相同域名，则可选） */
-    baseURL: AUTH_BASE_URL,
+    baseURL,
     plugins: [
         inferAdditionalFields<typeof auth>(),
         usernameClient(),

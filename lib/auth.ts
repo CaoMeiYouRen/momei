@@ -38,9 +38,9 @@ import { getTempEmail, getTempName, generateClientId, generateClientSecret } fro
 import { emailService } from '@/server/utils/email/service'
 import { getUserLocale } from '@/server/utils/locale'
 
-
 export const auth = betterAuth({
     appName: APP_NAME, // 应用名称。它将被用作发行者。
+    baseURL: AUTH_BASE_URL,
     // 数据库适配器
     // 使用 TypeORM 适配器
     database: typeormAdapter(dataSource),
