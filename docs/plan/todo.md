@@ -33,7 +33,7 @@
 -   [ ] **用户界面开发 (Frontend Pages)**
     -   [x] 验收: **登录页 (`/login`)**: 包含邮箱登录表单和 OAuth 按钮。
     -   [x] 验收: **注册页 (`/register`)**: 包含注册表单和验证逻辑。
-    -   验收: **个人设置页 (`/settings`)**: 允许用户修改昵称、头像。
+    -   [x] 验收: **个人设置页 (`/settings`)**: 允许用户修改昵称、头像。
 -   [ ] **用户角色与权限 (RBAC)**
     -   验收: 数据库 `User` 表包含 `role` 字段 (Admin, Author, User, Visitor)。
     -   验收: 实现后端中间件 `server/middleware/auth.ts` 拦截未授权请求。

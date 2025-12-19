@@ -32,6 +32,31 @@
             "password_required": "Password is required",
             "confirm_password_required": "Please confirm your password",
             "password_mismatch": "Passwords do not match"
+        },
+        "settings": {
+            "title": "Settings",
+            "menu": {
+                "profile": "Profile",
+                "security": "Security"
+            },
+            "profile": {
+                "title": "Public Profile",
+                "avatar": "Avatar",
+                "name": "Nickname",
+                "save": "Save Changes",
+                "success": "Profile updated successfully"
+            },
+            "security": {
+                "title": "Security",
+                "change_password": "Change Password",
+                "current_password": "Current Password",
+                "new_password": "New Password",
+                "confirm_password": "Confirm New Password",
+                "update_password": "Update Password",
+                "password_updated": "Password updated successfully",
+                "linked_accounts": "Linked Accounts",
+                "no_linked_accounts": "No linked accounts"
+            }
         }
     }
 }
