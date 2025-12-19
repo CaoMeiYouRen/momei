@@ -18,6 +18,20 @@
             "github_login": "Login with GitHub",
             "email_required": "Email is required",
             "password_required": "Password is required"
+        },
+        "register": {
+            "title": "Create an account",
+            "name": "Nickname",
+            "email": "Email",
+            "password": "Password",
+            "confirm_password": "Confirm Password",
+            "submit": "Register",
+            "have_account": "Already have an account? Login now",
+            "name_required": "Nickname is required",
+            "email_required": "Email is required",
+            "password_required": "Password is required",
+            "confirm_password_required": "Please confirm your password",
+            "password_mismatch": "Passwords do not match"
         }
     }
 }

@@ -18,6 +18,20 @@
             "github_login": "使用 GitHub 登录",
             "email_required": "请输入邮箱",
             "password_required": "请输入密码"
+        },
+        "register": {
+            "title": "创建新账号",
+            "name": "昵称",
+            "email": "邮箱",
+            "password": "密码",
+            "confirm_password": "确认密码",
+            "submit": "注册",
+            "have_account": "已有账号? 直接登录",
+            "name_required": "请输入昵称",
+            "email_required": "请输入邮箱",
+            "password_required": "请输入密码",
+            "confirm_password_required": "请确认密码",
+            "password_mismatch": "两次输入的密码不一致"
         }
     }
 }
