@@ -90,11 +90,12 @@ describe('Auth Flow (Direct API)', async () => {
         expect(signUpRes).toBeDefined()
         expect(signUpRes.user).toBeDefined()
         expect(signUpRes.user.email).toBe(testUser.email)
+        expect(signUpRes.token).toBeDefined()
         // better-auth signUpEmail might not return session if email verification is required or configured differently
         // But we disabled verification.
         // Let's check what it returns.
         // console.log('SignUp Res:', signUpRes)
-        // expect(signUpRes.session).toBeDefined()
+
 
         // 2. Sign In with Email
         const signInRes = await auth.api.signInEmail({
@@ -107,7 +108,7 @@ describe('Auth Flow (Direct API)', async () => {
         expect(signInRes).toBeDefined()
         expect(signInRes.user).toBeDefined()
         expect(signInRes.user.email).toBe(testUser.email)
-
+        expect(signInRes?.token).toBeDefined()
 
         // 2. Sign In with Username
         const signInUsernameRes = await auth.api.signInUsername({
@@ -120,7 +121,7 @@ describe('Auth Flow (Direct API)', async () => {
         expect(signInUsernameRes).toBeDefined()
         expect(signInUsernameRes?.user).toBeDefined()
         expect(signInUsernameRes?.user?.username).toBe(testUser.username)
-        // expect(signInRes.session).toBeDefined()
+        expect(signInUsernameRes?.token).toBeDefined()
 
         // If session is not returned, it might be because we are not passing headers to store the cookie?
         // Or better-auth API behavior.

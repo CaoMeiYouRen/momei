@@ -28,7 +28,7 @@
     "@nuxtjs/i18n": "^10.2.1",
     "@primevue/themes": "^4.5.4",
     "animate.css": "^4.1.1",
-    "better-auth": "^1.4.7",
+    "better-auth": "1.4.8-beta.3",
     "better-auth-localization": "^2.2.2",
     "better-bytes": "^1.2.4",
     "better-sqlite3": "^12.5.0",
