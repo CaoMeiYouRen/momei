@@ -50,6 +50,16 @@
 -   **英文字体**: `Inter` 或 `Roboto`，保持现代感。
 -   **代码字体**: `Fira Code` 或 `JetBrains Mono`。
 
+### 2.4 暗色模式 (Dark Mode)
+
+-   **策略**: 支持 **浅色 (Light)**、**深色 (Dark)** 及 **跟随系统 (System)** 三种模式。
+-   **实现**:
+    -   使用 CSS Variables 或 SCSS Mixins 管理颜色主题。
+    -   通过 HTML 根元素的 `class="dark"` 进行切换 (Tailwind/PrimeVue 兼容)。
+-   **体验**:
+    -   切换时应有平滑的过渡动画 (Transition)。
+    -   避免页面加载时的闪烁 (FOUC)。
+
 ## 3. 组件库与规范 (Component Library)
 
 使用 **PrimeVue** 作为基础组件库，配合 **SCSS** 进行布局和微调。

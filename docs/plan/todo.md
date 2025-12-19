@@ -66,6 +66,10 @@
     -   验收: SEO Meta 标签正确生成 (Title, Description)。
 -   [ ] **归档页**
     -   验收: 按年份/月份展示文章归档。
+-   [ ] **暗色模式 (Dark Mode)**
+    -   验收: 实现主题切换器 (Light/Dark/System)。
+    -   验收: 状态持久化 (Cookie/LocalStorage) 且无闪烁。
+    -   验收: 全站组件适配深色样式。
 
 ### 5. 国际化 (i18n)
 
