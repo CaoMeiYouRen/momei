@@ -191,7 +191,7 @@ onMounted(async () => {
     try {
         const { data } = await authClient.listAccounts()
         if (data) {
-            linkedAccounts.value = data
+            linkedAccounts.value = data.filter((account) => account.providerId !== 'credential')
         }
     } catch (e) {
         console.error('Failed to fetch linked accounts', e)
@@ -250,9 +250,6 @@ const handleChangePassword = async () => {
     }
 }
 
-definePageMeta({
-    middleware: ['auth'],
-})
 </script>
 
 <style lang="scss" scoped>

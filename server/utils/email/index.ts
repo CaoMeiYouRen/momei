@@ -124,6 +124,15 @@ async function ensureWithinLimit(options: EmailOptions) {
 }
 
 export async function sendEmail(options: EmailOptions) {
+    // 检查邮件配置是否存在
+    if (!EMAIL_HOST || !EMAIL_USER) {
+        emailLogger.warn('Email configuration (HOST or USER) is missing. Skipping email sending.', {
+            to: options.to,
+            subject: options.subject,
+        })
+        return { messageId: 'skipped-no-config' }
+    }
+
     try {
         await ensureWithinLimit(options)
 
@@ -146,6 +155,15 @@ export async function sendEmail(options: EmailOptions) {
 
         return result
     } catch (error) {
+        // 如果是连接错误，且可能是配置无效导致的，记录警告并跳过
+        // if (error instanceof Error && (error.message.includes('ECONNREFUSED') || error.message.includes('configuration is invalid'))) {
+        //     emailLogger.warn('Email sending skipped due to connection error or invalid config', {
+        //         error: error.message,
+        //         to: options.to,
+        //     })
+        //     return { messageId: 'skipped-connection-error' }
+        // }
+
         emailLogger.email.failed({
             type: 'general',
             email: options.to,
