@@ -9,8 +9,8 @@ const bodySchema = z.object({
     slug: z.string().min(1).max(100).refine((s) => !isSnowflakeId(s), {
         message: 'Slug cannot be a Snowflake ID format',
     }),
-    description: z.string().optional(),
-    parentId: z.string().optional(),
+    description: z.string().nullable().optional(),
+    parentId: z.string().nullable().optional(),
     language: z.string().default('zh'),
 })
 

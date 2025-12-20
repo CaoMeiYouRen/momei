@@ -13,10 +13,10 @@ const updatePostSchema = z.object({
         message: 'Slug cannot be in Snowflake ID format',
     }),
     content: z.string().min(1).optional(),
-    summary: z.string().optional(),
-    coverImage: z.string().optional(),
+    summary: z.string().nullable().optional(),
+    coverImage: z.string().nullable().optional(),
     language: z.string().optional(),
-    categoryId: z.string().optional(),
+    categoryId: z.string().nullable().optional(),
     tags: z.array(z.string()).optional(),
     status: z.enum(['published', 'draft', 'pending']).optional(),
 })

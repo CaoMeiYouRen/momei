@@ -18,22 +18,22 @@ export class Post extends BaseEntity {
     content: string
 
     @CustomColumn({ type: 'text', nullable: true })
-    summary: string
+    summary: string | null
 
     @CustomColumn({ type: 'text', nullable: true })
-    coverImage: string
+    coverImage: string | null
 
     @CustomColumn({ type: 'varchar', length: 10, default: 'zh', nullable: false })
     language: string
 
     @CustomColumn({ type: 'varchar', length: 36, nullable: true })
-    translationId: string
+    translationId: string | null
 
     @CustomColumn({ type: 'varchar', length: 36, nullable: false })
     authorId: string
 
     @CustomColumn({ type: 'varchar', length: 36, nullable: true })
-    categoryId: string
+    categoryId: string | null
 
     @CustomColumn({ type: 'varchar', length: 20, default: 'pending', nullable: false })
     status: string // published, draft, pending
@@ -42,7 +42,7 @@ export class Post extends BaseEntity {
     views: number
 
     @CustomColumn({ type: 'datetime', nullable: true })
-    publishedAt: Date
+    publishedAt: Date | null
 
     // ========== 关系定义 ==========
 
