@@ -165,6 +165,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
+import { load } from 'js-yaml'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
 definePageMeta({
     layout: false,
@@ -282,25 +283,6 @@ const onDragLeave = (e: DragEvent) => {
     }
 }
 
-const parseFrontMatter = (text: string) => {
-    const lines = text.split('\n')
-    const result: Record<string, any> = {}
-    for (const line of lines) {
-        const match = line.match(/^(\w+):\s*(.+)$/)
-        if (match && match[1] && match[2]) {
-            const key = match[1].trim()
-            let value = match[2].trim()
-            // Simple array handling [a, b]
-            if (value.startsWith('[') && value.endsWith(']')) {
-                result[key] = value.slice(1, -1).split(',').map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
-            } else {
-                result[key] = value.replace(/^['"]|['"]$/g, '')
-            }
-        }
-    }
-    return result
-}
-
 const handleMarkdownImport = (file: File) => {
     const reader = new FileReader()
     reader.readAsText(file, 'utf-8')
@@ -318,7 +300,12 @@ const handleMarkdownImport = (file: File) => {
 
         let frontMatter: any = {}
         if (metaText?.[1]) {
-            frontMatter = parseFrontMatter(metaText[1])
+            try {
+                frontMatter = load(metaText[1]) || {}
+            } catch (e) {
+                console.error('Failed to parse front matter', e)
+                toast.add({ severity: 'warn', summary: 'Warning', detail: 'Failed to parse front matter', life: 3000 })
+            }
         }
 
         const content = markdown.replace(metaReg, '').trim()
