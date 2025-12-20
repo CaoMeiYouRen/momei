@@ -87,9 +87,14 @@ API 路由位于 `server/api` 目录下。
             -   支持 `status` 筛选 (published, draft, pending)。
     -   **Response**: `{ list: Post[], total: number, page: number }`
 
--   `GET /api/posts/:id` (或 `/api/posts/slug/:slug`)
-    -   **Response**: 文章详情，包含 `content`, `author`, `category`, `tags`。
-    -   **Note**: 增加阅读量计数 (PV)。
+-   `GET /api/posts/:id`
+
+    -   **Response**: 文章详情。
+    -   **Note**: 通过 ID 获取。通常用于管理端或预览。
+
+-   `GET /api/posts/slug/:slug`
+    -   **Response**: 文章详情。
+    -   **Note**: 通过 Slug 获取。用于公开展示。增加阅读量计数 (PV) (Post-MVP 实现)。
 
 #### Write APIs (写入接口 - 需 Auth)
 
