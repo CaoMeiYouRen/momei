@@ -90,7 +90,5 @@ const formatDate = (date: string | Date) => {
 </script>
 
 <style lang="scss" scoped>
-.article-card {
-    // Custom styles if needed beyond utility classes
-}
+/* 样式全部由类和 BEM 结构控制，无需空规则 */
 </style>
