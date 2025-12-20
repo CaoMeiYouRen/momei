@@ -112,3 +112,7 @@ export const ANONYMOUS_LOGIN_ENABLED = process.env.ANONYMOUS_LOGIN_ENABLED === '
 // GitHub 配置
 export const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID
 export const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET
+
+
+// 文件名前缀
+export const BUCKET_PREFIX = process.env.BUCKET_PREFIX || ''

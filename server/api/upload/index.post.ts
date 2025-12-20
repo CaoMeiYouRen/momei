@@ -1,7 +1,8 @@
-import { randomUUID } from 'crypto'
 import path from 'path'
+import dayjs from 'dayjs'
 import { auth } from '@/lib/auth'
 import { getFileStorage, type FileStorageEnv } from '@/server/utils/storage/factory'
+import { BUCKET_PREFIX } from '@/utils/shared/env'
 
 export default defineEventHandler(async (event) => {
     const session = await auth.api.getSession({
@@ -25,9 +26,10 @@ export default defineEventHandler(async (event) => {
         if (!file.filename) {
             continue
         }
-
-        const ext = path.extname(file.filename)
-        const newFilename = `${randomUUID()}${ext}`
+        const timestamp = dayjs().format('YYYYMMDDHHmmssSSS') // 时间戳
+        const random = Math.random().toString(36).slice(2, 9) // 随机字符串，避免文件名冲突
+        const ext = path.extname(file.filename) // 文件扩展名
+        const newFilename = `${BUCKET_PREFIX}${timestamp}-${random}${ext}`
 
         const { url } = await storage.upload(file.data, newFilename, file.type)
 
