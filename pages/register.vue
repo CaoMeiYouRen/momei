@@ -129,6 +129,7 @@
 </template>
 
 <script setup lang="ts">
+import { z } from 'zod'
 import { authClient } from '@/lib/auth-client'
 
 const { t } = useI18n()
@@ -147,6 +148,16 @@ const errors = reactive({
     confirmPassword: '',
 })
 
+const registerSchema = z.object({
+    name: z.string().min(1, { message: 'pages.register.name_required' }),
+    email: z.string().min(1, { message: 'pages.register.email_required' }),
+    password: z.string().min(1, { message: 'pages.register.password_required' }),
+    confirmPassword: z.string().min(1, { message: 'pages.register.confirm_password_required' }),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: 'pages.register.password_mismatch',
+    path: ['confirmPassword'],
+})
+
 const handleGithubLogin = async () => {
     await authClient.signIn.social({
         provider: 'github',
@@ -158,29 +169,17 @@ const handleRegister = async () => {
     // Reset errors
     Object.keys(errors).forEach((key) => errors[key as keyof typeof errors] = '')
 
-    let hasError = false
-    if (!form.name) {
-        errors.name = t('pages.register.name_required')
-        hasError = true
-    }
-    if (!form.email) {
-        errors.email = t('pages.register.email_required')
-        hasError = true
-    }
-    if (!form.password) {
-        errors.password = t('pages.register.password_required')
-        hasError = true
-    }
-    if (!form.confirmPassword) {
-        errors.confirmPassword = t('pages.register.confirm_password_required')
-        hasError = true
-    }
-    if (form.password && form.confirmPassword && form.password !== form.confirmPassword) {
-        errors.confirmPassword = t('pages.register.password_mismatch')
-        hasError = true
-    }
+    const result = registerSchema.safeParse(form)
 
-    if (hasError) return
+    if (!result.success) {
+        result.error.issues.forEach((issue) => {
+            const key = issue.path[0] as keyof typeof errors
+            if (key in errors) {
+                errors[key] = t(issue.message)
+            }
+        })
+        return
+    }
 
     loading.value = true
     try {

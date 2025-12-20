@@ -161,6 +161,7 @@
 </template>
 
 <script setup lang="ts">
+import { z } from 'zod'
 import { authClient } from '@/lib/auth-client'
 
 const { t } = useI18n()
@@ -184,6 +185,21 @@ const passwordForm = reactive({
 
 // Linked Accounts Data
 const linkedAccounts = ref<any[]>([])
+
+// Validation Schemas
+const profileSchema = z.object({
+    name: z.string().min(1, { message: 'pages.register.name_required' }),
+    image: z.string().optional(),
+})
+
+const passwordSchema = z.object({
+    currentPassword: z.string().min(1, { message: 'pages.settings.security.current_password_required' }),
+    newPassword: z.string().min(1, { message: 'pages.settings.security.new_password_required' }),
+    confirmPassword: z.string().min(1, { message: 'pages.settings.security.confirm_password_required' }),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'pages.register.password_mismatch',
+    path: ['confirmPassword'],
+})
 
 // Initialize data
 watchEffect(() => {
@@ -233,6 +249,15 @@ onMounted(async () => {
 })
 
 const handleUpdateProfile = async () => {
+    const result = profileSchema.safeParse(profileForm)
+    if (!result.success) {
+        const firstError = result.error.issues[0]
+        if (firstError) {
+            toast.add({ severity: 'error', summary: 'Error', detail: t(firstError.message), life: 3000 })
+        }
+        return
+    }
+
     loading.value = true
     try {
         const { error } = await authClient.updateUser({
@@ -254,8 +279,12 @@ const handleUpdateProfile = async () => {
 }
 
 const handleChangePassword = async () => {
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-        toast.add({ severity: 'error', summary: 'Error', detail: t('pages.register.password_mismatch'), life: 3000 })
+    const result = passwordSchema.safeParse(passwordForm)
+    if (!result.success) {
+        const firstError = result.error.issues[0]
+        if (firstError) {
+            toast.add({ severity: 'error', summary: 'Error', detail: t(firstError.message), life: 3000 })
+        }
         return
     }
 

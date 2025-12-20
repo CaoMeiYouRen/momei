@@ -104,6 +104,7 @@
 </template>
 
 <script setup lang="ts">
+import { z } from 'zod'
 import { authClient } from '@/lib/auth-client'
 
 const { t } = useI18n()
@@ -119,6 +120,13 @@ const errors = reactive({
     password: '',
 })
 
+const loginSchema = z.object({
+    email: z.string()
+        .min(1, { message: 'pages.login.email_required' }),
+    password: z.string()
+        .min(1, { message: 'pages.login.password_required' }),
+})
+
 const handleGithubLogin = async () => {
     await authClient.signIn.social({
         provider: 'github',
@@ -130,12 +138,15 @@ const handleEmailLogin = async () => {
     errors.email = ''
     errors.password = ''
 
-    if (!form.email) {
-        errors.email = t('pages.login.email_required')
-        return
-    }
-    if (!form.password) {
-        errors.password = t('pages.login.password_required')
+    const result = loginSchema.safeParse(form)
+
+    if (!result.success) {
+        result.error.issues.forEach((issue) => {
+            const key = issue.path[0] as keyof typeof errors
+            if (key in errors) {
+                errors[key] = t(issue.message)
+            }
+        })
         return
     }
 
