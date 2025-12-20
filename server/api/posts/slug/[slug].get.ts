@@ -3,9 +3,9 @@ import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'
 
 export default defineEventHandler(async (event) => {
-    const id = getRouterParam(event, 'id')
-    if (!id) {
-        throw createError({ statusCode: 400, statusMessage: 'ID required' })
+    const slug = getRouterParam(event, 'slug')
+    if (!slug) {
+        throw createError({ statusCode: 400, statusMessage: 'Slug required' })
     }
 
     const session = await auth.api.getSession({
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
         .leftJoinAndSelect('post.category', 'category')
         .leftJoinAndSelect('post.tags', 'tags')
 
-    qb.where('post.id = :id', { id })
+    qb.where('post.slug = :slug', { slug })
 
     const post = await qb.getOne()
 
@@ -39,13 +39,9 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    // Note: ID access might not increment views, or maybe it should?
-    // Usually ID access is for management/preview. Let's keep it simple and NOT increment views for ID access,
-    // or increment it. The requirement says "GET /api/posts/:id ... Note: 增加阅读量计数".
-    // But for preview it might be annoying.
-    // However, the doc says "GET /api/posts/:id ... Note: 通过 ID 获取。通常用于管理端或预览。"
-    // And "GET /api/posts/slug/:slug ... Note: ... 增加阅读量计数 (PV)"
-    // So I will REMOVE view increment from ID endpoint based on the new doc implication (PV is mentioned in Slug endpoint).
+    // Increment views
+    await postRepo.increment({ id: post.id }, 'views', 1)
+    post.views += 1
 
     return {
         code: 200,

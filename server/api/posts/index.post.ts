@@ -5,10 +5,13 @@ import { Post } from '@/server/entities/post'
 import { Tag } from '@/server/entities/tag'
 import { auth } from '@/lib/auth'
 import { generateRandomString } from '@/utils/shared/random'
+import { isSnowflakeId } from '@/utils/shared/validate'
 
 const createPostSchema = z.object({
     title: z.string().min(1).max(255),
-    slug: z.string().min(1).max(255).optional(),
+    slug: z.string().min(1).max(255).optional().refine((val) => !val || !isSnowflakeId(val), {
+        message: 'Slug cannot be in Snowflake ID format',
+    }),
     content: z.string().min(1),
     summary: z.string().optional(),
     coverImage: z.string().optional(),

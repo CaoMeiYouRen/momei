@@ -114,13 +114,19 @@
 </template>
 
 <script setup lang="ts">
+import { isSnowflakeId } from '@/utils/shared/validate'
+
 const route = useRoute()
 const localePath = useLocalePath()
 const { t } = useI18n()
 
-const id = route.params.id as string
+const idOrSlug = route.params.id as string
 
-const { data, pending, error } = await useFetch(`/api/posts/${id}`)
+// Determine if the parameter is an ID or a Slug
+const isId = isSnowflakeId(idOrSlug)
+const endpoint = isId ? `/api/posts/${idOrSlug}` : `/api/posts/slug/${idOrSlug}`
+
+const { data, pending, error } = await useFetch<any>(endpoint)
 
 const post = computed(() => data.value?.data)
 

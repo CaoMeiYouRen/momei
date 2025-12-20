@@ -88,3 +88,8 @@ export function nicknameValidator(nickname: string): boolean {
     // eslint-disable-next-line no-control-regex
     return /^[^\u0000-\u001F\u0020\u007F-\u009F\u00A0-\u00FF]{2,36}$/.test(nickname)
 }
+
+/**
+ * 检查字符串是否为 Snowflake ID 格式 (15位以上纯十六进制字符串)
+ */
+export const isSnowflakeId = (id: string) => /^[0-9a-fA-F]{15,16}$/.test(id)

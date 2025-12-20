@@ -48,6 +48,8 @@
     -   [x] 验收: `GET /api/posts` 能分页获取文章。
     -   [x] 验收: `PUT /api/posts/:id` 能更新文章内容。
     -   [x] 验收: `DELETE /api/posts/:id` 能删除文章。
+    -   [ ] 验收: 拆分 `GET /api/posts/:id` 和 `GET /api/posts/slug/:slug`。
+    -   [ ] 验收: Slug 设置时校验禁止使用 Snowflake ID 格式。
 -   [x] **文章审核流程**
     -   [x] 验收: 作者发布文章后状态为 `pending` (需审核)。
     -   [x] 验收: 管理员可查看所有文章列表。
@@ -58,7 +60,7 @@
 -   [ ] **标签管理 (Tags)**
     -   [ ] 验收: API CRUD 完成。
     -   [ ] 验收: 管理后台界面完成。
-    -   [ ] **自定义 Slug 支持**
+-   [ ] **自定义 Slug 支持**
     -   [ ] 验收: 创建/编辑文章时可手动输入 Slug。
     -   [ ] 验收: 文章可通过 `/posts/:slug` 或 `/posts/:id` 访问。
 -   [ ] **图片上传**
