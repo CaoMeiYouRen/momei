@@ -19,6 +19,9 @@ export default defineEventHandler(async (event) => {
     }
 
     const file = files[0]
+    if (!file) {
+        throw createError({ statusCode: 400, statusMessage: 'No file uploaded' })
+    }
     if (!file.filename) {
         throw createError({ statusCode: 400, statusMessage: 'Invalid file' })
     }

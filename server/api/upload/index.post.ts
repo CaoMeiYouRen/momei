@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'No file uploaded' })
     }
 
-    const uploadedFiles = []
+    const uploadedFiles: { filename: string, url: string, mimetype: string | undefined }[] = []
     const storageType = process.env.STORAGE_TYPE || 's3' // Default to s3 if not set, or could be 'vercel-blob'
     const storage = getFileStorage(storageType, process.env as unknown as FileStorageEnv)
 
