@@ -16,7 +16,7 @@ export class Tag extends BaseEntity {
     language: string
 
     @CustomColumn({ type: 'varchar', length: 36, nullable: true })
-    translationId: string
+    translationId: string | null
 
     // ========== 关系定义 ==========
 

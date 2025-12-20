@@ -13,16 +13,16 @@ export class Category extends BaseEntity {
     slug: string
 
     @CustomColumn({ type: 'text', nullable: true })
-    description: string
+    description: string | null
 
     @CustomColumn({ type: 'varchar', length: 36, nullable: true })
-    parentId: string
+    parentId: string | null
 
     @CustomColumn({ type: 'varchar', length: 10, default: 'zh', nullable: false })
     language: string
 
     @CustomColumn({ type: 'varchar', length: 36, nullable: true })
-    translationId: string
+    translationId: string | null
 
     // ========== 关系定义 ==========
 
