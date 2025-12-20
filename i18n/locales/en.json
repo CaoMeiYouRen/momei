@@ -12,9 +12,47 @@
         "readMore": "Read More",
         "views": "Views",
         "publishedAt": "Published at",
-        "author": "Author"
+        "author": "Author",
+        "status": {
+            "published": "Published",
+            "draft": "Draft",
+            "pending": "Pending"
+        },
+        "title": "Title",
+        "category": "Category",
+        "actions": "Actions",
+        "saving": "Saving...",
+        "save": "Save",
+        "publish": "Publish",
+        "settings": "Settings",
+        "tags": "Tags",
+        "summary": "Summary",
+        "close": "Close",
+        "save_success": "Saved successfully",
+        "save_failed": "Save failed"
     },
     "pages": {
+        "admin": {
+            "posts": {
+                "title": "Post Management",
+                "create": "New Post",
+                "search_placeholder": "Search title...",
+                "status": "Status",
+                "back_to_list": "Back to list",
+                "title_placeholder": "Post Title",
+                "content_placeholder": "Start writing... (Markdown supported)",
+                "settings_title": "Post Settings",
+                "slug": "URL Slug",
+                "slug_placeholder": "custom-url-slug",
+                "slug_hint": "Custom URL path for the post",
+                "category_placeholder": "Select Category",
+                "tags_placeholder": "Enter tags...",
+                "tags_hint": "Enter tag name and press Enter",
+                "summary_placeholder": "Post summary...",
+                "cover_image": "Cover Image URL",
+                "title_required": "Please enter post title"
+            }
+        },
         "posts": {
             "title": "Articles",
             "empty": "No articles found"

@@ -12,9 +12,47 @@
         "readMore": "阅读更多",
         "views": "阅读",
         "publishedAt": "发布于",
-        "author": "作者"
+        "author": "作者",
+        "status": {
+            "published": "已发布",
+            "draft": "草稿",
+            "pending": "待审核"
+        },
+        "title": "标题",
+        "category": "分类",
+        "actions": "操作",
+        "saving": "保存中...",
+        "save": "保存",
+        "publish": "发布",
+        "settings": "设置",
+        "tags": "标签",
+        "summary": "摘要",
+        "close": "关闭",
+        "save_success": "保存成功",
+        "save_failed": "保存失败"
     },
     "pages": {
+        "admin": {
+            "posts": {
+                "title": "文章管理",
+                "create": "新建文章",
+                "search_placeholder": "搜索标题...",
+                "status": "状态",
+                "back_to_list": "返回列表",
+                "title_placeholder": "文章标题",
+                "content_placeholder": "开始写作... (支持 Markdown)",
+                "settings_title": "文章设置",
+                "slug": "URL Slug",
+                "slug_placeholder": "custom-url-slug",
+                "slug_hint": "文章的自定义链接路径",
+                "category_placeholder": "选择分类",
+                "tags_placeholder": "输入标签...",
+                "tags_hint": "输入标签名称并回车",
+                "summary_placeholder": "文章摘要...",
+                "cover_image": "封面图 URL",
+                "title_required": "请输入文章标题"
+            }
+        },
         "posts": {
             "title": "文章列表",
             "empty": "暂无文章"

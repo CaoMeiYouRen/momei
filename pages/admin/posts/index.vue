@@ -2,10 +2,10 @@
     <div class="page-container">
         <div class="page-header">
             <h1 class="page-title">
-                文章管理
+                {{ $t('pages.admin.posts.title') }}
             </h1>
             <Button
-                label="新建文章"
+                :label="$t('pages.admin.posts.create')"
                 icon="pi pi-plus"
                 @click="navigateTo('/admin/posts/new')"
             />
@@ -17,7 +17,7 @@
                     <InputIcon class="pi pi-search" />
                     <InputText
                         v-model="filters.search"
-                        placeholder="搜索标题..."
+                        :placeholder="$t('pages.admin.posts.search_placeholder')"
                         @keydown.enter="loadPosts"
                     />
                 </IconField>
@@ -26,7 +26,7 @@
                     :options="statuses"
                     option-label="label"
                     option-value="value"
-                    placeholder="状态"
+                    :placeholder="$t('pages.admin.posts.status')"
                     show-clear
                     class="status-select"
                     @change="loadPosts"
@@ -44,26 +44,26 @@
                 table-style="min-width: 50rem"
                 @page="onPage"
             >
-                <Column field="title" header="标题" />
-                <Column field="author.name" header="作者" />
-                <Column field="status" header="状态">
+                <Column field="title" :header="$t('common.title')" />
+                <Column field="author.name" :header="$t('common.author')" />
+                <Column field="status" :header="$t('pages.admin.posts.status')">
                     <template #body="slotProps">
                         <Tag :value="getStatusLabel(slotProps.data.status)" :severity="getStatusSeverity(slotProps.data.status)" />
                     </template>
                 </Column>
-                <Column field="category.name" header="分类">
+                <Column field="category.name" :header="$t('common.category')">
                     <template #body="slotProps">
                         {{ slotProps.data.category?.name || '-' }}
                     </template>
                 </Column>
-                <Column field="views" header="阅读量" />
-                <Column field="publishedAt" header="发布时间">
+                <Column field="views" :header="$t('common.views')" />
+                <Column field="publishedAt" :header="$t('common.publishedAt')">
                     <template #body="slotProps">
                         {{ formatDate(slotProps.data.publishedAt) }}
                     </template>
                 </Column>
                 <Column
-                    header="操作"
+                    :header="$t('common.actions')"
                     :exportable="false"
                     style="min-width:8rem"
                 >
@@ -86,7 +86,7 @@
                 </Column>
                 <template #empty>
                     <div class="empty-state">
-                        暂无文章
+                        {{ $t('pages.posts.empty') }}
                     </div>
                 </template>
             </DataTable>
@@ -95,12 +95,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import dayjs from 'dayjs'
 
 definePageMeta({
     layout: 'default',
 })
+
+const { t } = useI18n()
 
 interface Post {
     id: string
@@ -123,11 +125,11 @@ const filters = ref({
     status: null,
 })
 
-const statuses = [
-    { label: '已发布', value: 'published' },
-    { label: '草稿', value: 'draft' },
-    { label: '待审核', value: 'pending' },
-]
+const statuses = computed(() => [
+    { label: t('common.status.published'), value: 'published' },
+    { label: t('common.status.draft'), value: 'draft' },
+    { label: t('common.status.pending'), value: 'pending' },
+])
 
 const loadPosts = async () => {
     pending.value = true
@@ -176,9 +178,9 @@ const confirmDelete = async (post: Post) => {
 
 const getStatusLabel = (status: string) => {
     const map: Record<string, string> = {
-        published: '已发布',
-        draft: '草稿',
-        pending: '待审核',
+        published: t('common.status.published'),
+        draft: t('common.status.draft'),
+        pending: t('common.status.pending'),
     }
     return map[status] || status
 }

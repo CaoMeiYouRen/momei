@@ -4,7 +4,7 @@
         <div class="top-bar">
             <div class="top-bar-left">
                 <Button
-                    v-tooltip="'返回列表'"
+                    v-tooltip="$t('pages.admin.posts.back_to_list')"
                     icon="pi pi-arrow-left"
                     text
                     rounded
@@ -12,7 +12,7 @@
                 />
                 <InputText
                     v-model="post.title"
-                    placeholder="文章标题"
+                    :placeholder="$t('pages.admin.posts.title_placeholder')"
                     class="title-input"
                 />
                 <Tag
@@ -22,23 +22,23 @@
                 />
             </div>
             <div class="top-bar-right">
-                <span v-if="saving" class="saving-text">保存中...</span>
+                <span v-if="saving" class="saving-text">{{ $t('common.saving') }}</span>
                 <Button
-                    label="保存"
+                    :label="$t('common.save')"
                     icon="pi pi-save"
                     text
                     :loading="saving"
                     @click="savePost(false)"
                 />
                 <Button
-                    label="发布"
+                    :label="$t('common.publish')"
                     icon="pi pi-send"
                     :loading="saving"
                     severity="contrast"
                     @click="savePost(true)"
                 />
                 <Button
-                    v-tooltip="'设置'"
+                    v-tooltip="$t('common.settings')"
                     icon="pi pi-cog"
                     text
                     rounded
@@ -54,7 +54,7 @@
                 <textarea
                     v-model="post.content"
                     class="editor-textarea"
-                    placeholder="开始写作... (支持 Markdown)"
+                    :placeholder="$t('pages.admin.posts.content_placeholder')"
                 />
             </div>
             <!-- Preview -->
@@ -67,58 +67,58 @@
         <!-- Settings Drawer -->
         <Drawer
             v-model:visible="settingsVisible"
-            header="文章设置"
+            :header="$t('pages.admin.posts.settings_title')"
             position="right"
             class="settings-drawer"
         >
             <div class="settings-form">
                 <div class="form-group">
-                    <label for="slug" class="form-label">URL Slug</label>
+                    <label for="slug" class="form-label">{{ $t('pages.admin.posts.slug') }}</label>
                     <InputText
                         id="slug"
                         v-model="post.slug"
-                        placeholder="custom-url-slug"
+                        :placeholder="$t('pages.admin.posts.slug_placeholder')"
                     />
-                    <small class="form-hint">文章的自定义链接路径</small>
+                    <small class="form-hint">{{ $t('pages.admin.posts.slug_hint') }}</small>
                 </div>
 
                 <div class="form-group">
-                    <label for="category" class="form-label">分类</label>
+                    <label for="category" class="form-label">{{ $t('common.category') }}</label>
                     <Select
                         v-model="post.categoryId"
                         :options="categories"
                         option-label="name"
                         option-value="id"
-                        placeholder="选择分类"
+                        :placeholder="$t('pages.admin.posts.category_placeholder')"
                         show-clear
                     />
                 </div>
 
                 <div class="form-group">
-                    <label for="tags" class="form-label">标签</label>
+                    <label for="tags" class="form-label">{{ $t('common.tags') }}</label>
                     <AutoComplete
                         v-model="selectedTags"
                         multiple
                         :suggestions="filteredTags"
-                        placeholder="输入标签..."
+                        :placeholder="$t('pages.admin.posts.tags_placeholder')"
                         @complete="searchTags"
                     />
-                    <small class="form-hint">输入标签名称并回车</small>
+                    <small class="form-hint">{{ $t('pages.admin.posts.tags_hint') }}</small>
                 </div>
 
                 <div class="form-group">
-                    <label for="summary" class="form-label">摘要</label>
+                    <label for="summary" class="form-label">{{ $t('common.summary') }}</label>
                     <Textarea
                         id="summary"
                         v-model="post.summary"
                         rows="4"
-                        placeholder="文章摘要..."
+                        :placeholder="$t('pages.admin.posts.summary_placeholder')"
                         class="resize-none"
                     />
                 </div>
 
                 <div class="form-group">
-                    <label for="cover" class="form-label">封面图 URL</label>
+                    <label for="cover" class="form-label">{{ $t('pages.admin.posts.cover_image') }}</label>
                     <InputText
                         id="cover"
                         v-model="post.coverImage"
@@ -129,7 +129,7 @@
             <template #footer>
                 <div class="drawer-footer">
                     <Button
-                        label="关闭"
+                        :label="$t('common.close')"
                         text
                         severity="secondary"
                         @click="settingsVisible = false"
@@ -148,6 +148,8 @@ import { useRoute, useRouter } from 'vue-router'
 definePageMeta({
     layout: false,
 })
+
+const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
@@ -229,7 +231,7 @@ const searchTags = (event: { query: string }) => {
 
 const savePost = async (publish = false) => {
     if (!post.value.title) {
-        alert('请输入文章标题')
+        alert(t('pages.admin.posts.title_required'))
         return
     }
 
@@ -265,7 +267,7 @@ const savePost = async (publish = false) => {
         // alert('保存成功');
     } catch (error) {
         console.error('Failed to save post', error)
-        alert('保存失败')
+        alert(t('common.save_failed') || 'Save failed')
     } finally {
         saving.value = false
     }
@@ -273,9 +275,9 @@ const savePost = async (publish = false) => {
 
 const getStatusLabel = (status: string) => {
     const map: Record<string, string> = {
-        published: '已发布',
-        draft: '草稿',
-        pending: '待审核',
+        published: t('common.status.published'),
+        draft: t('common.status.draft'),
+        pending: t('common.status.pending'),
     }
     return map[status] || status
 }
