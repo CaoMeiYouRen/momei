@@ -52,18 +52,18 @@ erDiagram
 
 #### User (用户表)
 
-| 字段名          | 类型     | 必填 | 唯一 | 默认值 | 说明                               |
-| :-------------- | :------- | :--- | :--- | :----- | :--------------------------------- |
-| `id`            | varchar  | Yes  | Yes  | (UUID) | 主键                               |
-| `name`          | text     | Yes  | No   | -      | 显示名称                           |
-| `email`         | varchar  | Yes  | Yes  | -      | 邮箱地址                           |
-| `emailVerified` | boolean  | Yes  | No   | false  | 邮箱是否验证                       |
-| `image`         | text     | No   | No   | -      | 头像 URL                           |
-| `username`      | varchar  | No   | Yes  | -      | 用户名 (唯一标识)                  |
-| `role`          | varchar  | No   | No   | 'user' | 角色: admin, author, user, visitor |
-| `banned`        | boolean  | No   | No   | false  | 是否被封禁                         |
-| `createdAt`     | datetime | Yes  | No   | now()  | 创建时间                           |
-| `updatedAt`     | datetime | Yes  | No   | now()  | 更新时间                           |
+| 字段名          | 类型     | 必填 | 唯一 | 默认值      | 说明                               |
+| :-------------- | :------- | :--- | :--- | :---------- | :--------------------------------- |
+| `id`            | varchar  | Yes  | Yes  | (Snowflake) | 主键                               |
+| `name`          | text     | Yes  | No   | -           | 显示名称                           |
+| `email`         | varchar  | Yes  | Yes  | -           | 邮箱地址                           |
+| `emailVerified` | boolean  | Yes  | No   | false       | 邮箱是否验证                       |
+| `image`         | text     | No   | No   | -           | 头像 URL                           |
+| `username`      | varchar  | No   | Yes  | -           | 用户名 (唯一标识)                  |
+| `role`          | varchar  | No   | No   | 'user'      | 角色: admin, author, user, visitor |
+| `banned`        | boolean  | No   | No   | false       | 是否被封禁                         |
+| `createdAt`     | datetime | Yes  | No   | now()       | 创建时间                           |
+| `updatedAt`     | datetime | Yes  | No   | now()       | 更新时间                           |
 
 #### Account (第三方账户表)
 

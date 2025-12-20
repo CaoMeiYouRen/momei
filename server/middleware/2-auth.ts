@@ -17,6 +17,11 @@ export default defineEventHandler(async (event) => {
         return
     }
 
+    // Allow public access to GET /api/posts
+    if (event.path.startsWith('/api/posts') && event.method === 'GET') {
+        return
+    }
+
     // 仅拦截 API 请求
     if (event.path.startsWith('/api')) {
         if (!session) {

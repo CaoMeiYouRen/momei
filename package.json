@@ -59,7 +59,8 @@
     "vue": "^3.5.25",
     "vue-router": "^4.6.4",
     "winston": "^3.19.0",
-    "winston-daily-rotate-file": "^5.0.0"
+    "winston-daily-rotate-file": "^5.0.0",
+    "zod": "^4.2.1"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

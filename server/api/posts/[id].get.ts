@@ -1,0 +1,54 @@
+import { dataSource } from '@/server/database'
+import { Post } from '@/server/entities/post'
+import { auth } from '@/lib/auth'
+
+export default defineEventHandler(async (event) => {
+    const idOrSlug = getRouterParam(event, 'id')
+    if (!idOrSlug) {
+        throw createError({ statusCode: 400, statusMessage: 'ID or Slug required' })
+    }
+
+    const session = await auth.api.getSession({
+        headers: event.headers,
+    })
+
+    const postRepo = dataSource.getRepository(Post)
+    const qb = postRepo.createQueryBuilder('post')
+        .leftJoin('post.author', 'author')
+        .addSelect(['author.id', 'author.name', 'author.image'])
+        .leftJoinAndSelect('post.category', 'category')
+        .leftJoinAndSelect('post.tags', 'tags')
+
+    qb.where('post.id = :val OR post.slug = :val', { val: idOrSlug })
+
+    const post = await qb.getOne()
+
+    if (!post) {
+        throw createError({ statusCode: 404, statusMessage: 'Post not found' })
+    }
+
+    // Visibility check
+    if (post.status !== 'published') {
+        if (!session || !session.user) {
+            throw createError({ statusCode: 404, statusMessage: 'Post not found' })
+        }
+        const isAuthor = session.user.id === post.authorId
+        const isAdmin = session.user.role === 'admin'
+        // Author role can see all drafts? Or only their own?
+        // Usually 'author' role implies they can write.
+        // Let's assume 'author' role can see their own drafts, and maybe others if they are editors?
+        // For now, restrict to own drafts or admin.
+        if (!isAuthor && !isAdmin) {
+            throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+        }
+    }
+
+    // Increment views
+    await postRepo.increment({ id: post.id }, 'views', 1)
+    post.views += 1
+
+    return {
+        code: 200,
+        data: post,
+    }
+})
