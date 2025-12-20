@@ -160,3 +160,19 @@ _(待完善，后续迭代补充)_
 -   **Category**: `slug` (Unique), `parentId`
 -   **Tag**: `slug` (Unique), `name` (Unique)
 -   **Post**: `slug` (Unique), `authorId`, `createdAt` (用于排序)
+
+## 5. 设计说明 (Design Notes)
+
+### 5.1 国际化实现 (Internationalization)
+
+-   **translationId**: 用于关联同一内容的不同语言版本。
+    -   所有共享同一个 `translationId` 的记录（文章、分类或标签）被视为同一个内容的变体。
+    -   当用户请求的语言版本不存在时，系统可以根据 `translationId` 查找其他可用语言版本（通常是默认语言，如中文或英文）。
+    -   **优势**: 解耦、灵活、独立性（每个语言版本的 `slug`、`title`、`content` 都是独立的，有利于 SEO）。
+
+### 5.2 阅读量统计 (View Count)
+
+-   **PV (Page View)**: 采用 PV 模式统计阅读量。
+    -   **原因**: 博客文章是内容消费型产品，每一次阅读都代表了内容的价值被消费了一次。PV 能直观反映内容的热度和被访问频率。
+    -   **实现**: 在文章加载时执行 `UPDATE post SET views = views + 1 WHERE id = ?`。
+    -   **防刷**: 应用层做轻量级的防刷处理（如：同一 IP 在 10 分钟内只计 1 次）。
