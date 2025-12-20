@@ -124,10 +124,12 @@ export const auth = betterAuth({
         expiresIn: ms('30d') / 1000, // 30 天
         updateAge: ms('1d') / 1000, // 1 天（每 1 天更新会话过期时间）
         freshAge: ms('1d') / 1000, // 会话新鲜度
-        /// / 当 cookie 的值太大时，会使缓存报错，故暂时禁用
+        // 当 cookie 的值太大时，会使缓存报错，故暂时禁用
         cookieCache: {
             enabled: true,
-            maxAge: 300, // 缓存持续时间（秒）
+            maxAge: ms('1h') / 1000, // 缓存持续时间（秒）
+            strategy: 'compact', // 使用紧凑策略以减少 cookie 大小
+            refreshCache: true, // 启用默认设置的自动刷新（当达到最大年龄的80%时刷新）
         },
         storeSessionInDatabase: true, // 当提供辅助存储时，是否在数据库中存储会话
         preserveSessionInDatabase: false, // 当从辅助存储中删除时，是否保留数据库中的会话记录
