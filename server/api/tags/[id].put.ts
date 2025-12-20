@@ -3,15 +3,7 @@ import { Not } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
 import { auth } from '@/lib/auth'
-import { isSnowflakeId } from '@/utils/shared/validate'
-
-const bodySchema = z.object({
-    name: z.string().min(1).max(100).optional(),
-    slug: z.string().min(1).max(100).refine((s) => !isSnowflakeId(s), {
-        message: 'Slug cannot be a Snowflake ID format',
-    }).optional(),
-    language: z.string().optional(),
-})
+import { tagUpdateSchema } from '@/utils/schemas/tag'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -27,7 +19,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 
-    const body = await readValidatedBody(event, (b) => bodySchema.parse(b))
+    const body = await readValidatedBody(event, (b) => tagUpdateSchema.parse(b))
     const tagRepo = dataSource.getRepository(Tag)
 
     const tag = await tagRepo.findOneBy({ id })

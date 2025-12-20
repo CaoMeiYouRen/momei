@@ -3,23 +3,10 @@ import { Brackets } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'
-
-const querySchema = z.object({
-    page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(100).default(10),
-    status: z.enum(['published', 'draft', 'pending']).optional(),
-    scope: z.enum(['public', 'manage']).default('public'),
-    authorId: z.string().optional(),
-    categoryId: z.string().optional(),
-    tagId: z.string().optional(),
-    language: z.string().optional(),
-    search: z.string().optional(),
-    orderBy: z.enum(['createdAt', 'updatedAt', 'views', 'publishedAt']).default('publishedAt'),
-    order: z.enum(['ASC', 'DESC']).default('DESC'),
-})
+import { postQuerySchema } from '@/utils/schemas/post'
 
 export default defineEventHandler(async (event) => {
-    const query = await getValidatedQuery(event, (q) => querySchema.parse(q))
+    const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(q))
     const session = await auth.api.getSession({
         headers: event.headers,
     })

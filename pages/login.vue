@@ -106,6 +106,7 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import { authClient } from '@/lib/auth-client'
+import { loginSchema } from '@/utils/schemas/auth'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -118,13 +119,6 @@ const form = reactive({
 const errors = reactive({
     email: '',
     password: '',
-})
-
-const loginSchema = z.object({
-    email: z.string()
-        .min(1, { message: 'pages.login.email_required' }),
-    password: z.string()
-        .min(1, { message: 'pages.login.password_required' }),
 })
 
 const handleGithubLogin = async () => {

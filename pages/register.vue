@@ -131,6 +131,7 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import { authClient } from '@/lib/auth-client'
+import { registerSchema } from '@/utils/schemas/auth'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -146,16 +147,6 @@ const errors = reactive({
     email: '',
     password: '',
     confirmPassword: '',
-})
-
-const registerSchema = z.object({
-    name: z.string().min(1, { message: 'pages.register.name_required' }),
-    email: z.string().min(1, { message: 'pages.register.email_required' }),
-    password: z.string().min(1, { message: 'pages.register.password_required' }),
-    confirmPassword: z.string().min(1, { message: 'pages.register.confirm_password_required' }),
-}).refine((data) => data.password === data.confirmPassword, {
-    message: 'pages.register.password_mismatch',
-    path: ['confirmPassword'],
 })
 
 const handleGithubLogin = async () => {

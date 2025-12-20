@@ -2,14 +2,11 @@ import { z } from 'zod'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'
-
-const updateStatusSchema = z.object({
-    status: z.enum(['published', 'draft', 'pending']),
-})
+import { updatePostStatusSchema } from '@/utils/schemas/post'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
-    const body = await readValidatedBody(event, (b) => updateStatusSchema.parse(b))
+    const body = await readValidatedBody(event, (b) => updatePostStatusSchema.parse(b))
     const session = await auth.api.getSession({
         headers: event.headers,
     })

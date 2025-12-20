@@ -68,12 +68,12 @@ interface Post {
     id: string
     slug: string
     title: string
-    summary?: string
-    coverImage?: string
+    summary?: string | null
+    coverImage?: string | null
     views: number
-    publishedAt?: string | Date
-    author?: Author
-    category?: Category
+    publishedAt?: string | Date | null
+    author?: Author | null
+    category?: Category | null
 }
 
 const props = defineProps<{

@@ -3,17 +3,7 @@ import { Not } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
 import { auth } from '@/lib/auth'
-import { isSnowflakeId } from '@/utils/shared/validate'
-
-const bodySchema = z.object({
-    name: z.string().min(1).max(100).optional(),
-    slug: z.string().min(1).max(100).refine((s) => !isSnowflakeId(s), {
-        message: 'Slug cannot be a Snowflake ID format',
-    }).optional(),
-    description: z.string().nullable().optional(),
-    parentId: z.string().nullable().optional(), // Allow null to remove parent
-    language: z.string().optional(),
-})
+import { categoryUpdateSchema } from '@/utils/schemas/category'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -29,7 +19,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 
-    const body = await readValidatedBody(event, (b) => bodySchema.parse(b))
+    const body = await readValidatedBody(event, (b) => categoryUpdateSchema.parse(b))
     const categoryRepo = dataSource.getRepository(Category)
 
     const category = await categoryRepo.findOneBy({ id })

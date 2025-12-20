@@ -2,15 +2,7 @@ import { z } from 'zod'
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
 import { auth } from '@/lib/auth'
-import { isSnowflakeId } from '@/utils/shared/validate'
-
-const bodySchema = z.object({
-    name: z.string().min(1).max(100),
-    slug: z.string().min(1).max(100).refine((s) => !isSnowflakeId(s), {
-        message: 'Slug cannot be a Snowflake ID format',
-    }),
-    language: z.string().default('zh'),
-})
+import { tagBodySchema } from '@/utils/schemas/tag'
 
 export default defineEventHandler(async (event) => {
     const session = await auth.api.getSession({
@@ -26,7 +18,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 
-    const body = await readValidatedBody(event, (b) => bodySchema.parse(b))
+    const body = await readValidatedBody(event, (b) => tagBodySchema.parse(b))
     const tagRepo = dataSource.getRepository(Tag)
 
     // Check if slug exists

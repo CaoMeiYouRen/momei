@@ -2,17 +2,10 @@ import { z } from 'zod'
 import { Like } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
-
-const querySchema = z.object({
-    page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(100).default(20),
-    search: z.string().optional(),
-    parentId: z.string().optional(), // Optional: filter by parent
-    language: z.string().optional(),
-})
+import { categoryQuerySchema } from '@/utils/schemas/category'
 
 export default defineEventHandler(async (event) => {
-    const query = await getValidatedQuery(event, (q) => querySchema.parse(q))
+    const query = await getValidatedQuery(event, (q) => categoryQuerySchema.parse(q))
 
     const categoryRepo = dataSource.getRepository(Category)
 

@@ -2,16 +2,10 @@ import { z } from 'zod'
 import { Like } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
-
-const querySchema = z.object({
-    page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(100).default(20),
-    search: z.string().optional(),
-    language: z.string().optional(),
-})
+import { tagQuerySchema } from '@/utils/schemas/tag'
 
 export default defineEventHandler(async (event) => {
-    const query = await getValidatedQuery(event, (q) => querySchema.parse(q))
+    const query = await getValidatedQuery(event, (q) => tagQuerySchema.parse(q))
 
     const tagRepo = dataSource.getRepository(Tag)
 

@@ -5,21 +5,7 @@ import { Post } from '@/server/entities/post'
 import { Tag } from '@/server/entities/tag'
 import { auth } from '@/lib/auth'
 import { generateRandomString } from '@/utils/shared/random'
-import { isSnowflakeId } from '@/utils/shared/validate'
-
-const createPostSchema = z.object({
-    title: z.string().min(1).max(255),
-    slug: z.string().min(1).max(255).optional().refine((val) => !val || !isSnowflakeId(val), {
-        message: 'Slug cannot be in Snowflake ID format',
-    }),
-    content: z.string().min(1),
-    summary: z.string().nullable().optional(),
-    coverImage: z.string().nullable().optional(),
-    language: z.string().default('zh'),
-    categoryId: z.string().nullable().optional(),
-    tags: z.array(z.string()).optional(),
-    status: z.enum(['published', 'draft', 'pending']).default('draft'),
-})
+import { createPostSchema } from '@/utils/schemas/post'
 
 export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, (b) => createPostSchema.parse(b))

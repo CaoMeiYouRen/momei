@@ -86,9 +86,9 @@
                     v-model.trim="form.name"
                     required
                     autofocus
-                    :class="{'p-invalid': submitted && !form.name}"
+                    :class="{'p-invalid': errors.name}"
                 />
-                <small v-if="submitted && !form.name" class="p-error">Name is required.</small>
+                <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
             </div>
             <div class="field">
                 <label for="slug">{{ $t('common.slug') }}</label>
@@ -96,9 +96,9 @@
                     id="slug"
                     v-model.trim="form.slug"
                     required
-                    :class="{'p-invalid': submitted && !form.slug}"
+                    :class="{'p-invalid': errors.slug}"
                 />
-                <small v-if="submitted && !form.slug" class="p-error">Slug is required.</small>
+                <small v-if="errors.slug" class="p-error">{{ errors.slug }}</small>
             </div>
             <div class="field">
                 <label for="parent">{{ $t('common.parent') }}</label>
@@ -146,6 +146,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
+import { categoryBodySchema, categoryUpdateSchema } from '@/utils/schemas/category'
 
 definePageMeta({
     layout: 'default',
@@ -177,6 +178,7 @@ const dialogVisible = ref(false)
 const editingItem = ref<Category | null>(null)
 const submitted = ref(false)
 const saving = ref(false)
+const errors = ref<Record<string, string>>({})
 
 const form = ref({
     name: '',
@@ -259,7 +261,17 @@ const hideDialog = () => {
 
 const saveItem = async () => {
     submitted.value = true
-    if (!form.value.name || !form.value.slug) return
+    errors.value = {}
+
+    const schema = editingItem.value ? categoryUpdateSchema : categoryBodySchema
+    const result = schema.safeParse(form.value)
+
+    if (!result.success) {
+        result.error.issues.forEach((issue) => {
+            errors.value[String(issue.path[0])] = issue.message
+        })
+        return
+    }
 
     saving.value = true
     try {

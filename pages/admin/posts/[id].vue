@@ -14,6 +14,7 @@
                     v-model="post.title"
                     :placeholder="$t('pages.admin.posts.title_placeholder')"
                     class="title-input"
+                    :class="{'p-invalid': errors.title}"
                 />
                 <Tag
                     v-if="post.status"
@@ -73,9 +74,10 @@
                     <InputText
                         id="slug"
                         v-model="post.slug"
-                        :placeholder="$t('pages.admin.posts.slug_placeholder')"
+                        :class="{'p-invalid': errors.slug}"
                     />
-                    <small class="form-hint">{{ $t('pages.admin.posts.slug_hint') }}</small>
+                    <small v-if="errors.slug" class="p-error">{{ errors.slug }}</small>
+                    <small v-else class="form-hint">{{ $t('pages.admin.posts.slug_hint') }}</small>
                 </div>
 
                 <div class="form-group">
@@ -139,7 +141,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-
+import { useToast } from 'primevue/usetoast'
+import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
 definePageMeta({
     layout: false,
 })
@@ -148,6 +151,7 @@ const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
+const toast = useToast()
 
 const md = ref<any>(null)
 
@@ -181,6 +185,7 @@ const allTags = ref<string[]>([]) // Should be loaded from API
 const settingsVisible = ref(false)
 const saving = ref(false)
 const categories = ref<{ id: string, name: string }[]>([])
+const errors = ref<Record<string, string>>({})
 
 const isNew = computed(() => route.params.id === 'new' || !route.params.id)
 
@@ -237,19 +242,26 @@ const imgAdd = async (pos: number, $file: File) => {
 }
 
 const savePost = async (publish = false) => {
-    if (!post.value.title) {
-        alert(t('pages.admin.posts.title_required'))
+    errors.value = {}
+    const payload = {
+        ...post.value,
+        tags: selectedTags.value,
+        status: publish ? 'published' : post.value.status,
+    }
+
+    const schema = isNew.value ? createPostSchema : updatePostSchema
+    const result = schema.safeParse(payload)
+
+    if (!result.success) {
+        result.error.issues.forEach((issue) => {
+            errors.value[String(issue.path[0])] = issue.message
+        })
+        toast.add({ severity: 'error', summary: 'Validation Error', detail: t('common.validation_error') || 'Validation failed', life: 3000 })
         return
     }
 
     saving.value = true
     try {
-        const payload = {
-            ...post.value,
-            tags: selectedTags.value,
-            status: publish ? 'published' : post.value.status,
-        }
-
         if (isNew.value) {
             const response = await $fetch<{ code: number, data: any }>('/api/posts', {
                 method: 'POST',
@@ -258,6 +270,7 @@ const savePost = async (publish = false) => {
             if (response.code === 200 && response.data?.id) {
                 post.value.id = response.data.id
                 post.value.status = response.data.status
+                toast.add({ severity: 'success', summary: 'Success', detail: t('common.save_success'), life: 3000 })
                 // Replace route to edit mode without reloading
                 router.replace(`/admin/posts/${response.data.id}`)
             }
@@ -269,12 +282,11 @@ const savePost = async (publish = false) => {
             if (publish) {
                 post.value.status = 'published'
             }
+            toast.add({ severity: 'success', summary: 'Success', detail: t('common.save_success'), life: 3000 })
         }
-        // In a real app, use a Toast service
-        // alert('保存成功');
-    } catch (error) {
+    } catch (error: any) {
         console.error('Failed to save post', error)
-        alert(t('common.save_failed') || 'Save failed')
+        toast.add({ severity: 'error', summary: 'Error', detail: error.statusMessage || t('common.save_failed'), life: 3000 })
     } finally {
         saving.value = false
     }
