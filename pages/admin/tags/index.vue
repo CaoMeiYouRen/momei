@@ -155,16 +155,16 @@ const form = ref({
 const loadData = async () => {
     pending.value = true
     try {
-        const { data } = await useFetch('/api/tags', {
+        const response = await $fetch('/api/tags', {
             query: {
                 page: page.value,
                 limit: limit.value,
                 search: filters.value.search,
             },
         })
-        if (data.value) {
-            items.value = data.value.data.list
-            total.value = data.value.data.total
+        if (response.data) {
+            items.value = response.data.list
+            total.value = response.data.total
         }
     } catch (error) {
         console.error(error)

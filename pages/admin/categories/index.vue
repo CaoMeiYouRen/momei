@@ -190,16 +190,16 @@ const parentOptions = ref<Category[]>([])
 const loadData = async () => {
     pending.value = true
     try {
-        const { data } = await useFetch('/api/categories', {
+        const response = await $fetch('/api/categories', {
             query: {
                 page: page.value,
                 limit: limit.value,
                 search: filters.value.search,
             },
         })
-        if (data.value) {
-            items.value = data.value.data.list
-            total.value = data.value.data.total
+        if (response.data) {
+            items.value = response.data.list
+            total.value = response.data.total
 
             // Update parent options (exclude current item if editing)
             // Ideally this should be a separate API call to get all categories suitable for parents
@@ -217,11 +217,11 @@ const loadData = async () => {
 const fetchParentOptions = async () => {
     // Fetch all categories for parent selection
     // In a real app with many categories, this should be a search-based dropdown
-    const { data } = await useFetch('/api/categories', {
+    const response = await $fetch('/api/categories', {
         query: { limit: 100 },
     })
-    if (data.value) {
-        parentOptions.value = data.value.data.list
+    if (response.data) {
+        parentOptions.value = response.data.list
     }
 }
 

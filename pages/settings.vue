@@ -219,13 +219,13 @@ const handleAvatarUpload = async (event: any) => {
     formData.append('file', file)
 
     try {
-        const { data } = await useFetch('/api/user/avatar', {
+        const response = await $fetch<{ code: number, data: { url: string } }>('/api/user/avatar', {
             method: 'POST',
             body: formData,
         })
 
-        if (data.value?.data?.url) {
-            profileForm.image = data.value.data.url
+        if (response.data?.url) {
+            profileForm.image = response.data.url
             toast.add({ severity: 'success', summary: 'Success', detail: 'Avatar updated successfully', life: 3000 })
             // Refresh session to get new avatar
             await authClient.getSession()
