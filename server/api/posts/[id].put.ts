@@ -74,7 +74,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (body.status) {
-        if (session.user.role === 'user' && body.status === 'published') {
+        if (session.user.role !== 'admin' && session.user.role !== 'author' && body.status === 'published') {
             post.status = 'pending'
         } else {
             post.status = body.status
