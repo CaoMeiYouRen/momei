@@ -298,14 +298,36 @@ const getStatusSeverity = (status: string) => {
     return map[status] || 'info'
 }
 
+const loadCategories = async () => {
+    try {
+        const response = await $fetch<{ data: { list: any[] } }>('/api/categories', {
+            query: { limit: 100 },
+        })
+        if (response.data) {
+            categories.value = response.data.list
+        }
+    } catch (error) {
+        console.error('Failed to load categories', error)
+    }
+}
+
+const loadTags = async () => {
+    try {
+        const response = await $fetch<{ data: { list: any[] } }>('/api/tags', {
+            query: { limit: 100 },
+        })
+        if (response.data) {
+            allTags.value = response.data.list.map((t: any) => t.name)
+        }
+    } catch (error) {
+        console.error('Failed to load tags', error)
+    }
+}
+
 onMounted(() => {
     loadPost()
-    // Mock categories for now
-    categories.value = [
-        { id: '1', name: '技术' },
-        { id: '2', name: '生活' },
-        { id: '3', name: '随笔' },
-    ]
+    loadCategories()
+    loadTags()
 })
 </script>
 
