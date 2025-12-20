@@ -64,15 +64,53 @@ API 路由位于 `server/api` 目录下。
 
 如果确有 `better-auth` 无法满足的特定业务逻辑（如复杂的头像上传处理），再考虑添加自定义接口。
 
-### 4.3 Posts
+### 4.3 Posts (文章管理)
 
--   `GET /api/posts`: 获取文章列表 (分页, 筛选)。
--   `GET /api/posts/:id`: 获取文章详情。
--   `POST /api/posts`: 创建文章 (需 Auth)。
--   `PUT /api/posts/:id`: 更新文章 (需 Auth)。
--   `DELETE /api/posts/:id`: 删除文章 (需 Auth)。
+#### Public APIs (公开接口)
 
-### 4.3 Upload
+-   `GET /api/posts`
+
+    -   **Query**:
+        -   `page`: 页码 (default: 1)
+        -   `limit`: 每页数量 (default: 10)
+        -   `tag`: 标签筛选
+        -   `category`: 分类筛选
+        -   `authorId`: 作者筛选
+        -   `search`: 关键词搜索 (标题/摘要)
+    -   **Response**: `{ list: Post[], total: number, page: number }`
+    -   **Note**: 仅返回 `status=published` 的文章。
+
+-   `GET /api/posts/:id` (或 `/api/posts/slug/:slug`)
+    -   **Response**: 文章详情，包含 `content`, `author`, `category`, `tags`。
+    -   **Note**: 增加阅读量计数 (PV)。
+
+#### Management APIs (管理接口 - 需 Auth)
+
+-   `GET /api/posts`
+
+    -   **Auth**: `admin` 或 `author`。
+    -   **Query**: 同 Public，额外支持 `status` 筛选。
+    -   **Note**: `author` 只能看到自己的文章，`admin` 可看所有。
+
+-   `POST /api/posts`
+
+    -   **Body**: `{ title, content, slug?, summary?, coverImage?, categoryId?, tags?: string[], status? }`
+    -   **Note**: 创建新文章。
+
+-   `PUT /api/posts/:id`
+
+    -   **Body**: 同 POST (部分更新)。
+    -   **Note**: 更新文章。
+
+-   `DELETE /api/posts/:id`
+
+    -   **Note**: 软删除或物理删除。
+
+-   `PATCH /api/posts/:id/status`
+    -   **Body**: `{ status: 'published' | 'draft' | 'pending' }`
+    -   **Note**: 快速修改状态 (如审核通过)。
+
+### 4.4 Upload
 
 -   `POST /api/upload`: 文件上传 (支持本地存储或 S3)。
 
