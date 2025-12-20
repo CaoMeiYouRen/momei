@@ -14,6 +14,24 @@
                 <NuxtLink :to="localePath('/posts')" class="nav-link">
                     {{ $t('pages.posts.title') }}
                 </NuxtLink>
+
+                <template v-if="user && (user.role === 'admin' || user.role === 'author')">
+                    <Button
+                        icon="pi pi-cog"
+                        text
+                        rounded
+                        aria-haspopup="true"
+                        aria-controls="admin_menu"
+                        @click="toggleAdminMenu"
+                    />
+                    <Menu
+                        id="admin_menu"
+                        ref="adminMenu"
+                        :model="adminMenuItems"
+                        :popup="true"
+                    />
+                </template>
+
                 <Button
                     :icon="isDark ? 'pi pi-moon' : 'pi pi-sun'"
                     text
@@ -40,12 +58,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { authClient } from '@/lib/auth-client'
 
+const { t } = useI18n()
 const session = authClient.useSession()
 const user = computed(() => session.value?.data?.user)
 const localePath = useLocalePath()
+
+const adminMenu = ref()
+const adminMenuItems = computed(() => [
+    {
+        label: t('pages.admin.posts.title'),
+        icon: 'pi pi-file',
+        command: () => navigateTo('/admin/posts'),
+    },
+    {
+        label: t('pages.admin.categories.title'),
+        icon: 'pi pi-folder',
+        command: () => navigateTo('/admin/categories'),
+    },
+    {
+        label: t('pages.admin.tags.title'),
+        icon: 'pi pi-tags',
+        command: () => navigateTo('/admin/tags'),
+    },
+])
+
+const toggleAdminMenu = (event: any) => {
+    adminMenu.value.toggle(event)
+}
 
 const isDark = ref(false)
 

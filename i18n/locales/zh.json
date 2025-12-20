@@ -48,6 +48,16 @@
         "tags": "标签",
         "summary": "摘要",
         "close": "关闭",
+        "cancel": "取消",
+        "confirm": "确认",
+        "delete": "删除",
+        "edit": "编辑",
+        "create": "创建",
+        "name": "名称",
+        "slug": "别名",
+        "description": "描述",
+        "parent": "父级",
+        "language": "语言",
         "save_success": "保存成功",
         "save_failed": "保存失败",
         "upload_failed": "上传失败",
@@ -75,6 +85,22 @@
                 "summary_placeholder": "文章摘要...",
                 "cover_image": "封面图 URL",
                 "title_required": "请输入文章标题"
+            },
+            "categories": {
+                "title": "分类管理",
+                "create": "新建分类",
+                "search_placeholder": "搜索分类...",
+                "delete_confirm": "确定要删除这个分类吗？",
+                "delete_success": "分类删除成功",
+                "save_success": "分类保存成功"
+            },
+            "tags": {
+                "title": "标签管理",
+                "create": "新建标签",
+                "search_placeholder": "搜索标签...",
+                "delete_confirm": "确定要删除这个标签吗？",
+                "delete_success": "标签删除成功",
+                "save_success": "标签保存成功"
             }
         },
         "posts": {

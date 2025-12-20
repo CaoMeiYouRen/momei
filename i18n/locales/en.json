@@ -48,6 +48,16 @@
         "tags": "Tags",
         "summary": "Summary",
         "close": "Close",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "delete": "Delete",
+        "edit": "Edit",
+        "create": "Create",
+        "name": "Name",
+        "slug": "Slug",
+        "description": "Description",
+        "parent": "Parent",
+        "language": "Language",
         "save_success": "Saved successfully",
         "save_failed": "Save failed",
         "upload_failed": "Upload failed",
@@ -75,6 +85,22 @@
                 "summary_placeholder": "Post summary...",
                 "cover_image": "Cover Image URL",
                 "title_required": "Please enter post title"
+            },
+            "categories": {
+                "title": "Categories Management",
+                "create": "New Category",
+                "search_placeholder": "Search categories...",
+                "delete_confirm": "Are you sure you want to delete this category?",
+                "delete_success": "Category deleted successfully",
+                "save_success": "Category saved successfully"
+            },
+            "tags": {
+                "title": "Tags Management",
+                "create": "New Tag",
+                "search_placeholder": "Search tags...",
+                "delete_confirm": "Are you sure you want to delete this tag?",
+                "delete_success": "Tag deleted successfully",
+                "save_success": "Tag saved successfully"
             }
         },
         "posts": {
