@@ -97,8 +97,8 @@ export default defineEventHandler(async (event) => {
     post.status = body.status
     post.tags = tags
 
-    // Enforce 'pending' for non-admin/author if they try to publish directly
-    if (session.user.role !== 'admin' && session.user.role !== 'author' && post.status === 'published') {
+    // Enforce 'pending' for non-admin if they try to publish directly
+    if (session.user.role !== 'admin' && post.status === 'published') {
         post.status = 'pending'
     }
 
