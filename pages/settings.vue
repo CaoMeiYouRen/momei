@@ -45,11 +45,18 @@
                                             shape="circle"
                                             class="avatar-preview"
                                         />
-                                        <InputText
-                                            v-model="profileForm.image"
-                                            placeholder="https://..."
-                                            class="avatar-input"
-                                        />
+                                        <div class="avatar-upload">
+                                            <FileUpload
+                                                mode="basic"
+                                                name="avatar"
+                                                accept="image/*"
+                                                :max-file-size="2000000"
+                                                :auto="true"
+                                                choose-label="Upload Avatar"
+                                                custom-upload
+                                                @uploader="handleAvatarUpload"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -185,6 +192,33 @@ watchEffect(() => {
         profileForm.image = session.value.data.user.image || ''
     }
 })
+
+const handleAvatarUpload = async (event: any) => {
+    const file = event.files[0]
+    if (!file) {
+        return
+    }
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+        const { data } = await useFetch('/api/user/avatar', {
+            method: 'POST',
+            body: formData,
+        })
+
+        if (data.value?.data?.url) {
+            profileForm.image = data.value.data.url
+            toast.add({ severity: 'success', summary: 'Success', detail: 'Avatar updated successfully', life: 3000 })
+            // Refresh session to get new avatar
+            await authClient.getSession()
+        }
+    } catch (error) {
+        console.error('Avatar upload failed', error)
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload avatar', life: 3000 })
+    }
+}
 
 onMounted(async () => {
     // Fetch linked accounts if available in the client
