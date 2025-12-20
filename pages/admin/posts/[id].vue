@@ -51,9 +51,11 @@
         <div class="editor-area">
             <ClientOnly>
                 <mavon-editor
+                    ref="md"
                     v-model="post.content"
                     class="mavon-editor"
                     :placeholder="$t('pages.admin.posts.content_placeholder')"
+                    @img-add="imgAdd"
                 />
             </ClientOnly>
         </div>
@@ -147,6 +149,8 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
+const md = ref<any>(null)
+
 interface Post {
     id?: string
     title: string
@@ -210,6 +214,25 @@ const searchTags = (event: { query: string }) => {
         if (!filteredTags.value.includes(event.query)) {
             // Allow creating new tags implicitly by just typing
         }
+    }
+}
+
+const imgAdd = async (pos: number, $file: File) => {
+    const formData = new FormData()
+    formData.append('file', $file)
+
+    try {
+        const { data } = await $fetch<{ code: number, data: { url: string }[] }>('/api/upload', {
+            method: 'POST',
+            body: formData,
+        })
+
+        if (data && data.length > 0 && data[0]) {
+            md.value?.$img2Url(pos, data[0].url)
+        }
+    } catch (error) {
+        console.error('Upload failed', error)
+        alert(t('common.upload_failed') || 'Upload failed')
     }
 }
 

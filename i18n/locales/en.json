@@ -29,7 +29,8 @@
         "summary": "Summary",
         "close": "Close",
         "save_success": "Saved successfully",
-        "save_failed": "Save failed"
+        "save_failed": "Save failed",
+        "upload_failed": "Upload failed"
     },
     "pages": {
         "admin": {

@@ -29,7 +29,8 @@
         "summary": "摘要",
         "close": "关闭",
         "save_success": "保存成功",
-        "save_failed": "保存失败"
+        "save_failed": "保存失败",
+        "upload_failed": "上传失败"
     },
     "pages": {
         "admin": {
