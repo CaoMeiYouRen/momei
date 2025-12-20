@@ -3,9 +3,22 @@
         "header": {
             "language": "Language",
             "title": "Momei"
+        },
+        "toc": {
+            "title": "Table of Contents"
         }
     },
+    "common": {
+        "readMore": "Read More",
+        "views": "Views",
+        "publishedAt": "Published at",
+        "author": "Author"
+    },
     "pages": {
+        "posts": {
+            "title": "Articles",
+            "empty": "No articles found"
+        },
         "login": {
             "title": "Welcome back, please login",
             "email": "Email",
