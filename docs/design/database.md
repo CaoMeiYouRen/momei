@@ -13,6 +13,8 @@ erDiagram
     User ||--o| TwoFactor : "has"
     User ||--o{ Post : "authors"
     User ||--o{ Comment : "writes"
+    Post }o--|| Category : "belongs to"
+    Post }o--o{ Tag : "has"
 
     User {
         string id PK
@@ -106,17 +108,55 @@ _(待完善，后续迭代补充)_
 
 #### Post (文章表)
 
-| 字段名     | 类型    | 必填 | 说明                            |
-| :--------- | :------ | :--- | :------------------------------ |
-| `id`       | varchar | Yes  | 主键                            |
-| `title`    | varchar | Yes  | 标题                            |
-| `slug`     | varchar | Yes  | URL 别名 (唯一)                 |
-| `content`  | text    | Yes  | Markdown 内容                   |
-| `authorId` | varchar | Yes  | 作者 ID                         |
-| `status`   | varchar | Yes  | 状态: published, draft, pending |
+| 字段名          | 类型     | 必填 | 说明                            |
+| :-------------- | :------- | :--- | :------------------------------ |
+| `id`            | varchar  | Yes  | 主键                            |
+| `title`         | varchar  | Yes  | 标题                            |
+| `slug`          | varchar  | Yes  | URL 别名 (唯一)                 |
+| `content`       | text     | Yes  | Markdown 内容                   |
+| `summary`       | text     | No   | 摘要/SEO 描述                   |
+| `coverImage`    | text     | No   | 封面图片 URL                    |
+| `language`      | varchar  | Yes  | 语言代码 (默认 'zh')            |
+| `translationId` | varchar  | No   | 翻译组 ID (用于关联多语言版本)  |
+| `authorId`      | varchar  | Yes  | 作者 ID                         |
+| `categoryId`    | varchar  | No   | 分类 ID                         |
+| `status`        | varchar  | Yes  | 状态: published, draft, pending |
+| `views`         | integer  | No   | 阅读量 (默认 0)                 |
+| `publishedAt`   | datetime | No   | 发布时间                        |
+| `createdAt`     | datetime | Yes  | 创建时间                        |
+| `updatedAt`     | datetime | Yes  | 更新时间                        |
+
+#### Category (分类表)
+
+| 字段名          | 类型     | 必填 | 唯一 | 说明                           |
+| :-------------- | :------- | :--- | :--- | :----------------------------- |
+| `id`            | varchar  | Yes  | Yes  | 主键                           |
+| `name`          | varchar  | Yes  | No   | 分类名称                       |
+| `slug`          | varchar  | Yes  | Yes  | URL 别名                       |
+| `description`   | text     | No   | No   | 描述                           |
+| `parentId`      | varchar  | No   | No   | 父分类 ID (层级关系)           |
+| `language`      | varchar  | Yes  | No   | 语言代码 (默认 'zh')           |
+| `translationId` | varchar  | No   | No   | 翻译组 ID (用于关联多语言版本) |
+| `createdAt`     | datetime | Yes  | No   | 创建时间                       |
+| `updatedAt`     | datetime | Yes  | No   | 更新时间                       |
+
+#### Tag (标签表)
+
+| 字段名          | 类型     | 必填 | 唯一 | 说明                           |
+| :-------------- | :------- | :--- | :--- | :----------------------------- |
+| `id`            | varchar  | Yes  | Yes  | 主键                           |
+| `name`          | varchar  | Yes  | Yes  | 标签名称                       |
+| `slug`          | varchar  | Yes  | Yes  | URL 别名                       |
+| `language`      | varchar  | Yes  | No   | 语言代码 (默认 'zh')           |
+| `translationId` | varchar  | No   | No   | 翻译组 ID (用于关联多语言版本) |
+| `createdAt`     | datetime | Yes  | No   | 创建时间                       |
+| `updatedAt`     | datetime | Yes  | No   | 更新时间                       |
 
 ## 4. 索引策略 (Indexing Strategy)
 
 -   **User**: `email` (Unique), `username` (Unique)
 -   **Session**: `token` (Unique), `userId`
+-   **Post**: `slug` (Unique), `authorId`, `createdAt` (用于排序)
+-   **Category**: `slug` (Unique), `parentId`
+-   **Tag**: `slug` (Unique), `name` (Unique)
 -   **Post**: `slug` (Unique), `authorId`, `createdAt` (用于排序)
