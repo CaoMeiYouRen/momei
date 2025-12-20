@@ -234,7 +234,7 @@
     -   删除需二次确认。
     -   支持批量操作 (如批量删除、批量发布)。
 
-#### 文章编辑器 (`/admin/posts/new`, `/admin/posts/:id/edit`)
+#### 文章编辑器 (`/admin/posts/new`, `/admin/posts/:id`)
 
 -   **布局**: 全屏沉浸式编辑器。
 -   **区域**:

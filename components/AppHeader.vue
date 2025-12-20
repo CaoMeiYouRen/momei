@@ -11,17 +11,74 @@
             </NuxtLink>
 
             <div class="app-header__actions">
+                <NuxtLink :to="localePath('/posts')" class="nav-link">
+                    {{ $t('pages.posts.title') }}
+                </NuxtLink>
+                <Button
+                    :icon="isDark ? 'pi pi-moon' : 'pi pi-sun'"
+                    text
+                    rounded
+                    @click="toggleDark"
+                />
                 <LanguageSwitcher />
+                <Button
+                    v-if="!user"
+                    :label="$t('pages.login.submit')"
+                    text
+                    @click="navigateTo('/login')"
+                />
+                <Button
+                    v-else
+                    icon="pi pi-user"
+                    text
+                    rounded
+                    @click="navigateTo('/settings')"
+                />
             </div>
         </div>
     </header>
 </template>
 
 <script setup lang="ts">
-// Imports are auto-handled by Nuxt
+import { ref, onMounted } from 'vue'
+import { authClient } from '@/lib/auth-client'
+
+const session = authClient.useSession()
+const user = computed(() => session.value?.data?.user)
+const localePath = useLocalePath()
+
+const isDark = ref(false)
+
+const toggleDark = () => {
+    isDark.value = !isDark.value
+    if (isDark.value) {
+        document.documentElement.classList.add('dark')
+    } else {
+        document.documentElement.classList.remove('dark')
+    }
+    localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
+}
+
+onMounted(() => {
+    const saved = localStorage.getItem('theme')
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        isDark.value = true
+        document.documentElement.classList.add('dark')
+    }
+})
 </script>
 
 <style lang="scss" scoped>
+.nav-link {
+    color: var(--p-text-color);
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+        color: var(--p-primary-color);
+    }
+}
+
 .app-header {
     background-color: var(--p-surface-0);
     border-bottom: 1px solid var(--p-surface-200);
