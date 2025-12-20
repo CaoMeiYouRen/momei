@@ -4,6 +4,7 @@ import { BaseEntity } from './base-entity'
 import { TwoFactor } from './two-factor'
 import { Account } from './account'
 import { Session } from './session'
+import { Post } from './post'
 
 @Entity('user')
 export class User extends BaseEntity {
@@ -120,5 +121,15 @@ export class User extends BaseEntity {
         onDelete: 'CASCADE',
     })
     sessions?: Session[]
+
+    /**
+     * 用户的文章（一对多关系）
+     */
+    @OneToMany(() => Post, (post) => post.author, {
+        cascade: true,
+        onDelete: 'CASCADE',
+    })
+    posts?: Post[]
+
 
 }
