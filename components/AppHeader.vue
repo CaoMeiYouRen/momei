@@ -33,7 +33,7 @@
                 </template>
 
                 <Button
-                    :icon="isDark ? 'pi pi-moon' : 'pi pi-sun'"
+                    :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
                     text
                     rounded
                     @click="toggleDark"
