@@ -1,4 +1,24 @@
 {
+    "app": {
+        "name": "墨梅博客"
+    },
+    "home": {
+        "meta": {
+            "title": "首页 - 墨梅博客",
+            "description": "墨梅博客是一个基于 Nuxt 3 构建的现代化博客平台，分享技术、生活与思考。"
+        },
+        "hero": {
+            "title": "探索技术与生活的边界",
+            "subtitle": "分享编程心得、技术教程以及对生活的独特见解。让我们一起在代码的世界里寻找诗意。",
+            "cta": "开始阅读"
+        },
+        "latest_posts": {
+            "title": "最新文章"
+        },
+        "about": {
+            "description": "墨梅博客致力于提供高质量的技术内容和良好的阅读体验。我们关注 Web 开发、人工智能以及软件工程的最佳实践。"
+        }
+    },
     "components": {
         "header": {
             "language": "语言",
@@ -30,7 +50,10 @@
         "close": "关闭",
         "save_success": "保存成功",
         "save_failed": "保存失败",
-        "upload_failed": "上传失败"
+        "upload_failed": "上传失败",
+        "about": "关于",
+        "view_all": "查看全部",
+        "error_loading": "加载失败"
     },
     "pages": {
         "admin": {

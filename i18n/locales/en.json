@@ -1,4 +1,24 @@
 {
+    "app": {
+        "name": "Momei Blog"
+    },
+    "home": {
+        "meta": {
+            "title": "Home - Momei Blog",
+            "description": "Momei Blog is a modern blog platform built with Nuxt 3, sharing technology, life, and thoughts."
+        },
+        "hero": {
+            "title": "Explore the Boundaries of Tech & Life",
+            "subtitle": "Sharing programming insights, technical tutorials, and unique perspectives on life. Let's find poetry in the world of code.",
+            "cta": "Start Reading"
+        },
+        "latest_posts": {
+            "title": "Latest Posts"
+        },
+        "about": {
+            "description": "Momei Blog is dedicated to providing high-quality technical content and a great reading experience. We focus on Web Development, AI, and Software Engineering best practices."
+        }
+    },
     "components": {
         "header": {
             "language": "Language",
@@ -30,7 +50,10 @@
         "close": "Close",
         "save_success": "Saved successfully",
         "save_failed": "Save failed",
-        "upload_failed": "Upload failed"
+        "upload_failed": "Upload failed",
+        "about": "About",
+        "view_all": "View All",
+        "error_loading": "Error loading content"
     },
     "pages": {
         "admin": {

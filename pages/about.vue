@@ -1,27 +1,5 @@
 <template>
     <div class="home-page">
-        <!-- 导航栏 -->
-        <header class="header">
-            <div class="container header__container">
-                <a href="#" class="logo">
-                    <div class="logo__icon">
-                        <span class="logo__text">梅</span>
-                    </div>
-                    <span class="logo__title">墨梅</span>
-                </a>
-
-                <nav class="nav">
-                    <a href="#about" class="nav__link">关于</a>
-                    <a href="#features" class="nav__link">功能</a>
-                    <a href="#contact" class="nav__link">联系我们</a>
-                </nav>
-
-                <button class="mobile-menu-btn">
-                    <i class="fa fa-bars" />
-                </button>
-            </div>
-        </header>
-
         <!-- 英雄区 -->
         <section class="hero">
             <div class="container hero__container">
