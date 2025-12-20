@@ -8,6 +8,13 @@ export default defineNuxtRouteMiddleware(async (to) => {
     if (to.path.startsWith('/api/auth') && !to.path.startsWith('/api/auth/admin')) {
         return true
     }
+    /**
+     * TODO：优化 useFetch 里的 cookie 传递问题
+     * 在这里手动转发 cookie，以确保在中间件中正确获取会话信息。
+     * 可能是 better-auth 或 Nuxt 处理请求头的方式变更导致的问题，所以需要手动处理。
+     * （原本默认使用 useFetch 应该就会处理 cookie）
+     * 需要再观察一下，以采用更优雅的解决方案。
+     */
     const { data: session } = await authClient.useSession((url, options) => useFetch(url, {
         ...options,
         headers: {
