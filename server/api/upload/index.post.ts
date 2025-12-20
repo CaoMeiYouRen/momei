@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto'
 import path from 'path'
-import fs from 'fs-extra'
 import { auth } from '@/lib/auth'
+import { getFileStorage, type FileStorageEnv } from '@/server/utils/storage/factory'
 
 export default defineEventHandler(async (event) => {
     const session = await auth.api.getSession({
@@ -18,21 +18,22 @@ export default defineEventHandler(async (event) => {
     }
 
     const uploadedFiles = []
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads')
-    await fs.ensureDir(uploadDir)
+    const storageType = process.env.STORAGE_TYPE || 's3' // Default to s3 if not set, or could be 'vercel-blob'
+    const storage = getFileStorage(storageType, process.env as unknown as FileStorageEnv)
 
     for (const file of files) {
-        if (!file.filename) { continue }
+        if (!file.filename) {
+            continue
+        }
 
         const ext = path.extname(file.filename)
         const newFilename = `${randomUUID()}${ext}`
-        const filePath = path.join(uploadDir, newFilename)
 
-        await fs.writeFile(filePath, file.data)
+        const { url } = await storage.upload(file.data, newFilename, file.type)
 
         uploadedFiles.push({
             filename: file.filename,
-            url: `/uploads/${newFilename}`,
+            url,
             mimetype: file.type,
         })
     }
