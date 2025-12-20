@@ -237,8 +237,7 @@ $color-ink: #2D3748;
 $color-plum: #E53E3E;
 $color-paper: #F7FAFC;
 $color-accent: #4A5568;
-$color-white: #ffffff;
-
+$color-white: #fff;
 $font-sans: 'Inter', 'system-ui', 'sans-serif';
 $font-serif: '"Noto Serif SC"', 'serif';
 
@@ -256,10 +255,13 @@ $font-serif: '"Noto Serif SC"', 'serif';
   padding-right: 1rem;
   padding-left: 1rem;
 
-  @media (min-width: 640px) { max-width: 640px; }
-  @media (min-width: 768px) { max-width: 768px; }
-  @media (min-width: 1024px) { max-width: 1024px; }
-  @media (min-width: 1280px) { max-width: 1280px; }
+  @media (width >= 640px) { max-width: 640px; }
+
+  @media (width >= 768px) { max-width: 768px; }
+
+  @media (width >= 1024px) { max-width: 1024px; }
+
+  @media (width >= 1280px) { max-width: 1280px; }
 }
 
 .text-center {
@@ -283,9 +285,9 @@ $font-serif: '"Noto Serif SC"', 'serif';
 .header {
   position: fixed;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgb(255 255 255 / 0.9);
   backdrop-filter: blur(4px);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   z-index: 50;
   top: 0;
 
@@ -332,7 +334,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
   display: none;
   gap: 2rem;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     display: flex;
   }
 
@@ -355,20 +357,17 @@ $font-serif: '"Noto Serif SC"', 'serif';
   font-size: 1.25rem;
   cursor: pointer;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     display: none;
   }
 }
 
 // Hero Section
 .hero {
-  padding-top: 8rem;
-  padding-bottom: 5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding: 8rem 1rem 5rem;
   background: linear-gradient(to bottom, $color-white, $color-paper);
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     padding-top: 10rem;
     padding-bottom: 8rem;
   }
@@ -389,9 +388,9 @@ $font-serif: '"Noto Serif SC"', 'serif';
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
 
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       width: 8rem;
       height: 8rem;
     }
@@ -402,7 +401,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
     font-family: $font-serif;
     font-size: 2.25rem;
 
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       font-size: 3rem;
     }
   }
@@ -414,7 +413,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
     margin-bottom: 1.5rem;
     color: $color-ink;
 
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       font-size: 3.75rem;
     }
   }
@@ -427,7 +426,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
     margin-left: auto;
     margin-right: auto;
 
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       font-size: 1.5rem;
     }
   }
@@ -449,10 +448,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
 
 // Sections
 .section {
-  padding-top: 5rem;
-  padding-bottom: 5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding: 5rem 1rem;
 
   &--white {
     background-color: $color-white;
@@ -480,12 +476,12 @@ $font-serif: '"Noto Serif SC"', 'serif';
   max-width: 56rem; // max-w-4xl
   margin: 0 auto;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex-direction: row;
   }
 
   &__left, &__right {
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       width: 50%;
     }
   }
@@ -528,7 +524,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
   max-width: 56rem;
   margin: 0 auto;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
@@ -537,11 +533,11 @@ $font-serif: '"Noto Serif SC"', 'serif';
   background-color: $color-white;
   padding: 1.5rem;
   border-radius: 0.5rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   transition: all 0.3s ease-in-out;
 
   &:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
   }
 
   &__icon-wrapper {
@@ -579,7 +575,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
   gap: 2rem;
   margin-bottom: 3rem;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex-direction: row;
     gap: 4rem;
   }
@@ -613,10 +609,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
 
 // Footer
 .footer {
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding: 2rem 1rem;
   background-color: $color-ink;
   color: $color-white;
   text-align: center;
@@ -651,7 +644,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
 
   &__copyright {
     font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgb(255 255 255 / 0.7);
   }
 }
 </style>

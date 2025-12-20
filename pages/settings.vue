@@ -335,7 +335,7 @@ const handleChangePassword = async () => {
     gap: 2rem;
     align-items: flex-start;
 
-    @media (max-width: 768px) {
+    @media (width <= 768px) {
         flex-direction: column;
     }
 }
@@ -347,7 +347,7 @@ const handleChangePassword = async () => {
     flex-direction: column;
     gap: 0.5rem;
 
-    @media (max-width: 768px) {
+    @media (width <= 768px) {
         width: 100%;
         flex-direction: row;
         overflow-x: auto;

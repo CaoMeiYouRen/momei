@@ -40,7 +40,12 @@ const renderedContent = computed(() => md.render(props.content || ''))
     }
 
     h1 { font-size: 2.25em; }
-    h2 { font-size: 1.75em; border-bottom: 1px solid var(--p-surface-200); padding-bottom: 0.3em; }
+
+    h2 {
+        font-size: 1.75em;
+        border-bottom: 1px solid var(--p-surface-200);
+        padding-bottom: 0.3em;
+    }
     h3 { font-size: 1.5em; }
     h4 { font-size: 1.25em; }
 
@@ -163,6 +168,7 @@ const renderedContent = computed(() => md.render(props.content || ''))
             th, td {
                 border-color: var(--p-surface-700);
             }
+
             th {
                 background-color: var(--p-surface-800);
             }
