@@ -57,7 +57,7 @@
                     </template>
                 </Column>
                 <Column field="views" :header="$t('common.views')" />
-                <Column field="publishedAt" :header="$t('common.publishedAt')">
+                <Column field="publishedAt" :header="$t('common.published_at')">
                     <template #body="slotProps">
                         {{ formatDate(slotProps.data.publishedAt) }}
                     </template>

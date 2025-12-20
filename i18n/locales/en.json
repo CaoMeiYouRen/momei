@@ -9,9 +9,9 @@
         }
     },
     "common": {
-        "readMore": "Read More",
+        "read_more": "Read More",
         "views": "Views",
-        "publishedAt": "Published at",
+        "published_at": "Published at",
         "author": "Author",
         "status": {
             "published": "Published",

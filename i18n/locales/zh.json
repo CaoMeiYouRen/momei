@@ -9,9 +9,9 @@
         }
     },
     "common": {
-        "readMore": "阅读更多",
+        "read_more": "阅读更多",
         "views": "阅读",
-        "publishedAt": "发布于",
+        "published_at": "发布于",
         "author": "作者",
         "status": {
             "published": "已发布",

@@ -38,7 +38,7 @@
                     severity="secondary"
                 />
                 <Button
-                    :label="$t('common.readMore')"
+                    :label="$t('common.read_more')"
                     icon="pi pi-arrow-right"
                     icon-pos="right"
                     link
