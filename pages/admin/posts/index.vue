@@ -96,7 +96,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import dayjs from 'dayjs'
+import { formatDate } from '@/utils/shared/date'
 
 definePageMeta({
     layout: 'default',
@@ -192,10 +192,6 @@ const getStatusSeverity = (status: string) => {
         pending: 'warn',
     }
     return map[status] || 'info'
-}
-
-const formatDate = (date: string) => {
-    return date ? dayjs(date).format('YYYY-MM-DD HH:mm') : '-'
 }
 
 onMounted(() => {

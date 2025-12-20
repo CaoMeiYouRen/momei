@@ -115,6 +115,7 @@
 
 <script setup lang="ts">
 import { isSnowflakeId } from '@/utils/shared/validate'
+import { formatDate } from '@/utils/shared/date'
 
 const route = useRoute()
 const localePath = useLocalePath()
@@ -129,10 +130,6 @@ const endpoint = isId ? `/api/posts/${idOrSlug}` : `/api/posts/slug/${idOrSlug}`
 const { data, pending, error } = await useFetch<any>(endpoint)
 
 const post = computed(() => data.value?.data)
-
-const formatDate = (date: string | Date) => {
-    return new Date(date).toLocaleDateString()
-}
 
 useHead({
     title: computed(() => post.value?.title || 'Article'),

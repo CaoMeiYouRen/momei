@@ -51,6 +51,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatDate } from '@/utils/shared/date'
+
 interface Author {
     id: string
     name: string
@@ -82,10 +84,6 @@ const localePath = useLocalePath()
 
 const navigateToPost = () => {
     navigateTo(localePath(`/posts/${props.post.slug || props.post.id}`))
-}
-
-const formatDate = (date: string | Date) => {
-    return new Date(date).toLocaleDateString()
 }
 </script>
 
