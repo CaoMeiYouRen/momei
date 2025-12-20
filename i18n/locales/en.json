@@ -48,6 +48,8 @@
         "tags": "Tags",
         "summary": "Summary",
         "close": "Close",
+        "drag_drop_tip": "Release mouse to import file",
+        "drag_drop_help": "Drag & drop Markdown or image files to editor",
         "cancel": "Cancel",
         "confirm": "Confirm",
         "delete": "Delete",

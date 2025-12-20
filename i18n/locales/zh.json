@@ -48,6 +48,8 @@
         "tags": "标签",
         "summary": "摘要",
         "close": "关闭",
+        "drag_drop_tip": "松开鼠标导入文件",
+        "drag_drop_help": "支持拖拽 Markdown 或图片文件到编辑器",
         "cancel": "取消",
         "confirm": "确认",
         "delete": "删除",

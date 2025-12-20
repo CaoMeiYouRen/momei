@@ -1,5 +1,11 @@
 <template>
-    <div class="editor-layout">
+    <div
+        class="editor-layout"
+        :class="{'drag-over': isDragging}"
+        @dragover.prevent="onDragOver"
+        @dragleave.prevent="onDragLeave"
+        @drop.prevent="onDrop"
+    >
         <!-- Top Bar -->
         <div class="top-bar">
             <div class="top-bar-left">
@@ -37,6 +43,13 @@
                     :loading="saving"
                     severity="contrast"
                     @click="savePost(true)"
+                />
+                <Button
+                    v-tooltip="$t('common.drag_drop_help')"
+                    icon="pi pi-info-circle"
+                    text
+                    rounded
+                    severity="secondary"
                 />
                 <Button
                     v-tooltip="$t('common.settings')"
@@ -135,6 +148,16 @@
                 </div>
             </template>
         </Drawer>
+
+        <!-- Drag Mask -->
+        <div v-if="isDragging" class="drag-mask">
+            <div class="drag-tip">
+                <i class="pi pi-upload upload-icon" />
+                <div class="upload-text">
+                    {{ $t('common.drag_drop_tip') }}
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -186,6 +209,7 @@ const settingsVisible = ref(false)
 const saving = ref(false)
 const categories = ref<{ id: string, name: string }[]>([])
 const errors = ref<Record<string, string>>({})
+const isDragging = ref(false)
 
 const isNew = computed(() => route.params.id === 'new' || !route.params.id)
 
@@ -221,23 +245,148 @@ const searchTags = (event: { query: string }) => {
         }
     }
 }
+const uploadFile = async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const { data } = await $fetch<{ code: number, data: { url: string }[] }>('/api/upload', {
+        method: 'POST',
+        body: formData,
+    })
+
+    return data?.[0]?.url
+}
 
 const imgAdd = async (pos: number, $file: File) => {
-    const formData = new FormData()
-    formData.append('file', $file)
-
     try {
-        const { data } = await $fetch<{ code: number, data: { url: string }[] }>('/api/upload', {
-            method: 'POST',
-            body: formData,
-        })
-
-        if (data && data.length > 0 && data[0]) {
-            md.value?.$img2Url(pos, data[0].url)
+        const url = await uploadFile($file)
+        if (url) {
+            md.value?.$img2Url(pos, url)
         }
     } catch (error) {
         console.error('Upload failed', error)
-        alert(t('common.upload_failed') || 'Upload failed')
+        toast.add({ severity: 'error', summary: 'Error', detail: t('common.upload_failed') || 'Upload failed', life: 3000 })
+    }
+}
+
+const onDragOver = (e: DragEvent) => {
+    if (e.dataTransfer?.types?.includes('Files')) {
+        isDragging.value = true
+    }
+}
+
+const onDragLeave = (e: DragEvent) => {
+    // Prevent flickering when dragging over child elements
+    if (e.currentTarget && (e.relatedTarget === null || !(e.currentTarget as HTMLElement).contains(e.relatedTarget as Node))) {
+        isDragging.value = false
+    }
+}
+
+const parseFrontMatter = (text: string) => {
+    const lines = text.split('\n')
+    const result: Record<string, any> = {}
+    for (const line of lines) {
+        const match = line.match(/^(\w+):\s*(.+)$/)
+        if (match && match[1] && match[2]) {
+            const key = match[1].trim()
+            let value = match[2].trim()
+            // Simple array handling [a, b]
+            if (value.startsWith('[') && value.endsWith(']')) {
+                result[key] = value.slice(1, -1).split(',').map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
+            } else {
+                result[key] = value.replace(/^['"]|['"]$/g, '')
+            }
+        }
+    }
+    return result
+}
+
+const handleMarkdownImport = (file: File) => {
+    const reader = new FileReader()
+    reader.readAsText(file, 'utf-8')
+    reader.onload = () => {
+        let markdown = reader.result as string
+        if (!markdown) {
+            toast.add({ severity: 'warn', summary: 'Warning', detail: 'File is empty', life: 3000 })
+            return
+        }
+
+        const metaReg = /---\r?\n([\s\S]*?)\r?\n---/
+        // const removePattern2 = /^# \s*(.+)\n/
+        const metaText = markdown.match(metaReg)
+        markdown = markdown.replace(/\r\n/g, '\n').replace(/\t/g, '    ').trim()
+
+        let frontMatter: any = {}
+        if (metaText?.[1]) {
+            frontMatter = parseFrontMatter(metaText[1])
+        }
+
+        const content = markdown.replace(metaReg, '').trim()
+
+        // Update post data
+        post.value.content = content
+        if (frontMatter.title) post.value.title = frontMatter.title
+        if (frontMatter.slug || frontMatter.abbrlink) post.value.slug = frontMatter.slug || frontMatter.abbrlink
+        if (frontMatter.description || frontMatter.desc) post.value.summary = frontMatter.description || frontMatter.desc
+        if (frontMatter.image || frontMatter.cover || frontMatter.thumb) post.value.coverImage = frontMatter.image || frontMatter.cover || frontMatter.thumb
+
+        // Handle tags
+        if (frontMatter.tags) {
+            if (Array.isArray(frontMatter.tags)) {
+                selectedTags.value = frontMatter.tags
+            } else if (typeof frontMatter.tags === 'string') {
+                selectedTags.value = [frontMatter.tags]
+            }
+        }
+
+        // Handle category (try to match existing categories)
+        if (frontMatter.categories || frontMatter.category) {
+            const catName = Array.isArray(frontMatter.categories) ? frontMatter.categories[0] : (frontMatter.categories || frontMatter.category)
+            if (catName) {
+                const foundCat = categories.value.find((c) => c.name.toLowerCase() === catName.toLowerCase())
+                if (foundCat) {
+                    post.value.categoryId = foundCat.id
+                } else {
+                    // Optional: Create new category or just warn
+                    toast.add({ severity: 'info', summary: 'Info', detail: `Category "${catName}" not found`, life: 3000 })
+                }
+            }
+        }
+
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Markdown imported successfully', life: 3000 })
+    }
+}
+
+const handleImageUpload = async (file: File) => {
+    try {
+        const url = await uploadFile(file)
+        if (url) {
+            // Insert image at the end of content
+            post.value.content += `\n![${file.name}](${url})\n`
+            toast.add({ severity: 'success', summary: 'Success', detail: 'Image uploaded', life: 3000 })
+        }
+    } catch (error) {
+        console.error('Upload failed', error)
+        toast.add({ severity: 'error', summary: 'Error', detail: t('common.upload_failed') || 'Upload failed', life: 3000 })
+    }
+}
+
+const onDrop = async (e: DragEvent) => {
+    isDragging.value = false
+    const files = e.dataTransfer?.files
+    if (!files || files.length === 0) return
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files.item(i)
+        if (!file) continue
+
+        if (file.name.endsWith('.md') || file.name.endsWith('.markdown')) {
+            handleMarkdownImport(file)
+        } else if (file.type.startsWith('image/')) {
+            await handleImageUpload(file)
+        } else {
+            toast.add({ severity: 'warn', summary: 'Warning', detail: `Unsupported file type: ${file.name}`, life: 3000 })
+        }
     }
 }
 
@@ -349,6 +498,37 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     background-color: var(--p-surface-50);
+    position: relative;
+}
+
+.drag-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 3px dashed var(--p-primary-500);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    backdrop-filter: blur(2px);
+
+    i {
+        font-size: 4rem;
+        color: var(--p-primary-500);
+        margin-bottom: 1rem;
+    }
+
+    p {
+        font-size: 1.5rem;
+        color: var(--p-primary-500);
+        font-weight: bold;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
 }
 
 .top-bar {

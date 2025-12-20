@@ -59,7 +59,7 @@
                 <Column field="views" :header="$t('common.views')" />
                 <Column field="publishedAt" :header="$t('common.published_at')">
                     <template #body="slotProps">
-                        {{ formatDate(slotProps.data.publishedAt) }}
+                        {{ formatDateTime(slotProps.data.publishedAt) }}
                     </template>
                 </Column>
                 <Column
@@ -96,7 +96,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { formatDate } from '@/utils/shared/date'
+import { formatDate, formatDateTime } from '@/utils/shared/date'
 
 definePageMeta({
     layout: 'default',
