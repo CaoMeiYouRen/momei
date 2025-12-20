@@ -40,8 +40,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // Increment views
-    await postRepo.increment({ id: post.id }, 'views', 1)
-    post.views += 1
+    // TODO: Implement PV calculation logic in Post-MVP phase
+    // Requirements:
+    // 1. Only increment for logged-in users
+    // 2. Check if request is from browser (User-Agent)
+    // 3. Implement rate limiting/anti-abuse
 
     return {
         code: 200,
