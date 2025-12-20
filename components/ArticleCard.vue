@@ -5,6 +5,9 @@
                 :src="post.coverImage"
                 :alt="post.title"
                 class="duration-300 h-full hover:scale-105 object-cover transition-transform w-full"
+                width="640"
+                height="360"
+                style="object-fit: cover; width: 100%; height: 100%;"
             >
         </div>
         <div class="p-4">

@@ -38,6 +38,9 @@
                     :src="post.coverImage"
                     :alt="post.title"
                     class="h-full object-cover w-full"
+                    width="1200"
+                    height="514"
+                    style="object-fit: cover; width: 100%; height: 100%;"
                 >
             </div>
 
