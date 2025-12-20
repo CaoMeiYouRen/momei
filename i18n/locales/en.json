@@ -29,6 +29,7 @@
         }
     },
     "common": {
+        "home": "Home",
         "read_more": "Read More",
         "views": "Views",
         "published_at": "Published at",

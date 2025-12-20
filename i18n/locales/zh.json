@@ -29,6 +29,7 @@
         }
     },
     "common": {
+        "home": "首页",
         "read_more": "阅读更多",
         "views": "阅读",
         "published_at": "发布于",

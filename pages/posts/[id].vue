@@ -47,11 +47,11 @@
                     <!-- Header -->
                     <header class="mb-8">
                         <div class="dark:text-gray-400 flex gap-2 items-center mb-4 text-gray-500 text-sm">
-                            <NuxtLink :to="localePath('/')" class="hover:text-primary-500">
-                                Home
+                            <NuxtLink :to="localePath('/')" class="breadcrumb-link">
+                                {{ $t('common.home') }}
                             </NuxtLink>
                             <i class="pi pi-angle-right text-xs" />
-                            <NuxtLink :to="localePath('/posts')" class="hover:text-primary-500">
+                            <NuxtLink :to="localePath('/posts')" class="breadcrumb-link">
                                 {{ $t('pages.posts.title') }}
                             </NuxtLink>
                             <i class="pi pi-angle-right text-xs" />
@@ -105,9 +105,9 @@
                 </main>
 
                 <!-- Sidebar (TOC) -->
-                <aside class="flex-shrink-0 hidden lg:block w-64">
+                <!-- <aside class="flex-shrink-0 hidden lg:block w-64">
                     <TableOfContents :content="post.content" />
-                </aside>
+                </aside> -->
             </div>
         </div>
     </div>
@@ -138,3 +138,16 @@ useHead({
     ],
 })
 </script>
+
+<style lang="scss" scoped>
+.breadcrumb-link {
+    color: var(--p-text-muted-color);
+    text-decoration: none;
+    transition: color 0.2s;
+
+    &:hover {
+        color: var(--p-primary-color);
+        text-decoration: underline;
+    }
+}
+</style>
