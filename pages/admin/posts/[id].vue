@@ -49,19 +49,13 @@
 
         <!-- Editor Area -->
         <div class="editor-area">
-            <!-- Markdown Input -->
-            <div class="editor-input-container">
-                <textarea
+            <ClientOnly>
+                <mavon-editor
                     v-model="post.content"
-                    class="editor-textarea"
+                    class="mavon-editor"
                     :placeholder="$t('pages.admin.posts.content_placeholder')"
                 />
-            </div>
-            <!-- Preview -->
-            <div class="editor-preview-container">
-                <!-- eslint-disable-next-line vue/no-v-html -->
-                <div class="markdown-body" v-html="renderedContent" />
-            </div>
+            </ClientOnly>
         </div>
 
         <!-- Settings Drawer -->
@@ -142,7 +136,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import MarkdownIt from 'markdown-it'
 import { useRoute, useRouter } from 'vue-router'
 
 definePageMeta({
@@ -153,11 +146,6 @@ const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
-const md = new MarkdownIt({
-    html: true,
-    linkify: true,
-    typographer: true,
-})
 
 interface Post {
     id?: string
@@ -191,10 +179,6 @@ const saving = ref(false)
 const categories = ref<{ id: string, name: string }[]>([])
 
 const isNew = computed(() => route.params.id === 'new' || !route.params.id)
-
-const renderedContent = computed(() => {
-    return md.render(post.value.content || '')
-})
 
 const loadPost = async () => {
     if (isNew.value) return
@@ -358,34 +342,12 @@ onMounted(() => {
     flex: 1;
     display: flex;
     overflow: hidden;
-}
 
-.editor-input-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid var(--p-surface-200);
-    background-color: var(--p-surface-0);
-}
-
-.editor-textarea {
-    flex: 1;
-    width: 100%;
-    padding: 1.5rem;
-    resize: none;
-    background: transparent;
-    border: none;
-    outline: none;
-    font-family: monospace;
-    font-size: 1.125rem;
-    line-height: 1.6;
-}
-
-.editor-preview-container {
-    flex: 1;
-    overflow-y: auto;
-    background-color: var(--p-surface-50);
-    padding: 1.5rem;
+    .mavon-editor {
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
 }
 
 .settings-drawer {
@@ -422,105 +384,12 @@ onMounted(() => {
     resize: none;
 }
 
-/* Markdown Preview Styles */
-.markdown-body {
-    max-width: 100%;
-    margin: 0 auto;
-
-    :deep(h1) {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-    }
-
-    :deep(h2) {
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin-bottom: 0.75rem;
-        margin-top: 1.5rem;
-    }
-
-    :deep(h3) {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        margin-top: 1rem;
-    }
-
-    :deep(p) {
-        margin-bottom: 1rem;
-        line-height: 1.6;
-    }
-
-    :deep(ul) {
-        list-style-type: disc;
-        padding-left: 1.25rem;
-        margin-bottom: 1rem;
-    }
-
-    :deep(ol) {
-        list-style-type: decimal;
-        padding-left: 1.25rem;
-        margin-bottom: 1rem;
-    }
-
-    :deep(blockquote) {
-        border-left: 4px solid var(--p-surface-300);
-        padding-left: 1rem;
-        font-style: italic;
-        margin: 1rem 0;
-    }
-
-    :deep(pre) {
-        background-color: var(--p-surface-900);
-        color: var(--p-surface-50);
-        padding: 1rem;
-        border-radius: 0.5rem;
-        overflow-x: auto;
-        margin-bottom: 1rem;
-    }
-
-    :deep(code) {
-        background-color: var(--p-surface-200);
-        padding: 0.2rem 0.4rem;
-        border-radius: 0.25rem;
-        font-family: monospace;
-        font-size: 0.875rem;
-    }
-
-    :deep(img) {
-        max-width: 100%;
-        height: auto;
-        border-radius: 0.5rem;
-        margin: 1rem 0;
-    }
-
-    :deep(a) {
-        color: var(--p-primary-500);
-        text-decoration: none;
-
-        &:hover {
-            text-decoration: underline;
-        }
-    }
-}
-
 :global(.dark) {
     .editor-layout { background-color: var(--p-surface-950); }
 
     .top-bar {
         border-color: var(--p-surface-700);
         background-color: var(--p-surface-900);
-    }
-
-    .editor-input-container {
-        border-color: var(--p-surface-700);
-        background-color: var(--p-surface-900);
-    }
-    .editor-preview-container { background-color: var(--p-surface-950); }
-
-    .markdown-body {
-        :deep(code) { background-color: var(--p-surface-800); }
     }
 }
 </style>
