@@ -30,13 +30,13 @@
     -   [x] 验收: 实现 邮箱/密码 注册与登录流程；实现 用户名/密码 登录流程。
     -   [-] 验收: 实现 GitHub OAuth 登录流程。
     -   验收: 用户 Session 持久化 (Cookie) 且 SSR 兼容。
--   [ ] **用户界面开发 (Frontend Pages)**
+-   [x] **用户界面开发 (Frontend Pages)**
     -   [x] 验收: **登录页 (`/login`)**: 包含邮箱登录表单和 OAuth 按钮。
     -   [x] 验收: **注册页 (`/register`)**: 包含注册表单和验证逻辑。
     -   [x] 验收: **个人设置页 (`/settings`)**: 允许用户修改昵称、头像。
--   [ ] **用户角色与权限 (RBAC)**
-    -   验收: 数据库 `User` 表包含 `role` 字段 (Admin, Author, User, Visitor)。
-    -   验收: 实现后端中间件 `server/middleware/auth.ts` 拦截未授权请求。
+-   [x] **用户角色与权限 (RBAC)**
+    -   [x] 验收: 数据库 `User` 表包含 `role` 字段 (Admin, Author, User, Visitor)。
+    -   [x] 验收: 实现后端中间件 `server/middleware/auth.ts` 拦截未授权请求。
 
 ### 3. 内容管理 (Content Management)
 

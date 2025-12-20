@@ -9,7 +9,22 @@ export default defineEventHandler(async (event) => {
 
     // 白名单路径
     if (publicPaths.some((path) => event.path.startsWith(path))) {
-        // TODO: Implement whitelist logic
+        return
+    }
+
+    // API Auth routes are public
+    if (event.path.startsWith('/api/auth')) {
+        return
+    }
+
+    // 仅拦截 API 请求
+    if (event.path.startsWith('/api')) {
+        if (!session) {
+            throw createError({
+                statusCode: 401,
+                statusMessage: 'Unauthorized',
+            })
+        }
     }
 
 })
