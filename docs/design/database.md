@@ -106,14 +106,14 @@ _(待完善，后续迭代补充)_
 
 #### Post (文章表)
 
-| 字段名     | 类型    | 必填 | 说明                   |
-| :--------- | :------ | :--- | :--------------------- |
-| `id`       | varchar | Yes  | 主键                   |
-| `title`    | varchar | Yes  | 标题                   |
-| `slug`     | varchar | Yes  | URL 别名 (唯一)        |
-| `content`  | text    | Yes  | Markdown 内容          |
-| `authorId` | varchar | Yes  | 作者 ID                |
-| `status`   | varchar | Yes  | 状态: published, draft |
+| 字段名     | 类型    | 必填 | 说明                            |
+| :--------- | :------ | :--- | :------------------------------ |
+| `id`       | varchar | Yes  | 主键                            |
+| `title`    | varchar | Yes  | 标题                            |
+| `slug`     | varchar | Yes  | URL 别名 (唯一)                 |
+| `content`  | text    | Yes  | Markdown 内容                   |
+| `authorId` | varchar | Yes  | 作者 ID                         |
+| `status`   | varchar | Yes  | 状态: published, draft, pending |
 
 ## 4. 索引策略 (Indexing Strategy)
 
