@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { Brackets } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'
@@ -7,11 +8,13 @@ const querySchema = z.object({
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(10),
     status: z.enum(['published', 'draft', 'pending']).optional(),
+    scope: z.enum(['public', 'manage']).default('public'),
     authorId: z.string().optional(),
     categoryId: z.string().optional(),
     tagId: z.string().optional(),
     language: z.string().optional(),
-    orderBy: z.enum(['createdAt', 'updatedAt', 'views', 'publishedAt']).default('createdAt'),
+    search: z.string().optional(),
+    orderBy: z.enum(['createdAt', 'updatedAt', 'views', 'publishedAt']).default('publishedAt'),
     order: z.enum(['ASC', 'DESC']).default('DESC'),
 })
 
@@ -28,30 +31,40 @@ export default defineEventHandler(async (event) => {
         .leftJoinAndSelect('post.category', 'category')
         .leftJoinAndSelect('post.tags', 'tags')
 
-    // Permission check for status
-    let allowedStatus = ['published']
-    if (session?.user?.role === 'admin' || session?.user?.role === 'author') {
-        allowedStatus = ['published', 'draft', 'pending']
-    }
-
-    if (query.status) {
-        if (!allowedStatus.includes(query.status)) {
-            throw createError({
-                statusCode: 403,
-                statusMessage: 'Forbidden',
-            })
+    if (query.scope === 'manage') {
+        // Management Mode
+        if (!session || !session.user) {
+            throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
         }
-        qb.andWhere('post.status = :status', { status: query.status })
-    } else if (allowedStatus.length === 1) {
-        // If no status specified
+        const role = session.user.role
+        if (role !== 'admin' && role !== 'author') {
+            throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+        }
+
+        if (role === 'author') {
+            // Authors can only see their own posts in manage mode
+            qb.andWhere('post.authorId = :currentUserId', { currentUserId: session.user.id })
+        } else if (role === 'admin') {
+            // Admins can filter by authorId
+            if (query.authorId) {
+                qb.andWhere('post.authorId = :authorId', { authorId: query.authorId })
+            }
+        }
+
+        // Status filtering
+        if (query.status) {
+            qb.andWhere('post.status = :status', { status: query.status })
+        }
+    } else {
+        // Public Mode
         qb.andWhere('post.status = :status', { status: 'published' })
-    }
-    // If admin/author, return all statuses if not specified
 
-    if (query.authorId) {
-        qb.andWhere('post.authorId = :authorId', { authorId: query.authorId })
+        if (query.authorId) {
+            qb.andWhere('post.authorId = :authorId', { authorId: query.authorId })
+        }
     }
 
+    // Common filters
     if (query.categoryId) {
         qb.andWhere('post.categoryId = :categoryId', { categoryId: query.categoryId })
     }
@@ -62,6 +75,13 @@ export default defineEventHandler(async (event) => {
 
     if (query.tagId) {
         qb.innerJoin('post.tags', 'tag', 'tag.id = :tagId', { tagId: query.tagId })
+    }
+
+    if (query.search) {
+        qb.andWhere(new Brackets((subQb) => {
+            subQb.where('post.title LIKE :search', { search: `%${query.search}%` })
+                .orWhere('post.summary LIKE :search', { search: `%${query.search}%` })
+        }))
     }
 
     // Sorting

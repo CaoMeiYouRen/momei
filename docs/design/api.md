@@ -66,31 +66,32 @@ API 路由位于 `server/api` 目录下。
 
 ### 4.3 Posts (文章管理)
 
-#### Public APIs (公开接口)
+#### Public & Management APIs (公开与管理接口)
 
 -   `GET /api/posts`
 
     -   **Query**:
         -   `page`: 页码 (default: 1)
         -   `limit`: 每页数量 (default: 10)
+        -   `scope`: 作用域 `public` (默认) | `manage`
+        -   `status`: 状态筛选 (仅 `scope=manage` 时有效)
         -   `tag`: 标签筛选
         -   `category`: 分类筛选
         -   `authorId`: 作者筛选
         -   `search`: 关键词搜索 (标题/摘要)
+    -   **Logic**:
+        -   **Public Mode** (`scope=public`): 仅返回 `status=published` 的文章。
+        -   **Manage Mode** (`scope=manage`): 需 Auth (`admin` 或 `author`)。
+            -   `author`: 只能查看自己的文章。
+            -   `admin`: 可查看所有，支持 `authorId` 筛选。
+            -   支持 `status` 筛选 (published, draft, pending)。
     -   **Response**: `{ list: Post[], total: number, page: number }`
-    -   **Note**: 仅返回 `status=published` 的文章。
 
 -   `GET /api/posts/:id` (或 `/api/posts/slug/:slug`)
     -   **Response**: 文章详情，包含 `content`, `author`, `category`, `tags`。
     -   **Note**: 增加阅读量计数 (PV)。
 
-#### Management APIs (管理接口 - 需 Auth)
-
--   `GET /api/posts`
-
-    -   **Auth**: `admin` 或 `author`。
-    -   **Query**: 同 Public，额外支持 `status` 筛选。
-    -   **Note**: `author` 只能看到自己的文章，`admin` 可看所有。
+#### Write APIs (写入接口 - 需 Auth)
 
 -   `POST /api/posts`
 
@@ -106,7 +107,7 @@ API 路由位于 `server/api` 目录下。
 
     -   **Note**: 软删除或物理删除。
 
--   `PATCH /api/posts/:id/status`
+-   `PUT /api/posts/:id/status`
     -   **Body**: `{ status: 'published' | 'draft' | 'pending' }`
     -   **Note**: 快速修改状态 (如审核通过)。
 
