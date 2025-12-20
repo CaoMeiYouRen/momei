@@ -111,7 +111,55 @@ API 路由位于 `server/api` 目录下。
     -   **Body**: `{ status: 'published' | 'draft' | 'pending' }`
     -   **Note**: 快速修改状态 (如审核通过)。
 
-### 4.4 Upload
+### 4.4 Categories (分类管理)
+
+-   `GET /api/categories`
+
+    -   **Query**:
+        -   `page`, `limit`
+        -   `search`: 搜索名称
+    -   **Response**: 分类列表 (支持树形结构返回或平铺)。
+
+-   `GET /api/categories/:id` (或 `/api/categories/slug/:slug`)
+
+    -   **Response**: 分类详情。
+
+-   `POST /api/categories` (Auth: Admin)
+
+    -   **Body**: `{ name, slug, description?, parentId? }`
+    -   **Note**: 创建分类。
+
+-   `PUT /api/categories/:id` (Auth: Admin)
+
+    -   **Body**: 同 POST (部分更新)。
+
+-   `DELETE /api/categories/:id` (Auth: Admin)
+    -   **Note**: 删除分类 (需检查是否有关联文章，策略：拒绝删除或转移文章)。
+
+### 4.5 Tags (标签管理)
+
+-   `GET /api/tags`
+
+    -   **Query**: `page`, `limit`, `search`
+    -   **Response**: 标签列表。
+
+-   `GET /api/tags/:id` (或 `/api/tags/slug/:slug`)
+
+    -   **Response**: 标签详情。
+
+-   `POST /api/tags` (Auth: Admin, Author)
+
+    -   **Body**: `{ name, slug }`
+    -   **Note**: 创建标签 (Author 在写文章时可创建)。
+
+-   `PUT /api/tags/:id` (Auth: Admin)
+
+    -   **Body**: `{ name, slug }`
+
+-   `DELETE /api/tags/:id` (Auth: Admin)
+    -   **Note**: 删除标签 (解除与文章的关联)。
+
+### 4.6 Upload
 
 -   `POST /api/upload`: 文件上传 (支持本地存储或 S3)。
 
