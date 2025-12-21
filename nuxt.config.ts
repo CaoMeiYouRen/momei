@@ -83,6 +83,7 @@ export default defineNuxtConfig({
             authBaseUrl: process.env.NUXT_PUBLIC_AUTH_BASE_URL,
             clarityProjectId: process.env.NUXT_PUBLIC_CLARITY_PROJECT_ID,
             baiduAnalyticsId: process.env.NUXT_PUBLIC_BAIDU_ANALYTICS_ID,
+            googleAnalyticsId: process.env.NUXT_PUBLIC_GOOGLE_ANALYTICS_ID,
             sentry: {
                 dsn: process.env.NUXT_PUBLIC_SENTRY_DSN,
                 environment: process.env.NUXT_PUBLIC_SENTRY_ENVIRONMENT || 'development',
