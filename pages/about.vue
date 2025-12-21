@@ -162,15 +162,10 @@
         </section>
 
         <!-- 页脚 -->
-        <AppFooter />
     </div>
 </template>
 
 <script setup lang="ts">
-definePageMeta({
-    layout: false,
-})
-
 useHead({
     title: '墨梅 - 跨语言博客创作平台',
 })
