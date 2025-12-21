@@ -164,6 +164,21 @@ useHead({
 
     &__skeleton-main {
         flex: 1;
+        background-color: #fff;
+        padding: 2.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        border: 1px solid #f3f4f6;
+
+        :global(.dark) & {
+            background-color: #1f2937;
+            border-color: #374151;
+        }
+
+        @media (max-width: 768px) {
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+        }
     }
 
     &__skeleton-sidebar {
@@ -207,6 +222,21 @@ useHead({
     &__main {
         flex: 1;
         min-width: 0;
+        background-color: #fff;
+        padding: 2.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        border: 1px solid #f3f4f6;
+
+        :global(.dark) & {
+            background-color: #1f2937;
+            border-color: #374151;
+        }
+
+        @media (max-width: 768px) {
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+        }
     }
 
     &__header {
