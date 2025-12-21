@@ -98,6 +98,13 @@
     -   **图片优化**: 使用 `<NuxtImg>`。
     -   **监控**: CI/CD 中的 Lighthouse 审计。
 
+### 分析和监控
+
+-   Microsoft Clarity 集成 - 行为分析和会话回放工具集成
+-   Sentry 集成 - 错误监控和性能跟踪工具集成
+-   百度统计集成 - 网站流量分析和用户行为统计工具集成
+-   Google Analytics 集成 - Google Analytics 4 网站分析和用户行为跟踪工具集成
+
 ## 4. 市场分析摘要
 
 -   **竞争对手**: WordPress (重型), Hexo/VuePress (静态/无后端), Medium/Dev.to (平台锁定)。
