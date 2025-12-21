@@ -31,6 +31,9 @@ importers:
       '@mdi/font':
         specifier: ^7.4.47
         version: 7.4.47
+      '@microsoft/clarity':
+        specifier: ^1.0.2
+        version: 1.0.2
       '@nuxtjs/i18n':
         specifier: ^10.2.1
         version: 10.2.1(@netlify/blobs@9.1.2)(@vercel/blob@2.0.0)(@vue/compiler-dom@3.5.25)(db0@0.3.4(better-sqlite3@12.5.0)(mysql2@3.15.3))(eslint@9.39.2(jiti@2.6.1))(ioredis@5.8.2)(magicast@0.5.1)(rollup@4.53.1)(vue@3.5.25(typescript@5.9.3))
@@ -1570,6 +1573,9 @@ packages:
 
   '@mdi/font@7.4.47':
     resolution: {integrity: sha512-43MtGpd585SNzHZPcYowu/84Vz2a2g31TvPMTm9uTiCSWzaheQySUcSyUH/46fPnuPQWof2yd0pGBtzee/IQWw==}
+
+  '@microsoft/clarity@1.0.2':
+    resolution: {integrity: sha512-9EZYROFpJxEGmQpHvUFqvD3ZJ7QQSqnibYSWmS+1xusoZfG1QQ1/Al9yVBBc11DWMbJrs1pe1hLT273it/skJg==}
 
   '@miyaneee/rollup-plugin-json5@1.2.0':
     resolution: {integrity: sha512-JjTIaXZp9WzhUHpElrqPnl1AzBi/rvRs065F71+aTmlqvTMVkdbjZ8vfFl4nRlgJy+TPBw69ZK4pwFdmOAt4aA==}
@@ -11600,6 +11606,8 @@ snapshots:
       - supports-color
 
   '@mdi/font@7.4.47': {}
+
+  '@microsoft/clarity@1.0.2': {}
 
   '@miyaneee/rollup-plugin-json5@1.2.0(rollup@4.53.1)':
     dependencies:

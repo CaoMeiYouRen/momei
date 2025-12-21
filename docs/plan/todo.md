@@ -19,6 +19,9 @@
     -   验收: GitHub Actions 配置完成，PR 自动运行 Lint 和 Test。
 -   [x] **数据库连接**
     -   验收: 本地 SQLite 连接成功，TypeORM 实体同步正常。
+-   [x] **Microsoft Clarity 集成**
+    -   验收: 插件安装与配置完成。
+    -   验收: 环境变量支持。
 
 ### 2. 用户系统 (User System)
 

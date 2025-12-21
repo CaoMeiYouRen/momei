@@ -80,6 +80,7 @@ export default defineNuxtConfig({
             NODE_ENV: process.env.NODE_ENV,
             appName: process.env.NUXT_PUBLIC_APP_NAME,
             authBaseUrl: process.env.NUXT_PUBLIC_AUTH_BASE_URL,
+            clarityProjectId: process.env.NUXT_PUBLIC_CLARITY_PROJECT_ID,
         },
     },
     primevue: {
