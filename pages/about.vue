@@ -47,19 +47,19 @@
                         </p>
                         <ul class="feature-list">
                             <li class="feature-list__item">
-                                <i class="fa fa-check feature-list__icon" />
+                                <i class="feature-list__icon pi pi-check" />
                                 <span>简单高效的内容创作体验</span>
                             </li>
                             <li class="feature-list__item">
-                                <i class="fa fa-check feature-list__icon" />
+                                <i class="feature-list__icon pi pi-check" />
                                 <span>无缝的跨语言内容管理与分发</span>
                             </li>
                             <li class="feature-list__item">
-                                <i class="fa fa-check feature-list__icon" />
+                                <i class="feature-list__icon pi pi-check" />
                                 <span>便捷的博客迁移工具与路径管理</span>
                             </li>
                             <li class="feature-list__item">
-                                <i class="fa fa-check feature-list__icon" />
+                                <i class="feature-list__icon pi pi-check" />
                                 <span>专注内容本身，摒弃冗余干扰</span>
                             </li>
                         </ul>
@@ -79,7 +79,7 @@
                     <!-- 功能卡片1 -->
                     <div class="feature-card">
                         <div class="feature-card__icon-wrapper">
-                            <i class="fa fa-pencil feature-card__icon" />
+                            <i class="feature-card__icon pi pi-pencil" />
                         </div>
                         <h3 class="feature-card__title">
                             简洁创作
@@ -92,7 +92,7 @@
                     <!-- 功能卡片2 -->
                     <div class="feature-card">
                         <div class="feature-card__icon-wrapper">
-                            <i class="fa fa-link feature-card__icon" />
+                            <i class="feature-card__icon pi pi-link" />
                         </div>
                         <h3 class="feature-card__title">
                             路径管理
@@ -105,7 +105,7 @@
                     <!-- 功能卡片3 -->
                     <div class="feature-card">
                         <div class="feature-card__icon-wrapper">
-                            <i class="fa fa-globe feature-card__icon" />
+                            <i class="feature-card__icon pi pi-globe" />
                         </div>
                         <h3 class="feature-card__title">
                             多语言支持
@@ -127,16 +127,16 @@
 
                 <div class="contact-links">
                     <a href="mailto:contact@momei.app" class="contact-link">
-                        <i class="contact-link__icon fa fa-envelope" />
+                        <i class="contact-link__icon pi pi-envelope" />
                         <span>邮箱</span>
                     </a>
 
                     <a
-                        href="https://github.com/CaoMeiYouRen"
+                        href="https://github.com/CaoMeiYouRen/momei"
                         target="_blank"
                         class="contact-link"
                     >
-                        <i class="contact-link__icon fa fa-github" />
+                        <i class="contact-link__icon pi pi-github" />
                         <span>GitHub</span>
                     </a>
 
@@ -145,7 +145,7 @@
                         target="_blank"
                         class="contact-link"
                     >
-                        <i class="contact-link__icon fa fa-rss" />
+                        <i class="contact-link__icon pi pi-book" />
                         <span>博客</span>
                     </a>
                 </div>
@@ -173,12 +173,6 @@ definePageMeta({
 
 useHead({
     title: '墨梅 - 跨语言博客创作平台',
-    link: [
-        {
-            rel: 'stylesheet',
-            href: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
-        },
-    ],
 })
 
 // 平滑滚动逻辑
