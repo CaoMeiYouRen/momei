@@ -2,6 +2,9 @@ import { authClient } from '@/lib/auth-client'
 import { publicPaths } from '@/utils/shared/public-paths'
 
 export default defineNuxtRouteMiddleware(async (to) => {
+    if (to.path === '/') {
+        return true
+    }
     if (publicPaths.some((path) => to.path === path)) {
         return true
     }
