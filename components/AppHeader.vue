@@ -36,7 +36,7 @@
                     :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
                     text
                     rounded
-                    @click="toggleDark"
+                    @click="toggleDark()"
                 />
                 <LanguageSwitcher />
                 <Button
@@ -89,25 +89,22 @@ const toggleAdminMenu = (event: any) => {
     adminMenu.value.toggle(event)
 }
 
-const isDark = ref(false)
-
-const toggleDark = () => {
-    isDark.value = !isDark.value
-    if (isDark.value) {
-        document.documentElement.classList.add('dark')
-    } else {
-        document.documentElement.classList.remove('dark')
-    }
-    localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
-}
-
-onMounted(() => {
-    const saved = localStorage.getItem('theme')
-    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        isDark.value = true
-        document.documentElement.classList.add('dark')
-    }
+const isDark = useDark({
+    selector: 'html',
+    attribute: 'class',
+    valueDark: 'dark',
+    valueLight: '',
+    storageKey: 'theme',
 })
+const toggleDark = useToggle(isDark)
+
+const preferredDark = usePreferredDark()
+
+// 同步系统偏好设置的暗色模式状态
+watch(preferredDark, (newVal) => {
+    isDark.value = newVal
+}, { immediate: true })
+
 </script>
 
 <style lang="scss" scoped>

@@ -73,6 +73,7 @@ export default defineNuxtConfig({
         '@nuxt/test-utils/module',
         '@primevue/nuxt-module',
         '@nuxtjs/i18n',
+        '@vueuse/nuxt',
     ],
     runtimeConfig: {
         public: {
