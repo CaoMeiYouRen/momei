@@ -4,17 +4,17 @@
         <section class="hero">
             <div class="container hero__container">
                 <div class="hero__logo">
-                    <span class="hero__logo-text">梅</span>
+                    <span class="hero__logo-text">{{ $t('pages.about.hero.logo_text') }}</span>
                 </div>
 
                 <h1 class="hero__title">
-                    墨梅
+                    {{ $t('pages.about.hero.title') }}
                 </h1>
                 <p class="hero__subtitle">
-                    轻量、高效的跨语言博客创作与管理平台
+                    {{ $t('pages.about.hero.subtitle') }}
                 </p>
                 <a href="#about" class="hero__btn">
-                    了解更多
+                    {{ $t('pages.about.hero.cta') }}
                 </a>
             </div>
         </section>
@@ -23,44 +23,34 @@
         <section id="about" class="section section--white">
             <div class="container">
                 <h2 class="section__title">
-                    名称由来与寓意
+                    {{ $t('pages.about.meaning.title') }}
                 </h2>
 
                 <div class="about-content">
                     <div class="about-content__left">
                         <p class="about-content__text about-content__text--mb">
-                            "墨梅"之名，灵感源自元代王冕《墨梅》诗句：
+                            {{ $t('pages.about.meaning.text_1') }}
                         </p>
                         <blockquote class="blockquote">
-                            "吾家洗砚池头树，朵朵花开淡墨痕。<br>
-                            不要人夸好颜色，只留清气满乾坤。"
+                            {{ $t('pages.about.meaning.poem') }}
                         </blockquote>
                         <p class="about-content__text">
-                            取"墨"字，象征文字创作、笔墨耕耘，呼应博客的内容本质；
-                            取"梅"字，寓意坚韧不拔的创作精神与独特的个人风格。
+                            {{ $t('pages.about.meaning.text_2') }}
                         </p>
                     </div>
 
                     <div class="about-content__right">
                         <p class="about-content__text about-content__text--mb">
-                            墨梅平台致力于为创作者提供：
+                            {{ $t('pages.about.meaning.intro') }}
                         </p>
                         <ul class="feature-list">
-                            <li class="feature-list__item">
+                            <li
+                                v-for="(feature, index) in meaningFeatures"
+                                :key="index"
+                                class="feature-list__item"
+                            >
                                 <i class="feature-list__icon pi pi-check" />
-                                <span>简单高效的内容创作体验</span>
-                            </li>
-                            <li class="feature-list__item">
-                                <i class="feature-list__icon pi pi-check" />
-                                <span>无缝的跨语言内容管理与分发</span>
-                            </li>
-                            <li class="feature-list__item">
-                                <i class="feature-list__icon pi pi-check" />
-                                <span>便捷的博客迁移工具与路径管理</span>
-                            </li>
-                            <li class="feature-list__item">
-                                <i class="feature-list__icon pi pi-check" />
-                                <span>专注内容本身，摒弃冗余干扰</span>
+                                <span>{{ rt(feature) }}</span>
                             </li>
                         </ul>
                     </div>
@@ -72,46 +62,23 @@
         <section id="features" class="section section--paper">
             <div class="container">
                 <h2 class="section__title">
-                    核心功能
+                    {{ $t('pages.about.features.title') }}
                 </h2>
 
                 <div class="features-grid">
-                    <!-- 功能卡片1 -->
-                    <div class="feature-card">
+                    <div
+                        v-for="(item, index) in featureItems"
+                        :key="index"
+                        class="feature-card"
+                    >
                         <div class="feature-card__icon-wrapper">
-                            <i class="feature-card__icon pi pi-pencil" />
+                            <i class="feature-card__icon" :class="getFeatureIcon(index)" />
                         </div>
                         <h3 class="feature-card__title">
-                            简洁创作
+                            {{ rt(item.title) }}
                         </h3>
                         <p class="feature-card__desc">
-                            轻量级Markdown编辑器，专注写作体验，支持代码高亮与图片上传。
-                        </p>
-                    </div>
-
-                    <!-- 功能卡片2 -->
-                    <div class="feature-card">
-                        <div class="feature-card__icon-wrapper">
-                            <i class="feature-card__icon pi pi-link" />
-                        </div>
-                        <h3 class="feature-card__title">
-                            路径管理
-                        </h3>
-                        <p class="feature-card__desc">
-                            自定义URL路径别名，轻松迁移旧博客，保持链接有效性与SEO权重。
-                        </p>
-                    </div>
-
-                    <!-- 功能卡片3 -->
-                    <div class="feature-card">
-                        <div class="feature-card__icon-wrapper">
-                            <i class="feature-card__icon pi pi-globe" />
-                        </div>
-                        <h3 class="feature-card__title">
-                            多语言支持
-                        </h3>
-                        <p class="feature-card__desc">
-                            内置语言切换，支持内容国际化，助力创作者触达全球受众。
+                            {{ rt(item.desc) }}
                         </p>
                     </div>
                 </div>
@@ -122,13 +89,13 @@
         <section id="contact" class="section section--white">
             <div class="container section__container--center">
                 <h2 class="section__title">
-                    联系我们
+                    {{ $t('pages.about.contact.title') }}
                 </h2>
 
                 <div class="contact-links">
                     <a href="mailto:contact@momei.app" class="contact-link">
                         <i class="contact-link__icon pi pi-envelope" />
-                        <span>邮箱</span>
+                        <span>{{ $t('pages.about.contact.email') }}</span>
                     </a>
 
                     <a
@@ -146,16 +113,16 @@
                         class="contact-link"
                     >
                         <i class="contact-link__icon pi pi-book" />
-                        <span>博客</span>
+                        <span>{{ $t('pages.about.contact.blog') }}</span>
                     </a>
                 </div>
 
                 <div class="contact-message">
                     <p class="contact-message__text">
-                        对墨梅平台有任何疑问或建议？
+                        {{ $t('pages.about.contact.message') }}
                     </p>
                     <p class="contact-message__subtitle">
-                        我们期待听到您的声音
+                        {{ $t('pages.about.contact.subtitle') }}
                     </p>
                 </div>
             </div>
@@ -166,9 +133,25 @@
 </template>
 
 <script setup lang="ts">
+const { t, tm, rt } = useI18n()
+
+const meaningFeatures = computed(() => tm('pages.about.meaning.features') as any[])
+const featureItems = computed(() => tm('pages.about.features.items') as any[])
+
 useHead({
-    title: '墨梅 - 跨语言博客创作平台',
+    title: t('pages.about.meta.title'),
+    meta: [
+        {
+            name: 'description',
+            content: t('pages.about.meta.description'),
+        },
+    ],
 })
+
+const getFeatureIcon = (index: number) => {
+    const icons = ['pi-pencil', 'pi-link', 'pi-globe']
+    return icons[index] || 'pi-check'
+}
 
 // 平滑滚动逻辑
 onMounted(() => {
@@ -463,6 +446,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
   padding-bottom: 0.5rem;
   margin-bottom: 1.5rem;
   color: $color-accent;
+  white-space: pre-line;
 }
 
 .feature-list {

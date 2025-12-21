@@ -76,6 +76,54 @@
         "error_loading": "Error loading content"
     },
     "pages": {
+        "about": {
+            "meta": {
+                "title": "Momei - Cross-language Blog Platform"
+            },
+            "hero": {
+                "logo_text": "M",
+                "title": "Momei",
+                "subtitle": "Lightweight, efficient cross-language blog creation and management platform",
+                "cta": "Learn More"
+            },
+            "meaning": {
+                "title": "Origin and Meaning",
+                "text_1": "The name \"Momei\" (Ink Plum) is inspired by the poem \"Ink Plum\" by Wang Mian of the Yuan Dynasty:",
+                "poem": "\"My home is by the tree near the ink-washing pool,\nEvery flower blooms with faint traces of ink.\nI don't need people to praise its good color,\nOnly leaving a clear fragrance filling the universe.\"",
+                "text_2": "Taking \"Mo\" (Ink) symbolizes writing and cultivation, echoing the essence of blog content; taking \"Mei\" (Plum) implies the tenacious creative spirit and unique personal style.",
+                "intro": "Momei platform is dedicated to providing creators with:",
+                "features": [
+                    "Simple and efficient content creation experience",
+                    "Seamless cross-language content management and distribution",
+                    "Convenient blog migration tools and path management",
+                    "Focus on content itself, discarding redundant distractions"
+                ]
+            },
+            "features": {
+                "title": "Core Features",
+                "items": [
+                    {
+                        "title": "Simple Creation",
+                        "desc": "Lightweight Markdown editor, focusing on writing experience, supporting code highlighting and image upload."
+                    },
+                    {
+                        "title": "Path Management",
+                        "desc": "Custom URL path aliases, easily migrate old blogs, maintain link validity and SEO weight."
+                    },
+                    {
+                        "title": "Multi-language Support",
+                        "desc": "Built-in language switching, supporting content internationalization, helping creators reach global audiences."
+                    }
+                ]
+            },
+            "contact": {
+                "title": "Contact Us",
+                "email": "Email",
+                "blog": "Blog",
+                "message": "Any questions or suggestions about Momei platform?",
+                "subtitle": "We look forward to hearing from you"
+            }
+        },
         "admin": {
             "posts": {
                 "title": "Post Management",
