@@ -4,11 +4,11 @@
             {{ $t('pages.posts.title') }}
         </h1>
 
-        <div v-if="pending" class="gap-6 grid md:grid-cols-2">
+        <div v-if="pending" class="flex flex-col gap-6">
             <Skeleton
                 v-for="i in 6"
                 :key="i"
-                height="20rem"
+                height="12rem"
                 class="rounded-lg"
             />
         </div>
@@ -21,11 +21,12 @@
             {{ $t('pages.posts.empty') }}
         </div>
 
-        <div v-else class="gap-6 grid md:grid-cols-2">
+        <div v-else class="flex flex-col gap-6">
             <ArticleCard
                 v-for="post in posts"
                 :key="post.id"
                 :post="post"
+                layout="horizontal"
             />
         </div>
 

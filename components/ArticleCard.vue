@@ -1,5 +1,9 @@
 <template>
-    <div class="article-card" @click="navigateToPost">
+    <div
+        class="article-card"
+        :class="{'article-card--horizontal': layout === 'horizontal'}"
+        @click="navigateToPost"
+    >
         <div v-if="post.coverImage" class="article-card__cover">
             <img
                 :src="post.coverImage"
@@ -77,9 +81,12 @@ interface Post {
     category?: Category | null
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     post: Post
-}>()
+    layout?: 'vertical' | 'horizontal'
+}>(), {
+    layout: 'vertical',
+})
 
 const localePath = useLocalePath()
 
@@ -169,6 +176,36 @@ const navigateToPost = () => {
         display: flex;
         align-items: center;
         justify-content: space-between;
+    }
+
+    // Horizontal layout modifier
+    &--horizontal {
+        display: flex;
+        flex-direction: row;
+
+        .article-card__cover {
+            width: 300px;
+            flex-shrink: 0;
+            aspect-ratio: auto; // Reset aspect ratio
+            height: auto;
+        }
+
+        .article-card__content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        // Responsive adjustments for mobile
+        @media (max-width: 768px) {
+            flex-direction: column;
+
+            .article-card__cover {
+                width: 100%;
+                aspect-ratio: 16 / 9;
+            }
+        }
     }
 }
 

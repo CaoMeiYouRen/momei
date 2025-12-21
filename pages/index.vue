@@ -1,7 +1,7 @@
 <template>
     <div class="home-page">
         <!-- Hero Section -->
-        <section class="hero">
+        <!-- <section class="hero">
             <div class="container">
                 <div class="hero__content">
                     <h1 class="hero__title">
@@ -20,7 +20,7 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
 
         <!-- Latest Posts Section -->
         <section class="latest-posts section">
