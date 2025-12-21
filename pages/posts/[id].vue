@@ -74,7 +74,7 @@
                             </div>
                             <span v-if="post.publishedAt" class="post-detail__meta-item">
                                 <i class="pi pi-calendar" />
-                                {{ formatDate(post.publishedAt) }}
+                                {{ formatDateTime(post.publishedAt) }}
                             </span>
                             <span class="post-detail__meta-item">
                                 <i class="pi pi-eye" />
@@ -116,7 +116,7 @@
 
 <script setup lang="ts">
 import { isSnowflakeId } from '@/utils/shared/validate'
-import { formatDate } from '@/utils/shared/date'
+import { formatDate, formatDateTime } from '@/utils/shared/date'
 
 const route = useRoute()
 const localePath = useLocalePath()

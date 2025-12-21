@@ -21,3 +21,43 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+// PrimeVue Select (Dropdown) Dark Mode Fixes
+.p-select {
+    background-color: var(--p-surface-card);
+    border-color: var(--p-surface-border);
+
+    .p-select-label {
+        color: var(--p-text-color);
+    }
+
+    .p-select-dropdown {
+        color: var(--p-text-muted-color);
+    }
+}
+
+.p-select-overlay {
+    background-color: var(--p-surface-card);
+    border: 1px solid var(--p-surface-border);
+    color: var(--p-text-color);
+}
+
+.p-select-option {
+    color: var(--p-text-color);
+
+    &:not(.p-select-option-selected):not(.p-disabled) {
+        &.p-focus, &:hover {
+            background-color: var(--p-surface-200);
+        }
+    }
+
+    &.p-select-option-selected {
+        background-color: var(--p-primary-100);
+        color: var(--p-primary-700);
+
+        :global(.dark) & {
+            background-color: var(--p-primary-900);
+            color: var(--p-primary-100);
+        }
+    }
+}
