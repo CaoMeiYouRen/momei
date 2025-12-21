@@ -7,12 +7,21 @@
                 </div>
                 <span class="footer__title">墨梅</span>
             </div>
+            <nav class="footer__nav">
+                <NuxtLink :to="localePath('/about')" class="footer__link">
+                    {{ $t('common.about') }}
+                </NuxtLink>
+            </nav>
             <p class="footer__copyright">
                 &copy; 2025 墨梅博客 - 轻量创作，自在表达
             </p>
         </div>
     </footer>
 </template>
+
+<script setup lang="ts">
+const localePath = useLocalePath()
+</script>
 
 <style lang="scss" scoped>
 $color-ink: #2D3748;
@@ -52,6 +61,22 @@ $font-serif: '"Noto Serif SC"', 'serif';
 
   &__title {
     font-family: $font-serif;
+  }
+
+  &__nav {
+    margin-bottom: 1rem;
+  }
+
+  &__link {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+
+    &:hover {
+      color: $color-white;
+      text-decoration: underline;
+    }
   }
 
   &__copyright {
