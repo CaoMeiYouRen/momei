@@ -2,7 +2,16 @@ import path from 'path'
 import dayjs from 'dayjs'
 import { auth } from '@/lib/auth'
 import { getFileStorage, type FileStorageEnv } from '@/server/utils/storage/factory'
-import { BUCKET_PREFIX } from '@/utils/shared/env'
+import { limiterStorage } from '@/server/database/storage'
+import {
+    BUCKET_PREFIX,
+    MAX_UPLOAD_SIZE,
+    MAX_UPLOAD_SIZE_TEXT,
+    UPLOAD_LIMIT_WINDOW,
+    UPLOAD_DAILY_LIMIT,
+    UPLOAD_SINGLE_USER_DAILY_LIMIT,
+    STORAGE_TYPE,
+} from '@/utils/shared/env'
 
 export default defineEventHandler(async (event) => {
     const session = await auth.api.getSession({
@@ -11,6 +20,24 @@ export default defineEventHandler(async (event) => {
 
     if (!session || !session.user) {
         throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
+    }
+
+    const globalCount = await limiterStorage.increment(
+        'upload_global_limit',
+        UPLOAD_LIMIT_WINDOW,
+    )
+
+    if (globalCount > UPLOAD_DAILY_LIMIT) {
+        throw createError({ statusCode: 429, statusMessage: '今日上传次数超出限制' })
+    }
+
+    const userCount = await limiterStorage.increment(
+        `user_upload_limit:${session.user.id}`,
+        UPLOAD_LIMIT_WINDOW,
+    )
+
+    if (userCount > UPLOAD_SINGLE_USER_DAILY_LIMIT) {
+        throw createError({ statusCode: 429, statusMessage: '您今日上传次数超出限制' })
     }
 
     const files = await readMultipartFormData(event)
@@ -31,8 +58,11 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'Only image files are allowed' })
     }
 
-    const storageType = process.env.STORAGE_TYPE || 's3'
-    const storage = getFileStorage(storageType, process.env as unknown as FileStorageEnv)
+    if (file.data.length > MAX_UPLOAD_SIZE) {
+        throw createError({ statusCode: 400, statusMessage: `文件大小超出 ${MAX_UPLOAD_SIZE_TEXT} 限制` })
+    }
+
+    const storage = getFileStorage(STORAGE_TYPE, process.env as unknown as FileStorageEnv)
 
     const timestamp = dayjs().format('YYYYMMDDHHmmssSSS')
     const random = Math.random().toString(36).slice(2, 9)

@@ -1,4 +1,5 @@
 import { ms } from 'ms'
+import { parse } from 'better-bytes'
 /**
  * 基础配置
  * 包含服务器基本设置、备案信息等
@@ -116,3 +117,15 @@ export const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET
 
 // 文件名前缀
 export const BUCKET_PREFIX = process.env.BUCKET_PREFIX || ''
+
+// 最大允许上传的文件大小，默认 4.5 MiB
+export const MAX_UPLOAD_SIZE = process.env.NUXT_PUBLIC_MAX_UPLOAD_SIZE ? Number(parse(process.env.NUXT_PUBLIC_MAX_UPLOAD_SIZE)) : 4.5 * 1024 * 1024
+export const MAX_UPLOAD_SIZE_TEXT = process.env.NUXT_PUBLIC_MAX_UPLOAD_SIZE || '4.5MiB'
+// 上传文件限流时间窗口
+export const UPLOAD_LIMIT_WINDOW = Number(process.env.UPLOAD_LIMIT_WINDOW || ms('1d') / 1000)
+// 文件上传每日限制
+export const UPLOAD_DAILY_LIMIT = Number(process.env.UPLOAD_DAILY_LIMIT || 100)
+// 单个用户每日上传文件限制
+export const UPLOAD_SINGLE_USER_DAILY_LIMIT = Number(process.env.UPLOAD_SINGLE_USER_DAILY_LIMIT || 5)
+// 存储类型
+export const STORAGE_TYPE = process.env.STORAGE_TYPE || 's3'
