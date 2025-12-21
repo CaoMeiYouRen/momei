@@ -147,8 +147,26 @@
                                             <i v-else class="pi pi-globe" />
                                             <span>{{ account.providerId }}</span>
                                         </div>
-                                        <!-- Unlink button could go here -->
+                                        <Button
+                                            icon="pi pi-trash"
+                                            severity="danger"
+                                            text
+                                            rounded
+                                            aria-label="Unlink"
+                                            :loading="loadingUnlink === account.providerId"
+                                            @click="handleUnlink(account.providerId)"
+                                        />
                                     </div>
+                                </div>
+
+                                <div v-if="!isGitHubLinked" class="link-account-section">
+                                    <Button
+                                        :label="$t('pages.settings.security.link_github')"
+                                        icon="pi pi-github"
+                                        outlined
+                                        :loading="loadingLink === 'github'"
+                                        @click="handleLink('github')"
+                                    />
                                 </div>
                             </div>
                         </template>
@@ -185,6 +203,10 @@ const passwordForm = reactive({
 
 // Linked Accounts Data
 const linkedAccounts = ref<any[]>([])
+const loadingUnlink = ref<string | null>(null)
+const loadingLink = ref<string | null>(null)
+
+const isGitHubLinked = computed(() => linkedAccounts.value.some((a) => a.providerId === 'github'))
 
 // Validation Schemas
 const profileSchema = z.object({
@@ -236,8 +258,7 @@ const handleAvatarUpload = async (event: any) => {
     }
 }
 
-onMounted(async () => {
-    // Fetch linked accounts if available in the client
+const fetchLinkedAccounts = async () => {
     try {
         const { data } = await authClient.listAccounts()
         if (data) {
@@ -246,6 +267,49 @@ onMounted(async () => {
     } catch (e) {
         console.error('Failed to fetch linked accounts', e)
     }
+}
+
+const handleUnlink = async (providerId: string) => {
+    loadingUnlink.value = providerId
+    try {
+        const { error } = await authClient.unlinkAccount({
+            providerId,
+        })
+        if (error) {
+            toast.add({ severity: 'error', summary: 'Error', detail: error.message || error.statusText, life: 3000 })
+        } else {
+            toast.add({ severity: 'success', summary: 'Success', detail: t('pages.settings.security.unlink_success'), life: 3000 })
+            await fetchLinkedAccounts()
+        }
+    } catch (e) {
+        console.error(e)
+        toast.add({ severity: 'error', summary: 'Error', detail: t('pages.settings.security.unlink_error'), life: 3000 })
+    } finally {
+        loadingUnlink.value = null
+    }
+}
+
+const handleLink = async (provider: 'github' | 'google') => {
+    loadingLink.value = provider
+    try {
+        const { error } = await authClient.linkSocial({
+            provider,
+            callbackURL: '/settings',
+        })
+        if (error) {
+            toast.add({ severity: 'error', summary: 'Error', detail: error.message || error.statusText, life: 3000 })
+            loadingLink.value = null
+        }
+    } catch (e) {
+        console.error(e)
+        toast.add({ severity: 'error', summary: 'Error', detail: t('pages.settings.security.link_error'), life: 3000 })
+        loadingLink.value = null
+    }
+}
+
+onMounted(async () => {
+    // Fetch linked accounts if available in the client
+    await fetchLinkedAccounts()
 })
 
 const handleUpdateProfile = async () => {
@@ -462,5 +526,9 @@ const handleChangePassword = async () => {
 .no-accounts {
     color: var(--p-text-color-secondary);
     font-style: italic;
+}
+
+.link-account-section {
+    margin-top: 1rem;
 }
 </style>
