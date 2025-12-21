@@ -48,7 +48,7 @@
                     icon-pos="right"
                     link
                     size="small"
-                    class="p-0"
+                    class="article-card__read-more"
                 />
             </div>
         </div>
@@ -176,6 +176,10 @@ const navigateToPost = () => {
         display: flex;
         align-items: center;
         justify-content: space-between;
+    }
+
+    &__read-more {
+        padding: 0 !important;
     }
 
     // Horizontal layout modifier

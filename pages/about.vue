@@ -28,21 +28,21 @@
 
                 <div class="about-content">
                     <div class="about-content__left">
-                        <p class="mb-4 text-lg">
+                        <p class="about-content__text about-content__text--mb">
                             "墨梅"之名，灵感源自元代王冕《墨梅》诗句：
                         </p>
                         <blockquote class="blockquote">
                             "吾家洗砚池头树，朵朵花开淡墨痕。<br>
                             不要人夸好颜色，只留清气满乾坤。"
                         </blockquote>
-                        <p class="text-lg">
+                        <p class="about-content__text">
                             取"墨"字，象征文字创作、笔墨耕耘，呼应博客的内容本质；
                             取"梅"字，寓意坚韧不拔的创作精神与独特的个人风格。
                         </p>
                     </div>
 
                     <div class="about-content__right">
-                        <p class="mb-4 text-lg">
+                        <p class="about-content__text about-content__text--mb">
                             墨梅平台致力于为创作者提供：
                         </p>
                         <ul class="feature-list">
@@ -120,7 +120,7 @@
 
         <!-- 联系方式部分 -->
         <section id="contact" class="section section--white">
-            <div class="container text-center">
+            <div class="container section__container--center">
                 <h2 class="section__title">
                     联系我们
                 </h2>
@@ -151,10 +151,10 @@
                 </div>
 
                 <div class="contact-message">
-                    <p class="text-lg">
+                    <p class="contact-message__text">
                         对墨梅平台有任何疑问或建议？
                     </p>
-                    <p class="mt-2">
+                    <p class="contact-message__subtitle">
                         我们期待听到您的声音
                     </p>
                 </div>
@@ -221,23 +221,6 @@ $font-serif: '"Noto Serif SC"', 'serif';
   @media (width >= 1024px) { max-width: 1024px; }
 
   @media (width >= 1280px) { max-width: 1280px; }
-}
-
-.text-center {
-  text-align: center;
-}
-
-.text-lg {
-  font-size: 1.125rem;
-  line-height: 1.75rem;
-}
-
-.mb-4 {
-  margin-bottom: 1rem;
-}
-
-.mt-2 {
-  margin-top: 0.5rem;
 }
 
 // Header
@@ -424,6 +407,10 @@ $font-serif: '"Noto Serif SC"', 'serif';
     margin-bottom: 3rem;
     text-align: center;
   }
+
+  &__container--center {
+    text-align: center;
+  }
 }
 
 // About Content
@@ -442,6 +429,15 @@ $font-serif: '"Noto Serif SC"', 'serif';
   &__left, &__right {
     @media (width >= 768px) {
       width: 50%;
+    }
+  }
+
+  &__text {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+
+    &--mb {
+      margin-bottom: 1rem;
     }
   }
 }
@@ -564,5 +560,14 @@ $font-serif: '"Noto Serif SC"', 'serif';
   background-color: $color-paper;
   border-radius: 0.5rem;
   display: inline-block;
+
+  &__text {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  &__subtitle {
+    margin-top: 0.5rem;
+  }
 }
 </style>

@@ -9,7 +9,7 @@
         @change="onLocaleChanged"
     >
         <template #value="slotProps">
-            <div v-if="slotProps.value" class="flex items-center">
+            <div v-if="slotProps.value" class="language-option">
                 <span>{{ getLocaleName(slotProps.value) }}</span>
             </div>
             <span v-else>
@@ -17,7 +17,7 @@
             </span>
         </template>
         <template #option="slotProps">
-            <div class="flex items-center">
+            <div class="language-option">
                 <span>{{ slotProps.option.name }}</span>
             </div>
         </template>
@@ -47,6 +47,13 @@ const onLocaleChanged = (event: any) => {
     setLocale(event.value)
 }
 </script>
+
+<style lang="scss" scoped>
+.language-option {
+    display: flex;
+    align-items: center;
+}
+</style>
 
 <style lang="scss" scoped>
 .language-switcher {

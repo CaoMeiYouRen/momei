@@ -1,9 +1,9 @@
 <template>
     <div class="post-detail">
         <div v-if="pending" class="post-detail__loading">
-            <Skeleton height="30rem" class="rounded-xl w-full" />
-            <div class="flex gap-8">
-                <div class="flex-1">
+            <Skeleton height="30rem" class="post-detail__skeleton-cover" />
+            <div class="post-detail__skeleton-content">
+                <div class="post-detail__skeleton-main">
                     <Skeleton
                         width="60%"
                         height="3rem"
@@ -21,13 +21,13 @@
                         class="mb-2"
                     />
                 </div>
-                <div class="hidden lg:block w-64">
+                <div class="post-detail__skeleton-sidebar">
                     <Skeleton height="20rem" />
                 </div>
             </div>
         </div>
 
-        <div v-else-if="error" class="py-12 text-center">
+        <div v-else-if="error" class="post-detail__error">
             <Message severity="error" :text="error.message" />
         </div>
 
@@ -51,11 +51,11 @@
                             <NuxtLink :to="localePath('/')" class="breadcrumb-link">
                                 {{ $t('common.home') }}
                             </NuxtLink>
-                            <i class="pi pi-angle-right text-xs" />
+                            <i class="pi pi-angle-right post-detail__breadcrumb-separator" />
                             <NuxtLink :to="localePath('/posts')" class="breadcrumb-link">
                                 {{ $t('pages.posts.title') }}
                             </NuxtLink>
-                            <i class="pi pi-angle-right text-xs" />
+                            <i class="pi pi-angle-right post-detail__breadcrumb-separator" />
                             <span class="truncate">{{ post.title }}</span>
                         </div>
 
@@ -64,7 +64,7 @@
                         </h1>
 
                         <div class="post-detail__meta">
-                            <div v-if="post.author" class="flex gap-2 items-center">
+                            <div v-if="post.author" class="post-detail__author">
                                 <Avatar
                                     :image="post.author.image"
                                     :label="post.author.name?.[0]"
@@ -72,11 +72,11 @@
                                 />
                                 <span class="font-medium">{{ post.author.name }}</span>
                             </div>
-                            <span v-if="post.publishedAt" class="flex gap-1 items-center">
+                            <span v-if="post.publishedAt" class="post-detail__meta-item">
                                 <i class="pi pi-calendar" />
                                 {{ formatDate(post.publishedAt) }}
                             </span>
-                            <span class="flex gap-1 items-center">
+                            <span class="post-detail__meta-item">
                                 <i class="pi pi-eye" />
                                 {{ post.views }} {{ $t('common.views') }}
                             </span>
@@ -152,6 +152,34 @@ useHead({
         gap: 2rem;
     }
 
+    &__skeleton-cover {
+        width: 100%;
+        border-radius: 0.75rem;
+    }
+
+    &__skeleton-content {
+        display: flex;
+        gap: 2rem;
+    }
+
+    &__skeleton-main {
+        flex: 1;
+    }
+
+    &__skeleton-sidebar {
+        display: none;
+        width: 16rem;
+
+        @media (min-width: 1024px) {
+            display: block;
+        }
+    }
+
+    &__error {
+        padding: 3rem 0;
+        text-align: center;
+    }
+
     &__cover {
         aspect-ratio: 21 / 9;
         margin-bottom: 2rem;
@@ -198,6 +226,10 @@ useHead({
         }
     }
 
+    &__breadcrumb-separator {
+        font-size: 0.75rem; // text-xs
+    }
+
     &__title {
         font-size: 2.25rem; // text-4xl
         font-weight: 700;
@@ -223,6 +255,18 @@ useHead({
             border-color: #374151; // dark:border-gray-700
             color: #9ca3af;
         }
+    }
+
+    &__author {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    &__meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
     }
 
     &__footer {

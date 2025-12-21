@@ -1,17 +1,18 @@
 <template>
-    <div class="sticky toc top-24">
-        <h3 class="dark:text-gray-100 font-bold mb-4 text-gray-900 text-lg">
+    <div class="toc">
+        <h3 class="toc__title">
             {{ $t('components.toc.title') }}
         </h3>
-        <ul class="list-none m-0 p-0">
+        <ul class="toc__list">
             <li
                 v-for="heading in headings"
                 :key="heading.id"
-                :class="['mb-2', `pl-${(heading.level - 1) * 4}`]"
+                class="toc__item"
+                :style="{paddingLeft: ((heading.level - 1) * 1) + 'rem'}"
             >
                 <a
                     :href="`#${heading.id}`"
-                    class="block dark:hover:text-primary-400 dark:text-gray-400 hover:text-primary-500 text-gray-600 text-sm transition-colors truncate"
+                    class="toc__link"
                     @click.prevent="scrollToHeading(heading.id)"
                 >
                     {{ heading.text }}
@@ -74,3 +75,54 @@ const scrollToHeading = (id: string) => {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+.toc {
+    position: sticky;
+    top: 6rem; // top-24
+
+    &__title {
+        font-size: 1.125rem; // text-lg
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #111827; // text-gray-900
+
+        :global(.dark) & {
+            color: #f3f4f6; // dark:text-gray-100
+        }
+    }
+
+    &__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    &__item {
+        margin-bottom: 0.5rem;
+    }
+
+    &__link {
+        display: block;
+        font-size: 0.875rem; // text-sm
+        color: #4b5563; // text-gray-600
+        transition: color 0.2s;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-decoration: none;
+
+        &:hover {
+            color: var(--primary-500);
+        }
+
+        :global(.dark) & {
+            color: #9ca3af; // dark:text-gray-400
+
+            &:hover {
+                color: var(--primary-400);
+            }
+        }
+    }
+}
+</style>
