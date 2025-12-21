@@ -1,27 +1,27 @@
 <template>
-    <div class="container max-w-4xl mx-auto px-4 py-8">
-        <h1 class="dark:text-gray-100 font-bold mb-8 text-3xl text-gray-900">
+    <div class="posts-page">
+        <h1 class="posts-page__title">
             {{ $t('pages.posts.title') }}
         </h1>
 
-        <div v-if="pending" class="flex flex-col gap-6">
+        <div v-if="pending" class="posts-page__list">
             <Skeleton
                 v-for="i in 6"
                 :key="i"
                 height="12rem"
-                class="rounded-lg"
+                class="posts-page__skeleton"
             />
         </div>
 
-        <div v-else-if="error" class="py-12 text-center">
+        <div v-else-if="error" class="posts-page__error">
             <Message severity="error" :text="error.message" />
         </div>
 
-        <div v-else-if="posts.length === 0" class="py-12 text-center text-gray-500">
+        <div v-else-if="posts.length === 0" class="posts-page__empty">
             {{ $t('pages.posts.empty') }}
         </div>
 
-        <div v-else class="flex flex-col gap-6">
+        <div v-else class="posts-page__list">
             <ArticleCard
                 v-for="post in posts"
                 :key="post.id"
@@ -30,7 +30,7 @@
             />
         </div>
 
-        <div v-if="totalPages > 1" class="flex justify-center mt-8">
+        <div v-if="totalPages > 1" class="posts-page__pagination">
             <Paginator
                 v-model:first="first"
                 :rows="limit"
@@ -81,3 +81,48 @@ useHead({
     title: t('pages.posts.title'),
 })
 </script>
+
+<style lang="scss" scoped>
+.posts-page {
+    max-width: 56rem; // max-w-4xl
+    margin: 0 auto;
+    padding: 2rem 1rem; // py-8 px-4
+
+    &__title {
+        font-size: 1.875rem; // text-3xl
+        font-weight: 700;
+        margin-bottom: 2rem; // mb-8
+        color: #111827; // text-gray-900
+
+        :global(.dark) & {
+            color: #f3f4f6; // dark:text-gray-100
+        }
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem; // gap-6
+    }
+
+    &__skeleton {
+        border-radius: 0.5rem; // rounded-lg
+    }
+
+    &__error,
+    &__empty {
+        padding: 3rem 0; // py-12
+        text-align: center;
+    }
+
+    &__empty {
+        color: #6b7280; // text-gray-500
+    }
+
+    &__pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem; // mt-8
+    }
+}
+</style>
