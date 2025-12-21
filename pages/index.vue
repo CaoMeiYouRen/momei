@@ -109,8 +109,8 @@ const posts = computed(() => data.value?.data?.items || [])
 .home-page {
   display: flex;
   flex-direction: column;
-  gap: 4rem;
-  padding-bottom: 4rem;
+  gap: 2rem;
+  padding-bottom: 2rem;
 }
 
 .container {
@@ -121,7 +121,7 @@ const posts = computed(() => data.value?.data?.items || [])
 
 .hero {
   background: linear-gradient(135deg, var(--primary-50) 0%, var(--surface-0) 100%);
-  padding: 6rem 0;
+  padding: 3rem 0;
   text-align: center;
 
   :global(.dark) & {
@@ -142,7 +142,7 @@ const posts = computed(() => data.value?.data?.items || [])
   &__subtitle {
     font-size: 1.25rem;
     color: var(--text-secondary);
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
