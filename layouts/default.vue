@@ -13,7 +13,7 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: var(--p-surface-50);
+    background-color: var(--p-surface-ground);
 
     &__main {
         flex: 1;

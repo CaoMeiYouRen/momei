@@ -214,15 +214,15 @@ onMounted(() => {
 .page-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--p-surface-900);
+    color: var(--p-text-color);
 }
 
 .content-card {
     padding: 1rem;
-    background-color: var(--p-surface-0);
+    background-color: var(--p-surface-card);
     border-radius: 0.5rem;
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    border: 1px solid var(--p-surface-200);
+    border: 1px solid var(--p-surface-border);
     margin-bottom: 1.5rem;
 }
 
@@ -240,16 +240,5 @@ onMounted(() => {
 .empty-state {
     text-align: center;
     padding: 1rem;
-}
-
-:global(.dark) {
-    .page-title {
-        color: var(--p-surface-0);
-    }
-
-    .content-card {
-        background-color: var(--p-surface-900);
-        border-color: var(--p-surface-700);
-    }
 }
 </style>

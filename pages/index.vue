@@ -120,19 +120,19 @@ const posts = computed(() => data.value?.data?.items || [])
 }
 
 .hero {
-  background: linear-gradient(135deg, var(--primary-50) 0%, var(--surface-0) 100%);
+  background: linear-gradient(135deg, var(--p-primary-50) 0%, var(--p-surface-0) 100%);
   padding: 3rem 0;
   text-align: center;
 
   :global(.dark) & {
-    background: linear-gradient(135deg, var(--primary-900) 0%, var(--surface-900) 100%);
+    background: linear-gradient(135deg, var(--p-primary-900) 0%, var(--p-surface-900) 100%);
   }
 
   &__title {
     font-size: 3.5rem;
     font-weight: 800;
     margin-bottom: 1.5rem;
-    background: linear-gradient(to right, var(--primary-600), var(--primary-400));
+    background: linear-gradient(to right, var(--p-primary-600), var(--p-primary-400));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -141,7 +141,7 @@ const posts = computed(() => data.value?.data?.items || [])
 
   &__subtitle {
     font-size: 1.25rem;
-    color: var(--text-secondary);
+    color: var(--p-text-muted-color);
     margin-bottom: 1.5rem;
     max-width: 600px;
     margin-left: auto;
@@ -166,7 +166,7 @@ const posts = computed(() => data.value?.data?.items || [])
   &__title {
     font-size: 2rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--p-text-color);
   }
 }
 
@@ -186,30 +186,30 @@ const posts = computed(() => data.value?.data?.items || [])
   text-decoration: none;
 
   &--primary {
-    background-color: var(--primary-600);
+    background-color: var(--p-primary-600);
     color: white;
 
     &:hover {
-      background-color: var(--primary-700);
+      background-color: var(--p-primary-700);
     }
   }
 
   &--outline {
-    border: 2px solid var(--primary-600);
-    color: var(--primary-600);
+    border: 2px solid var(--p-primary-600);
+    color: var(--p-primary-600);
 
     &:hover {
-      background-color: var(--primary-50);
+      background-color: var(--p-primary-50);
     }
 
     :global(.dark) &:hover {
-      background-color: var(--primary-900);
+      background-color: var(--p-primary-900);
     }
   }
 
   &--text {
     padding: 0;
-    color: var(--primary-600);
+    color: var(--p-primary-600);
 
     &:hover {
       text-decoration: underline;
@@ -218,7 +218,7 @@ const posts = computed(() => data.value?.data?.items || [])
 }
 
 .link-more {
-  color: var(--primary-600);
+  color: var(--p-primary-600);
   font-weight: 600;
   text-decoration: none;
 
@@ -228,12 +228,12 @@ const posts = computed(() => data.value?.data?.items || [])
 }
 
 .about-preview {
-  background-color: var(--surface-50);
+  background-color: var(--p-surface-50);
   padding: 4rem 0;
   border-radius: 1rem;
 
   :global(.dark) & {
-    background-color: var(--surface-800);
+    background-color: var(--p-surface-800);
   }
 
   .about-text {
@@ -243,7 +243,7 @@ const posts = computed(() => data.value?.data?.items || [])
 
     p {
       font-size: 1.125rem;
-      color: var(--text-secondary);
+      color: var(--p-text-muted-color);
       margin-bottom: 2rem;
       line-height: 1.7;
     }

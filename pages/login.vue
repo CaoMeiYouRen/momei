@@ -183,6 +183,9 @@ definePageMeta({
 .login-card {
     width: 100%;
     max-width: 400px;
+    background: var(--p-surface-card);
+    border: 1px solid var(--p-surface-border);
+    color: var(--p-text-color);
 
     &__header {
         display: flex;
@@ -236,7 +239,7 @@ definePageMeta({
 
     &__divider-text {
         font-size: 0.875rem;
-        color: #6b7280;
+        color: var(--p-primary-700);
         line-height: 1.5;
     }
 

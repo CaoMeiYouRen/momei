@@ -92,11 +92,7 @@ useHead({
         font-size: 1.875rem; // text-3xl
         font-weight: 700;
         margin-bottom: 2rem; // mb-8
-        color: #111827; // text-gray-900
-
-        :global(.dark) & {
-            color: #f3f4f6; // dark:text-gray-100
-        }
+        color: var(--p-text-color);
     }
 
     &__list {
@@ -116,7 +112,7 @@ useHead({
     }
 
     &__empty {
-        color: #6b7280; // text-gray-500
+        color: var(--p-text-muted-color);
     }
 
     &__pagination {

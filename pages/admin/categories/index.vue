@@ -336,15 +336,16 @@ onMounted(() => {
     .page-title {
         font-size: 1.875rem;
         font-weight: 700;
-        color: var(--text-color);
+        color: var(--p-text-color);
     }
 }
 
 .content-card {
-    background: var(--surface-card);
+    background-color: var(--p-surface-card);
     border-radius: 1rem;
     padding: 1.5rem;
-    box-shadow: var(--card-shadow);
+    border: 1px solid var(--p-surface-border);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 
 .filters {

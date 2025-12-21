@@ -119,8 +119,8 @@ watch(preferredDark, (newVal) => {
 }
 
 .app-header {
-    background-color: var(--p-surface-0);
-    border-bottom: 1px solid var(--p-surface-200);
+    background-color: var(--p-surface-card);
+    border-bottom: 1px solid var(--p-surface-border);
     height: 64px;
     padding: 0 1rem;
     position: sticky;
@@ -174,7 +174,7 @@ watch(preferredDark, (newVal) => {
         color: var(--p-text-color);
 
         &:hover {
-            background-color: var(--p-surface-200);
+            background-color: var(--p-surface-hover);
         }
     }
 

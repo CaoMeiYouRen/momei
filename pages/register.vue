@@ -212,6 +212,9 @@ definePageMeta({
 .register-card {
     width: 100%;
     max-width: 400px;
+    background: var(--p-surface-card);
+    border: 1px solid var(--p-surface-border);
+    color: var(--p-text-color);
 
     &__header {
         display: flex;

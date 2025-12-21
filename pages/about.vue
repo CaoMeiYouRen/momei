@@ -192,11 +192,11 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 // 变量定义
-$color-ink: #2D3748;
-$color-plum: #E53E3E;
-$color-paper: #F7FAFC;
-$color-accent: #4A5568;
-$color-white: #fff;
+$color-ink: var(--p-text-color);
+$color-plum: var(--p-primary-color);
+$color-paper: var(--p-surface-ground);
+$color-accent: var(--p-text-muted-color);
+$color-white: var(--p-surface-card);
 $font-sans: 'Inter', 'system-ui', 'sans-serif';
 $font-serif: '"Noto Serif SC"', 'serif';
 
@@ -227,11 +227,12 @@ $font-serif: '"Noto Serif SC"', 'serif';
 .header {
   position: fixed;
   width: 100%;
-  background-color: rgb(255 255 255 / 0.9);
+  background-color: var(--p-surface-card);
   backdrop-filter: blur(4px);
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   z-index: 50;
   top: 0;
+  opacity: 0.9;
 
   &__container {
     display: flex;
@@ -260,9 +261,13 @@ $font-serif: '"Noto Serif SC"', 'serif';
   }
 
   &__text {
-    color: $color-white;
+    color: var(--p-surface-0);
     font-family: $font-serif;
     font-size: 1.125rem;
+
+    :global(.dark) & {
+        color: var(--p-surface-900);
+    }
   }
 
   &__title {
@@ -339,12 +344,16 @@ $font-serif: '"Noto Serif SC"', 'serif';
   }
 
   &__logo-text {
-    color: $color-white;
+    color: var(--p-surface-0);
     font-family: $font-serif;
     font-size: 2.25rem;
 
     @media (width >= 768px) {
       font-size: 3rem;
+    }
+
+    :global(.dark) & {
+        color: var(--p-surface-900);
     }
   }
 
@@ -376,7 +385,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
   &__btn {
     display: inline-block;
     background-color: $color-ink;
-    color: $color-white;
+    color: var(--p-surface-0);
     padding: 0.75rem 2rem;
     border-radius: 0.375rem;
     text-decoration: none;
@@ -384,6 +393,10 @@ $font-serif: '"Noto Serif SC"', 'serif';
 
     &:hover {
       opacity: 0.9;
+    }
+
+    :global(.dark) & {
+        color: var(--p-surface-900);
     }
   }
 }
@@ -498,7 +511,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
   &__icon-wrapper {
     width: 3rem;
     height: 3rem;
-    background-color: rgba($color-ink, 0.1);
+    background-color: var(--p-surface-200);
     border-radius: 9999px;
     display: flex;
     align-items: center;

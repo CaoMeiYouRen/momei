@@ -24,14 +24,13 @@ const localePath = useLocalePath()
 </script>
 
 <style lang="scss" scoped>
-$color-ink: #2D3748;
-$color-white: #fff;
 $font-serif: '"Noto Serif SC"', 'serif';
 
 .footer {
   padding: 2rem 1rem;
-  background-color: $color-ink;
-  color: $color-white;
+  background-color: var(--p-surface-card);
+  border-top: 1px solid var(--p-surface-border);
+  color: var(--p-text-color);
   text-align: center;
   margin-top: auto;
 
@@ -47,20 +46,21 @@ $font-serif: '"Noto Serif SC"', 'serif';
     width: 1.5rem;
     height: 1.5rem;
     border-radius: 9999px;
-    background-color: $color-white;
+    background-color: var(--p-primary-color);
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
   &__logo-text {
-    color: $color-ink;
+    color: var(--p-primary-contrast-color);
     font-family: $font-serif;
     font-size: 0.875rem;
   }
 
   &__title {
     font-family: $font-serif;
+    font-weight: 600;
   }
 
   &__nav {
@@ -68,20 +68,20 @@ $font-serif: '"Noto Serif SC"', 'serif';
   }
 
   &__link {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--p-text-muted-color);
     text-decoration: none;
     font-size: 0.875rem;
     transition: color 0.2s;
 
     &:hover {
-      color: $color-white;
+      color: var(--p-primary-color);
       text-decoration: underline;
     }
   }
 
   &__copyright {
     font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--p-text-muted-color);
   }
 }
 

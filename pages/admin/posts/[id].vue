@@ -484,7 +484,7 @@ onMounted(() => {
     height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: var(--p-surface-50);
+    background-color: var(--p-surface-ground);
     position: relative;
 }
 
@@ -524,8 +524,8 @@ onMounted(() => {
     align-items: center;
     padding: 0 1rem;
     height: 4rem;
-    border-bottom: 1px solid var(--p-surface-200);
-    background-color: var(--p-surface-0);
+    border-bottom: 1px solid var(--p-surface-border);
+    background-color: var(--p-surface-card);
     flex-shrink: 0;
 
     &-left {
@@ -606,14 +606,5 @@ onMounted(() => {
 
 .resize-none {
     resize: none;
-}
-
-:global(.dark) {
-    .editor-layout { background-color: var(--p-surface-950); }
-
-    .top-bar {
-        border-color: var(--p-surface-700);
-        background-color: var(--p-surface-900);
-    }
 }
 </style>
