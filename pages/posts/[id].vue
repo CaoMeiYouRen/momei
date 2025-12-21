@@ -164,16 +164,11 @@ useHead({
 
     &__skeleton-main {
         flex: 1;
-        background-color: #fff;
+        background-color: var(--p-surface-card);
         padding: 2.5rem;
         border-radius: 1rem;
         box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-        border: 1px solid #f3f4f6;
-
-        :global(.dark) & {
-            background-color: #1f2937;
-            border-color: #374151;
-        }
+        border: 1px solid var(--p-surface-border);
 
         @media (max-width: 768px) {
             padding: 1.5rem;
@@ -222,16 +217,11 @@ useHead({
     &__main {
         flex: 1;
         min-width: 0;
-        background-color: #fff;
+        background-color: var(--p-surface-card);
         padding: 2.5rem;
         border-radius: 1rem;
         box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-        border: 1px solid #f3f4f6;
-
-        :global(.dark) & {
-            background-color: #1f2937;
-            border-color: #374151;
-        }
+        border: 1px solid var(--p-surface-border);
 
         @media (max-width: 768px) {
             padding: 1.5rem;
@@ -249,11 +239,7 @@ useHead({
         align-items: center;
         margin-bottom: 1rem;
         font-size: 0.875rem;
-        color: #6b7280; // text-gray-500
-
-        :global(.dark) & {
-            color: #9ca3af; // dark:text-gray-400
-        }
+        color: var(--p-text-muted-color);
     }
 
     &__breadcrumb-separator {
@@ -265,11 +251,7 @@ useHead({
         font-weight: 700;
         line-height: 1.25;
         margin-bottom: 1.5rem;
-        color: #111827; // text-gray-900
-
-        :global(.dark) & {
-            color: #f3f4f6; // dark:text-gray-100
-        }
+        color: var(--p-text-color);
     }
 
     &__meta {
@@ -277,14 +259,9 @@ useHead({
         gap: 1.5rem;
         align-items: center;
         padding-bottom: 2rem;
-        border-bottom: 1px solid #e5e7eb; // border-gray-200
+        border-bottom: 1px solid var(--p-surface-border);
         font-size: 0.875rem;
-        color: #6b7280;
-
-        :global(.dark) & {
-            border-color: #374151; // dark:border-gray-700
-            color: #9ca3af;
-        }
+        color: var(--p-text-muted-color);
     }
 
     &__author {
@@ -302,11 +279,7 @@ useHead({
     &__footer {
         margin-top: 3rem;
         padding-top: 2rem;
-        border-top: 1px solid #e5e7eb;
-
-        :global(.dark) & {
-            border-color: #374151;
-        }
+        border-top: 1px solid var(--p-surface-border);
     }
 
     &__tags {

@@ -102,8 +102,8 @@ const navigateToPost = () => {
 
 <style lang="scss" scoped>
 .article-card {
-    background-color: #fff;
-    border: 1px solid #e5e7eb;
+    background-color: var(--p-surface-card);
+    border: 1px solid var(--p-surface-border);
     border-radius: 0.5rem;
     overflow: hidden;
     cursor: pointer;
@@ -136,7 +136,7 @@ const navigateToPost = () => {
     &__title {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #111827;
+        color: var(--p-text-color);
         margin-bottom: 0.5rem;
 
         // Line clamp 2
@@ -151,7 +151,7 @@ const navigateToPost = () => {
         gap: 1.5rem;
         align-items: center;
         font-size: 0.875rem;
-        color: #6b7280;
+        color: var(--p-text-muted-color);
         margin-bottom: 0.75rem;
 
         &-item {
@@ -162,7 +162,7 @@ const navigateToPost = () => {
     }
 
     &__summary {
-        color: #4b5563;
+        color: var(--p-text-muted-color);
         margin-bottom: 1rem;
 
         // Line clamp 3
@@ -210,24 +210,6 @@ const navigateToPost = () => {
                 aspect-ratio: 16 / 9;
             }
         }
-    }
-}
-
-// Dark mode
-:global(.dark) .article-card {
-    background-color: #1f2937;
-    border-color: #374151;
-
-    &__title {
-        color: #f3f4f6;
-    }
-
-    &__meta {
-        color: #9ca3af;
-    }
-
-    &__summary {
-        color: #d1d5db;
     }
 }
 </style>

@@ -1,8 +1,18 @@
+:root {
+  --p-surface-ground: var(--p-surface-50);
+  --p-surface-card: var(--p-surface-0);
+}
+
+:root.dark {
+  --p-surface-ground: var(--p-surface-0);
+  --p-surface-card: var(--p-surface-100);
+}
+
 body {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: var(--p-surface-0);
+  background-color: var(--p-surface-ground);
   color: var(--p-text-color);
   transition: background-color 0.3s, color 0.3s;
 }
