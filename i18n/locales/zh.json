@@ -48,6 +48,8 @@
         "settings": "设置",
         "tags": "标签",
         "summary": "摘要",
+        "email": "邮箱",
+        "otp": "验证码",
         "close": "关闭",
         "drag_drop_tip": "松开鼠标导入文件",
         "drag_drop_help": "支持拖拽 Markdown 或图片文件到编辑器",
@@ -113,6 +115,7 @@
         "login": {
             "title": "欢迎回来，请登录",
             "email": "邮箱",
+            "email_placeholder": "请输入邮箱",
             "password": "密码",
             "remember_me": "记住我",
             "forgot_password": "忘记密码",
@@ -137,6 +140,23 @@
             "confirm_password_required": "请确认密码",
             "password_mismatch": "两次输入的密码不一致"
         },
+        "forgot_password": {
+            "title": "找回密码",
+            "subtitle": "输入您的注册邮箱，我们将向您发送重置密码的验证码。",
+            "submit": "发送验证码",
+            "back_to_login": "返回登录",
+            "success_message": "验证码已发送，请检查您的邮箱。"
+        },
+        "reset_password": {
+            "title": "重置密码",
+            "subtitle": "请输入您的新密码。",
+            "otp_placeholder": "请输入验证码",
+            "new_password": "新密码",
+            "new_password_placeholder": "请输入新密码",
+            "confirm_password": "确认新密码",
+            "confirm_password_placeholder": "请再次输入新密码",
+            "submit": "重置密码"
+        },
         "settings": {
             "title": "设置",
             "menu": {
@@ -153,6 +173,7 @@
             "security": {
                 "title": "账号安全",
                 "change_password": "修改密码",
+                "set_password_hint": "如果您尚未设置密码（例如通过第三方登录），或者忘记了当前密码，请使用",
                 "current_password": "当前密码",
                 "new_password": "新密码",
                 "confirm_password": "确认新密码",

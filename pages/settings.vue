@@ -88,6 +88,12 @@
                         <template #content>
                             <div class="security-section">
                                 <h3>{{ $t('pages.settings.security.change_password') }}</h3>
+                                <Message severity="info" class="mb-4">
+                                    {{ $t('pages.settings.security.set_password_hint') }}
+                                    <NuxtLink to="/forgot-password" class="font-bold underline">
+                                        {{ $t('pages.login.forgot_password') }}
+                                    </NuxtLink>
+                                </Message>
                                 <form class="settings-form" @submit.prevent="handleChangePassword">
                                     <div class="settings-form__field">
                                         <label for="currentPassword">{{ $t('pages.settings.security.current_password') }}</label>
