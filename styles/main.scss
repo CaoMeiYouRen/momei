@@ -36,6 +36,22 @@ a {
     }
 }
 
+// PrimeVue InputText & Password Dark Mode Fixes
+.p-inputtext,
+.p-textarea {
+    background-color: var(--p-surface-card);
+    color: var(--p-text-color);
+    border-color: var(--p-surface-border);
+
+    &:enabled:hover {
+        border-color: var(--p-primary-color);
+    }
+
+    &:enabled:focus {
+        border-color: var(--p-primary-color);
+    }
+}
+
 .p-select-overlay {
     background-color: var(--p-surface-card);
     border: 1px solid var(--p-surface-border);

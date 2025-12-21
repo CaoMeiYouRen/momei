@@ -451,6 +451,9 @@ const handleChangePassword = async () => {
 
 .settings-card {
     width: 100%;
+    background: var(--p-surface-card);
+    border: 1px solid var(--p-surface-border);
+    color: var(--p-text-color);
 }
 
 .settings-form {
@@ -508,7 +511,7 @@ const handleChangePassword = async () => {
     align-items: center;
     justify-content: space-between;
     padding: 1rem;
-    border: 1px solid var(--p-surface-200);
+    border: 1px solid var(--p-surface-border);
     border-radius: 0.5rem;
 
     .account-info {
