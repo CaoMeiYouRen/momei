@@ -163,4 +163,23 @@ watch(preferredDark, (newVal) => {
         gap: 1rem;
     }
 }
+
+// Fix PrimeVue Menu Dark Mode
+:global(.dark .p-menu) {
+    background-color: var(--p-surface-card);
+    border: 1px solid var(--p-surface-border);
+    color: var(--p-text-color);
+
+    .p-menuitem-link {
+        color: var(--p-text-color);
+
+        &:hover {
+            background-color: var(--p-surface-200);
+        }
+    }
+
+    .p-menuitem-icon {
+        color: var(--p-text-muted-color);
+    }
+}
 </style>
