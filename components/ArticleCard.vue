@@ -165,9 +165,9 @@ const navigateToPost = () => {
         color: var(--p-text-muted-color);
         margin-bottom: 1rem;
 
-        // Line clamp 3
+        // Line clamp 5
         display: -webkit-box;
-        -webkit-line-clamp: 3;
+        -webkit-line-clamp: 5;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
