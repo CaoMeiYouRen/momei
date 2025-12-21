@@ -74,6 +74,7 @@ export default defineNuxtConfig({
         '@primevue/nuxt-module',
         '@nuxtjs/i18n',
         '@vueuse/nuxt',
+        '@sentry/nuxt/module',
     ],
     runtimeConfig: {
         public: {
@@ -81,6 +82,15 @@ export default defineNuxtConfig({
             appName: process.env.NUXT_PUBLIC_APP_NAME,
             authBaseUrl: process.env.NUXT_PUBLIC_AUTH_BASE_URL,
             clarityProjectId: process.env.NUXT_PUBLIC_CLARITY_PROJECT_ID,
+            sentry: {
+                dsn: process.env.NUXT_PUBLIC_SENTRY_DSN,
+                environment: process.env.NUXT_PUBLIC_SENTRY_ENVIRONMENT || 'development',
+            },
+        },
+    },
+    sentry: {
+        sourceMapsUploadOptions: {
+            enabled: false,
         },
     },
     primevue: {

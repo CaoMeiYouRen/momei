@@ -29,6 +29,7 @@
     "@microsoft/clarity": "^1.0.2",
     "@nuxtjs/i18n": "^10.2.1",
     "@primevue/themes": "^4.5.4",
+    "@sentry/nuxt": "^10.32.1",
     "@vercel/blob": "^2.0.0",
     "@vueuse/core": "^14.1.0",
     "@vueuse/nuxt": "^14.1.0",
