@@ -45,7 +45,7 @@ const headings = computed(() => {
     tokens.forEach((token, index) => {
         if (token.type === 'heading_open') {
             const level = parseInt(token.tag.slice(1))
-            if (level > 1) { // Skip h1
+            if (level > 1 && level <= 3) { // Skip h1, limit to h2 and h3
                 const inlineToken = tokens[index + 1]
                 if (inlineToken && inlineToken.type === 'inline') {
                     const text = inlineToken.content
@@ -85,11 +85,7 @@ const scrollToHeading = (id: string) => {
         font-size: 1.125rem; // text-lg
         font-weight: 700;
         margin-bottom: 1rem;
-        color: #111827; // text-gray-900
-
-        :global(.dark) & {
-            color: #f3f4f6; // dark:text-gray-100
-        }
+        color: var(--p-text-color);
     }
 
     &__list {
@@ -105,7 +101,7 @@ const scrollToHeading = (id: string) => {
     &__link {
         display: block;
         font-size: 0.875rem; // text-sm
-        color: #4b5563; // text-gray-600
+        color: var(--p-text-muted-color);
         transition: color 0.2s;
         white-space: nowrap;
         overflow: hidden;
@@ -113,15 +109,8 @@ const scrollToHeading = (id: string) => {
         text-decoration: none;
 
         &:hover {
-            color: var(--primary-500);
-        }
-
-        :global(.dark) & {
-            color: #9ca3af; // dark:text-gray-400
-
-            &:hover {
-                color: var(--primary-400);
-            }
+            color: var(--p-primary-color);
+            text-decoration: underline;
         }
     }
 }

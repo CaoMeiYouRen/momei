@@ -43,6 +43,13 @@
             </div>
 
             <div class="post-detail__layout">
+                <!-- Sidebar (TOC) -->
+                <aside class="post-detail__sidebar">
+                    <div class="post-detail__sidebar-content">
+                        <TableOfContents :content="post.content" />
+                    </div>
+                </aside>
+
                 <!-- Main Content -->
                 <main class="post-detail__main">
                     <!-- Header -->
@@ -104,11 +111,6 @@
                         </div>
                     </footer>
                 </main>
-
-                <!-- Sidebar (TOC) -->
-                <!-- <aside class="flex-shrink-0 hidden lg:block w-64">
-                    <TableOfContents :content="post.content" />
-                </aside> -->
             </div>
         </div>
     </div>
@@ -207,11 +209,33 @@ useHead({
     &__layout {
         display: flex;
         flex-direction: column;
-        gap: 3rem; // gap-12
+        gap: 2rem;
+        align-items: flex-start;
 
-        @media (min-width: 1024px) { // lg:flex-row
+        @media (min-width: 1024px) {
             flex-direction: row;
         }
+    }
+
+    &__sidebar {
+        display: none;
+        width: 16rem;
+        flex-shrink: 0;
+
+        @media (min-width: 1024px) {
+            display: block;
+            position: sticky;
+            top: 6rem;
+        }
+    }
+
+    &__sidebar-content {
+        background-color: var(--p-surface-card);
+        padding: 1.5rem;
+        border-radius: 1rem;
+        border: 1px solid var(--p-surface-border);
+        max-height: calc(100vh - 8rem);
+        overflow-y: auto;
     }
 
     &__main {
