@@ -24,6 +24,11 @@
             "language": "语言",
             "title": "墨梅"
         },
+        "footer": {
+            "logo_text": "梅",
+            "title": "墨梅",
+            "copyright": "© 2025 墨梅博客 - 轻量创作，自在表达"
+        },
         "toc": {
             "title": "目录"
         }

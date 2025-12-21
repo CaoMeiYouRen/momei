@@ -3,9 +3,9 @@
         <div class="container">
             <div class="footer__logo">
                 <div class="footer__logo-icon">
-                    <span class="footer__logo-text">梅</span>
+                    <span class="footer__logo-text">{{ $t('components.footer.logo_text') }}</span>
                 </div>
-                <span class="footer__title">墨梅</span>
+                <span class="footer__title">{{ $t('components.footer.title') }}</span>
             </div>
             <nav class="footer__nav">
                 <NuxtLink :to="localePath('/about')" class="footer__link">
@@ -13,7 +13,7 @@
                 </NuxtLink>
             </nav>
             <p class="footer__copyright">
-                &copy; 2025 墨梅博客 - 轻量创作，自在表达
+                {{ $t('components.footer.copyright') }}
             </p>
         </div>
     </footer>

@@ -24,6 +24,11 @@
             "language": "Language",
             "title": "Momei"
         },
+        "footer": {
+            "logo_text": "M",
+            "title": "Momei",
+            "copyright": "© 2025 Momei Blog - Lightweight creation, free expression"
+        },
         "toc": {
             "title": "Table of Contents"
         }
