@@ -8,6 +8,9 @@ export default defineNuxtRouteMiddleware(async (to) => {
     if (publicPaths.some((path) => to.path === path)) {
         return true
     }
+    if (to.path.startsWith('/posts')) {
+        return true
+    }
     if (to.path.startsWith('/api/auth') && !to.path.startsWith('/api/auth/admin')) {
         return true
     }
