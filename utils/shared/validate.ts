@@ -91,5 +91,8 @@ export function nicknameValidator(nickname: string): boolean {
 
 /**
  * 检查字符串是否为 Snowflake ID 格式 (15位以上纯十六进制字符串)
+ * 根据生成规则，只包含数字和小写字母 a-f，长度为 15 或 16 位。
+ * @param id - 要检查的字符串
+ * @returns 如果字符串是有效的 Snowflake ID，则返回 true，否则返回 false
  */
-export const isSnowflakeId = (id: string) => /^[0-9a-fA-F]{15,16}$/.test(id)
+export const isSnowflakeId = (id: string) => /^[0-9a-f]{15,16}$/.test(id)
