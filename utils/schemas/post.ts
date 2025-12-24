@@ -46,3 +46,13 @@ export const postQuerySchema = z.object({
 export const updatePostStatusSchema = z.object({
     status: z.enum(['published', 'draft', 'pending']),
 })
+
+export const archiveQuerySchema = z.object({
+    year: z.coerce.number().int().min(1970).optional(),
+    month: z.coerce.number().int().min(1).max(12).optional(),
+    language: z.string().optional(),
+    includePosts: z.coerce.boolean().default(false),
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(10),
+    scope: z.enum(['public', 'manage']).default('public'),
+})

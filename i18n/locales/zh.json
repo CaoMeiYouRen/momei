@@ -165,6 +165,12 @@
             "title": "文章列表",
             "empty": "暂无文章"
         },
+        "archives": {
+            "meta": {
+                "title": "归档 - 墨梅博客"
+            },
+            "title": "归档"
+        },
         "login": {
             "title": "欢迎回来，请登录",
             "email": "邮箱",

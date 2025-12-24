@@ -165,6 +165,12 @@
             "title": "Articles",
             "empty": "No articles found"
         },
+        "archives": {
+            "meta": {
+                "title": "Archives - Momei Blog"
+            },
+            "title": "Archives"
+        },
         "login": {
             "title": "Welcome back, please login",
             "email": "Email",
