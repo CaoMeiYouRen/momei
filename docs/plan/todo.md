@@ -40,7 +40,7 @@
 -   [x] **集成 better-auth (Backend)**
     -   [x] 验收: `/api/auth/*` 路由正常工作 (SignIn, SignUp, SignOut, Session)。
     -   [x] 验收: 实现 邮箱/密码 注册与登录流程；实现 用户名/密码 登录流程。
-    -   [-] 验收: 实现 GitHub OAuth 登录流程。
+    -   [x] 验收: 实现 GitHub OAuth 登录流程。
     -   验收: 用户 Session 持久化 (Cookie) 且 SSR 兼容。
 -   [x] **用户界面开发 (Frontend Pages)**
     -   [x] 验收: **登录页 (`/login`)**: 包含邮箱登录表单和 OAuth 按钮。
