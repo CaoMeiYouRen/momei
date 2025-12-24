@@ -85,16 +85,61 @@ API 路由位于 `server/api` 目录下。
             -   `author`: 只能查看自己的文章。
             -   `admin`: 可查看所有，支持 `authorId` 筛选。
             -   支持 `status` 筛选 (published, draft, pending)。
-    -   **Response**: `{ list: Post[], total: number, page: number }`
+    -   **Response**: `ApiResponse<{ list: Post[]; total: number; page: number }>` — 返回数据包裹在统一响应结构中。
 
 -   `GET /api/posts/:id`
 
-    -   **Response**: 文章详情。
+    -   **Response**: `ApiResponse<Post>` — 返回文章详情（包裹在统一响应结构内）。
     -   **Note**: 通过 ID 获取。通常用于管理端或预览。
 
 -   `GET /api/posts/slug/:slug`
     -   **Response**: 文章详情。
     -   **Note**: 通过 Slug 获取。用于公开展示。增加阅读量计数 (PV) (Post-MVP 实现)。
+-   `GET /api/posts/archive`
+
+    -   **Query**:
+        -   `year` (optional) 年（例如 2024），用于筛选单年归档。
+        -   `month` (optional) 月（1-12），用于筛选单月归档（需 `year`）。
+        -   `language` (optional) 语言代码（`zh`/`en`），用于国际化过滤。
+        -   `includePosts` (optional, boolean, default: false) 是否返回当月的文章列表（false 时仅返回年月与计数）。
+        -   `page`, `limit` (当 `includePosts=true` 时生效，用于分页文章列表)。
+    -   **Logic**:
+        -   返回按年/月聚合的归档树（降序）。`scope=public` 默认仅包含已发布文章。
+        -   对大站点默认仅返回年月与计数；当需要文章列表时，建议分页请求以避免一次性拉取大量内容。
+    -   **Response**: `ApiResponse<{ list: Array<{ year: number; months: Array<{ month: number; count: number; posts?: Post[] }>} > }>`
+    -   **Response Example**:
+        -   ```json
+            {
+                "code": 200,
+                "message": "Success",
+                "data": {
+                    "list": [
+                        {
+                            "year": 2025,
+                            "months": [
+                                {
+                                    "month": 12,
+                                    "count": 5,
+                                    "posts": [
+                                        {
+                                            "id": "...",
+                                            "title": "...",
+                                            "slug": "...",
+                                            "publishedAt": "...",
+                                            "summary": "..."
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+            ```
+    -   **Notes**:
+        -   建议对 `publishedAt` 建索引以提升聚合查询性能。
+        -   支持缓存头（Cache-Control）和后端短期缓存（例如 60s）。
+        -   `scope=manage` 时需要管理员或作者权限以查看草稿/待审核文章。
 
 #### Write APIs (写入接口 - 需 Auth)
 
@@ -123,11 +168,11 @@ API 路由位于 `server/api` 目录下。
     -   **Query**:
         -   `page`, `limit`
         -   `search`: 搜索名称
-    -   **Response**: 分类列表 (支持树形结构返回或平铺)。
+    -   **Response**: `ApiResponse<{ list: Category[]; total?: number }>` — 分类列表 (支持树形结构返回或平铺)。
 
 -   `GET /api/categories/:id` (或 `/api/categories/slug/:slug`)
 
-    -   **Response**: 分类详情。
+    -   **Response**: `ApiResponse<Category>` — 分类详情。
 
 -   `POST /api/categories` (Auth: Admin)
 
@@ -146,11 +191,11 @@ API 路由位于 `server/api` 目录下。
 -   `GET /api/tags`
 
     -   **Query**: `page`, `limit`, `search`
-    -   **Response**: 标签列表。
+    -   **Response**: `ApiResponse<{ list: Tag[]; total?: number }>` — 标签列表。
 
 -   `GET /api/tags/:id` (或 `/api/tags/slug/:slug`)
 
-    -   **Response**: 标签详情。
+    -   **Response**: `ApiResponse<Tag>` — 标签详情。
 
 -   `POST /api/tags` (Auth: Admin, Author)
 
