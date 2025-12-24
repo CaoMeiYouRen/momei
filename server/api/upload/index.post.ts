@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
         const timestamp = dayjs().format('YYYYMMDDHHmmssSSS') // 时间戳
         const random = Math.random().toString(36).slice(2, 9) // 随机字符串，避免文件名冲突
         const ext = path.extname(file.filename) // 文件扩展名
-        const newFilename = `${BUCKET_PREFIX}${timestamp}-${random}${ext}`
+        const newFilename = `${BUCKET_PREFIX}file/${timestamp}-${random}${ext}`
 
         const { url } = await storage.upload(file.data, newFilename, file.type)
 
