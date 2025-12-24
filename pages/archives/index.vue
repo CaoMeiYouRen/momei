@@ -2,7 +2,7 @@
     <div class="archives-page container">
         <div class="section__header">
             <h1 class="section__title">
-                {{ $t('archives.title') }}
+                {{ $t('pages.archives.title') }}
             </h1>
         </div>
 
@@ -39,7 +39,7 @@
                             @click="toggleMonth(yearBlock.year, m.month)"
                         >
                             <span class="month-name">{{ formatMonthName(m.month) }}</span>
-                            <span class="month-count">{{ m.count }}</span>
+                            <span class="month-count">{{ $t('pages.archives.count', {count: m.count}) }}</span>
                         </button>
 
                         <div v-if="isExpanded(yearBlock.year, m.month)" class="month-posts">
@@ -73,16 +73,17 @@
 
 <script setup lang="ts">
 import type { ArchiveMonth, ArchiveYear, ApiResponse } from '@/types/archive'
+import Skeleton from 'primevue/skeleton'
 
 const { t } = useI18n()
 const localePath = useLocalePath()
-useHead({ title: t('archives.meta.title') })
+useHead({ title: t('pages.archives.meta.title') })
 
 const { data, pending, error } = await useFetch<ApiResponse<{ list: ArchiveYear[] }>>('/api/posts/archive')
 const list = computed<ArchiveYear[]>(() => (data.value?.data?.list || []) as ArchiveYear[])
 
 // Client-side state
-const expanded = ref<Record<string, Set<number>>>({})
+const expandedKeys = ref<string[]>([])
 const postsCache = reactive<Record<string, any[]>>({})
 const loading = reactive<Record<string, boolean>>({})
 const showSummary = useState('archives-show-summary', () => false)
@@ -96,40 +97,59 @@ function loadingKey(year: number, month: number) {
 }
 
 function isExpanded(year: number, month: number) {
-    return expanded.value[year]?.has(month) || false
+    return expandedKeys.value.includes(cacheKey(year, month))
+}
+
+async function loadMonthPosts(year: number, month: number) {
+    const key = cacheKey(year, month)
+    if (postsCache[key] || loading[key]) return
+
+    loading[key] = true
+    try {
+        const res: any = await $fetch('/api/posts/archive', {
+            query: { includePosts: true, year, month },
+        })
+        postsCache[key] = res.data.list
+    } catch (e) {
+        postsCache[key] = []
+    } finally {
+        loading[key] = false
+    }
 }
 
 async function toggleMonth(year: number, month: number) {
-    if (!expanded.value[year]) expanded.value[year] = new Set()
     const key = cacheKey(year, month)
+    const index = expandedKeys.value.indexOf(key)
 
-    if (expanded.value[year].has(month)) {
-        expanded.value[year].delete(month)
+    if (index > -1) {
+        expandedKeys.value.splice(index, 1)
         return
     }
 
-    expanded.value[year].add(month)
-
-    if (!postsCache[key]) {
-        loading[key] = true
-        try {
-            const res: any = await $fetch('/api/posts/archive', {
-                query: { includePosts: true, year, month },
-            })
-            // Our API returns data.list as the items in includePosts mode
-            postsCache[key] = res.data.list
-        } catch (e) {
-            postsCache[key] = []
-        } finally {
-            loading[key] = false
-        }
-    }
+    expandedKeys.value.push(key)
+    await loadMonthPosts(year, month)
 }
 
+// Expand the first year by default
+watch(list, (newList) => {
+    if (newList && newList.length > 0 && expandedKeys.value.length === 0) {
+        const firstYear = newList[0]
+        if (firstYear) {
+            firstYear.months.forEach((m) => {
+                const key = cacheKey(firstYear.year, m.month)
+                if (!expandedKeys.value.includes(key)) {
+                    expandedKeys.value.push(key)
+                    loadMonthPosts(firstYear.year, m.month)
+                }
+            })
+        }
+    }
+}, { immediate: true })
+
 function formatMonthName(month: number) {
-    // localize month name via i18n if needed
+    // localize month name via i18n
     const m = Number(month)
-    return `${m}月`
+    return t(`pages.archives.months.${m}`)
 }
 </script>
 

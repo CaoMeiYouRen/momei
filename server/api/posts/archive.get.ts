@@ -41,6 +41,7 @@ export default defineEventHandler(async (event) => {
     // Detect DB type for date functions
     const dbType = (dataSource.options.type as string) || ''
 
+
     let yearExpr = ''
     let monthExpr = ''
 
@@ -66,7 +67,16 @@ export default defineEventHandler(async (event) => {
             .orderBy('year', 'DESC')
             .addOrderBy('month', 'DESC')
 
+        if (process.env.NODE_ENV === 'test') {
+            console.error('SQL:', rawQb.getSql())
+            console.error('Params:', rawQb.getParameters())
+        }
+
         const raw = await rawQb.getRawMany()
+
+        if (process.env.NODE_ENV === 'test') {
+            console.error('Raw results:', raw)
+        }
 
         // Normalize raw rows to numbers and group by year
         const yearsMap = new Map<number, Array<{ month: number, count: number }>>()
@@ -112,7 +122,7 @@ export default defineEventHandler(async (event) => {
     } else if (dbType.includes('postgres')) {
         postsQb.andWhere('EXTRACT(YEAR FROM post.published_at) = :y AND EXTRACT(MONTH FROM post.published_at) = :m', { y: query.year, m: query.month })
     } else {
-        postsQb.andWhere('YEAR(post.published_at) = :y AND MONTH(post.published_at) = :m', { y: query.year, m: query.month })
+        postsQb.andWhere('YEAR(post.publishedAt) = :y AND MONTH(post.publishedAt) = :m', { y: query.year, m: query.month })
     }
 
     postsQb.orderBy('post.publishedAt', 'DESC')
@@ -120,6 +130,7 @@ export default defineEventHandler(async (event) => {
     postsQb.take(query.limit)
 
     const [items, total] = await postsQb.getManyAndCount()
+
 
     event.node.res.setHeader('Cache-Control', 'public, max-age=60')
 

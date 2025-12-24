@@ -15,6 +15,10 @@
                     {{ $t('pages.posts.title') }}
                 </NuxtLink>
 
+                <NuxtLink :to="localePath('/archives')" class="nav-link">
+                    {{ $t('pages.archives.title') }}
+                </NuxtLink>
+
                 <template v-if="user && (user.role === 'admin' || user.role === 'author')">
                     <Button
                         icon="pi pi-cog"
