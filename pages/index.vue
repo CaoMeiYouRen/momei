@@ -74,7 +74,7 @@
                         </h2>
                         <p>{{ $t('home.about.description') }}</p>
                         <NuxtLink :to="localePath('/about')" class="btn btn--text">
-                            {{ $t('common.read_more') }} &rarr;
+                            {{ $t('common.about') }} &rarr;
                         </NuxtLink>
                     </div>
                 </div>
