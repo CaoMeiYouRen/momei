@@ -156,6 +156,7 @@ function formatMonthName(month: number) {
 <style lang="scss" scoped>
 .archives-page {
   padding: 2rem 1rem;
+
   .year-block {
     margin-bottom: 1.5rem;
   }
@@ -185,24 +186,32 @@ function formatMonthName(month: number) {
       text-align: left;
       cursor: pointer;
       border-radius: 0.375rem;
+
       &:hover {
-        background: rgba(0,0,0,0.03);
+        background: rgb(0 0 0 / 0.03);
       }
     }
 
     .month-posts {
       padding-left: 0.75rem;
+
       .post-items {
         list-style: none;
         padding: 0;
-        margin: 0.5rem 0 0 0;
+        margin: 0.5rem 0 0;
+
         .post-item {
           padding: 0.5rem 0;
-          border-bottom: 1px solid rgba(0,0,0,0.03);
+          border-bottom: 1px solid rgb(0 0 0 / 0.03);
+
           .post-link {
             display: block;
             .post-title { font-weight: 600 }
-            .post-summary { color: var(--p-text-muted-color); font-size: 0.95rem }
+
+            .post-summary {
+              color: var(--p-text-muted-color);
+              font-size: 0.95rem;
+            }
           }
         }
       }

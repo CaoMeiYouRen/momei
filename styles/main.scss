@@ -61,7 +61,7 @@ a {
 .p-select-option {
     color: var(--p-text-color);
 
-    &:not(.p-select-option-selected):not(.p-disabled) {
+    &:not(.p-select-option-selected, .p-disabled) {
         &.p-focus, &:hover {
             background-color: var(--p-surface-200);
         }

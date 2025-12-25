@@ -133,7 +133,7 @@ const posts = computed(() => data.value?.data?.items || [])
     font-weight: 800;
     margin-bottom: 1.5rem;
     background: linear-gradient(to right, var(--p-primary-600), var(--p-primary-400));
-    -webkit-background-clip: text;
+    background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     line-height: 1.2;

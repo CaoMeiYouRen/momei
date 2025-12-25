@@ -202,7 +202,7 @@ const navigateToPost = () => {
         }
 
         // Responsive adjustments for mobile
-        @media (max-width: 768px) {
+        @media (width <= 768px) {
             flex-direction: column;
 
             .article-card__cover {

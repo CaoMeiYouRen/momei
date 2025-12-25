@@ -177,7 +177,7 @@ const handleForgotPassword = async () => {
     border-radius: 0.5rem;
 
     :global(.dark) & {
-        background-color: rgba(239, 68, 68, 0.1);
+        background-color: rgb(239 68 68 / 0.1);
     }
 }
 
@@ -192,7 +192,7 @@ const handleForgotPassword = async () => {
     border-radius: 0.5rem;
 
     :global(.dark) & {
-        background-color: rgba(34, 197, 94, 0.1);
+        background-color: rgb(34 197 94 / 0.1);
     }
 }
 

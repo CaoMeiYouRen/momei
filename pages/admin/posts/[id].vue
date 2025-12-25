@@ -490,11 +490,8 @@ onMounted(() => {
 
 .drag-mask {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.3);
+    inset: 0;
+    background-color: rgb(0 0 0 / 0.3);
     border: 3px dashed var(--p-primary-500);
     z-index: 1000;
     display: flex;
@@ -514,7 +511,7 @@ onMounted(() => {
         font-size: 1.5rem;
         color: var(--p-primary-500);
         font-weight: bold;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        text-shadow: 0 2px 4px rgb(0 0 0 / 0.5);
     }
 }
 

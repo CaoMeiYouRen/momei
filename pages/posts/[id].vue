@@ -172,7 +172,7 @@ useHead({
         box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
         border: 1px solid var(--p-surface-border);
 
-        @media (max-width: 768px) {
+        @media (width <= 768px) {
             padding: 1.5rem;
             border-radius: 0.75rem;
         }
@@ -182,7 +182,7 @@ useHead({
         display: none;
         width: 16rem;
 
-        @media (min-width: 1024px) {
+        @media (width >= 1024px) {
             display: block;
         }
     }
@@ -212,7 +212,7 @@ useHead({
         gap: 2rem;
         align-items: flex-start;
 
-        @media (min-width: 1024px) {
+        @media (width >= 1024px) {
             flex-direction: row;
         }
     }
@@ -222,7 +222,7 @@ useHead({
         width: 16rem;
         flex-shrink: 0;
 
-        @media (min-width: 1024px) {
+        @media (width >= 1024px) {
             display: block;
             position: sticky;
             top: 6rem;
@@ -247,7 +247,7 @@ useHead({
         box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
         border: 1px solid var(--p-surface-border);
 
-        @media (max-width: 768px) {
+        @media (width <= 768px) {
             padding: 1.5rem;
             border-radius: 0.75rem;
         }
