@@ -277,7 +277,7 @@ const saveItem = async () => {
     try {
         if (editingItem.value) {
             await $fetch(`/api/categories/${editingItem.value.id}`, {
-                method: 'PUT',
+                method: 'PUT' as any,
                 body: form.value,
             })
         } else {
@@ -304,7 +304,7 @@ const confirmDelete = (item: Category) => {
         accept: async () => {
             try {
                 await $fetch(`/api/categories/${item.id}`, {
-                    method: 'DELETE',
+                    method: 'DELETE' as any,
                 })
                 toast.add({ severity: 'success', summary: 'Success', detail: t('pages.admin.categories.delete_success'), life: 3000 })
                 loadData()

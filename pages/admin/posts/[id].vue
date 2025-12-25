@@ -412,7 +412,7 @@ const savePost = async (publish = false) => {
             }
         } else {
             await $fetch(`/api/posts/${route.params.id}`, {
-                method: 'PUT',
+                method: 'PUT' as any,
                 body: payload,
             })
             if (publish) {

@@ -167,7 +167,7 @@ const editPost = (id: string) => {
 const confirmDelete = async (post: Post) => {
     if (confirm(`确定要删除文章 "${post.title}" 吗？`)) {
         try {
-            await $fetch(`/api/posts/${post.id}`, { method: 'DELETE' })
+            await $fetch(`/api/posts/${post.id}`, { method: 'DELETE' as any })
             loadPosts()
         } catch (error) {
             console.error('Failed to delete post:', error)
