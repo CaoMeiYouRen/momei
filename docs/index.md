@@ -33,7 +33,4 @@ features:
     - title: 测试规范
       details: 学习单元测试与端到端测试的编写标准。
       link: /standards/testing
-    - title: AI 代理配置
-      details: 了解如何配置与使用 GitHub Copilot 等 AI 辅助工具。
-      link: /AGENTS
 ---
