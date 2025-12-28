@@ -113,8 +113,8 @@ importers:
         specifier: ^1.10.2
         version: 1.10.2(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(winston@3.19.0)
       nodemailer:
-        specifier: ^7.0.11
-        version: 7.0.11
+        specifier: ^7.0.12
+        version: 7.0.12
       normalize.css:
         specifier: ^8.0.1
         version: 8.0.1
@@ -7369,8 +7369,8 @@ packages:
   node-rsa@1.1.1:
     resolution: {integrity: sha512-Jd4cvbJMryN21r5HgxQOpMEqv+ooke/korixNNK3mGqfGJmy0M77WDDzo/05969+OkMy3XW1UuZsSmW9KQm7Fw==}
 
-  nodemailer@7.0.11:
-    resolution: {integrity: sha512-gnXhNRE0FNhD7wPSCGhdNh46Hs6nm+uTyg+Kq0cZukNQiYdnCsoQjodNP9BQVG9XrcK/v6/MgpAPBUFyzh9pvw==}
+  nodemailer@7.0.12:
+    resolution: {integrity: sha512-H+rnK5bX2Pi/6ms3sN4/jRQvYSMltV6vqup/0SFOrxYYY/qoNvhXPlYq3e+Pm9RFJRwrMGbMIwi81M4dxpomhA==}
     engines: {node: '>=6.0.0'}
 
   nopt@7.2.1:
@@ -19061,7 +19061,7 @@ snapshots:
     dependencies:
       asn1: 0.2.6
 
-  nodemailer@7.0.11: {}
+  nodemailer@7.0.12: {}
 
   nopt@7.2.1:
     dependencies:
@@ -19978,7 +19978,7 @@ snapshots:
       axios: 1.13.2(debug@4.4.3)
       debug: 4.4.3
       https-proxy-agent: 7.0.6
-      nodemailer: 7.0.11
+      nodemailer: 7.0.12
       socks-proxy-agent: 8.0.5
     transitivePeerDependencies:
       - supports-color
