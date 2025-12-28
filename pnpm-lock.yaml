@@ -62,8 +62,8 @@ importers:
         specifier: ^2.2.2
         version: 2.2.2(better-auth@1.4.8-beta.3(better-sqlite3@12.5.0)(mysql2@3.16.0)(pg@8.16.3)(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.3.0)(happy-dom@20.0.11)(jiti@2.6.1)(sass@1.97.1)(terser@5.44.1)(yaml@2.8.2))(vue@3.5.26(typescript@5.9.3)))
       better-bytes:
-        specifier: ^1.2.4
-        version: 1.2.4
+        specifier: ^1.2.6
+        version: 1.2.6
       better-sqlite3:
         specifier: ^12.5.0
         version: 12.5.0
@@ -4360,9 +4360,9 @@ packages:
       vue:
         optional: true
 
-  better-bytes@1.2.4:
-    resolution: {integrity: sha512-lA8ZltmVDd7ThuUtZgZxKMsb2I7qLZYHsaT+CkuMZeHLIXxiCxqgqokNNG+1WKTccs+ybFjeAW6+pc3gnKdoRg==}
-    engines: {node: '>=16'}
+  better-bytes@1.2.6:
+    resolution: {integrity: sha512-4eznQOCU/S7C9SzRAksDM3VIPxHYsANTaWJSyF/9gjYWqXxtrWwjbP91tEkxg/Fu+ZxKZIF8iyPUJfB49nzuBw==}
+    engines: {node: '>=18'}
 
   better-call@1.1.5:
     resolution: {integrity: sha512-nQJ3S87v6wApbDwbZ++FrQiSiVxWvZdjaO+2v6lZJAG2WWggkB2CziUDjPciz3eAt9TqfRursIQMZIcpkBnvlw==}
@@ -15367,7 +15367,7 @@ snapshots:
       vitest: 4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.3.0)(happy-dom@20.0.11)(jiti@2.6.1)(sass@1.97.1)(terser@5.44.1)(yaml@2.8.2)
       vue: 3.5.26(typescript@5.9.3)
 
-  better-bytes@1.2.4:
+  better-bytes@1.2.6:
     dependencies:
       tslib: 2.8.1
 
