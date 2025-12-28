@@ -130,7 +130,7 @@
     "vite": "^7.3.0",
     "vitepress": "^1.6.4",
     "vitest": "^4.0.15",
-    "vue-tsc": "^3.2.0",
+    "vue-tsc": "^3.2.1",
     "wrangler": "^4.56.0"
   },
   "author": "CaoMeiYouRen",
