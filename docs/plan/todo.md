@@ -88,9 +88,9 @@
     -   [x] 验收: Markdown 正确渲染为 HTML。
     -   [x] 验收: 自动生成目录 (TOC)。
     -   [x] 验收: SEO Meta 标签正确生成 (Title, Description)。
--   [ ] **归档页（高优先，估时 1–2 天）**
-    -   验收: 按年份/月份展示文章归档；支持 SSR，按年/月聚合并显示文章数量。
-    -   实施建议: 新增 `server/api/posts/archive.get.ts`（或扩展 `GET /api/posts`）与页面 `pages/archive.vue`（或 `pages/archives/index.vue`）。
+-   [x] **归档页（高优先，估时 1–2 天）**
+    -   [x] 验收: 按年份/月份展示文章归档；支持 SSR，按年/月聚合并显示文章数量。
+    -   [x] 实施建议: 新增 `server/api/posts/archive.get.ts`（或扩展 `GET /api/posts`）与页面 `pages/archive.vue`（或 `pages/archives/index.vue`）。
 -   [x] **暗色模式 (Dark Mode)**
     -   [x] 验收: 实现主题切换器 (Light/Dark/System)。
     -   [x] 验收: 状态持久化 (Cookie/LocalStorage) 且无闪烁。
