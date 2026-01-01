@@ -30,7 +30,7 @@ describe('Auth Flow (Direct API)', async () => {
         vi.stubEnv('DATABASE_PATH', ':memory:')
         vi.stubEnv('LOGFILES', 'false')
         vi.stubEnv('LOG_LEVEL', 'error')
-        vi.stubEnv('AUTH_SECRET', generateRandomString(32))
+        vi.stubEnv('AUTH_SECRET', 'test_secret_1234567890_abcdefghij')
         vi.stubEnv('NODE_ENV', 'test')
         vi.stubEnv('EMAIL_REQUIRE_VERIFICATION', 'false')
         vi.stubEnv('DATABASE_ENTITY_PREFIX', 'momei_')
