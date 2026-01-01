@@ -10,7 +10,7 @@ describe('Database Connection', async () => {
 
     await setup({
         server: false,
-        dev: true,
+        dev: false,
         env: {
             DATABASE_TYPE: 'sqlite',
             DATABASE_PATH: ':memory:',
