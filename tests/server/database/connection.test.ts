@@ -10,13 +10,13 @@ describe('Database Connection', async () => {
 
     await setup({
         server: false,
-        // dev: true,
+        dev: true,
         env: {
             DATABASE_TYPE: 'sqlite',
             DATABASE_PATH: ':memory:',
             LOGFILES: 'false',
             LOG_LEVEL: 'error',
-            // AUTH_SECRET: generateRandomString(32),
+            AUTH_SECRET: 'test_secret_1234567890_abcdefghij',
             NODE_ENV: 'test',
         },
     })
