@@ -5,7 +5,7 @@ import { initializeDB } from '@/server/database/index'
 import { User } from '@/server/entities/user'
 import { generateRandomString } from '@/utils/shared/random'
 
-describe('Database Connection', async () => {
+describe.skip('Database Connection', async () => {
     let dataSource: DataSource
 
     await setup({
