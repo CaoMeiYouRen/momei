@@ -22,7 +22,9 @@
     "components": {
         "header": {
             "language": "语言",
-            "title": "墨梅"
+            "title": "墨梅",
+            "dark_mode": "深色模式",
+            "light_mode": "浅色模式"
         },
         "footer": {
             "logo_text": "梅",

@@ -8,6 +8,7 @@ export default defineVitestConfig({
         globals: true,
         environment: 'nuxt',
         fileParallelism: false,
+        setupFiles: ['./tests/testSetup.ts'],
         include: ['./**/*.spec.ts', './**/*.test.ts'],
         // include: ['tests/**/*.spec.ts', 'tests/**/*.test.ts'],
         exclude: ['**/node_modules/**', '**/.nuxt/**', '**/dist/**'],

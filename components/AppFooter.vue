@@ -84,13 +84,4 @@ $font-serif: '"Noto Serif SC"', 'serif';
     color: var(--p-text-muted-color);
   }
 }
-
-.container {
-  width: 100%;
-  margin-right: auto;
-  margin-left: auto;
-  padding-right: 1rem;
-  padding-left: 1rem;
-  max-width: 1200px;
-}
 </style>

@@ -113,12 +113,6 @@ const posts = computed(() => data.value?.data?.items || [])
   padding-bottom: 2rem;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
-
 .hero {
   background: linear-gradient(135deg, var(--p-primary-50) 0%, var(--p-surface-0) 100%);
   padding: 3rem 0;
@@ -152,21 +146,6 @@ const posts = computed(() => data.value?.data?.items || [])
     display: flex;
     gap: 1rem;
     justify-content: center;
-  }
-}
-
-.section {
-  &__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
-
-  &__title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--p-text-color);
   }
 }
 

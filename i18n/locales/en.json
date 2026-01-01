@@ -22,7 +22,9 @@
     "components": {
         "header": {
             "language": "Language",
-            "title": "Momei"
+            "title": "Momei",
+            "dark_mode": "Dark Mode",
+            "light_mode": "Light Mode"
         },
         "footer": {
             "logo_text": "M",

@@ -77,3 +77,40 @@ a {
         }
     }
 }
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+
+    @media (width <= 768px) {
+        padding: 0 1rem;
+    }
+}
+
+.section {
+    padding: 4rem 0;
+
+    @media (width <= 768px) {
+        padding: 2rem 0;
+    }
+
+    &__header {
+        margin-bottom: 2rem;
+
+        @media (width <= 768px) {
+            margin-bottom: 1rem;
+        }
+    }
+
+    &__title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--p-text-color);
+
+        @media (width <= 768px) {
+            font-size: 1.5rem;
+        }
+    }
+}
