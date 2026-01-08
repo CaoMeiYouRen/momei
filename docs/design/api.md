@@ -213,6 +213,24 @@ API 路由位于 `server/api` 目录下。
 
 -   `POST /api/upload`: 文件上传 (支持本地存储或 S3)。
 
+## 4.7 External APIs (外部接口)
+
+供外部系统调用的 API，使用 API KEY 进行鉴权。
+
+-   **鉴权方式**: Header 中携带 `X-API-KEY`。
+-   **权限控制**: 目前仅支持用户级别权限，API KEY 与具体用户绑定。
+
+#### Write APIs (写入接口)
+
+-   `POST /api/external/posts`
+    -   **Auth**: API KEY
+    -   **Body**: `{ title, content, slug?, summary?, coverImage?, categoryId?, tags?: string[], status? }`
+    -   **Logic**:
+        -   校验 API KEY 合法性并获取对应用户。
+        -   创建文章，作者为 API KEY 对应的用户。
+        -   默认状态根据用户角色决定（如作者创建需审核，管理员直接发布）。
+    -   **Response**: `ApiResponse<Post>`
+
 ## 5. 邮件服务配置 (Email Service Configuration)
 
 使用 **Nodemailer** 发送事务性邮件。
