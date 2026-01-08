@@ -110,8 +110,19 @@ API 路由位于 `server/api` 目录下。
     -   **Note**: 通过 ID 获取。通常用于管理端或预览。
 
 -   `GET /api/posts/slug/:slug`
+
     -   **Response**: 文章详情。
-    -   **Note**: 通过 Slug 获取。用于公开展示。增加阅读量计数 (PV) (Post-MVP 实现)。
+    -   **Note**: 通过 Slug 获取。用于公开展示。
+
+-   `POST /api/posts/:id/views`
+
+    -   **Auth**: Public
+    -   **Note**: 增加文章阅读量 (PV)。
+    -   **Logic**:
+        -   需实现简单的防刷逻辑 (如同一 IP 1 分钟内仅计算一次，或使用 Session/Cookie 标记)。
+        -   推荐在客户端 `onMounted` 时调用，避免 SSR 预渲染导致虚假统计。
+    -   **Response**: `ApiResponse<{ views: number }>` — 返回最新的阅读量。
+
 -   `GET /api/posts/archive`
 
     -   **Query**:

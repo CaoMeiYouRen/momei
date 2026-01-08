@@ -93,6 +93,7 @@
     -   [x] 验收: 展示文章列表，支持分页。
     -   [x] 验收: 响应式布局适配移动端。
 -   [x] **文章详情页**
+    -   [ ] 验收: 实现阅读量 (PV) 统计与展示 (API + Client Side + Anti-Spam)。
     -   [x] 验收: Markdown 正确渲染为 HTML。
     -   [x] 验收: 自动生成目录 (TOC)。
     -   [x] 验收: SEO Meta 标签正确生成 (Title, Description)。
