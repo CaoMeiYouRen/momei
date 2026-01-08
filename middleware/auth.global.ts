@@ -37,5 +37,11 @@ export default defineNuxtRouteMiddleware(async (to) => {
         }
         return false
     }
+
+    // 管理后台权限检查
+    if (to.path.startsWith('/admin') && session.value.user.role !== 'admin') {
+        return navigateTo('/')
+    }
+
     return true
 })

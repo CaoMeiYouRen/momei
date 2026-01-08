@@ -117,7 +117,7 @@
                 <template v-if="user">
                     <div v-if="user.role === 'admin' || user.role === 'author'" class="mobile-admin-section">
                         <div class="mobile-admin-section__title">
-                            {{ $t('pages.admin.posts.title') }}
+                            {{ $t('common.admin') }}
                         </div>
                         <div
                             v-for="item in adminMenuItems"
@@ -176,6 +176,11 @@ const adminMenuItems = computed(() => [
         label: t('pages.admin.tags.title'),
         icon: 'pi pi-tags',
         command: () => navigateTo('/admin/tags'),
+    },
+    {
+        label: t('pages.admin.users.title'),
+        icon: 'pi pi-users',
+        command: () => navigateTo('/admin/users'),
     },
 ])
 
@@ -265,7 +270,7 @@ watch(preferredDark, (newVal) => {
 }
 
 .desktop-only {
-    @media (max-width: 768px) {
+    @media (width <= 768px) {
         display: none !important;
     }
 }
@@ -273,7 +278,7 @@ watch(preferredDark, (newVal) => {
 .mobile-only {
     display: none !important;
 
-    @media (max-width: 768px) {
+    @media (width <= 768px) {
         display: flex !important;
     }
 }

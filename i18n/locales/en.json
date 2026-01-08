@@ -75,7 +75,10 @@
         "upload_failed": "Upload failed",
         "about": "About",
         "view_all": "View All",
-        "error_loading": "Error loading content"
+        "error_loading": "Error loading content",
+        "optional": "Optional",
+        "confirmation": "Confirmation",
+        "danger": "Danger"
     },
     "pages": {
         "about": {
@@ -161,6 +164,53 @@
                 "delete_confirm": "Are you sure you want to delete this tag?",
                 "delete_success": "Tag deleted successfully",
                 "save_success": "Tag saved successfully"
+            },
+            "users": {
+                "title": "User Management",
+                "searchPlaceholder": "Search name or email...",
+                "filterRole": "All Roles",
+                "filterStatus": "All Status",
+                "refresh": "Refresh",
+                "user": "User",
+                "role": "Role",
+                "status": "Status",
+                "createdAt": "Joined At",
+                "actions": "Actions",
+                "banned": "Banned",
+                "active": "Active",
+                "unbanUser": "Unban User",
+                "editRole": "Edit Role",
+                "selectRole": "Select New Role",
+                "banUser": "Ban User",
+                "viewSessions": "View Sessions",
+                "impersonate": "Impersonate",
+                "deleteUser": "Delete User",
+                "banReason": "Ban Reason",
+                "banReasonPlaceholder": "Enter reason for ban",
+                "banExpiry": "Expires In",
+                "ban": "Execute Ban",
+                "sessions": "Active Sessions",
+                "revokeAll": "Revoke All Sessions",
+                "noActiveSessions": "No active sessions",
+                "lastActive": "Last Active",
+                "expiresAt": "Expires At",
+                "confirmImpersonate": "Are you sure you want to impersonate \"{name}\"? This will open a new session.",
+                "confirmRevokeAll": "Are you sure you want to force sign out this user from all devices?",
+                "confirmDelete": "Are you sure you want to permanently delete user \"{name}\"? This action cannot be undone!",
+                "roles": {
+                    "all": "All Roles"
+                },
+                "statusOptions": {
+                    "all": "All Status",
+                    "active": "Active",
+                    "banned": "Banned"
+                },
+                "expiry": {
+                    "never": "Never",
+                    "oneDay": "1 Day",
+                    "oneWeek": "1 Week",
+                    "oneMonth": "1 Month"
+                }
             }
         },
         "posts": {
