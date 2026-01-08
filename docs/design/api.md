@@ -52,17 +52,34 @@ API 路由位于 `server/api` 目录下。
 
 -   `POST /api/auth/*`: better-auth 处理的所有认证路由。
 
-### 4.2 Users (Custom APIs)
+### 4.2 Users & Admin (用户与管理)
 
-大部分用户管理功能由 `better-auth` 及其 Admin 插件提供，无需重复开发。
+大部分用户管理功能由 `better-auth` 及其 Admin 插件直接提供，无需重复开发业务逻辑，仅需在前端调用相应 SDK 方法即可。
 
--   **Admin 功能**: 使用 `better-auth` Admin Plugin 提供的接口。
-    -   `listUsers`, `setRole`, `banUser`, `impersonateUser` 等。
--   **User 功能**:
-    -   `getSession`: 获取当前用户信息。
-    -   `updateUser`: 更新个人资料。
+#### 4.2.1 Admin 接口 (基于 better-auth admin plugin)
 
-如果确有 `better-auth` 无法满足的特定业务逻辑（如复杂的头像上传处理），再考虑添加自定义接口。
+详见：[better-auth Admin Plugin Docs](https://www.better-auth.com/docs/plugins/admin)
+
+-   **用户列表与查询**: `authClient.admin.listUsers`
+    -   支持查询、过滤（`searchValue`, `filterField`）、排序（`sortBy`, `sortDirection`）及分页（`limit`, `offset`）。
+-   **角色管理**: `authClient.admin.setRole`
+    -   用于调整用户权限：`admin`, `author`, `user`。
+-   **账号封禁**: `authClient.admin.banUser` / `unbanUser`
+    -   支持指定封禁原因（`banReason`）及过期时间（`banExpiresIn`）。
+-   **账号操作**:
+    -   **修改密码**: `authClient.admin.setUserPassword` - 强制重置用户密码。
+    -   **信息更新**: `authClient.admin.updateUser` - 修改用户昵称、头像等。
+    -   **删除用户**: `authClient.admin.removeUser` - 彻底删除账号。
+-   **会话监控**:
+    -   **列表会话**: `authClient.admin.listUserSessions` - 查看用户当前在线设备。
+    -   **吊销会话**: `authClient.admin.revokeUserSession(s)` - 强制踢出登录。
+-   **性能测试与调试 (Impersonation)**:
+    -   `authClient.admin.impersonateUser` - 以目标用户身份登录（用于排查问题）。
+
+#### 4.2.2 基础用户接口 (用户自运营)
+
+-   `POST /api/user/avatar`: 自定义头像上传接口（由后端处理存储并回填 `better-auth` 的 `image` 字段）。
+-   `UPDATE /api/user/profile`: 用户修改个人信息（底层转发至 `auth.api.updateUser`）。
 
 ### 4.3 Posts (文章管理)
 

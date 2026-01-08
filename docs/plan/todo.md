@@ -50,9 +50,10 @@
     -   [x] 验收: 数据库 `User` 表包含 `role` 字段 (Admin, Author, User, Visitor)。
     -   [x] 验收: 实现后端中间件 `server/middleware/auth.ts` 拦截未授权请求。
 -   [ ] **用户管理 (User Management - Admin Only)**
-    -   验收: 管理后台提供用户列表查看功能。
+    -   验收: 管理后台提供用户列表查看功能（集成 `better-auth` admin 插件）。
     -   验收: 管理员可在后台修改用户角色 (如将 User 提升为 Author)。
     -   验收: 管理员可对违规账号进行禁用或启用操作。
+    -   验收: 支持查杀指定用户的活跃 Session。
 
 ### 3. 内容管理 (Content Management)
 
