@@ -140,6 +140,29 @@ useHead({
         { name: 'description', content: computed(() => post.value?.summary || '') },
     ],
 })
+
+onMounted(async () => {
+    if (!post.value?.id) {
+        return
+    }
+
+    const postId = post.value.id
+    const storageKey = `momei_view_${postId}`
+
+    if (!sessionStorage.getItem(storageKey)) {
+        try {
+            const res = await $fetch<{ code: number, data: { views: number } }>(`/api/posts/${postId}/views`, {
+                method: 'POST',
+            })
+            if (res.code === 200 && data.value?.data) {
+                data.value.data.views = res.data.views
+                sessionStorage.setItem(storageKey, '1')
+            }
+        } catch (error) {
+            console.error('Failed to increment view count:', error)
+        }
+    }
+})
 </script>
 
 <style lang="scss" scoped>
