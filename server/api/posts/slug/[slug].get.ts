@@ -39,13 +39,6 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    // Increment views
-    // TODO: Implement PV calculation logic in Post-MVP phase
-    // Requirements:
-    // 1. Only increment for logged-in users
-    // 2. Check if request is from browser (User-Agent)
-    // 3. Implement rate limiting/anti-abuse
-
     return {
         code: 200,
         data: post,
