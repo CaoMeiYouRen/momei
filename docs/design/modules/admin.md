@@ -1,0 +1,63 @@
+# 管理后台模块 (Admin Module)
+
+## 1. 概述 (Overview)
+
+本模块包含系统管理功能，仅供 `admin` 或 `author` (受限) 角色访问。包含用户管理、文章管理、分类/标签管理。
+
+## 2. 页面设计 (UI Design) - `/admin/*`
+
+### 2.1 用户管理页 (`/admin/users`)
+
+-   **权限**: `admin` only.
+-   **组件**:
+    -   **DataTable**: 用户列 (带头像), 角色 Badge, 状态, 最后活跃.
+    -   **Toolbar**: 搜索 (Name/Email), 筛选 (Role/Status), "新增用户" 按钮.
+-   **操作**:
+    -   编辑角色 (Set Role).
+    -   封禁/解封 (Ban/Unban).
+    -   会话管理 (Revoke Sessions).
+    -   模拟登录 (Impersonate).
+    -   删除用户.
+
+### 2.2 文章管理页 (`/admin/posts`)
+
+-   **权限**: `admin` (All), `author` (Own).
+-   **列表列**: 标题, 作者, 状态 (Published/Draft/Pending), 分类, 时间, 浏览量.
+-   **操作**: 新建, 编辑, 删除, 预览.
+
+### 2.3 分类/标签管理 (`/admin/categories`, `/admin/tags`)
+
+-   **权限**: `admin`.
+-   **布局**: 树形表格 (分类) / 普通表格 (标签).
+-   **功能**: 增删改查 (CRUD).
+
+### 2.4 文章编辑器 (`/admin/posts/new`, `/admin/posts/:id`)
+
+-   全屏编辑器, 支持 Markdown/富文本, 实时预览, 属性设置 (Slug, Category, Tags).
+
+## 3. 接口设计 (API Design)
+
+### 3.1 用户管理 (Based on better-auth admin plugin)
+
+-   查询: `authClient.admin.listUsers`
+-   角色: `authClient.admin.setRole`
+-   封禁: `authClient.admin.banUser` / `unbanUser`
+-   密码: `authClient.admin.setUserPassword`
+-   删除: `authClient.admin.removeUser`
+-   会话: `authClient.admin.listUserSessions`, `revokeUserSession`
+-   模拟: `authClient.admin.impersonateUser`
+
+### 3.2 文章管理 (Write / Manage)
+
+-   `GET /api/posts` (Manage Mode)
+    -   **Query**: `scope=manage`, `status` (draft/pending...), `authorId`.
+    -   **Logic**: 根据权限返回草稿或他人文章。
+-   `POST /api/posts`: 创建文章.
+-   `PUT /api/posts/:id`: 更新文章.
+-   `DELETE /api/posts/:id`: 删除文章.
+-   `PUT /api/posts/:id/status`: 快速改状态 `{ status: 'published' | ... }`.
+
+### 3.3 分类与标签 (Management)
+
+-   `POST /api/categories`, `PUT /api/categories/:id`, `DELETE ...`
+-   `POST /api/tags`, `PUT /api/tags/:id`, `DELETE ...`

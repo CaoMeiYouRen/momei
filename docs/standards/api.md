@@ -55,7 +55,13 @@ const createPostSchema = z.object({
 -   **配置**: 必须通过环境变量配置 SMTP 服务商，禁止在代码中硬编码凭据。
 -   **模板**: 必须使用 HTML 邮件模板，确保跨客户端兼容性。
 
-## 6. 相关文档
+## 6. 文档与维护 (Documentation & Maintenance)
+
+-   **定义位置**: 具体的 API 定义（路由、参数、响应结构）必须记载在 `docs/design/modules/*.md` 对应的模块设计文档中。
+-   **全局规范**: 本文档 (`standards/api.md`) 仅定义通用的响应格式、错误码和开发准则，不包含具体业务接口定义。
+-   **同步更新**: 代码变更时，必须同步更新对应的模块设计文档。
+
+## 7. 相关文档
 
 -   [API 设计](../design/api.md)
 -   [开发规范](./development.md)

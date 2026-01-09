@@ -82,7 +82,8 @@
     -   [x] 验收: 文章可通过 `/posts/:slug` 或 `/posts/:id` 访问。
 -   [x] **图片上传**
     -   [x] 验收: 编辑器支持拖拽上传图片。
-    -   [x] 验收: 图片保存到本地或对象存储，并返回可访问 URL。- [ ] **外部发布 API (External Publishing API)**
+    -   [x] 验收: 图片保存到本地或对象存储，并返回可访问 URL。
+-   [ ] **外部发布 API (External Publishing API)**
     -   验收: 实现基于 API KEY 鉴权的发布接口 `POST /api/external/posts`。
     -   验收: 支持简单的 API KEY 管理（目前仅关联用户）。
     -   验收: 外部调用能正确创建文章并关联对应作者。
