@@ -5,6 +5,7 @@ import { TwoFactor } from './two-factor'
 import { Account } from './account'
 import { Session } from './session'
 import { Post } from './post'
+import { ApiKey } from './api-key'
 
 @Entity('user')
 export class User extends BaseEntity {
@@ -131,5 +132,12 @@ export class User extends BaseEntity {
     })
     posts?: Post[]
 
-
+    /**
+     * 用户的 API Keys（一对多关系）
+     */
+    @OneToMany(() => ApiKey, (apiKey) => apiKey.user, {
+        cascade: true,
+        onDelete: 'CASCADE',
+    })
+    apiKeys?: ApiKey[]
 }

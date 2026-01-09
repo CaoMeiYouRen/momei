@@ -9,6 +9,7 @@ import { Jwks } from '../entities/jwks'
 import { Post } from '../entities/post'
 import { Category } from '../entities/category'
 import { Tag } from '../entities/tag'
+import { ApiKey } from '../entities/api-key'
 import logger from '../utils/logger'
 import { CustomLogger } from './logger'
 import { SnakeCaseNamingStrategy } from './naming-strategy'
@@ -31,7 +32,7 @@ const SUPPORTED_DATABASE_TYPES = ['sqlite', 'mysql', 'postgres']
 let isInitialized = false
 let AppDataSource: DataSource | null = null
 
-const entities = [Account, Session, User, Verification, TwoFactor, Jwks, Post, Category, Tag]
+const entities = [Account, Session, User, Verification, TwoFactor, Jwks, Post, Category, Tag, ApiKey]
 
 export const initializeDB = async () => {
     if (isInitialized && AppDataSource) {
