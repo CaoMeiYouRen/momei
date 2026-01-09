@@ -49,11 +49,11 @@
 -   [x] **用户角色与权限 (RBAC)**
     -   [x] 验收: 数据库 `User` 表包含 `role` 字段 (Admin, Author, User, Visitor)。
     -   [x] 验收: 实现后端中间件 `server/middleware/auth.ts` 拦截未授权请求。
--   [ ] **用户管理 (User Management - Admin Only)**
-    -   验收: 管理后台提供用户列表查看功能（集成 `better-auth` admin 插件）。
-    -   验收: 管理员可在后台修改用户角色 (如将 User 提升为 Author)。
-    -   验收: 管理员可对违规账号进行禁用或启用操作。
-    -   验收: 支持查杀指定用户的活跃 Session。
+-   [x] **用户管理 (User Management - Admin Only)**
+    -   [x] 验收: 管理后台提供用户列表查看功能（集成 `better-auth` admin 插件）。
+    -   [x] 验收: 管理员可在后台修改用户角色 (如将 User 提升为 Author)。
+    -   [x] 验收: 管理员可对违规账号进行禁用或启用操作。
+    -   [x] 验收: 支持查杀指定用户的活跃 Session。
 
 ### 3. 内容管理 (Content Management)
 
@@ -83,10 +83,10 @@
 -   [x] **图片上传**
     -   [x] 验收: 编辑器支持拖拽上传图片。
     -   [x] 验收: 图片保存到本地或对象存储，并返回可访问 URL。
--   [ ] **外部发布 API (External Publishing API)**
-    -   验收: 实现基于 API KEY 鉴权的发布接口 `POST /api/external/posts`。
-    -   验收: 支持简单的 API KEY 管理（目前仅关联用户）。
-    -   验收: 外部调用能正确创建文章并关联对应作者。
+-   [x] **外部发布 API (External Publishing API)**
+    -   [x] 验收: 实现基于 API KEY 鉴权的发布接口 `POST /api/external/posts`。
+    -   [x] 验收: 支持简单的 API KEY 管理（目前仅关联用户）。
+    -   [x] 验收: 外部调用能正确创建文章并关联对应作者。
 
 ### 4. 内容展示 (Content Display)
 
