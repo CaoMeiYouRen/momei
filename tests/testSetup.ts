@@ -18,3 +18,19 @@ vi.mock('ws', () => ({
 process.on('unhandledRejection', (reason) => {
     console.error('Unhandled Rejection:', reason)
 })
+
+// Mock Nuxt/H3 Globals for Unit Testing Server Handlers
+const mockEventHandler = (handler: any) => handler
+
+const mockGetValidatedQuery = async (event: any, validate: any) => validate(event.query || {})
+
+const mockCreateError = (err: any) => {
+    const error = new Error(err.statusMessage || 'Error')
+    // @ts-expect-error - Adding statusCode to error
+    error.statusCode = err.statusCode
+    return error
+}
+
+vi.stubGlobal('defineEventHandler', mockEventHandler)
+vi.stubGlobal('getValidatedQuery', mockGetValidatedQuery)
+vi.stubGlobal('createError', mockCreateError)
