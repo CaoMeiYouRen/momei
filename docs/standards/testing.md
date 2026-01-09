@@ -15,14 +15,27 @@
 
 ### 3.1 单元测试 (Unit Tests)
 
-所有单元测试文件必须**与源代码文件同级存放** (Co-location)，以便于维护和查找。
+所有纯逻辑、工具函数、组件的单元测试文件必须**与源代码文件同级存放** (Co-location)。
 
 -   **命名规则**: `[filename].test.ts`
 -   **适用范围**:
     -   工具函数 (`utils/`)
-    -   API 处理逻辑 (`server/api/`)
-    -   Vue 组件逻辑 (`components/`, `pages/`)
+    -   Vue 组件 (`components/`, `pages/`) - 侧重组件逻辑与渲染
+    -   TypeORM Entity 逻辑
     -   Store 状态管理 (`stores/`)
+
+### 3.2 服务端集成/API 测试 (API & Integration Tests)
+
+涉及数据库交互、API 接口调用、完整业务流程的测试，统一存放在 `tests/` 目录下。
+
+-   **目录位置**: `tests/server/`
+-   **命名规则**: `[feature].test.ts` 或 `[api-path].test.ts`
+-   **适用范围**:
+    -   API 接口测试 (`server/api/`)
+    -   数据库连接与查询测试 (`server/database/`)
+    -   复杂业务流程集成测试
+
+### 3.3 端对端测试 (E2E Tests)
 
 **示例结构**:
 
@@ -37,7 +50,7 @@ components/
 
 ### 3.2 端对端测试 (E2E Tests)
 
-所有 E2E 测试文件统一存放在项目根目录下的 `tests/` 目录中。
+所有 E2E 测试文件统一存放在项目根目录下的 `tests/e2e/` 目录中。
 
 -   **目录位置**: `/tests/e2e/`
 -   **命名规则**: `[feature].e2e.test.ts`
@@ -79,7 +92,35 @@ components/
 pnpm run test:coverage
 ```
 
-## 6. 提交前检查 (Pre-commit Checks)
+## 6. 高效测试指南 (Efficient Testing Guide)
+
+由于服务端集成测试 (`tests/server/`) 涉及数据库初始化和环境准备，运行速度可能较慢。为了提高本地开发效率：
+
+1.  **指定文件运行**:
+    在开发过程中，**极力推荐**仅运行与当前修改相关的测试文件，而不是全量运行。
+
+    ```bash
+    # 仅运行 Header 组件测试
+    pnpm test AppHeader
+
+    # 仅运行 API Key 相关测试
+    pnpm test api-key
+    ```
+
+2.  **临时跳过测试**:
+    如果需要全量运行但也想避开特定的慢速测试（如 API/Database），可以使用 `describe.skip` 或 `it.skip` 临时跳过。
+
+    ```typescript
+    // tests/server/api/slow-test.test.ts
+    describe.skip("Complex Database Operation", () => {
+        // ...
+    });
+    ```
+
+3.  **排查慢速测试**:
+    若发现测试异常缓慢，请检查是否在每个 `test` 中重复进行了昂贵的数据库连接/销毁操作，应尽量利用 `beforeAll` 和 `afterAll`。
+
+## 7. 提交前检查 (Pre-commit Checks)
 
 在提交代码 (Git Commit) 之前，开发者**必须**确保本地环境通过以下所有检查。建议配置 `husky` 的 `pre-commit` 钩子自动执行。
 
