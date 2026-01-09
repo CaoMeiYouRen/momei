@@ -23,7 +23,6 @@ export class ApiKey extends BaseEntity {
     @CustomColumn({ type: 'varchar', nullable: false })
     userId: string
 
-    @ManyToOne(() => User, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'userId' })
+    @ManyToOne(() => User, (user) => user.apiKeys, { onDelete: 'CASCADE' })
     user: User
 }
