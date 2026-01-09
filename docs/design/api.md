@@ -48,6 +48,11 @@
 
 具体的 API 定义已按功能模块拆分，请阅读以下文档：
 
+-   **博客模块**: [docs/design/modules/blog.md](./modules/blog.md)
+-   **用户模块**: [docs/design/modules/user.md](./modules/user.md)
+-   **管理模块**: [docs/design/modules/admin.md](./modules/admin.md)
+-   **开放平台**: [docs/design/modules/openapi.md](./modules/openapi.md)
+
 -   **[认证 (Auth)](./modules/auth.md)**: 登录、注册、Logout.
 -   **[用户 (User)](./modules/user.md)**: Profile, Avatar.
 -   **[博客 (Blog)](./modules/blog.md)**: Posts, Archives (Public).

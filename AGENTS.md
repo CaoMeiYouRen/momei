@@ -196,6 +196,7 @@ commit message 使用中文描述变更内容。
     -   **`@documentation-specialist` (文档专家)**:
         -   **阶段**: Documentation
         -   **用途**: 查阅、维护和生成 `docs/` 目录下的项目文档。
+        -   **注意**: 任何 `docs/`下文档的更新都应该由文档专家进行。
 
 ## 安全要求
 

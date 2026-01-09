@@ -95,12 +95,31 @@ erDiagram
 
 用于邮箱验证、密码重置等。
 
-| 字段名       | 类型     | 必填 | 说明                    |
-| :----------- | :------- | :--- | :---------------------- |
-| `id`         | varchar  | Yes  | 主键                    |
-| `identifier` | text     | Yes  | 标识符 (如邮箱、手机号) |
-| `value`      | text     | Yes  | 验证码/Token 值         |
-| `expiresAt`  | datetime | Yes  | 过期时间                |
+| 字段名       | 类型     | 必填 | 说明                 |
+| :----------- | :------- | :--- | :------------------- |
+| `id`         | varchar  | Yes  | 主键                 |
+| `identifier` | text     | Yes  | 标识符 (邮箱/手机号) |
+| `value`      | text     | Yes  | 验证码的值           |
+| `expiresAt`  | datetime | Yes  | 过期时间             |
+
+#### ApiKey (API 密钥表) - New
+
+用于外部系统发布的授权凭证。
+
+| 字段名       | 类型     | 必填 | 说明                            |
+| :----------- | :------- | :--- | :------------------------------ |
+| `id`         | varchar  | Yes  | 主键                            |
+| `userId`     | varchar  | Yes  | 关联 User ID                    |
+| `name`       | varchar  | Yes  | 密钥名称 (如 "Obsidian Plugin") |
+| `key`        | varchar  | Yes  | 密钥 Hash (或加密存储)          |
+| `prefix`     | varchar  | Yes  | 密钥前缀 (用于展示和索引)       |
+| `lastUsedAt` | datetime | No   | 最后使用时间                    |
+| `createdAt`  | datetime | Yes  | 创建时间                        |
+| `expiresAt`  | datetime | No   | 过期时间 (可选)                 |
+
+| `identifier` | text | Yes | 标识符 (如邮箱、手机号) |
+| `value` | text | Yes | 验证码/Token 值 |
+| `expiresAt` | datetime | Yes | 过期时间 |
 
 ### 3.2 内容系统 (Content System)
 
