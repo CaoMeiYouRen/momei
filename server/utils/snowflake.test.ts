@@ -34,4 +34,14 @@ describe('Snowflake', () => {
 
         expect(id1).not.toBe(id2)
     })
+
+    it('should handle sequence overflow', () => {
+        vi.useRealTimers()
+        const snowflake = new Snowflake(1)
+        const ids = new Set()
+        for (let i = 0; i < 5000; i++) {
+            ids.add(snowflake.generateId())
+        }
+        expect(ids.size).toBe(5000)
+    })
 })

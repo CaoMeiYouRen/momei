@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { generateApiKey, hashApiKey, verifyApiKey } from '@/server/utils/api-key'
+import { generateApiKey, hashApiKey, verifyApiKey, maskApiKey } from './api-key'
 
 describe('API Key Utils', () => {
     it('should generate a key with correct prefix', () => {
@@ -19,5 +19,17 @@ describe('API Key Utils', () => {
         expect(hash).not.toBe(key)
         expect(verifyApiKey(key, hash)).toBe(true)
         expect(verifyApiKey('wrong_key', hash)).toBe(false)
+    })
+
+    describe('maskApiKey', () => {
+        it('should mask long keys correctly', () => {
+            const key = '1234567890abcdef'
+            expect(maskApiKey(key)).toBe('1234...cdef')
+        })
+
+        it('should mask short keys fully', () => {
+            const key = '12345678'
+            expect(maskApiKey(key)).toBe('********')
+        })
     })
 })

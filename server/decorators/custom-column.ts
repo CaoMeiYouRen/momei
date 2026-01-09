@@ -18,6 +18,7 @@ export function CustomColumn(options: ColumnOptions & { index?: boolean }) {
         // mysql 索引最大不超过 3072 字节，在 utf8 编码下不超过 1024 字符，utf8mb4 编码不超过 768 字符
         if (options.index && length > 768) {
             length = 768
+            options.length = length
         }
         // mysql 不支持在 text 类型字段上设置 length
         if (

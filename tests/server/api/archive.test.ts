@@ -85,17 +85,44 @@ describe('Archive API', async () => {
         const data = result.data
         expect(Array.isArray(data.list)).toBe(true)
 
-        const year2024 = data.list.find((y: any) => y.year === 2024)
+        const year2024 = (data.list as any[]).find((y: any) => y.year === 2024)
         expect(year2024).toBeDefined()
         // 2024 has 1 post in Jan (month 1)
         const jan2024 = year2024.months.find((m: any) => m.month === 1)
         expect(jan2024).toBeDefined()
         expect(jan2024.count).toBeGreaterThanOrEqual(1)
 
-        const year2023 = data.list.find((y: any) => y.year === 2023)
+        const year2023 = (data.list as any[]).find((y: any) => y.year === 2023)
         expect(year2023).toBeDefined()
         // 2023 has posts in Jan (2) and Feb (1)
         // Note: Raw count might vary due to other tests, so we check existence
         expect(year2023.months.length).toBeGreaterThanOrEqual(2)
+    })
+
+    it('should return posts list when includePosts=true', async () => {
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                includePosts: true,
+                year: 2024,
+                month: 1,
+                page: 1,
+                limit: 10,
+            },
+        } as any
+
+        const result = await archiveHandler(event)
+
+        expect(result.code).toBe(200)
+        expect(result.data.list).toBeDefined()
+        // Should find the 1 post from 2024-01
+        expect(result.data.total).toBeGreaterThanOrEqual(1)
+        const doc = result.data.list[0] as any
+        expect(doc.title).toBe('Post 4')
     })
 })
