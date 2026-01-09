@@ -15,7 +15,7 @@ handoffs:
     - label: 运行测试 (Run Tests)
       agent: quality-guardian
       prompt: 代码已修改，请运行相关测试和检查以验证更改。
-      send: false
+      send: true
 ---
 
 # Nuxt Code Editor 设定

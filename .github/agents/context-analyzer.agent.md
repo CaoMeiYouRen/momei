@@ -15,7 +15,7 @@ handoffs:
     - label: 开始编码 (Start Implementation)
       agent: nuxt-code-editor
       prompt: 计划已制定，请根据上述计划开始编写代码。
-      send: false
+      send: true
 ---
 
 # Context Analyzer 设定

@@ -10,7 +10,7 @@ handoffs:
     - label: 分析失败原因 (Analyze Failures)
       agent: context-analyzer
       prompt: 测试或检查失败，请分析错误日志和代码以找出原因。
-      send: false
+      send: true
 ---
 
 # Quality Guardian 设定

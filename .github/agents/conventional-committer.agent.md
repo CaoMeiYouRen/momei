@@ -6,7 +6,7 @@ handoffs:
     - label: 返回分析 (Back to Analysis)
       agent: context-analyzer
       prompt: 提交完成，准备开始下一个任务的分析。
-      send: false
+      send: true
 ---
 
 # Conventional Committer 设定
