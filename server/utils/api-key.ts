@@ -17,11 +17,11 @@ export const hashApiKey = (key: string) => {
 }
 
 export const verifyApiKey = (key: string, storedHash: string) => {
-    if (!storedHash.includes(':')) {
+    const [salt, hash] = storedHash.split(':')
+
+    if (!salt || !hash) {
         return false
     }
-
-    const [salt, hash] = storedHash.split(':')
     // Re-compute hash with extracted salt
     const derivedKey = scryptSync(key, salt, 64).toString('hex')
 
