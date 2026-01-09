@@ -3,6 +3,7 @@ import { join } from 'path'
 
 import mjml2html from 'mjml'
 import dayjs from 'dayjs'
+import { convert } from 'html-to-text'
 
 import logger from '../logger'
 import { getFallbackFragment, getFallbackMjmlTemplate, generateFallbackHtml } from './templates-fallback'
@@ -274,19 +275,13 @@ export class EmailTemplateEngine {
      * 生成纯文本版本
      */
     private generateTextVersion(html: string): string {
-        return html
-            .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // 移除style标签
-            .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // 移除script标签
-            .replace(/<[^>]*>/g, '') // 移除所有HTML标签
-            .replace(/&nbsp;/g, ' ')
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&quot;/g, '"')
-            .replace(/&#39;/g, '\'')
-            .replace(/&amp;/g, '&') // 必须最后处理 &amp; 以防止双重解码
-            .replace(/\s+/g, ' ') // 压缩空白字符
-            .replace(/\n\s*\n/g, '\n\n') // 处理多余的换行
-            .trim()
+        return convert(html, {
+            wordwrap: false,
+            selectors: [
+                { selector: 'img', format: 'skip' },
+                { selector: 'a', options: { hideLinkHrefIfSameAsText: true } },
+            ],
+        }).trim()
     }
 
 
