@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     // Rate Limit: 同一 IP 10 分钟内限制 3 次请求
     // 注意：这将基于 event.path (包含 ID) 进行限制
     await rateLimit(event, {
-        window: 60 * 10 * 1000,
+        window: 60 * 10,
         max: 3,
     })
 

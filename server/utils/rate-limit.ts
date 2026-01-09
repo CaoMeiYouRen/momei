@@ -3,7 +3,7 @@ import { H3Event } from 'h3'
 import { limiterStorage } from '@/server/database/storage'
 
 interface RateLimitOptions {
-    // 窗口时间，毫秒
+    // 窗口时间，秒
     window: number
     // 最大请求次数
     max: number
