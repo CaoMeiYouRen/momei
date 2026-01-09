@@ -80,6 +80,7 @@
       "workerd"
     ],
     "overrides": {
+      "preact": "^10.28.2",
       "vite": "$vite",
       "esbuild": "^0.25.0",
       "brace-expansion": "^2.0.2",
