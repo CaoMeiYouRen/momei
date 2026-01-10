@@ -179,24 +179,23 @@ commit message 使用中文描述变更内容。
 1.  **上下文理解**: 在使用 Copilot 时，确保提供足够的上下文信息。
 2.  **必备上下文**：必须读取[项目规划](./docs/plan/roadmap.md)和[待办事项](./docs/plan/todo.md)，明确当前任务和目标。
 3.  **遵守规范**: 在分析任务属于哪个模块后，严格遵守相关[开发规范](./docs/standards/development.md)、[测试规范](./docs/standards/testing.md)、[API 规范](./docs/standards/api.md)、[UI 设计](./docs/design/ui.md)和[API 设计](./docs/design/api.md)。
-4.  **使用 PDTFC 循环**：在进行代码生成或修改时，遵循计划需求(Plan)、生成代码(Do)、测试代码(Test)、修复错误(Fix)、提交代码(Commit)的循环流程，确保代码质量和符合项目要求。
-5.  **Agent Skills (AI 技能)**：项目配置了特定的 AI 技能来辅助开发流程：
-    -   **`@context-analyzer` (上下文分析)**:
-        -   **阶段**: Plan / Fix
-        -   **用途**: 分析项目结构、依赖和代码逻辑。用于理解现有业务和定位问题。
-    -   **`@nuxt-code-editor` (Nuxt 代码编辑)**:
-        -   **阶段**: Do / Fix
-        -   **用途**: 生成和修改 Vue 3/Nuxt 3 代码。确保遵循 Composition API、i18n 和 SCSS 规范。
+4.  **遵循 PDTFC 完整循环**：任何代码生成或修改任务必须经历计划需求(Plan)、生成代码(Do)、测试代码(Test)、修复错误(Fix)、提交代码(Commit)的闭合全流程。
+5.  **AI 智能体体系 (AI Agents System)**：项目定义了以下核心智能体角色，通过协作完成开发任务：
+    -   **`@momei-developer` (全栈开发者)**:
+        -   **职责**: 驱动完整的 PDTFC 循环。从需求分析开始，直到最终代码提交。
+        -   **能力**: 具备上下文分析、代码生成、基础测试和自动提交的综合技能，是任务的主导者。
     -   **`@quality-guardian` (质量守卫)**:
-        -   **阶段**: Test
-        -   **用途**: 运行类型检查、Lint 和测试。验证代码的正确性。
-    -   **`@conventional-committer` (规范提交)**:
-        -   **阶段**: Commit
-        -   **用途**: 生成符合 Conventional Commits 规范的 Git 提交信息并执行提交。
+        -   **职责**: 独立的代码质量审查者。
+        -   **用途**: 在开发流程中或独立阶段执行 Lint、类型检查和静态分析，确保代码符合 `docs/standards/` 中的规范。
+    -   **`@test-engineer` (测试工程师)**:
+        -   **职责**: 测试增强专家。
+        -   **用途**: 在 `@momei-developer` 完成基础测试后，专门负责编写更复杂的单元测试和集成测试，提高代码覆盖率和健壮性。
     -   **`@documentation-specialist` (文档专家)**:
-        -   **阶段**: Documentation
-        -   **用途**: 查阅、维护和生成 `docs/` 目录下的项目文档。
-        -   **注意**: 任何 `docs/`下文档的更新都应该由文档专家进行。
+        -   **职责**: 文档生命周期管理者。
+        -   **PDTFC 集成规范**:
+            -   **Plan 阶段**: 在上下文分析完成后，立即同步更新相关设计文档 (`docs/design/`) 或规划文档 (`docs/plan/`)。
+            -   **Do/Fix 阶段**: 在代码变更过程中记录技术实现细节。
+            -   **Commit 阶段**: 在代码提交前后，完成最终的文档补全及 CHANGELOG 更新，确保文档与代码版本高度一致。
 
 ## 安全要求
 
