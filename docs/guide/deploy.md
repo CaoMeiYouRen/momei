@@ -25,6 +25,7 @@
 适用于小型博客或测试环境。
 
 -   **配置**: 设置 `DATABASE_TYPE=sqlite` 和 `DATABASE_PATH`。
+-   **初始化**: 项目运行会自动创建数据库结构。如果需要手动初始化，请执行 `database/sqlite/init.sql`。
 -   **注意**: 部署在 Docker 或 VPS 时，务必将数据库文件所在的目录挂载为持久化卷，否则重启后数据会丢失。
 
 ### 2.2 MySQL / PostgreSQL (推荐用于生产)
@@ -32,6 +33,7 @@
 适用于需要高可用性和数据备份的大型博客。
 
 -   **配置**: 设置 `DATABASE_TYPE=mysql` (或 `postgres`) 以及 `DATABASE_URL`。
+-   **初始化**: 手动执行 `database/mysql/init.sql` (或 `database/postgres/init.sql`) 以创建初始表结构。
 -   **示例 URL**:
     -   MySQL: `mysql://root:password@localhost:3306/momei`
     -   Postgres: `postgres://user:password@localhost:5432/momei`
