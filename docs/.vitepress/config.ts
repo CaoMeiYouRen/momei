@@ -12,7 +12,7 @@ export default defineConfig({
     // 不会因为死链而导致构建失败
     ignoreDeadLinks: true,
     themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
+        // https://vitepress.dev/reference/default-theme-config
         nav: [
             { text: '首页', link: '/' },
             { text: '开发规范', link: '/standards/development' },
@@ -49,6 +49,18 @@ export default defineConfig({
                 items: [
                     { text: 'UI 设计', link: '/design/ui' },
                     { text: 'API 设计', link: '/design/api' },
+                    { text: '数据库设计', link: '/design/database' },
+                    {
+                        text: '功能模块',
+                        items: [
+                            { text: '审核管理', link: '/design/modules/admin' },
+                            { text: '认证系统', link: '/design/modules/auth' },
+                            { text: '博客内容', link: '/design/modules/blog' },
+                            { text: '开放接口', link: '/design/modules/open-api' },
+                            { text: '系统能力', link: '/design/modules/system' },
+                            { text: '用户空间', link: '/design/modules/user' },
+                        ],
+                    },
                 ],
             },
         ],

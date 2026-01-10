@@ -18,14 +18,29 @@ interface ApiResponse<T = any> {
 
 ### 2.1 状态码定义 (Status Codes)
 
-| Code | Description                            |
-| :--- | :------------------------------------- |
-| 200  | 成功 (Success)                         |
-| 400  | 请求参数错误 (Bad Request)             |
-| 401  | 未授权 (Unauthorized)                  |
-| 403  | 禁止访问 (Forbidden)                   |
-| 404  | 资源未找到 (Not Found)                 |
-| 500  | 服务器内部错误 (Internal Server Error) |
+| Code | Description                |
+| :--- | :------------------------- |
+| 200  | 成功 (Success)             |
+| 400  | 请求参数错误 (Bad Request) |
+| 401  | 未授权 (Unauthorized)      |
+| 403  | 禁止访问 (Forbidden)       |
+
+### 2.2 分页响应格式 (Pagination Format)
+
+对于列表类接口，必须使用 `paginate` 工具函数进行包装，返回统一的分页结构。
+
+```typescript
+interface PaginatedData<T> {
+    items: T[]; // 数据列表 (统一使用 items 字段，禁止使用 list)
+    total: number; // 总条数
+    page: number; // 当前页码
+    limit: number; // 每页条数
+    totalPages: number; // 总页数
+}
+
+// 最终响应
+interface PaginatedResponse<T> extends ApiResponse<PaginatedData<T>> {}
+```
 
 ## 3. 认证与权限规范 (Authentication & Authorization Standards)
 

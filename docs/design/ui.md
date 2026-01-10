@@ -83,7 +83,15 @@
 -   **最大宽度**: 内容区域限制在 `max-w-4xl` (约 900px) 以内，优化阅读体验。
 -   **栅格**: 使用 Flexbox 或 Grid 布局。
 
-### 3.3 移动端适配 (Mobile Adaptation)
+### 3.3 管理后台组件 (Admin Components)
+
+针对管理后台场景，抽象出的高效通用组件：
+
+-   **AdminPageHeader**: 统一的页面头部，包含标题、副标题、面包屑和主操作按钮。
+-   **ConfirmDeleteDialog**: 基于 PrimeVue ConfirmDialog 封装的删除确认弹窗，统一交互体验。
+-   **AdminTable**:（规划中）封装了分页、搜索、排序逻辑的 DataTable。
+
+### 3.4 移动端适配 (Mobile Adaptation)
 
 -   **导航**:
     -   移动端使用 **汉堡菜单 (Hamburger Menu)** 或底部导航栏。

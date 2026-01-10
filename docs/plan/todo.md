@@ -147,8 +147,9 @@
         -   [x] 建立 SCSS 原子体系 (变量、断点 Mixins、通用布局样式)。
         -   [x] 抽象通用 Admin 组件 (如 `AdminPageHeader`, `ConfirmDeleteDialog`)。
         -   [x] 重构其他 Admin 页面以使用新工具 (Categories, Tags, Users)。
--   [ ] **文档同步**
-    -   [ ] 验收: 确保所有架构变更和新规范已同步至 `docs/design` 和 `docs/standards`。
+-   [x] **文档同步**
+    -   [x] 验收: 确保所有架构变更和新规范已同步至 `docs/design` 和 `docs/standards`。
+    -   [x] 验收: 更新 VitePress 配置以匹配物理文件结构。
 
 ### 新功能 (New Features)
 
