@@ -15,7 +15,8 @@ export default defineConfig({
         // https://vitepress.dev/reference/default-theme-config
         nav: [
             { text: '首页', link: '/' },
-            { text: '开发规范', link: '/standards/development' },
+            { text: '快速开始', link: '/guide/quick-start' },
+            { text: '部署指南', link: '/guide/deploy' },
             { text: 'API 设计', link: '/design/api' },
             {
                 text: '关于',
@@ -30,16 +31,25 @@ export default defineConfig({
 
         sidebar: [
             {
+                text: '指南',
+                items: [
+                    { text: '快速开始', link: '/guide/quick-start' },
+                    { text: '部署指南', link: '/guide/deploy' },
+                    { text: '开发指南', link: '/guide/setup' },
+                ],
+            },
+            {
                 text: '项目规划',
                 items: [
                     { text: '路线图', link: '/plan/roadmap' },
                     { text: '待办事项', link: '/plan/todo' },
+                    { text: '方案对比', link: '/plan/comparison' },
                 ],
             },
             {
                 text: '开发规范',
                 items: [
-                    { text: '开发规范', link: '/standards/development' },
+                    { text: '通用开发规范', link: '/standards/development' },
                     { text: 'API 规范', link: '/standards/api' },
                     { text: '测试规范', link: '/standards/testing' },
                 ],

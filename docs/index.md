@@ -15,15 +15,24 @@ hero:
           link: https://github.com/CaoMeiYouRen/momei
 
 features:
+    - title: 快速开始
+      details: 通过一键部署或 Docker 快速启动你的墨梅博客。
+      link: /guide/quick-start
+    - title: 方案对比
+      details: 了解墨梅与 WordPress、Hugo、Hexo 等平台的对比优势。
+      link: /plan/comparison
+    - title: 部署指南
+      details: 涵盖从 Vercel 到私有服务器的多种部署方案。
+      link: /guide/deploy
     - title: 项目规划
       details: 了解项目的整体规划、MVP 目标及未来路线图。
       link: /plan/roadmap
     - title: 待办事项
       details: 查看当前阶段的具体开发任务和验收指标。
       link: /plan/todo
-    - title: 开发规范
+    - title: 开发指南
       details: 快速上手项目开发，掌握代码规范与最佳实践。
-      link: /standards/development
+      link: /guide/setup
     - title: API 规范
       details: 了解后端接口的通用响应格式、状态码和校验规则。
       link: /standards/api
