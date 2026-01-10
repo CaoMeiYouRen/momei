@@ -1,36 +1,30 @@
-import { z } from 'zod'
 import { kebabCase } from 'lodash-es'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { Tag } from '@/server/entities/tag'
-import { auth } from '@/lib/auth'
 import { generateRandomString } from '@/utils/shared/random'
 import { updatePostSchema } from '@/utils/schemas/post'
+import { success, fail } from '@/server/utils/response'
+import { requireAdminOrAuthor } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
     const body = await readValidatedBody(event, (b) => updatePostSchema.parse(b))
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
-
-    if (!session || !session.user) {
-        throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-    }
+    const session = await requireAdminOrAuthor(event)
 
     const postRepo = dataSource.getRepository(Post)
     const tagRepo = dataSource.getRepository(Tag)
 
     const post = await postRepo.findOne({ where: { id }, relations: ['tags'] })
     if (!post) {
-        throw createError({ statusCode: 404, statusMessage: 'Post not found' })
+        return fail('Post not found', 404)
     }
 
     // Permission check
     const isAuthor = session.user.id === post.authorId
     const isAdmin = session.user.role === 'admin'
     if (!isAuthor && !isAdmin) {
-        throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+        return fail('Forbidden', 403)
     }
 
     // Update fields
@@ -102,8 +96,5 @@ export default defineEventHandler(async (event) => {
 
     await postRepo.save(post)
 
-    return {
-        code: 200,
-        data: post,
-    }
+    return success(post)
 })

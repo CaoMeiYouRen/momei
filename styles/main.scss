@@ -1,3 +1,7 @@
+@import "./variables";
+@import "./mixins";
+@import "./layout";
+
 :root {
   --p-surface-ground: var(--p-surface-50);
   --p-surface-card: var(--p-surface-0);

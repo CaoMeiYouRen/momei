@@ -1,9 +1,10 @@
-import { z } from 'zod'
 import { Brackets } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'
 import { postQuerySchema } from '@/utils/schemas/post'
+import { success, paginate } from '@/server/utils/response'
+import { applyPagination } from '@/server/utils/pagination'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(q))
@@ -75,19 +76,9 @@ export default defineEventHandler(async (event) => {
     qb.orderBy(`post.${query.orderBy}`, query.order)
 
     // Pagination
-    qb.skip((query.page - 1) * query.limit)
-    qb.take(query.limit)
+    applyPagination(qb, query)
 
     const [items, total] = await qb.getManyAndCount()
 
-    return {
-        code: 200,
-        data: {
-            items,
-            total,
-            page: query.page,
-            limit: query.limit,
-            totalPages: Math.ceil(total / query.limit),
-        },
-    }
+    return success(paginate(items, total, query.page, query.limit))
 })

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { isSnowflakeId } from '../shared/validate'
+import { paginationSchema } from './pagination'
 
 export const createPostSchema = z.object({
     title: z.string().min(1).max(255),
@@ -29,9 +30,7 @@ export const updatePostSchema = z.object({
     status: z.enum(['published', 'draft', 'pending']).optional(),
 })
 
-export const postQuerySchema = z.object({
-    page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(100).default(10),
+export const postQuerySchema = paginationSchema.extend({
     status: z.enum(['published', 'draft', 'pending']).optional(),
     scope: z.enum(['public', 'manage']).default('public'),
     authorId: z.string().optional(),

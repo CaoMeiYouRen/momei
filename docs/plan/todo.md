@@ -135,17 +135,18 @@
 -   [x] **测试覆盖率提升**
     -   [x] 验收: 全局测试覆盖率提升至 60% 以上 (目前约 55%)。
     -   [x] 验收: 针对关键路径 (Critical Path) 增加测试用例。
--   [ ] **代码清理与重构 (Cleanup & Refactoring)**
-    -   [ ] **后端 (Backend)**
-        -   [ ] 提取通用 API 响应包装器 (`response.ts`)。
-        -   [ ] 提取通用分页处理工具 (`pagination.ts`)。
-        -   [ ] 建立通用 Zod Base Schema (如 `PaginationQuerySchema`)。
-        -   [ ] 实现权限校验装饰器/中间件（减少手动角色判断）。
-    -   [ ] **前端 (Frontend)**
-        -   [ ] 提取 `useAdminList` Composable (统一管理后台列表逻辑)。
-        -   [ ] 提取 `useI18nDate` Composable (对接全局 Locale 格式化)。
-        -   [ ] 建立 SCSS 原子体系 (变量、断点 Mixins、通用布局样式)。
-        -   [ ] 抽象通用 Admin 组件 (如 `AdminPageHeader`, `ConfirmDeleteDialog`)。
+-   [x] **代码清理与重构 (Cleanup & Refactoring)**
+    -   [x] **后端 (Backend)**
+        -   [x] 提取通用 API 响应包装器 (`response.ts`)。
+        -   [x] 提取通用分页处理工具 (`pagination.ts`)。
+        -   [x] 建立通用 Zod Base Schema (如 `PaginationQuerySchema`)。
+        -   [x] 实现权限校验装饰器/中间件（减少手动角色判断）。
+    -   [x] **前端 (Frontend)**
+        -   [x] 提取 `useAdminList` Composable (统一管理后台列表逻辑)。
+        -   [x] 提取 `useI18nDate` Composable (对接全局 Locale 格式化)。
+        -   [x] 建立 SCSS 原子体系 (变量、断点 Mixins、通用布局样式)。
+        -   [x] 抽象通用 Admin 组件 (如 `AdminPageHeader`, `ConfirmDeleteDialog`)。
+        -   [ ] 重构其他 Admin 页面以使用新工具 (Categories, Tags, Users)。
 -   [ ] **文档同步**
     -   [ ] 验收: 确保所有架构变更和新规范已同步至 `docs/design` 和 `docs/standards`。
 
