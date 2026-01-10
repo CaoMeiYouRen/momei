@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { maskEmail, maskPhone, maskUserId, maskIP, maskString } from './privacy'
+import { maskEmail, maskPhone, maskUserId, maskIP, maskString, createSafeLogData } from './privacy'
 
 describe('server/utils/privacy.ts', () => {
     afterEach(() => {
@@ -7,6 +7,14 @@ describe('server/utils/privacy.ts', () => {
     })
 
     describe('maskEmail', () => {
+        it('should handle non-string or empty input', () => {
+            // @ts-expect-error test non-string
+            expect(maskEmail(null)).toBe(null)
+            // @ts-expect-error test non-string
+            expect(maskEmail(undefined)).toBe(undefined)
+            expect(maskEmail('')).toBe('')
+        })
+
         it('should not mask in development', () => {
             vi.stubEnv('NODE_ENV', 'development')
             expect(maskEmail('test@example.com')).toBe('test@example.com')
@@ -19,6 +27,14 @@ describe('server/utils/privacy.ts', () => {
     })
 
     describe('maskPhone', () => {
+        it('should handle non-string or empty input', () => {
+            // @ts-expect-error test non-string
+            expect(maskPhone(null)).toBe(null)
+            // @ts-expect-error test non-string
+            expect(maskPhone(undefined)).toBe(undefined)
+            expect(maskPhone('')).toBe('')
+        })
+
         it('should not mask in development', () => {
             vi.stubEnv('NODE_ENV', 'development')
             expect(maskPhone('13800138000')).toBe('13800138000')
@@ -26,13 +42,19 @@ describe('server/utils/privacy.ts', () => {
 
         it('should mask in production', () => {
             vi.stubEnv('NODE_ENV', 'production')
-            // Assuming baseMaskPhone works as tested in shared/privacy.test.ts
-            // Just checking it returns something different or masked
-            expect(maskPhone('13800138000')).not.toBe('13800138000')
+            expect(maskPhone('+8613800138000')).toBe('+86 138 **** 8000')
         })
     })
 
     describe('maskUserId', () => {
+        it('should handle non-string or empty input', () => {
+            // @ts-expect-error test non-string
+            expect(maskUserId(null)).toBe(null)
+            // @ts-expect-error test non-string
+            expect(maskUserId(undefined)).toBe(undefined)
+            expect(maskUserId('')).toBe('')
+        })
+
         it('should not mask in development', () => {
             vi.stubEnv('NODE_ENV', 'development')
             expect(maskUserId('1234567890')).toBe('1234567890')
@@ -40,17 +62,19 @@ describe('server/utils/privacy.ts', () => {
 
         it('should mask in production', () => {
             vi.stubEnv('NODE_ENV', 'production')
-            // Assuming baseMaskUserId implementation (not read but inferred)
-            // If baseMaskUserId is not exported from shared/privacy.ts (I didn't see it in read_file output for shared/privacy.ts, let me check)
-            // Wait, I read shared/privacy.ts and it had maskEmail and maskPhone.
-            // server/utils/privacy.ts imports maskUserId from '@/utils/shared/privacy'.
-            // I might have missed it in the read_file output because I only read first 100 lines.
-            // But assuming it exists and works.
-            expect(maskUserId('1234567890')).not.toBe('1234567890')
+            expect(maskUserId('1234567890')).toBe('1234****7890')
         })
     })
 
     describe('maskIP', () => {
+        it('should handle non-string or empty input', () => {
+            // @ts-expect-error test non-string
+            expect(maskIP(null)).toBe(null)
+            // @ts-expect-error test non-string
+            expect(maskIP(undefined)).toBe(undefined)
+            expect(maskIP('')).toBe('')
+        })
+
         it('should not mask in development', () => {
             vi.stubEnv('NODE_ENV', 'development')
             expect(maskIP('192.168.1.1')).toBe('192.168.1.1')
@@ -58,11 +82,19 @@ describe('server/utils/privacy.ts', () => {
 
         it('should mask in production', () => {
             vi.stubEnv('NODE_ENV', 'production')
-            expect(maskIP('192.168.1.1')).not.toBe('192.168.1.1')
+            expect(maskIP('192.168.1.1')).toBe('192.168.1.***')
         })
     })
 
     describe('maskString', () => {
+        it('should handle non-string or empty input', () => {
+            // @ts-expect-error test non-string
+            expect(maskString(null)).toBe(null)
+            // @ts-expect-error test non-string
+            expect(maskString(undefined)).toBe(undefined)
+            expect(maskString('')).toBe('')
+        })
+
         it('should not mask in development', () => {
             vi.stubEnv('NODE_ENV', 'development')
             expect(maskString('secret')).toBe('secret')
@@ -70,7 +102,58 @@ describe('server/utils/privacy.ts', () => {
 
         it('should mask in production', () => {
             vi.stubEnv('NODE_ENV', 'production')
-            expect(maskString('secret')).not.toBe('secret')
+            expect(maskString('secret')).toBe('se***et')
+        })
+    })
+
+    describe('createSafeLogData', () => {
+        it('should handle null or undefined fields', () => {
+            const data = {
+                a: null,
+                b: undefined,
+                c: 'test',
+            }
+            expect(createSafeLogData(data)).toEqual(data)
+        })
+
+        it('should mask sensitive fields in production', () => {
+            vi.stubEnv('NODE_ENV', 'production')
+            const data = {
+                email: 'test@example.com',
+                phone: '13800138000',
+                userId: '1234567890',
+                ip: '127.0.0.1',
+                password: 'password123',
+                token: 'token123',
+                secret: 'secret123',
+                apiKey: 'key123',
+                other: 'normal',
+            }
+            const safeData = createSafeLogData(data)
+            expect(safeData.email).toBe('t**t@example.com')
+            expect(safeData.phone).toBe('+86 138 **** 8000')
+            expect(safeData.userId).toBe('1234****7890')
+            expect(safeData.ip).toBe('127.0.0.***')
+            expect(safeData.password).toBe('[REDACTED]')
+            expect(safeData.token).toBe('[REDACTED]')
+            expect(safeData.secret).toBe('[REDACTED]')
+            expect(safeData.apiKey).toBe('[REDACTED]')
+            expect(safeData.other).toBe('normal')
+        })
+
+        it('should handle alias keys', () => {
+            vi.stubEnv('NODE_ENV', 'production')
+            const data = {
+                mail: 'test@example.com',
+                mobile: '13800138000',
+                uid: '1234567890',
+                addr: '8.8.8.8',
+            }
+            const safeData = createSafeLogData(data)
+            expect(safeData.mail).toBe('t**t@example.com')
+            expect(safeData.mobile).toBe('+86 138 **** 8000')
+            expect(safeData.uid).toBe('1234****7890')
+            expect(safeData.addr).toBe('8.8.8.***')
         })
     })
 })

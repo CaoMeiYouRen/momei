@@ -2,9 +2,8 @@ import { Column, type ColumnOptions, Index } from 'typeorm'
 import { applyDecorators } from './apply-decorators'
 import { DATABASE_TYPE } from '@/utils/shared/env'
 
-const dbType = DATABASE_TYPE
-
 export function CustomColumn(options: ColumnOptions & { index?: boolean }) {
+    const dbType = DATABASE_TYPE
     const decorators: PropertyDecorator[] = []
     let length = Number(options.length)
     if (dbType === 'sqlite') {

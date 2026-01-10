@@ -6,6 +6,7 @@ import {
     validateUsername,
     usernameValidator,
     nicknameValidator,
+    isSnowflakeId,
 } from './validate'
 
 describe('validate.ts', () => {
@@ -96,6 +97,19 @@ describe('validate.ts', () => {
             expect(nicknameValidator(' ')).toBe(false) // space
             // Control characters
             expect(nicknameValidator('\u0000ab')).toBe(false)
+        })
+    })
+
+    describe('isSnowflakeId', () => {
+        it('should return true for valid snowflake IDs', () => {
+            expect(isSnowflakeId('5fd0e68d1f80001')).toBe(true)
+            expect(isSnowflakeId('5fd0e68d1f8e0001')).toBe(true)
+        })
+
+        it('should return false for invalid snowflake IDs', () => {
+            expect(isSnowflakeId('invalid')).toBe(false)
+            expect(isSnowflakeId('123')).toBe(false)
+            expect(isSnowflakeId('5fd0e68d1f8e0001bcdef')).toBe(false)
         })
     })
 })

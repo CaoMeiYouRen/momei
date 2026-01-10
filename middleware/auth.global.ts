@@ -32,10 +32,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     // 检查用户是否登录
     if (!session.value) {
         // 重定向到登录页面
-        if (to.path !== '/login') {
-            return navigateTo('/login')
-        }
-        return false
+        return navigateTo('/login')
     }
 
     // 管理后台权限检查

@@ -21,6 +21,19 @@ describe('API Key Utils', () => {
         expect(verifyApiKey('wrong_key', hash)).toBe(false)
     })
 
+    it('verifyApiKey: should handle invalid stored hash formats', () => {
+        expect(verifyApiKey('key', '')).toBe(false)
+        expect(verifyApiKey('key', 'invalidformat')).toBe(false)
+        expect(verifyApiKey('key', 'saltonly:')).toBe(false)
+    })
+
+    it('verifyApiKey: should return false if hash lengths do not match', () => {
+        // Scrypt with 64 bytes key length generates a 128 hex chars hash.
+        // We create a hash that is short.
+        const storedHash = 'salt:short'
+        expect(verifyApiKey('key', storedHash)).toBe(false)
+    })
+
     describe('maskApiKey', () => {
         it('should mask long keys correctly', () => {
             const key = '1234567890abcdef'

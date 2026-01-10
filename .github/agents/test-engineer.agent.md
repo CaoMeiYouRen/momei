@@ -17,7 +17,7 @@ description: 专注于测试增强，编写单元测试、集成测试和端到�
 ## 技术规范
 
 -   **框架**: Vitest
--   **位置**: 测试文件通常位于 `components/` 下的 `.test.ts` 或 `tests/` 目录中。
+-   **位置**: 测试文件通常位于源文件附近的 `.test.ts` 或 `tests/` 目录中。
 -   **命名**: `[name].test.ts`
 -   **风格**: 保持测试套件 (describe) 和测试用例 (it/test) 的语义清晰。
 

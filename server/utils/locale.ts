@@ -17,79 +17,75 @@ const LOCALE_MAPPING: Record<string, SupportedLocale> = {
     // 中文变体映射
     zh: 'zh-Hans',
     'zh-cn': 'zh-Hans',
-    'zh-CN': 'zh-Hans',
     'zh-sg': 'zh-Hans',
-    'zh-SG': 'zh-Hans',
     'zh-tw': 'zh-Hant',
-    'zh-TW': 'zh-Hant',
     'zh-hk': 'zh-Hant',
-    'zh-HK': 'zh-Hant',
     'zh-mo': 'zh-Hant',
-    'zh-MO': 'zh-Hant',
 
     // 英语变体映射（统一映射到 default）
     en: 'default',
-    'en-US': 'default',
-    'en-GB': 'default',
-    'en-CA': 'default',
-    'en-AU': 'default',
-    'en-NZ': 'default',
-    'en-ZA': 'default',
+    'en-us': 'default',
+    'en-gb': 'default',
+    'en-ca': 'default',
+    'en-au': 'default',
+    'en-nz': 'default',
+    'en-za': 'default',
 
     // 葡萄牙语变体映射
     pt: 'pt-PT',
-    'pt-PT': 'pt-PT',
+    'pt-pt': 'pt-PT',
+    'pt-br': 'pt-BR',
 
     // 西班牙语变体映射
     es: 'es-ES',
-    'es-ES': 'es-ES',
-    'es-MX': 'es-ES',
-    'es-AR': 'es-ES',
-    'es-CO': 'es-ES',
-    'es-CL': 'es-ES',
+    'es-es': 'es-ES',
+    'es-mx': 'es-ES',
+    'es-ar': 'es-ES',
+    'es-co': 'es-ES',
+    'es-cl': 'es-ES',
 
     // 法语变体映射
     fr: 'fr-FR',
-    'fr-FR': 'fr-FR',
-    'fr-CA': 'fr-FR',
-    'fr-BE': 'fr-FR',
-    'fr-CH': 'fr-FR',
+    'fr-fr': 'fr-FR',
+    'fr-ca': 'fr-FR',
+    'fr-be': 'fr-FR',
+    'fr-ch': 'fr-FR',
 
     // 德语变体映射
     de: 'de-DE',
-    'de-DE': 'de-DE',
-    'de-AT': 'de-DE',
-    'de-CH': 'de-DE',
+    'de-de': 'de-DE',
+    'de-at': 'de-DE',
+    'de-ch': 'de-DE',
 
     // 其他语言映射
     ja: 'ja-JP',
-    'ja-JP': 'ja-JP',
+    'ja-jp': 'ja-JP',
     ko: 'ko-KR',
-    'ko-KR': 'ko-KR',
+    'ko-kr': 'ko-KR',
     ru: 'ru-RU',
-    'ru-RU': 'ru-RU',
+    'ru-ru': 'ru-RU',
     it: 'it-IT',
-    'it-IT': 'it-IT',
+    'it-it': 'it-IT',
     nl: 'nl-NL',
-    'nl-NL': 'nl-NL',
+    'nl-nl': 'nl-NL',
     sv: 'sv-SE',
-    'sv-SE': 'sv-SE',
+    'sv-se': 'sv-SE',
     da: 'da-DK',
-    'da-DK': 'da-DK',
+    'da-dk': 'da-DK',
     pl: 'pl-PL',
-    'pl-PL': 'pl-PL',
+    'pl-pl': 'pl-PL',
     tr: 'tr-TR',
-    'tr-TR': 'tr-TR',
+    'tr-tr': 'tr-TR',
     ar: 'ar-SA',
-    'ar-SA': 'ar-SA',
+    'ar-sa': 'ar-SA',
     hi: 'hi-HI',
-    'hi-HI': 'hi-HI',
+    'hi-hi': 'hi-HI',
 
     // 不支持的语言映射到最接近的语言或默认语言
     no: 'da-DK', // 挪威语映射到丹麦语
-    'no-NO': 'da-DK',
+    'no-no': 'da-DK',
     fi: 'sv-SE', // 芬兰语映射到瑞典语
-    'fi-FI': 'sv-SE',
+    'fi-fi': 'sv-SE',
     th: 'default', // 泰语使用默认语言
     'th-TH': 'default',
     vi: 'default', // 越南语使用默认语言
@@ -229,25 +225,14 @@ export function getLocaleFromHeaders(event: H3Event): SupportedLocale {
  * @returns 检测到的语言
  */
 export function detectUserLocale(event: H3Event): SupportedLocale {
-    try {
-        // 1. 优先从 Cookie 获取用户明确设置的语言
-        const cookieLocale = getLocaleFromCookie(event)
-        if (cookieLocale) {
-            return cookieLocale
-        }
-
-        // 2. 从请求头获取语言偏好
-        const headerLocale = getLocaleFromHeaders(event)
-        if (headerLocale) {
-            return headerLocale
-        }
-
-        // 3. 返回默认语言
-        return DEFAULT_LOCALE
-    } catch (error) {
-        console.warn('Error detecting user locale:', error)
-        return DEFAULT_LOCALE
+    // 1. 优先从 Cookie 获取用户明确设置的语言
+    const cookieLocale = getLocaleFromCookie(event)
+    if (cookieLocale) {
+        return cookieLocale
     }
+
+    // 2. 从请求头获取语言偏好
+    return getLocaleFromHeaders(event)
 }
 
 /**
