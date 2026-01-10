@@ -1,6 +1,6 @@
-@import "./variables";
-@import "./mixins";
-@import "./layout";
+@use "./variables" as *;
+@use "./mixins" as *;
+@use "./layout" as *;
 
 :root {
   --p-surface-ground: var(--p-surface-50);
