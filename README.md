@@ -3,19 +3,19 @@
   <br />
   墨梅 (Momei)
 </h1>
-<p>
+<p align="center">
   <img alt="Version" src="https://img.shields.io/github/package-json/v/CaoMeiYouRen/momei.svg" />
   <a href="https://hub.docker.com/r/caomeiyouren/momei" target="_blank">
     <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/caomeiyouren/momei">
   </a>
-    <a href="https://app.codecov.io/gh/CaoMeiYouRen/momei" target="_blank">
-     <img alt="Codecov" src="https://img.shields.io/codecov/c/github/CaoMeiYouRen/momei">
+  <a href="https://app.codecov.io/gh/CaoMeiYouRen/momei" target="_blank">
+    <img alt="Codecov" src="https://img.shields.io/codecov/c/github/CaoMeiYouRen/momei">
   </a>
   <a href="https://github.com/CaoMeiYouRen/momei/actions?query=workflow%3ARelease" target="_blank">
     <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/CaoMeiYouRen/momei/release.yml?branch=master">
   </a>
   <img src="https://img.shields.io/badge/node-%3E%3D20-blue.svg" />
-  <a href="https://github.com/CaoMeiYouRen/momei#readme" target="_blank">
+  <a href="https://docs.momei.app/" target="_blank">
     <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" />
   </a>
   <a href="https://github.com/CaoMeiYouRen/momei/graphs/commit-activity" target="_blank">
@@ -76,13 +76,16 @@
 
 ## 📂 项目结构
 
--   `components/`: Vue 组件
--   `pages/`: 页面路由
--   `layouts/`: 布局文件
--   `server/`: 服务端 API 接口
--   `utils/`: 通用工具函数
--   `styles/`: SCSS 样式文件
--   `docs/`: 项目文档
+-   `components/`: 可复用的 Vue 组件
+-   `pages/`: 基于文件的页面路由
+-   `layouts/`: 页面布局模版
+-   `server/`: Nitro 服务端 API 接口与实体
+-   `database/`: 数据库初始化脚本与资源
+-   `i18n/`: 国际化语言配置文件
+-   `utils/`: 共享工具函数与通用逻辑
+-   `styles/`: 全局 SCSS 样式定义
+-   `types/`: TypeScript 接口与类型定义
+-   `docs/`: 项目详细文档与规范说明
 
 ## 📚 文档
 
@@ -94,8 +97,8 @@
 -   [**方案对比**](https://docs.momei.app/plan/comparison) - 为什么选择墨梅?
 -   [**部署指南**](https://docs.momei.app/guide/deploy) - Vercel/Docker/私有服务器
 -   [**开发指南**](https://docs.momei.app/guide/setup) - 环境搭建与贡献
--   [API 设计](./docs/design/api.md)
--   [数据库设计](./docs/design/database.md)
+-   [**API 设计**](https://docs.momei.app/design/api) - 接口规范与定义
+-   [**数据库设计**](https://docs.momei.app/design/database) - 表结构与关系
 
 ## 📦 依赖要求
 
@@ -176,7 +179,7 @@ pnpm lint
 
 ## 📝 License
 
-Copyright © 2025 [CaoMeiYouRen](https://github.com/CaoMeiYouRen).
+Copyright © 2026 [CaoMeiYouRen](https://github.com/CaoMeiYouRen).
 This project is [MIT](./LICENSE) licensed.
 
 ---

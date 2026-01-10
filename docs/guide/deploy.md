@@ -43,7 +43,7 @@
 
 ## 3. 部署到主流平台
 
-### 2.1 Vercel / Netlify
+### 3.1 Vercel / Netlify
 
 这是最推荐的部署方式，能够利用边缘计算和自动构建。
 
@@ -53,7 +53,7 @@
     - 输出目录：`.output`
 2. **Netlify**: 逻辑与 Vercel 类似。
 
-### 2.2 Docker 部署 (私有服务器)
+### 3.2 Docker 部署 (私有服务器)
 
 如果你有自己的 VPS 或服务器，建议使用 Docker 部署。
 
@@ -74,7 +74,7 @@ docker run -d --name momei \
   my-momei-blog
 ```
 
-## 3. 部署到专用服务器 (Node.js)
+## 4. 部署到专用服务器 (Node.js)
 
 如果你希望直接运行构建产物：
 
@@ -91,7 +91,7 @@ docker run -d --name momei \
     pm2 start .output/server/index.mjs --name momei-blog
     ```
 
-## 4. 数据库说明
+## 5. 数据库说明
 
 墨梅默认使用 **SQLite** 数据库，方便快速启动且无需额外部署。
 
