@@ -46,6 +46,25 @@
 -   **AI 辅助 (规划中)**: 集成 AI 标题生成、内容翻译和润色功能，提升创作效率。
 -   **多端支持 (规划中)**: 未来将支持 Tauri 桌面端应用，实现离线写作与云端同步。
 
+## 🏠 在线体验
+
+-   **正式站点**: [https://momei.app/](https://momei.app/)
+
+    -   您可以注册自己的账号查看用户视角。
+
+-   **文档站点**: [https://docs.momei.app/](https://docs.momei.app/)
+-   **问题反馈和交流群**：
+    -   QQ 群: [807530287](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=K3QRQlxv_y7KqLhdEZmfouxKv9WHLN_v&authKey=pfdJX4EkvKGQXQrtM5BR968EbtFc9WnVvz8AtLiSUTGZRgw3P1wBWESSDcEjoCZB&noverify=0&group_code=807530287)
+    -   Discord: [草梅友仁的交流群](https://discord.gg/6bfPevfyr6)
+
+**页面截图**
+
+![QQ截图20251221215342](https://oss.cmyr.dev/images/20251221221052130.png)
+
+![QQ截图20251221221235](https://oss.cmyr.dev/images/20251221221240366.png)
+
+![QQ截图20251221215644](https://oss.cmyr.dev/images/20251221221300973.png)
+
 ## 🛠️ 技术栈
 
 -   **核心框架**: [Nuxt 3](https://nuxt.com/)
