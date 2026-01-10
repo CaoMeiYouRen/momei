@@ -110,7 +110,7 @@ describe('CustomColumn', () => {
         const { CustomColumn } = await import('./custom-column')
         const options: any = { type: 'varchar', index: true, unique: true }
 
-        const decorators = CustomColumn(options) as any[]
+        const decorators = CustomColumn(options) as unknown as any[]
         const indexDecorator = decorators.find((d) => d.type === 'Index')
         expect(indexDecorator.options.unique).toBe(true)
         expect(options.index).toBeUndefined()
@@ -122,7 +122,7 @@ describe('CustomColumn', () => {
         const { CustomColumn } = await import('./custom-column')
         const options: any = { type: 'varchar' }
 
-        const decorators = CustomColumn(options) as any[]
+        const decorators = CustomColumn(options) as unknown as any[]
         expect(decorators.find((d) => d.type === 'Index')).toBeUndefined()
         expect(decorators.find((d) => d.type === 'Column')).toBeDefined()
     })
