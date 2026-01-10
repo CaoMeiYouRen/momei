@@ -118,11 +118,11 @@
 
 <script setup lang="ts">
 import { isSnowflakeId } from '@/utils/shared/validate'
-import { formatDate, formatDateTime } from '@/utils/shared/date'
 
 const route = useRoute()
 const localePath = useLocalePath()
 const { t } = useI18n()
+const { formatDateTime } = useI18nDate()
 
 const idOrSlug = route.params.id as string
 

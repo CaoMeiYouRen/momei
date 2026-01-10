@@ -105,7 +105,10 @@
                     sortable
                 >
                     <template #body="{data}">
-                        {{ d(data.createdAt) }}
+                        <div class="user-created-at">
+                            <span class="user-created-at__date">{{ d(data.createdAt) }}</span>
+                            <small class="user-created-at__relative">{{ relativeTime(data.createdAt) }}</small>
+                        </div>
                     </template>
                 </Column>
 
@@ -311,7 +314,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
-const { d } = useI18nDate()
+const { d, relativeTime } = useI18nDate()
 const toast = useToast()
 const confirm = useConfirm()
 
@@ -783,6 +786,17 @@ onMounted(() => {
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
+        font-size: 0.75rem;
+    }
+}
+
+.user-created-at {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    &__relative {
+        color: var(--p-text-muted-color);
         font-size: 0.75rem;
     }
 }

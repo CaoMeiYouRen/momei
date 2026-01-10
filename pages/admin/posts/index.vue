@@ -58,7 +58,10 @@
                 <Column field="views" :header="$t('common.views')" />
                 <Column field="publishedAt" :header="$t('common.published_at')">
                     <template #body="slotProps">
-                        {{ formatDateTime(slotProps.data.publishedAt) }}
+                        <div class="user-created-at">
+                            <span class="user-created-at__date">{{ formatDateTime(slotProps.data.publishedAt) }}</span>
+                            <small v-if="slotProps.data.publishedAt" class="user-created-at__relative">{{ relativeTime(slotProps.data.publishedAt) }}</small>
+                        </div>
                     </template>
                 </Column>
                 <Column
@@ -108,7 +111,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
-const { formatDateTime } = useI18nDate()
+const { formatDateTime, relativeTime } = useI18nDate()
 
 interface Post {
     id: string
@@ -195,5 +198,16 @@ const getStatusSeverity = (status: string) => {
 .empty-state {
     text-align: center;
     padding: 1rem;
+}
+
+.user-created-at {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    &__relative {
+        color: var(--p-text-muted-color);
+        font-size: 0.75rem;
+    }
 }
 </style>
