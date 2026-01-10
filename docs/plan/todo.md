@@ -136,9 +136,16 @@
     -   [x] 验收: 全局测试覆盖率提升至 60% 以上 (目前约 55%)。
     -   [x] 验收: 针对关键路径 (Critical Path) 增加测试用例。
 -   [ ] **代码清理与重构 (Cleanup & Refactoring)**
-    -   [ ] **后端 (Backend)**: 清理 API 接口中的冗余代码；提取通用逻辑至 Service 层。
-    -   [ ] **前端 (Frontend)**: 优化样式复用 (SCSS Mixins/Variables)；统一组件状态管理；提取通用 Composables。
-    -   [ ] **代码去重**: 识别并合并重复的工具函数和业务逻辑。
+    -   [ ] **后端 (Backend)**
+        -   [ ] 提取通用 API 响应包装器 (`response.ts`)。
+        -   [ ] 提取通用分页处理工具 (`pagination.ts`)。
+        -   [ ] 建立通用 Zod Base Schema (如 `PaginationQuerySchema`)。
+        -   [ ] 实现权限校验装饰器/中间件（减少手动角色判断）。
+    -   [ ] **前端 (Frontend)**
+        -   [ ] 提取 `useAdminList` Composable (统一管理后台列表逻辑)。
+        -   [ ] 提取 `useI18nDate` Composable (对接全局 Locale 格式化)。
+        -   [ ] 建立 SCSS 原子体系 (变量、断点 Mixins、通用布局样式)。
+        -   [ ] 抽象通用 Admin 组件 (如 `AdminPageHeader`, `ConfirmDeleteDialog`)。
 -   [ ] **文档同步**
     -   [ ] 验收: 确保所有架构变更和新规范已同步至 `docs/design` 和 `docs/standards`。
 
