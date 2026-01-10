@@ -180,22 +180,11 @@ commit message 使用中文描述变更内容。
 2.  **必备上下文**：必须读取[项目规划](./docs/plan/roadmap.md)和[待办事项](./docs/plan/todo.md)，明确当前任务和目标。
 3.  **遵守规范**: 在分析任务属于哪个模块后，严格遵守相关[开发规范](./docs/standards/development.md)、[测试规范](./docs/standards/testing.md)、[API 规范](./docs/standards/api.md)、[UI 设计](./docs/design/ui.md)和[API 设计](./docs/design/api.md)。
 4.  **遵循 PDTFC 完整循环**：任何代码生成或修改任务必须经历计划需求(Plan)、生成代码(Do)、测试代码(Test)、修复错误(Fix)、提交代码(Commit)的闭合全流程。
-5.  **AI 智能体体系 (AI Agents System)**：项目定义了以下核心智能体角色，通过协作完成开发任务：
-    -   **`@momei-developer` (全栈开发者)**:
-        -   **职责**: 驱动完整的 PDTFC 循环。从需求分析开始，直到最终代码提交。
-        -   **能力**: 具备上下文分析、代码生成、基础测试和自动提交的综合技能，是任务的主导者。
-    -   **`@quality-guardian` (质量守卫)**:
-        -   **职责**: 独立的代码质量审查者。
-        -   **用途**: 在开发流程中或独立阶段执行 Lint、类型检查和静态分析，确保代码符合 `docs/standards/` 中的规范。
-    -   **`@test-engineer` (测试工程师)**:
-        -   **职责**: 测试增强专家。
-        -   **用途**: 在 `@momei-developer` 完成基础测试后，专门负责编写更复杂的单元测试和集成测试，提高代码覆盖率和健壮性。
-    -   **`@documentation-specialist` (文档专家)**:
-        -   **职责**: 文档生命周期管理者。
-        -   **PDTFC 集成规范**:
-            -   **Plan 阶段**: 在上下文分析完成后，立即同步更新相关设计文档 (`docs/design/`) 或规划文档 (`docs/plan/`)。
-            -   **Do/Fix 阶段**: 在代码变更过程中记录技术实现细节。
-            -   **Commit 阶段**: 在代码提交前后，完成最终的文档补全及 CHANGELOG 更新，确保文档与代码版本高度一致。
+5.  **AI 智能体体系 (AI Agents System)**：项目定义了以下基础智能体，协作完成开发任务。详细指令以各智能体的技能文档为准：
+    -   **`@momei-developer` (全栈开发者)**: 驱动完整的 PDTFC 循环。集成 [代码编辑](.github/skills/nuxt-code-editor/SKILL.md)、[提交规范](.github/skills/conventional-committer/SKILL.md)及[上下文分析](.github/skills/context-analyzer/SKILL.md)能力。
+    -   **`@quality-guardian` (质量守卫)**: 负责代码 Lint、类型检查与规范审查。参考：[.github/skills/quality-guardian/SKILL.md](.github/skills/quality-guardian/SKILL.md)。
+    -   **`@test-engineer` (测试工程师)**: 负责测试驱动开发与高覆盖率逻辑实现。参考：[.github/skills/test-engineer/SKILL.md](.github/skills/test-engineer/SKILL.md)。
+    -   **`@documentation-specialist` (文档专家)**: 维护 `docs/` 下的设计与规划文档。**注意：禁止手动修改自动生成的 CHANGELOG.md**。参考：[.github/skills/documentation-specialist/SKILL.md](.github/skills/documentation-specialist/SKILL.md)。
 
 ## 安全要求
 
