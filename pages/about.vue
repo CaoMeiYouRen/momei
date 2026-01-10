@@ -4,7 +4,11 @@
         <section class="hero">
             <div class="container hero__container">
                 <div class="hero__logo">
-                    <span class="hero__logo-text">{{ $t('pages.about.hero.logo_text') }}</span>
+                    <img
+                        src="/logo.png"
+                        alt="Momei Logo"
+                        class="hero__logo-img"
+                    >
                 </div>
 
                 <h1 class="hero__title">
@@ -313,12 +317,9 @@ $font-serif: '"Noto Serif SC"', 'serif';
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 2rem;
-    border-radius: 9999px;
-    background-color: $color-ink;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
 
     @media (width >= 768px) {
       width: 8rem;
@@ -326,18 +327,10 @@ $font-serif: '"Noto Serif SC"', 'serif';
     }
   }
 
-  &__logo-text {
-    color: var(--p-surface-0);
-    font-family: $font-serif;
-    font-size: 2.25rem;
-
-    @media (width >= 768px) {
-      font-size: 3rem;
-    }
-
-    :global(.dark) & {
-        color: var(--p-surface-900);
-    }
+  &__logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 
   &__title {

@@ -1,12 +1,14 @@
 <template>
     <footer class="footer">
         <div class="container">
-            <div class="footer__logo">
-                <div class="footer__logo-icon">
-                    <span class="footer__logo-text">{{ $t('components.footer.logo_text') }}</span>
-                </div>
+            <NuxtLink :to="localePath('/')" class="footer__logo">
+                <img
+                    src="/logo.png"
+                    alt="Momei Logo"
+                    class="footer__logo-img"
+                >
                 <span class="footer__title">{{ $t('components.footer.title') }}</span>
-            </div>
+            </NuxtLink>
             <nav class="footer__nav">
                 <NuxtLink :to="localePath('/about')" class="footer__link">
                     {{ $t('common.about') }}
@@ -54,22 +56,13 @@ $font-serif: '"Noto Serif SC"', 'serif';
     justify-content: center;
     gap: 0.5rem;
     margin-bottom: 1rem;
+    text-decoration: none;
+    color: inherit;
   }
 
-  &__logo-icon {
+  &__logo-img {
     width: 1.5rem;
     height: 1.5rem;
-    border-radius: 9999px;
-    background-color: var(--p-primary-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  &__logo-text {
-    color: var(--p-primary-contrast-color);
-    font-family: $font-serif;
-    font-size: 0.875rem;
   }
 
   &__title {
