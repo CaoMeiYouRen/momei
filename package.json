@@ -174,5 +174,6 @@
       "npm run lint",
       "git add"
     ]
-  }
+  },
+  "version": "1.0.0"
 }
