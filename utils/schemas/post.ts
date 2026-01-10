@@ -31,14 +31,14 @@ export const updatePostSchema = z.object({
 })
 
 export const postQuerySchema = paginationSchema.extend({
-    status: z.enum(['published', 'draft', 'pending']).optional(),
+    status: z.preprocess((val) => (val === '' ? undefined : val), z.enum(['published', 'draft', 'pending']).optional()),
     scope: z.enum(['public', 'manage']).default('public'),
     authorId: z.string().optional(),
     categoryId: z.string().optional(),
     tagId: z.string().optional(),
     language: z.string().optional(),
     search: z.string().optional(),
-    orderBy: z.enum(['createdAt', 'updatedAt', 'views', 'publishedAt']).default('publishedAt'),
+    orderBy: z.enum(['createdAt', 'updatedAt', 'views', 'publishedAt', 'title', 'status']).default('publishedAt'),
     order: z.enum(['ASC', 'DESC']).default('DESC'),
 })
 

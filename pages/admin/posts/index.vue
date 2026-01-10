@@ -42,21 +42,34 @@
                 :rows-per-page-options="[5, 10, 20]"
                 table-style="min-width: 50rem"
                 @page="onPage"
+                @sort="onSort"
             >
-                <Column field="title" :header="$t('common.title')" />
+                <Column
+                    field="title"
+                    :header="$t('common.title')"
+                    sortable
+                />
                 <Column field="author.name" :header="$t('common.author')" />
-                <Column field="status" :header="$t('pages.admin.posts.status')">
+                <Column
+                    field="status"
+                    :header="$t('pages.admin.posts.status')"
+                    sortable
+                >
                     <template #body="slotProps">
                         <Tag :value="getStatusLabel(slotProps.data.status)" :severity="getStatusSeverity(slotProps.data.status)" />
                     </template>
                 </Column>
-                <Column field="category.name" :header="$t('common.category')">
-                    <template #body="slotProps">
-                        {{ slotProps.data.category?.name || '-' }}
-                    </template>
-                </Column>
-                <Column field="views" :header="$t('common.views')" />
-                <Column field="publishedAt" :header="$t('common.published_at')">
+                <Column field="category.name" :header="$t('common.category')" />
+                <Column
+                    field="views"
+                    :header="$t('common.views')"
+                    sortable
+                />
+                <Column
+                    field="publishedAt"
+                    :header="$t('common.published_at')"
+                    sortable
+                >
                     <template #body="slotProps">
                         <div class="user-created-at">
                             <span class="user-created-at__date">{{ formatDateTime(slotProps.data.publishedAt) }}</span>
@@ -129,12 +142,17 @@ const {
     pagination,
     filters,
     onPage,
+    onSort,
     refresh: load,
 } = useAdminList<Post, { search: string, status: string | null }>({
     url: '/api/posts',
     initialFilters: {
         search: '',
         status: null,
+    },
+    initialSort: {
+        field: 'publishedAt',
+        order: 'desc',
     },
 })
 

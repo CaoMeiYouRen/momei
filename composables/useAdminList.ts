@@ -29,13 +29,23 @@ export function useAdminList<T = any, F extends object = any>(options: UseAdminL
         loading.value = true
         error.value = null
         try {
+            // 过滤掉 filters 中的 null, undefined 和空字符串
+            const cleanedFilters = Object.entries(filters).reduce((acc, [key, value]) => {
+                if (value !== null && value !== undefined && value !== '') {
+                    acc[key] = value
+                }
+                return acc
+            }, {} as any)
+
             const params = {
                 page: page.value,
                 offset: (page.value - 1) * limit.value,
                 limit: limit.value,
+                orderBy: sort.field,
+                order: sort.order.toUpperCase(),
                 sortBy: sort.field,
                 sortDirection: sort.order,
-                ...filters,
+                ...cleanedFilters,
                 scope: 'manage',
             }
 
