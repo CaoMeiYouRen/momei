@@ -1,62 +1,60 @@
 <template>
-    <Select
-        v-model="currentLocale"
-        :options="availableLocales"
-        option-label="name"
-        option-value="code"
-        class="language-switcher"
-        :aria-label="$t('components.header.language')"
-        @change="onLocaleChanged"
-    >
-        <template #value="slotProps">
-            <div v-if="slotProps.value" class="language-option">
-                <span>{{ getLocaleName(slotProps.value) }}</span>
-            </div>
-            <span v-else>
-                {{ slotProps.placeholder }}
-            </span>
-        </template>
-        <template #option="slotProps">
-            <div class="language-option">
-                <span>{{ slotProps.option.name }}</span>
-            </div>
-        </template>
-    </Select>
+    <Button
+        v-tooltip.bottom="$t('components.header.language')"
+        type="button"
+        icon="pi pi-globe"
+        text
+        rounded
+        aria-haspopup="true"
+        aria-controls="language_menu"
+        @click="toggleMenu"
+    />
+    <Menu
+        id="language_menu"
+        ref="menu"
+        :model="localeMenuItems"
+        :popup="true"
+    />
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
+
 const { locale, locales, setLocale } = useI18n()
 
-const currentLocale = computed({
-    get: () => locale.value,
-    set: (value) => {
-        setLocale(value)
-    },
-})
+const menu = ref()
 
 const availableLocales = computed(() => {
     return locales.value
 })
 
-const getLocaleName = (code: string) => {
-    const found = locales.value.find((l: any) => l.code === code)
-    return found ? found.name : code
-}
+const localeMenuItems = computed(() => {
+    return availableLocales.value.map((l: any) => ({
+        label: l.name,
+        class: locale.value === l.code ? 'is-active-locale' : '',
+        command: () => {
+            setLocale(l.code)
+        },
+    }))
+})
 
-const onLocaleChanged = (event: any) => {
-    setLocale(event.value)
+const toggleMenu = (event: any) => {
+    menu.value.toggle(event)
 }
 </script>
 
-<style lang="scss" scoped>
-.language-option {
-    display: flex;
-    align-items: center;
+<style lang="scss">
+.is-active-locale {
+    .p-menuitem-content {
+        background-color: var(--p-surface-100);
+        font-weight: 600;
+        color: var(--p-primary-color);
+    }
 }
-</style>
 
-<style lang="scss" scoped>
-.language-switcher {
-    width: 140px;
+:global(.dark) .is-active-locale {
+    .p-menuitem-content {
+        background-color: var(--p-surface-800);
+    }
 }
 </style>

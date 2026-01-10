@@ -21,9 +21,10 @@
                     </NuxtLink>
                 </nav>
 
-                <div class="desktop-only flex gap-2 items-center">
+                <div class="app-header__action-group desktop-only">
                     <template v-if="user && (user.role === 'admin' || user.role === 'author')">
                         <Button
+                            v-tooltip.bottom="$t('common.admin')"
                             icon="pi pi-cog"
                             text
                             rounded
@@ -40,20 +41,26 @@
                     </template>
 
                     <Button
+                        v-tooltip.bottom="isDark ? $t('components.header.light_mode') : $t('components.header.dark_mode')"
                         :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
                         text
                         rounded
                         @click="toggleDark()"
                     />
+
                     <LanguageSwitcher />
+
                     <Button
                         v-if="!user"
-                        :label="$t('pages.login.submit')"
+                        v-tooltip.bottom="$t('pages.login.submit')"
+                        icon="pi pi-sign-in"
                         text
+                        rounded
                         @click="navigateTo('/login')"
                     />
                     <Button
                         v-else
+                        v-tooltip.bottom="$t('pages.settings.title')"
                         icon="pi pi-user"
                         text
                         rounded
@@ -133,6 +140,7 @@
                         icon="pi pi-user"
                         :label="user.name"
                         text
+                        rounded
                         class="mobile-user-button"
                         @click="isMobileMenuOpen = false; navigateTo('/settings')"
                     />
@@ -141,6 +149,7 @@
                     v-else
                     :label="$t('pages.login.submit')"
                     icon="pi pi-sign-in"
+                    rounded
                     class="mobile-login-button"
                     @click="isMobileMenuOpen = false; navigateTo('/login')"
                 />
@@ -266,6 +275,12 @@ watch(preferredDark, (newVal) => {
         display: flex;
         gap: 1.5rem;
         margin-right: 1rem;
+    }
+
+    &__action-group {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
     }
 }
 

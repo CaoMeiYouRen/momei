@@ -79,7 +79,8 @@
         "error_loading": "加载失败",
         "optional": "可选",
         "confirmation": "确认",
-        "danger": "危险操作"
+        "danger": "危险操作",
+        "admin": "管理"
     },
     "pages": {
         "about": {
@@ -199,7 +200,10 @@
                 "confirmRevokeAll": "确定要强制该用户在所有设备上退出登录吗？",
                 "confirmDelete": "确定要永久删除用户 \"{name}\" 吗？此操作不可逆！",
                 "roles": {
-                    "all": "所有角色"
+                    "all": "所有角色",
+                    "admin": "管理员",
+                    "author": "作者",
+                    "user": "普通用户"
                 },
                 "statusOptions": {
                     "all": "所有状态",

@@ -86,7 +86,7 @@
                     sortable
                 >
                     <template #body="{data}">
-                        <Badge :value="data.role" :severity="getRoleSeverity(data.role)" />
+                        <Badge :value="$t(`pages.admin.users.roles.${data.role}`)" :severity="getRoleSeverity(data.role)" />
                     </template>
                 </Column>
 
@@ -176,6 +176,8 @@
                 <Select
                     v-model="dialogs.role.selectedRole"
                     :options="roleValues"
+                    option-label="label"
+                    option-value="value"
                     class="w-full"
                 />
             </div>
@@ -318,14 +320,18 @@ const toast = useToast()
 const confirm = useConfirm()
 
 // Options
-const roleOptions = [
+const roleOptions = computed(() => [
     { label: t('pages.admin.users.roles.all'), value: null },
-    { label: 'Admin', value: 'admin' },
-    { label: 'Author', value: 'author' },
-    { label: 'User', value: 'user' },
-]
+    { label: t('pages.admin.users.roles.admin'), value: 'admin' },
+    { label: t('pages.admin.users.roles.author'), value: 'author' },
+    { label: t('pages.admin.users.roles.user'), value: 'user' },
+])
 
-const roleValues = ['admin', 'author', 'user']
+const roleValues = computed(() => [
+    { label: t('pages.admin.users.roles.admin'), value: 'admin' },
+    { label: t('pages.admin.users.roles.author'), value: 'author' },
+    { label: t('pages.admin.users.roles.user'), value: 'user' },
+])
 
 const statusOptions = [
     { label: t('pages.admin.users.statusOptions.all'), value: null },

@@ -79,7 +79,8 @@
         "error_loading": "Error loading content",
         "optional": "Optional",
         "confirmation": "Confirmation",
-        "danger": "Danger"
+        "danger": "Danger",
+        "admin": "Admin"
     },
     "pages": {
         "about": {
@@ -199,7 +200,10 @@
                 "confirmRevokeAll": "Are you sure you want to force sign out this user from all devices?",
                 "confirmDelete": "Are you sure you want to permanently delete user \"{name}\"? This action cannot be undone!",
                 "roles": {
-                    "all": "All Roles"
+                    "all": "All Roles",
+                    "admin": "Admin",
+                    "author": "Author",
+                    "user": "User"
                 },
                 "statusOptions": {
                     "all": "All Status",
