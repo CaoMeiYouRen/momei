@@ -11,6 +11,20 @@
                 <NuxtLink :to="localePath('/about')" class="footer__link">
                     {{ $t('common.about') }}
                 </NuxtLink>
+                <NuxtLink
+                    to="https://github.com/CaoMeiYouRen/momei"
+                    target="_blank"
+                    class="footer__link"
+                >
+                    GitHub
+                </NuxtLink>
+                <NuxtLink
+                    to="https://docs.momei.app/"
+                    target="_blank"
+                    class="footer__link"
+                >
+                    {{ $t('components.footer.docs') }}
+                </NuxtLink>
             </nav>
             <p class="footer__copyright">
                 {{ $t('components.footer.copyright') }}
@@ -64,6 +78,9 @@ $font-serif: '"Noto Serif SC"', 'serif';
   }
 
   &__nav {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
     margin-bottom: 1rem;
   }
 

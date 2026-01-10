@@ -29,7 +29,8 @@
         "footer": {
             "logo_text": "M",
             "title": "Momei",
-            "copyright": "© 2025 Momei Blog - Lightweight creation, free expression"
+            "docs": "Docs",
+            "copyright": "© 2026 Momei Blog - Lightweight creation, free expression"
         },
         "toc": {
             "title": "Table of Contents"
