@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import { Not } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
@@ -55,7 +54,9 @@ export default defineEventHandler(async (event) => {
         tag.name = body.name
     }
 
-    if (body.language !== undefined) { tag.language = body.language }
+    if (body.language !== undefined) {
+        tag.language = body.language
+    }
 
     await tagRepo.save(tag)
 

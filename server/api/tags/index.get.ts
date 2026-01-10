@@ -1,5 +1,3 @@
-import { z } from 'zod'
-import { Like } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
 import { tagQuerySchema } from '@/utils/schemas/tag'
@@ -9,32 +7,19 @@ export default defineEventHandler(async (event) => {
 
     const tagRepo = dataSource.getRepository(Tag)
 
-    const skip = (query.page - 1) * query.limit
-
-    const where: any = {}
+    const queryBuilder = tagRepo.createQueryBuilder('tag')
 
     if (query.search) {
-        where.name = Like(`%${query.search}%`)
+        queryBuilder.where('tag.name LIKE :search', { search: `%${query.search}%` })
     }
 
     if (query.language) {
-        where.language = query.language
+        queryBuilder.andWhere('tag.language = :language', { language: query.language })
     }
 
-    const [items, total] = await tagRepo.findAndCount({
-        where,
-        skip,
-        take: query.limit,
-        order: { createdAt: 'DESC' },
-    })
+    queryBuilder.orderBy('tag.createdAt', 'DESC')
 
-    return {
-        code: 200,
-        data: {
-            list: items,
-            total,
-            page: query.page,
-            limit: query.limit,
-        },
-    }
+    const [items, total] = await applyPagination(queryBuilder, query).getManyAndCount()
+
+    return success(paginate(items, total, query.page, query.limit))
 })

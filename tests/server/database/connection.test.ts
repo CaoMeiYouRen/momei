@@ -3,7 +3,6 @@ import { DataSource } from 'typeorm'
 import { setup } from '@nuxt/test-utils/e2e'
 import { initializeDB } from '@/server/database/index'
 import { User } from '@/server/entities/user'
-import { generateRandomString } from '@/utils/shared/random'
 
 // TODO: Skipped due to performance issues. See docs/plan/todo.md
 describe.skip('Database Connection', async () => {

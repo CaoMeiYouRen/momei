@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'

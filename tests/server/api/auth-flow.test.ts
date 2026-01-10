@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest'
 import { setup } from '@nuxt/test-utils/e2e'
 import type { DataSource } from 'typeorm'
-import { generateRandomString } from '@/utils/shared/random'
 import type { auth as Auth } from '@/lib/auth'
 
 // TODO: Skipped due to performance issues/timeouts. See docs/plan/todo.md

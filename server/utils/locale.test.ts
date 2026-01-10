@@ -117,7 +117,9 @@ describe('server/utils/locale.ts', () => {
         })
 
         it('should handle errors', () => {
-            vi.mocked(parseCookies).mockImplementation(() => { throw new Error('fail') })
+            vi.mocked(parseCookies).mockImplementation(() => {
+                throw new Error('fail')
+            })
             expect(getLocaleFromCookie({} as any)).toBeNull()
         })
     })
@@ -125,7 +127,9 @@ describe('server/utils/locale.ts', () => {
     describe('getLocaleFromHeaders', () => {
         it('should return locale from custom header', () => {
             vi.mocked(getHeader).mockImplementation((_, name) => {
-                if (name === 'x-locale') { return 'zh-Hans' }
+                if (name === 'x-locale') {
+                    return 'zh-Hans'
+                }
                 return undefined
             })
             const event = {} as H3Event
@@ -134,7 +138,9 @@ describe('server/utils/locale.ts', () => {
 
         it('should check multiple custom headers', () => {
             vi.mocked(getHeader).mockImplementation((_, name) => {
-                if (name === 'x-lang') { return 'pt-PT' }
+                if (name === 'x-lang') {
+                    return 'pt-PT'
+                }
                 return undefined
             })
             expect(getLocaleFromHeaders({} as any)).toBe('pt-PT')
@@ -142,7 +148,9 @@ describe('server/utils/locale.ts', () => {
 
         it('should return locale from accept-language', () => {
             vi.mocked(getHeader).mockImplementation((_, name) => {
-                if (name === 'accept-language') { return 'en-US' }
+                if (name === 'accept-language') {
+                    return 'en-US'
+                }
                 return undefined
             })
             const event = {} as H3Event
@@ -156,7 +164,9 @@ describe('server/utils/locale.ts', () => {
         })
 
         it('should handle errors', () => {
-            vi.mocked(getHeader).mockImplementation(() => { throw new Error('fail') })
+            vi.mocked(getHeader).mockImplementation(() => {
+                throw new Error('fail')
+            })
             expect(getLocaleFromHeaders({} as any)).toBe(DEFAULT_LOCALE)
         })
     })
@@ -172,7 +182,9 @@ describe('server/utils/locale.ts', () => {
         it('should fallback to header', () => {
             vi.mocked(parseCookies).mockReturnValue({})
             vi.mocked(getHeader).mockImplementation((_, name) => {
-                if (name === 'accept-language') { return 'en-US' }
+                if (name === 'accept-language') {
+                    return 'en-US'
+                }
                 return undefined
             })
             const event = {} as H3Event
@@ -180,7 +192,9 @@ describe('server/utils/locale.ts', () => {
         })
 
         it('should handle errors', () => {
-            vi.mocked(parseCookies).mockImplementation(() => { throw new Error('fatal') })
+            vi.mocked(parseCookies).mockImplementation(() => {
+                throw new Error('fatal')
+            })
             expect(detectUserLocale({} as any)).toBe(DEFAULT_LOCALE)
         })
     })
@@ -199,7 +213,9 @@ describe('server/utils/locale.ts', () => {
         })
 
         it('should handle errors', () => {
-            vi.mocked(setCookie).mockImplementation(() => { throw new Error('cookie fail') })
+            vi.mocked(setCookie).mockImplementation(() => {
+                throw new Error('cookie fail')
+            })
             // Should not throw
             expect(() => setLocaleCookie({} as any, 'zh-Hans')).not.toThrow()
         })

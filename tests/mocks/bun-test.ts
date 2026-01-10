@@ -1,3 +1,3 @@
 export default {}
-export const mock = () => {}
-export const beforeAll = () => {}
+export const mock = () => { /* mock */ }
+export const beforeAll = () => { /* beforeAll */ }

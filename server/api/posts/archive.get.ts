@@ -2,6 +2,7 @@ import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'
 import { archiveQuerySchema } from '@/utils/schemas/post'
+import { success, paginate } from '@/server/utils/response'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => archiveQuerySchema.parse(q))
@@ -92,15 +93,12 @@ export default defineEventHandler(async (event) => {
             yearsMap.get(year)!.push({ month, count })
         }
 
-        const list = Array.from(yearsMap.entries()).map(([year, months]) => ({ year, months }))
+        const items = Array.from(yearsMap.entries()).map(([year, months]) => ({ year, months }))
 
         // Cache for short period
         event.node.res.setHeader('Cache-Control', 'public, max-age=60')
 
-        return {
-            code: 200,
-            data: { list },
-        }
+        return success(items)
     }
 
     // includePosts = true -> require year and month to be meaningful
@@ -134,13 +132,5 @@ export default defineEventHandler(async (event) => {
 
     event.node.res.setHeader('Cache-Control', 'public, max-age=60')
 
-    return {
-        code: 200,
-        data: {
-            list: items,
-            total,
-            page: query.page,
-            limit: query.limit,
-        },
-    }
+    return success(paginate(items, total, query.page, query.limit))
 })

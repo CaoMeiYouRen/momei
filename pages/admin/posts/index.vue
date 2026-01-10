@@ -34,10 +34,10 @@
 
             <DataTable
                 :value="items"
-                :loading="pending"
+                :loading="loading"
                 lazy
-                :total-records="total"
-                :rows="limit"
+                :total-records="pagination.total"
+                :rows="pagination.limit"
                 paginator
                 :rows-per-page-options="[5, 10, 20]"
                 table-style="min-width: 50rem"
@@ -122,13 +122,11 @@ interface Post {
 
 const {
     items,
-    total,
-    page,
-    limit,
-    pending,
+    loading,
+    pagination,
     filters,
-    load,
     onPage,
+    refresh: load,
 } = useAdminList<Post, { search: string, status: string | null }>({
     url: '/api/posts',
     initialFilters: {

@@ -448,11 +448,11 @@ const getStatusSeverity = (status: string) => {
 
 const loadCategories = async () => {
     try {
-        const response = await $fetch<{ data: { list: any[] } }>('/api/categories', {
+        const response = await $fetch<{ data: { items: any[] } }>('/api/categories', {
             query: { limit: 100 },
         })
         if (response.data) {
-            categories.value = response.data.list
+            categories.value = response.data.items
         }
     } catch (error) {
         console.error('Failed to load categories', error)
@@ -461,11 +461,11 @@ const loadCategories = async () => {
 
 const loadTags = async () => {
     try {
-        const response = await $fetch<{ data: { list: any[] } }>('/api/tags', {
+        const response = await $fetch<{ data: { items: any[] } }>('/api/tags', {
             query: { limit: 100 },
         })
         if (response.data) {
-            allTags.value = response.data.list.map((t: any) => t.name)
+            allTags.value = response.data.items.map((t: any) => t.name)
         }
     } catch (error) {
         console.error('Failed to load tags', error)

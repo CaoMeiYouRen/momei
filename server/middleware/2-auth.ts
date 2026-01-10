@@ -1,6 +1,5 @@
 import { auth } from '@/lib/auth'
 import { publicPaths } from '@/utils/shared/public-paths'
-import logger from '@/server/utils/logger'
 
 export default defineEventHandler(async (event) => {
     const session = await auth.api.getSession({

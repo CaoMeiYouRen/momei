@@ -1,60 +1,67 @@
 <template>
-    <div class="page-container">
-        <div class="page-header">
-            <h1 class="page-title">
-                {{ $t('pages.admin.tags.title') }}
-            </h1>
-            <Button
-                :label="$t('pages.admin.tags.create')"
-                icon="pi pi-plus"
-                @click="openDialog()"
-            />
-        </div>
+    <div class="admin-tags page-container">
+        <AdminPageHeader :title="$t('pages.admin.tags.title')">
+            <template #end>
+                <Button
+                    :label="$t('pages.admin.tags.create')"
+                    icon="pi pi-plus"
+                    @click="openDialog()"
+                />
+            </template>
+        </AdminPageHeader>
 
-        <div class="content-card">
-            <div class="filters">
+        <div class="admin-tags__card">
+            <div class="admin-tags__filters">
                 <IconField icon-position="left">
                     <InputIcon class="pi pi-search" />
                     <InputText
                         v-model="filters.search"
                         :placeholder="$t('pages.admin.tags.search_placeholder')"
-                        @keydown.enter="loadData"
+                        @input="onFilterChange"
                     />
                 </IconField>
             </div>
 
             <DataTable
                 :value="items"
-                :loading="pending"
+                :loading="loading"
                 lazy
-                :total-records="total"
-                :rows="limit"
+                :total-records="pagination.total"
+                :rows="pagination.limit"
                 paginator
-                :rows-per-page-options="[5, 10, 20]"
-                table-style="min-width: 50rem"
+                class="p-datatable-sm"
                 @page="onPage"
+                @sort="onSort"
             >
-                <Column field="name" :header="$t('common.name')" />
-                <Column field="slug" :header="$t('common.slug')" />
+                <Column
+                    field="name"
+                    :header="$t('common.name')"
+                    sortable
+                />
+                <Column
+                    field="slug"
+                    :header="$t('common.slug')"
+                    sortable
+                />
                 <Column
                     :header="$t('common.actions')"
-                    :exportable="false"
-                    style="min-width:8rem"
+                    class="text-right"
+                    style="min-width: 8rem"
                 >
-                    <template #body="slotProps">
+                    <template #body="{data}">
                         <Button
                             icon="pi pi-pencil"
                             text
                             rounded
                             severity="info"
-                            @click="openDialog(slotProps.data)"
+                            @click="openDialog(data)"
                         />
                         <Button
                             icon="pi pi-trash"
                             text
                             rounded
                             severity="danger"
-                            @click="confirmDelete(slotProps.data)"
+                            @click="confirmDeleteAction(data)"
                         />
                     </template>
                 </Column>
@@ -70,8 +77,7 @@
             v-model:visible="dialogVisible"
             :header="editingItem ? $t('common.edit') : $t('common.create')"
             modal
-            class="p-fluid"
-            :style="{width: '450px'}"
+            class="admin-tags__dialog p-fluid"
         >
             <div class="field">
                 <label for="name">{{ $t('common.name') }}</label>
@@ -111,13 +117,17 @@
                 />
             </template>
         </Dialog>
+
+        <ConfirmDeleteDialog
+            v-model:visible="deleteDialog.visible"
+            :title="$t('pages.admin.tags.delete_confirm_title')"
+            :message="deleteDialog.message"
+            @confirm="deleteTag"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useToast } from 'primevue/usetoast'
-import { useConfirm } from 'primevue/useconfirm'
 import { tagBodySchema, tagUpdateSchema } from '@/utils/schemas/tag'
 
 definePageMeta({
@@ -126,7 +136,6 @@ definePageMeta({
 
 const { t } = useI18n()
 const toast = useToast()
-const confirm = useConfirm()
 
 interface Tag {
     id: string
@@ -134,13 +143,34 @@ interface Tag {
     slug: string
 }
 
-const items = ref<Tag[]>([])
-const total = ref(0)
-const limit = ref(10)
-const page = ref(1)
-const pending = ref(false)
-const filters = ref({
-    search: '',
+const {
+    items,
+    loading,
+    pagination,
+    filters,
+    onPage,
+    onSort,
+    onFilterChange,
+    refresh: loadData,
+} = useAdminList<Tag, { search: string }>({
+    fetchFn: async (params) => {
+        const response = await $fetch<any>('/api/tags', {
+            query: {
+                page: params.page,
+                limit: params.limit,
+                search: params.search,
+                sortBy: params.sortBy,
+                sortDirection: params.sortDirection,
+            },
+        })
+        return {
+            data: response.data.items,
+            total: response.data.total,
+        }
+    },
+    initialFilters: {
+        search: '',
+    },
 })
 
 const dialogVisible = ref(false)
@@ -153,34 +183,6 @@ const form = ref({
     name: '',
     slug: '',
 })
-
-const loadData = async () => {
-    pending.value = true
-    try {
-        const response = await $fetch('/api/tags', {
-            query: {
-                page: page.value,
-                limit: limit.value,
-                search: filters.value.search,
-            },
-        })
-        if (response.data) {
-            items.value = response.data.list
-            total.value = response.data.total
-        }
-    } catch (error) {
-        console.error(error)
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load data', life: 3000 })
-    } finally {
-        pending.value = false
-    }
-}
-
-const onPage = (event: any) => {
-    page.value = event.page + 1
-    limit.value = event.rows
-    loadData()
-}
 
 const openDialog = (item?: Tag) => {
     editingItem.value = item || null
@@ -241,29 +243,74 @@ const saveItem = async () => {
     }
 }
 
-const confirmDelete = (item: Tag) => {
-    confirm.require({
-        message: t('pages.admin.tags.delete_confirm'),
-        header: t('common.confirm'),
-        icon: 'pi pi-exclamation-triangle',
-        accept: async () => {
-            try {
-                await $fetch(`/api/tags/${item.id}`, {
-                    method: 'DELETE' as any,
-                })
-                toast.add({ severity: 'success', summary: 'Success', detail: t('pages.admin.tags.delete_success'), life: 3000 })
-                loadData()
-            } catch (error: any) {
-                toast.add({ severity: 'error', summary: 'Error', detail: error.statusMessage || 'Failed to delete', life: 3000 })
-            }
-        },
-    })
+const deleteDialog = reactive({
+    visible: false,
+    item: null as Tag | null,
+    message: '',
+})
+
+const confirmDeleteAction = (item: Tag) => {
+    deleteDialog.item = item
+    deleteDialog.message = t('pages.admin.tags.delete_confirm')
+    deleteDialog.visible = true
+}
+
+const deleteTag = async () => {
+    if (!deleteDialog.item) return
+    try {
+        await $fetch(`/api/tags/${deleteDialog.item.id}`, {
+            method: 'DELETE' as any,
+        })
+        toast.add({ severity: 'success', summary: 'Success', detail: t('pages.admin.tags.delete_success'), life: 3000 })
+        loadData()
+    } catch (error: any) {
+        toast.add({ severity: 'error', summary: 'Error', detail: error.statusMessage || 'Failed to delete', life: 3000 })
+    }
 }
 
 onMounted(() => {
     loadData()
 })
 </script>
+
+<style lang="scss" scoped>
+.admin-tags {
+    &__card {
+        background-color: var(--p-surface-card);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid var(--p-surface-border);
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+
+    &__filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    &__dialog {
+        width: 450px;
+    }
+}
+
+.field {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    label {
+        font-weight: 600;
+    }
+}
+
+.empty-state {
+    padding: 2rem 0;
+    text-align: center;
+    color: var(--p-text-muted-color);
+}
+</style>
 
 <style lang="scss" scoped>
 .page-container {

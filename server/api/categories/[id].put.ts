@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import { Not } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
@@ -41,9 +40,15 @@ export default defineEventHandler(async (event) => {
         category.slug = body.slug
     }
 
-    if (body.name !== undefined) { category.name = body.name }
-    if (body.description !== undefined) { category.description = body.description }
-    if (body.language !== undefined) { category.language = body.language }
+    if (body.name !== undefined) {
+        category.name = body.name
+    }
+    if (body.description !== undefined) {
+        category.description = body.description
+    }
+    if (body.language !== undefined) {
+        category.language = body.language
+    }
 
     if (body.parentId !== undefined) {
         if (body.parentId === null) {

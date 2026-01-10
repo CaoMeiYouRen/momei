@@ -1,46 +1,67 @@
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 
-interface UseAdminListOptions<T, F> {
-    url: string
+interface UseAdminListOptions<F> {
+    url?: string
+    fetchFn?: (params: any) => Promise<{ data: any[], total: number }>
     initialFilters?: F
+    initialSort?: { field: string, order: 'asc' | 'desc' }
     initialPage?: number
     initialLimit?: number
 }
 
-export function useAdminList<T = any, F extends object = any>(options: UseAdminListOptions<T, F>) {
-    const { url, initialFilters, initialPage = 1, initialLimit = 10 } = options
+export function useAdminList<T = any, F extends object = any>(options: UseAdminListOptions<F>) {
+    const { url, fetchFn, initialFilters, initialSort, initialPage = 1, initialLimit = 10 } = options
 
     const items = ref<T[]>([])
     const total = ref(0)
     const page = ref(initialPage)
     const limit = ref(initialLimit)
-    const pending = ref(false)
+    const loading = ref(false)
     const error = ref<any>(null)
 
     const filters = reactive({ ...(initialFilters || {}) }) as F
+    const sort = reactive({
+        field: initialSort?.field || 'createdAt',
+        order: initialSort?.order || 'desc',
+    })
 
     const load = async () => {
-        pending.value = true
+        loading.value = true
         error.value = null
         try {
-            const query = {
+            const params = {
                 page: page.value,
+                offset: (page.value - 1) * limit.value,
                 limit: limit.value,
+                sortBy: sort.field,
+                sortDirection: sort.order,
                 ...filters,
                 scope: 'manage',
             }
 
-            const response = await $fetch<any>(url, { params: query })
-            if (response.code === 200) {
-                items.value = response.data.items
-                total.value = response.data.total
-            } else {
-                error.value = response.message
+            let dataItems: T[] = []
+            let dataTotal = 0
+
+            if (fetchFn) {
+                const result = await fetchFn(params)
+                dataItems = result.data
+                dataTotal = result.total
+            } else if (url) {
+                const response = await $fetch<any>(url, { params })
+                if (response.code === 200) {
+                    dataItems = response.data.items || response.data.list
+                    dataTotal = response.data.total
+                } else {
+                    error.value = response.message
+                }
             }
+
+            items.value = dataItems
+            total.value = dataTotal
         } catch (e: any) {
             error.value = e.data?.statusMessage || e.message
         } finally {
-            pending.value = false
+            loading.value = false
         }
     }
 
@@ -50,30 +71,45 @@ export function useAdminList<T = any, F extends object = any>(options: UseAdminL
         load()
     }
 
+    const onSort = (event: any) => {
+        sort.field = event.sortField
+        sort.order = event.sortOrder === 1 ? 'asc' : 'desc'
+        load()
+    }
+
+    const onFilterChange = () => {
+        page.value = 1
+        load()
+    }
+
     const resetFilters = () => {
         Object.assign(filters, initialFilters || {})
         page.value = 1
         load()
     }
 
+    const pagination = computed(() => ({
+        page: page.value,
+        limit: limit.value,
+        total: total.value,
+    }))
+
     // Initialize
     onMounted(() => {
         load()
     })
 
-    // Watch filters if needed, or trigger manually
-    // watch(() => filters, () => { page.value = 1; load() }, { deep: true })
-
     return {
         items,
-        total,
-        page,
-        limit,
-        pending,
+        loading,
         error,
         filters,
-        load,
+        sort,
+        pagination,
+        refresh: load,
         onPage,
+        onSort,
+        onFilterChange,
         resetFilters,
     }
 }

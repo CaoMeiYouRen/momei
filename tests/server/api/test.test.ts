@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { setup, $fetch } from '@nuxt/test-utils/e2e'
-import { generateRandomString } from '@/utils/shared/random'
 
 describe.skip('API test', async () => {
     await setup({

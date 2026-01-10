@@ -1,5 +1,3 @@
-import { z } from 'zod'
-import { Like } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
 import { categoryQuerySchema } from '@/utils/schemas/category'
@@ -9,37 +7,25 @@ export default defineEventHandler(async (event) => {
 
     const categoryRepo = dataSource.getRepository(Category)
 
-    const skip = (query.page - 1) * query.limit
-
-    const where: any = {}
+    const queryBuilder = categoryRepo.createQueryBuilder('category')
+        .leftJoinAndSelect('category.parent', 'parent')
+        .leftJoinAndSelect('category.children', 'children')
 
     if (query.search) {
-        where.name = Like(`%${query.search}%`)
+        queryBuilder.where('category.name LIKE :search', { search: `%${query.search}%` })
     }
 
     if (query.parentId) {
-        where.parentId = query.parentId
+        queryBuilder.andWhere('category.parentId = :parentId', { parentId: query.parentId })
     }
 
     if (query.language) {
-        where.language = query.language
+        queryBuilder.andWhere('category.language = :language', { language: query.language })
     }
 
-    const [items, total] = await categoryRepo.findAndCount({
-        where,
-        skip,
-        take: query.limit,
-        order: { createdAt: 'DESC' },
-        relations: ['parent', 'children'], // Include parent and children info
-    })
+    queryBuilder.orderBy('category.createdAt', 'DESC')
 
-    return {
-        code: 200,
-        data: {
-            list: items,
-            total,
-            page: query.page,
-            limit: query.limit,
-        },
-    }
+    const [items, total] = await applyPagination(queryBuilder, query).getManyAndCount()
+
+    return success(paginate(items, total, query.page, query.limit))
 })

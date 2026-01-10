@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { isSnowflakeId } from '../shared/validate'
+import { paginationSchema } from './pagination'
 
 export const categoryBodySchema = z.object({
     name: z.string().min(1).max(100),
@@ -21,9 +22,7 @@ export const categoryUpdateSchema = z.object({
     language: z.string().optional(),
 })
 
-export const categoryQuerySchema = z.object({
-    page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(100).default(20),
+export const categoryQuerySchema = paginationSchema.extend({
     search: z.string().optional(),
     parentId: z.string().optional(),
     language: z.string().optional(),

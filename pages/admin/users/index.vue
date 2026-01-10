@@ -1,8 +1,15 @@
 <template>
     <div class="container user-management">
-        <h1 class="user-management__title">
-            {{ $t('pages.admin.users.title') }}
-        </h1>
+        <AdminPageHeader :title="$t('pages.admin.users.title')">
+            <template #end>
+                <Button
+                    :label="$t('pages.admin.users.refresh')"
+                    icon="pi pi-refresh"
+                    severity="secondary"
+                    @click="fetchUsers"
+                />
+            </template>
+        </AdminPageHeader>
 
         <div class="user-management__card">
             <Toolbar class="user-management__toolbar">
@@ -36,14 +43,6 @@
                             @change="onFilterChange"
                         />
                     </div>
-                </template>
-                <template #end>
-                    <Button
-                        :label="$t('pages.admin.users.refresh')"
-                        icon="pi pi-refresh"
-                        severity="secondary"
-                        @click="fetchUsers"
-                    />
                 </template>
             </Toolbar>
 
@@ -106,7 +105,7 @@
                     sortable
                 >
                     <template #body="{data}">
-                        {{ formatDate(data.createdAt) }}
+                        {{ d(data.createdAt) }}
                     </template>
                 </Column>
 
@@ -274,8 +273,8 @@
                         />
                     </div>
                     <div class="session-card__footer">
-                        <span>{{ $t('pages.admin.users.lastActive') }}: {{ formatDate(session.updatedAt) }}</span>
-                        <span>{{ $t('pages.admin.users.expiresAt') }}: {{ formatDate(session.expiresAt) }}</span>
+                        <span>{{ $t('pages.admin.users.lastActive') }}: {{ d(session.updatedAt) }}</span>
+                        <span>{{ $t('pages.admin.users.expiresAt') }}: {{ d(session.expiresAt) }}</span>
                     </div>
                 </div>
                 <div v-if="drawers.sessions.items.length === 0" class="sessions-empty">
@@ -291,6 +290,13 @@
                 />
             </div>
         </Drawer>
+
+        <ConfirmDeleteDialog
+            v-model:visible="deleteDialog.visible"
+            :title="$t('pages.admin.users.deleteUser')"
+            :message="deleteDialog.message"
+            @confirm="deleteUser"
+        />
     </div>
 </template>
 
@@ -305,27 +311,72 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const { d } = useI18nDate()
 const toast = useToast()
 const confirm = useConfirm()
 
-// State
-const users = ref<any[]>([])
-const loading = ref(false)
-const pagination = reactive({
-    total: 0,
-    limit: 20,
-    offset: 0,
-})
+// Options
+const roleOptions = [
+    { label: t('pages.admin.users.roles.all'), value: null },
+    { label: 'Admin', value: 'admin' },
+    { label: 'Author', value: 'author' },
+    { label: 'User', value: 'user' },
+]
 
-const filters = reactive({
-    searchValue: '',
-    role: null,
-    status: null,
-})
+const roleValues = ['admin', 'author', 'user']
 
-const sort = reactive({
-    field: 'createdAt',
-    order: 'desc',
+const statusOptions = [
+    { label: t('pages.admin.users.statusOptions.all'), value: null },
+    { label: t('pages.admin.users.statusOptions.active'), value: 'active' },
+    { label: t('pages.admin.users.statusOptions.banned'), value: 'banned' },
+]
+
+const expiryOptions = [
+    { label: t('pages.admin.users.expiry.never'), value: null },
+    { label: t('pages.admin.users.expiry.oneDay'), value: 60 * 60 * 24 },
+    { label: t('pages.admin.users.expiry.oneWeek'), value: 60 * 60 * 24 * 7 },
+    { label: t('pages.admin.users.expiry.oneMonth'), value: 60 * 60 * 24 * 30 },
+]
+
+// Admin List Management
+const {
+    items: users,
+    loading,
+    pagination,
+    filters,
+    onPage,
+    onSort,
+    onFilterChange,
+    refresh: fetchUsers,
+} = useAdminList<any, { searchValue: string, role: string | null, status: 'active' | 'banned' | null }>({
+    fetchFn: async (params) => {
+        const { data, error } = await authClient.admin.listUsers({
+            query: {
+                limit: params.limit,
+                offset: params.offset,
+                searchValue: params.searchValue || undefined,
+                searchField: 'name',
+                filterField: params.role ? 'role' : (params.status ? 'banned' : undefined),
+                filterValue: params.role || (params.status === 'banned' ? true : (params.status === 'active' ? false : undefined)),
+                sortBy: params.sortBy,
+                sortDirection: params.sortDirection as any,
+            },
+        })
+        if (error) throw error
+        return {
+            data: data?.users || [],
+            total: data?.total || 0,
+        }
+    },
+    initialFilters: {
+        searchValue: '',
+        role: null,
+        status: null,
+    },
+    initialSort: {
+        field: 'createdAt',
+        order: 'desc',
+    },
 })
 
 const dialogs = reactive({
@@ -351,75 +402,11 @@ const drawers = reactive({
     },
 })
 
-// Options
-const roleOptions = [
-    { label: t('pages.admin.users.roles.all'), value: null },
-    { label: 'Admin', value: 'admin' },
-    { label: 'Author', value: 'author' },
-    { label: 'User', value: 'user' },
-]
-
-const roleValues = ['admin', 'author', 'user']
-
-const statusOptions = [
-    { label: t('pages.admin.users.statusOptions.all'), value: null },
-    { label: t('pages.admin.users.statusOptions.active'), value: 'active' },
-    { label: t('pages.admin.users.statusOptions.banned'), value: 'banned' },
-]
-
-const expiryOptions = [
-    { label: t('pages.admin.users.expiry.never'), value: null },
-    { label: t('pages.admin.users.expiry.oneDay'), value: 60 * 60 * 24 },
-    { label: t('pages.admin.users.expiry.oneWeek'), value: 60 * 60 * 24 * 7 },
-    { label: t('pages.admin.users.expiry.oneMonth'), value: 60 * 60 * 24 * 30 },
-]
-
-// Methods
-const fetchUsers = async () => {
-    loading.value = true
-    try {
-        const { data, error } = await authClient.admin.listUsers({
-            query: {
-                limit: pagination.limit,
-                offset: pagination.offset,
-                searchValue: filters.searchValue || undefined,
-                searchField: 'name', // or 'email'? better-auth usually supports searchField
-                filterField: filters.role ? 'role' : (filters.status ? 'banned' : undefined),
-                filterValue: filters.role || (filters.status === 'banned' ? true : (filters.status === 'active' ? false : undefined)),
-                sortBy: sort.field,
-                sortDirection: sort.order as any,
-            },
-        })
-
-        if (error) throw error
-
-        if (data) {
-            users.value = data.users
-            pagination.total = data.total
-        }
-    } catch (err: any) {
-        toast.add({ severity: 'error', summary: 'Error', detail: err.message || 'Failed to fetch users' })
-    } finally {
-        loading.value = false
-    }
-}
-
-const onFilterChange = () => {
-    pagination.offset = 0
-    fetchUsers()
-}
-
-const onPage = (event: any) => {
-    pagination.offset = event.first
-    pagination.limit = event.rows
-    fetchUsers()
-}
-
-const onSort = (event: any) => {
-    sort.field = event.sortField
-    sort.order = event.sortOrder === 1 ? 'asc' : 'desc'
-    fetchUsers()
-}
+const deleteDialog = reactive({
+    visible: false,
+    user: null as any,
+    message: '',
+})
 
 // Actions
 const openRoleDialog = (user: any) => {
@@ -494,7 +481,6 @@ const impersonateUser = async (user: any) => {
                     userId: user.id,
                 })
                 if (error) throw error
-                // Redirect to home or refresh
                 window.location.href = '/'
             } catch (err: any) {
                 toast.add({ severity: 'error', summary: 'Error', detail: err.message || 'Impersonation failed' })
@@ -528,7 +514,7 @@ const revokeSession = async (token: string) => {
         if (error) throw error
         toast.add({ severity: 'info', summary: 'Success', detail: 'Session revoked', life: 3000 })
         if (drawers.sessions.user) {
-            openSessionsDrawer(drawers.sessions.user) // Refresh
+            openSessionsDrawer(drawers.sessions.user)
         }
     } catch (err: any) {
         toast.add({ severity: 'error', summary: 'Error', detail: err.message || 'Revocation failed' })
@@ -560,34 +546,26 @@ const revokeAllUserSessions = async () => {
 }
 
 const confirmDelete = (user: any) => {
-    confirm.require({
-        message: t('pages.admin.users.confirmDelete', { name: user.name }),
-        header: t('common.danger'),
-        icon: 'pi pi-info-circle',
-        acceptClass: 'p-button-danger',
-        acceptLabel: t('common.delete'),
-        rejectLabel: t('common.cancel'),
-        accept: async () => {
-            try {
-                const { error } = await authClient.admin.removeUser({
-                    userId: user.id,
-                })
-                if (error) throw error
-                toast.add({ severity: 'success', summary: 'Deleted', detail: 'User removed', life: 3000 })
-                fetchUsers()
-            } catch (err: any) {
-                toast.add({ severity: 'error', summary: 'Error', detail: err.message || 'Delete failed' })
-            }
-        },
-    })
+    deleteDialog.user = user
+    deleteDialog.message = t('pages.admin.users.confirmDelete', { name: user.name })
+    deleteDialog.visible = true
+}
+
+const deleteUser = async () => {
+    if (!deleteDialog.user) return
+    try {
+        const { error } = await authClient.admin.removeUser({
+            userId: deleteDialog.user.id,
+        })
+        if (error) throw error
+        toast.add({ severity: 'success', summary: 'Deleted', detail: 'User removed', life: 3000 })
+        fetchUsers()
+    } catch (err: any) {
+        toast.add({ severity: 'error', summary: 'Error', detail: err.message || 'Delete failed' })
+    }
 }
 
 // Helpers
-const formatDate = (date: any) => {
-    if (!date) return '-'
-    return new Date(date).toLocaleString()
-}
-
 const getRoleSeverity = (role: string) => {
     switch (role) {
         case 'admin': return 'danger'
@@ -599,7 +577,6 @@ const getRoleSeverity = (role: string) => {
 
 const parseUserAgent = (ua: string) => {
     if (!ua) return 'Unknown'
-    // Simple UA parsing logic or use a library
     if (ua.includes('iPhone')) return 'iPhone'
     if (ua.includes('Android')) return 'Android'
     if (ua.includes('Macintosh')) return 'Mac'

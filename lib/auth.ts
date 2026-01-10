@@ -7,7 +7,6 @@ import {
     openAPI,
     phoneNumber as $phoneNumber,
     admin,
-    captcha,
     genericOAuth,
     jwt,
     twoFactor,
@@ -33,8 +32,7 @@ import {
     PHONE_EXPIRES_IN,
 } from '@/utils/shared/env'
 import type { User } from '@/server/entities/user'
-import { generateRandomString } from '@/utils/shared/random'
-import { getTempEmail, getTempName, generateClientId, generateClientSecret } from '@/server/utils/auth-generators'
+import { getTempEmail, getTempName } from '@/server/utils/auth-generators'
 import { emailService } from '@/server/utils/email/service'
 import { getUserLocale } from '@/server/utils/locale'
 
@@ -197,9 +195,8 @@ export const auth = betterAuth({
             expiresIn: PHONE_EXPIRES_IN, // OTP 验证码有效期（秒）
             allowedAttempts: 3, // 允许的 OTP 验证尝试次数
             requireVerification: true, // 是否要求手机号码验证，启用后，用户在验证手机号码之前无法使用手机号码登录。
-            sendOTP: async ({ phoneNumber, code }) => {
+            sendOTP: async () => {
                 throw new Error('未实现发送短信功能！')
-
             },
             callbackOnVerification: async () => {
                 // 实现手机号码验证后的回调

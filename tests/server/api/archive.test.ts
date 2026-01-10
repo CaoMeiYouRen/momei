@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest'
-import { setup } from '@nuxt/test-utils/e2e'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { User } from '@/server/entities/user'

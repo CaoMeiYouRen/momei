@@ -120,7 +120,7 @@ export class CustomLogger implements Logger {
         }, this.BUFFER_FLUSH_INTERVAL)
     }
 
-    logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner): any {
+    logQuery(query: string, parameters?: any[], _queryRunner?: QueryRunner): any { // eslint-disable-line @typescript-eslint/no-unused-vars
         const queryType = getQueryType(query)
         const isSensitive = containsSensitiveData(query)
         const now = Date.now()
@@ -159,7 +159,7 @@ export class CustomLogger implements Logger {
         // 生产环境的SELECT查询和敏感查询不记录详细信息
     }
 
-    logQueryError(error: string | Error, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
+    logQueryError(error: string | Error, query: string, _parameters?: any[], _queryRunner?: QueryRunner): any { // eslint-disable-line @typescript-eslint/no-unused-vars
         this.queryStats.errors++
 
         const queryType = getQueryType(query)
@@ -180,7 +180,7 @@ export class CustomLogger implements Logger {
         }
     }
 
-    logQuerySlow(time: number, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
+    logQuerySlow(time: number, query: string, parameters?: any[], _queryRunner?: QueryRunner): any { // eslint-disable-line @typescript-eslint/no-unused-vars
         this.queryStats.slow++
 
         const queryType = getQueryType(query)
@@ -195,11 +195,11 @@ export class CustomLogger implements Logger {
         this.loggerService.warn(`Slow Query (${time}ms, ${queryType}): ${isSensitive ? '[SENSITIVE]' : 'OK'}${safeParametersFormat(parameters)}`)
     }
 
-    logSchemaBuild(message: string, queryRunner?: QueryRunner): any {
+    logSchemaBuild(message: string): any {
         this.loggerService.debug(`Schema Build: ${message}`)
     }
 
-    logMigration(message: string, queryRunner?: QueryRunner): any {
+    logMigration(message: string): any {
         this.loggerService.database.migration({ name: message, direction: 'up' })
     }
 

@@ -79,8 +79,8 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 useHead({ title: t('pages.archives.meta.title') })
 
-const { data, pending, error } = await useFetch<ApiResponse<{ list: ArchiveYear[] }>>('/api/posts/archive')
-const list = computed<ArchiveYear[]>(() => (data.value?.data?.list || []) as ArchiveYear[])
+const { data, pending, error } = await useFetch<ApiResponse<ArchiveYear[]>>('/api/posts/archive')
+const list = computed<ArchiveYear[]>(() => (data.value?.data || []) as ArchiveYear[])
 
 // Client-side state
 const expandedKeys = ref<string[]>([])
@@ -109,7 +109,7 @@ async function loadMonthPosts(year: number, month: number) {
         const res: any = await $fetch('/api/posts/archive', {
             query: { includePosts: true, year, month },
         })
-        postsCache[key] = res.data.list
+        postsCache[key] = res.data.items
     } catch (e) {
         postsCache[key] = []
     } finally {
