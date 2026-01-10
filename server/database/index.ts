@@ -21,6 +21,7 @@ import {
     DATABASE_CHARSET,
     DATABASE_TIMEZONE,
     DATABASE_ENTITY_PREFIX,
+    DATABASE_SYNCHRONIZE,
     DEMO_MODE,
 } from '@/utils/shared/env'
 
@@ -90,14 +91,16 @@ export const initializeDB = async () => {
             throw new Error(`Unsupported database type: ${actualDbType}. Please use one of: ${SUPPORTED_DATABASE_TYPES.join(', ')}`)
     }
 
-    // 检查是否为测试环境
+    // 检查环境状态
     const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true'
+    const isDevEnv = process.env.NODE_ENV === 'development'
 
     // 创建数据源
     AppDataSource = new DataSource({
         ...options,
         entities,
-        synchronize: DEMO_MODE || isTestEnv || process.env.NODE_ENV !== 'production', // 测试环境总是同步表结构
+        // 开发模式、测试模式或 Demo 模式默认开启同步，生产环境只能通过 DATABASE_SYNCHRONIZE 显式开启
+        synchronize: DATABASE_SYNCHRONIZE || DEMO_MODE || isTestEnv || isDevEnv,
         logging: isTestEnv ? false : process.env.NODE_ENV === 'development', // 测试时禁用日志
         logger: isTestEnv ? undefined : new CustomLogger(), // 测试时不使用自定义日志器
         entityPrefix: DATABASE_ENTITY_PREFIX, // 所有表（或集合）加的前缀

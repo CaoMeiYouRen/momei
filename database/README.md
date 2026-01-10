@@ -10,7 +10,13 @@
 
 ## 初始化脚本说明
 
-如果您不使用项目的自动同步功能（`synchronize: true`），可以手动执行本目录下的 SQL 脚本来初始化数据库结构。
+**出于数据安全考虑，墨梅在生产环境模式下默认不会自动同步数据库表结构（`synchronize: false`）。**
+
+为了确保数据一致性，我们强烈建议您手动执行本目录下的 SQL 脚本来初始化生产数据库。系统仅在以下场景会自动开启同步：
+1. 开发环境 (`NODE_ENV=development`)。
+2. Demo 模式 (`DEMO_MODE=true`)。
+3. 测试环境 (`vitest`)。
+4. 显式设置环境变量 `DATABASE_SYNCHRONIZE=true`。
 
 1.  **SQLite**:
     -   脚本：`sqlite/init.sql`

@@ -60,6 +60,8 @@ export const DATABASE_CHARSET = process.env.DATABASE_CHARSET || 'utf8_general_ci
 export const DATABASE_TIMEZONE = process.env.DATABASE_TIMEZONE || 'local'
 // 数据库表前缀
 export const DATABASE_ENTITY_PREFIX = process.env.DATABASE_ENTITY_PREFIX || 'momei_'
+// 是否同步数据库表结构 (自动创建表结构)。生产环境不建议开启，可能会导致数据丢失
+export const DATABASE_SYNCHRONIZE = process.env.DATABASE_SYNCHRONIZE === 'true'
 
 /**
  * Redis配置（可选）

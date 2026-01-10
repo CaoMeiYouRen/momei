@@ -15,6 +15,7 @@
 | `AUTH_SECRET`          | 认证系统的密钥                             | `your-secret-key`                |
 | `ADMIN_EMAIL`          | 初始管理员邮箱                             | `admin@example.com`              |
 | `ADMIN_PASSWORD`       | 初始管理员密码                             | `admin123456`                    |
+| `DATABASE_SYNCHRONIZE` | 是否自动同步表结构 (生产环境慎用)          | `false`                          |
 
 ## 2. 数据库部署详情
 
@@ -25,7 +26,8 @@
 适用于小型博客或测试环境。
 
 -   **配置**: 设置 `DATABASE_TYPE=sqlite` 和 `DATABASE_PATH`。
--   **初始化**: 项目运行会自动创建数据库结构。如果需要手动初始化，请执行 `database/sqlite/init.sql`。
+-   **初始化**: **生产环境推荐手动执行 `database/sqlite/init.sql` 以创建初始表结构。**
+-   **同步**: 开发环境 (`NODE_ENV=development`) 默认会自动同步。但在生产环境模式下，必须通过设置 `DATABASE_SYNCHRONIZE=true` 才会开启自动同步。
 -   **注意**: 部署在 Docker 或 VPS 时，务必将数据库文件所在的目录挂载为持久化卷，否则重启后数据会丢失。
 
 ### 2.2 MySQL / PostgreSQL (推荐用于生产)
