@@ -80,7 +80,10 @@
         "optional": "Optional",
         "confirmation": "Confirmation",
         "danger": "Danger",
-        "admin": "Admin"
+        "admin": "Admin",
+        "success": "Success",
+        "error": "Error",
+        "unexpected_error": "An unexpected error occurred"
     },
     "pages": {
         "about": {
@@ -289,7 +292,7 @@
             "submit": "Reset Password"
         },
         "settings": {
-            "title": "Settings",
+            "title": "User Center",
             "menu": {
                 "profile": "Profile",
                 "security": "Security"
@@ -297,6 +300,9 @@
             "profile": {
                 "title": "Public Profile",
                 "avatar": "Avatar",
+                "upload": "Upload Avatar",
+                "upload_success": "Avatar updated successfully",
+                "upload_failed": "Failed to upload avatar",
                 "name": "Nickname",
                 "save": "Save Changes",
                 "success": "Profile updated successfully"
@@ -313,6 +319,7 @@
                 "linked_accounts": "Linked Accounts",
                 "no_linked_accounts": "No linked accounts",
                 "link_github": "Link GitHub",
+                "unlink_account": "Unlink Account",
                 "unlink_success": "Account unlinked successfully",
                 "unlink_error": "Failed to unlink account",
                 "link_error": "Failed to initiate linking"

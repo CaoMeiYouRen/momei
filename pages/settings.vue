@@ -52,7 +52,7 @@
                                                 accept="image/*"
                                                 :max-file-size="2000000"
                                                 :auto="true"
-                                                choose-label="Upload Avatar"
+                                                :choose-label="$t('pages.settings.profile.upload')"
                                                 custom-upload
                                                 @uploader="handleAvatarUpload"
                                             />
@@ -151,14 +151,14 @@
                                             <i v-if="account.providerId === 'github'" class="pi pi-github" />
                                             <i v-else-if="account.providerId === 'google'" class="pi pi-google" />
                                             <i v-else class="pi pi-globe" />
-                                            <span>{{ account.providerId }}</span>
+                                            <span class="capitalize">{{ account.providerId }}</span>
                                         </div>
                                         <Button
                                             icon="pi pi-trash"
                                             severity="danger"
                                             text
                                             rounded
-                                            aria-label="Unlink"
+                                            :aria-label="$t('pages.settings.security.unlink_account')"
                                             :loading="loadingUnlink === account.providerId"
                                             @click="handleUnlink(account.providerId)"
                                         />
@@ -254,13 +254,13 @@ const handleAvatarUpload = async (event: any) => {
 
         if (response.data?.url) {
             profileForm.image = response.data.url
-            toast.add({ severity: 'success', summary: 'Success', detail: 'Avatar updated successfully', life: 3000 })
+            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.profile.upload_success'), life: 3000 })
             // Refresh session to get new avatar
             await authClient.getSession()
         }
     } catch (error) {
         console.error('Avatar upload failed', error)
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload avatar', life: 3000 })
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.settings.profile.upload_failed'), life: 3000 })
     }
 }
 
@@ -282,14 +282,14 @@ const handleUnlink = async (providerId: string) => {
             providerId,
         })
         if (error) {
-            toast.add({ severity: 'error', summary: 'Error', detail: error.message || error.statusText, life: 3000 })
+            toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || error.statusText, life: 3000 })
         } else {
-            toast.add({ severity: 'success', summary: 'Success', detail: t('pages.settings.security.unlink_success'), life: 3000 })
+            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.security.unlink_success'), life: 3000 })
             await fetchLinkedAccounts()
         }
     } catch (e) {
         console.error(e)
-        toast.add({ severity: 'error', summary: 'Error', detail: t('pages.settings.security.unlink_error'), life: 3000 })
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.settings.security.unlink_error'), life: 3000 })
     } finally {
         loadingUnlink.value = null
     }
@@ -303,12 +303,12 @@ const handleLink = async (provider: 'github' | 'google') => {
             callbackURL: '/settings',
         })
         if (error) {
-            toast.add({ severity: 'error', summary: 'Error', detail: error.message || error.statusText, life: 3000 })
+            toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || error.statusText, life: 3000 })
             loadingLink.value = null
         }
     } catch (e) {
         console.error(e)
-        toast.add({ severity: 'error', summary: 'Error', detail: t('pages.settings.security.link_error'), life: 3000 })
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.settings.security.link_error'), life: 3000 })
         loadingLink.value = null
     }
 }
@@ -323,7 +323,7 @@ const handleUpdateProfile = async () => {
     if (!result.success) {
         const firstError = result.error.issues[0]
         if (firstError) {
-            toast.add({ severity: 'error', summary: 'Error', detail: t(firstError.message), life: 3000 })
+            toast.add({ severity: 'error', summary: t('common.error'), detail: t(firstError.message), life: 3000 })
         }
         return
     }
@@ -336,13 +336,13 @@ const handleUpdateProfile = async () => {
         })
 
         if (error) {
-            toast.add({ severity: 'error', summary: 'Error', detail: error.message || error.statusText, life: 3000 })
+            toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || error.statusText, life: 3000 })
         } else {
-            toast.add({ severity: 'success', summary: 'Success', detail: t('pages.settings.profile.success'), life: 3000 })
+            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.profile.success'), life: 3000 })
         }
     } catch (e) {
         console.error(e)
-        toast.add({ severity: 'error', summary: 'Error', detail: 'An unexpected error occurred', life: 3000 })
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
     } finally {
         loading.value = false
     }
@@ -353,7 +353,7 @@ const handleChangePassword = async () => {
     if (!result.success) {
         const firstError = result.error.issues[0]
         if (firstError) {
-            toast.add({ severity: 'error', summary: 'Error', detail: t(firstError.message), life: 3000 })
+            toast.add({ severity: 'error', summary: t('common.error'), detail: t(firstError.message), life: 3000 })
         }
         return
     }
@@ -367,9 +367,9 @@ const handleChangePassword = async () => {
         })
 
         if (error) {
-            toast.add({ severity: 'error', summary: 'Error', detail: error.message || error.statusText, life: 3000 })
+            toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || error.statusText, life: 3000 })
         } else {
-            toast.add({ severity: 'success', summary: 'Success', detail: t('pages.settings.security.password_updated'), life: 3000 })
+            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.security.password_updated'), life: 3000 })
             // Reset form
             passwordForm.currentPassword = ''
             passwordForm.newPassword = ''
@@ -377,7 +377,7 @@ const handleChangePassword = async () => {
         }
     } catch (e) {
         console.error(e)
-        toast.add({ severity: 'error', summary: 'Error', detail: 'An unexpected error occurred', life: 3000 })
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
     } finally {
         loading.value = false
     }
@@ -530,6 +530,10 @@ const handleChangePassword = async () => {
             font-size: 1.25rem;
         }
     }
+}
+
+.capitalize {
+    text-transform: capitalize;
 }
 
 .no-accounts {

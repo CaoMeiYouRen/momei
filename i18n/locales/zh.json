@@ -80,7 +80,10 @@
         "optional": "可选",
         "confirmation": "确认",
         "danger": "危险操作",
-        "admin": "管理"
+        "admin": "管理",
+        "success": "成功",
+        "error": "错误",
+        "unexpected_error": "发生了一个意外错误"
     },
     "pages": {
         "about": {
@@ -289,7 +292,7 @@
             "submit": "重置密码"
         },
         "settings": {
-            "title": "设置",
+            "title": "个人中心",
             "menu": {
                 "profile": "个人资料",
                 "security": "账号安全"
@@ -297,6 +300,9 @@
             "profile": {
                 "title": "公开资料",
                 "avatar": "头像",
+                "upload": "上传头像",
+                "upload_success": "头像上传成功",
+                "upload_failed": "头像上传失败",
                 "name": "昵称",
                 "save": "保存更改",
                 "success": "个人资料已更新"
@@ -313,6 +319,7 @@
                 "linked_accounts": "已绑定账号",
                 "no_linked_accounts": "暂无绑定账号",
                 "link_github": "绑定 GitHub",
+                "unlink_account": "解绑账号",
                 "unlink_success": "账号解绑成功",
                 "unlink_error": "账号解绑失败",
                 "link_error": "发起绑定失败"
