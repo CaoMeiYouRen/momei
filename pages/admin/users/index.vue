@@ -114,8 +114,7 @@
 
                 <Column
                     :header="$t('pages.admin.users.actions')"
-                    align-header="right"
-                    class="text-right"
+                    class="text-left"
                 >
                     <template #body="{data}">
                         <div class="user-management__actions">
@@ -658,7 +657,7 @@ onMounted(() => {
     &__actions {
         display: flex;
         gap: 0.25rem;
-        justify-content: flex-end;
+        justify-content: flex-start;
     }
 
     &__dialog {
