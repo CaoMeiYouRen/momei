@@ -220,6 +220,18 @@
                     "oneWeek": "1周",
                     "oneMonth": "1个月"
                 }
+            },
+            "subscribers": {
+                "title": "订阅管理",
+                "search_placeholder": "搜索邮箱...",
+                "active_status": "活跃状态",
+                "active": "已激活",
+                "inactive": "未激活",
+                "user_associated": "关联用户",
+                "not_associated": "未关联",
+                "join_date": "加入日期",
+                "delete_confirm": "确定要删除这个订阅者吗？",
+                "delete_success": "订阅者删除成功"
             }
         },
         "posts": {

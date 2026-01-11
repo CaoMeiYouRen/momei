@@ -220,6 +220,18 @@
                     "oneWeek": "1 Week",
                     "oneMonth": "1 Month"
                 }
+            },
+            "subscribers": {
+                "title": "Subscribers",
+                "search_placeholder": "Search email...",
+                "active_status": "Status",
+                "active": "Active",
+                "inactive": "Inactive",
+                "user_associated": "Linked User",
+                "not_associated": "Not Linked",
+                "join_date": "Join Date",
+                "delete_confirm": "Are you sure you want to delete this subscriber?",
+                "delete_success": "Subscriber deleted successfully"
             }
         },
         "posts": {

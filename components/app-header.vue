@@ -191,6 +191,11 @@ const adminMenuItems = computed(() => [
         icon: 'pi pi-users',
         command: () => navigateTo('/admin/users'),
     },
+    {
+        label: t('pages.admin.subscribers.title'),
+        icon: 'pi pi-envelope',
+        command: () => navigateTo('/admin/subscribers'),
+    },
 ])
 
 const toggleAdminMenu = (event: any) => {
