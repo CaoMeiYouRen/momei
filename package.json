@@ -35,7 +35,7 @@
     "@vueuse/nuxt": "^14.1.0",
     "animate.css": "^4.1.1",
     "better-auth": "1.4.10",
-    "better-auth-localization": "^2.2.2",
+    "better-auth-localization": "^2.2.3",
     "better-bytes": "^1.2.6",
     "better-sqlite3": "^12.5.0",
     "class-transformer": "^0.5.1",
