@@ -39,14 +39,6 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    // Note: ID access might not increment views, or maybe it should?
-    // Usually ID access is for management/preview. Let's keep it simple and NOT increment views for ID access,
-    // or increment it. The requirement says "GET /api/posts/:id ... Note: 增加阅读量计数".
-    // But for preview it might be annoying.
-    // However, the doc says "GET /api/posts/:id ... Note: 通过 ID 获取。通常用于管理端或预览。"
-    // And "GET /api/posts/slug/:slug ... Note: ... 增加阅读量计数 (PV)"
-    // So I will REMOVE view increment from ID endpoint based on the new doc implication (PV is mentioned in Slug endpoint).
-
     return {
         code: 200,
         data: post,
