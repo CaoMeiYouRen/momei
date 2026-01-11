@@ -83,6 +83,7 @@
         "title": "Title",
         "category": "Category",
         "actions": "Actions",
+        "preview": "Preview",
         "saving": "Saving...",
         "save": "Save",
         "publish": "Publish",
@@ -280,7 +281,8 @@
         },
         "posts": {
             "title": "Articles",
-            "empty": "No articles found"
+            "empty": "No articles found",
+            "status_warning": "The current article is in {status} status and has not been officially published. It is only visible to relevant authorized personnel."
         },
         "archives": {
             "meta": {

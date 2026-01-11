@@ -31,6 +31,13 @@
             <div class="top-bar-right">
                 <span v-if="saving" class="saving-text">{{ $t('common.saving') }}</span>
                 <Button
+                    v-if="!isNew || post.id"
+                    :label="$t('common.preview')"
+                    icon="pi pi-external-link"
+                    text
+                    @click="handlePreview"
+                />
+                <Button
                     :label="$t('common.save')"
                     icon="pi pi-save"
                     text
@@ -188,6 +195,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const config = useRuntimeConfig()
 
 const route = useRoute()
@@ -244,6 +252,17 @@ const errors = ref<Record<string, string>>({})
 const isDragging = ref(false)
 
 const isNew = computed(() => route.params.id === 'new' || !route.params.id)
+
+const previewLink = computed(() => {
+    if (isNew.value && !post.value.id) return null
+    return localePath(`/posts/${post.value.slug || post.value.id}`)
+})
+
+const handlePreview = () => {
+    if (previewLink.value) {
+        window.open(previewLink.value, '_blank')
+    }
+}
 
 const loadPost = async () => {
     if (isNew.value) return

@@ -83,6 +83,7 @@
         "title": "标题",
         "category": "分类",
         "actions": "操作",
+        "preview": "预览",
         "saving": "保存中...",
         "save": "保存",
         "publish": "发布",
@@ -280,7 +281,8 @@
         },
         "posts": {
             "title": "文章列表",
-            "empty": "暂无文章"
+            "empty": "暂无文章",
+            "status_warning": "当前文章处于 {status} 状态，尚未正式发布，仅相关权限人员可见。"
         },
         "archives": {
             "meta": {

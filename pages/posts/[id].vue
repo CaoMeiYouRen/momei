@@ -54,6 +54,15 @@
                 <main class="post-detail__main">
                     <!-- Header -->
                     <header class="post-detail__header">
+                        <Message
+                            v-if="post.status !== 'published'"
+                            severity="warn"
+                            class="mb-6"
+                            :closable="false"
+                        >
+                            {{ $t('pages.posts.status_warning', {status: $t(`common.status.${post.status}`)}) }}
+                        </Message>
+
                         <div class="post-detail__breadcrumb">
                             <NuxtLink :to="localePath('/')" class="breadcrumb-link">
                                 {{ $t('common.home') }}
