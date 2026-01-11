@@ -49,11 +49,16 @@ const localePath = useLocalePath()
 const { data, pending, error } = await useFetch<any>('/api/tags', {
     query: {
         language: locale,
-        limit: 200, // Show all tags
+        limit: 200, // Fetch top 200 popular tags
+        orderBy: 'postCount',
+        order: 'DESC',
     },
 })
 
-const tags = computed(() => data.value?.data?.items || [])
+const tags = computed(() => {
+    // Keep the order from backend (popular first)
+    return data.value?.data?.items || []
+})
 const total = computed(() => data.value?.data?.total || 0)
 
 const maxCount = computed(() => {
@@ -70,7 +75,7 @@ const getTagWeight = (count: number = 0) => {
 }
 
 useHead({
-    title: `${t('pages.admin.tags.title')} - ${t('components.header.title')}`,
+    title: `${t('common.tags')} - ${t('components.header.title')}`,
 })
 </script>
 

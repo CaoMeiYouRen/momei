@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { isSnowflakeId } from '../shared/validate'
-import { paginationSchema } from './pagination'
+import { paginationSchema, sortingSchema } from './pagination'
 
 export const tagBodySchema = z.object({
     name: z.string().min(1).max(100),
@@ -18,7 +18,7 @@ export const tagUpdateSchema = z.object({
     language: z.string().optional(),
 })
 
-export const tagQuerySchema = paginationSchema.extend({
+export const tagQuerySchema = paginationSchema.merge(sortingSchema).extend({
     search: z.string().optional(),
     language: z.string().optional(),
 })

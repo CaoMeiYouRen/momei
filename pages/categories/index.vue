@@ -63,7 +63,7 @@ const categories = computed(() => data.value?.data?.items || [])
 const total = computed(() => data.value?.data?.total || 0)
 
 useHead({
-    title: `${t('pages.admin.categories.title')} - ${t('components.header.title')}`,
+    title: `${t('common.category')} - ${t('components.header.title')}`,
 })
 </script>
 
