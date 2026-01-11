@@ -34,6 +34,11 @@
                 @sort="onSort"
             >
                 <Column
+                    field="id"
+                    header="ID"
+                    sortable
+                />
+                <Column
                     field="name"
                     :header="$t('common.name')"
                     sortable

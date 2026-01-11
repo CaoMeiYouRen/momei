@@ -2,6 +2,7 @@ import { kebabCase } from 'lodash-es'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { Tag } from '@/server/entities/tag'
+import { Category } from '@/server/entities/category'
 import { generateRandomString } from '@/utils/shared/random'
 import { updatePostSchema } from '@/utils/schemas/post'
 import { success, fail } from '@/server/utils/response'
@@ -14,6 +15,7 @@ export default defineEventHandler(async (event) => {
 
     const postRepo = dataSource.getRepository(Post)
     const tagRepo = dataSource.getRepository(Tag)
+    const categoryRepo = dataSource.getRepository(Category)
 
     const post = await postRepo.findOne({ where: { id }, relations: ['tags'] })
     if (!post) {
@@ -43,9 +45,41 @@ export default defineEventHandler(async (event) => {
     if (body.language) {
         post.language = body.language
     }
+
+    // Handle Category
+    let targetCategoryId: string | null | undefined = undefined
     if (body.categoryId !== undefined) {
-        post.categoryId = body.categoryId
+        if (body.categoryId === null) {
+            targetCategoryId = null
+        } else {
+            const category = await categoryRepo.findOne({ where: { id: body.categoryId } })
+            if (!category) {
+                throw createError({ statusCode: 400, statusMessage: `Category with ID "${body.categoryId}" not found` })
+            }
+            targetCategoryId = category.id
+        }
+    } else if (body.category !== undefined) {
+        if (body.category === null) {
+            targetCategoryId = null
+        } else {
+            const targetLang = body.language || post.language
+            const category = await categoryRepo.findOne({
+                where: [
+                    { slug: body.category, language: targetLang },
+                    { name: body.category, language: targetLang },
+                ],
+            })
+            if (!category) {
+                throw createError({ statusCode: 400, statusMessage: `Category "${body.category}" not found for language "${targetLang}"` })
+            }
+            targetCategoryId = category.id
+        }
     }
+
+    if (targetCategoryId !== undefined) {
+        post.categoryId = targetCategoryId
+    }
+
     if (body.copyright !== undefined) {
         post.copyright = body.copyright
     }

@@ -3,6 +3,7 @@ import type { z } from 'zod'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { Tag } from '@/server/entities/tag'
+import { Category } from '@/server/entities/category'
 import { generateRandomString } from '@/utils/shared/random'
 import { createPostSchema } from '@/utils/schemas/post'
 
@@ -11,6 +12,7 @@ type CreatePostInput = z.infer<typeof createPostSchema>
 export const createPostService = async (body: CreatePostInput, authorId: string, options: { isAdmin: boolean }) => {
     const postRepo = dataSource.getRepository(Post)
     const tagRepo = dataSource.getRepository(Tag)
+    const categoryRepo = dataSource.getRepository(Category)
 
     // Slug generation
     let slug = body.slug
@@ -68,12 +70,37 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
         post.summary = body.summary
     }
     if (body.coverImage !== undefined) {
-        post.coverImage = body.coverImage
+        post.coverImage = body.coverImage ?? null
     }
     post.language = body.language
-    if (body.categoryId !== undefined) {
-        post.categoryId = body.categoryId
+
+    // Handle Category
+    let targetCategoryId: string | null | undefined = undefined
+    if (body.categoryId) {
+        const category = await categoryRepo.findOne({ where: { id: body.categoryId } })
+        if (!category) {
+            throw createError({ statusCode: 400, statusMessage: `Category with ID "${body.categoryId}" not found` })
+        }
+        targetCategoryId = category.id
+    } else if (body.category) {
+        const category = await categoryRepo.findOne({
+            where: [
+                { slug: body.category, language: body.language },
+                { name: body.category, language: body.language },
+            ],
+        })
+        if (!category) {
+            throw createError({ statusCode: 400, statusMessage: `Category "${body.category}" not found for language "${body.language}"` })
+        }
+        targetCategoryId = category.id
+    } else if (body.categoryId === null || body.category === null) {
+        targetCategoryId = null
     }
+
+    if (targetCategoryId !== undefined) {
+        post.categoryId = targetCategoryId
+    }
+
     if (body.copyright !== undefined) {
         post.copyright = body.copyright
     }

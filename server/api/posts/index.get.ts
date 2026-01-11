@@ -53,8 +53,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // Common filters
-    if (query.categoryId) {
-        qb.andWhere('post.categoryId = :categoryId', { categoryId: query.categoryId })
+    if (query.category) {
+        qb.andWhere('post.categoryId = :categoryId', { categoryId: query.category })
     }
 
     if (query.language) {
