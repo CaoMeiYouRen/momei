@@ -178,6 +178,7 @@ useHead({
                 color: var(--p-surface-400);
                 margin-bottom: 1rem;
             }
+
             p {
                 color: var(--p-text-muted-color);
             }
