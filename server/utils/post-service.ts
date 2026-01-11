@@ -74,6 +74,9 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
     if (body.categoryId !== undefined) {
         post.categoryId = body.categoryId
     }
+    if (body.copyright !== undefined) {
+        post.copyright = body.copyright
+    }
     post.authorId = authorId
     post.status = body.status
     post.tags = tags

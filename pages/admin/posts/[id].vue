@@ -118,6 +118,16 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="copyright" class="form-label">{{ $t('pages.admin.posts.copyright') }}</label>
+                    <InputText
+                        id="copyright"
+                        v-model="post.copyright"
+                        :placeholder="$t('components.post.copyright.default_license')"
+                    />
+                    <small class="form-hint">{{ $t('pages.admin.posts.copyright_hint') }}</small>
+                </div>
+
+                <div class="form-group">
                     <label for="summary" class="form-label">{{ $t('common.summary') }}</label>
                     <Textarea
                         id="summary"
@@ -188,6 +198,7 @@ interface Post {
     summary: string
     coverImage: string
     categoryId: string | null
+    copyright: string | null
     tags: string[]
 }
 
@@ -199,6 +210,7 @@ const post = ref<Post>({
     summary: '',
     coverImage: '',
     categoryId: null,
+    copyright: null,
     tags: [],
 })
 
@@ -316,6 +328,7 @@ const handleMarkdownImport = (file: File) => {
         if (frontMatter.slug || frontMatter.abbrlink) post.value.slug = frontMatter.slug || frontMatter.abbrlink
         if (frontMatter.description || frontMatter.desc) post.value.summary = frontMatter.description || frontMatter.desc
         if (frontMatter.image || frontMatter.cover || frontMatter.thumb) post.value.coverImage = frontMatter.image || frontMatter.cover || frontMatter.thumb
+        if (frontMatter.copyright || frontMatter.license) post.value.copyright = frontMatter.copyright || frontMatter.license
 
         // Handle tags
         if (frontMatter.tags) {

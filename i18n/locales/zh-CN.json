@@ -43,12 +43,26 @@
             "success": "订阅成功！感谢您的关注。",
             "error_exists": "该邮箱已在订阅列表中",
             "submitting": "处理中..."
+        },
+        "post": {
+            "copyright": {
+                "title": "版权声明",
+                "author": "本文作者",
+                "link": "本文链接",
+                "license_title": "版权声明",
+                "license_pre": "本博客所有文章除特别声明外，均采用 ",
+                "license_post": " 许可协议。转载请注明出处！",
+                "default_license": "CC BY-NC-SA 4.0"
+            }
         }
     },
     "common": {
         "home": "首页",
         "read_more": "阅读更多",
         "views": "阅读",
+        "word_count": "字数",
+        "reading_time": "阅读时长",
+        "minutes": "{min} 分钟",
         "published_at": "发布于",
         "author": "作者",
         "status": {
@@ -168,6 +182,8 @@
                 "tags_hint": "输入标签名称并回车",
                 "summary_placeholder": "文章摘要...",
                 "cover_image": "封面图 URL",
+                "copyright": "版权声明",
+                "copyright_hint": "留空则使用全局默认声明",
                 "title_required": "请输入文章标题"
             },
             "categories": {

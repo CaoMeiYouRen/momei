@@ -12,6 +12,7 @@ export const createPostSchema = z.object({
     coverImage: z.string().nullable().optional(),
     language: z.string().default('zh-CN'),
     categoryId: z.string().nullable().optional(),
+    copyright: z.string().nullable().optional(),
     tags: z.array(z.string()).optional(),
     status: z.enum(['published', 'draft', 'pending']).default('draft'),
 })
@@ -26,6 +27,7 @@ export const updatePostSchema = z.object({
     coverImage: z.string().nullable().optional(),
     language: z.string().optional(),
     categoryId: z.string().nullable().optional(),
+    copyright: z.string().nullable().optional(),
     tags: z.array(z.string()).optional(),
     status: z.enum(['published', 'draft', 'pending']).optional(),
 })

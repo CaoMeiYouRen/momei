@@ -41,6 +41,9 @@ export class Post extends BaseEntity {
     @CustomColumn({ type: 'integer', default: 0 })
     views: number
 
+    @CustomColumn({ type: 'text', nullable: true })
+    copyright: string | null
+
     @CustomColumn({ type: 'datetime', nullable: true })
     publishedAt: Date | null
 

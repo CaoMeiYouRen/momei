@@ -87,6 +87,14 @@
                                 <i class="pi pi-eye" />
                                 {{ post.views }} {{ $t('common.views') }}
                             </span>
+                            <span class="post-detail__meta-item">
+                                <i class="pi pi-pencil" />
+                                {{ countWords(post.content) }} {{ $t('common.word_count') }}
+                            </span>
+                            <span class="post-detail__meta-item">
+                                <i class="pi pi-clock" />
+                                {{ $t('common.minutes', {min: estimateReadingTime(post.content)}) }}
+                            </span>
                             <Tag
                                 v-if="post.category"
                                 :value="post.category.name"
@@ -97,6 +105,13 @@
 
                     <!-- Content -->
                     <ArticleContent :content="post.content" />
+
+                    <!-- Copyright -->
+                    <ArticleCopyright
+                        :author-name="post.author?.name || post.author?.email || ''"
+                        :url="fullUrl"
+                        :license="post.copyright"
+                    />
 
                     <!-- Footer -->
                     <footer class="post-detail__footer">
@@ -127,6 +142,13 @@ const { t } = useI18n()
 const { formatDateTime } = useI18nDate()
 
 const idOrSlug = route.params.id as string
+
+const fullUrl = computed(() => {
+    if (import.meta.server) {
+        return useRequestURL().href
+    }
+    return window.location.href
+})
 
 // Determine if the parameter is an ID or a Slug
 const isId = isSnowflakeId(idOrSlug)

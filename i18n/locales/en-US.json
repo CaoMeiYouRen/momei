@@ -43,12 +43,26 @@
             "success": "Subscription successful! Thank you for following.",
             "error_exists": "This email is already in our subscription list",
             "submitting": "Processing..."
+        },
+        "post": {
+            "copyright": {
+                "title": "Copyright Notice",
+                "author": "Author",
+                "link": "Link",
+                "license_title": "Copyright Notice",
+                "license_pre": "Except where otherwise noted, all articles in this blog are licensed under ",
+                "license_post": ". Please credit the source when reposting!",
+                "default_license": "CC BY-NC-SA 4.0"
+            }
         }
     },
     "common": {
         "home": "Home",
         "read_more": "Read More",
         "views": "Views",
+        "word_count": "Word Count",
+        "reading_time": "Reading Time",
+        "minutes": "{min} min",
         "published_at": "Published at",
         "author": "Author",
         "status": {
@@ -168,6 +182,8 @@
                 "tags_hint": "Enter tag name and press Enter",
                 "summary_placeholder": "Post summary...",
                 "cover_image": "Cover Image URL",
+                "copyright": "Copyright Notice",
+                "copyright_hint": "Leave empty for global default",
                 "title_required": "Please enter post title"
             },
             "categories": {

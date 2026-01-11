@@ -46,6 +46,9 @@ export default defineEventHandler(async (event) => {
     if (body.categoryId !== undefined) {
         post.categoryId = body.categoryId
     }
+    if (body.copyright !== undefined) {
+        post.copyright = body.copyright
+    }
 
     if (body.slug && body.slug !== post.slug) {
         // Check collision
