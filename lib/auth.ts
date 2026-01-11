@@ -42,26 +42,24 @@ export const auth = betterAuth({
     baseURL: AUTH_BASE_URL,
     // 数据库适配器
     // 使用 TypeORM 适配器
-    database: {
-        ...typeormAdapter(dataSource),
-        hooks: {
-            user: {
-                create: {
-                    after: async (user) => {
-                        // 当新用户注册后，尝试回溯并关联订阅记录
-                        try {
-                            const subscriberRepo = dataSource.getRepository(Subscriber)
-                            const subscriber = await subscriberRepo.findOne({
-                                where: { email: user.email },
-                            })
-                            if (subscriber) {
-                                subscriber.userId = user.id
-                                await subscriberRepo.save(subscriber)
-                            }
-                        } catch (error) {
-                            console.error('Failed to link subscriber after user creation:', error)
+    database: typeormAdapter(dataSource),
+    databaseHooks: {
+        user: {
+            create: {
+                after: async (user) => {
+                    // 当新用户注册后，尝试回溯并关联订阅记录
+                    try {
+                        const subscriberRepo = dataSource.getRepository(Subscriber)
+                        const subscriber = await subscriberRepo.findOne({
+                            where: { email: user.email },
+                        })
+                        if (subscriber) {
+                            subscriber.userId = user.id
+                            await subscriberRepo.save(subscriber)
                         }
-                    },
+                    } catch (error) {
+                        console.error('Failed to link subscriber after user creation:', error)
+                    }
                 },
             },
         },
