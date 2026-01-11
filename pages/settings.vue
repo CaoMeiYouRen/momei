@@ -789,6 +789,7 @@ const handleChangePassword = async () => {
 
         .github-icon {
             color: #24292e;
+
             :global(.dark) & {
                 color: #fff;
             }

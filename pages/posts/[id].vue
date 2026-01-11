@@ -32,6 +32,15 @@
         </div>
 
         <div v-else-if="post" class="post-detail__content">
+            <!-- Status Banner -->
+            <div
+                v-if="post.status !== 'published'"
+                class="post-detail__status-banner"
+            >
+                <i class="pi pi-exclamation-triangle" />
+                <span>{{ $t('pages.posts.status_warning', {status: $t(`common.status.${post.status}`)}) }}</span>
+            </div>
+
             <!-- Cover Image -->
             <div v-if="post.coverImage" class="post-detail__cover">
                 <img
@@ -54,14 +63,6 @@
                 <main class="post-detail__main">
                     <!-- Header -->
                     <header class="post-detail__header">
-                        <div
-                            v-if="post.status !== 'published'"
-                            class="post-detail__status-banner"
-                        >
-                            <i class="pi pi-exclamation-triangle" />
-                            <span>{{ $t('pages.posts.status_warning', {status: $t(`common.status.${post.status}`)}) }}</span>
-                        </div>
-
                         <div class="post-detail__breadcrumb">
                             <NuxtLink :to="localePath('/')" class="breadcrumb-link">
                                 {{ $t('common.home') }}
@@ -201,9 +202,9 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .post-detail {
-    max-width: 72rem; // max-w-6xl
+    max-width: 72rem;
     margin: 0 auto;
-    padding: 2rem 1rem; // py-8 px-4
+    padding: 2rem 1rem;
 
     &__loading {
         display: flex;
@@ -253,8 +254,8 @@ onMounted(async () => {
         aspect-ratio: 21 / 9;
         margin-bottom: 2rem;
         overflow: hidden;
-        border-radius: 0.75rem; // rounded-xl
-        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); // shadow-lg
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
 
         img {
             width: 100%;
@@ -318,17 +319,37 @@ onMounted(async () => {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        padding: 0.75rem 1.25rem;
-        margin-bottom: 1.5rem;
-        background-color: color-mix(in srgb, var(--p-warning-color), transparent 90%);
-        border: 1px solid color-mix(in srgb, var(--p-warning-color), transparent 70%);
-        border-radius: 0.5rem;
-        color: var(--p-warning-color);
-        font-size: 0.875rem;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        background-color: color-mix(in srgb, var(--p-warning-color), white 85%);
+        border: 2px solid var(--p-warning-color);
+        border-radius: 0.75rem;
+        color: color-mix(in srgb, var(--p-warning-color), black 40%);
+        font-size: 1rem;
+        font-weight: 600;
         line-height: 1.5;
+        box-shadow: 0 4px 12px -2px color-mix(in srgb, var(--p-warning-color), transparent 80%);
+        animation: slide-down 0.4s ease-out;
+
+        :global(.dark) & {
+            background-color: color-mix(in srgb, var(--p-warning-color), black 85%);
+            border-color: color-mix(in srgb, var(--p-warning-color), transparent 30%);
+            color: color-mix(in srgb, var(--p-warning-color), white 20%);
+        }
 
         i {
-            font-size: 1rem;
+            font-size: 1.25rem;
+        }
+    }
+
+    @keyframes slide-down {
+        from {
+            transform: translateY(-1rem);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
         }
     }
 
@@ -342,11 +363,11 @@ onMounted(async () => {
     }
 
     &__breadcrumb-separator {
-        font-size: 0.75rem; // text-xs
+        font-size: 0.75rem;
     }
 
     &__title {
-        font-size: 2.25rem; // text-4xl
+        font-size: 2.25rem;
         font-weight: 700;
         line-height: 1.25;
         margin-bottom: 1.5rem;
