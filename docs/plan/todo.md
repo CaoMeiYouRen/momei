@@ -8,7 +8,7 @@
 -   [x] 已完成 (Done)
 -   [-] 已取消 (Cancelled)
 
-## 第一阶段：MVP (最小可行性产品)
+## 第一阶段：MVP (最小可行性产品) (已完成)
 
 ### 1. 基础设施与配置
 
@@ -48,10 +48,6 @@
     -   [x] 验收: **登录页 (`/login`)**: 包含邮箱登录表单和 OAuth 按钮。
     -   [x] 验收: **注册页 (`/register`)**: 包含注册表单和验证逻辑。
     -   [x] 验收: **个人设置页 (`/settings`)**: 允许用户修改昵称、头像。
--   [ ] **合规性验证 (Compliance & Legal)**
-    -   [ ] 验收: 拟定并发布 **用户协议 (User Agreement)**。
-    -   [ ] 验收: 拟定并发布 **隐私政策 (Privacy Policy)** (符合 Google/GitHub OAuth 审核要求)。
-    -   [ ] 验收: 在 `/login` 和 `/register` 页面增加协议勾选/提示逻辑。
 -   [x] **用户角色与权限 (RBAC)**
     -   [x] 验收: 数据库 `User` 表包含 `role` 字段 (Admin, Author, User, Visitor)。
     -   [x] 验收: 实现后端中间件 `server/middleware/auth.ts` 拦截未授权请求。
@@ -205,6 +201,14 @@
     -   验收: 允许用户在设置页面选择 UI 语言（覆盖浏览器默认设置）。
     -   验收: 允许用户设置个人时区，确保归档和发布日期按用户本地时间展示。
     -   验收: 邮件订阅通知应遵循用户设置的语言偏好。
+
+### 7. 合规性与法律 (Compliance & Legal)
+
+-   [ ] **法律文档拟定**
+    -   验收: 拟定并发布 **用户协议 (User Agreement)**。
+    -   验收: 拟定并发布 **隐私政策 (Privacy Policy)** (符合 Google/GitHub OAuth 审核要求)。
+-   [ ] **合规交互实现**
+    -   验收: 在 `/login` 和 `/register` 页面增加协议勾选/提示逻辑。
 
 ## 待排期 (Backlog)
 
