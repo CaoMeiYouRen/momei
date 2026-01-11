@@ -8,15 +8,15 @@
         </p>
 
         <form class="subscriber-form__body" @submit.prevent="handleSubmit">
-            <div class="flex gap-2">
-                <IconField icon-position="left" class="flex-1">
+            <div class="subscriber-form__input-group">
+                <IconField icon-position="left" class="subscriber-form__field">
                     <InputIcon class="pi pi-envelope" />
                     <InputText
                         v-model="email"
                         type="email"
                         :placeholder="$t('components.subscriber_form.placeholder')"
                         required
-                        class="w-full"
+                        class="subscriber-form__input"
                         :disabled="loading"
                     />
                 </IconField>
@@ -24,17 +24,20 @@
                     type="submit"
                     :label="loading ? $t('components.subscriber_form.submitting') : $t('components.subscriber_form.submit')"
                     :loading="loading"
+                    class="subscriber-form__submit"
                 />
             </div>
-            <Message
-                v-if="message"
-                :severity="messageType"
-                size="small"
-                variant="simple"
-                class="mt-2"
-            >
-                {{ message }}
-            </Message>
+            <transition name="fade">
+                <Message
+                    v-if="message"
+                    :severity="messageType"
+                    size="small"
+                    variant="simple"
+                    class="mt-3 subscriber-form__message"
+                >
+                    {{ message }}
+                </Message>
+            </transition>
         </form>
     </div>
 </template>
@@ -92,30 +95,112 @@ const handleSubmit = async () => {
 
 <style lang="scss" scoped>
 .subscriber-form {
-    padding: 1.5rem;
-    background: var(--surface-section);
-    border-radius: 12px;
-    border: 1px solid var(--surface-border);
+    padding: 2.5rem;
+    background: linear-gradient(135deg, var(--p-surface-50) 0%, var(--p-surface-100) 100%);
+    border-radius: 16px;
+    border: 1px solid var(--p-surface-200);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    }
 
     &__title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: var(--text-color);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: var(--p-text-color);
+        letter-spacing: -0.025em;
     }
 
     &__desc {
-        color: var(--text-color-secondary);
-        font-size: 0.875rem;
-        margin-bottom: 1.25rem;
+        color: var(--p-text-muted-color);
+        font-size: 1rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
     }
 
     &__body {
-        max-width: 500px;
+        max-width: 600px;
+    }
+
+    &__input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+
+        @media (min-width: 640px) {
+            flex-direction: row;
+            align-items: stretch;
+        }
+    }
+
+    &__field {
+        flex: 1;
+    }
+
+    &__input {
+        width: 100%;
+        height: 100%;
+        padding: 0.75rem 1rem 0.75rem 2.5rem !important;
+        border-radius: 8px !important;
+        border: 1px solid var(--p-surface-300) !important;
+        transition: border-color 0.2s, box-shadow 0.2s;
+
+        &:focus {
+            border-color: var(--p-primary-500) !important;
+            box-shadow: 0 0 0 2px var(--p-primary-100) !important;
+        }
+    }
+
+    &__submit {
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        border-radius: 8px !important;
+        white-space: nowrap;
+        justify-content: center;
+    }
+
+    &__message {
+        animation: slideIn 0.3s ease-out;
     }
 }
 
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
 :global(.dark) .subscriber-form {
-    background: var(--surface-card);
+    background: linear-gradient(135deg, var(--p-surface-900) 0%, var(--p-surface-950) 100%);
+    border-color: var(--p-surface-800);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+    &__input {
+        background: var(--p-surface-800) !important;
+        border-color: var(--p-surface-700) !important;
+
+        &:focus {
+            background: var(--p-surface-900) !important;
+        }
+    }
 }
 </style>
