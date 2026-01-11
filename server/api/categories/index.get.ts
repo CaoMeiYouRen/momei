@@ -1,5 +1,6 @@
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
+import { Post } from '@/server/entities/post'
 import { categoryQuerySchema } from '@/utils/schemas/category'
 
 export default defineEventHandler(async (event) => {
@@ -24,11 +25,13 @@ export default defineEventHandler(async (event) => {
     }
 
     if (query.orderBy === 'postCount') {
+        // Use subquery for sorting by relation count
         queryBuilder.addSelect((subQuery) => subQuery
             .select('count(p.id)', 'pcount')
-            .from('post', 'p')
+            .from(Post, 'p')
             .where('p.categoryId = category.id')
-            .andWhere('p.status = :status', { status: 'published' }), 'pcount')
+            .andWhere('p.status = :status', { status: 'status_val' }), 'pcount')
+        queryBuilder.setParameter('status_val', 'published')
         queryBuilder.orderBy('pcount', query.order || 'DESC')
     } else {
         queryBuilder.orderBy(`category.${query.orderBy || 'createdAt'}`, query.order || 'DESC')

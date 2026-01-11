@@ -1,5 +1,6 @@
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
+import { Post } from '@/server/entities/post'
 import { tagQuerySchema } from '@/utils/schemas/tag'
 
 export default defineEventHandler(async (event) => {
@@ -22,10 +23,11 @@ export default defineEventHandler(async (event) => {
         // Use subquery for sorting by relation count
         queryBuilder.addSelect((subQuery) => subQuery
             .select('count(p.id)', 'pcount')
-            .from('post', 'p')
-            .innerJoin('p.tags', 't')
-            .where('t.id = tag.id')
-            .andWhere('p.status = :status', { status: 'published' }), 'pcount')
+            .from(Post, 'p')
+            .innerJoin('p.tags', 'pt')
+            .where('pt.id = tag.id')
+            .andWhere('p.status = :status', { status: 'status_val' }), 'pcount')
+        queryBuilder.setParameter('status_val', 'published')
         queryBuilder.orderBy('pcount', query.order || 'DESC')
     } else {
         queryBuilder.orderBy(`tag.${query.orderBy || 'createdAt'}`, query.order || 'DESC')
