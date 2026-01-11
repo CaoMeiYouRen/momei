@@ -59,13 +59,25 @@
 -   **[管理 (Admin)](./modules/admin.md)**: Admin APIs for User/Content.
 -   **[系统 (System)](./modules/system.md)**: Uploads, External APIs.
 
-## 5. 邮件服务配置 (Email Service Configuration)
+## 5. 国际化路由与 Slug 设计
+
+### 5.1 唯一性冲突优化
+
+-   **联合唯一索引**: 为了支持不同语言使用相同的 Slug（例如 `/about` 和 `/en-US/about`），数据库 `Post`, `Category`, `Tag` 实体的 `slug` 唯一约束应调整为 `(slug, language)` 联合唯一。
+-   **SEO 友好**: 允许不同语言版本拥有各自翻译后的 Slug，提高搜索引擎在特定语言环境下的抓取权重。
+
+### 5.2 关联逻辑
+
+-   **Translation Cluster**: 具有相同 `translationId` 的实体组成一个“翻译簇”。
+-   **平滑切换**: 语言切换组件在检测到当前为详情页时，应通过 `translationId` 查询目标语言实体的 `slug`，实现“原文 <-> 译文”的精确跳转，而非简单回退到首页。
+
+## 6. 邮件服务配置 (Email Service Configuration)
 
 使用 **Nodemailer** 发送事务性邮件。
 
 -   **场景**: 注册验证、密码重置、评论通知。
 
-## 6. 相关文档
+## 7. 相关文档
 
 -   [API 规范](../standards/api.md)
 -   [开发规范](../standards/development.md)
