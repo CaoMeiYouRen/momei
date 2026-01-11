@@ -54,14 +54,13 @@
                 <main class="post-detail__main">
                     <!-- Header -->
                     <header class="post-detail__header">
-                        <Message
+                        <div
                             v-if="post.status !== 'published'"
-                            severity="warn"
-                            class="mb-6"
-                            :closable="false"
+                            class="post-detail__status-banner"
                         >
-                            {{ $t('pages.posts.status_warning', {status: $t(`common.status.${post.status}`)}) }}
-                        </Message>
+                            <i class="pi pi-exclamation-triangle" />
+                            <span>{{ $t('pages.posts.status_warning', {status: $t(`common.status.${post.status}`)}) }}</span>
+                        </div>
 
                         <div class="post-detail__breadcrumb">
                             <NuxtLink :to="localePath('/')" class="breadcrumb-link">
@@ -313,6 +312,24 @@ onMounted(async () => {
 
     &__header {
         margin-bottom: 2rem;
+    }
+
+    &__status-banner {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 1.5rem;
+        background-color: color-mix(in srgb, var(--p-warning-color), transparent 90%);
+        border: 1px solid color-mix(in srgb, var(--p-warning-color), transparent 70%);
+        border-radius: 0.5rem;
+        color: var(--p-warning-color);
+        font-size: 0.875rem;
+        line-height: 1.5;
+
+        i {
+            font-size: 1rem;
+        }
     }
 
     &__breadcrumb {
