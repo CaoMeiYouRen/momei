@@ -19,6 +19,7 @@
                     :placeholder="$t('components.search.placeholder')"
                     class="app-search__input"
                     autofocus
+                    autocomplete="off"
                     @keyup.enter="performSearch"
                 />
                 <div class="app-search__hint desktop-only">
@@ -33,33 +34,35 @@
                 </div>
 
                 <div v-else-if="results.length > 0" class="app-search__results">
-                    <NuxtLink
-                        v-for="item in results"
-                        :key="item.id"
-                        :to="localePath(`/posts/${item.slug}`)"
-                        class="app-search__result-item"
-                        @click="closeSearch"
-                    >
-                        <div class="app-search__result-icon">
-                            <i class="pi pi-file" />
-                        </div>
-                        <div class="app-search__result-content">
-                            <span class="app-search__result-title">{{ item.title }}</span>
-                            <p v-if="item.summary" class="app-search__result-summary">
-                                {{ item.summary }}
-                            </p>
-                            <div class="app-search__result-meta">
-                                <span v-if="item.category" class="app-search__result-category">
-                                    <i class="pi pi-folder" />
-                                    {{ item.category.name }}
-                                </span>
-                                <span v-if="item.language" class="app-search__result-lang">
-                                    {{ item.language }}
-                                </span>
+                    <transition-group name="search-list">
+                        <NuxtLink
+                            v-for="item in results"
+                            :key="item.id"
+                            :to="localePath(`/posts/${item.slug}`)"
+                            class="app-search__result-item"
+                            @click="closeSearch"
+                        >
+                            <div class="app-search__result-icon">
+                                <i class="pi pi-file" />
                             </div>
-                        </div>
-                        <i class="app-search__result-arrow pi pi-chevron-right" />
-                    </NuxtLink>
+                            <div class="app-search__result-content">
+                                <span class="app-search__result-title">{{ item.title }}</span>
+                                <p v-if="item.summary" class="app-search__result-summary">
+                                    {{ item.summary }}
+                                </p>
+                                <div class="app-search__result-meta">
+                                    <span v-if="item.category" class="app-search__result-category">
+                                        <i class="pi pi-folder" />
+                                        {{ item.category.name }}
+                                    </span>
+                                    <span v-if="item.language" class="app-search__result-lang">
+                                        {{ item.language }}
+                                    </span>
+                                </div>
+                            </div>
+                            <i class="app-search__result-arrow pi pi-chevron-right" />
+                        </NuxtLink>
+                    </transition-group>
                 </div>
 
                 <div v-else-if="query && !loading" class="app-search__empty">
@@ -88,7 +91,8 @@ const loading = ref(false)
 
 // Use VueUse debounced function
 const debouncedSearch = useDebounceFn(async () => {
-    if (!query.value.trim()) {
+    const trimmedQuery = query.value.trim()
+    if (!trimmedQuery) {
         results.value = []
         loading.value = false
         return
@@ -96,24 +100,31 @@ const debouncedSearch = useDebounceFn(async () => {
 
     loading.value = true
     try {
-        const { data } = await useFetch<any>('/api/search', {
+        // Use $fetch for imperative calls instead of useFetch composable
+        const response = await $fetch<any>('/api/search', {
             params: {
-                q: query.value,
+                q: trimmedQuery,
                 language: locale.value,
                 limit: 8,
             },
         })
-        if (data.value?.code === 200) {
-            results.value = data.value.data.items
+        if (response?.code === 200) {
+            results.value = response.data.items
         }
     } catch (error) {
         console.error('Search failed:', error)
+        results.value = []
     } finally {
         loading.value = false
     }
-}, 300)
+}, 500) // Increase debounce to 400ms for better UX
 
-watch(query, () => {
+watch(query, (newVal) => {
+    if (!newVal.trim()) {
+        results.value = []
+        loading.value = false
+        return
+    }
     debouncedSearch()
 })
 
@@ -202,8 +213,10 @@ onUnmounted(() => {
 
     &__body {
         max-height: 400px;
+        min-height: 120px;
         overflow-y: auto;
         padding: 0.5rem;
+        transition: all 0.3s ease;
     }
 
     &__status, &__empty, &__footer {
@@ -313,6 +326,18 @@ onUnmounted(() => {
         color: var(--p-text-muted-color);
         transition: transform 0.2s;
     }
+}
+
+/* Search results transition */
+.search-list-enter-active,
+.search-list-leave-active {
+    transition: all 0.3s ease;
+}
+
+.search-list-enter-from,
+.search-list-leave-to {
+    opacity: 0;
+    transform: translateY(10px);
 }
 
 :global(.dark) .app-search__result-item:hover {
