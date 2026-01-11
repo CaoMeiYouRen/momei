@@ -107,7 +107,7 @@
     -   [x] 验收: 全站组件适配深色样式。
 -   [x] **移动端优化 (Mobile Optimization)** (高优先，估时 1–2 天)
     -   [x] 验收: 实现响应式导航栏 (汉堡菜单)（估时 0.5–1 天）。
-    -   [ ] 验收: 修正排版、间距、图片响应式，完成 Lighthouse 基本审计（估时 1–2 天）。
+    - [x] 验收: 修正排版、间距、图片响应式，完成 Lighthouse 基本审计（估时 1–2 天）。
     -   [x] 验收: 优化移动端排版 (字号、行高、间距)。
     -   [x] 验收: 确保所有可点击元素尺寸符合触摸标准 (>44px)。
 -   [x] **测试与 CI 校验（持续）**
@@ -128,55 +128,58 @@
 -   [x] **UI 文本翻译**
     -   [x] 验收: 核心组件 (Header, Footer, Card) 完成中英文配置。
 
+## 第二阶段：优化与增强 (Optimization & Enhancement)
+
+### 1. SEO 与订阅 (SEO & Subscription)
+
+- [ ] **站点地图与搜索控制台**
+    - 验收: 使用 `@nuxtjs/sitemap` 自动生成 `sitemap.xml`。
+    - 验收: 支持 Google/Bing Search Console 网站管理工具验证。
+- [ ] **订阅系统**
+    - 验收: 实现 RSS 订阅源 (`/feed.xml` 或 `/rss.xml`)。
+    - 验收: 基础邮件订阅功能 (集成 SendGrid/Mailgun)。
+
+### 2. 内容体验增强 (Content Experience)
+
+- [ ] **阅读体验优化**
+    - 验收: 文章详情页增加字数统计与阅读时长预估。
+    - 验收: 文章底部显示版权声明组件 (CC BY-NC-SA 4.0)。
+- [ ] **高级搜索**
+    - 验收: 集成 Algolia 或类似方案实现全文搜索。
+- [ ] **深度国际化**
+    - 验收: 支持分类 (Categories) 和标签 (Tags) 的多语言翻译。
+
+### 3. AI 辅助功能 (AI Integration)
+
+- [ ] **内容辅助**
+    - 验收: 在管理后台集成 AI 标题生成建议。
+    - 验收: 提供 AI 辅助内容翻译功能 (集成 OpenAI/DeepL API)。
+
+### 4. 主题与定制化 (Themes & Customization)
+
+- [ ] **主题系统重构**
+    - 验收: 实现核心逻辑与样式的进一步解耦，支持多主题切换。
+    - 验收: 管理后台支持选择和基本配置当前主题。
+- [ ] **个性化定制**
+    - 验收: 支持管理员在后台注入自定义 CSS/SCSS。
+- [ ] **特色视觉**
+    - 验收: 实现哀悼模式 (全站置灰功能)。
+
+### 5. 性能优化与商业化 (Performance & Monetization)
+
+- [ ] **性能提升**
+    - 验收: 优化集成测试运行速度 (解决 SQLite/Auth 测试缓慢问题)。
+- [ ] **支付集成**
+    - 验收: 集成 Stripe 或支付宝支付接口 (用于打赏或 Pro 套餐)。
+
 ## 待排期 (Backlog)
 
-### 待优化 (Optimization)
+### 创新功能 (Innovation)
 
--   [x] **测试覆盖率提升**
-    -   [x] 验收: 全局测试覆盖率提升至 60% 以上 (目前约 55%)。
-    -   [x] 验收: 针对关键路径 (Critical Path) 增加测试用例。
--   [x] **代码清理与重构 (Cleanup & Refactoring)**
-    -   [x] **后端 (Backend)**
-        -   [x] 提取通用 API 响应包装器 (`response.ts`)。
-        -   [x] 提取通用分页处理工具 (`pagination.ts`)。
-        -   [x] 建立通用 Zod Base Schema (如 `PaginationQuerySchema`)。
-        -   [x] 实现权限校验装饰器/中间件（减少手动角色判断）。
-    -   [x] **前端 (Frontend)**
-        -   [x] 提取 `useAdminList` Composable (统一管理后台列表逻辑)。
-        -   [x] 提取 `useI18nDate` Composable (对接全局 Locale 格式化)。
-        -   [x] 建立 SCSS 原子体系 (变量、断点 Mixins、通用布局样式)。
-        -   [x] 抽象通用 Admin 组件 (如 `AdminPageHeader`, `ConfirmDeleteDialog`)。
-        -   [x] 重构其他 Admin 页面以使用新工具 (Categories, Tags, Users)。
--   [x] **文档同步**
-    -   [x] 验收: 确保所有架构变更和新规范已同步至 `docs/design` 和 `docs/standards`。
-    -   [x] 验收: 更新 VitePress 配置以匹配物理文件结构。
--   [x] **CSS/Sass 现代化重构**
-    -   [x] 验收: 将所有 `@import` 替换为 `@use` 模块系统。
-    -   [x] 验收: 解决 Dart Sass 3.0 的弃用警告。
--   [x] **UI Bug 修复**
-    -   [x] 验收: 修复管理后台用户列表“注册时间”显示为 "z12" 的格式化问题。
-
-### 新功能 (New Features)
-
--   [ ] **SEO 增强**
-    -   [ ] 站点地图生成 (`@nuxtjs/sitemap`)（中优先，估时 2–4 小时）。
-    -   [ ] Google 网站管理工具验证支持。
-    -   [ ] Bing 网站管理工具验证支持。
--   [ ] **内容体验**
-    -   [ ] 字数统计与阅读时长预估。
-    -   [ ] 文章版权声明组件 (CC BY-NC-SA 4.0)。
-    -   [ ] 高级搜索 (Algolia 集成)。
--   [ ] **性能优化 (Performance)**
-    -   [ ] **测试性能排查**: 目前集成测试 (尤其是 Auth/Database) 运行速度较慢 (需几百秒)，需要排查原因 (SQLite 模式或连接池问题) 并优化。
--   [ ] **特色功能**
-    -   [ ] 哀悼模式 (全站置灰)。
--   [ ] **主题系统 (Themes)**
-    -   [ ] **核心逻辑解耦**: 将页面结构与具体样式进一步抽象，支持主题动态切换。
-    -   [ ] **自定义样式**: 提供用户自定义 CSS/SCSS 注入功能。
-    -   [ ] **主题管理后台**: 在管理后台支持选择和配置当前主题。
--   [ ] 集成 AI 标题生成 (Post-MVP)
--   [ ] RSS 订阅源 (Post-MVP)
--   [ ] 评论系统 (长期)
+- [ ] Tauri 桌面端应用 (离线写作/本地管理)。
+- [ ] AI 自动摘要生成。
+- [ ] 评论系统 (社区互动)。
+- [ ] 访客投稿流程。
 
 ## 相关文档
 
