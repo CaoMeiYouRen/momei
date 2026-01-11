@@ -111,6 +111,9 @@
 
 建议使用 Vercel、Netlify 或 Docker 进行部署。
 
+点击下方按钮一键部署到 Vercel。
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCaoMeiYouRen%2Fmomei)
+
 ### 数据库支持
 
 墨梅原生支持以下数据库：
@@ -179,7 +182,7 @@ pnpm lint
 
 ## 📝 License
 
-Copyright © 2026 [CaoMeiYouRen](https://github.com/CaoMeiYouRen).
+Copyright © 2025 [CaoMeiYouRen](https://github.com/CaoMeiYouRen).
 This project is [MIT](./LICENSE) licensed.
 
 ---
