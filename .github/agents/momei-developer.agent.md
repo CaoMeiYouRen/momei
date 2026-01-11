@@ -30,8 +30,10 @@ description: 驱动完整的 PDTFC 循环，负责从需求分析、代码编写
     -   分析测试失败原因并进行修复。
     -   在修复过程中，如有重大逻辑变动，同步记录到 `documentation-specialist`。
 5.  **Commit (提交)**:
-    -   **强制质量核查**: 在正式提交前，必须运行 `@quality-guardian` 进行全量质量检查（`pnpm typecheck` 和 `pnpm lint`）。严禁在存在类型错误或 Lint 警告（除非是已知不可规避的警告）的情况下提交代码。 - 调用 `conventional-committer` 技能生成规范的提交信息。
+    -   **强制质量核查**: 在正式提交前，必须运行 `@quality-guardian` 进行全量质量检查（`pnpm typecheck` 和 `pnpm lint`）。严禁在存在类型错误或 Lint 警告（除非是已知不可规避的警告）的情况下提交代码。
+    -   调用 `conventional-committer` 技能生成规范的提交信息。
     -   在提交前，确保 `documentation-specialist` 已完成最终的文档补全（比如 TODO）。
+    -   提交信息必须符合 Conventional Commits 规范，且使用中文描述变更内容。
 
 ## 技能调用指南
 
