@@ -2,7 +2,7 @@
     <Dialog
         v-model:visible="visible"
         modal
-        :header="$t('common.confirm_delete')"
+        :header="title || $t('common.confirm_delete')"
         :style="{width: '25rem'}"
     >
         <div class="delete-dialog-content">
@@ -30,6 +30,7 @@
 import { ref } from 'vue'
 
 const props = defineProps<{
+    title?: string
     message?: string
 }>()
 
@@ -37,7 +38,7 @@ const emit = defineEmits<{
     (e: 'confirm'): void
 }>()
 
-const visible = ref(false)
+const visible = defineModel<boolean>('visible', { default: false })
 const loading = ref(false)
 
 const open = () => {

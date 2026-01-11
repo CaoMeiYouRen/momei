@@ -87,7 +87,9 @@
         "view_all": "View All",
         "error_loading": "Error loading content",
         "optional": "Optional",
-        "confirmation": "Confirmation",
+        "confirmation": "Confirm Action",
+        "confirm_delete": "Confirm Delete",
+        "delete_confirm_message": "Are you sure you want to delete this item? This action cannot be undone.",
         "danger": "Danger",
         "admin": "Admin",
         "rss": "RSS Feed",
@@ -169,6 +171,7 @@
                 "create": "New Category",
                 "search_placeholder": "Search categories...",
                 "delete_confirm": "Are you sure you want to delete this category?",
+                "delete_confirm_title": "Confirm Delete Category",
                 "delete_success": "Category deleted successfully",
                 "save_success": "Category saved successfully"
             },
@@ -177,6 +180,7 @@
                 "create": "New Tag",
                 "search_placeholder": "Search tags...",
                 "delete_confirm": "Are you sure you want to delete this tag?",
+                "delete_confirm_title": "Confirm Delete Tag",
                 "delete_success": "Tag deleted successfully",
                 "save_success": "Tag saved successfully"
             },

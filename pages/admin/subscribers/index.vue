@@ -95,7 +95,7 @@
 
         <ConfirmDeleteDialog
             v-model:visible="deleteVisible"
-            :title="$t('pages.admin.subscribers.delete_confirm')"
+            :message="$t('pages.admin.subscribers.delete_confirm')"
             @confirm="doDelete"
         />
     </div>

@@ -87,7 +87,9 @@
         "view_all": "查看全部",
         "error_loading": "加载失败",
         "optional": "可选",
-        "confirmation": "确认",
+        "confirmation": "确认操作",
+        "confirm_delete": "确认删除",
+        "delete_confirm_message": "确定要删除该项吗？此操作不可逆。",
         "danger": "危险操作",
         "admin": "管理",
         "rss": "RSS 订阅",
@@ -169,6 +171,7 @@
                 "create": "新建分类",
                 "search_placeholder": "搜索分类...",
                 "delete_confirm": "确定要删除这个分类吗？",
+                "delete_confirm_title": "确认删除分类",
                 "delete_success": "分类删除成功",
                 "save_success": "分类保存成功"
             },
@@ -177,6 +180,7 @@
                 "create": "新建标签",
                 "search_placeholder": "搜索标签...",
                 "delete_confirm": "确定要删除这个标签吗？",
+                "delete_confirm_title": "确认删除标签",
                 "delete_success": "标签删除成功",
                 "save_success": "标签保存成功"
             },
