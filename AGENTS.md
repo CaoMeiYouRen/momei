@@ -181,7 +181,7 @@ commit message 使用中文描述变更内容。
 3.  **遵守规范**: 在分析任务属于哪个模块后，严格遵守相关[开发规范](./docs/standards/development.md)、[测试规范](./docs/standards/testing.md)、[API 规范](./docs/standards/api.md)、[UI 设计](./docs/design/ui.md)和[API 设计](./docs/design/api.md)。
 4.  **遵循 PDTFC 完整循环**：任何代码生成或修改任务必须经历计划需求(Plan)、生成代码(Do)、测试代码(Test)、修复错误(Fix)、提交代码(Commit)的闭合全流程。
 5.  **AI 智能体体系 (AI Agents System)**：项目定义了以下基础智能体，协作完成开发任务。详细指令以各智能体的技能文档为准：
-    -   **`@momei-developer` (全栈开发者)**: 驱动完整的 PDTFC 循环。集成 [代码编辑](.github/skills/nuxt-code-editor/SKILL.md)、[提交规范](.github/skills/conventional-committer/SKILL.md)及[上下文分析](.github/skills/context-analyzer/SKILL.md)能力。
+    -   **`@momei-developer` (全栈开发者)**: 驱动完整的 PDTFC 循环。集成 [代码编辑](.github/skills/nuxt-code-editor/SKILL.md)、[质量守卫](.github/skills/quality-guardian/SKILL.md)、[提交规范](.github/skills/conventional-committer/SKILL.md)及[上下文分析](.github/skills/context-analyzer/SKILL.md)能力。
     -   **`@quality-guardian` (质量守卫)**: 负责代码 Lint、类型检查与规范审查。参考：[.github/skills/quality-guardian/SKILL.md](.github/skills/quality-guardian/SKILL.md)。
     -   **`@test-engineer` (测试工程师)**: 负责测试驱动开发与高覆盖率逻辑实现。参考：[.github/skills/test-engineer/SKILL.md](.github/skills/test-engineer/SKILL.md)。
     -   **`@documentation-specialist` (文档专家)**: 维护 `docs/` 下的设计与规划文档。**注意：禁止手动修改自动生成的 CHANGELOG.md**。参考：[.github/skills/documentation-specialist/SKILL.md](.github/skills/documentation-specialist/SKILL.md)。

@@ -8,15 +8,18 @@ tools: ["terminal"]
 
 # Quality Guardian Skill (质量守门员技能)
 
-## 能力 (Capabilities)
+## 总审计 (Full Audit)
 
--   **类型检查**: 运行 `pnpm typecheck` (包装了 `nuxi typecheck`) 以验证 TypeScript 有效性。
--   **Linting**: 运行 `pnpm lint` (ESLint) 和 `pnpm lint:css` (Stylelint)。
--   **测试**: 运行 `pnpm test` (Vitest) 进行单元和集成测试。
+在提交前，建议按顺序运行以下指令进行完整审计：
+
+1. `pnpm lint`: 代码风格与潜在逻辑错误检查。
+2. `pnpm lint:css`: SCSS 样式规范检查。
+3. `pnpm typecheck`: 全量 TypeScript 类型检查（由于 lint-staged 通常不包含此项，需手动触发）。
+4. `pnpm test`: 自动化测试（可选，建议在重大逻辑变更后必装）。
 
 ## 指令 (Instructions)
 
-1.  **执行检查**: 使用 `run_in_terminal` 或 `runTests` 工具通过终端运行相应的 npm 脚本。
+1.  **提交前置审查**: 当作为提交工作流的一部分被调用时，必须至少运行 `typecheck` 和 `lint`。
 2.  **分析输出**: 解析 stdout/stderr 以识别导致错误的特定文件和行。
 3.  **报告**: 向用户或其他 Agent 提供失败摘要以便修复。
 4.  **单元测试**: 如果全量测试太慢， focused 运行与最近更改相关的特定测试文件。

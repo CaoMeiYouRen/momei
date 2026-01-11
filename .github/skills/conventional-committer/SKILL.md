@@ -16,10 +16,11 @@ tools: ["terminal"]
 
 ## 指令 (Instructions)
 
-1.  **验证状态**: 检查 `git status` 查看哪些内容需要暂存。
-2.  **生成消息**: 分析更改以确定 `type` (feat, fix, docs, style, refactor, test, perf, build, ci, chore, revert), `scope` (可选, 例如: 组件名, 模块) 和 `description`。
-3.  **提交**: 运行 `git commit -m "..."`。
-4.  **验证**: 确保消息符合 `commitlint.config.ts`。
+1.  **提交前检查**: 在执行任何 git 提交操作前，确认 `@quality-guardian` 已经通过了 `pnpm typecheck` 和 `pnpm lint`。如果尚未执行，应提示 Agent 或用户先完成质量核查。
+2.  **验证状态**: 检查 `git status` 查看哪些内容需要暂存。
+3.  **生成消息**: 分析更改以确定 `type` (feat, fix, docs, style, refactor, test, perf, build, ci, chore, revert), `scope` (可选, 例如: 组件名, 模块) 和 `description`。
+4.  **提交**: 运行 `git commit -m "..."`。
+5.  **验证**: 确保消息符合 `commitlint.config.ts`。
 
 ## 使用示例 (Usage Example)
 
