@@ -5,7 +5,7 @@
 
 <!-- CTA Button -->
 <mj-button
-  background-color="#1e293b"
+  background-color="{{primaryColor}}"
   color="#ffffff"
   font-size="16px"
   font-weight="600"

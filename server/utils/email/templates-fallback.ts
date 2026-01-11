@@ -5,14 +5,14 @@ export function getFallbackFragment(fragmentName: string): string {
         'verification-code': `
                 <mj-section padding="30px 0">
                     <mj-column>
-                        <mj-text align="center" font-size="18px" color="#1e293b" font-weight="600" padding="0 0 20px 0">
+                        <mj-text align="center" font-size="18px" color="{{primaryColor}}" font-weight="600" padding="0 0 20px 0">
                             您的验证码
                         </mj-text>
                         <mj-text align="center" padding="20px 0"
                                  font-size="36px"
                                  font-weight="bold"
-                                 color="#db2777"
-                                 background-color="#ffffff"
+                                 color="#ffffff"
+                                 background-color="{{primaryColor}}"
                                  border-radius="12px"
                                  letter-spacing="4px"
                                  font-family="'Fira Code', 'JetBrains Mono', Monaco, Consolas, monospace">
@@ -45,7 +45,7 @@ export function getFallbackFragment(fragmentName: string): string {
                         <mj-text font-size="16px" color="#334155" padding="0 0 30px 0">
                             {{message}}
                         </mj-text>
-                        <mj-button background-color="#1e293b"
+                        <mj-button background-color="{{primaryColor}}"
                                    color="#ffffff"
                                    font-size="16px"
                                    font-weight="600"
