@@ -1,4 +1,4 @@
-name = "rsshub-never-die"
+name = 'momei'
 # 默认为 Production 环境
 # main = "dist/app.mjs"
 minify = true
