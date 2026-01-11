@@ -150,8 +150,13 @@
                                     <!-- GitHub -->
                                     <div class="linked-account-item">
                                         <div class="account-info">
-                                            <i class="pi pi-github" />
-                                            <span class="capitalize">GitHub</span>
+                                            <i class="github-icon pi pi-github" />
+                                            <div class="account-details">
+                                                <span class="capitalize">GitHub</span>
+                                                <small v-if="getLinkedAccount('github')" class="account-id text-muted-color">
+                                                    ID: {{ getLinkedAccount('github').accountId }}
+                                                </small>
+                                            </div>
                                         </div>
                                         <div class="account-actions">
                                             <Button
@@ -180,8 +185,13 @@
                                     <!-- Google -->
                                     <div class="linked-account-item">
                                         <div class="account-info">
-                                            <i class="pi pi-google" />
-                                            <span class="capitalize">Google</span>
+                                            <i class="google-icon pi pi-google" />
+                                            <div class="account-details">
+                                                <span class="capitalize">Google</span>
+                                                <small v-if="getLinkedAccount('google')" class="account-id text-muted-color">
+                                                    ID: {{ getLinkedAccount('google').accountId }}
+                                                </small>
+                                            </div>
                                         </div>
                                         <div class="account-actions">
                                             <Button
@@ -387,6 +397,8 @@ const expirationOptions = computed(() => [
 
 const isGitHubLinked = computed(() => linkedAccounts.value.some((a) => a.providerId === 'github'))
 const isGoogleLinked = computed(() => linkedAccounts.value.some((a) => a.providerId === 'google'))
+
+const getLinkedAccount = (providerId: string) => linkedAccounts.value.find((a) => a.providerId === providerId)
 
 // Validation Schemas
 const profileSchema = z.object({
@@ -773,6 +785,29 @@ const handleChangePassword = async () => {
 
         i {
             font-size: 1.25rem;
+        }
+
+        .github-icon {
+            color: #24292e;
+            :global(.dark) & {
+                color: #fff;
+            }
+        }
+
+        .google-icon {
+            color: #4285f4;
+        }
+
+        .account-details {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+
+            .account-id {
+                font-size: 0.75rem;
+                font-weight: 400;
+                opacity: 0.8;
+            }
         }
     }
 
