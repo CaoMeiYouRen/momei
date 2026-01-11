@@ -6,23 +6,15 @@ import { formatDate as _formatDate, formatDateTime as _formatDateTime } from '@/
  * 将 i18n 的 locale 转换为日期库（如 dayjs）识别的 locale
  */
 const dateLocaleMap: Record<string, string> = {
-    zh: 'zh-cn',
-    en: 'en',
-}
-
-/**
- * 将 i18n 的 locale 转换为 Intl 识别的 BCP 47 语言标记
- */
-const intlLocaleMap: Record<string, string> = {
-    zh: 'zh-CN',
-    en: 'en-US',
+    'zh-CN': 'zh-cn',
+    'en-US': 'en',
 }
 
 export function useI18nDate() {
     const { locale } = useI18n()
 
-    const currentLocale = computed(() => dateLocaleMap[locale.value] || locale.value)
-    const currentIntlLocale = computed(() => intlLocaleMap[locale.value] || locale.value)
+    const currentLocale = computed(() => dateLocaleMap[locale.value] || locale.value.toLowerCase())
+    const currentIntlLocale = computed(() => locale.value)
 
     const formatDate = (date: string | number | Date | null | undefined, format?: string) => {
         if (!date) {

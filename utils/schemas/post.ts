@@ -10,7 +10,7 @@ export const createPostSchema = z.object({
     content: z.string().min(1),
     summary: z.string().nullable().optional(),
     coverImage: z.string().nullable().optional(),
-    language: z.string().default('zh'),
+    language: z.string().default('zh-CN'),
     categoryId: z.string().nullable().optional(),
     tags: z.array(z.string()).optional(),
     status: z.enum(['published', 'draft', 'pending']).default('draft'),

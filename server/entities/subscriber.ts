@@ -11,7 +11,7 @@ export class Subscriber extends BaseEntity {
     @CustomColumn({ type: 'boolean', default: true })
     isActive: boolean
 
-    @CustomColumn({ type: 'varchar', length: 10, default: 'zh' })
+    @CustomColumn({ type: 'varchar', length: 10, default: 'zh-CN' })
     language: string
 
     @CustomColumn({ type: 'varchar', length: 36, nullable: true })

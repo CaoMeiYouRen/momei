@@ -37,7 +37,7 @@
         "slug": "custom-slug", // (可选)
         "tags": ["Tag1", "Tag2"], // (可选) 自动创建不存在的标签
         "categoryId": "cid_...", // (可选)
-        "language": "zh", // (可选) 默认 zh
+        "language": "zh-CN", // (可选) 默认 zh-CN
         "status": "published", // (可选) 默认为 pending, 除非 api key 用户是 admin/author 且策略允许
         "coverImage": "https://..." // (可选)
     }

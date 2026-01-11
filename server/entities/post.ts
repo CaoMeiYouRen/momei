@@ -23,7 +23,7 @@ export class Post extends BaseEntity {
     @CustomColumn({ type: 'text', nullable: true })
     coverImage: string | null
 
-    @CustomColumn({ type: 'varchar', length: 10, default: 'zh', nullable: false })
+    @CustomColumn({ type: 'varchar', length: 10, default: 'zh-CN', nullable: false })
     language: string
 
     @CustomColumn({ type: 'varchar', length: 36, nullable: true })

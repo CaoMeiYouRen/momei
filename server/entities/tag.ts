@@ -12,7 +12,7 @@ export class Tag extends BaseEntity {
     @CustomColumn({ type: 'varchar', length: 100, unique: true, nullable: false })
     slug: string
 
-    @CustomColumn({ type: 'varchar', length: 10, default: 'zh', nullable: false })
+    @CustomColumn({ type: 'varchar', length: 10, default: 'zh-CN', nullable: false })
     language: string
 
     @CustomColumn({ type: 'varchar', length: 36, nullable: true })

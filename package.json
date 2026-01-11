@@ -169,7 +169,7 @@
   },
   "config": {},
   "changelog": {
-    "language": "zh"
+    "language": "zh-CN"
   },
   "lint-staged": {
     "*.{js,ts,vue}": [

@@ -9,7 +9,7 @@ export const categoryBodySchema = z.object({
     }),
     description: z.string().nullable().optional(),
     parentId: z.string().nullable().optional(),
-    language: z.string().default('zh'),
+    language: z.string().default('zh-CN'),
 })
 
 export const categoryUpdateSchema = z.object({

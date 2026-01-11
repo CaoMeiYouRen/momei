@@ -7,7 +7,7 @@ export const tagBodySchema = z.object({
     slug: z.string().min(1).max(100).refine((s) => !isSnowflakeId(s), {
         message: 'Slug cannot be a Snowflake ID format',
     }),
-    language: z.string().default('zh'),
+    language: z.string().default('zh-CN'),
 })
 
 export const tagUpdateSchema = z.object({

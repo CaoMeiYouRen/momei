@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
         description: '墨梅博客 - 轻量跨语言博客创作平台',
         id: siteUrl,
         link: siteUrl,
-        language: 'zh',
+        language: 'zh-CN',
         image: `${siteUrl}/logo.png`,
         favicon: `${siteUrl}/favicon.ico`,
         copyright: `All rights reserved ${new Date().getFullYear()}, ${appName}`,

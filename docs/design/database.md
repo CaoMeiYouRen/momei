@@ -135,7 +135,7 @@ _(待完善，后续迭代补充)_
 | `content`       | text     | Yes  | Markdown 内容                   |
 | `summary`       | text     | No   | 摘要/SEO 描述                   |
 | `coverImage`    | text     | No   | 封面图片 URL                    |
-| `language`      | varchar  | Yes  | 语言代码 (默认 'zh')            |
+| `language`      | varchar  | Yes  | 语言代码 (默认 'zh-CN')         |
 | `translationId` | varchar  | No   | 翻译组 ID (用于关联多语言版本)  |
 | `authorId`      | varchar  | Yes  | 作者 ID                         |
 | `categoryId`    | varchar  | No   | 分类 ID                         |
@@ -154,7 +154,7 @@ _(待完善，后续迭代补充)_
 | `slug`          | varchar  | Yes  | Yes  | URL 别名                       |
 | `description`   | text     | No   | No   | 描述                           |
 | `parentId`      | varchar  | No   | No   | 父分类 ID (层级关系)           |
-| `language`      | varchar  | Yes  | No   | 语言代码 (默认 'zh')           |
+| `language`      | varchar  | Yes  | No   | 语言代码 (默认 'zh-CN')        |
 | `translationId` | varchar  | No   | No   | 翻译组 ID (用于关联多语言版本) |
 | `createdAt`     | datetime | Yes  | No   | 创建时间                       |
 | `updatedAt`     | datetime | Yes  | No   | 更新时间                       |
@@ -166,7 +166,7 @@ _(待完善，后续迭代补充)_
 | `id`            | varchar  | Yes  | Yes  | 主键                           |
 | `name`          | varchar  | Yes  | Yes  | 标签名称                       |
 | `slug`          | varchar  | Yes  | Yes  | URL 别名                       |
-| `language`      | varchar  | Yes  | No   | 语言代码 (默认 'zh')           |
+| `language`      | varchar  | Yes  | No   | 语言代码 (默认 'zh-CN')        |
 | `translationId` | varchar  | No   | No   | 翻译组 ID (用于关联多语言版本) |
 | `createdAt`     | datetime | Yes  | No   | 创建时间                       |
 | `updatedAt`     | datetime | Yes  | No   | 更新时间                       |
