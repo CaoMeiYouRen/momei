@@ -74,19 +74,43 @@ export default defineNuxtConfig({
         '@nuxtjs/i18n',
         '@vueuse/nuxt',
         '@sentry/nuxt/module',
+        '@nuxtjs/sitemap',
     ],
     runtimeConfig: {
         public: {
             NODE_ENV: process.env.NODE_ENV,
+            siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://momei.me',
             appName: process.env.NUXT_PUBLIC_APP_NAME,
             authBaseUrl: process.env.NUXT_PUBLIC_AUTH_BASE_URL,
             clarityProjectId: process.env.NUXT_PUBLIC_CLARITY_PROJECT_ID,
             baiduAnalyticsId: process.env.NUXT_PUBLIC_BAIDU_ANALYTICS_ID,
             googleAnalyticsId: process.env.NUXT_PUBLIC_GOOGLE_ANALYTICS_ID,
+            googleSiteVerification: process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+            bingSiteVerification: process.env.NUXT_PUBLIC_BING_SITE_VERIFICATION,
             sentry: {
                 dsn: process.env.NUXT_PUBLIC_SENTRY_DSN,
                 environment: process.env.NUXT_PUBLIC_SENTRY_ENVIRONMENT || 'development',
             },
+        },
+    },
+    sitemap: {
+        // 自动发现路由，并配置多语言支持
+        i18n: true,
+        // 如果需要排除某些路径
+        exclude: ['/admin/**', '/settings/**', '/login', '/register'],
+    },
+    app: {
+        head: {
+            meta: [
+                {
+                    name: 'google-site-verification',
+                    content: process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '',
+                },
+                {
+                    name: 'msvalidate.01',
+                    content: process.env.NUXT_PUBLIC_BING_SITE_VERIFICATION || '',
+                },
+            ],
         },
     },
     sentry: {
