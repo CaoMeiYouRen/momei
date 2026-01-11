@@ -1,4 +1,4 @@
-import { Brackets } from 'typeorm'
+import { Brackets, type SelectQueryBuilder, type WhereExpressionBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { searchQuerySchema } from '@/utils/schemas/search'
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
     // 1. Keyword search (Title, Summary, Content)
     if (query.q) {
-        qb.andWhere(new Brackets((sub) => {
+        qb.andWhere(new Brackets((sub: WhereExpressionBuilder) => {
             sub.where('post.title LIKE :q', { q: `%${query.q}%` })
                 .orWhere('post.summary LIKE :q', { q: `%${query.q}%` })
                 .orWhere('post.content LIKE :q', { q: `%${query.q}%` })
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
 
     // 2. Category Filter
     if (query.category) {
-        qb.andWhere(new Brackets((sub) => {
+        qb.andWhere(new Brackets((sub: WhereExpressionBuilder) => {
             sub.where('category.slug = :cat', { cat: query.category })
                 .orWhere('category.id = :cat', { cat: query.category })
         }))
@@ -72,12 +72,12 @@ export default defineEventHandler(async (event) => {
         // 1. Show posts in the target language.
         // 2. Show posts in other languages ONLY IF there is no version in the target language for that cluster.
         // 3. Unique posts (translationId is null) are always shown.
-        qb.andWhere(new Brackets((sub) => {
+        qb.andWhere(new Brackets((sub: WhereExpressionBuilder) => {
             sub.where('post.language = :language', { language: query.language })
-                .orWhere(new Brackets((ss) => {
+                .orWhere(new Brackets((ss: WhereExpressionBuilder) => {
                     ss.where('post.translationId IS NOT NULL')
                         .andWhere('post.language != :language', { language: query.language })
-                        .andWhere((subQb) => {
+                        .andWhere((subQb: SelectQueryBuilder<Post>) => {
                             const existsQuery = subQb.subQuery()
                                 .select('1')
                                 .from(Post, 'p2')
