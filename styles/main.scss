@@ -123,6 +123,91 @@ a {
     }
 }
 
+// Social Login Buttons
+.p-button.social-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    width: 100%;
+    background: transparent !important;
+
+    &.github-btn {
+        color: #24292e !important;
+        border-color: #24292e !important;
+
+        .p-button-icon {
+            color: #24292e !important;
+        }
+
+        &:hover {
+            background-color: rgba(#24292e, 0.05) !important;
+        }
+
+        :root.dark & {
+            color: #ffffff !important;
+            border-color: #ffffff !important;
+
+            .p-button-icon {
+                color: #ffffff !important;
+            }
+
+            &:hover {
+                background-color: rgba(#ffffff, 0.1) !important;
+            }
+        }
+    }
+
+    &.google-btn {
+        color: #4285f4 !important;
+        border-color: #4285f4 !important;
+
+        .p-button-icon {
+            color: #4285f4 !important;
+        }
+
+        &:hover {
+            background-color: rgba(#4285f4, 0.05) !important;
+        }
+
+        :root.dark & {
+            color: #ffffff !important; // Google text can be white in dark mode for better contrast
+            border-color: #ffffff !important;Googletextcanbewhiteindarkmodeforbettercontrastborder-color
+
+            .p-button-icon {
+                color: #4285f4 !important; // But keep the G logo blue
+            }
+
+            &:hover {
+                background-color: rgba(#ffffff, 0.1) !important;
+            }
+        }
+    }
+
+    .p-button-label {
+        font-weight: 500;
+        color: inherit !important;
+        flex: none;
+    }
+}
+
+// Global Divider background fix
+.p-divider {
+    margin: 1.5rem 0;
+
+    .p-divider-content {
+        background-color: var(--p-surface-card) !important;
+        color: var(--p-text-muted-color) !important;
+        font-size: 0.875rem;
+        padding: 0 0.75rem;
+    }
+
+    &::before {
+        border-color: var(--p-surface-border) !important;
+    }
+}
+
 .p-paginator {
     background-color: transparent;
     color: var(--p-text-muted-color);

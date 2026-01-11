@@ -19,7 +19,7 @@
                         <Button
                             :label="$t('pages.login.github_login')"
                             icon="pi pi-github"
-                            class="register-form__social-btn"
+                            class="github-btn social-btn"
                             severity="secondary"
                             outlined
                             @click="handleGithubLogin"
@@ -27,15 +27,15 @@
                         <Button
                             :label="$t('pages.login.google_login')"
                             icon="pi pi-google"
-                            class="register-form__social-btn"
+                            class="google-btn social-btn"
                             severity="secondary"
                             outlined
                             @click="handleGoogleLogin"
                         />
                     </div>
 
-                    <Divider align="center" class="register-form__divider">
-                        <span class="register-form__divider-text">{{ $t('pages.login.or_continue_with_email') }}</span>
+                    <Divider align="center">
+                        {{ $t('pages.login.or_continue_with_email') }}
                     </Divider>
 
                     <form class="register-form__fields" @submit.prevent="handleRegister">
@@ -278,21 +278,6 @@ definePageMeta({
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
-    }
-
-    &__social-btn {
-        width: 100%;
-    }
-
-    &__divider {
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    &__divider-text {
-        font-size: 0.875rem;
-        color: #6b7280;
-        line-height: 1.5;
     }
 
     &__fields {

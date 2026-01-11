@@ -14,92 +14,90 @@
                 </div>
             </template>
             <template #content>
-                <div class="login-form">
-                    <div class="login-form__social">
-                        <Button
-                            :label="$t('pages.login.github_login')"
-                            icon="pi pi-github"
-                            class="login-form__social-btn"
-                            severity="secondary"
-                            outlined
-                            @click="handleGithubLogin"
+                <div class="login-form__social">
+                    <Button
+                        :label="$t('pages.login.github_login')"
+                        icon="pi pi-github"
+                        class="github-btn social-btn"
+                        severity="secondary"
+                        outlined
+                        @click="handleGithubLogin"
+                    />
+                    <Button
+                        :label="$t('pages.login.google_login')"
+                        icon="pi pi-google"
+                        class="google-btn social-btn"
+                        severity="secondary"
+                        outlined
+                        @click="handleGoogleLogin"
+                    />
+                </div>
+
+                <Divider align="center">
+                    {{ $t('pages.login.or_continue_with_email') }}
+                </Divider>
+
+                <form class="login-form__fields" @submit.prevent="handleEmailLogin">
+                    <div class="login-form__field">
+                        <label for="email">{{ $t('pages.login.email') }}</label>
+                        <InputText
+                            id="email"
+                            v-model="form.email"
+                            type="email"
+                            :invalid="!!errors.email"
+                            class="login-form__input"
                         />
-                        <Button
-                            :label="$t('pages.login.google_login')"
-                            icon="pi pi-google"
-                            class="login-form__social-btn"
-                            severity="secondary"
-                            outlined
-                            @click="handleGoogleLogin"
-                        />
+                        <Message
+                            v-if="errors.email"
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                        >
+                            {{ errors.email }}
+                        </Message>
                     </div>
 
-                    <Divider align="center" class="login-form__divider">
-                        <span class="login-form__divider-text">{{ $t('pages.login.or_continue_with_email') }}</span>
-                    </Divider>
-
-                    <form class="login-form__fields" @submit.prevent="handleEmailLogin">
-                        <div class="login-form__field">
-                            <label for="email">{{ $t('pages.login.email') }}</label>
-                            <InputText
-                                id="email"
-                                v-model="form.email"
-                                type="email"
-                                :invalid="!!errors.email"
-                                class="login-form__input"
-                            />
-                            <Message
-                                v-if="errors.email"
-                                severity="error"
-                                size="small"
-                                variant="simple"
-                            >
-                                {{ errors.email }}
-                            </Message>
-                        </div>
-
-                        <div class="login-form__field">
-                            <label for="password">{{ $t('pages.login.password') }}</label>
-                            <Password
-                                id="password"
-                                v-model="form.password"
-                                :feedback="false"
-                                toggle-mask
-                                :invalid="!!errors.password"
-                                fluid
-                            />
-                            <Message
-                                v-if="errors.password"
-                                severity="error"
-                                size="small"
-                                variant="simple"
-                            >
-                                {{ errors.password }}
-                            </Message>
-                        </div>
-
-                        <div class="login-form__actions">
-                            <div class="login-form__remember">
-                                <Checkbox
-                                    v-model="form.rememberMe"
-                                    binary
-                                    input-id="rememberMe"
-                                />
-                                <label for="rememberMe">{{ $t('pages.login.remember_me') }}</label>
-                            </div>
-                            <NuxtLink to="/forgot-password" class="login-form__forgot">
-                                {{ $t('pages.login.forgot_password') }}
-                            </NuxtLink>
-                        </div>
-
-                        <Button
-                            type="submit"
-                            :label="$t('pages.login.submit')"
-                            :loading="loading"
-                            class="login-form__submit-btn"
+                    <div class="login-form__field">
+                        <label for="password">{{ $t('pages.login.password') }}</label>
+                        <Password
+                            id="password"
+                            v-model="form.password"
+                            :feedback="false"
+                            toggle-mask
+                            :invalid="!!errors.password"
+                            fluid
                         />
-                    </form>
-                </div>
+                        <Message
+                            v-if="errors.password"
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                        >
+                            {{ errors.password }}
+                        </Message>
+                    </div>
+
+                    <div class="login-form__actions">
+                        <div class="login-form__remember">
+                            <Checkbox
+                                v-model="form.rememberMe"
+                                binary
+                                input-id="rememberMe"
+                            />
+                            <label for="rememberMe">{{ $t('pages.login.remember_me') }}</label>
+                        </div>
+                        <NuxtLink to="/forgot-password" class="login-form__forgot">
+                            {{ $t('pages.login.forgot_password') }}
+                        </NuxtLink>
+                    </div>
+
+                    <Button
+                        type="submit"
+                        :label="$t('pages.login.submit')"
+                        :loading="loading"
+                        class="login-form__submit-btn"
+                    />
+                </form>
             </template>
             <template #footer>
                 <div class="login-card__footer">
@@ -249,21 +247,6 @@ definePageMeta({
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
-    }
-
-    &__social-btn {
-        width: 100%;
-    }
-
-    &__divider {
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    &__divider-text {
-        font-size: 0.875rem;
-        color: var(--p-primary-700);
-        line-height: 1.5;
     }
 
     &__fields {
