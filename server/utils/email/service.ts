@@ -304,4 +304,42 @@ export const emailService = {
             throw error
         }
     },
+
+    /**
+     * 发送订阅确认邮件
+     */
+    async sendSubscriptionConfirmation(email: string): Promise<void> {
+        try {
+            const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
+                {
+                    headerIcon: '📮',
+                    message: `感谢您订阅 <strong>${APP_NAME}</strong>！您现在可以通过邮件接收我们的最新文章和动态。`,
+                    buttonText: '访问博客',
+                    actionUrl: '/',
+                    reminderContent: '如果您以后想取消订阅，可以点击邮件底部的取消订阅链接（功能开发中）。',
+                    securityTip: '我们非常重视您的隐私，不会向第三方泄露您的邮箱地址。',
+                },
+                {
+                    title: `成功订阅 ${APP_NAME}`,
+                    preheader: `感谢您订阅 ${APP_NAME}！`,
+                },
+            )
+
+            await sendEmail({
+                to: email,
+                subject: `感谢您订阅 ${APP_NAME}`,
+                html,
+                text,
+            })
+
+            logger.email.sent({ type: 'subscription-confirm', email })
+        } catch (error) {
+            logger.email.failed({
+                type: 'subscription-confirm',
+                email,
+                error: error instanceof Error ? error.message : String(error),
+            })
+            throw error
+        }
+    },
 }

@@ -81,6 +81,7 @@
         "confirmation": "确认",
         "danger": "危险操作",
         "admin": "管理",
+        "rss": "RSS 订阅",
         "success": "成功",
         "error": "错误",
         "unexpected_error": "发生了一个意外错误"

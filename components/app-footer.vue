@@ -27,6 +27,13 @@
                 >
                     {{ $t('components.footer.docs') }}
                 </NuxtLink>
+                <NuxtLink
+                    to="/feed.xml"
+                    target="_blank"
+                    class="footer__link"
+                >
+                    {{ $t('common.rss') }}
+                </NuxtLink>
             </nav>
             <p class="footer__copyright">
                 {{ $t('components.footer.copyright') }}

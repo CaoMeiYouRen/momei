@@ -132,10 +132,10 @@
 
 ### 1. SEO 与订阅 (SEO & Subscription)
 
--   [ ] **站点地图与搜索控制台**
+-   [x] **站点地图与搜索控制台**
     -   验收: 使用 `@nuxtjs/sitemap` 自动生成 `sitemap.xml`。
     -   验收: 支持 Google/Bing Search Console 网站管理工具验证。
--   [ ] **订阅系统**
+-   [x] **订阅系统**
     -   验收: 实现 RSS 订阅源 (`/feed.xml` 或 `/rss.xml`)。
     -   验收: 基础邮件订阅功能 (集成 SendGrid/Mailgun)。
 

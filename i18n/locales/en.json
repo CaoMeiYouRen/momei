@@ -81,6 +81,7 @@
         "confirmation": "Confirmation",
         "danger": "Danger",
         "admin": "Admin",
+        "rss": "RSS Feed",
         "success": "Success",
         "error": "Error",
         "unexpected_error": "An unexpected error occurred"
