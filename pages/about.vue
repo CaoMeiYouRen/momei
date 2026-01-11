@@ -112,7 +112,7 @@
                     </a>
 
                     <a
-                        href="https://blog.cmyr.ltd/"
+                        href="https://momei.app/"
                         target="_blank"
                         class="contact-link"
                     >
