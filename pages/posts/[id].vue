@@ -146,20 +146,22 @@ onMounted(async () => {
         return
     }
 
-    const postId = post.value.id
-    const storageKey = `momei_view_${postId}`
+    if (import.meta.browser) { // 只在客户端执行
+        const postId = post.value.id
+        const storageKey = `momei_view_${postId}`
 
-    if (!sessionStorage.getItem(storageKey)) {
-        try {
-            const res = await $fetch<{ code: number, data: { views: number } }>(`/api/posts/${postId}/views`, {
-                method: 'POST',
-            })
-            if (res.code === 200 && data.value?.data) {
-                data.value.data.views = res.data.views
-                sessionStorage.setItem(storageKey, '1')
+        if (!sessionStorage.getItem(storageKey)) {
+            try {
+                const res = await $fetch<{ code: number, data: { views: number } }>(`/api/posts/${postId}/views`, {
+                    method: 'POST',
+                })
+                if (res.code === 200 && data.value?.data) {
+                    data.value.data.views = res.data.views
+                    sessionStorage.setItem(storageKey, '1')
+                }
+            } catch (error) {
+                console.error('Failed to increment view count:', error)
             }
-        } catch (error) {
-            console.error('Failed to increment view count:', error)
         }
     }
 })
