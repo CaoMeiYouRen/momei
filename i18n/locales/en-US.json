@@ -80,6 +80,10 @@
         "description": "Description",
         "parent": "Parent",
         "language": "Language",
+        "languages": {
+            "zh-CN": "Chinese (Simplified)",
+            "en-US": "English"
+        },
         "save_success": "Saved successfully",
         "save_failed": "Save failed",
         "upload_failed": "Upload failed",

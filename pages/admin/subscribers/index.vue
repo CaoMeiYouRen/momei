@@ -38,7 +38,11 @@
                     :header="$t('common.email')"
                     sortable
                 />
-                <Column field="language" :header="$t('common.language')" />
+                <Column field="language" :header="$t('common.language')">
+                    <template #body="{data}">
+                        {{ $t(`common.languages.${data.language}`) }}
+                    </template>
+                </Column>
                 <Column field="isActive" :header="$t('pages.admin.subscribers.active_status')">
                     <template #body="{data}">
                         <Tag
