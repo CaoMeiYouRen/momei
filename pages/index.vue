@@ -64,6 +64,13 @@
             </div>
         </section>
 
+        <!-- Newsletter Section -->
+        <section class="newsletter section">
+            <div class="container flex justify-center">
+                <SubscriberForm class="max-w-4xl w-full" />
+            </div>
+        </section>
+
         <!-- About Preview Section -->
         <section class="about-preview section">
             <div class="container">

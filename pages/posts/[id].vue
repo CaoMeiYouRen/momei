@@ -109,6 +109,8 @@
                                 rounded
                             />
                         </div>
+                        <hr class="post-detail__divider">
+                        <SubscriberForm />
                     </footer>
                 </main>
             </div>
@@ -335,6 +337,12 @@ onMounted(async () => {
         display: flex;
         gap: 0.5rem;
         margin-bottom: 2rem;
+    }
+
+    &__divider {
+        margin: 2rem 0;
+        border: 0;
+        border-top: 1px solid var(--p-surface-border);
     }
 }
 

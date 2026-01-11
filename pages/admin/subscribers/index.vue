@@ -1,7 +1,14 @@
 <template>
     <div class="admin-subscribers page-container">
         <AdminPageHeader :title="$t('pages.admin.subscribers.title')">
-            <!-- 订阅暂不支持手动在后台创建，保持列表纯净 -->
+            <template #actions>
+                <Button
+                    :label="$t('pages.admin.subscribers.export')"
+                    icon="pi pi-download"
+                    severity="secondary"
+                    @click="exportSubscribers"
+                />
+            </template>
         </AdminPageHeader>
 
         <div class="admin-subscribers__card">
@@ -160,6 +167,10 @@ const onFilterChange = useDebounceFn(() => {
     pagination.page = 1
     loadData()
 }, 500)
+
+const exportSubscribers = () => {
+    window.open('/api/subscribers/export', '_blank')
+}
 
 const toggleStatus = async (item: any) => {
     try {

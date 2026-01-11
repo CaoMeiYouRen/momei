@@ -34,6 +34,15 @@
         },
         "toc": {
             "title": "Table of Contents"
+        },
+        "subscriber_form": {
+            "title": "Newsletter",
+            "description": "Get the latest posts and technical shares delivered to your inbox",
+            "placeholder": "Enter your email address",
+            "submit": "Subscribe",
+            "success": "Subscription successful! Thank you for following.",
+            "error_exists": "This email is already in our subscription list",
+            "submitting": "Processing..."
         }
     },
     "common": {
@@ -223,6 +232,7 @@
             },
             "subscribers": {
                 "title": "Subscribers",
+                "export": "Export CSV",
                 "search_placeholder": "Search email...",
                 "active_status": "Status",
                 "active": "Active",

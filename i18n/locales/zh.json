@@ -34,6 +34,15 @@
         },
         "toc": {
             "title": "目录"
+        },
+        "subscriber_form": {
+            "title": "邮件订阅",
+            "description": "第一时间获取最新文章与技术分享",
+            "placeholder": "请输入邮箱地址",
+            "submit": "立即订阅",
+            "success": "订阅成功！感谢您的关注。",
+            "error_exists": "该邮箱已在订阅列表中",
+            "submitting": "处理中..."
         }
     },
     "common": {
@@ -223,6 +232,7 @@
             },
             "subscribers": {
                 "title": "订阅管理",
+                "export": "导出 CSV",
                 "search_placeholder": "搜索邮箱...",
                 "active_status": "活跃状态",
                 "active": "已激活",
