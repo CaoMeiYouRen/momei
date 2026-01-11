@@ -326,7 +326,8 @@
             "title": "个人中心",
             "menu": {
                 "profile": "个人资料",
-                "security": "账号安全"
+                "security": "账号安全",
+                "api_keys": "API 密钥"
             },
             "profile": {
                 "title": "公开资料",
@@ -354,6 +355,22 @@
                 "unlink_success": "账号解绑成功",
                 "unlink_error": "账号解绑失败",
                 "link_error": "发起绑定失败"
+            },
+            "api_keys": {
+                "title": "API 密钥",
+                "description": "使用 API 密钥可以通过外部程序发布内容。",
+                "create_btn": "创建新密钥",
+                "new_key_title": "新 API 密钥",
+                "new_key_hint": "请务必立即复制此密钥。出于安全考虑，它将不会再次显示。",
+                "name": "名称",
+                "prefix": "前缀",
+                "expires_at": "过期时间",
+                "never_expires": "永不过期",
+                "created_at": "创建时间",
+                "last_used_at": "最后使用",
+                "delete_confirm": "确定要撤销此 API 密钥吗？",
+                "create_success": "API 密钥创建成功",
+                "delete_success": "API 密钥已撤销"
             }
         }
     }

@@ -24,6 +24,14 @@
                         <i class="pi pi-shield" />
                         <span>{{ $t('pages.settings.menu.security') }}</span>
                     </div>
+                    <div
+                        class="settings-menu-item"
+                        :class="{active: activeTab === 'apiKeys'}"
+                        @click="activeTab = 'apiKeys'"
+                    >
+                        <i class="pi pi-key" />
+                        <span>{{ $t('pages.settings.menu.api_keys') }}</span>
+                    </div>
                 </div>
 
                 <!-- Content Area -->
@@ -177,9 +185,93 @@
                             </div>
                         </template>
                     </Card>
+
+                    <!-- API Keys Tab -->
+                    <Card v-if="activeTab === 'apiKeys'" class="settings-card">
+                        <template #title>
+                            {{ $t('pages.settings.api_keys.title') }}
+                        </template>
+                        <template #content>
+                            <div class="api-keys-section">
+                                <p class="mb-4 text-secondary">
+                                    {{ $t('pages.settings.api_keys.description') }}
+                                </p>
+
+                                <div class="flex gap-2 mb-6">
+                                    <InputText
+                                        v-model="newKeyName"
+                                        :placeholder="$t('pages.settings.api_keys.name')"
+                                        class="flex-1"
+                                        @keyup.enter="handleCreateApiKey"
+                                    />
+                                    <Button
+                                        :label="$t('pages.settings.api_keys.create_btn')"
+                                        :loading="loading"
+                                        :disabled="!newKeyName.trim()"
+                                        @click="handleCreateApiKey"
+                                    />
+                                </div>
+
+                                <DataTable
+                                    :value="apiKeys"
+                                    :loading="loadingKeys"
+                                    class="p-datatable-sm"
+                                >
+                                    <Column field="name" :header="$t('pages.settings.api_keys.name')" />
+                                    <Column field="prefix" :header="$t('pages.settings.api_keys.prefix')" />
+                                    <Column field="lastUsedAt" :header="$t('pages.settings.api_keys.last_used_at')">
+                                        <template #body="{data}">
+                                            {{ data.lastUsedAt ? formatDate(data.lastUsedAt) : '-' }}
+                                        </template>
+                                    </Column>
+                                    <Column field="expiresAt" :header="$t('pages.settings.api_keys.expires_at')">
+                                        <template #body="{data}">
+                                            {{ data.expiresAt ? formatDate(data.expiresAt) : $t('pages.settings.api_keys.never_expires') }}
+                                        </template>
+                                    </Column>
+                                    <Column :header="$t('common.actions')" class="text-right">
+                                        <template #body="{data}">
+                                            <Button
+                                                icon="pi pi-trash"
+                                                severity="danger"
+                                                text
+                                                rounded
+                                                @click="handleDeleteApiKey(data.id)"
+                                            />
+                                        </template>
+                                    </Column>
+                                </DataTable>
+                            </div>
+                        </template>
+                    </Card>
                 </div>
             </div>
         </div>
+
+        <Dialog
+            v-model:visible="showNewKeyDialog"
+            modal
+            :header="$t('pages.settings.api_keys.new_key_title')"
+            :style="{width: '450px'}"
+        >
+            <div class="flex flex-col gap-4">
+                <Message severity="warn" :closable="false">
+                    {{ $t('pages.settings.api_keys.new_key_hint') }}
+                </Message>
+                <div class="flex-1 p-inputgroup">
+                    <InputText
+                        :value="newlyCreatedKey"
+                        readonly
+                        class="bg-surface-50 font-mono"
+                    />
+                    <Button icon="pi pi-copy" @click="copyToClipboard(newlyCreatedKey || '')" />
+                </div>
+            </div>
+            <template #footer>
+                <Button :label="$t('common.close')" @click="showNewKeyDialog = false" />
+            </template>
+        </Dialog>
+
         <Toast />
     </div>
 </template>
@@ -189,6 +281,7 @@ import { z } from 'zod'
 import { authClient } from '@/lib/auth-client'
 
 const { t } = useI18n()
+const { formatDate } = useI18nDate()
 const toast = useToast()
 const loading = ref(false)
 const activeTab = ref('profile')
@@ -211,6 +304,13 @@ const passwordForm = reactive({
 const linkedAccounts = ref<any[]>([])
 const loadingUnlink = ref<string | null>(null)
 const loadingLink = ref<string | null>(null)
+
+// API Keys Data
+const apiKeys = ref<any[]>([])
+const loadingKeys = ref(false)
+const showNewKeyDialog = ref(false)
+const newKeyName = ref('')
+const newlyCreatedKey = ref<string | null>(null)
 
 const isGitHubLinked = computed(() => linkedAccounts.value.some((a) => a.providerId === 'github'))
 
@@ -312,6 +412,72 @@ const handleLink = async (provider: 'github' | 'google') => {
         loadingLink.value = null
     }
 }
+
+const fetchApiKeys = async () => {
+    loadingKeys.value = true
+    try {
+        const response = await $fetch<{ code: number, data: any[] }>('/api/user/api-keys')
+        if (response.code === 200) {
+            apiKeys.value = response.data
+        }
+    } catch (e) {
+        console.error('Failed to fetch API keys', e)
+    } finally {
+        loadingKeys.value = false
+    }
+}
+
+const handleCreateApiKey = async () => {
+    if (!newKeyName.value.trim()) {
+        return
+    }
+
+    loading.value = true
+    try {
+        const response = await $fetch<{ code: number, data: any }>('/api/user/api-keys', {
+            method: 'POST',
+            body: { name: newKeyName.value.trim() },
+        })
+        if (response.code === 200) {
+            newlyCreatedKey.value = response.data.key
+            showNewKeyDialog.value = true
+            newKeyName.value = ''
+            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.api_keys.create_success'), life: 3000 })
+            await fetchApiKeys()
+        }
+    } catch (e) {
+        console.error(e)
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+    } finally {
+        loading.value = false
+    }
+}
+
+const handleDeleteApiKey = async (id: string) => {
+    try {
+        const response = await $fetch<{ code: number }>(`/api/user/api-keys/${id}`, {
+            method: 'DELETE',
+        })
+        if (response.code === 200) {
+            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.api_keys.delete_success'), life: 3000 })
+            await fetchApiKeys()
+        }
+    } catch (e) {
+        console.error(e)
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+    }
+}
+
+const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    toast.add({ severity: 'info', summary: t('common.success'), detail: 'Copied to clipboard', life: 2000 })
+}
+
+watch(activeTab, (newTab) => {
+    if (newTab === 'apiKeys') {
+        fetchApiKeys()
+    }
+})
 
 onMounted(async () => {
     // Fetch linked accounts if available in the client

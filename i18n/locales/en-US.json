@@ -326,7 +326,8 @@
             "title": "User Center",
             "menu": {
                 "profile": "Profile",
-                "security": "Security"
+                "security": "Security",
+                "api_keys": "API Keys"
             },
             "profile": {
                 "title": "Public Profile",
@@ -354,6 +355,22 @@
                 "unlink_success": "Account unlinked successfully",
                 "unlink_error": "Failed to unlink account",
                 "link_error": "Failed to initiate linking"
+            },
+            "api_keys": {
+                "title": "API Keys",
+                "description": "API keys allow you to publish content via external applications.",
+                "create_btn": "Create New Key",
+                "new_key_title": "New API Key",
+                "new_key_hint": "Please make sure to copy your API key now. You won't be able to see it again for security reasons.",
+                "name": "Name",
+                "prefix": "Prefix",
+                "expires_at": "Expires At",
+                "never_expires": "Never Expires",
+                "created_at": "Created At",
+                "last_used_at": "Last Used",
+                "delete_confirm": "Are you sure you want to revoke this API key?",
+                "create_success": "API key created successfully",
+                "delete_success": "API key revoked"
             }
         }
     }
