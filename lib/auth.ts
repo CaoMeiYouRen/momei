@@ -26,6 +26,8 @@ import {
     ADMIN_USER_IDS,
     GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET,
+    GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET,
     AUTH_BASE_URL,
     APP_NAME,
     EMAIL_REQUIRE_VERIFICATION,
@@ -138,6 +140,10 @@ export const auth = betterAuth({
         github: { // 支持 GitHub 登录
             clientId: GITHUB_CLIENT_ID as string,
             clientSecret: GITHUB_CLIENT_SECRET as string,
+        },
+        google: { // 支持 Google 登录
+            clientId: GOOGLE_CLIENT_ID as string,
+            clientSecret: GOOGLE_CLIENT_SECRET as string,
         },
     },
     session: {

@@ -15,14 +15,24 @@
             </template>
             <template #content>
                 <div class="login-form">
-                    <Button
-                        :label="$t('pages.login.github_login')"
-                        icon="pi pi-github"
-                        class="login-form__github-btn"
-                        severity="secondary"
-                        outlined
-                        @click="handleGithubLogin"
-                    />
+                    <div class="login-form__social">
+                        <Button
+                            :label="$t('pages.login.github_login')"
+                            icon="pi pi-github"
+                            class="login-form__social-btn"
+                            severity="secondary"
+                            outlined
+                            @click="handleGithubLogin"
+                        />
+                        <Button
+                            :label="$t('pages.login.google_login')"
+                            icon="pi pi-google"
+                            class="login-form__social-btn"
+                            severity="secondary"
+                            outlined
+                            @click="handleGoogleLogin"
+                        />
+                    </div>
 
                     <Divider align="center" class="login-form__divider">
                         <span class="login-form__divider-text">{{ $t('pages.login.or_continue_with_email') }}</span>
@@ -128,6 +138,13 @@ const handleGithubLogin = async () => {
     })
 }
 
+const handleGoogleLogin = async () => {
+    await authClient.signIn.social({
+        provider: 'google',
+        callbackURL: '/',
+    })
+}
+
 const handleEmailLogin = async () => {
     errors.email = ''
     errors.password = ''
@@ -228,7 +245,13 @@ definePageMeta({
 }
 
 .login-form {
-    &__github-btn {
+    &__social {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    &__social-btn {
         width: 100%;
     }
 

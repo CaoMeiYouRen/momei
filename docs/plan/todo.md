@@ -41,8 +41,7 @@
 
     -   [x] 验收: `/api/auth/*` 路由正常工作 (SignIn, SignUp, SignOut, Session)。
     -   [x] 验收: 实现 邮箱/密码 注册与登录流程；实现 用户名/密码 登录流程。
-    -   [x] 验收: 实现 GitHub OAuth 登录流程。
-
+    -   [x] 验收: 实现 GitHub OAuth 登录流程。 - [x] 验收: 实现 Google OAuth 登录流程。
     -   [x] 验收: 用户 Session 持久化 (Cookie) 且 SSR 兼容。
 
 -   [x] **用户界面开发 (Frontend Pages)**
@@ -211,7 +210,6 @@
 -   [ ] AI 自动摘要生成。
 -   [ ] 评论系统 (社区互动)。
 -   [ ] 访客投稿流程。
--   [ ] 实现 Google OAuth 登录流程。
 
 ## 相关文档
 

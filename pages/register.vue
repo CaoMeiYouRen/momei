@@ -15,14 +15,24 @@
             </template>
             <template #content>
                 <div class="register-form">
-                    <Button
-                        :label="$t('pages.login.github_login')"
-                        icon="pi pi-github"
-                        class="register-form__github-btn"
-                        severity="secondary"
-                        outlined
-                        @click="handleGithubLogin"
-                    />
+                    <div class="register-form__social">
+                        <Button
+                            :label="$t('pages.login.github_login')"
+                            icon="pi pi-github"
+                            class="register-form__social-btn"
+                            severity="secondary"
+                            outlined
+                            @click="handleGithubLogin"
+                        />
+                        <Button
+                            :label="$t('pages.login.google_login')"
+                            icon="pi pi-google"
+                            class="register-form__social-btn"
+                            severity="secondary"
+                            outlined
+                            @click="handleGoogleLogin"
+                        />
+                    </div>
 
                     <Divider align="center" class="register-form__divider">
                         <span class="register-form__divider-text">{{ $t('pages.login.or_continue_with_email') }}</span>
@@ -156,6 +166,13 @@ const handleGithubLogin = async () => {
     })
 }
 
+const handleGoogleLogin = async () => {
+    await authClient.signIn.social({
+        provider: 'google',
+        callbackURL: '/',
+    })
+}
+
 const handleRegister = async () => {
     // Reset errors
     Object.keys(errors).forEach((key) => errors[key as keyof typeof errors] = '')
@@ -257,7 +274,13 @@ definePageMeta({
 }
 
 .register-form {
-    &__github-btn {
+    &__social {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    &__social-btn {
         width: 100%;
     }
 
