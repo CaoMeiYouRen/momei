@@ -99,12 +99,12 @@ const handleSubmit = async () => {
     background: linear-gradient(135deg, var(--p-surface-50) 0%, var(--p-surface-100) 100%);
     border-radius: 16px;
     border: 1px solid var(--p-surface-200);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 4px 20px rgb(0 0 0 / 0.03);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 8px 30px rgb(0 0 0 / 0.06);
     }
 
     &__title {
@@ -131,7 +131,7 @@ const handleSubmit = async () => {
         flex-direction: column;
         gap: 0.75rem;
 
-        @media (min-width: 640px) {
+        @media (width >= 640px) {
             flex-direction: row;
             align-items: stretch;
         }
@@ -164,15 +164,16 @@ const handleSubmit = async () => {
     }
 
     &__message {
-        animation: slideIn 0.3s ease-out;
+        animation: slide-in 0.3s ease-out;
     }
 }
 
-@keyframes slideIn {
+@keyframes slide-in {
     from {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -192,7 +193,7 @@ const handleSubmit = async () => {
 :global(.dark) .subscriber-form {
     background: linear-gradient(135deg, var(--p-surface-900) 0%, var(--p-surface-950) 100%);
     border-color: var(--p-surface-800);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 20px rgb(0 0 0 / 0.2);
 
     &__input {
         background: var(--p-surface-800) !important;

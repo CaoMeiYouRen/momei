@@ -214,7 +214,7 @@ onMounted(() => {
         background: var(--surface-card);
         padding: 1.5rem;
         border-radius: 12px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 12px rgb(0 0 0 / 0.05);
     }
 
     &__filters {
