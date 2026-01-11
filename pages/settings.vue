@@ -193,14 +193,14 @@
                         </template>
                         <template #content>
                             <div class="api-keys-section">
-                                <p class="mb-6 text-secondary text-sm">
+                                <p class="api-keys-section__description">
                                     {{ $t('pages.settings.api_keys.description') }}
                                 </p>
 
-                                <div class="bg-surface-50/50 border mb-8 p-4 rounded-xl">
-                                    <div class="gap-4 grid grid-cols-1 items-end md:grid-cols-[1fr,200px,auto]">
-                                        <div class="flex flex-col gap-2">
-                                            <label class="font-semibold ml-1 text-sm">{{ $t('pages.settings.api_keys.name') }}</label>
+                                <div class="api-keys-form-container">
+                                    <div class="api-keys-form">
+                                        <div class="api-keys-form__field">
+                                            <label class="api-keys-form__label">{{ $t('pages.settings.api_keys.name') }}</label>
                                             <InputText
                                                 v-model="newKeyName"
                                                 :placeholder="$t('pages.settings.api_keys.name')"
@@ -208,8 +208,8 @@
                                                 @keyup.enter="handleCreateApiKey"
                                             />
                                         </div>
-                                        <div class="flex flex-col gap-2">
-                                            <label class="font-semibold ml-1 text-sm">{{ $t('pages.settings.api_keys.expires_at') }}</label>
+                                        <div class="api-keys-form__field api-keys-form__field--expiry">
+                                            <label class="api-keys-form__label">{{ $t('pages.settings.api_keys.expires_at') }}</label>
                                             <Select
                                                 v-model="expirationOption"
                                                 :options="expirationOptions"
@@ -223,7 +223,7 @@
                                             icon="pi pi-plus"
                                             :loading="loading"
                                             :disabled="!newKeyName.trim()"
-                                            class="px-6"
+                                            class="api-keys-form__submit"
                                             @click="handleCreateApiKey"
                                         />
                                     </div>
@@ -232,23 +232,23 @@
                                 <DataTable
                                     :value="apiKeys"
                                     :loading="loadingKeys"
-                                    class="p-datatable-sm"
+                                    size="small"
                                 >
                                     <Column field="name" :header="$t('pages.settings.api_keys.name')">
                                         <template #body="{data}">
-                                            <span class="font-medium text-surface-900">{{ data.name }}</span>
+                                            <span class="api-key-name">{{ data.name }}</span>
                                         </template>
                                     </Column>
                                     <Column field="prefix" :header="$t('pages.settings.api_keys.prefix')">
                                         <template #body="{data}">
-                                            <code class="bg-surface-100 border border-surface-200 dark:bg-surface-800 dark:border-surface-700 font-mono px-2 py-1 rounded text-xs">
+                                            <code class="api-key-prefix">
                                                 {{ data.prefix }}...
                                             </code>
                                         </template>
                                     </Column>
                                     <Column field="lastUsedAt" :header="$t('pages.settings.api_keys.last_used_at')">
                                         <template #body="{data}">
-                                            <span class="text-sm text-surface-600">
+                                            <span class="api-key-date">
                                                 {{ data.lastUsedAt ? formatDate(data.lastUsedAt) : '-' }}
                                             </span>
                                         </template>
@@ -259,24 +259,26 @@
                                                 v-if="data.expiresAt"
                                                 severity="secondary"
                                                 :value="formatDate(data.expiresAt)"
-                                                class="text-xs"
+                                                class="api-key-expiry-tag"
                                             />
-                                            <span v-else class="italic text-sm text-surface-500">
+                                            <span v-else class="api-key-never-expires">
                                                 {{ $t('pages.settings.api_keys.never_expires') }}
                                             </span>
                                         </template>
                                     </Column>
-                                    <Column :header="$t('common.actions')" class="text-right">
+                                    <Column :header="$t('common.actions')">
                                         <template #body="{data}">
-                                            <Button
-                                                v-tooltip.top="$t('common.delete')"
-                                                icon="pi pi-trash"
-                                                severity="danger"
-                                                text
-                                                rounded
-                                                size="small"
-                                                @click="handleDeleteApiKey(data.id)"
-                                            />
+                                            <div class="api-key-actions">
+                                                <Button
+                                                    v-tooltip.top="$t('common.delete')"
+                                                    icon="pi pi-trash"
+                                                    severity="danger"
+                                                    text
+                                                    rounded
+                                                    size="small"
+                                                    @click="handleDeleteApiKey(data.id)"
+                                                />
+                                            </div>
                                         </template>
                                     </Column>
                                 </DataTable>
@@ -293,15 +295,15 @@
             :header="$t('pages.settings.api_keys.new_key_title')"
             :style="{width: '450px'}"
         >
-            <div class="flex flex-col gap-4">
+            <div class="new-key-dialog-content">
                 <Message severity="warn" :closable="false">
                     {{ $t('pages.settings.api_keys.new_key_hint') }}
                 </Message>
-                <div class="flex-1 p-inputgroup">
+                <div class="new-key-input-group">
                     <InputText
                         :value="newlyCreatedKey"
                         readonly
-                        class="bg-surface-50 font-mono"
+                        class="new-key-input"
                     />
                     <Button icon="pi pi-copy" @click="copyToClipboard(newlyCreatedKey || '')" />
                 </div>
@@ -759,5 +761,134 @@ const handleChangePassword = async () => {
 
 .link-account-section {
     margin-top: 1rem;
+}
+
+.api-keys-section {
+    &__description {
+        margin-bottom: 1.5rem;
+        color: var(--p-text-muted-color);
+        font-size: 0.875rem;
+    }
+}
+
+.api-keys-form-container {
+    background-color: var(--p-surface-50);
+    border: 1px solid var(--p-surface-border);
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+
+    :global(.dark) & {
+        background-color: var(--p-surface-900);
+    }
+}
+
+.api-keys-form {
+    display: grid;
+    grid-template-columns: 1fr 200px auto;
+    gap: 1rem;
+    align-items: flex-end;
+
+    @media (width <= 992px) {
+        grid-template-columns: 1fr 180px;
+    }
+
+    @media (width <= 640px) {
+        grid-template-columns: 1fr;
+    }
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+    }
+
+    &__label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-left: 0.25rem;
+        color: var(--p-text-color);
+    }
+
+    &__submit {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+
+        @media (width <= 992px) {
+            grid-column: span 2;
+        }
+
+        @media (width <= 640px) {
+            grid-column: span 1;
+        }
+    }
+}
+
+.new-key-dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.new-key-input-group {
+    display: flex;
+    width: 100%;
+
+    .new-key-input {
+        flex: 1;
+        background-color: var(--p-surface-50);
+        font-family: var(--p-font-family-mono, monospace);
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+
+        :global(.dark) & {
+            background-color: var(--p-surface-900);
+        }
+    }
+
+    :deep(.p-button) {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+}
+
+.api-key-name {
+    font-weight: 500;
+    color: var(--p-text-color);
+}
+
+.api-key-prefix {
+    background-color: var(--p-surface-100);
+    border: 1px solid var(--p-surface-200);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-family: var(--p-font-family-mono, monospace);
+    font-size: 0.75rem;
+
+    :global(.dark) & {
+        background-color: var(--p-surface-800);
+        border-color: var(--p-surface-700);
+    }
+}
+
+.api-key-date {
+    font-size: 0.875rem;
+    color: var(--p-text-muted-color);
+}
+
+.api-key-expiry-tag {
+    font-size: 0.75rem;
+}
+
+.api-key-never-expires {
+    font-style: italic;
+    font-size: 0.875rem;
+    color: var(--p-text-muted-color);
+}
+
+.api-key-actions {
+    display: flex;
+    justify-content: flex-end;
 }
 </style>
