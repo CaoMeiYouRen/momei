@@ -49,6 +49,7 @@
 具体的 API 定义已按功能模块拆分，请阅读以下文档：
 
 -   **博客模块**: [docs/design/modules/blog.md](./modules/blog.md)
+-   **搜索模块**: [docs/design/modules/search.md](./modules/search.md)
 -   **用户模块**: [docs/design/modules/user.md](./modules/user.md)
 -   **管理模块**: [docs/design/modules/admin.md](./modules/admin.md)
 -   **开放平台**: [docs/design/modules/open-api.md](./modules/open-api.md)
