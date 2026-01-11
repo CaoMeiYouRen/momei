@@ -2,7 +2,7 @@
     <div class="categories-index">
         <header class="categories-index__header">
             <h1 class="categories-index__title">
-                {{ $t('pages.admin.categories.title') }}
+                {{ $t('common.category') }}
             </h1>
             <p class="categories-index__subtitle">
                 {{ $t('pages.posts.total_categories', {count: total}) }}
@@ -41,7 +41,7 @@
                 </div>
                 <div class="category-card__footer">
                     <i class="pi pi-file" />
-                    <span>{{ category.postCount || 0 }} {{ $t('pages.posts.title') }}</span>
+                    <span>{{ $t('pages.posts.article_count', {count: category.postCount || 0}) }}</span>
                 </div>
             </NuxtLink>
         </div>

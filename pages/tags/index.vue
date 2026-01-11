@@ -2,7 +2,7 @@
     <div class="tags-index">
         <header class="tags-index__header">
             <h1 class="tags-index__title">
-                {{ $t('pages.admin.tags.title') }}
+                {{ $t('common.tags') }}
             </h1>
             <p class="tags-index__subtitle">
                 {{ $t('pages.posts.total_tags', {count: total}) }}

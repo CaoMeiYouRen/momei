@@ -292,6 +292,7 @@
             "title": "Articles",
             "empty": "No articles found",
             "status_warning": "The current article is in {status} status and has not been officially published. It is only visible to relevant authorized personnel.",
+            "article_count": "{count} Articles",
             "total_count": "{count} articles in total",
             "total_categories": "{count} categories so far",
             "total_tags": "{count} tags so far"

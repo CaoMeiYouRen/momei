@@ -291,6 +291,7 @@
             "title": "文章列表",
             "empty": "暂无文章",
             "status_warning": "当前文章处于 {status} 状态，尚未正式发布，仅相关权限人员可见。",
+            "article_count": "{count} 篇文章",
             "total_count": "共计 {count} 篇文章",
             "total_categories": "目前共计 {count} 个分类",
             "total_tags": "目前共计 {count} 个标签"
