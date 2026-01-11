@@ -48,7 +48,7 @@
                         @click="toggleDark()"
                     />
 
-                    <LanguageSwitcher />
+                    <language-switcher />
 
                     <Button
                         v-if="!user"
@@ -106,7 +106,7 @@
 
                 <div class="mobile-menu__item">
                     <span>{{ $t('components.header.language') }}</span>
-                    <LanguageSwitcher />
+                    <language-switcher />
                 </div>
 
                 <div class="mobile-menu__item">

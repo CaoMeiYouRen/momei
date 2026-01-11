@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import ArticleCard from './ArticleCard.vue'
+import ArticleCard from './article-card.vue'
 
 describe('ArticleCard', () => {
     const mockPost = {

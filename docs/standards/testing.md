@@ -44,8 +44,8 @@ utils/
   ├── date-formatter.ts
   └── date-formatter.test.ts  <-- 单元测试
 components/
-  ├── ArticleCard.vue
-  └── ArticleCard.test.ts     <-- 组件测试
+  ├── article-card.vue
+  └── article-card.test.ts     <-- 组件测试
 ```
 
 ### 3.2 端对端测试 (E2E Tests)
@@ -101,7 +101,7 @@ pnpm run test:coverage
 
     ```bash
     # 仅运行 Header 组件测试
-    pnpm test AppHeader
+    pnpm test app-header
 
     # 仅运行 API Key 相关测试
     pnpm test api-key
