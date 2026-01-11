@@ -146,41 +146,66 @@
 
                             <div class="security-section">
                                 <h3>{{ $t('pages.settings.security.linked_accounts') }}</h3>
-                                <div v-if="linkedAccounts.length === 0" class="no-accounts">
-                                    {{ $t('pages.settings.security.no_linked_accounts') }}
-                                </div>
-                                <div v-else class="linked-accounts-list">
-                                    <div
-                                        v-for="account in linkedAccounts"
-                                        :key="account.id"
-                                        class="linked-account-item"
-                                    >
+                                <div class="linked-accounts-list">
+                                    <!-- GitHub -->
+                                    <div class="linked-account-item">
                                         <div class="account-info">
-                                            <i v-if="account.providerId === 'github'" class="pi pi-github" />
-                                            <i v-else-if="account.providerId === 'google'" class="pi pi-google" />
-                                            <i v-else class="pi pi-globe" />
-                                            <span class="capitalize">{{ account.providerId }}</span>
+                                            <i class="pi pi-github" />
+                                            <span class="capitalize">GitHub</span>
                                         </div>
-                                        <Button
-                                            icon="pi pi-trash"
-                                            severity="danger"
-                                            text
-                                            rounded
-                                            :aria-label="$t('pages.settings.security.unlink_account')"
-                                            :loading="loadingUnlink === account.providerId"
-                                            @click="handleUnlink(account.providerId)"
-                                        />
+                                        <div class="account-actions">
+                                            <Button
+                                                v-if="isGitHubLinked"
+                                                icon="pi pi-trash"
+                                                severity="danger"
+                                                text
+                                                rounded
+                                                :aria-label="$t('pages.settings.security.unlink_account')"
+                                                :loading="loadingUnlink === 'github'"
+                                                @click="handleUnlink('github')"
+                                            />
+                                            <Button
+                                                v-else
+                                                :label="$t('pages.settings.security.link_github')"
+                                                icon="pi pi-github"
+                                                class="github-btn social-btn"
+                                                severity="secondary"
+                                                outlined
+                                                :loading="loadingLink === 'github'"
+                                                @click="handleLink('github')"
+                                            />
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div v-if="!isGitHubLinked" class="link-account-section">
-                                    <Button
-                                        :label="$t('pages.settings.security.link_github')"
-                                        icon="pi pi-github"
-                                        outlined
-                                        :loading="loadingLink === 'github'"
-                                        @click="handleLink('github')"
-                                    />
+                                    <!-- Google -->
+                                    <div class="linked-account-item">
+                                        <div class="account-info">
+                                            <i class="pi pi-google" />
+                                            <span class="capitalize">Google</span>
+                                        </div>
+                                        <div class="account-actions">
+                                            <Button
+                                                v-if="isGoogleLinked"
+                                                icon="pi pi-trash"
+                                                severity="danger"
+                                                text
+                                                rounded
+                                                :aria-label="$t('pages.settings.security.unlink_account')"
+                                                :loading="loadingUnlink === 'google'"
+                                                @click="handleUnlink('google')"
+                                            />
+                                            <Button
+                                                v-else
+                                                :label="$t('pages.settings.security.link_google')"
+                                                icon="pi pi-google"
+                                                class="google-btn social-btn"
+                                                severity="secondary"
+                                                outlined
+                                                :loading="loadingLink === 'google'"
+                                                @click="handleLink('google')"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -361,6 +386,7 @@ const expirationOptions = computed(() => [
 ])
 
 const isGitHubLinked = computed(() => linkedAccounts.value.some((a) => a.providerId === 'github'))
+const isGoogleLinked = computed(() => linkedAccounts.value.some((a) => a.providerId === 'google'))
 
 // Validation Schemas
 const profileSchema = z.object({
@@ -734,9 +760,10 @@ const handleChangePassword = async () => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     border: 1px solid var(--p-surface-border);
     border-radius: 0.5rem;
+    min-height: 4rem;
 
     .account-info {
         display: flex;
@@ -748,19 +775,21 @@ const handleChangePassword = async () => {
             font-size: 1.25rem;
         }
     }
+
+    .account-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .social-btn {
+        width: auto;
+        min-width: 140px;
+    }
 }
 
 .capitalize {
     text-transform: capitalize;
-}
-
-.no-accounts {
-    color: var(--p-text-color-secondary);
-    font-style: italic;
-}
-
-.link-account-section {
-    margin-top: 1rem;
 }
 
 .api-keys-section {

@@ -352,6 +352,7 @@
                 "linked_accounts": "Linked Accounts",
                 "no_linked_accounts": "No linked accounts",
                 "link_github": "Link GitHub",
+                "link_google": "Link Google",
                 "unlink_account": "Unlink Account",
                 "unlink_success": "Account unlinked successfully",
                 "unlink_error": "Failed to unlink account",

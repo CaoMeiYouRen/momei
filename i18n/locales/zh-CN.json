@@ -352,6 +352,7 @@
                 "linked_accounts": "已绑定账号",
                 "no_linked_accounts": "暂无绑定账号",
                 "link_github": "绑定 GitHub",
+                "link_google": "绑定 Google",
                 "unlink_account": "解绑账号",
                 "unlink_success": "账号解绑成功",
                 "unlink_error": "账号解绑失败",
