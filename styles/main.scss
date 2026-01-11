@@ -3,27 +3,27 @@
 @use "./layout" as *;
 
 :root {
-  --p-surface-ground: var(--p-surface-50);
-  --p-surface-card: var(--p-surface-0);
+    --p-surface-ground: var(--p-surface-50);
+    --p-surface-card: var(--p-surface-0);
 }
 
 :root.dark {
-  --p-surface-ground: var(--p-surface-0);
-  --p-surface-card: var(--p-surface-100);
+    --p-surface-ground: var(--p-surface-0);
+    --p-surface-card: var(--p-surface-100);
 }
 
 body {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: var(--p-surface-ground);
-  color: var(--p-text-color);
-  transition: background-color 0.3s, color 0.3s;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--p-surface-ground);
+    color: var(--p-text-color);
+    transition: background-color 0.3s, color 0.3s;
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+    color: inherit;
+    text-decoration: none;
 }
 
 // PrimeVue Select (Dropdown) Dark Mode Fixes
@@ -66,7 +66,8 @@ a {
     color: var(--p-text-color);
 
     &:not(.p-select-option-selected, .p-disabled) {
-        &.p-focus, &:hover {
+        &.p-focus,
+        &:hover {
             background-color: var(--p-surface-200);
         }
     }
@@ -124,87 +125,73 @@ a {
 }
 
 // Social Login Buttons
-.p-button.social-btn {
+.p-button.p-component.social-btn {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 0.5rem;
     transition: all 0.2s;
     width: 100%;
-    background: transparent !important;
+    background: transparent;
 
     &.github-btn {
-        color: #24292e !important;
-        border-color: #24292e !important;
-
-        .p-button-icon {
-            color: #24292e !important;
-        }
-
-        &:hover {
-            background-color: rgba(#24292e, 0.05) !important;
-        }
+        --btn-color: #24292e;
+        --btn-border: #24292e;
+        --btn-hover-bg: rgba(36, 41, 46, 0.05);
 
         :root.dark & {
-            color: #ffffff !important;
-            border-color: #ffffff !important;
-
-            .p-button-icon {
-                color: #ffffff !important;
-            }
-
-            &:hover {
-                background-color: rgba(#ffffff, 0.1) !important;
-            }
+            --btn-color: #ffffff;
+            --btn-border: #ffffff;
+            --btn-hover-bg: rgba(255, 255, 255, 0.1);
         }
     }
 
     &.google-btn {
-        color: #4285f4 !important;
-        border-color: #4285f4 !important;
-
-        .p-button-icon {
-            color: #4285f4 !important;
-        }
-
-        &:hover {
-            background-color: rgba(#4285f4, 0.05) !important;
-        }
+        --btn-color: #4285f4;
+        --btn-border: #4285f4;
+        --btn-hover-bg: rgba(66, 133, 244, 0.05);
 
         :root.dark & {
-            color: #ffffff !important; // Google text can be white in dark mode for better contrast
-            border-color: #ffffff !important;Googletextcanbewhiteindarkmodeforbettercontrastborder-color
-
-            .p-button-icon {
-                color: #4285f4 !important; // But keep the G logo blue
-            }
-
-            &:hover {
-                background-color: rgba(#ffffff, 0.1) !important;
-            }
+            --btn-text-color: #ffffff;
+            --btn-border: #ffffff;
+            --btn-hover-bg: rgba(255, 255, 255, 0.1);
+            --icon-color: #4285f4;
         }
+    }
+
+    color: var(--btn-text-color, var(--btn-color));
+    border-color: var(--btn-border);
+
+    .p-button-icon {
+        color: var(--icon-color, inherit);
+        font-size: 1.1rem;
     }
 
     .p-button-label {
         font-weight: 500;
-        color: inherit !important;
+        color: inherit;
         flex: none;
+    }
+
+    &:hover {
+        background: var(--btn-hover-bg);
+        border-color: var(--btn-color);
     }
 }
 
 // Global Divider background fix
-.p-divider {
+.p-divider.p-component {
     margin: 1.5rem 0;
 
     .p-divider-content {
-        background-color: var(--p-surface-card) !important;
-        color: var(--p-text-muted-color) !important;
+        background-color: var(--p-surface-card);
+        color: var(--p-text-muted-color);
         font-size: 0.875rem;
         padding: 0 0.75rem;
     }
 
     &::before {
-        border-color: var(--p-surface-border) !important;
+        border-color: var(--p-surface-border);
     }
 }
 
