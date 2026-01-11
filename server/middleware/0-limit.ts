@@ -7,11 +7,19 @@ export default defineEventHandler(async (event) => {
             // auth 路由的频率限制由 better-auth 提供，故此处不做处理
             return
         }
-        if (event.path.startsWith('/api/file')) {
+        if (event.path.startsWith('/api/file') || event.path.startsWith('/api/user/avatar')) {
             // 限制 文件上传频率
             await rateLimit(event, {
                 window: 60,
                 max: 5,
+            })
+            return
+        }
+        if (event.path.startsWith('/api/subscribe')) {
+            // 限制 订阅 频率
+            await rateLimit(event, {
+                window: 60,
+                max: 3,
             })
             return
         }

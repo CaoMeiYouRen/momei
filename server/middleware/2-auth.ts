@@ -21,6 +21,16 @@ export default defineEventHandler(async (event) => {
         return
     }
 
+    // 外部 API 路径不需要 session 验证
+    if (event.path.startsWith('/api/external')) {
+        return
+    }
+
+    // 订阅接口不需要 session 验证
+    if (event.path === '/api/subscribe') {
+        return
+    }
+
     // 仅拦截 API 请求
     if (event.path.startsWith('/api')) {
         if (!session) {
