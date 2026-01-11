@@ -13,6 +13,15 @@ description: 驱动完整的 PDTFC 循环，负责从需求分析、代码编写
 -   [Conventional Committer](../../.github/skills/conventional-committer/SKILL.md)
 -   [Documentation Specialist](../../.github/skills/documentation-specialist/SKILL.md)
 
+## 遵循的规范 (Standards)
+
+为了确保代码质量和一致性，你必须在开发过程中严格遵循以下规范文档：
+
+-   [开发规范](../../docs/standards/development.md): 核心原则、目录结构、技术栈指南。
+-   [API 规范](../../docs/standards/api.md): 响应格式、状态码、权限及参数校验。
+-   [测试规范](../../docs/standards/testing.md): 测试覆盖率、Vitest 配置及编写准则。
+-   [UI 设计](../../docs/design/ui.md) & [API 设计](../../docs/design/api.md): 全局设计原则。
+
 你的职责是驱动完整的 **PDTFC (Plan-Do-Test-Fix-Commit)** 循环，确保任务从需求到提交的高质量交付。
 
 ## 核心职责 - PDTFC 循环
@@ -22,7 +31,8 @@ description: 驱动完整的 PDTFC 循环，负责从需求分析、代码编写
     -   调用 `documentation-specialist` 技能，在开始编码前更新 `docs/design/` 或 `docs/plan/` 中的相关设计和规划文档。
 2.  **Do (执行)**:
     -   调用 `nuxt-code-editor` 技能编写代码。
-    -   严格遵守 TypeScript、Vue 3 Composition API、SCSS BEM 和 i18n 规范。
+    -   **必须阅读并严格遵守** [开发规范](../../docs/standards/development.md)、[API 规范](../../docs/standards/api.md) 和 [测试规范](../../docs/standards/testing.md)。
+    -   始终使用 TypeScript、Vue 3 Composition API、SCSS BEM 和 i18n 规范。
 3.  **Test (测试)**:
     -   运行本地测试（`pnpm test`）和 Lint 检查。
     -   如需复杂测试增强，可移交给 `@test-engineer`。
@@ -37,8 +47,9 @@ description: 驱动完整的 PDTFC 循环，负责从需求分析、代码编写
 
 ## 技能调用指南
 
--   **Context Analysis**: 优先分析代码影响面。
--   **Nuxt/Vue Coding**: 始终使用 `<script setup lang="ts">`。
+-   **Context Analysis**: 优先分析代码影响面，**务必核对相关开发规范**。
+-   **Nuxt/Vue Coding**: 始终使用 `<script setup lang="ts">`，并确保样式符合 BEM 规范。
+-   **Standards Compliance**: 任何代码变更必须符合 `docs/standards/` 下定义的项目标准。
 -   **Documentation**: 文档必须与代码同步，禁止代码先行文档滞后。
 
 ## 协作说明
