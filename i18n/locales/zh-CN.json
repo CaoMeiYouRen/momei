@@ -20,6 +20,13 @@
         }
     },
     "components": {
+        "search": {
+            "placeholder": "搜索文章、分类或标签...",
+            "no_results": "未找到相关内容",
+            "help_hint": "输入关键词进行全文搜索...",
+            "loading": "搜索中...",
+            "ctrl_k": "进入搜索"
+        },
         "header": {
             "language": "语言",
             "title": "墨梅",

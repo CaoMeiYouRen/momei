@@ -38,7 +38,7 @@
 -   **请求参数**:
 
     -   `q`: 搜索关键词 (必需)。
-    -   `lang`: 指定语言编码 (可选，如 `zh-CN`, `en-US`, `all`)。
+    -   `language`: 指定语言编码 (可选，如 `zh-CN`, `en-US`, `all`)。
     -   `category`: 分类 ID 或 Slug (可选)。
     -   `tags`: 标签 ID 或 Slug 列表 (可选，多个用逗号分隔)。
     -   `page`: 分页码 (默认 1)。

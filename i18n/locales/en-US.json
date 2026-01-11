@@ -20,6 +20,13 @@
         }
     },
     "components": {
+        "search": {
+            "placeholder": "Search posts, categories or tags...",
+            "no_results": "No results found",
+            "help_hint": "Type keywords to search...",
+            "loading": "Searching...",
+            "ctrl_k": "Search"
+        },
         "header": {
             "language": "Language",
             "title": "Momei",

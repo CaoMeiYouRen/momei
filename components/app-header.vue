@@ -41,6 +41,14 @@
                     </template>
 
                     <Button
+                        v-tooltip.bottom="$t('components.search.ctrl_k')"
+                        icon="pi pi-search"
+                        text
+                        rounded
+                        @click="openSearch"
+                    />
+
+                    <Button
                         v-tooltip.bottom="isDark ? $t('components.header.light_mode') : $t('components.header.dark_mode')"
                         :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
                         text
@@ -85,6 +93,13 @@
             class="mobile-drawer"
         >
             <div class="mobile-menu">
+                <div
+                    class="mobile-nav-link"
+                    @click="isMobileMenuOpen = false; openSearch()"
+                >
+                    <i class="pi pi-search" />
+                    {{ $t('components.search.placeholder') }}
+                </div>
                 <NuxtLink
                     :to="localePath('/posts')"
                     class="mobile-nav-link"
@@ -163,6 +178,7 @@ import { ref, onMounted, computed } from 'vue'
 import { authClient } from '@/lib/auth-client'
 
 const { t } = useI18n()
+const { openSearch } = useSearch()
 const session = authClient.useSession()
 const user = computed(() => session.value?.data?.user)
 const localePath = useLocalePath()
