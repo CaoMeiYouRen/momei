@@ -83,7 +83,7 @@ CREATE TABLE "momei_category" (
   "slug" varchar NOT NULL,
   "description" varchar,
   "parent_id" varchar,
-  "language" varchar NOT NULL DEFAULT ('zh'),
+  "language" varchar NOT NULL DEFAULT ('zh-CN'),
   "created_at" datetime NOT NULL DEFAULT (DATETIME('now')),
   "updated_at" datetime NOT NULL DEFAULT (DATETIME('now')),
   CONSTRAINT "UQ_category_slug" UNIQUE ("slug"),
@@ -95,7 +95,7 @@ CREATE TABLE "momei_tag" (
   "id" varchar PRIMARY KEY NOT NULL,
   "name" varchar NOT NULL,
   "slug" varchar NOT NULL,
-  "language" varchar NOT NULL DEFAULT ('zh'),
+  "language" varchar NOT NULL DEFAULT ('zh-CN'),
   "created_at" datetime NOT NULL DEFAULT (DATETIME('now')),
   "updated_at" datetime NOT NULL DEFAULT (DATETIME('now')),
   CONSTRAINT "UQ_tag_slug" UNIQUE ("slug")
@@ -110,7 +110,7 @@ CREATE TABLE "momei_post" (
   "summary" text,
   "cover_image" varchar,
   "status" varchar NOT NULL DEFAULT ('draft'),
-  "language" varchar NOT NULL DEFAULT ('zh'),
+  "language" varchar NOT NULL DEFAULT ('zh-CN'),
   "views" integer NOT NULL DEFAULT (0),
   "published_at" datetime,
   "created_at" datetime NOT NULL DEFAULT (DATETIME('now')),
@@ -145,7 +145,22 @@ CREATE TABLE "momei_api_key" (
   CONSTRAINT "FK_api_key_user" FOREIGN KEY ("user_id") REFERENCES "momei_user" ("id") ON DELETE CASCADE
 );
 
+-- 12. 订阅者表
+CREATE TABLE "momei_subscriber" (
+  "id" varchar PRIMARY KEY NOT NULL,
+  "email" varchar NOT NULL,
+  "is_active" boolean NOT NULL DEFAULT (1),
+  "language" varchar NOT NULL DEFAULT ('zh-CN'),
+  "user_id" varchar,
+  "created_at" datetime NOT NULL DEFAULT (DATETIME('now')),
+  "updated_at" datetime NOT NULL DEFAULT (DATETIME('now')),
+  CONSTRAINT "UQ_subscriber_email" UNIQUE ("email"),
+  CONSTRAINT "FK_subscriber_user" FOREIGN KEY ("user_id") REFERENCES "momei_user" ("id") ON DELETE SET NULL
+);
+
 -- 索引
 CREATE INDEX "IDX_post_author" ON "momei_post" ("author_id");
 CREATE INDEX "IDX_post_category" ON "momei_post" ("category_id");
 CREATE INDEX "IDX_api_key_user" ON "momei_api_key" ("user_id");
+CREATE INDEX "IDX_subscriber_user" ON "momei_subscriber" ("user_id");
+

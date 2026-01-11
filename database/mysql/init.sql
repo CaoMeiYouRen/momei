@@ -93,7 +93,7 @@ CREATE TABLE `momei_category` (
   `slug` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
   `parent_id` varchar(255) DEFAULT NULL,
-  `language` varchar(255) NOT NULL DEFAULT 'zh',
+  `language` varchar(255) NOT NULL DEFAULT 'zh-CN',
   `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   PRIMARY KEY (`id`),
@@ -107,7 +107,7 @@ CREATE TABLE `momei_tag` (
   `id` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `slug` varchar(255) NOT NULL,
-  `language` varchar(255) NOT NULL DEFAULT 'zh',
+  `language` varchar(255) NOT NULL DEFAULT 'zh-CN',
   `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   PRIMARY KEY (`id`),
@@ -123,7 +123,7 @@ CREATE TABLE `momei_post` (
   `summary` text DEFAULT NULL,
   `cover_image` varchar(255) DEFAULT NULL,
   `status` varchar(255) NOT NULL DEFAULT 'draft',
-  `language` varchar(255) NOT NULL DEFAULT 'zh',
+  `language` varchar(255) NOT NULL DEFAULT 'zh-CN',
   `views` int NOT NULL DEFAULT 0,
   `published_at` datetime(6) DEFAULT NULL,
   `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
@@ -164,3 +164,19 @@ CREATE TABLE `momei_api_key` (
   KEY `IDX_api_key_user` (`user_id`),
   CONSTRAINT `FK_api_key_user` FOREIGN KEY (`user_id`) REFERENCES `momei_user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 12. 订阅者表
+CREATE TABLE `momei_subscriber` (
+  `id` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `is_active` tinyint NOT NULL DEFAULT 1,
+  `language` varchar(255) NOT NULL DEFAULT 'zh-CN',
+  `user_id` varchar(255) DEFAULT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UQ_subscriber_email` (`email`),
+  KEY `IDX_subscriber_user` (`user_id`),
+  CONSTRAINT `FK_subscriber_user` FOREIGN KEY (`user_id`) REFERENCES `momei_user` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
