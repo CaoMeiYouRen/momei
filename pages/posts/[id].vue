@@ -37,8 +37,13 @@
                 v-if="post.status !== 'published'"
                 class="post-detail__status-banner"
             >
-                <i class="pi pi-exclamation-triangle" />
-                <span>{{ $t('pages.posts.status_warning', {status: $t(`common.status.${post.status}`)}) }}</span>
+                <Message
+                    severity="warn"
+                    :closable="false"
+                >
+                    <i class="pi pi-exclamation-triangle" />
+                    {{ $t('pages.posts.status_warning', {status: $t(`common.status.${post.status}`)}) }}
+                </Message>
             </div>
 
             <!-- Cover Image -->
@@ -320,7 +325,7 @@ onMounted(async () => {
         align-items: center;
         gap: 0.75rem;
         padding: 1rem 1.5rem;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         background-color: color-mix(in srgb, var(--p-warning-color), white 85%);
         border: 2px solid var(--p-warning-color);
         border-radius: 0.75rem;
