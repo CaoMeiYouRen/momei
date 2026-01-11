@@ -82,6 +82,96 @@ a {
     }
 }
 
+// PrimeVue DataTable & Paginator Dark Mode Fixes
+.p-datatable {
+    background-color: transparent;
+
+    .p-datatable-header,
+    .p-datatable-footer {
+        background-color: transparent;
+        color: var(--p-text-color);
+        border-color: var(--p-surface-border);
+    }
+
+    .p-datatable-thead > tr > th {
+        background-color: var(--p-surface-card);
+        color: var(--p-text-color);
+        border-color: var(--p-surface-border);
+        transition: background-color 0.3s;
+    }
+
+    .p-datatable-tbody > tr {
+        background-color: var(--p-surface-card);
+        color: var(--p-text-color);
+        border-color: var(--p-surface-border);
+        transition: background-color 0.3s;
+
+        &.p-datatable-row-selected {
+            background-color: var(--p-primary-900);
+            color: var(--p-primary-100);
+        }
+
+        &:hover {
+            background-color: var(--p-surface-200) !important;
+        }
+    }
+
+    .p-datatable-paginator {
+        background-color: transparent;
+        border-top: 1px solid var(--p-surface-border);
+        padding: 0.75rem;
+    }
+}
+
+.p-paginator {
+    background-color: transparent;
+    color: var(--p-text-muted-color);
+
+    .p-paginator-page,
+    .p-paginator-next,
+    .p-paginator-last,
+    .p-paginator-first,
+    .p-paginator-prev {
+        color: var(--p-text-color);
+        min-width: 2.5rem;
+        height: 2.5rem;
+        transition: background-color 0.3s, color 0.3s;
+
+        &:not(.p-highlight):not(.p-disabled):hover {
+            background-color: var(--p-surface-200);
+        }
+
+        &.p-highlight {
+            background-color: var(--p-primary-color);
+            color: var(--p-primary-contrast-color);
+        }
+    }
+}
+
+// PrimeVue Dialog & Drawer Dark Mode Fixes
+.p-dialog,
+.p-drawer {
+    background-color: var(--p-surface-card) !important;
+    border: 1px solid var(--p-surface-border);
+    color: var(--p-text-color);
+
+    .p-dialog-header,
+    .p-drawer-header {
+        background-color: var(--p-surface-card);
+        color: var(--p-text-color);
+    }
+
+    .p-dialog-content,
+    .p-drawer-content {
+        background-color: var(--p-surface-card);
+        color: var(--p-text-color);
+    }
+
+    .p-dialog-footer {
+        background-color: var(--p-surface-card);
+    }
+}
+
 .container {
     width: 100%;
     max-width: 1200px;

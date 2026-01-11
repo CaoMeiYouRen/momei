@@ -759,10 +759,6 @@ onMounted(() => {
     padding: 1rem;
     border-radius: 0.5rem;
 
-    :global(.dark) & {
-        background-color: var(--p-surface-900);
-    }
-
     &__header {
         display: flex;
         align-items: flex-start;
