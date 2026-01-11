@@ -21,9 +21,22 @@
             <div class="article-copyright__item">
                 <span class="article-copyright__label">{{ $t('components.post.copyright.license_title') }}:</span>
                 <span class="article-copyright__value">
-                    {{ $t('components.post.copyright.license_pre') }}
-                    <strong class="license-name">{{ licenseName }}</strong>
-                    {{ $t('components.post.copyright.license_post') }}
+                    <template v-if="licenseKey === 'all-rights-reserved'">
+                        <strong class="license-name">{{ licenseName }}</strong>
+                    </template>
+                    <template v-else>
+                        {{ $t('components.post.copyright.license_pre') }}
+                        <a
+                            v-if="licenseUrl"
+                            :href="licenseUrl"
+                            target="_blank"
+                            class="article-copyright__link"
+                        >
+                            <strong class="license-name">{{ licenseName }}</strong>
+                        </a>
+                        <strong v-else class="license-name">{{ licenseName }}</strong>
+                        {{ $t('components.post.copyright.license_post') }}
+                    </template>
                 </span>
             </div>
         </div>
@@ -31,16 +44,38 @@
 </template>
 
 <script setup lang="ts">
+import { COPYRIGHT_LICENSES, type CopyrightType } from '@/types/copyright'
+
 const props = defineProps<{
     authorName: string
     url: string
     license?: string | null
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+const licenseKey = computed(() => {
+    return (props.license || t('components.post.copyright.default_license')) as CopyrightType
+})
 
 const licenseName = computed(() => {
-    return props.license || t('components.post.copyright.default_license')
+    return t(`components.post.copyright.licenses.${licenseKey.value}`)
+})
+
+const licenseUrl = computed(() => {
+    const meta = COPYRIGHT_LICENSES[licenseKey.value]
+    if (!meta || !meta.url) return null
+
+    // For CC licenses, append language if available
+    if (licenseKey.value.startsWith('cc-')) {
+        const langMap: Record<string, string> = {
+            'zh-CN': 'deed.zh-hans',
+            'en-US': 'deed.en',
+        }
+        const suffix = langMap[locale.value] || ''
+        return suffix ? `${meta.url}${suffix}` : meta.url
+    }
+    return meta.url
 })
 </script>
 

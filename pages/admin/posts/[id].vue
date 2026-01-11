@@ -119,10 +119,14 @@
 
                 <div class="form-group">
                     <label for="copyright" class="form-label">{{ $t('pages.admin.posts.copyright') }}</label>
-                    <InputText
+                    <Select
                         id="copyright"
                         v-model="post.copyright"
-                        :placeholder="$t('components.post.copyright.default_license')"
+                        :options="licenseOptions"
+                        option-label="label"
+                        option-value="value"
+                        :placeholder="$t('components.post.copyright.licenses.all-rights-reserved')"
+                        show-clear
                     />
                     <small class="form-hint">{{ $t('pages.admin.posts.copyright_hint') }}</small>
                 </div>
@@ -177,6 +181,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { load } from 'js-yaml'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
+import { COPYRIGHT_LICENSES, type CopyrightType } from '@/types/copyright'
+
 definePageMeta({
     layout: false,
 })
@@ -188,6 +194,13 @@ const router = useRouter()
 const toast = useToast()
 
 const md = ref<any>(null)
+
+const licenseOptions = computed(() => {
+    return Object.keys(COPYRIGHT_LICENSES).map((key) => ({
+        label: t(`components.post.copyright.licenses.${key}`),
+        value: key,
+    }))
+})
 
 interface Post {
     id?: string

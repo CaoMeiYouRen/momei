@@ -52,7 +52,17 @@
                 "license_title": "Copyright Notice",
                 "license_pre": "Except where otherwise noted, all articles in this blog are licensed under ",
                 "license_post": ". Please credit the source when reposting!",
-                "default_license": "CC BY-NC-SA 4.0"
+                "default_license": "all-rights-reserved",
+                "licenses": {
+                    "all-rights-reserved": "All Rights Reserved (No Reposting)",
+                    "cc-by": "CC BY 4.0 (Attribution)",
+                    "cc-by-sa": "CC BY-SA 4.0 (Attribution-ShareAlike)",
+                    "cc-by-nd": "CC BY-ND 4.0 (Attribution-NoDerivs)",
+                    "cc-by-nc": "CC BY-NC 4.0 (Attribution-NonCommercial)",
+                    "cc-by-nc-sa": "CC BY-NC-SA 4.0 (Attribution-NonCommercial-ShareAlike)",
+                    "cc-by-nc-nd": "CC BY-NC-ND 4.0 (Attribution-NonCommercial-NoDerivs)",
+                    "cc-zero": "CC0 1.0 (Public Domain)"
+                }
             }
         }
     },
