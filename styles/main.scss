@@ -137,7 +137,7 @@ a {
         height: 2.5rem;
         transition: background-color 0.3s, color 0.3s;
 
-        &:not(.p-highlight):not(.p-disabled):hover {
+        &:not(.p-highlight, .p-disabled):hover {
             background-color: var(--p-surface-200);
         }
 

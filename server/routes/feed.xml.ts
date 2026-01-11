@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
         image: `${siteUrl}/logo.png`,
         favicon: `${siteUrl}/favicon.ico`,
         copyright: `All rights reserved ${new Date().getFullYear()}, ${appName}`,
-        updated: posts.length > 0 ? posts[0].publishedAt || new Date() : new Date(),
+        updated: posts[0]?.publishedAt || new Date(),
         generator: 'Momei Blog',
         feedLinks: {
             rss2: `${siteUrl}/feed.xml`,

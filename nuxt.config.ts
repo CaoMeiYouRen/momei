@@ -94,8 +94,6 @@ export default defineNuxtConfig({
         },
     },
     sitemap: {
-        // 自动发现路由，并配置多语言支持
-        i18n: true,
         // 如果需要排除某些路径
         exclude: ['/admin/**', '/settings/**', '/login', '/register'],
     },
