@@ -366,6 +366,12 @@
                 "prefix": "前缀",
                 "expires_at": "过期时间",
                 "never_expires": "永不过期",
+                "expired_at_options": {
+                    "never": "永不过期",
+                    "7d": "7天",
+                    "30d": "30天",
+                    "365d": "365天"
+                },
                 "created_at": "创建时间",
                 "last_used_at": "最后使用",
                 "delete_confirm": "确定要撤销此 API 密钥吗？",

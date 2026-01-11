@@ -193,23 +193,40 @@
                         </template>
                         <template #content>
                             <div class="api-keys-section">
-                                <p class="mb-4 text-secondary">
+                                <p class="mb-6 text-secondary text-sm">
                                     {{ $t('pages.settings.api_keys.description') }}
                                 </p>
 
-                                <div class="flex gap-2 mb-6">
-                                    <InputText
-                                        v-model="newKeyName"
-                                        :placeholder="$t('pages.settings.api_keys.name')"
-                                        class="flex-1"
-                                        @keyup.enter="handleCreateApiKey"
-                                    />
-                                    <Button
-                                        :label="$t('pages.settings.api_keys.create_btn')"
-                                        :loading="loading"
-                                        :disabled="!newKeyName.trim()"
-                                        @click="handleCreateApiKey"
-                                    />
+                                <div class="bg-surface-50/50 border mb-8 p-4 rounded-xl">
+                                    <div class="gap-4 grid grid-cols-1 items-end md:grid-cols-[1fr,200px,auto]">
+                                        <div class="flex flex-col gap-2">
+                                            <label class="font-semibold ml-1 text-sm">{{ $t('pages.settings.api_keys.name') }}</label>
+                                            <InputText
+                                                v-model="newKeyName"
+                                                :placeholder="$t('pages.settings.api_keys.name')"
+                                                fluid
+                                                @keyup.enter="handleCreateApiKey"
+                                            />
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <label class="font-semibold ml-1 text-sm">{{ $t('pages.settings.api_keys.expires_at') }}</label>
+                                            <Select
+                                                v-model="expirationOption"
+                                                :options="expirationOptions"
+                                                option-label="label"
+                                                option-value="value"
+                                                fluid
+                                            />
+                                        </div>
+                                        <Button
+                                            :label="$t('pages.settings.api_keys.create_btn')"
+                                            icon="pi pi-plus"
+                                            :loading="loading"
+                                            :disabled="!newKeyName.trim()"
+                                            class="px-6"
+                                            @click="handleCreateApiKey"
+                                        />
+                                    </div>
                                 </div>
 
                                 <DataTable
@@ -217,25 +234,47 @@
                                     :loading="loadingKeys"
                                     class="p-datatable-sm"
                                 >
-                                    <Column field="name" :header="$t('pages.settings.api_keys.name')" />
-                                    <Column field="prefix" :header="$t('pages.settings.api_keys.prefix')" />
+                                    <Column field="name" :header="$t('pages.settings.api_keys.name')">
+                                        <template #body="{data}">
+                                            <span class="font-medium text-surface-900">{{ data.name }}</span>
+                                        </template>
+                                    </Column>
+                                    <Column field="prefix" :header="$t('pages.settings.api_keys.prefix')">
+                                        <template #body="{data}">
+                                            <code class="bg-surface-100 border border-surface-200 dark:bg-surface-800 dark:border-surface-700 font-mono px-2 py-1 rounded text-xs">
+                                                {{ data.prefix }}...
+                                            </code>
+                                        </template>
+                                    </Column>
                                     <Column field="lastUsedAt" :header="$t('pages.settings.api_keys.last_used_at')">
                                         <template #body="{data}">
-                                            {{ data.lastUsedAt ? formatDate(data.lastUsedAt) : '-' }}
+                                            <span class="text-sm text-surface-600">
+                                                {{ data.lastUsedAt ? formatDate(data.lastUsedAt) : '-' }}
+                                            </span>
                                         </template>
                                     </Column>
                                     <Column field="expiresAt" :header="$t('pages.settings.api_keys.expires_at')">
                                         <template #body="{data}">
-                                            {{ data.expiresAt ? formatDate(data.expiresAt) : $t('pages.settings.api_keys.never_expires') }}
+                                            <Tag
+                                                v-if="data.expiresAt"
+                                                severity="secondary"
+                                                :value="formatDate(data.expiresAt)"
+                                                class="text-xs"
+                                            />
+                                            <span v-else class="italic text-sm text-surface-500">
+                                                {{ $t('pages.settings.api_keys.never_expires') }}
+                                            </span>
                                         </template>
                                     </Column>
                                     <Column :header="$t('common.actions')" class="text-right">
                                         <template #body="{data}">
                                             <Button
+                                                v-tooltip.top="$t('common.delete')"
                                                 icon="pi pi-trash"
                                                 severity="danger"
                                                 text
                                                 rounded
+                                                size="small"
                                                 @click="handleDeleteApiKey(data.id)"
                                             />
                                         </template>
@@ -311,6 +350,13 @@ const loadingKeys = ref(false)
 const showNewKeyDialog = ref(false)
 const newKeyName = ref('')
 const newlyCreatedKey = ref<string | null>(null)
+const expirationOption = ref('never')
+const expirationOptions = computed(() => [
+    { label: t('pages.settings.api_keys.expired_at_options.never'), value: 'never' },
+    { label: t('pages.settings.api_keys.expired_at_options.7d'), value: '7d' },
+    { label: t('pages.settings.api_keys.expired_at_options.30d'), value: '30d' },
+    { label: t('pages.settings.api_keys.expired_at_options.365d'), value: '365d' },
+])
 
 const isGitHubLinked = computed(() => linkedAccounts.value.some((a) => a.providerId === 'github'))
 
@@ -436,12 +482,16 @@ const handleCreateApiKey = async () => {
     try {
         const response = await $fetch<{ code: number, data: any }>('/api/user/api-keys', {
             method: 'POST',
-            body: { name: newKeyName.value.trim() },
+            body: {
+                name: newKeyName.value.trim(),
+                expiresIn: expirationOption.value,
+            },
         })
         if (response.code === 200) {
             newlyCreatedKey.value = response.data.key
             showNewKeyDialog.value = true
             newKeyName.value = ''
+            expirationOption.value = 'never'
             toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.api_keys.create_success'), life: 3000 })
             await fetchApiKeys()
         }

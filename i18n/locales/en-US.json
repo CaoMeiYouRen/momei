@@ -366,6 +366,12 @@
                 "prefix": "Prefix",
                 "expires_at": "Expires At",
                 "never_expires": "Never Expires",
+                "expired_at_options": {
+                    "never": "Never",
+                    "7d": "7 Days",
+                    "30d": "30 Days",
+                    "365d": "365 Days"
+                },
                 "created_at": "Created At",
                 "last_used_at": "Last Used",
                 "delete_confirm": "Are you sure you want to revoke this API key?",

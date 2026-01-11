@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import dayjs from 'dayjs'
 import { auth } from '@/lib/auth'
 import { dataSource } from '@/server/database'
 import { ApiKey } from '@/server/entities/api-key'
@@ -6,7 +7,7 @@ import { generateApiKey, hashApiKey } from '@/server/utils/api-key'
 
 const schema = z.object({
     name: z.string().min(1).max(50),
-    expiresAt: z.string().optional(), // ISO date string
+    expiresIn: z.enum(['never', '7d', '30d', '365d']).optional().default('never'),
 })
 
 export default defineEventHandler(async (event) => {
@@ -25,8 +26,10 @@ export default defineEventHandler(async (event) => {
     apiKey.name = body.name
     apiKey.key = hashedKey
     apiKey.prefix = prefix
-    if (body.expiresAt) {
-        apiKey.expiresAt = new Date(body.expiresAt)
+
+    if (body.expiresIn && body.expiresIn !== 'never') {
+        const days = Number.parseInt(body.expiresIn.replace('d', ''))
+        apiKey.expiresAt = dayjs().add(days, 'day').toDate()
     }
 
     const repo = dataSource.getRepository(ApiKey)

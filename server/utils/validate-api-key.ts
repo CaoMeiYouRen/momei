@@ -30,7 +30,7 @@ export const validateApiKeyRequest = async (event: H3Event) => {
         throw createError({ statusCode: 401, statusMessage: 'Invalid API Key' })
     }
 
-    if (matchedKey.expiresAt && matchedKey.expiresAt < new Date()) {
+    if (matchedKey.expiresAt && new Date(matchedKey.expiresAt) < new Date()) {
         throw createError({ statusCode: 401, statusMessage: 'API Key Expired' })
     }
 
