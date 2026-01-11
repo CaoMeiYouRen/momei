@@ -18,7 +18,7 @@ export const tagUpdateSchema = z.object({
     language: z.string().optional(),
 })
 
-export const tagQuerySchema = paginationSchema.merge(sortingSchema).extend({
+export const tagQuerySchema = paginationSchema.extend(sortingSchema.shape).extend({
     search: z.string().optional(),
     language: z.string().optional(),
 })

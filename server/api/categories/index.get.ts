@@ -23,7 +23,16 @@ export default defineEventHandler(async (event) => {
         queryBuilder.andWhere('category.language = :language', { language: query.language })
     }
 
-    queryBuilder.orderBy('category.createdAt', 'DESC')
+    if (query.orderBy === 'postCount') {
+        queryBuilder.addSelect((subQuery) => subQuery
+            .select('count(p.id)', 'pcount')
+            .from('post', 'p')
+            .where('p.categoryId = category.id')
+            .andWhere('p.status = :status', { status: 'published' }), 'pcount')
+        queryBuilder.orderBy('pcount', query.order || 'DESC')
+    } else {
+        queryBuilder.orderBy(`category.${query.orderBy || 'createdAt'}`, query.order || 'DESC')
+    }
 
     const [items, total] = await applyPagination(queryBuilder, query).getManyAndCount()
 

@@ -56,6 +56,8 @@ const { data, pending, error } = await useFetch<any>('/api/categories', {
     query: {
         language: locale,
         limit: 100, // Show all
+        orderBy: 'postCount',
+        order: 'DESC',
     },
 })
 
