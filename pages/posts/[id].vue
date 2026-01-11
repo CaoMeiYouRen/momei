@@ -76,6 +76,12 @@
                             <NuxtLink :to="localePath('/posts')" class="breadcrumb-link">
                                 {{ $t('pages.posts.title') }}
                             </NuxtLink>
+                            <template v-if="post.category">
+                                <i class="pi pi-angle-right post-detail__breadcrumb-separator" />
+                                <NuxtLink :to="localePath(`/categories/${post.category.slug}`)" class="breadcrumb-link">
+                                    {{ post.category.name }}
+                                </NuxtLink>
+                            </template>
                             <i class="pi pi-angle-right post-detail__breadcrumb-separator" />
                             <span class="truncate">{{ post.title }}</span>
                         </div>
@@ -109,11 +115,16 @@
                                 <i class="pi pi-clock" />
                                 {{ $t('common.minutes', {min: estimateReadingTime(post.content)}) }}
                             </span>
-                            <Tag
+                            <NuxtLink
                                 v-if="post.category"
-                                :value="post.category.name"
-                                severity="secondary"
-                            />
+                                :to="localePath(`/categories/${post.category.slug}`)"
+                                class="post-detail__category"
+                            >
+                                <Tag
+                                    :value="post.category.name"
+                                    severity="secondary"
+                                />
+                            </NuxtLink>
                         </div>
                     </header>
 
@@ -129,14 +140,19 @@
 
                     <!-- Footer -->
                     <footer class="post-detail__footer">
-                        <div class="post-detail__tags">
-                            <Tag
+                        <div v-if="post.tags && post.tags.length > 0" class="post-detail__tags">
+                            <NuxtLink
                                 v-for="tag in post.tags"
                                 :key="tag.id"
-                                :value="tag.name"
-                                severity="info"
-                                rounded
-                            />
+                                :to="localePath(`/tags/${tag.slug}`)"
+                                class="post-detail__tag-link"
+                            >
+                                <Tag
+                                    :value="tag.name"
+                                    severity="info"
+                                    rounded
+                                />
+                            </NuxtLink>
                         </div>
                         <hr class="post-detail__divider">
                         <SubscriberForm />
@@ -395,6 +411,15 @@ onMounted(async () => {
         gap: 0.5rem;
     }
 
+    &__category {
+        text-decoration: none;
+        transition: transform 0.2s;
+
+        &:hover {
+            transform: translateY(-1px);
+        }
+    }
+
     &__meta-item {
         display: flex;
         align-items: center;
@@ -409,8 +434,19 @@ onMounted(async () => {
 
     &__tags {
         display: flex;
-        gap: 0.5rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
         margin-bottom: 2rem;
+    }
+
+    &__tag-link {
+        text-decoration: none;
+        transition: transform 0.2s, filter 0.2s;
+
+        &:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
     }
 
     &__divider {

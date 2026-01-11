@@ -1,4 +1,4 @@
-import { Brackets } from 'typeorm'
+import { Brackets, type WhereExpressionBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'
@@ -53,8 +53,13 @@ export default defineEventHandler(async (event) => {
     }
 
     // Common filters
-    if (query.category) {
-        qb.andWhere('post.categoryId = :categoryId', { categoryId: query.category })
+    if (query.categoryId) {
+        qb.andWhere('post.categoryId = :categoryId', { categoryId: query.categoryId })
+    } else if (query.category) {
+        qb.andWhere(new Brackets((sub: WhereExpressionBuilder) => {
+            sub.where('category.slug = :cat', { cat: query.category })
+                .orWhere('category.id = :cat', { cat: query.category })
+        }))
     }
 
     if (query.language) {
@@ -63,10 +68,12 @@ export default defineEventHandler(async (event) => {
 
     if (query.tagId) {
         qb.innerJoin('post.tags', 'tag', 'tag.id = :tagId', { tagId: query.tagId })
+    } else if (query.tag) {
+        qb.innerJoin('post.tags', 'tagBySlug', 'tagBySlug.slug = :tagSlug', { tagSlug: query.tag })
     }
 
     if (query.search) {
-        qb.andWhere(new Brackets((subQb) => {
+        qb.andWhere(new Brackets((subQb: WhereExpressionBuilder) => {
             subQb.where('post.title LIKE :search', { search: `%${query.search}%` })
                 .orWhere('post.summary LIKE :search', { search: `%${query.search}%` })
         }))

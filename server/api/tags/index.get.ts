@@ -8,6 +8,7 @@ export default defineEventHandler(async (event) => {
     const tagRepo = dataSource.getRepository(Tag)
 
     const queryBuilder = tagRepo.createQueryBuilder('tag')
+        .loadRelationCountAndMap('tag.postCount', 'tag.posts', 'post', (qb) => qb.where('post.status = :status', { status: 'published' }))
 
     if (query.search) {
         queryBuilder.where('tag.name LIKE :search', { search: `%${query.search}%` })

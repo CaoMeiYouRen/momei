@@ -82,6 +82,8 @@
         "minutes": "{min} min",
         "published_at": "Published at",
         "author": "Author",
+        "tag": "Tag",
+        "tag_cloud": "Tag Cloud",
         "status": {
             "published": "Published",
             "draft": "Draft",
@@ -289,7 +291,10 @@
         "posts": {
             "title": "Articles",
             "empty": "No articles found",
-            "status_warning": "The current article is in {status} status and has not been officially published. It is only visible to relevant authorized personnel."
+            "status_warning": "The current article is in {status} status and has not been officially published. It is only visible to relevant authorized personnel.",
+            "total_count": "{count} articles in total",
+            "total_categories": "{count} categories so far",
+            "total_tags": "{count} tags so far"
         },
         "archives": {
             "meta": {

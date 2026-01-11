@@ -38,7 +38,9 @@ export const postQuerySchema = paginationSchema.extend({
     status: z.preprocess((val) => (val === '' ? undefined : val), z.enum(['published', 'draft', 'pending']).optional()),
     scope: z.enum(['public', 'manage']).default('public'),
     authorId: z.string().optional(),
-    category: z.string().optional(),
+    category: z.string().optional(), // Can match slug or ID in the logic
+    categoryId: z.string().optional(),
+    tag: z.string().optional(), // Tag slug
     tagId: z.string().optional(),
     language: z.string().optional(),
     search: z.string().optional(),

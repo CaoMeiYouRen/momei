@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
 
     const queryBuilder = categoryRepo.createQueryBuilder('category')
         .leftJoinAndSelect('category.parent', 'parent')
-        .leftJoinAndSelect('category.children', 'children')
+        .loadRelationCountAndMap('category.postCount', 'category.posts', 'post', (qb) => qb.where('post.status = :status', { status: 'published' }))
 
     if (query.search) {
         queryBuilder.where('category.name LIKE :search', { search: `%${query.search}%` })

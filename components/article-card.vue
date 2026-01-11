@@ -37,11 +37,28 @@
             </p>
 
             <div class="article-card__footer">
-                <Tag
-                    v-if="post.category"
-                    :value="post.category.name"
-                    severity="secondary"
-                />
+                <div class="article-card__taxonomy" @click.stop>
+                    <NuxtLink
+                        v-if="post.category"
+                        :to="localePath(`/categories/${post.category.slug}`)"
+                        class="article-card__category"
+                    >
+                        <Tag
+                            :value="post.category.name"
+                            severity="secondary"
+                        />
+                    </NuxtLink>
+                    <div v-if="post.tags && post.tags.length > 0" class="article-card__tags">
+                        <NuxtLink
+                            v-for="tag in post.tags.slice(0, 2)"
+                            :key="tag.id"
+                            :to="localePath(`/tags/${tag.slug}`)"
+                            class="article-card__tag"
+                        >
+                            #{{ tag.name }}
+                        </NuxtLink>
+                    </div>
+                </div>
                 <Button
                     :label="$t('common.read_more')"
                     icon="pi pi-arrow-right"
@@ -67,6 +84,13 @@ interface Author {
 interface Category {
     id: string
     name: string
+    slug: string
+}
+
+interface TagType {
+    id: string
+    name: string
+    slug: string
 }
 
 interface Post {
@@ -79,6 +103,7 @@ interface Post {
     publishedAt?: string | Date | null
     author?: Author | null
     category?: Category | null
+    tags?: TagType[] | null
 }
 
 const props = withDefaults(defineProps<{
@@ -176,6 +201,38 @@ const navigateToPost = () => {
         display: flex;
         align-items: center;
         justify-content: space-between;
+    }
+
+    &__taxonomy {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    &__category {
+        text-decoration: none;
+        transition: transform 0.2s;
+
+        &:hover {
+            transform: translateY(-1px);
+        }
+    }
+
+    &__tags {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    &__tag {
+        font-size: 0.75rem;
+        color: var(--p-text-muted-color);
+        text-decoration: none;
+        transition: color 0.2s;
+
+        &:hover {
+            color: var(--p-primary-color);
+        }
     }
 
     &__read-more {

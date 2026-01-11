@@ -16,6 +16,14 @@
                         {{ $t('pages.posts.title') }}
                     </NuxtLink>
 
+                    <NuxtLink :to="localePath('/categories')" class="nav-link">
+                        {{ $t('common.category') }}
+                    </NuxtLink>
+
+                    <NuxtLink :to="localePath('/tags')" class="nav-link">
+                        {{ $t('common.tags') }}
+                    </NuxtLink>
+
                     <NuxtLink :to="localePath('/archives')" class="nav-link">
                         {{ $t('pages.archives.title') }}
                     </NuxtLink>
@@ -107,6 +115,22 @@
                 >
                     <i class="pi pi-file" />
                     {{ $t('pages.posts.title') }}
+                </NuxtLink>
+                <NuxtLink
+                    :to="localePath('/categories')"
+                    class="mobile-nav-link"
+                    @click="isMobileMenuOpen = false"
+                >
+                    <i class="pi pi-list" />
+                    {{ $t('common.category') }}
+                </NuxtLink>
+                <NuxtLink
+                    :to="localePath('/tags')"
+                    class="mobile-nav-link"
+                    @click="isMobileMenuOpen = false"
+                >
+                    <i class="pi pi-tags" />
+                    {{ $t('common.tags') }}
                 </NuxtLink>
                 <NuxtLink
                     :to="localePath('/archives')"
