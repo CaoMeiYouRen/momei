@@ -4,7 +4,7 @@ import { Post } from '@/server/entities/post'
 
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
-    const siteUrl = (config.public.siteUrl as string) || 'https://momei.me'
+    const siteUrl = (config.public.siteUrl as string) || 'https://momei.app'
     const appName = (config.public.appName as string) || '墨梅博客'
 
     const postRepo = dataSource.getRepository(Post)

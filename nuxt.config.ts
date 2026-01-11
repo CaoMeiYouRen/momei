@@ -79,7 +79,7 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             NODE_ENV: process.env.NODE_ENV,
-            siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://momei.me',
+            siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://momei.app',
             appName: process.env.NUXT_PUBLIC_APP_NAME,
             authBaseUrl: process.env.NUXT_PUBLIC_AUTH_BASE_URL,
             clarityProjectId: process.env.NUXT_PUBLIC_CLARITY_PROJECT_ID,
