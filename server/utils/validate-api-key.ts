@@ -21,6 +21,7 @@ export const validateApiKeyRequest = async (event: H3Event) => {
     const repo = dataSource.getRepository(ApiKey)
     const potentialKeys = await repo.find({
         where: { prefix },
+        select: ['id', 'key', 'expiresAt', 'userId'],
         relations: ['user'],
     })
 

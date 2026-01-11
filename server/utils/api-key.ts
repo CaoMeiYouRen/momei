@@ -17,6 +17,10 @@ export const hashApiKey = (key: string) => {
 }
 
 export const verifyApiKey = (key: string, storedHash: string) => {
+    if (!key || !storedHash) {
+        return false
+    }
+
     const [salt, hash] = storedHash.split(':')
 
     if (!salt || !hash) {
