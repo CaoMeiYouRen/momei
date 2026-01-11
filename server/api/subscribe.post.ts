@@ -1,5 +1,6 @@
 import { dataSource } from '@/server/database'
 import { Subscriber } from '@/server/entities/subscriber'
+import { User } from '@/server/entities/user'
 import { subscribeSchema } from '@/utils/schemas/subscriber'
 import { emailService } from '@/server/utils/email/service'
 import logger from '@/server/utils/logger'
@@ -17,11 +18,19 @@ export default defineEventHandler(async (event) => {
 
     const { email, language } = result.data
 
+    // 检查是否存在对应的正式用户
+    const userRepo = dataSource.getRepository(User)
+    const user = await userRepo.findOne({ where: { email } })
+
     const subscriberRepo = dataSource.getRepository(Subscriber)
     const existing = await subscriberRepo.findOne({ where: { email } })
 
     if (existing) {
         if (existing.isActive) {
+            // 如果已存在且活跃，更新关联信息
+            existing.userId = user?.id || existing.userId
+            existing.language = language
+            await subscriberRepo.save(existing)
             return {
                 code: 200,
                 message: 'Already subscribed',
@@ -29,11 +38,13 @@ export default defineEventHandler(async (event) => {
         }
         existing.isActive = true
         existing.language = language
+        existing.userId = user?.id || null
         await subscriberRepo.save(existing)
     } else {
         const subscriber = new Subscriber()
         subscriber.email = email
         subscriber.language = language
+        subscriber.userId = user?.id || null
         await subscriberRepo.save(subscriber)
     }
 

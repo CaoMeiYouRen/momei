@@ -31,6 +31,7 @@ import {
     EMAIL_REQUIRE_VERIFICATION,
     PHONE_EXPIRES_IN,
 } from '@/utils/shared/env'
+import { Subscriber } from '@/server/entities/subscriber'
 import type { User } from '@/server/entities/user'
 import { getTempEmail, getTempName } from '@/server/utils/auth-generators'
 import { emailService } from '@/server/utils/email/service'
@@ -41,7 +42,30 @@ export const auth = betterAuth({
     baseURL: AUTH_BASE_URL,
     // 数据库适配器
     // 使用 TypeORM 适配器
-    database: typeormAdapter(dataSource),
+    database: {
+        ...typeormAdapter(dataSource),
+        hooks: {
+            user: {
+                create: {
+                    after: async (user) => {
+                        // 当新用户注册后，尝试回溯并关联订阅记录
+                        try {
+                            const subscriberRepo = dataSource.getRepository(Subscriber)
+                            const subscriber = await subscriberRepo.findOne({
+                                where: { email: user.email },
+                            })
+                            if (subscriber) {
+                                subscriber.userId = user.id
+                                await subscriberRepo.save(subscriber)
+                            }
+                        } catch (error) {
+                            console.error('Failed to link subscriber after user creation:', error)
+                        }
+                    },
+                },
+            },
+        },
+    },
     // 可信来源列表。
     trustedOrigins: [AUTH_BASE_URL],
     // 用于加密、签名和哈希的秘密。
