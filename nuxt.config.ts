@@ -87,6 +87,7 @@ export default defineNuxtConfig({
             googleAnalyticsId: process.env.NUXT_PUBLIC_GOOGLE_ANALYTICS_ID,
             googleSiteVerification: process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
             bingSiteVerification: process.env.NUXT_PUBLIC_BING_SITE_VERIFICATION,
+            defaultCopyright: process.env.NUXT_PUBLIC_DEFAULT_COPYRIGHT || 'all-rights-reserved',
             sentry: {
                 dsn: process.env.NUXT_PUBLIC_SENTRY_DSN,
                 environment: process.env.NUXT_PUBLIC_SENTRY_ENVIRONMENT || 'development',

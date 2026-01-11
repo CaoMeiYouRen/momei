@@ -53,9 +53,10 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
+const config = useRuntimeConfig()
 
 const licenseKey = computed(() => {
-    return (props.license || t('components.post.copyright.default_license')) as CopyrightType
+    return (props.license || config.public.defaultCopyright || t('components.post.copyright.default_license')) as CopyrightType
 })
 
 const licenseName = computed(() => {

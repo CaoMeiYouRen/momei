@@ -125,7 +125,7 @@
                         :options="licenseOptions"
                         option-label="label"
                         option-value="value"
-                        :placeholder="$t('components.post.copyright.licenses.all-rights-reserved')"
+                        :placeholder="defaultLicenseLabel"
                         show-clear
                     />
                     <small class="form-hint">{{ $t('pages.admin.posts.copyright_hint') }}</small>
@@ -188,6 +188,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const config = useRuntimeConfig()
 
 const route = useRoute()
 const router = useRouter()
@@ -200,6 +201,11 @@ const licenseOptions = computed(() => {
         label: t(`components.post.copyright.licenses.${key}`),
         value: key,
     }))
+})
+
+const defaultLicenseLabel = computed(() => {
+    const key = config.public.defaultCopyright || 'all-rights-reserved'
+    return t(`components.post.copyright.licenses.${key}`)
 })
 
 interface Post {
