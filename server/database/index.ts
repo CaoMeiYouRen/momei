@@ -1,5 +1,5 @@
 import { ms } from 'ms'
-import { DataSource, type DataSourceOptions } from 'typeorm'
+import { DataSource, In, type DataSourceOptions } from 'typeorm'
 import { Account } from '../entities/account'
 import { Session } from '../entities/session'
 import { User } from '../entities/user'
@@ -14,6 +14,7 @@ import { Subscriber } from '../entities/subscriber'
 import logger from '../utils/logger'
 import { CustomLogger } from './logger'
 import { SnakeCaseNamingStrategy } from './naming-strategy'
+import { isAdmin } from '@/utils/shared/roles'
 import {
     DATABASE_TYPE,
     DATABASE_PATH,
@@ -24,6 +25,7 @@ import {
     DATABASE_ENTITY_PREFIX,
     DATABASE_SYNCHRONIZE,
     DEMO_MODE,
+    ADMIN_USER_IDS,
 } from '@/utils/shared/env'
 
 
@@ -35,6 +37,34 @@ let isInitialized = false
 let AppDataSource: DataSource | null = null
 
 const entities = [Account, Session, User, Verification, TwoFactor, Jwks, Post, Category, Tag, ApiKey, Subscriber]
+
+/**
+ * 同步环境变量中的管理员角色到数据库
+ */
+async function syncAdminRoles(ds: DataSource) {
+    if (ADMIN_USER_IDS.length === 0) {
+        return
+    }
+
+    try {
+        const userRepo = ds.getRepository(User)
+        const admins = await userRepo.findBy({ id: In(ADMIN_USER_IDS) })
+
+        for (const user of admins) {
+            if (!isAdmin(user.role)) {
+                const roles = user.role ? user.role.split(',').map((r) => r.trim()).filter(Boolean) : []
+                if (!roles.includes('admin')) {
+                    roles.push('admin')
+                    user.role = roles.join(',')
+                    await userRepo.save(user)
+                    logger.info(`Synchronized admin role for user: ${user.email} (id: ${user.id})`)
+                }
+            }
+        }
+    } catch (error) {
+        logger.error('Failed to synchronize admin roles:', error)
+    }
+}
 
 export const initializeDB = async () => {
     if (isInitialized && AppDataSource) {
@@ -115,6 +145,9 @@ export const initializeDB = async () => {
         await AppDataSource.initialize()
         // 更新连接状态
         isInitialized = true
+
+        // 同步管理员角色
+        await syncAdminRoles(AppDataSource)
 
         // Demo 模式下预填充假数据
         if (DEMO_MODE && isMemoryDB) {
