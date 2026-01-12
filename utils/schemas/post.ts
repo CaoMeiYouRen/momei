@@ -3,7 +3,7 @@ import { isSnowflakeId } from '../shared/validate'
 import { paginationSchema } from './pagination'
 import { PostStatus } from '@/types/post'
 
-const postStatusEnum = z.nativeEnum(PostStatus)
+const postStatusEnum = z.enum(PostStatus)
 
 export const createPostSchema = z.object({
     title: z.string().min(1).max(255),
