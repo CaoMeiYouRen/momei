@@ -112,13 +112,14 @@
 建议使用 Vercel、Netlify 或 Docker 进行部署。
 
 点击下方按钮一键部署到 Vercel。
+
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCaoMeiYouRen%2Fmomei)
 
 ### 数据库支持
 
 墨梅原生支持以下数据库：
 
--   **SQLite**: 默认选项，无需配置服务器，适合个人博客。
+-   **SQLite**: 默认选项，无需配置服务器，适合个人博客，通过 `DATABASE_PATH` 进行配置。
 -   **MySQL / PostgreSQL**: 适合有更高数据管理需求的用户，通过 `DATABASE_URL` 进行配置。
 
 详情请参考 [部署指南](https://docs.momei.app/guide/deploy)。
@@ -184,6 +185,8 @@ pnpm lint
 
 Copyright © 2025 [CaoMeiYouRen](https://github.com/CaoMeiYouRen).
 This project is [MIT](./LICENSE) licensed.
+
+**本项目的 Logo 不在 License 协议范围内，图片版权由项目所有者 [CaoMeiYouRen](https://github.com/CaoMeiYouRen) 保留。如要进行商业化使用，需更换 Logo。非商业化使用的情况允许在不影响项目所有者权益的情况下使用。**
 
 ---
 
