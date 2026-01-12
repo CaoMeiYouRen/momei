@@ -1,6 +1,9 @@
 import { z } from 'zod'
 import { isSnowflakeId } from '../shared/validate'
 import { paginationSchema } from './pagination'
+import { PostStatus } from '@/types/post'
+
+const postStatusEnum = z.nativeEnum(PostStatus)
 
 export const createPostSchema = z.object({
     title: z.string().min(1).max(255),
@@ -15,7 +18,7 @@ export const createPostSchema = z.object({
     categoryId: z.string().nullable().optional(),
     copyright: z.string().nullable().optional(),
     tags: z.array(z.string()).optional(),
-    status: z.enum(['published', 'draft', 'pending']).default('draft'),
+    status: postStatusEnum.default(PostStatus.DRAFT),
 })
 
 export const updatePostSchema = z.object({
@@ -31,11 +34,11 @@ export const updatePostSchema = z.object({
     categoryId: z.string().nullable().optional(),
     copyright: z.string().nullable().optional(),
     tags: z.array(z.string()).optional(),
-    status: z.enum(['published', 'draft', 'pending']).optional(),
+    status: postStatusEnum.optional(),
 })
 
 export const postQuerySchema = paginationSchema.extend({
-    status: z.preprocess((val) => (val === '' ? undefined : val), z.enum(['published', 'draft', 'pending']).optional()),
+    status: z.preprocess((val) => (val === '' ? undefined : val), postStatusEnum.optional()),
     scope: z.enum(['public', 'manage']).default('public'),
     authorId: z.string().optional(),
     category: z.string().optional(), // Can match slug or ID in the logic
@@ -49,7 +52,7 @@ export const postQuerySchema = paginationSchema.extend({
 })
 
 export const updatePostStatusSchema = z.object({
-    status: z.enum(['published', 'draft', 'pending']),
+    status: postStatusEnum,
 })
 
 export const archiveQuerySchema = z.object({

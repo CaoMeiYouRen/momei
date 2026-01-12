@@ -8,6 +8,7 @@ import { updatePostSchema } from '@/utils/schemas/post'
 import { success, fail } from '@/server/utils/response'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { isAdmin } from '@/utils/shared/roles'
+import { PostStatus, POST_STATUS_TRANSITIONS } from '@/types/post'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -46,6 +47,8 @@ export default defineEventHandler(async (event) => {
     if (body.language) {
         post.language = body.language
     }
+
+    // ... (Category logic omitted for brevity in search string)
 
     // Handle Category
     let targetCategoryId: string | null | undefined = undefined
@@ -95,13 +98,32 @@ export default defineEventHandler(async (event) => {
     }
 
     if (body.status) {
-        if (!isUserAdmin && body.status === 'published') {
-            post.status = 'pending'
-        } else {
-            post.status = body.status
+        const currentStatus = post.status as PostStatus
+        const targetStatus = body.status as PostStatus
+
+        // Validate transition
+        const allowedTransitions = POST_STATUS_TRANSITIONS[currentStatus]
+        if (!allowedTransitions.includes(targetStatus)) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: `Invalid status transition from ${currentStatus} to ${targetStatus}`,
+            })
         }
 
-        if (post.status === 'published' && !post.publishedAt) {
+        if (!isUserAdmin) {
+            // Authors cannot publish directly, it goes to pending
+            if (targetStatus === PostStatus.PUBLISHED) {
+                post.status = PostStatus.PENDING
+            } else if (targetStatus === PostStatus.REJECTED) {
+                throw createError({ statusCode: 403, statusMessage: 'Only admins can reject posts' })
+            } else {
+                post.status = targetStatus
+            }
+        } else {
+            post.status = targetStatus
+        }
+
+        if (post.status === PostStatus.PUBLISHED && !post.publishedAt) {
             post.publishedAt = new Date()
         }
     }

@@ -3,6 +3,7 @@ import MarkdownIt from 'markdown-it'
 import MarkdownItAnchor from 'markdown-it-anchor'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
+import { PostStatus } from '@/types/post'
 
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
@@ -22,7 +23,7 @@ export default defineEventHandler(async (event) => {
 
     const postRepo = dataSource.getRepository(Post)
     const posts = await postRepo.find({
-        where: { status: 'published' },
+        where: { status: PostStatus.PUBLISHED },
         order: { publishedAt: 'DESC' },
         take: 20,
         relations: ['author', 'category', 'tags'],

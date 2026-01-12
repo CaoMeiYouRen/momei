@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, vi } from 'vitest'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { User } from '@/server/entities/user'
+import { PostStatus } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
 import archiveHandler from '@/server/api/posts/archive.get'
 
@@ -58,7 +59,7 @@ describe('Archive API', async () => {
             post.title = p.title
             post.slug = generateRandomString(10)
             post.content = 'Content'
-            post.status = 'published'
+            post.status = PostStatus.PUBLISHED
             post.author = author
             post.publishedAt = p.created
             post.createdAt = p.created // Force createdAt if API uses it.

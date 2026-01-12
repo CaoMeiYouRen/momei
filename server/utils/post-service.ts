@@ -6,6 +6,7 @@ import { Tag } from '@/server/entities/tag'
 import { Category } from '@/server/entities/category'
 import { generateRandomString } from '@/utils/shared/random'
 import { createPostSchema } from '@/utils/schemas/post'
+import { PostStatus } from '@/types/post'
 
 type CreatePostInput = z.infer<typeof createPostSchema>
 
@@ -105,15 +106,21 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
         post.copyright = body.copyright
     }
     post.authorId = authorId
-    post.status = body.status
     post.tags = tags
 
-    // Enforce 'pending' for non-admin if they try to publish directly
-    if (!options.isAdmin && post.status === 'published') {
-        post.status = 'pending'
+    const targetStatus = body.status as PostStatus
+    if (!options.isAdmin) {
+        // Enforce 'pending' for non-admin if they try to publish directly
+        if (targetStatus === PostStatus.PUBLISHED) {
+            post.status = PostStatus.PENDING
+        } else {
+            post.status = targetStatus
+        }
+    } else {
+        post.status = targetStatus
     }
 
-    if (post.status === 'published') {
+    if (post.status === PostStatus.PUBLISHED) {
         post.publishedAt = new Date()
     }
 

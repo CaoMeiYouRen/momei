@@ -2,6 +2,8 @@ import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'
 import { updatePostStatusSchema } from '@/utils/schemas/post'
+import { isAdmin as checkIsAdmin } from '@/utils/shared/roles'
+import { POST_STATUS_TRANSITIONS, PostStatus } from '@/types/post'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -23,26 +25,45 @@ export default defineEventHandler(async (event) => {
 
     // Permission check
     const isAuthor = session.user.id === post.authorId
-    const isAdmin = session.user.role === 'admin'
+    const isAdmin = checkIsAdmin(session.user.role)
 
     if (!isAuthor && !isAdmin) {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 
-    // Logic for status changes
-    if (body.status === 'published') {
-        if (!isAdmin) {
-            // Authors cannot publish directly, it goes to pending
-            post.status = 'pending'
-        } else {
-            post.status = 'published'
-        }
+    const currentStatus = post.status
+    const targetStatus = body.status as PostStatus
 
-        if (post.status === 'published' && !post.publishedAt) {
-            post.publishedAt = new Date()
+    // Validate transition
+    const allowedTransitions = POST_STATUS_TRANSITIONS[currentStatus]
+    if (!allowedTransitions.includes(targetStatus)) {
+        throw createError({
+            statusCode: 400,
+            statusMessage: `Invalid status transition from ${currentStatus} to ${targetStatus}`,
+        })
+    }
+
+    // Role-based restrictions
+    if (!isAdmin) {
+        // Non-admins can only move to pending or draft
+        if (targetStatus === PostStatus.PUBLISHED || targetStatus === PostStatus.REJECTED) {
+            // If they try to publish, move to pending for review
+            if (targetStatus === PostStatus.PUBLISHED) {
+                post.status = PostStatus.PENDING
+            } else {
+                throw createError({ statusCode: 403, statusMessage: 'Only admins can reject posts' })
+            }
+        } else {
+            post.status = targetStatus
         }
     } else {
-        post.status = body.status
+        // Admin can do anything allowed by the state machine
+        post.status = targetStatus
+    }
+
+    // Update publishedAt
+    if (post.status === PostStatus.PUBLISHED && !post.publishedAt) {
+        post.publishedAt = new Date()
     }
 
     await postRepo.save(post)

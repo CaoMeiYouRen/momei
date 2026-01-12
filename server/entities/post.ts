@@ -4,6 +4,7 @@ import { BaseEntity } from './base-entity'
 import { User } from './user'
 import { Category } from './category'
 import { Tag } from './tag'
+import { PostStatus } from '@/types/post'
 
 @Entity('post')
 export class Post extends BaseEntity {
@@ -35,8 +36,13 @@ export class Post extends BaseEntity {
     @CustomColumn({ type: 'varchar', length: 36, nullable: true })
     categoryId: string | null
 
-    @CustomColumn({ type: 'varchar', length: 20, default: 'pending', nullable: false })
-    status: string // published, draft, pending
+    @CustomColumn({
+        type: 'varchar',
+        length: 20,
+        comment: '文章状态：draft, pending, published, rejected, hidden',
+        default: PostStatus.DRAFT,
+    })
+    status: PostStatus
 
     @CustomColumn({ type: 'integer', default: 0 })
     views: number
