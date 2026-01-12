@@ -7,8 +7,8 @@
 ## 项目基本信息
 
 -   **项目名称**: 墨梅博客
--   **框架**: Nuxt 3.x (Vue 3.x + TypeScript)
--   **UI 框架**: SCSS
+-   **框架**: Nuxt 4.x (Vue 3.x + TypeScript)
+-   **UI 框架**: SCSS + PrimeVue
 -   **包管理器**: PNPM
 -   **开发规范**: ESLint + Stylelint + Conventional Commits
 
@@ -20,7 +20,7 @@
 
 1.  **TypeScript 优先**: 所有新代码必须使用 TypeScript，严禁使用 `any` 类型，应定义明确的接口或类型。
 2.  **Vue 风格**: 使用 `<script setup lang="ts">` 语法。
-3.  **样式规范**: 使用 SCSS 编写样式，遵循 BEM 命名规范，避免使用内联样式。
+3.  **样式规范**: 使用 SCSS 编写样式，遵循 BEM 命名规范，避免使用内联样式。优先复用全局变量和 Mixins。
 4.  **国际化 (i18n)**: UI 文本必须使用 `nuxt-i18n` 的 `$t()` 函数包裹，禁止硬编码中文或英文字符串。
 5.  **文件命名**: 使用 kebab-case 格式 (如 `article-card.vue`)。
 
@@ -34,7 +34,9 @@ useI18n() - // 国际化
     useFetch() - // 数据获取
     navigateTo() - // 路由跳转
     useHead() - // SEO Meta 配置
-    definePageMeta(); // 页面元数据
+    definePageMeta() - // 页面元数据
+    useAdminList() - // 后台列表管理
+    authClient - // Better-Auth 客户端 (lib/auth-client.ts)
 ```
 
 #### 项目目录结构理解
@@ -164,6 +166,7 @@ commit message 使用中文描述变更内容。
 ### 3. 部署
 
 -   支持 Vercel/Netlify 部署 (推荐)
+-   支持 Cloudflare Workers 部署 (正在开发中)
 -   支持 Docker 容器化部署
 
 ## 最佳实践
