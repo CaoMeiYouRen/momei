@@ -1,5 +1,4 @@
 import cmyrConfig from 'eslint-config-cmyr/nuxt'
-import tseslint from 'typescript-eslint'
 import { globalIgnores } from 'eslint/config'
 import withNuxt from './.nuxt/eslint.config.mjs'
 
@@ -25,20 +24,6 @@ export default withNuxt(
         rules: {
             'max-lines': [1, { max: 800 }], // 强制文件的最大行数
             'max-lines-per-function': [0, { max: 150 }], // 强制函数最大行数
-        },
-    },
-    {
-        files: ['**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}'],
-        plugins: {
-            tseslint,
-        },
-        languageOptions: {
-            parserOptions: {
-                projectService: true,
-            },
-        },
-        rules: {
-            '@typescript-eslint/no-deprecated': 1, // 开启弃用检测
         },
     },
 )
