@@ -33,7 +33,8 @@
 
 ### 2.4 文章编辑器 (`/admin/posts/new`, `/admin/posts/:id`)
 
--   全屏编辑器, 支持 Markdown/富文本, 实时预览, 属性设置 (Slug, Category, Tags).
+-   全屏编辑器, 支持 Markdown/富文本, 实时预览, 属性设置 (Slug, Category, Tags)。
+-   **Demo 模式限制**: 禁止保存 (Save/Publish) 操作。
 
 ## 3. 接口设计 (API Design)
 

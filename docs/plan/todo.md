@@ -217,6 +217,17 @@
 -   [ ] **合规交互实现**
     -   验收: 在 `/login` 和 `/register` 页面增加协议勾选/提示逻辑。
 
+### 8. Demo 模式 (Demo Mode)
+
+-   [ ] **实现 Demo 模式服务端拦截器**
+    -   验收: 完成 `server/middleware/demo-guard.ts`，基于白名单拦截所有非 GET 请求。
+    -   验收: 确保敏感管理 API (如用户删除、权限设置) 在 Demo 模式下被强制拦截。
+-   [ ] **内存数据库集成**
+    -   验收: 设置 `DATABASE_TYPE=sqlite` 且不指定路径时，自动使用内存模式 (或根据 `DEMO_MODE` 环境变强制置)。
+    -   验收: 重启应用后数据能够完全重置。
+-   [ ] **前端演示标识**
+    -   验收: 当 `NUXT_PUBLIC_DEMO_MODE=true` 时，在页面顶部或侧边栏显示“当前为演示模式，修改不会被保存”的提醒。
+
 ## 待排期 (Backlog)
 
 ### 创新功能 (Innovation)
