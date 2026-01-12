@@ -160,6 +160,8 @@ const statuses = computed(() => [
     { label: t('common.status.published'), value: 'published' },
     { label: t('common.status.draft'), value: 'draft' },
     { label: t('common.status.pending'), value: 'pending' },
+    { label: t('common.status.rejected'), value: 'rejected' },
+    { label: t('common.status.hidden'), value: 'hidden' },
 ])
 
 const editPost = (id: string) => {
@@ -194,15 +196,19 @@ const getStatusLabel = (status: string) => {
         published: t('common.status.published'),
         draft: t('common.status.draft'),
         pending: t('common.status.pending'),
+        rejected: t('common.status.rejected'),
+        hidden: t('common.status.hidden'),
     }
     return map[status] || status
 }
 
 const getStatusSeverity = (status: string) => {
-    const map: Record<string, string> = {
+    const map: Record<string, string | undefined> = {
         published: 'success',
         draft: 'secondary',
         pending: 'warn',
+        rejected: 'danger',
+        hidden: 'info',
     }
     return map[status] || 'info'
 }

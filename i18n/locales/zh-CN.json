@@ -86,7 +86,9 @@
         "status": {
             "published": "已发布",
             "draft": "草稿",
-            "pending": "待审核"
+            "pending": "待审核",
+            "rejected": "已退回",
+            "hidden": "已隐藏"
         },
         "title": "标题",
         "category": "分类",

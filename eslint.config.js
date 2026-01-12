@@ -1,9 +1,7 @@
 import cmyrConfig from 'eslint-config-cmyr/nuxt'
-import { globalIgnores, defineConfig } from 'eslint/config'
 import tseslint from 'typescript-eslint'
+import { globalIgnores } from 'eslint/config'
 import withNuxt from './.nuxt/eslint.config.mjs'
-
-const __WARN__ = process.env.NODE_ENV === 'production' ? 1 : 0
 
 export default withNuxt(
     cmyrConfig,

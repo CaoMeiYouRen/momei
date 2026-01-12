@@ -221,7 +221,7 @@ interface Post {
     title: string
     content: string
     slug: string
-    status: 'draft' | 'published' | 'pending'
+    status: 'draft' | 'published' | 'pending' | 'rejected' | 'hidden'
     summary: string
     coverImage: string
     categoryId: string | null
@@ -484,15 +484,19 @@ const getStatusLabel = (status: string) => {
         published: t('common.status.published'),
         draft: t('common.status.draft'),
         pending: t('common.status.pending'),
+        rejected: t('common.status.rejected'),
+        hidden: t('common.status.hidden'),
     }
     return map[status] || status
 }
 
 const getStatusSeverity = (status: string) => {
-    const map: Record<string, string> = {
+    const map: Record<string, string | undefined> = {
         published: 'success',
         draft: 'secondary',
         pending: 'warn',
+        rejected: 'danger',
+        hidden: 'info',
     }
     return map[status] || 'info'
 }

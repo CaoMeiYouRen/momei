@@ -87,7 +87,9 @@
         "status": {
             "published": "Published",
             "draft": "Draft",
-            "pending": "Pending"
+            "pending": "Pending",
+            "rejected": "Rejected",
+            "hidden": "Hidden"
         },
         "title": "Title",
         "category": "Category",
