@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth'
 import { postQuerySchema } from '@/utils/schemas/post'
 import { success, paginate } from '@/server/utils/response'
 import { applyPagination } from '@/server/utils/pagination'
+import { isAdmin, isAdminOrAuthor } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(q))
@@ -24,19 +25,19 @@ export default defineEventHandler(async (event) => {
         if (!session || !session.user) {
             throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
         }
-        const role = session.user.role
-        if (role !== 'admin' && role !== 'author') {
+
+        if (!isAdminOrAuthor(session.user.role)) {
             throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
         }
 
-        if (role === 'author') {
-            // Authors can only see their own posts in manage mode
-            qb.andWhere('post.authorId = :currentUserId', { currentUserId: session.user.id })
-        } else if (role === 'admin') {
-            // Admins can filter by authorId
+        if (isAdmin(session.user.role)) {
+            // Admins can filter by authorId or see all
             if (query.authorId) {
                 qb.andWhere('post.authorId = :authorId', { authorId: query.authorId })
             }
+        } else {
+            // Authors only see their own posts
+            qb.andWhere('post.authorId = :currentUserId', { currentUserId: session.user.id })
         }
 
         // Status filtering

@@ -1,14 +1,13 @@
 import type { H3Event } from 'h3'
 import { auth } from '@/lib/auth'
-
-export type UserRole = 'admin' | 'author' | 'user' | 'visitor'
+import { hasRole, UserRole } from '@/utils/shared/roles'
 
 /**
  * 校验用户是否具有指定角色之一
  * @param event H3Event
  * @param roles 允许的角色列表
  */
-export async function requireRole(event: H3Event, roles: UserRole[]) {
+export async function requireRole(event: H3Event, roles: UserRole[] | string[]) {
     const session = await auth.api.getSession({
         headers: event.headers,
     })
@@ -20,7 +19,7 @@ export async function requireRole(event: H3Event, roles: UserRole[]) {
         })
     }
 
-    if (!roles.includes(session.user.role as UserRole)) {
+    if (!hasRole(session.user.role, roles)) {
         throw createError({
             statusCode: 403,
             statusMessage: 'Forbidden',

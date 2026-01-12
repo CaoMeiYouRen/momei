@@ -1,6 +1,7 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'
+import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -33,8 +34,8 @@ export default defineEventHandler(async (event) => {
             throw createError({ statusCode: 404, statusMessage: 'Post not found' })
         }
         const isAuthor = session.user.id === post.authorId
-        const isAdmin = session.user.role === 'admin'
-        if (!isAuthor && !isAdmin) {
+        const isUserAdmin = isAdmin(session.user.role)
+        if (!isAuthor && !isUserAdmin) {
             throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
         }
     }

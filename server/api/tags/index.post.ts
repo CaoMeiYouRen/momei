@@ -2,6 +2,7 @@ import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
 import { auth } from '@/lib/auth'
 import { tagBodySchema } from '@/utils/schemas/tag'
+import { isAdminOrAuthor } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
     const session = await auth.api.getSession({
@@ -13,7 +14,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Admin and Author can create tags
-    if (session.user.role !== 'admin' && session.user.role !== 'author') {
+    if (!isAdminOrAuthor(session.user.role)) {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 

@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth'
 import { createPostSchema } from '@/utils/schemas/post'
 import { createPostService } from '@/server/utils/post-service'
+import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, (b) => createPostSchema.parse(b))
@@ -13,7 +14,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const post = await createPostService(body, session.user.id, {
-        isAdmin: session.user.role === 'admin',
+        isAdmin: isAdmin(session.user.role),
     })
 
     return {

@@ -1,5 +1,6 @@
 import { authClient } from '@/lib/auth-client'
 import { publicPaths } from '@/utils/shared/public-paths'
+import { isAdminOrAuthor } from '@/utils/shared/roles'
 
 export default defineNuxtRouteMiddleware(async (to) => {
     if (to.path === '/') {
@@ -36,7 +37,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     }
 
     // 管理后台权限检查
-    if (to.path.startsWith('/admin') && session.value.user.role !== 'admin') {
+    if (to.path.startsWith('/admin') && !isAdminOrAuthor(session.value.user.role)) {
         return navigateTo('/')
     }
 

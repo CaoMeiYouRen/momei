@@ -30,7 +30,7 @@
                 </nav>
 
                 <div class="app-header__action-group desktop-only">
-                    <template v-if="user && (user.role === 'admin' || user.role === 'author')">
+                    <template v-if="user && isAdminOrAuthor(user.role)">
                         <Button
                             v-tooltip.bottom="$t('common.admin')"
                             icon="pi pi-cog"
@@ -161,7 +161,7 @@
                 <Divider />
 
                 <template v-if="user">
-                    <div v-if="user.role === 'admin' || user.role === 'author'" class="mobile-admin-section">
+                    <div v-if="isAdminOrAuthor(user.role)" class="mobile-admin-section">
                         <div class="mobile-admin-section__title">
                             {{ $t('common.admin') }}
                         </div>
@@ -198,8 +198,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { authClient } from '@/lib/auth-client'
+import { isAdminOrAuthor, isAdmin } from '@/utils/shared/roles'
 
 const { t } = useI18n()
 const { openSearch } = useSearch()
@@ -210,33 +211,42 @@ const localePath = useLocalePath()
 const isMobileMenuOpen = ref(false)
 
 const adminMenu = ref()
-const adminMenuItems = computed(() => [
-    {
-        label: t('pages.admin.posts.title'),
-        icon: 'pi pi-file',
-        command: () => navigateTo('/admin/posts'),
-    },
-    {
-        label: t('pages.admin.categories.title'),
-        icon: 'pi pi-folder',
-        command: () => navigateTo('/admin/categories'),
-    },
-    {
-        label: t('pages.admin.tags.title'),
-        icon: 'pi pi-tags',
-        command: () => navigateTo('/admin/tags'),
-    },
-    {
-        label: t('pages.admin.users.title'),
-        icon: 'pi pi-users',
-        command: () => navigateTo('/admin/users'),
-    },
-    {
-        label: t('pages.admin.subscribers.title'),
-        icon: 'pi pi-envelope',
-        command: () => navigateTo('/admin/subscribers'),
-    },
-])
+const adminMenuItems = computed(() => {
+    const items = [
+        {
+            label: t('pages.admin.posts.title'),
+            icon: 'pi pi-file',
+            command: () => navigateTo('/admin/posts'),
+        },
+        {
+            label: t('pages.admin.categories.title'),
+            icon: 'pi pi-folder',
+            command: () => navigateTo('/admin/categories'),
+        },
+        {
+            label: t('pages.admin.tags.title'),
+            icon: 'pi pi-tags',
+            command: () => navigateTo('/admin/tags'),
+        },
+    ]
+
+    if (isAdmin(user.value?.role)) {
+        items.push(
+            {
+                label: t('pages.admin.users.title'),
+                icon: 'pi pi-users',
+                command: () => navigateTo('/admin/users'),
+            },
+            {
+                label: t('pages.admin.subscribers.title'),
+                icon: 'pi pi-envelope',
+                command: () => navigateTo('/admin/subscribers'),
+            },
+        )
+    }
+
+    return items
+})
 
 const toggleAdminMenu = (event: any) => {
     adminMenu.value.toggle(event)

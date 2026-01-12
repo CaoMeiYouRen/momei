@@ -7,6 +7,7 @@ import { generateRandomString } from '@/utils/shared/random'
 import { updatePostSchema } from '@/utils/schemas/post'
 import { success, fail } from '@/server/utils/response'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
+import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -24,8 +25,8 @@ export default defineEventHandler(async (event) => {
 
     // Permission check
     const isAuthor = session.user.id === post.authorId
-    const isAdmin = session.user.role === 'admin'
-    if (!isAuthor && !isAdmin) {
+    const isUserAdmin = isAdmin(session.user.role)
+    if (!isAuthor && !isUserAdmin) {
         return fail('Forbidden', 403)
     }
 
@@ -94,7 +95,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (body.status) {
-        if (session.user.role !== 'admin' && body.status === 'published') {
+        if (!isUserAdmin && body.status === 'published') {
             post.status = 'pending'
         } else {
             post.status = body.status

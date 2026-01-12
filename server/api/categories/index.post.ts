@@ -2,13 +2,14 @@ import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
 import { auth } from '@/lib/auth'
 import { categoryBodySchema } from '@/utils/schemas/category'
+import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
     const session = await auth.api.getSession({
         headers: event.headers,
     })
 
-    if (!session || session.user.role !== 'admin') {
+    if (!session || !isAdmin(session.user.role)) {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 
