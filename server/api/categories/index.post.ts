@@ -3,6 +3,7 @@ import { Category } from '@/server/entities/category'
 import { auth } from '@/lib/auth'
 import { categoryBodySchema } from '@/utils/schemas/category'
 import { isAdmin } from '@/utils/shared/roles'
+import { snowflake } from '@/server/utils/snowflake'
 
 export default defineEventHandler(async (event) => {
     const session = await auth.api.getSession({
@@ -36,6 +37,7 @@ export default defineEventHandler(async (event) => {
     category.description = body.description ?? null
     category.parentId = body.parentId ?? null
     category.language = body.language
+    category.translationId = body.translationId || snowflake.generateId()
 
     await categoryRepo.save(category)
 

@@ -1,5 +1,6 @@
 import { kebabCase } from 'lodash-es'
 import type { z } from 'zod'
+import { snowflake } from './snowflake'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { Tag } from '@/server/entities/tag'
@@ -57,6 +58,7 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
                 }
 
                 tag.language = body.language
+                tag.translationId = snowflake.generateId()
                 await tagRepo.save(tag)
             }
             tags.push(tag)
@@ -74,9 +76,7 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
         post.coverImage = body.coverImage ?? null
     }
     post.language = body.language
-    if (body.translationId !== undefined) {
-        post.translationId = body.translationId ?? null
-    }
+    post.translationId = body.translationId || snowflake.generateId()
 
     // Handle Category
     let targetCategoryId: string | null | undefined = undefined

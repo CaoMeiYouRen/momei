@@ -53,6 +53,15 @@
                         {{ data.parent?.name || '-' }}
                     </template>
                 </Column>
+                <Column
+                    field="language"
+                    :header="$t('common.language')"
+                    sortable
+                >
+                    <template #body="{data}">
+                        <Tag :value="data.language" severity="secondary" />
+                    </template>
+                </Column>
                 <Column field="description" :header="$t('common.description')" />
                 <Column
                     :header="$t('common.actions')"
@@ -100,6 +109,14 @@
                     :class="{'p-invalid': errors.name}"
                 />
                 <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
+            </div>
+            <div v-if="isPureEnglish && !editingItem" class="field flex gap-2 items-center">
+                <Checkbox
+                    v-model="syncToAllLanguages"
+                    :binary="true"
+                    input-id="syncAll"
+                />
+                <label for="syncAll" class="cursor-pointer">{{ $t('pages.admin.categories.sync_to_all_languages') }}</label>
             </div>
             <div class="field">
                 <label for="language">{{ $t('common.language') }}</label>
@@ -189,6 +206,7 @@ interface Category {
     parentId?: string | null
     parent?: Category | null
     language: string
+    translationId?: string | null
 }
 
 const {
@@ -226,6 +244,12 @@ const form = ref({
     description: '',
     parentId: null as string | null,
     language: contentLanguage.value || locale.value,
+    translationId: null as string | null,
+})
+
+const syncToAllLanguages = ref(false)
+const isPureEnglish = computed(() => {
+    return /^[a-zA-Z0-9\s\-_]+$/.test(form.value.name)
 })
 
 const parentOptions = ref<Category[]>([])
@@ -251,6 +275,7 @@ const openDialog = (item?: Category) => {
             description: item.description || '',
             parentId: item.parentId || null,
             language: item.language,
+            translationId: item.translationId || null,
         }
     } else {
         form.value = {
@@ -259,8 +284,10 @@ const openDialog = (item?: Category) => {
             description: '',
             parentId: null,
             language: contentLanguage.value || locale.value,
+            translationId: null,
         }
     }
+    syncToAllLanguages.value = false
     submitted.value = false
     dialogVisible.value = true
     fetchParentOptions()
@@ -296,6 +323,28 @@ const saveItem = async () => {
                 method: 'PUT' as any,
                 body: form.value,
             })
+        } else if (syncToAllLanguages.value && isPureEnglish.value) {
+            // 同步创建所有语言版本
+            // 先创建一个获取 translationId，或者前端生成一个
+            const firstRes = await $fetch<any>('/api/categories', {
+                method: 'POST',
+                body: form.value,
+            })
+            const translationId = firstRes.data.translationId
+
+            // 创建其余语言版本
+            const otherLocales = locales.value.filter((l: any) => l.code !== form.value.language)
+            const promises = otherLocales.map((l: any) => {
+                return $fetch('/api/categories', {
+                    method: 'POST',
+                    body: {
+                        ...form.value,
+                        language: l.code,
+                        translationId,
+                    },
+                }).catch((e) => console.error(`Failed to sync category to ${l.code}`, e))
+            })
+            await Promise.all(promises)
         } else {
             await $fetch('/api/categories', {
                 method: 'POST',

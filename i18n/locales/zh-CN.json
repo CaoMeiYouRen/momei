@@ -220,7 +220,8 @@
                 "delete_confirm": "确定要删除这个分类吗？",
                 "delete_confirm_title": "确认删除分类",
                 "delete_success": "分类删除成功",
-                "save_success": "分类保存成功"
+                "save_success": "分类保存成功",
+                "sync_to_all_languages": "同步创建对应的其他语言版本（仅适用于纯英文名称）"
             },
             "tags": {
                 "title": "标签管理",
@@ -229,7 +230,8 @@
                 "delete_confirm": "确定要删除这个标签吗？",
                 "delete_confirm_title": "确认删除标签",
                 "delete_success": "标签删除成功",
-                "save_success": "标签保存成功"
+                "save_success": "标签保存成功",
+                "sync_to_all_languages": "同步创建对应的其他语言版本（仅适用于纯英文名称）"
             },
             "users": {
                 "title": "用户管理",

@@ -44,6 +44,15 @@
                     sortable
                 />
                 <Column
+                    field="language"
+                    :header="$t('common.language')"
+                    sortable
+                >
+                    <template #body="{data}">
+                        <Tag :value="data.language" severity="secondary" />
+                    </template>
+                </Column>
+                <Column
                     :header="$t('common.actions')"
                     class="text-right"
                     style="min-width: 8rem"
@@ -89,6 +98,14 @@
                     :class="{'p-invalid': errors.name}"
                 />
                 <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
+            </div>
+            <div v-if="isPureEnglish && !editingItem" class="field flex gap-2 items-center">
+                <Checkbox
+                    v-model="syncToAllLanguages"
+                    :binary="true"
+                    input-id="syncAll"
+                />
+                <label for="syncAll" class="cursor-pointer">{{ $t('pages.admin.tags.sync_to_all_languages') }}</label>
             </div>
             <div class="field">
                 <label for="language">{{ $t('common.language') }}</label>
@@ -153,6 +170,7 @@ interface Tag {
     name: string
     slug: string
     language: string
+    translationId?: string | null
 }
 
 const {
@@ -188,6 +206,12 @@ const form = ref({
     name: '',
     slug: '',
     language: contentLanguage.value || locale.value,
+    translationId: null as string | null,
+})
+
+const syncToAllLanguages = ref(false)
+const isPureEnglish = computed(() => {
+    return /^[a-zA-Z0-9\s\-_]+$/.test(form.value.name)
 })
 
 const openDialog = (item?: Tag) => {
@@ -197,14 +221,17 @@ const openDialog = (item?: Tag) => {
             name: item.name,
             slug: item.slug,
             language: item.language,
+            translationId: item.translationId || null,
         }
     } else {
         form.value = {
             name: '',
             slug: '',
             language: contentLanguage.value || locale.value,
+            translationId: null,
         }
     }
+    syncToAllLanguages.value = false
     submitted.value = false
     dialogVisible.value = true
 }
@@ -235,6 +262,26 @@ const saveItem = async () => {
                 method: 'PUT' as any,
                 body: form.value,
             })
+        } else if (syncToAllLanguages.value && isPureEnglish.value) {
+            // 同步创建所有语言版本
+            const firstRes = await $fetch<any>('/api/tags', {
+                method: 'POST',
+                body: form.value,
+            })
+            const translationId = firstRes.data.translationId
+
+            const otherLocales = locales.value.filter((l: any) => l.code !== form.value.language)
+            const promises = otherLocales.map((l: any) => {
+                return $fetch('/api/tags', {
+                    method: 'POST',
+                    body: {
+                        ...form.value,
+                        language: l.code,
+                        translationId,
+                    },
+                }).catch((e) => console.error(`Failed to sync tag to ${l.code}`, e))
+            })
+            await Promise.all(promises)
         } else {
             await $fetch('/api/tags', {
                 method: 'POST',

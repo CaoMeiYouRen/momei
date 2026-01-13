@@ -8,6 +8,7 @@ export const tagBodySchema = z.object({
         message: 'Slug cannot be a Snowflake ID format',
     }),
     language: z.string().default('zh-CN'),
+    translationId: z.string().nullable().optional(),
 })
 
 export const tagUpdateSchema = z.object({
@@ -16,6 +17,7 @@ export const tagUpdateSchema = z.object({
         message: 'Slug cannot be a Snowflake ID format',
     }).optional(),
     language: z.string().optional(),
+    translationId: z.string().nullable().optional(),
 })
 
 export const tagQuerySchema = paginationSchema.extend(sortingSchema.shape).extend({

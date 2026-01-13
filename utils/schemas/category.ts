@@ -10,6 +10,7 @@ export const categoryBodySchema = z.object({
     description: z.string().nullable().optional(),
     parentId: z.string().nullable().optional(),
     language: z.string().default('zh-CN'),
+    translationId: z.string().nullable().optional(),
 })
 
 export const categoryUpdateSchema = z.object({
@@ -20,6 +21,7 @@ export const categoryUpdateSchema = z.object({
     description: z.string().nullable().optional(),
     parentId: z.string().nullable().optional(),
     language: z.string().optional(),
+    translationId: z.string().nullable().optional(),
 })
 
 export const categoryQuerySchema = paginationSchema.extend(sortingSchema.shape).extend({

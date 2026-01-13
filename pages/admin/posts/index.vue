@@ -61,6 +61,15 @@
                 </Column>
                 <Column field="category.name" :header="$t('common.category')" />
                 <Column
+                    field="language"
+                    :header="$t('common.language')"
+                    sortable
+                >
+                    <template #body="{data}">
+                        <Tag :value="data.language" severity="secondary" />
+                    </template>
+                </Column>
+                <Column
                     field="views"
                     :header="$t('common.views')"
                     sortable

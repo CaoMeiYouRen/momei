@@ -221,7 +221,8 @@
                 "delete_confirm": "Are you sure you want to delete this category?",
                 "delete_confirm_title": "Confirm Delete Category",
                 "delete_success": "Category deleted successfully",
-                "save_success": "Category saved successfully"
+                "save_success": "Category saved successfully",
+                "sync_to_all_languages": "Sync creating versions for all languages (recommended for pure English names)"
             },
             "tags": {
                 "title": "Tags Management",
@@ -230,7 +231,8 @@
                 "delete_confirm": "Are you sure you want to delete this tag?",
                 "delete_confirm_title": "Confirm Delete Tag",
                 "delete_success": "Tag deleted successfully",
-                "save_success": "Tag saved successfully"
+                "save_success": "Tag saved successfully",
+                "sync_to_all_languages": "Sync creating versions for all languages (recommended for pure English names)"
             },
             "users": {
                 "title": "User Management",
