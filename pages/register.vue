@@ -128,7 +128,7 @@
             </template>
             <template #footer>
                 <div class="register-card__footer">
-                    <NuxtLink to="/login" class="register-card__login-link">
+                    <NuxtLink :to="localePath('/login')" class="register-card__login-link">
                         {{ $t('pages.register.have_account') }}
                     </NuxtLink>
                 </div>
@@ -144,6 +144,7 @@ import { authClient } from '@/lib/auth-client'
 import { registerSchema } from '@/utils/schemas/auth'
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const toast = useToast()
 const loading = ref(false)
 const form = reactive({
@@ -162,14 +163,14 @@ const errors = reactive({
 const handleGithubLogin = async () => {
     await authClient.signIn.social({
         provider: 'github',
-        callbackURL: '/',
+        callbackURL: localePath('/'),
     })
 }
 
 const handleGoogleLogin = async () => {
     await authClient.signIn.social({
         provider: 'google',
-        callbackURL: '/',
+        callbackURL: localePath('/'),
     })
 }
 
@@ -195,14 +196,14 @@ const handleRegister = async () => {
             email: form.email,
             password: form.password,
             name: form.name,
-            callbackURL: '/',
+            callbackURL: localePath('/'),
         })
 
         if (error) {
             toast.add({ severity: 'error', summary: 'Error', detail: error.message || error.statusText, life: 3000 })
         } else {
             toast.add({ severity: 'success', summary: 'Success', detail: 'Registration successful', life: 3000 })
-            navigateTo('/')
+            navigateTo(localePath('/'))
         }
     } catch (e) {
         console.error(e)

@@ -2,7 +2,7 @@
     <div class="forgot-password-page">
         <div class="auth-card">
             <div class="auth-header">
-                <NuxtLink to="/" class="logo-link">
+                <NuxtLink :to="localePath('/')" class="logo-link">
                     <img
                         src="/logo.png"
                         alt="Momei Logo"
@@ -49,7 +49,7 @@
                 />
 
                 <div class="auth-footer">
-                    <NuxtLink to="/login" class="link">
+                    <NuxtLink :to="localePath('/login')" class="link">
                         {{ $t('pages.forgot_password.back_to_login') }}
                     </NuxtLink>
                 </div>
@@ -63,6 +63,7 @@ import { ref } from 'vue'
 import { authClient } from '@/lib/auth-client'
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const email = ref('')
 const loading = ref(false)
 const error = ref('')
@@ -92,7 +93,7 @@ const handleForgotPassword = async () => {
             error.value = err.message || t('common.error_occurred')
         } else {
             success.value = true
-            navigateTo(`/reset-password?email=${encodeURIComponent(email.value)}`)
+            navigateTo(localePath(`/reset-password?email=${encodeURIComponent(email.value)}`))
         }
     } catch (e: any) {
         error.value = e.message || t('common.error_occurred')

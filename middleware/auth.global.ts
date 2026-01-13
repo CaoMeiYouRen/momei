@@ -30,15 +30,16 @@ export default defineNuxtRouteMiddleware(async (to) => {
         },
     }))
     // console.info('session.value', session.value)
+    const localePath = useLocalePath()
     // 检查用户是否登录
     if (!session.value) {
         // 重定向到登录页面
-        return navigateTo('/login')
+        return navigateTo(localePath('/login'))
     }
 
     // 管理后台权限检查
     if (to.path.startsWith('/admin') && !isAdminOrAuthor(session.value.user.role)) {
-        return navigateTo('/')
+        return navigateTo(localePath('/'))
     }
 
     return true

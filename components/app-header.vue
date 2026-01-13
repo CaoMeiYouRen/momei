@@ -1,7 +1,7 @@
 <template>
     <header class="app-header">
         <div class="app-header__container">
-            <NuxtLink to="/" class="app-header__logo-link">
+            <NuxtLink :to="localePath('/')" class="app-header__logo-link">
                 <img
                     src="/logo.png"
                     alt="Momei Logo"
@@ -72,7 +72,7 @@
                         icon="pi pi-sign-in"
                         text
                         rounded
-                        @click="navigateTo('/login')"
+                        @click="navigateTo(localePath('/login'))"
                     />
                     <Button
                         v-else
@@ -80,7 +80,7 @@
                         icon="pi pi-user"
                         text
                         rounded
-                        @click="navigateTo('/settings')"
+                        @click="navigateTo(localePath('/settings'))"
                     />
                 </div>
 
@@ -181,7 +181,7 @@
                         text
                         rounded
                         class="mobile-user-button"
-                        @click="isMobileMenuOpen = false; navigateTo('/settings')"
+                        @click="isMobileMenuOpen = false; navigateTo(localePath('/settings'))"
                     />
                 </template>
                 <Button
@@ -190,7 +190,7 @@
                     icon="pi pi-sign-in"
                     rounded
                     class="mobile-login-button"
-                    @click="isMobileMenuOpen = false; navigateTo('/login')"
+                    @click="isMobileMenuOpen = false; navigateTo(localePath('/login'))"
                 />
             </div>
         </Drawer>
@@ -216,17 +216,17 @@ const adminMenuItems = computed(() => {
         {
             label: t('pages.admin.posts.title'),
             icon: 'pi pi-file',
-            command: () => navigateTo('/admin/posts'),
+            command: () => navigateTo(localePath('/admin/posts')),
         },
         {
             label: t('pages.admin.categories.title'),
             icon: 'pi pi-folder',
-            command: () => navigateTo('/admin/categories'),
+            command: () => navigateTo(localePath('/admin/categories')),
         },
         {
             label: t('pages.admin.tags.title'),
             icon: 'pi pi-tags',
-            command: () => navigateTo('/admin/tags'),
+            command: () => navigateTo(localePath('/admin/tags')),
         },
     ]
 
@@ -235,12 +235,12 @@ const adminMenuItems = computed(() => {
             {
                 label: t('pages.admin.users.title'),
                 icon: 'pi pi-users',
-                command: () => navigateTo('/admin/users'),
+                command: () => navigateTo(localePath('/admin/users')),
             },
             {
                 label: t('pages.admin.subscribers.title'),
                 icon: 'pi pi-envelope',
-                command: () => navigateTo('/admin/subscribers'),
+                command: () => navigateTo(localePath('/admin/subscribers')),
             },
         )
     }

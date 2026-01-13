@@ -10,7 +10,7 @@
             </h4>
             <Message severity="info" class="mb-4">
                 {{ $t("pages.settings.security.set_password_hint") }}
-                <NuxtLink to="/forgot-password" class="font-bold underline">
+                <NuxtLink :to="localePath('/forgot-password')" class="font-bold underline">
                     {{ $t("pages.login.forgot_password") }}
                 </NuxtLink>
             </Message>
@@ -141,6 +141,7 @@ import { z } from 'zod'
 import { authClient } from '@/lib/auth-client'
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const toast = useToast()
 const loading = ref(false)
 

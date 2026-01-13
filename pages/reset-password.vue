@@ -2,7 +2,7 @@
     <div class="reset-password-page">
         <div class="auth-card">
             <div class="auth-header">
-                <NuxtLink to="/" class="logo-link">
+                <NuxtLink :to="localePath('/')" class="logo-link">
                     <img
                         src="/logo.png"
                         alt="Momei Logo"
@@ -91,6 +91,7 @@ import { ref, computed } from 'vue'
 import { authClient } from '@/lib/auth-client'
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const router = useRouter()
 const route = useRoute()
 const email = ref((route.query.email as string) || '')
@@ -129,7 +130,7 @@ const handleResetPassword = async () => {
             error.value = err.message || t('common.error_occurred')
         } else {
             // Success, redirect to login
-            router.push('/login')
+            router.push(localePath('/login'))
         }
     } catch (e: any) {
         error.value = e.message || t('common.error_occurred')

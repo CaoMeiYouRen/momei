@@ -86,7 +86,7 @@
                             />
                             <label for="rememberMe">{{ $t('pages.login.remember_me') }}</label>
                         </div>
-                        <NuxtLink to="/forgot-password" class="login-form__forgot">
+                        <NuxtLink :to="localePath('/forgot-password')" class="login-form__forgot">
                             {{ $t('pages.login.forgot_password') }}
                         </NuxtLink>
                     </div>
@@ -101,7 +101,7 @@
             </template>
             <template #footer>
                 <div class="login-card__footer">
-                    <NuxtLink to="/register" class="login-card__register-link">
+                    <NuxtLink :to="localePath('/register')" class="login-card__register-link">
                         {{ $t('pages.login.no_account') }}
                     </NuxtLink>
                 </div>
@@ -117,6 +117,7 @@ import { authClient } from '@/lib/auth-client'
 import { loginSchema } from '@/utils/schemas/auth'
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const toast = useToast()
 const loading = ref(false)
 const form = reactive({
@@ -132,14 +133,14 @@ const errors = reactive({
 const handleGithubLogin = async () => {
     await authClient.signIn.social({
         provider: 'github',
-        callbackURL: '/',
+        callbackURL: localePath('/'),
     })
 }
 
 const handleGoogleLogin = async () => {
     await authClient.signIn.social({
         provider: 'google',
-        callbackURL: '/',
+        callbackURL: localePath('/'),
     })
 }
 
@@ -165,13 +166,13 @@ const handleEmailLogin = async () => {
             email: form.email,
             password: form.password,
             rememberMe: form.rememberMe,
-            callbackURL: '/',
+            callbackURL: localePath('/'),
         })
 
         if (error) {
             toast.add({ severity: 'error', summary: 'Error', detail: error.message || error.statusText, life: 3000 })
         } else {
-            navigateTo('/')
+            navigateTo(localePath('/'))
         }
     } catch (e) {
         console.error(e)

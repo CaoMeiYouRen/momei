@@ -5,7 +5,7 @@
                 <Button
                     :label="$t('pages.admin.posts.create')"
                     icon="pi pi-plus"
-                    @click="navigateTo('/admin/posts/new')"
+                    @click="navigateTo(localePath('/admin/posts/new'))"
                 />
             </template>
         </AdminPageHeader>
@@ -133,6 +133,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const { formatDateTime, relativeTime } = useI18nDate()
 
 interface Post {
@@ -174,7 +175,7 @@ const statuses = computed(() => [
 ])
 
 const editPost = (id: string) => {
-    navigateTo(`/admin/posts/${id}`)
+    navigateTo(localePath(`/admin/posts/${id}`))
 }
 
 const deleteDialog = ref()

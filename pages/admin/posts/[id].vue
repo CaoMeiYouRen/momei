@@ -14,7 +14,7 @@
                     icon="pi pi-arrow-left"
                     text
                     rounded
-                    @click="navigateTo('/admin/posts')"
+                    @click="navigateTo(localePath('/admin/posts'))"
                 />
                 <InputText
                     v-model="post.title"
@@ -574,7 +574,7 @@ const savePost = async (publish = false) => {
                 post.value.status = response.data.status
                 toast.add({ severity: 'success', summary: 'Success', detail: t('common.save_success'), life: 3000 })
                 // Replace route to edit mode without reloading
-                router.replace(`/admin/posts/${response.data.id}`)
+                router.replace(localePath(`/admin/posts/${response.data.id}`))
             }
         } else {
             await $fetch(`/api/posts/${route.params.id}`, {
