@@ -52,6 +52,13 @@ description: 驱动完整的 PDTFC 循环，负责从需求分析、代码编写
 -   **Standards Compliance**: 任何代码变更必须符合 `docs/standards/` 下定义的项目标准。
 -   **Documentation**: 文档必须与代码同步，禁止代码先行文档滞后。
 
+## 安全与防护 (Security & Safety)
+
+1.  **终端命令执行**: 在执行任何 `run_in_terminal` 操作前，必须核对 [AGENTS.md](../../AGENTS.md) 中的**终端命令安全规范**。
+    -   必须显式检查当前 OS 和 Shell 兼容性。
+    -   对于删除操作，必须预先校验路径，杜绝空参数引发的灾难性删除。
+2.  **敏感信息**: 遵循项目安全要求，禁止泄露或硬编码任何敏感凭据。
+
 ## 协作说明
 
 -   你可以将代码质量终审移交给 `@quality-guardian`。
