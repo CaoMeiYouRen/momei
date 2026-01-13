@@ -102,7 +102,7 @@ useHead({
 })
 
 // Fetch latest 3 posts
-const { data, pending, error } = await useFetch('/api/posts', {
+const { data, pending, error } = await useAppFetch('/api/posts', {
     query: {
         limit: 3,
         status: 'published',

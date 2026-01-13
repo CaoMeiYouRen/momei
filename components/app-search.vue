@@ -100,11 +100,10 @@ const debouncedSearch = useDebounceFn(async () => {
 
     loading.value = true
     try {
-        // Use $fetch for imperative calls instead of useFetch composable
-        const response = await $fetch<any>('/api/search', {
-            params: {
+        const { $appFetch } = useAppApi()
+        const response = await $appFetch<any>('/api/search', {
+            query: {
                 q: trimmedQuery,
-                language: locale.value,
                 limit: 8,
             },
         })

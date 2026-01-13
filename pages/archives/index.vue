@@ -79,7 +79,7 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 useHead({ title: t('pages.archives.meta.title') })
 
-const { data, pending, error } = await useFetch<ApiResponse<ArchiveYear[]>>('/api/posts/archive')
+const { data, pending, error } = await useAppFetch<ApiResponse<ArchiveYear[]>>('/api/posts/archive')
 const list = computed<ArchiveYear[]>(() => (data.value?.data || []) as ArchiveYear[])
 
 // Client-side state

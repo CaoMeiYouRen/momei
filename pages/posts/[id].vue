@@ -184,7 +184,7 @@ const fullUrl = computed(() => {
 const isId = isSnowflakeId(idOrSlug)
 const endpoint = isId ? `/api/posts/${idOrSlug}` : `/api/posts/slug/${idOrSlug}`
 
-const { data, pending, error } = await useFetch<any>(endpoint)
+const { data, pending, error } = await useAppFetch<any>(() => endpoint)
 
 const post = computed(() => data.value?.data)
 

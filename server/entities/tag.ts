@@ -5,9 +5,10 @@ import { Post } from './post'
 
 @Entity('tag')
 @Unique(['slug', 'language'])
+@Unique(['name', 'language'])
 export class Tag extends BaseEntity {
 
-    @CustomColumn({ type: 'varchar', length: 100, unique: true, nullable: false, index: true })
+    @CustomColumn({ type: 'varchar', length: 100, nullable: false, index: true })
     name: string
 
     @CustomColumn({ type: 'varchar', length: 100, nullable: false })

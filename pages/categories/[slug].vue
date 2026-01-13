@@ -87,16 +87,15 @@ const limit = ref(10)
 const first = ref((page.value - 1) * limit.value)
 
 // 1. Fetch Category Info
-const { data: categoryData, pending: categoryPending, error: categoryError } = await useFetch<any>(`/api/categories/slug/${slug.value}`)
+const { data: categoryData, pending: categoryPending, error: categoryError } = await useAppFetch<any>(() => `/api/categories/slug/${slug.value}`)
 const category = computed(() => categoryData.value?.data)
 
 // 2. Fetch Posts in this category
-const { data: postsData, pending: postsPending, error: postsError } = await useFetch<any>('/api/posts', {
+const { data: postsData, pending: postsPending, error: postsError } = await useAppFetch<any>('/api/posts', {
     query: {
         page,
         limit,
         category: slug,
-        language: locale,
         status: 'published',
     },
     watch: [page, slug],

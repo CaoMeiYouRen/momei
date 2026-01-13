@@ -46,9 +46,8 @@
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
 
-const { data, pending, error } = await useFetch<any>('/api/tags', {
+const { data, pending, error } = await useAppFetch<any>('/api/tags', {
     query: {
-        language: locale,
         limit: 200, // Fetch top 200 popular tags
         orderBy: 'postCount',
         order: 'DESC',

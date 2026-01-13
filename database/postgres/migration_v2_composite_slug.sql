@@ -10,6 +10,7 @@ CREATE INDEX IF NOT EXISTS "IDX_post_slug_language" ON "momei_post" ("slug", "la
 
 -- 2. 分类 (Category)
 ALTER TABLE "momei_category" DROP CONSTRAINT IF EXISTS "UQ_category_slug";
+ALTER TABLE "momei_category" DROP CONSTRAINT IF EXISTS "UQ_category_name";
 ALTER TABLE "momei_category" ADD CONSTRAINT "UQ_category_slug_language" UNIQUE ("slug", "language");
 ALTER TABLE "momei_category" ADD CONSTRAINT "UQ_category_name_language" UNIQUE ("name", "language");
 CREATE INDEX IF NOT EXISTS "IDX_category_slug_language" ON "momei_category" ("slug", "language");
@@ -17,6 +18,7 @@ CREATE INDEX IF NOT EXISTS "IDX_category_name_language" ON "momei_category" ("na
 
 -- 3. 标签 (Tag)
 ALTER TABLE "momei_tag" DROP CONSTRAINT IF EXISTS "UQ_tag_slug";
+ALTER TABLE "momei_tag" DROP CONSTRAINT IF EXISTS "UQ_tag_name";
 ALTER TABLE "momei_tag" ADD CONSTRAINT "UQ_tag_slug_language" UNIQUE ("slug", "language");
 ALTER TABLE "momei_tag" ADD CONSTRAINT "UQ_tag_name_language" UNIQUE ("name", "language");
 CREATE INDEX IF NOT EXISTS "IDX_tag_slug_language" ON "momei_tag" ("slug", "language");

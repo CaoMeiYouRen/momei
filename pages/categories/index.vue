@@ -52,9 +52,8 @@
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
 
-const { data, pending, error } = await useFetch<any>('/api/categories', {
+const { data, pending, error } = await useAppFetch<any>('/api/categories', {
     query: {
-        language: locale,
         limit: 100, // Show all
         orderBy: 'postCount',
         order: 'DESC',

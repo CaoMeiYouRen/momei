@@ -50,7 +50,7 @@ const page = ref(Number(route.query.page) || 1)
 const limit = ref(10)
 const first = ref((page.value - 1) * limit.value)
 
-const { data, pending, error } = await useFetch('/api/posts', {
+const { data, pending, error } = await useAppFetch('/api/posts', {
     query: {
         page,
         limit,
