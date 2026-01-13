@@ -27,14 +27,21 @@ export default defineEventHandler(async (event) => {
 
     if (query.orderBy === 'postCount') {
         // Use subquery for sorting by relation count
-        queryBuilder.addSelect((subQuery) => subQuery
-            .select('count(p.id)', 'pcount')
-            .from(Post, 'p')
-            .innerJoin('p.tags', 'pt')
-            .where('pt.id = tag.id')
-            .andWhere('p.language = tag.language')
-            .andWhere('p.status = :status', { status: 'status_val' }), 'pcount')
-        queryBuilder.setParameter('status_val', 'published')
+        queryBuilder.addSelect((subQuery) => {
+            const qb = subQuery
+                .select('count(p.id)', 'pcount')
+                .from(Post, 'p')
+                .innerJoin('p.tags', 'pt')
+                .where('pt.id = tag.id')
+                .andWhere('p.status = :publishedStatus', { publishedStatus: 'published' })
+
+            if (query.language) {
+                qb.andWhere('p.language = :language', { language: query.language })
+            } else {
+                qb.andWhere('p.language = tag.language')
+            }
+            return qb
+        }, 'pcount')
         queryBuilder.orderBy('pcount', query.order || 'DESC')
     } else {
         queryBuilder.orderBy(`tag.${query.orderBy || 'createdAt'}`, query.order || 'DESC')
