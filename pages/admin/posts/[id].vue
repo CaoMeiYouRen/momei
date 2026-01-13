@@ -443,7 +443,7 @@ const savePost = async (publish = false) => {
         result.error.issues.forEach((issue) => {
             errors.value[String(issue.path[0])] = issue.message
         })
-        toast.add({ severity: 'error', summary: 'Validation Error', detail: t('common.validation_error') || 'Validation failed', life: 3000 })
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.validation_error'), life: 3000 })
         return
     }
 

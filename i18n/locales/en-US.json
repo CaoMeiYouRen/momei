@@ -135,7 +135,8 @@
         "rss": "RSS Feed",
         "success": "Success",
         "error": "Error",
-        "unexpected_error": "An unexpected error occurred"
+        "unexpected_error": "An unexpected error occurred",
+        "validation_error": "Validation failed"
     },
     "pages": {
         "about": {
@@ -388,8 +389,11 @@
                 "change_password": "Change Password",
                 "set_password_hint": "If you haven't set a password (e.g. logged in via OAuth), or forgot your current password, please use the ",
                 "current_password": "Current Password",
+                "current_password_required": "Current password is required",
                 "new_password": "New Password",
+                "new_password_required": "New password is required",
                 "confirm_password": "Confirm New Password",
+                "confirm_password_required": "Please confirm your new password",
                 "update_password": "Update Password",
                 "password_updated": "Password updated successfully",
                 "linked_accounts": "Linked Accounts",

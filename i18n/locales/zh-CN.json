@@ -134,7 +134,8 @@
         "rss": "RSS 订阅",
         "success": "成功",
         "error": "错误",
-        "unexpected_error": "发生了一个意外错误"
+        "unexpected_error": "发生未知错误",
+        "validation_error": "输入验证失败"
     },
     "pages": {
         "about": {
@@ -387,8 +388,11 @@
                 "change_password": "修改密码",
                 "set_password_hint": "如果您尚未设置密码（例如通过第三方登录），或者忘记了当前密码，请使用",
                 "current_password": "当前密码",
+                "current_password_required": "请输入当前密码",
                 "new_password": "新密码",
+                "new_password_required": "请输入新密码",
                 "confirm_password": "确认新密码",
+                "confirm_password_required": "请确认新密码",
                 "update_password": "更新密码",
                 "password_updated": "密码已更新",
                 "linked_accounts": "已绑定账号",
