@@ -96,7 +96,15 @@ export default defineNuxtConfig({
     },
     sitemap: {
         // 如果需要排除某些路径
-        exclude: ['/admin/**', '/settings/**', '/login', '/register'],
+        exclude: [
+            '/admin/**',
+            '/settings/**',
+            '/login',
+            '/register',
+            '/forgot-password',
+            '/reset-password',
+        ],
+        sources: ['/api/_sitemap-urls'],
     },
     app: {
         head: {
