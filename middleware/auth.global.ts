@@ -3,24 +3,39 @@ import { publicPaths } from '@/utils/shared/public-paths'
 import { isAdminOrAuthor } from '@/utils/shared/roles'
 
 export default defineNuxtRouteMiddleware(async (to) => {
-    if (to.path === '/') {
+    // 关键修复：在任何 await 之前获取 Nuxt 应用实例和组合式函数
+    const { $i18n } = useNuxtApp()
+    const localePath = useLocalePath()
+
+    // 从 i18n 实例获取所有语言前缀
+    const localePrefixes = $i18n.locales.value.map((l: any) => typeof l === 'string' ? l : l.code)
+
+    // 获取不带语言前缀的基础路径
+    const getBasePath = (path: string) => {
+        const parts = path.split('/')
+        if (parts.length > 1 && localePrefixes.includes(parts[1])) {
+            return `/${parts.slice(2).join('/')}`
+        }
+        return path
+    }
+
+    const basePath = getBasePath(to.path)
+
+    if (basePath === '/') {
         return true
     }
-    if (publicPaths.some((path) => to.path === path)) {
+    if (publicPaths.some((path) => basePath === path)) {
         return true
     }
-    if (to.path.startsWith('/posts')) {
+    if (basePath.startsWith('/posts')) {
         return true
     }
     if (to.path.startsWith('/api/auth') && !to.path.startsWith('/api/auth/admin')) {
         return true
     }
+
     /**
      * TODO：优化 useFetch 里的 cookie 传递问题
-     * 在这里手动转发 cookie，以确保在中间件中正确获取会话信息。
-     * 可能是 better-auth 或 Nuxt 处理请求头的方式变更导致的问题，所以需要手动处理。
-     * （原本默认使用 useFetch 应该就会处理 cookie）
-     * 需要再观察一下，以采用更优雅的解决方案。
      */
     const { data: session } = await authClient.useSession((url, options) => useFetch(url, {
         ...options,
@@ -29,8 +44,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
             ...useRequestHeaders(['cookie']),
         },
     }))
-    // console.info('session.value', session.value)
-    const localePath = useLocalePath()
+
     // 检查用户是否登录
     if (!session.value) {
         // 重定向到登录页面
@@ -38,7 +52,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     }
 
     // 管理后台权限检查
-    if (to.path.startsWith('/admin') && !isAdminOrAuthor(session.value.user.role)) {
+    if (basePath.startsWith('/admin') && !isAdminOrAuthor(session.value.user.role)) {
         return navigateTo(localePath('/'))
     }
 
