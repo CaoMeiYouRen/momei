@@ -189,21 +189,7 @@ const {
     onFilterChange,
     refresh: loadData,
 } = useAdminList<Category, { search: string }>({
-    fetchFn: async (params) => {
-        const response = await $fetch<any>('/api/categories', {
-            query: {
-                page: params.page,
-                limit: params.limit,
-                search: params.search,
-                sortBy: params.sortBy,
-                sortDirection: params.sortDirection,
-            },
-        })
-        return {
-            data: response.data.items,
-            total: response.data.total,
-        }
-    },
+    url: '/api/categories',
     initialFilters: {
         search: '',
     },
@@ -223,10 +209,14 @@ const form = ref({
 })
 
 const parentOptions = ref<Category[]>([])
+const { contentLanguage } = useAdminI18n()
 
 const fetchParentOptions = async () => {
     const response = await $fetch<any>('/api/categories', {
-        query: { limit: 100 },
+        query: {
+            limit: 100,
+            language: contentLanguage.value || undefined,
+        },
     })
     if (response.data) {
         parentOptions.value = response.data.items

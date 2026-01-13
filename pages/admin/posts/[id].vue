@@ -90,6 +90,31 @@
         >
             <div class="settings-form">
                 <div class="form-group">
+                    <label for="language" class="form-label">{{ $t('pages.admin.posts.language') }}</label>
+                    <Select
+                        id="language"
+                        v-model="post.language"
+                        :options="languageOptions"
+                        option-label="label"
+                        option-value="value"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="translationId" class="form-label">{{ t('pages.admin.posts.translation_group') }}</label>
+                    <AutoComplete
+                        id="translationId"
+                        v-model="post.translationId"
+                        :suggestions="postsForTranslation"
+                        option-label="label"
+                        option-value="value"
+                        :placeholder="t('pages.admin.posts.translation_group_hint')"
+                        dropdown
+                        @complete="searchPosts"
+                    />
+                </div>
+
+                <div class="form-group">
                     <label for="slug" class="form-label">{{ $t('pages.admin.posts.slug') }}</label>
                     <InputText
                         id="slug"
@@ -194,15 +219,21 @@ definePageMeta({
     layout: false,
 })
 
-const { t } = useI18n()
+const { t, locale, locales } = useI18n()
 const localePath = useLocalePath()
 const config = useRuntimeConfig()
+const { contentLanguage } = useAdminI18n()
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 
 const md = ref<any>(null)
+
+const languageOptions = computed(() => locales.value.map((l: any) => ({
+    label: l.name || l.code,
+    value: l.code,
+})))
 
 const licenseOptions = computed(() => {
     return Object.keys(COPYRIGHT_LICENSES).map((key) => ({
@@ -227,6 +258,8 @@ interface Post {
     categoryId: string | null
     copyright: string | null
     tags: string[]
+    language: string
+    translationId: string | null
 }
 
 const post = ref<Post>({
@@ -239,6 +272,8 @@ const post = ref<Post>({
     categoryId: null,
     copyright: null,
     tags: [],
+    language: contentLanguage.value || locale.value,
+    translationId: null,
 })
 
 const selectedTags = ref<string[]>([])
@@ -250,6 +285,29 @@ const saving = ref(false)
 const categories = ref<{ id: string, name: string }[]>([])
 const errors = ref<Record<string, string>>({})
 const isDragging = ref(false)
+
+const postsForTranslation = ref<any[]>([])
+const searchPosts = async (event: { query: string }) => {
+    if (!event.query.trim()) return
+    try {
+        const { data } = await $fetch<{ data: { items: any[] } }>('/api/posts', {
+            query: {
+                search: event.query,
+                limit: 10,
+                scope: 'manage',
+                // Exclude current post
+            },
+        })
+        postsForTranslation.value = data.items
+            .filter((p) => p.id !== post.value.id)
+            .map((p) => ({
+                label: `[${p.language}] ${p.title}`,
+                value: p.translationId || p.id,
+            }))
+    } catch (error) {
+        console.error('Failed to search posts', error)
+    }
+}
 
 const isNew = computed(() => route.params.id === 'new' || !route.params.id)
 
@@ -273,6 +331,8 @@ const loadPost = async () => {
                 ...data,
                 categoryId: data.category?.id || null,
                 tags: data.tags?.map((t: any) => t.name) || [],
+                language: data.language || 'zh-CN',
+                translationId: data.translationId || null,
             }
             selectedTags.value = post.value.tags
         }
@@ -367,6 +427,7 @@ const handleMarkdownImport = (file: File) => {
         if (frontMatter.description || frontMatter.desc) post.value.summary = frontMatter.description || frontMatter.desc
         if (frontMatter.image || frontMatter.cover || frontMatter.thumb) post.value.coverImage = frontMatter.image || frontMatter.cover || frontMatter.thumb
         if (frontMatter.copyright || frontMatter.license) post.value.copyright = frontMatter.copyright || frontMatter.license
+        if (frontMatter.language || frontMatter.lang) post.value.language = frontMatter.language || frontMatter.lang
 
         // Handle tags
         if (frontMatter.tags) {
@@ -504,7 +565,7 @@ const getStatusSeverity = (status: string) => {
 const loadCategories = async () => {
     try {
         const response = await $fetch<{ data: { items: any[] } }>('/api/categories', {
-            query: { limit: 100 },
+            query: { limit: 100, language: post.value.language },
         })
         if (response.data) {
             categories.value = response.data.items
@@ -517,7 +578,7 @@ const loadCategories = async () => {
 const loadTags = async () => {
     try {
         const response = await $fetch<{ data: { items: any[] } }>('/api/tags', {
-            query: { limit: 100 },
+            query: { limit: 100, language: post.value.language },
         })
         if (response.data) {
             allTags.value = response.data.items.map((t: any) => t.name)
@@ -526,6 +587,11 @@ const loadTags = async () => {
         console.error('Failed to load tags', error)
     }
 }
+
+watch(() => post.value.language, () => {
+    loadCategories()
+    loadTags()
+})
 
 onMounted(() => {
     loadPost()

@@ -153,21 +153,7 @@ const {
     onFilterChange,
     refresh: loadData,
 } = useAdminList<Tag, { search: string }>({
-    fetchFn: async (params) => {
-        const response = await $fetch<any>('/api/tags', {
-            query: {
-                page: params.page,
-                limit: params.limit,
-                search: params.search,
-                sortBy: params.sortBy,
-                sortDirection: params.sortDirection,
-            },
-        })
-        return {
-            data: response.data.items,
-            total: response.data.total,
-        }
-    },
+    url: '/api/tags',
     initialFilters: {
         search: '',
     },

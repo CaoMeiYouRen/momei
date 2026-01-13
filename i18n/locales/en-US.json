@@ -208,6 +208,9 @@
                 "cover_image": "Cover Image URL",
                 "copyright": "Copyright Notice",
                 "copyright_hint": "Leave empty for global default",
+                "language": "Post Language",
+                "translation_group": "Translation Association",
+                "translation_group_hint": "Link different language versions of the same post to enable switcher on front end",
                 "title_required": "Please enter post title"
             },
             "categories": {

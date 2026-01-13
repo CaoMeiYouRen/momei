@@ -74,6 +74,9 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
         post.coverImage = body.coverImage ?? null
     }
     post.language = body.language
+    if (body.translationId !== undefined) {
+        post.translationId = body.translationId ?? null
+    }
 
     // Handle Category
     let targetCategoryId: string | null | undefined = undefined

@@ -1,6 +1,6 @@
 <template>
     <div class="admin-subscribers page-container">
-        <AdminPageHeader :title="$t('pages.admin.subscribers.title')">
+        <AdminPageHeader :title="$t('pages.admin.subscribers.title')" show-language-switcher>
             <template #actions>
                 <Button
                     :label="$t('pages.admin.subscribers.export')"

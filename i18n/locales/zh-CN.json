@@ -207,6 +207,9 @@
                 "cover_image": "封面图 URL",
                 "copyright": "版权声明",
                 "copyright_hint": "留空则使用全局默认声明",
+                "language": "文章语言",
+                "translation_group": "关联其他语言版本",
+                "translation_group_hint": "关联不同语言版本的同一篇文章，启用前台语言切换关联",
                 "title_required": "请输入文章标题"
             },
             "categories": {

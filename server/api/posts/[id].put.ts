@@ -47,6 +47,9 @@ export default defineEventHandler(async (event) => {
     if (body.language) {
         post.language = body.language
     }
+    if (body.translationId !== undefined) {
+        post.translationId = body.translationId
+    }
 
     // ... (Category logic omitted for brevity in search string)
 
