@@ -173,7 +173,8 @@ const navigateToPost = () => {
 
     &__meta {
         display: flex;
-        gap: 1.5rem;
+        flex-wrap: wrap;
+        gap: 0.5rem 1.25rem;
         align-items: center;
         font-size: 0.875rem;
         color: var(--p-text-muted-color);
@@ -182,7 +183,8 @@ const navigateToPost = () => {
         &-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.25rem;
+            white-space: nowrap;
         }
     }
 
@@ -211,8 +213,10 @@ const navigateToPost = () => {
     }
 
     &__category {
+        display: inline-flex;
         text-decoration: none;
         transition: transform 0.2s;
+        white-space: nowrap;
 
         &:hover {
             transform: translateY(-1px);

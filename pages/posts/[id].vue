@@ -410,23 +410,31 @@ onMounted(async () => {
 
     &__meta {
         display: flex;
-        gap: 1.5rem;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.5rem;
         align-items: center;
         padding-bottom: 2rem;
         border-bottom: 1px solid var(--p-surface-border);
         font-size: 0.875rem;
         color: var(--p-text-muted-color);
+
+        @media (width <= 768px) {
+            gap: 0.75rem 1rem;
+        }
     }
 
     &__author {
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        white-space: nowrap;
     }
 
     &__category {
+        display: inline-flex;
         text-decoration: none;
         transition: transform 0.2s;
+        white-space: nowrap;
 
         &:hover {
             transform: translateY(-1px);
@@ -437,6 +445,7 @@ onMounted(async () => {
         display: flex;
         align-items: center;
         gap: 0.25rem;
+        white-space: nowrap;
     }
 
     &__footer {
