@@ -323,11 +323,13 @@ const saveItem = async () => {
                 body: form.value,
             })
         }
-        toast.add({ severity: 'success', summary: 'Success', detail: t('pages.admin.tags.save_success'), life: 3000 })
+        toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.tags.save_success'), life: 3000 })
         hideDialog()
         loadData()
     } catch (error: any) {
-        toast.add({ severity: 'error', summary: 'Error', detail: error.statusMessage || 'Failed to save', life: 3000 })
+        console.error('Failed to save tag', error)
+        const serverMessage = error.data?.message || error.statusMessage || t('common.save_failed')
+        toast.add({ severity: 'error', summary: t('common.error'), detail: serverMessage, life: 5000 })
     } finally {
         saving.value = false
     }

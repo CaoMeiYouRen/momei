@@ -22,6 +22,7 @@
                     class="title-input"
                     :class="{'p-invalid': errors.title}"
                 />
+                <small v-if="errors.title" class="p-error">{{ errors.title }}</small>
                 <Tag
                     v-if="post.status"
                     :value="getStatusLabel(post.status)"
@@ -69,7 +70,7 @@
         </div>
 
         <!-- Editor Area -->
-        <div class="editor-area">
+        <div class="editor-area" :class="{'editor-area--invalid': errors.content}">
             <ClientOnly>
                 <mavon-editor
                     ref="md"
@@ -79,6 +80,9 @@
                     @img-add="imgAdd"
                 />
             </ClientOnly>
+            <div v-if="errors.content" class="editor-error-message">
+                <small class="p-error">{{ errors.content }}</small>
+            </div>
         </div>
 
         <!-- Settings Drawer -->
@@ -183,7 +187,9 @@
                         rows="4"
                         :placeholder="$t('pages.admin.posts.summary_placeholder')"
                         class="resize-none"
+                        :class="{'p-invalid': errors.summary}"
                     />
+                    <small v-if="errors.summary" class="p-error">{{ errors.summary }}</small>
                 </div>
 
                 <div class="form-group">
@@ -357,10 +363,12 @@ const loadPost = async () => {
     try {
         const { data } = await $fetch<{ data: any }>(`/api/posts/${route.params.id}`)
         if (data) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { category, author, tags, ...rest } = data
             post.value = {
-                ...data,
-                categoryId: data.category?.id || null,
-                tags: data.tags?.map((t: any) => t.name) || [],
+                ...rest,
+                categoryId: category?.id || null,
+                tags: tags?.map((t: any) => t.name) || [],
                 language: data.language || 'zh-CN',
                 translationId: data.translationId || null,
             }
@@ -522,8 +530,11 @@ const onDrop = async (e: DragEvent) => {
 
 const savePost = async (publish = false) => {
     errors.value = {}
+    // 排除掉不需要提交到后端的关联对象，避免校验失败
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { category, author, ...rest } = post.value
     const payload = {
-        ...post.value,
+        ...rest,
         tags: selectedTags.value,
         status: publish ? 'published' : post.value.status,
     }
@@ -535,7 +546,17 @@ const savePost = async (publish = false) => {
         result.error.issues.forEach((issue) => {
             errors.value[String(issue.path[0])] = issue.message
         })
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.validation_error'), life: 3000 })
+
+        // Check if any error is in the drawer fields
+        const drawerFields = ['language', 'translationId', 'slug', 'categoryId', 'category', 'tags', 'copyright', 'summary', 'coverImage']
+        const hasDrawerError = result.error.issues.some((issue) => drawerFields.includes(String(issue.path[0])))
+        if (hasDrawerError) {
+            settingsVisible.value = true
+        }
+
+        const firstError = result.error.issues[0]
+        const errorDetail = firstError ? `${String(firstError.path[0])}: ${firstError.message}` : t('common.validation_error')
+        toast.add({ severity: 'error', summary: t('common.error'), detail: errorDetail, life: 5000 })
         return
     }
 
@@ -561,11 +582,12 @@ const savePost = async (publish = false) => {
             if (publish) {
                 post.value.status = 'published'
             }
-            toast.add({ severity: 'success', summary: 'Success', detail: t('common.save_success'), life: 3000 })
+            toast.add({ severity: 'success', summary: t('common.success'), detail: t('common.save_success'), life: 3000 })
         }
     } catch (error: any) {
         console.error('Failed to save post', error)
-        toast.add({ severity: 'error', summary: 'Error', detail: error.statusMessage || t('common.save_failed'), life: 3000 })
+        const serverMessage = error.data?.message || error.statusMessage || t('common.save_failed')
+        toast.add({ severity: 'error', summary: t('common.error'), detail: serverMessage, life: 5000 })
     } finally {
         saving.value = false
     }
@@ -714,13 +736,30 @@ onMounted(() => {
 .editor-area {
     flex: 1;
     display: flex;
+    flex-direction: column;
     overflow: hidden;
+    position: relative;
 
     .mavon-editor {
         width: 100%;
         height: 100%;
         z-index: 1;
     }
+
+    &--invalid {
+        border: 1px solid var(--p-error-color);
+    }
+}
+
+.editor-error-message {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 10;
+    background-color: var(--p-surface-card);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.1);
 }
 
 .settings-drawer {
