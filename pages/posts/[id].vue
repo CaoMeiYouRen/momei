@@ -169,6 +169,7 @@ import { isSnowflakeId } from '@/utils/shared/validate'
 const route = useRoute()
 const localePath = useLocalePath()
 const { t } = useI18n()
+const setI18nParams = useSetI18nParams()
 const { formatDateTime } = useI18nDate()
 
 const idOrSlug = route.params.id as string
@@ -187,6 +188,17 @@ const endpoint = isId ? `/api/posts/${idOrSlug}` : `/api/posts/slug/${idOrSlug}`
 const { data, pending, error } = await useAppFetch<any>(() => endpoint)
 
 const post = computed(() => data.value?.data)
+
+// Handle dynamic route translations for i18n language switcher
+watch(post, (newPost) => {
+    if (newPost?.translations) {
+        const params: Record<string, any> = {}
+        newPost.translations.forEach((tr: any) => {
+            params[tr.language] = { id: tr.slug }
+        })
+        setI18nParams(params)
+    }
+}, { immediate: true })
 
 useHead({
     title: computed(() => post.value?.title || 'Article'),

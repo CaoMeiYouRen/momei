@@ -21,5 +21,17 @@ export default defineEventHandler(async (event) => {
         return fail('Category not found', 404)
     }
 
-    return success(category)
+    // Fetch translations
+    let translations: any[] = []
+    if (category.translationId) {
+        translations = await categoryRepo.find({
+            where: { translationId: category.translationId },
+            select: ['language', 'slug'],
+        })
+    }
+
+    return success({
+        ...category,
+        translations,
+    })
 })

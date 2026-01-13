@@ -1,6 +1,7 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'
+import { PostStatus } from '@/types/post'
 
 export default defineEventHandler(async (event) => {
     const slug = getRouterParam(event, 'slug')
@@ -34,8 +35,20 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 404, statusMessage: 'Post not found' })
     }
 
+    // Fetch translations
+    let translations: any[] = []
+    if (post.translationId) {
+        translations = await postRepo.find({
+            where: {
+                translationId: post.translationId,
+                status: PostStatus.PUBLISHED,
+            },
+            select: ['language', 'slug'],
+        })
+    }
+
     // Visibility check
-    if (post.status !== 'published') {
+    if (post.status !== PostStatus.PUBLISHED) {
         if (!session || !session.user) {
             throw createError({ statusCode: 404, statusMessage: 'Post not found' })
         }
@@ -48,6 +61,9 @@ export default defineEventHandler(async (event) => {
 
     return {
         code: 200,
-        data: post,
+        data: {
+            ...post,
+            translations,
+        },
     }
 })

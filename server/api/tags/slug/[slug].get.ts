@@ -20,5 +20,17 @@ export default defineEventHandler(async (event) => {
         return fail('Tag not found', 404)
     }
 
-    return success(tag)
+    // Fetch translations
+    let translations: any[] = []
+    if (tag.translationId) {
+        translations = await tagRepo.find({
+            where: { translationId: tag.translationId },
+            select: ['language', 'slug'],
+        })
+    }
+
+    return success({
+        ...tag,
+        translations,
+    })
 })
