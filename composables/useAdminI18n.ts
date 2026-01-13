@@ -3,12 +3,7 @@ import { ref } from 'vue'
 const contentLanguage = ref<string | null>(null)
 
 export function useAdminI18n() {
-    const { locale, locales, t } = useI18n()
-
-    // Initialize with current locale if not set
-    if (!contentLanguage.value) {
-        contentLanguage.value = locale.value
-    }
+    const { locales, t } = useI18n()
 
     const setContentLanguage = (lang: string | null) => {
         contentLanguage.value = lang
