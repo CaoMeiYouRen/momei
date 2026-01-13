@@ -61,6 +61,9 @@ export default defineEventHandler(async (event) => {
             sub.where('category.slug = :cat', { cat: query.category })
                 .orWhere('category.id = :cat', { cat: query.category })
         }))
+        if (query.language) {
+            qb.andWhere('category.language = :language', { language: query.language })
+        }
     }
 
     if (query.language) {
@@ -71,6 +74,9 @@ export default defineEventHandler(async (event) => {
         qb.innerJoin('post.tags', 'tag', 'tag.id = :tagId', { tagId: query.tagId })
     } else if (query.tag) {
         qb.innerJoin('post.tags', 'tagBySlug', 'tagBySlug.slug = :tagSlug', { tagSlug: query.tag })
+        if (query.language) {
+            qb.andWhere('tagBySlug.language = :language', { language: query.language })
+        }
     }
 
     if (query.search) {

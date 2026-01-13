@@ -10,7 +10,13 @@ export default defineEventHandler(async (event) => {
 
     const queryBuilder = categoryRepo.createQueryBuilder('category')
         .leftJoinAndSelect('category.parent', 'parent')
-        .loadRelationCountAndMap('category.postCount', 'category.posts', 'post', (qb) => qb.where('post.status = :status', { status: 'published' }))
+        .loadRelationCountAndMap('category.postCount', 'category.posts', 'post', (qb) => {
+            qb.where('post.status = :status', { status: 'published' })
+            if (query.language) {
+                qb.andWhere('post.language = :language', { language: query.language })
+            }
+            return qb
+        })
 
     if (query.search) {
         queryBuilder.where('category.name LIKE :search', { search: `%${query.search}%` })
@@ -30,6 +36,7 @@ export default defineEventHandler(async (event) => {
             .select('count(p.id)', 'pcount')
             .from(Post, 'p')
             .where('p.categoryId = category.id')
+            .andWhere('p.language = category.language')
             .andWhere('p.status = :status', { status: 'status_val' }), 'pcount')
         queryBuilder.setParameter('status_val', 'published')
         queryBuilder.orderBy('pcount', query.order || 'DESC')

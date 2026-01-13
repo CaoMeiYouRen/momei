@@ -9,7 +9,13 @@ export default defineEventHandler(async (event) => {
     const tagRepo = dataSource.getRepository(Tag)
 
     const queryBuilder = tagRepo.createQueryBuilder('tag')
-        .loadRelationCountAndMap('tag.postCount', 'tag.posts', 'post', (qb) => qb.where('post.status = :status', { status: 'published' }))
+        .loadRelationCountAndMap('tag.postCount', 'tag.posts', 'post', (qb) => {
+            qb.where('post.status = :status', { status: 'published' })
+            if (query.language) {
+                qb.andWhere('post.language = :language', { language: query.language })
+            }
+            return qb
+        })
 
     if (query.search) {
         queryBuilder.where('tag.name LIKE :search', { search: `%${query.search}%` })
@@ -26,6 +32,7 @@ export default defineEventHandler(async (event) => {
             .from(Post, 'p')
             .innerJoin('p.tags', 'pt')
             .where('pt.id = tag.id')
+            .andWhere('p.language = tag.language')
             .andWhere('p.status = :status', { status: 'status_val' }), 'pcount')
         queryBuilder.setParameter('status_val', 'published')
         queryBuilder.orderBy('pcount', query.order || 'DESC')
