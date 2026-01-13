@@ -16,12 +16,20 @@ export default defineEventHandler(async (event) => {
         .leftJoinAndSelect('post.tags', 'tags')
         .where('post.status = :status', { status: 'published' })
 
-    // 1. Keyword search (Title, Summary, Content)
+    // 1. Keyword search (Title, Summary)
+    // NOTE: Avoid searching 'content' with LIKE %q% on large datasets as it causes full table scans.
+    // In a blog context, Title and Summary usually cover the most relevant results.
     if (query.q) {
+        const q = query.q.trim()
+        // If query is too short (e.g. 1 char for non-CJK), we might want to skip or handle specially.
+        // For simplicity, we trust the database but optimize fields.
         qb.andWhere(new Brackets((sub: WhereExpressionBuilder) => {
-            sub.where('post.title LIKE :q', { q: `%${query.q}%` })
-                .orWhere('post.summary LIKE :q', { q: `%${query.q}%` })
-                .orWhere('post.content LIKE :q', { q: `%${query.q}%` })
+            sub.where('post.title LIKE :q', { q: `%${q}%` })
+                .orWhere('post.summary LIKE :q', { q: `%${q}%` })
+            // Only search content if q is long enough to reduce pointless heavy scans
+            if (q.length >= 2) {
+                sub.orWhere('post.content LIKE :q', { q: `%${q}%` })
+            }
         }))
     }
 

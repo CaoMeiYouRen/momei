@@ -23,6 +23,14 @@ export default defineEventHandler(async (event) => {
             })
             return
         }
+        if (event.path.startsWith('/api/search')) {
+            // 限制 搜索 频率，避免全文搜索带来的数据库压力
+            await rateLimit(event, {
+                window: 60,
+                max: 5,
+            })
+            return
+        }
         // 如果是 POST/PATCH/PUT/DELETE 请求，限制为 20 次/分钟
         if (event.method === 'POST' || event.method === 'PATCH' || event.method === 'PUT' || event.method === 'DELETE') {
             await rateLimit(event, {

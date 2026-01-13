@@ -9,7 +9,7 @@ import { PostStatus } from '@/types/post'
 @Entity('post')
 export class Post extends BaseEntity {
 
-    @CustomColumn({ type: 'varchar', length: 255, nullable: false })
+    @CustomColumn({ type: 'varchar', length: 255, nullable: false, index: true })
     title: string
 
     @CustomColumn({ type: 'varchar', length: 255, unique: true, nullable: false })
@@ -24,16 +24,16 @@ export class Post extends BaseEntity {
     @CustomColumn({ type: 'text', nullable: true })
     coverImage: string | null
 
-    @CustomColumn({ type: 'varchar', length: 10, default: 'zh-CN', nullable: false })
+    @CustomColumn({ type: 'varchar', length: 10, default: 'zh-CN', nullable: false, index: true })
     language: string
 
-    @CustomColumn({ type: 'varchar', length: 36, nullable: true })
+    @CustomColumn({ type: 'varchar', length: 36, nullable: true, index: true })
     translationId: string | null
 
-    @CustomColumn({ type: 'varchar', length: 36, nullable: false })
+    @CustomColumn({ type: 'varchar', length: 36, nullable: false, index: true })
     authorId: string
 
-    @CustomColumn({ type: 'varchar', length: 36, nullable: true })
+    @CustomColumn({ type: 'varchar', length: 36, nullable: true, index: true })
     categoryId: string | null
 
     @CustomColumn({
@@ -41,16 +41,17 @@ export class Post extends BaseEntity {
         length: 20,
         comment: '文章状态：draft, pending, published, rejected, hidden',
         default: PostStatus.DRAFT,
+        index: true,
     })
     status: PostStatus
 
-    @CustomColumn({ type: 'integer', default: 0 })
+    @CustomColumn({ type: 'integer', default: 0, index: true })
     views: number
 
     @CustomColumn({ type: 'text', nullable: true })
     copyright: string | null
 
-    @CustomColumn({ type: 'datetime', nullable: true })
+    @CustomColumn({ type: 'datetime', nullable: true, index: true })
     publishedAt: Date | null
 
     // ========== 关系定义 ==========

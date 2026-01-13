@@ -22,12 +22,12 @@
 
 ## 3. 技术选型 (Technical Selection)
 
--   **初级方案 (MVP)**: 基于数据库的 `LIKE` 或 `ILike` 查询。
-    -   优点：实现简单，无需额外依赖。
-    -   缺点：性能随数据量增长而下降，相关性排序评分较弱。
--   **进阶方案 (P1)**: 集成 **Algolia** / **Meilisearch** / **Fuse.js**。
-    -   **Algolia**: 托管式，搜索体验最佳，支持地理位置、分词等，首选。
-    -   **Fuse.js**: 适用于轻量级全量搜索，可将所有文章摘要和元信息缓存到前端。
+-   **当前方案 (Current)**: 基于数据库的 `LIKE` 优化查询。
+    -   **性能保障**: 通过为 `title`, `status`, `language`, `publishedAt`, `translationId` 等关键字段建立索引，结合 `status='published'` 和 `language` 的预过滤，极大地缩小了全文扫描的范围。
+    -   **范围控制**: 默认搜索 `title` 和 `summary`。只有当关键词长度超过一定阈值（如 3 个字符）时才搜索 `content`。
+    -   **频率限制**: API 层级实现了针对 `/api/search` 的频率限制（20 次/分钟），防止恶意扫描和数据库过载。
+-   **进阶方案 (P1 - 待定)**: 集成 **Algolia** / **Meilisearch**。
+    -   由于当前系统流量和数据规模预估，数据库优化方案已足够满足需求，故第三方集成计划延后。
 
 ## 4. 接口设计 (API Design)
 
@@ -37,12 +37,23 @@
 
 -   **请求参数**:
 
-    -   `q`: 搜索关键词 (必需)。
-    -   `language`: 指定语言编码 (可选，如 `zh-CN`, `en-US`, `all`)。
+    -   `q`: 搜索关键词 (可选)。
+    -   `language`: 指定语言编码 (可选，如 `zh-CN`, `en-US`)。
     -   `category`: 分类 ID 或 Slug (可选)。
-    -   `tags`: 标签 ID 或 Slug 列表 (可选，多个用逗号分隔)。
+    -   `tags`: 标签 ID 或 Slug 列表 (可选)。
+    -   `sortBy`: 排序字段 (`relevance`, `publishedAt`, `views`，默认 `relevance`)。
     -   `page`: 分页码 (默认 1)。
     -   `limit`: 每页数量 (默认 10)。
+
+-   **约束**:
+
+    -   `q` 长度至少为 1 个字符。
+    -   对 `/api/search` 接口有较严格的 Rate Limit (20 req/min)。
+
+-   **性能说明**:
+
+    -   后端在执行关键字匹配前，会先利用索引过滤 `status` (仅已发布) 和 `language`。
+    -   对于 `content` 的搜索仅在关键词长度大于 3 时触发，以降低计算开销。
 
 -   **响应格式**:
 

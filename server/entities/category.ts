@@ -6,7 +6,7 @@ import { Post } from './post'
 @Entity('category')
 export class Category extends BaseEntity {
 
-    @CustomColumn({ type: 'varchar', length: 100, nullable: false })
+    @CustomColumn({ type: 'varchar', length: 100, nullable: false, index: true })
     name: string
 
     @CustomColumn({ type: 'varchar', length: 100, unique: true, nullable: false })
@@ -15,13 +15,13 @@ export class Category extends BaseEntity {
     @CustomColumn({ type: 'text', nullable: true })
     description: string | null
 
-    @CustomColumn({ type: 'varchar', length: 36, nullable: true })
+    @CustomColumn({ type: 'varchar', length: 36, nullable: true, index: true })
     parentId: string | null
 
-    @CustomColumn({ type: 'varchar', length: 10, default: 'zh-CN', nullable: false })
+    @CustomColumn({ type: 'varchar', length: 10, default: 'zh-CN', nullable: false, index: true })
     language: string
 
-    @CustomColumn({ type: 'varchar', length: 36, nullable: true })
+    @CustomColumn({ type: 'varchar', length: 36, nullable: true, index: true })
     translationId: string | null
 
     // ========== 关系定义 ==========

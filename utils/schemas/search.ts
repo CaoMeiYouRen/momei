@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { paginationSchema } from './pagination'
 
 export const searchQuerySchema = paginationSchema.extend({
-    q: z.string().optional(),
+    q: z.string().trim().min(1).optional(),
     language: z.string().optional(),
     category: z.string().optional(),
     tags: z.preprocess(
