@@ -66,7 +66,7 @@
                     sortable
                 >
                     <template #body="{data}">
-                        <Tag :value="data.language" severity="secondary" />
+                        <Tag :value="$t(`common.languages.${data.language}`)" severity="secondary" />
                     </template>
                 </Column>
                 <Column

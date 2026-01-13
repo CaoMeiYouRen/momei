@@ -40,7 +40,7 @@
                 />
                 <Column field="language" :header="$t('common.language')">
                     <template #body="{data}">
-                        {{ $t(`common.languages.${data.language}`) }}
+                        <Tag :value="$t(`common.languages.${data.language}`)" severity="secondary" />
                     </template>
                 </Column>
                 <Column field="isActive" :header="$t('pages.admin.subscribers.active_status')">
