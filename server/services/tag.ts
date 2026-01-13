@@ -1,6 +1,6 @@
 import { kebabCase } from 'lodash-es'
 import { Not } from 'typeorm'
-import { snowflake } from '../snowflake'
+import { snowflake } from '@/server/utils/snowflake'
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
 import { generateRandomString } from '@/utils/shared/random'

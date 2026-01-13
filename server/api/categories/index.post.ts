@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth'
 import { categoryBodySchema } from '@/utils/schemas/category'
 import { isAdmin } from '@/utils/shared/roles'
-import { createCategory } from '@/server/utils/services/category'
+import { createCategory } from '@/server/services/category'
 
 export default defineEventHandler(async (event) => {
     const session = await auth.api.getSession({

@@ -1,7 +1,7 @@
 import { kebabCase } from 'lodash-es'
 import type { z } from 'zod'
-import { snowflake } from '../snowflake'
 import { ensureTags } from './tag'
+import { snowflake } from '@/server/utils/snowflake'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { Category } from '@/server/entities/category'

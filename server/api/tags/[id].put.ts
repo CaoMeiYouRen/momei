@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth'
 import { tagUpdateSchema } from '@/utils/schemas/tag'
-import { updateTag } from '@/server/utils/services/tag'
+import { updateTag } from '@/server/services/tag'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')

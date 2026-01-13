@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth'
 import { tagBodySchema } from '@/utils/schemas/tag'
 import { isAdminOrAuthor } from '@/utils/shared/roles'
-import { createTag } from '@/server/utils/services/tag'
+import { createTag } from '@/server/services/tag'
 
 export default defineEventHandler(async (event) => {
     const session = await auth.api.getSession({

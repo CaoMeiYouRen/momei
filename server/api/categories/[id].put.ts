@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth'
 import { categoryUpdateSchema } from '@/utils/schemas/category'
-import { updateCategory } from '@/server/utils/services/category'
+import { updateCategory } from '@/server/services/category'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')

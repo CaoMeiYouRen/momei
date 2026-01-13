@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth'
 import { createPostSchema } from '@/utils/schemas/post'
-import { createPostService } from '@/server/utils/services/post'
+import { createPostService } from '@/server/services/post'
 import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
