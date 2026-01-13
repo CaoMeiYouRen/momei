@@ -74,6 +74,7 @@
         }
     },
     "common": {
+        "all_languages": "全部语言",
         "home": "首页",
         "read_more": "阅读更多",
         "views": "阅读",

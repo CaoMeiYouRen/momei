@@ -1,7 +1,7 @@
 <template>
     <div class="admin-tags page-container">
-        <AdminPageHeader :title="$t('pages.admin.tags.title')">
-            <template #end>
+        <AdminPageHeader :title="$t('pages.admin.tags.title')" show-language-switcher>
+            <template #actions>
                 <Button
                     :label="$t('pages.admin.tags.create')"
                     icon="pi pi-plus"

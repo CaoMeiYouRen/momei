@@ -67,7 +67,32 @@ export default defineEventHandler(async (event) => {
     }
 
     if (query.language) {
-        qb.andWhere('post.language = :language', { language: query.language })
+        if (query.scope === 'manage') {
+            qb.andWhere('post.language = :language', { language: query.language })
+        } else {
+            // Public Multi-language aggregation logic:
+            // 1. Show posts in the target language.
+            // 2. Show posts in other languages ONLY IF there is no version in the target language for that cluster.
+            // 3. Unique posts (translationId is null) are always shown.
+            qb.andWhere(new Brackets((sub: WhereExpressionBuilder) => {
+                sub.where('post.language = :language', { language: query.language })
+                    .orWhere(new Brackets((ss: WhereExpressionBuilder) => {
+                        ss.where('post.translationId IS NOT NULL')
+                            .andWhere('post.language != :language', { language: query.language })
+                            .andWhere((subQb) => {
+                                const existsQuery = subQb.subQuery()
+                                    .select('1')
+                                    .from(Post, 'p2')
+                                    .where('p2.translationId = post.translationId')
+                                    .andWhere('p2.language = :language', { language: query.language })
+                                    .andWhere('p2.status = :status', { status: 'published' })
+                                    .getQuery()
+                                return `NOT EXISTS ${existsQuery}`
+                            })
+                    }))
+                    .orWhere('post.translationId IS NULL')
+            }))
+        }
     }
 
     if (query.tagId) {

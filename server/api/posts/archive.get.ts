@@ -1,3 +1,4 @@
+import { Brackets, type SelectQueryBuilder, type WhereExpressionBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'
@@ -11,6 +12,41 @@ export default defineEventHandler(async (event) => {
 
     const postRepo = dataSource.getRepository(Post)
 
+    // Helper to apply common filters including multi-language aggregation
+    const applyCommonFilters = (qb: any) => {
+        if (query.scope === 'public') {
+            qb.andWhere('post.status = :status', { status: 'published' })
+        }
+
+        if (query.language) {
+            if (query.scope === 'manage') {
+                qb.andWhere('post.language = :language', { language: query.language })
+            } else {
+                // Public Multi-language aggregation logic
+                qb.andWhere(new Brackets((sub: WhereExpressionBuilder) => {
+                    sub.where('post.language = :language', { language: query.language })
+                        .orWhere(new Brackets((ss: WhereExpressionBuilder) => {
+                            ss.where('post.translationId IS NOT NULL')
+                                .andWhere('post.language != :language', { language: query.language })
+                                .andWhere((subQb: SelectQueryBuilder<Post>) => {
+                                    const existsQuery = subQb.subQuery()
+                                        .select('1')
+                                        .from(Post, 'p2')
+                                        .where('p2.translationId = post.translationId')
+                                        .andWhere('p2.language = :language', { language: query.language })
+                                        .andWhere('p2.status = :status', { status: 'published' })
+                                        .getQuery()
+                                    return `NOT EXISTS ${existsQuery}`
+                                })
+                        }))
+                        .orWhere('post.translationId IS NULL')
+                }))
+            }
+        }
+
+        qb.andWhere('post.published_at IS NOT NULL')
+    }
+
     // Permission checks for manage scope
     if (query.scope === 'manage') {
         if (!session || !session.user) {
@@ -21,23 +57,6 @@ export default defineEventHandler(async (event) => {
             throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
         }
     }
-
-    // Base conditions: only published posts in public scope
-    const baseWhere: string[] = []
-    const params: Record<string, any> = {}
-
-    if (query.scope === 'public') {
-        baseWhere.push('post.status = :status')
-        params.status = 'published'
-    }
-
-    if (query.language) {
-        baseWhere.push('post.language = :language')
-        params.language = query.language
-    }
-
-    // Only aggregate posts with publishedAt
-    baseWhere.push('post.publishedAt IS NOT NULL')
 
     // Detect DB type for date functions
     const dbType = (dataSource.options.type as string) || ''
@@ -62,23 +81,16 @@ export default defineEventHandler(async (event) => {
     if (!query.includePosts) {
         const rawQb = postRepo.createQueryBuilder('post')
             .select([`${yearExpr} as year`, `${monthExpr} as month`, 'COUNT(*) as count'])
-            .where(baseWhere.join(' AND '), params)
-            .groupBy('year')
+
+        applyCommonFilters(rawQb)
+
+        rawQb.groupBy('year')
             .addGroupBy('month')
             .orderBy('year', 'DESC')
             .addOrderBy('month', 'DESC')
 
-        if (process.env.NODE_ENV === 'test') {
-            console.error('SQL:', rawQb.getSql())
-            console.error('Params:', rawQb.getParameters())
-        }
-
         const raw = await rawQb.getRawMany()
-
-        if (process.env.NODE_ENV === 'test') {
-            console.error('Raw results:', raw)
-        }
-
+        // ... rest of logic remains same
         // Normalize raw rows to numbers and group by year
         const yearsMap = new Map<number, Array<{ month: number, count: number }>>()
 
@@ -112,7 +124,8 @@ export default defineEventHandler(async (event) => {
         .addSelect(['author.id', 'author.name', 'author.image'])
         .leftJoinAndSelect('post.category', 'category')
         .leftJoinAndSelect('post.tags', 'tags')
-        .where(baseWhere.join(' AND '), params)
+
+    applyCommonFilters(postsQb)
 
     // Add year/month filter depending on DB
     if (dbType.includes('sqlite')) {
@@ -120,10 +133,10 @@ export default defineEventHandler(async (event) => {
     } else if (dbType.includes('postgres')) {
         postsQb.andWhere('EXTRACT(YEAR FROM post.published_at) = :y AND EXTRACT(MONTH FROM post.published_at) = :m', { y: query.year, m: query.month })
     } else {
-        postsQb.andWhere('YEAR(post.publishedAt) = :y AND MONTH(post.publishedAt) = :m', { y: query.year, m: query.month })
+        postsQb.andWhere('YEAR(post.published_at) = :y AND MONTH(post.published_at) = :m', { y: query.year, m: query.month })
     }
 
-    postsQb.orderBy('post.publishedAt', 'DESC')
+    postsQb.orderBy('post.published_at', 'DESC')
     postsQb.skip((query.page - 1) * query.limit)
     postsQb.take(query.limit)
 

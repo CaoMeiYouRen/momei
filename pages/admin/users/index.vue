@@ -1,7 +1,7 @@
 <template>
     <div class="container user-management">
         <AdminPageHeader :title="$t('pages.admin.users.title')">
-            <template #end>
+            <template #actions>
                 <Button
                     :label="$t('pages.admin.users.refresh')"
                     icon="pi pi-refresh"

@@ -1,7 +1,7 @@
 <template>
     <div class="admin-categories page-container">
-        <AdminPageHeader :title="$t('pages.admin.categories.title')">
-            <template #end>
+        <AdminPageHeader :title="$t('pages.admin.categories.title')" show-language-switcher>
+            <template #actions>
                 <Button
                     :label="$t('pages.admin.categories.create')"
                     icon="pi pi-plus"

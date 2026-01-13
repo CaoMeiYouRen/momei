@@ -1,6 +1,6 @@
 <template>
     <div class="admin-page-container">
-        <AdminPageHeader :title="$t('pages.admin.posts.title')">
+        <AdminPageHeader :title="$t('pages.admin.posts.title')" show-language-switcher>
             <template #actions>
                 <Button
                     :label="$t('pages.admin.posts.create')"

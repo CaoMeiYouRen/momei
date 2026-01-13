@@ -1,4 +1,5 @@
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
+import { useAdminI18n } from './useAdminI18n'
 
 interface UseAdminListOptions<F> {
     url?: string
@@ -11,6 +12,7 @@ interface UseAdminListOptions<F> {
 
 export function useAdminList<T = any, F extends object = any>(options: UseAdminListOptions<F>) {
     const { url, fetchFn, initialFilters, initialSort, initialPage = 1, initialLimit = 10 } = options
+    const { contentLanguage } = useAdminI18n()
 
     const items = ref<T[]>([])
     const total = ref(0)
@@ -46,6 +48,7 @@ export function useAdminList<T = any, F extends object = any>(options: UseAdminL
                 sortBy: sort.field,
                 sortDirection: sort.order,
                 ...cleanedFilters,
+                language: contentLanguage.value || undefined,
                 scope: 'manage',
             }
 
@@ -103,6 +106,12 @@ export function useAdminList<T = any, F extends object = any>(options: UseAdminL
         limit: limit.value,
         total: total.value,
     }))
+
+    // Watch for content language changes
+    watch(contentLanguage, () => {
+        page.value = 1
+        load()
+    })
 
     // Initialize
     onMounted(() => {
