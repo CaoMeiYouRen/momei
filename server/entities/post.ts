@@ -28,7 +28,7 @@ export class Post extends BaseEntity {
     @CustomColumn({ type: 'varchar', length: 10, default: 'zh-CN', nullable: false, index: true })
     language: string
 
-    @CustomColumn({ type: 'varchar', length: 36, nullable: true, index: true })
+    @CustomColumn({ type: 'varchar', length: 255, nullable: true, index: true })
     translationId: string | null
 
     @CustomColumn({ type: 'varchar', length: 36, nullable: false, index: true })
