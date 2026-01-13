@@ -59,7 +59,7 @@
                     sortable
                 >
                     <template #body="{data}">
-                        <Tag :value="data.language" severity="secondary" />
+                        <Tag :value="$t(`common.languages.${data.language}`)" severity="secondary" />
                     </template>
                 </Column>
                 <Column field="description" :header="$t('common.description')" />
@@ -138,6 +138,25 @@
                     :class="{'p-invalid': errors.slug}"
                 />
                 <small v-if="errors.slug" class="p-error">{{ errors.slug }}</small>
+            </div>
+            <div class="field">
+                <label for="translationId">
+                    {{ $t('common.translation_id') }}
+                    <small class="text-secondary">({{ $t('common.optional') }})</small>
+                </label>
+                <InputGroup>
+                    <InputText
+                        id="translationId"
+                        v-model.trim="form.translationId"
+                        :placeholder="$t('common.translation_id_hint')"
+                    />
+                    <Button
+                        icon="pi pi-refresh"
+                        severity="secondary"
+                        text
+                        @click="syncTranslationIdFromSlug"
+                    />
+                </InputGroup>
             </div>
             <div class="field">
                 <label for="parent">{{ $t('common.parent') }}</label>
@@ -254,6 +273,22 @@ const isPureEnglish = computed(() => {
 
 const parentOptions = ref<Category[]>([])
 
+const syncTranslationIdFromSlug = () => {
+    if (form.value.slug) {
+        form.value.translationId = form.value.slug
+    }
+}
+
+watch(() => form.value.slug, (newSlug) => {
+    // 仅在新建时，且 translationId 为空或者 translationId 与旧 slug 一致时才自动更新
+    if (!editingItem.value && (!form.value.translationId || form.value.translationId === oldSlugValue.value)) {
+        form.value.translationId = newSlug
+    }
+    oldSlugValue.value = newSlug
+})
+
+const oldSlugValue = ref('')
+
 const fetchParentOptions = async () => {
     const response = await $fetch<any>('/api/categories', {
         query: {
@@ -277,6 +312,7 @@ const openDialog = (item?: Category) => {
             language: item.language,
             translationId: item.translationId || null,
         }
+        oldSlugValue.value = item.slug
     } else {
         form.value = {
             name: '',
@@ -286,6 +322,7 @@ const openDialog = (item?: Category) => {
             language: contentLanguage.value || locale.value,
             translationId: null,
         }
+        oldSlugValue.value = ''
     }
     syncToAllLanguages.value = false
     submitted.value = false

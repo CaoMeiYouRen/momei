@@ -121,6 +121,8 @@
             "zh-CN": "Chinese (Simplified)",
             "en-US": "English"
         },
+        "translation_id": "Translation ID",
+        "translation_id_hint": "Used to manually link the same entity across different languages. Recommended to use a unique English identifier (like URL Slug).",
         "save_success": "Saved successfully",
         "save_failed": "Save failed",
         "upload_failed": "Upload failed",

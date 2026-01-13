@@ -120,6 +120,8 @@
             "zh-CN": "简体中文",
             "en-US": "英语"
         },
+        "translation_id": "关联标识",
+        "translation_id_hint": "用于手动关联不同语言版本的同一实体。建议使用英文唯一标识（如 URL Slug）。",
         "save_success": "保存成功",
         "save_failed": "保存失败",
         "upload_failed": "上传失败",

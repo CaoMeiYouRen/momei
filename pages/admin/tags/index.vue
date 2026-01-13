@@ -49,7 +49,7 @@
                     sortable
                 >
                     <template #body="{data}">
-                        <Tag :value="data.language" severity="secondary" />
+                        <Tag :value="$t(`common.languages.${data.language}`)" severity="secondary" />
                     </template>
                 </Column>
                 <Column
@@ -127,6 +127,25 @@
                     :class="{'p-invalid': errors.slug}"
                 />
                 <small v-if="errors.slug" class="p-error">{{ errors.slug }}</small>
+            </div>
+            <div class="field">
+                <label for="translationId">
+                    {{ $t('common.translation_id') }}
+                    <small class="text-secondary">({{ $t('common.optional') }})</small>
+                </label>
+                <InputGroup>
+                    <InputText
+                        id="translationId"
+                        v-model.trim="form.translationId"
+                        :placeholder="$t('common.translation_id_hint')"
+                    />
+                    <Button
+                        icon="pi pi-refresh"
+                        severity="secondary"
+                        text
+                        @click="syncTranslationIdFromSlug"
+                    />
+                </InputGroup>
             </div>
 
             <template #footer>
@@ -209,6 +228,20 @@ const form = ref({
     translationId: null as string | null,
 })
 
+const syncTranslationIdFromSlug = () => {
+    if (form.value.slug) {
+        form.value.translationId = form.value.slug
+    }
+}
+
+const oldSlugValue = ref('')
+watch(() => form.value.slug, (newSlug) => {
+    if (!editingItem.value && (!form.value.translationId || form.value.translationId === oldSlugValue.value)) {
+        form.value.translationId = newSlug
+    }
+    oldSlugValue.value = newSlug
+})
+
 const syncToAllLanguages = ref(false)
 const isPureEnglish = computed(() => {
     return /^[a-zA-Z0-9\s\-_]+$/.test(form.value.name)
@@ -223,6 +256,7 @@ const openDialog = (item?: Tag) => {
             language: item.language,
             translationId: item.translationId || null,
         }
+        oldSlugValue.value = item.slug
     } else {
         form.value = {
             name: '',
@@ -230,6 +264,7 @@ const openDialog = (item?: Tag) => {
             language: contentLanguage.value || locale.value,
             translationId: null,
         }
+        oldSlugValue.value = ''
     }
     syncToAllLanguages.value = false
     submitted.value = false

@@ -101,17 +101,29 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="translationId" class="form-label">{{ t('pages.admin.posts.translation_group') }}</label>
-                    <AutoComplete
-                        id="translationId"
-                        v-model="post.translationId"
-                        :suggestions="postsForTranslation"
-                        option-label="label"
-                        option-value="value"
-                        :placeholder="t('pages.admin.posts.translation_group_hint')"
-                        dropdown
-                        @complete="searchPosts"
-                    />
+                    <label for="translationId" class="form-label">
+                        {{ t('pages.admin.posts.translation_group') }}
+                        <small class="text-secondary">({{ $t('common.optional') }})</small>
+                    </label>
+                    <InputGroup>
+                        <AutoComplete
+                            id="translationId"
+                            v-model="post.translationId"
+                            :suggestions="postsForTranslation"
+                            option-label="label"
+                            option-value="value"
+                            :placeholder="t('pages.admin.posts.translation_group_hint')"
+                            dropdown
+                            fluid
+                            @complete="searchPosts"
+                        />
+                        <Button
+                            icon="pi pi-refresh"
+                            severity="secondary"
+                            text
+                            @click="syncTranslationIdFromSlug"
+                        />
+                    </InputGroup>
                 </div>
 
                 <div class="form-group">
@@ -286,6 +298,21 @@ const categories = ref<{ id: string, name: string }[]>([])
 const errors = ref<Record<string, string>>({})
 const isDragging = ref(false)
 
+const syncTranslationIdFromSlug = () => {
+    if (post.value.slug) {
+        post.value.translationId = post.value.slug
+    }
+}
+
+const oldSlugValue = ref(post.value.slug)
+watch(() => post.value.slug, (newSlug) => {
+    // 仅在新建且 translationId 为空或等于旧 slug 时更新
+    if (isNew.value && (!post.value.translationId || post.value.translationId === oldSlugValue.value)) {
+        post.value.translationId = newSlug
+    }
+    oldSlugValue.value = newSlug
+})
+
 const postsForTranslation = ref<any[]>([])
 const searchPosts = async (event: { query: string }) => {
     if (!event.query.trim()) return
@@ -323,7 +350,10 @@ const handlePreview = () => {
 }
 
 const loadPost = async () => {
-    if (isNew.value) return
+    if (isNew.value) {
+        oldSlugValue.value = ''
+        return
+    }
     try {
         const { data } = await $fetch<{ data: any }>(`/api/posts/${route.params.id}`)
         if (data) {
@@ -334,6 +364,7 @@ const loadPost = async () => {
                 language: data.language || 'zh-CN',
                 translationId: data.translationId || null,
             }
+            oldSlugValue.value = data.slug
             selectedTags.value = post.value.tags
         }
     } catch (error) {
