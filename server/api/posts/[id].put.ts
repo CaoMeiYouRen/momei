@@ -117,7 +117,7 @@ export default defineEventHandler(async (event) => {
         const targetStatus = body.status as PostStatus
 
         // 仅在状态发生改变时校验转换逻辑
-        if (currentStatus !== targetStatus) {
+        if (currentStatus !== targetStatus && !isUserAdmin) {
             const allowedTransitions = POST_STATUS_TRANSITIONS[currentStatus] || []
             if (!allowedTransitions.includes(targetStatus)) {
                 throw createError({

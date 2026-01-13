@@ -29,9 +29,9 @@ export enum PostStatus {
  * 键为当前状态，值为可以转换到的目标状态列表
  */
 export const POST_STATUS_TRANSITIONS: Record<PostStatus, PostStatus[]> = {
-    [PostStatus.DRAFT]: [PostStatus.PENDING],
-    [PostStatus.PENDING]: [PostStatus.PUBLISHED, PostStatus.REJECTED, PostStatus.DRAFT],
-    [PostStatus.PUBLISHED]: [PostStatus.HIDDEN, PostStatus.DRAFT],
-    [PostStatus.REJECTED]: [PostStatus.DRAFT],
-    [PostStatus.HIDDEN]: [PostStatus.PUBLISHED, PostStatus.DRAFT],
+    [PostStatus.DRAFT]: [PostStatus.PENDING, PostStatus.PUBLISHED, PostStatus.HIDDEN],
+    [PostStatus.PENDING]: [PostStatus.PUBLISHED, PostStatus.REJECTED, PostStatus.DRAFT, PostStatus.HIDDEN],
+    [PostStatus.PUBLISHED]: [PostStatus.HIDDEN, PostStatus.DRAFT, PostStatus.PENDING],
+    [PostStatus.REJECTED]: [PostStatus.DRAFT, PostStatus.PENDING, PostStatus.HIDDEN],
+    [PostStatus.HIDDEN]: [PostStatus.PUBLISHED, PostStatus.DRAFT, PostStatus.PENDING],
 }
