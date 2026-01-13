@@ -104,10 +104,16 @@ async function loadMonthPosts(year: number, month: number) {
     const key = cacheKey(year, month)
     if (postsCache[key] || loading[key]) return
 
+    const { locale } = useI18n()
     loading[key] = true
     try {
         const res: any = await $fetch('/api/posts/archive', {
-            query: { includePosts: true, year, month },
+            query: {
+                includePosts: true,
+                year,
+                month,
+                language: locale.value,
+            },
         })
         postsCache[key] = res.data.items
     } catch (e) {

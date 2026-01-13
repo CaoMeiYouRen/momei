@@ -18,33 +18,38 @@ export default defineEventHandler(async (event) => {
             qb.andWhere('post.status = :status', { status: 'published' })
         }
 
-        if (query.language) {
-            if (query.scope === 'manage') {
+        const targetLang = query.language || 'zh-CN'
+
+        if (query.scope === 'manage') {
+            if (query.language) {
                 qb.andWhere('post.language = :language', { language: query.language })
-            } else {
-                // Public Multi-language aggregation logic
-                qb.andWhere(new Brackets((sub: WhereExpressionBuilder) => {
-                    sub.where('post.language = :language', { language: query.language })
-                        .orWhere(new Brackets((ss: WhereExpressionBuilder) => {
-                            ss.where('post.translationId IS NOT NULL')
-                                .andWhere('post.language != :language', { language: query.language })
-                                .andWhere((subQb: SelectQueryBuilder<Post>) => {
-                                    const existsQuery = subQb.subQuery()
-                                        .select('1')
-                                        .from(Post, 'p2')
-                                        .where('p2.translationId = post.translationId')
-                                        .andWhere('p2.language = :language', { language: query.language })
-                                        .andWhere('p2.status = :status', { status: 'published' })
-                                        .getQuery()
-                                    return `NOT EXISTS ${existsQuery}`
-                                })
-                        }))
-                        .orWhere('post.translationId IS NULL')
-                }))
             }
+        } else {
+            // Public Multi-language aggregation logic:
+            // 1. Show posts in the target language.
+            // 2. Show posts in other languages ONLY IF there is no version in the target language for that cluster.
+            // 3. Unique posts (translationId is null) are always shown.
+            qb.andWhere(new Brackets((sub: WhereExpressionBuilder) => {
+                sub.where('post.language = :language', { language: targetLang })
+                    .orWhere(new Brackets((ss: WhereExpressionBuilder) => {
+                        ss.where('post.translationId IS NOT NULL')
+                            .andWhere('post.language != :language', { language: targetLang })
+                            .andWhere((subQb: SelectQueryBuilder<Post>) => {
+                                const existsQuery = subQb.subQuery()
+                                    .select('1')
+                                    .from(Post, 'p2')
+                                    .where('p2.translationId = post.translationId')
+                                    .andWhere('p2.language = :language', { language: targetLang })
+                                    .andWhere('p2.status = :status', { status: 'published' })
+                                    .getQuery()
+                                return `NOT EXISTS ${existsQuery}`
+                            })
+                    }))
+                    .orWhere('post.translationId IS NULL')
+            }))
         }
 
-        qb.andWhere('post.published_at IS NOT NULL')
+        qb.andWhere('post.publishedAt IS NOT NULL')
     }
 
     // Permission checks for manage scope
@@ -129,11 +134,11 @@ export default defineEventHandler(async (event) => {
 
     // Add year/month filter depending on DB
     if (dbType.includes('sqlite')) {
-        postsQb.andWhere('strftime(\'%Y\', post.publishedAt) = :y AND strftime(\'%m\', post.publishedAt) = :m', { y: `${query.year}`, m: query.month.toString().padStart(2, '0') })
+        postsQb.andWhere('strftime(\'%Y\', post.published_at) = :y AND strftime(\'%m\', post.published_at) = :m', { y: `${query.year}`, m: query.month.toString().padStart(2, '0') })
     } else if (dbType.includes('postgres')) {
-        postsQb.andWhere('EXTRACT(YEAR FROM post.publishedAt) = :y AND EXTRACT(MONTH FROM post.publishedAt) = :m', { y: query.year, m: query.month })
+        postsQb.andWhere('EXTRACT(YEAR FROM post.published_at) = :y AND EXTRACT(MONTH FROM post.published_at) = :m', { y: query.year, m: query.month })
     } else {
-        postsQb.andWhere('YEAR(post.publishedAt) = :y AND MONTH(post.publishedAt) = :m', { y: query.year, m: query.month })
+        postsQb.andWhere('YEAR(post.published_at) = :y AND MONTH(post.published_at) = :m', { y: query.year, m: query.month })
     }
 
     postsQb.orderBy('post.publishedAt', 'DESC')
