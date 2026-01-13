@@ -1,8 +1,6 @@
-import { Not } from 'typeorm'
-import { dataSource } from '@/server/database'
-import { Tag } from '@/server/entities/tag'
 import { auth } from '@/lib/auth'
 import { tagUpdateSchema } from '@/utils/schemas/tag'
+import { updateTag } from '@/server/utils/services/tag'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -19,62 +17,9 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readValidatedBody(event, (b) => tagUpdateSchema.parse(b))
-    const tagRepo = dataSource.getRepository(Tag)
 
-    const tag = await tagRepo.findOneBy({ id })
-    if (!tag) {
-        throw createError({ statusCode: 404, statusMessage: 'Tag not found' })
-    }
-
-    // Check slug uniqueness if updating slug or language
-    if (
-        (body.slug && body.slug !== tag.slug)
-        || (body.language && body.language !== tag.language)
-    ) {
-        const targetSlug = body.slug ?? tag.slug
-        const targetLanguage = body.language ?? tag.language
-        const existing = await tagRepo.findOne({
-            where: {
-                slug: targetSlug,
-                language: targetLanguage,
-                id: Not(id),
-            },
-        })
-        if (existing) {
-            throw createError({ statusCode: 409, statusMessage: 'Slug already exists in this language' })
-        }
-    }
-
-    // Check name uniqueness if updating name or language
-    if (
-        (body.name && body.name !== tag.name)
-        || (body.language && body.language !== tag.language)
-    ) {
-        const targetName = body.name ?? tag.name
-        const targetLanguage = body.language ?? tag.language
-        const existing = await tagRepo.findOne({
-            where: {
-                name: targetName,
-                language: targetLanguage,
-                id: Not(id),
-            },
-        })
-        if (existing) {
-            throw createError({ statusCode: 409, statusMessage: 'Tag name already exists in this language' })
-        }
-    }
-
-    if (body.slug) {
-        tag.slug = body.slug
-    }
-    if (body.name) {
-        tag.name = body.name
-    }
-    if (body.language !== undefined) {
-        tag.language = body.language
-    }
-
-    await tagRepo.save(tag)
+    // 使用统一的标签更新服务逻辑
+    const tag = await updateTag(id, body)
 
     return {
         code: 200,

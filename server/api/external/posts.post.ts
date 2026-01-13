@@ -1,5 +1,5 @@
 import { createPostSchema } from '@/utils/schemas/post'
-import { createPostService } from '@/server/utils/post-service'
+import { createPostService } from '@/server/utils/services/post'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
 
 export default defineEventHandler(async (event) => {

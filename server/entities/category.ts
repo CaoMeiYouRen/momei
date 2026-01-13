@@ -6,6 +6,7 @@ import { Post } from './post'
 @Entity('category')
 @Unique(['slug', 'language'])
 @Unique(['name', 'language'])
+@Unique(['translationId', 'language'])
 export class Category extends BaseEntity {
 
     @CustomColumn({ type: 'varchar', length: 100, nullable: false, index: true })

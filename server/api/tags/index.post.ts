@@ -1,9 +1,7 @@
-import { dataSource } from '@/server/database'
-import { Tag } from '@/server/entities/tag'
 import { auth } from '@/lib/auth'
 import { tagBodySchema } from '@/utils/schemas/tag'
 import { isAdminOrAuthor } from '@/utils/shared/roles'
-import { snowflake } from '@/server/utils/snowflake'
+import { createTag } from '@/server/utils/services/tag'
 
 export default defineEventHandler(async (event) => {
     const session = await auth.api.getSession({
@@ -20,27 +18,9 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readValidatedBody(event, (b) => tagBodySchema.parse(b))
-    const tagRepo = dataSource.getRepository(Tag)
 
-    // Check if slug exists in the same language
-    const existingSlug = await tagRepo.findOneBy({ slug: body.slug, language: body.language })
-    if (existingSlug) {
-        throw createError({ statusCode: 409, statusMessage: 'Slug already exists in this language' })
-    }
-
-    // Check if name exists in the same language
-    const existingName = await tagRepo.findOneBy({ name: body.name, language: body.language })
-    if (existingName) {
-        throw createError({ statusCode: 409, statusMessage: 'Tag name already exists in this language' })
-    }
-
-    const tag = new Tag()
-    tag.name = body.name
-    tag.slug = body.slug
-    tag.language = body.language
-    tag.translationId = body.translationId || snowflake.generateId()
-
-    await tagRepo.save(tag)
+    // 使用统一的标签创建服务逻辑
+    const tag = await createTag(body)
 
     return {
         code: 200,
