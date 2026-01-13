@@ -26,18 +26,24 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 404, statusMessage: 'Category not found' })
     }
 
-    // Check slug uniqueness if updating
-    if (body.slug && body.slug !== category.slug) {
+    // Check slug uniqueness if updating slug or language
+    if (
+        (body.slug && body.slug !== category.slug)
+        || (body.language && body.language !== category.language)
+    ) {
+        const targetSlug = body.slug ?? category.slug
+        const targetLanguage = body.language ?? category.language
         const existing = await categoryRepo.findOne({
             where: {
-                slug: body.slug,
+                slug: targetSlug,
+                language: targetLanguage,
                 id: Not(id),
             },
         })
         if (existing) {
-            throw createError({ statusCode: 409, statusMessage: 'Slug already exists' })
+            throw createError({ statusCode: 409, statusMessage: 'Slug already exists in this language' })
         }
-        category.slug = body.slug
+        category.slug = targetSlug
     }
 
     if (body.name !== undefined) {

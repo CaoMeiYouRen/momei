@@ -23,14 +23,14 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
             slug = generateRandomString(10)
         }
         // Check for collision
-        let existing = await postRepo.findOne({ where: { slug } })
+        let existing = await postRepo.findOne({ where: { slug, language: body.language } })
         while (existing) {
             slug = `${slug}-${generateRandomString(4)}`
-            existing = await postRepo.findOne({ where: { slug } })
+            existing = await postRepo.findOne({ where: { slug, language: body.language } })
         }
     } else {
         // Check collision
-        const existing = await postRepo.findOne({ where: { slug } })
+        const existing = await postRepo.findOne({ where: { slug, language: body.language } })
         if (existing) {
             throw createError({ statusCode: 409, statusMessage: 'Slug already exists' })
         }
@@ -40,7 +40,7 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
     const tags: Tag[] = []
     if (body.tags && body.tags.length > 0) {
         for (const tagName of body.tags) {
-            let tag = await tagRepo.findOne({ where: { name: tagName } })
+            let tag = await tagRepo.findOne({ where: { name: tagName, language: body.language } })
             if (!tag) {
                 tag = new Tag()
                 tag.name = tagName
@@ -50,10 +50,10 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
                 }
 
                 // Check tag slug collision
-                let existingTagSlug = await tagRepo.findOne({ where: { slug: tag.slug } })
+                let existingTagSlug = await tagRepo.findOne({ where: { slug: tag.slug, language: body.language } })
                 while (existingTagSlug) {
                     tag.slug = `${tag.slug}-${generateRandomString(4)}`
-                    existingTagSlug = await tagRepo.findOne({ where: { slug: tag.slug } })
+                    existingTagSlug = await tagRepo.findOne({ where: { slug: tag.slug, language: body.language } })
                 }
 
                 tag.language = body.language

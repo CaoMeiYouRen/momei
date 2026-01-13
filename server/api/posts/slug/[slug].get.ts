@@ -4,6 +4,9 @@ import { auth } from '@/lib/auth'
 
 export default defineEventHandler(async (event) => {
     const slug = getRouterParam(event, 'slug')
+    const query = getQuery(event)
+    const language = query.language as string
+
     if (!slug) {
         throw createError({ statusCode: 400, statusMessage: 'Slug required' })
     }
@@ -20,6 +23,10 @@ export default defineEventHandler(async (event) => {
         .leftJoinAndSelect('post.tags', 'tags')
 
     qb.where('post.slug = :slug', { slug })
+
+    if (language) {
+        qb.andWhere('post.language = :language', { language })
+    }
 
     const post = await qb.getOne()
 

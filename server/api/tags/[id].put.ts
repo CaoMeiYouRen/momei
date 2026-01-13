@@ -26,34 +26,50 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 404, statusMessage: 'Tag not found' })
     }
 
-    // Check slug uniqueness if updating
-    if (body.slug && body.slug !== tag.slug) {
+    // Check slug uniqueness if updating slug or language
+    if (
+        (body.slug && body.slug !== tag.slug)
+        || (body.language && body.language !== tag.language)
+    ) {
+        const targetSlug = body.slug ?? tag.slug
+        const targetLanguage = body.language ?? tag.language
         const existing = await tagRepo.findOne({
             where: {
-                slug: body.slug,
+                slug: targetSlug,
+                language: targetLanguage,
                 id: Not(id),
             },
         })
         if (existing) {
-            throw createError({ statusCode: 409, statusMessage: 'Slug already exists' })
+            throw createError({ statusCode: 409, statusMessage: 'Slug already exists in this language' })
         }
+    }
+
+    // Check name uniqueness if updating name or language
+    if (
+        (body.name && body.name !== tag.name)
+        || (body.language && body.language !== tag.language)
+    ) {
+        const targetName = body.name ?? tag.name
+        const targetLanguage = body.language ?? tag.language
+        const existing = await tagRepo.findOne({
+            where: {
+                name: targetName,
+                language: targetLanguage,
+                id: Not(id),
+            },
+        })
+        if (existing) {
+            throw createError({ statusCode: 409, statusMessage: 'Tag name already exists in this language' })
+        }
+    }
+
+    if (body.slug) {
         tag.slug = body.slug
     }
-
-    // Check name uniqueness if updating
-    if (body.name && body.name !== tag.name) {
-        const existing = await tagRepo.findOne({
-            where: {
-                name: body.name,
-                id: Not(id),
-            },
-        })
-        if (existing) {
-            throw createError({ statusCode: 409, statusMessage: 'Tag name already exists' })
-        }
+    if (body.name) {
         tag.name = body.name
     }
-
     if (body.language !== undefined) {
         tag.language = body.language
     }

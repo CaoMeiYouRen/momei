@@ -88,13 +88,25 @@ export default defineEventHandler(async (event) => {
         post.copyright = body.copyright
     }
 
-    if (body.slug && body.slug !== post.slug) {
-        // Check collision
-        const existing = await postRepo.findOne({ where: { slug: body.slug } })
+    // Handle Slug Change
+    if (
+        (body.slug && body.slug !== post.slug)
+        || (body.language && body.language !== post.language)
+    ) {
+        const targetSlug = body.slug ?? post.slug
+        const targetLanguage = body.language ?? post.language
+        const existing = await postRepo.findOne({
+            where: {
+                slug: targetSlug,
+                language: targetLanguage,
+            },
+        })
         if (existing && existing.id !== post.id) {
-            throw createError({ statusCode: 409, statusMessage: 'Slug already exists' })
+            throw createError({ statusCode: 409, statusMessage: 'Post slug already exists in this language' })
         }
-        post.slug = body.slug
+        if (body.slug) {
+            post.slug = body.slug
+        }
     }
 
     if (body.status) {
@@ -131,8 +143,14 @@ export default defineEventHandler(async (event) => {
     // Handle Tags
     if (body.tags) {
         const tags: Tag[] = []
+        const postLanguage = body.language || post.language
         for (const tagName of body.tags) {
-            let tag = await tagRepo.findOne({ where: { name: tagName } })
+            let tag = await tagRepo.findOne({
+                where: {
+                    name: tagName,
+                    language: postLanguage,
+                },
+            })
             if (!tag) {
                 tag = new Tag()
                 tag.name = tagName
@@ -140,13 +158,23 @@ export default defineEventHandler(async (event) => {
                 if (!tag.slug) {
                     tag.slug = generateRandomString(8)
                 }
+                tag.language = postLanguage
                 // Check tag slug collision
-                let existingTagSlug = await tagRepo.findOne({ where: { slug: tag.slug } })
+                let existingTagSlug = await tagRepo.findOne({
+                    where: {
+                        slug: tag.slug,
+                        language: postLanguage,
+                    },
+                })
                 while (existingTagSlug) {
                     tag.slug = `${tag.slug}-${generateRandomString(4)}`
-                    existingTagSlug = await tagRepo.findOne({ where: { slug: tag.slug } })
+                    existingTagSlug = await tagRepo.findOne({
+                        where: {
+                            slug: tag.slug,
+                            language: postLanguage,
+                        },
+                    })
                 }
-                tag.language = post.language
                 await tagRepo.save(tag)
             }
             tags.push(tag)

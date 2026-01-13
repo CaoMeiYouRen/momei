@@ -4,10 +4,16 @@ import { success, fail } from '@/server/utils/response'
 
 export default defineEventHandler(async (event) => {
     const slug = getRouterParam(event, 'slug')
+    const query = getQuery(event)
+    const language = query.language as string
+
     const categoryRepo = dataSource.getRepository(Category)
 
     const category = await categoryRepo.findOne({
-        where: { slug },
+        where: {
+            slug,
+            ...(language ? { language } : {}),
+        },
         relations: ['parent'],
     })
 

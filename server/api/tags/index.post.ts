@@ -21,10 +21,10 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, (b) => tagBodySchema.parse(b))
     const tagRepo = dataSource.getRepository(Tag)
 
-    // Check if slug exists
-    const existingSlug = await tagRepo.findOneBy({ slug: body.slug })
+    // Check if slug exists in the same language
+    const existingSlug = await tagRepo.findOneBy({ slug: body.slug, language: body.language })
     if (existingSlug) {
-        throw createError({ statusCode: 409, statusMessage: 'Slug already exists' })
+        throw createError({ statusCode: 409, statusMessage: 'Slug already exists in this language' })
     }
 
     // Check if name exists (Tags usually have unique names too)

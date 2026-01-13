@@ -16,10 +16,10 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, (b) => categoryBodySchema.parse(b))
     const categoryRepo = dataSource.getRepository(Category)
 
-    // Check if slug exists
-    const existing = await categoryRepo.findOneBy({ slug: body.slug })
+    // Check if slug exists in the same language
+    const existing = await categoryRepo.findOneBy({ slug: body.slug, language: body.language })
     if (existing) {
-        throw createError({ statusCode: 409, statusMessage: 'Slug already exists' })
+        throw createError({ statusCode: 409, statusMessage: 'Slug already exists in this language' })
     }
 
     // Check parent if provided

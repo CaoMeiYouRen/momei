@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, ManyToMany, JoinTable } from 'typeorm'
+import { Entity, ManyToOne, ManyToMany, JoinTable, Unique } from 'typeorm'
 import { CustomColumn } from '../decorators/custom-column'
 import { BaseEntity } from './base-entity'
 import { User } from './user'
@@ -7,12 +7,13 @@ import { Tag } from './tag'
 import { PostStatus } from '@/types/post'
 
 @Entity('post')
+@Unique(['slug', 'language'])
 export class Post extends BaseEntity {
 
     @CustomColumn({ type: 'varchar', length: 255, nullable: false, index: true })
     title: string
 
-    @CustomColumn({ type: 'varchar', length: 255, unique: true, nullable: false })
+    @CustomColumn({ type: 'varchar', length: 255, nullable: false })
     slug: string
 
     @CustomColumn({ type: 'text', nullable: false })

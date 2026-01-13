@@ -1,15 +1,16 @@
-import { Entity, ManyToOne, OneToMany } from 'typeorm'
+import { Entity, ManyToOne, OneToMany, Unique } from 'typeorm'
 import { CustomColumn } from '../decorators/custom-column'
 import { BaseEntity } from './base-entity'
 import { Post } from './post'
 
 @Entity('category')
+@Unique(['slug', 'language'])
 export class Category extends BaseEntity {
 
     @CustomColumn({ type: 'varchar', length: 100, nullable: false, index: true })
     name: string
 
-    @CustomColumn({ type: 'varchar', length: 100, unique: true, nullable: false })
+    @CustomColumn({ type: 'varchar', length: 100, nullable: false })
     slug: string
 
     @CustomColumn({ type: 'text', nullable: true })
