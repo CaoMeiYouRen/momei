@@ -28,10 +28,10 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 409, statusMessage: 'Slug already exists in this language' })
     }
 
-    // Check if name exists (Tags usually have unique names too)
-    const existingName = await tagRepo.findOneBy({ name: body.name })
+    // Check if name exists in the same language
+    const existingName = await tagRepo.findOneBy({ name: body.name, language: body.language })
     if (existingName) {
-        throw createError({ statusCode: 409, statusMessage: 'Tag name already exists' })
+        throw createError({ statusCode: 409, statusMessage: 'Tag name already exists in this language' })
     }
 
     const tag = new Tag()

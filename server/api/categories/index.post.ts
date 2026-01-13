@@ -18,9 +18,15 @@ export default defineEventHandler(async (event) => {
     const categoryRepo = dataSource.getRepository(Category)
 
     // Check if slug exists in the same language
-    const existing = await categoryRepo.findOneBy({ slug: body.slug, language: body.language })
-    if (existing) {
+    const existingSlug = await categoryRepo.findOneBy({ slug: body.slug, language: body.language })
+    if (existingSlug) {
         throw createError({ statusCode: 409, statusMessage: 'Slug already exists in this language' })
+    }
+
+    // Check if name exists in the same language
+    const existingName = await categoryRepo.findOneBy({ name: body.name, language: body.language })
+    if (existingName) {
+        throw createError({ statusCode: 409, statusMessage: 'Category name already exists in this language' })
     }
 
     // Check parent if provided

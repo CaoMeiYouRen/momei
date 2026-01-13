@@ -1,9 +1,9 @@
 import { kebabCase } from 'lodash-es'
 import type { z } from 'zod'
 import { snowflake } from './snowflake'
+import { ensureTags } from './services/tag'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
-import { Tag } from '@/server/entities/tag'
 import { Category } from '@/server/entities/category'
 import { generateRandomString } from '@/utils/shared/random'
 import { createPostSchema } from '@/utils/schemas/post'
@@ -13,7 +13,6 @@ type CreatePostInput = z.infer<typeof createPostSchema>
 
 export const createPostService = async (body: CreatePostInput, authorId: string, options: { isAdmin: boolean }) => {
     const postRepo = dataSource.getRepository(Post)
-    const tagRepo = dataSource.getRepository(Tag)
     const categoryRepo = dataSource.getRepository(Category)
 
     // Slug generation
@@ -38,32 +37,7 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
     }
 
     // Handle Tags
-    const tags: Tag[] = []
-    if (body.tags && body.tags.length > 0) {
-        for (const tagName of body.tags) {
-            let tag = await tagRepo.findOne({ where: { name: tagName, language: body.language } })
-            if (!tag) {
-                tag = new Tag()
-                tag.name = tagName
-                tag.slug = kebabCase(tagName)
-                if (!tag.slug) {
-                    tag.slug = generateRandomString(8)
-                }
-
-                // Check tag slug collision
-                let existingTagSlug = await tagRepo.findOne({ where: { slug: tag.slug, language: body.language } })
-                while (existingTagSlug) {
-                    tag.slug = `${tag.slug}-${generateRandomString(4)}`
-                    existingTagSlug = await tagRepo.findOne({ where: { slug: tag.slug, language: body.language } })
-                }
-
-                tag.language = body.language
-                tag.translationId = snowflake.generateId()
-                await tagRepo.save(tag)
-            }
-            tags.push(tag)
-        }
-    }
+    const tags = await ensureTags(body.tags || [], body.language)
 
     const post = new Post()
     post.title = body.title

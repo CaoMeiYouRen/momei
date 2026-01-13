@@ -46,6 +46,25 @@ export default defineEventHandler(async (event) => {
         category.slug = targetSlug
     }
 
+    // Check name uniqueness if updating name or language
+    if (
+        (body.name && body.name !== category.name)
+        || (body.language && body.language !== category.language)
+    ) {
+        const targetName = body.name ?? category.name
+        const targetLanguage = body.language ?? category.language
+        const existing = await categoryRepo.findOne({
+            where: {
+                name: targetName,
+                language: targetLanguage,
+                id: Not(id),
+            },
+        })
+        if (existing) {
+            throw createError({ statusCode: 409, statusMessage: 'Category name already exists in this language' })
+        }
+    }
+
     if (body.name !== undefined) {
         category.name = body.name
     }
