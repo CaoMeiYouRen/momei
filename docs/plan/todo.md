@@ -264,6 +264,12 @@
 
 ## 待排期 (Backlog)
 
+### 文档与支持 (Documentation & Support)
+
+-   [ ] **用户手册国际化 (I18n for User Docs)**
+    -   验收: 部署指南 (`deploy.md`) 和快速开始 (`quick-start.md`) 完成英文翻译。
+    -   验收: VitePress 站点支持切换 `en-US` 和 `zh-CN` 文档。
+
 ### 创新功能 (Innovation)
 
 -   [ ] Tauri 桌面端应用 (离线写作/本地管理)。
