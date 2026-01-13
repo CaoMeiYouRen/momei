@@ -31,16 +31,18 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 
-    const currentStatus = post.status
+    const currentStatus = post.status as PostStatus
     const targetStatus = body.status as PostStatus
 
-    // Validate transition
-    const allowedTransitions = POST_STATUS_TRANSITIONS[currentStatus]
-    if (!allowedTransitions.includes(targetStatus)) {
-        throw createError({
-            statusCode: 400,
-            statusMessage: `Invalid status transition from ${currentStatus} to ${targetStatus}`,
-        })
+    // 仅在状态发生改变时校验转换逻辑
+    if (currentStatus !== targetStatus) {
+        const allowedTransitions = POST_STATUS_TRANSITIONS[currentStatus] || []
+        if (!allowedTransitions.includes(targetStatus)) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: `Invalid status transition from ${currentStatus} to ${targetStatus}`,
+            })
+        }
     }
 
     // Role-based restrictions

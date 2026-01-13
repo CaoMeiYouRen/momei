@@ -278,6 +278,9 @@ interface Post {
     tags: string[]
     language: string
     translationId: string | null
+    // API response objects
+    category?: any
+    author?: any
 }
 
 const post = ref<Post>({
@@ -363,12 +366,10 @@ const loadPost = async () => {
     try {
         const { data } = await $fetch<{ data: any }>(`/api/posts/${route.params.id}`)
         if (data) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { category, author, tags, ...rest } = data
             post.value = {
-                ...rest,
-                categoryId: category?.id || null,
-                tags: tags?.map((t: any) => t.name) || [],
+                ...data,
+                categoryId: data.category?.id || null,
+                tags: data.tags?.map((t: any) => t.name) || [],
                 language: data.language || 'zh-CN',
                 translationId: data.translationId || null,
             }
@@ -530,13 +531,14 @@ const onDrop = async (e: DragEvent) => {
 
 const savePost = async (publish = false) => {
     errors.value = {}
-    // 排除掉不需要提交到后端的关联对象，避免校验失败
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { category, author, ...rest } = post.value
-    const payload = {
-        ...rest,
-        tags: selectedTags.value,
-        status: publish ? 'published' : post.value.status,
+
+    // 构建提交数据，显式移除关联对象以避免 Zod 校验失败
+    const payload: any = { ...post.value }
+    delete payload.category
+    delete payload.author
+    payload.tags = selectedTags.value
+    if (publish) {
+        payload.status = 'published'
     }
 
     const schema = isNew.value ? createPostSchema : updatePostSchema
