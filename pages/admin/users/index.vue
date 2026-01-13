@@ -12,7 +12,7 @@
         </AdminPageHeader>
 
         <div class="user-management__card">
-            <UserFilters
+            <AdminUsersUserFilters
                 v-model:filters="filters"
                 @change="onFilterChange"
             />
@@ -135,19 +135,19 @@
             </DataTable>
         </div>
 
-        <UserRoleDialog
+        <AdminUsersUserRoleDialog
             v-model:visible="dialogs.role.visible"
             :user="dialogs.role.user"
             @success="fetchUsers"
         />
 
-        <UserBanDialog
+        <AdminUsersUserBanDialog
             v-model:visible="dialogs.ban.visible"
             :user="dialogs.ban.user"
             @success="fetchUsers"
         />
 
-        <UserSessionsDrawer
+        <AdminUsersUserSessionsDrawer
             v-model:visible="drawers.sessions.visible"
             :user="drawers.sessions.user"
         />
