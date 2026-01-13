@@ -139,12 +139,24 @@ export async function updateCategory(id: string, data: Partial<CategoryData>): P
         }
     }
 
-    if (data.name) { category.name = data.name }
-    if (data.slug) { category.slug = data.slug }
-    if (data.language) { category.language = data.language }
-    if (data.translationId !== undefined) { category.translationId = data.translationId }
-    if (data.description !== undefined) { category.description = data.description }
-    if (data.parentId !== undefined) { category.parentId = data.parentId }
+    if (data.name) {
+        category.name = data.name
+    }
+    if (data.slug) {
+        category.slug = data.slug
+    }
+    if (data.language) {
+        category.language = data.language
+    }
+    if (data.translationId !== undefined) {
+        category.translationId = data.translationId
+    }
+    if (data.description !== undefined) {
+        category.description = data.description
+    }
+    if (data.parentId !== undefined) {
+        category.parentId = data.parentId
+    }
 
     return await categoryRepo.save(category)
 }

@@ -51,7 +51,7 @@ withDefaults(defineProps<{
 }
 
 // Mobile responsive
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .admin-header {
     flex-direction: column;
     align-items: flex-start;

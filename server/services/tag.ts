@@ -119,10 +119,18 @@ export async function updateTag(id: string, data: Partial<TagData>): Promise<Tag
         }
     }
 
-    if (data.name !== undefined) { tag.name = data.name }
-    if (data.slug !== undefined) { tag.slug = data.slug }
-    if (data.language !== undefined) { tag.language = data.language }
-    if (data.translationId !== undefined) { tag.translationId = data.translationId }
+    if (data.name !== undefined) {
+        tag.name = data.name
+    }
+    if (data.slug !== undefined) {
+        tag.slug = data.slug
+    }
+    if (data.language !== undefined) {
+        tag.language = data.language
+    }
+    if (data.translationId !== undefined) {
+        tag.translationId = data.translationId
+    }
 
     return await tagRepo.save(tag)
 }

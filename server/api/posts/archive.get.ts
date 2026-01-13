@@ -129,14 +129,14 @@ export default defineEventHandler(async (event) => {
 
     // Add year/month filter depending on DB
     if (dbType.includes('sqlite')) {
-        postsQb.andWhere('strftime(\'%Y\', post.published_at) = :y AND strftime(\'%m\', post.published_at) = :m', { y: `${query.year}`, m: query.month.toString().padStart(2, '0') })
+        postsQb.andWhere('strftime(\'%Y\', post.publishedAt) = :y AND strftime(\'%m\', post.publishedAt) = :m', { y: `${query.year}`, m: query.month.toString().padStart(2, '0') })
     } else if (dbType.includes('postgres')) {
-        postsQb.andWhere('EXTRACT(YEAR FROM post.published_at) = :y AND EXTRACT(MONTH FROM post.published_at) = :m', { y: query.year, m: query.month })
+        postsQb.andWhere('EXTRACT(YEAR FROM post.publishedAt) = :y AND EXTRACT(MONTH FROM post.publishedAt) = :m', { y: query.year, m: query.month })
     } else {
-        postsQb.andWhere('YEAR(post.published_at) = :y AND MONTH(post.published_at) = :m', { y: query.year, m: query.month })
+        postsQb.andWhere('YEAR(post.publishedAt) = :y AND MONTH(post.publishedAt) = :m', { y: query.year, m: query.month })
     }
 
-    postsQb.orderBy('post.published_at', 'DESC')
+    postsQb.orderBy('post.publishedAt', 'DESC')
     postsQb.skip((query.page - 1) * query.limit)
     postsQb.take(query.limit)
 
