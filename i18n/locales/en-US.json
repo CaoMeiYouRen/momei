@@ -137,7 +137,8 @@
         "success": "Success",
         "error": "Error",
         "unexpected_error": "An unexpected error occurred",
-        "validation_error": "Validation failed"
+        "validation_error": "Validation failed",
+        "select_parent": "Please select parent"
     },
     "pages": {
         "about": {

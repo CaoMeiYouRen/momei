@@ -136,7 +136,8 @@
         "success": "成功",
         "error": "错误",
         "unexpected_error": "发生未知错误",
-        "validation_error": "输入验证失败"
+        "validation_error": "输入验证失败",
+        "select_parent": "请选择父级"
     },
     "pages": {
         "about": {
