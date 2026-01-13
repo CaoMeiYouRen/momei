@@ -91,6 +91,17 @@
                 <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
             </div>
             <div class="field">
+                <label for="language">{{ $t('common.language') }}</label>
+                <Select
+                    id="language"
+                    v-model="form.language"
+                    :options="languageOptions"
+                    option-label="label"
+                    option-value="value"
+                    required
+                />
+            </div>
+            <div class="field">
                 <label for="slug">{{ $t('common.slug') }}</label>
                 <InputText
                     id="slug"
@@ -134,13 +145,14 @@ definePageMeta({
     layout: 'default',
 })
 
-const { t } = useI18n()
+const { t, locale, locales } = useI18n()
 const toast = useToast()
 
 interface Tag {
     id: string
     name: string
     slug: string
+    language: string
 }
 
 const {
@@ -159,6 +171,13 @@ const {
     },
 })
 
+const { contentLanguage } = useAdminI18n()
+
+const languageOptions = computed(() => locales.value.map((l: any) => ({
+    label: t(`common.languages.${l.code}`),
+    value: l.code,
+})))
+
 const dialogVisible = ref(false)
 const editingItem = ref<Tag | null>(null)
 const submitted = ref(false)
@@ -168,6 +187,7 @@ const errors = ref<Record<string, string>>({})
 const form = ref({
     name: '',
     slug: '',
+    language: contentLanguage.value || locale.value,
 })
 
 const openDialog = (item?: Tag) => {
@@ -176,11 +196,13 @@ const openDialog = (item?: Tag) => {
         form.value = {
             name: item.name,
             slug: item.slug,
+            language: item.language,
         }
     } else {
         form.value = {
             name: '',
             slug: '',
+            language: contentLanguage.value || locale.value,
         }
     }
     submitted.value = false

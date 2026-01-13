@@ -3,7 +3,7 @@ import { ref } from 'vue'
 const contentLanguage = ref<string | null>(null)
 
 export function useAdminI18n() {
-    const { locale, locales } = useI18n()
+    const { locale, locales, t } = useI18n()
 
     // Initialize with current locale if not set
     if (!contentLanguage.value) {
@@ -15,9 +15,9 @@ export function useAdminI18n() {
     }
 
     const availableLocales = computed(() => [
-        { label: 'All', value: null },
+        { label: t('common.all_languages'), value: null },
         ...locales.value.map((l: any) => ({
-            label: l.name || l.code,
+            label: t(`common.languages.${l.code}`),
             value: l.code,
         })),
     ])

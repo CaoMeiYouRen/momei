@@ -231,7 +231,7 @@ const toast = useToast()
 const md = ref<any>(null)
 
 const languageOptions = computed(() => locales.value.map((l: any) => ({
-    label: l.name || l.code,
+    label: t(`common.languages.${l.code}`),
     value: l.code,
 })))
 
