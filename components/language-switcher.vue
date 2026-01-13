@@ -21,6 +21,7 @@
 import { ref, computed } from 'vue'
 
 const { locale, locales, setLocale } = useI18n()
+const switchLocalePath = useSwitchLocalePath()
 
 const menu = ref()
 
@@ -33,6 +34,10 @@ const localeMenuItems = computed(() => {
         label: l.name,
         class: locale.value === l.code ? 'is-active-locale' : '',
         command: () => {
+            // const path = switchLocalePath(l.code)
+            // if (path) {
+            //     navigateTo(path)
+            // }
             setLocale(l.code)
         },
     }))

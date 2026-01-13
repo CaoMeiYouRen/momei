@@ -151,6 +151,7 @@ export default defineNuxtConfig({
             cookieKey: 'i18n_redirected',
             redirectOn: 'root',
         },
+        baseUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://momei.app',
     },
     build: {
         // 使用 Babel 转译不兼容的包
