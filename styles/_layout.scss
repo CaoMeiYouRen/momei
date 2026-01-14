@@ -31,7 +31,57 @@
 
 .admin-filters {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
     gap: $spacing-md;
     margin-bottom: $spacing-lg;
     flex-wrap: wrap;
+
+    &__right {
+        display: flex;
+        align-items: center;
+        gap: $spacing-md;
+    }
+}
+
+.aggregate-toggle {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    user-select: none;
+
+    label {
+        font-size: 0.875rem;
+        color: var(--p-text-muted-color);
+        margin: 0;
+    }
+}
+
+.translation-badges {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+
+    &.justify-content-center {
+        justify-content: center;
+    }
+}
+
+.translation-badge {
+    cursor: pointer;
+    font-size: 0.7rem !important;
+    padding: 2px 4px !important;
+    min-width: 2rem;
+    text-align: center;
+    transition: all 0.2s;
+
+    &:hover {
+        opacity: 0.8;
+        transform: translateY(-1px);
+    }
+
+    &--missing {
+        opacity: 0.5;
+        border: 1px dashed var(--p-surface-border);
+    }
 }

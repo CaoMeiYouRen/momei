@@ -47,17 +47,20 @@
                     field="name"
                     :header="$t('common.name')"
                     sortable
+                    header-style="min-width: 10rem"
                 />
                 <Column
                     field="slug"
                     :header="$t('common.slug')"
                     sortable
+                    header-style="min-width: 8rem"
                 />
                 <Column
                     v-if="filters.aggregate"
                     :header="$t('common.translation_status')"
                     header-class="text-center"
                     body-class="text-center"
+                    header-style="min-width: 8rem"
                 >
                     <template #body="{data}">
                         <div class="justify-content-center translation-badges">

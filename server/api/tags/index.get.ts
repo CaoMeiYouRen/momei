@@ -84,6 +84,7 @@ export default defineEventHandler(async (event) => {
                         language: t.language,
                         name: t.name,
                         slug: t.slug,
+                        translationId: t.translationId,
                     }))
             } else {
                 (tag as any).translations = [{
@@ -91,6 +92,7 @@ export default defineEventHandler(async (event) => {
                     language: tag.language,
                     name: tag.name,
                     slug: tag.slug,
+                    translationId: tag.translationId,
                 }]
             }
         })

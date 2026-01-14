@@ -90,6 +90,7 @@ export default defineEventHandler(async (event) => {
                         slug: t.slug,
                         description: t.description,
                         parentId: t.parentId,
+                        translationId: t.translationId,
                     }))
             } else {
                 (cat as any).translations = [{
@@ -99,6 +100,7 @@ export default defineEventHandler(async (event) => {
                     slug: cat.slug,
                     description: cat.description,
                     parentId: cat.parentId,
+                    translationId: cat.translationId,
                 }]
             }
         })

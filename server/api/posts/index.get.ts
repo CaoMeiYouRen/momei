@@ -1,4 +1,4 @@
-import { In, Brackets, type WhereExpressionBuilder } from 'typeorm'
+import { In, Brackets, type WhereExpressionBuilder, type SelectQueryBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'
@@ -99,7 +99,7 @@ export default defineEventHandler(async (event) => {
                     .orWhere(new Brackets((ss: WhereExpressionBuilder) => {
                         ss.where('post.translationId IS NOT NULL')
                             .andWhere('post.language != :language', { language: query.language })
-                            .andWhere((subQb) => {
+                            .andWhere((subQb: SelectQueryBuilder<any>) => {
                                 const existsQuery = subQb.subQuery()
                                     .select('1')
                                     .from(Post, 'p2')

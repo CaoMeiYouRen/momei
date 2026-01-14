@@ -47,13 +47,19 @@
                     field="name"
                     :header="$t('common.name')"
                     sortable
+                    header-style="min-width: 10rem"
                 />
                 <Column
                     field="slug"
                     :header="$t('common.slug')"
                     sortable
+                    header-style="min-width: 8rem"
                 />
-                <Column field="parent.name" :header="$t('common.parent')">
+                <Column
+                    field="parent.name"
+                    :header="$t('common.parent')"
+                    header-style="min-width: 8rem"
+                >
                     <template #body="{data}">
                         {{ data.parent?.name || '-' }}
                     </template>
@@ -63,6 +69,7 @@
                     :header="$t('common.translation_status')"
                     header-class="text-center"
                     body-class="text-center"
+                    header-style="min-width: 8rem"
                 >
                     <template #body="{data}">
                         <div class="justify-content-center translation-badges">

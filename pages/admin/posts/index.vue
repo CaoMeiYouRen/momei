@@ -17,7 +17,7 @@
                     <InputText
                         v-model="filters.search"
                         :placeholder="$t('pages.admin.posts.search_placeholder')"
-                        @keydown.enter="load"
+                        @input="onFilterChange"
                     />
                 </IconField>
                 <div class="admin-filters__right">
@@ -25,7 +25,7 @@
                         <ToggleSwitch
                             v-model="filters.aggregate"
                             input-id="aggregate-switch"
-                            @change="load"
+                            @change="onFilterChange"
                         />
                         <label for="aggregate-switch" class="cursor-pointer">{{ $t('common.aggregate_translations') }}</label>
                     </div>
@@ -64,12 +64,14 @@
                     field="author.name"
                     :header="$t('common.author')"
                     class="hidden lg:table-cell"
+                    header-style="min-width: 8rem"
                 />
                 <Column
                     field="status"
                     :header="$t('pages.admin.posts.status')"
                     sortable
                     class="hidden md:table-cell"
+                    header-style="min-width: 7rem"
                 >
                     <template #body="slotProps">
                         <Tag :value="getStatusLabel(slotProps.data.status)" :severity="getStatusSeverity(slotProps.data.status)" />
@@ -78,7 +80,7 @@
                 <Column
                     field="translations"
                     :header="$t('common.translation_status')"
-                    header-style="min-width: 7rem"
+                    header-style="min-width: 8rem"
                     header-class="text-center"
                     body-class="text-center"
                 >
@@ -204,6 +206,7 @@ const {
     filters,
     onPage,
     onSort,
+    onFilterChange,
     refresh: load,
 } = useAdminList<Post, { search: string, status: string | null, aggregate: boolean }>({
     url: '/api/posts',
