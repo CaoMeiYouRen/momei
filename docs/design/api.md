@@ -70,6 +70,7 @@
 ### 5.2 关联逻辑
 
 -   **Translation Cluster**: 具有相同 `translationId` 的实体组成一个“翻译簇”。
+    -   _关联标识优化_: 建议后续研究将 `translationId` 优化为复用原始版本的 `slug`，以增强语义化表达。
 -   **平滑切换**: 语言切换组件在检测到当前为详情页时，应通过 `translationId` 查询目标语言实体的 `slug`，实现“原文 <-> 译文”的精确跳转，而非简单回退到首页。
 
 ## 6. 邮件服务配置 (Email Service Configuration)
