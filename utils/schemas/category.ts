@@ -28,4 +28,5 @@ export const categoryQuerySchema = paginationSchema.extend(sortingSchema.shape).
     search: z.string().optional(),
     parentId: z.string().optional(),
     language: z.string().optional(),
+    aggregate: z.preprocess((val) => val === 'true' || val === true, z.boolean().default(false)),
 })

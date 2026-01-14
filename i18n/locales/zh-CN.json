@@ -139,7 +139,9 @@
         "error": "错误",
         "unexpected_error": "发生未知错误",
         "validation_error": "输入验证失败",
-        "select_parent": "请选择父级"
+        "select_parent": "请选择父级",
+        "aggregate_translations": "聚合翻译版本",
+        "translation_status": "翻译状态"
     },
     "pages": {
         "about": {
@@ -213,7 +215,8 @@
                 "language": "文章语言",
                 "translation_group": "关联其他语言版本",
                 "translation_group_hint": "关联不同语言版本的同一篇文章，启用前台语言切换关联",
-                "title_required": "请输入文章标题"
+                "title_required": "请输入文章标题",
+                "save_current_first": "请先保存当前文章，然后才能创建其翻译版本"
             },
             "categories": {
                 "title": "分类管理",

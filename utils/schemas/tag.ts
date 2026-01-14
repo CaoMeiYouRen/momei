@@ -23,4 +23,5 @@ export const tagUpdateSchema = z.object({
 export const tagQuerySchema = paginationSchema.extend(sortingSchema.shape).extend({
     search: z.string().optional(),
     language: z.string().optional(),
+    aggregate: z.preprocess((val) => val === 'true' || val === true, z.boolean().default(false)),
 })

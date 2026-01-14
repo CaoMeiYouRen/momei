@@ -20,6 +20,13 @@
                         @input="onFilterChange"
                     />
                 </IconField>
+                <div class="flex gap-2 items-center px-3">
+                    <ToggleSwitch
+                        v-model="filters.aggregate"
+                        @change="onFilterChange"
+                    />
+                    <span>{{ $t('common.aggregate_translations') }}</span>
+                </div>
             </div>
 
             <DataTable
@@ -44,6 +51,25 @@
                     sortable
                 />
                 <Column
+                    v-if="filters.aggregate"
+                    :header="$t('common.translation_status')"
+                >
+                    <template #body="{data}">
+                        <div class="translation-badges">
+                            <Badge
+                                v-for="l in locales"
+                                :key="l.code"
+                                :value="l.code.toUpperCase()"
+                                :severity="hasTranslation(data, l.code) ? 'success' : 'secondary'"
+                                class="translation-badge"
+                                :class="{'translation-badge--missing': !hasTranslation(data, l.code)}"
+                                @click="handleTranslationClick(l.code, hasTranslation(data, l.code), data)"
+                            />
+                        </div>
+                    </template>
+                </Column>
+                <Column
+                    v-else
                     field="language"
                     :header="$t('common.language')"
                     sortable
@@ -88,65 +114,77 @@
             modal
             class="admin-tags__dialog p-fluid"
         >
-            <div class="field">
-                <label for="name">{{ $t('common.name') }}</label>
-                <InputText
-                    id="name"
-                    v-model.trim="form.name"
-                    required
-                    autofocus
-                    :class="{'p-invalid': errors.name}"
-                />
-                <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
-            </div>
-            <div v-if="isPureEnglish && !editingItem" class="field flex gap-2 items-center">
-                <Checkbox
-                    v-model="syncToAllLanguages"
-                    :binary="true"
-                    input-id="syncAll"
-                />
-                <label for="syncAll" class="cursor-pointer">{{ $t('pages.admin.tags.sync_to_all_languages') }}</label>
-            </div>
-            <div class="field">
-                <label for="language">{{ $t('common.language') }}</label>
-                <Select
-                    id="language"
-                    v-model="form.language"
-                    :options="languageOptions"
-                    option-label="label"
-                    option-value="value"
-                    required
-                />
-            </div>
-            <div class="field">
-                <label for="slug">{{ $t('common.slug') }}</label>
-                <InputText
-                    id="slug"
-                    v-model.trim="form.slug"
-                    required
-                    :class="{'p-invalid': errors.slug}"
-                />
-                <small v-if="errors.slug" class="p-error">{{ errors.slug }}</small>
-            </div>
-            <div class="field">
-                <label for="translationId">
-                    {{ $t('common.translation_id') }}
-                    <small class="text-secondary">({{ $t('common.optional') }})</small>
-                </label>
-                <InputGroup>
-                    <InputText
-                        id="translationId"
-                        v-model.trim="form.translationId"
-                        :placeholder="$t('common.translation_id_hint')"
-                    />
-                    <Button
-                        icon="pi pi-refresh"
-                        severity="secondary"
-                        text
-                        @click="syncTranslationIdFromSlug"
-                    />
-                </InputGroup>
-            </div>
+            <Tabs v-model:value="activeTab">
+                <TabList>
+                    <Tab
+                        v-for="l in locales"
+                        :key="l.code"
+                        :value="l.code"
+                    >
+                        <i
+                            v-if="hasTranslationData(l.code)"
+                            class="mr-2 pi pi-check-circle text-success"
+                        />
+                        {{ l.code.toUpperCase() }}
+                    </Tab>
+                </TabList>
+                <TabPanels>
+                    <TabPanel
+                        v-for="l in locales"
+                        :key="l.code"
+                        :value="l.code"
+                    >
+                        <div class="field mt-4">
+                            <label :for="'name_' + l.code">{{ $t('common.name') }}</label>
+                            <InputText
+                                :id="'name_' + l.code"
+                                v-model.trim="multiForm[l.code].name"
+                                required
+                                autofocus
+                                :class="{'p-invalid': multiErrors[l.code]?.name}"
+                            />
+                            <small v-if="multiErrors[l.code]?.name" class="p-error">{{ multiErrors[l.code]?.name }}</small>
+                        </div>
+                        <div v-if="isPureEnglishMulti(l.code) && !editingItem" class="field flex gap-2 items-center">
+                            <Checkbox
+                                v-model="syncToAllLanguages"
+                                :binary="true"
+                                :input-id="'syncAll_' + l.code"
+                            />
+                            <label :for="'syncAll_' + l.code" class="cursor-pointer">{{ $t('pages.admin.tags.sync_to_all_languages') }}</label>
+                        </div>
+                        <div class="field">
+                            <label :for="'slug_' + l.code">{{ $t('common.slug') }}</label>
+                            <InputText
+                                :id="'slug_' + l.code"
+                                v-model.trim="multiForm[l.code].slug"
+                                required
+                                :class="{'p-invalid': multiErrors[l.code]?.slug}"
+                            />
+                            <small v-if="multiErrors[l.code]?.slug" class="p-error">{{ multiErrors[l.code]?.slug }}</small>
+                        </div>
+                        <div class="field">
+                            <label :for="'translationId_' + l.code">
+                                {{ $t('common.translation_id') }}
+                                <small class="text-secondary">({{ $t('common.optional') }})</small>
+                            </label>
+                            <InputGroup>
+                                <InputText
+                                    :id="'translationId_' + l.code"
+                                    v-model.trim="multiForm[l.code].translationId"
+                                    :placeholder="$t('common.translation_id_hint')"
+                                />
+                                <Button
+                                    icon="pi pi-refresh"
+                                    severity="secondary"
+                                    text
+                                    @click="syncTranslationIdFromSlugMulti(l.code)"
+                                />
+                            </InputGroup>
+                        </div>
+                    </TabPanel>
+                </TabPanels>
+            </Tabs>
 
             <template #footer>
                 <Button
@@ -156,11 +194,19 @@
                     @click="hideDialog"
                 />
                 <Button
+                    v-if="editingItem"
+                    :label="$t('common.delete')"
+                    icon="pi pi-trash"
+                    severity="danger"
+                    text
+                    @click="confirmDeleteActionMulti"
+                />
+                <Button
                     :label="$t('common.save')"
                     icon="pi pi-check"
                     text
                     :loading="saving"
-                    @click="saveItem"
+                    @click="saveItemMulti"
                 />
             </template>
         </Dialog>
@@ -190,6 +236,12 @@ interface Tag {
     slug: string
     language: string
     translationId?: string | null
+    translations?: Array<{
+        id: string
+        language: string
+        name: string
+        slug: string
+    }>
 }
 
 const {
@@ -201,12 +253,32 @@ const {
     onSort,
     onFilterChange,
     refresh: loadData,
-} = useAdminList<Tag, { search: string }>({
+} = useAdminList<Tag, { search: string, aggregate: boolean }>({
     url: '/api/tags',
     initialFilters: {
         search: '',
+        aggregate: false,
     },
 })
+
+const hasTranslation = (data: Tag, langCode: string) => {
+    if (!data.translations) return data.language === langCode ? data : null
+    return data.translations.find((t: any) => t.language === langCode) || null
+}
+
+const handleTranslationClick = (langCode: string, translation: any, item: any) => {
+    if (translation) {
+        openDialog(translation)
+    } else {
+        // Create new translation
+        openDialog({
+            name: '',
+            slug: item.slug,
+            language: langCode,
+            translationId: item.translationId || item.id,
+        } as any)
+    }
+}
 
 const { contentLanguage } = useAdminI18n()
 
@@ -219,53 +291,91 @@ const dialogVisible = ref(false)
 const editingItem = ref<Tag | null>(null)
 const submitted = ref(false)
 const saving = ref(false)
-const errors = ref<Record<string, string>>({})
+const activeTab = ref(locale.value)
 
-const form = ref({
+const createEmptyForm = (lang: string) => ({
+    id: null as string | null,
     name: '',
     slug: '',
-    language: contentLanguage.value || locale.value,
+    language: lang,
     translationId: null as string | null,
 })
 
-const syncTranslationIdFromSlug = () => {
-    if (form.value.slug) {
-        form.value.translationId = form.value.slug
+const multiForm = ref<Record<string, any>>({})
+const multiErrors = ref<Record<string, Record<string, string>>>({})
+
+// Initialize multiForm
+locales.value.forEach((l: any) => {
+    multiForm.value[l.code] = createEmptyForm(l.code)
+    multiErrors.value[l.code] = {}
+})
+
+const hasTranslationData = (langCode: string) => {
+    return !!multiForm.value[langCode]?.id || !!multiForm.value[langCode]?.name
+}
+
+const syncToAllLanguages = ref(false)
+const isPureEnglishMulti = (lang: string) => {
+    return /^[a-zA-Z0-9\s\-_]+$/.test(multiForm.value[lang].name)
+}
+
+const syncTranslationIdFromSlugMulti = (lang: string) => {
+    if (multiForm.value[lang].slug) {
+        multiForm.value[lang].translationId = multiForm.value[lang].slug
+        locales.value.forEach((l: any) => {
+            if (!multiForm.value[l.code].translationId) {
+                multiForm.value[l.code].translationId = multiForm.value[lang].translationId
+            }
+        })
     }
 }
 
-const oldSlugValue = ref('')
-watch(() => form.value.slug, (newSlug) => {
-    if (!editingItem.value && (!form.value.translationId || form.value.translationId === oldSlugValue.value)) {
-        form.value.translationId = newSlug
-    }
-    oldSlugValue.value = newSlug
-})
-
-const syncToAllLanguages = ref(false)
-const isPureEnglish = computed(() => {
-    return /^[a-zA-Z0-9\s\-_]+$/.test(form.value.name)
-})
-
-const openDialog = (item?: Tag) => {
+const openDialog = async (item?: any) => {
     editingItem.value = item || null
+    activeTab.value = item?.language || contentLanguage.value || locale.value
+
+    locales.value.forEach((l: any) => {
+        multiForm.value[l.code] = createEmptyForm(l.code)
+        multiErrors.value[l.code] = {}
+    })
+
     if (item) {
-        form.value = {
-            name: item.name,
-            slug: item.slug,
-            language: item.language,
-            translationId: item.translationId || null,
+        if (item.translations) {
+            const allItems = [item, ...item.translations]
+            for (const it of allItems) {
+                const lang = it.language
+                multiForm.value[lang] = {
+                    id: it.id,
+                    name: it.name,
+                    slug: it.slug,
+                    language: it.language,
+                    translationId: it.translationId || null,
+                }
+            }
+        } else if (item.translationId) {
+            const res = await $fetch<any>('/api/tags', {
+                query: { translationId: item.translationId, limit: 10 },
+            })
+            res.data.items.forEach((it: any) => {
+                multiForm.value[it.language] = {
+                    id: it.id,
+                    name: it.name,
+                    slug: it.slug,
+                    language: it.language,
+                    translationId: it.translationId || null,
+                }
+            })
+        } else {
+            multiForm.value[item.language] = {
+                id: item.id,
+                name: item.name,
+                slug: item.slug,
+                language: item.language,
+                translationId: item.translationId || null,
+            }
         }
-        oldSlugValue.value = item.slug
-    } else {
-        form.value = {
-            name: '',
-            slug: '',
-            language: contentLanguage.value || locale.value,
-            translationId: null,
-        }
-        oldSlugValue.value = ''
     }
+
     syncToAllLanguages.value = false
     submitted.value = false
     dialogVisible.value = true
@@ -276,63 +386,78 @@ const hideDialog = () => {
     submitted.value = false
 }
 
-const saveItem = async () => {
+const saveItemMulti = async () => {
     submitted.value = true
-    errors.value = {}
+    let hasErrors = false
 
-    const schema = editingItem.value ? tagUpdateSchema : tagBodySchema
-    const result = schema.safeParse(form.value)
+    const modifiedLocales = locales.value.filter((l: any) => hasTranslationData(l.code))
 
-    if (!result.success) {
-        result.error.issues.forEach((issue) => {
-            errors.value[String(issue.path[0])] = issue.message
-        })
-        return
+    for (const l of modifiedLocales) {
+        multiErrors.value[l.code] = {}
+        const schema = multiForm.value[l.code].id ? tagUpdateSchema : tagBodySchema
+        const result = schema.safeParse(multiForm.value[l.code])
+        if (!result.success) {
+            result.error.issues.forEach((issue) => {
+                if (multiErrors.value[l.code]) {
+                    multiErrors.value[l.code]![String(issue.path[0])] = issue.message
+                }
+            })
+            hasErrors = true
+            activeTab.value = l.code
+        }
     }
+
+    if (hasErrors) return
 
     saving.value = true
     try {
-        if (editingItem.value) {
-            await $fetch(`/api/tags/${editingItem.value.id}`, {
-                method: 'PUT' as any,
-                body: form.value,
-            })
-        } else if (syncToAllLanguages.value && isPureEnglish.value) {
-            // 同步创建所有语言版本
-            const firstRes = await $fetch<any>('/api/tags', {
-                method: 'POST',
-                body: form.value,
-            })
-            const translationId = firstRes.data.translationId
+        let sharedTranslationId = modifiedLocales.find((l) => multiForm.value[l.code].translationId)?.translationId
+            || modifiedLocales.find((l) => multiForm.value[l.code].id)?.translationId
 
-            const otherLocales = locales.value.filter((l: any) => l.code !== form.value.language)
-            const promises = otherLocales.map((l: any) => {
-                return $fetch('/api/tags', {
+        for (const l of modifiedLocales) {
+            const formData = { ...multiForm.value[l.code] }
+            if (sharedTranslationId) formData.translationId = sharedTranslationId
+
+            if (formData.id) {
+                await $fetch(`/api/tags/${formData.id}`, {
+                    method: 'PUT' as any,
+                    body: formData,
+                })
+            } else {
+                const res = await $fetch<any>('/api/tags', {
                     method: 'POST',
-                    body: {
-                        ...form.value,
-                        language: l.code,
-                        translationId,
-                    },
-                }).catch((e) => console.error(`Failed to sync tag to ${l.code}`, e))
-            })
-            await Promise.all(promises)
-        } else {
-            await $fetch('/api/tags', {
-                method: 'POST',
-                body: form.value,
-            })
+                    body: formData,
+                })
+                if (!sharedTranslationId && res.data.translationId) {
+                    sharedTranslationId = res.data.translationId
+                }
+            }
         }
+
         toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.tags.save_success'), life: 3000 })
         hideDialog()
         loadData()
     } catch (error: any) {
         console.error('Failed to save tag', error)
-        const serverMessage = error.data?.message || error.statusMessage || t('common.save_failed')
-        toast.add({ severity: 'error', summary: t('common.error'), detail: serverMessage, life: 5000 })
+        toast.add({ severity: 'error', summary: t('common.error'), detail: error.data?.message || t('common.save_failed'), life: 5000 })
     } finally {
         saving.value = false
     }
+}
+
+const confirmDeleteActionMulti = () => {
+    const currentItem = multiForm.value[activeTab.value]
+    if (currentItem.id) {
+        deleteDialog.item = { id: currentItem.id } as any
+        deleteDialog.message = t('pages.admin.tags.delete_confirm')
+        deleteDialog.visible = true
+    }
+}
+
+const confirmDeleteAction = (item: Tag) => {
+    deleteDialog.item = item
+    deleteDialog.message = t('pages.admin.tags.delete_confirm')
+    deleteDialog.visible = true
 }
 
 const deleteDialog = reactive({
@@ -340,12 +465,6 @@ const deleteDialog = reactive({
     item: null as Tag | null,
     message: '',
 })
-
-const confirmDeleteAction = (item: Tag) => {
-    deleteDialog.item = item
-    deleteDialog.message = t('pages.admin.tags.delete_confirm')
-    deleteDialog.visible = true
-}
 
 const deleteTag = async () => {
     if (!deleteDialog.item) return
@@ -383,6 +502,25 @@ onMounted(() => {
 
     &__dialog {
         width: 450px;
+    }
+}
+
+.translation-badges {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+}
+
+.translation-badge {
+    cursor: pointer;
+    transition: opacity 0.2s;
+
+    &:hover {
+        opacity: 0.8;
+    }
+
+    &--missing {
+        filter: grayscale(1) opacity(0.5);
     }
 }
 

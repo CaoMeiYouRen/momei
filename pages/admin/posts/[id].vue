@@ -28,6 +28,20 @@
                     :value="getStatusLabel(post.status)"
                     :severity="getStatusSeverity(post.status)"
                 />
+                <div class="ml-4 translation-status-bar">
+                    <Badge
+                        v-for="l in locales"
+                        :key="l.code"
+                        :value="l.code.toUpperCase()"
+                        :severity="hasTranslation(l.code) ? 'success' : 'secondary'"
+                        class="translation-badge"
+                        :class="{
+                            'translation-badge--active': post.language === l.code,
+                            'translation-badge--missing': !hasTranslation(l.code)
+                        }"
+                        @click="handleTranslationClick(l.code)"
+                    />
+                </div>
             </div>
             <div class="top-bar-right">
                 <span v-if="saving" class="saving-text">{{ $t('common.saving') }}</span>
@@ -293,9 +307,38 @@ const post = ref<Post>({
     categoryId: null,
     copyright: null,
     tags: [],
-    language: contentLanguage.value || locale.value,
-    translationId: null,
+    language: (route.query.language as string) || contentLanguage.value || locale.value,
+    translationId: (route.query.translationId as string) || null,
 })
+
+const translations = ref<any[]>([])
+
+const hasTranslation = (langCode: string) => {
+    if (post.value.language === langCode && !isNew.value) return post.value
+    return translations.value.find((t) => t.language === langCode) || null
+}
+
+const handleTranslationClick = async (langCode: string) => {
+    const trans = hasTranslation(langCode)
+    if (trans && trans.id) {
+        navigateTo(localePath(`/admin/posts/${trans.id}`))
+    } else {
+        // Confirm before creating new translation if current post is not saved
+        if (isNew.value && !post.value.id) {
+            toast.add({ severity: 'warn', summary: 'Warn', detail: t('pages.admin.posts.save_current_first'), life: 3000 })
+            return
+        }
+
+        const newPostPath = localePath('/admin/posts/new')
+        navigateTo({
+            path: newPostPath,
+            query: {
+                language: langCode,
+                translationId: post.value.translationId || post.value.id,
+            },
+        })
+    }
+}
 
 const selectedTags = ref<string[]>([])
 const filteredTags = ref<string[]>([])
@@ -361,6 +404,22 @@ const handlePreview = () => {
 const loadPost = async () => {
     if (isNew.value) {
         oldSlugValue.value = ''
+        // If it's a new translation, we might want to pre-fill some fields from a source post
+        if (route.query.translationId) {
+            try {
+                const { data } = await $fetch<any>(`/api/posts/${route.query.translationId}`)
+                if (data) {
+                    // Pre-fill categories, tags, etc.
+                    post.value.categoryId = data.category?.id || null
+                    post.value.tags = data.tags?.map((t: any) => t.name) || []
+                    selectedTags.value = post.value.tags
+                    post.value.translationId = data.translationId || data.id
+                    post.value.slug = data.slug // Suggest same slug
+                }
+            } catch (e) {}
+            // Also fetch other translations for the bar
+            fetchTranslations(route.query.translationId as string)
+        }
         return
     }
     try {
@@ -375,10 +434,25 @@ const loadPost = async () => {
             }
             oldSlugValue.value = data.slug
             selectedTags.value = post.value.tags
+
+            if (post.value.translationId) {
+                fetchTranslations(post.value.translationId)
+            }
         }
     } catch (error) {
         console.error('Failed to load post', error)
         // router.push('/admin/posts');
+    }
+}
+
+const fetchTranslations = async (translationId: string) => {
+    try {
+        const { data } = await $fetch<any>('/api/posts', {
+            query: { translationId, limit: 10, scope: 'manage' },
+        })
+        translations.value = data.items.filter((p: any) => p.id !== post.value.id)
+    } catch (e) {
+        console.error('Failed to fetch translations', e)
     }
 }
 
@@ -712,6 +786,31 @@ onMounted(() => {
         display: flex;
         align-items: center;
         gap: 0.5rem;
+    }
+}
+
+.translation-status-bar {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.translation-badge {
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.75rem;
+
+    &:hover {
+        transform: translateY(-1px);
+        opacity: 0.8;
+    }
+
+    &--active {
+        box-shadow: 0 0 0 2px var(--p-primary-color);
+    }
+
+    &--missing {
+        filter: grayscale(1) opacity(0.5);
     }
 }
 

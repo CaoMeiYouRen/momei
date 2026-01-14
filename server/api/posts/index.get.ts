@@ -1,4 +1,4 @@
-import { Brackets, type WhereExpressionBuilder } from 'typeorm'
+import { In, Brackets, type WhereExpressionBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'
@@ -19,6 +19,26 @@ export default defineEventHandler(async (event) => {
         .addSelect(['author.id', 'author.name', 'author.image'])
         .leftJoinAndSelect('post.category', 'category')
         .leftJoinAndSelect('post.tags', 'tags')
+
+    // Handle Aggregation for Management Mode
+    if (query.aggregate && query.scope === 'manage') {
+        const subQuery = postRepo.createQueryBuilder('p2')
+            .select('MIN(p2.id)')
+            .groupBy('COALESCE(p2.translationId, CAST(p2.id AS VARCHAR))')
+
+        // Apply same primary filters to subquery to ensure consistency
+        if (!session || !session.user) {
+            throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
+        }
+        if (!isAdmin(session.user.role)) {
+            subQuery.andWhere('p2.authorId = :currentUserId', { currentUserId: session.user.id })
+        } else if (query.authorId) {
+            subQuery.andWhere('p2.authorId = :authorId', { authorId: query.authorId })
+        }
+
+        qb.andWhere(`post.id IN (${subQuery.getQuery()})`)
+        qb.setParameters(subQuery.getParameters())
+    }
 
     if (query.scope === 'manage') {
         // Management Mode
@@ -118,6 +138,40 @@ export default defineEventHandler(async (event) => {
     applyPagination(qb, query)
 
     const [items, total] = await qb.getManyAndCount()
+
+    // Attach translation information for management mode
+    if (query.scope === 'manage' && items.length > 0) {
+        const translationIds = items
+            .map((p) => p.translationId)
+            .filter((id) => id !== null) as string[]
+
+        const allTranslations = translationIds.length > 0
+            ? await postRepo.find({
+                where: { translationId: In(translationIds) },
+                select: ['id', 'language', 'status', 'translationId', 'title'],
+            })
+            : []
+
+        items.forEach((post) => {
+            if (post.translationId) {
+                (post as any).translations = allTranslations
+                    .filter((t) => t.translationId === post.translationId)
+                    .map((t) => ({
+                        id: t.id,
+                        language: t.language,
+                        status: t.status,
+                        title: t.title,
+                    }))
+            } else {
+                (post as any).translations = [{
+                    id: post.id,
+                    language: post.language,
+                    status: post.status,
+                    title: post.title,
+                }]
+            }
+        })
+    }
 
     return success(paginate(items, total, query.page, query.limit))
 })

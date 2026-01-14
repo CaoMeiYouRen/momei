@@ -140,7 +140,9 @@
         "error": "Error",
         "unexpected_error": "An unexpected error occurred",
         "validation_error": "Validation failed",
-        "select_parent": "Please select parent"
+        "select_parent": "Please select a parent",
+        "aggregate_translations": "Aggregate translations",
+        "translation_status": "Translation status"
     },
     "pages": {
         "about": {
@@ -214,7 +216,8 @@
                 "language": "Post Language",
                 "translation_group": "Translation Association",
                 "translation_group_hint": "Link different language versions of the same post to enable switcher on front end",
-                "title_required": "Please enter post title"
+                "title_required": "Please enter post title",
+                "save_current_first": "Please save the current post first before creating a translation"
             },
             "categories": {
                 "title": "Categories Management",

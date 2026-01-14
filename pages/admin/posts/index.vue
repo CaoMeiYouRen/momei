@@ -20,16 +20,26 @@
                         @keydown.enter="load"
                     />
                 </IconField>
-                <Select
-                    v-model="filters.status"
-                    :options="statuses"
-                    option-label="label"
-                    option-value="value"
-                    :placeholder="$t('pages.admin.posts.status')"
-                    show-clear
-                    class="status-select"
-                    @change="load"
-                />
+                <div class="admin-filters__right">
+                    <div class="aggregate-toggle">
+                        <label for="aggregate-switch">{{ $t('common.aggregate_translations') }}</label>
+                        <ToggleSwitch
+                            v-model="filters.aggregate"
+                            input-id="aggregate-switch"
+                            @change="load"
+                        />
+                    </div>
+                    <Select
+                        v-model="filters.status"
+                        :options="statuses"
+                        option-label="label"
+                        option-value="value"
+                        :placeholder="$t('pages.admin.posts.status')"
+                        show-clear
+                        class="status-select"
+                        @change="load"
+                    />
+                </div>
             </div>
 
             <DataTable
@@ -57,6 +67,24 @@
                 >
                     <template #body="slotProps">
                         <Tag :value="getStatusLabel(slotProps.data.status)" :severity="getStatusSeverity(slotProps.data.status)" />
+                    </template>
+                </Column>
+                <Column
+                    field="translations"
+                    :header="$t('common.translation_status')"
+                >
+                    <template #body="{data}">
+                        <div class="translation-badges">
+                            <Badge
+                                v-for="lang in availableLocalesList"
+                                :key="lang.code"
+                                :value="lang.code.toUpperCase()"
+                                :severity="hasTranslation(data, lang.code) ? 'success' : 'secondary'"
+                                class="translation-badge"
+                                :class="{'translation-badge--missing': !hasTranslation(data, lang.code)}"
+                                @click="handleTranslationClick(data, lang.code)"
+                            />
+                        </div>
                     </template>
                 </Column>
                 <Column field="category.name" :header="$t('common.category')" />
@@ -144,6 +172,9 @@ interface Post {
     category?: { name: string }
     views: number
     publishedAt: string
+    language: string
+    translations?: { id: string, language: string, status: string, title: string }[]
+    translationId?: string | null
 }
 
 const {
@@ -154,17 +185,45 @@ const {
     onPage,
     onSort,
     refresh: load,
-} = useAdminList<Post, { search: string, status: string | null }>({
+} = useAdminList<Post, { search: string, status: string | null, aggregate: boolean }>({
     url: '/api/posts',
     initialFilters: {
         search: '',
         status: null,
+        aggregate: true, // 默认开启聚合
     },
     initialSort: {
         field: 'publishedAt',
         order: 'desc',
     },
 })
+
+const { locales } = useI18n()
+const availableLocalesList = computed(() => locales.value as { code: string, name: string }[])
+
+const hasTranslation = (post: Post, lang: string) => {
+    return post.translations?.some((t) => t.language === lang)
+}
+
+const isTranslationPublished = (post: Post, lang: string) => {
+    return post.translations?.some((t) => t.language === lang && t.status === 'published')
+}
+
+const handleTranslationClick = (post: Post, lang: string) => {
+    const translation = post.translations?.find((t) => t.language === lang)
+    if (translation) {
+        editPost(translation.id)
+    } else {
+        // 创建新翻译
+        navigateTo({
+            path: localePath('/admin/posts/new'),
+            query: {
+                translationId: post.translationId || post.id,
+                language: lang,
+            },
+        })
+    }
+}
 
 const statuses = computed(() => [
     { label: t('common.status.published'), value: 'published' },
@@ -242,6 +301,25 @@ const getStatusSeverity = (status: string) => {
     &__relative {
         color: var(--p-text-muted-color);
         font-size: 0.75rem;
+    }
+}
+
+.translation-badges {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+}
+
+.translation-badge {
+    cursor: pointer;
+    transition: opacity 0.2s;
+
+    &:hover {
+        opacity: 0.8;
+    }
+
+    &--missing {
+        filter: grayscale(1) opacity(0.5);
     }
 }
 </style>

@@ -49,6 +49,7 @@ export const postQuerySchema = paginationSchema.extend({
     tagId: z.string().optional(),
     language: z.string().optional(),
     search: z.string().optional(),
+    aggregate: z.preprocess((val) => val === 'true' || val === true, z.boolean().default(false)),
     orderBy: z.enum(['createdAt', 'updatedAt', 'views', 'publishedAt', 'title', 'status']).default('publishedAt'),
     order: z.enum(['ASC', 'DESC']).default('DESC'),
 })
