@@ -90,9 +90,12 @@ CREATE TABLE "momei_category" (
   "description" text,
   "parent_id" varchar(255),
   "language" varchar(255) NOT NULL DEFAULT 'zh-CN',
+  "translation_id" varchar(255),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
-  CONSTRAINT "UQ_category_slug" UNIQUE ("slug"),
+  CONSTRAINT "UQ_category_slug_language" UNIQUE ("slug", "language"),
+  CONSTRAINT "UQ_category_name_language" UNIQUE ("name", "language"),
+  CONSTRAINT "UQ_category_translation_language" UNIQUE ("translation_id", "language"),
   CONSTRAINT "FK_category_parent" FOREIGN KEY ("parent_id") REFERENCES "momei_category" ("id") ON DELETE SET NULL,
   PRIMARY KEY ("id")
 );
@@ -103,9 +106,12 @@ CREATE TABLE "momei_tag" (
   "name" varchar(255) NOT NULL,
   "slug" varchar(255) NOT NULL,
   "language" varchar(255) NOT NULL DEFAULT 'zh-CN',
+  "translation_id" varchar(255),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
-  CONSTRAINT "UQ_tag_slug" UNIQUE ("slug"),
+  CONSTRAINT "UQ_tag_slug_language" UNIQUE ("slug", "language"),
+  CONSTRAINT "UQ_tag_name_language" UNIQUE ("name", "language"),
+  CONSTRAINT "UQ_tag_translation_language" UNIQUE ("translation_id", "language"),
   PRIMARY KEY ("id")
 );
 
@@ -119,7 +125,7 @@ CREATE TABLE "momei_post" (
   "cover_image" varchar(255),
   "status" varchar(255) NOT NULL DEFAULT 'draft',
   "language" varchar(255) NOT NULL DEFAULT 'zh-CN',
-  "translation_id" varchar(36),
+  "translation_id" varchar(255),
   "views" integer NOT NULL DEFAULT 0,
   "copyright" text,
   "published_at" timestamptz(6),
@@ -127,7 +133,7 @@ CREATE TABLE "momei_post" (
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   "author_id" varchar(255) NOT NULL,
   "category_id" varchar(255),
-  CONSTRAINT "UQ_post_slug" UNIQUE ("slug"),
+  CONSTRAINT "UQ_post_slug_language" UNIQUE ("slug", "language"),
   CONSTRAINT "FK_post_author" FOREIGN KEY ("author_id") REFERENCES "momei_user" ("id"),
   CONSTRAINT "FK_post_category" FOREIGN KEY ("category_id") REFERENCES "momei_category" ("id") ON DELETE SET NULL,
   PRIMARY KEY ("id")
@@ -177,4 +183,10 @@ CREATE INDEX "IDX_post_category" ON "momei_post" ("category_id");
 CREATE INDEX "IDX_verification_identifier_value" ON "momei_verification" ("identifier", "value");
 CREATE INDEX "IDX_api_key_user" ON "momei_api_key" ("user_id");
 CREATE INDEX "IDX_subscriber_user" ON "momei_subscriber" ("user_id");
+CREATE INDEX "IDX_post_slug_language" ON "momei_post" ("slug", "language");
+CREATE INDEX "IDX_category_slug_language" ON "momei_category" ("slug", "language");
+CREATE INDEX "IDX_tag_slug_language" ON "momei_tag" ("slug", "language");
+CREATE INDEX "IDX_category_translation_language" ON "momei_category" ("translation_id", "language");
+CREATE INDEX "IDX_tag_translation_language" ON "momei_tag" ("translation_id", "language");
+
 

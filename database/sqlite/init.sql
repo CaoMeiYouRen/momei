@@ -84,9 +84,12 @@ CREATE TABLE "momei_category" (
   "description" varchar,
   "parent_id" varchar,
   "language" varchar NOT NULL DEFAULT ('zh-CN'),
+  "translation_id" varchar,
   "created_at" datetime NOT NULL DEFAULT (DATETIME('now')),
   "updated_at" datetime NOT NULL DEFAULT (DATETIME('now')),
-  CONSTRAINT "UQ_category_slug" UNIQUE ("slug"),
+  CONSTRAINT "UQ_category_slug_language" UNIQUE ("slug", "language"),
+  CONSTRAINT "UQ_category_name_language" UNIQUE ("name", "language"),
+  CONSTRAINT "UQ_category_translation_language" UNIQUE ("translation_id", "language"),
   CONSTRAINT "FK_category_parent" FOREIGN KEY ("parent_id") REFERENCES "momei_category" ("id") ON DELETE SET NULL
 );
 
@@ -96,9 +99,12 @@ CREATE TABLE "momei_tag" (
   "name" varchar NOT NULL,
   "slug" varchar NOT NULL,
   "language" varchar NOT NULL DEFAULT ('zh-CN'),
+  "translation_id" varchar,
   "created_at" datetime NOT NULL DEFAULT (DATETIME('now')),
   "updated_at" datetime NOT NULL DEFAULT (DATETIME('now')),
-  CONSTRAINT "UQ_tag_slug" UNIQUE ("slug")
+  CONSTRAINT "UQ_tag_slug_language" UNIQUE ("slug", "language"),
+  CONSTRAINT "UQ_tag_name_language" UNIQUE ("name", "language"),
+  CONSTRAINT "UQ_tag_translation_language" UNIQUE ("translation_id", "language")
 );
 
 -- 9. 文章表
@@ -111,7 +117,7 @@ CREATE TABLE "momei_post" (
   "cover_image" varchar,
   "status" varchar NOT NULL DEFAULT ('draft'),
   "language" varchar NOT NULL DEFAULT ('zh-CN'),
-  "translation_id" varchar(36),
+  "translation_id" varchar,
   "views" integer NOT NULL DEFAULT (0),
   "copyright" text,
   "published_at" datetime,
@@ -119,7 +125,7 @@ CREATE TABLE "momei_post" (
   "updated_at" datetime NOT NULL DEFAULT (DATETIME('now')),
   "author_id" varchar NOT NULL,
   "category_id" varchar,
-  CONSTRAINT "UQ_post_slug" UNIQUE ("slug"),
+  CONSTRAINT "UQ_post_slug_language" UNIQUE ("slug", "language"),
   CONSTRAINT "FK_post_author" FOREIGN KEY ("author_id") REFERENCES "momei_user" ("id"),
   CONSTRAINT "FK_post_category" FOREIGN KEY ("category_id") REFERENCES "momei_category" ("id") ON DELETE SET NULL
 );
@@ -165,4 +171,9 @@ CREATE INDEX "IDX_post_author" ON "momei_post" ("author_id");
 CREATE INDEX "IDX_post_category" ON "momei_post" ("category_id");
 CREATE INDEX "IDX_api_key_user" ON "momei_api_key" ("user_id");
 CREATE INDEX "IDX_subscriber_user" ON "momei_subscriber" ("user_id");
+CREATE INDEX "IDX_post_slug_language" ON "momei_post" ("slug", "language");
+CREATE INDEX "IDX_category_slug_language" ON "momei_category" ("slug", "language");
+CREATE INDEX "IDX_tag_slug_language" ON "momei_tag" ("slug", "language");
+CREATE INDEX "IDX_category_translation_language" ON "momei_category" ("translation_id", "language");
+CREATE INDEX "IDX_tag_translation_language" ON "momei_tag" ("translation_id", "language");
 

@@ -94,10 +94,13 @@ CREATE TABLE `momei_category` (
   `description` text DEFAULT NULL,
   `parent_id` varchar(255) DEFAULT NULL,
   `language` varchar(255) NOT NULL DEFAULT 'zh-CN',
+  `translation_id` varchar(255) DEFAULT NULL,
   `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UQ_category_slug` (`slug`),
+  UNIQUE KEY `UQ_category_slug_language` (`slug`, `language`),
+  UNIQUE KEY `UQ_category_name_language` (`name`, `language`),
+  UNIQUE KEY `UQ_category_translation_language` (`translation_id`, `language`),
   KEY `FK_category_parent` (`parent_id`),
   CONSTRAINT `FK_category_parent` FOREIGN KEY (`parent_id`) REFERENCES `momei_category` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -108,10 +111,13 @@ CREATE TABLE `momei_tag` (
   `name` varchar(255) NOT NULL,
   `slug` varchar(255) NOT NULL,
   `language` varchar(255) NOT NULL DEFAULT 'zh-CN',
+  `translation_id` varchar(255) DEFAULT NULL,
   `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  `updated_at" datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UQ_tag_slug` (`slug`)
+  UNIQUE KEY `UQ_tag_slug_language` (`slug`, `language`),
+  UNIQUE KEY `UQ_tag_name_language` (`name`, `language`),
+  UNIQUE KEY `UQ_tag_translation_language` (`translation_id`, `language`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- 9. 文章表
@@ -123,8 +129,8 @@ CREATE TABLE `momei_post` (
   `summary` text DEFAULT NULL,
   `cover_image` varchar(255) DEFAULT NULL,
   `status` varchar(255) NOT NULL DEFAULT 'draft',
-  `language` varchar(255) NOT NULL DEFAULT 'zh-CN',
-  `translation_id` varchar(36) DEFAULT NULL,
+  `language" varchar(255) NOT NULL DEFAULT 'zh-CN',
+  `translation_id` varchar(255) DEFAULT NULL,
   `views` int NOT NULL DEFAULT 0,
   `copyright` text DEFAULT NULL,
   `published_at` datetime(6) DEFAULT NULL,
@@ -133,9 +139,10 @@ CREATE TABLE `momei_post` (
   `author_id` varchar(255) NOT NULL,
   `category_id` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UQ_post_slug` (`slug`),
+  UNIQUE KEY `UQ_post_slug_language` (`slug`, `language`),
   KEY `IDX_post_author` (`author_id`),
   KEY `IDX_post_category` (`category_id`),
+  KEY `IDX_post_slug_language` (`slug`, `language`),
   CONSTRAINT `FK_post_author` FOREIGN KEY (`author_id`) REFERENCES `momei_user` (`id`),
   CONSTRAINT `FK_post_category` FOREIGN KEY (`category_id`) REFERENCES `momei_category` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -181,4 +188,5 @@ CREATE TABLE `momei_subscriber` (
   KEY `IDX_subscriber_user` (`user_id`),
   CONSTRAINT `FK_subscriber_user` FOREIGN KEY (`user_id`) REFERENCES `momei_user` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 
