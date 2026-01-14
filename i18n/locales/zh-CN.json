@@ -389,6 +389,8 @@
                 "upload_success": "头像上传成功",
                 "upload_failed": "头像上传失败",
                 "name": "昵称",
+                "language": "界面语言",
+                "timezone": "时区设置",
                 "save": "保存更改",
                 "success": "个人资料已更新"
             },

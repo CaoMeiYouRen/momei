@@ -390,6 +390,8 @@
                 "upload_success": "Avatar updated successfully",
                 "upload_failed": "Failed to upload avatar",
                 "name": "Nickname",
+                "language": "UI Language",
+                "timezone": "Timezone",
                 "save": "Save Changes",
                 "success": "Profile updated successfully"
             },

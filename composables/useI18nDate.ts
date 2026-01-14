@@ -1,6 +1,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { formatDate as _formatDate, formatDateTime as _formatDateTime } from '@/utils/shared/date'
+import { authClient } from '@/lib/auth-client'
 
 /**
  * 将 i18n 的 locale 转换为日期库（如 dayjs）识别的 locale
@@ -12,7 +13,9 @@ const dateLocaleMap: Record<string, string> = {
 
 export function useI18nDate() {
     const { locale } = useI18n()
+    const session = authClient.useSession()
 
+    const userTimezone = computed(() => (session.value?.data?.user as any)?.timezone)
     const currentLocale = computed(() => dateLocaleMap[locale.value] || locale.value.toLowerCase())
     const currentIntlLocale = computed(() => locale.value)
 
@@ -20,14 +23,14 @@ export function useI18nDate() {
         if (!date) {
             return '-'
         }
-        return _formatDate(date, format, currentLocale.value)
+        return _formatDate(date, format, currentLocale.value, userTimezone.value)
     }
 
     const formatDateTime = (date: string | number | Date | null | undefined, format?: string) => {
         if (!date) {
             return '-'
         }
-        return _formatDateTime(date, format, currentLocale.value)
+        return _formatDateTime(date, format, currentLocale.value, userTimezone.value)
     }
 
     const relativeTime = (date: string | number | Date | null | undefined) => {

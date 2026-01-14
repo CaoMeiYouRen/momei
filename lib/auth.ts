@@ -64,6 +64,23 @@ export const auth = betterAuth({
                     }
                 },
             },
+            update: {
+                after: async (user) => {
+                    // 当用户信息更新后，同步更新订阅者的语言偏好
+                    try {
+                        const subscriberRepo = dataSource.getRepository(Subscriber)
+                        const subscriber = await subscriberRepo.findOne({
+                            where: { email: user.email },
+                        })
+                        if (subscriber && (user as any).language) {
+                            subscriber.language = (user as any).language
+                            await subscriberRepo.save(subscriber)
+                        }
+                    } catch (error) {
+                        console.error('Failed to update subscriber language after user update:', error)
+                    }
+                },
+            },
         },
     },
     // 可信来源列表。
@@ -122,6 +139,16 @@ export const auth = betterAuth({
         },
     },
     user: {
+        additionalFields: {
+            language: {
+                type: 'string',
+                required: false,
+            },
+            timezone: {
+                type: 'string',
+                required: false,
+            },
+        },
         changeEmail: {
             enabled: true, // 启用更改邮箱功能
             // 发送更改邮箱验证邮件

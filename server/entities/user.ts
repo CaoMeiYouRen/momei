@@ -89,6 +89,18 @@ export class User extends BaseEntity {
     banExpires: number
 
     /**
+     * 用户语言偏好
+     */
+    @CustomColumn({ type: 'varchar', length: 16, nullable: true })
+    language: string
+
+    /**
+     * 用户时区设置
+     */
+    @CustomColumn({ type: 'varchar', length: 64, nullable: true })
+    timezone: string
+
+    /**
      * 是否启用两因素认证
      */
     @CustomColumn({ type: 'boolean', default: false })
