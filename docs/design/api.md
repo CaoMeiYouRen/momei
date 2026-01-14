@@ -58,7 +58,7 @@
 -   **[用户 (User)](./modules/user.md)**: Profile, Avatar.
 -   **[博客 (Blog)](./modules/blog.md)**: Posts, Archives (Public).
 -   **[管理 (Admin)](./modules/admin.md)**: Admin APIs for User/Content.
--   **[系统 (System)](./modules/system.md)**: Uploads, External APIs.
+-   **[系统 (System)](./modules/system.md)**: Uploads, External APIs.- **[AI 辅助 (AI)](./modules/ai.md)**: AI Content Assistant.
 
 ## 5. 国际化路由与 Slug 设计
 
