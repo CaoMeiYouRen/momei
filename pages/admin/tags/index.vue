@@ -1,5 +1,5 @@
 <template>
-    <div class="admin-tags page-container">
+    <div class="admin-page-container">
         <AdminPageHeader :title="$t('pages.admin.tags.title')" show-language-switcher>
             <template #actions>
                 <Button
@@ -10,8 +10,8 @@
             </template>
         </AdminPageHeader>
 
-        <div class="admin-tags__card">
-            <div class="admin-tags__filters">
+        <div class="admin-content-card">
+            <div class="admin-filters">
                 <IconField icon-position="left">
                     <InputIcon class="pi pi-search" />
                     <InputText
@@ -20,12 +20,15 @@
                         @input="onFilterChange"
                     />
                 </IconField>
-                <div class="flex gap-2 items-center px-3">
-                    <ToggleSwitch
-                        v-model="filters.aggregate"
-                        @change="onFilterChange"
-                    />
-                    <span>{{ $t('common.aggregate_translations') }}</span>
+                <div class="admin-filters__right">
+                    <div class="aggregate-toggle">
+                        <ToggleSwitch
+                            v-model="filters.aggregate"
+                            input-id="aggregate-switch"
+                            @change="onFilterChange"
+                        />
+                        <label for="aggregate-switch" class="cursor-pointer">{{ $t('common.aggregate_translations') }}</label>
+                    </div>
                 </div>
             </div>
 
@@ -53,12 +56,15 @@
                 <Column
                     v-if="filters.aggregate"
                     :header="$t('common.translation_status')"
+                    header-class="text-center"
+                    body-class="text-center"
                 >
                     <template #body="{data}">
-                        <div class="translation-badges">
+                        <div class="justify-content-center translation-badges">
                             <Badge
                                 v-for="l in locales"
                                 :key="l.code"
+                                v-tooltip="$t('common.languages.' + l.code)"
                                 :value="l.code.toUpperCase()"
                                 :severity="hasTranslation(data, l.code) ? 'success' : 'secondary'"
                                 class="translation-badge"
@@ -125,7 +131,7 @@
                             v-if="hasTranslationData(l.code)"
                             class="mr-2 pi pi-check-circle text-success"
                         />
-                        {{ l.code.toUpperCase() }}
+                        {{ $t('common.languages.' + l.code) }}
                     </Tab>
                 </TabList>
                 <TabPanels>
@@ -257,7 +263,7 @@ const {
     url: '/api/tags',
     initialFilters: {
         search: '',
-        aggregate: false,
+        aggregate: true,
     },
 })
 
@@ -509,6 +515,10 @@ onMounted(() => {
     display: flex;
     gap: 0.25rem;
     flex-wrap: wrap;
+
+    &.justify-content-center {
+        justify-content: center;
+    }
 }
 
 .translation-badge {

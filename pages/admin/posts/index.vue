@@ -22,12 +22,12 @@
                 </IconField>
                 <div class="admin-filters__right">
                     <div class="aggregate-toggle">
-                        <label for="aggregate-switch">{{ $t('common.aggregate_translations') }}</label>
                         <ToggleSwitch
                             v-model="filters.aggregate"
                             input-id="aggregate-switch"
                             @change="load"
                         />
+                        <label for="aggregate-switch" class="cursor-pointer">{{ $t('common.aggregate_translations') }}</label>
                     </div>
                     <Select
                         v-model="filters.status"
@@ -58,12 +58,18 @@
                     field="title"
                     :header="$t('common.title')"
                     sortable
+                    header-style="min-width: 15rem"
                 />
-                <Column field="author.name" :header="$t('common.author')" />
+                <Column
+                    field="author.name"
+                    :header="$t('common.author')"
+                    class="hidden lg:table-cell"
+                />
                 <Column
                     field="status"
                     :header="$t('pages.admin.posts.status')"
                     sortable
+                    class="hidden md:table-cell"
                 >
                     <template #body="slotProps">
                         <Tag :value="getStatusLabel(slotProps.data.status)" :severity="getStatusSeverity(slotProps.data.status)" />
@@ -72,12 +78,16 @@
                 <Column
                     field="translations"
                     :header="$t('common.translation_status')"
+                    header-style="min-width: 7rem"
+                    header-class="text-center"
+                    body-class="text-center"
                 >
                     <template #body="{data}">
-                        <div class="translation-badges">
+                        <div class="justify-content-center translation-badges">
                             <Badge
                                 v-for="lang in availableLocalesList"
                                 :key="lang.code"
+                                v-tooltip="$t('common.languages.' + lang.code)"
                                 :value="lang.code.toUpperCase()"
                                 :severity="hasTranslation(data, lang.code) ? 'success' : 'secondary'"
                                 class="translation-badge"
@@ -87,8 +97,14 @@
                         </div>
                     </template>
                 </Column>
-                <Column field="category.name" :header="$t('common.category')" />
                 <Column
+                    field="category.name"
+                    :header="$t('common.category')"
+                    class="hidden sm:table-cell"
+                    header-style="min-width: 8rem"
+                />
+                <Column
+                    v-if="!filters.aggregate"
                     field="language"
                     :header="$t('common.language')"
                     sortable
@@ -101,11 +117,15 @@
                     field="views"
                     :header="$t('common.views')"
                     sortable
+                    style="width: 6rem"
+                    header-class="text-center"
+                    body-class="text-center"
                 />
                 <Column
                     field="publishedAt"
                     :header="$t('common.published_at')"
                     sortable
+                    header-style="min-width: 9rem"
                 >
                     <template #body="slotProps">
                         <div class="user-created-at">
@@ -308,6 +328,10 @@ const getStatusSeverity = (status: string) => {
     display: flex;
     gap: 0.25rem;
     flex-wrap: wrap;
+
+    &.justify-content-center {
+        justify-content: center;
+    }
 }
 
 .translation-badge {

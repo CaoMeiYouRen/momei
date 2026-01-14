@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (query.search) {
-        queryBuilder.where('tag.name LIKE :search', { search: `%${query.search}%` })
+        queryBuilder.andWhere('tag.name LIKE :search', { search: `%${query.search}%` })
     }
 
     if (query.language) {
@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
         const allTranslations = translationIds.length > 0
             ? await tagRepo.find({
                 where: { translationId: In(translationIds) },
-                select: ['id', 'language', 'translationId', 'name'],
+                select: ['id', 'language', 'translationId', 'name', 'slug'],
             })
             : []
 
@@ -83,12 +83,14 @@ export default defineEventHandler(async (event) => {
                         id: t.id,
                         language: t.language,
                         name: t.name,
+                        slug: t.slug,
                     }))
             } else {
                 (tag as any).translations = [{
                     id: tag.id,
                     language: tag.language,
                     name: tag.name,
+                    slug: tag.slug,
                 }]
             }
         })

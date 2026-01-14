@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (query.search) {
-        queryBuilder.where('category.name LIKE :search', { search: `%${query.search}%` })
+        queryBuilder.andWhere('category.name LIKE :search', { search: `%${query.search}%` })
     }
 
     if (query.parentId) {
@@ -75,7 +75,7 @@ export default defineEventHandler(async (event) => {
         const allTranslations = translationIds.length > 0
             ? await categoryRepo.find({
                 where: { translationId: In(translationIds) },
-                select: ['id', 'language', 'translationId', 'name'],
+                select: ['id', 'language', 'translationId', 'name', 'slug', 'description', 'parentId'],
             })
             : []
 
@@ -87,12 +87,18 @@ export default defineEventHandler(async (event) => {
                         id: t.id,
                         language: t.language,
                         name: t.name,
+                        slug: t.slug,
+                        description: t.description,
+                        parentId: t.parentId,
                     }))
             } else {
                 (cat as any).translations = [{
                     id: cat.id,
                     language: cat.language,
                     name: cat.name,
+                    slug: cat.slug,
+                    description: cat.description,
+                    parentId: cat.parentId,
                 }]
             }
         })

@@ -1,5 +1,5 @@
 <template>
-    <div class="admin-categories page-container">
+    <div class="admin-page-container">
         <AdminPageHeader :title="$t('pages.admin.categories.title')" show-language-switcher>
             <template #actions>
                 <Button
@@ -10,8 +10,8 @@
             </template>
         </AdminPageHeader>
 
-        <div class="admin-categories__card">
-            <div class="admin-categories__filters">
+        <div class="admin-content-card">
+            <div class="admin-filters">
                 <IconField icon-position="left">
                     <InputIcon class="pi pi-search" />
                     <InputText
@@ -20,12 +20,15 @@
                         @input="onFilterChange"
                     />
                 </IconField>
-                <div class="flex gap-2 items-center px-3">
-                    <ToggleSwitch
-                        v-model="filters.aggregate"
-                        @change="onFilterChange"
-                    />
-                    <span>{{ $t('common.aggregate_translations') }}</span>
+                <div class="admin-filters__right">
+                    <div class="aggregate-toggle">
+                        <ToggleSwitch
+                            v-model="filters.aggregate"
+                            input-id="aggregate-switch"
+                            @change="onFilterChange"
+                        />
+                        <label for="aggregate-switch" class="cursor-pointer">{{ $t('common.aggregate_translations') }}</label>
+                    </div>
                 </div>
             </div>
 
@@ -40,11 +43,6 @@
                 @page="onPage"
                 @sort="onSort"
             >
-                <Column
-                    field="id"
-                    header="ID"
-                    sortable
-                />
                 <Column
                     field="name"
                     :header="$t('common.name')"
@@ -63,12 +61,15 @@
                 <Column
                     v-if="filters.aggregate"
                     :header="$t('common.translation_status')"
+                    header-class="text-center"
+                    body-class="text-center"
                 >
                     <template #body="{data}">
-                        <div class="translation-badges">
+                        <div class="justify-content-center translation-badges">
                             <Badge
                                 v-for="l in locales"
                                 :key="l.code"
+                                v-tooltip="$t('common.languages.' + l.code)"
                                 :value="l.code.toUpperCase()"
                                 :severity="hasTranslation(data, l.code) ? 'success' : 'secondary'"
                                 class="translation-badge"
@@ -88,7 +89,11 @@
                         <Tag :value="$t(`common.languages.${data.language}`)" severity="secondary" />
                     </template>
                 </Column>
-                <Column field="description" :header="$t('common.description')" />
+                <Column
+                    field="description"
+                    :header="$t('common.description')"
+                    class="hidden md:table-cell"
+                />
                 <Column
                     :header="$t('common.actions')"
                     class="text-right"
@@ -136,7 +141,7 @@
                             v-if="hasTranslationData(l.code)"
                             class="mr-2 pi pi-check-circle text-success"
                         />
-                        {{ l.code.toUpperCase() }}
+                        {{ $t('common.languages.' + l.code) }}
                     </Tab>
                 </TabList>
                 <TabPanels>
@@ -293,7 +298,7 @@ const {
     url: '/api/categories',
     initialFilters: {
         search: '',
-        aggregate: false,
+        aggregate: true,
     },
 })
 
@@ -582,6 +587,10 @@ onMounted(() => {
     display: flex;
     gap: 0.25rem;
     flex-wrap: wrap;
+
+    &.justify-content-center {
+        justify-content: center;
+    }
 }
 
 .translation-badge {
