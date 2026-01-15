@@ -33,7 +33,8 @@ export default defineEventHandler(async (event) => {
 
     const feed = await generateFeed(event, {
         tagId: tag.id,
-        titleSuffix: `标签: ${tag.name}`,
+        language: tag.language,
+        titleSuffix: tag.language === 'zh-CN' ? `标签: ${tag.name}` : `Tag: ${tag.name}`,
     })
 
     appendHeader(event, 'Content-Type', 'application/xml')

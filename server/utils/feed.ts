@@ -11,12 +11,19 @@ interface FeedOptions {
     tagId?: string
     limit?: number
     titleSuffix?: string
+    language?: string
 }
 
 export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
     const config = useRuntimeConfig()
     const siteUrl = (config.public.siteUrl as string) || 'https://momei.app'
     const appName = (config.public.appName as string) || '墨梅博客'
+
+    // Detect language: Query > Options > Header > Default
+    const query = getQuery(event)
+    const acceptLanguage = getRequestHeader(event, 'accept-language') || ''
+    const detectedLang = acceptLanguage.split(',')[0]?.split('-')[0] || 'zh' // simplified
+    const language = (query.language as string) || options.language || (detectedLang === 'en' ? 'en-US' : 'zh-CN')
 
     const md = new MarkdownIt({
         html: true,
@@ -35,6 +42,7 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
         .leftJoinAndSelect('post.category', 'category')
         .leftJoinAndSelect('post.tags', 'tags')
         .where('post.status = :status', { status: PostStatus.PUBLISHED })
+        .andWhere('post.language = :language', { language })
 
     if (options.categoryId) {
         queryBuilder.andWhere('post.categoryId = :categoryId', { categoryId: options.categoryId })
@@ -54,10 +62,10 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
 
     const feed = new Feed({
         title,
-        description: '墨梅博客 - 轻量跨语言博客创作平台',
+        description: language === 'zh-CN' ? '墨梅博客 - 轻量跨语言博客创作平台' : 'Momei Blog - A lightweight cross-language blog platform',
         id: siteUrl,
         link: siteUrl,
-        language: 'zh-CN',
+        language,
         image: `${siteUrl}/logo.png`,
         favicon: `${siteUrl}/favicon.ico`,
         copyright: `All rights reserved ${new Date().getFullYear()}, ${appName}`,
