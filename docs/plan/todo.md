@@ -138,9 +138,12 @@
 -   [x] **站点地图与搜索控制台**
     -   验收: 使用 `@nuxtjs/sitemap` 自动生成 `sitemap.xml`。
     -   验收: 支持 Google/Bing Search Console 网站管理工具验证。
--   [x] **订阅系统**
-    -   验收: 实现 RSS 订阅源 (`/feed.xml` 或 `/rss.xml`)。
-    -   验收: 基础邮件订阅功能 (集成 SendGrid/Mailgun)。
+-   [ ] **订阅系统**
+    -   [x] 验收: 实现全局 RSS 订阅源 (`/feed.xml`)。
+    -   [ ] 验收: 实现**多维度 RSS 订阅源** (分类/标签独立订阅源)。
+    -   [ ] 验收: 在分类页与标签页增加对应的 RSS 订阅链接/图标。
+    -   [ ] 验收: 实现 RSS 自动发现 (在页面 `<head>` 注入关联链接)。
+    -   [x] 验收: 基础邮件订阅功能 (集成 SendGrid/Mailgun)。
 -   [x] **订阅系统与用户关联 (混合关联方案)**
     -   验收: 扩展 `Subscriber` 实体，增加 `userId` 关联字段（可选，指向 `User`）。
     -   验收: 优化订阅 API，若邮箱已存在于用户表，则自动关联 `userId`。
