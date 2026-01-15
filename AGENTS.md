@@ -187,6 +187,7 @@ commit message 使用中文描述变更内容。
     -   **`@full-stack-developer` (全栈开发者)**: 驱动完整的 PDTFC 循环。集成 [代码编辑](.github/skills/nuxt-code-editor/SKILL.md)、[质量守卫](.github/skills/quality-guardian/SKILL.md)、[提交规范](.github/skills/conventional-committer/SKILL.md)及[上下文分析](.github/skills/context-analyzer/SKILL.md)能力。
     -   **`@quality-guardian` (质量守卫)**: 负责代码 Lint、类型检查与规范审查。参考：[.github/skills/quality-guardian/SKILL.md](.github/skills/quality-guardian/SKILL.md)。
     -   **`@test-engineer` (测试工程师)**: 负责测试驱动开发与高覆盖率逻辑实现。参考：[.github/skills/test-engineer/SKILL.md](.github/skills/test-engineer/SKILL.md)。
+    -   **`@code-reviewer` (代码审查者)**: 负责代码审查与安全审计，确保代码符合规范、逻辑严密且无安全漏洞。参考：[.github/skills/code-reviewer/SKILL.md](.github/skills/code-reviewer/SKILL.md)。
     -   **`@documentation-specialist` (文档专家)**: 维护 `docs/` 下的设计与规划文档。**注意：禁止手动修改自动生成的 CHANGELOG.md**。参考：[.github/skills/documentation-specialist/SKILL.md](.github/skills/documentation-specialist/SKILL.md)。
 
 ## 安全要求
@@ -208,8 +209,7 @@ commit message 使用中文描述变更内容。
 
 -   [项目规划](./docs/plan/roadmap.md)
 -   [待办事项](./docs/plan/todo.md)
--   [开发规范](./docs/standards/development.md)
--   [测试规范](./docs/standards/testing.md)
+-   [开发规范](./docs/standards/development.md)- [安全规范](./docs/standards/security.md)- [测试规范](./docs/standards/testing.md)
 -   [API 规范](./docs/standards/api.md)
 -   [UI 设计](./docs/design/ui.md)
 -   [API 设计](./docs/design/api.md)
