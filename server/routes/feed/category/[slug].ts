@@ -3,7 +3,15 @@ import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
 
 export default defineEventHandler(async (event) => {
-    const slug = decodeURIComponent(getRouterParam(event, 'slug') || '')
+    let slug = getRouterParam(event, 'slug') || ''
+
+    // 如果 URL 包含 .xml 后缀，在这里进行剥离，因为文件名改为 [slug].ts 后参数会带上后缀
+    if (slug.endsWith('.xml')) {
+        slug = slug.slice(0, -4)
+    }
+
+    slug = decodeURIComponent(slug)
+
     if (!slug) {
         throw createError({
             statusCode: 400,
