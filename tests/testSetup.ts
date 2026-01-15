@@ -23,6 +23,7 @@ process.on('unhandledRejection', (reason) => {
 const mockEventHandler = (handler: any) => handler
 
 const mockGetValidatedQuery = async (event: any, validate: any) => validate(event.query || {})
+const mockReadValidatedBody = async (event: any, validate: any) => validate(event.body || {})
 
 const mockCreateError = (err: any) => {
     const error = new Error(err.statusMessage || 'Error')
@@ -33,4 +34,11 @@ const mockCreateError = (err: any) => {
 
 vi.stubGlobal('defineEventHandler', mockEventHandler)
 vi.stubGlobal('getValidatedQuery', mockGetValidatedQuery)
+vi.stubGlobal('readValidatedBody', mockReadValidatedBody)
 vi.stubGlobal('createError', mockCreateError)
+vi.stubGlobal('useRuntimeConfig', () => ({
+    public: {
+        siteUrl: 'https://momei.app',
+        appName: '墨梅博客',
+    },
+}))
