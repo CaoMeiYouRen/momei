@@ -11,13 +11,18 @@ export { SUPPORTED_LOCALES, DEFAULT_LOCALE, FALLBACK_LOCALE, type SupportedLocal
 /**
  * 将支持的语言代码转换为项目内部使用的语言代码 (如数据库和 i18n 文件)
  * zh-Hans -> zh-CN
+ * en-US -> en-US
  * default -> en-US
  * @param locale 支持的语言代码
  * @returns 项目内部语言代码
  */
 export function toProjectLocale(locale: string): string {
-    if (locale === 'zh-Hans') { return 'zh-CN' }
-    if (locale === 'default') { return 'en-US' }
+    if (locale === 'zh-Hans') {
+        return 'zh-CN'
+    }
+    if (locale === 'en-US' || locale === 'default') {
+        return 'en-US'
+    }
     return locale
 }
 
@@ -34,14 +39,14 @@ const LOCALE_MAPPING: Record<string, SupportedLocale> = {
     'zh-hk': 'zh-Hant',
     'zh-mo': 'zh-Hant',
 
-    // 英语变体映射（统一映射到 default）
-    en: 'default',
-    'en-us': 'default',
-    'en-gb': 'default',
-    'en-ca': 'default',
-    'en-au': 'default',
-    'en-nz': 'default',
-    'en-za': 'default',
+    // 英语变体映射
+    en: 'en-US',
+    'en-us': 'en-US',
+    'en-gb': 'en-US',
+    'en-ca': 'en-US',
+    'en-au': 'en-US',
+    'en-nz': 'en-US',
+    'en-za': 'en-US',
 
     // 葡萄牙语变体映射
     pt: 'pt-PT',
@@ -98,10 +103,10 @@ const LOCALE_MAPPING: Record<string, SupportedLocale> = {
     'no-no': 'da-DK',
     fi: 'sv-SE', // 芬兰语映射到瑞典语
     'fi-fi': 'sv-SE',
-    th: 'default', // 泰语使用默认语言
-    'th-TH': 'default',
-    vi: 'default', // 越南语使用默认语言
-    'vi-VN': 'default',
+    th: 'en-US', // 泰语使用英语
+    'th-TH': 'en-US',
+    vi: 'en-US', // 越南语使用英语
+    'vi-VN': 'en-US',
 }
 
 /**

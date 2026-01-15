@@ -16,7 +16,9 @@ interface FeedOptions {
 }
 
 export function getFeedLanguage(event: H3Event, explicitLanguage?: string): string {
-    if (explicitLanguage) { return explicitLanguage }
+    if (explicitLanguage) {
+        return explicitLanguage
+    }
     return toProjectLocale(detectUserLocale(event))
 }
 

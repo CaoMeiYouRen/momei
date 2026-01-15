@@ -4,7 +4,7 @@ import type { BuiltInLocales } from 'better-auth-localization'
  * better-auth 内置支持的语言代码类型
  * 直接使用 better-auth-localization 的语言代码，避免额外转换
  */
-export type BetterAuthLocale = BuiltInLocales
+export type BetterAuthLocale = BuiltInLocales | 'en-US'
 
 /**
  * 项目支持的语言列表
@@ -14,6 +14,7 @@ export type BetterAuthLocale = BuiltInLocales
 export const SUPPORTED_LOCALES: readonly BetterAuthLocale[] = [
     'zh-Hans', // 简体中文
     'zh-Hant', // 繁体中文
+    'en-US', // 英语
     'default', // 默认语言
     'pt-BR', // 巴西葡萄牙语
     'pt-PT', // 葡萄牙语

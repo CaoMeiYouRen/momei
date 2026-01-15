@@ -1,14 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { parseCookies, getHeader, setCookie, type H3Event } from 'h3'
+import { parseCookies, getHeader, setCookie, getQuery, type H3Event } from 'h3'
 import {
     normalizeLocale,
     parseAcceptLanguage,
     DEFAULT_LOCALE,
     getLocaleFromCookie,
     getLocaleFromHeaders,
+    getLocaleFromQuery,
     detectUserLocale,
     getUserLocale,
     setLocaleCookie,
+    toProjectLocale,
 } from './locale'
 
 // Mock h3 utils
@@ -16,6 +18,7 @@ vi.mock('h3', () => ({
     parseCookies: vi.fn(),
     getHeader: vi.fn(),
     setCookie: vi.fn(),
+    getQuery: vi.fn(),
 }))
 
 describe('server/utils/locale.ts', () => {
@@ -36,8 +39,8 @@ describe('server/utils/locale.ts', () => {
 
         it('should use mapping', () => {
             expect(normalizeLocale('zh-CN')).toBe('zh-Hans')
-            expect(normalizeLocale('en-US')).toBe('default')
-            expect(normalizeLocale('en')).toBe('default')
+            expect(normalizeLocale('en-US')).toBe('en-US')
+            expect(normalizeLocale('en')).toBe('en-US')
         })
 
         it('should use prefix match if mapping fails', () => {
@@ -69,13 +72,13 @@ describe('server/utils/locale.ts', () => {
         it('should parse multiple languages with q-values', () => {
             const result = parseAcceptLanguage('zh-CN;q=0.9, en;q=0.8')
             expect(result[0]).toBe('zh-Hans')
-            expect(result[1]).toBe('default')
+            expect(result[1]).toBe('en-US')
         })
 
-        it('should sort by q-value', () => {
+        it('sort by q-value', () => {
             const result = parseAcceptLanguage('en;q=0.8, zh-CN;q=0.9')
             expect(result[0]).toBe('zh-Hans')
-            expect(result[1]).toBe('default')
+            expect(result[1]).toBe('en-US')
         })
 
         it('should return default if empty', () => {
@@ -98,7 +101,7 @@ describe('server/utils/locale.ts', () => {
 
         it('should check alternative cookie names', () => {
             vi.mocked(parseCookies).mockReturnValue({ language: 'en-US' })
-            expect(getLocaleFromCookie({} as any)).toBe('default')
+            expect(getLocaleFromCookie({} as any)).toBe('en-US')
 
             vi.mocked(parseCookies).mockReturnValue({ lang: 'pt-PT' })
             expect(getLocaleFromCookie({} as any)).toBe('pt-PT')
@@ -154,7 +157,7 @@ describe('server/utils/locale.ts', () => {
                 return undefined
             })
             const event = {} as H3Event
-            expect(getLocaleFromHeaders(event)).toBe('default')
+            expect(getLocaleFromHeaders(event)).toBe('en-US')
         })
 
         it('should return default if no headers', () => {
@@ -188,7 +191,7 @@ describe('server/utils/locale.ts', () => {
                 return undefined
             })
             const event = {} as H3Event
-            expect(detectUserLocale(event)).toBe('default')
+            expect(detectUserLocale(event)).toBe('en-US')
         })
 
         it('should handle errors', () => {
@@ -229,7 +232,7 @@ describe('server/utils/locale.ts', () => {
 
         it('should check alternative query params', () => {
             const request = new Request('http://localhost/?lang=en-US')
-            expect(getUserLocale(request)).toBe('default')
+            expect(getUserLocale(request)).toBe('en-US')
 
             const request2 = new Request('http://localhost/?language=fr-FR')
             expect(getUserLocale(request2)).toBe('fr-FR')
@@ -287,7 +290,7 @@ describe('server/utils/locale.ts', () => {
                 url: 'http://localhost/',
                 headers,
             } as any
-            expect(getUserLocale(request)).toBe('default')
+            expect(getUserLocale(request)).toBe('en-US')
         })
 
         it('should get locale from custom headers', () => {
@@ -334,6 +337,36 @@ describe('server/utils/locale.ts', () => {
         it('should handle errors', () => {
             const request = { url: 'invalid' } as any
             expect(getUserLocale(request)).toBe(DEFAULT_LOCALE)
+        })
+    })
+
+    describe('toProjectLocale', () => {
+        it('should map zh-Hans to zh-CN', () => {
+            expect(toProjectLocale('zh-Hans')).toBe('zh-CN')
+        })
+
+        it('should map default to en-US', () => {
+            expect(toProjectLocale('default')).toBe('en-US')
+        })
+
+        it('should map en-US to en-US', () => {
+            expect(toProjectLocale('en-US')).toBe('en-US')
+        })
+
+        it('should return original if no mapping', () => {
+            expect(toProjectLocale('ja-JP')).toBe('ja-JP')
+        })
+    })
+
+    describe('getLocaleFromQuery', () => {
+        it('should return locale from query', () => {
+            vi.mocked(getQuery).mockReturnValue({ lang: 'en-US' })
+            expect(getLocaleFromQuery({} as H3Event)).toBe('en-US')
+        })
+
+        it('should return null if no query', () => {
+            vi.mocked(getQuery).mockReturnValue({})
+            expect(getLocaleFromQuery({} as H3Event)).toBeNull()
         })
     })
 })
