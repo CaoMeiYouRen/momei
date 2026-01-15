@@ -96,8 +96,24 @@ const first = ref((page.value - 1) * limit.value)
 const { data: tagData, pending: tagPending, error: tagError } = await useAppFetch<any>(() => `/api/tags/slug/${slug.value}`)
 const tag = computed(() => tagData.value?.data)
 
+// 2. Fetch Posts with this tag
+const { data: postsData, pending: postsPending, error: postsError } = await useAppFetch<any>('/api/posts', {
+    query: {
+        page,
+        limit,
+        tag: slug,
+        status: 'published',
+    },
+    watch: [page, slug],
+})
+
+const posts = computed(() => postsData.value?.data?.items || [])
+const total = computed(() => postsData.value?.data?.total || 0)
+const totalPages = computed(() => postsData.value?.data?.totalPages || 0)
+
+// Combined SEO and Head Metadata
 useHead(() => ({
-    title: tag.value?.name ? `#${tag.value.name} - ${t('common.tag')}` : undefined,
+    title: tag.value?.name ? `#${tag.value.name} - ${t('common.tag')}` : t('pages.posts.title'),
     link: tag.value
         ? [
                 {
@@ -121,41 +137,12 @@ watch(tag, (newTag) => {
     }
 }, { immediate: true })
 
-// 2. Fetch Posts with this tag
-const { data: postsData, pending: postsPending, error: postsError } = await useAppFetch<any>('/api/posts', {
-    query: {
-        page,
-        limit,
-        tag: slug,
-        status: 'published',
-    },
-    watch: [page, slug],
-})
-
-const posts = computed(() => postsData.value?.data?.items || [])
-const total = computed(() => postsData.value?.data?.total || 0)
-const totalPages = computed(() => postsData.value?.data?.totalPages || 0)
-
 const onPageChange = (event: any) => {
     page.value = event.page + 1
     first.value = event.first
     router.push({ query: { ...route.query, page: page.value } })
     window.scrollTo({ top: 0, behavior: 'smooth' })
 }
-
-useHead(() => ({
-    title: tag.value?.name ? `#${tag.value.name} - ${t('common.tag')}` : t('pages.posts.title'),
-    link: tag.value
-        ? [
-                {
-                    rel: 'alternate',
-                    type: 'application/rss+xml',
-                    title: `${tag.value.name} RSS`,
-                    href: `/feed/tag/${tag.value.slug}.xml`,
-                },
-            ]
-        : [],
-}))
 </script>
 
 <style lang="scss" scoped>
@@ -173,7 +160,7 @@ useHead(() => ({
         display: inline-block;
         padding: 0.25rem 0.75rem;
         background-color: var(--p-primary-color);
-        color: white;
+        color: var(--p-primary-contrast-color, #fff);
         border-radius: 2rem;
         font-size: 0.75rem;
         font-weight: 600;
@@ -181,7 +168,8 @@ useHead(() => ({
         margin-bottom: 1rem;
 
         &--tag {
-            background-color: var(--p-info-color);
+            background-color: var(--p-info-color, #2196f3);
+            color: #fff;
         }
     }
 

@@ -100,31 +100,6 @@ const first = ref((page.value - 1) * limit.value)
 const { data: categoryData, pending: categoryPending, error: categoryError } = await useAppFetch<any>(() => `/api/categories/slug/${slug.value}`)
 const category = computed(() => categoryData.value?.data)
 
-useHead(() => ({
-    title: category.value?.name ? `${category.value.name} - ${t('common.category')}` : undefined,
-    link: category.value
-        ? [
-                {
-                    rel: 'alternate',
-                    type: 'application/rss+xml',
-                    title: `${category.value.name} RSS`,
-                    href: `/feed/category/${category.value.slug}.xml`,
-                },
-            ]
-        : [],
-}))
-
-// Handle dynamic route translations for i18n language switcher
-watch(category, (newCat) => {
-    if (newCat?.translations) {
-        const params: Record<string, any> = {}
-        newCat.translations.forEach((tr: any) => {
-            params[tr.language] = { slug: tr.slug }
-        })
-        setI18nParams(params)
-    }
-}, { immediate: true })
-
 // 2. Fetch Posts in this category
 const { data: postsData, pending: postsPending, error: postsError } = await useAppFetch<any>('/api/posts', {
     query: {
@@ -140,13 +115,7 @@ const posts = computed(() => postsData.value?.data?.items || [])
 const total = computed(() => postsData.value?.data?.total || 0)
 const totalPages = computed(() => postsData.value?.data?.totalPages || 0)
 
-const onPageChange = (event: any) => {
-    page.value = event.page + 1
-    first.value = event.first
-    router.push({ query: { ...route.query, page: page.value } })
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-}
-
+// Combined SEO and Head Metadata
 useHead(() => ({
     title: category.value?.name ? `${category.value.name} - ${t('common.category')}` : t('pages.posts.title'),
     link: category.value
@@ -163,6 +132,24 @@ useHead(() => ({
         { name: 'description', content: category.value?.description || '' },
     ],
 }))
+
+// Handle dynamic route translations for i18n language switcher
+watch(category, (newCat) => {
+    if (newCat?.translations) {
+        const params: Record<string, any> = {}
+        newCat.translations.forEach((tr: any) => {
+            params[tr.language] = { slug: tr.slug }
+        })
+        setI18nParams(params)
+    }
+}, { immediate: true })
+
+const onPageChange = (event: any) => {
+    page.value = event.page + 1
+    first.value = event.first
+    router.push({ query: { ...route.query, page: page.value } })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -180,7 +167,7 @@ useHead(() => ({
         display: inline-block;
         padding: 0.25rem 0.75rem;
         background-color: var(--p-primary-color);
-        color: white;
+        color: var(--p-primary-contrast-color, #fff);
         border-radius: 2rem;
         font-size: 0.75rem;
         font-weight: 600;
