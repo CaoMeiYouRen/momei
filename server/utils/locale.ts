@@ -3,13 +3,25 @@
  * 用于检测和管理用户的语言偏好
  */
 
-import { type H3Event, parseCookies, getHeader, setCookie } from 'h3'
+import { type H3Event, parseCookies, getHeader, setCookie, getQuery } from 'h3'
 import { SUPPORTED_LOCALES, DEFAULT_LOCALE, FALLBACK_LOCALE, type SupportedLocale } from '@/utils/shared/locale'
 
 export { SUPPORTED_LOCALES, DEFAULT_LOCALE, FALLBACK_LOCALE, type SupportedLocale }
 
 /**
+ * 将支持的语言代码转换为项目内部使用的语言代码 (如数据库和 i18n 文件)
+ * zh-Hans -> zh-CN
+ * default -> en-US
+ * @param locale 支持的语言代码
+ * @returns 项目内部语言代码
+ */
+export function toProjectLocale(locale: string): string {
+    if (locale === 'zh-Hans') { return 'zh-CN' }
+    if (locale === 'default') { return 'en-US' }
+    return locale
+}
 
+/**
  * 语言代码映射表
  * 用于将常见的语言代码转换为支持的语言代码
  */
@@ -164,6 +176,31 @@ export function parseAcceptLanguage(acceptLanguage: string): SupportedLocale[] {
 }
 
 /**
+ * 从 URL 查询参数获取语言
+ * @param event H3Event 对象
+ * @returns 用户设置的语言或 null
+ */
+export function getLocaleFromQuery(event: H3Event): SupportedLocale | null {
+    try {
+        const query = getQuery(event)
+        const locale = (query.locale || query.lang || query.language) as string
+
+        if (locale && SUPPORTED_LOCALES.includes(locale as SupportedLocale)) {
+            return locale as SupportedLocale
+        }
+
+        if (locale) {
+            return normalizeLocale(locale)
+        }
+
+        return null
+    } catch (error) {
+        console.warn('Error parsing locale from query:', error)
+        return null
+    }
+}
+
+/**
  * 从 Cookie 获取用户设置的语言
  * @param event H3Event 对象
  * @returns 用户设置的语言或 null
@@ -220,11 +257,23 @@ export function getLocaleFromHeaders(event: H3Event): SupportedLocale {
 
 /**
  * 检测用户语言偏好
- * 优先级：Cookie > 自定义头部 > Accept-Language > 默认语言
+ * 优先级：查询参数 > Cookie > 自定义头部 > Accept-Language > 默认语言
  * @param event H3Event 对象
+ * @param options 配置选项
  * @returns 检测到的语言
  */
-export function detectUserLocale(event: H3Event): SupportedLocale {
+export function detectUserLocale(
+    event: H3Event,
+    options: { includeQuery?: boolean } = { includeQuery: true },
+): SupportedLocale {
+    // 0. 从查询参数获取（如果启用）
+    if (options.includeQuery) {
+        const queryLocale = getLocaleFromQuery(event)
+        if (queryLocale) {
+            return queryLocale
+        }
+    }
+
     // 1. 优先从 Cookie 获取用户明确设置的语言
     const cookieLocale = getLocaleFromCookie(event)
     if (cookieLocale) {
