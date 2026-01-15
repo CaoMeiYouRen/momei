@@ -1,7 +1,6 @@
 import { Not } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
-import { snowflake } from '@/server/utils/snowflake'
 
 export interface CategoryData {
     name: string
@@ -56,7 +55,7 @@ export async function createCategory(data: CategoryData): Promise<Category> {
         name: data.name,
         slug: data.slug,
         language: data.language,
-        translationId: data.translationId || snowflake.generateId(),
+        translationId: data.translationId || data.slug,
         description: data.description,
         parentId: data.parentId,
     })

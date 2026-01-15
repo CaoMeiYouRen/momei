@@ -1,6 +1,5 @@
 import { kebabCase } from 'lodash-es'
 import { Not } from 'typeorm'
-import { snowflake } from '@/server/utils/snowflake'
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
 import { generateRandomString } from '@/utils/shared/random'
@@ -45,7 +44,7 @@ export async function createTag(data: TagData): Promise<Tag> {
     tag.name = data.name
     tag.slug = data.slug
     tag.language = data.language
-    tag.translationId = data.translationId || snowflake.generateId()
+    tag.translationId = data.translationId || tag.slug
 
     return await tagRepo.save(tag)
 }

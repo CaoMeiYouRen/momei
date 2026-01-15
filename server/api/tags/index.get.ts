@@ -23,10 +23,11 @@ export default defineEventHandler(async (event) => {
     // Handle Aggregation
     if (query.aggregate) {
         const subQuery = tagRepo.createQueryBuilder('t2')
-            .select('MIN(t2.id)')
+            .select(`COALESCE(MIN(CASE WHEN t2.language = :prefLang THEN t2.id END), MIN(t2.id))`)
             .groupBy('COALESCE(t2.translationId, CAST(t2.id AS VARCHAR))')
 
         queryBuilder.andWhere(`tag.id IN (${subQuery.getQuery()})`)
+        queryBuilder.setParameter('prefLang', query.language || 'zh-CN')
         queryBuilder.setParameters(subQuery.getParameters())
     }
 
@@ -34,7 +35,7 @@ export default defineEventHandler(async (event) => {
         queryBuilder.andWhere('tag.name LIKE :search', { search: `%${query.search}%` })
     }
 
-    if (query.language) {
+    if (query.language && !query.aggregate) {
         queryBuilder.andWhere('tag.language = :language', { language: query.language })
     }
 

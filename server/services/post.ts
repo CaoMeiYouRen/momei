@@ -1,7 +1,6 @@
 import { kebabCase } from 'lodash-es'
 import type { z } from 'zod'
 import { ensureTags } from './tag'
-import { snowflake } from '@/server/utils/snowflake'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { Category } from '@/server/entities/category'
@@ -50,7 +49,7 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
         post.coverImage = body.coverImage ?? null
     }
     post.language = body.language
-    post.translationId = body.translationId || snowflake.generateId()
+    post.translationId = body.translationId || post.slug
 
     // Handle Category
     let targetCategoryId: string | null | undefined = undefined

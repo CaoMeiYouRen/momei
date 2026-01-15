@@ -24,10 +24,11 @@ export default defineEventHandler(async (event) => {
     // Handle Aggregation
     if (query.aggregate) {
         const subQuery = categoryRepo.createQueryBuilder('c2')
-            .select('MIN(c2.id)')
+            .select(`COALESCE(MIN(CASE WHEN c2.language = :prefLang THEN c2.id END), MIN(c2.id))`)
             .groupBy('COALESCE(c2.translationId, CAST(c2.id AS VARCHAR))')
 
         queryBuilder.andWhere(`category.id IN (${subQuery.getQuery()})`)
+        queryBuilder.setParameter('prefLang', query.language || 'zh-CN')
         queryBuilder.setParameters(subQuery.getParameters())
     }
 
@@ -39,7 +40,7 @@ export default defineEventHandler(async (event) => {
         queryBuilder.andWhere('category.parentId = :parentId', { parentId: query.parentId })
     }
 
-    if (query.language) {
+    if (query.language && !query.aggregate) {
         queryBuilder.andWhere('category.language = :language', { language: query.language })
     }
 

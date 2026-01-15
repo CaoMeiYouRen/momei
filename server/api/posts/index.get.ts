@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     // Handle Aggregation for Management Mode
     if (query.aggregate && query.scope === 'manage') {
         const subQuery = postRepo.createQueryBuilder('p2')
-            .select('MIN(p2.id)')
+            .select(`COALESCE(MIN(CASE WHEN p2.language = :prefLang THEN p2.id END), MIN(p2.id))`)
             .groupBy('COALESCE(p2.translationId, CAST(p2.id AS VARCHAR))')
 
         // Apply same primary filters to subquery to ensure consistency
@@ -37,6 +37,7 @@ export default defineEventHandler(async (event) => {
         }
 
         qb.andWhere(`post.id IN (${subQuery.getQuery()})`)
+        qb.setParameter('prefLang', query.language || 'zh-CN')
         qb.setParameters(subQuery.getParameters())
     }
 
@@ -64,6 +65,12 @@ export default defineEventHandler(async (event) => {
         if (query.status) {
             qb.andWhere('post.status = :status', { status: query.status })
         }
+
+        // If aggregating, we don't want strict language filtering at the top level
+        // because the aggregation logic already handles picking the preferred language.
+        if (query.language && !query.aggregate) {
+            qb.andWhere('post.language = :language', { language: query.language })
+        }
     } else {
         // Public Mode
         qb.andWhere('post.status = :status', { status: 'published' })
@@ -86,33 +93,29 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    if (query.language) {
-        if (query.scope === 'manage') {
-            qb.andWhere('post.language = :language', { language: query.language })
-        } else {
-            // Public Multi-language aggregation logic:
-            // 1. Show posts in the target language.
-            // 2. Show posts in other languages ONLY IF there is no version in the target language for that cluster.
-            // 3. Unique posts (translationId is null) are always shown.
-            qb.andWhere(new Brackets((sub: WhereExpressionBuilder) => {
-                sub.where('post.language = :language', { language: query.language })
-                    .orWhere(new Brackets((ss: WhereExpressionBuilder) => {
-                        ss.where('post.translationId IS NOT NULL')
-                            .andWhere('post.language != :language', { language: query.language })
-                            .andWhere((subQb: SelectQueryBuilder<any>) => {
-                                const existsQuery = subQb.subQuery()
-                                    .select('1')
-                                    .from(Post, 'p2')
-                                    .where('p2.translationId = post.translationId')
-                                    .andWhere('p2.language = :language', { language: query.language })
-                                    .andWhere('p2.status = :status', { status: 'published' })
-                                    .getQuery()
-                                return `NOT EXISTS ${existsQuery}`
-                            })
-                    }))
-                    .orWhere('post.translationId IS NULL')
-            }))
-        }
+    if (query.language && query.scope !== 'manage') {
+        // Public Multi-language aggregation logic:
+        // 1. Show posts in the target language.
+        // 2. Show posts in other languages ONLY IF there is no version in the target language for that cluster.
+        // 3. Unique posts (translationId is null) are always shown.
+        qb.andWhere(new Brackets((sub: WhereExpressionBuilder) => {
+            sub.where('post.language = :language', { language: query.language })
+                .orWhere(new Brackets((ss: WhereExpressionBuilder) => {
+                    ss.where('post.translationId IS NOT NULL')
+                        .andWhere('post.language != :language', { language: query.language })
+                        .andWhere((subQb: SelectQueryBuilder<any>) => {
+                            const existsQuery = subQb.subQuery()
+                                .select('1')
+                                .from(Post, 'p2')
+                                .where('p2.translationId = post.translationId')
+                                .andWhere('p2.language = :language', { language: query.language })
+                                .andWhere('p2.status = :status', { status: 'published' })
+                                .getQuery()
+                            return `NOT EXISTS ${existsQuery}`
+                        })
+                }))
+                .orWhere('post.translationId IS NULL')
+        }))
     }
 
     if (query.tagId) {
