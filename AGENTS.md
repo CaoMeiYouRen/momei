@@ -182,13 +182,28 @@ commit message 使用中文描述变更内容。
 1.  **上下文理解**: 在使用 Copilot 时，确保提供足够的上下文信息。
 2.  **必备上下文**：必须读取[项目规划](./docs/plan/roadmap.md)和[待办事项](./docs/plan/todo.md)，明确当前任务和目标。
 3.  **遵守规范**: 在分析任务属于哪个模块后，严格遵守相关[开发规范](./docs/standards/development.md)、[测试规范](./docs/standards/testing.md)、[API 规范](./docs/standards/api.md)、[UI 设计](./docs/design/ui.md)和[API 设计](./docs/design/api.md)。
-4.  **遵循 PDTFC 完整循环**：任何代码生成或修改任务必须经历计划需求(Plan)、生成代码(Do)、测试代码(Test)、修复错误(Fix)、提交代码(Commit)的闭合全流程。
-5.  **AI 智能体体系 (AI Agents System)**：项目定义了以下基础智能体，协作完成开发任务。详细指令以各智能体的技能文档为准：
-    -   **`@full-stack-developer` (全栈开发者)**: 驱动完整的 PDTFC 循环。集成 [代码编辑](.github/skills/nuxt-code-editor/SKILL.md)、[质量守卫](.github/skills/quality-guardian/SKILL.md)、[提交规范](.github/skills/conventional-committer/SKILL.md)及[上下文分析](.github/skills/context-analyzer/SKILL.md)能力。
-    -   **`@quality-guardian` (质量守卫)**: 负责代码 Lint、类型检查与规范审查。参考：[.github/skills/quality-guardian/SKILL.md](.github/skills/quality-guardian/SKILL.md)。
-    -   **`@test-engineer` (测试工程师)**: 负责测试驱动开发与高覆盖率逻辑实现。参考：[.github/skills/test-engineer/SKILL.md](.github/skills/test-engineer/SKILL.md)。
-    -   **`@code-reviewer` (代码审查者)**: 负责代码审查与安全审计，确保代码符合规范、逻辑严密且无安全漏洞。参考：[.github/skills/code-reviewer/SKILL.md](.github/skills/code-reviewer/SKILL.md)。
-    -   **`@documentation-specialist` (文档专家)**: 维护 `docs/` 下的设计与规划文档。**注意：禁止手动修改自动生成的 CHANGELOG.md**。参考：[.github/skills/documentation-specialist/SKILL.md](.github/skills/documentation-specialist/SKILL.md)。
+
+### 4. 遵循 PDTFC+ 完整循环 (功能开发与测试补充)
+
+任何代码生成或修改任务必须遵循迭代循环，**严禁**只开发功能而不写测试，或将一堆功能的测试积压到最后才写。
+
+1.  **Plan (计划)**: 包含设计更新和测试方案规划。
+2.  **Do (执行)**: 编写业务代码。
+3.  **Test (测试)**: 运行现有测试。**着重审查**新功能对旧测试的破坏性影响，判断是需要修复代码还是更新陈旧测试。
+4.  **Fix (修复)**: 确保所有现有指标达标。
+5.  **Commit (提交)**: 先行提交已验证的功能代码（避免“左脚踩右脚”的混淆）。
+6.  **Enhance (补充测试)**: 为新功能补充测试。对于一个模块或逻辑段落的告一段落，必须及时补充测试。
+7.  **Commit (提交测试)**: 提交新补充的测试用例。
+
+### 5. AI 智能体体系 (AI Agents System)
+
+项目定义了以下基础智能体，协作完成开发任务。详细指令以各智能体的技能文档为准：
+
+-   **`@full-stack-developer` (全栈开发者)**: 驱动完整的 PDTFC+ 循环。在功能实现后，**必须主动发起**对 `@test-engineer` 的调用以强化测试。
+-   **`@quality-guardian` (质量守卫)**: 负责代码 Lint、类型检查与规范审查。参考：[.github/skills/quality-guardian/SKILL.md](.github/skills/quality-guardian/SKILL.md)。
+-   **`@test-engineer` (测试工程师)**: 负责测试驱动开发与高覆盖率逻辑实现，配合全栈开发者完成“测试补充”阶段的任务。参考：[.github/skills/test-engineer/SKILL.md](.github/skills/test-engineer/SKILL.md)。
+-   **`@code-reviewer` (代码审查者)**: 负责代码审查与安全审计，确保代码符合规范、逻辑严密且无安全漏洞。重点审查破坏性测试的变更合理性。参考：[.github/skills/code-reviewer/SKILL.md](.github/skills/code-reviewer/SKILL.md)。
+-   **`@documentation-specialist` (文档专家)**: 维护 `docs/` 下的设计与规划文档。**注意：禁止手动修改自动生成的 CHANGELOG.md**。参考：[.github/skills/documentation-specialist/SKILL.md](.github/skills/documentation-specialist/SKILL.md)。
 
 ## 安全要求
 

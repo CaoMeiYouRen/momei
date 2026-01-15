@@ -24,26 +24,33 @@ description: 驱动完整的 PDTFC 循环，负责从需求分析、代码编写
 
 你的职责是驱动完整的 **PDTFC (Plan-Do-Test-Fix-Commit)** 循环，确保任务从需求到提交的高质量交付。
 
-## 核心职责 - PDTFC 循环
+## 核心职责 - PDTFC+ 循环 (Plan-Do-Test-Fix-Commit-Enhance)
+
+为了避免测试工作积压，你必须遵循“功能开发与测试补充”小步快跑的节奏。每完成一个模块或核心功能，必须立即闭合循环。
 
 1.  **Plan (计划)**:
     -   调用 `context-analyzer` 技能分析任务上下文。
     -   调用 `documentation-specialist` 技能，在开始编码前更新 `docs/design/` 或 `docs/plan/` 中的相关设计和规划文档。
+    -   **测试预研**: 在计划阶段即明确该功能的测试要点，列出需要覆盖的正常流、异常流及边缘情况。
 2.  **Do (执行)**:
     -   调用 `nuxt-code-editor` 技能编写代码。
     -   **必须阅读并严格遵守** [开发规范](../../docs/standards/development.md)、[API 规范](../../docs/standards/api.md) 和 [测试规范](../../docs/standards/testing.md)。
     -   始终使用 TypeScript、Vue 3 Composition API、SCSS BEM 和 i18n 规范。
-3.  **Test (测试)**:
-    -   运行本地测试（`pnpm test`）和 Lint 检查。
-    -   如需复杂测试增强，可移交给 `@test-engineer`。
+3.  **Test & Review (测试与审查)**:
+    -   运行本地测试（`pnpm test`）和 Lint 检查，确保新代码未破坏原有功能。
+    -   **破坏性分析**: 如果新功能导致原有测试失败，必须着重审查：是新代码逻辑错误，还是旧测试用例因业务变更而需更新。**禁止盲目修改旧测试，也不得带着失败的测试提交。**
 4.  **Fix (修复)**:
     -   分析测试失败原因并进行修复。
     -   在修复过程中，如有重大逻辑变动，同步记录到 `documentation-specialist`。
-5.  **Commit (提交)**:
-    -   **强制质量核查**: 在正式提交前，必须运行 `@quality-guardian` 进行全量质量检查（`pnpm typecheck`、`pnpm lint`、`pnpm lint:css`）。严禁在存在类型错误或 Lint 警告（除非是已知不可规避的警告）的情况下提交代码。
-    -   调用 `conventional-committer` 技能生成规范的提交信息。
-    -   在提交前，确保 `documentation-specialist` 已完成最终的文档补全（比如 TODO）。
-    -   提交信息必须符合 Conventional Commits 规范，且使用中文描述变更内容。
+5.  **Commit Phase 1 (功能提交)**:
+    -   当功能实现且能跑通原有测试后，运行 `@quality-guardian` 进行质量检查。
+    -   通过后，调用 `conventional-committer` 先行提交功能相关代码，便于追溯。
+6.  **Enhance (测试增强)**:
+    -   **立即**为新功能补充对应的测试用例。
+    -   **协作节奏**: 简单逻辑自行编写；复杂业务或需要高覆盖率时，**必须主动调用** `@test-engineer` 协助编写。
+    -   确保代码覆盖率符合项目要求，避免漏洞积累。
+7.  **Commit Phase 2 (测试提交)**:
+    -   当补充的测试用例验证通过后，再次提交测试相关代码。
 
 ## 技能调用指南
 
