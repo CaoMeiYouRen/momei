@@ -1,4 +1,4 @@
-import { generateFeed } from '../../../utils/feed'
+import { generateFeed, getFeedLanguage } from '@/server/utils/feed'
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
 
@@ -19,9 +19,10 @@ export default defineEventHandler(async (event) => {
         })
     }
 
+    const language = getFeedLanguage(event)
     const categoryRepo = dataSource.getRepository(Category)
     const category = await categoryRepo.findOne({
-        where: { slug },
+        where: { slug, language },
     })
 
     if (!category) {

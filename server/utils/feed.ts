@@ -14,17 +14,44 @@ interface FeedOptions {
     language?: string
 }
 
+export function getFeedLanguage(event: H3Event, explicitLanguage?: string): string {
+    // 优先级解析语言:
+    // 1. URL 查询参数: ?lang=... 或 ?language=...
+    // 2. 显式传递的 explicitLanguage (通常来自数据库路由)
+    // 3. Accept-Language 请求头
+    // 4. 兜底默认值: zh-CN
+    const query = getQuery(event)
+    const langQuery = (query.lang || query.language) as string
+
+    if (langQuery) { return langQuery }
+    if (explicitLanguage) { return explicitLanguage }
+
+    let headerLang = 'zh-CN'
+    const acceptLanguage = getRequestHeader(event, 'accept-language')
+    if (acceptLanguage) {
+        // 解析第一个首选语言，例如 "zh-CN,zh;q=0.9,en;q=0.8" -> "zh-CN"
+        const parts = acceptLanguage.split(',')
+        const firstPart = parts[0]
+        if (firstPart) {
+            const firstLang = firstPart.trim()
+            if (firstLang.toLowerCase().startsWith('en')) {
+                headerLang = 'en-US'
+            } else if (firstLang.toLowerCase().startsWith('ja')) {
+                headerLang = 'ja-JP'
+            } else {
+                headerLang = 'zh-CN'
+            }
+        }
+    }
+    return headerLang
+}
+
 export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
     const config = useRuntimeConfig()
     const siteUrl = (config.public.siteUrl as string) || 'https://momei.app'
     const appName = (config.public.appName as string) || '墨梅博客'
 
-    // Detect language: Query > Options > Header > Default
-    const query = getQuery(event)
-    const acceptLanguage = getRequestHeader(event, 'accept-language') || ''
-    const detectedLang = acceptLanguage.split(',')[0]?.split('-')[0] || 'zh' // simplified
-    const language = (query.language as string) || options.language || (detectedLang === 'en' ? 'en-US' : 'zh-CN')
-
+    const language = getFeedLanguage(event, options.language)
     const md = new MarkdownIt({
         html: true,
         linkify: true,
