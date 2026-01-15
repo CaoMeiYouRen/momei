@@ -14,6 +14,11 @@ vi.mock('ws', () => ({
     })),
 }))
 
+// 强制测试环境使用内存数据库
+vi.stubEnv('DATABASE_TYPE', 'sqlite')
+vi.stubEnv('DATABASE_PATH', ':memory:')
+vi.stubEnv('NODE_ENV', 'test')
+
 // 全局错误处理
 process.on('unhandledRejection', (reason) => {
     console.error('Unhandled Rejection:', reason)

@@ -38,10 +38,10 @@ describe('Search API', async () => {
         await tagRepo.save(tag)
 
         const postRepo = dataSource.getRepository(Post)
-        
+
         // 1. A pair of translated posts
         const translationId = generateRandomString(10)
-        
+
         const postZh = new Post()
         postZh.title = '你好世界'
         postZh.slug = 'hello-world-zh'
@@ -127,7 +127,7 @@ describe('Search API', async () => {
         } as any
 
         const result = await searchHandler(event)
-        
+
         // cluster 'hello-world' has zh and en versions.
         // language=zh-CN should return the zh version even if the keyword 'World' matches the English version.
         // Wait, the current implementation:
@@ -159,11 +159,11 @@ describe('Search API', async () => {
         // 1. postZh is in zh-CN -> kept. (But title '你好世界' doesn't match 'World')
         // 2. postEn is in en-US. It has a translationId. Does it have a version in zh-CN? Yes (postZh).
         //    So `NOT EXISTS` will find postZh, meaning postEn is EXCLUDED from the results.
-        
+
         // This means if I search 'World' (English word) while in Chinese locale:
         // I won't see the English post if a Chinese version exists.
         // BUT if the Chinese version doesn't contain the word 'World', I won't see anything for that cluster!
-        
+
         // This is a known trade-off in "Content Language" filtering vs "Interface Language".
         // Let's test if postOnlyEn is found.
         const event2 = {

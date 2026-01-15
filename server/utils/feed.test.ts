@@ -44,7 +44,7 @@ describe('Feed Generation Utility', async () => {
         await tagRepo.save(tag)
 
         const postRepo = dataSource.getRepository(Post)
-        
+
         // Post in ZH
         const postZh = new Post()
         postZh.title = 'RSS 中文文章'
@@ -103,7 +103,7 @@ describe('Feed Generation Utility', async () => {
             path: '/feed.xml?lang=en-US',
             query: { lang: 'en-US' },
             node: {
-                req: { headers: { } },
+                req: { headers: {} },
             },
         } as any
 
@@ -118,7 +118,7 @@ describe('Feed Generation Utility', async () => {
         const event = {
             path: '/feed/category/rss-tech',
             node: {
-                req: { headers: { } },
+                req: { headers: {} },
             },
         } as any
 
@@ -134,7 +134,7 @@ describe('Feed Generation Utility', async () => {
         const event = {
             path: '/feed/tag/feed-tag',
             node: {
-                req: { headers: { } },
+                req: { headers: {} },
             },
         } as any
 
