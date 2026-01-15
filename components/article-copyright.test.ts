@@ -32,7 +32,18 @@ describe('ArticleCopyright', () => {
 
         // Should have a link to the license
         const links = wrapper.findAll('.article-copyright__link')
-        expect(links.some((l) => l.attributes('href')?.includes('creativecommons.org'))).toBe(true)
+        expect(
+            links.some((l) => {
+                const href = l.attributes('href')
+                if (!href) return false
+                try {
+                    const url = new URL(href)
+                    return url.host === 'creativecommons.org'
+                } catch {
+                    return false
+                }
+            }),
+        ).toBe(true)
     })
 
     it('falls back to default license from config', async () => {
