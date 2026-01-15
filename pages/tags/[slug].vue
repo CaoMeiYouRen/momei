@@ -26,7 +26,16 @@
                     {{ $t('common.tag') }}
                 </div>
                 <h1 class="taxonomy-page__title">
-                    #{{ tag.name }}
+                    <span>#{{ tag.name }}</span>
+                    <a
+                        :href="`/feed/tag/${tag.slug}.xml`"
+                        target="_blank"
+                        class="taxonomy-page__rss"
+                        :title="$t('common.rss')"
+                        aria-label="RSS Feed"
+                    >
+                        <RssIcon class="taxonomy-page__rss-icon" />
+                    </a>
                 </h1>
                 <div class="taxonomy-page__meta">
                     <i class="pi pi-file-edit" />
@@ -87,6 +96,20 @@ const first = ref((page.value - 1) * limit.value)
 const { data: tagData, pending: tagPending, error: tagError } = await useAppFetch<any>(() => `/api/tags/slug/${slug.value}`)
 const tag = computed(() => tagData.value?.data)
 
+useHead(() => ({
+    title: tag.value?.name ? `#${tag.value.name} - ${t('common.tag')}` : undefined,
+    link: tag.value
+        ? [
+                {
+                    rel: 'alternate',
+                    type: 'application/rss+xml',
+                    title: `${tag.value.name} RSS`,
+                    href: `/feed/tag/${tag.value.slug}.xml`,
+                },
+            ]
+        : [],
+}))
+
 // Handle dynamic route translations for i18n language switcher
 watch(tag, (newTag) => {
     if (newTag?.translations) {
@@ -120,9 +143,19 @@ const onPageChange = (event: any) => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-useHead({
-    title: computed(() => tag.value ? `#${tag.value.name} - ${t('pages.posts.title')}` : t('pages.posts.title')),
-})
+useHead(() => ({
+    title: tag.value?.name ? `#${tag.value.name} - ${t('common.tag')}` : t('pages.posts.title'),
+    link: tag.value
+        ? [
+                {
+                    rel: 'alternate',
+                    type: 'application/rss+xml',
+                    title: `${tag.value.name} RSS`,
+                    href: `/feed/tag/${tag.value.slug}.xml`,
+                },
+            ]
+        : [],
+}))
 </script>
 
 <style lang="scss" scoped>
@@ -158,6 +191,33 @@ useHead({
         color: var(--p-text-color);
         margin-bottom: 1rem;
         line-height: 1.2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    &__rss {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #f26522;
+        font-size: 1.5rem;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        flex-shrink: 0;
+
+        &:hover {
+            transform: scale(1.1);
+            background-color: rgba(#f26522, 0.1);
+            color: #ff7f41;
+        }
+
+        &-icon {
+            font-size: 1.25rem;
+        }
     }
 
     &__meta {

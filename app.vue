@@ -23,7 +23,15 @@ useHead({
         lang: head.value.htmlAttrs?.lang,
         dir: head.value.htmlAttrs?.dir as 'auto' | 'ltr' | 'rtl' | undefined,
     },
-    link: [...(head.value.link || [])],
+    link: [
+        ...(head.value.link || []),
+        {
+            rel: 'alternate',
+            type: 'application/rss+xml',
+            title: 'RSS Feed',
+            href: '/feed.xml',
+        },
+    ],
     meta: [...(head.value.meta || [])],
 })
 

@@ -27,7 +27,16 @@
                     {{ $t('common.category') }}
                 </div>
                 <h1 class="taxonomy-page__title">
-                    {{ category.name }}
+                    <span>{{ category.name }}</span>
+                    <a
+                        :href="`/feed/category/${category.slug}.xml`"
+                        target="_blank"
+                        class="taxonomy-page__rss"
+                        :title="$t('common.rss')"
+                        aria-label="RSS Feed"
+                    >
+                        <RssIcon class="taxonomy-page__rss-icon" />
+                    </a>
                 </h1>
                 <p v-if="category.description" class="taxonomy-page__description">
                     {{ category.description }}
@@ -91,6 +100,20 @@ const first = ref((page.value - 1) * limit.value)
 const { data: categoryData, pending: categoryPending, error: categoryError } = await useAppFetch<any>(() => `/api/categories/slug/${slug.value}`)
 const category = computed(() => categoryData.value?.data)
 
+useHead(() => ({
+    title: category.value?.name ? `${category.value.name} - ${t('common.category')}` : undefined,
+    link: category.value
+        ? [
+                {
+                    rel: 'alternate',
+                    type: 'application/rss+xml',
+                    title: `${category.value.name} RSS`,
+                    href: `/feed/category/${category.value.slug}.xml`,
+                },
+            ]
+        : [],
+}))
+
 // Handle dynamic route translations for i18n language switcher
 watch(category, (newCat) => {
     if (newCat?.translations) {
@@ -124,12 +147,22 @@ const onPageChange = (event: any) => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-useHead({
-    title: computed(() => category.value ? `${category.value.name} - ${t('pages.posts.title')}` : t('pages.posts.title')),
+useHead(() => ({
+    title: category.value?.name ? `${category.value.name} - ${t('common.category')}` : t('pages.posts.title'),
+    link: category.value
+        ? [
+                {
+                    rel: 'alternate',
+                    type: 'application/rss+xml',
+                    title: `${category.value.name} RSS`,
+                    href: `/feed/category/${category.value.slug}.xml`,
+                },
+            ]
+        : [],
     meta: [
-        { name: 'description', content: computed(() => category.value?.description || '') },
+        { name: 'description', content: category.value?.description || '' },
     ],
-})
+}))
 </script>
 
 <style lang="scss" scoped>
@@ -161,6 +194,33 @@ useHead({
         color: var(--p-text-color);
         margin-bottom: 1rem;
         line-height: 1.2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    &__rss {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #f26522;
+        font-size: 1.5rem;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        flex-shrink: 0;
+
+        &:hover {
+            transform: scale(1.1);
+            background-color: rgba(#f26522, 0.1);
+            color: #ff7f41;
+        }
+
+        &-icon {
+            font-size: 1.25rem;
+        }
     }
 
     &__description {
