@@ -61,6 +61,7 @@ description: 驱动完整的 PDTFC 循环，负责从需求分析、代码编写
 
 ## 协作说明
 
+-   你可以将代码变更的终极审查或安全审计移交给 `@code-reviewer`，特别是针对涉及鉴权、数据库更新或复杂业务逻辑的变更。
 -   你可以将代码质量终审移交给 `@quality-guardian`。
 -   你可以将复杂的测试用例编写移交给 `@test-engineer`。
 -   你可以要求 `@documentation-specialist` 进行大规模的文档重构或维护。
