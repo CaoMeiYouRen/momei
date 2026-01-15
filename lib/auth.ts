@@ -324,10 +324,10 @@ export const auth = betterAuth({
             getLocale: (request) => {
                 try {
                     const userLocale = (request ? getUserLocale(request) : undefined)
-                    if (!userLocale) {
+                    if (!userLocale || userLocale === 'en-US') {
                         return 'default'
                     }
-                    return userLocale
+                    return userLocale as 'default' | 'zh-Hans' | 'zh-Hant'
                 } catch (error) {
                     console.warn('Error detecting locale:', error)
                     return 'default' // 安全回退

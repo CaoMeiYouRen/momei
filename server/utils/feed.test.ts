@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, vi } from 'vitest'
+import { describe, it, expect, beforeAll } from 'vitest'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { User } from '@/server/entities/user'
@@ -95,7 +95,7 @@ describe('Feed Generation Utility', async () => {
         expect(feed.options.language).toBe('zh-CN')
         // Should only contain the ZH post
         expect(feed.items.length).toBe(1)
-        expect(feed.items[0].title).toBe('RSS 中文文章')
+        expect(feed.items[0]!.title).toBe('RSS 中文文章')
     })
 
     it('should generate feed for specific language en-US', async () => {
@@ -127,7 +127,7 @@ describe('Feed Generation Utility', async () => {
             language: 'en-US',
         })
         expect(feed.items.length).toBe(1)
-        expect(feed.items[0].title).toBe('RSS English Post')
+        expect(feed.items[0]!.title).toBe('RSS English Post')
     })
 
     it('should filter by tag', async () => {
@@ -143,6 +143,6 @@ describe('Feed Generation Utility', async () => {
             language: 'en-US',
         })
         expect(feed.items.length).toBe(1)
-        expect(feed.items[0].title).toBe('RSS English Post')
+        expect(feed.items[0]!.title).toBe('RSS English Post')
     })
 })

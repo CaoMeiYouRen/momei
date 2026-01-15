@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeAll, vi } from 'vitest'
+import { describe, it, expect, beforeAll } from 'vitest'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { User } from '@/server/entities/user'
 import { Category } from '@/server/entities/category'
 import { Tag } from '@/server/entities/tag'
+import { PostStatus } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
 import searchHandler from '@/server/api/search.get'
 
@@ -48,7 +49,7 @@ describe('Search API', async () => {
         postZh.content = '这是中文内容'
         postZh.summary = '中文摘要'
         postZh.language = 'zh-CN'
-        postZh.status = 'published'
+        postZh.status = PostStatus.PUBLISHED
         postZh.author = author
         postZh.translationId = translationId
         postZh.publishedAt = new Date()
@@ -60,7 +61,7 @@ describe('Search API', async () => {
         postEn.content = 'This is English content'
         postEn.summary = 'English summary'
         postEn.language = 'en-US'
-        postEn.status = 'published'
+        postEn.status = PostStatus.PUBLISHED
         postEn.author = author
         postEn.translationId = translationId
         postEn.publishedAt = new Date()
@@ -72,7 +73,7 @@ describe('Search API', async () => {
         postOnlyEn.slug = 'unique-en'
         postOnlyEn.content = 'Unique content'
         postOnlyEn.language = 'en-US'
-        postOnlyEn.status = 'published'
+        postOnlyEn.status = PostStatus.PUBLISHED
         postOnlyEn.author = author
         postOnlyEn.category = category
         postOnlyEn.tags = [tag]
@@ -87,7 +88,7 @@ describe('Search API', async () => {
 
         const result = await searchHandler(event)
         expect(result.code).toBe(200)
-        expect(result.data.items.some((i: any) => i.title === '你好世界')).toBe(true)
+        expect(result.data!.items.some((i: any) => i.title === '你好世界')).toBe(true)
     })
 
     it('should search by keyword in summary', async () => {
@@ -96,7 +97,7 @@ describe('Search API', async () => {
         } as any
 
         const result = await searchHandler(event)
-        expect(result.data.items.some((i: any) => i.summary === '中文摘要')).toBe(true)
+        expect(result.data!.items.some((i: any) => i.summary === '中文摘要')).toBe(true)
     })
 
     it('should filter by category slug', async () => {
@@ -105,8 +106,8 @@ describe('Search API', async () => {
         } as any
 
         const result = await searchHandler(event)
-        expect(result.data.items.every((i: any) => i.category?.slug === 'tech')).toBe(true)
-        expect(result.data.items.length).toBeGreaterThan(0)
+        expect(result.data!.items.every((i: any) => i.category?.slug === 'tech')).toBe(true)
+        expect(result.data!.items.length).toBeGreaterThan(0)
     })
 
     it('should filter by tags', async () => {
@@ -115,8 +116,8 @@ describe('Search API', async () => {
         } as any
 
         const result = await searchHandler(event)
-        expect(result.data.items.length).toBe(1)
-        expect(result.data.items[0].title).toBe('Unique English Post')
+        expect(result.data!.items.length).toBe(1)
+        expect(result.data!.items[0]!.title).toBe('Unique English Post')
     })
 
     it('should handle multi-language deduplication (prefer zh-CN)', async () => {
@@ -126,8 +127,8 @@ describe('Search API', async () => {
             query: { q: 'World', language: 'zh-CN' },
         } as any
 
-        const result = await searchHandler(event)
-
+        await searchHandler(event)
+        // ... (remaining comments)
         // cluster 'hello-world' has zh and en versions.
         // language=zh-CN should return the zh version even if the keyword 'World' matches the English version.
         // Wait, the current implementation:
@@ -170,7 +171,7 @@ describe('Search API', async () => {
             query: { q: 'Unique', language: 'zh-CN' },
         } as any
         const result2 = await searchHandler(event2)
-        expect(result2.data.items.some((i: any) => i.title === 'Unique English Post')).toBe(true)
+        expect(result2.data!.items.some((i: any) => i.title === 'Unique English Post')).toBe(true)
         // postOnlyEn is shown because its translationId is NULL.
     })
 })
