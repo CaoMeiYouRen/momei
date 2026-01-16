@@ -160,11 +160,21 @@
 
                 <div class="form-group">
                     <label for="slug" class="form-label">{{ $t('pages.admin.posts.slug') }}</label>
-                    <InputText
-                        id="slug"
-                        v-model="post.slug"
-                        :class="{'p-invalid': errors.slug}"
-                    />
+                    <InputGroup>
+                        <InputText
+                            id="slug"
+                            v-model="post.slug"
+                            :class="{'p-invalid': errors.slug}"
+                        />
+                        <Button
+                            v-tooltip="$t('pages.admin.posts.ai.generate_slug')"
+                            icon="pi pi-sparkles"
+                            severity="secondary"
+                            text
+                            :loading="aiLoading.slug"
+                            @click="suggestSlug"
+                        />
+                    </InputGroup>
                     <small v-if="errors.slug" class="p-error">{{ errors.slug }}</small>
                     <small v-else class="form-hint">{{ $t('pages.admin.posts.slug_hint') }}</small>
                 </div>
@@ -385,6 +395,7 @@ const aiLoading = ref({
     title: false,
     summary: false,
     tags: false,
+    slug: false,
 })
 const titleSuggestions = ref<string[]>([])
 const titleOp = ref<any>(null)
@@ -422,6 +433,30 @@ const suggestTitles = async (event: any) => {
 const selectTitle = (suggestion: string) => {
     post.value.title = suggestion
     titleOp.value?.hide()
+}
+
+const suggestSlug = async () => {
+    if (!post.value.title || !post.value.content || post.value.content.length < 10) {
+        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('pages.admin.posts.content_too_short'), life: 3000 })
+        return
+    }
+
+    aiLoading.value.slug = true
+    try {
+        const { data } = await $fetch('/api/ai/suggest-slug', {
+            method: 'POST',
+            body: {
+                title: post.value.title,
+                content: post.value.content,
+            },
+        })
+        post.value.slug = data as string
+    } catch (error) {
+        console.error('AI Slug error:', error)
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
+    } finally {
+        aiLoading.value.slug = false
+    }
 }
 
 const suggestSummary = async () => {

@@ -30,6 +30,24 @@ export class AIService {
         }
     }
 
+    static async suggestSlug(title: string, content: string) {
+        const provider = getAIProvider()
+        const prompt = formatPrompt(AI_PROMPTS.SUGGEST_SLUG, {
+            title,
+            content: content.slice(0, 2000),
+        })
+
+        const response = await provider.chat({
+            messages: [
+                { role: 'system', content: 'You are a professional blog editor. You help authors create concise, SEO-friendly URL slugs.' },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.3,
+        })
+
+        return response.content.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-')
+    }
+
     static async summarize(content: string, maxLength: number = 200, language: string = 'zh-CN') {
         const provider = getAIProvider()
         const prompt = formatPrompt(AI_PROMPTS.SUMMARIZE, {
