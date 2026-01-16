@@ -118,6 +118,10 @@ export default defineEventHandler(async (event) => {
         }))
     }
 
+    if (query.translationId) {
+        qb.andWhere('post.translationId = :translationId', { translationId: query.translationId })
+    }
+
     if (query.tagId) {
         qb.innerJoin('post.tags', 'tag', 'tag.id = :tagId', { tagId: query.tagId })
     } else if (query.tag) {

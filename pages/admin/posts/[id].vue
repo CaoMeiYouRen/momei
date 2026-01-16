@@ -155,12 +155,6 @@
                             fluid
                             @complete="searchPosts"
                         />
-                        <Button
-                            icon="pi pi-refresh"
-                            severity="secondary"
-                            text
-                            @click="syncTranslationIdFromSlug"
-                        />
                     </InputGroup>
                 </div>
 
@@ -484,20 +478,7 @@ const categories = ref<{ id: string, name: string }[]>([])
 const errors = ref<Record<string, string>>({})
 const isDragging = ref(false)
 
-const syncTranslationIdFromSlug = () => {
-    if (post.value.slug) {
-        post.value.translationId = post.value.slug
-    }
-}
-
 const oldSlugValue = ref(post.value.slug)
-watch(() => post.value.slug, (newSlug) => {
-    // 仅在新建且 translationId 为空或等于旧 slug 时更新
-    if (isNew.value && (!post.value.translationId || post.value.translationId === oldSlugValue.value)) {
-        post.value.translationId = newSlug
-    }
-    oldSlugValue.value = newSlug
-})
 
 const postsForTranslation = ref<any[]>([])
 const searchPosts = async (event: { query: string }) => {
@@ -580,6 +561,10 @@ const loadPost = async () => {
 }
 
 const fetchTranslations = async (translationId: string) => {
+    if (!translationId || !translationId.trim()) {
+        translations.value = []
+        return
+    }
     try {
         const { data } = await $fetch<any>('/api/posts', {
             query: { translationId, limit: 10, scope: 'manage' },
