@@ -22,6 +22,26 @@
                     class="title-input"
                     :class="{'p-invalid': errors.title}"
                 />
+                <Button
+                    v-tooltip="$t('pages.admin.posts.ai.suggest_titles')"
+                    icon="pi pi-sparkles"
+                    text
+                    rounded
+                    :loading="aiLoading.title"
+                    @click="suggestTitles"
+                />
+                <OverlayPanel ref="titleOp" class="title-suggestions-panel">
+                    <ul class="suggestion-list">
+                        <li
+                            v-for="(suggestion, index) in titleSuggestions"
+                            :key="index"
+                            class="suggestion-item"
+                            @click="selectTitle(suggestion)"
+                        >
+                            {{ suggestion }}
+                        </li>
+                    </ul>
+                </OverlayPanel>
                 <small v-if="errors.title" class="p-error">{{ errors.title }}</small>
                 <Tag
                     v-if="post.status"
@@ -168,7 +188,18 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="tags" class="form-label">{{ $t('common.tags') }}</label>
+                    <div class="flex items-center justify-between mb-2">
+                        <label for="tags" class="form-label mb-0">{{ $t('common.tags') }}</label>
+                        <Button
+                            v-tooltip="$t('pages.admin.posts.ai.recommend_tags')"
+                            icon="pi pi-sparkles"
+                            size="small"
+                            text
+                            rounded
+                            :loading="aiLoading.tags"
+                            @click="recommendTags"
+                        />
+                    </div>
                     <AutoComplete
                         v-model="selectedTags"
                         multiple
@@ -194,7 +225,18 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="summary" class="form-label">{{ $t('common.summary') }}</label>
+                    <div class="flex items-center justify-between mb-2">
+                        <label for="summary" class="form-label mb-0">{{ $t('common.summary') }}</label>
+                        <Button
+                            v-tooltip="$t('pages.admin.posts.ai.generate_summary')"
+                            icon="pi pi-sparkles"
+                            size="small"
+                            text
+                            rounded
+                            :loading="aiLoading.summary"
+                            @click="suggestSummary"
+                        />
+                    </div>
                     <Textarea
                         id="summary"
                         v-model="post.summary"
@@ -345,6 +387,98 @@ const filteredTags = ref<string[]>([])
 const allTags = ref<string[]>([]) // Should be loaded from API
 
 const settingsVisible = ref(false)
+const aiLoading = ref({
+    title: false,
+    summary: false,
+    tags: false,
+})
+const titleSuggestions = ref<string[]>([])
+const titleOp = ref<any>(null)
+
+const toggleTitleSuggestions = (event: any) => {
+    titleOp.value?.toggle(event)
+}
+
+const suggestTitles = async (event: any) => {
+    if (!post.value.content || post.value.content.length < 10) {
+        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('pages.admin.posts.content_too_short'), life: 3000 })
+        return
+    }
+
+    aiLoading.value.title = true
+    try {
+        const { data } = await $fetch('/api/admin/ai/suggest-titles', {
+            method: 'POST',
+            body: { content: post.value.content },
+        })
+        titleSuggestions.value = (data as string[]) || []
+        if (titleSuggestions.value.length > 0) {
+            toggleTitleSuggestions(event)
+        }
+    } catch (error) {
+        console.error('AI Title Suggestion error:', error)
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
+    } finally {
+        aiLoading.value.title = false
+    }
+}
+
+const selectTitle = (suggestion: string) => {
+    post.value.title = suggestion
+    titleOp.value?.hide()
+}
+
+const suggestSummary = async () => {
+    if (!post.value.content || post.value.content.length < 10) {
+        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('pages.admin.posts.content_too_short'), life: 3000 })
+        return
+    }
+
+    aiLoading.value.summary = true
+    try {
+        const { data } = await $fetch('/api/admin/ai/summarize', {
+            method: 'POST',
+            body: { content: post.value.content },
+        })
+        post.value.summary = data as string
+    } catch (error) {
+        console.error('AI Summary error:', error)
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
+    } finally {
+        aiLoading.value.summary = false
+    }
+}
+
+const recommendTags = async () => {
+    if (!post.value.content || post.value.content.length < 10) {
+        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('pages.admin.posts.content_too_short'), life: 3000 })
+        return
+    }
+
+    aiLoading.value.tags = true
+    try {
+        const { data } = await $fetch('/api/admin/ai/recommend-tags', {
+            method: 'POST',
+            body: {
+                content: post.value.content,
+                existingTags: allTags.value,
+            },
+        })
+        const recommended = data as string[]
+        // Add only those not already selected
+        recommended.forEach((tag) => {
+            if (!selectedTags.value.includes(tag)) {
+                selectedTags.value.push(tag)
+            }
+        })
+    } catch (error) {
+        console.error('AI Tags error:', error)
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
+    } finally {
+        aiLoading.value.tags = false
+    }
+}
+
 const saving = ref(false)
 const categories = ref<{ id: string, name: string }[]>([])
 const errors = ref<Record<string, string>>({})
@@ -762,6 +896,31 @@ onMounted(() => {
         color: var(--p-primary-500);
         font-weight: bold;
         text-shadow: 0 2px 4px rgb(0 0 0 / 0.5);
+    }
+}
+
+.title-suggestions-panel {
+    max-width: 400px;
+
+    .suggestion-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .suggestion-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: var(--p-surface-hover);
+        }
+
+        & + & {
+            border-top: 1px solid var(--p-surface-border);
+        }
     }
 }
 

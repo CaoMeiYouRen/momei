@@ -217,7 +217,14 @@
                 "translation_group": "Translation Association",
                 "translation_group_hint": "Link different language versions of the same post to enable switcher on front end",
                 "title_required": "Please enter post title",
-                "save_current_first": "Please save the current post first before creating a translation"
+                "save_current_first": "Please save the current post first before creating a translation",
+                "ai": {
+                    "suggest_titles": "AI Title Suggestions",
+                    "generate_summary": "AI Generate Summary",
+                    "recommend_tags": "AI Recommend Tags"
+                },
+                "content_too_short": "Article content too short for analysis",
+                "ai_error": "AI service call failed"
             },
             "categories": {
                 "title": "Categories Management",

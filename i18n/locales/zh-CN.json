@@ -216,7 +216,14 @@
                 "translation_group": "关联其他语言版本",
                 "translation_group_hint": "关联不同语言版本的同一篇文章，启用前台语言切换关联",
                 "title_required": "请输入文章标题",
-                "save_current_first": "请先保存当前文章，然后才能创建其翻译版本"
+                "save_current_first": "请先保存当前文章，然后才能创建其翻译版本",
+                "ai": {
+                    "suggest_titles": "AI 标题建议",
+                    "generate_summary": "AI 生成摘要",
+                    "recommend_tags": "AI 推荐标签"
+                },
+                "content_too_short": "文章内容太短，无法分析",
+                "ai_error": "AI 服务调用失败"
             },
             "categories": {
                 "title": "分类管理",
