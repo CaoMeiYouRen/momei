@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
         throw createError({
             statusCode: 400,
             statusMessage: 'Invalid parameters',
-            data: result.error.format(),
+            data: z.treeifyError(result.error),
         })
     }
 
