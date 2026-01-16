@@ -196,6 +196,7 @@ const handleTranslationClick = async (
             path: newPostPath,
             query: {
                 language: langCode,
+                sourceId: post.value.id, // 使用当前文章的真实 ID 作为来源获取数据
                 translationId: post.value.translationId || post.value.id,
                 autoTranslate: autoTranslate ? 'true' : undefined,
             },
@@ -296,27 +297,31 @@ const handlePreview = () => {
 const loadPost = async () => {
     if (isNew.value) {
         oldSlugValue.value = ''
-        // If it's a new translation, we might want to pre-fill some fields from a source post
-        if (route.query.translationId) {
+        // 如果是新翻译版本，我们从源文章预填一些字段
+        const sourceId = route.query.sourceId as string
+        if (sourceId) {
             try {
-                const { data } = await $fetch<any>(
-                    `/api/posts/${route.query.translationId}`,
-                )
+                const { data } = await $fetch<any>(`/api/posts/${sourceId}`)
                 if (data) {
-                    // Pre-fill categories, tags, etc.
+                    // 预填分类、标签等
                     post.value.categoryId = data.category?.id || null
                     post.value.tags = data.tags?.map((t: any) => t.name) || []
                     post.value.translationId = data.translationId || data.id
-                    post.value.slug = data.slug // Suggest same slug
+                    post.value.slug = data.slug // 建议相同的 slug
                     post.value.copyright = data.copyright
 
-                    // If autoTranslate is requested, fetch content and translate
+                    // 如果请求了自动翻译，则获取内容并翻译
                     if (route.query.autoTranslate === 'true' && data.content) {
                         translateContent(post.value.language, data.content)
                     }
                 }
-            } catch (e) {}
-            // Also fetch other translations for the bar
+            } catch (e) {
+                console.error('Failed to pre-fill from source post', e)
+            }
+        }
+
+        // 即使没有 sourceId，如果带了 translationId 也可以尝试拉取已有的翻译列表
+        if (route.query.translationId) {
             fetchTranslations(route.query.translationId as string)
         }
         return
