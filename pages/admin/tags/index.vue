@@ -145,13 +145,23 @@
                     >
                         <div class="field mt-4">
                             <label :for="'name_' + l.code">{{ $t('common.name') }}</label>
-                            <InputText
-                                :id="'name_' + l.code"
-                                v-model.trim="multiForm[l.code].name"
-                                required
-                                autofocus
-                                :class="{'p-invalid': multiErrors[l.code]?.name}"
-                            />
+                            <InputGroup>
+                                <InputText
+                                    :id="'name_' + l.code"
+                                    v-model.trim="multiForm[l.code].name"
+                                    required
+                                    autofocus
+                                    :class="{'p-invalid': multiErrors[l.code]?.name}"
+                                />
+                                <Button
+                                    v-tooltip="$t('common.ai_translate')"
+                                    icon="pi pi-sparkles"
+                                    severity="secondary"
+                                    text
+                                    :loading="aiLoading[l.code]?.name"
+                                    @click="translateName(l.code)"
+                                />
+                            </InputGroup>
                             <small v-if="multiErrors[l.code]?.name" class="p-error">{{ multiErrors[l.code]?.name }}</small>
                         </div>
                         <div v-if="isPureEnglishMulti(l.code) && !editingItem" class="field flex gap-2 items-center">
@@ -164,12 +174,22 @@
                         </div>
                         <div class="field">
                             <label :for="'slug_' + l.code">{{ $t('common.slug') }}</label>
-                            <InputText
-                                :id="'slug_' + l.code"
-                                v-model.trim="multiForm[l.code].slug"
-                                required
-                                :class="{'p-invalid': multiErrors[l.code]?.slug}"
-                            />
+                            <InputGroup>
+                                <InputText
+                                    :id="'slug_' + l.code"
+                                    v-model.trim="multiForm[l.code].slug"
+                                    required
+                                    :class="{'p-invalid': multiErrors[l.code]?.slug}"
+                                />
+                                <Button
+                                    v-tooltip="$t('common.ai_generate_slug')"
+                                    icon="pi pi-sparkles"
+                                    severity="secondary"
+                                    text
+                                    :loading="aiLoading[l.code]?.slug"
+                                    @click="generateSlug(l.code)"
+                                />
+                            </InputGroup>
                             <small v-if="multiErrors[l.code]?.slug" class="p-error">{{ multiErrors[l.code]?.slug }}</small>
                         </div>
                         <div class="field">
@@ -301,6 +321,60 @@ const editingItem = ref<Tag | null>(null)
 const submitted = ref(false)
 const saving = ref(false)
 const activeTab = ref(locale.value)
+
+const aiLoading = ref<Record<string, { name: boolean, slug: boolean }>>(
+    Object.fromEntries(locales.value.map((l: any) => [l.code, { name: false, slug: false }])),
+)
+
+const translateName = async (lang: string) => {
+    const sourceLang = locales.value.find((l: any) => multiForm.value[l.code].name && l.code !== lang)?.code
+    if (!sourceLang) {
+        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('common.no_source_content'), life: 3000 })
+        return
+    }
+
+    if (!aiLoading.value[lang]) return
+    aiLoading.value[lang].name = true
+    try {
+        const { data } = await $fetch('/api/ai/translate-name', {
+            method: 'POST',
+            body: {
+                name: multiForm.value[sourceLang].name,
+                targetLanguage: t(`common.languages.${lang}`),
+            },
+        })
+        multiForm.value[lang].name = data as string
+    } catch (error) {
+        console.error('AI Translate error:', error)
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
+    } finally {
+        if (aiLoading.value[lang]) aiLoading.value[lang].name = false
+    }
+}
+
+const generateSlug = async (lang: string) => {
+    if (!multiForm.value[lang].name) {
+        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('common.no_source_content'), life: 3000 })
+        return
+    }
+
+    if (!aiLoading.value[lang]) return
+    aiLoading.value[lang].slug = true
+    try {
+        const { data } = await $fetch('/api/ai/suggest-slug-from-name', {
+            method: 'POST',
+            body: {
+                name: multiForm.value[lang].name,
+            },
+        })
+        multiForm.value[lang].slug = data as string
+    } catch (error) {
+        console.error('AI Slug error:', error)
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
+    } finally {
+        if (aiLoading.value[lang]) aiLoading.value[lang].slug = false
+    }
+}
 
 const createEmptyForm = (lang: string) => ({
     id: null as string | null,

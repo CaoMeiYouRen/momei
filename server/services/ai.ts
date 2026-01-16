@@ -95,4 +95,39 @@ export class AIService {
             return []
         }
     }
+
+    static async translateName(name: string, targetLanguage: string) {
+        const provider = getAIProvider()
+        const prompt = formatPrompt(AI_PROMPTS.TRANSLATE_NAME, {
+            name,
+            to: targetLanguage,
+        })
+
+        const response = await provider.chat({
+            messages: [
+                { role: 'system', content: `You are a professional translator. You help translate blog categories and tags into ${targetLanguage}.` },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.3,
+        })
+
+        return response.content.trim()
+    }
+
+    static async suggestSlugFromName(name: string) {
+        const provider = getAIProvider()
+        const prompt = formatPrompt(AI_PROMPTS.SUGGEST_SLUG_FROM_NAME, {
+            name,
+        })
+
+        const response = await provider.chat({
+            messages: [
+                { role: 'system', content: 'You are a professional blog editor. You help create concise, URL-friendly slugs for categories and tags.' },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.3,
+        })
+
+        return response.content.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-')
+    }
 }

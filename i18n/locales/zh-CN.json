@@ -141,7 +141,10 @@
         "validation_error": "输入验证失败",
         "select_parent": "请选择父级",
         "aggregate_translations": "聚合翻译版本",
-        "translation_status": "翻译状态"
+        "translation_status": "翻译状态",
+        "no_source_content": "暂无可用内容进行 AI 处理",
+        "ai_translate": "AI 自动翻译",
+        "ai_generate_slug": "AI 生成别名"
     },
     "pages": {
         "about": {

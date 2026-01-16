@@ -142,7 +142,10 @@
         "validation_error": "Validation failed",
         "select_parent": "Please select a parent",
         "aggregate_translations": "Aggregate translations",
-        "translation_status": "Translation status"
+        "translation_status": "Translation status",
+        "no_source_content": "No content available for AI processing",
+        "ai_translate": "AI Translate",
+        "ai_generate_slug": "AI Generate Slug"
     },
     "pages": {
         "about": {
