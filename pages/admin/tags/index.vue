@@ -164,13 +164,22 @@
                             </InputGroup>
                             <small v-if="multiErrors[l.code]?.name" class="p-error">{{ multiErrors[l.code]?.name }}</small>
                         </div>
-                        <div v-if="isPureEnglishMulti(l.code) && !editingItem" class="field flex gap-2 items-center">
+                        <div v-if="!editingItem" class="field flex gap-2 items-center">
                             <Checkbox
                                 v-model="syncToAllLanguages"
                                 :binary="true"
                                 :input-id="'syncAll_' + l.code"
                             />
                             <label :for="'syncAll_' + l.code" class="cursor-pointer">{{ $t('pages.admin.tags.sync_to_all_languages') }}</label>
+                            <Button
+                                v-if="syncToAllLanguages"
+                                v-tooltip="$t('common.ai_translate')"
+                                icon="pi pi-sparkles"
+                                severity="secondary"
+                                text
+                                size="small"
+                                @click="syncAIAllLanguages"
+                            />
                         </div>
                         <div class="field">
                             <label :for="'slug_' + l.code">{{ $t('common.slug') }}</label>
@@ -251,6 +260,7 @@
 
 <script setup lang="ts">
 import { tagBodySchema, tagUpdateSchema } from '@/utils/schemas/tag'
+import { isPureEnglish } from '@/utils/shared/validate'
 
 definePageMeta({
     layout: 'default',
@@ -322,59 +332,10 @@ const submitted = ref(false)
 const saving = ref(false)
 const activeTab = ref(locale.value)
 
-const aiLoading = ref<Record<string, { name: boolean, slug: boolean }>>(
-    Object.fromEntries(locales.value.map((l: any) => [l.code, { name: false, slug: false }])),
-)
+const syncToAllLanguages = ref(false)
 
-const translateName = async (lang: string) => {
-    const sourceLang = locales.value.find((l: any) => multiForm.value[l.code].name && l.code !== lang)?.code
-    if (!sourceLang) {
-        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('common.no_source_content'), life: 3000 })
-        return
-    }
-
-    if (!aiLoading.value[lang]) return
-    aiLoading.value[lang].name = true
-    try {
-        const { data } = await $fetch('/api/ai/translate-name', {
-            method: 'POST',
-            body: {
-                name: multiForm.value[sourceLang].name,
-                targetLanguage: t(`common.languages.${lang}`),
-            },
-        })
-        multiForm.value[lang].name = data as string
-    } catch (error) {
-        console.error('AI Translate error:', error)
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
-    } finally {
-        if (aiLoading.value[lang]) aiLoading.value[lang].name = false
-    }
-}
-
-const generateSlug = async (lang: string) => {
-    if (!multiForm.value[lang].name) {
-        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('common.no_source_content'), life: 3000 })
-        return
-    }
-
-    if (!aiLoading.value[lang]) return
-    aiLoading.value[lang].slug = true
-    try {
-        const { data } = await $fetch('/api/ai/suggest-slug-from-name', {
-            method: 'POST',
-            body: {
-                name: multiForm.value[lang].name,
-            },
-        })
-        multiForm.value[lang].slug = data as string
-    } catch (error) {
-        console.error('AI Slug error:', error)
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
-    } finally {
-        if (aiLoading.value[lang]) aiLoading.value[lang].slug = false
-    }
-}
+const multiForm = ref<Record<string, any>>({})
+const { aiLoading, translateName, generateSlug, syncAIAllLanguages } = useAdminAI(multiForm, activeTab)
 
 const createEmptyForm = (lang: string) => ({
     id: null as string | null,
@@ -384,7 +345,6 @@ const createEmptyForm = (lang: string) => ({
     translationId: null as string | null,
 })
 
-const multiForm = ref<Record<string, any>>({})
 const multiErrors = ref<Record<string, Record<string, string>>>({})
 
 // Initialize multiForm
@@ -397,10 +357,11 @@ const hasTranslationData = (langCode: string) => {
     return !!multiForm.value[langCode]?.id || !!multiForm.value[langCode]?.name
 }
 
-const syncToAllLanguages = ref(false)
-const isPureEnglishMulti = (lang: string) => {
-    return /^[a-zA-Z0-9\s\-_]+$/.test(multiForm.value[lang].name)
-}
+watch(syncToAllLanguages, (val) => {
+    if (val) {
+        syncAIAllLanguages()
+    }
+})
 
 const syncTranslationIdFromSlugMulti = (lang: string) => {
     if (multiForm.value[lang].slug) {

@@ -96,3 +96,10 @@ export function nicknameValidator(nickname: string): boolean {
  * @returns 如果字符串是有效的 Snowflake ID，则返回 true，否则返回 false
  */
 export const isSnowflakeId = (id: string) => /^[0-9a-f]{15,16}$/.test(id)
+
+/**
+ * 检查字符串是否为纯英文（包含数字、空格、下划线、连字符）
+ * @param str - 要检查的字符串
+ * @returns 如果是纯英文则返回 true
+ */
+export const isPureEnglish = (str: string) => /^[a-zA-Z0-9\s\-_]+$/.test(str)
