@@ -224,7 +224,9 @@ commit message 使用中文描述变更内容。
 
 -   [项目规划](./docs/plan/roadmap.md)
 -   [待办事项](./docs/plan/todo.md)
--   [开发规范](./docs/standards/development.md)- [安全规范](./docs/standards/security.md)- [测试规范](./docs/standards/testing.md)
+-   [开发规范](./docs/standards/development.md)
+-   [安全规范](./docs/standards/security.md)
+-   [测试规范](./docs/standards/testing.md)
 -   [API 规范](./docs/standards/api.md)
 -   [UI 设计](./docs/design/ui.md)
 -   [API 设计](./docs/design/api.md)
