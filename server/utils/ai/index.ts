@@ -1,9 +1,26 @@
 import { OpenAIProvider } from './openai-provider'
 import { AnthropicProvider } from './anthropic-provider'
 import type { AIConfig, AIProvider } from '@/types/ai'
+import {
+    AI_ENABLED,
+    AI_PROVIDER,
+    AI_API_KEY,
+    AI_MODEL,
+    AI_API_ENDPOINT,
+    AI_MAX_TOKENS,
+    AI_TEMPERATURE,
+} from '@/utils/shared/env'
 
 export function getAIProvider(configOverride?: Partial<AIConfig>): AIProvider {
-    const config = useRuntimeConfig().ai as unknown as AIConfig
+    const config: AIConfig = {
+        enabled: AI_ENABLED,
+        provider: AI_PROVIDER,
+        apiKey: AI_API_KEY as string,
+        model: AI_MODEL,
+        endpoint: AI_API_ENDPOINT,
+        maxTokens: AI_MAX_TOKENS,
+        temperature: AI_TEMPERATURE,
+    }
     const finalConfig = { ...config, ...configOverride }
 
     if (!finalConfig.enabled) {

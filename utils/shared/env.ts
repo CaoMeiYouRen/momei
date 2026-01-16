@@ -134,3 +134,21 @@ export const UPLOAD_DAILY_LIMIT = Number(process.env.UPLOAD_DAILY_LIMIT || 100)
 export const UPLOAD_SINGLE_USER_DAILY_LIMIT = Number(process.env.UPLOAD_SINGLE_USER_DAILY_LIMIT || 5)
 // 存储类型
 export const STORAGE_TYPE = process.env.STORAGE_TYPE || 's3'
+
+/**
+ * AI 服务配置
+ */
+// 是否启用 AI 服务
+export const AI_ENABLED = process.env.AI_ENABLED === 'true'
+// AI 提供商 (openai, anthropic)
+export const AI_PROVIDER = (process.env.AI_PROVIDER || 'openai') as 'openai' | 'anthropic'
+// API 密钥
+export const AI_API_KEY = process.env.AI_API_KEY
+// 模型名称
+export const AI_MODEL = process.env.AI_MODEL || 'gpt-4o'
+// API 代理地址 (可选)
+export const AI_API_ENDPOINT = process.env.AI_API_ENDPOINT
+// 最大 Token 数
+export const AI_MAX_TOKENS = Number(process.env.AI_MAX_TOKENS || 2048)
+// 温度因子
+export const AI_TEMPERATURE = Number(process.env.AI_TEMPERATURE || 0.7)
