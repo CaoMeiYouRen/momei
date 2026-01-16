@@ -35,7 +35,7 @@ describe('ArticleCopyright', () => {
         expect(
             links.some((l) => {
                 const href = l.attributes('href')
-                if (!href) return false
+                if (!href) { return false }
                 try {
                     const url = new URL(href)
                     return url.host === 'creativecommons.org'

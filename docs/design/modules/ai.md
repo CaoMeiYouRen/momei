@@ -29,23 +29,30 @@
 
 ### 3.1 服务端架构
 
--   **多策略适配层**: 封装统一的 AI Client，支持多种 Provider。
-    -   **OpenAI/Azure OpenAI**: 用于复杂的文本分析、总结和生成。
-    -   **DeepL / Google Translate**: 用于高性能、专业的内容翻译。
--   **Prompt 管理器**: 在服务端统一管理 Prompt 模板，确输出质量和格式（如 Markdown 兼容性）。
--   **流式响应 (SSE)**: 对于长文本生成任务，支持流式输出以提升用户体验。
+-   **统一适配器系统 (Unified Adapter System)**: 封装统一的 `AIProvider` 接口，支持多种厂商。
+    -   **OpenAI Provider**: 支持标准 OpenAI 协议。可配置 `AI_ENDPOINT` 以适配 DeepSeek、Azure、OneAPI 等第三方服务。
+    -   **Anthropic Provider**: 支持 Anthropic Claude 系列 API。
+-   **提供者工厂 (Provider Factory)**: 根据 `.env` 中的 `AI_PROVIDER` 自动实例化对应的适配器。
+-   **Prompt 管理器**: 在服务端统一管理 Prompt 模板，确保输出质量和格式（如 Markdown 兼容性）。
+-   **流式响应 (SSE)**: (增强功能) 对于长文本生成任务，支持流式输出以提升用户体验。
 
 ### 3.2 环境变量配置
 
 ```bash
-# AI 服务选择 (openai, az-openai, deepl)
+# 是否启用 AI
+AI_ENABLED=false
+# AI 服务提供商 (openai, anthropic)
 AI_PROVIDER=openai
-AI_API_KEY=sk-...
-AI_MODEL=gpt-4-turbo
+# API 密钥
+AI_API_KEY=
+# 默认模型名称 (如 gpt-4o, claude-3-5-sonnet, deepseek-chat)
+AI_MODEL=gpt-4o
+# API 端点 (可选，用于 OpenAI 兼容服务)
 AI_API_ENDPOINT=https://api.openai.com/v1
-
-# 翻译服务 (可选，供独立翻译使用)
-DEEPL_AUTH_KEY=...
+# 最大生成 Token 数
+AI_MAX_TOKENS=2048
+# 温度 (0-2)
+AI_TEMPERATURE=0.7
 ```
 
 ## 4. 接口设计 (API Design)

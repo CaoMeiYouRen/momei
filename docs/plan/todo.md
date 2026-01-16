@@ -212,8 +212,8 @@
 ### 4. AI 辅助功能 (AI Integration)
 
 -   [ ] **基础设施搭建 (Infrastructure)**
-    -   验收: 实现统一的 AI Provider 适配器，支持 OpenAI、Azure OpenAI 等主流方案。
-    -   验收: 完成环境变量配置与服务连通性校验逻辑。
+    -   [x] 验收: 实现统一的 AI Provider 适配器，支持 OpenAI、Azure OpenAI 等主流方案。
+    -   [x] 验收: 完成环境变量配置与服务连通性校验逻辑。
     -   验收: 实现服务端 Prompt 模板管理系统。
     -   验收: **滥用防护与配额管理**: 实现基于角色的 AI 调用频率限制 (Rate Limiting) 及消耗监控，防止因配置错误或恶意滥用产生的高额账单。
 -   [ ] **内容创作辅助 (Creative Assistance)**

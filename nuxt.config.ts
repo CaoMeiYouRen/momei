@@ -93,6 +93,16 @@ export default defineNuxtConfig({
                 environment: process.env.NUXT_PUBLIC_SENTRY_ENVIRONMENT || 'development',
             },
         },
+        // AI 配置
+        ai: {
+            enabled: process.env.AI_ENABLED === 'true',
+            provider: (process.env.AI_PROVIDER || 'openai') as 'openai' | 'anthropic',
+            apiKey: process.env.AI_API_KEY,
+            model: process.env.AI_MODEL || 'gpt-4o',
+            apiEndpoint: process.env.AI_API_ENDPOINT,
+            maxTokens: parseInt(process.env.AI_MAX_TOKENS || '2048'),
+            temperature: parseFloat(process.env.AI_TEMPERATURE || '0.7'),
+        },
     },
     sitemap: {
         // 如果需要排除某些路径
