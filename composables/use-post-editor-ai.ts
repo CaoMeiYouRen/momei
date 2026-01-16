@@ -173,8 +173,14 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
         }
     }
 
-    const translateContent = async () => {
-        if (!post.value.content || post.value.content.length < 10) {
+    const translateContent = async (
+        targetLang?: string,
+        sourceContent?: string,
+    ) => {
+        const lang = targetLang || post.value.language
+        const content = sourceContent || post.value.content
+
+        if (!content || content.length < 10) {
             toast.add({
                 severity: 'warn',
                 summary: t('common.warn'),
@@ -192,8 +198,8 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
                 {
                     method: 'POST',
                     body: {
-                        content: post.value.content,
-                        targetLanguage: post.value.language,
+                        content,
+                        targetLanguage: lang,
                     },
                 },
             )
@@ -207,7 +213,7 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
                         method: 'POST',
                         body: {
                             name: post.value.title,
-                            targetLanguage: post.value.language,
+                            targetLanguage: lang,
                         },
                     },
                 )
@@ -222,7 +228,7 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
                         method: 'POST',
                         body: {
                             content: post.value.summary,
-                            targetLanguage: post.value.language,
+                            targetLanguage: lang,
                         },
                     },
                 )

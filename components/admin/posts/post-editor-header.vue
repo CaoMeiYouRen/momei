@@ -28,8 +28,68 @@
                 text
                 rounded
                 :loading="aiLoading.translate"
-                @click="emit('translate-content')"
+                @click="translateOp.toggle($event)"
             />
+            <OverlayPanel ref="translateOp" class="translate-menu">
+                <div class="translate-menu__content">
+                    <div
+                        v-for="l in locales"
+                        :key="l.code"
+                        class="translate-menu__item"
+                        :class="{
+                            'translate-menu__item--active':
+                                post.language === l.code
+                        }"
+                        @click="handleTranslateSelection(l.code)"
+                    >
+                        <div class="translate-menu__item-left">
+                            <i
+                                :class="getLangIcon(l.code)"
+                                class="translate-menu__flag"
+                            />
+                            <span class="translate-menu__lang-name">{{
+                                l.name || l.code.toUpperCase()
+                            }}</span>
+                        </div>
+                        <div class="translate-menu__item-right">
+                            <Tag
+                                v-if="post.language === l.code"
+                                :value="$t('common.current')"
+                                severity="info"
+                                size="small"
+                                class="translate-menu__status-tag"
+                            />
+                            <Tag
+                                v-else-if="hasTranslation(l.code)"
+                                :value="$t('common.switch')"
+                                severity="success"
+                                size="small"
+                                class="translate-menu__status-tag"
+                            />
+                            <Tag
+                                v-else
+                                :value="$t('common.ai_translate')"
+                                severity="warn"
+                                size="small"
+                                class="translate-menu__status-tag"
+                            />
+                        </div>
+                    </div>
+                    <Divider class="my-2" />
+                    <div class="translate-menu__footer">
+                        <Button
+                            :label="
+                                $t('pages.admin.posts.ai.translate_current')
+                            "
+                            icon="pi pi-sparkles"
+                            text
+                            size="small"
+                            class="translate-menu__footer-btn"
+                            @click="handleTranslateSelection(null)"
+                        />
+                    </div>
+                </div>
+            </OverlayPanel>
             <OverlayPanel ref="titleOp" class="title-suggestions-panel">
                 <ul class="suggestion-list">
                     <li
@@ -136,6 +196,31 @@ const emit = defineEmits([
 const localePath = useLocalePath()
 
 const titleOp = ref<any>(null)
+const translateOp = ref<any>(null)
+
+const handleTranslateSelection = (langCode: string | null) => {
+    translateOp.value?.hide()
+    if (langCode === null) {
+        emit('translate-content', null)
+        return
+    }
+
+    if (langCode === post.value.language) return
+
+    const existingTrans = props.hasTranslation(langCode)
+    if (existingTrans) {
+        emit('handle-translation', langCode)
+    } else {
+        emit('translate-content', langCode)
+    }
+}
+
+const getLangIcon = (code: string) => {
+    if (code.startsWith('zh')) return 'fi fi-cn'
+    if (code.startsWith('en')) return 'fi fi-us'
+    if (code.startsWith('ja')) return 'fi fi-jp'
+    return 'pi pi-globe'
+}
 
 defineExpose({
     titleOp,
@@ -233,6 +318,99 @@ defineExpose({
 
         & + & {
             border-top: 1px solid var(--p-surface-border);
+        }
+    }
+}
+
+.translate-menu {
+    &__content {
+        min-width: 220px;
+        padding: 0.25rem;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.625rem 0.75rem;
+        border-radius: var(--p-border-radius-md);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        gap: 1.5rem;
+
+        &:hover {
+            background-color: var(--p-surface-100);
+        }
+
+        &--active {
+            background-color: var(--p-primary-50);
+            cursor: default;
+
+            &:hover {
+                background-color: var(--p-primary-50);
+            }
+        }
+    }
+
+    &__item-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    &__flag {
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.25rem;
+    }
+
+    &__lang-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--p-surface-900);
+    }
+
+    &__status-tag {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.4rem;
+        font-weight: 600;
+    }
+
+    &__footer {
+        padding-top: 0.25rem;
+    }
+
+    &__footer-btn {
+        width: 100%;
+        justify-content: flex-start;
+        font-weight: 500;
+        color: var(--p-primary-color);
+        padding: 0.5rem 0.75rem;
+
+        &:hover {
+            background-color: var(--p-primary-50);
+        }
+    }
+}
+
+:global(.dark) {
+    .translate-menu {
+        &__item:hover {
+            background-color: var(--p-surface-800);
+        }
+
+        &__item--active {
+            background-color: var(--p-primary-900-opacity-20);
+        }
+
+        &__lang-name {
+            color: var(--p-surface-100);
+        }
+
+        &__footer-btn:hover {
+            background-color: var(--p-primary-900-opacity-20);
         }
     }
 }

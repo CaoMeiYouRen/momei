@@ -20,8 +20,16 @@
             :title-suggestions="titleSuggestions"
             @suggest-titles="suggestTitles"
             @select-title="selectTitle"
-            @handle-translation="handleTranslationClick"
-            @translate-content="translateContent"
+            @handle-translation="(lang) => handleTranslationClick(lang)"
+            @translate-content="
+                (lang) => {
+                    if (lang === null) {
+                        translateContent();
+                    } else {
+                        handleTranslationClick(lang, true);
+                    }
+                }
+            "
             @preview="handlePreview"
             @save="savePost"
             @open-settings="settingsVisible = true"
@@ -164,7 +172,10 @@ const hasTranslation = (langCode: string) => {
     return translations.value.find((t) => t.language === langCode) || null
 }
 
-const handleTranslationClick = async (langCode: string) => {
+const handleTranslationClick = async (
+    langCode: string,
+    autoTranslate = false,
+) => {
     const trans = hasTranslation(langCode)
     if (trans && trans.id) {
         navigateTo(localePath(`/admin/posts/${trans.id}`))
@@ -186,6 +197,7 @@ const handleTranslationClick = async (langCode: string) => {
             query: {
                 language: langCode,
                 translationId: post.value.translationId || post.value.id,
+                autoTranslate: autoTranslate ? 'true' : undefined,
             },
         })
     }
@@ -296,6 +308,12 @@ const loadPost = async () => {
                     post.value.tags = data.tags?.map((t: any) => t.name) || []
                     post.value.translationId = data.translationId || data.id
                     post.value.slug = data.slug // Suggest same slug
+                    post.value.copyright = data.copyright
+
+                    // If autoTranslate is requested, fetch content and translate
+                    if (route.query.autoTranslate === 'true' && data.content) {
+                        translateContent(post.value.language, data.content)
+                    }
                 }
             } catch (e) {}
             // Also fetch other translations for the bar

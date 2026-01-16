@@ -144,7 +144,9 @@
         "translation_status": "翻译状态",
         "no_source_content": "暂无可用内容进行 AI 处理",
         "ai_translate": "AI 自动翻译",
-        "ai_generate_slug": "AI 生成别名"
+        "ai_generate_slug": "AI 生成别名",
+        "current": "当前",
+        "switch": "切换"
     },
     "pages": {
         "about": {
@@ -225,7 +227,8 @@
                     "generate_summary": "AI 生成摘要",
                     "recommend_tags": "AI 推荐标签",
                     "generate_slug": "AI 生成别名",
-                    "translate": "AI 全文翻译"
+                    "translate": "AI 翻译辅助",
+                    "translate_current": "翻译当前内容"
                 },
                 "translate_success": "翻译已完成，已覆盖内容区",
                 "content_too_short": "文章内容太短，无法分析",
