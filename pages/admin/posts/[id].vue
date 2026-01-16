@@ -401,7 +401,7 @@ const suggestTitles = async (event: any) => {
 
     aiLoading.value.title = true
     try {
-        const { data } = await $fetch('/api/admin/ai/suggest-titles', {
+        const { data } = await $fetch('/api/ai/suggest-titles', {
             method: 'POST',
             body: { content: post.value.content },
         })
@@ -430,7 +430,7 @@ const suggestSummary = async () => {
 
     aiLoading.value.summary = true
     try {
-        const { data } = await $fetch('/api/admin/ai/summarize', {
+        const { data } = await $fetch('/api/ai/summarize', {
             method: 'POST',
             body: { content: post.value.content },
         })
@@ -451,7 +451,7 @@ const recommendTags = async () => {
 
     aiLoading.value.tags = true
     try {
-        const { data } = await $fetch('/api/admin/ai/recommend-tags', {
+        const { data } = await $fetch('/api/ai/recommend-tags', {
             method: 'POST',
             body: {
                 content: post.value.content,

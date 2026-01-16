@@ -23,6 +23,14 @@ export default defineEventHandler(async (event) => {
             })
             return
         }
+        if (event.path.startsWith('/api/ai')) {
+            // 限制 AI 接口频率，防止 API 费用超支及滥用
+            await rateLimit(event, {
+                window: 60,
+                max: 5,
+            })
+            return
+        }
         if (event.path.startsWith('/api/search')) {
             // 限制 搜索 频率，避免全文搜索带来的数据库压力
             await rateLimit(event, {
