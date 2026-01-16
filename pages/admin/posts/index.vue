@@ -175,8 +175,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useAdminList } from '@/composables/useAdminList'
-import { useI18nDate } from '@/composables/useI18nDate'
+import { useAdminList } from '@/composables/use-admin-list'
+import { useI18nDate } from '@/composables/use-i18n-date'
 
 definePageMeta({
     layout: 'default',

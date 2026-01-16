@@ -1,5 +1,5 @@
 import { ref, reactive, onMounted, computed, watch } from 'vue'
-import { useAdminI18n } from './useAdminI18n'
+import { useAdminI18n } from './use-admin-i18n'
 
 interface UseAdminListOptions<F> {
     url?: string

@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAdminI18n } from '@/composables/useAdminI18n'
+import { useAdminI18n } from '@/composables/use-admin-i18n'
 
 const { contentLanguage, availableLocales } = useAdminI18n()
 
