@@ -21,13 +21,17 @@
             @suggest-titles="suggestTitles"
             @select-title="selectTitle"
             @handle-translation="handleTranslationClick"
+            @translate-content="translateContent"
             @preview="handlePreview"
             @save="savePost"
             @open-settings="settingsVisible = true"
         />
 
         <!-- Editor Area -->
-        <div class="editor-area" :class="{'editor-area--invalid': errors.content}">
+        <div
+            class="editor-area"
+            :class="{'editor-area--invalid': errors.content}"
+        >
             <ClientOnly>
                 <mavon-editor
                     ref="md"
@@ -65,7 +69,7 @@
             <div class="drag-tip">
                 <i class="pi pi-upload upload-icon" />
                 <div class="upload-text">
-                    {{ $t('common.drag_drop_tip') }}
+                    {{ $t("common.drag_drop_tip") }}
                 </div>
             </div>
         </div>
@@ -99,10 +103,12 @@ const toast = useToast()
 const md = ref<any>(null)
 const headerRef = ref<any>(null)
 
-const languageOptions = computed(() => locales.value.map((l: any) => ({
-    label: t(`common.languages.${l.code}`),
-    value: l.code,
-})))
+const languageOptions = computed(() =>
+    locales.value.map((l: any) => ({
+        label: t(`common.languages.${l.code}`),
+        value: l.code,
+    })),
+)
 
 const licenseOptions = computed(() => {
     return Object.keys(COPYRIGHT_LICENSES).map((key) => ({
@@ -144,7 +150,10 @@ const post = ref<Post>({
     categoryId: null,
     copyright: null,
     tags: [],
-    language: (route.query.language as string) || contentLanguage.value || locale.value,
+    language:
+        (route.query.language as string)
+        || contentLanguage.value
+        || locale.value,
     translationId: (route.query.translationId as string) || null,
 })
 
@@ -162,7 +171,12 @@ const handleTranslationClick = async (langCode: string) => {
     } else {
         // Confirm before creating new translation if current post is not saved
         if (isNew.value && !post.value.id) {
-            toast.add({ severity: 'warn', summary: 'Warn', detail: t('pages.admin.posts.save_current_first'), life: 3000 })
+            toast.add({
+                severity: 'warn',
+                summary: 'Warn',
+                detail: t('pages.admin.posts.save_current_first'),
+                life: 3000,
+            })
             return
         }
 
@@ -191,10 +205,17 @@ const {
     suggestSlug,
     suggestSummary,
     recommendTags,
-} = usePostEditorAI(post, allTags, computed({
-    get: () => post.value.tags,
-    set: (val) => { post.value.tags = val },
-}))
+    translateContent,
+} = usePostEditorAI(
+    post,
+    allTags,
+    computed({
+        get: () => post.value.tags,
+        set: (val) => {
+            post.value.tags = val
+        },
+    }),
+)
 
 // Override titleOp to use the one from header component
 watch(headerRef, (header) => {
@@ -206,16 +227,17 @@ watch(headerRef, (header) => {
 const categories = ref<{ id: string, name: string }[]>([])
 const errors = ref<Record<string, string>>({})
 
-const {
-    isDragging,
-    onDragOver,
-    onDragLeave,
-    onDrop,
-    imgAdd,
-} = usePostEditorIO(post, computed({
-    get: () => post.value.tags,
-    set: (val) => { post.value.tags = val },
-}), categories, md)
+const { isDragging, onDragOver, onDragLeave, onDrop, imgAdd } = usePostEditorIO(
+    post,
+    computed({
+        get: () => post.value.tags,
+        set: (val) => {
+            post.value.tags = val
+        },
+    }),
+    categories,
+    md,
+)
 
 const saving = ref(false)
 const oldSlugValue = ref(post.value.slug)
@@ -224,14 +246,17 @@ const postsForTranslation = ref<any[]>([])
 const searchPosts = async (event: { query: string }) => {
     if (!event.query.trim()) return
     try {
-        const { data } = await $fetch<{ data: { items: any[] } }>('/api/posts', {
-            query: {
-                search: event.query,
-                limit: 10,
-                scope: 'manage',
-                // Exclude current post
+        const { data } = await $fetch<{ data: { items: any[] } }>(
+            '/api/posts',
+            {
+                query: {
+                    search: event.query,
+                    limit: 10,
+                    scope: 'manage',
+                    // Exclude current post
+                },
             },
-        })
+        )
         postsForTranslation.value = data.items
             .filter((p) => p.id !== post.value.id)
             .map((p) => ({
@@ -262,7 +287,9 @@ const loadPost = async () => {
         // If it's a new translation, we might want to pre-fill some fields from a source post
         if (route.query.translationId) {
             try {
-                const { data } = await $fetch<any>(`/api/posts/${route.query.translationId}`)
+                const { data } = await $fetch<any>(
+                    `/api/posts/${route.query.translationId}`,
+                )
                 if (data) {
                     // Pre-fill categories, tags, etc.
                     post.value.categoryId = data.category?.id || null
@@ -277,7 +304,9 @@ const loadPost = async () => {
         return
     }
     try {
-        const { data } = await $fetch<{ data: any }>(`/api/posts/${route.params.id}`)
+        const { data } = await $fetch<{ data: any }>(
+            `/api/posts/${route.params.id}`,
+        )
         if (data) {
             post.value = {
                 ...data,
@@ -307,7 +336,9 @@ const fetchTranslations = async (translationId: string) => {
         const { data } = await $fetch<any>('/api/posts', {
             query: { translationId, limit: 10, scope: 'manage' },
         })
-        translations.value = data.items.filter((p: any) => p.id !== post.value.id)
+        translations.value = data.items.filter(
+            (p: any) => p.id !== post.value.id,
+        )
     } catch (e) {
         console.error('Failed to fetch translations', e)
     }
@@ -348,29 +379,56 @@ const savePost = async (publish = false) => {
         })
 
         // Check if any error is in the drawer fields
-        const drawerFields = ['language', 'translationId', 'slug', 'categoryId', 'category', 'tags', 'copyright', 'summary', 'coverImage']
-        const hasDrawerError = result.error.issues.some((issue) => drawerFields.includes(String(issue.path[0])))
+        const drawerFields = [
+            'language',
+            'translationId',
+            'slug',
+            'categoryId',
+            'category',
+            'tags',
+            'copyright',
+            'summary',
+            'coverImage',
+        ]
+        const hasDrawerError = result.error.issues.some((issue) =>
+            drawerFields.includes(String(issue.path[0])),
+        )
         if (hasDrawerError) {
             settingsVisible.value = true
         }
 
         const firstError = result.error.issues[0]
-        const errorDetail = firstError ? `${String(firstError.path[0])}: ${firstError.message}` : t('common.validation_error')
-        toast.add({ severity: 'error', summary: t('common.error'), detail: errorDetail, life: 5000 })
+        const errorDetail = firstError
+            ? `${String(firstError.path[0])}: ${firstError.message}`
+            : t('common.validation_error')
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: errorDetail,
+            life: 5000,
+        })
         return
     }
 
     saving.value = true
     try {
         if (isNew.value) {
-            const response = await $fetch<{ code: number, data: any }>('/api/posts', {
-                method: 'POST',
-                body: payload,
-            })
+            const response = await $fetch<{ code: number, data: any }>(
+                '/api/posts',
+                {
+                    method: 'POST',
+                    body: payload,
+                },
+            )
             if (response.code === 200 && response.data?.id) {
                 post.value.id = response.data.id
                 post.value.status = response.data.status
-                toast.add({ severity: 'success', summary: 'Success', detail: t('common.save_success'), life: 3000 })
+                toast.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: t('common.save_success'),
+                    life: 3000,
+                })
                 // Replace route to edit mode without reloading
                 router.replace(localePath(`/admin/posts/${response.data.id}`))
             }
@@ -382,12 +440,25 @@ const savePost = async (publish = false) => {
             if (publish) {
                 post.value.status = 'published'
             }
-            toast.add({ severity: 'success', summary: t('common.success'), detail: t('common.save_success'), life: 3000 })
+            toast.add({
+                severity: 'success',
+                summary: t('common.success'),
+                detail: t('common.save_success'),
+                life: 3000,
+            })
         }
     } catch (error: any) {
         console.error('Failed to save post', error)
-        const serverMessage = error.data?.message || error.statusMessage || t('common.save_failed')
-        toast.add({ severity: 'error', summary: t('common.error'), detail: serverMessage, life: 5000 })
+        const serverMessage
+            = error.data?.message
+                || error.statusMessage
+                || t('common.save_failed')
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: serverMessage,
+            life: 5000,
+        })
     } finally {
         saving.value = false
     }
@@ -417,9 +488,12 @@ const getStatusSeverity = (status: string) => {
 
 const loadCategories = async () => {
     try {
-        const response = await $fetch<{ data: { items: any[] } }>('/api/categories', {
-            query: { limit: 100, language: post.value.language },
-        })
+        const response = await $fetch<{ data: { items: any[] } }>(
+            '/api/categories',
+            {
+                query: { limit: 100, language: post.value.language },
+            },
+        )
         if (response.data) {
             categories.value = response.data.items
         }
@@ -441,10 +515,13 @@ const loadTags = async () => {
     }
 }
 
-watch(() => post.value.language, () => {
-    loadCategories()
-    loadTags()
-})
+watch(
+    () => post.value.language,
+    () => {
+        loadCategories()
+        loadTags()
+    },
+)
 
 onMounted(() => {
     loadPost()

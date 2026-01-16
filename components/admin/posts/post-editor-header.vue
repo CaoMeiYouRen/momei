@@ -22,6 +22,14 @@
                 :loading="aiLoading.title"
                 @click="emit('suggest-titles', $event)"
             />
+            <Button
+                v-tooltip="$t('pages.admin.posts.ai.translate')"
+                icon="pi pi-language"
+                text
+                rounded
+                :loading="aiLoading.translate"
+                @click="emit('translate-content')"
+            />
             <OverlayPanel ref="titleOp" class="title-suggestions-panel">
                 <ul class="suggestion-list">
                     <li
@@ -34,7 +42,9 @@
                     </li>
                 </ul>
             </OverlayPanel>
-            <small v-if="errors.title" class="p-error">{{ errors.title }}</small>
+            <small v-if="errors.title" class="p-error">{{
+                errors.title
+            }}</small>
             <Tag
                 v-if="post.status"
                 :value="getStatusLabel(post.status)"
@@ -56,7 +66,9 @@
             </div>
         </div>
         <div class="top-bar-right">
-            <span v-if="saving" class="saving-text">{{ $t('common.saving') }}</span>
+            <span v-if="saving" class="saving-text">{{
+                $t("common.saving")
+            }}</span>
             <Button
                 v-if="!isNew || post.id"
                 :label="$t('common.preview')"
@@ -111,7 +123,15 @@ const props = defineProps<{
     titleSuggestions: string[]
 }>()
 
-const emit = defineEmits(['suggest-titles', 'select-title', 'handle-translation', 'preview', 'save', 'open-settings'])
+const emit = defineEmits([
+    'suggest-titles',
+    'select-title',
+    'handle-translation',
+    'preview',
+    'save',
+    'open-settings',
+    'translate-content',
+])
 
 const localePath = useLocalePath()
 

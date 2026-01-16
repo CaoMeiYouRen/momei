@@ -11,7 +11,10 @@ export class AIService {
 
         const response = await provider.chat({
             messages: [
-                { role: 'system', content: `You are a professional blog editor. You help authors create catchy, SEO-friendly titles in ${language}.` },
+                {
+                    role: 'system',
+                    content: `You are a professional blog editor. You help authors create catchy, SEO-friendly titles in ${language}.`,
+                },
                 { role: 'user', content: prompt },
             ],
             temperature: 0.8,
@@ -23,7 +26,10 @@ export class AIService {
             if (match) {
                 return JSON.parse(match[0]) as string[]
             }
-            return response.content.split('\n').filter((line) => line.trim()).map((line) => line.replace(/^\d+\.\s*/, '').trim())
+            return response.content
+                .split('\n')
+                .filter((line) => line.trim())
+                .map((line) => line.replace(/^\d+\.\s*/, '').trim())
         } catch (e) {
             console.error('Failed to parse AI title suggestions:', e)
             return response.content.split('\n').filter((line) => line.trim())
@@ -39,16 +45,27 @@ export class AIService {
 
         const response = await provider.chat({
             messages: [
-                { role: 'system', content: 'You are a professional blog editor. You help authors create concise, SEO-friendly URL slugs.' },
+                {
+                    role: 'system',
+                    content:
+                        'You are a professional blog editor. You help authors create concise, SEO-friendly URL slugs.',
+                },
                 { role: 'user', content: prompt },
             ],
             temperature: 0.3,
         })
 
-        return response.content.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-')
+        return response.content
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9-]+/g, '-')
     }
 
-    static async summarize(content: string, maxLength: number = 200, language: string = 'zh-CN') {
+    static async summarize(
+        content: string,
+        maxLength: number = 200,
+        language: string = 'zh-CN',
+    ) {
         const provider = getAIProvider()
         const prompt = formatPrompt(AI_PROMPTS.SUMMARIZE, {
             content: content.slice(0, 4000),
@@ -58,7 +75,10 @@ export class AIService {
 
         const response = await provider.chat({
             messages: [
-                { role: 'system', content: `You are a professional blog editor. You help authors summarize their articles for SEO in ${language}.` },
+                {
+                    role: 'system',
+                    content: `You are a professional blog editor. You help authors summarize their articles for SEO in ${language}.`,
+                },
                 { role: 'user', content: prompt },
             ],
             temperature: 0.5,
@@ -67,7 +87,11 @@ export class AIService {
         return response.content.trim()
     }
 
-    static async recommendTags(content: string, existingTags: string[] = [], language: string = 'zh-CN') {
+    static async recommendTags(
+        content: string,
+        existingTags: string[] = [],
+        language: string = 'zh-CN',
+    ) {
         const provider = getAIProvider()
         const prompt = `Based on the following content, recommend 3-5 tags in ${language}.
         Current existing tags in the system (use these if possible): ${existingTags.join(', ')}.
@@ -78,7 +102,10 @@ export class AIService {
 
         const response = await provider.chat({
             messages: [
-                { role: 'system', content: `You are a professional blog editor. You help authors tag their articles for better discoverability in ${language}.` },
+                {
+                    role: 'system',
+                    content: `You are a professional blog editor. You help authors tag their articles for better discoverability in ${language}.`,
+                },
                 { role: 'user', content: prompt },
             ],
             temperature: 0.5,
@@ -89,7 +116,10 @@ export class AIService {
             if (match) {
                 return JSON.parse(match[0]) as string[]
             }
-            return response.content.split(/[,，\n]/).map((t) => t.trim()).filter(Boolean)
+            return response.content
+                .split(/[,，\n]/)
+                .map((t) => t.trim())
+                .filter(Boolean)
         } catch (e) {
             console.error('Failed to parse AI tag recommendations:', e)
             return []
@@ -105,7 +135,10 @@ export class AIService {
 
         const response = await provider.chat({
             messages: [
-                { role: 'system', content: `You are a professional translator. You help translate blog categories and tags into ${targetLanguage}.` },
+                {
+                    role: 'system',
+                    content: `You are a professional translator. You help translate blog categories and tags into ${targetLanguage}.`,
+                },
                 { role: 'user', content: prompt },
             ],
             temperature: 0.3,
@@ -122,12 +155,40 @@ export class AIService {
 
         const response = await provider.chat({
             messages: [
-                { role: 'system', content: 'You are a professional blog editor. You help create concise, URL-friendly slugs for categories and tags.' },
+                {
+                    role: 'system',
+                    content:
+                        'You are a professional blog editor. You help create concise, URL-friendly slugs for categories and tags.',
+                },
                 { role: 'user', content: prompt },
             ],
             temperature: 0.3,
         })
 
-        return response.content.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-')
+        return response.content
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9-]+/g, '-')
+    }
+
+    static async translate(content: string, to: string) {
+        const provider = getAIProvider()
+        const prompt = formatPrompt(AI_PROMPTS.TRANSLATE, {
+            content,
+            to,
+        })
+
+        const response = await provider.chat({
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are a professional translator. You help translate blog posts into ${to} while preserving Markdown structure.`,
+                },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.3,
+        })
+
+        return response.content.trim()
     }
 }

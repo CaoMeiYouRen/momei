@@ -11,6 +11,7 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
         summary: false,
         tags: false,
         slug: false,
+        translate: false,
     })
 
     const titleSuggestions = ref<string[]>([])
@@ -18,7 +19,12 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
 
     const suggestTitles = async (event: any) => {
         if (!post.value.content || post.value.content.length < 10) {
-            toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('pages.admin.posts.content_too_short'), life: 3000 })
+            toast.add({
+                severity: 'warn',
+                summary: t('common.warn'),
+                detail: t('pages.admin.posts.content_too_short'),
+                life: 3000,
+            })
             return
         }
 
@@ -39,7 +45,12 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
             }
         } catch (error) {
             console.error('AI Title Suggestion error:', error)
-            toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
+            toast.add({
+                severity: 'error',
+                summary: t('common.error'),
+                detail: t('pages.admin.posts.ai_error'),
+                life: 3000,
+            })
         } finally {
             aiLoading.value.title = false
         }
@@ -51,8 +62,17 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
     }
 
     const suggestSlug = async () => {
-        if (!post.value.title || !post.value.content || post.value.content.length < 10) {
-            toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('pages.admin.posts.content_too_short'), life: 3000 })
+        if (
+            !post.value.title
+            || !post.value.content
+            || post.value.content.length < 10
+        ) {
+            toast.add({
+                severity: 'warn',
+                summary: t('common.warn'),
+                detail: t('pages.admin.posts.content_too_short'),
+                life: 3000,
+            })
             return
         }
 
@@ -68,7 +88,12 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
             post.value.slug = data as string
         } catch (error) {
             console.error('AI Slug error:', error)
-            toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
+            toast.add({
+                severity: 'error',
+                summary: t('common.error'),
+                detail: t('pages.admin.posts.ai_error'),
+                life: 3000,
+            })
         } finally {
             aiLoading.value.slug = false
         }
@@ -76,7 +101,12 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
 
     const suggestSummary = async () => {
         if (!post.value.content || post.value.content.length < 10) {
-            toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('pages.admin.posts.content_too_short'), life: 3000 })
+            toast.add({
+                severity: 'warn',
+                summary: t('common.warn'),
+                detail: t('pages.admin.posts.content_too_short'),
+                life: 3000,
+            })
             return
         }
 
@@ -92,7 +122,12 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
             post.value.summary = data as string
         } catch (error) {
             console.error('AI Summary error:', error)
-            toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
+            toast.add({
+                severity: 'error',
+                summary: t('common.error'),
+                detail: t('pages.admin.posts.ai_error'),
+                life: 3000,
+            })
         } finally {
             aiLoading.value.summary = false
         }
@@ -100,7 +135,12 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
 
     const recommendTags = async () => {
         if (!post.value.content || post.value.content.length < 10) {
-            toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('pages.admin.posts.content_too_short'), life: 3000 })
+            toast.add({
+                severity: 'warn',
+                summary: t('common.warn'),
+                detail: t('pages.admin.posts.content_too_short'),
+                life: 3000,
+            })
             return
         }
 
@@ -122,9 +162,89 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
             })
         } catch (error) {
             console.error('AI Tags error:', error)
-            toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
+            toast.add({
+                severity: 'error',
+                summary: t('common.error'),
+                detail: t('pages.admin.posts.ai_error'),
+                life: 3000,
+            })
         } finally {
             aiLoading.value.tags = false
+        }
+    }
+
+    const translateContent = async () => {
+        if (!post.value.content || post.value.content.length < 10) {
+            toast.add({
+                severity: 'warn',
+                summary: t('common.warn'),
+                detail: t('pages.admin.posts.content_too_short'),
+                life: 3000,
+            })
+            return
+        }
+
+        aiLoading.value.translate = true
+        try {
+            // Translate Content
+            const { data: translatedContent } = await $fetch(
+                '/api/ai/translate',
+                {
+                    method: 'POST',
+                    body: {
+                        content: post.value.content,
+                        targetLanguage: post.value.language,
+                    },
+                },
+            )
+            post.value.content = translatedContent as string
+
+            // Translate Title if exists
+            if (post.value.title) {
+                const { data: translatedTitle } = await $fetch(
+                    '/api/ai/translate-name',
+                    {
+                        method: 'POST',
+                        body: {
+                            name: post.value.title,
+                            targetLanguage: post.value.language,
+                        },
+                    },
+                )
+                post.value.title = translatedTitle as string
+            }
+
+            // Translate Summary if exists
+            if (post.value.summary) {
+                const { data: translatedSummary } = await $fetch(
+                    '/api/ai/translate',
+                    {
+                        method: 'POST',
+                        body: {
+                            content: post.value.summary,
+                            targetLanguage: post.value.language,
+                        },
+                    },
+                )
+                post.value.summary = translatedSummary as string
+            }
+
+            toast.add({
+                severity: 'success',
+                summary: t('common.success'),
+                detail: t('pages.admin.posts.translate_success'),
+                life: 3000,
+            })
+        } catch (error) {
+            console.error('AI Translation error:', error)
+            toast.add({
+                severity: 'error',
+                summary: t('common.error'),
+                detail: t('pages.admin.posts.ai_error'),
+                life: 3000,
+            })
+        } finally {
+            aiLoading.value.translate = false
         }
     }
 
@@ -137,5 +257,6 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
         suggestSlug,
         suggestSummary,
         recommendTags,
+        translateContent,
     }
 }
