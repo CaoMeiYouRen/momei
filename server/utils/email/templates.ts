@@ -104,7 +104,7 @@ export class EmailTemplateEngine {
      * 渲染模板变量
      */
     private renderTemplate(template: string, data: EmailTemplateData): string {
-        return template.replace(/\{\{(\w+)\}\}/g, (match, key) => String(data[key] || match))
+        return template.replace(/\{\{(\w+)\}\}/g, (match, key) => Object.prototype.hasOwnProperty.call(data, key) ? String(data[key]) : match)
     }
 
     /**
