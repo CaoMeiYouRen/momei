@@ -6,6 +6,7 @@ import { isAdmin, isAuthor } from '@/utils/shared/roles'
 const schema = z.object({
     content: z.string().min(10),
     existingTags: z.array(z.string()).optional().default([]),
+    language: z.string().optional().default('zh-CN'),
 })
 
 export default defineEventHandler(async (event) => {
@@ -18,7 +19,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readValidatedBody(event, (b) => schema.parse(b))
-    const tags = await AIService.recommendTags(body.content, body.existingTags)
+    const tags = await AIService.recommendTags(body.content, body.existingTags, body.language)
 
     return {
         code: 200,

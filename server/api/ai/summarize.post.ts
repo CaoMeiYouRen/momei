@@ -6,6 +6,7 @@ import { isAdmin, isAuthor } from '@/utils/shared/roles'
 const schema = z.object({
     content: z.string().min(10),
     maxLength: z.number().optional().default(200),
+    language: z.string().optional().default('zh-CN'),
 })
 
 export default defineEventHandler(async (event) => {
@@ -18,7 +19,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readValidatedBody(event, (b) => schema.parse(b))
-    const summary = await AIService.summarize(body.content, body.maxLength)
+    const summary = await AIService.summarize(body.content, body.maxLength, body.language)
 
     return {
         code: 200,

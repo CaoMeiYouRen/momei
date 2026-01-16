@@ -2,13 +2,16 @@ import { getAIProvider } from '../utils/ai'
 import { AI_PROMPTS, formatPrompt } from '../utils/ai/prompt'
 
 export class AIService {
-    static async suggestTitles(content: string) {
+    static async suggestTitles(content: string, language: string = 'zh-CN') {
         const provider = getAIProvider()
-        const prompt = formatPrompt(AI_PROMPTS.SUGGEST_TITLES, { content: content.slice(0, 4000) })
+        const prompt = formatPrompt(AI_PROMPTS.SUGGEST_TITLES, {
+            content: content.slice(0, 4000),
+            language,
+        })
 
         const response = await provider.chat({
             messages: [
-                { role: 'system', content: 'You are a professional blog editor. You help authors create catchy, SEO-friendly titles.' },
+                { role: 'system', content: `You are a professional blog editor. You help authors create catchy, SEO-friendly titles in ${language}.` },
                 { role: 'user', content: prompt },
             ],
             temperature: 0.8,
@@ -27,13 +30,17 @@ export class AIService {
         }
     }
 
-    static async summarize(content: string, maxLength: number = 200) {
+    static async summarize(content: string, maxLength: number = 200, language: string = 'zh-CN') {
         const provider = getAIProvider()
-        const prompt = formatPrompt(AI_PROMPTS.SUMMARIZE, { content: content.slice(0, 4000), maxLength })
+        const prompt = formatPrompt(AI_PROMPTS.SUMMARIZE, {
+            content: content.slice(0, 4000),
+            maxLength,
+            language,
+        })
 
         const response = await provider.chat({
             messages: [
-                { role: 'system', content: 'You are a professional blog editor. You help authors summarize their articles for SEO.' },
+                { role: 'system', content: `You are a professional blog editor. You help authors summarize their articles for SEO in ${language}.` },
                 { role: 'user', content: prompt },
             ],
             temperature: 0.5,
@@ -42,18 +49,18 @@ export class AIService {
         return response.content.trim()
     }
 
-    static async recommendTags(content: string, existingTags: string[] = []) {
+    static async recommendTags(content: string, existingTags: string[] = [], language: string = 'zh-CN') {
         const provider = getAIProvider()
-        const prompt = `Based on the following content, recommend 3-5 tags.
-        Current existing tags in the system are: ${existingTags.join(', ')}.
-        Prefer existing tags if they match, or suggest new ones if necessary.
+        const prompt = `Based on the following content, recommend 3-5 tags in ${language}.
+        Current existing tags in the system (use these if possible): ${existingTags.join(', ')}.
+        Prefer existing tags if they match, or suggest new ones in ${language} if necessary.
         Output as a JSON array of strings:
 
         ${content.slice(0, 4000)}`
 
         const response = await provider.chat({
             messages: [
-                { role: 'system', content: 'You are a professional blog editor. You help authors tag their articles for better discoverability.' },
+                { role: 'system', content: `You are a professional blog editor. You help authors tag their articles for better discoverability in ${language}.` },
                 { role: 'user', content: prompt },
             ],
             temperature: 0.5,

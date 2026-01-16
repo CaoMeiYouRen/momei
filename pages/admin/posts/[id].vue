@@ -28,7 +28,7 @@
                     text
                     rounded
                     :loading="aiLoading.title"
-                    @click="suggestTitles"
+                    @click="suggestTitles($event)"
                 />
                 <OverlayPanel ref="titleOp" class="title-suggestions-panel">
                     <ul class="suggestion-list">
@@ -389,25 +389,27 @@ const aiLoading = ref({
 const titleSuggestions = ref<string[]>([])
 const titleOp = ref<any>(null)
 
-const toggleTitleSuggestions = (event: any) => {
-    titleOp.value?.toggle(event)
-}
-
 const suggestTitles = async (event: any) => {
     if (!post.value.content || post.value.content.length < 10) {
         toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('pages.admin.posts.content_too_short'), life: 3000 })
         return
     }
 
+    // 保存当前的 target 出去，防止异步后丢失
+    const currentTarget = event.currentTarget || event.target
+
     aiLoading.value.title = true
     try {
         const { data } = await $fetch('/api/ai/suggest-titles', {
             method: 'POST',
-            body: { content: post.value.content },
+            body: {
+                content: post.value.content,
+                language: post.value.language,
+            },
         })
         titleSuggestions.value = (data as string[]) || []
         if (titleSuggestions.value.length > 0) {
-            toggleTitleSuggestions(event)
+            titleOp.value?.show(event, currentTarget)
         }
     } catch (error) {
         console.error('AI Title Suggestion error:', error)
@@ -432,7 +434,10 @@ const suggestSummary = async () => {
     try {
         const { data } = await $fetch('/api/ai/summarize', {
             method: 'POST',
-            body: { content: post.value.content },
+            body: {
+                content: post.value.content,
+                language: post.value.language,
+            },
         })
         post.value.summary = data as string
     } catch (error) {
@@ -456,6 +461,7 @@ const recommendTags = async () => {
             body: {
                 content: post.value.content,
                 existingTags: allTags.value,
+                language: post.value.language,
             },
         })
         const recommended = data as string[]
