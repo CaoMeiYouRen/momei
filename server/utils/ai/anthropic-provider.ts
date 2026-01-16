@@ -59,4 +59,28 @@ export class AnthropicProvider implements AIProvider {
             })
         }
     }
+
+    async check(): Promise<boolean> {
+        const endpoint = this.config.endpoint || 'https://api.anthropic.com/v1'
+        const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
+
+        try {
+            await $fetch(`${baseUrl}/messages`, {
+                method: 'POST',
+                headers: {
+                    'x-api-key': this.config.apiKey,
+                    'anthropic-version': '2023-06-01',
+                    'Content-Type': 'application/json',
+                },
+                body: {
+                    model: this.config.model,
+                    messages: [{ role: 'user', content: 'hi' }],
+                    max_tokens: 1,
+                },
+            })
+            return true
+        } catch {
+            return false
+        }
+    }
 }

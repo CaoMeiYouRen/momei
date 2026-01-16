@@ -29,12 +29,14 @@
 
 ### 3.1 服务端架构
 
--   **统一适配器系统 (Unified Adapter System)**: 封装统一的 `AIProvider` 接口，支持多种厂商。
-    -   **OpenAI Provider**: 支持标准 OpenAI 协议。可配置 `AI_ENDPOINT` 以适配 DeepSeek、Azure、OneAPI 等第三方服务。
-    -   **Anthropic Provider**: 支持 Anthropic Claude 系列 API。
--   **提供者工厂 (Provider Factory)**: 根据 `.env` 中的 `AI_PROVIDER` 自动实例化对应的适配器。
--   **Prompt 管理器**: 在服务端统一管理 Prompt 模板，确保输出质量和格式（如 Markdown 兼容性）。
--   **流式响应 (SSE)**: (增强功能) 对于长文本生成任务，支持流式输出以提升用户体验。
+-   **统一适配器系统 (Unified Adapter System)**: 封装统一的 `AIProvider` 接口，解耦厂商差异。
+    -   **OpenAI Provider**: 兼容标准 OpenAI 协议，通过 `AI_API_ENDPOINT` 完美适配 DeepSeek、Azure OpenAI 及 OneAPI 等。
+    -   **Anthropic Provider**: 原生支持 Claude 系列模型。
+-   **Prompt 模板系统 (Prompt Utilities)**: 采用“约定优于配置”策略。目前通过 `server/utils/ai/prompt.ts` 集中管理常用的 Prompt 模板与变量注入逻辑，后续可根据业务需求扩展为动态加载。
+-   **安全与合规管理**:
+    -   **频率限制 (Rate Limiting)**: (迁移至业务层实现) 针对不同角色的用户设定差异化的 AI 调用频率上限。
+    -   **Token 追溯**: (可选) 记录请求与响应的 Token 消耗，用于成本核算。
+-   **流式响应 (SSE)**: (增强阶段) 针对长文本任务，提供流式实时反馈。
 
 ### 3.2 环境变量配置
 

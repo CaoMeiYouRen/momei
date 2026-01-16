@@ -50,4 +50,27 @@ export class OpenAIProvider implements AIProvider {
             })
         }
     }
+
+    async check(): Promise<boolean> {
+        const endpoint = this.config.endpoint || 'https://api.openai.com/v1'
+        const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
+
+        try {
+            await $fetch(`${baseUrl}/chat/completions`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${this.config.apiKey}`,
+                    'Content-Type': 'application/json',
+                },
+                body: {
+                    model: this.config.model,
+                    messages: [{ role: 'user', content: 'hi' }],
+                    max_tokens: 1,
+                },
+            })
+            return true
+        } catch {
+            return false
+        }
+    }
 }

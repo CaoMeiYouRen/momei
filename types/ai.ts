@@ -27,6 +27,7 @@ export interface AIChatResponse {
 export interface AIProvider {
     name: string
     chat(options: AIChatOptions): Promise<AIChatResponse>
+    check(): Promise<boolean>
 }
 
 export type AIProviderType = 'openai' | 'anthropic'

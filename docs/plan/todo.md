@@ -212,10 +212,13 @@
 ### 4. AI 辅助功能 (AI Integration)
 
 -   [ ] **基础设施搭建 (Infrastructure)**
-    -   [x] 验收: 实现统一的 AI Provider 适配器，支持 OpenAI、Azure OpenAI 等主流方案。
-    -   [x] 验收: 完成环境变量配置与服务连通性校验逻辑。
-    -   验收: 实现服务端 Prompt 模板管理系统。
-    -   验收: **滥用防护与配额管理**: 实现基于角色的 AI 调用频率限制 (Rate Limiting) 及消耗监控，防止因配置错误或恶意滥用产生的高额账单。
+    -   [x] 验收: 实现统一的 AI Provider 适配器，支持 OpenAI (含 DeepSeek 等) 和 Anthropic 厂商适配。
+    -   [x] 验收: 完成基础环境变量配置 (API Key, Model, Endpoint)。
+    -   [x] 验收: 实现服务端基础 Prompt 模板工具库 (提供变量替换功能)。
+    -   [ ] 验收: 实现服务健康检查接口，用于测试 AI Provider 是否连通。
+-   [ ] **安全与管控 (Security & Governance)**
+    -   [ ] 验收: **频率限制 (Rate Limiting)**: 实现基于用户角色和 IP 的调用频率限制，防止 API 滥用。
+    -   [ ] 验收: **消耗监控**: 统计单次请求的 Token 消耗量并记录日志。
 -   [ ] **内容创作辅助 (Creative Assistance)**
     -   验收: 实现“智能标题建议”，基于正文生成多个高点击率标题建议。
     -   验收: 实现“SEO 摘要自动生成”，提取文章精华。
