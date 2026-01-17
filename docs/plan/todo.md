@@ -246,14 +246,24 @@
 
 ### 6. Demo 模式 (Demo Mode)
 
-- [ ] **实现 Demo 模式服务端拦截器**
-    - 验收: 完成 `server/middleware/demo-guard.ts`，基于白名单拦截所有非 GET 请求。
-    - 验收: 确保敏感管理 API (如用户删除、权限设置) 在 Demo 模式下被强制拦截。
-- [ ] **内存数据库集成**
-    - 验收: 设置 `DATABASE_TYPE=sqlite` 且不指定路径时，自动使用内存模式 (或根据 `DEMO_MODE` 环境变强制置)。
-    - 验收: 重启应用后数据能够完全重置。
+详细设计请参考: [Demo 模式设计文档](../design/modules/demo-mode.md)
+
+- [ ] **基础设施与数据库集成**
+    - 验收: 当 `NUXT_PUBLIC_DEMO_MODE=true` 时，强制使用 `:memory:` SQLite 数据库。
+    - 验收: 实现 `server/utils/seed-demo.ts`，在启动时自动填充高质量的演示数据（文章、分类、用户）。
+    - 验收: **自动重置逻辑**: 实现定时（如每 1 小时）或内存阈值触发的进程自杀，配合 Docker `restart: always` 实现数据重置。
+- [ ] **Mock AI 服务**
+    - 验收: 实现 `MockAIProvider`，在 Demo 模式下拦截所有 AI 调用，返回预设的高质量响应。
+    - 验收: 模拟打字机动画和网络延迟，保留完整的交互真实感。
+- [ ] **用户引导 (Onboarding)**
+    - 验收: 集成 `driver.js`。
+    - 验收: 编写 `onboarding.ts` 引导脚本，重点覆盖：自动登录、进入编辑器、唤起 AI 辅助（星星按钮）、发布文章。
+- [ ] **安全与拦截 (Demo Guard)**
+    - 验收: 完成 `server/middleware/demo-guard.ts`，拦截针对敏感配置（环境变量、系统密钥）的修改。
+    - 验收: 修改成功提示中增加“数据将在重启后重置”的文案。
 - [ ] **前端演示标识**
-    - 验收: 当 `NUXT_PUBLIC_DEMO_MODE=true` 时，在页面顶部或侧边栏显示“当前为演示模式，修改不会被保存”的提醒。
+    - 验收: 在页面显著位置（如 Header 或侧边栏）显示 Demo 状态 Banner。
+    - 验收: 提供“开始演示”按钮随时触发新手引导。
 
 ## 第三阶段：创新与扩展 (Innovation & Expansion)
 
