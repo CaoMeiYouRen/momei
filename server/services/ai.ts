@@ -1,6 +1,8 @@
 import { getAIProvider } from '../utils/ai'
 import { AI_PROMPTS, formatPrompt } from '../utils/ai/prompt'
+import { ContentProcessor } from '../utils/ai/content-processor'
 import logger from '../utils/logger'
+import { AI_MAX_CONTENT_LENGTH, AI_CHUNK_SIZE } from '@/utils/shared/env'
 
 export class AIService {
     private static logAIUsage(task: string, response: any, userId?: string) {
@@ -23,7 +25,7 @@ export class AIService {
     ) {
         const provider = getAIProvider()
         const prompt = formatPrompt(AI_PROMPTS.SUGGEST_TITLES, {
-            content: content.slice(0, 4000),
+            content: content.slice(0, AI_CHUNK_SIZE),
             language,
         })
 
@@ -60,7 +62,7 @@ export class AIService {
         const provider = getAIProvider()
         const prompt = formatPrompt(AI_PROMPTS.SUGGEST_SLUG, {
             title,
-            content: content.slice(0, 2000),
+            content: content.slice(0, AI_CHUNK_SIZE),
         })
 
         const response = await provider.chat({
@@ -89,9 +91,68 @@ export class AIService {
         language: string = 'zh-CN',
         userId?: string,
     ) {
+        if (content.length > AI_MAX_CONTENT_LENGTH) {
+            throw createError({
+                statusCode: 413,
+                statusMessage: 'Content too long for AI analysis',
+            })
+        }
+
         const provider = getAIProvider()
+
+        // 如果内容超过 AI_CHUNK_SIZE，使用分段摘要策略
+        if (content.length > AI_CHUNK_SIZE) {
+            const chunks = ContentProcessor.splitMarkdown(content, {
+                chunkSize: AI_CHUNK_SIZE,
+            })
+            const chunkSummaries: string[] = []
+
+            for (const chunk of chunks) {
+                const prompt = formatPrompt(AI_PROMPTS.SUMMARIZE, {
+                    content: chunk,
+                    // 稍微多预留一点长度给子摘要，最后再汇总
+                    maxLength: Math.round(maxLength / chunks.length) + 100,
+                    language,
+                })
+
+                const response = await provider.chat({
+                    messages: [
+                        {
+                            role: 'system',
+                            content: `You are a professional blog editor. You help authors summarize a section of their article in ${language}.`,
+                        },
+                        { role: 'user', content: prompt },
+                    ],
+                    temperature: 0.5,
+                })
+                this.logAIUsage('summarize-chunk', response, userId)
+                chunkSummaries.push(response.content.trim())
+            }
+
+            // 对摘要的摘要进行最终总结
+            const combinedSummaries = chunkSummaries.join('\n\n')
+            const finalPrompt = formatPrompt(AI_PROMPTS.SUMMARIZE, {
+                content: combinedSummaries,
+                maxLength,
+                language,
+            })
+
+            const finalResponse = await provider.chat({
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are a professional blog editor. You help authors create a final summary from multiple section summaries in ${language}.`,
+                    },
+                    { role: 'user', content: finalPrompt },
+                ],
+                temperature: 0.5,
+            })
+            this.logAIUsage('summarize-final', finalResponse, userId)
+            return finalResponse.content.trim()
+        }
+
         const prompt = formatPrompt(AI_PROMPTS.SUMMARIZE, {
-            content: content.slice(0, 4000),
+            content,
             maxLength,
             language,
         })
@@ -124,7 +185,7 @@ export class AIService {
         Prefer existing tags if they match, or suggest new ones in ${language} if necessary.
         Output as a JSON array of strings:
 
-        ${content.slice(0, 4000)}`
+        ${content.slice(0, AI_CHUNK_SIZE)}`
 
         const response = await provider.chat({
             messages: [
@@ -208,9 +269,12 @@ export class AIService {
     }
 
     static async translate(content: string, to: string, userId?: string) {
+        // 如果内容过长，强制进行截断，除非使用流式接口（暂未在旧接口实现自动分段）
+        const safeContent = content.slice(0, AI_CHUNK_SIZE)
+
         const provider = getAIProvider()
         const prompt = formatPrompt(AI_PROMPTS.TRANSLATE, {
-            content,
+            content: safeContent,
             to,
         })
 
@@ -228,5 +292,54 @@ export class AIService {
         this.logAIUsage('translate', response, userId)
 
         return response.content.trim()
+    }
+
+    /**
+     * 流式翻译长文章
+     */
+    static async* translateStream(
+        content: string,
+        to: string,
+        userId?: string,
+    ) {
+        if (content.length > AI_MAX_CONTENT_LENGTH) {
+            throw createError({
+                statusCode: 413,
+                message: `Content too long (max ${AI_MAX_CONTENT_LENGTH} characters)`,
+            })
+        }
+
+        const chunks = ContentProcessor.splitMarkdown(content, {
+            chunkSize: AI_CHUNK_SIZE,
+        })
+        const totalChunks = chunks.length
+
+        for (let i = 0; i < totalChunks; i++) {
+            const chunk = chunks[i]
+            const provider = getAIProvider()
+            const prompt = formatPrompt(AI_PROMPTS.TRANSLATE, {
+                content: chunk,
+                to,
+            })
+
+            const response = await provider.chat({
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are a professional translator. You help translate blog posts into ${to} while preserving Markdown structure. Part ${i + 1}/${totalChunks}.`,
+                    },
+                    { role: 'user', content: prompt },
+                ],
+                temperature: 0.3,
+            })
+
+            this.logAIUsage(`translate-chunk-${i + 1}`, response, userId)
+
+            yield {
+                chunkIndex: i,
+                totalChunks,
+                content: response.content.trim(),
+            }
+        }
     }
 }
