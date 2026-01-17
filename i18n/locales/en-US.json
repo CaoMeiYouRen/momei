@@ -151,7 +151,25 @@
         "current": "Current",
         "switch": "Switch"
     },
+    "legal": {
+        "user_agreement": "User Agreement",
+        "privacy_policy": "Privacy Policy",
+        "agreement_checkbox": "I have read and agree to the {agreement} and {privacy}",
+        "login_notice": "By logging in, you agree to the {agreement} and {privacy}",
+        "operator": "Site Operator",
+        "contact": "Contact Information",
+        "notice": "Note: This agreement and policy are provided as examples. As the developer of this project, I cannot assume legal responsibility for all deployed instances. The specific legal agreement is entered into between you and the operator of this website, and the actual legal responsibility is borne by the website deployer.",
+        "agreement_required": "Please read and agree to the User Agreement and Privacy Policy"
+    },
     "pages": {
+        "user_agreement": {
+            "title": "User Agreement",
+            "last_updated": "Last updated: January 18, 2026"
+        },
+        "privacy_policy": {
+            "title": "Privacy Policy",
+            "last_updated": "Last updated: January 18, 2026"
+        },
         "about": {
             "meta": {
                 "title": "Momei - Cross-language Blog Platform"

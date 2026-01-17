@@ -236,11 +236,13 @@
 
 ### 5. 合规性与法律 (Compliance & Legal)
 
-- [ ] **法律文档拟定**
+- [x] **法律文档拟定**
     - 验收: 拟定并发布 **用户协议 (User Agreement)**。
     - 验收: 拟定并发布 **隐私政策 (Privacy Policy)** (符合 Google/GitHub OAuth 审核要求)。
-- [ ] **合规交互实现**
+- [x] **合规交互实现**
     - 验收: 在 `/login` 和 `/register` 页面增加协议勾选/提示逻辑。
+    - 验收: 协议内容支持通过环境变量 (`NUXT_PUBLIC_SITE_OPERATOR`, `NUXT_PUBLIC_CONTACT_EMAIL`) 进行配置。
+    - 验收: **协议生效范围控制**: 通过 i18n 提供内容模板，并注明法律责任由部署者承担。
 
 ### 6. Demo 模式 (Demo Mode)
 

@@ -117,6 +117,45 @@
                             </Message>
                         </div>
 
+                        <div class="register-form__agreement">
+                            <Checkbox
+                                v-model="form.agreed"
+                                binary
+                                input-id="agreed"
+                                :invalid="!!errors.agreed"
+                            />
+                            <label for="agreed" class="register-form__agreement-label">
+                                <i18n-t keypath="legal.agreement_checkbox">
+                                    <template #agreement>
+                                        <NuxtLink
+                                            :to="localePath('/user-agreement')"
+                                            target="_blank"
+                                            class="legal-link"
+                                        >
+                                            {{ $t('legal.user_agreement') }}
+                                        </NuxtLink>
+                                    </template>
+                                    <template #privacy>
+                                        <NuxtLink
+                                            :to="localePath('/privacy-policy')"
+                                            target="_blank"
+                                            class="legal-link"
+                                        >
+                                            {{ $t('legal.privacy_policy') }}
+                                        </NuxtLink>
+                                    </template>
+                                </i18n-t>
+                            </label>
+                        </div>
+                        <Message
+                            v-if="errors.agreed"
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                        >
+                            {{ errors.agreed }}
+                        </Message>
+
                         <Button
                             type="submit"
                             :label="$t('pages.register.submit')"
@@ -152,12 +191,14 @@ const form = reactive({
     email: '',
     password: '',
     confirmPassword: '',
+    agreed: false,
 })
 const errors = reactive({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
+    agreed: '',
 })
 
 const handleGithubLogin = async () => {
@@ -304,6 +345,29 @@ definePageMeta({
     &__submit-btn {
         width: 100%;
         margin-top: 1rem;
+    }
+
+    &__agreement {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+
+        &-label {
+            font-size: 0.875rem;
+            color: var(--p-text-muted-color);
+            line-height: normal;
+            cursor: pointer;
+        }
+
+        .legal-link {
+            color: var(--p-primary-color);
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
     }
 }
 </style>

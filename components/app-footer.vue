@@ -34,6 +34,12 @@
                 >
                     {{ $t('common.rss') }}
                 </NuxtLink>
+                <NuxtLink :to="localePath('/user-agreement')" class="footer__link">
+                    {{ $t('legal.user_agreement') }}
+                </NuxtLink>
+                <NuxtLink :to="localePath('/privacy-policy')" class="footer__link">
+                    {{ $t('legal.privacy_policy') }}
+                </NuxtLink>
             </nav>
             <p class="footer__copyright">
                 {{ $t('components.footer.copyright') }}

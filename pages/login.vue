@@ -91,6 +91,29 @@
                         </NuxtLink>
                     </div>
 
+                    <p class="login-form__legal-notice">
+                        <i18n-t keypath="legal.login_notice">
+                            <template #agreement>
+                                <NuxtLink
+                                    :to="localePath('/user-agreement')"
+                                    target="_blank"
+                                    class="legal-link"
+                                >
+                                    {{ $t('legal.user_agreement') }}
+                                </NuxtLink>
+                            </template>
+                            <template #privacy>
+                                <NuxtLink
+                                    :to="localePath('/privacy-policy')"
+                                    target="_blank"
+                                    class="legal-link"
+                                >
+                                    {{ $t('legal.privacy_policy') }}
+                                </NuxtLink>
+                            </template>
+                        </i18n-t>
+                    </p>
+
                     <Button
                         type="submit"
                         :label="$t('pages.login.submit')"
@@ -302,6 +325,23 @@ definePageMeta({
 
     &__submit-btn {
         width: 100%;
+    }
+
+    &__legal-notice {
+        font-size: 0.75rem;
+        color: var(--p-text-muted-color);
+        margin: 1rem 0;
+        text-align: center;
+        line-height: 1.4;
+
+        .legal-link {
+            color: var(--p-primary-color);
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
     }
 }
 </style>

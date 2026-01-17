@@ -150,7 +150,25 @@
         "current": "当前",
         "switch": "切换"
     },
+    "legal": {
+        "user_agreement": "用户协议",
+        "privacy_policy": "隐私政策",
+        "agreement_checkbox": "我已阅读并同意 {agreement} 和 {privacy}",
+        "login_notice": "登录即代表您同意 {agreement} 和 {privacy}",
+        "operator": "网站运营方",
+        "contact": "联系方式",
+        "notice": "注意：本协议及政策仅作为示例。作为本项目开发者，我无法为所有部署实例承担法律责任。具体的法律协议由当前网站的运营方与您签订，实际法律责任由网站部署者承担。",
+        "agreement_required": "请阅读并同意用户协议和隐私政策"
+    },
     "pages": {
+        "user_agreement": {
+            "title": "用户协议",
+            "last_updated": "最后更新日期：2026年1月18日"
+        },
+        "privacy_policy": {
+            "title": "隐私政策",
+            "last_updated": "最后更新日期：2026年1月18日"
+        },
         "about": {
             "meta": {
                 "title": "墨梅 - 跨语言博客创作平台"

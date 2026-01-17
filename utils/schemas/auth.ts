@@ -12,6 +12,7 @@ export const registerSchema = z.object({
     email: z.string().min(1, { message: 'pages.register.email_required' }),
     password: z.string().min(1, { message: 'pages.register.password_required' }),
     confirmPassword: z.string().min(1, { message: 'pages.register.confirm_password_required' }),
+    agreed: z.boolean().refine((val) => val === true, { message: 'legal.agreement_required' }),
 }).refine((data) => data.password === data.confirmPassword, {
     message: 'pages.register.password_mismatch',
     path: ['confirmPassword'],
