@@ -7,6 +7,8 @@ vi.mock('@/utils/shared/env', () => ({
     AI_API_KEY: 'test-key',
     AI_MODEL: 'gpt-4o',
     AI_API_ENDPOINT: undefined,
+    // Ensure DEMO_MODE is defined for modules that import it
+    DEMO_MODE: false,
     AI_MAX_TOKENS: 2048,
     AI_TEMPERATURE: 0.7,
 }))
