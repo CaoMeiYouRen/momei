@@ -1,5 +1,7 @@
 import { z } from 'zod'
+import { auth } from '@/lib/auth'
 import { AIService } from '@/server/services/ai'
+import { isAdmin, isAuthor } from '@/utils/shared/roles'
 
 const translateSchema = z.object({
     content: z.string().min(1),
@@ -7,6 +9,17 @@ const translateSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
+    const session = await auth.api.getSession({
+        headers: event.headers,
+    })
+
+    if (
+        !session
+        || (!isAdmin(session.user.role) && !isAuthor(session.user.role))
+    ) {
+        throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+    }
+
     const body = await readBody(event)
     const result = translateSchema.safeParse(body)
 
@@ -24,6 +37,7 @@ export default defineEventHandler(async (event) => {
         const translatedContent = await AIService.translate(
             content,
             targetLanguage,
+            session.user.id,
         )
         return {
             code: 200,

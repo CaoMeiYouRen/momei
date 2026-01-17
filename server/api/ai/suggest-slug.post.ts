@@ -13,12 +13,19 @@ export default defineEventHandler(async (event) => {
         headers: event.headers,
     })
 
-    if (!session || (!isAdmin(session.user.role) && !isAuthor(session.user.role))) {
+    if (
+        !session
+        || (!isAdmin(session.user.role) && !isAuthor(session.user.role))
+    ) {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 
     const body = await readValidatedBody(event, (b) => schema.parse(b))
-    const slug = await AIService.suggestSlug(body.title, body.content)
+    const slug = await AIService.suggestSlug(
+        body.title,
+        body.content,
+        session.user.id,
+    )
 
     return {
         code: 200,
