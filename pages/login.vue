@@ -170,13 +170,13 @@ const handleEmailLogin = async () => {
         })
 
         if (error) {
-            toast.add({ severity: 'error', summary: 'Error', detail: error.message || error.statusText, life: 3000 })
+            toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || error.statusText, life: 3000 })
         } else {
             navigateTo(localePath('/'))
         }
     } catch (e) {
         console.error(e)
-        toast.add({ severity: 'error', summary: 'Error', detail: 'An unexpected error occurred', life: 3000 })
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
     } finally {
         loading.value = false
     }

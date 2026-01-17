@@ -593,10 +593,10 @@ const deleteCategory = async () => {
         await $fetch(`/api/categories/${deleteDialog.item.id}`, {
             method: 'DELETE' as any,
         })
-        toast.add({ severity: 'success', summary: 'Success', detail: t('pages.admin.categories.delete_success'), life: 3000 })
+        toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.categories.delete_success'), life: 3000 })
         loadData()
     } catch (error: any) {
-        toast.add({ severity: 'error', summary: 'Error', detail: error.statusMessage || 'Failed to delete', life: 3000 })
+        toast.add({ severity: 'error', summary: t('common.error'), detail: error.statusMessage || t('common.save_failed'), life: 3000 })
     }
 }
 

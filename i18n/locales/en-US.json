@@ -138,6 +138,8 @@
         "rss": "RSS Feed",
         "success": "Success",
         "error": "Error",
+        "warn": "Warning",
+        "info": "Info",
         "unexpected_error": "An unexpected error occurred",
         "validation_error": "Validation failed",
         "select_parent": "Please select a parent",
@@ -233,7 +235,14 @@
                 },
                 "translate_success": "Translation completed and applied",
                 "content_too_short": "Article content too short for analysis",
-                "ai_error": "AI service call failed"
+                "ai_error": "AI service call failed",
+                "import_success": "Markdown imported successfully",
+                "image_upload_success": "Image uploaded and inserted",
+                "upload_failed": "File upload failed",
+                "file_empty": "File is empty",
+                "parse_front_matter_failed": "Failed to parse front matter, imported main content only",
+                "unsupported_file_type": "Unsupported file type: {name}",
+                "category_not_found": "Category \"{name}\" not found"
             },
             "categories": {
                 "title": "Categories Management",

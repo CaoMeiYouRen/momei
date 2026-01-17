@@ -184,7 +184,7 @@ const handleTranslationClick = async (
         if (isNew.value && !post.value.id) {
             toast.add({
                 severity: 'warn',
-                summary: 'Warn',
+                summary: t('common.warn'),
                 detail: t('pages.admin.posts.save_current_first'),
                 life: 3000,
             })
@@ -448,7 +448,7 @@ const savePost = async (publish = false) => {
                 post.value.status = response.data.status
                 toast.add({
                     severity: 'success',
-                    summary: 'Success',
+                    summary: t('common.success'),
                     detail: t('common.save_success'),
                     life: 3000,
                 })

@@ -28,7 +28,12 @@ export function usePostEditorIO(post: any, selectedTags: any, categories: any, m
             }
         } catch (error) {
             console.error('Upload failed', error)
-            toast.add({ severity: 'error', summary: 'Error', detail: t('common.upload_failed') || 'Upload failed', life: 3000 })
+            toast.add({
+                severity: 'error',
+                summary: t('common.error'),
+                detail: t('pages.admin.posts.upload_failed'),
+                life: 3000,
+            })
         }
     }
 
@@ -38,7 +43,12 @@ export function usePostEditorIO(post: any, selectedTags: any, categories: any, m
         reader.onload = () => {
             let markdown = reader.result as string
             if (!markdown) {
-                toast.add({ severity: 'warn', summary: 'Warning', detail: 'File is empty', life: 3000 })
+                toast.add({
+                    severity: 'warn',
+                    summary: t('common.warn'),
+                    detail: t('pages.admin.posts.file_empty'),
+                    life: 3000,
+                })
                 return
             }
 
@@ -52,7 +62,12 @@ export function usePostEditorIO(post: any, selectedTags: any, categories: any, m
                     frontMatter = load(metaText[1]) || {}
                 } catch (e) {
                     console.error('Failed to parse front matter', e)
-                    toast.add({ severity: 'warn', summary: 'Warning', detail: 'Failed to parse front matter', life: 3000 })
+                    toast.add({
+                        severity: 'warn',
+                        summary: t('common.warn'),
+                        detail: t('pages.admin.posts.parse_front_matter_failed'),
+                        life: 3000,
+                    })
                 }
             }
 
@@ -93,12 +108,22 @@ export function usePostEditorIO(post: any, selectedTags: any, categories: any, m
                     if (foundCat) {
                         post.value.categoryId = foundCat.id
                     } else {
-                        toast.add({ severity: 'info', summary: 'Info', detail: `Category "${catName}" not found`, life: 3000 })
+                        toast.add({
+                            severity: 'info',
+                            summary: t('common.info'),
+                            detail: t('pages.admin.posts.category_not_found', { name: catName }),
+                            life: 3000,
+                        })
                     }
                 }
             }
 
-            toast.add({ severity: 'success', summary: 'Success', detail: 'Markdown imported successfully', life: 3000 })
+            toast.add({
+                severity: 'success',
+                summary: t('common.success'),
+                detail: t('pages.admin.posts.import_success'),
+                life: 3000,
+            })
         }
     }
 
@@ -107,11 +132,21 @@ export function usePostEditorIO(post: any, selectedTags: any, categories: any, m
             const url = await uploadFile(file)
             if (url) {
                 post.value.content += `\n![${file.name}](${url})\n`
-                toast.add({ severity: 'success', summary: 'Success', detail: 'Image uploaded', life: 3000 })
+                toast.add({
+                    severity: 'success',
+                    summary: t('common.success'),
+                    detail: t('pages.admin.posts.image_upload_success'),
+                    life: 3000,
+                })
             }
         } catch (error) {
             console.error('Upload failed', error)
-            toast.add({ severity: 'error', summary: 'Error', detail: t('common.upload_failed') || 'Upload failed', life: 3000 })
+            toast.add({
+                severity: 'error',
+                summary: t('common.error'),
+                detail: t('pages.admin.posts.upload_failed'),
+                life: 3000,
+            })
         }
     }
 
@@ -145,7 +180,12 @@ export function usePostEditorIO(post: any, selectedTags: any, categories: any, m
             } else if (file.type.startsWith('image/')) {
                 await handleImageUpload(file)
             } else {
-                toast.add({ severity: 'warn', summary: 'Warning', detail: `Unsupported file type: ${file.name}`, life: 3000 })
+                toast.add({
+                    severity: 'warn',
+                    summary: t('common.warn'),
+                    detail: t('pages.admin.posts.unsupported_file_type', { name: file.name }),
+                    life: 3000,
+                })
             }
         }
     }
