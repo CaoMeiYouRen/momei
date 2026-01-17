@@ -12,7 +12,6 @@ import { Tag } from '../entities/tag'
 import { ApiKey } from '../entities/api-key'
 import { Subscriber } from '../entities/subscriber'
 import logger from '../utils/logger'
-import { seedDemoData } from '../utils/seed-demo'
 import { CustomLogger } from './logger'
 import { SnakeCaseNamingStrategy } from './naming-strategy'
 import { isAdmin } from '@/utils/shared/roles'
@@ -149,11 +148,6 @@ export const initializeDB = async () => {
 
         // 同步管理员角色
         await syncAdminRoles(AppDataSource)
-
-        // Demo 模式下预填充假数据
-        if (DEMO_MODE && isMemoryDB) {
-            await seedDemoData(AppDataSource)
-        }
 
         // 测试环境时减少日志输出
         if (!isTestEnv) {
