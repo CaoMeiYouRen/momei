@@ -46,6 +46,7 @@
                         :class="{'p-invalid': errors.slug}"
                     />
                     <Button
+                        id="ai-slug-btn"
                         v-tooltip="$t('pages.admin.posts.ai.generate_slug')"
                         icon="pi pi-sparkles"
                         severity="secondary"
@@ -74,6 +75,7 @@
                 <div class="flex items-center justify-between mb-2">
                     <label for="tags" class="form-label mb-0">{{ $t('common.tags') }}</label>
                     <Button
+                        id="ai-tags-btn"
                         v-tooltip="$t('pages.admin.posts.ai.recommend_tags')"
                         icon="pi pi-sparkles"
                         size="small"
@@ -111,6 +113,7 @@
                 <div class="flex items-center justify-between mb-2">
                     <label for="summary" class="form-label mb-0">{{ $t('common.summary') }}</label>
                     <Button
+                        id="ai-summary-btn"
                         v-tooltip="$t('pages.admin.posts.ai.generate_summary')"
                         icon="pi pi-sparkles"
                         size="small"

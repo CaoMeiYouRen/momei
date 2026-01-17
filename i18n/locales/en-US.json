@@ -2,6 +2,22 @@
     "app": {
         "name": "Momei Blog"
     },
+    "demo": {
+        "banner_text": "Demo Mode is active. You can explore all features, but data will be reset periodically.",
+        "start_tour": "Start Tour",
+        "tour": {
+            "welcome_title": "Welcome to Momei Blog",
+            "welcome_desc": "Momei is a modern blog platform deeply integrated with AI. Let us guide you through its features.",
+            "login_title": "Auto Login",
+            "login_desc": "In Demo mode, we auto-fill the demo account. Just click Login to enter the admin panel.",
+            "editor_title": "Efficient Creation",
+            "editor_desc": "This is our powerful Markdown editor. The 'stars' menu on the right holds AI tools.",
+            "ai_title": "AI Assistant",
+            "ai_desc": "Click here! AI can suggest titles, generate summaries, extract tags, or translate the entire post.",
+            "publish_title": "Publish & Manage",
+            "publish_desc": "Once done, set your Slug and publish. Remember, data here is ephemeral."
+        }
+    },
     "home": {
         "meta": {
             "title": "Home - Momei Blog",

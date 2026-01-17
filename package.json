@@ -42,6 +42,7 @@
     "class-validator": "^0.14.3",
     "dayjs": "^1.11.19",
     "debug": "^4.4.3",
+    "driver.js": "^1.4.0",
     "feed": "^5.1.0",
     "fs-extra": "^11.3.3",
     "google-libphonenumber": "^3.2.43",

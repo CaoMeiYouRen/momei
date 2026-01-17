@@ -233,7 +233,7 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
                                 if (json.content) {
                                     post.value.content += `${json.content}\n\n`
                                 }
-                            } catch (e) {
+                            } catch {
                                 // Ignore non-JSON data
                             }
                         } else if (line === 'event: end') {

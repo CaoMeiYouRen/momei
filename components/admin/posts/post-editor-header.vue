@@ -15,6 +15,7 @@
                 :class="{'p-invalid': errors.title}"
             />
             <Button
+                id="ai-title-btn"
                 v-tooltip="$t('pages.admin.posts.ai.suggest_titles')"
                 icon="pi pi-sparkles"
                 text
@@ -23,6 +24,7 @@
                 @click="emit('suggest-titles', $event)"
             />
             <Button
+                id="ai-translate-btn"
                 v-tooltip="$t('pages.admin.posts.ai.translate')"
                 icon="pi pi-language"
                 text

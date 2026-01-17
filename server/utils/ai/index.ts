@@ -1,5 +1,6 @@
 import { OpenAIProvider } from './openai-provider'
 import { AnthropicProvider } from './anthropic-provider'
+import { MockAIProvider } from './mock-provider'
 import type { AIConfig, AIProvider } from '@/types/ai'
 import {
     AI_ENABLED,
@@ -9,6 +10,7 @@ import {
     AI_API_ENDPOINT,
     AI_MAX_TOKENS,
     AI_TEMPERATURE,
+    DEMO_MODE,
 } from '@/utils/shared/env'
 
 export function getAIProvider(configOverride?: Partial<AIConfig>): AIProvider {
@@ -22,6 +24,12 @@ export function getAIProvider(configOverride?: Partial<AIConfig>): AIProvider {
         temperature: AI_TEMPERATURE,
     }
     const finalConfig = { ...config, ...configOverride }
+
+    // If Demo mode is enabled, always return MockAIProvider
+    const runtimeConfig = useRuntimeConfig()
+    if (DEMO_MODE || runtimeConfig.public.demoMode === true) {
+        return new MockAIProvider()
+    }
 
     if (!finalConfig.enabled) {
         throw createError({

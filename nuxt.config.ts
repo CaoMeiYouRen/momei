@@ -90,6 +90,9 @@ export default defineNuxtConfig({
             siteOperator: process.env.NUXT_PUBLIC_SITE_OPERATOR || '[Example Operator]',
             contactEmail: process.env.NUXT_PUBLIC_CONTACT_EMAIL || 'admin@example.com',
             defaultCopyright: process.env.NUXT_PUBLIC_DEFAULT_COPYRIGHT || 'all-rights-reserved',
+            demoMode: process.env.NUXT_PUBLIC_DEMO_MODE === 'true',
+            demoUserEmail: process.env.DEMO_USER_EMAIL || 'admin@example.com',
+            demoPassword: process.env.DEMO_PASSWORD || 'momei123456',
             sentry: {
                 dsn: process.env.NUXT_PUBLIC_SENTRY_DSN,
                 environment: process.env.NUXT_PUBLIC_SENTRY_ENVIRONMENT || 'development',
@@ -162,7 +165,7 @@ export default defineNuxtConfig({
     },
     css: [
         'normalize.css/normalize.css',
-        // '@mdi/font/css/materialdesignicons.min.css',
+        'driver.js/dist/driver.css',
         'primeicons/primeicons.css',
         '@/styles/main.scss',
     ],

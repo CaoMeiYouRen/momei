@@ -12,6 +12,7 @@ import { Tag } from '../entities/tag'
 import { ApiKey } from '../entities/api-key'
 import { Subscriber } from '../entities/subscriber'
 import logger from '../utils/logger'
+import { seedDemoData } from '../utils/seed-demo'
 import { CustomLogger } from './logger'
 import { SnakeCaseNamingStrategy } from './naming-strategy'
 import { isAdmin } from '@/utils/shared/roles'
@@ -151,7 +152,7 @@ export const initializeDB = async () => {
 
         // Demo 模式下预填充假数据
         if (DEMO_MODE && isMemoryDB) {
-            // TODO 添加预填充数据脚本
+            await seedDemoData(AppDataSource)
         }
 
         // 测试环境时减少日志输出

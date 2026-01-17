@@ -1,5 +1,6 @@
 <template>
     <div>
+        <DemoBanner />
         <NuxtLayout>
             <NuxtPage />
         </NuxtLayout>
@@ -13,6 +14,21 @@ import { authClient } from '@/lib/auth-client'
 
 const { setLocale } = useI18n()
 const session = authClient.useSession()
+const { startTour } = useOnboarding()
+
+onMounted(() => {
+    window.addEventListener('momei:start-tour', startTour)
+
+    // 如果是 Demo 模式且是第一次访问，自动开启引导
+    const config = useRuntimeConfig()
+    if (config.public.demoMode) {
+        const hasToured = localStorage.getItem('momei_demo_toured')
+        if (!hasToured) {
+            setTimeout(startTour, 1500)
+            localStorage.setItem('momei_demo_toured', 'true')
+        }
+    }
+})
 
 const head = useLocaleHead({
     seo: true,
