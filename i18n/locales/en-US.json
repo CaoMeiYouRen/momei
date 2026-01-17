@@ -15,7 +15,19 @@
             "ai_title": "AI Assistant",
             "ai_desc": "Click here! AI can suggest titles, generate summaries, extract tags, or translate the entire post.",
             "publish_title": "Publish & Manage",
-            "publish_desc": "Once done, set your Slug and publish. Remember, data here is ephemeral."
+            "publish_desc": "Once done, set your Slug and publish. Remember, data here is ephemeral.",
+            "nav_title": "Content Navigation",
+            "nav_desc": "Easily access the post list, categories, tags, and archives through the navigation bar.",
+            "admin_title": "Admin Dashboard",
+            "admin_desc": "Admins can access the dashboard here to manage content, users, and system settings.",
+            "search_title": "Global Search",
+            "search_desc": "Powerful and fast search functionality, accessible anytime with Ctrl + K.",
+            "theme_title": "Appearance Switch",
+            "theme_desc": "Toggle between Light or Dark theme for the most comfortable reading experience.",
+            "lang_title": "I18n System",
+            "lang_desc": "Momei supports multiple languages. You can switch the UI and content language here.",
+            "user_title": "User Center",
+            "user_desc": "Manage your profile, security settings, or sign in to your account."
         }
     },
     "home": {
@@ -90,6 +102,9 @@
         }
     },
     "common": {
+        "next": "Next",
+        "prev": "Prev",
+        "done": "Done",
         "all_languages": "All Languages",
         "home": "Home",
         "read_more": "Read More",

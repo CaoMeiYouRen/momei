@@ -3,6 +3,7 @@ import 'driver.js/dist/driver.css'
 
 export const useOnboarding = () => {
     const { t } = useI18n()
+    const localePath = useLocalePath()
     const route = useRoute()
     const config = useRuntimeConfig()
 
@@ -30,7 +31,68 @@ export const useOnboarding = () => {
             },
         })
 
-        // 2. Login Page Logic
+        // 2. Header Navigation & Tools (Show on Home or most pages)
+        if (route.path === localePath('/') || route.path === '/') {
+            steps.push({
+                element: '.app-header__nav',
+                popover: {
+                    title: t('demo.tour.nav_title'),
+                    description: t('demo.tour.nav_desc'),
+                    side: 'bottom',
+                },
+            })
+
+            steps.push({
+                element: '#search-btn',
+                popover: {
+                    title: t('demo.tour.search_title'),
+                    description: t('demo.tour.search_desc'),
+                    side: 'bottom',
+                },
+            })
+
+            steps.push({
+                element: '#theme-switcher',
+                popover: {
+                    title: t('demo.tour.theme_title'),
+                    description: t('demo.tour.theme_desc'),
+                    side: 'bottom',
+                },
+            })
+
+            steps.push({
+                element: '#lang-switcher',
+                popover: {
+                    title: t('demo.tour.lang_title'),
+                    description: t('demo.tour.lang_desc'),
+                    side: 'bottom',
+                },
+            })
+
+            steps.push({
+                element: '#user-menu-btn',
+                popover: {
+                    title: t('demo.tour.user_title'),
+                    description: t('demo.tour.user_desc'),
+                    side: 'bottom',
+                },
+            })
+
+            // Only show admin menu tour if user is logged in as admin
+            const adminBtn = document.querySelector('#admin-menu-btn')
+            if (adminBtn) {
+                steps.push({
+                    element: '#admin-menu-btn',
+                    popover: {
+                        title: t('demo.tour.admin_title'),
+                        description: t('demo.tour.admin_desc'),
+                        side: 'bottom',
+                    },
+                })
+            }
+        }
+
+        // 3. Login Page Logic
         if (route.path.includes('/login')) {
             steps.push({
                 element: 'form',

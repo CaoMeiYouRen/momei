@@ -15,7 +15,19 @@
             "ai_title": "AI 辅助创作",
             "ai_desc": "点击这里！AI 可以为您建议标题、自动生成摘要、提取标签，甚至一键翻译全文。",
             "publish_title": "发布与管理",
-            "publish_desc": "创作完成后，您可以设置 Slug 并发布。再次提醒，演示环境的数据是临时的。"
+            "publish_desc": "创作完成后，您可以设置 Slug 并发布。再次提醒，演示环境的数据是临时的。",
+            "nav_title": "内容导航",
+            "nav_desc": "通过导航栏快速访问文章列表、分类、标签和归档页面。",
+            "admin_title": "管理后台",
+            "admin_desc": "管理员由此进入后台，管理内容、用户和系统配置。",
+            "search_title": "全局搜索",
+            "search_desc": "强大且快速的搜索功能，支持通过快捷键 Ctrl + K 随时唤起。",
+            "theme_title": "一键换肤",
+            "theme_desc": "切换浅色或深色主题，提供最舒适的阅读体验。",
+            "lang_title": "多语言系统",
+            "lang_desc": "墨梅支持多语言界面和内容，您可以由此切换语言环境。",
+            "user_title": "个人中心",
+            "user_desc": "管理您的账户信息、安全设置或由此登录系统。"
         }
     },
     "home": {
@@ -90,6 +102,9 @@
         }
     },
     "common": {
+        "next": "下一步",
+        "prev": "上一步",
+        "done": "完成",
         "all_languages": "全部语言",
         "home": "首页",
         "read_more": "阅读更多",

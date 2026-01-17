@@ -12,19 +12,35 @@
 
             <div class="app-header__actions">
                 <nav class="app-header__nav desktop-only">
-                    <NuxtLink :to="localePath('/posts')" class="nav-link">
+                    <NuxtLink
+                        id="nav-posts"
+                        :to="localePath('/posts')"
+                        class="nav-link"
+                    >
                         {{ $t('pages.posts.title') }}
                     </NuxtLink>
 
-                    <NuxtLink :to="localePath('/categories')" class="nav-link">
+                    <NuxtLink
+                        id="nav-categories"
+                        :to="localePath('/categories')"
+                        class="nav-link"
+                    >
                         {{ $t('common.category') }}
                     </NuxtLink>
 
-                    <NuxtLink :to="localePath('/tags')" class="nav-link">
+                    <NuxtLink
+                        id="nav-tags"
+                        :to="localePath('/tags')"
+                        class="nav-link"
+                    >
                         {{ $t('common.tags') }}
                     </NuxtLink>
 
-                    <NuxtLink :to="localePath('/archives')" class="nav-link">
+                    <NuxtLink
+                        id="nav-archives"
+                        :to="localePath('/archives')"
+                        class="nav-link"
+                    >
                         {{ $t('pages.archives.title') }}
                     </NuxtLink>
                 </nav>
@@ -32,6 +48,7 @@
                 <div class="app-header__action-group desktop-only">
                     <template v-if="user && isAdminOrAuthor(user.role)">
                         <Button
+                            id="admin-menu-btn"
                             v-tooltip.bottom="$t('common.admin')"
                             icon="pi pi-cog"
                             text
@@ -49,6 +66,7 @@
                     </template>
 
                     <Button
+                        id="search-btn"
                         v-tooltip.bottom="$t('components.search.ctrl_k')"
                         icon="pi pi-search"
                         text
@@ -57,6 +75,7 @@
                     />
 
                     <Button
+                        id="theme-switcher"
                         v-tooltip.bottom="isDark ? $t('components.header.light_mode') : $t('components.header.dark_mode')"
                         :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
                         text
@@ -64,10 +83,13 @@
                         @click="toggleDark()"
                     />
 
-                    <language-switcher />
+                    <div id="lang-switcher">
+                        <language-switcher />
+                    </div>
 
                     <Button
                         v-if="!user"
+                        id="user-menu-btn"
                         v-tooltip.bottom="$t('pages.login.submit')"
                         icon="pi pi-sign-in"
                         text
@@ -76,6 +98,7 @@
                     />
                     <Button
                         v-else
+                        id="user-menu-btn"
                         v-tooltip.bottom="$t('pages.settings.title')"
                         icon="pi pi-user"
                         text
