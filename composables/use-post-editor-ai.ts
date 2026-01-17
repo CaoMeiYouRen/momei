@@ -192,18 +192,60 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
 
         aiLoading.value.translate = true
         try {
-            // Translate Content
-            const { data: translatedContent } = await $fetch(
-                '/api/ai/translate',
-                {
-                    method: 'POST',
-                    body: {
-                        content,
-                        targetLanguage: lang,
-                    },
+            // Translate Content (Streaming)
+            const response = await fetch('/api/ai/translate.stream', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                 },
-            )
-            post.value.content = translatedContent as string
+                body: JSON.stringify({
+                    content,
+                    targetLanguage: lang,
+                }),
+            })
+
+            if (!response.ok) {
+                throw new Error('Streaming failed')
+            }
+
+            const reader = response.body?.getReader()
+            const decoder = new TextDecoder()
+            let partialData = ''
+
+            if (reader) {
+                // Clear content before starting translation
+                post.value.content = ''
+
+                while (true) {
+                    const { done, value } = await reader.read()
+                    if (done) {
+                        break
+                    }
+
+                    partialData += decoder.decode(value, { stream: true })
+                    const lines = partialData.split('\n')
+                    partialData = lines.pop() || ''
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const json = JSON.parse(line.substring(6))
+                                if (json.content) {
+                                    post.value.content += `${json.content}\n\n`
+                                }
+                            } catch (e) {
+                                // Ignore non-JSON data
+                            }
+                        } else if (line === 'event: end') {
+                            // Stream finished
+                        } else if (line.startsWith('event: error')) {
+                            // Handle error event if needed
+                        }
+                    }
+                }
+                // Trim trailing newlines
+                post.value.content = post.value.content.trim()
+            }
 
             // Translate Title if exists
             if (post.value.title) {
