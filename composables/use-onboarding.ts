@@ -13,6 +13,7 @@ export const useOnboarding = () => {
         doneBtnText: t('common.done') || '完成',
         nextBtnText: t('common.next') || '下一步',
         prevBtnText: t('common.prev') || '上一步',
+        progressText: t('common.progress_text', { current: '{{current}}', total: '{{total}}' }) || '{{current}} / {{total}}',
         steps: [], // Will be populated dynamically
     })
 

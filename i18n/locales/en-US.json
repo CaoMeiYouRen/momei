@@ -105,6 +105,7 @@
         "next": "Next",
         "prev": "Prev",
         "done": "Done",
+        "progress_text": "{current} of {total}",
         "all_languages": "All Languages",
         "home": "Home",
         "read_more": "Read More",

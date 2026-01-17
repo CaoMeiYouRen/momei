@@ -49,7 +49,9 @@ export async function seedDemoData(ds: DataSource) {
         for (const cat of demoCategories) {
             const exists = await categoryRepo.findOne({ where: { slug: cat.slug, language: cat.language } })
             if (!exists) {
-                await categoryRepo.save(cat)
+                const category = categoryRepo.create(cat)
+                category.id = snowflake.generateId()
+                await categoryRepo.save(category)
             }
         }
 
@@ -68,7 +70,9 @@ export async function seedDemoData(ds: DataSource) {
         for (const tag of demoTags) {
             const exists = await tagRepo.findOne({ where: { slug: tag.slug, language: tag.language } })
             if (!exists) {
-                await tagRepo.save(tag)
+                const tagEntity = tagRepo.create(tag)
+                tagEntity.id = snowflake.generateId()
+                await tagRepo.save(tagEntity)
             }
         }
 
@@ -127,6 +131,7 @@ This is your first demo post. In **Demo Mode**, you can:
             const exists = await postRepo.findOne({ where: { slug: p.slug, language: p.language } })
             if (!exists) {
                 const post = postRepo.create(p)
+                post.id = snowflake.generateId()
                 await postRepo.save(post)
             }
         }

@@ -55,7 +55,72 @@ a {
         border-color: var(--p-primary-color);
     }
 }
+// Driver.js Dark Mode Support
+.dark {
+    .driver-popover {
+        background-color: var(--p-surface-800) !important;
+        color: var(--p-text-color) !important;
+        border: 1px solid var(--p-surface-700) !important;
 
+        .driver-popover-title {
+            color: var(--p-text-color) !important;
+        }
+
+        .driver-popover-description {
+            color: var(--p-text-muted-color) !important;
+        }
+
+        .driver-popover-close-btn {
+            color: var(--p-text-muted-color) !important;
+
+            &:hover {
+                color: var(--p-text-color) !important;
+            }
+        }
+
+        .driver-popover-next-btn,
+        .driver-popover-prev-btn {
+            background-color: var(--p-primary-color) !important;
+            color: var(--p-primary-contrast-color) !important;
+            border-radius: 4px !important;
+            text-shadow: none !important;
+            border: none !important;
+
+            &:hover {
+                background-color: var(--p-primary-600) !important;
+            }
+        }
+
+        .driver-popover-prev-btn {
+            background-color: var(--p-surface-700) !important;
+            color: var(--p-text-color) !important;
+
+            &:hover {
+                background-color: var(--p-surface-600) !important;
+            }
+        }
+
+        .driver-popover-progress-text {
+            color: var(--p-text-muted-color) !important;
+        }
+
+        .driver-popover-arrow-side-top {
+            border-top-color: var(--p-surface-800) !important;
+        }
+
+        .driver-popover-arrow-side-bottom {
+            border-bottom-color: var(--p-surface-800) !important;
+        }
+
+        .driver-popover-arrow-side-left {
+            border-left-color: var(--p-surface-800) !important;
+        }
+
+        .driver-popover-arrow-side-right {
+            border-right-color: var(--p-surface-800) !important;
+        }
+    }
+}
 .p-select-overlay {
     background-color: var(--p-surface-card);
     border: 1px solid var(--p-surface-border);
