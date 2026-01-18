@@ -41,6 +41,15 @@ export default defineEventHandler(async (event) => {
 
     const comment = await commentService.createComment(commentData)
 
+    // 如果是游客评论，设置一个本地 Cookie 作为身份凭证（有效期 30 天）
+    if (!session?.user) {
+        setCookie(event, 'momei_guest_email', commentData.authorEmail, {
+            httpOnly: false, // TODO 前端可能需要读取展示，但我们可以通过签名增强安全性，这里为了简单先用标准 Cookie，后续可增强
+            maxAge: 30 * 24 * 3600,
+            path: '/',
+        })
+    }
+
     return {
         code: 201,
         data: comment,

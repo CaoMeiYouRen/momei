@@ -12,13 +12,14 @@ export default defineEventHandler(async (event) => {
         headers: event.headers,
     })
 
-    const query = getQuery(event)
-    const email = query.email as string
     const isUserAdmin = session?.user && isAdmin(session.user.role)
+
+    // 尝试从 Cookie 中获取游客邮箱（用于展示其待审核评论）
+    const guestEmail = getCookie(event, 'momei_guest_email')
 
     const comments = await commentService.getCommentsByPostId(postId, {
         isAdmin: isUserAdmin,
-        viewerEmail: email || session?.user?.email,
+        viewerEmail: session?.user?.email || guestEmail,
         viewerId: session?.user?.id,
     })
 

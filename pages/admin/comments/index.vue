@@ -19,6 +19,7 @@
                     option-label="label"
                     option-value="value"
                     :placeholder="$t('pages.admin.comments.status')"
+                    class="md:w-[180px] w-full"
                     @change="onFilterChange"
                 />
             </div>
@@ -33,7 +34,11 @@
                 class="p-datatable-sm"
                 @page="onPage"
             >
-                <Column field="status" :header="$t('pages.admin.comments.status')">
+                <Column
+                    field="status"
+                    :header="$t('pages.admin.comments.status')"
+                    class="w-[100px]"
+                >
                     <template #body="{data}">
                         <Tag
                             :severity="getStatusSeverity(data.status)"
@@ -42,7 +47,7 @@
                     </template>
                 </Column>
 
-                <Column :header="$t('pages.admin.comments.author')">
+                <Column :header="$t('pages.admin.comments.author')" class="w-[220px]">
                     <template #body="{data}">
                         <div class="author-info">
                             <div class="author-info__name">
