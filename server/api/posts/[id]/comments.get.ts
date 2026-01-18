@@ -12,10 +12,14 @@ export default defineEventHandler(async (event) => {
         headers: event.headers,
     })
 
+    const query = getQuery(event)
+    const email = query.email as string
     const isUserAdmin = session?.user && isAdmin(session.user.role)
 
     const comments = await commentService.getCommentsByPostId(postId, {
         isAdmin: isUserAdmin,
+        viewerEmail: email || session?.user?.email,
+        viewerId: session?.user?.id,
     })
 
     return {

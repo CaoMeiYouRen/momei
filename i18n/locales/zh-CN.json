@@ -166,6 +166,7 @@
         "delete_confirm_message": "确定要删除该项吗？此操作不可逆。",
         "danger": "危险操作",
         "admin": "管理",
+        "all": "全部",
         "rss": "RSS 订阅",
         "sitemap": "站点地图",
         "success": "成功",

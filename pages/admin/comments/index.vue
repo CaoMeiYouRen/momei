@@ -18,7 +18,7 @@
                     :options="statusOptions"
                     option-label="label"
                     option-value="value"
-                    placeholder="Status"
+                    :placeholder="$t('pages.admin.comments.status')"
                     @change="onFilterChange"
                 />
             </div>
@@ -44,9 +44,13 @@
 
                 <Column :header="$t('pages.admin.comments.author')">
                     <template #body="{data}">
-                        <div class="flex flex-col">
-                            <span class="font-bold">{{ data.authorName }}</span>
-                            <span class="text-secondary text-xs">{{ data.authorEmail }}</span>
+                        <div class="author-info">
+                            <div class="author-info__name">
+                                {{ data.authorName }}
+                            </div>
+                            <div class="author-info__email">
+                                {{ data.authorEmail }}
+                            </div>
                         </div>
                     </template>
                 </Column>
@@ -266,6 +270,25 @@ onMounted(() => {
         gap: 1rem;
         border-bottom: 1px solid var(--p-content-border-color);
         flex-wrap: wrap;
+    }
+}
+
+.author-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    line-height: 1.2;
+
+    &__name {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: var(--p-text-color);
+    }
+
+    &__email {
+        font-size: 0.75rem;
+        color: var(--p-text-muted-color);
+        opacity: 0.8;
     }
 }
 

@@ -167,6 +167,7 @@
         "delete_confirm_message": "Are you sure you want to delete this item? This action cannot be undone.",
         "danger": "Danger",
         "admin": "Admin",
+        "all": "All",
         "rss": "RSS Feed",
         "sitemap": "Sitemap",
         "success": "Success",

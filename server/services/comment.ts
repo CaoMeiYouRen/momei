@@ -1,3 +1,4 @@
+import { Brackets } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Comment } from '@/server/entities/comment'
 import { Post } from '@/server/entities/post'
@@ -10,23 +11,41 @@ export const commentService = {
     /**
      * 获取指定文章的评论列表（嵌套结构）
      */
-    async getCommentsByPostId(postId: string, options: { isAdmin?: boolean } = {}) {
+    async getCommentsByPostId(postId: string, options: {
+        isAdmin?: boolean
+        viewerEmail?: string
+        viewerId?: string
+    } = {}) {
         const commentRepo = dataSource.getRepository(Comment)
 
-        // 查询所有已发布的评论（管理员可以看到所有）
-        const query: any = { postId }
+        const qb = commentRepo.createQueryBuilder('comment')
+            .leftJoinAndSelect('comment.author', 'author')
+            .where('comment.postId = :postId', { postId })
+            .orderBy('comment.isSticked', 'DESC')
+            .addOrderBy('comment.createdAt', 'ASC')
+
         if (!options.isAdmin) {
-            query.status = CommentStatus.PUBLISHED
+            // 普通用户：只能看到“已发布”的，或者“自己发布的待审核”评论
+            qb.andWhere(new Brackets((qbInner) => {
+                qbInner.where('comment.status = :published', { published: CommentStatus.PUBLISHED })
+
+                if (options.viewerEmail) {
+                    qbInner.orWhere('(comment.status = :pending AND comment.authorEmail = :email)', {
+                        pending: CommentStatus.PENDING,
+                        email: options.viewerEmail,
+                    })
+                }
+
+                if (options.viewerId) {
+                    qbInner.orWhere('(comment.status = :pending AND comment.authorId = :userId)', {
+                        pending: CommentStatus.PENDING,
+                        userId: options.viewerId,
+                    })
+                }
+            }))
         }
 
-        const allComments = await commentRepo.find({
-            where: query,
-            order: {
-                isSticked: 'DESC',
-                createdAt: 'ASC',
-            },
-            relations: ['author'],
-        })
+        const allComments = await qb.getMany()
 
         // 构建树形结构并处理隐私
         return this.buildCommentTree(allComments, options.isAdmin)

@@ -53,7 +53,19 @@ const activeReplyName = ref<string>('')
 const fetchComments = async () => {
     loading.value = true
     try {
-        const response = await $fetch<{ code: number, data: Comment[] }>(`/api/posts/${props.postId}/comments`)
+        let email = ''
+        if (import.meta.browser) {
+            const saved = localStorage.getItem('momei_guest_info')
+            if (saved) {
+                try {
+                    email = JSON.parse(saved).email || ''
+                } catch (e) {}
+            }
+        }
+
+        const response = await $fetch<{ code: number, data: Comment[] }>(`/api/posts/${props.postId}/comments`, {
+            query: email ? { email } : undefined,
+        })
         if (response.code === 200) {
             comments.value = response.data
             // 简单计算总数（含回复）
