@@ -35,12 +35,12 @@ export const PRESETS = {
         text: { light: '#451a03', dark: '#fef3c7' },
         radius: '1rem',
     },
-    jike: {
-        primary: { light: '#ffe411', dark: '#ffe411' },
-        accent: { light: '#121212', dark: '#ffffff' },
-        surface: { light: '#ffffff', dark: '#121212' },
-        text: { light: '#121212', dark: '#ffffff' },
-        radius: '8px',
+    geek: {
+        primary: { light: '#7c3aed', dark: '#a855f7' },
+        accent: { light: '#4c1d95', dark: '#06b6d4' },
+        surface: { light: '#ffffff', dark: '#000000' },
+        text: { light: '#1e1b4b', dark: '#f5f3ff' },
+        radius: '4px',
     },
 }
 
@@ -115,7 +115,9 @@ export const useTheme = () => {
 
         // 计算对比色，避免嵌套三元表达式产生的 Lint 错误
         let contrastColor = mode === 'dark' ? '#000' : '#fff'
-        if (presetKey === 'jike' || primary.toLowerCase() === '#ffe411') {
+        if (presetKey === 'geek' && mode === 'dark') {
+            contrastColor = '#fff'
+        } else if (primary.toLowerCase() === '#ffe411') {
             contrastColor = '#000'
         }
 

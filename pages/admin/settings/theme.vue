@@ -92,6 +92,9 @@
                                 class="mt-2 w-full"
                                 @change="onPresetChange"
                             />
+                            <p v-if="settings.theme_preset === 'custom'" class="hint-text mt-2">
+                                {{ $t('pages.admin.settings.theme.custom_hint') }}
+                            </p>
                         </div>
 
                         <Divider />
@@ -276,7 +279,8 @@ const presetOptions = computed(() => [
     { label: t('pages.admin.settings.theme.presets.default'), value: 'default' },
     { label: t('pages.admin.settings.theme.presets.green'), value: 'green' },
     { label: t('pages.admin.settings.theme.presets.amber'), value: 'amber' },
-    { label: t('pages.admin.settings.theme.presets.jike'), value: 'jike' },
+    { label: t('pages.admin.settings.theme.presets.geek'), value: 'geek' },
+    { label: t('pages.admin.settings.theme.presets.custom'), value: 'custom' },
 ])
 
 // 监听设置变化以进行实时预览
@@ -285,7 +289,7 @@ watch(settings, () => {
 }, { deep: true })
 
 const onPresetChange = () => {
-    if (!settings.value) {
+    if (!settings.value || settings.value.theme_preset === 'custom') {
         return
     }
     // 切换预设时清空手动覆盖项，使其使用预设默认值
@@ -379,11 +383,13 @@ const saveTheme = async () => {
 }
 
 .form-group {
+    margin-bottom: 1.5rem;
+
     label {
         display: block;
         font-weight: 600;
         font-size: 0.875rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
         color: var(--p-text-color);
     }
 

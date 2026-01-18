@@ -371,8 +371,10 @@
                         "default": "极致经典",
                         "green": "清新自然绿",
                         "amber": "琥珀暖色",
-                        "jike": "即刻主题"
+                        "geek": "极客紫",
+                        "custom": "自定义个性化"
                     },
+                    "custom_hint": "在自定义模式下，您可以保存任何手动的配色和细节调整。",
                     "primary_color": "主色调",
                     "accent_color": "点缀色",
                     "border_radius": "圆角大小",

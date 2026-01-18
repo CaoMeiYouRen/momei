@@ -372,8 +372,10 @@
                         "default": "Classic",
                         "green": "Natural Green",
                         "amber": "Warm Amber",
-                        "jike": "Jike Theme"
+                        "geek": "Geek Purple",
+                        "custom": "Custom"
                     },
+                    "custom_hint": "In Custom mode, your manual color and style adjustments will be preserved and saved.",
                     "primary_color": "Primary Color",
                     "accent_color": "Accent Color",
                     "border_radius": "Border Radius",
