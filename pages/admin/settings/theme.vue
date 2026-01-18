@@ -328,7 +328,7 @@ const saveTheme = async () => {
 </script>
 
 <style lang="scss" scoped>
-@use "@/styles/_variables.scss" as *;
+@use "@/styles/variables" as *;
 
 .admin-theme-settings {
     padding-bottom: 3rem;
@@ -340,7 +340,7 @@ const saveTheme = async () => {
     gap: 2rem;
     margin-top: 1.5rem;
 
-    @media (max-width: 1200px) {
+    @media (width <= 1200px) {
         grid-template-columns: 1fr;
     }
 }
@@ -479,6 +479,7 @@ const saveTheme = async () => {
         border: none;
         padding-bottom: 0.5rem;
     }
+
     .p-panel-content {
         border: none;
         background: transparent;
