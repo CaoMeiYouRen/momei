@@ -19,7 +19,7 @@
                     option-label="label"
                     option-value="value"
                     :placeholder="$t('pages.admin.comments.status')"
-                    class="md:w-[180px] w-full"
+                    class="admin-comments__status-select"
                     @change="onFilterChange"
                 />
             </div>
@@ -31,13 +31,13 @@
                 :total-records="total"
                 :rows="pagination.pageSize"
                 paginator
-                class="p-datatable-sm"
+                class="admin-comments__table"
                 @page="onPage"
             >
                 <Column
                     field="status"
                     :header="$t('pages.admin.comments.status')"
-                    class="w-[100px]"
+                    class="admin-comments__col--status"
                 >
                     <template #body="{data}">
                         <Tag
@@ -47,7 +47,7 @@
                     </template>
                 </Column>
 
-                <Column :header="$t('pages.admin.comments.author')" class="w-[220px]">
+                <Column :header="$t('pages.admin.comments.author')" class="admin-comments__col--author">
                     <template #body="{data}">
                         <div class="author-info">
                             <div class="author-info__name">
@@ -60,9 +60,9 @@
                     </template>
                 </Column>
 
-                <Column :header="$t('pages.admin.comments.content')" class="max-w-[400px]">
+                <Column :header="$t('pages.admin.comments.content')" class="admin-comments__col--content">
                     <template #body="{data}">
-                        <div class="text-sm truncate-2-lines">
+                        <div class="admin-comments__content-text">
                             {{ data.content }}
                         </div>
                     </template>
@@ -74,7 +74,7 @@
                             v-if="data.post"
                             :to="`/posts/${data.post.id}`"
                             target="_blank"
-                            class="hover:underline text-primary text-sm"
+                            class="admin-comments__post-link"
                         >
                             {{ data.post.title }}
                         </NuxtLink>
@@ -87,9 +87,9 @@
                     </template>
                 </Column>
 
-                <Column :header="$t('common.actions')" class="text-right">
+                <Column :header="$t('common.actions')" class="admin-comments__col--actions">
                     <template #body="{data}">
-                        <div class="flex gap-1 justify-end">
+                        <div class="admin-comments__actions">
                             <Button
                                 v-if="data.status !== CommentStatus.PUBLISHED"
                                 v-tooltip.top="$t('pages.admin.comments.approve')"
@@ -276,6 +276,57 @@ onMounted(() => {
         border-bottom: 1px solid var(--p-content-border-color);
         flex-wrap: wrap;
     }
+
+    &__status-select {
+        width: 100%;
+
+        @media screen and (min-width: 768px) {
+            width: 180px;
+        }
+    }
+
+    &__content-text {
+        font-size: 0.875rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__post-link {
+        font-size: 0.875rem;
+        color: var(--p-primary-color);
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        gap: 0.25rem;
+        justify-content: flex-end;
+    }
+
+    &__col {
+        &--status {
+            width: 100px;
+        }
+
+        &--author {
+            width: 220px;
+        }
+
+        &--content {
+            max-width: 400px;
+        }
+
+        &--actions {
+            text-align: right;
+        }
+    }
 }
 
 .author-info {
@@ -295,14 +346,6 @@ onMounted(() => {
         color: var(--p-text-muted-color);
         opacity: 0.8;
     }
-}
-
-.truncate-2-lines {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .empty-state {

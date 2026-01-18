@@ -17,7 +17,7 @@
         />
 
         <div v-if="loading" class="comment-system__loading">
-            <i class="pi pi-spin pi-spinner" style="font-size: 2rem" />
+            <i class="comment-system__spinner pi pi-spin pi-spinner" />
         </div>
 
         <div v-else-if="comments.length > 0" class="comment-system__list">
@@ -126,6 +126,10 @@ onMounted(() => {
     justify-content: center;
     padding: 3rem 0;
     color: var(--p-primary-color);
+  }
+
+  &__spinner {
+    font-size: 2rem;
   }
 
   &__list {
