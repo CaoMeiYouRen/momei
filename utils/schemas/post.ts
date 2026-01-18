@@ -1,9 +1,23 @@
 import { z } from 'zod'
 import { isSnowflakeId, isValidCustomUrl } from '../shared/validate'
 import { paginationSchema } from './pagination'
-import { PostStatus } from '@/types/post'
+import { PostStatus, PostVisibility } from '@/types/post'
 
-const postStatusEnum = z.enum(PostStatus)
+const postStatusEnum = z.enum([
+    PostStatus.DRAFT,
+    PostStatus.PENDING,
+    PostStatus.PUBLISHED,
+    PostStatus.REJECTED,
+    PostStatus.HIDDEN,
+] as [PostStatus, ...PostStatus[]])
+
+const postVisibilityEnum = z.enum([
+    PostVisibility.PUBLIC,
+    PostVisibility.PRIVATE,
+    PostVisibility.PASSWORD,
+    PostVisibility.REGISTERED,
+    PostVisibility.SUBSCRIBER,
+] as [PostVisibility, ...PostVisibility[]])
 
 export const createPostSchema = z.object({
     title: z.string().min(1).max(255),
@@ -26,6 +40,8 @@ export const createPostSchema = z.object({
     copyright: z.string().nullable().optional(),
     tags: z.array(z.string()).optional(),
     status: postStatusEnum.default(PostStatus.DRAFT),
+    visibility: postVisibilityEnum.default(PostVisibility.PUBLIC),
+    password: z.string().nullable().optional(),
 })
 
 export const updatePostSchema = z.object({
@@ -49,6 +65,8 @@ export const updatePostSchema = z.object({
     copyright: z.string().nullable().optional(),
     tags: z.array(z.string()).optional(),
     status: postStatusEnum.optional(),
+    visibility: postVisibilityEnum.optional(),
+    password: z.string().nullable().optional(),
 })
 
 export const postQuerySchema = paginationSchema.extend({

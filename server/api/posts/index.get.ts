@@ -74,6 +74,8 @@ export default defineEventHandler(async (event) => {
     } else {
         // Public Mode
         qb.andWhere('post.status = :status', { status: 'published' })
+        // 隐藏私有文章 (Stealth Mode at list level)
+        qb.andWhere('post.visibility != :privateVisibility', { privateVisibility: 'private' })
 
         if (query.authorId) {
             qb.andWhere('post.authorId = :authorId', { authorId: query.authorId })

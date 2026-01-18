@@ -90,6 +90,12 @@ export default defineEventHandler(async (event) => {
     if (body.copyright !== undefined) {
         post.copyright = body.copyright
     }
+    if (body.visibility !== undefined) {
+        post.visibility = body.visibility
+    }
+    if (body.password !== undefined) {
+        post.password = body.password
+    }
 
     // Handle Slug Change
     if (

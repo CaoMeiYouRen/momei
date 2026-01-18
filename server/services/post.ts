@@ -81,6 +81,12 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
     if (body.copyright !== undefined) {
         post.copyright = body.copyright
     }
+    if (body.visibility !== undefined) {
+        post.visibility = body.visibility
+    }
+    if (body.password !== undefined) {
+        post.password = body.password ?? null
+    }
     post.authorId = authorId
     post.tags = tags
 

@@ -180,6 +180,7 @@
   "lint-staged": {
     "*.{js,ts,vue}": [
       "npm run lint",
+      "npm run typecheck",
       "git add"
     ]
   },

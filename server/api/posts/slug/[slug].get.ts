@@ -2,6 +2,7 @@ import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'
 import { PostStatus } from '@/types/post'
+import { checkPostAccess } from '@/server/utils/post-access'
 
 export default defineEventHandler(async (event) => {
     const slug = getRouterParam(event, 'slug')
@@ -35,6 +36,14 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 404, statusMessage: 'Post not found' })
     }
 
+    // Handle Access Control
+    const unlockedIds = (getCookie(event, 'momei_unlocked_posts') || '').split(',')
+    const access = await checkPostAccess(post, session, unlockedIds)
+
+    if (!access.allowed && access.shouldNotFound) {
+        throw createError({ statusCode: 404, statusMessage: 'Post not found' })
+    }
+
     // Fetch translations
     let translations: any[] = []
     if (post.translationId) {
@@ -47,15 +56,15 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // Visibility check
-    if (post.status !== PostStatus.PUBLISHED) {
-        if (!session || !session.user) {
-            throw createError({ statusCode: 404, statusMessage: 'Post not found' })
-        }
-        const isAuthor = session.user.id === post.authorId
-        const isAdmin = session.user.role === 'admin'
-        if (!isAuthor && !isAdmin) {
-            throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+    if (!access.allowed) {
+        return {
+            code: 200,
+            data: {
+                ...(access.data || {}),
+                translations,
+                locked: true,
+                reason: access.reason,
+            },
         }
     }
 
@@ -64,6 +73,7 @@ export default defineEventHandler(async (event) => {
         data: {
             ...post,
             translations,
+            locked: false,
         },
     }
 })

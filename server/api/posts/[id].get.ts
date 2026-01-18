@@ -1,7 +1,7 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { auth } from '@/lib/auth'
-import { isAdmin } from '@/utils/shared/roles'
+import { checkPostAccess } from '@/server/utils/post-access'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -28,20 +28,30 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 404, statusMessage: 'Post not found' })
     }
 
-    // Visibility check
-    if (post.status !== 'published') {
-        if (!session || !session.user) {
-            throw createError({ statusCode: 404, statusMessage: 'Post not found' })
-        }
-        const isAuthor = session.user.id === post.authorId
-        const isUserAdmin = isAdmin(session.user.role)
-        if (!isAuthor && !isUserAdmin) {
-            throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+    // Handle Access Control
+    const unlockedIds = (getCookie(event, 'momei_unlocked_posts') || '').split(',')
+    const access = await checkPostAccess(post, session, unlockedIds)
+
+    if (!access.allowed && access.shouldNotFound) {
+        throw createError({ statusCode: 404, statusMessage: 'Post not found' })
+    }
+
+    if (!access.allowed) {
+        return {
+            code: 200,
+            data: {
+                ...(access.data || {}),
+                locked: true,
+                reason: access.reason,
+            },
         }
     }
 
     return {
         code: 200,
-        data: post,
+        data: {
+            ...post,
+            locked: false,
+        },
     }
 })
