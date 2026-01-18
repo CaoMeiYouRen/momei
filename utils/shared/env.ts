@@ -192,3 +192,13 @@ export const AI_MAX_CONTENT_LENGTH = Number(
 )
 // 分段处理的目标块大小
 export const AI_CHUNK_SIZE = Number(process.env.AI_CHUNK_SIZE || 4000)
+
+/**
+ * 安全配置
+ */
+// 外部资源 URL 域名白名单，逗号分隔
+export const SECURITY_URL_WHITELIST = (
+    process.env.NUXT_PUBLIC_SECURITY_URL_WHITELIST
+    || (import.meta.env.NUXT_PUBLIC_SECURITY_URL_WHITELIST as string)
+    || 'images.unsplash.com,cdn.pixabay.com,img.shields.io,i.imgur.com,github.com,avatars.githubusercontent.com,lh3.googleusercontent.com'
+).split(',').map((d) => d.trim()).filter(Boolean)
