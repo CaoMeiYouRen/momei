@@ -298,14 +298,14 @@
 ### 2. 互动与隐私控制 (Interactions & Privacy Control)
 
 - [ ] **精细化文章访问权限控制**
-    - [ ] 验收: 数据库 `Post` 实体增加 `visibility` (枚举: public, private, password, registered, subscriber) 和 `password` (可选) 字段。
-    - [ ] 验收: 实现后端访问检查逻辑，非符合条件请求仅返回元数据，隐藏正文。
+    - [x] 验收: 数据库 `Post` 实体增加 `visibility` (枚举: public, private, password, registered, subscriber) 和 `password` (可选) 字段。
+    - [x] 验收: 实现后端访问检查逻辑，非符合条件请求仅返回元数据，隐藏正文。
     - [ ] 验收: 实现前端访问校验 UI，包含密码输入框、登录引导或订阅引导。
 - [ ] **原生评论系统**
-    - [ ] 验收: 数据库 `Comment` 实体实现，包含父子级、作者信息（访客/注册用户）、IP、状态等字段。
-    - [ ] 验收: 实现评论 CRUD API，支持嵌套获取、点赞、删除。
+    - [x] 验收: 数据库 `Comment` 实体实现，包含父子级、作者信息（访客/注册用户）、IP、状态等字段。
+    - [x] 验收: 实现评论 CRUD API，支持嵌套获取、点赞、删除。
     - [ ] 验收: 实现前台评论列表与发表组件，支持 Markdown 预览与 Gravatar 头像。
-    - [ ] 验收: 管理后台集成评论管理，支持批量审核、标记垃圾与黑名单封断。
+    - [x] 验收: 管理后台集成评论管理，支持批量审核、标记垃圾与黑名单封断。
 
 ### 3. 播客与多媒体原生支持 (Podcast & Multimedia)
 
