@@ -18,7 +18,24 @@
 | `registered` | 登录可见 | 仅限已登录并拥有活跃 Session 的用户。 |
 | `subscriber` | 订阅可见 | 仅限已通过邮件验证的订阅者 (Subscriber) 或登录用户中已订阅的人员。 |
 
-### 2.2 实现方案
+### 2.2 核心机制与安全性 (Core Mechanism & Security)
+
+#### 2.2.1 私密伪装 (Stealth Mode)
+- **行为**: 对于 `visibility: private` 的文章，如果请求者不是作者本人或管理员，API 必须返回 **404 Not Found**。
+- **目的**: 彻底隔绝别名 (Slug) 泄露导致的信息熵，让无关用户无法验证该路径是否存在。
+
+#### 2.2.2 明确拒绝原因 (Explicit Refusal Reasons)
+除了 `private` 策略外，对于其他限制内容，API 应返回特定的错误信息以引导用户：
+- `AUTH_REQUIRED` (401): 针对 `registered` 策略，引导至登录页。
+- `PASSWORD_REQUIRED` (403): 针对 `password` 策略，弹出密码输入框。
+- `SUBSCRIPTION_REQUIRED` (403): 针对 `subscriber` 策略，引导至邮件订阅组件。
+- `PERMISSION_DENIED` (403): 通用权限不足（如非本文章作者尝试访问私密文章）。
+
+#### 2.2.3 国际化联动策略 (I18n Interaction)
+- **独立性 (Independence)**: 默认情况下，同一个翻译簇中的不同语言文章可以有不同的可见性（例如：中文译本仅限国内订阅可见，英文版公开）。
+- **同步能力 (Sync Capability)**: 在管理后台提供“同步可见性到所有语言”的快捷按钮。
+
+### 2.3 实现方案
 
 -   **数据库变更**:
     -   `Post` 实体增加 `visibility` (枚举: public, private, password, registered, subscriber)。
@@ -75,7 +92,28 @@
 -   **Admin**: 增加评论管理、权限设置仪表盘。
 -   **Blog**: 文章底部集成评论列表与访问校验 UI。
 -   **User**: “我的评论”记录与通知中心互动。
+## 5. UI 交互设计 (UI/UX Design)
 
+### 5.1 受限内容占位符 (Restricted Content Placeholder)
+当 API 返回文章状态为 `locked: true` 时，前台正文区域应渲染对应的占位组件：
+
+- **密码保护 (Password)**:
+    - 显示一把锁的图标。
+    - 提示语：“此内容受密码保护，请输入访问密码”。
+    - 提供输入框和“确认”按钮。
+    - 验证成功后，自动重载内容或更新局部状态。
+
+- **登录可见 (Registered)**:
+    - 提示语：“本文仅限注册用户阅读”。
+    - 提供“登录 / 立即注册”按钮。
+
+- **订阅可见 (Subscriber)**:
+    - 提示语：“这是一篇订阅者专享文章”。
+    - 提供“输入邮箱订阅”或“已是订阅者？点此通过邮件验证”的入口。
+
+### 5.2 引导体验
+- **错误提示**: 如果用户输入了错误的密码，应显示红色的错误抖动提示。
+- **平滑过渡**: 满足条件后切换到正文时，应有平淡的 `fade-in` 动画。
 ---
 
 ## 5. 未来扩展 (Future Extensions / Backlog)

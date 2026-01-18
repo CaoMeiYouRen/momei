@@ -6,6 +6,7 @@ import { Account } from './account'
 import { Session } from './session'
 import { Post } from './post'
 import { ApiKey } from './api-key'
+import { Comment } from './comment'
 
 @Entity('user')
 export class User extends BaseEntity {
@@ -152,4 +153,10 @@ export class User extends BaseEntity {
         onDelete: 'CASCADE',
     })
     apiKeys?: ApiKey[]
+
+    /**
+     * 用户的评论（一对多关系）
+     */
+    @OneToMany(() => Comment, (comment) => comment.author)
+    comments: Comment[]
 }

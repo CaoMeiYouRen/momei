@@ -1,9 +1,10 @@
-import { Entity, ManyToOne, ManyToMany, JoinTable, Unique } from 'typeorm'
+import { Entity, ManyToOne, ManyToMany, JoinTable, Unique, OneToMany } from 'typeorm'
 import { CustomColumn } from '../decorators/custom-column'
 import { BaseEntity } from './base-entity'
 import { User } from './user'
 import { Category } from './category'
 import { Tag } from './tag'
+import { Comment } from './comment'
 import { PostStatus, PostVisibility } from '@/types/post'
 
 @Entity('post')
@@ -84,4 +85,7 @@ export class Post extends BaseEntity {
     @ManyToMany(() => Tag, (tag) => tag.posts)
     @JoinTable()
     tags: Tag[]
+
+    @OneToMany(() => Comment, (comment) => comment.post)
+    comments: Comment[]
 }

@@ -170,7 +170,25 @@ _(待完善，后续迭代补充)_
 | `translationId` | varchar  | No   | No   | 翻译组 ID (用于关联多语言版本) |
 | `createdAt`     | datetime | Yes  | No   | 创建时间                       |
 | `updatedAt`     | datetime | Yes  | No   | 更新时间                       |
+#### Comment (评论表)
 
+| 字段名 | 类型 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| `id` | varchar | Yes | (Snowflake) | 主键 |
+| `postId` | varchar | Yes | - | 关联文章 ID |
+| `authorId` | varchar | No | - | 关联用户 ID (注册用户) |
+| `parentId` | varchar | No | - | 父评论 ID (用于嵌套) |
+| `content` | text | Yes | - | 评论正文 |
+| `authorName` | varchar | Yes | - | 评论者昵称 |
+| `authorEmail` | varchar | Yes | - | 评论者邮箱 |
+| `authorUrl` | varchar | No | - | 个人主页 URL |
+| `status` | varchar | Yes | 'published' | 状态: pending, published, spam |
+| `ip` | varchar | No | - | 评论者 IP |
+| `userAgent` | text | No | - | 设备 UserAgent |
+| `isSticked` | boolean | Yes | false | 是否置顶 |
+| `likes` | integer | Yes | 0 | 点赞数 |
+| `createdAt` | datetime | Yes | now() | 创建时间 |
+| `updatedAt` | datetime | Yes | now() | 更新时间 |
 ## 4. 索引策略 (Indexing Strategy)
 
 -   **User**: `email` (Unique), `username` (Unique)

@@ -45,8 +45,13 @@
 -   `GET /api/posts/:id` (或 `/api/posts/slug/:slug`)
 
     -   **Response**: 文章详情 (Post Entity).
+    -   **可见性逻辑**:
+        -   若 `visibility=private` 且当前用户非作者/管理员 -> 返回 **404 NOT_FOUND** (伪装)。
+        -   若访问受限（`password/registered/subscriber`）且未满足条件 -> 返回 **403/401**，不包含 `content` 核心正文，包含 `locked: true` 及 `reason`。
 
--   `POST /api/posts/:id/views`
+-   `POST /api/posts/:id/verify-password`
+    -   **Body**: `{ password: string }`
+    -   **Logic**: 校验密码，成功后发放一个短期有效的加密 Cookie 凭证。
     -   **Note**: 增加阅读量 (PV), 需做简单防刷 (IP/Session).
 
 ### 3.2 归档 (Archives)
