@@ -195,6 +195,20 @@
         "agreement_required": "Please read and agree to the User Agreement and Privacy Policy"
     },
     "pages": {
+        "posts": {
+            "title": "Articles",
+            "status_warning": "This article is in {status} status and is only visible to you (Author/Admin).",
+            "login_to_read": "Login to Continue Reading",
+            "password_placeholder": "Enter access password",
+            "locked": {
+                "password": "Content Protected",
+                "password_desc": "This article is password protected. Please enter the correct password to unlock.",
+                "registered": "Members Only",
+                "registered_desc": "This content is only available to registered users. Please log in to your account.",
+                "subscriber": "Subscriber Exclusive",
+                "subscriber_desc": "This is a subscriber-exclusive article. Please subscribe to our mailing list to unlock."
+            }
+        },
         "user_agreement": {
             "title": "User Agreement",
             "last_updated": "Last updated: January 18, 2026"
@@ -547,5 +561,26 @@
                 "delete_success": "API key revoked"
             }
         }
+    },
+    "comments": {
+        "title": "Comments",
+        "count": "{count} Comments",
+        "reply": "Reply",
+        "submit": "Post Comment",
+        "nickname": "Nickname",
+        "nickname_placeholder": "How should we call you?",
+        "email": "Email Address",
+        "email_placeholder": "For avatar & notifications (Will not be public)",
+        "website": "Website",
+        "website_placeholder": "https://...",
+        "content_placeholder_guest": "Write something... (Requires moderation)",
+        "content_placeholder_logged_in": "Share your thoughts...",
+        "guest_tip": "You are posting as a guest",
+        "replying_to": "Replying to",
+        "no_comments": "No comments yet. Be the first to share your thoughts!",
+        "pending_audit": "Your comment has been submitted and is pending moderation.",
+        "load_more": "Load More",
+        "must_login": "You must be logged in to post a comment",
+        "sticked": "Sticked"
     }
 }

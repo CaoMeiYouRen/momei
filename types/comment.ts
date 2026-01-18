@@ -15,3 +15,30 @@ export enum CommentStatus {
      */
     SPAM = 'spam',
 }
+
+/**
+ * 评论实体接口
+ */
+export interface Comment {
+    id: string
+    postId: string
+    authorId: string | null
+    parentId: string | null
+    content: string
+    authorName: string
+    authorEmail?: string // 仅管理员可见
+    authorUrl: string | null
+    status: CommentStatus
+    ip?: string // 仅管理员可见
+    userAgent?: string // 仅管理员可见
+    isSticked: boolean
+    likes: number
+    createdAt: string
+    updatedAt: string
+    // 关联数据
+    author?: {
+        name: string
+        image?: string
+    }
+    replies?: Comment[]
+}

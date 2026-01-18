@@ -194,6 +194,20 @@
         "agreement_required": "请阅读并同意用户协议和隐私政策"
     },
     "pages": {
+        "posts": {
+            "title": "博文",
+            "status_warning": "当前文章处于 {status} 状态，仅您（作者/管理员）可见。",
+            "login_to_read": "登录后继续阅读",
+            "password_placeholder": "请输入文章访问密码",
+            "locked": {
+                "password": "内容已加密",
+                "password_desc": "本文章受密码保护，请输入正确密码以解锁内容。",
+                "registered": "仅限成员阅读",
+                "registered_desc": "本内容仅对注册用户开放，请登录您的账号后继续阅读。",
+                "subscriber": "订阅者专享",
+                "subscriber_desc": "这是订阅者专享内容，请订阅我们的邮件列表以解锁。"
+            }
+        },
         "user_agreement": {
             "title": "用户协议",
             "last_updated": "最后更新日期：2026年1月18日"
@@ -546,5 +560,26 @@
                 "delete_success": "API 密钥已撤销"
             }
         }
+    },
+    "comments": {
+        "title": "评论",
+        "count": "{count} 条评论",
+        "reply": "回复",
+        "submit": "发表评论",
+        "nickname": "昵称",
+        "nickname_placeholder": "您的称呼",
+        "email": "电子邮箱",
+        "email_placeholder": "用于头像与通知 (不会公开)",
+        "website": "个人网站",
+        "website_placeholder": "https://...",
+        "content_placeholder_guest": "说点什么吧... (需审核后展示)",
+        "content_placeholder_logged_in": "分享您的看法...",
+        "guest_tip": "您正在以游客身份发表评论",
+        "replying_to": "正在回复",
+        "no_comments": "暂无评论，快来抢沙发吧！",
+        "pending_audit": "您的评论已提交，正在等待管理员审核展示。",
+        "load_more": "加载更多",
+        "must_login": "您必须登录后才能发表评论",
+        "sticked": "置顶"
     }
 }

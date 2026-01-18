@@ -129,10 +129,58 @@
                     </header>
 
                     <!-- Content -->
-                    <ArticleContent :content="post.content" />
+                    <template v-if="post.locked">
+                        <div class="post-detail__locked">
+                            <div class="post-detail__locked-card">
+                                <i class="pi pi-lock post-detail__locked-icon" />
+                                <h2 class="post-detail__locked-title">
+                                    {{ $t(`pages.posts.locked.${post.reason}`) }}
+                                </h2>
+                                <p class="post-detail__locked-desc">
+                                    {{ $t(`pages.posts.locked.${post.reason}_desc`) }}
+                                </p>
+
+                                <!-- Password Input -->
+                                <div v-if="post.reason === 'password'" class="post-detail__unlock-form">
+                                    <div class="flex gap-2 w-full">
+                                        <InputText
+                                            v-model="password"
+                                            type="password"
+                                            :placeholder="$t('pages.posts.password_placeholder')"
+                                            class="flex-grow"
+                                            @keyup.enter="unlockPost"
+                                        />
+                                        <Button
+                                            :label="$t('common.confirm')"
+                                            :loading="unlocking"
+                                            @click="unlockPost"
+                                        />
+                                    </div>
+                                    <small v-if="unlockError" class="block mt-2 p-error">
+                                        {{ unlockError }}
+                                    </small>
+                                </div>
+
+                                <!-- Auth/Subscription Redirects -->
+                                <div v-else class="post-detail__unlock-actions">
+                                    <Button
+                                        v-if="post.reason === 'registered'"
+                                        :label="$t('pages.posts.login_to_read')"
+                                        icon="pi pi-user"
+                                        @click="navigateTo(localePath('/login'))"
+                                    />
+                                    <div v-if="post.reason === 'subscriber'" class="w-full">
+                                        <SubscriberForm />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <ArticleContent v-else :content="post.content" />
 
                     <!-- Copyright -->
                     <ArticleCopyright
+                        v-if="!post.locked"
                         :author-name="post.author?.name || post.author?.email || ''"
                         :url="fullUrl"
                         :license="post.copyright"
@@ -155,7 +203,10 @@
                             </NuxtLink>
                         </div>
                         <hr class="post-detail__divider">
-                        <SubscriberForm />
+                        <SubscriberForm v-if="!post.locked" />
+
+                        <!-- Comment List -->
+                        <CommentList v-if="!post.locked" :post-id="post.id" />
                     </footer>
                 </main>
             </div>
@@ -186,9 +237,35 @@ const fullUrl = computed(() => {
 const isId = isSnowflakeId(idOrSlug)
 const endpoint = isId ? `/api/posts/${idOrSlug}` : `/api/posts/slug/${idOrSlug}`
 
-const { data, pending, error } = await useAppFetch<any>(() => endpoint)
+const { data, pending, error, refresh } = await useAppFetch<any>(() => endpoint)
 
 const post = computed(() => data.value?.data)
+
+// Unlock Logic
+const password = ref('')
+const unlocking = ref(false)
+const unlockError = ref('')
+
+const unlockPost = async () => {
+    if (!password.value) return
+    unlocking.value = true
+    unlockError.value = ''
+    try {
+        const res = await $fetch<any>(`/api/posts/${post.value.id}/verify-password`, {
+            method: 'POST',
+            body: { password: password.value },
+        })
+        if (res.code === 200) {
+            // Refresh post data
+            await refresh()
+            password.value = ''
+        }
+    } catch (e: any) {
+        unlockError.value = e.data?.statusMessage || t('common.error')
+    } finally {
+        unlocking.value = false
+    }
+}
 
 // Handle dynamic route translations for i18n language switcher
 watch(post, (newPost) => {
@@ -343,6 +420,50 @@ onMounted(async () => {
             padding: 1.5rem;
             border-radius: 0.75rem;
         }
+    }
+
+    &__locked {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 4rem 0;
+        background-color: var(--p-surface-50);
+        border-radius: 1rem;
+        border: 2px dashed var(--p-surface-200);
+        margin: 2rem 0;
+
+        &-card {
+            max-width: 400px;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        &-icon {
+            font-size: 3rem;
+            color: var(--p-text-color-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        &-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        &-desc {
+            color: var(--p-text-color-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+    }
+
+    &__unlock-form {
+        width: 100%;
+    }
+
+    :global(.dark) &__locked {
+        background-color: var(--p-surface-900);
+        border-color: var(--p-surface-700);
     }
 
     &__header {
