@@ -37,7 +37,7 @@ description: 驱动完整的 PDTFC 循环，负责从需求分析、代码编写
     -   **必须阅读并严格遵守** [开发规范](../../docs/standards/development.md)、[API 规范](../../docs/standards/api.md) 和 [测试规范](../../docs/standards/testing.md)。
     -   始终使用 TypeScript、Vue 3 Composition API、SCSS BEM 和 i18n 规范。
 3.  **Test & Review (测试与审查)**:
-    -   运行本地测试（`pnpm test`）和 Lint 检查，确保新代码未破坏原有功能。
+    -   运行Lint（`pnpm lint`）、Typecheck（`pnpm typecheck`） 、本地测试（`pnpm test`）检查，确保新代码未破坏原有功能。
     -   **破坏性分析**: 如果新功能导致原有测试失败，必须着重审查：是新代码逻辑错误，还是旧测试用例因业务变更而需更新。**禁止盲目修改旧测试，也不得带着失败的测试提交。**
 4.  **Fix (修复)**:
     -   分析测试失败原因并进行修复。
@@ -51,6 +51,7 @@ description: 驱动完整的 PDTFC 循环，负责从需求分析、代码编写
     -   **协作节奏**: 简单逻辑自行编写；复杂业务或需要高覆盖率时，**必须主动调用** `@test-engineer` 协助编写。
     -   确保代码覆盖率符合项目要求，避免漏洞积累。
 7.  **Commit Phase 2 (测试提交)**:
+    -   运行 Lint（`pnpm lint`）、Typecheck（`pnpm typecheck`）、本地测试（`pnpm test`） 检查，确保新代码符合规范且所有测试通过。
     -   当补充的测试用例验证通过后，再次提交测试相关代码。
     -   使用中文（或用户当前的语言）提交消息，遵循 Conventional Commits 规范。
 
