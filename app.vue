@@ -15,6 +15,11 @@ import { authClient } from '@/lib/auth-client'
 const { setLocale } = useI18n()
 const session = authClient.useSession()
 const { startTour } = useOnboarding()
+const { fetchTheme, applyTheme } = useTheme()
+
+// 初始化主题
+await fetchTheme()
+applyTheme()
 
 onMounted(() => {
     window.addEventListener('momei:start-tour', startTour)

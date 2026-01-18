@@ -31,6 +31,11 @@ export default defineEventHandler(async (event) => {
         return
     }
 
+    // 主题设置接口不需要 session 验证
+    if (event.path === '/api/settings/theme' && event.method === 'GET') {
+        return
+    }
+
     // 仅拦截 API 请求
     if (event.path.startsWith('/api')) {
         if (!session) {
