@@ -6,6 +6,7 @@ import { setSettings } from '@/server/services/setting'
 const themeUpdateSchema = z.object({
     theme_preset: z.string().optional().nullable(),
     theme_primary_color: z.string().optional().nullable(),
+    theme_accent_color: z.string().optional().nullable(),
     theme_border_radius: z.string().optional().nullable(),
     theme_logo_url: z.string().optional().nullable(),
     theme_favicon_url: z.string().optional().nullable(),

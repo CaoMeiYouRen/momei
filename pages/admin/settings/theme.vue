@@ -11,125 +11,156 @@
             </template>
         </AdminPageHeader>
 
-        <div class="grid mt-4">
-            <div class="col-12 lg:col-8">
-                <Panel :header="$t('pages.admin.settings.theme.preview')" class="mb-4">
-                    <div class="border-round p-4 preview-container surface-ground">
-                        <ArticleCard
-                            :post="{
-                                id: 1,
-                                title: '预览文章标题 (Preview Title)',
-                                summary: '这是一个预览摘要，用于展示主题配置后的实时效果。您可以尝试更改主色调、圆角或背景来观察变化。',
-                                cover: settings?.theme_logo_url || '',
-                                createdAt: new Date().toISOString(),
-                                tags: [{name: 'Theme'}, {name: 'Preview'}],
-                                viewCount: 1234,
-                                commentCount: 56,
-                                category: {name: 'Demo'}
-                            } as any"
-                        />
-                    </div>
-                </Panel>
-
-                <Panel :header="$t('pages.admin.settings.theme.background')" class="mb-4">
-                    <div class="flex flex-column gap-4">
-                        <div class="flex flex-column gap-2">
-                            <label class="font-bold">{{ $t('pages.admin.settings.theme.background_type') }}</label>
-                            <SelectButton
-                                v-model="settings.theme_background_type"
-                                :options="backgroundOptions"
-                                option-label="label"
-                                option-value="value"
-                                :allow-empty="false"
+        <div class="theme-grid">
+            <!-- 左侧：实时预览 -->
+            <div class="theme-preview-section">
+                <Panel :header="$t('pages.admin.settings.theme.preview')" class="preview-panel">
+                    <div class="preview-canvas shadow-2">
+                        <div
+                            class="preview-inner"
+                            :style="{backgroundColor: 'var(--p-surface-0)', color: 'var(--p-text-color)'}"
+                        >
+                            <ArticleCard
+                                :post="{
+                                    id: 1,
+                                    title: '预览文章标题 (Preview Title)',
+                                    summary: '这是一个预览摘要，用于展示主题配置后的实时效果。您可以尝试更改主色调、圆角或背景来观察变化。',
+                                    cover: settings?.theme_logo_url || '',
+                                    createdAt: new Date().toISOString(),
+                                    tags: [{name: 'Theme'}, {name: 'Preview'}],
+                                    viewCount: 1234,
+                                    commentCount: 56,
+                                    category: {name: 'Demo'}
+                                } as any"
                             />
-                        </div>
-
-                        <div v-if="settings.theme_background_type === 'color'" class="flex flex-column gap-2">
-                            <label class="font-bold">{{ $t('pages.admin.settings.theme.background_color') }}</label>
-                            <div class="align-items-center flex gap-3">
-                                <ColorPicker v-model="settings.theme_background_value" format="hex" />
-                                <InputText
-                                    v-model="settings.theme_background_value"
-                                    placeholder="#ffffff"
-                                    class="flex-1"
+                            <div class="preview-actions">
+                                <Button :label="$t('common.preview')" class="p-button-sm" />
+                                <Button
+                                    label="Accent Color"
+                                    icon="pi pi-bolt"
+                                    class="p-button-sm"
+                                    :style="{backgroundColor: 'var(--m-accent-color)', borderColor: 'var(--m-accent-color)'}"
                                 />
                             </div>
                         </div>
+                    </div>
+                </Panel>
 
-                        <div v-if="settings.theme_background_type === 'image'" class="flex flex-column gap-2">
-                            <label class="font-bold">{{ $t('pages.admin.settings.theme.background_image') }} URL</label>
-                            <InputGroup>
-                                <InputGroupAddon>
-                                    <i class="pi pi-image" />
-                                </InputGroupAddon>
-                                <InputText v-model="settings.theme_background_value" placeholder="https://example.com/background.jpg" />
-                            </InputGroup>
+                <Panel :header="$t('pages.admin.settings.theme.background')" class="mt-4">
+                    <div class="form-group">
+                        <label>{{ $t('pages.admin.settings.theme.background_type') }}</label>
+                        <SelectButton
+                            v-model="settings.theme_background_type"
+                            :options="backgroundOptions"
+                            option-label="label"
+                            option-value="value"
+                            :allow-empty="false"
+                            class="mt-2"
+                        />
+                    </div>
+
+                    <div v-if="settings.theme_background_type === 'color'" class="form-group mt-3">
+                        <label>{{ $t('pages.admin.settings.theme.background_color') }}</label>
+                        <div class="color-input-group mt-2">
+                            <ColorPicker v-model="settings.theme_background_value" format="hex" />
+                            <InputText v-model="settings.theme_background_value" placeholder="#ffffff" />
+                        </div>
+                    </div>
+
+                    <div v-if="settings.theme_background_type === 'image'" class="form-group mt-3">
+                        <label>{{ $t('pages.admin.settings.theme.background_image') }} URL</label>
+                        <div class="input-with-icon mt-2">
+                            <i class="pi pi-image" />
+                            <InputText v-model="settings.theme_background_value" placeholder="https://example.com/bg.jpg" />
                         </div>
                     </div>
                 </Panel>
             </div>
 
-            <div class="col-12 lg:col-4">
-                <Panel :header="$t('common.settings')" class="mb-4">
-                    <div class="flex flex-column gap-4">
-                        <!-- 预设 -->
-                        <div class="flex flex-column gap-2">
-                            <label class="font-bold">{{ $t('pages.admin.settings.theme.preset') }}</label>
+            <!-- 右侧：设置面板 -->
+            <div class="theme-config-section">
+                <Panel :header="$t('common.settings')">
+                    <div class="config-form">
+                        <!-- 预设选择 -->
+                        <div class="form-group">
+                            <label>{{ $t('pages.admin.settings.theme.preset') }}</label>
                             <Dropdown
                                 v-model="settings.theme_preset"
                                 :options="presetOptions"
                                 option-label="label"
                                 option-value="value"
-                                class="w-full"
+                                class="mt-2 w-full"
                                 @change="onPresetChange"
                             />
                         </div>
 
+                        <Divider />
+
                         <!-- 主色调 -->
-                        <div class="flex flex-column gap-2">
-                            <label class="font-bold">{{ $t('pages.admin.settings.theme.primary_color') }}</label>
-                            <div class="align-items-center flex gap-3">
+                        <div class="form-group">
+                            <label>{{ $t('pages.admin.settings.theme.primary_color') }}</label>
+                            <div class="color-input-group mt-2">
                                 <ColorPicker v-model="settings.theme_primary_color" format="hex" />
                                 <InputText
                                     v-model="settings.theme_primary_color"
-                                    class="flex-1"
-                                    placeholder="#3B82F6"
+                                    :placeholder="getCurrentPresetValue('primary')"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- 点缀色 -->
+                        <div class="form-group mt-3">
+                            <label>{{ $t('pages.admin.settings.theme.accent_color') }}</label>
+                            <div class="color-input-group mt-2">
+                                <ColorPicker v-model="settings.theme_accent_color" format="hex" />
+                                <InputText
+                                    v-model="settings.theme_accent_color"
+                                    :placeholder="getCurrentPresetValue('accent')"
                                 />
                             </div>
                         </div>
 
                         <!-- 圆角 -->
-                        <div class="flex flex-column gap-2">
-                            <label class="font-bold">{{ $t('pages.admin.settings.theme.border_radius') }}</label>
-                            <InputGroup>
-                                <InputText v-model="settings.theme_border_radius" placeholder="0.5rem" />
-                                <InputGroupAddon>rem/px</InputGroupAddon>
-                            </InputGroup>
-                        </div>
-
-                        <!-- Logo -->
-                        <div class="flex flex-column gap-2">
-                            <label class="font-bold">{{ $t('pages.admin.settings.theme.logo') }} URL</label>
-                            <InputText v-model="settings.theme_logo_url" placeholder="/logo.png" />
-                        </div>
-
-                        <!-- Favicon -->
-                        <div class="flex flex-column gap-2">
-                            <label class="font-bold">{{ $t('pages.admin.settings.theme.favicon') }} URL</label>
-                            <InputText v-model="settings.theme_favicon_url" placeholder="/favicon.ico" />
+                        <div class="form-group mt-3">
+                            <label>{{ $t('pages.admin.settings.theme.border_radius') }}</label>
+                            <div class="input-with-addon mt-2">
+                                <InputText v-model="settings.theme_border_radius" :placeholder="getCurrentPresetValue('radius')" />
+                                <span class="addon">rem/px</span>
+                            </div>
                         </div>
 
                         <Divider />
 
-                        <!-- 哀悼模式 -->
-                        <div class="flex flex-column gap-2">
+                        <!-- 品牌标识 -->
+                        <div class="form-group">
+                            <label>{{ $t('pages.admin.settings.theme.logo') }} URL</label>
+                            <InputText
+                                v-model="settings.theme_logo_url"
+                                placeholder="/logo.png"
+                                class="mt-2"
+                            />
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label>{{ $t('pages.admin.settings.theme.favicon') }} URL</label>
+                            <InputText
+                                v-model="settings.theme_favicon_url"
+                                placeholder="/favicon.ico"
+                                class="mt-2"
+                            />
+                        </div>
+
+                        <Divider />
+
+                        <!-- 特殊模式 -->
+                        <div class="form-group">
                             <div class="align-items-center flex justify-content-between">
-                                <label class="font-bold">{{ $t('pages.admin.settings.theme.mourning_mode') }}</label>
+                                <label>{{ $t('pages.admin.settings.theme.mourning_mode') }}</label>
                                 <ToggleSwitch v-model="mourningModeRef" />
                             </div>
-                            <small class="text-color-secondary">
+                            <p class="hint-text mt-1">
                                 {{ $t('pages.admin.settings.theme.mourning_mode_hint') }}
-                            </small>
+                            </p>
                         </div>
                     </div>
                 </Panel>
@@ -139,7 +170,7 @@
 </template>
 
 <script setup lang="ts">
-import { useTheme } from '@/composables/use-theme'
+import { useTheme, PRESETS } from '@/composables/use-theme'
 import AdminPageHeader from '@/components/admin-page-header.vue'
 import ArticleCard from '@/components/article-card.vue'
 
@@ -151,6 +182,18 @@ const { t } = useI18n()
 const toast = useToast()
 const { settings, applyTheme } = useTheme()
 const loading = ref(false)
+
+// 用于判断当前模式（深/浅）以显示正确的 Placeholder
+const isDark = useDark()
+
+const getCurrentPresetValue = (type: 'primary' | 'accent' | 'radius') => {
+    if (!settings.value) { return '' }
+    const presetKey = (settings.value.theme_preset || 'default') as keyof typeof PRESETS
+    const preset = PRESETS[presetKey]
+    if (type === 'radius') { return preset.radius }
+    const mode = isDark.value ? 'dark' : 'light'
+    return (preset[type] as any)[mode]
+}
 
 // 转换 mourning_mode 为布尔值用于 ToggleSwitch
 const mourningModeRef = computed({
@@ -182,39 +225,22 @@ watch(settings, () => {
     applyTheme()
 }, { deep: true })
 
-const onPresetChange = (e: any) => {
-    const preset = e.value
-    if (!settings.value) {
-        return
-    }
-    if (preset === 'geek') {
-        settings.value.theme_primary_color = '#10B981' // Emerald
-        settings.value.theme_border_radius = '0px'
-    } else if (preset === 'warm') {
-        settings.value.theme_primary_color = '#F59E0B' // Amber
-        settings.value.theme_border_radius = '1rem'
-    } else if (preset === 'default') {
-        settings.value.theme_primary_color = '#3B82F6' // Blue
-        settings.value.theme_border_radius = '0.5rem'
-    }
+const onPresetChange = () => {
+    if (!settings.value) { return }
+    // 切换预设时清空手动覆盖项，使其使用预设默认值
+    settings.value.theme_primary_color = null
+    settings.value.theme_accent_color = null
+    settings.value.theme_border_radius = null
 }
 
 const saveTheme = async () => {
-    if (!settings.value) {
-        return
-    }
+    if (!settings.value) { return }
     loading.value = true
     try {
-        const payload = { ...settings.value }
-
-        // 确保 mourning_mode 是布尔值或字符串 'true'/'false'
-        // API 已经支持 union，这里我们直接传递实时的布尔值即可
-
         await $fetch('/api/admin/settings/theme', {
             method: 'PUT',
-            body: payload,
+            body: settings.value,
         })
-
         toast.add({
             severity: 'success',
             summary: t('common.success'),
@@ -232,28 +258,162 @@ const saveTheme = async () => {
         loading.value = false
     }
 }
-
-// 页面离开时如果未保存，可能需要提示，这里暂时不实现复杂的变更检测
 </script>
 
 <style lang="scss" scoped>
-.preview-container {
-  min-height: 300px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
+@use "@/styles/_variables.scss" as *;
 
-  // 模拟 body 背景预览
-  background-attachment: scroll !important;
+.admin-theme-settings {
+    padding-bottom: 3rem;
 }
 
-:deep(.p-colorpicker) {
-  width: 2rem;
-  height: 2rem;
+.theme-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 2rem;
+    margin-top: 1.5rem;
+
+    @media (max-width: 1200px) {
+        grid-template-columns: 1fr;
+    }
 }
 
-:deep(.p-inputtext) {
-  width: 100%;
+// 预览区域样式
+.preview-canvas {
+    background-color: var(--p-surface-100);
+    padding: 3rem 2rem;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    position: relative;
+    overflow: hidden;
+
+    :global(.dark) & {
+        background-color: var(--p-surface-900);
+    }
+}
+
+.preview-inner {
+    width: 100%;
+    max-width: 500px;
+    padding: 1.5rem;
+    border-radius: var(--p-content-border-radius);
+    transition: all 0.3s ease;
+    border: 1px solid var(--p-content-border-color);
+}
+
+.preview-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+// 表单样式
+.config-form {
+    padding: 0.25rem 0;
+}
+
+.form-group {
+    label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        color: var(--p-text-color);
+    }
+
+    .hint-text {
+        font-size: 0.75rem;
+        color: var(--p-text-muted-color);
+        line-height: 1.4;
+    }
+}
+
+.color-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    :deep(.p-colorpicker) {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+
+        .p-colorpicker-preview {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid var(--p-content-border-color);
+        }
+    }
+
+    :deep(.p-inputtext) {
+        flex: 1;
+    }
+}
+
+.input-with-addon {
+    display: flex;
+    align-items: stretch;
+
+    :deep(.p-inputtext) {
+        flex: 1;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .addon {
+        display: flex;
+        align-items: center;
+        background-color: var(--p-surface-50);
+        border: 1px solid var(--p-content-border-color);
+        border-left: none;
+        padding: 0 0.75rem;
+        font-size: 0.75rem;
+        color: var(--p-text-muted-color);
+        border-top-right-radius: 6px;
+        border-bottom-right-radius: 6px;
+
+        :global(.dark) & {
+            background-color: var(--p-surface-800);
+        }
+    }
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    i {
+        position: absolute;
+        left: 0.75rem;
+        color: var(--p-text-muted-color);
+        z-index: 1;
+    }
+
+    :deep(.p-inputtext) {
+        padding-left: 2.25rem;
+        width: 100%;
+    }
+}
+
+:deep(.p-divider) {
+    margin: 1.25rem 0;
+}
+
+:deep(.p-panel) {
+    .p-panel-header {
+        background: transparent;
+        border: none;
+        padding-bottom: 0.5rem;
+    }
+    .p-panel-content {
+        border: none;
+        background: transparent;
+        padding-top: 0;
+    }
 }
 </style>

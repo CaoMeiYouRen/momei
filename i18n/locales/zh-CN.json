@@ -373,6 +373,7 @@
                         "warm": "柔和暖色"
                     },
                     "primary_color": "主色调",
+                    "accent_color": "点缀色",
                     "border_radius": "圆角大小",
                     "logo": "站点 Logo",
                     "favicon": "站点图标 (Favicon)",
