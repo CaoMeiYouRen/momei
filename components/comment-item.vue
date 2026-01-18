@@ -53,6 +53,13 @@
                     <i class="pi pi-clock" /> {{ $t('comments.pending_audit') }}
                 </p>
                 <!-- eslint-disable vue/no-v-html -->
+                <div
+                    class="comment-item__text"
+                    v-html="renderedContent"
+                />
+            </div>
+
+            <div class="comment-item__actions">
                 <Button
                     icon="pi pi-reply"
                     :label="$t('comments.reply')"
