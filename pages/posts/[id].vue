@@ -165,6 +165,7 @@
 
 <script setup lang="ts">
 import { isSnowflakeId } from '@/utils/shared/validate'
+import { countWords, estimateReadingTime } from '@/utils/shared/post-stats'
 
 const route = useRoute()
 const localePath = useLocalePath()

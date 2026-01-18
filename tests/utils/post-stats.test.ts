@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { countWords, estimateReadingTime } from '../../utils/post-stats'
+import { countWords, estimateReadingTime } from '@/utils/shared/post-stats'
 
 describe('post-stats utility', () => {
     it('should count words correctly for Chinese', () => {
