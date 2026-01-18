@@ -36,6 +36,7 @@ export default defineConfig({
                     { text: '快速开始', link: '/guide/quick-start' },
                     { text: '部署指南', link: '/guide/deploy' },
                     { text: '开发指南', link: '/guide/setup' },
+                    { text: '功能特性', link: '/guide/features' },
                 ],
             },
             {

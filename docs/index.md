@@ -15,6 +15,9 @@ hero:
           link: https://github.com/CaoMeiYouRen/momei
 
 features:
+    - title: 功能特性
+      details: 深入了解墨梅内置的 AI 创作助手、深度国际化、多维度 RSS 等核心优势。
+      link: /guide/features
     - title: 快速开始
       details: 通过一键部署或 Docker 快速启动你的墨梅博客。
       link: /guide/quick-start

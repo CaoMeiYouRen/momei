@@ -6,16 +6,26 @@
 
 在部署前，请确保配置好以下环境变量。你可以在项目根目录下创建 `.env` 文件或在部署平台（如 Vercel）中进行配置。
 
-| 变量名                 | 说明                                       | 示例                             |
-| :--------------------- | :----------------------------------------- | :------------------------------- |
-| `DATABASE_TYPE`        | 数据库类型 (`sqlite`, `mysql`, `postgres`) | `sqlite`                         |
-| `DATABASE_PATH`        | SQLite 数据库文件的路径 (仅 SQLite 使用)   | `database/momei.sqlite`          |
-| `DATABASE_URL`         | 数据库连接 URL (MySQL/PostgreSQL 使用)     | `mysql://user:pass@host:3306/db` |
-| `NUXT_PUBLIC_SITE_URL` | 站点正式域名                               | `https://momei.app`              |
-| `AUTH_SECRET`          | 认证系统的密钥                             | `your-secret-key`                |
-| `ADMIN_EMAIL`          | 初始管理员邮箱                             | `admin@example.com`              |
-| `ADMIN_PASSWORD`       | 初始管理员密码                             | `admin123456`                    |
-| `DATABASE_SYNCHRONIZE` | 是否自动同步表结构 (生产环境慎用)          | `false`                          |
+| 变量名                   | 说明                                         | 示例                               |
+| :----------------------- | :------------------------------------------- | :--------------------------------- |
+| `DATABASE_TYPE`          | 数据库类型 (`sqlite`, `mysql`, `postgres`)   | `sqlite`                           |
+| `DATABASE_PATH`          | SQLite 数据库文件的路径 (仅 SQLite 使用)     | `database/momei.sqlite`            |
+| `DATABASE_URL`           | 数据库连接 URL (MySQL/PostgreSQL 使用)       | `mysql://user:pass@host:3306/db`   |
+| `NUXT_PUBLIC_SITE_URL`   | 站点正式域名                                 | `https://momei.app`                |
+| `AUTH_SECRET`            | 认证系统的密钥                               | `your-secret-key`                  |
+| `ADMIN_EMAIL`            | 初始管理员邮箱                               | `admin@example.com`                |
+| `ADMIN_PASSWORD`         | 初始管理员密码                               | `admin123456`                      |
+| `DATABASE_SYNCHRONIZE`   | 是否自动同步表结构 (生产环境慎用)            | `false`                            |
+| `AI_ENABLED`             | 是否启用 AI 助手功能                         | `true`                             |
+| `AI_PROVIDER`            | AI 服务商 (`openai`, `anthropic`)            | `openai`                           |
+| `AI_API_KEY`             | AI 服务的 API Key                            | `sk-xxxx...`                       |
+| `AI_MODEL`               | 使用的 AI 模型名称                           | `gpt-4o` 或 `claude-3-5-sonnet`    |
+| `NUXT_PUBLIC_DEMO_MODE`  | 是否开启演示模式 (只读内存数据库)            | `false`                            |
+| `EMAIL_HOST`             | SMTP 服务器地址 (用于邮件订阅与订阅)        | `smtp.gmail.com`                   |
+| `EMAIL_USER`             | SMTP 用户名                                  | `user@example.com`                 |
+| `EMAIL_PASS`             | SMTP 密码 (通常是应用专用密码)              | `xxxx xxxx xxxx xxxx`              |
+| `STORAGE_TYPE`           | 文件存储方案 (`s3`, `vercel-blob`)           | `s3`                               |
+| `NUXT_PUBLIC_SENTRY_DSN` | Sentry 错误追踪 DSN                          | `https://...`                      |
 
 ## 2. 数据库部署详情
 
@@ -91,7 +101,26 @@ docker run -d --name momei \
     pm2 start .output/server/index.mjs --name momei-blog
     ```
 
-## 5. 数据库说明
+## 5. 存储与 AI 配置 (高级)
+
+### 5.1 文件存储 (`STORAGE_TYPE`)
+
+墨梅目前不支持本地磁盘存储（以保证在 Serverless 环境下的无状态性），你必须选择以下一种云存储方案：
+
+-   **s3** (默认): 使用兼容 S3 协议的对象存储（如 AWS S3, Cloudflare R2, MinIO）。
+    -   需配置 `S3_ENDPOINT`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_BUCKET`。
+-   **vercel-blob**: Vercel 平台的原生存储方案。
+    -   需在 Vercel 后台开启 Blob 并通过 `BLOB_READ_WRITE_TOKEN` 配置。
+
+### 5.2 AI 助手配置
+
+启用 AI 功能后（`AI_ENABLED=true`），你需要在编辑器中体验强大的自动化能力：
+
+-   **OpenAI**: 支持自定义 `AI_API_ENDPOINT` 以使用代理或国内镜像。
+-   **Anthropic**: 需设置 `AI_PROVIDER=anthropic`。
+-   **速率限制**: 为了防止资源滥用，系统内置了频率限制与字符长度校验 (`AI_MAX_CONTENT_LENGTH`)。
+
+## 6. 数据库说明
 
 墨梅默认使用 **SQLite** 数据库，方便快速启动且无需额外部署。
 
