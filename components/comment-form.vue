@@ -108,8 +108,8 @@ watchEffect(() => {
     if (user.value) {
         form.authorName = user.value.name || ''
         form.authorEmail = user.value.email || ''
-    } else {
-    // 尝试从本地存储读取游客信息
+    } else if (import.meta.browser) {
+        // 尝试从本地存储读取游客信息
         const saved = localStorage.getItem('momei_guest_info')
         if (saved) {
             try {
