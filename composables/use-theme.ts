@@ -21,19 +21,26 @@ export const PRESETS = {
         text: { light: '#0f172a', dark: '#f1f5f9' },
         radius: '0.5rem',
     },
-    geek: {
+    green: {
         primary: { light: '#059669', dark: '#10b981' },
         accent: { light: '#10b981', dark: '#34d399' },
         surface: { light: '#f0fdf4', dark: '#052e16' },
         text: { light: '#064e3b', dark: '#ecfdf5' },
         radius: '0px',
     },
-    warm: {
+    amber: {
         primary: { light: '#d97706', dark: '#f59e0b' },
         accent: { light: '#f59e0b', dark: '#fbbf24' },
         surface: { light: '#fffbeb', dark: '#451a03' },
         text: { light: '#451a03', dark: '#fef3c7' },
         radius: '1rem',
+    },
+    jike: {
+        primary: { light: '#ffe411', dark: '#ffe411' },
+        accent: { light: '#121212', dark: '#ffffff' },
+        surface: { light: '#ffffff', dark: '#121212' },
+        text: { light: '#121212', dark: '#ffffff' },
+        radius: '8px',
     },
 }
 
@@ -87,19 +94,65 @@ export const useTheme = () => {
         const preset = PRESETS[presetKey] || PRESETS.default
         const mode = isDark.value ? 'dark' : 'light'
 
+        // 辅助函数：确保十六进制颜色以 # 开头且格式正确，否则 CSS 会失效
+        const formatColor = (color: string | null | undefined, fallback: string) => {
+            if (!color) {
+                return fallback
+            }
+            const c = color.trim()
+            // 如果是合法的 3位或6位十六进制代码但缺失 #，自动补齐
+            if (/^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/.test(c)) {
+                return `#${c}`
+            }
+            return c
+        }
+
+        const primary = formatColor(theme_primary_color, preset.primary[mode])
+        const accent = formatColor(theme_accent_color, preset.accent[mode])
+        const surface = preset.surface[mode]
+        const text = preset.text[mode]
+        const radius = theme_border_radius || preset.radius
+
+        // 计算对比色，避免嵌套三元表达式产生的 Lint 错误
+        let contrastColor = mode === 'dark' ? '#000' : '#fff'
+        if (presetKey === 'jike' || primary.toLowerCase() === '#ffe411') {
+            contrastColor = '#000'
+        }
+
         let styles = ''
 
         // 1. 基础预设变量注入
+        // 覆盖 PrimeVue 4 Aura 主色调全色阶变量，确保预览效果即刻生效
+        // 使用 CSS color-mix 动态生成色阶，避免所有色阶都是同一个颜色导致的视觉重叠和对比度问题
         styles += `
-:root {
-    --p-primary-500: ${theme_primary_color || preset.primary[mode]};
-    --p-primary-color: ${theme_primary_color || preset.primary[mode]};
-    --p-content-border-radius: ${theme_border_radius || preset.radius};
-    --p-surface-0: ${preset.surface[mode]};
-    --p-text-color: ${preset.text[mode]};
+:root, body {
+    --p-primary-50: color-mix(in srgb, ${primary}, white 95%);
+    --p-primary-100: color-mix(in srgb, ${primary}, white 90%);
+    --p-primary-200: color-mix(in srgb, ${primary}, white 70%);
+    --p-primary-300: color-mix(in srgb, ${primary}, white 50%);
+    --p-primary-400: color-mix(in srgb, ${primary}, white 20%);
+    --p-primary-500: ${primary};
+    --p-primary-600: color-mix(in srgb, ${primary}, black 20%);
+    --p-primary-700: color-mix(in srgb, ${primary}, black 40%);
+    --p-primary-800: color-mix(in srgb, ${primary}, black 60%);
+    --p-primary-900: color-mix(in srgb, ${primary}, black 80%);
 
-    // 增加点缀色变量 (用于梅红等强调色)
-    --m-accent-color: ${theme_accent_color || preset.accent[mode]};
+    --p-primary-color: ${primary} !important;
+    --p-primary-contrast-color: ${contrastColor} !important;
+    --p-primary-hover-color: color-mix(in srgb, ${primary}, black 10%) !important;
+    --p-primary-active-color: color-mix(in srgb, ${primary}, black 20%) !important;
+
+    // 修复组件状态色彩 (如 Dropdown/Select 的选中和悬停)
+    --p-select-option-focus-background: var(--p-primary-100) !important;
+    --p-select-option-selected-background: var(--p-primary-500) !important;
+    --p-select-option-selected-color: var(--p-primary-contrast-color) !important;
+
+    --p-content-border-radius: ${radius};
+    --p-surface-0: ${surface};
+    --p-text-color: ${text};
+
+    // 增加点缀色变量
+    --m-accent-color: ${accent} !important;
 }
 `
 
@@ -107,16 +160,17 @@ export const useTheme = () => {
         if (theme_preset && theme_preset !== 'default') {
             styles += `
 body {
-    background-color: ${preset.surface[mode]} !important;
+    background-color: ${surface} !important;
 }
 `
         }
 
         // 2. 个性化背景定制覆盖
         if (theme_background_type === 'color' && theme_background_value) {
+            const bgColor = formatColor(theme_background_value, surface)
             styles += `
 body {
-    background-color: ${theme_background_value} !important;
+    background-color: ${bgColor} !important;
 }
 `
         } else if (theme_background_type === 'image' && theme_background_value) {

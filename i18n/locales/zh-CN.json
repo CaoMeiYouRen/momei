@@ -369,8 +369,9 @@
                     "preset": "主题预设",
                     "presets": {
                         "default": "极致经典",
-                        "geek": "深邃极客",
-                        "warm": "柔和暖色"
+                        "green": "清新自然绿",
+                        "amber": "琥珀暖色",
+                        "jike": "即刻主题"
                     },
                     "primary_color": "主色调",
                     "accent_color": "点缀色",

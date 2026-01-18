@@ -370,8 +370,9 @@
                     "preset": "Theme Preset",
                     "presets": {
                         "default": "Classic",
-                        "geek": "Deep Geek",
-                        "warm": "Soft Warm"
+                        "green": "Natural Green",
+                        "amber": "Warm Amber",
+                        "jike": "Jike Theme"
                     },
                     "primary_color": "Primary Color",
                     "accent_color": "Accent Color",

@@ -28,7 +28,9 @@ export default defineEventHandler(async (event) => {
 
     const settingsToSave: Record<string, string | null> = {}
     for (const [key, value] of Object.entries(body)) {
-        if (value === undefined) { continue }
+        if (value === undefined) {
+            continue
+        }
         if (value === null) {
             settingsToSave[key] = null
         } else {

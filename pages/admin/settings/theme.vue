@@ -36,10 +36,10 @@
                             <div class="preview-actions">
                                 <Button :label="$t('common.preview')" class="p-button-sm" />
                                 <Button
-                                    label="Accent Color"
+                                    label="Accent Action"
                                     icon="pi pi-bolt"
                                     class="p-button-sm"
-                                    :style="{backgroundColor: 'var(--m-accent-color)', borderColor: 'var(--m-accent-color)'}"
+                                    :style="{backgroundColor: 'var(--m-accent-color)', borderColor: 'var(--m-accent-color)', color: '#fff'}"
                                 />
                             </div>
                         </div>
@@ -63,7 +63,7 @@
                         <label>{{ $t('pages.admin.settings.theme.background_color') }}</label>
                         <div class="color-input-group mt-2">
                             <ColorPicker v-model="settings.theme_background_value" format="hex" />
-                            <InputText v-model="settings.theme_background_value" placeholder="#ffffff" />
+                            <InputText v-model="backgroundColorModel" placeholder="#ffffff" />
                         </div>
                     </div>
 
@@ -100,9 +100,9 @@
                         <div class="form-group">
                             <label>{{ $t('pages.admin.settings.theme.primary_color') }}</label>
                             <div class="color-input-group mt-2">
-                                <ColorPicker v-model="settings.theme_primary_color" format="hex" />
+                                <ColorPicker v-model="primaryPickerModel" format="hex" />
                                 <InputText
-                                    v-model="settings.theme_primary_color"
+                                    v-model="primaryColorModel"
                                     :placeholder="getCurrentPresetValue('primary')"
                                 />
                             </div>
@@ -112,9 +112,9 @@
                         <div class="form-group mt-3">
                             <label>{{ $t('pages.admin.settings.theme.accent_color') }}</label>
                             <div class="color-input-group mt-2">
-                                <ColorPicker v-model="settings.theme_accent_color" format="hex" />
+                                <ColorPicker v-model="accentPickerModel" format="hex" />
                                 <InputText
-                                    v-model="settings.theme_accent_color"
+                                    v-model="accentColorModel"
                                     :placeholder="getCurrentPresetValue('accent')"
                                 />
                             </div>
@@ -183,14 +183,72 @@ const toast = useToast()
 const { settings, applyTheme } = useTheme()
 const loading = ref(false)
 
+// 处理颜色值的双向绑定，确保 ColorPicker (无#) 和 InputText (有#) 同步
+const createColorModel = (key: 'theme_primary_color' | 'theme_accent_color' | 'theme_background_value') => {
+    return computed({
+        get: () => {
+            const val = settings.value?.[key]
+            if (!val) {
+                return ''
+            }
+            return val.startsWith('#') ? val : `#${val}`
+        },
+        set: (newVal: string) => {
+            if (settings.value) {
+                // 统一存储为带 # 的格式，确保 CSS 变量解析正确
+                if (!newVal) {
+                    settings.value[key] = ''
+                    return
+                }
+                settings.value[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
+            }
+        },
+    })
+}
+
+// 专门为 ColorPicker 创建的 Model，处理 fallback 到 Preset 默认值，且去掉 # 号
+const createColorPickerModel = (key: 'theme_primary_color' | 'theme_accent_color' | 'theme_background_value') => {
+    const typeMap = {
+        theme_primary_color: 'primary',
+        theme_accent_color: 'accent',
+        theme_background_value: 'primary', // 背景色暂时 fallback 到主色或默认
+    }
+    return computed({
+        get: () => {
+            let val = settings.value?.[key]
+            if (!val) {
+                val = getCurrentPresetValue(typeMap[key] as any)
+            }
+            return val ? val.replace('#', '') : ''
+        },
+        set: (newVal: string) => {
+            if (settings.value) {
+                settings.value[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
+            }
+        },
+    })
+}
+
+const primaryColorModel = createColorModel('theme_primary_color')
+const accentColorModel = createColorModel('theme_accent_color')
+const backgroundColorModel = createColorModel('theme_background_value')
+
+const primaryPickerModel = createColorPickerModel('theme_primary_color')
+const accentPickerModel = createColorPickerModel('theme_accent_color')
+const backgroundPickerModel = createColorPickerModel('theme_background_value')
+
 // 用于判断当前模式（深/浅）以显示正确的 Placeholder
 const isDark = useDark()
 
 const getCurrentPresetValue = (type: 'primary' | 'accent' | 'radius') => {
-    if (!settings.value) { return '' }
+    if (!settings.value) {
+        return ''
+    }
     const presetKey = (settings.value.theme_preset || 'default') as keyof typeof PRESETS
     const preset = PRESETS[presetKey]
-    if (type === 'radius') { return preset.radius }
+    if (type === 'radius') {
+        return preset.radius
+    }
     const mode = isDark.value ? 'dark' : 'light'
     return (preset[type] as any)[mode]
 }
@@ -216,8 +274,9 @@ const backgroundOptions = computed(() => [
 
 const presetOptions = computed(() => [
     { label: t('pages.admin.settings.theme.presets.default'), value: 'default' },
-    { label: t('pages.admin.settings.theme.presets.geek'), value: 'geek' },
-    { label: t('pages.admin.settings.theme.presets.warm'), value: 'warm' },
+    { label: t('pages.admin.settings.theme.presets.green'), value: 'green' },
+    { label: t('pages.admin.settings.theme.presets.amber'), value: 'amber' },
+    { label: t('pages.admin.settings.theme.presets.jike'), value: 'jike' },
 ])
 
 // 监听设置变化以进行实时预览
@@ -226,7 +285,9 @@ watch(settings, () => {
 }, { deep: true })
 
 const onPresetChange = () => {
-    if (!settings.value) { return }
+    if (!settings.value) {
+        return
+    }
     // 切换预设时清空手动覆盖项，使其使用预设默认值
     settings.value.theme_primary_color = null
     settings.value.theme_accent_color = null
@@ -234,7 +295,9 @@ const onPresetChange = () => {
 }
 
 const saveTheme = async () => {
-    if (!settings.value) { return }
+    if (!settings.value) {
+        return
+    }
     loading.value = true
     try {
         await $fetch('/api/admin/settings/theme', {

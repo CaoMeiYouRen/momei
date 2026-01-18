@@ -235,7 +235,7 @@ const navigateToPost = () => {
         transition: color 0.2s;
 
         &:hover {
-            color: var(--p-primary-color);
+            color: var(--m-accent-color);
         }
     }
 

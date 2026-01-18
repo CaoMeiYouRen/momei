@@ -1,6 +1,6 @@
 import { getSettings } from '@/server/services/setting'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
     const themeKeys = [
         'theme_preset',
         'theme_primary_color',
