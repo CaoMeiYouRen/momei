@@ -1,6 +1,7 @@
 import isEmail from 'validator/es/lib/isEmail'
 import isMobilePhone from 'validator/es/lib/isMobilePhone'
 import isURL from 'validator/es/lib/isURL'
+import { SECURITY_URL_WHITELIST } from './env'
 
 // 判断是否为邮箱。
 export function validateEmail(email: string): boolean {
@@ -37,6 +38,48 @@ export function validateUrl(url: string): boolean {
         allow_fragments: true, // 允许片段标识符
         // host_blacklist: [/^\d{1,3}(?:\.\d{1,3}){3}$/], // 阻止纯 IPv4 地址
     })
+}
+
+/**
+ * 验证自定义 URL 是否符合安全白名单
+ *
+ * 规则：
+ * 1. 绝对路径以 / 开头（本地资源）
+ * 2. 符合白名单域名的外部链接
+ * 3. Data URL（图片）
+ */
+export function isValidCustomUrl(url: string | null | undefined): boolean {
+    if (!url) {
+        return true
+    }
+
+    // 1. 本地相对路径
+    if (url.startsWith('/')) {
+        return true
+    }
+
+    // 2. Data URL
+    if (url.startsWith('data:image/')) {
+        return true
+    }
+
+    try {
+        const parsedUrl = new URL(url)
+
+        // 允许的协议
+        if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+            return false
+        }
+
+        const hostname = parsedUrl.hostname
+
+        // 检查是否在环境变量配置的白名单中（包括子域名）
+        return SECURITY_URL_WHITELIST.some((domain) =>
+            hostname === domain || hostname.endsWith(`.${domain}`),
+        )
+    } catch {
+        return false
+    }
 }
 
 // 判断是否为合法的用户名

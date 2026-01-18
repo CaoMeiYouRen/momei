@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { isSnowflakeId } from '../shared/validate'
+import { isSnowflakeId, isValidCustomUrl } from '../shared/validate'
 import { paginationSchema } from './pagination'
 import { PostStatus } from '@/types/post'
 
@@ -12,7 +12,13 @@ export const createPostSchema = z.object({
     }),
     content: z.string().min(1),
     summary: z.string().nullable().optional(),
-    coverImage: z.string().nullable().optional(),
+    coverImage: z
+        .string()
+        .nullable()
+        .optional()
+        .refine((url) => isValidCustomUrl(url), {
+            message: 'Cover image URL must be from a whitelisted domain or local path',
+        }),
     language: z.string().default('zh-CN'),
     translationId: z.string().max(255).nullable().optional(),
     category: z.string().nullable().optional(),
@@ -29,7 +35,13 @@ export const updatePostSchema = z.object({
     }),
     content: z.string().min(1).optional(),
     summary: z.string().nullable().optional(),
-    coverImage: z.string().nullable().optional(),
+    coverImage: z
+        .string()
+        .nullable()
+        .optional()
+        .refine((url) => isValidCustomUrl(url), {
+            message: 'Cover image URL must be from a whitelisted domain or local path',
+        }),
     language: z.string().optional(),
     translationId: z.string().max(255).nullable().optional(),
     category: z.string().nullable().optional(),

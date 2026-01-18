@@ -2,17 +2,24 @@ import { z } from 'zod'
 import { auth } from '@/lib/auth'
 import { isAdmin } from '@/utils/shared/roles'
 import { setSettings } from '@/server/services/setting'
+import { isValidCustomUrl } from '@/server/utils/security'
 
 const themeUpdateSchema = z.object({
     theme_preset: z.string().optional().nullable(),
     theme_primary_color: z.string().optional().nullable(),
     theme_accent_color: z.string().optional().nullable(),
     theme_border_radius: z.string().optional().nullable(),
-    theme_logo_url: z.string().optional().nullable(),
-    theme_favicon_url: z.string().optional().nullable(),
+    theme_logo_url: z.string().optional().nullable().refine((val) => isValidCustomUrl(val), {
+        message: 'Logo URL source is not in the whitelist',
+    }),
+    theme_favicon_url: z.string().optional().nullable().refine((val) => isValidCustomUrl(val), {
+        message: 'Favicon URL source is not in the whitelist',
+    }),
     theme_mourning_mode: z.union([z.boolean(), z.string()]).optional().nullable(),
     theme_background_type: z.string().optional().nullable(),
-    theme_background_value: z.string().optional().nullable(),
+    theme_background_value: z.string().optional().nullable().refine((val) => isValidCustomUrl(val), {
+        message: 'Background URL source is not in the whitelist',
+    }),
 })
 
 export default defineEventHandler(async (event) => {
