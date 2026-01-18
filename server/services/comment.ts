@@ -28,8 +28,8 @@ export const commentService = {
             relations: ['author'],
         })
 
-        // 构建树形结构
-        return this.buildCommentTree(allComments)
+        // 构建树形结构并处理隐私
+        return this.buildCommentTree(allComments, options.isAdmin)
     },
 
     /**
@@ -67,9 +67,12 @@ export const commentService = {
         comment.userAgent = data.userAgent || null
 
         // 默认状态逻辑：
-        // 如果是管理员或者已发表过的受信任用户，可以直接发布（此处先简单处理，默认全部发布）
-        // TODO: 增加 SPAM 检查逻辑
-        comment.status = CommentStatus.PUBLISHED
+        // 游客评论需审核，登录用户评论直接发布
+        if (data.authorId) {
+            comment.status = CommentStatus.PUBLISHED
+        } else {
+            comment.status = CommentStatus.PENDING
+        }
 
         await commentRepo.save(comment)
         return comment
@@ -86,12 +89,21 @@ export const commentService = {
     /**
      * 辅助方法：构建评论树
      */
-    buildCommentTree(comments: Comment[]) {
+    buildCommentTree(comments: Comment[], isAdmin: boolean = false) {
         const map = new Map<string, any>()
         const tree: any[] = []
 
         comments.forEach((comment) => {
-            map.set(comment.id, { ...comment, replies: [] })
+            const item = { ...comment, replies: [] } as any
+
+            // 隐私保护：非管理员隐藏邮箱、IP 和 UserAgent
+            if (!isAdmin) {
+                delete item.authorEmail
+                delete item.ip
+                delete item.userAgent
+            }
+
+            map.set(comment.id, item)
         })
 
         comments.forEach((comment) => {
