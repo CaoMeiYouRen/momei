@@ -34,6 +34,13 @@
                 >
                     {{ $t('common.rss') }}
                 </NuxtLink>
+                <NuxtLink
+                    to="/sitemap.xml"
+                    target="_blank"
+                    class="footer__link"
+                >
+                    {{ $t('common.sitemap') }}
+                </NuxtLink>
                 <NuxtLink :to="localePath('/user-agreement')" class="footer__link">
                     {{ $t('legal.user_agreement') }}
                 </NuxtLink>
