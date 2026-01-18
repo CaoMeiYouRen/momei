@@ -22,6 +22,7 @@
 | 变量 | 浅色模式 (Light) | 深色模式 (Dark) |
 | :--- | :--- | :--- |
 | **Primary (500)** | `#64748b` (Slate 500) | `#94a3b8` (Slate 400) |
+| **Accent (梅红)** | `#f43f5e` (Rose 500) | `#fb7185` (Rose 400) |
 | **Surface (Base)** | `#ffffff` (White) | `#020617` (Slate 950) |
 | **Text (Main)** | `#0f172a` (Slate 900) | `#f1f5f9` (Slate 100) |
 | **Text (Muted)** | `#64748b` (Slate 500) | `#94a3b8` (Slate 400) |
