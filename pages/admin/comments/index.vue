@@ -280,7 +280,7 @@ onMounted(() => {
     &__status-select {
         width: 100%;
 
-        @media screen and (min-width: 768px) {
+        @media screen and (width >= 768px) {
             width: 180px;
         }
     }

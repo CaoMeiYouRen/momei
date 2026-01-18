@@ -182,7 +182,7 @@ const handleSubmit = async () => {
     gap: 1rem;
     margin-bottom: 1rem;
 
-    @media (max-width: 768px) {
+    @media (width <= 768px) {
       grid-template-columns: 1fr;
     }
   }

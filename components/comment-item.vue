@@ -188,6 +188,7 @@ const avatarUrl = computed(() => {
     font-weight: 700;
     color: var(--p-primary-color);
     text-decoration: none;
+
     &:hover {
       text-decoration: underline;
     }
@@ -221,7 +222,7 @@ const avatarUrl = computed(() => {
 
   &__text {
     color: var(--p-text-color);
-    word-break: break-word;
+    overflow-wrap: break-word;
     :deep(p) { margin: 0; }
   }
 
@@ -239,8 +240,9 @@ const avatarUrl = computed(() => {
   &--reply {
     border-left-color: var(--p-surface-800);
   }
+
   &__pending {
-    background-color: rgba(var(--p-warn-500-rgb), 0.1);
+    background-color: rgb(var(--p-warn-500-rgb), 0.1);
     color: var(--p-warn-400);
   }
 }
