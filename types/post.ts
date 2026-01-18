@@ -35,3 +35,29 @@ export const POST_STATUS_TRANSITIONS: Record<PostStatus, PostStatus[]> = {
     [PostStatus.REJECTED]: [PostStatus.DRAFT, PostStatus.PENDING, PostStatus.HIDDEN],
     [PostStatus.HIDDEN]: [PostStatus.PUBLISHED, PostStatus.DRAFT, PostStatus.PENDING],
 }
+
+/**
+ * 文章可见性策略枚举
+ */
+export enum PostVisibility {
+    /**
+     * 公开：所有人可见
+     */
+    PUBLIC = 'public',
+    /**
+     * 私密：仅作者和管理员可见
+     */
+    PRIVATE = 'private',
+    /**
+     * 密码保护：需要输入正确密码可见
+     */
+    PASSWORD = 'password',
+    /**
+     * 登录可见：仅限注册用户登录后可见
+     */
+    REGISTERED = 'registered',
+    /**
+     * 订阅可见：仅限订阅者可见
+     */
+    SUBSCRIBER = 'subscriber',
+}

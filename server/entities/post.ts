@@ -4,7 +4,7 @@ import { BaseEntity } from './base-entity'
 import { User } from './user'
 import { Category } from './category'
 import { Tag } from './tag'
-import { PostStatus } from '@/types/post'
+import { PostStatus, PostVisibility } from '@/types/post'
 
 @Entity('post')
 @Unique(['slug', 'language'])
@@ -45,6 +45,18 @@ export class Post extends BaseEntity {
         index: true,
     })
     status: PostStatus
+
+    @CustomColumn({
+        type: 'varchar',
+        length: 20,
+        comment: '可见性：public, private, password, registered, subscriber',
+        default: PostVisibility.PUBLIC,
+        index: true,
+    })
+    visibility: PostVisibility
+
+    @CustomColumn({ type: 'varchar', length: 255, nullable: true, comment: '访问密码' })
+    password: string | null
 
     @CustomColumn({ type: 'integer', default: 0, index: true })
     views: number
