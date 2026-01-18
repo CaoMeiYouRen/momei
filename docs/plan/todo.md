@@ -248,22 +248,22 @@
 
 详细设计请参考: [Demo 模式设计文档](../design/modules/demo-mode.md)
 
-- [ ] **基础设施与数据库集成**
-    - 验收: 当 `NUXT_PUBLIC_DEMO_MODE=true` 时，强制使用 `:memory:` SQLite 数据库。
-    - 验收: 实现 `server/utils/seed-demo.ts`，在启动时自动填充高质量的演示数据（文章、分类、用户）。
-    - 验收: **自动重置逻辑**: 实现定时（如每 1 小时）或内存阈值触发的进程自杀，配合 Docker `restart: always` 实现数据重置。
-- [ ] **Mock AI 服务**
-    - 验收: 实现 `MockAIProvider`，在 Demo 模式下拦截所有 AI 调用，返回预设的高质量响应。
-    - 验收: 模拟打字机动画和网络延迟，保留完整的交互真实感。
-- [ ] **用户引导 (Onboarding)**
-    - 验收: 集成 `driver.js`。
-    - 验收: 编写 `onboarding.ts` 引导脚本，重点覆盖：自动登录、进入编辑器、唤起 AI 辅助（星星按钮）、发布文章。
-- [ ] **安全与拦截 (Demo Guard)**
-    - 验收: 完成 `server/middleware/demo-guard.ts`，拦截针对敏感配置（环境变量、系统密钥）的修改。
-    - 验收: 修改成功提示中增加“数据将在重启后重置”的文案。
-- [ ] **前端演示标识**
-    - 验收: 在页面显著位置（如 Header 或侧边栏）显示 Demo 状态 Banner。
-    - 验收: 提供“开始演示”按钮随时触发新手引导。
+- [x] **基础设施与数据库集成**
+    - [x] 验收: 当 `NUXT_PUBLIC_DEMO_MODE=true` 时，强制使用 `:memory:` SQLite 数据库。
+    - [x] 验收: 实现 `server/utils/seed-demo.ts`，在启动时自动填充高质量的演示数据（文章、分类、用户）。
+    - [x] 验收: **自动重置逻辑**: 实现定时（如每 1 小时）或内存阈值触发的进程自杀，配合 Docker `restart: always` 实现数据重置。
+- [x] **Mock AI 服务**
+    - [x] 验收: 实现 `MockAIProvider`，在 Demo 模式下拦截所有 AI 调用，返回预设的高质量响应。
+    - [x] 验收: 模拟打字机动画和网络延迟，保留完整的交互真实感。
+- [x] **用户引导 (Onboarding)**
+    - [x] 验收: 集成 `driver.js`。
+    - [x] 验收: 编写 `onboarding.ts` 引导脚本，重点覆盖：自动登录、进入编辑器、唤起 AI 辅助（星星按钮）、发布文章。
+- [x] **安全与拦截 (Demo Guard)**
+    - [x] 验收: 完成 `server/middleware/demo-guard.ts`，拦截针对敏感配置（环境变量、系统密钥）的修改。
+    - [x] 验收: 修改成功提示中增加“数据将在重启后重置”的文案。
+- [x] **前端演示标识**
+    - [x] 验收: 在页面显著位置（如 Header 或侧边栏）显示 Demo 状态 Banner。
+    - [x] 验收: 提供“开始演示”按钮随时触发新手引导。
 
 ## 第三阶段：创新与扩展 (Innovation & Expansion)
 

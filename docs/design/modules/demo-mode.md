@@ -67,10 +67,10 @@ if (process.env.NUXT_PUBLIC_DEMO_MODE === "true") {
 -   **会话控制**: 演示模式的 Session 过期时间较短（如 1 小时）。
 -   **性能**: 内存数据库可极大提升 Demo 环境响应速度。
 
-## 5. 待办事项 (Next Steps)
+## 5. 待办事项 (Next Steps) (已完成)
 
--   [ ] 安装并配置 `driver.js`。
--   [ ] 实现 `MockAIProvider` 返回预设内容。
--   [ ] 编写 `seed-demo.ts` 预填充高质量的演示文章和分类。
--   [ ] 编写 `onboarding.ts` 引导逻辑并适配编辑器 UI。
--   [ ] 编写核心拦截器 `demo-guard.ts` (用于二次确认拦截极少数敏感操作)。
+- [x] 安装并配置 `driver.js`。
+- [x] 实现 `MockAIProvider` 返回预设内容。
+- [x] 编写 `seed-demo.ts` 预填充高质量的演示文章和分类。
+- [x] 编写 `onboarding.ts` 引导逻辑并适配编辑器 UI。
+- [x] 编写核心拦截器 `demo-guard.ts` (用于二次确认拦截极少数敏感操作)。
