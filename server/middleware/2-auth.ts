@@ -16,9 +16,20 @@ export default defineEventHandler(async (event) => {
         return
     }
 
-    // Allow public access to GET /api/posts
-    if (event.path.startsWith('/api/posts') && event.method === 'GET') {
-        return
+    // Allow public access to GET /api/posts and POST /api/posts/:id/comments
+    if (event.path.startsWith('/api/posts')) {
+        if (event.method === 'GET') {
+            return
+        }
+        if (event.method === 'POST' && event.path.endsWith('/comments')) {
+            return
+        }
+        if (event.method === 'POST' && event.path.endsWith('/verify-password')) {
+            return
+        }
+        if (event.method === 'POST' && event.path.endsWith('/views')) {
+            return
+        }
     }
 
     // 外部 API 路径不需要 session 验证
