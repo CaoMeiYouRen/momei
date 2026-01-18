@@ -112,6 +112,8 @@
     -   **播客托管**: 支持音轨上传、元数据管理及符合 iTunes 标准的 RSS 订阅导出。
     -   **音频文章与播放器**: 集成 AI TTS 自动生成文章朗读版，配合全站悬浮播放器实现断点续播。
 4.  **高级 AI 创作流 (Advanced AI Creative Flow)**:
+    -   **灵感引擎 (Inspiration Engine)**: 实现“移动端->后台”的灵感快捕工作流，支持 API/Webhook 高效收集碎片化想法。
+    -   **脚手架式写作助手**: AI 不直接生成正文，而是提供逻辑提纲、论点建议及“辩论式”引导，辅助作者挖掘深度。
     -   **创作增强**: 集成 AI 封面图生成 (DALL-E) 与 DeepL 专业协议翻译。
     -   **语音驱动**: 支持 Whisper 语音录入并由 LLM 自动重构为结构化 Markdown 博文。
 5.  **架构增强与优化 (Architecture & Optimization)**:
