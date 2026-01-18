@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, OneToMany, JoinColumn } from 'typeorm'
+import { Entity, ManyToOne, OneToMany } from 'typeorm'
 import { CustomColumn } from '../decorators/custom-column'
 import { BaseEntity } from './base-entity'
 import { User } from './user'
@@ -51,25 +51,22 @@ export class Comment extends BaseEntity {
 
     // ========== 关系定义 ==========
 
-    @ManyToOne(() => Post, {
+    @ManyToOne(() => Post, (post) => post.comments, {
         onDelete: 'CASCADE',
         nullable: false,
     })
-    @JoinColumn({ name: 'postId' })
     post: Post
 
-    @ManyToOne(() => User, {
+    @ManyToOne(() => User, (user) => user.comments, {
         onDelete: 'SET NULL',
         nullable: true,
     })
-    @JoinColumn({ name: 'authorId' })
     author: User | null
 
     @ManyToOne(() => Comment, (comment) => comment.replies, {
         onDelete: 'CASCADE',
         nullable: true,
     })
-    @JoinColumn({ name: 'parentId' })
     parent: Comment | null
 
     @OneToMany(() => Comment, (comment) => comment.parent)
