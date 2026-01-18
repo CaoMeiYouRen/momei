@@ -363,6 +363,31 @@
                     "oneMonth": "1个月"
                 }
             },
+            "settings": {
+                "theme": {
+                    "title": "主题定制",
+                    "preset": "主题预设",
+                    "presets": {
+                        "default": "极致经典",
+                        "geek": "深邃极客",
+                        "warm": "柔和暖色"
+                    },
+                    "primary_color": "主色调",
+                    "border_radius": "圆角大小",
+                    "logo": "站点 Logo",
+                    "favicon": "站点图标 (Favicon)",
+                    "mourning_mode": "哀悼模式",
+                    "mourning_mode_hint": "开启后全站置灰，适用于特殊纪念日",
+                    "background": "背景设置",
+                    "background_type": "背景类型",
+                    "background_none": "无（默认）",
+                    "background_color": "纯色背景",
+                    "background_image": "背景图片",
+                    "background_value": "填充值",
+                    "save_success": "主题设置已更新",
+                    "preview": "预览效果"
+                }
+            },
             "subscribers": {
                 "title": "订阅管理",
                 "export": "导出 CSV",

@@ -364,6 +364,31 @@
                     "oneMonth": "1 Month"
                 }
             },
+            "settings": {
+                "theme": {
+                    "title": "Theme Customization",
+                    "preset": "Theme Preset",
+                    "presets": {
+                        "default": "Classic",
+                        "geek": "Deep Geek",
+                        "warm": "Soft Warm"
+                    },
+                    "primary_color": "Primary Color",
+                    "border_radius": "Border Radius",
+                    "logo": "Site Logo",
+                    "favicon": "Favicon",
+                    "mourning_mode": "Mourning Mode",
+                    "mourning_mode_hint": "Greyscale the whole site for special memorial days",
+                    "background": "Background Settings",
+                    "background_type": "Background Type",
+                    "background_none": "None (Default)",
+                    "background_color": "Solid Color",
+                    "background_image": "Background Image",
+                    "background_value": "Background Value",
+                    "save_success": "Theme settings updated",
+                    "preview": "Preview Effect"
+                }
+            },
             "subscribers": {
                 "title": "Subscribers",
                 "export": "Export CSV",

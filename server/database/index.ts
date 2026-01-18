@@ -11,6 +11,7 @@ import { Category } from '../entities/category'
 import { Tag } from '../entities/tag'
 import { ApiKey } from '../entities/api-key'
 import { Subscriber } from '../entities/subscriber'
+import { Setting } from '../entities/setting'
 import logger from '../utils/logger'
 import { CustomLogger } from './logger'
 import { SnakeCaseNamingStrategy } from './naming-strategy'
@@ -36,7 +37,7 @@ const SUPPORTED_DATABASE_TYPES = ['sqlite', 'mysql', 'postgres']
 let isInitialized = false
 let AppDataSource: DataSource | null = null
 
-const entities = [Account, Session, User, Verification, TwoFactor, Jwks, Post, Category, Tag, ApiKey, Subscriber]
+const entities = [Account, Session, User, Verification, TwoFactor, Jwks, Post, Category, Tag, ApiKey, Subscriber, Setting]
 
 /**
  * 同步环境变量中的管理员角色到数据库

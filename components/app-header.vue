@@ -265,6 +265,17 @@ const adminMenuItems = computed(() => {
                 icon: 'pi pi-envelope',
                 command: () => navigateTo(localePath('/admin/subscribers')),
             },
+            {
+                label: t('common.settings'),
+                icon: 'pi pi-cog',
+                items: [
+                    {
+                        label: t('pages.admin.settings.theme.title'),
+                        icon: 'pi pi-palette',
+                        command: () => navigateTo(localePath('/admin/settings/theme')),
+                    },
+                ],
+            },
         )
     }
 
