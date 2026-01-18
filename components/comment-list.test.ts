@@ -31,7 +31,9 @@ describe('CommentList', () => {
 
         // Wait for fetch
         await vi.waitFor(() => {
-            if (wrapper.text().includes('暂无评论')) { return true }
+            if (wrapper.text().includes('暂无评论')) {
+                return true
+            }
             throw new Error('Not empty')
         })
 
@@ -65,7 +67,9 @@ describe('CommentList', () => {
         })
 
         await vi.waitFor(() => {
-            if (wrapper.text().includes('Guest 1')) { return true }
+            if (wrapper.text().includes('Guest 1')) {
+                return true
+            }
             throw new Error('Comment not found')
         })
 

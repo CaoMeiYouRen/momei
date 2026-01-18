@@ -24,8 +24,12 @@ describe('commentService', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         ;(dataSource.getRepository as any).mockImplementation((entity: any) => {
-            if (entity.name === 'Comment') { return mockCommentRepo }
-            if (entity.name === 'Post') { return mockPostRepo }
+            if (entity.name === 'Comment') {
+                return mockCommentRepo
+            }
+            if (entity.name === 'Post') {
+                return mockPostRepo
+            }
             return {}
         })
     })
