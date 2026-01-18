@@ -420,6 +420,23 @@
                 "join_date": "Join Date",
                 "delete_confirm": "Are you sure you want to delete this subscriber?",
                 "delete_success": "Subscriber deleted successfully"
+            },
+            "comments": {
+                "title": "Comments",
+                "search_placeholder": "Search content, author...",
+                "status": "Status",
+                "author": "Author",
+                "post": "Post",
+                "content": "Content",
+                "created_at": "Created At",
+                "status_published": "Published",
+                "status_pending": "Pending",
+                "status_spam": "Spam",
+                "approve": "Approve",
+                "reject": "Mark as Spam",
+                "delete_confirm": "Are you sure you want to permanently delete this comment?",
+                "delete_success": "Comment deleted successfully",
+                "update_success": "Comment status updated"
             }
         },
         "posts": {

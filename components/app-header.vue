@@ -248,6 +248,11 @@ const adminMenuItems = computed(() => {
             command: () => navigateTo(localePath('/admin/categories')),
         },
         {
+            label: t('pages.admin.comments.title'),
+            icon: 'pi pi-comments',
+            command: () => navigateTo(localePath('/admin/comments')),
+        },
+        {
             label: t('pages.admin.tags.title'),
             icon: 'pi pi-tags',
             command: () => navigateTo(localePath('/admin/tags')),

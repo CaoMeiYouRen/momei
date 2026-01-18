@@ -419,6 +419,23 @@
                 "join_date": "加入日期",
                 "delete_confirm": "确定要删除这个订阅者吗？",
                 "delete_success": "订阅者删除成功"
+            },
+            "comments": {
+                "title": "评论管理",
+                "search_placeholder": "搜索评论内容、作者...",
+                "status": "状态",
+                "author": "作者",
+                "post": "文章",
+                "content": "内容",
+                "created_at": "发布时间",
+                "status_published": "已发布",
+                "status_pending": "待审核",
+                "status_spam": "垃圾评论",
+                "approve": "通过审核",
+                "reject": "设为垃圾",
+                "delete_confirm": "确定要彻底删除这条评论吗？",
+                "delete_success": "评论删除成功",
+                "update_success": "评论状态已更新"
             }
         },
         "posts": {
