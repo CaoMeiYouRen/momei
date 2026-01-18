@@ -190,9 +190,9 @@
                         </div>
                         <div
                             v-for="item in adminMenuItems"
-                            :key="item.label"
+                            :key="item.label as string"
                             class="mobile-nav-link"
-                            @click="isMobileMenuOpen = false; item.command()"
+                            @click="isMobileMenuOpen = false; (item.command as Function)?.({} as any)"
                         >
                             <i :class="item.icon" />
                             {{ item.label }}
@@ -222,6 +222,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
+import type { MenuItem } from 'primevue/menuitem'
 import { authClient } from '@/lib/auth-client'
 import { isAdminOrAuthor, isAdmin } from '@/utils/shared/roles'
 
@@ -235,7 +236,7 @@ const isMobileMenuOpen = ref(false)
 
 const adminMenu = ref()
 const adminMenuItems = computed(() => {
-    const items = [
+    const items: MenuItem[] = [
         {
             label: t('pages.admin.posts.title'),
             icon: 'pi pi-file',
