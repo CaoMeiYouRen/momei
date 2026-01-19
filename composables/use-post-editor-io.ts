@@ -1,9 +1,49 @@
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
-import { load } from 'js-yaml'
+import matter from 'gray-matter'
 
-export function usePostEditorIO(post: any, selectedTags: any, categories: any, md: any) {
+interface PostFrontMatter {
+    title?: string
+    slug?: string
+    abbrlink?: string
+    description?: string
+    desc?: string
+    image?: string
+    cover?: string
+    thumb?: string
+    copyright?: string
+    license?: string
+    language?: string
+    lang?: string
+    tags?: string | string[]
+    categories?: string | string[]
+    category?: string | string[]
+}
+
+interface PostEditorData {
+    title: string
+    content: string
+    slug: string
+    summary: string
+    coverImage: string
+    categoryId: string | null
+    copyright: string | null
+    language: string
+    tags: string[]
+}
+
+interface CategoryOption {
+    id: string
+    name: string
+}
+
+export function usePostEditorIO(
+    post: Ref<PostEditorData>,
+    selectedTags: Ref<string[]>,
+    categories: Ref<CategoryOption[]>,
+    md: Ref<any>,
+) {
     const { t } = useI18n()
     const toast = useToast()
     const isDragging = ref(false)
@@ -41,7 +81,7 @@ export function usePostEditorIO(post: any, selectedTags: any, categories: any, m
         const reader = new FileReader()
         reader.readAsText(file, 'utf-8')
         reader.onload = () => {
-            let markdown = reader.result as string
+            const markdown = reader.result as string
             if (!markdown) {
                 toast.add({
                     severity: 'warn',
@@ -52,78 +92,72 @@ export function usePostEditorIO(post: any, selectedTags: any, categories: any, m
                 return
             }
 
-            const metaReg = /---\r?\n([\s\S]*?)\r?\n---/
-            const metaText = markdown.match(metaReg)
-            markdown = markdown.replace(/\r\n/g, '\n').replace(/\t/g, '    ').trim()
+            try {
+                const { data, content } = matter(markdown)
+                const frontMatter = data as PostFrontMatter
 
-            let frontMatter: any = {}
-            if (metaText?.[1]) {
-                try {
-                    frontMatter = load(metaText[1]) || {}
-                } catch (e) {
-                    console.error('Failed to parse front matter', e)
-                    toast.add({
-                        severity: 'warn',
-                        summary: t('common.warn'),
-                        detail: t('pages.admin.posts.parse_front_matter_failed'),
-                        life: 3000,
-                    })
+                post.value.content = content.trim()
+                if (frontMatter.title) {
+                    post.value.title = frontMatter.title
                 }
-            }
-
-            const content = markdown.replace(metaReg, '').trim()
-
-            post.value.content = content
-            if (frontMatter.title) {
-                post.value.title = frontMatter.title
-            }
-            if (frontMatter.slug || frontMatter.abbrlink) {
-                post.value.slug = frontMatter.slug || frontMatter.abbrlink
-            }
-            if (frontMatter.description || frontMatter.desc) {
-                post.value.summary = frontMatter.description || frontMatter.desc
-            }
-            if (frontMatter.image || frontMatter.cover || frontMatter.thumb) {
-                post.value.coverImage = frontMatter.image || frontMatter.cover || frontMatter.thumb
-            }
-            if (frontMatter.copyright || frontMatter.license) {
-                post.value.copyright = frontMatter.copyright || frontMatter.license
-            }
-            if (frontMatter.language || frontMatter.lang) {
-                post.value.language = frontMatter.language || frontMatter.lang
-            }
-
-            if (frontMatter.tags) {
-                if (Array.isArray(frontMatter.tags)) {
-                    selectedTags.value = frontMatter.tags
-                } else if (typeof frontMatter.tags === 'string') {
-                    selectedTags.value = [frontMatter.tags]
+                if (frontMatter.slug || frontMatter.abbrlink) {
+                    post.value.slug = (frontMatter.slug || frontMatter.abbrlink) as string
                 }
-            }
+                if (frontMatter.description || frontMatter.desc) {
+                    post.value.summary = (frontMatter.description || frontMatter.desc) as string
+                }
+                if (frontMatter.image || frontMatter.cover || frontMatter.thumb) {
+                    post.value.coverImage = (frontMatter.image || frontMatter.cover || frontMatter.thumb) as string
+                }
+                if (frontMatter.copyright || frontMatter.license) {
+                    post.value.copyright = (frontMatter.copyright || frontMatter.license) as string
+                }
+                if (frontMatter.language || frontMatter.lang) {
+                    post.value.language = (frontMatter.language || frontMatter.lang) as string
+                }
 
-            if (frontMatter.categories || frontMatter.category) {
-                const catName = Array.isArray(frontMatter.categories) ? frontMatter.categories[0] : (frontMatter.categories || frontMatter.category)
-                if (catName) {
-                    const foundCat = categories.value.find((c: any) => c.name.toLowerCase() === catName.toLowerCase())
-                    if (foundCat) {
-                        post.value.categoryId = foundCat.id
-                    } else {
-                        toast.add({
-                            severity: 'info',
-                            summary: t('common.info'),
-                            detail: t('pages.admin.posts.category_not_found', { name: catName }),
-                            life: 3000,
-                        })
+                if (frontMatter.tags) {
+                    if (Array.isArray(frontMatter.tags)) {
+                        selectedTags.value = frontMatter.tags
+                    } else if (typeof frontMatter.tags === 'string') {
+                        selectedTags.value = [frontMatter.tags]
                     }
                 }
-            }
 
-            toast.add({
-                severity: 'success',
-                summary: t('common.success'),
-                detail: t('pages.admin.posts.import_success'),
-                life: 3000,
-            })
+                if (frontMatter.categories || frontMatter.category) {
+                    const rawCat = frontMatter.categories || frontMatter.category
+                    const catName = Array.isArray(rawCat) ? rawCat[0] : rawCat
+
+                    if (catName && typeof catName === 'string') {
+                        const foundCat = categories.value.find((c: any) => c.name.toLowerCase() === catName.toLowerCase())
+                        if (foundCat) {
+                            post.value.categoryId = foundCat.id
+                        } else {
+                            toast.add({
+                                severity: 'info',
+                                summary: t('common.info'),
+                                detail: t('pages.admin.posts.category_not_found', { name: catName }),
+                                life: 3000,
+                            })
+                        }
+                    }
+                }
+
+                toast.add({
+                    severity: 'success',
+                    summary: t('common.success'),
+                    detail: t('pages.admin.posts.import_success'),
+                    life: 3000,
+                })
+            } catch (e) {
+                console.error('Failed to parse markdown file', e)
+                toast.add({
+                    severity: 'error',
+                    summary: t('common.error'),
+                    detail: t('pages.admin.posts.parse_failed'),
+                    life: 3000,
+                })
+            }
         }
     }
 

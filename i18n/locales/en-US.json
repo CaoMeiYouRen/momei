@@ -306,7 +306,7 @@
                 "image_upload_success": "Image uploaded and inserted",
                 "upload_failed": "File upload failed",
                 "file_empty": "File is empty",
-                "parse_front_matter_failed": "Failed to parse front matter, imported main content only",
+                "parse_failed": "Failed to parse markdown file",
                 "unsupported_file_type": "Unsupported file type: {name}",
                 "category_not_found": "Category \"{name}\" not found"
             },

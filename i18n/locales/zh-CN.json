@@ -305,7 +305,7 @@
                 "image_upload_success": "图片已上传并插入内容",
                 "upload_failed": "文件上传失败",
                 "file_empty": "文件内容为空",
-                "parse_front_matter_failed": "解析 Front Matter 失败，仅导入主要内容",
+                "parse_failed": "解析 Markdown 文件失败",
                 "unsupported_file_type": "不支持的文件类型: {name}",
                 "category_not_found": "未找到分类：{name}"
             },
