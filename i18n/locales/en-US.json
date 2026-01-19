@@ -33,7 +33,7 @@
     "home": {
         "meta": {
             "title": "Home - Momei Blog",
-            "description": "Momei Blog is a modern blog platform built with Nuxt 3, sharing technology, life, and thoughts."
+            "description": "Momei Blog is a modern blog platform built with Nuxt, sharing technology, life, and thoughts."
         },
         "hero": {
             "title": "Explore the Boundaries of Tech & Life",

@@ -6,7 +6,7 @@
 
 ### 1.1 技术栈 (Tech Stack)
 
--   **框架**: Nuxt 3 Server Engine (Nitro)
+-   **框架**: Nuxt Server Engine (Nitro)
 -   **认证与权限**: [better-auth](https://github.com/better-auth/better-auth)
 -   **数据库 ORM**: [TypeORM](https://typeorm.io/)
 -   **数据库支持**: PostgreSQL (推荐), MySQL, SQLite (开发/轻量级)

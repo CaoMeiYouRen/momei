@@ -1,6 +1,6 @@
 # 部署指南 (Deployment Guide)
 
-墨梅 (Momei) 基于 Nuxt 3 开发，支持多种部署环境。你可以根据自己的需求选择合适的方案。
+墨梅 (Momei) 基于 Nuxt 开发，支持多种部署环境。你可以根据自己的需求选择合适的方案。
 
 ## 1. 环境变量配置
 
@@ -57,7 +57,7 @@
 
 这是最推荐的部署方式，能够利用边缘计算和自动构建。
 
-1. **Vercel**: GitHub 关联项目后，Vercel 会自动识别 Nuxt 3 项目。
+1. **Vercel**: GitHub 关联项目后，Vercel 会自动识别 Nuxt 项目。
     - 开发平台：GitHub
     - 构建命令：`npm run build`
     - 输出目录：`.output`

@@ -11,7 +11,7 @@
 -   **分类页**: `/categories/[slug]`
     -   示例: `/categories/javascript`
 -   **标签页**: `/tags/[slug]`
-    -   示例: `/tags/nuxt3`
+    -   示例: `/tags/nuxt`
 
 ## 3. 页面逻辑
 
