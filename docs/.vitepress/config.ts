@@ -11,6 +11,9 @@ export default defineConfig({
     cleanUrls: true,
     // 不会因为死链而导致构建失败
     ignoreDeadLinks: true,
+    sitemap: {
+        hostname: 'https://docs.momei.app',
+    },
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
         nav: [
