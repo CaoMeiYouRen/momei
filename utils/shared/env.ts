@@ -180,6 +180,17 @@ export const UPLOAD_SINGLE_USER_DAILY_LIMIT = Number(
 )
 // 存储类型
 export const STORAGE_TYPE = process.env.STORAGE_TYPE || 's3'
+// 本地存储目录
+export const LOCAL_STORAGE_DIR = process.env.LOCAL_STORAGE_DIR || 'public/uploads'
+// 本地存储基础 URL
+export const LOCAL_STORAGE_BASE_URL =
+    process.env.NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL
+    || (import.meta.env.NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL as string)
+    || '/uploads'
+// 本地存储最小剩余空间 (字节)，默认 100MiB
+export const LOCAL_STORAGE_MIN_FREE_SPACE = process.env.LOCAL_STORAGE_MIN_FREE_SPACE
+    ? Number(parse(process.env.LOCAL_STORAGE_MIN_FREE_SPACE))
+    : 100 * 1024 * 1024
 
 /**
  * AI 服务配置

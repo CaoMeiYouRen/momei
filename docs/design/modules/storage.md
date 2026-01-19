@@ -35,15 +35,16 @@ export interface Storage {
 - **技术栈**: `@vercel/blob`。
 - **特点**: 无需复杂配置，自动集成 Vercel 权限。
 
-### 3.3 本地磁盘适配器 (Local Storage) - [规划中]
+### 3.3 本地磁盘适配器 (Local Storage)
 - **适用场景**: 单机部署、Docker 私有化部署、快速原型开发。
+- **配置项**: `LOCAL_STORAGE_DIR`, `LOCAL_STORAGE_BASE_URL`, `LOCAL_STORAGE_MIN_FREE_SPACE`。
 - **设计要点**:
     - **路径映射**: 默认存储在项目根目录的 `public/uploads` 或配置的 `LOCAL_STORAGE_DIR`。
-    - **自动创建**: 启动时检查并自动创建必要的存储子目录。
+    - **自动创建**: 上传时自动检查并创建必要的存储子目录。
     - **环境卫兵 (Environment Guard)**:
-        - 由于 Serverless 环境（Vercel/Cloudflare）具有只读或瞬时文件系统的限制，该适配器将包含检测逻辑。
-        - 探测到 `process.env.VERCEL` 或 `process.env.CLOUDFLARE` 时，若强制开启 `local` 模式，系统将抛出错误。
-    - **静态服务**: 在生产环境模式下，需要确保 Nitro/Nuxt 能正确映射物理磁盘路径到 Web 路径。
+        - 探测到 Serverless 环境 (Vercel/Netlify/Cloudflare) 时，拒绝执行上传，引导用户切换存储引擎。
+    - **磁盘空间保护**: 使用 `statfs` 监控剩余空间，低于阈值 (`LOCAL_STORAGE_MIN_FREE_SPACE`) 时停止写入。
+    - **类型安全**: 强制校验 `contentType` 仅允许 `image/*`。
 
 ## 4. 安全与维护 (Security)
 
@@ -57,6 +58,7 @@ export interface Storage {
 
 ## 5. 待办事项 (Next Steps)
 
-- [ ] 实现 `LocalStorage` 核心逻辑。
-- [ ] 完善环境检测卫兵代码。
-- [ ] 更新部署文档中的存储配置表格。
+- [x] 实现 `LocalStorage` 核心逻辑。
+- [x] 完善环境检测卫兵代码。
+- [ ] 增强多级存储自动切换能力（可选）。
+- [ ] 后台管理界面增加存储引擎状态监控。
