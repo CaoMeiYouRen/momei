@@ -181,7 +181,7 @@ commit message 使用中文描述变更内容。
 
 1.  **上下文理解**: 在使用 Copilot 时，确保提供足够的上下文信息。
 2.  **必备上下文**：必须读取[项目规划](./docs/plan/roadmap.md)和[待办事项](./docs/plan/todo.md)，明确当前任务和目标。
-3.  **遵守规范**: 在分析任务属于哪个模块后，严格遵守相关[开发规范](./docs/standards/development.md)、[测试规范](./docs/standards/testing.md)、[API 规范](./docs/standards/api.md)、[UI 设计](./docs/design/ui.md)和[API 设计](./docs/design/api.md)。
+3.  **遵守规范**: 在分析任务属于哪个模块后，严格遵守相关[项目规划规范](./docs/standards/planning.md)、[开发规范](./docs/standards/development.md)、[测试规范](./docs/standards/testing.md)、[API 规范](./docs/standards/api.md)、[UI 设计](./docs/design/ui.md)和[API 设计](./docs/design/api.md)。
 
 ### 4. 遵循 PDTFC+ 完整循环 (功能开发与测试补充)
 

@@ -33,6 +33,9 @@ features:
     - title: 待办事项
       details: 查看当前阶段的具体开发任务和验收指标。
       link: /plan/todo
+    - title: 规划规范
+      details: 掌握项目评估方法论与规划约束，确保开发资源集中于核心价值。
+      link: /standards/planning
     - title: 开发指南
       details: 快速上手项目开发，掌握代码规范与最佳实践。
       link: /guide/setup
