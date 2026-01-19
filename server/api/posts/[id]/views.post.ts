@@ -1,6 +1,7 @@
 import { rateLimit } from '@/server/utils/rate-limit'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
+import { pvCache } from '@/server/utils/pv-cache'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -22,12 +23,9 @@ export default defineEventHandler(async (event) => {
     const postRepo = dataSource.getRepository(Post)
 
     // 检查文章是否存在
-    // 为了性能，可以先 update 再 check affected?
-    // 但 typeorm increment 不返回 affected rows 容易。
-    // 这里先查询是否存在，虽然多一次查询，但对于详情页来说可以接受。
-    // 或者直接 increment，如果不报错就默认成功。
-    // 但我们需要返回最新的 views 数量。
-
+    // 为了性能，如果使用了内存缓存，这里其实可以优化为不查询 DB，
+    // 但为了返回一个“大概”准确的视图数展示给用户看，我们可以查询一次，或者由前端自行处理累加。
+    // 这里保持查询一次，因为这是详情页，相对于直接写入 DB，读一次 DB 的开销是可以接受的。
     const post = await postRepo.findOne({
         where: { id },
         select: ['id', 'views'], // 仅查询需要的字段
@@ -41,19 +39,16 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // 使用原子操作增加阅读量
-    await postRepo.increment({ id }, 'views', 1)
+    // 使用内存缓存增加阅读量，而不是直接操作数据库
+    pvCache.record(id)
 
-    // 返回增加后的值 (post.views + 1)
-    // 注意：高并发下这个值可能不完全准确（落后于数据库），
-    // 但作为前端展示的反馈已经足够。如果要精确，需再次查询。
-    // 考虑到用户体验，直接返回 +1 后的值即可，避免再次 DB 查询。
-
+    // 返回增加后的值 (数据库中的值 + 内存中待入库的值)
+    // 注意：这里的 post.views 是数据库当前的值，pvCache.getPending(id) 包含刚才记录的那次。
     return {
         code: 200,
         message: 'Success',
         data: {
-            views: post.views + 1,
+            views: post.views + pvCache.getPending(id),
         },
     }
 })
