@@ -18,19 +18,19 @@ vi.mock('@/server/utils/logger', () => ({
 }))
 
 describe('PVCache', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         vi.clearAllMocks()
-        pvCache.clear()
+        await pvCache.clear()
     })
 
-    it('should record PVs', () => {
-        pvCache.record('post1')
-        pvCache.record('post1')
-        pvCache.record('post2')
+    it('should record PVs', async () => {
+        await pvCache.record('post1')
+        await pvCache.record('post1')
+        await pvCache.record('post2')
 
-        expect(pvCache.getPending('post1')).toBe(2)
-        expect(pvCache.getPending('post2')).toBe(1)
-        expect(pvCache.getPending('post3')).toBe(0)
+        expect(await pvCache.getPending('post1')).toBe(2)
+        expect(await pvCache.getPending('post2')).toBe(1)
+        expect(await pvCache.getPending('post3')).toBe(0)
     })
 
     it('should flush PVs to database', async () => {
@@ -44,9 +44,9 @@ describe('PVCache', () => {
         // 模拟事务执行
         vi.mocked(dataSource.transaction).mockImplementation(async (callback: any) => await callback(mockManager))
 
-        pvCache.record('post-a')
-        pvCache.record('post-a')
-        pvCache.record('post-b')
+        await pvCache.record('post-a')
+        await pvCache.record('post-a')
+        await pvCache.record('post-b')
 
         await pvCache.flush()
 
@@ -56,8 +56,8 @@ describe('PVCache', () => {
         expect(mockRepo.increment).toHaveBeenCalledWith({ id: 'post-b' }, 'views', 1)
 
         // 刷新后缓存应清空
-        expect(pvCache.getPending('post-a')).toBe(0)
-        expect(pvCache.getPending('post-b')).toBe(0)
+        expect(await pvCache.getPending('post-a')).toBe(0)
+        expect(await pvCache.getPending('post-b')).toBe(0)
     })
 
     it('should not flush if cache is empty', async () => {
@@ -67,11 +67,11 @@ describe('PVCache', () => {
 
     it('should prevent concurrent flushes', async () => {
         // 设置一个永远不完成的事务
-        vi.mocked(dataSource.transaction).mockReturnValue(new Promise((_) => {
+        vi.mocked(dataSource.transaction).mockReturnValue(new Promise(() => {
             // 不调用 resolve 以模拟挂起的事务
         }))
 
-        pvCache.record('post-a')
+        await pvCache.record('post-a')
 
         // 第一次 flush
         void pvCache.flush()

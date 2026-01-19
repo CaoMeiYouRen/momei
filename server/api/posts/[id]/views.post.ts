@@ -39,16 +39,17 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // 使用内存缓存增加阅读量，而不是直接操作数据库
-    pvCache.record(id)
+    // 使用内存/Redis 缓存增加阅读量，而不是直接操作数据库
+    await pvCache.record(id)
 
-    // 返回增加后的值 (数据库中的值 + 内存中待入库的值)
+    // 返回增加后的值 (数据库中的值 + 待入库的值)
     // 注意：这里的 post.views 是数据库当前的值，pvCache.getPending(id) 包含刚才记录的那次。
+    const pending = await pvCache.getPending(id)
     return {
         code: 200,
         message: 'Success',
         data: {
-            views: post.views + pvCache.getPending(id),
+            views: post.views + pending,
         },
     }
 })
