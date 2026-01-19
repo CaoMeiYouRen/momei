@@ -353,6 +353,11 @@
 - [ ] **图片懒加载 (High Priority)**
     - 验收: 文章图片默认开启懒加载，提升页面性能。
     - 验收: 兼容现代浏览器的 `loading="lazy"` 属性或集成 `Intersection Observer` 方案。
+- [ ] **富媒体与交互渲染能力增强 (Medium Priority)**
+    - [ ] **自定义容器**: 集成 `markdown-it-container` 插件，支持 `::: tip/warning/danger/info` 等容器及自定义标题。
+    - [ ] **代码组支持**: 实现类似 VitePress 的 Code Group 功能，支持 Tab 切换多段代码。
+    - [ ] **GitHub 警报语法**: 支持渲染 `> [!NOTE]` 等标注式警报。
+    - [ ] **Emoji 渲染**: 集成 `markdown-it-emoji` 插件支持标准表情符号。
 
 ## 待规划与长期积压 (Backlog & Long-term Roadmap)
 

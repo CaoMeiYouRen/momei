@@ -14,6 +14,11 @@ export default defineConfig({
     sitemap: {
         hostname: 'https://docs.momei.app',
     },
+    markdown: {
+        image: {
+            lazyLoading: true,
+        },
+    },
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
         nav: [
