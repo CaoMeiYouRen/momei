@@ -1,7 +1,7 @@
 import { ref, type Ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
-import matter from 'gray-matter'
+import yaml from 'js-yaml'
 
 interface PostFrontMatter {
     title?: string
@@ -52,7 +52,10 @@ export function usePostEditorIO(
         const formData = new FormData()
         formData.append('file', file)
 
-        const { data } = await $fetch<{ code: number, data: { url: string }[] }>('/api/upload', {
+        const { data } = await $fetch<{
+            code: number
+            data: { url: string }[]
+        }>('/api/upload', {
             method: 'POST',
             body: formData,
         })
@@ -93,7 +96,24 @@ export function usePostEditorIO(
             }
 
             try {
-                const { data, content } = matter(markdown)
+                let data: any = {}
+                let content = markdown
+
+                const match = markdown.match(
+                    /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)([\s\S]*)$/,
+                )
+                if (match) {
+                    try {
+                        data = yaml.load(match[1] || '') || {}
+                        content = match[2] || ''
+                    } catch (e) {
+                        console.warn(
+                            'YAML parse failed, importing as plain content',
+                            e,
+                        )
+                    }
+                }
+
                 const frontMatter = data as PostFrontMatter
 
                 post.value.content = content.trim()
@@ -101,19 +121,29 @@ export function usePostEditorIO(
                     post.value.title = frontMatter.title
                 }
                 if (frontMatter.slug || frontMatter.abbrlink) {
-                    post.value.slug = (frontMatter.slug || frontMatter.abbrlink) as string
+                    post.value.slug = (frontMatter.slug
+                        || frontMatter.abbrlink) as string
                 }
                 if (frontMatter.description || frontMatter.desc) {
-                    post.value.summary = (frontMatter.description || frontMatter.desc) as string
+                    post.value.summary = (frontMatter.description
+                        || frontMatter.desc) as string
                 }
-                if (frontMatter.image || frontMatter.cover || frontMatter.thumb) {
-                    post.value.coverImage = (frontMatter.image || frontMatter.cover || frontMatter.thumb) as string
+                if (
+                    frontMatter.image
+                    || frontMatter.cover
+                    || frontMatter.thumb
+                ) {
+                    post.value.coverImage = (frontMatter.image
+                        || frontMatter.cover
+                        || frontMatter.thumb) as string
                 }
                 if (frontMatter.copyright || frontMatter.license) {
-                    post.value.copyright = (frontMatter.copyright || frontMatter.license) as string
+                    post.value.copyright = (frontMatter.copyright
+                        || frontMatter.license) as string
                 }
                 if (frontMatter.language || frontMatter.lang) {
-                    post.value.language = (frontMatter.language || frontMatter.lang) as string
+                    post.value.language = (frontMatter.language
+                        || frontMatter.lang) as string
                 }
 
                 if (frontMatter.tags) {
@@ -125,18 +155,25 @@ export function usePostEditorIO(
                 }
 
                 if (frontMatter.categories || frontMatter.category) {
-                    const rawCat = frontMatter.categories || frontMatter.category
+                    const rawCat =
+                        frontMatter.categories || frontMatter.category
                     const catName = Array.isArray(rawCat) ? rawCat[0] : rawCat
 
                     if (catName && typeof catName === 'string') {
-                        const foundCat = categories.value.find((c: any) => c.name.toLowerCase() === catName.toLowerCase())
+                        const foundCat = categories.value.find(
+                            (c: any) =>
+                                c.name.toLowerCase() === catName.toLowerCase(),
+                        )
                         if (foundCat) {
                             post.value.categoryId = foundCat.id
                         } else {
                             toast.add({
                                 severity: 'info',
                                 summary: t('common.info'),
-                                detail: t('pages.admin.posts.category_not_found', { name: catName }),
+                                detail: t(
+                                    'pages.admin.posts.category_not_found',
+                                    { name: catName },
+                                ),
                                 life: 3000,
                             })
                         }
@@ -191,7 +228,13 @@ export function usePostEditorIO(
     }
 
     const onDragLeave = (e: DragEvent) => {
-        if (e.currentTarget && (e.relatedTarget === null || !(e.currentTarget as HTMLElement).contains(e.relatedTarget as Node))) {
+        if (
+            e.currentTarget
+            && (e.relatedTarget === null
+                || !(e.currentTarget as HTMLElement).contains(
+                    e.relatedTarget as Node,
+                ))
+        ) {
             isDragging.value = false
         }
     }
@@ -217,7 +260,9 @@ export function usePostEditorIO(
                 toast.add({
                     severity: 'warn',
                     summary: t('common.warn'),
-                    detail: t('pages.admin.posts.unsupported_file_type', { name: file.name }),
+                    detail: t('pages.admin.posts.unsupported_file_type', {
+                        name: file.name,
+                    }),
                     life: 3000,
                 })
             }
