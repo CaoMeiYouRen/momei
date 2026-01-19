@@ -345,6 +345,15 @@
 - [ ] **文档国际化**
     - 验收: 部署指南与快速开始完成英文翻译，VitePress 站点支持双语。
 
+### 6. 内容呈现增强 (Content Rendering Enhancement)
+
+- [ ] **代码块语法高亮 (High Priority)**
+    - 验收: 文章正文中的代码块支持语法高亮（推荐集成 Shiki 或 highlight.js）。
+    - 验收: 支持主流编程语言 (JS/TS, Python, Java, Go, Rust 等)。
+- [ ] **图片懒加载 (High Priority)**
+    - 验收: 文章图片默认开启懒加载，提升页面性能。
+    - 验收: 兼容现代浏览器的 `loading="lazy"` 属性或集成 `Intersection Observer` 方案。
+
 ## 待规划与长期积压 (Backlog & Long-term Roadmap)
 
 此处列出已规划但未纳入当前阶段执行的任务，用于长期版本跟踪。
@@ -365,6 +374,8 @@
     - 验收: 集成 Stripe 或支付宝接口，支持针对特定内容的打赏或 Pro 会员准入。
 
 ### 9. 极客技术增强 (Geek Tech Extras)
+- [ ] **数学公式支持 (Future)**
+    - 验收: 集成 KaTeX 或 MathJax 插件，支持 Markdown 语法中的 $LaTeX$ 数学公式渲染。
 - [ ] **可执行代码块支持**
     - 验收: 实现 Markdown 代码块在特定环境下的运行与结果输出。
 - [ ] **Git 版本管理**
