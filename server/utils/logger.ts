@@ -5,35 +5,11 @@ import DailyRotateFile from 'winston-daily-rotate-file'
 import { utilities as nestWinstonModuleUtilities } from 'nest-winston'
 import { WinstonTransport as AxiomTransport } from '@axiomhq/winston'
 import { createSafeLogData, maskEmail, maskPhone } from './privacy'
+import { isServerlessEnvironment } from './env'
 import { LOG_LEVEL, LOGFILES, AXIOM_DATASET_NAME, AXIOM_API_TOKEN, LOG_DIR } from '@/utils/shared/env'
 
 // 日志目录路径
 const logDir = path.isAbsolute(LOG_DIR) ? LOG_DIR : path.join(process.cwd(), LOG_DIR)
-
-// 检测是否为无服务器环境
-const isServerlessEnvironment = () => {
-    // Vercel
-    if (process.env.VERCEL || process.env.VERCEL_ENV) {
-        return true
-    }
-    // Netlify
-    if (process.env.NETLIFY || process.env.NETLIFY_DEV) {
-        return true
-    }
-    // AWS Lambda
-    if (process.env.AWS_LAMBDA_FUNCTION_NAME) {
-        return true
-    }
-    // Cloudflare Workers
-    if (process.env.CF_PAGES || process.env.CLOUDFLARE_ENV) {
-        return true
-    }
-    // 检查只读文件系统路径（常见的无服务器环境特征）
-    if (process.cwd().includes('/var/task') || process.cwd().includes('/tmp')) {
-        return true
-    }
-    return false
-}
 
 // 检查是否可以使用文件日志
 let canWriteToFile = LOGFILES && !isServerlessEnvironment()

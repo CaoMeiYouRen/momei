@@ -1,9 +1,9 @@
 import { Redis } from 'ioredis'
+import { isServerlessEnvironment } from './env'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { REDIS_URL } from '@/utils/shared/env'
 import logger from '@/server/utils/logger'
-import { isServerlessEnvironment } from './env'
 
 class PVCache {
     private cache: Map<string, number> = new Map()
