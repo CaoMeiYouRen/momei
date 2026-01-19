@@ -32,6 +32,20 @@ export default defineEventHandler(async (event) => {
         }
     }
 
+    // Allow public access to GET /api/categories and GET /api/tags
+    if (event.path.startsWith('/api/categories') || event.path.startsWith('/api/tags')) {
+        if (event.method === 'GET') {
+            return
+        }
+    }
+
+    // Allow public access to GET /api/search
+    if (event.path.startsWith('/api/search')) {
+        if (event.method === 'GET') {
+            return
+        }
+    }
+
     // 外部 API 路径不需要 session 验证
     if (event.path.startsWith('/api/external')) {
         return

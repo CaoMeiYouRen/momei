@@ -38,6 +38,32 @@ describe('auth.global middleware', () => {
         expect(result).toBe(true)
     })
 
+    it('should allow access to archive pages', async () => {
+        const result = await (authMiddleware as any)({ path: '/archives' }, {})
+        expect(result).toBe(true)
+    })
+
+    it('should allow access to category pages and subpages', async () => {
+        const result = await (authMiddleware as any)({ path: '/categories' }, {})
+        expect(result).toBe(true)
+        const result2 = await (authMiddleware as any)({ path: '/categories/tech' }, {})
+        expect(result2).toBe(true)
+    })
+
+    it('should allow access to tag pages and subpages', async () => {
+        const result = await (authMiddleware as any)({ path: '/tags' }, {})
+        expect(result).toBe(true)
+        const result2 = await (authMiddleware as any)({ path: '/tags/vue' }, {})
+        expect(result2).toBe(true)
+    })
+
+    it('should allow access to privacy and agreement pages', async () => {
+        const result = await (authMiddleware as any)({ path: '/privacy-policy' }, {})
+        expect(result).toBe(true)
+        const result2 = await (authMiddleware as any)({ path: '/user-agreement' }, {})
+        expect(result2).toBe(true)
+    })
+
     it('should allow access to auth API paths except admin', async () => {
         const result = await (authMiddleware as any)({ path: '/api/auth/login' }, {})
         expect(result).toBe(true)

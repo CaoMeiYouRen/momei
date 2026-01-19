@@ -24,12 +24,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
     if (basePath === '/') {
         return true
     }
-    if (publicPaths.some((path) => basePath === path)) {
+    if (publicPaths.some((path) => basePath.startsWith(path))) {
         return true
     }
-    if (basePath.startsWith('/posts')) {
-        return true
-    }
+
     if (to.path.startsWith('/api/auth') && !to.path.startsWith('/api/auth/admin')) {
         return true
     }

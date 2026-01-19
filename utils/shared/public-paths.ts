@@ -5,6 +5,12 @@ export const publicPaths = [
     '/forgot-password',
     '/reset-password',
     '/callback',
+    '/privacy-policy',
+    '/user-agreement',
     '/privacy',
     '/terms',
+    '/posts',
+    '/categories',
+    '/tags',
+    '/archives',
 ]
