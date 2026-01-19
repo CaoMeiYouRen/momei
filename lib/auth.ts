@@ -10,6 +10,7 @@ import {
     genericOAuth,
     jwt,
     twoFactor,
+    captcha,
 } from 'better-auth/plugins'
 import { ms } from 'ms'
 import { localization } from 'better-auth-localization'
@@ -32,6 +33,8 @@ import {
     APP_NAME,
     EMAIL_REQUIRE_VERIFICATION,
     PHONE_EXPIRES_IN,
+    AUTH_CAPTCHA_PROVIDER,
+    AUTH_CAPTCHA_SECRET_KEY,
 } from '@/utils/shared/env'
 import { Subscriber } from '@/server/entities/subscriber'
 import type { User } from '@/server/entities/user'
@@ -51,7 +54,8 @@ export const auth = betterAuth({
                 after: async (user) => {
                     // 当新用户注册后，尝试回溯并关联订阅记录
                     try {
-                        const subscriberRepo = dataSource.getRepository(Subscriber)
+                        const subscriberRepo =
+                            dataSource.getRepository(Subscriber)
                         const subscriber = await subscriberRepo.findOne({
                             where: { email: user.email },
                         })
@@ -60,7 +64,10 @@ export const auth = betterAuth({
                             await subscriberRepo.save(subscriber)
                         }
                     } catch (error) {
-                        console.error('Failed to link subscriber after user creation:', error)
+                        console.error(
+                            'Failed to link subscriber after user creation:',
+                            error,
+                        )
                     }
                 },
             },
@@ -68,7 +75,8 @@ export const auth = betterAuth({
                 after: async (user) => {
                     // 当用户信息更新后，同步更新订阅者的语言偏好
                     try {
-                        const subscriberRepo = dataSource.getRepository(Subscriber)
+                        const subscriberRepo =
+                            dataSource.getRepository(Subscriber)
                         const subscriber = await subscriberRepo.findOne({
                             where: { email: user.email },
                         })
@@ -77,7 +85,10 @@ export const auth = betterAuth({
                             await subscriberRepo.save(subscriber)
                         }
                     } catch (error) {
-                        console.error('Failed to update subscriber language after user update:', error)
+                        console.error(
+                            'Failed to update subscriber language after user update:',
+                            error,
+                        )
                     }
                 },
             },
@@ -153,7 +164,11 @@ export const auth = betterAuth({
             enabled: true, // 启用更改邮箱功能
             // 发送更改邮箱验证邮件
             sendChangeEmailVerification: async ({ user, newEmail, url }) => {
-                await emailService.sendEmailChangeVerification(user.email, newEmail, url)
+                await emailService.sendEmailChangeVerification(
+                    user.email,
+                    newEmail,
+                    url,
+                )
             },
         },
     },
@@ -164,11 +179,13 @@ export const auth = betterAuth({
         },
     },
     socialProviders: {
-        github: { // 支持 GitHub 登录
+        github: {
+            // 支持 GitHub 登录
             clientId: GITHUB_CLIENT_ID as string,
             clientSecret: GITHUB_CLIENT_SECRET as string,
         },
-        google: { // 支持 Google 登录
+        google: {
+            // 支持 Google 登录
             clientId: GOOGLE_CLIENT_ID as string,
             clientSecret: GOOGLE_CLIENT_SECRET as string,
         },
@@ -228,17 +245,29 @@ export const auth = betterAuth({
 
                 if (type === 'sign-in') {
                     // 发送登录用的OTP
-                    await emailService.sendLoginOTP(email, otp, expiresInMinutes)
+                    await emailService.sendLoginOTP(
+                        email,
+                        otp,
+                        expiresInMinutes,
+                    )
                     return
                 }
                 if (type === 'email-verification') {
                     // 发送电子邮件验证用的OTP
-                    await emailService.sendEmailVerificationOTP(email, otp, expiresInMinutes)
+                    await emailService.sendEmailVerificationOTP(
+                        email,
+                        otp,
+                        expiresInMinutes,
+                    )
                     return
                 }
                 if (type === 'forget-password') {
                     // 发送密码重置用的OTP
-                    await emailService.sendPasswordResetOTP(email, otp, expiresInMinutes)
+                    await emailService.sendPasswordResetOTP(
+                        email,
+                        otp,
+                        expiresInMinutes,
+                    )
                     return
                 }
                 // 默认情况使用登录OTP
@@ -303,9 +332,7 @@ export const auth = betterAuth({
             },
         }),
         genericOAuth({
-            config: [
-
-            ],
+            config: [],
         }),
 
         jwt({
@@ -313,7 +340,7 @@ export const auth = betterAuth({
                 // 用于生成密钥对的算法
                 keyPairConfig: {
                     alg: 'EdDSA',
-                    crv: 'Ed25519',
+                    cv: 'Ed25519',
                 },
             },
         }), // 支持 JWT 认证
@@ -323,7 +350,9 @@ export const auth = betterAuth({
             fallbackLocale: 'default', // 回退到默认语言
             getLocale: (request) => {
                 try {
-                    const userLocale = (request ? getUserLocale(request) : undefined)
+                    const userLocale = request
+                        ? getUserLocale(request)
+                        : undefined
                     if (!userLocale || userLocale === 'en-US') {
                         return 'default'
                     }
@@ -334,7 +363,20 @@ export const auth = betterAuth({
                 }
             },
         }),
-
+        ...(AUTH_CAPTCHA_PROVIDER && AUTH_CAPTCHA_SECRET_KEY
+            ? [
+                captcha({
+                    provider: AUTH_CAPTCHA_PROVIDER as any,
+                    secretKey: AUTH_CAPTCHA_SECRET_KEY!,
+                    endpoints: [
+                        '/sign-up/email',
+                        '/sign-in/email',
+                        '/forget-password/email-otp',
+                        '/forget-password/send-link',
+                    ],
+                }),
+            ]
+            : []),
     ], // 动态插件配置
-    ...secondaryStorage ? { secondaryStorage } : {},
+    ...(secondaryStorage ? { secondaryStorage } : {}),
 })

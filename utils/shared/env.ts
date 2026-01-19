@@ -145,6 +145,20 @@ export const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET
 export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 
+/**
+ * 验证码配置
+ */
+// 验证码提供者：cloudflare-turnstile, google-recaptcha, hcaptcha, captchafox
+export const AUTH_CAPTCHA_PROVIDER =
+    process.env.NUXT_PUBLIC_AUTH_CAPTCHA_PROVIDER
+    || (import.meta.env.NUXT_PUBLIC_AUTH_CAPTCHA_PROVIDER as string)
+// 验证码密钥
+export const AUTH_CAPTCHA_SECRET_KEY = process.env.AUTH_CAPTCHA_SECRET_KEY
+// 验证码站点密钥 (公开)
+export const AUTH_CAPTCHA_SITE_KEY =
+    process.env.NUXT_PUBLIC_AUTH_CAPTCHA_SITE_KEY
+    || (import.meta.env.NUXT_PUBLIC_AUTH_CAPTCHA_SITE_KEY as string)
+
 // 文件名前缀
 export const BUCKET_PREFIX = process.env.BUCKET_PREFIX || ''
 
@@ -201,4 +215,7 @@ export const SECURITY_URL_WHITELIST = (
     process.env.NUXT_PUBLIC_SECURITY_URL_WHITELIST
     || (import.meta.env.NUXT_PUBLIC_SECURITY_URL_WHITELIST as string)
     || 'images.unsplash.com,cdn.pixabay.com,img.shields.io,i.imgur.com,github.com,avatars.githubusercontent.com,lh3.googleusercontent.com'
-).split(',').map((d) => d.trim()).filter(Boolean)
+)
+    .split(',')
+    .map((d) => d.trim())
+    .filter(Boolean)

@@ -9,7 +9,7 @@
                         class="register-card__logo"
                     >
                     <h1 class="register-card__title">
-                        {{ $t('pages.register.title') }}
+                        {{ $t("pages.register.title") }}
                     </h1>
                 </div>
             </template>
@@ -35,12 +35,17 @@
                     </div>
 
                     <Divider align="center">
-                        {{ $t('pages.login.or_continue_with_email') }}
+                        {{ $t("pages.login.or_continue_with_email") }}
                     </Divider>
 
-                    <form class="register-form__fields" @submit.prevent="handleRegister">
+                    <form
+                        class="register-form__fields"
+                        @submit.prevent="handleRegister"
+                    >
                         <div class="register-form__field">
-                            <label for="name">{{ $t('pages.register.name') }}</label>
+                            <label for="name">{{
+                                $t("pages.register.name")
+                            }}</label>
                             <InputText
                                 id="name"
                                 v-model="form.name"
@@ -59,7 +64,9 @@
                         </div>
 
                         <div class="register-form__field">
-                            <label for="email">{{ $t('pages.register.email') }}</label>
+                            <label for="email">{{
+                                $t("pages.register.email")
+                            }}</label>
                             <InputText
                                 id="email"
                                 v-model="form.email"
@@ -78,7 +85,9 @@
                         </div>
 
                         <div class="register-form__field">
-                            <label for="password">{{ $t('pages.register.password') }}</label>
+                            <label for="password">{{
+                                $t("pages.register.password")
+                            }}</label>
                             <Password
                                 id="password"
                                 v-model="form.password"
@@ -98,7 +107,9 @@
                         </div>
 
                         <div class="register-form__field">
-                            <label for="confirmPassword">{{ $t('pages.register.confirm_password') }}</label>
+                            <label for="confirmPassword">{{
+                                $t("pages.register.confirm_password")
+                            }}</label>
                             <Password
                                 id="confirmPassword"
                                 v-model="form.confirmPassword"
@@ -124,7 +135,10 @@
                                 input-id="agreed"
                                 :invalid="!!errors.agreed"
                             />
-                            <label for="agreed" class="register-form__agreement-label">
+                            <label
+                                for="agreed"
+                                class="register-form__agreement-label"
+                            >
                                 <i18n-t keypath="legal.agreement_checkbox">
                                     <template #agreement>
                                         <NuxtLink
@@ -132,7 +146,7 @@
                                             target="_blank"
                                             class="legal-link"
                                         >
-                                            {{ $t('legal.user_agreement') }}
+                                            {{ $t("legal.user_agreement") }}
                                         </NuxtLink>
                                     </template>
                                     <template #privacy>
@@ -141,7 +155,7 @@
                                             target="_blank"
                                             class="legal-link"
                                         >
-                                            {{ $t('legal.privacy_policy') }}
+                                            {{ $t("legal.privacy_policy") }}
                                         </NuxtLink>
                                     </template>
                                 </i18n-t>
@@ -156,6 +170,8 @@
                             {{ errors.agreed }}
                         </Message>
 
+                        <app-captcha ref="captchaRef" v-model="captchaToken" />
+
                         <Button
                             type="submit"
                             :label="$t('pages.register.submit')"
@@ -167,8 +183,11 @@
             </template>
             <template #footer>
                 <div class="register-card__footer">
-                    <NuxtLink :to="localePath('/login')" class="register-card__login-link">
-                        {{ $t('pages.register.have_account') }}
+                    <NuxtLink
+                        :to="localePath('/login')"
+                        class="register-card__login-link"
+                    >
+                        {{ $t("pages.register.have_account") }}
                     </NuxtLink>
                 </div>
             </template>
@@ -186,6 +205,8 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
 const loading = ref(false)
+const captchaToken = ref('')
+const captchaRef = ref<any>(null)
 const form = reactive({
     name: '',
     email: '',
@@ -217,7 +238,9 @@ const handleGoogleLogin = async () => {
 
 const handleRegister = async () => {
     // Reset errors
-    Object.keys(errors).forEach((key) => errors[key as keyof typeof errors] = '')
+    Object.keys(errors).forEach(
+        (key) => (errors[key as keyof typeof errors] = ''),
+    )
 
     const result = registerSchema.safeParse(form)
 
@@ -238,17 +261,38 @@ const handleRegister = async () => {
             password: form.password,
             name: form.name,
             callbackURL: localePath('/'),
+            fetchOptions: {
+                headers: {
+                    'x-captcha-response': captchaToken.value,
+                },
+            },
         })
 
         if (error) {
-            toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || error.statusText, life: 3000 })
+            toast.add({
+                severity: 'error',
+                summary: t('common.error'),
+                detail: error.message || error.statusText,
+                life: 3000,
+            })
+            captchaRef.value?.reset()
         } else {
-            toast.add({ severity: 'success', summary: t('common.success'), detail: t('common.save_success'), life: 3000 })
+            toast.add({
+                severity: 'success',
+                summary: t('common.success'),
+                detail: t('common.save_success'),
+                life: 3000,
+            })
             navigateTo(localePath('/'))
         }
     } catch (e) {
         console.error(e)
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: t('common.unexpected_error'),
+            life: 3000,
+        })
     } finally {
         loading.value = false
     }

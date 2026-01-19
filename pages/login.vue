@@ -9,7 +9,7 @@
                         class="login-card__logo"
                     >
                     <h1 class="login-card__title">
-                        {{ $t('pages.login.title') }}
+                        {{ $t("pages.login.title") }}
                     </h1>
                 </div>
             </template>
@@ -34,12 +34,15 @@
                 </div>
 
                 <Divider align="center">
-                    {{ $t('pages.login.or_continue_with_email') }}
+                    {{ $t("pages.login.or_continue_with_email") }}
                 </Divider>
 
-                <form class="login-form__fields" @submit.prevent="handleEmailLogin">
+                <form
+                    class="login-form__fields"
+                    @submit.prevent="handleEmailLogin"
+                >
                     <div class="login-form__field">
-                        <label for="email">{{ $t('pages.login.email') }}</label>
+                        <label for="email">{{ $t("pages.login.email") }}</label>
                         <InputText
                             id="email"
                             v-model="form.email"
@@ -58,7 +61,9 @@
                     </div>
 
                     <div class="login-form__field">
-                        <label for="password">{{ $t('pages.login.password') }}</label>
+                        <label for="password">{{
+                            $t("pages.login.password")
+                        }}</label>
                         <Password
                             id="password"
                             v-model="form.password"
@@ -84,10 +89,15 @@
                                 binary
                                 input-id="rememberMe"
                             />
-                            <label for="rememberMe">{{ $t('pages.login.remember_me') }}</label>
+                            <label for="rememberMe">{{
+                                $t("pages.login.remember_me")
+                            }}</label>
                         </div>
-                        <NuxtLink :to="localePath('/forgot-password')" class="login-form__forgot">
-                            {{ $t('pages.login.forgot_password') }}
+                        <NuxtLink
+                            :to="localePath('/forgot-password')"
+                            class="login-form__forgot"
+                        >
+                            {{ $t("pages.login.forgot_password") }}
                         </NuxtLink>
                     </div>
 
@@ -99,7 +109,7 @@
                                     target="_blank"
                                     class="legal-link"
                                 >
-                                    {{ $t('legal.user_agreement') }}
+                                    {{ $t("legal.user_agreement") }}
                                 </NuxtLink>
                             </template>
                             <template #privacy>
@@ -108,11 +118,13 @@
                                     target="_blank"
                                     class="legal-link"
                                 >
-                                    {{ $t('legal.privacy_policy') }}
+                                    {{ $t("legal.privacy_policy") }}
                                 </NuxtLink>
                             </template>
                         </i18n-t>
                     </p>
+
+                    <app-captcha ref="captchaRef" v-model="captchaToken" />
 
                     <Button
                         type="submit"
@@ -124,8 +136,11 @@
             </template>
             <template #footer>
                 <div class="login-card__footer">
-                    <NuxtLink :to="localePath('/register')" class="login-card__register-link">
-                        {{ $t('pages.login.no_account') }}
+                    <NuxtLink
+                        :to="localePath('/register')"
+                        class="login-card__register-link"
+                    >
+                        {{ $t("pages.login.no_account") }}
                     </NuxtLink>
                 </div>
             </template>
@@ -143,6 +158,8 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
 const loading = ref(false)
+const captchaToken = ref('')
+const captchaRef = ref<any>(null)
 const form = reactive({
     email: '',
     password: '',
@@ -190,16 +207,32 @@ const handleEmailLogin = async () => {
             password: form.password,
             rememberMe: form.rememberMe,
             callbackURL: localePath('/'),
+            fetchOptions: {
+                headers: {
+                    'x-captcha-response': captchaToken.value,
+                },
+            },
         })
 
         if (error) {
-            toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || error.statusText, life: 3000 })
+            toast.add({
+                severity: 'error',
+                summary: t('common.error'),
+                detail: error.message || error.statusText,
+                life: 3000,
+            })
+            captchaRef.value?.reset()
         } else {
             navigateTo(localePath('/'))
         }
     } catch (e) {
         console.error(e)
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: t('common.unexpected_error'),
+            life: 3000,
+        })
     } finally {
         loading.value = false
     }

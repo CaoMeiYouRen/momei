@@ -85,20 +85,30 @@ export default defineNuxtConfig({
             clarityProjectId: process.env.NUXT_PUBLIC_CLARITY_PROJECT_ID,
             baiduAnalyticsId: process.env.NUXT_PUBLIC_BAIDU_ANALYTICS_ID,
             googleAnalyticsId: process.env.NUXT_PUBLIC_GOOGLE_ANALYTICS_ID,
-            googleSiteVerification: process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
-            bingSiteVerification: process.env.NUXT_PUBLIC_BING_SITE_VERIFICATION,
-            siteOperator: process.env.NUXT_PUBLIC_SITE_OPERATOR || '[Example Operator]',
-            contactEmail: process.env.NUXT_PUBLIC_CONTACT_EMAIL || 'admin@example.com',
-            defaultCopyright: process.env.NUXT_PUBLIC_DEFAULT_COPYRIGHT || 'all-rights-reserved',
+            googleSiteVerification:
+                process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+            bingSiteVerification:
+                process.env.NUXT_PUBLIC_BING_SITE_VERIFICATION,
+            siteOperator:
+                process.env.NUXT_PUBLIC_SITE_OPERATOR || '[Example Operator]',
+            contactEmail:
+                process.env.NUXT_PUBLIC_CONTACT_EMAIL || 'admin@example.com',
+            defaultCopyright:
+                process.env.NUXT_PUBLIC_DEFAULT_COPYRIGHT
+                || 'all-rights-reserved',
             demoMode: process.env.NUXT_PUBLIC_DEMO_MODE === 'true',
             demoUserEmail: process.env.DEMO_USER_EMAIL || 'admin@example.com',
             demoPassword: process.env.DEMO_PASSWORD || 'momei123456',
             sentry: {
                 dsn: process.env.NUXT_PUBLIC_SENTRY_DSN,
-                environment: process.env.NUXT_PUBLIC_SENTRY_ENVIRONMENT || 'development',
+                environment:
+                    process.env.NUXT_PUBLIC_SENTRY_ENVIRONMENT || 'development',
+            },
+            authCaptcha: {
+                provider: process.env.NUXT_PUBLIC_AUTH_CAPTCHA_PROVIDER,
+                siteKey: process.env.NUXT_PUBLIC_AUTH_CAPTCHA_SITE_KEY,
             },
         },
-
     },
     sitemap: {
         // 如果需要排除某些路径
@@ -117,11 +127,13 @@ export default defineNuxtConfig({
             meta: [
                 {
                     name: 'google-site-verification',
-                    content: process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '',
+                    content:
+                        process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '',
                 },
                 {
                     name: 'msvalidate.01',
-                    content: process.env.NUXT_PUBLIC_BING_SITE_VERIFICATION || '',
+                    content:
+                        process.env.NUXT_PUBLIC_BING_SITE_VERIFICATION || '',
                 },
             ],
         },
@@ -146,8 +158,18 @@ export default defineNuxtConfig({
     },
     i18n: {
         locales: [
-            { code: 'en-US', language: 'en-US', name: 'English', file: 'en-US.json' },
-            { code: 'zh-CN', language: 'zh-CN', name: '简体中文', file: 'zh-CN.json' },
+            {
+                code: 'en-US',
+                language: 'en-US',
+                name: 'English',
+                file: 'en-US.json',
+            },
+            {
+                code: 'zh-CN',
+                language: 'zh-CN',
+                name: '简体中文',
+                file: 'zh-CN.json',
+            },
         ],
         defaultLocale: 'zh-CN',
         langDir: 'locales',
@@ -161,7 +183,11 @@ export default defineNuxtConfig({
     },
     build: {
         // 使用 Babel 转译不兼容的包
-        transpile: ['ms', 'debug', (ctx) => !ctx.isDev && 'google-libphonenumber'],
+        transpile: [
+            'ms',
+            'debug',
+            (ctx) => !ctx.isDev && 'google-libphonenumber',
+        ],
     },
     css: [
         'normalize.css/normalize.css',

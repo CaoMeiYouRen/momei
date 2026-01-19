@@ -10,16 +10,16 @@
                     >
                 </NuxtLink>
                 <h1 class="title">
-                    {{ $t('pages.forgot_password.title') }}
+                    {{ $t("pages.forgot_password.title") }}
                 </h1>
                 <p class="subtitle">
-                    {{ $t('pages.forgot_password.subtitle') }}
+                    {{ $t("pages.forgot_password.subtitle") }}
                 </p>
             </div>
 
             <form class="auth-form" @submit.prevent="handleForgotPassword">
                 <div class="form-group">
-                    <label for="email">{{ $t('common.email') }}</label>
+                    <label for="email">{{ $t("common.email") }}</label>
                     <InputText
                         id="email"
                         v-model="email"
@@ -38,8 +38,12 @@
 
                 <div v-if="success" class="success-message">
                     <i class="pi pi-check-circle" />
-                    <span>{{ $t('pages.forgot_password.success_message') }}</span>
+                    <span>{{
+                        $t("pages.forgot_password.success_message")
+                    }}</span>
                 </div>
+
+                <app-captcha ref="captchaRef" v-model="captchaToken" />
 
                 <Button
                     type="submit"
@@ -50,7 +54,7 @@
 
                 <div class="auth-footer">
                     <NuxtLink :to="localePath('/login')" class="link">
-                        {{ $t('pages.forgot_password.back_to_login') }}
+                        {{ $t("pages.forgot_password.back_to_login") }}
                     </NuxtLink>
                 </div>
             </form>
@@ -68,6 +72,8 @@ const email = ref('')
 const loading = ref(false)
 const error = ref('')
 const success = ref(false)
+const captchaToken = ref('')
+const captchaRef = ref<any>(null)
 
 definePageMeta({
     layout: 'default',
@@ -87,13 +93,23 @@ const handleForgotPassword = async () => {
     try {
         const { error: err } = await authClient.forgetPassword.emailOtp({
             email: email.value,
+            fetchOptions: {
+                headers: {
+                    'x-captcha-response': captchaToken.value,
+                },
+            },
         })
 
         if (err) {
             error.value = err.message || t('common.error_occurred')
+            captchaRef.value?.reset()
         } else {
             success.value = true
-            navigateTo(localePath(`/reset-password?email=${encodeURIComponent(email.value)}`))
+            navigateTo(
+                localePath(
+                    `/reset-password?email=${encodeURIComponent(email.value)}`,
+                ),
+            )
         }
     } catch (e: any) {
         error.value = e.message || t('common.error_occurred')
@@ -118,7 +134,9 @@ const handleForgotPassword = async () => {
     background-color: var(--p-surface-card);
     border-radius: 1rem;
     padding: 2.5rem;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+    box-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.1),
+        0 2px 4px -1px rgb(0 0 0 / 0.06);
     border: 1px solid var(--p-surface-border);
 }
 
