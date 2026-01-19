@@ -17,6 +17,17 @@
 
 所有纯逻辑、工具函数、组件的单元测试文件必须**与源代码文件同级存放** (Co-location)。
 
+**示例结构**:
+
+```plain
+utils/
+  ├── date-formatter.ts
+  └── date-formatter.test.ts  <-- 单元测试
+components/
+  ├── article-card.vue
+  └── article-card.test.ts     <-- 组件测试
+```
+
 -   **命名规则**: `[filename].test.ts`
 -   **适用范围**:
     -   工具函数 (`utils/`)
@@ -36,19 +47,6 @@
     -   复杂业务流程集成测试
 
 ### 3.3 端对端测试 (E2E Tests)
-
-**示例结构**:
-
-```plain
-utils/
-  ├── date-formatter.ts
-  └── date-formatter.test.ts  <-- 单元测试
-components/
-  ├── article-card.vue
-  └── article-card.test.ts     <-- 组件测试
-```
-
-### 3.2 端对端测试 (E2E Tests)
 
 所有 E2E 测试文件统一存放在项目根目录下的 `tests/e2e/` 目录中。
 
@@ -148,7 +146,7 @@ pnpm run test:coverage
 
 **注意**: 任何未通过上述检查的提交将被视为不合规，CI 流水线将会拦截此类合并请求。
 
-## 7. 相关文档
+## 8. 相关文档
 
 -   [AI 代理配置](../../AGENTS.md)
 -   [项目计划](../plan/roadmap.md)

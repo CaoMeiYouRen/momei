@@ -46,19 +46,20 @@
 
 ## 4. 接口与路由规划 (APIs & Routes)
 
-具体的 API 定义已按功能模块拆分，请阅读以下文档：
+具体的 API 定义已按功能模块拆分，请阅读对应的详细设计文档：
 
--   **博客模块**: [docs/design/modules/blog.md](./modules/blog.md)
--   **搜索模块**: [docs/design/modules/search.md](./modules/search.md)
--   **用户模块**: [docs/design/modules/user.md](./modules/user.md)
--   **管理模块**: [docs/design/modules/admin.md](./modules/admin.md)
--   **开放平台**: [docs/design/modules/open-api.md](./modules/open-api.md)
-
--   **[认证 (Auth)](./modules/auth.md)**: 登录、注册、Logout.
--   **[用户 (User)](./modules/user.md)**: Profile, Avatar.
--   **[博客 (Blog)](./modules/blog.md)**: Posts, Archives (Public).
--   **[管理 (Admin)](./modules/admin.md)**: Admin APIs for User/Content.
--   **[系统 (System)](./modules/system.md)**: Uploads, External APIs.- **[AI 辅助 (AI)](./modules/ai.md)**: AI Content Assistant.
+- **[认证系统 (Auth)](./modules/auth.md)**: 登录、注册、OAuth 流程、登出。
+- **[用户空间 (User)](./modules/user.md)**: 个人资料管理、头像修改、偏好设置。
+- **[博客内容 (Blog)](./modules/blog.md)**: 文章管理、归档展示、阅读量 (PV) 统计。
+- **[分类体系 (Taxonomy)](./modules/taxonomy.md)**: 分类与标签的管理及其国际化关联。
+- **[搜索模块 (Search)](./modules/search.md)**: 多维度关键词搜索与本地/数据库检索。
+- **[互动系统 (Interactions)](./modules/interactions.md)**: 评论系统、反馈管理、反垃圾行为拦截。
+- **[管理后台 (Admin)](./modules/admin.md)**: 内容审核、用户角色分配、站点配置管理。
+- **[AI 辅助 (AI)](./modules/ai.md)**: 智能摘要、自动翻译、SEO 优化辅助。
+- **[开放平台 (Open API)](./modules/open-api.md)**: 外部发布接口、基于 API Key 的鉴权。
+- **[演示模式 (Demo Mode)](./modules/demo-mode.md)**: 只读状态拦截、演示数据保护。
+- **[系统能力 (System)](./modules/system.md)**: 图片上传、主题设置 (Theme)、SEO/Sitemap 生成。
+- **[数据存储 (Storage)](./modules/storage.md)**: 文件上传服务、对象存储 (S3/Vercel Blob) 适配。
 
 ## 5. 国际化路由与 Slug 设计
 
