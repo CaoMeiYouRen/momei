@@ -193,6 +193,7 @@ export default defineNuxtConfig({
         'normalize.css/normalize.css',
         'driver.js/dist/driver.css',
         'primeicons/primeicons.css',
+        'highlight.js/styles/github-dark.css',
         '@/styles/main.scss',
     ],
     eslint: {

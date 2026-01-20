@@ -351,9 +351,9 @@
 
 详细设计请参考: [内容呈现增强设计文档](../design/modules/rendering.md)
 
-- [ ] **代码块语法高亮 (High Priority)**
-    - 验收: 文章正文中的代码块支持语法高亮（推荐集成 Shiki 或 highlight.js）。
-    - 验收: 支持主流编程语言 (JS/TS, Python, Java, Go, Rust 等)。
+- [x] **代码块语法高亮 (High Priority)**
+    - [x] 验收: 文章正文中的代码块支持语法高亮（推荐集成 Shiki 或 highlight.js）。
+    - [x] 验收: 支持主流编程语言 (JS/TS, Python, Java, Go, Rust 等)。
 - [ ] **图片懒加载 (High Priority)**
     - 验收: 文章图片默认开启懒加载，提升页面性能。
     - 验收: 兼容现代浏览器的 `loading="lazy"` 属性或集成 `Intersection Observer` 方案。

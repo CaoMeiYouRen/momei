@@ -89,6 +89,7 @@ import Tag from 'primevue/tag'
 import Button from 'primevue/button'
 import type { Comment } from '@/types/comment'
 import MarkdownIt from 'markdown-it'
+import hljs from 'highlight.js'
 
 const props = defineProps<{
     comment: Comment
@@ -106,6 +107,15 @@ const md = new MarkdownIt({
     html: false, // 禁止 HTML 注入
     linkify: true,
     typographer: true,
+    highlight: (str, lang) => {
+        if (lang && hljs.getLanguage(lang)) {
+            try {
+                return hljs.highlight(str, { language: lang }).value
+            } catch (__) {}
+        }
+
+        return '' // use external default escaping
+    },
 })
 const renderedContent = computed(() => md.render(props.comment.content || ''))
 
@@ -224,6 +234,30 @@ const avatarUrl = computed(() => {
     color: var(--p-text-color);
     overflow-wrap: break-word;
     :deep(p) { margin: 0; }
+
+    :deep(pre) {
+      background-color: #0d1117;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      margin: 0.5rem 0;
+
+      code {
+        background-color: transparent;
+        padding: 0;
+        color: #c9d1d9;
+        font-family: 'Fira Code', 'Cascadia Code', 'Source Code Pro', monospace;
+        font-size: 0.85rem;
+      }
+    }
+
+    :deep(code) {
+      background-color: var(--p-surface-100);
+      padding: 0.2em 0.4em;
+      border-radius: 0.25em;
+      font-size: 0.85em;
+      color: var(--p-primary-600);
+    }
   }
 
   &__actions {
@@ -238,12 +272,18 @@ const avatarUrl = computed(() => {
 
 :global(.dark) .comment-item {
   &--reply {
+    border-color: var(--p-surface-800);
     border-left-color: var(--p-surface-800);
   }
 
   &__pending {
     background-color: rgb(var(--p-warn-500-rgb), 0.1);
     color: var(--p-warn-400);
+  }
+
+  .comment-item__text :deep(code) {
+    background-color: var(--p-surface-800);
+    color: var(--p-primary-400);
   }
 }
 </style>

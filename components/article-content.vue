@@ -6,6 +6,7 @@
 <script setup lang="ts">
 import MarkdownIt from 'markdown-it'
 import MarkdownItAnchor from 'markdown-it-anchor'
+import hljs from 'highlight.js'
 
 const props = defineProps<{
     content: string
@@ -15,6 +16,15 @@ const md = new MarkdownIt({
     html: true,
     linkify: true,
     typographer: true,
+    highlight: (str, lang) => {
+        if (lang && hljs.getLanguage(lang)) {
+            try {
+                return hljs.highlight(str, { language: lang }).value
+            } catch (__) {}
+        }
+
+        return '' // use external default escaping
+    },
 })
 
 md.use(MarkdownItAnchor, {
@@ -96,18 +106,20 @@ const renderedContent = computed(() => md.render(props.content || ''))
     }
 
     pre {
-        background-color: #1e293b; // Slate 800
-        color: #f8fafc; // Slate 50
-        padding: 1.5em;
+        padding: 0;
         border-radius: 0.5em;
-        overflow-x: auto;
+        overflow: hidden;
         margin: 1.5em 0;
+        background-color: #0d1117; // GitHub Dark background
 
         code {
+            padding: 1.5em;
+            display: block;
             background-color: transparent;
-            padding: 0;
-            color: inherit;
+            color: #c9d1d9; // GitHub Dark text color
             font-size: 0.9em;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Cascadia Code', 'Source Code Pro', monospace;
         }
     }
 
@@ -157,7 +169,10 @@ const renderedContent = computed(() => md.render(props.content || ''))
         }
 
         pre {
-            background-color: #0f172a; // Slate 900
+            background-color: #0d1117; // Keep consistent with github-dark
+            code {
+                color: #c9d1d9;
+            }
         }
 
         hr {
