@@ -123,6 +123,15 @@ importers:
       markdown-it-anchor:
         specifier: ^9.2.0
         version: 9.2.0(@types/markdown-it@14.1.2)(markdown-it@14.1.0)
+      markdown-it-container:
+        specifier: ^4.0.0
+        version: 4.0.0
+      markdown-it-emoji:
+        specifier: ^3.0.0
+        version: 3.0.0
+      markdown-it-github-alerts:
+        specifier: ^1.0.1
+        version: 1.0.1(markdown-it@14.1.0)
       mavon-editor:
         specifier: ^3.0.2
         version: 3.0.2
@@ -226,6 +235,12 @@ importers:
       '@types/markdown-it-anchor':
         specifier: ^7.0.0
         version: 7.0.0(@types/markdown-it@14.1.2)(markdown-it@14.1.0)
+      '@types/markdown-it-container':
+        specifier: ^2.0.11
+        version: 2.0.11
+      '@types/markdown-it-emoji':
+        specifier: ^3.0.1
+        version: 3.0.1
       '@types/mjml':
         specifier: ^4.7.4
         version: 4.7.4
@@ -3579,6 +3594,9 @@ packages:
   '@types/katex@0.16.7':
     resolution: {integrity: sha512-HMwFiRujE5PjrgwHQ25+bsLJgowjGjm5Z8FVSf0N6PwgJrwxH0QxzHYDcKsTfV3wva0vzrpqMTJS2jXPr5BMEQ==}
 
+  '@types/linkify-it@3.0.5':
+    resolution: {integrity: sha512-yg6E+u0/+Zjva+buc3EIb+29XEg4wltq7cSmd4Uc2EE/1nUVmxyzpX6gUXD0V8jIrG0r7YeOGVIbYRkxeooCtw==}
+
   '@types/linkify-it@5.0.0':
     resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
 
@@ -3592,6 +3610,15 @@ packages:
     resolution: {integrity: sha512-kFehISVfgSePSp6JWGWrcgKIPoPpAsZAqTLUt0Wq9+MNiGdnWdXQy8UerwhmD2afmjux1TWf8XCmlpL2/6ax/A==}
     deprecated: This is a stub types definition. markdown-it-anchor provides its own type definitions, so you do not need this installed.
 
+  '@types/markdown-it-container@2.0.11':
+    resolution: {integrity: sha512-tiVQNp2zEHoW7EQa3nNjGRoVk1Uqw9FN7xD39k663lknKZFfByPT3oDyHiaGg+IYu0vSL37PGpDjjMOgtw2GUA==}
+
+  '@types/markdown-it-emoji@3.0.1':
+    resolution: {integrity: sha512-cz1j8R35XivBqq9mwnsrP2fsz2yicLhB8+PDtuVkKOExwEdsVBNI+ROL3sbhtR5occRZ66vT0QnwFZCqdjf3pA==}
+
+  '@types/markdown-it@13.0.9':
+    resolution: {integrity: sha512-1XPwR0+MgXLWfTn9gCsZ55AHOKW1WN+P9vr0PaQh5aerR9LLQXUbjfEAFhjmEmyoYFWAyuN2Mqkn40MZ4ukjBw==}
+
   '@types/markdown-it@14.1.2':
     resolution: {integrity: sha512-promo4eFwuiW+TfGxhi+0x3czqTYJkG8qB17ZUJiVF10Xm7NLVRSLUsfRTU/6h1e24VvRnXCx+hG7li58lkzog==}
 
@@ -3600,6 +3627,9 @@ packages:
 
   '@types/mdast@4.0.4':
     resolution: {integrity: sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==}
+
+  '@types/mdurl@1.0.5':
+    resolution: {integrity: sha512-6L6VymKTzYSrEf4Nev4Xa1LCHKrlTlYCBMTlQKFuddo1CvQcE52I0mwfOJayueUC7MJuXOeHTcIU683lzd0cUA==}
 
   '@types/mdurl@2.0.0':
     resolution: {integrity: sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg==}
@@ -6940,6 +6970,17 @@ packages:
     peerDependencies:
       '@types/markdown-it': '*'
       markdown-it: '*'
+
+  markdown-it-container@4.0.0:
+    resolution: {integrity: sha512-HaNccxUH0l7BNGYbFbjmGpf5aLHAMTinqRZQAEQbMr2cdD3z91Q6kIo1oUn1CQndkT03jat6ckrdRYuwwqLlQw==}
+
+  markdown-it-emoji@3.0.0:
+    resolution: {integrity: sha512-+rUD93bXHubA4arpEZO3q80so0qgoFJEKRkRbjKX8RTdca89v2kfyF+xR3i2sQTwql9tpPZPOQN5B+PunspXRg==}
+
+  markdown-it-github-alerts@1.0.1:
+    resolution: {integrity: sha512-NNATF4QdoGI07hyCitoB2YqJ1YcNVCKT89ut2VtfFY9rkeFCXe/V2lOonKQLpJiq5DjiZZepf97BJx5xOjFIAw==}
+    peerDependencies:
+      markdown-it: '>= 13.0.0'
 
   markdown-it@14.1.0:
     resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
@@ -14499,6 +14540,8 @@ snapshots:
 
   '@types/katex@0.16.7': {}
 
+  '@types/linkify-it@3.0.5': {}
+
   '@types/linkify-it@5.0.0': {}
 
   '@types/lodash-es@4.17.12':
@@ -14514,6 +14557,19 @@ snapshots:
       - '@types/markdown-it'
       - markdown-it
 
+  '@types/markdown-it-container@2.0.11':
+    dependencies:
+      '@types/markdown-it': 13.0.9
+
+  '@types/markdown-it-emoji@3.0.1':
+    dependencies:
+      '@types/markdown-it': 14.1.2
+
+  '@types/markdown-it@13.0.9':
+    dependencies:
+      '@types/linkify-it': 3.0.5
+      '@types/mdurl': 1.0.5
+
   '@types/markdown-it@14.1.2':
     dependencies:
       '@types/linkify-it': 5.0.0
@@ -14526,6 +14582,8 @@ snapshots:
   '@types/mdast@4.0.4':
     dependencies:
       '@types/unist': 3.0.3
+
+  '@types/mdurl@1.0.5': {}
 
   '@types/mdurl@2.0.0': {}
 
@@ -18233,6 +18291,14 @@ snapshots:
   markdown-it-anchor@9.2.0(@types/markdown-it@14.1.2)(markdown-it@14.1.0):
     dependencies:
       '@types/markdown-it': 14.1.2
+      markdown-it: 14.1.0
+
+  markdown-it-container@4.0.0: {}
+
+  markdown-it-emoji@3.0.0: {}
+
+  markdown-it-github-alerts@1.0.1(markdown-it@14.1.0):
+    dependencies:
       markdown-it: 14.1.0
 
   markdown-it@14.1.0:

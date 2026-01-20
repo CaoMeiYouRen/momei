@@ -363,11 +363,12 @@
 - [x] **Markdown 格式化 (Medium Priority)**
     - [x] 验收: 实现对 Markdown 内容的自动化格式化与美化（集成 @lint-md/core）。
     - [x] 验收: 支持在编辑器内自动格式化，确保排版整洁一致。
-- [ ] **富媒体与交互渲染能力增强 (Medium Priority)**
-    - [ ] **自定义容器**: 集成 `markdown-it-container` 插件，支持 `::: tip/warning/danger/info` 等容器及自定义标题。
-    - [ ] **代码组支持**: 实现类似 VitePress 的 Code Group 功能，支持 Tab 切换多段代码。
-    - [ ] **GitHub 警报语法**: 支持渲染 `> [!NOTE]` 等标注式警报。
-    - [ ] **Emoji 渲染**: 集成 `markdown-it-emoji` 插件支持标准表情符号。
+- [x] **富媒体与交互渲染能力增强 (Medium Priority)**
+    - [x] **自定义容器**: 集成 `markdown-it-container` 插件，支持 `::: tip/warning/danger/info` 等容器及自定义标题。
+    - [x] **代码组支持**: 实现类似 VitePress 的 Code Group 功能，支持 Tab 切换多段代码。
+    - [x] **GitHub 警报语法**: 支持渲染 `> [!NOTE]` 等标注式警报。
+    - [x] **Emoji 渲染**: 集成 `markdown-it-emoji` 插件支持标准表情符号。
+    - [x] **Lightbox 增强**: 实现点击图片弹出大图预览功能。
 
 ## 待规划与长期积压 (Backlog & Long-term Roadmap)
 
