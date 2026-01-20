@@ -240,7 +240,9 @@ const navigateToPost = () => {
     }
 
     &__read-more {
-        padding: 0 !important;
+        &.p-button {
+            padding: 0;
+        }
     }
 
     // Horizontal layout modifier

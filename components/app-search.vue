@@ -159,7 +159,7 @@ onUnmounted(() => {
         border: none;
         width: 100%;
         max-width: 600px;
-        top: 15% !important;
+        top: 15%;
         margin: 0 1rem;
 
         .p-dialog-content {

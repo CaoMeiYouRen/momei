@@ -79,10 +79,12 @@ const statusOptions = computed(() => [
 
 <style lang="scss" scoped>
 .user-filters-toolbar {
-    background-color: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-    margin-bottom: 1rem;
+    &.p-toolbar {
+        background-color: transparent;
+        border: none;
+        padding: 0;
+        margin-bottom: 1rem;
+    }
 }
 
 .user-filters {

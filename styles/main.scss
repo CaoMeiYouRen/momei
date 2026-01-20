@@ -60,66 +60,66 @@ a {
 // Driver.js Dark Mode Support
 .dark {
     .driver-popover {
-        background-color: var(--p-surface-800) !important;
-        color: var(--p-text-color) !important;
-        border: 1px solid var(--p-surface-700) !important;
+        background-color: var(--p-surface-800);
+        color: var(--p-text-color);
+        border: 1px solid var(--p-surface-700);
 
         .driver-popover-title {
-            color: var(--p-text-color) !important;
+            color: var(--p-text-color);
         }
 
         .driver-popover-description {
-            color: var(--p-text-muted-color) !important;
+            color: var(--p-text-muted-color);
         }
 
         .driver-popover-close-btn {
-            color: var(--p-text-muted-color) !important;
+            color: var(--p-text-muted-color);
 
             &:hover {
-                color: var(--p-text-color) !important;
+                color: var(--p-text-color);
             }
         }
 
         .driver-popover-next-btn,
         .driver-popover-prev-btn {
-            background-color: var(--p-primary-color) !important;
-            color: var(--p-primary-contrast-color) !important;
-            border-radius: 4px !important;
-            text-shadow: none !important;
-            border: none !important;
+            background-color: var(--p-primary-color);
+            color: var(--p-primary-contrast-color);
+            border-radius: 4px;
+            text-shadow: none;
+            border: none;
 
             &:hover {
-                background-color: var(--p-primary-600) !important;
+                background-color: var(--p-primary-600);
             }
         }
 
         .driver-popover-prev-btn {
-            background-color: var(--p-surface-700) !important;
-            color: var(--p-text-color) !important;
+            background-color: var(--p-surface-700);
+            color: var(--p-text-color);
 
             &:hover {
-                background-color: var(--p-surface-600) !important;
+                background-color: var(--p-surface-600);
             }
         }
 
         .driver-popover-progress-text {
-            color: var(--p-text-muted-color) !important;
+            color: var(--p-text-muted-color);
         }
 
         .driver-popover-arrow-side-top {
-            border-top-color: var(--p-surface-800) !important;
+            border-top-color: var(--p-surface-800);
         }
 
         .driver-popover-arrow-side-bottom {
-            border-bottom-color: var(--p-surface-800) !important;
+            border-bottom-color: var(--p-surface-800);
         }
 
         .driver-popover-arrow-side-left {
-            border-left-color: var(--p-surface-800) !important;
+            border-left-color: var(--p-surface-800);
         }
 
         .driver-popover-arrow-side-right {
-            border-right-color: var(--p-surface-800) !important;
+            border-right-color: var(--p-surface-800);
         }
     }
 }
@@ -181,7 +181,7 @@ a {
         }
 
         &:hover {
-            background-color: var(--p-surface-200) !important;
+            background-color: var(--p-surface-200);
         }
     }
 
@@ -291,7 +291,7 @@ a {
 // PrimeVue Dialog & Drawer Dark Mode Fixes
 .p-dialog,
 .p-drawer {
-    background-color: var(--p-surface-card) !important;
+    background-color: var(--p-surface-card);
     border: 1px solid var(--p-surface-border);
     color: var(--p-text-color);
 

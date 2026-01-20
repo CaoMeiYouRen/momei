@@ -381,15 +381,15 @@ watch(preferredDark, (newVal) => {
 
 .desktop-only {
     @media (width <= 768px) {
-        display: none !important;
+        display: none;
     }
 }
 
 .mobile-only {
-    display: none !important;
+    display: none;
 
     @media (width <= 768px) {
-        display: flex !important;
+        display: flex;
     }
 }
 
@@ -443,9 +443,11 @@ watch(preferredDark, (newVal) => {
 
 .mobile-user-button,
 .mobile-login-button {
-    width: 100%;
-    justify-content: flex-start !important;
-    margin-top: 0.5rem;
+    &.p-button {
+        width: 100%;
+        justify-content: flex-start;
+        margin-top: 0.5rem;
+    }
 }
 
 /* Fix PrimeVue Menu Dark Mode */

@@ -69,11 +69,14 @@
 
 .translation-badge {
     cursor: pointer;
-    font-size: 0.7rem !important;
-    padding: 2px 4px !important;
     min-width: 2rem;
     text-align: center;
     transition: all 0.2s;
+
+    &.p-badge {
+        font-size: 0.7rem;
+        padding: 2px 4px;
+    }
 
     &:hover {
         opacity: 0.8;
