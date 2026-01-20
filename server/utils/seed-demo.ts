@@ -84,6 +84,7 @@ export async function seedDemoData(ds: DataSource) {
             {
                 title: '欢迎来到墨梅博客演示模式',
                 slug: 'welcome-to-momei-demo',
+                translationId: 'welcome-to-momei-demo',
                 summary: '这是一个演示模式下的自动填充文章。在这里您可以体验 Momei 的所有核心功能，包括 AI 助手、多语言管理和极致的 Markdown 编辑体验。',
                 content: `## 欢迎体验 Momei
 
@@ -98,6 +99,7 @@ export async function seedDemoData(ds: DataSource) {
 ### 开始您的探索之旅吧！`,
                 language: 'zh-CN',
                 status: 'published' as any,
+                publishedAt: new Date(),
                 authorId: admin.id,
                 categoryId: techCat?.id,
                 tags: savedTags,
@@ -105,7 +107,8 @@ export async function seedDemoData(ds: DataSource) {
             },
             {
                 title: 'Welcome to Momei Blog Demo',
-                slug: 'welcome-to-momei-demo-en',
+                slug: 'welcome-to-momei-demo',
+                translationId: 'welcome-to-momei-demo',
                 summary: 'This is an auto-generated post in Demo mode. Here you can experience all core features of Momei, including AI assistance, multi-language management, and a seamless Markdown editing experience.',
                 content: `## Welcome to Momei Experience
 
@@ -120,6 +123,7 @@ This is your first demo post. In **Demo Mode**, you can:
 ### Start your journey now!`,
                 language: 'en-US',
                 status: 'published' as any,
+                publishedAt: new Date(),
                 authorId: admin.id,
                 categoryId: techEnCat?.id,
                 tags: [],

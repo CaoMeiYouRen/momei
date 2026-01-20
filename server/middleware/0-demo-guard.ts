@@ -1,4 +1,4 @@
-import { defineEventHandler, createError } from 'h3'
+import { defineEventHandler, createError, getRequestURL } from 'h3'
 
 export default defineEventHandler((event) => {
     const config = useRuntimeConfig()
@@ -6,7 +6,7 @@ export default defineEventHandler((event) => {
     // 仅在演示模式下运行拦截逻辑
     if (config.public.demoMode === true) {
         const method = event.method
-        const url = event.path
+        const { pathname: path } = getRequestURL(event)
 
         // 1. 放行所有 GET 请求
         if (method === 'GET') {
@@ -18,7 +18,7 @@ export default defineEventHandler((event) => {
             throw createError({
                 statusCode: 403,
                 statusMessage: 'Forbidden in Demo Mode',
-                message: '演示模式下禁止删除文章或分类，以保证其他用户的体验。系统会定期重置数据。',
+                message: '演示模式下禁止删除文章 or 分类，以保证其他用户的体验。系统会定期重置数据。',
             })
         }
 
@@ -31,7 +31,7 @@ export default defineEventHandler((event) => {
             '/api/auth/delete-user',
         ]
 
-        if (sensitivePatterns.some((pattern) => url.startsWith(pattern))) {
+        if (sensitivePatterns.some((pattern) => path.startsWith(pattern))) {
             throw createError({
                 statusCode: 403,
                 statusMessage: 'Forbidden in Demo Mode',
