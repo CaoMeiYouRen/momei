@@ -18,7 +18,11 @@
                     <div class="preview-canvas shadow-2">
                         <div
                             class="preview-inner"
-                            :style="{backgroundColor: 'var(--p-surface-0)', color: 'var(--p-text-color)'}"
+                            :style="{
+                                backgroundColor: 'var(--p-surface-0)',
+                                color: 'var(--p-text-color)',
+                                filter: settings.themeMourningMode ? 'grayscale(100%)' : 'none'
+                            }"
                         >
                             <ArticleCard
                                 :post="{
@@ -95,76 +99,161 @@
                             <p v-if="settings.themePreset === 'custom'" class="hint-text mt-2">
                                 {{ $t('pages.admin.settings.theme.custom_hint') }}
                             </p>
-                        </div>
-
-                        <Divider />
-
-                        <!-- 主色调 -->
-                        <div class="form-group">
-                            <label>{{ $t('pages.admin.settings.theme.primary_color') }}</label>
-                            <div class="color-input-group mt-2">
-                                <ColorPicker v-model="primaryPickerModel" format="hex" />
-                                <InputText
-                                    v-model="primaryColorModel"
-                                    :placeholder="getCurrentPresetValue('primary')"
-                                />
-                            </div>
-                        </div>
-
-                        <!-- 点缀色 -->
-                        <div class="form-group mt-3">
-                            <label>{{ $t('pages.admin.settings.theme.accent_color') }}</label>
-                            <div class="color-input-group mt-2">
-                                <ColorPicker v-model="accentPickerModel" format="hex" />
-                                <InputText
-                                    v-model="accentColorModel"
-                                    :placeholder="getCurrentPresetValue('accent')"
-                                />
-                            </div>
-                        </div>
-
-                        <!-- 圆角 -->
-                        <div class="form-group mt-3">
-                            <label>{{ $t('pages.admin.settings.theme.border_radius') }}</label>
-                            <div class="input-with-addon mt-2">
-                                <InputText v-model="settings.themeBorderRadius" :placeholder="getCurrentPresetValue('radius')" />
-                                <span class="addon">rem/px</span>
-                            </div>
-                        </div>
-
-                        <Divider />
-
-                        <!-- 品牌标识 -->
-                        <div class="form-group">
-                            <label>{{ $t('pages.admin.settings.theme.logo') }} URL</label>
-                            <InputText
-                                v-model="settings.themeLogoUrl"
-                                placeholder="/logo.png"
-                                class="mt-2"
-                            />
-                        </div>
-
-                        <div class="form-group mt-3">
-                            <label>{{ $t('pages.admin.settings.theme.favicon') }} URL</label>
-                            <InputText
-                                v-model="settings.themeFaviconUrl"
-                                placeholder="/favicon.ico"
-                                class="mt-2"
-                            />
-                        </div>
-
-                        <Divider />
-
-                        <!-- 特殊模式 -->
-                        <div class="form-group">
-                            <div class="align-items-center flex justify-content-between">
-                                <label>{{ $t('pages.admin.settings.theme.mourning_mode') }}</label>
-                                <ToggleSwitch v-model="mourningModeRef" />
-                            </div>
                             <p class="hint-text mt-1">
-                                {{ $t('pages.admin.settings.theme.mourning_mode_hint') }}
+                                {{ $t('pages.admin.settings.theme.color_reset_hint') }}
                             </p>
                         </div>
+
+                        <Tabs value="0" class="mt-4">
+                            <TabList>
+                                <Tab value="0">
+                                    {{ $t('pages.admin.settings.theme.color_group_light') }}
+                                </Tab>
+                                <Tab value="1">
+                                    {{ $t('pages.admin.settings.theme.color_group_dark') }}
+                                </Tab>
+                                <Tab value="2">
+                                    {{ $t('common.settings') }}
+                                </Tab>
+                            </TabList>
+                            <TabPanels class="px-0">
+                                <TabPanel value="0">
+                                    <!-- 浅色模式色彩 -->
+                                    <div class="form-group mt-3">
+                                        <label>{{ $t('pages.admin.settings.theme.primary_color') }}</label>
+                                        <div class="color-input-group mt-2">
+                                            <ColorPicker v-model="primaryPickerModel" format="hex" />
+                                            <InputText
+                                                v-model="primaryColorModel"
+                                                :placeholder="getCurrentPresetValue('primary', false)"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="form-group mt-3">
+                                        <label>{{ $t('pages.admin.settings.theme.accent_color') }}</label>
+                                        <div class="color-input-group mt-2">
+                                            <ColorPicker v-model="accentPickerModel" format="hex" />
+                                            <InputText
+                                                v-model="accentColorModel"
+                                                :placeholder="getCurrentPresetValue('accent', false)"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="form-group mt-3">
+                                        <label>{{ $t('pages.admin.settings.theme.surface_color') }}</label>
+                                        <div class="color-input-group mt-2">
+                                            <ColorPicker v-model="surfacePickerModel" format="hex" />
+                                            <InputText
+                                                v-model="surfaceColorModel"
+                                                :placeholder="getCurrentPresetValue('surface', false)"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="form-group mt-3">
+                                        <label>{{ $t('pages.admin.settings.theme.text_color') }}</label>
+                                        <div class="color-input-group mt-2">
+                                            <ColorPicker v-model="textPickerModel" format="hex" />
+                                            <InputText
+                                                v-model="textColorModel"
+                                                :placeholder="getCurrentPresetValue('text', false)"
+                                            />
+                                        </div>
+                                    </div>
+                                </TabPanel>
+
+                                <TabPanel value="1">
+                                    <!-- 深色模式色彩 -->
+                                    <div class="form-group mt-3">
+                                        <label>{{ $t('pages.admin.settings.theme.dark_primary_color') }}</label>
+                                        <div class="color-input-group mt-2">
+                                            <ColorPicker v-model="darkPrimaryPickerModel" format="hex" />
+                                            <InputText
+                                                v-model="darkPrimaryColorModel"
+                                                :placeholder="getCurrentPresetValue('primary', true)"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="form-group mt-3">
+                                        <label>{{ $t('pages.admin.settings.theme.dark_accent_color') }}</label>
+                                        <div class="color-input-group mt-2">
+                                            <ColorPicker v-model="darkAccentPickerModel" format="hex" />
+                                            <InputText
+                                                v-model="darkAccentColorModel"
+                                                :placeholder="getCurrentPresetValue('accent', true)"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="form-group mt-3">
+                                        <label>{{ $t('pages.admin.settings.theme.dark_surface_color') }}</label>
+                                        <div class="color-input-group mt-2">
+                                            <ColorPicker v-model="darkSurfacePickerModel" format="hex" />
+                                            <InputText
+                                                v-model="darkSurfaceColorModel"
+                                                :placeholder="getCurrentPresetValue('surface', true)"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="form-group mt-3">
+                                        <label>{{ $t('pages.admin.settings.theme.dark_text_color') }}</label>
+                                        <div class="color-input-group mt-2">
+                                            <ColorPicker v-model="darkTextPickerModel" format="hex" />
+                                            <InputText
+                                                v-model="darkTextColorModel"
+                                                :placeholder="getCurrentPresetValue('text', true)"
+                                            />
+                                        </div>
+                                    </div>
+                                </TabPanel>
+
+                                <TabPanel value="2">
+                                    <!-- 其他设置 -->
+                                    <div class="form-group">
+                                        <label>{{ $t('pages.admin.settings.theme.border_radius') }}</label>
+                                        <div class="input-with-addon mt-2">
+                                            <InputText
+                                                v-model="settings.themeBorderRadius"
+                                                :placeholder="getCurrentPresetValue('radius')"
+                                            />
+                                            <span class="addon">rem/px</span>
+                                        </div>
+                                    </div>
+
+                                    <Divider />
+
+                                    <!-- 品牌标识 -->
+                                    <div class="form-group">
+                                        <label>{{ $t('pages.admin.settings.theme.logo') }} URL</label>
+                                        <InputText
+                                            v-model="settings.themeLogoUrl"
+                                            placeholder="/logo.png"
+                                            class="mt-2 w-full"
+                                        />
+                                    </div>
+
+                                    <div class="form-group mt-3">
+                                        <label>{{ $t('pages.admin.settings.theme.favicon') }} URL</label>
+                                        <InputText
+                                            v-model="settings.themeFaviconUrl"
+                                            placeholder="/favicon.ico"
+                                            class="mt-2 w-full"
+                                        />
+                                    </div>
+
+                                    <Divider />
+
+                                    <!-- 特殊模式 -->
+                                    <div class="form-group">
+                                        <div class="align-items-center flex justify-content-between">
+                                            <label>{{ $t('pages.admin.settings.theme.mourning_mode') }}</label>
+                                            <ToggleSwitch v-model="mourningModeRef" />
+                                        </div>
+                                        <p class="hint-text mt-1">
+                                            {{ $t('pages.admin.settings.theme.mourning_mode_hint') }}
+                                        </p>
+                                    </div>
+                                </TabPanel>
+                            </TabPanels>
+                        </Tabs>
                     </div>
                 </Panel>
             </div>
@@ -187,10 +276,10 @@ const { settings, applyTheme } = useTheme()
 const loading = ref(false)
 
 // 处理颜色值的双向绑定，确保 ColorPicker (无#) 和 InputText (有#) 同步
-const createColorModel = (key: 'themePrimaryColor' | 'themeAccentColor' | 'themeBackgroundValue') => {
+const createColorModel = (key: any) => {
     return computed({
         get: () => {
-            const val = settings.value?.[key]
+            const val = (settings.value as any)?.[key]
             if (!val) {
                 return ''
             }
@@ -200,33 +289,41 @@ const createColorModel = (key: 'themePrimaryColor' | 'themeAccentColor' | 'theme
             if (settings.value) {
                 // 统一存储为带 # 的格式，确保 CSS 变量解析正确
                 if (!newVal) {
-                    settings.value[key] = ''
+                    (settings.value as any)[key] = null
                     return
                 }
-                settings.value[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
+                (settings.value as any)[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
             }
         },
     })
 }
 
 // 专门为 ColorPicker 创建的 Model，处理 fallback 到 Preset 默认值，且去掉 # 号
-const createColorPickerModel = (key: 'themePrimaryColor' | 'themeAccentColor' | 'themeBackgroundValue') => {
-    const typeMap = {
+const createColorPickerModel = (key: any) => {
+    const typeMap: Record<string, string> = {
         themePrimaryColor: 'primary',
         themeAccentColor: 'accent',
-        themeBackgroundValue: 'primary', // 背景色暂时 fallback 到主色或默认
+        themeSurfaceColor: 'surface',
+        themeTextColor: 'text',
+        themeDarkPrimaryColor: 'primary',
+        themeDarkAccentColor: 'accent',
+        themeDarkSurfaceColor: 'surface',
+        themeDarkTextColor: 'text',
+        themeBackgroundValue: 'primary',
     }
+
     return computed({
         get: () => {
-            let val = settings.value?.[key]
+            let val = (settings.value as any)?.[key]
             if (!val) {
-                val = getCurrentPresetValue(typeMap[key] as any)
+                const isDarkField = key.toLowerCase().includes('dark')
+                val = getCurrentPresetValue(typeMap[key] as any, isDarkField)
             }
             return val ? val.replace('#', '') : ''
         },
         set: (newVal: string) => {
             if (settings.value) {
-                settings.value[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
+                (settings.value as any)[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
             }
         },
     })
@@ -234,16 +331,32 @@ const createColorPickerModel = (key: 'themePrimaryColor' | 'themeAccentColor' | 
 
 const primaryColorModel = createColorModel('themePrimaryColor')
 const accentColorModel = createColorModel('themeAccentColor')
+const surfaceColorModel = createColorModel('themeSurfaceColor')
+const textColorModel = createColorModel('themeTextColor')
+
+const darkPrimaryColorModel = createColorModel('themeDarkPrimaryColor')
+const darkAccentColorModel = createColorModel('themeDarkAccentColor')
+const darkSurfaceColorModel = createColorModel('themeDarkSurfaceColor')
+const darkTextColorModel = createColorModel('themeDarkTextColor')
+
 const backgroundColorModel = createColorModel('themeBackgroundValue')
 
 const primaryPickerModel = createColorPickerModel('themePrimaryColor')
 const accentPickerModel = createColorPickerModel('themeAccentColor')
+const surfacePickerModel = createColorPickerModel('themeSurfaceColor')
+const textPickerModel = createColorPickerModel('themeTextColor')
+
+const darkPrimaryPickerModel = createColorPickerModel('themeDarkPrimaryColor')
+const darkAccentPickerModel = createColorPickerModel('themeDarkAccentColor')
+const darkSurfacePickerModel = createColorPickerModel('themeDarkSurfaceColor')
+const darkTextPickerModel = createColorPickerModel('themeDarkTextColor')
+
 const backgroundPickerModel = createColorPickerModel('themeBackgroundValue')
 
 // 用于判断当前模式（深/浅）以显示正确的 Placeholder
 const isDark = useDark()
 
-const getCurrentPresetValue = (type: 'primary' | 'accent' | 'radius') => {
+const getCurrentPresetValue = (type: 'primary' | 'accent' | 'surface' | 'text' | 'radius', forceDark?: boolean) => {
     if (!settings.value) {
         return ''
     }
@@ -252,7 +365,7 @@ const getCurrentPresetValue = (type: 'primary' | 'accent' | 'radius') => {
     if (type === 'radius') {
         return preset.radius
     }
-    const mode = isDark.value ? 'dark' : 'light'
+    const mode = forceDark ? 'dark' : 'light'
     return (preset[type] as any)[mode]
 }
 
@@ -295,6 +408,12 @@ const onPresetChange = () => {
     // 切换预设时清空手动覆盖项，使其使用预设默认值
     settings.value.themePrimaryColor = null
     settings.value.themeAccentColor = null
+    settings.value.themeSurfaceColor = null
+    settings.value.themeTextColor = null
+    settings.value.themeDarkPrimaryColor = null
+    settings.value.themeDarkAccentColor = null
+    settings.value.themeDarkSurfaceColor = null
+    settings.value.themeDarkTextColor = null
     settings.value.themeBorderRadius = null
 }
 
@@ -336,9 +455,10 @@ const saveTheme = async () => {
 
 .theme-grid {
     display: grid;
-    grid-template-columns: 1fr 340px;
+    grid-template-columns: 1fr 380px;
     gap: 2rem;
     margin-top: 1.5rem;
+    align-items: start;
 
     @media (width <= 1200px) {
         grid-template-columns: 1fr;
@@ -375,7 +495,38 @@ const saveTheme = async () => {
 
 // 表单样式
 .config-form {
-    padding: 0.25rem 0;
+    padding: 0;
+}
+
+.theme-config-section {
+    background-color: var(--p-surface-0);
+    border-radius: 12px;
+    border: 1px solid var(--p-content-border-color);
+    overflow: hidden;
+
+    :deep(.p-panel) {
+        .p-panel-header {
+            background: transparent;
+            border: none;
+            padding: 1rem 1rem 0.5rem;
+        }
+
+        .p-panel-content {
+            border: none;
+            background: transparent;
+            padding: 0 1rem 1rem;
+        }
+    }
+
+    :deep(.p-tabs) {
+        background: transparent;
+        border: none;
+    }
+
+    :deep(.p-tablist-tab-list) {
+        background: transparent;
+        border-color: var(--p-content-border-color);
+    }
 }
 
 .form-group {
@@ -400,6 +551,7 @@ const saveTheme = async () => {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    width: 100%;
 
     :deep(.p-colorpicker) {
         flex-shrink: 0;
@@ -416,6 +568,7 @@ const saveTheme = async () => {
 
     :deep(.p-inputtext) {
         flex: 1;
+        min-width: 0;
     }
 }
 
@@ -463,19 +616,5 @@ const saveTheme = async () => {
 
 :deep(.p-divider) {
     margin: 1.25rem 0;
-}
-
-:deep(.p-panel) {
-    .p-panel-header {
-        background: transparent;
-        border: none;
-        padding-bottom: 0.5rem;
-    }
-
-    .p-panel-content {
-        border: none;
-        background: transparent;
-        padding-top: 0;
-    }
 }
 </style>

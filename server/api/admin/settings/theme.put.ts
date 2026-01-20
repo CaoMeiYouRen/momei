@@ -10,6 +10,12 @@ const themeUpdateSchema = z.object({
     themePreset: z.string().optional().nullable(),
     themePrimaryColor: z.string().optional().nullable(),
     themeAccentColor: z.string().optional().nullable(),
+    themeSurfaceColor: z.string().optional().nullable(),
+    themeTextColor: z.string().optional().nullable(),
+    themeDarkPrimaryColor: z.string().optional().nullable(),
+    themeDarkAccentColor: z.string().optional().nullable(),
+    themeDarkSurfaceColor: z.string().optional().nullable(),
+    themeDarkTextColor: z.string().optional().nullable(),
     themeBorderRadius: z.string().optional().nullable(),
     themeLogoUrl: z.string().optional().nullable().refine((val) => isValidCustomUrl(val), {
         message: 'Logo URL source is not in the whitelist',

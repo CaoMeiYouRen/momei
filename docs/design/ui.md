@@ -21,29 +21,22 @@
 
 ### 2.2 配色方案 (Color Palette)
 
-配色灵感取自水墨画与梅花。
+配色灵感取自水墨画与梅花。墨梅支持高度自定义的配色方案，管理员可以为浅色和深色模式分别配置以下核心颜色：
 
--   **主色调 (Primary)**: **墨色 (Ink Slate)**
-
+-   **主色调 (Primary)**:
     -   用于主要按钮、高亮文本、Logo。
-    -   色值参考: Slate 800 (`#1e293b`) 到 Slate 900 (`#0f172a`)。
-    -   PrimeVue 对应: `primary-500` ~ `primary-900`。
-
--   **背景色 (Surface)**: **宣纸白 (Rice Paper White)**
-
-    -   用于页面背景，保持极高的阅读舒适度。
-    -   Light Mode: Pure White (`#ffffff`) 或 Very Light Gray (`#f8fafc`)。
-    -   Dark Mode: Deep Charcoal (`#0f172a` 或 `#18181b`)。
-
--   **点缀色 (Accent)**: **梅红 (Plum Red)**
-
-    -   用于强调、Like 按钮、错误提示。
-    -   色值参考: Rose 500 (`#f43f5e`) 或 Pink 600 (`#db2777`)。
-    -   _注: 点缀色应克制使用，避免喧宾夺主。链接悬停等常规交互应使用主色调的深色变体。_
-
+    -   默认色值: Slate 800 (`#1e293b`) 到 Slate 900 (`#0f172a`)。
+-   **点缀色 (Accent)**:
+    -   用于强调、具有活力的交互元素。
+    -   默认色值: Rose 500 (`#f43f5e`)。
+-   **表面色 (Surface)**:
+    -   用于卡片、组件背景。
+    -   浅色默认: `#ffffff`；深色默认: `#121212`。
 -   **文本色 (Text)**:
-    -   主要文本: Slate 900 (`#0f172a`)
-    -   次要文本: Slate 500 (`#64748b`)
+    -   主要文本颜色。
+    -   浅色默认: Slate 900；深色默认: Slate 100。
+
+系统支持多种预设（如琥珀、极客紫、清新绿）以及完全自定义模式，允许管理员对 8 个核心颜色点位（浅色/深色各 4 个）进行精细化调整。
 
 ### 2.3 字体 (Typography)
 
@@ -51,12 +44,16 @@
 -   **英文字体**: `Inter` 或 `Roboto`，保持现代感。
 -   **代码字体**: `Fira Code` 或 `JetBrains Mono`。
 
-### 2.4 暗色模式 (Dark Mode)
+### 2.4 暗色模式 (Dark Mode) 与 主题覆盖 (Theme Overrides)
 
 -   **策略**: 支持 **浅色 (Light)**、**深色 (Dark)** 及 **跟随系统 (System)** 三种模式。
 -   **实现**:
-    -   使用 CSS Variables 或 SCSS Mixins 管理颜色主题。
-    -   通过 HTML 根元素的 `class="dark"` 进行切换 (Tailwind/PrimeVue 兼容)。
+    -   使用 CSS Variables 通过 HTML 根元素的 `class="dark"` 进行切换。
+    -   **CSS Layers (@layer)**: 为了优雅地覆盖 PrimeVue 的默认样式，项目定义了以下层级：
+        1. `primevue`: 基础组件样式。
+        2. `momei-base`: 墨梅的基础全局样式。
+        3. `momei-overrides`: 用于覆盖组件样式的最高优先级层，动态生成的主题变量即注入此层。
+    -   **动态生成**: 通过 `useTheme` Composable 监听配置变化，动态向 `<style id="momei-custom-theme">` 注入各模式下的 CSS 变量。
 -   **体验**:
     -   切换时应有平滑的过渡动画 (Transition)。
     -   避免页面加载时的闪烁 (FOUC)。

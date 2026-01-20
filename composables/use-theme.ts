@@ -5,6 +5,12 @@ export interface ThemeSettings {
     themePreset: string | null
     themePrimaryColor: string | null
     themeAccentColor: string | null
+    themeSurfaceColor: string | null
+    themeTextColor: string | null
+    themeDarkPrimaryColor: string | null
+    themeDarkAccentColor: string | null
+    themeDarkSurfaceColor: string | null
+    themeDarkTextColor: string | null
     themeBorderRadius: string | null
     themeLogoUrl: string | null
     themeFaviconUrl: string | null
@@ -58,6 +64,12 @@ export const useTheme = () => {
         themePreset: 'default',
         themePrimaryColor: null,
         themeAccentColor: null,
+        themeSurfaceColor: null,
+        themeTextColor: null,
+        themeDarkPrimaryColor: null,
+        themeDarkAccentColor: null,
+        themeDarkSurfaceColor: null,
+        themeDarkTextColor: null,
         themeBorderRadius: null,
         themeLogoUrl: null,
         themeFaviconUrl: null,
@@ -87,6 +99,12 @@ export const useTheme = () => {
             themePreset,
             themePrimaryColor,
             themeAccentColor,
+            themeSurfaceColor,
+            themeTextColor,
+            themeDarkPrimaryColor,
+            themeDarkAccentColor,
+            themeDarkSurfaceColor,
+            themeDarkTextColor,
             themeBorderRadius,
             themeBackgroundType,
             themeBackgroundValue,
@@ -101,19 +119,32 @@ export const useTheme = () => {
                 return fallback
             }
             const c = color.trim()
-            if (/^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/.test(c)) {
-                return `#${c}`
+            if (!c) {
+                return fallback
             }
-            return c
+            return c.startsWith('#') ? c : `#${c}`
         }
 
         const radius = themeBorderRadius || preset.radius
 
         const generateVariables = (mode: 'light' | 'dark') => {
-            const primary = formatColor(themePrimaryColor, preset.primary[mode])
-            const accent = formatColor(themeAccentColor, preset.accent[mode])
-            const surface = preset.surface[mode]
-            const text = preset.text[mode]
+            const isDarkMode = mode === 'dark'
+
+            const primary = isDarkMode
+                ? formatColor(themeDarkPrimaryColor || themePrimaryColor, preset.primary[mode])
+                : formatColor(themePrimaryColor, preset.primary[mode])
+
+            const accent = isDarkMode
+                ? formatColor(themeDarkAccentColor || themeAccentColor, preset.accent[mode])
+                : formatColor(themeAccentColor, preset.accent[mode])
+
+            const surface = isDarkMode
+                ? formatColor(themeDarkSurfaceColor || themeSurfaceColor, preset.surface[mode])
+                : formatColor(themeSurfaceColor, preset.surface[mode])
+
+            const text = isDarkMode
+                ? formatColor(themeDarkTextColor || themeTextColor, preset.text[mode])
+                : formatColor(themeTextColor, preset.text[mode])
 
             let contrastColor = mode === 'dark' ? '#000' : '#fff'
             if (presetKey === 'geek' && mode === 'dark') {
@@ -136,16 +167,39 @@ export const useTheme = () => {
 
     --p-primary-color: ${primary};
     --p-primary-contrast-color: ${contrastColor};
-    --p-primary-hover-color: color-mix(in srgb, ${primary}, black 10%);
-    --p-primary-active-color: color-mix(in srgb, ${primary}, black 20%);
+    --p-primary-hover-color: color-mix(in srgb, ${primary}, ${isDarkMode ? 'white' : 'black'} 10%);
+    --p-primary-active-color: color-mix(in srgb, ${primary}, ${isDarkMode ? 'white' : 'black'} 20%);
 
     --p-select-option-focus-background: var(--p-primary-100);
     --p-select-option-selected-background: var(--p-primary-500);
     --p-select-option-selected-color: var(--p-primary-contrast-color);
 
     --p-content-border-radius: ${radius};
+
+    /* Surface mapping */
     --p-surface-0: ${surface};
+    --p-surface-50: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 2%);
+    --p-surface-100: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 4%);
+    --p-surface-200: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 8%);
+    --p-surface-300: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 12%);
+    --p-surface-400: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 20%);
+    --p-surface-500: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 30%);
+    --p-surface-600: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 45%);
+    --p-surface-700: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 60%);
+    --p-surface-800: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 80%);
+    --p-surface-900: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 90%);
+    --p-surface-950: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 95%);
+
+    --p-content-background: var(--p-surface-0);
+    --p-content-border-color: var(--p-surface-200);
+    --p-navigation-background: var(--p-surface-0);
+    --p-panel-background: var(--p-surface-0);
+    --p-tabs-tab-background: var(--p-surface-0);
+    --p-tabs-tabpanel-background: var(--p-surface-0);
+    --p-tabs-tab-list-background: var(--p-surface-0);
+
     --p-text-color: ${text};
+    --p-text-muted-color: color-mix(in srgb, ${text}, ${surface} 40%);
     --m-accent-color: ${accent};
 `
             // 如果是暖色或极客主题，微调 body 基础背景
