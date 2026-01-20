@@ -292,7 +292,7 @@ const avatarUrl = computed(() => {
 
   .comment-item__text {
     :deep(code) {
-      background-color: var(--p-surface-800);
+      background-color: var(--p-surface-200);
       color: var(--p-primary-400);
     }
 

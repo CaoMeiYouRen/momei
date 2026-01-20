@@ -45,7 +45,9 @@ export const PRESETS = {
 }
 
 export const useTheme = () => {
-    const isDark = useDark({
+    // 虽然 isDark 在 CSS 变量生成中不再直接使用（因为我们同时生成了亮暗两套变量），
+    // 但 useDark 仍然需要保留以管理 html 端的 class 状态。
+    useDark({
         selector: 'html',
         attribute: 'class',
         valueDark: 'dark',
@@ -92,7 +94,6 @@ export const useTheme = () => {
 
         const presetKey = (theme_preset || 'default') as keyof typeof PRESETS
         const preset = PRESETS[presetKey] || PRESETS.default
-        const mode = isDark.value ? 'dark' : 'light'
 
         // 辅助函数：确保十六进制颜色以 # 开头且格式正确，否则 CSS 会失效
         const formatColor = (color: string | null | undefined, fallback: string) => {
@@ -100,34 +101,28 @@ export const useTheme = () => {
                 return fallback
             }
             const c = color.trim()
-            // 如果是合法的 3位或6位十六进制代码但缺失 #，自动补齐
             if (/^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/.test(c)) {
                 return `#${c}`
             }
             return c
         }
 
-        const primary = formatColor(theme_primary_color, preset.primary[mode])
-        const accent = formatColor(theme_accent_color, preset.accent[mode])
-        const surface = preset.surface[mode]
-        const text = preset.text[mode]
         const radius = theme_border_radius || preset.radius
 
-        // 计算对比色，避免嵌套三元表达式产生的 Lint 错误
-        let contrastColor = mode === 'dark' ? '#000' : '#fff'
-        if (presetKey === 'geek' && mode === 'dark') {
-            contrastColor = '#fff'
-        } else if (primary.toLowerCase() === '#ffe411') {
-            contrastColor = '#000'
-        }
+        const generateVariables = (mode: 'light' | 'dark') => {
+            const primary = formatColor(theme_primary_color, preset.primary[mode])
+            const accent = formatColor(theme_accent_color, preset.accent[mode])
+            const surface = preset.surface[mode]
+            const text = preset.text[mode]
 
-        let styles = ''
+            let contrastColor = mode === 'dark' ? '#000' : '#fff'
+            if (presetKey === 'geek' && mode === 'dark') {
+                contrastColor = '#fff'
+            } else if (primary.toLowerCase() === '#ffe411') {
+                contrastColor = '#000'
+            }
 
-        // 1. 基础预设变量注入
-        // 覆盖 PrimeVue 4 Aura 主色调全色阶变量，确保预览效果即刻生效
-        // 使用 CSS color-mix 动态生成色阶，避免所有色阶都是同一个颜色导致的视觉重叠和对比度问题
-        styles += `
-:root, body {
+            let v = `
     --p-primary-50: color-mix(in srgb, ${primary}, white 95%);
     --p-primary-100: color-mix(in srgb, ${primary}, white 90%);
     --p-primary-200: color-mix(in srgb, ${primary}, white 70%);
@@ -139,53 +134,61 @@ export const useTheme = () => {
     --p-primary-800: color-mix(in srgb, ${primary}, black 60%);
     --p-primary-900: color-mix(in srgb, ${primary}, black 80%);
 
-    --p-primary-color: ${primary} !important;
-    --p-primary-contrast-color: ${contrastColor} !important;
-    --p-primary-hover-color: color-mix(in srgb, ${primary}, black 10%) !important;
-    --p-primary-active-color: color-mix(in srgb, ${primary}, black 20%) !important;
+    --p-primary-color: ${primary};
+    --p-primary-contrast-color: ${contrastColor};
+    --p-primary-hover-color: color-mix(in srgb, ${primary}, black 10%);
+    --p-primary-active-color: color-mix(in srgb, ${primary}, black 20%);
 
-    // 修复组件状态色彩 (如 Dropdown/Select 的选中和悬停)
-    --p-select-option-focus-background: var(--p-primary-100) !important;
-    --p-select-option-selected-background: var(--p-primary-500) !important;
-    --p-select-option-selected-color: var(--p-primary-contrast-color) !important;
+    --p-select-option-focus-background: var(--p-primary-100);
+    --p-select-option-selected-background: var(--p-primary-500);
+    --p-select-option-selected-color: var(--p-primary-contrast-color);
 
     --p-content-border-radius: ${radius};
     --p-surface-0: ${surface};
     --p-text-color: ${text};
-
-    // 增加点缀色变量
-    --m-accent-color: ${accent} !important;
-}
+    --m-accent-color: ${accent};
 `
+            // 如果是暖色或极客主题，微调 body 基础背景
+            if (theme_preset && theme_preset !== 'default') {
+                v += `    --p-surface-ground: ${surface};\n`
+            }
 
-        // 如果是暖色或极客主题，微调 body 基础背景
-        if (theme_preset && theme_preset !== 'default') {
-            styles += `
-body {
-    background-color: ${surface} !important;
-}
-`
+            // 个性化背景颜色覆盖
+            if (theme_background_type === 'color' && theme_background_value) {
+                const bgColor = formatColor(theme_background_value, surface)
+                v += `    --p-surface-ground: ${bgColor};\n`
+            }
+
+            return v
         }
 
-        // 2. 个性化背景定制覆盖
-        if (theme_background_type === 'color' && theme_background_value) {
-            const bgColor = formatColor(theme_background_value, surface)
-            styles += `
+        let styles = `
+:root {
+    ${generateVariables('light')}
+}
+
+.dark {
+    ${generateVariables('dark')}
+}
+
 body {
-    background-color: ${bgColor} !important;
+    background-color: var(--p-surface-ground);
+    color: var(--p-text-color);
 }
 `
-        } else if (theme_background_type === 'image' && theme_background_value) {
+
+        // 个性化背景图片覆盖 (由于 backgroundImage 通常是跨模式的，或者需要单独处理)
+        if (theme_background_type === 'image' && theme_background_value) {
             styles += `
 body {
-    background-image: url('${theme_background_value}') !important;
+    background-image: url('${theme_background_value}');
     background-size: cover;
     background-attachment: fixed;
 }
 `
         }
 
-        // 3. 哀悼模式
+        // 哀悼模式
         if (mourningMode.value) {
             styles += `
 html {
@@ -198,25 +201,25 @@ html {
     })
 
     const applyTheme = () => {
-        const headParams: any = {
+        // 使用 computed 确保样式能够响应式更新 (如暗色模式切换)
+        useHead({
             style: [
                 {
                     id: 'momei-theme-custom',
-                    innerHTML: customStyles.value,
+                    innerHTML: computed(() => customStyles.value),
                 },
             ],
-            link: [],
-        }
-
-        // Favicon 定制
-        if (settings.value?.theme_favicon_url) {
-            headParams.link.push({
-                rel: 'icon',
-                href: settings.value.theme_favicon_url,
-            })
-        }
-
-        useHead(headParams)
+            link: computed(() => {
+                const links: any[] = []
+                if (settings.value?.theme_favicon_url) {
+                    links.push({
+                        rel: 'icon',
+                        href: settings.value.theme_favicon_url,
+                    })
+                }
+                return links
+            }),
+        })
     }
 
     return {

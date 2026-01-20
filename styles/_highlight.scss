@@ -81,8 +81,7 @@ pre code {
 }
 
 /* GitHub Dark Theme - Scoped to .dark */
-.dark,
-:global(.dark) {
+.dark {
   .hljs,
   pre code {
     color: #c9d1d9;

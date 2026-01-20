@@ -192,11 +192,11 @@ onUnmounted(() => {
 
     &__input {
         flex: 1;
-        border: none !important;
-        background: transparent !important;
+        border: none;
+        background: transparent;
         font-size: 1.15rem;
         padding: 0;
-        box-shadow: none !important;
+        box-shadow: none;
 
         &::placeholder {
             color: var(--p-text-muted-color);

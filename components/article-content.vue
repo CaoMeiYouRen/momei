@@ -158,17 +158,17 @@ const renderedContent = computed(() => md.render(props.content || ''))
     }
 
     // Dark mode adjustments
-    :global(.dark) & {
-        h2 { border-bottom-color: var(--p-surface-700); }
+    .dark & {
+        h2 { border-bottom-color: var(--p-surface-800); }
 
         blockquote {
-            background-color: var(--p-surface-100); // 修正：暗色模式使用深色背景
+            background-color: var(--p-surface-50);
             border-color: var(--p-primary-600);
             color: var(--p-text-muted-color);
         }
 
         code {
-            background-color: var(--p-surface-800);
+            background-color: var(--p-surface-200);
             color: var(--p-primary-400);
         }
 
@@ -178,16 +178,16 @@ const renderedContent = computed(() => md.render(props.content || ''))
         }
 
         hr {
-            border-top-color: var(--p-surface-700);
+            border-top-color: var(--p-surface-800);
         }
 
         table {
             th, td {
-                border-color: var(--p-surface-700);
+                border-color: var(--p-surface-800);
             }
 
             th {
-                background-color: var(--p-surface-100); // 修正：表头使用深色
+                background-color: var(--p-surface-100);
             }
         }
     }

@@ -56,7 +56,7 @@ const MomeiPreset = definePreset(Aura, {
                 text: {
                     color: '{surface.950}', // 修正：暗色模式下文字使用最亮色，提升可读性
                     mutedColor: '{surface.400}',
-                    hoverColor: '{surface.0}', // 这里指向 darkest 可能是为了特殊反转，但通常应该是 lightest
+                    hoverColor: '{surface.900}', // 修正：悬停时稍微变暗一点（相对于950），或者变亮
                 },
             },
         },

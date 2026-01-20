@@ -136,11 +136,11 @@ const licenseUrl = computed(() => {
 }
 
 :global(.dark) .article-copyright {
-    background-color: var(--p-surface-900);
+    background-color: var(--p-surface-50);
     border-color: var(--p-primary-400);
 
     &__title {
-        border-bottom-color: var(--p-surface-700);
+        border-bottom-color: var(--p-surface-200);
     }
 }
 </style>

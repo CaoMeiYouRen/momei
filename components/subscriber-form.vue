@@ -144,21 +144,21 @@ const handleSubmit = async () => {
     &__input {
         width: 100%;
         height: 100%;
-        padding: 0.75rem 1rem 0.75rem 2.5rem !important;
-        border-radius: 8px !important;
-        border: 1px solid var(--p-surface-300) !important;
+        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--p-surface-300);
         transition: border-color 0.2s, box-shadow 0.2s;
 
         &:focus {
-            border-color: var(--p-primary-500) !important;
-            box-shadow: 0 0 0 2px var(--p-primary-100) !important;
+            border-color: var(--p-primary-500);
+            box-shadow: 0 0 0 2px var(--p-primary-100);
         }
     }
 
     &__submit {
         padding: 0.75rem 1.5rem;
         font-weight: 600;
-        border-radius: 8px !important;
+        border-radius: 8px;
         white-space: nowrap;
         justify-content: center;
     }
@@ -191,16 +191,17 @@ const handleSubmit = async () => {
 }
 
 :global(.dark) .subscriber-form {
-    background: linear-gradient(135deg, var(--p-surface-900) 0%, var(--p-surface-950) 100%);
-    border-color: var(--p-surface-800);
+    background: linear-gradient(135deg, var(--p-surface-0) 0%, var(--p-surface-50) 100%);
+    border-color: var(--p-surface-100);
     box-shadow: 0 4px 20px rgb(0 0 0 / 0.2);
 
+    /* 内部输入框样式 */
     &__input {
-        background: var(--p-surface-800) !important;
-        border-color: var(--p-surface-700) !important;
+        background: var(--p-surface-100);
+        border-color: var(--p-surface-200);
 
         &:focus {
-            background: var(--p-surface-900) !important;
+            background: var(--p-surface-200);
         }
     }
 }
