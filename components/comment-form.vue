@@ -161,8 +161,8 @@ const handleSubmit = async () => {
   margin-top: 2rem;
   padding: 1.5rem;
   border-radius: 0.75rem;
-  background-color: var(--p-content-background);
-  border: 1px solid var(--p-content-border-color);
+  background-color: var(--p-surface-0);
+  border: 1px solid var(--p-surface-border);
 
   &__replying-to {
     display: flex;
@@ -170,7 +170,7 @@ const handleSubmit = async () => {
     gap: 0.5rem;
     margin-bottom: 1rem;
     padding: 0.5rem 1rem;
-    background-color: var(--p-primary-50);
+    background-color: var(--p-primary-100);
     border-radius: 0.5rem;
     font-size: 0.875rem;
     color: var(--p-primary-700);
@@ -214,13 +214,6 @@ const handleSubmit = async () => {
     font-size: 0.75rem;
     color: var(--p-text-color-secondary);
     margin: 0;
-  }
-}
-
-:global(.dark) .comment-form {
-  &__replying-to {
-    background-color: var(--p-primary-900);
-    color: var(--p-primary-200);
   }
 }
 </style>

@@ -273,32 +273,32 @@ const avatarUrl = computed(() => {
 
 :global(.dark) .comment-item {
   &--reply {
-    border-color: var(--p-surface-800);
-    border-left-color: var(--p-surface-800);
+    border-color: var(--p-surface-200);
+    border-left-color: var(--p-surface-200);
   }
 
   .comment-item__author-name {
-    color: #f8fafc;
+    color: var(--p-text-color);
   }
 
   .comment-item__author-link {
-    color: var(--p-primary-400);
+    color: var(--p-primary-color);
   }
 
   &__pending {
-    background-color: rgb(var(--p-warn-500-rgb), 0.1);
-    color: var(--p-warn-400);
+    background-color: rgba(var(--p-primary-rgb), 0.1);
+    color: var(--p-primary-400);
   }
 
   .comment-item__text {
     :deep(code) {
-      background-color: var(--p-surface-200);
+      background-color: var(--p-surface-100);
       color: var(--p-primary-400);
     }
 
     :deep(pre) {
-      background-color: #0d1117;
-      border-color: #30363d;
+      background-color: var(--p-surface-50);
+      border-color: var(--p-surface-100);
     }
   }
 }
