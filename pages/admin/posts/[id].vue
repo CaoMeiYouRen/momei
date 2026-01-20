@@ -94,7 +94,7 @@ import PostEditorHeader from '@/components/admin/posts/post-editor-header.vue'
 import PostEditorSettings from '@/components/admin/posts/post-editor-settings.vue'
 import { usePostEditorAI } from '@/composables/use-post-editor-ai'
 import { usePostEditorIO } from '@/composables/use-post-editor-io'
-import { formatMarkdown } from '@/utils/markdown'
+import { formatMarkdown } from '@/utils/shared/markdown'
 
 definePageMeta({
     layout: false,

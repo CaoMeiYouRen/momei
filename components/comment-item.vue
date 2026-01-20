@@ -90,6 +90,7 @@
 import Tag from 'primevue/tag'
 import Button from 'primevue/button'
 import type { Comment } from '@/types/comment'
+import { createMarkdownRenderer } from '@/utils/shared/markdown'
 
 const props = defineProps<{
     comment: Comment

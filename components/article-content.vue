@@ -22,6 +22,7 @@
 </template>
 
 <script setup lang="ts">
+import { createMarkdownRenderer } from '@/utils/shared/markdown'
 const props = defineProps<{
     content: string
 }>()

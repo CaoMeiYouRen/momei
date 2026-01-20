@@ -179,7 +179,7 @@
 </template>
 
 <script setup lang="ts">
-import { formatMarkdown } from '@/utils/markdown'
+import { formatMarkdown } from '@/utils/shared/markdown'
 
 const post = defineModel<any>('post', { required: true })
 
