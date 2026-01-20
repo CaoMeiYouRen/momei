@@ -9,9 +9,12 @@ description: 驱动完整的 PDTFC 循环，负责从需求分析、代码编写
 
 -   [Context Analyzer](../../.github/skills/context-analyzer/SKILL.md)
 -   [Nuxt Code Editor](../../.github/skills/nuxt-code-editor/SKILL.md)
+-   [Test Engineer](../../.github/skills/test-engineer/SKILL.md)
 -   [Quality Guardian](../../.github/skills/quality-guardian/SKILL.md)
--   [Conventional Committer](../../.github/skills/conventional-committer/SKILL.md)
 -   [Documentation Specialist](../../.github/skills/documentation-specialist/SKILL.md)
+-   [Code Reviewer](../../.github/skills/code-reviewer/SKILL.md)
+-   [Conventional Committer](../../.github/skills/conventional-committer/SKILL.md)
+-   [Full Stack Master Workflow Skill](../../.github/skills/full-stack-master/SKILL.md)
 
 ## 遵循的规范 (Standards)
 

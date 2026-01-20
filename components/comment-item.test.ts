@@ -32,6 +32,29 @@ describe('CommentItem', () => {
         expect(wrapper.text()).not.toContain('comments.pending_audit')
     })
 
+    it('renders avatar and content images with lazy loading', async () => {
+        const wrapper = await mountSuspended(CommentItem, {
+            props: {
+                comment: {
+                    ...mockComment,
+                    content: '![comment img](/comment.jpg)',
+                },
+            },
+        })
+
+        // Check avatar
+        const avatarImg = wrapper.find('.comment-item__avatar-img')
+        expect(avatarImg.exists()).toBe(true)
+        expect(avatarImg.attributes('loading')).toBe('lazy')
+        expect(avatarImg.attributes('decoding')).toBe('async')
+
+        // Check content image
+        const contentImg = wrapper.find('.comment-item__main img')
+        expect(contentImg.exists()).toBe(true)
+        expect(contentImg.attributes('loading')).toBe('lazy')
+        expect(contentImg.attributes('decoding')).toBe('async')
+    })
+
     it('renders pending audit message for pending comments', async () => {
         const wrapper = await mountSuspended(CommentItem, {
             props: {

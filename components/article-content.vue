@@ -27,6 +27,20 @@ const md = new MarkdownIt({
     },
 })
 
+// 为图片添加懒加载属性
+const defaultImageRender = md.renderer.rules.image || function (tokens: any, idx: number, options: any, env: any, self: any) {
+    return self.renderToken(tokens, idx, options)
+}
+
+md.renderer.rules.image = function (tokens, idx, options, env, self) {
+    const token = tokens[idx]
+    if (token) {
+        token.attrPush(['loading', 'lazy'])
+        token.attrPush(['decoding', 'async'])
+    }
+    return defaultImageRender(tokens, idx, options, env, self)
+}
+
 md.use(MarkdownItAnchor, {
     slugify: (s) => s.trim().toLowerCase().replace(/[^\w\u4e00-\u9fa5]+/g, '-'),
     permalink: MarkdownItAnchor.permalink.headerLink(),

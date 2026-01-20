@@ -9,6 +9,8 @@
                 :src="avatarUrl"
                 :alt="comment.authorName"
                 class="comment-item__avatar-img"
+                loading="lazy"
+                decoding="async"
             >
         </div>
 
@@ -117,6 +119,21 @@ const md = new MarkdownIt({
         return '' // use external default escaping
     },
 })
+
+// 为评论里的图片添加懒加载属性
+const defaultImageRender = md.renderer.rules.image || function (tokens: any, idx: number, options: any, env: any, self: any) {
+    return self.renderToken(tokens, idx, options)
+}
+
+md.renderer.rules.image = function (tokens, idx, options, env, self) {
+    const token = tokens[idx]
+    if (token) {
+        token.attrPush(['loading', 'lazy'])
+        token.attrPush(['decoding', 'async'])
+    }
+    return defaultImageRender(tokens, idx, options, env, self)
+}
+
 const renderedContent = computed(() => md.render(props.comment.content || ''))
 
 // 格式化日期

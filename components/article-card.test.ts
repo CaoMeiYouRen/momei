@@ -47,4 +47,20 @@ describe('ArticleCard', () => {
         expect(wrapper.text()).toContain('...')
         expect(wrapper.text().length).toBeLessThan(longSummary.length)
     })
+
+    it('renders cover image with lazy loading', async () => {
+        const wrapper = await mountSuspended(ArticleCard, {
+            props: {
+                post: {
+                    ...mockPost,
+                    coverImage: '/test-image.jpg',
+                },
+            },
+        })
+
+        const img = wrapper.find('img')
+        expect(img.exists()).toBe(true)
+        expect(img.attributes('loading')).toBe('lazy')
+        expect(img.attributes('decoding')).toBe('async')
+    })
 })
