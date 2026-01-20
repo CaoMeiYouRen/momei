@@ -63,15 +63,15 @@ vi.stubGlobal('useI18n', () => ({
 
 // Mock useTheme
 const mockSettings = ref({
-    theme_preset: 'default',
-    theme_primary_color: '#ff0000',
-    theme_accent_color: '#00ff00',
-    theme_border_radius: '8px',
-    theme_logo_url: '',
-    theme_favicon_url: '',
-    theme_mourning_mode: false,
-    theme_background_type: 'none',
-    theme_background_value: null,
+    themePreset: 'default',
+    themePrimaryColor: '#ff0000',
+    themeAccentColor: '#00ff00',
+    themeBorderRadius: '8px',
+    themeLogoUrl: '',
+    themeFaviconUrl: '',
+    themeMourningMode: false,
+    themeBackgroundType: 'none',
+    themeBackgroundValue: null,
 })
 const mockApplyTheme = vi.fn()
 
@@ -113,9 +113,9 @@ describe('Admin Theme Settings Page', () => {
                 stubs,
             },
         })
-        
+
         // Change preset
-        mockSettings.value.theme_preset = 'green'
+        mockSettings.value.themePreset = 'green'
     })
 
     it('saves theme settings successfully', async () => {
@@ -125,10 +125,10 @@ describe('Admin Theme Settings Page', () => {
                 stubs,
             },
         })
-        
+
         // @ts-expect-error - call internal method for testing
         await wrapper.vm.saveTheme()
-        
+
         expect(mockFetch).toHaveBeenCalledWith('/api/admin/settings/theme', expect.objectContaining({
             method: 'PUT',
             body: mockSettings.value,
@@ -146,10 +146,10 @@ describe('Admin Theme Settings Page', () => {
                 stubs,
             },
         })
-        
+
         // @ts-expect-error - call internal method for testing
         await wrapper.vm.saveTheme()
-        
+
         expect(mockToast.add).toHaveBeenCalledWith(expect.objectContaining({
             severity: 'error',
             detail: errorMsg,

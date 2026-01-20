@@ -2,15 +2,15 @@ import { useDark } from '@vueuse/core'
 import { useAppFetch } from './use-app-fetch'
 
 export interface ThemeSettings {
-    theme_preset: string | null
-    theme_primary_color: string | null
-    theme_accent_color: string | null
-    theme_border_radius: string | null
-    theme_logo_url: string | null
-    theme_favicon_url: string | null
-    theme_mourning_mode: boolean | string | null
-    theme_background_type: 'none' | 'color' | 'image' | string | null
-    theme_background_value: string | null
+    themePreset: string | null
+    themePrimaryColor: string | null
+    themeAccentColor: string | null
+    themeBorderRadius: string | null
+    themeLogoUrl: string | null
+    themeFaviconUrl: string | null
+    themeMourningMode: boolean | string | null
+    themeBackgroundType: 'none' | 'color' | 'image' | string | null
+    themeBackgroundValue: string | null
 }
 
 export const PRESETS = {
@@ -55,15 +55,15 @@ export const useTheme = () => {
     })
 
     const settings = useState<ThemeSettings | null>('theme-settings', () => ({
-        theme_preset: 'default',
-        theme_primary_color: null,
-        theme_accent_color: null,
-        theme_border_radius: null,
-        theme_logo_url: null,
-        theme_favicon_url: null,
-        theme_mourning_mode: false,
-        theme_background_type: 'none',
-        theme_background_value: null,
+        themePreset: 'default',
+        themePrimaryColor: null,
+        themeAccentColor: null,
+        themeBorderRadius: null,
+        themeLogoUrl: null,
+        themeFaviconUrl: null,
+        themeMourningMode: false,
+        themeBackgroundType: 'none',
+        themeBackgroundValue: null,
     }))
 
     const fetchTheme = async () => {
@@ -74,7 +74,7 @@ export const useTheme = () => {
     }
 
     const mourningMode = computed(() => {
-        const val = settings.value?.theme_mourning_mode
+        const val = settings.value?.themeMourningMode
         return val === true || val === 'true'
     })
 
@@ -84,15 +84,15 @@ export const useTheme = () => {
         }
 
         const {
-            theme_preset,
-            theme_primary_color,
-            theme_accent_color,
-            theme_border_radius,
-            theme_background_type,
-            theme_background_value,
+            themePreset,
+            themePrimaryColor,
+            themeAccentColor,
+            themeBorderRadius,
+            themeBackgroundType,
+            themeBackgroundValue,
         } = settings.value
 
-        const presetKey = (theme_preset || 'default') as keyof typeof PRESETS
+        const presetKey = (themePreset || 'default') as keyof typeof PRESETS
         const preset = PRESETS[presetKey] || PRESETS.default
 
         // 辅助函数：确保十六进制颜色以 # 开头且格式正确，否则 CSS 会失效
@@ -107,11 +107,11 @@ export const useTheme = () => {
             return c
         }
 
-        const radius = theme_border_radius || preset.radius
+        const radius = themeBorderRadius || preset.radius
 
         const generateVariables = (mode: 'light' | 'dark') => {
-            const primary = formatColor(theme_primary_color, preset.primary[mode])
-            const accent = formatColor(theme_accent_color, preset.accent[mode])
+            const primary = formatColor(themePrimaryColor, preset.primary[mode])
+            const accent = formatColor(themeAccentColor, preset.accent[mode])
             const surface = preset.surface[mode]
             const text = preset.text[mode]
 
@@ -149,13 +149,13 @@ export const useTheme = () => {
     --m-accent-color: ${accent};
 `
             // 如果是暖色或极客主题，微调 body 基础背景
-            if (theme_preset && theme_preset !== 'default') {
+            if (themePreset && themePreset !== 'default') {
                 v += `    --p-surface-ground: ${surface};\n`
             }
 
             // 个性化背景颜色覆盖
-            if (theme_background_type === 'color' && theme_background_value) {
-                const bgColor = formatColor(theme_background_value, surface)
+            if (themeBackgroundType === 'color' && themeBackgroundValue) {
+                const bgColor = formatColor(themeBackgroundValue, surface)
                 v += `    --p-surface-ground: ${bgColor};\n`
             }
 
@@ -178,10 +178,10 @@ body {
 `
 
         // 个性化背景图片覆盖 (由于 backgroundImage 通常是跨模式的，或者需要单独处理)
-        if (theme_background_type === 'image' && theme_background_value) {
+        if (themeBackgroundType === 'image' && themeBackgroundValue) {
             styles += `
 body {
-    background-image: url('${theme_background_value}');
+    background-image: url('${themeBackgroundValue}');
     background-size: cover;
     background-attachment: fixed;
 }
@@ -211,10 +211,10 @@ html {
             ],
             link: computed(() => {
                 const links: any[] = []
-                if (settings.value?.theme_favicon_url) {
+                if (settings.value?.themeFaviconUrl) {
                     links.push({
                         rel: 'icon',
-                        href: settings.value.theme_favicon_url,
+                        href: settings.value.themeFaviconUrl,
                     })
                 }
                 return links

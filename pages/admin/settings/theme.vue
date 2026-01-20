@@ -25,7 +25,7 @@
                                     id: 1,
                                     title: '预览文章标题 (Preview Title)',
                                     summary: '这是一个预览摘要，用于展示主题配置后的实时效果。您可以尝试更改主色调、圆角或背景来观察变化。',
-                                    cover: settings?.theme_logo_url || '',
+                                    cover: settings?.themeLogoUrl || '',
                                     createdAt: new Date().toISOString(),
                                     tags: [{name: 'Theme'}, {name: 'Preview'}],
                                     viewCount: 1234,
@@ -50,7 +50,7 @@
                     <div class="form-group">
                         <label>{{ $t('pages.admin.settings.theme.background_type') }}</label>
                         <SelectButton
-                            v-model="settings.theme_background_type"
+                            v-model="settings.themeBackgroundType"
                             :options="backgroundOptions"
                             option-label="label"
                             option-value="value"
@@ -59,19 +59,19 @@
                         />
                     </div>
 
-                    <div v-if="settings.theme_background_type === 'color'" class="form-group mt-3">
+                    <div v-if="settings.themeBackgroundType === 'color'" class="form-group mt-3">
                         <label>{{ $t('pages.admin.settings.theme.background_color') }}</label>
                         <div class="color-input-group mt-2">
-                            <ColorPicker v-model="settings.theme_background_value" format="hex" />
+                            <ColorPicker v-model="settings.themeBackgroundValue" format="hex" />
                             <InputText v-model="backgroundColorModel" placeholder="#ffffff" />
                         </div>
                     </div>
 
-                    <div v-if="settings.theme_background_type === 'image'" class="form-group mt-3">
+                    <div v-if="settings.themeBackgroundType === 'image'" class="form-group mt-3">
                         <label>{{ $t('pages.admin.settings.theme.background_image') }} URL</label>
                         <div class="input-with-icon mt-2">
                             <i class="pi pi-image" />
-                            <InputText v-model="settings.theme_background_value" placeholder="https://example.com/bg.jpg" />
+                            <InputText v-model="settings.themeBackgroundValue" placeholder="https://example.com/bg.jpg" />
                         </div>
                     </div>
                 </Panel>
@@ -85,14 +85,14 @@
                         <div class="form-group">
                             <label>{{ $t('pages.admin.settings.theme.preset') }}</label>
                             <Dropdown
-                                v-model="settings.theme_preset"
+                                v-model="settings.themePreset"
                                 :options="presetOptions"
                                 option-label="label"
                                 option-value="value"
                                 class="mt-2 w-full"
                                 @change="onPresetChange"
                             />
-                            <p v-if="settings.theme_preset === 'custom'" class="hint-text mt-2">
+                            <p v-if="settings.themePreset === 'custom'" class="hint-text mt-2">
                                 {{ $t('pages.admin.settings.theme.custom_hint') }}
                             </p>
                         </div>
@@ -127,7 +127,7 @@
                         <div class="form-group mt-3">
                             <label>{{ $t('pages.admin.settings.theme.border_radius') }}</label>
                             <div class="input-with-addon mt-2">
-                                <InputText v-model="settings.theme_border_radius" :placeholder="getCurrentPresetValue('radius')" />
+                                <InputText v-model="settings.themeBorderRadius" :placeholder="getCurrentPresetValue('radius')" />
                                 <span class="addon">rem/px</span>
                             </div>
                         </div>
@@ -138,7 +138,7 @@
                         <div class="form-group">
                             <label>{{ $t('pages.admin.settings.theme.logo') }} URL</label>
                             <InputText
-                                v-model="settings.theme_logo_url"
+                                v-model="settings.themeLogoUrl"
                                 placeholder="/logo.png"
                                 class="mt-2"
                             />
@@ -147,7 +147,7 @@
                         <div class="form-group mt-3">
                             <label>{{ $t('pages.admin.settings.theme.favicon') }} URL</label>
                             <InputText
-                                v-model="settings.theme_favicon_url"
+                                v-model="settings.themeFaviconUrl"
                                 placeholder="/favicon.ico"
                                 class="mt-2"
                             />
@@ -187,7 +187,7 @@ const { settings, applyTheme } = useTheme()
 const loading = ref(false)
 
 // 处理颜色值的双向绑定，确保 ColorPicker (无#) 和 InputText (有#) 同步
-const createColorModel = (key: 'theme_primary_color' | 'theme_accent_color' | 'theme_background_value') => {
+const createColorModel = (key: 'themePrimaryColor' | 'themeAccentColor' | 'themeBackgroundValue') => {
     return computed({
         get: () => {
             const val = settings.value?.[key]
@@ -210,11 +210,11 @@ const createColorModel = (key: 'theme_primary_color' | 'theme_accent_color' | 't
 }
 
 // 专门为 ColorPicker 创建的 Model，处理 fallback 到 Preset 默认值，且去掉 # 号
-const createColorPickerModel = (key: 'theme_primary_color' | 'theme_accent_color' | 'theme_background_value') => {
+const createColorPickerModel = (key: 'themePrimaryColor' | 'themeAccentColor' | 'themeBackgroundValue') => {
     const typeMap = {
-        theme_primary_color: 'primary',
-        theme_accent_color: 'accent',
-        theme_background_value: 'primary', // 背景色暂时 fallback 到主色或默认
+        themePrimaryColor: 'primary',
+        themeAccentColor: 'accent',
+        themeBackgroundValue: 'primary', // 背景色暂时 fallback 到主色或默认
     }
     return computed({
         get: () => {
@@ -232,13 +232,13 @@ const createColorPickerModel = (key: 'theme_primary_color' | 'theme_accent_color
     })
 }
 
-const primaryColorModel = createColorModel('theme_primary_color')
-const accentColorModel = createColorModel('theme_accent_color')
-const backgroundColorModel = createColorModel('theme_background_value')
+const primaryColorModel = createColorModel('themePrimaryColor')
+const accentColorModel = createColorModel('themeAccentColor')
+const backgroundColorModel = createColorModel('themeBackgroundValue')
 
-const primaryPickerModel = createColorPickerModel('theme_primary_color')
-const accentPickerModel = createColorPickerModel('theme_accent_color')
-const backgroundPickerModel = createColorPickerModel('theme_background_value')
+const primaryPickerModel = createColorPickerModel('themePrimaryColor')
+const accentPickerModel = createColorPickerModel('themeAccentColor')
+const backgroundPickerModel = createColorPickerModel('themeBackgroundValue')
 
 // 用于判断当前模式（深/浅）以显示正确的 Placeholder
 const isDark = useDark()
@@ -247,7 +247,7 @@ const getCurrentPresetValue = (type: 'primary' | 'accent' | 'radius') => {
     if (!settings.value) {
         return ''
     }
-    const presetKey = (settings.value.theme_preset || 'default') as keyof typeof PRESETS
+    const presetKey = (settings.value.themePreset || 'default') as keyof typeof PRESETS
     const preset = PRESETS[presetKey]
     if (type === 'radius') {
         return preset.radius
@@ -259,12 +259,12 @@ const getCurrentPresetValue = (type: 'primary' | 'accent' | 'radius') => {
 // 转换 mourning_mode 为布尔值用于 ToggleSwitch
 const mourningModeRef = computed({
     get: () => {
-        const val = settings.value?.theme_mourning_mode
+        const val = settings.value?.themeMourningMode
         return val === true || val === 'true'
     },
     set: (val: boolean) => {
         if (settings.value) {
-            settings.value.theme_mourning_mode = val
+            settings.value.themeMourningMode = val
         }
     },
 })
@@ -289,13 +289,13 @@ watch(settings, () => {
 }, { deep: true })
 
 const onPresetChange = () => {
-    if (!settings.value || settings.value.theme_preset === 'custom') {
+    if (!settings.value || settings.value.themePreset === 'custom') {
         return
     }
     // 切换预设时清空手动覆盖项，使其使用预设默认值
-    settings.value.theme_primary_color = null
-    settings.value.theme_accent_color = null
-    settings.value.theme_border_radius = null
+    settings.value.themePrimaryColor = null
+    settings.value.themeAccentColor = null
+    settings.value.themeBorderRadius = null
 }
 
 const saveTheme = async () => {
