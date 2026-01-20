@@ -405,8 +405,6 @@
                     "background_color": "纯色背景",
                     "background_image": "背景图片",
                     "background_value": "填充值",
-                    "custom_css": "自定义 CSS",
-                    "custom_css_hint": "直接输入 CSS 代码以进行深度定制。代码将注入到页面底部的样式标签中。",
                     "save_success": "主题设置已更新",
                     "preview": "预览效果"
                 }

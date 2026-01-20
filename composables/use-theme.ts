@@ -90,8 +90,8 @@ export const useTheme = () => {
             themeBorderRadius,
             themeBackgroundType,
             themeBackgroundValue,
-            themeCustomCss,
-        
+        } = settings.value
+
         const presetKey = (themePreset || 'default') as keyof typeof PRESETS
         const preset = PRESETS[presetKey] || PRESETS.default
 
@@ -198,8 +198,8 @@ export const useTheme = () => {
 `
         }
 
-        // 自定义 CSS 注入
-        
+        styles += '\n}'
+
         return styles
     })
 
