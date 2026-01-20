@@ -34,6 +34,11 @@ const stubs = {
     InputText: { template: '<input />' },
     Dropdown: { template: '<div />' },
     ToggleSwitch: { template: '<div />' },
+    Tabs: { template: '<div><slot /></div>' },
+    TabList: { template: '<div><slot /></div>' },
+    Tab: { template: '<div><slot /></div>' },
+    TabPanels: { template: '<div><slot /></div>' },
+    TabPanel: { template: '<div><slot /></div>' },
 }
 
 // Mock composables
