@@ -4,46 +4,13 @@
 </template>
 
 <script setup lang="ts">
-import MarkdownIt from 'markdown-it'
-import MarkdownItAnchor from 'markdown-it-anchor'
-import hljs from 'highlight.js'
-
 const props = defineProps<{
     content: string
 }>()
 
-const md = new MarkdownIt({
+const md = createMarkdownRenderer({
     html: true,
-    linkify: true,
-    typographer: true,
-    highlight: (str, lang) => {
-        if (lang && hljs.getLanguage(lang)) {
-            try {
-                return hljs.highlight(str, { language: lang }).value
-            } catch (__) {}
-        }
-
-        return '' // use external default escaping
-    },
-})
-
-// 为图片添加懒加载属性
-const defaultImageRender = md.renderer.rules.image || function (tokens: any, idx: number, options: any, env: any, self: any) {
-    return self.renderToken(tokens, idx, options)
-}
-
-md.renderer.rules.image = function (tokens, idx, options, env, self) {
-    const token = tokens[idx]
-    if (token) {
-        token.attrPush(['loading', 'lazy'])
-        token.attrPush(['decoding', 'async'])
-    }
-    return defaultImageRender(tokens, idx, options, env, self)
-}
-
-md.use(MarkdownItAnchor, {
-    slugify: (s) => s.trim().toLowerCase().replace(/[^\w\u4e00-\u9fa5]+/g, '-'),
-    permalink: MarkdownItAnchor.permalink.headerLink(),
+    withAnchor: true,
 })
 
 const renderedContent = computed(() => md.render(props.content || ''))

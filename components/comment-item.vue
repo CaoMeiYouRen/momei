@@ -90,8 +90,6 @@
 import Tag from 'primevue/tag'
 import Button from 'primevue/button'
 import type { Comment } from '@/types/comment'
-import MarkdownIt from 'markdown-it'
-import hljs from 'highlight.js'
 
 const props = defineProps<{
     comment: Comment
@@ -105,34 +103,9 @@ defineEmits<{
 const { locale } = useI18n()
 
 // 简单的 Markdown 渲染
-const md = new MarkdownIt({
+const md = createMarkdownRenderer({
     html: false, // 禁止 HTML 注入
-    linkify: true,
-    typographer: true,
-    highlight: (str, lang) => {
-        if (lang && hljs.getLanguage(lang)) {
-            try {
-                return hljs.highlight(str, { language: lang }).value
-            } catch (__) {}
-        }
-
-        return '' // use external default escaping
-    },
 })
-
-// 为评论里的图片添加懒加载属性
-const defaultImageRender = md.renderer.rules.image || function (tokens: any, idx: number, options: any, env: any, self: any) {
-    return self.renderToken(tokens, idx, options)
-}
-
-md.renderer.rules.image = function (tokens, idx, options, env, self) {
-    const token = tokens[idx]
-    if (token) {
-        token.attrPush(['loading', 'lazy'])
-        token.attrPush(['decoding', 'async'])
-    }
-    return defaultImageRender(tokens, idx, options, env, self)
-}
 
 const renderedContent = computed(() => md.render(props.comment.content || ''))
 
