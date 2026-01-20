@@ -48,4 +48,7 @@ features:
     - title: 测试规范
       details: 学习单元测试与端到端测试的编写标准。
       link: /standards/testing
+    - title: 安全规范
+      details: 了解项目的安全策略、鉴权机制与数据保护规范。
+      link: /standards/security
 ---
