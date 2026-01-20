@@ -149,6 +149,10 @@ export default defineNuxtConfig({
                 preset: MomeiPreset,
                 options: {
                     darkModeSelector: '.dark',
+                    cssLayer: {
+                        name: 'primevue',
+                        order: 'primevue, momei-base, momei-overrides',
+                    },
                 },
             },
         },

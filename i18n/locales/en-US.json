@@ -406,6 +406,8 @@
                     "background_color": "Solid Color",
                     "background_image": "Background Image",
                     "background_value": "Background Value",
+                    "custom_css": "Custom CSS",
+                    "custom_css_hint": "Enter CSS code directly for deep customization. It will be injected into a style tag at the bottom of the page.",
                     "save_success": "Theme settings updated",
                     "preview": "Preview Effect"
                 }

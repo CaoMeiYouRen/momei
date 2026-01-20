@@ -90,8 +90,8 @@ export const useTheme = () => {
             themeBorderRadius,
             themeBackgroundType,
             themeBackgroundValue,
-        } = settings.value
-
+            themeCustomCss,
+        
         const presetKey = (themePreset || 'default') as keyof typeof PRESETS
         const preset = PRESETS[presetKey] || PRESETS.default
 
@@ -163,40 +163,43 @@ export const useTheme = () => {
         }
 
         let styles = `
-:root {
-    ${generateVariables('light')}
-}
+@layer momei-overrides {
+    :root {
+        ${generateVariables('light')}
+    }
 
-.dark {
-    ${generateVariables('dark')}
-}
+    .dark {
+        ${generateVariables('dark')}
+    }
 
-body {
-    background-color: var(--p-surface-ground);
-    color: var(--p-text-color);
-}
+    body {
+        background-color: var(--p-surface-ground);
+        color: var(--p-text-color);
+    }
 `
 
         // 个性化背景图片覆盖 (由于 backgroundImage 通常是跨模式的，或者需要单独处理)
         if (themeBackgroundType === 'image' && themeBackgroundValue) {
             styles += `
-body {
-    background-image: url('${themeBackgroundValue}');
-    background-size: cover;
-    background-attachment: fixed;
-}
+    body {
+        background-image: url('${themeBackgroundValue}');
+        background-size: cover;
+        background-attachment: fixed;
+    }
 `
         }
 
         // 哀悼模式
         if (mourningMode.value) {
             styles += `
-html {
-    filter: grayscale(100%);
-}
+    html {
+        filter: grayscale(100%);
+    }
 `
         }
 
+        // 自定义 CSS 注入
+        
         return styles
     })
 

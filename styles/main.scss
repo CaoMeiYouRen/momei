@@ -4,29 +4,33 @@
 @use "./highlight" as *;
 @use "./rendering" as *;
 
-:root {
-    --p-surface-ground: var(--p-surface-50);
-    --p-surface-card: var(--p-surface-0);
-}
+@layer primevue, momei-base, momei-overrides;
 
-.dark {
-    --p-surface-ground: var(--p-surface-0);
-    --p-surface-card: var(--p-surface-100);
-}
+@layer momei-base {
+    :root {
+        --p-surface-ground: var(--p-surface-50);
+        --p-surface-card: var(--p-surface-0);
+    }
 
-body {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: var(--p-surface-ground);
-    color: var(--p-text-color);
-    transition: background-color 0.3s, color 0.3s;
-}
+    .dark {
+        --p-surface-ground: var(--p-surface-0);
+        --p-surface-card: var(--p-surface-100);
+    }
 
-a {
-    color: inherit;
-    text-decoration: none;
-}
+    body {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: var(--p-surface-ground);
+        color: var(--p-text-color);
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+/* ... existing code ... */
 
 // PrimeVue Select (Dropdown) Dark Mode Fixes
 .p-select {
@@ -348,4 +352,5 @@ a {
             font-size: 1.5rem;
         }
     }
+}
 }

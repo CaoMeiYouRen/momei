@@ -62,7 +62,7 @@
                     <div v-if="settings.themeBackgroundType === 'color'" class="form-group mt-3">
                         <label>{{ $t('pages.admin.settings.theme.background_color') }}</label>
                         <div class="color-input-group mt-2">
-                            <ColorPicker v-model="settings.themeBackgroundValue" format="hex" />
+                            <ColorPicker v-model="backgroundPickerModel" format="hex" />
                             <InputText v-model="backgroundColorModel" placeholder="#ffffff" />
                         </div>
                     </div>
@@ -356,10 +356,6 @@ const saveTheme = async () => {
     min-height: 400px;
     position: relative;
     overflow: hidden;
-
-    :global(.dark) & {
-        background-color: var(--p-surface-900);
-    }
 }
 
 .preview-inner {
@@ -436,7 +432,7 @@ const saveTheme = async () => {
     .addon {
         display: flex;
         align-items: center;
-        background-color: var(--p-surface-50);
+        background-color: var(--p-surface-100);
         border: 1px solid var(--p-content-border-color);
         border-left: none;
         padding: 0 0.75rem;
@@ -444,10 +440,6 @@ const saveTheme = async () => {
         color: var(--p-text-muted-color);
         border-top-right-radius: 6px;
         border-bottom-right-radius: 6px;
-
-        :global(.dark) & {
-            background-color: var(--p-surface-800);
-        }
     }
 }
 

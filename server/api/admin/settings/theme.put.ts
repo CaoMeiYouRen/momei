@@ -4,6 +4,8 @@ import { isAdmin } from '@/utils/shared/roles'
 import { setSettings } from '@/server/services/setting'
 import { isValidCustomUrl } from '@/server/utils/security'
 
+const isHexColor = (val: string) => /^#([A-Fa-f0-9]{3}){1,2}$/.test(val)
+
 const themeUpdateSchema = z.object({
     themePreset: z.string().optional().nullable(),
     themePrimaryColor: z.string().optional().nullable(),
@@ -17,8 +19,8 @@ const themeUpdateSchema = z.object({
     }),
     themeMourningMode: z.union([z.boolean(), z.string()]).optional().nullable(),
     themeBackgroundType: z.string().optional().nullable(),
-    themeBackgroundValue: z.string().optional().nullable().refine((val) => isValidCustomUrl(val), {
-        message: 'Background URL source is not in the whitelist',
+    themeBackgroundValue: z.string().optional().nullable().refine((val) => !val || isHexColor(val) || isValidCustomUrl(val), {
+        message: 'Background value must be a valid HEX color or a whitelisted URL',
     }),
 })
 
