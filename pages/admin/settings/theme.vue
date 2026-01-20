@@ -71,7 +71,10 @@
                         <label>{{ $t('pages.admin.settings.theme.background_color') }}</label>
                         <div class="color-input-group mt-2">
                             <ColorPicker v-model="backgroundPickerModel" format="hex" />
-                            <InputText v-model="backgroundColorModel" placeholder="#ffffff" />
+                            <InputText
+                                v-model="backgroundColorModel"
+                                :placeholder="getCurrentPresetValue('surface', isDark)"
+                            />
                         </div>
                     </div>
 
@@ -315,14 +318,14 @@ const createColorPickerModel = (key: any) => {
         themeDarkAccentColor: 'accent',
         themeDarkSurfaceColor: 'surface',
         themeDarkTextColor: 'text',
-        themeBackgroundValue: 'primary',
+        themeBackgroundValue: 'surface',
     }
 
     return computed({
         get: () => {
             let val = (settings.value as any)?.[key]
             if (!val) {
-                const isDarkField = key.toLowerCase().includes('dark')
+                const isDarkField = key.toLowerCase().includes('dark') || (key === 'themeBackgroundValue' && isDark.value)
                 val = getCurrentPresetValue(typeMap[key] as any, isDarkField)
             }
             return val ? val.replace('#', '') : ''

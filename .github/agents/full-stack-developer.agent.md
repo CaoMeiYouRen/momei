@@ -35,6 +35,7 @@ description: 驱动完整的 PDTFC 循环，负责从需求分析、代码编写
     -   调用 `context-analyzer` 技能分析任务上下文。
     -   调用 `documentation-specialist` 技能，在开始编码前更新 `docs/design/` 或 `docs/plan/` 中的相关设计和规划文档。
     -   **测试预研**: 在计划阶段即明确该功能的测试要点，列出需要覆盖的正常流、异常流及边缘情况。
+    -   **需求明确**：如果需求不明确，必须主动与用户沟通，确保理解一致后再开始编码。例如因为语言输入导致的错别字或者语句不通顺，你应该重新询问用户正确的需求。
 2.  **Do (执行)**:
     -   调用 `nuxt-code-editor` 技能编写代码。
     -   **必须阅读并严格遵守** [开发规范](../../docs/standards/development.md)、[API 规范](../../docs/standards/api.md) 和 [测试规范](../../docs/standards/testing.md)。
