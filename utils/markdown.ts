@@ -1,6 +1,23 @@
 import MarkdownIt from 'markdown-it'
 import MarkdownItAnchor from 'markdown-it-anchor'
 import hljs from 'highlight.js'
+import { lintMarkdown } from '@lint-md/core'
+
+/**
+ * 格式化 Markdown 内容 (中文编写规范)
+ * @param content 原始 Markdown 内容
+ * @returns 格式化后的内容
+ */
+export function formatMarkdown(content: string) {
+    if (!content) { return '' }
+    try {
+        const { fixedResult } = lintMarkdown(content, {}, true)
+        return fixedResult?.result || content
+    } catch (error) {
+        console.error('Markdown formatting failed:', error)
+        return content
+    }
+}
 
 export interface MarkdownOptions {
     /**

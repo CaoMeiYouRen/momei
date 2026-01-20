@@ -32,6 +32,14 @@
                 :loading="aiLoading.translate"
                 @click="translateOp.toggle($event)"
             />
+            <Button
+                id="format-markdown-btn"
+                v-tooltip="$t('pages.admin.posts.ai.format_markdown')"
+                icon="pi pi-align-left"
+                text
+                rounded
+                @click="handleFormatMarkdown"
+            />
             <OverlayPanel ref="translateOp" class="translate-menu">
                 <div class="translate-menu__content">
                     <div
@@ -171,6 +179,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatMarkdown } from '@/utils/markdown'
+
 const post = defineModel<any>('post', { required: true })
 
 const props = defineProps<{
@@ -214,6 +224,12 @@ const handleTranslateSelection = (langCode: string | null) => {
         emit('handle-translation', langCode)
     } else {
         emit('translate-content', langCode)
+    }
+}
+
+const handleFormatMarkdown = () => {
+    if (post.value.content) {
+        post.value.content = formatMarkdown(post.value.content)
     }
 }
 

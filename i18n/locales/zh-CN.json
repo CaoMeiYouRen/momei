@@ -296,7 +296,8 @@
                     "recommend_tags": "AI 推荐标签",
                     "generate_slug": "AI 生成别名",
                     "translate": "AI 翻译辅助",
-                    "translate_current": "翻译当前内容"
+                    "translate_current": "翻译当前内容",
+                    "format_markdown": "规范化 Markdown 格式"
                 },
                 "translate_success": "翻译已完成，已覆盖内容区",
                 "content_too_short": "文章内容太短，无法分析",
