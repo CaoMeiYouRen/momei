@@ -199,6 +199,7 @@ commit message 使用中文描述变更内容。
 
 项目定义了以下基础智能体，协作完成开发任务。详细指令以各智能体的技能文档为准：
 
+-   **`@full-stack-master` (全栈大师)**: 驱动完整的自动化工作流，集成所有原子技能实现从需求到发布的自动化。参考：[.github/skills/full-stack-master/SKILL.md](.github/skills/full-stack-master/SKILL.md)。
 -   **`@full-stack-developer` (全栈开发者)**: 驱动完整的 PDTFC+ 循环。在功能实现后，**必须主动发起**对 `@test-engineer` 的调用以强化测试。
 -   **`@quality-guardian` (质量守卫)**: 负责代码 Lint、类型检查与规范审查。参考：[.github/skills/quality-guardian/SKILL.md](.github/skills/quality-guardian/SKILL.md)。
 -   **`@test-engineer` (测试工程师)**: 负责测试驱动开发与高覆盖率逻辑实现，配合全栈开发者完成“测试补充”阶段的任务。参考：[.github/skills/test-engineer/SKILL.md](.github/skills/test-engineer/SKILL.md)。
