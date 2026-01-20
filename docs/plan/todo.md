@@ -349,12 +349,17 @@
 
 ### 6. 内容呈现增强 (Content Rendering Enhancement)
 
+详细设计请参考: [内容呈现增强设计文档](../design/modules/rendering.md)
+
 - [ ] **代码块语法高亮 (High Priority)**
     - 验收: 文章正文中的代码块支持语法高亮（推荐集成 Shiki 或 highlight.js）。
     - 验收: 支持主流编程语言 (JS/TS, Python, Java, Go, Rust 等)。
 - [ ] **图片懒加载 (High Priority)**
     - 验收: 文章图片默认开启懒加载，提升页面性能。
     - 验收: 兼容现代浏览器的 `loading="lazy"` 属性或集成 `Intersection Observer` 方案。
+- [ ] **Markdown 格式化 (Medium Priority)**
+    - 验收: 实现对 Markdown 内容的自动化格式化与美化（推荐集成 Prettier）。
+    - 验收: 支持在编辑器内自动格式化，确保排版整洁一致。
 - [ ] **富媒体与交互渲染能力增强 (Medium Priority)**
     - [ ] **自定义容器**: 集成 `markdown-it-container` 插件，支持 `::: tip/warning/danger/info` 等容器及自定义标题。
     - [ ] **代码组支持**: 实现类似 VitePress 的 Code Group 功能，支持 Tab 切换多段代码。
