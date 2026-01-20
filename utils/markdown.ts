@@ -16,7 +16,13 @@ export function formatMarkdown(content: string) {
         return ''
     }
     try {
-        const { fixedResult } = lintMarkdown(content, {}, true)
+        const { fixedResult } = lintMarkdown(content, {
+            'no-empty-code': 0,
+            'no-trailing-punctuation': 0,
+            'no-long-code': 0,
+            'no-empty-code-lang': 0,
+            'no-empty-inlinecode': 0,
+        }, true)
         return fixedResult?.result || content
     } catch (error) {
         console.error('Markdown formatting failed:', error)
