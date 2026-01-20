@@ -1,6 +1,7 @@
 @use "./variables" as *;
 @use "./mixins" as *;
 @use "./layout" as *;
+@use "./highlight" as *;
 
 :root {
     --p-surface-ground: var(--p-surface-50);

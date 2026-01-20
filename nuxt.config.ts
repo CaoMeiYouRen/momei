@@ -54,9 +54,9 @@ const MomeiPreset = definePreset(Aura, {
                     '950': '#ffffff',
                 },
                 text: {
-                    color: '{surface.900}',
-                    mutedColor: '{surface.500}',
-                    hoverColor: '{surface.950}',
+                    color: '{surface.950}', // 修正：暗色模式下文字使用最亮色，提升可读性
+                    mutedColor: '{surface.400}',
+                    hoverColor: '{surface.0}', // 这里指向 darkest 可能是为了特殊反转，但通常应该是 lightest
                 },
             },
         },
@@ -193,7 +193,6 @@ export default defineNuxtConfig({
         'normalize.css/normalize.css',
         'driver.js/dist/driver.css',
         'primeicons/primeicons.css',
-        'highlight.js/styles/github-dark.css',
         '@/styles/main.scss',
     ],
     eslint: {

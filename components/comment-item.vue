@@ -236,16 +236,17 @@ const avatarUrl = computed(() => {
     :deep(p) { margin: 0; }
 
     :deep(pre) {
-      background-color: #0d1117;
+      background-color: var(--p-surface-50);
       padding: 1rem;
       border-radius: 0.5rem;
       overflow-x: auto;
       margin: 0.5rem 0;
+      border: 1px solid var(--p-surface-200);
 
       code {
         background-color: transparent;
         padding: 0;
-        color: #c9d1d9;
+        color: inherit;
         font-family: 'Fira Code', 'Cascadia Code', 'Source Code Pro', monospace;
         font-size: 0.85rem;
       }
@@ -276,14 +277,29 @@ const avatarUrl = computed(() => {
     border-left-color: var(--p-surface-800);
   }
 
+  .comment-item__author-name {
+    color: #f8fafc;
+  }
+
+  .comment-item__author-link {
+    color: var(--p-primary-400);
+  }
+
   &__pending {
     background-color: rgb(var(--p-warn-500-rgb), 0.1);
     color: var(--p-warn-400);
   }
 
-  .comment-item__text :deep(code) {
-    background-color: var(--p-surface-800);
-    color: var(--p-primary-400);
+  .comment-item__text {
+    :deep(code) {
+      background-color: var(--p-surface-800);
+      color: var(--p-primary-400);
+    }
+
+    :deep(pre) {
+      background-color: #0d1117;
+      border-color: #30363d;
+    }
   }
 }
 </style>

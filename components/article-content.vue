@@ -88,6 +88,7 @@ const renderedContent = computed(() => md.render(props.content || ''))
         padding: 0.5em 1em;
         margin: 1.5em 0;
         background-color: var(--p-surface-50);
+        border: 1px solid var(--p-surface-100);
         border-radius: 0 0.5em 0.5em 0;
         color: var(--p-text-muted-color);
 
@@ -110,13 +111,14 @@ const renderedContent = computed(() => md.render(props.content || ''))
         border-radius: 0.5em;
         overflow: hidden;
         margin: 1.5em 0;
-        background-color: #0d1117; // GitHub Dark background
+        background-color: var(--p-surface-50);
+        border: 1px solid var(--p-surface-200);
 
         code {
             padding: 1.5em;
             display: block;
             background-color: transparent;
-            color: #c9d1d9; // GitHub Dark text color
+            color: inherit;
             font-size: 0.9em;
             overflow-x: auto;
             font-family: 'Fira Code', 'Cascadia Code', 'Source Code Pro', monospace;
@@ -160,7 +162,9 @@ const renderedContent = computed(() => md.render(props.content || ''))
         h2 { border-bottom-color: var(--p-surface-700); }
 
         blockquote {
-            background-color: var(--p-surface-800);
+            background-color: var(--p-surface-100); // 修正：暗色模式使用深色背景
+            border-color: var(--p-primary-600);
+            color: var(--p-text-muted-color);
         }
 
         code {
@@ -169,10 +173,8 @@ const renderedContent = computed(() => md.render(props.content || ''))
         }
 
         pre {
-            background-color: #0d1117; // Keep consistent with github-dark
-            code {
-                color: #c9d1d9;
-            }
+            background-color: #0d1117; // Use GitHub Dark background
+            border-color: #30363d;
         }
 
         hr {
@@ -185,7 +187,7 @@ const renderedContent = computed(() => md.render(props.content || ''))
             }
 
             th {
-                background-color: var(--p-surface-800);
+                background-color: var(--p-surface-100); // 修正：表头使用深色
             }
         }
     }
