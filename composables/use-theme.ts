@@ -130,20 +130,22 @@ export const useTheme = () => {
         const generateVariables = (mode: 'light' | 'dark') => {
             const isDarkMode = mode === 'dark'
 
+            // 核心逻辑：如果是深色模式且没有设置专门的深色覆盖，则优先尝试使用浅色覆盖，最后使用预设默认值
+            // 修改：浅色覆盖不应该直接传导到深色模式，除非显式设置。即：深色模式下，如果没设深色主色，应回退到预设的深色主色。
             const primary = isDarkMode
-                ? formatColor(themeDarkPrimaryColor || themePrimaryColor, preset.primary[mode])
+                ? formatColor(themeDarkPrimaryColor, preset.primary[mode])
                 : formatColor(themePrimaryColor, preset.primary[mode])
 
             const accent = isDarkMode
-                ? formatColor(themeDarkAccentColor || themeAccentColor, preset.accent[mode])
+                ? formatColor(themeDarkAccentColor, preset.accent[mode])
                 : formatColor(themeAccentColor, preset.accent[mode])
 
             const surface = isDarkMode
-                ? formatColor(themeDarkSurfaceColor || themeSurfaceColor, preset.surface[mode])
+                ? formatColor(themeDarkSurfaceColor, preset.surface[mode])
                 : formatColor(themeSurfaceColor, preset.surface[mode])
 
             const text = isDarkMode
-                ? formatColor(themeDarkTextColor || themeTextColor, preset.text[mode])
+                ? formatColor(themeDarkTextColor, preset.text[mode])
                 : formatColor(themeTextColor, preset.text[mode])
 
             let contrastColor = mode === 'dark' ? '#000' : '#fff'
@@ -164,6 +166,7 @@ export const useTheme = () => {
     --p-primary-700: color-mix(in srgb, ${primary}, black 40%);
     --p-primary-800: color-mix(in srgb, ${primary}, black 60%);
     --p-primary-900: color-mix(in srgb, ${primary}, black 80%);
+    --p-primary-950: color-mix(in srgb, ${primary}, black 90%);
 
     --p-primary-color: ${primary};
     --p-primary-contrast-color: ${contrastColor};
@@ -194,9 +197,15 @@ export const useTheme = () => {
     --p-content-border-color: var(--p-surface-200);
     --p-navigation-background: var(--p-surface-0);
     --p-panel-background: var(--p-surface-0);
+    --p-panel-content-background: var(--p-surface-0);
+    --p-panel-header-background: var(--p-surface-0);
     --p-tabs-tab-background: var(--p-surface-0);
-    --p-tabs-tabpanel-background: var(--p-surface-0);
+    --p-tabs-tab-active-background: var(--p-surface-0);
     --p-tabs-tab-list-background: var(--p-surface-0);
+    --p-tabs-tabpanel-background: var(--p-surface-0);
+    --p-card-background: var(--p-surface-0);
+    --p-select-background: var(--p-surface-0);
+    --p-select-list-background: var(--p-surface-0);
 
     --p-text-color: ${text};
     --p-text-muted-color: color-mix(in srgb, ${text}, ${surface} 40%);
@@ -246,8 +255,8 @@ export const useTheme = () => {
         // 哀悼模式
         if (mourningMode.value) {
             styles += `
-    html {
-        filter: grayscale(100%);
+    html, body {
+        filter: grayscale(100%) !important;
     }
 `
         }
