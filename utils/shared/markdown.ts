@@ -17,23 +17,25 @@ export async function formatMarkdown(content: string) {
     try {
         const output = run(content, {
             rules: {
-                preset: 'default',
+                preset: 'default', // 使用默认预设
+                // 禁用标点符号处理是为了避免转换关键字导致的问题
+                // 例如 > [! IMPORTANT] 会被转换为 >【！IMPORTANT】
                 // 1. 禁用所有标点转换
-                halfwidthPunctuation: '',
-                fullwidthPunctuation: '',
+                halfwidthPunctuation: '', // 禁用：将全角标点转换为半角（如 （） -> ()）
+                fullwidthPunctuation: '', // 禁用：将半角标点转换为全角（如 , -> ，）
                 unifiedPunctuation: {
-                    default: false,
+                    default: false, // 禁用：标点符号归一化（如繁体标点转换为简体）
                 },
                 // 2. 禁用所有标点相关的空格规则 (设为 undefined 表示跳过处理)
-                // noSpaceBeforePauseOrStop: undefined,
-                // spaceAfterHalfwidthPauseOrStop: undefined,
-                // noSpaceAfterFullwidthPauseOrStop: undefined,
-                // spaceOutsideHalfwidthQuotation: undefined,
-                // noSpaceOutsideFullwidthQuotation: undefined,
-                // noSpaceInsideQuotation: undefined,
-                // spaceOutsideHalfwidthBracket: undefined,
-                // noSpaceOutsideFullwidthBracket: undefined,
-                // noSpaceInsideBracket: undefined,
+                noSpaceBeforePauseOrStop: undefined, // 禁用：标点符号（如 ，。：；？！）前不保留空格
+                spaceAfterHalfwidthPauseOrStop: undefined, // 禁用：半角标点符号后保留一个空格
+                noSpaceAfterFullwidthPauseOrStop: undefined, // 禁用：全角标点符号后不保留空格
+                spaceOutsideHalfwidthQuotation: undefined, // 禁用：半角引号（"）外侧保留一个空格
+                noSpaceOutsideFullwidthQuotation: undefined, // 禁用：全角引号（“”）外侧不保留空格
+                noSpaceInsideQuotation: undefined, // 禁用：引号内侧不保留空格
+                spaceOutsideHalfwidthBracket: undefined, // 禁用：半角括号（()）外侧保留一个空格
+                noSpaceOutsideFullwidthBracket: undefined, // 禁用：全角括号（（））外侧不保留空格
+                noSpaceInsideBracket: undefined, // 禁用：括号内侧不保留空格
             },
         })
         return output.result || content
