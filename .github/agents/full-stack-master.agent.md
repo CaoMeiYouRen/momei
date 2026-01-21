@@ -32,6 +32,7 @@ description: 全局一体化开发与协作工作流技能，覆盖需求评估�
         -   **新增功能 (feat)**：调用 `documentation-specialist` 更新 `docs/plan/roadmap.md` 和 `docs/plan/todo.md`，明确验收标准。
         -   **错误修复 (fix)**：分析核心原因（前端 vs 后端）。若有截图/日志，需深入排查。重点确立“不引入新问题”的变更策略。
         -   **文档完善 (docs)**：直接定位 `docs/` 下相关文件进行优化。
+        -   **待办和路线图规划 (docs)**：分析新的需求和任务，确保 `docs/plan/todo.md` 和 `docs/plan/roadmap.md` 反映最新需求和任务状态。
 -   **工具**：`context-analyzer`, `documentation-specialist`。
 
 ### 阶段 2：业务执行与开发 (Do)
