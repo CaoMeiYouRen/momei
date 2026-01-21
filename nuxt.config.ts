@@ -1,6 +1,5 @@
 import Aura from '@primevue/themes/aura'
 import { definePreset } from '@primevue/themes'
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 const MomeiPreset = definePreset(Aura, {
     semantic: {
@@ -191,6 +190,11 @@ export default defineNuxtConfig({
         transpile: [
             'ms',
             'debug',
+            // 'zhlint',
+            // 'unified',
+            // 'remark-parse',
+            // 'remark-gfm',
+            // 'remark-frontmatter',
             (ctx) => !ctx.isDev && 'google-libphonenumber',
         ],
     },
@@ -206,23 +210,16 @@ export default defineNuxtConfig({
         },
     },
     vite: {
-        plugins: [
-            nodePolyfills({
-                include: ['os', 'path', 'tty', 'url', 'util', 'buffer', 'process'],
-                globals: {
-                    Buffer: true,
-                    global: true,
-                    process: true,
-                },
-            }),
-        ],
+        // optimizeDeps: {
+        //     include: ['zhlint', 'debug'],
+        // },
     },
     nitro: {
         prerender: {
             // 为匹配 Cloudflare 路由匹配规则，设置 nitro 选项 autoSubfolderIndex 为 false 。
             autoSubfolderIndex: false,
         },
-        // 可选：禁用 unenv 对 debug 的默认适配
+        // 禁用 unenv 对 debug 的默认适配
         unenv: {
             external: ['debug'],
         },

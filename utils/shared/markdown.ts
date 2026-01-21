@@ -4,7 +4,7 @@ import MarkdownItContainer from 'markdown-it-container'
 import { full as MarkdownItEmoji } from 'markdown-it-emoji'
 import githubAlerts from 'markdown-it-github-alerts'
 import hljs from 'highlight.js'
-
+import { run } from 'zhlint/dist/zhlint.es'
 /**
  * 格式化 Markdown 内容 (中文编写规范)
  * @param content 原始 Markdown 内容
@@ -15,15 +15,28 @@ export async function formatMarkdown(content: string) {
         return ''
     }
     try {
-        const { lintMarkdown } = await import('@lint-md/core')
-        const { fixedResult } = lintMarkdown(content, {
-            'no-empty-code': 0,
-            'no-trailing-punctuation': 0,
-            'no-long-code': 0,
-            'no-empty-code-lang': 0,
-            'no-empty-inlinecode': 0,
-        }, true)
-        return fixedResult?.result || content
+        const output = run(content, {
+            rules: {
+                preset: 'default',
+                // 1. 禁用所有标点转换
+                halfwidthPunctuation: '',
+                fullwidthPunctuation: '',
+                unifiedPunctuation: {
+                    default: false,
+                },
+                // 2. 禁用所有标点相关的空格规则 (设为 undefined 表示跳过处理)
+                // noSpaceBeforePauseOrStop: undefined,
+                // spaceAfterHalfwidthPauseOrStop: undefined,
+                // noSpaceAfterFullwidthPauseOrStop: undefined,
+                // spaceOutsideHalfwidthQuotation: undefined,
+                // noSpaceOutsideFullwidthQuotation: undefined,
+                // noSpaceInsideQuotation: undefined,
+                // spaceOutsideHalfwidthBracket: undefined,
+                // noSpaceOutsideFullwidthBracket: undefined,
+                // noSpaceInsideBracket: undefined,
+            },
+        })
+        return output.result || content
     } catch (error) {
         console.error('Markdown formatting failed:', error)
         return content

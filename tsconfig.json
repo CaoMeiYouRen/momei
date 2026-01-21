@@ -11,6 +11,6 @@
         "esModuleInterop": true, // 允许与 CommonJS 模块互操作
         "experimentalDecorators": true, // 启用实验性装饰器支持
         "emitDecoratorMetadata": true, // 启用装饰器元数据支持
-        "verbatimModuleSyntax": true // 保持模块语法不变
+        "verbatimModuleSyntax": true, // 保持模块语法不变
     }
 }
