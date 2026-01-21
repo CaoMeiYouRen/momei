@@ -304,16 +304,38 @@ const loadPost = async () => {
             try {
                 const { data } = await $fetch<any>(`/api/posts/${sourceId}`)
                 if (data) {
-                    // 预填分类、标签等
-                    post.value.categoryId = data.category?.id || null
+                    // 预填标题、摘要、封面图、标签等
+                    post.value.title = data.title
+                    post.value.summary = data.summary
+                    post.value.coverImage = data.coverImage
                     post.value.tags = data.tags?.map((t: any) => t.name) || []
                     post.value.translationId = data.translationId || data.id
                     post.value.slug = data.slug // 建议相同的 slug
                     post.value.copyright = data.copyright
 
+                    // 尝试匹配目标语言的分类 (通过 translationId)
+                    const sourceCategory = data.category
+                    if (sourceCategory) {
+                        if (sourceCategory.translationId) {
+                            // 暂时设置源 ID，确保在 loadCategories 完成后尝试寻找匹配语言的分类
+                            post.value.categoryId = sourceCategory.id
+                            const unwatch = watch(categories, (newCats) => {
+                                if (newCats.length > 0) {
+                                    const match = newCats.find((c: any) => c.translationId === sourceCategory.translationId)
+                                    if (match) {
+                                        post.value.categoryId = match.id
+                                    }
+                                    unwatch()
+                                }
+                            }, { immediate: true })
+                        } else {
+                            post.value.categoryId = sourceCategory.id
+                        }
+                    }
+
                     // 如果请求了自动翻译，则获取内容并翻译
                     if (route.query.autoTranslate === 'true' && data.content) {
-                        translateContent(post.value.language, data.content)
+                        translateContent(post.value.language, data.content, data.title, data.summary)
                     }
                 }
             } catch (e) {

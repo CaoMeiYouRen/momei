@@ -176,9 +176,13 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
     const translateContent = async (
         targetLang?: string,
         sourceContent?: string,
+        sourceTitle?: string,
+        sourceSummary?: string,
     ) => {
         const lang = targetLang || post.value.language
         const content = sourceContent || post.value.content
+        const titleToTranslate = sourceTitle || post.value.title
+        const summaryToTranslate = sourceSummary || post.value.summary
 
         if (!content || content.length < 10) {
             toast.add({
@@ -192,6 +196,43 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
 
         aiLoading.value.translate = true
         try {
+            // Translate Title, Summary and Content in parallel where possible
+            const translationTasks: Promise<any>[] = []
+
+            // Translate Title if exists
+            if (titleToTranslate) {
+                translationTasks.push((async () => {
+                    const { data: translatedTitle } = await $fetch<any>(
+                        '/api/ai/translate-name',
+                        {
+                            method: 'POST',
+                            body: {
+                                name: titleToTranslate,
+                                targetLanguage: lang,
+                            },
+                        },
+                    )
+                    post.value.title = translatedTitle as string
+                })())
+            }
+
+            // Translate Summary if exists
+            if (summaryToTranslate) {
+                translationTasks.push((async () => {
+                    const { data: translatedSummary } = await $fetch<any>(
+                        '/api/ai/translate',
+                        {
+                            method: 'POST',
+                            body: {
+                                content: summaryToTranslate,
+                                targetLanguage: lang,
+                            },
+                        },
+                    )
+                    post.value.summary = translatedSummary as string
+                })())
+            }
+
             // Translate Content (Streaming)
             const response = await fetch('/api/ai/translate.stream', {
                 method: 'POST',
@@ -247,35 +288,8 @@ export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
                 post.value.content = post.value.content.trim()
             }
 
-            // Translate Title if exists
-            if (post.value.title) {
-                const { data: translatedTitle } = await $fetch(
-                    '/api/ai/translate-name',
-                    {
-                        method: 'POST',
-                        body: {
-                            name: post.value.title,
-                            targetLanguage: lang,
-                        },
-                    },
-                )
-                post.value.title = translatedTitle as string
-            }
-
-            // Translate Summary if exists
-            if (post.value.summary) {
-                const { data: translatedSummary } = await $fetch(
-                    '/api/ai/translate',
-                    {
-                        method: 'POST',
-                        body: {
-                            content: post.value.summary,
-                            targetLanguage: lang,
-                        },
-                    },
-                )
-                post.value.summary = translatedSummary as string
-            }
+            // Wait for parallel translation tasks (title, summary) to complete
+            await Promise.all(translationTasks)
 
             toast.add({
                 severity: 'success',
