@@ -227,9 +227,9 @@ const handleTranslateSelection = (langCode: string | null) => {
     }
 }
 
-const handleFormatMarkdown = () => {
+const handleFormatMarkdown = async () => {
     if (post.value.content) {
-        post.value.content = formatMarkdown(post.value.content)
+        post.value.content = await formatMarkdown(post.value.content)
     }
 }
 

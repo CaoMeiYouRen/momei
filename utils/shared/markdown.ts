@@ -4,18 +4,18 @@ import MarkdownItContainer from 'markdown-it-container'
 import { full as MarkdownItEmoji } from 'markdown-it-emoji'
 import githubAlerts from 'markdown-it-github-alerts'
 import hljs from 'highlight.js'
-import { lintMarkdown } from '@lint-md/core'
 
 /**
  * 格式化 Markdown 内容 (中文编写规范)
  * @param content 原始 Markdown 内容
  * @returns 格式化后的内容
  */
-export function formatMarkdown(content: string) {
+export async function formatMarkdown(content: string) {
     if (!content) {
         return ''
     }
     try {
+        const { lintMarkdown } = await import('@lint-md/core')
         const { fixedResult } = lintMarkdown(content, {
             'no-empty-code': 0,
             'no-trailing-punctuation': 0,

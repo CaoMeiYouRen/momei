@@ -1,5 +1,6 @@
 import Aura from '@primevue/themes/aura'
 import { definePreset } from '@primevue/themes'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 const MomeiPreset = definePreset(Aura, {
     semantic: {
@@ -203,6 +204,18 @@ export default defineNuxtConfig({
         config: {
             standalone: false,
         },
+    },
+    vite: {
+        plugins: [
+            nodePolyfills({
+                include: ['os', 'path', 'tty', 'url', 'util', 'buffer', 'process'],
+                globals: {
+                    Buffer: true,
+                    global: true,
+                    process: true,
+                },
+            }),
+        ],
     },
     nitro: {
         prerender: {

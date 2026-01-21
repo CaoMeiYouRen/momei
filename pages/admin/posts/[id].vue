@@ -388,7 +388,7 @@ const savePost = async (publish = false) => {
 
     // Auto format markdown before saving
     if (post.value.content) {
-        post.value.content = formatMarkdown(post.value.content)
+        post.value.content = await formatMarkdown(post.value.content)
     }
 
     // 构建提交数据，显式移除关联对象以避免 Zod 校验失败
