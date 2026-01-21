@@ -15,47 +15,37 @@ appliesTo: "**/*"
 - **可复用与可拓展**：可合并新场景（如数据库迁移、API 变更、运营发布等），支持多项目切换。
 - **分阶段接棒/派单**：可手动或脚本分配阶段任务给对应技能或专项 agent。
 
-## 二、标准工作流 (Workflow Steps)
+## 二、标准 PDTFC+ 工作流 (Workflow Steps)
 
-1. **需求分析 & 技术调研**
-    - 任务：理解 issue/需求卡，分析 docs/plan/todo.md。
+1. **需求分析与计划 (Plan/Analysis)**
+    - 任务：区分任务类型（feat/fix/docs）。分析 `roadmap.md` 及 `todo.md`。如果是 `fix`，分析根因并排查截图/日志；如果是 `feat`，更新规划文档。
     - 技能：`context-analyzer`、`documentation-specialist`
-    - 产出：需求澄清、任务分解清单。
+    - 约束：**需求不明确时必须询问用户**。
 
-2. **方案设计 & 文档同步**
-    - 任务：设计 API/架构/组件声明，整理至 docs/design/。
-    - 技能：`documentation-specialist`
-    - 产出：设计文档更新，技术细节确定。
-
-3. **测试编写（TDD），用例驱动开发**
-    - 任务：先行/同步写 Vitest 用例，覆盖正反例与边界。
-    - 技能：`test-engineer`
-    - 产出：tests/ 目录下用例。
-
-4. **代码开发 & 组件实现**
-    - 任务：实现 features/bugfix/模块代码（Vue3/TS/SCSS）。
+2. **开发实现 (Do)**
+    - 任务：实现功能代码。遵循 Nuxt 4, Vue 3, TS, SCSS BEM, i18n。
     - 技能：`nuxt-code-editor`
-    - 产出：新/修改的代码文件。
 
-5. **质量检测（Lint/Typecheck/覆盖率）**
-    - 任务：运行并修复 lint、typecheck、单元测试覆盖不足等问题。
-    - 技能：`quality-guardian`
-    - 产出：无告警报告，CI/CD 通过。
+3. **质量检测与审查 (Test/Review)**
+    - 任务：运行 `pnpm lint`, `pnpm typecheck`, `pnpm test`。
+    - 约束：**严禁破坏原有测试**。若失败需分析根本原因。
+    - 技能：`quality-guardian`、`test-engineer`
 
-6. **文档 & 计划同步**
-    - 任务：所有变更如有影响须同步 docs/plan/todo.md、API 文档等。
-    - 技能：`documentation-specialist`
-    - 产出：同步后的文档。
+4. **问题修复 (Fix)**
+    - 任务：修复执行阶段发现的缺陷或测试失败。
+    - 技能：`nuxt-code-editor`
 
-7. **代码审查与安全校验**
-    - 任务：严格按 `code-reviewer` 审查新变更，聚焦规划对齐 & 安全审计。
-    - 技能：`code-reviewer`
-    - 产出：审查结论，“Approve” 或 “Request changes”。
-
-8. **规范化提交**
-    - 任务：Conventional Commits 格式生成 commit 并推送。
+5. **功能提交 (Commit - Phase 1)**
+    - 任务：执行最终质量检查，使用 Conventional Commits 规范（中文/用户语言）提交。
     - 技能：`conventional-committer`
-    - 产出：符合规范的提交/PR。
+
+6. **测试增强 (Enhance)**
+    - 任务：检查覆盖率，补充测试用例。再次运行 `pnpm test`。
+    - 技能：`test-engineer`
+
+7. **测试提交 (Commit - Phase 2)**
+    - 任务：最终质量监测后提交增强测试。
+    - 技能：`conventional-committer`
 
 
 ---

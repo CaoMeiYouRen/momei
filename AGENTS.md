@@ -197,14 +197,14 @@ commit message 使用中文描述变更内容。
 
 ### 5. AI 智能体体系 (AI Agents System)
 
-项目定义了以下基础智能体，协作完成开发任务。详细指令以各智能体的技能文档为准：
+项目定义了以下基础智能体，协作完成开发任务。详细指令以各智能体的技能文档为准（具体参考 `.github/agents` 文件夹下的内容）：
 
--   **`@full-stack-master` (全栈大师)**: 驱动完整的自动化工作流，集成所有原子技能实现从需求到发布的自动化。参考：[.github/skills/full-stack-master/SKILL.md](.github/skills/full-stack-master/SKILL.md)。
--   **`@full-stack-developer` (全栈开发者)**: 驱动完整的 PDTFC+ 循环。在功能实现后，**必须主动发起**对 `@test-engineer` 的调用以强化测试。
--   **`@quality-guardian` (质量守卫)**: 负责代码 Lint、类型检查与规范审查。参考：[.github/skills/quality-guardian/SKILL.md](.github/skills/quality-guardian/SKILL.md)。
--   **`@test-engineer` (测试工程师)**: 负责测试驱动开发与高覆盖率逻辑实现，配合全栈开发者完成“测试补充”阶段的任务。参考：[.github/skills/test-engineer/SKILL.md](.github/skills/test-engineer/SKILL.md)。
--   **`@code-reviewer` (代码审查者)**: 负责代码审查与安全审计，确保代码符合规范、逻辑严密且无安全漏洞。重点审查破坏性测试的变更合理性。参考：[.github/skills/code-reviewer/SKILL.md](.github/skills/code-reviewer/SKILL.md)。
--   **`@documentation-specialist` (文档专家)**: 维护 `docs/` 下的设计与规划文档。**注意：禁止手动修改自动生成的 CHANGELOG.md**。参考：[.github/skills/documentation-specialist/SKILL.md](.github/skills/documentation-specialist/SKILL.md)。
+-   **`@full-stack-master` (全栈大师)**: 驱动融合了 PDTFC+ 循环的全生命周期工作流。负责从需求分析（分类分析、澄清歧义）、执行开发、多维质量检测、到两阶段提交及测试增强的完整自动化路径。
+-   **`@full-stack-developer` (全栈开发者)**: 专注于 PDTFC+ 循环的具体执行。已与全栈大师能力融合，遵循统一的业务逻辑与测试增强标准。
+-   **`@quality-guardian` (质量守卫)**: 负责代码 Lint、类型检查与规范审查。
+-   **`@test-engineer` (测试工程师)**: 负责测试驱动开发与高覆盖率逻辑实现，配合全栈开发者完成“测试补充”阶段的任务。
+-   **`@code-reviewer` (代码审查者)**: 负责代码审查与安全审计，确保代码符合规范、逻辑严密且无安全漏洞。
+-   **`@documentation-specialist` (文档专家)**: 维护 `docs/` 下的设计与规划文档。**注意：禁止手动修改自动生成的 CHANGELOG.md**。
 
 ## 安全要求
 
