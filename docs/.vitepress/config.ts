@@ -74,7 +74,7 @@ export default defineConfig({
                     {
                         text: '功能模块',
                         items: [
-                            { text: '审核管理', link: '/design/modules/admin' },
+                            { text: '后台管理', link: '/design/modules/admin' },
                             { text: '认证系统', link: '/design/modules/auth' },
                             { text: '博客内容', link: '/design/modules/blog' },
                             { text: 'AI 辅助', link: '/design/modules/ai' },

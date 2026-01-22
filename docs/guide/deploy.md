@@ -13,8 +13,7 @@
 | `DATABASE_URL`           | 数据库连接 URL (MySQL/PostgreSQL 使用)       | `mysql://user:pass@host:3306/db`   |
 | `NUXT_PUBLIC_SITE_URL`   | 站点正式域名                                 | `https://momei.app`                |
 | `AUTH_SECRET`            | 认证系统的密钥                               | `your-secret-key`                  |
-| `ADMIN_EMAIL`            | 初始管理员邮箱                               | `admin@example.com`                |
-| `ADMIN_PASSWORD`         | 初始管理员密码                               | `admin123456`                      |
+| `ADMIN_USER_IDS`         | 管理员用户 ID 列表 (手动提权，逗号分隔)      | `123456789,987654321`              |
 | `DATABASE_SYNCHRONIZE`   | 是否自动同步表结构 (生产环境慎用)            | `false`                            |
 | `AI_ENABLED`             | 是否启用 AI 助手功能                         | `true`                             |
 | `AI_PROVIDER`            | AI 服务商 (`openai`, `anthropic`)            | `openai`                           |
