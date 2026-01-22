@@ -53,9 +53,18 @@ export const ADMIN_USER_IDS =
 // 是否启用Demo模式
 export const DEMO_MODE =
     process.env.NUXT_PUBLIC_DEMO_MODE === 'true'
+    || process.env.DEMO_MODE === 'true'
     || import.meta.env.NUXT_PUBLIC_DEMO_MODE === 'true'
+// Demo账号邮箱
+export const DEMO_USER_EMAIL =
+    process.env.NUXT_PUBLIC_DEMO_USER_EMAIL
+    || process.env.DEMO_USER_EMAIL
+    || 'admin@example.com'
 // Demo账号密码
-export const DEMO_PASSWORD = process.env.DEMO_PASSWORD || 'Demo@123456'
+export const DEMO_PASSWORD =
+    process.env.NUXT_PUBLIC_DEMO_PASSWORD
+    || process.env.DEMO_PASSWORD
+    || 'momei123456'
 
 /**
  * 数据库配置

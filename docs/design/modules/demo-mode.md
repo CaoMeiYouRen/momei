@@ -15,9 +15,9 @@ Demo 模式允许潜在用户在不注册或不拥有私有服务器的情况下
 
 ### 3.1 环境变量 (Environment Variables)
 
--   `NUXT_PUBLIC_DEMO_MODE=true`: 启用演示模式，同时控制前端 UI 的显示。
--   `DEMO_PASSWORD`: 演示账号的统一密码。
--   `DEMO_USER_EMAIL`: 预设的演示账号邮箱。
+-   `NUXT_PUBLIC_DEMO_MODE=true` 或 `DEMO_MODE=true`: 启用演示模式，同时控制前端 UI 的显示。
+-   `NUXT_PUBLIC_DEMO_PASSWORD` 或 `DEMO_PASSWORD`: 演示账号的统一密码。
+-   `NUXT_PUBLIC_DEMO_USER_EMAIL` 或 `DEMO_USER_EMAIL`: 预设的演示账号邮箱。
 
 ### 3.2 模拟 AI 逻辑 (Mock AI Service)
 
