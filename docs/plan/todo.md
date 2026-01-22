@@ -381,6 +381,25 @@
     - [x] **Emoji 渲染**: 集成 `markdown-it-emoji` 插件支持标准表情符号。
     - [x] **Lightbox 增强**: 实现点击图片弹出大图预览功能。
 
+### 7. 系统细节优化与稳定性 (Refinement & Stability)
+
+- [ ] **动态登录方式显示**
+    - 验收: UI 自动根据 `.env` 中是否包含 `BETTER_AUTH_GITHUB_CLIENT_ID` 等变量决定是否渲染对应按钮。
+- [ ] **迁移数据继承支持**
+    - 验收: 修改文章创建 API，支持可选的 `createdAt` 和 `views` 字段（仅限 Admin 角色）。
+- [ ] **Hexo 一键迁移脚本**
+    - 验收: 提供独立的 CLI 工具或 API 接口，解析 Hexo 的 Markdown Front-matter 并批量导入。
+- [ ] **文档与 AI 协同增强**
+    - 验收: 更新 `docs/` 下的开发手册，增加 AI Agent (如本项目中的 QA Assistant) 使用指南及开发最佳实践。
+- [ ] **权限问题修复**
+    - 验收: 解决“墨梅”相关展示页面的访问鉴权 Bug。
+- [ ] **管理员账号初始化优化**
+    - 验收: 实现系统空状态检测，首个成功注册的用户自动获得 `Admin` 角色。
+- [ ] **中间件性能优化**
+    - 验收: 实现 `server/middleware` 中的数据上下文挂载，避免后续 handler 重复调用 `getSession`。
+- [ ] **头像系统优化**
+    - 验收: 默认头像加载逻辑优化，优先使用 Gravatar，并确保在各种网络环境下的稳定性。
+
 ## 待规划与长期积压 (Backlog & Long-term Roadmap)
 
 此处列出已规划但未纳入当前阶段执行的任务，用于长期版本跟踪。
