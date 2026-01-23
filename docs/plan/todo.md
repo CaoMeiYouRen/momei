@@ -361,6 +361,7 @@
 详细设计请参考: [内容呈现增强设计文档](../design/modules/rendering.md)
 
 - [ ] **Lighthouse 性能跑分优化 (High Priority)**
+    - [x] 验收: 在 CI 工作流中集成 Lighthouse CI，实现自动化性能监控。
     - [ ] 验收: 核心页面 (首页、文章详情) 在桌面端与移动端的 Lighthouse 性能、SEO、无障碍得分均达标 (>= 90)。
     - [x] 验收: 基础图片优化 (WebP 支持、懒加载) 落地。
 - [x] **代码块语法高亮 (High Priority)**
