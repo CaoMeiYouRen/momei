@@ -8,6 +8,8 @@
                         src="/logo.png"
                         alt="Momei Logo"
                         class="hero__logo-img"
+                        width="128"
+                        height="128"
                     >
                 </div>
 

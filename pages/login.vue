@@ -5,8 +5,10 @@
                 <div class="login-card__header">
                     <img
                         src="/logo.png"
-                        alt="Logo"
+                        alt="Momei Logo"
                         class="login-card__logo"
+                        width="48"
+                        height="48"
                     >
                     <h1 class="login-card__title">
                         {{ $t("pages.login.title") }}
@@ -164,6 +166,14 @@ import { loginSchema } from '@/utils/schemas/auth'
 
 const { t } = useI18n()
 const localePath = useLocalePath()
+
+useHead({
+    title: t('pages.login.title'),
+    meta: [
+        { name: 'description', content: t('pages.login.description') || t('pages.login.title') },
+    ],
+})
+
 const toast = useToast()
 const { socialProviders } = useRuntimeConfig().public
 const loading = ref(false)

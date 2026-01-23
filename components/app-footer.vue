@@ -6,6 +6,8 @@
                     src="/logo.png"
                     alt="Momei Logo"
                     class="footer__logo-img"
+                    width="24"
+                    height="24"
                 >
                 <span class="footer__title">{{ $t('components.footer.title') }}</span>
             </NuxtLink>

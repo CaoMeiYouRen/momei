@@ -6,6 +6,8 @@
                     src="/logo.png"
                     alt="Momei Logo"
                     class="app-header__logo"
+                    width="32"
+                    height="32"
                 >
                 <span class="app-header__title">{{ $t('components.header.title') }}</span>
             </NuxtLink>
@@ -55,6 +57,7 @@
                             rounded
                             aria-haspopup="true"
                             aria-controls="admin_menu"
+                            :aria-label="$t('common.admin')"
                             @click="toggleAdminMenu"
                         />
                         <Menu
@@ -71,6 +74,7 @@
                         icon="pi pi-search"
                         text
                         rounded
+                        :aria-label="$t('components.search.title')"
                         @click="openSearch"
                     />
 
@@ -80,6 +84,7 @@
                         :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
                         text
                         rounded
+                        :aria-label="isDark ? $t('components.header.light_mode') : $t('components.header.dark_mode')"
                         @click="toggleDark()"
                     />
 
@@ -94,6 +99,7 @@
                         icon="pi pi-sign-in"
                         text
                         rounded
+                        :aria-label="$t('pages.login.submit')"
                         @click="navigateTo(localePath('/login'))"
                     />
                     <Button

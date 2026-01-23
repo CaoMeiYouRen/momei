@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { authClient } from '@/lib/auth-client'
 
-const { setLocale } = useI18n()
+const { t, setLocale } = useI18n()
 const session = authClient.useSession()
 const { startTour } = useOnboarding()
 const { fetchTheme, applyTheme } = useTheme()
@@ -40,6 +40,9 @@ const head = useLocaleHead({
 })
 
 useHead({
+    titleTemplate: (titleChunk) => {
+        return titleChunk ? `${titleChunk} - ${t('app.name')}` : t('app.name')
+    },
     htmlAttrs: {
         lang: head.value.htmlAttrs?.lang,
         dir: head.value.htmlAttrs?.dir as 'auto' | 'ltr' | 'rtl' | undefined,

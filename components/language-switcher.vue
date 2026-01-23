@@ -7,6 +7,7 @@
         rounded
         aria-haspopup="true"
         aria-controls="language_menu"
+        :aria-label="$t('components.header.language')"
         @click="toggleMenu"
     />
     <Menu
