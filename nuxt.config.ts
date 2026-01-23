@@ -96,6 +96,13 @@ export default defineNuxtConfig({
             defaultCopyright:
                 process.env.NUXT_PUBLIC_DEFAULT_COPYRIGHT
                 || 'all-rights-reserved',
+            // 备案信息配置
+            showComplianceInfo:
+                process.env.NUXT_PUBLIC_SHOW_COMPLIANCE_INFO === 'true' || false,
+            icpLicenseNumber:
+                process.env.NUXT_PUBLIC_ICP_LICENSE_NUMBER || '',
+            publicSecurityNumber:
+                process.env.NUXT_PUBLIC_PUBLIC_SECURITY_NUMBER || '',
             demoMode:
                 process.env.NUXT_PUBLIC_DEMO_MODE === 'true'
                 || process.env.DEMO_MODE === 'true',

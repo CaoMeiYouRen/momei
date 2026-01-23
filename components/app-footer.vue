@@ -51,6 +51,8 @@
             <p class="footer__copyright">
                 {{ $t('components.footer.copyright') }}
             </p>
+            <!-- 备案信息组件 -->
+            <ComplianceInfo />
         </div>
     </footer>
 </template>
