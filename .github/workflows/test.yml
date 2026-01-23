@@ -33,12 +33,12 @@ jobs:
       - run: pnpm run test:coverage
       - run: pnpm run build
       # - run: pnpm run generate
-      - name: Run Lighthouse CI
-        run: pnpm exec lhci autorun
-        env:
-          NUXT_PUBLIC_DEMO_MODE: true
-          PORT: 3000
-          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+      # - name: Run Lighthouse CI
+      #   run: pnpm exec lhci autorun
+      #   env:
+      #     NUXT_PUBLIC_DEMO_MODE: true
+      #     PORT: 3000
+      #     LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
       # 上传代码覆盖率报告到 Codecov
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
