@@ -9,7 +9,7 @@
                 class="compliance-info__link"
                 rel="noopener noreferrer"
             >
-                <span class="compliance-info__label">ICP备案：</span>
+                <span class="compliance-info__label">{{ $t('components.footer.compliance.icp') }}：</span>
                 <span class="compliance-info__value">{{ icpNumber }}</span>
             </NuxtLink>
 
@@ -21,7 +21,7 @@
                 class="compliance-info__link"
                 rel="noopener noreferrer"
             >
-                <span class="compliance-info__label">公安网安备：</span>
+                <span class="compliance-info__label">{{ $t('components.footer.compliance.police') }}：</span>
                 <span class="compliance-info__value">{{ policeNumber }}</span>
             </NuxtLink>
         </div>
@@ -34,7 +34,7 @@ const publicConfig = useRuntimeConfig()
 
 // 是否显示备案信息（默认false）
 const showCompliance = computed(() => {
-    return publicConfig.public.showComplianceInfo === 'true'
+    return publicConfig.public.showComplianceInfo
 })
 const icpNumber = computed(() => publicConfig.public.icpLicenseNumber)
 const policeNumber = computed(() => publicConfig.public.publicSecurityNumber)
@@ -92,14 +92,14 @@ const policeLink = computed(() => {
     }
 
     &__label {
-        font-weight: 500;
-        color: var(--p-text-color-secondary);
+        font-weight: 400;
+        color: inherit;
     }
 
     &__value {
         font-family: '"Noto Serif SC", serif';
-        font-weight: 600;
-        color: var(--p-text-color);
+        font-weight: 500;
+        color: var(--p-text-color-secondary);
     }
 }
 

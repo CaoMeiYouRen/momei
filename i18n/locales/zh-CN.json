@@ -65,7 +65,11 @@
             "logo_text": "梅",
             "title": "墨梅",
             "docs": "文档",
-            "copyright": "© 2026 墨梅博客 - 轻量创作，自在表达"
+            "copyright": "© 2026 墨梅博客 - 轻量创作，自在表达",
+            "compliance": {
+                "icp": "ICP备案",
+                "police": "公安网安备"
+            }
         },
         "toc": {
             "title": "目录"

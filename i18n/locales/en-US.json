@@ -65,7 +65,11 @@
             "logo_text": "M",
             "title": "Momei",
             "docs": "Docs",
-            "copyright": "© 2026 Momei Blog - Lightweight creation, free expression"
+            "copyright": "© 2026 Momei Blog - Lightweight creation, free expression",
+            "compliance": {
+                "icp": "ICP License",
+                "police": "Public Security Filing"
+            }
         },
         "toc": {
             "title": "Table of Contents"
