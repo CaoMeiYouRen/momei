@@ -277,7 +277,7 @@ const avatarUrl = computed(() => {
   }
 
   &__pending {
-    background-color: rgba(var(--p-primary-rgb), 0.1);
+    background-color: rgb(var(--p-primary-rgb), 0.1);
     color: var(--p-primary-400);
   }
 

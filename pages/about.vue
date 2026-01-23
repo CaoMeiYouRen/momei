@@ -180,7 +180,6 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-// 变量定义
 $color-ink: var(--p-text-color);
 $color-plum: var(--p-primary-color);
 $color-paper: var(--p-surface-ground);
@@ -189,7 +188,6 @@ $color-white: var(--p-surface-card);
 $font-sans: 'Inter', 'system-ui', 'sans-serif';
 $font-serif: '"Noto Serif SC"', 'serif';
 
-// 通用样式
 .home-page {
   font-family: $font-sans;
   color: $color-ink;

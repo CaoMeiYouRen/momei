@@ -104,7 +104,7 @@ const policeLink = computed(() => {
 }
 
 // 响应式设计
-@media (max-width: 640px) {
+@media (width <= 640px) {
     .compliance-info {
         &__content {
             flex-direction: column;
