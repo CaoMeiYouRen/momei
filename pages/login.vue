@@ -14,8 +14,12 @@
                 </div>
             </template>
             <template #content>
-                <div class="login-form__social">
+                <div
+                    v-if="hasSocialLogin"
+                    class="login-form__social"
+                >
                     <Button
+                        v-if="socialProviders.github"
                         :label="$t('pages.login.github_login')"
                         icon="pi pi-github"
                         class="github-btn social-btn"
@@ -24,6 +28,7 @@
                         @click="handleGithubLogin"
                     />
                     <Button
+                        v-if="socialProviders.google"
                         :label="$t('pages.login.google_login')"
                         icon="pi pi-google"
                         class="google-btn social-btn"
@@ -33,7 +38,10 @@
                     />
                 </div>
 
-                <Divider align="center">
+                <Divider
+                    v-if="hasSocialLogin"
+                    align="center"
+                >
                     {{ $t("pages.login.or_continue_with_email") }}
                 </Divider>
 
@@ -157,9 +165,11 @@ import { loginSchema } from '@/utils/schemas/auth'
 const { t } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
+const { socialProviders } = useRuntimeConfig().public
 const loading = ref(false)
 const captchaToken = ref('')
 const captchaRef = ref<any>(null)
+const hasSocialLogin = computed(() => Object.values(socialProviders).some((v) => !!v))
 const form = reactive({
     email: '',
     password: '',

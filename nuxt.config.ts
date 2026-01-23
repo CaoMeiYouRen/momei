@@ -123,6 +123,10 @@ export default defineNuxtConfig({
                 provider: process.env.NUXT_PUBLIC_AUTH_CAPTCHA_PROVIDER,
                 siteKey: process.env.NUXT_PUBLIC_AUTH_CAPTCHA_SITE_KEY,
             },
+            socialProviders: {
+                github: !!(process.env.NUXT_PUBLIC_GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID),
+                google: !!(process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID),
+            },
         },
     },
     sitemap: {

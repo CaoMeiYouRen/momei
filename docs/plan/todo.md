@@ -383,8 +383,8 @@
 
 ### 7. 系统细节优化与稳定性 (Refinement & Stability)
 
-- [ ] **动态登录方式显示**
-    - 验收: UI 自动根据 `.env` 中是否包含 `BETTER_AUTH_GITHUB_CLIENT_ID` 等变量决定是否渲染对应按钮。
+- [x] **动态登录方式显示**
+    - 验收: UI 自动根据 `.env` 中是否包含 `NUXT_PUBLIC_GITHUB_CLIENT_ID` 等公共环境变量决定是否渲染对应按钮。
 - [ ] **迁移数据继承支持**
     - 验收: 修改文章创建 API，支持可选的 `createdAt` 和 `views` 字段（仅限 Admin 角色）。
 - [ ] **Hexo 一键迁移脚本**

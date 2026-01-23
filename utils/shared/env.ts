@@ -148,10 +148,12 @@ export const PHONE_EXPIRES_IN = Number(process.env.PHONE_EXPIRES_IN || 300)
 export const ANONYMOUS_LOGIN_ENABLED =
     process.env.ANONYMOUS_LOGIN_ENABLED === 'true'
 // GitHub 配置
-export const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID
+export const GITHUB_CLIENT_ID =
+    process.env.NUXT_PUBLIC_GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID
 export const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET
 // Google 配置
-export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
+export const GOOGLE_CLIENT_ID =
+    process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID
 export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 
 /**
