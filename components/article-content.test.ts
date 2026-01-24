@@ -33,4 +33,22 @@ describe('ArticleContent', () => {
             expect(img.attributes('decoding')).toBe('async')
         })
     })
+
+    it('renders mathematical formulas (KaTeX)', async () => {
+        const content = 'Inline formula: $x^2 + y^2 = z^2$\n\nDisplay formula:\n\n$$e^{i\\pi} + 1 = 0$$'
+        const wrapper = await mountSuspended(ArticleContent, {
+            props: {
+                content,
+            },
+        })
+
+        // KaTeX generates .katex class
+        expect(wrapper.find('.katex').exists()).toBe(true)
+        expect(wrapper.find('.katex-display').exists()).toBe(true)
+
+        // Check for specific content (simplified)
+        const html = wrapper.html()
+        expect(html).toContain('katex')
+        expect(html).toContain('math')
+    })
 })

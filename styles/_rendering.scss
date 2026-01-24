@@ -157,6 +157,42 @@
     }
   }
 
+  // Mathematics (KaTeX)
+  .katex {
+    font-size: 1.1em;
+    text-rendering: auto;
+    color: inherit;
+  }
+
+  .katex-display {
+    margin: 1.25rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.5rem 0;
+
+    // Better scrolling for mobile
+    &::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: var(--p-surface-300);
+        border-radius: 2px;
+    }
+  }
+
+  // Dark mode specific adjustments for KaTeX
+  :global(.dark) & {
+    .katex {
+        // Ensure symbols are readable against dark background
+        color: var(--p-text-color);
+    }
+
+    .katex-display::-webkit-scrollbar-thumb {
+        background-color: var(--p-surface-600);
+    }
+  }
+
   // Code Group
   .code-group {
     background-color: var(--p-surface-100);

@@ -386,7 +386,7 @@
 ## 第四阶段：专业化与创作进阶 (Professionalization & Creative Empowerment) (进行中)
 
 ### 1. 专业内容渲染引擎 (Rendering Engine)
-- [ ] **数学公式支持 ($LaTeX$) (P0)**
+- [x] **数学公式支持 ($LaTeX$) (P0)**
     - 验收: 集成 KaTeX 或 MathJax 插件，支持行内 `$x^2$` 和块级 `$$...$$` 语法渲染。
     - 验收: 确保数学公式样式在 Dark Mode 下能正确自适应且不产生布局偏移。
 - [ ] **Lighthouse 性能冲刺 (P0)**

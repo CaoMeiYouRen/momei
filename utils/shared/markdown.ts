@@ -3,6 +3,8 @@ import MarkdownItAnchor from 'markdown-it-anchor'
 import MarkdownItContainer from 'markdown-it-container'
 import { full as MarkdownItEmoji } from 'markdown-it-emoji'
 import githubAlerts from 'markdown-it-github-alerts'
+import texmath from 'markdown-it-texmath'
+import katex from 'katex'
 import hljs from 'highlight.js'
 
 /**
@@ -150,6 +152,13 @@ export function createMarkdownRenderer(mdOptions: MarkdownOptions = {}) {
 
     // 集成表情符号
     md.use(MarkdownItEmoji)
+
+    // 集成数学公式
+    md.use(texmath, {
+        engine: katex,
+        delimiters: 'dollars',
+        katexOptions: { macros: { '\\RR': '\\mathbb{R}' } },
+    })
 
     // 集成 GitHub 警报语法
     md.use(githubAlerts)

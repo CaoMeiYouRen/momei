@@ -110,6 +110,9 @@ importers:
       js-yaml:
         specifier: ^4.1.1
         version: 4.1.1
+      katex:
+        specifier: ^0.16.27
+        version: 0.16.27
       lodash-es:
         specifier: ^4.17.23
         version: 4.17.23
@@ -131,6 +134,9 @@ importers:
       markdown-it-github-alerts:
         specifier: ^1.0.1
         version: 1.0.1(markdown-it@14.1.0)
+      markdown-it-texmath:
+        specifier: ^1.0.0
+        version: 1.0.0
       mavon-editor:
         specifier: ^3.0.2
         version: 3.0.2
@@ -231,6 +237,9 @@ importers:
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
+      '@types/katex':
+        specifier: ^0.16.8
+        version: 0.16.8
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
@@ -3654,8 +3663,8 @@ packages:
   '@types/jsonfile@6.1.4':
     resolution: {integrity: sha512-D5qGUYwjvnNNextdU59/+fI+spnwtTFmyQP0h+PfIOSkNfpU6AOICUOkm4i0OnSk+NyjdPJrxCDro0sJsWlRpQ==}
 
-  '@types/katex@0.16.7':
-    resolution: {integrity: sha512-HMwFiRujE5PjrgwHQ25+bsLJgowjGjm5Z8FVSf0N6PwgJrwxH0QxzHYDcKsTfV3wva0vzrpqMTJS2jXPr5BMEQ==}
+  '@types/katex@0.16.8':
+    resolution: {integrity: sha512-trgaNyfU+Xh2Tc+ABIb44a5AYUpicB3uwirOioeOkNPPbmgRNtcWyDeeFRzjPZENO9Vq8gvVqfhaaXWLlevVwg==}
 
   '@types/linkify-it@3.0.5':
     resolution: {integrity: sha512-yg6E+u0/+Zjva+buc3EIb+29XEg4wltq7cSmd4Uc2EE/1nUVmxyzpX6gUXD0V8jIrG0r7YeOGVIbYRkxeooCtw==}
@@ -7329,6 +7338,9 @@ packages:
     resolution: {integrity: sha512-NNATF4QdoGI07hyCitoB2YqJ1YcNVCKT89ut2VtfFY9rkeFCXe/V2lOonKQLpJiq5DjiZZepf97BJx5xOjFIAw==}
     peerDependencies:
       markdown-it: '>= 13.0.0'
+
+  markdown-it-texmath@1.0.0:
+    resolution: {integrity: sha512-4hhkiX8/gus+6e53PLCUmUrsa6ZWGgJW2XCW6O0ASvZUiezIK900ZicinTDtG3kAO2kon7oUA/ReWmpW2FByxg==}
 
   markdown-it@14.1.0:
     resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
@@ -15265,7 +15277,7 @@ snapshots:
     dependencies:
       '@types/node': 24.3.0
 
-  '@types/katex@0.16.7': {}
+  '@types/katex@0.16.8': {}
 
   '@types/linkify-it@3.0.5': {}
 
@@ -19430,6 +19442,8 @@ snapshots:
     dependencies:
       markdown-it: 14.1.0
 
+  markdown-it-texmath@1.0.0: {}
+
   markdown-it@14.1.0:
     dependencies:
       argparse: 2.0.1
@@ -19715,7 +19729,7 @@ snapshots:
 
   micromark-extension-math@2.1.2:
     dependencies:
-      '@types/katex': 0.16.7
+      '@types/katex': 0.16.8
       katex: 0.16.27
       micromark-factory-space: 1.1.0
       micromark-util-character: 1.2.0

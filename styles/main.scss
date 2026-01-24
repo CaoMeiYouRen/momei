@@ -3,6 +3,10 @@
 @use "./layout" as *;
 @use "./highlight" as *;
 @use "./rendering" as *;
+
+// KaTeX Core Styles
+@import "katex/dist/katex.min.css";
+
 @layer primevue, momei-base, momei-overrides;
 
 @layer momei-base {
