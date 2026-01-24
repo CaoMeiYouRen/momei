@@ -1,12 +1,14 @@
+import { randomBytes } from 'node:crypto'
 import { ms } from 'ms'
 import { parse } from 'better-bytes'
+
 /**
  * 基础配置
  * 包含服务器基本设置、备案信息等
  */
 // 雪花算法机器 ID。默认为进程 ID 对 1024 取余数，也可以手动指定
 export const MACHINE_ID = Number(
-    process.env.MACHINE_ID || import.meta.server ? process.pid % 1024 : 0,
+    process.env.MACHINE_ID || (import.meta.server ? process.pid % 1024 : 0),
 )
 // Better Auth 的基础 URL
 export const AUTH_BASE_URL =
@@ -16,9 +18,16 @@ export const AUTH_BASE_URL =
 // 联系邮箱
 export const CONTACT_EMAIL = import.meta.env
     .NUXT_PUBLIC_CONTACT_EMAIL as string
+
 // 用于加密、签名和哈希的密钥。生产环境必须设置
+// 在开发环境下如果没有设置，则自动生成一个随机密钥以保证系统能跑起来
 export const AUTH_SECRET =
-    process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET || ''
+    process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET || (
+        (process.env.NODE_ENV === 'development' && import.meta.server)
+            ? randomBytes(32).toString('hex')
+            : ''
+    )
+
 // 应用名称
 export const APP_NAME =
     process.env.NUXT_PUBLIC_APP_NAME
@@ -70,13 +79,32 @@ export const DEMO_PASSWORD =
  * 数据库配置
  * 支持 SQLite、MySQL、PostgreSQL
  */
-// 数据库类型：sqlite, mysql, postgres
-export const DATABASE_TYPE = DEMO_MODE
-    ? 'sqlite'
-    : process.env.DATABASE_TYPE || 'sqlite'
 // 数据库连接 URL (MySQL和PostgreSQL使用)
-export const DATABASE_URL = process.env.DATABASE_URL
+export const DATABASE_URL = process.env.DATABASE_URL || ''
+
+// 智能推断数据库类型
+const getAutoDatabaseType = () => {
+    if (DEMO_MODE) {
+        return 'sqlite'
+    }
+    if (process.env.DATABASE_TYPE) {
+        return process.env.DATABASE_TYPE
+    }
+    const url = DATABASE_URL.toLowerCase()
+    if (url.startsWith('mysql')) {
+        return 'mysql'
+    }
+    if (url.startsWith('postgres') || url.startsWith('postgresql')) {
+        return 'postgres'
+    }
+    return 'sqlite'
+}
+
+// 数据库类型：sqlite, mysql, postgres
+export const DATABASE_TYPE = getAutoDatabaseType()
+
 // SQLite 数据库路径 (仅SQLite使用)
+// 为了兼容性保留此环境变量，但文档中将不再推荐手动设置
 export const DATABASE_PATH = DEMO_MODE
     ? ':memory:'
     : process.env.DATABASE_PATH || 'database/momei.sqlite'
@@ -206,14 +234,16 @@ export const LOCAL_STORAGE_MIN_FREE_SPACE = process.env.LOCAL_STORAGE_MIN_FREE_S
 /**
  * AI 服务配置
  */
-// 是否启用 AI 服务
-export const AI_ENABLED = process.env.AI_ENABLED === 'true'
 // AI 提供商 (openai, anthropic)
 export const AI_PROVIDER = (process.env.AI_PROVIDER || 'openai') as
     | 'openai'
     | 'anthropic'
 // API 密钥
 export const AI_API_KEY = process.env.AI_API_KEY
+// 是否启用 AI 服务：显式设置为 true，或者配置了 API Key 且未显式设置为 false
+export const AI_ENABLED =
+    process.env.AI_ENABLED === 'true'
+    || (!!AI_API_KEY && process.env.AI_ENABLED !== 'false')
 // 模型名称
 export const AI_MODEL = process.env.AI_MODEL || 'gpt-4o'
 // API 代理地址 (可选)

@@ -36,10 +36,9 @@ services:
             - "3000:3000"
         environment:
             - NODE_ENV=production
-            - DATABASE_TYPE=sqlite
-            - DATABASE_PATH=/app/data/momei.sqlite # 默认使用本地 SQLite
+            - AUTH_SECRET=your-random-secret-key # 生产环境必须配置
         volumes:
-            - ./data:/app/data # 持久化存储数据
+            - ./data:/app/data # 持久化存储 SQLite 数据 (默认)
 ```
 
 然后运行：
@@ -48,21 +47,26 @@ services:
 docker-compose up -d
 ```
 
-## 3. 本地运行
+## 3. 本地开发 (零配置启动)
 
-如果你想在本地预览或修改代码：
+如果你想在本地开发或修改代码：
 
 ```bash
 # 1. 克隆仓库
 git clone https://github.com/CaoMeiYouRen/momei.git
 cd momei
 
-# 2. 安装依赖 (推荐使用 pnpm)
+# 2. 安装依赖
 pnpm install
 
 # 3. 启动开发服务器
 pnpm dev
 ```
+
+墨梅支持开发环境 **零配置启动**：
+- 自动使用本地 SQLite 数据库。
+- 自动生成开发用的 `AUTH_SECRET`。
+- 无需配置 `.env` 即可直接运行。
 
 浏览器访问 `http://localhost:3000` 即可查看效果。
 

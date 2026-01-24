@@ -14,6 +14,7 @@ import { Subscriber } from '../entities/subscriber'
 import { Setting } from '../entities/setting'
 import { Comment } from '../entities/comment'
 import logger from '../utils/logger'
+import { isServerlessEnvironment } from '../utils/env'
 import { CustomLogger } from './logger'
 import { SnakeCaseNamingStrategy } from './naming-strategy'
 import { isAdmin } from '@/utils/shared/roles'
@@ -87,6 +88,11 @@ export const initializeDB = async () => {
 
     // 数据库配置
     let options: DataSourceOptions
+
+    // 环境检查：如果在 Serverless 环境或生产环境中使用 SQLite，给出警告
+    if (actualDbType === 'sqlite' && !DEMO_MODE && (isServerlessEnvironment() || process.env.NODE_ENV === 'production')) {
+        logger.warn('⚠️ Detection: Using SQLite in production or Serverless environment. Data will not persist across deployments or restarts!')
+    }
 
     // 配置数据库连接
     switch (actualDbType) {

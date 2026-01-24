@@ -1,137 +1,122 @@
 # 部署指南 (Deployment Guide)
 
-墨梅 (Momei) 基于 Nuxt 开发，支持多种部署环境。你可以根据自己的需求选择合适的方案。
+墨梅 (Momei) 遵循 **约定优于配置 (Convention over Configuration)** 的原则。大部分功能在检测到相关密钥时会自动激活，从而尽可能减少环境变量的配置负担。
 
-## 1. 环境变量配置
+## 1. 核心环境变量
 
-在部署前，请确保配置好以下环境变量。你可以在项目根目录下创建 `.env` 文件或在部署平台（如 Vercel）中进行配置。
+在生产环境部署时，通常只需要配置以下两个变量即可运行：
 
-| 变量名                   | 说明                                         | 示例                               |
-| :----------------------- | :------------------------------------------- | :--------------------------------- |
-| `DATABASE_TYPE`          | 数据库类型 (`sqlite`, `mysql`, `postgres`)   | `sqlite`                           |
-| `DATABASE_PATH`          | SQLite 数据库文件的路径 (仅 SQLite 使用)     | `database/momei.sqlite`            |
-| `DATABASE_URL`           | 数据库连接 URL (MySQL/PostgreSQL 使用)       | `mysql://user:pass@host:3306/db`   |
-| `NUXT_PUBLIC_SITE_URL`   | 站点正式域名                                 | `https://momei.app`                |
-| `AUTH_SECRET`            | 认证系统的密钥                               | `your-secret-key`                  |
-| `ADMIN_USER_IDS`         | 管理员用户 ID 列表 (手动提权，逗号分隔)      | `123456789,987654321`              |
-| `DATABASE_SYNCHRONIZE`   | 是否自动同步表结构 (生产环境慎用)            | `false`                            |
-| `AI_ENABLED`             | 是否启用 AI 助手功能                         | `true`                             |
-| `AI_PROVIDER`            | AI 服务商 (`openai`, `anthropic`)            | `openai`                           |
-| `AI_API_KEY`             | AI 服务的 API Key                            | `sk-xxxx...`                       |
-| `AI_MODEL`               | 使用的 AI 模型名称                           | `gpt-4o` 或 `claude-3-5-sonnet`    |
-| `NUXT_PUBLIC_DEMO_MODE`  | 是否开启演示模式 (只读内存数据库)            | `false`                            |
-| `EMAIL_HOST`             | SMTP 服务器地址 (用于邮件订阅与订阅)        | `smtp.gmail.com`                   |
-| `EMAIL_USER`             | SMTP 用户名                                  | `user@example.com`                 |
-| `EMAIL_PASS`             | SMTP 密码 (通常是应用专用密码)              | `xxxx xxxx xxxx xxxx`              |
-| `STORAGE_TYPE`           | 文件存储方案 (`s3`, `vercel-blob`)           | `s3`                               |
-| `NUXT_PUBLIC_SENTRY_DSN` | Sentry 错误追踪 DSN                          | `https://...`                      |
+| 变量名 | 必填 | 说明 | 示例 |
+| :--- | :--- | :--- | :--- |
+| `AUTH_SECRET` | **是** | 认证系统的密钥，长度建议不少于 32 位。 | `j8H2...k9L1` |
+| `DATABASE_URL` | 否 | 数据库连接地址。如不填，默认使用本地 SQLite腔。 | `mysql://user:pass@host:3306/db` |
 
-## 2. 数据库部署详情
+### 1.1 自动推断逻辑 (Smart Inference)
 
-墨梅支持多种数据库，你可以根据业务规模选择。
+墨梅会根据你的配置自动推断系统行为：
 
-### 2.1 SQLite (默认/轻量)
+- **数据库类型**: 自动根据 `DATABASE_URL` 的协议头（`mysql://`, `postgres://` 等）推断数据库类型。
+- **AI 助手**: 只要配置了 `AI_API_KEY`，相关功能（一键翻译、SEO 优化）会自动激活。
+- **对象存储**: 只要配置了 `S3_ACCESS_KEY_ID` 等必要参数，存储引擎会自动切换到 S3 模式。
+- **开发模式**: 在 `NODE_ENV=development` 下，`AUTH_SECRET` 会自动生成，数据库默认使用 SQLite，实现零配置开发。
 
-适用于小型博客或测试环境。
+---
 
--   **配置**: 设置 `DATABASE_TYPE=sqlite` 和 `DATABASE_PATH`。
--   **初始化**: **生产环境推荐手动执行 `database/sqlite/init.sql` 以创建初始表结构。**
--   **同步**: 开发环境 (`NODE_ENV=development`) 默认会自动同步。但在生产环境模式下，必须通过设置 `DATABASE_SYNCHRONIZE=true` 才会开启自动同步。
--   **注意**: 部署在 Docker 或 VPS 时，务必将数据库文件所在的目录挂载为持久化卷，否则重启后数据会丢失。
+## 2. 功能配置参考
 
-### 2.2 MySQL / PostgreSQL (推荐用于生产)
+以下是各功能模块的详细变量说明：
 
-适用于需要高可用性和数据备份的大型博客。
+### 2.1 数据库与管理
 
--   **配置**: 设置 `DATABASE_TYPE=mysql` (或 `postgres`) 以及 `DATABASE_URL`。
--   **初始化**: 手动执行 `database/mysql/init.sql` (或 `database/postgres/init.sql`) 以创建初始表结构。
--   **示例 URL**:
-    -   MySQL: `mysql://root:password@localhost:3306/momei`
-    -   Postgres: `postgres://user:password@localhost:5432/momei`
--   **SSL**: 如果数据库要求 SSL 连接，设置 `DATABASE_SSL=true`。
+| 变量名 | 说明 | 默认值 / 示例 |
+| :--- | :--- | :--- |
+| `DATABASE_URL` | 数据库连接地址。 | `sqlite:database/momei.sqlite` |
+| `DATABASE_SYNCHRONIZE` | 是否自动同步表结构。生产环境建议为 `false`。 | `false` |
+| `ADMIN_USER_IDS` | 管理员用户 ID 列表（逗号分隔）。 | `123123123,456456456` |
+| `NUXT_PUBLIC_DEMO_MODE` | 开启演示模式（数据不落盘）。 | `false` |
 
-## 3. 部署到主流平台
+### 2.2 AI 助手
 
-### 3.1 Vercel / Netlify
+| 变量名 | 说明 | 示例 |
+| :--- | :--- | :--- |
+| `AI_API_KEY` | **设置后自动启用 AI 功能**。 | `sk-xxxx...` |
+| `AI_PROVIDER` | AI 服务商 (`openai`, `anthropic`)。 | `openai` |
+| `AI_MODEL` | 使用的模型名称。 | `gpt-4o` |
+| `AI_API_ENDPOINT` | 自定义 API 地址（如使用代理）。 | `https://api.openai.com/v1` |
 
-这是最推荐的部署方式，能够利用边缘计算和自动构建。
+### 2.3 邮件系统 (用于订阅与找回密码)
 
-1. **Vercel**: GitHub 关联项目后，Vercel 会自动识别 Nuxt 项目。
-    - 开发平台：GitHub
-    - 构建命令：`npm run build`
-    - 输出目录：`.output`
-2. **Netlify**: 逻辑与 Vercel 类似。
+| 变量名 | 说明 | 示例 |
+| :--- | :--- | :--- |
+| `EMAIL_HOST` | SMTP 服务器地址。 | `smtp.gmail.com` |
+| `EMAIL_USER` | SMTP 用户名。 | `user@example.com` |
+| `EMAIL_PASS` | SMTP 密码（应用专用密码）。 | `xxxx xxxx xxxx xxxx` |
 
-### 3.2 Docker 部署 (私有服务器)
+### 2.4 对象存储 (S3 兼容)
 
-如果你有自己的 VPS 或服务器，建议使用 Docker 部署。
+| 变量名 | 说明 | 示例 |
+| :--- | :--- | :--- |
+| `S3_BUCKET` | 存储桶名称。 | `momei-assets` |
+| `S3_ENDPOINT` | 存储节点地址。 | `https://r2.cloudflare.com` |
+| `S3_REGION` | 存储所在区域。 | `auto` |
 
-#### 构建自定义镜像
+---
 
-```bash
-docker build -t my-momei-blog .
+## 3. 数据库部署建议
+
+### 3.1 SQLite (默认方案)
+
+最适合个人博客和 Docker/VPS 部署。
+
+- **优势**: 部署简单，无需独立进程。
+- **重要**: 必须确保数据目录有持久化挂载。否则，在 **Serverless (如 Vercel)** 环境下，数据将在每次部署或函数超时后归零。
+- **SQLite 文件路径**: 若需自定义路径，请在 `DATABASE_URL` 中指定，例如 `sqlite:./data/my-blog.sqlite`。
+
+### 3.2 MySQL / PostgreSQL (生产推荐)
+
+适合多实例运行或对性能、备份有更高要求的场景。
+
+- **自动配置**: 你只需设置 `DATABASE_URL`，系统将检测到 `mysql` 或 `postgres` 驱动并自动初始化。
+- **驱动安装**: 墨梅已内置常用驱动库，无需额外操作。
+
+---
+
+## 4. 部署到主流平台
+
+### 4.1 Vercel (推荐)
+
+这是最简便的部署方式。
+
+1. 点击 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCaoMeiYouRen%2Fmomei)
+2. 填入环境变量 `AUTH_SECRET`。
+3. _注意_: Vercel 环境下不支持 SQLite 的持久化。如需保存数据，请填入云数据库（如 Neon 或 TiDB Cloud）的 `DATABASE_URL`。
+
+### 4.2 Docker 部署 (私有服务器)
+
+使用 `docker-compose.yml`:
+
+```yaml
+version: "3.8"
+services:
+    momei:
+        image: caomeiyouren/momei
+        ports:
+            - "3000:3000"
+        environment:
+            - NODE_ENV=production
+            - AUTH_SECRET=your-secret-key
+        volumes:
+            - ./data:/app/database # 持久化存储
 ```
 
-#### 运行容器
+---
 
-```bash
-docker run -d --name momei \
-  -p 3000:3000 \
-  -e DATABASE_TYPE=sqlite \
-  -e DATABASE_PATH=/app/data/momei.sqlite \
-  -v /path/to/data:/app/data \
-  my-momei-blog
-```
-
-## 4. 部署到专用服务器 (Node.js)
-
-如果你希望直接运行构建产物：
-
-1. **构建项目**:
-    ```bash
-    pnpm build
-    ```
-2. **启动生产服务器**:
-    ```bash
-    node .output/server/index.mjs
-    ```
-    _建议配合 PM2 进行进程管理：_
-    ```bash
-    pm2 start .output/server/index.mjs --name momei-blog
-    ```
-
-## 5. 存储与 AI 配置 (高级)
-
-### 5.1 文件存储 (`STORAGE_TYPE`)
-
-墨梅目前不支持本地磁盘存储（以保证在 Serverless 环境下的无状态性），你必须选择以下一种云存储方案：
-
--   **s3** (默认): 使用兼容 S3 协议的对象存储（如 AWS S3, Cloudflare R2, MinIO）。
-    -   需配置 `S3_ENDPOINT`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_BUCKET`。
--   **vercel-blob**: Vercel 平台的原生存储方案。
-    -   需在 Vercel 后台开启 Blob 并通过 `BLOB_READ_WRITE_TOKEN` 配置。
-
-### 5.2 AI 助手配置
-
-启用 AI 功能后（`AI_ENABLED=true`），你需要在编辑器中体验强大的自动化能力：
-
--   **OpenAI**: 支持自定义 `AI_API_ENDPOINT` 以使用代理或国内镜像。
--   **Anthropic**: 需设置 `AI_PROVIDER=anthropic`。
--   **速率限制**: 为了防止资源滥用，系统内置了频率限制与字符长度校验 (`AI_MAX_CONTENT_LENGTH`)。
-
-## 6. 数据库说明
-
-墨梅默认使用 **SQLite** 数据库，方便快速启动且无需额外部署。
-
--   数据库文件路径建议设置为 `./data/` 目录下，并确保该目录具有读写权限。
--   如果是 Docker 部署，请务必挂载 `/app/data` 卷以持久化存储数据。
-
-## 7. 管理员账号配置
+## 5. 管理员账号配置
 
 为了方便初始部署，墨梅提供了两种管理员设置方式：
 
 1.  **首位自动提权 (推荐)**: 系统在安装后，数据库用户表为空时，**第一个成功注册或登录**的账号将自动获得 `admin` 角色。
-2.  **环境变量手动提权**: 后续若需添加其他管理员，可通过修改环境变量 `ADMIN_USER_IDS`，填入对应用户的唯一 ID（Snowflake ID），并以逗号分隔。
+2.  **环境变量手动提权**: 后续若需添加其他管理员，可通过修改环境变量 `ADMIN_USER_IDS`，填入对应用户的唯一 ID，并以逗号分隔。
 
 ---
 
