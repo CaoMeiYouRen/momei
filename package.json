@@ -105,7 +105,8 @@
       "diff": "^8.0.3",
       "devalue": "^5.6.2",
       "h3": "^1.15.5",
-      "seroval": "^1.4.1"
+      "seroval": "^1.4.1",
+      "lodash": "$lodash-es"
     }
   },
   "devDependencies": {
