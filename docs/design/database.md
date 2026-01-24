@@ -60,7 +60,7 @@ erDiagram
 | `emailVerified` | boolean  | Yes  | No   | false       | 邮箱是否验证                       |
 | `image`         | text     | No   | No   | -           | 头像 URL                           |
 | `username`      | varchar  | No   | Yes  | -           | 用户名 (唯一标识)                  |
-| `role`          | varchar  | No   | No   | 'user'      | 角色: admin, author, user, visitor |
+| `role`          | varchar  | No   | No   | 'user'      | 角色: admin, author, user          |
 | `banned`        | boolean  | No   | No   | false       | 是否被封禁                         |
 | `createdAt`     | datetime | Yes  | No   | now()       | 创建时间                           |
 | `updatedAt`     | datetime | Yes  | No   | now()       | 更新时间                           |

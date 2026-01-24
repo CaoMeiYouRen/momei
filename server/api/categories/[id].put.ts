@@ -1,6 +1,6 @@
-import { auth } from '@/lib/auth'
 import { categoryUpdateSchema } from '@/utils/schemas/category'
 import { updateCategory } from '@/server/services/category'
+import { requireAdmin } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -8,13 +8,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'ID is required' })
     }
 
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
-
-    if (!session || session.user.role !== 'admin') {
-        throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-    }
+    await requireAdmin(event)
 
     const body = await readValidatedBody(event, (b) => categoryUpdateSchema.parse(b))
 

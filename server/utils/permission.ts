@@ -3,12 +3,11 @@ import { auth } from '@/lib/auth'
 import { hasRole, UserRole } from '@/utils/shared/roles'
 
 /**
- * 校验用户是否具有指定角色之一
+ * 校验用户是否已登录
  * @param event H3Event
- * @param roles 允许的角色列表
  */
-export async function requireRole(event: H3Event, roles: UserRole[] | string[]) {
-    const session = await auth.api.getSession({
+export async function requireAuth(event: H3Event) {
+    const session = event.context.auth || await auth.api.getSession({
         headers: event.headers,
     })
 
@@ -18,6 +17,17 @@ export async function requireRole(event: H3Event, roles: UserRole[] | string[]) 
             statusMessage: 'Unauthorized',
         })
     }
+
+    return session
+}
+
+/**
+ * 校验用户是否具有指定角色之一
+ * @param event H3Event
+ * @param roles 允许的角色列表
+ */
+export async function requireRole(event: H3Event, roles: UserRole[] | string[]) {
+    const session = await requireAuth(event)
 
     if (!hasRole(session.user.role, roles)) {
         throw createError({
@@ -34,7 +44,7 @@ export async function requireRole(event: H3Event, roles: UserRole[] | string[]) 
  * @param event H3Event
  */
 export async function requireAdmin(event: H3Event) {
-    return requireRole(event, ['admin'])
+    return requireRole(event, [UserRole.ADMIN])
 }
 
 /**
@@ -42,5 +52,5 @@ export async function requireAdmin(event: H3Event) {
  * @param event H3Event
  */
 export async function requireAdminOrAuthor(event: H3Event) {
-    return requireRole(event, ['admin', 'author'])
+    return requireRole(event, [UserRole.ADMIN, UserRole.AUTHOR])
 }

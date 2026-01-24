@@ -1,16 +1,8 @@
-import { auth } from '@/lib/auth'
 import { categoryBodySchema } from '@/utils/schemas/category'
-import { isAdmin } from '@/utils/shared/roles'
 import { createCategory } from '@/server/services/category'
 
 export default defineEventHandler(async (event) => {
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
-
-    if (!session || !isAdmin(session.user.role)) {
-        throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-    }
+    await requireAdmin(event)
 
     const body = await readValidatedBody(event, (b) => categoryBodySchema.parse(b))
 

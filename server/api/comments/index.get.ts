@@ -1,18 +1,10 @@
 import { dataSource } from '@/server/database'
 import { Comment } from '@/server/entities/comment'
-import { auth } from '@/lib/auth'
-import { isAdmin } from '@/utils/shared/roles'
 import { CommentStatus } from '@/types/comment'
 import { parsePagination } from '@/server/utils/pagination'
 
 export default defineEventHandler(async (event) => {
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
-
-    if (!session?.user || !isAdmin(session.user.role)) {
-        throw createError({ statusCode: 403, statusMessage: 'Admin access required' })
-    }
+    await requireAdmin(event)
 
     const query = getQuery(event)
     const { page, limit } = parsePagination(query)

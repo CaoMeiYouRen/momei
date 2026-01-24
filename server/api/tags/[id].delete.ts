@@ -1,5 +1,6 @@
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
+import { requireAdmin } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -7,11 +8,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'ID is required' })
     }
 
-    const user = event.context.user
-
-    if (!user || user.role !== 'admin') {
-        throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-    }
+    await requireAdmin(event)
 
     const tagRepo = dataSource.getRepository(Tag)
 

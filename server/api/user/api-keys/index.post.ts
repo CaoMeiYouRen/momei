@@ -1,9 +1,9 @@
 import { z } from 'zod'
 import dayjs from 'dayjs'
-import { auth } from '@/lib/auth'
 import { dataSource } from '@/server/database'
 import { ApiKey } from '@/server/entities/api-key'
 import { generateApiKey, hashApiKey } from '@/server/utils/api-key'
+import { requireAuth } from '@/server/utils/permission'
 
 const schema = z.object({
     name: z.string().min(1).max(50),
@@ -12,10 +12,7 @@ const schema = z.object({
 
 export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, (b) => schema.parse(b))
-    const session = await auth.api.getSession({ headers: event.headers })
-    if (!session || !session.user) {
-        throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-    }
+    const session = await requireAuth(event)
 
     const rawKey = generateApiKey()
     const hashedKey = hashApiKey(rawKey)

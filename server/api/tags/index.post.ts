@@ -1,18 +1,9 @@
 import { tagBodySchema } from '@/utils/schemas/tag'
-import { isAdminOrAuthor } from '@/utils/shared/roles'
 import { createTag } from '@/server/services/tag'
+import { requireAdminOrAuthor } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
-    const user = event.context.user
-
-    if (!user) {
-        throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-    }
-
-    // Admin and Author can create tags
-    if (!isAdminOrAuthor(user.role)) {
-        throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-    }
+    await requireAdminOrAuthor(event)
 
     const body = await readValidatedBody(event, (b) => tagBodySchema.parse(b))
 

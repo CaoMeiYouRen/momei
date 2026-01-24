@@ -1,6 +1,6 @@
 import { dataSource } from '@/server/database'
 import { Comment } from '@/server/entities/comment'
-import { auth } from '@/lib/auth'
+import { requireAuth } from '@/server/utils/permission'
 import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
@@ -9,13 +9,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'ID required' })
     }
 
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
-
-    if (!session?.user) {
-        throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-    }
+    const session = await requireAuth(event)
 
     const commentRepo = dataSource.getRepository(Comment)
     const comment = await commentRepo.findOne({ where: { id }, relations: ['post'] })

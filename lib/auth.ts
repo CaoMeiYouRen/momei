@@ -238,15 +238,16 @@ export const auth = betterAuth({
                 username: 'pre-normalization',
             },
         }), // 支持用户名登录
-        anonymous({
-            // 支持匿名登录
-            emailDomainName: ANONYMOUS_EMAIL_DOMAIN_NAME, // 匿名用户的默认电子邮件域名
-            onLinkAccount: async () => {
-                // 执行操作，如将购物车项目从匿名用户移动到新用户
-                // console.log('Linking anonymous user to new user:', anonymousUser, newUser)
-                // 手动将匿名用户的数据关联到新用户
-            },
-        }),
+        // 移除匿名登录插件，目前没有相关需求
+        // anonymous({
+        //     // 支持匿名登录
+        //     emailDomainName: ANONYMOUS_EMAIL_DOMAIN_NAME, // 匿名用户的默认电子邮件域名
+        //     onLinkAccount: async () => {
+        //         // 执行操作，如将购物车项目从匿名用户移动到新用户
+        //         // console.log('Linking anonymous user to new user:', anonymousUser, newUser)
+        //         // 手动将匿名用户的数据关联到新用户
+        //     },
+        // }),
         magicLink({
             expiresIn: EMAIL_EXPIRES_IN, // 链接有效期（秒）
             disableSignUp: false, // 当用户未注册时是否阻止自动注册

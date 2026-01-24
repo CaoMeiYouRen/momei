@@ -1,14 +1,12 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { isAdmin } from '@/utils/shared/roles'
+import { requireAdminOrAuthor } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
-    const user = event.context.user
-
-    if (!user) {
-        throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-    }
+    const session = await requireAdminOrAuthor(event)
+    const { user } = session
 
     const postRepo = dataSource.getRepository(Post)
     const post = await postRepo.findOne({ where: { id } })

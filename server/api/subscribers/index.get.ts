@@ -1,15 +1,9 @@
 import { dataSource } from '@/server/database'
 import { Subscriber } from '@/server/entities/subscriber'
-import { auth } from '@/lib/auth'
+import { requireAdmin } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
-
-    if (!session || session.user.role !== 'admin') {
-        throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-    }
+    await requireAdmin(event)
 
     const { page = 1, pageSize = 20, email } = getQuery(event)
     const skip = (Number(page) - 1) * Number(pageSize)

@@ -1,7 +1,6 @@
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
 import { Post } from '@/server/entities/post'
-import { auth } from '@/lib/auth'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -9,13 +8,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'ID is required' })
     }
 
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
-
-    if (!session || session.user.role !== 'admin') {
-        throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-    }
+    await requireAdmin(event)
 
     const categoryRepo = dataSource.getRepository(Category)
     const postRepo = dataSource.getRepository(Post)

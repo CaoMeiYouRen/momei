@@ -3,15 +3,13 @@ import { Post } from '@/server/entities/post'
 import { updatePostStatusSchema } from '@/utils/schemas/post'
 import { isAdmin as checkIsAdmin } from '@/utils/shared/roles'
 import { POST_STATUS_TRANSITIONS, PostStatus } from '@/types/post'
+import { requireAdminOrAuthor } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
     const body = await readValidatedBody(event, (b) => updatePostStatusSchema.parse(b))
-    const user = event.context.user
-
-    if (!user) {
-        throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-    }
+    const session = await requireAdminOrAuthor(event)
+    const { user } = session
 
     const postRepo = dataSource.getRepository(Post)
     const post = await postRepo.findOne({ where: { id } })

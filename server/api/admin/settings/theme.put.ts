@@ -1,6 +1,4 @@
 import { z } from 'zod'
-import { auth } from '@/lib/auth'
-import { isAdmin } from '@/utils/shared/roles'
 import { setSettings } from '@/server/services/setting'
 import { isValidCustomUrl } from '@/server/utils/security'
 
@@ -31,13 +29,7 @@ const themeUpdateSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
-
-    if (!session || !isAdmin(session.user.role)) {
-        throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-    }
+    await requireAdmin(event)
 
     const body = await readValidatedBody(event, (b) => themeUpdateSchema.parse(b))
 

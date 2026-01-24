@@ -1,7 +1,5 @@
 import { dataSource } from '@/server/database'
 import { Comment } from '@/server/entities/comment'
-import { auth } from '@/lib/auth'
-import { isAdmin } from '@/utils/shared/roles'
 import { CommentStatus } from '@/types/comment'
 
 export default defineEventHandler(async (event) => {
@@ -13,13 +11,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'ID required' })
     }
 
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
-
-    if (!session?.user || !isAdmin(session.user.role)) {
-        throw createError({ statusCode: 403, statusMessage: 'Admin access required' })
-    }
+    await requireAdmin(event)
 
     const commentRepo = dataSource.getRepository(Comment)
     const comment = await commentRepo.findOne({ where: { id } })

@@ -58,6 +58,11 @@ interface PaginatedResponse<T> extends ApiResponse<PaginatedData<T>> {}
 -   **认证框架**: 必须使用 [better-auth](https://github.com/better-auth/better-auth)。
 -   **Session 管理**: 必须使用基于 Cookie 的 Session 机制，以适配 SSR 环境。
 -   **无状态性**: API 应尽可能保持无状态，依赖 Session Cookie 进行身份识别。
+-   **权限校验**: 严禁在 API Handler 中手动处理 Session 或进行复杂的角色逻辑判断。必须优先使用 `server/utils/permission.ts` 中封装好的工具函数：
+    -   `requireAuth(event)`: 校验用户是否已登录。
+    -   `requireAdmin(event)`: 校验用户是否为管理员。
+    -   `requireAdminOrAuthor(event)`: 校验用户是否为管理员或作者。
+    -   `requireRole(event, roles)`: 校验用户是否具有指定角色（尽量少用，优先使用上述语义化函数）。
 
 ## 4. 参数校验规范 (Validation Standards)
 

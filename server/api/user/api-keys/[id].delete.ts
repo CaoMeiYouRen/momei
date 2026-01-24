@@ -1,13 +1,10 @@
-import { auth } from '@/lib/auth'
 import { dataSource } from '@/server/database'
 import { ApiKey } from '@/server/entities/api-key'
+import { requireAuth } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
-    const session = await auth.api.getSession({ headers: event.headers })
-    if (!session || !session.user) {
-        throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-    }
+    const session = await requireAuth(event)
 
     const repo = dataSource.getRepository(ApiKey)
     const key = await repo.findOne({ where: { id, userId: session.user.id } })

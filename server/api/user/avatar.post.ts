@@ -1,12 +1,10 @@
 import { auth } from '@/lib/auth'
 import { checkUploadLimits, handleFileUploads } from '@/server/services/upload'
+import { requireAuth } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
-    const user = event.context.user
-
-    if (!user) {
-        throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-    }
+    const session = await requireAuth(event)
+    const { user } = session
 
     // 1. 检查上传限制
     await checkUploadLimits(user.id)
