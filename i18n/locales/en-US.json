@@ -210,16 +210,21 @@
         },
         "posts": {
             "title": "Articles",
-            "status_warning": "This article is in {status} status and is only visible to you (Author/Admin).",
-            "login_to_read": "Login to Continue Reading",
+            "empty": "No articles found",
+            "status_warning": "The current article is in {status} status and has not been officially published. It is only visible to relevant authorized personnel.",
+            "article_count": "{count} Articles",
+            "total_count": "{count} articles in total",
+            "total_categories": "{count} categories so far",
+            "total_tags": "{count} tags so far",
             "password_placeholder": "Enter access password",
+            "login_to_read": "Login to continue reading",
             "locked": {
-                "password": "Content Protected",
-                "password_desc": "This article is password protected. Please enter the correct password to unlock.",
-                "registered": "Members Only",
-                "registered_desc": "This content is only available to registered users. Please log in to your account.",
-                "subscriber": "Subscriber Exclusive",
-                "subscriber_desc": "This is a subscriber-exclusive article. Please subscribe to our mailing list to unlock."
+                "PASSWORD_REQUIRED": "Content Restricted",
+                "PASSWORD_REQUIRED_desc": "This article is password protected. Please enter the correct password to access the full content.",
+                "AUTH_REQUIRED": "Login Required",
+                "AUTH_REQUIRED_desc": "This article is restricted to registered users. Please login to continue reading.",
+                "SUBSCRIPTION_REQUIRED": "Subscribers Only",
+                "SUBSCRIPTION_REQUIRED_desc": "This article is restricted to email subscribers. Please subscribe to continue reading."
             }
         },
         "user_agreement": {
@@ -471,25 +476,6 @@
                 "delete_confirm": "Are you sure you want to permanently delete this comment?",
                 "delete_success": "Comment deleted successfully",
                 "update_success": "Comment status updated"
-            }
-        },
-        "posts": {
-            "title": "Articles",
-            "empty": "No articles found",
-            "status_warning": "The current article is in {status} status and has not been officially published. It is only visible to relevant authorized personnel.",
-            "article_count": "{count} Articles",
-            "total_count": "{count} articles in total",
-            "total_categories": "{count} categories so far",
-            "total_tags": "{count} tags so far",
-            "password_placeholder": "Enter access password",
-            "login_to_read": "Login to continue reading",
-            "locked": {
-                "PASSWORD_REQUIRED": "Content Restricted",
-                "PASSWORD_REQUIRED_desc": "This article is password protected. Please enter the correct password to access the full content.",
-                "AUTH_REQUIRED": "Login Required",
-                "AUTH_REQUIRED_desc": "This article is restricted to registered users. Please login to continue reading.",
-                "SUBSCRIPTION_REQUIRED": "Subscribers Only",
-                "SUBSCRIPTION_REQUIRED_desc": "This article is restricted to email subscribers. Please subscribe to continue reading."
             }
         },
         "archives": {
