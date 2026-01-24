@@ -44,6 +44,7 @@ export default defineConfig({
                     { text: '快速开始', link: '/guide/quick-start' },
                     { text: '部署指南', link: '/guide/deploy' },
                     { text: '开发指南', link: '/guide/setup' },
+                    { text: 'AI 协同开发', link: '/guide/ai-development' },
                     { text: '功能特性', link: '/guide/features' },
                 ],
             },
@@ -60,6 +61,7 @@ export default defineConfig({
                 items: [
                     { text: '项目规划规范', link: '/standards/planning' },
                     { text: '通用开发规范', link: '/standards/development' },
+                    { text: 'AI 协作规范', link: '/standards/ai-collaboration' },
                     { text: 'API 规范', link: '/standards/api' },
                     { text: '测试规范', link: '/standards/testing' },
                     { text: '安全规范', link: '/standards/security' },
