@@ -47,3 +47,29 @@ vi.stubGlobal('useRuntimeConfig', () => ({
         appName: '墨梅博客',
     },
 }))
+
+// Mock PrimeVue useToast
+vi.mock('primevue/usetoast', async (importOriginal) => {
+    const actual = await importOriginal<any>()
+    return {
+        ...actual,
+        useToast: () => ({
+            add: vi.fn(),
+            remove: vi.fn(),
+            removeAllGroups: vi.fn(),
+            removeGroup: vi.fn(),
+        }),
+    }
+})
+
+// Mock PrimeVue useConfirm
+vi.mock('primevue/useconfirm', async (importOriginal) => {
+    const actual = await importOriginal<any>()
+    return {
+        ...actual,
+        useConfirm: () => ({
+            require: vi.fn(),
+            close: vi.fn(),
+        }),
+    }
+})
