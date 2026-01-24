@@ -85,15 +85,15 @@ export async function checkPostAccess(
 
         case PostVisibility.SUBSCRIBER: {
             // 订阅可见：必须是活跃订阅者
-            if (!user) {
-                return {
-                    allowed: false,
-                    shouldNotFound: false,
-                    reason: 'AUTH_REQUIRED',
-                    data: filterSensitivePostData(post),
-                }
-            }
-            const isSub = await isUserSubscriber(user.id)
+            // if (!user) {
+            //     return {
+            //         allowed: false,
+            //         shouldNotFound: false,
+            //         reason: 'AUTH_REQUIRED',
+            //         data: filterSensitivePostData(post),
+            //     }
+            // }
+            const isSub = await isUserSubscriber(user?.id)
             if (!isSub) {
                 return {
                     allowed: false,
@@ -133,6 +133,9 @@ function filterSensitivePostData(post: Post): Partial<Post> {
  */
 async function isUserSubscriber(userId: string): Promise<boolean> {
     try {
+        if (!userId) {
+            return false
+        }
         const subscriberRepo = dataSource.getRepository(Subscriber)
         const subscriber = await subscriberRepo.findOne({
             where: { userId, isActive: true },
