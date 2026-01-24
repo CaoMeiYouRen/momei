@@ -39,6 +39,12 @@ features:
     - title: 开发指南
       details: 快速上手项目开发，掌握代码规范与最佳实践。
       link: /guide/setup
+    - title: AI 协同开发
+      details: 现代开发者必备：了解如何指挥 AI 智能体配合 PDTFC+ 循环高效开发。
+      link: /guide/ai-development
+    - title: AI 协作规范
+      details: 面向 AI 代理的行为准则与身份定义，指导 AI 安全合规地操作项目。
+      link: /standards/ai-collaboration
     - title: API 规范
       details: 了解后端接口的通用响应格式、状态码和校验规则。
       link: /standards/api
