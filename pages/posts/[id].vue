@@ -28,7 +28,34 @@
         </div>
 
         <div v-else-if="error" class="post-detail__error">
-            <Message severity="error" :text="error.message" />
+            <div class="error-container">
+                <div class="error-icon">
+                    <i :class="error.statusCode === 404 ? 'pi pi-compass' : 'pi pi-exclamation-circle'" />
+                </div>
+                <h2 class="error-title">
+                    {{ error.statusCode === 404 ? $t('pages.error.404_title') : $t('pages.error.title') }}
+                </h2>
+                <p class="error-message">
+                    {{ error.statusCode === 404 ? $t('pages.error.404_desc') : (error.statusMessage || error.message) }}
+                </p>
+                <div class="error-actions">
+                    <Button
+                        id="back-home-btn"
+                        :label="$t('pages.error.back_home')"
+                        icon="pi pi-home"
+                        @click="navigateTo(localePath('/'))"
+                    />
+                    <Button
+                        v-if="error.statusCode !== 404"
+                        id="retry-btn"
+                        :label="$t('pages.error.retry')"
+                        icon="pi pi-refresh"
+                        severity="secondary"
+                        text
+                        @click="() => refresh()"
+                    />
+                </div>
+            </div>
         </div>
 
         <div v-else-if="post" class="post-detail__content">
@@ -358,8 +385,45 @@ onMounted(async () => {
     }
 
     &__error {
-        padding: 3rem 0;
+        padding: 4rem 1rem;
         text-align: center;
+        display: flex;
+        justify-content: center;
+
+        .error-container {
+            max-width: 400px;
+            padding: 3rem;
+            background-color: var(--p-surface-card);
+            border-radius: 1.5rem;
+            border: 1px solid var(--p-surface-border);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            color: var(--p-primary-color);
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+        }
+
+        .error-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--p-text-color);
+        }
+
+        .error-message {
+            color: var(--p-text-muted-color);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
     }
 
     &__cover {

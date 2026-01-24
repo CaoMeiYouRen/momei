@@ -49,6 +49,7 @@
     },
     "components": {
         "search": {
+            "title": "Global Search",
             "placeholder": "Search posts, categories or tags...",
             "no_results": "No results found",
             "help_hint": "Type keywords to search...",
@@ -200,6 +201,13 @@
         "agreement_required": "Please read and agree to the User Agreement and Privacy Policy"
     },
     "pages": {
+        "error": {
+            "title": "An error occurred",
+            "404_title": "Page Not Found",
+            "404_desc": "Sorry, the page you are looking for does not exist or has been moved. You can try searching for something else or return to the home page.",
+            "back_home": "Back to Home",
+            "retry": "Retry"
+        },
         "posts": {
             "title": "Articles",
             "status_warning": "This article is in {status} status and is only visible to you (Author/Admin).",
