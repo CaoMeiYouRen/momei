@@ -32,7 +32,7 @@
     -  Ausnahme (例外)：在某些无法控制的第三方样式覆盖或**邮件模板** (MJML/Email HTML) 等特殊兼容性场景下可以酌情使用。
     - **强制要求**：如果开发者认为在常规开发中**必须**使用该关键字，则必须在代码注释中说明原因，并**事先获得用户或架构师的专门批准**。
     - **已知冲突 (Known Conflict)**：目前全站禁用 `!important` 与“用户自定义主题 CSS”存在潜在权重冲突（用户自定义样式可能无法覆盖默认样式）。该问题将通过增强 CSS 变量系统或引入 CSS `@layer` 的技术手段解决，不应作为恢复滥用 `!important` 的理由。
-- **纯SCSS**: 禁止在样式文件中使用任何 CSS-in-JS 语法或工具（如 `styled-components`、`emotion`、`tailwindcss` 等）。所有样式必须以纯 SCSS 形式编写，确保样式的可维护性和一致性。
+- **纯 SCSS**: 禁止在样式文件中使用任何 CSS-in-JS 语法或工具（如 `styled-components`、`emotion`、`tailwindcss` 等）。所有样式必须以纯 SCSS 形式编写，确保样式的可维护性和一致性。
 
 ### 2.4 目录规划与依赖约束 (Directory Structure & Dependencies)
 

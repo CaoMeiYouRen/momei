@@ -9,7 +9,7 @@
 | 变量名 | 必填 | 说明 | 示例 |
 | :--- | :--- | :--- | :--- |
 | `AUTH_SECRET` | **是** | 认证系统的密钥，长度建议不少于 32 位。 | `j8H2...k9L1` |
-| `DATABASE_URL` | 否 | 数据库连接地址。如不填，默认使用本地 SQLite腔。 | `mysql://user:pass@host:3306/db` |
+| `DATABASE_URL` | 否 | 数据库连接地址。如不填，默认使用本地 SQLite 路径。 | `mysql://user:pass@host:3306/db` |
 
 ### 1.1 自动推断逻辑 (Smart Inference)
 

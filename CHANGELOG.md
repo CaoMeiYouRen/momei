@@ -224,7 +224,7 @@
 * 更新服务路径，统一服务导入方式 ([d913fc3](https://github.com/CaoMeiYouRen/momei/commit/d913fc3))
 * 更新查询构建器类型定义以增强类型安全性 ([3b4e7c7](https://github.com/CaoMeiYouRen/momei/commit/3b4e7c7))
 * 替换已弃用的 z.nativeEnum 为 z.enum ([88428d6](https://github.com/CaoMeiYouRen/momei/commit/88428d6))
-* 添加文章编辑器设置组件，整合AI功能与文件上传处理 ([dd78fba](https://github.com/CaoMeiYouRen/momei/commit/dd78fba))
+* 添加文章编辑器设置组件，整合 AI 功能与文件上传处理 ([dd78fba](https://github.com/CaoMeiYouRen/momei/commit/dd78fba))
 
 # 1.0.0 (2026-01-10)
 
@@ -232,7 +232,7 @@
 ### ✨ 新功能
 
 * **archives:** 添加归档链接和国际化支持，优化归档页面内容 ([35bf067](https://github.com/CaoMeiYouRen/momei/commit/35bf067))
-* **archives:** 添加归档页面及相关API，支持按年/月聚合文章 ([8d34378](https://github.com/CaoMeiYouRen/momei/commit/8d34378))
+* **archives:** 添加归档页面及相关 API，支持按年/月聚合文章 ([8d34378](https://github.com/CaoMeiYouRen/momei/commit/8d34378))
 * 为文章封面图像添加宽高属性和样式，优化显示效果 ([eedf9b0](https://github.com/CaoMeiYouRen/momei/commit/eedf9b0))
 * 在页脚添加 GitHub 和文档链接，并更新版权年份 ([130f794](https://github.com/CaoMeiYouRen/momei/commit/130f794))
 * 增加文章阅读量统计功能，支持防刷逻辑 ([e5c2128](https://github.com/CaoMeiYouRen/momei/commit/e5c2128))
@@ -296,7 +296,7 @@
 
 ### 🐛 Bug 修复
 
-* **api:** 将HTTP方法类型强制转换为any，以解决类型不匹配问题 ([cab1e59](https://github.com/CaoMeiYouRen/momei/commit/cab1e59))
+* **api:** 将 HTTP 方法类型强制转换为 any，以解决类型不匹配问题 ([cab1e59](https://github.com/CaoMeiYouRen/momei/commit/cab1e59))
 * **index:** 修改关于链接的文本，确保更准确的描述 ([e4e8060](https://github.com/CaoMeiYouRen/momei/commit/e4e8060))
 * **middleware:** 允许所有帖子路径在认证中间件中访问 ([9b1c0e3](https://github.com/CaoMeiYouRen/momei/commit/9b1c0e3))
 * **styles:** 优化媒体查询语法，修复样式兼容性问题 ([85714c0](https://github.com/CaoMeiYouRen/momei/commit/85714c0))
@@ -308,7 +308,7 @@
 * 优化根路径访问处理，确保根路径直接返回成功 ([11a9020](https://github.com/CaoMeiYouRen/momei/commit/11a9020))
 * 优化设置页面样式，调整背景色和边框以提升视觉一致性；修复输入框和密码框的暗黑模式样式 ([0c7195d](https://github.com/CaoMeiYouRen/momei/commit/0c7195d))
 * 使用 sanitize-html 库优化生成纯文本版本的 HTML 内容处理 ([b79b2d6](https://github.com/CaoMeiYouRen/momei/commit/b79b2d6))
-* 使用scrypt算法替代SHA-256进行API密钥哈希处理，增强安全性 ([1f10143](https://github.com/CaoMeiYouRen/momei/commit/1f10143))
+* 使用 scrypt 算法替代 SHA-256 进行 API 密钥哈希处理，增强安全性 ([1f10143](https://github.com/CaoMeiYouRen/momei/commit/1f10143))
 * 修复 .dockerignore 文件中的 assets 条目，确保正确忽略相关文件 ([3be3c3a](https://github.com/CaoMeiYouRen/momei/commit/3be3c3a))
 * 修复 CustomColumn 返回的装饰器类型，确保正确处理 unique 选项 ([03c9790](https://github.com/CaoMeiYouRen/momei/commit/03c9790))
 * 修复 PrimeVue 菜单的暗色模式样式，优化背景色和边框以提升视觉一致性 ([0bfee7e](https://github.com/CaoMeiYouRen/momei/commit/0bfee7e))
@@ -343,7 +343,7 @@
 * 添加过滤器清理逻辑，优化 API 请求参数；更新状态筛选和排序功能 ([db9a115](https://github.com/CaoMeiYouRen/momei/commit/db9a115))
 * 移除 ArticleCard 组件中不必要的空样式规则，优化代码结构；添加 ArticleContent 组件的 eslint 禁用注释 ([c4eab41](https://github.com/CaoMeiYouRen/momei/commit/c4eab41))
 * 移除 debug-polyfill 文件并更新 nuxt 配置以调整兼容性日期和转译设置 ([5eefef1](https://github.com/CaoMeiYouRen/momei/commit/5eefef1))
-* 移除生成文本版本时的script标签，优化HTML内容处理 ([9820432](https://github.com/CaoMeiYouRen/momei/commit/9820432))
+* 移除生成文本版本时的 script 标签，优化 HTML 内容处理 ([9820432](https://github.com/CaoMeiYouRen/momei/commit/9820432))
 * 统一样式，优化组件背景色、边框和文本颜色以提升视觉一致性；更新多个页面的样式变量 ([83f19f6](https://github.com/CaoMeiYouRen/momei/commit/83f19f6))
 * 调整用户管理操作列的对齐方式，改为左对齐 ([9629d90](https://github.com/CaoMeiYouRen/momei/commit/9629d90))
 * 重构文章页面样式，优化加载状态和错误处理展示 ([4b5a12d](https://github.com/CaoMeiYouRen/momei/commit/4b5a12d))
