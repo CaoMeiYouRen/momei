@@ -56,7 +56,7 @@ export class Post extends BaseEntity {
     })
     visibility: PostVisibility
 
-    @CustomColumn({ type: 'varchar', length: 255, nullable: true, comment: '访问密码' })
+    @CustomColumn({ type: 'varchar', length: 255, nullable: true, comment: '访问密码', select: false })
     password: string | null
 
     @CustomColumn({ type: 'integer', default: 0, index: true })

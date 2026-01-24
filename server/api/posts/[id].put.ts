@@ -9,6 +9,7 @@ import { success, fail } from '@/server/utils/response'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { isAdmin } from '@/utils/shared/roles'
 import { PostStatus, POST_STATUS_TRANSITIONS } from '@/types/post'
+import { hashPassword } from '@/server/utils/password'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -93,8 +94,10 @@ export default defineEventHandler(async (event) => {
     if (body.visibility !== undefined) {
         post.visibility = body.visibility
     }
-    if (body.password !== undefined) {
-        post.password = body.password
+    if (body.password) {
+        post.password = hashPassword(body.password)
+    } else if (body.password === null) {
+        post.password = null
     }
 
     // Handle Slug Change

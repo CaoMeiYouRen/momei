@@ -7,6 +7,7 @@ import { Category } from '@/server/entities/category'
 import { generateRandomString } from '@/utils/shared/random'
 import { createPostSchema } from '@/utils/schemas/post'
 import { PostStatus } from '@/types/post'
+import { hashPassword } from '@/server/utils/password'
 
 type CreatePostInput = z.infer<typeof createPostSchema>
 
@@ -84,8 +85,10 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
     if (body.visibility !== undefined) {
         post.visibility = body.visibility
     }
-    if (body.password !== undefined) {
-        post.password = body.password ?? null
+    if (body.password) {
+        post.password = hashPassword(body.password)
+    } else if (body.password === null) {
+        post.password = null
     }
     post.authorId = authorId
     post.tags = tags
