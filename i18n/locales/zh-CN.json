@@ -289,6 +289,17 @@
                 "cover_image": "封面图 URL",
                 "copyright": "版权声明",
                 "copyright_hint": "留空则使用全局默认声明",
+                "visibility": "可见性",
+                "visibility_hint": "设置文章的访问权限",
+                "visibility_options": {
+                    "public": "公开",
+                    "private": "私密 (仅自己)",
+                    "password": "密码保护",
+                    "registered": "登录可见",
+                    "subscriber": "订阅可见"
+                },
+                "password": "访问密码",
+                "password_placeholder": "请输入文章访问密码",
                 "language": "文章语言",
                 "translation_group": "关联其他语言版本",
                 "translation_group_hint": "关联不同语言版本的同一篇文章，启用前台语言切换关联",
@@ -460,7 +471,17 @@
             "article_count": "{count} 篇文章",
             "total_count": "共计 {count} 篇文章",
             "total_categories": "目前共计 {count} 个分类",
-            "total_tags": "目前共计 {count} 个标签"
+            "total_tags": "目前共计 {count} 个标签",
+            "password_placeholder": "请输入访问密码",
+            "login_to_read": "登录后继续阅读",
+            "locked": {
+                "PASSWORD_REQUIRED": "内容已受限",
+                "PASSWORD_REQUIRED_desc": "本文章受密码保护，请输入正确密码以访问完整内容。",
+                "AUTH_REQUIRED": "仅限登录可见",
+                "AUTH_REQUIRED_desc": "本文章仅限注册用户访问，请先登录后再继续阅读。",
+                "SUBSCRIPTION_REQUIRED": "仅限订阅者访问",
+                "SUBSCRIPTION_REQUIRED_desc": "本文章仅限邮件订阅者访问，请订阅后再继续阅读。"
+            }
         },
         "archives": {
             "meta": {

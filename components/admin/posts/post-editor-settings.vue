@@ -110,6 +110,27 @@
             </div>
 
             <div class="form-group">
+                <label for="visibility" class="form-label">{{ $t('pages.admin.posts.visibility') }}</label>
+                <Select
+                    id="visibility"
+                    v-model="post.visibility"
+                    :options="visibilityOptions"
+                    option-label="label"
+                    option-value="value"
+                />
+                <small class="form-hint">{{ $t('pages.admin.posts.visibility_hint') }}</small>
+            </div>
+
+            <div v-if="post.visibility === 'password'" class="form-group">
+                <label for="password" class="form-label">{{ $t('pages.admin.posts.password') }}</label>
+                <InputText
+                    id="password"
+                    v-model="post.password"
+                    :placeholder="$t('pages.admin.posts.password_placeholder')"
+                />
+            </div>
+
+            <div class="form-group">
                 <div class="flex items-center justify-between mb-2">
                     <label for="summary" class="form-label mb-0">{{ $t('common.summary') }}</label>
                     <Button
@@ -167,6 +188,7 @@ const props = defineProps<{
     postsForTranslation: any[]
     languageOptions: any[]
     licenseOptions: any[]
+    visibilityOptions: any[]
     defaultLicenseLabel: string
 }>()
 

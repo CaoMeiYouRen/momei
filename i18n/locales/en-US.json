@@ -290,6 +290,17 @@
                 "cover_image": "Cover Image URL",
                 "copyright": "Copyright Notice",
                 "copyright_hint": "Leave empty for global default",
+                "visibility": "Visibility",
+                "visibility_hint": "Set post access permissions",
+                "visibility_options": {
+                    "public": "Public",
+                    "private": "Private (Only Me)",
+                    "password": "Password Protected",
+                    "registered": "Registered Users",
+                    "subscriber": "Subscribers Only"
+                },
+                "password": "Access Password",
+                "password_placeholder": "Enter post access password",
                 "language": "Post Language",
                 "translation_group": "Translation Association",
                 "translation_group_hint": "Link different language versions of the same post to enable switcher on front end",
@@ -461,7 +472,17 @@
             "article_count": "{count} Articles",
             "total_count": "{count} articles in total",
             "total_categories": "{count} categories so far",
-            "total_tags": "{count} tags so far"
+            "total_tags": "{count} tags so far",
+            "password_placeholder": "Enter access password",
+            "login_to_read": "Login to continue reading",
+            "locked": {
+                "PASSWORD_REQUIRED": "Content Restricted",
+                "PASSWORD_REQUIRED_desc": "This article is password protected. Please enter the correct password to access the full content.",
+                "AUTH_REQUIRED": "Login Required",
+                "AUTH_REQUIRED_desc": "This article is restricted to registered users. Please login to continue reading.",
+                "SUBSCRIPTION_REQUIRED": "Subscribers Only",
+                "SUBSCRIPTION_REQUIRED_desc": "This article is restricted to email subscribers. Please subscribe to continue reading."
+            }
         },
         "archives": {
             "meta": {

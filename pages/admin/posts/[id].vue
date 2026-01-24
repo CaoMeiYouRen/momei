@@ -64,6 +64,7 @@
             :posts-for-translation="postsForTranslation"
             :language-options="languageOptions"
             :license-options="licenseOptions"
+            :visibility-options="visibilityOptions"
             :default-license-label="defaultLicenseLabel"
             @search-posts="searchPosts"
             @suggest-slug="suggestSlug"
@@ -88,6 +89,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
+import { PostVisibility } from '@/types/post'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
 import { COPYRIGHT_LICENSES } from '@/types/copyright'
 import PostEditorHeader from '@/components/admin/posts/post-editor-header.vue'
@@ -126,6 +128,14 @@ const licenseOptions = computed(() => {
     }))
 })
 
+const visibilityOptions = computed(() => [
+    { label: t('pages.admin.posts.visibility_options.public'), value: PostVisibility.PUBLIC },
+    { label: t('pages.admin.posts.visibility_options.private'), value: PostVisibility.PRIVATE },
+    { label: t('pages.admin.posts.visibility_options.password'), value: PostVisibility.PASSWORD },
+    { label: t('pages.admin.posts.visibility_options.registered'), value: PostVisibility.REGISTERED },
+    { label: t('pages.admin.posts.visibility_options.subscriber'), value: PostVisibility.SUBSCRIBER },
+])
+
 const defaultLicenseLabel = computed(() => {
     const key = config.public.defaultCopyright || 'all-rights-reserved'
     return t(`components.post.copyright.licenses.${key}`)
@@ -137,6 +147,8 @@ interface Post {
     content: string
     slug: string
     status: 'draft' | 'published' | 'pending' | 'rejected' | 'hidden'
+    visibility: 'public' | 'private' | 'password' | 'registered' | 'subscriber'
+    password?: string | null
     summary: string
     coverImage: string
     categoryId: string | null
@@ -154,6 +166,8 @@ const post = ref<Post>({
     content: '',
     slug: '',
     status: 'draft',
+    visibility: 'public',
+    password: null,
     summary: '',
     coverImage: '',
     categoryId: null,
