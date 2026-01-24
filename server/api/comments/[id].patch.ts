@@ -1,6 +1,7 @@
 import { dataSource } from '@/server/database'
 import { Comment } from '@/server/entities/comment'
 import { CommentStatus } from '@/types/comment'
+import { requireAdmin } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')

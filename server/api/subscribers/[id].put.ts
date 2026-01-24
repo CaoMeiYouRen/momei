@@ -1,5 +1,6 @@
 import { dataSource } from '@/server/database'
 import { Subscriber } from '@/server/entities/subscriber'
+import { requireAdmin } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { AIService } from '@/server/services/ai'
+import { requireAdminOrAuthor } from '@/server/utils/permission'
 
 const translateSchema = z.object({
     content: z.string().min(1),

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { setSettings } from '@/server/services/setting'
 import { isValidCustomUrl } from '@/server/utils/security'
+import { requireAdmin } from '@/server/utils/permission'
 
 const isHexColor = (val: string) => /^#([A-Fa-f0-9]{3}){1,2}$/.test(val)
 

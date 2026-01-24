@@ -1,7 +1,10 @@
-import { getRequestURL } from 'h3'
 import { auth } from '@/lib/auth'
-import { publicPaths } from '@/utils/shared/public-paths'
 
+/**
+ * 身份验证中间件
+ * 主要职责：解析 Session 并挂载到上下文，供后续处理程序或权限校验工具使用。
+ * 注意：由于每个 API 已独立实现权限校验 (requireAuth/requireAdmin 等)，此中间件不再强制阻断请求。
+ */
 export default defineEventHandler(async (event) => {
     const session = await auth.api.getSession({
         headers: event.headers,
@@ -10,71 +13,4 @@ export default defineEventHandler(async (event) => {
     // 挂载到上下文以便后续处理程序使用
     event.context.auth = session
     event.context.user = session?.user
-
-    const { pathname: path } = getRequestURL(event)
-
-    // 白名单路径
-    if (publicPaths.some((p) => path === p || path.startsWith(`${p}/`))) {
-        return
-    }
-
-    // API Auth routes are public
-    if (path.startsWith('/api/auth')) {
-        return
-    }
-
-    // Allow public access to GET /api/posts and POST /api/posts/:id/comments
-    if (path.startsWith('/api/posts')) {
-        if (event.method === 'GET') {
-            return
-        }
-        if (event.method === 'POST' && path.endsWith('/comments')) {
-            return
-        }
-        if (event.method === 'POST' && path.endsWith('/verify-password')) {
-            return
-        }
-        if (event.method === 'POST' && path.endsWith('/views')) {
-            return
-        }
-    }
-
-    // Allow public access to GET /api/categories and GET /api/tags
-    if (path.startsWith('/api/categories') || path.startsWith('/api/tags')) {
-        if (event.method === 'GET') {
-            return
-        }
-    }
-
-    // Allow public access to GET /api/search
-    if (path.startsWith('/api/search')) {
-        if (event.method === 'GET') {
-            return
-        }
-    }
-
-    // 外部 API 路径不需要 session 验证
-    if (path.startsWith('/api/external')) {
-        return
-    }
-
-    // 订阅接口不需要 session 验证
-    if (path === '/api/subscribe') {
-        return
-    }
-
-    // 主题设置接口不需要 session 验证
-    if (path === '/api/settings/theme' && event.method === 'GET') {
-        return
-    }
-
-    // 仅拦截 API 请求
-    if (path.startsWith('/api')) {
-        if (!session) {
-            throw createError({
-                statusCode: 401,
-                statusMessage: 'Unauthorized',
-            })
-        }
-    }
 })

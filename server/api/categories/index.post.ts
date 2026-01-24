@@ -1,5 +1,6 @@
 import { categoryBodySchema } from '@/utils/schemas/category'
 import { createCategory } from '@/server/services/category'
+import { requireAdmin } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)

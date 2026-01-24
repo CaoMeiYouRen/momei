@@ -1,6 +1,7 @@
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
 import { Post } from '@/server/entities/post'
+import { requireAdmin } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')

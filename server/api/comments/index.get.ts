@@ -2,6 +2,7 @@ import { dataSource } from '@/server/database'
 import { Comment } from '@/server/entities/comment'
 import { CommentStatus } from '@/types/comment'
 import { parsePagination } from '@/server/utils/pagination'
+import { requireAdmin } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
