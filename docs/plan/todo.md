@@ -392,7 +392,7 @@
     - 验收: 实现系统空状态检测，首个成功注册的用户自动获得 `Admin` 角色。
 - [x] **中间件性能优化**
     - 验收: 实现 `server/middleware` 中的数据上下文挂载，避免后续 handler 重复调用 `getSession`。
-- [ ] **头像系统优化**
+- [x] **头像系统优化**
     - 验收: 默认头像加载逻辑优化，优先使用 Gravatar，并确保在各种网络环境下的稳定性。
 - [x] **Copilot Hooks 集成**
     - 验收: 配置 .github/hooks/momei.json。
