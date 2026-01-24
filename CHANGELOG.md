@@ -1,5 +1,102 @@
 # momei
 
+# [1.2.0](https://github.com/CaoMeiYouRen/momei/compare/v1.1.0...v1.2.0) (2026-01-24)
+
+
+### ⚡ 性能优化
+
+* 优化 Lighthouse 跑分，修复 SEO、无障碍及 CLS 问题 ([6d5a760](https://github.com/CaoMeiYouRen/momei/commit/6d5a760))
+
+
+### ✨ 新功能
+
+* 为图片添加懒加载支持，提升页面性能 ([6eac3e9](https://github.com/CaoMeiYouRen/momei/commit/6eac3e9))
+* 优化提示信息，统一使用国际化文本，增强用户体验 ([04c85b4](https://github.com/CaoMeiYouRen/momei/commit/04c85b4))
+* 优化评论获取逻辑，移除邮箱查询，支持游客评论身份凭证 ([8070c4f](https://github.com/CaoMeiYouRen/momei/commit/8070c4f))
+* 创建 Markdown 渲染器并优化图片懒加载支持 ([db9ecc7](https://github.com/CaoMeiYouRen/momei/commit/db9ecc7))
+* 在 AI 服务中添加用户 ID 支持，优化日志记录和功能调用 ([46e64a6](https://github.com/CaoMeiYouRen/momei/commit/46e64a6))
+* 在 AI 服务中添加用户 ID 支持，优化日志记录和功能调用 ([28c9844](https://github.com/CaoMeiYouRen/momei/commit/28c9844))
+* 增加主题设置中的深色模式支持，扩展颜色配置选项 ([ab43129](https://github.com/CaoMeiYouRen/momei/commit/ab43129))
+* 增加主题设置中的自定义 CSS 支持，允许用户注入样式 ([f9eee90](https://github.com/CaoMeiYouRen/momei/commit/f9eee90))
+* 增强 Markdown 渲染能力，支持图片 Lightbox 预览和代码组功能 ([3dcf86c](https://github.com/CaoMeiYouRen/momei/commit/3dcf86c))
+* 增强富媒体与交互渲染能力并优化文档编号 ([3cf752a](https://github.com/CaoMeiYouRen/momei/commit/3cf752a))
+* 实现备案信息展示功能 ([9e97a14](https://github.com/CaoMeiYouRen/momei/commit/9e97a14))
+* 实现评论系统前端 UI 与文章访问限制界面 ([eb2f49d](https://github.com/CaoMeiYouRen/momei/commit/eb2f49d))
+* 支持根据用户邮箱筛选评论，优化评论获取逻辑 ([f4daac8](https://github.com/CaoMeiYouRen/momei/commit/f4daac8))
+* 更新主题配色方案，添加新主题和颜色变量，优化颜色处理逻辑 ([0f81d47](https://github.com/CaoMeiYouRen/momei/commit/0f81d47))
+* 更新主题预设为“极客紫”，添加自定义主题支持及相关提示信息 ([170d7e0](https://github.com/CaoMeiYouRen/momei/commit/170d7e0))
+* 更新数据库结构，添加用户、文章、评论和系统设置表字段 ([76f2e34](https://github.com/CaoMeiYouRen/momei/commit/76f2e34))
+* 添加 gray-matter 依赖以支持 Markdown 文件解析 ([b54ee5b](https://github.com/CaoMeiYouRen/momei/commit/b54ee5b))
+* 添加 highlight.js 支持代码高亮，优化 Markdown 渲染体验 ([ff20884](https://github.com/CaoMeiYouRen/momei/commit/ff20884))
+* 添加 Markdown 格式化功能，集成 @lint-md/core 进行内容美化 ([826273d](https://github.com/CaoMeiYouRen/momei/commit/826273d))
+* 添加 PV 缓存系统，优化阅读量统计与数据库写入性能 ([14b8cfd](https://github.com/CaoMeiYouRen/momei/commit/14b8cfd))
+* 添加主题与定制化系统，支持主题设置的获取与更新 ([a7d512e](https://github.com/CaoMeiYouRen/momei/commit/a7d512e))
+* 添加主题设置中的点缀色支持，更新相关接口和语言文件 ([2e30334](https://github.com/CaoMeiYouRen/momei/commit/2e30334))
+* 添加主题设置页面，支持主题定制和实时预览功能 ([93e2f22](https://github.com/CaoMeiYouRen/momei/commit/93e2f22))
+* 添加外部资源 URL 域名白名单配置，增强系统安全性 ([5b9f801](https://github.com/CaoMeiYouRen/momei/commit/5b9f801))
+* 添加数据库同步配置和邮件验证选项，优化短信和内容处理设置 ([af50267](https://github.com/CaoMeiYouRen/momei/commit/af50267))
+* 添加文章可见性策略，支持公开、私密、密码保护等选项 ([056a124](https://github.com/CaoMeiYouRen/momei/commit/056a124))
+* 添加本地存储适配器，支持文件上传及环境检测逻辑 ([34397f4](https://github.com/CaoMeiYouRen/momei/commit/34397f4))
+* 添加流式翻译功能，优化内容翻译过程和错误处理 ([2d1a557](https://github.com/CaoMeiYouRen/momei/commit/2d1a557))
+* 添加流式翻译功能，支持长文章分段处理和错误处理 ([268760d](https://github.com/CaoMeiYouRen/momei/commit/268760d))
+* 添加演示模式功能，集成引导和模拟 AI 服务，优化用户体验 ([a7dc826](https://github.com/CaoMeiYouRen/momei/commit/a7dc826))
+* 添加演示模式引导功能，优化用户导航体验和多语言支持 ([14c4213](https://github.com/CaoMeiYouRen/momei/commit/14c4213))
+* 添加演示模式进度文本支持，优化用户引导体验 ([5c36eb9](https://github.com/CaoMeiYouRen/momei/commit/5c36eb9))
+* 添加用户协议和隐私政策页面，更新注册和登录流程中的法律提示 ([333f96e](https://github.com/CaoMeiYouRen/momei/commit/333f96e))
+* 添加站点地图链接到页脚，增强用户导航体验 ([cc36255](https://github.com/CaoMeiYouRen/momei/commit/cc36255))
+* 添加管理员账号配置，首位注册用户自动获得管理员角色 ([ea571df](https://github.com/CaoMeiYouRen/momei/commit/ea571df))
+* 添加管理员选项以设置创建时间和浏览量 ([df202eb](https://github.com/CaoMeiYouRen/momei/commit/df202eb))
+* 添加自定义 URL 验证，确保主题和帖子中的链接符合安全白名单 ([8c67ed3](https://github.com/CaoMeiYouRen/momei/commit/8c67ed3))
+* 添加评论功能，支持评论表结构及相关逻辑 ([5abbfcb](https://github.com/CaoMeiYouRen/momei/commit/5abbfcb))
+* 添加评论管理功能，支持评论的创建、删除和访问控制 ([ffbd1cf](https://github.com/CaoMeiYouRen/momei/commit/ffbd1cf))
+* 添加评论管理后台，支持评论筛选和批量操作功能 ([a0d51ae](https://github.com/CaoMeiYouRen/momei/commit/a0d51ae))
+* 添加高亮样式支持，优化代码块和评论区的显示效果 ([6f961b6](https://github.com/CaoMeiYouRen/momei/commit/6f961b6))
+* 集成验证码系统，支持多种提供者并更新相关配置 ([f28d420](https://github.com/CaoMeiYouRen/momei/commit/f28d420))
+
+
+### 🐛 Bug 修复
+
+* **security:** 修复 devalue, tar 和 h3 的高危安全漏洞 ([4746694](https://github.com/CaoMeiYouRen/momei/commit/4746694))
+* 优化 Demo 模式支持，更新相关环境变量配置 ([1c03e45](https://github.com/CaoMeiYouRen/momei/commit/1c03e45))
+* 优化响应式样式，调整媒体查询条件以改善布局 ([db51ad8](https://github.com/CaoMeiYouRen/momei/commit/db51ad8))
+* 优化深色模式下的颜色覆盖逻辑，确保主色回退到预设值 ([35c8bda](https://github.com/CaoMeiYouRen/momei/commit/35c8bda))
+* 优化评论列表加载状态的样式，增强用户体验 ([d6482d6](https://github.com/CaoMeiYouRen/momei/commit/d6482d6))
+* 使用 js-yaml 替代 gray-matter 解析 Markdown 文件的前置内容 ([2f08dac](https://github.com/CaoMeiYouRen/momei/commit/2f08dac))
+* 修复 TypeORM 实体元数据丢失和 Postgres 字段重复定义问题 ([89be718](https://github.com/CaoMeiYouRen/momei/commit/89be718))
+* 修复样式问题，调整背景颜色和媒体查询条件 ([b0df55f](https://github.com/CaoMeiYouRen/momei/commit/b0df55f))
+* 修复游客信息读取逻辑以支持浏览器环境 ([731de84](https://github.com/CaoMeiYouRen/momei/commit/731de84))
+* 修复管理员菜单项的类型定义和点击事件处理 ([d02b069](https://github.com/CaoMeiYouRen/momei/commit/d02b069))
+* 修复评论内容未在界面展示的问题 ([93c0bf5](https://github.com/CaoMeiYouRen/momei/commit/93c0bf5))
+* 更新 lintMarkdown 配置，禁用多个空代码和标点检查 ([2ea2a82](https://github.com/CaoMeiYouRen/momei/commit/2ea2a82))
+* 更新 Markdown 导入路径，确保正确引用共享模块 ([f8e275f](https://github.com/CaoMeiYouRen/momei/commit/f8e275f))
+* 更新 tar 依赖版本至 7.5.4，修复潜在的安全问题 ([a7ea289](https://github.com/CaoMeiYouRen/momei/commit/a7ea289))
+* 更新主题设置中的背景颜色占位符，确保与当前预设值一致 ([8981a31](https://github.com/CaoMeiYouRen/momei/commit/8981a31))
+* 更新依赖项 seroval 至 1.4.2 以解决兼容性问题 ([8fd406b](https://github.com/CaoMeiYouRen/momei/commit/8fd406b))
+* 更新公共路径，允许访问类别、标签和归档页面 ([5f4c807](https://github.com/CaoMeiYouRen/momei/commit/5f4c807))
+* 更新样式导入路径，优化媒体查询条件 ([af64381](https://github.com/CaoMeiYouRen/momei/commit/af64381))
+* 更新演示模式下的请求拦截逻辑，确保路径处理一致性 ([841bec0](https://github.com/CaoMeiYouRen/momei/commit/841bec0))
+* 添加 sitemap 配置以支持搜索引擎优化 ([96ee8a5](https://github.com/CaoMeiYouRen/momei/commit/96ee8a5))
+* 添加备案信息国际化支持，更新相关文案 ([33d24bf](https://github.com/CaoMeiYouRen/momei/commit/33d24bf))
+* 调整评论组件结构以修复 Nuxt 自动导入失效问题 ([05fd6e0](https://github.com/CaoMeiYouRen/momei/commit/05fd6e0))
+* 调整鉴权中间件以允许匿名用户发表评论和解锁文章 ([baa1082](https://github.com/CaoMeiYouRen/momei/commit/baa1082))
+
+
+### 📦 代码重构
+
+* 优化 Markdown 警告样式，移除不必要的 SVG 图标前缀 ([0102fa6](https://github.com/CaoMeiYouRen/momei/commit/0102fa6))
+* 优化 PV 缓存系统，支持 Redis 缓存并增强内存缓存逻辑 ([914b58f](https://github.com/CaoMeiYouRen/momei/commit/914b58f))
+* 优化第三方登录的显示方式 ([0611058](https://github.com/CaoMeiYouRen/momei/commit/0611058))
+* 优化翻译功能，支持标题和摘要的并行翻译 ([2564a09](https://github.com/CaoMeiYouRen/momei/commit/2564a09))
+* 更新 Markdown 格式化函数为异步，确保动态导入 lintMarkdown ([2bc8f2e](https://github.com/CaoMeiYouRen/momei/commit/2bc8f2e))
+* 更新 Markdown 格式化规则以禁用标点符号处理，避免关键字转换问题 ([e615e96](https://github.com/CaoMeiYouRen/momei/commit/e615e96))
+* 更新 zhlint 规则以优化 Markdown 内容检查 ([2606415](https://github.com/CaoMeiYouRen/momei/commit/2606415))
+* 添加无服务器环境检测功能并优化日志模块 ([7a3a213](https://github.com/CaoMeiYouRen/momei/commit/7a3a213))
+* 添加演示模式拦截逻辑，增强数据安全性和用户体验 ([706a21d](https://github.com/CaoMeiYouRen/momei/commit/706a21d))
+* 移除主题设置中的自定义 CSS 字段及提示信息 ([7ba7f7f](https://github.com/CaoMeiYouRen/momei/commit/7ba7f7f))
+* 移除数据库初始化中的演示数据预填充逻辑，优化代码结构; 添加演示模式下的假数据预填充插件 ([cd8dc8b](https://github.com/CaoMeiYouRen/momei/commit/cd8dc8b))
+* 统一主题设置接口字段命名，使用驼峰命名法 ([75d6636](https://github.com/CaoMeiYouRen/momei/commit/75d6636))
+* 迁移字数统计和阅读时间估算功能 ([d53b75e](https://github.com/CaoMeiYouRen/momei/commit/d53b75e))
+
 # [1.1.0](https://github.com/CaoMeiYouRen/momei/compare/v1.0.0...v1.1.0) (2026-01-17)
 
 
