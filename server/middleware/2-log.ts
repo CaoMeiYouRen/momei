@@ -1,5 +1,4 @@
 import logger from '@/server/utils/logger'
-import { auth } from '@/lib/auth'
 
 export default defineEventHandler(async (event) => {
     // 只记录 API 请求
@@ -14,17 +13,8 @@ export default defineEventHandler(async (event) => {
     const userAgent = getHeader(event, 'user-agent') || ''
     const locale = detectUserLocale(event)
 
-    // 尝试获取用户信息（如果用户已登录）
-    let userId: string | undefined
-    try {
-        const session = await auth.api.getSession({
-            headers: event.headers,
-        })
-        userId = session?.user?.id
-    } catch (error) {
-        // 忽略错误，继续记录请求
-        logger.error('获取用户 session 失败，继续记录请求', { error })
-    }
+    // 获取用户信息（已由 1-auth.ts 中间件挂载）
+    const userId = event.context.user?.id
 
     // 记录请求
     logger.api.request({
