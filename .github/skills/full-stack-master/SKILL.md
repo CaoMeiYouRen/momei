@@ -20,7 +20,7 @@ appliesTo: "**/*"
 1. **需求分析与计划 (Plan/Analysis)**
     - 任务：区分任务类型（feat/fix/docs）。分析 `roadmap.md` 及 `todo.md`。如果是 `fix`，分析根因并排查截图/日志；如果是 `feat`，更新规划文档。
     - 技能：`context-analyzer`、`documentation-specialist`
-    - 约束：**需求不明确时必须询问用户**。
+    - 约束：**针对模糊需求必须启动“采访追问”模式，抽离核心真实意图，对齐共识前禁止开工**。
 
 2. **开发实现 (Do)**
     - 任务：实现功能代码。遵循 Nuxt 4, Vue 3, TS, SCSS BEM, i18n。
