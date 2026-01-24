@@ -376,6 +376,20 @@
     - 验收: 配置 .github/hooks/momei.json。
     - 验收: 实现安全拦截 (Secret, Dangerous Cmd)、规范拦截 (any, !important)。
     - 验收: 实现自动 Lint 修复与会话总结日志。
+
+### 6. 运维与部署优化 (Ops & Deployment Optimization)
+
+- [x] **环境变量智能化推断 (Smart Environment Inference)**
+    - [x] 验收: 实现从 `DATABASE_URL` 自动推断 `DATABASE_TYPE`。
+    - [x] 验收: 实现开发环境下 `AUTH_SECRET` 自动生成。
+    - [x] 验收: 实现基于 API Key 存在的 AI 功能自动激活。
+- [x] **零配置本地开发体验 (Zero-Config Development)**
+    - [x] 验收: 提供默认本地 SQLite 路径，支持不创建 `.env` 直接运行。
+- [x] **分层环境变量管理**
+    - [x] 验收: 重构 `.env.example`，区分“核心”与“增强”变量。
+- [ ] **混合模式安装向导 (Hybrid Installation Wizard)**
+    - [ ] 验收: 实现“二次开发/部署”场景下的 Web 端配置引导。
+    - [ ] 验收: 支持数据库连接测试与 Seed 数据一键导入。
     
 ## 待规划与长期积压 (Backlog & Long-term Roadmap)
 
@@ -451,7 +465,7 @@
 - [ ] **多模态创作增强**
     - 验收: 集成 AI 封面图生成 (DALL-E) 与 DeepL 专业协议翻译系统。
 - [ ] **语音创作引擎**
-    - 验收: 集成 Whisper 模型进行语音录入，并实现 AI 灵感重构（转录 -> 润色 -> 博文）。
+    - 验收: 集成 Whisper 模型进行语音录入，并实现 AI 灵感重构（转录 ->润色 -> 博文）。
 
 ## 相关文档
 
