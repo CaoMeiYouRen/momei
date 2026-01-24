@@ -94,7 +94,7 @@
                             <div v-if="post.author" class="post-detail__author">
                                 <AppAvatar
                                     :image="post.author.image"
-                                    :email="post.author.email"
+                                    :email-hash="post.author.emailHash"
                                     :name="post.author.name"
                                     shape="circle"
                                 />

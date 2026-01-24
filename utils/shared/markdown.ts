@@ -4,7 +4,7 @@ import MarkdownItContainer from 'markdown-it-container'
 import { full as MarkdownItEmoji } from 'markdown-it-emoji'
 import githubAlerts from 'markdown-it-github-alerts'
 import hljs from 'highlight.js'
-import { run } from 'zhlint/dist/zhlint.es'
+
 /**
  * 格式化 Markdown 内容 (中文编写规范)
  * @param content 原始 Markdown 内容
@@ -14,7 +14,14 @@ export async function formatMarkdown(content: string) {
     if (!content) {
         return ''
     }
+    // zhlint 仅支持在浏览器环境或 Node.js 环境中运行，但在某些环境下（如 SSR）可能会因为访问 document 而崩溃
+    // 且 zhlint 主要是给前端编辑器使用的，所以在此处增加环境判断或动态导入
     try {
+        if (import.meta.server) {
+            return content // SSR 环境下跳过格式化
+        }
+
+        const { run } = await import('zhlint/dist/zhlint.es')
         const output = run(content, {
             rules: {
                 preset: 'default', // 使用默认预设

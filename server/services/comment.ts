@@ -3,6 +3,7 @@ import { dataSource } from '@/server/database'
 import { Comment } from '@/server/entities/comment'
 import { Post } from '@/server/entities/post'
 import { CommentStatus } from '@/types/comment'
+import { sha256 } from '@/utils/shared/hash'
 
 /**
  * 评论服务
@@ -48,7 +49,7 @@ export const commentService = {
         const allComments = await qb.getMany()
 
         // 构建树形结构并处理隐私
-        return this.buildCommentTree(allComments, options.isAdmin)
+        return await this.buildCommentTree(allComments, options.isAdmin)
     },
 
     /**
@@ -108,23 +109,27 @@ export const commentService = {
     /**
      * 辅助方法：构建评论树
      */
-    buildCommentTree(comments: Comment[], isAdmin: boolean = false) {
+    async buildCommentTree(comments: Comment[], isAdmin: boolean = false) {
         const map = new Map<string, any>()
         const tree: any[] = []
 
-        comments.forEach((comment) => {
+        for (const comment of comments) {
             const item = { ...comment, replies: [] } as any
 
-            // 隐私保护：非管理员隐藏 IP 和 UserAgent
-            // 注意：根据用户要求，保留 authorEmail 以便在前端计算 Gravatar 哈希
+            // 计算邮箱哈希用于头像展示 (SHA256)
+            if (comment.authorEmail) {
+                item.authorEmailHash = await sha256(comment.authorEmail)
+            }
+
+            // 隐私保护：非管理员隐藏 Email, IP 和 UserAgent
             if (!isAdmin) {
-                // delete item.authorEmail // 暂时保留，由用户决定是否暴露
+                delete item.authorEmail
                 delete item.ip
                 delete item.userAgent
             }
 
             map.set(comment.id, item)
-        })
+        }
 
         comments.forEach((comment) => {
             const item = map.get(comment.id)

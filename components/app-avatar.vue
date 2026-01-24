@@ -14,10 +14,11 @@
 const props = defineProps<{
     image?: string | null
     email?: string | null
+    emailHash?: string | null
     name?: string | null
 }>()
 
-const { avatarUrl: gravatarUrl } = useAvatar(() => props.email, () => props.name)
+const { avatarUrl: gravatarUrl } = useAvatar(() => props.email, () => props.name, () => props.emailHash)
 
 const displayImage = computed(() => props.image || gravatarUrl.value)
 </script>

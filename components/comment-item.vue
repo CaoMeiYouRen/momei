@@ -7,7 +7,7 @@
         <div class="comment-item__avatar">
             <AppAvatar
                 :image="comment.author?.image"
-                :email="comment.authorEmail"
+                :email-hash="comment.authorEmailHash"
                 :name="comment.authorName"
                 class="comment-item__avatar-img"
             />

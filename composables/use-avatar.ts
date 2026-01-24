@@ -5,12 +5,22 @@ import { getGravatarUrl } from '@/utils/shared/avatar'
 /**
  * 头像处理 Hook
  */
-export function useAvatar(email?: MaybeRefOrGetter<string | null | undefined>, name?: MaybeRefOrGetter<string | null | undefined>) {
+export function useAvatar(
+    email?: MaybeRefOrGetter<string | null | undefined>,
+    name?: MaybeRefOrGetter<string | null | undefined>,
+    emailHash?: MaybeRefOrGetter<string | null | undefined>,
+) {
     const avatarUrl = ref('')
 
     watchEffect(async () => {
         const emailValue = toValue(email)
         const nameValue = toValue(name)
+        const hashValue = toValue(emailHash)
+
+        if (hashValue) {
+            avatarUrl.value = getGravatarUrl(hashValue)
+            return
+        }
 
         if (!emailValue) {
             // 如果没有邮箱，使用 ui-avatars 作为回退
