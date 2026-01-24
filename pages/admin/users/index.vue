@@ -37,9 +37,10 @@
                 >
                     <template #body="{data}">
                         <div class="user-info">
-                            <Avatar
+                            <AppAvatar
                                 :image="data.image"
-                                :label="!data.image ? data.name?.charAt(0) : undefined"
+                                :name="data.name"
+                                :email="data.email"
                                 shape="circle"
                                 size="normal"
                             />

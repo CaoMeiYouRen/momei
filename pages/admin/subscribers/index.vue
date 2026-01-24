@@ -57,9 +57,10 @@
                     <template #body="{data}">
                         <template v-if="data.user">
                             <div class="flex gap-2 items-center">
-                                <Avatar
-                                    v-if="data.user.image"
+                                <AppAvatar
                                     :image="data.user.image"
+                                    :email="data.user.email"
+                                    :name="data.user.name"
                                     shape="circle"
                                     size="small"
                                 />

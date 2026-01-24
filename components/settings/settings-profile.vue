@@ -7,9 +7,10 @@
             <div class="settings-form__field">
                 <label>{{ $t("pages.settings.profile.avatar") }}</label>
                 <div class="avatar-section">
-                    <Avatar
-                        :image="profileForm.image || undefined"
-                        :label="!profileForm.image ? profileForm.name?.charAt(0)?.toUpperCase() : undefined"
+                    <AppAvatar
+                        :image="profileForm.image"
+                        :email="session?.data?.user?.email"
+                        :name="profileForm.name"
                         size="xlarge"
                         shape="circle"
                         class="avatar-preview"

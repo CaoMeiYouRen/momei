@@ -92,9 +92,10 @@
 
                         <div class="post-detail__meta">
                             <div v-if="post.author" class="post-detail__author">
-                                <Avatar
+                                <AppAvatar
                                     :image="post.author.image"
-                                    :label="post.author.name?.[0]"
+                                    :email="post.author.email"
+                                    :name="post.author.name"
                                     shape="circle"
                                 />
                                 <span class="font-medium">{{ post.author.name }}</span>

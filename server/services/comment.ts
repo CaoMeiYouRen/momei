@@ -115,9 +115,10 @@ export const commentService = {
         comments.forEach((comment) => {
             const item = { ...comment, replies: [] } as any
 
-            // 隐私保护：非管理员隐藏邮箱、IP 和 UserAgent
+            // 隐私保护：非管理员隐藏 IP 和 UserAgent
+            // 注意：根据用户要求，保留 authorEmail 以便在前端计算 Gravatar 哈希
             if (!isAdmin) {
-                delete item.authorEmail
+                // delete item.authorEmail // 暂时保留，由用户决定是否暴露
                 delete item.ip
                 delete item.userAgent
             }

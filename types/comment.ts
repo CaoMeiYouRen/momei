@@ -26,7 +26,7 @@ export interface Comment {
     parentId: string | null
     content: string
     authorName: string
-    authorEmail?: string // 仅管理员可见
+    authorEmail?: string // 用于前端计算 Gravatar
     authorUrl: string | null
     status: CommentStatus
     ip?: string // 仅管理员可见

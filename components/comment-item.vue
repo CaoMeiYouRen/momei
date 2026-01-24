@@ -5,13 +5,12 @@
         :class="{'comment-item--reply': isReply}"
     >
         <div class="comment-item__avatar">
-            <img
-                :src="avatarUrl"
-                :alt="comment.authorName"
+            <AppAvatar
+                :image="comment.author?.image"
+                :email="comment.authorEmail"
+                :name="comment.authorName"
                 class="comment-item__avatar-img"
-                loading="lazy"
-                decoding="async"
-            >
+            />
         </div>
 
         <div class="comment-item__main">
@@ -120,17 +119,6 @@ const formatDate = (date: string) => {
         minute: '2-digit',
     })
 }
-
-// 头像处理 (本地优先，否则 Gravatar)
-const avatarUrl = computed(() => {
-    if (props.comment.author?.image) {
-        return props.comment.author.image
-    }
-    // 使用简单的 Gravatar 逻辑，由于无法在前端直接 MD5 (除非引入库)
-    // 这里暂时使用作者名称的首字母做占位，或者返回一个默认头像
-    // 提示：后端应该在返回数据时处理好头像 URL 或者是邮箱的 MD5
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(props.comment.authorName)}&background=random`
-})
 </script>
 
 <style lang="scss" scoped>
