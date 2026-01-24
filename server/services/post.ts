@@ -90,6 +90,15 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
     post.authorId = authorId
     post.tags = tags
 
+    if (options.isAdmin) {
+        if (body.createdAt) {
+            post.createdAt = body.createdAt
+        }
+        if (body.views !== undefined) {
+            post.views = body.views
+        }
+    }
+
     const targetStatus = body.status as PostStatus
     if (!options.isAdmin) {
         // Enforce 'pending' for non-admin if they try to publish directly

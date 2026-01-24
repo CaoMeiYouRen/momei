@@ -42,6 +42,8 @@ export const createPostSchema = z.object({
     status: postStatusEnum.default(PostStatus.DRAFT),
     visibility: postVisibilityEnum.default(PostVisibility.PUBLIC),
     password: z.string().nullable().optional(),
+    createdAt: z.coerce.date().optional(),
+    views: z.coerce.number().int().min(0).optional(),
 })
 
 export const updatePostSchema = z.object({
