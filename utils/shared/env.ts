@@ -223,7 +223,7 @@ export const UPLOAD_SINGLE_USER_DAILY_LIMIT = Number(
     process.env.UPLOAD_SINGLE_USER_DAILY_LIMIT || 5,
 )
 // 存储类型
-export const STORAGE_TYPE = process.env.STORAGE_TYPE || 's3'
+export const STORAGE_TYPE = process.env.STORAGE_TYPE || 'local'
 // 本地存储目录
 export const LOCAL_STORAGE_DIR = process.env.LOCAL_STORAGE_DIR || 'public/uploads'
 // 本地存储基础 URL

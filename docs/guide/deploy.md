@@ -57,13 +57,17 @@
 
 ### 2.4 对象存储 (Storage)
 
-墨梅支持多种存储后端，默认为 `s3`。你可以通过 `STORAGE_TYPE` 进行切换。
+墨梅支持多种存储后端，默认为 `local`。你可以通过 `STORAGE_TYPE` 进行切换。
 
 | 变量名 | 说明 | 默认值 / 示例 |
 | :--- | :--- | :--- |
-| `STORAGE_TYPE` | 存储引擎 (`local`, `s3`, `vercel-blob`)。 | `s3` |
+| `STORAGE_TYPE` | 存储引擎 (`local`, `s3`, `vercel-blob`)。 | `local` |
 | `BUCKET_PREFIX` | 文件上传后的路径前缀。 | `momei/` |
 | `NUXT_PUBLIC_MAX_UPLOAD_SIZE` | 最大允许上传的文件大小。 | `10MB` (默认 4.5MiB) |
+
+::: tip 提示
+如果你使用 Docker 部署并选择 `STORAGE_TYPE=local`，请务必挂载对应的上传目录（详见第 4.2 节），否则在容器重启或重新部署后，已上传的文件将会丢失。
+:::
 
 #### 2.4.1 S3 兼容存储 (STORAGE_TYPE=s3)
 
@@ -186,7 +190,9 @@ services:
             - NODE_ENV=production
             - AUTH_SECRET=your-secret-key
         volumes:
-            - ./data:/app/database # 持久化存储
+            - ./logs:/app/logs
+            - ./database:/app/database
+            - ./uploads:/app/public/uploads # 持久化存储上传的文件
 ```
 
 ---
