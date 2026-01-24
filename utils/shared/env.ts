@@ -1,6 +1,6 @@
-import { randomBytes } from 'node:crypto'
 import { ms } from 'ms'
 import { parse } from 'better-bytes'
+import { generateRandomString } from './random'
 
 /**
  * 基础配置
@@ -24,7 +24,7 @@ export const CONTACT_EMAIL = import.meta.env
 export const AUTH_SECRET =
     process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET || (
         (process.env.NODE_ENV === 'development' && import.meta.server)
-            ? randomBytes(32).toString('hex')
+            ? `dev_secret_${generateRandomString(32)}`
             : ''
     )
 
