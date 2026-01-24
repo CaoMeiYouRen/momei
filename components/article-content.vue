@@ -68,15 +68,21 @@ const renderedContent = computed(() => md.render(props.content || ''))
  * 初始化代码组 (Code Group) 的交互逻辑
  */
 const initCodeGroups = () => {
-    if (!articleRef.value || import.meta.server) { return }
+    if (!articleRef.value || import.meta.server) {
+        return
+    }
 
     const groups = articleRef.value.querySelectorAll('.code-group')
     groups.forEach((group) => {
         // 避重复初始化
-        if (group.querySelector('.code-group-tabs')) { return }
+        if (group.querySelector('.code-group-tabs')) {
+            return
+        }
 
         const preElements = group.querySelectorAll('pre')
-        if (preElements.length === 0) { return }
+        if (preElements.length === 0) {
+            return
+        }
 
         const tabsContainer = document.createElement('div')
         tabsContainer.className = 'code-group-tabs'

@@ -1,7 +1,6 @@
 import { betterAuth } from 'better-auth'
 import {
     username,
-    anonymous,
     magicLink,
     emailOTP,
     openAPI,
@@ -22,7 +21,6 @@ import { usernameValidator, validatePhone } from '@/utils/shared/validate'
 import { secondaryStorage } from '@/server/database/storage'
 import {
     EMAIL_EXPIRES_IN,
-    ANONYMOUS_EMAIL_DOMAIN_NAME,
     AUTH_SECRET,
     ADMIN_USER_IDS,
     GITHUB_CLIENT_ID,

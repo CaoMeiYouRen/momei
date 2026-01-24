@@ -8,7 +8,9 @@ import { sha256 } from '@/utils/shared/hash'
  * @param hashField 哈希存储字段名，默认为 'emailHash'
  */
 export async function processAuthorPrivacy(author: any, isAdmin: boolean, emailField = 'email', hashField = 'emailHash') {
-    if (!author) { return author }
+    if (!author) {
+        return author
+    }
 
     if (author[emailField]) {
         // 计算 SHA256 哈希用于 Gravatar
@@ -38,7 +40,9 @@ export async function processAuthorsPrivacy(
     emailField = 'email',
     hashField = 'emailHash',
 ) {
-    if (!items || items.length === 0) { return items }
+    if (!items || items.length === 0) {
+        return items
+    }
 
     for (const item of items) {
         const author = item[authorKey]

@@ -113,12 +113,7 @@ export function createMarkdownRenderer(mdOptions: MarkdownOptions = {}) {
         return defaultImageRender(tokens, idx, options, env, self)
     }
 
-    // 自定义代码块渲染逻辑，支持 [title]
-    const _defaultFenceRender = md.renderer.rules.fence || function (tokens: any, idx: number, options: any, _env: any, self: any) {
-        return self.renderToken(tokens, idx, options)
-    }
-
-    md.renderer.rules.fence = function (tokens, idx, options, env, self) {
+    md.renderer.rules.fence = function (tokens, idx, options, _env, _self) {
         const token = tokens[idx]
         if (!token) {
             return ''
