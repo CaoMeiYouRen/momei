@@ -396,7 +396,11 @@
     - 验收: 实现 `server/middleware` 中的数据上下文挂载，避免后续 handler 重复调用 `getSession`。
 - [ ] **头像系统优化**
     - 验收: 默认头像加载逻辑优化，优先使用 Gravatar，并确保在各种网络环境下的稳定性。
-
+- [x] **Copilot Hooks 集成**
+    - 验收: 配置 .github/hooks/momei.json。
+    - 验收: 实现安全拦截 (Secret, Dangerous Cmd)、规范拦截 (any, !important)。
+    - 验收: 实现自动 Lint 修复与会话总结日志。
+    
 ## 待规划与长期积压 (Backlog & Long-term Roadmap)
 
 此处列出已规划但未纳入当前阶段执行的任务，用于长期版本跟踪。
