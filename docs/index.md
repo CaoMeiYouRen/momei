@@ -38,7 +38,7 @@ features:
       link: /standards/planning
     - title: 开发指南
       details: 快速上手项目开发，掌握代码规范与最佳实践。
-      link: /guide/setup
+      link: /guide/development
     - title: AI 协同开发
       details: 现代开发者必备：了解如何指挥 AI 智能体配合 PDTFC+ 循环高效开发。
       link: /guide/ai-development

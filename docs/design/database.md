@@ -13,8 +13,14 @@ erDiagram
     User ||--o| TwoFactor : "has"
     User ||--o{ Post : "authors"
     User ||--o{ Comment : "writes"
+    User ||--o{ ApiKey : "has"
+    User ||--o{ Subscriber : "is associated with"
     Post }o--|| Category : "belongs to"
     Post }o--o{ Tag : "has"
+    Post ||--o{ Comment : "has"
+    Comment }o--o| User : "written by (optional)"
+    Comment }o--o| Comment : "reply to"
+    Category }o--o| Category : "has parent"
 
     User {
         string id PK
@@ -22,7 +28,11 @@ erDiagram
         string email
         boolean emailVerified
         string image
+        string username
         string role
+        boolean banned
+        string language
+        string timezone
         datetime createdAt
         datetime updatedAt
     }
@@ -60,8 +70,11 @@ erDiagram
 | `emailVerified` | boolean  | Yes  | No   | false       | 邮箱是否验证                       |
 | `image`         | text     | No   | No   | -           | 头像 URL                           |
 | `username`      | varchar  | No   | Yes  | -           | 用户名 (唯一标识)                  |
+| `isAnonymous`   | boolean  | No   | No   | false       | 是否为匿名用户                     |
 | `role`          | varchar  | No   | No   | 'user'      | 角色: admin, author, user          |
 | `banned`        | boolean  | No   | No   | false       | 是否被封禁                         |
+| `language`      | varchar  | No   | No   | -           | 用户语言偏好                       |
+| `timezone`      | varchar  | No   | No   | -           | 用户时区设置                       |
 | `createdAt`     | datetime | Yes  | No   | now()       | 创建时间                           |
 | `updatedAt`     | datetime | Yes  | No   | now()       | 更新时间                           |
 
@@ -139,7 +152,10 @@ _(待完善，后续迭代补充)_
 | `translationId` | varchar  | No   | 翻译组 ID (用于关联多语言版本)  |
 | `authorId`      | varchar  | Yes  | 作者 ID                         |
 | `categoryId`    | varchar  | No   | 分类 ID                         |
-| `status`        | varchar  | Yes  | 状态: published, draft, pending |
+| `status`        | varchar  | Yes  | 状态: published, draft, pending, rejected, hidden |
+| `visibility`    | varchar  | Yes  | 可见性: public, private, password, registered, subscriber |
+| `password`      | varchar  | No   | 访问密码 (当 visibility 为 password 时) |
+| `copyright`     | text     | No   | 版权声明                        |
 | `views`         | integer  | No   | 阅读量 (默认 0)                 |
 | `publishedAt`   | datetime | No   | 发布时间                        |
 | `createdAt`     | datetime | Yes  | 创建时间                        |
@@ -189,14 +205,36 @@ _(待完善，后续迭代补充)_
 | `likes` | integer | Yes | 0 | 点赞数 |
 | `createdAt` | datetime | Yes | now() | 创建时间 |
 | `updatedAt` | datetime | Yes | now() | 更新时间 |
+
+#### Subscriber (订阅者表)
+
+| 字段名 | 类型 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| `id` | varchar | Yes | (Snowflake) | 主键 |
+| `email` | varchar | Yes | - | 订阅邮箱 (唯一) |
+| `isActive` | boolean | Yes | true | 是否激活 |
+| `language` | varchar | Yes | 'zh-CN' | 语言偏好 |
+| `userId` | varchar | No | - | 关联用户 ID |
+| `createdAt` | datetime | Yes | now() | 注册时间 |
+
+#### Setting (设置表)
+
+| 字段名 | 类型 | 必填 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `key` | varchar | Yes | 键 (主键) |
+| `value` | text | No | 值 |
+| `description` | varchar | No | 描述 |
+| `updatedAt` | datetime | Yes | 最后更新时间 |
+
 ## 4. 索引策略 (Indexing Strategy)
 
 -   **User**: `email` (Unique), `username` (Unique)
 -   **Session**: `token` (Unique), `userId`
--   **Post**: `slug` (Unique), `authorId`, `createdAt` (用于排序)
--   **Category**: `slug` (Unique), `parentId`
--   **Tag**: `slug` (Unique), `name` (Unique)
--   **Post**: `slug` (Unique), `authorId`, `createdAt` (用于排序)
+-   **Post**: `(slug, language)` (Unique), `authorId`, `createdAt` (用于排序)
+-   **Category**: `(slug, language)` (Unique), `parentId`
+-   **Tag**: `(slug, language)` (Unique), `name`
+-   **Comment**: `postId`, `parentId`, `status`
+-   **Subscriber**: `email` (Unique)
 
 ## 5. 设计说明 (Design Notes)
 

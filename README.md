@@ -94,7 +94,7 @@
 
 - **如果你是开发者 (Human)**:
   - 🚀 **[现代 AI 开发指南](./docs/guide/ai-development.md)** - 了解如何指挥 AI 智能体完成 80% 的重复性任务。
-  - 🛠️ **[环境搭建 (传统方式)](./docs/guide/setup.md)** - 详细的本地环境配置与手动开发说明。
+  - 🛠️ **[环境搭建 (传统方式)](./docs/guide/development.md)** - 详细的本地环境配置与手动开发说明。
 - **如果你是 AI 代理 (AI Agent / LLM)**:
   - 📜 **[AGENTS.md](./AGENTS.md)** - 你的核心行为准则与身份定义。
   - 🗺️ **[项目地图](./docs/index.md)** - 快速建立项目上下文。

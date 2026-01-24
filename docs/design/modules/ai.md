@@ -59,17 +59,25 @@ AI_TEMPERATURE=0.7
 
 ## 4. 接口设计 (API Design)
 
-### 4.1 管理后台专用接口 (`/api/admin/ai/*`)
+### 4.1 AI 核心接口 (`/api/ai/*`)
 
--   `POST /api/admin/ai/suggest-titles`:
+所有 AI 接口均需经 `admin` 或 `author` 权限验证。
+
+-   `POST /api/ai/suggest-titles`:
     -   输入: `{ content: string }`
-    -   输出: `{ suggestions: string[] }`
--   `POST /api/admin/ai/translate`:
-    -   输入: `{ content: string, from: string, to: string, format: 'markdown' }`
-    -   输出: `{ translatedContent: string }`
--   `POST /api/admin/ai/summarize`:
-    -   输入: `{ content: string, maxLength: number }`
-    -   输出: `{ summary: string }`
+    -   输出: `{ data: string[] }`
+-   `POST /api/ai/suggest-slug`:
+    -   输入: `{ title: string }`
+    -   输出: `{ data: string }`
+-   `POST /api/ai/translate`:
+    -   输入: `{ text: string, targetLanguage: string, stream?: boolean }`
+    -   输出: `{ data: string }`
+-   `POST /api/ai/summarize`:
+    -   输入: `{ text: string, maxLength?: number }`
+    -   输出: `{ data: string }`
+-   `POST /api/ai/recommend-tags`:
+    -   输入: `{ content: string }`
+    -   输出: `{ data: string[] }`
 
 ## 5. 交互设计 (Interaction Design)
 

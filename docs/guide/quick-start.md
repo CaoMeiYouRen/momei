@@ -38,7 +38,7 @@ services:
             - NODE_ENV=production
             - AUTH_SECRET=your-random-secret-key # 生产环境必须配置
         volumes:
-            - ./data:/app/data # 持久化存储 SQLite 数据 (默认)
+            - ./data:/app/database # 持久化存储 SQLite 数据 (默认)
 ```
 
 然后运行：

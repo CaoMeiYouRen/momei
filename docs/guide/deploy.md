@@ -17,7 +17,6 @@
 
 - **数据库类型**: 自动根据 `DATABASE_URL` 的协议头（`mysql://`, `postgres://` 等）推断数据库类型。
 - **AI 助手**: 只要配置了 `AI_API_KEY`，相关功能（一键翻译、SEO 优化）会自动激活。
-- **对象存储**: 只要配置了 `S3_ACCESS_KEY_ID` 等必要参数，存储引擎会自动切换到 S3 模式。
 - **开发模式**: 在 `NODE_ENV=development` 下，`AUTH_SECRET` 会自动生成，数据库默认使用 SQLite，实现零配置开发。
 
 ---
@@ -32,6 +31,7 @@
 | :--- | :--- | :--- |
 | `DATABASE_URL` | 数据库连接地址。 | `sqlite:database/momei.sqlite` |
 | `DATABASE_SYNCHRONIZE` | 是否自动同步表结构。生产环境建议为 `false`。 | `false` |
+| `REDIS_URL` | Redis 连接地址 (可选，用于更高性能的缓存)。 | `redis://localhost:6379` |
 | `ADMIN_USER_IDS` | 管理员用户 ID 列表（逗号分隔）。 | `123123123,456456456` |
 | `NUXT_PUBLIC_DEMO_MODE` | 开启演示模式（数据不落盘）。 | `false` |
 
@@ -49,20 +49,100 @@
 | 变量名 | 说明 | 示例 |
 | :--- | :--- | :--- |
 | `EMAIL_HOST` | SMTP 服务器地址。 | `smtp.gmail.com` |
+| `EMAIL_PORT` | SMTP 服务器端口。 | `587` |
 | `EMAIL_USER` | SMTP 用户名。 | `user@example.com` |
 | `EMAIL_PASS` | SMTP 密码（应用专用密码）。 | `xxxx xxxx xxxx xxxx` |
+| `EMAIL_SECURE` | 是否使用 SSL/TLS。 | `false` |
+| `EMAIL_FROM` | 邮件发送者地址 (包含显示名称)。 | `Momei Blog <admin@example.com>` |
 
-### 2.4 对象存储 (S3 兼容)
+### 2.4 对象存储 (Storage)
+
+墨梅支持多种存储后端，默认为 `s3`。你可以通过 `STORAGE_TYPE` 进行切换。
+
+| 变量名 | 说明 | 默认值 / 示例 |
+| :--- | :--- | :--- |
+| `STORAGE_TYPE` | 存储引擎 (`local`, `s3`, `vercel-blob`)。 | `s3` |
+| `BUCKET_PREFIX` | 文件上传后的路径前缀。 | `momei/` |
+| `NUXT_PUBLIC_MAX_UPLOAD_SIZE` | 最大允许上传的文件大小。 | `10MB` (默认 4.5MiB) |
+
+#### 2.4.1 S3 兼容存储 (STORAGE_TYPE=s3)
+
+适用于 Cloudflare R2, AWS S3, MinIO 等。
 
 | 变量名 | 说明 | 示例 |
 | :--- | :--- | :--- |
-| `S3_BUCKET` | 存储桶名称。 | `momei-assets` |
-| `S3_ENDPOINT` | 存储节点地址。 | `https://r2.cloudflare.com` |
-| `S3_REGION` | 存储所在区域。 | `auto` |
+| `S3_REGION` | S3 区域（必填）。 | `auto` |
+| `S3_BUCKET_NAME` | 存储桶名称（必填）。 | `momei-assets` |
+| `S3_ACCESS_KEY_ID` | S3 Access Key（必填）。 | `xxxx...` |
+| `S3_SECRET_ACCESS_KEY` | S3 Secret Key（必填）。 | `xxxx...` |
+| `S3_ENDPOINT` | S3 兼容服务的端点（可选）。 | `https://<id>.r2.cloudflarestorage.com` |
+| `S3_BASE_URL` | 生成的公共访问 URL 前缀（可选）。 | `https://pub-xxxx.r2.dev` |
+
+#### 2.4.2 Vercel Blob 存储 (STORAGE_TYPE=vercel-blob)
+
+适用于部署在 Vercel 上的项目。
+
+| 变量名 | 说明 | 示例 |
+| :--- | :--- | :--- |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob 令牌。 | `vercel_blob_rw_...` |
+
+#### 2.4.3 本地存储 (STORAGE_TYPE=local)
+
+**注意**: 不支持 Serverless 环境（如 Vercel）。
+
+| 变量名 | 说明 | 默认值 / 示例 |
+| :--- | :--- | :--- |
+| `LOCAL_STORAGE_DIR` | 本地文件保存目录。 | `public/uploads` |
+| `LOCAL_STORAGE_BASE_URL` | 公开访问的基础 URL 路径。 | `/uploads` |
+| `LOCAL_STORAGE_MIN_FREE_SPACE` | 磁盘最小剩余空间（阻止写入）。 | `100MiB` |
 
 ---
 
-## 3. 数据库部署建议
+## 3. 站点与合规配置
+
+### 3.1 基础站点配置
+
+| 变量名 | 说明 | 默认值 / 示例 |
+| :--- | :--- | :--- |
+| `NUXT_PUBLIC_SITE_URL` | 站点正式 URL。 | `https://momei.app` |
+| `NUXT_PUBLIC_AUTH_BASE_URL` | 认证系统的 API 基础路径。 | `https://momei.app/api/auth` |
+| `NUXT_PUBLIC_APP_NAME` | 站点名称。 | `墨梅博客` |
+| `NUXT_PUBLIC_SITE_OPERATOR` | 站点运营商/所有者。 | `墨梅团队` |
+| `NUXT_PUBLIC_CONTACT_EMAIL` | 联系邮箱。 | `admin@example.com` |
+| `NUXT_PUBLIC_DEFAULT_COPYRIGHT` | 默认版权声明类型。 | `all-rights-reserved`, `cc-by-nc-sa` |
+
+### 3.2 备案与合规
+
+| 变量名 | 说明 | 默认值 / 示例 |
+| :--- | :--- | :--- |
+| `NUXT_PUBLIC_SHOW_COMPLIANCE_INFO` | 是否显示备案信息。 | `false` |
+| `NUXT_PUBLIC_ICP_LICENSE_NUMBER` | ICP 备案号。 | `粤ICP备xxxxxxxx号` |
+| `NUXT_PUBLIC_PUBLIC_SECURITY_NUMBER` | 公安备案号。 | `粤公网安备 xxxxxxxxxxxxxx号` |
+| `NUXT_PUBLIC_SECURITY_URL_WHITELIST` | 外部资源 URL 域名白名单（逗号分隔）。 | `images.unsplash.com,i.imgur.com` |
+
+### 3.3 分析与监控
+
+| 变量名 | 说明 | 示例 |
+| :--- | :--- | :--- |
+| `NUXT_PUBLIC_SENTRY_DSN` | Sentry DSN。 | `https://xxx@sentry.io/xxx` |
+| `NUXT_PUBLIC_SENTRY_ENVIRONMENT` | Sentry 环境名称。 | `production`, `staging` |
+| `NUXT_PUBLIC_BAIDU_ANALYTICS_ID` | 百度统计 ID。 | `xxxxxxxx` |
+| `NUXT_PUBLIC_GOOGLE_ANALYTICS_ID` | Google Analytics ID。 | `G-xxxxxxxx` |
+| `NUXT_PUBLIC_CLARITY_PROJECT_ID` | Microsoft Clarity 项目 ID。 | `xxxxxxxx` |
+
+### 3.4 验证码 (Captcha)
+
+墨梅支持多种验证码提供商，用于增强安全性（如登录、注册、评论）。
+
+| 变量名 | 说明 | 示例 |
+| :--- | :--- | :--- |
+| `NUXT_PUBLIC_AUTH_CAPTCHA_PROVIDER` | 验证码提供商。 | `cloudflare-turnstile`, `google-recaptcha`, `hcaptcha` |
+| `NUXT_PUBLIC_AUTH_CAPTCHA_SITE_KEY` | 验证码站点密钥 (公开)。 | `xxxx...` |
+| `AUTH_CAPTCHA_SECRET_KEY` | 验证码秘密密钥 (私有)。 | `xxxx...` |
+
+---
+
+## 4. 数据库部署建议
 
 ### 3.1 SQLite (默认方案)
 
