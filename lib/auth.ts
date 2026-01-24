@@ -37,7 +37,8 @@ import {
     AUTH_CAPTCHA_SECRET_KEY,
 } from '@/utils/shared/env'
 import { Subscriber } from '@/server/entities/subscriber'
-import type { User } from '@/server/entities/user'
+import { User } from '@/server/entities/user'
+import logger from '@/server/utils/logger'
 import { getTempEmail, getTempName } from '@/server/utils/auth-generators'
 import { emailService } from '@/server/utils/email/service'
 import { getUserLocale } from '@/server/utils/locale'
@@ -51,6 +52,27 @@ export const auth = betterAuth({
     databaseHooks: {
         user: {
             create: {
+                before: async (user) => {
+                    // 如果数据库中没有用户，则将第一个注册的用户设为管理员
+                    try {
+                        const userRepo = dataSource.getRepository(User)
+                        const count = await userRepo.count()
+                        if (count === 0) {
+                            user.role = 'admin'
+                            logger.info(
+                                `First user registration: ${user.email} assigned role 'admin'`,
+                            )
+                        }
+                    } catch (error) {
+                        logger.error(
+                            'Failed to check user count during registration:',
+                            error,
+                        )
+                    }
+                    return {
+                        data: user,
+                    }
+                },
                 after: async (user) => {
                     // 当新用户注册后，尝试回溯并关联订阅记录
                     try {
