@@ -15,6 +15,11 @@ export const AUTH_BASE_URL =
     process.env.NUXT_PUBLIC_AUTH_BASE_URL
     || (import.meta.env.NUXT_PUBLIC_AUTH_BASE_URL as string)
     || ''
+// 站点基础 URL
+export const SITE_URL =
+    process.env.NUXT_PUBLIC_SITE_URL
+    || (import.meta.env.NUXT_PUBLIC_SITE_URL as string)
+    || 'http://localhost:3000'
 // 联系邮箱
 export const CONTACT_EMAIL = import.meta.env
     .NUXT_PUBLIC_CONTACT_EMAIL as string
@@ -222,10 +227,14 @@ export const STORAGE_TYPE = process.env.STORAGE_TYPE || 's3'
 // 本地存储目录
 export const LOCAL_STORAGE_DIR = process.env.LOCAL_STORAGE_DIR || 'public/uploads'
 // 本地存储基础 URL
-export const LOCAL_STORAGE_BASE_URL =
+const rawLocalStorageBaseUrl =
     process.env.NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL
     || (import.meta.env.NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL as string)
     || '/uploads'
+// 如果是完整的 URL 则直接使用 (支持动静分离)，否则拼接到 SITE_URL 之后
+export const LOCAL_STORAGE_BASE_URL = rawLocalStorageBaseUrl.startsWith('http')
+    ? rawLocalStorageBaseUrl
+    : `${SITE_URL.replace(/\/+$/, '')}/${rawLocalStorageBaseUrl.replace(/^\/+/, '')}`
 // 本地存储最小剩余空间 (字节)，默认 100MiB
 export const LOCAL_STORAGE_MIN_FREE_SPACE = process.env.LOCAL_STORAGE_MIN_FREE_SPACE
     ? Number(parse(process.env.LOCAL_STORAGE_MIN_FREE_SPACE))

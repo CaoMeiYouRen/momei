@@ -11,6 +11,9 @@ import {
     UPLOAD_DAILY_LIMIT,
     UPLOAD_SINGLE_USER_DAILY_LIMIT,
     STORAGE_TYPE,
+    LOCAL_STORAGE_DIR,
+    LOCAL_STORAGE_BASE_URL,
+    LOCAL_STORAGE_MIN_FREE_SPACE,
 } from '@/utils/shared/env'
 
 export interface UploadOptions {
@@ -69,7 +72,12 @@ export async function handleFileUploads(event: H3Event, options: UploadOptions):
         throw createError({ statusCode: 400, statusMessage: `最多允许同时上传 ${maxFiles} 个文件` })
     }
 
-    const storage = getFileStorage(STORAGE_TYPE, process.env as unknown as FileStorageEnv)
+    const storage = getFileStorage(STORAGE_TYPE, {
+        ...process.env,
+        LOCAL_STORAGE_DIR,
+        LOCAL_STORAGE_BASE_URL,
+        LOCAL_STORAGE_MIN_FREE_SPACE,
+    } as unknown as FileStorageEnv)
     const uploadedFiles: UploadedFile[] = []
 
     for (const file of files) {

@@ -85,4 +85,22 @@ describe('LocalStorage', () => {
         expect(result.url).toBe('/uploads/sub/dir/test.jpg')
         expect(fs.mkdir).toHaveBeenCalledWith(expect.stringContaining(path.join('public/uploads', 'sub/dir')), { recursive: true })
     })
+
+    it('should support absolute URL for static/dynamic separation', async () => {
+        const absoluteEnv = {
+            ...mockEnv,
+            LOCAL_STORAGE_BASE_URL: 'https://cdn.example.com/uploads',
+        }
+        const storage = new LocalStorage(absoluteEnv)
+        const filename = 'test.jpg'
+
+        vi.mocked(fs.statfs).mockResolvedValue({
+            bavail: 1000,
+            bsize: 1024 * 1024,
+        } as any)
+
+        const result = await storage.upload(Buffer.from(''), filename, 'image/jpeg')
+
+        expect(result.url).toBe('https://cdn.example.com/uploads/test.jpg')
+    })
 })

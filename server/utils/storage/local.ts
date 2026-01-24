@@ -86,8 +86,20 @@ export class LocalStorage implements Storage {
         await fs.writeFile(fullPath, buffer)
 
         // 5. 生成可访问 URL
-        // 拼接基础 URL 和文件名，确保使用正斜杠
-        const webPath = path.posix.join(this.env.LOCAL_STORAGE_BASE_URL, filename.replace(/\\/g, '/'))
+        // 确保使用正斜杠并拼接。由于 base 可能已经是带协议的完整 URL，建议确保以斜杠结尾后使用 URL 类拼接
+        const normalizedFilename = filename.replace(/\\/g, '/')
+
+        // 如果配置的是完整 URL (支持动静分离)
+        if (this.env.LOCAL_STORAGE_BASE_URL.startsWith('http')) {
+            const baseUrl = this.env.LOCAL_STORAGE_BASE_URL.endsWith('/')
+                ? this.env.LOCAL_STORAGE_BASE_URL
+                : `${this.env.LOCAL_STORAGE_BASE_URL}/`
+
+            return { url: new URL(normalizedFilename, baseUrl).toString() }
+        }
+
+        // 默认行为：拼接基础路径 (通常为 /uploads)
+        const webPath = path.posix.join(this.env.LOCAL_STORAGE_BASE_URL, normalizedFilename)
 
         return { url: webPath }
     }
