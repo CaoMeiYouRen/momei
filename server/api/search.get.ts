@@ -4,6 +4,8 @@ import { Post } from '@/server/entities/post'
 import { searchQuerySchema } from '@/utils/schemas/search'
 import { success, paginate } from '@/server/utils/response'
 import { applyPagination } from '@/server/utils/pagination'
+import { processAuthorsPrivacy } from '@/server/utils/author'
+import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => searchQuerySchema.parse(q))
@@ -11,7 +13,7 @@ export default defineEventHandler(async (event) => {
     const postRepo = dataSource.getRepository(Post)
     const qb = postRepo.createQueryBuilder('post')
         .leftJoin('post.author', 'author')
-        .addSelect(['author.id', 'author.name', 'author.image'])
+        .addSelect(['author.id', 'author.name', 'author.image', 'author.email'])
         .leftJoinAndSelect('post.category', 'category')
         .leftJoinAndSelect('post.tags', 'tags')
         .where('post.status = :status', { status: 'published' })
@@ -104,6 +106,11 @@ export default defineEventHandler(async (event) => {
     applyPagination(qb, query)
 
     const [items, total] = await qb.getManyAndCount()
+
+    // 处理作者哈希并保护隐私
+    const session = event.context?.auth
+    const isUserAdmin = session?.user && isAdmin(session.user.role)
+    await processAuthorsPrivacy(items, !!isUserAdmin)
 
     return success(paginate(items, total, query.page, query.limit))
 })

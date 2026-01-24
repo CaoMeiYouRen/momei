@@ -3,7 +3,7 @@ import { dataSource } from '@/server/database'
 import { Comment } from '@/server/entities/comment'
 import { Post } from '@/server/entities/post'
 import { CommentStatus } from '@/types/comment'
-import { sha256 } from '@/utils/shared/hash'
+import { processAuthorPrivacy } from '@/server/utils/author'
 
 /**
  * 评论服务
@@ -116,14 +116,11 @@ export const commentService = {
         for (const comment of comments) {
             const item = { ...comment, replies: [] } as any
 
-            // 计算邮箱哈希用于头像展示 (SHA256)
-            if (comment.authorEmail) {
-                item.authorEmailHash = await sha256(comment.authorEmail)
-            }
+            // 处理作者隐私及哈希 (SHA256)
+            await processAuthorPrivacy(item, isAdmin, 'authorEmail', 'authorEmailHash')
 
-            // 隐私保护：非管理员隐藏 Email, IP 和 UserAgent
+            // 隐私保护：非管理员隐藏 IP 和 UserAgent
             if (!isAdmin) {
-                delete item.authorEmail
                 delete item.ip
                 delete item.userAgent
             }

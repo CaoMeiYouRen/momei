@@ -1,7 +1,7 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
+import { processAuthorPrivacy } from '@/server/utils/author'
 import { checkPostAccess } from '@/server/utils/post-access'
-import { sha256 } from '@/utils/shared/hash'
 import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
@@ -10,7 +10,8 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'ID required' })
     }
 
-    const session = event.context.auth
+    const session = event.context?.auth
+    const isUserAdmin = session?.user && isAdmin(session.user.role)
 
     const postRepo = dataSource.getRepository(Post)
     const qb = postRepo.createQueryBuilder('post')
@@ -28,13 +29,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // 处理作者哈希并保护隐私
-    if (post.author?.email) {
-        (post.author as any).emailHash = await sha256(post.author.email)
-        const isUserAdmin = session?.user && isAdmin(session.user.role)
-        if (!isUserAdmin) {
-            delete (post.author as any).email
-        }
-    }
+    await processAuthorPrivacy(post.author, !!isUserAdmin)
 
     // Handle Access Control
     const unlockedIds = (getCookie(event, 'momei_unlocked_posts') || '').split(',')

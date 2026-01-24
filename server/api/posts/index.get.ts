@@ -6,6 +6,7 @@ import { success, paginate } from '@/server/utils/response'
 import { applyPagination } from '@/server/utils/pagination'
 import { isAdmin } from '@/utils/shared/roles'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
+import { processAuthorsPrivacy } from '@/server/utils/author'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(q))
@@ -19,7 +20,7 @@ export default defineEventHandler(async (event) => {
     const postRepo = dataSource.getRepository(Post)
     const qb = postRepo.createQueryBuilder('post')
         .leftJoin('post.author', 'author')
-        .addSelect(['author.id', 'author.name', 'author.image'])
+        .addSelect(['author.id', 'author.name', 'author.image', 'author.email'])
         .leftJoinAndSelect('post.category', 'category')
         .leftJoinAndSelect('post.tags', 'tags')
 
@@ -139,6 +140,10 @@ export default defineEventHandler(async (event) => {
     applyPagination(qb, query)
 
     const [items, total] = await qb.getManyAndCount()
+
+    // 处理作者哈希并保护隐私
+    const isUserAdmin = user && isAdmin(user.role)
+    await processAuthorsPrivacy(items, !!isUserAdmin)
 
     // Attach translation information for management mode
     if (query.scope === 'manage' && items.length > 0) {

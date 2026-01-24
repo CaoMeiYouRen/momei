@@ -3,11 +3,13 @@ import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { archiveQuerySchema } from '@/utils/schemas/post'
 import { success, paginate } from '@/server/utils/response'
+import { processAuthorsPrivacy } from '@/server/utils/author'
+import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => archiveQuerySchema.parse(q))
 
-    const session = event.context.auth
+    const session = event.context?.auth
 
     const postRepo = dataSource.getRepository(Post)
 
@@ -126,7 +128,7 @@ export default defineEventHandler(async (event) => {
     // Fetch posts for specific year/month with pagination
     const postsQb = postRepo.createQueryBuilder('post')
         .leftJoin('post.author', 'author')
-        .addSelect(['author.id', 'author.name', 'author.image'])
+        .addSelect(['author.id', 'author.name', 'author.image', 'author.email'])
         .leftJoinAndSelect('post.category', 'category')
         .leftJoinAndSelect('post.tags', 'tags')
 
@@ -147,6 +149,9 @@ export default defineEventHandler(async (event) => {
 
     const [items, total] = await postsQb.getManyAndCount()
 
+    // 处理作者哈希并保护隐私
+    const isUserAdmin = session?.user && isAdmin(session.user.role)
+    await processAuthorsPrivacy(items, !!isUserAdmin)
 
     event.node.res.setHeader('Cache-Control', 'public, max-age=60')
 

@@ -10,6 +10,8 @@
                 :email-hash="comment.authorEmailHash"
                 :name="comment.authorName"
                 class="comment-item__avatar-img"
+                loading="lazy"
+                decoding="async"
             />
         </div>
 

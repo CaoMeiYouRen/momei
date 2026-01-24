@@ -1,7 +1,9 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { PostStatus } from '@/types/post'
+import { processAuthorPrivacy } from '@/server/utils/author'
 import { checkPostAccess } from '@/server/utils/post-access'
+import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
     const slug = getRouterParam(event, 'slug')
@@ -12,12 +14,13 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'Slug required' })
     }
 
-    const session = event.context.auth
+    const session = event.context?.auth
+    const isUserAdmin = session?.user && isAdmin(session.user.role)
 
     const postRepo = dataSource.getRepository(Post)
     const qb = postRepo.createQueryBuilder('post')
         .leftJoin('post.author', 'author')
-        .addSelect(['author.id', 'author.name', 'author.image'])
+        .addSelect(['author.id', 'author.name', 'author.image', 'author.email'])
         .leftJoinAndSelect('post.category', 'category')
         .leftJoinAndSelect('post.tags', 'tags')
 
@@ -32,6 +35,9 @@ export default defineEventHandler(async (event) => {
     if (!post) {
         throw createError({ statusCode: 404, statusMessage: 'Post not found' })
     }
+
+    // 处理作者哈希并保护隐私
+    await processAuthorPrivacy(post.author, !!isUserAdmin)
 
     // Handle Access Control
     const unlockedIds = (getCookie(event, 'momei_unlocked_posts') || '').split(',')

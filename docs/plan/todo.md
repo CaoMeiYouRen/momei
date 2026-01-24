@@ -329,10 +329,6 @@
 
 ### 4. 高级 AI 创作流 (Advanced AI Creative Flow)
 
-- [ ] **灵感引擎 (Inspiration Engine)**
-    - 验收: 实现“灵感记事 (Snippets)” 实体与基础 CRUD，用于收集碎片化想法。
-    - 验收: 提供专属 API Endpoint，支持通过 iOS快捷指令/Telegram Bot/Webhook 进行移动端快捕。
-    - 验收: 管理后台支持“灵感转文章”一键转换工作流。
 - [ ] **脚手架式写作助手 (Scaffold Assistant)**
     - 验收: 实现“智能大纲生成”，基于灵感片段生成 3-5 个逻辑章节建议。
     - 验收: 实现“内容润色 (Polishing)”，支持针对选定文本进行风格化改写（专业、幽默、严谨）。
@@ -450,6 +446,10 @@
 ### 7. 其他优化项
 - [ ] **Hexo 一键迁移脚本**
     - 验收: 提供独立的 CLI 工具或 API 接口，解析 Hexo 的 Markdown Front-matter 并批量导入。
+- [ ] **AI 灵感引擎 (Inspiration Engine)**
+    - 验收: 实现“灵感记事 (Snippets)” 实体与基础 CRUD，用于收集碎片化想法。
+    - 验收: 提供专属 API Endpoint，支持通过 iOS快捷指令/Telegram Bot/Webhook 进行移动端快捕。
+    - 验收: 管理后台支持“灵感转文章”一键转换工作流。
 
 ## 相关文档
 

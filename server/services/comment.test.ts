@@ -142,13 +142,13 @@ describe('commentService', () => {
     })
 
     describe('buildCommentTree', () => {
-        it('should correctly nest replies and strip private info for non-admins', () => {
+        it('should correctly nest replies and strip private info for non-admins', async () => {
             const comments = [
                 { id: '1', parentId: null, authorEmail: '1@test.com', ip: '1.1.1.1' },
                 { id: '2', parentId: '1', authorEmail: '2@test.com', ip: '2.2.2.2' },
             ] as any
 
-            const tree = commentService.buildCommentTree(comments, false)
+            const tree = await commentService.buildCommentTree(comments, false)
 
             expect(tree).toHaveLength(1)
             expect(tree[0].id).toBe('1')
