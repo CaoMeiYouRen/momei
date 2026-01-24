@@ -223,7 +223,9 @@
                 "AUTH_REQUIRED": "仅限登录可见",
                 "AUTH_REQUIRED_desc": "本文章仅限注册用户访问，请先登录后再继续阅读。",
                 "SUBSCRIPTION_REQUIRED": "仅限订阅者访问",
-                "SUBSCRIPTION_REQUIRED_desc": "本文章仅限邮件订阅者访问，请订阅后再继续阅读。"
+                "SUBSCRIPTION_REQUIRED_desc": "本文章仅限邮件订阅者访问，请订阅后再继续阅读。",
+                "PRIVATE": "内容为私有",
+                "PRIVATE_desc": "您没有权限访问此私有文章。"
             }
         },
         "user_agreement": {

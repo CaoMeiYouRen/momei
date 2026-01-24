@@ -169,7 +169,7 @@
                                 </p>
 
                                 <!-- Password Input -->
-                                <div v-if="post.reason === 'password'" class="post-detail__unlock-form">
+                                <div v-if="post.reason === 'PASSWORD_REQUIRED'" class="post-detail__unlock-form">
                                     <div class="flex gap-2 w-full">
                                         <InputText
                                             v-model="password"
@@ -192,12 +192,12 @@
                                 <!-- Auth/Subscription Redirects -->
                                 <div v-else class="post-detail__unlock-actions">
                                     <Button
-                                        v-if="post.reason === 'registered'"
+                                        v-if="post.reason === 'AUTH_REQUIRED'"
                                         :label="$t('pages.posts.login_to_read')"
                                         icon="pi pi-user"
                                         @click="navigateTo(localePath('/login'))"
                                     />
-                                    <div v-if="post.reason === 'subscriber'" class="w-full">
+                                    <div v-if="post.reason === 'SUBSCRIPTION_REQUIRED'" class="w-full">
                                         <SubscriberForm />
                                     </div>
                                 </div>

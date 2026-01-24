@@ -224,7 +224,9 @@
                 "AUTH_REQUIRED": "Login Required",
                 "AUTH_REQUIRED_desc": "This article is restricted to registered users. Please login to continue reading.",
                 "SUBSCRIPTION_REQUIRED": "Subscribers Only",
-                "SUBSCRIPTION_REQUIRED_desc": "This article is restricted to email subscribers. Please subscribe to continue reading."
+                "SUBSCRIPTION_REQUIRED_desc": "This article is restricted to email subscribers. Please subscribe to continue reading.",
+                "PRIVATE": "Private Content",
+                "PRIVATE_desc": "You do not have permission to access this private article."
             }
         },
         "user_agreement": {
