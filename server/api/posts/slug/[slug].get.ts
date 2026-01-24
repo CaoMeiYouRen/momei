@@ -1,6 +1,5 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
-import { auth } from '@/lib/auth'
 import { PostStatus } from '@/types/post'
 import { checkPostAccess } from '@/server/utils/post-access'
 
@@ -13,9 +12,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'Slug required' })
     }
 
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
+    const session = event.context.auth
 
     const postRepo = dataSource.getRepository(Post)
     const qb = postRepo.createQueryBuilder('post')

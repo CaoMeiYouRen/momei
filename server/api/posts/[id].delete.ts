@@ -1,15 +1,12 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
-import { auth } from '@/lib/auth'
 import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
+    const user = event.context.user
 
-    if (!session || !session.user) {
+    if (!user) {
         throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
     }
 
@@ -21,8 +18,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // Permission check
-    const isAuthor = session.user.id === post.authorId
-    const isUserAdmin = isAdmin(session.user.role)
+    const isAuthor = user.id === post.authorId
+    const isUserAdmin = isAdmin(user.role)
     if (!isAuthor && !isUserAdmin) {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }

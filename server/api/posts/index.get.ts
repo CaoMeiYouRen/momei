@@ -1,7 +1,6 @@
 import { In, Brackets, type WhereExpressionBuilder, type SelectQueryBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
-import { auth } from '@/lib/auth'
 import { postQuerySchema } from '@/utils/schemas/post'
 import { success, paginate } from '@/server/utils/response'
 import { applyPagination } from '@/server/utils/pagination'
@@ -9,9 +8,8 @@ import { isAdmin, isAdminOrAuthor } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(q))
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
+    const user = event.context.user
+    const session = event.context.auth
 
     const postRepo = dataSource.getRepository(Post)
     const qb = postRepo.createQueryBuilder('post')
@@ -27,11 +25,11 @@ export default defineEventHandler(async (event) => {
             .groupBy('COALESCE(p2.translationId, CAST(p2.id AS VARCHAR))')
 
         // Apply same primary filters to subquery to ensure consistency
-        if (!session || !session.user) {
+        if (!user) {
             throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
         }
-        if (!isAdmin(session.user.role)) {
-            subQuery.andWhere('p2.authorId = :currentUserId', { currentUserId: session.user.id })
+        if (!isAdmin(user.role)) {
+            subQuery.andWhere('p2.authorId = :currentUserId', { currentUserId: user.id })
         } else if (query.authorId) {
             subQuery.andWhere('p2.authorId = :authorId', { authorId: query.authorId })
         }
@@ -43,22 +41,22 @@ export default defineEventHandler(async (event) => {
 
     if (query.scope === 'manage') {
         // Management Mode
-        if (!session || !session.user) {
+        if (!user) {
             throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
         }
 
-        if (!isAdminOrAuthor(session.user.role)) {
+        if (!isAdminOrAuthor(user.role)) {
             throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
         }
 
-        if (isAdmin(session.user.role)) {
+        if (isAdmin(user.role)) {
             // Admins can filter by authorId or see all
             if (query.authorId) {
                 qb.andWhere('post.authorId = :authorId', { authorId: query.authorId })
             }
         } else {
             // Authors only see their own posts
-            qb.andWhere('post.authorId = :currentUserId', { currentUserId: session.user.id })
+            qb.andWhere('post.authorId = :currentUserId', { currentUserId: user.id })
         }
 
         // Status filtering

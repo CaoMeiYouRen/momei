@@ -1,6 +1,5 @@
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
-import { auth } from '@/lib/auth'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -8,11 +7,9 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'ID is required' })
     }
 
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
+    const user = event.context.user
 
-    if (!session || session.user.role !== 'admin') {
+    if (!user || user.role !== 'admin') {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 

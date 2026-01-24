@@ -1,4 +1,3 @@
-import { auth } from '@/lib/auth'
 import { tagUpdateSchema } from '@/utils/schemas/tag'
 import { updateTag } from '@/server/services/tag'
 
@@ -8,11 +7,9 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'ID is required' })
     }
 
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
+    const user = event.context.user
 
-    if (!session || session.user.role !== 'admin') {
+    if (!user || user.role !== 'admin') {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 

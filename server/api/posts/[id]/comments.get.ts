@@ -1,5 +1,4 @@
 import { commentService } from '@/server/services/comment'
-import { auth } from '@/lib/auth'
 import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
@@ -8,9 +7,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'Post ID required' })
     }
 
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
+    const session = event.context.auth
 
     const isUserAdmin = session?.user && isAdmin(session.user.role)
 

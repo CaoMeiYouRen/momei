@@ -1,16 +1,15 @@
-import { auth } from '@/lib/auth'
 import { dataSource } from '@/server/database'
 import { ApiKey } from '@/server/entities/api-key'
 
 export default defineEventHandler(async (event) => {
-    const session = await auth.api.getSession({ headers: event.headers })
-    if (!session || !session.user) {
+    const user = event.context.user
+    if (!user) {
         throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
     }
 
     const repo = dataSource.getRepository(ApiKey)
     const keys = await repo.find({
-        where: { userId: session.user.id },
+        where: { userId: user.id },
         order: { createdAt: 'DESC' },
     })
 

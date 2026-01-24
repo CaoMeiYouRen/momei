@@ -2,20 +2,18 @@ import { auth } from '@/lib/auth'
 import { checkUploadLimits, handleFileUploads } from '@/server/services/upload'
 
 export default defineEventHandler(async (event) => {
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
+    const user = event.context.user
 
-    if (!session || !session.user) {
+    if (!user) {
         throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
     }
 
     // 1. 检查上传限制
-    await checkUploadLimits(session.user.id)
+    await checkUploadLimits(user.id)
 
     // 2. 执行上传 (仅允许 1 个文件，且必须是图片)
     const uploadedFiles = await handleFileUploads(event, {
-        prefix: `avatars/${session.user.id}/`,
+        prefix: `avatars/${user.id}/`,
         maxFiles: 1,
         mustBeImage: true,
     })

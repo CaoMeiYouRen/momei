@@ -1,14 +1,13 @@
 import { Brackets, type SelectQueryBuilder, type WhereExpressionBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
-import { auth } from '@/lib/auth'
 import { archiveQuerySchema } from '@/utils/schemas/post'
 import { success, paginate } from '@/server/utils/response'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => archiveQuerySchema.parse(q))
 
-    const session = await auth.api.getSession({ headers: event.headers })
+    const session = event.context.auth
 
     const postRepo = dataSource.getRepository(Post)
 
@@ -57,7 +56,8 @@ export default defineEventHandler(async (event) => {
         if (!session || !session.user) {
             throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
         }
-        const role = session.user.role
+        const user = session.user
+        const role = user.role
         if (role !== 'admin' && role !== 'author') {
             throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
         }

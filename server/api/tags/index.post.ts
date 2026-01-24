@@ -1,19 +1,16 @@
-import { auth } from '@/lib/auth'
 import { tagBodySchema } from '@/utils/schemas/tag'
 import { isAdminOrAuthor } from '@/utils/shared/roles'
 import { createTag } from '@/server/services/tag'
 
 export default defineEventHandler(async (event) => {
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
+    const user = event.context.user
 
-    if (!session || !session.user) {
+    if (!user) {
         throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
     }
 
     // Admin and Author can create tags
-    if (!isAdminOrAuthor(session.user.role)) {
+    if (!isAdminOrAuthor(user.role)) {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 

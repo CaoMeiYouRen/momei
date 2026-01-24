@@ -1,6 +1,5 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
-import { auth } from '@/lib/auth'
 import { updatePostStatusSchema } from '@/utils/schemas/post'
 import { isAdmin as checkIsAdmin } from '@/utils/shared/roles'
 import { POST_STATUS_TRANSITIONS, PostStatus } from '@/types/post'
@@ -8,11 +7,9 @@ import { POST_STATUS_TRANSITIONS, PostStatus } from '@/types/post'
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
     const body = await readValidatedBody(event, (b) => updatePostStatusSchema.parse(b))
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
+    const user = event.context.user
 
-    if (!session || !session.user) {
+    if (!user) {
         throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
     }
 
@@ -24,8 +21,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // Permission check
-    const isAuthor = session.user.id === post.authorId
-    const isAdmin = checkIsAdmin(session.user.role)
+    const isAuthor = user.id === post.authorId
+    const isAdmin = checkIsAdmin(user.role)
 
     if (!isAuthor && !isAdmin) {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })

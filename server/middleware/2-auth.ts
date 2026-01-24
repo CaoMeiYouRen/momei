@@ -7,6 +7,10 @@ export default defineEventHandler(async (event) => {
         headers: event.headers,
     })
 
+    // 挂载到上下文以便后续处理程序使用
+    event.context.auth = session
+    event.context.user = session?.user
+
     const { pathname: path } = getRequestURL(event)
 
     // 白名单路径

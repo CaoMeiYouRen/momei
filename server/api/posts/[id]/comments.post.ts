@@ -1,5 +1,4 @@
 import { commentService } from '@/server/services/comment'
-import { auth } from '@/lib/auth'
 
 export default defineEventHandler(async (event) => {
     const postId = getRouterParam(event, 'id')
@@ -8,9 +7,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody(event)
-    const session = await auth.api.getSession({
-        headers: event.headers,
-    })
+    const session = event.context.auth
 
     const commentData: any = {
         postId,
