@@ -1,126 +1,145 @@
 @use "./variables" as *;
 
-@layer momei-overrides {
-    .driver-popover {
-        background-color: $onboarding-bg;
-        color: $onboarding-text;
-        border-radius: $border-radius-md;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        border: 1px solid $onboarding-border;
-        padding: $spacing-md;
-        font-family: var(--p-font-family, inherit);
+// 引导提示样式 - 移除 @layer 以确保优先级高于未分层的 driver.css
+body .driver-popover {
+    background-color: $onboarding-bg;
+    color: $onboarding-text;
+    border-radius: $border-radius-md;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border: 1px solid $onboarding-border;
+    padding: $spacing-md;
+    font-family: var(--p-font-family, inherit);
 
-        .driver-popover-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: $spacing-sm;
-            color: $color-text;
+    .driver-popover-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: $spacing-sm;
+        color: $color-text;
+    }
+
+    .driver-popover-description {
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: $color-text-muted;
+    }
+
+    .driver-popover-footer {
+        margin-top: $spacing-md;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-sm;
+    }
+
+    .driver-popover-progress-text {
+        font-size: 0.75rem;
+        color: $color-text-muted;
+    }
+
+    // 按钮通用样式
+    .driver-popover-next-btn,
+    .driver-popover-prev-btn,
+    .driver-popover-close-btn {
+        text-shadow: none;
+        background-color: $onboarding-btn-bg;
+        color: $onboarding-btn-color;
+        border: 1px solid transparent;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        border-radius: $border-radius-sm;
+        transition: all 0.2s;
+        cursor: pointer;
+        font-weight: 500;
+
+        &:hover {
+            background-color: $onboarding-btn-hover;
+            transform: translateY(-1px);
         }
 
-        .driver-popover-description {
-            font-size: 0.875rem;
-            line-height: 1.5;
-            color: $color-text-muted;
+        &:active {
+            transform: translateY(0);
         }
 
-        .driver-popover-footer {
-            margin-top: $spacing-md;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: $spacing-sm;
+        &.driver-popover-next-btn {
+            order: 2;
         }
 
-        .driver-popover-progress-text {
-            font-size: 0.75rem;
-            color: $color-text-muted;
-        }
-
-        // 按钮通用样式 - 移除 !important，依赖 @layer momei-overrides 覆盖 driver.css
-        .driver-popover-next-btn,
-        .driver-popover-prev-btn,
-        .driver-popover-close-btn {
-            text-shadow: none;
-            background-color: $onboarding-btn-bg;
-            color: $onboarding-btn-color;
-            border: 1px solid transparent;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            border-radius: $border-radius-sm;
-            transition: all 0.2s;
-            cursor: pointer;
-            font-weight: 500;
+        &.driver-popover-prev-btn {
+            order: 1;
+            background-color: $color-surface-100;
+            color: $color-surface-700;
+            border: 1px solid $color-surface-200;
 
             &:hover {
-                background-color: $onboarding-btn-hover;
-                transform: translateY(-1px);
-            }
-
-            &:active {
-                transform: translateY(0);
-            }
-
-            &.driver-popover-next-btn {
-                order: 2;
-            }
-
-            &.driver-popover-prev-btn {
-                order: 1;
-                background-color: $color-surface-100;
-                color: $color-surface-700;
-                border: 1px solid $color-surface-200;
-
-                &:hover {
-                    background-color: $color-surface-200;
-                    color: $color-surface-900;
-                }
-            }
-        }
-
-        .driver-popover-arrow {
-            &.side-top { border-top-color: $onboarding-bg; }
-            &.side-bottom { border-bottom-color: $onboarding-bg; }
-            &.side-left { border-left-color: $onboarding-bg; }
-            &.side-right { border-right-color: $onboarding-bg; }
-        }
-
-        .driver-popover-close-btn {
-            background-color: transparent;
-            color: $color-text-muted;
-            font-size: 1.25rem;
-            padding: 0;
-            line-height: 1;
-            top: 0.75rem;
-            right: 0.75rem;
-
-            &:hover {
-                color: $color-text;
-                background-color: transparent;
+                background-color: $color-surface-200;
+                color: $color-surface-900;
             }
         }
     }
 
-    .dark {
-        .driver-popover {
-            // 暗色模式下对按钮进行亮度微调，提升易用性
-            .driver-popover-next-btn {
-                background-color: $onboarding-btn-bg-dark;
-                color: $onboarding-btn-color-dark;
+    .driver-popover-arrow {
+        &.side-top { border-top-color: $onboarding-bg; }
+        &.side-bottom { border-bottom-color: $onboarding-bg; }
+        &.side-left { border-left-color: $onboarding-bg; }
+        &.side-right { border-right-color: $onboarding-bg; }
+    }
 
-                &:hover {
-                    background-color: $onboarding-btn-hover-dark;
-                }
+    .driver-popover-close-btn {
+        background-color: transparent;
+        color: $color-text-muted;
+        font-size: 1.25rem;
+        padding: 0;
+        line-height: 1;
+        top: 0.75rem;
+        right: 0.75rem;
+
+        &:hover {
+            color: $color-text;
+            background-color: transparent;
+        }
+    }
+}
+
+// 深色模式显式覆盖 - 保证在 body.dark 下生效
+.dark {
+    .driver-popover {
+        background-color: $onboarding-bg-dark;
+        color: $onboarding-text-dark;
+        border-color: $onboarding-border-dark;
+
+        .driver-popover-title {
+            color: $onboarding-text-dark;
+        }
+
+        .driver-popover-description {
+            color: $onboarding-text-dark;
+            opacity: 0.9;
+        }
+
+        .driver-popover-arrow {
+            &.side-top { border-top-color: $onboarding-bg-dark; }
+            &.side-bottom { border-bottom-color: $onboarding-bg-dark; }
+            &.side-left { border-left-color: $onboarding-bg-dark; }
+            &.side-right { border-right-color: $onboarding-bg-dark; }
+        }
+
+        .driver-popover-next-btn {
+            background-color: $onboarding-btn-bg-dark;
+            color: $onboarding-btn-color-dark;
+
+            &:hover {
+                background-color: $onboarding-btn-hover-dark;
             }
+        }
 
-            .driver-popover-prev-btn {
-                background-color: $onboarding-prev-btn-bg-dark;
+        .driver-popover-prev-btn {
+            background-color: $onboarding-prev-btn-bg-dark;
+            color: $onboarding-prev-btn-color-dark;
+            border-color: var(--p-surface-600);
+
+            &:hover {
+                background-color: $onboarding-prev-btn-hover-dark;
                 color: $onboarding-prev-btn-color-dark;
-                border-color: var(--p-surface-600);
-
-                &:hover {
-                    background-color: $onboarding-prev-btn-hover-dark;
-                    color: $onboarding-prev-btn-color-dark;
-                }
             }
         }
     }

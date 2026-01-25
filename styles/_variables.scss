@@ -103,18 +103,18 @@ $highlight-name-dark: #7ee787;
 $highlight-section-dark: #1f6feb;
 $highlight-bullet-dark: #f2cc60;
 
-// Demo Banner Colors
+// Demo Banner Colors (Using specific colors to maintain previous look while being variable-based)
 $demo-banner-bg: var(--p-primary-50);
 $demo-banner-border: var(--p-primary-100);
 $demo-banner-text: var(--p-text-color);
 $demo-banner-icon: var(--p-primary-500);
 $demo-banner-btn: var(--p-primary-500);
 
-$demo-banner-bg-dark: var(--p-surface-900);
-$demo-banner-border-dark: var(--p-surface-800);
-$demo-banner-text-dark: var(--p-surface-100);
-$demo-banner-icon-dark: var(--p-primary-400);
-$demo-banner-btn-dark: var(--p-primary-400);
+$demo-banner-bg-dark: #1e293b;
+$demo-banner-border-dark: #334155;
+$demo-banner-text-dark: #f1f5f9;
+$demo-banner-icon-dark: #7dd3fc;
+$demo-banner-btn-dark: #7dd3fc;
 
 // Onboarding specific (using semantic names)
 $onboarding-bg: $color-surface-card;
@@ -124,10 +124,13 @@ $onboarding-btn-bg: $color-primary;
 $onboarding-btn-hover: $color-primary-hover;
 $onboarding-btn-color: $color-primary-text;
 
-// Dark mode overrides for onboarding (mapped to PrimeVue tokens for consistency)
-$onboarding-btn-bg-dark: var(--p-primary-400);
-$onboarding-btn-hover-dark: var(--p-primary-300);
-$onboarding-btn-color-dark: var(--p-primary-950);
-$onboarding-prev-btn-bg-dark: var(--p-surface-700);
-$onboarding-prev-btn-hover-dark: var(--p-surface-600);
-$onboarding-prev-btn-color-dark: var(--p-surface-0);
+// Dark mode overrides for onboarding (Prioritizing readability and previous fix)
+$onboarding-bg-dark: #1e293b;
+$onboarding-text-dark: #f1f5f9;
+$onboarding-border-dark: #334155;
+$onboarding-btn-bg-dark: #0ea5e9;
+$onboarding-btn-hover-dark: #38bdf8;
+$onboarding-btn-color-dark: #ffffff;
+$onboarding-prev-btn-bg-dark: #334155;
+$onboarding-prev-btn-hover-dark: #475569;
+$onboarding-prev-btn-color-dark: #ffffff;
