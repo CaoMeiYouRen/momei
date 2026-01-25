@@ -1,4 +1,5 @@
 // Styles for enhanced markdown rendering
+@use "./variables" as *;
 
 .markdown-body {
   // Image Lightbox Support
@@ -54,8 +55,8 @@
         }
 
         &.copied {
-            background-color: #42b883 !important;
-            border-color: #42b883 !important;
+            background-color: $color-success;
+            border-color: $color-success;
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
         }
     }
@@ -70,24 +71,24 @@
     background-color: var(--p-surface-50);
 
     &.tip {
-      border-color: #42b883;
-      background-color: rgba(66, 184, 131, 0.1);
-      .custom-block-title { color: #42b883; }
+      border-color: $color-success;
+      background-color: rgba($color-success, 0.1);
+      .custom-block-title { color: $color-success; }
     }
     &.warning {
-      border-color: #ff8e33;
-      background-color: rgba(255, 142, 51, 0.1);
-      .custom-block-title { color: #ff8e33; }
+      border-color: $color-warning;
+      background-color: rgba($color-warning, 0.1);
+      .custom-block-title { color: $color-warning; }
     }
     &.danger {
-      border-color: #f66;
-      background-color: rgba(255, 102, 102, 0.1);
-      .custom-block-title { color: #f66; }
+      border-color: $color-danger;
+      background-color: rgba($color-danger, 0.1);
+      .custom-block-title { color: $color-danger; }
     }
     &.info {
-      border-color: #2196f3;
-      background-color: rgba(33, 150, 243, 0.1);
-      .custom-block-title { color: #2196f3; }
+      border-color: $color-info;
+      background-color: rgba($color-info, 0.1);
+      .custom-block-title { color: $color-info; }
     }
 
     .custom-block-title {
@@ -105,7 +106,7 @@
     padding: 0.5rem 1rem;
     margin-bottom: 1rem;
     color: inherit;
-    border-left: 0.25em solid #d0d7de;
+    border-left: 0.25em solid $color-gh-alert-default;
     border-radius: 0.5rem;
     background-color: var(--p-surface-50);
 
@@ -122,37 +123,37 @@
     }
 
     &.markdown-alert-note {
-      border-left-color: #0969da;
+      border-left-color: $color-gh-alert-note;
       .markdown-alert-title {
-        color: #0969da;
+        color: $color-gh-alert-note;
       }
     }
 
     &.markdown-alert-tip {
-      border-left-color: #1a7f37;
+      border-left-color: $color-gh-alert-tip;
       .markdown-alert-title {
-        color: #1a7f37;
+        color: $color-gh-alert-tip;
       }
     }
 
     &.markdown-alert-important {
-      border-left-color: #8250df;
+      border-left-color: $color-gh-alert-important;
       .markdown-alert-title {
-        color: #8250df;
+        color: $color-gh-alert-important;
       }
     }
 
     &.markdown-alert-warning {
-      border-left-color: #9a6700;
+      border-left-color: $color-gh-alert-warning;
       .markdown-alert-title {
-        color: #9a6700;
+        color: $color-gh-alert-warning;
       }
     }
 
     &.markdown-alert-caution {
-      border-left-color: #cf222e;
+      border-left-color: $color-gh-alert-caution;
       .markdown-alert-title {
-        color: #cf222e;
+        color: $color-gh-alert-caution;
       }
     }
   }
@@ -246,10 +247,10 @@
   :global(.dark) & {
     .custom-block {
       background-color: var(--p-surface-900);
-      &.tip { background-color: rgba(66, 184, 131, 0.05); }
-      &.warning { background-color: rgba(255, 142, 51, 0.05); }
-      &.danger { background-color: rgba(255, 102, 102, 0.05); }
-      &.info { background-color: rgba(33, 150, 243, 0.05); }
+      &.tip { background-color: rgba($color-success, 0.05); }
+      &.warning { background-color: rgba($color-warning, 0.05); }
+      &.danger { background-color: rgba($color-danger, 0.05); }
+      &.info { background-color: rgba($color-info, 0.05); }
     }
 
     .markdown-alert {
@@ -267,18 +268,20 @@
 }
 
 // Lightbox Dialog Styles
-.lightbox-dialog-content {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    max-width: 90vw;
-    max-height: 90vh;
-    overflow: hidden;
+@layer momei-overrides {
+    .lightbox-dialog-content {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        max-width: 90vw;
+        max-height: 90vh;
+        overflow: hidden;
 
-    .p-dialog-content {
-        background: transparent !important;
-        padding: 0 !important;
+        .p-dialog-content {
+            background: transparent;
+            padding: 0;
+        }
     }
 }
 

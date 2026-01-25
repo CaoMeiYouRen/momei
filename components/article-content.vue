@@ -262,13 +262,13 @@ watch(() => props.content, () => {
         }
 
         code {
-            background-color: var(--p-surface-200);
-            color: var(--p-primary-400);
+            background-color: $color-code-bg-dark;
+            color: $color-code-text-dark;
         }
 
         pre {
-            background-color: #0d1117; // Use GitHub Dark background
-            border-color: #30363d;
+            background-color: $color-pre-bg-dark;
+            border-color: $color-pre-border-dark;
         }
 
         hr {

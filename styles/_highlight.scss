@@ -1,9 +1,10 @@
 // Highlight.js Github styles scoped by theme
+@use "./variables" as *;
 
 /* GitHub Theme - Light */
 .hljs,
 pre code {
-  color: #24292e;
+  color: $highlight-text;
   background: transparent; // Use our component background
 }
 .hljs-doctag,
@@ -13,13 +14,13 @@ pre code {
 .hljs-template-variable,
 .hljs-type,
 .hljs-variable.language_ {
-  color: #d73a49;
+  color: $highlight-keyword;
 }
 .hljs-title,
 .hljs-title.class_,
 .hljs-title.class_.inherited__,
 .hljs-title.function_ {
-  color: #6f42c1;
+  color: $highlight-title;
 }
 .hljs-attr,
 .hljs-attribute,
@@ -31,60 +32,60 @@ pre code {
 .hljs-selector-attr,
 .hljs-selector-class,
 .hljs-selector-id {
-  color: #005cc5;
+  color: $highlight-attr;
 }
 .hljs-regexp,
 .hljs-string,
 .hljs-meta .hljs-string {
-  color: #032f62;
+  color: $highlight-string;
 }
 .hljs-built_in,
 .hljs-symbol {
-  color: #e36209;
+  color: $highlight-built-in;
 }
 .hljs-comment,
 .hljs-code,
 .hljs-formula {
-  color: #6a737d;
+  color: $highlight-comment;
 }
 .hljs-name,
 .hljs-quote,
 .hljs-selector-tag,
 .hljs-selector-pseudo {
-  color: #22863a;
+  color: $highlight-name;
 }
 .hljs-subst {
-  color: #24292e;
+  color: $highlight-text;
 }
 .hljs-section {
-  color: #005cc5;
+  color: $highlight-section;
   font-weight: bold;
 }
 .hljs-bullet {
-  color: #735c0f;
+  color: $highlight-bullet;
 }
 .hljs-emphasis {
-  color: #24292e;
+  color: $highlight-text;
   font-style: italic;
 }
 .hljs-strong {
-  color: #24292e;
+  color: $highlight-text;
   font-weight: bold;
 }
 .hljs-addition {
-  color: #22863a;
-  background-color: #f0fff4;
+  color: $highlight-addition-text;
+  background-color: $highlight-addition-bg;
 }
 .hljs-deletion {
-  color: #b31d28;
-  background-color: #ffeef0;
+  color: $highlight-deletion-text;
+  background-color: $highlight-deletion-bg;
 }
 
 /* GitHub Dark Theme - Scoped to .dark */
 .dark {
   .hljs,
   pre code {
-    color: #c9d1d9;
+    color: $highlight-text-dark;
     background: transparent; // Use our component background
   }
   .hljs-doctag,
@@ -94,13 +95,13 @@ pre code {
   .hljs-template-variable,
   .hljs-type,
   .hljs-variable.language_ {
-    color: #ff7b72;
+    color: $highlight-keyword-dark;
   }
   .hljs-title,
   .hljs-title.class_,
   .hljs-title.class_.inherited__,
   .hljs-title.function_ {
-    color: #d2a8ff;
+    color: $highlight-title-dark;
   }
   .hljs-attr,
   .hljs-attribute,
@@ -112,40 +113,40 @@ pre code {
   .hljs-selector-attr,
   .hljs-selector-class,
   .hljs-selector-id {
-    color: #79c0ff;
+    color: $highlight-attr-dark;
   }
   .hljs-regexp,
   .hljs-string,
   .hljs-meta .hljs-string {
-    color: #a5d6ff;
+    color: $highlight-string-dark;
   }
   .hljs-built_in,
   .hljs-symbol {
-    color: #ffa657;
+    color: $highlight-built-in-dark;
   }
   .hljs-comment,
   .hljs-code,
   .hljs-formula {
-    color: #8b949e;
+    color: $highlight-comment-dark;
   }
   .hljs-name,
   .hljs-quote,
   .hljs-selector-tag,
   .hljs-selector-pseudo {
-    color: #7ee787;
+    color: $highlight-name-dark;
   }
   .hljs-subst {
-    color: #c9d1d9;
+    color: $highlight-text-dark;
   }
   .hljs-section {
-    color: #1f6feb;
+    color: $highlight-section-dark;
     font-weight: bold;
   }
   .hljs-bullet {
-    color: #f2cc60;
+    color: $highlight-bullet-dark;
   }
   .hljs-emphasis {
-    color: #c9d1d9;
+    color: $highlight-text-dark;
     font-style: italic;
   }
   .hljs-strong {

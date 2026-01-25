@@ -22,3 +22,112 @@ $border-radius-lg: 1rem;
 $z-index-header: 1000;
 $z-index-modal: 1100;
 $z-index-tooltip: 1200;
+
+// Colors
+$color-primary: var(--p-primary-500);
+$color-primary-hover: var(--p-primary-600);
+$color-primary-active: var(--p-primary-700);
+$color-primary-text: #ffffff;
+
+$color-text: var(--p-text-color);
+$color-text-muted: var(--p-text-muted-color);
+
+$color-surface-card: var(--p-surface-card);
+$color-surface-border: var(--p-surface-border);
+$color-surface-ground: var(--p-surface-ground);
+
+$color-surface-0: var(--p-surface-0);
+$color-surface-50: var(--p-surface-50);
+$color-surface-100: var(--p-surface-100);
+$color-surface-200: var(--p-surface-200);
+$color-surface-300: var(--p-surface-300);
+$color-surface-400: var(--p-surface-400);
+$color-surface-500: var(--p-surface-500);
+$color-surface-600: var(--p-surface-600);
+$color-surface-700: var(--p-surface-700);
+$color-surface-800: var(--p-surface-800);
+$color-surface-900: var(--p-surface-900);
+$color-surface-950: var(--p-surface-950);
+
+// Status Colors (Mapped to PrimeVue Semantic Tokens)
+$color-success: var(--p-success-500);
+$color-warning: var(--p-warning-500);
+$color-danger: var(--p-error-500);
+$color-info: var(--p-info-500);
+
+// GitHub Alert Colors
+$color-gh-alert-note: #0969da;
+$color-gh-alert-tip: #1a7f37;
+$color-gh-alert-important: #8250df;
+$color-gh-alert-warning: #9a6700;
+$color-gh-alert-caution: #cf222e;
+$color-gh-alert-default: #d0d7de;
+
+// Code & Pre
+$color-code-bg: var(--p-surface-100);
+$color-code-text: var(--p-primary-600);
+$color-code-bg-dark: var(--p-surface-800);
+$color-code-text-dark: var(--p-primary-400);
+$color-pre-bg-dark: #0d1117; // Specialized deep dark for code
+$color-pre-border-dark: #30363d;
+
+// Brand Colors
+$color-brand-github: #24292e;
+$color-brand-google: #4285f4;
+
+// Syntax Highlighting (Light)
+$highlight-text: #24292e;
+$highlight-keyword: #d73a49;
+$highlight-title: #6f42c1;
+$highlight-attr: #005cc5;
+$highlight-string: #032f62;
+$highlight-built-in: #e36209;
+$highlight-comment: #6a737d;
+$highlight-name: #22863a;
+$highlight-section: #005cc5;
+$highlight-bullet: #735c0f;
+$highlight-addition-text: #22863a;
+$highlight-addition-bg: #f0fff4;
+$highlight-deletion-text: #b31d28;
+$highlight-deletion-bg: #ffeef0;
+
+// Syntax Highlighting (Dark)
+$highlight-text-dark: #c9d1d9;
+$highlight-keyword-dark: #ff7b72;
+$highlight-title-dark: #d2a8ff;
+$highlight-attr-dark: #79c0ff;
+$highlight-string-dark: #a5d6ff;
+$highlight-built-in-dark: #ffa657;
+$highlight-comment-dark: #8b949e;
+$highlight-name-dark: #7ee787;
+$highlight-section-dark: #1f6feb;
+$highlight-bullet-dark: #f2cc60;
+
+// Demo Banner Colors
+$demo-banner-bg: var(--p-primary-50);
+$demo-banner-border: var(--p-primary-100);
+$demo-banner-text: var(--p-text-color);
+$demo-banner-icon: var(--p-primary-500);
+$demo-banner-btn: var(--p-primary-500);
+
+$demo-banner-bg-dark: var(--p-surface-900);
+$demo-banner-border-dark: var(--p-surface-800);
+$demo-banner-text-dark: var(--p-surface-100);
+$demo-banner-icon-dark: var(--p-primary-400);
+$demo-banner-btn-dark: var(--p-primary-400);
+
+// Onboarding specific (using semantic names)
+$onboarding-bg: $color-surface-card;
+$onboarding-text: $color-text;
+$onboarding-border: $color-surface-border;
+$onboarding-btn-bg: $color-primary;
+$onboarding-btn-hover: $color-primary-hover;
+$onboarding-btn-color: $color-primary-text;
+
+// Dark mode overrides for onboarding (mapped to PrimeVue tokens for consistency)
+$onboarding-btn-bg-dark: var(--p-primary-400);
+$onboarding-btn-hover-dark: var(--p-primary-300);
+$onboarding-btn-color-dark: var(--p-primary-950);
+$onboarding-prev-btn-bg-dark: var(--p-surface-700);
+$onboarding-prev-btn-hover-dark: var(--p-surface-600);
+$onboarding-prev-btn-color-dark: var(--p-surface-0);

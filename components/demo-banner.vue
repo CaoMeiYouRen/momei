@@ -32,8 +32,8 @@ const startTour = () => {
 
 <style lang="scss">
 .demo-banner {
-    background-color: var(--p-primary-50);
-    border-bottom: 1px solid var(--p-primary-100);
+    background-color: $demo-banner-bg;
+    border-bottom: 1px solid $demo-banner-border;
     padding: 0.5rem 1rem;
     z-index: 1000;
     transition: background-color 0.3s, border-color 0.3s;
@@ -48,13 +48,13 @@ const startTour = () => {
     }
 
     &__icon {
-        color: var(--p-primary-500);
+        color: $demo-banner-icon;
         font-size: 1.1rem;
     }
 
     &__text {
         font-size: 0.875rem;
-        color: var(--p-text-color);
+        color: $demo-banner-text;
         flex: 1;
     }
 
@@ -66,27 +66,29 @@ const startTour = () => {
     &__btn {
         padding: 0.25rem 0.75rem;
         font-size: 0.75rem;
+        color: $demo-banner-btn;
+        border-color: $demo-banner-btn;
     }
 
     // 适配深色模式
     .dark & {
-        background-color: #1e293b;
-        border-bottom-color: #334155;
+        background-color: $demo-banner-bg-dark;
+        border-bottom-color: $demo-banner-border-dark;
 
         .demo-banner__text {
-            color: #f1f5f9;
+            color: $demo-banner-text-dark;
         }
 
         .demo-banner__icon {
-            color: #7dd3fc;
+            color: $demo-banner-icon-dark;
         }
 
         .demo-banner__btn {
-            color: #7dd3fc;
-            border-color: #7dd3fc;
+            color: $demo-banner-btn-dark;
+            border-color: $demo-banner-btn-dark;
 
             &:hover {
-                background-color: rgb(125 211 252 / 0.1);
+                background-color: rgba($demo-banner-btn-dark, 0.1);
             }
         }
     }

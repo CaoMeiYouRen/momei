@@ -229,6 +229,13 @@ export default defineNuxtConfig({
         },
     },
     vite: {
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    additionalData: '@use "@/styles/_variables.scss" as *; @use "@/styles/_mixins.scss" as *;',
+                },
+            },
+        },
         // optimizeDeps: {
         //     include: ['zhlint', 'debug'],
         // },

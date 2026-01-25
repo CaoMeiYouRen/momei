@@ -311,7 +311,7 @@ onMounted(() => {
         }
 
         .github-icon {
-            color: #24292e;
+            color: $color-brand-github;
 
             :global(.dark) & {
                 color: #fff;
@@ -319,7 +319,7 @@ onMounted(() => {
         }
 
         .google-icon {
-            color: #4285f4;
+            color: $color-brand-google;
         }
 
         .account-details {
