@@ -127,6 +127,12 @@ export default defineNuxtConfig({
                 github: !!(process.env.NUXT_PUBLIC_GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID),
                 google: !!(process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID),
             },
+            // 安全配置
+            securityUrlWhitelist: process.env.NUXT_PUBLIC_SECURITY_URL_WHITELIST || '',
+            // 上传配置同步到前端
+            maxUploadSize: process.env.NUXT_PUBLIC_MAX_UPLOAD_SIZE,
+            maxAudioUploadSize: process.env.NUXT_PUBLIC_MAX_AUDIO_UPLOAD_SIZE,
+            localStorageBaseUrl: process.env.NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL,
         },
     },
     sitemap: {

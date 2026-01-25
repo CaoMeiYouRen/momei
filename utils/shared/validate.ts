@@ -1,7 +1,7 @@
 import isEmail from 'validator/es/lib/isEmail'
 import isMobilePhone from 'validator/es/lib/isMobilePhone'
 import isURL from 'validator/es/lib/isURL'
-import { SECURITY_URL_WHITELIST } from './env'
+import { getSecurityUrlWhitelist } from './env'
 
 // 判断是否为邮箱。
 export function validateEmail(email: string): boolean {
@@ -74,7 +74,7 @@ export function isValidCustomUrl(url: string | null | undefined): boolean {
         const hostname = parsedUrl.hostname
 
         // 检查是否在环境变量配置的白名单中（包括子域名）
-        return SECURITY_URL_WHITELIST.some((domain) =>
+        return getSecurityUrlWhitelist().some((domain) =>
             hostname === domain || hostname.endsWith(`.${domain}`),
         )
     } catch {

@@ -279,12 +279,40 @@ export const AI_CHUNK_SIZE = Number(process.env.AI_CHUNK_SIZE || 4000)
 /**
  * 安全配置
  */
-// 外部资源 URL 域名白名单，逗号分隔
-export const SECURITY_URL_WHITELIST = (
-    process.env.NUXT_PUBLIC_SECURITY_URL_WHITELIST
-    || (import.meta.env.NUXT_PUBLIC_SECURITY_URL_WHITELIST as string)
-    || 'images.unsplash.com,cdn.pixabay.com,img.shields.io,i.imgur.com,github.com,avatars.githubusercontent.com,lh3.googleusercontent.com'
-)
-    .split(',')
-    .map((d) => d.trim())
-    .filter(Boolean)
+// 外部资源 URL 域名白名单默认值
+export const SECURITY_URL_WHITELIST_DEFAULT =
+    'images.unsplash.com,cdn.pixabay.com,img.shields.io,i.imgur.com,github.com,avatars.githubusercontent.com,lh3.googleusercontent.com'
+
+/**
+ * 获取外部资源 URL 域名白名单
+ * 在 Nuxt 环境中会优先从 Runtime Config 读取以确保前后端一致
+ */
+export function getSecurityUrlWhitelist(): string[] {
+    let raw: string | undefined
+
+    // 尝试从 Nuxt Runtime Config 获取（推荐方式）
+    if (import.meta.client || import.meta.server) {
+        try {
+            const config = useRuntimeConfig()
+            raw = config.public.securityUrlWhitelist
+        } catch {
+            // Nuxt 实例尚未就绪或不在 Nuxt 上下文中
+        }
+    }
+
+    // 回退到环境变量或默认值
+    if (!raw) {
+        raw = process.env.NUXT_PUBLIC_SECURITY_URL_WHITELIST
+            || (import.meta.env.NUXT_PUBLIC_SECURITY_URL_WHITELIST as string)
+            || SECURITY_URL_WHITELIST_DEFAULT
+    }
+
+    return raw
+        .split(',')
+        .map((d) => d.trim())
+        .filter(Boolean)
+}
+
+// 导出常量以保持向后兼容（注意：在浏览器中此常量的初始化可能早于 Nuxt 运行时，建议使用 getSecurityUrlWhitelist()）
+export const SECURITY_URL_WHITELIST = getSecurityUrlWhitelist()
+
