@@ -11,7 +11,7 @@ import { applyPostVisibilityFilter } from '@/server/utils/post-access'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(q))
-    const user = event.context.user
+    const user = event.context?.user
 
     // 如果是管理模式，强制校验权限
     if (query.scope === 'manage') {

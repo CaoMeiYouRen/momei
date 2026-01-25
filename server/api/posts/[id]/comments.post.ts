@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody(event)
-    const session = event.context.auth
+    const session = event.context?.auth
 
     const commentData: any = {
         postId,

@@ -84,6 +84,7 @@ describe('Search API', async () => {
     it('should search by keyword in title', async () => {
         const event = {
             query: { q: '你好' },
+            context: {},
         } as any
 
         const result = await searchHandler(event)
@@ -94,6 +95,7 @@ describe('Search API', async () => {
     it('should search by keyword in summary', async () => {
         const event = {
             query: { q: '摘要' },
+            context: {},
         } as any
 
         const result = await searchHandler(event)
@@ -103,6 +105,7 @@ describe('Search API', async () => {
     it('should filter by category slug', async () => {
         const event = {
             query: { category: 'tech' },
+            context: {},
         } as any
 
         const result = await searchHandler(event)
@@ -113,6 +116,7 @@ describe('Search API', async () => {
     it('should filter by tags', async () => {
         const event = {
             query: { q: 'Unique', tags: ['nuxt'] },
+            context: {},
         } as any
 
         const result = await searchHandler(event)
@@ -125,6 +129,7 @@ describe('Search API', async () => {
         // It should find '你好世界' (translated from the same cluster)
         const event = {
             query: { q: 'World', language: 'zh-CN' },
+            context: {},
         } as any
 
         await searchHandler(event)

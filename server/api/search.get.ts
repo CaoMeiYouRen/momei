@@ -10,7 +10,7 @@ import { applyPostVisibilityFilter } from '@/server/utils/post-access'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => searchQuerySchema.parse(q))
-    const user = event.context.user
+    const user = event.context?.user
 
     const postRepo = dataSource.getRepository(Post)
     const qb = postRepo.createQueryBuilder('post')

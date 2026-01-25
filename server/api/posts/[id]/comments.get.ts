@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'Post ID required' })
     }
 
-    const session = event.context.auth
+    const session = event.context?.auth
 
     const isUserAdmin = session?.user && isAdmin(session.user.role)
 
