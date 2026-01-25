@@ -1,7 +1,7 @@
 import { getAIProvider } from '../utils/ai'
 import { AI_PROMPTS, formatPrompt } from '../utils/ai/prompt'
-import { ContentProcessor } from '../utils/ai/content-processor'
 import logger from '../utils/logger'
+import { ContentProcessor } from '@/utils/shared/content-processor'
 import { AI_MAX_CONTENT_LENGTH, AI_CHUNK_SIZE } from '@/utils/shared/env'
 
 export class AIService {

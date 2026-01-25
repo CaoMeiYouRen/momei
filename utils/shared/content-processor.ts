@@ -41,7 +41,10 @@ export class ContentProcessor {
                 currentChunk.length + segment.length > chunkSize
                 && currentChunk.length >= minChunkSize
             ) {
-                chunks.push(currentChunk.trim())
+                const trimmed = currentChunk.trim()
+                if (trimmed) {
+                    chunks.push(trimmed)
+                }
                 currentChunk = ''
             }
 
@@ -54,14 +57,17 @@ export class ContentProcessor {
 
                 // 按行或句子切分长段落
                 const subSegments = segment.match(
-                    /[^\n。！？]+[。！？\n]*/g,
+                    /[^\n。！？.?!]+[。！？.?!\n]*/g,
                 ) || [segment]
                 for (const sub of subSegments) {
                     if (
                         currentChunk.length + sub.length > chunkSize
                         && currentChunk.length >= minChunkSize
                     ) {
-                        chunks.push(currentChunk.trim())
+                        const trimmed = currentChunk.trim()
+                        if (trimmed) {
+                            chunks.push(trimmed)
+                        }
                         currentChunk = ''
                     }
                     currentChunk += sub

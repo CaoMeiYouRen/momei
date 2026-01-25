@@ -1,6 +1,7 @@
 import { ref, type Ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
+import { ContentProcessor } from '@/utils/shared/content-processor'
 import type { PostEditorData } from '@/types/post-editor'
 
 export function usePostEditorAI(
@@ -238,59 +239,24 @@ export function usePostEditorAI(
                 })())
             }
 
-            // Translate Content (Streaming)
-            const response = await fetch('/api/ai/translate.stream', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    content,
-                    targetLanguage: lang,
-                }),
-            })
+            // Translate Content (Chunked to avoid timeouts)
+            const chunks = ContentProcessor.splitMarkdown(content)
+            post.value.content = ''
 
-            if (!response.ok) {
-                throw new Error('Streaming failed')
-            }
-
-            const reader = response.body?.getReader()
-            const decoder = new TextDecoder()
-            let partialData = ''
-
-            if (reader) {
-                // Clear content before starting translation
-                post.value.content = ''
-
-                while (true) {
-                    const { done, value } = await reader.read()
-                    if (done) {
-                        break
-                    }
-
-                    partialData += decoder.decode(value, { stream: true })
-                    const lines = partialData.split('\n')
-                    partialData = lines.pop() || ''
-
-                    for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            try {
-                                const json = JSON.parse(line.substring(6))
-                                if (json.content) {
-                                    post.value.content += `${json.content}\n\n`
-                                }
-                            } catch {
-                                // Ignore non-JSON data
-                            }
-                        } else if (line === 'event: end') {
-                            // Stream finished
-                        } else if (line.startsWith('event: error')) {
-                            // Handle error event if needed
-                        }
-                    }
+            for (let i = 0; i < chunks.length; i++) {
+                const { data: translatedChunk } = await $fetch<any>(
+                    '/api/ai/translate',
+                    {
+                        method: 'POST',
+                        body: {
+                            content: chunks[i],
+                            targetLanguage: lang,
+                        },
+                    },
+                )
+                if (translatedChunk) {
+                    post.value.content += (post.value.content ? '\n\n' : '') + translatedChunk
                 }
-                // Trim trailing newlines
-                post.value.content = post.value.content.trim()
             }
 
             // Wait for parallel translation tasks (title, summary) to complete
