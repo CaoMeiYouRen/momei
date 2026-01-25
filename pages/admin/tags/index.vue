@@ -261,6 +261,7 @@
 <script setup lang="ts">
 import { tagBodySchema, tagUpdateSchema } from '@/utils/schemas/tag'
 import { isPureEnglish } from '@/utils/shared/validate'
+import type { Tag } from '@/types/tag'
 
 definePageMeta({
     layout: 'default',
@@ -268,20 +269,6 @@ definePageMeta({
 
 const { t, locale, locales } = useI18n()
 const toast = useToast()
-
-interface Tag {
-    id: string
-    name: string
-    slug: string
-    language: string
-    translationId?: string | null
-    translations?: Array<{
-        id: string
-        language: string
-        name: string
-        slug: string
-    }>
-}
 
 const {
     items,

@@ -42,4 +42,8 @@ export interface Comment {
         image?: string
     }
     replies?: Comment[]
+    post?: {
+        id: string
+        title: string
+    }
 }

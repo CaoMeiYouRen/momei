@@ -107,26 +107,14 @@
 </template>
 
 <script setup lang="ts">
+import type { Subscriber } from '@/types/subscriber'
+
 const { t } = useI18n()
 const { formatDate } = useI18nDate()
 
 definePageMeta({
     layout: 'default',
 })
-
-interface Subscriber {
-    id: string
-    email: string
-    isActive: boolean
-    language: string
-    userId: string | null
-    createdAt: string
-    user?: {
-        name?: string | null
-        email: string
-        image?: string | null
-    } | null
-}
 
 const loading = ref(false)
 const items = ref<Subscriber[]>([])

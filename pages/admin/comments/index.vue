@@ -136,27 +136,10 @@
 </template>
 
 <script setup lang="ts">
-import { CommentStatus } from '@/types/comment'
+import { CommentStatus, type Comment } from '@/types/comment'
 
 const { t } = useI18n()
 const { formatDate } = useI18nDate()
-
-definePageMeta({
-    layout: 'default',
-})
-
-interface Comment {
-    id: string
-    content: string
-    status: CommentStatus
-    authorName: string
-    authorEmail: string
-    createdAt: string
-    post?: {
-        id: string
-        title: string
-    }
-}
 
 const loading = ref(false)
 const items = ref<Comment[]>([])

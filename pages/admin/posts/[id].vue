@@ -90,6 +90,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { PostStatus, PostVisibility, type Post } from '@/types/post'
+import type { PostEditorData } from '@/types/post-editor'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
 import { COPYRIGHT_LICENSES } from '@/types/copyright'
 import PostEditorHeader from '@/components/admin/posts/post-editor-header.vue'
@@ -141,14 +142,7 @@ const defaultLicenseLabel = computed(() => {
     return t(`components.post.copyright.licenses.${key}`)
 })
 
-// 为编辑器扩展部分字段的界面类型，继承自基础 Post
-interface EditorPost extends Omit<Post, 'id' | 'tags'> {
-    id?: string
-    // 在这里我们可以重新定义 tags 的输入类型（如果是 string[]）
-    tags: any[]
-}
-
-const post = ref<EditorPost>({
+const post = ref<PostEditorData>({
     title: '',
     content: '',
     slug: '',

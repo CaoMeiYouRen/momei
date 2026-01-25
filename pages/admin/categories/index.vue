@@ -297,6 +297,7 @@
 <script setup lang="ts">
 import { categoryBodySchema, categoryUpdateSchema } from '@/utils/schemas/category'
 import { isPureEnglish } from '@/utils/shared/validate'
+import type { Category } from '@/types/category'
 
 definePageMeta({
     layout: 'default',
@@ -304,23 +305,6 @@ definePageMeta({
 
 const { t, locale, locales } = useI18n()
 const toast = useToast()
-
-interface Category {
-    id: string
-    name: string
-    slug: string
-    description?: string | null
-    parentId?: string | null
-    parent?: Category | null
-    language: string
-    translationId?: string | null
-    translations?: Array<{
-        id: string
-        language: string
-        name: string
-        slug: string
-    }>
-}
 
 const {
     items,

@@ -2,50 +2,7 @@ import { ref, type Ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import yaml from 'js-yaml'
-
-interface PostFrontMatter {
-    title?: string
-    slug?: string
-    abbrlink?: string
-    description?: string
-    desc?: string
-    image?: string
-    cover?: string
-    thumb?: string
-    copyright?: string
-    license?: string
-    language?: string
-    lang?: string
-    tags?: string | string[]
-    categories?: string | string[]
-    category?: string | string[]
-    audio?: string
-    audio_url?: string
-    audio_duration?: number
-    audio_size?: number
-    audio_mime_type?: string
-}
-
-interface PostEditorData {
-    title: string
-    content: string
-    slug: string
-    summary?: string | null
-    coverImage?: string | null
-    audioUrl?: string | null
-    audioDuration?: number | null
-    audioSize?: number | null
-    audioMimeType?: string | null
-    categoryId?: string | null
-    copyright?: string | null
-    language?: string
-    tags: string[]
-}
-
-interface CategoryOption {
-    id: string
-    name: string
-}
+import type { PostFrontMatter, PostEditorData, CategoryOption } from '@/types/post-editor'
 
 export function usePostEditorIO(
     post: Ref<PostEditorData>,

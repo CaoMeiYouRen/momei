@@ -1,8 +1,13 @@
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
+import type { PostEditorData } from '@/types/post-editor'
 
-export function usePostEditorAI(post: any, allTags: any, selectedTags: any) {
+export function usePostEditorAI(
+    post: Ref<PostEditorData>,
+    allTags: Ref<string[]>,
+    selectedTags: Ref<string[]>,
+) {
     const { t } = useI18n()
     const toast = useToast()
 
