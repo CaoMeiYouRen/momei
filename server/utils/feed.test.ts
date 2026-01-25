@@ -145,4 +145,35 @@ describe('Feed Generation Utility', async () => {
         expect(feed.items.length).toBe(1)
         expect(feed.items[0]!.title).toBe('RSS English Post')
     })
+
+    it('should generate podcast feed with audio enclosure and image in content', async () => {
+        const postRepo = dataSource.getRepository(Post)
+        const postPod = new Post()
+        postPod.title = 'Podcast Episode'
+        postPod.slug = 'podcast-ep'
+        postPod.content = 'Episode content'
+        postPod.language = 'en-US'
+        postPod.status = PostStatus.PUBLISHED
+        postPod.author = author
+        postPod.audioUrl = 'https://example.com/audio.mp3'
+        postPod.audioSize = 5000
+        postPod.audioMimeType = 'audio/mpeg'
+        postPod.coverImage = 'https://example.com/cover.png'
+        postPod.publishedAt = new Date()
+        await postRepo.save(postPod)
+
+        const event = {
+            path: '/feed/podcast.xml',
+            node: { req: { headers: {} } },
+        } as any
+
+        const feed = await generateFeed(event, { language: 'en-US', isPodcast: true })
+
+        const item = feed.items.find((i) => i.title === 'Podcast Episode')
+        expect(item).toBeDefined()
+        expect(item!.enclosure).toBeDefined()
+        expect(item!.enclosure!.url).toBe('https://example.com/audio.mp3')
+        expect(item!.image).toBeUndefined() // Should be undefined to avoid overwriting enclosure in RSS 2.0
+        expect(item!.content).toContain('<img src="https://example.com/cover.png"')
+    })
 })
