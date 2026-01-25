@@ -48,7 +48,7 @@
     "driver.js": "^1.4.0",
     "feed": "^5.2.0",
     "fs-extra": "^11.3.3",
-    "google-libphonenumber": "^3.2.43",
+    "google-libphonenumber": "^3.2.44",
     "highlight.js": "^11.11.1",
     "html-to-text": "^9.0.5",
     "ioredis": "^5.9.2",
