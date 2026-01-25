@@ -79,7 +79,7 @@
                 </Column>
                 <Column
                     field="audioUrl"
-                    header="Podcast"
+                    :header="$t('pages.admin.posts.podcast_column')"
                     header-class="text-center"
                     body-class="text-center"
                     header-style="min-width: 5rem"

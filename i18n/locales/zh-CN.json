@@ -291,6 +291,7 @@
                 "create": "新建文章",
                 "search_placeholder": "搜索标题...",
                 "status": "状态",
+                "podcast_column": "播客",
                 "back_to_list": "返回列表",
                 "title_placeholder": "文章标题",
                 "content_placeholder": "开始写作... (支持 Markdown)",

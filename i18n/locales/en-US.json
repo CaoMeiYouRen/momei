@@ -292,6 +292,7 @@
                 "create": "New Post",
                 "search_placeholder": "Search title...",
                 "status": "Status",
+                "podcast_column": "Podcast",
                 "back_to_list": "Back to list",
                 "title_placeholder": "Post Title",
                 "content_placeholder": "Start writing... (Markdown supported)",
