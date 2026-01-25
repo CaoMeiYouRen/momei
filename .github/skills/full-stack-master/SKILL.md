@@ -26,24 +26,29 @@ appliesTo: "**/*"
     - 任务：实现功能代码。遵循 Nuxt 4, Vue 3, TS, SCSS BEM, i18n。
     - 技能：`nuxt-code-editor`
 
-3. **质量检测与审查 (Test/Review)**
+3. **UI 自动化验证 (UI Validate)**
+    - 任务：若属于 UI 相关改动，必须先检查端口状态并确保开发服务器运行，随后通过浏览器访问受影响页面。通过截图、快照或计算样式验证渲染效果。
+    - 技能：`ui-validator`
+    - 约束：**严禁跳过浏览器验证环节**。必须覆盖 `light` 和 `dark` 两种主题模式。
+
+4. **质量检测与审查 (Test/Review)**
     - 任务：运行 `pnpm lint`, `pnpm typecheck`, `pnpm test`。
     - 约束：**严禁破坏原有测试**。若失败需分析根本原因。
     - 技能：`quality-guardian`、`test-engineer`
 
-4. **问题修复 (Fix)**
-    - 任务：修复执行阶段发现的缺陷或测试失败。
+5. **问题修复 (Fix)**
+    - 任务：修复执行阶段发现的缺陷、测试失败或 UI 样式偏差。
     - 技能：`nuxt-code-editor`
 
-5. **功能提交 (Commit - Phase 1)**
+6. **功能提交 (Commit - Phase 1)**
     - 任务：执行最终质量检查，使用 Conventional Commits 规范（中文/用户语言）提交。
     - 技能：`conventional-committer`
 
-6. **测试增强 (Enhance)**
+7. **测试增强 (Enhance)**
     - 任务：检查覆盖率，补充测试用例。再次运行 `pnpm test`。
     - 技能：`test-engineer`
 
-7. **测试提交 (Commit - Phase 2)**
+8. **测试提交 (Commit - Phase 2)**
     - 任务：最终质量监测后提交增强测试。
     - 技能：`conventional-committer`
 
@@ -59,6 +64,7 @@ appliesTo: "**/*"
 - [documentation-specialist](../documentation-specialist/SKILL.md)
 - [code-reviewer](../code-reviewer/SKILL.md)
 - [conventional-committer](../conventional-committer/SKILL.md)
+- [ui-validator](../ui-validator/SKILL.md)
 
 ---
 
@@ -93,6 +99,7 @@ workflow:
   - step: "更新 design 文档" # documentation-specialist
   - step: "编写测试"        # test-engineer
   - step: "开发实现"        # nuxt-code-editor
+  - step: "UI 验证"         # ui-validator
   - step: "质量检测"        # quality-guardian
   - step: "补全部署文档"    # documentation-specialist
   - step: "代码审查"        # code-reviewer

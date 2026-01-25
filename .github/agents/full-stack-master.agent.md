@@ -18,6 +18,7 @@ description: 全局一体化开发与协作工作流技能，覆盖需求评估�
 -   [Documentation Specialist](../../.github/skills/documentation-specialist/SKILL.md)
 -   [Code Reviewer](../../.github/skills/code-reviewer/SKILL.md)
 -   [Conventional Committer](../../.github/skills/conventional-committer/SKILL.md)
+-   [UI Validator](../../.github/skills/ui-validator/SKILL.md)
 
 ## PDTFC+ 融合工作流 (Standard Workflow)
 
@@ -45,7 +46,14 @@ description: 全局一体化开发与协作工作流技能，覆盖需求评估�
     2.  **实现功能**：编写 `components/`, `server/api/`, `pages/` 等相关代码。
 -   **工具**：`nuxt-code-editor`。
 
-### 阶段 3：质量检测与审查 (Test & Review)
+### 阶段 3：UI 自动化验证 (UI Validate)
+-   **目标**：确保 UI 展现符合设计规范与各模式兼容。
+-   **执行步骤**：
+    1.  **状态检查**：检查开发服务器端口状态，必要时保持启动。
+    2.  **多维检查**：利用浏览器工具访问对应场景，验证 `light`/`dark` 模式及布局表现。
+-   **工具**：`ui-validator`。
+
+### 阶段 4：质量检测与审查 (Test & Review)
 -   **目标**：验证代码质量，防止回归。
 -   **执行步骤**：
     1.  **静态检查**：执行 `pnpm lint`, `pnpm lint:css`, `pnpm typecheck`。
@@ -53,20 +61,20 @@ description: 全局一体化开发与协作工作流技能，覆盖需求评估�
     3.  **回归审查**：**原则上新功能不得导致原有测试失败**。若失败，需着重分析是旧测试过时（需更新）还是新代码逻辑错误（需修复）。
 -   **工具**：`quality-guardian`, `test-engineer`, `code-reviewer`。
 
-### 阶段 4：问题修复 (Fix)
+### 阶段 5：问题修复 (Fix)
 -   **目标**：消除上阶段发现的所有缺陷。
 -   **执行步骤**：
-    1.  根据 Lint、Typecheck 或测试反馈进行针对性改动，直至所有静态检查通过且原有测试跑通。
+    1.  根据 Lint、Typecheck、UI 验证或测试反馈进行针对性改动，直至所有静态检查通过且满足 UI 设计规范。
 -   **工具**：`nuxt-code-editor`。
 
-### 阶段 5：提交阶段 1：功能提交 (Commit - Phase 1)
+### 阶段 6：提交阶段 1：功能提交 (Commit - Phase 1)
 -   **目标**：在通过核心质量检查后提交业务逻辑。
 -   **执行步骤**：
     1.  **最后检查**：进行最终的 `quality-guardian` 扫描。
     2.  **规范提交**：使用中文（或用户语言）遵循 Conventional Commits 规范。
 -   **工具**：`conventional-committer`。
 
-### 阶段 6：测试增强 (Enhance)
+### 阶段 7：测试增强 (Enhance)
 -   **目标**：补齐测试用例，提升代码覆盖率。
 -   **执行步骤**：
     1.  **覆盖率评估**：检查新模块/逻辑的测试覆盖情况。
@@ -74,7 +82,7 @@ description: 全局一体化开发与协作工作流技能，覆盖需求评估�
     3.  **再验证**：重新执行 `pnpm test` 确保所有用例通过。
 -   **工具**：`test-engineer`。
 
-### 阶段 7：提交阶段 2：测试提交 (Commit - Phase 2)
+### 阶段 8：提交阶段 2：测试提交 (Commit - Phase 2)
 -   **目标**：将增强后的测试代码入库。
 -   **执行步骤**：
     1.  **重复质量检查**，通过后再次提交。
