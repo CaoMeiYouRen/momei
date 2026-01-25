@@ -89,12 +89,28 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
 
     posts.forEach((post) => {
         const itemDate = post.publishedAt || post.createdAt || new Date()
+        let content = md.render(post.content)
+
+        // 对于 Podcast 订阅源，如果存在封面图，将其添加到内容开头
+        // 因为 enclosure 标签将被用于音频文件，不希望封面图占用该位置
+        if (options.isPodcast && post.coverImage) {
+            content = `<p><img src="${post.coverImage}" alt="${post.title}" /></p>${content}`
+        }
+
+        const enclosure = post.audioUrl
+            ? {
+                url: post.audioUrl,
+                length: post.audioSize || 0,
+                type: post.audioMimeType || 'audio/mpeg',
+            }
+            : undefined
+
         feed.addItem({
             title: post.title,
             id: `${siteUrl}/posts/${post.slug}`,
             link: `${siteUrl}/posts/${post.slug}`,
             description: post.summary || '',
-            content: md.render(post.content),
+            content,
             author: [
                 {
                     name: post.author?.name || appName,
@@ -102,14 +118,9 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
             ],
             category: post.category ? [{ name: post.category.name }] : [],
             date: new Date(itemDate),
-            image: post.coverImage || undefined,
-            enclosure: post.audioUrl
-                ? {
-                    url: post.audioUrl,
-                    length: post.audioSize || 0,
-                    type: post.audioMimeType || 'audio/mpeg',
-                }
-                : undefined,
+            // 如果存在音频 enclosure，则不设置 image 属性，以免覆盖 enclosure
+            image: enclosure ? undefined : (post.coverImage || undefined),
+            enclosure,
         })
     })
 
