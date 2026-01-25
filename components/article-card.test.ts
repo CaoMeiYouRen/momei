@@ -78,4 +78,18 @@ describe('ArticleCard', () => {
         expect(img.attributes('loading')).toBe('lazy')
         expect(img.attributes('decoding')).toBe('async')
     })
+
+    it('renders podcast label when audioUrl is present', async () => {
+        const wrapper = await mountSuspended(ArticleCard, {
+            props: {
+                post: {
+                    ...mockPost,
+                    audioUrl: 'https://example.com/audio.mp3',
+                },
+            },
+        })
+
+        // Should contain the translated word (we check for the tag since mountSuspended uses real translations if configured, or keys if not)
+        expect(wrapper.find('.article-card__meta-item--podcast').exists()).toBe(true)
+    })
 })

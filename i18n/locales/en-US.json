@@ -175,6 +175,7 @@
         "all": "All",
         "rss": "RSS Feed",
         "podcast_rss": "Podcast Feed",
+        "podcast": "Podcast",
         "sitemap": "Sitemap",
         "success": "Success",
         "error": "Error",

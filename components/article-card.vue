@@ -34,7 +34,7 @@
                 </span>
                 <span v-if="post.audioUrl" class="article-card__meta-item article-card__meta-item--podcast">
                     <i class="pi pi-headphones" />
-                    Podcast
+                    {{ $t('common.podcast') }}
                 </span>
             </div>
 
