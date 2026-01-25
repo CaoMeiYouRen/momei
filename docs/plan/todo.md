@@ -427,6 +427,14 @@
     - 验收: 增强 `server/utils/feed.ts`，为含音频文章自动注入 `<enclosure>` 标签。
     - 验收: 实现独立播客 Feed 路由 `/feed/podcast.xml`。
     
+### 6. API 架构优化 (API Architecture Optimization) (P1)
+- [x] **引入通用同步工具函数 (assignDefined)**
+    - 验收: 实现 `server/utils/object.ts` 并在规范中确立“自动同步与异常处理”模式。
+- [x] **Post 模块更新逻辑重构**
+    - 验收: 重构 `[id].put.ts` 和 `createPostService`，移除冗余赋值判断，改为 Schema 驱动同步。
+- [ ] **全站 API 逻辑清理**
+    - 验收: 遍历 `Category`, `Tag`, `User` 等模块的更新/创建接口，统一使用 `assignDefined` 模式重构。
+
 ## 待规划与长期积压 (Backlog & Long-term Roadmap)
 
 此处列出已规划但未纳入当前阶段执行的任务，用于长期版本跟踪。

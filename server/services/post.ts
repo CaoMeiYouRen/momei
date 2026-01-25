@@ -8,6 +8,7 @@ import { generateRandomString } from '@/utils/shared/random'
 import { createPostSchema } from '@/utils/schemas/post'
 import { PostStatus } from '@/types/post'
 import { hashPassword } from '@/server/utils/password'
+import { assignDefined } from '@/server/utils/object'
 
 type CreatePostInput = z.infer<typeof createPostSchema>
 
@@ -40,32 +41,16 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
     const tags = await ensureTags(body.tags || [], body.language)
 
     const post = new Post()
-    post.title = body.title
+    post.authorId = authorId
+    post.tags = tags
     post.slug = slug
-    post.content = body.content
-    if (body.summary !== undefined) {
-        post.summary = body.summary
-    }
-    if (body.coverImage !== undefined) {
-        post.coverImage = body.coverImage ?? null
-    }
 
-    // Handle Audio (Podcast)
-    if (body.audioUrl !== undefined) {
-        post.audioUrl = body.audioUrl
-    }
-    if (body.audioDuration !== undefined) {
-        post.audioDuration = body.audioDuration
-    }
-    if (body.audioSize !== undefined) {
-        post.audioSize = body.audioSize
-    }
-    if (body.audioMimeType !== undefined) {
-        post.audioMimeType = body.audioMimeType
-    }
-
-    post.language = body.language
-    post.translationId = body.translationId || post.slug
+    // Assign simple fields
+    assignDefined(post, body, [
+        'title', 'content', 'summary', 'coverImage',
+        'audioUrl', 'audioDuration', 'audioSize', 'audioMimeType',
+        'language', 'translationId', 'copyright', 'visibility',
+    ])
 
     // Handle Category
     let targetCategoryId: string | null | undefined = undefined
@@ -94,19 +79,11 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
         post.categoryId = targetCategoryId
     }
 
-    if (body.copyright !== undefined) {
-        post.copyright = body.copyright
-    }
-    if (body.visibility !== undefined) {
-        post.visibility = body.visibility
-    }
     if (body.password) {
         post.password = hashPassword(body.password)
     } else if (body.password === null) {
         post.password = null
     }
-    post.authorId = authorId
-    post.tags = tags
 
     if (options.isAdmin) {
         if (body.createdAt) {

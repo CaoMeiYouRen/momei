@@ -10,6 +10,7 @@ import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { isAdmin } from '@/utils/shared/roles'
 import { PostStatus, POST_STATUS_TRANSITIONS } from '@/types/post'
 import { hashPassword } from '@/server/utils/password'
+import { assignDefined } from '@/server/utils/object'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -32,42 +33,12 @@ export default defineEventHandler(async (event) => {
         return fail('Forbidden', 403)
     }
 
-    // Update fields
-    if (body.title) {
-        post.title = body.title
-    }
-    if (body.content) {
-        post.content = body.content
-    }
-    if (body.summary !== undefined) {
-        post.summary = body.summary
-    }
-    if (body.coverImage !== undefined) {
-        post.coverImage = body.coverImage
-    }
-
-    // Handle Audio (Podcast)
-    if (body.audioUrl !== undefined) {
-        post.audioUrl = body.audioUrl
-    }
-    if (body.audioDuration !== undefined) {
-        post.audioDuration = body.audioDuration
-    }
-    if (body.audioSize !== undefined) {
-        post.audioSize = body.audioSize
-    }
-    if (body.audioMimeType !== undefined) {
-        post.audioMimeType = body.audioMimeType
-    }
-
-    if (body.language) {
-        post.language = body.language
-    }
-    if (body.translationId !== undefined) {
-        post.translationId = body.translationId
-    }
-
-    // ... (Category logic omitted for brevity in search string)
+    // Update simple fields
+    assignDefined(post, body, [
+        'title', 'content', 'summary', 'coverImage',
+        'audioUrl', 'audioDuration', 'audioSize', 'audioMimeType',
+        'language', 'translationId', 'copyright', 'visibility',
+    ])
 
     // Handle Category
     let targetCategoryId: string | null | undefined = undefined
@@ -103,16 +74,8 @@ export default defineEventHandler(async (event) => {
         post.categoryId = targetCategoryId
     }
 
-    if (body.copyright !== undefined) {
-        post.copyright = body.copyright
-    }
-    if (body.visibility !== undefined) {
-        post.visibility = body.visibility
-    }
-    if (body.password) {
-        post.password = hashPassword(body.password)
-    } else if (body.password === null) {
-        post.password = null
+    if (body.password !== undefined) {
+        post.password = body.password ? hashPassword(body.password) : null
     }
 
     // Handle Slug Change

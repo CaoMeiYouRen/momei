@@ -3,7 +3,7 @@ import { requireAdmin } from '@/server/utils/permission'
 import { probeRemoteAudio } from '@/server/utils/audio'
 
 const querySchema = z.object({
-    url: z.string().url(),
+    url: z.url(),
 })
 
 export default defineEventHandler(async (event) => {

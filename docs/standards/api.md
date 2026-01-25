@@ -89,7 +89,10 @@ const createPostSchema = z.object({
 ## 6. 文档与维护 (Documentation & Maintenance)
 
 -   **定义位置**: 具体的 API 定义（路由、参数、响应结构）必须记载在 `docs/design/modules/*.md` 对应的模块设计文档中。
--   **全局规范**: 本文档 (`standards/api.md`) 仅定义通用的响应格式、错误码和开发准则，不包含具体业务接口定义。
+- **全局规范**: 本文档 (`standards/api.md`)仅定义通用的响应格式、错误码和开发准则，不包含具体业务接口定义。
+- **数据更新模式 (Data Update Pattern)**: 在处理实体更新（PUT）或创建（POST）时，应遵循“自动同步与异常处理”原则：
+    1. **普通字段**: 利用 `assignDefined` 工具函数根据 Zod Schema 自动同步经过校验的字段，禁止手动编写 `if (field !== undefined)`。
+    2. **复杂字段**: 涉及哈希（Password）、文件上传、状态机转换、或需要查询数据库的关联关系（Category, Tags）时，应显式编写逻辑处理。
 -   **同步更新**: 代码变更时，必须同步更新对应的模块设计文档。
 
 ## 7. 相关文档
