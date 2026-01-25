@@ -14,14 +14,27 @@ import {
     LOCAL_STORAGE_DIR,
     LOCAL_STORAGE_BASE_URL,
     LOCAL_STORAGE_MIN_FREE_SPACE,
+    MAX_AUDIO_UPLOAD_SIZE,
+    MAX_AUDIO_UPLOAD_SIZE_TEXT,
 } from '@/utils/shared/env'
+
+/**
+ * 上传类型枚举
+ */
+export enum UploadType {
+    IMAGE = 'image',
+    AUDIO = 'audio',
+    FILE = 'file',
+}
 
 export interface UploadOptions {
     /** 文件路径前缀，例如 'file/' 或 'avatars/1/' */
     prefix: string
     /** 最大文件数量限制 */
     maxFiles?: number
-    /** 是否必须是图片，默认为 true */
+    /** 上传类型，默认为 IMAGE */
+    type?: UploadType
+    /** 是否必须是图片，默认为 true (兼容旧代码，建议使用 type) */
     mustBeImage?: boolean
 }
 
@@ -61,7 +74,8 @@ export async function checkUploadLimits(userId: string) {
  * @param options 上传配置
  */
 export async function handleFileUploads(event: H3Event, options: UploadOptions): Promise<UploadedFile[]> {
-    const { prefix, maxFiles = 10, mustBeImage = true } = options
+    const { prefix, maxFiles = 10 } = options
+    const type = options.type || (options.mustBeImage === false ? UploadType.FILE : UploadType.IMAGE)
 
     const files = await readMultipartFormData(event)
     if (!files || files.length === 0) {
@@ -86,14 +100,26 @@ export async function handleFileUploads(event: H3Event, options: UploadOptions):
             continue
         }
 
-        // 校验文件大小
-        if (file.data.length > MAX_UPLOAD_SIZE) {
-            throw createError({ statusCode: 400, statusMessage: `文件大小超出 ${MAX_UPLOAD_SIZE_TEXT} 限制` })
+        // 校验文件大小和类型
+        let maxSize = MAX_UPLOAD_SIZE
+        let maxSizeText = MAX_UPLOAD_SIZE_TEXT
+
+        if (type === UploadType.AUDIO) {
+            maxSize = MAX_AUDIO_UPLOAD_SIZE
+            maxSizeText = MAX_AUDIO_UPLOAD_SIZE_TEXT
+        }
+
+        if (file.data.length > maxSize) {
+            throw createError({ statusCode: 400, statusMessage: `文件大小超出 ${maxSizeText} 限制` })
         }
 
         // 校验文件类型
-        if (mustBeImage && (!file.type || !file.type.startsWith('image/'))) {
+        if (type === UploadType.IMAGE && (!file.type || !file.type.startsWith('image/'))) {
             throw createError({ statusCode: 400, statusMessage: '仅支持图片上传' })
+        }
+
+        if (type === UploadType.AUDIO && (!file.type || !file.type.startsWith('audio/'))) {
+            throw createError({ statusCode: 400, statusMessage: '仅支持音频上传' })
         }
 
         // 生成新文件名

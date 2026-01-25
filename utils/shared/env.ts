@@ -212,6 +212,14 @@ export const MAX_UPLOAD_SIZE = process.env.NUXT_PUBLIC_MAX_UPLOAD_SIZE
     : 4.5 * 1024 * 1024
 export const MAX_UPLOAD_SIZE_TEXT =
     process.env.NUXT_PUBLIC_MAX_UPLOAD_SIZE || '4.5MiB'
+
+// 最大允许上传的音频大小，默认 100 MiB
+export const MAX_AUDIO_UPLOAD_SIZE = process.env.NUXT_PUBLIC_MAX_AUDIO_UPLOAD_SIZE
+    ? Number(parse(process.env.NUXT_PUBLIC_MAX_AUDIO_UPLOAD_SIZE))
+    : 100 * 1024 * 1024
+export const MAX_AUDIO_UPLOAD_SIZE_TEXT =
+    process.env.NUXT_PUBLIC_MAX_AUDIO_UPLOAD_SIZE || '100MiB'
+
 // 上传文件限流时间窗口
 export const UPLOAD_LIMIT_WINDOW = Number(
     process.env.UPLOAD_LIMIT_WINDOW || ms('1d') / 1000,
