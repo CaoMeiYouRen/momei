@@ -413,6 +413,19 @@
 - [ ] **主题画廊系统 (Theme Gallery) (P2)**
     - 验收: 支持用户在“自定义”主题基础上保存并命名多套独立配置。
     - 验收: 管理后台提供“主题画廊”界面，展示已保存方案的缩略信息并支持一键切换。
+
+### 5. 播客原生支持 (Podcast Support) (P1)
+- [ ] **上传服务重构与音频支持**
+    - 验收: 重构 `server/services/upload.ts`，支持 `image` 和 `audio` 类型校验。
+    - 验收: 音频上传支持差异化限制（如 100MB），并在 `utils/shared/env.ts` 中配置。
+- [ ] **文章实体模型扩展**
+    - 验收: `Post` 实体新增音频字段：`audioUrl`, `audioDuration`, `audioSize`, `audioMimeType`。
+- [ ] **播客元数据采集逻辑**
+    - 验收: 实现后端辅助接口，支持通过 HEAD 请求获取远程音频的 `Content-Length` 和 `Content-Type`。
+    - 验收: UI 端实现视频/音频参数配置面板，支持手动校正时长。
+- [ ] **多维 RSS/Podcast Feed 实现**
+    - 验收: 增强 `server/utils/feed.ts`，为含音频文章自动注入 `<enclosure>` 标签。
+    - 验收: 实现独立播客 Feed 路由 `/feed/podcast.xml`。
     
 ## 待规划与长期积压 (Backlog & Long-term Roadmap)
 
