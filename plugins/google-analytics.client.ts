@@ -18,33 +18,43 @@ export default defineNuxtPlugin((): { provide: { googleAnalytics: GoogleAnalytic
 
     // 只在客户端且配置了 Google Analytics ID 时执行
     if (googleAnalyticsId && import.meta.client) {
-        // 初始化 Google Analytics 全局变量
-        window.dataLayer = window.dataLayer || []
+        const initGA = () => {
+            // 初始化 Google Analytics 全局变量
+            window.dataLayer = window.dataLayer || []
 
-        // 将 gtag 函数添加到 window 对象
-        window.gtag = gtag
+            // 将 gtag 函数添加到 window 对象
+            window.gtag = gtag
 
-        gtag('js', new Date())
-        gtag('config', googleAnalyticsId)
+            gtag('js', new Date())
+            gtag('config', googleAnalyticsId)
 
-        // 动态加载 Google Analytics gtag.js 脚本
-        const script = document.createElement('script')
-        script.src = `https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`
-        script.async = true
+            // 动态加载 Google Analytics gtag.js 脚本
+            const script = document.createElement('script')
+            script.src = `https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`
+            script.async = true
+            script.defer = true // 增加 defer
 
-        // 将脚本插入到 head 中
-        document.head.appendChild(script)
+            // 将脚本插入到 head 中
+            document.head.appendChild(script)
 
-        // 自动跟踪路由变化
-        const router = useRouter()
-        router.afterEach((to) => {
-            if (window.gtag) {
-                window.gtag('config', googleAnalyticsId, {
-                    page_path: to.fullPath,
-                    page_title: document.title,
-                })
-            }
-        })
+            // 自动跟踪路由变化
+            const router = useRouter()
+            router.afterEach((to) => {
+                if (window.gtag) {
+                    window.gtag('config', googleAnalyticsId, {
+                        page_path: to.fullPath,
+                        page_title: document.title,
+                    })
+                }
+            })
+        }
+
+        // 使用 requestIdleCallback 延迟加载，避免阻塞初始渲染
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(() => initGA(), { timeout: 3000 })
+        } else {
+            setTimeout(initGA, 2000)
+        }
 
         // 提供全局访问方法
         return {

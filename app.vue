@@ -55,6 +55,27 @@ useHead({
             title: 'RSS Feed',
             href: '/feed.xml',
         },
+        {
+            rel: 'preconnect',
+            href: 'https://www.googletagmanager.com',
+        },
+        {
+            rel: 'preconnect',
+            href: 'https://hm.baidu.com',
+        },
+        {
+            rel: 'preconnect',
+            href: 'https://cdn.jsdelivr.net',
+            crossorigin: '',
+        },
+        {
+            rel: 'dns-prefetch',
+            href: 'https://hm.baidu.com',
+        },
+        {
+            rel: 'dns-prefetch',
+            href: 'https://www.googletagmanager.com',
+        },
     ],
     meta: [...(head.value.meta || [])],
 })

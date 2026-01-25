@@ -5,7 +5,7 @@
             <slot />
         </main>
         <AppFooter />
-        <AppSearch />
+        <LazyAppSearch />
     </div>
 </template>
 

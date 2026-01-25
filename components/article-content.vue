@@ -128,6 +128,8 @@ watch(() => props.content, () => {
 </script>
 
 <style lang="scss">
+@import "katex/dist/katex.min.css";
+
 .markdown-body {
     line-height: 1.8;
     color: var(--p-text-color);

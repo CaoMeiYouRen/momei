@@ -6,8 +6,16 @@ export default defineNuxtPlugin((): { provide: { clarity: ClarityMethods } } | v
     const clarityProjectId = config.public.clarityProjectId as string
 
     if (clarityProjectId && import.meta.client) {
-        // 初始化 Clarity
-        Clarity.init(clarityProjectId)
+        // 使用 requestIdleCallback 延迟初始化 Clarity
+        const initClarity = () => {
+            Clarity.init(clarityProjectId)
+        }
+
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(() => initClarity(), { timeout: 3000 })
+        } else {
+            setTimeout(initClarity, 2000)
+        }
 
         // 提供全局访问方法
         return {

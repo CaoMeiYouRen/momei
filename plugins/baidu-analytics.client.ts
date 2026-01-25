@@ -10,30 +10,40 @@ export default defineNuxtPlugin((): { provide: { baiduAnalytics: BaiduAnalyticsM
 
     // 只在客户端且配置了百度统计 ID 时执行
     if (baiduAnalyticsId && import.meta.client) {
-        // 初始化百度统计全局变量
-        window._hmt = window._hmt || []
+        const initBaidu = () => {
+            // 初始化百度统计全局变量
+            window._hmt = window._hmt || []
 
-        // 创建脚本元素
-        const script = document.createElement('script')
-        script.src = `https://hm.baidu.com/hm.js?${baiduAnalyticsId}`
-        script.async = true
+            // 创建脚本元素
+            const script = document.createElement('script')
+            script.src = `https://hm.baidu.com/hm.js?${baiduAnalyticsId}`
+            script.async = true
+            script.defer = true
 
-        // 将脚本插入到第一个 script 标签之前
-        const firstScript = document.getElementsByTagName('script')[0]
-        if (firstScript && firstScript.parentNode) {
-            firstScript.parentNode.insertBefore(script, firstScript)
-        } else {
-            // 如果没有找到 script 标签，就插入到 head 中
-            document.head.appendChild(script)
+            // 将脚本插入到第一个 script 标签之前
+            const firstScript = document.getElementsByTagName('script')[0]
+            if (firstScript && firstScript.parentNode) {
+                firstScript.parentNode.insertBefore(script, firstScript)
+            } else {
+                // 如果没有找到 script 标签，就插入到 head 中
+                document.head.appendChild(script)
+            }
+
+            // 自动跟踪路由变化
+            const router = useRouter()
+            router.afterEach((to) => {
+                if (window._hmt) {
+                    window._hmt.push(['_trackPageview', to.fullPath])
+                }
+            })
         }
 
-        // 自动跟踪路由变化
-        const router = useRouter()
-        router.afterEach((to) => {
-            if (window._hmt) {
-                window._hmt.push(['_trackPageview', to.fullPath])
-            }
-        })
+        // 使用 requestIdleCallback 延迟加载
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(() => initBaidu(), { timeout: 3000 })
+        } else {
+            setTimeout(initBaidu, 2000)
+        }
 
         // 提供全局访问方法
         return {
