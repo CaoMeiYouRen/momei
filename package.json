@@ -72,7 +72,7 @@
     "normalize.css": "^8.0.1",
     "nuxt": "^4.2.2",
     "p-queue": "^9.1.0",
-    "pg": "^8.17.1",
+    "pg": "^8.17.2",
     "primeicons": "^7.0.0",
     "primevue": "^4.5.4",
     "push-all-in-one": "^4.5.1",
