@@ -78,6 +78,17 @@
                     </template>
                 </Column>
                 <Column
+                    field="audioUrl"
+                    header="Podcast"
+                    header-class="text-center"
+                    body-class="text-center"
+                    header-style="min-width: 5rem"
+                >
+                    <template #body="{data}">
+                        <i v-if="data.audioUrl" class="pi pi-headphones text-primary" />
+                    </template>
+                </Column>
+                <Column
                     field="translations"
                     :header="$t('common.translation_status')"
                     header-style="min-width: 8rem"
@@ -189,6 +200,7 @@ const { formatDateTime, relativeTime } = useI18nDate()
 interface Post {
     id: string
     title: string
+    audioUrl?: string | null
     status: string
     author: { name: string }
     category?: { name: string }

@@ -163,6 +163,56 @@
                     placeholder="https://..."
                 />
             </div>
+
+            <Divider />
+
+            <div class="form-group">
+                <label for="audioUrl" class="form-label">{{ $t('pages.admin.posts.audio_url') }}</label>
+                <InputGroup>
+                    <InputText
+                        id="audioUrl"
+                        v-model="post.audioUrl"
+                        placeholder="https://... (mp3, m4a)"
+                    />
+                    <Button
+                        v-tooltip="$t('pages.admin.posts.podcast.probe_metadata')"
+                        icon="pi pi-search"
+                        severity="secondary"
+                        text
+                        :loading="probing"
+                        @click="probeAudio"
+                    />
+                </InputGroup>
+            </div>
+
+            <div v-if="post.audioUrl" class="gap-4 grid grid-cols-2">
+                <div class="form-group">
+                    <label for="audioDuration" class="form-label">{{ $t('pages.admin.posts.podcast.duration') }} (s)</label>
+                    <InputNumber
+                        id="audioDuration"
+                        v-model="post.audioDuration"
+                        :min="0"
+                        fluid
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="audioSize" class="form-label">{{ $t('pages.admin.posts.podcast.size') }} (bytes)</label>
+                    <InputNumber
+                        id="audioSize"
+                        v-model="post.audioSize"
+                        :min="0"
+                        fluid
+                    />
+                </div>
+            </div>
+            <div v-if="post.audioUrl" class="form-group">
+                <label for="audioMimeType" class="form-label">{{ $t('pages.admin.posts.podcast.mime_type') }}</label>
+                <InputText
+                    id="audioMimeType"
+                    v-model="post.audioMimeType"
+                    placeholder="audio/mpeg"
+                />
+            </div>
         </div>
         <template #footer>
             <div class="drawer-footer">
@@ -178,6 +228,9 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+import { useToast } from 'primevue/usetoast'
+
 const post = defineModel<any>('post', { required: true })
 
 const props = defineProps<{
@@ -195,6 +248,40 @@ const props = defineProps<{
 const emit = defineEmits(['search-posts', 'suggest-slug', 'recommend-tags', 'search-tags', 'suggest-summary'])
 
 const visible = defineModel<boolean>('visible', { default: false })
+
+const probing = ref(false)
+const toast = useToast()
+
+const probeAudio = async () => {
+    if (!post.value.audioUrl) return
+
+    probing.value = true
+    try {
+        const res = await $fetch<any>('/api/admin/audio/probe', {
+            query: { url: post.value.audioUrl },
+        })
+
+        if (res.code === 200 && res.data) {
+            if (res.data.size) post.value.audioSize = res.data.size
+            if (res.data.mimeType) post.value.audioMimeType = res.data.mimeType
+            toast.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Audio metadata updated',
+                life: 3000,
+            })
+        }
+    } catch (error: any) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.data?.statusMessage || 'Failed to probe audio',
+            life: 3000,
+        })
+    } finally {
+        probing.value = false
+    }
+}
 </script>
 
 <style lang="scss" scoped>

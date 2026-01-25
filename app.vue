@@ -56,6 +56,12 @@ useHead({
             href: '/feed.xml',
         },
         {
+            rel: 'alternate',
+            type: 'application/rss+xml',
+            title: 'Podcast Feed',
+            href: '/feed/podcast.xml',
+        },
+        {
             rel: 'preconnect',
             href: 'https://www.googletagmanager.com',
         },

@@ -32,6 +32,10 @@
                     <i class="pi pi-eye" />
                     {{ post.views }}
                 </span>
+                <span v-if="post.audioUrl" class="article-card__meta-item article-card__meta-item--podcast">
+                    <i class="pi pi-headphones" />
+                    Podcast
+                </span>
             </div>
 
             <p class="article-card__summary" :title="post.summary || ''">
@@ -101,6 +105,7 @@ interface Post {
     title: string
     summary?: string | null
     coverImage?: string | null
+    audioUrl?: string | null
     views: number
     publishedAt?: string | Date | null
     author?: Author | null

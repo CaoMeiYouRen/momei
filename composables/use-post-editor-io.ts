@@ -19,6 +19,11 @@ interface PostFrontMatter {
     tags?: string | string[]
     categories?: string | string[]
     category?: string | string[]
+    audio?: string
+    audio_url?: string
+    audio_duration?: number
+    audio_size?: number
+    audio_mime_type?: string
 }
 
 interface PostEditorData {
@@ -27,6 +32,10 @@ interface PostEditorData {
     slug: string
     summary: string
     coverImage: string
+    audioUrl?: string | null
+    audioDuration?: number | null
+    audioSize?: number | null
+    audioMimeType?: string | null
     categoryId: string | null
     copyright: string | null
     language: string
@@ -144,6 +153,19 @@ export function usePostEditorIO(
                 if (frontMatter.language || frontMatter.lang) {
                     post.value.language = (frontMatter.language
                         || frontMatter.lang) as string
+                }
+
+                if (frontMatter.audio || frontMatter.audio_url) {
+                    post.value.audioUrl = (frontMatter.audio || frontMatter.audio_url) as string
+                }
+                if (frontMatter.audio_duration) {
+                    post.value.audioDuration = frontMatter.audio_duration
+                }
+                if (frontMatter.audio_size) {
+                    post.value.audioSize = frontMatter.audio_size
+                }
+                if (frontMatter.audio_mime_type) {
+                    post.value.audioMimeType = frontMatter.audio_mime_type
                 }
 
                 if (frontMatter.tags) {

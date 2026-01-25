@@ -33,6 +33,16 @@ export const createPostSchema = z.object({
         .refine((url) => isValidCustomUrl(url), {
             message: 'Cover image URL must be from a whitelisted domain or local path',
         }),
+    audioUrl: z
+        .string()
+        .nullable()
+        .optional()
+        .refine((url) => isValidCustomUrl(url), {
+            message: 'Audio URL must be from a whitelisted domain or local path',
+        }),
+    audioDuration: z.coerce.number().int().min(0).nullable().optional(),
+    audioSize: z.coerce.number().int().min(0).nullable().optional(),
+    audioMimeType: z.string().max(100).nullable().optional(),
     language: z.string().default('zh-CN'),
     translationId: z.string().max(255).nullable().optional(),
     category: z.string().nullable().optional(),
@@ -60,6 +70,16 @@ export const updatePostSchema = z.object({
         .refine((url) => isValidCustomUrl(url), {
             message: 'Cover image URL must be from a whitelisted domain or local path',
         }),
+    audioUrl: z
+        .string()
+        .nullable()
+        .optional()
+        .refine((url) => isValidCustomUrl(url), {
+            message: 'Audio URL must be from a whitelisted domain or local path',
+        }),
+    audioDuration: z.coerce.number().int().min(0).nullable().optional(),
+    audioSize: z.coerce.number().int().min(0).nullable().optional(),
+    audioMimeType: z.string().max(100).nullable().optional(),
     language: z.string().optional(),
     translationId: z.string().max(255).nullable().optional(),
     category: z.string().nullable().optional(),

@@ -65,6 +65,18 @@ export class Post extends BaseEntity {
     @CustomColumn({ type: 'text', nullable: true })
     copyright: string | null
 
+    @CustomColumn({ type: 'text', nullable: true, comment: '音频文件地址' })
+    audioUrl: string | null
+
+    @CustomColumn({ type: 'integer', nullable: true, comment: '音频时长 (秒)' })
+    audioDuration: number | null
+
+    @CustomColumn({ type: 'integer', nullable: true, comment: '音频文件大小 (字节)' })
+    audioSize: number | null
+
+    @CustomColumn({ type: 'varchar', length: 100, nullable: true, comment: '音频 MIME 类型' })
+    audioMimeType: string | null
+
     @CustomColumn({ type: 'datetime', nullable: true, index: true })
     publishedAt: Date | null
 

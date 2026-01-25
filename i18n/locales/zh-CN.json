@@ -173,6 +173,7 @@
         "admin": "管理",
         "all": "全部",
         "rss": "RSS 订阅",
+        "podcast_rss": "播客订阅",
         "sitemap": "站点地图",
         "success": "成功",
         "error": "错误",
@@ -302,6 +303,14 @@
                 "tags_hint": "输入标签名称并回车",
                 "summary_placeholder": "文章摘要...",
                 "cover_image": "封面图 URL",
+                "audio_url": "音频 URL (Podcast)",
+                "podcast": {
+                    "probe_metadata": "探测音频元数据",
+                    "duration": "音频时长",
+                    "size": "音频大小",
+                    "mime_type": "音频类型",
+                    "probing": "元数据探测中..."
+                },
                 "copyright": "版权声明",
                 "copyright_hint": "留空则使用全局默认声明",
                 "visibility": "可见性",

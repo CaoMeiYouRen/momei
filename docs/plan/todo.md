@@ -418,12 +418,12 @@
 - [x] **上传服务重构与音频支持**
     - 验收: 重构 `server/services/upload.ts`，支持 `image` 和 `audio` 类型校验。
     - 验收: 音频上传支持差异化限制（如 100MB），并在 `utils/shared/env.ts` 中配置。
-- [ ] **文章实体模型扩展**
+- [x] **文章实体模型扩展**
     - 验收: `Post` 实体新增音频字段：`audioUrl`, `audioDuration`, `audioSize`, `audioMimeType`。
-- [ ] **播客元数据采集逻辑**
+- [x] **播客元数据采集逻辑**
     - 验收: 实现后端辅助接口，支持通过 HEAD 请求获取远程音频的 `Content-Length` 和 `Content-Type`。
     - 验收: UI 端实现视频/音频参数配置面板，支持手动校正时长。
-- [ ] **多维 RSS/Podcast Feed 实现**
+- [x] **多维 RSS/Podcast Feed 实现**
     - 验收: 增强 `server/utils/feed.ts`，为含音频文章自动注入 `<enclosure>` 标签。
     - 验收: 实现独立播客 Feed 路由 `/feed/podcast.xml`。
     

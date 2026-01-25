@@ -37,6 +37,13 @@
                     {{ $t('common.rss') }}
                 </NuxtLink>
                 <NuxtLink
+                    to="/feed/podcast.xml"
+                    target="_blank"
+                    class="footer__link"
+                >
+                    {{ $t('common.podcast_rss') }}
+                </NuxtLink>
+                <NuxtLink
                     to="/sitemap.xml"
                     target="_blank"
                     class="footer__link"

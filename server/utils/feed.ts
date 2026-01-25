@@ -13,6 +13,7 @@ interface FeedOptions {
     limit?: number
     titleSuffix?: string
     language?: string
+    isPodcast?: boolean
 }
 
 export function getFeedLanguage(event: H3Event, explicitLanguage?: string): string {
@@ -54,6 +55,10 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
     if (options.tagId) {
         // Tag is a many-to-many relationship
         queryBuilder.innerJoin('post.tags', 'filterTag', 'filterTag.id = :tagId', { tagId: options.tagId })
+    }
+
+    if (options.isPodcast) {
+        queryBuilder.andWhere('post.audioUrl IS NOT NULL')
     }
 
     const posts = await queryBuilder
@@ -98,6 +103,13 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
             category: post.category ? [{ name: post.category.name }] : [],
             date: new Date(itemDate),
             image: post.coverImage || undefined,
+            enclosure: post.audioUrl
+                ? {
+                    url: post.audioUrl,
+                    length: post.audioSize || 0,
+                    type: post.audioMimeType || 'audio/mpeg',
+                }
+                : undefined,
         })
     })
 

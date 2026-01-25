@@ -204,7 +204,16 @@
                             </div>
                         </div>
                     </template>
-                    <ArticleContent v-else :content="post.content" />
+                    <template v-else>
+                        <!-- Audio Player -->
+                        <div v-if="post.audioUrl" class="post-detail__audio">
+                            <audio controls>
+                                <source :src="post.audioUrl" :type="post.audioMimeType || 'audio/mpeg'">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                        <ArticleContent :content="post.content" />
+                    </template>
 
                     <!-- Copyright -->
                     <ArticleCopyright
@@ -484,6 +493,23 @@ onMounted(async () => {
         @media (width <= 768px) {
             padding: 1.5rem;
             border-radius: 0.75rem;
+        }
+    }
+
+    &__audio {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background-color: var(--p-surface-100);
+        border-radius: 1rem;
+        border: 1px solid var(--p-surface-border);
+
+        audio {
+            width: 100%;
+            height: 3rem;
+        }
+
+        :global(.dark) & {
+            background-color: var(--p-surface-800);
         }
     }
 

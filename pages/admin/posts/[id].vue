@@ -151,6 +151,10 @@ interface Post {
     password?: string | null
     summary: string
     coverImage: string
+    audioUrl?: string | null
+    audioDuration?: number | null
+    audioSize?: number | null
+    audioMimeType?: string | null
     categoryId: string | null
     copyright: string | null
     tags: string[]
@@ -170,6 +174,10 @@ const post = ref<Post>({
     password: null,
     summary: '',
     coverImage: '',
+    audioUrl: null,
+    audioDuration: null,
+    audioSize: null,
+    audioMimeType: null,
     categoryId: null,
     copyright: null,
     tags: [],
