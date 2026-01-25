@@ -157,11 +157,29 @@
 
             <div class="form-group">
                 <label for="cover" class="form-label">{{ $t('pages.admin.posts.cover_image') }}</label>
-                <InputText
-                    id="cover"
-                    v-model="post.coverImage"
-                    placeholder="https://..."
-                />
+                <InputGroup>
+                    <InputText
+                        id="cover"
+                        v-model="post.coverImage"
+                        placeholder="https://..."
+                    />
+                    <Button
+                        v-if="isValidImageUrl"
+                        v-tooltip="$t('common.preview')"
+                        icon="pi pi-image"
+                        severity="secondary"
+                        text
+                        @click="toggleImagePreview"
+                    />
+                </InputGroup>
+                <div v-if="showImagePreview && isValidImageUrl" class="mt-2 preview-container">
+                    <Image
+                        :src="post.coverImage"
+                        alt="Cover Preview"
+                        preview
+                        class="h-auto max-w-full rounded shadow-sm"
+                    />
+                </div>
             </div>
 
             <Divider />
@@ -175,6 +193,14 @@
                         placeholder="https://... (mp3, m4a)"
                     />
                     <Button
+                        v-if="isValidAudioUrl"
+                        v-tooltip="showAudioPlayer ? $t('common.close') : $t('common.preview')"
+                        :icon="showAudioPlayer ? 'pi pi-times' : 'pi pi-play'"
+                        severity="secondary"
+                        text
+                        @click="toggleAudio"
+                    />
+                    <Button
                         v-tooltip="$t('pages.admin.posts.podcast.probe_metadata')"
                         icon="pi pi-bolt"
                         severity="secondary"
@@ -183,6 +209,13 @@
                         @click="probeAudio"
                     />
                 </InputGroup>
+                <div v-if="showAudioPlayer && isValidAudioUrl" class="mt-2 preview-container">
+                    <audio
+                        :src="post.audioUrl"
+                        controls
+                        class="w-full"
+                    />
+                </div>
             </div>
 
             <div v-if="post.audioUrl" class="audio-metadata-group">
@@ -232,10 +265,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { format as bytes } from 'better-bytes'
 import { secondsToDuration, durationToSeconds } from '@/utils/shared/date'
+import { isValidCustomUrl } from '@/utils/shared/validate'
 
 const post = defineModel<any>('post', { required: true })
 
@@ -256,7 +290,33 @@ const emit = defineEmits(['search-posts', 'suggest-slug', 'recommend-tags', 'sea
 const visible = defineModel<boolean>('visible', { default: false })
 
 const probing = ref(false)
+const showImagePreview = ref(false)
+const showAudioPlayer = ref(false)
 const toast = useToast()
+
+const isValidImageUrl = computed(() => {
+    return post.value.coverImage && isValidCustomUrl(post.value.coverImage)
+})
+
+const isValidAudioUrl = computed(() => {
+    return post.value.audioUrl && isValidCustomUrl(post.value.audioUrl)
+})
+
+const toggleImagePreview = () => {
+    showImagePreview.value = !showImagePreview.value
+}
+
+const toggleAudio = () => {
+    showAudioPlayer.value = !showAudioPlayer.value
+}
+
+watch(() => post.value.coverImage, () => {
+    showImagePreview.value = false
+})
+
+watch(() => post.value.audioUrl, () => {
+    showAudioPlayer.value = false
+})
 
 // 人类可读的文件大小
 const readableSize = computed(() => {
@@ -307,7 +367,7 @@ const probeAudio = async () => {
 
 <style lang="scss" scoped>
 .settings-drawer {
-    width: 24rem;
+    width: 28rem;
 }
 
 .settings-form {
@@ -350,5 +410,26 @@ const probeAudio = async () => {
 
 .resize-none {
     resize: none;
+}
+
+.preview-container {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: var(--p-surface-50);
+    border: 1px solid var(--p-surface-200);
+
+    :deep(img) {
+        border-radius: 0.25rem;
+        display: block;
+        max-height: 15rem;
+        width: 100%;
+        object-fit: contain;
+        background-color: var(--p-surface-100);
+    }
+
+    audio {
+        max-width: 100%;
+        display: block;
+    }
 }
 </style>
