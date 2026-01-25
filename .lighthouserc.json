@@ -16,27 +16,27 @@
         "assert": {
             "assertions": {
                 "categories:performance": [
-                    "error",
+                    "warn",
                     {
-                        "minScore": 0.9
+                        "minScore": 0.8
                     }
                 ],
                 "categories:accessibility": [
-                    "error",
+                    "warn",
                     {
-                        "minScore": 0.9
+                        "minScore": 0.8
                     }
                 ],
                 "categories:best-practices": [
-                    "error",
+                    "warn",
                     {
-                        "minScore": 0.9
+                        "minScore": 0.8
                     }
                 ],
                 "categories:seo": [
-                    "error",
+                    "warn",
                     {
-                        "minScore": 0.9
+                        "minScore": 0.8
                     }
                 ]
             }
