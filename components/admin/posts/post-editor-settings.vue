@@ -176,7 +176,7 @@
                     />
                     <Button
                         v-tooltip="$t('pages.admin.posts.podcast.probe_metadata')"
-                        icon="pi pi-search"
+                        icon="pi pi-bolt"
                         severity="secondary"
                         text
                         :loading="probing"
