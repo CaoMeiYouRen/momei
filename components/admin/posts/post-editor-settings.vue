@@ -188,22 +188,24 @@
             <div v-if="post.audioUrl" class="audio-metadata-group">
                 <div class="audio-metadata-row">
                     <div class="form-group">
-                        <label for="audioDuration" class="form-label">{{ $t('pages.admin.posts.podcast.duration') }} (s)</label>
-                        <InputNumber
+                        <label for="audioDuration" class="form-label">{{ $t('pages.admin.posts.podcast.duration') }}</label>
+                        <InputText
                             id="audioDuration"
-                            v-model="post.audioDuration"
-                            :min="0"
+                            v-model="displayDuration"
+                            placeholder="00:00:00"
                             fluid
                         />
+                        <small class="form-hint">秒数: {{ post.audioDuration || 0 }}s</small>
                     </div>
                     <div class="form-group">
-                        <label for="audioSize" class="form-label">{{ $t('pages.admin.posts.podcast.size') }} (bytes)</label>
+                        <label for="audioSize" class="form-label">{{ $t('pages.admin.posts.podcast.size') }}</label>
                         <InputNumber
                             id="audioSize"
                             v-model="post.audioSize"
                             :min="0"
                             fluid
                         />
+                        <small class="form-hint">{{ readableSize }}</small>
                     </div>
                 </div>
                 <div class="form-group">
@@ -230,8 +232,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
+import { format as bytes } from 'better-bytes'
+import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+
+dayjs.extend(duration)
 
 const post = defineModel<any>('post', { required: true })
 
@@ -254,6 +261,49 @@ const visible = defineModel<boolean>('visible', { default: false })
 const probing = ref(false)
 const toast = useToast()
 
+// 人类可读的文件大小
+const readableSize = computed(() => {
+    if (!post.value.audioSize) return '0 B'
+    return bytes(post.value.audioSize)
+})
+
+// 音频时长展示逻辑 (HH:mm:ss <-> seconds)
+const displayDuration = computed({
+    get: () => {
+        if (!post.value.audioDuration) return '00:00:00'
+        const totalSecs = Number(post.value.audioDuration)
+        if (isNaN(totalSecs)) return '00:00:00'
+        const dur = dayjs.duration(totalSecs, 'seconds')
+        const hours = Math.floor(dur.asHours())
+        const mins = dur.minutes()
+        const secs = dur.seconds()
+        return [
+            hours.toString().padStart(2, '0'),
+            mins.toString().padStart(2, '0'),
+            secs.toString().padStart(2, '0'),
+        ].join(':')
+    },
+    set: (val: string) => {
+        if (!val) {
+            post.value.audioDuration = 0
+            return
+        }
+        const parts = val.split(':').map(Number)
+        let totalSeconds = 0
+        if (parts.length === 3) {
+            // HH:mm:ss
+            totalSeconds = (parts[0] || 0) * 3600 + (parts[1] || 0) * 60 + (parts[2] || 0)
+        } else if (parts.length === 2) {
+            // mm:ss
+            totalSeconds = (parts[0] || 0) * 60 + (parts[1] || 0)
+        } else if (parts.length === 1) {
+            // ss
+            totalSeconds = (parts[0] || 0)
+        }
+        post.value.audioDuration = isNaN(totalSeconds) ? 0 : totalSeconds
+    },
+})
+
 const probeAudio = async () => {
     if (!post.value.audioUrl) return
 
@@ -266,6 +316,7 @@ const probeAudio = async () => {
         if (res.code === 200 && res.data) {
             if (res.data.size) post.value.audioSize = res.data.size
             if (res.data.mimeType) post.value.audioMimeType = res.data.mimeType
+            if (res.data.duration) post.value.audioDuration = res.data.duration
             toast.add({
                 severity: 'success',
                 summary: 'Success',
