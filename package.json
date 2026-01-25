@@ -155,7 +155,7 @@
     "stylelint": "^16.26.1",
     "stylelint-config-cmyr": "^1.0.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.53.0",
+    "typescript-eslint": "^8.53.1",
     "vite": "^7.3.1",
     "vitepress": "^1.6.4",
     "vitest": "^4.0.15",
