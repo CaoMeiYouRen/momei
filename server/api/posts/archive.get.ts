@@ -5,18 +5,20 @@ import { archiveQuerySchema } from '@/utils/schemas/post'
 import { success, paginate } from '@/server/utils/response'
 import { processAuthorsPrivacy } from '@/server/utils/author'
 import { isAdmin } from '@/utils/shared/roles'
+import { applyPostVisibilityFilter } from '@/server/utils/post-access'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => archiveQuerySchema.parse(q))
 
     const session = event.context?.auth
+    const user = event.context?.user
 
     const postRepo = dataSource.getRepository(Post)
 
     // Helper to apply common filters including multi-language aggregation
-    const applyCommonFilters = (qb: any) => {
+    const applyCommonFilters = async (qb: any) => {
         if (query.scope === 'public') {
-            qb.andWhere('post.status = :status', { status: 'published' })
+            await applyPostVisibilityFilter(qb, user, 'public')
         }
 
         const targetLang = query.language || 'zh-CN'
@@ -58,8 +60,8 @@ export default defineEventHandler(async (event) => {
         if (!session || !session.user) {
             throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
         }
-        const user = session.user
-        const role = user.role
+        const sessionUser = session.user
+        const role = sessionUser.role
         if (role !== 'admin' && role !== 'author') {
             throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
         }
@@ -89,7 +91,7 @@ export default defineEventHandler(async (event) => {
         const rawQb = postRepo.createQueryBuilder('post')
             .select([`${yearExpr} as year`, `${monthExpr} as month`, 'COUNT(*) as count'])
 
-        applyCommonFilters(rawQb)
+        await applyCommonFilters(rawQb)
 
         rawQb.groupBy('year')
             .addGroupBy('month')
@@ -132,7 +134,7 @@ export default defineEventHandler(async (event) => {
         .leftJoinAndSelect('post.category', 'category')
         .leftJoinAndSelect('post.tags', 'tags')
 
-    applyCommonFilters(postsQb)
+    await applyCommonFilters(postsQb)
 
     // Add year/month filter depending on DB
     if (dbType.includes('sqlite')) {

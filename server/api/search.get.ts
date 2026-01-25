@@ -6,9 +6,11 @@ import { success, paginate } from '@/server/utils/response'
 import { applyPagination } from '@/server/utils/pagination'
 import { processAuthorsPrivacy } from '@/server/utils/author'
 import { isAdmin } from '@/utils/shared/roles'
+import { applyPostVisibilityFilter } from '@/server/utils/post-access'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => searchQuerySchema.parse(q))
+    const user = event.context.user
 
     const postRepo = dataSource.getRepository(Post)
     const qb = postRepo.createQueryBuilder('post')
@@ -16,7 +18,9 @@ export default defineEventHandler(async (event) => {
         .addSelect(['author.id', 'author.name', 'author.image', 'author.email'])
         .leftJoinAndSelect('post.category', 'category')
         .leftJoinAndSelect('post.tags', 'tags')
-        .where('post.status = :status', { status: 'published' })
+
+    // 应用统一的文章可见性过滤逻辑
+    await applyPostVisibilityFilter(qb, user, 'public')
 
     // 1. Keyword search (Title, Summary)
     // NOTE: Avoid searching 'content' with LIKE %q% on large datasets as it causes full table scans.

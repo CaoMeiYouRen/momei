@@ -1,8 +1,83 @@
+import { Brackets, type SelectQueryBuilder } from 'typeorm'
 import { PostStatus, PostVisibility } from '@/types/post'
 import type { Post } from '@/server/entities/post'
 import { dataSource } from '@/server/database'
 import { Subscriber } from '@/server/entities/subscriber'
 import { isAdmin } from '@/utils/shared/roles'
+
+/**
+ * 为查询构建器应用文章可见性过滤逻辑
+ * @param qb SelectQueryBuilder
+ * @param user 当前用户（可选）
+ * @param mode 模式：'public' (常规列表) | 'feed' (订阅源) | 'manage' (管理后台)
+ */
+export async function applyPostVisibilityFilter(
+    qb: SelectQueryBuilder<Post>,
+    user?: any | null,
+    mode: 'public' | 'feed' | 'manage' = 'public',
+) {
+    const isSystemAdmin = user && isAdmin(user.role)
+
+    // 1. 处理管理模式
+    if (mode === 'manage') {
+        // 管理模式通常在 API 层处理更复杂的权限（如只能看自己的文章）
+        // 这里仅确保已发布非私有的逻辑不强制应用，以便管理员/作者看到所有状态
+        return qb
+    }
+
+    // 2. 处理订阅源 (RSS/Atom/JSON Feed)
+    if (mode === 'feed') {
+        // 订阅源为了通用性和隐私，强制仅显示 PUBLIC 状态的文章
+        qb.andWhere('post.status = :status', { status: PostStatus.PUBLISHED })
+        qb.andWhere('post.visibility = :visibility', { visibility: PostVisibility.PUBLIC })
+        return qb
+    }
+
+    // 3. 处理公共列表模式 (Public Mode)
+    qb.andWhere('post.status = :status', { status: PostStatus.PUBLISHED })
+
+    // 管理员在公共模式下也能看到所有已发布的文章
+    if (isSystemAdmin) {
+        return qb
+    }
+
+    // 检查订阅状态
+    const isSub = await isUserSubscriber(user?.id)
+
+    qb.andWhere(new Brackets((sub) => {
+        // A. 任何人均可见公开文章
+        sub.where('post.visibility = :publicVisibility', { publicVisibility: PostVisibility.PUBLIC })
+
+        // B. 作者可见自己的任何文章
+        if (user?.id) {
+            sub.orWhere('post.authorId = :currentUserId', { currentUserId: user.id })
+        }
+
+        // C. 已登录用户可见“登录可见”的文章
+        if (user) {
+            sub.orWhere('post.visibility = :registeredVisibility', { registeredVisibility: PostVisibility.REGISTERED })
+        }
+
+        // D. 订阅者可见“订阅可见”的文章
+        if (isSub) {
+            sub.orWhere('post.visibility = :subscriberVisibility', { subscriberVisibility: PostVisibility.SUBSCRIBER })
+        }
+
+        // E. 密码保护的文章：
+        // 通常在列表中可见，点击进入后提示输入密码。
+        // 但如果用户要求“统一管控”且“过滤掉”，则这里不加 orWhere。
+        // 根据反馈：“这几个还有密码加密之类的。你应该在rss的订阅源把它过滤掉。”
+        // 意味着 RSS 过滤，但 API 列表可能需要显示标题？
+        // 考虑到“Stealth Mode”和“统一管控”，我们这里暂且将 PASSWORD 状态也排除在匿名用户的普通列表之外，
+        // 除非他们是作者或管理员。
+        // 修正：依照目前大多数博客习惯，密码文章在列表可见。但既然用户要求“统一管控”，
+        // 我们在 applyPostVisibilityFilter 中可以默认对匿名用户隐藏除了 PUBLIC 之外的所有类型。
+        // 如果想让 PASSWORD 文章在列表可见，可以取消注释下面这行：
+        // sub.orWhere('post.visibility = :passwordVisibility', { passwordVisibility: PostVisibility.PASSWORD })
+    }))
+
+    return qb
+}
 
 /**
  * 文章访问控制结果

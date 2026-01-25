@@ -3,9 +3,9 @@ import MarkdownIt from 'markdown-it'
 import MarkdownItAnchor from 'markdown-it-anchor'
 import type { H3Event } from 'h3'
 import { detectUserLocale, toProjectLocale } from './locale'
+import { applyPostVisibilityFilter } from './post-access'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
-import { PostStatus } from '@/types/post'
 
 interface FeedOptions {
     categoryId?: string
@@ -45,8 +45,11 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
         .leftJoinAndSelect('post.author', 'author')
         .leftJoinAndSelect('post.category', 'category')
         .leftJoinAndSelect('post.tags', 'tags')
-        .where('post.status = :status', { status: PostStatus.PUBLISHED })
-        .andWhere('post.language = :language', { language })
+
+    // 应用统一的文章可见性过滤逻辑 (Mode: feed)
+    await applyPostVisibilityFilter(queryBuilder, event.context?.user, 'feed')
+
+    queryBuilder.andWhere('post.language = :language', { language })
 
     if (options.categoryId) {
         queryBuilder.andWhere('post.categoryId = :categoryId', { categoryId: options.categoryId })

@@ -84,6 +84,7 @@ import { useDebounceFn } from '@vueuse/core'
 const { locale } = useI18n()
 const localePath = useLocalePath()
 const { isSearchOpen: visible, openSearch, closeSearch } = useSearch()
+const { $appFetch } = useAppApi()
 
 const query = ref('')
 const results = ref<any[]>([])
@@ -100,7 +101,6 @@ const debouncedSearch = useDebounceFn(async () => {
 
     loading.value = true
     try {
-        const { $appFetch } = useAppApi()
         const response = await $appFetch<any>('/api/search', {
             query: {
                 q: trimmedQuery,

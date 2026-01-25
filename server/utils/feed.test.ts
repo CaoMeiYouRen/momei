@@ -4,7 +4,7 @@ import { Post } from '@/server/entities/post'
 import { User } from '@/server/entities/user'
 import { Category } from '@/server/entities/category'
 import { Tag } from '@/server/entities/tag'
-import { PostStatus } from '@/types/post'
+import { PostStatus, PostVisibility } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
 import { generateFeed } from '@/server/utils/feed'
 
@@ -79,6 +79,30 @@ describe('Feed Generation Utility', async () => {
         postEn2.author = author
         postEn2.publishedAt = new Date()
         await postRepo.save(postEn2)
+
+        // Private Post (Should not appear in feed)
+        const postPrivate = new Post()
+        postPrivate.title = 'Private Post'
+        postPrivate.slug = 'private-post'
+        postPrivate.content = 'Private content'
+        postPrivate.language = 'zh-CN'
+        postPrivate.status = PostStatus.PUBLISHED
+        postPrivate.visibility = PostVisibility.PRIVATE
+        postPrivate.author = author
+        postPrivate.publishedAt = new Date()
+        await postRepo.save(postPrivate)
+
+        // Registered Only Post (Should not appear in feed)
+        const postReg = new Post()
+        postReg.title = 'Registered Post'
+        postReg.slug = 'registered-post'
+        postReg.content = 'Registered content'
+        postReg.language = 'zh-CN'
+        postReg.status = PostStatus.PUBLISHED
+        postReg.visibility = PostVisibility.REGISTERED
+        postReg.author = author
+        postReg.publishedAt = new Date()
+        await postRepo.save(postReg)
     })
 
     it('should generate global feed default to zh-CN (based on mock event)', async () => {
@@ -96,6 +120,19 @@ describe('Feed Generation Utility', async () => {
         // Should only contain the ZH post
         expect(feed.items.length).toBe(1)
         expect(feed.items[0]!.title).toBe('RSS 中文文章')
+    })
+
+    it('should filter out non-public posts in feed', async () => {
+        const event = {
+            path: '/feed.xml',
+            headers: new Headers({ 'accept-language': 'zh-CN,zh;q=0.9' }),
+        } as any
+
+        const feed = await generateFeed(event)
+
+        // Items should not include 'Private Post' or 'Registered Post'
+        expect(feed.items.some((item) => item.title === 'Private Post')).toBe(false)
+        expect(feed.items.some((item) => item.title === 'Registered Post')).toBe(false)
     })
 
     it('should generate feed for specific language en-US', async () => {

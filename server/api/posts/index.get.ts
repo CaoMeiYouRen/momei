@@ -7,6 +7,7 @@ import { applyPagination } from '@/server/utils/pagination'
 import { isAdmin } from '@/utils/shared/roles'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { processAuthorsPrivacy } from '@/server/utils/author'
+import { applyPostVisibilityFilter } from '@/server/utils/post-access'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(q))
@@ -65,10 +66,8 @@ export default defineEventHandler(async (event) => {
             qb.andWhere('post.language = :language', { language: query.language })
         }
     } else {
-        // Public Mode
-        qb.andWhere('post.status = :status', { status: 'published' })
-        // 隐藏私有文章 (Stealth Mode at list level)
-        qb.andWhere('post.visibility != :privateVisibility', { privateVisibility: 'private' })
+        // Public Mode: 应用统一的可见性过滤逻辑
+        await applyPostVisibilityFilter(qb, user, 'public')
 
         if (query.authorId) {
             qb.andWhere('post.authorId = :authorId', { authorId: query.authorId })
