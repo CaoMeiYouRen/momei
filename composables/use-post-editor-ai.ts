@@ -240,7 +240,10 @@ export function usePostEditorAI(
             }
 
             // Translate Content (Chunked to avoid timeouts)
-            const chunks = ContentProcessor.splitMarkdown(content)
+            const chunks = ContentProcessor.splitMarkdown(content, {
+                chunkSize: 2000,
+                minChunkSize: 200,
+            })
             post.value.content = ''
 
             for (let i = 0; i < chunks.length; i++) {
