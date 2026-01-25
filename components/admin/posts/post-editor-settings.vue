@@ -185,33 +185,35 @@
                 </InputGroup>
             </div>
 
-            <div v-if="post.audioUrl" class="gap-5 grid grid-cols-2">
-                <div class="form-group">
-                    <label for="audioDuration" class="form-label">{{ $t('pages.admin.posts.podcast.duration') }} (s)</label>
-                    <InputNumber
-                        id="audioDuration"
-                        v-model="post.audioDuration"
-                        :min="0"
-                        fluid
-                    />
+            <div v-if="post.audioUrl" class="audio-metadata-group">
+                <div class="audio-metadata-row">
+                    <div class="form-group">
+                        <label for="audioDuration" class="form-label">{{ $t('pages.admin.posts.podcast.duration') }} (s)</label>
+                        <InputNumber
+                            id="audioDuration"
+                            v-model="post.audioDuration"
+                            :min="0"
+                            fluid
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="audioSize" class="form-label">{{ $t('pages.admin.posts.podcast.size') }} (bytes)</label>
+                        <InputNumber
+                            id="audioSize"
+                            v-model="post.audioSize"
+                            :min="0"
+                            fluid
+                        />
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label for="audioSize" class="form-label">{{ $t('pages.admin.posts.podcast.size') }} (bytes)</label>
-                    <InputNumber
-                        id="audioSize"
-                        v-model="post.audioSize"
-                        :min="0"
-                        fluid
+                    <label for="audioMimeType" class="form-label">{{ $t('pages.admin.posts.podcast.mime_type') }}</label>
+                    <InputText
+                        id="audioMimeType"
+                        v-model="post.audioMimeType"
+                        placeholder="audio/mpeg"
                     />
                 </div>
-            </div>
-            <div v-if="post.audioUrl" class="form-group">
-                <label for="audioMimeType" class="form-label">{{ $t('pages.admin.posts.podcast.mime_type') }}</label>
-                <InputText
-                    id="audioMimeType"
-                    v-model="post.audioMimeType"
-                    placeholder="audio/mpeg"
-                />
             </div>
         </div>
         <template #footer>
@@ -299,6 +301,18 @@ const probeAudio = async () => {
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
+}
+
+.audio-metadata-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.audio-metadata-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
 }
 
 .form-label {
