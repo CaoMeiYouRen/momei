@@ -21,49 +21,47 @@ export class ContentProcessor {
     ): string[] {
         const { chunkSize = 4000, minChunkSize = 200 } = options
 
-        if (content.length <= chunkSize) {
-            return [content]
+        if (!content || !content.trim()) {
+            return []
         }
 
         const chunks: string[] = []
         let currentChunk = ''
 
-        // 识别 Markdown 标题和段落
-        const segments = content.split(/(\n(?=#+ )|\n\n)/g)
+        // 识别 Markdown 标题和段落，保留分隔符
+        const rawSegments = content.split(/(\n\n|\n(?=#+ ))/g)
 
-        for (const segment of segments) {
-            // 过滤掉纯空白字符
-            if (!segment.trim() && segment !== '\n\n') {
+        for (const segment of rawSegments) {
+            if (!segment) {
                 continue
             }
 
-            if (
-                currentChunk.length + segment.length > chunkSize
-                && currentChunk.length >= minChunkSize
-            ) {
-                const trimmed = currentChunk.trim()
-                if (trimmed) {
-                    chunks.push(trimmed)
+            // 处理行尾空格
+            const processedSegment = segment.split('\n').map((line) => line.trimEnd()).join('\n')
+
+            // 如果当前块加上新段落超过限制
+            if (currentChunk.length + processedSegment.length > chunkSize) {
+                // 如果已经达到最小大小，推入当前块
+                if (currentChunk.length >= minChunkSize) {
+                    const trimmed = currentChunk.trim()
+                    if (trimmed) {
+                        chunks.push(trimmed)
+                    }
+                    currentChunk = ''
                 }
-                currentChunk = ''
             }
 
-            // 如果单个段落就超过了 chunkSize，则进一步细分
-            if (segment.length > chunkSize) {
-                if (currentChunk) {
+            // 如果单段极其长，超过限制，则强制切分
+            if (processedSegment.length > chunkSize) {
+                if (currentChunk.trim()) {
                     chunks.push(currentChunk.trim())
                     currentChunk = ''
                 }
 
-                // 按行或句子切分长段落
-                const subSegments = segment.match(
-                    /[^\n。！？.?!]+[。！？.?!\n]*/g,
-                ) || [segment]
+                // 切分长段落（按句子或行）
+                const subSegments = processedSegment.match(/.*?[。！？.?!\n]+|.+/g) || [processedSegment]
                 for (const sub of subSegments) {
-                    if (
-                        currentChunk.length + sub.length > chunkSize
-                        && currentChunk.length >= minChunkSize
-                    ) {
+                    if (currentChunk.length + sub.length > chunkSize && currentChunk.length >= minChunkSize) {
                         const trimmed = currentChunk.trim()
                         if (trimmed) {
                             chunks.push(trimmed)
@@ -75,7 +73,7 @@ export class ContentProcessor {
                 continue
             }
 
-            currentChunk += segment
+            currentChunk += processedSegment
         }
 
         if (currentChunk.trim()) {
