@@ -23,7 +23,9 @@ export const scryptHash = (value: string, options: { saltLength?: number, keyLen
 export const scryptVerify = (value: string, storedHash: string, options: { keyLength?: number } = {}): boolean => {
     const { keyLength = 64 } = options
     const [salt, hash] = storedHash.split(':')
-    if (!salt || !hash) { return false }
+    if (!salt || !hash) {
+        return false
+    }
 
     const derivedKey = scryptSync(value, salt, keyLength)
     const hashBuffer = Buffer.from(hash, 'hex')

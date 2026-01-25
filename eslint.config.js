@@ -1,8 +1,14 @@
 import cmyrConfig from 'eslint-config-cmyr/nuxt'
 import { globalIgnores } from 'eslint/config'
+import pluginVue from 'eslint-plugin-vue'
 import withNuxt from './.nuxt/eslint.config.mjs'
 
 export default withNuxt(
+    {
+        plugins: {
+            vue: pluginVue,
+        },
+    },
     cmyrConfig,
     globalIgnores([
         'node_modules',

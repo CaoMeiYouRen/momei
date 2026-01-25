@@ -120,6 +120,11 @@ onMounted(() => {
     initCodeGroups()
 })
 
+defineExpose({
+    lightboxVisible,
+    lightboxImage,
+})
+
 watch(() => props.content, () => {
     nextTick(() => {
         initCodeGroups()

@@ -75,7 +75,7 @@
 import type { ArchiveMonth, ArchiveYear, ApiResponse } from '@/types/archive'
 import Skeleton from 'primevue/skeleton'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
 useHead({ title: t('pages.archives.meta.title') })
 
@@ -104,7 +104,6 @@ async function loadMonthPosts(year: number, month: number) {
     const key = cacheKey(year, month)
     if (postsCache[key] || loading[key]) return
 
-    const { locale } = useI18n()
     loading[key] = true
     try {
         const res: any = await $fetch('/api/posts/archive', {

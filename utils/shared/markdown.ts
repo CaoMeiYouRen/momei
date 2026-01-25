@@ -115,7 +115,7 @@ export function createMarkdownRenderer(mdOptions: MarkdownOptions = {}) {
         return defaultImageRender(tokens, idx, options, env, self)
     }
 
-    md.renderer.rules.fence = function (tokens, idx, options, _env, _self) {
+    md.renderer.rules.fence = function (tokens, idx, options) {
         const token = tokens[idx]
         if (!token) {
             return ''

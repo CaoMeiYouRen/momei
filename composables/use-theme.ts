@@ -293,5 +293,6 @@ export const useTheme = () => {
         fetchTheme,
         applyTheme,
         mourningMode,
+        customStyles,
     }
 }
