@@ -21,11 +21,25 @@ export const useOnboarding = () => {
         const d = createDriver()
         const steps: DriveStep[] = []
 
-        // 1. Welcome Step (Global)
+        // 0. Demo Banner (If exists) - Explain the demo context
+        const demoBanner = document.querySelector('.demo-banner')
+        if (demoBanner) {
+            steps.push({
+                element: '.demo-banner',
+                popover: {
+                    title: t('demo.tour.welcome_title'),
+                    description: t('demo.banner_text'),
+                    side: 'bottom',
+                    align: 'start',
+                },
+            })
+        }
+
+        // 1. Welcome Step (Global) - Focus on the logo
         steps.push({
             element: '.app-header__logo',
             popover: {
-                title: t('demo.tour.welcome_title'),
+                title: t('app.name'),
                 description: t('demo.tour.welcome_desc'),
                 side: 'bottom',
                 align: 'start',

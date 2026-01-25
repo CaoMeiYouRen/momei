@@ -1,0 +1,136 @@
+.driver-popover {
+    background-color: var(--p-surface-card, #ffffff);
+    color: var(--p-text-color, #334155);
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--p-surface-border, #e2e8f0);
+    padding: 1.25rem;
+    font-family: var(--p-font-family, inherit);
+
+    .driver-popover-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--p-text-color, #1e293b);
+    }
+
+    .driver-popover-description {
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: var(--p-text-muted-color, #64748b);
+    }
+
+    .driver-popover-footer {
+        margin-top: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+
+    .driver-popover-progress-text {
+        font-size: 0.75rem;
+        color: var(--p-text-muted-color, #94a3b8);
+    }
+
+    .driver-popover-next-btn,
+    .driver-popover-prev-btn,
+    .driver-popover-close-btn {
+        text-shadow: none !important;
+        background-color: var(--p-primary-500, #3b82f6) !important;
+        color: white !important;
+        border: 1px solid transparent !important;
+        padding: 0.5rem 1rem !important;
+        font-size: 0.875rem !important;
+        border-radius: 6px !important;
+        transition: all 0.2s;
+        cursor: pointer;
+        font-weight: 500;
+
+        &:hover {
+            background-color: var(--p-primary-600, #2563eb) !important;
+            transform: translateY(-1px);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+
+        &.driver-popover-next-btn {
+            order: 2;
+        }
+
+        &.driver-popover-prev-btn {
+            order: 1;
+            background-color: var(--p-surface-100, #f1f5f9) !important;
+            color: var(--p-surface-700, #334155) !important;
+            border: 1px solid var(--p-surface-200, #e2e8f0) !important;
+            &:hover {
+                background-color: var(--p-surface-200, #e2e8f0) !important;
+                color: var(--p-surface-900, #0f172a) !important;
+            }
+        }
+    }
+
+    .driver-popover-arrow {
+        &.side-top { border-top-color: var(--p-surface-card); }
+        &.side-bottom { border-bottom-color: var(--p-surface-card); }
+        &.side-left { border-left-color: var(--p-surface-card); }
+        &.side-right { border-right-color: var(--p-surface-card); }
+    }
+
+    .driver-popover-close-btn {
+        background-color: transparent !important;
+        color: var(--p-text-muted-color) !important;
+        font-size: 1.25rem !important;
+        padding: 0 !important;
+        line-height: 1 !important;
+        top: 0.75rem !important;
+        right: 0.75rem !important;
+        &:hover {
+            color: var(--p-text-color) !important;
+            background-color: transparent !important;
+        }
+    }
+}
+
+// 暗色模式适配
+.dark {
+    .driver-popover {
+        background-color: #1e293b;
+        border-color: #334155;
+
+        .driver-popover-title {
+            color: #f8fafc;
+        }
+
+        .driver-popover-description {
+            color: #cbd5e1;
+        }
+
+        .driver-popover-next-btn {
+            background-color: #38bdf8 !important; // Sky 400
+            color: #082f49 !important;
+            &:hover {
+                background-color: #7dd3fc !important;
+            }
+        }
+
+        .driver-popover-prev-btn {
+            background-color: #334155 !important;
+            color: #f1f5f9 !important;
+            border-color: #475569 !important;
+            &:hover {
+                background-color: #475569 !important;
+                color: #ffffff !important;
+            }
+        }
+
+        .driver-popover-arrow {
+            &.side-top { border-top-color: #1e293b; }
+            &.side-bottom { border-bottom-color: #1e293b; }
+            &.side-left { border-left-color: #1e293b; }
+            &.side-right { border-right-color: #1e293b; }
+        }
+    }
+}
