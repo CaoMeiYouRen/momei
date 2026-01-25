@@ -433,7 +433,7 @@
 - [x] **Post 模块更新逻辑重构**
     - 验收: 重构 `[id].put.ts` 和 `createPostService`，移除冗余赋值判断，改为 Schema 驱动同步。
 - [ ] **全站 API 逻辑清理**
-    - 验收: 遍历 `Category`, `Tag`, `User` 等模块的更新/创建接口，统一使用 `assignDefined` 模式重构。
+    - 验收: 遍历 `Category`, `Tag`, `User` 等模块的更新/创建接口，统一使用 `assignDefined`模式重构。
 
 ## 待规划与长期积压 (Backlog & Long-term Roadmap)
 
@@ -447,10 +447,15 @@
 
 ### 2. 精准推送与订阅 (Advanced Subscription)
 
+- [ ] **多格式集成订阅源 (Universal Feeds)**
+    - 验收: 在现有 RSS 2.0 基础上，增加对 **Atom 1.0** 和 **JSON Feed 1.1** 的原生支持。
+    - 验收: 确保在所有格式中，音频附件 (Enclosure/Attachment) 均能被正确解析且不与封面图冲突。
 - [ ] **维度级订阅推送**
     - 验收: 支持用户按分类/标签订阅特定邮件内容。
 - [ ] **推送频率管理**
     - 验收: 实现用户的日报/周报聚合推送模式。
+- [ ] **多维度订阅深度优化**
+    - 验收: 实现按分类、标签导出的独立订阅源链接生成 UI。
 
 ### 3. 商业化集成 (Monetization)
 
