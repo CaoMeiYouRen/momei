@@ -30,15 +30,15 @@ interface PostEditorData {
     title: string
     content: string
     slug: string
-    summary: string
-    coverImage: string
+    summary?: string | null
+    coverImage?: string | null
     audioUrl?: string | null
     audioDuration?: number | null
     audioSize?: number | null
     audioMimeType?: string | null
-    categoryId: string | null
-    copyright: string | null
-    language: string
+    categoryId?: string | null
+    copyright?: string | null
+    language?: string
     tags: string[]
 }
 

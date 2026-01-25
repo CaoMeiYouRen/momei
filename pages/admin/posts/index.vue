@@ -186,6 +186,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import type { Post } from '@/types/post'
 import { useAdminList } from '@/composables/use-admin-list'
 import { useI18nDate } from '@/composables/use-i18n-date'
 
@@ -196,20 +197,6 @@ definePageMeta({
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { formatDateTime, relativeTime } = useI18nDate()
-
-interface Post {
-    id: string
-    title: string
-    audioUrl?: string | null
-    status: string
-    author: { name: string }
-    category?: { name: string }
-    views: number
-    publishedAt: string
-    language: string
-    translations?: { id: string, language: string, status: string, title: string }[]
-    translationId?: string | null
-}
 
 const {
     items,

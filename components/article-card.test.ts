@@ -1,19 +1,34 @@
 import { describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import ArticleCard from './article-card.vue'
+import { PostStatus, PostVisibility } from '@/types/post'
 
 describe('ArticleCard', () => {
     const mockPost = {
         id: '123',
         slug: 'test-slug',
         title: 'Test Title',
+        content: 'Test content',
         summary: 'Test Summary',
         views: 100,
         publishedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        status: PostStatus.PUBLISHED,
+        visibility: PostVisibility.PUBLIC,
+        language: 'zh-CN',
+        featured: false,
+        sticky: false,
+        allowComment: true,
+        authorId: '1',
+        categoryId: '1',
+        copyright: null,
+        tags: [],
         author: {
             id: '1',
             name: 'Author Name',
             image: '',
+            emailHash: '...',
         },
         category: {
             id: '1',

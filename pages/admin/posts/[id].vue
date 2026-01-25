@@ -89,7 +89,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
-import { PostVisibility } from '@/types/post'
+import { PostStatus, PostVisibility, type Post } from '@/types/post'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
 import { COPYRIGHT_LICENSES } from '@/types/copyright'
 import PostEditorHeader from '@/components/admin/posts/post-editor-header.vue'
@@ -141,36 +141,19 @@ const defaultLicenseLabel = computed(() => {
     return t(`components.post.copyright.licenses.${key}`)
 })
 
-interface Post {
+// 为编辑器扩展部分字段的界面类型，继承自基础 Post
+interface EditorPost extends Omit<Post, 'id' | 'tags'> {
     id?: string
-    title: string
-    content: string
-    slug: string
-    status: 'draft' | 'published' | 'pending' | 'rejected' | 'hidden'
-    visibility: 'public' | 'private' | 'password' | 'registered' | 'subscriber'
-    password?: string | null
-    summary: string
-    coverImage: string
-    audioUrl?: string | null
-    audioDuration?: number | null
-    audioSize?: number | null
-    audioMimeType?: string | null
-    categoryId: string | null
-    copyright: string | null
-    tags: string[]
-    language: string
-    translationId: string | null
-    // API response objects
-    category?: any
-    author?: any
+    // 在这里我们可以重新定义 tags 的输入类型（如果是 string[]）
+    tags: any[]
 }
 
-const post = ref<Post>({
+const post = ref<EditorPost>({
     title: '',
     content: '',
     slug: '',
-    status: 'draft',
-    visibility: 'public',
+    status: PostStatus.DRAFT,
+    visibility: PostVisibility.PUBLIC,
     password: null,
     summary: '',
     coverImage: '',
@@ -186,6 +169,7 @@ const post = ref<Post>({
         || contentLanguage.value
         || locale.value,
     translationId: (route.query.translationId as string) || null,
+    views: 0,
 })
 
 const translations = ref<any[]>([])
@@ -511,7 +495,7 @@ const savePost = async (publish = false) => {
                 body: payload,
             })
             if (publish) {
-                post.value.status = 'published'
+                post.value.status = PostStatus.PUBLISHED
             }
             toast.add({
                 severity: 'success',

@@ -79,39 +79,8 @@
 </template>
 
 <script setup lang="ts">
+import type { Post } from '@/types/post'
 import { formatDate } from '@/utils/shared/date'
-
-interface Author {
-    id: string
-    name: string
-    image?: string
-}
-
-interface Category {
-    id: string
-    name: string
-    slug: string
-}
-
-interface TagType {
-    id: string
-    name: string
-    slug: string
-}
-
-interface Post {
-    id: string
-    slug: string
-    title: string
-    summary?: string | null
-    coverImage?: string | null
-    audioUrl?: string | null
-    views: number
-    publishedAt?: string | Date | null
-    author?: Author | null
-    category?: Category | null
-    tags?: TagType[] | null
-}
 
 const props = withDefaults(defineProps<{
     post: Post
