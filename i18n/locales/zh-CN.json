@@ -518,6 +518,7 @@
             "remember_me": "记住我",
             "forgot_password": "忘记密码",
             "submit": "登录",
+            "logout": "退出登录",
             "or_continue_with_email": "或者使用邮箱继续",
             "no_account": "还没有账号? 立即注册",
             "github_login": "使用 GitHub 登录",

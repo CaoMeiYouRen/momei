@@ -519,6 +519,7 @@
             "remember_me": "Remember me",
             "forgot_password": "Forgot password",
             "submit": "Login",
+            "logout": "Logout",
             "or_continue_with_email": "Or continue with email",
             "no_account": "Don't have an account? Register now",
             "github_login": "Login with GitHub",

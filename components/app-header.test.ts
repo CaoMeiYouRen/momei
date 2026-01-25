@@ -19,7 +19,7 @@ const stubs = {
 // Mock authClient
 vi.mock('@/lib/auth-client', () => ({
     authClient: {
-        useSession: vi.fn(() => ({ value: { data: null } })),
+        useSession: vi.fn(() => ({ value: { data: null, isPending: false } })),
     },
 }))
 
@@ -48,7 +48,7 @@ describe('AppHeader', () => {
         vi.clearAllMocks()
         mockIsDarkRef.value = false
         // @ts-expect-error - mock function
-        authClient.useSession.mockReturnValue({ value: { data: null } })
+        authClient.useSession.mockReturnValue({ value: { data: null, isPending: false } })
     })
 
     it('renders logo and navigation links', async () => {
@@ -67,7 +67,7 @@ describe('AppHeader', () => {
         const wrapper = await mountSuspended(AppHeader, {
             global: { stubs },
         })
-        expect(wrapper.find('#user-menu-btn').attributes('icon')).toBe('pi pi-sign-in')
+        expect(wrapper.find('#login-btn').attributes('icon')).toBe('pi pi-sign-in')
     })
 
     it('shows user profile button and admin menu when logged in as admin', async () => {
@@ -77,6 +77,7 @@ describe('AppHeader', () => {
                 data: {
                     user: { id: '1', role: 'admin' },
                 },
+                isPending: false,
             },
         })
 

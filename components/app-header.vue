@@ -92,25 +92,46 @@
                         <language-switcher />
                     </div>
 
-                    <Button
-                        v-if="!user"
-                        id="user-menu-btn"
-                        v-tooltip.bottom="$t('pages.login.submit')"
-                        icon="pi pi-sign-in"
-                        text
-                        rounded
-                        :aria-label="$t('pages.login.submit')"
-                        @click="navigateTo(localePath('/login'))"
-                    />
-                    <Button
-                        v-else
-                        id="user-menu-btn"
-                        v-tooltip.bottom="$t('pages.settings.title')"
-                        icon="pi pi-user"
-                        text
-                        rounded
-                        @click="navigateTo(localePath('/settings'))"
-                    />
+                    <div class="app-header__user-actions">
+                        <template v-if="isSessionPending">
+                            <Button
+                                icon="pi pi-spinner pi-spin"
+                                text
+                                rounded
+                                disabled
+                            />
+                        </template>
+                        <template v-else>
+                            <Button
+                                v-if="!user"
+                                id="login-btn"
+                                v-tooltip.bottom="$t('pages.login.submit')"
+                                icon="pi pi-sign-in"
+                                text
+                                rounded
+                                :aria-label="$t('pages.login.submit')"
+                                @click="navigateTo(localePath('/login'))"
+                            />
+                            <template v-else>
+                                <Button
+                                    id="user-menu-btn"
+                                    v-tooltip.bottom="$t('pages.settings.title')"
+                                    icon="pi pi-user"
+                                    text
+                                    rounded
+                                    aria-haspopup="true"
+                                    aria-controls="user_menu"
+                                    @click="toggleUserMenu"
+                                />
+                                <Menu
+                                    id="user_menu"
+                                    ref="userMenu"
+                                    :model="userMenuItems"
+                                    :popup="true"
+                                />
+                            </template>
+                        </template>
+                    </div>
                 </div>
 
                 <Button
@@ -212,12 +233,21 @@
                         class="mobile-user-button"
                         @click="isMobileMenuOpen = false; navigateTo(localePath('/settings'))"
                     />
+                    <Button
+                        icon="pi pi-sign-out"
+                        :label="$t('pages.login.logout')"
+                        text
+                        rounded
+                        class="mobile-user-button"
+                        @click="isMobileMenuOpen = false; handleLogout()"
+                    />
                 </template>
                 <Button
                     v-else
-                    :label="$t('pages.login.submit')"
-                    icon="pi pi-sign-in"
+                    :label="isSessionPending ? $t('components.search.loading') : $t('pages.login.submit')"
+                    :icon="isSessionPending ? 'pi pi-spinner pi-spin' : 'pi pi-sign-in'"
                     rounded
+                    :disabled="isSessionPending"
                     class="mobile-login-button"
                     @click="isMobileMenuOpen = false; navigateTo(localePath('/login'))"
                 />
@@ -236,6 +266,7 @@ const { t } = useI18n()
 const { openSearch } = useSearch()
 const session = authClient.useSession()
 const user = computed(() => session.value?.data?.user)
+const isSessionPending = computed(() => session.value?.isPending)
 const localePath = useLocalePath()
 
 const isMobileMenuOpen = ref(false)
@@ -294,8 +325,36 @@ const adminMenuItems = computed(() => {
     return items
 })
 
+const userMenu = ref()
+const handleLogout = async () => {
+    await authClient.signOut({
+        fetchOptions: {
+            onSuccess: () => {
+                navigateTo(localePath('/login'))
+            },
+        },
+    })
+}
+
+const userMenuItems = computed(() => [
+    {
+        label: t('pages.settings.title'),
+        icon: 'pi pi-user',
+        command: () => navigateTo(localePath('/settings')),
+    },
+    {
+        label: t('pages.login.logout'),
+        icon: 'pi pi-sign-out',
+        command: handleLogout,
+    },
+])
+
 const toggleAdminMenu = (event: any) => {
     adminMenu.value.toggle(event)
+}
+
+const toggleUserMenu = (event: any) => {
+    userMenu.value.toggle(event)
 }
 
 const isDark = useDark({
