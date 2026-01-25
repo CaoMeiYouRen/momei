@@ -30,12 +30,13 @@ const startTour = () => {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .demo-banner {
     background-color: var(--p-primary-50);
     border-bottom: 1px solid var(--p-primary-100);
     padding: 0.5rem 1rem;
     z-index: 1000;
+    transition: background-color 0.3s, border-color 0.3s;
 
     &__content {
         max-width: 1200px;
@@ -66,10 +67,28 @@ const startTour = () => {
         padding: 0.25rem 0.75rem;
         font-size: 0.75rem;
     }
-}
 
-:global(.dark) .demo-banner {
-    background-color: var(--p-surface-900);
-    border-bottom-color: var(--p-surface-800);
+    // 适配深色模式
+    .dark & {
+        background-color: #1e293b;
+        border-bottom-color: #334155;
+
+        .demo-banner__text {
+            color: #f1f5f9;
+        }
+
+        .demo-banner__icon {
+            color: #7dd3fc;
+        }
+
+        .demo-banner__btn {
+            color: #7dd3fc;
+            border-color: #7dd3fc;
+
+            &:hover {
+                background-color: rgb(125 211 252 / 0.1);
+            }
+        }
+    }
 }
 </style>
