@@ -3,6 +3,7 @@ import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import yaml from 'js-yaml'
 import type { PostFrontMatter, PostEditorData, CategoryOption } from '@/types/post-editor'
+import { durationToSeconds } from '@/utils/shared/date'
 
 export function usePostEditorIO(
     post: Ref<PostEditorData>,
@@ -112,17 +113,24 @@ export function usePostEditorIO(
                         || frontMatter.lang) as string
                 }
 
-                if (frontMatter.audio || frontMatter.audio_url) {
-                    post.value.audioUrl = (frontMatter.audio || frontMatter.audio_url) as string
+                if (frontMatter.audio || frontMatter.audio_url || frontMatter.media) {
+                    post.value.audioUrl = (frontMatter.audio || frontMatter.audio_url || frontMatter.media) as string
                 }
-                if (frontMatter.audio_duration) {
-                    post.value.audioDuration = frontMatter.audio_duration
+                const rawDuration = frontMatter.audio_duration || frontMatter.duration
+                if (rawDuration) {
+                    if (typeof rawDuration === 'string') {
+                        // Support HH:mm:ss conversion
+                        post.value.audioDuration = durationToSeconds(rawDuration)
+                    } else {
+                        post.value.audioDuration = rawDuration
+                    }
                 }
-                if (frontMatter.audio_size) {
-                    post.value.audioSize = frontMatter.audio_size
+                if (frontMatter.audio_size || frontMatter.medialength || frontMatter.mediaLength) {
+                    const size = (frontMatter.audio_size || frontMatter.medialength || frontMatter.mediaLength)
+                    post.value.audioSize = typeof size === 'string' ? parseInt(size, 10) : (size as number)
                 }
-                if (frontMatter.audio_mime_type) {
-                    post.value.audioMimeType = frontMatter.audio_mime_type
+                if (frontMatter.audio_mime_type || frontMatter.mediatype || frontMatter.mediaType) {
+                    post.value.audioMimeType = (frontMatter.audio_mime_type || frontMatter.mediatype || frontMatter.mediaType) as string
                 }
 
                 if (frontMatter.tags) {

@@ -235,10 +235,7 @@
 import { ref, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { format as bytes } from 'better-bytes'
-import dayjs from 'dayjs'
-import duration from 'dayjs/plugin/duration'
-
-dayjs.extend(duration)
+import { secondsToDuration, durationToSeconds } from '@/utils/shared/date'
 
 const post = defineModel<any>('post', { required: true })
 
@@ -269,38 +266,9 @@ const readableSize = computed(() => {
 
 // 音频时长展示逻辑 (HH:mm:ss <-> seconds)
 const displayDuration = computed({
-    get: () => {
-        if (!post.value.audioDuration) return '00:00:00'
-        const totalSecs = Number(post.value.audioDuration)
-        if (isNaN(totalSecs)) return '00:00:00'
-        const dur = dayjs.duration(totalSecs, 'seconds')
-        const hours = Math.floor(dur.asHours())
-        const mins = dur.minutes()
-        const secs = dur.seconds()
-        return [
-            hours.toString().padStart(2, '0'),
-            mins.toString().padStart(2, '0'),
-            secs.toString().padStart(2, '0'),
-        ].join(':')
-    },
+    get: () => secondsToDuration(post.value.audioDuration),
     set: (val: string) => {
-        if (!val) {
-            post.value.audioDuration = 0
-            return
-        }
-        const parts = val.split(':').map(Number)
-        let totalSeconds = 0
-        if (parts.length === 3) {
-            // HH:mm:ss
-            totalSeconds = (parts[0] || 0) * 3600 + (parts[1] || 0) * 60 + (parts[2] || 0)
-        } else if (parts.length === 2) {
-            // mm:ss
-            totalSeconds = (parts[0] || 0) * 60 + (parts[1] || 0)
-        } else if (parts.length === 1) {
-            // ss
-            totalSeconds = (parts[0] || 0)
-        }
-        post.value.audioDuration = isNaN(totalSeconds) ? 0 : totalSeconds
+        post.value.audioDuration = durationToSeconds(val)
     },
 })
 

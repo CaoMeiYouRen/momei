@@ -41,7 +41,13 @@ export interface PostFrontMatter {
     category?: string | string[]
     audio?: string
     audio_url?: string
-    audio_duration?: number
+    audio_duration?: number | string
     audio_size?: number
     audio_mime_type?: string
+    media?: string
+    mediatype?: string
+    mediaType?: string
+    medialength?: number | string
+    mediaLength?: number | string
+    duration?: string | number
 }
