@@ -45,6 +45,21 @@ export default defineEventHandler(async (event) => {
     if (body.coverImage !== undefined) {
         post.coverImage = body.coverImage
     }
+
+    // Handle Audio (Podcast)
+    if (body.audioUrl !== undefined) {
+        post.audioUrl = body.audioUrl
+    }
+    if (body.audioDuration !== undefined) {
+        post.audioDuration = body.audioDuration
+    }
+    if (body.audioSize !== undefined) {
+        post.audioSize = body.audioSize
+    }
+    if (body.audioMimeType !== undefined) {
+        post.audioMimeType = body.audioMimeType
+    }
+
     if (body.language) {
         post.language = body.language
     }

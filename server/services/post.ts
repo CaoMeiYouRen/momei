@@ -49,6 +49,21 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
     if (body.coverImage !== undefined) {
         post.coverImage = body.coverImage ?? null
     }
+
+    // Handle Audio (Podcast)
+    if (body.audioUrl !== undefined) {
+        post.audioUrl = body.audioUrl
+    }
+    if (body.audioDuration !== undefined) {
+        post.audioDuration = body.audioDuration
+    }
+    if (body.audioSize !== undefined) {
+        post.audioSize = body.audioSize
+    }
+    if (body.audioMimeType !== undefined) {
+        post.audioMimeType = body.audioMimeType
+    }
+
     post.language = body.language
     post.translationId = body.translationId || post.slug
 

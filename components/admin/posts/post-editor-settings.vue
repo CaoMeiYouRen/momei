@@ -185,7 +185,7 @@
                 </InputGroup>
             </div>
 
-            <div v-if="post.audioUrl" class="gap-4 grid grid-cols-2">
+            <div v-if="post.audioUrl" class="gap-5 grid grid-cols-2">
                 <div class="form-group">
                     <label for="audioDuration" class="form-label">{{ $t('pages.admin.posts.podcast.duration') }} (s)</label>
                     <InputNumber
@@ -292,13 +292,13 @@ const probeAudio = async () => {
 .settings-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.25rem;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.375rem;
 }
 
 .form-label {
