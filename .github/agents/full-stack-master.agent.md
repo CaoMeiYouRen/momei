@@ -20,6 +20,15 @@ description: 全局一体化开发与协作工作流技能，覆盖需求评估�
 -   [Conventional Committer](../../.github/skills/conventional-committer/SKILL.md)
 -   [UI Validator](../../.github/skills/ui-validator/SKILL.md)
 
+## 强制参考文档 (Mandatory Documentation)
+
+在执行任何写操作或决策前，你必须确保已读取并理解以下文档的最新内容：
+
+-   **全周期基石**：[AGENTS.md](../../AGENTS.md) (安全红线与身份)、[AI 协作规范](../../docs/standards/ai-collaboration.md)
+-   **规划与任务**：[项目规划](../../docs/plan/roadmap.md)、[待办事项](../../docs/plan/todo.md)、[项目规划规范](../../docs/standards/planning.md)
+-   **开发与设计**：[开发规范](../../docs/standards/development.md)、[API 规范](../../docs/standards/api.md)、[UI 设计](../../docs/design/ui.md)
+-   **安全与质量**：[安全规范](../../docs/standards/security.md)、[测试规范](../../docs/standards/testing.md)
+
 ## PDTFC+ 融合工作流 (Standard Workflow)
 
 你必须严格按照以下阶段按序执行，严禁跨越关键质量阈值。
@@ -27,38 +36,41 @@ description: 全局一体化开发与协作工作流技能，覆盖需求评估�
 ### 阶段 1：需求分析与规划 (Plan & Analysis)
 -   **目标**：透彻理解需求，通过追问与采访抽离核心意图，明确变更边界。
 -   **执行步骤**：
-    1.  **需求采访与澄清**：
+    1.  **读取必备文档**：必须先读取 [项目规划](../../docs/plan/roadmap.md) 和 [待办事项](../../docs/plan/todo.md)，确保已知晓当前阶段目标及历史。
+    2.  **需求采访与澄清**：
         -   面对模糊需求，**主动发起采访**。遵循“先结构后细节”原则，逐一抛出问题。
         -   追问目标：从用户模糊的初衷中抽离出**最核心、最真实**的需求，避免“边做边猜”。
         -   控制问题总量（通常不超过 20 个），确保沟通效率。
-    2.  **需求分类**：在需求清晰后，判断任务类型（`feat`, `fix`, `docs`, `refactor`, `test`, `style`, `chore`）。
-    3.  **针对性分析**：
+    3.  **规划与评估**：若涉及路线图变更或新 Phase 规划，必须读取 [项目规划规范](../../docs/standards/planning.md) 进行 Momei 矩阵评估。
+    4.  **需求分类**：在需求清晰后，判断任务类型（`feat`, `fix`, `docs`, `refactor`, `test`, `style`, `chore`）。
+    5.  **针对性分析**：
         -   **新增功能 (feat)**：调用 `documentation-specialist` 更新 `docs/plan/roadmap.md` 和 `docs/plan/todo.md`，明确验收标准。
-        -   **错误修复 (fix)**：分析核心原因（前端 vs 后端）。若有截图/日志，需深入排查。重点确立“不引入新问题”的变更策略。
-        -   **文档完善 (docs)**：直接定位 `docs/` 下相关文件进行优化。
-        -   **待办和路线图规划 (docs)**：分析新的需求和任务，确保 `docs/plan/todo.md` 和 `docs/plan/roadmap.md` 反映最新需求和任务状态。
+        -   **错误修复 (fix)**：分析核心原因（前端 vs 后端）。分析前应检索 `docs/plan/todo-archive.md` 是否有类似历史项。
+        -   **待办和路线图规划 (docs)**：分析新的需求和任务，确保反映最新任务状态。
 -   **工具**：`context-analyzer`, `documentation-specialist`。
 
 ### 阶段 2：业务执行与开发 (Do)
 -   **目标**：遵循项目规范实现功能逻辑。
 -   **执行步骤**：
-    1.  **规范对齐**：遵循 Nuxt 4.x, Vue 3 (Composition API), TS (无 `any`), SCSS (BEM), i18n (`$t`)。
-    2.  **实现功能**：编写 `components/`, `server/api/`, `pages/` 等相关代码。
+    1.  **规范对齐**：在开始编写代码前，**必须读取** [开发规范](../../docs/standards/development.md) 和 [API 规范](../../docs/standards/api.md)。
+    2.  **安全审查**：涉及权限控制、敏感数据、Session 处理或数据库操作时，**必须读取** [安全规范](../../docs/standards/security.md)。
+    3.  **实现功能**：编写 `components/`, `server/api/`, `pages/` 等相关代码。遵循 Nuxt 4.x, Vue 3 (Composition API), TS (无 `any`), SCSS (BEM), i18n (`$t`)。
 -   **工具**：`nuxt-code-editor`。
 
 ### 阶段 3：UI 自动化验证 (UI Validate)
 -   **目标**：确保 UI 展现符合设计规范与各模式兼容。
 -   **执行步骤**：
-    1.  **状态检查**：检查开发服务器端口状态，必要时保持启动。
-    2.  **多维检查**：利用浏览器工具访问对应场景，验证 `light`/`dark` 模式及布局表现。
+    1.  **视觉准则**：读取 [UI 设计](../../docs/design/ui.md)，确认布局比例、色彩系统及暗色模式要求。
+    2.  **验证执行**：检查开发服务器端口状态，利用浏览器工具验证实际渲染效果。
 -   **工具**：`ui-validator`。
 
 ### 阶段 4：质量检测与审查 (Test & Review)
 -   **目标**：验证代码质量，防止回归。
 -   **执行步骤**：
-    1.  **静态检查**：执行 `pnpm lint`, `pnpm lint:css`, `pnpm typecheck`。
-    2.  **动态测试**：执行 `pnpm test`。
-    3.  **回归审查**：**原则上新功能不得导致原有测试失败**。若失败，需着重分析是旧测试过时（需更新）还是新代码逻辑错误（需修复）。
+    1.  **执行准则**：执行测试前，**必须读取** [测试规范](../../docs/standards/testing.md)，明确命名与 Co-location 要求。
+    2.  **静态检查**：执行 `pnpm lint`, `pnpm lint:css`, `pnpm typecheck`。
+    3.  **动态测试**：执行 `pnpm test`。
+    4.  **回归审查**：**原则上新功能不得导致原有测试失败**。若失败，需着重分析是旧测试过时（需更新）还是新代码逻辑错误（需修复）。
 -   **工具**：`quality-guardian`, `test-engineer`, `code-reviewer`。
 
 ### 阶段 5：问题修复 (Fix)

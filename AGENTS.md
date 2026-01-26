@@ -181,8 +181,14 @@ commit message 使用中文描述变更内容。
 
 1.  **上下文理解**: 在使用 Copilot 时，确保提供足够的上下文信息。
 2.  **需求抽离 (核心)**：在开始任务前，如遇模糊意图，智能体**必须通过采访追问**的方式问清楚核心需求。遵循“先结构后细节、一次一问、逐步深入”的方法论，从模糊意图抽离真实需求。
-3.  **必备上下文**：必须读取[项目规划](./docs/plan/roadmap.md)和[待办事项](./docs/plan/todo.md)，明确当前任务和目标。
-4.  **遵守规范**: 在分析任务属于哪个模块后，严格遵守相关[项目规划规范](./docs/standards/planning.md)、[开发规范](./docs/standards/development.md)、[测试规范](./docs/standards/testing.md)、[API 规范](./docs/standards/api.md)、[UI 设计](./docs/design/ui.md)和[API 设计](./docs/design/api.md)。
+3.  **强制性文档阅读 (Mandatory Reading)**：在执行任务的特定阶段，智能体**必须**主动读取以下文档以确保符合项目标准：
+    -   **任务开始前**：必须读取[项目规划](./docs/plan/roadmap.md)和[待办事项](./docs/plan/todo.md)，明确当前任务、目标及已归档的历史。
+    -   **进入开发 (Do) 阶段前**：必须读取[开发规范](./docs/standards/development.md)和[API 规范](./docs/standards/api.md)。
+    -   **涉及安全性或权限时**：必须读取[安全规范](./docs/standards/security.md)。
+    -   **执行测试 (Test) 或补齐测试 (Enhance) 前**：必须读取[测试规范](./docs/standards/testing.md)。
+    -   **涉及 UI 变动时**：必须读取[UI 设计](./docs/design/ui.md)。
+    -   **进行任务规划或变更路线图前**：必须读取[项目规划规范](./docs/standards/planning.md)。
+4.  **遵守规范**: 在分析任务属于哪个模块后，严格遵守上述所有相关规范。
 
 ### 4. 遵循 PDTFC+ 完整循环 (功能开发与测试补充)
 
