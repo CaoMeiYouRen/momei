@@ -75,18 +75,11 @@
                                 <input
                                     ref="fileInput"
                                     type="file"
-                                    class="hidden"
+                                    style="display: none"
                                     accept="image/*"
                                     multiple
                                     @change="onFileChange"
                                 >
-                                <Button
-                                    v-tooltip.bottom="$t('pages.admin.snippets.attach_file')"
-                                    icon="pi pi-paperclip"
-                                    text
-                                    rounded
-                                    severity="secondary"
-                                />
                             </div>
                             <div class="footer-right">
                                 <span class="shortcut-tip">Ctrl + Enter</span>
