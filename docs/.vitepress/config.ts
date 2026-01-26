@@ -53,6 +53,7 @@ export default defineConfig({
                 items: [
                     { text: '路线图', link: '/plan/roadmap' },
                     { text: '待办事项', link: '/plan/todo' },
+                    { text: '待办归档', link: '/plan/todo-archive' },
                     { text: '方案对比', link: '/plan/comparison' },
                 ],
             },
