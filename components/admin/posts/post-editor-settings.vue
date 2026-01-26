@@ -157,21 +157,24 @@
 
             <div class="form-group">
                 <label for="cover" class="form-label">{{ $t('pages.admin.posts.cover_image') }}</label>
-                <InputGroup>
-                    <InputText
-                        id="cover"
-                        v-model="post.coverImage"
-                        placeholder="https://..."
-                    />
-                    <Button
-                        v-if="isValidImageUrl"
-                        v-tooltip="$t('common.preview')"
-                        icon="pi pi-image"
-                        severity="secondary"
-                        text
-                        @click="toggleImagePreview"
-                    />
-                </InputGroup>
+                <AppUploader
+                    id="cover"
+                    v-model="post.coverImage"
+                    :type="UploadType.IMAGE"
+                    accept="image/*"
+                    placeholder="https://..."
+                >
+                    <template #extra>
+                        <Button
+                            v-if="isValidImageUrl"
+                            v-tooltip="$t('common.preview')"
+                            icon="pi pi-image"
+                            severity="secondary"
+                            text
+                            @click="toggleImagePreview"
+                        />
+                    </template>
+                </AppUploader>
                 <div v-if="showImagePreview && isValidImageUrl" class="mt-2 preview-container">
                     <Image
                         :src="post.coverImage"
@@ -186,29 +189,32 @@
 
             <div class="form-group">
                 <label for="audioUrl" class="form-label">{{ $t('pages.admin.posts.audio_url') }}</label>
-                <InputGroup>
-                    <InputText
-                        id="audioUrl"
-                        v-model="post.audioUrl"
-                        placeholder="https://... (mp3, m4a)"
-                    />
-                    <Button
-                        v-if="isValidAudioUrl"
-                        v-tooltip="showAudioPlayer ? $t('common.close') : $t('common.preview')"
-                        :icon="showAudioPlayer ? 'pi pi-times' : 'pi pi-play'"
-                        severity="secondary"
-                        text
-                        @click="toggleAudio"
-                    />
-                    <Button
-                        v-tooltip="$t('pages.admin.posts.podcast.probe_metadata')"
-                        icon="pi pi-bolt"
-                        severity="secondary"
-                        text
-                        :loading="probing"
-                        @click="probeAudio"
-                    />
-                </InputGroup>
+                <AppUploader
+                    id="audioUrl"
+                    v-model="post.audioUrl"
+                    :type="UploadType.AUDIO"
+                    accept="audio/*"
+                    placeholder="https://... (mp3, m4a)"
+                >
+                    <template #extra>
+                        <Button
+                            v-if="isValidAudioUrl"
+                            v-tooltip="showAudioPlayer ? $t('common.close') : $t('common.preview')"
+                            :icon="showAudioPlayer ? 'pi pi-times' : 'pi pi-play'"
+                            severity="secondary"
+                            text
+                            @click="toggleAudio"
+                        />
+                        <Button
+                            v-tooltip="$t('pages.admin.posts.podcast.probe_metadata')"
+                            icon="pi pi-bolt"
+                            severity="secondary"
+                            text
+                            :loading="probing"
+                            @click="probeAudio"
+                        />
+                    </template>
+                </AppUploader>
                 <div v-if="showAudioPlayer && isValidAudioUrl" class="mt-2 preview-container">
                     <audio
                         :src="post.audioUrl"
@@ -270,6 +276,7 @@ import { useToast } from 'primevue/usetoast'
 import { format as bytes } from 'better-bytes'
 import { secondsToDuration, durationToSeconds } from '@/utils/shared/date'
 import { isValidCustomUrl } from '@/utils/shared/validate'
+import { UploadType } from '@/composables/use-upload'
 
 const post = defineModel<any>('post', { required: true })
 

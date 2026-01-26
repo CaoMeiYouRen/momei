@@ -156,8 +156,8 @@
 ### 2. 内容体验增强 (Content Experience)
 
 - [x] **订阅入口 (Frontend Subscription Entry)**
-    - 验收: 在首页和文章详情页提供邮件订阅表单。
-    - 验收: 支持已登录用户自动关联邮箱。
+    - 验收: 在首页和文章详情页提供邮件订阅表单.
+    - 验收: 支持已登录用户自动关联邮箱.
 - [x] **阅读体验优化 (基础与进阶)**
     - [x] 验收: 文章详情页增加字数统计与阅读时长预估。
     - [x] 验收: 文章底部显示版权声明组件。
@@ -435,6 +435,10 @@
 - [x] **全站 API 逻辑清理**
     - 验收: 遍历 `Category`, `Tag`, `User` 等模块的更新/创建接口，统一使用 `assignDefined`模式重构。
     - 备注: 已重构 `Category`, `Tag` 服务及 `Subscriber`, `Comment` 相关接口。`User` 模块目前主要由 `better-auth` 原生接口处理，无自定义后端更新逻辑。
+- [x] **上传功能增强 (Upload Enhancement)**
+    - [x] 验收: 文章封面图支持点击选择和拖拽上传.
+    - [x] 验收: 音频 URL (Podcast) 支持点击选择和拖拽上传.
+    - [x] 验收: 实现通用的 `AppUploader` 组件以便后续复用.
 
 ## 待规划与长期积压 (Backlog & Long-term Roadmap)
 
