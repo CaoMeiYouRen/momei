@@ -1,6 +1,7 @@
 import { dataSource } from '@/server/database'
 import { Subscriber } from '@/server/entities/subscriber'
 import { requireAdmin } from '@/server/utils/permission'
+import { assignDefined } from '@/server/utils/object'
 
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
@@ -14,12 +15,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 404, statusMessage: 'Subscriber not found' })
     }
 
-    if (typeof body.isActive === 'boolean') {
-        subscriber.isActive = body.isActive
-    }
-    if (body.language) {
-        subscriber.language = body.language
-    }
+    assignDefined(subscriber, body, ['isActive', 'language', 'userId'])
 
     await subscriberRepo.save(subscriber)
 

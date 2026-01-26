@@ -4,6 +4,7 @@ import { User } from '@/server/entities/user'
 import { subscribeSchema } from '@/utils/schemas/subscriber'
 import { emailService } from '@/server/utils/email/service'
 import logger from '@/server/utils/logger'
+import { assignDefined } from '@/server/utils/object'
 
 export default defineEventHandler(async (event) => {
     const result = await readValidatedBody(event, (body) => subscribeSchema.safeParse(body))
@@ -42,8 +43,7 @@ export default defineEventHandler(async (event) => {
         await subscriberRepo.save(existing)
     } else {
         const subscriber = new Subscriber()
-        subscriber.email = email
-        subscriber.language = language
+        assignDefined(subscriber, result.data, ['email', 'language'])
         subscriber.userId = user?.id || null
         await subscriberRepo.save(subscriber)
     }

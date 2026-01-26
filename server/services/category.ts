@@ -1,6 +1,7 @@
 import { Not } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
+import { assignDefined } from '@/server/utils/object'
 
 export interface CategoryData {
     name: string
@@ -51,14 +52,15 @@ export async function createCategory(data: CategoryData): Promise<Category> {
         }
     }
 
-    const category = categoryRepo.create({
-        name: data.name,
-        slug: data.slug,
-        language: data.language,
-        translationId: data.translationId || data.slug,
-        description: data.description,
-        parentId: data.parentId,
-    })
+    const category = new Category()
+    assignDefined(category, data, [
+        'name',
+        'slug',
+        'language',
+        'description',
+        'parentId',
+    ])
+    category.translationId = data.translationId || data.slug
 
     return await categoryRepo.save(category)
 }
@@ -138,24 +140,14 @@ export async function updateCategory(id: string, data: Partial<CategoryData>): P
         }
     }
 
-    if (data.name) {
-        category.name = data.name
-    }
-    if (data.slug) {
-        category.slug = data.slug
-    }
-    if (data.language) {
-        category.language = data.language
-    }
-    if (data.translationId !== undefined) {
-        category.translationId = data.translationId
-    }
-    if (data.description !== undefined) {
-        category.description = data.description
-    }
-    if (data.parentId !== undefined) {
-        category.parentId = data.parentId
-    }
+    assignDefined(category, data, [
+        'name',
+        'slug',
+        'language',
+        'translationId',
+        'description',
+        'parentId',
+    ])
 
     return await categoryRepo.save(category)
 }

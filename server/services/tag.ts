@@ -3,6 +3,7 @@ import { Not } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
 import { generateRandomString } from '@/utils/shared/random'
+import { assignDefined } from '@/server/utils/object'
 
 interface TagData {
     name: string
@@ -41,9 +42,7 @@ export async function createTag(data: TagData): Promise<Tag> {
     }
 
     const tag = new Tag()
-    tag.name = data.name
-    tag.slug = data.slug
-    tag.language = data.language
+    assignDefined(tag, data, ['name', 'slug', 'language'])
     tag.translationId = data.translationId || tag.slug
 
     return await tagRepo.save(tag)
@@ -118,18 +117,7 @@ export async function updateTag(id: string, data: Partial<TagData>): Promise<Tag
         }
     }
 
-    if (data.name !== undefined) {
-        tag.name = data.name
-    }
-    if (data.slug !== undefined) {
-        tag.slug = data.slug
-    }
-    if (data.language !== undefined) {
-        tag.language = data.language
-    }
-    if (data.translationId !== undefined) {
-        tag.translationId = data.translationId
-    }
+    assignDefined(tag, data, ['name', 'slug', 'language', 'translationId'])
 
     return await tagRepo.save(tag)
 }

@@ -33,7 +33,7 @@
 
 | Method | Endpoint            | Description         | Auth |
 | :----- | :------------------ | :------------------ | :--- |
-| PATCH  | `/api/user/profile` | 更新个人资料/语言等 | User |
+| PUT    | `/api/user/profile` | 更新个人资料/语言等 | User |
 | POST   | `/api/user/avatar`  | 上传并更新头像       | User |
 
 ### 3.2 API 密钥管理

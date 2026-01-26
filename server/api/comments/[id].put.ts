@@ -1,12 +1,11 @@
 import { dataSource } from '@/server/database'
 import { Comment } from '@/server/entities/comment'
-import { CommentStatus } from '@/types/comment'
 import { requireAdmin } from '@/server/utils/permission'
+import { assignDefined } from '@/server/utils/object'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
     const body = await readBody(event)
-    const { status, isSticked } = body
 
     if (!id) {
         throw createError({ statusCode: 400, statusMessage: 'ID required' })
@@ -21,12 +20,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 404, statusMessage: 'Comment not found' })
     }
 
-    if (status !== undefined) {
-        comment.status = status as CommentStatus
-    }
-    if (isSticked !== undefined) {
-        comment.isSticked = !!isSticked
-    }
+    assignDefined(comment, body, ['status', 'isSticked'])
 
     await commentRepo.save(comment)
 

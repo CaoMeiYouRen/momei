@@ -432,8 +432,9 @@
     - 验收: 实现 `server/utils/object.ts` 并在规范中确立“自动同步与异常处理”模式。
 - [x] **Post 模块更新逻辑重构**
     - 验收: 重构 `[id].put.ts` 和 `createPostService`，移除冗余赋值判断，改为 Schema 驱动同步。
-- [ ] **全站 API 逻辑清理**
+- [x] **全站 API 逻辑清理**
     - 验收: 遍历 `Category`, `Tag`, `User` 等模块的更新/创建接口，统一使用 `assignDefined`模式重构。
+    - 备注: 已重构 `Category`, `Tag` 服务及 `Subscriber`, `Comment` 相关接口。`User` 模块目前主要由 `better-auth` 原生接口处理，无自定义后端更新逻辑。
 
 ## 待规划与长期积压 (Backlog & Long-term Roadmap)
 

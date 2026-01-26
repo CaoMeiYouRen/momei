@@ -207,7 +207,7 @@ const getStatusSeverity = (status: CommentStatus) => {
 const updateStatus = async (item: Comment, status: CommentStatus) => {
     try {
         await $fetch(`/api/comments/${item.id}`, {
-            method: 'PATCH',
+            method: 'PUT',
             body: { status },
         })
         item.status = status
