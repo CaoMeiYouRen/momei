@@ -34,6 +34,10 @@ export interface Snippet {
     metadata: Record<string, any> | null
     status: SnippetStatus
     postId: string | null
+    post?: {
+        id: string
+        title: string
+    } | null
     authorId: string
     createdAt: string
     updatedAt: string
