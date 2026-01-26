@@ -191,7 +191,10 @@
         "ai_translate": "AI Translate",
         "ai_generate_slug": "AI Generate Slug",
         "current": "Current",
-        "switch": "Switch"
+        "switch": "Switch",
+        "copy_code": "Copy Script",
+        "copy_success": "Successfully copied to clipboard",
+        "copy_failed": "Copy failed, please try again"
     },
     "legal": {
         "user_agreement": "User Agreement",
@@ -504,6 +507,14 @@
                 "upload_image": "Upload Image",
                 "attach_file": "Attach File",
                 "selected_count": "{count} selected",
+                "capture_title": "Minimalist Capture",
+                "capture_save_and_close": "Save and Close",
+                "capture_placeholder_with_info": "Capture your inspiration... (Incoming info: {info})",
+                "capture_from_bookmarklet": "From Bookmarklet",
+                "capture_from_pwa": "From PWA",
+                "bookmarklet_title": "Bookmark Tool",
+                "bookmarklet_desc": "Drag the button below to your bookmarks bar to capture inspirations while browsing any webpage.",
+                "bookmarklet_button": "Capture Inspiration",
                 "source_types": {
                     "web": "Web Admin",
                     "api": "API",

@@ -1,16 +1,16 @@
 <template>
     <div class="admin-snippets-page">
-        <AdminPageHeader :title="$t('pages.admin.snippets.title')">
+        <AdminPageHeader :title="t('pages.admin.snippets.title')">
             <template #actions>
                 <div class="header-actions">
                     <transition name="fade">
                         <span v-if="selectedSnippetIds.length" class="selected-count">
-                            {{ $t('pages.admin.snippets.selected_count', {count: selectedSnippetIds.length}) }}
+                            {{ t('pages.admin.snippets.selected_count', {count: selectedSnippetIds.length}) }}
                         </span>
                     </transition>
                     <Button
-                        v-tooltip.bottom="$t('pages.admin.snippets.aggregate_hint')"
-                        :label="$t('pages.admin.snippets.aggregate')"
+                        v-tooltip.bottom="t('pages.admin.snippets.aggregate_hint')"
+                        :label="t('pages.admin.snippets.aggregate')"
                         icon="pi pi-sparkles"
                         severity="help"
                         :disabled="!selectedSnippetIds.length"
@@ -26,12 +26,12 @@
                     <div class="quick-capture-content">
                         <div class="quick-capture-header">
                             <i class="pi pi-pencil text-primary" />
-                            <span class="quick-capture-title">{{ $t('pages.admin.snippets.quick_capture_title') }}</span>
+                            <span class="quick-capture-title">{{ t('pages.admin.snippets.quick_capture_title') }}</span>
                         </div>
                         <Textarea
                             v-model="newSnippet"
                             rows="2"
-                            :placeholder="$t('pages.admin.snippets.quick_capture_placeholder')"
+                            :placeholder="t('pages.admin.snippets.quick_capture_placeholder')"
                             class="quick-capture-input"
                             auto-resize
                             @keydown.ctrl.enter="saveSnippet"
@@ -64,7 +64,7 @@
                         <div class="quick-capture-footer">
                             <div class="footer-left">
                                 <Button
-                                    v-tooltip.bottom="$t('pages.admin.snippets.upload_image')"
+                                    v-tooltip.bottom="t('pages.admin.snippets.upload_image')"
                                     :loading="imageUploading"
                                     icon="pi pi-image"
                                     text
@@ -84,7 +84,7 @@
                             <div class="footer-right">
                                 <span class="shortcut-tip">Ctrl + Enter</span>
                                 <Button
-                                    :label="$t('common.save')"
+                                    :label="t('common.save')"
                                     icon="pi pi-send"
                                     class="save-btn"
                                     :loading="saving"
@@ -98,21 +98,58 @@
             </Card>
         </div>
 
+        <div class="tools-section">
+            <Accordion>
+                <AccordionPanel value="bookmarklet">
+                    <AccordionHeader>
+                        <div class="flex gap-2 items-center">
+                            <i class="pi pi-bookmark" />
+                            <span>{{ t('pages.admin.snippets.bookmarklet_title') }}</span>
+                        </div>
+                    </AccordionHeader>
+                    <AccordionContent>
+                        <div class="bookmarklet-content">
+                            <p class="bookmarklet-desc">
+                                {{ t('pages.admin.snippets.bookmarklet_desc') }}
+                            </p>
+                            <div class="bookmarklet-actions">
+                                <a
+                                    :href="bookmarkletCode"
+                                    class="bookmarklet-link-btn"
+                                    @click.prevent
+                                >
+                                    <i class="pi pi-bookmark" />
+                                    <span>{{ t('pages.admin.snippets.bookmarklet_button') }}</span>
+                                </a>
+                                <Button
+                                    icon="pi pi-copy"
+                                    :label="t('common.copy_code')"
+                                    text
+                                    size="small"
+                                    @click="copyBookmarklet"
+                                />
+                            </div>
+                        </div>
+                    </AccordionContent>
+                </AccordionPanel>
+            </Accordion>
+        </div>
+
         <div class="snippets-container">
             <div v-if="loading && !items.length" class="loading-state">
                 <i class="pi pi-spin pi-spinner" />
                 <p class="loading-text">
-                    {{ $t('common.loading') }}
+                    {{ t('common.loading') }}
                 </p>
             </div>
 
             <div v-else-if="!items.length" class="empty-state">
                 <i class="empty-icon pi pi-inbox" />
                 <p class="empty-main-text">
-                    {{ $t('pages.admin.snippets.empty') }}
+                    {{ t('pages.admin.snippets.empty') }}
                 </p>
                 <p class="empty-sub-text">
-                    {{ $t('pages.admin.snippets.empty_hint') }}
+                    {{ t('pages.admin.snippets.empty_hint') }}
                 </p>
             </div>
 
@@ -159,7 +196,7 @@
         <!-- Aggregate Dialog -->
         <Dialog
             v-model:visible="showAggregateDialog"
-            :header="$t('pages.admin.snippets.aggregate')"
+            :header="t('pages.admin.snippets.aggregate')"
             modal
             class="aggregate-dialog"
             dismissable-mask
@@ -167,20 +204,20 @@
             <div v-if="aggregating" class="aggregating-state">
                 <ProgressSpinner stroke-width="3" class="spinner" />
                 <p class="aggregating-text">
-                    AI {{ $t('pages.admin.snippets.ai_thinking') }}
+                    AI {{ t('pages.admin.snippets.ai_thinking') }}
                 </p>
             </div>
             <div v-else-if="scaffold" class="scaffold-preview-container">
                 <div class="scaffold-header">
                     <h3 class="scaffold-title">
                         <i class="pi pi-sparkles" />
-                        {{ $t('pages.admin.snippets.ai_scaffold') }}
+                        {{ t('pages.admin.snippets.ai_scaffold') }}
                     </h3>
                     <Button
                         icon="pi pi-copy"
                         text
                         size="small"
-                        :label="$t('common.copy')"
+                        :label="t('common.copy')"
                         @click="copyScaffold"
                     />
                 </div>
@@ -190,13 +227,13 @@
                 </div>
                 <div class="dialog-actions-footer">
                     <Button
-                        :label="$t('common.close')"
+                        :label="t('common.close')"
                         text
                         severity="secondary"
                         @click="showAggregateDialog = false"
                     />
                     <Button
-                        :label="$t('pages.admin.snippets.convert_to_post')"
+                        :label="t('pages.admin.snippets.convert_to_post')"
                         icon="pi pi-file-export"
                         severity="primary"
                         @click="convertToPostFromScaffold"
@@ -208,22 +245,22 @@
                     <i class="pi pi-info-circle" />
                     <div class="alert-content">
                         <p class="alert-title">
-                            {{ $t('pages.admin.snippets.aggregate_confirm_title') }}
+                            {{ t('pages.admin.snippets.aggregate_confirm_title') }}
                         </p>
                         <p class="alert-desc">
-                            {{ $t('pages.admin.snippets.aggregate_hint_detailed', {count: selectedSnippetIds.length}) }}
+                            {{ t('pages.admin.snippets.aggregate_hint_detailed', {count: selectedSnippetIds.length}) }}
                         </p>
                     </div>
                 </div>
                 <div class="dialog-actions">
                     <Button
-                        :label="$t('common.cancel')"
+                        :label="t('common.cancel')"
                         text
                         severity="secondary"
                         @click="showAggregateDialog = false"
                     />
                     <Button
-                        :label="$t('common.confirm')"
+                        :label="t('common.confirm')"
                         icon="pi pi-check"
                         severity="primary"
                         @click="performAggregate"
@@ -235,14 +272,14 @@
         <!-- Edit Dialog -->
         <Dialog
             v-model:visible="editDialogVisible"
-            :header="$t('pages.admin.snippets.edit')"
+            :header="t('pages.admin.snippets.edit')"
             modal
             class="edit-dialog"
             dismissable-mask
         >
             <div class="edit-form">
                 <div class="edit-field">
-                    <label for="content" class="field-label">{{ $t('pages.admin.snippets.content') }}</label>
+                    <label for="content" class="field-label">{{ t('pages.admin.snippets.content') }}</label>
                     <Textarea
                         id="content"
                         v-model="editForm.content"
@@ -252,7 +289,7 @@
                     />
                 </div>
                 <div class="edit-field">
-                    <label for="status" class="field-label">{{ $t('pages.admin.snippets.status') }}</label>
+                    <label for="status" class="field-label">{{ t('pages.admin.snippets.status') }}</label>
                     <Dropdown
                         id="status"
                         v-model="editForm.status"
@@ -266,13 +303,13 @@
             <template #footer>
                 <div class="edit-dialog-footer">
                     <Button
-                        :label="$t('common.cancel')"
+                        :label="t('common.cancel')"
                         text
                         severity="secondary"
                         @click="editDialogVisible = false"
                     />
                     <Button
-                        :label="$t('common.save')"
+                        :label="t('common.save')"
                         icon="pi pi-check"
                         :loading="saving"
                         @click="updateSnippet"
@@ -283,7 +320,7 @@
 
         <ConfirmDeleteDialog
             v-model:visible="deleteDialogVisible"
-            :title="$t('pages.admin.snippets.confirm_delete')"
+            :title="t('pages.admin.snippets.confirm_delete')"
             @confirm="deleteSnippet"
         />
     </div>
@@ -489,6 +526,21 @@ const onPageChange = (event: any) => {
     paginatorFirst.value = event.first
 }
 
+const config = useRuntimeConfig()
+const bookmarkletCode = computed(() => {
+    const baseUrl = config.public.siteUrl
+    return `javascript:(function(){var t=document.title,u=window.location.href,c=window.getSelection().toString(),b="${baseUrl}/admin/snippets/capture",l=b+"?content="+encodeURIComponent(c)+"&url="+encodeURIComponent(u)+"&title="+encodeURIComponent(t)+"&source=bookmarklet";window.open(l,"momei_capture","width=600,height=500,location=no,menubar=no,status=no,toolbar=no")})();`
+})
+
+const copyBookmarklet = async () => {
+    try {
+        await navigator.clipboard.writeText(bookmarkletCode.value)
+        toast.add({ severity: 'success', summary: t('common.success'), detail: t('common.copy_success'), life: 2000 })
+    } catch (err) {
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.copy_failed'), life: 2000 })
+    }
+}
+
 const renderMarkdown = (content: string) => md.render(content)
 
 definePageMeta({
@@ -638,6 +690,46 @@ definePageMeta({
                             padding-left: 1.5rem;
                             padding-right: 1.5rem;
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    .tools-section {
+        margin-bottom: 2rem;
+
+        .bookmarklet-content {
+            padding: 0.5rem 0;
+
+            .bookmarklet-desc {
+                font-size: 0.875rem;
+                color: var(--text-color-secondary);
+                margin-bottom: 1.5rem;
+            }
+
+            .bookmarklet-actions {
+                display: flex;
+                align-items: center;
+                gap: 1.5rem;
+                flex-wrap: wrap;
+
+                .bookmarklet-link-btn {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    padding: 0.75rem 1.5rem;
+                    background: var(--primary-color);
+                    color: var(--primary-color-text);
+                    border-radius: 2rem;
+                    text-decoration: none;
+                    font-weight: 600;
+                    cursor: move; // Indicate draggable
+                    transition: transform 0.2s;
+
+                    &:hover {
+                        transform: translateY(-2px);
+                        opacity: 0.9;
                     }
                 }
             }

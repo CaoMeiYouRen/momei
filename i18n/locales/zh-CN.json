@@ -190,7 +190,10 @@
         "ai_translate": "AI 自动翻译",
         "ai_generate_slug": "AI 生成别名",
         "current": "当前",
-        "switch": "切换"
+        "switch": "切换",
+        "copy_code": "复制脚本",
+        "copy_success": "已成功复制到剪贴板",
+        "copy_failed": "复制失败，请重试"
     },
     "legal": {
         "user_agreement": "用户协议",
@@ -503,6 +506,14 @@
                 "upload_image": "上传图片",
                 "attach_file": "添加附件",
                 "selected_count": "已选中 {count} 项",
+                "capture_title": "极简采集模式",
+                "capture_save_and_close": "保存并关闭",
+                "capture_placeholder_with_info": "捕捉您的灵感... (已从外部程序传入信息：{info})",
+                "capture_from_bookmarklet": "来自浏览器书签",
+                "capture_from_pwa": "来自 PWA 应用",
+                "bookmarklet_title": "书签工具",
+                "bookmarklet_desc": "将下面的按钮拖动到您的书签栏，即可在浏览任何网页时随时记录灵感。",
+                "bookmarklet_button": "捕捉灵感",
                 "source_types": {
                     "web": "网页后台",
                     "api": "API 接口",

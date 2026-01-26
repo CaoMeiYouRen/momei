@@ -75,7 +75,39 @@ export default defineNuxtConfig({
         '@vueuse/nuxt',
         '@sentry/nuxt/module',
         '@nuxtjs/sitemap',
+        '@vite-pwa/nuxt',
     ],
+    pwa: {
+        registerType: 'autoUpdate',
+        manifest: {
+            name: '墨梅博客',
+            short_name: '墨梅',
+            theme_color: '#64748b',
+            icons: [
+                {
+                    src: 'logo.png',
+                    sizes: '512x512',
+                    type: 'image/png',
+                },
+            ],
+            shortcuts: [
+                {
+                    name: '快速灵感',
+                    short_name: '快速灵感',
+                    url: '/admin/snippets/capture',
+                    icons: [{ src: 'logo.png', sizes: '512x512' }],
+                },
+            ],
+            display: 'standalone',
+        },
+        workbox: {
+            navigateFallback: '/',
+            globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+        },
+        devOptions: {
+            enabled: false,
+        },
+    },
     runtimeConfig: {
         public: {
             NODE_ENV: process.env.NODE_ENV,
