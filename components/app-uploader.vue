@@ -13,6 +13,7 @@
                 :disabled="uploading || disabled"
             />
             <Button
+                v-tooltip="$t('common.upload')"
                 type="button"
                 icon="pi pi-upload"
                 severity="secondary"
