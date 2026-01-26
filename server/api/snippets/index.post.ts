@@ -7,8 +7,8 @@ import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
 
 const createSnippetSchema = z.object({
     content: z.string().min(1),
-    media: z.array(z.string().url()).optional(),
-    audioUrl: z.string().url().optional(),
+    media: z.array(z.url()).optional(),
+    audioUrl: z.url().optional(),
     source: z.string().max(50).optional().default('web'),
     metadata: z.any().optional(),
 })

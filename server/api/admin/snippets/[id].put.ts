@@ -8,7 +8,7 @@ import { SnippetStatus } from '@/types/snippet'
 
 const updateSnippetSchema = z.object({
     content: z.string().min(1).optional(),
-    status: z.nativeEnum(SnippetStatus).optional(),
+    status: z.enum(SnippetStatus).optional(),
     metadata: z.any().optional(),
 })
 

@@ -159,6 +159,7 @@
                     />
                 </div>
                 <div class="dark:prose-invert prose scaffold-content-box">
+                    <!-- eslint-disable vue/no-v-html -->
                     <div v-html="renderMarkdown(scaffold)" />
                 </div>
                 <div class="dialog-actions-footer">

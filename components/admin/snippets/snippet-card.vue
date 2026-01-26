@@ -46,6 +46,7 @@
         </div>
 
         <div class="snippet-card__body">
+            <!-- eslint-disable vue/no-v-html -->
             <div class="snippet-card__content" v-html="renderMarkdown(snippet.content)" />
 
             <div v-if="snippet.media && snippet.media.length" class="snippet-card__media">
