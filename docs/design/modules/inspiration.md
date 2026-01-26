@@ -60,13 +60,20 @@
 
 ## 5. 接口设计 (API Design)
 
-### 5.1 灵感接口 (`/api/snippets/*`)
+### 5.1 开放/快捷接口 (`/api/snippets/*`)
 
--   `GET /api/snippets`: 列表展示，支持按状态过滤。
--   `POST /api/snippets`: 创建灵感 (支持 API Key 鉴权以便外部调用)。
--   `PUT /api/snippets/:id`: 修改或归档。
--   `POST /api/snippets/:id/convert`: 执行转化。
--   `POST /api/snippets/aggregate`: 多个灵感聚合分析。
+-   **`POST /api/snippets`**: 创建灵感碎片。支持 `X-API-KEY` 或 Session 鉴权。供外部工具或快速采集窗使用。
+
+### 5.2 管理接口 (`/api/admin/snippets/*`)
+
+所有接口需 `admin` 或 `author` 权限。
+
+-   **`GET /api/admin/snippets`**: 分页获取灵感列表。
+-   **`PUT /api/admin/snippets/:id`**: 更新灵感（内容、状态等）。
+-   **`DELETE /api/admin/snippets/:id`**: 删除灵感。
+-   **`POST /api/admin/snippets/:id/convert`**: 将单一灵感转换为文章草稿。
+-   **`POST /api/admin/snippets/aggregate`**: 聚合多个灵感，调用 AI 生成文章大纲 (Scaffold)。
+
 
 ## 6. UI 设计要点 (UI Design)
 

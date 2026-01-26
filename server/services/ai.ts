@@ -173,6 +173,34 @@ export class AIService {
         return response.content.trim()
     }
 
+    static async generateScaffold(
+        snippets: string[],
+        language: string = 'zh-CN',
+        userId?: string,
+    ) {
+        const provider = getAIProvider()
+        const snippetsText = snippets.map((s, i) => `Snippet ${i + 1}:\n${s}`).join('\n\n---\n\n')
+        const prompt = formatPrompt(AI_PROMPTS.GENERATE_SCAFFOLD, {
+            snippets: snippetsText.slice(0, AI_CHUNK_SIZE),
+            language,
+        })
+
+        const response = await provider.chat({
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are a professional blog editor helping an author organize ideas into an article outline in ${language}.`,
+                },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.7,
+        })
+
+        this.logAIUsage('generate-scaffold', response, userId)
+
+        return response.content.trim()
+    }
+
     static async recommendTags(
         content: string,
         existingTags: string[] = [],

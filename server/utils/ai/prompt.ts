@@ -11,6 +11,8 @@ export const AI_PROMPTS = {
         'Translate the following term from any language to {{to}}. Output ONLY the translated term, no explanation or punctuation: \n\n{{name}}',
     SUGGEST_SLUG_FROM_NAME:
         'Based on the name "{{name}}", create a concise, lowercase, URL-friendly slug. If it is already a slug, return it. Output ONLY the slug text: \n\n{{name}}',
+    GENERATE_SCAFFOLD:
+        'You are a professional writing assistant. Based on the following collection of snippets (ideas, notes, quotes), please organize them into a logical article outline (scaffold) in {{language}}. The outline should include a title and several chapters/sections. For each section, provide a brief description of what to cover. Output in standard Markdown format:\n\nSnippets:\n{{snippets}}',
 }
 
 export function formatPrompt(
