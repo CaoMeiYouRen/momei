@@ -477,6 +477,7 @@
             "snippets": {
                 "title": "Inspiration Inbox",
                 "create": "Quick Capture",
+                "edit": "Edit Inspiration",
                 "quick_capture_title": "Capture Momentary Thoughts",
                 "quick_capture_placeholder": "Type your inspiration here, support multiple lines...",
                 "search_placeholder": "Search inspirations...",

@@ -476,6 +476,7 @@
             "snippets": {
                 "title": "灵感收纳箱",
                 "create": "快速记录灵感",
+                "edit": "编辑灵感",
                 "quick_capture_title": "捕捉瞬间想法",
                 "quick_capture_placeholder": "在此输入您的灵感片段，支持换行...",
                 "search_placeholder": "搜索灵感内容...",

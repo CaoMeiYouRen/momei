@@ -72,7 +72,7 @@
 -   **`PUT /api/admin/snippets/:id`**: 更新灵感（内容、状态等）。
 -   **`DELETE /api/admin/snippets/:id`**: 删除灵感。
 -   **`POST /api/admin/snippets/:id/convert`**: 将单一灵感转换为文章草稿。
--   **`POST /api/admin/snippets/aggregate`**: 聚合多个灵感，调用 AI 生成文章大纲 (Scaffold)。
+-   **`POST /api/admin/ai/snippets-aggregate`**: 聚合多个灵感，调用 AI 生成文章大纲 (Scaffold)。
 
 
 ## 6. UI 设计要点 (UI Design)

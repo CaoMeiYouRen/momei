@@ -36,17 +36,50 @@
                             auto-resize
                             @keydown.ctrl.enter="saveSnippet"
                         />
+
+                        <div v-if="pendingMedia.length" class="pending-media">
+                            <div
+                                v-for="(url, index) in pendingMedia"
+                                :key="index"
+                                class="media-item"
+                            >
+                                <Image
+                                    :src="url"
+                                    width="64"
+                                    preview
+                                />
+                                <Button
+                                    icon="pi pi-times"
+                                    severity="danger"
+                                    rounded
+                                    text
+                                    size="small"
+                                    class="remove-btn"
+                                    @click="removeMedia(index)"
+                                />
+                            </div>
+                        </div>
+
                         <Divider class="quick-capture-divider" />
                         <div class="quick-capture-footer">
                             <div class="footer-left">
                                 <Button
                                     v-tooltip.bottom="$t('pages.admin.snippets.upload_image')"
+                                    :loading="imageUploading"
                                     icon="pi pi-image"
                                     text
                                     rounded
                                     severity="secondary"
-                                    @click="toast.add({severity: 'info', summary: 'Info', detail: '图片上传功能集成中', life: 2000})"
+                                    @click="triggerUpload"
                                 />
+                                <input
+                                    ref="fileInput"
+                                    type="file"
+                                    class="hidden"
+                                    accept="image/*"
+                                    multiple
+                                    @change="onFileChange"
+                                >
                                 <Button
                                     v-tooltip.bottom="$t('pages.admin.snippets.attach_file')"
                                     icon="pi pi-paperclip"
@@ -62,7 +95,7 @@
                                     icon="pi pi-send"
                                     class="save-btn"
                                     :loading="saving"
-                                    :disabled="!newSnippet.trim()"
+                                    :disabled="!newSnippet.trim() && !pendingMedia.length"
                                     @click="saveSnippet"
                                 />
                             </div>
@@ -206,6 +239,55 @@
             </div>
         </Dialog>
 
+        <!-- Edit Dialog -->
+        <Dialog
+            v-model:visible="editDialogVisible"
+            :header="$t('pages.admin.snippets.edit')"
+            modal
+            class="edit-dialog"
+            dismissable-mask
+        >
+            <div class="edit-form">
+                <div class="edit-field">
+                    <label for="content" class="field-label">{{ $t('pages.admin.snippets.content') }}</label>
+                    <Textarea
+                        id="content"
+                        v-model="editForm.content"
+                        rows="10"
+                        auto-resize
+                        class="edit-textarea w-full"
+                    />
+                </div>
+                <div class="edit-field">
+                    <label for="status" class="field-label">{{ $t('pages.admin.snippets.status') }}</label>
+                    <Dropdown
+                        id="status"
+                        v-model="editForm.status"
+                        :options="statusOptions"
+                        option-label="label"
+                        option-value="value"
+                        class="w-full"
+                    />
+                </div>
+            </div>
+            <template #footer>
+                <div class="edit-dialog-footer">
+                    <Button
+                        :label="$t('common.cancel')"
+                        text
+                        severity="secondary"
+                        @click="editDialogVisible = false"
+                    />
+                    <Button
+                        :label="$t('common.save')"
+                        icon="pi pi-check"
+                        :loading="saving"
+                        @click="updateSnippet"
+                    />
+                </div>
+            </template>
+        </Dialog>
+
         <ConfirmDeleteDialog
             v-model:visible="deleteDialogVisible"
             :title="$t('pages.admin.snippets.confirm_delete')"
@@ -219,10 +301,12 @@ import { useAdminList } from '@/composables/use-admin-list'
 import SnippetCard from '@/components/admin/snippets/snippet-card.vue'
 import type { Snippet } from '@/types/snippet'
 import markdownit from 'markdown-it'
+import { useUpload, UploadType } from '@/composables/use-upload'
 
 const { t } = useI18n()
 const toast = useToast()
 const md = markdownit()
+const { uploadFile, uploading: imageUploading } = useUpload({ type: UploadType.IMAGE })
 
 const { items, pagination, loading, refresh, onPage } = useAdminList<Snippet>({
     url: '/api/admin/snippets',
@@ -230,17 +314,58 @@ const { items, pagination, loading, refresh, onPage } = useAdminList<Snippet>({
 })
 
 const newSnippet = ref('')
+const pendingMedia = ref<string[]>([])
 const saving = ref(false)
 
+const fileInput = ref<HTMLInputElement | null>(null)
+
+const triggerUpload = () => {
+    fileInput.value?.click()
+}
+
+const onFileChange = async (event: Event) => {
+    const target = event.target as HTMLInputElement
+    const files = target.files
+    if (!files?.length) return
+
+    for (const file of Array.from(files)) {
+        try {
+            const url = await uploadFile(file)
+            if (url) {
+                pendingMedia.value.push(url)
+            }
+        } catch (e) {
+            // Error handled in composable
+        }
+    }
+    // Clear input
+    target.value = ''
+}
+
+const removeMedia = (index: number) => {
+    pendingMedia.value.splice(index, 1)
+}
+
+const statusOptions = computed(() => [
+    { label: t('pages.admin.snippets.inbox'), value: 'inbox' },
+    { label: t('pages.admin.snippets.converted'), value: 'converted' },
+    { label: t('pages.admin.snippets.archived'), value: 'archived' },
+])
+
 const saveSnippet = async () => {
-    if (!newSnippet.value.trim()) return
+    if (!newSnippet.value.trim() && !pendingMedia.value.length) return
     saving.value = true
     try {
         await $fetch('/api/snippets', {
             method: 'POST',
-            body: { content: newSnippet.value, source: 'web' },
+            body: {
+                content: newSnippet.value,
+                source: 'web',
+                media: pendingMedia.value,
+            },
         } as any)
         newSnippet.value = ''
+        pendingMedia.value = []
         toast.add({ severity: 'success', summary: t('common.success'), detail: t('common.save_success'), life: 3000 })
         refresh()
     } catch (e: any) {
@@ -285,9 +410,21 @@ const convertSnippet = async (snippet: Snippet) => {
     }
 }
 
-const convertToPostFromScaffold = () => {
-    // TODO: Add actual conversion to post
-    toast.add({ severity: 'info', summary: 'Tip', detail: '请手动复制大纲到编辑器开始创作。', life: 3000 })
+const convertToPostFromScaffold = async () => {
+    if (!scaffold.value) return
+    aggregating.value = true
+    try {
+        const res: any = await $fetch('/api/admin/snippets/scaffold-to-post', {
+            method: 'POST',
+            body: { scaffold: scaffold.value },
+        } as any)
+        toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.snippets.convert_success'), life: 3000 })
+        navigateTo(`/admin/posts/${res.data.post.id}`)
+    } catch (e) {
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+    } finally {
+        aggregating.value = false
+    }
 }
 
 const copyScaffold = async () => {
@@ -303,6 +440,40 @@ const copyScaffold = async () => {
 const deleteDialogVisible = ref(false)
 const snippetToDelete = ref<Snippet | null>(null)
 
+const editDialogVisible = ref(false)
+const editingSnippet = ref<Snippet | null>(null)
+const editForm = ref({
+    content: '',
+    status: '',
+})
+
+const editSnippet = (snippet: Snippet) => {
+    editingSnippet.value = snippet
+    editForm.value = {
+        content: snippet.content || '',
+        status: snippet.status || 'inbox',
+    }
+    editDialogVisible.value = true
+}
+
+const updateSnippet = async () => {
+    if (!editingSnippet.value) return
+    saving.value = true
+    try {
+        await $fetch(`/api/admin/snippets/${editingSnippet.value.id}`, {
+            method: 'PUT',
+            body: editForm.value,
+        } as any)
+        toast.add({ severity: 'success', summary: t('common.success'), detail: t('common.save_success'), life: 3000 })
+        editDialogVisible.value = false
+        refresh()
+    } catch (e) {
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+    } finally {
+        saving.value = false
+    }
+}
+
 const confirmDelete = (snippet: Snippet) => {
     snippetToDelete.value = snippet
     deleteDialogVisible.value = true
@@ -317,10 +488,6 @@ const deleteSnippet = async () => {
     } catch (e) {
         toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
     }
-}
-
-const editSnippet = (snippet: Snippet) => {
-    toast.add({ severity: 'info', summary: 'Info', detail: '编辑功能开发中', life: 2000 })
 }
 
 const paginatorFirst = ref(0)
@@ -400,6 +567,49 @@ definePageMeta({
 
                     &:focus {
                         outline: none;
+                    }
+                }
+
+                .pending-media {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.75rem;
+                    margin: 0.5rem 0;
+
+                    .media-item {
+                        position: relative;
+                        width: 64px;
+                        height: 64px;
+                        border-radius: 0.5rem;
+                        overflow: hidden;
+                        border: 1px solid var(--p-content-border-color);
+
+                        :deep(.p-image) {
+                            width: 100%;
+                            height: 100%;
+
+                            img {
+                                width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                            }
+                        }
+
+                        .remove-btn {
+                            position: absolute;
+                            top: 0;
+                            right: 0;
+                            width: 1.5rem;
+                            height: 1.5rem;
+                            padding: 0;
+                            z-index: 10;
+                            background: rgb(var(--p-surface-900-rgb), 0.5);
+                            color: white !important;
+
+                            &:hover {
+                                background: var(--p-red-500);
+                            }
+                        }
                     }
                 }
 
@@ -672,6 +882,40 @@ definePageMeta({
             display: flex;
             justify-content: flex-end;
             gap: 0.75rem;
+        }
+    }
+
+    .edit-dialog {
+        max-width: 40rem;
+        width: 100%;
+
+        :deep(.edit-textarea) {
+            font-family: inherit;
+        }
+
+        .edit-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 1rem 0;
+
+            .edit-field {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+
+                .field-label {
+                    font-weight: 600;
+                    font-size: 0.875rem;
+                }
+            }
+        }
+
+        .edit-dialog-footer {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            padding-top: 1rem;
         }
     }
 }
