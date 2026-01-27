@@ -205,16 +205,29 @@ commit message 使用中文描述变更内容。
 
 ### 5. AI 智能体体系 (AI Agents System)
 
-项目定义了以下基础智能体，协作完成开发任务。详细指令以各智能体的技能文档为准（具体参考 `.github/agents` 文件夹下的内容）：
+项目定义了以下智能体，协同完成 PDTFC+ 完整开发任务。
 
--   **`@full-stack-master` (全栈大师)**: 驱动融合了 PDTFC+ 循环的全生命周期工作流。负责从需求分析（分类分析、澄清歧义）、执行开发、多维质量检测、到两阶段提交及测试增强的完整自动化路径。
--   **`@full-stack-developer` (全栈开发者)**: 专注于 PDTFC+ 循环的具体执行。已与全栈大师能力融合，遵循统一的业务逻辑与测试增强标准。
--   **`@quality-guardian` (质量守卫)**: 负责代码 Lint、类型检查与规范审查。
--   **`@test-engineer` (测试工程师)**: 负责测试驱动开发与高覆盖率逻辑实现，配合全栈开发者完成“测试补充”阶段的任务。
--   **`@ui-validator` (UI 验证专家)**: 负责 UI 变更后的浏览器自动化验证。确保开发服务器就绪，通过截图和样式检查验证渲染效果。
--   **`@code-reviewer` (代码审查者)**: 负责代码审查与安全审计，确保代码符合规范、逻辑严密且无安全漏洞。
--   **`@documentation-specialist` (文档专家)**: 维护 `docs/` 下的设计与规划文档。**注意：禁止手动修改自动生成的 CHANGELOG.md**。
--   **`@qa-assistant` (问答助手)**: 专注问答的智能体，通过深入分析文档和代码来提供准确的项目解答，且具有只读权限，不修改任何代码。
+#### 核心编排
+-   **`@full-stack-master` (全栈大师)**: 首席指挥官。负责全局任务分配、多角色协同及 PDTFC+ 工作流的总体控制。
+
+#### 规划与设计 (Plan)
+-   **`@product-manager` (产品经理)**: 负责接收用户意图，通过“采访模式”进行需求对齐，维护 `roadmap.md` 和 `todo.md`。
+-   **`@system-architect` (系统架构师)**: 负责技术方案拆解，确定受影响文件、API 设计及数据库架构。
+
+#### 业务执行 (Do)
+-   **`@frontend-developer` (前端开发者)**: 专注于 Vue 3 (Nuxt 4), SCSS (BEM), I18n 文本提取及 UI 自动化验证 (V)。
+-   **`@backend-developer` (后端开发者)**: 专注于 Nitro API, Drizzle ORM 以及权限/安全逻辑。
+
+#### 质量与保障 (Validate/Test/Review)
+-   **`@quality-guardian` (质量守卫)**: 负责代码 Lint、类型检查与全量测试。
+-   **`@ui-validator` (UI 验证专家)**: 负责浏览器侧的视觉与交互验证。
+-   **`@test-engineer` (测试工程师)**: 负责编写与补充 Vitest 高质量测试用例。
+-   **`@code-reviewer` (代码审查者)**: 负责安全审计与规范契合度审查。
+
+#### 交付与维护 (Commit/Deploy)
+-   **`@release-manager` (发布管理员)**: 负责 Git 暂存、生成 Conventional Commits、更新日志及部署确认。
+-   **`@documentation-specialist` (文档专家)**: 维护 `docs/` 下的设计与规划文档。
+-   **`@qa-assistant` (问答助手)**: 提供只读的项目咨询与逻辑检索。
 
 ## 安全要求
 
