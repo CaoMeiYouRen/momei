@@ -80,26 +80,30 @@
 
 ## 智能体和技能集成
 
-本项目定义了完整的 AI 智能体体系，可直接复用:
+本项目定义了完整的 AI 智能体体系，支持 Claude Code 与 GitHub Copilot 跨工具复用。
+
+**Claude Code 特别指引：**
+- **路径优先级**：请优先通过 `.claude/agents/` 和 `.claude/skills/` 路径访问相关定义。
+- **回退机制**：若上述路径不可用或链接失效，请立即回退至 `.github/agents/` 和 `.github/skills/` 读取原始 Markdown 文档并遵循其中的指令执行。
 
 ### 核心智能体
-- [@full-stack-master](./.github/agents/full-stack-master.agent.md) - 全栈大师，驱动完整的 PDTFC+ 开发循环
-- [@full-stack-developer](./.github/agents/full-stack-developer.agent.md) - 全栈开发者，专注于具体实现
-- [@quality-guardian](./.github/agents/quality-guardian.agent.md) - 质量守卫，负责代码检查和规范审查
-- [@test-engineer](./.github/agents/test-engineer.agent.md) - 测试工程师，负责测试驱动开发
-- [@code-reviewer](./.github/agents/code-reviewer.agent.md) - 代码审查者，负责代码审查和安全审计
-- [@documentation-specialist](./.github/agents/documentation-specialist.agent.md) - 文档专家，维护设计和规划文档
-- [@qa-assistant](./.github/agents/qa-assistant.agent.md) - 问答助手，提供项目解答
+- [@full-stack-master](.claude/agents/full-stack-master.agent.md) - 全栈大师，驱动完整的 PDTFC+ 开发循环 (回退至 [.github/agents](.github/agents/full-stack-master.agent.md))
+- [@full-stack-developer](.claude/agents/full-stack-developer.agent.md) - 全栈开发者，专注于具体实现 (回退至 [.github/agents](.github/agents/full-stack-developer.agent.md))
+- [@quality-guardian](.claude/agents/quality-guardian.agent.md) - 质量守卫，负责代码检查和规范审查 (回退至 [.github/agents](.github/agents/quality-guardian.agent.md))
+- [@test-engineer](.claude/agents/test-engineer.agent.md) - 测试工程师，负责测试驱动开发 (回退至 [.github/agents](.github/agents/test-engineer.agent.md))
+- [@code-reviewer](.claude/agents/code-reviewer.agent.md) - 代码审查者，负责代码审查和安全审计 (回退至 [.github/agents](.github/agents/code-reviewer.agent.md))
+- [@documentation-specialist](.claude/agents/documentation-specialist.agent.md) - 文档专家，维护设计和规划文档 (回退至 [.github/agents](.github/agents/documentation-specialist.agent.md))
+- [@qa-assistant](.claude/agents/qa-assistant.agent.md) - 问答助手，提供项目解答 (回退至 [.github/agents](.github/agents/qa-assistant.agent.md))
 
 ### 核心技能
-- [full-stack-master](./.github/skills/full-stack-master/SKILL.md) - 全栈大师工作流技能
-- [context-analyzer](./.github/skills/context-analyzer/SKILL.md) - 上下文分析技能
-- [nuxt-code-editor](./.github/skills/nuxt-code-editor/SKILL.md) - Nuxt 代码编辑技能
-- [test-engineer](./.github/skills/test-engineer/SKILL.md) - 测试工程技能
-- [quality-guardian](./.github/skills/quality-guardian/SKILL.md) - 质量守卫技能
-- [documentation-specialist](./.github/skills/documentation-specialist/SKILL.md) - 文档专家技能
-- [code-reviewer](./.github/skills/code-reviewer/SKILL.md) - 代码审查技能
-- [conventional-committer](./.github/skills/conventional-committer/SKILL.md) - 规范提交技能
+- [full-stack-master](.claude/skills/full-stack-master/SKILL.md) - 全栈大师工作流技能
+- [context-analyzer](.claude/skills/context-analyzer/SKILL.md) - 上下文分析技能
+- [nuxt-code-editor](.claude/skills/nuxt-code-editor/SKILL.md) - Nuxt 代码编辑技能
+- [test-engineer](.claude/skills/test-engineer/SKILL.md) - 测试工程技能
+- [quality-guardian](.claude/skills/quality-guardian/SKILL.md) - 质量守卫技能
+- [documentation-specialist](.claude/skills/documentation-specialist/SKILL.md) - 文档专家技能
+- [code-reviewer](.claude/skills/code-reviewer/SKILL.md) - 代码审查技能
+- [conventional-committer](.claude/skills/conventional-committer/SKILL.md) - 规范提交技能
 
 ## 关键模式和约定
 
@@ -195,24 +199,24 @@ tests/          # 测试文件
 - `plan/` - 项目计划和待办事项
 
 ### AI 智能体文档
-- `.github/agents/` - 各智能体的详细配置文档
-  - [全栈大师](./.github/agents/full-stack-master.agent.md) - 驱动完整的 PDTFC+ 开发循环
-  - [全栈开发者](./.github/agents/full-stack-developer.agent.md) - 专注于具体实现
-  - [质量守卫](./.github/agents/quality-guardian.agent.md) - 代码检查和规范审查
-  - [测试工程师](./.github/agents/test-engineer.agent.md) - 测试驱动开发
-  - [代码审查者](./.github/agents/code-reviewer.agent.md) - 代码审查和安全审计
-  - [文档专家](./.github/agents/documentation-specialist.agent.md) - 维护设计和规划文档
-  - [问答助手](./.github/agents/qa-assistant.agent.md) - 提供项目解答
-- `.github/skills/` - 各智能体技能的实现文档
-  - [全栈大师技能](./.github/skills/full-stack-master/SKILL.md)
-  - [上下文分析技能](./.github/skills/context-analyzer/SKILL.md)
-  - [Nuxt 代码编辑技能](./.github/skills/nuxt-code-editor/SKILL.md)
-  - [测试工程技能](./.github/skills/test-engineer/SKILL.md)
-  - [质量守卫技能](./.github/skills/quality-guardian/SKILL.md)
-  - [文档专家技能](./.github/skills/documentation-specialist/SKILL.md)
-  - [代码审查技能](./.github/skills/code-reviewer/SKILL.md)
-  - [规范提交技能](./.github/skills/conventional-committer/SKILL.md)
-  - [UI 验证技能](./.github/skills/ui-validator/SKILL.md)
+- `.claude/agents/` (软链接) 或 `.github/agents/` - 各智能体的详细配置文档
+  - [全栈大师](.claude/agents/full-stack-master.agent.md) - 驱动完整的 PDTFC+ 开发循环
+  - [全栈开发者](.claude/agents/full-stack-developer.agent.md) - 专注于具体实现
+  - [质量守卫](.claude/agents/quality-guardian.agent.md) - 代码检查和规范审查
+  - [测试工程师](.claude/agents/test-engineer.agent.md) - 测试驱动开发
+  - [代码审查者](.claude/agents/code-reviewer.agent.md) - 代码审查和安全审计
+  - [文档专家](.claude/agents/documentation-specialist.agent.md) - 维护设计和规划文档
+  - [问答助手](.claude/agents/qa-assistant.agent.md) - 提供项目解答
+- `.claude/skills/` (软链接) 或 `.github/skills/` - 各智能体技能的实现文档
+  - [全栈大师技能](.claude/skills/full-stack-master/SKILL.md)
+  - [上下文分析技能](.claude/skills/context-analyzer/SKILL.md)
+  - [Nuxt 代码编辑技能](.claude/skills/nuxt-code-editor/SKILL.md)
+  - [测试工程技能](.claude/skills/test-engineer/SKILL.md)
+  - [质量守卫技能](.claude/skills/quality-guardian/SKILL.md)
+  - [文档专家技能](.claude/skills/documentation-specialist/SKILL.md)
+  - [代码审查技能](.claude/skills/code-reviewer/SKILL.md)
+  - [规范提交技能](.claude/skills/conventional-committer/SKILL.md)
+  - [UI 验证技能](.claude/skills/ui-validator/SKILL.md)
 
 ### 其他重要文件
 - `.github/PULL_REQUEST_TEMPLATE.md` - 代码合并请求模板
