@@ -57,6 +57,14 @@ vi.mock('#imports', async (importOriginal) => {
         }),
         useFetch: vi.fn(),
         definePageMeta: vi.fn(),
+        getAppManifest: vi.fn(() => Promise.resolve({
+            publicPath: '/',
+            buildId: 'test',
+            routes: {},
+            matcher: {},
+            prerendered: [],
+        })),
+        getRouteRules: vi.fn(() => ({})),
     }
 })
 

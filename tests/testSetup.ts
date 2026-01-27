@@ -41,13 +41,14 @@ vi.stubGlobal('defineEventHandler', mockEventHandler)
 vi.stubGlobal('getValidatedQuery', mockGetValidatedQuery)
 vi.stubGlobal('readValidatedBody', mockReadValidatedBody)
 vi.stubGlobal('createError', mockCreateError)
-vi.stubGlobal('getAppManifest', () => Promise.resolve({
+vi.stubGlobal('getAppManifest', vi.fn(() => Promise.resolve({
     publicPath: '/',
     buildId: 'test',
     routes: {},
     matcher: {},
     prerendered: [],
-}))
+})))
+vi.stubGlobal('getRouteRules', vi.fn(() => ({})))
 vi.stubGlobal('useRuntimeConfig', () => ({
     public: {
         siteUrl: 'https://momei.app',
