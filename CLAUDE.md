@@ -138,3 +138,93 @@ tests/          # 测试文件
 - SCSS 配合 scoped 样式
 - 国际化集成使用 `$t()` 函数
 - PrimeVue 组件使用
+
+## 强制参考文档 (Mandatory Reading for AI Agents)
+
+在执行任务时，AI 智能体**必须**在特定阶段主动读取以下文档以确保符合项目标准：
+
+### 任务开始前必须阅读
+- [项目计划](./docs/plan/roadmap.md) - 了解整体发展蓝图和目标
+- [待办事项](./docs/plan/todo.md) - 明确当前任务、目标及优先级
+- [待办事项归档](./docs/plan/todo-archive.md) - 了解已归档的历史任务
+- [项目规划规范](./docs/standards/planning.md) - 任务规划与评估标准
+
+### 进入开发 (Do) 阶段前必须阅读
+- [开发规范](./docs/standards/development.md) - 代码风格、目录结构和安全要求
+- [API 规范](./docs/standards/api.md) - API 设计、响应格式和权限控制
+- [数据库设计](./docs/design/database.md) - 数据库实体关系和数据模型
+
+### 涉及安全性或权限时必须阅读
+- [安全规范](./docs/standards/security.md) - 安全最佳实践和漏洞防范
+- [API 设计](./docs/design/api.md) - 后端架构和认证系统设计
+
+### 执行测试 (Test) 或补齐测试 (Enhance) 前必须阅读
+- [测试规范](./docs/standards/testing.md) - 测试策略和覆盖率要求
+
+### 涉及 UI 变动时必须阅读
+- [UI 设计](./docs/design/ui.md) - 整体界面设计风格和组件规范
+- [主题系统设计](./docs/design/modules/theme-system.md) - 主题切换和自定义机制
+
+### 涉及特定模块功能时必须阅读
+- **博客模块**: [博客模块设计](./docs/design/modules/blog.md)
+- **AI 模块**: [AI 模块设计](./docs/design/modules/ai.md) 和 [AI 开发指南](./docs/guide/ai-development.md)
+- **认证模块**: [认证模块设计](./docs/design/modules/auth.md)
+- **管理模块**: [管理模块设计](./docs/design/modules/admin.md)
+- **灵感采集**: [灵感引擎设计](./docs/design/modules/inspiration.md)
+- **播客模块**: [播客模块设计](./docs/design/modules/podcast.md)
+- **用户模块**: [用户模块设计](./docs/design/modules/user.md)
+- **分类标签**: [分类标签模块设计](./docs/design/modules/taxonomy.md)
+- **搜索模块**: [搜索模块设计](./docs/design/modules/search.md)
+- **存储模块**: [存储模块设计](./docs/design/modules/storage.md)
+- **交互模块**: [交互模块设计](./docs/design/modules/interactions.md)
+- **渲染模块**: [渲染模块设计](./docs/design/modules/rendering.md)
+- **演示模式**: [演示模式模块设计](./docs/design/modules/demo-mode.md)
+- **部署优化**: [部署优化模块设计](./docs/design/modules/deployment-optimization.md)
+- **开放 API**: [开放 API 模块设计](./docs/design/modules/open-api.md)
+- **系统模块**: [系统模块设计](./docs/design/modules/system.md)
+
+### AI 协作规范
+- [AI 协作规范](./docs/standards/ai-collaboration.md) - AI 智能体工作流程和规范
+- [智能体配置](./AGENTS.md) - 所有智能体的职责和交互规范
+
+## 文档分类概览
+
+### 核心规范文档
+- `standards/` - 开发、测试、API、安全等规范文档
+- `design/` - 架构和模块设计文档
+- `plan/` - 项目计划和待办事项
+
+### AI 智能体文档
+- `.github/agents/` - 各智能体的详细配置文档
+  - [全栈大师](./.github/agents/full-stack-master.agent.md) - 驱动完整的 PDTFC+ 开发循环
+  - [全栈开发者](./.github/agents/full-stack-developer.agent.md) - 专注于具体实现
+  - [质量守卫](./.github/agents/quality-guardian.agent.md) - 代码检查和规范审查
+  - [测试工程师](./.github/agents/test-engineer.agent.md) - 测试驱动开发
+  - [代码审查者](./.github/agents/code-reviewer.agent.md) - 代码审查和安全审计
+  - [文档专家](./.github/agents/documentation-specialist.agent.md) - 维护设计和规划文档
+  - [问答助手](./.github/agents/qa-assistant.agent.md) - 提供项目解答
+- `.github/skills/` - 各智能体技能的实现文档
+  - [全栈大师技能](./.github/skills/full-stack-master/SKILL.md)
+  - [上下文分析技能](./.github/skills/context-analyzer/SKILL.md)
+  - [Nuxt 代码编辑技能](./.github/skills/nuxt-code-editor/SKILL.md)
+  - [测试工程技能](./.github/skills/test-engineer/SKILL.md)
+  - [质量守卫技能](./.github/skills/quality-guardian/SKILL.md)
+  - [文档专家技能](./.github/skills/documentation-specialist/SKILL.md)
+  - [代码审查技能](./.github/skills/code-reviewer/SKILL.md)
+  - [规范提交技能](./.github/skills/conventional-committer/SKILL.md)
+  - [UI 验证技能](./.github/skills/ui-validator/SKILL.md)
+
+### 其他重要文件
+- `.github/PULL_REQUEST_TEMPLATE.md` - 代码合并请求模板
+- `database/README.md` - 数据库配置和迁移指南
+- `CONTRIBUTING.md` - 贡献者指南和开发流程
+- `CODE_OF_CONDUCT.md` - 社区行为准则
+
+### 开发指南
+- `guide/` - 开发指南和部署文档
+- `database/README.md` - 数据库配置和迁移指南
+
+### 项目文件
+- `AGENTS.md` - AI 代理配置和开发工作流程
+- `CONTRIBUTING.md` - 贡献者指南
+- `CODE_OF_CONDUCT.md` - 行为准则
