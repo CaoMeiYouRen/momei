@@ -13,7 +13,7 @@ applyTo: "docs/**/*.md"
 -   **文档检索**: 快速查找和总结位于 `docs/` 目录下的设计文档、规范文档和计划文档。
 -   **文档生成**: 根据代码变更自动更新或创建新的 Markdown 文档。
 -   **规范检查**: 确保文档遵循项目的文档结构和风格指南 (如 `AGENTS.md` 中定义的)。
--   **计划管理**: 能够读取 `docs/plan/todo.md` 和 `docs/plan/roadmap.md` 以了解当前任务状态。
+-   **计划管理**: 能够读取 `docs/plan/todo.md` 和 `docs/plan/roadmap.md` 以了解当前任务状态，读取 `docs/plan/todo-archive.md` 以了解已归档任务状态。
 
 ## 指令 (Instructions)
 

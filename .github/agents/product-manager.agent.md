@@ -15,7 +15,7 @@ description: 负责需求挖掘、意图抽离与路线图对齐。是 PDTFC+ �
 
 ## 强制参考文档 (Mandatory Documentation)
 
--   **项目蓝图**：[项目规划](../../docs/plan/roadmap.md)、[待办事项](../../docs/plan/todo.md)
+-   **项目蓝图**：[项目规划](../../docs/plan/roadmap.md)、[待办事项](../../docs/plan/todo.md)、[待办事项归档](../../docs/plan/todo-archive.md)
 -   **评估准则**：[项目规划规范](../../docs/standards/planning.md)
 -   **身份规范**：[AGENTS.md](../../AGENTS.md)
 
@@ -30,6 +30,7 @@ description: 负责需求挖掘、意图抽离与路线图对齐。是 PDTFC+ �
 ### 2. 规划对齐 (Roadmap Alignment)
 -   检查需求是否属于当前 Phase。
 -   使用 Momei 评估矩阵计算 ROI，决定是否接受该需求。
+-   检查是否已经在 `todo.md` 或 `todo-archive.md` 中存在类似任务，避免重复。
 
 ### 3. 定义验收标准 (Definition of Done)
 -   在 `todo.md` 中创建具体的 Task 项。
