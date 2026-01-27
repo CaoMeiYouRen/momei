@@ -409,6 +409,8 @@
             modal
             class="edit-dialog"
             dismissable-mask
+            :style="{width: '80rem', maxWidth: '95vw'}"
+            :breakpoints="{'1199px': '85vw', '575px': '95vw'}"
         >
             <div class="edit-form">
                 <div class="edit-field">
@@ -416,11 +418,61 @@
                     <Textarea
                         id="content"
                         v-model="editForm.content"
-                        rows="10"
+                        rows="12"
                         auto-resize
                         class="edit-textarea field-input"
                     />
                 </div>
+
+                <div class="edit-field">
+                    <label class="field-label">{{ t('pages.admin.snippets.attachments') }}</label>
+                    <p class="field-desc">
+                        {{ t('pages.admin.snippets.attachments_desc') }}
+                    </p>
+                    <div class="edit-media-manager">
+                        <div v-if="editForm.media && editForm.media.length > 0" class="media-grid">
+                            <div
+                                v-for="(url, index) in editForm.media"
+                                :key="index"
+                                class="media-item"
+                            >
+                                <Image
+                                    :src="url"
+                                    alt="Attachment"
+                                    preview
+                                    class="media-preview"
+                                    image-class="media-img"
+                                />
+                                <Button
+                                    icon="pi pi-times"
+                                    severity="danger"
+                                    rounded
+                                    class="remove-btn"
+                                    @click="removeEditMedia(index)"
+                                />
+                            </div>
+                        </div>
+                        <div class="media-actions">
+                            <input
+                                ref="editFileInput"
+                                type="file"
+                                accept="image/*"
+                                style="display: none"
+                                multiple
+                                @change="onEditFileChange"
+                            >
+                            <Button
+                                icon="pi pi-image"
+                                :label="t('pages.admin.snippets.upload_image')"
+                                severity="secondary"
+                                text
+                                :loading="imageUploading"
+                                @click="triggerEditUpload"
+                            />
+                        </div>
+                    </div>
+                </div>
+
                 <div class="edit-field">
                     <label for="status" class="field-label">{{ t('pages.admin.snippets.status') }}</label>
                     <Dropdown
@@ -481,9 +533,14 @@ const pendingMedia = ref<string[]>([])
 const saving = ref(false)
 
 const fileInput = ref<HTMLInputElement | null>(null)
+const editFileInput = ref<HTMLInputElement | null>(null)
 
 const triggerUpload = () => {
     fileInput.value?.click()
+}
+
+const triggerEditUpload = () => {
+    editFileInput.value?.click()
 }
 
 const onFileChange = async (event: Event) => {
@@ -505,8 +562,31 @@ const onFileChange = async (event: Event) => {
     target.value = ''
 }
 
+const onEditFileChange = async (event: Event) => {
+    const target = event.target as HTMLInputElement
+    const files = target.files
+    if (!files?.length) return
+
+    for (const file of Array.from(files)) {
+        try {
+            const url = await uploadFile(file)
+            if (url) {
+                editForm.value.media.push(url)
+            }
+        } catch (e) {
+            // Error handled in composable
+        }
+    }
+    // Clear input
+    target.value = ''
+}
+
 const removeMedia = (index: number) => {
     pendingMedia.value.splice(index, 1)
+}
+
+const removeEditMedia = (index: number) => {
+    editForm.value.media.splice(index, 1)
 }
 
 const statusOptions = computed(() => [
@@ -692,6 +772,7 @@ const editingSnippet = ref<Snippet | null>(null)
 const editForm = ref({
     content: '',
     status: '',
+    media: [] as string[],
 })
 
 const editSnippet = (snippet: Snippet) => {
@@ -699,6 +780,7 @@ const editSnippet = (snippet: Snippet) => {
     editForm.value = {
         content: snippet.content || '',
         status: snippet.status || 'inbox',
+        media: snippet.media ? [...snippet.media] : [],
     }
     editDialogVisible.value = true
 }
@@ -1408,18 +1490,25 @@ definePageMeta({
 }
 
 .edit-dialog {
-    max-width: 40rem;
-    width: 100%;
+    max-width: 80rem !important;
+    width: 90vw !important;
+
+    :deep(.p-dialog-content) {
+        padding: 1.5rem !important;
+    }
 
     :deep(.edit-textarea) {
-        font-family: inherit;
+        font-family: var(--font-family-mono, monospace);
+        font-size: 1.15rem;
+        line-height: 1.6;
+        padding: 1rem;
     }
 
     .edit-form {
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
-        padding: 1rem 0;
+        padding: 0.5rem 0;
 
         .edit-field {
             display: flex;
@@ -1427,12 +1516,75 @@ definePageMeta({
             gap: 0.5rem;
 
             .field-label {
-                font-weight: 600;
+                font-weight: 700;
                 font-size: 0.875rem;
+                color: var(--p-text-color);
+            }
+
+            .field-desc {
+                font-size: 0.75rem;
+                color: var(--p-text-muted-color);
+                margin-top: -0.25rem;
+                margin-bottom: 0.25rem;
             }
 
             .field-input {
                 width: 100%;
+            }
+
+            .edit-media-manager {
+                .media-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                    gap: 1rem;
+                    margin-bottom: 1rem;
+
+                    .media-item {
+                        position: relative;
+                        aspect-ratio: 1;
+                        border-radius: 0.5rem;
+                        overflow: hidden;
+                        border: 1px solid var(--p-content-border-color);
+
+                        :deep(.media-preview) {
+                            width: 100%;
+                            height: 100%;
+
+                            .media-img {
+                                width: 100% !important;
+                                height: 100% !important;
+                                object-fit: cover !important;
+                            }
+
+                            img {
+                                width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                            }
+                        }
+
+                        .remove-btn {
+                            position: absolute;
+                            top: 0.25rem;
+                            right: 0.25rem;
+                            width: 1.5rem;
+                            height: 1.5rem;
+                            padding: 0;
+                            z-index: 10;
+                            background: rgb(var(--p-surface-900-rgb), 0.6);
+                            color: white;
+
+                            &:hover {
+                                background: var(--p-red-500);
+                            }
+                        }
+                    }
+                }
+
+                .media-actions {
+                    display: flex;
+                    align-items: center;
+                }
             }
         }
     }
@@ -1442,6 +1594,7 @@ definePageMeta({
         gap: 0.75rem;
         justify-content: flex-end;
         padding-top: 1rem;
+        border-top: 1px solid var(--p-content-border-color);
     }
 }
 

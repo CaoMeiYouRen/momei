@@ -9,6 +9,7 @@ import { SnippetStatus } from '@/types/snippet'
 const updateSnippetSchema = z.object({
     content: z.string().min(1).optional(),
     status: z.enum(SnippetStatus).optional(),
+    media: z.array(z.string()).nullable().optional(),
     metadata: z.any().optional(),
 })
 
@@ -30,7 +31,7 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    assignDefined(snippet, data, ['content', 'status', 'metadata'])
+    assignDefined(snippet, data, ['content', 'status', 'media', 'metadata'])
 
     await repo.save(snippet)
 
