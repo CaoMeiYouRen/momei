@@ -35,6 +35,12 @@ export class Snippet extends BaseEntity {
     })
     status: SnippetStatus
 
+    @CustomColumn({ type: 'varchar', length: 36, nullable: false, index: true, comment: '作者 ID' })
+    authorId: string
+
+    @CustomColumn({ type: 'varchar', length: 36, nullable: true, index: true, comment: '关联文章 ID' })
+    postId: string | null
+
     // ========== 关系定义 ==========
 
     @ManyToOne(() => User, {
