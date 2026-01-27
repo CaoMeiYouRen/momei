@@ -200,6 +200,8 @@
             modal
             class="aggregate-dialog"
             dismissable-mask
+            :style="{width: '50vw'}"
+            :breakpoints="{'1199px': '75vw', '575px': '90vw'}"
         >
             <div v-if="aggregating" class="aggregating-state">
                 <ProgressSpinner stroke-width="3" class="spinner" />
@@ -213,24 +215,91 @@
                         <i class="pi pi-sparkles" />
                         {{ t('pages.admin.snippets.ai_scaffold') }}
                     </h3>
-                    <Button
-                        icon="pi pi-copy"
-                        text
-                        size="small"
-                        :label="t('common.copy')"
-                        @click="copyScaffold"
-                    />
+                    <div class="flex gap-2">
+                        <Button
+                            icon="pi pi-refresh"
+                            text
+                            size="small"
+                            :label="t('common.regenerate')"
+                            @click="scaffold = ''"
+                        />
+                        <Button
+                            icon="pi pi-copy"
+                            text
+                            size="small"
+                            :label="t('common.copy')"
+                            @click="copyScaffold"
+                        />
+                    </div>
                 </div>
                 <div class="dark:prose-invert prose scaffold-content-box">
                     <!-- eslint-disable vue/no-v-html -->
                     <div v-html="renderMarkdown(scaffold)" />
                 </div>
+
+                <!-- Expansion Tool -->
+                <div class="expansion-tool">
+                    <Divider />
+                    <h4 class="expansion-title">
+                        <i class="pi pi-search-plus" />
+                        {{ t('pages.admin.snippets.expand_section') }}
+                    </h4>
+                    <div class="expansion-fields">
+                        <div class="field-item">
+                            <label>{{ t('common.title') }}</label>
+                            <InputText
+                                v-model="expansionForm.sectionTitle"
+                                :placeholder="t('pages.admin.snippets.expand_title')"
+                                class="field-input"
+                            />
+                        </div>
+                        <div class="field-item">
+                            <label>{{ t('pages.admin.snippets.expand_type') }}</label>
+                            <Dropdown
+                                v-model="expansionForm.expandType"
+                                :options="expandTypeOptions"
+                                option-label="label"
+                                option-value="value"
+                                class="field-input"
+                            />
+                        </div>
+                        <div class="field-item full-width">
+                            <Button
+                                :label="t('pages.admin.snippets.expand_btn')"
+                                icon="pi pi-bolt"
+                                class="expand-action-btn"
+                                :loading="expandingSection"
+                                :disabled="!expansionForm.sectionTitle.trim()"
+                                @click="performExpand"
+                            />
+                        </div>
+                    </div>
+
+                    <transition name="fade">
+                        <div v-if="expansionResult" class="expansion-result-box">
+                            <div class="result-header">
+                                <span>{{ t('pages.admin.snippets.expansion_result') }}</span>
+                                <Button
+                                    icon="pi pi-copy"
+                                    text
+                                    size="small"
+                                    :label="t('pages.admin.snippets.apply_expansion')"
+                                    @click="applyExpansion"
+                                />
+                            </div>
+                            <div class="dark:prose-invert prose result-content">
+                                <div v-html="renderMarkdown(expansionResult)" />
+                            </div>
+                        </div>
+                    </transition>
+                </div>
+
                 <div class="dialog-actions-footer">
                     <Button
                         :label="t('common.close')"
                         text
                         severity="secondary"
-                        @click="showAggregateDialog = false"
+                        @click="showAggregateDialog = false; scaffold = ''"
                     />
                     <Button
                         :label="t('pages.admin.snippets.convert_to_post')"
@@ -240,18 +309,81 @@
                     />
                 </div>
             </div>
-            <div v-else class="aggregate-confirm">
-                <div class="info-alert">
-                    <i class="pi pi-info-circle" />
-                    <div class="alert-content">
-                        <p class="alert-title">
-                            {{ t('pages.admin.snippets.aggregate_confirm_title') }}
-                        </p>
-                        <p class="alert-desc">
-                            {{ t('pages.admin.snippets.aggregate_hint_detailed', {count: selectedSnippetIds.length}) }}
-                        </p>
+            <div v-else class="aggregate-options">
+                <div class="mode-selector">
+                    <SelectButton
+                        v-model="aggregateMode"
+                        :options="[
+                            {label: t('pages.admin.snippets.mode_snippets'), value: 'snippets'},
+                            {label: t('pages.admin.snippets.mode_topic'), value: 'topic'}
+                        ]"
+                        option-label="label"
+                        option-value="value"
+                        aria-labelledby="basic"
+                    />
+                </div>
+
+                <div class="options-form">
+                    <div v-if="aggregateMode === 'topic'" class="option-field">
+                        <label class="field-label">{{ t('pages.admin.snippets.topic') }}</label>
+                        <InputText
+                            v-model="aggregateForm.topic"
+                            class="field-input"
+                            :placeholder="t('pages.admin.snippets.topic_placeholder')"
+                        />
+                    </div>
+
+                    <div v-if="aggregateMode === 'snippets'" class="compact info-alert">
+                        <i class="pi pi-info-circle" />
+                        <span>{{ t('pages.admin.snippets.aggregate_hint_detailed', {count: selectedSnippetIds.length}) }}</span>
+                    </div>
+
+                    <div class="option-row">
+                        <div class="option-field">
+                            <label class="field-label">{{ t('pages.admin.snippets.template') }}</label>
+                            <Dropdown
+                                v-model="aggregateForm.template"
+                                :options="templateOptions"
+                                option-label="label"
+                                option-value="value"
+                                class="field-input"
+                            />
+                        </div>
+                        <div class="option-field">
+                            <label class="field-label">{{ t('pages.admin.snippets.section_count') }}</label>
+                            <InputNumber
+                                v-model="aggregateForm.sectionCount"
+                                show-buttons
+                                :min="3"
+                                :max="8"
+                                class="field-input"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="option-field">
+                        <label class="field-label">{{ t('pages.admin.snippets.audience') }}</label>
+                        <SelectButton
+                            v-model="aggregateForm.audience"
+                            :options="audienceOptions"
+                            option-label="label"
+                            option-value="value"
+                            class="field-select-button"
+                        />
+                    </div>
+
+                    <div class="inline-field option-field">
+                        <Checkbox
+                            id="intro-conclusion"
+                            v-model="aggregateForm.includeIntroConclusion"
+                            binary
+                        />
+                        <label for="intro-conclusion" class="inline-label">{{ t('pages.admin.snippets.include_intro_conclusion') }}</label>
                     </div>
                 </div>
+
+                <Divider />
+
                 <div class="dialog-actions">
                     <Button
                         :label="t('common.cancel')"
@@ -260,9 +392,10 @@
                         @click="showAggregateDialog = false"
                     />
                     <Button
-                        :label="t('common.confirm')"
-                        icon="pi pi-check"
+                        :label="t('pages.admin.snippets.generate_scaffold')"
+                        icon="pi pi-sparkles"
                         severity="primary"
+                        :loading="aggregating"
                         @click="performAggregate"
                     />
                 </div>
@@ -285,7 +418,7 @@
                         v-model="editForm.content"
                         rows="10"
                         auto-resize
-                        class="edit-textarea w-full"
+                        class="edit-textarea field-input"
                     />
                 </div>
                 <div class="edit-field">
@@ -296,7 +429,7 @@
                         :options="statusOptions"
                         option-label="label"
                         option-value="value"
-                        class="w-full"
+                        class="field-input"
                     />
                 </div>
             </div>
@@ -410,23 +543,107 @@ const selectedSnippetIds = ref<string[]>([])
 const showAggregateDialog = ref(false)
 const aggregating = ref(false)
 const scaffold = ref('')
+const scaffoldMetadata = ref<any>(null)
+
+const aggregateMode = ref<'snippets' | 'topic'>('snippets')
+const aggregateForm = ref({
+    topic: '',
+    template: 'blog',
+    sectionCount: 5,
+    audience: 'intermediate',
+    includeIntroConclusion: true,
+})
+
+const expansionForm = ref({
+    sectionTitle: '',
+    sectionContent: '',
+    expandType: 'argument' as 'argument' | 'case' | 'question' | 'reference' | 'data',
+})
+const expandingSection = ref(false)
+const expansionResult = ref('')
+
+const expandTypeOptions = computed(() => [
+    { label: t('pages.admin.snippets.expand_argument'), value: 'argument' },
+    { label: t('pages.admin.snippets.expand_case'), value: 'case' },
+    { label: t('pages.admin.snippets.expand_question'), value: 'question' },
+    { label: t('pages.admin.snippets.expand_reference'), value: 'reference' },
+    { label: t('pages.admin.snippets.expand_data'), value: 'data' },
+])
+
+const templateOptions = computed(() => [
+    { label: t('pages.admin.snippets.template_blog'), value: 'blog' },
+    { label: t('pages.admin.snippets.template_tutorial'), value: 'tutorial' },
+    { label: t('pages.admin.snippets.template_note'), value: 'note' },
+    { label: t('pages.admin.snippets.template_report'), value: 'report' },
+])
+
+const audienceOptions = computed(() => [
+    { label: t('pages.admin.snippets.audience_beginner'), value: 'beginner' },
+    { label: t('pages.admin.snippets.audience_intermediate'), value: 'intermediate' },
+    { label: t('pages.admin.snippets.audience_advanced'), value: 'advanced' },
+])
 
 const performAggregate = async () => {
-    if (selectedSnippetIds.value.length < 2) {
+    if (aggregateMode.value === 'snippets' && selectedSnippetIds.value.length < 1) {
         toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('pages.admin.snippets.aggregate_hint'), life: 3000 })
         return
     }
+    if (aggregateMode.value === 'topic' && !aggregateForm.value.topic.trim()) {
+        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('pages.admin.snippets.topic_required'), life: 3000 })
+        return
+    }
+
     aggregating.value = true
     try {
-        const res: any = await $fetch('/api/admin/snippets/aggregate', {
+        const res: any = await $fetch('/api/ai/scaffold/generate', {
             method: 'POST',
-            body: { ids: selectedSnippetIds.value },
+            body: {
+                ...aggregateForm.value,
+                snippetIds: aggregateMode.value === 'snippets' ? selectedSnippetIds.value : [],
+                language: localStorage.getItem('locale') || 'zh-CN',
+            },
         } as any)
         scaffold.value = res.data.scaffold
-    } catch (e) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+        scaffoldMetadata.value = res.data.metadata
+    } catch (e: any) {
+        toast.add({ severity: 'error', summary: t('common.error'), detail: e.data?.message || t('common.unexpected_error'), life: 3000 })
     } finally {
         aggregating.value = false
+    }
+}
+
+const performExpand = async () => {
+    if (!expansionForm.value.sectionTitle.trim()) return
+    expandingSection.value = true
+    expansionResult.value = ''
+    try {
+        const currentLanguage = (useI18n().locale.value) || 'zh-CN'
+        const res: any = await $fetch('/api/ai/scaffold/expand-section', {
+            method: 'POST',
+            body: {
+                topic: aggregateMode.value === 'topic' ? aggregateForm.value.topic : (scaffoldMetadata.value?.topic || ''),
+                sectionTitle: expansionForm.value.sectionTitle,
+                sectionContent: expansionForm.value.sectionContent,
+                expandType: expansionForm.value.expandType,
+                language: currentLanguage,
+            },
+        } as any)
+        expansionResult.value = res.data.expansion
+    } catch (e: any) {
+        toast.add({ severity: 'error', summary: t('common.error'), detail: e.data?.message || t('common.unexpected_error'), life: 3000 })
+    } finally {
+        expandingSection.value = false
+    }
+}
+
+const applyExpansion = async () => {
+    if (!expansionResult.value) return
+    try {
+        await navigator.clipboard.writeText(expansionResult.value)
+        toast.add({ severity: 'success', summary: t('common.success'), detail: t('common.copy_success'), life: 2000 })
+        // Future: Could also append to scaffold if needed.
+    } catch (err) {
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.copy_failed'), life: 2000 })
     }
 }
 
@@ -553,6 +770,8 @@ definePageMeta({
     max-width: 1400px;
     margin: 0 auto;
     padding-bottom: 4rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
 
     .header-actions {
         display: flex;
@@ -565,11 +784,31 @@ definePageMeta({
         }
     }
 
-    .quick-capture-wrapper {
-        margin-bottom: 2rem;
-        max-width: 48rem;
+    // 定义统一样式的居中窄容器，确保展开折叠时宽度绝对稳定
+    // 通过在不同分辨率下设置确定的宽度（而非仅仅 max-width）来防止内容变化导致的抖动
+    %stable-centered-column {
+        width: 100%; // 移动端默认 100%
         margin-left: auto;
         margin-right: auto;
+        box-sizing: border-box;
+
+        @media (width > 1280px) {
+            width: 72rem;
+        }
+
+        @media (width <= 1280px) and (width > 1024px) {
+            width: 64rem;
+        }
+
+        @media (width <= 1024px) and (width > 768px) {
+            width: 48rem;
+        }
+    }
+
+    .quick-capture-wrapper {
+        @extend %stable-centered-column;
+
+        margin-bottom: 2rem;
 
         .quick-capture-card {
             border-radius: 1.25rem;
@@ -697,15 +936,70 @@ definePageMeta({
     }
 
     .tools-section {
+        @extend %stable-centered-column;
+
         margin-bottom: 2rem;
 
+        :deep(.p-accordion) {
+            width: 100%;
+            background: var(--p-content-background);
+            border: 1px solid var(--p-content-border-color);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        :deep(.p-accordionpanel) {
+            border: none;
+            width: 100%;
+        }
+
+        :deep(.p-accordionheader) {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: transparent;
+            padding: 1.25rem 1.5rem;
+            transition: background-color 0.2s;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+
+            &:hover {
+                background: var(--p-content-hover-background);
+            }
+        }
+
+        :deep(.p-accordioncontent) {
+            background: transparent;
+            width: 100%;
+        }
+
+        :deep(.p-accordioncontent-content) {
+            padding: 1.5rem 1.25rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
         .bookmarklet-content {
-            padding: 0.5rem 0;
+            padding: 0;
+            width: 100%;
+            display: block;
+            overflow: hidden;
 
             .bookmarklet-desc {
                 font-size: 0.875rem;
-                color: var(--text-color-secondary);
+                color: var(--p-text-muted-color);
                 margin-bottom: 1.5rem;
+                line-height: 1.6;
+                padding-left: 2rem;
+                max-width: 100%;
+                display: block;
+                overflow-wrap: break-word;
+
+                @media (width <= 640px) {
+                    padding-left: 0;
+                }
             }
 
             .bookmarklet-actions {
@@ -713,19 +1007,24 @@ definePageMeta({
                 align-items: center;
                 gap: 1.5rem;
                 flex-wrap: wrap;
+                padding-left: 2rem;
+
+                @media (width <= 640px) {
+                    padding-left: 0;
+                }
 
                 .bookmarklet-link-btn {
                     display: inline-flex;
                     align-items: center;
                     gap: 0.5rem;
                     padding: 0.75rem 1.5rem;
-                    background: var(--primary-color);
-                    color: var(--primary-color-text);
+                    background: var(--p-primary-color);
+                    color: var(--p-primary-contrast-color);
                     border-radius: 2rem;
                     text-decoration: none;
                     font-weight: 600;
-                    cursor: move; // Indicate draggable
-                    transition: transform 0.2s;
+                    cursor: move;
+                    transition: transform 0.2s, opacity 0.2s;
 
                     &:hover {
                         transform: translateY(-2px);
@@ -922,6 +1221,55 @@ definePageMeta({
         }
     }
 
+    .aggregate-options {
+        .mode-selector {
+            margin-bottom: 1.5rem;
+        }
+
+        .options-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+
+            .option-field {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+
+                .field-label {
+                    font-weight: 700;
+                    font-size: 0.875rem;
+                    color: var(--p-text-color);
+                }
+
+                .field-input {
+                    width: 100%;
+                }
+
+                &.inline-field {
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 0.75rem;
+
+                    .inline-label {
+                        font-weight: normal;
+                        cursor: pointer;
+                    }
+                }
+            }
+
+            .option-row {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 1.25rem;
+
+                @media (width >= 768px) {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+        }
+    }
+
     .aggregate-confirm {
         display: flex;
         flex-direction: column;
@@ -970,38 +1318,130 @@ definePageMeta({
         }
     }
 
-    .edit-dialog {
-        max-width: 40rem;
-        width: 100%;
+    .expansion-tool {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px dashed var(--p-content-border-color);
 
-        :deep(.edit-textarea) {
-            font-family: inherit;
+        .expansion-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--p-primary-color);
         }
 
-        .edit-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            padding: 1rem 0;
+        .expansion-fields {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
 
-            .edit-field {
+            @media (width >= 768px) {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .field-item {
                 display: flex;
                 flex-direction: column;
                 gap: 0.5rem;
 
-                .field-label {
-                    font-weight: 600;
+                label {
                     font-size: 0.875rem;
+                    font-weight: 600;
                 }
+
+                .field-input {
+                    width: 100%;
+                }
+
+                &.full-width {
+                    grid-column: 1 / -1;
+                }
+            }
+
+            .expand-action-btn {
+                width: 100%;
+                margin-top: 0.5rem;
             }
         }
 
-        .edit-dialog-footer {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: flex-end;
-            padding-top: 1rem;
+        .expansion-result-box {
+            margin-top: 1.5rem;
+            background: var(--p-content-background);
+            border: 1px solid var(--p-primary-100);
+            border-radius: 0.75rem;
+            overflow: hidden;
+
+            .result-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 1rem;
+                background: var(--p-primary-50);
+                font-size: 0.875rem;
+                font-weight: 700;
+                color: var(--p-primary-700);
+                border-bottom: 1px solid var(--p-primary-100);
+            }
+
+            .result-content {
+                padding: 1rem;
+                max-height: 250px;
+                overflow-y: auto;
+                font-size: 0.9375rem;
+                line-height: 1.6;
+
+                :deep(p) {
+                    margin-bottom: 0.75rem;
+                }
+
+                :deep(ul),
+                :deep(ol) {
+                    padding-left: 1.25rem;
+                    margin-bottom: 0.75rem;
+                }
+            }
         }
+    }
+}
+
+.edit-dialog {
+    max-width: 40rem;
+    width: 100%;
+
+    :deep(.edit-textarea) {
+        font-family: inherit;
+    }
+
+    .edit-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 1rem 0;
+
+        .edit-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+
+            .field-label {
+                font-weight: 600;
+                font-size: 0.875rem;
+            }
+
+            .field-input {
+                width: 100%;
+            }
+        }
+    }
+
+    .edit-dialog-footer {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        padding-top: 1rem;
     }
 }
 

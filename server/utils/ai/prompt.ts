@@ -13,6 +13,22 @@ export const AI_PROMPTS = {
         'Based on the name "{{name}}", create a concise, lowercase, URL-friendly slug. If it is already a slug, return it. Output ONLY the slug text: \n\n{{name}}',
     GENERATE_SCAFFOLD:
         'You are a professional writing assistant. Based on the following collection of snippets (ideas, notes, quotes), please organize them into a logical article outline (scaffold) in {{language}}. The outline should include a title and several chapters/sections. For each section, provide a brief description of what to cover. Output in standard Markdown format:\n\nSnippets:\n{{snippets}}',
+    GENERATE_SCAFFOLD_V2:
+        'Please generate a structured article outline in {{language}}.\n'
+        + 'Target Audience: {{audience}}\n'
+        + 'Writing Template: {{template}}\n'
+        + 'Target Section Count: {{sectionCount}}\n'
+        + 'Include Introduction/Conclusion: {{includeIntroConclusion}}\n'
+        + '{{inputSource}}\n\n'
+        + 'Requirement: Output the outline in standard Markdown format. Each section should have a title (H2) and 2-3 bullet points describing the intended content. Ensure logical flow and professional tone.',
+    EXPAND_SECTION:
+        'As a professional writing assistant, please expand the following section of an article outline.\n'
+        + 'Current Article Topic: {{topic}}\n'
+        + 'Current Section: {{sectionTitle}}\n'
+        + 'Section Context: {{sectionContent}}\n'
+        + 'Expansion Type: {{expandType}}\n'
+        + 'Language: {{language}}\n\n'
+        + 'Requirement: Provide 3-5 deep insights or suggestions specifically for this section based on the expansion type. Output as a bulleted list in Markdown.',
 }
 
 export function formatPrompt(

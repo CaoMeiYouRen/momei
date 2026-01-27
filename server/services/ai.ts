@@ -4,6 +4,24 @@ import logger from '../utils/logger'
 import { ContentProcessor } from '@/utils/shared/content-processor'
 import { AI_MAX_CONTENT_LENGTH, AI_CHUNK_SIZE } from '@/utils/shared/env'
 
+export interface ScaffoldOptions {
+    topic?: string
+    snippets?: string[]
+    template?: 'blog' | 'tutorial' | 'note' | 'report'
+    sectionCount?: number
+    audience?: 'beginner' | 'intermediate' | 'advanced'
+    includeIntroConclusion?: boolean
+    language?: string
+}
+
+export interface ExpandSectionOptions {
+    topic: string
+    sectionTitle: string
+    sectionContent: string
+    expandType: 'argument' | 'case' | 'question' | 'reference' | 'data'
+    language?: string
+}
+
 export class AIService {
     private static logAIUsage(task: string, response: any, userId?: string) {
         const { model, usage } = response
@@ -174,14 +192,40 @@ export class AIService {
     }
 
     static async generateScaffold(
-        snippets: string[],
-        language: string = 'zh-CN',
+        options: ScaffoldOptions,
         userId?: string,
     ) {
+        const {
+            snippets = [],
+            topic = '',
+            template = 'blog',
+            sectionCount = 5,
+            audience = 'intermediate',
+            includeIntroConclusion = true,
+            language = 'zh-CN',
+        } = options
+
         const provider = getAIProvider()
-        const snippetsText = snippets.map((s, i) => `Snippet ${i + 1}:\n${s}`).join('\n\n---\n\n')
-        const prompt = formatPrompt(AI_PROMPTS.GENERATE_SCAFFOLD, {
-            snippets: snippetsText.slice(0, AI_CHUNK_SIZE),
+
+        let inputSource = ''
+        if (snippets.length > 0) {
+            const snippetsText = snippets.map((s, i) => `Snippet ${i + 1}:\n${s}`).join('\n\n---\n\n')
+            inputSource = `Source Snippets:\n${snippetsText.slice(0, AI_CHUNK_SIZE)}`
+        } else if (topic) {
+            inputSource = `Core Topic: ${topic}`
+        } else {
+            throw createError({
+                statusCode: 400,
+                statusMessage: 'Either snippets or topic must be provided',
+            })
+        }
+
+        const prompt = formatPrompt(AI_PROMPTS.GENERATE_SCAFFOLD_V2, {
+            audience,
+            template,
+            sectionCount,
+            includeIntroConclusion: includeIntroConclusion ? 'Yes' : 'No',
+            inputSource,
             language,
         })
 
@@ -196,7 +240,44 @@ export class AIService {
             temperature: 0.7,
         })
 
-        this.logAIUsage('generate-scaffold', response, userId)
+        this.logAIUsage('generate-scaffold-v2', response, userId)
+
+        return response.content.trim()
+    }
+
+    static async expandSection(
+        options: ExpandSectionOptions,
+        userId?: string,
+    ) {
+        const {
+            topic,
+            sectionTitle,
+            sectionContent,
+            expandType,
+            language = 'zh-CN',
+        } = options
+
+        const provider = getAIProvider()
+        const prompt = formatPrompt(AI_PROMPTS.EXPAND_SECTION, {
+            topic,
+            sectionTitle,
+            sectionContent,
+            expandType,
+            language,
+        })
+
+        const response = await provider.chat({
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are a professional blog editor. You help authors expand a specific section of their article outline in ${language} with ${expandType} suggestions.`,
+                },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.8,
+        })
+
+        this.logAIUsage('expand-section', response, userId)
 
         return response.content.trim()
     }

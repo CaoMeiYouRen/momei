@@ -31,7 +31,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const contents = snippets.map((s) => s.content)
-    const scaffold = await AIService.generateScaffold(contents, language, session.user.id)
+    const scaffold = await AIService.generateScaffold({
+        snippets: contents,
+        language,
+    }, session.user.id)
 
     return {
         code: 200,

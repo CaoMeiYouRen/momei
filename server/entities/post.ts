@@ -77,6 +77,12 @@ export class Post extends BaseEntity {
     @CustomColumn({ type: 'varchar', length: 100, nullable: true, comment: '音频 MIME 类型' })
     audioMimeType: string | null
 
+    @CustomColumn({ type: 'text', nullable: true, comment: 'AI 生成的大纲原文' })
+    scaffoldOutline: string | null
+
+    @CustomColumn({ type: 'json', nullable: true, comment: '大纲生成的元数据 (模板, 受众, 章节数等)' })
+    scaffoldMetadata: Record<string, any> | null
+
     @CustomColumn({ type: 'datetime', nullable: true, index: true })
     publishedAt: Date | null
 
