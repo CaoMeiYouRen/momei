@@ -84,9 +84,14 @@
         - 大纲生成到文章创建完整流程端到端测试
 
 ### 3. 生态准入与社会化互动 (Ecosystem & Interaction)
-- [ ] **极速迁移方案 (Hexo Support) (P1)**
-    - 验收: 支持解析 Hexo Markdown (Front-matter) 并实现资源路径自动修正。
+- [ ] **极速迁移工具 (Hexo Support CLI) (P1)**
+    - 验收: 开发独立的 CLI 工具或脚本，支持读取 Hexo Markdown (Front-matter)。
+    - 验收: 支持通过 API Key 调用 Open API 进行批量导入。
+    - 验收: 元数据映射逻辑逻辑与现有 Open API 一致，支持自动生成缺失项（参考 `/api/external/posts`）。
+- [ ] **安装向导与首运行初始化 (Installation Wizard) (P2)**
     - 验收: **混合模式安装向导**: 针对生产环境提供 Web 端引导式配置，简化基本 SEO 和 AI 配置。
+    - 验收: 实现首运行检测逻辑，引导管理员创建与站点基本设置。
+    - 验收: 评估并实现配置持久化至数据库，处理与环境变量的优先级关系。
 - [ ] **访客投稿工作流 (Guest Posting) (P2)**
     - 验收: 实现投稿界面 `/submit`，集成 Turnstile 验证码进行防垃圾保护。
     - 验收: 管理后台实现投稿审核管理，支持管理员对投稿进行认领、编辑及发布。
