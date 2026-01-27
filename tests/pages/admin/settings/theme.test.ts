@@ -103,7 +103,7 @@ vi.mock('@vueuse/core', async () => {
 })
 
 // Mock $fetch
-const mockFetch = vi.fn()
+const mockFetch = vi.fn().mockResolvedValue({})
 vi.stubGlobal('$fetch', mockFetch)
 
 describe('Admin Theme Settings Page', () => {
