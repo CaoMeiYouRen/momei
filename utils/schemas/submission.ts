@@ -7,7 +7,7 @@ export const submissionSchema = z.object({
     contributorName: z.string().min(1, '姓名不能为空').max(50, '名字过长'),
     contributorEmail: z.email('无效的邮箱地址'),
     contributorUrl: z.url('无效的网址格式').optional().or(z.literal('')),
-    captchaToken: z.string().min(1, '请完成验证码校验'),
+    captchaToken: z.string().optional(),
 })
 
 export const submissionReviewSchema = z.object({

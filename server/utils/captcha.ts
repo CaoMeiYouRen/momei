@@ -3,10 +3,14 @@ import { AUTH_CAPTCHA_SECRET_KEY, AUTH_CAPTCHA_PROVIDER } from '@/utils/shared/e
 /**
  * 验证验证码
  */
-export async function verifyCaptcha(token: string) {
+export async function verifyCaptcha(token?: string) {
     if (!AUTH_CAPTCHA_SECRET_KEY) {
         // 如果没有配置密钥，则跳过验证（通常用于开发环境）
         return true
+    }
+
+    if (!token) {
+        return false
     }
 
     if (AUTH_CAPTCHA_PROVIDER === 'cloudflare-turnstile') {

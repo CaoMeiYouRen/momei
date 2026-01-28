@@ -114,7 +114,7 @@
                             </Message>
                         </div>
 
-                        <div class="submit-form__captcha">
+                        <div v-if="isCaptchaEnabled" class="submit-form__captcha">
                             <div class="align-items-center flex flex-column gap-2">
                                 <app-captcha ref="captchaRef" v-model="form.captchaToken" />
                                 <Message
@@ -149,14 +149,13 @@ import { submissionSchema } from '@/utils/schemas/submission'
 
 const { t } = useI18n()
 const toast = useToast()
-
-definePageMeta({
-    title: 'pages.submit.title',
-})
+const config = useRuntimeConfig()
 
 useHead({
     title: t('pages.submit.title'),
 })
+
+const isCaptchaEnabled = computed(() => !!(config.public.authCaptcha?.provider && config.public.authCaptcha?.siteKey))
 
 const form = ref({
     title: '',
@@ -191,6 +190,12 @@ const handleSubmit = async () => {
                 errors[key] = issue.message
             }
         })
+        return
+    }
+
+    // 验证验证码（如果启用）
+    if (isCaptchaEnabled.value && !form.value.captchaToken) {
+        errors.captchaToken = t('pages.submit.form.captcha_required')
         return
     }
 

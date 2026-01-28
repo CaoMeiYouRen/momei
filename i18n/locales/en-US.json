@@ -229,7 +229,8 @@
                 "submit": "Submit Post",
                 "submitting": "Submitting...",
                 "success": "Submission successful! Please wait for admin review. We will notify you of the result via email.",
-                "error": "Submission failed, please try again later."
+                "error": "Submission failed, please try again later.",
+                "captcha_required": "Please complete the captcha verification"
             }
         },
         "error": {
