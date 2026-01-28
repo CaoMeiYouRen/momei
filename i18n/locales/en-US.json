@@ -210,6 +210,26 @@
         "agreement_required": "Please read and agree to the User Agreement and Privacy Policy"
     },
     "pages": {
+        "submit": {
+            "title": "Guest Submission",
+            "subtitle": "Welcome to share your insights and stories",
+            "form": {
+                "title": "Article Title",
+                "title_placeholder": "Enter article title",
+                "content": "Content (Markdown)",
+                "content_placeholder": "Write in Markdown format...",
+                "name": "Your Name",
+                "name_placeholder": "Nicknames supported",
+                "email": "Email Address",
+                "email_placeholder": "For review feedback",
+                "url": "Personal Site",
+                "url_placeholder": "Optional",
+                "submit": "Submit Post",
+                "submitting": "Submitting...",
+                "success": "Submission successful! Please wait for admin review. We will notify you of the result via email.",
+                "error": "Submission failed, please try again later."
+            }
+        },
         "error": {
             "title": "An error occurred",
             "404_title": "Page Not Found",
@@ -295,6 +315,29 @@
             }
         },
         "admin": {
+            "submissions": {
+                "title": "Submissions",
+                "search_placeholder": "Search title or content...",
+                "status": "Status",
+                "status_pending": "Pending",
+                "status_accepted": "Accepted",
+                "status_rejected": "Rejected",
+                "contributor": "Contributor",
+                "article_title": "Title",
+                "created_at": "Submitted At",
+                "review": "Review",
+                "accept": "Accept",
+                "reject": "Reject",
+                "admin_note": "Admin Note",
+                "admin_note_placeholder": "Internal only review notes",
+                "accept_title": "Accept Submission",
+                "accept_desc": "Accepting will automatically create a post, which you can further edit later.",
+                "publish_immediately": "Publish immediately",
+                "language": "Publish Language",
+                "category": "Category",
+                "tags": "Tags",
+                "review_success": "Action successful"
+            },
             "posts": {
                 "title": "Post Management",
                 "create": "New Post",

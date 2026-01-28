@@ -45,6 +45,14 @@
                     >
                         {{ $t('pages.archives.title') }}
                     </NuxtLink>
+
+                    <NuxtLink
+                        id="nav-submit"
+                        :to="localePath('/submit')"
+                        class="nav-link"
+                    >
+                        {{ $t('pages.submit.title') }}
+                    </NuxtLink>
                 </nav>
 
                 <div class="app-header__action-group desktop-only">
@@ -190,6 +198,14 @@
                     <i class="pi pi-calendar" />
                     {{ $t('pages.archives.title') }}
                 </NuxtLink>
+                <NuxtLink
+                    :to="localePath('/submit')"
+                    class="mobile-nav-link"
+                    @click="isMobileMenuOpen = false"
+                >
+                    <i class="pi pi-send" />
+                    {{ $t('pages.submit.title') }}
+                </NuxtLink>
 
                 <Divider />
 
@@ -293,6 +309,11 @@ const adminMenuItems = computed(() => {
             label: t('pages.admin.comments.title'),
             icon: 'pi pi-comments',
             command: () => navigateTo(localePath('/admin/comments')),
+        },
+        {
+            label: t('pages.admin.submissions.title'),
+            icon: 'pi pi-inbox',
+            command: () => navigateTo(localePath('/admin/submissions')),
         },
         {
             label: t('pages.admin.tags.title'),

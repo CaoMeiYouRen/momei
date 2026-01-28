@@ -209,6 +209,26 @@
         "agreement_required": "请阅读并同意用户协议和隐私政策"
     },
     "pages": {
+        "submit": {
+            "title": "访客投稿",
+            "subtitle": "欢迎分享您的见解与故事",
+            "form": {
+                "title": "文章标题",
+                "title_placeholder": "请输入文章标题",
+                "content": "正文内容 (Markdown)",
+                "content_placeholder": "请使用 Markdown 格式编写...",
+                "name": "您的称呼",
+                "name_placeholder": "支持昵称",
+                "email": "电子邮箱",
+                "email_placeholder": "用于接收审核反馈",
+                "url": "个人站点",
+                "url_placeholder": "可选",
+                "submit": "立即投稿",
+                "submitting": "提交中...",
+                "success": "投稿成功！请等待管理员审核，我们会通过邮件通知您结果。",
+                "error": "投稿失败，请稍后再试。"
+            }
+        },
         "error": {
             "title": "发生错误",
             "404_title": "页面失踪了",
@@ -294,6 +314,29 @@
             }
         },
         "admin": {
+            "submissions": {
+                "title": "稿件审核",
+                "search_placeholder": "搜索标题或内容...",
+                "status": "稿件状态",
+                "status_pending": "待审核",
+                "status_accepted": "已采纳",
+                "status_rejected": "已拒绝",
+                "contributor": "贡献者",
+                "article_title": "文章标题",
+                "created_at": "提交时间",
+                "review": "审核",
+                "accept": "采纳",
+                "reject": "拒绝",
+                "admin_note": "审核备注",
+                "admin_note_placeholder": "仅内部可见的审核说明",
+                "accept_title": "确认采纳稿件",
+                "accept_desc": "采纳后将自动创建一篇文章，您可以稍后在文章管理中进一步编辑。",
+                "publish_immediately": "立即发布文章",
+                "language": "发布语言",
+                "category": "所属分类",
+                "tags": "关键词标签",
+                "review_success": "操作成功"
+            },
             "posts": {
                 "title": "文章管理",
                 "create": "新建文章",
