@@ -7,8 +7,6 @@ import {
     EMAIL_SINGLE_USER_DAILY_LIMIT,
     EMAIL_LIMIT_WINDOW,
     EMAIL_FROM,
-    EMAIL_HOST,
-    EMAIL_USER,
 } from '@/utils/shared/env'
 import { getSettings } from '~/server/services/setting'
 

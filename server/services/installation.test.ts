@@ -7,8 +7,6 @@ import {
     validateAdminPassword,
 } from '../services/installation'
 import { dataSource } from '../database'
-import { User } from '../entities/user'
-import { Setting } from '../entities/setting'
 
 // Mock 数据库
 vi.mock('../database', () => ({

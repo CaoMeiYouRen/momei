@@ -447,7 +447,9 @@ export async function saveExtraConfig(config: ExtraConfig): Promise<void> {
             existing.value = setting.value
             existing.description = setting.description
             existing.level = setting.level
-            if (setting.maskType) { existing.maskType = setting.maskType }
+            if (setting.maskType) {
+                existing.maskType = setting.maskType
+            }
             await settingRepo.save(existing)
         } else {
             await settingRepo.save(settingRepo.create(setting))

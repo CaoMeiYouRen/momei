@@ -4,7 +4,7 @@ import { isSystemInstalled, markSystemInstalled } from '~/server/services/instal
  * 完成安装
  * POST /api/install/finalize
  */
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
     // 检查是否已安装
     const installed = await isSystemInstalled()
     if (installed) {

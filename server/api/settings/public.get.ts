@@ -32,7 +32,7 @@ export default defineEventHandler(async () => {
                 clarityAnalytics: settings.clarity_analytics,
             },
         }
-    } catch (error: any) {
+    } catch {
         throw createError({
             statusCode: 500,
             statusMessage: 'Failed to fetch public settings',

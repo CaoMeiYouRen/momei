@@ -190,7 +190,7 @@ export const initializeDB = async () => {
 }
 
 // 修改顶级 await 为捕获错误的调用
-export const dataSource = await initializeDB().catch((err) =>
+export const dataSource = await initializeDB().catch(() =>
     // 这里的错误已经被 initializeDB 内部捕获了，但为了类型安全再次保留
     null as any,
 )

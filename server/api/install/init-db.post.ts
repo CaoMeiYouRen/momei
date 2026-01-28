@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import { isSystemInstalled } from '~/server/services/installation'
 import { dataSource } from '~/server/database'
 
@@ -6,7 +5,7 @@ import { dataSource } from '~/server/database'
  * 初始化数据库
  * POST /api/install/init-db
  */
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
     // 检查是否已安装
     const installed = await isSystemInstalled()
     if (installed) {
