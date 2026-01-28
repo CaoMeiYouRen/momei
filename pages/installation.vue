@@ -426,14 +426,52 @@
                                                         <label for="storageS3" class="mb-0 ml-2">{{ $t('installation.preview.storage.s3') }}</label>
                                                     </div>
                                                 </div>
-                                                <div v-if="extraConfig.storageType === 's3'" class="gap-4 grid grid-cols-2">
+
+                                                <!-- 本地存储配置 -->
+                                                <div v-if="extraConfig.storageType === 'local'" class="gap-4 grid grid-cols-2">
                                                     <div class="form-field">
+                                                        <label>{{ $t('installation.preview.storage.localDir') }}</label>
+                                                        <InputText v-model="extraConfig.localStorageDir" placeholder="public/uploads" />
+                                                    </div>
+                                                    <div class="form-field">
+                                                        <label>{{ $t('installation.preview.storage.localBaseUrl') }}</label>
+                                                        <InputText v-model="extraConfig.localStorageBaseUrl" placeholder="/uploads" />
+                                                    </div>
+                                                </div>
+
+                                                <!-- S3 存储配置 -->
+                                                <div v-if="extraConfig.storageType === 's3'" class="gap-4 grid grid-cols-2">
+                                                    <div class="col-span-2 form-field">
                                                         <label>{{ $t('installation.preview.storage.s3Endpoint') }}</label>
-                                                        <InputText v-model="extraConfig.s3Endpoint" placeholder="https://..." />
+                                                        <InputText v-model="extraConfig.s3Endpoint" placeholder="https://<accountid>.r2.cloudflarestorage.com" />
                                                     </div>
                                                     <div class="form-field">
                                                         <label>{{ $t('installation.preview.storage.s3Bucket') }}</label>
                                                         <InputText v-model="extraConfig.s3Bucket" />
+                                                    </div>
+                                                    <div class="form-field">
+                                                        <label>{{ $t('installation.preview.storage.s3Region') }}</label>
+                                                        <InputText v-model="extraConfig.s3Region" placeholder="auto" />
+                                                    </div>
+                                                    <div class="form-field">
+                                                        <label>{{ $t('installation.preview.storage.s3AccessKey') }}</label>
+                                                        <InputText v-model="extraConfig.s3AccessKey" />
+                                                    </div>
+                                                    <div class="form-field">
+                                                        <label>{{ $t('installation.preview.storage.s3SecretKey') }}</label>
+                                                        <Password
+                                                            v-model="extraConfig.s3SecretKey"
+                                                            toggle-mask
+                                                            :feedback="false"
+                                                        />
+                                                    </div>
+                                                    <div class="form-field">
+                                                        <label>{{ $t('installation.preview.storage.s3BaseUrl') }}</label>
+                                                        <InputText v-model="extraConfig.s3BaseUrl" placeholder="https://pub-xxxx.r2.dev" />
+                                                    </div>
+                                                    <div class="form-field">
+                                                        <label>{{ $t('installation.preview.storage.s3BucketPrefix') }}</label>
+                                                        <InputText v-model="extraConfig.s3BucketPrefix" placeholder="uploads/" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -621,8 +659,15 @@ const extraConfig = ref({
     emailFrom: '',
     // Storage
     storageType: 'local',
+    localStorageDir: 'public/uploads',
+    localStorageBaseUrl: '/uploads',
     s3Endpoint: '',
     s3Bucket: '',
+    s3Region: 'auto',
+    s3AccessKey: '',
+    s3SecretKey: '',
+    s3BaseUrl: '',
+    s3BucketPrefix: '',
     // Analytics
     baiduAnalytics: '',
     googleAnalytics: '',

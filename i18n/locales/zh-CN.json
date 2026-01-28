@@ -810,8 +810,15 @@
                 "type": "存储类型",
                 "local": "本地服务器存储",
                 "s3": "S3 兼容云存储 (R2, AWS, OSS)",
+                "localDir": "存储路径 (相对或绝对)",
+                "localBaseUrl": "访问基础 URL",
                 "s3Endpoint": "S3 端点地址",
-                "s3Bucket": "Bucket 名称"
+                "s3Bucket": "Bucket 名称",
+                "s3Region": "区域 (Region)",
+                "s3AccessKey": "Access Key ID",
+                "s3SecretKey": "Secret Access Key",
+                "s3BaseUrl": "公开域名 (Base URL)",
+                "s3BucketPrefix": "存储前缀 (可选)"
             },
             "analytics": {
                 "title": "统计与分析",

@@ -168,7 +168,8 @@ export const initializeDB = async () => {
             logger.info(`Database initialized successfully with type: ${actualDbType}${isMemoryDB ? ' (memory)' : ''}${DEMO_MODE ? ' [DEMO MODE]' : ''}`)
         }
     } catch (error: any) {
-        // 测试环境时也需要记录错误，但使用较低级别
+        // 重要修复：对于安装向导，我们不希望数据库初始化失败导致整个应用崩溃
+        // 记录错误但不重新抛出，让 AppDataSource 保持未初始化状态
         if (isTestEnv) {
             logger.error(`Database initialization failed: ${error.message}`)
         } else {
@@ -178,13 +179,18 @@ export const initializeDB = async () => {
                 stack: error.stack,
                 query: `database_initialization (${actualDbType})`,
             })
+            logger.error('Database connection failed during startup. The application will continue but features requiring a database will be disabled until corrected.')
         }
 
-        // 直接抛出原始错误，避免多层包装
-        throw error
+        // 返回一个至少通过 type 校验的基础 DataSource，但不抛出错误
+        return AppDataSource
     }
 
     return AppDataSource
 }
 
-export const dataSource = await initializeDB()
+// 修改顶级 await 为捕获错误的调用
+export const dataSource = await initializeDB().catch((err) =>
+    // 这里的错误已经被 initializeDB 内部捕获了，但为了类型安全再次保留
+    null as any,
+)

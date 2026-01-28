@@ -811,8 +811,15 @@
                 "type": "Storage Type",
                 "local": "Local Server Storage",
                 "s3": "S3 Compatible (R2, AWS, OSS)",
+                "localDir": "Storage Path (Relative/Absolute)",
+                "localBaseUrl": "Base Access URL",
                 "s3Endpoint": "S3 Endpoint",
-                "s3Bucket": "Bucket Name"
+                "s3Bucket": "Bucket Name",
+                "s3Region": "Region",
+                "s3AccessKey": "Access Key ID",
+                "s3SecretKey": "Secret Access Key",
+                "s3BaseUrl": "Public Domain (Base URL)",
+                "s3BucketPrefix": "Storage Prefix (Optional)"
             },
             "analytics": {
                 "title": "Analytics & SEO",
