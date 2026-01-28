@@ -742,7 +742,14 @@
             "title": "Environment Check",
             "description": "Checking system environment and dependencies...",
             "database": "Database Connection",
-            "node": "Node.js Version"
+            "node": "Node.js Version",
+            "dbVersion": "Database Version",
+            "serverless": "Serverless Environment",
+            "os": "Operating System",
+            "language": "Installation Language",
+            "enabled": "Enabled",
+            "disabled": "Disabled",
+            "nodeVersionWarning": "Node.js version is low. It is recommended to use v20 or higher for best stability."
         },
         "database": {
             "title": "Database Initialization",
@@ -778,12 +785,44 @@
             "error": "Failed to create admin account"
         },
         "preview": {
-            "title": "Feature Preview",
-            "description": "You can configure optional features here, or configure them later in the admin panel",
-            "optional": "The following configurations are optional, you can skip this step",
-            "aiHint": "AI Features: Configure AI provider and API Key in system settings",
-            "seoHint": "SEO Optimization: Configure search engine verification and analytics tools in admin panel",
-            "skip": "Skip and Complete"
+            "title": "Optional Features",
+            "description": "Configure core optional features. These settings can be modified anytime in the admin panel after installation.",
+            "optional": "These are optional settings. Feel free to skip if you are unsure.",
+            "ai": {
+                "title": "AI Assistant",
+                "desc": "Integrated AI models (OpenAI, DeepSeek, Claude) for summaries, semantic tags, and automated translation.",
+                "provider": "AI Provider",
+                "apiKey": "API Key",
+                "model": "Default Model",
+                "endpoint": "API Endpoint (Optional)"
+            },
+            "email": {
+                "title": "Email (SMTP)",
+                "desc": "Enable email for verification codes, password recovery, and comment notifications.",
+                "host": "SMTP Host",
+                "port": "Port",
+                "user": "Account",
+                "pass": "Password/App Key",
+                "from": "Sender Address"
+            },
+            "storage": {
+                "title": "Attachment Storage",
+                "desc": "Determine where to store images, audio, and documents. Local storage is default.",
+                "type": "Storage Type",
+                "local": "Local Server Storage",
+                "s3": "S3 Compatible (R2, AWS, OSS)",
+                "s3Endpoint": "S3 Endpoint",
+                "s3Bucket": "Bucket Name"
+            },
+            "analytics": {
+                "title": "Analytics & SEO",
+                "desc": "Connect tools like Baidu, Google Analytics, and Microsoft Clarity to track visitors.",
+                "baidu": "Baidu Analytics ID",
+                "google": "Google Tracking ID",
+                "clarity": "Microsoft Clarity ID"
+            },
+            "skip": "Skip and Finish",
+            "next": "Save and Continue"
         },
         "complete": {
             "title": "Installation Complete",

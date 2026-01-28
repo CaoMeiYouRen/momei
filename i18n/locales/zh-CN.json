@@ -741,7 +741,14 @@
             "title": "环境检查",
             "description": "正在检查系统环境和依赖项...",
             "database": "数据库连接",
-            "node": "Node.js 版本"
+            "node": "Node.js 版本",
+            "dbVersion": "数据库版本",
+            "serverless": "Serverless 环境",
+            "os": "操作系统",
+            "language": "安装语言(Language)",
+            "enabled": "已启用",
+            "disabled": "未启用",
+            "nodeVersionWarning": "Node.js 版本较低，建议使用 v20 或更高版本以获得最佳稳定性。"
         },
         "database": {
             "title": "数据库初始化",
@@ -777,12 +784,44 @@
             "error": "创建管理员账号失败"
         },
         "preview": {
-            "title": "功能预览",
-            "description": "您可以在此配置可选功能,也可以稍后在管理后台配置",
-            "optional": "以下配置为可选项,您可以跳过此步骤",
-            "aiHint": "AI 功能:可在管理后台的系统设置中配置 AI 服务商和 API Key",
-            "seoHint": "SEO 优化:可在管理后台配置搜索引擎验证和分析工具",
-            "skip": "跳过并完成"
+            "title": "可选功能配置",
+            "description": "您可以选择性地开启并配置以下核心功能。这些设置也可以在安装完成后通过管理后台随时修改。",
+            "optional": "以下配置为可选项，如果不确定，可以直接选择跳过。",
+            "ai": {
+                "title": "AI 创作助手",
+                "desc": "集成领先的 AI 模型（OpenAI, DeepSeek, Claude），实现一键摘要、语义标签提取、文章续写与自动化翻译。",
+                "provider": "AI 服务商",
+                "apiKey": "API 密钥",
+                "model": "默认模型",
+                "endpoint": "API 代理端点 (可选)"
+            },
+            "email": {
+                "title": "邮件服务 (SMTP)",
+                "desc": "启用邮件发送功能，支持注册验证码、密码找回以及评论回复提醒。",
+                "host": "SMTP 地址",
+                "port": "端口",
+                "user": "账号",
+                "pass": "授权码/密码",
+                "from": "发件人地址"
+            },
+            "storage": {
+                "title": "文件存储器",
+                "desc": "决定博客附件（图片、音频、文档）的存放位置。默认为本地存储。",
+                "type": "存储类型",
+                "local": "本地服务器存储",
+                "s3": "S3 兼容云存储 (R2, AWS, OSS)",
+                "s3Endpoint": "S3 端点地址",
+                "s3Bucket": "Bucket 名称"
+            },
+            "analytics": {
+                "title": "统计与分析",
+                "desc": "接入各类统计工具，帮助您分析访客行为，优化站点权重。",
+                "baidu": "百度统计 ID",
+                "google": "Google 分析 ID",
+                "clarity": "Microsoft Clarity ID"
+            },
+            "skip": "跳过并继续",
+            "next": "保存并继续"
         },
         "complete": {
             "title": "安装完成",

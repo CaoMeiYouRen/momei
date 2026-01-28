@@ -30,7 +30,8 @@ export default defineEventHandler(async (event) => {
 
         if (!installed) {
             // 如果是 API 请求，返回 503 错误
-            if (pathname.startsWith('/api')) {
+            // 注意：排除 auth 和 theme 相关的 API，允许它们返回 401/404 而不是 503，防止前端挂掉
+            if (pathname.startsWith('/api') && !pathname.startsWith('/api/auth') && pathname !== '/api/settings/theme') {
                 throw createError({
                     statusCode: 503,
                     statusMessage: 'System not installed. Please complete the installation first.',
@@ -38,7 +39,9 @@ export default defineEventHandler(async (event) => {
             }
 
             // 如果是页面请求，重定向到安装页面
-            return sendRedirect(event, '/installation', 302)
+            if (!pathname.startsWith('/api')) {
+                return sendRedirect(event, '/installation', 302)
+            }
         }
     } catch (error: any) {
         // 如果已经是一个 503 错误，直接抛出
@@ -50,6 +53,11 @@ export default defineEventHandler(async (event) => {
         logger.error('Installation check failed:', error)
 
         if (pathname.startsWith('/api')) {
+            // 同样排除一些基础 API，允许它们报错或返回空，而不是直接 503
+            if (pathname.startsWith('/api/auth') || pathname === '/api/settings/theme') {
+                return
+            }
+
             throw createError({
                 statusCode: 503,
                 statusMessage: 'System initialization failed. Please check your configuration.',

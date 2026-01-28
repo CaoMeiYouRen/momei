@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
         throw createError({
             statusCode: 400,
             statusMessage: 'Invalid site configuration',
-            data: result.error.errors,
+            data: result.error.issues,
         })
     }
 

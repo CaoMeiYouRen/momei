@@ -13,12 +13,24 @@
 import { authClient } from '@/lib/auth-client'
 
 const { t, setLocale } = useI18n()
+const route = useRoute()
 const session = authClient.useSession()
 const { startTour } = useOnboarding()
 const { fetchTheme, applyTheme } = useTheme()
 
 // 初始化主题
-await fetchTheme()
+// 排除安装页面，避免在数据库未就绪时请求主题导致错误
+const isInstallationPage = computed(() => {
+    return route.path.includes('/installation')
+})
+
+if (!isInstallationPage.value) {
+    try {
+        await fetchTheme()
+    } catch (error) {
+        console.error('Failed to fetch theme:', error)
+    }
+}
 applyTheme()
 
 onMounted(() => {

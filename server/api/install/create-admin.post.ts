@@ -8,7 +8,7 @@ import { User } from '~/server/entities/user'
  * 管理员创建 Schema
  */
 const adminCreationSchema = z.object({
-    email: z.string().email(),
+    email: z.email(),
     password: z.string().min(8),
     name: z.string().min(1).max(50),
 })
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
         throw createError({
             statusCode: 400,
             statusMessage: 'Invalid admin data',
-            data: result.error.errors,
+            data: result.error.issues,
         })
     }
 
@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
         }
 
         // 使用 better-auth 创建管理员账号
-        const user = await auth.api.signUpEmail({
+        const response = await auth.api.signUpEmail({
             body: {
                 email,
                 password,
@@ -71,12 +71,14 @@ export default defineEventHandler(async (event) => {
             },
         })
 
-        if (!user) {
+        if (!response || !response.user) {
             throw createError({
                 statusCode: 500,
                 statusMessage: 'Failed to create admin user',
             })
         }
+
+        const user = response.user
 
         // 更新用户角色为管理员
         await userRepo.update(user.id, {

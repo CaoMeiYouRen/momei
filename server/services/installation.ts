@@ -1,3 +1,6 @@
+import os from 'os'
+import path from 'path'
+import fs from 'fs-extra'
 import { dataSource } from '../database'
 import { User } from '../entities/user'
 import { Setting } from '../entities/setting'
@@ -32,6 +35,30 @@ export interface InstallationStatus {
      * 环境变量是否设置安装标记
      */
     envInstallationFlag: boolean
+    /**
+     * Node.js 版本
+     */
+    nodeVersion: string
+    /**
+     * 操作系统信息
+     */
+    os: string
+    /**
+     * 数据库类型
+     */
+    databaseType: string
+    /**
+     * 数据库版本
+     */
+    databaseVersion: string
+    /**
+     * 是否为 Severless 环境
+     */
+    isServerless: boolean
+    /**
+     * Node.js 版本是否符合建议 (>=20)
+     */
+    isNodeVersionSafe: boolean
 }
 
 /**
@@ -139,6 +166,60 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
     const envInstallationFlag = checkEnvInstallationFlag()
     const databaseConnected = await checkDatabaseConnection()
 
+    // 环境信息获取
+    const nodeVersion = process.version
+    const nodeMajorVersion = parseInt(nodeVersion.replace('v', '').split('.')[0] || '0')
+
+    // 从 package.json 获取最低版本要求
+    let minNodeVersion = 20
+    try {
+        const pkgPath = path.resolve(process.cwd(), 'package.json')
+        if (fs.existsSync(pkgPath)) {
+            const pkg = fs.readJsonSync(pkgPath)
+            const enginesNode = pkg.engines?.node
+            if (enginesNode && typeof enginesNode === 'string') {
+                // 简单的正则匹配，提取数字，例如从 ">=20" 提取 20
+                const match = enginesNode.match(/(\d+)/)
+                if (match && match[1]) {
+                    minNodeVersion = parseInt(match[1])
+                }
+            }
+        }
+    } catch (error) {
+        logger.warn('Failed to read package.json for node version check:', error)
+    }
+
+    const isNodeVersionSafe = nodeMajorVersion >= minNodeVersion
+    const osInfo = `${os.type()} ${os.release()} (${os.arch()})`
+    const databaseType = String(dataSource?.options.type || 'unknown')
+    let databaseVersion = 'Unknown'
+
+    if (databaseConnected) {
+        try {
+            if (databaseType === 'mysql' || databaseType === 'mariadb') {
+                const result = await dataSource.query('SELECT VERSION() as version')
+                databaseVersion = result[0]?.version || 'Unknown'
+            } else if (databaseType === 'postgres') {
+                const result = await dataSource.query('SHOW server_version')
+                databaseVersion = result[0]?.server_version || 'Unknown'
+            } else if (databaseType === 'sqlite') {
+                const result = await dataSource.query('SELECT sqlite_version() as version')
+                databaseVersion = result[0]?.version || 'Unknown'
+            }
+        } catch (error) {
+            logger.warn('Failed to fetch database version:', error)
+        }
+    }
+
+    // Serverless 环境检测
+    const isServerless = !!(
+        process.env.VERCEL
+        || process.env.NETLIFY
+        || process.env.CLOUDFLARE_FREE_USAGE
+        || process.env.AWS_LAMBDA_FUNCTION_NAME
+        || process.env.FUNCTIONS_WORKER_RUNTIME
+    )
+
     // 如果环境变量已标记安装，直接返回已安装状态
     if (envInstallationFlag) {
         return {
@@ -147,6 +228,12 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
             hasUsers: true,
             hasInstallationFlag: true,
             envInstallationFlag: true,
+            nodeVersion,
+            os: osInfo,
+            databaseType,
+            databaseVersion,
+            isServerless,
+            isNodeVersionSafe,
         }
     }
 
@@ -158,6 +245,12 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
             hasUsers: false,
             hasInstallationFlag: false,
             envInstallationFlag: false,
+            nodeVersion,
+            os: osInfo,
+            databaseType,
+            databaseVersion,
+            isServerless,
+            isNodeVersionSafe,
         }
     }
 
@@ -174,6 +267,12 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
         hasUsers,
         hasInstallationFlag,
         envInstallationFlag,
+        nodeVersion,
+        os: osInfo,
+        databaseType,
+        databaseVersion,
+        isServerless,
+        isNodeVersionSafe,
     }
 }
 
