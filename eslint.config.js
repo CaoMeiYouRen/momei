@@ -25,6 +25,7 @@ export default withNuxt(
         'coverage',
         'logs',
         'jscpd-report',
+        'cli',
     ]),
     {
         rules: {

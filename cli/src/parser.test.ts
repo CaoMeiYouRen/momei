@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { convertToMomeiPost } from '../src/parser.js'
-import type { HexoFrontMatter } from '../src/types.js'
+import { convertToMomeiPost } from './parser.js'
+import type { HexoFrontMatter } from './types.js'
 
 describe('Parser', () => {
     describe('convertToMomeiPost', () => {

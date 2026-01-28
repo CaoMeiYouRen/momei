@@ -36,3 +36,5 @@ docs/.vitepress/cache
 
 .lighthouseci
 .playwright-mcp
+
+*.local.*
