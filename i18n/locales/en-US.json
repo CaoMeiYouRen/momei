@@ -470,10 +470,22 @@
                     "title": "System Settings",
                     "tabs": {
                         "general": "General",
+                        "auth": "Authentication",
+                        "security": "Security",
+                        "limits": "Limits",
                         "ai": "AI Services",
                         "email": "Email Services",
                         "storage": "Storage",
                         "analytics": "Analytics"
+                    },
+                    "sections": {
+                        "social_auth": "Social Login (OAuth)",
+                        "captcha": "Captcha Verification",
+                        "security_rules": "Security & Registration",
+                        "upload_limits": "Upload Limits",
+                        "page_limits": "Page Content Limits",
+                        "compliance": "Compliance & Filing",
+                        "branding": "Branding & Assets"
                     },
                     "keys": {
                         "site_title": "Site Title",
@@ -481,6 +493,29 @@
                         "site_keywords": "Keywords",
                         "site_copyright": "Copyright",
                         "default_language": "Default Language",
+                        "site_logo": "Site Logo",
+                        "site_favicon": "Site Favicon",
+                        "site_operator": "Operator Name",
+                        "contact_email": "Contact Email",
+                        "footer_code": "Footer Code (e.g., scripts)",
+                        "anonymous_login_enabled": "Allow Guest Comments (Anonymous)",
+                        "github_oauth": "GitHub Login Config",
+                        "google_oauth": "Google Login Config",
+                        "github_client_id": "Client ID",
+                        "github_client_secret": "Client Secret",
+                        "google_client_id": "Client ID",
+                        "google_client_secret": "Client Secret",
+                        "captcha_provider": "Captcha Provider",
+                        "captcha_site_key": "Site Key",
+                        "captcha_secret_key": "Secret Key",
+                        "allow_registration": "Allow Registration",
+                        "max_upload_size": "Max Upload Size",
+                        "max_audio_upload_size": "Max Audio Size",
+                        "posts_per_page": "Posts Per Page",
+                        "email_require_verification": "Email Verification",
+                        "show_compliance_info": "Show Compliance Footer",
+                        "icp_license_number": "ICP License Number",
+                        "public_security_number": "Public Security Number",
                         "ai_enabled": "Enable AI",
                         "ai_provider": "AI Provider",
                         "ai_api_key": "API Key",
@@ -507,7 +542,10 @@
                     },
                     "hints": {
                         "ai_enabled": "Enable AI translation, summary and other features",
-                        "masked_unchanged": "Masked value displayed. Keep it to leave unchanged."
+                        "masked_unchanged": "Masked value displayed. Keep it to leave unchanged.",
+                        "env_locked": "Locked by environment variable",
+                        "auth_notice": "Configuring social login requires registering your app on the developer platform (e.g., GitHub settings) and setting the callback URL.",
+                        "max_upload_size": "Unit: MB. 0 for unlimited."
                     }
                 }
             },

@@ -469,10 +469,22 @@
                     "title": "系统设置",
                     "tabs": {
                         "general": "常规",
+                        "auth": "账户验证",
+                        "security": "安全合规",
+                        "limits": "配额限制",
                         "ai": "AI 服务",
                         "email": "邮件服务",
                         "storage": "文件存储",
                         "analytics": "分析统计"
+                    },
+                    "sections": {
+                        "social_auth": "社交登录 (OAuth)",
+                        "captcha": "人机验证 (Captcha)",
+                        "security_rules": "安全控制与注册",
+                        "upload_limits": "文件上传限制",
+                        "page_limits": "内容展示限制",
+                        "compliance": "合规与备案",
+                        "branding": "品牌与资产"
                     },
                     "keys": {
                         "site_title": "站点标题",
@@ -480,6 +492,29 @@
                         "site_keywords": "站点关键词",
                         "site_copyright": "版权信息",
                         "default_language": "默认语言",
+                        "site_logo": "站点 Logo",
+                        "site_favicon": "站点图标 (Favicon)",
+                        "site_operator": "运营方名称",
+                        "contact_email": "联系电子邮箱",
+                        "footer_code": "页脚附加代码 (如统计脚本)",
+                        "anonymous_login_enabled": "允许游客评论 (匿名登录)",
+                        "github_oauth": "GitHub 登录配置",
+                        "google_oauth": "Google 登录配置",
+                        "github_client_id": "Client ID",
+                        "github_client_secret": "Client Secret",
+                        "google_client_id": "Client ID",
+                        "google_client_secret": "Client Secret",
+                        "captcha_provider": "验证码服务商",
+                        "captcha_site_key": "站点密钥 (Site Key)",
+                        "captcha_secret_key": "通信密钥 (Secret Key)",
+                        "allow_registration": "允许新用户注册",
+                        "max_upload_size": "最大附件上传大小",
+                        "max_audio_upload_size": "最大音频上传大小",
+                        "posts_per_page": "每页显示文章数",
+                        "email_require_verification": "强制邮箱验证",
+                        "show_compliance_info": "在页脚显示备案信息",
+                        "icp_license_number": "ICP 备案号",
+                        "public_security_number": "公安联网备案号",
                         "ai_enabled": "启用 AI",
                         "ai_provider": "AI 服务商",
                         "ai_api_key": "API 密钥",
@@ -506,7 +541,10 @@
                     },
                     "hints": {
                         "ai_enabled": "启用后可使用 AI 翻译、摘要等功能",
-                        "masked_unchanged": "已显示脱敏值，若不修改请保留占位符"
+                        "masked_unchanged": "已显示脱敏值，若不修改请保留占位符",
+                        "env_locked": "此配置已由环境变量锁定",
+                        "auth_notice": "配置社交登录需要您在对应的开发者平台（如 GitHub Developer Settings）注册应用，并配置回调地址。",
+                        "max_upload_size": "单位为 MB。如果设置为 0 则不限制。"
                     }
                 }
             },

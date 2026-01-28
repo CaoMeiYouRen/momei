@@ -5,6 +5,7 @@ import { dataSource } from '../database'
 import { User } from '../entities/user'
 import { Setting } from '../entities/setting'
 import logger from '../utils/logger'
+import { SETTING_ENV_MAP } from './setting'
 
 /**
  * 安装状态检测服务
@@ -85,6 +86,26 @@ export interface SiteConfig {
      * 默认语言
      */
     defaultLanguage: string
+    /**
+     * 运营方名称
+     */
+    siteOperator?: string
+    /**
+     * 联系邮箱
+     */
+    contactEmail?: string
+    /**
+     * 是否显示备案信息
+     */
+    showComplianceInfo?: boolean
+    /**
+     * ICP 备案号
+     */
+    icpLicenseNumber?: string
+    /**
+     * 公安备案号
+     */
+    publicSecurityNumber?: string
 }
 
 /**
@@ -120,6 +141,7 @@ export interface ExtraConfig {
     emailUser?: string
     emailPass?: string
     emailFrom?: string
+    emailRequireVerification?: boolean
     // Storage
     storageType?: string
     localStorageDir?: string
@@ -135,6 +157,19 @@ export interface ExtraConfig {
     baiduAnalytics?: string
     googleAnalytics?: string
     clarityAnalytics?: string
+    // Social Auth
+    githubClientId?: string
+    githubClientSecret?: string
+    googleClientId?: string
+    googleClientSecret?: string
+    anonymousLoginEnabled?: boolean
+    // Security & Captcha
+    captchaProvider?: string
+    captchaSiteKey?: string
+    captchaSecretKey?: string
+    // Limits
+    maxUploadSize?: string
+    maxAudioUploadSize?: string
 }
 
 /**
@@ -329,6 +364,14 @@ export async function saveSiteConfig(config: SiteConfig): Promise<void> {
         { key: 'site_keywords', value: config.siteKeywords, description: '站点关键词', level: 0 },
         { key: 'site_copyright', value: config.siteCopyright || '', description: '底部版权信息', level: 0 },
         { key: 'default_language', value: config.defaultLanguage, description: '默认语言', level: 0 },
+        { key: 'site_operator', value: config.siteOperator || '', description: '运营方名称', level: 0 },
+        { key: 'contact_email', value: config.contactEmail || '', description: '联系邮箱', level: 0 },
+        { key: 'site_logo', value: '', description: '站点 Logo', level: 0 },
+        { key: 'site_favicon', value: '', description: '站点图标', level: 0 },
+        { key: 'footer_code', value: '', description: '页脚附加代码', level: 0 },
+        { key: 'show_compliance_info', value: config.showComplianceInfo ? 'true' : 'false', description: '是否显示备案信息', level: 0 },
+        { key: 'icp_license_number', value: config.icpLicenseNumber || '', description: 'ICP 备案号', level: 0 },
+        { key: 'public_security_number', value: config.publicSecurityNumber || '', description: '公安备案号', level: 0 },
     ]
 
     for (const setting of settings) {
@@ -380,6 +423,22 @@ export async function saveExtraConfig(config: ExtraConfig): Promise<void> {
         { key: 'baidu_analytics', value: config.baiduAnalytics || '', description: '百度统计 ID', level: 0 },
         { key: 'google_analytics', value: config.googleAnalytics || '', description: 'Google Analytics ID', level: 0 },
         { key: 'clarity_analytics', value: config.clarityAnalytics || '', description: 'Microsoft Clarity ID', level: 0 },
+        // Social Auth
+        { key: 'github_client_id', value: config.githubClientId || '', description: 'GitHub Client ID', level: 2 },
+        { key: 'github_client_secret', value: config.githubClientSecret || '', description: 'GitHub Client Secret', level: 2, maskType: 'password' },
+        { key: 'google_client_id', value: config.googleClientId || '', description: 'Google Client ID', level: 2 },
+        { key: 'google_client_secret', value: config.googleClientSecret || '', description: 'Google Client Secret', level: 2, maskType: 'password' },
+        { key: 'anonymous_login_enabled', value: config.anonymousLoginEnabled ? 'true' : 'false', description: '是否启用匿名登录', level: 2 },
+        { key: 'allow_registration', value: 'true', description: '是否允许新用户注册', level: 2 },
+        // Security & Captcha
+        { key: 'captcha_provider', value: config.captchaProvider || '', description: '验证码提供商', level: 2 },
+        { key: 'captcha_site_key', value: config.captchaSiteKey || '', description: '验证码 Site Key', level: 2 },
+        { key: 'captcha_secret_key', value: config.captchaSecretKey || '', description: '验证码 Secret Key', level: 2, maskType: 'password' },
+        // Limits
+        { key: 'max_upload_size', value: config.maxUploadSize || '4.5MiB', description: '最大上传限制', level: 1 },
+        { key: 'max_audio_upload_size', value: config.maxAudioUploadSize || '100MiB', description: '最大音频上传限制', level: 1 },
+        { key: 'email_require_verification', value: config.emailRequireVerification ? 'true' : 'false', description: '是否强制邮箱验证', level: 1 },
+        { key: 'posts_per_page', value: '10', description: '每页文章显示数量', level: 1 },
     ]
 
     for (const setting of settings) {
@@ -403,6 +462,9 @@ export async function saveExtraConfig(config: ExtraConfig): Promise<void> {
  */
 export async function markSystemInstalled(): Promise<void> {
     const settingRepo = dataSource.getRepository(Setting)
+
+    // 首先尝试从环境变量同步配置
+    await syncSettingsFromEnv()
 
     await settingRepo.save({
         key: 'system_installed',
@@ -432,4 +494,52 @@ export function validateAdminPassword(password: string): { valid: boolean, messa
     }
 
     return { valid: true }
+}
+
+/**
+ * 从环境变量同步配置到数据库 (用于安装初始化)
+ */
+export async function syncSettingsFromEnv(): Promise<void> {
+    const settingRepo = dataSource.getRepository(Setting)
+    const entries = Object.entries(SETTING_ENV_MAP)
+
+    logger.info('Starting to sync settings from environment variables...')
+
+    for (const [key, envKey] of entries) {
+        const envValue = process.env[envKey]
+        if (envValue !== undefined) {
+            let setting = await settingRepo.findOne({ where: { key } })
+            if (setting) {
+                // 如果已存在，且当前值为空，则从 ENV 载入
+                if (!setting.value) {
+                    setting.value = envValue
+                    await settingRepo.save(setting)
+                }
+            } else {
+                // 如果不存在，创建带默认元数据的记录
+                setting = settingRepo.create({
+                    key,
+                    value: envValue,
+                    description: `Initial sync from ${envKey}`,
+                    level: 2, // 默认管理员级别
+                    maskType: 'none',
+                })
+
+                // 尝试匹配特定的脱敏类型
+                if (key.includes('pass') || key.includes('secret')) {
+                    setting.maskType = 'password'
+                } else if (key.includes('key')) {
+                    setting.maskType = 'key'
+                } else if (key.includes('email') || key.includes('user')) {
+                    if (envValue.includes('@')) {
+                        setting.maskType = 'email'
+                    }
+                }
+
+                await settingRepo.save(setting)
+            }
+        }
+    }
+
+    logger.info('Settings sync from environment variables completed.')
 }
