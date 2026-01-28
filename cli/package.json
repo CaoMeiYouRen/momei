@@ -1,11 +1,21 @@
 {
   "name": "momei-cli",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Momei CLI - Migration tool for importing posts from Hexo to Momei",
   "type": "module",
   "bin": {
-    "momei": "./dist/index.js"
+    "momei": "dist/index.mjs"
   },
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
