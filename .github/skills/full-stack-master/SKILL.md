@@ -1,7 +1,7 @@
 ---
 name: full-stack-master
 description: 全局一体化开发与协作工作流技能，覆盖需求评估、开发、测试、质量、文档、提交、发布等全链路阶段，可集成所有基础原子技能，实现 PDTFC+ 循环自动化及分工合作优化。
-version: 1.0.0
+version: 1.1.0
 author: CaoMeiYouRen & Copilot
 appliesTo: "**/*"
 ---
@@ -10,52 +10,77 @@ appliesTo: "**/*"
 
 ## 一、能力定位 (Capability)
 
-- **工作流自动编排**：串联“需求→设计→开发→测试→质量→文档→提交→审核→发布”的全链路。
+- **工作流自动编排**：串联需求设计开发测试质量文档提交审核发布的全链路。
 - **技能聚合**：集成所有基础子技能（Context Analyzer、Nuxt Code Editor、Test Engineer、Quality Guardian、Documentation Specialist、Code Reviewer、Conventional Committer）。
 - **可复用与可拓展**：可合并新场景（如数据库迁移、API 变更、运营发布等），支持多项目切换。
 - **分阶段接棒/派单**：可手动或脚本分配阶段任务给对应技能或专项 agent。
 
-## 二、标准 PDTFC+ 工作流 (Workflow Steps)
+## 二、强制参考文档 (Mandatory Documentation)
 
-1. **需求分析与计划 (Plan/Analysis)**
-    - 任务：区分任务类型（feat/fix/docs）。分析 `roadmap.md` 及 `todo.md`。如果是 `fix`，分析根因并排查截图/日志；如果是 `feat`，更新规划文档。
-    - 技能：`context-analyzer`、`documentation-specialist`
-    - 约束：**针对模糊需求必须启动“采访追问”模式，抽离核心真实意图，对齐共识前禁止开工**。
+在执行任何写操作或决策前，必须确保已读取并理解以下文档的最新内容：
+
+- **全周期基石**：[AGENTS.md](../../../AGENTS.md) (安全红线与身份)、[AI 协作规范](../../../docs/standards/ai-collaboration.md)
+- **规划与任务**：[项目规划](../../../docs/plan/roadmap.md)、[待办事项](../../../docs/plan/todo.md)、[项目规划规范](../../../docs/standards/planning.md)
+- **开发与设计**：[开发规范](../../../docs/standards/development.md)、[API 规范](../../../docs/standards/api.md)、[UI 设计](../../../docs/design/ui.md)
+- **安全与质量**：[安全规范](../../../docs/standards/security.md)、[测试规范](../../../docs/standards/testing.md)
+
+## 三、标准 PDTFC+ 工作流 (PDTFC+ Workflow)
+
+1. **需求分析与规划 (Plan & Analysis)**
+    - **目标**：透彻理解需求，通过追问与采访抽离核心意图，明确变更边界。
+    - **执行步骤**：
+        1. **读取必备文档**：必须先读取 [项目规划](../../../docs/plan/roadmap.md) 和 [待办事项](../../../docs/plan/todo.md)。
+        2. **需求采访与澄清**：针对模糊需求启动采访追问模式。
+        3. **规划与评估**：若涉及重大变更，参考 [项目规划规范](../../../docs/standards/planning.md)。
+    - **技能**：`context-analyzer`、`documentation-specialist`
 
 2. **开发实现 (Do)**
-    - 任务：实现功能代码。遵循 Nuxt 4, Vue 3, TS, SCSS BEM, i18n。
-    - 技能：`nuxt-code-editor`
+    - **目标**：遵循项目规范实现功能逻辑。
+    - **执行步骤**：
+        1. **规范对齐**：在开始编写代码前，**必须读取** [开发规范](../../../docs/standards/development.md) 和 [API 规范](../../../docs/standards/api.md)。
+        2. **安全审查**：涉及安全性时，必须读取 [安全规范](../../../docs/standards/security.md)。
+        3. **实现功能**：遵循 Nuxt 4.x, Vue 3, TS, SCSS BEM, i18n。
+    - **技能**：`nuxt-code-editor`
 
 3. **UI 自动化验证 (UI Validate)**
-    - 任务：若属于 UI 相关改动，必须先检查端口状态并确保开发服务器运行，随后通过浏览器访问受影响页面。通过截图、快照或计算样式验证渲染效果。
-    - 技能：`ui-validator`
-    - 约束：**严禁跳过浏览器验证环节**。必须覆盖 `light` 和 `dark` 两种主题模式。
+    - **目标**：确保 UI 展现符合设计规范与各模式兼容。
+    - **执行步骤**：
+        1. **视觉准则**：读取 [UI 设计](../../../docs/design/ui.md)，确认视觉准则。
+        2. **验证执行**：通过浏览器验证实际渲染效果，必须覆盖 `light` 和 `dark` 两种主题模式。
+    - **技能**：`ui-validator`
 
 4. **质量检测与审查 (Test/Review)**
-    - 任务：运行 `pnpm lint`, `pnpm typecheck`, `pnpm test`。
-    - 约束：**严禁破坏原有测试**。若失败需分析根本原因。
-    - 技能：`quality-guardian`、`test-engineer`
+    - **要求**：执行测试前，**必须读取** [测试规范](../../../docs/standards/testing.md)。
+    - **任务**：运行 `pnpm lint`, `pnpm typecheck`, `pnpm test`。
+    - **约束**：严禁破坏原有测试。若失败需分析核心原因。
+    - **技能**：`quality-guardian`、`test-engineer`、`code-reviewer`
 
 5. **问题修复 (Fix)**
-    - 任务：修复执行阶段发现的缺陷、测试失败或 UI 样式偏差。
-    - 技能：`nuxt-code-editor`
+    - **目标**：消除上阶段发现的所有缺陷。
+    - **技能**：`nuxt-code-editor`
 
 6. **功能提交 (Commit - Phase 1)**
-    - 任务：执行最终质量检查，使用 Conventional Commits 规范（中文/用户语言）提交。
-    - 技能：`conventional-committer`
+    - **目标**：在通过核心质量检查后提交业务逻辑。
+    - **任务**：使用 Conventional Commits 规范（中文）提交。
+    - **技能**：`conventional-committer`
 
 7. **测试增强 (Enhance)**
-    - 任务：检查覆盖率，补充测试用例。再次运行 `pnpm test`。
-    - 技能：`test-engineer`
+    - **目标**：补齐测试用例，提升代码覆盖率。
+    - **任务**：为新功能补齐正向、反向及边缘场景的 Vitest 用例。
+    - **技能**：`test-engineer`
 
 8. **测试提交 (Commit - Phase 2)**
-    - 任务：最终质量监测后提交增强测试。
-    - 技能：`conventional-committer`
+    - **目标**：将增强后的测试代码入库。
+    - **技能**：`conventional-committer`
 
+## 四、需求挖掘方法论 (Intent Extraction Methodology)
 
----
+1. **逐级递进**：先锁定整体结构和目标，再深入到具体实现细节。
+2. **单点突破**：一次仅问一个问题，待用户回答后再进行下一步追问。
+3. **循环校验**：当用户回答不清晰时，尝试换一种表述方式进行确认。
+4. **意图抽离**：分析用户想要什么背后的为什么，提供更优专业建议。
 
-## 三、技能引用（Each Sub-Skill Reference）
+## 五、技能引用（Each Sub-Skill Reference）
 
 - [context-analyzer](../context-analyzer/SKILL.md)
 - [nuxt-code-editor](../nuxt-code-editor/SKILL.md)
@@ -66,17 +91,15 @@ appliesTo: "**/*"
 - [conventional-committer](../conventional-committer/SKILL.md)
 - [ui-validator](../ui-validator/SKILL.md)
 
----
-
-## 四、编写规范 (Authoring Rules)
+## 六、编写规范 (Authoring Rules)
 
 1. **Imperative & Structured**
-   - 用“动词+目标描述”标准化每一步/每个技能的 usage section。
-   - 禁止冗长废话和“流程介绍”型文字。
+   - 用动词+目标描述标准化每一步/每个技能的 usage section。
+   - 禁止冗长废话和流程介绍型文字。
 
 2. **明确输入输出**
    - 每步须说明本阶段输入依赖、输出产物（如文件路径、文档链接）。
-   - 例：“输入：docs/plan/，输出：docs/design/xx.md”。
+   - 例：输入：docs/plan/，输出：docs/design/xx.md。
 
 3. **可链式组合**
    - 每步技能应允许独立、或作为全局 master 调用链局部片段。
@@ -89,19 +112,15 @@ appliesTo: "**/*"
 5. **国际化与文档优先**
    - 所有工作流/技能创建应默认兼容 i18n 和标准文档同步动作。
 
----
-
-## 五、模板用法 (Usage Example)
+## 七、模板用法 (Usage Example)
 
 ```yaml
 workflow:
-  - step: "需求分析"        # context-analyzer
-  - step: "更新 design 文档" # documentation-specialist
-  - step: "编写测试"        # test-engineer
-  - step: "开发实现"        # nuxt-code-editor
+  - step: "需求分析"        # context-analyzer, documentation-specialist
+  - step: "功能开发"        # nuxt-code-editor
   - step: "UI 验证"         # ui-validator
-  - step: "质量检测"        # quality-guardian
-  - step: "补全部署文档"    # documentation-specialist
-  - step: "代码审查"        # code-reviewer
-  - step: "规范提交"        # conventional-committer
+  - step: "质量检测"        # quality-guardian, code-reviewer
+  - step: "功能提交"        # conventional-committer
+  - step: "测试补充"        # test-engineer
+  - step: "测试提交"        # conventional-committer
 ```
