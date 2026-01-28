@@ -322,6 +322,11 @@ const adminMenuItems = computed(() => {
                         icon: 'pi pi-palette',
                         command: () => navigateTo(localePath('/admin/settings/theme')),
                     },
+                    {
+                        label: t('pages.admin.settings.system.title'),
+                        icon: 'pi pi-sliders-h',
+                        command: () => navigateTo(localePath('/admin/settings')),
+                    },
                 ],
             },
         )

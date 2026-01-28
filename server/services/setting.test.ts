@@ -10,11 +10,17 @@ vi.mock('@/server/database', () => ({
 }))
 
 describe('settingService', () => {
+    const mockQueryBuilder = {
+        where: vi.fn().mockReturnThis(),
+        getMany: vi.fn(),
+    }
+
     const mockSettingRepo = {
         findOne: vi.fn(),
         find: vi.fn(),
         create: vi.fn(),
         save: vi.fn(),
+        createQueryBuilder: vi.fn().mockReturnValue(mockQueryBuilder),
     }
 
     beforeEach(() => {
@@ -62,7 +68,7 @@ describe('settingService', () => {
             const existing = { key: 'title', value: 'Old' }
             mockSettingRepo.findOne.mockResolvedValue(existing)
 
-            await settingService.setSetting('title', 'New', 'New Desc')
+            await settingService.setSetting('title', 'New', { description: 'New Desc' })
 
             expect(existing.value).toBe('New')
             expect((existing as any).description).toBe('New Desc')
@@ -80,6 +86,8 @@ describe('settingService', () => {
                 key: 'new_key',
                 value: 'val',
                 description: '',
+                level: 2,
+                maskType: 'none',
             })
             expect(mockSettingRepo.save).toHaveBeenCalledWith(newSetting)
         })
@@ -102,7 +110,7 @@ describe('settingService', () => {
     describe('getAllSettings', () => {
         it('should return all settings', async () => {
             const all = [{ key: 'a', value: '1' }]
-            mockSettingRepo.find.mockResolvedValue(all)
+            mockQueryBuilder.getMany.mockResolvedValue(all)
 
             const result = await settingService.getAllSettings()
             expect(result).toBe(all)

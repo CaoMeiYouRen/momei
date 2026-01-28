@@ -465,6 +465,50 @@
                     "background_value": "Background Value",
                     "save_success": "Theme settings updated",
                     "preview": "Preview Effect"
+                },
+                "system": {
+                    "title": "System Settings",
+                    "tabs": {
+                        "general": "General",
+                        "ai": "AI Services",
+                        "email": "Email Services",
+                        "storage": "Storage",
+                        "analytics": "Analytics"
+                    },
+                    "keys": {
+                        "site_title": "Site Title",
+                        "site_description": "Site Description",
+                        "site_keywords": "Keywords",
+                        "site_copyright": "Copyright",
+                        "default_language": "Default Language",
+                        "ai_enabled": "Enable AI",
+                        "ai_provider": "AI Provider",
+                        "ai_api_key": "API Key",
+                        "ai_model": "Model Name",
+                        "ai_endpoint": "API Endpoint",
+                        "email_host": "SMTP Host",
+                        "email_port": "SMTP Port",
+                        "email_user": "SMTP Username",
+                        "email_pass": "SMTP Password",
+                        "email_from": "From Address",
+                        "storage_type": "Storage Type",
+                        "local_storage_dir": "Local Directory",
+                        "local_storage_base_url": "Access URL Prefix",
+                        "s3_endpoint": "S3 Endpoint",
+                        "s3_bucket": "S3 Bucket",
+                        "s3_region": "S3 Region",
+                        "s3_access_key": "Access Key",
+                        "s3_secret_key": "Secret Key",
+                        "s3_base_url": "S3 Base URL",
+                        "s3_bucket_prefix": "Bucket Prefix",
+                        "baidu_analytics": "Baidu Analytics ID",
+                        "google_analytics": "Google Analytics ID",
+                        "clarity_analytics": "Microsoft Clarity ID"
+                    },
+                    "hints": {
+                        "ai_enabled": "Enable AI translation, summary and other features",
+                        "masked_unchanged": "Masked value displayed. Keep it to leave unchanged."
+                    }
                 }
             },
             "subscribers": {

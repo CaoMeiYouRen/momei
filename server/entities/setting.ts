@@ -23,6 +23,25 @@ export class Setting {
     @CustomColumn({ type: 'varchar', length: 255, nullable: true })
     description: string | null
 
+    /**
+     * 脱敏类型
+     * none: 不脱敏
+     * password: 全部遮蔽 (********)
+     * key: 保留前4位和后4位，中间遮蔽 (sk-a...bc12)
+     */
+    @CustomColumn({ type: 'varchar', length: 32, default: 'none' })
+    maskType: string
+
+    /**
+     * 配置等级
+     * 0: 公开 (任何用户可见)
+     * 1: 受限 (仅登录用户可见)
+     * 2: 后台可见 (仅管理员可见，可脱敏)
+     * 3: 系统核心 (仅服务端可见，不返回前端)
+     */
+    @CustomColumn({ type: 'int', default: 2 })
+    level: number
+
     @UpdateDateColumn({ type: getDateType() })
     updatedAt: Date
 }

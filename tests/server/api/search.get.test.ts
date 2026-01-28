@@ -121,7 +121,7 @@ describe('Search API', async () => {
 
         const result = await searchHandler(event)
         expect(result.data!.items.length).toBe(1)
-        expect(result.data!.items[0]!.title).toBe('Unique English Post')
+        expect((result.data!.items[0] as any).title).toBe('Unique English Post')
     })
 
     it('should handle multi-language deduplication (prefer zh-CN)', async () => {

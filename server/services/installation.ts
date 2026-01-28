@@ -324,15 +324,23 @@ export async function saveSiteConfig(config: SiteConfig): Promise<void> {
     const settingRepo = dataSource.getRepository(Setting)
 
     const settings = [
-        { key: 'site_title', value: config.siteTitle, description: '站点标题' },
-        { key: 'site_description', value: config.siteDescription, description: '站点描述' },
-        { key: 'site_keywords', value: config.siteKeywords, description: '站点关键词' },
-        { key: 'site_copyright', value: config.siteCopyright || '', description: '底部版权信息' },
-        { key: 'default_language', value: config.defaultLanguage, description: '默认语言' },
+        { key: 'site_title', value: config.siteTitle, description: '站点标题', level: 0 },
+        { key: 'site_description', value: config.siteDescription, description: '站点描述', level: 0 },
+        { key: 'site_keywords', value: config.siteKeywords, description: '站点关键词', level: 0 },
+        { key: 'site_copyright', value: config.siteCopyright || '', description: '底部版权信息', level: 0 },
+        { key: 'default_language', value: config.defaultLanguage, description: '默认语言', level: 0 },
     ]
 
     for (const setting of settings) {
-        await settingRepo.save(setting)
+        const existing = await settingRepo.findOne({ where: { key: setting.key } })
+        if (existing) {
+            existing.value = setting.value
+            existing.description = setting.description
+            existing.level = setting.level
+            await settingRepo.save(existing)
+        } else {
+            await settingRepo.save(settingRepo.create(setting))
+        }
     }
 
     logger.info('Site configuration saved successfully')
@@ -346,42 +354,44 @@ export async function saveExtraConfig(config: ExtraConfig): Promise<void> {
 
     const settings = [
         // AI
-        { key: 'ai_provider', value: config.aiProvider || '', description: 'AI 服务商' },
-        { key: 'ai_api_key', value: config.aiApiKey || '', description: 'AI API Key' },
-        { key: 'ai_model', value: config.aiModel || '', description: 'AI 模型' },
-        { key: 'ai_endpoint', value: config.aiEndpoint || '', description: 'AI 代理地址' },
+        { key: 'ai_enabled', value: config.aiApiKey ? 'true' : 'false', description: '是否启用 AI 功能', level: 0 },
+        { key: 'ai_provider', value: config.aiProvider || '', description: 'AI 服务商', level: 2 },
+        { key: 'ai_api_key', value: config.aiApiKey || '', description: 'AI API Key', level: 2, maskType: 'key' },
+        { key: 'ai_model', value: config.aiModel || '', description: 'AI 模型', level: 2 },
+        { key: 'ai_endpoint', value: config.aiEndpoint || '', description: 'AI 代理地址', level: 2 },
         // Email
-        { key: 'email_host', value: config.emailHost || '', description: 'SMTP 服务器' },
-        { key: 'email_port', value: String(config.emailPort || 587), description: 'SMTP 端口' },
-        { key: 'email_user', value: config.emailUser || '', description: 'SMTP 用户名' },
-        { key: 'email_pass', value: config.emailPass || '', description: 'SMTP 密码' },
-        { key: 'email_from', value: config.emailFrom || '', description: '发件人邮箱' },
+        { key: 'email_host', value: config.emailHost || '', description: 'SMTP 服务器', level: 2 },
+        { key: 'email_port', value: String(config.emailPort || 587), description: 'SMTP 端口', level: 2 },
+        { key: 'email_user', value: config.emailUser || '', description: 'SMTP 用户名', level: 2, maskType: 'email' },
+        { key: 'email_pass', value: config.emailPass || '', description: 'SMTP 密码', level: 2, maskType: 'password' },
+        { key: 'email_from', value: config.emailFrom || '', description: '发件人邮箱', level: 2 },
         // Storage
-        { key: 'storage_type', value: config.storageType || 'local', description: '存储类型' },
-        { key: 'local_storage_dir', value: config.localStorageDir || 'public/uploads', description: '本地存储目录' },
-        { key: 'local_storage_base_url', value: config.localStorageBaseUrl || '/uploads', description: '本地存储基础 URL' },
-        { key: 's3_endpoint', value: config.s3Endpoint || '', description: 'S3 终端地址' },
-        { key: 's3_bucket', value: config.s3Bucket || '', description: 'S3 桶名称' },
-        { key: 's3_region', value: config.s3Region || 'auto', description: 'S3 区域' },
-        { key: 's3_access_key', value: config.s3AccessKey || '', description: 'S3 Access Key' },
-        { key: 's3_secret_key', value: config.s3SecretKey || '', description: 'S3 Secret Key' },
-        { key: 's3_base_url', value: config.s3BaseUrl || '', description: 'S3 基础 URL' },
-        { key: 's3_bucket_prefix', value: config.s3BucketPrefix || '', description: 'S3 目录前缀' },
+        { key: 'storage_type', value: config.storageType || 'local', description: '存储类型', level: 2 },
+        { key: 'local_storage_dir', value: config.localStorageDir || 'public/uploads', description: '本地存储目录', level: 2 },
+        { key: 'local_storage_base_url', value: config.localStorageBaseUrl || '/uploads', description: '本地存储基础 URL', level: 2 },
+        { key: 's3_endpoint', value: config.s3Endpoint || '', description: 'S3 终端地址', level: 2 },
+        { key: 's3_bucket', value: config.s3Bucket || '', description: 'S3 桶名称', level: 2 },
+        { key: 's3_region', value: config.s3Region || 'auto', description: 'S3 区域', level: 2 },
+        { key: 's3_access_key', value: config.s3AccessKey || '', description: 'S3 Access Key', level: 2, maskType: 'key' },
+        { key: 's3_secret_key', value: config.s3SecretKey || '', description: 'S3 Secret Key', level: 2, maskType: 'password' },
+        { key: 's3_base_url', value: config.s3BaseUrl || '', description: 'S3 基础 URL', level: 2 },
+        { key: 's3_bucket_prefix', value: config.s3BucketPrefix || '', description: 'S3 目录前缀', level: 2 },
         // Analytics
-        { key: 'baidu_analytics', value: config.baiduAnalytics || '', description: '百度统计 ID' },
-        { key: 'google_analytics', value: config.googleAnalytics || '', description: 'Google Analytics ID' },
-        { key: 'clarity_analytics', value: config.clarityAnalytics || '', description: 'Microsoft Clarity ID' },
+        { key: 'baidu_analytics', value: config.baiduAnalytics || '', description: '百度统计 ID', level: 0 },
+        { key: 'google_analytics', value: config.googleAnalytics || '', description: 'Google Analytics ID', level: 0 },
+        { key: 'clarity_analytics', value: config.clarityAnalytics || '', description: 'Microsoft Clarity ID', level: 0 },
     ]
 
     for (const setting of settings) {
-        // 使用 upsert 逻辑或根据 key 查找并更新
         const existing = await settingRepo.findOne({ where: { key: setting.key } })
         if (existing) {
             existing.value = setting.value
             existing.description = setting.description
+            existing.level = setting.level
+            if (setting.maskType) { existing.maskType = setting.maskType }
             await settingRepo.save(existing)
         } else {
-            await settingRepo.save(setting)
+            await settingRepo.save(settingRepo.create(setting))
         }
     }
 

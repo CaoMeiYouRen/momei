@@ -138,7 +138,7 @@ const loadData = async () => {
             pageSize: pagination.pageSize,
             email: filters.email || undefined,
         }
-        const res = await $fetch('/api/subscribers', { query })
+        const res = await $fetch<any>('/api/subscribers', { query })
         if (res.code === 200) {
             items.value = res.data.items
             total.value = res.data.total

@@ -464,6 +464,50 @@
                     "background_value": "填充值",
                     "save_success": "主题设置已更新",
                     "preview": "预览效果"
+                },
+                "system": {
+                    "title": "系统设置",
+                    "tabs": {
+                        "general": "常规",
+                        "ai": "AI 服务",
+                        "email": "邮件服务",
+                        "storage": "文件存储",
+                        "analytics": "分析统计"
+                    },
+                    "keys": {
+                        "site_title": "站点标题",
+                        "site_description": "站点描述",
+                        "site_keywords": "站点关键词",
+                        "site_copyright": "版权信息",
+                        "default_language": "默认语言",
+                        "ai_enabled": "启用 AI",
+                        "ai_provider": "AI 服务商",
+                        "ai_api_key": "API 密钥",
+                        "ai_model": "模型名称",
+                        "ai_endpoint": "代理地址 (API Endpoint)",
+                        "email_host": "SMTP 服务器",
+                        "email_port": "SMTP 端口",
+                        "email_user": "SMTP 用户名",
+                        "email_pass": "SMTP 密码",
+                        "email_from": "发件人地址",
+                        "storage_type": "存储方式",
+                        "local_storage_dir": "本地目录",
+                        "local_storage_base_url": "访问前缀",
+                        "s3_endpoint": "S3 终端 (Endpoint)",
+                        "s3_bucket": "存储桶 (Bucket)",
+                        "s3_region": "区域 (Region)",
+                        "s3_access_key": "Access Key",
+                        "s3_secret_key": "Secret Key",
+                        "s3_base_url": "访问域名 (Base URL)",
+                        "s3_bucket_prefix": "存储前缀",
+                        "baidu_analytics": "百度统计 ID",
+                        "google_analytics": "Google Analytics ID",
+                        "clarity_analytics": "Microsoft Clarity ID"
+                    },
+                    "hints": {
+                        "ai_enabled": "启用后可使用 AI 翻译、摘要等功能",
+                        "masked_unchanged": "已显示脱敏值，若不修改请保留占位符"
+                    }
                 }
             },
             "subscribers": {
