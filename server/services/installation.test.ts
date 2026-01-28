@@ -14,7 +14,8 @@ import { Setting } from '../entities/setting'
 vi.mock('../database', () => ({
     dataSource: {
         isInitialized: true,
-        query: vi.fn(),
+        options: { type: 'sqlite' },
+        query: vi.fn().mockResolvedValue([]),
         getRepository: vi.fn(),
     },
 }))
@@ -117,7 +118,10 @@ describe('Installation Service', () => {
     describe('saveSiteConfig', () => {
         it('should save site configuration to database', async () => {
             const mockSave = vi.fn()
+            const mockCreate = vi.fn((item) => item)
             vi.mocked(dataSource.getRepository).mockReturnValue({
+                findOne: vi.fn().mockResolvedValue(null),
+                create: mockCreate,
                 save: mockSave,
             } as any)
 
@@ -131,7 +135,7 @@ describe('Installation Service', () => {
 
             await saveSiteConfig(config)
 
-            expect(mockSave).toHaveBeenCalledTimes(5)
+            expect(mockSave).toHaveBeenCalledTimes(13)
             expect(mockSave).toHaveBeenCalledWith(
                 expect.objectContaining({
                     key: 'site_title',
@@ -145,6 +149,8 @@ describe('Installation Service', () => {
         it('should mark system as installed in database', async () => {
             const mockSave = vi.fn()
             vi.mocked(dataSource.getRepository).mockReturnValue({
+                findOne: vi.fn().mockResolvedValue(null),
+                create: vi.fn((item) => item),
                 save: mockSave,
             } as any)
 
