@@ -102,14 +102,61 @@
     -   **作者视窗 (Author View)**: 普通作者 (Author) 在管理后台仅能查看评论内容与昵称，无法直接获取评论者的真实邮箱。
     -   **管理员视窗 (Admin View)**: 仅系统管理员 (Admin) 具备查看评论者邮箱、IP 等敏感信息的权限，用于追责或管理。
 
-## 4. 模块关联 (Module Linkages)
+## 4. 访客投稿工作流 (Visitor Submission Workflow)
 
--   **Admin**: 增加评论管理、权限设置仪表盘。
--   **Blog**: 文章底部集成评论列表与访问校验 UI。
--   **User**: “我的评论”记录与通知中心互动。
-## 5. UI 交互设计 (UI/UX Design)
+### 4.1 核心流程 (Core Flow)
 
-### 5.1 受限内容占位符 (Restricted Content Placeholder)
+本功能允许外部贡献者提交文章，通过审核后发布。旨在降低投稿门槛，同时保证内容质量。
+
+1.  **提交 (Submission)**：访客通过前台 `/submit` 页面填写投稿表单。
+2.  **暂存 (Drafting)**：提交成功后，系统在数据库中创建一条状态为 `pending` 的投稿记录。
+3.  **审核 (Review)**：管理员在后台收到通知，进入“稿件审核”界面进行查看、编辑、采纳或拒绝。
+4.  **发布 (Publish)**：管理员采纳后，系统将其转为正式文章。管理员可以修改分类、标签，并决定最终署名（可以是贡献者本人，或将其归入特定作者）。
+
+### 4.2 数据库设计 (Data Model)
+
+#### Submission (投稿表)
+
+| 字段名 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `id` | varchar | 主键 (Snowflake) |
+| `title` | varchar | 投稿标题 |
+| `content` | text | Markdown 正文 |
+| `contributorName` | varchar | 投稿者显示昵称 |
+| `contributorEmail` | varchar | 投稿者邮箱 (用于反馈审核结果) |
+| `contributorUrl` | varchar | 个人站点 (可选) |
+| `status` | varchar | 状态: pending (待审), accepted (采纳), rejected (拒绝) |
+| `authorId` | varchar | 若投稿者已登录，则关联其用户 ID |
+| `adminNote` | text | 管理员审核备注 (内部可见) |
+| `ip` | varchar | 提交者 IP |
+| `userAgent` | text | 提交者设备信息 |
+
+### 4.3 接口设计 (API Design)
+
+-   **POST `/api/submissions`**: 公开投稿接口。
+    -   **校验**: 使用 Zod Schema 校验输入。
+    -   **安全**: 必须携带有效的 Cloudflare Turnstile 验证 Token。
+    -   **限频**: 单 IP 24 小时内限制提交 3 次。
+-   **GET `/api/admin/submissions`**: 管理员获取投稿列表，支持按状态筛选。
+-   **PUT `/api/admin/submissions/:id/review`**: 管理员执行审核。
+    -   支持修改投稿内容并设置审核备注。
+    -   采纳时可选择是否同步发送通知邮件。
+
+### 4.4 权限与协同 (Collaboration)
+
+-   **外部访客**: 提交后不可二次编辑，仅能通过预留邮箱接收状态通知。
+-   **正式作者 (Author)**: 投稿若被采纳，该文章的 `authorId` 可指向该作者，计入其创作统计。
+-   **管理员 (Admin)**: 拥有完整的 CRUD 权限，负责最终的排版与润色。
+
+## 5. 模块关联 (Module Linkages)
+
+-   **Admin**: 增加“稿件审核”工作台。
+-   **Blog**: 文章底部集成评论列表与访问校验 UI；侧边栏或导航栏增加“我要投稿”入口。
+-   **User**: “我的投稿”记录，实时查看审核进度。
+-   **Email**: 配置投稿状态变更的邮件模板。
+## 6. UI 交互设计 (UI/UX Design)
+
+### 6.1 受限内容占位符 (Restricted Content Placeholder)
 当 API 返回文章状态为 `locked: true` 时，前台正文区域应渲染对应的占位组件：
 
 - **密码保护 (Password)**:
@@ -126,30 +173,6 @@
     - 提示语：“这是一篇订阅者专享文章”。
     - 提供“输入邮箱订阅”或“已是订阅者？点此通过邮件验证”的入口。
 
-### 5.2 引导体验
+### 6.2 引导体验
 - **错误提示**: 如果用户输入了错误的密码，应显示红色的错误抖动提示。
 - **平滑过渡**: 满足条件后切换到正文时，应有平淡的 `fade-in` 动画。
----
-
-## 5. 未来扩展 (Future Extensions / Backlog)
-
-### 5.1 访客投稿工作流 (Guest Posting Workflow)
-
-*注：该功能在初期阶段优先级较低，暂不实现。*
-
-旨在吸引外部优质内容，但不开放后台权限。
-
-1.  **提交入口**: 前台显著位置提供“投稿”页面 (`/submit`)。
-2.  **投稿表单**:
-    -   标题 (Required)。
-    -   正文 (Required, Markdown 格式)。
-    -   投稿人信息 (姓名、邮箱 - 必填)。
-    -   分类/建议标签。
-3.  **审核状态**: 提交后系统创建一条 `status: pending` 的文章记录。
-4.  **通知机制**: 提交成功通知投稿人；邮件通知管理员有新稿件待审。
-5.  **管理员介入**: 管理员在后台预览、排版、赋予 `authorId`（可以是特定的 "Guest" 用户或实名化）后发布。
-
-#### 权限控制 (Collaboration)
-
--   访客提交不具备编辑权。
--   若访客是已登录用户，提交后可在个人中心查看“我的审核中”稿件。
