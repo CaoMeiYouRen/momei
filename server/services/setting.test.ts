@@ -108,12 +108,33 @@ describe('settingService', () => {
     })
 
     describe('getAllSettings', () => {
-        it('should return all settings', async () => {
-            const all = [{ key: 'a', value: '1' }]
-            mockQueryBuilder.getMany.mockResolvedValue(all)
+        it('should return all settings with metadata', async () => {
+            const dbSettings = [
+                {
+                    key: 'a',
+                    value: '1',
+                    level: 2,
+                    description: 'desc a',
+                    maskType: 'none',
+                },
+            ]
+            mockQueryBuilder.getMany.mockResolvedValue(dbSettings)
 
             const result = await settingService.getAllSettings()
-            expect(result).toBe(all)
+
+            expect(result).toContainEqual(
+                expect.objectContaining({
+                    key: 'a',
+                    value: '1',
+                    level: 2,
+                    description: 'desc a',
+                    maskType: 'none',
+                    source: 'db',
+                    isLocked: false,
+                }),
+            )
+            // Should also contain default settings from SETTING_ENV_MAP
+            expect(result.length).toBeGreaterThan(Object.keys(settingService.SETTING_ENV_MAP).length)
         })
     })
 })
