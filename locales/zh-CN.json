@@ -1,0 +1,85 @@
+{
+  "common": {
+    "next": "下一步",
+    "previous": "上一步",
+    "submit": "提交",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "confirm": "确认",
+    "loading": "加载中...",
+    "success": "成功",
+    "error": "错误",
+    "warning": "警告",
+    "info": "信息"
+  },
+  "installation": {
+    "title": "墨梅博客安装向导",
+    "subtitle": "欢迎使用墨梅博客,让我们开始配置您的站点",
+    "steps": {
+      "healthCheck": "环境检查",
+      "database": "数据库初始化",
+      "siteConfig": "站点配置",
+      "adminAccount": "管理员账号",
+      "preview": "功能预览",
+      "complete": "完成安装"
+    },
+    "healthCheck": {
+      "title": "环境检查",
+      "description": "正在检查系统环境和依赖项...",
+      "database": "数据库连接",
+      "node": "Node.js 版本"
+    },
+    "database": {
+      "title": "数据库初始化",
+      "description": "初始化数据库表结构和基础数据",
+      "initialize": "初始化数据库",
+      "success": "数据库初始化成功",
+      "error": "数据库初始化失败,请检查配置"
+    },
+    "siteConfig": {
+      "title": "站点配置",
+      "description": "配置您的站点基本信息",
+      "siteTitle": "站点标题",
+      "siteTitlePlaceholder": "例如:我的博客",
+      "siteDescription": "站点描述",
+      "siteDescriptionPlaceholder": "简要描述您的站点内容",
+      "siteKeywords": "站点关键词",
+      "siteKeywordsPlaceholder": "用逗号分隔,例如:博客,技术,分享",
+      "siteCopyright": "版权信息",
+      "siteCopyrightPlaceholder": "例如:© 2024 我的博客. All rights reserved.",
+      "defaultLanguage": "默认语言",
+      "error": "保存站点配置失败"
+    },
+    "adminAccount": {
+      "title": "创建管理员账号",
+      "description": "设置您的管理员账号信息",
+      "name": "昵称",
+      "namePlaceholder": "请输入您的昵称",
+      "email": "邮箱",
+      "emailPlaceholder": "请输入您的邮箱地址",
+      "password": "密码",
+      "passwordPlaceholder": "请输入密码",
+      "passwordHint": "密码至少 8 位,需包含字母和数字",
+      "error": "创建管理员账号失败"
+    },
+    "preview": {
+      "title": "功能预览",
+      "description": "您可以在此配置可选功能,也可以稍后在管理后台配置",
+      "optional": "以下配置为可选项,您可以跳过此步骤",
+      "aiHint": "AI 功能:可在管理后台的系统设置中配置 AI 服务商和 API Key",
+      "seoHint": "SEO 优化:可在管理后台配置搜索引擎验证和分析工具",
+      "skip": "跳过并完成"
+    },
+    "complete": {
+      "title": "安装完成",
+      "description": "恭喜!墨梅博客已成功安装",
+      "finalize": "完成安装",
+      "success": "安装已完成!",
+      "envHint": "为了防止重复安装,请在您的环境变量中添加以下配置:",
+      "goToAdmin": "进入管理后台",
+      "error": "完成安装失败"
+    }
+  }
+}
