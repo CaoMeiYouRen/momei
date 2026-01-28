@@ -91,6 +91,7 @@
 -   `styles/`: 全局 SCSS 样式定义
 -   `types/`: TypeScript 接口与类型定义
 -   `docs/`: 项目详细文档与规范说明
+-   `cli/`: Hexo 迁移工具 CLI (独立项目)
 
 ## 🤖 AI 协同开发 (AI Synergy)
 
@@ -140,6 +141,42 @@
 -   **MySQL / PostgreSQL**: 适合有更高数据管理需求的用户，通过 `DATABASE_URL` 进行配置。
 
 详情请参考 [部署指南](https://docs.momei.app/guide/deploy)。
+
+## 🔄 Hexo 迁移工具
+
+墨梅提供了独立的 CLI 工具，帮助你从 Hexo 博客系统快速迁移文章。
+
+### 功能特性
+
+- ✅ 递归扫描目录中的所有 Markdown 文件
+- ✅ 精确解析 Hexo Front-matter (YAML 格式)
+- ✅ 保留发布时间、分类、标签等元数据
+- ✅ 支持通过 API Key 批量导入
+- ✅ 支持并发导入，提高效率
+- ✅ 支持 Dry Run 模式预览
+
+### 快速使用
+
+```bash
+# 进入 CLI 目录
+cd cli
+
+# 安装依赖
+pnpm install
+
+# 构建工具
+pnpm build
+
+# 预览导入（不实际导入）
+pnpm start import ./hexo-blog/source/_posts --dry-run --verbose
+
+# 正式导入
+pnpm start import ./hexo-blog/source/_posts \
+  --api-url https://your-blog.com \
+  --api-key your-api-key-here
+```
+
+详细使用说明请查看 [cli/README.md](./cli/README.md)。
 
 ## 🚀 快速开始
 

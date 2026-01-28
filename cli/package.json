@@ -1,0 +1,45 @@
+{
+  "name": "@momei/cli",
+  "version": "1.0.0",
+  "description": "Momei CLI - Migration tool for importing posts from Hexo to Momei",
+  "type": "module",
+  "bin": {
+    "momei": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "lint": "eslint src --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "momei",
+    "hexo",
+    "migration",
+    "blog",
+    "cli"
+  ],
+  "author": "CaoMeiYouRen",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "cac": "^6.7.14",
+    "chalk": "^5.4.1",
+    "glob": "^11.0.0",
+    "gray-matter": "^4.0.3",
+    "ora": "^8.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "eslint": "^9.39.2",
+    "eslint-config-cmyr": "2.1.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
