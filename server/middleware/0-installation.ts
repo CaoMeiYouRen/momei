@@ -4,15 +4,12 @@ import logger from '~/server/utils/logger'
 /**
  * 安装检查中间件
  * 如果系统未安装，则重定向到安装页面
+ * 如果系统已安装，禁止进入安装页面
  * 优先级: 0 (最高优先级，在其他中间件之前执行)
  */
 export default defineEventHandler(async (event) => {
-    // 跳过安装相关路径
-    // 匹配 /installation, /zh-CN/installation, /en-US/installation 等，忽略查询参数
+    // 提取路径名
     const pathname = (event.path || '').split('?')[0] ?? ''
-    if (pathname.startsWith('/api/install') || pathname.match(/^(\/(zh-CN|en-US))?\/installation(\/|$)/)) {
-        return
-    }
 
     // 跳过静态资源
     if (
@@ -28,20 +25,43 @@ export default defineEventHandler(async (event) => {
         // 检查系统是否已安装
         const installed = await isSystemInstalled()
 
-        if (!installed) {
-            // 如果是 API 请求，返回 503 错误
-            // 注意：排除 auth 和 theme 相关的 API，允许它们返回 401/404 而不是 503，防止前端挂掉
-            if (pathname.startsWith('/api') && !pathname.startsWith('/api/auth') && pathname !== '/api/settings/theme') {
+        // 检查当前是否在访问安装页面或安装 API
+        const isInstallationPage = !!pathname.match(/^(\/(zh-CN|en-US))?\/installation(\/|$)/)
+        const isInstallationApi = pathname.startsWith('/api/install')
+
+        if (installed) {
+            // 如果系统已安装，却访问安装页面，重定向到首页
+            if (isInstallationPage) {
+                return sendRedirect(event, '/', 302)
+            }
+            // 如果系统已安装，且试图调用安装 API（状态查询除外），返回已经安装的提示
+            if (isInstallationApi && pathname !== '/api/install/status') {
                 throw createError({
-                    statusCode: 503,
-                    statusMessage: 'System not installed. Please complete the installation first.',
+                    statusCode: 403,
+                    statusMessage: 'System already installed.',
                 })
             }
+            return
+        }
 
-            // 如果是页面请求，重定向到安装页面
-            if (!pathname.startsWith('/api')) {
-                return sendRedirect(event, '/installation', 302)
-            }
+        // 如果未安装，但当前就在访问安装页面或 API，直接放行
+        if (isInstallationPage || isInstallationApi) {
+            return
+        }
+
+        // 如果未安装且访问其他路径
+        // 如果是 API 请求，返回 503 错误
+        // 注意：排除 auth 和 theme 相关的 API，允许它们返回 401/404 而不是 503，防止前端挂掉
+        if (pathname.startsWith('/api') && !pathname.startsWith('/api/auth') && pathname !== '/api/settings/theme') {
+            throw createError({
+                statusCode: 503,
+                statusMessage: 'System not installed. Please complete the installation first.',
+            })
+        }
+
+        // 如果是页面请求，重定向到安装页面
+        if (!pathname.startsWith('/api')) {
+            return sendRedirect(event, '/installation', 302)
         }
     } catch (error: any) {
         // 如果已经是一个 503 错误，直接抛出

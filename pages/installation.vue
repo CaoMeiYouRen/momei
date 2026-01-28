@@ -640,6 +640,11 @@ async function fetchInstallationStatus() {
     try {
         const response: any = await $fetch('/api/install/status')
         installationStatus.value = response.data
+
+        // 如果系统已安装，且当前不是在展示“安装成功”的最后一步，则重定向到首页
+        if (response.data?.installed && !finalizeSuccess.value) {
+            navigateTo('/')
+        }
     } catch (error: any) {
         console.error('Failed to fetch installation status:', error)
     }
