@@ -1,6 +1,8 @@
 {
     "app": {
-        "name": "Momei Blog"
+        "name": "Momei Blog",
+        "description": "Momei is a modern blog platform deeply integrated with AI.",
+        "keywords": "blog, AI, Nuxt, Vue, TypeScript"
     },
     "demo": {
         "banner_text": "Demo Mode is active. You can explore all features, but data will be reset periodically.",

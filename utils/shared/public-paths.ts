@@ -14,4 +14,5 @@ export const publicPaths = [
     '/categories',
     '/tags',
     '/archives',
+    '/submit',
 ]

@@ -1,6 +1,8 @@
 {
     "app": {
-        "name": "墨梅博客"
+        "name": "墨梅博客",
+        "description": "墨梅是一个深度集成了 AI 辅助功能的现代化博客平台。",
+        "keywords": "博客, AI, Nuxt, Vue, TypeScript"
     },
     "demo": {
         "banner_text": "当前处于演示模式。您可以体验所有功能，但数据将在系统重启后自动重置为初始状态。",

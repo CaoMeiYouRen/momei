@@ -56,89 +56,115 @@
                 </nav>
 
                 <div class="app-header__action-group desktop-only">
-                    <template v-if="user && isAdminOrAuthor(user.role)">
+                    <ClientOnly>
+                        <template v-if="user && isAdminOrAuthor(user.role)">
+                            <Button
+                                id="admin-menu-btn"
+                                v-tooltip.bottom="$t('common.admin')"
+                                icon="pi pi-cog"
+                                text
+                                rounded
+                                aria-haspopup="true"
+                                aria-controls="admin_menu"
+                                :aria-label="$t('common.admin')"
+                                @click="toggleAdminMenu"
+                            />
+                            <Menu
+                                id="admin_menu"
+                                ref="adminMenu"
+                                :model="adminMenuItems"
+                                :popup="true"
+                            />
+                        </template>
+                    </ClientOnly>
+
+                    <ClientOnly>
                         <Button
-                            id="admin-menu-btn"
-                            v-tooltip.bottom="$t('common.admin')"
-                            icon="pi pi-cog"
+                            id="search-btn"
+                            v-tooltip.bottom="$t('components.search.ctrl_k')"
+                            icon="pi pi-search"
                             text
                             rounded
-                            aria-haspopup="true"
-                            aria-controls="admin_menu"
-                            :aria-label="$t('common.admin')"
-                            @click="toggleAdminMenu"
+                            :aria-label="$t('components.search.title')"
+                            @click="openSearch"
                         />
-                        <Menu
-                            id="admin_menu"
-                            ref="adminMenu"
-                            :model="adminMenuItems"
-                            :popup="true"
+
+                        <Button
+                            id="theme-switcher"
+                            v-tooltip.bottom="isDark ? $t('components.header.light_mode') : $t('components.header.dark_mode')"
+                            :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
+                            text
+                            rounded
+                            :aria-label="isDark ? $t('components.header.light_mode') : $t('components.header.dark_mode')"
+                            @click="toggleDark()"
                         />
-                    </template>
-
-                    <Button
-                        id="search-btn"
-                        v-tooltip.bottom="$t('components.search.ctrl_k')"
-                        icon="pi pi-search"
-                        text
-                        rounded
-                        :aria-label="$t('components.search.title')"
-                        @click="openSearch"
-                    />
-
-                    <Button
-                        id="theme-switcher"
-                        v-tooltip.bottom="isDark ? $t('components.header.light_mode') : $t('components.header.dark_mode')"
-                        :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
-                        text
-                        rounded
-                        :aria-label="isDark ? $t('components.header.light_mode') : $t('components.header.dark_mode')"
-                        @click="toggleDark()"
-                    />
+                        <template #fallback>
+                            <Button
+                                icon="pi pi-search"
+                                text
+                                rounded
+                                disabled
+                            />
+                            <Button
+                                icon="pi pi-moon"
+                                text
+                                rounded
+                                disabled
+                            />
+                        </template>
+                    </ClientOnly>
 
                     <div id="lang-switcher">
                         <language-switcher />
                     </div>
 
                     <div class="app-header__user-actions">
-                        <template v-if="isSessionPending">
-                            <Button
-                                icon="pi pi-spinner pi-spin"
-                                text
-                                rounded
-                                disabled
-                            />
-                        </template>
-                        <template v-else>
-                            <Button
-                                v-if="!user"
-                                id="login-btn"
-                                v-tooltip.bottom="$t('pages.login.submit')"
-                                icon="pi pi-sign-in"
-                                text
-                                rounded
-                                :aria-label="$t('pages.login.submit')"
-                                @click="navigateTo(localePath('/login'))"
-                            />
-                            <template v-else>
+                        <ClientOnly>
+                            <template v-if="isSessionPending">
                                 <Button
-                                    id="user-menu-btn"
-                                    v-tooltip.bottom="$t('pages.settings.title')"
-                                    icon="pi pi-user"
+                                    icon="pi pi-spinner pi-spin"
                                     text
                                     rounded
-                                    aria-haspopup="true"
-                                    aria-controls="user_menu"
-                                    @click="toggleUserMenu"
-                                />
-                                <Menu
-                                    id="user_menu"
-                                    ref="userMenu"
-                                    :model="userMenuItems"
-                                    :popup="true"
+                                    disabled
                                 />
                             </template>
-                        </template>
+                            <template v-else>
+                                <Button
+                                    v-if="!user"
+                                    id="login-btn"
+                                    v-tooltip.bottom="$t('pages.login.submit')"
+                                    icon="pi pi-sign-in"
+                                    text
+                                    rounded
+                                    :aria-label="$t('pages.login.submit')"
+                                    @click="navigateTo(localePath('/login'))"
+                                />
+                                <template v-else>
+                                    <Button
+                                        id="user-menu-btn"
+                                        v-tooltip.bottom="$t('pages.settings.title')"
+                                        icon="pi pi-user"
+                                        text
+                                        rounded
+                                        aria-haspopup="true"
+                                        aria-controls="user_menu"
+                                        @click="toggleUserMenu"
+                                    />
+                                    <Menu
+                                        id="user_menu"
+                                        ref="userMenu"
+                                        :model="userMenuItems"
+                                        :popup="true"
+                                    />
+                                </template>
+                            </template>
+
+                            <template #fallback>
+                                <div class="p-button p-button-icon-only p-button-rounded p-button-text p-component">
+                                    <i class="pi pi-spin pi-spinner" />
+                                </div>
+                            </template>
+                        </ClientOnly>
                     </div>
                 </div>
 

@@ -1,7 +1,5 @@
 <template>
     <div class="submit-page">
-        <useHead :title="$t('pages.submit.title')" />
-
         <div class="submit-container">
             <header class="submit-header">
                 <h1 class="submit-header__title">
@@ -21,9 +19,17 @@
                                 id="title"
                                 v-model="form.title"
                                 :placeholder="$t('pages.submit.form.title_placeholder')"
+                                :invalid="!!errors.title"
                                 fluid
-                                required
                             />
+                            <Message
+                                v-if="errors.title"
+                                severity="error"
+                                size="small"
+                                variant="simple"
+                            >
+                                {{ errors.title }}
+                            </Message>
                         </div>
 
                         <div class="submit-form__field">
@@ -32,11 +38,21 @@
                                 id="content"
                                 v-model="form.content"
                                 :placeholder="$t('pages.submit.form.content_placeholder')"
+                                :invalid="!!errors.content"
                                 rows="12"
                                 fluid
-                                required
                             />
-                            <small class="submit-form__help">支持 Markdown 语法</small>
+                            <div class="submit-form__field-footer">
+                                <small class="submit-form__help">支持 Markdown 语法</small>
+                                <Message
+                                    v-if="errors.content"
+                                    severity="error"
+                                    size="small"
+                                    variant="simple"
+                                >
+                                    {{ errors.content }}
+                                </Message>
+                            </div>
                         </div>
 
                         <div class="submit-form__row">
@@ -46,9 +62,17 @@
                                     id="name"
                                     v-model="form.contributorName"
                                     :placeholder="$t('pages.submit.form.name_placeholder')"
+                                    :invalid="!!errors.contributorName"
                                     fluid
-                                    required
                                 />
+                                <Message
+                                    v-if="errors.contributorName"
+                                    severity="error"
+                                    size="small"
+                                    variant="simple"
+                                >
+                                    {{ errors.contributorName }}
+                                </Message>
                             </div>
                             <div class="submit-form__field">
                                 <label for="email">{{ $t('pages.submit.form.email') }} *</label>
@@ -57,9 +81,17 @@
                                     v-model="form.contributorEmail"
                                     type="email"
                                     :placeholder="$t('pages.submit.form.email_placeholder')"
+                                    :invalid="!!errors.contributorEmail"
                                     fluid
-                                    required
                                 />
+                                <Message
+                                    v-if="errors.contributorEmail"
+                                    severity="error"
+                                    size="small"
+                                    variant="simple"
+                                >
+                                    {{ errors.contributorEmail }}
+                                </Message>
                             </div>
                         </div>
 
@@ -69,12 +101,31 @@
                                 id="url"
                                 v-model="form.contributorUrl"
                                 :placeholder="$t('pages.submit.form.url_placeholder')"
+                                :invalid="!!errors.contributorUrl"
                                 fluid
                             />
+                            <Message
+                                v-if="errors.contributorUrl"
+                                severity="error"
+                                size="small"
+                                variant="simple"
+                            >
+                                {{ errors.contributorUrl }}
+                            </Message>
                         </div>
 
                         <div class="submit-form__captcha">
-                            <app-captcha ref="captchaRef" v-model="form.captchaToken" />
+                            <div class="align-items-center flex flex-column gap-2">
+                                <app-captcha ref="captchaRef" v-model="form.captchaToken" />
+                                <Message
+                                    v-if="errors.captchaToken"
+                                    severity="error"
+                                    size="small"
+                                    variant="simple"
+                                >
+                                    {{ errors.captchaToken }}
+                                </Message>
+                            </div>
                         </div>
 
                         <div class="submit-form__actions">
@@ -82,7 +133,6 @@
                                 type="submit"
                                 :label="loading ? $t('pages.submit.form.submitting') : $t('pages.submit.form.submit')"
                                 :loading="loading"
-                                :disabled="!isFormValid"
                                 class="submit-btn"
                             />
                         </div>
@@ -95,10 +145,29 @@
 </template>
 
 <script setup lang="ts">
+import { submissionSchema } from '@/utils/schemas/submission'
+
 const { t } = useI18n()
 const toast = useToast()
 
+definePageMeta({
+    title: 'pages.submit.title',
+})
+
+useHead({
+    title: t('pages.submit.title'),
+})
+
 const form = ref({
+    title: '',
+    content: '',
+    contributorName: '',
+    contributorEmail: '',
+    contributorUrl: '',
+    captchaToken: '',
+})
+
+const errors = reactive({
     title: '',
     content: '',
     contributorName: '',
@@ -110,18 +179,20 @@ const form = ref({
 const loading = ref(false)
 const captchaRef = ref<any>(null)
 
-const isFormValid = computed(() => {
-    return (
-        form.value.title.trim()
-        && form.value.content.trim().length >= 10
-        && form.value.contributorName.trim()
-        && form.value.contributorEmail.trim()
-        && form.value.captchaToken
-    )
-})
-
 const handleSubmit = async () => {
-    if (!isFormValid.value) return
+    // Clear previous errors
+    Object.keys(errors).forEach((key) => (errors[key as keyof typeof errors] = ''))
+
+    const result = submissionSchema.safeParse(form.value)
+    if (!result.success) {
+        result.error.issues.forEach((issue) => {
+            const key = issue.path[0] as keyof typeof errors
+            if (key in errors) {
+                errors[key] = issue.message
+            }
+        })
+        return
+    }
 
     loading.value = true
     try {
