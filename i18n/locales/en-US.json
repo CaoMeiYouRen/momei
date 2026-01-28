@@ -726,5 +726,73 @@
         "load_more": "Load More",
         "must_login": "You must be logged in to post a comment",
         "sticked": "Sticked"
+    },
+    "installation": {
+        "title": "Momei Blog Installation Wizard",
+        "subtitle": "Welcome to Momei Blog, let's set up your site",
+        "steps": {
+            "healthCheck": "Health Check",
+            "database": "Database",
+            "siteConfig": "Site Config",
+            "adminAccount": "Admin Account",
+            "preview": "Preview",
+            "complete": "Complete"
+        },
+        "healthCheck": {
+            "title": "Environment Check",
+            "description": "Checking system environment and dependencies...",
+            "database": "Database Connection",
+            "node": "Node.js Version"
+        },
+        "database": {
+            "title": "Database Initialization",
+            "description": "Initialize database schema and seed data",
+            "initialize": "Initialize Database",
+            "success": "Database initialized successfully",
+            "error": "Failed to initialize database, please check your configuration"
+        },
+        "siteConfig": {
+            "title": "Site Configuration",
+            "description": "Configure your site basic information",
+            "siteTitle": "Site Title",
+            "siteTitlePlaceholder": "e.g., My Blog",
+            "siteDescription": "Site Description",
+            "siteDescriptionPlaceholder": "Briefly describe your site content",
+            "siteKeywords": "Site Keywords",
+            "siteKeywordsPlaceholder": "Comma separated, e.g., blog, tech, sharing",
+            "siteCopyright": "Copyright",
+            "siteCopyrightPlaceholder": "e.g., © 2024 My Blog. All rights reserved.",
+            "defaultLanguage": "Default Language",
+            "error": "Failed to save site configuration"
+        },
+        "adminAccount": {
+            "title": "Create Admin Account",
+            "description": "Set up your administrator account",
+            "name": "Name",
+            "namePlaceholder": "Enter your name",
+            "email": "Email",
+            "emailPlaceholder": "Enter your email address",
+            "password": "Password",
+            "passwordPlaceholder": "Enter password",
+            "passwordHint": "Password must be at least 8 characters with letters and numbers",
+            "error": "Failed to create admin account"
+        },
+        "preview": {
+            "title": "Feature Preview",
+            "description": "You can configure optional features here, or configure them later in the admin panel",
+            "optional": "The following configurations are optional, you can skip this step",
+            "aiHint": "AI Features: Configure AI provider and API Key in system settings",
+            "seoHint": "SEO Optimization: Configure search engine verification and analytics tools in admin panel",
+            "skip": "Skip and Complete"
+        },
+        "complete": {
+            "title": "Installation Complete",
+            "description": "Congratulations! Momei Blog has been successfully installed",
+            "finalize": "Complete Installation",
+            "success": "Installation completed!",
+            "envHint": "To prevent reinstallation, please add the following to your environment variables:",
+            "goToAdmin": "Go to Admin Panel",
+            "error": "Failed to complete installation"
+        }
     }
 }

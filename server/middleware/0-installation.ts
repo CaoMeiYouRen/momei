@@ -1,4 +1,5 @@
 import { isSystemInstalled } from '~/server/services/installation'
+import logger from '~/server/utils/logger'
 
 /**
  * 安装检查中间件
@@ -6,19 +7,19 @@ import { isSystemInstalled } from '~/server/services/installation'
  * 优先级: 0 (最高优先级，在其他中间件之前执行)
  */
 export default defineEventHandler(async (event) => {
-    const path = event.path
-
     // 跳过安装相关路径
-    if (path.startsWith('/api/install') || path.startsWith('/installation')) {
+    // 匹配 /installation, /zh-CN/installation, /en-US/installation 等，忽略查询参数
+    const pathname = (event.path || '').split('?')[0] ?? ''
+    if (pathname.startsWith('/api/install') || pathname.match(/^(\/(zh-CN|en-US))?\/installation(\/|$)/)) {
         return
     }
 
     // 跳过静态资源
     if (
-        path.startsWith('/_nuxt')
-        || path.startsWith('/uploads')
-        || path.startsWith('/favicon')
-        || path.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)
+        pathname.startsWith('/_nuxt')
+        || pathname.startsWith('/uploads')
+        || pathname.startsWith('/favicon')
+        || pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|json|webp|avif)$/)
     ) {
         return
     }
@@ -29,7 +30,7 @@ export default defineEventHandler(async (event) => {
 
         if (!installed) {
             // 如果是 API 请求，返回 503 错误
-            if (path.startsWith('/api')) {
+            if (pathname.startsWith('/api')) {
                 throw createError({
                     statusCode: 503,
                     statusMessage: 'System not installed. Please complete the installation first.',
@@ -40,10 +41,15 @@ export default defineEventHandler(async (event) => {
             return sendRedirect(event, '/installation', 302)
         }
     } catch (error: any) {
+        // 如果已经是一个 503 错误，直接抛出
+        if (error.statusCode === 503) {
+            throw error
+        }
+
         // 如果检查失败（例如数据库连接失败），也重定向到安装页面
         logger.error('Installation check failed:', error)
 
-        if (path.startsWith('/api')) {
+        if (pathname.startsWith('/api')) {
             throw createError({
                 statusCode: 503,
                 statusMessage: 'System initialization failed. Please check your configuration.',

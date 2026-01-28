@@ -9,6 +9,7 @@ export const publicPaths = [
     '/user-agreement',
     '/privacy',
     '/terms',
+    '/installation',
     '/posts',
     '/categories',
     '/tags',
