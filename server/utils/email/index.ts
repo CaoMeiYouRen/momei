@@ -10,6 +10,7 @@ import {
     EMAIL_HOST,
     EMAIL_USER,
 } from '@/utils/shared/env'
+import { getSettings } from '~/server/services/setting'
 
 const EMAIL_LIMIT_KEY = 'email_global_limit'
 
@@ -75,20 +76,46 @@ export function resetEmailDeps() {
 
 async function getTransporter() {
     if (!cachedTransporter) {
-        cachedTransporter = mailerFactory()
+        // 只有使用默认工厂时才尝试从数据库读取配置
+        if (mailerFactory === createDefaultMailer) {
+            const dbSettings = await getSettings([
+                'email_host',
+                'email_port',
+                'email_user',
+                'email_pass',
+                'email_from',
+            ])
+
+            if (dbSettings.email_host && dbSettings.email_user) {
+                cachedTransporter = mailerFactory({
+                    host: dbSettings.email_host,
+                    port: Number(dbSettings.email_port || 587),
+                    auth: {
+                        user: dbSettings.email_user,
+                        pass: dbSettings.email_pass || '',
+                    },
+                })
+            } else {
+                cachedTransporter = mailerFactory()
+            }
+        } else {
+            cachedTransporter = mailerFactory()
+        }
         transporterVerified = false
     }
 
-    if (!transporterVerified) {
-        const verified = await cachedTransporter.verify()
-        if (!verified) {
-            emailLogger.error('Email transporter verification failed', {
-                host: EMAIL_HOST,
-                user: EMAIL_USER ? `${EMAIL_USER.substring(0, 3)}***` : undefined,
-            })
-            throw new Error('Email transporter configuration is invalid')
+    if (!transporterVerified && cachedTransporter) {
+        try {
+            const verified = await cachedTransporter.verify()
+            if (!verified) {
+                emailLogger.error('Email transporter verification failed')
+                throw new Error('Email transporter configuration is invalid')
+            }
+            transporterVerified = true
+        } catch (error) {
+            emailLogger.error('Email transporter verification error', error)
+            throw error
         }
-        transporterVerified = true
     }
 
     return cachedTransporter
@@ -124,19 +151,19 @@ async function ensureWithinLimit(options: EmailOptions) {
 }
 
 export async function sendEmail(options: EmailOptions) {
-    // 检查邮件配置是否存在
-    if (!EMAIL_HOST || !EMAIL_USER) {
-        emailLogger.warn('Email configuration (HOST or USER) is missing. Skipping email sending.', {
-            to: options.to,
-            subject: options.subject,
-        })
-        return { messageId: 'skipped-no-config' }
-    }
-
     try {
         await ensureWithinLimit(options)
 
         const transporter = await getTransporter()
+
+        if (!transporter) {
+            emailLogger.warn('Email configuration is missing. Skipping email sending.', {
+                to: options.to,
+                subject: options.subject,
+            })
+            return { messageId: 'skipped-no-config' }
+        }
+
         const mailOptions = {
             from: options.from || EMAIL_FROM,
             to: options.to,

@@ -12,14 +12,23 @@ import {
     AI_TEMPERATURE,
     DEMO_MODE,
 } from '@/utils/shared/env'
+import { getSettings } from '~/server/services/setting'
 
-export function getAIProvider(configOverride?: Partial<AIConfig>): AIProvider {
+export async function getAIProvider(configOverride?: Partial<AIConfig>): Promise<AIProvider> {
+    const dbSettings = await getSettings([
+        'ai_enabled',
+        'ai_provider',
+        'ai_api_key',
+        'ai_model',
+        'ai_endpoint',
+    ])
+
     const config: AIConfig = {
-        enabled: AI_ENABLED,
-        provider: AI_PROVIDER,
-        apiKey: AI_API_KEY as string,
-        model: AI_MODEL,
-        endpoint: AI_API_ENDPOINT,
+        enabled: dbSettings.ai_enabled === 'true' || AI_ENABLED,
+        provider: (dbSettings.ai_provider as any) || AI_PROVIDER,
+        apiKey: (dbSettings.ai_api_key as string) || (AI_API_KEY as string),
+        model: dbSettings.ai_model || AI_MODEL,
+        endpoint: dbSettings.ai_endpoint || AI_API_ENDPOINT,
         maxTokens: AI_MAX_TOKENS,
         temperature: AI_TEMPERATURE,
     }

@@ -106,6 +106,38 @@ export interface AdminCreation {
 }
 
 /**
+ * 可选功能配置接口
+ */
+export interface ExtraConfig {
+    // AI
+    aiProvider?: string
+    aiApiKey?: string
+    aiModel?: string
+    aiEndpoint?: string
+    // Email
+    emailHost?: string
+    emailPort?: number
+    emailUser?: string
+    emailPass?: string
+    emailFrom?: string
+    // Storage
+    storageType?: string
+    localStorageDir?: string
+    localStorageBaseUrl?: string
+    s3Endpoint?: string
+    s3Bucket?: string
+    s3Region?: string
+    s3AccessKey?: string
+    s3SecretKey?: string
+    s3BaseUrl?: string
+    s3BucketPrefix?: string
+    // Analytics
+    baiduAnalytics?: string
+    googleAnalytics?: string
+    clarityAnalytics?: string
+}
+
+/**
  * 检查环境变量中的安装标记
  */
 function checkEnvInstallationFlag(): boolean {
@@ -304,6 +336,56 @@ export async function saveSiteConfig(config: SiteConfig): Promise<void> {
     }
 
     logger.info('Site configuration saved successfully')
+}
+
+/**
+ * 保存可选功能配置
+ */
+export async function saveExtraConfig(config: ExtraConfig): Promise<void> {
+    const settingRepo = dataSource.getRepository(Setting)
+
+    const settings = [
+        // AI
+        { key: 'ai_provider', value: config.aiProvider || '', description: 'AI 服务商' },
+        { key: 'ai_api_key', value: config.aiApiKey || '', description: 'AI API Key' },
+        { key: 'ai_model', value: config.aiModel || '', description: 'AI 模型' },
+        { key: 'ai_endpoint', value: config.aiEndpoint || '', description: 'AI 代理地址' },
+        // Email
+        { key: 'email_host', value: config.emailHost || '', description: 'SMTP 服务器' },
+        { key: 'email_port', value: String(config.emailPort || 587), description: 'SMTP 端口' },
+        { key: 'email_user', value: config.emailUser || '', description: 'SMTP 用户名' },
+        { key: 'email_pass', value: config.emailPass || '', description: 'SMTP 密码' },
+        { key: 'email_from', value: config.emailFrom || '', description: '发件人邮箱' },
+        // Storage
+        { key: 'storage_type', value: config.storageType || 'local', description: '存储类型' },
+        { key: 'local_storage_dir', value: config.localStorageDir || 'public/uploads', description: '本地存储目录' },
+        { key: 'local_storage_base_url', value: config.localStorageBaseUrl || '/uploads', description: '本地存储基础 URL' },
+        { key: 's3_endpoint', value: config.s3Endpoint || '', description: 'S3 终端地址' },
+        { key: 's3_bucket', value: config.s3Bucket || '', description: 'S3 桶名称' },
+        { key: 's3_region', value: config.s3Region || 'auto', description: 'S3 区域' },
+        { key: 's3_access_key', value: config.s3AccessKey || '', description: 'S3 Access Key' },
+        { key: 's3_secret_key', value: config.s3SecretKey || '', description: 'S3 Secret Key' },
+        { key: 's3_base_url', value: config.s3BaseUrl || '', description: 'S3 基础 URL' },
+        { key: 's3_bucket_prefix', value: config.s3BucketPrefix || '', description: 'S3 目录前缀' },
+        // Analytics
+        { key: 'baidu_analytics', value: config.baiduAnalytics || '', description: '百度统计 ID' },
+        { key: 'google_analytics', value: config.googleAnalytics || '', description: 'Google Analytics ID' },
+        { key: 'clarity_analytics', value: config.clarityAnalytics || '', description: 'Microsoft Clarity ID' },
+    ]
+
+    for (const setting of settings) {
+        // 使用 upsert 逻辑或根据 key 查找并更新
+        const existing = await settingRepo.findOne({ where: { key: setting.key } })
+        if (existing) {
+            existing.value = setting.value
+            existing.description = setting.description
+            await settingRepo.save(existing)
+        } else {
+            await settingRepo.save(setting)
+        }
+    }
+
+    logger.info('Extra configuration saved successfully')
 }
 
 /**

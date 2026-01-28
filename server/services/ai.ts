@@ -41,7 +41,7 @@ export class AIService {
         language: string = 'zh-CN',
         userId?: string,
     ) {
-        const provider = getAIProvider()
+        const provider = await await getAIProvider()
         const prompt = formatPrompt(AI_PROMPTS.SUGGEST_TITLES, {
             content: content.slice(0, AI_CHUNK_SIZE),
             language,
@@ -77,7 +77,7 @@ export class AIService {
     }
 
     static async suggestSlug(title: string, content: string, userId?: string) {
-        const provider = getAIProvider()
+        const provider = await getAIProvider()
         const prompt = formatPrompt(AI_PROMPTS.SUGGEST_SLUG, {
             title,
             content: content.slice(0, AI_CHUNK_SIZE),
@@ -116,7 +116,7 @@ export class AIService {
             })
         }
 
-        const provider = getAIProvider()
+        const provider = await getAIProvider()
 
         // 如果内容超过 AI_CHUNK_SIZE，使用分段摘要策略
         if (content.length > AI_CHUNK_SIZE) {
@@ -205,7 +205,7 @@ export class AIService {
             language = 'zh-CN',
         } = options
 
-        const provider = getAIProvider()
+        const provider = await getAIProvider()
 
         let inputSource = ''
         if (snippets.length > 0) {
@@ -257,7 +257,7 @@ export class AIService {
             language = 'zh-CN',
         } = options
 
-        const provider = getAIProvider()
+        const provider = await getAIProvider()
         const prompt = formatPrompt(AI_PROMPTS.EXPAND_SECTION, {
             topic,
             sectionTitle,
@@ -288,7 +288,7 @@ export class AIService {
         language: string = 'zh-CN',
         userId?: string,
     ) {
-        const provider = getAIProvider()
+        const provider = await getAIProvider()
         const prompt = `Based on the following content, recommend 3-5 tags in ${language}.
         Current existing tags in the system (use these if possible): ${existingTags.join(', ')}.
         Prefer existing tags if they match, or suggest new ones in ${language} if necessary.
@@ -329,7 +329,7 @@ export class AIService {
         targetLanguage: string,
         userId?: string,
     ) {
-        const provider = getAIProvider()
+        const provider = await getAIProvider()
         const prompt = formatPrompt(AI_PROMPTS.TRANSLATE_NAME, {
             name,
             to: targetLanguage,
@@ -352,7 +352,7 @@ export class AIService {
     }
 
     static async suggestSlugFromName(name: string, userId?: string) {
-        const provider = getAIProvider()
+        const provider = await getAIProvider()
         const prompt = formatPrompt(AI_PROMPTS.SUGGEST_SLUG_FROM_NAME, {
             name,
         })
@@ -381,7 +381,7 @@ export class AIService {
         // 如果内容过长，强制进行截断，除非使用流式接口（暂未在旧接口实现自动分段）
         const safeContent = content.slice(0, AI_CHUNK_SIZE)
 
-        const provider = getAIProvider()
+        const provider = await getAIProvider()
         const prompt = formatPrompt(AI_PROMPTS.TRANSLATE, {
             content: safeContent,
             to,
@@ -425,7 +425,7 @@ export class AIService {
 
         for (let i = 0; i < totalChunks; i++) {
             const chunk = chunks[i]
-            const provider = getAIProvider()
+            const provider = await getAIProvider()
             const prompt = formatPrompt(AI_PROMPTS.TRANSLATE, {
                 content: chunk,
                 to,

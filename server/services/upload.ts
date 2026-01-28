@@ -17,6 +17,7 @@ import {
     MAX_AUDIO_UPLOAD_SIZE,
     MAX_AUDIO_UPLOAD_SIZE_TEXT,
 } from '@/utils/shared/env'
+import { getSettings } from '~/server/services/setting'
 
 /**
  * 上传类型枚举
@@ -86,12 +87,37 @@ export async function handleFileUploads(event: H3Event, options: UploadOptions):
         throw createError({ statusCode: 400, statusMessage: `最多允许同时上传 ${maxFiles} 个文件` })
     }
 
-    const storage = getFileStorage(STORAGE_TYPE, {
-        ...process.env,
-        LOCAL_STORAGE_DIR,
-        LOCAL_STORAGE_BASE_URL,
+    // 加载存储配置
+    const dbSettings = await getSettings([
+        'storage_type',
+        'local_storage_dir',
+        'local_storage_base_url',
+        's3_endpoint',
+        's3_bucket',
+        's3_region',
+        's3_access_key',
+        's3_secret_key',
+        's3_base_url',
+        's3_bucket_prefix',
+    ])
+
+    const storageType = dbSettings.storage_type || STORAGE_TYPE
+    const storageConfig: FileStorageEnv = {
+        ...(process.env as any),
+        STORAGE_TYPE: storageType,
+        LOCAL_STORAGE_DIR: dbSettings.local_storage_dir || LOCAL_STORAGE_DIR,
+        LOCAL_STORAGE_BASE_URL: dbSettings.local_storage_base_url || LOCAL_STORAGE_BASE_URL,
         LOCAL_STORAGE_MIN_FREE_SPACE,
-    } as unknown as FileStorageEnv)
+        S3_ENDPOINT: dbSettings.s3_endpoint || process.env.S3_ENDPOINT,
+        S3_BUCKET: dbSettings.s3_bucket || process.env.S3_BUCKET,
+        S3_REGION: dbSettings.s3_region || process.env.S3_REGION,
+        S3_ACCESS_KEY: dbSettings.s3_access_key || process.env.S3_ACCESS_KEY,
+        S3_SECRET_KEY: dbSettings.s3_secret_key || process.env.S3_SECRET_KEY,
+        S3_BASE_URL: dbSettings.s3_base_url || process.env.S3_BASE_URL,
+        BUCKET_PREFIX: dbSettings.s3_bucket_prefix || BUCKET_PREFIX,
+    }
+
+    const storage = getFileStorage(storageType, storageConfig)
     const uploadedFiles: UploadedFile[] = []
 
     for (const file of files) {

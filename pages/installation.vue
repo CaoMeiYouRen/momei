@@ -752,13 +752,15 @@ async function createAdmin(activateCallback: (step: string) => void) {
 async function saveExtraConfig(activateCallback: (step: string) => void) {
     extraConfigLoading.value = true
     try {
-        // 由于当前后端尚未完全实现所有设置项的持久化接口，这里先模拟保存过程
-        // 实际上这些配置后续可以保存到 Setting 实体中
-        await new Promise((resolve) => setTimeout(resolve, 800))
+        await $fetch('/api/install/setup-extra', {
+            method: 'POST',
+            body: extraConfig.value,
+        })
         activateCallback('6')
     } catch (error: any) {
-        // 预留错误处理
-        activateCallback('6') // 选配失败不应阻碍主流程
+        console.error('Failed to save extra config:', error)
+        // 选配失败不应阻碍主流程，但我们还是记录一下
+        activateCallback('6')
     } finally {
         extraConfigLoading.value = false
     }

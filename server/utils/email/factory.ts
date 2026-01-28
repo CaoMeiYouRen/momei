@@ -7,16 +7,26 @@ import {
     EMAIL_PASS,
 } from '@/utils/shared/env'
 
-export type MailerFactory = () => Transporter
+export type MailerConfig = {
+    host?: string
+    port?: number
+    secure?: boolean
+    auth?: {
+        user?: string
+        pass?: string
+    }
+}
 
-export function createDefaultMailer(): Transporter {
+export type MailerFactory = (config?: MailerConfig) => Transporter
+
+export function createDefaultMailer(config?: MailerConfig): Transporter {
     return nodemailer.createTransport({
-        host: EMAIL_HOST,
-        port: EMAIL_PORT || 587,
-        secure: EMAIL_SECURE,
+        host: config?.host || EMAIL_HOST,
+        port: config?.port || EMAIL_PORT || 587,
+        secure: config?.secure !== undefined ? config.secure : EMAIL_SECURE,
         auth: {
-            user: EMAIL_USER,
-            pass: EMAIL_PASS,
+            user: config?.auth?.user || EMAIL_USER,
+            pass: config?.auth?.pass || EMAIL_PASS,
         },
     })
 }

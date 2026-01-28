@@ -17,8 +17,9 @@ const route = useRoute()
 const session = authClient.useSession()
 const { startTour } = useOnboarding()
 const { fetchTheme, applyTheme } = useTheme()
+const { fetchSiteConfig, currentTitle, currentDescription, currentKeywords } = useMomeiConfig()
 
-// 初始化主题
+// 初始化主题与站点配置
 // 排除安装页面，避免在数据库未就绪时请求主题导致错误
 const isInstallationPage = computed(() => {
     return route.path.includes('/installation')
@@ -26,9 +27,12 @@ const isInstallationPage = computed(() => {
 
 if (!isInstallationPage.value) {
     try {
-        await fetchTheme()
+        await Promise.all([
+            fetchTheme(),
+            fetchSiteConfig(),
+        ])
     } catch (error) {
-        console.error('Failed to fetch theme:', error)
+        console.error('Failed to fetch initial data:', error)
     }
 }
 applyTheme()
@@ -53,12 +57,17 @@ const head = useLocaleHead({
 
 useHead({
     titleTemplate: (titleChunk) => {
-        return titleChunk ? `${titleChunk} - ${t('app.name')}` : t('app.name')
+        return titleChunk ? `${titleChunk} - ${currentTitle.value}` : currentTitle.value
     },
     htmlAttrs: {
         lang: head.value.htmlAttrs?.lang,
         dir: head.value.htmlAttrs?.dir as 'auto' | 'ltr' | 'rtl' | undefined,
     },
+    meta: [
+        { name: 'description', content: currentDescription.value },
+        { name: 'keywords', content: currentKeywords.value },
+        ...(head.value.meta || []),
+    ],
     link: [
         ...(head.value.link || []),
         {
@@ -95,7 +104,6 @@ useHead({
             href: 'https://www.googletagmanager.com',
         },
     ],
-    meta: [...(head.value.meta || [])],
 })
 
 // 监听用户语言偏好并自动切换

@@ -13,6 +13,11 @@ vi.mock('@/utils/shared/env', () => ({
     AI_TEMPERATURE: 0.7,
 }))
 
+// Mock the settings service
+vi.mock('~/server/services/setting', () => ({
+    getSettings: vi.fn().mockResolvedValue({}),
+}))
+
 // Now import the code
 import { getAIProvider } from './index'
 
@@ -25,8 +30,8 @@ describe('AI Infrastructure', () => {
         vi.clearAllMocks()
     })
 
-    it('should return OpenAIProvider by default', () => {
-        const provider = getAIProvider()
+    it('should return OpenAIProvider by default', async () => {
+        const provider = await getAIProvider()
         expect(provider.name).toBe('openai')
     })
 
@@ -37,7 +42,7 @@ describe('AI Infrastructure', () => {
             usage: { prompt_tokens: 5, completion_tokens: 5, total_tokens: 10 },
         })
 
-        const provider = getAIProvider()
+        const provider = await getAIProvider()
         const response = await provider.chat({
             messages: [{ role: 'user', content: 'Hi' }],
         })
@@ -57,7 +62,7 @@ describe('AI Infrastructure', () => {
 
     it('should verify connection with check()', async () => {
         mockFetch.mockResolvedValueOnce({})
-        const provider = getAIProvider()
+        const provider = await getAIProvider()
         const result = await provider.check()
         expect(result).toBe(true)
         expect(mockFetch).toHaveBeenCalledWith(
@@ -76,7 +81,7 @@ describe('AI Infrastructure', () => {
             model: 'deepseek-chat',
         })
 
-        const provider = getAIProvider({
+        const provider = await getAIProvider({
             provider: 'openai',
             apiKey: 'ds-key',
             model: 'deepseek-chat',
@@ -97,7 +102,7 @@ describe('AI Infrastructure', () => {
             usage: { input_tokens: 10, output_tokens: 20 },
         })
 
-        const provider = getAIProvider({
+        const provider = await getAIProvider({
             provider: 'anthropic',
             apiKey: 'claude-key',
             model: 'claude-3-5-sonnet',
