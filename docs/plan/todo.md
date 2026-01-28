@@ -72,7 +72,7 @@
         - 扩展 `AIService.generateScaffold` 方法，增强提示词模板
         - 新增章节扩充数据结构支持多种建议类型
 
-    - [ ] 验收: **数据模型与集成**:
+    - [x] 验收: **数据模型与集成**:
         - 在 `Post` 实体中添加 `scaffoldOutline` 和 `scaffoldMetadata` 字段（可选）
         - 支持大纲版本管理，允许重访和调整已生成的大纲
         - 与现有灵感引擎保持完整数据链路
@@ -84,7 +84,7 @@
         - 大纲生成到文章创建完整流程端到端测试
 
 ### 3. 生态准入与社会化互动 (Ecosystem & Interaction)
-- [ ] **极速迁移工具 (Hexo Support CLI) (P1)**
+- [x] **极速迁移工具 (Hexo Support CLI) (P1)**
     - 验收: 开发独立的 CLI 工具或脚本，支持读取 Hexo Markdown (Front-matter)。
     - 验收: 支持通过 API Key 调用 Open API 进行批量导入。
     - 验收: 元数据映射逻辑逻辑与现有 Open API 一致，支持自动生成缺失项（参考 `/api/external/posts`）。
