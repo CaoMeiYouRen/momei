@@ -39,7 +39,7 @@
 
                 <StepPanels>
                     <!-- Step 1: 环境检查 -->
-                    <StepPanel v-slot="{ activateCallback }" value="1">
+                    <StepPanel v-slot="{activateCallback}" value="1">
                         <div class="installation-wizard__step">
                             <h2>{{ $t('installation.healthCheck.title') }}</h2>
                             <p>{{ $t('installation.healthCheck.description') }}</p>
@@ -49,9 +49,9 @@
                                     <i
                                         :class="[
                                             'pi',
-                                            installationStatus?.databaseConnected ? 'pi-check-circle' : 'pi-times-circle',
+                                            installationStatus?.databaseConnected ? 'pi-check-circle' : 'pi-times-circle'
                                         ]"
-                                        :style="{ color: installationStatus?.databaseConnected ? 'var(--p-green-500)' : 'var(--p-red-500)' }"
+                                        :style="{color: installationStatus?.databaseConnected ? 'var(--p-green-500)' : 'var(--p-red-500)'}"
                                     />
                                     <span>{{ $t('installation.healthCheck.database') }}</span>
                                 </div>
@@ -74,7 +74,7 @@
                     </StepPanel>
 
                     <!-- Step 2: 数据库初始化 -->
-                    <StepPanel v-slot="{ activateCallback }" value="2">
+                    <StepPanel v-slot="{activateCallback}" value="2">
                         <div class="installation-wizard__step">
                             <h2>{{ $t('installation.database.title') }}</h2>
                             <p>{{ $t('installation.database.description') }}</p>
@@ -105,7 +105,7 @@
                     </StepPanel>
 
                     <!-- Step 3: 站点配置 -->
-                    <StepPanel v-slot="{ activateCallback }" value="3">
+                    <StepPanel v-slot="{activateCallback}" value="3">
                         <div class="installation-wizard__step">
                             <h2>{{ $t('installation.siteConfig.title') }}</h2>
                             <p>{{ $t('installation.siteConfig.description') }}</p>
@@ -187,7 +187,7 @@
                     </StepPanel>
 
                     <!-- Step 4: 管理员创建 -->
-                    <StepPanel v-slot="{ activateCallback }" value="4">
+                    <StepPanel v-slot="{activateCallback}" value="4">
                         <div class="installation-wizard__step">
                             <h2>{{ $t('installation.adminAccount.title') }}</h2>
                             <p>{{ $t('installation.adminAccount.description') }}</p>
@@ -252,7 +252,7 @@
                     </StepPanel>
 
                     <!-- Step 5: 功能预览 -->
-                    <StepPanel v-slot="{ activateCallback }" value="5">
+                    <StepPanel v-slot="{activateCallback}" value="5">
                         <div class="installation-wizard__step">
                             <h2>{{ $t('installation.preview.title') }}</h2>
                             <p>{{ $t('installation.preview.description') }}</p>
@@ -467,7 +467,7 @@ onMounted(() => {
     &__card {
         background: var(--p-surface-0);
         border-radius: 1rem;
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 10%), 0 2px 4px -1px rgb(0 0 0 / 6%);
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
     }
 
     &__header {

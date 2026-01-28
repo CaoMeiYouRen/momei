@@ -15,7 +15,7 @@
 
 墨梅会根据你的配置自动推断系统行为：
 
-- **数据库类型**: 自动根据 `DATABASE_URL` 的协议头（`mysql://`, `postgres://` 等）推断数据库类型。
+- **数据库类型**: 自动根据 `DATABASE_URL` 的协议头（`sqlite://`, `file://`, `mysql://`, `postgres://` 等）推断数据库类型。
 - **AI 助手**: 只要配置了 `AI_API_KEY`，相关功能（一键翻译、SEO 优化）会自动激活。
 - **开发模式**: 在 `NODE_ENV=development` 下，`AUTH_SECRET` 会自动生成，数据库默认使用 SQLite，实现零配置开发。
 
@@ -29,7 +29,7 @@
 
 | 变量名 | 说明 | 默认值 / 示例 |
 | :--- | :--- | :--- |
-| `DATABASE_URL` | 数据库连接地址。 | `sqlite:database/momei.sqlite` |
+| `DATABASE_URL` | 数据库连接地址。推荐使用 `sqlite://` 前缀。 | `sqlite://database/momei.sqlite` |
 | `DATABASE_SYNCHRONIZE` | 是否自动同步表结构。生产环境建议为 `false`。 | `false` |
 | `REDIS_URL` | Redis 连接地址 (可选，用于更高性能的缓存)。 | `redis://localhost:6379` |
 | `ADMIN_USER_IDS` | 管理员用户 ID 列表（逗号分隔）。 | `123123123,456456456` |

@@ -16,6 +16,7 @@
 
 目前需要同时配置 `DATABASE_TYPE` 和 `DATABASE_URL`。
 - **方案**: 自动解析 `DATABASE_URL` 的协议头。
+    - `sqlite://...` (推荐) 或 `file://...` -> 自动识别为 `sqlite`。
     - `mysql://...` -> 自动识别为 `mysql`。
     - `postgres://...` 或 `postgresql://...` -> 自动识别为 `postgres`。
     - 无 `DATABASE_URL` -> 默认使用 `sqlite`。

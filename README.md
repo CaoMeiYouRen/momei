@@ -137,8 +137,8 @@
 
 墨梅原生支持以下数据库：
 
--   **SQLite**: 默认选项，无需配置服务器，适合个人博客，通过 `DATABASE_PATH` 进行配置。
--   **MySQL / PostgreSQL**: 适合有更高数据管理需求的用户，通过 `DATABASE_URL` 进行配置。
+-   **SQLite**: 默认选项，无需配置服务器，适合个人博客。推荐设置 `DATABASE_URL=sqlite://database/momei.sqlite`。
+-   **MySQL / PostgreSQL**: 适合有更高数据管理需求的用户，通过 `DATABASE_URL` 协议头自动推断。
 
 详情请参考 [部署指南](https://docs.momei.app/guide/deploy)。
 

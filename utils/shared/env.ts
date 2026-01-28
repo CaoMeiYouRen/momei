@@ -102,6 +102,9 @@ const getAutoDatabaseType = () => {
     if (url.startsWith('postgres') || url.startsWith('postgresql')) {
         return 'postgres'
     }
+    if (url.startsWith('sqlite') || url.startsWith('file')) {
+        return 'sqlite'
+    }
     return 'sqlite'
 }
 
@@ -110,9 +113,18 @@ export const DATABASE_TYPE = getAutoDatabaseType()
 
 // SQLite 数据库路径 (仅SQLite使用)
 // 为了兼容性保留此环境变量，但文档中将不再推荐手动设置
-export const DATABASE_PATH = DEMO_MODE
-    ? ':memory:'
-    : process.env.DATABASE_PATH || 'database/momei.sqlite'
+export const DATABASE_PATH = (() => {
+    if (DEMO_MODE) {
+        return ':memory:'
+    }
+    const url = DATABASE_URL.toLowerCase()
+    // 如果 DATABASE_URL 以 sqlite: 或 file: 开头，提取路径
+    if (url.startsWith('sqlite:') || url.startsWith('file:')) {
+        // 去掉协议前缀，如果后面跟着 // 也去掉 (例如 sqlite:path/to/db 或 sqlite://path/to/db)
+        return DATABASE_URL.replace(/^(sqlite|file):(?:\/\/)?/i, '')
+    }
+    return process.env.DATABASE_PATH || 'database/momei.sqlite'
+})()
 // 是否启用 SSL 连接 (true/false)
 export const DATABASE_SSL = process.env.DATABASE_SSL === 'true'
 // 数据库字符集 (仅MySQL使用)
