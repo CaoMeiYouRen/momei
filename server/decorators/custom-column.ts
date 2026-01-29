@@ -20,7 +20,11 @@ export function CustomColumn(options: ColumnOptions & { index?: boolean }) {
         // sqlite AUTOINCREMENT 仅支持 integer 类型，所以 id 设置为 integer
         if (options.type === 'bigint') {
             options.type = 'integer'
+        } else if (['mediumtext', 'longtext'].includes(options.type as string)) {
+            // 非 mysql 数据库不支持 mediumtext 和 longtext，统一转换为 text
+            options.type = 'text'
         }
+
     } else if (dbType === 'mysql') {
         // 处理 MySQL 不兼容的配置
         // mysql 索引最大不超过 3072 字节，在 utf8 编码下不超过 1024 字符，utf8mb4 编码不超过 768 字符
@@ -70,6 +74,9 @@ export function CustomColumn(options: ColumnOptions & { index?: boolean }) {
             options.type = 'integer'
         } else if (options.type === Date || options.type === 'datetime') { // 处理 datetime 类型
             options.type = 'timestamp with time zone'
+        } else if (['mediumtext', 'longtext'].includes(options.type as string)) {
+            // 非 mysql 数据库不支持 mediumtext 和 longtext，统一转换为 text
+            options.type = 'text'
         }
         // postgres 索引最大不超过 8191 字节，在 utf8 编码下不超过 2730 字符
         if (options.index && length > 2730) {
