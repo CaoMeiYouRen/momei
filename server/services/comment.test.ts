@@ -20,6 +20,10 @@ describe('commentService', () => {
     const mockPostRepo = {
         findOne: vi.fn(),
     }
+    const mockSettingRepo = {
+        find: vi.fn().mockResolvedValue([]),
+        findOne: vi.fn().mockResolvedValue(null),
+    }
 
     beforeEach(() => {
         vi.clearAllMocks()
@@ -29,6 +33,9 @@ describe('commentService', () => {
             }
             if (entity.name === 'Post') {
                 return mockPostRepo
+            }
+            if (entity.name === 'Setting') {
+                return mockSettingRepo
             }
             return {}
         })

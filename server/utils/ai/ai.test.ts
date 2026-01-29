@@ -15,7 +15,12 @@ vi.mock('@/utils/shared/env', () => ({
 
 // Mock the settings service
 vi.mock('~/server/services/setting', () => ({
-    getSettings: vi.fn().mockResolvedValue({}),
+    getSettings: vi.fn().mockResolvedValue({
+        ai_enabled: 'true',
+        ai_api_key: 'test-key',
+        ai_provider: 'openai',
+        ai_model: 'gpt-4o',
+    }),
 }))
 
 // Now import the code

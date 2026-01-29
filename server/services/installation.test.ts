@@ -133,7 +133,7 @@ describe('Installation Service', () => {
 
             await saveSiteConfig(config)
 
-            expect(mockSave).toHaveBeenCalledTimes(13)
+            expect(mockSave).toHaveBeenCalledTimes(15)
             expect(mockSave).toHaveBeenCalledWith(
                 expect.objectContaining({
                     key: 'site_title',
