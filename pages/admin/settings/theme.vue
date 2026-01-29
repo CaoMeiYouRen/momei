@@ -314,26 +314,26 @@
                 :loading="galleryLoading"
             >
                 <template #grid="slotProps">
-                    <div class="grid grid-nogutter p-3">
+                    <div class="theme-gallery-grid">
                         <div
                             v-for="(item, index) in slotProps.items"
                             :key="index"
-                            class="col-12 md:col-4 p-2 sm:col-6"
+                            class="theme-gallery-item"
                         >
-                            <Card class="border-round hover:shadow-3 overflow-hidden shadow-1 theme-config-card transition-all-200">
+                            <Card class="theme-config-card">
                                 <template #header>
                                     <div
-                                        class="theme-card-preview"
+                                        class="theme-config-card__preview"
                                         :style="{backgroundImage: item.previewImage ? `url(${item.previewImage})` : 'none'}"
                                     >
-                                        <div v-if="!item.previewImage" class="preview-placeholder">
-                                            <i class="pi pi-image text-200 text-5xl" />
+                                        <div v-if="!item.previewImage" class="theme-config-card__placeholder">
+                                            <i class="pi pi-image" />
                                         </div>
                                     </div>
                                 </template>
                                 <template #title>
-                                    <div class="align-items-center flex justify-content-between">
-                                        <span class="font-bold text-lg">{{ item.name }}</span>
+                                    <div class="theme-config-card__title-row">
+                                        <span class="theme-config-card__name">{{ item.name }}</span>
                                         <Tag
                                             v-if="item.isSystem"
                                             severity="info"
@@ -343,14 +343,14 @@
                                 </template>
                                 <template #subtitle>
                                     <div
-                                        class="overflow-hidden text-500 text-overflow-ellipsis text-sm white-space-nowrap"
-                                        :title="item.description"
+                                        class="theme-config-card__description"
+                                        :title="item.description || ''"
                                     >
                                         {{ item.description || $t('common.no_description') }}
                                     </div>
                                 </template>
                                 <template #footer>
-                                    <div class="flex gap-2 justify-content-end">
+                                    <div class="theme-config-card__actions">
                                         <Button
                                             v-tooltip.top="$t('common.preview')"
                                             icon="pi pi-eye"
@@ -378,11 +378,9 @@
                     </div>
                 </template>
                 <template #empty>
-                    <div class="p-8 text-center">
-                        <i class="mb-4 pi pi-box text-200 text-6xl" />
-                        <p class="text-500 text-xl">
-                            {{ $t('pages.admin.settings.theme.gallery_empty') }}
-                        </p>
+                    <div class="theme-gallery-empty">
+                        <i class="pi pi-box" />
+                        <p>{{ $t('pages.admin.settings.theme.gallery_empty') }}</p>
                     </div>
                 </template>
             </DataView>
@@ -1066,10 +1064,47 @@ const saveTheme = async () => {
 }
 
 // 画廊样式
+.theme-gallery-dialog {
+    :deep(.p-dialog-content) {
+        padding: 0;
+    }
+}
+
+.theme-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+
+    @media (width >= 640px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (width >= 960px) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.theme-gallery-item {
+    display: flex;
+}
+
 .theme-config-card {
+    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
+    border: 1px solid var(--p-content-border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease-in-out;
+    background-color: var(--p-content-background);
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+        border-color: var(--p-primary-color);
+    }
 
     :deep(.p-card-header) {
         border-bottom: 1px solid var(--p-content-border-color);
@@ -1077,25 +1112,93 @@ const saveTheme = async () => {
 
     :deep(.p-card-body) {
         flex: 1;
-        padding: 1rem;
+        padding: 1.25rem;
+    }
+
+    :deep(.p-card-title) {
+        margin-bottom: 0.5rem;
+    }
+
+    :deep(.p-card-subtitle) {
+        margin: 0;
     }
 
     :deep(.p-card-footer) {
-        padding: 0 1rem 1rem;
+        padding: 0 1.25rem 1.25rem;
+        margin-top: auto;
+    }
+
+    &__preview {
+        height: 160px;
+        background-size: cover;
+        background-position: center;
+        background-color: var(--p-surface-100);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    &__placeholder {
+        opacity: 0.3;
+        font-size: 3rem;
+        color: var(--p-text-muted-color);
+
+        i {
+            font-size: inherit;
+        }
+    }
+
+    &__title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+
+    &__name {
+        font-weight: 700;
+        font-size: 1.125rem;
+        color: var(--p-text-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__description {
+        font-size: 0.875rem;
+        color: var(--p-text-muted-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.5;
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 0.75rem;
     }
 }
 
-.theme-card-preview {
-    height: 160px;
-    background-size: cover;
-    background-position: center;
-    background-color: var(--p-surface-100);
+.theme-gallery-empty {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-}
+    padding: 4rem 2rem;
+    text-align: center;
+    color: var(--p-text-muted-color);
 
-.preview-placeholder {
-    opacity: 0.5;
+    i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.2;
+    }
+
+    p {
+        font-size: 1.125rem;
+    }
 }
 </style>
