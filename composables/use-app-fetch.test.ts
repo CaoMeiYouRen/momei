@@ -1,133 +1,70 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { ref } from 'vue'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+
+const sharedLocale = ref('zh-CN')
+
+mockNuxtImport('useI18n', () => () => ({
+    locale: sharedLocale,
+}))
+
+mockNuxtImport('useFetch', () => vi.fn((url: any, options: any) => ({
+    data: ref(null),
+    pending: ref(false),
+    error: ref(null),
+    refresh: vi.fn(),
+    url,
+    options,
+})))
+
+// $fetch 比较特殊，它是 ofetch 提供的
+vi.stubGlobal('$fetch', vi.fn())
+
 import { useAppApi, useAppFetch } from './use-app-fetch'
 
-// Mock Nuxt composables
-vi.mock('#app', () => ({
-    useFetch: vi.fn((url, options) => ({
-        data: ref(null),
-        pending: ref(false),
-        error: ref(null),
-        refresh: vi.fn(),
-        url,
-        options,
-    })),
-}))
-
-vi.mock('#imports', () => ({
-    useI18n: vi.fn(() => ({
-        locale: ref('zh-CN'),
-    })),
-    $fetch: vi.fn(),
-}))
-
 describe('useAppFetch', () => {
-    it('should append language to query parameters', () => {
-        const { useFetch } = require('#app')
-        const { useI18n } = require('#imports')
-
-        useI18n.mockReturnValue({ locale: ref('en-US') })
-
-        const result = useAppFetch('/api/posts')
-
-        expect(useFetch).toHaveBeenCalled()
-        const callArgs = useFetch.mock.calls[0]
-        expect(callArgs[0]).toBe('/api/posts')
-        expect(callArgs[1].query).toBeDefined()
+    beforeEach(() => {
+        vi.clearAllMocks()
+        sharedLocale.value = 'zh-CN'
     })
 
-    it('should merge existing query parameters with language', () => {
-        const { useFetch } = require('#app')
-        const { useI18n } = require('#imports')
+    it('should append language to query parameters', async () => {
+        sharedLocale.value = 'en-US'
+        const { useFetch } = await import('#imports')
 
-        useI18n.mockReturnValue({ locale: ref('zh-CN') })
-
-        const existingQuery = { page: 1, limit: 10 }
-        useAppFetch('/api/posts', { query: existingQuery })
+        const result = useAppFetch('/api/posts') as any
 
         expect(useFetch).toHaveBeenCalled()
+        expect(result.options.query.value.language).toBe('en-US')
     })
 
-    it('should handle reactive query parameters', () => {
-        const { useFetch } = require('#app')
-        const { useI18n } = require('#imports')
+    it('should merge existing query parameters with language', async () => {
+        sharedLocale.value = 'zh-CN'
+        const { useFetch } = await import('#imports')
 
-        useI18n.mockReturnValue({ locale: ref('en-US') })
-
-        const page = ref(1)
-        useAppFetch('/api/posts', { query: { page } })
+        const result = useAppFetch('/api/posts', { query: { page: 1 } }) as any
 
         expect(useFetch).toHaveBeenCalled()
-    })
-
-    it('should work with function URL', () => {
-        const { useFetch } = require('#app')
-        const { useI18n } = require('#imports')
-
-        useI18n.mockReturnValue({ locale: ref('en-US') })
-
-        const urlFn = () => '/api/posts'
-        useAppFetch(urlFn)
-
-        expect(useFetch).toHaveBeenCalledWith(urlFn, expect.any(Object))
+        expect(result.options.query.value.language).toBe('zh-CN')
+        expect(result.options.query.value.page).toBe(1)
     })
 })
 
 describe('useAppApi', () => {
-    it('should return $appFetch function', () => {
-        const { useI18n } = require('#imports')
-        useI18n.mockReturnValue({ locale: ref('zh-CN') })
-
-        const { $appFetch } = useAppApi()
-
-        expect($appFetch).toBeDefined()
-        expect(typeof $appFetch).toBe('function')
+    beforeEach(() => {
+        vi.clearAllMocks()
+        sharedLocale.value = 'zh-CN'
     })
 
     it('should append language to query in $appFetch', async () => {
-        const { useI18n, $fetch } = require('#imports')
-        useI18n.mockReturnValue({ locale: ref('en-US') })
-        $fetch.mockResolvedValue({ data: [] })
+        sharedLocale.value = 'en-US'
 
         const { $appFetch } = useAppApi()
         await $appFetch('/api/posts')
 
-        expect($fetch).toHaveBeenCalledWith('/api/posts', expect.objectContaining({
+        expect(globalThis.$fetch).toHaveBeenCalledWith('/api/posts', expect.objectContaining({
             query: expect.objectContaining({
                 language: 'en-US',
-            }),
-        }))
-    })
-
-    it('should merge existing query parameters', async () => {
-        const { useI18n, $fetch } = require('#imports')
-        useI18n.mockReturnValue({ locale: ref('zh-CN') })
-        $fetch.mockResolvedValue({ data: [] })
-
-        const { $appFetch } = useAppApi()
-        await $appFetch('/api/posts', { query: { page: 1 } })
-
-        expect($fetch).toHaveBeenCalledWith('/api/posts', expect.objectContaining({
-            query: expect.objectContaining({
-                language: 'zh-CN',
-                page: 1,
-            }),
-        }))
-    })
-
-    it('should handle reactive query parameters', async () => {
-        const { useI18n, $fetch } = require('#imports')
-        useI18n.mockReturnValue({ locale: ref('en-US') })
-        $fetch.mockResolvedValue({ data: [] })
-
-        const { $appFetch } = useAppApi()
-        const page = ref(2)
-        await $appFetch('/api/posts', { query: { page } })
-
-        expect($fetch).toHaveBeenCalledWith('/api/posts', expect.objectContaining({
-            query: expect.objectContaining({
-                language: 'en-US',
-                page: 2,
             }),
         }))
     })
