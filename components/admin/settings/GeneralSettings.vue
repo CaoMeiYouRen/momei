@@ -145,34 +145,34 @@
         </Divider>
 
         <div class="form-field">
-            <label for="icp_info" class="flex gap-2 items-center">
-                {{ $t('pages.admin.settings.system.keys.icp_info') }}
+            <label for="icp_license_number" class="flex gap-2 items-center">
+                {{ $t('pages.admin.settings.system.keys.icp_license_number') }}
                 <i
-                    v-if="metadata.icp_info?.isLocked"
+                    v-if="metadata.icp_license_number?.isLocked"
                     v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
                     class="pi pi-lock text-orange-500 text-xs"
                 />
             </label>
             <InputText
-                id="icp_info"
-                v-model="settings.icp_info"
-                :disabled="metadata.icp_info?.isLocked"
+                id="icp_license_number"
+                v-model="settings.icp_license_number"
+                :disabled="metadata.icp_license_number?.isLocked"
                 fluid
             />
         </div>
         <div class="form-field">
-            <label for="security_info" class="flex gap-2 items-center">
-                {{ $t('pages.admin.settings.system.keys.security_info') }}
+            <label for="public_security_number" class="flex gap-2 items-center">
+                {{ $t('pages.admin.settings.system.keys.public_security_number') }}
                 <i
-                    v-if="metadata.security_info?.isLocked"
+                    v-if="metadata.public_security_number?.isLocked"
                     v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
                     class="pi pi-lock text-orange-500 text-xs"
                 />
             </label>
             <InputText
-                id="security_info"
-                v-model="settings.security_info"
-                :disabled="metadata.security_info?.isLocked"
+                id="public_security_number"
+                v-model="settings.public_security_number"
+                :disabled="metadata.public_security_number?.isLocked"
                 fluid
             />
         </div>

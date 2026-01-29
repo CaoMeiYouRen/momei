@@ -66,22 +66,6 @@
                 fluid
             />
         </div>
-        <div class="form-field">
-            <label for="ollama_model" class="flex gap-2 items-center">
-                {{ $t('pages.admin.settings.system.keys.ollama_model') }}
-                <i
-                    v-if="metadata.ollama_model?.isLocked"
-                    v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                    class="pi pi-lock text-orange-500 text-xs"
-                />
-            </label>
-            <InputText
-                id="ollama_model"
-                v-model="settings.ollama_model"
-                :disabled="metadata.ollama_model?.isLocked"
-                fluid
-            />
-        </div>
     </div>
 </template>
 

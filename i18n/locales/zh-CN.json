@@ -546,7 +546,8 @@
                         "upload_limits": "文件上传限制",
                         "page_limits": "内容展示限制",
                         "compliance": "合规与备案",
-                        "branding": "品牌与资产"
+                        "branding": "品牌与资产",
+                        "footer": "页脚设置"
                     },
                     "keys": {
                         "site_title": "站点标题",
@@ -562,17 +563,22 @@
                         "anonymous_login_enabled": "允许游客评论 (匿名登录)",
                         "github_oauth": "GitHub 登录配置",
                         "google_oauth": "Google 登录配置",
-                        "github_client_id": "Client ID",
-                        "github_client_secret": "Client Secret",
-                        "google_client_id": "Client ID",
-                        "google_client_secret": "Client Secret",
+                        "github_client_id": "GitHub Client ID",
+                        "github_client_secret": "GitHub Client Secret",
+                        "google_client_id": "Google Client ID",
+                        "google_client_secret": "Google Client Secret",
                         "captcha_provider": "验证码服务商",
                         "captcha_site_key": "站点密钥 (Site Key)",
                         "captcha_secret_key": "通信密钥 (Secret Key)",
                         "allow_registration": "允许新用户注册",
+                        "enable_captcha": "启用人机验证",
+                        "enable_comment_review": "开启评论审核",
+                        "blacklisted_keywords": "评论关键字黑名单",
                         "max_upload_size": "最大附件上传大小",
                         "max_audio_upload_size": "最大音频上传大小",
                         "posts_per_page": "每页显示文章数",
+                        "allowed_file_types": "允许上传的文件类型",
+                        "comment_interval": "评论最小间隔 (秒)",
                         "email_require_verification": "强制邮箱验证",
                         "show_compliance_info": "在页脚显示备案信息",
                         "icp_license_number": "ICP 备案号",
@@ -606,7 +612,9 @@
                         "masked_unchanged": "已显示脱敏值，若不修改请保留占位符",
                         "env_locked": "此配置已由环境变量锁定",
                         "auth_notice": "配置社交登录需要您在对应的开发者平台（如 GitHub Developer Settings）注册应用，并配置回调地址。",
-                        "max_upload_size": "单位为 MB。如果设置为 0 则不限制。"
+                        "max_upload_size": "单位为 MB。如果设置为 0 则不限制。",
+                        "keywords_placeholder": "每行一个关键词，匹配到的评论将自动设为待审核或垃圾评论",
+                        "file_types_placeholder": "例如: .jpg, .png, .mp3 (逗号分隔)"
                     }
                 }
             },

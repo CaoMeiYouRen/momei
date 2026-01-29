@@ -46,9 +46,12 @@ export const SETTING_ENV_MAP: Record<string, string> = {
     anonymous_login_enabled: 'ANONYMOUS_LOGIN_ENABLED',
     allow_registration: 'ALLOW_REGISTRATION',
     // Security & Captcha
+    enable_captcha: 'ENABLE_CAPTCHA',
     captcha_provider: 'NUXT_PUBLIC_AUTH_CAPTCHA_PROVIDER',
     captcha_site_key: 'NUXT_PUBLIC_AUTH_CAPTCHA_SITE_KEY',
     captcha_secret_key: 'AUTH_CAPTCHA_SECRET_KEY',
+    enable_comment_review: 'ENABLE_COMMENT_REVIEW',
+    blacklisted_keywords: 'BLACKLISTED_KEYWORDS',
     show_compliance_info: 'NUXT_PUBLIC_SHOW_COMPLIANCE_INFO',
     icp_license_number: 'NUXT_PUBLIC_ICP_LICENSE_NUMBER',
     public_security_number: 'NUXT_PUBLIC_PUBLIC_SECURITY_NUMBER',
@@ -56,6 +59,8 @@ export const SETTING_ENV_MAP: Record<string, string> = {
     // Limits
     max_upload_size: 'NUXT_PUBLIC_MAX_UPLOAD_SIZE',
     max_audio_upload_size: 'NUXT_PUBLIC_MAX_AUDIO_UPLOAD_SIZE',
+    allowed_file_types: 'NUXT_PUBLIC_ALLOWED_FILE_TYPES',
+    comment_interval: 'NUXT_PUBLIC_COMMENT_INTERVAL',
     posts_per_page: 'NUXT_PUBLIC_POSTS_PER_PAGE',
     email_require_verification: 'EMAIL_REQUIRE_VERIFICATION',
     // Branding

@@ -1,18 +1,18 @@
 <template>
     <div class="settings-form">
         <div class="form-field">
-            <label for="enable_registration" class="flex gap-2 items-center">
-                {{ $t('pages.admin.settings.system.keys.enable_registration') }}
+            <label for="allow_registration" class="flex gap-2 items-center">
+                {{ $t('pages.admin.settings.system.keys.allow_registration') }}
                 <i
-                    v-if="metadata.enable_registration?.isLocked"
+                    v-if="metadata.allow_registration?.isLocked"
                     v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
                     class="pi pi-lock text-orange-500 text-xs"
                 />
             </label>
             <ToggleSwitch
-                id="enable_registration"
-                v-model="settings.enable_registration"
-                :disabled="metadata.enable_registration?.isLocked"
+                id="allow_registration"
+                v-model="settings.allow_registration"
+                :disabled="metadata.allow_registration?.isLocked"
             />
         </div>
 
@@ -34,51 +34,51 @@
 
         <template v-if="settings.enable_captcha">
             <div class="form-field">
-                <label for="captcha_type" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.captcha_type') }}
+                <label for="captcha_provider" class="flex gap-2 items-center">
+                    {{ $t('pages.admin.settings.system.keys.captcha_provider') }}
                     <i
-                        v-if="metadata.captcha_type?.isLocked"
+                        v-if="metadata.captcha_provider?.isLocked"
                         v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
                         class="pi pi-lock text-orange-500 text-xs"
                     />
                 </label>
                 <Select
-                    id="captcha_type"
-                    v-model="settings.captcha_type"
+                    id="captcha_provider"
+                    v-model="settings.captcha_provider"
                     :options="captchaTypes"
-                    :disabled="metadata.captcha_type?.isLocked"
+                    :disabled="metadata.captcha_provider?.isLocked"
                     fluid
                 />
             </div>
             <div class="form-field">
-                <label for="turnstile_site_key" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.turnstile_site_key') }}
+                <label for="captcha_site_key" class="flex gap-2 items-center">
+                    {{ $t('pages.admin.settings.system.keys.captcha_site_key') }}
                     <i
-                        v-if="metadata.turnstile_site_key?.isLocked"
+                        v-if="metadata.captcha_site_key?.isLocked"
                         v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
                         class="pi pi-lock text-orange-500 text-xs"
                     />
                 </label>
                 <InputText
-                    id="turnstile_site_key"
-                    v-model="settings.turnstile_site_key"
-                    :disabled="metadata.turnstile_site_key?.isLocked"
+                    id="captcha_site_key"
+                    v-model="settings.captcha_site_key"
+                    :disabled="metadata.captcha_site_key?.isLocked"
                     fluid
                 />
             </div>
             <div class="form-field">
-                <label for="turnstile_secret_key" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.turnstile_secret_key') }}
+                <label for="captcha_secret_key" class="flex gap-2 items-center">
+                    {{ $t('pages.admin.settings.system.keys.captcha_secret_key') }}
                     <i
-                        v-if="metadata.turnstile_secret_key?.isLocked"
+                        v-if="metadata.captcha_secret_key?.isLocked"
                         v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
                         class="pi pi-lock text-orange-500 text-xs"
                     />
                 </label>
                 <Password
-                    id="turnstile_secret_key"
-                    v-model="settings.turnstile_secret_key"
-                    :disabled="metadata.turnstile_secret_key?.isLocked"
+                    id="captcha_secret_key"
+                    v-model="settings.captcha_secret_key"
+                    :disabled="metadata.captcha_secret_key?.isLocked"
                     :toggle-mask="true"
                     fluid
                 />
