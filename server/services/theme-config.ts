@@ -84,7 +84,7 @@ export const applyThemeConfigService = async (id: string) => {
     let config: Record<string, any> = {}
     try {
         config = JSON.parse(themeConfig.configData)
-    } catch (e) {
+    } catch {
         throw createError({ statusCode: 400, statusMessage: 'Invalid config data' })
     }
 
@@ -96,8 +96,11 @@ export const applyThemeConfigService = async (id: string) => {
             setting = new Setting()
             setting.key = key
         }
-        setting.value = String(value)
-        await settingRepo.save(setting)
+        // 只有非空值才更新，避免 null 覆盖已有的保底设置
+        if (value !== null && typeof value !== 'undefined') {
+            setting.value = String(value)
+            await settingRepo.save(setting)
+        }
     }
 
     // 特殊：保存当前生效的画廊 ID (可选，用于在画廊中标注“使用中”)

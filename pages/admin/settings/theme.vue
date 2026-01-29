@@ -3,13 +3,45 @@
         <AdminPageHeader :title="$t('pages.admin.settings.theme.title')">
             <template #actions>
                 <Button
+                    v-tooltip.bottom="$t('pages.admin.settings.theme.gallery_title')"
+                    icon="pi pi-images"
+                    text
+                    @click="showGallery = true"
+                />
+                <Button
+                    :label="$t('pages.admin.settings.theme.save_as_new')"
+                    icon="pi pi-plus"
+                    severity="secondary"
+                    variant="outlined"
+                    class="ml-2"
+                    @click="openSaveDialog"
+                />
+                <Button
                     :label="$t('common.save')"
                     icon="pi pi-check"
                     :loading="loading"
+                    class="ml-2"
                     @click="saveTheme"
                 />
             </template>
         </AdminPageHeader>
+
+        <!-- 预览状态提示 -->
+        <Message
+            v-if="previewSettings"
+            severity="info"
+            class="mb-4"
+            :closable="false"
+        >
+            <div class="align-items-center flex justify-content-between">
+                <span>{{ $t('pages.admin.settings.theme.previewing_hint') }}</span>
+                <Button
+                    :label="$t('pages.admin.settings.theme.cancel_preview')"
+                    class="p-button-sm p-button-text"
+                    @click="cancelPreview"
+                />
+            </div>
+        </Message>
 
         <div class="theme-grid">
             <!-- 左侧：实时预览 -->
@@ -267,6 +299,144 @@
                 </Panel>
             </div>
         </div>
+
+        <!-- 主题画廊弹窗 -->
+        <Dialog
+            v-model:visible="showGallery"
+            :header="$t('pages.admin.settings.theme.gallery_title')"
+            modal
+            class="theme-gallery-dialog"
+            :style="{width: '80vw', maxWidth: '1000px'}"
+        >
+            <DataView
+                :value="themeConfigs"
+                layout="grid"
+                :loading="galleryLoading"
+            >
+                <template #grid="slotProps">
+                    <div class="grid grid-nogutter p-3">
+                        <div
+                            v-for="(item, index) in slotProps.items"
+                            :key="index"
+                            class="col-12 md:col-4 p-2 sm:col-6"
+                        >
+                            <Card class="border-round hover:shadow-3 overflow-hidden shadow-1 theme-config-card transition-all-200">
+                                <template #header>
+                                    <div
+                                        class="theme-card-preview"
+                                        :style="{backgroundImage: item.previewImage ? `url(${item.previewImage})` : 'none'}"
+                                    >
+                                        <div v-if="!item.previewImage" class="preview-placeholder">
+                                            <i class="pi pi-image text-200 text-5xl" />
+                                        </div>
+                                    </div>
+                                </template>
+                                <template #title>
+                                    <div class="align-items-center flex justify-content-between">
+                                        <span class="font-bold text-lg">{{ item.name }}</span>
+                                        <Tag
+                                            v-if="item.isSystem"
+                                            severity="info"
+                                            :value="$t('common.system')"
+                                        />
+                                    </div>
+                                </template>
+                                <template #subtitle>
+                                    <div
+                                        class="overflow-hidden text-500 text-overflow-ellipsis text-sm white-space-nowrap"
+                                        :title="item.description"
+                                    >
+                                        {{ item.description || $t('common.no_description') }}
+                                    </div>
+                                </template>
+                                <template #footer>
+                                    <div class="flex gap-2 justify-content-end">
+                                        <Button
+                                            v-tooltip.top="$t('common.preview')"
+                                            icon="pi pi-eye"
+                                            outlined
+                                            severity="secondary"
+                                            @click="previewThemeConfig(item)"
+                                        />
+                                        <Button
+                                            icon="pi pi-check"
+                                            :label="$t('common.apply')"
+                                            size="small"
+                                            @click="applyConfig(item)"
+                                        />
+                                        <Button
+                                            v-if="!item.isSystem"
+                                            icon="pi pi-trash"
+                                            severity="danger"
+                                            text
+                                            @click="deleteConfig(item)"
+                                        />
+                                    </div>
+                                </template>
+                            </Card>
+                        </div>
+                    </div>
+                </template>
+                <template #empty>
+                    <div class="p-8 text-center">
+                        <i class="mb-4 pi pi-box text-200 text-6xl" />
+                        <p class="text-500 text-xl">
+                            {{ $t('pages.admin.settings.theme.gallery_empty') }}
+                        </p>
+                    </div>
+                </template>
+            </DataView>
+        </Dialog>
+
+        <!-- 保存为新方案弹窗 -->
+        <Dialog
+            v-model:visible="showSaveDialog"
+            :header="$t('pages.admin.settings.theme.save_as_new')"
+            modal
+            class="save-theme-dialog"
+            :style="{width: '450px'}"
+        >
+            <div class="save-theme-form">
+                <div class="save-theme-form__field">
+                    <label class="save-theme-form__label">{{ $t('common.name') }}</label>
+                    <InputText
+                        v-model="saveForm.name"
+                        class="save-theme-form__input"
+                        :placeholder="$t('pages.admin.settings.theme.name_placeholder')"
+                        autofocus
+                    />
+                </div>
+                <div class="save-theme-form__field">
+                    <label class="save-theme-form__label">{{ $t('common.description') }}</label>
+                    <Textarea
+                        v-model="saveForm.description"
+                        rows="3"
+                        class="save-theme-form__input"
+                        :placeholder="$t('pages.admin.settings.theme.description_placeholder')"
+                        auto-resize
+                    />
+                </div>
+                <div class="save-theme-form__hint">
+                    <i class="pi pi-info-circle" />
+                    <span>{{ $t('pages.admin.settings.theme.save_preset_hint') }}</span>
+                </div>
+            </div>
+            <template #footer>
+                <div class="save-theme-form__actions">
+                    <Button
+                        :label="$t('common.cancel')"
+                        text
+                        severity="secondary"
+                        @click="showSaveDialog = false"
+                    />
+                    <Button
+                        :label="$t('common.confirm')"
+                        :loading="saveLoading"
+                        @click="saveAsNewTheme"
+                    />
+                </div>
+            </template>
+        </Dialog>
     </div>
 </template>
 
@@ -281,8 +451,37 @@ definePageMeta({
 
 const { t } = useI18n()
 const toast = useToast()
-const { settings, applyTheme } = useTheme()
+const { settings, previewSettings, applyTheme } = useTheme()
 const loading = ref(false)
+const isDark = useDark()
+
+// 主题画廊相关
+const showGallery = ref(false)
+const galleryLoading = ref(false)
+const themeConfigs = ref<any[]>([])
+const showSaveDialog = ref(false)
+const saveLoading = ref(false)
+const saveForm = ref({
+    name: '',
+    description: '',
+})
+
+const getCurrentPresetValue = (type: 'primary' | 'accent' | 'surface' | 'text' | 'radius', forceDark?: boolean) => {
+    if (!settings.value) {
+        return ''
+    }
+    const presetKey = (settings.value.themePreset || 'default') as keyof typeof PRESETS
+    const preset = PRESETS[presetKey] || PRESETS.default
+    if (!preset) {
+        return ''
+    }
+    if (type === 'radius') {
+        return preset.radius || ''
+    }
+    const mode = forceDark ? 'dark' : 'light'
+    const value = (preset[type] as any)?.[mode]
+    return value || ''
+}
 
 // 处理颜色值的双向绑定，确保 ColorPicker (无#) 和 InputText (有#) 同步
 const createColorModel = (key: any) => {
@@ -362,22 +561,6 @@ const darkTextPickerModel = createColorPickerModel('themeDarkTextColor')
 
 const backgroundPickerModel = createColorPickerModel('themeBackgroundValue')
 
-// 用于判断当前模式（深/浅）以显示正确的 Placeholder
-const isDark = useDark()
-
-const getCurrentPresetValue = (type: 'primary' | 'accent' | 'surface' | 'text' | 'radius', forceDark?: boolean) => {
-    if (!settings.value) {
-        return ''
-    }
-    const presetKey = (settings.value.themePreset || 'default') as keyof typeof PRESETS
-    const preset = PRESETS[presetKey]
-    if (type === 'radius') {
-        return preset.radius
-    }
-    const mode = forceDark ? 'dark' : 'light'
-    return (preset[type] as any)[mode]
-}
-
 // 转换 mourning_mode 为布尔值用于 ToggleSwitch
 const mourningModeRef = computed({
     get: () => {
@@ -425,6 +608,167 @@ const onPresetChange = () => {
     settings.value.themeDarkTextColor = null
     settings.value.themeBorderRadius = null
 }
+
+const fetchGallery = async () => {
+    galleryLoading.value = true
+    try {
+        const res = await $fetch<any>('/api/admin/theme-configs')
+        themeConfigs.value = res?.data || []
+    } catch (error) {
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.settings.theme.gallery_fetch_error') })
+    } finally {
+        galleryLoading.value = false
+    }
+}
+
+const openSaveDialog = () => {
+    saveForm.value = { name: '', description: '' }
+    showSaveDialog.value = true
+}
+
+const saveAsNewTheme = async () => {
+    if (!saveForm.value.name || !settings.value) {
+        return
+    }
+    saveLoading.value = true
+    try {
+        // 核心：计算完整“快照”，将预设值与手动覆盖值合并
+        // 这样保存的方案是自包含的，不会因为后续预设修改或 null 值导致失效
+        const snapshot: any = { ...settings.value }
+
+        const colorFields: Array<[string, 'primary' | 'accent' | 'surface' | 'text']> = [
+            ['themePrimaryColor', 'primary'],
+            ['themeAccentColor', 'accent'],
+            ['themeSurfaceColor', 'surface'],
+            ['themeTextColor', 'text'],
+        ]
+
+        const darkColorFields: Array<[string, 'primary' | 'accent' | 'surface' | 'text']> = [
+            ['themeDarkPrimaryColor', 'primary'],
+            ['themeDarkAccentColor', 'accent'],
+            ['themeDarkSurfaceColor', 'surface'],
+            ['themeDarkTextColor', 'text'],
+        ]
+
+        // 处理浅色模式颜色
+        for (const [field, type] of colorFields) {
+            if (!snapshot[field]) {
+                snapshot[field] = getCurrentPresetValue(type, false)
+            }
+        }
+
+        // 处理深色模式颜色
+        for (const [field, type] of darkColorFields) {
+            if (!snapshot[field]) {
+                snapshot[field] = getCurrentPresetValue(type, true)
+            }
+        }
+
+        // 处理圆角
+        if (!snapshot.themeBorderRadius) {
+            snapshot.themeBorderRadius = getCurrentPresetValue('radius')
+        }
+
+        // 如果是基于某个预设保存的，保存后将其标记为自定义，因为它已经固化了颜色
+        snapshot.themePreset = 'custom'
+
+        // 抓取当前预览区域的快照 (后续可集成 html2canvas)
+        const previewImage = ''
+
+        await $fetch('/api/admin/theme-configs', {
+            method: 'POST',
+            body: {
+                ...saveForm.value,
+                configData: JSON.stringify(snapshot),
+                previewImage,
+            },
+        })
+        showSaveDialog.value = false
+        toast.add({
+            severity: 'success',
+            summary: t('common.success'),
+            detail: t('pages.admin.settings.theme.save_preset_success'),
+            life: 3000,
+        })
+    } catch (error: any) {
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: error.data?.message || error.message,
+            life: 5000,
+        })
+    } finally {
+        saveLoading.value = false
+    }
+}
+
+const applyConfig = async (config: any) => {
+    try {
+        await $fetch(`/api/admin/theme-configs/${config.id}/apply`, { method: 'POST' })
+        toast.add({
+            severity: 'success',
+            summary: t('common.success'),
+            detail: t('pages.admin.settings.theme.apply_success'),
+            life: 3000,
+        })
+        // 重新加载页面以应用所有设置
+        location.reload()
+    } catch (error: any) {
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: error.data?.message || error.message,
+            life: 5000,
+        })
+    }
+}
+
+const deleteConfig = async (config: any) => {
+    try {
+        await $fetch(`/api/admin/theme-configs/${config.id}`, { method: 'DELETE' })
+        await fetchGallery()
+        toast.add({
+            severity: 'success',
+            summary: t('common.success'),
+            detail: t('pages.admin.settings.theme.delete_success'),
+            life: 3000,
+        })
+    } catch (error: any) {
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: error.data?.message || error.message,
+            life: 5000,
+        })
+    }
+}
+
+const previewThemeConfig = (config: any) => {
+    try {
+        const configData = typeof config.configData === 'string'
+            ? JSON.parse(config.configData)
+            : config.configData
+        previewSettings.value = configData
+        applyTheme()
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: t('pages.admin.settings.theme.parse_error'),
+        })
+    }
+}
+
+const cancelPreview = () => {
+    previewSettings.value = null
+    applyTheme()
+}
+
+watch(showGallery, (val) => {
+    if (val) {
+        fetchGallery()
+    }
+})
 
 const saveTheme = async () => {
     if (!settings.value) {
@@ -664,7 +1008,94 @@ const saveTheme = async () => {
     }
 }
 
+.save-theme-dialog {
+    :deep(.p-dialog-content) {
+        padding: 0 1.5rem 1.5rem;
+    }
+}
+
+.save-theme-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding-top: 0.5rem;
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    &__label {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: var(--p-text-color);
+    }
+
+    &__input {
+        width: 100%;
+    }
+
+    &__hint {
+        display: flex;
+        gap: 0.75rem;
+        padding: 1rem;
+        background-color: var(--p-surface-50);
+        border: 1px solid var(--p-content-border-color);
+        border-radius: 8px;
+        color: var(--p-text-muted-color);
+        font-size: 0.75rem;
+        line-height: 1.5;
+        align-items: flex-start;
+
+        i {
+            margin-top: 0.125rem;
+            color: var(--p-primary-color);
+        }
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+    }
+}
+
 :deep(.p-divider) {
     margin: 1.25rem 0;
+}
+
+// 画廊样式
+.theme-config-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    :deep(.p-card-header) {
+        border-bottom: 1px solid var(--p-content-border-color);
+    }
+
+    :deep(.p-card-body) {
+        flex: 1;
+        padding: 1rem;
+    }
+
+    :deep(.p-card-footer) {
+        padding: 0 1rem 1rem;
+    }
+}
+
+.theme-card-preview {
+    height: 160px;
+    background-size: cover;
+    background-position: center;
+    background-color: var(--p-surface-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-placeholder {
+    opacity: 0.5;
 }
 </style>

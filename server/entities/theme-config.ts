@@ -31,7 +31,7 @@ export class ThemeConfig extends BaseEntity {
     /**
      * 前端截取的预览图 (Base64)
      */
-    @CustomColumn({ type: 'mediumtext', nullable: true })
+    @CustomColumn({ type: 'text', nullable: true })
     previewImage: string | null
 
     /**

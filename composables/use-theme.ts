@@ -78,6 +78,10 @@ export const useTheme = () => {
         themeBackgroundValue: null,
     }))
 
+    const previewSettings = useState<ThemeSettings | null>('theme-preview-settings', () => null)
+
+    const effectiveSettings = computed(() => previewSettings.value || settings.value)
+
     const fetchTheme = async () => {
         const { data } = await useAppFetch<{ data: ThemeSettings }>('/api/settings/theme')
         if (data.value) {
@@ -86,12 +90,12 @@ export const useTheme = () => {
     }
 
     const mourningMode = computed(() => {
-        const val = settings.value?.themeMourningMode
+        const val = effectiveSettings.value?.themeMourningMode
         return val === true || val === 'true'
     })
 
     const customStyles = computed(() => {
-        if (!settings.value) {
+        if (!effectiveSettings.value) {
             return ''
         }
 
@@ -108,18 +112,18 @@ export const useTheme = () => {
             themeBorderRadius,
             themeBackgroundType,
             themeBackgroundValue,
-        } = settings.value
+        } = effectiveSettings.value
 
         const presetKey = (themePreset || 'default') as keyof typeof PRESETS
         const preset = PRESETS[presetKey] || PRESETS.default
 
         // 辅助函数：确保十六进制颜色以 # 开头且格式正确，否则 CSS 会失效
         const formatColor = (color: string | null | undefined, fallback: string) => {
-            if (!color) {
+            if (!color || color === 'null' || color === 'undefined') {
                 return fallback
             }
-            const c = color.trim()
-            if (!c) {
+            const c = String(color).trim()
+            if (!c || c === 'null' || c === 'undefined') {
                 return fallback
             }
             return c.startsWith('#') ? c : `#${c}`
@@ -277,10 +281,10 @@ export const useTheme = () => {
             ],
             link: computed(() => {
                 const links: any[] = []
-                if (settings.value?.themeFaviconUrl) {
+                if (effectiveSettings.value?.themeFaviconUrl) {
                     links.push({
                         rel: 'icon',
-                        href: settings.value.themeFaviconUrl,
+                        href: effectiveSettings.value.themeFaviconUrl,
                     })
                 }
                 return links
@@ -290,6 +294,8 @@ export const useTheme = () => {
 
     return {
         settings,
+        previewSettings,
+        effectiveSettings,
         fetchTheme,
         applyTheme,
         mourningMode,
