@@ -6,6 +6,15 @@ export function CustomColumn(options: ColumnOptions & { index?: boolean }) {
     const dbType = DATABASE_TYPE
     const decorators: PropertyDecorator[] = []
     let length = Number(options.length)
+
+    // 非 mysql 数据库不支持 mediumtext 和 longtext，统一转换为 text
+    if (
+        dbType !== 'mysql'
+        && ['mediumtext', 'longtext'].includes(options.type as string)
+    ) {
+        options.type = 'text'
+    }
+
     if (dbType === 'sqlite') {
         // 处理 sqlite 不兼容的配置
         // sqlite AUTOINCREMENT 仅支持 integer 类型，所以 id 设置为 integer

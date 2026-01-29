@@ -63,6 +63,21 @@ export const SETTING_ENV_MAP: Record<string, string> = {
     site_favicon: 'NUXT_PUBLIC_SITE_FAVICON',
     site_operator: 'NUXT_PUBLIC_SITE_OPERATOR',
     contact_email: 'NUXT_PUBLIC_CONTACT_EMAIL',
+    // Theme
+    theme_active_config_id: 'THEME_ACTIVE_CONFIG_ID',
+    theme_preset: 'THEME_PRESET',
+    theme_primary_color: 'THEME_PRIMARY_COLOR',
+    theme_accent_color: 'THEME_ACCENT_COLOR',
+    theme_surface_color: 'THEME_SURFACE_COLOR',
+    theme_text_color: 'THEME_TEXT_COLOR',
+    theme_dark_primary_color: 'THEME_DARK_PRIMARY_COLOR',
+    theme_dark_accent_color: 'THEME_DARK_ACCENT_COLOR',
+    theme_dark_surface_color: 'THEME_DARK_SURFACE_COLOR',
+    theme_dark_text_color: 'THEME_DARK_TEXT_COLOR',
+    theme_border_radius: 'THEME_BORDER_RADIUS',
+    theme_mourning_mode: 'THEME_MOURNING_MODE',
+    theme_background_type: 'THEME_BACKGROUND_TYPE',
+    theme_background_value: 'THEME_BACKGROUND_VALUE',
 }
 
 /**
