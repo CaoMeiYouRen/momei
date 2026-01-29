@@ -7,6 +7,8 @@ import {
     usernameValidator,
     nicknameValidator,
     isSnowflakeId,
+    isValidCustomUrl,
+    isPureEnglish,
 } from './validate'
 
 describe('validate.ts', () => {
@@ -110,6 +112,46 @@ describe('validate.ts', () => {
             expect(isSnowflakeId('invalid')).toBe(false)
             expect(isSnowflakeId('123')).toBe(false)
             expect(isSnowflakeId('5fd0e68d1f8e0001bcdef')).toBe(false)
+        })
+    })
+
+    describe('isValidCustomUrl', () => {
+        it('should return true for null or undefined', () => {
+            expect(isValidCustomUrl(null)).toBe(true)
+            expect(isValidCustomUrl(undefined)).toBe(true)
+        })
+
+        it('should return true for local paths', () => {
+            expect(isValidCustomUrl('/path/to/resource')).toBe(true)
+            expect(isValidCustomUrl('/images/logo.png')).toBe(true)
+        })
+
+        it('should return true for data URLs', () => {
+            expect(isValidCustomUrl('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA')).toBe(true)
+            expect(isValidCustomUrl('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD')).toBe(true)
+        })
+
+        it('should return false for invalid protocols', () => {
+            expect(isValidCustomUrl('ftp://example.com')).toBe(false)
+            expect(isValidCustomUrl('javascript:alert(1)')).toBe(false)
+        })
+
+        it('should return false for invalid URLs', () => {
+            expect(isValidCustomUrl('not a url')).toBe(false)
+        })
+    })
+
+    describe('isPureEnglish', () => {
+        it('should return true for pure English strings', () => {
+            expect(isPureEnglish('Hello World')).toBe(true)
+            expect(isPureEnglish('test123')).toBe(true)
+            expect(isPureEnglish('hello-world_test')).toBe(true)
+        })
+
+        it('should return false for non-English strings', () => {
+            expect(isPureEnglish('你好')).toBe(false)
+            expect(isPureEnglish('Hello世界')).toBe(false)
+            expect(isPureEnglish('test@example')).toBe(false)
         })
     })
 })
