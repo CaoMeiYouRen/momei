@@ -8,9 +8,9 @@ import { User } from '~/server/entities/user'
  * 管理员创建 Schema
  */
 const adminCreationSchema = z.object({
-    email: z.email(),
-    password: z.string().min(8),
-    name: z.string().min(1).max(50),
+    email: z.email('请输入有效的邮箱地址'),
+    password: z.string().min(8, '密码长度至少为 8 位'),
+    name: z.string().min(1, '昵称不能为空').max(50),
 })
 
 /**

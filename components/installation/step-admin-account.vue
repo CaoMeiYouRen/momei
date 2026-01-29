@@ -5,29 +5,50 @@
 
         <div class="installation-wizard__form">
             <div class="form-field">
-                <label for="admin_name">{{ $t('installation.adminAccount.name') }}</label>
+                <label for="admin_name">
+                    {{ $t('installation.adminAccount.name') }}
+                    <span class="ml-1 text-error">*</span>
+                </label>
                 <InputText
                     id="admin_name"
                     v-model="adminData.name"
+                    :invalid="!!fieldErrors.name"
                     fluid
                 />
+                <div v-if="fieldErrors.name" class="mt-1 p-error text-sm">
+                    {{ fieldErrors.name }}
+                </div>
             </div>
             <div class="form-field">
-                <label for="admin_email">{{ $t('installation.adminAccount.email') }}</label>
+                <label for="admin_email">
+                    {{ $t('installation.adminAccount.email') }}
+                    <span class="ml-1 text-error">*</span>
+                </label>
                 <InputText
                     id="admin_email"
                     v-model="adminData.email"
+                    :invalid="!!fieldErrors.email"
                     fluid
                 />
+                <div v-if="fieldErrors.email" class="mt-1 p-error text-sm">
+                    {{ fieldErrors.email }}
+                </div>
             </div>
             <div class="form-field">
-                <label for="admin_password">{{ $t('installation.adminAccount.password') }}</label>
+                <label for="admin_password">
+                    {{ $t('installation.adminAccount.password') }}
+                    <span class="ml-1 text-error">*</span>
+                </label>
                 <Password
                     id="admin_password"
                     v-model="adminData.password"
                     :toggle-mask="true"
+                    :invalid="!!fieldErrors.password"
                     fluid
                 />
+                <div v-if="fieldErrors.password" class="mt-1 p-error text-sm">
+                    {{ fieldErrors.password }}
+                </div>
             </div>
         </div>
 
@@ -58,6 +79,7 @@ const adminData = defineModel<any>('adminData', { required: true })
 defineProps<{
     adminLoading: boolean
     adminError: string
+    fieldErrors: Record<string, string>
 }>()
 defineEmits(['prev', 'next'])
 </script>

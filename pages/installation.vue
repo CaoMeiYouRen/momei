@@ -62,6 +62,7 @@
                                 v-model:site-config="siteConfig"
                                 :site-config-loading="siteConfigLoading"
                                 :site-config-error="siteConfigError"
+                                :field-errors="siteFieldErrors"
                                 :language-options="languageOptions"
                                 :env-settings="installationStatus?.envSettings || {}"
                                 @prev="activateCallback('2')"
@@ -74,6 +75,7 @@
                                 v-model:admin-data="adminData"
                                 :admin-loading="adminLoading"
                                 :admin-error="adminError"
+                                :field-errors="adminFieldErrors"
                                 @prev="activateCallback('3')"
                                 @next="createAdmin(activateCallback)"
                             />
@@ -83,6 +85,8 @@
                             <StepExtraConfig
                                 v-model:extra-config="extraConfig"
                                 :extra-config-loading="extraConfigLoading"
+                                :extra-config-error="extraConfigError"
+                                :field-errors="extraFieldErrors"
                                 :env-settings="installationStatus?.envSettings || {}"
                                 @prev="activateCallback('4')"
                                 @skip="activateCallback('6')"
@@ -137,6 +141,7 @@ const siteConfig = ref({
 })
 const siteConfigLoading = ref(false)
 const siteConfigError = ref('')
+const siteFieldErrors = ref<Record<string, string>>({})
 
 const languageOptions = [
     { label: '简体中文', value: 'zh-CN' },
@@ -150,6 +155,7 @@ const adminData = ref({
 })
 const adminLoading = ref(false)
 const adminError = ref('')
+const adminFieldErrors = ref<Record<string, string>>({})
 
 const extraConfig = ref({
     aiProvider: 'openai',
@@ -176,6 +182,24 @@ const extraConfig = ref({
     clarityAnalytics: '',
 })
 const extraConfigLoading = ref(false)
+const extraConfigError = ref('')
+const extraFieldErrors = ref<Record<string, string>>({})
+
+/**
+ * 映射 Zod 错误到字段对象
+ */
+function mapFieldErrors(issues: any[]) {
+    const errors: Record<string, string> = {}
+    if (Array.isArray(issues)) {
+        issues.forEach((issue) => {
+            const field = issue.path[0]
+            if (field) {
+                errors[field] = issue.message
+            }
+        })
+    }
+    return errors
+}
 
 const finalizeLoading = ref(false)
 const finalizeSuccess = ref(false)
@@ -266,11 +290,15 @@ async function initDatabase() {
 async function saveSiteConfig(activateCallback: (step: string) => void) {
     siteConfigLoading.value = true
     siteConfigError.value = ''
+    siteFieldErrors.value = {}
     try {
         await $fetch('/api/install/setup-site', { method: 'POST', body: siteConfig.value })
         activateCallback('4')
     } catch (error: any) {
-        siteConfigError.value = error.data?.message || t('installation.siteConfig.error')
+        siteConfigError.value = error.data?.statusMessage || error.data?.message || t('installation.siteConfig.error')
+        if (error.data?.data) {
+            siteFieldErrors.value = mapFieldErrors(error.data.data)
+        }
     } finally {
         siteConfigLoading.value = false
     }
@@ -279,11 +307,15 @@ async function saveSiteConfig(activateCallback: (step: string) => void) {
 async function createAdmin(activateCallback: (step: string) => void) {
     adminLoading.value = true
     adminError.value = ''
+    adminFieldErrors.value = {}
     try {
         await $fetch('/api/install/create-admin', { method: 'POST', body: adminData.value })
         activateCallback('5')
     } catch (error: any) {
-        adminError.value = error.data?.message || t('installation.adminAccount.error')
+        adminError.value = error.data?.statusMessage || error.data?.message || t('installation.adminAccount.error')
+        if (error.data?.data) {
+            adminFieldErrors.value = mapFieldErrors(error.data.data)
+        }
     } finally {
         adminLoading.value = false
     }
@@ -291,11 +323,20 @@ async function createAdmin(activateCallback: (step: string) => void) {
 
 async function saveExtraConfig(activateCallback: (step: string) => void) {
     extraConfigLoading.value = true
+    extraConfigError.value = ''
+    extraFieldErrors.value = {}
     try {
         await $fetch('/api/install/setup-extra', { method: 'POST', body: extraConfig.value })
         activateCallback('6')
     } catch (error: any) {
-        activateCallback('6')
+        extraConfigError.value = error.data?.statusMessage || error.data?.message || t('installation.preview.error')
+        if (error.data?.data) {
+            extraFieldErrors.value = mapFieldErrors(error.data.data)
+        }
+        // 可选配置，即使报错也允许进入下一步，除非是关键错误
+        if (Object.keys(extraFieldErrors.value).length === 0) {
+            activateCallback('6')
+        }
     } finally {
         extraConfigLoading.value = false
     }
@@ -343,6 +384,15 @@ onMounted(() => {
         font-size: 1rem;
         color: var(--p-text-muted-color);
         margin: 0;
+    }
+
+    .text-error {
+        color: var(--p-error-color);
+    }
+
+    .p-error {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
     }
 
     :deep(.installation-wizard__step) {

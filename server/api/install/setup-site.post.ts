@@ -5,11 +5,11 @@ import { isSystemInstalled, saveSiteConfig } from '~/server/services/installatio
  * 站点配置 Schema
  */
 const siteConfigSchema = z.object({
-    siteTitle: z.string().min(1).max(100),
-    siteDescription: z.string().min(1).max(500),
-    siteKeywords: z.string().max(200),
-    siteUrl: z.string().max(500).or(z.literal('')).optional(),
-    siteCopyright: z.string().max(200).optional(),
+    siteTitle: z.string().min(1, '站点标题不能为空').max(100),
+    siteDescription: z.string().max(500).optional().or(z.literal('')),
+    siteKeywords: z.string().max(200).optional().or(z.literal('')),
+    siteUrl: z.string().max(500).optional().or(z.literal('')),
+    siteCopyright: z.string().max(200).optional().or(z.literal('')),
     defaultLanguage: z.enum(['zh-CN', 'en-US']),
 })
 

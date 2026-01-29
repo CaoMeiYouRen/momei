@@ -24,8 +24,12 @@
                                 v-model="extraConfig.aiProvider"
                                 :options="['openai', 'groq', 'ollama', 'anthropic', 'google']"
                                 :disabled="isLocked('ai_provider')"
+                                :invalid="!!fieldErrors.aiProvider"
                                 fluid
                             />
+                            <div v-if="fieldErrors.aiProvider" class="mt-1 p-error text-sm">
+                                {{ fieldErrors.aiProvider }}
+                            </div>
                         </div>
                         <div class="form-field">
                             <label for="ai_model">
@@ -41,8 +45,12 @@
                                 id="ai_model"
                                 v-model="extraConfig.aiModel"
                                 :disabled="isLocked('ai_model')"
+                                :invalid="!!fieldErrors.aiModel"
                                 fluid
                             />
+                            <div v-if="fieldErrors.aiModel" class="mt-1 p-error text-sm">
+                                {{ fieldErrors.aiModel }}
+                            </div>
                         </div>
                         <div class="form-field">
                             <label for="ai_api_key">
@@ -59,8 +67,12 @@
                                 v-model="extraConfig.aiApiKey"
                                 :toggle-mask="true"
                                 :disabled="isLocked('ai_api_key')"
+                                :invalid="!!fieldErrors.aiApiKey"
                                 fluid
                             />
+                            <div v-if="fieldErrors.aiApiKey" class="mt-1 p-error text-sm">
+                                {{ fieldErrors.aiApiKey }}
+                            </div>
                         </div>
                         <div class="form-field">
                             <label for="ai_endpoint">
@@ -76,8 +88,12 @@
                                 id="ai_endpoint"
                                 v-model="extraConfig.aiEndpoint"
                                 :disabled="isLocked('ai_endpoint')"
+                                :invalid="!!fieldErrors.aiEndpoint"
                                 fluid
                             />
+                            <div v-if="fieldErrors.aiEndpoint" class="mt-1 p-error text-sm">
+                                {{ fieldErrors.aiEndpoint }}
+                            </div>
                         </div>
                     </div>
                 </AccordionContent>
@@ -392,6 +408,10 @@
             </AccordionPanel>
         </Accordion>
 
+        <div v-if="extraConfigError" class="mt-4 p-error">
+            {{ extraConfigError }}
+        </div>
+
         <div class="installation-wizard__actions">
             <Button
                 :label="$t('common.prev')"
@@ -421,6 +441,8 @@
 const extraConfig = defineModel<any>('extraConfig', { required: true })
 const props = defineProps<{
     extraConfigLoading: boolean
+    extraConfigError: string
+    fieldErrors: Record<string, string>
     envSettings: Record<string, any>
 }>()
 defineEmits(['prev', 'skip', 'next'])
