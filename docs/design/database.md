@@ -21,6 +21,7 @@ erDiagram
     Comment }o--o| User : "written by (optional)"
     Comment }o--o| Comment : "reply to"
     Category }o--o| Category : "has parent"
+    User ||--o{ ThemeConfig : "manages"
 
     User {
         string id PK
@@ -225,6 +226,21 @@ _(待完善，后续迭代补充)_
 | `value` | text | No | 值 |
 | `description` | varchar | No | 描述 |
 | `updatedAt` | datetime | Yes | 最后更新时间 |
+
+#### ThemeConfig (主题方案表)
+
+用于主题画廊系统，保存多套自定义主题方案。
+
+| 字段名 | 类型 | 必填 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `id` | varchar | Yes | 主键 (UUID) |
+| `name` | varchar | Yes | 方案名称 |
+| `description` | text | No | 方案描述 |
+| `configData` | text | Yes | 配置 JSON (primaryColor, borderRadius 等) |
+| `previewImage` | mediumtext | No | 前端截取的预览图 (Base64) |
+| `isSystem` | boolean | Yes | 是否为系统预设 (不可删除) |
+| `createdAt` | datetime | Yes | 创建时间 |
+| `updatedAt` | datetime | Yes | 更新时间 |
 
 ## 4. 索引策略 (Indexing Strategy)
 
