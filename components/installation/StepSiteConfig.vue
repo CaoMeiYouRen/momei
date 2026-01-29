@@ -13,6 +13,15 @@
                 />
             </div>
             <div class="form-field">
+                <label for="site_url">{{ $t('installation.siteConfig.siteUrl') }}</label>
+                <InputText
+                    id="site_url"
+                    v-model="siteConfig.siteUrl"
+                    :placeholder="$t('installation.siteConfig.siteUrlPlaceholder')"
+                    fluid
+                />
+            </div>
+            <div class="form-field">
                 <label for="site_description">{{ $t('installation.siteConfig.siteDescription') }}</label>
                 <Textarea
                     id="site_description"

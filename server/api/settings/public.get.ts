@@ -16,6 +16,14 @@ export default defineEventHandler(async () => {
             SettingKey.BAIDU_ANALYTICS,
             SettingKey.GOOGLE_ANALYTICS,
             SettingKey.CLARITY_ANALYTICS,
+            SettingKey.SITE_LOGO,
+            SettingKey.SITE_FAVICON,
+            SettingKey.SITE_OPERATOR,
+            SettingKey.CONTACT_EMAIL,
+            SettingKey.SHOW_COMPLIANCE_INFO,
+            SettingKey.ICP_LICENSE_NUMBER,
+            SettingKey.PUBLIC_SECURITY_NUMBER,
+            SettingKey.FOOTER_CODE,
         ]
 
         const settings = await getSettings(publicKeys)
@@ -31,6 +39,14 @@ export default defineEventHandler(async () => {
                 baiduAnalytics: settings[SettingKey.BAIDU_ANALYTICS],
                 googleAnalytics: settings[SettingKey.GOOGLE_ANALYTICS],
                 clarityAnalytics: settings[SettingKey.CLARITY_ANALYTICS],
+                siteLogo: settings[SettingKey.SITE_LOGO],
+                siteFavicon: settings[SettingKey.SITE_FAVICON],
+                siteOperator: settings[SettingKey.SITE_OPERATOR],
+                contactEmail: settings[SettingKey.CONTACT_EMAIL],
+                showComplianceInfo: String(settings[SettingKey.SHOW_COMPLIANCE_INFO]) === 'true',
+                icpLicenseNumber: settings[SettingKey.ICP_LICENSE_NUMBER],
+                publicSecurityNumber: settings[SettingKey.PUBLIC_SECURITY_NUMBER],
+                footerCode: settings[SettingKey.FOOTER_CODE],
             },
         }
     } catch {

@@ -129,6 +129,7 @@ const siteConfig = ref({
     siteTitle: '',
     siteDescription: '',
     siteKeywords: '',
+    siteUrl: typeof window !== 'undefined' ? window.location.origin : '',
     siteCopyright: '',
     defaultLanguage: 'zh-CN',
 })

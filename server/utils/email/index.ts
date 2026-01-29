@@ -3,12 +3,10 @@ import logger from '../logger'
 import { createDefaultMailer, type MailerFactory } from './factory'
 import { limiterStorage } from '@/server/database/storage'
 import {
-    EMAIL_DAILY_LIMIT,
-    EMAIL_SINGLE_USER_DAILY_LIMIT,
-    EMAIL_LIMIT_WINDOW,
     EMAIL_FROM,
 } from '@/utils/shared/env'
 import { getSettings } from '~/server/services/setting'
+import { SettingKey } from '~/types/setting'
 
 const EMAIL_LIMIT_KEY = 'email_global_limit'
 
@@ -77,20 +75,20 @@ async function getTransporter() {
         // 只有使用默认工厂时才尝试从数据库读取配置
         if (mailerFactory === createDefaultMailer) {
             const dbSettings = await getSettings([
-                'email_host',
-                'email_port',
-                'email_user',
-                'email_pass',
-                'email_from',
+                SettingKey.EMAIL_HOST,
+                SettingKey.EMAIL_PORT,
+                SettingKey.EMAIL_USER,
+                SettingKey.EMAIL_PASS,
+                SettingKey.EMAIL_FROM,
             ])
 
-            if (dbSettings.email_host && dbSettings.email_user) {
+            if (dbSettings[SettingKey.EMAIL_HOST] && dbSettings[SettingKey.EMAIL_USER]) {
                 cachedTransporter = mailerFactory({
-                    host: dbSettings.email_host,
-                    port: Number(dbSettings.email_port || 587),
+                    host: dbSettings[SettingKey.EMAIL_HOST]!,
+                    port: Number(dbSettings[SettingKey.EMAIL_PORT] || 587),
                     auth: {
-                        user: dbSettings.email_user,
-                        pass: dbSettings.email_pass || '',
+                        user: dbSettings[SettingKey.EMAIL_USER]!,
+                        pass: dbSettings[SettingKey.EMAIL_PASS] || '',
                     },
                 })
             } else {
@@ -120,15 +118,25 @@ async function getTransporter() {
 }
 
 async function ensureWithinLimit(options: EmailOptions) {
+    const dbSettings = await getSettings([
+        SettingKey.EMAIL_DAILY_LIMIT,
+        SettingKey.EMAIL_SINGLE_USER_DAILY_LIMIT,
+        SettingKey.EMAIL_LIMIT_WINDOW,
+    ])
+
+    const limitWindow = Number(dbSettings[SettingKey.EMAIL_LIMIT_WINDOW] || 86400)
+    const dailyLimit = Number(dbSettings[SettingKey.EMAIL_DAILY_LIMIT] || 100)
+    const userDailyLimit = Number(dbSettings[SettingKey.EMAIL_SINGLE_USER_DAILY_LIMIT] || 5)
+
     const globalCount = await limiter.increment(
         EMAIL_LIMIT_KEY,
-        EMAIL_LIMIT_WINDOW,
+        limitWindow,
     )
-    if (globalCount > EMAIL_DAILY_LIMIT) {
+    if (globalCount > dailyLimit) {
         emailLogger.email.rateLimited({
             limitType: 'global',
             email: options.to,
-            remainingTime: EMAIL_LIMIT_WINDOW,
+            remainingTime: limitWindow,
         })
         throw new Error('今日邮箱发送次数已达全局上限')
     }
@@ -136,13 +144,13 @@ async function ensureWithinLimit(options: EmailOptions) {
     const singleUserLimitKey = `email_single_user_limit:${options.to}`
     const singleUserCount = await limiter.increment(
         singleUserLimitKey,
-        EMAIL_LIMIT_WINDOW,
+        limitWindow,
     )
-    if (singleUserCount > EMAIL_SINGLE_USER_DAILY_LIMIT) {
+    if (singleUserCount > userDailyLimit) {
         emailLogger.email.rateLimited({
             limitType: 'user',
             email: options.to,
-            remainingTime: EMAIL_LIMIT_WINDOW,
+            remainingTime: limitWindow,
         })
         throw new Error('您的邮箱今日发送次数已达上限')
     }

@@ -8,6 +8,14 @@ export const useMomeiConfig = () => {
         baiduAnalytics: '',
         googleAnalytics: '',
         clarityAnalytics: '',
+        siteLogo: '',
+        siteFavicon: '',
+        siteOperator: '',
+        contactEmail: '',
+        showComplianceInfo: false,
+        icpLicenseNumber: '',
+        publicSecurityNumber: '',
+        footerCode: '',
     }))
 
     const { t } = useI18n()
@@ -27,6 +35,8 @@ export const useMomeiConfig = () => {
     const currentDescription = computed(() => siteConfig.value.siteDescription || t('app.description'))
     const currentKeywords = computed(() => siteConfig.value.siteKeywords || t('app.keywords'))
     const currentCopyright = computed(() => siteConfig.value.siteCopyright || '')
+    const siteLogo = computed(() => siteConfig.value.siteLogo || '')
+    const siteFavicon = computed(() => siteConfig.value.siteFavicon || '')
 
     return {
         siteConfig,
@@ -35,5 +45,7 @@ export const useMomeiConfig = () => {
         currentDescription,
         currentKeywords,
         currentCopyright,
+        siteLogo,
+        siteFavicon,
     }
 }

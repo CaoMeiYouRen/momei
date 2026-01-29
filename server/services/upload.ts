@@ -3,21 +3,8 @@ import dayjs from 'dayjs'
 import { type H3Event, readMultipartFormData } from 'h3'
 import { getFileStorage, type FileStorageEnv } from '@/server/utils/storage/factory'
 import { limiterStorage } from '@/server/database/storage'
-import {
-    BUCKET_PREFIX,
-    MAX_UPLOAD_SIZE,
-    MAX_UPLOAD_SIZE_TEXT,
-    UPLOAD_LIMIT_WINDOW,
-    UPLOAD_DAILY_LIMIT,
-    UPLOAD_SINGLE_USER_DAILY_LIMIT,
-    STORAGE_TYPE,
-    LOCAL_STORAGE_DIR,
-    LOCAL_STORAGE_BASE_URL,
-    LOCAL_STORAGE_MIN_FREE_SPACE,
-    MAX_AUDIO_UPLOAD_SIZE,
-    MAX_AUDIO_UPLOAD_SIZE_TEXT,
-} from '@/utils/shared/env'
 import { getSettings } from '~/server/services/setting'
+import { SettingKey } from '~/types/setting'
 
 /**
  * 上传类型枚举
@@ -50,21 +37,31 @@ export interface UploadedFile {
  * @param userId 用户 ID
  */
 export async function checkUploadLimits(userId: string) {
+    const dbSettings = await getSettings([
+        SettingKey.UPLOAD_LIMIT_WINDOW,
+        SettingKey.UPLOAD_DAILY_LIMIT,
+        SettingKey.UPLOAD_SINGLE_USER_DAILY_LIMIT,
+    ])
+
+    const limitWindow = Number(dbSettings[SettingKey.UPLOAD_LIMIT_WINDOW] || 86400)
+    const dailyLimit = Number(dbSettings[SettingKey.UPLOAD_DAILY_LIMIT] || 100)
+    const userDailyLimit = Number(dbSettings[SettingKey.UPLOAD_SINGLE_USER_DAILY_LIMIT] || 5)
+
     const globalCount = await limiterStorage.increment(
         'upload_global_limit',
-        UPLOAD_LIMIT_WINDOW,
+        limitWindow,
     )
 
-    if (globalCount > UPLOAD_DAILY_LIMIT) {
+    if (globalCount > dailyLimit) {
         throw createError({ statusCode: 429, statusMessage: '今日上传次数超出限制' })
     }
 
     const userCount = await limiterStorage.increment(
         `user_upload_limit:${userId}`,
-        UPLOAD_LIMIT_WINDOW,
+        limitWindow,
     )
 
-    if (userCount > UPLOAD_SINGLE_USER_DAILY_LIMIT) {
+    if (userCount > userDailyLimit) {
         throw createError({ statusCode: 429, statusMessage: '您今日上传次数超出限制' })
     }
 }
@@ -89,36 +86,43 @@ export async function handleFileUploads(event: H3Event, options: UploadOptions):
 
     // 加载存储配置
     const dbSettings = await getSettings([
-        'storage_type',
-        'local_storage_dir',
-        'local_storage_base_url',
-        's3_endpoint',
-        's3_bucket',
-        's3_region',
-        's3_access_key',
-        's3_secret_key',
-        's3_base_url',
-        's3_bucket_prefix',
+        SettingKey.STORAGE_TYPE,
+        SettingKey.LOCAL_STORAGE_DIR,
+        SettingKey.LOCAL_STORAGE_BASE_URL,
+        SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE,
+        SettingKey.S3_ENDPOINT,
+        SettingKey.S3_BUCKET,
+        SettingKey.S3_REGION,
+        SettingKey.S3_ACCESS_KEY,
+        SettingKey.S3_SECRET_KEY,
+        SettingKey.S3_BASE_URL,
+        SettingKey.S3_BUCKET_PREFIX,
+        SettingKey.MAX_UPLOAD_SIZE,
+        SettingKey.MAX_AUDIO_UPLOAD_SIZE,
     ])
 
-    const storageType = dbSettings.storage_type || STORAGE_TYPE
+    const storageType = (dbSettings[SettingKey.STORAGE_TYPE] as any) || 'local'
     const storageConfig: FileStorageEnv = {
         ...(process.env as any),
         STORAGE_TYPE: storageType,
-        LOCAL_STORAGE_DIR: dbSettings.local_storage_dir || LOCAL_STORAGE_DIR,
-        LOCAL_STORAGE_BASE_URL: dbSettings.local_storage_base_url || LOCAL_STORAGE_BASE_URL,
-        LOCAL_STORAGE_MIN_FREE_SPACE,
-        S3_ENDPOINT: dbSettings.s3_endpoint || process.env.S3_ENDPOINT,
-        S3_BUCKET: dbSettings.s3_bucket || process.env.S3_BUCKET,
-        S3_REGION: dbSettings.s3_region || process.env.S3_REGION,
-        S3_ACCESS_KEY: dbSettings.s3_access_key || process.env.S3_ACCESS_KEY,
-        S3_SECRET_KEY: dbSettings.s3_secret_key || process.env.S3_SECRET_KEY,
-        S3_BASE_URL: dbSettings.s3_base_url || process.env.S3_BASE_URL,
-        BUCKET_PREFIX: dbSettings.s3_bucket_prefix || BUCKET_PREFIX,
+        LOCAL_STORAGE_DIR: String(dbSettings[SettingKey.LOCAL_STORAGE_DIR] || ''),
+        LOCAL_STORAGE_BASE_URL: String(dbSettings[SettingKey.LOCAL_STORAGE_BASE_URL] || ''),
+        LOCAL_STORAGE_MIN_FREE_SPACE: Number(dbSettings[SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE] || 100 * 1024 * 1024),
+        S3_ENDPOINT: String(dbSettings[SettingKey.S3_ENDPOINT] || ''),
+        S3_BUCKET: String(dbSettings[SettingKey.S3_BUCKET] || ''),
+        S3_REGION: String(dbSettings[SettingKey.S3_REGION] || ''),
+        S3_ACCESS_KEY: String(dbSettings[SettingKey.S3_ACCESS_KEY] || ''),
+        S3_SECRET_KEY: String(dbSettings[SettingKey.S3_SECRET_KEY] || ''),
+        S3_BASE_URL: String(dbSettings[SettingKey.S3_BASE_URL] || ''),
     }
+
+    const bucketPrefix = String(dbSettings[SettingKey.S3_BUCKET_PREFIX] || '')
 
     const storage = getFileStorage(storageType, storageConfig)
     const uploadedFiles: UploadedFile[] = []
+
+    const maxFileSize = Number(dbSettings[SettingKey.MAX_UPLOAD_SIZE] || 10) * 1024 * 1024
+    const maxAudioSize = Number(dbSettings[SettingKey.MAX_AUDIO_UPLOAD_SIZE] || 20) * 1024 * 1024
 
     for (const file of files) {
         // multipart/form-data 可能会包含非文件字段，简单检查是否有文件名
@@ -127,12 +131,12 @@ export async function handleFileUploads(event: H3Event, options: UploadOptions):
         }
 
         // 校验文件大小和类型
-        let maxSize = MAX_UPLOAD_SIZE
-        let maxSizeText = MAX_UPLOAD_SIZE_TEXT
+        let maxSize = maxFileSize
+        let maxSizeText = `${dbSettings[SettingKey.MAX_UPLOAD_SIZE] || 10}MB`
 
         if (type === UploadType.AUDIO) {
-            maxSize = MAX_AUDIO_UPLOAD_SIZE
-            maxSizeText = MAX_AUDIO_UPLOAD_SIZE_TEXT
+            maxSize = maxAudioSize
+            maxSizeText = `${dbSettings[SettingKey.MAX_AUDIO_UPLOAD_SIZE] || 20}MB`
         }
 
         if (file.data.length > maxSize) {
@@ -152,7 +156,7 @@ export async function handleFileUploads(event: H3Event, options: UploadOptions):
         const timestamp = dayjs().format('YYYYMMDDHHmmssSSS')
         const random = Math.random().toString(36).slice(2, 9)
         const ext = path.extname(file.filename)
-        const newFilename = `${BUCKET_PREFIX}${prefix}${timestamp}-${random}${ext}`
+        const newFilename = `${bucketPrefix}${prefix}${timestamp}-${random}${ext}`
 
         // 执行上传
         const { url } = await storage.upload(file.data, newFilename, file.type)

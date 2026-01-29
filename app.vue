@@ -17,7 +17,7 @@ const route = useRoute()
 const session = authClient.useSession()
 const { startTour } = useOnboarding()
 const { fetchTheme, applyTheme } = useTheme()
-const { fetchSiteConfig, currentTitle, currentDescription, currentKeywords } = useMomeiConfig()
+const { fetchSiteConfig, currentTitle, currentDescription, currentKeywords, siteFavicon, siteLogo } = useMomeiConfig()
 
 // 初始化主题与站点配置
 // 排除安装页面，避免在数据库未就绪时请求主题导致错误
@@ -70,6 +70,11 @@ useHead({
     ],
     link: [
         ...(head.value.link || []),
+        {
+            rel: 'icon',
+            type: 'image/x-icon',
+            href: siteFavicon.value || '/favicon.ico',
+        },
         {
             rel: 'alternate',
             type: 'application/rss+xml',

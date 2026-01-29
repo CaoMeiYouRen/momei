@@ -3,32 +3,27 @@ import { AnthropicProvider } from './anthropic-provider'
 import { MockAIProvider } from './mock-provider'
 import type { AIConfig, AIProvider } from '@/types/ai'
 import {
-    AI_ENABLED,
-    AI_PROVIDER,
-    AI_API_KEY,
-    AI_MODEL,
-    AI_API_ENDPOINT,
     AI_MAX_TOKENS,
     AI_TEMPERATURE,
-    DEMO_MODE,
 } from '@/utils/shared/env'
 import { getSettings } from '~/server/services/setting'
+import { SettingKey } from '~/types/setting'
 
 export async function getAIProvider(configOverride?: Partial<AIConfig>): Promise<AIProvider> {
     const dbSettings = await getSettings([
-        'ai_enabled',
-        'ai_provider',
-        'ai_api_key',
-        'ai_model',
-        'ai_endpoint',
+        SettingKey.AI_ENABLED,
+        SettingKey.AI_PROVIDER,
+        SettingKey.AI_API_KEY,
+        SettingKey.AI_MODEL,
+        SettingKey.AI_ENDPOINT,
     ])
 
     const config: AIConfig = {
-        enabled: dbSettings.ai_enabled === 'true' || AI_ENABLED,
-        provider: (dbSettings.ai_provider as any) || AI_PROVIDER,
-        apiKey: (dbSettings.ai_api_key as string) || (AI_API_KEY as string),
-        model: dbSettings.ai_model || AI_MODEL,
-        endpoint: dbSettings.ai_endpoint || AI_API_ENDPOINT,
+        enabled: dbSettings[SettingKey.AI_ENABLED] === 'true',
+        provider: (dbSettings[SettingKey.AI_PROVIDER] as any) || 'openai',
+        apiKey: dbSettings[SettingKey.AI_API_KEY] as string,
+        model: dbSettings[SettingKey.AI_MODEL] || '',
+        endpoint: dbSettings[SettingKey.AI_ENDPOINT] || '',
         maxTokens: AI_MAX_TOKENS,
         temperature: AI_TEMPERATURE,
     }
@@ -36,7 +31,7 @@ export async function getAIProvider(configOverride?: Partial<AIConfig>): Promise
 
     // If Demo mode is enabled, always return MockAIProvider
     const runtimeConfig = useRuntimeConfig()
-    if (DEMO_MODE || runtimeConfig.public.demoMode === true) {
+    if (runtimeConfig.public.demoMode === true) {
         return new MockAIProvider()
     }
 

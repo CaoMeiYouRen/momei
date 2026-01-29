@@ -918,6 +918,8 @@
             "siteDescriptionPlaceholder": "简要描述您的站点内容",
             "siteKeywords": "站点关键词",
             "siteKeywordsPlaceholder": "用逗号分隔,例如:博客,技术,分享",
+            "siteUrl": "站点地址",
+            "siteUrlPlaceholder": "例如:https://blog.example.com",
             "siteCopyright": "版权信息",
             "siteCopyrightPlaceholder": "例如:© 2024 我的博客. All rights reserved.",
             "defaultLanguage": "默认语言",

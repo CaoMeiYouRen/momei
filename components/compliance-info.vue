@@ -29,15 +29,15 @@
 </template>
 
 <script setup lang="ts">
-// 环境变量获取
-const publicConfig = useRuntimeConfig()
+// 站点配置获取
+const { siteConfig } = useMomeiConfig()
 
 // 是否显示备案信息（默认false）
 const showCompliance = computed(() => {
-    return publicConfig.public.showComplianceInfo
+    return siteConfig.value.showComplianceInfo
 })
-const icpNumber = computed(() => publicConfig.public.icpLicenseNumber)
-const policeNumber = computed(() => publicConfig.public.publicSecurityNumber)
+const icpNumber = computed(() => siteConfig.value.icpLicenseNumber)
+const policeNumber = computed(() => siteConfig.value.publicSecurityNumber)
 
 // 计算属性 - 是否应该显示
 const shouldShow = computed(() => {

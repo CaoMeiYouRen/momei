@@ -3,13 +3,22 @@
         <div class="container">
             <NuxtLink :to="localePath('/')" class="footer__logo">
                 <img
+                    v-if="siteLogo"
+                    :src="siteLogo"
+                    alt="Logo"
+                    class="footer__logo-img"
+                    width="24"
+                    height="24"
+                >
+                <img
+                    v-else
                     src="/logo.png"
                     alt="Momei Logo"
                     class="footer__logo-img"
                     width="24"
                     height="24"
                 >
-                <span class="footer__title">{{ $t('components.footer.title') }}</span>
+                <span class="footer__title">{{ currentTitle }}</span>
             </NuxtLink>
             <nav class="footer__nav">
                 <NuxtLink :to="localePath('/about')" class="footer__link">
@@ -68,6 +77,7 @@
 
 <script setup lang="ts">
 const localePath = useLocalePath()
+const { siteLogo, currentTitle } = useMomeiConfig()
 </script>
 
 <style lang="scss" scoped>

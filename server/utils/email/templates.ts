@@ -7,7 +7,8 @@ import { convert } from 'html-to-text'
 
 import logger from '../logger'
 import { getFallbackFragment, getFallbackMjmlTemplate, generateFallbackHtml } from './templates-fallback'
-import { APP_NAME, AUTH_BASE_URL, CONTACT_EMAIL } from '@/utils/shared/env'
+import { getSettings } from '@/server/services/setting'
+import { SettingKey } from '@/types/setting'
 
 interface EmailTemplateData {
     [key: string]: string | number | boolean
@@ -152,11 +153,21 @@ export class EmailTemplateEngine {
     /**
      * 构建基础模板数据
      */
-    private buildBaseTemplateData(config: BaseTemplateConfig, options: TemplateOptions, footerNote?: string): EmailTemplateData {
+    private async buildBaseTemplateData(config: BaseTemplateConfig, options: TemplateOptions, footerNote?: string): Promise<EmailTemplateData> {
+        const settings = await getSettings([
+            SettingKey.SITE_TITLE,
+            SettingKey.SITE_URL,
+            SettingKey.CONTACT_EMAIL,
+        ])
+
+        const appName = String(settings[SettingKey.SITE_TITLE] || '墨梅博客')
+        const baseUrl = String(settings[SettingKey.SITE_URL] || '')
+        const contactEmail = String(settings[SettingKey.CONTACT_EMAIL] || 'admin@example.com')
+
         return {
-            appName: APP_NAME,
-            baseUrl: AUTH_BASE_URL,
-            contactEmail: `mailto:${CONTACT_EMAIL}`,
+            appName,
+            baseUrl,
+            contactEmail: `mailto:${contactEmail}`,
             currentYear: dayjs().year(),
             headerIcon: config.headerIcon,
             headerSubtitle: '专业 · 高性能 · 国际化博客平台',
@@ -239,7 +250,7 @@ export class EmailTemplateEngine {
         templateConfig: ActionTemplateConfig,
         options: TemplateOptions,
     ): Promise<EmailResult> {
-        const templateData = this.buildBaseTemplateData(templateConfig, options)
+        const templateData = await this.buildBaseTemplateData(templateConfig, options)
         const fragments = ['action-message', 'important-reminder', 'security-tip']
 
         return await this.generateTemplate('action-email', fragments, { ...templateData, ...templateConfig }, options)
@@ -252,7 +263,7 @@ export class EmailTemplateEngine {
         templateConfig: CodeTemplateConfig,
         options: TemplateOptions,
     ): Promise<EmailResult> {
-        const templateData = this.buildBaseTemplateData(templateConfig, options, '这是一封系统自动发送的验证码邮件，请勿直接回复。')
+        const templateData = await this.buildBaseTemplateData(templateConfig, options, '这是一封系统自动发送的验证码邮件，请勿直接回复。')
         const fragments = ['verification-code', 'security-tip']
 
         return await this.generateTemplate('code-email', fragments, { ...templateData, ...templateConfig }, options)
@@ -265,7 +276,7 @@ export class EmailTemplateEngine {
         templateConfig: SimpleMessageConfig,
         options: TemplateOptions,
     ): Promise<EmailResult> {
-        const templateData = this.buildBaseTemplateData(templateConfig, options)
+        const templateData = await this.buildBaseTemplateData(templateConfig, options)
         const fragments = ['simple-message']
 
         return await this.generateTemplate('simple-message', fragments, { ...templateData, ...templateConfig }, options)

@@ -79,6 +79,10 @@ export interface SiteConfig {
      */
     siteKeywords: string
     /**
+     * 站点地址 (用于 Auth 和 生成链接)
+     */
+    siteUrl?: string
+    /**
      * 底部版权信息
      */
     siteCopyright?: string
@@ -360,6 +364,8 @@ export async function saveSiteConfig(config: SiteConfig): Promise<void> {
 
     const settings = [
         { key: 'site_title', value: config.siteTitle, description: '站点标题', level: 0 },
+        { key: 'site_name', value: config.siteTitle, description: '站点名称', level: 0 },
+        { key: 'site_url', value: config.siteUrl || '', description: '站点地址', level: 0 },
         { key: 'site_description', value: config.siteDescription, description: '站点描述', level: 0 },
         { key: 'site_keywords', value: config.siteKeywords, description: '站点关键词', level: 0 },
         { key: 'site_copyright', value: config.siteCopyright || '', description: '底部版权信息', level: 0 },

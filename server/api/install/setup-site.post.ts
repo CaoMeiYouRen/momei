@@ -8,6 +8,7 @@ const siteConfigSchema = z.object({
     siteTitle: z.string().min(1).max(100),
     siteDescription: z.string().min(1).max(500),
     siteKeywords: z.string().max(200),
+    siteUrl: z.string().max(500).or(z.literal('')).optional(),
     siteCopyright: z.string().max(200).optional(),
     defaultLanguage: z.enum(['zh-CN', 'en-US']),
 })

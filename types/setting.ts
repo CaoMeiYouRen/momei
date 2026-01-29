@@ -4,7 +4,9 @@
  */
 export enum SettingKey {
     // Site
+    SITE_NAME = 'site_name',
     SITE_TITLE = 'site_title',
+    SITE_URL = 'site_url',
     SITE_DESCRIPTION = 'site_description',
     SITE_KEYWORDS = 'site_keywords',
     SITE_COPYRIGHT = 'site_copyright',
@@ -24,11 +26,15 @@ export enum SettingKey {
     EMAIL_PASS = 'email_pass',
     EMAIL_FROM = 'email_from',
     EMAIL_REQUIRE_VERIFICATION = 'email_require_verification',
+    EMAIL_DAILY_LIMIT = 'email_daily_limit',
+    EMAIL_SINGLE_USER_DAILY_LIMIT = 'email_single_user_daily_limit',
+    EMAIL_LIMIT_WINDOW = 'email_limit_window',
 
     // Storage
     STORAGE_TYPE = 'storage_type',
     LOCAL_STORAGE_DIR = 'local_storage_dir',
     LOCAL_STORAGE_BASE_URL = 'local_storage_base_url',
+    LOCAL_STORAGE_MIN_FREE_SPACE = 'local_storage_min_free_space',
     S3_ENDPOINT = 's3_endpoint',
     S3_BUCKET = 's3_bucket',
     S3_REGION = 's3_region',
@@ -36,6 +42,11 @@ export enum SettingKey {
     S3_SECRET_KEY = 's3_secret_key',
     S3_BASE_URL = 's3_base_url',
     S3_BUCKET_PREFIX = 's3_bucket_prefix',
+    CLOUDFLARE_R2_ACCOUNT_ID = 'cloudflare_r2_account_id',
+    CLOUDFLARE_R2_ACCESS_KEY = 'cloudflare_r2_access_key',
+    CLOUDFLARE_R2_SECRET_KEY = 'cloudflare_r2_secret_key',
+    CLOUDFLARE_R2_BUCKET = 'cloudflare_r2_bucket',
+    CLOUDFLARE_R2_BASE_URL = 'cloudflare_r2_base_url',
 
     // Analytics
     BAIDU_ANALYTICS = 'baidu_analytics',
@@ -68,6 +79,9 @@ export enum SettingKey {
     ALLOWED_FILE_TYPES = 'allowed_file_types',
     COMMENT_INTERVAL = 'comment_interval',
     POSTS_PER_PAGE = 'posts_per_page',
+    UPLOAD_DAILY_LIMIT = 'upload_daily_limit',
+    UPLOAD_SINGLE_USER_DAILY_LIMIT = 'upload_single_user_daily_limit',
+    UPLOAD_LIMIT_WINDOW = 'upload_limit_window',
 
     // Branding
     SITE_LOGO = 'site_logo',

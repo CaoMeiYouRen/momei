@@ -4,6 +4,8 @@ import { Comment } from '@/server/entities/comment'
 import { Post } from '@/server/entities/post'
 import { CommentStatus } from '@/types/comment'
 import { processAuthorPrivacy } from '@/server/utils/author'
+import { getSettings } from '@/server/services/setting'
+import { SettingKey } from '@/types/setting'
 
 /**
  * 评论服务
@@ -75,6 +77,21 @@ export const commentService = {
             throw createError({ statusCode: 404, statusMessage: 'Post not found' })
         }
 
+        // 执行黑名单检查
+        const settings = await getSettings([
+            SettingKey.BLACKLISTED_KEYWORDS,
+            SettingKey.ENABLE_COMMENT_REVIEW,
+        ])
+
+        const blacklistedKeywords = String(settings[SettingKey.BLACKLISTED_KEYWORDS] || '')
+            .split(/[,，\n]/)
+            .map((k) => k.trim())
+            .filter(Boolean)
+
+        if (blacklistedKeywords.some((keyword) => data.content.includes(keyword))) {
+            throw createError({ statusCode: 400, statusMessage: '评论包含不当内容' })
+        }
+
         const comment = new Comment()
         comment.postId = data.postId
         comment.parentId = data.parentId || null
@@ -86,9 +103,14 @@ export const commentService = {
         comment.ip = data.ip || null
         comment.userAgent = data.userAgent || null
 
-        // 默认状态逻辑：
-        // 游客评论需审核，登录用户评论直接发布
-        if (data.authorId) {
+        // 状态逻辑：
+        // 1. 如果全局开启了评论审核，则所有评论进入待审核状态（除非是管理员，这里暂不处理管理员例外）
+        // 2. 如果未开启全局审核，则游客评论需审核，登录用户评论直接发布
+        const enableReview = String(settings[SettingKey.ENABLE_COMMENT_REVIEW]) === 'true'
+
+        if (enableReview) {
+            comment.status = CommentStatus.PENDING
+        } else if (data.authorId) {
             comment.status = CommentStatus.PUBLISHED
         } else {
             comment.status = CommentStatus.PENDING

@@ -919,6 +919,8 @@
             "siteDescriptionPlaceholder": "Briefly describe your site content",
             "siteKeywords": "Site Keywords",
             "siteKeywordsPlaceholder": "Comma separated, e.g., blog, tech, sharing",
+            "siteUrl": "Site URL",
+            "siteUrlPlaceholder": "e.g.: https://blog.example.com",
             "siteCopyright": "Copyright",
             "siteCopyrightPlaceholder": "e.g., © 2024 My Blog. All rights reserved.",
             "defaultLanguage": "Default Language",

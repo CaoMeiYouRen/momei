@@ -3,13 +3,22 @@
         <div class="app-header__container">
             <NuxtLink :to="localePath('/')" class="app-header__logo-link">
                 <img
+                    v-if="siteLogo"
+                    :src="siteLogo"
+                    alt="Logo"
+                    class="app-header__logo"
+                    width="32"
+                    height="32"
+                >
+                <img
+                    v-else
                     src="/logo.png"
                     alt="Momei Logo"
                     class="app-header__logo"
                     width="32"
                     height="32"
                 >
-                <span class="app-header__title">{{ $t('components.header.title') }}</span>
+                <span class="app-header__title">{{ currentTitle }}</span>
             </NuxtLink>
 
             <div class="app-header__actions">
@@ -306,6 +315,7 @@ import { isAdminOrAuthor, isAdmin } from '@/utils/shared/roles'
 
 const { t } = useI18n()
 const { openSearch } = useSearch()
+const { siteLogo, currentTitle } = useMomeiConfig()
 const session = authClient.useSession()
 const user = computed(() => session.value?.data?.user)
 const isSessionPending = computed(() => session.value?.isPending)

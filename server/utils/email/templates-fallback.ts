@@ -1,5 +1,3 @@
-import { AUTH_BASE_URL, CONTACT_EMAIL } from '@/utils/shared/env'
-
 export function getFallbackFragment(fragmentName: string): string {
     const fallbackFragments: Record<string, string> = {
         'verification-code': `
@@ -573,9 +571,9 @@ export function generateFallbackHtml(title: string, safeData: any): string {
         </div>
         <div class="footer">
             <div class="footer-links">
-                <a href="mailto:${CONTACT_EMAIL}">联系方式</a>
-                <a href="${AUTH_BASE_URL}/privacy">隐私政策</a>
-                <a href="${AUTH_BASE_URL}/terms">服务条款</a>
+                <a href="${safeData.contactEmail}">联系方式</a>
+                <a href="${safeData.baseUrl}/privacy">隐私政策</a>
+                <a href="${safeData.baseUrl}/terms">服务条款</a>
             </div>
             <div class="footer-copyright">© ${safeData.currentYear} ${safeData.appName}. 保留所有权利。</div>
             <div class="footer-note">${safeData.footerNote}</div>
