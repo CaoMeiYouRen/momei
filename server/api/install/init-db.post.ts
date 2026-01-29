@@ -1,5 +1,6 @@
-import { isSystemInstalled } from '~/server/services/installation'
+import { isSystemInstalled, syncSettingsFromEnv } from '~/server/services/installation'
 import { dataSource } from '~/server/database'
+import logger from '~/server/utils/logger'
 
 /**
  * 初始化数据库
@@ -24,9 +25,8 @@ export default defineEventHandler(async () => {
             })
         }
 
-        // 执行数据库同步（如果尚未同步）
-        // 注意：在生产环境中，synchronize 应该在启动时自动完成
-        // 这里主要是验证数据库结构是否正确
+        // 从环境变量同步配置
+        await syncSettingsFromEnv()
 
         return {
             code: 200,

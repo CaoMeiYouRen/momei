@@ -63,6 +63,7 @@
                                 :site-config-loading="siteConfigLoading"
                                 :site-config-error="siteConfigError"
                                 :language-options="languageOptions"
+                                :env-settings="installationStatus?.envSettings || {}"
                                 @prev="activateCallback('2')"
                                 @next="saveSiteConfig(activateCallback)"
                             />
@@ -82,6 +83,7 @@
                             <StepExtraConfig
                                 v-model:extra-config="extraConfig"
                                 :extra-config-loading="extraConfigLoading"
+                                :env-settings="installationStatus?.envSettings || {}"
                                 @prev="activateCallback('4')"
                                 @skip="activateCallback('6')"
                                 @next="saveExtraConfig(activateCallback)"
@@ -185,6 +187,63 @@ async function fetchInstallationStatus() {
         installationStatus.value = response.data
         if (response.data?.installed && !finalizeSuccess.value) {
             navigateTo('/')
+        }
+
+        // 自动检测环境变量状态并回填
+        if (response.data?.envSettings) {
+            const env = response.data.envSettings
+
+            // Site Config mapping
+            const siteMap: Record<string, keyof typeof siteConfig.value> = {
+                site_title: 'siteTitle',
+                site_description: 'siteDescription',
+                site_keywords: 'siteKeywords',
+                site_url: 'siteUrl',
+                site_copyright: 'siteCopyright',
+                default_language: 'defaultLanguage' as any,
+            }
+
+            Object.entries(siteMap).forEach(([dbKey, configKey]) => {
+                if (env[dbKey]) {
+                    (siteConfig.value as any)[configKey] = env[dbKey].value
+                }
+            })
+
+            // Extra Config mapping
+            const extraMap: Record<string, keyof typeof extraConfig.value> = {
+                ai_provider: 'aiProvider',
+                ai_api_key: 'aiApiKey',
+                ai_model: 'aiModel',
+                ai_endpoint: 'aiEndpoint',
+                email_host: 'emailHost',
+                email_port: 'emailPort' as any,
+                email_user: 'emailUser',
+                email_pass: 'emailPass',
+                email_from: 'emailFrom',
+                storage_type: 'storageType',
+                local_storage_dir: 'localStorageDir',
+                local_storage_base_url: 'localStorageBaseUrl',
+                s3_endpoint: 's3Endpoint',
+                s3_bucket: 's3Bucket',
+                s3_region: 's3Region',
+                s3_access_key: 's3AccessKey',
+                s3_secret_key: 's3SecretKey',
+                s3_base_url: 's3BaseUrl',
+                s3_bucket_prefix: 's3BucketPrefix',
+                baidu_analytics: 'baiduAnalytics',
+                google_analytics: 'googleAnalytics',
+                clarity_analytics: 'clarityAnalytics',
+            }
+
+            Object.entries(extraMap).forEach(([dbKey, configKey]) => {
+                if (env[dbKey]) {
+                    if (configKey === 'emailPort') {
+                        extraConfig.value.emailPort = parseInt(env[dbKey].value) || 587
+                    } else {
+                        (extraConfig.value as any)[configKey] = env[dbKey].value
+                    }
+                }
+            })
         }
     } catch (error: any) {
         console.error('Failed to fetch installation status:', error)

@@ -6,11 +6,30 @@ import { User } from '../entities/user'
 import { Setting } from '../entities/setting'
 import logger from '../utils/logger'
 import { SETTING_ENV_MAP } from './setting'
+import { inferSettingMaskType, isMaskedSettingPlaceholder, maskSettingValue } from '@/server/utils/settings'
 
 /**
  * 安装状态检测服务
  * 负责检查系统是否已完成初始化
  */
+
+/**
+ * 环境变量配置项接口
+ */
+export interface EnvSetting {
+    /**
+     * 脱敏后的值 (如果不需要脱敏则为原值)
+     */
+    value: string
+    /**
+     * 是否受环境变量锁定
+     */
+    isLocked: boolean
+    /**
+     * 脱敏类型
+     */
+    maskType: string
+}
 
 /**
  * 安装状态接口
@@ -60,6 +79,10 @@ export interface InstallationStatus {
      * Node.js 版本是否符合建议 (>=20)
      */
     isNodeVersionSafe: boolean
+    /**
+     * 环境变量设置 (键为 SettingKey, 值为详细配置项)
+     */
+    envSettings: Record<string, EnvSetting>
 }
 
 /**
@@ -291,6 +314,9 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
         || process.env.FUNCTIONS_WORKER_RUNTIME
     )
 
+    // 获取当前环境变量中已设置的项
+    const envSettings = getEnvSettingsDetails()
+
     // 如果环境变量已标记安装，直接返回已安装状态
     if (envInstallationFlag) {
         return {
@@ -305,6 +331,7 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
             databaseVersion,
             isServerless,
             isNodeVersionSafe,
+            envSettings,
         }
     }
 
@@ -312,16 +339,17 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
     if (!databaseConnected) {
         return {
             installed: false,
-            databaseConnected: false,
+            databaseConnected,
             hasUsers: false,
             hasInstallationFlag: false,
-            envInstallationFlag: false,
+            envInstallationFlag,
             nodeVersion,
             os: osInfo,
             databaseType,
-            databaseVersion,
+            databaseVersion: 'N/A',
             isServerless,
             isNodeVersionSafe,
+            envSettings,
         }
     }
 
@@ -344,7 +372,29 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
         databaseVersion,
         isServerless,
         isNodeVersionSafe,
+        envSettings,
     }
+}
+
+/**
+ * 获取环境变量配置详情 (含脱敏逻辑)
+ */
+function getEnvSettingsDetails(): Record<string, EnvSetting> {
+    const envSettings: Record<string, EnvSetting> = {}
+    Object.entries(SETTING_ENV_MAP).forEach(([key, envKey]) => {
+        const envValue = process.env[envKey]
+        if (envValue !== undefined && envValue !== '') {
+            // 推断脱敏类型
+            const maskType = inferSettingMaskType(key, envValue)
+
+            envSettings[key] = {
+                value: maskSettingValue(envValue, maskType) || '',
+                isLocked: true,
+                maskType,
+            }
+        }
+    })
+    return envSettings
 }
 
 /**
@@ -382,6 +432,22 @@ export async function saveSiteConfig(config: SiteConfig): Promise<void> {
 
     for (const setting of settings) {
         const existing = await settingRepo.findOne({ where: { key: setting.key } })
+
+        // 检查是否受环境变量锁定
+        const envKey = SETTING_ENV_MAP[setting.key]
+        const envValue = envKey ? process.env[envKey] : undefined
+        const isLocked = envValue !== undefined && envValue !== ''
+
+        // 如果提交的值是脱敏占位符，且当前受环境变量锁定或数据库已有值，则跳过更新该字段
+        if (isMaskedSettingPlaceholder(setting.value, 'none')) {
+            continue
+        }
+
+        // 如果已由环境变量提供，且前端传值为空，则跳过以防止覆盖
+        if (isLocked && !setting.value) {
+            continue
+        }
+
         if (existing) {
             existing.value = setting.value
             existing.description = setting.description
@@ -449,6 +515,22 @@ export async function saveExtraConfig(config: ExtraConfig): Promise<void> {
 
     for (const setting of settings) {
         const existing = await settingRepo.findOne({ where: { key: setting.key } })
+
+        // 检查是否受环境变量锁定
+        const envKey = SETTING_ENV_MAP[setting.key]
+        const envValue = envKey ? process.env[envKey] : undefined
+        const isLocked = envValue !== undefined && envValue !== ''
+
+        // 如果提交的值是脱敏占位符，且当前受环境变量锁定或数据库已有值，则跳过更新该字段
+        if (isMaskedSettingPlaceholder(setting.value, setting.maskType || 'none')) {
+            continue
+        }
+
+        // 如果已由环境变量提供，且前端传值为空，则跳过以防止覆盖
+        if (isLocked && !setting.value) {
+            continue
+        }
+
         if (existing) {
             existing.value = setting.value
             existing.description = setting.description
@@ -515,7 +597,7 @@ export async function syncSettingsFromEnv(): Promise<void> {
 
     for (const [key, envKey] of entries) {
         const envValue = process.env[envKey]
-        if (envValue !== undefined) {
+        if (envValue !== undefined && envValue !== '') {
             let setting = await settingRepo.findOne({ where: { key } })
             if (setting) {
                 // 如果已存在，且当前值为空，则从 ENV 载入
@@ -525,24 +607,14 @@ export async function syncSettingsFromEnv(): Promise<void> {
                 }
             } else {
                 // 如果不存在，创建带默认元数据的记录
+                const maskType = inferSettingMaskType(key, envValue)
                 setting = settingRepo.create({
                     key,
                     value: envValue,
                     description: `Initial sync from ${envKey}`,
                     level: 2, // 默认管理员级别
-                    maskType: 'none',
+                    maskType,
                 })
-
-                // 尝试匹配特定的脱敏类型
-                if (key.includes('pass') || key.includes('secret')) {
-                    setting.maskType = 'password'
-                } else if (key.includes('key')) {
-                    setting.maskType = 'key'
-                } else if (key.includes('email') || key.includes('user')) {
-                    if (envValue.includes('@')) {
-                        setting.maskType = 'email'
-                    }
-                }
 
                 await settingRepo.save(setting)
             }

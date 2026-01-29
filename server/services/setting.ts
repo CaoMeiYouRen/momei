@@ -1,6 +1,7 @@
 import { dataSource } from '@/server/database'
 import { Setting } from '@/server/entities/setting'
 import { SettingKey } from '@/types/setting'
+import { inferSettingMaskType, isMaskedSettingPlaceholder, maskSettingValue } from '@/server/utils/settings'
 
 /**
  * 数据库键名与环境变量键名的映射关系
@@ -100,35 +101,6 @@ export const SETTING_ENV_MAP: Record<string, string> = {
     [SettingKey.THEME_BACKGROUND_VALUE]: 'THEME_BACKGROUND_VALUE',
 }
 
-
-/**
- * 值的脱敏处理
- */
-export const maskValue = (value: string | null, type: string): string | null => {
-    if (!value) {
-        return value
-    }
-    switch (type) {
-        case 'password':
-            return '********'
-        case 'key':
-            if (value.length <= 8) {
-                return '********'
-            }
-            return `${value.substring(0, 4)}****${value.substring(value.length - 4)}`
-        case 'email': {
-            const parts = value.split('@')
-            const userPart = parts[0]
-            const domainPart = parts[1]
-            if (!userPart || !domainPart) {
-                return '********'
-            }
-            return `${userPart.substring(0, Math.min(3, userPart.length))}***@${domainPart}`
-        }
-        default:
-            return value
-    }
-}
 
 /**
  * 获取指定键的设置值
@@ -268,15 +240,7 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
 
         // 如果数据库中没有该配置项，尝试从 key 关键字推断元数据
         if (!dbSetting) {
-            if (key.includes('pass') || key.includes('secret')) {
-                maskType = 'password'
-            } else if (key.includes('key')) {
-                maskType = 'key'
-            } else if (key.includes('email') || key.includes('user')) {
-                if (value.includes('@')) {
-                    maskType = 'email'
-                }
-            }
+            maskType = inferSettingMaskType(key, value)
 
             if (key.includes('api_key') || key.includes('secret') || key.includes('pass')) {
                 level = 3 // 默认为强机密级别
@@ -285,7 +249,7 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
 
         result.push({
             key,
-            value: options?.shouldMask ? maskValue(value, maskType) : value,
+            value: options?.shouldMask ? maskSettingValue(value, maskType) : value,
             description,
             level,
             maskType,
@@ -320,20 +284,7 @@ export const setSettings = async (settings: Record<string, string | any>) => {
 
         if (setting) {
             // 如果是脱敏过的值且没有变化（即用户提交的是脱敏后的占位符），则跳过值更新
-            const isMaskedPlaceholder = (inputValue: string, maskType: string) => {
-                if (maskType === 'password' && inputValue === '********') {
-                    return true
-                }
-                if (maskType === 'key' && inputValue.includes('****') && inputValue.length > 8) {
-                    return true
-                }
-                if (maskType === 'email' && inputValue.includes('***@')) {
-                    return true
-                }
-                return false
-            }
-
-            if (!isMaskedPlaceholder(value, setting.maskType)) {
+            if (!isMaskedSettingPlaceholder(value, setting.maskType)) {
                 setting.value = value
             }
 
