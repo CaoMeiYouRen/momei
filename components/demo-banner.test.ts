@@ -63,7 +63,7 @@ describe('DemoBanner', () => {
         await wrapper.find('.demo-banner__btn').trigger('click')
 
         expect(dispatchEventSpy).toHaveBeenCalled()
-        const event = dispatchEventSpy.mock.calls[0][0] as CustomEvent
+        const event = dispatchEventSpy.mock.calls[0]![0] as CustomEvent
         expect(event.type).toBe('momei:start-tour')
 
         dispatchEventSpy.mockRestore()

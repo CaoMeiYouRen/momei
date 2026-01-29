@@ -4,18 +4,22 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 const sharedLocale = ref('zh-CN')
 
+const { mockUseFetch } = vi.hoisted(() => ({
+    mockUseFetch: vi.fn((url: any, options: any) => ({
+        data: ref(null),
+        pending: ref(false),
+        error: ref(null),
+        refresh: vi.fn(),
+        url,
+        options,
+    })),
+}))
+
 mockNuxtImport('useI18n', () => () => ({
     locale: sharedLocale,
 }))
 
-mockNuxtImport('useFetch', () => vi.fn((url: any, options: any) => ({
-    data: ref(null),
-    pending: ref(false),
-    error: ref(null),
-    refresh: vi.fn(),
-    url,
-    options,
-})))
+mockNuxtImport('useFetch', () => mockUseFetch)
 
 // $fetch 比较特殊，它是 ofetch 提供的
 vi.stubGlobal('$fetch', vi.fn())
@@ -28,25 +32,43 @@ describe('useAppFetch', () => {
         sharedLocale.value = 'zh-CN'
     })
 
-    it('should append language to query parameters', async () => {
+    it('should append language to query parameters', () => {
         sharedLocale.value = 'en-US'
-        const { useFetch } = await import('#imports')
 
         const result = useAppFetch('/api/posts') as any
 
-        expect(useFetch).toHaveBeenCalled()
+        expect(mockUseFetch).toHaveBeenCalled()
         expect(result.options.query.value.language).toBe('en-US')
     })
 
-    it('should merge existing query parameters with language', async () => {
+    it('should merge existing query parameters with language', () => {
         sharedLocale.value = 'zh-CN'
-        const { useFetch } = await import('#imports')
 
         const result = useAppFetch('/api/posts', { query: { page: 1 } }) as any
 
-        expect(useFetch).toHaveBeenCalled()
+        expect(mockUseFetch).toHaveBeenCalled()
         expect(result.options.query.value.language).toBe('zh-CN')
         expect(result.options.query.value.page).toBe(1)
+    })
+
+    it('should handle reactive query parameters', () => {
+        sharedLocale.value = 'en-US'
+
+        const page = ref(1)
+        const result = useAppFetch('/api/posts', { query: { page } }) as any
+
+        expect(mockUseFetch).toHaveBeenCalled()
+        expect(result.options.query.value.language).toBe('en-US')
+        expect(result.options.query.value.page).toBe(1)
+    })
+
+    it('should work with function URL', () => {
+        sharedLocale.value = 'en-US'
+
+        const urlFn = () => '/api/posts'
+        useAppFetch(urlFn)
+
+        expect(mockUseFetch).toHaveBeenCalledWith(urlFn, expect.any(Object), expect.anything())
     })
 })
 
