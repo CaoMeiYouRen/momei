@@ -1,0 +1,60 @@
+{
+    // 配置名称（可自定义，用于在 Codespaces 中识别）
+    "name": "Claude Code Ready Environment",
+    // 基础镜像：选择官方 Node.js 镜像（预装 Node.js/npm，兼容 Claude Code 多种安装方式）
+    // 18-bullseye 稳定版，兼容性强，适合大多数场景
+    "image": "mcr.microsoft.com/devcontainers/node:18-bullseye",
+    // 【核心】Codespace 创建完成后自动执行的命令（预装 Claude Code 及依赖）
+    "postCreateCommand": "bash -c 'sudo apt update && sudo apt install -y curl git && curl -fsSL https://claude.ai/install.sh | bash && source ~/.bashrc || true && source ~/.zshrc || true'",
+    // 定制化配置（终端 + VS Code）
+    "customizations": {
+        // 终端配置：默认使用 zsh（更友好的终端体验），兼容 claude 命令
+        "terminal": {
+            "shellArgs": [
+                "/bin/zsh",
+                "-l"
+            ]
+        },
+        // VS Code 配置：预装实用扩展，提升与 Claude Code 的协作效率
+        "vscode": {
+            "extensions": [
+                "GitHub.github-vscode-theme", // GitHub 主题，视觉更统一
+                "ms-vscode.vscode-typescript-next", // TypeScript 增强（Claude Code 常用）
+                "ms-vscode.git-extension-pack", // Git 扩展包（Claude Code 需操作 Git）
+                "redhat.vscode-yaml" // YAML 语法高亮（配置文件编辑）
+            ],
+            // VS Code 基础设置（可选，可自定义）
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/zsh",
+                "editor.formatOnSave": true,
+                "files.eol": "\n"
+            }
+        }
+    },
+    // 环境变量配置（占位符）
+    // 方式1：直接填写（不推荐，存在密钥泄露风险，仅用于本地测试）
+    // 方式2：后续配置 GitHub Codespaces Secrets（推荐，安全可靠）
+    "remoteEnv": {
+        // Claude Code 认证密钥占位符（二选一即可）
+        "ANTHROPIC_BASE_URL": "${localEnv:ANTHROPIC_BASE_URL}",
+        "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
+        "ANTHROPIC_AUTH_TOKEN": "${localEnv:ANTHROPIC_AUTH_TOKEN}",
+        // 可选：GitHub PAT 环境变量（用于 Claude Code 操作 GitHub 仓库/PR）
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${localEnv:GITHUB_PERSONAL_ACCESS_TOKEN}"
+    },
+    // 容器资源限制（可选，根据自身 Codespaces 额度调整）
+    "hostRequirements": {
+        "cpus": 2, // 最低 2 核，推荐 4 核（更流畅运行 Claude Code）
+        "memory": "8gb" // 最低 8G 内存，避免运行卡顿
+        // "storage": "32gb" // 最低 32G 存储，预留足够空间安装依赖和缓存
+    },
+    // 持久化配置（保留 Claude Code 认证信息和配置，下次创建无需重新安装）
+    "mounts": [
+        "source=claude-code-config,target=/home/node/.config/claude,type=volume",
+        "source=claude-code-cache,target=/home/node/.cache/claude,type=volume"
+    ],
+    // 特权模式（可选，解决部分权限问题，无需手动授权）
+    "runArgs": [
+        "--privileged"
+    ]
+}
