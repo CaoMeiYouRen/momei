@@ -79,13 +79,21 @@ export const useTheme = () => {
     }))
 
     const previewSettings = useState<ThemeSettings | null>('theme-preview-settings', () => null)
+    const locks = useState<Record<string, boolean>>('theme-locks', () => ({}) as any)
 
     const effectiveSettings = computed(() => previewSettings.value || settings.value)
 
     const fetchTheme = async () => {
-        const { data } = await useAppFetch<{ data: ThemeSettings }>('/api/settings/theme')
+        const { data } = await useAppFetch<{ data: ThemeSettings, meta?: Record<string, { isLocked: boolean }> }>('/api/settings/theme')
         if (data.value) {
             settings.value = { ...settings.value, ...data.value.data }
+            if (data.value.meta) {
+                const newLocks: any = {}
+                Object.entries(data.value.meta).forEach(([key, val]) => {
+                    newLocks[key] = val.isLocked
+                })
+                locks.value = newLocks
+            }
         }
     }
 
@@ -292,10 +300,14 @@ export const useTheme = () => {
         })
     }
 
+    const isLocked = (key: keyof ThemeSettings | string) => !!locks.value[key as string]
+
     return {
         settings,
         previewSettings,
         effectiveSettings,
+        locks,
+        isLocked,
         fetchTheme,
         applyTheme,
         mourningMode,
