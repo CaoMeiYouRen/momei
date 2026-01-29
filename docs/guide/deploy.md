@@ -199,6 +199,23 @@ services:
             - ./uploads:/app/public/uploads # 持久化存储上传的文件
 ```
 
+### 4.3 Cloudflare Pages / Workers 部署
+
+墨梅支持部署到 Cloudflare 平台上。
+
+1. **准备工作**: 确保你已安装 `Wrangler` 并完成登录。
+2. **构建项目**:
+   ```bash
+   pnpm build
+   ```
+3. **部署**:
+   ```bash
+   pnpm wrangler deploy
+   ```
+4. **环境变量**: 在 Cloudflare 控制面板中配置 `AUTH_SECRET` 和 `DATABASE_URL` (推荐使用外部数据库如 Neon 或 TiDB Cloud)。
+
+_注意_: Cloudflare 环境下不支持本地文件存储 (`STORAGE_TYPE=local`)，建议配合 Cloudflare R2 使用 (`STORAGE_TYPE=s3`)。
+
 ---
 
 ## 5. 管理员账号配置

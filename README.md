@@ -127,7 +127,7 @@
 
 ### 支持情况
 
-建议使用 Vercel、Netlify 或 Docker 进行部署。
+建议使用 Vercel、Netlify、Cloudflare 或 Docker 进行部署。
 
 点击下方按钮一键部署到 Vercel。
 
@@ -139,6 +139,7 @@
 
 -   **SQLite**: 默认选项，无需配置服务器，适合个人博客。推荐设置 `DATABASE_URL=sqlite://database/momei.sqlite`。
 -   **MySQL / PostgreSQL**: 适合有更高数据管理需求的用户，通过 `DATABASE_URL` 协议头自动推断。
+-   **Cloudflare D1**: 计划中。建议使用外部数据库如 Neon 或 TiDB Cloud 作为 Cloudflare 部署的后端。
 
 详情请参考 [部署指南](https://docs.momei.app/guide/deploy)。
 

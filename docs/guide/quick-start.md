@@ -48,7 +48,18 @@ services:
 docker-compose up -d
 ```
 
-## 3. 本地开发 (零配置启动)
+## 3. 部署到 Cloudflare
+
+如果你更倾向于极速平滑的 Serverless 体验：
+
+```bash
+pnpm build
+pnpm wrangler deploy
+```
+
+详见 [部署指南 - Cloudflare 章节](./deploy.md#_4-3-cloudflare-pages-workers-部署)。
+
+## 4. 本地开发 (零配置启动)
 
 如果你想在本地开发或修改代码：
 

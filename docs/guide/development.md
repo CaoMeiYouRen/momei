@@ -43,55 +43,29 @@
     ```
     访问 `http://localhost:3000` 即可看到实时生效的改动。
 
-## 3. 开发流程
+## 3. 开发规范概要
 
-### 3.1 增加新页面/组件
+为了保证代码逻辑的一致性，请在开发时遵循以下核心准则：
 
--   页面存放在 `pages/` 目录下，文件命名遵循 `kebab-case`。
--   公用组件存放在 `components/` 目录下，使用大驼峰式 (PascalCase) 命名（符合 Vue 官方规范）。
+-   **命名**: 文件使用 `kebab-case`，组件使用 `PascalCase`。
+-   **逻辑**: 优先使用 `Early Return`，减少嵌套。
+-   **样式**: 使用 SCSS + BEM，严禁使用 `!important`。
+-   **国际化**: 所有 UI 文本必须经过 `$t()` 包装。
 
-### 3.2 修改样式
+::: tip 提示
+更深入的代码规范、目录结构说明及安全要求，请务必阅读 [**开发规范文档 (Development Standards)**](../standards/development.md)。
+:::
 
--   全局样式在 `assets/styles/main.scss` 中。
--   组件样式使用 `<style lang="scss" scoped>`。
--   遵循 **BEM** 命名规范（例如：`.article-card__title`）。
+## 4. 常用命令
 
-### 3.3 文档编写
-
--   文档存放在 `docs/` 目录下，由 VitePress 驱动。
--   在修改代码的同时，请务必同步更新相关的文档资产。
-
-## 4. 测试与规范
-
-### 4.1 代码检查
-
-提交 PR 之前请务必运行 lint 检查：
-
-```bash
-# 检查 TS 代码
-pnpm lint
-
-# 检查样样式
-pnpm lint:css
-```
-
-### 4.2 运行测试
-
-项目使用 Vitest 进行单元测试和集成测试：
-
-```bash
-pnpm test
-```
-
-### 4.3 提交规范
-
-我们遵循 **Conventional Commits** 规范。提交信息格式：`类型: 描述`（请使用中文）。
-
--   `feat`: 新特性
--   `fix`: 修复问题
--   `docs`: 文档变更
--   `style`: 代码格式修正
--   `refactor`: 重构代码
+| 命令 | 说明 |
+| :--- | :--- |
+| `pnpm dev` | 启动开发服务器 |
+| `pnpm build` | 构建生产版本 |
+| `pnpm lint` | 运行 TS/Vue 代码检查 |
+| `pnpm lint:css` | 运行样式检查 |
+| `pnpm test` | 运行单测 |
+| `pnpm typecheck`| 运行类型检查 |
 
 ## 5. 参与贡献
 
