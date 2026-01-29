@@ -1,4 +1,5 @@
 import { getSettings } from '~/server/services/setting'
+import { SettingKey } from '~/types/setting'
 
 /**
  * 获取公开站点配置
@@ -7,14 +8,14 @@ import { getSettings } from '~/server/services/setting'
 export default defineEventHandler(async () => {
     try {
         const publicKeys = [
-            'site_title',
-            'site_description',
-            'site_keywords',
-            'site_copyright',
-            'default_language',
-            'baidu_analytics',
-            'google_analytics',
-            'clarity_analytics',
+            SettingKey.SITE_TITLE,
+            SettingKey.SITE_DESCRIPTION,
+            SettingKey.SITE_KEYWORDS,
+            SettingKey.SITE_COPYRIGHT,
+            SettingKey.DEFAULT_LANGUAGE,
+            SettingKey.BAIDU_ANALYTICS,
+            SettingKey.GOOGLE_ANALYTICS,
+            SettingKey.CLARITY_ANALYTICS,
         ]
 
         const settings = await getSettings(publicKeys)
@@ -22,14 +23,14 @@ export default defineEventHandler(async () => {
         return {
             code: 200,
             data: {
-                siteTitle: settings.site_title,
-                siteDescription: settings.site_description,
-                siteKeywords: settings.site_keywords,
-                siteCopyright: settings.site_copyright,
-                defaultLanguage: settings.default_language,
-                baiduAnalytics: settings.baidu_analytics,
-                googleAnalytics: settings.google_analytics,
-                clarityAnalytics: settings.clarity_analytics,
+                siteTitle: settings[SettingKey.SITE_TITLE],
+                siteDescription: settings[SettingKey.SITE_DESCRIPTION],
+                siteKeywords: settings[SettingKey.SITE_KEYWORDS],
+                siteCopyright: settings[SettingKey.SITE_COPYRIGHT],
+                defaultLanguage: settings[SettingKey.DEFAULT_LANGUAGE],
+                baiduAnalytics: settings[SettingKey.BAIDU_ANALYTICS],
+                googleAnalytics: settings[SettingKey.GOOGLE_ANALYTICS],
+                clarityAnalytics: settings[SettingKey.CLARITY_ANALYTICS],
             },
         }
     } catch {

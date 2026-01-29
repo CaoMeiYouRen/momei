@@ -1,89 +1,91 @@
 import { dataSource } from '@/server/database'
 import { Setting } from '@/server/entities/setting'
+import { SettingKey } from '@/types/setting'
 
 /**
  * 数据库键名与环境变量键名的映射关系
  */
 export const SETTING_ENV_MAP: Record<string, string> = {
     // Site
-    site_title: 'NUXT_PUBLIC_APP_NAME',
-    site_description: 'NUXT_PUBLIC_SITE_DESCRIPTION',
-    site_keywords: 'NUXT_PUBLIC_SITE_KEYWORDS',
-    site_copyright: 'NUXT_PUBLIC_DEFAULT_COPYRIGHT',
-    default_language: 'NUXT_PUBLIC_DEFAULT_LANGUAGE',
+    [SettingKey.SITE_TITLE]: 'NUXT_PUBLIC_APP_NAME',
+    [SettingKey.SITE_DESCRIPTION]: 'NUXT_PUBLIC_SITE_DESCRIPTION',
+    [SettingKey.SITE_KEYWORDS]: 'NUXT_PUBLIC_SITE_KEYWORDS',
+    [SettingKey.SITE_COPYRIGHT]: 'NUXT_PUBLIC_DEFAULT_COPYRIGHT',
+    [SettingKey.DEFAULT_LANGUAGE]: 'NUXT_PUBLIC_DEFAULT_LANGUAGE',
     // AI
-    ai_enabled: 'AI_ENABLED',
-    ai_provider: 'AI_PROVIDER',
-    ai_api_key: 'AI_API_KEY',
-    ai_model: 'AI_MODEL',
-    ai_endpoint: 'AI_API_ENDPOINT',
+    [SettingKey.AI_ENABLED]: 'AI_ENABLED',
+    [SettingKey.AI_PROVIDER]: 'AI_PROVIDER',
+    [SettingKey.AI_API_KEY]: 'AI_API_KEY',
+    [SettingKey.AI_MODEL]: 'AI_MODEL',
+    [SettingKey.AI_ENDPOINT]: 'AI_API_ENDPOINT',
     // Email
-    email_host: 'EMAIL_HOST',
-    email_port: 'EMAIL_PORT',
-    email_user: 'EMAIL_USER',
-    email_pass: 'EMAIL_PASS',
-    email_from: 'EMAIL_FROM',
+    [SettingKey.EMAIL_HOST]: 'EMAIL_HOST',
+    [SettingKey.EMAIL_PORT]: 'EMAIL_PORT',
+    [SettingKey.EMAIL_USER]: 'EMAIL_USER',
+    [SettingKey.EMAIL_PASS]: 'EMAIL_PASS',
+    [SettingKey.EMAIL_FROM]: 'EMAIL_FROM',
+    [SettingKey.EMAIL_REQUIRE_VERIFICATION]: 'EMAIL_REQUIRE_VERIFICATION',
     // Storage
-    storage_type: 'STORAGE_TYPE',
-    local_storage_dir: 'LOCAL_STORAGE_DIR',
-    local_storage_base_url: 'NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL',
-    s3_endpoint: 'S3_ENDPOINT',
-    s3_bucket: 'S3_BUCKET_NAME',
-    s3_region: 'S3_REGION',
-    s3_access_key: 'S3_ACCESS_KEY_ID',
-    s3_secret_key: 'S3_SECRET_ACCESS_KEY',
-    s3_base_url: 'S3_BASE_URL',
-    s3_bucket_prefix: 'BUCKET_PREFIX',
+    [SettingKey.STORAGE_TYPE]: 'STORAGE_TYPE',
+    [SettingKey.LOCAL_STORAGE_DIR]: 'LOCAL_STORAGE_DIR',
+    [SettingKey.LOCAL_STORAGE_BASE_URL]: 'NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL',
+    [SettingKey.S3_ENDPOINT]: 'S3_ENDPOINT',
+    [SettingKey.S3_BUCKET]: 'S3_BUCKET_NAME',
+    [SettingKey.S3_REGION]: 'S3_REGION',
+    [SettingKey.S3_ACCESS_KEY]: 'S3_ACCESS_KEY_ID',
+    [SettingKey.S3_SECRET_KEY]: 'S3_SECRET_ACCESS_KEY',
+    [SettingKey.S3_BASE_URL]: 'S3_BASE_URL',
+    [SettingKey.S3_BUCKET_PREFIX]: 'BUCKET_PREFIX',
     // Analytics
-    baidu_analytics: 'NUXT_PUBLIC_BAIDU_ANALYTICS_ID',
-    google_analytics: 'NUXT_PUBLIC_GOOGLE_ANALYTICS_ID',
-    clarity_analytics: 'NUXT_PUBLIC_CLARITY_PROJECT_ID',
+    [SettingKey.BAIDU_ANALYTICS]: 'NUXT_PUBLIC_BAIDU_ANALYTICS_ID',
+    [SettingKey.GOOGLE_ANALYTICS]: 'NUXT_PUBLIC_GOOGLE_ANALYTICS_ID',
+    [SettingKey.CLARITY_ANALYTICS]: 'NUXT_PUBLIC_CLARITY_PROJECT_ID',
     // Social Auth
-    github_client_id: 'NUXT_PUBLIC_GITHUB_CLIENT_ID',
-    github_client_secret: 'GITHUB_CLIENT_SECRET',
-    google_client_id: 'NUXT_PUBLIC_GOOGLE_CLIENT_ID',
-    google_client_secret: 'GOOGLE_CLIENT_SECRET',
-    anonymous_login_enabled: 'ANONYMOUS_LOGIN_ENABLED',
-    allow_registration: 'ALLOW_REGISTRATION',
+    [SettingKey.GITHUB_CLIENT_ID]: 'NUXT_PUBLIC_GITHUB_CLIENT_ID',
+    [SettingKey.GITHUB_CLIENT_SECRET]: 'GITHUB_CLIENT_SECRET',
+    [SettingKey.GOOGLE_CLIENT_ID]: 'NUXT_PUBLIC_GOOGLE_CLIENT_ID',
+    [SettingKey.GOOGLE_CLIENT_SECRET]: 'GOOGLE_CLIENT_SECRET',
+    [SettingKey.ANONYMOUS_LOGIN_ENABLED]: 'ANONYMOUS_LOGIN_ENABLED',
+    [SettingKey.ALLOW_REGISTRATION]: 'ALLOW_REGISTRATION',
     // Security & Captcha
-    enable_captcha: 'ENABLE_CAPTCHA',
-    captcha_provider: 'NUXT_PUBLIC_AUTH_CAPTCHA_PROVIDER',
-    captcha_site_key: 'NUXT_PUBLIC_AUTH_CAPTCHA_SITE_KEY',
-    captcha_secret_key: 'AUTH_CAPTCHA_SECRET_KEY',
-    enable_comment_review: 'ENABLE_COMMENT_REVIEW',
-    blacklisted_keywords: 'BLACKLISTED_KEYWORDS',
-    show_compliance_info: 'NUXT_PUBLIC_SHOW_COMPLIANCE_INFO',
-    icp_license_number: 'NUXT_PUBLIC_ICP_LICENSE_NUMBER',
-    public_security_number: 'NUXT_PUBLIC_PUBLIC_SECURITY_NUMBER',
-    footer_code: 'NUXT_PUBLIC_FOOTER_CODE',
+    [SettingKey.ENABLE_CAPTCHA]: 'ENABLE_CAPTCHA',
+    [SettingKey.CAPTCHA_PROVIDER]: 'NUXT_PUBLIC_AUTH_CAPTCHA_PROVIDER',
+    [SettingKey.CAPTCHA_SITE_KEY]: 'NUXT_PUBLIC_AUTH_CAPTCHA_SITE_KEY',
+    [SettingKey.CAPTCHA_SECRET_KEY]: 'AUTH_CAPTCHA_SECRET_KEY',
+    [SettingKey.ENABLE_COMMENT_REVIEW]: 'ENABLE_COMMENT_REVIEW',
+    [SettingKey.BLACKLISTED_KEYWORDS]: 'BLACKLISTED_KEYWORDS',
+    [SettingKey.SHOW_COMPLIANCE_INFO]: 'NUXT_PUBLIC_SHOW_COMPLIANCE_INFO',
+    [SettingKey.ICP_LICENSE_NUMBER]: 'NUXT_PUBLIC_ICP_LICENSE_NUMBER',
+    [SettingKey.PUBLIC_SECURITY_NUMBER]: 'NUXT_PUBLIC_PUBLIC_SECURITY_NUMBER',
+    [SettingKey.FOOTER_CODE]: 'NUXT_PUBLIC_FOOTER_CODE',
     // Limits
-    max_upload_size: 'NUXT_PUBLIC_MAX_UPLOAD_SIZE',
-    max_audio_upload_size: 'NUXT_PUBLIC_MAX_AUDIO_UPLOAD_SIZE',
-    allowed_file_types: 'NUXT_PUBLIC_ALLOWED_FILE_TYPES',
-    comment_interval: 'NUXT_PUBLIC_COMMENT_INTERVAL',
-    posts_per_page: 'NUXT_PUBLIC_POSTS_PER_PAGE',
-    email_require_verification: 'EMAIL_REQUIRE_VERIFICATION',
+    [SettingKey.MAX_UPLOAD_SIZE]: 'NUXT_PUBLIC_MAX_UPLOAD_SIZE',
+    [SettingKey.MAX_AUDIO_UPLOAD_SIZE]: 'NUXT_PUBLIC_MAX_AUDIO_UPLOAD_SIZE',
+    [SettingKey.ALLOWED_FILE_TYPES]: 'NUXT_PUBLIC_ALLOWED_FILE_TYPES',
+    [SettingKey.COMMENT_INTERVAL]: 'NUXT_PUBLIC_COMMENT_INTERVAL',
+    [SettingKey.POSTS_PER_PAGE]: 'NUXT_PUBLIC_POSTS_PER_PAGE',
     // Branding
-    site_logo: 'NUXT_PUBLIC_SITE_LOGO',
-    site_favicon: 'NUXT_PUBLIC_SITE_FAVICON',
-    site_operator: 'NUXT_PUBLIC_SITE_OPERATOR',
-    contact_email: 'NUXT_PUBLIC_CONTACT_EMAIL',
+    [SettingKey.SITE_LOGO]: 'NUXT_PUBLIC_SITE_LOGO',
+    [SettingKey.SITE_FAVICON]: 'NUXT_PUBLIC_SITE_FAVICON',
+    [SettingKey.SITE_OPERATOR]: 'NUXT_PUBLIC_SITE_OPERATOR',
+    [SettingKey.CONTACT_EMAIL]: 'NUXT_PUBLIC_CONTACT_EMAIL',
     // Theme
-    theme_active_config_id: 'THEME_ACTIVE_CONFIG_ID',
-    theme_preset: 'THEME_PRESET',
-    theme_primary_color: 'THEME_PRIMARY_COLOR',
-    theme_accent_color: 'THEME_ACCENT_COLOR',
-    theme_surface_color: 'THEME_SURFACE_COLOR',
-    theme_text_color: 'THEME_TEXT_COLOR',
-    theme_dark_primary_color: 'THEME_DARK_PRIMARY_COLOR',
-    theme_dark_accent_color: 'THEME_DARK_ACCENT_COLOR',
-    theme_dark_surface_color: 'THEME_DARK_SURFACE_COLOR',
-    theme_dark_text_color: 'THEME_DARK_TEXT_COLOR',
-    theme_border_radius: 'THEME_BORDER_RADIUS',
-    theme_mourning_mode: 'THEME_MOURNING_MODE',
-    theme_background_type: 'THEME_BACKGROUND_TYPE',
-    theme_background_value: 'THEME_BACKGROUND_VALUE',
+    [SettingKey.THEME_ACTIVE_CONFIG_ID]: 'THEME_ACTIVE_CONFIG_ID',
+    [SettingKey.THEME_PRESET]: 'THEME_PRESET',
+    [SettingKey.THEME_PRIMARY_COLOR]: 'THEME_PRIMARY_COLOR',
+    [SettingKey.THEME_ACCENT_COLOR]: 'THEME_ACCENT_COLOR',
+    [SettingKey.THEME_SURFACE_COLOR]: 'THEME_SURFACE_COLOR',
+    [SettingKey.THEME_TEXT_COLOR]: 'THEME_TEXT_COLOR',
+    [SettingKey.THEME_DARK_PRIMARY_COLOR]: 'THEME_DARK_PRIMARY_COLOR',
+    [SettingKey.THEME_DARK_ACCENT_COLOR]: 'THEME_DARK_ACCENT_COLOR',
+    [SettingKey.THEME_DARK_SURFACE_COLOR]: 'THEME_DARK_SURFACE_COLOR',
+    [SettingKey.THEME_DARK_TEXT_COLOR]: 'THEME_DARK_TEXT_COLOR',
+    [SettingKey.THEME_BORDER_RADIUS]: 'THEME_BORDER_RADIUS',
+    [SettingKey.THEME_MOURNING_MODE]: 'THEME_MOURNING_MODE',
+    [SettingKey.THEME_BACKGROUND_TYPE]: 'THEME_BACKGROUND_TYPE',
+    [SettingKey.THEME_BACKGROUND_VALUE]: 'THEME_BACKGROUND_VALUE',
 }
+
 
 /**
  * 值的脱敏处理
@@ -119,9 +121,10 @@ export const maskValue = (value: string | null, type: string): string | null => 
  * 遵循优先从环境变量获取，其次数据库的原则
  *
  * @param key 设置键名
- * @returns 设置值或 null
+ * @param defaultValue 默认值 (当环境变量和数据库都没有时返回)
+ * @returns 设置值
  */
-export const getSetting = async (key: string): Promise<string | null> => {
+export async function getSetting<T = string>(key: SettingKey | string, defaultValue: T | null = null): Promise<string | T | null> {
     // 优先从环境变量获取
     const envKey = SETTING_ENV_MAP[key]
     if (envKey && process.env[envKey] !== undefined) {
@@ -130,7 +133,7 @@ export const getSetting = async (key: string): Promise<string | null> => {
 
     const settingRepo = dataSource.getRepository(Setting)
     const setting = await settingRepo.findOne({ where: { key } })
-    return setting?.value ?? null
+    return setting?.value ?? (defaultValue as any)
 }
 
 /**
@@ -140,7 +143,7 @@ export const getSetting = async (key: string): Promise<string | null> => {
  * @param keys 设置键名数组
  * @returns 键值对对象
  */
-export const getSettings = async (keys: string[]): Promise<Record<string, string | null>> => {
+export const getSettings = async (keys: (SettingKey | string)[]): Promise<Record<string, string | null>> => {
     const settingRepo = dataSource.getRepository(Setting)
     const settings = await settingRepo.find()
     const result: Record<string, string | null> = {}

@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import * as settingService from './setting'
 import { dataSource } from '@/server/database'
+import { SettingKey } from '@/types/setting'
 
 // Mock dataSource
 vi.mock('@/server/database', () => ({
@@ -23,8 +24,11 @@ describe('settingService', () => {
         createQueryBuilder: vi.fn().mockReturnValue(mockQueryBuilder),
     }
 
+    const originalEnv = process.env
+
     beforeEach(() => {
         vi.clearAllMocks()
+        process.env = { ...originalEnv }
         ;(dataSource.getRepository as any).mockImplementation((entity: any) => {
             if (entity.name === 'Setting') {
                 return mockSettingRepo
@@ -33,31 +37,54 @@ describe('settingService', () => {
         })
     })
 
+    afterEach(() => {
+        process.env = originalEnv
+    })
+
     describe('getSetting', () => {
         it('should return setting value if found', async () => {
-            mockSettingRepo.findOne.mockResolvedValue({ key: 'title', value: 'Momei' })
-            const result = await settingService.getSetting('title')
+            mockSettingRepo.findOne.mockResolvedValue({ key: SettingKey.SITE_TITLE, value: 'Momei' })
+            const result = await settingService.getSetting(SettingKey.SITE_TITLE)
             expect(result).toBe('Momei')
-            expect(mockSettingRepo.findOne).toHaveBeenCalledWith({ where: { key: 'title' } })
+            expect(mockSettingRepo.findOne).toHaveBeenCalledWith({ where: { key: SettingKey.SITE_TITLE } })
         })
 
-        it('should return null if not found', async () => {
+        it('should return default value if not found in ENV or DB', async () => {
+            mockSettingRepo.findOne.mockResolvedValue(null)
+            const result = await settingService.getSetting('unknown', 'Default')
+            expect(result).toBe('Default')
+        })
+
+        it('should return null if not found and no default provided', async () => {
             mockSettingRepo.findOne.mockResolvedValue(null)
             const result = await settingService.getSetting('unknown')
             expect(result).toBeNull()
         })
+
+        it('should prioritize environment variable over database', async () => {
+            process.env.NUXT_PUBLIC_APP_NAME = 'EnvTitle'
+            mockSettingRepo.findOne.mockResolvedValue({ key: SettingKey.SITE_TITLE, value: 'DbTitle' })
+
+            const result = await settingService.getSetting(SettingKey.SITE_TITLE)
+            expect(result).toBe('EnvTitle')
+            // Should not even query DB if ENV exists and is in the map
+            expect(mockSettingRepo.findOne).not.toHaveBeenCalled()
+        })
     })
 
     describe('getSettings', () => {
-        it('should return a record with found values and null for missing keys', async () => {
+        it('should return a record with found values and prioritize ENV', async () => {
+            process.env.NUXT_PUBLIC_APP_NAME = 'EnvTitle'
             mockSettingRepo.find.mockResolvedValue([
-                { key: 'title', value: 'Momei' },
-                { key: 'subtitle', value: 'Blog' },
+                { key: SettingKey.SITE_TITLE, value: 'DbTitle' },
+                { key: SettingKey.SITE_DESCRIPTION, value: 'DbDesc' },
             ])
 
-            const result = await settingService.getSettings(['title', 'unknown'])
+            const result = await settingService.getSettings([SettingKey.SITE_TITLE, SettingKey.SITE_DESCRIPTION, 'unknown'])
+
             expect(result).toEqual({
-                title: 'Momei',
+                [SettingKey.SITE_TITLE]: 'EnvTitle',
+                [SettingKey.SITE_DESCRIPTION]: 'DbDesc',
                 unknown: null,
             })
         })
