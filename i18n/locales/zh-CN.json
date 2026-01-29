@@ -587,7 +587,7 @@
                         "ai_provider": "AI 服务商",
                         "ai_api_key": "API 密钥",
                         "ai_model": "模型名称",
-                        "ai_endpoint": "代理地址 (API Endpoint)",
+                        "ai_endpoint": "API 地址 (API Endpoint)",
                         "email_host": "SMTP 服务器",
                         "email_port": "SMTP 端口",
                         "email_user": "SMTP 用户名",
