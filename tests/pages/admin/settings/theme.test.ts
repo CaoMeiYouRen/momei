@@ -86,11 +86,15 @@ const mockSettings = ref({
     themeBackgroundType: 'none',
     themeBackgroundValue: null,
 })
+const mockPreviewSettings = ref(null)
 const mockApplyTheme = vi.fn()
+const mockIsLocked = vi.fn().mockReturnValue(false)
 
 vi.spyOn(useThemeComposable, 'useTheme').mockReturnValue({
     settings: mockSettings,
+    previewSettings: mockPreviewSettings,
     applyTheme: mockApplyTheme,
+    isLocked: mockIsLocked,
     // Add other properties if needed by useTheme return type
 } as any)
 
