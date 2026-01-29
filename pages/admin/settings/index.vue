@@ -80,14 +80,14 @@
 </template>
 
 <script setup lang="ts">
-import GeneralSettings from '@/components/admin/settings/GeneralSettings.vue'
-import AISettings from '@/components/admin/settings/AISettings.vue'
-import EmailSettings from '@/components/admin/settings/EmailSettings.vue'
-import StorageSettings from '@/components/admin/settings/StorageSettings.vue'
-import AnalyticsSettings from '@/components/admin/settings/AnalyticsSettings.vue'
-import AuthSettings from '@/components/admin/settings/AuthSettings.vue'
-import SecuritySettings from '@/components/admin/settings/SecuritySettings.vue'
-import LimitsSettings from '@/components/admin/settings/LimitsSettings.vue'
+import GeneralSettings from '@/components/admin/settings/general-settings.vue'
+import AISettings from '@/components/admin/settings/ai-settings.vue'
+import EmailSettings from '@/components/admin/settings/email-settings.vue'
+import StorageSettings from '@/components/admin/settings/storage-settings.vue'
+import AnalyticsSettings from '@/components/admin/settings/analytics-settings.vue'
+import AuthSettings from '@/components/admin/settings/auth-settings.vue'
+import SecuritySettings from '@/components/admin/settings/security-settings.vue'
+import LimitsSettings from '@/components/admin/settings/limits-settings.vue'
 
 const { t } = useI18n()
 const toast = useToast()

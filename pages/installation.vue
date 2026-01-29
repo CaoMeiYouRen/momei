@@ -105,12 +105,12 @@
 </template>
 
 <script setup lang="ts">
-import StepHealthCheck from '@/components/installation/StepHealthCheck.vue'
-import StepDatabase from '@/components/installation/StepDatabase.vue'
-import StepSiteConfig from '@/components/installation/StepSiteConfig.vue'
-import StepAdminAccount from '@/components/installation/StepAdminAccount.vue'
-import StepExtraConfig from '@/components/installation/StepExtraConfig.vue'
-import StepComplete from '@/components/installation/StepComplete.vue'
+import StepHealthCheck from '@/components/installation/step-health-check.vue'
+import StepDatabase from '@/components/installation/step-database.vue'
+import StepSiteConfig from '@/components/installation/step-site-config.vue'
+import StepAdminAccount from '@/components/installation/step-admin-account.vue'
+import StepExtraConfig from '@/components/installation/step-extra-config.vue'
+import StepComplete from '@/components/installation/step-complete.vue'
 
 definePageMeta({
     layout: 'installation',
