@@ -5,7 +5,7 @@
     // 18-bullseye 稳定版，兼容性强，适合大多数场景
     "image": "mcr.microsoft.com/devcontainers/node:18-bullseye",
     // 【核心】Codespace 创建完成后自动执行的命令（预装 Claude Code 及依赖）
-    "postCreateCommand": "bash -c 'sudo apt update && sudo apt install -y curl git && curl -fsSL https://claude.ai/install.sh | bash && source ~/.bashrc || true '",
+    "postCreateCommand": "bash -c 'sudo apt update && sudo apt install -y curl git && corepack enable && pnpm install && (curl -fsSL https://claude.ai/install.sh | bash || true)'",
     // 定制化配置（终端 + VS Code）
     "customizations": {
         // 终端配置：默认使用 zsh（更友好的终端体验），兼容 claude 命令
