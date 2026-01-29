@@ -128,7 +128,18 @@
 
 **注意**: 任何未通过上述检查的提交将被视为不合规，CI 流水线将会拦截此类合并请求。
 
-## 7. 文档规范 (Documentation Standards)
+## 7. 配置读取规范 (Configuration Access Standards)
+
+为了实现“零配置”和“热生效”，项目中严禁直接在业务逻辑中使用 `process.env`（基础设施配置除外，如 `DATABASE_URL`）。
+
+- **后端 (Server)**: 
+    - 统一使用 `server/services/setting.ts` 中的 `getSetting(key)` 或 `getSettings([keys])` 方法。
+    - 优先考虑从 `event.context.settings` (待实现) 中读取已注入的配置以提升性能。
+- **前端 (Frontend)**:
+    - 统一使用 `useMomeiConfig()` Composable。
+    - 避免强依赖 `useRuntimeConfig()`，除非是真正的构建时静态变量。
+
+## 8. 文档规范 (Documentation Standards)
 
 为了保证文档的可维护性和清晰度，所有功能模块的设计文档应遵循以下规范：
 

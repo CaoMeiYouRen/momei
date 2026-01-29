@@ -61,3 +61,20 @@
 
 - 管理员必须具有 `admin` 权限方可访问。
 - Level 3 (System) 级别的变量仅在服务端内部使用，绝不通过 API 暴露给前端。
+
+## 7. 统一配置代理架构 (Unified Configuration Proxy Architecture)
+
+为了解决“环境变量直读”导致的配置不可实时修改问题，系统引入了统一代理层。
+
+### 7.1 核心组件
+- **Setting Service**: 后端核心逻辑，处理 `ENV ?? DB ?? Default` 的优先级判断。
+- **Reactive Config Store**: 前端 `useMomeiConfig` 全局状态，支持在后台保存设置后无刷新同步视觉效果。
+- **Nitro Context Middleware**: (规划中) 在 API 请求进入时将常用配置注入 `event.context`，避免业务代码中出现多次数据库查询。
+
+### 7.2 迁移策略
+1. **基础设施分离**: 仅保留 `DATABASE_URL`, `AUTH_SECRET`, `SITE_URL` 等基础变量在 `env.ts` 中。
+2. **逻辑代理化**: AI、Email、Storage 等模块的 `getProvider` 逻辑必须变更为异步读取 `getSetting`。
+3. **零闪烁同步**: 前端 CSS 变量注入机制必须订阅 `useMomeiConfig` 的变更。
+
+### 7.3 演进方向：热生效 (Hot-loading)
+未来将支持基于内存缓存的配置代理，当数据库记录更新时，通过内部总线通知所有进程刷新缓存，实现真正的“配置热生效”而无需重启 Node.js 进程。

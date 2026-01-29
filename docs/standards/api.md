@@ -83,7 +83,7 @@ const createPostSchema = z.object({
 ## 5. 邮件服务规范 (Email Service Standards)
 
 -   **服务提供商**: 使用 **Nodemailer** 作为统一的邮件发送接口。
--   **配置**: 必须通过环境变量配置 SMTP 服务商，禁止在代码中硬编码凭据。
+-   **配置**: 优先通过系统设置（数据库）配置 SMTP 服务商，或利用环境变量进行强制锁定。严禁在代码中硬编码凭据。
 -   **模板**: 必须使用 HTML 邮件模板，确保跨客户端兼容性。
 
 ## 6. 文档与维护 (Documentation & Maintenance)
