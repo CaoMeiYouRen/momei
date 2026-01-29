@@ -49,6 +49,7 @@
                 <Panel :header="$t('pages.admin.settings.theme.preview')" class="preview-panel">
                     <div class="preview-canvas shadow-2">
                         <div
+                            ref="previewInner"
                             class="preview-inner"
                             :style="{
                                 backgroundColor: 'var(--p-surface-0)',
@@ -491,8 +492,12 @@
                                     <div
                                         class="theme-config-card__preview"
                                         :style="{backgroundImage: item.previewImage ? `url(${item.previewImage})` : 'none'}"
+                                        @click="openImagePreview(item.previewImage)"
                                     >
-                                        <div v-if="!item.previewImage" class="theme-config-card__placeholder">
+                                        <div v-if="item.previewImage" class="theme-config-card__overlay">
+                                            <i class="pi pi-search-plus" />
+                                        </div>
+                                        <div v-else class="theme-config-card__placeholder">
                                             <i class="pi pi-image" />
                                         </div>
                                     </div>
@@ -601,6 +606,20 @@
                 </div>
             </template>
         </Dialog>
+
+        <!-- 图片大图预览 -->
+        <Dialog
+            v-model:visible="showImagePreview"
+            modal
+            :header="t('common.preview')"
+            class="image-preview-dialog"
+            :style="{width: '90vw', maxWidth: '800px'}"
+            dismissable-mask
+        >
+            <div class="flex justify-content-center">
+                <img :src="previewImageUrl" style="max-width: 100%; height: auto; border-radius: 8px;">
+            </div>
+        </Dialog>
     </div>
 </template>
 
@@ -618,6 +637,7 @@ const toast = useToast()
 const { settings, previewSettings, isLocked, applyTheme } = useTheme()
 const loading = ref(false)
 const isDark = useDark()
+const previewInner = ref<HTMLElement | null>(null)
 
 // 主题画廊相关
 const showGallery = ref(false)
@@ -629,6 +649,17 @@ const saveForm = ref({
     name: '',
     description: '',
 })
+
+const showImagePreview = ref(false)
+const previewImageUrl = ref('')
+
+const openImagePreview = (url: string) => {
+    if (!url) {
+        return
+    }
+    previewImageUrl.value = url
+    showImagePreview.value = true
+}
 
 const getCurrentPresetValue = (type: 'primary' | 'accent' | 'surface' | 'text' | 'radius', forceDark?: boolean) => {
     if (!settings.value) {
@@ -836,8 +867,21 @@ const saveAsNewTheme = async () => {
         // 如果是基于某个预设保存的，保存后将其标记为自定义，因为它已经固化了颜色
         snapshot.themePreset = 'custom'
 
-        // 抓取当前预览区域的快照 (后续可集成 html2canvas)
-        const previewImage = ''
+        // 抓取当前预览区域的快照
+        let previewImage = ''
+        if (previewInner.value && import.meta.client) {
+            try {
+                // 动态导入以避免 SSR 错误
+                const domtoimage = (await import('dom-to-image-more')).default
+                // 使用 dom-to-image-more 生成快照
+                previewImage = await domtoimage.toJpeg(previewInner.value, {
+                    quality: 0.8,
+                    bgcolor: getComputedStyle(previewInner.value).backgroundColor || '#ffffff',
+                })
+            } catch (error) {
+                console.error('Failed to capture theme preview:', error)
+            }
+        }
 
         await $fetch('/api/admin/theme-configs', {
             method: 'POST',
@@ -1303,6 +1347,30 @@ const saveTheme = async () => {
         align-items: center;
         justify-content: center;
         position: relative;
+        cursor: pointer;
+
+        &:hover {
+            .theme-config-card__overlay {
+                opacity: 1;
+            }
+        }
+    }
+
+    &__overlay {
+        position: absolute;
+        inset: 0;
+        background: rgb(0 0 0 / 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+        color: white;
+        font-size: 1.5rem;
+
+        i {
+            font-size: inherit;
+        }
     }
 
     &__placeholder {
