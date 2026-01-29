@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { fail, paginate, success } from './response'
 
 describe('response utils', () => {
