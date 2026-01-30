@@ -207,6 +207,7 @@ import dayjs from 'dayjs'
 import { marked } from 'marked'
 
 definePageMeta({
+    middleware: 'author',
     layout: 'default',
 })
 

@@ -100,6 +100,7 @@ import { usePostEditorIO } from '@/composables/use-post-editor-io'
 import { formatMarkdown } from '@/utils/shared/markdown'
 
 definePageMeta({
+    middleware: 'author',
     layout: false,
 })
 

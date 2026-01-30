@@ -80,6 +80,10 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+    middleware: 'admin',
+})
+
 import GeneralSettings from '@/components/admin/settings/general-settings.vue'
 import AISettings from '@/components/admin/settings/ai-settings.vue'
 import EmailSettings from '@/components/admin/settings/email-settings.vue'

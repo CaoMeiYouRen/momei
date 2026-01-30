@@ -169,6 +169,7 @@ const onPageChange = (event: any) => {
 }
 
 definePageMeta({
+    middleware: 'author',
     layout: 'default',
 })
 </script>

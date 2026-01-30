@@ -75,6 +75,7 @@ import ThemePreviewSection from '@/components/admin/settings/theme-preview-secti
 import ThemeConfigSection from '@/components/admin/settings/theme-config-section.vue'
 
 definePageMeta({
+    middleware: 'admin',
     layout: 'default',
 })
 

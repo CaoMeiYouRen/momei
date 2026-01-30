@@ -191,6 +191,7 @@ import { useAdminList } from '@/composables/use-admin-list'
 import { useI18nDate } from '@/composables/use-i18n-date'
 
 definePageMeta({
+    middleware: 'author',
     layout: 'default',
 })
 

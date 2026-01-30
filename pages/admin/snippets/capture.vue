@@ -198,6 +198,7 @@ const saveSnippet = async () => {
 }
 
 definePageMeta({
+    middleware: 'author',
     layout: false,
 })
 </script>

@@ -300,6 +300,7 @@ import { isPureEnglish } from '@/utils/shared/validate'
 import type { Category } from '@/types/category'
 
 definePageMeta({
+    middleware: 'admin',
     layout: 'default',
 })
 

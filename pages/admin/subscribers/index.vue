@@ -113,6 +113,7 @@ const { t } = useI18n()
 const { formatDate } = useI18nDate()
 
 definePageMeta({
+    middleware: 'admin',
     layout: 'default',
 })
 

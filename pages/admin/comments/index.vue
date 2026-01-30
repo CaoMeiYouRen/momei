@@ -136,6 +136,10 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+    middleware: 'author',
+})
+
 import { CommentStatus, type Comment } from '@/types/comment'
 
 const { t } = useI18n()

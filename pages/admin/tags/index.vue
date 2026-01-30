@@ -264,6 +264,7 @@ import { isPureEnglish } from '@/utils/shared/validate'
 import type { Tag } from '@/types/tag'
 
 definePageMeta({
+    middleware: 'admin',
     layout: 'default',
 })
 

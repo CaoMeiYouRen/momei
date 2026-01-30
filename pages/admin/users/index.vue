@@ -168,6 +168,7 @@ import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 
 definePageMeta({
+    middleware: 'admin',
     layout: 'default',
 })
 
