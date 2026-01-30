@@ -73,7 +73,7 @@ export async function applyPostVisibilityFilter(
         // 修正：依照目前大多数博客习惯，密码文章在列表可见。但既然用户要求“统一管控”，
         // 我们在 applyPostVisibilityFilter 中可以默认对匿名用户隐藏除了 PUBLIC 之外的所有类型。
         // 如果想让 PASSWORD 文章在列表可见，可以取消注释下面这行：
-        // sub.orWhere('post.visibility = :passwordVisibility', { passwordVisibility: PostVisibility.PASSWORD })
+        sub.orWhere('post.visibility = :passwordVisibility', { passwordVisibility: PostVisibility.PASSWORD })
     }))
 
     return qb
