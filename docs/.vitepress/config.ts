@@ -123,7 +123,7 @@ export default defineConfig({
         },
 
         footer: {
-            message: '基于 MIT 许可发布',
+            message: '代码采用 <a href="https://github.com/CaoMeiYouRen/momei/blob/master/LICENSE" target="_blank">MIT</a> 许可，文档采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans" target="_blank">CC BY-NC-SA 4.0</a> 许可',
             copyright: 'Copyright © 2025 CaoMeiYouRen',
         },
     },

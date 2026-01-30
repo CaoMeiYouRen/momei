@@ -24,6 +24,9 @@
   <a href="https://github.com/CaoMeiYouRen/momei/blob/master/LICENSE" target="_blank">
     <img alt="License: MIT" src="https://img.shields.io/github/license/CaoMeiYouRen/momei?color=yellow" />
   </a>
+  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">
+    <img alt="License: CC BY-NC-SA 4.0" src="https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg" />
+  </a>
 </p>
 
 <p align="center">
@@ -239,9 +242,12 @@ pnpm lint
 ## 📝 License
 
 Copyright © 2025 [CaoMeiYouRen](https://github.com/CaoMeiYouRen).
-This project is [MIT](./LICENSE) licensed.
 
-**本项目的 Logo 不在 License 协议范围内，图片版权由项目所有者 [CaoMeiYouRen](https://github.com/CaoMeiYouRen) 保留。如要进行商业化使用，需更换 Logo。非商业化使用的情况允许在不影响项目所有者权益的情况下使用。**
+本项目采用双重许可：
+- 代码部分：根据 [MIT](./LICENSE) 许可证授权。
+- 文档部分：根据 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans) 许可证授权。
+
+**本项目的 Logo 不在上述 License 协议范围内，图片版权由项目所有者 [CaoMeiYouRen](https://github.com/CaoMeiYouRen) 保留。如要进行商业化使用，需更换 Logo。非商业化使用的情况允许在不影响项目所有者权益的情况下使用。**
 
 ---
 
