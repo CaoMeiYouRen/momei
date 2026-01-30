@@ -136,11 +136,13 @@ describe('crypto.ts', () => {
             const hashes = passwords.map((p) => scryptHash(p))
 
             passwords.forEach((password, index) => {
-                expect(scryptVerify(password, hashes[index])).toBe(true)
+                const hash = hashes[index]
+                expect(hash).toBeDefined()
+                expect(scryptVerify(password, hash!)).toBe(true)
                 // Verify against wrong hashes
-                hashes.forEach((hash, hashIndex) => {
+                hashes.forEach((wrongHash, hashIndex) => {
                     if (hashIndex !== index) {
-                        expect(scryptVerify(password, hash)).toBe(false)
+                        expect(scryptVerify(password, wrongHash)).toBe(false)
                     }
                 })
             })
