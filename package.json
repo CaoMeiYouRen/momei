@@ -98,6 +98,7 @@
       "workerd"
     ],
     "overrides": {
+      "fast-xml-parser": "^5.3.4",
       "preact": "^10.28.2",
       "vite": "$vite",
       "esbuild": "^0.25.0",
