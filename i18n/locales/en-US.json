@@ -1,7 +1,7 @@
 {
     "app": {
         "name": "Momei Blog",
-        "description": "Momei is a modern blog platform deeply integrated with AI.",
+        "description": "Momei Blog - An AI-driven, natively internationalized developer blog platform. AI-powered, Global Creation.",
         "keywords": "blog, AI, Nuxt, Vue, TypeScript"
     },
     "demo": {
@@ -9,7 +9,7 @@
         "start_tour": "Start Tour",
         "tour": {
             "welcome_title": "Welcome to Momei Blog",
-            "welcome_desc": "Momei is a modern blog platform deeply integrated with AI. Let us guide you through its features.",
+            "welcome_desc": "Momei is an AI-driven, natively internationalized blog platform. We'll show you how to use AI to boost productivity and reach a global audience.",
             "login_title": "Auto Login",
             "login_desc": "In Demo mode, we auto-fill the demo account. Just click Login to enter the admin panel.",
             "editor_title": "Efficient Creation",
@@ -35,18 +35,18 @@
     "home": {
         "meta": {
             "title": "Home - Momei Blog",
-            "description": "Momei Blog is a modern blog platform built with Nuxt, sharing technology, life, and thoughts."
+            "description": "Momei Blog: An AI-driven, natively internationalized developer blog platform. AI-powered, Global Creation."
         },
         "hero": {
-            "title": "Explore the Boundaries of Tech & Life",
-            "subtitle": "Sharing programming insights, technical tutorials, and unique perspectives on life. Let's find poetry in the world of code.",
+            "title": "AI-Driven, Native I18n",
+            "subtitle": "Momei Blog: A smart creation platform built for developers, helping your tech reach the world.",
             "cta": "Start Reading"
         },
         "latest_posts": {
             "title": "Latest Posts"
         },
         "about": {
-            "description": "Momei Blog is dedicated to providing high-quality technical content and a great reading experience. We focus on Web Development, AI, and Software Engineering best practices."
+            "description": "Momei Blog is dedicated to empowering creators through AI and deep internationalization, enabling content to be born global."
         }
     },
     "components": {
@@ -68,7 +68,7 @@
             "logo_text": "M",
             "title": "Momei",
             "docs": "Docs",
-            "copyright": "© 2026 Momei Blog - Lightweight creation, free expression",
+            "copyright": "© 2026 Momei Blog - AI-powered, Global Creation",
             "compliance": {
                 "icp": "ICP License",
                 "police": "Public Security Filing"
@@ -276,12 +276,13 @@
         },
         "about": {
             "meta": {
-                "title": "Momei - Cross-language Blog Platform"
+                "title": "About Momei - AI-driven, Natively Internationalized Developer Blog Platform",
+                "description": "Learn how Momei leverages AI to empower full-stack internationalization for developers."
             },
             "hero": {
                 "logo_text": "M",
                 "title": "Momei",
-                "subtitle": "Lightweight, efficient cross-language blog creation and management platform",
+                "subtitle": "AI-powered, Global Creation. An intelligent blog system tailored for developers.",
                 "cta": "Learn More"
             },
             "meaning": {
@@ -291,26 +292,26 @@
                 "text_2": "Taking \"Mo\" (Ink) symbolizes writing and cultivation, echoing the essence of blog content; taking \"Mei\" (Plum) implies the tenacious creative spirit and unique personal style.",
                 "intro": "Momei platform is dedicated to providing creators with:",
                 "features": [
-                    "Simple and efficient content creation experience",
-                    "Seamless cross-language content management and distribution",
-                    "Convenient blog migration tools and path management",
-                    "Focus on content itself, discarding redundant distractions"
+                    "AI-driven intelligent content creation experience",
+                    "Native internationalized content management & distribution",
+                    "Seamless blog migration tools and SEO preservation",
+                    "Global reach by bridging language gaps with AI"
                 ]
             },
             "features": {
-                "title": "Core Features",
+                "title": "Core Advantages",
                 "items": [
                     {
-                        "title": "Simple Creation",
-                        "desc": "Lightweight Markdown editor, focusing on writing experience, supporting code highlighting and image upload."
+                        "title": "AI Assistant",
+                        "desc": "Deeply integrated AI for automated translation, smart title suggestions, and summary generation to boost productivity."
                     },
                     {
                         "title": "Path Management",
-                        "desc": "Custom URL path aliases, easily migrate old blogs, maintain link validity and SEO weight."
+                        "desc": "Fully customizable URL Slugs, ensuring zero SEO loss when migrating from other platforms."
                     },
                     {
-                        "title": "Multi-language Support",
-                        "desc": "Built-in language switching, supporting content internationalization, helping creators reach global audiences."
+                        "title": "Native I18n",
+                        "desc": "Goes beyond UI translation with cluster-based content management and smart language routing."
                     }
                 ]
             },
