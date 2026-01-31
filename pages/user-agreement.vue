@@ -8,60 +8,66 @@
                 {{ $t('pages.user_agreement.last_updated') }}
             </p>
 
+            <!-- 显示默认示例警告 -->
+            <div v-if="isDefault" class="default-notice">
+                <p class="default-notice__text">
+                    ⚠️ {{ $t('legal.notice') }}
+                </p>
+            </div>
+
             <Divider />
 
-            <div class="legal-page__content">
-                <section>
-                    <h2>1. 特别提示</h2>
-                    <p class="notice">
-                        {{ $t('legal.notice') }}
-                    </p>
-                    <p>
-                        本协议是您与本网站（以下简称“本站”，域名：<strong>{{ siteUrl }}</strong>）运营方 <strong>{{ siteOperator }}</strong>（以下简称“运营方”）之间关于您访问和使用本站所订立的法律协议。
-                    </p>
-                </section>
-
-                <section>
-                    <h2>2. 服务内容</h2>
-                    <p>本站提供博客内容浏览、评论、订阅等功能。运营方有权根据实际情况随时调整服务内容。</p>
-                </section>
-
-                <section>
-                    <h2>3. 用户行为规范</h2>
-                    <p>您在使用本站服务时，必须遵守当地法律法规，不得利用本站从事违法活动，包括但不限于发布违法言论、侵犯他人权利等。</p>
-                </section>
-
-                <section>
-                    <h2>4. 知识产权</h2>
-                    <p>本站发布的原创内容版权归原作者所有。除非另有声明，本站内容通常遵循 CC 协议发布，请在转载时查阅具体文章的版权声明。</p>
-                </section>
-
-                <section>
-                    <h2>5. 免责声明</h2>
-                    <p>本站服务按“现状”提供，运营方不对服务的及时性、安全性、准确性作任何保证。因网络环境、不可抗力等因素导致的损失，运营方不承担责任。</p>
-                </section>
-
-                <section>
-                    <h2>6. 联系方式</h2>
-                    <p>如果您对本协议有任何疑问，请通过以下方式联系运营方：</p>
-                    <ul>
-                        <li>{{ $t('legal.contact') }}: {{ contactEmail }}</li>
-                    </ul>
-                </section>
-            </div>
+            <div
+                v-if="content"
+                class="legal-page__content"
+                v-html="sanitizeHtml(content)"
+            />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-const runtimeConfig = useRuntimeConfig()
-const siteUrl = runtimeConfig.public.siteUrl
-const siteOperator = runtimeConfig.public.siteOperator
-const contactEmail = runtimeConfig.public.contactEmail
+import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import DOMPurify from 'dompurify'
+
+const content = ref<string>('')
+const isDefault = ref(false)
+const { t } = useI18n()
 
 useHead({
-    title: useI18n().t('pages.user_agreement.title'),
+    title: t('pages.user_agreement.title'),
 })
+
+/**
+ * 对 HTML 内容进行清洁，防止 XSS 攻击
+ * @param dirty 需要清洁的 HTML 字符串
+ * @returns 清洁后的 HTML 字符串
+ */
+function sanitizeHtml(dirty: string): string {
+    return DOMPurify.sanitize(dirty)
+}
+
+onMounted(async () => {
+    try {
+        const { data } = await $fetch<any>('/api/public/agreements/user-agreement')
+        if (data) {
+            content.value = data.content
+            isDefault.value = data.isDefault || false
+        }
+    } catch (error) {
+        console.error('Failed to fetch user agreement:', error)
+        content.value = getDefaultContent()
+        isDefault.value = true
+    }
+})
+
+function getDefaultContent(): string {
+    return `<section>
+        <h2>1. 特别提示</h2>
+        <p>本协议是您与本网站之间关于您访问和使用本站所订立的法律协议。</p>
+    </section>`
+}
 </script>
 
 <style lang="scss" scoped>
@@ -123,7 +129,25 @@ useHead({
     }
 }
 
+.default-notice {
+    background-color: var(--p-surface-100);
+    border-left: 4px solid var(--p-warn-color);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 4px;
+
+    &__text {
+        color: var(--p-warn-600);
+        font-weight: 600;
+        margin: 0;
+    }
+}
+
 :global(.dark) .legal-page {
     background-color: var(--p-surface-950);
+}
+
+:global(.dark) .default-notice {
+    background-color: var(--p-surface-800);
 }
 </style>

@@ -16,6 +16,7 @@ import { Comment } from '../entities/comment'
 import { Snippet } from '../entities/snippet'
 import { Submission } from '../entities/submission'
 import { ThemeConfig } from '../entities/theme-config'
+import { AgreementContent } from '../entities/agreement-content'
 import logger from '../utils/logger'
 import { isServerlessEnvironment } from '../utils/env'
 import { CustomLogger } from './logger'
@@ -42,7 +43,7 @@ const SUPPORTED_DATABASE_TYPES = ['sqlite', 'mysql', 'postgres']
 let isInitialized = false
 let AppDataSource: DataSource | null = null
 
-const entities = [Account, Session, User, Verification, TwoFactor, Jwks, Post, Category, Tag, ApiKey, Subscriber, Setting, Comment, Snippet, Submission, ThemeConfig]
+const entities = [Account, Session, User, Verification, TwoFactor, Jwks, Post, Category, Tag, ApiKey, Subscriber, Setting, Comment, Snippet, Submission, ThemeConfig, AgreementContent]
 
 /**
  * 同步环境变量中的管理员角色到数据库

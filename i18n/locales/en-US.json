@@ -201,6 +201,8 @@
         "system": "System",
         "ai_translate": "AI Translate",
         "ai_generate_slug": "AI Generate Slug",
+        "skip": "Skip",
+        "save_next": "Save and Continue",
         "current": "Current",
         "switch": "Switch"
     },
@@ -942,6 +944,12 @@
             "title": "Optional Features",
             "description": "Configure core optional features. These settings can be modified anytime in the admin panel after installation.",
             "optional": "These are optional settings. Feel free to skip if you are unsure.",
+            "sections": {
+                "ai": "AI Assistant",
+                "email": "Email Service",
+                "storage": "Attachment Storage",
+                "analytics": "Analytics & SEO"
+            },
             "ai": {
                 "title": "AI Assistant",
                 "desc": "Integrated AI models (OpenAI, DeepSeek, Claude) for summaries, semantic tags, and automated translation.",

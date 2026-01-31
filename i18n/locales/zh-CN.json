@@ -200,6 +200,8 @@
         "system": "系统",
         "ai_translate": "AI 自动翻译",
         "ai_generate_slug": "AI 生成别名",
+        "skip": "跳过",
+        "save_next": "保存并继续",
         "current": "当前",
         "switch": "切换"
     },
@@ -941,6 +943,12 @@
             "title": "可选功能配置",
             "description": "您可以选择性地开启并配置以下核心功能。这些设置也可以在安装完成后通过管理后台随时修改。",
             "optional": "以下配置为可选项，如果不确定，可以直接选择跳过。",
+            "sections": {
+                "ai": "AI 创作助手",
+                "email": "邮件服务",
+                "storage": "文件存储",
+                "analytics": "统计与分析"
+            },
             "ai": {
                 "title": "AI 创作助手",
                 "desc": "集成领先的 AI 模型（OpenAI, DeepSeek, Claude），实现一键摘要、语义标签提取、文章续写与自动化翻译。",

@@ -238,7 +238,7 @@
                             </div>
                             <div class="form-field">
                                 <label for="storage_url">
-                                    {{ $t('installation.preview.storage.localUrl') }}
+                                    {{ $t('installation.preview.storage.localBaseUrl') }}
                                     <Tag
                                         v-if="isLocked('local_storage_base_url')"
                                         severity="info"
