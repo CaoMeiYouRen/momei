@@ -1,4 +1,4 @@
-import type { H3Event } from 'h3'
+import { getRequestHeader, createError, type H3Event } from 'h3'
 import { dataSource } from '@/server/database'
 import { ApiKey } from '@/server/entities/api-key'
 import { verifyApiKey } from '@/server/utils/api-key'
@@ -25,7 +25,7 @@ export const validateApiKeyRequest = async (event: H3Event) => {
         relations: ['user'],
     })
 
-    const matchedKey = potentialKeys.find((k) => verifyApiKey(token, k.key))
+    const matchedKey = potentialKeys.find((k: any) => verifyApiKey(token, k.key))
 
     if (!matchedKey) {
         throw createError({ statusCode: 401, statusMessage: 'Invalid API Key' })
