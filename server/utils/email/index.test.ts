@@ -171,7 +171,12 @@ describe('server/utils/email/index', () => {
     describe('injectEmailDeps', () => {
         it('应该正确注入邮件依赖', () => {
             const customMailer = vi.fn().mockReturnValue(mockTransporter)
-            const customLimiter = { increment: vi.fn() }
+            const customLimiter = {
+                get: vi.fn(),
+                set: vi.fn(),
+                delete: vi.fn(),
+                increment: vi.fn(),
+            }
             const customLogger = { error: vi.fn(), warn: vi.fn(), info: vi.fn(), email: {} }
 
             injectEmailDeps({
