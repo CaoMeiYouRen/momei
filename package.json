@@ -168,7 +168,7 @@
     "wrangler": "^4.60.0"
   },
   "author": "CaoMeiYouRen",
-  "description": "墨梅 - 轻量跨语言博客创作平台。支持旧博客无缝迁移、多语言内容管理、简洁 Markdown 创作，基于 Nuxt/Vue/TS 构建，为创作者提供无冗余的高效内容工具。",
+  "description": "墨梅博客 - AI 驱动、原生国际化的开发者博客平台。AI 赋能，全球创作。",
   "keywords": [
     "momei",
     "nuxt",

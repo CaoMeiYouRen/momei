@@ -4,8 +4,8 @@ layout: home
 
 hero:
     name: "墨梅博客"
-    text: "项目文档"
-    tagline: 轻量级博客创作平台，为创作者提供高效内容工具。
+    text: "AI 赋能，全球创作"
+    tagline: "AI 驱动、原生国际化的开发者博客平台"
     actions:
         - theme: brand
           text: 开始阅读

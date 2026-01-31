@@ -102,7 +102,7 @@ jobs:
           user: ${{ secrets.DOCKER_USERNAME }}
           pass: ${{ secrets.DOCKER_PASSWORD }}
           slug: ${{ github.repository }}
-          description: "墨梅 - 轻量跨语言博客创作平台。"
+          description: "墨梅博客-AI驱动、原生国际化的开发者博客平台"
       # - name: Deploy to Jenkins
       #   if: ${{ github.repository == 'CaoMeiYouRen/momei' }}
       #   run: curl -X GET -L --user ${{ secrets.JENKINS_TOKEN }} "${{ secrets.JENKINS_URL }}/buildWithParameters?token=${{ secrets.JENKINS_JOB_TOKEN }}&DOCKER_IMAGE=registry.cn-hangzhou.aliyuncs.com/${{ env.REPO }}:${{ env.TAG }}"
