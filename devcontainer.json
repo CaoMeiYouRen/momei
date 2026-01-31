@@ -44,8 +44,8 @@
     },
     // 容器资源限制（可选，根据自身 Codespaces 额度调整）
     "hostRequirements": {
-        "cpus": 2, // 最低 2 核，推荐 4 核（更流畅运行 Claude Code）
-        "memory": "8gb" // 最低 8G 内存，避免运行卡顿
+        "cpus": 4, // 最低 4 核 CPU，提升运行效率
+        "memory": "16gb" // 最低 16G 内存，确保多任务处理流畅
         // "storage": "32gb" // 最低 32G 存储，预留足够空间安装依赖和缓存
     },
     // 持久化配置（保留 Claude Code 认证信息和配置，下次创建无需重新安装）
