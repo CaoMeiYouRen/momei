@@ -189,12 +189,15 @@
 
             <div class="field">
                 <label for="content">{{ $t('pages.admin.settings.system.agreements.content') }}</label>
-                <Editor
-                    id="content"
-                    v-model="formData.content"
-                    :modules="editorModules"
-                    class="agreements-settings__editor"
-                />
+                <ClientOnly>
+                    <mavon-editor
+                        id="content"
+                        v-model="formData.content"
+                        class="agreements-settings__editor"
+                        :subfield="false"
+                        :language="locale === 'zh-CN' ? 'zh-CN' : 'en'"
+                    />
+                </ClientOnly>
             </div>
 
             <div class="field">
@@ -249,7 +252,7 @@ interface AgreementData {
     createdAt?: string
 }
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const toast = useToast()
 const confirm = useConfirm()
 const { $appFetch } = useAppApi()
@@ -270,17 +273,6 @@ const formData = reactive<AgreementData>({
     content: '',
     isMainVersion: false,
 })
-
-const editorModules = {
-    toolbar: [
-        ['bold', 'italic', 'underline', 'strike'],
-        ['blockquote', 'code-block'],
-        [{ header: 1 }, { header: 2 }],
-        [{ list: 'ordered' }, { list: 'bullet' }],
-        ['link', 'image'],
-        ['clean'],
-    ],
-}
 
 const formatDate = (date: string | undefined) => {
     if (!date) return ''
@@ -501,6 +493,9 @@ onMounted(() => {
     }
 
     &__dialog {
+        width: 90vw;
+        max-width: 900px;
+
         :deep(.p-dialog-content) {
             padding: 1.5rem;
         }
@@ -508,7 +503,7 @@ onMounted(() => {
         .field {
             margin-bottom: 1.5rem;
 
-            label {
+            label:not(.ml-2) {
                 display: block;
                 margin-bottom: 0.5rem;
                 font-weight: 500;
@@ -520,13 +515,24 @@ onMounted(() => {
             select {
                 width: 100%;
             }
+
+            .align-items-center {
+                label {
+                    cursor: pointer;
+                }
+            }
         }
     }
 
     &__editor {
-        :deep(.ql-container) {
-            font-size: 1rem;
-            min-height: 300px;
+        min-height: 400px;
+        z-index: 1;
+        border: 1px solid var(--p-content-border-color);
+        border-radius: var(--p-border-radius-md);
+
+        :deep(.v-note-wrapper) {
+            border: none;
+            min-height: 400px;
         }
     }
 }
