@@ -25,12 +25,7 @@ export default defineEventHandler(async (event) => {
     try {
         const body = await readValidatedBody(event, (b) => updateAgreementSchema.parse(b))
 
-        const agreement = await updateAgreementContent(id, {
-            ...(body.content !== undefined && { content: body.content }),
-            ...(body.version !== undefined && { version: body.version }),
-            ...(body.versionDescription !== undefined && { versionDescription: body.versionDescription }),
-            ...(body.isMainVersion !== undefined && { isMainVersion: body.isMainVersion }),
-        })
+        const agreement = await updateAgreementContent(id, body)
 
         return success(agreement)
     } catch (error: any) {

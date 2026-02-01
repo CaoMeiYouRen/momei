@@ -3,6 +3,7 @@ import { dataSource } from '@/server/database'
 import { Submission } from '@/server/entities/submission'
 import { SubmissionStatus } from '@/types/submission'
 import { PostStatus, PostVisibility } from '@/types/post'
+import { assignDefined } from '@/server/utils/object'
 
 /**
  * 投稿服务
@@ -67,14 +68,29 @@ export const submissionService = {
         const submissionRepo = dataSource.getRepository(Submission)
         const submission = new Submission()
 
-        submission.title = data.title
-        submission.content = data.content
-        submission.contributorName = data.contributorName
-        submission.contributorEmail = data.contributorEmail
-        submission.contributorUrl = data.contributorUrl || null
-        submission.authorId = data.authorId || null
-        submission.ip = data.ip || null
-        submission.userAgent = data.userAgent || null
+        assignDefined(submission, data, [
+            'title',
+            'content',
+            'contributorName',
+            'contributorEmail',
+            'contributorUrl',
+            'authorId',
+            'ip',
+            'userAgent',
+        ])
+        // 处理可选字段的 null 值
+        if (data.contributorUrl === undefined) {
+            submission.contributorUrl = null
+        }
+        if (data.authorId === undefined) {
+            submission.authorId = null
+        }
+        if (data.ip === undefined) {
+            submission.ip = null
+        }
+        if (data.userAgent === undefined) {
+            submission.userAgent = null
+        }
         submission.status = SubmissionStatus.PENDING
 
         return await submissionRepo.save(submission)
@@ -101,8 +117,7 @@ export const submissionService = {
             throw createError({ statusCode: 404, statusMessage: 'Submission not found' })
         }
 
-        submission.status = data.status
-        submission.adminNote = data.adminNote || null
+        assignDefined(submission, data, ['status', 'adminNote'])
 
         if (data.status === SubmissionStatus.ACCEPTED) {
             // 如果采纳，则调用文章服务创建正式文章

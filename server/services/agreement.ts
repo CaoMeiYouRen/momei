@@ -3,6 +3,7 @@ import { AgreementContent } from '@/server/entities/agreement-content'
 import { Setting } from '@/server/entities/setting'
 import { SettingKey } from '@/types/setting'
 import { snowflake } from '@/server/utils/snowflake'
+import { assignDefined } from '@/server/utils/object'
 import logger from '@/server/utils/logger'
 
 /**
@@ -95,41 +96,35 @@ export const getAgreementVersions = async (
 
 /**
  * 创建新版本的协议
- * @param type 协议类型
- * @param language 语言代码
- * @param content 协议内容
- * @param options 选项 (版本号、描述等)
+ * @param data 协议数据 (包括 type, language, content, version, versionDescription, isMainVersion)
  */
-export const createAgreementVersion = async (
-    type: 'user_agreement' | 'privacy_policy',
-    language: string,
-    content: string,
-    options?: {
-        version?: string
-        versionDescription?: string
-        isMainVersion?: boolean
-        isFromEnv?: boolean
-    },
-) => {
+export const createAgreementVersion = async (data: {
+    type: 'user_agreement' | 'privacy_policy'
+    language: string
+    content: string
+    version?: string | null
+    versionDescription?: string | null
+    isMainVersion?: boolean
+}) => {
     const repo = dataSource.getRepository(AgreementContent)
 
     // 如果标记为主版本，则取消其他同类型同语言的主版本标记
-    if (options?.isMainVersion) {
+    if (data.isMainVersion) {
         await repo.update(
-            { type, language, isMainVersion: true },
+            { type: data.type, language: data.language, isMainVersion: true },
             { isMainVersion: false },
         )
     }
 
     const agreement = repo.create({
         id: snowflake.generateId(),
-        type,
-        language,
-        content,
-        version: options?.version || null,
-        versionDescription: options?.versionDescription || null,
-        isMainVersion: options?.isMainVersion || false,
-        isFromEnv: options?.isFromEnv || false,
+        type: data.type,
+        language: data.language,
+        content: data.content,
+        version: data.version || null,
+        versionDescription: data.versionDescription || null,
+        isMainVersion: data.isMainVersion || false,
+        isFromEnv: false,
         hasUserConsent: false,
     })
 
@@ -165,7 +160,12 @@ export const updateAgreementContent = async (
         )
     }
 
-    Object.assign(agreement, updates)
+    assignDefined(agreement, updates, [
+        'content',
+        'version',
+        'versionDescription',
+        'isMainVersion',
+    ])
     return await repo.save(agreement)
 }
 

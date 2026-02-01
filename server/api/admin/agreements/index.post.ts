@@ -22,17 +22,7 @@ export default defineEventHandler(async (event) => {
     try {
         const body = await readValidatedBody(event, (b) => createAgreementSchema.parse(b))
 
-        const agreement = await createAgreementVersion(
-            body.type,
-            body.language,
-            body.content,
-            {
-                version: body.version || undefined,
-                versionDescription: body.versionDescription || undefined,
-                isMainVersion: body.isMainVersion,
-                isFromEnv: false,
-            },
-        )
+        const agreement = await createAgreementVersion(body)
 
         return success(agreement)
     } catch (error: any) {

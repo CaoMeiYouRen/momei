@@ -6,6 +6,7 @@ import { CommentStatus } from '@/types/comment'
 import { processAuthorPrivacy } from '@/server/utils/author'
 import { getSettings } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
+import { assignDefined } from '@/server/utils/object'
 
 /**
  * 评论服务
@@ -93,15 +94,33 @@ export const commentService = {
         }
 
         const comment = new Comment()
-        comment.postId = data.postId
-        comment.parentId = data.parentId || null
-        comment.content = data.content
-        comment.authorName = data.authorName
-        comment.authorEmail = data.authorEmail
-        comment.authorUrl = data.authorUrl || null
-        comment.authorId = data.authorId || null
-        comment.ip = data.ip || null
-        comment.userAgent = data.userAgent || null
+        assignDefined(comment, data, [
+            'postId',
+            'parentId',
+            'content',
+            'authorName',
+            'authorEmail',
+            'authorUrl',
+            'authorId',
+            'ip',
+            'userAgent',
+        ])
+        // 处理 parentId 和其他可选字段的 null 值
+        if (data.parentId === undefined) {
+            comment.parentId = null
+        }
+        if (data.authorUrl === undefined) {
+            comment.authorUrl = null
+        }
+        if (data.authorId === undefined) {
+            comment.authorId = null
+        }
+        if (data.ip === undefined) {
+            comment.ip = null
+        }
+        if (data.userAgent === undefined) {
+            comment.userAgent = null
+        }
 
         // 状态逻辑：
         // 1. 如果全局开启了评论审核，则所有评论进入待审核状态（除非是管理员，这里暂不处理管理员例外）
