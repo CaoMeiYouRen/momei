@@ -76,6 +76,7 @@
     "p-queue": "^9.1.0",
     "pg": "^8.17.2",
     "primeicons": "^7.0.0",
+    "primelocale": "^2.2.3",
     "primevue": "^4.5.4",
     "push-all-in-one": "^4.5.1",
     "reflect-metadata": "^0.2.2",

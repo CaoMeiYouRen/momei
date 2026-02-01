@@ -1,6 +1,6 @@
 import Aura from '@primevue/themes/aura'
 import { definePreset } from '@primevue/themes'
-
+import { zh_CN } from 'primelocale/js/zh_CN.js'
 const MomeiPreset = definePreset(Aura, {
     semantic: {
         primary: {
@@ -212,6 +212,7 @@ export default defineNuxtConfig({
                     },
                 },
             },
+            locale: zh_CN,
         },
         components: {
             include: '*',
