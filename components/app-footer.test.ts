@@ -12,9 +12,9 @@ describe('AppFooter', () => {
             },
         })
 
-        expect(wrapper.find('.footer__logo').exists()).toBe(true)
-        expect(wrapper.find('.footer__logo-img').exists()).toBe(true)
-        expect(wrapper.find('.footer__title').exists()).toBe(true)
+        expect(wrapper.find('.app-logo').exists()).toBe(true)
+        expect(wrapper.find('.app-logo__img').exists()).toBe(true)
+        expect(wrapper.find('.app-logo__title').exists()).toBe(true)
     })
 
     it('should render navigation links', async () => {

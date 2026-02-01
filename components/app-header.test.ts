@@ -56,7 +56,7 @@ describe('AppHeader', () => {
             global: { stubs },
         })
 
-        expect(wrapper.find('.app-header__logo').exists()).toBe(true)
+        expect(wrapper.find('.app-logo').exists()).toBe(true)
         // Adjust for translated text if i18n is active
         const text = wrapper.text()
         expect(text.includes('pages.posts.title') || text.includes('文章列表')).toBe(true)
