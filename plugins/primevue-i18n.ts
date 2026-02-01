@@ -28,12 +28,17 @@ export default defineNuxtPlugin((nuxtApp) => {
 
             /**
              * 同步函数：将指定的语言代码应用到 PrimeVue
+             * 深度更新 locale 对象的所有字段，确保完全响应式
              * @param localeCode - 语言代码（如 'zh-CN', 'en-US'）
              */
             const syncPrimeVueLocale = (localeCode: string): void => {
-                if (localeMap[localeCode]) {
-                    // 通过修改 config.locale 来更新 PrimeVue 的语言
-                    primevue.config.locale = localeMap[localeCode]
+                if (localeMap[localeCode] && primevue.config.locale) {
+                    const newLocale = localeMap[localeCode]
+                    // 深度更新所有字段而不是替换整个对象引用
+                    // 这样可以确保 Password 等组件能正确响应语言变化
+                    Object.entries(newLocale).forEach(([key, value]) => {
+                        ;(primevue.config.locale as any)[key] = value
+                    })
                 }
             }
 
