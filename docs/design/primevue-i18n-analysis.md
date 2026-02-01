@@ -116,40 +116,63 @@ primevue: {
 
 **局限性：** 静态配置，需要动态切换则需要额外手段。
 
-#### 方案 2：动态注入（推荐）
+#### 方案 2：动态注入（推荐）- 已实现
+
+文件位置：[plugins/primevue-i18n.ts](../../plugins/primevue-i18n.ts)
+
 ```typescript
 // plugins/primevue-i18n.ts
+import { watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePrimeVue } from 'primevue/config'
 import { zh_CN } from 'primelocale/js/zh_CN.js'
 import { en } from 'primelocale/js/en.js'
 
-export default defineNuxtPlugin(() => {
-    const { locale, setLocale } = useI18n()
-    const primevue = usePrimeVue()
-    
-    // PrimeVue 语言映射表
-    const localeMap: Record<string, any> = {
-        'zh-CN': zh_CN,
-        'en-US': en,
+export default defineNuxtPlugin((nuxtApp) => {
+    // 避免在服务端执行
+    if (import.meta.server) {
+        return
     }
-    
-    // 监听 Vue-i18n 语言变化，自动同步 PrimeVue
-    watch(() => locale.value, (newLocale) => {
-        if (localeMap[newLocale]) {
-            primevue.setLocale(localeMap[newLocale])
+
+    // 在应用挂载后初始化，确保 i18n 已准备好
+    nuxtApp.hook('app:mounted', () => {
+        try {
+            const { locale } = useI18n()
+            const primevue = usePrimeVue()
+
+            // PrimeVue 语言映射表
+            const localeMap: Record<string, any> = {
+                'zh-CN': zh_CN,
+                'en-US': en,
+            }
+
+            // 同步函数
+            const syncPrimeVueLocale = (localeCode: string): void => {
+                if (localeMap[localeCode]) {
+                    primevue.config.locale = localeMap[localeCode]
+                }
+            }
+
+            // 初始化时同步当前语言
+            syncPrimeVueLocale(locale.value)
+
+            // 监听 Vue-i18n 语言变化，自动同步 PrimeVue
+            watch(() => locale.value, (newLocale) => {
+                syncPrimeVueLocale(newLocale)
+            })
+        } catch (error) {
+            console.warn('PrimeVue i18n sync error:', error)
         }
     })
-    
-    // 初始化
-    primevue.setLocale(localeMap[locale.value] || zh_CN)
 })
 ```
 
-**优势：**
-- ✅ 响应式同步
-- ✅ 无需手动管理
-- ✅ 支持动态语言切换
+**实现要点：**
+- ✅ 响应式同步：通过 `watch()` 监听 `locale.value` 变化
+- ✅ 无需手动管理：自动同步 PrimeVue 和 Vue-i18n
+- ✅ 支持动态语言切换：所有组件无缝切换
+- ✅ 错误处理：使用 try-catch 增强稳定性
+- ✅ 生命周期管理：在 `app:mounted` 钩子中初始化，确保依赖就绪
 
 ---
 
