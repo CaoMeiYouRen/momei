@@ -1,10 +1,11 @@
-import { In } from 'typeorm'
+import { type SelectQueryBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
 import { Post } from '@/server/entities/post'
 import { tagQuerySchema } from '@/utils/schemas/tag'
 import { applyPagination } from '@/server/utils/pagination'
 import { success, paginate } from '@/server/utils/response'
+import { applyTranslationAggregation, attachTranslations } from '@/server/utils/translation'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => tagQuerySchema.parse(q))
@@ -12,7 +13,7 @@ export default defineEventHandler(async (event) => {
     const tagRepo = dataSource.getRepository(Tag)
 
     const queryBuilder = tagRepo.createQueryBuilder('tag')
-        .loadRelationCountAndMap('tag.postCount', 'tag.posts', 'post', (qb) => {
+        .loadRelationCountAndMap('tag.postCount', 'tag.posts', 'post', (qb: SelectQueryBuilder<Post>) => {
             qb.where('post.status = :status', { status: 'published' })
             if (query.language) {
                 qb.andWhere('post.language = :language', { language: query.language })
@@ -22,13 +23,10 @@ export default defineEventHandler(async (event) => {
 
     // Handle Aggregation
     if (query.aggregate) {
-        const subQuery = tagRepo.createQueryBuilder('t2')
-            .select(`COALESCE(MIN(CASE WHEN t2.language = :prefLang THEN t2.id END), MIN(t2.id))`)
-            .groupBy('COALESCE(t2.translationId, CAST(t2.id AS VARCHAR))')
-
-        queryBuilder.andWhere(`tag.id IN (${subQuery.getQuery()})`)
-        queryBuilder.setParameter('prefLang', query.language || 'zh-CN')
-        queryBuilder.setParameters(subQuery.getParameters())
+        applyTranslationAggregation(queryBuilder, tagRepo, {
+            language: query.language,
+            mainAlias: 'tag',
+        })
     }
 
     if (query.search) {
@@ -41,7 +39,7 @@ export default defineEventHandler(async (event) => {
 
     if (query.orderBy === 'postCount') {
         // Use subquery for sorting by relation count
-        queryBuilder.addSelect((subQuery) => {
+        queryBuilder.addSelect((subQuery: SelectQueryBuilder<any>) => {
             const qb = subQuery
                 .select('count(p.id)', 'pcount')
                 .from(Post, 'p')
@@ -64,40 +62,9 @@ export default defineEventHandler(async (event) => {
     const [items, total] = await applyPagination(queryBuilder, query).getManyAndCount()
 
     // Attach translation information
-    if (items.length > 0) {
-        const translationIds = items
-            .map((t) => t.translationId)
-            .filter((id) => id !== null) as string[]
-
-        const allTranslations = translationIds.length > 0
-            ? await tagRepo.find({
-                where: { translationId: In(translationIds) },
-                select: ['id', 'language', 'translationId', 'name', 'slug'],
-            })
-            : []
-
-        items.forEach((tag) => {
-            if (tag.translationId) {
-                (tag as any).translations = allTranslations
-                    .filter((t) => t.translationId === tag.translationId)
-                    .map((t) => ({
-                        id: t.id,
-                        language: t.language,
-                        name: t.name,
-                        slug: t.slug,
-                        translationId: t.translationId,
-                    }))
-            } else {
-                (tag as any).translations = [{
-                    id: tag.id,
-                    language: tag.language,
-                    name: tag.name,
-                    slug: tag.slug,
-                    translationId: tag.translationId,
-                }]
-            }
-        })
-    }
+    await attachTranslations(items as any, tagRepo, {
+        select: ['id', 'language', 'translationId', 'name', 'slug'],
+    })
 
     return success(paginate(items, total, query.page, query.limit))
 })

@@ -1,10 +1,11 @@
-import { In } from 'typeorm'
+import { type SelectQueryBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
 import { Post } from '@/server/entities/post'
 import { categoryQuerySchema } from '@/utils/schemas/category'
 import { applyPagination } from '@/server/utils/pagination'
 import { success, paginate } from '@/server/utils/response'
+import { applyTranslationAggregation, attachTranslations } from '@/server/utils/translation'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => categoryQuerySchema.parse(q))
@@ -13,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
     const queryBuilder = categoryRepo.createQueryBuilder('category')
         .leftJoinAndSelect('category.parent', 'parent')
-        .loadRelationCountAndMap('category.postCount', 'category.posts', 'post', (qb) => {
+        .loadRelationCountAndMap('category.postCount', 'category.posts', 'post', (qb: SelectQueryBuilder<Post>) => {
             qb.where('post.status = :status', { status: 'published' })
             if (query.language) {
                 qb.andWhere('post.language = :language', { language: query.language })
@@ -23,13 +24,10 @@ export default defineEventHandler(async (event) => {
 
     // Handle Aggregation
     if (query.aggregate) {
-        const subQuery = categoryRepo.createQueryBuilder('c2')
-            .select(`COALESCE(MIN(CASE WHEN c2.language = :prefLang THEN c2.id END), MIN(c2.id))`)
-            .groupBy('COALESCE(c2.translationId, CAST(c2.id AS VARCHAR))')
-
-        queryBuilder.andWhere(`category.id IN (${subQuery.getQuery()})`)
-        queryBuilder.setParameter('prefLang', query.language || 'zh-CN')
-        queryBuilder.setParameters(subQuery.getParameters())
+        applyTranslationAggregation(queryBuilder, categoryRepo, {
+            language: query.language,
+            mainAlias: 'category',
+        })
     }
 
     if (query.search) {
@@ -46,7 +44,7 @@ export default defineEventHandler(async (event) => {
 
     if (query.orderBy === 'postCount') {
         // Use subquery for sorting by relation count
-        queryBuilder.addSelect((subQuery) => {
+        queryBuilder.addSelect((subQuery: SelectQueryBuilder<any>) => {
             const qb = subQuery
                 .select('count(p.id)', 'pcount')
                 .from(Post, 'p')
@@ -68,44 +66,9 @@ export default defineEventHandler(async (event) => {
     const [items, total] = await applyPagination(queryBuilder, query).getManyAndCount()
 
     // Attach translation information
-    if (items.length > 0) {
-        const translationIds = items
-            .map((c) => c.translationId)
-            .filter((id) => id !== null) as string[]
-
-        const allTranslations = translationIds.length > 0
-            ? await categoryRepo.find({
-                where: { translationId: In(translationIds) },
-                select: ['id', 'language', 'translationId', 'name', 'slug', 'description', 'parentId'],
-            })
-            : []
-
-        items.forEach((cat) => {
-            if (cat.translationId) {
-                (cat as any).translations = allTranslations
-                    .filter((t) => t.translationId === cat.translationId)
-                    .map((t) => ({
-                        id: t.id,
-                        language: t.language,
-                        name: t.name,
-                        slug: t.slug,
-                        description: t.description,
-                        parentId: t.parentId,
-                        translationId: t.translationId,
-                    }))
-            } else {
-                (cat as any).translations = [{
-                    id: cat.id,
-                    language: cat.language,
-                    name: cat.name,
-                    slug: cat.slug,
-                    description: cat.description,
-                    parentId: cat.parentId,
-                    translationId: cat.translationId,
-                }]
-            }
-        })
-    }
+    await attachTranslations(items as any, categoryRepo, {
+        select: ['id', 'language', 'translationId', 'name', 'slug', 'description', 'parentId'],
+    })
 
     return success(paginate(items, total, query.page, query.limit))
 })

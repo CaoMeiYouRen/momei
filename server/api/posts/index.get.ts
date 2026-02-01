@@ -1,4 +1,4 @@
-import { In, Brackets, type WhereExpressionBuilder, type SelectQueryBuilder } from 'typeorm'
+import { Brackets, type WhereExpressionBuilder, type SelectQueryBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { postQuerySchema } from '@/utils/schemas/post'
@@ -8,6 +8,7 @@ import { isAdmin } from '@/utils/shared/roles'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { processAuthorsPrivacy } from '@/server/utils/author'
 import { applyPostVisibilityFilter } from '@/server/utils/post-access'
+import { applyTranslationAggregation, attachTranslations } from '@/server/utils/translation'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(q))
@@ -27,20 +28,18 @@ export default defineEventHandler(async (event) => {
 
     // Handle Aggregation for Management Mode
     if (query.aggregate && query.scope === 'manage') {
-        const subQuery = postRepo.createQueryBuilder('p2')
-            .select(`COALESCE(MIN(CASE WHEN p2.language = :prefLang THEN p2.id END), MIN(p2.id))`)
-            .groupBy('COALESCE(p2.translationId, CAST(p2.id AS VARCHAR))')
-
-        // Apply same primary filters to subquery to ensure consistency
-        if (!isAdmin(user!.role)) {
-            subQuery.andWhere('p2.authorId = :currentUserId', { currentUserId: user!.id })
-        } else if (query.authorId) {
-            subQuery.andWhere('p2.authorId = :authorId', { authorId: query.authorId })
-        }
-
-        qb.andWhere(`post.id IN (${subQuery.getQuery()})`)
-        qb.setParameter('prefLang', query.language || 'zh-CN')
-        qb.setParameters(subQuery.getParameters())
+        applyTranslationAggregation(qb, postRepo, {
+            language: query.language,
+            mainAlias: 'post',
+            applyFilters: (subQuery) => {
+                // Apply same primary filters to subquery to ensure consistency
+                if (!isAdmin(user!.role)) {
+                    subQuery.andWhere('p2.authorId = :currentUserId', { currentUserId: user!.id })
+                } else if (query.authorId) {
+                    subQuery.andWhere('p2.authorId = :authorId', { authorId: query.authorId })
+                }
+            },
+        })
     }
 
     if (query.scope === 'manage') {
@@ -145,36 +144,9 @@ export default defineEventHandler(async (event) => {
     await processAuthorsPrivacy(items, !!isUserAdmin)
 
     // Attach translation information for management mode
-    if (query.scope === 'manage' && items.length > 0) {
-        const translationIds = items
-            .map((p) => p.translationId)
-            .filter((id) => id !== null) as string[]
-
-        const allTranslations = translationIds.length > 0
-            ? await postRepo.find({
-                where: { translationId: In(translationIds) },
-                select: ['id', 'language', 'status', 'translationId', 'title'],
-            })
-            : []
-
-        items.forEach((post) => {
-            if (post.translationId) {
-                (post as any).translations = allTranslations
-                    .filter((t) => t.translationId === post.translationId)
-                    .map((t) => ({
-                        id: t.id,
-                        language: t.language,
-                        status: t.status,
-                        title: t.title,
-                    }))
-            } else {
-                (post as any).translations = [{
-                    id: post.id,
-                    language: post.language,
-                    status: post.status,
-                    title: post.title,
-                }]
-            }
+    if (query.scope === 'manage') {
+        await attachTranslations(items as any, postRepo, {
+            select: ['id', 'language', 'status', 'translationId', 'title'],
         })
     }
 

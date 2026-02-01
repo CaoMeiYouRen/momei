@@ -3,12 +3,11 @@ import { Post } from '@/server/entities/post'
 import { processAuthorPrivacy } from '@/server/utils/author'
 import { checkPostAccess } from '@/server/utils/post-access'
 import { isAdmin } from '@/utils/shared/roles'
+import { getRequiredRouterParam } from '@/server/utils/router'
+import { success, ensureFound } from '@/server/utils/response'
 
 export default defineEventHandler(async (event) => {
-    const id = getRouterParam(event, 'id')
-    if (!id) {
-        throw createError({ statusCode: 400, statusMessage: 'ID required' })
-    }
+    const id = getRequiredRouterParam(event, 'id')
 
     const session = event.context?.auth
     const isUserAdmin = session?.user && isAdmin(session.user.role)
@@ -24,9 +23,7 @@ export default defineEventHandler(async (event) => {
 
     const post = await qb.getOne()
 
-    if (!post) {
-        throw createError({ statusCode: 404, statusMessage: 'Post not found' })
-    }
+    ensureFound(post, 'Post')
 
     // 处理作者哈希并保护隐私
     await processAuthorPrivacy(post.author, !!isUserAdmin)
@@ -40,21 +37,15 @@ export default defineEventHandler(async (event) => {
     }
 
     if (!access.allowed) {
-        return {
-            code: 200,
-            data: {
-                ...(access.data || {}),
-                locked: true,
-                reason: access.reason,
-            },
-        }
+        return success({
+            ...(access.data || {}),
+            locked: true,
+            reason: access.reason,
+        })
     }
 
-    return {
-        code: 200,
-        data: {
-            ...post,
-            locked: false,
-        },
-    }
+    return success({
+        ...post,
+        locked: false,
+    })
 })

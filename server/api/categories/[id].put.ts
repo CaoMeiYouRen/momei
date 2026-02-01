@@ -1,12 +1,11 @@
 import { categoryUpdateSchema } from '@/utils/schemas/category'
 import { updateCategory } from '@/server/services/category'
 import { requireAdmin } from '@/server/utils/permission'
+import { getRequiredRouterParam } from '@/server/utils/router'
+import { success } from '@/server/utils/response'
 
 export default defineEventHandler(async (event) => {
-    const id = getRouterParam(event, 'id')
-    if (!id) {
-        throw createError({ statusCode: 400, statusMessage: 'ID is required' })
-    }
+    const id = getRequiredRouterParam(event, 'id')
 
     await requireAdmin(event)
 
@@ -15,8 +14,5 @@ export default defineEventHandler(async (event) => {
     // 使用统一的分类更新服务逻辑
     const category = await updateCategory(id, body)
 
-    return {
-        code: 200,
-        data: category,
-    }
+    return success(category)
 })

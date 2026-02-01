@@ -33,6 +33,25 @@ export function fail(message: string, statusCode = 400) {
 }
 
 /**
+ * 确保实体存在，否则抛出 404 错误
+ * @param entity 实体对象
+ * @param name 实体名称（用于错误消息）
+ */
+export function ensureFound<T>(entity: T | null | undefined, name: string): T {
+    if (!entity) {
+        throw createError({
+            statusCode: 404,
+            statusMessage: `${name} not found`,
+            data: {
+                code: 404,
+                message: `${name} not found`,
+            },
+        })
+    }
+    return entity
+}
+
+/**
  * 分页数据包装
  * @param items 数据列表
  * @param total 总数

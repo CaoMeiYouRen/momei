@@ -2,12 +2,11 @@ import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
 import { Post } from '@/server/entities/post'
 import { requireAdmin } from '@/server/utils/permission'
+import { getRequiredRouterParam } from '@/server/utils/router'
+import { success, ensureFound } from '@/server/utils/response'
 
 export default defineEventHandler(async (event) => {
-    const id = getRouterParam(event, 'id')
-    if (!id) {
-        throw createError({ statusCode: 400, statusMessage: 'ID is required' })
-    }
+    const id = getRequiredRouterParam(event, 'id')
 
     await requireAdmin(event)
 
@@ -15,9 +14,7 @@ export default defineEventHandler(async (event) => {
     const postRepo = dataSource.getRepository(Post)
 
     const category = await categoryRepo.findOneBy({ id })
-    if (!category) {
-        throw createError({ statusCode: 404, statusMessage: 'Category not found' })
-    }
+    ensureFound(category, 'Category')
 
     // Check for associated posts
     const postCount = await postRepo.count({ where: { category: { id } } })
@@ -39,8 +36,5 @@ export default defineEventHandler(async (event) => {
 
     await categoryRepo.remove(category)
 
-    return {
-        code: 200,
-        message: 'Category deleted successfully',
-    }
+    return success(null, 200)
 })
