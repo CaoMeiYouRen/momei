@@ -42,6 +42,7 @@ export enum SettingKey {
     S3_SECRET_KEY = 's3_secret_key',
     S3_BASE_URL = 's3_base_url',
     S3_BUCKET_PREFIX = 's3_bucket_prefix',
+    VERCEL_BLOB_TOKEN = 'vercel_blob_token',
     CLOUDFLARE_R2_ACCOUNT_ID = 'cloudflare_r2_account_id',
     CLOUDFLARE_R2_ACCESS_KEY = 'cloudflare_r2_access_key',
     CLOUDFLARE_R2_SECRET_KEY = 'cloudflare_r2_secret_key',

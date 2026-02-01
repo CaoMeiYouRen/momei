@@ -607,6 +607,7 @@
                         "s3_secret_key": "Secret Key",
                         "s3_base_url": "访问域名 (Base URL)",
                         "s3_bucket_prefix": "存储前缀",
+                        "vercel_blob_token": "Vercel Blob Token",
                         "baidu_analytics": "百度统计 ID",
                         "google_analytics": "Google Analytics ID",
                         "clarity_analytics": "Microsoft Clarity ID"

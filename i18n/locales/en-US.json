@@ -608,6 +608,7 @@
                         "s3_secret_key": "Secret Key",
                         "s3_base_url": "S3 Base URL",
                         "s3_bucket_prefix": "Bucket Prefix",
+                        "vercel_blob_token": "Vercel Blob Token",
                         "baidu_analytics": "Baidu Analytics ID",
                         "google_analytics": "Google Analytics ID",
                         "clarity_analytics": "Microsoft Clarity ID"

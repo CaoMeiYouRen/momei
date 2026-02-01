@@ -153,13 +153,33 @@
                 />
             </div>
         </template>
+
+        <template v-if="settings.storage_type === 'vercel_blob'">
+            <div class="form-field">
+                <label for="vercel_blob_token" class="flex gap-2 items-center">
+                    {{ $t('pages.admin.settings.system.keys.vercel_blob_token') }}
+                    <i
+                        v-if="metadata.vercel_blob_token?.isLocked"
+                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                        class="pi pi-lock text-orange-500 text-xs"
+                    />
+                </label>
+                <Password
+                    id="vercel_blob_token"
+                    v-model="settings.vercel_blob_token"
+                    :disabled="metadata.vercel_blob_token?.isLocked"
+                    :toggle-mask="true"
+                    fluid
+                />
+            </div>
+        </template>
     </div>
 </template>
 
 <script setup lang="ts">
 const settings = defineModel<any>('settings', { required: true })
 defineProps<{ metadata: any }>()
-const storageTypes = ['local', 's3', 'r2', 'cloudflare_r2']
+const storageTypes = ['local', 's3', 'vercel_blob']
 </script>
 
 <style lang="scss" scoped>
