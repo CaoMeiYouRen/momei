@@ -213,7 +213,7 @@
         "login_notice": "By logging in, you agree to the {agreement} and {privacy}",
         "operator": "Site Operator",
         "contact": "Contact Information",
-        "notice": "Note: This agreement and policy are provided as examples. As the developer of this project, I cannot assume legal responsibility for all deployed instances. The specific legal agreement is entered into between you and the operator of this website, and the actual legal responsibility is borne by the website deployer.",
+        "notice": "Note: This agreement and policy are provided as examples. The developer of this project shall not be held legally responsible for any deployment instances. The specific legal agreement is entered into between you and the operator of this website, and the actual legal responsibility is borne by the website deployer.",
         "agreement_required": "Please read and agree to the User Agreement and Privacy Policy"
     },
     "pages": {
