@@ -202,8 +202,12 @@
     -   **安全性与性能**: 实现针对发布主题的自动化 XSS 扫描及 CSS Layer 分层策略。
 4.  **第三方平台集成 (Third-party Integration)**:
     -   **多平台同步发布**: 支持集成 [Memos](https://github.com/usememos/memos) 等第三方平台，实现博文或碎片化想法的同步发布。
+    -   **文章同步助手 (Wechatsync)**: 支持集成 [Wechatsync](https://github.com/wechatsync/Wechatsync)，实现一键同步文章至知乎、头条、掘金、小红书、CSDN 等 25+ 平台；利用其 Anthropic MCP 协议支持，实现通过 AI 一键发布文章。
     -   **开放发布协议支持**: 探索对 [ActivityPub](https://www.w3.org/TR/activitypub/) 等开放社交协议的支持。
 5.  **其他优化项**: 实现看板娘、背景粒子等可选的视觉增强开关。
+6.  **AI Agent 与自动化生态 (AI Agent & Automation Ecosystem)**:
+    -   **Anthropic MCP 支持**: 实现符合 MCP 协议的服务端，使墨梅博客能作为 MCP Server 被外界 AI 智能体（如 Claude Desktop）调用，首批支持 **发布 (Publish)**、**状态查询 (Status)** 及 **内容更新 (Update)** 三大核心功能。
+    -   **定时发布功能**: 实现基于独立任务表的预约发布机制。针对自部署场景，支持基于轻量级内部调度（如 Nitro Scheduler 或结合系统 `cronjob`）的触发方案；针对 Serverless 环境，提供 Webhook 接口以集成外部云端 Cron 服务。确保发布逻辑与文章核心元数据解耦。
 ## 4. 技术架构与质量保证
 
 ### 技术栈
