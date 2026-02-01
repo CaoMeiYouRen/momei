@@ -19,18 +19,18 @@ export default defineEventHandler(async (event) => {
 
     const { captchaToken, ...data } = result.data
 
-    // 2. 验证验证码
-    const isValid = await verifyCaptcha(captchaToken)
+    // 2. 获取 IP 和 User Agent
+    const ip = getRequestIP(event, { xForwardedFor: true })
+    const userAgent = getRequestHeader(event, 'user-agent')
+
+    // 3. 验证验证码
+    const isValid = await verifyCaptcha(captchaToken, ip || undefined)
     if (!isValid) {
         throw createError({
             statusCode: 400,
             statusMessage: 'Captcha verification failed',
         })
     }
-
-    // 3. 获取 IP 和 User Agent
-    const ip = getRequestIP(event, { xForwardedFor: true })
-    const userAgent = getRequestHeader(event, 'user-agent')
 
     // 4. 如果用户已登录，关联其用户 ID
     const user = event.context.user

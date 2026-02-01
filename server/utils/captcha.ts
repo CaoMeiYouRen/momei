@@ -1,10 +1,19 @@
-import { AUTH_CAPTCHA_SECRET_KEY, AUTH_CAPTCHA_PROVIDER } from '@/utils/shared/env'
-
 /**
  * 验证验证码
+ * 支持多种提供者：cloudflare-turnstile, google-recaptcha, hcaptcha, captchafox
  */
-export async function verifyCaptcha(token?: string) {
-    if (!AUTH_CAPTCHA_SECRET_KEY) {
+export async function verifyCaptcha(token?: string, remoteip?: string) {
+    const config = useRuntimeConfig()
+    const secretKey = config.authCaptchaSecretKey
+    const provider = config.public.authCaptcha?.provider as
+        | 'cloudflare-turnstile'
+        | 'google-recaptcha'
+        | 'hcaptcha'
+        | 'captchafox'
+        | undefined
+    const siteKey = config.public.authCaptcha?.siteKey
+
+    if (!secretKey) {
         // 如果没有配置密钥，则跳过验证（通常用于开发环境）
         return true
     }
@@ -13,19 +22,58 @@ export async function verifyCaptcha(token?: string) {
         return false
     }
 
-    if (AUTH_CAPTCHA_PROVIDER === 'cloudflare-turnstile') {
-        const formData = new FormData()
-        formData.append('secret', AUTH_CAPTCHA_SECRET_KEY)
-        formData.append('response', token)
+    let url = ''
+    const formData = new URLSearchParams()
+    formData.append('secret', secretKey)
+    formData.append('response', token)
 
-        const result = await $fetch<{ success: boolean }>('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-            method: 'POST',
-            body: formData,
-        })
-
-        return result.success
+    switch (provider) {
+        case 'cloudflare-turnstile':
+            url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
+            if (remoteip) {
+                formData.append('remoteip', remoteip)
+            }
+            break
+        case 'google-recaptcha':
+            url = 'https://www.google.com/recaptcha/api/siteverify'
+            if (remoteip) {
+                formData.append('remoteip', remoteip)
+            }
+            break
+        case 'hcaptcha':
+            url = 'https://hcaptcha.com/siteverify'
+            if (remoteip) {
+                formData.append('remoteip', remoteip)
+            }
+            if (siteKey) {
+                formData.append('sitekey', siteKey)
+            }
+            break
+        case 'captchafox':
+            url = 'https://api.captchafox.com/siteverify'
+            if (remoteip) {
+                formData.append('remoteIp', remoteip) // 注意大小写
+            }
+            if (siteKey) {
+                formData.append('sitekey', siteKey)
+            }
+            break
+        default:
+            return true
     }
 
-    // 默认返回 true，或者可以根据需要扩展其他提供者
-    return true
+    try {
+        const result = await $fetch<{ success: boolean }>(url, {
+            method: 'POST',
+            body: formData.toString(),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+        })
+
+        return !!result.success
+    } catch (error) {
+        console.error(`Captcha verification failed for ${provider}:`, error)
+        return false
+    }
 }

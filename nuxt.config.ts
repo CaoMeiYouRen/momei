@@ -109,6 +109,7 @@ export default defineNuxtConfig({
         },
     },
     runtimeConfig: {
+        authCaptchaSecretKey: process.env.AUTH_CAPTCHA_SECRET_KEY,
         public: {
             NODE_ENV: process.env.NODE_ENV,
             siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://momei.app',
