@@ -17,11 +17,7 @@
 
             <Divider />
 
-            <div
-                v-if="content"
-                class="legal-page__content"
-                v-html="sanitizeHtml(content)"
-            />
+            <ArticleContent v-if="content" :content="content" />
         </div>
     </div>
 </template>
@@ -29,7 +25,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import DOMPurify from 'dompurify'
+import ArticleContent from '@/components/article-content.vue'
 
 const content = ref<string>('')
 const isDefault = ref(false)
@@ -38,15 +34,6 @@ const { t } = useI18n()
 useHead({
     title: t('pages.privacy_policy.title'),
 })
-
-/**
- * 对 HTML 内容进行清洁，防止 XSS 攻击
- * @param dirty 需要清洁的 HTML 字符串
- * @returns 清洁后的 HTML 字符串
- */
-function sanitizeHtml(dirty: string): string {
-    return DOMPurify.sanitize(dirty)
-}
 
 onMounted(async () => {
     try {
@@ -63,10 +50,8 @@ onMounted(async () => {
 })
 
 function getDefaultContent(): string {
-    return `<section>
-        <h2>1. 概述</h2>
-        <p>本隐私政策说明了本网站如何收集、使用和保护您的个人信息。</p>
-    </section>`
+    return `## 1. 概述
+本隐私政策说明了本网站如何收集、使用和保护您的个人信息。`
 }
 </script>
 
