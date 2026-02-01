@@ -169,7 +169,7 @@
     "vitepress": "^1.6.4",
     "vitest": "^4.0.15",
     "vue-tsc": "^3.2.3",
-    "wrangler": "^4.60.0"
+    "wrangler": "^4.61.1"
   },
   "author": "CaoMeiYouRen",
   "description": "墨梅博客 - AI 驱动、原生国际化的开发者博客平台。AI 赋能，全球创作。",
