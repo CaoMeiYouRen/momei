@@ -92,8 +92,10 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "@parcel/watcher",
+      "@sentry/cli",
       "better-sqlite3",
       "esbuild",
+      "nice-napi",
       "sharp",
       "unrs-resolver",
       "workerd"
