@@ -278,6 +278,11 @@ export default defineNuxtConfig({
         // optimizeDeps: {
         //     include: ['zhlint', 'debug'],
         // },
+        build: {
+            rollupOptions: {
+                external: ['quill'],
+            },
+        },
     },
     nitro: {
         prerender: {
