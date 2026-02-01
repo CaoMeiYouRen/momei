@@ -2,7 +2,8 @@
     "app": {
         "name": "墨梅博客",
         "description": "墨梅博客 - AI 驱动、原生国际化的开发者博客平台。AI 赋能，全球创作。",
-        "keywords": "博客, AI, Nuxt, Vue, TypeScript"
+        "keywords": "博客, AI, Nuxt, Vue, TypeScript",
+        "locale": "zh-CN"
     },
     "demo": {
         "banner_text": "当前处于演示模式。您可以体验所有功能，但数据将在系统重启后自动重置为初始状态。",
@@ -124,6 +125,7 @@
         "author": "作者",
         "tag": "标签",
         "loading": "加载中...",
+        "refresh": "刷新",
         "status": {
             "published": "已发布",
             "draft": "草稿",
@@ -153,6 +155,7 @@
         "delete": "删除",
         "edit": "编辑",
         "create": "创建",
+        "add": "新增",
         "name": "名称",
         "slug": "别名",
         "description": "描述",
@@ -203,7 +206,9 @@
         "skip": "跳过",
         "save_next": "保存并继续",
         "current": "当前",
-        "switch": "切换"
+        "switch": "切换",
+        "yes": "是",
+        "no": "否"
     },
     "legal": {
         "user_agreement": "用户协议",

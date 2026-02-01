@@ -2,7 +2,8 @@
     "app": {
         "name": "Momei Blog",
         "description": "Momei Blog - An AI-driven, natively internationalized developer blog platform. AI-powered, Global Creation.",
-        "keywords": "blog, AI, Nuxt, Vue, TypeScript"
+        "keywords": "blog, AI, Nuxt, Vue, TypeScript",
+        "locale": "en-US"
     },
     "demo": {
         "banner_text": "Demo Mode is active. You can explore all features, but data will be reset periodically.",
@@ -124,6 +125,7 @@
         "author": "Author",
         "tag": "Tag",
         "loading": "Loading...",
+        "refresh": "Refresh",
         "tag_cloud": "Tag Cloud",
         "status": {
             "published": "Published",
@@ -154,6 +156,7 @@
         "delete": "Delete",
         "edit": "Edit",
         "create": "Create",
+        "add": "Add",
         "name": "Name",
         "slug": "Slug",
         "description": "Description",
@@ -204,7 +207,9 @@
         "skip": "Skip",
         "save_next": "Save and Continue",
         "current": "Current",
-        "switch": "Switch"
+        "switch": "Switch",
+        "yes": "Yes",
+        "no": "No"
     },
     "legal": {
         "user_agreement": "User Agreement",
