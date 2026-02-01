@@ -540,7 +540,8 @@
                         "ai": "AI 服务",
                         "email": "邮件服务",
                         "storage": "文件存储",
-                        "analytics": "分析统计"
+                        "analytics": "分析统计",
+                        "agreements": "协议管理"
                     },
                     "sections": {
                         "social_auth": "社交登录 (OAuth)",
@@ -618,6 +619,30 @@
                         "max_upload_size": "单位为 MB。如果设置为 0 则不限制。",
                         "keywords_placeholder": "每行一个关键词，匹配到的评论将自动设为待审核或垃圾评论",
                         "file_types_placeholder": "例如: .jpg, .png, .mp3 (逗号分隔)"
+                    },
+                    "agreements": {
+                        "title": "协议管理",
+                        "description": "管理用户协议和隐私政策，支持多版本和多语言管理。",
+                        "user_agreement": "用户协议",
+                        "privacy_policy": "隐私政策",
+                        "version": "版本号",
+                        "language": "语言",
+                        "created": "创建时间",
+                        "is_main": "是否生效",
+                        "content": "协议内容",
+                        "version_description": "版本说明",
+                        "set_as_main": "设置为生效版本",
+                        "edit": "编辑协议",
+                        "create": "创建新协议",
+                        "load_failed": "加载协议列表失败",
+                        "save_failed": "保存协议失败",
+                        "create_success": "协议创建成功",
+                        "update_success": "协议更新成功",
+                        "delete_success": "协议删除成功",
+                        "delete_failed": "协议删除失败",
+                        "activate_success": "协议已设置为生效版本",
+                        "activate_failed": "设置生效版本失败",
+                        "delete_confirm": "确定要删除该协议版本吗？删除后将无法恢复。"
                     }
                 }
             },

@@ -39,6 +39,9 @@
                         <Tab value="analytics">
                             {{ $t('pages.admin.settings.system.tabs.analytics') }}
                         </Tab>
+                        <Tab value="agreements">
+                            {{ $t('pages.admin.settings.system.tabs.agreements') }}
+                        </Tab>
                     </TabList>
                     <TabPanels>
                         <TabPanel value="general">
@@ -72,6 +75,10 @@
                         <TabPanel value="limits">
                             <LimitsSettings v-model:settings="settings" :metadata="metadata" />
                         </TabPanel>
+
+                        <TabPanel value="agreements">
+                            <AgreementsSettings />
+                        </TabPanel>
                     </TabPanels>
                 </Tabs>
             </template>
@@ -92,6 +99,7 @@ import AnalyticsSettings from '@/components/admin/settings/analytics-settings.vu
 import AuthSettings from '@/components/admin/settings/auth-settings.vue'
 import SecuritySettings from '@/components/admin/settings/security-settings.vue'
 import LimitsSettings from '@/components/admin/settings/limits-settings.vue'
+import AgreementsSettings from '@/components/admin/settings/agreements-settings.vue'
 
 const { t } = useI18n()
 const toast = useToast()
