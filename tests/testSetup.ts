@@ -41,7 +41,6 @@ vi.stubGlobal('defineEventHandler', mockEventHandler)
 vi.stubGlobal('getValidatedQuery', mockGetValidatedQuery)
 vi.stubGlobal('readValidatedBody', mockReadValidatedBody)
 vi.stubGlobal('createError', mockCreateError)
-vi.stubGlobal('$fetch', vi.fn(() => Promise.resolve({})))
 vi.stubGlobal('getAppManifest', vi.fn(() => Promise.resolve({
     publicPath: '/',
     buildId: 'test',
