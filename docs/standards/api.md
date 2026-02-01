@@ -86,6 +86,22 @@ const createPostSchema = z.object({
 -   **配置**: 优先通过系统设置（数据库）配置 SMTP 服务商，或利用环境变量进行强制锁定。严禁在代码中硬编码凭据。
 -   **模板**: 必须使用 HTML 邮件模板，确保跨客户端兼容性。
 
+### 5.1 邮件国际化标准 (Email Internationalization)
+
+-   **国际化范围**: 所有系统邮件（验证、通知、订阅等）必须支持多语言。
+-   **语言获取**:
+    - 如果接收者是已登录用户，优先使用其 `preferredLanguage` 字段（待实现）。
+    - 如果用户未登录（如注册流程），从请求参数、Cookie 或系统默认语言中获取。
+-   **文件存储**: 邮件的多语言字符串必须独立存储在 `server/utils/email/locales/` 目录下，与前端 i18n 分离。当前支持 `zh-CN`（中文）和 `en-US`（英文）。
+-   **API 签名**: 所有邮件发送方法必须支持可选的 `locale` 参数，如：
+    ```typescript
+    sendVerificationEmail(email: string, url: string, locale?: string): Promise<void>
+    ```
+    不支持的语言自动降级到 `zh-CN`。
+-   **文本参数**:
+    邮件模板中使用 `{paramName}` 格式的占位符，支持的参数包括：`{appName}`, `{baseUrl}`, `{contactEmail}`, `{verificationCode}`, `{expiresIn}`, `{currentYear}` 等。
+    参数值必须来自系统设置（`getSettings()`）或方法参数，严禁硬编码。
+
 ## 6. 文档与维护 (Documentation & Maintenance)
 
 -   **定义位置**: 具体的 API 定义（路由、参数、响应结构）必须记载在 `docs/design/modules/*.md` 对应的模块设计文档中。
