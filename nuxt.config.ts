@@ -275,9 +275,9 @@ export default defineNuxtConfig({
                 },
             },
         },
-        // optimizeDeps: {
-        //     include: ['zhlint', 'debug'],
-        // },
+        ssr: {
+            noExternal: ['quill'],
+        },
         build: {
             rollupOptions: {
                 external: ['quill'],
