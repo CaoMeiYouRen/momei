@@ -102,21 +102,15 @@ const navigateToPost = () => {
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
 .article-card {
-    background-color: var(--p-surface-card);
-    border: 1px solid var(--p-surface-border);
-    border-radius: 0.5rem;
+    @include card-base(0);
+    @include hover-lift;
+
     overflow: hidden;
     cursor: pointer;
-    transition: box-shadow 0.3s ease;
-
-    &:hover {
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
-
-        .article-card__cover img {
-            transform: scale(1.05);
-        }
-    }
 
     &__cover {
         aspect-ratio: 16 / 9;
@@ -126,31 +120,33 @@ const navigateToPost = () => {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s ease;
+            transition: transform $transition-base;
+        }
+    }
+
+    &:hover {
+        .article-card__cover img {
+            transform: scale(1.05);
         }
     }
 
     &__content {
-        padding: 1rem;
+        padding: $spacing-md;
     }
 
     &__title {
         font-size: 1.25rem;
         font-weight: 700;
         color: var(--p-text-color);
-        margin-bottom: 0.5rem;
+        margin-bottom: $spacing-sm;
 
-        // Line clamp 2
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+        @include text-ellipsis-multiline(2);
     }
 
     &__meta {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem 1.25rem;
+        gap: $spacing-sm 1.25rem;
         align-items: center;
         font-size: 0.875rem;
         color: var(--p-text-muted-color);
@@ -159,20 +155,16 @@ const navigateToPost = () => {
         &-item {
             display: flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: $spacing-xs;
             white-space: nowrap;
         }
     }
 
     &__summary {
         color: var(--p-text-muted-color);
-        margin-bottom: 1rem;
+        margin-bottom: $spacing-md;
 
-        // Line clamp 5
-        display: -webkit-box;
-        -webkit-line-clamp: 5;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+        @include text-ellipsis-multiline(5);
     }
 
     &__footer {
@@ -191,7 +183,7 @@ const navigateToPost = () => {
     &__category {
         display: inline-flex;
         text-decoration: none;
-        transition: transform 0.2s;
+        transition: transform $transition-fast;
         white-space: nowrap;
 
         &:hover {
@@ -201,14 +193,14 @@ const navigateToPost = () => {
 
     &__tags {
         display: flex;
-        gap: 0.5rem;
+        gap: $spacing-sm;
     }
 
     &__tag {
         font-size: 0.75rem;
         color: var(--p-text-muted-color);
         text-decoration: none;
-        transition: color 0.2s;
+        transition: color $transition-fast;
 
         &:hover {
             color: var(--m-accent-color);
@@ -241,6 +233,10 @@ const navigateToPost = () => {
         }
 
         // Responsive adjustments for mobile
+        @include respond-to("md") {
+            // Keep horizontal
+        }
+
         @media (width <= 768px) {
             flex-direction: column;
 

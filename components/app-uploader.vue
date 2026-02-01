@@ -102,9 +102,11 @@ const onDrop = (e: DragEvent) => {
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/variables" as *;
+
 .app-uploader {
-    transition: all 0.2s;
-    border-radius: var(--p-border-radius-md);
+    transition: $transition-base;
+    border-radius: $border-radius-md;
 
     &--dragging {
         outline: 2px dashed var(--p-primary-500);

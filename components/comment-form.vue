@@ -169,21 +169,22 @@ const handleSubmit = async () => {
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
 .comment-form {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  border-radius: 0.75rem;
-  background-color: var(--p-surface-0);
-  border: 1px solid var(--p-surface-border);
+  @include card-base($spacing-lg);
+
+  margin-top: $spacing-xl;
 
   &__replying-to {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    padding: 0.5rem 1rem;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-md;
+    padding: $spacing-sm $spacing-md;
     background-color: var(--p-primary-100);
-    border-radius: 0.5rem;
+    border-radius: $border-radius-md;
     font-size: 0.875rem;
     color: var(--p-primary-700);
   }
@@ -191,8 +192,8 @@ const handleSubmit = async () => {
   &__guest-info {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: $spacing-md;
+    margin-bottom: $spacing-md;
 
     @media (width <= 768px) {
       grid-template-columns: 1fr;
@@ -200,31 +201,23 @@ const handleSubmit = async () => {
   }
 
   &__field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-
-    label {
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--p-text-color-secondary);
-    }
+    @include form-field;
   }
 
   &__content {
-    margin-bottom: 1rem;
+    margin-bottom: $spacing-md;
   }
 
   &__footer {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 1rem;
+    gap: $spacing-md;
   }
 
   &__tip {
     font-size: 0.75rem;
-    color: var(--p-text-color-secondary);
+    color: var(--p-text-muted-color);
     margin: 0;
   }
 }

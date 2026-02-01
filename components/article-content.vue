@@ -133,12 +133,14 @@ watch(() => props.content, () => {
 </script>
 
 <style lang="scss">
+@use "@/styles/variables" as *;
 @import "katex/dist/katex.min.css";
 
 .markdown-body {
     line-height: 1.8;
     color: var(--p-text-color);
     font-size: 1.1rem;
+    font-family: $font-sans;
 
     h1, h2, h3, h4, h5, h6 {
         margin-top: 2em;
@@ -175,7 +177,7 @@ watch(() => props.content, () => {
         color: var(--p-primary-500);
         text-decoration: none;
         border-bottom: 1px solid transparent;
-        transition: border-color 0.2s;
+        transition: border-color $transition-fast;
 
         &:hover {
             border-bottom-color: var(--p-primary-500);
@@ -188,7 +190,7 @@ watch(() => props.content, () => {
         margin: 1.5em 0;
         background-color: var(--p-surface-50);
         border: 1px solid var(--p-surface-100);
-        border-radius: 0 0.5em 0.5em 0;
+        border-radius: 0 $border-radius-md $border-radius-md 0;
         color: var(--p-text-muted-color);
 
         p:last-child {
@@ -199,15 +201,15 @@ watch(() => props.content, () => {
     code {
         background-color: var(--p-surface-100);
         padding: 0.2em 0.4em;
-        border-radius: 0.25em;
-        font-family: 'Fira Code', monospace;
+        border-radius: $border-radius-sm;
+        font-family: $font-mono;
         font-size: 0.9em;
         color: var(--p-primary-600);
     }
 
     pre {
         padding: 0;
-        border-radius: 0.5em;
+        border-radius: $border-radius-md;
         overflow: hidden;
         margin: 1.5em 0;
         background-color: var(--p-surface-50);
@@ -220,17 +222,17 @@ watch(() => props.content, () => {
             color: inherit;
             font-size: 0.9em;
             overflow-x: auto;
-            font-family: 'Fira Code', 'Cascadia Code', 'Source Code Pro', monospace;
+            font-family: $font-mono;
         }
     }
 
     img {
         max-width: 100%;
         height: auto;
-        border-radius: 0.5em;
+        border-radius: $border-radius-md;
         margin: 2em auto;
         display: block;
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        box-shadow: $shadow-md;
     }
 
     hr {

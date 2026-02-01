@@ -180,13 +180,14 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
 $color-ink: var(--p-text-color);
 $color-plum: var(--p-primary-color);
 $color-paper: var(--p-surface-ground);
 $color-accent: var(--p-text-muted-color);
 $color-white: var(--p-surface-card);
-$font-sans: 'Inter', 'system-ui', 'sans-serif';
-$font-serif: '"Noto Serif SC"', 'serif';
 
 .home-page {
   font-family: $font-sans;
@@ -194,121 +195,20 @@ $font-serif: '"Noto Serif SC"', 'serif';
   background-color: $color-paper;
 }
 
-.container {
-  width: 100%;
-  margin-right: auto;
-  margin-left: auto;
-  padding-right: 1rem;
-  padding-left: 1rem;
-
-  @media (width >= 640px) { max-width: 640px; }
-
-  @media (width >= 768px) { max-width: 768px; }
-
-  @media (width >= 1024px) { max-width: 1024px; }
-
-  @media (width >= 1280px) { max-width: 1280px; }
-}
-
-// Header
-.header {
-  position: fixed;
-  width: 100%;
-  background-color: var(--p-surface-card);
-  backdrop-filter: blur(4px);
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  z-index: 50;
-  top: 0;
-  opacity: 0.9;
-
-  &__container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  text-decoration: none;
-  color: inherit;
-
-  &__icon {
-    width: 2rem;
-    height: 2rem;
-    border-radius: 9999px;
-    background-color: $color-ink;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  &__text {
-    color: var(--p-surface-0);
-    font-family: $font-serif;
-    font-size: 1.125rem;
-
-    :global(.dark) & {
-        color: var(--p-surface-900);
-    }
-  }
-
-  &__title {
-    font-size: 1.25rem;
-    font-family: $font-serif;
-    font-weight: 700;
-  }
-}
-
-.nav {
-  display: none;
-  gap: 2rem;
-
-  @media (width >= 768px) {
-    display: flex;
-  }
-
-  &__link {
-    color: $color-ink;
-    text-decoration: none;
-    transition: all 0.3s ease-in-out;
-
-    &:hover {
-      color: $color-plum;
-    }
-  }
-}
-
-.mobile-menu-btn {
-  display: block;
-  color: $color-ink;
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  cursor: pointer;
-
-  @media (width >= 768px) {
-    display: none;
-  }
-}
-
 // Hero Section
 .hero {
-  padding: 8rem 1rem 5rem;
+  padding: $spacing-xl * 4 1rem $spacing-xl * 2.5;
   background: linear-gradient(to bottom, $color-white, $color-paper);
 
-  @media (width >= 768px) {
-    padding-top: 10rem;
-    padding-bottom: 8rem;
+  @include respond-to("md") {
+    padding-top: $spacing-xl * 5;
+    padding-bottom: $spacing-xl * 4;
   }
 
   &__container {
     max-width: 56rem; // max-w-4xl
     text-align: center;
+    margin: 0 auto;
   }
 
   &__logo {
@@ -316,12 +216,12 @@ $font-serif: '"Noto Serif SC"', 'serif';
     height: 6rem;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 2rem;
+    margin-bottom: $spacing-xl;
     display: flex;
     align-items: center;
     justify-content: center;
 
-    @media (width >= 768px) {
+    @include respond-to("md") {
       width: 8rem;
       height: 8rem;
     }
@@ -337,10 +237,10 @@ $font-serif: '"Noto Serif SC"', 'serif';
     font-size: 2.25rem;
     font-family: $font-serif;
     font-weight: 700;
-    margin-bottom: 1.5rem;
+    margin-bottom: $spacing-lg;
     color: $color-ink;
 
-    @media (width >= 768px) {
+    @include respond-to("md") {
       font-size: 3.75rem;
     }
   }
@@ -348,12 +248,12 @@ $font-serif: '"Noto Serif SC"', 'serif';
   &__subtitle {
     font-size: 1.25rem;
     color: $color-accent;
-    margin-bottom: 2.5rem;
+    margin-bottom: $spacing-xl * 1.25;
     max-width: 42rem;
     margin-left: auto;
     margin-right: auto;
 
-    @media (width >= 768px) {
+    @include respond-to("md") {
       font-size: 1.5rem;
     }
   }
@@ -362,10 +262,10 @@ $font-serif: '"Noto Serif SC"', 'serif';
     display: inline-block;
     background-color: $color-ink;
     color: var(--p-surface-0);
-    padding: 0.75rem 2rem;
-    border-radius: 0.375rem;
+    padding: $spacing-sm * 1.5 $spacing-xl;
+    border-radius: $border-radius-sm;
     text-decoration: none;
-    transition: all 0.3s ease-in-out;
+    transition: $transition-base;
 
     &:hover {
       opacity: 0.9;
@@ -379,7 +279,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
 
 // Sections
 .section {
-  padding: 5rem 1rem;
+  padding: $spacing-xl * 2.5 1rem;
 
   &--white {
     background-color: $color-white;
@@ -393,7 +293,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
     font-size: 1.875rem;
     font-family: $font-serif;
     font-weight: 700;
-    margin-bottom: 3rem;
+    margin-bottom: $spacing-xl * 1.5;
     text-align: center;
   }
 
@@ -406,17 +306,17 @@ $font-serif: '"Noto Serif SC"', 'serif';
 .about-content {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: $spacing-xl * 1.25;
   align-items: center;
   max-width: 56rem; // max-w-4xl
   margin: 0 auto;
 
-  @media (width >= 768px) {
+  @include respond-to("md") {
     flex-direction: row;
   }
 
   &__left, &__right {
-    @media (width >= 768px) {
+    @include respond-to("md") {
       width: 50%;
     }
   }
@@ -426,7 +326,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
     line-height: 1.75rem;
 
     &--mb {
-      margin-bottom: 1rem;
+      margin-bottom: $spacing-md;
     }
   }
 }
@@ -434,10 +334,10 @@ $font-serif: '"Noto Serif SC"', 'serif';
 .blockquote {
   font-style: italic;
   border-left: 4px solid $color-plum;
-  padding-left: 1rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  margin-bottom: 1.5rem;
+  padding-left: $spacing-md;
+  padding-top: $spacing-sm;
+  padding-bottom: $spacing-sm;
+  margin-bottom: $spacing-lg;
   color: $color-accent;
   white-space: pre-line;
 }
@@ -448,7 +348,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: $spacing-sm;
 
   &__item {
     display: flex;
@@ -457,32 +357,32 @@ $font-serif: '"Noto Serif SC"', 'serif';
 
   &__icon {
     color: $color-plum;
-    margin-top: 0.25rem;
-    margin-right: 0.5rem;
+    margin-top: $spacing-xs;
+    margin-right: $spacing-sm;
   }
 }
 
 // Features Grid
 .features-grid {
   display: grid;
-  gap: 2rem;
+  gap: $spacing-xl;
   max-width: 56rem;
   margin: 0 auto;
 
-  @media (width >= 768px) {
+  @include respond-to("md") {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 .feature-card {
   background-color: $color-white;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  transition: all 0.3s ease-in-out;
+  padding: $spacing-lg;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-sm;
+  transition: $transition-base;
 
   &:hover {
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+    box-shadow: $shadow-md;
   }
 
   &__icon-wrapper {
@@ -493,7 +393,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1rem;
+    margin-bottom: $spacing-md;
   }
 
   &__icon {
@@ -504,7 +404,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
   &__title {
     font-size: 1.25rem;
     font-weight: 700;
-    margin-bottom: 0.75rem;
+    margin-bottom: $spacing-sm * 1.5;
   }
 
   &__desc {
@@ -517,12 +417,12 @@ $font-serif: '"Noto Serif SC"', 'serif';
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2rem;
-  margin-bottom: 3rem;
+  gap: $spacing-xl;
+  margin-bottom: $spacing-xl * 1.5;
 
-  @media (width >= 768px) {
+  @include respond-to("md") {
     flex-direction: row;
-    gap: 4rem;
+    gap: $spacing-xl * 2;
   }
 }
 
@@ -530,10 +430,10 @@ $font-serif: '"Noto Serif SC"', 'serif';
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: $spacing-sm;
   color: $color-ink;
   text-decoration: none;
-  transition: all 0.3s ease-in-out;
+  transition: $transition-base;
 
   &:hover {
     color: $color-plum;
@@ -545,10 +445,10 @@ $font-serif: '"Noto Serif SC"', 'serif';
 }
 
 .contact-message {
-  margin-top: 3rem;
-  padding: 1.5rem;
+  margin-top: $spacing-xl * 1.5;
+  padding: $spacing-lg;
   background-color: $color-paper;
-  border-radius: 0.5rem;
+  border-radius: $border-radius-md;
   display: inline-block;
 
   &__text {
@@ -557,7 +457,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
   }
 
   &__subtitle {
-    margin-top: 0.5rem;
+    margin-top: $spacing-sm;
   }
 }
 </style>

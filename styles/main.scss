@@ -255,35 +255,35 @@
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 $spacing-lg;
 
-    @media (width <= 768px) {
-        padding: 0 1rem;
+    @include respond-below("md") {
+        padding: 0 $spacing-md;
     }
 }
 
 .section {
-    padding: 4rem 0;
+    padding: $spacing-xl * 2 0;
 
-    @media (width <= 768px) {
-        padding: 2rem 0;
+    @include respond-below("md") {
+        padding: $spacing-xl 0;
     }
 
     &__header {
-        margin-bottom: 2rem;
+        margin-bottom: $spacing-lg;
 
-        @media (width <= 768px) {
-            margin-bottom: 1rem;
+        @include respond-below("md") {
+            margin-bottom: $spacing-md;
         }
     }
 
     &__title {
-        font-size: 2rem;
+        font-size: 2.25rem;
         font-weight: 700;
         color: var(--p-text-color);
 
-        @media (width <= 768px) {
-            font-size: 1.5rem;
+        @include respond-below("md") {
+            font-size: 1.75rem;
         }
     }
 }

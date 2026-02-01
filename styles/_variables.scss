@@ -55,6 +55,17 @@ $color-warning: var(--p-warning-500);
 $color-danger: var(--p-error-500);
 $color-info: var(--p-info-500);
 
+// Shadows
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+// Transitions
+$transition-fast: 0.15s ease;
+$transition-base: 0.3s ease;
+$transition-slow: 0.5s ease;
+
 // GitHub Alert Colors
 $color-gh-alert-note: #0969da;
 $color-gh-alert-tip: #1a7f37;
@@ -98,6 +109,11 @@ $highlight-title-dark: #d2a8ff;
 $highlight-attr-dark: #79c0ff;
 $highlight-string-dark: #a5d6ff;
 $highlight-built-in-dark: #ffa657;
+
+// Font Families
+$font-sans: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+$font-serif: "Noto Serif SC", "Source Han Serif SC", "Source Han Serif CN", Georgia, "Times New Roman", serif;
+$font-mono: "Fira Code", "JetBrains Mono", "Cascadia Code", "Source Code Pro", Menlo, Monaco, Consolas, "Courier New", monospace;
 $highlight-comment-dark: #8b949e;
 $highlight-name-dark: #7ee787;
 $highlight-section-dark: #1f6feb;

@@ -1,25 +1,7 @@
 <template>
     <header class="app-header">
         <div class="app-header__container">
-            <NuxtLink :to="localePath('/')" class="app-header__logo-link">
-                <img
-                    v-if="siteLogo"
-                    :src="siteLogo"
-                    alt="Logo"
-                    class="app-header__logo"
-                    width="32"
-                    height="32"
-                >
-                <img
-                    v-else
-                    src="/logo.png"
-                    alt="Momei Logo"
-                    class="app-header__logo"
-                    width="32"
-                    height="32"
-                >
-                <span class="app-header__title">{{ currentTitle }}</span>
-            </NuxtLink>
+            <AppLogo />
 
             <div class="app-header__actions">
                 <nav class="app-header__nav desktop-only">
@@ -443,75 +425,56 @@ watch(preferredDark, (newVal) => {
 </script>
 
 <style lang="scss" scoped>
-.nav-link {
-    color: var(--p-text-color);
-    text-decoration: none;
-    font-weight: 500;
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
 
-    &:hover {
-        color: var(--p-primary-color);
-    }
+.nav-link {
+    @include nav-link;
 }
 
 .app-header {
     background-color: var(--p-surface-card);
     border-bottom: 1px solid var(--p-surface-border);
     height: 64px;
-    padding: 0 1rem;
+    padding: 0 $spacing-md;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: $z-index-header;
     display: flex;
     align-items: center;
 
     &__container {
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
+        @include page-container;
+
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
-    &__logo-link {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        text-decoration: none;
-        color: var(--p-text-color);
-    }
-
-    &__logo {
-        height: 32px;
-        width: auto;
-    }
-
-    &__title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--p-primary-color);
-    }
-
     &__actions {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: $spacing-md;
     }
 
     &__nav {
         display: flex;
-        gap: 1.5rem;
-        margin-right: 1rem;
+        gap: $spacing-lg;
+        margin-right: $spacing-md;
     }
 
     &__action-group {
         display: flex;
         align-items: center;
-        gap: 0.25rem;
+        gap: $spacing-xs;
     }
 }
 
 .desktop-only {
+    @include respond-to("md") {
+        // Shown
+    }
+
     @media (width <= 768px) {
         display: none;
     }
@@ -528,13 +491,13 @@ watch(preferredDark, (newVal) => {
 .mobile-menu {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: $spacing-sm;
 
     &__item {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.5rem 0.75rem;
+        padding: $spacing-sm 0.75rem;
     }
 }
 
@@ -543,10 +506,10 @@ watch(preferredDark, (newVal) => {
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem;
-    border-radius: 0.5rem;
+    border-radius: $border-radius-md;
     color: var(--p-text-color);
     text-decoration: none;
-    transition: background-color 0.2s;
+    transition: background-color $transition-fast;
 
     &:hover {
         background-color: var(--p-surface-hover);
@@ -561,13 +524,13 @@ watch(preferredDark, (newVal) => {
 .mobile-admin-section {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: $spacing-xs;
 
     &__title {
         font-size: 0.75rem;
         font-weight: 700;
         color: var(--p-text-muted-color);
-        padding: 0.5rem 0.75rem;
+        padding: $spacing-sm 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
@@ -578,7 +541,7 @@ watch(preferredDark, (newVal) => {
     &.p-button {
         width: 100%;
         justify-content: flex-start;
-        margin-top: 0.5rem;
+        margin-top: $spacing-sm;
     }
 }
 

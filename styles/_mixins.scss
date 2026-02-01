@@ -13,6 +13,18 @@
     }
 }
 
+@mixin respond-below($breakpoint) {
+    @if $breakpoint == "sm" {
+        @media (max-width: ($breakpoint-sm - 0.02px)) { @content; }
+    } @else if $breakpoint == "md" {
+        @media (max-width: ($breakpoint-md - 0.02px)) { @content; }
+    } @else if $breakpoint == "lg" {
+        @media (max-width: ($breakpoint-lg - 0.02px)) { @content; }
+    } @else if $breakpoint == "xl" {
+        @media (max-width: ($breakpoint-xl - 0.02px)) { @content; }
+    }
+}
+
 // Flexbox Center
 @mixin flex-center {
     display: flex;
@@ -33,4 +45,73 @@
     -webkit-line-clamp: $lines;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+// Card Base
+@mixin card-base($padding: $spacing-md, $radius: $border-radius-lg) {
+    background-color: var(--p-surface-card);
+    border: 1px solid var(--p-surface-border);
+    border-radius: $radius;
+    padding: $padding;
+}
+
+// Hover Lift Effect
+@mixin hover-lift($shadow: $shadow-md, $lift: -4px) {
+    transition: transform $transition-base, box-shadow $transition-base;
+
+    &:hover {
+        transform: translateY($lift);
+        box-shadow: $shadow;
+    }
+}
+
+// Glass Morphism
+@mixin glass-morphism($blur: 8px, $bg: rgba(var(--p-surface-0-rgb), 0.7)) {
+    background: $bg;
+    backdrop-filter: blur($blur);
+    -webkit-backdrop-filter: blur($blur);
+    border-bottom: 1px solid var(--p-surface-border);
+}
+
+// Container
+@mixin page-container($max-width: 1200px) {
+    width: 100%;
+    max-width: $max-width;
+    margin: 0 auto;
+    padding-left: $spacing-md;
+    padding-right: $spacing-md;
+
+    @include respond-to("md") {
+        padding-left: $spacing-xl;
+        padding-right: $spacing-xl;
+    }
+}
+
+// Form Field
+@mixin form-field {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+
+    label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--p-text-muted-color);
+    }
+}
+
+// Nav Link
+@mixin nav-link {
+    color: var(--p-text-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color $transition-fast;
+
+    &:hover {
+        color: var(--p-primary-color);
+    }
+
+    &.router-link-active {
+        color: var(--p-primary-color);
+    }
 }

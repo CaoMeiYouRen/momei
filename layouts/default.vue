@@ -10,6 +10,9 @@
 </template>
 
 <style lang="scss" scoped>
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
 .layout-default {
     min-height: 100vh;
     display: flex;
@@ -17,11 +20,11 @@
     background-color: var(--p-surface-ground);
 
     &__main {
+        @include page-container;
+
         flex: 1;
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 1rem;
+        padding-top: $spacing-md;
+        padding-bottom: $spacing-xl;
         display: flex;
         flex-direction: column;
     }

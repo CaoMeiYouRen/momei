@@ -81,34 +81,36 @@ const licenseUrl = computed(() => {
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/variables" as *;
+
 .article-copyright {
-    margin: 3rem 0;
-    padding: 1.5rem;
+    margin: $spacing-xl 0;
+    padding: $spacing-lg;
     border-left: 0.25rem solid var(--p-primary-color);
     background-color: var(--p-surface-50);
-    border-radius: 0.5rem;
+    border-radius: $border-radius-md;
     font-size: 0.95rem;
     line-height: 1.6;
 
     &__title {
         font-weight: 700;
-        margin-bottom: 1rem;
+        margin-bottom: $spacing-md;
         color: var(--p-primary-color);
         font-size: 1.1rem;
         border-bottom: 1px solid var(--p-surface-200);
-        padding-bottom: 0.5rem;
+        padding-bottom: $spacing-xs;
     }
 
     &__content {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: $spacing-xs;
     }
 
     &__item {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: $spacing-sm;
     }
 
     &__label {
@@ -124,6 +126,7 @@ const licenseUrl = computed(() => {
         color: var(--p-primary-color);
         text-decoration: none;
         word-break: break-all;
+        transition: color $transition-fast;
 
         &:hover {
             text-decoration: underline;
@@ -136,11 +139,10 @@ const licenseUrl = computed(() => {
 }
 
 :global(.dark) .article-copyright {
-    background-color: var(--p-surface-50);
-    border-color: var(--p-primary-400);
+    border-left-color: var(--p-primary-500);
 
     &__title {
-        border-bottom-color: var(--p-surface-200);
+        border-bottom-color: var(--p-surface-700);
     }
 }
 </style>

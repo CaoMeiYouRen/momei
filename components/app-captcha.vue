@@ -215,8 +215,10 @@ declare global {
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/variables" as *;
+
 .app-captcha {
-    margin: 1rem 0;
+    margin: $spacing-md 0;
     display: flex;
     justify-content: center;
     min-height: 74px; // 预留高度，防止布局抖动

@@ -94,23 +94,21 @@ const handleSubmit = async () => {
 </script>
 
 <style lang="scss" scoped>
-.subscriber-form {
-    padding: 2.5rem;
-    background: linear-gradient(135deg, var(--p-surface-50) 0%, var(--p-surface-100) 100%);
-    border-radius: 16px;
-    border: 1px solid var(--p-surface-200);
-    box-shadow: 0 4px 20px rgb(0 0 0 / 0.03);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
 
-    &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgb(0 0 0 / 0.06);
-    }
+.subscriber-form {
+    @include card-base($spacing-xl);
+    @include hover-lift;
+
+    background: linear-gradient(135deg, var(--p-surface-50) 0%, var(--p-surface-100) 100%);
+    max-width: 600px;
+    margin: 0 auto;
 
     &__title {
         font-size: 1.5rem;
         font-weight: 700;
-        margin-bottom: 0.75rem;
+        margin-bottom: $spacing-sm;
         color: var(--p-text-color);
         letter-spacing: -0.025em;
     }
@@ -118,7 +116,7 @@ const handleSubmit = async () => {
     &__desc {
         color: var(--p-text-muted-color);
         font-size: 1rem;
-        margin-bottom: 2rem;
+        margin-bottom: $spacing-xl;
         line-height: 1.6;
     }
 
@@ -129,9 +127,9 @@ const handleSubmit = async () => {
     &__input-group {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: $spacing-sm;
 
-        @media (width >= 640px) {
+        @include respond-to("sm") {
             flex-direction: row;
             align-items: stretch;
         }
@@ -145,9 +143,9 @@ const handleSubmit = async () => {
         width: 100%;
         height: 100%;
         padding: 0.75rem 1rem 0.75rem 2.5rem;
-        border-radius: 8px;
+        border-radius: $border-radius-md;
         border: 1px solid var(--p-surface-300);
-        transition: border-color 0.2s, box-shadow 0.2s;
+        transition: border-color $transition-fast, box-shadow $transition-fast;
 
         &:focus {
             border-color: var(--p-primary-500);
@@ -158,13 +156,13 @@ const handleSubmit = async () => {
     &__submit {
         padding: 0.75rem 1.5rem;
         font-weight: 600;
-        border-radius: 8px;
+        border-radius: $border-radius-md;
         white-space: nowrap;
         justify-content: center;
     }
 
     &__message {
-        animation: slide-in 0.3s ease-out;
+        animation: slide-in $transition-base;
     }
 }
 
@@ -182,7 +180,7 @@ const handleSubmit = async () => {
 
 .fade-enter-active,
 .fade-leave-active {
-    transition: opacity 0.3s ease;
+    transition: opacity $transition-base;
 }
 
 .fade-enter-from,

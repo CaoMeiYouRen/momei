@@ -1,25 +1,7 @@
 <template>
     <footer class="footer">
-        <div class="container">
-            <NuxtLink :to="localePath('/')" class="footer__logo">
-                <img
-                    v-if="siteLogo"
-                    :src="siteLogo"
-                    alt="Logo"
-                    class="footer__logo-img"
-                    width="24"
-                    height="24"
-                >
-                <img
-                    v-else
-                    src="/logo.png"
-                    alt="Momei Logo"
-                    class="footer__logo-img"
-                    width="24"
-                    height="24"
-                >
-                <span class="footer__title">{{ currentTitle }}</span>
-            </NuxtLink>
+        <div class="footer__container">
+            <AppLogo :size="24" class="footer__logo-centered" />
             <nav class="footer__nav">
                 <NuxtLink :to="localePath('/about')" class="footer__link">
                     {{ $t('common.about') }}
@@ -81,48 +63,47 @@ const { siteLogo, currentTitle } = useMomeiConfig()
 </script>
 
 <style lang="scss" scoped>
-$font-serif: '"Noto Serif SC"', 'serif';
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
 
 .footer {
-  padding: 2rem 1rem;
+  padding: $spacing-xl $spacing-md;
   background-color: var(--p-surface-card);
   border-top: 1px solid var(--p-surface-border);
   color: var(--p-text-color);
   text-align: center;
   margin-top: auto;
 
-  &__logo {
+  &__container {
+    @include page-container;
+
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    text-decoration: none;
-    color: inherit;
   }
 
-  &__logo-img {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
+  &__logo-centered {
+    margin-bottom: $spacing-md;
 
-  &__title {
-    font-family: $font-serif;
-    font-weight: 600;
+    // Override AppLogo title font for footer
+    :deep(.app-logo__title) {
+      font-family: $font-serif;
+    }
   }
 
   &__nav {
     display: flex;
     justify-content: center;
-    gap: 1.5rem;
-    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: $spacing-md $spacing-lg;
+    margin-bottom: $spacing-md;
   }
 
   &__link {
     color: var(--p-text-muted-color);
     text-decoration: none;
     font-size: 0.875rem;
-    transition: color 0.2s;
+    transition: color $transition-fast;
 
     &:hover {
       color: var(--p-primary-color);
@@ -133,6 +114,7 @@ $font-serif: '"Noto Serif SC"', 'serif';
   &__copyright {
     font-size: 0.875rem;
     color: var(--p-text-muted-color);
+    margin-bottom: $spacing-sm;
   }
 }
 </style>

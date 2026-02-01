@@ -124,21 +124,22 @@ const formatDate = (date: string) => {
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/variables" as *;
+
 .comment-item {
   display: flex;
-  gap: 1rem;
-  padding: 1.5rem 0;
-  border-bottom: 1px solid var(--p-content-border-color);
+  gap: $spacing-md;
+  padding: $spacing-lg 0;
+  border-bottom: 1px solid var(--p-surface-border);
 
   &:last-child {
     border-bottom: none;
   }
 
   &--reply {
-    padding: 1rem 0 0 1rem;
+    padding: $spacing-md 0 0 $spacing-md;
     border-bottom: none;
     border-left: 2px solid var(--p-surface-100);
-    margin-left: 0.5rem;
   }
 
   &__avatar {
@@ -166,19 +167,20 @@ const formatDate = (date: string) => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: $spacing-sm;
   }
 
   &__author {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: $spacing-sm;
   }
 
   &__author-link {
     font-weight: 700;
     color: var(--p-primary-color);
     text-decoration: none;
+    transition: color $transition-fast;
 
     &:hover {
       text-decoration: underline;
@@ -192,23 +194,23 @@ const formatDate = (date: string) => {
 
   &__meta {
     font-size: 0.875rem;
-    color: var(--p-text-color-secondary);
+    color: var(--p-text-muted-color);
   }
 
   &__content {
-    margin-bottom: 0.5rem;
+    margin-bottom: $spacing-sm;
   }
 
   &__pending {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
-    padding: 0.25rem 0.5rem;
-    background-color: var(--p-warn-50);
-    color: var(--p-warn-700);
-    border-radius: 0.25rem;
+    gap: $spacing-xs;
+    padding: $spacing-xs $spacing-sm;
+    background-color: var(--p-warning-50);
+    color: var(--p-warning-700);
+    border-radius: $border-radius-sm;
     font-size: 0.75rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: $spacing-sm;
   }
 
   &__text {
@@ -218,17 +220,17 @@ const formatDate = (date: string) => {
 
     :deep(pre) {
       background-color: var(--p-surface-50);
-      padding: 1rem;
-      border-radius: 0.5rem;
+      padding: $spacing-md;
+      border-radius: $border-radius-md;
       overflow-x: auto;
-      margin: 0.5rem 0;
+      margin: $spacing-sm 0;
       border: 1px solid var(--p-surface-200);
 
       code {
         background-color: transparent;
         padding: 0;
         color: inherit;
-        font-family: 'Fira Code', 'Cascadia Code', 'Source Code Pro', monospace;
+        font-family: $font-mono;
         font-size: 0.85rem;
       }
     }
@@ -236,7 +238,7 @@ const formatDate = (date: string) => {
     :deep(code) {
       background-color: var(--p-surface-100);
       padding: 0.2em 0.4em;
-      border-radius: 0.25em;
+      border-radius: $border-radius-sm;
       font-size: 0.85em;
       color: var(--p-primary-600);
     }
@@ -244,18 +246,18 @@ const formatDate = (date: string) => {
 
   &__actions {
     display: flex;
-    gap: 1rem;
+    gap: $spacing-md;
   }
 
   &__replies {
-    margin-top: 0.5rem;
+    margin-top: $spacing-sm;
   }
 }
 
 :global(.dark) .comment-item {
   &--reply {
-    border-color: var(--p-surface-200);
-    border-left-color: var(--p-surface-200);
+    border-color: var(--p-surface-700);
+    border-left-color: var(--p-surface-700);
   }
 
   .comment-item__author-name {

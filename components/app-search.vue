@@ -152,6 +152,8 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss">
+@use "@/styles/variables" as *;
+
 .app-search-dialog {
     &.p-dialog {
         background: transparent;
@@ -160,14 +162,14 @@ onUnmounted(() => {
         width: 100%;
         max-width: 600px;
         top: 15%;
-        margin: 0 1rem;
+        margin: 0 $spacing-md;
 
         .p-dialog-content {
-            border-radius: 12px;
+            border-radius: $border-radius-lg;
             padding: 0;
             overflow: hidden;
             background: var(--p-content-background);
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            box-shadow: $shadow-xl;
             border: 1px solid var(--p-content-border-color);
         }
     }
@@ -180,9 +182,9 @@ onUnmounted(() => {
     &__header {
         display: flex;
         align-items: center;
-        padding: 1rem 1.5rem;
+        padding: $spacing-md $spacing-lg;
         border-bottom: 1px solid var(--p-content-border-color);
-        gap: 1rem;
+        gap: $spacing-md;
     }
 
     &__icon {
@@ -214,18 +216,18 @@ onUnmounted(() => {
         max-height: 400px;
         min-height: 120px;
         overflow-y: auto;
-        padding: 0.5rem;
-        transition: all 0.3s ease;
+        padding: $spacing-sm;
+        transition: $transition-slow;
     }
 
     &__status, &__empty, &__footer {
-        padding: 3rem 2rem;
+        padding: $spacing-xl * 1.5 $spacing-xl;
         text-align: center;
         color: var(--p-text-muted-color);
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.75rem;
+        gap: $spacing-md;
 
         i {
             font-size: 2rem;
@@ -235,18 +237,18 @@ onUnmounted(() => {
     &__results {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: $spacing-xs;
     }
 
     &__result-item {
         display: flex;
         align-items: center;
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        transition: all 0.2s;
+        padding: $spacing-sm $spacing-md;
+        border-radius: $border-radius-md;
+        transition: $transition-base;
         text-decoration: none;
         color: var(--p-text-color);
-        gap: 1rem;
+        gap: $spacing-md;
 
         &:hover {
             background-color: var(--p-primary-50);
@@ -269,12 +271,12 @@ onUnmounted(() => {
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 6px;
+        border-radius: $border-radius-sm;
         background-color: var(--p-content-background);
         border: 1px solid var(--p-content-border-color);
         color: var(--p-text-muted-color);
         flex-shrink: 0;
-        transition: all 0.2s;
+        transition: $transition-base;
     }
 
     &__result-content {
@@ -285,7 +287,7 @@ onUnmounted(() => {
     &__result-title {
         display: block;
         font-weight: 600;
-        margin-bottom: 0.25rem;
+        margin-bottom: $spacing-xs;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -301,9 +303,9 @@ onUnmounted(() => {
     }
 
     &__result-meta {
-        margin-top: 0.25rem;
+        margin-top: $spacing-xs;
         display: flex;
-        gap: 0.75rem;
+        gap: $spacing-md;
         font-size: 0.75rem;
         color: var(--p-text-muted-color);
     }
@@ -311,26 +313,26 @@ onUnmounted(() => {
     &__result-category {
         display: flex;
         align-items: center;
-        gap: 0.25rem;
+        gap: $spacing-xs;
     }
 
     &__result-lang {
         padding: 0 4px;
         border: 1px solid var(--p-content-border-color);
-        border-radius: 3px;
+        border-radius: $border-radius-sm;
         text-transform: uppercase;
     }
 
     &__result-arrow {
         color: var(--p-text-muted-color);
-        transition: transform 0.2s;
+        transition: transform $transition-base;
     }
 }
 
 /* Search results transition */
 .search-list-enter-active,
 .search-list-leave-active {
-    transition: all 0.3s ease;
+    transition: $transition-slow;
 }
 
 .search-list-enter-from,

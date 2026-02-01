@@ -24,18 +24,21 @@ withDefaults(defineProps<{
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
 .admin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-  gap: 1rem;
+  margin-bottom: $spacing-xl;
+  gap: $spacing-md;
   flex-wrap: wrap;
 
   &__main {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: $spacing-lg;
   }
 
   &__title {
@@ -46,11 +49,15 @@ withDefaults(defineProps<{
 
   &__actions {
     display: flex;
-    gap: 0.5rem;
+    gap: $spacing-sm;
   }
 }
 
 // Mobile responsive
+@include respond-to("sm") {
+  // Keep horizontal
+}
+
 @media (width <= 640px) {
   .admin-header {
     flex-direction: column;

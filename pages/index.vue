@@ -113,16 +113,19 @@ const posts = computed(() => data.value?.data?.items || [])
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
 .home-page {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding-bottom: 2rem;
+  gap: $spacing-xl;
+  padding-bottom: $spacing-xl;
 }
 
 .hero {
   background: linear-gradient(135deg, var(--p-primary-50) 0%, var(--p-surface-0) 100%);
-  padding: 3rem 0;
+  padding: $spacing-xl * 1.5 0;
   text-align: center;
 
   :global(.dark) & {
@@ -132,17 +135,21 @@ const posts = computed(() => data.value?.data?.items || [])
   &__title {
     font-size: 3.5rem;
     font-weight: 800;
-    margin-bottom: 1.5rem;
+    margin-bottom: $spacing-lg;
     background: linear-gradient(to right, var(--p-primary-600), var(--p-primary-400));
     background-clip: text;
     -webkit-text-fill-color: transparent;
     line-height: 1.2;
+
+    @include respond-below("md") {
+      font-size: 2.5rem;
+    }
   }
 
   &__subtitle {
     font-size: 1.25rem;
     color: var(--p-text-muted-color);
-    margin-bottom: 1.5rem;
+    margin-bottom: $spacing-lg;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
@@ -150,7 +157,7 @@ const posts = computed(() => data.value?.data?.items || [])
 
   &__actions {
     display: flex;
-    gap: 1rem;
+    gap: $spacing-md;
     justify-content: center;
   }
 }
@@ -158,16 +165,16 @@ const posts = computed(() => data.value?.data?.items || [])
 .posts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
+  gap: $spacing-xl;
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
+  padding: $spacing-sm $spacing-lg;
+  border-radius: $border-radius-md;
   font-weight: 600;
-  transition: all 0.2s;
+  transition: $transition-base;
   text-decoration: none;
 
   &--primary {
@@ -214,8 +221,8 @@ const posts = computed(() => data.value?.data?.items || [])
 
 .about-preview {
   background-color: var(--p-surface-50);
-  padding: 4rem 0;
-  border-radius: 1rem;
+  padding: $spacing-xl * 2 0;
+  border-radius: $border-radius-lg;
 
   :global(.dark) & {
     background-color: var(--p-surface-800);
@@ -229,7 +236,7 @@ const posts = computed(() => data.value?.data?.items || [])
     p {
       font-size: 1.125rem;
       color: var(--p-text-muted-color);
-      margin-bottom: 2rem;
+      margin-bottom: $spacing-lg;
       line-height: 1.7;
     }
   }
