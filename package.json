@@ -35,7 +35,7 @@
     "@tokenizer/http": "^0.9.2",
     "@vercel/blob": "^2.0.1",
     "@vueuse/core": "^14.1.0",
-    "@vueuse/nuxt": "^14.1.0",
+    "@vueuse/nuxt": "^14.2.0",
     "animate.css": "^4.1.1",
     "better-auth": "1.4.10",
     "better-auth-localization": "^2.2.3",
