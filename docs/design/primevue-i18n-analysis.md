@@ -353,8 +353,22 @@ PrimeVue 组件（如 DataTable、DatePicker 等）有内置文本，需要单�
 ```typescript
 // 切换 UI 语言时，需要同步两个地方
 setLocale('en-US')  // ← Vue-i18n (自动)
-primevue.setLocale(en)  // ← PrimeVue (需手动或通过 plugin)
+primevue.config.locale = en  // ← PrimeVue (通过插件自动)
 ```
+
+### 7.4 Password 组件的特殊情况
+
+**已知限制**：Password 组件的密码强度反馈文本（"弱"、"中"、"强"）在初始化时被缓存，现有的响应式策略无法完全解决这个问题。
+
+**背景**：
+- PrimeVue Password 组件在初始化时会读取 `primevue.config.locale` 中的 `weak`、`medium`、`strong` 字段
+- 这些值被缓存在组件的内部状态中
+- 虽然我们通过深度更新 `primevue.config.locale` 的所有字段来尝试触发响应式更新，但组件的内部缓存仍然不会被重新读取
+
+**解决方案**：
+1. **立即刷新**（推荐）：在组件中重新输入密码时，文本会基于最新的 locale 配置自动更新
+2. **页面级缓存清除**：如果需要立即看到更新，可以刷新页面（不推荐）
+3. **后续改进**：待 PrimeVue 或 Vue-i18n 提供更好的组件级响应式支持后优化
 
 ---
 
