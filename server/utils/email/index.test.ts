@@ -11,7 +11,6 @@ describe('server/utils/email/index', () => {
     let mockTransporter: Partial<Transporter>
     let mockLimiter: any
     let mockLogger: any
-    let mockGetSettings: any
 
     beforeEach(() => {
         // 创建 mock transporter
@@ -36,9 +35,6 @@ describe('server/utils/email/index', () => {
                 rateLimited: vi.fn(),
             },
         }
-
-        // Mock getSettings
-        mockGetSettings = vi.fn().mockResolvedValue({})
 
         // 注入依赖
         injectEmailDeps({

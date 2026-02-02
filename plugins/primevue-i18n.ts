@@ -8,7 +8,7 @@ import { usePrimeVue } from 'primevue/config'
 import { zh_CN } from 'primelocale/js/zh_CN.js'
 import { en } from 'primelocale/js/en.js'
 
-export default defineNuxtPlugin((_nuxtApp) => {
+export default defineNuxtPlugin(() => {
     // 避免在服务端执行
     if (import.meta.server) {
         return

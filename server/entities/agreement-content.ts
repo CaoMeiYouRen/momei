@@ -1,6 +1,5 @@
-import { Entity, PrimaryColumn, CreateDateColumn, Column, UpdateDateColumn } from 'typeorm'
+import { Entity } from 'typeorm'
 import { CustomColumn } from '../decorators/custom-column'
-import { getDateType } from '../database/type'
 import { BaseEntity } from './base-entity'
 /**
  * 协议内容版本表
