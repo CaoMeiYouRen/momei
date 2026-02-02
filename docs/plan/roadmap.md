@@ -195,19 +195,64 @@
 
 此处记录由于优先级或开发周期原因暂不进入当前迭代，但具有长期价值的功能。
 
-1.  **桌面端应用**: 基于 Tauri 实现离线写作、本地草稿间歇同步与多站点管理。
-2.  **极客功能集成**: 支持 Markdown 代码块直接执行；集成基于 Git 的文章版本控制系统。
-3.  **主题生态系统 (Theme Ecosystem)**:
-    -   **画廊与市场**: 支持保存多套自定义配置，建立主题预览、发布与管理中心。
-    -   **安全性与性能**: 实现针对发布主题的自动化 XSS 扫描及 CSS Layer 分层策略。
-4.  **第三方平台集成 (Third-party Integration)**:
-    -   **多平台同步发布**: 支持集成 [Memos](https://github.com/usememos/memos) 等第三方平台，实现博文或碎片化想法的同步发布。
-    -   **文章同步助手 (Wechatsync)**: 支持集成 [Wechatsync](https://github.com/wechatsync/Wechatsync)，实现一键同步文章至知乎、头条、掘金、小红书、CSDN 等 25+ 平台；利用其 Anthropic MCP 协议支持，实现通过 AI 一键发布文章。
-    -   **开放发布协议支持**: 探索对 [ActivityPub](https://www.w3.org/TR/activitypub/) 等开放社交协议的支持。
-5.  **其他优化项**: 实现看板娘、背景粒子等可选的视觉增强开关。
-6.  **AI Agent 与自动化生态 (AI Agent & Automation Ecosystem)**:
-    -   **Anthropic MCP 支持**: 实现符合 MCP 协议的服务端，使墨梅博客能作为 MCP Server 被外界 AI 智能体（如 Claude Desktop）调用，首批支持 **发布 (Publish)**、**状态查询 (Status)** 及 **内容更新 (Update)** 三大核心功能。
-    -   **定时发布功能**: 实现基于独立任务表的预约发布机制。针对自部署场景，支持基于轻量级内部调度（如 Nitro Scheduler 或结合系统 `cronjob`）的触发方案；针对 Serverless 环境，提供 Webhook 接口以集成外部云端 Cron 服务。确保发布逻辑与文章核心元数据解耦。
+**说明**: 以下积压项按照优先级排序，后续新功能需求应直接添加至本部分，而非添加至待办事项 (todo.md)。
+
+### 1. 桌面端应用 (Desktop Application)
+- **Tauri 跨平台应用**:
+    - 实现桌面客户端骨架，支持单站点/多站点管理。
+    - 支持离线 Markdown 写作与间断性云端同步功能。
+    - 提供原生菜单和系统集成，提升桌面体验。
+
+### 2. 极客技术增强 (Geek Tech Extras)
+- **可执行代码块支持**:
+    - 实现 Markdown 代码块在特定环境下的运行与结果输出。
+    - 支持常见编程语言的代码执行（如 JavaScript、Python、Shell）。
+- **Git 版本管理**:
+    - 实现文章变更的 Git Commit 化追踪，支持查看历史版本差异。
+    - 提供版本回退、比较和分支管理功能。
+
+### 3. 主题生态系统 (Theme Ecosystem)
+- **主题社区与发布平台**:
+    - 允许创作者发布、分享并由他人安装自定义主题。
+    - 建立安全审核机制防范 XSS 攻击。
+- **画廊与市场**:
+    - 支持保存多套自定义配置，建立主题预览、发布与管理中心。
+    - 提供主题评分、评论和下载统计。
+- **安全性与性能**:
+    - 实现针对发布主题的自动化 XSS 扫描。
+    - 使用 CSS Layer 分层策略提升主题性能。
+
+### 4. 第三方平台集成 (Third-party Integration)
+- **Memos 等多平台同步发布**:
+    - 调研并集成 [Memos](https://github.com/usememos/memos) API。
+    - 支持在发布文章时勾选同步发布到已配置的第三方平台。
+- **文章同步助手 (Wechatsync)**:
+    - 集成 [Wechatsync](https://github.com/wechatsync/Wechatsync)，实现一键同步文章至知乎、头条、掘金、小红书、CSDN 等 25+ 平台。
+    - 利用其 Anthropic MCP 协议支持，实现通过 AI 一键发布文章。
+- **开放发布协议支持**:
+    - 探索对 [ActivityPub](https://www.w3.org/TR/activitypub/) 等开放社交协议的支持。
+    - 实现与 Mastodon 等联邦宇宙（Fediverse）平台的互操作性。
+
+### 5. 感官体验增强 (Sensory Experience Enhancement)
+- **视觉增强开关**:
+    - 实现看板娘（虚拟角色陪伴）、背景粒子等可选的视觉增强功能。
+    - 提供性能友好的实现方案，避免影响页面性能。
+
+### 6. AI Agent 与自动化生态 (AI Agent & Automation Ecosystem)
+- **Anthropic MCP Server 实现**:
+    - 实现符合 MCP（Model Context Protocol）协议的服务端逻辑，对接现有文章 API。
+    - 提供三个核心工具定义：
+        - `publish_post` (发布新文章)
+        - `query_post_status` (查询文章状态/阅读数)
+        - `update_post` (更新已有内容)
+    - 在 Claude Desktop 等客户端中验证通过 AI 助手自动化执行上述动作。
+- **定时发布功能 (任务驱动设计)**:
+    - **数据架构**: 建立独立的定时任务表 (`scheduled_tasks`)，记录目标文章 ID、预计发布时间及执行状态，避免污染文章元数据表。
+    - **多环境调度支持**:
+        - 自部署场景实现基于内置调度或系统 `cronjob` 的触发逻辑。
+        - Serverless 场景提供标准的 Webhook 触发入口以对接外部 Cron 服务。
+    - **交互设计**: 文章编辑页增加"预约发布"专用按钮，弹窗配置发布时间。
+
 ## 4. 技术架构与质量保证
 
 ### 技术栈
