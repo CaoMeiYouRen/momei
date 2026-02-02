@@ -239,7 +239,7 @@ describe('server/utils/email/service', () => {
             expect(emailTemplateEngine.generateActionEmailTemplate).toHaveBeenCalled()
             expect(sendEmail).toHaveBeenCalledWith({
                 to: currentEmail,
-                subject: expect.stringContaining('邮箱地址变更'),
+                subject: expect.stringContaining('确认您的新邮箱地址'),
                 html: '<html>Test HTML</html>',
                 text: 'Test Text',
             })
