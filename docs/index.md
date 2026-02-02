@@ -49,8 +49,11 @@ features:
       details: 了解后端接口的通用响应格式、状态码和校验规则。
       link: /standards/api
     - title: 设计文档
-      details: 深入了解 UI 设计系统和 API 业务设计。
+      details: 深入了解 UI 设计系统、API 架构和数据库建模。
       link: /design/ui
+    - title: 功能模块
+      details: 涵盖博客内容、认证、AI、邮件、主题等各个业务模块的深度解析。
+      link: /modules/index
     - title: 测试规范
       details: 学习单元测试与端到端测试的编写标准。
       link: /standards/testing

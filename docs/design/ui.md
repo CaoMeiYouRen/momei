@@ -141,11 +141,11 @@
 
 具体页面和组件的设计细节请参考 `docs/design/modules` 下的各模块文档：
 
--   **[认证模块 (Auth)](./modules/auth.md)**: 登录、注册、密码找回等。
--   **[用户中心 (User)](./modules/user.md)**: 个人设置、资料管理。
--   **[博客前台 (Blog)](./modules/blog.md)**: 文章列表、详情、归档。
--   **[管理后台 (Admin)](./modules/admin.md)**: 内容管理、用户管理。
--   **[系统服务 (System)](./modules/system.md)**: 通用服务、文件上传。
+-   **[认证模块 (Auth)](../modules/auth.md)**: 登录、注册、密码找回等。
+-   **[用户中心 (User)](../modules/user.md)**: 个人设置、资料管理。
+-   **[博客前台 (Blog)](../modules/blog.md)**: 文章列表、详情、归档。
+-   **[管理后台 (Admin)](../modules/admin.md)**: 内容管理、用户管理。
+-   **[系统服务 (System)](../modules/system.md)**: 通用服务、文件上传。
 
 ## 7. 实施计划 (Implementation Plan)
 
