@@ -1,35 +1,51 @@
 import logger from '../logger'
 import { emailTemplateEngine } from './templates'
+import { emailI18n } from './i18n'
 import { sendEmail } from './index'
 import { APP_NAME } from '@/utils/shared/env'
 
 /**
  * 邮件验证服务
+ * 所有方法都支持可选的 locale 参数用于国际化
+ * 如果未提供 locale，默认使用 zh-CN
  */
 export const emailService = {
     /**
-     * 发送邮箱验证邮件（使用新的模板系统）
+     * 发送邮箱验证邮件（支持国际化）
      */
-    async sendVerificationEmail(email: string, verificationUrl: string): Promise<void> {
+    async sendVerificationEmail(
+        email: string,
+        verificationUrl: string,
+        locale?: string,
+    ): Promise<void> {
         try {
+            const i18n = emailI18n.getText('verification', locale)
+            if (!i18n) {
+                throw new Error('Failed to load verification email template')
+            }
+
+            const params = {
+                appName: APP_NAME,
+            }
+
             const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
                 {
-                    headerIcon: '🔐',
-                    message: `感谢您注册 <strong>${APP_NAME}</strong>！为了确保您的账户安全，请点击下方按钮验证您的邮箱地址。`,
-                    buttonText: '验证邮箱地址',
+                    headerIcon: i18n.headerIcon,
+                    message: emailI18n.replaceParameters(i18n.message, params),
+                    buttonText: i18n.buttonText,
                     actionUrl: verificationUrl,
-                    reminderContent: `• 此验证链接将在 <strong>24 小时</strong>后过期<br/>• 如果您没有注册 ${APP_NAME} 账户，请忽略此邮件<br/>• 请勿将此链接分享给他人，以保护您的账户安全`,
-                    securityTip: `${APP_NAME} 永远不会通过邮件要求您提供密码、验证码或其他敏感信息。`,
+                    reminderContent: emailI18n.replaceParameters(i18n.reminderContent, params),
+                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
                 },
                 {
-                    title: `验证您的 ${APP_NAME} 邮箱地址`,
-                    preheader: `欢迎注册 ${APP_NAME}！请验证您的邮箱地址以完成注册。`,
+                    title: emailI18n.replaceParameters(i18n.title, params),
+                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: `验证您的 ${APP_NAME} 邮箱地址`,
+                subject: emailI18n.replaceParameters(i18n.title, params),
                 html,
                 text,
             })
@@ -46,28 +62,41 @@ export const emailService = {
     },
 
     /**
-     * 发送密码重置邮件
+     * 发送密码重置邮件（支持国际化）
      */
-    async sendPasswordResetEmail(email: string, resetUrl: string): Promise<void> {
+    async sendPasswordResetEmail(
+        email: string,
+        resetUrl: string,
+        locale?: string,
+    ): Promise<void> {
         try {
+            const i18n = emailI18n.getText('passwordReset', locale)
+            if (!i18n) {
+                throw new Error('Failed to load password reset email template')
+            }
+
+            const params = {
+                appName: APP_NAME,
+            }
+
             const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
                 {
-                    headerIcon: '🔑',
-                    message: `有人请求重置您的 <strong>${APP_NAME}</strong> 账户密码。如果是您本人操作，请点击下方按钮重置密码：`,
-                    buttonText: '重置密码',
+                    headerIcon: i18n.headerIcon,
+                    message: emailI18n.replaceParameters(i18n.message, params),
+                    buttonText: i18n.buttonText,
                     actionUrl: resetUrl,
-                    reminderContent: '• 此重置链接将在 <strong>1 小时</strong>后过期<br/>• 如果不是您本人操作，请立即检查您的账户安全<br/>• 建议修改密码并启用两步验证',
-                    securityTip: '如果您没有请求重置密码，请忽略此邮件并检查您的账户安全。',
+                    reminderContent: emailI18n.replaceParameters(i18n.reminderContent, params),
+                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
                 },
                 {
-                    title: `重置您的 ${APP_NAME} 密码`,
-                    preheader: '有人请求重置您的密码，如果是您本人操作请点击链接。',
+                    title: emailI18n.replaceParameters(i18n.title, params),
+                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: `重置您的 ${APP_NAME} 密码`,
+                subject: emailI18n.replaceParameters(i18n.title, params),
                 html,
                 text,
             })
@@ -84,27 +113,42 @@ export const emailService = {
     },
 
     /**
-     * 发送登录验证码邮件
+     * 发送登录验证码邮件（支持国际化）
      */
-    async sendLoginOTP(email: string, otp: string, expiresInMinutes: number = 5): Promise<void> {
+    async sendLoginOTP(
+        email: string,
+        otp: string,
+        expiresInMinutes: number = 5,
+        locale?: string,
+    ): Promise<void> {
         try {
+            const i18n = emailI18n.getText('loginOTP', locale)
+            if (!i18n) {
+                throw new Error('Failed to load login OTP email template')
+            }
+
+            const params = {
+                appName: APP_NAME,
+                expiresIn: expiresInMinutes,
+            }
+
             const { html, text } = await emailTemplateEngine.generateCodeEmailTemplate(
                 {
-                    headerIcon: '🔓',
-                    message: `您正在尝试登录 <strong>${APP_NAME}</strong>。请使用以下验证码完成登录：`,
+                    headerIcon: i18n.headerIcon,
+                    message: emailI18n.replaceParameters(i18n.message, params),
                     verificationCode: otp,
                     expiresIn: expiresInMinutes,
-                    securityTip: '如果不是您本人操作，请忽略此邮件并检查您的账户安全。',
+                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
                 },
                 {
-                    title: `您的 ${APP_NAME} 登录验证码`,
-                    preheader: `您的登录验证码是 ${otp}`,
+                    title: emailI18n.replaceParameters(i18n.title, params),
+                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: `您的 ${APP_NAME} 登录验证码`,
+                subject: emailI18n.replaceParameters(i18n.title, params),
                 html,
                 text,
             })
@@ -121,27 +165,42 @@ export const emailService = {
     },
 
     /**
-     * 发送邮箱验证码邮件
+     * 发送邮箱验证码邮件（支持国际化）
      */
-    async sendEmailVerificationOTP(email: string, otp: string, expiresInMinutes: number = 5): Promise<void> {
+    async sendEmailVerificationOTP(
+        email: string,
+        otp: string,
+        expiresInMinutes: number = 5,
+        locale?: string,
+    ): Promise<void> {
         try {
+            const i18n = emailI18n.getText('emailVerificationOTP', locale)
+            if (!i18n) {
+                throw new Error('Failed to load email verification OTP template')
+            }
+
+            const params = {
+                appName: APP_NAME,
+                expiresIn: expiresInMinutes,
+            }
+
             const { html, text } = await emailTemplateEngine.generateCodeEmailTemplate(
                 {
-                    headerIcon: '🔐',
-                    message: `感谢您注册 <strong>${APP_NAME}</strong>！请使用以下验证码完成邮箱验证：`,
+                    headerIcon: i18n.headerIcon,
+                    message: emailI18n.replaceParameters(i18n.message, params),
                     verificationCode: otp,
                     expiresIn: expiresInMinutes,
-                    securityTip: '如果您没有注册此账户，请忽略此邮件。',
+                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
                 },
                 {
-                    title: `验证您的 ${APP_NAME} 邮箱地址`,
-                    preheader: `您的邮箱验证码是 ${otp}`,
+                    title: emailI18n.replaceParameters(i18n.title, params),
+                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: `验证您的 ${APP_NAME} 邮箱地址`,
+                subject: emailI18n.replaceParameters(i18n.title, params),
                 html,
                 text,
             })
@@ -158,27 +217,42 @@ export const emailService = {
     },
 
     /**
-     * 发送密码重置验证码邮件
+     * 发送密码重置验证码邮件（支持国际化）
      */
-    async sendPasswordResetOTP(email: string, otp: string, expiresInMinutes: number = 5): Promise<void> {
+    async sendPasswordResetOTP(
+        email: string,
+        otp: string,
+        expiresInMinutes: number = 5,
+        locale?: string,
+    ): Promise<void> {
         try {
+            const i18n = emailI18n.getText('passwordResetOTP', locale)
+            if (!i18n) {
+                throw new Error('Failed to load password reset OTP template')
+            }
+
+            const params = {
+                appName: APP_NAME,
+                expiresIn: expiresInMinutes,
+            }
+
             const { html, text } = await emailTemplateEngine.generateCodeEmailTemplate(
                 {
-                    headerIcon: '🔑',
-                    message: `有人请求重置您的 <strong>${APP_NAME}</strong> 账户密码。请使用以下验证码完成密码重置：`,
+                    headerIcon: i18n.headerIcon,
+                    message: emailI18n.replaceParameters(i18n.message, params),
                     verificationCode: otp,
                     expiresIn: expiresInMinutes,
-                    securityTip: '如果不是您本人操作，请忽略此邮件并立即检查您的账户安全。',
+                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
                 },
                 {
-                    title: `重置您的 ${APP_NAME} 密码`,
-                    preheader: `您的密码重置验证码是 ${otp}`,
+                    title: emailI18n.replaceParameters(i18n.title, params),
+                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: `重置您的 ${APP_NAME} 密码`,
+                subject: emailI18n.replaceParameters(i18n.title, params),
                 html,
                 text,
             })
@@ -195,28 +269,37 @@ export const emailService = {
     },
 
     /**
-     * 发送Magic Link邮件
+     * 发送Magic Link邮件（支持国际化）
      */
-    async sendMagicLink(email: string, magicUrl: string): Promise<void> {
+    async sendMagicLink(email: string, magicUrl: string, locale?: string): Promise<void> {
         try {
+            const i18n = emailI18n.getText('magicLink', locale)
+            if (!i18n) {
+                throw new Error('Failed to load magic link email template')
+            }
+
+            const params = {
+                appName: APP_NAME,
+            }
+
             const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
                 {
-                    headerIcon: '✨',
-                    message: `点击下方按钮，无需密码即可安全登录您的 <strong>${APP_NAME}</strong> 账户：`,
-                    buttonText: '一键登录',
+                    headerIcon: i18n.headerIcon,
+                    message: emailI18n.replaceParameters(i18n.message, params),
+                    buttonText: i18n.buttonText,
                     actionUrl: magicUrl,
-                    reminderContent: '• 此登录链接将在 <strong>15 分钟</strong>后过期<br/>• 链接只能使用一次<br/>• 如果不是您本人操作，请忽略此邮件',
-                    securityTip: '为了您的账户安全，请勿将此链接分享给任何人。',
+                    reminderContent: emailI18n.replaceParameters(i18n.reminderContent, params),
+                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
                 },
                 {
-                    title: `您的 ${APP_NAME} 登录链接`,
-                    preheader: '点击即可安全登录，无需输入密码。',
+                    title: emailI18n.replaceParameters(i18n.title, params),
+                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: `您的 ${APP_NAME} 登录链接`,
+                subject: emailI18n.replaceParameters(i18n.title, params),
                 html,
                 text,
             })
@@ -233,28 +316,42 @@ export const emailService = {
     },
 
     /**
-     * 发送邮箱更改验证邮件
+     * 发送邮箱更改验证邮件（支持国际化）
      */
-    async sendEmailChangeVerification(currentEmail: string, newEmail: string, changeUrl: string): Promise<void> {
+    async sendEmailChangeVerification(
+        currentEmail: string,
+        newEmail: string,
+        changeUrl: string,
+        locale?: string,
+    ): Promise<void> {
         try {
+            const i18n = emailI18n.getText('emailChangeVerification', locale)
+            if (!i18n) {
+                throw new Error('Failed to load email change verification template')
+            }
+
+            const params = {
+                appName: APP_NAME,
+            }
+
             const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
                 {
-                    headerIcon: '📧',
-                    message: `您即将修改邮箱地址为：<strong>${newEmail}</strong><br/><br/>如果确认变更，请点击下方按钮：`,
-                    buttonText: '确认邮箱变更',
+                    headerIcon: i18n.headerIcon,
+                    message: emailI18n.replaceParameters(i18n.message, params),
+                    buttonText: i18n.buttonText,
                     actionUrl: changeUrl,
-                    reminderContent: '• 此确认链接将在 <strong>24 小时</strong>后过期<br/>• 变更邮箱后，您需要使用新邮箱地址登录<br/>• 如果这不是您的操作，请忽略此邮件',
-                    securityTip: '为了您的账户安全，邮箱变更确认链接已发送到您当前的邮箱地址。',
+                    reminderContent: emailI18n.replaceParameters(i18n.reminderContent, params),
+                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
                 },
                 {
-                    title: `确认邮箱地址变更 - ${APP_NAME}`,
-                    preheader: `确认将邮箱地址变更为 ${newEmail}`,
+                    title: emailI18n.replaceParameters(i18n.title, params),
+                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
                 },
             )
 
             await sendEmail({
                 to: currentEmail,
-                subject: `确认邮箱地址变更 - ${APP_NAME}`,
+                subject: emailI18n.replaceParameters(i18n.title, params),
                 html,
                 text,
             })
@@ -271,25 +368,39 @@ export const emailService = {
     },
 
     /**
-     * 发送账户安全通知邮件
+     * 发送账户安全通知邮件（支持国际化）
      */
-    async sendSecurityNotification(email: string, action: string, details: string): Promise<void> {
+    async sendSecurityNotification(
+        email: string,
+        action: string,
+        details: string,
+        locale?: string,
+    ): Promise<void> {
         try {
+            const i18n = emailI18n.getText('securityNotification', locale)
+            if (!i18n) {
+                throw new Error('Failed to load security notification template')
+            }
+
+            const params = {
+                appName: APP_NAME,
+            }
+
             const { html, text } = await emailTemplateEngine.generateSimpleMessageTemplate(
                 {
-                    headerIcon: '🛡️',
-                    message: `我们检测到您的 <strong>${APP_NAME}</strong> 账户有以下安全活动：<br/><br/><strong>${action}</strong>`,
+                    headerIcon: i18n.headerIcon,
+                    message: `${emailI18n.replaceParameters(i18n.message, params)}<br/><br/><strong>${action}</strong>`,
                     extraInfo: details,
                 },
                 {
-                    title: `${APP_NAME} 账户安全通知`,
-                    preheader: '您的账户有安全活动，请查看详情。',
+                    title: emailI18n.replaceParameters(i18n.title, params),
+                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: `${APP_NAME} 账户安全通知`,
+                subject: emailI18n.replaceParameters(i18n.title, params),
                 html,
                 text,
             })
@@ -306,28 +417,39 @@ export const emailService = {
     },
 
     /**
-     * 发送订阅确认邮件
+     * 发送订阅确认邮件（支持国际化）
      */
-    async sendSubscriptionConfirmation(email: string): Promise<void> {
+    async sendSubscriptionConfirmation(email: string, locale?: string): Promise<void> {
         try {
+            const i18n = emailI18n.getText('subscriptionConfirmation', locale)
+            if (!i18n) {
+                throw new Error('Failed to load subscription confirmation template')
+            }
+
+            const params = {
+                appName: APP_NAME,
+            }
+
+            const buttonText = 'buttonText' in i18n ? (i18n.buttonText as string) : '访问博客'
+
             const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
                 {
-                    headerIcon: '📮',
-                    message: `感谢您订阅 <strong>${APP_NAME}</strong>！您现在可以通过邮件接收我们的最新文章和动态。`,
-                    buttonText: '访问博客',
+                    headerIcon: i18n.headerIcon,
+                    message: emailI18n.replaceParameters(i18n.message, params),
+                    buttonText,
                     actionUrl: '/',
-                    reminderContent: '如果您以后想取消订阅，可以点击邮件底部的取消订阅链接（功能开发中）。',
-                    securityTip: '我们非常重视您的隐私，不会向第三方泄露您的邮箱地址。',
+                    reminderContent: emailI18n.replaceParameters(i18n.reminderContent, params),
+                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
                 },
                 {
-                    title: `成功订阅 ${APP_NAME}`,
-                    preheader: `感谢您订阅 ${APP_NAME}！`,
+                    title: emailI18n.replaceParameters(i18n.title, params),
+                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: `感谢您订阅 ${APP_NAME}`,
+                subject: emailI18n.replaceParameters(i18n.title, params),
                 html,
                 text,
             })
@@ -343,3 +465,4 @@ export const emailService = {
         }
     },
 }
+

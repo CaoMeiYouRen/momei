@@ -205,3 +205,8 @@ export async function sendEmail(options: EmailOptions) {
         throw error
     }
 }
+
+// 导出邮件国际化相关的公共接口
+export { emailI18n, DEFAULT_EMAIL_LOCALE, EMAIL_SUPPORTED_LOCALES } from './i18n'
+export type { SupportedEmailLocale } from './i18n'
+export { emailService } from './service'
