@@ -11,8 +11,7 @@ export default defineEventHandler(async (event) => {
 
     const tagRepo = dataSource.getRepository(Tag)
 
-    const tag = await tagRepo.findOneBy({ id })
-    ensureFound(tag, 'Tag')
+    const tag = ensureFound(await tagRepo.findOneBy({ id }), 'Tag')
 
     // TypeORM handles ManyToMany deletion by removing entries from the join table automatically
     // when the entity is removed.

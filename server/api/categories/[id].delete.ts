@@ -13,8 +13,7 @@ export default defineEventHandler(async (event) => {
     const categoryRepo = dataSource.getRepository(Category)
     const postRepo = dataSource.getRepository(Post)
 
-    const category = await categoryRepo.findOneBy({ id })
-    ensureFound(category, 'Category')
+    const category = ensureFound(await categoryRepo.findOneBy({ id }), 'Category')
 
     // Check for associated posts
     const postCount = await postRepo.count({ where: { category: { id } } })

@@ -21,9 +21,7 @@ export default defineEventHandler(async (event) => {
 
     qb.where('post.id = :id', { id })
 
-    const post = await qb.getOne()
-
-    ensureFound(post, 'Post')
+    const post = ensureFound(await qb.getOne(), 'Post')
 
     // 处理作者哈希并保护隐私
     await processAuthorPrivacy(post.author, !!isUserAdmin)

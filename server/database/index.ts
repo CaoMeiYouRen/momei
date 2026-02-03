@@ -108,7 +108,7 @@ export const initializeDB = async () => {
             break
         case 'mysql':
             options = {
-                type: actualDbType as any,
+                type: actualDbType,
                 url: DATABASE_URL,
                 supportBigNumbers: true, // 处理数据库中的大数字
                 bigNumberStrings: false, // 仅当它们无法用 JavaScript Number 对象准确表示时才会返回大数字作为 String 对象
@@ -120,7 +120,7 @@ export const initializeDB = async () => {
             break
         case 'postgres':
             options = {
-                type: actualDbType as any,
+                type: actualDbType,
                 url: DATABASE_URL,
                 parseInt8: true, // 解析 bigint 为 number。将 64 位整数（int8）解析为 JavaScript 整数
                 ssl: DATABASE_SSL ? { rejectUnauthorized: false } : false, // 是否启用 SSL
