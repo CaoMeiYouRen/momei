@@ -7,6 +7,7 @@ import { Session } from './session'
 import { Post } from './post'
 import { ApiKey } from './api-key'
 import { Comment } from './comment'
+import { NotificationSettings } from './notification-settings'
 
 @Entity('user')
 export class User extends BaseEntity {
@@ -153,6 +154,15 @@ export class User extends BaseEntity {
         onDelete: 'CASCADE',
     })
     apiKeys?: ApiKey[]
+
+    /**
+     * 用户的通知设置（一对多关系）
+     */
+    @OneToMany(() => NotificationSettings, (settings) => settings.user, {
+        cascade: true,
+        onDelete: 'CASCADE',
+    })
+    notificationSettings?: NotificationSettings[]
 
     /**
      * 用户的评论（一对多关系）
