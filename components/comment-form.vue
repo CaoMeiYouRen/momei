@@ -149,8 +149,8 @@ const handleSubmit = async () => {
         form.content = ''
         toast.add({
             severity: 'success',
-            summary: t('success'),
-            detail: user.value ? t('save_success') : t('comments.pending_audit'),
+            summary: t('common.success'),
+            detail: user.value ? t('common.save_success') : t('comments.pending_audit'),
             life: 5000,
         })
         emit('success')
@@ -158,8 +158,8 @@ const handleSubmit = async () => {
         console.error('Comment submission failed:', error)
         toast.add({
             severity: 'error',
-            summary: t('error'),
-            detail: error.statusMessage || error.message || t('unexpected_error'),
+            summary: t('common.error'),
+            detail: error.statusMessage || error.message || t('common.unexpected_error'),
             life: 3000,
         })
     } finally {
