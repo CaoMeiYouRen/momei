@@ -13,7 +13,7 @@
 ## 第五阶段：生态深化与体验极致 (Ecosystem Deepening & Extreme Experience) (策划中)
 
 ### 1. 精准推送与订阅 (Advanced Subscription) (P1)
-- [ ] **多格式集成订阅源 (Universal Feeds)**
+- [x] **多格式集成订阅源 (Universal Feeds)**
     - 验收: 在现有 RSS 2.0 基础上，增加对 **Atom 1.0** 和 **JSON Feed 1.1** 的原生支持。
     - 验收: 确保在所有格式中，音频附件 (Enclosure/Attachment)均能被正确解析且不与封面图冲突。
 - [ ] **维度级订阅推送**
