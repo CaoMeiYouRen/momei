@@ -176,20 +176,20 @@
 
 1.  **精准推送与多维订阅 (Advanced Subscription)**:
     -   **协议扩展**: 增加对 Atom 1.0 和 JSON Feed 1.1 的原生支持，优化 Feed 中多媒体附件 (Enclosure) 的兼容性。
-    -   **精准化控制**: 支持按分类/标签订阅特定内容，并提供日报/周报频率控制。
+    -   **精准化控制**: 支持按分类/标签订阅特定内容。
 2.  **商业化集成 (Monetization & Growth)**:
-    -   **支付体系**: 集成 Stripe/支付宝支付接口，支持打赏功能或 Pro 会员准入策略。
     -   **私域转化**: 后台可配置公众号关注引导与打赏二维码展示。
-3.  **播客与多媒体原生支持 (Podcast & Multimedia)**:
-    -   **语音输入增强**: 集成 Whisper 模型进行语音录入，配合 AI 助手实现“语音转博文”或“对话式润色”工作流。
-    -   **播客全链路**: 实现音轨上传、元数据自动化与符合播客规范的专项 RSS 输出。
-    -   **沉浸式播放**: 全站悬浮播放器，支持跨页面断点续播与内容同步。
+3.  **AI 语音创作增强 (AI Voice Creative Enhancement)**:
+    -   **语音写文章**: 集成 Whisper 模型进行语音录入，配合 AI 助手实现“语音转博文”或“对话式润色”工作流。
 4.  **高级 AI 创作流 (Advanced AI Creative Flow)**:
     -   **多模态增强**: 集成 AI 封面图生成 (DALL-E) 与 DeepL 翻译系统。
-    -   **灵感重构**: 实现 AI 驱动的灵感片段自动分类、标注与关联知识图谱构建。
 5.  **文档全球化与系统化 (Hardening)**:
     -   **国际化固化**: 完成核心部署与开发文档的英文翻译。
-    -   **安全校验**: 彻底排查并修复所有页面的权限逻辑漏洞（如敏感设置页）。
+6.  **第三方平台集成 (Third-party Integration)**:
+    -   **多平台同步**: 集成 Memos 及 Wechatsync，实现内容的一键分发与同步。
+7.  **AI Agent 与自动化生态 (AI Agent & Automation Ecosystem)**:
+    -   **自动化工作流**: 完成原生 Anthropic MCP Server 实现。
+    -   **计划任务**: 实现全场景兼容的定时发布系统。
 
 ## 3. 未来规划与积压项 (Backlog & Long-term Roadmap)
 
@@ -222,36 +222,35 @@
     - 实现针对发布主题的自动化 XSS 扫描。
     - 使用 CSS Layer 分层策略提升主题性能。
 
-### 4. 第三方平台集成 (Third-party Integration)
-- **Memos 等多平台同步发布**:
-    - 调研并集成 [Memos](https://github.com/usememos/memos) API。
-    - 支持在发布文章时勾选同步发布到已配置的第三方平台。
-- **文章同步助手 (Wechatsync)**:
-    - 集成 [Wechatsync](https://github.com/wechatsync/Wechatsync)，实现一键同步文章至知乎、头条、掘金、小红书、CSDN 等 25+ 平台。
-    - 利用其 Anthropic MCP 协议支持，实现通过 AI 一键发布文章。
-- **开放发布协议支持**:
-    - 探索对 [ActivityPub](https://www.w3.org/TR/activitypub/) 等开放社交协议的支持。
-    - 实现与 Mastodon 等联邦宇宙（Fediverse）平台的互操作性。
-
-### 5. 感官体验增强 (Sensory Experience Enhancement)
+### 4. 感官体验增强 (Sensory Experience Enhancement)
 - **视觉增强开关**:
     - 实现看板娘（虚拟角色陪伴）、背景粒子等可选的视觉增强功能。
     - 提供性能友好的实现方案，避免影响页面性能。
 
-### 6. AI Agent 与自动化生态 (AI Agent & Automation Ecosystem)
-- **Anthropic MCP Server 实现**:
-    - 实现符合 MCP（Model Context Protocol）协议的服务端逻辑，对接现有文章 API。
-    - 提供三个核心工具定义：
-        - `publish_post` (发布新文章)
-        - `query_post_status` (查询文章状态/阅读数)
-        - `update_post` (更新已有内容)
-    - 在 Claude Desktop 等客户端中验证通过 AI 助手自动化执行上述动作。
-- **定时发布功能 (任务驱动设计)**:
-    - **数据架构**: 建立独立的定时任务表 (`scheduled_tasks`)，记录目标文章 ID、预计发布时间及执行状态，避免污染文章元数据表。
-    - **多环境调度支持**:
-        - 自部署场景实现基于内置调度或系统 `cronjob` 的触发逻辑。
-        - Serverless 场景提供标准的 Webhook 触发入口以对接外部 Cron 服务。
-    - **交互设计**: 文章编辑页增加"预约发布"专用按钮，弹窗配置发布时间。
+### 5. 商业化与会员体系 (Monetization & Membership)
+- **支付体系集成**:
+    - 集成 Stripe/支付宝支付接口。
+    - 支持打赏功能或 Pro 会员准入策略。
+
+### 6. 高级创作人工具 (Advanced Creator Tools)
+- **灵感重构**:
+    - 实现 AI 驱动的灵感片段自动分类、标注与关联知识图谱构建。
+
+### 7. 系统固化与安全校验 (System Hardening & Security)
+- **权限安全深度校验**:
+    - 彻底排查并修复所有页面的权限逻辑漏洞（如敏感设置页）。
+
+### 8. 播客与多媒体扩展 (Podcast & Multimedia)
+- **播客全链路支持**:
+    - 实现音轨上传、元数据自动化与符合播客规范的专项 RSS 输出。
+- **全站沉浸式播放**:
+    - 全站悬浮播放器，支持跨页面断点续播与内容同步。
+- **音频文章协同 (AI TTS)**:
+    - 集成 AI TTS 服务，为文章一键生成/刷新音频版本。
+
+### 9. 开放发布协议支持 (Open Federation)
+- **ActivityPub 适配**:
+    - 探索对 ActivityPub 等开放社交协议的支持，实现与联邦宇宙（Fediverse）平台的互操作性。
 
 ## 4. 技术架构与质量保证
 
