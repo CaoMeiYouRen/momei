@@ -118,9 +118,19 @@ export async function getSetting<T = string>(key: SettingKey | string, defaultVa
         return process.env[envKey]!
     }
 
-    const settingRepo = dataSource.getRepository(Setting)
-    const setting = await settingRepo.findOne({ where: { key } })
-    return setting?.value ?? (defaultValue as any)
+    // 如果数据库未初始化，返回默认值
+    if (!dataSource.isInitialized) {
+        return defaultValue
+    }
+
+    try {
+        const settingRepo = dataSource.getRepository(Setting)
+        const setting = await settingRepo.findOne({ where: { key } })
+        return setting?.value ?? (defaultValue as any)
+    } catch (error) {
+        logger.error(`Failed to get setting ${key} from database:`, error)
+        return defaultValue
+    }
 }
 
 /**
@@ -131,8 +141,6 @@ export async function getSetting<T = string>(key: SettingKey | string, defaultVa
  * @returns 键值对对象
  */
 export const getSettings = async (keys: (SettingKey | string)[]): Promise<Record<string, string | null>> => {
-    const settingRepo = dataSource.getRepository(Setting)
-    const settings = await settingRepo.find()
     const result: Record<string, string | null> = {}
 
     // 初始化默认值，优先从环境变量获取
@@ -145,14 +153,26 @@ export const getSettings = async (keys: (SettingKey | string)[]): Promise<Record
         }
     })
 
-    settings.forEach((s: Setting) => {
-        if (keys.includes(s.key)) {
-            // 如果环境变量没配，才用数据库的
-            if (result[s.key] === null) {
-                result[s.key] = s.value
+    // 如果数据库未初始化，直接返回从环境变量获取的结果
+    if (!dataSource.isInitialized) {
+        return result
+    }
+
+    try {
+        const settingRepo = dataSource.getRepository(Setting)
+        const settings = await settingRepo.find()
+
+        settings.forEach((s: Setting) => {
+            if (keys.includes(s.key)) {
+                // 如果环境变量没配，才用数据库的
+                if (result[s.key] === null) {
+                    result[s.key] = s.value
+                }
             }
-        }
-    })
+        })
+    } catch (error) {
+        logger.error('Failed to get settings from database:', error)
+    }
 
     return result
 }

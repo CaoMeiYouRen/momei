@@ -1,4 +1,4 @@
-import { isSystemInstalled } from '~/server/services/installation'
+import { getInstallationStatus } from '~/server/services/installation'
 import logger from '~/server/utils/logger'
 
 /**
@@ -25,8 +25,9 @@ export default defineEventHandler(async (event) => {
     const isInstallationApi = pathname.startsWith('/api/install')
 
     try {
-        // 检查系统是否已安装
-        const installed = await isSystemInstalled()
+        // 检查系统安装状态
+        const status = await getInstallationStatus()
+        const installed = status.installed
 
         if (installed) {
             // 如果系统已安装，却访问安装页面，重定向到首页
@@ -40,6 +41,27 @@ export default defineEventHandler(async (event) => {
                     statusMessage: 'System already installed.',
                 })
             }
+
+            // 特殊情况：系统已标记安装，但数据库连接失败
+            // 对于非必要的 API 请求，我们可以放行（由各个 Handler 降级处理）
+            // 但对于某些关键 API，我们可能需要在这里截断
+            if (!status.databaseConnected && pathname.startsWith('/api')) {
+                // 排除基础 API 和已通过降级处理的 API
+                const bypassApis = [
+                    '/api/auth',
+                    '/api/settings/theme',
+                    '/api/settings/public',
+                ]
+                const isBypass = bypassApis.some((api) => pathname.startsWith(api))
+
+                if (!isBypass) {
+                    throw createError({
+                        statusCode: 503,
+                        statusMessage: 'Database connection failed. Please check your database settings.',
+                    })
+                }
+            }
+
             return
         }
 

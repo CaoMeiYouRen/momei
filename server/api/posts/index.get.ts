@@ -19,6 +19,17 @@ export default defineEventHandler(async (event) => {
         await requireAdminOrAuthor(event)
     }
 
+    // 如果数据库未初始化，返回空列表
+    if (!dataSource.isInitialized) {
+        return success({
+            items: [],
+            total: 0,
+            page: query.page,
+            limit: query.limit,
+            totalPages: 0,
+        })
+    }
+
     const postRepo = dataSource.getRepository(Post)
     const qb = postRepo.createQueryBuilder('post')
         .leftJoin('post.author', 'author')
