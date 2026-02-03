@@ -94,7 +94,7 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
         },
     })
 
-    posts.forEach((post) => {
+    posts.forEach((post: Post) => {
         const itemDate = post.publishedAt || post.createdAt || new Date()
         let content = md.render(post.content)
 

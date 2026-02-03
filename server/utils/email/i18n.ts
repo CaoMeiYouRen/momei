@@ -105,7 +105,3 @@ export class EmailI18nManager {
 // 创建全局邮件国际化管理器实例
 export const emailI18n = new EmailI18nManager()
 
-// 重新导出必需的类型和常量，供 index.ts 使用
-export { DEFAULT_EMAIL_LOCALE, EMAIL_SUPPORTED_LOCALES } from './locales'
-export type { SupportedEmailLocale } from './locales'
-
