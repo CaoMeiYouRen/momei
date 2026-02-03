@@ -160,14 +160,14 @@ export async function checkPostAccess(
 
         case PostVisibility.SUBSCRIBER: {
             // 订阅可见：必须是活跃订阅者
-            // if (!user) {
-            //     return {
-            //         allowed: false,
-            //         shouldNotFound: false,
-            //         reason: 'AUTH_REQUIRED',
-            //         data: filterSensitivePostData(post),
-            //     }
-            // }
+            if (!user) {
+                return {
+                    allowed: false,
+                    shouldNotFound: false,
+                    reason: 'AUTH_REQUIRED',
+                    data: filterSensitivePostData(post),
+                }
+            }
             const isSub = await isUserSubscriber(user?.id)
             if (!isSub) {
                 return {
