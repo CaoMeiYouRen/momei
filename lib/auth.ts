@@ -115,7 +115,7 @@ export const auth = betterAuth({
         },
     },
     // 可信来源列表。
-    trustedOrigins: [AUTH_BASE_URL],
+    trustedOrigins: [AUTH_BASE_URL].filter(Boolean),
     // 用于加密、签名和哈希的秘密。
     secret: AUTH_SECRET,
     advanced: {
