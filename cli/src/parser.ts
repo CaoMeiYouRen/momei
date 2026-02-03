@@ -41,12 +41,13 @@ export function convertToMomeiPost(frontMatter: HexoFrontMatter, content: string
             ? [frontMatter.tags]
             : undefined
 
-    // 处理分类：支持字符串或数组
-    const categories = Array.isArray(frontMatter.categories)
-        ? frontMatter.categories
+    // 处理分类：Hexo可能有多个分类，但Momei只支持单个分类
+    // 取第一个分类作为主分类
+    const category = Array.isArray(frontMatter.categories)
+        ? frontMatter.categories[0] || null
         : typeof frontMatter.categories === 'string'
-            ? [frontMatter.categories]
-            : undefined
+            ? frontMatter.categories
+            : null
 
     // 生成 slug：优先使用 permalink，否则从文件名提取
     let slug = frontMatter.permalink
@@ -56,29 +57,38 @@ export function convertToMomeiPost(frontMatter: HexoFrontMatter, content: string
     }
 
     // 处理发布时间
-    let publishedAt: string | undefined
+    let createdAt: string | undefined
     if (frontMatter.date) {
         const date = typeof frontMatter.date === 'string' ? new Date(frontMatter.date) : frontMatter.date
-        publishedAt = date.toISOString()
+        createdAt = date.toISOString()
     }
 
-    // 构建 Momei Post 对象
+    // 判断文章状态：如果有日期则设为published，否则为draft
+    const status = createdAt ? 'published' : 'draft'
+
+    // 构建 Momei Post 对象（必须与 createPostSchema 保持一致）
     const post: MomeiPost = {
+        // 基本字段
         title: frontMatter.title || 'Untitled',
         content,
-        excerpt: frontMatter.excerpt,
         slug,
-        status: publishedAt ? 'published' : 'draft',
-        publishedAt,
+
+        // 描述性字段
+        summary: frontMatter.excerpt || null,
+
+        // 语言和翻译
+        language: frontMatter.lang || 'zh-CN',
+
+        // 分类和标签
+        category,
         tags,
-        categories,
-        lang: frontMatter.lang,
-        metadata: {
-            source: 'hexo',
-            originalPath: filePath,
-            updated: frontMatter.updated,
-            disableComment: frontMatter.disableComment,
-        },
+
+        // 状态和可见性
+        status,
+        visibility: 'public',
+
+        // 其他字段
+        createdAt,
     }
 
     return post

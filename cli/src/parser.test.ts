@@ -19,9 +19,9 @@ describe('Parser', () => {
             expect(result.title).toBe('Test Post')
             expect(result.content).toBe(content)
             expect(result.tags).toEqual(['tag1', 'tag2'])
-            expect(result.categories).toEqual(['category1'])
+            expect(result.category).toBe('category1')
             expect(result.status).toBe('published')
-            expect(result.publishedAt).toBeDefined()
+            expect(result.createdAt).toBeDefined()
         })
 
         it('should handle string tags and categories', () => {
@@ -36,7 +36,7 @@ describe('Parser', () => {
             const result = convertToMomeiPost(frontMatter, content, filePath)
 
             expect(result.tags).toEqual(['single-tag'])
-            expect(result.categories).toEqual(['single-category'])
+            expect(result.category).toBe('single-category')
         })
 
         it('should generate slug from filename when permalink is missing', () => {
@@ -74,25 +74,22 @@ describe('Parser', () => {
             const result = convertToMomeiPost(frontMatter, content, filePath)
 
             expect(result.status).toBe('draft')
-            expect(result.publishedAt).toBeUndefined()
+            expect(result.createdAt).toBeUndefined()
         })
 
-        it('should preserve metadata', () => {
+        it('should include language field', () => {
             const frontMatter: HexoFrontMatter = {
                 title: 'Test Post',
-                disableComment: true,
-                updated: '2024-01-02',
+                lang: 'en-US',
             }
             const content = 'Content'
             const filePath = 'test.md'
 
             const result = convertToMomeiPost(frontMatter, content, filePath)
 
-            expect(result.metadata).toMatchObject({
-                source: 'hexo',
-                disableComment: true,
-                updated: '2024-01-02',
-            })
+            expect(result.language).toBe('en-US')
+            expect(result.visibility).toBe('public')
+            expect(result.summary).toBeNull()
         })
 
         it('should handle missing title', () => {
