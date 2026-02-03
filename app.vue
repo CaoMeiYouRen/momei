@@ -83,9 +83,33 @@ useHead({
         },
         {
             rel: 'alternate',
+            type: 'application/atom+xml',
+            title: 'Atom Feed',
+            href: '/feed.atom',
+        },
+        {
+            rel: 'alternate',
+            type: 'application/feed+json',
+            title: 'JSON Feed',
+            href: '/feed.json',
+        },
+        {
+            rel: 'alternate',
             type: 'application/rss+xml',
-            title: 'Podcast Feed',
+            title: 'Podcast RSS Feed',
             href: '/feed/podcast.xml',
+        },
+        {
+            rel: 'alternate',
+            type: 'application/atom+xml',
+            title: 'Podcast Atom Feed',
+            href: '/feed/podcast.atom',
+        },
+        {
+            rel: 'alternate',
+            type: 'application/feed+json',
+            title: 'Podcast JSON Feed',
+            href: '/feed/podcast.json',
         },
         {
             rel: 'preconnect',

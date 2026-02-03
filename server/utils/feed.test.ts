@@ -213,4 +213,57 @@ describe('Feed Generation Utility', async () => {
         expect(item!.image).toBeUndefined() // Should be undefined to avoid overwriting enclosure in RSS 2.0
         expect(item!.content).toContain('<img src="https://example.com/cover.png"')
     })
+
+    it('should prepend cover image to content for regular feed if audio enclosure exists', async () => {
+        const postRepo = dataSource.getRepository(Post)
+        const postWithAudio = new Post()
+        postWithAudio.title = 'Regular Post with Audio'
+        postWithAudio.slug = 'reg-audio'
+        postWithAudio.content = 'Content here'
+        postWithAudio.language = 'en-US'
+        postWithAudio.status = PostStatus.PUBLISHED
+        postWithAudio.author = author
+        postWithAudio.audioUrl = 'https://example.com/other.mp3'
+        postWithAudio.coverImage = 'https://example.com/reg-cover.png'
+        postWithAudio.publishedAt = new Date()
+        await postRepo.save(postWithAudio)
+
+        const event = {
+            path: '/feed.xml',
+            node: { req: { headers: {} } },
+        } as any
+
+        const feed = await generateFeed(event, { language: 'en-US' })
+        const item = feed.items.find((i) => i.title === 'Regular Post with Audio')
+        expect(item).toBeDefined()
+        expect(item!.enclosure).toBeDefined()
+        expect(item!.image).toBeUndefined()
+        expect(item!.content).toContain('<img src="https://example.com/reg-cover.png"')
+    })
+
+    it('should generate Atom 1.0 format correctly', async () => {
+        const event = {
+            path: '/feed.atom',
+            node: { req: { headers: {} } },
+        } as any
+
+        const feed = await generateFeed(event, { language: 'en-US' })
+        const atom = feed.atom1()
+        expect(atom).toContain('<feed xmlns="http://www.w3.org/2005/Atom">')
+        expect(atom).toContain('<title>墨梅博客</title>')
+        expect(atom).toContain('rel="self" href="https://momei.app/feed.atom"')
+    })
+
+    it('should generate JSON Feed 1.1 format correctly', async () => {
+        const event = {
+            path: '/feed.json',
+            node: { req: { headers: {} } },
+        } as any
+
+        const feed = await generateFeed(event, { language: 'en-US' })
+        const json = JSON.parse(feed.json1())
+        expect(json.version).toBe('https://jsonfeed.org/version/1')
+        expect(json.title).toBe('墨梅博客')
+        expect(json.feed_url).toBe('https://momei.app/feed.json')
+    })
 })

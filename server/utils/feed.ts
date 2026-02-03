@@ -70,6 +70,8 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
         .getMany()
 
     const title = options.titleSuffix ? `${appName} - ${options.titleSuffix}` : appName
+    const path = event.path || '/'
+    const basePath = (path.split('?')[0] || '').replace(/\.(xml|atom|json)$/, '')
 
     const feed = new Feed({
         title,
@@ -83,7 +85,9 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
         updated: posts[0] ? new Date(posts[0].publishedAt || posts[0].createdAt) : new Date(),
         generator: 'Momei Blog',
         feedLinks: {
-            rss2: `${siteUrl}${event.path}`,
+            rss: `${siteUrl}${basePath}.xml`,
+            atom: `${siteUrl}${basePath}.atom`,
+            json: `${siteUrl}${basePath}.json`,
         },
         author: {
             name: appName,
@@ -94,12 +98,6 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
         const itemDate = post.publishedAt || post.createdAt || new Date()
         let content = md.render(post.content)
 
-        // 对于 Podcast 订阅源，如果存在封面图，将其添加到内容开头
-        // 因为 enclosure 标签将被用于音频文件，不希望封面图占用该位置
-        if (options.isPodcast && post.coverImage) {
-            content = `<p><img src="${post.coverImage}" alt="${post.title}" /></p>${content}`
-        }
-
         const enclosure = post.audioUrl
             ? {
                 url: post.audioUrl,
@@ -107,6 +105,12 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
                 type: post.audioMimeType || 'audio/mpeg',
             }
             : undefined
+
+        // 对于带有附件（如音频）的文章，如果存在封面图，将其添加到内容开头
+        // 因为在 RSS 2.0 等格式中，为了避免与 enclosure 标签冲突，metadata 中的 image 会被设为 undefined
+        if (enclosure && post.coverImage) {
+            content = `<p><img src="${post.coverImage}" alt="${post.title}" /></p>${content}`
+        }
 
         feed.addItem({
             title: post.title,

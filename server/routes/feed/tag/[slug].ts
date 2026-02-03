@@ -4,10 +4,22 @@ import { Tag } from '@/server/entities/tag'
 
 export default defineEventHandler(async (event) => {
     let slug = getRouterParam(event, 'slug') || ''
+    let format: 'rss2' | 'atom1' | 'json1' = 'rss2'
+    let contentType = 'application/xml'
 
-    // 如果 URL 包含 .xml 后缀，在这里进行剥离，因为文件名改为 [slug].ts 后参数会带上后缀
+    // 根据后缀判断格式并剥离
     if (slug.endsWith('.xml')) {
         slug = slug.slice(0, -4)
+        format = 'rss2'
+        contentType = 'application/xml'
+    } else if (slug.endsWith('.atom')) {
+        slug = slug.slice(0, -5)
+        format = 'atom1'
+        contentType = 'application/atom+xml'
+    } else if (slug.endsWith('.json')) {
+        slug = slug.slice(0, -5)
+        format = 'json1'
+        contentType = 'application/feed+json'
     }
 
     slug = decodeURIComponent(slug)
@@ -38,6 +50,6 @@ export default defineEventHandler(async (event) => {
         titleSuffix: tag.language === 'zh-CN' ? `标签: ${tag.name}` : `Tag: ${tag.name}`,
     })
 
-    appendHeader(event, 'Content-Type', 'application/xml')
-    return feed.rss2()
+    appendHeader(event, 'Content-Type', contentType)
+    return feed[format]()
 })
