@@ -64,6 +64,32 @@
     - `server` 可以引用 `shared`，但 **禁止反向依赖**。
     - **入口管理**: 通过 `barrel` 文件（index.ts）暴露统一入口，避免跨层误引用。
 
+### 2.5 代码生成准则 (Code Generation Guidelines)
+
+AI 在生成代码时应严格遵守以下约定：
+
+1.  **TypeScript 优先**: 所有新代码必须使用 TypeScript，严禁使用 `any` 类型，必须定义明确的接口或类型。
+2.  **Vue 风格**: 统一使用 `<script setup lang="ts">` 语法及组合式 API。
+3.  **样式规范**: 使用 SCSS 编写样式，遵循 BEM 命名规范，禁止使用内联样式。优先复用全局变量和 Mixins。
+4.  **国际化 (i18n)**: UI 文本必须使用 `nuxt-i18n` 的 `$t()` 函数包裹，禁止硬编码中英文字符串。
+5.  **文件命名**: 统一使用 kebab-case 格式 (如 `article-card.vue`)。
+6.  **SEO 优化**: 每个页面及文章详情页必须配置 `useHead` 或 `definePageMeta` 中的 SEO 信息。
+
+### 2.6 提交规范 (Commit Standards)
+
+遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范，commit message 使用中文描述变更内容：
+
+-   `feat`: 新功能
+-   `fix`: 修复 Bug
+-   `docs`: 文档变更
+-   `style`: 代码格式调整
+-   `refactor`: 代码重构
+-   `perf`: 性能优化
+-   `test`: 测试相关
+-   `ci`: CI 配置变更
+-   `build`: 构建相关
+-   `chore`: 构建/工具链变动
+
 ## 3. 技术栈与库使用指南 (Tech Stack & Libraries)
 
 为保持项目一致性，请严格遵循以下库的使用规范，避免引入重复功能的第三方库。
@@ -90,6 +116,31 @@
 
 1.  **影响评估**: 修改核心组件或公共方法前，必须评估对现有功能的影响。如果改动可能破坏现有逻辑，应重新设计方案。
 2.  **复杂度审查**: 提交前自查代码复杂度，利用 ESLint 等工具辅助检查。
+
+### 4.3 常用开发命令 (Common Development Commands)
+
+```bash
+# 启动开发服务器
+pnpm dev
+
+# 代码风格检查
+pnpm lint
+
+# 样式检查
+pnpm lint:css
+
+# 类型检查
+pnpm typecheck
+
+# 运行测试
+pnpm test
+
+# 运行测试覆盖率
+pnpm test:coverage
+
+# 构建生产版本
+pnpm build
+```
 
 ## 5. 安全规范 (Security)
 
@@ -153,10 +204,81 @@
     - **页面设计**: 描述页面布局、交互逻辑、组件使用。
     - **接口设计**: 列出相关 API 的路由、方法、参数、权限要求。
 
-## 8. 相关文档
+## 9. 相关文档
 
 - [AI 代理配置](../../AGENTS.md)
 - [项目计划](../plan/roadmap.md)
 - [UI 设计](../design/ui.md)
 - [API 设计](../design/api.md)
 - [测试规范](./testing.md)
+
+## 10. 代码示例 (Code Examples)
+
+### 10.1 Vue 组件模板 (结合 SCSS 和 i18n)
+
+```vue
+<template>
+    <div class="article-card">
+        <h2 class="article-card__title">
+            {{ $t("components.title") }}
+        </h2>
+        <slot />
+    </div>
+</template>
+
+<script setup lang="ts">
+const { t } = useI18n();
+
+defineProps<{
+    title?: string;
+}>();
+</script>
+
+<style lang="scss" scoped>
+.article-card {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    background-color: #fff;
+
+    &__title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111827;
+    }
+}
+
+// Dark mode example
+:global(.dark) .article-card {
+    background-color: #1f2937;
+
+    &__title {
+        color: #fff;
+    }
+}
+</style>
+```
+
+### 10.2 API 路由模板
+
+```typescript
+// server/api/posts.get.ts
+export default defineEventHandler(async (event) => {
+    try {
+        // 示例：获取查询参数
+        const query = getQuery(event);
+
+        // 业务逻辑...
+
+        return {
+            code: 200,
+            data: [],
+        };
+    } catch (error) {
+        throw createError({
+            statusCode: 500,
+            statusMessage: "Internal Server Error",
+        });
+    }
+});
+```
