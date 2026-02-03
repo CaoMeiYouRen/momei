@@ -1,17 +1,9 @@
-import { z } from 'zod'
 import { dataSource } from '@/server/database'
 import { Snippet } from '@/server/entities/snippet'
 import { SnippetStatus } from '@/types/snippet'
 import { requireAuth } from '@/server/utils/permission'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
-
-const createSnippetSchema = z.object({
-    content: z.string().min(1),
-    media: z.array(z.url()).optional(),
-    audioUrl: z.url().optional(),
-    source: z.string().max(50).optional().default('web'),
-    metadata: z.any().optional(),
-})
+import { snippetBodySchema } from '@/utils/schemas/snippet'
 
 export default defineEventHandler(async (event) => {
     let user: any
@@ -27,7 +19,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody(event)
-    const data = createSnippetSchema.parse(body)
+    const data = snippetBodySchema.parse(body)
 
     const repo = dataSource.getRepository(Snippet)
     const snippet = repo.create({

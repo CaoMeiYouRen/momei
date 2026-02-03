@@ -19,9 +19,9 @@ const postVisibilityEnum = z.enum([
     PostVisibility.SUBSCRIBER,
 ] as [PostVisibility, ...PostVisibility[]])
 
-export const createPostSchema = z.object({
+const sharedPostFields = {
     title: z.string().min(1).max(255),
-    slug: z.string().min(1).max(255).optional().refine((val) => !val || !isSnowflakeId(val), {
+    slug: z.string().min(1).max(255).refine((val) => !val || !isSnowflakeId(val), {
         message: 'Slug cannot be in Snowflake ID format',
     }),
     content: z.string().min(1),
@@ -43,52 +43,29 @@ export const createPostSchema = z.object({
     audioDuration: z.coerce.number().int().min(0).nullable().optional(),
     audioSize: z.coerce.number().int().min(0).nullable().optional(),
     audioMimeType: z.string().max(100).nullable().optional(),
-    language: z.string().default('zh-CN'),
+    language: z.string(),
     translationId: z.string().max(255).nullable().optional(),
     category: z.string().nullable().optional(),
     categoryId: z.string().nullable().optional(),
     copyright: z.string().nullable().optional(),
     tags: z.array(z.string()).optional(),
-    status: postStatusEnum.default(PostStatus.DRAFT),
-    visibility: postVisibilityEnum.default(PostVisibility.PUBLIC),
+    status: postStatusEnum,
+    visibility: postVisibilityEnum,
     password: z.string().nullable().optional(),
+}
+
+export const createPostSchema = z.object({
+    ...sharedPostFields,
+    slug: sharedPostFields.slug.optional(),
+    language: sharedPostFields.language.default('zh-CN'),
+    status: sharedPostFields.status.default(PostStatus.DRAFT),
+    visibility: sharedPostFields.visibility.default(PostVisibility.PUBLIC),
     createdAt: z.coerce.date().optional(),
     views: z.coerce.number().int().min(0).optional(),
 })
 
-export const updatePostSchema = z.object({
-    title: z.string().min(1).max(255).optional(),
-    slug: z.string().min(1).max(255).optional().refine((val) => !val || !isSnowflakeId(val), {
-        message: 'Slug cannot be in Snowflake ID format',
-    }),
-    content: z.string().min(1).optional(),
-    summary: z.string().nullable().optional(),
-    coverImage: z
-        .string()
-        .nullable()
-        .optional()
-        .refine((url) => isValidCustomUrl(url), {
-            message: 'Cover image URL must be from a whitelisted domain or local path',
-        }),
-    audioUrl: z
-        .string()
-        .nullable()
-        .optional()
-        .refine((url) => isValidCustomUrl(url), {
-            message: 'Audio URL must be from a whitelisted domain or local path',
-        }),
-    audioDuration: z.coerce.number().int().min(0).nullable().optional(),
-    audioSize: z.coerce.number().int().min(0).nullable().optional(),
-    audioMimeType: z.string().max(100).nullable().optional(),
-    language: z.string().optional(),
-    translationId: z.string().max(255).nullable().optional(),
-    category: z.string().nullable().optional(),
-    categoryId: z.string().nullable().optional(),
-    copyright: z.string().nullable().optional(),
-    tags: z.array(z.string()).optional(),
-    status: postStatusEnum.optional(),
-    visibility: postVisibilityEnum.optional(),
-    password: z.string().nullable().optional(),
+export const updatePostSchema = z.object(sharedPostFields).partial().extend({
+    slug: sharedPostFields.slug.optional(),
 })
 
 export const postQuerySchema = paginationSchema.extend({

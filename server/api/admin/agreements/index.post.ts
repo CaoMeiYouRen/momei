@@ -1,16 +1,7 @@
-import { z } from 'zod'
 import { requireAdmin } from '@/server/utils/permission'
 import { success, fail } from '@/server/utils/response'
 import { createAgreementVersion } from '@/server/services/agreement'
-
-const createAgreementSchema = z.object({
-    type: z.enum(['user_agreement', 'privacy_policy']),
-    language: z.string().min(1),
-    content: z.string().min(1),
-    version: z.string().optional().nullable(),
-    versionDescription: z.string().optional().nullable(),
-    isMainVersion: z.boolean().optional().default(false),
-})
+import { agreementBodySchema } from '@/utils/schemas/agreement'
 
 /**
  * POST /api/admin/agreements
@@ -20,7 +11,7 @@ export default defineEventHandler(async (event) => {
     await requireAdmin(event)
 
     try {
-        const body = await readValidatedBody(event, (b) => createAgreementSchema.parse(b))
+        const body = await readValidatedBody(event, (b) => agreementBodySchema.parse(b))
 
         const agreement = await createAgreementVersion(body)
 

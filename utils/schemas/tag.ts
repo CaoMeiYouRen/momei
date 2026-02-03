@@ -11,13 +11,10 @@ export const tagBodySchema = z.object({
     translationId: z.string().max(255).nullable().optional(),
 })
 
-export const tagUpdateSchema = z.object({
-    name: z.string().min(1).max(100).optional(),
+export const tagUpdateSchema = tagBodySchema.partial().extend({
     slug: z.string().min(1).max(100).refine((s) => !isSnowflakeId(s), {
         message: 'Slug cannot be a Snowflake ID format',
     }).optional(),
-    language: z.string().optional(),
-    translationId: z.string().max(255).nullable().optional(),
 })
 
 export const tagQuerySchema = paginationSchema.extend(sortingSchema.shape).extend({

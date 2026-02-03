@@ -1,37 +1,5 @@
-import { z } from 'zod'
 import { isSystemInstalled, saveExtraConfig } from '~/server/services/installation'
-
-/**
- * 可选配置 Schema
- */
-const extraConfigSchema = z.object({
-    // AI
-    aiProvider: z.string().optional(),
-    aiApiKey: z.string().optional(),
-    aiModel: z.string().optional(),
-    aiEndpoint: z.string().optional(),
-    // Email
-    emailHost: z.string().optional(),
-    emailPort: z.number().optional(),
-    emailUser: z.string().optional(),
-    emailPass: z.string().optional(),
-    emailFrom: z.string().optional(),
-    // Storage
-    storageType: z.string().optional(),
-    localStorageDir: z.string().optional(),
-    localStorageBaseUrl: z.string().optional(),
-    s3Endpoint: z.string().optional(),
-    s3Bucket: z.string().optional(),
-    s3Region: z.string().optional(),
-    s3AccessKey: z.string().optional(),
-    s3SecretKey: z.string().optional(),
-    s3BaseUrl: z.string().optional(),
-    s3BucketPrefix: z.string().optional(),
-    // Analytics
-    baiduAnalytics: z.string().optional(),
-    googleAnalytics: z.string().optional(),
-    clarityAnalytics: z.string().optional(),
-})
+import { extraConfigSchema } from '~/utils/schemas/install'
 
 /**
  * 设置可选功能配置

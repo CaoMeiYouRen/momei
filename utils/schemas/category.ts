@@ -13,15 +13,10 @@ export const categoryBodySchema = z.object({
     translationId: z.string().max(255).nullable().optional(),
 })
 
-export const categoryUpdateSchema = z.object({
-    name: z.string().min(1).max(100).optional(),
+export const categoryUpdateSchema = categoryBodySchema.partial().extend({
     slug: z.string().min(1).max(100).refine((s) => !isSnowflakeId(s), {
         message: 'Slug cannot be a Snowflake ID format',
     }).optional(),
-    description: z.string().nullable().optional(),
-    parentId: z.string().nullable().optional(),
-    language: z.string().optional(),
-    translationId: z.string().max(255).nullable().optional(),
 })
 
 export const categoryQuerySchema = paginationSchema.extend(sortingSchema.shape).extend({

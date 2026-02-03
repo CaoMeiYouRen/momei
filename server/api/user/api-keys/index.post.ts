@@ -1,17 +1,12 @@
-import { z } from 'zod'
 import dayjs from 'dayjs'
 import { dataSource } from '@/server/database'
 import { ApiKey } from '@/server/entities/api-key'
 import { generateApiKey, hashApiKey } from '@/server/utils/api-key'
 import { requireAuth } from '@/server/utils/permission'
-
-const schema = z.object({
-    name: z.string().min(1).max(50),
-    expiresIn: z.enum(['never', '7d', '30d', '365d']).optional().default('never'),
-})
+import { userApiKeySchema } from '@/utils/schemas/user-api-key'
 
 export default defineEventHandler(async (event) => {
-    const body = await readValidatedBody(event, (b) => schema.parse(b))
+    const body = await readValidatedBody(event, (b) => userApiKeySchema.parse(b))
     const session = await requireAuth(event)
 
     const rawKey = generateApiKey()

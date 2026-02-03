@@ -1,17 +1,8 @@
-import { z } from 'zod'
 import { isSystemInstalled, validateAdminPassword } from '~/server/services/installation'
 import { auth } from '@/lib/auth'
 import { dataSource } from '~/server/database'
 import { User } from '~/server/entities/user'
-
-/**
- * 管理员创建 Schema
- */
-const adminCreationSchema = z.object({
-    email: z.email('请输入有效的邮箱地址'),
-    password: z.string().min(8, '密码长度至少为 8 位'),
-    name: z.string().min(1, '昵称不能为空').max(50),
-})
+import { adminCreationSchema } from '~/utils/schemas/install'
 
 /**
  * 创建管理员账号

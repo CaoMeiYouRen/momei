@@ -1,23 +1,14 @@
-import { z } from 'zod'
 import { dataSource } from '@/server/database'
 import { Snippet } from '@/server/entities/snippet'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { assignDefined } from '@/server/utils/object'
-
-import { SnippetStatus } from '@/types/snippet'
-
-const updateSnippetSchema = z.object({
-    content: z.string().min(1).optional(),
-    status: z.enum(SnippetStatus).optional(),
-    media: z.array(z.string()).nullable().optional(),
-    metadata: z.any().optional(),
-})
+import { snippetUpdateSchema } from '@/utils/schemas/snippet'
 
 export default defineEventHandler(async (event) => {
     const session = await requireAdminOrAuthor(event)
     const id = getRouterParam(event, 'id') || ''
     const body = await readBody(event)
-    const data = updateSnippetSchema.parse(body)
+    const data = snippetUpdateSchema.parse(body)
 
     const repo = dataSource.getRepository(Snippet)
     const snippet = await repo.findOne({

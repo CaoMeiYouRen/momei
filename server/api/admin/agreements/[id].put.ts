@@ -1,14 +1,7 @@
-import { z } from 'zod'
 import { requireAdmin } from '@/server/utils/permission'
 import { success, fail } from '@/server/utils/response'
 import { updateAgreementContent } from '@/server/services/agreement'
-
-const updateAgreementSchema = z.object({
-    content: z.string().min(1).optional(),
-    version: z.string().optional().nullable(),
-    versionDescription: z.string().optional().nullable(),
-    isMainVersion: z.boolean().optional(),
-})
+import { agreementUpdateSchema } from '@/utils/schemas/agreement'
 
 /**
  * PUT /api/admin/agreements/[id]
@@ -23,7 +16,7 @@ export default defineEventHandler(async (event) => {
     }
 
     try {
-        const body = await readValidatedBody(event, (b) => updateAgreementSchema.parse(b))
+        const body = await readValidatedBody(event, (b) => agreementUpdateSchema.parse(b))
 
         const agreement = await updateAgreementContent(id, body)
 

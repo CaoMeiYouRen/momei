@@ -7,4 +7,7 @@ export const themeConfigSchema = z.object({
     previewImage: z.string().optional().nullable(),
 })
 
+export const themeConfigUpdateSchema = themeConfigSchema.partial()
+
 export type ThemeConfigInput = z.infer<typeof themeConfigSchema>
+export type ThemeConfigUpdateInput = z.infer<typeof themeConfigUpdateSchema>

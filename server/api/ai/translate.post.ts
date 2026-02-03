@@ -1,17 +1,13 @@
 import { z } from 'zod'
 import { AIService } from '@/server/services/ai'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
-
-const translateSchema = z.object({
-    content: z.string().min(1),
-    targetLanguage: z.string().min(2).max(10),
-})
+import { aiTranslateSchema } from '@/utils/schemas/ai'
 
 export default defineEventHandler(async (event) => {
     const session = await requireAdminOrAuthor(event)
 
     const body = await readBody(event)
-    const result = translateSchema.safeParse(body)
+    const result = aiTranslateSchema.safeParse(body)
 
     if (!result.success) {
         throw createError({

@@ -1,7 +1,7 @@
 import { dataSource } from '@/server/database'
 import { ThemeConfig } from '@/server/entities/theme-config'
 import { Setting } from '@/server/entities/setting'
-import type { ThemeConfigInput } from '@/utils/schemas/theme-config'
+import type { ThemeConfigInput, ThemeConfigUpdateInput } from '@/utils/schemas/theme-config'
 import { assignDefined } from '@/server/utils/object'
 
 /**
@@ -32,7 +32,7 @@ export const createThemeConfigService = async (body: ThemeConfigInput) => {
 /**
  * 更新主题方案
  */
-export const updateThemeConfigService = async (id: string, body: ThemeConfigInput) => {
+export const updateThemeConfigService = async (id: string, body: ThemeConfigUpdateInput) => {
     const themeConfigRepo = dataSource.getRepository(ThemeConfig)
     const themeConfig = await themeConfigRepo.findOneBy({ id })
 
