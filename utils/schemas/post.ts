@@ -61,11 +61,15 @@ export const createPostSchema = z.object({
     status: sharedPostFields.status.default(PostStatus.DRAFT),
     visibility: sharedPostFields.visibility.default(PostVisibility.PUBLIC),
     createdAt: z.coerce.date().optional(),
+    publishedAt: z.coerce.date().optional(),
     views: z.coerce.number().int().min(0).optional(),
 })
 
 export const updatePostSchema = z.object(sharedPostFields).partial().extend({
     slug: sharedPostFields.slug.optional(),
+    createdAt: z.coerce.date().optional(),
+    publishedAt: z.coerce.date().optional(),
+    views: z.coerce.number().int().min(0).optional(),
 })
 
 export const postQuerySchema = paginationSchema.extend({
