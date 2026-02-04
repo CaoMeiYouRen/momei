@@ -75,8 +75,8 @@ export default defineNuxtConfig({
         '@vueuse/nuxt',
         '@sentry/nuxt/module',
         '@nuxtjs/sitemap',
-        '@vite-pwa/nuxt',
-    ],
+        !process.env.VITEST && '@vite-pwa/nuxt',
+    ].filter(Boolean) as any,
     pwa: {
         registerType: 'autoUpdate',
         manifest: {
