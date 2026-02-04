@@ -2,7 +2,7 @@ import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { Category } from '@/server/entities/category'
 import { Tag } from '@/server/entities/tag'
-import { PostStatus } from '@/types/post'
+import { PostStatus, PostVisibility } from '@/types/post'
 
 export default defineEventHandler(async () => {
     const postRepo = dataSource.getRepository(Post)
@@ -11,7 +11,10 @@ export default defineEventHandler(async () => {
 
     const [posts, categories, tags] = await Promise.all([
         postRepo.find({
-            where: { status: PostStatus.PUBLISHED },
+            where: {
+                status: PostStatus.PUBLISHED,
+                visibility: PostVisibility.PUBLIC,
+            },
             select: ['slug', 'language', 'updatedAt'],
         }),
         categoryRepo.find({
