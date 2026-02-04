@@ -7,6 +7,7 @@ import { SettingKey } from '@/types/setting'
 vi.mock('@/server/database', () => ({
     dataSource: {
         getRepository: vi.fn(),
+        isInitialized: true,
     },
 }))
 
