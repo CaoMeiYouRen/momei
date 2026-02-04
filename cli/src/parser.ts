@@ -35,19 +35,21 @@ export async function scanMarkdownFiles(sourceDir: string): Promise<string[]> {
  */
 export function convertToMomeiPost(frontMatter: HexoFrontMatter, content: string, filePath: string): MomeiPost {
     // 处理标签：支持字符串或数组
-    const tags = Array.isArray(frontMatter.tags)
-        ? frontMatter.tags
-        : typeof frontMatter.tags === 'string'
-            ? [frontMatter.tags]
-            : undefined
+    let tags: string[] | undefined
+    if (Array.isArray(frontMatter.tags)) {
+        tags = frontMatter.tags
+    } else if (typeof frontMatter.tags === 'string') {
+        tags = [frontMatter.tags]
+    }
 
     // 处理分类：Hexo可能有多个分类，但Momei只支持单个分类
     // 取第一个分类作为主分类
-    const category = Array.isArray(frontMatter.categories)
-        ? frontMatter.categories[0] || null
-        : typeof frontMatter.categories === 'string'
-            ? frontMatter.categories
-            : null
+    let category: string | null = null
+    if (Array.isArray(frontMatter.categories)) {
+        category = frontMatter.categories[0] || null
+    } else if (typeof frontMatter.categories === 'string') {
+        category = frontMatter.categories
+    }
 
     // 生成 slug：优先使用 permalink，否则从文件名提取
     let slug = frontMatter.permalink

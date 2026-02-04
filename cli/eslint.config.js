@@ -25,4 +25,10 @@ export default [
             'max-lines-per-function': ['warn', { max: 100 }],
         },
     },
+    {
+        files: ['**/*.test.ts'],
+        rules: {
+            'max-lines-per-function': 'off',
+        },
+    },
 ]
