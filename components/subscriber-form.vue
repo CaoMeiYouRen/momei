@@ -65,7 +65,7 @@ const handleSubmit = async () => {
     loading.value = true
     message.value = ''
     try {
-        const res = await $fetch('/api/subscribe', {
+        const res = await $fetch('/api/subscribers/subscribe', {
             method: 'POST',
             body: {
                 email: email.value,

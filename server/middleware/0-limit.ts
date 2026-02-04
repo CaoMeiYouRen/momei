@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
             })
             return
         }
-        if (event.path.startsWith('/api/subscribe')) {
+        if (event.path.startsWith('/api/subscribers/subscribe')) {
             // 限制 订阅 频率
             await rateLimit(event, {
                 window: 60,

@@ -1,7 +1,7 @@
 import { getActiveAgreementContent } from '@/server/services/agreement'
 
 /**
- * GET /api/public/agreements/privacy-policy
+ * GET /api/agreements/privacy-policy
  * 获取隐私政策内容
  */
 export default defineEventHandler(async () => {

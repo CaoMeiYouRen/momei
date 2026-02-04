@@ -201,7 +201,7 @@ const handleSubmit = async () => {
 
     loading.value = true
     try {
-        const response = await $fetch('/api/submissions', {
+        const response = await $fetch('/api/posts/submissions', {
             method: 'POST',
             body: form.value,
         })

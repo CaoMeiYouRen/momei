@@ -37,7 +37,7 @@ useHead({
 
 onMounted(async () => {
     try {
-        const { data } = await $fetch<any>('/api/public/agreements/user-agreement')
+        const { data } = await $fetch<any>('/api/agreements/user-agreement')
         if (data) {
             content.value = data.content
             isDefault.value = data.isDefault || false

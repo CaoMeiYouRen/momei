@@ -37,7 +37,7 @@ useHead({
 
 onMounted(async () => {
     try {
-        const { data } = await $fetch<any>('/api/public/agreements/privacy-policy')
+        const { data } = await $fetch<any>('/api/agreements/privacy-policy')
         if (data) {
             content.value = data.content
             isDefault.value = data.isDefault || false

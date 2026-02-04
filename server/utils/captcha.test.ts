@@ -42,7 +42,7 @@ describe('verifyCaptcha', () => {
      *    - 含 IP 和不含 IP 时的请求体差异
      *
      * 这些测试应该在以下位置进行测试：
-     * - server/api/submissions.post.ts (集成测试)
+     * - server/api/posts/submissions.post.ts (集成测试)
      * - E2E 测试套件 (端到端)
      */
 })

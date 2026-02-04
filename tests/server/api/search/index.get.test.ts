@@ -6,7 +6,7 @@ import { Category } from '@/server/entities/category'
 import { Tag } from '@/server/entities/tag'
 import { PostStatus } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
-import searchHandler from '@/server/api/search.get'
+import searchHandler from '@/server/api/search/index.get'
 
 describe('Search API', async () => {
     let author: User

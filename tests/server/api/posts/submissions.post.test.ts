@@ -58,7 +58,7 @@ describe('submissions.post API - Captcha Integration', () => {
      *         captchaToken: 'valid_token',
      *     }
      *
-     *     const response = await $fetch.post('/api/submissions', { body })
+     *     const response = await $fetch.post('/api/posts/submissions', { body })
      *
      *     expect(response.code).toBe(200)
      *     expect(response.data.id).toBeDefined()
@@ -71,7 +71,7 @@ describe('submissions.post API - Captcha Integration', () => {
      *         captchaToken: 'invalid_token',
      *     }
      *
-     *     const error = await $fetch.post('/api/submissions', { body }).catch(e => e)
+     *     const error = await $fetch.post('/api/posts/submissions', { body }).catch(e => e)
      *
      *     expect(error.status).toBe(400)
      *     expect(error.data.statusMessage).toContain('Captcha verification failed')

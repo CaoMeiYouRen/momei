@@ -1,7 +1,7 @@
 import { getActiveAgreementContent } from '@/server/services/agreement'
 
 /**
- * GET /api/public/agreements/user-agreement
+ * GET /api/agreements/user-agreement
  * 获取用户协议内容
  */
 export default defineEventHandler(async () => {

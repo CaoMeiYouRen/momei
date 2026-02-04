@@ -133,7 +133,7 @@
 
 ### 4.3 接口设计 (API Design)
 
--   **POST `/api/submissions`**: 公开投稿接口。
+-   **POST `/api/posts/submissions`**: 公开投稿接口。
     -   **校验**: 使用 Zod Schema 校验输入。
     -   **安全**: 必须携带有效的 Cloudflare Turnstile 验证 Token。
     -   **限频**: 单 IP 24 小时内限制提交 3 次。

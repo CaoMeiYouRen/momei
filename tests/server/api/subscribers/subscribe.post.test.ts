@@ -3,7 +3,7 @@ import { dataSource } from '@/server/database'
 import { Subscriber } from '@/server/entities/subscriber'
 import { User } from '@/server/entities/user'
 import { generateRandomString } from '@/utils/shared/random'
-import subscribeHandler from '@/server/api/subscribe.post'
+import subscribeHandler from '@/server/api/subscribers/subscribe.post'
 
 // Mock runtime config
 vi.mock('#imports', () => ({
