@@ -98,7 +98,7 @@ async function runImport(source: string, options: { apiUrl: string, apiKey: stri
         progressSpinner.stop()
         stats.results = results
 
-        displaySummary(stats, verbose)
+        displaySummary(stats)
     } catch (error: any) {
         spinner.fail(chalk.red('Failed to parse files'))
         console.error(chalk.red(`\nError: ${error.message}`))
@@ -109,7 +109,7 @@ async function runImport(source: string, options: { apiUrl: string, apiKey: stri
     }
 }
 
-function displaySummary(stats: ImportStats, verbose: boolean) {
+function displaySummary(stats: ImportStats) {
     // 显示导入结果
     console.log(chalk.blue('\n📊 Import Summary:\n'))
     console.log(chalk.green(`  ✓ Success: ${stats.success}`))
