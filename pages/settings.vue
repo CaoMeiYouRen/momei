@@ -31,6 +31,14 @@
                     <i class="pi pi-key" />
                     <span>{{ $t("pages.settings.api_keys.title") }}</span>
                 </div>
+                <div
+                    class="settings-menu-item"
+                    :class="{active: activeTab === 'notifications'}"
+                    @click="activeTab = 'notifications'"
+                >
+                    <i class="pi pi-bell" />
+                    <span>{{ $t("pages.settings.notifications.title") }}</span>
+                </div>
             </div>
 
             <!-- Content Area -->
@@ -45,6 +53,9 @@
 
                         <!-- API Keys Settings -->
                         <SettingsApiKeys v-if="activeTab === 'apiKeys'" />
+
+                        <!-- Notifications Settings -->
+                        <SettingsNotifications v-if="activeTab === 'notifications'" />
                     </template>
                 </Card>
             </div>

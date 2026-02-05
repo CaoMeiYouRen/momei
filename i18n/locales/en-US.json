@@ -329,6 +329,42 @@
             }
         },
         "admin": {
+            "marketing": {
+                "title": "Marketing Center",
+                "create_btn": "Create Campaign",
+                "create_campaign": "Create Marketing Campaign",
+                "edit_campaign": "Edit Marketing Campaign",
+                "campaign_list": "Campaign History",
+                "form": {
+                    "title": "Campaign Title",
+                    "content": "Campaign Content",
+                    "targets": "Target Picker",
+                    "target_all": "All Subscribers",
+                    "target_criteria": "Targeted Push (Category/Tag)",
+                    "categories": "Selected Categories",
+                    "tags": "Selected Tags",
+                    "placeholder_title": "Please enter email title",
+                    "placeholder_content": "Support Markdown/HTML content..."
+                },
+                "stats": {
+                    "total_subscribers": "Total Subscribers",
+                    "marketing_enabled": "Marketable Users",
+                    "total_campaigns": "Total Campaigns",
+                    "delivered": "Delivered"
+                },
+                "status": {
+                    "DRAFT": "Draft",
+                    "SENDING": "Sending",
+                    "COMPLETED": "Completed",
+                    "FAILED": "Failed"
+                },
+                "actions": {
+                    "send_now": "Send Now",
+                    "sending": "Sending...",
+                    "send_success": "Campaign task started",
+                    "send_failed": "Failed to start campaign"
+                }
+            },
             "submissions": {
                 "title": "Submissions",
                 "search_placeholder": "Search title or content...",
@@ -833,7 +869,8 @@
             "menu": {
                 "profile": "Profile",
                 "security": "Security",
-                "api_keys": "API Keys"
+                "api_keys": "API Keys",
+                "notifications": "Subscription & Notifications"
             },
             "profile": {
                 "title": "Public Profile",
@@ -889,6 +926,23 @@
                 "delete_confirm": "Are you sure you want to revoke this API key?",
                 "create_success": "API key created successfully",
                 "delete_success": "API key revoked"
+            },
+            "notifications": {
+                "title": "Subscription & Notifications",
+                "subscription_management": "Subscription Management",
+                "subscription_management_desc": "Manage your post subscription preferences. Choose categories or tags you are interested in to get updates as soon as possible.",
+                "categories": "Category Subscriptions",
+                "tags": "Tag Subscriptions",
+                "marketing": "Marketing & Features",
+                "marketing_desc": "Receive functional updates, activity recommendations and other email suggestions from the Momei team.",
+                "marketing_enable": "Enable marketing email notifications",
+                "save_success": "Subscription preferences updated",
+                "save_failed": "Failed to update subscription preferences",
+                "active_status": "Subscription Status",
+                "active": "Subscription Enabled",
+                "inactive": "Subscription Paused",
+                "pause_subscription": "Pause all subscriptions",
+                "resume_subscription": "Resume subscriptions"
             }
         }
     },

@@ -328,6 +328,42 @@
             }
         },
         "admin": {
+            "marketing": {
+                "title": "营销中心",
+                "create_btn": "创建推送",
+                "create_campaign": "创建营销推送",
+                "edit_campaign": "编辑营销推送",
+                "campaign_list": "推送历史",
+                "form": {
+                    "title": "推送标题",
+                    "content": "推送内容",
+                    "targets": "目标选择器",
+                    "target_all": "全部订阅者",
+                    "target_criteria": "定向推送 (分类/标签)",
+                    "categories": "指定分类",
+                    "tags": "指定标签",
+                    "placeholder_title": "请输入邮件标题",
+                    "placeholder_content": "支持 Markdown/HTML 内容..."
+                },
+                "stats": {
+                    "total_subscribers": "总订阅人数",
+                    "marketing_enabled": "可营销人数",
+                    "total_campaigns": "累计推送",
+                    "delivered": "送达数"
+                },
+                "status": {
+                    "DRAFT": "草稿",
+                    "SENDING": "发送中",
+                    "COMPLETED": "已完成",
+                    "FAILED": "发送失败"
+                },
+                "actions": {
+                    "send_now": "立即发送",
+                    "sending": "正在发送...",
+                    "send_success": "推送任务已启动",
+                    "send_failed": "启动推送失败"
+                }
+            },
             "submissions": {
                 "title": "稿件审核",
                 "search_placeholder": "搜索标题或内容...",
@@ -832,7 +868,8 @@
             "menu": {
                 "profile": "个人资料",
                 "security": "账号安全",
-                "api_keys": "API 密钥"
+                "api_keys": "API 密钥",
+                "notifications": "订阅与通知"
             },
             "profile": {
                 "title": "公开资料",
@@ -888,6 +925,23 @@
                 "delete_confirm": "确定要撤销此 API 密钥吗？",
                 "create_success": "API 密钥创建成功",
                 "delete_success": "API 密钥已撤销"
+            },
+            "notifications": {
+                "title": "订阅与通知",
+                "subscription_management": "订阅管理",
+                "subscription_management_desc": "管理您的文章订阅偏好。您可以选择感兴趣的分类或标签，第一时间获取内容更新。",
+                "categories": "分类订阅",
+                "tags": "标签订阅",
+                "marketing": "营销与功能通知",
+                "marketing_desc": "接收来自墨梅团队的功能更新、活动推荐等邮件建议。",
+                "marketing_enable": "接收营销邮件通知",
+                "save_success": "订阅偏好已更新",
+                "save_failed": "更新订阅偏好失败",
+                "active_status": "订阅状态",
+                "active": "已启用订阅",
+                "inactive": "已暂停订阅",
+                "pause_subscription": "暂停所有订阅",
+                "resume_subscription": "恢复订阅"
             }
         }
     },
