@@ -148,6 +148,7 @@
         "email": "邮箱",
         "otp": "验证码",
         "close": "关闭",
+        "no_data": "暂无数据",
         "drag_drop_tip": "松开鼠标导入文件",
         "drag_drop_help": "支持拖拽 Markdown 或图片文件到编辑器",
         "cancel": "取消",

@@ -1,18 +1,18 @@
 <template>
-    <div class="settings-notifications">
-        <h3 class="settings-section-title">
+    <div class="subscription-settings">
+        <h3 class="subscription-settings__title">
             {{ $t("pages.settings.notifications.title") }}
         </h3>
 
-        <div v-if="loading" class="flex justify-center p-8">
+        <div v-if="loading" class="subscription-settings__loading">
             <ProgressSpinner />
         </div>
 
-        <div v-else class="settings-form">
+        <div v-else class="subscription-settings__form">
             <!-- 订阅状态控制 -->
-            <div class="settings-form__field">
-                <label>{{ $t("pages.settings.notifications.active_status") }}</label>
-                <div class="align-items-center flex gap-4">
+            <div class="subscription-settings__section">
+                <label class="subscription-settings__label">{{ $t("pages.settings.notifications.active_status") }}</label>
+                <div class="subscription-settings__status-control">
                     <Tag :severity="subscription.isActive ? 'success' : 'warn'">
                         {{ subscription.isActive ? $t("pages.settings.notifications.active") : $t("pages.settings.notifications.inactive") }}
                     </Tag>
@@ -34,46 +34,43 @@
                 </div>
             </div>
 
-            <Divider />
+            <Divider v-if="categories.length > 0" class="subscription-settings__divider" />
 
             <!-- 分类订阅 -->
-            <div class="settings-form__field">
-                <label>{{ $t("pages.settings.notifications.categories") }}</label>
-                <p class="mb-3 text-secondary text-sm">
+            <div v-if="categories.length > 0" class="subscription-settings__section">
+                <label class="subscription-settings__label">{{ $t("pages.settings.notifications.categories") }}</label>
+                <p class="subscription-settings__description">
                     {{ $t("pages.settings.notifications.subscription_management_desc") }}
                 </p>
-                <div class="grid">
+                <div class="subscription-settings__grid">
                     <div
                         v-for="cat in categories"
                         :key="cat.id"
-                        class="col-12 lg:col-4 mb-2 md:col-6"
+                        class="subscription-settings__grid-item"
                     >
-                        <div class="align-items-center flex">
+                        <div class="subscription-settings__checkbox-group">
                             <Checkbox
                                 v-model="subscription.subscribedCategoryIds"
                                 :input-id="'cat-' + cat.id"
                                 name="category"
                                 :value="cat.id"
                             />
-                            <label :for="'cat-' + cat.id" class="cursor-pointer ml-2">{{ cat.name }}</label>
+                            <label :for="'cat-' + cat.id" class="subscription-settings__checkbox-label">{{ cat.name }}</label>
                         </div>
                     </div>
                 </div>
-                <div v-if="categories.length === 0" class="italic text-secondary text-sm">
-                    {{ $t("common.no_data") }}
-                </div>
             </div>
 
-            <Divider />
+            <Divider v-if="tags.length > 0" class="subscription-settings__divider" />
 
             <!-- 标签订阅 -->
-            <div class="settings-form__field">
-                <label>{{ $t("pages.settings.notifications.tags") }}</label>
-                <div class="flex flex-wrap gap-2 mt-2">
+            <div v-if="tags.length > 0" class="subscription-settings__section">
+                <label class="subscription-settings__label">{{ $t("pages.settings.notifications.tags") }}</label>
+                <div class="subscription-settings__tags">
                     <div
                         v-for="tag in tags"
                         :key="tag.id"
-                        class="tag-item"
+                        class="subscription-settings__tag-item"
                     >
                         <ToggleButton
                             v-model="subscription.tagMap[tag.id]"
@@ -82,23 +79,20 @@
                             size="small"
                         />
                     </div>
-                    <div v-if="tags.length === 0" class="italic text-secondary text-sm">
-                        {{ $t("common.no_data") }}
-                    </div>
                 </div>
             </div>
 
-            <Divider />
+            <Divider class="subscription-settings__divider" />
 
             <!-- 营销通知 -->
-            <div class="settings-form__field">
-                <label>{{ $t("pages.settings.notifications.marketing") }}</label>
-                <div class="align-items-start flex gap-3 mt-2">
-                    <div class="flex-grow-1">
-                        <p class="font-bold mb-1">
+            <div class="subscription-settings__section">
+                <label class="subscription-settings__label">{{ $t("pages.settings.notifications.marketing") }}</label>
+                <div class="subscription-settings__marketing-control">
+                    <div class="subscription-settings__marketing-info">
+                        <p class="subscription-settings__marketing-title">
                             {{ $t("pages.settings.notifications.marketing_enable") }}
                         </p>
-                        <p class="text-secondary text-sm">
+                        <p class="subscription-settings__description">
                             {{ $t("pages.settings.notifications.marketing_desc") }}
                         </p>
                     </div>
@@ -106,9 +100,9 @@
                 </div>
             </div>
 
-            <Divider />
+            <Divider class="subscription-settings__divider" />
 
-            <div class="flex gap-2 justify-content-end mt-4">
+            <div class="subscription-settings__actions">
                 <Button
                     :label="$t('pages.settings.profile.save')"
                     :loading="saving"
@@ -120,13 +114,18 @@
 </template>
 
 <script setup lang="ts">
+import type { Category } from '@/types/category'
+import type { Tag } from '@/types/tag'
+import type { ApiResponse } from '@/types/api'
+import type { PaginatedData } from '@/types/marketing'
+
 const { t } = useI18n()
 const toast = useToast()
 const loading = ref(true)
 const saving = ref(false)
 
-const categories = ref<any[]>([])
-const tags = ref<any[]>([])
+const categories = ref<Category[]>([])
+const tags = ref<Tag[]>([])
 
 const subscription = reactive({
     isActive: true,
@@ -141,16 +140,16 @@ const loadData = async () => {
     loading.value = true
     try {
         const [catsRes, tagsRes, subRes] = await Promise.all([
-            $fetch('/api/categories'),
-            $fetch('/api/tags'),
-            $fetch('/api/user/subscription'),
+            $fetch<ApiResponse<PaginatedData<Category>>>('/api/categories', { query: { limit: 500 } }),
+            $fetch<ApiResponse<PaginatedData<Tag>>>('/api/tags', { query: { limit: 500 } }),
+            $fetch<ApiResponse<any>>('/api/user/subscription'),
         ])
 
-        categories.value = (catsRes as any).data || []
-        tags.value = (tagsRes as any).data || []
+        categories.value = catsRes.data.items || []
+        tags.value = tagsRes.data.items || []
 
-        if ((subRes as any).data) {
-            const data = (subRes as any).data
+        if (subRes.data) {
+            const data = subRes.data
             subscription.isActive = data.isActive ?? true
             subscription.subscribedCategoryIds = data.subscribedCategoryIds || []
             subscription.subscribedTagIds = data.subscribedTagIds || []
@@ -158,7 +157,7 @@ const loadData = async () => {
 
             // Initialize tagMap
             subscription.tagMap = {}
-            tags.value.forEach((tag: any) => {
+            tags.value.forEach((tag) => {
                 subscription.tagMap[tag.id] = subscription.subscribedTagIds.includes(tag.id)
             })
         }
@@ -188,8 +187,8 @@ const handleSave = async () => {
     try {
         // Convert tagMap back to array
         const selectedTagIds = tags.value
-            .filter((tag: any) => subscription.tagMap[tag.id])
-            .map((tag: any) => tag.id)
+            .filter((tag) => subscription.tagMap[tag.id])
+            .map((tag) => tag.id)
 
         await $fetch('/api/user/subscription', {
             method: 'PUT' as any,
@@ -222,31 +221,102 @@ const handleSave = async () => {
 </script>
 
 <style lang="scss" scoped>
-.settings-notifications {
-    .settings-section-title {
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.subscription-settings {
+    &__title {
         font-size: 1.25rem;
-        font-weight: 500;
-        margin-bottom: 1.5rem;
+        font-weight: 600;
+        margin-bottom: $spacing-xl;
+        color: var(--p-text-color);
     }
-}
 
-.settings-form {
-    &__field {
-        margin-bottom: 1.5rem;
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
+    &__loading {
+        display: flex;
+        justify-content: center;
+        padding: $spacing-xl;
     }
-}
 
-.text-secondary {
-    color: var(--p-text-muted-color);
-}
+    &__section {
+        margin-bottom: $spacing-lg;
+    }
 
-.flex-grow-1 {
-    flex-grow: 1;
+    &__label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: $spacing-sm;
+        color: var(--p-text-color);
+    }
+
+    &__description {
+        color: var(--p-text-color-secondary);
+        font-size: 0.875rem;
+        margin-bottom: $spacing-md;
+        line-height: $line-height-relaxed;
+    }
+
+    &__status-control {
+        display: flex;
+        align-items: center;
+        gap: $spacing-md;
+    }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: $spacing-sm;
+    }
+
+    &__grid-item {
+        margin-bottom: $spacing-xs;
+    }
+
+    &__checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+    }
+
+    &__checkbox-label {
+        cursor: pointer;
+        color: var(--p-text-color);
+        user-select: none;
+    }
+
+    &__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-sm;
+        margin-top: $spacing-xs;
+    }
+
+    &__marketing-control {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: $spacing-lg;
+    }
+
+    &__marketing-info {
+        flex: 1;
+    }
+
+    &__marketing-title {
+        font-weight: 600;
+        margin-bottom: $spacing-xs;
+        color: var(--p-text-color);
+    }
+
+    &__divider {
+        margin: $spacing-xl 0;
+        border-color: var(--p-surface-border);
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: $spacing-xl;
+    }
 }
 </style>

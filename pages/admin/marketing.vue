@@ -1,81 +1,78 @@
 <template>
-    <div class="admin-marketing-page">
-        <AdminPageHeader :title="$t('admin.marketing.title')">
+    <div class="admin-marketing">
+        <AdminPageHeader :title="$t('pages.admin.marketing.title')">
             <template #actions>
                 <Button
-                    :label="$t('admin.marketing.create_btn')"
+                    :label="$t('pages.admin.marketing.create_btn')"
                     icon="pi pi-plus"
                     @click="showCreateDialog = true"
                 />
             </template>
         </AdminPageHeader>
 
-        <div class="grid mb-6">
-            <div class="col-12 lg:col-3 md:col-6">
-                <Card class="h-full stats-card">
-                    <template #content>
-                        <div class="align-items-center flex justify-content-between">
-                            <div>
-                                <span class="block font-medium mb-3 text-secondary">{{ $t('admin.marketing.stats.total_subscribers') }}</span>
-                                <div class="font-medium text-900 text-xl">
-                                    {{ stats.totalSubscribers || 0 }}
-                                </div>
-                            </div>
-                            <div class="align-items-center bg-blue-100 border-round flex justify-content-center" style="width: 2.5rem; height: 2.5rem">
-                                <i class="pi pi-users text-blue-500 text-xl" />
+        <div class="admin-marketing__stats">
+            <Card class="admin-marketing__stat-card">
+                <template #content>
+                    <div class="admin-marketing__stat-content">
+                        <div class="admin-marketing__stat-info">
+                            <span class="admin-marketing__stat-label">{{ $t('pages.admin.marketing.stats.total_subscribers') }}</span>
+                            <div class="admin-marketing__stat-value">
+                                {{ stats.totalSubscribers || 0 }}
                             </div>
                         </div>
-                    </template>
-                </Card>
-            </div>
-            <div class="col-12 lg:col-3 md:col-6">
-                <Card class="h-full stats-card">
-                    <template #content>
-                        <div class="align-items-center flex justify-content-between">
-                            <div>
-                                <span class="block font-medium mb-3 text-secondary">{{ $t('admin.marketing.stats.marketing_enabled') }}</span>
-                                <div class="font-medium text-900 text-xl">
-                                    {{ stats.marketingSubscribers || 0 }}
-                                </div>
-                            </div>
-                            <div class="align-items-center bg-green-100 border-round flex justify-content-center" style="width: 2.5rem; height: 2.5rem">
-                                <i class="pi pi-envelope text-green-500 text-xl" />
+                        <div class="admin-marketing__stat-icon admin-marketing__stat-icon--blue">
+                            <i class="pi pi-users" />
+                        </div>
+                    </div>
+                </template>
+            </Card>
+
+            <Card class="admin-marketing__stat-card">
+                <template #content>
+                    <div class="admin-marketing__stat-content">
+                        <div class="admin-marketing__stat-info">
+                            <span class="admin-marketing__stat-label">{{ $t('pages.admin.marketing.stats.marketing_enabled') }}</span>
+                            <div class="admin-marketing__stat-value">
+                                {{ stats.marketingSubscribers || 0 }}
                             </div>
                         </div>
-                    </template>
-                </Card>
-            </div>
-            <div class="col-12 lg:col-3 md:col-6">
-                <Card class="h-full stats-card">
-                    <template #content>
-                        <div class="align-items-center flex justify-content-between">
-                            <div>
-                                <span class="block font-medium mb-3 text-secondary">{{ $t('admin.marketing.stats.total_campaigns') }}</span>
-                                <div class="font-medium text-900 text-xl">
-                                    {{ stats.totalCampaigns || 0 }}
-                                </div>
-                            </div>
-                            <div class="align-items-center bg-purple-100 border-round flex justify-content-center" style="width: 2.5rem; height: 2.5rem">
-                                <i class="pi pi-send text-purple-500 text-xl" />
+                        <div class="admin-marketing__stat-icon admin-marketing__stat-icon--green">
+                            <i class="pi pi-envelope" />
+                        </div>
+                    </div>
+                </template>
+            </Card>
+
+            <Card class="admin-marketing__stat-card">
+                <template #content>
+                    <div class="admin-marketing__stat-content">
+                        <div class="admin-marketing__stat-info">
+                            <span class="admin-marketing__stat-label">{{ $t('pages.admin.marketing.stats.total_campaigns') }}</span>
+                            <div class="admin-marketing__stat-value">
+                                {{ stats.totalCampaigns || 0 }}
                             </div>
                         </div>
-                    </template>
-                </Card>
-            </div>
+                        <div class="admin-marketing__stat-icon admin-marketing__stat-icon--purple">
+                            <i class="pi pi-send" />
+                        </div>
+                    </div>
+                </template>
+            </Card>
         </div>
 
-        <MarketingCampaignList
-            ref="listRef"
-            @edit="handleEdit"
-        />
+        <div class="admin-marketing__list">
+            <MarketingCampaignList
+                ref="listRef"
+                @edit="handleEdit"
+            />
+        </div>
 
         <Dialog
             v-model:visible="showCreateDialog"
-            :header="currentCampaignId ? $t('admin.marketing.edit_campaign') : $t('admin.marketing.create_campaign')"
+            :header="currentCampaignId ? $t('pages.admin.marketing.edit_campaign') : $t('pages.admin.marketing.create_campaign')"
             modal
             dismissable-mask
-            class="max-w-4xl w-full"
-            :breakpoints="{'960px': '75vw', '641px': '100vw'}"
+            class="admin-marketing__dialog"
         >
             <MarketingCampaignForm
                 :campaign-id="currentCampaignId"
@@ -133,17 +130,95 @@ watch(showCreateDialog, (val) => {
 </script>
 
 <style lang="scss" scoped>
-.admin-marketing-page {
-    padding: 1rem;
-}
+@use "@/styles/variables" as *;
 
-.stats-card {
-    :deep(.p-card-body) {
-        padding: 1.5rem;
+.admin-marketing {
+    padding: $spacing-md;
+
+    &__stats {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: $spacing-md;
+        margin-bottom: $spacing-xl;
+
+        @media screen and (width >= 768px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media screen and (width >= 1024px) {
+            grid-template-columns: repeat(3, 1fr);
+        }
     }
-}
 
-.text-secondary {
-    color: var(--p-text-muted-color);
+    &__stat-card {
+        height: 100%;
+
+        :deep(.p-card-body) {
+            padding: $spacing-lg;
+        }
+    }
+
+    &__stat-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__stat-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__stat-label {
+        font-weight: 500;
+        margin-bottom: $spacing-sm;
+        color: var(--p-text-color-secondary);
+        font-size: 0.875rem;
+    }
+
+    &__stat-value {
+        font-weight: 600;
+        color: var(--p-text-color);
+        font-size: 1.5rem;
+    }
+
+    &__stat-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        border-radius: $border-radius-md;
+        font-size: 1.25rem;
+
+        &--blue {
+            background-color: color-mix(in srgb, var(--p-blue-400), transparent 90%);
+            color: var(--p-blue-500);
+        }
+
+        &--green {
+            background-color: color-mix(in srgb, var(--p-green-400), transparent 90%);
+            color: var(--p-green-500);
+        }
+
+        &--purple {
+            background-color: color-mix(in srgb, var(--p-purple-400), transparent 90%);
+            color: var(--p-purple-500);
+        }
+    }
+
+    &__list {
+        margin-top: $spacing-lg;
+    }
+
+    &__dialog {
+        width: 90vw;
+        max-width: 1100px;
+        margin: 0 auto;
+
+        :deep(.p-dialog-content) {
+            padding: $spacing-lg;
+        }
+    }
 }
 </style>

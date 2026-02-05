@@ -7,35 +7,35 @@
             :rows="limit"
             :total-records="total"
             lazy
-            class="border-round overflow-hidden shadow-sm"
+            class="marketing-campaign-list__table"
             @page="onPage($event)"
         >
             <template #header>
-                <div class="align-items-center flex justify-content-between">
-                    <h3 class="m-0">
-                        {{ $t('admin.marketing.campaign_list') }}
+                <div class="marketing-campaign-list__header">
+                    <h3 class="marketing-campaign-list__title">
+                        {{ $t('pages.admin.marketing.campaign_list') }}
                     </h3>
                     <Button
                         icon="pi pi-refresh"
-                        text
+                        variant="text"
                         @click="loadData"
                     />
                 </div>
             </template>
 
-            <Column field="title" :header="$t('admin.marketing.form.title')" />
+            <Column field="title" :header="$t('pages.admin.marketing.form.title')" />
 
-            <Column :header="$t('admin.marketing.stats.delivered')">
+            <Column :header="$t('pages.admin.marketing.stats.delivered')">
                 <template #body="slotProps">
-                    <div class="align-items-center flex">
+                    <div class="marketing-campaign-list__status">
                         <Tag v-if="slotProps.data.status === 'COMPLETED'" severity="success">
-                            {{ $t('admin.marketing.status.COMPLETED') }}
+                            {{ $t('pages.admin.marketing.status.COMPLETED') }}
                         </Tag>
                         <Tag v-else-if="slotProps.data.status === 'SENDING'" severity="info">
-                            <i class="mr-2 pi pi-spin pi-spinner" /> {{ $t('admin.marketing.status.SENDING') }}
+                            <i class="marketing-campaign-list__status-icon pi pi-spin pi-spinner" /> {{ $t('pages.admin.marketing.status.SENDING') }}
                         </Tag>
                         <Tag v-else :severity="getStatusSeverity(slotProps.data.status)">
-                            {{ $t(`admin.marketing.status.${slotProps.data.status}`) }}
+                            {{ $t(`pages.admin.marketing.status.${slotProps.data.status}`) }}
                         </Tag>
                     </div>
                 </template>
@@ -47,12 +47,12 @@
                 </template>
             </Column>
 
-            <Column :header="$t('common.actions')" class="text-right">
+            <Column :header="$t('common.actions')" class="marketing-campaign-list__actions-column">
                 <template #body="slotProps">
-                    <div class="flex gap-2 justify-content-end">
+                    <div class="marketing-campaign-list__actions">
                         <Button
                             v-if="slotProps.data.status === 'DRAFT'"
-                            v-tooltip.top="$t('admin.marketing.actions.send_now')"
+                            v-tooltip.top="$t('pages.admin.marketing.actions.send_now')"
                             icon="pi pi-send"
                             severity="success"
                             size="small"
@@ -69,7 +69,7 @@
             </Column>
 
             <template #empty>
-                <div class="p-4 text-center text-secondary">
+                <div class="marketing-campaign-list__empty">
                     {{ $t('common.no_data') }}
                 </div>
             </template>
@@ -78,11 +78,14 @@
 </template>
 
 <script setup lang="ts">
+import type { MarketingCampaign, PaginatedData } from '@/types/marketing'
+import type { ApiResponse } from '@/types/api'
+
 const { t } = useI18n()
 const toast = useToast()
 const { formatDate } = useI18nDate()
 
-const items = ref([])
+const items = ref<MarketingCampaign[]>([])
 const total = ref(0)
 const page = ref(1)
 const limit = ref(10)
@@ -91,14 +94,14 @@ const loading = ref(true)
 const loadData = async () => {
     loading.value = true
     try {
-        const res = await $fetch('/api/admin/marketing/campaigns', {
+        const res = await $fetch<ApiResponse<PaginatedData<MarketingCampaign>>>('/api/admin/marketing/campaigns', {
             query: {
                 page: page.value,
                 limit: limit.value,
             },
         })
-        items.value = (res as any).data.items || []
-        total.value = (res as any).data.total || 0
+        items.value = res.data.items || []
+        total.value = res.data.total || 0
     } catch (e) {
         console.error('Failed to load campaigns:', e)
         toast.add({
@@ -112,7 +115,7 @@ const loadData = async () => {
     }
 }
 
-const onPage = (event: any) => {
+const onPage = (event: { page: number }) => {
     page.value = event.page + 1
     loadData()
 }
@@ -135,7 +138,7 @@ const handleSend = async (id: string) => {
         toast.add({
             severity: 'success',
             summary: t('common.success'),
-            detail: t('admin.marketing.actions.send_success'),
+            detail: t('pages.admin.marketing.actions.send_success'),
             life: 3000,
         })
         loadData()
@@ -144,7 +147,7 @@ const handleSend = async (id: string) => {
         toast.add({
             severity: 'error',
             summary: t('common.error'),
-            detail: t('admin.marketing.actions.send_failed'),
+            detail: t('pages.admin.marketing.actions.send_failed'),
             life: 3000,
         })
     }
@@ -154,12 +157,61 @@ onMounted(() => {
     loadData()
 })
 
-const emit = defineEmits(['edit'])
+defineEmits(['edit'])
 defineExpose({ refresh: loadData })
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/variables" as *;
+
 .marketing-campaign-list {
-    margin-top: 1rem;
+    margin-top: $spacing-md;
+
+    &__table {
+        border-radius: $border-radius-md;
+        overflow: hidden;
+        box-shadow: var(--p-card-shadow);
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: $spacing-sm;
+    }
+
+    &__title {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--p-text-color);
+    }
+
+    &__status {
+        display: flex;
+        align-items: center;
+    }
+
+    &__status-icon {
+        margin-right: $spacing-xs;
+    }
+
+    &__actions-column {
+        :deep(.p-column-header-content) {
+            justify-content: flex-end;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        gap: $spacing-sm;
+        justify-content: flex-end;
+    }
+
+    &__empty {
+        padding: $spacing-xl;
+        text-align: center;
+        color: var(--p-text-color-secondary);
+    }
 }
 </style>

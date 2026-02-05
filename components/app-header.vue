@@ -353,7 +353,7 @@ const adminMenuItems = computed(() => {
                 command: () => navigateTo(localePath('/admin/subscribers')),
             },
             {
-                label: t('admin.marketing.title'),
+                label: t('pages.admin.marketing.title'),
                 icon: 'pi pi-megaphone',
                 command: () => navigateTo(localePath('/admin/marketing')),
             },
