@@ -1,15 +1,10 @@
 import cmyrConfig from 'eslint-config-cmyr/nuxt'
 import { globalIgnores } from 'eslint/config'
 import pluginVue from 'eslint-plugin-vue'
+import tseslint from 'typescript-eslint'
 import withNuxt from './.nuxt/eslint.config.mjs'
 
 export default withNuxt(
-    {
-        plugins: {
-            vue: pluginVue,
-        },
-    },
-    cmyrConfig,
     globalIgnores([
         'node_modules',
         '.husky',
@@ -27,6 +22,14 @@ export default withNuxt(
         'jscpd-report',
         'cli',
     ]),
+    {
+        plugins: {
+            vue: pluginVue,
+            // '@typescript-eslint': tseslint,
+            // tseslint,
+        },
+    },
+    cmyrConfig,
     {
         rules: {
             'max-lines': [1, { max: 800 }], // 强制文件的最大行数
