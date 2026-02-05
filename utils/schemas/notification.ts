@@ -2,8 +2,8 @@ import { z } from 'zod'
 import { NotificationType, NotificationChannel } from '../shared/notification'
 
 export const notificationSettingSchema = z.object({
-    type: z.enum(Object.values(NotificationType) as [string, ...string[]]),
-    channel: z.enum(Object.values(NotificationChannel) as [string, ...string[]]),
+    type: z.enum(NotificationType),
+    channel: z.enum(NotificationChannel),
     isEnabled: z.boolean(),
 })
 
