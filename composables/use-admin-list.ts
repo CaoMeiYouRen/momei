@@ -82,24 +82,24 @@ export function useAdminList<T = any, F extends object = any>(options: UseAdminL
     const onPage = (event: any) => {
         page.value = event.page + 1
         limit.value = event.rows
-        load()
+        void load()
     }
 
     const onSort = (event: any) => {
         sort.field = event.sortField
         sort.order = event.sortOrder === 1 ? 'asc' : 'desc'
-        load()
+        void load()
     }
 
     const onFilterChange = () => {
         page.value = 1
-        load()
+        void load()
     }
 
     const resetFilters = () => {
         Object.assign(filters, initialFilters || {})
         page.value = 1
-        load()
+        void load()
     }
 
     const pagination = computed(() => ({
@@ -111,19 +111,19 @@ export function useAdminList<T = any, F extends object = any>(options: UseAdminL
     // Watch for content language changes
     watch(contentLanguage, () => {
         page.value = 1
-        load()
+        void load()
     })
 
     // Watch for global UI language changes (only when "All Languages" is selected and aggregation is on)
     watch(locale, () => {
         if (contentLanguage.value === null && (filters as any).aggregate) {
-            load()
+            void load()
         }
     })
 
     // Initialize
     onMounted(() => {
-        load()
+        void load()
     })
 
     return {

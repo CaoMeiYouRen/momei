@@ -1,6 +1,6 @@
 import logger from '@/server/utils/logger'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler((event) => {
     // 只记录 API 请求
     if (!event.path.startsWith('/api')) {
         return

@@ -15,7 +15,7 @@ export interface ThemeSettings {
     themeLogoUrl: string | null
     themeFaviconUrl: string | null
     themeMourningMode: boolean | string | null
-    themeBackgroundType: 'none' | 'color' | 'image' | string | null
+    themeBackgroundType: 'none' | 'color' | 'image' | (string & {}) | null
     themeBackgroundValue: string | null
 }
 
@@ -300,7 +300,7 @@ export const useTheme = () => {
         })
     }
 
-    const isLocked = (key: keyof ThemeSettings | string) => !!locks.value[key]
+    const isLocked = (key: keyof ThemeSettings | (string & {})) => !!locks.value[key]
 
     return {
         settings,

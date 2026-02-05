@@ -246,13 +246,13 @@ export function usePostEditorAI(
             })
             post.value.content = ''
 
-            for (let i = 0; i < chunks.length; i++) {
+            for (const chunk of chunks) {
                 const { data: translatedChunk } = await $fetch<any>(
                     '/api/ai/translate',
                     {
                         method: 'POST',
                         body: {
-                            content: chunks[i],
+                            content: chunk,
                             targetLanguage: lang,
                         },
                     },

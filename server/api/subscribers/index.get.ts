@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
         .skip(skip)
         .take(take)
 
-    if (email) {
+    if (email && typeof email === 'string') {
         queryBuilder.andWhere('subscriber.email LIKE :email', { email: `%${email}%` })
     }
 

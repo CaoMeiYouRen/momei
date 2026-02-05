@@ -8,7 +8,7 @@ import listSnippetsHandler from '@/server/api/admin/snippets/index.get'
 import convertSnippetHandler from '@/server/api/admin/snippets/[id]/convert.post'
 import { SnippetStatus } from '@/types/snippet'
 
-describe('Snippets API', async () => {
+describe('Snippets API', () => {
     let user: User
 
     beforeAll(async () => {
@@ -33,7 +33,7 @@ describe('Snippets API', async () => {
         } as any
 
         // Mock readBody
-        vi.stubGlobal('readBody', async () => ({
+        vi.stubGlobal('readBody', () => Promise.resolve({
             content: 'My first snippet',
             source: 'test',
         }))
@@ -52,7 +52,7 @@ describe('Snippets API', async () => {
         } as any
 
         // Mock getVerifiedQuery
-        vi.stubGlobal('getVerifiedQuery', async () => ({
+        vi.stubGlobal('getVerifiedQuery', () => Promise.resolve({
             page: 1,
             limit: 20,
         }))

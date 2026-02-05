@@ -13,7 +13,7 @@ import { isAdmin } from '@/utils/shared/roles'
  */
 export async function applyPostVisibilityFilter(
     qb: SelectQueryBuilder<Post>,
-    user?: any | null,
+    user?: any,
     mode: 'public' | 'feed' | 'manage' = 'public',
 ) {
     const isSystemAdmin = user && isAdmin(user.role)
@@ -109,7 +109,7 @@ export interface PostAccessResult {
  */
 export async function checkPostAccess(
     post: Post,
-    session: any | null,
+    session?: any,
     unlockedIds: string[] = [],
 ): Promise<PostAccessResult> {
     const user = session?.user

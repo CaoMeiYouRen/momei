@@ -50,7 +50,7 @@ export class MockAIProvider implements AIProvider {
         }
     }
 
-    async check(): Promise<boolean> {
-        return true
+    check(): Promise<boolean> {
+        return Promise.resolve(true)
     }
 }

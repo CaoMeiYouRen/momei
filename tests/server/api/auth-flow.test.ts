@@ -64,7 +64,7 @@ describe.skip('Auth Flow (Direct API)', async () => {
     }, 30000) // Increase timeout to 30s
 
     afterAll(async () => {
-        if (dataSource && dataSource.isInitialized) {
+        if (dataSource?.isInitialized) {
             await dataSource.destroy()
         }
     })

@@ -66,7 +66,7 @@ describe('useAppFetch', () => {
         sharedLocale.value = 'en-US'
 
         const urlFn = () => '/api/posts'
-        useAppFetch(urlFn)
+        void useAppFetch(urlFn)
 
         expect(mockUseFetch).toHaveBeenCalledWith(urlFn, expect.any(Object), expect.anything())
     })

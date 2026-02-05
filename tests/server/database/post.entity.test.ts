@@ -4,7 +4,7 @@ import { Post } from '@/server/entities/post'
 import { User } from '@/server/entities/user'
 import { generateRandomString } from '@/utils/shared/random'
 
-describe('Post Entity Constraints', async () => {
+describe('Post Entity Constraints', () => {
     let author: User
 
     beforeAll(async () => {

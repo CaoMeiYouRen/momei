@@ -300,9 +300,7 @@ export const auth = betterAuth({
             expiresIn: PHONE_EXPIRES_IN, // OTP 验证码有效期（秒）
             allowedAttempts: 3, // 允许的 OTP 验证尝试次数
             requireVerification: true, // 是否要求手机号码验证，启用后，用户在验证手机号码之前无法使用手机号码登录。
-            sendOTP: async () => {
-                throw new Error('未实现发送短信功能！')
-            },
+            sendOTP: () => Promise.reject(new Error('未实现发送短信功能！')),
             callbackOnVerification: async () => {
                 // 实现手机号码验证后的回调
             },
@@ -337,7 +335,7 @@ export const auth = betterAuth({
                     const user = data.user as User
                     // 向用户发送 otp
                     if (user.emailVerified) {
-                        sendEmail({
+                        await sendEmail({
                             to: user.email,
                             subject: '您的一次性验证码',
                             text: `您的验证码是：${otp}。1分钟内有效。如果您没有请求此验证码，请忽略此邮件。`,

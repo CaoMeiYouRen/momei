@@ -9,13 +9,15 @@ export default defineNitroPlugin(() => {
     // 可以在此处从 runtimeConfig 获取配置以支持灵活调整
     const FLUSH_INTERVAL = 60 * 1000
 
-    setInterval(async () => {
-        try {
-            await pvCache.flush()
-        } catch (error) {
-            // 注意：此处不使用 logger，因为 setInterval 内部报错可能导致循环异常
-            // 且 pvCache.flush 内部已经有了详细日志记录
-            console.error('[PVCache] Critical failure in background flush task:', error)
-        }
+    setInterval(() => {
+        void (async () => {
+            try {
+                await pvCache.flush()
+            } catch (error) {
+                // 注意：此处不使用 logger，因为 setInterval 内部报错可能导致循环异常
+                // 且 pvCache.flush 内部已经有了详细日志记录
+                console.error('[PVCache] Critical failure in background flush task:', error)
+            }
+        })()
     }, FLUSH_INTERVAL)
 })

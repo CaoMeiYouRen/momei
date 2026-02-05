@@ -26,7 +26,7 @@ describe.skip('Database Connection', async () => {
     })
 
     afterAll(async () => {
-        if (dataSource && dataSource.isInitialized) {
+        if (dataSource?.isInitialized) {
             await dataSource.destroy()
         }
     })

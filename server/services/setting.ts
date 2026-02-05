@@ -287,7 +287,7 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
  *
  * @param settings 键值对对象，key 也可以是对象包含具体属性
  */
-export const setSettings = async (settings: Record<string, string | any>) => {
+export const setSettings = async (settings: Record<string, any>) => {
     const settingRepo = dataSource.getRepository(Setting)
     const entries = Object.entries(settings)
 

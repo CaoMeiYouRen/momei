@@ -8,7 +8,7 @@ import { PostStatus } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
 import searchHandler from '@/server/api/search/index.get'
 
-describe('Search API', async () => {
+describe('Search API', () => {
     let author: User
     let category: Category
     let tag: Tag

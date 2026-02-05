@@ -19,7 +19,7 @@ export enum SnippetStatus {
 /**
  * 灵感来源类型
  */
-export type SnippetSource = 'web' | 'api' | 'pwa' | 'ios-shortcut' | 'extension' | 'cli' | string
+export type SnippetSource = 'web' | 'api' | 'pwa' | 'ios-shortcut' | 'extension' | 'cli' | (string & {})
 
 /**
  * 灵感碎片接口

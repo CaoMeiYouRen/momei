@@ -35,21 +35,21 @@ describe('UploadService', () => {
         })
 
         it('should throw error if global limit exceeded', async () => {
-            vi.mocked(limiterStorage.increment).mockImplementation(async (key) => {
+            vi.mocked(limiterStorage.increment).mockImplementation((key) => {
                 if (key === 'upload_global_limit') {
-                    return 1000000
+                    return Promise.resolve(1000000)
                 }
-                return 1
+                return Promise.resolve(1)
             })
             await expect(checkUploadLimits('user1')).rejects.toThrow('今日上传次数超出限制')
         })
 
         it('should throw error if user limit exceeded', async () => {
-            vi.mocked(limiterStorage.increment).mockImplementation(async (key) => {
+            vi.mocked(limiterStorage.increment).mockImplementation((key) => {
                 if (key.startsWith('user_upload_limit:')) {
-                    return 1000000
+                    return Promise.resolve(1000000)
                 }
-                return 1
+                return Promise.resolve(1)
             })
             await expect(checkUploadLimits('user1')).rejects.toThrow('您今日上传次数超出限制')
         })

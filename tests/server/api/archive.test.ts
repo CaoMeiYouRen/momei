@@ -15,7 +15,7 @@ vi.mock('@/lib/auth', () => ({
     },
 }))
 
-describe('Archive API', async () => {
+describe('Archive API', () => {
     let author: User
 
     // Skip actual Nuxt setup since we are unit testing the handler logic with mocked globals

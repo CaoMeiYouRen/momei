@@ -27,8 +27,8 @@ process.on('unhandledRejection', (reason) => {
 // Mock Nuxt/H3 Globals for Unit Testing Server Handlers
 const mockEventHandler = (handler: any) => handler
 
-const mockGetValidatedQuery = async (event: any, validate: any) => validate(event.query || {})
-const mockReadValidatedBody = async (event: any, validate: any) => validate(event.body || {})
+const mockGetValidatedQuery = async (event: any, validate: any) => await validate(event.query || {})
+const mockReadValidatedBody = async (event: any, validate: any) => await validate(event.body || {})
 
 const mockCreateError = (err: any) => {
     const error = new Error(err.statusMessage || 'Error')

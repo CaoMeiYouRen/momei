@@ -63,7 +63,7 @@ describe('primevue-i18n plugin', () => {
         const nuxtApp = {
             provide: vi.fn(),
         }
-        plugin.default(nuxtApp as any)
+        await plugin.default(nuxtApp as any)
 
         // 验证 locale 已同步
         expect(mockPrimeVueConfig.config.locale).toHaveProperty('startsWith')
@@ -76,7 +76,7 @@ describe('primevue-i18n plugin', () => {
         const nuxtApp = {
             provide: vi.fn(),
         }
-        plugin.default(nuxtApp as any)
+        await plugin.default(nuxtApp as any)
 
         // 初始状态应该是中文
         expect((mockPrimeVueConfig.config.locale as any).startsWith).toBe('开始于')
@@ -101,7 +101,7 @@ describe('primevue-i18n plugin', () => {
         // 设置不支持的语言
         mockLocale.value = 'fr-FR'
 
-        plugin.default(nuxtApp as any)
+        await plugin.default(nuxtApp as any)
 
         // 不应该抛出错误
         expect(nuxtApp.provide).not.toThrow()

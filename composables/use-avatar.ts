@@ -12,32 +12,34 @@ export function useAvatar(
 ) {
     const avatarUrl = ref('')
 
-    watchEffect(async () => {
-        const emailValue = toValue(email)
-        const nameValue = toValue(name)
-        const hashValue = toValue(emailHash)
+    watchEffect(() => {
+        void (async () => {
+            const emailValue = toValue(email)
+            const nameValue = toValue(name)
+            const hashValue = toValue(emailHash)
 
-        if (hashValue) {
-            avatarUrl.value = getGravatarUrl(hashValue)
-            return
-        }
+            if (hashValue) {
+                avatarUrl.value = getGravatarUrl(hashValue)
+                return
+            }
 
-        if (!emailValue) {
-            // 如果没有邮箱，使用 ui-avatars 作为回退
-            const displayName = nameValue || 'User'
-            avatarUrl.value = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`
-            return
-        }
+            if (!emailValue) {
+                // 如果没有邮箱，使用 ui-avatars 作为回退
+                const displayName = nameValue || 'User'
+                avatarUrl.value = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`
+                return
+            }
 
-        try {
-            // 计算哈希并生成 Gravatar URL
-            const hash = await sha256(emailValue)
-            avatarUrl.value = getGravatarUrl(hash)
-        } catch (error) {
-            console.error('Failed to generate gravatar hash', error)
-            // 出错时回退到 ui-avatars
-            avatarUrl.value = `https://ui-avatars.com/api/?name=${encodeURIComponent(nameValue || 'User')}&background=random`
-        }
+            try {
+                // 计算哈希并生成 Gravatar URL
+                const hash = await sha256(emailValue)
+                avatarUrl.value = getGravatarUrl(hash)
+            } catch (error) {
+                console.error('Failed to generate gravatar hash', error)
+                // 出错时回退到 ui-avatars
+                avatarUrl.value = `https://ui-avatars.com/api/?name=${encodeURIComponent(nameValue || 'User')}&background=random`
+            }
+        })()
     })
 
     return {

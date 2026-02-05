@@ -57,21 +57,23 @@ const createBaseStorage = (): BaseStorage => {
         ttl: 1000 * 60 * 60,
     })
     return {
-        get: async (key: string) => {
+        get: (key: string) => {
             const value = memoryStorage.get(key)
-            return value ?? null
+            return Promise.resolve(value ?? null)
         },
-        set: async (key: string, value: string, ttl?: number) => {
+        set: (key: string, value: string, ttl?: number) => {
             memoryStorage.set(key, value, { ttl: ttl ? ttl * 1000 : undefined })
+            return Promise.resolve()
         },
-        delete: async (key: string) => {
+        delete: (key: string) => {
             memoryStorage.delete(key)
+            return Promise.resolve()
         },
-        increment: async (key: string, ttl: number) => {
+        increment: (key: string, ttl: number) => {
             const currentValue = memoryStorage.get(key)
             const current = (currentValue ? parseInt(currentValue, 10) : 0) + 1
             memoryStorage.set(key, current.toString(), { ttl: ttl * 1000 })
-            return current
+            return Promise.resolve(current)
         },
     }
 }

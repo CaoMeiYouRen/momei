@@ -23,7 +23,7 @@ vi.mock('@/server/utils/email/service', () => ({
 
 import { emailService } from '@/server/utils/email/service'
 
-describe('Subscribe API', async () => {
+describe('Subscribe API', () => {
     beforeAll(async () => {
         const { initializeDB } = await import('@/server/database')
         await initializeDB()

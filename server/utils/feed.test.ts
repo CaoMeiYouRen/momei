@@ -8,7 +8,7 @@ import { PostStatus, PostVisibility } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
 import { generateFeed } from '@/server/utils/feed'
 
-describe('Feed Generation Utility', async () => {
+describe('Feed Generation Utility', () => {
     let author: User
     let category: Category
     let tag: Tag

@@ -3,9 +3,9 @@ import { ref, nextTick } from 'vue'
 
 // Mock hash utility
 vi.mock('@/utils/shared/hash', () => ({
-    sha256: vi.fn(async (input: string) =>
+    sha256: vi.fn((input: string) =>
         // Simple mock hash function
-        `hash-${input}`,
+        Promise.resolve(`hash-${input}`),
     ),
 }))
 

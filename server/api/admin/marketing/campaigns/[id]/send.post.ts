@@ -80,7 +80,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // 不等待发送完成
-    sendCampaignTasks()
+    void sendCampaignTasks()
 
     return {
         code: 200,

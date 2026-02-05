@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { setup, $fetch } from '@nuxt/test-utils/e2e'
 
-describe.skip('API test', async () => {
-    await setup({
+describe.skip('API test', () => {
+    void setup({
         server: false,
         dev: true,
         env: {
@@ -15,7 +15,7 @@ describe.skip('API test', async () => {
         },
     })
 
-    beforeAll(async () => {
+    beforeAll(() => {
         // Ensure env vars are set for direct imports, in case setup() env doesn't propagate to process.env immediately
         vi.stubEnv('DATABASE_TYPE', 'sqlite')
         vi.stubEnv('DATABASE_PATH', ':memory:')
