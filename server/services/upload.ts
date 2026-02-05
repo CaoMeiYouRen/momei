@@ -144,11 +144,11 @@ export async function handleFileUploads(event: H3Event, options: UploadOptions):
         }
 
         // 校验文件类型
-        if (type === UploadType.IMAGE && (!file.type || !file.type.startsWith('image/'))) {
+        if (type === UploadType.IMAGE && (!file.type?.startsWith('image/'))) {
             throw createError({ statusCode: 400, statusMessage: '仅支持图片上传' })
         }
 
-        if (type === UploadType.AUDIO && (!file.type || !file.type.startsWith('audio/'))) {
+        if (type === UploadType.AUDIO && (!file.type?.startsWith('audio/'))) {
             throw createError({ statusCode: 400, statusMessage: '仅支持音频上传' })
         }
 

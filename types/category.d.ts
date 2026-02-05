@@ -7,10 +7,10 @@ export interface Category {
     parent?: Category | null
     language: string
     translationId?: string | null
-    translations?: Array<{
+    translations?: {
         id: string
         language: string
         name: string
         slug: string
-    }>
+    }[]
 }

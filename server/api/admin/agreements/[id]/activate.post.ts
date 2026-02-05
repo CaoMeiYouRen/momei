@@ -14,7 +14,7 @@ const setActiveSchema = z.object({
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
 
-    const type = getRouterParam(event, 'id') as string
+    const type = getRouterParam(event, 'id')!
     if (!type || !['user_agreement', 'privacy_policy'].includes(type)) {
         return fail('Invalid agreement type', 400)
     }

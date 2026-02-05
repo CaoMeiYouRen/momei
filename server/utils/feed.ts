@@ -25,8 +25,8 @@ export function getFeedLanguage(event: H3Event, explicitLanguage?: string): stri
 
 export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
     const config = useRuntimeConfig()
-    const siteUrl = (config.public.siteUrl as string) || 'https://momei.app'
-    const appName = (config.public.appName as string) || '墨梅博客'
+    const siteUrl = (config.public.siteUrl) || 'https://momei.app'
+    const appName = (config.public.appName) || '墨梅博客'
 
     const language = getFeedLanguage(event, options.language)
     const md = new MarkdownIt({

@@ -66,9 +66,7 @@ export function usePostEditorIO(
                 let data: any = {}
                 let content = markdown
 
-                const match = markdown.match(
-                    /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)([\s\S]*)$/,
-                )
+                const match = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)([\s\S]*)$/.exec(markdown)
                 if (match) {
                     try {
                         data = yaml.load(match[1] || '') || {}
@@ -89,11 +87,11 @@ export function usePostEditorIO(
                 }
                 if (frontMatter.slug || frontMatter.abbrlink) {
                     post.value.slug = (frontMatter.slug
-                        || frontMatter.abbrlink) as string
+                        || frontMatter.abbrlink)!
                 }
                 if (frontMatter.description || frontMatter.desc) {
                     post.value.summary = (frontMatter.description
-                        || frontMatter.desc) as string
+                        || frontMatter.desc)!
                 }
                 if (
                     frontMatter.image
@@ -102,19 +100,19 @@ export function usePostEditorIO(
                 ) {
                     post.value.coverImage = (frontMatter.image
                         || frontMatter.cover
-                        || frontMatter.thumb) as string
+                        || frontMatter.thumb)!
                 }
                 if (frontMatter.copyright || frontMatter.license) {
                     post.value.copyright = (frontMatter.copyright
-                        || frontMatter.license) as string
+                        || frontMatter.license)!
                 }
                 if (frontMatter.language || frontMatter.lang) {
                     post.value.language = (frontMatter.language
-                        || frontMatter.lang) as string
+                        || frontMatter.lang)!
                 }
 
                 if (frontMatter.audio || frontMatter.audio_url || frontMatter.media) {
-                    post.value.audioUrl = (frontMatter.audio || frontMatter.audio_url || frontMatter.media) as string
+                    post.value.audioUrl = (frontMatter.audio || frontMatter.audio_url || frontMatter.media)!
                 }
                 const rawDuration = frontMatter.audio_duration || frontMatter.duration
                 if (rawDuration) {
@@ -127,10 +125,10 @@ export function usePostEditorIO(
                 }
                 if (frontMatter.audio_size || frontMatter.medialength || frontMatter.mediaLength) {
                     const size = (frontMatter.audio_size || frontMatter.medialength || frontMatter.mediaLength)
-                    post.value.audioSize = typeof size === 'string' ? parseInt(size, 10) : (size as number)
+                    post.value.audioSize = typeof size === 'string' ? parseInt(size, 10) : (size!)
                 }
                 if (frontMatter.audio_mime_type || frontMatter.mediatype || frontMatter.mediaType) {
-                    post.value.audioMimeType = (frontMatter.audio_mime_type || frontMatter.mediatype || frontMatter.mediaType) as string
+                    post.value.audioMimeType = (frontMatter.audio_mime_type || frontMatter.mediatype || frontMatter.mediaType)!
                 }
 
                 if (frontMatter.tags) {

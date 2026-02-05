@@ -41,7 +41,7 @@ export class AIService {
         language: string = 'zh-CN',
         userId?: string,
     ) {
-        const provider = await await getAIProvider()
+        const provider = await getAIProvider()
         const prompt = formatPrompt(AI_PROMPTS.SUGGEST_TITLES, {
             content: content.slice(0, AI_CHUNK_SIZE),
             language,
@@ -62,7 +62,7 @@ export class AIService {
 
         try {
             // Try to extract JSON array from response
-            const match = response.content.match(/\[.*\]/s)
+            const match = /\[.*\]/s.exec(response.content)
             if (match) {
                 return JSON.parse(match[0]) as string[]
             }
@@ -310,7 +310,7 @@ export class AIService {
         this.logAIUsage('recommend-tags', response, userId)
 
         try {
-            const match = response.content.match(/\[.*\]/s)
+            const match = /\[.*\]/s.exec(response.content)
             if (match) {
                 return JSON.parse(match[0]) as string[]
             }

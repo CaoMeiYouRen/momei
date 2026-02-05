@@ -18,7 +18,7 @@ export default defineEventHandler(async () => {
 
     try {
         // 检查数据库连接
-        if (!dataSource || !dataSource.isInitialized) {
+        if (!dataSource?.isInitialized) {
             throw createError({
                 statusCode: 500,
                 statusMessage: 'Database not initialized',

@@ -123,7 +123,7 @@ describe('Archive API', async () => {
         expect(data.items).toBeDefined()
         // Should find the 1 post from 2024-01
         expect(data.total).toBeGreaterThanOrEqual(1)
-        const doc = data.items[0] as any
+        const doc = data.items[0]
         expect(doc.title).toBe('Post 4')
     })
 })

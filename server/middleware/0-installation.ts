@@ -16,12 +16,12 @@ export default defineEventHandler(async (event) => {
         pathname.startsWith('/_nuxt')
         || pathname.startsWith('/uploads')
         || pathname.startsWith('/favicon')
-        || pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|json|webp|avif)$/)
+        || (/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|json|webp|avif)$/.exec(pathname))
     ) {
         return
     }
 
-    const isInstallationPage = !!pathname.match(/^(\/(zh-CN|en-US))?\/installation(\/|$)/)
+    const isInstallationPage = !!(/^(\/(zh-CN|en-US))?\/installation(\/|$)/.exec(pathname))
     const isInstallationApi = pathname.startsWith('/api/install')
 
     try {

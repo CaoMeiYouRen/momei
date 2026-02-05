@@ -91,7 +91,7 @@ export function usePostEditorAI(
                     content: post.value.content,
                 },
             })
-            post.value.slug = data as string
+            post.value.slug = data
         } catch (error) {
             console.error('AI Slug error:', error)
             toast.add({
@@ -125,7 +125,7 @@ export function usePostEditorAI(
                     language: post.value.language,
                 },
             })
-            post.value.summary = data as string
+            post.value.summary = data
         } catch (error) {
             console.error('AI Summary error:', error)
             toast.add({

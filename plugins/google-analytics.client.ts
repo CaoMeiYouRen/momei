@@ -14,7 +14,7 @@ function gtag(...args: unknown[]) {
 
 export default defineNuxtPlugin((): { provide: { googleAnalytics: GoogleAnalyticsMethods } } | void => {
     const runtimeConfig = useRuntimeConfig()
-    const googleAnalyticsId = runtimeConfig.public.googleAnalyticsId as string
+    const googleAnalyticsId = runtimeConfig.public.googleAnalyticsId
 
     // 只在客户端且配置了 Google Analytics ID 时执行
     if (googleAnalyticsId && import.meta.client) {

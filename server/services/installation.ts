@@ -211,7 +211,7 @@ function checkEnvInstallationFlag(): boolean {
  */
 async function checkDatabaseConnection(): Promise<boolean> {
     try {
-        if (!dataSource || !dataSource.isInitialized) {
+        if (!dataSource?.isInitialized) {
             return false
         }
         // 尝试执行一个简单的查询来验证连接
@@ -273,8 +273,8 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
             const enginesNode = pkg.engines?.node
             if (enginesNode && typeof enginesNode === 'string') {
                 // 简单的正则匹配，提取数字，例如从 ">=20" 提取 20
-                const match = enginesNode.match(/(\d+)/)
-                if (match && match[1]) {
+                const match = /(\d+)/.exec(enginesNode)
+                if (match?.[1]) {
                     minNodeVersion = parseInt(match[1])
                 }
             }

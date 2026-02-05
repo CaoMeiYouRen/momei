@@ -122,7 +122,7 @@ export function createMarkdownRenderer(mdOptions: MarkdownOptions = {}) {
         }
 
         const info = token.info ? md.utils.unescapeAll(token.info).trim() : ''
-        const titleMatch = info.match(/\[(.*?)\]/)
+        const titleMatch = /\[(.*?)\]/.exec(info)
         const title = titleMatch ? titleMatch[1] : ''
 
         // 如果 highlight 返回了内容，我们手动包裹它
@@ -135,7 +135,7 @@ export function createMarkdownRenderer(mdOptions: MarkdownOptions = {}) {
         }
 
         // 如果 highlight 返回的结果已经包含了 <pre，则直接使用
-        if (highlighted.indexOf('<pre') === 0) {
+        if (highlighted.startsWith('<pre')) {
             return `${highlighted}\n`
         }
 

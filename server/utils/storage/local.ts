@@ -3,7 +3,7 @@ import path from 'node:path'
 import { isServerlessEnvironment } from '../env'
 import type { Storage } from './type'
 
-export type LocalEnv = {
+export interface LocalEnv {
     // 本地存储目录
     LOCAL_STORAGE_DIR: string
     // 本地存储基础 URL

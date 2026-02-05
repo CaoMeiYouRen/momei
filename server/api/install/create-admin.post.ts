@@ -62,7 +62,7 @@ export default defineEventHandler(async (event) => {
             },
         })
 
-        if (!response || !response.user) {
+        if (!response?.user) {
             throw createError({
                 statusCode: 500,
                 statusMessage: 'Failed to create admin user',

@@ -10,9 +10,7 @@ import { getFallbackFragment, getFallbackMjmlTemplate, generateFallbackHtml } fr
 import { getSettings } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
 
-interface EmailTemplateData {
-    [key: string]: string | number | boolean
-}
+type EmailTemplateData = Record<string, string | number | boolean>
 
 interface BaseTemplateConfig {
     headerIcon: string

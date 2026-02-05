@@ -7,7 +7,7 @@ import {
     EMAIL_PASS,
 } from '@/utils/shared/env'
 
-export type MailerConfig = {
+export interface MailerConfig {
     host?: string
     port?: number
     secure?: boolean

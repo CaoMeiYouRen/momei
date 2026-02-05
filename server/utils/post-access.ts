@@ -113,7 +113,7 @@ export async function checkPostAccess(
     unlockedIds: string[] = [],
 ): Promise<PostAccessResult> {
     const user = session?.user
-    const isOwner = user && user.id === post.authorId
+    const isOwner = user?.id === post.authorId
     const isSystemAdmin = user && isAdmin(user.role)
 
     // 管理员和作者始终拥有完整访问权限

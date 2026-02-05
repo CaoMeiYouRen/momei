@@ -45,7 +45,7 @@ describe('post-access utils', () => {
                 user: { id: 'admin-1', role: UserRole.ADMIN },
             }
 
-            const result = await checkPostAccess(mockPost as Post, adminSession)
+            const result = await checkPostAccess(mockPost, adminSession)
 
             expect(result.allowed).toBe(true)
             expect(result.shouldNotFound).toBe(false)
@@ -56,7 +56,7 @@ describe('post-access utils', () => {
                 user: { id: 'author-1', role: UserRole.AUTHOR },
             }
 
-            const result = await checkPostAccess(mockPost as Post, authorSession)
+            const result = await checkPostAccess(mockPost, authorSession)
 
             expect(result.allowed).toBe(true)
             expect(result.shouldNotFound).toBe(false)

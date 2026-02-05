@@ -3,7 +3,7 @@ import type { ClarityMethods } from '@/types/clarity'
 
 export default defineNuxtPlugin((): { provide: { clarity: ClarityMethods } } | void => {
     const config = useRuntimeConfig()
-    const clarityProjectId = config.public.clarityProjectId as string
+    const clarityProjectId = config.public.clarityProjectId
 
     if (clarityProjectId && import.meta.client) {
         // 使用 requestIdleCallback 延迟初始化 Clarity

@@ -21,7 +21,7 @@ export class ContentProcessor {
     ): string[] {
         const { chunkSize = 4000, minChunkSize = 200 } = options
 
-        if (!content || !content.trim()) {
+        if (!content?.trim()) {
             return []
         }
 

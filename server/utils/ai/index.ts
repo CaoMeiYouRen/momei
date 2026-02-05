@@ -21,7 +21,7 @@ export async function getAIProvider(configOverride?: Partial<AIConfig>): Promise
     const config: AIConfig = {
         enabled: dbSettings[SettingKey.AI_ENABLED] === 'true',
         provider: (dbSettings[SettingKey.AI_PROVIDER] as any) || 'openai',
-        apiKey: dbSettings[SettingKey.AI_API_KEY] as string,
+        apiKey: dbSettings[SettingKey.AI_API_KEY]!,
         model: dbSettings[SettingKey.AI_MODEL] || '',
         endpoint: dbSettings[SettingKey.AI_ENDPOINT] || '',
         maxTokens: AI_MAX_TOKENS,

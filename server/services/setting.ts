@@ -115,7 +115,7 @@ export async function getSetting<T = string>(key: SettingKey | string, defaultVa
     // 优先从环境变量获取
     const envKey = SETTING_ENV_MAP[key]
     if (envKey && process.env[envKey] !== undefined) {
-        return process.env[envKey]!
+        return process.env[envKey]
     }
 
     // 如果数据库未初始化，返回默认值
@@ -248,11 +248,11 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
             continue
         }
 
-        const envKey = (SETTING_ENV_MAP as Record<string, string>)[key]
+        const envKey = (SETTING_ENV_MAP)[key]
         const envValue = envKey ? process.env[envKey] : undefined
         const isLocked = envValue !== undefined
         // 优先使用环境变量的值，其次是数据库的值，最后是空字符串
-        const value = isLocked ? envValue! : (dbSetting?.value ?? '')
+        const value = isLocked ? envValue : (dbSetting?.value ?? '')
 
         // 尝试推断或从数据库获取元数据
         let maskType = dbSetting?.maskType ?? 'none'

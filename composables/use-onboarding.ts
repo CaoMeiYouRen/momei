@@ -118,11 +118,11 @@ export const useOnboarding = () => {
                 },
                 onHighlighted: () => {
                     // 自动填充演示账号
-                    const emailInput = document.querySelector('input[type="email"]') as HTMLInputElement
-                    const passwordInput = document.querySelector('input[type="password"]') as HTMLInputElement
+                    const emailInput = document.querySelector('input[type="email"]')!
+                    const passwordInput = document.querySelector('input[type="password"]')!
                     if (emailInput && passwordInput) {
-                        emailInput.value = config.public.demoUserEmail as string
-                        passwordInput.value = config.public.demoPassword as string
+                        emailInput.value = config.public.demoUserEmail
+                        passwordInput.value = config.public.demoPassword
                         // 触发输入事件以更新 Vue 响应式状态
                         emailInput.dispatchEvent(new Event('input'))
                         emailInput.dispatchEvent(new Event('change'))

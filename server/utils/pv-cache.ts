@@ -6,7 +6,7 @@ import { REDIS_URL } from '@/utils/shared/env'
 import logger from '@/server/utils/logger'
 
 class PVCache {
-    private cache: Map<string, number> = new Map()
+    private cache = new Map<string, number>()
     private isFlushPending = false
     private redis: Redis | null = null
     private readonly REDIS_PREFIX = 'momei:pv:'

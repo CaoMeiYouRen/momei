@@ -201,13 +201,13 @@ export const auth = betterAuth({
     socialProviders: {
         github: {
             // 支持 GitHub 登录
-            clientId: GITHUB_CLIENT_ID as string,
-            clientSecret: GITHUB_CLIENT_SECRET as string,
+            clientId: GITHUB_CLIENT_ID!,
+            clientSecret: GITHUB_CLIENT_SECRET!,
         },
         google: {
             // 支持 Google 登录
-            clientId: GOOGLE_CLIENT_ID as string,
-            clientSecret: GOOGLE_CLIENT_SECRET as string,
+            clientId: GOOGLE_CLIENT_ID!,
+            clientSecret: GOOGLE_CLIENT_SECRET!,
         },
     },
     session: {
@@ -388,7 +388,7 @@ export const auth = betterAuth({
             ? [
                 captcha({
                     provider: AUTH_CAPTCHA_PROVIDER as any,
-                    secretKey: AUTH_CAPTCHA_SECRET_KEY!,
+                    secretKey: AUTH_CAPTCHA_SECRET_KEY,
                     endpoints: [
                         '/sign-up/email',
                         '/sign-in/email',

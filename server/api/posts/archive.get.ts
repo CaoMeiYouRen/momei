@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
 
     // Permission checks for manage scope
     if (query.scope === 'manage') {
-        if (!session || !session.user) {
+        if (!session?.user) {
             throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
         }
         const sessionUser = session.user
@@ -101,7 +101,7 @@ export default defineEventHandler(async (event) => {
         const raw = await rawQb.getRawMany()
         // ... rest of logic remains same
         // Normalize raw rows to numbers and group by year
-        const yearsMap = new Map<number, Array<{ month: number, count: number }>>()
+        const yearsMap = new Map<number, { month: number, count: number }[]>()
 
         for (const r of raw) {
             const year = Number(r.year)

@@ -84,10 +84,10 @@ async function getTransporter() {
 
             if (dbSettings[SettingKey.EMAIL_HOST] && dbSettings[SettingKey.EMAIL_USER]) {
                 cachedTransporter = mailerFactory({
-                    host: dbSettings[SettingKey.EMAIL_HOST]!,
+                    host: dbSettings[SettingKey.EMAIL_HOST],
                     port: Number(dbSettings[SettingKey.EMAIL_PORT] || 587),
                     auth: {
-                        user: dbSettings[SettingKey.EMAIL_USER]!,
+                        user: dbSettings[SettingKey.EMAIL_USER],
                         pass: dbSettings[SettingKey.EMAIL_PASS] || '',
                     },
                 })

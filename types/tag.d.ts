@@ -4,10 +4,10 @@ export interface Tag {
     slug: string
     language: string
     translationId?: string | null
-    translations?: Array<{
+    translations?: {
         id: string
         language: string
         name: string
         slug: string
-    }>
+    }[]
 }

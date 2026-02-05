@@ -300,7 +300,7 @@ export const useTheme = () => {
         })
     }
 
-    const isLocked = (key: keyof ThemeSettings | string) => !!locks.value[key as string]
+    const isLocked = (key: keyof ThemeSettings | string) => !!locks.value[key]
 
     return {
         settings,

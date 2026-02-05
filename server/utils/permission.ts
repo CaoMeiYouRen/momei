@@ -11,7 +11,7 @@ export async function requireAuth(event: H3Event) {
         headers: event.headers,
     })
 
-    if (!session || !session.user) {
+    if (!session?.user) {
         throw createError({
             statusCode: 401,
             statusMessage: 'Unauthorized',
