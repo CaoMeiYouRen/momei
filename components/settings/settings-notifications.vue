@@ -50,7 +50,7 @@
                     >
                         <div class="subscription-settings__checkbox-group">
                             <Checkbox
-                                v-model="subscription.subscribedCategoryIds"
+                                v-model="subscription.selectedCategoryIds"
                                 :input-id="'cat-' + cat.id"
                                 name="category"
                                 :value="cat.id"
@@ -73,7 +73,7 @@
                         class="subscription-settings__tag-item"
                     >
                         <ToggleButton
-                            v-model="subscription.tagMap[tag.id]"
+                            v-model="subscription.selectedTagMap[tag.id]"
                             :on-label="tag.name"
                             :off-label="tag.name"
                             size="small"
@@ -119,7 +119,9 @@ import type { Tag } from '@/types/tag'
 import type { ApiResponse } from '@/types/api'
 import type { PaginatedData } from '@/types/marketing'
 
-const { t } = useI18n()
+import type { Subscriber } from '@/types/subscriber'
+
+const { t, locale } = useI18n()
 const toast = useToast()
 const loading = ref(true)
 const saving = ref(false)
@@ -129,9 +131,8 @@ const tags = ref<Tag[]>([])
 
 const subscription = reactive({
     isActive: true,
-    subscribedCategoryIds: [] as string[],
-    subscribedTagIds: [] as string[],
-    tagMap: {} as Record<string, boolean>,
+    selectedCategoryIds: [] as string[], // 存储当前显示的分类 ID (聚合后的)
+    selectedTagMap: {} as Record<string, boolean>, // 存储当前显示的标签选中状态
     isMarketingEnabled: true,
 })
 
@@ -140,9 +141,13 @@ const loadData = async () => {
     loading.value = true
     try {
         const [catsRes, tagsRes, subRes] = await Promise.all([
-            $fetch<ApiResponse<PaginatedData<Category>>>('/api/categories', { query: { limit: 500 } }),
-            $fetch<ApiResponse<PaginatedData<Tag>>>('/api/tags', { query: { limit: 500 } }),
-            $fetch<ApiResponse<any>>('/api/user/subscription'),
+            $fetch<ApiResponse<PaginatedData<Category>>>('/api/categories', {
+                query: { limit: 500, aggregate: true, language: locale.value },
+            }),
+            $fetch<ApiResponse<PaginatedData<Tag>>>('/api/tags', {
+                query: { limit: 500, aggregate: true, language: locale.value },
+            }),
+            $fetch<ApiResponse<Subscriber>>('/api/user/subscription'),
         ])
 
         categories.value = catsRes.data.items || []
@@ -151,14 +156,23 @@ const loadData = async () => {
         if (subRes.data) {
             const data = subRes.data
             subscription.isActive = data.isActive ?? true
-            subscription.subscribedCategoryIds = data.subscribedCategoryIds || []
-            subscription.subscribedTagIds = data.subscribedTagIds || []
             subscription.isMarketingEnabled = data.isMarketingEnabled ?? true
 
-            // Initialize tagMap
-            subscription.tagMap = {}
+            const serverCategoryIds = data.subscribedCategoryIds || []
+            const serverTagIds = data.subscribedTagIds || []
+
+            // 根据聚类的 ID 初始化本地展示状态
+            subscription.selectedCategoryIds = categories.value
+                .filter((cat) => {
+                    const clusterIds = cat.translations?.map((t) => t.id) || [cat.id]
+                    return clusterIds.some((id) => serverCategoryIds.includes(id))
+                })
+                .map((cat) => cat.id)
+
+            subscription.selectedTagMap = {}
             tags.value.forEach((tag) => {
-                subscription.tagMap[tag.id] = subscription.subscribedTagIds.includes(tag.id)
+                const clusterIds = tag.translations?.map((t) => t.id) || [tag.id]
+                subscription.selectedTagMap[tag.id] = clusterIds.some((id) => serverTagIds.includes(id))
             })
         }
     } catch (error) {
@@ -185,17 +199,29 @@ const toggleSubscription = (val: boolean) => {
 const handleSave = async () => {
     saving.value = true
     try {
-        // Convert tagMap back to array
-        const selectedTagIds = tags.value
-            .filter((tag) => subscription.tagMap[tag.id])
-            .map((tag) => tag.id)
+        // 将选中的聚合 ID 展开为全语言 ID 列表
+        const finalCategoryIds = new Set<string>()
+        categories.value.forEach((cat) => {
+            if (subscription.selectedCategoryIds.includes(cat.id)) {
+                cat.translations?.forEach((t) => finalCategoryIds.add(t.id))
+                finalCategoryIds.add(cat.id)
+            }
+        })
+
+        const finalTagIds = new Set<string>()
+        tags.value.forEach((tag) => {
+            if (subscription.selectedTagMap[tag.id]) {
+                tag.translations?.forEach((t) => finalTagIds.add(t.id))
+                finalTagIds.add(tag.id)
+            }
+        })
 
         await $fetch('/api/user/subscription', {
             method: 'PUT' as any,
             body: {
                 isActive: subscription.isActive,
-                subscribedCategoryIds: subscription.subscribedCategoryIds,
-                subscribedTagIds: selectedTagIds,
+                subscribedCategoryIds: Array.from(finalCategoryIds),
+                subscribedTagIds: Array.from(finalTagIds),
                 isMarketingEnabled: subscription.isMarketingEnabled,
             },
         })

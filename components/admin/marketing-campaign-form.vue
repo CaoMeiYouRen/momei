@@ -164,8 +164,12 @@ const loadDependencies = async () => {
     loadingDependencies.value = true
     try {
         const [catsRes, tagsRes] = await Promise.all([
-            $fetch<ApiResponse<PaginatedData<Category>>>('/api/categories', { query: { limit: 500 } }),
-            $fetch<ApiResponse<PaginatedData<Tag>>>('/api/tags', { query: { limit: 500 } }),
+            $fetch<ApiResponse<PaginatedData<Category>>>('/api/categories', {
+                query: { limit: 500, aggregate: true, language: locale.value },
+            }),
+            $fetch<ApiResponse<PaginatedData<Tag>>>('/api/tags', {
+                query: { limit: 500, aggregate: true, language: locale.value },
+            }),
         ])
         categories.value = catsRes.data.items || []
         tags.value = tagsRes.data.items || []
@@ -184,12 +188,26 @@ const loadCampaign = async () => {
         if (data) {
             form.title = data.title || ''
             form.content = data.content || ''
-            form.targetCriteria = {
-                categoryIds: data.targetCriteria?.categoryIds || [],
-                tagIds: data.targetCriteria?.tagIds || [],
-            }
 
-            if (form.targetCriteria.categoryIds?.length || form.targetCriteria.tagIds?.length) {
+            const serverCategoryIds = data.targetCriteria?.categoryIds || []
+            const serverTagIds = data.targetCriteria?.tagIds || []
+
+            // 对于回显逻辑，由于后端可能存了多个 ID，我们需要反向还原到当前语言的聚合 ID
+            form.targetCriteria.categoryIds = categories.value
+                .filter((cat) => {
+                    const clusterIds = cat.translations?.map((t) => t.id) || [cat.id]
+                    return clusterIds.some((id) => serverCategoryIds.includes(id))
+                })
+                .map((cat) => cat.id)
+
+            form.targetCriteria.tagIds = tags.value
+                .filter((tag) => {
+                    const clusterIds = tag.translations?.map((t) => t.id) || [tag.id]
+                    return clusterIds.some((id) => serverTagIds.includes(id))
+                })
+                .map((tag) => tag.id)
+
+            if (form.targetCriteria.categoryIds.length || form.targetCriteria.tagIds.length) {
                 targetType.value = 'criteria'
             } else {
                 targetType.value = 'all'
@@ -226,10 +244,32 @@ const handleSave = async () => {
 
     saving.value = true
     try {
+        // 展开目标条件中的 ID 到所有语言版本
+        const finalCategoryIds = new Set<string>()
+        categories.value.forEach((cat) => {
+            if (form.targetCriteria.categoryIds.includes(cat.id)) {
+                cat.translations?.forEach((t) => finalCategoryIds.add(t.id))
+                finalCategoryIds.add(cat.id)
+            }
+        })
+
+        const finalTagIds = new Set<string>()
+        tags.value.forEach((tag) => {
+            if (form.targetCriteria.tagIds.includes(tag.id)) {
+                tag.translations?.forEach((t) => finalTagIds.add(t.id))
+                finalTagIds.add(tag.id)
+            }
+        })
+
         const payload = {
             title: form.title,
             content: form.content,
-            targetCriteria: targetType.value === 'all' ? {} : form.targetCriteria,
+            targetCriteria: targetType.value === 'all'
+                ? {}
+                : {
+                        categoryIds: Array.from(finalCategoryIds),
+                        tagIds: Array.from(finalTagIds),
+                    },
         }
 
         if (props.campaignId) {

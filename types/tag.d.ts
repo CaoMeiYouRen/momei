@@ -7,6 +7,7 @@ export interface Tag {
     translations?: {
         id: string
         language: string
+        translationId: string | null
         name: string
         slug: string
     }[]
