@@ -118,8 +118,8 @@ export const useOnboarding = () => {
                 },
                 onHighlighted: () => {
                     // 自动填充演示账号
-                    const emailInput = document.querySelector('input[type="email"]')!
-                    const passwordInput = document.querySelector('input[type="password"]')!
+                    const emailInput = document.querySelector('input[type="email"]') as HTMLInputElement
+                    const passwordInput = document.querySelector('input[type="password"]') as HTMLInputElement
                     if (emailInput && passwordInput) {
                         emailInput.value = config.public.demoUserEmail
                         passwordInput.value = config.public.demoPassword
