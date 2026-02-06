@@ -162,10 +162,10 @@
                             <div class="post-detail__locked-card">
                                 <i class="pi pi-lock post-detail__locked-icon" />
                                 <h2 class="post-detail__locked-title">
-                                    {{ $t(`pages.posts.locked.${post.reason}`) }}
+                                    {{ $t(`pages.posts.locked.${post.reason?.toLowerCase()}`) }}
                                 </h2>
                                 <p class="post-detail__locked-desc">
-                                    {{ $t(`pages.posts.locked.${post.reason}_desc`) }}
+                                    {{ $t(`pages.posts.locked.${post.reason?.toLowerCase()}_desc`) }}
                                 </p>
 
                                 <!-- Password Input -->

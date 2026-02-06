@@ -35,3 +35,21 @@ export enum MarketingCampaignStatus {
     /** 失败 */
     FAILED = 'FAILED',
 }
+
+/**
+ * 营销推送类型
+ */
+export enum MarketingCampaignType {
+    /** 版本更新 */
+    UPDATE = 'UPDATE',
+    /** 功能推荐 */
+    FEATURE = 'FEATURE',
+    /** 活动推广 */
+    PROMOTION = 'PROMOTION',
+    /** 博客发布 */
+    BLOG_POST = 'BLOG_POST',
+    /** 停机维护 */
+    MAINTENANCE = 'MAINTENANCE',
+    /** 服务变动 */
+    SERVICE = 'SERVICE',
+}

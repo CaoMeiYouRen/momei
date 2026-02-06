@@ -2,7 +2,7 @@ import { dataSource } from '@/server/database'
 import { MarketingCampaign } from '@/server/entities/marketing-campaign'
 import { requireAdmin } from '@/server/utils/permission'
 import { marketingCampaignSchema } from '@/utils/schemas/notification'
-import { MarketingCampaignStatus } from '@/utils/shared/notification'
+import { MarketingCampaignStatus, MarketingCampaignType } from '@/utils/shared/notification'
 
 export default defineEventHandler(async (event) => {
     const session = await requireAdmin(event)
@@ -22,6 +22,7 @@ export default defineEventHandler(async (event) => {
     const campaign = new MarketingCampaign()
     campaign.title = result.data.title
     campaign.content = result.data.content
+    campaign.type = result.data.type ?? MarketingCampaignType.FEATURE
     campaign.targetCriteria = result.data.targetCriteria
     campaign.senderId = userId
     campaign.status = MarketingCampaignStatus.DRAFT

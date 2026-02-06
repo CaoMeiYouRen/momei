@@ -262,14 +262,14 @@
             "password_placeholder": "Enter access password",
             "login_to_read": "Login to continue reading",
             "locked": {
-                "PASSWORD_REQUIRED": "Content Restricted",
-                "PASSWORD_REQUIRED_desc": "This article is password protected. Please enter the correct password to access the full content.",
-                "AUTH_REQUIRED": "Login Required",
-                "AUTH_REQUIRED_desc": "This article is restricted to registered users. Please login to continue reading.",
-                "SUBSCRIPTION_REQUIRED": "Subscribers Only",
-                "SUBSCRIPTION_REQUIRED_desc": "This article is restricted to email subscribers. Please subscribe to continue reading.",
-                "PRIVATE": "Private Content",
-                "PRIVATE_desc": "You do not have permission to access this private article."
+                "password_required": "Content Restricted",
+                "password_required_desc": "This article is password protected. Please enter the correct password to access the full content.",
+                "auth_required": "Login Required",
+                "auth_required_desc": "This article is restricted to registered users. Please login to continue reading.",
+                "subscription_required": "Subscribers Only",
+                "subscription_required_desc": "This article is restricted to email subscribers. Please subscribe to continue reading.",
+                "private": "Private Content",
+                "private_desc": "You do not have permission to access this private article."
             }
         },
         "user_agreement": {
@@ -337,6 +337,8 @@
                 "edit_campaign": "Edit Marketing Campaign",
                 "campaign_list": "Campaign History",
                 "form": {
+                    "type": "Campaign Type",
+                    "type_placeholder": "Please select campaign type",
                     "title": "Campaign Title",
                     "content": "Campaign Content",
                     "targets": "Target Picker",
@@ -347,6 +349,14 @@
                     "placeholder_title": "Please enter email title",
                     "placeholder_content": "Support Markdown/HTML content..."
                 },
+                "type": {
+                    "update": "Version Update",
+                    "feature": "Feature Recommend",
+                    "promotion": "Promotion",
+                    "blog_post": "Blog Post",
+                    "maintenance": "Maintenance",
+                    "service": "Service Change"
+                },
                 "stats": {
                     "total_subscribers": "Total Subscribers",
                     "marketing_enabled": "Marketable Users",
@@ -354,10 +364,10 @@
                     "delivered": "Delivered"
                 },
                 "status": {
-                    "DRAFT": "Draft",
-                    "SENDING": "Sending",
-                    "COMPLETED": "Completed",
-                    "FAILED": "Failed"
+                    "draft": "Draft",
+                    "sending": "Sending",
+                    "completed": "Completed",
+                    "failed": "Failed"
                 },
                 "actions": {
                     "send_now": "Send Now",

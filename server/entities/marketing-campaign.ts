@@ -2,7 +2,7 @@ import { Entity, ManyToOne } from 'typeorm'
 import { CustomColumn } from '../decorators/custom-column'
 import { BaseEntity } from './base-entity'
 import { User } from './user'
-import { MarketingCampaignStatus } from '@/utils/shared/notification'
+import { MarketingCampaignStatus, MarketingCampaignType } from '@/utils/shared/notification'
 
 @Entity('marketing_campaign')
 export class MarketingCampaign extends BaseEntity {
@@ -11,6 +11,16 @@ export class MarketingCampaign extends BaseEntity {
 
     @CustomColumn({ type: 'text', nullable: false })
     content: string
+
+    /**
+     * 推送类型
+     */
+    @CustomColumn({
+        type: 'varchar',
+        length: 32,
+        default: MarketingCampaignType.FEATURE,
+    })
+    type: MarketingCampaignType
 
     /**
      * 推送目标条件 (如特定标签/分类订阅者)

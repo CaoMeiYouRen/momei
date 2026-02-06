@@ -1,6 +1,19 @@
 <template>
     <div class="marketing-campaign-form">
         <div class="marketing-campaign-form__field">
+            <label for="type" class="marketing-campaign-form__label">{{ $t('pages.admin.marketing.form.type') }}</label>
+            <Dropdown
+                id="type"
+                v-model="form.type"
+                :options="campaignTypes"
+                option-label="label"
+                option-value="value"
+                fluid
+                :placeholder="$t('pages.admin.marketing.form.type_placeholder')"
+            />
+        </div>
+
+        <div class="marketing-campaign-form__field">
             <label for="title" class="marketing-campaign-form__label">{{ $t('pages.admin.marketing.form.title') }}</label>
             <InputText
                 id="title"
@@ -103,6 +116,7 @@ import type { Category } from '@/types/category'
 import type { Tag } from '@/types/tag'
 import type { ApiResponse } from '@/types/api'
 import type { MarketingCampaign, PaginatedData } from '@/types/marketing'
+import { MarketingCampaignType } from '@/utils/shared/notification'
 
 const props = defineProps<{
     campaignId?: string | null
@@ -118,6 +132,15 @@ const tags = ref<Tag[]>([])
 const loadingDependencies = ref(false)
 const saving = ref(false)
 const targetType = ref('all')
+
+const campaignTypes = computed(() => [
+    { label: t('pages.admin.marketing.type.update'), value: MarketingCampaignType.UPDATE },
+    { label: t('pages.admin.marketing.type.feature'), value: MarketingCampaignType.FEATURE },
+    { label: t('pages.admin.marketing.type.promotion'), value: MarketingCampaignType.PROMOTION },
+    { label: t('pages.admin.marketing.type.blog_post'), value: MarketingCampaignType.BLOG_POST },
+    { label: t('pages.admin.marketing.type.maintenance'), value: MarketingCampaignType.MAINTENANCE },
+    { label: t('pages.admin.marketing.type.service'), value: MarketingCampaignType.SERVICE },
+])
 
 const toolbars = {
     bold: true,
@@ -152,6 +175,7 @@ const toolbars = {
 }
 
 const form = reactive({
+    type: MarketingCampaignType.FEATURE,
     title: '',
     content: '',
     targetCriteria: {
@@ -186,6 +210,7 @@ const loadCampaign = async () => {
         const res = await $fetch<ApiResponse<MarketingCampaign>>(`/api/admin/marketing/campaigns/${props.campaignId}`)
         const data = res.data
         if (data) {
+            form.type = data.type || MarketingCampaignType.FEATURE
             form.title = data.title || ''
             form.content = data.content || ''
 
@@ -262,6 +287,7 @@ const handleSave = async () => {
         })
 
         const payload = {
+            type: form.type,
             title: form.title,
             content: form.content,
             targetCriteria: targetType.value === 'all'

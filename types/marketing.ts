@@ -1,4 +1,4 @@
-import type { MarketingCampaignStatus } from '@/utils/shared/notification'
+import type { MarketingCampaignStatus, MarketingCampaignType } from '@/utils/shared/notification'
 
 /**
  * 营销推送记录
@@ -7,6 +7,10 @@ export interface MarketingCampaign {
     id: string
     title: string
     content: string
+    /**
+     * 推送类型
+     */
+    type: MarketingCampaignType
     /**
      * 推送目标条件
      */

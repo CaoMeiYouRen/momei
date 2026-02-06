@@ -261,14 +261,14 @@
             "password_placeholder": "请输入访问密码",
             "login_to_read": "登录后继续阅读",
             "locked": {
-                "PASSWORD_REQUIRED": "内容已受限",
-                "PASSWORD_REQUIRED_desc": "本文章受密码保护，请输入正确密码以访问完整内容。",
-                "AUTH_REQUIRED": "仅限登录可见",
-                "AUTH_REQUIRED_desc": "本文章仅限注册用户访问，请先登录后再继续阅读。",
-                "SUBSCRIPTION_REQUIRED": "仅限订阅者访问",
-                "SUBSCRIPTION_REQUIRED_desc": "本文章仅限邮件订阅者访问，请订阅后再继续阅读。",
-                "PRIVATE": "内容为私有",
-                "PRIVATE_desc": "您没有权限访问此私有文章。"
+                "password_required": "内容已受限",
+                "password_required_desc": "本文章受密码保护，请输入正确密码以访问完整内容。",
+                "auth_required": "仅限登录可见",
+                "auth_required_desc": "本文章仅限注册用户访问，请先登录后再继续阅读。",
+                "subscription_required": "仅限订阅者访问",
+                "subscription_required_desc": "本文章仅限邮件订阅者访问，请订阅后再继续阅读。",
+                "private": "内容为私有",
+                "private_desc": "您没有权限访问此私有文章。"
             }
         },
         "user_agreement": {
@@ -336,6 +336,8 @@
                 "edit_campaign": "编辑营销推送",
                 "campaign_list": "推送历史",
                 "form": {
+                    "type": "推送类型",
+                    "type_placeholder": "请选择推送类型",
                     "title": "推送标题",
                     "content": "推送内容",
                     "targets": "目标选择器",
@@ -346,6 +348,14 @@
                     "placeholder_title": "请输入邮件标题",
                     "placeholder_content": "支持 Markdown/HTML 内容..."
                 },
+                "type": {
+                    "update": "版本更新",
+                    "feature": "功能推荐",
+                    "promotion": "活动推广",
+                    "blog_post": "博客发布",
+                    "maintenance": "停机维护",
+                    "service": "服务变动"
+                },
                 "stats": {
                     "total_subscribers": "总订阅人数",
                     "marketing_enabled": "可营销人数",
@@ -353,10 +363,10 @@
                     "delivered": "送达数"
                 },
                 "status": {
-                    "DRAFT": "草稿",
-                    "SENDING": "发送中",
-                    "COMPLETED": "已完成",
-                    "FAILED": "发送失败"
+                    "draft": "草稿",
+                    "sending": "发送中",
+                    "completed": "已完成",
+                    "failed": "发送失败"
                 },
                 "actions": {
                     "send_now": "立即发送",

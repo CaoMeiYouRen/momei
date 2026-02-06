@@ -29,13 +29,13 @@
                 <template #body="slotProps">
                     <div class="marketing-campaign-list__status">
                         <Tag v-if="slotProps.data.status === 'COMPLETED'" severity="success">
-                            {{ $t('pages.admin.marketing.status.COMPLETED') }}
+                            {{ $t('pages.admin.marketing.status.completed') }}
                         </Tag>
                         <Tag v-else-if="slotProps.data.status === 'SENDING'" severity="info">
-                            <i class="marketing-campaign-list__status-icon pi pi-spin pi-spinner" /> {{ $t('pages.admin.marketing.status.SENDING') }}
+                            <i class="marketing-campaign-list__status-icon pi pi-spin pi-spinner" /> {{ $t('pages.admin.marketing.status.sending') }}
                         </Tag>
                         <Tag v-else :severity="getStatusSeverity(slotProps.data.status)">
-                            {{ $t(`pages.admin.marketing.status.${slotProps.data.status}`) }}
+                            {{ $t(`pages.admin.marketing.status.${slotProps.data.status?.toLowerCase()}`) }}
                         </Tag>
                     </div>
                 </template>

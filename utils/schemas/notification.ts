@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { NotificationType, NotificationChannel } from '../shared/notification'
+import { NotificationType, NotificationChannel, MarketingCampaignType } from '../shared/notification'
 
 export const notificationSettingSchema = z.object({
     type: z.enum(NotificationType),
@@ -12,6 +12,7 @@ export const updateNotificationSettingsSchema = z.array(notificationSettingSchem
 export const marketingCampaignSchema = z.object({
     title: z.string().min(1).max(255),
     content: z.string().min(1),
+    type: z.enum(MarketingCampaignType).default(MarketingCampaignType.FEATURE),
     targetCriteria: z.object({
         categoryIds: z.array(z.string()).optional(),
         tagIds: z.array(z.string()).optional(),
