@@ -39,6 +39,14 @@
                     <i class="pi pi-bell" />
                     <span>{{ $t("pages.settings.notifications.title") }}</span>
                 </div>
+                <div
+                    class="settings-menu-item"
+                    :class="{active: activeTab === 'commercial'}"
+                    @click="activeTab = 'commercial'"
+                >
+                    <i class="pi pi-dollar" />
+                    <span>{{ $t("pages.settings.commercial.title") }}</span>
+                </div>
             </div>
 
             <!-- Content Area -->
@@ -56,6 +64,9 @@
 
                         <!-- Notifications Settings -->
                         <SettingsNotifications v-if="activeTab === 'notifications'" />
+
+                        <!-- Commercial Settings -->
+                        <SettingsCommercial v-if="activeTab === 'commercial'" />
                     </template>
                 </Card>
             </div>

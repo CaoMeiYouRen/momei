@@ -106,6 +106,30 @@
                     "cc-by-nc-nd": "CC BY-NC-ND 4.0（署名-非商业性使用-禁止演绎）",
                     "cc-zero": "CC0 1.0（取消版权 / 进入公共领域）"
                 }
+            },
+            "sponsor": {
+                "title": "赞赏支持",
+                "social_title": "关注我",
+                "donation_title": "支持作者",
+                "qr_scan_tip": "打开移动端 App 扫码支付",
+                "platforms": {
+                    "wechat_mp": "微信公众号",
+                    "bilibili": "Bilibili",
+                    "weibo": "微博",
+                    "zhihu": "知乎",
+                    "x": "X (Twitter)",
+                    "youtube": "YouTube",
+                    "facebook": "Facebook",
+                    "github": "GitHub",
+                    "wechat_pay": "微信支付",
+                    "alipay": "支付宝",
+                    "afdian": "爱发电",
+                    "github_sponsors": "GitHub Sponsors",
+                    "opencollective": "Open Collective",
+                    "patreon": "Patreon",
+                    "buymeacoffee": "Buy Me a Coffee",
+                    "paypal": "PayPal"
+                }
             }
         }
     },
@@ -598,6 +622,10 @@
                     "delete_success": "方案已删除",
                     "parse_error": "方案数据解析失败"
                 },
+                "commercial": {
+                    "global_toggle_desc": "开启或关闭全站赞助/打赏功能。开启后将根据文章作者配置或全局配置显示打赏按钮。",
+                    "global_donation_desc": "配置全站默认的打赏方案（当作者未单独配置时生效）。"
+                },
                 "system": {
                     "title": "系统设置",
                     "tabs": {
@@ -610,7 +638,8 @@
                         "storage": "文件存储",
                         "analytics": "分析统计",
                         "agreements": "协议管理",
-                        "notifications": "站务通知"
+                        "notifications": "站务通知",
+                        "commercial": "商业赞助"
                     },
                     "sections": {
                         "social_auth": "社交登录 (OAuth)",
@@ -910,7 +939,8 @@
                 "profile": "个人资料",
                 "security": "账号安全",
                 "api_keys": "API 密钥",
-                "notifications": "订阅与通知"
+                "notifications": "订阅与通知",
+                "commercial": "商业化与赞助"
             },
             "profile": {
                 "title": "公开资料",
@@ -983,6 +1013,24 @@
                 "inactive": "已暂停订阅",
                 "pause_subscription": "暂停所有订阅",
                 "resume_subscription": "恢复订阅"
+            },
+            "commercial": {
+                "title": "商业化与赞助",
+                "social_links": "社交链接",
+                "donation_links": "打赏与赞助",
+                "add_social": "添加社交平台",
+                "add_donation": "添加打赏平台",
+                "platform": "平台",
+                "url": "链接地址",
+                "image": "二维码图片",
+                "label": "自定义标签",
+                "locales": "展示语言",
+                "locales_hint": "不选则在所有语言环境下显示",
+                "save": "保存商业化设置",
+                "success": "商业化设置已更新",
+                "empty_social": "尚未配置社交链接",
+                "empty_donation": "尚未配置打赏链接",
+                "delete_confirm": "确定要删除此链接吗？"
             }
         }
     },

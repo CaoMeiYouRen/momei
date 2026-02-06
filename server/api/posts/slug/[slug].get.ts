@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
     const postRepo = dataSource.getRepository(Post)
     const qb = postRepo.createQueryBuilder('post')
         .leftJoin('post.author', 'author')
-        .addSelect(['author.id', 'author.name', 'author.image', 'author.email'])
+        .addSelect(['author.id', 'author.name', 'author.image', 'author.email', 'author.socialLinks', 'author.donationLinks'])
         .leftJoinAndSelect('post.category', 'category')
         .leftJoinAndSelect('post.tags', 'tags')
 

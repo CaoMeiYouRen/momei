@@ -223,6 +223,13 @@
                         :license="post.copyright"
                     />
 
+                    <!-- Sponsor -->
+                    <ArticleSponsor
+                        v-if="!post.locked"
+                        :social-links="post.author?.socialLinks"
+                        :donation-links="post.author?.donationLinks"
+                    />
+
                     <!-- Footer -->
                     <footer class="post-detail__footer">
                         <div v-if="post.tags && post.tags.length > 0" class="post-detail__tags">
