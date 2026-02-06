@@ -5,6 +5,8 @@ import { subscribeSchema } from '@/utils/schemas/subscriber'
 import { emailService } from '@/server/utils/email/service'
 import logger from '@/server/utils/logger'
 import { assignDefined } from '@/server/utils/object'
+import { notifyAdmins } from '@/server/services/notification'
+import { AdminNotificationEvent } from '@/utils/shared/notification'
 
 export default defineEventHandler(async (event) => {
     const result = await readValidatedBody(event, (body) => subscribeSchema.safeParse(body))
@@ -25,6 +27,7 @@ export default defineEventHandler(async (event) => {
 
     const subscriberRepo = dataSource.getRepository(Subscriber)
     const existing = await subscriberRepo.findOne({ where: { email } })
+    let isNewSub = false
 
     if (existing) {
         if (existing.isActive) {
@@ -41,11 +44,22 @@ export default defineEventHandler(async (event) => {
         existing.language = language
         existing.userId = user?.id || null
         await subscriberRepo.save(existing)
+        isNewSub = true
     } else {
         const subscriber = new Subscriber()
         assignDefined(subscriber, result.data, ['email', 'language'])
         subscriber.userId = user?.id || null
         await subscriberRepo.save(subscriber)
+        isNewSub = true
+    }
+
+    if (isNewSub) {
+        notifyAdmins(AdminNotificationEvent.NEW_USER, {
+            title: '新订阅者',
+            content: `<p>新用户 <strong>${email}</strong> 已订阅您的博客。</p>`,
+        }).catch((err) => {
+            console.error('Failed to notify admins of new subscriber:', err)
+        })
     }
 
     // 发送订阅确认邮件

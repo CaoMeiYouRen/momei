@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { NotificationType, NotificationChannel, MarketingCampaignType } from '../shared/notification'
+import { NotificationType, NotificationChannel, MarketingCampaignType, AdminNotificationEvent } from '../shared/notification'
 
 export const notificationSettingSchema = z.object({
     type: z.enum(NotificationType),
@@ -22,3 +22,14 @@ export const marketingCampaignSchema = z.object({
 export type NotificationSettingInput = z.infer<typeof notificationSettingSchema>
 export type UpdateNotificationSettingsInput = z.infer<typeof updateNotificationSettingsSchema>
 export type MarketingCampaignInput = z.infer<typeof marketingCampaignSchema>
+
+export const adminNotificationSettingSchema = z.object({
+    event: z.enum(AdminNotificationEvent),
+    isEmailEnabled: z.boolean(),
+    isBrowserEnabled: z.boolean(),
+})
+
+export const updateAdminNotificationSettingsSchema = z.array(adminNotificationSettingSchema)
+
+export type AdminNotificationSettingInput = z.infer<typeof adminNotificationSettingSchema>
+export type UpdateAdminNotificationSettingsInput = z.infer<typeof updateAdminNotificationSettingsSchema>

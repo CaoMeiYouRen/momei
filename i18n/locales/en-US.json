@@ -436,6 +436,16 @@
                     "registered": "Registered Users",
                     "subscriber": "Subscribers Only"
                 },
+                "publish_confirm_title": "Confirm Publish Post",
+                "publish_confirm_message": "Are you sure you want to publish this post? It will be visible to visitors immediately after publication.",
+                "push_options": {
+                    "none": "No Email Push",
+                    "none_desc": "Publish the post only, no notification to subscribers.",
+                    "draft": "Save as Push Draft",
+                    "draft_desc": "Automatically create a marketing campaign draft for later editing and sending.",
+                    "now": "Push to Subscribers Now",
+                    "now_desc": "Immediately send an email notification to relevant subscribers after publication."
+                },
                 "password": "Access Password",
                 "password_placeholder": "Enter post access password",
                 "language": "Post Language",
@@ -443,6 +453,10 @@
                 "translation_group_hint": "Link different language versions of the same post to enable switcher on front end",
                 "title_required": "Please enter post title",
                 "save_current_first": "Please save the current post first before creating a translation",
+                "repush": "Repush",
+                "repush_confirm_title": "Confirm Repush Post",
+                "repush_confirm_message": "Are you sure you want to push this article to subscribers again? This will generate a new email notification.",
+                "repush_success": "Repush task started",
                 "ai": {
                     "suggest_titles": "AI Title Suggestions",
                     "generate_summary": "AI Generate Summary",
@@ -594,7 +608,8 @@
                         "email": "Email Services",
                         "storage": "Storage",
                         "analytics": "Analytics",
-                        "agreements": "Agreements"
+                        "agreements": "Agreements",
+                        "notifications": "Admin Notifications"
                     },
                     "sections": {
                         "social_auth": "Social Login (OAuth)",
@@ -605,6 +620,19 @@
                         "compliance": "Compliance & Filing",
                         "branding": "Branding & Assets",
                         "footer": "Footer Settings"
+                    },
+                    "notifications": {
+                        "title": "Admin Notification Preferences",
+                        "description": "Configure how admins receive alerts for specific site events. Timely notifications help you respond quickly to user interactions and system issues.",
+                        "event": "Event Scenario",
+                        "email": "Email Alert",
+                        "browser": "Browser Alert",
+                        "events": {
+                            "NEW_USER": "New Subscription/Registration",
+                            "NEW_COMMENT": "New Comment Received",
+                            "API_ERROR": "System API Error",
+                            "SYSTEM_ALERT": "Critical System Alert"
+                        }
                     },
                     "keys": {
                         "site_title": "Site Title",

@@ -117,6 +117,20 @@ export const emailLocalesEnUS = {
             'This is your weekly article digest from <strong>{appName}</strong>. Below are the top articles from this week:',
     },
 
+    adminAlert: {
+        title: 'Momei Admin Notification',
+        preheader: 'You have received a system admin alert',
+        headerIcon: '📢',
+        NEW_USER: {
+            subject: 'New User/Subscription Alert',
+            message: 'A new user registration or email subscription was detected: <strong>{email}</strong>',
+        },
+        NEW_COMMENT: {
+            subject: 'New Comment Pending Review',
+            message: 'Post "{postTitle}" received a new comment from <strong>{author}</strong>:<br/><br/>{content}',
+        },
+    },
+
     commonParameters: {
         appName: 'Momei',
         baseUrl: '{baseUrl}',

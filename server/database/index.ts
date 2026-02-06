@@ -19,6 +19,7 @@ import { ThemeConfig } from '../entities/theme-config'
 import { AgreementContent } from '../entities/agreement-content'
 import { NotificationSettings } from '../entities/notification-settings'
 import { MarketingCampaign } from '../entities/marketing-campaign'
+import { AdminNotificationSettings } from '../entities/admin-notification-settings'
 import logger from '../utils/logger'
 import { isServerlessEnvironment } from '../utils/env'
 import { CustomLogger } from './logger'
@@ -65,6 +66,7 @@ const entities = [
     AgreementContent,
     NotificationSettings,
     MarketingCampaign,
+    AdminNotificationSettings,
 ]
 
 /**

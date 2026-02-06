@@ -53,3 +53,17 @@ export enum MarketingCampaignType {
     /** 服务变动 */
     SERVICE = 'SERVICE',
 }
+
+/**
+ * 管理员通知事件
+ */
+export enum AdminNotificationEvent {
+    /** 新用户/订阅 */
+    NEW_USER = 'NEW_USER',
+    /** 新评论 */
+    NEW_COMMENT = 'NEW_COMMENT',
+    /** API 错误 */
+    API_ERROR = 'API_ERROR',
+    /** 系统警报 */
+    SYSTEM_ALERT = 'SYSTEM_ALERT',
+}

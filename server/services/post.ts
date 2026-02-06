@@ -1,6 +1,7 @@
 import { kebabCase } from 'lodash-es'
 import type { z } from 'zod'
 import { ensureTags } from './tag'
+import { createCampaignFromPost, sendMarketingCampaign } from './notification'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { Category } from '@/server/entities/category'
@@ -9,6 +10,7 @@ import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
 import { PostStatus, POST_STATUS_TRANSITIONS } from '@/types/post'
 import { hashPassword } from '@/server/utils/password'
 import { assignDefined } from '@/server/utils/object'
+import { MarketingCampaignStatus } from '@/utils/shared/notification'
 
 type CreatePostInput = z.infer<typeof createPostSchema>
 type UpdatePostInput = z.infer<typeof updatePostSchema>
@@ -151,6 +153,18 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
 
     await applyPostChanges(post, body, options, true)
     await postRepo.save(post)
+
+    // 处理推送逻辑
+    if (body.pushOption && body.pushOption !== 'none' && post.status === PostStatus.PUBLISHED) {
+        const campaignStatus = body.pushOption === 'now' ? MarketingCampaignStatus.SENDING : MarketingCampaignStatus.DRAFT
+        const campaign = await createCampaignFromPost(post.id, authorId, campaignStatus)
+        if (body.pushOption === 'now') {
+            sendMarketingCampaign(campaign.id).catch((err) => {
+                console.error('Failed to send marketing campaign:', err)
+            })
+        }
+    }
+
     return post
 }
 
@@ -161,6 +175,8 @@ export const updatePostService = async (id: string, body: UpdatePostInput, optio
     if (!post) {
         throw createError({ statusCode: 404, statusMessage: 'Post not found' })
     }
+
+    const currentStatus = post.status
 
     // 权限校验
     if (post.authorId !== options.currentUserId && !options.isAdmin) {
@@ -187,6 +203,19 @@ export const updatePostService = async (id: string, body: UpdatePostInput, optio
 
     await applyPostChanges(post, body, options, false)
     await postRepo.save(post)
+
+    // 处理推送逻辑 (仅在文章首次发布时)
+    if (body.pushOption && body.pushOption !== 'none'
+        && currentStatus !== PostStatus.PUBLISHED && post.status === PostStatus.PUBLISHED) {
+        const campaignStatus = body.pushOption === 'now' ? MarketingCampaignStatus.SENDING : MarketingCampaignStatus.DRAFT
+        const campaign = await createCampaignFromPost(post.id, options.currentUserId, campaignStatus)
+        if (body.pushOption === 'now') {
+            sendMarketingCampaign(campaign.id).catch((err) => {
+                console.error('Failed to send marketing campaign:', err)
+            })
+        }
+    }
+
     return post
 }
 

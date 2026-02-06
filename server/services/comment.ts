@@ -1,4 +1,5 @@
 import { Brackets } from 'typeorm'
+import { notifyAdmins } from './notification'
 import { dataSource } from '@/server/database'
 import { Comment } from '@/server/entities/comment'
 import { Post } from '@/server/entities/post'
@@ -7,6 +8,7 @@ import { processAuthorPrivacy } from '@/server/utils/author'
 import { getSettings } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
 import { assignDefined } from '@/server/utils/object'
+import { AdminNotificationEvent } from '@/utils/shared/notification'
 
 /**
  * 评论服务
@@ -136,6 +138,15 @@ export const commentService = {
         }
 
         await commentRepo.save(comment)
+
+        // 发送通知
+        notifyAdmins(AdminNotificationEvent.NEW_COMMENT, {
+            title: `新评论: ${post.title}`,
+            content: `<p>来自 <strong>${comment.authorName}</strong> 的评论:</p><p>${comment.content}</p>`,
+        }).catch((err) => {
+            console.error('Failed to notify admins of new comment:', err)
+        })
+
         return comment
     },
 

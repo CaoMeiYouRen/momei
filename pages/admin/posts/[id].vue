@@ -73,6 +73,12 @@
             @suggest-summary="suggestSummary"
         />
 
+        <PublishPushDialog
+            ref="publishPushDialog"
+            :loading="saving"
+            @confirm="handlePublishConfirm"
+        />
+
         <!-- Drag Mask -->
         <div v-if="isDragging" class="drag-mask">
             <div class="drag-tip">
@@ -95,6 +101,7 @@ import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
 import { COPYRIGHT_LICENSES } from '@/types/copyright'
 import PostEditorHeader from '@/components/admin/posts/post-editor-header.vue'
 import PostEditorSettings from '@/components/admin/posts/post-editor-settings.vue'
+import PublishPushDialog from '@/components/admin/posts/publish-push-dialog.vue'
 import { usePostEditorAI } from '@/composables/use-post-editor-ai'
 import { usePostEditorIO } from '@/composables/use-post-editor-io'
 import { formatMarkdown } from '@/utils/shared/markdown'
@@ -210,6 +217,7 @@ const filteredTags = ref<string[]>([])
 const allTags = ref<string[]>([]) // Should be loaded from API
 
 const settingsVisible = ref(false)
+const publishPushDialog = ref<any>(null)
 
 const {
     aiLoading,
@@ -406,7 +414,26 @@ const searchTags = (event: { query: string }) => {
     }
 }
 
+const handlePublishConfirm = async (pushOption: 'none' | 'draft' | 'now') => {
+    if (publishPushDialog.value) {
+        publishPushDialog.value.visible = false
+    }
+    await executeSave(true, pushOption)
+}
+
 const savePost = async (publish = false) => {
+    // 仅在首次发布（从非发布状态变为发布状态）时弹出推送选项
+    if (publish && post.value.status !== PostStatus.PUBLISHED) {
+        publishPushDialog.value?.open()
+        return
+    }
+    await executeSave(publish)
+}
+
+const executeSave = async (
+    publish = false,
+    pushOption: 'none' | 'draft' | 'now' = 'none',
+) => {
     errors.value = {}
 
     // Auto format markdown before saving
@@ -415,7 +442,7 @@ const savePost = async (publish = false) => {
     }
 
     // 构建提交数据，显式移除关联对象以避免 Zod 校验失败
-    const payload: any = { ...post.value }
+    const payload: any = { ...post.value, pushOption }
     delete payload.category
     delete payload.author
     if (publish) {

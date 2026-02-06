@@ -42,6 +42,9 @@
                         <Tab value="agreements">
                             {{ $t('pages.admin.settings.system.tabs.agreements') }}
                         </Tab>
+                        <Tab value="notifications">
+                            {{ $t('pages.admin.settings.system.tabs.notifications') }}
+                        </Tab>
                     </TabList>
                     <TabPanels>
                         <TabPanel value="general">
@@ -79,6 +82,10 @@
                         <TabPanel value="agreements">
                             <AgreementsSettings />
                         </TabPanel>
+
+                        <TabPanel value="notifications">
+                            <AdminNotificationSettings />
+                        </TabPanel>
                     </TabPanels>
                 </Tabs>
             </template>
@@ -98,6 +105,7 @@ import StorageSettings from '@/components/admin/settings/storage-settings.vue'
 import AnalyticsSettings from '@/components/admin/settings/analytics-settings.vue'
 import AuthSettings from '@/components/admin/settings/auth-settings.vue'
 import SecuritySettings from '@/components/admin/settings/security-settings.vue'
+import AdminNotificationSettings from '@/components/admin/settings/admin-notification-settings.vue'
 import LimitsSettings from '@/components/admin/settings/limits-settings.vue'
 import AgreementsSettings from '@/components/admin/settings/agreements-settings.vue'
 

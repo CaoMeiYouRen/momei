@@ -106,6 +106,20 @@ export const emailLocalesZhCN = {
         message: '这是您的 <strong>{appName}</strong> 每周文章摘要。以下是本周的热门文章：',
     },
 
+    adminAlert: {
+        title: '墨梅站务通知',
+        preheader: '您收到一则系统站务提醒',
+        headerIcon: '📢',
+        NEW_USER: {
+            subject: '新订阅/用户注册通知',
+            message: '系统检测到新的用户注册或邮件订阅：<strong>{email}</strong>',
+        },
+        NEW_COMMENT: {
+            subject: '新评论待审核通知',
+            message: '文章《{postTitle}》收到来自 <strong>{author}</strong> 的新评论：<br/><br/>{content}',
+        },
+    },
+
     commonParameters: {
         appName: 'Momei',
         baseUrl: '{baseUrl}',

@@ -154,6 +154,15 @@
                 >
                     <template #body="slotProps">
                         <Button
+                            v-if="slotProps.data.status === 'published'"
+                            v-tooltip.top="$t('pages.admin.posts.repush')"
+                            icon="pi pi-send"
+                            text
+                            rounded
+                            severity="warn"
+                            @click="confirmRepush(slotProps.data)"
+                        />
+                        <Button
                             icon="pi pi-pencil"
                             text
                             rounded
@@ -181,11 +190,14 @@
             ref="deleteDialog"
             @confirm="handleDelete"
         />
+        <ConfirmDialog />
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
 import type { Post } from '@/types/post'
 import { useAdminList } from '@/composables/use-admin-list'
 import { useI18nDate } from '@/composables/use-i18n-date'
@@ -198,6 +210,8 @@ definePageMeta({
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { formatDateTime, relativeTime } = useI18nDate()
+const confirm = useConfirm()
+const toast = useToast()
 
 const {
     items,
@@ -258,6 +272,44 @@ const statuses = computed(() => [
 
 const editPost = (id: string) => {
     navigateTo(localePath(`/admin/posts/${id}`))
+}
+
+const confirmRepush = (post: any) => {
+    confirm.require({
+        header: t('pages.admin.posts.repush_confirm_title'),
+        message: t('pages.admin.posts.repush_confirm_message'),
+        icon: 'pi pi-exclamation-triangle',
+        acceptProps: {
+            label: t('common.confirm'),
+            severity: 'warn',
+        },
+        rejectProps: {
+            label: t('common.cancel'),
+            text: true,
+            severity: 'secondary',
+        },
+        accept: async () => {
+            try {
+                await $fetch(`/api/admin/posts/${post.id}/repush`, {
+                    method: 'POST',
+                })
+                toast.add({
+                    severity: 'success',
+                    summary: t('common.success'),
+                    detail: t('pages.admin.posts.repush_success'),
+                    life: 3000,
+                })
+            } catch (err) {
+                console.error('Failed to repush post', err)
+                toast.add({
+                    severity: 'error',
+                    summary: t('common.error'),
+                    detail: t('common.save_failed'),
+                    life: 5000,
+                })
+            }
+        },
+    })
 }
 
 const deleteDialog = ref()

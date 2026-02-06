@@ -153,6 +153,7 @@
         "drag_drop_help": "支持拖拽 Markdown 或图片文件到编辑器",
         "cancel": "取消",
         "confirm": "确认",
+        "confirm_publish": "确认发布",
         "delete": "删除",
         "edit": "编辑",
         "create": "创建",
@@ -435,13 +436,26 @@
                     "registered": "登录可见",
                     "subscriber": "订阅可见"
                 },
-                "password": "访问密码",
+                "publish_confirm_title": "确认发布文章",
+                "publish_confirm_message": "您确定要发布这篇文章吗？发布后访客即可查看。",
+                "push_options": {
+                    "none": "不进行邮件推送",
+                    "none_desc": "仅发布文章，不打扰订阅者。",
+                    "draft": "存为推送草稿",
+                    "draft_desc": "自动创建一个营销推送草稿，您可以稍后在营销中心编辑后再发送。",
+                    "now": "立即推送到订阅者",
+                    "now_desc": "文章发布后，立即向相关订阅者发送邮件通知。"
+                },
                 "password_placeholder": "请输入文章访问密码",
                 "language": "文章语言",
                 "translation_group": "关联其他语言版本",
                 "translation_group_hint": "关联不同语言版本的同一篇文章，启用前台语言切换关联",
                 "title_required": "请输入文章标题",
                 "save_current_first": "请先保存当前文章，然后才能创建其翻译版本",
+                "repush": "再次推送",
+                "repush_confirm_title": "确认重新推送文章",
+                "repush_confirm_message": "确定要再次将这篇文章推送到订阅者吗？这会产生一封新的邮件通知。",
+                "repush_success": "推送任务已启动",
                 "ai": {
                     "suggest_titles": "AI 标题建议",
                     "generate_summary": "AI 生成摘要",
@@ -593,7 +607,8 @@
                         "email": "邮件服务",
                         "storage": "文件存储",
                         "analytics": "分析统计",
-                        "agreements": "协议管理"
+                        "agreements": "协议管理",
+                        "notifications": "站务通知"
                     },
                     "sections": {
                         "social_auth": "社交登录 (OAuth)",
@@ -604,6 +619,19 @@
                         "compliance": "合规与备案",
                         "branding": "品牌与资产",
                         "footer": "页脚设置"
+                    },
+                    "notifications": {
+                        "title": "站务通知配置",
+                        "description": "设置管理员在特定站务事件发生时的接收偏好。及时的站务提醒有助于您快速响应用户互动与系统异常。",
+                        "event": "站务场景",
+                        "email": "邮件通知",
+                        "browser": "浏览器通知",
+                        "events": {
+                            "NEW_USER": "新订阅/用户注册",
+                            "NEW_COMMENT": "收到新评论",
+                            "API_ERROR": "系统 API 异常",
+                            "SYSTEM_ALERT": "高危系统警报"
+                        }
                     },
                     "keys": {
                         "site_title": "站点标题",

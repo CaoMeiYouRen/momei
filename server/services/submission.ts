@@ -131,6 +131,7 @@ export const submissionService = {
                     tags: data.acceptOptions?.tags || [],
                     status: data.acceptOptions?.publishImmediately ? PostStatus.PUBLISHED : PostStatus.PENDING,
                     visibility: PostVisibility.PUBLIC,
+                    pushOption: 'none',
                 },
                 submission.authorId || reviewerId, // 如果投稿者已登录则归属于他，否则归属于审核人
                 { isAdmin: true }, // 管理员操作，允许直接发布

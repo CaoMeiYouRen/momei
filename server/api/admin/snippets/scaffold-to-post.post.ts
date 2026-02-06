@@ -25,6 +25,7 @@ export default defineEventHandler(async (event) => {
         visibility: PostVisibility.PUBLIC,
         language,
         tags: [],
+        pushOption: 'none',
     }, session.user.id, {
         isAdmin: checkIsAdmin(session.user.role),
     })
