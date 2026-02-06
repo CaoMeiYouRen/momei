@@ -97,6 +97,15 @@
 
         <div class="marketing-campaign-form__actions">
             <Button
+                :label="$t('pages.admin.marketing.form.send_test')"
+                icon="pi pi-send"
+                severity="info"
+                variant="outlined"
+                :loading="sendingTest"
+                @click="handleSendTest"
+            />
+            <div class="marketing-campaign-form__spacer" />
+            <Button
                 :label="$t('common.cancel')"
                 variant="outlined"
                 severity="secondary"
@@ -131,6 +140,7 @@ const categories = ref<Category[]>([])
 const tags = ref<Tag[]>([])
 const loadingDependencies = ref(false)
 const saving = ref(false)
+const sendingTest = ref(false)
 const targetType = ref('all')
 
 const campaignTypes = computed(() => [
@@ -255,6 +265,48 @@ onMounted(async () => {
         await loadCampaign()
     }
 })
+
+const handleSendTest = async () => {
+    if (!form.title || !form.content) {
+        toast.add({
+            severity: 'warn',
+            summary: t('common.warn'),
+            detail: t('common.validation_error'),
+            life: 3000,
+        })
+        return
+    }
+
+    sendingTest.value = true
+    try {
+        await $fetch('/api/admin/marketing/campaigns/test', {
+            method: 'POST',
+            body: {
+                type: form.type,
+                title: form.title,
+                content: form.content,
+                targetCriteria: {},
+            },
+        })
+
+        toast.add({
+            severity: 'success',
+            summary: t('common.success'),
+            detail: t('pages.admin.marketing.form.send_test_success'),
+            life: 3000,
+        })
+    } catch (e) {
+        console.error('Failed to send test campaign:', e)
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: t('common.unexpected_error'),
+            life: 3000,
+        })
+    } finally {
+        sendingTest.value = false
+    }
+}
 
 const handleSave = async () => {
     if (!form.title || !form.content) {
@@ -391,8 +443,13 @@ const handleSave = async () => {
     &__actions {
         display: flex;
         justify-content: flex-end;
+        align-items: center;
         gap: $spacing-md;
         margin-top: $spacing-lg;
+    }
+
+    &__spacer {
+        flex-grow: 1;
     }
 
     &__editor {

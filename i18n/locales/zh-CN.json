@@ -347,7 +347,9 @@
                     "categories": "指定分类",
                     "tags": "指定标签",
                     "placeholder_title": "请输入邮件标题",
-                    "placeholder_content": "支持 Markdown/HTML 内容..."
+                    "placeholder_content": "支持 Markdown/HTML 内容...",
+                    "send_test": "发送测试邮件",
+                    "send_test_success": "测试邮件已发送至您的邮箱"
                 },
                 "type": {
                     "update": "版本更新",
