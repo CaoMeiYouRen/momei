@@ -79,10 +79,10 @@ const scrollToHeading = (id: string) => {
 <style lang="scss" scoped>
 .toc {
     position: sticky;
-    top: 6rem; // top-24
+    top: 6rem;
 
     &__title {
-        font-size: 1.125rem; // text-lg
+        font-size: 1.125rem;
         font-weight: 700;
         margin-bottom: 1rem;
         color: var(--p-text-color);
@@ -100,7 +100,7 @@ const scrollToHeading = (id: string) => {
 
     &__link {
         display: block;
-        font-size: 0.875rem; // text-sm
+        font-size: 0.875rem;
         color: var(--p-text-muted-color);
         transition: color 0.2s;
         white-space: nowrap;

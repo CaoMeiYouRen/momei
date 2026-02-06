@@ -6,12 +6,14 @@ export default defineEventHandler(async () => {
     const rawValue = await getSetting(SettingKey.COMMERCIAL_SPONSORSHIP)
 
     let donationLinks = []
+    let socialLinks = []
     let enabled = true
 
     if (rawValue) {
         try {
             const config = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue
             donationLinks = config.donationLinks || []
+            socialLinks = config.socialLinks || []
             enabled = config.enabled !== false
         } catch (e) {
             console.error('Failed to parse commercial config:', e)
@@ -23,6 +25,7 @@ export default defineEventHandler(async () => {
 
     const data: CommercialConfig = {
         donationLinks,
+        socialLinks,
         enabled,
     }
 

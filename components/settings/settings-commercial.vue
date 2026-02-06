@@ -1,8 +1,8 @@
 <template>
     <div class="settings-commercial">
-        <div class="settings-section">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="font-semibold m-0 text-xl">
+        <div class="commercial-section">
+            <div class="commercial-section__header">
+                <h3 class="commercial-section__title">
                     {{ $t('pages.settings.commercial.social_links') }}
                 </h3>
                 <Button
@@ -13,33 +13,35 @@
                 />
             </div>
 
-            <div v-if="socialLinks.length === 0" class="border-2 border-dashed border-surface-200 empty-state p-8 rounded-lg text-center">
-                <i class="mb-2 pi pi-share-alt text-4xl text-surface-300" />
-                <p class="m-0 text-surface-500">
+            <div v-if="socialLinks.length === 0" class="commercial-empty">
+                <i class="commercial-empty__icon pi pi-share-alt" />
+                <p class="commercial-empty__text">
                     {{ $t('pages.settings.commercial.empty_social') }}
                 </p>
             </div>
 
-            <div v-else class="gap-4 grid grid-cols-1 md:grid-cols-2">
+            <div v-else class="commercial-grid">
                 <div
                     v-for="(link, index) in socialLinks"
                     :key="index"
-                    class="border flex gap-4 items-center link-card p-4 rounded-lg"
+                    class="link-card"
                 >
-                    <i
-                        :class="getPlatformIcon(link.platform, 'social')"
-                        :style="{color: getPlatformColor(link.platform, 'social')}"
-                        class="text-2xl"
-                    />
-                    <div class="flex-grow min-w-0">
-                        <div class="font-medium truncate">
+                    <div class="link-card__icon-wrapper">
+                        <i
+                            :class="getPlatformIcon(link.platform, 'social')"
+                            :style="{color: getPlatformColor(link.platform, 'social')}"
+                            class="link-card__icon"
+                        />
+                    </div>
+                    <div class="link-card__content">
+                        <div class="link-card__label">
                             {{ link.label || getPlatformName(link.platform, 'social') }}
                         </div>
-                        <div class="text-sm text-surface-500 truncate">
-                            {{ link.url }}
+                        <div class="link-card__url">
+                            {{ link.platform === 'wechat_mp' ? (link.image || link.url) : link.url }}
                         </div>
                     </div>
-                    <div class="flex gap-2">
+                    <div class="link-card__actions">
                         <Button
                             icon="pi pi-pencil"
                             severity="secondary"
@@ -61,9 +63,9 @@
             </div>
         </div>
 
-        <div class="mt-8 settings-section">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="font-semibold m-0 text-xl">
+        <div class="commercial-section commercial-section--mt">
+            <div class="commercial-section__header">
+                <h3 class="commercial-section__title">
                     {{ $t('pages.settings.commercial.donation_links') }}
                 </h3>
                 <Button
@@ -74,33 +76,35 @@
                 />
             </div>
 
-            <div v-if="donationLinks.length === 0" class="border-2 border-dashed border-surface-200 empty-state p-8 rounded-lg text-center">
-                <i class="mb-2 pi pi-heart text-4xl text-surface-300" />
-                <p class="m-0 text-surface-500">
+            <div v-if="donationLinks.length === 0" class="commercial-empty">
+                <i class="commercial-empty__icon pi pi-heart" />
+                <p class="commercial-empty__text">
                     {{ $t('pages.settings.commercial.empty_donation') }}
                 </p>
             </div>
 
-            <div v-else class="gap-4 grid grid-cols-1 md:grid-cols-2">
+            <div v-else class="commercial-grid">
                 <div
                     v-for="(link, index) in donationLinks"
                     :key="index"
-                    class="border flex gap-4 items-center link-card p-4 rounded-lg"
+                    class="link-card"
                 >
-                    <i
-                        :class="getPlatformIcon(link.platform, 'donation')"
-                        :style="{color: getPlatformColor(link.platform, 'donation')}"
-                        class="text-2xl"
-                    />
-                    <div class="flex-grow min-w-0">
-                        <div class="font-medium truncate">
+                    <div class="link-card__icon-wrapper">
+                        <i
+                            :class="getPlatformIcon(link.platform, 'donation')"
+                            :style="{color: getPlatformColor(link.platform, 'donation')}"
+                            class="link-card__icon"
+                        />
+                    </div>
+                    <div class="link-card__content">
+                        <div class="link-card__label">
                             {{ link.label || getPlatformName(link.platform, 'donation') }}
                         </div>
-                        <div class="text-sm text-surface-500 truncate">
+                        <div class="link-card__url">
                             {{ link.url || link.image }}
                         </div>
                     </div>
-                    <div class="flex gap-2">
+                    <div class="link-card__actions">
                         <Button
                             icon="pi pi-pencil"
                             severity="secondary"
@@ -122,7 +126,7 @@
             </div>
         </div>
 
-        <div class="flex justify-end mt-8">
+        <div class="commercial-footer">
             <Button
                 :label="$t('pages.settings.commercial.save')"
                 icon="pi pi-check"
@@ -136,10 +140,10 @@
             v-model:visible="socialDialogVisible"
             :header="$t('pages.settings.commercial.add_social')"
             modal
-            class="max-w-lg w-full"
+            class="commercial-dialog"
         >
-            <div class="flex flex-col gap-4 py-2">
-                <div class="flex flex-col gap-2">
+            <div class="commercial-form">
+                <div class="form-field">
                     <label for="social-platform">{{ $t('pages.settings.commercial.platform') }}</label>
                     <Select
                         id="social-platform"
@@ -147,16 +151,16 @@
                         :options="SOCIAL_PLATFORMS"
                         option-label="key"
                         option-value="key"
-                        class="w-full"
+                        fluid
                     >
                         <template #option="slotProps">
-                            <div class="flex gap-2 items-center">
+                            <div class="platform-option">
                                 <i :class="slotProps.option.icon" :style="{color: slotProps.option.color}" />
                                 <span>{{ slotProps.option.key === 'custom' ? $t('common.custom') : $t(`components.post.sponsor.platforms.${slotProps.option.key}`) }}</span>
                             </div>
                         </template>
                         <template #value="slotProps">
-                            <div v-if="slotProps.value" class="flex gap-2 items-center">
+                            <div v-if="slotProps.value" class="platform-option">
                                 <i :class="SOCIAL_PLATFORMS.find(p => p.key === slotProps.value)?.icon" :style="{color: SOCIAL_PLATFORMS.find(p => p.key === slotProps.value)?.color}" />
                                 <span>{{ slotProps.value === 'custom' ? $t('common.custom') : $t(`components.post.sponsor.platforms.${slotProps.value}`) }}</span>
                             </div>
@@ -165,26 +169,44 @@
                     </Select>
                 </div>
 
-                <div v-if="currentSocial.platform === 'custom'" class="flex flex-col gap-2">
+                <div v-if="currentSocial.platform === 'custom'" class="form-field">
                     <label for="social-label">{{ $t('pages.settings.commercial.label') }}</label>
                     <InputText
                         id="social-label"
                         v-model="currentSocial.label"
-                        class="w-full"
+                        fluid
                     />
                 </div>
 
-                <div class="flex flex-col gap-2">
+                <div v-if="currentSocial.platform !== 'wechat_mp'" class="form-field">
                     <label for="social-url">{{ $t('pages.settings.commercial.url') }}</label>
                     <InputText
                         id="social-url"
                         v-model="currentSocial.url"
-                        class="w-full"
+                        fluid
                         placeholder="https://..."
                     />
                 </div>
 
-                <div class="flex flex-col gap-2">
+                <div v-if="currentSocial.platform === 'wechat_mp'" class="form-field">
+                    <label for="social-image">{{ $t('pages.settings.commercial.image') }}</label>
+                    <div class="uploader-wrapper">
+                        <InputText
+                            id="social-image"
+                            v-model="currentSocial.image"
+                            fluid
+                            placeholder="/uploads/..."
+                        />
+                        <AppUploader
+                            id="social-qr-uploader"
+                            v-model="currentSocial.image"
+                            :auto-save="false"
+                            @update:model-value="(val) => currentSocial.image = val || undefined"
+                        />
+                    </div>
+                </div>
+
+                <div class="form-field">
                     <label>{{ $t('pages.settings.commercial.locales') }}</label>
                     <MultiSelect
                         v-model="currentSocial.locales"
@@ -192,7 +214,7 @@
                         option-label="label"
                         option-value="value"
                         :placeholder="$t('pages.settings.commercial.locales_hint')"
-                        class="w-full"
+                        fluid
                     />
                 </div>
             </div>
@@ -212,10 +234,10 @@
             v-model:visible="donationDialogVisible"
             :header="$t('pages.settings.commercial.add_donation')"
             modal
-            class="max-w-lg w-full"
+            class="commercial-dialog"
         >
-            <div class="flex flex-col gap-4 py-2">
-                <div class="flex flex-col gap-2">
+            <div class="commercial-form">
+                <div class="form-field">
                     <label for="donation-platform">{{ $t('pages.settings.commercial.platform') }}</label>
                     <Select
                         id="donation-platform"
@@ -223,16 +245,16 @@
                         :options="DONATION_PLATFORMS"
                         option-label="key"
                         option-value="key"
-                        class="w-full"
+                        fluid
                     >
                         <template #option="slotProps">
-                            <div class="flex gap-2 items-center">
+                            <div class="platform-option">
                                 <i :class="slotProps.option.icon" :style="{color: slotProps.option.color}" />
                                 <span>{{ slotProps.option.key === 'custom' ? $t('common.custom') : $t(`components.post.sponsor.platforms.${slotProps.option.key}`) }}</span>
                             </div>
                         </template>
                         <template #value="slotProps">
-                            <div v-if="slotProps.value" class="flex gap-2 items-center">
+                            <div v-if="slotProps.value" class="platform-option">
                                 <i :class="DONATION_PLATFORMS.find(p => p.key === slotProps.value)?.icon" :style="{color: DONATION_PLATFORMS.find(p => p.key === slotProps.value)?.color}" />
                                 <span>{{ slotProps.value === 'custom' ? $t('common.custom') : $t(`components.post.sponsor.platforms.${slotProps.value}`) }}</span>
                             </div>
@@ -241,32 +263,32 @@
                     </Select>
                 </div>
 
-                <div v-if="currentDonation.platform === 'custom'" class="flex flex-col gap-2">
+                <div v-if="currentDonation.platform === 'custom'" class="form-field">
                     <label for="donation-label">{{ $t('pages.settings.commercial.label') }}</label>
                     <InputText
                         id="donation-label"
                         v-model="currentDonation.label"
-                        class="w-full"
+                        fluid
                     />
                 </div>
 
-                <div v-if="isPlatformType('url') || isPlatformType('both')" class="flex flex-col gap-2">
+                <div v-if="isPlatformType('url') || isPlatformType('both')" class="form-field">
                     <label for="donation-url">{{ $t('pages.settings.commercial.url') }}</label>
                     <InputText
                         id="donation-url"
                         v-model="currentDonation.url"
-                        class="w-full"
+                        fluid
                         placeholder="https://..."
                     />
                 </div>
 
-                <div v-if="isPlatformType('image') || isPlatformType('both')" class="flex flex-col gap-2">
+                <div v-if="isPlatformType('image') || isPlatformType('both')" class="form-field">
                     <label for="donation-image">{{ $t('pages.settings.commercial.image') }}</label>
-                    <div class="flex gap-2">
+                    <div class="uploader-wrapper">
                         <InputText
                             id="donation-image"
                             v-model="currentDonation.image"
-                            class="w-full"
+                            fluid
                             placeholder="/uploads/..."
                         />
                         <AppUploader
@@ -278,7 +300,7 @@
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-2">
+                <div class="form-field">
                     <label>{{ $t('pages.settings.commercial.locales') }}</label>
                     <MultiSelect
                         v-model="currentDonation.locales"
@@ -286,7 +308,7 @@
                         option-label="label"
                         option-value="value"
                         :placeholder="$t('pages.settings.commercial.locales_hint')"
-                        class="w-full"
+                        fluid
                     />
                 </div>
             </div>
@@ -349,7 +371,9 @@ const openSocialDialog = (link?: SocialLink, index?: number) => {
 }
 
 const addSocialLink = () => {
-    if (!currentSocial.value.url) return
+    if (currentSocial.value.platform === 'wechat_mp' && !currentSocial.value.image) return
+    if (currentSocial.value.platform !== 'wechat_mp' && !currentSocial.value.url) return
+
     if (editingSocialIndex.value > -1) {
         socialLinks.value[editingSocialIndex.value] = { ...currentSocial.value }
     } else {
@@ -444,26 +468,158 @@ const saveSettings = async () => {
 </script>
 
 <style lang="scss" scoped>
-.settings-commercial {
-  .link-card {
-    background-color: var(--p-surface-0);
-    transition: all 0.2s;
+@use "@/styles/variables" as *;
 
-    &:hover {
-      border-color: var(--p-primary-color);
-      background-color: var(--p-surface-50);
-    }
+.settings-commercial {
+  width: 100%;
+}
+
+.commercial-section {
+  &--mt {
+    margin-top: 2rem;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--p-text-color);
   }
 }
 
-:global(.dark) .settings-commercial {
+.commercial-empty {
+  padding: 2rem;
+  text-align: center;
+  border: 2px dashed var(--p-surface-200);
+  border-radius: 0.5rem;
+
+  &__icon {
+    font-size: 2.5rem;
+    color: var(--p-surface-300);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  &__text {
+    margin: 0;
+    color: var(--p-surface-500);
+  }
+}
+
+.commercial-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  @media (width >= 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.link-card {
+  padding: 1rem;
+  border: 1px solid var(--p-surface-border);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--p-surface-0);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--p-primary-color);
+  }
+
+  &__icon-wrapper {
+    flex-shrink: 0;
+  }
+
+  &__icon {
+    font-size: 1.5rem;
+  }
+
+  &__content {
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  &__label {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__url {
+    font-size: 0.875rem;
+    color: var(--p-surface-500);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.25rem;
+    flex-shrink: 0;
+  }
+}
+
+.commercial-footer {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.commercial-dialog {
+  max-width: 32rem;
+  width: 100%;
+}
+
+.commercial-form {
+  padding: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-weight: 500;
+    color: var(--p-text-color);
+  }
+}
+
+.platform-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.uploader-wrapper {
+  display: flex;
+  gap: 0.5rem;
+}
+
+:global(.dark) {
   .link-card {
     background-color: var(--p-surface-900);
     border-color: var(--p-surface-700);
+  }
 
-    &:hover {
-      background-color: var(--p-surface-800);
-    }
+  .commercial-empty {
+    border-color: var(--p-surface-700);
   }
 }
 </style>

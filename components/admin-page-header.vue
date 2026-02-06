@@ -53,9 +53,7 @@ withDefaults(defineProps<{
   }
 }
 
-// Mobile responsive
 @include respond-to("sm") {
-  // Keep horizontal
 }
 
 @media (width <= 640px) {

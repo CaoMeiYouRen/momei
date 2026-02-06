@@ -31,6 +31,7 @@ export const DONATION_PLATFORMS = [
 export interface SocialLink {
     platform: string
     url: string
+    image?: string // 针对微信公众号等需要展示二维码的平台
     label?: string
     locales?: string[] // 为空代表全语种显示
 }
@@ -47,6 +48,7 @@ export interface DonationLink {
  * 商业化配置/打赏配置 (全局)
  */
 export interface CommercialConfig {
+    socialLinks?: SocialLink[]
     donationLinks: DonationLink[]
     enabled: boolean
 }

@@ -234,7 +234,8 @@
         "current": "Current",
         "switch": "Switch",
         "yes": "Yes",
-        "no": "No"
+        "no": "No",
+        "custom": "Custom Platform"
     },
     "legal": {
         "user_agreement": "User Agreement",
@@ -625,6 +626,7 @@
                 },
                 "commercial": {
                     "global_toggle_desc": "Enable or disable global monetization/sponsorship. When enabled, sponsor buttons will be displayed based on author or site-wide settings.",
+                    "global_social_desc": "Configure global default social links (used when author hasn't set their own).",
                     "global_donation_desc": "Configure global default donation links (used when author hasn't set their own)."
                 },
                 "system": {
@@ -1031,7 +1033,17 @@
                 "success": "Monetization settings updated",
                 "empty_social": "No social links configured",
                 "empty_donation": "No donation links configured",
-                "delete_confirm": "Are you sure you want to delete this link?"
+                "delete_confirm": "Are you sure you want to delete this link?",
+                "social_platforms": {
+                    "wechat_mp": "WeChat MP",
+                    "bilibili": "Bilibili",
+                    "weibo": "Weibo",
+                    "zhihu": "Zhihu",
+                    "x": "X (Twitter)",
+                    "youtube": "YouTube",
+                    "facebook": "Facebook",
+                    "github": "GitHub"
+                }
             }
         }
     },

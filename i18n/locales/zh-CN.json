@@ -234,7 +234,8 @@
         "current": "当前",
         "switch": "切换",
         "yes": "是",
-        "no": "否"
+        "no": "否",
+        "custom": "自定义平台"
     },
     "legal": {
         "user_agreement": "用户协议",
@@ -624,6 +625,7 @@
                 },
                 "commercial": {
                     "global_toggle_desc": "开启或关闭全站赞助/打赏功能。开启后将根据文章作者配置或全局配置显示打赏按钮。",
+                    "global_social_desc": "配置全站默认的社交链接（当作者未单独配置时生效）。",
                     "global_donation_desc": "配置全站默认的打赏方案（当作者未单独配置时生效）。"
                 },
                 "system": {
@@ -1030,7 +1032,17 @@
                 "success": "商业化设置已更新",
                 "empty_social": "尚未配置社交链接",
                 "empty_donation": "尚未配置打赏链接",
-                "delete_confirm": "确定要删除此链接吗？"
+                "delete_confirm": "确定要删除此链接吗？",
+                "social_platforms": {
+                    "wechat_mp": "微信公众号",
+                    "bilibili": "Bilibili",
+                    "weibo": "微博",
+                    "zhihu": "知乎",
+                    "x": "X (Twitter)",
+                    "youtube": "YouTube",
+                    "facebook": "Facebook",
+                    "github": "GitHub"
+                }
             }
         }
     },

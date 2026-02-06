@@ -15,17 +15,31 @@
                     {{ $t('components.post.sponsor.social_title') }}
                 </div>
                 <div class="article-sponsor__social-list">
-                    <a
-                        v-for="link in displaySocialLinks"
-                        :key="link.platform + link.url"
-                        :href="link.url"
-                        target="_blank"
-                        class="article-sponsor__social-item"
-                        :title="link.label || getPlatformName(link.platform, 'social')"
-                        :style="{color: getPlatformColor(link.platform, 'social')}"
-                    >
-                        <i :class="getPlatformIcon(link.platform, 'social')" />
-                    </a>
+                    <template v-for="link in displaySocialLinks" :key="link.platform + (link.url || link.image)">
+                        <!-- URL Link -->
+                        <a
+                            v-if="!link.image"
+                            :href="link.url"
+                            target="_blank"
+                            class="article-sponsor__social-item"
+                            :title="link.label || getPlatformName(link.platform, 'social')"
+                            :style="{color: getPlatformColor(link.platform, 'social')}"
+                        >
+                            <i :class="getPlatformIcon(link.platform, 'social')" />
+                        </a>
+
+                        <!-- Image/QR Code -->
+                        <a
+                            v-else
+                            href="#"
+                            class="article-sponsor__social-item"
+                            :title="link.label || getPlatformName(link.platform, 'social')"
+                            :style="{color: getPlatformColor(link.platform, 'social')}"
+                            @click.prevent="showQR(link, 'social')"
+                        >
+                            <i :class="getPlatformIcon(link.platform, 'social')" />
+                        </a>
+                    </template>
                 </div>
             </div>
 
@@ -60,7 +74,7 @@
                                 severity="secondary"
                                 outlined
                                 class="article-sponsor__donation-btn"
-                                @click="showQR(link)"
+                                @click="showQR(link, 'donation')"
                             >
                                 <i :class="[getPlatformIcon(link.platform, 'donation'), 'mr-2']" :style="{color: getPlatformColor(link.platform, 'donation')}" />
                                 {{ link.label || getPlatformName(link.platform, 'donation') }}
@@ -109,6 +123,7 @@ const qrLabel = ref('')
 
 // Global settings
 const { data: globalData } = await useFetch<any>('/api/settings/commercial')
+const globalSocialLinks = computed<SocialLink[]>(() => globalData.value?.data?.socialLinks || [])
 const globalDonationLinks = computed<DonationLink[]>(() => globalData.value?.data?.donationLinks || [])
 const globalEnabled = computed(() => globalData.value?.data?.enabled !== false)
 
@@ -116,7 +131,13 @@ const filterByLocale = (links: any[]) => {
     return links.filter((link) => !link.locales || link.locales.length === 0 || link.locales.includes(locale.value))
 }
 
-const displaySocialLinks = computed(() => filterByLocale(props.socialLinks || []))
+const displaySocialLinks = computed(() => {
+    const filteredAuthor = filterByLocale(props.socialLinks || [])
+    if (filteredAuthor.length > 0) return filteredAuthor
+
+    if (!globalEnabled.value) return []
+    return filterByLocale(globalSocialLinks.value)
+})
 
 const displayDonationLinks = computed(() => {
     const filteredAuthor = filterByLocale(props.donationLinks || [])
@@ -149,9 +170,9 @@ const getPlatformType = (key: string) => {
     return DONATION_PLATFORMS.find((p) => p.key === key)?.type || 'url'
 }
 
-const showQR = (link: DonationLink) => {
+const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') => {
     qrImage.value = link.image || ''
-    qrHeader.value = link.label || getPlatformName(link.platform, 'donation')
+    qrHeader.value = link.label || getPlatformName(link.platform, type)
     qrLabel.value = t('components.post.sponsor.qr_scan_tip')
     qrVisible.value = true
 }

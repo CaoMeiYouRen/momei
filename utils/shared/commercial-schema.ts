@@ -6,8 +6,11 @@ import { isValidCustomUrl, validateUrl } from './validate'
  */
 export const SocialLinkSchema = z.object({
     platform: z.string().min(1),
-    url: z.string().max(512).refine(validateUrl, {
+    url: z.string().max(512).optional().or(z.literal('')).refine((val) => !val || validateUrl(val), {
         message: 'Invalid URL. Only http:// or https:// are allowed',
+    }),
+    image: z.string().max(512).optional().or(z.literal('')).refine((val) => !val || isValidCustomUrl(val), {
+        message: 'Invalid Image URL or not in whitelist. Please use local upload or whitelisted domains.',
     }),
     label: z.string().max(50).optional(),
     locales: z.array(z.string()).optional(),
@@ -33,6 +36,7 @@ export const DonationLinkSchema = z.object({
  */
 export const CommercialConfigSchema = z.object({
     enabled: z.boolean().default(true),
+    socialLinks: z.array(SocialLinkSchema).optional().default([]),
     donationLinks: z.array(DonationLinkSchema).default([]),
 })
 
