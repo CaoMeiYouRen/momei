@@ -46,70 +46,36 @@ description: 全局一体化开发与协作工作流技能，覆盖需求评估�
 
 ### 阶段 1：需求分析与规划 (Plan & Analysis)
 -   **目标**：透彻理解需求，通过追问与采访抽离核心意图，明确变更边界。
+-   **指引**：遵循 [项目规划规范](../../docs/standards/planning.md) 进行评估。
 -   **执行步骤**：
-    1.  **读取必备文档**：必须先读取 [项目规划](../../docs/plan/roadmap.md) 和 [待办事项](../../docs/plan/todo.md)，确保已知晓当前阶段目标及历史。
-    2.  **需求采访与澄清**：
-        -   面对模糊需求，**主动发起采访**。遵循“先结构后细节”原则，逐一抛出问题。
-        -   追问目标：从用户模糊的初衷中抽离出**最核心、最真实**的需求，避免“边做边猜”。
-        -   控制问题总量（通常不超过 20 个），确保沟通效率。
-    3.  **规划与评估**：若涉及路线图变更或新 Phase 规划，必须读取 [项目规划规范](../../docs/standards/planning.md) 进行 Momei 矩阵评估。
-    4.  **需求分类**：在需求清晰后，判断任务类型（`feat`, `fix`, `docs`, `refactor`, `test`, `style`, `chore`）。
-    5.  **针对性分析**：
-        -   **新增功能 (feat)**：调用 `documentation-specialist` 更新 `docs/plan/roadmap.md` 和 `docs/plan/todo.md`，明确验收标准。
-        -   **错误修复 (fix)**：分析核心原因（前端 vs 后端）。分析前应检索 `docs/plan/todo-archive.md` 是否有类似历史项。
-        -   **待办和路线图规划 (docs)**：分析新的需求和任务，确保反映最新任务状态。
--   **工具**：`context-analyzer`, `documentation-specialist`。
+    1.  **读取必备文档**：必须先读取 [项目规划](../../docs/plan/roadmap.md) 和 [待办事项](../../docs/plan/todo.md)。
+    2.  **需求采访与澄清**：按照 [PDTFC+ 循环](../../docs/standards/ai-collaboration.md#p-plan---需求分析) 执行“采访”程序，抽离核心意图。
+    3.  **分类与管理**：在需求清晰后，根据 [待办事项管理流程](../../docs/standards/planning.md#4-路线图与待办管理流程-management-workflow) 更新任务清单。
 
 ### 阶段 2：业务执行与开发 (Do)
 -   **目标**：遵循项目规范实现功能逻辑。
+-   **指引**：严格执行 [开发规范](../../docs/standards/development.md) 中的代码风格与 i18n 要求。
 -   **执行步骤**：
-    1.  **规范对齐**：在开始编写代码前，**必须读取** [开发规范](../../docs/standards/development.md) 和 [API 规范](../../docs/standards/api.md)。
-    2.  **安全审查**：涉及权限控制、敏感数据、Session 处理或数据库操作时，**必须读取** [安全规范](../../docs/standards/security.md)。
-    3.  **实现功能**：编写 `components/`, `server/api/`, `pages/` 等相关代码。遵循 Nuxt 4.x, Vue 3 (Composition API), TS (无 `any`), SCSS (BEM), i18n (`$t`)。
--   **工具**：`nuxt-code-editor`。
+    1.  **代码实现**：遵循 [代码生成准则](../../docs/standards/development.md#25-代码生成准则-code-generation-guidelines)，确保 snake_case 命名及组件化开发。
+    2.  **安全审查**：参考 [安全规范](../../docs/standards/security.md) 保护敏感数据。
 
 ### 阶段 3：UI 自动化验证 (UI Validate)
 -   **目标**：确保 UI 展现符合设计规范与各模式兼容。
--   **执行步骤**：
-    1.  **视觉准则**：读取 [UI 设计](../../docs/design/ui.md)，确认布局比例、色彩系统及暗色模式要求。
-    2.  **验证执行**：检查开发服务器端口状态，利用浏览器工具验证实际渲染效果。
--   **工具**：`ui-validator`。
+-   **指引**：参考 [UI 设计说明](../../docs/design/ui.md)。
 
 ### 阶段 4：质量检测与审查 (Test & Review)
 -   **目标**：验证代码质量，防止回归。
+-   **指引**：遵循 [高效测试策略](../../docs/standards/testing.md#6-高效测试策略-efficient-testing-strategy)，优先执行定向测试。
 -   **执行步骤**：
-    1.  **执行准则**：执行测试前，**必须读取** [测试规范](../../docs/standards/testing.md)，明确命名与 Co-location 要求。
-    2.  **静态检查**：执行 `pnpm lint`, `pnpm lint:css`, `pnpm typecheck`。
-    3.  **动态测试**：执行 `pnpm test`。
-    4.  **回归审查**：**原则上新功能不得导致原有测试失败**。若失败，需着重分析是旧测试过时（需更新）还是新代码逻辑错误（需修复）。
--   **工具**：`quality-guardian`, `test-engineer`, `code-reviewer`。
+    1.  **静态检查**：执行 Lint 与 Typecheck。
+    2.  **动态测试**：根据改动规模决定测试范围（[测试规模评估](../../docs/standards/testing.md#41-前端组件与页面)）。
 
-### 阶段 5：问题修复 (Fix)
--   **目标**：消除上阶段发现的所有缺陷。
+### 阶段 5：提交与交付 (Commit & Enhance)
+-   **目标**：原子化提交并补全测试。
+-   **指引**：遵循 [原子化改动准则](../../docs/standards/development.md#27-提交规模与原子化改动-commit-scale--atomic-changes)。单次提交文件数 < 10。
 -   **执行步骤**：
-    1.  根据 Lint、Typecheck、UI 验证或测试反馈进行针对性改动，直至所有静态检查通过且满足 UI 设计规范。
--   **工具**：`nuxt-code-editor`。
-
-### 阶段 6：提交阶段 1：功能提交 (Commit - Phase 1)
--   **目标**：在通过核心质量检查后提交业务逻辑。
--   **执行步骤**：
-    1.  **最后检查**：进行最终的 `quality-guardian` 扫描。
-    2.  **规范提交**：使用中文（或用户语言）遵循 Conventional Commits 规范。
--   **工具**：`conventional-committer`。
-
-### 阶段 7：测试增强 (Enhance)
--   **目标**：补齐测试用例，提升代码覆盖率。
--   **执行步骤**：
-    1.  **覆盖率评估**：检查新模块/逻辑的测试覆盖情况。
-    2.  **用例补充**：为新功能编写正向、反向及边缘场景的 Vitest 用例。
-    3.  **再验证**：重新执行 `pnpm test` 确保所有用例通过。
--   **工具**：`test-engineer`。
-
-### 阶段 8：提交阶段 2：测试提交 (Commit - Phase 2)
--   **目标**：将增强后的测试代码入库。
--   **执行步骤**：
-    1.  **重复质量检查**，通过后再次提交。
--   **工具**：`conventional-committer`。
+    1.  **功能提交**：调用 `conventional-committer` 执行提交。
+    2.  **测试增强/提交**：补齐用例并追加提交（[PDTFC+ Enhance](../../docs/standards/ai-collaboration.md#e-enhance---测试增强)）。
 
 ## 协作与安全准则 (Orchestration Rules)
 
