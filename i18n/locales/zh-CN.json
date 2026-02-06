@@ -1018,8 +1018,11 @@
             },
             "commercial": {
                 "title": "商业化与赞助",
+                "subtitle": "配置您的个人社交链接与赞助信息。这些信息将展示在您的文章页底部的作者卡片中。",
                 "social_links": "社交链接",
+                "social_desc": "在这里添加您的社交媒体、个人网站或其他外部链接。",
                 "donation_links": "打赏与赞助",
+                "donation_desc": "配置您的打赏、赞助链接或收款码，方便读者为您提供支持。",
                 "add_social": "添加社交平台",
                 "add_donation": "添加打赏平台",
                 "platform": "平台",
@@ -1033,6 +1036,8 @@
                 "empty_social": "尚未配置社交链接",
                 "empty_donation": "尚未配置打赏链接",
                 "delete_confirm": "确定要删除此链接吗？",
+                "edit_social": "编辑社交链接",
+                "edit_donation": "编辑打赏链接",
                 "social_platforms": {
                     "wechat_mp": "微信公众号",
                     "bilibili": "Bilibili",

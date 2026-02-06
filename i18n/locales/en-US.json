@@ -1019,8 +1019,11 @@
             },
             "commercial": {
                 "title": "Monetization",
+                "subtitle": "Configure your personal social links and sponsorship info. These will be displayed in the author card at the end of your articles.",
                 "social_links": "Social Links",
+                "social_desc": "Add your social media, personal website, or other external links here.",
                 "donation_links": "Sponsorship & Donation",
+                "donation_desc": "Configure your donation/sponsorship links or QR codes, making it easier for readers to support you.",
                 "add_social": "Add Social Platform",
                 "add_donation": "Add Donation Platform",
                 "platform": "Platform",
@@ -1034,6 +1037,8 @@
                 "empty_social": "No social links configured",
                 "empty_donation": "No donation links configured",
                 "delete_confirm": "Are you sure you want to delete this link?",
+                "edit_social": "Edit Social Link",
+                "edit_donation": "Edit Donation Link",
                 "social_platforms": {
                     "wechat_mp": "WeChat MP",
                     "bilibili": "Bilibili",

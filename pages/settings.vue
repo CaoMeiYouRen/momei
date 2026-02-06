@@ -40,6 +40,7 @@
                     <span>{{ $t("pages.settings.notifications.title") }}</span>
                 </div>
                 <div
+                    v-if="canViewCommercial"
                     class="settings-menu-item"
                     :class="{active: activeTab === 'commercial'}"
                     @click="activeTab = 'commercial'"
@@ -66,7 +67,7 @@
                         <SettingsNotifications v-if="activeTab === 'notifications'" />
 
                         <!-- Commercial Settings -->
-                        <SettingsCommercial v-if="activeTab === 'commercial'" />
+                        <SettingsCommercial v-if="activeTab === 'commercial' && canViewCommercial" />
                     </template>
                 </Card>
             </div>
@@ -77,11 +78,26 @@
 </template>
 
 <script setup lang="ts">
+import { authClient } from '@/lib/auth-client'
+import { isAdminOrAuthor } from '@/utils/shared/roles'
+
 definePageMeta({
     middleware: 'auth',
 })
 
+const session = authClient.useSession()
+const canViewCommercial = computed(() => {
+    return isAdminOrAuthor((session.value as any)?.data?.user?.role)
+})
+
 const activeTab = ref('profile')
+
+// Watch for role changes or initial access
+watch(canViewCommercial, (can) => {
+    if (!can && activeTab.value === 'commercial') {
+        activeTab.value = 'profile'
+    }
+}, { immediate: true })
 </script>
 
 <style lang="scss" scoped>
