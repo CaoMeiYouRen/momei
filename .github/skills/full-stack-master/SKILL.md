@@ -51,8 +51,8 @@ appliesTo: "**/*"
 
 4. **质量检测与审查 (Test/Review)**
     - **要求**：执行测试前，**必须读取** [测试规范](../../../docs/standards/testing.md)。
-    - **任务**：运行 `pnpm lint`, `pnpm typecheck`, `pnpm test`。
-    - **约束**：严禁破坏原有测试。若失败需分析核心原因。
+    - **任务**：运行 `pnpm lint`, `pnpm typecheck` 以及**定向/按需测试**。
+    - **策略**: 遵循 [高效测试策略](../../../docs/standards/testing.md#6-高效测试策略-efficient-testing-strategy)，除非必要否则不执行全量测试。
     - **技能**：`quality-guardian`、`test-engineer`、`code-reviewer`
 
 5. **问题修复 (Fix)**
@@ -62,6 +62,7 @@ appliesTo: "**/*"
 6. **功能提交 (Commit - Phase 1)**
     - **目标**：在通过核心质量检查后提交业务逻辑。
     - **任务**：使用 Conventional Commits 规范（中文）提交。
+    - **要求**: 遵循 [提交规模与原子化改动](../../../docs/standards/development.md#27-提交规模与原子化改动-commit-scale--atomic-changes)，确保一次提交对应一个 Todo，文件数 < 10。
     - **技能**：`conventional-committer`
 
 7. **测试增强 (Enhance)**

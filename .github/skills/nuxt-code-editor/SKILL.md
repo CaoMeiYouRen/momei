@@ -26,6 +26,7 @@ applyTo: "**/*.{ts,vue,scss}"
     -   **禁止使用 PATCH 方法**，所有更新操作应使用 PUT 方法。
     -   列表类接口必须返回统一的分页格式：`items` (数据列表), `total` (总条数), `page`, `limit`, `totalPages`。
 4.  **国际化 (I18n)**: 所有 UI 字符串必须包裹在 `$t()` 中。
+    - **Key 命名规范**: 必须遵循 [开发规范](../../../docs/standards/development.md#25-代码生成准则-code-generation-guidelines) 要求的 **snake_case** (小写+下划线) 命名（现有 kebab-case 字段除外）。
 5.  **文件**: 创建文件时，确保它们位于正确的 Nuxt 目录 (`components`, `composables`, `server/api` 等) 中。
 6.  **依赖约束**: 遵循 `docs/standards/development.md` 中的依赖关系约束，避免循环依赖。
 

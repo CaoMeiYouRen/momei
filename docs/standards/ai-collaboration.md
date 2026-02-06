@@ -21,6 +21,7 @@
 - 遵循 TypeScript 优先原则（无 `any`）。
 - 遵循 SCSS BEM 命名。
 - UI 文本必须使用 `$t()` 国际化包裹。
+- **国际化 Key 命名**: 必须遵循 [开发规范](./development.md#25-代码生成准则-code-generation-guidelines) 要求的 snake_case 命名。
 
 ### V (Validate) - UI 验证
 - 对于 UI 相关改动，必须通过浏览器访问实际页面。
@@ -29,14 +30,16 @@
 
 ### T (Test) - 质量检查
 - 执行 `pnpm lint` 和 `pnpm typecheck`。
-- 执行 `pnpm test` (Vitest)。
+- **按需测试**: 优先执行与本次改动相关的定向测试。除非涉及大规模重构、核心逻辑或安全风险，否则不建议执行全量测试（详见 [测试规范](./testing.md#6-高效测试策略-efficient-testing-strategy)）。
 - 如果旧测试失败，必须优先分析导致失败的原因（是功能破坏还是测试过时）。
 
 ### F (Fix) - 缺陷修复
 - 自动修复 T 阶段发现的 Lint 错误或逻辑 Bug。
-- 重复 T 阶段直至 100% 通过。
+- 重复 T 阶段直至核心测试通过。
 
 ### C (Commit 1) - 功能提交
+- **原子提交**: 每次提交必须对应 [待办事项](../plan/todo.md) 中的一个条目。
+- **规模控制**: 单次提交的文件数量通常不应超过 10 个。如果改动规模较大，必须进行拆分（详见 [开发规范](./development.md#27-提交规模与原子化改动-commit-scale--atomic-changes)）。
 - 使用 `conventional-committer` 进行提交。
 - 提交描述使用中文，遵循 Conventional Commits 规范。
 
