@@ -190,7 +190,6 @@
             ref="deleteDialog"
             @confirm="handleDelete"
         />
-        <ConfirmDialog />
     </div>
 </template>
 

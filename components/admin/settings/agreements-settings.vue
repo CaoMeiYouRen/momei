@@ -228,9 +228,6 @@
                 />
             </template>
         </Dialog>
-
-        <!-- Delete Confirmation Dialog -->
-        <ConfirmDialog />
     </div>
 </template>
 
