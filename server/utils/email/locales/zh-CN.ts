@@ -107,8 +107,8 @@ export const emailLocalesZhCN = {
     },
 
     adminAlert: {
-        title: '墨梅站务通知',
-        preheader: '您收到一则系统站务提醒',
+        title: '{appName} 站务通知',
+        preheader: '您收到一则来自 {appName} 的系统站务提醒',
         headerIcon: '📢',
         NEW_USER: {
             subject: '新订阅/用户注册通知',

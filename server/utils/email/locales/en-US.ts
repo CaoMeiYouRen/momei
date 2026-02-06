@@ -118,8 +118,8 @@ export const emailLocalesEnUS = {
     },
 
     adminAlert: {
-        title: 'Momei Admin Notification',
-        preheader: 'You have received a system admin alert',
+        title: '{appName} Admin Notification',
+        preheader: 'You have received a system admin alert from {appName}',
         headerIcon: '📢',
         NEW_USER: {
             subject: 'New User/Subscription Alert',
