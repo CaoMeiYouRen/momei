@@ -8,6 +8,7 @@ import { Post } from './post'
 import { ApiKey } from './api-key'
 import { Comment } from './comment'
 import { NotificationSettings } from './notification-settings'
+import type { SocialLink, DonationLink } from '~/utils/shared/commercial'
 
 @Entity('user')
 export class User extends BaseEntity {
@@ -101,6 +102,18 @@ export class User extends BaseEntity {
      */
     @CustomColumn({ type: 'varchar', length: 64, nullable: true })
     timezone: string
+
+    /**
+     * 用户的社交链接
+     */
+    @CustomColumn({ type: 'simple-json', nullable: true })
+    socialLinks: SocialLink[]
+
+    /**
+     * 用户的打赏/赞助链接
+     */
+    @CustomColumn({ type: 'simple-json', nullable: true })
+    donationLinks: DonationLink[]
 
     /**
      * 是否启用两因素认证

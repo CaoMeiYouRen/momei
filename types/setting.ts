@@ -110,6 +110,9 @@ export enum SettingKey {
     LEGAL_MAIN_LANGUAGE = 'legal_main_language', // 法律效力版本的主语言 (如 zh-CN)
     LEGAL_USER_AGREEMENT_ID = 'legal_user_agreement_id', // 当前生效的用户协议 ID
     LEGAL_PRIVACY_POLICY_ID = 'legal_privacy_policy_id', // 当前生效的隐私政策 ID
+
+    // Commercial
+    COMMERCIAL_SPONSORSHIP = 'commercial_sponsorship',
 }
 
 export interface SettingItem {

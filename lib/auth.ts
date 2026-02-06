@@ -179,6 +179,14 @@ export const auth = betterAuth({
                 type: 'string',
                 required: false,
             },
+            socialLinks: {
+                type: 'string',
+                required: false,
+            },
+            donationLinks: {
+                type: 'string',
+                required: false,
+            },
         },
         changeEmail: {
             enabled: true, // 启用更改邮箱功能
