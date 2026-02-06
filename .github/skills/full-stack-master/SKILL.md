@@ -11,7 +11,7 @@ appliesTo: "**/*"
 ## 一、能力定位 (Capability)
 
 - **工作流自动编排**：串联需求设计开发测试质量文档提交审核发布的全链路。
-- **技能聚合**：集成所有基础子技能（Context Analyzer、Nuxt Code Editor、Test Engineer、Quality Guardian、Documentation Specialist、Code Reviewer、Conventional Committer）。
+- **技能聚合**：集成所有核心原子技能（Todo Manager、Technical Planning、Backend Logic Expert、Vue Frontend Expert、Database Expert、Code Quality Auditor、Test Engineer、UI Validator、Conventional Committer）。
 - **可复用与可拓展**：可合并新场景（如数据库迁移、API 变更、运营发布等），支持多项目切换。
 - **分阶段接棒/派单**：可手动或脚本分配阶段任务给对应技能或专项 agent。
 
@@ -24,30 +24,41 @@ appliesTo: "**/*"
 - **开发与设计**：[开发规范](../../../docs/standards/development.md)、[API 规范](../../../docs/standards/api.md)、[UI 设计](../../../docs/design/ui.md)
 - **安全与质量**：[安全规范](../../../docs/standards/security.md)、[测试规范](../../../docs/standards/testing.md)
 
-## 三、标准 PDTFC+ 工作流 (PDTFC+ Workflow)
+## 三、标准 PDTFC+ 2.0 工作流 (Standard Workflow)
 
-1. **需求分析与规划 (Plan & Analysis)**
-    - **目标**：透彻理解需求，通过追问与采访抽离核心意图，明确变更边界。
-    - **执行步骤**：
-        1. **读取必备文档**：必须先读取 [项目规划](../../../docs/plan/roadmap.md) 和 [待办事项](../../../docs/plan/todo.md)。
-        2. **需求采访与澄清**：针对模糊需求启动采访追问模式。
-        3. **规划与评估**：若涉及重大变更，参考 [项目规划规范](../../../docs/standards/planning.md)。
-    - **技能**：`context-analyzer`、`documentation-specialist`
+1. **P (Plan) - 需求分析与规划**
+    1. **读取文档**：确认 `todo.md` 和 `roadmap.md`。
+    2. **意图抽离**：启动采访追问程序同步需求。
+    3. **方案设计**：使用 `technical-planning` 规划改动清单，并使用 `todo-manager` 更新状态。
+    - **技能**：`requirement-analyst`、`todo-manager`、`technical-planning`
 
-2. **开发实现 (Do)**
-    - **目标**：遵循项目规范实现功能逻辑。
-    - **执行步骤**：
-        1. **规范对齐**：在开始编写代码前，**必须读取** [开发规范](../../../docs/standards/development.md) 和 [API 规范](../../../docs/standards/api.md)。
-        2. **安全审查**：涉及安全性时，必须读取 [安全规范](../../../docs/standards/security.md)。
-        3. **实现功能**：遵循 Nuxt 4.x, Vue 3, TS, SCSS BEM, i18n。
-    - **技能**：`nuxt-code-editor`
+2. **D (Do) - 开发实现**
+    1. **核心实现**：遵循 [开发规范](../../../docs/standards/development.md)；若涉及持久化，优先开发 `database-expert` 实体。
+    2. **自检修复**：开发完成通过 `code-quality-auditor` 消除 Lint 和类型报错。
+    - **技能**：`database-expert`、`backend-logic-expert`、`vue-frontend-expert`、`code-quality-auditor`
 
-3. **UI 自动化验证 (UI Validate)**
-    - **目标**：确保 UI 展现符合设计规范与各模式兼容。
-    - **执行步骤**：
-        1. **视觉准则**：读取 [UI 设计](../../../docs/design/ui.md)，确认视觉准则。
-        2. **验证执行**：通过浏览器验证实际渲染效果，必须覆盖 `light` 和 `dark` 两种主题模式。
+3. **A (Audit) - 代码审计**
+    1. **安全审计**：扫描注入、越权与敏感信息。
+    2. **规范审计**：对比 `todo.md` 确认功能点与规划一致。
+    - **技能**：`code-quality-auditor`、`security-guardian`
+
+4. **C1 (Commit) - 功能提交**
+    1. **原子提交**：使用 `conventional-committer` 执行第一次提交。
+
+5. **V (Validate) - UI 验证**
+    1. **视觉准则**：浏览器验证实际渲染效果。若自动化工具失效，应向用户展示截图或请求人工验证。
     - **技能**：`ui-validator`
+
+6. **T (Test) - 自动化测试**
+    1. **定向测试**：编写并运行 Vitest 用例（测试代码也需过审计）。
+    - **技能**：`test-engineer`
+
+7. **C2 (Commit) - 测试提交**
+    1. **最终交付**：提交测试代码。
+
+8. **F (Finish) - 任务完结**
+    1. **文档更新**：更新 `todo.md` 状态，并归并项目变更文档。
+    - **技能**：`todo-manager`、`documentation-specialist`
 
 4. **质量检测与审查 (Test/Review)**
     - **要求**：执行测试前，**必须读取** [测试规范](../../../docs/standards/testing.md)。

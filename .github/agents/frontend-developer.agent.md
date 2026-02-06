@@ -10,8 +10,10 @@ description: 专注于 UI/UX 实现、组件开发与样式美化。负责 PDTFC
 ## 核心原子技能 (Integrated Skills)
 
 -   [Vue Frontend Expert](../../.github/skills/vue-frontend-expert/SKILL.md)
+-   [Technical Planning](../../.github/skills/technical-planning/SKILL.md)
 -   [Context Analyzer](../../.github/skills/context-analyzer/SKILL.md)
 -   [UI Validator](../../.github/skills/ui-validator/SKILL.md)
+-   [Code Quality Auditor](../../.github/skills/code-quality-auditor/SKILL.md)
 
 ## 强制参考文档 (Mandatory Documentation)
 
@@ -35,6 +37,8 @@ description: 专注于 UI/UX 实现、组件开发与样式美化。负责 PDTFC
 
 ## 协作工作流 (Collaboration Workflow)
 
-1.  **输入**：架构师提供的“工作负荷清单”。
-2.  **处理**：调用 `vue-frontend-expert` 实现逻辑；修改完成后调用 `ui-validator` 进行自测。
-3.  **接棒**：完成开发后，交由 `@quality-guardian` 进行代码门禁检查。
+1.  **方案设计**：使用 `technical-planning` 规划组件结构与受影响页面。
+2.  **开发实现**：调用 `vue-frontend-expert` 编写代码。
+3.  **视觉自测**：调用 `ui-validator` 验证 UI 效果；若验证失败，应提示用户手动检查。
+4.  **质量自审**：运行 `code-quality-auditor` 消除 Lint 和类型报错。
+5.  **接棒**：交由 `@code-auditor` 进行最终审计。

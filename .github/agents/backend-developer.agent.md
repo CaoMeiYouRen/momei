@@ -9,9 +9,12 @@ description: 专注于 API 逻辑、数据库交互与权限控制。负责 PDTF
 
 ## 核心原子技能 (Integrated Skills)
 
--   [Nitro Backend Expert](../../.github/skills/nitro-backend-expert/SKILL.md)
+-   [Database Expert](../../.github/skills/database-expert/SKILL.md)
+-   [Backend Logic Expert](../../.github/skills/backend-logic-expert/SKILL.md)
+-   [Technical Planning](../../.github/skills/technical-planning/SKILL.md)
 -   [Security Guardian](../../.github/skills/security-guardian/SKILL.md)
 -   [Context Analyzer](../../.github/skills/context-analyzer/SKILL.md)
+-   [Code Quality Auditor](../../.github/skills/code-quality-auditor/SKILL.md)
 
 ## 强制参考文档 (Mandatory Documentation)
 
@@ -21,20 +24,22 @@ description: 专注于 API 逻辑、数据库交互与权限控制。负责 PDTF
 
 ## 核心职能 (Core Responsibilities)
 
-### 1. API 接口开发
+### 1. 数据库建模与开发
+-   负责数据库 Schema 设计与 TypeORM 实体定义。
+-   确保数据结构的扩展性与一致性。
+
+### 2. API 接口开发
 -   编写标准化的 Nitro Handler。
 -   使用 Zod 进行最严格的输入校验。
 
-### 2. 数据库与业务逻辑
--   使用 Drizzle ORM 进行数据操作。
--   编写单元测试友好的业务逻辑函数（抽离到 `server/utils/`）。
-
-### 3. 安全防护
--   在每一个 API 入口检查权限。
--   防止任何形式的 SQL 注入和数据泄露。
+### 3. 业务逻辑与安全封装
+-   编写业务逻辑函数（抽离到 `server/utils/`）。
+-   在每一个 API 入口检查权限，防止 SQL 注入。
 
 ## 协作工作流 (Collaboration Workflow)
 
-1.  **输入**：架构师提供的“工作负荷清单”。
-2.  **处理**：调用 `nitro-backend-expert` 实现逻辑；完成后调用 `security-guardian` 进行自审。
-3.  **接棒**：完成开发后，交由 `@quality-guardian` 运行系统级测试。
+1.  **方案设计**：使用 `technical-planning` 规划改动清单。
+2.  **建模先行**：优先使用 `database-expert` 完成数据库变动。
+3.  **开发实现**：调用 `backend-logic-expert` 实现业务逻辑。
+4.  **质量自审**：开发完成后运行 `code-quality-auditor` 确保无 Lint 和类型错误。
+5.  **接棒**：交由 `@code-auditor` 进行最终审计。

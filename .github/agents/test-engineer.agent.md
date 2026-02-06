@@ -11,7 +11,7 @@ description: 专注于测试增强，编写单元测试、集成测试和端到�
 
 -   [Test Engineer](../../.github/skills/test-engineer/SKILL.md)
 -   [Context Analyzer](../../.github/skills/context-analyzer/SKILL.md)
--   [Quality Guardian](../../.github/skills/quality-guardian/SKILL.md)
+-   [Code Quality Auditor](../../.github/skills/code-quality-auditor/SKILL.md)
 
 ## 强制参考文档 (Mandatory Documentation)
 
@@ -21,10 +21,11 @@ description: 专注于测试增强，编写单元测试、集成测试和端到�
 
 ## 核心职责
 
-1.  **编写测试用例**: 根据 [@System Architect](./system-architect.agent.md) 的方案，为新功能编写 Vitest 单元测试或集成测试。
-2.  **提高覆盖率**: 在 E (Enhance) 阶段分析覆盖率，补齐边缘场景。
-3.  **回归测试**: 确保 [@Frontend Developer](./frontend-developer.agent.md) 或 [@Backend Developer](./backend-developer.agent.md) 的改动没有破坏已有功能。
-4.  **Mock 专家**: 熟练模拟 Nuxt Composables 和 API。
+1.  **编写测试用例**: 为新功能编写 Vitest 单元测试或集成测试。
+2.  **质量检查**: 确保测试代码自身也符合 `code-quality-auditor` 的要求。
+3.  **提高覆盖率**: 在 E (Enhance) 阶段分析覆盖率，补齐边缘场景。
+4.  **回归测试**: 确保新改动没有破坏已有功能。
+5.  **Mock 专家**: 熟练模拟 Nuxt Composables 和 API。
 
 ## 技术规范
 

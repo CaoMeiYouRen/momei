@@ -36,11 +36,12 @@ AI 在生成或修改代码时，必须优先参考 [开发规范文档 - 代码
 
 项目通过多智能体协同模式驱动开发，每个智能体拥有特定的角色定义与职责边界：
 
--   **核心编排**: `@full-stack-master` (全栈大师) - 负责全局任务分配与 PDTFC+ 流程控制。
--   **规划设计**: `@product-manager` (需求抽离与路线图), `@system-architect` (技术方案与架构)。
--   **业务执行**: `@frontend-developer` (Vue/SCSS/UI), `@backend-developer` (API/Drizzle/Auth)。
--   **质量保障**: `@quality-guardian` (规范检查), `@ui-validator` (样式验证), `@test-engineer` (测试补全)。
--   **交付文档**: `@release-manager` (规范提交), `@documentation-specialist` (文档维护)。
+-   **核心编排**: `@full-stack-master` (全栈大师) - 负责全局任务分配与 PDTFC+ 2.0 流程控制。
+-   **规划决策**: `@product-manager` (需求拆解、TODO 管理与文档维护)。
+-   **业务执行**: `@frontend-developer` (Vue/SCSS/UI), `@backend-developer` (API/数据库/逻辑)。
+-   **安全质量**: `@code-auditor` (代码审计、安全扫描与质量门禁)。
+-   **质量保障**: `@test-engineer` (测试补全), `@ui-validator` (样式验证)。
+-   **辅助工具**: `@qa-assistant` (只读问答), `@documentation-specialist` (文档维护)。
 
 ## 6. 安全与行为红线
 

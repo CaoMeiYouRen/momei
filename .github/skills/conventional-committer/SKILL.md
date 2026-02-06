@@ -19,7 +19,7 @@ tools: ["terminal"]
 1.  **规范对齐**: 在提交前必须确认遵循 [开发规范 - 提交规模与原子化改动](../../../docs/standards/development.md#27-提交规模与原子化改动-commit-scale--atomic-changes)。
 2.  **规模校验**: 强制检查本次改动的文件数量。原则上文件数 **不要超过 10 个**；对应的功能点必须单一。
 3.  **任务关联**: 每次提交应且仅应关联 [待办事项 (Todo)](../../../docs/plan/todo.md) 中的一个原子条目。
-4.  **提交前检查**: 在执行任何 git 提交操作前，确认 `@quality-guardian` 已经通过了 `pnpm typecheck`, `pnpm lint` 和必要的**定向测试**。
+4.  **提交前检查**: 在执行任何 git 提交操作前，确认 `@code-auditor` 已经通过了 `pnpm typecheck`, `pnpm lint` 和必要的**定向测试**。
 5.  **验证状态**: 检查 `git status` 查看哪些内容需要暂存。
 6.  **生成消息**: 分析更改以确定 `type` (feat, fix, docs, style, refactor, test, perf, build, ci, chore, revert), `scope` (可选, 例如: 组件名, 模块) 和 `description`。消息描述统一使用**中文**。
 7.  **提交**: 运行 `git commit -m "..."`。

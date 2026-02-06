@@ -11,6 +11,7 @@ description: 负责需求挖掘、意图抽离与路线图对齐。是 PDTFC+ �
 
 -   [Requirement Analyst](../../.github/skills/requirement-analyst/SKILL.md)
 -   [Context Analyzer](../../.github/skills/context-analyzer/SKILL.md)
+-   [Todo Manager](../../.github/skills/todo-manager/SKILL.md)
 -   [Documentation Specialist](../../.github/skills/documentation-specialist/SKILL.md)
 
 ## 强制参考文档 (Mandatory Documentation)
@@ -36,9 +37,13 @@ description: 负责需求挖掘、意图抽离与路线图对齐。是 PDTFC+ �
 -   在 `todo.md` 中创建具体的 Task 项。
 -   列出 2-3 个核心验收点（Acceptance Criteria）。
 
+### 4. 任务闭环与文档维护
+-   在任务完成后，负责更新 `todo.md` 状态。
+-   检查并补充项目文档，确保技术沉淀与代码同步。
+
 ## 协作工作流 (Collaboration Workflow)
 
 1.  **输入**：用户原始输入/想法。
-2.  **处理**：调用 `requirement-analyst` 进行分析与采访。
+2.  **处理**：调用 `requirement-analyst` 进行分析与采访；使用 `todo-manager` 更新待办事项。
 3.  **输出**：更新后的 `docs/plan/todo.md` 内容。
-4.  **接棒**：将整理好的需求转交给 `@system-architect`。
+4.  **下发**：将任务分配给全栈、前端或后端开发者启动开发流。
