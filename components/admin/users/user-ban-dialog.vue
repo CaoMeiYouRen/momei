@@ -1,22 +1,22 @@
 <template>
     <Dialog
         :visible="visible"
-        :header="$t('pages.admin.users.banUser')"
+        :header="$t('pages.admin.users.ban_user')"
         modal
         class="user-management__dialog"
         @update:visible="$emit('update:visible', $event)"
     >
         <div class="user-management__dialog-content user-management__dialog-content--gap">
             <div>
-                <label class="user-management__dialog-label">{{ $t('pages.admin.users.banReason') }}</label>
+                <label class="user-management__dialog-label">{{ $t('pages.admin.users.ban_reason') }}</label>
                 <InputText
                     v-model="reason"
                     class="w-full"
-                    :placeholder="$t('pages.admin.users.banReasonPlaceholder')"
+                    :placeholder="$t('pages.admin.users.ban_reason_placeholder')"
                 />
             </div>
             <div>
-                <label class="user-management__dialog-label">{{ $t('pages.admin.users.banExpiry') }} ({{ $t('common.optional') }})</label>
+                <label class="user-management__dialog-label">{{ $t('pages.admin.users.ban_expiry') }} ({{ $t('common.optional') }})</label>
                 <Select
                     v-model="expiry"
                     :options="expiryOptions"
@@ -62,9 +62,9 @@ const loading = ref(false)
 
 const expiryOptions = computed(() => [
     { label: t('pages.admin.users.expiry.never'), value: null },
-    { label: t('pages.admin.users.expiry.oneDay'), value: 60 * 60 * 24 },
-    { label: t('pages.admin.users.expiry.oneWeek'), value: 60 * 60 * 24 * 7 },
-    { label: t('pages.admin.users.expiry.oneMonth'), value: 60 * 60 * 24 * 30 },
+    { label: t('pages.admin.users.expiry.one_day'), value: 60 * 60 * 24 },
+    { label: t('pages.admin.users.expiry.one_week'), value: 60 * 60 * 24 * 7 },
+    { label: t('pages.admin.users.expiry.one_month'), value: 60 * 60 * 24 * 30 },
 ])
 
 watch(() => props.visible, (val) => {

@@ -73,7 +73,7 @@
 
                 <Column
                     field="createdAt"
-                    :header="$t('pages.admin.users.createdAt')"
+                    :header="$t('pages.admin.users.created_at')"
                     sortable
                 >
                     <template #body="{data}">
@@ -91,7 +91,7 @@
                     <template #body="{data}">
                         <div class="user-management__actions">
                             <Button
-                                v-tooltip.top="$t('pages.admin.users.editRole')"
+                                v-tooltip.top="$t('pages.admin.users.edit_role')"
                                 icon="pi pi-user-edit"
                                 severity="info"
                                 text
@@ -99,7 +99,7 @@
                                 @click="openRoleDialog(data)"
                             />
                             <Button
-                                v-tooltip.top="data.banned ? $t('pages.admin.users.unbanUser') : $t('pages.admin.users.banUser')"
+                                v-tooltip.top="data.banned ? $t('pages.admin.users.unban_user') : $t('pages.admin.users.ban_user')"
                                 :icon="data.banned ? 'pi pi-unlock' : 'pi pi-lock'"
                                 :severity="data.banned ? 'success' : 'warning'"
                                 text
@@ -107,7 +107,7 @@
                                 @click="data.banned ? unbanUser(data) : openBanDialog(data)"
                             />
                             <Button
-                                v-tooltip.top="$t('pages.admin.users.viewSessions')"
+                                v-tooltip.top="$t('pages.admin.users.view_sessions')"
                                 icon="pi pi-desktop"
                                 severity="secondary"
                                 text
@@ -123,7 +123,7 @@
                                 @click="impersonateUser(data)"
                             />
                             <Button
-                                v-tooltip.top="$t('pages.admin.users.deleteUser')"
+                                v-tooltip.top="$t('pages.admin.users.delete_user')"
                                 icon="pi pi-trash"
                                 severity="danger"
                                 text
@@ -155,7 +155,7 @@
 
         <ConfirmDeleteDialog
             v-model:visible="deleteDialog.visible"
-            :title="$t('pages.admin.users.deleteUser')"
+            :title="$t('pages.admin.users.delete_user')"
             :message="deleteDialog.message"
             @confirm="deleteUser"
         />
@@ -268,7 +268,7 @@ const unbanUser = async (user: any) => {
 
 const impersonateUser = async (user: any) => {
     confirm.require({
-        message: t('pages.admin.users.confirmImpersonate', { name: user.name }),
+        message: t('pages.admin.users.confirm_impersonate', { name: user.name }),
         header: t('common.confirmation'),
         icon: 'pi pi-exclamation-triangle',
         acceptLabel: t('common.confirm'),
@@ -294,7 +294,7 @@ const openSessionsDrawer = (user: any) => {
 
 const confirmDelete = (user: any) => {
     deleteDialog.user = user
-    deleteDialog.message = t('pages.admin.users.confirmDelete', { name: user.name })
+    deleteDialog.message = t('pages.admin.users.confirm_delete', { name: user.name })
     deleteDialog.visible = true
 }
 

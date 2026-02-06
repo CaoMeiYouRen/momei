@@ -6,7 +6,7 @@
                     <InputIcon class="pi pi-search" />
                     <InputText
                         v-model="internalFilters.searchValue"
-                        :placeholder="$t('pages.admin.users.searchPlaceholder')"
+                        :placeholder="$t('pages.admin.users.search_placeholder')"
                         class="user-filters__search"
                     />
                 </IconField>
@@ -15,7 +15,7 @@
                     :options="roleOptions"
                     option-label="label"
                     option-value="value"
-                    :placeholder="$t('pages.admin.users.filterRole')"
+                    :placeholder="$t('pages.admin.users.filter_role')"
                     class="user-filters__dropdown"
                 />
                 <Select
@@ -23,7 +23,7 @@
                     :options="statusOptions"
                     option-label="label"
                     option-value="value"
-                    :placeholder="$t('pages.admin.users.filterStatus')"
+                    :placeholder="$t('pages.admin.users.filter_status')"
                     class="user-filters__dropdown"
                 />
             </div>
@@ -71,9 +71,9 @@ const roleOptions = computed(() => [
 ])
 
 const statusOptions = computed(() => [
-    { label: t('pages.admin.users.statusOptions.all'), value: null },
-    { label: t('pages.admin.users.statusOptions.active'), value: 'active' },
-    { label: t('pages.admin.users.statusOptions.banned'), value: 'banned' },
+    { label: t('pages.admin.users.status_options.all'), value: null },
+    { label: t('pages.admin.users.status_options.active'), value: 'active' },
+    { label: t('pages.admin.users.status_options.banned'), value: 'banned' },
 ])
 </script>
 

@@ -44,18 +44,18 @@
                     />
                 </div>
                 <div class="session-card__footer">
-                    <span>{{ $t('pages.admin.users.lastActive') }}: {{ d(session.updatedAt) }}</span>
-                    <span>{{ $t('pages.admin.users.expiresAt') }}: {{ d(session.expiresAt) }}</span>
+                    <span>{{ $t('pages.admin.users.last_active') }}: {{ d(session.updatedAt) }}</span>
+                    <span>{{ $t('pages.admin.users.expires_at') }}: {{ d(session.expiresAt) }}</span>
                 </div>
             </div>
 
             <div v-if="sessions.length === 0" class="sessions-empty">
-                {{ $t('pages.admin.users.noActiveSessions') }}
+                {{ $t('pages.admin.users.no_active_sessions') }}
             </div>
 
             <Button
                 v-if="sessions.length > 0"
-                :label="$t('pages.admin.users.revokeAll')"
+                :label="$t('pages.admin.users.revoke_all')"
                 severity="danger"
                 icon="pi pi-power-off"
                 class="sessions-revoke-all"
@@ -122,7 +122,7 @@ const revokeSession = async (token: string) => {
 const revokeAllUserSessions = async () => {
     if (!props.user) return
     confirm.require({
-        message: t('pages.admin.users.confirmRevokeAll'),
+        message: t('pages.admin.users.confirm_revoke_all'),
         header: t('common.danger'),
         icon: 'pi pi-exclamation-circle',
         acceptLabel: t('common.confirm'),

@@ -1,13 +1,13 @@
 <template>
     <Dialog
         :visible="visible"
-        :header="$t('pages.admin.users.editRole')"
+        :header="$t('pages.admin.users.edit_role')"
         modal
         class="user-management__dialog"
         @update:visible="$emit('update:visible', $event)"
     >
         <div class="user-management__dialog-content">
-            <label class="user-management__dialog-label">{{ $t('pages.admin.users.selectRole') }}</label>
+            <label class="user-management__dialog-label">{{ $t('pages.admin.users.select_role') }}</label>
             <Select
                 v-model="selectedRole"
                 :options="roleValues"
