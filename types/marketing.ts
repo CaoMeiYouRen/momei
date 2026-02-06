@@ -1,5 +1,3 @@
-import type { Category } from './category'
-import type { Tag } from './tag'
 import type { MarketingCampaignStatus } from '@/utils/shared/notification'
 
 /**
