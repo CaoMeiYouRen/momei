@@ -1,5 +1,68 @@
 # momei
 
+# [1.4.0](https://github.com/CaoMeiYouRen/momei/compare/v1.3.0...v1.4.0) (2026-02-07)
+
+
+### ✨ 新功能
+
+* **translation:** 添加翻译聚合和附加翻译信息的功能以支持多语言 ([af77994](https://github.com/CaoMeiYouRen/momei/commit/af77994))
+* 后端配置页添加用户协议和隐私政策管理功能 ([cbb3cb3](https://github.com/CaoMeiYouRen/momei/commit/cbb3cb3))
+* 完成邮件模板国际化模块实现 ([962378f](https://github.com/CaoMeiYouRen/momei/commit/962378f))
+* 实现 PrimeVue 与 Vue-i18n 的动态同步插件 ([c70d3bd](https://github.com/CaoMeiYouRen/momei/commit/c70d3bd))
+* 提取共享组件实现社交链接与打赏配置管理，优化商业设置页面结构，移除冗余代码 ([e0d2c8e](https://github.com/CaoMeiYouRen/momei/commit/e0d2c8e))
+* 新增通知设置和营销活动实体，扩展用户通知功能 ([2441cb4](https://github.com/CaoMeiYouRen/momei/commit/2441cb4))
+* 更新营销和通知设置组件，支持语言聚合和选中状态管理 ([47726bc](https://github.com/CaoMeiYouRen/momei/commit/47726bc))
+* 更新营销页面和组件，优化样式和国际化支持 ([1539cc3](https://github.com/CaoMeiYouRen/momei/commit/1539cc3))
+* 添加 PrimeVue 国际化支持，配置 zh_CN 语言 ([9e97f44](https://github.com/CaoMeiYouRen/momei/commit/9e97f44))
+* 添加发送测试邮件功能，支持预览营销活动邮件 ([5a13ae5](https://github.com/CaoMeiYouRen/momei/commit/5a13ae5))
+* 添加社交链接和打赏链接功能，支持用户自定义配置 ([bc415af](https://github.com/CaoMeiYouRen/momei/commit/bc415af))
+* 添加社交链接和捐赠链接的图片支持，优化二维码展示 ([fae76b8](https://github.com/CaoMeiYouRen/momei/commit/fae76b8))
+* 添加管理员通知设置页面，支持邮件和浏览器通知配置。支持新用户和新评论的管理员通知 ([d886994](https://github.com/CaoMeiYouRen/momei/commit/d886994))
+* 添加营销中心页面及相关组件，支持创建和管理营销推送 ([b30bdf3](https://github.com/CaoMeiYouRen/momei/commit/b30bdf3))
+* 添加营销推送类型支持，更新相关表单和国际化配置 ([c6d8427](https://github.com/CaoMeiYouRen/momei/commit/c6d8427))
+* 添加营销活动管理 API，包括创建、发送和统计功能 ([a2ab1bc](https://github.com/CaoMeiYouRen/momei/commit/a2ab1bc))
+* 添加赞助功能，支持社交链接和打赏链接的展示与管理 ([6412ac5](https://github.com/CaoMeiYouRen/momei/commit/6412ac5))
+
+
+### 🐛 Bug 修复
+
+* **admin:** 修复系统设置页面的存储配置问题 ([288bf0c](https://github.com/CaoMeiYouRen/momei/commit/288bf0c))
+* **cli:** 优化导入功能并重构参数验证与结果显示逻辑 ([e17800e](https://github.com/CaoMeiYouRen/momei/commit/e17800e))
+* **cli:** 修复同步工具的 API 接口字段错误 ([9bf7c4d](https://github.com/CaoMeiYouRen/momei/commit/9bf7c4d))
+* **cli:** 移除未使用的 verbose 参数修复 TypeScript 类型检查错误 ([6ec88c6](https://github.com/CaoMeiYouRen/momei/commit/6ec88c6))
+* **deps:** 降级多个依赖版本以解决兼容性问题 ([b05fa45](https://github.com/CaoMeiYouRen/momei/commit/b05fa45))
+* **legal:** 更新法律声明文本以明确开发者责任 ([3dad9ef](https://github.com/CaoMeiYouRen/momei/commit/3dad9ef))
+* **test:** 修复 AppHeader 和 AppFooter 的测试失败并优化 i18n 插件初始化 ([224d2cd](https://github.com/CaoMeiYouRen/momei/commit/224d2cd))
+* 优化提交成功和失败的提示信息，统一使用通用文本 ([591d441](https://github.com/CaoMeiYouRen/momei/commit/591d441))
+* 修复未登录用户访问订阅内容时的权限检查逻辑 ([78bbcd3](https://github.com/CaoMeiYouRen/momei/commit/78bbcd3))
+* 增强设置获取功能，处理数据库未初始化和错误情况 ([cd9717c](https://github.com/CaoMeiYouRen/momei/commit/cd9717c))
+* 改进 PrimeVue i18n 同步机制，采用深度更新策略 ([ff6d731](https://github.com/CaoMeiYouRen/momei/commit/ff6d731))
+* 更新查询条件以支持文章可见性过滤 ([e224e66](https://github.com/CaoMeiYouRen/momei/commit/e224e66))
+* 更新管理员通知内容，支持动态应用名称 ([f93b024](https://github.com/CaoMeiYouRen/momei/commit/f93b024))
+* 更新输入框类型定义以提高类型安全性 ([b967a68](https://github.com/CaoMeiYouRen/momei/commit/b967a68))
+* 添加 locale 和其他常用词汇以增强国际化支持 ([9028f83](https://github.com/CaoMeiYouRen/momei/commit/9028f83))
+* 添加 quill 依赖以支持富文本编辑功能 ([3a7ea5e](https://github.com/CaoMeiYouRen/momei/commit/3a7ea5e))
+* 简化通知设置模式中的类型和通道定义 ([29661c3](https://github.com/CaoMeiYouRen/momei/commit/29661c3))
+
+
+### 📦 代码重构
+
+* **captcha:** 添加支持 IP 和 User Agent 的验证码验证功能 ([e313021](https://github.com/CaoMeiYouRen/momei/commit/e313021))
+* 优化 PWA 插件加载逻辑以支持条件加载 ([01a58ca](https://github.com/CaoMeiYouRen/momei/commit/01a58ca))
+* 优化代码结构，使用可选链和正则表达式简化逻辑 ([4682f5c](https://github.com/CaoMeiYouRen/momei/commit/4682f5c))
+* 优化异步函数调用，确保返回 Promise ([ba762fd](https://github.com/CaoMeiYouRen/momei/commit/ba762fd))
+* 优化组件样式，使用变量和混入提升可维护性 ([9321ce7](https://github.com/CaoMeiYouRen/momei/commit/9321ce7))
+* 使用 ArticleContent 组件替换 HTML 内容渲染以增强可维护性 ([6713663](https://github.com/CaoMeiYouRen/momei/commit/6713663))
+* 使用 mavon-editor 替换原有编辑器以增强内容编辑功能 ([ad29593](https://github.com/CaoMeiYouRen/momei/commit/ad29593))
+* 引入新的验证模式以简化协议、音频和主题配置的处理 ([7f444fe](https://github.com/CaoMeiYouRen/momei/commit/7f444fe))
+* 更新 API 路径以统一订阅和协议获取接口 ([2adae73](https://github.com/CaoMeiYouRen/momei/commit/2adae73))
+* 更新用户管理界面，优化国际化支持和字段命名 ([130e699](https://github.com/CaoMeiYouRen/momei/commit/130e699))
+* 移除不必要的确认对话框组件，简化代码结构 ([e25a61f](https://github.com/CaoMeiYouRen/momei/commit/e25a61f))
+* 移除不必要的类型导出，简化邮件国际化管理器的接口 ([a82177f](https://github.com/CaoMeiYouRen/momei/commit/a82177f))
+* 简化协议版本和评论创建逻辑，使用 assignDefined 函数处理可选字段 ([687b8e6](https://github.com/CaoMeiYouRen/momei/commit/687b8e6))
+* 简化类别、帖子和标签的查找逻辑，提升代码可读性 ([e8ce91e](https://github.com/CaoMeiYouRen/momei/commit/e8ce91e))
+* 重构帖子更新逻辑，简化代码并增强权限检查 ([4957cde](https://github.com/CaoMeiYouRen/momei/commit/4957cde))
+
 # [1.3.0](https://github.com/CaoMeiYouRen/momei/compare/v1.2.0...v1.3.0) (2026-01-31)
 
 
