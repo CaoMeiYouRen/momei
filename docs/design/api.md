@@ -33,16 +33,16 @@
 
 具体的 API 定义已按功能模块拆分，请阅读对应的详细设计文档：
 
-- **[认证系统 (Auth)](../modules/auth.md)**: `/api/auth/*` (登录、注册、OAuth)。
-- **[用户空间 (User)](../modules/user.md)**: `/api/user/*` (资料、API Key、偏好设置)。
-- **[博客内容 (Blog)](../modules/blog.md)**: `/api/posts/*` (文章浏览、详情、阅读量)。
-- **[分类体系 (Taxonomy)](../modules/taxonomy.md)**: `/api/categories/*`, `/api/tags/*`。
-- **[互动系统 (Interactions)](../modules/interactions.md)**: `/api/comments/*` (评论、点赞、验证码)。
-- **[管理员管理 (Admin)](../modules/admin.md)**: `/api/admin/*` (系统设置、高级管理)。
-- **[商业化与社交 (Commercial)](../modules/commercial.md)**: `/api/settings/commercial`, `/api/user/commercial`。
-- **[AI 辅助 (AI)](../modules/ai.md)**: `/api/ai/*` (摘要、翻译、Slug 生成)。
-- **[开放平台 (Open API)](../modules/open-api.md)**: `/api/external/*` (外部发布接口)。
-- **[系统能力 (System)](../modules/system.md)**: `/api/upload/*` (文件上传)、`/api/settings/*` (公开设置)。
+- **[认证系统 (Auth)](modules/auth.md)**: `/api/auth/*` (登录、注册、OAuth)。
+- **[用户空间 (User)](modules/user.md)**: `/api/user/*` (资料、API Key、偏好设置)。
+- **[博客内容 (Blog)](modules/blog.md)**: `/api/posts/*` (文章浏览、详情、阅读量)。
+- **[分类体系 (Taxonomy)](modules/taxonomy.md)**: `/api/categories/*`, `/api/tags/*`。
+- **[互动系统 (Interactions)](modules/interactions.md)**: `/api/comments/*` (评论、点赞、验证码)。
+- **[管理员管理 (Admin)](modules/admin.md)**: `/api/admin/*` (系统设置、高级管理)。
+- **[商业化与社交 (Commercial)](modules/commercial.md)**: `/api/settings/commercial`, `/api/user/commercial`。
+- **[AI 辅助 (AI)](modules/ai.md)**: `/api/ai/*` (摘要、翻译、Slug 生成)。
+- **[开放平台 (Open API)](modules/open-api.md)**: `/api/external/*` (外部发布接口)。
+- **[系统能力 (System)](modules/system.md)**: `/api/upload/*` (文件上传)、`/api/settings/*` (公开设置)。
 
 ## 5. 国际化路由与 Slug 设计
 

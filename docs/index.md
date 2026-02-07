@@ -53,7 +53,7 @@ features:
       link: /design/ui
     - title: 功能模块
       details: 涵盖博客内容、认证、AI、邮件、主题等各个业务模块的深度解析。
-      link: /modules/index
+      link: /design/modules/index
     - title: 测试规范
       details: 学习单元测试与端到端测试的编写标准。
       link: /standards/testing

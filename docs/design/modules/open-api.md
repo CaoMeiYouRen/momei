@@ -23,7 +23,7 @@
 
 ### 3.1 外部发布文章 (Publish Post)
 
-> 参见 [TODO List](../plan/todo.md) 中的 "外部发布 API" 章节。
+> 参见 [TODO List](../../plan/todo.md) 中的 "外部发布 API" 章节。
 
 专门用于第三方工具（如 Obsidian, VSCode 插件, CI/CD 脚本）发布文章。
 

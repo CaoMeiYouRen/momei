@@ -13,7 +13,7 @@
 ## 第五阶段：生态深化与体验极致 (Ecosystem Deepening & Extreme Experience) (策划中)
 
 ### 1. 订阅中心与通知系统 (Subscription Hub & Notification System) (P1)
-具体文档：[订阅中心与通知系统](../modules/notifications.md)
+具体文档：[订阅中心与通知系统](../design/modules/notifications.md)
 - [x] **多格式集成订阅源 (Universal Feeds)**
     - 验收: 在现有 RSS 2.0 基础上，增加对 **Atom 1.0** 和 **JSON Feed 1.1** 的原生支持。
     - 验收: 确保在所有格式中，音频附件 (Enclosure/Attachment)均能被正确解析且不与封面图冲突。
@@ -45,7 +45,7 @@
     - [x] 验收: **多维度显隐控制**: 支持按当前页面语言 (zh-CN/en-US) 动态决定外链/打赏码的展示与隐藏。
     - [x] 验收: **后台商业配置优化**: 提取共享组件 CommercialLinkManager 实现代码复用，并增加权限校验 (RBAC)。
     - [x] 验收: **社交链接与打赏集成**: 实现基于“个人配置+全局覆盖”的社交引流与赞助系统。
-        - [x] 设计文档设计：[商业化与社交集成设计文档](../modules/commercial.md)
+        - [x] 设计文档设计：[商业化与社交集成设计文档](../design/modules/commercial.md)
         - [x] 共享类型定义：[utils/shared/commercial.ts](../../utils/shared/commercial.ts)
         - [x] 数据库 Schema 更新：User 实体增加链接字段
         - [x] 缓存/配置项更新：COMMERCIAL_SPONSORSHIP
