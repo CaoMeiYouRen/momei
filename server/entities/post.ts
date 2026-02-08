@@ -101,7 +101,17 @@ export class Post extends BaseEntity {
     category: Category
 
     @ManyToMany(() => Tag, (tag) => tag.posts)
-    @JoinTable()
+    @JoinTable({
+        name: 'post_tags_tag_posts',
+        joinColumn: {
+            name: 'post_id',
+            referencedColumnName: 'id',
+        },
+        inverseJoinColumn: {
+            name: 'tag_id',
+            referencedColumnName: 'id',
+        },
+    })
     tags: Tag[]
 
     @OneToMany(() => Comment, (comment) => comment.post)
