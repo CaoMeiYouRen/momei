@@ -501,9 +501,20 @@
                 "ai_error": "AI 服务调用失败",
                 "wechatsync": {
                     "tooltip": "一键同步到多平台 (WechatSync)",
-                    "extension_not_found": "未检测到 WechatSync 插件",
-                    "extension_help": "请先安装并启用 WechatSync 浏览器插件以使用此功能。",
-                    "failed": "启动同步失败"
+                    "extension_not_found": "未检测到插件",
+                    "extension_help": "请安装并启用 WechatSync (文章同步助手) 浏览器插件以使用此功能。",
+                    "failed": "启动同步失败",
+                    "dialog_title": "多平台同步",
+                    "accounts_title": "选择发布账号",
+                    "sync_now": "开始同步",
+                    "syncing": "同步中",
+                    "sync_done": "同步成功",
+                    "sync_failed": "同步失败",
+                    "draft_link": "查看草稿",
+                    "no_accounts": "未获取到可用账号，请确认已在插件中登录",
+                    "prepare_sync": "准备同步...",
+                    "waiting": "等待发布...",
+                    "install_link": "点击安装插件"
                 },
                 "import_success": "Markdown 导入成功",
                 "image_upload_success": "图片已上传并插入内容",

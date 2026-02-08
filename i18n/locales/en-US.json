@@ -502,9 +502,20 @@
                 "ai_error": "AI service call failed",
                 "wechatsync": {
                     "tooltip": "Sync to Multi-platform (WechatSync)",
-                    "extension_not_found": "WechatSync extension not found",
+                    "extension_not_found": "Extension not found",
                     "extension_help": "Please install and enable the WechatSync browser extension to use this feature.",
-                    "failed": "Failed to start synchronization"
+                    "failed": "Failed to start synchronization",
+                    "dialog_title": "Multi-platform Sync",
+                    "accounts_title": "Select Accounts",
+                    "sync_now": "Sync Now",
+                    "syncing": "Syncing",
+                    "sync_done": "Synced",
+                    "sync_failed": "Failed",
+                    "draft_link": "Draft",
+                    "no_accounts": "No accounts found. Please make sure you are logged in to the extension.",
+                    "prepare_sync": "Preparing...",
+                    "waiting": "Waiting...",
+                    "install_link": "Install Extension"
                 },
                 "import_success": "Markdown imported successfully",
                 "image_upload_success": "Image uploaded and inserted",

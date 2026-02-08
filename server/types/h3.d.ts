@@ -4,8 +4,8 @@ declare module 'h3' {
     interface H3EventContext {
 
         auth?: typeof auth.$Infer.Session | null
-         
-        user?: typeof auth.$Infer.User | null
+
+        user?: typeof auth.$Infer.Session.user | null
     }
 }
 

@@ -12,7 +12,7 @@ export interface MemosCreatePayload {
  */
 export const createMemo = async (payload: MemosCreatePayload) => {
     const isEnabled = await getSetting(SettingKey.MEMOS_ENABLED)
-    if (isEnabled !== 'true' && isEnabled !== true) {
+    if (isEnabled !== 'true') {
         return null
     }
 

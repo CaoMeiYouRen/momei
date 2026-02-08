@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
         language,
         tags: [],
         pushOption: 'none',
+        syncToMemos: false,
     }, session.user.id, {
         isAdmin: checkIsAdmin(session.user.role),
     })

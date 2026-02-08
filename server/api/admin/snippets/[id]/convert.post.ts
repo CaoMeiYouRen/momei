@@ -42,6 +42,7 @@ export default defineEventHandler(async (event) => {
         language: 'zh-CN', // 默认语言，后续可从全局设置或 Snippet 元数据获取
         tags: [],
         pushOption: 'none',
+        syncToMemos: false,
     }, session.user.id, {
         isAdmin: checkIsAdmin(session.user.role),
     })

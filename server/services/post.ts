@@ -164,9 +164,9 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
         const tagsStr = post.tags?.map((t) => `#${t.name}`).join(' ') || ''
         const content = `# ${post.title}\n\n${post.summary || ''}\n\n${postUrl}\n\n${tagsStr}`
 
-        createMemo({ content }).then((res: any) => {
+        void createMemo({ content }).then(async (res: any) => {
             if (res?.name) {
-                postRepo.update(post.id, { memosId: res.name })
+                await postRepo.update(post.id, { memosId: res.name })
             }
         }).catch((err) => {
             console.error('[Memos] Auto sync failed:', err)
@@ -178,7 +178,7 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
         const campaignStatus = body.pushOption === 'now' ? MarketingCampaignStatus.SENDING : MarketingCampaignStatus.DRAFT
         const campaign = await createCampaignFromPost(post.id, authorId, campaignStatus)
         if (body.pushOption === 'now') {
-            sendMarketingCampaign(campaign.id).catch((err) => {
+            void sendMarketingCampaign(campaign.id).catch((err) => {
                 console.error('Failed to send marketing campaign:', err)
             })
         }
@@ -230,9 +230,9 @@ export const updatePostService = async (id: string, body: UpdatePostInput, optio
         const tagsStr = post.tags?.map((t) => `#${t.name}`).join(' ') || ''
         const content = `# ${post.title}\n\n${post.summary || ''}\n\n${postUrl}\n\n${tagsStr}`
 
-        createMemo({ content }).then((res: any) => {
+        void createMemo({ content }).then(async (res: any) => {
             if (res?.name) {
-                postRepo.update(post.id, { memosId: res.name })
+                await postRepo.update(post.id, { memosId: res.name })
             }
         }).catch((err) => {
             console.error('[Memos] Auto sync failed:', err)
@@ -245,7 +245,7 @@ export const updatePostService = async (id: string, body: UpdatePostInput, optio
         const campaignStatus = body.pushOption === 'now' ? MarketingCampaignStatus.SENDING : MarketingCampaignStatus.DRAFT
         const campaign = await createCampaignFromPost(post.id, options.currentUserId, campaignStatus)
         if (body.pushOption === 'now') {
-            sendMarketingCampaign(campaign.id).catch((err) => {
+            void sendMarketingCampaign(campaign.id).catch((err) => {
                 console.error('Failed to send marketing campaign:', err)
             })
         }
