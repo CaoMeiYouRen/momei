@@ -4,9 +4,9 @@ import { describe, it, expect } from 'vitest'
  * captcha.ts 单元测试
  *
  * 注意：由于 verifyCaptcha 使用了 useRuntimeConfig() 和 $fetch (Nuxt API)，
- * 这些测试针对验证码验证逻辑的端到端集成测试，由 submissions.post.ts 的集成测试覆盖。
+ * 这些 API 在单元测试环境中难以 mock。完整的功能测试通过集成测试覆盖。
  *
- * 此文件保留用于后续的单元测试框架扩展。
+ * 此文件保留基本的导出验证测试。
  */
 
 describe('verifyCaptcha', () => {
@@ -19,7 +19,7 @@ describe('verifyCaptcha', () => {
     })
 
     /**
-     * 集成测试注释：
+     * 集成测试覆盖范围：
      *
      * verifyCaptcha 函数的完整测试覆盖应包括：
      *
@@ -41,8 +41,8 @@ describe('verifyCaptcha', () => {
      * 4. IP 参数处理：
      *    - 含 IP 和不含 IP 时的请求体差异
      *
-     * 这些测试应该在以下位置进行测试：
-     * - server/api/posts/submissions.post.ts (集成测试)
+     * 这些测试在以下位置进行：
+     * - server/api/posts/submissions.post.test.ts (集成测试)
      * - E2E 测试套件 (端到端)
      */
 })

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fail, paginate, success } from './response'
+import { ensureFound, fail, paginate, success } from './response'
 
 describe('response utils', () => {
     describe('success', () => {
@@ -50,6 +50,30 @@ describe('response utils', () => {
 
         it('should throw error with custom status code', () => {
             expect(() => fail('Not found', 404)).toThrow()
+        })
+    })
+
+    describe('ensureFound', () => {
+        it('should return entity when it exists', () => {
+            const entity = { id: 1, name: 'Test' }
+            const result = ensureFound(entity, 'Entity')
+
+            expect(result).toBe(entity)
+        })
+
+        it('should throw 404 error when entity is null', () => {
+            expect(() => ensureFound(null, 'User')).toThrow()
+        })
+
+        it('should throw 404 error when entity is undefined', () => {
+            expect(() => ensureFound(undefined, 'Post')).toThrow()
+        })
+
+        it('should handle entity with falsy values', () => {
+            const entity = { id: 0, name: '' }
+            const result = ensureFound(entity, 'Entity')
+
+            expect(result).toBe(entity)
         })
     })
 
