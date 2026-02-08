@@ -122,27 +122,34 @@ const qrHeader = ref('')
 const qrLabel = ref('')
 
 // Global settings
-const { data: globalData } = await useFetch<any>('/api/settings/commercial')
+const { data: globalData } = await useAppFetch<any>('/api/settings/commercial')
 const globalSocialLinks = computed<SocialLink[]>(() => globalData.value?.data?.socialLinks || [])
 const globalDonationLinks = computed<DonationLink[]>(() => globalData.value?.data?.donationLinks || [])
 const globalEnabled = computed(() => globalData.value?.data?.enabled !== false)
 
 const filterByLocale = (links: any[]) => {
+    if (!Array.isArray(links)) return []
     return links.filter((link) => !link.locales || link.locales.length === 0 || link.locales.includes(locale.value))
 }
 
 const displaySocialLinks = computed(() => {
-    const filteredAuthor = filterByLocale(props.socialLinks || [])
+    // 1. Author links matching current locale
+    const authorLinks = props.socialLinks || []
+    const filteredAuthor = filterByLocale(authorLinks)
     if (filteredAuthor.length > 0) return filteredAuthor
 
+    // 2. Global links matching current locale (if enabled)
     if (!globalEnabled.value) return []
     return filterByLocale(globalSocialLinks.value)
 })
 
 const displayDonationLinks = computed(() => {
-    const filteredAuthor = filterByLocale(props.donationLinks || [])
+    // 1. Author links matching current locale
+    const donationLinks = props.donationLinks || []
+    const filteredAuthor = filterByLocale(donationLinks)
     if (filteredAuthor.length > 0) return filteredAuthor
 
+    // 2. Global links matching current locale (if enabled)
     if (!globalEnabled.value) return []
     return filterByLocale(globalDonationLinks.value)
 })

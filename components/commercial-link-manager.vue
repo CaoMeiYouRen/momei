@@ -40,7 +40,17 @@
                     </div>
                     <div class="commercial-manager__card-content">
                         <div class="commercial-manager__card-label">
-                            {{ link.label || getSocialName(link.platform) }}
+                            <span class="mr-2">{{ link.label || getSocialName(link.platform) }}</span>
+                            <div v-if="link.locales && link.locales.length > 0" class="commercial-manager__card-tags">
+                                <Tag
+                                    v-for="loc in link.locales"
+                                    :key="loc"
+                                    :value="loc"
+                                    size="small"
+                                    severity="secondary"
+                                    class="commercial-manager__tag"
+                                />
+                            </div>
                         </div>
                         <div class="commercial-manager__card-value">
                             {{ link.url || link.image }}
@@ -110,7 +120,17 @@
                     </div>
                     <div class="commercial-manager__card-content">
                         <div class="commercial-manager__card-label">
-                            {{ link.label || getPlatformName(link.platform) }}
+                            <span class="mr-2">{{ link.label || getPlatformName(link.platform) }}</span>
+                            <div v-if="link.locales && link.locales.length > 0" class="commercial-manager__card-tags">
+                                <Tag
+                                    v-for="loc in link.locales"
+                                    :key="loc"
+                                    :value="loc"
+                                    size="small"
+                                    severity="secondary"
+                                    class="commercial-manager__tag"
+                                />
+                            </div>
                         </div>
                         <div class="commercial-manager__card-value">
                             {{ link.url || link.image }}
@@ -542,6 +562,7 @@ const confirmDeleteSocial = (index: number) => {
     &__card {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
         gap: $spacing-md;
         padding: $spacing-md;
         background-color: var(--p-surface-0);
@@ -569,6 +590,7 @@ const confirmDeleteSocial = (index: number) => {
         font-size: 1.5rem;
         background-color: var(--p-surface-50);
         border-radius: $border-radius-sm;
+        flex-shrink: 0;
 
         .dark & {
             background-color: var(--p-surface-800);
@@ -577,22 +599,34 @@ const confirmDeleteSocial = (index: number) => {
 
     &__card-content {
         flex: 1;
-        min-width: 0;
+        min-width: 200px;
     }
 
     &__card-label {
         font-weight: 600;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    &__card-tags {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    &__tag {
+        font-size: 10px !important;
+        padding: 0 4px !important;
+        height: 1.2rem;
     }
 
     &__card-value {
         font-size: $font-size-xs;
         color: var(--p-surface-500);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        word-break: break-all;
         margin-top: 2px;
     }
 
