@@ -40,7 +40,7 @@
     "chalk": "^5.4.1",
     "glob": "^13.0.1",
     "gray-matter": "^4.0.3",
-    "ora": "^9.1.0"
+    "ora": "^9.3.0"
   },
   "devDependencies": {
     "@types/node": "^25.2.1",
