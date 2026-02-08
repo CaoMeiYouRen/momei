@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { convertToMomeiPost, parseHexoMarkdown, scanMarkdownFiles } from './parser.js'
 import type { HexoFrontMatter } from './types.js'
 
