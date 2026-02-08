@@ -175,6 +175,8 @@
         "email": "Email",
         "otp": "OTP",
         "close": "Close",
+        "expand": "Expand",
+        "collapse": "Collapse",
         "no_data": "No Data",
         "drag_drop_tip": "Release mouse to import file",
         "drag_drop_help": "Drag & drop Markdown or image files to editor",

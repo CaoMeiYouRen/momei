@@ -40,8 +40,8 @@
             class="editor-area"
             :class="{
                 'editor-area--invalid': errors.content,
-                'editor-area--shifted': settingsVisible,
-                'editor-area--compact': settingsCompact
+                'editor-area--shifted': settingsVisible && !settingsCompact,
+                'editor-area--compact': settingsVisible && settingsCompact
             }"
         >
             <ClientOnly>
