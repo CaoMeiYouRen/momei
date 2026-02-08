@@ -95,6 +95,7 @@ const open = () => {
 
 defineExpose({
     open,
+    visible,
 })
 </script>
 
