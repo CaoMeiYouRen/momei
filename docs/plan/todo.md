@@ -28,7 +28,7 @@
     - 验收: 后台增加营销模板配置页面，支持撰写简单的通知正文。
     - 验收: **灰度/定向分发**: 支持管理员选择特定标签/分类的订阅者进行投递。
     - 验收: 提供发送记录与基本的到达状态查看逻辑。
-- [ ] **通知系统强化与模块补全 (Notification Strengthening)** (P1)
+- [x] **通知系统强化与模块补全 (Notification Strengthening)** (P1)
     - [x] 验收: **营销类型区分**: 扩展 `MarketingCampaign` 类型字段，支持 `UPDATE`, `FEATURE`, `PROMOTION`, `BLOG_POST`, `MAINTENANCE`, `SERVICE`六大类。
     - [x] 验收: **博客推送联动 (二次确认机制)**: 
         - [x] 文章发布确认框增加“推送选项”（不推送/存为草稿/立即发送）。
@@ -36,7 +36,7 @@
         - [x] 文章管理页增加“再次推送到邮件”操作，支持预设内容。
     - [x] 验收: **管理员站务接收**: 后台增加管理员通知配置页，涵盖新用户、新评论、API 错误及系统警报。
     - [x] 验收: **通知系统详细设计**: 完成针对站内通知 (In-app) 与 浏览器推送 (Web Push) 的详细设计文档。
-- [ ] **邮件模板与队列优化 (Templates & Queue)** (P2)
+- [x] **邮件模板与队列优化 (Templates & Queue)** (P2)
     - [x] 验收: **卡片式 HTML 模板引擎**: 实现基于 `table` 布局的 HTML 模板，支持封面图卡片展示。
     - [x] 验收: **发送前测试**: 增加“发送预览邮件到管理员邮箱”的功能，确保渲染正确。
     - [x] 验收: **变量替换引擎**: 实现支持多语言（$t）和自定义变量（{{articleTitle}}）的替换逻辑。
@@ -77,10 +77,10 @@
 ### 6. 第三方平台集成 (Third-party Integration) (P2)
 - [x] **设计与调研 (Design & Research)**
     - 验收: 完成 Wechatsync 与 Memos 的接口调研，编写详细设计文档 [third-party.md](../design/modules/third-party.md)。
-- [ ] **Memos API 集成**
+- [x] **Memos API 集成**
     - 验收: 实现 Memos v1 API 封装，支持在发布文章时同步推送摘要/正文。
     - 验收: 后台增加 Memos 实例 URL 与 Access Token 配置。
-- [ ] **Wechatsync 插件联动**
+- [x] **Wechatsync 插件联动**
     - 验收: 集成 `article-syncjs` SDK，支持在后台管理页面一键唤起同步框。
     - 验收: 确保图片路径与 Markdown 格式转换符合国内平台（知乎/头条）抓取规范。
 
