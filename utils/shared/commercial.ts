@@ -10,6 +10,7 @@ export const SOCIAL_PLATFORMS = [
     { key: 'youtube', icon: 'pi pi-youtube', color: '#ff0000' },
     { key: 'facebook', icon: 'pi pi-facebook', color: '#1877f2' },
     { key: 'github', icon: 'pi pi-github', color: '#333' },
+    { key: 'discord', icon: 'pi pi-discord', color: '#7289da' },
     { key: 'custom', icon: 'pi pi-link', color: '#666' },
 ]
 
