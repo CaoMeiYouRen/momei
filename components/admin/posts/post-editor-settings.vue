@@ -1,13 +1,33 @@
 <template>
-    <Drawer
-        v-model:visible="visible"
-        :header="$t('pages.admin.posts.settings_title')"
-        position="right"
-        :modal="false"
-        :dismissable="false"
-        :show-close-icon="true"
-        class="settings-drawer"
+    <div
+        class="settings-sidebar"
+        :class="{
+            'settings-sidebar--visible': visible,
+            'settings-sidebar--compact': isCompact
+        }"
     >
+        <div class="settings-sidebar__header">
+            <h3 class="settings-sidebar__title">
+                {{ $t('pages.admin.posts.settings_title') }}
+            </h3>
+            <div class="settings-sidebar__actions">
+                <Button
+                    v-tooltip="isCompact ? $t('common.expand') : $t('common.collapse')"
+                    :icon="isCompact ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"
+                    text
+                    rounded
+                    severity="secondary"
+                    @click="isCompact = !isCompact"
+                />
+                <Button
+                    icon="pi pi-times"
+                    text
+                    rounded
+                    severity="secondary"
+                    @click="visible = false"
+                />
+            </div>
+        </div>
         <div class="settings-form">
             <div class="form-group">
                 <label for="language" class="form-label">{{ $t('pages.admin.posts.language') }}</label>
@@ -260,17 +280,15 @@
                 </div>
             </div>
         </div>
-        <template #footer>
-            <div class="drawer-footer">
-                <Button
-                    :label="$t('common.close')"
-                    text
-                    severity="secondary"
-                    @click="visible = false"
-                />
-            </div>
-        </template>
-    </Drawer>
+        <div class="drawer-footer">
+            <Button
+                :label="$t('common.close')"
+                text
+                severity="secondary"
+                @click="visible = false"
+            />
+        </div>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -298,6 +316,7 @@ const props = defineProps<{
 const emit = defineEmits(['search-posts', 'suggest-slug', 'recommend-tags', 'search-tags', 'suggest-summary'])
 
 const visible = defineModel<boolean>('visible', { default: false })
+const isCompact = defineModel<boolean>('compact', { default: false })
 
 const probing = ref(false)
 const showImagePreview = ref(false)
@@ -376,14 +395,63 @@ const probeAudio = async () => {
 </script>
 
 <style lang="scss" scoped>
-.settings-drawer {
-    width: 28rem;
+.settings-sidebar {
+    position: fixed;
+    top: 4rem; // Below header
+    right: -24rem; // Hidden initially
+    width: 20rem;
+    height: calc(100vh - 4rem);
+    background-color: var(--p-surface-card);
+    border-left: 1px solid var(--p-surface-border);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    transition: all 0.3s ease;
+    box-shadow: -2px 0 8px rgb(0 0 0 / 0.05);
+
+    &--visible {
+        right: 0;
+    }
+
+    &--compact {
+        width: 14rem;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--p-surface-border);
+    }
+
+    &__actions {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    &__title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 
 .settings-form {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+
+    .settings-sidebar--compact & {
+        padding: 1rem 0.75rem;
+        gap: 1rem;
+    }
 }
 
 .form-group {

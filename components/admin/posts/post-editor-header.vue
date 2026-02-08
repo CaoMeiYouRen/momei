@@ -260,6 +260,8 @@ defineExpose({
     border-bottom: 1px solid var(--p-surface-border);
     background-color: var(--p-surface-card);
     flex-shrink: 0;
+    position: relative;
+    z-index: 200;
 
     &-left {
         display: flex;

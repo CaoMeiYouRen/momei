@@ -40,7 +40,8 @@
             class="editor-area"
             :class="{
                 'editor-area--invalid': errors.content,
-                'editor-area--shifted': settingsVisible
+                'editor-area--shifted': settingsVisible,
+                'editor-area--compact': settingsCompact
             }"
         >
             <ClientOnly>
@@ -59,6 +60,7 @@
 
         <PostEditorSettings
             v-model:visible="settingsVisible"
+            v-model:compact="settingsCompact"
             v-model:post="post"
             :errors="errors"
             :categories="categories"
@@ -221,6 +223,7 @@ const allTags = ref<string[]>([]) // Should be loaded from API
 
 const isNew = computed(() => route.params.id === 'new' || !route.params.id)
 const settingsVisible = ref(isNew.value)
+const settingsCompact = ref(false)
 const publishPushDialog = ref<any>(null)
 
 const {
@@ -667,7 +670,11 @@ onMounted(() => {
     }
 
     &--shifted {
-        margin-right: 28rem;
+        margin-right: 20rem;
+    }
+
+    &--compact {
+        margin-right: 14rem;
     }
 }
 

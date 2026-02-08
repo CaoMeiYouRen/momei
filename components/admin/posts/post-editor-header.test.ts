@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import PostEditorHeader from './post-editor-header.vue'
-import { PostStatus, PostVisibility } from '@/types/post'
+import { PostStatus } from '@/types/post'
 
 describe('PostEditorHeader', () => {
     const mockPost = {
@@ -18,9 +18,9 @@ describe('PostEditorHeader', () => {
             { code: 'zh-CN', name: '中文' },
             { code: 'en-US', name: 'English' },
         ],
-        hasTranslation: (lang: string) => null,
+        hasTranslation: () => null,
         getStatusLabel: (status: string) => status,
-        getStatusSeverity: (status: string) => 'info',
+        getStatusSeverity: () => 'info',
         saving: false,
         isNew: true,
         aiLoading: {},
