@@ -104,6 +104,30 @@ export const SETTING_ENV_MAP: Record<string, string> = {
     [SettingKey.COMMERCIAL_SPONSORSHIP]: 'COMMERCIAL_SPONSORSHIP_JSON',
 }
 
+/**
+ * 强制被环境变量锁定的键名 (无法从后台修改，仅能通过 ENV 修改)
+ * 主要是因为目前部分底层库(如 Better-Auth)直接读取了 process.env 而非通过 Service 加载
+ */
+export const FORCED_ENV_LOCKED_KEYS: string[] = [
+    SettingKey.SITE_URL,
+    SettingKey.GITHUB_CLIENT_ID,
+    SettingKey.GITHUB_CLIENT_SECRET,
+    SettingKey.GOOGLE_CLIENT_ID,
+    SettingKey.GOOGLE_CLIENT_SECRET,
+    SettingKey.CAPTCHA_SITE_KEY,
+    SettingKey.CAPTCHA_SECRET_KEY,
+]
+
+/**
+ * 极端敏感且仅限后端加载的键名 (完全不在后台设置 UI 中展示)
+ */
+export const INTERNAL_ONLY_KEYS: string[] = [
+    'AUTH_SECRET',
+    'BETTER_AUTH_SECRET',
+    'DATABASE_URL',
+    'REDIS_URL',
+    'AXIOM_API_TOKEN',
+]
 
 /**
  * 获取指定键的设置值
@@ -195,6 +219,12 @@ export const setSetting = async (
         maskType?: string
     },
 ) => {
+    // 检查是否受环境变量锁定
+    const envKey = SETTING_ENV_MAP[key]
+    if ((envKey && process.env[envKey] !== undefined) || FORCED_ENV_LOCKED_KEYS.includes(key)) {
+        return // 跳过锁定的配置项
+    }
+
     const settingRepo = dataSource.getRepository(Setting)
     let setting = await settingRepo.findOne({ where: { key } })
 
@@ -243,6 +273,11 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
 
     const result: any[] = []
     for (const key of allKeys) {
+        // 如果是极端敏感的内部键，则完全跳过，不在 UI 展示
+        if (INTERNAL_ONLY_KEYS.includes(key)) {
+            continue
+        }
+
         const dbSetting = dbSettingsMap.get(key)
 
         // 如果配置在数据库中存在且级别过高，则根据选项过滤
@@ -252,9 +287,9 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
 
         const envKey = (SETTING_ENV_MAP)[key]
         const envValue = envKey ? process.env[envKey] : undefined
-        const isLocked = envValue !== undefined
+        const isLocked = envValue !== undefined || FORCED_ENV_LOCKED_KEYS.includes(key)
         // 优先使用环境变量的值，其次是数据库的值，最后是空字符串
-        const value = isLocked ? envValue : (dbSetting?.value ?? '')
+        const value = isLocked ? (envValue ?? '') : (dbSetting?.value ?? '')
 
         // 尝试推断或从数据库获取元数据
         let maskType = dbSetting?.maskType ?? 'none'
@@ -296,7 +331,7 @@ export const setSettings = async (settings: Record<string, any>) => {
     for (const [key, val] of entries) {
         // 检查是否受环境变量锁定
         const envKey = SETTING_ENV_MAP[key]
-        if (envKey && process.env[envKey] !== undefined) {
+        if ((envKey && process.env[envKey] !== undefined) || FORCED_ENV_LOCKED_KEYS.includes(key)) {
             continue // 跳过锁定的配置项
         }
 
