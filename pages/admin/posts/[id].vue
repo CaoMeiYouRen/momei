@@ -38,7 +38,10 @@
         <!-- Editor Area -->
         <div
             class="editor-area"
-            :class="{'editor-area--invalid': errors.content}"
+            :class="{
+                'editor-area--invalid': errors.content,
+                'editor-area--shifted': settingsVisible
+            }"
         >
             <ClientOnly>
                 <mavon-editor
@@ -216,7 +219,8 @@ const handleTranslationClick = async (
 const filteredTags = ref<string[]>([])
 const allTags = ref<string[]>([]) // Should be loaded from API
 
-const settingsVisible = ref(false)
+const isNew = computed(() => route.params.id === 'new' || !route.params.id)
+const settingsVisible = ref(isNew.value)
 const publishPushDialog = ref<any>(null)
 
 const {
@@ -290,8 +294,6 @@ const searchPosts = async (event: { query: string }) => {
         console.error('Failed to search posts', error)
     }
 }
-
-const isNew = computed(() => route.params.id === 'new' || !route.params.id)
 
 const previewLink = computed(() => {
     if (isNew.value && !post.value.id) return null
@@ -652,6 +654,7 @@ onMounted(() => {
     flex-direction: column;
     overflow: hidden;
     position: relative;
+    transition: margin-right 0.3s ease;
 
     .mavon-editor {
         width: 100%;
@@ -661,6 +664,10 @@ onMounted(() => {
 
     &--invalid {
         border: 1px solid var(--p-error-color);
+    }
+
+    &--shifted {
+        margin-right: 28rem;
     }
 }
 

@@ -3,6 +3,9 @@
         v-model:visible="visible"
         :header="$t('pages.admin.posts.settings_title')"
         position="right"
+        :modal="false"
+        :dismissable="false"
+        :show-close-icon="true"
         class="settings-drawer"
     >
         <div class="settings-form">

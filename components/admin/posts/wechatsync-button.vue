@@ -3,7 +3,7 @@
         <Button
             v-if="!isNew"
             v-tooltip="$t('pages.admin.posts.wechatsync.tooltip')"
-            icon="pi pi-share-alt"
+            icon="pi pi-sync"
             text
             rounded
             @click="openSyncDialog"

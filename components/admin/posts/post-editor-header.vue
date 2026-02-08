@@ -14,32 +14,34 @@
                 class="title-input"
                 :class="{'p-invalid': errors.title}"
             />
-            <Button
-                id="ai-title-btn"
-                v-tooltip="$t('pages.admin.posts.ai.suggest_titles')"
-                icon="pi pi-sparkles"
-                text
-                rounded
-                :loading="aiLoading.title"
-                @click="emit('suggest-titles', $event)"
-            />
-            <Button
-                id="ai-translate-btn"
-                v-tooltip="$t('pages.admin.posts.ai.translate')"
-                icon="pi pi-language"
-                text
-                rounded
-                :loading="aiLoading.translate"
-                @click="translateOp.toggle($event)"
-            />
-            <Button
-                id="format-markdown-btn"
-                v-tooltip="$t('pages.admin.posts.ai.format_markdown')"
-                icon="pi pi-align-left"
-                text
-                rounded
-                @click="handleFormatMarkdown"
-            />
+            <ButtonGroup class="ai-tools-group">
+                <Button
+                    id="ai-title-btn"
+                    v-tooltip="$t('pages.admin.posts.ai.suggest_titles')"
+                    icon="pi pi-sparkles"
+                    text
+                    outlined
+                    :loading="aiLoading.title"
+                    @click="emit('suggest-titles', $event)"
+                />
+                <Button
+                    id="ai-translate-btn"
+                    v-tooltip="$t('pages.admin.posts.ai.translate')"
+                    icon="pi pi-language"
+                    text
+                    outlined
+                    :loading="aiLoading.translate"
+                    @click="translateOp.toggle($event)"
+                />
+                <Button
+                    id="format-markdown-btn"
+                    v-tooltip="$t('pages.admin.posts.ai.format_markdown')"
+                    icon="pi pi-align-left"
+                    text
+                    outlined
+                    @click="handleFormatMarkdown"
+                />
+            </ButtonGroup>
             <Popover ref="translateOp" class="translate-menu">
                 <div class="translate-menu__content">
                     <div
@@ -115,17 +117,15 @@
             <small v-if="errors.title" class="p-error">{{
                 errors.title
             }}</small>
-            <Tag
-                v-if="post.status"
-                :value="getStatusLabel(post.status)"
-                :severity="getStatusSeverity(post.status)"
-            />
-            <div class="ml-4 translation-status-bar">
-                <Badge
+        </div>
+        <div class="top-bar-right">
+            <div class="mr-4 translation-status-bar">
+                <Tag
                     v-for="l in locales"
                     :key="l.code"
+                    v-tooltip="l.name"
                     :value="l.code.toUpperCase()"
-                    :severity="hasTranslation(l.code) ? 'success' : 'secondary'"
+                    :severity="post.language === l.code ? 'success' : 'secondary'"
                     class="translation-badge"
                     :class="{
                         'translation-badge--active': post.language === l.code,
@@ -134,8 +134,12 @@
                     @click="emit('handle-translation', l.code)"
                 />
             </div>
-        </div>
-        <div class="top-bar-right">
+            <Tag
+                v-if="post.status"
+                :value="getStatusLabel(post.status)"
+                :severity="getStatusSeverity(post.status)"
+                class="mr-2 status-tag"
+            />
             <span v-if="saving" class="saving-text">{{
                 $t("common.saving")
             }}</span>
@@ -280,20 +284,33 @@ defineExpose({
 .translation-badge {
     cursor: pointer;
     transition: all 0.2s;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    font-weight: 700;
+    user-select: none;
 
     &:hover {
-        transform: translateY(-1px);
         opacity: 0.8;
     }
 
     &--active {
-        box-shadow: 0 0 0 2px var(--p-primary-color);
+        box-shadow: 0 0 0 2px var(--p-surface-200);
     }
 
     &--missing {
-        filter: grayscale(1) opacity(0.5);
+        opacity: 0.4;
+        background-color: transparent !important;
+        border: 1px dashed var(--p-surface-border) !important;
+        color: var(--p-text-muted-color) !important;
     }
+}
+
+.ai-tools-group {
+    margin-left: 0.5rem;
+}
+
+.status-tag {
+    font-weight: 600;
 }
 
 .title-input {
