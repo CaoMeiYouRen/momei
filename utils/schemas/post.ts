@@ -53,6 +53,7 @@ const sharedPostFields = {
     visibility: postVisibilityEnum,
     password: z.string().nullable().optional(),
     pushOption: z.enum(['none', 'draft', 'now']).optional().default('none'),
+    syncToMemos: z.boolean().optional().default(false),
 }
 
 export const createPostSchema = z.object({

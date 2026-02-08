@@ -475,6 +475,8 @@
                     "now": "立即推送到订阅者",
                     "now_desc": "文章发布后，立即向相关订阅者发送邮件通知。"
                 },
+                "sync_to_memos": "同步至 Memos",
+                "sync_to_memos_desc": "内容发布后，自动在您的 Memos 实例中创建一个摘要笔记。",
                 "password_placeholder": "请输入文章访问密码",
                 "language": "文章语言",
                 "translation_group": "关联其他语言版本",
@@ -497,6 +499,12 @@
                 "translate_success": "翻译已完成，已覆盖内容区",
                 "content_too_short": "文章内容太短，无法分析",
                 "ai_error": "AI 服务调用失败",
+                "wechatsync": {
+                    "tooltip": "一键同步到多平台 (WechatSync)",
+                    "extension_not_found": "未检测到 WechatSync 插件",
+                    "extension_help": "请先安装并启用 WechatSync 浏览器插件以使用此功能。",
+                    "failed": "启动同步失败"
+                },
                 "import_success": "Markdown 导入成功",
                 "image_upload_success": "图片已上传并插入内容",
                 "upload_failed": "文件上传失败",
@@ -643,7 +651,8 @@
                         "analytics": "分析统计",
                         "agreements": "协议管理",
                         "notifications": "站务通知",
-                        "commercial": "商业赞助"
+                        "commercial": "商业赞助",
+                        "third_party": "第三方集成"
                     },
                     "sections": {
                         "social_auth": "社交登录 (OAuth)",
@@ -653,7 +662,8 @@
                         "page_limits": "内容展示限制",
                         "compliance": "合规与备案",
                         "branding": "品牌与资产",
-                        "footer": "页脚设置"
+                        "footer": "页脚设置",
+                        "memos": "Memos 同步"
                     },
                     "notifications": {
                         "title": "站务通知配置",
@@ -725,7 +735,11 @@
                         "vercel_blob_token": "Vercel Blob Token",
                         "baidu_analytics": "百度统计 ID",
                         "google_analytics": "Google Analytics ID",
-                        "clarity_analytics": "Microsoft Clarity ID"
+                        "clarity_analytics": "Microsoft Clarity ID",
+                        "memos_enabled": "启用 Memos 同步",
+                        "memos_instance_url": "Memos 实例地址",
+                        "memos_access_token": "Access Token",
+                        "memos_default_visibility": "默认可见性"
                     },
                     "hints": {
                         "ai_enabled": "启用后可使用 AI 翻译、摘要等功能",
@@ -734,7 +748,16 @@
                         "auth_notice": "配置社交登录需要您在对应的开发者平台（如 GitHub Developer Settings）注册应用，并配置回调地址。",
                         "max_upload_size": "单位为 MB。如果设置为 0 则不限制。",
                         "keywords_placeholder": "每行一个关键词，匹配到的评论将自动设为待审核或垃圾评论",
-                        "file_types_placeholder": "例如: .jpg, .png, .mp3 (逗号分隔)"
+                        "file_types_placeholder": "例如: .jpg, .png, .mp3 (逗号分隔)",
+                        "memos_instance_url": "例如: https://memos.example.com",
+                        "memos_access_token": "在 Memos 设置 -> 账户 -> 访问令牌中生成"
+                    },
+                    "memos": {
+                        "visibility": {
+                            "PUBLIC": "所有人可见 (Public)",
+                            "PROTECTED": "仅登录用户可见 (Protected)",
+                            "PRIVATE": "仅自己可见 (Private)"
+                        }
                     },
                     "agreements": {
                         "title": "协议管理",

@@ -40,7 +40,7 @@
                 rounded
                 @click="handleFormatMarkdown"
             />
-            <OverlayPanel ref="translateOp" class="translate-menu">
+            <Popover ref="translateOp" class="translate-menu">
                 <div class="translate-menu__content">
                     <div
                         v-for="l in locales"
@@ -99,8 +99,8 @@
                         />
                     </div>
                 </div>
-            </OverlayPanel>
-            <OverlayPanel ref="titleOp" class="title-suggestions-panel">
+            </Popover>
+            <Popover ref="titleOp" class="title-suggestions-panel">
                 <ul class="suggestion-list">
                     <li
                         v-for="(suggestion, index) in titleSuggestions"
@@ -111,7 +111,7 @@
                         {{ suggestion }}
                     </li>
                 </ul>
-            </OverlayPanel>
+            </Popover>
             <small v-if="errors.title" class="p-error">{{
                 errors.title
             }}</small>
@@ -139,6 +139,7 @@
             <span v-if="saving" class="saving-text">{{
                 $t("common.saving")
             }}</span>
+            <AdminPostsWechatsyncButton :post="post" :is-new="isNew" />
             <Button
                 v-if="!isNew || post.id"
                 :label="$t('common.preview')"

@@ -86,6 +86,9 @@ export class Post extends BaseEntity {
     @CustomColumn({ type: 'datetime', nullable: true, index: true })
     publishedAt: Date | null
 
+    @CustomColumn({ type: 'varchar', length: 255, nullable: true, comment: '关联的 Memos ID', index: true })
+    memosId: string | null
+
     // ========== 关系定义 ==========
 
     @ManyToOne(() => User, (user) => user.posts, {

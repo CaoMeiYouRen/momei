@@ -414,11 +414,11 @@ const searchTags = (event: { query: string }) => {
     }
 }
 
-const handlePublishConfirm = async (pushOption: 'none' | 'draft' | 'now') => {
+const handlePublishConfirm = async (options: { pushOption: 'none' | 'draft' | 'now', syncToMemos: boolean }) => {
     if (publishPushDialog.value) {
         publishPushDialog.value.visible = false
     }
-    await executeSave(true, pushOption)
+    await executeSave(true, options.pushOption, options.syncToMemos)
 }
 
 const savePost = async (publish = false) => {
@@ -433,6 +433,7 @@ const savePost = async (publish = false) => {
 const executeSave = async (
     publish = false,
     pushOption: 'none' | 'draft' | 'now' = 'none',
+    syncToMemos = false,
 ) => {
     errors.value = {}
 
@@ -442,7 +443,7 @@ const executeSave = async (
     }
 
     // 构建提交数据，显式移除关联对象以避免 Zod 校验失败
-    const payload: any = { ...post.value, pushOption }
+    const payload: any = { ...post.value, pushOption, syncToMemos }
     delete payload.category
     delete payload.author
     if (publish) {

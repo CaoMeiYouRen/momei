@@ -11,6 +11,9 @@ import { PostStatus, POST_STATUS_TRANSITIONS } from '@/types/post'
 import { hashPassword } from '@/server/utils/password'
 import { assignDefined } from '@/server/utils/object'
 import { MarketingCampaignStatus } from '@/utils/shared/notification'
+import { createMemo } from '@/server/utils/memos'
+import { getSetting } from '@/server/services/setting'
+import { SettingKey } from '@/types/setting'
 
 type CreatePostInput = z.infer<typeof createPostSchema>
 type UpdatePostInput = z.infer<typeof updatePostSchema>
@@ -154,6 +157,22 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
     await applyPostChanges(post, body, options, true)
     await postRepo.save(post)
 
+    // 处理 Memos 同步逻辑
+    if (body.syncToMemos && post.status === PostStatus.PUBLISHED) {
+        const siteUrl = await getSetting(SettingKey.SITE_URL)
+        const postUrl = `${siteUrl}/posts/${post.slug}`
+        const tagsStr = post.tags?.map((t) => `#${t.name}`).join(' ') || ''
+        const content = `# ${post.title}\n\n${post.summary || ''}\n\n${postUrl}\n\n${tagsStr}`
+
+        createMemo({ content }).then((res: any) => {
+            if (res?.name) {
+                postRepo.update(post.id, { memosId: res.name })
+            }
+        }).catch((err) => {
+            console.error('[Memos] Auto sync failed:', err)
+        })
+    }
+
     // 处理推送逻辑
     if (body.pushOption && body.pushOption !== 'none' && post.status === PostStatus.PUBLISHED) {
         const campaignStatus = body.pushOption === 'now' ? MarketingCampaignStatus.SENDING : MarketingCampaignStatus.DRAFT
@@ -203,6 +222,22 @@ export const updatePostService = async (id: string, body: UpdatePostInput, optio
 
     await applyPostChanges(post, body, options, false)
     await postRepo.save(post)
+
+    // 处理 Memos 同步逻辑
+    if (body.syncToMemos && post.status === PostStatus.PUBLISHED && !post.memosId) {
+        const siteUrl = await getSetting(SettingKey.SITE_URL)
+        const postUrl = `${siteUrl}/posts/${post.slug}`
+        const tagsStr = post.tags?.map((t) => `#${t.name}`).join(' ') || ''
+        const content = `# ${post.title}\n\n${post.summary || ''}\n\n${postUrl}\n\n${tagsStr}`
+
+        createMemo({ content }).then((res: any) => {
+            if (res?.name) {
+                postRepo.update(post.id, { memosId: res.name })
+            }
+        }).catch((err) => {
+            console.error('[Memos] Auto sync failed:', err)
+        })
+    }
 
     // 处理推送逻辑 (仅在文章首次发布时)
     if (body.pushOption && body.pushOption !== 'none'

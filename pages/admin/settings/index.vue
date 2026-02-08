@@ -48,6 +48,9 @@
                         <Tab value="commercial">
                             {{ $t('pages.admin.settings.system.tabs.commercial') }}
                         </Tab>
+                        <Tab value="third_party">
+                            {{ $t('pages.admin.settings.system.tabs.third_party') }}
+                        </Tab>
                     </TabList>
                     <TabPanels>
                         <TabPanel value="general">
@@ -93,6 +96,10 @@
                         <TabPanel value="commercial">
                             <CommercialSettings />
                         </TabPanel>
+
+                        <TabPanel value="third_party">
+                            <ThirdPartySettings v-model:settings="settings" :metadata="metadata" />
+                        </TabPanel>
                     </TabPanels>
                 </Tabs>
             </template>
@@ -116,6 +123,7 @@ import AdminNotificationSettings from '@/components/admin/settings/admin-notific
 import LimitsSettings from '@/components/admin/settings/limits-settings.vue'
 import AgreementsSettings from '@/components/admin/settings/agreements-settings.vue'
 import CommercialSettings from '@/components/admin/settings/commercial-settings.vue'
+import ThirdPartySettings from '@/components/admin/settings/third-party-settings.vue'
 
 const { t } = useI18n()
 const toast = useToast()

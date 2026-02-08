@@ -475,6 +475,8 @@
                     "now": "Push to Subscribers Now",
                     "now_desc": "Immediately send an email notification to relevant subscribers after publication."
                 },
+                "sync_to_memos": "Sync to Memos",
+                "sync_to_memos_desc": "Automatically create a summary memo in your Memos instance after publication.",
                 "password": "Access Password",
                 "password_placeholder": "Enter post access password",
                 "language": "Post Language",
@@ -498,6 +500,12 @@
                 "translate_success": "Translation completed and applied",
                 "content_too_short": "Article content too short for analysis",
                 "ai_error": "AI service call failed",
+                "wechatsync": {
+                    "tooltip": "Sync to Multi-platform (WechatSync)",
+                    "extension_not_found": "WechatSync extension not found",
+                    "extension_help": "Please install and enable the WechatSync browser extension to use this feature.",
+                    "failed": "Failed to start synchronization"
+                },
                 "import_success": "Markdown imported successfully",
                 "image_upload_success": "Image uploaded and inserted",
                 "upload_failed": "File upload failed",
@@ -644,7 +652,8 @@
                         "analytics": "Analytics",
                         "agreements": "Agreements",
                         "notifications": "Admin Notifications",
-                        "commercial": "Monetization"
+                        "commercial": "Monetization",
+                        "third_party": "Third Party"
                     },
                     "sections": {
                         "social_auth": "Social Login (OAuth)",
@@ -654,7 +663,8 @@
                         "page_limits": "Page Content Limits",
                         "compliance": "Compliance & Filing",
                         "branding": "Branding & Assets",
-                        "footer": "Footer Settings"
+                        "footer": "Footer Settings",
+                        "memos": "Memos Sync"
                     },
                     "notifications": {
                         "title": "Admin Notification Preferences",
@@ -726,7 +736,11 @@
                         "vercel_blob_token": "Vercel Blob Token",
                         "baidu_analytics": "Baidu Analytics ID",
                         "google_analytics": "Google Analytics ID",
-                        "clarity_analytics": "Microsoft Clarity ID"
+                        "clarity_analytics": "Microsoft Clarity ID",
+                        "memos_enabled": "Enable Memos Sync",
+                        "memos_instance_url": "Memos Instance URL",
+                        "memos_access_token": "Access Token",
+                        "memos_default_visibility": "Default Visibility"
                     },
                     "hints": {
                         "ai_enabled": "Enable AI translation, summary and other features",
@@ -735,7 +749,16 @@
                         "auth_notice": "Configuring social login requires registering your app on the developer platform (e.g., GitHub settings) and setting the callback URL.",
                         "max_upload_size": "Unit: MB. 0 for unlimited.",
                         "keywords_placeholder": "One keyword per line. Matching comments will be marked as pending or spam.",
-                        "file_types_placeholder": "e.g., .jpg, .png, .mp3 (Comma separated)"
+                        "file_types_placeholder": "e.g., .jpg, .png, .mp3 (Comma separated)",
+                        "memos_instance_url": "e.g., https://memos.example.com",
+                        "memos_access_token": "Generate in Memos Settings -> Account -> Access Tokens"
+                    },
+                    "memos": {
+                        "visibility": {
+                            "PUBLIC": "Everyone (Public)",
+                            "PROTECTED": "Logged Users (Protected)",
+                            "PRIVATE": "Only Me (Private)"
+                        }
                     },
                     "agreements": {
                         "title": "Agreements Management",

@@ -113,6 +113,12 @@ export enum SettingKey {
 
     // Commercial
     COMMERCIAL_SPONSORSHIP = 'commercial_sponsorship',
+
+    // Third Party
+    MEMOS_ENABLED = 'memos_enabled',
+    MEMOS_INSTANCE_URL = 'memos_instance_url',
+    MEMOS_ACCESS_TOKEN = 'memos_access_token',
+    MEMOS_DEFAULT_VISIBILITY = 'memos_default_visibility',
 }
 
 export interface SettingItem {
