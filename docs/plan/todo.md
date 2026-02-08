@@ -75,9 +75,14 @@
     - 验收: 部署指南、开发手册等核心文档完成英文翻译，VitePress 站点支持双语切换。
 
 ### 6. 第三方平台集成 (Third-party Integration) (P2)
-- [ ] **多平台同步发布 (Multi-platform Sync)**
-    - 验收: 调研并集成 Memos API，支持在发布文章时勾选同步发布。
-    - 验收: 集成 Wechatsync (或其 MCP 接口)，支持一键发布至知乎、头条等 25+ 平台。
+- [x] **设计与调研 (Design & Research)**
+    - 验收: 完成 Wechatsync 与 Memos 的接口调研，编写详细设计文档 [third-party.md](../design/modules/third-party.md)。
+- [ ] **Memos API 集成**
+    - 验收: 实现 Memos v1 API 封装，支持在发布文章时同步推送摘要/正文。
+    - 验收: 后台增加 Memos 实例 URL 与 Access Token 配置。
+- [ ] **Wechatsync 插件联动**
+    - 验收: 集成 `article-syncjs` SDK，支持在后台管理页面一键唤起同步框。
+    - 验收: 确保图片路径与 Markdown 格式转换符合国内平台（知乎/头条）抓取规范。
 
 ### 7. AI Agent 与自动化生态 (AI Agent & Automation Ecosystem) (P1)
 - [ ] **Anthropic MCP Server 实现**
