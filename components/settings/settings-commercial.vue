@@ -22,8 +22,6 @@
                 @click="saveSettings"
             />
         </div>
-
-        <ConfirmDialog />
     </div>
 </template>
 

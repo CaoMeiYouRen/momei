@@ -57,6 +57,25 @@
                         </div>
                     </div>
                     <div class="commercial-manager__card-actions">
+                        <Image
+                            v-if="link.image"
+                            :src="link.image"
+                            alt="Preview"
+                            preview
+                        >
+                            <template #indicatoricon>
+                                <i class="pi pi-eye" />
+                            </template>
+                            <template #image>
+                                <Button
+                                    icon="pi pi-image"
+                                    severity="secondary"
+                                    text
+                                    rounded
+                                    size="small"
+                                />
+                            </template>
+                        </Image>
                         <Button
                             icon="pi pi-pencil"
                             severity="secondary"
@@ -137,6 +156,25 @@
                         </div>
                     </div>
                     <div class="commercial-manager__card-actions">
+                        <Image
+                            v-if="link.image"
+                            :src="link.image"
+                            alt="Preview"
+                            preview
+                        >
+                            <template #indicatoricon>
+                                <i class="pi pi-eye" />
+                            </template>
+                            <template #image>
+                                <Button
+                                    icon="pi pi-image"
+                                    severity="secondary"
+                                    text
+                                    rounded
+                                    size="small"
+                                />
+                            </template>
+                        </Image>
                         <Button
                             icon="pi pi-pencil"
                             severity="secondary"
@@ -213,17 +251,16 @@
 
                 <div v-if="isPlatformType('image') || isPlatformType('both')" class="commercial-manager__field">
                     <label for="image">{{ $t('pages.settings.commercial.image') }}</label>
-                    <div class="commercial-manager__uploader-group">
-                        <InputText
-                            id="image"
-                            v-model="currentLink.image"
-                            class="flex-grow"
-                            placeholder="/uploads/..."
-                        />
-                        <AppUploader
-                            :id="`donation-uploader-${isAdmin ? 'admin' : 'user'}`"
-                            :auto-save="false"
-                            @update:model-value="(val) => currentLink.image = val || undefined"
+                    <AppUploader
+                        v-model="currentLink.image"
+                        class="w-full"
+                    />
+                    <div v-if="currentLink.image" class="commercial-manager__dialog-preview">
+                        <Image
+                            :src="currentLink.image"
+                            alt="Preview"
+                            width="120"
+                            preview
                         />
                     </div>
                 </div>
@@ -296,7 +333,7 @@
                     />
                 </div>
 
-                <div class="commercial-manager__field">
+                <div v-if="currentSocialLink.platform !== 'wechat_mp'" class="commercial-manager__field">
                     <label for="social-url">{{ $t('pages.settings.commercial.url') }}</label>
                     <InputText
                         id="social-url"
@@ -308,17 +345,16 @@
 
                 <div v-if="isSocialPlatformImg()" class="commercial-manager__field">
                     <label for="social-image">{{ $t('pages.settings.commercial.image') }}</label>
-                    <div class="commercial-manager__uploader-group">
-                        <InputText
-                            id="social-image"
-                            v-model="currentSocialLink.image"
-                            class="flex-grow"
-                            placeholder="/uploads/..."
-                        />
-                        <AppUploader
-                            :id="`social-uploader-${isAdmin ? 'admin' : 'user'}`"
-                            :auto-save="false"
-                            @update:model-value="(val) => currentSocialLink.image = val || undefined"
+                    <AppUploader
+                        v-model="currentSocialLink.image"
+                        class="w-full"
+                    />
+                    <div v-if="currentSocialLink.image" class="commercial-manager__dialog-preview">
+                        <Image
+                            :src="currentSocialLink.image"
+                            alt="Preview"
+                            width="120"
+                            preview
                         />
                     </div>
                 </div>
@@ -632,7 +668,23 @@ const confirmDeleteSocial = (index: number) => {
 
     &__card-actions {
         display: flex;
+        align-items: center;
         gap: 4px;
+    }
+
+    &__dialog-preview {
+        margin-top: $spacing-sm;
+        display: flex;
+        justify-content: center;
+        background-color: var(--p-surface-50);
+        padding: $spacing-sm;
+        border-radius: $border-radius-sm;
+        border: 1px solid var(--p-surface-200);
+
+        .dark & {
+            background-color: var(--p-surface-900);
+            border-color: var(--p-surface-700);
+        }
     }
 
     &__divider {
