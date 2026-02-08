@@ -259,9 +259,12 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
   &__btn {
     font-size: 0.9rem;
     transition: transform 0.2s ease;
+    backface-visibility: hidden;
+    will-change: transform;
+    transform: translateZ(0);
 
     &:hover {
-      transform: translateY(-2px);
+      transform: translateY(-2px) translateZ(0);
     }
   }
 
