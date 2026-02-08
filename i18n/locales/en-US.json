@@ -112,6 +112,8 @@
                 "social_title": "Follow Me",
                 "donation_title": "Support the Author",
                 "qr_scan_tip": "Open mobile app to scan and pay",
+                "qr_scan_follow_tip": "Open mobile app to scan and follow",
+                "qr_scan_pay_tip": "Open mobile app to scan and pay",
                 "platforms": {
                     "wechat_mp": "WeChat MP",
                     "bilibili": "Bilibili",

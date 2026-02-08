@@ -112,6 +112,8 @@
                 "social_title": "关注我",
                 "donation_title": "支持作者",
                 "qr_scan_tip": "打开移动端 App 扫码支付",
+                "qr_scan_follow_tip": "打开移动端 App 扫码关注",
+                "qr_scan_pay_tip": "打开移动端 App 扫码支付",
                 "platforms": {
                     "wechat_mp": "微信公众号",
                     "bilibili": "Bilibili",

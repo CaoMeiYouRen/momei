@@ -17,28 +17,30 @@
                 <div class="article-sponsor__social-list">
                     <template v-for="link in displaySocialLinks" :key="link.platform + (link.url || link.image)">
                         <!-- URL Link -->
-                        <a
+                        <Button
                             v-if="!link.image"
+                            as="a"
                             :href="link.url"
                             target="_blank"
-                            class="article-sponsor__social-item"
-                            :title="link.label || getPlatformName(link.platform, 'social')"
-                            :style="{color: getPlatformColor(link.platform, 'social')}"
+                            severity="secondary"
+                            outlined
+                            class="article-sponsor__btn"
                         >
-                            <i :class="getPlatformIcon(link.platform, 'social')" />
-                        </a>
+                            <i :class="[getPlatformIcon(link.platform, 'social'), 'mr-2']" :style="{color: getPlatformColor(link.platform, 'social')}" />
+                            {{ link.label || getPlatformName(link.platform, 'social') }}
+                        </Button>
 
                         <!-- Image/QR Code -->
-                        <a
+                        <Button
                             v-else
-                            href="#"
-                            class="article-sponsor__social-item"
-                            :title="link.label || getPlatformName(link.platform, 'social')"
-                            :style="{color: getPlatformColor(link.platform, 'social')}"
-                            @click.prevent="showQR(link, 'social')"
+                            severity="secondary"
+                            outlined
+                            class="article-sponsor__btn"
+                            @click="showQR(link, 'social')"
                         >
-                            <i :class="getPlatformIcon(link.platform, 'social')" />
-                        </a>
+                            <i :class="[getPlatformIcon(link.platform, 'social'), 'mr-2']" :style="{color: getPlatformColor(link.platform, 'social')}" />
+                            {{ link.label || getPlatformName(link.platform, 'social') }}
+                        </Button>
                     </template>
                 </div>
             </div>
@@ -49,11 +51,7 @@
                     {{ $t('components.post.sponsor.donation_title') }}
                 </div>
                 <div class="article-sponsor__donation-list">
-                    <div
-                        v-for="link in displayDonationLinks"
-                        :key="link.platform + (link.url || link.image)"
-                        class="article-sponsor__donation-item"
-                    >
+                    <template v-for="link in displayDonationLinks" :key="link.platform + (link.url || link.image)">
                         <!-- URL Type -->
                         <Button
                             v-if="getPlatformType(link.platform) === 'url' || (getPlatformType(link.platform) === 'both' && link.url)"
@@ -62,7 +60,7 @@
                             target="_blank"
                             severity="secondary"
                             outlined
-                            class="article-sponsor__donation-btn"
+                            class="article-sponsor__btn"
                         >
                             <i :class="[getPlatformIcon(link.platform, 'donation'), 'mr-2']" :style="{color: getPlatformColor(link.platform, 'donation')}" />
                             {{ link.label || getPlatformName(link.platform, 'donation') }}
@@ -73,14 +71,14 @@
                             <Button
                                 severity="secondary"
                                 outlined
-                                class="article-sponsor__donation-btn"
+                                class="article-sponsor__btn"
                                 @click="showQR(link, 'donation')"
                             >
                                 <i :class="[getPlatformIcon(link.platform, 'donation'), 'mr-2']" :style="{color: getPlatformColor(link.platform, 'donation')}" />
                                 {{ link.label || getPlatformName(link.platform, 'donation') }}
                             </Button>
                         </template>
-                    </div>
+                    </template>
                 </div>
             </div>
         </div>
@@ -180,7 +178,7 @@ const getPlatformType = (key: string) => {
 const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') => {
     qrImage.value = link.image || ''
     qrHeader.value = link.label || getPlatformName(link.platform, type)
-    qrLabel.value = t('components.post.sponsor.qr_scan_tip')
+    qrLabel.value = type === 'social' ? t('components.post.sponsor.qr_scan_follow_tip') : t('components.post.sponsor.qr_scan_pay_tip')
     qrVisible.value = true
 }
 </script>
@@ -252,33 +250,19 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
     }
   }
 
-  &__social-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $spacing-lg;
-  }
-
-  &__social-item {
-    font-size: 1.5rem;
-    transition: transform 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-
-    &:hover {
-      transform: scale(1.2);
-    }
-  }
-
-  &__donation-list {
+  &__social-list, &__donation-list {
     display: flex;
     flex-wrap: wrap;
     gap: $spacing-md;
   }
 
-  &__donation-btn {
+  &__btn {
     font-size: 0.9rem;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
   }
 
   &__qr-modal-content {
