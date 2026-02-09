@@ -1,4 +1,5 @@
 import path from 'node:path'
+import crypto from 'node:crypto'
 import dayjs from 'dayjs'
 import { type H3Event, readMultipartFormData } from 'h3'
 import { getFileStorage, type FileStorageEnv } from '@/server/utils/storage/factory'
@@ -67,9 +68,69 @@ export async function checkUploadLimits(userId: string) {
 }
 
 /**
+ * 从 URL 上传文件
+ */
+export async function uploadFromUrl(url: string, prefix: string, userId: string): Promise<UploadedFile> {
+    await checkUploadLimits(userId)
+
+    const dbSettings = await getSettings([
+        SettingKey.STORAGE_TYPE,
+        SettingKey.LOCAL_STORAGE_DIR,
+        SettingKey.LOCAL_STORAGE_BASE_URL,
+        SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE,
+        SettingKey.S3_ENDPOINT,
+        SettingKey.S3_BUCKET,
+        SettingKey.S3_REGION,
+        SettingKey.S3_ACCESS_KEY,
+        SettingKey.S3_SECRET_KEY,
+        SettingKey.S3_BASE_URL,
+        SettingKey.S3_BUCKET_PREFIX,
+        SettingKey.MAX_UPLOAD_SIZE,
+        SettingKey.VERCEL_BLOB_TOKEN,
+        SettingKey.CLOUDFLARE_R2_ACCOUNT_ID,
+        SettingKey.CLOUDFLARE_R2_ACCESS_KEY,
+        SettingKey.CLOUDFLARE_R2_SECRET_KEY,
+        SettingKey.CLOUDFLARE_R2_BUCKET,
+        SettingKey.CLOUDFLARE_R2_BASE_URL,
+    ])
+
+    const storageType = (dbSettings[SettingKey.STORAGE_TYPE] as string) || 'local'
+
+    const env: FileStorageEnv = {
+        ...(process.env as any),
+        LOCAL_STORAGE_DIR: String(dbSettings[SettingKey.LOCAL_STORAGE_DIR] || 'public/uploads'),
+        LOCAL_STORAGE_BASE_URL: String(dbSettings[SettingKey.LOCAL_STORAGE_BASE_URL] || '/uploads'),
+        LOCAL_STORAGE_MIN_FREE_SPACE: Number(dbSettings[SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE] || 100 * 1024 * 1024),
+        S3_ENDPOINT: String(dbSettings[SettingKey.S3_ENDPOINT] || ''),
+        S3_BUCKET_NAME: String(dbSettings[SettingKey.S3_BUCKET] || ''),
+        S3_REGION: String(dbSettings[SettingKey.S3_REGION] || ''),
+        S3_ACCESS_KEY_ID: String(dbSettings[SettingKey.S3_ACCESS_KEY] || ''),
+        S3_SECRET_ACCESS_KEY: String(dbSettings[SettingKey.S3_SECRET_KEY] || ''),
+        S3_BASE_URL: String(dbSettings[SettingKey.S3_BASE_URL] || ''),
+        VERCEL_BLOB_TOKEN: String(dbSettings[SettingKey.VERCEL_BLOB_TOKEN] || ''),
+        BLOB_READ_WRITE_TOKEN: String(dbSettings[SettingKey.VERCEL_BLOB_TOKEN] || ''),
+    }
+
+    const storage = getFileStorage(storageType, env)
+    const response = await $fetch.raw(url)
+    const blob = await response.blob()
+    const contentType = response.headers.get('content-type') || 'application/octet-stream'
+    const extension = contentType.split('/')[1]?.split(';')[0] || 'bin'
+    const filename = `${crypto.randomUUID()}.${extension}`
+    const fullPath = path.join(prefix, filename).replace(/\\/g, '/')
+
+    const buffer = Buffer.from(await blob.arrayBuffer())
+    const uploadResult = await storage.upload(buffer, fullPath, contentType)
+
+    return {
+        filename,
+        url: uploadResult.url,
+        mimetype: contentType,
+    }
+}
+
+/**
  * 处理文件上传的核心逻辑
- * @param event H3 事件
- * @param options 上传配置
  */
 export async function handleFileUploads(event: H3Event, options: UploadOptions): Promise<UploadedFile[]> {
     const { prefix, maxFiles = 10 } = options

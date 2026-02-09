@@ -179,7 +179,18 @@
             </div>
 
             <div class="form-group">
-                <label for="cover" class="form-label">{{ $t('pages.admin.posts.cover_image') }}</label>
+                <div class="flex items-center justify-between mb-2">
+                    <label for="cover" class="form-label mb-0">{{ $t('pages.admin.posts.cover_image') }}</label>
+                    <Button
+                        id="ai-cover-btn"
+                        v-tooltip="$t('pages.admin.posts.ai.generate_cover')"
+                        icon="pi pi-sparkles"
+                        size="small"
+                        text
+                        rounded
+                        @click="aiImageVisible = true"
+                    />
+                </div>
                 <AppUploader
                     id="cover"
                     v-model="post.coverImage"
@@ -209,6 +220,13 @@
             </div>
 
             <Divider />
+
+            <AdminPostsAiImageGenerator
+                v-model:visible="aiImageVisible"
+                :article-title="post.title"
+                :article-content="post.content"
+                @generated="(url) => post.coverImage = url"
+            />
 
             <div class="form-group">
                 <label for="audioUrl" class="form-label">{{ $t('pages.admin.posts.audio_url') }}</label>
@@ -318,6 +336,7 @@ const emit = defineEmits(['search-posts', 'suggest-slug', 'recommend-tags', 'sea
 const visible = defineModel<boolean>('visible', { default: false })
 const isCompact = defineModel<boolean>('compact', { default: false })
 
+const aiImageVisible = ref(false)
 const probing = ref(false)
 const showImagePreview = ref(false)
 const showAudioPlayer = ref(false)

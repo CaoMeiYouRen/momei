@@ -1,7 +1,7 @@
 import { OpenAIProvider } from './openai-provider'
 import { AnthropicProvider } from './anthropic-provider'
 import { MockAIProvider } from './mock-provider'
-import type { AIConfig, AIProvider } from '@/types/ai'
+import type { AIConfig, AIImageConfig, AIProvider } from '@/types/ai'
 import {
     AI_MAX_TOKENS,
     AI_TEMPERATURE,
@@ -58,6 +58,62 @@ export async function getAIProvider(configOverride?: Partial<AIConfig>): Promise
             throw createError({
                 statusCode: 400,
                 message: `Unsupported AI provider: ${finalConfig.provider}`,
+            })
+    }
+}
+
+export async function getAIImageProvider(configOverride?: Partial<AIImageConfig>): Promise<AIProvider> {
+    const dbSettings = await getSettings([
+        SettingKey.AI_IMAGE_ENABLED,
+        SettingKey.AI_IMAGE_PROVIDER,
+        SettingKey.AI_IMAGE_API_KEY,
+        SettingKey.AI_IMAGE_MODEL,
+        SettingKey.AI_IMAGE_ENDPOINT,
+    ])
+
+    const config: AIImageConfig = {
+        enabled: dbSettings[SettingKey.AI_IMAGE_ENABLED] === 'true',
+        provider: (dbSettings[SettingKey.AI_IMAGE_PROVIDER] as any) || 'openai',
+        apiKey: dbSettings[SettingKey.AI_IMAGE_API_KEY]!,
+        model: dbSettings[SettingKey.AI_IMAGE_MODEL] || '',
+        endpoint: dbSettings[SettingKey.AI_IMAGE_ENDPOINT] || '',
+    }
+    const finalConfig = { ...config, ...configOverride }
+
+    // If Demo mode is enabled, always return MockAIProvider
+    const runtimeConfig = useRuntimeConfig()
+    if (runtimeConfig.public.demoMode === true) {
+        return new MockAIProvider()
+    }
+
+    if (!finalConfig.enabled) {
+        throw createError({
+            statusCode: 503,
+            message: 'AI Image service is disabled',
+        })
+    }
+
+    if (!finalConfig.apiKey) {
+        throw createError({
+            statusCode: 500,
+            message: 'AI Image API key is not configured',
+        })
+    }
+
+    switch (finalConfig.provider) {
+        case 'openai':
+        case 'gemini':
+        case 'stable-diffusion':
+        case 'doubao':
+            return new OpenAIProvider({
+                ...finalConfig,
+                maxTokens: AI_MAX_TOKENS,
+                temperature: AI_TEMPERATURE,
+            })
+        default:
+            throw createError({
+                statusCode: 400,
+                message: `Unsupported AI Image provider: ${finalConfig.provider}`,
             })
     }
 }

@@ -1,8 +1,12 @@
-import { getAIProvider } from '../utils/ai'
+import { getAIProvider, getAIImageProvider } from '../utils/ai'
 import { AI_PROMPTS, formatPrompt } from '../utils/ai/prompt'
 import logger from '../utils/logger'
+import { dataSource } from '../database'
+import { AITask } from '../entities/ai-task'
+import { uploadFromUrl } from './upload'
 import { ContentProcessor } from '@/utils/shared/content-processor'
 import { AI_MAX_CONTENT_LENGTH, AI_CHUNK_SIZE } from '@/utils/shared/env'
+import type { AIImageOptions, AIImageResponse } from '@/types/ai'
 
 export interface ScaffoldOptions {
     topic?: string
@@ -101,6 +105,95 @@ export class AIService {
             .trim()
             .toLowerCase()
             .replace(/[^a-z0-9-]+/g, '-')
+    }
+
+    static async generateImage(
+        options: AIImageOptions,
+        userId: string,
+    ) {
+        const repo = dataSource.getRepository(AITask)
+        const task = repo.create({
+            type: 'image_generation',
+            status: 'processing',
+            payload: JSON.stringify(options),
+            userId,
+        })
+        await repo.save(task)
+
+        // Run in background
+        this.processImageGeneration(task.id, options, userId).catch((err) => {
+            logger.error(`Failed to process image generation task ${task.id}:`, err)
+        })
+
+        return task
+    }
+
+    private static async processImageGeneration(
+        taskId: string,
+        options: AIImageOptions,
+        userId: string,
+    ) {
+        const repo = dataSource.getRepository(AITask)
+        const task = await repo.findOneBy({ id: taskId })
+        if (!task) {
+            return
+        }
+
+        try {
+            const provider = await getAIImageProvider()
+            if (!provider.generateImage) {
+                throw new Error(`Provider ${provider.name} does not support image generation`)
+            }
+
+            const response = await provider.generateImage(options)
+
+            // Persist images
+            const persistedImages = await Promise.all(
+                response.images.map(async (img) => {
+                    const uploadedImage = await uploadFromUrl(
+                        img.url,
+                        `ai/images/${userId}/${taskId}`,
+                        userId,
+                    )
+                    return {
+                        ...img,
+                        url: uploadedImage.url,
+                    }
+                }),
+            )
+
+            const finalResponse: AIImageResponse = {
+                images: persistedImages,
+            }
+
+            task.status = 'completed'
+            task.result = JSON.stringify(finalResponse)
+            await repo.save(task)
+        } catch (error: any) {
+            logger.error(`AI Image Generation Error (Task ${taskId}):`, error)
+            task.status = 'failed'
+            task.error = error.message
+            await repo.save(task)
+        }
+    }
+
+    static async getTaskStatus(taskId: string, userId: string) {
+        const repo = dataSource.getRepository(AITask)
+        const task = await repo.findOneBy({ id: taskId, userId })
+
+        if (!task) {
+            throw createError({
+                statusCode: 404,
+                message: 'Task not found',
+            })
+        }
+
+        return {
+            id: task.id,
+            status: task.status,
+            result: task.result ? JSON.parse(task.result) : null,
+            error: task.error,
+        }
     }
 
     static async summarize(

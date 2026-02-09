@@ -19,6 +19,13 @@ export enum SettingKey {
     AI_MODEL = 'ai_model',
     AI_ENDPOINT = 'ai_endpoint',
 
+    // AI Image
+    AI_IMAGE_ENABLED = 'ai_image_enabled',
+    AI_IMAGE_PROVIDER = 'ai_image_provider',
+    AI_IMAGE_API_KEY = 'ai_image_api_key',
+    AI_IMAGE_MODEL = 'ai_image_model',
+    AI_IMAGE_ENDPOINT = 'ai_image_endpoint',
+
     // Email
     EMAIL_HOST = 'email_host',
     EMAIL_PORT = 'email_port',

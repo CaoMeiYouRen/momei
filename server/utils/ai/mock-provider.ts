@@ -1,4 +1,4 @@
-import type { AIChatOptions, AIChatResponse, AIProvider } from '@/types/ai'
+import type { AIChatOptions, AIChatResponse, AIProvider, AIImageOptions, AIImageResponse } from '@/types/ai'
 
 export class MockAIProvider implements AIProvider {
     name = 'mock'
@@ -50,7 +50,21 @@ export class MockAIProvider implements AIProvider {
         }
     }
 
-    check(): Promise<boolean> {
-        return Promise.resolve(true)
+    async generateImage(options: AIImageOptions): Promise<AIImageResponse> {
+        // Simulate thinking time to show loading state
+        await new Promise((resolve) => setTimeout(resolve, 2000 + Math.random() * 2000))
+
+        return {
+            images: [
+                {
+                    url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1024&h=1024',
+                    revisedPrompt: `A high-quality 3D render of ${options.prompt}, photorealistic style, 8k resolution.`,
+                },
+            ],
+        }
+    }
+
+    async check(): Promise<boolean> {
+        return true
     }
 }

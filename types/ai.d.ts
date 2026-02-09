@@ -27,10 +27,27 @@ export interface AIChatResponse {
 export interface AIProvider {
     name: string
     chat(options: AIChatOptions): Promise<AIChatResponse>
+    generateImage?(options: AIImageOptions): Promise<AIImageResponse>
     check(): Promise<boolean>
 }
 
-export type AIProviderType = 'openai' | 'anthropic'
+export type AIProviderType = 'openai' | 'anthropic' | 'gemini' | 'stable-diffusion' | 'doubao'
+
+export interface AIImageOptions {
+    prompt: string
+    model?: string
+    size?: string // e.g., '1024x1024', '16:9', '9:16'
+    quality?: 'standard' | 'hd'
+    style?: 'vivid' | 'natural'
+    n?: number // Number of images to generate
+}
+
+export interface AIImageResponse {
+    images: {
+        url: string
+        revisedPrompt?: string
+    }[]
+}
 
 export interface AIConfig {
     enabled: boolean
@@ -41,3 +58,5 @@ export interface AIConfig {
     maxTokens?: number
     temperature?: number
 }
+
+export interface AIImageConfig extends AIConfig {}
