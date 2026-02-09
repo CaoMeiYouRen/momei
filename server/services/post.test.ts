@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createPostService, updatePostService } from './post'
 import { dataSource } from '@/server/database'
-import { PostStatus } from '@/types/post'
+import { PostStatus, PostVisibility } from '@/types/post'
 import { MarketingCampaignStatus } from '@/utils/shared/notification'
 
 vi.mock('@/server/database', () => ({
@@ -22,6 +22,20 @@ vi.mock('./notification', () => ({
 vi.mock('@/server/utils/password', () => ({
     hashPassword: vi.fn((pwd) => `hashed_${pwd}`),
 }))
+
+// 辅助函数：创建基础测试数据
+function createTestPostData(overrides: any = {}) {
+    return {
+        title: 'Test Title',
+        content: 'Test content',
+        language: 'zh-CN',
+        status: PostStatus.DRAFT,
+        visibility: PostVisibility.PUBLIC,
+        pushOption: 'none' as const,
+        syncToMemos: false,
+        ...overrides,
+    }
+}
 
 describe('post service', () => {
     beforeEach(() => {
@@ -57,12 +71,7 @@ describe('post service', () => {
             })
 
             const result = await createPostService(
-                {
-                    title: 'Test Title',
-                    content: 'Test content',
-                    language: 'zh-CN',
-                    categoryId: 'cat1',
-                },
+                createTestPostData({ categoryId: 'cat1' }),
                 'author1',
                 { isAdmin: false },
             )
@@ -91,11 +100,7 @@ describe('post service', () => {
             })
 
             const result = await createPostService(
-                {
-                    title: 'Test Title',
-                    content: 'Test content',
-                    language: 'zh-CN',
-                },
+                createTestPostData(),
                 'author1',
                 { isAdmin: false },
             )
@@ -112,12 +117,7 @@ describe('post service', () => {
 
             await expect(
                 createPostService(
-                    {
-                        title: 'Test Title',
-                        content: 'Test content',
-                        language: 'zh-CN',
-                        slug: 'custom-slug',
-                    },
+                    createTestPostData({ slug: 'custom-slug' }),
                     'author1',
                     { isAdmin: false },
                 ),
@@ -145,12 +145,7 @@ describe('post service', () => {
             })
 
             const result = await createPostService(
-                {
-                    title: 'Test',
-                    content: 'Content',
-                    language: 'zh-CN',
-                    categoryId: 'cat1',
-                },
+                createTestPostData({ categoryId: 'cat1' }),
                 'author1',
                 { isAdmin: false },
             )
@@ -179,12 +174,7 @@ describe('post service', () => {
 
             await expect(
                 createPostService(
-                    {
-                        title: 'Test',
-                        content: 'Content',
-                        language: 'zh-CN',
-                        categoryId: 'nonexistent',
-                    },
+                    createTestPostData({ categoryId: 'nonexistent' }),
                     'author1',
                     { isAdmin: false },
                 ),
@@ -208,12 +198,7 @@ describe('post service', () => {
             })
 
             const result = await createPostService(
-                {
-                    title: 'Test',
-                    content: 'Content',
-                    language: 'zh-CN',
-                    tags: ['tag1', 'tag2'],
-                },
+                createTestPostData({ tags: ['tag1', 'tag2'] }),
                 'author1',
                 { isAdmin: false },
             )
@@ -238,12 +223,7 @@ describe('post service', () => {
             })
 
             const result = await createPostService(
-                {
-                    title: 'Test',
-                    content: 'Content',
-                    language: 'zh-CN',
-                    password: 'secret123',
-                },
+                createTestPostData({ password: 'secret123' }),
                 'author1',
                 { isAdmin: false },
             )
@@ -268,12 +248,7 @@ describe('post service', () => {
             })
 
             const result = await createPostService(
-                {
-                    title: 'Test',
-                    content: 'Content',
-                    language: 'zh-CN',
-                    status: PostStatus.PUBLISHED,
-                },
+                createTestPostData({ status: PostStatus.PUBLISHED }),
                 'author1',
                 { isAdmin: false },
             )
@@ -298,12 +273,7 @@ describe('post service', () => {
             })
 
             const result = await createPostService(
-                {
-                    title: 'Test',
-                    content: 'Content',
-                    language: 'zh-CN',
-                    status: PostStatus.PUBLISHED,
-                },
+                createTestPostData({ status: PostStatus.PUBLISHED }),
                 'author1',
                 { isAdmin: true },
             )
@@ -328,12 +298,7 @@ describe('post service', () => {
             })
 
             const result = await createPostService(
-                {
-                    title: 'Test',
-                    content: 'Content',
-                    language: 'zh-CN',
-                    status: PostStatus.PUBLISHED,
-                },
+                createTestPostData({ status: PostStatus.PUBLISHED }),
                 'author1',
                 { isAdmin: true },
             )
@@ -359,12 +324,7 @@ describe('post service', () => {
             })
 
             const result = await createPostService(
-                {
-                    title: 'Test',
-                    content: 'Content',
-                    language: 'zh-CN',
-                    createdAt: customDate,
-                },
+                createTestPostData({ createdAt: customDate }),
                 'author1',
                 { isAdmin: true },
             )
@@ -394,13 +354,7 @@ describe('post service', () => {
             })
 
             await createPostService(
-                {
-                    title: 'Test',
-                    content: 'Content',
-                    language: 'zh-CN',
-                    status: PostStatus.PUBLISHED,
-                    pushOption: 'now',
-                },
+                createTestPostData({ status: PostStatus.PUBLISHED, pushOption: 'now' }),
                 'author1',
                 { isAdmin: true },
             )
@@ -431,13 +385,12 @@ describe('post service', () => {
             })
 
             await createPostService(
-                {
+                createTestPostData({
                     title: 'Test',
                     content: 'Content',
-                    language: 'zh-CN',
                     status: PostStatus.PUBLISHED,
-                    pushOption: 'later',
-                },
+                    pushOption: 'draft',
+                }),
                 'author1',
                 { isAdmin: true },
             )
