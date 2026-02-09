@@ -13,19 +13,20 @@ export default defineEventHandler(async (event) => {
 
     const repo = dataSource.getRepository(AITask)
     const qb = repo.createQueryBuilder('task')
-        .leftJoinAndSelect(User, 'user', 'task.userId = user.id')
-        .select([
-            'task.id',
-            'task.type',
-            'task.status',
-            'task.provider',
-            'task.model',
-            'task.createdAt',
-            'task.userId',
-            'user.name',
-            'user.email',
-            'task.error',
-        ])
+        .leftJoin(User, 'user', 'task.userId = user.id')
+        .select('task.id', 'id')
+        .addSelect('task.type', 'type')
+        .addSelect('task.status', 'status')
+        .addSelect('task.provider', 'provider')
+        .addSelect('task.model', 'model')
+        .addSelect('task.createdAt', 'createdAt')
+        .addSelect('task.userId', 'userId')
+        .addSelect('task.payload', 'payload')
+        .addSelect('task.result', 'result')
+        .addSelect('task.error', 'error')
+        .addSelect('user.name', 'user_name')
+        .addSelect('user.email', 'user_email')
+        .addSelect('user.image', 'user_image')
         .orderBy('task.createdAt', 'DESC')
         .skip((page - 1) * pageSize)
         .take(pageSize)
@@ -38,10 +39,11 @@ export default defineEventHandler(async (event) => {
         qb.andWhere('task.status = :status', { status })
     }
 
-    const [items, total] = await qb.getManyAndCount()
+    const total = await qb.getCount()
+    const rawData = await qb.getRawMany()
 
     return {
-        items,
+        items: rawData,
         total,
     }
 })

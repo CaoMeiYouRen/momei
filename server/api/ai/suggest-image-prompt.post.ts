@@ -3,7 +3,7 @@ import { getAIProvider } from '~/server/utils/ai'
 
 export default defineEventHandler(async (event) => {
     const body = await readBody(event)
-    const { title, content } = body
+    const { title, content, language = 'zh-CN' } = body
 
     if (!title && !content) {
         throw createError({
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
 
     const prompt = `
 You are a professional blog cover artist.
-Your task is to create a high-quality, artistic, and visually striking image prompt for DALL-E or Stable Diffusion.
+Your task is to create a high-quality, artistic, and visually striking image prompt for AI image generators (DALL-E, Stable Diffusion, etc).
 The image should represent the core theme of the following blog post.
 
 Title: ${title || 'N/A'}
@@ -26,8 +26,9 @@ Rules for the prompt:
 1. Describe a scene or abstract concept that is professional and high-end.
 2. Mention artistic style (e.g., "minimalist digital art", "vivid oil painting", "isometric 3D render", "clean modern photography").
 3. Mention lighting and color palette (e.g., "warm cinematic lighting", "soft pastel colors", "dark mode neon style").
-4. Response ONLY with the final prompt in English, no other text.
-5. Keep it under 200 words.
+4. Response ONLY with the final prompt content, no other text.
+5. Provide the prompt in the following language: ${language}.
+6. Keep it under 200 words.
 `
 
     const response = await provider.chat({

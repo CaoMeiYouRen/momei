@@ -36,7 +36,8 @@ export type AIProviderType = 'openai' | 'anthropic' | 'gemini' | 'stable-diffusi
 export interface AIImageOptions {
     prompt: string
     model?: string
-    size?: string // e.g., '1024x1024', '16:9', '9:16'
+    size?: string // e.g., '1024x1024'
+    aspectRatio?: string // e.g., '1:1', '16:9', '9:16'
     quality?: 'standard' | 'hd'
     style?: 'vivid' | 'natural'
     n?: number // Number of images to generate

@@ -112,14 +112,13 @@ export async function uploadFromUrl(url: string, prefix: string, userId: string)
     }
 
     const storage = getFileStorage(storageType, env)
-    const response = await $fetch.raw(url)
-    const blob = await response.blob()
+    const response = await $fetch.raw(url, { responseType: 'arrayBuffer' })
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
     const extension = contentType.split('/')[1]?.split(';')[0] || 'bin'
     const filename = `${crypto.randomUUID()}.${extension}`
     const fullPath = path.join(prefix, filename).replace(/\\/g, '/')
 
-    const buffer = Buffer.from(await blob.arrayBuffer())
+    const buffer = Buffer.from(response._data as ArrayBuffer)
     const uploadResult = await storage.upload(buffer, fullPath, contentType)
 
     return {

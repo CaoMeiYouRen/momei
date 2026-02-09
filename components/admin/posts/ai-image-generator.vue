@@ -4,7 +4,6 @@
         :header="$t('pages.admin.posts.ai.cover_generator.title')"
         modal
         :style="{width: '500px'}"
-        :closable="!generating"
     >
         <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-2">
@@ -56,7 +55,6 @@
                 :label="$t('common.cancel')"
                 text
                 severity="secondary"
-                :disabled="generating"
                 @click="visible = false"
             />
             <Button
@@ -85,7 +83,7 @@ const emit = defineEmits<{
     (e: 'generated', url: string): void
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const toast = useToast()
 
 const prompt = ref('')
@@ -116,6 +114,7 @@ const generateMagicPrompt = async () => {
             body: {
                 title: props.articleTitle || '',
                 content: props.articleContent || '',
+                language: locale.value,
             },
         })
         prompt.value = data

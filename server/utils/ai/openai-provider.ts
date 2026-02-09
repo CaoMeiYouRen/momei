@@ -6,6 +6,9 @@ export class OpenAIProvider implements AIProvider {
 
     constructor(config: AIConfig) {
         this.config = config
+        if (config.provider) {
+            this.name = config.provider
+        }
     }
 
     async chat(options: AIChatOptions): Promise<AIChatResponse> {
@@ -55,6 +58,32 @@ export class OpenAIProvider implements AIProvider {
         const endpoint = this.config.endpoint || 'https://api.openai.com/v1'
         const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
 
+        // 解析尺寸和宽高比
+        let finalSize = options.size
+        if (!finalSize && options.aspectRatio) {
+            const provider = (this.config.provider as string || 'openai').toLowerCase()
+            // 针对不同提供商映射最佳分辨率
+            // 注意：某些提供商（如字节跳动/豆包）在 OpenAI 兼容模式下对某些模型有最小像素要求（如 3.68M 像素）
+            if (provider === 'doubao' || provider === 'stable-diffusion') {
+                switch (options.aspectRatio) {
+                    case '1:1': finalSize = '2048x2048'; break
+                    case '16:9': finalSize = '2560x1440'; break
+                    case '4:3': finalSize = '2048x1536'; break
+                    case '3:2': finalSize = '2048x1365'; break
+                    case '9:16': finalSize = '1440x2560'; break
+                    default: finalSize = '2048x2048'
+                }
+            } else {
+                // OpenAI DALL-E 3 标准尺寸
+                switch (options.aspectRatio) {
+                    case '1:1': finalSize = '1024x1024'; break
+                    case '16:9': finalSize = '1792x1024'; break
+                    case '9:16': finalSize = '1024x1792'; break
+                    default: finalSize = '1024x1024'
+                }
+            }
+        }
+
         try {
             const response = await $fetch<any>(`${baseUrl}/images/generations`, {
                 method: 'POST',
@@ -66,7 +95,7 @@ export class OpenAIProvider implements AIProvider {
                     model: options.model || this.config.model || 'dall-e-3',
                     prompt: options.prompt,
                     n: options.n ?? 1,
-                    size: options.size ?? '1024x1024',
+                    size: finalSize || '1024x1024',
                     quality: options.quality ?? 'standard',
                     style: options.style ?? 'vivid',
                 },

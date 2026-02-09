@@ -53,7 +53,8 @@ export const aiRecommendTagsSchema = z.object({
 export const aiGenerateImageSchema = z.object({
     prompt: z.string().min(1).max(1000),
     model: z.string().optional(),
-    size: z.string().optional().default('1024x1024'),
+    size: z.string().optional(),
+    aspectRatio: z.string().optional(),
     quality: z.enum(['standard', 'hd']).optional().default('standard'),
     style: z.enum(['vivid', 'natural']).optional().default('vivid'),
 })

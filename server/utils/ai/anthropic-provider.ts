@@ -6,6 +6,9 @@ export class AnthropicProvider implements AIProvider {
 
     constructor(config: AIConfig) {
         this.config = config
+        if (config.provider) {
+            this.name = config.provider
+        }
     }
 
     async chat(options: AIChatOptions): Promise<AIChatResponse> {
