@@ -12,10 +12,7 @@
         "forceConsistentCasingInFileNames": true
     },
     "include": [
-        "src/**/*",
-        "eslint.config.js",
-        "tsdown.config.ts",
-        "vitest.config.ts"
+        "src/**/*"
     ],
     "exclude": [
         "node_modules",
