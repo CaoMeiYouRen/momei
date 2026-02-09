@@ -127,3 +127,16 @@ export interface AIProvider {
 - **图像润色 (Inpainting/Outpainting)**: 局部修改或边缘扩展。
 - **图生图 (Img2Img)**: 基于草图生成精美图片。
 - **批量生成**: 一次生成多张供用户挑选。
+
+---
+
+## 7. 实现进度 (Implementation Status)
+
+- [x] **任务核心引擎**: 基于 `AITask` 实体与 API 轮询的异步生成闭环已打通。
+- [x] **持久化流**: AI 生成图片自动转存本地/S3 命名为 `ai/{taskId}.jpeg`。
+- [x] **模型适配**:
+    - **豆包 (Doubao-Seedream-4.5)**: **已完备**。已解决鉴权、尺寸映射及本地化存储。
+    - **OpenAI (DALL-E 3)**: **就绪**。底层架构已支持，接口参数对齐。
+    - **Gemini / Stable Diffusion**: 规划中。
+- [x] **前端交互**: `AiImageGenerator` 组件实现预览、轮询、重试及应用到封面功能。
+- [x] **安全性**: 接入后端 `rateLimit` 中间件，对状态接口进行定向放行（30 次/分）。

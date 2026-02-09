@@ -67,18 +67,18 @@
     - [x] 验收: **回退机制**: 针对不支持 Web Speech API 的浏览器提供优雅降级方案。
 
 ### 4. 高级 AI 创作流 (Advanced AI Creative Flow) (P1)
-- [ ] **多模态创作增强 (AI 图像生成)**
+- [x] **多模态创作增强 (AI 图像生成)**
     - [x] 意图分析与技术架构方案设计 (已移除 DeepL 专项集成，统一使用 AI 翻译)
-    - [ ] **统一 AI 图像 API 入口**: 扩展 `AIProvider` 接口支持 `generateImage` 动作。
-    - [ ] **异步任务处理系统**: 实现基于数据库轮询的任务状态追踪机制，解决 Serverless 环境下的超时问题。
-    - [ ] **多模型适配**: 
-        - [ ] 实现 OpenAI DALL-E 3 驱动。
+    - [x] **统一 AI 图像 API 入口**: 扩展 `AIProvider` 接口支持 `generateImage` 动作。
+    - [x] **异步任务处理系统**: 实现基于数据库轮询的任务状态追踪机制，解决 Serverless 环境下的超时问题。
+    - [x] **多模型适配**: 
+        - [x] 实现 **豆包 (Doubao-Seedream-4.5)** 驱动适配（当前主选，已验证）。
+        - [x] 实现 OpenAI DALL-E 3 驱动（代码已就绪，待测试）。
         - [ ] 实现 **Gemini 3 Pro Image** 驱动适配。
         - [ ] 实现 **Stable Diffusion** (WebUI/ComfyUI API) 驱动适配。
-        - [ ] 实现 **豆包 (Doubao-Seedream-4.5)** 驱动适配。
-        - [ ] 确保所有驱动支持自定义 API Endpoint。
-    - [ ] **图像持久化**: 自动下载 AI 生成的临时 URL 到本地存储，防止过期。
-    - [ ] **前端 UI 实现**: 增加“AI 生成封面”入口，支持提示词输入、模型选择与实时生成预览。
+        - [x] 确保所有驱动支持自定义 API Endpoint。
+    - [x] **图像持久化**: 自动下载 AI 生成的临时 URL 到本地存储，防止过期。
+    - [x] **前端 UI 实现**: 增加“AI 生成封面”入口，支持提示词输入、模型选择与实时生成预览。
 
 ### 5. 文档国际化与系统固化 (Documentation & Hardening) (P1)
 - [ ] **文档全球化 (Docs i18n)**
