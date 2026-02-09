@@ -2,7 +2,15 @@
 
 ## 1. 概述 (Overview)
 
-本模块旨在为博主提供便捷的 AI 图像生成能力，主要用于生成文章封面、插图等。考虑到不同 AI 绘图模型（如 DALL-E, Stable Diffusion）的接口差异较大且生成耗时较长，本模块设计了一个统一的异步任务管理系统。
+本模块旨在为博主提供便捷的 AI 图像生成能力，主要用于生成文章封面、插图等。考虑到不同 AI 绘图模型（如 DALL-E, Stable Diffusion, Gemini Pro Image, 豆包 Seedream）的接口差异较大且生成耗时较长，本模块设计了一个统一的异步任务管理系统。
+
+计划优先接入的模型包括：
+- **Gemini 3 Pro Image (Nano Banana Pro)**: 谷歌多模态图像生成模型。
+- **Stable Diffusion (SD)**: 开源社区主流绘图模型，支持本地部署或第三方 API。
+- **豆包 (Doubao-Seedream-4.5)**: 字节跳动自研高质绘图模型。
+- **OpenAI DALL-E 3**: 行业标配绘图模型。
+
+为了保证极致的兼容性，所有 Provider 均支持**自定义 API 地址**，以便用户接入各种转发服务或自建网关。
 
 ## 2. 核心挑战与解决方案 (Challenges & Solutions)
 
