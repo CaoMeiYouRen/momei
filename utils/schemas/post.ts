@@ -54,6 +54,12 @@ const sharedPostFields = {
     password: z.string().nullable().optional(),
     pushOption: z.enum(['none', 'draft', 'now']).optional().default('none'),
     syncToMemos: z.boolean().optional().default(false),
+    pushCriteria: z
+        .object({
+            categoryIds: z.array(z.string()).optional(),
+            tagIds: z.array(z.string()).optional(),
+        })
+        .optional(),
 }
 
 export const createPostSchema = z.object({

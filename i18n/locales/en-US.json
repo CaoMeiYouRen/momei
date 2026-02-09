@@ -469,6 +469,7 @@
                 },
                 "publish_confirm_title": "Confirm Publish Post",
                 "publish_confirm_message": "Are you sure you want to publish this post? It will be visible to visitors immediately after publication.",
+                "push_criteria_hint": "System will automatically match subscribers based on categories and tags of this post.",
                 "push_options": {
                     "none": "No Email Push",
                     "none_desc": "Publish the post only, no notification to subscribers.",

@@ -59,6 +59,36 @@
                         <small>{{ $t('pages.admin.posts.push_options.now_desc') }}</small>
                     </label>
                 </div>
+
+                <div v-if="pushOption !== 'none'" class="publish-dialog__target-selection">
+                    <p class="publish-dialog__target-label">
+                        {{ $t('pages.admin.marketing.form.targets') }}
+                    </p>
+                    <div class="publish-dialog__target-options">
+                        <div class="publish-dialog__target-option">
+                            <RadioButton
+                                v-model="targetType"
+                                input-id="target_all"
+                                name="targetType"
+                                value="all"
+                            />
+                            <label for="target_all">{{ $t('pages.admin.marketing.form.target_all') }}</label>
+                        </div>
+                        <div class="publish-dialog__target-option">
+                            <RadioButton
+                                v-model="targetType"
+                                input-id="target_criteria"
+                                name="targetType"
+                                value="criteria"
+                            />
+                            <label for="target_criteria">{{ $t('pages.admin.marketing.form.target_criteria') }}</label>
+                        </div>
+                    </div>
+                    <div v-if="targetType === 'criteria'" class="publish-dialog__criteria-hint">
+                        <i class="pi pi-info-circle" />
+                        <span>{{ $t('pages.admin.posts.push_criteria_hint') }}</span>
+                    </div>
+                </div>
             </div>
 
             <div class="publish-dialog__footer-options">
@@ -99,23 +129,32 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'confirm', options: { pushOption: 'none' | 'draft' | 'now', syncToMemos: boolean }): void
+    (e: 'confirm', options: {
+        pushOption: 'none' | 'draft' | 'now'
+        syncToMemos: boolean
+        pushCriteria?: { categoryIds?: string[], tagIds?: string[] }
+    }): void
 }>()
 
 const visible = defineModel<boolean>('visible', { default: false })
 const pushOption = ref<'none' | 'draft' | 'now'>('none')
 const syncToMemos = ref(false)
+const targetType = ref<'all' | 'criteria'>('criteria')
+const articleCriteria = ref<{ categoryIds?: string[], tagIds?: string[] }>({})
 
 const handleConfirm = () => {
     emit('confirm', {
         pushOption: pushOption.value,
         syncToMemos: syncToMemos.value,
+        pushCriteria: targetType.value === 'all' ? {} : articleCriteria.value,
     })
 }
 
-const open = () => {
+const open = (criteria?: { categoryIds?: string[], tagIds?: string[] }) => {
     pushOption.value = 'none'
     syncToMemos.value = false
+    targetType.value = 'criteria'
+    articleCriteria.value = criteria || {}
     visible.value = true
 }
 
@@ -126,6 +165,8 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/variables" as *;
+
 .publish-dialog {
     &__message {
         display: flex;
@@ -168,6 +209,46 @@ defineExpose({
             color: var(--p-text-muted-color);
             line-height: 1.4;
         }
+    }
+
+    &__target-selection {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: var(--p-content-background);
+        border: 1px solid var(--p-surface-border);
+        border-radius: $border-radius-md;
+    }
+
+    &__target-label {
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    &__target-options {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    &__target-option {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        label {
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+    }
+
+    &__criteria-hint {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        color: var(--p-text-muted-color);
+        font-size: 0.75rem;
+        padding-left: 0.25rem;
     }
 
     &__footer-options {

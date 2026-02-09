@@ -419,17 +419,24 @@ const searchTags = (event: { query: string }) => {
     }
 }
 
-const handlePublishConfirm = async (options: { pushOption: 'none' | 'draft' | 'now', syncToMemos: boolean }) => {
+const handlePublishConfirm = async (options: {
+    pushOption: 'none' | 'draft' | 'now'
+    syncToMemos: boolean
+    pushCriteria?: { categoryIds?: string[], tagIds?: string[] }
+}) => {
     if (publishPushDialog.value) {
         publishPushDialog.value.visible = false
     }
-    await executeSave(true, options.pushOption, options.syncToMemos)
+    await executeSave(true, options.pushOption, options.syncToMemos, options.pushCriteria)
 }
 
 const savePost = async (publish = false) => {
     // 仅在首次发布（从非发布状态变为发布状态）时弹出推送选项
     if (publish && post.value.status !== PostStatus.PUBLISHED) {
-        publishPushDialog.value?.open()
+        publishPushDialog.value?.open({
+            categoryIds: post.value.categoryId ? [post.value.categoryId] : [],
+            tagIds: post.value.tags || [],
+        })
         return
     }
     await executeSave(publish)
@@ -439,6 +446,7 @@ const executeSave = async (
     publish = false,
     pushOption: 'none' | 'draft' | 'now' = 'none',
     syncToMemos = false,
+    pushCriteria?: { categoryIds?: string[], tagIds?: string[] },
 ) => {
     errors.value = {}
 
@@ -448,7 +456,7 @@ const executeSave = async (
     }
 
     // 构建提交数据，显式移除关联对象以避免 Zod 校验失败
-    const payload: any = { ...post.value, pushOption, syncToMemos }
+    const payload: any = { ...post.value, pushOption, syncToMemos, pushCriteria }
     delete payload.category
     delete payload.author
     if (publish) {

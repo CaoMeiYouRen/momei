@@ -56,7 +56,12 @@ export async function notifyAdmins(event: AdminNotificationEvent, data: { title:
 /**
  * 从文章创建营销推送
  */
-export async function createCampaignFromPost(postId: string, senderId: string, status: MarketingCampaignStatus = MarketingCampaignStatus.DRAFT) {
+export async function createCampaignFromPost(
+    postId: string,
+    senderId: string,
+    status: MarketingCampaignStatus = MarketingCampaignStatus.DRAFT,
+    criteria?: { categoryIds?: string[], tagIds?: string[] },
+) {
     const postRepo = dataSource.getRepository(Post)
     const post = await postRepo.findOne({ where: { id: postId }, relations: ['category', 'tags'] })
     if (!post) {
@@ -69,7 +74,7 @@ export async function createCampaignFromPost(postId: string, senderId: string, s
     campaign.type = MarketingCampaignType.BLOG_POST
     campaign.senderId = senderId
     campaign.status = status
-    campaign.targetCriteria = {
+    campaign.targetCriteria = criteria || {
         categoryIds: post.categoryId ? [post.categoryId] : [],
         tagIds: post.tags?.map((t) => t.id) || [],
     }

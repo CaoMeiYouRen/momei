@@ -243,7 +243,7 @@ export const updatePostService = async (id: string, body: UpdatePostInput, optio
     if (body.pushOption && body.pushOption !== 'none'
         && currentStatus !== PostStatus.PUBLISHED && post.status === PostStatus.PUBLISHED) {
         const campaignStatus = body.pushOption === 'now' ? MarketingCampaignStatus.SENDING : MarketingCampaignStatus.DRAFT
-        const campaign = await createCampaignFromPost(post.id, options.currentUserId, campaignStatus)
+        const campaign = await createCampaignFromPost(post.id, options.currentUserId, campaignStatus, body.pushCriteria)
         if (body.pushOption === 'now') {
             void sendMarketingCampaign(campaign.id).catch((err) => {
                 console.error('Failed to send marketing campaign:', err)

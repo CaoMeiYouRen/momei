@@ -469,6 +469,7 @@
                 },
                 "publish_confirm_title": "确认发布文章",
                 "publish_confirm_message": "您确定要发布这篇文章吗？发布后访客即可查看。",
+                "push_criteria_hint": "系统将自动匹配订阅了本文所属分类或标签的用户。",
                 "push_options": {
                     "none": "不进行邮件推送",
                     "none_desc": "仅发布文章，不打扰订阅者。",
