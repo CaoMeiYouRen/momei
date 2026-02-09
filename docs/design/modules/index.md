@@ -26,6 +26,7 @@
 ## 扩展与集成 (Extensions)
 
 - **[开放接口 (Open API)](./open-api)**: 提供外部发布与数据同步的标准化接口。
+- **[MCP 服务器 (MCP Server)](./mcp)**: 基于 Model Context Protocol 的 AI 自动化接口，支持 Claude Desktop 集成。
 - **[离线/桌面支持 (Desktop)](./demo-mode)**: 基于 Tauri 或 PWA 的桌面体验 (开发中)。
 - **[播客与多媒体 (Podcast)](./podcast)**: 音频托管与 Podcast RSS 支持。
 - **[数据迁移 (Migration)](./migration)**: 支持从其他博客平台（如 Hexo, Hugo）平滑迁移到墨梅。
