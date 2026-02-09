@@ -67,8 +67,8 @@ jobs:
       - run: pnpm run typecheck
       - run: pnpm run test
       - run: pnpm run build
-  mmcp-server:
-    name: CLI Test
+  mcp-server:
+    name: MCP Test
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
