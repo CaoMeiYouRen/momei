@@ -203,14 +203,14 @@ describe('Parser - convertToMomeiPost: Edge Cases', () => {
 })
 
 describe('Parser - parseHexoMarkdown', () => {
-    it('should be an async function that reads files', async () => {
+    it('should be an async function that reads files', () => {
         expect(typeof parseHexoMarkdown).toBe('function')
         expect(parseHexoMarkdown.constructor.name).toBe('AsyncFunction')
     })
 })
 
 describe('Parser - scanMarkdownFiles', () => {
-    it('should be an async function', async () => {
+    it('should be an async function', () => {
         expect(typeof scanMarkdownFiles).toBe('function')
         expect(scanMarkdownFiles.constructor.name).toBe('AsyncFunction')
     })

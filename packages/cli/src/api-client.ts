@@ -94,7 +94,7 @@ export class MomeiApiClient {
             // 尝试调用一个简单的 API 来测试连接
             await this.client.get('/api/health')
             return true
-        } catch (error) {
+        } catch {
             return false
         }
     }

@@ -9,7 +9,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "lint": "cross-env NODE_ENV=production eslint . --fix",
+    "lint": "cross-env NODE_ENV=production eslint . --fix && pnpm -r --filter \"./packages/*\" lint",
     "lint:css": "stylelint ./**/*.{html,css,scss,sass,vue} --fix",
     "lint:md": "lint-md *.md docs/**/*.md .github/**/*.md --fix",
     "test": "vitest run",
