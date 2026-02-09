@@ -330,7 +330,7 @@ describe('notification service', () => {
             const result = await getTargetSubscribers({ categoryIds: ['cat1'] })
 
             expect(result).toHaveLength(1)
-            expect(result[0].id).toBe('sub1')
+            expect(result[0]!.id).toBe('sub1')
         })
 
         it('应该根据标签ID过滤订阅者', async () => {
@@ -366,7 +366,7 @@ describe('notification service', () => {
             const result = await getTargetSubscribers({ tagIds: ['tag1'] })
 
             expect(result).toHaveLength(1)
-            expect(result[0].id).toBe('sub1')
+            expect(result[0]!.id).toBe('sub1')
         })
 
         it('应该同时根据分类和标签过滤', async () => {
@@ -402,7 +402,7 @@ describe('notification service', () => {
             const result = await getTargetSubscribers({ categoryIds: ['cat1'], tagIds: ['tag1'] })
 
             expect(result).toHaveLength(1)
-            expect(result[0].id).toBe('sub1')
+            expect(result[0]!.id).toBe('sub1')
         })
     })
 
