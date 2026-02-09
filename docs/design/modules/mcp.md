@@ -50,9 +50,9 @@ MCP (Model Context Protocol) 服务器允许 Claude Desktop 等 AI 客户端通�
 
 ```
 momei/
-├── pnpm-workspace.yaml        # 添加 'packages/*' 配置
-├── cli/                       # 现有包，保持不变
+├── pnpm-workspace.yaml        # 配置 'packages/*'
 └── packages/
+    ├── cli/                   # 已移动到 packages 目录下
     └── mcp-server/            # MCP 服务器包
         ├── package.json
         ├── tsconfig.json
@@ -79,8 +79,7 @@ momei/
 
 ```yaml
 packages:
-  - 'cli'
-  - 'packages/*'     # 新增：支持 packages 目录下的子包
+  - 'packages/*'     # 包含 cli 和 mcp-server 等
 ```
 
 #### packages/mcp-server/package.json

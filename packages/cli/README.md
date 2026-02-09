@@ -107,7 +107,7 @@ momei import ./hexo-blog/source/_posts \
 ### 项目结构
 
 ```
-cli/
+packages/cli/
 ├── src/
 │   ├── index.ts          # CLI 入口
 │   ├── parser.ts         # Hexo 解析器

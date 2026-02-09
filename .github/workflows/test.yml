@@ -50,7 +50,7 @@ jobs:
     timeout-minutes: 10
     defaults:
       run:
-        working-directory: cli
+        working-directory: packages/cli
     steps:
       - uses: actions/checkout@v6
       - name: Setup pnpm

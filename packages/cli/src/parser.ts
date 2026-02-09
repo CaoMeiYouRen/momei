@@ -99,14 +99,14 @@ export function convertToMomeiPost(frontMatter: HexoFrontMatter, content: string
 /**
  * 批量解析 Hexo 文件
  */
-export async function parseHexoFiles(sourceDir: string, verbose = false): Promise<Array<{ file: string, post: MomeiPost }>> {
+export async function parseHexoFiles(sourceDir: string, verbose = false): Promise<{ file: string, post: MomeiPost }[]> {
     const files = await scanMarkdownFiles(sourceDir)
 
     if (verbose) {
         console.log(`Found ${files.length} markdown files in ${sourceDir}`)
     }
 
-    const results: Array<{ file: string, post: MomeiPost }> = []
+    const results: { file: string, post: MomeiPost }[] = []
 
     for (const file of files) {
         try {

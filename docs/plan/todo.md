@@ -108,7 +108,7 @@
         - [x] 实现内容区随侧边栏开关的平滑位移动画，头部工具栏不再被遮挡。
         - [x] 新建文章时侧边栏默认展开，并支持“精简”与“标准”两种宽度切换。
 - [x] **修复类型检查错误**
-    - [x] 识别 `cli/src/parser.test.ts` 中未使用变量 `vi` (TS6133)
+    - [x] 识别 `packages/cli/src/parser.test.ts` 中未使用变量 `vi` (TS6133)
     - [x] 移除冗余代码并验证 `pnpm run typecheck`
 
 ---

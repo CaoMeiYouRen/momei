@@ -96,7 +96,7 @@
 -   `styles/`: 全局 SCSS 样式定义
 -   `types/`: TypeScript 接口与类型定义
 -   `docs/`: 项目详细文档与规范说明
--   `cli/`: Hexo 迁移工具 CLI (独立项目)
+-   `packages/cli/`: Hexo 迁移工具 CLI (独立项目)
 
 ## 🤖 AI 协同开发 (AI Synergy)
 
@@ -165,7 +165,7 @@
 
 ```bash
 # 进入 CLI 目录
-cd cli
+cd packages/cli
 
 # 安装依赖
 pnpm install
@@ -182,7 +182,7 @@ pnpm start import ./hexo-blog/source/_posts \
   --api-key your-api-key-here
 ```
 
-详细使用说明请查看 [cli/README.md](./cli/README.md)。
+详细使用说明请查看 [packages/cli/README.md](./packages/cli/README.md)。
 
 ## 🚀 快速开始
 

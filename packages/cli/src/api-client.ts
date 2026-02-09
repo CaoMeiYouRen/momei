@@ -30,7 +30,7 @@ export class MomeiApiClient {
    * 批量导入文章
    */
     async importPosts(
-        posts: Array<{ file: string, post: MomeiPost }>,
+        posts: { file: string, post: MomeiPost }[],
         options: {
             concurrency?: number
             onProgress?: (current: number, total: number, result: ImportResult) => void
