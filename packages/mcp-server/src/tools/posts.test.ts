@@ -5,14 +5,16 @@ import { registerPostTools } from './posts'
 // Mock MomeiApi
 vi.mock('../lib/api', () => {
     return {
-        MomeiApi: vi.fn().mockImplementation(() => ({
-            listPosts: vi.fn(),
-            getPost: vi.fn(),
-            createPost: vi.fn(),
-            updatePost: vi.fn(),
-            publishPost: vi.fn(),
-            deletePost: vi.fn(),
-        })),
+        MomeiApi: vi.fn().mockImplementation(() => {
+            return {
+                listPosts: vi.fn(),
+                getPost: vi.fn(),
+                createPost: vi.fn(),
+                updatePost: vi.fn(),
+                publishPost: vi.fn(),
+                deletePost: vi.fn(),
+            }
+        }),
     }
 })
 

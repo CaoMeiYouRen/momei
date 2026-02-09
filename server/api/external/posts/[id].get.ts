@@ -22,9 +22,10 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 
-    // 处理敏感信息（如密码）
-     
-    const { password: _, ...safePost } = post
+    // 处理敏感信息（如密码等，如果有的话）
+    const safePost = { ...post }
+    // @ts-expect-error - password might not exist on Post but we want to omit it if it does
+    delete safePost.password
 
     return {
         code: 200,

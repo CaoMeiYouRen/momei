@@ -19,7 +19,7 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "start": "node dist/index.js",
+    "start": "node dist/index.mjs",
     "lint": "eslint src --fix --no-warn-ignored",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
