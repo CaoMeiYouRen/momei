@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { resolve, relative } from 'node:path'
 import matter from 'gray-matter'
 import { glob } from 'glob'
-import type { HexoFrontMatter, MomeiPost } from './types.js'
+import type { HexoFrontMatter, MomeiPost } from './types'
 
 /**
  * 解析 Hexo Markdown 文件

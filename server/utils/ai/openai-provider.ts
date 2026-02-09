@@ -66,20 +66,38 @@ export class OpenAIProvider implements AIProvider {
             // 注意：某些提供商（如字节跳动/豆包）在 OpenAI 兼容模式下对某些模型有最小像素要求（如 3.68M 像素）
             if (provider === 'doubao' || provider === 'stable-diffusion') {
                 switch (options.aspectRatio) {
-                    case '1:1': finalSize = '2048x2048'; break
-                    case '16:9': finalSize = '2560x1440'; break
-                    case '4:3': finalSize = '2048x1536'; break
-                    case '3:2': finalSize = '2048x1365'; break
-                    case '9:16': finalSize = '1440x2560'; break
-                    default: finalSize = '2048x2048'
+                    case '1:1':
+                        finalSize = '2048x2048'
+                        break
+                    case '16:9':
+                        finalSize = '2560x1440'
+                        break
+                    case '4:3':
+                        finalSize = '2048x1536'
+                        break
+                    case '3:2':
+                        finalSize = '2048x1365'
+                        break
+                    case '9:16':
+                        finalSize = '1440x2560'
+                        break
+                    default:
+                        finalSize = '2048x2048'
                 }
             } else {
                 // OpenAI DALL-E 3 标准尺寸
                 switch (options.aspectRatio) {
-                    case '1:1': finalSize = '1024x1024'; break
-                    case '16:9': finalSize = '1792x1024'; break
-                    case '9:16': finalSize = '1024x1792'; break
-                    default: finalSize = '1024x1024'
+                    case '1:1':
+                        finalSize = '1024x1024'
+                        break
+                    case '16:9':
+                        finalSize = '1792x1024'
+                        break
+                    case '9:16':
+                        finalSize = '1024x1792'
+                        break
+                    default:
+                        finalSize = '1024x1024'
                 }
             }
         }

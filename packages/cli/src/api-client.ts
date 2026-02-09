@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance } from 'axios'
-import type { MomeiPost, ImportResult } from './types.js'
+import type { MomeiPost, ImportResult } from './types'
 
 /**
  * Momei API 客户端

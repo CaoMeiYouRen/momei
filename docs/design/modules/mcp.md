@@ -138,16 +138,20 @@ packages:
 
 ### 3.1 核心 Tools (工具)
 
-| 工具名称 | 功能描述 | 参数 |
-|---------|---------|------|
-| `create_post` | 创建新文章 | title, content, slug?, tags[], language?, status? |
-| `update_post` | 更新现有文章 | id, title?, content?, tags?, status? |
-| `publish_post` | 发布文章（草稿→已发布） | id, notifySubscribers? |
-| `get_post` | 获取文章详情 | id 或 slug |
-| `list_posts` | 列出文章列表 | status?, language?, limit?, offset? |
-| `delete_post` | 删除文章（软删除） | id |
-| `upload_image` | 上传图片并返回 URL | file (base64 或 URL) |
-| `create_draft_from_voice` | 语音转草稿 | audioData (base64), language |
+| 工具名称 | 功能描述 | 参数 | 安全级别 |
+|---------|---------|------|----------|
+| `list_posts` | 列出文章列表 | status?, language?, limit?, offset? | 基础 (公开/只读) |
+| `get_post` | 获取文章详情 | id 或 slug | 基础 (公开/只读) |
+| `create_post` | 创建新文章草稿 | title, content, slug?, tags[], language? | 增强 (写操作) |
+| `update_post` | 更新现有文章 | id, title?, content?, tags?, status? | 增强 (写操作) |
+| `publish_post` | 发布文章（草稿→已发布） | id, notifySubscribers? | 增强 (状态变更) |
+| `upload_image` | 上传图片并返回 URL | file (base64 或 URL) | 增强 (多媒体) |
+| `delete_post` | 删除文章（软删除） | id | **受限 (危险操作)** |
+
+**安全策略说明:**
+- **默认安全 (Safe by Default)**: `delete_post` 等具有破坏性的工具在默认配置下不启用。
+- **显式授权**: 必须在 MCP 服务器的环境变量或配置文件中设置 `MOMEI_ENABLE_DANGEROUS_TOOLS=true` 才能激活删除功能。
+- **变更提示**: 在执行 `update_post` 和 `publish_post` 时，建议 AI 客户端向人类发出确认提醒。
 
 ### 3.2 Resources (资源)
 
@@ -171,64 +175,34 @@ packages:
 
 ### 4.1 认证方式
 
-MCP 服务器通过 API Key 与主应用通信:
+MCP 服务器通过 API Key 与主应用通信。主应用必须在 `server/api/external/` 命名空间下提供接口，并验证 `X-API-Key` 头部。
 
-```typescript
-// packages/mcp-server/src/lib/config.ts
-export interface MomeiApiConfig {
-  apiUrl: string;      // 主应用 API 地址
-  apiKey: string;      // OpenAPI Key
-}
+### 4.2 基础 API 规格 (Main App Endpoints)
 
-export function loadConfig(): MomeiApiConfig {
-  return {
-    apiUrl: process.env.MOMEI_API_URL || 'http://localhost:3000',
-    apiKey: process.env.MOMEI_API_KEY || '',
-  };
-}
-```
+为了降低 MCP 服务器的实现复杂度，主应用需提供以下高度封装的 API：
 
-### 4.2 API 调用封装
+| 端点 (Endpoint) | 方法 | 描述 | MCP Tool 对应 |
+|----------------|------|------|---------------|
+| `/api/external/posts` | GET | 支持过滤和分页的文章列表（包含草稿） | `list_posts` |
+| `/api/external/posts/:id` | GET | 获取文章完整元数据与正文 | `get_post` |
+| `/api/external/posts` | POST | 创建文章（默认草稿状态） | `create_post` |
+| `/api/external/posts/:id` | PATCH | 更新文章标题、内容、分类等 | `update_post` |
+| `/api/external/posts/:id/publish` | POST | 触发发布流程（生成 Slug、发送通知） | `publish_post` |
+| `/api/external/posts/:id` | DELETE | 软删除文章 | `delete_post` |
+| `/api/external/media/upload` | POST | 图片/文件上传 | `upload_image` |
 
-```typescript
-// packages/mcp-server/src/lib/api.ts
-export class MomeiApi {
-  constructor(private config: MomeiApiConfig) {}
+### 4.3 安全加固 (Security Hardening)
 
-  async createPost(data: PostData): Promise<Post> {
-    const response = await fetch(`${this.config.apiUrl}/api/external/posts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': this.config.apiKey,
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`);
-    }
-
-    return response.json();
-  }
-
-  async getPost(id: string): Promise<Post> {
-    const response = await fetch(`${this.config.apiUrl}/api/posts/${id}`, {
-      headers: {
-        'X-API-Key': this.config.apiKey,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`);
-    }
-
-    return response.json();
-  }
-
-  // ... 其他 API 方法
-}
-```
+1. **配置驱动开关**: MCP Server 端代码需通过环境变量控制工具注册。
+   ```typescript
+   if (process.env.MOMEI_ENABLE_DANGEROUS_TOOLS === "true") {
+       registerDeleteTool(server, api);
+   } else {
+       console.error("Dangerous tools (delete) are disabled by default.");
+   }
+   ```
+2. **只读权限隔离**: 建议主应用支持配置“只读 API Key”，使得 MCP 只能进行查询，即便泄露也无法修改内容。
+3. **内容审计**: 主应用对所有 `/api/external/` 的调用记录详细审计日志（IP, 调用时间, 操作详情）。
 
 ## 5. 核心实现 (Core Implementation)
 

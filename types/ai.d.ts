@@ -66,4 +66,4 @@ export interface AIConfig {
     temperature?: number
 }
 
-export interface AIImageConfig extends AIConfig {}
+export type AIImageConfig = AIConfig

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { convertToMomeiPost, parseHexoMarkdown, scanMarkdownFiles } from './parser.js'
-import type { HexoFrontMatter } from './types.js'
+import { convertToMomeiPost, parseHexoMarkdown, scanMarkdownFiles } from './parser'
+import type { HexoFrontMatter } from './types'
 
 describe('Parser - convertToMomeiPost: Basic Conversion', () => {
     it('should convert basic Hexo front-matter to Momei post', () => {

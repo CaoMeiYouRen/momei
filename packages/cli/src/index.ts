@@ -3,9 +3,9 @@ import { resolve } from 'node:path'
 import { cac } from 'cac'
 import chalk from 'chalk'
 import ora from 'ora'
-import { parseHexoFiles } from './parser.js'
-import { MomeiApiClient } from './api-client.js'
-import type { ImportStats, ImportResult } from './types.js'
+import { parseHexoFiles } from './parser'
+import { MomeiApiClient } from './api-client'
+import type { ImportStats, ImportResult } from './types'
 
 const cli = cac('momei')
 

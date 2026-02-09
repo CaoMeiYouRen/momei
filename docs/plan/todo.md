@@ -96,7 +96,10 @@
 
 ### 7. AI Agent 与自动化生态 (AI Agent & Automation Ecosystem) (P1)
 - [ ] **Anthropic MCP Server 实现**
-    - 验收: 实现符合 MCP 协议的服务端逻辑，通过 AI 助手自动化执行发布、查询及更新动作。
+    - [x] 设计优化：完善 `docs/design/modules/mcp.md` 及 API 规格定义。
+    - [x] **主项目 API 实现**：已完成 Posts 基础 CRUD 外部接口实现。
+    - [x] **MCP Server 脚手架 (`packages/mcp-server`)**：已完成基础架构、构建配置（tsdown）、测试配置（vitest）与代码规范（eslint）。
+    - [x] **验证与测试**：编写单元测试辅助验证 Tool 注册逻辑，通过 Vitest 测试。
 - [ ] **定时发布功能**
     - 验收: 实现独立定时任务调度逻辑，支持自部署(Cron)与 Serverless(Webhook) 触发，并在编辑页提供 UI 配置。
 
