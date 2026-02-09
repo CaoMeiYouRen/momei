@@ -27,7 +27,8 @@ vi.mock('@/lib/auth-client', () => ({
 const mockToast = {
     add: vi.fn(),
 }
-vi.mock('primevue/usetoast', () => ({
+vi.mock('primevue/usetoast', async (importOriginal) => ({
+    ...await importOriginal<any>(),
     useToast: () => mockToast,
 }))
 

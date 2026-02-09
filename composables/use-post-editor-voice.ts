@@ -25,11 +25,11 @@ export function usePostEditorVoice() {
                 let interim = ''
                 let sessionFinal = ''
                 // 每次识别结果返回时，重建当前会话的完整文本，确保不会因为索引问题导致重复或覆盖
-                for (let i = 0; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        sessionFinal += event.results[i][0].transcript
+                for (const result of event.results) {
+                    if (result.isFinal) {
+                        sessionFinal += result[0].transcript
                     } else {
-                        interim += event.results[i][0].transcript
+                        interim += result[0].transcript
                     }
                 }
                 currentSessionFinal.value = sessionFinal

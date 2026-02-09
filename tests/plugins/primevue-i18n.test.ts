@@ -20,7 +20,8 @@ vi.mock('primevue/config', () => ({
 }))
 
 // Mock vue-i18n composable
-vi.mock('vue-i18n', () => ({
+vi.mock('vue-i18n', async (importOriginal) => ({
+    ...await importOriginal<any>(),
     useI18n: () => mockI18n,
 }))
 

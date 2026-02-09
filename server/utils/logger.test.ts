@@ -53,7 +53,8 @@ vi.mock('./env', () => ({
     isServerlessEnvironment: vi.fn(() => false),
 }))
 
-vi.mock('@/utils/shared/env', () => ({
+vi.mock('@/utils/shared/env', async (importOriginal) => ({
+    ...await importOriginal<any>(),
     LOG_LEVEL: 'info',
     LOGFILES: true,
     AXIOM_DATASET_NAME: '',

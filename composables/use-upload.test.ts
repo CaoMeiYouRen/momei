@@ -11,14 +11,16 @@ const mockT = vi.fn((key: string) => {
 const mockToastAdd = vi.fn()
 
 // Mock useI18n
-vi.mock('vue-i18n', () => ({
+vi.mock('vue-i18n', async (importOriginal) => ({
+    ...await importOriginal<any>(),
     useI18n: () => ({
         t: mockT,
     }),
 }))
 
 // Mock PrimeVue useToast
-vi.mock('primevue/usetoast', () => ({
+vi.mock('primevue/usetoast', async (importOriginal) => ({
+    ...await importOriginal<any>(),
     useToast: () => ({
         add: mockToastAdd,
     }),

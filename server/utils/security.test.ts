@@ -1,9 +1,13 @@
 import { describe, it, expect, vi } from 'vitest'
 
 // Mock the env module before importing security
-vi.mock('~/utils/shared/env', () => ({
-    AUTH_SECRET: 'test-secret-key-for-testing',
-}))
+vi.mock('~/utils/shared/env', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('~/utils/shared/env')>()
+    return {
+        ...actual,
+        AUTH_SECRET: 'test-secret-key-for-testing',
+    }
+})
 
 import { signCookieValue, verifyCookieValue } from './security'
 

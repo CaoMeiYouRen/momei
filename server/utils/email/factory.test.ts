@@ -11,7 +11,8 @@ vi.mock('nodemailer', () => ({
     },
 }))
 
-vi.mock('@/utils/shared/env', () => ({
+vi.mock('@/utils/shared/env', async (importOriginal) => ({
+    ...await importOriginal<any>(),
     EMAIL_HOST: 'smtp.example.com',
     EMAIL_PORT: 587,
     EMAIL_SECURE: false,

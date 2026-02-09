@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Mock the environment variables module
-vi.mock('@/utils/shared/env', () => ({
+vi.mock('@/utils/shared/env', async (importOriginal) => ({
+    ...await importOriginal<any>(),
     AI_ENABLED: true,
     AI_PROVIDER: 'openai',
     AI_API_KEY: 'test-key',

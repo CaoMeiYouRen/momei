@@ -20,9 +20,13 @@ vi.mock('@/components/article-card.vue', () => ({
 }))
 
 // Mock PrimeVue usetoast
-vi.mock('primevue/usetoast', () => ({
-    useToast: () => mockToast,
-}))
+vi.mock('primevue/usetoast', async (importOriginal) => {
+    const actual = await importOriginal<any>()
+    return {
+        ...actual,
+        useToast: () => mockToast,
+    }
+})
 
 // Mock more components to avoid PrimeVue injection errors
 const stubs = {

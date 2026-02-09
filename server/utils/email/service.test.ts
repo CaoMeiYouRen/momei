@@ -32,7 +32,8 @@ vi.mock('../logger', () => ({
     },
 }))
 
-vi.mock('@/utils/shared/env', () => ({
+vi.mock('@/utils/shared/env', async (importOriginal) => ({
+    ...await importOriginal<any>(),
     APP_NAME: 'Test App',
 }))
 
