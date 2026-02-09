@@ -1,22 +1,22 @@
 <template>
-    <div v-if="visible" class="voice-overlay">
-        <div class="voice-overlay__card">
-            <div class="voice-overlay__header">
-                <span class="voice-overlay__title">
-                    <i class="pi pi-microphone voice-overlay__icon" :class="{'voice-overlay__icon--listening': isListening}" />
+    <Popover
+        ref="op"
+        class="voice-popover"
+        @hide="$emit('hide')"
+    >
+        <div class="voice-popover__card">
+            <div class="voice-popover__header">
+                <span class="voice-popover__title">
+                    <i
+                        class="pi pi-microphone voice-popover__icon"
+                        :class="{'voice-popover__icon--listening': isListening}"
+                    />
                     {{ isListening ? $t('pages.admin.posts.ai.voice_listening') : $t('pages.admin.posts.ai.voice_input') }}
                 </span>
-                <Button
-                    icon="pi pi-times"
-                    text
-                    rounded
-                    severity="secondary"
-                    @click="$emit('close')"
-                />
             </div>
 
-            <div class="voice-overlay__content">
-                <div v-if="error" class="voice-overlay__error">
+            <div class="voice-popover__content">
+                <div v-if="error" class="voice-popover__error">
                     <i class="pi pi-exclamation-circle" />
                     <span>{{ errorText }}</span>
                     <Button
@@ -26,16 +26,19 @@
                         @click="$emit('retry')"
                     />
                 </div>
-                <div v-else class="voice-overlay__transcript">
-                    <span class="voice-overlay__final">{{ finalTranscript }}</span>
-                    <span class="voice-overlay__interim">{{ interimTranscript }}</span>
-                    <div v-if="!finalTranscript && !interimTranscript && isListening" class="voice-overlay__placeholder">
+                <div v-else class="voice-popover__transcript">
+                    <span class="voice-popover__final">{{ finalTranscript }}</span>
+                    <span class="voice-popover__interim">{{ interimTranscript }}</span>
+                    <div
+                        v-if="!finalTranscript && !interimTranscript && isListening"
+                        class="voice-popover__placeholder"
+                    >
                         ...
                     </div>
                 </div>
             </div>
 
-            <div class="voice-overlay__footer">
+            <div class="voice-popover__footer">
                 <template v-if="isListening">
                     <Button
                         :label="$t('pages.admin.posts.ai.voice_stop')"
@@ -68,15 +71,14 @@
                 </template>
             </div>
         </div>
-    </div>
+    </Popover>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
-    visible: boolean
     isListening: boolean
     interimTranscript: string
     finalTranscript: string
@@ -84,9 +86,28 @@ const props = defineProps<{
     refining: boolean
 }>()
 
-defineEmits(['close', 'stop', 'retry', 'insert', 'refine'])
+defineEmits(['stop', 'retry', 'insert', 'refine', 'hide'])
 
 const { t } = useI18n()
+const op = ref<any>(null)
+
+const toggle = (event: any) => {
+    op.value?.toggle(event)
+}
+
+const show = (event: any) => {
+    op.value?.show(event)
+}
+
+const hide = () => {
+    op.value?.hide()
+}
+
+defineExpose({
+    toggle,
+    show,
+    hide,
+})
 
 const errorText = computed(() => {
     if (props.error === 'permission_denied') {
@@ -97,83 +118,70 @@ const errorText = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-.voice-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgb(0 0 0 / 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-    backdrop-filter: blur(4px);
-
+.voice-popover {
     &__card {
-        background: var(--surface-card);
-        border-radius: 12px;
-        width: 90%;
-        max-width: 500px;
-        padding: 1.5rem;
-        box-shadow: 0 10px 25px rgb(0 0 0 / 0.2);
+        width: 350px;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 0.75rem;
     }
 
     &__header {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--p-surface-border);
     }
 
     &__title {
         font-weight: 600;
-        font-size: 1.1rem;
+        font-size: 0.95rem;
         display: flex;
         align-items: center;
         gap: 0.5rem;
     }
 
     &__icon {
-        color: var(--primary-color);
+        color: var(--p-primary-color);
+        font-size: 1rem;
 
         &--listening {
-            animation: pulse 1.5s infinite;
-            color: var(--red-500);
+            animation: pulse-mic 1.5s infinite;
+            color: var(--p-red-500);
         }
     }
 
     &__content {
-        min-height: 120px;
-        max-height: 300px;
+        min-height: 80px;
+        max-height: 200px;
         overflow-y: auto;
-        padding: 1rem;
-        background: var(--surface-ground);
-        border-radius: 8px;
-        border: 1px inset var(--surface-border);
+        padding: 0.75rem;
+        background: var(--p-surface-50);
+        border-radius: var(--p-border-radius-md);
+        border: 1px inset var(--p-surface-border);
     }
 
     &__transcript {
-        line-height: 1.6;
+        line-height: 1.5;
+        font-size: 0.875rem;
         word-break: break-all;
     }
 
     &__final {
-        color: var(--text-color);
+        color: var(--p-text-color);
     }
 
     &__interim {
-        color: var(--text-color-secondary);
+        color: var(--p-text-muted-color);
         font-style: italic;
     }
 
     &__placeholder {
-        color: var(--text-color-secondary);
+        color: var(--p-text-muted-color);
         display: flex;
         justify-content: center;
-        padding: 2rem;
+        padding: 1rem;
     }
 
     &__error {
@@ -181,31 +189,39 @@ const errorText = computed(() => {
         flex-direction: column;
         align-items: center;
         gap: 0.5rem;
-        color: var(--red-500);
-        padding: 1rem;
+        color: var(--p-red-500);
+        padding: 0.5rem;
+        font-size: 0.875rem;
     }
 
     &__footer {
         display: flex;
         justify-content: flex-end;
-        gap: 0.75rem;
+        gap: 0.5rem;
+        padding-top: 0.25rem;
     }
 }
 
-@keyframes pulse {
+@keyframes pulse-mic {
     0% {
         transform: scale(1);
         opacity: 1;
     }
 
     50% {
-        transform: scale(1.1);
-        opacity: 0.8;
+        transform: scale(1.15);
+        opacity: 0.7;
     }
 
     100% {
         transform: scale(1);
         opacity: 1;
+    }
+}
+
+:global(.dark) {
+    .voice-popover__content {
+        background: var(--p-surface-900);
     }
 }
 </style>

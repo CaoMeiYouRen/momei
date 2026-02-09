@@ -50,21 +50,21 @@
                     outlined
                     :severity="isListening ? 'danger' : 'secondary'"
                     :class="{'pulse-animation': isListening}"
-                    @click="handleVoiceClick"
+                    @click="handleVoiceClick($event)"
                 />
             </ButtonGroup>
             <AdminPostsPostEditorVoiceOverlay
-                :visible="showVoiceOverlay"
+                ref="voiceOp"
                 :is-listening="isListening"
                 :interim-transcript="interimTranscript"
                 :final-transcript="finalTranscript"
                 :error="voiceError"
                 :refining="refiningVoice"
-                @close="showVoiceOverlay = false; stopListening()"
                 @stop="stopListening()"
                 @retry="resetVoice(); startListening(post.language)"
                 @insert="handleVoiceInsert"
                 @refine="handleVoiceRefine"
+                @hide="stopListening()"
             />
             <Popover ref="translateOp" class="translate-menu">
                 <div class="translate-menu__content">
@@ -239,8 +239,8 @@ const localePath = useLocalePath()
 
 const titleOp = ref<any>(null)
 const translateOp = ref<any>(null)
+const voiceOp = ref<any>(null)
 
-const showVoiceOverlay = ref(false)
 const refiningVoice = ref(false)
 const {
     isListening,
@@ -253,11 +253,11 @@ const {
     reset: resetVoice,
 } = usePostEditorVoice()
 
-const handleVoiceClick = () => {
+const handleVoiceClick = (event: any) => {
     if (isListening.value) {
         stopListening()
     } else {
-        showVoiceOverlay.value = true
+        voiceOp.value?.show(event)
         startListening(post.value.language)
     }
 }
@@ -266,7 +266,7 @@ const handleVoiceInsert = (text: string) => {
     if (!text) return
     const content = post.value.content || ''
     post.value.content = content + (content.length > 0 && !content.endsWith('\n') ? '\n\n' : content.length > 0 && content.endsWith('\n') && !content.endsWith('\n\n') ? '\n' : '') + text
-    showVoiceOverlay.value = false
+    voiceOp.value?.hide()
     resetVoice()
 }
 
