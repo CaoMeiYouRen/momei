@@ -15,6 +15,13 @@ const mockConfig = {
 }
 mockNuxtImport('useRuntimeConfig', () => () => mockConfig)
 
+mockNuxtImport('useRouter', () => () => ({
+    replace: vi.fn().mockResolvedValue(true),
+    afterEach: vi.fn(),
+    push: vi.fn().mockResolvedValue(true),
+    currentRoute: { value: { fullPath: '/' } },
+}))
+
 describe('DemoBanner', () => {
     it('should render when demoMode is enabled', async () => {
         mockConfig.public.demoMode = true
