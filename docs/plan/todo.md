@@ -96,6 +96,8 @@
     - 验收: 更新系统设计文档，说明当前 Auth 变量的使用机制及长期优化路径。
 
 ### 9. 质量与维护 (Quality & Maintenance) (P0)
+- [x] **修复组件单元测试失败 (Fix Component Unit Test Failures)** (P0)
+    - [x] 验收: 解决 `demo-banner.test.ts` 中由于 RuntimeConfig 模拟不全和路由器初始化导致的 `TypeError`。
 - [x] **文章编辑页面 UI/UX 优化 (Article Editor UI/UX Optimization)** (P1)
     - [x] 验收: **顶部工具栏聚合**: 将 AI 建议、翻译与格式化按钮进行视觉聚合，提升空间利用率。
     - [x] 验收: **发布状态重定位**: 将文章发布状态标签移至“发布”按钮旁，与操作逻辑对齐。

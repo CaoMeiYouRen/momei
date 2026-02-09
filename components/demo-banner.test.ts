@@ -9,24 +9,29 @@ mockNuxtImport('useI18n', () => () => ({
 }))
 
 const mockConfig = {
+    app: {
+        baseURL: '/',
+        buildAssetsDir: '/_nuxt/',
+        cdnURL: '',
+    },
     public: {
         demoMode: true,
+        sentry: {
+            dsn: '',
+            environment: 'test',
+        },
     },
 }
 mockNuxtImport('useRuntimeConfig', () => () => mockConfig)
-
-mockNuxtImport('useRouter', () => () => ({
-    replace: vi.fn().mockResolvedValue(true),
-    afterEach: vi.fn(),
-    push: vi.fn().mockResolvedValue(true),
-    currentRoute: { value: { fullPath: '/' } },
-}))
 
 describe('DemoBanner', () => {
     it('should render when demoMode is enabled', async () => {
         mockConfig.public.demoMode = true
         const wrapper = await mountSuspended(DemoBanner, {
             global: {
+                mocks: {
+                    $t: mockT,
+                },
                 stubs: {
                     Button: {
                         template: '<button @click="$emit(\'click\')"><slot /></button>',
@@ -44,6 +49,9 @@ describe('DemoBanner', () => {
         mockConfig.public.demoMode = false
         const wrapper = await mountSuspended(DemoBanner, {
             global: {
+                mocks: {
+                    $t: mockT,
+                },
                 stubs: {
                     Button: true,
                 },
@@ -59,6 +67,9 @@ describe('DemoBanner', () => {
 
         const wrapper = await mountSuspended(DemoBanner, {
             global: {
+                mocks: {
+                    $t: mockT,
+                },
                 stubs: {
                     Button: {
                         template: '<button @click="$emit(\'click\')"><slot /></button>',
