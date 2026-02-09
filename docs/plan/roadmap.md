@@ -253,6 +253,10 @@
     - 全站悬浮播放器，支持跨页面断点续播与内容同步。
 - **音频文章协同 (AI TTS)**:
     - 集成 AI TTS 服务，为文章一键生成/刷新音频版本。
+- **高精度语音识别优化 (High-precision Voice Recognition)**:
+    - **背景**: 浏览器原生 Web Speech API 在复杂环境及语义理解上存在局限。
+    - **方向**: 引入 OpenAI Whisper, Azure Speech Service 或 Groq 等高性能 AI 转写 API。
+    - **功能**: 支持后台静默转录、长音频文件处理，并结合 LLM 自动修正同音字错误。
 
 ### 9. 开放发布协议支持 (Open Federation)
 - **ActivityPub 适配**:
