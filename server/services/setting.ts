@@ -21,6 +21,12 @@ export const SETTING_ENV_MAP: Record<string, string> = {
     [SettingKey.AI_API_KEY]: 'AI_API_KEY',
     [SettingKey.AI_MODEL]: 'AI_MODEL',
     [SettingKey.AI_ENDPOINT]: 'AI_API_ENDPOINT',
+    // AI Image
+    [SettingKey.AI_IMAGE_ENABLED]: 'AI_IMAGE_ENABLED',
+    [SettingKey.AI_IMAGE_PROVIDER]: 'AI_IMAGE_PROVIDER',
+    [SettingKey.AI_IMAGE_API_KEY]: 'AI_IMAGE_API_KEY',
+    [SettingKey.AI_IMAGE_MODEL]: 'AI_IMAGE_MODEL',
+    [SettingKey.AI_IMAGE_ENDPOINT]: 'AI_IMAGE_ENDPOINT',
     // Email
     [SettingKey.EMAIL_HOST]: 'EMAIL_HOST',
     [SettingKey.EMAIL_PORT]: 'EMAIL_PORT',

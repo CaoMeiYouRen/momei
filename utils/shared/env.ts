@@ -289,6 +289,21 @@ export const AI_MAX_CONTENT_LENGTH = Number(
 export const AI_CHUNK_SIZE = Number(process.env.AI_CHUNK_SIZE || 4000)
 
 /**
+ * AI 图像生成配置
+ */
+export const AI_IMAGE_API_KEY = process.env.AI_IMAGE_API_KEY
+export const AI_IMAGE_ENABLED =
+    process.env.AI_IMAGE_ENABLED === 'true'
+    || (!!AI_IMAGE_API_KEY && process.env.AI_IMAGE_ENABLED !== 'false')
+export const AI_IMAGE_PROVIDER = (process.env.AI_IMAGE_PROVIDER || 'openai') as
+    | 'openai'
+    | 'stable-diffusion'
+    | 'doubao'
+    | 'gemini'
+export const AI_IMAGE_MODEL = process.env.AI_IMAGE_MODEL || 'dall-e-3'
+export const AI_IMAGE_ENDPOINT = process.env.AI_IMAGE_ENDPOINT
+
+/**
  * 安全配置
  */
 // 外部资源 URL 域名白名单默认值
