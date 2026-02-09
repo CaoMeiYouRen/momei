@@ -81,4 +81,113 @@ describe('PVCache', () => {
 
         expect(dataSource.transaction).toHaveBeenCalledTimes(1)
     })
+
+    it('should handle flush errors gracefully', async () => {
+        const mockRepo = {
+            increment: vi.fn().mockRejectedValue(new Error('Database error')),
+        }
+        const mockManager = {
+            getRepository: vi.fn().mockReturnValue(mockRepo),
+        }
+
+        vi.mocked(dataSource.transaction).mockImplementation(async (callback: any) => await callback(mockManager))
+
+        await pvCache.record('post-error')
+        await pvCache.flush()
+
+        // 即使出错，isFlushPending 也应该被重置
+        expect(dataSource.transaction).toHaveBeenCalled()
+    })
+
+    it('should handle post not found during flush', async () => {
+        const mockRepo = {
+            increment: vi.fn().mockResolvedValue({ affected: 0 }),
+        }
+        const mockManager = {
+            getRepository: vi.fn().mockReturnValue(mockRepo),
+        }
+
+        vi.mocked(dataSource.transaction).mockImplementation(async (callback: any) => await callback(mockManager))
+
+        await pvCache.record('non-existent-post')
+        await pvCache.flush()
+
+        expect(mockRepo.increment).toHaveBeenCalledWith({ id: 'non-existent-post' }, 'views', 1)
+    })
+
+    it('should accumulate multiple records for the same post', async () => {
+        await pvCache.record('post-multi')
+        await pvCache.record('post-multi')
+        await pvCache.record('post-multi')
+        await pvCache.record('post-multi')
+        await pvCache.record('post-multi')
+
+        expect(await pvCache.getPending('post-multi')).toBe(5)
+    })
+
+    it('should handle getPending for non-existent post', async () => {
+        const pending = await pvCache.getPending('never-recorded')
+        expect(pending).toBe(0)
+    })
+
+    it('should clear all cached data', async () => {
+        await pvCache.record('post1')
+        await pvCache.record('post2')
+        await pvCache.record('post3')
+
+        expect(await pvCache.getPending('post1')).toBe(1)
+        expect(await pvCache.getPending('post2')).toBe(1)
+        expect(await pvCache.getPending('post3')).toBe(1)
+
+        await pvCache.clear()
+
+        expect(await pvCache.getPending('post1')).toBe(0)
+        expect(await pvCache.getPending('post2')).toBe(0)
+        expect(await pvCache.getPending('post3')).toBe(0)
+    })
+
+    it('should handle multiple flushes correctly', async () => {
+        const mockRepo = {
+            increment: vi.fn().mockResolvedValue({ affected: 1 }),
+        }
+        const mockManager = {
+            getRepository: vi.fn().mockReturnValue(mockRepo),
+        }
+
+        vi.mocked(dataSource.transaction).mockImplementation(async (callback: any) => await callback(mockManager))
+
+        // 第一批数据
+        await pvCache.record('post-a')
+        await pvCache.flush()
+
+        expect(mockRepo.increment).toHaveBeenCalledTimes(1)
+
+        // 第二批数据
+        await pvCache.record('post-b')
+        await pvCache.flush()
+
+        expect(mockRepo.increment).toHaveBeenCalledTimes(2)
+    })
+
+    it('should merge counts from multiple records before flush', async () => {
+        const mockRepo = {
+            increment: vi.fn().mockResolvedValue({ affected: 1 }),
+        }
+        const mockManager = {
+            getRepository: vi.fn().mockReturnValue(mockRepo),
+        }
+
+        vi.mocked(dataSource.transaction).mockImplementation(async (callback: any) => await callback(mockManager))
+
+        // 记录多次
+        await pvCache.record('post-merge')
+        await pvCache.record('post-merge')
+        await pvCache.record('post-merge')
+
+        await pvCache.flush()
+
+        // 应该只调用一次 increment，但增量为 3
+        expect(mockRepo.increment).toHaveBeenCalledWith({ id: 'post-merge' }, 'views', 3)
+        expect(mockRepo.increment).toHaveBeenCalledTimes(1)
+    })
 })
