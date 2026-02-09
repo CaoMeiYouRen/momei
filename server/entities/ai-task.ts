@@ -12,7 +12,23 @@ export class AITask extends BaseEntity {
         length: 50,
         comment: '任务类型',
     })
-    type: 'image_generation'
+    type: string // 'image_generation' | 'text_generation' | etc.
+
+    @Column({
+        type: 'varchar',
+        length: 50,
+        nullable: true,
+        comment: 'AI 服务商',
+    })
+    provider: string
+
+    @Column({
+        type: 'varchar',
+        length: 100,
+        nullable: true,
+        comment: '使用的模型',
+    })
+    model: string
 
     @Column({
         type: 'varchar',

@@ -27,6 +27,37 @@ export interface ExpandSectionOptions {
 }
 
 export class AIService {
+    private static async recordTask(options: {
+        userId: string | undefined
+        type: string
+        provider: string
+        model: string
+        payload: any
+        response: any
+        error?: any
+    }) {
+        const { userId, type, provider, model, payload, response, error } = options
+        if (!userId) {
+            return
+        }
+        try {
+            const repo = dataSource.getRepository(AITask)
+            const task = repo.create({
+                userId,
+                type,
+                provider,
+                model,
+                status: error ? 'failed' : 'completed',
+                payload: JSON.stringify(payload),
+                result: response ? JSON.stringify(response) : undefined,
+                error: error ? (error.message || String(error)) : undefined,
+            })
+            await repo.save(task)
+        } catch (e) {
+            logger.error('Failed to record AI task:', e)
+        }
+    }
+
     private static logAIUsage(task: string, response: any, userId?: string) {
         const { model, usage } = response
         if (usage) {
@@ -63,6 +94,14 @@ export class AIService {
         })
 
         this.logAIUsage('suggest-titles', response, userId)
+        await this.recordTask({
+            userId,
+            type: 'text_generation',
+            provider: provider.name,
+            model: response.model,
+            payload: { content, task: 'suggest-titles' },
+            response,
+        })
 
         try {
             // Try to extract JSON array from response
@@ -99,6 +138,14 @@ export class AIService {
             temperature: 0.3,
         })
 
+        await this.recordTask({
+            userId,
+            type: 'text_generation',
+            provider: provider.name,
+            model: response.model,
+            payload: { title, task: 'suggest-slug' },
+            response,
+        })
         this.logAIUsage('suggest-slug', response, userId)
 
         return response.content
@@ -141,6 +188,10 @@ export class AIService {
 
         try {
             const provider = await getAIImageProvider()
+            task.provider = provider.name
+            task.model = (provider as any).config?.model || 'unknown'
+            await repo.save(task)
+
             if (!provider.generateImage) {
                 throw new Error(`Provider ${provider.name} does not support image generation`)
             }
@@ -164,6 +215,8 @@ export class AIService {
 
             const finalResponse: AIImageResponse = {
                 images: persistedImages,
+                usage: response.usage,
+                model: response.model,
             }
 
             task.status = 'completed'
@@ -237,6 +290,14 @@ export class AIService {
                     temperature: 0.5,
                 })
                 this.logAIUsage('summarize-chunk', response, userId)
+                await this.recordTask({
+                    userId,
+                    type: 'text_generation',
+                    provider: provider.name,
+                    model: response.model,
+                    payload: { task: 'summarize-chunk' },
+                    response,
+                })
                 chunkSummaries.push(response.content.trim())
             }
 
@@ -259,6 +320,14 @@ export class AIService {
                 temperature: 0.5,
             })
             this.logAIUsage('summarize-final', finalResponse, userId)
+            await this.recordTask({
+                userId,
+                type: 'text_generation',
+                provider: provider.name,
+                model: finalResponse.model,
+                payload: { task: 'summarize-final' },
+                response: finalResponse,
+            })
             return finalResponse.content.trim()
         }
 
@@ -280,6 +349,14 @@ export class AIService {
         })
 
         this.logAIUsage('summarize', response, userId)
+        await this.recordTask({
+            userId,
+            type: 'text_generation',
+            provider: provider.name,
+            model: response.model,
+            payload: { task: 'summarize' },
+            response,
+        })
 
         return response.content.trim()
     }
@@ -307,6 +384,14 @@ export class AIService {
         })
 
         this.logAIUsage('refine-voice', response, userId)
+        await this.recordTask({
+            userId,
+            type: 'text_generation',
+            provider: provider.name,
+            model: response.model,
+            payload: { task: 'refine-voice' },
+            response,
+        })
 
         return response.content.trim()
     }
@@ -361,6 +446,14 @@ export class AIService {
         })
 
         this.logAIUsage('generate-scaffold-v2', response, userId)
+        await this.recordTask({
+            userId,
+            type: 'text_generation',
+            provider: provider.name,
+            model: response.model,
+            payload: { options, task: 'generate-scaffold' },
+            response,
+        })
 
         return response.content.trim()
     }
@@ -398,6 +491,14 @@ export class AIService {
         })
 
         this.logAIUsage('expand-section', response, userId)
+        await this.recordTask({
+            userId,
+            type: 'text_generation',
+            provider: provider.name,
+            model: response.model,
+            payload: { options, task: 'expand-section' },
+            response,
+        })
 
         return response.content.trim()
     }
@@ -428,6 +529,14 @@ export class AIService {
         })
 
         this.logAIUsage('recommend-tags', response, userId)
+        await this.recordTask({
+            userId,
+            type: 'text_generation',
+            provider: provider.name,
+            model: response.model,
+            payload: { task: 'recommend-tags' },
+            response,
+        })
 
         try {
             const match = /\[.*\]/s.exec(response.content)

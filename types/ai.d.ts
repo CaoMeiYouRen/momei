@@ -47,6 +47,12 @@ export interface AIImageResponse {
         url: string
         revisedPrompt?: string
     }[]
+    usage?: {
+        promptTokens: number
+        completionTokens: number
+        totalTokens: number
+    }
+    model?: string
 }
 
 export interface AIConfig {

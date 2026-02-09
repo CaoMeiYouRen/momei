@@ -338,6 +338,11 @@ const adminMenuItems = computed(() => {
             icon: 'pi pi-tags',
             command: () => navigateTo(localePath('/admin/tags')),
         },
+        {
+            label: t('pages.admin.ai.title'),
+            icon: 'pi pi-sparkles',
+            command: () => navigateTo(localePath('/admin/ai')),
+        },
     ]
 
     if (isAdmin(user.value?.role)) {

@@ -152,6 +152,7 @@
         "tag": "Tag",
         "loading": "Loading...",
         "refresh": "Refresh",
+        "search": "Search",
         "tag_cloud": "Tag Cloud",
         "status": {
             "published": "Published",
@@ -429,6 +430,37 @@
                 "category": "Category",
                 "tags": "Tags",
                 "review_success": "Action successful"
+            },
+            "ai": {
+                "title": "AI Tasks & Stats",
+                "tasks": "Task History",
+                "stats": "Usage Statistics",
+                "type": "Task Type",
+                "provider": "Provider",
+                "model": "Model",
+                "consumption": "Consumption",
+                "status": "Status",
+                "tokens": "Tokens",
+                "images": "Images",
+                "prompt": "Payload/Prompt",
+                "result": "Result Data",
+                "error": "Error Reason",
+                "delete_confirm": "Are you sure you want to delete selected AI task records? This action cannot be undone.",
+                "cleanup": "Cleanup Logs",
+                "no_stats": "No statistics available",
+                "chart_trend": "Usage Trend (Last 14 days)",
+                "chart_status": "Status Distribution",
+                "chart_type": "Type Distribution",
+                "chart_model": "Model Distribution",
+                "types": {
+                    "text_generation": "Text Generation",
+                    "image_generation": "Image Generation"
+                },
+                "statuses": {
+                    "completed": "Completed",
+                    "processing": "Processing",
+                    "failed": "Failed"
+                }
             },
             "posts": {
                 "title": "Post Management",

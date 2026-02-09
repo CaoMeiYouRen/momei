@@ -152,6 +152,7 @@
         "tag": "标签",
         "loading": "加载中...",
         "refresh": "刷新",
+        "search": "搜索",
         "status": {
             "published": "已发布",
             "draft": "草稿",
@@ -429,6 +430,37 @@
                 "category": "所属分类",
                 "tags": "关键词标签",
                 "review_success": "操作成功"
+            },
+            "ai": {
+                "title": "AI 任务与统计",
+                "tasks": "任务记录",
+                "stats": "使用统计",
+                "type": "任务类型",
+                "provider": "服务商",
+                "model": "模型",
+                "consumption": "消耗",
+                "status": "状态",
+                "tokens": "Tokens",
+                "images": "图像",
+                "prompt": "参数/提示词",
+                "result": "结果数据",
+                "error": "失败原因",
+                "delete_confirm": "确定要删除选中的 AI 记录吗？此操作无法撤销。",
+                "cleanup": "清空记录",
+                "no_stats": "暂无统计数据",
+                "chart_trend": "使用趋势 (近14天)",
+                "chart_status": "任务状态分布",
+                "chart_type": "任务类型分布",
+                "chart_model": "模型使用分布",
+                "types": {
+                    "text_generation": "文本生成",
+                    "image_generation": "图像生成"
+                },
+                "statuses": {
+                    "completed": "已完成",
+                    "processing": "处理中",
+                    "failed": "已失败"
+                }
             },
             "posts": {
                 "title": "文章管理",
