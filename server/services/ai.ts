@@ -200,11 +200,12 @@ export class AIService {
 
             // Persist images
             const persistedImages = await Promise.all(
-                response.images.map(async (img) => {
+                response.images.map(async (img, index) => {
                     const uploadedImage = await uploadFromUrl(
                         img.url,
-                        `ai/images/${userId}/${taskId}`,
+                        'ai/',
                         userId,
+                        response.images.length > 1 ? `${taskId}_${index}` : taskId,
                     )
                     return {
                         ...img,

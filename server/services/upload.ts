@@ -70,7 +70,7 @@ export async function checkUploadLimits(userId: string) {
 /**
  * 从 URL 上传文件
  */
-export async function uploadFromUrl(url: string, prefix: string, userId: string): Promise<UploadedFile> {
+export async function uploadFromUrl(url: string, prefix: string, userId: string, customFilename?: string): Promise<UploadedFile> {
     await checkUploadLimits(userId)
 
     const dbSettings = await getSettings([
@@ -98,6 +98,7 @@ export async function uploadFromUrl(url: string, prefix: string, userId: string)
 
     const env: FileStorageEnv = {
         ...(process.env as any),
+        STORAGE_TYPE: storageType,
         LOCAL_STORAGE_DIR: String(dbSettings[SettingKey.LOCAL_STORAGE_DIR] || 'public/uploads'),
         LOCAL_STORAGE_BASE_URL: String(dbSettings[SettingKey.LOCAL_STORAGE_BASE_URL] || '/uploads'),
         LOCAL_STORAGE_MIN_FREE_SPACE: Number(dbSettings[SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE] || 100 * 1024 * 1024),
@@ -115,8 +116,11 @@ export async function uploadFromUrl(url: string, prefix: string, userId: string)
     const response = await $fetch.raw(url, { responseType: 'arrayBuffer' })
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
     const extension = contentType.split('/')[1]?.split(';')[0] || 'bin'
-    const filename = `${crypto.randomUUID()}.${extension}`
-    const fullPath = path.join(prefix, filename).replace(/\\/g, '/')
+    const bucketPrefix = String(dbSettings[SettingKey.S3_BUCKET_PREFIX] || '')
+
+    const nameWithoutExt = customFilename || crypto.randomUUID()
+    const filename = nameWithoutExt.includes('.') ? nameWithoutExt : `${nameWithoutExt}.${extension}`
+    const fullPath = `${bucketPrefix}${prefix}${filename}`.replace(/\\/g, '/')
 
     const buffer = Buffer.from(response._data as ArrayBuffer)
     const uploadResult = await storage.upload(buffer, fullPath, contentType)
