@@ -204,6 +204,7 @@
         "success": "Success",
         "error": "Error",
         "warn": "Warning",
+        "retry": "Retry",
         "info": "Info",
         "unexpected_error": "An unexpected error occurred, please try again later",
         "validation_error": "Validation failed",

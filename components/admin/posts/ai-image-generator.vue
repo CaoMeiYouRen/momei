@@ -48,22 +48,65 @@
                     </p>
                 </div>
             </div>
+
+            <!-- Generated Image Preview -->
+            <div v-if="generatedUrl" class="flex flex-col gap-3 items-center py-2">
+                <div class="flex font-bold gap-2 items-center text-lg">
+                    <i class="pi pi-image text-primary" />
+                    {{ $t('common.preview') }}
+                </div>
+                <div class="group relative">
+                    <Image
+                        :src="generatedUrl"
+                        alt="Generated Cover"
+                        width="400"
+                        preview
+                        class="border border-surface-200 overflow-hidden rounded-lg shadow-md"
+                    />
+                    <div class="mt-2 text-center text-surface-500 text-xs">
+                        {{ $t('pages.admin.posts.ai.cover_generator.success') }}
+                    </div>
+                </div>
+            </div>
         </div>
 
         <template #footer>
-            <Button
-                :label="$t('common.cancel')"
-                text
-                severity="secondary"
-                @click="visible = false"
-            />
-            <Button
-                :label="$t('pages.admin.posts.ai.cover_generator.generate_btn')"
-                icon="pi pi-wand-lines"
-                :loading="generating"
-                :disabled="!prompt"
-                @click="generateImage"
-            />
+            <div class="flex justify-between w-full">
+                <Button
+                    v-if="generatedUrl"
+                    :label="$t('common.retry')"
+                    icon="pi pi-refresh"
+                    text
+                    severity="warn"
+                    :disabled="generating"
+                    @click="resetGenerator"
+                />
+                <div v-else />
+
+                <div class="flex gap-2">
+                    <Button
+                        :label="$t('common.cancel')"
+                        text
+                        severity="secondary"
+                        @click="visible = false"
+                    />
+                    <Button
+                        v-if="generatedUrl"
+                        :label="$t('common.confirm')"
+                        icon="pi pi-check"
+                        severity="success"
+                        @click="applyImage"
+                    />
+                    <Button
+                        v-else
+                        :label="$t('pages.admin.posts.ai.cover_generator.generate_btn')"
+                        icon="pi pi-wand-lines"
+                        :loading="generating"
+                        :disabled="!prompt"
+                        @click="generateImage"
+                    />
+                </div>
+            </div>
         </template>
     </Dialog>
 </template>
@@ -91,6 +134,7 @@ const generating = ref(false)
 const magicLoading = ref(false)
 const pollCount = ref(0)
 const statusText = ref('')
+const generatedUrl = ref('')
 
 const statusMessages = computed(() => [
     t('pages.admin.posts.ai.cover_generator.generating'),
@@ -126,10 +170,26 @@ const generateMagicPrompt = async () => {
     }
 }
 
+// 重置状态
+const resetGenerator = () => {
+    generatedUrl.value = ''
+    generating.value = false
+    pollCount.value = 0
+}
+
+// 应用图片
+const applyImage = () => {
+    if (generatedUrl.value) {
+        emit('generated', generatedUrl.value)
+        visible.value = false
+        resetGenerator()
+    }
+}
+
 // 生成图像流程
 const generateImage = async () => {
+    resetGenerator()
     generating.value = true
-    pollCount.value = 0
     statusText.value = statusMessages.value[0] || ''
 
     try {
@@ -154,31 +214,35 @@ const generateImage = async () => {
 }
 
 const pollTask = async (taskId: string) => {
+    // 如果已经不再生成状态（比如手动关闭或已取消），不再继续轮询
+    if (!generating.value) return
+
     pollCount.value++
 
     // 更新趣味状态文案
-    if (pollCount.value % 3 === 0) {
-        const idx = Math.min(Math.floor(pollCount.value / 3), statusMessages.value.length - 1)
-        statusText.value = statusMessages.value[idx] || ''
-    }
+    const idx = Math.min(pollCount.value, statusMessages.value.length - 1)
+    statusText.value = statusMessages.value[idx] || ''
 
     try {
         const { data } = await $fetch<any>(`/api/ai/task/status/${taskId}`)
 
         if (data.status === 'completed') {
             toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.posts.ai.cover_generator.success'), life: 3000 })
-            if (data.result) {
-                emit('generated', data.result) // 返回本地存储后的 URL
+
+            if (data.result && data.result.images && data.result.images[0]) {
+                generatedUrl.value = data.result.images[0].url
+            } else {
+                throw new Error('Result structure invalid')
             }
-            visible.value = false
             generating.value = false
         } else if (data.status === 'failed') {
             throw new Error(data.error || 'Task failed')
         } else {
-            // 继续轮询，每 2 秒一次
-            setTimeout(() => pollTask(taskId), 2000)
+            // 继续轮询，每 10 秒一次
+            setTimeout(() => pollTask(taskId), 10000)
         }
     } catch (error) {
+        generating.value = false
         throw error
     }
 }
@@ -186,8 +250,8 @@ const pollTask = async (taskId: string) => {
 // 当对话框关闭时重置状态
 watch(visible, (val) => {
     if (!val && !generating.value) {
+        resetGenerator()
         prompt.value = ''
-        pollCount.value = 0
     }
 })
 </script>

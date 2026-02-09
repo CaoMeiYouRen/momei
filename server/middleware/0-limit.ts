@@ -25,6 +25,14 @@ export default defineEventHandler(async (event) => {
         }
         if (event.path.startsWith('/api/ai')) {
             // 限制 AI 接口频率，防止 API 费用超支及滥用
+            // 轮询状态接口放宽限制，其他接口保持严格
+            if (event.path.includes('/api/ai/task/status/')) {
+                await rateLimit(event, {
+                    window: 60,
+                    max: 30, // 每分钟允许 30 次轮询
+                })
+                return
+            }
             await rateLimit(event, {
                 window: 60,
                 max: 5,

@@ -204,6 +204,7 @@
         "success": "成功",
         "error": "错误",
         "warn": "提示",
+        "retry": "重试",
         "info": "信息",
         "unexpected_error": "发生意外错误，请稍后重试",
         "validation_error": "输入验证失败",
