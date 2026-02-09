@@ -41,7 +41,31 @@
                     outlined
                     @click="handleFormatMarkdown"
                 />
+                <Button
+                    v-if="isVoiceSupported"
+                    id="ai-voice-btn"
+                    v-tooltip="isListening ? $t('pages.admin.posts.ai.voice_stop') : $t('pages.admin.posts.ai.voice_input')"
+                    :icon="isListening ? 'pi pi-stop-circle' : 'pi pi-microphone'"
+                    text
+                    outlined
+                    :severity="isListening ? 'danger' : 'secondary'"
+                    :class="{'pulse-animation': isListening}"
+                    @click="handleVoiceClick"
+                />
             </ButtonGroup>
+            <AdminPostsPostEditorVoiceOverlay
+                :visible="showVoiceOverlay"
+                :is-listening="isListening"
+                :interim-transcript="interimTranscript"
+                :final-transcript="finalTranscript"
+                :error="voiceError"
+                :refining="refiningVoice"
+                @close="showVoiceOverlay = false; stopListening()"
+                @stop="stopListening()"
+                @retry="resetVoice(); startListening(post.language)"
+                @insert="handleVoiceInsert"
+                @refine="handleVoiceRefine"
+            />
             <Popover ref="translateOp" class="translate-menu">
                 <div class="translate-menu__content">
                     <div
@@ -185,6 +209,7 @@
 
 <script setup lang="ts">
 import { formatMarkdown } from '@/utils/shared/markdown'
+import { usePostEditorVoice } from '@/composables/use-post-editor-voice'
 
 const post = defineModel<any>('post', { required: true })
 
@@ -214,6 +239,57 @@ const localePath = useLocalePath()
 
 const titleOp = ref<any>(null)
 const translateOp = ref<any>(null)
+
+const showVoiceOverlay = ref(false)
+const refiningVoice = ref(false)
+const {
+    isListening,
+    isSupported: isVoiceSupported,
+    interimTranscript,
+    finalTranscript,
+    error: voiceError,
+    startListening,
+    stopListening,
+    reset: resetVoice,
+} = usePostEditorVoice()
+
+const handleVoiceClick = () => {
+    if (isListening.value) {
+        stopListening()
+    } else {
+        showVoiceOverlay.value = true
+        startListening(post.value.language)
+    }
+}
+
+const handleVoiceInsert = (text: string) => {
+    if (!text) return
+    const content = post.value.content || ''
+    post.value.content = content + (content.length > 0 && !content.endsWith('\n') ? '\n\n' : content.length > 0 && content.endsWith('\n') && !content.endsWith('\n\n') ? '\n' : '') + text
+    showVoiceOverlay.value = false
+    resetVoice()
+}
+
+const handleVoiceRefine = async (text: string) => {
+    if (!text) return
+    refiningVoice.value = true
+    try {
+        const { data } = await $fetch('/api/ai/refine-voice', {
+            method: 'POST',
+            body: {
+                content: text,
+                language: post.value.language,
+            },
+        })
+        handleVoiceInsert(data as string)
+    } catch (e) {
+        console.error('Refine voice error:', e)
+        // Fallback to direct insert if AI fails
+        handleVoiceInsert(text)
+    } finally {
+        refiningVoice.value = false
+    }
+}
 
 const handleTranslateSelection = (langCode: string | null) => {
     translateOp.value?.hide()
@@ -450,6 +526,27 @@ defineExpose({
         &__footer-btn:hover {
             background-color: var(--p-primary-900-opacity-20);
         }
+    }
+}
+
+.pulse-animation {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
     }
 }
 </style>

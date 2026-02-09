@@ -497,7 +497,16 @@
                     "generate_slug": "AI 生成别名",
                     "translate": "AI 翻译辅助",
                     "translate_current": "翻译当前内容",
-                    "format_markdown": "规范化 Markdown 格式"
+                    "format_markdown": "规范化 Markdown 格式",
+                    "voice_input": "AI 语音创作",
+                    "voice_listening": "正在倾听...",
+                    "voice_stop": "停止录音",
+                    "voice_insert": "直接插入",
+                    "voice_refine_insert": "AI 润色后插入",
+                    "voice_unsupported": "当前浏览器不支持语音识别，请尝试使用 Chrome 或 Edge。",
+                    "voice_error": "语音识别出错",
+                    "voice_permission_denied": "未获得麦克风权限",
+                    "voice_retry": "重试"
                 },
                 "translate_success": "翻译已完成，已覆盖内容区",
                 "content_too_short": "文章内容太短，无法分析",

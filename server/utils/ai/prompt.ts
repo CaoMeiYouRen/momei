@@ -29,6 +29,8 @@ export const AI_PROMPTS = {
         + 'Expansion Type: {{expandType}}\n'
         + 'Language: {{language}}\n\n'
         + 'Requirement: Provide 3-5 deep insights or suggestions specifically for this section based on the expansion type. Output as a bulleted list in Markdown.',
+    REFINE_VOICE:
+        'The following text is a rough transcript from a voice recording. Please polish it into a professional, coherent, and grammatically correct blog post snippet in {{language}}. Fix any misrecognitions, filter out filler words (umd, ah, etc.), and improve the flow while preserving the original meaning. Output ONLY the polished text, no explanations: \n\n{{content}}',
 }
 
 export function formatPrompt(

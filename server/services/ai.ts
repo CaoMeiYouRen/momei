@@ -191,6 +191,33 @@ export class AIService {
         return response.content.trim()
     }
 
+    static async refineVoice(
+        content: string,
+        language: string = 'zh-CN',
+        userId?: string,
+    ) {
+        const provider = await getAIProvider()
+        const prompt = formatPrompt(AI_PROMPTS.REFINE_VOICE, {
+            content: content.slice(0, AI_CHUNK_SIZE),
+            language,
+        })
+
+        const response = await provider.chat({
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are a professional blog editor. You help authors refine their voice transcripts into professional content in ${language}.`,
+                },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.7,
+        })
+
+        this.logAIUsage('refine-voice', response, userId)
+
+        return response.content.trim()
+    }
+
     static async generateScaffold(
         options: ScaffoldOptions,
         userId?: string,
