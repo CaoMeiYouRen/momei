@@ -188,7 +188,7 @@
 4.  **AI 语音创作增强 (AI Voice Creative Enhancement) (P1)**:
     -   **语音写文章**: 集成 Whisper 模型进行语音录入，配合 AI 助手实现“语音转博文”或“对话式润色”工作流。
 4.  **高级 AI 创作流 (Advanced AI Creative Flow)**:
-    -   **多模态增强**: 集成 AI 封面图生成 (DALL-E) 与 DeepL 翻译系统。
+    -   **多模态增强**: 集成 AI 封面图生成 (支持 DALL-E 3, Stable Diffusion 等)，提供统一的异步任务入口以支持耗时绘图任务。 (原计划中的 DeepL 翻译由于已通过通用 LLM 覆盖，现已移除)
 5.  **文档全球化与系统化 (Hardening)**:
     -   **国际化固化**: 完成核心部署与开发文档的英文翻译。
 6.  **第三方平台集成 (Third-party Integration)**:

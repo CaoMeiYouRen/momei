@@ -1,0 +1,121 @@
+# AI 图像生成模块设计 (AI Image Generation Module)
+
+## 1. 概述 (Overview)
+
+本模块旨在为博主提供便捷的 AI 图像生成能力，主要用于生成文章封面、插图等。考虑到不同 AI 绘图模型（如 DALL-E, Stable Diffusion）的接口差异较大且生成耗时较长，本模块设计了一个统一的异步任务管理系统。
+
+## 2. 核心挑战与解决方案 (Challenges & Solutions)
+
+### 2.1 接口多样性
+**挑战**: 每个 AI 厂商的绘图接口、参数（尺寸、步数、风格）格式各异。
+**方案**: 扩展现有的 `AIProvider` 体系，定义统一的 `AIImageOptions` 和 `AIImageResponse`，屏蔽底层差异。
+
+### 2.2 Serverless 环境下的超时问题
+**挑战**: 图像生成通常需要 10-60 秒，而 Vercel/Cloudflare 等 Serverless 平台有严格的请求超时限制（通常 10-30s）。
+**方案**: 引入 **异步任务系统 (AITask System)**。
+- 客户端发起生成请求，后端立即返回 `taskId`。
+- 后端在后台继续处理（Node.js 端异步执行或使用云平台提供的 Workflows）。
+- 客户端通过轮询 `/api/ai/task/status/:id` 获取结果。
+
+### 2.3 临时 URL 过期
+**挑战**: OpenAI 等平台生成的图片 URL 通常在 1 小时内失效。
+**方案**: 图片生成完成后，系统自动将其下载并存入 Momei 的本地存储或媒体库中，返回持久化后的 URL。
+
+## 3. 技术设计 (Technical Design)
+
+### 3.1 任务实体 (AITask Entity)
+
+```typescript
+@Entity('ai_tasks')
+export class AITask {
+    @PrimaryGeneratedColumn('uuid')
+    id: string
+
+    @Column()
+    type: 'image_generation'
+
+    @Column({ default: 'processing' })
+    status: 'processing' | 'completed' | 'failed'
+
+    @Column({ type: 'text', nullable: true })
+    payload: string // 原始请求参数
+
+    @Column({ type: 'text', nullable: true })
+    result: string // 生成结果的 JSON (包括持久化后的 URL)
+
+    @Column({ type: 'text', nullable: true })
+    error: string
+
+    @Column()
+    userId: string
+
+    @CreateDateColumn()
+    createdAt: Date
+
+    @UpdateDateColumn()
+    updatedAt: Date
+}
+```
+
+### 3.2 Provider 扩展
+
+```typescript
+export interface AIImageOptions {
+    prompt: string
+    model?: string
+    size?: string // 1024x1024, landscape, portrait
+    quality?: 'standard' | 'hd'
+    style?: 'vivid' | 'natural'
+}
+
+export interface AIProvider {
+    // ... 原有 chat 接口
+    generateImage?(options: AIImageOptions): Promise<AIImageResponse>
+}
+```
+
+### 3.3 核心流程 (Workflow)
+
+1. **请求阶段**: `POST /api/ai/image/generate`
+   - 校验权限。
+   - 创建 `AITask` 记录，状态为 `processing`。
+   - 触发异步处理程序（不阻塞 HTTP 响应）。
+   - 返回 `taskId` 给前端。
+
+2. **生成与持久化**:
+   - `AIProvider` 调用对应的 AI 接口获取原始 URL。
+   - 自动调用 `UploadService` 将图片转存至本地/对象存储。
+   - 更新 `AITask` 记录，将状态改为 `completed`。
+
+3. **轮询阶段**: `GET /api/ai/task/status/:id`
+   - 前端定时检查。
+   - 若状态为 `completed`，展示图片并允许用户设为封面。
+
+## 4. 接口定义 (API Definition)
+
+- `POST /api/ai/image/generate`
+  - Body: `AIImageOptions`
+  - Response: `{ taskId: string }`
+
+- `GET /api/ai/task/status/:id`
+  - Response: `{ status: string, result?: AIImageResponse, error?: string }`
+
+- `GET /api/admin/ai/tasks` (仅管理员)
+  - 分页返回任务列表。
+
+## 5. 交互设计 (UX Design)
+
+1. **入口**: 在文章侧边栏“封面设置”增加“AI 生成”按钮。
+2. **浮窗**: 弹出生成面板。
+   - **预设词**: 提供常用风格建议（如 3D Render, Oil Painting, Minimalist）。
+   - **参数选择**: 比例（16:9 / 1:1）、模型选择。
+3. **进度展示**: 面板显示“魔术棒”动画及正在进行的任务。
+4. **结果确认**: 展示生成出的图片。
+   - 选项 A：使用此图（自动设为封面并保存）。
+   - 选项 B：重新生成（基于旧提示词修改）。
+
+## 6. 后续扩展 (Future Extensions)
+
+- **图像润色 (Inpainting/Outpainting)**: 局部修改或边缘扩展。
+- **图生图 (Img2Img)**: 基于草图生成精美图片。
+- **批量生成**: 一次生成多张供用户挑选。
