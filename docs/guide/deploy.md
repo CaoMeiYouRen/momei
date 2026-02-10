@@ -39,14 +39,18 @@
 | `ADMIN_USER_IDS` | 管理员用户 ID 列表（逗号分隔）。 | `123123123,456456456` |
 | `NUXT_PUBLIC_DEMO_MODE` | 开启演示模式（数据不落盘）。 | `false` |
 
-### 2.2 AI 助手
+### 2.2 AI 助手 (Multimodal AI)
 
 | 变量名 | 说明 | 示例 |
 | :--- | :--- | :--- |
-| `AI_API_KEY` | **设置后自动启用 AI 功能**。 | `sk-xxxx...` |
-| `AI_PROVIDER` | AI 服务商 (`openai`, `anthropic`)。 | `openai` |
-| `AI_MODEL` | 使用的模型名称。 | `gpt-4o` |
+| `AI_API_KEY` | **设置后自动启用 AI 创作功能**。 | `sk-xxxx...` |
+| `AI_PROVIDER` | AI 服务商 (`openai`, `anthropic`, `deepseek`, `doubao`)。 | `openai` |
+| `AI_MODEL` | 使用的模型名称。 | `gpt-4o`, `deepseek-chat` |
 | `AI_API_ENDPOINT` | 自定义 API 地址（如使用代理）。 | `https://api.openai.com/v1` |
+| `AI_IMAGE_PROVIDER` | AI 绘图服务商 (`dall-e-3`, `seedream`)。 | `seedream` |
+| `AI_IMAGE_API_KEY` | AI 绘图专用 API KEY (可选，默认复用 `AI_API_KEY`)。 | `sk-xxxx...` |
+| `AI_IMAGE_API_ENDPOINT` | AI 绘图 API 地址（可选）。 | `https://api.openai.com/v1` |
+| `AI_IMAGE_MODEL` | 绘图模型 ID。 | `dall-e-3`, `Seedream-2.0` |
 
 ### 2.3 邮件系统 (用于订阅与找回密码)
 
@@ -103,6 +107,20 @@
 | `LOCAL_STORAGE_DIR` | 本地文件保存目录。 | `public/uploads` |
 | `LOCAL_STORAGE_BASE_URL` | 公开访问的基础 URL 路径。 | `/uploads` |
 | `LOCAL_STORAGE_MIN_FREE_SPACE` | 磁盘最小剩余空间（阻止写入）。 | `100MiB` |
+
+### 2.5 Memos 同步
+
+| 变量名 | 说明 | 示例 |
+| :--- | :--- | :--- |
+| `MEMOS_API_URL` | Memos 实例的基础地址 (v1 API)。 | `https://memos.example.com` |
+| `MEMOS_API_KEY` | Memos 的访问令牌。 | `eyJhbGci...` |
+
+### 2.6 定时任务与自动化 (Automation)
+
+| 变量名 | 说明 | 示例 |
+| :--- | :--- | :--- |
+| `TASKS_TOKEN` | 用于触发内部定时任务的鉴权令牌（建议设为长随机字符串）。 | `super-secret-token-123` |
+| `TASKS_CRON_SCHEDULE` | 本地执行 Cron 任务的表达式（可选，需环境支持）。 | `0 0 * * *` (每天零点) |
 
 ---
 

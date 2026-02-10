@@ -22,6 +22,10 @@ erDiagram
     Comment }o--o| Comment : "reply to"
     Category }o--o| Category : "has parent"
     User ||--o{ ThemeConfig : "manages"
+    User ||--o{ AITask : "triggers"
+    MarketingCampaign ||--o{ Subscriber : "targets"
+    Subscriber }o--o{ Category : "subscribed to"
+    Subscriber }o--o{ Tag : "subscribed to"
 
     User {
         string id PK
@@ -209,14 +213,56 @@ _(待完善，后续迭代补充)_
 
 #### Subscriber (订阅者表)
 
-| 字段名 | 类型 | 必填 | 默认值 | 说明 |
-| :--- | :--- | :--- | :--- | :--- |
-| `id` | varchar | Yes | (Snowflake) | 主键 |
-| `email` | varchar | Yes | - | 订阅邮箱 (唯一) |
-| `isActive` | boolean | Yes | true | 是否激活 |
-| `language` | varchar | Yes | 'zh-CN' | 语言偏好 |
-| `userId` | varchar | No | - | 关联用户 ID |
-| `createdAt` | datetime | Yes | now() | 注册时间 |
+| 字段名                  | 类型     | 必填 | 默认值      | 说明                             |
+| :---------------------- | :------- | :--- | :---------- | :------------------------------- |
+| `id`                    | varchar  | Yes  | (Snowflake) | 主键                             |
+| `email`                 | varchar  | Yes  | -           | 订阅邮箱 (唯一)                  |
+| `verifyToken`           | varchar  | No   | -           | 邮箱验证 Token                   |
+| `isVerified`            | boolean  | Yes  | false       | 邮箱是否经过验证                 |
+| `subscribedCategoryIds` | text     | No   | -           | 订阅的分类 ID 列表 (JSON 数组)   |
+| `subscribedTagIds`      | text     | No   | -           | 订阅的标签 ID 列表 (JSON 数组)   |
+| `isActive`              | boolean  | Yes  | true        | 是否激活                         |
+| `language`              | varchar  | Yes  | 'zh-CN'     | 语言偏好                         |
+| `userId`                | varchar  | No   | -           | 关联用户 ID                      |
+| `createdAt`             | datetime | Yes  | now()       | 注册时间                         |
+
+#### MarketingCampaign (营销活动表)
+
+用于追踪邮件推送等营销任务。
+
+| 字段名         | 类型     | 必填 | 说明                                    |
+| :------------- | :------- | :--- | :-------------------------------------- |
+| `id`           | varchar  | Yes  | 主键                                    |
+| `type`         | varchar  | Yes  | 类型: push-post, newsletter, custom     |
+| `status`       | varchar  | Yes  | 状态: pending, processing, sent, failed |
+| `target`       | text     | No   | 目标群体说明 (如 "All", "Category:1")   |
+| `title`        | varchar  | Yes  | 推送标题/邮件主题                       |
+| `content`      | mediumtext| Yes | 消息内容                                |
+| `sentCount`    | integer  | Yes  | 已发送数量                              |
+| `successCount` | integer  | Yes  | 成功发送数量                            |
+| `metadata`     | text     | No   | JSON 元数据 (如关联 Post ID)            |
+| `scheduledAt`  | datetime | No   | 计划执行时间                            |
+| `sentAt`       | datetime | No   | 实际完成时间                            |
+| `createdAt`    | datetime | Yes  | 创建时间                                |
+
+### 3.3 系统与 AI 任务 (System & AI Tasks)
+
+#### AITask (AI 任务异步表)
+
+用于存储语音转文字、绘图等耗时任务。
+
+| 字段名      | 类型     | 必填 | 说明                                    |
+| :---------- | :------- | :--- | :-------------------------------------- |
+| `id`        | varchar  | Yes  | 主键                                    |
+| `type`      | varchar  | Yes  | 任务类型: aiaudio-to-text, aiimage-gen  |
+| `status`    | varchar  | Yes  | 状态: pending, processing, success, fail|
+| `input`     | text     | No   | 输入参数 (JSON)                         |
+| `output`    | text     | No   | 任务结果 (JSON/URL)                     |
+| `error`     | text     | No   | 错误分析信息                            |
+| `userId`    | varchar  | Yes  | 关联用户 ID                             |
+| `expiredAt` | datetime | No   | 任务结果过期时间                        |
+| `createdAt` | datetime | Yes  | 创建时间                                |
+| `updatedAt` | datetime | Yes  | 更新时间                                |
 
 #### Setting (设置表)
 

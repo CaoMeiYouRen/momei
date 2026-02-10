@@ -137,9 +137,9 @@
     - [x] 移除冗余代码并验证 `pnpm run typecheck`
 
 ### 9. 文档同步与优化 (Documentation Sync & Optimization) (P1)
-- [ ] **全站功能特性同步 (Feature Sync)**
+- [x] **全站功能特性同步 (Feature Sync)**
     - 验收: 更新 `docs/guide/features.md`，补全语音写作、AI 生图、商业化、三方集成、定时发布、多维订阅等 P1 特性。
-- [ ] **部署与环境配置更新 (Deploy Guide Update)** 
+- [x] **部署与环境配置更新 (Deploy Guide Update)** 
     - 验收: 同步 `docs/guide/deploy.md`，增补 Stage 5 引入的所有新环境变量（AI 生图 Provider、Memos 相关、任务 Token 等）。
 - [ ] **架构与数据库文档对齐 (Database & API Hardening)**
     - 验收: 更新 `docs/design/database.md`，补全 `MarketingCampaign` 实体及 `Subscriber` 的维度扩展字段。
