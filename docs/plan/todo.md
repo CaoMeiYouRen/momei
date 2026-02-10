@@ -100,8 +100,20 @@
     - [x] **主项目 API 实现**：已完成 Posts 基础 CRUD 外部接口实现。
     - [x] **MCP Server 脚手架 (`packages/mcp-server`)**：已完成基础架构、构建配置（tsdown）、测试配置（vitest）与代码规范（eslint）。
     - [x] **验证与测试**：编写单元测试辅助验证 Tool 注册逻辑，通过 Vitest 测试。
-- [ ] **定时发布功能**
-    - 验收: 实现独立定时任务调度逻辑，支持自部署(Cron)与 Serverless(Webhook) 触发，并在编辑页提供 UI 配置。
+- [ ] **定时发布功能 (Scheduled Publication)** (P1)
+    - [x] 验收: 完成详细设计文档 [scheduled-publication.md](../design/modules/scheduled-publication.md)。
+    - [ ] 验收: **类型与实体扩展**:
+        - [ ] 在 `PostStatus` 中增加 `SCHEDULED` 状态。
+        - [ ] 更新 `POST_STATUS_TRANSITIONS` 状态转换矩阵。
+    - [ ] 验收: **后端执行引擎**:
+        - [ ] 模块化 `executePublish` 逻辑，支持复用。
+        - [ ] 实现 `processScheduledPosts` 扫描与处理逻辑。
+    - [ ] 验收: **多环境触发适配**:
+        - [ ] 实现 Webhook API 端点 (带 Token 校验)。
+        - [ ] 实现自部署环境下的后台定期轮询插件。
+    - [ ] 验收: **编辑器 UI 增强**:
+        - [ ] 支持在编辑页配置发布时间并选择定时发布。
+        - [ ] 状态显示增加 `SCHEDULED` 对应的标签。
 
 ### 8. 系统固化 (System Hardening) (P1)
 - [x] **认证配置强制锁定**: 
