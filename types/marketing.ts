@@ -20,6 +20,7 @@ export interface MarketingCampaign {
     }
     senderId: string
     sentAt: string | null
+    scheduledAt: string | null
     status: MarketingCampaignStatus
     createdAt: string
     updatedAt: string
