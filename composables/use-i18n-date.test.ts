@@ -163,6 +163,26 @@ describe('useI18nDate', () => {
             const result3 = relativeTime(fiveDaysAgo)
             expect(result3).toBeTruthy()
         })
+
+        it('should return relative time for future dates', () => {
+            sharedLocale.value = 'en-US'
+            const { relativeTime } = useI18nDate()
+
+            // In 5 minutes
+            const inFiveMinutes = new Date('2024-01-15 12:05:00')
+            const result1 = relativeTime(inFiveMinutes)
+            expect(result1).toBe('in 5 minutes')
+
+            // In 2 hours
+            const inTwoHours = new Date('2024-01-15 14:00:00')
+            const result2 = relativeTime(inTwoHours)
+            expect(result2).toBe('in 2 hours')
+
+            // In 5 days
+            const inFiveDays = new Date('2024-01-20 12:00:00')
+            const result3 = relativeTime(inFiveDays)
+            expect(result3).toBe('in 5 days')
+        })
     })
 
     describe('alias', () => {

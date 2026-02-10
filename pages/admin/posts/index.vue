@@ -50,7 +50,8 @@
                 :rows="pagination.limit"
                 paginator
                 :rows-per-page-options="[5, 10, 20]"
-                table-style="min-width: 50rem"
+                table-style="min-width: 80rem"
+                scrollable
                 @page="onPage"
                 @sort="onSort"
             >
@@ -143,14 +144,22 @@
                     <template #body="slotProps">
                         <div class="user-created-at">
                             <span class="user-created-at__date">{{ formatDateTime(slotProps.data.publishedAt) }}</span>
-                            <small v-if="slotProps.data.publishedAt" class="user-created-at__relative">{{ relativeTime(slotProps.data.publishedAt) }}</small>
+                            <small
+                                v-if="slotProps.data.publishedAt"
+                                class="user-created-at__relative"
+                                :class="{'user-created-at__relative--future': isFuture(slotProps.data.publishedAt)}"
+                            >
+                                {{ relativeTime(slotProps.data.publishedAt) }}
+                            </small>
                         </div>
                     </template>
                 </Column>
                 <Column
                     :header="$t('common.actions')"
                     :exportable="false"
-                    style="min-width:8rem"
+                    style="min-width: 8rem"
+                    frozen
+                    align-frozen="right"
                 >
                     <template #body="slotProps">
                         <Button
@@ -208,7 +217,7 @@ definePageMeta({
 
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { formatDateTime, relativeTime } = useI18nDate()
+const { formatDateTime, relativeTime, isFuture } = useI18nDate()
 const confirm = useConfirm()
 const toast = useToast()
 
@@ -378,6 +387,10 @@ const getStatusSeverity = (status: string) => {
     &__relative {
         color: var(--p-text-muted-color);
         font-size: 0.75rem;
+
+        &--future {
+            color: var(--p-primary-color);
+        }
     }
 }
 

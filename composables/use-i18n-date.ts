@@ -39,33 +39,47 @@ export function useI18nDate() {
         }
         const d = new Date(date)
         const now = new Date()
-        const diff = now.getTime() - d.getTime()
-        const minutes = Math.floor(diff / 60000)
+        const diffMillis = d.getTime() - now.getTime() // 未来为正，过去为负
+        const absDiff = Math.abs(diffMillis)
+        const minutes = Math.floor(absDiff / 60000)
         const hours = Math.floor(minutes / 60)
         const days = Math.floor(hours / 24)
 
         // 使用转换后的 Intl locale
         const rtf = new Intl.RelativeTimeFormat(currentIntlLocale.value, { numeric: 'auto' })
 
+        // 如果相差超过 30 天，则直接显示日期
         if (days > 30) {
             return formatDate(date)
         }
+
+        const sign = diffMillis > 0 ? 1 : -1
+
         if (days > 0) {
-            return rtf.format(-days, 'day')
+            return rtf.format(sign * days, 'day')
         }
         if (hours > 0) {
-            return rtf.format(-hours, 'hour')
+            return rtf.format(sign * hours, 'hour')
         }
         if (minutes > 0) {
-            return rtf.format(-minutes, 'minute')
+            return rtf.format(sign * minutes, 'minute')
         }
         return rtf.format(0, 'second')
+    }
+
+    const isFuture = (date: string | number | Date | null | undefined) => {
+        if (!date) {
+            return false
+        }
+        const d = new Date(date)
+        return d.getTime() > Date.now()
     }
 
     return {
         formatDate,
         formatDateTime,
         relativeTime,
+        isFuture,
         d: formatDateTime, // Alias for template usage
     }
 }
