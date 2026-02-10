@@ -41,7 +41,7 @@ export class Post extends BaseEntity {
     @CustomColumn({
         type: 'varchar',
         length: 20,
-        comment: '文章状态：draft, pending, published, rejected, hidden',
+        comment: '文章状态：draft, pending, published, rejected, hidden, scheduled',
         default: PostStatus.DRAFT,
         index: true,
     })
@@ -82,6 +82,9 @@ export class Post extends BaseEntity {
 
     @CustomColumn({ type: 'json', nullable: true, comment: '大纲生成的元数据 (模板, 受众, 章节数等)' })
     scaffoldMetadata: Record<string, any> | null
+
+    @CustomColumn({ type: 'json', nullable: true, comment: '发布意图 (定时发布选项)' })
+    publishIntent: Record<string, any> | null
 
     @CustomColumn({ type: 'datetime', nullable: true, index: true })
     publishedAt: Date | null

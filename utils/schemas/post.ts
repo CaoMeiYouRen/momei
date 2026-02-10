@@ -9,6 +9,7 @@ const postStatusEnum = z.enum([
     PostStatus.PUBLISHED,
     PostStatus.REJECTED,
     PostStatus.HIDDEN,
+    PostStatus.SCHEDULED,
 ] as [PostStatus, ...PostStatus[]])
 
 const postVisibilityEnum = z.enum([
@@ -48,6 +49,9 @@ const sharedPostFields = {
     category: z.string().nullable().optional(),
     categoryId: z.string().nullable().optional(),
     copyright: z.string().nullable().optional(),
+    scaffoldOutline: z.string().nullable().optional(),
+    scaffoldMetadata: z.record(z.string(), z.any()).nullable().optional(),
+    publishIntent: z.record(z.string(), z.any()).nullable().optional(),
     tags: z.array(z.string()).optional(),
     status: postStatusEnum,
     visibility: postVisibilityEnum,

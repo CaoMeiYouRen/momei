@@ -272,8 +272,14 @@
 
 ### 11. 系统配置统一化 (System Config Unification)
 - **Auth 配置解耦**:
-    - **现状**: `AUTH_SECRET` 及 OAuth 凭据直接从 `process.env` 读取，导致无法在后台动态修改。
+    - **现状**: `AUTH_SECRET` 及 OAuth 凭据直接 from `process.env` 读取，导致无法在后台动态修改。
     - **优化方向**: 重构 `lib/auth.ts`，使其支持从 `SettingService` 动态加载配置，实现全量配置的 DB/ENV 混合接管。
+
+### 12. 系统元数据统一化与精细化管理 (System Metadata Unification)
+- **现状**: 文章相关的元数据（如 AI 大纲、音频属性、发布意图等）分布在多个独立字段中。简单引入通用的 `metadata` 字段可能面临前端全覆盖（Overwrite）的风险。
+- **优化方向**: 
+    - 探索实现稳健的 `Metadata` 聚合管理逻辑，支持按需局部更新（Patch Update）而非整体覆盖。
+    - 统一整合分散的元数据字段（如 `scaffoldMetadata`, `publishIntent` 等）进入结构化的统一存储模型，提高系统扩展性。
 
 ## 4. 技术架构与质量保证
 

@@ -22,6 +22,10 @@ export enum PostStatus {
      * 已隐藏：管理员或作者隐藏，不直接显示在列表，但可以通过链接访问（或完全隐藏）
      */
     HIDDEN = 'hidden',
+    /**
+     * 定时发布：已设定未来时间，等待系统自动发布
+     */
+    SCHEDULED = 'scheduled',
 }
 
 /**
@@ -29,11 +33,12 @@ export enum PostStatus {
  * 键为当前状态，值为可以转换到的目标状态列表
  */
 export const POST_STATUS_TRANSITIONS: Record<PostStatus, PostStatus[]> = {
-    [PostStatus.DRAFT]: [PostStatus.PENDING, PostStatus.PUBLISHED, PostStatus.HIDDEN],
-    [PostStatus.PENDING]: [PostStatus.PUBLISHED, PostStatus.REJECTED, PostStatus.DRAFT, PostStatus.HIDDEN],
-    [PostStatus.PUBLISHED]: [PostStatus.HIDDEN, PostStatus.DRAFT, PostStatus.PENDING],
-    [PostStatus.REJECTED]: [PostStatus.DRAFT, PostStatus.PENDING, PostStatus.HIDDEN],
-    [PostStatus.HIDDEN]: [PostStatus.PUBLISHED, PostStatus.DRAFT, PostStatus.PENDING],
+    [PostStatus.DRAFT]: [PostStatus.PENDING, PostStatus.PUBLISHED, PostStatus.HIDDEN, PostStatus.SCHEDULED],
+    [PostStatus.PENDING]: [PostStatus.PUBLISHED, PostStatus.REJECTED, PostStatus.DRAFT, PostStatus.HIDDEN, PostStatus.SCHEDULED],
+    [PostStatus.PUBLISHED]: [PostStatus.HIDDEN, PostStatus.DRAFT, PostStatus.PENDING, PostStatus.SCHEDULED],
+    [PostStatus.REJECTED]: [PostStatus.DRAFT, PostStatus.PENDING, PostStatus.HIDDEN, PostStatus.SCHEDULED],
+    [PostStatus.HIDDEN]: [PostStatus.PUBLISHED, PostStatus.DRAFT, PostStatus.PENDING, PostStatus.SCHEDULED],
+    [PostStatus.SCHEDULED]: [PostStatus.PUBLISHED, PostStatus.DRAFT, PostStatus.PENDING, PostStatus.HIDDEN],
 }
 
 /**
@@ -80,7 +85,11 @@ export interface Post {
     audioDuration?: number | null
     audioSize?: number | null
     audioMimeType?: string | null
-    // 归类与元数据
+    // AI 与元数据
+    scaffoldOutline?: string | null
+    scaffoldMetadata?: Record<string, any> | null
+    publishIntent?: Record<string, any> | null
+    // 归类与时间
     categoryId?: string | null
     category?: {
         id: string

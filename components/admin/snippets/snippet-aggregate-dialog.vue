@@ -211,6 +211,8 @@
 
 <script setup lang="ts">
 import markdownit from 'markdown-it'
+import type { ApiResponse } from '@/types/api'
+import type { Post } from '@/types/post'
 
 const props = defineProps<{
     visible: boolean
@@ -232,7 +234,7 @@ const visible = computed({
 
 const aggregating = ref(false)
 const scaffold = ref('')
-const scaffoldMetadata = ref<any>(null)
+const scaffoldMetadata = ref<Record<string, any> | null>(null)
 
 const aggregateMode = ref<'snippets' | 'topic'>('snippets')
 const aggregateForm = ref({
@@ -284,14 +286,14 @@ const performAggregate = async () => {
 
     aggregating.value = true
     try {
-        const res: any = await $fetch('/api/ai/scaffold/generate', {
+        const res = await $fetch<ApiResponse<{ scaffold: string, metadata: Record<string, any> }>>('/api/ai/scaffold/generate', {
             method: 'POST',
             body: {
                 ...aggregateForm.value,
                 snippetIds: aggregateMode.value === 'snippets' ? props.selectedSnippetIds : [],
                 language: useI18n().locale.value || 'zh-CN',
             },
-        } as any)
+        })
         scaffold.value = res.data.scaffold
         scaffoldMetadata.value = res.data.metadata
     } catch (e: any) {
@@ -307,7 +309,7 @@ const performExpand = async () => {
     expansionResult.value = ''
     try {
         const currentLanguage = (useI18n().locale.value) || 'zh-CN'
-        const res: any = await $fetch('/api/ai/scaffold/expand-section', {
+        const res = await $fetch<ApiResponse<{ expansion: string }>>('/api/ai/scaffold/expand-section', {
             method: 'POST',
             body: {
                 topic: aggregateMode.value === 'topic' ? aggregateForm.value.topic : (scaffoldMetadata.value?.topic || ''),
@@ -316,7 +318,7 @@ const performExpand = async () => {
                 expandType: expansionForm.value.expandType,
                 language: currentLanguage,
             },
-        } as any)
+        })
         expansionResult.value = res.data.expansion
     } catch (e: any) {
         toast.add({ severity: 'error', summary: t('common.error'), detail: e.data?.message || t('common.unexpected_error'), life: 3000 })
@@ -339,13 +341,15 @@ const convertToPostFromScaffold = async () => {
     if (!scaffold.value) return
     aggregating.value = true
     try {
-        const res: any = await $fetch('/api/admin/snippets/scaffold-to-post', {
+        const res = await $fetch<ApiResponse<{ post: Post }>>('/api/admin/snippets/scaffold-to-post', {
             method: 'POST',
             body: { scaffold: scaffold.value },
-        } as any)
+        })
         toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.snippets.convert_success'), life: 3000 })
-        navigateTo(`/admin/posts/${res.data.post.id}`)
-    } catch (e) {
+        if (res.data.post.id) {
+            navigateTo(`/admin/posts/${res.data.post.id}`)
+        }
+    } catch (e: any) {
         toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
     } finally {
         aggregating.value = false

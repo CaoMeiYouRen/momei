@@ -102,9 +102,9 @@
     - [x] **验证与测试**：编写单元测试辅助验证 Tool 注册逻辑，通过 Vitest 测试。
 - [ ] **定时发布功能 (Scheduled Publication)** (P1)
     - [x] 验收: 完成详细设计文档 [scheduled-publication.md](../design/modules/scheduled-publication.md)。
-    - [ ] 验收: **类型与实体扩展**:
-        - [ ] 在 `PostStatus` 中增加 `SCHEDULED` 状态。
-        - [ ] 更新 `POST_STATUS_TRANSITIONS` 状态转换矩阵。
+    - [x] 验收: **类型与实体扩展**:
+        - [x] 在 `PostStatus` 中增加 `SCHEDULED` 状态。
+        - [x] 更新 `POST_STATUS_TRANSITIONS` 状态转换矩阵。
     - [ ] 验收: **后端执行引擎**:
         - [ ] 模块化 `executePublish` 逻辑，支持复用。
         - [ ] 实现 `processScheduledPosts` 扫描与处理逻辑。

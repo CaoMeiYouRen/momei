@@ -29,11 +29,12 @@ async function applyPostChanges(
 ) {
     const categoryRepo = dataSource.getRepository(Category)
 
-    // 1. 基础字段赋值
+    // 1.基础字段赋值
     assignDefined(post, body, [
         'title', 'content', 'summary', 'coverImage',
         'audioUrl', 'audioDuration', 'audioSize', 'audioMimeType',
         'language', 'translationId', 'copyright', 'visibility',
+        'scaffoldOutline', 'scaffoldMetadata', 'publishIntent',
     ])
 
     // 2. 分类处理 (逻辑复用)
@@ -117,6 +118,23 @@ async function applyPostChanges(
             post.status = PostStatus.PENDING
         } else {
             post.status = targetStatus
+        }
+
+        // 定时发布逻辑校验
+        if (post.status === PostStatus.SCHEDULED) {
+            const publishDate = post.publishedAt
+            if (!publishDate) {
+                throw createError({
+                    statusCode: 400,
+                    statusMessage: 'publishedAt is required for scheduled post',
+                })
+            }
+            if (publishDate.getTime() <= Date.now()) {
+                throw createError({
+                    statusCode: 400,
+                    statusMessage: 'publishedAt must be in the future for scheduled post',
+                })
+            }
         }
 
         // 发布时间逻辑：
