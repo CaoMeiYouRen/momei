@@ -84,11 +84,7 @@
     - [x] **图像持久化**: 自动下载 AI 生成的临时 URL 到本地存储，防止过期。
     - [x] **前端 UI 实现**: 增加“AI 生成封面”入口，支持提示词输入、模型选择与实时生成预览。
 
-### 5. 文档国际化与系统固化 (Documentation & Hardening) (P1)
-- [ ] **文档全球化 (Docs i18n)**
-    - 验收: 部署指南、开发手册等核心文档完成英文翻译，VitePress 站点支持双语切换。
-
-### 6. 第三方平台集成 (Third-party Integration) (P2)
+### 5. 第三方平台集成 (Third-party Integration) (P2)
 - [x] **设计与调研 (Design & Research)**
     - 验收: 完成 Wechatsync 与 Memos 的接口调研，编写详细设计文档 [third-party.md](../design/modules/third-party.md)。
 - [x] **Memos API 集成**
@@ -98,7 +94,7 @@
     - 验收: 集成 `article-syncjs` SDK，支持在后台管理页面一键唤起同步框。
     - 验收: 确保图片路径与 Markdown 格式转换符合国内平台（知乎/头条）抓取规范。
 
-### 7. AI Agent 与自动化生态 (AI Agent & Automation Ecosystem) (P1)
+### 6. AI Agent 与自动化生态 (AI Agent & Automation Ecosystem) (P1)
 - [ ] **Anthropic MCP Server 实现**
     - [x] 设计优化：完善 `docs/design/modules/mcp.md` 及 API 规格定义。
     - [x] **主项目 API 实现**：已完成 Posts 基础 CRUD 外部接口实现。
@@ -119,12 +115,12 @@
         - [x] 支持在编辑页配置发布时间并选择定时发布。
         - [x] 状态显示增加 `SCHEDULED` 对应的标签。
 
-### 8. 系统固化 (System Hardening) (P1)
+### 7. 系统固化 (System Hardening) (P1)
 - [x] **认证配置强制锁定**: 
     - 验收: 在系统设置中，强制锁定 `AUTH_SECRET` 及 OAuth 凭据，防止在未重构前通过数据库修改导致配置不一致。
     - 验收: 更新系统设计文档，说明当前 Auth 变量的使用机制及长期优化路径。
 
-### 9. 质量与维护 (Quality & Maintenance) (P0)
+### 8. 质量与维护 (Quality & Maintenance) (P0)
 - [x] **修复组件单元测试失败 (Fix Component Unit Test Failures)** (P0)
     - [x] 验收: 解决 `demo-banner.test.ts` 中由于 RuntimeConfig 模拟不全和路由器初始化导致的 `TypeError`。
 - [x] **文章编辑页面 UI/UX 优化 (Article Editor UI/UX Optimization)** (P1)
@@ -139,6 +135,30 @@
 - [x] **修复类型检查错误**
     - [x] 识别 `packages/cli/src/parser.test.ts` 中未使用变量 `vi` (TS6133)
     - [x] 移除冗余代码并验证 `pnpm run typecheck`
+
+### 9. 文档同步与优化 (Documentation Sync & Optimization) (P1)
+- [ ] **全站功能特性同步 (Feature Sync)**
+    - 验收: 更新 `docs/guide/features.md`，补全语音写作、AI 生图、商业化、三方集成、定时发布、多维订阅等 P1 特性。
+- [ ] **部署与环境配置更新 (Deploy Guide Update)** 
+    - 验收: 同步 `docs/guide/deploy.md`，增补 Stage 5 引入的所有新环境变量（AI 生图 Provider、Memos 相关、任务 Token 等）。
+- [ ] **架构与数据库文档对齐 (Database & API Hardening)**
+    - 验收: 更新 `docs/design/database.md`，补全 `MarketingCampaign` 实体及 `Subscriber` 的维度扩展字段。
+    - 验收: 确保 `docs/design/api.md` 的模块列表与 `server/api` 真实目录结构完全对齐。
+- [ ] **模块化文档精修 (Module Docs Refinement)**
+    - 验收: 审计 `docs/design/modules/` 下的所有文档，修正已变更的接口字段名。
+    - 验收: 为“定时发布”与“AI 异步任务”补全 Mermaid 流程图。
+- [ ] **全局链接与术语优化 (Cleanup)**
+    - 验收: 修复全站 MD 链接失效，规范化“翻译簇”、“发布意图”等核心术语。
+
+### 10. 文档国际化 (Documentation Internationalization) (P1)
+- [ ] **i18n 基础架构搭建 (Base Infrastructure)**
+    - 验收: 完成 VitePress 多语言配置，实现 URL 前缀路由控制。
+- [ ] **英文站点脚手架 (English Docs Scaffolding)**
+    - 验收: 初始化 `docs/en/` 目录并同步核心目录结构。
+- [ ] **核心文档首轮翻译 (Core Translation)**
+    - 验收: 完成首页、快速开始、部署指南、功能特性的首轮人工/AI 协同翻译。
+- [ ] **动态文档同步策略 (Sync Strategy)**
+    - 验收: 制定 `roadmap.md` 与 `todo.md` 的双语滚动更新机制，确保规划一致性。
 
 ---
 
