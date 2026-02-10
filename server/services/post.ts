@@ -1,19 +1,15 @@
 import { kebabCase } from 'lodash-es'
 import type { z } from 'zod'
 import { ensureTags } from './tag'
-import { createCampaignFromPost, sendMarketingCampaign } from './notification'
+import { executePublishEffects } from './post-publish'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { Category } from '@/server/entities/category'
 import { generateRandomString } from '@/utils/shared/random'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
-import { PostStatus, POST_STATUS_TRANSITIONS } from '@/types/post'
+import { PostStatus, POST_STATUS_TRANSITIONS, type PublishIntent } from '@/types/post'
 import { hashPassword } from '@/server/utils/password'
 import { assignDefined } from '@/server/utils/object'
-import { MarketingCampaignStatus } from '@/utils/shared/notification'
-import { createMemo } from '@/server/utils/memos'
-import { getSetting } from '@/server/services/setting'
-import { SettingKey } from '@/types/setting'
 
 type CreatePostInput = z.infer<typeof createPostSchema>
 type UpdatePostInput = z.infer<typeof updatePostSchema>
@@ -80,7 +76,7 @@ async function applyPostChanges(
         post.password = body.password ? hashPassword(body.password) : null
     }
 
-    // 5. 管理员特权字段
+    // 5. 特权字段与发布时间
     if (options.isAdmin) {
         if (body.createdAt) {
             post.createdAt = body.createdAt
@@ -88,11 +84,11 @@ async function applyPostChanges(
         if (body.views !== undefined) {
             post.views = body.views
         }
-        // 如果是创建时，允许显式指定 publishedAt（用于迁移）
-        if (isNew && body.publishedAt) {
-            post.publishedAt = body.publishedAt
-        } else if (!isNew && body.publishedAt !== undefined) {
-            // 更新时也允许显式修改（如修正时间）
+    }
+
+    // 无论是否为管理员，只要是进入或处于定时发布状态，都允许设置/更新发布时间
+    if (body.publishedAt !== undefined) {
+        if (options.isAdmin || body.status === PostStatus.SCHEDULED || post.status === PostStatus.SCHEDULED) {
             post.publishedAt = body.publishedAt
         }
     }
@@ -175,31 +171,14 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
     await applyPostChanges(post, body, options, true)
     await postRepo.save(post)
 
-    // 处理 Memos 同步逻辑
-    if (body.syncToMemos && post.status === PostStatus.PUBLISHED) {
-        const siteUrl = await getSetting(SettingKey.SITE_URL)
-        const postUrl = `${siteUrl}/posts/${post.slug}`
-        const tagsStr = post.tags?.map((t) => `#${t.name}`).join(' ') || ''
-        const content = `# ${post.title}\n\n${post.summary || ''}\n\n${postUrl}\n\n${tagsStr}`
-
-        void createMemo({ content }).then(async (res: any) => {
-            if (res?.name) {
-                await postRepo.update(post.id, { memosId: res.name })
-            }
-        }).catch((err) => {
-            console.error('[Memos] Auto sync failed:', err)
-        })
-    }
-
-    // 处理推送逻辑
-    if (body.pushOption && body.pushOption !== 'none' && post.status === PostStatus.PUBLISHED) {
-        const campaignStatus = body.pushOption === 'now' ? MarketingCampaignStatus.SENDING : MarketingCampaignStatus.DRAFT
-        const campaign = await createCampaignFromPost(post.id, authorId, campaignStatus)
-        if (body.pushOption === 'now') {
-            void sendMarketingCampaign(campaign.id).catch((err) => {
-                console.error('Failed to send marketing campaign:', err)
-            })
+    // 处理发布后副作用 (Memos 同步, 邮件推送等)
+    if (post.status === PostStatus.PUBLISHED) {
+        const intent: PublishIntent = {
+            syncToMemos: body.syncToMemos,
+            pushOption: body.pushOption,
+            pushCriteria: body.pushCriteria,
         }
+        void executePublishEffects(post, intent)
     }
 
     return post
@@ -241,32 +220,15 @@ export const updatePostService = async (id: string, body: UpdatePostInput, optio
     await applyPostChanges(post, body, options, false)
     await postRepo.save(post)
 
-    // 处理 Memos 同步逻辑
-    if (body.syncToMemos && post.status === PostStatus.PUBLISHED && !post.memosId) {
-        const siteUrl = await getSetting(SettingKey.SITE_URL)
-        const postUrl = `${siteUrl}/posts/${post.slug}`
-        const tagsStr = post.tags?.map((t) => `#${t.name}`).join(' ') || ''
-        const content = `# ${post.title}\n\n${post.summary || ''}\n\n${postUrl}\n\n${tagsStr}`
-
-        void createMemo({ content }).then(async (res: any) => {
-            if (res?.name) {
-                await postRepo.update(post.id, { memosId: res.name })
-            }
-        }).catch((err) => {
-            console.error('[Memos] Auto sync failed:', err)
-        })
-    }
-
-    // 处理推送逻辑 (仅在文章首次发布时)
-    if (body.pushOption && body.pushOption !== 'none'
-        && currentStatus !== PostStatus.PUBLISHED && post.status === PostStatus.PUBLISHED) {
-        const campaignStatus = body.pushOption === 'now' ? MarketingCampaignStatus.SENDING : MarketingCampaignStatus.DRAFT
-        const campaign = await createCampaignFromPost(post.id, options.currentUserId, campaignStatus, body.pushCriteria)
-        if (body.pushOption === 'now') {
-            void sendMarketingCampaign(campaign.id).catch((err) => {
-                console.error('Failed to send marketing campaign:', err)
-            })
+    // 处理发布后副作用 (仅在文章首次发布时，或者已发布文章修改了同步/推送意图时)
+    // 注意：如果是定时发布任务触发的发布，不走此逻辑，而是走任务引擎的 executePublishEffects
+    if (currentStatus !== PostStatus.PUBLISHED && post.status === PostStatus.PUBLISHED) {
+        const intent: PublishIntent = {
+            syncToMemos: body.syncToMemos,
+            pushOption: body.pushOption,
+            pushCriteria: body.pushCriteria,
         }
+        void executePublishEffects(post, intent)
     }
 
     return post

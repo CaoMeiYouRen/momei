@@ -88,7 +88,6 @@ export interface Post {
     // AI 与元数据
     scaffoldOutline?: string | null
     scaffoldMetadata?: Record<string, any> | null
-    publishIntent?: Record<string, any> | null
     // 归类与时间
     categoryId?: string | null
     category?: {
@@ -118,9 +117,32 @@ export interface Post {
     language: string
     translationId?: string | null
     translations?: Post[] | null
+    // 发布意图 (副作用控制)
+    publishIntent?: PublishIntent | null
     // 其他
     copyright?: string | null
     // 权限标记 (前端辅助)
     locked?: boolean
     reason?: string
+}
+
+/**
+ * 发布意图 (副作用控制选项)
+ */
+export interface PublishIntent {
+    /**
+     * 是否同步到 Memos
+     */
+    syncToMemos?: boolean
+    /**
+     * 推送通知选项
+     */
+    pushOption?: 'none' | 'draft' | 'now'
+    /**
+     * 推送筛选条件
+     */
+    pushCriteria?: {
+        categoryIds?: string[]
+        tagIds?: string[]
+    }
 }

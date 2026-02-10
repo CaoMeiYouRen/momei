@@ -156,6 +156,7 @@
         "tag_cloud": "Tag Cloud",
         "status": {
             "published": "Published",
+            "scheduled": "Scheduled",
             "draft": "Draft",
             "pending": "Pending",
             "rejected": "Rejected",
@@ -170,6 +171,9 @@
         "save": "Save",
         "apply": "Apply",
         "publish": "Publish",
+        "schedule_publish": "Schedule",
+        "schedule_time": "Publish Time",
+        "schedule_hint": "Set a future time to automatically publish this post.",
         "settings": "Settings",
         "tags": "Tags",
         "summary": "Summary",

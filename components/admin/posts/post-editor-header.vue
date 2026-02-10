@@ -183,7 +183,7 @@
                 @click="emit('save', false)"
             />
             <Button
-                :label="$t('common.publish')"
+                :label="publishButtonLabel"
                 icon="pi pi-send"
                 :loading="saving"
                 severity="contrast"
@@ -212,6 +212,19 @@ import { formatMarkdown } from '@/utils/shared/markdown'
 import { usePostEditorVoice } from '@/composables/use-post-editor-voice'
 
 const post = defineModel<any>('post', { required: true })
+
+const { t } = useI18n()
+
+const isScheduled = computed(() => {
+    return post.value.publishedAt && new Date(post.value.publishedAt) > new Date()
+})
+
+const publishButtonLabel = computed(() => {
+    if (isScheduled.value) {
+        return t('common.schedule_publish')
+    }
+    return t('common.publish')
+})
 
 const props = defineProps<{
     errors: Record<string, string>

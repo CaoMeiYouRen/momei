@@ -455,12 +455,24 @@ const executeSave = async (
         post.value.content = await formatMarkdown(post.value.content)
     }
 
+    // 判断是否定时发布
+    const isFuture = post.value.publishedAt && new Date(post.value.publishedAt) > new Date()
+
     // 构建提交数据，显式移除关联对象以避免 Zod 校验失败
-    const payload: any = { ...post.value, pushOption, syncToMemos, pushCriteria }
+    const payload: any = { ...post.value }
     delete payload.category
     delete payload.author
+
+    // 封装 publishIntent
+    payload.publishIntent = {
+        ...(post.value.publishIntent || {}),
+        pushOption,
+        syncToMemos: syncToMemos || post.value.publishIntent?.syncToMemos,
+        pushCriteria,
+    }
+
     if (publish) {
-        payload.status = 'published'
+        payload.status = isFuture ? 'scheduled' : 'published'
     }
 
     const schema = isNew.value ? createPostSchema : updatePostSchema
@@ -480,6 +492,7 @@ const executeSave = async (
             'category',
             'tags',
             'copyright',
+            'publishedAt',
             'summary',
             'coverImage',
         ]
@@ -526,12 +539,12 @@ const executeSave = async (
                 router.replace(localePath(`/admin/posts/${response.data.id}`))
             }
         } else {
-            await $fetch(`/api/posts/${route.params.id}`, {
+            const response = await $fetch<{ code: number, data: any }>(`/api/posts/${route.params.id}`, {
                 method: 'PUT' as any,
                 body: payload,
             })
             if (publish) {
-                post.value.status = PostStatus.PUBLISHED
+                post.value.status = isFuture ? PostStatus.SCHEDULED : PostStatus.PUBLISHED
             }
             toast.add({
                 severity: 'success',
@@ -560,6 +573,7 @@ const executeSave = async (
 const getStatusLabel = (status: string) => {
     const map: Record<string, string> = {
         published: t('common.status.published'),
+        scheduled: t('common.status.scheduled'),
         draft: t('common.status.draft'),
         pending: t('common.status.pending'),
         rejected: t('common.status.rejected'),
@@ -571,6 +585,7 @@ const getStatusLabel = (status: string) => {
 const getStatusSeverity = (status: string) => {
     const map: Record<string, string | undefined> = {
         published: 'success',
+        scheduled: 'info',
         draft: 'secondary',
         pending: 'warn',
         rejected: 'danger',

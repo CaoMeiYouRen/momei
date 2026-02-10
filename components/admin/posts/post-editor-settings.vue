@@ -133,6 +133,32 @@
             </div>
 
             <div class="form-group">
+                <label for="publishedAt" class="form-label">{{ $t('common.schedule_time') }}</label>
+                <DatePicker
+                    id="publishedAt"
+                    v-model="publishedAtDate"
+                    show-time
+                    hour-format="24"
+                    :placeholder="$t('common.schedule_time')"
+                    fluid
+                    show-icon
+                    icon-display="input"
+                />
+                <small class="form-hint">{{ $t('common.schedule_hint') }}</small>
+            </div>
+
+            <div class="form-group">
+                <div class="flex items-center justify-between">
+                    <label for="syncToMemos" class="form-label mb-0">同步到 Memos</label>
+                    <ToggleSwitch
+                        id="syncToMemos"
+                        v-model="syncToMemos"
+                    />
+                </div>
+                <small class="form-hint">发布时自动同步摘要和链接到 Memos</small>
+            </div>
+
+            <div class="form-group">
                 <label for="visibility" class="form-label">{{ $t('pages.admin.posts.visibility') }}</label>
                 <Select
                     id="visibility"
@@ -318,6 +344,27 @@ import { isValidCustomUrl } from '@/utils/shared/validate'
 import { UploadType } from '@/composables/use-upload'
 
 const post = defineModel<any>('post', { required: true })
+
+const publishedAtDate = computed({
+    get: () => post.value.publishedAt ? new Date(post.value.publishedAt) : null,
+    set: (val) => {
+        post.value.publishedAt = val ? val.toISOString() : null
+    },
+})
+
+const syncToMemos = computed({
+    get: () => post.value.publishIntent?.syncToMemos ?? false,
+    set: (val) => {
+        if (!post.value.publishIntent) {
+            post.value.publishIntent = {
+                syncToMemos: val,
+                pushOption: 'none',
+            }
+        } else {
+            post.value.publishIntent.syncToMemos = val
+        }
+    },
+})
 
 const props = defineProps<{
     errors: Record<string, string>
