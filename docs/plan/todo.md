@@ -40,6 +40,10 @@
     - [x] 验收: **卡片式 HTML 模板引擎**: 实现基于 `table` 布局的 HTML 模板，支持封面图卡片展示。
     - [x] 验收: **发送前测试**: 增加“发送预览邮件到管理员邮箱”的功能，确保渲染正确。
     - [x] 验收: **变量替换引擎**: 实现支持多语言（$t）和自定义变量（{{articleTitle}}）的替换逻辑。
+- [x] **营销推送定时化 (Scheduled Marketing)** (P1)
+    - 验收: **通用定时引擎**: 升级任务引擎，支持扫描 `SCHEDULED` 状态的营销任务。
+    - 验收: **定时设置**: 营销编辑页面支持设置计划发送时间。
+    - 验收: **状态流转**: 实现从 `DRAFT` 到 `SCHEDULED` 再到 `COMPLETED/FAILED` 的完整自动化流。
 
 ### 2. 商业化集成 (Monetization) (P2)
 - [x] **流量增长与变现 (Growth & Monetization)**
@@ -100,20 +104,20 @@
     - [x] **主项目 API 实现**：已完成 Posts 基础 CRUD 外部接口实现。
     - [x] **MCP Server 脚手架 (`packages/mcp-server`)**：已完成基础架构、构建配置（tsdown）、测试配置（vitest）与代码规范（eslint）。
     - [x] **验证与测试**：编写单元测试辅助验证 Tool 注册逻辑，通过 Vitest 测试。
-- [ ] **定时发布功能 (Scheduled Publication)** (P1)
+- [x] **定时发布功能 (Scheduled Publication)** (P1)
     - [x] 验收: 完成详细设计文档 [scheduled-publication.md](../design/modules/scheduled-publication.md)。
     - [x] 验收: **类型与实体扩展**:
         - [x] 在 `PostStatus` 中增加 `SCHEDULED` 状态。
         - [x] 更新 `POST_STATUS_TRANSITIONS` 状态转换矩阵。
-    - [ ] 验收: **后端执行引擎**:
-        - [ ] 模块化 `executePublish` 逻辑，支持复用。
-        - [ ] 实现 `processScheduledPosts` 扫描与处理逻辑。
-    - [ ] 验收: **多环境触发适配**:
-        - [ ] 实现 Webhook API 端点 (带 Token 校验)。
-        - [ ] 实现自部署环境下的后台定期轮询插件。
-    - [ ] 验收: **编辑器 UI 增强**:
-        - [ ] 支持在编辑页配置发布时间并选择定时发布。
-        - [ ] 状态显示增加 `SCHEDULED` 对应的标签。
+    - [x] 验收: **后端执行引擎**:
+        - [x] 模块化 `executePublish` 逻辑，支持复用。
+        - [x] 实现 `processScheduledPosts` 扫描与处理逻辑。
+    - [x] 验收: **多环境触发适配**:
+        - [x] 实现 Webhook API 端点 (带 Token 校验)。
+        - [x] 实现自部署环境下的后台定期轮询插件。
+    - [x] 验收: **编辑器 UI 增强**:
+        - [x] 支持在编辑页配置发布时间并选择定时发布。
+        - [x] 状态显示增加 `SCHEDULED` 对应的标签。
 
 ### 8. 系统固化 (System Hardening) (P1)
 - [x] **认证配置强制锁定**: 

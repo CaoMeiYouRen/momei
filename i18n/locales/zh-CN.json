@@ -384,7 +384,10 @@
                     "placeholder_title": "请输入邮件标题",
                     "placeholder_content": "支持 Markdown/HTML 内容...",
                     "send_test": "发送测试邮件",
-                    "send_test_success": "测试邮件已发送至您的邮箱"
+                    "send_test_success": "测试邮件已发送至您的邮箱",
+                    "scheduled_at": "计划发送时间",
+                    "scheduled_at_placeholder": "选择定时发送时间",
+                    "scheduled_at_help": "如果设置了计划时间，推送将在到达该时间后自动开启。留空则存为草稿或手动发送。"
                 },
                 "type": {
                     "update": "版本更新",
@@ -402,6 +405,7 @@
                 },
                 "status": {
                     "draft": "草稿",
+                    "scheduled": "计划中",
                     "sending": "发送中",
                     "completed": "已完成",
                     "failed": "发送失败"

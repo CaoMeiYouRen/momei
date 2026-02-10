@@ -28,6 +28,8 @@ export enum NotificationChannel {
 export enum MarketingCampaignStatus {
     /** 草稿 */
     DRAFT = 'DRAFT',
+    /** 计划发送 */
+    SCHEDULED = 'SCHEDULED',
     /** 发送中 */
     SENDING = 'SENDING',
     /** 已完成 */

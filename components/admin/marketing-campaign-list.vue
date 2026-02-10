@@ -34,6 +34,9 @@
                         <Tag v-else-if="slotProps.data.status === 'SENDING'" severity="info">
                             <i class="marketing-campaign-list__status-icon pi pi-spin pi-spinner" /> {{ $t('pages.admin.marketing.status.sending') }}
                         </Tag>
+                        <Tag v-else-if="slotProps.data.status === 'SCHEDULED'" severity="warn">
+                            <i class="marketing-campaign-list__status-icon pi pi-calendar" /> {{ $t('pages.admin.marketing.status.scheduled') }}
+                        </Tag>
                         <Tag v-else :severity="getStatusSeverity(slotProps.data.status)">
                             {{ $t(`pages.admin.marketing.status.${slotProps.data.status?.toLowerCase()}`) }}
                         </Tag>
@@ -41,9 +44,14 @@
                 </template>
             </Column>
 
-            <Column field="sentAt" :header="$t('common.published_at')">
+            <Column :header="$t('common.published_at')">
                 <template #body="slotProps">
-                    {{ slotProps.data.sentAt ? formatDate(slotProps.data.sentAt) : '-' }}
+                    <span v-if="slotProps.data.status === 'SCHEDULED' && slotProps.data.scheduledAt">
+                        {{ formatDate(slotProps.data.scheduledAt) }}
+                    </span>
+                    <span v-else>
+                        {{ slotProps.data.sentAt ? formatDate(slotProps.data.sentAt) : '-' }}
+                    </span>
                 </template>
             </Column>
 

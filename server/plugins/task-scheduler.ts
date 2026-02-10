@@ -1,5 +1,5 @@
 import { CronJob } from 'cron'
-import { processScheduledPosts } from '../services/task'
+import { processScheduledTasks } from '../services/task'
 import logger from '@/server/utils/logger'
 
 /**
@@ -22,8 +22,8 @@ export default defineNitroPlugin((nitroApp) => {
         const job = new CronJob(
             cronExpression,
             async () => {
-                logger.info(`[TaskScheduler] Running scheduled scan: ${new Date().toISOString()}`)
-                await processScheduledPosts()
+                logger.info(`[TaskScheduler] Running scheduled task scan: ${new Date().toISOString()}`)
+                await processScheduledTasks()
             },
             null,
             true, // 立即启动

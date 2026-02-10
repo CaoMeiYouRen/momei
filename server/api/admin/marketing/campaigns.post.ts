@@ -25,7 +25,13 @@ export default defineEventHandler(async (event) => {
     campaign.type = result.data.type ?? MarketingCampaignType.FEATURE
     campaign.targetCriteria = result.data.targetCriteria
     campaign.senderId = userId
-    campaign.status = MarketingCampaignStatus.DRAFT
+
+    if (result.data.scheduledAt) {
+        campaign.scheduledAt = new Date(result.data.scheduledAt)
+        campaign.status = MarketingCampaignStatus.SCHEDULED
+    } else {
+        campaign.status = MarketingCampaignStatus.DRAFT
+    }
 
     await campaignRepo.save(campaign)
 

@@ -193,9 +193,9 @@
     -   **国际化固化**: 完成核心部署与开发文档的英文翻译。
 6.  **第三方平台集成 (Third-party Integration)**:
     -   **多平台同步**: 集成 Memos 及 Wechatsync，实现内容的一键分发与同步。
-7.  **AI Agent 与自动化生态 (AI Agent & Automation Ecosystem)**:
-    -   **自动化工作流**: 完成原生 Anthropic MCP Server 实现。
-    -   **计划任务**: 实现全场景兼容的定时发布系统。
+7. **AI Agent 与自动化生态 (AI Agent & Automation Ecosystem)**:
+    - **自动化工作流**: 完成原生 Anthropic MCP Server 实现。
+    - **计划任务 (Scheduled Tasks)**: 实现全场景兼容的定时发布系统，支持文章定时发布与营销邮件定时推送。
 
 ## 3. 未来规划与积压项 (Backlog & Long-term Roadmap)
 

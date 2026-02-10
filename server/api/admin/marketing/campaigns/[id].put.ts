@@ -49,6 +49,15 @@ export default defineEventHandler(async (event) => {
     campaign.type = result.data.type ?? MarketingCampaignType.FEATURE
     campaign.targetCriteria = result.data.targetCriteria
 
+    if (result.data.scheduledAt) {
+        campaign.scheduledAt = new Date(result.data.scheduledAt)
+        campaign.status = MarketingCampaignStatus.SCHEDULED
+    } else if (campaign.status === MarketingCampaignStatus.SCHEDULED) {
+        // If it was scheduled before and now scheduledAt is removed, revert to DRAFT
+        campaign.status = MarketingCampaignStatus.DRAFT
+        campaign.scheduledAt = null
+    }
+
     await campaignRepo.save(campaign)
 
     return {

@@ -17,6 +17,7 @@ export const marketingCampaignSchema = z.object({
         categoryIds: z.array(z.string()).optional(),
         tagIds: z.array(z.string()).optional(),
     }).optional().default({}),
+    scheduledAt: z.coerce.date().optional().nullable(),
 })
 
 export type NotificationSettingInput = z.infer<typeof notificationSettingSchema>

@@ -95,6 +95,19 @@
             </div>
         </div>
 
+        <div class="marketing-campaign-form__field">
+            <label for="scheduledAt" class="marketing-campaign-form__label">{{ $t('pages.admin.marketing.form.scheduled_at') }}</label>
+            <DatePicker
+                id="scheduledAt"
+                v-model="form.scheduledAt"
+                show-time
+                hour-format="24"
+                fluid
+                :placeholder="$t('pages.admin.marketing.form.scheduled_at_placeholder')"
+            />
+            <small class="marketing-campaign-form__help">{{ $t('pages.admin.marketing.form.scheduled_at_help') }}</small>
+        </div>
+
         <div class="marketing-campaign-form__actions">
             <Button
                 :label="$t('pages.admin.marketing.form.send_test')"
@@ -192,6 +205,7 @@ const form = reactive({
         categoryIds: [] as string[],
         tagIds: [] as string[],
     },
+    scheduledAt: null as Date | null,
 })
 
 const loadDependencies = async () => {
@@ -223,6 +237,7 @@ const loadCampaign = async () => {
             form.type = data.type || MarketingCampaignType.FEATURE
             form.title = data.title || ''
             form.content = data.content || ''
+            form.scheduledAt = data.scheduledAt ? new Date(data.scheduledAt) : null
 
             const serverCategoryIds = data.targetCriteria?.categoryIds || []
             const serverTagIds = data.targetCriteria?.tagIds || []
@@ -348,6 +363,7 @@ const handleSave = async () => {
                         categoryIds: Array.from(finalCategoryIds),
                         tagIds: Array.from(finalTagIds),
                     },
+            scheduledAt: form.scheduledAt ? form.scheduledAt.toISOString() : null,
         }
 
         if (props.campaignId) {

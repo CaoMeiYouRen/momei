@@ -38,10 +38,14 @@ export class MarketingCampaign extends BaseEntity {
     @CustomColumn({ type: 'datetime', nullable: true })
     sentAt: Date | null
 
+    @CustomColumn({ type: 'datetime', nullable: true, index: true })
+    scheduledAt: Date | null
+
     @CustomColumn({
         type: 'varchar',
         length: 32,
         default: MarketingCampaignStatus.DRAFT,
+        index: true,
     })
     status: MarketingCampaignStatus
 }

@@ -1,22 +1,32 @@
-# 定时发布功能设计 (Scheduled Publication Design)
+# 定时任务与发布功能设计 (Scheduled Tasks & Publication Design)
 
 ## 1. 概述 (Overview)
 
-本模块旨在实现文章的定时发布功能。由于项目需要兼容**自部署 (VPS/Docker)** 与 **Serverless (Cloud Functions)** 环境，设计上采用“业务逻辑解耦，触发方式适配”的原则。
+本模块旨在实现站内的定时自动化任务，主要包括**文章定时发布**与**营销邮件定时推送**。由于项目需要兼容**自部署 (VPS/Docker)** 与 **Serverless (Cloud Functions)** 环境，设计上采用“业务逻辑解耦，触发方式适配”的原则。
 
 ## 2. 核心架构 (Architecture)
 
 ### 2.1 任务执行引擎 (Task Engine)
 位于 `server/services/task.ts`，负责核心检索与状态变更逻辑。
-1.  检索所有 `status === 'scheduled'` 且 `publishedAt <= now()` 的文章。
-2.  **锁竞争**: 尝试获取 Redis 锁 `momei:lock:publish-scheduled` (仅在集群环境下生效)。
-3.  **循环处理**:
-    -   将状态变更为 `published`。
-    -   **意图恢复**: 从 `publishIntent` 读取该文章定时时的发布偏好（如同步 Memos、发送邮件等）。
-    -   **执行副作用**: 调用 `executePublishEffects` 触发实际的同步和推送。
-4.  **解锁**: 任务结束或异常后释放锁。
 
-### 2.2 环境适配器 (Environment Adapters)
+#### 2.1.1 文章定时发布 (Post)
+1.  检索所有 `status === 'scheduled'` 且 `publishedAt <= now()` 的文章。
+2.  **状态变更**: 将状态变更为 `published`。
+3.  **副作用触发**:
+    -   从 `publishIntent` 读取该文章计划时的发布偏好（如同步 Memos、发送邮件等）。
+    -   调用 `executePublishEffects` 触发实际的同步和推送。
+
+#### 2.1.2 营销定时推送 (MarketingCampaign)
+1.  检索所有 `status === 'SCHEDULED'` 且 `scheduledAt <= now()` 的营销任务。
+2.  **推送启动**: 调用 `sendMarketingCampaign` 异步执行实际的邮件投递。
+3.  **异常重试**: 若发送失败，状态将变更为 `FAILED`，管理员可手动重新触发。
+
+### 2.2 锁竞争与安全性 (Locking)
+位于 `server/services/task.ts`，负责核心检索与状态变更逻辑。
+1.  **锁竞争**: 尝试获取 Redis 锁 `momei:lock:scheduled-tasks` (仅在集群环境下生效)。
+2.  **解锁**: 任务结束或异常后释放锁。
+
+### 2.3 环境适配器 (Environment Adapters)
 
 - **自部署 (Self-hosted)**:
     -   利用 Nitro 的 `server/plugins` 注册启动任务。

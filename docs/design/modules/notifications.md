@@ -41,8 +41,9 @@
 | `type` | `enum` | 邮件类型: <br> - `UPDATE`: 版本更新 <br> - `FEATURE`: 功能推荐 <br> - `PROMOTION`: 活动推广 <br> - `BLOG_POST`: 博客发布 <br> - `MAINTENANCE`: 停机维护 <br> - `SERVICE`: 服务变动 |
 | `targetCriteria` | `json` | 推送目标条件 (如特定标签/分类订阅者) |
 | `senderId` | `string` | 发送管理员 ID |
-| `sentAt` | `datetime` | 发送时间 |
-| `status` | `enum` | 状态 (DRAFT, SENDING, COMPLETED, FAILED) |
+| `sentAt` | `datetime` | 实际发送完成时间 |
+| `scheduledAt` | `datetime` | 计划发送时间 (若为定时任务) |
+| `status` | `enum` | 状态 (DRAFT, SCHEDULED, SENDING, COMPLETED, FAILED) |
 
 ### 3.4 管理员通知配置 (`AdminNotificationSettings`)
 存储管理员对站务事件的接收偏好。
@@ -83,6 +84,13 @@
 - **入口**: 在文章管理列表或编辑页详情中。
 - **功能**: 对于状态已为 `PUBLISHED` 的文章，允许管理员随时触发“重新推送”。
 - **确认逻辑**: 同样提供“存为草稿”与“立即发送”的选择，或直接打开完整的营销编辑器进行微调。
+
+### 4.3 定时推送 (Scheduled Push)
+除博客关联推送外，独立的营销任务也支持定时发送。
+1.  **设置**: 在营销编辑器中选择“计划发送时间”。
+2.  **状态**: 任务保存后进入 `SCHEDULED` 状态。
+3.  **扫描**: 任务引擎 (`server/services/task.ts`) 每 5 分钟扫描一次。
+4.  **执行**: 到达预定时间后，引擎自动调用推送接口。
 
 ## 5. 邮件模板系统 (Email Templates)
 

@@ -384,7 +384,10 @@
                     "placeholder_title": "Please enter email title",
                     "placeholder_content": "Support Markdown/HTML content...",
                     "send_test": "Send Test Email",
-                    "send_test_success": "Test email sent to your inbox"
+                    "send_test_success": "Test email sent to your inbox",
+                    "scheduled_at": "Scheduled At",
+                    "scheduled_at_placeholder": "Select scheduled time",
+                    "scheduled_at_help": "If set, the campaign will be sent automatically at the scheduled time. Leave empty to save as draft."
                 },
                 "type": {
                     "update": "Version Update",
@@ -402,6 +405,7 @@
                 },
                 "status": {
                     "draft": "Draft",
+                    "scheduled": "Scheduled",
                     "sending": "Sending",
                     "completed": "Completed",
                     "failed": "Failed"
