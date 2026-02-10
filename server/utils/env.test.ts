@@ -52,6 +52,11 @@ describe('env utils', () => {
             expect(isServerlessEnvironment()).toBe(true)
         })
 
+        it('should return true for Zeabur environment', () => {
+            process.env.ZEABUR = 'true'
+            expect(isServerlessEnvironment()).toBe(true)
+        })
+
         it('should return true for /var/task path', () => {
             process.cwd = vi.fn(() => '/var/task/app')
             expect(isServerlessEnvironment()).toBe(true)
@@ -70,6 +75,7 @@ describe('env utils', () => {
             delete process.env.AWS_LAMBDA_FUNCTION_NAME
             delete process.env.CF_PAGES
             delete process.env.CLOUDFLARE_ENV
+            delete process.env.ZEABUR
             process.cwd = vi.fn(() => '/home/user/app')
 
             expect(isServerlessEnvironment()).toBe(false)

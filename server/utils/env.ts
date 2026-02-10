@@ -19,6 +19,10 @@ export const isServerlessEnvironment = () => {
     if (process.env.CF_PAGES || process.env.CLOUDFLARE_ENV) {
         return true
     }
+    // Zeabur
+    if (process.env.ZEABUR) {
+        return true
+    }
     // 检查只读文件系统路径（常见的无服务器环境特征）
     if (process.cwd().includes('/var/task') || process.cwd().includes('/tmp')) {
         return true
