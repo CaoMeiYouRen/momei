@@ -359,7 +359,7 @@ describe('post service', () => {
                 { isAdmin: true },
             )
 
-            expect(createCampaignFromPost).toHaveBeenCalledWith('post1', 'author1', MarketingCampaignStatus.SENDING)
+            expect(createCampaignFromPost).toHaveBeenCalledWith('post1', 'author1', MarketingCampaignStatus.SENDING, undefined)
             expect(sendMarketingCampaign).toHaveBeenCalledWith('campaign1')
         })
 
@@ -395,7 +395,7 @@ describe('post service', () => {
                 { isAdmin: true },
             )
 
-            expect(createCampaignFromPost).toHaveBeenCalledWith('post1', 'author1', MarketingCampaignStatus.DRAFT)
+            expect(createCampaignFromPost).toHaveBeenCalledWith('post1', 'author1', MarketingCampaignStatus.DRAFT, undefined)
         })
     })
 
