@@ -11,11 +11,11 @@ export default defineNitroPlugin(() => {
 
         console.info(`[Demo Mode] Application is running in Demo Mode. Memory database will be reset every ${minutes} minutes.`)
 
-        setTimeout(() => {
-            console.warn('[Demo Mode] Resetting application state to provide a clean environment for new users (Process Exit)...')
-            // 退出进程。如果部署在 Docker 中并设置了 restart: always/unless-stopped，容器将自动重启。
-            // 配合 :memory: 数据库，重启即意味着数据重置。
-            process.exit(0)
-        }, RESET_INTERVAL)
+        // setTimeout(() => {
+        //     console.warn('[Demo Mode] Resetting application state to provide a clean environment for new users (Process Exit)...')
+        //     // 退出进程。如果部署在 Docker 中并设置了 restart: always/unless-stopped，容器将自动重启。
+        //     // 配合 :memory: 数据库，重启即意味着数据重置。
+        //     process.exit(0)
+        // }, RESET_INTERVAL)
     }
 })
