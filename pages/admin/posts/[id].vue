@@ -422,11 +422,20 @@ const searchTags = (event: { query: string }) => {
 const handlePublishConfirm = async (options: {
     pushOption: 'none' | 'draft' | 'now'
     syncToMemos: boolean
+    publishedAt?: Date | null
     pushCriteria?: { categoryIds?: string[], tagIds?: string[] }
 }) => {
     if (publishPushDialog.value) {
         publishPushDialog.value.visible = false
     }
+
+    // 更新文章的发布时间
+    if (options.publishedAt) {
+        post.value.publishedAt = options.publishedAt.toISOString()
+    } else {
+        post.value.publishedAt = null
+    }
+
     await executeSave(true, options.pushOption, options.syncToMemos, options.pushCriteria)
 }
 
@@ -434,8 +443,12 @@ const savePost = async (publish = false) => {
     // 仅在首次发布（从非发布状态变为发布状态）时弹出推送选项
     if (publish && post.value.status !== PostStatus.PUBLISHED) {
         publishPushDialog.value?.open({
-            categoryIds: post.value.categoryId ? [post.value.categoryId] : [],
-            tagIds: post.value.tags || [],
+            syncToMemos: post.value.publishIntent?.syncToMemos ?? false,
+            publishedAt: post.value.publishedAt,
+            criteria: {
+                categoryIds: post.value.categoryId ? [post.value.categoryId] : [],
+                tagIds: post.value.tags || [],
+            },
         })
         return
     }

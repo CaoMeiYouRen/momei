@@ -92,6 +92,25 @@
             </div>
 
             <div class="publish-dialog__footer-options">
+                <div class="publish-dialog__publish-at">
+                    <label for="publish_at" class="publish-dialog__field-label">
+                        {{ $t('common.schedule_time') }}
+                    </label>
+                    <DatePicker
+                        id="publish_at"
+                        v-model="publishedAt"
+                        show-time
+                        hour-format="24"
+                        :placeholder="$t('common.schedule_time')"
+                        fluid
+                        show-icon
+                        icon-display="input"
+                    />
+                    <small class="publish-dialog__field-desc">
+                        {{ $t('common.schedule_hint') }}
+                    </small>
+                </div>
+
                 <div class="publish-dialog__sync-field">
                     <ToggleSwitch v-model="syncToMemos" input-id="sync_memos" />
                     <label for="sync_memos">
@@ -132,6 +151,7 @@ const emit = defineEmits<{
     (e: 'confirm', options: {
         pushOption: 'none' | 'draft' | 'now'
         syncToMemos: boolean
+        publishedAt?: Date | null
         pushCriteria?: { categoryIds?: string[], tagIds?: string[] }
     }): void
 }>()
@@ -139,6 +159,7 @@ const emit = defineEmits<{
 const visible = defineModel<boolean>('visible', { default: false })
 const pushOption = ref<'none' | 'draft' | 'now'>('none')
 const syncToMemos = ref(false)
+const publishedAt = ref<Date | null>(null)
 const targetType = ref<'all' | 'criteria'>('criteria')
 const articleCriteria = ref<{ categoryIds?: string[], tagIds?: string[] }>({})
 
@@ -146,15 +167,21 @@ const handleConfirm = () => {
     emit('confirm', {
         pushOption: pushOption.value,
         syncToMemos: syncToMemos.value,
+        publishedAt: publishedAt.value,
         pushCriteria: targetType.value === 'all' ? {} : articleCriteria.value,
     })
 }
 
-const open = (criteria?: { categoryIds?: string[], tagIds?: string[] }) => {
+const open = (options?: {
+    syncToMemos?: boolean
+    publishedAt?: string | Date | null
+    criteria?: { categoryIds?: string[], tagIds?: string[] }
+}) => {
     pushOption.value = 'none'
-    syncToMemos.value = false
+    syncToMemos.value = options?.syncToMemos || false
+    publishedAt.value = options?.publishedAt ? new Date(options.publishedAt) : null
     targetType.value = 'criteria'
-    articleCriteria.value = criteria || {}
+    articleCriteria.value = options?.criteria || {}
     visible.value = true
 }
 
@@ -255,6 +282,25 @@ defineExpose({
         margin-top: 1.5rem;
         padding-top: 1.5rem;
         border-top: 1px solid var(--p-surface-border);
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    &__publish-at {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    &__field-label {
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    &__field-desc {
+        color: var(--p-text-muted-color);
+        font-size: 0.875rem;
     }
 
     &__sync-field {

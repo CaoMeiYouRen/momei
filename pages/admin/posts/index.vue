@@ -263,6 +263,7 @@ const handleTranslationClick = (post: Post, lang: string) => {
 
 const statuses = computed(() => [
     { label: t('common.status.published'), value: 'published' },
+    { label: t('common.status.scheduled'), value: 'scheduled' },
     { label: t('common.status.draft'), value: 'draft' },
     { label: t('common.status.pending'), value: 'pending' },
     { label: t('common.status.rejected'), value: 'rejected' },
@@ -337,6 +338,7 @@ const handleDelete = async () => {
 const getStatusLabel = (status: string) => {
     const map: Record<string, string> = {
         published: t('common.status.published'),
+        scheduled: t('common.status.scheduled'),
         draft: t('common.status.draft'),
         pending: t('common.status.pending'),
         rejected: t('common.status.rejected'),
@@ -348,6 +350,7 @@ const getStatusLabel = (status: string) => {
 const getStatusSeverity = (status: string) => {
     const map: Record<string, string | undefined> = {
         published: 'success',
+        scheduled: 'info',
         draft: 'secondary',
         pending: 'warn',
         rejected: 'danger',
