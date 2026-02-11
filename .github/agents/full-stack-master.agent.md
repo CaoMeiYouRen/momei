@@ -38,7 +38,7 @@ description: 全局一体化开发与协作工作流技能，覆盖需求评估�
 
 -   **全周期基石**：[AGENTS.md](../../AGENTS.md) (安全红线与身份)、[AI 协作规范](../../docs/standards/ai-collaboration.md)
 -   **规划与任务**：[项目规划](../../docs/plan/roadmap.md)、[待办事项](../../docs/plan/todo.md)、[项目规划规范](../../docs/standards/planning.md)
--   **开发与设计**：[开发规范](../../docs/standards/development.md)、[API 规范](../../docs/standards/api.md)、[UI 设计](../../docs/design/ui.md)
+-   **开发与设计**：[开发规范](../../docs/standards/development.md)、[API 规范](../../docs/standards/api.md)、[UI 设计](../../docs/design/ui.md)、[文档规范](../../docs/standards/documentation.md)
 -   **安全与质量**：[安全规范](../../docs/standards/security.md)、[测试规范](../../docs/standards/testing.md)
 
 ## PDTFC+ 融合工作流 2.0 (Standard Workflow)

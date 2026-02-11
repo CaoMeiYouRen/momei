@@ -62,5 +62,5 @@ AI 在生成或修改代码时，必须优先参考 [开发规范文档 - 代码
 ## 8. 相关文档
 
 -   **规划**: [项目路线图](./docs/plan/roadmap.md) | [待办事项](./docs/plan/todo.md)
--   **规范**: [开发规范](./docs/standards/development.md) | [安全规范](./docs/standards/security.md) | [API 规范](./docs/standards/api.md) | [测试规范](./docs/standards/testing.md) | [AI 协作规范](./docs/standards/ai-collaboration.md)
+-   **规范**: [开发规范](./docs/standards/development.md) | [安全规范](./docs/standards/security.md) | [API 规范](./docs/standards/api.md) | [测试规范](./docs/standards/testing.md) | [AI 协作规范](./docs/standards/ai-collaboration.md) | [文档规范](./docs/standards/documentation.md)
 -   **设计**: [UI 设计](./docs/design/ui.md) | [API 设计](./docs/design/api.md) | [项目规划规范](./docs/standards/planning.md)
