@@ -12,6 +12,9 @@
 ## 增强功能模块 (Enhanced Features)
 
 - **[AI 辅助创作 (AI Assistant)](./ai)**: 支持标题生成、SEO 优化及智能翻译。
+- **[AI 语音创作 (Voice)](./voice)**: 浏览器原生 V2T 与后端 AI 润色集成。
+- **[AI 绘图 (AI Image)](./ai-image)**: 多模态异步图像生成任务与任务追踪。
+- **[订阅与通知 (Notifications)](./notifications)**: 多维订阅、邮件推送营销及通知偏好管理。
 - **[邮件系统 (Email System)](./email)**: 国际化系统邮件、验证码与周刊推送。
 - **[搜索系统 (Search)](./search)**: 多维度过滤与即时全文检索。
 - **[评论与互动 (Interactions)](./interactions)**: 评论树、订阅表单与反馈机制。
@@ -22,9 +25,12 @@
 - **[后台管理 (Admin)](./admin)**: 全局仪表盘、实体运维及系统监控。
 - **[系统能力与设置 (System & Settings)](./system)**: 混合配置模式、安装向导与部署优化。
 - **[存储管理 (Storage)](./storage)**: 本地存储与对象存储 (S3/Cloudflare) 的统一抽象。
+- **[定时任务 (Scheduled Tasks)](./scheduled-publication)**: 适配 Serverless 的定时发布与任务引擎。
 
 ## 扩展与集成 (Extensions)
 
+- **[商业化与社交 (Commercial)](./commercial)**: 打赏赞助系统及多语言社交名片展示。
+- **[第三方集成 (Third-party)](./third-party)**: Wechatsync 插件同步及 Memos 碎片知识集成。
 - **[开放接口 (Open API)](./open-api)**: 提供外部发布与数据同步的标准化接口。
 - **[MCP 服务器 (MCP Server)](./mcp)**: 基于 Model Context Protocol 的 AI 自动化接口，支持 Claude Desktop 集成。
 - **[离线/桌面支持 (Desktop)](./demo-mode)**: 基于 Tauri 或 PWA 的桌面体验 (开发中)。

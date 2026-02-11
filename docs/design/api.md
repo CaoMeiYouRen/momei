@@ -41,6 +41,12 @@
 - **[管理员管理 (Admin)](modules/admin.md)**: `/api/admin/*` (系统设置、高级管理)。
 - **[商业化与社交 (Commercial)](modules/commercial.md)**: `/api/settings/commercial`, `/api/user/commercial`。
 - **[AI 辅助 (AI)](modules/ai.md)**: `/api/ai/*` (摘要、翻译、Slug 生成)。
+- **[通知与订阅 (Notifications)](modules/notifications.md)**: `/api/subscribers/*` (订阅、退订、偏好验证码)。
+- **[全局搜索 (Search)](modules/search.md)**: `/api/search/*` (全站内容搜索)。
+- **[定时任务 (Tasks)](modules/scheduled-publication.md)**: `/api/tasks/*` (由于 Serverless 触发的定时任务)。
+- **[安装引导 (Installation)](modules/system.md)**: `/api/install/*` (初始化环境与管理员创建)。
+- **[法律合规 (Compliance)](modules/system.md)**: `/api/agreements/*` (隐私政策、用户协议获取)。
+- **[代码片段 (Snippets)](modules/blog.md)**: `/api/snippets/*` (复用的页面组件/内容块)。
 - **[开放平台 (Open API)](modules/open-api.md)**: `/api/external/*` (外部发布接口)。
 - **[系统能力 (System)](modules/system.md)**: `/api/upload/*` (文件上传)、`/api/settings/*` (公开设置)。
 

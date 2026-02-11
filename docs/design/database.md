@@ -120,23 +120,30 @@ erDiagram
 | `value`      | text     | Yes  | 验证码的值           |
 | `expiresAt`  | datetime | Yes  | 过期时间             |
 
-#### ApiKey (API 密钥表) - New
+#### ApiKey (API 密钥表)
 
 用于外部系统发布的授权凭证。
 
-| 字段名       | 类型     | 必填 | 说明                            |
-| :----------- | :------- | :--- | :------------------------------ |
-| `id`         | varchar  | Yes  | 主键                            |
-| `userId`     | varchar  | Yes  | 关联 User ID                    |
-| `name`       | varchar  | Yes  | 密钥名称 (如 "Obsidian Plugin") |
-| `key`        | varchar  | Yes  | 密钥 Hash (或加密存储)          |
-| `prefix`     | varchar  | Yes  | 密钥前缀 (用于展示和索引)       |
-| `lastUsedAt` | datetime | No   | 最后使用时间                    |
-| `createdAt`  | datetime | Yes  | 创建时间                        |
-| `expiresAt`  | datetime | No   | 过期时间 (可选)                 |
+| 字段名 | 类型 | 必填 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `id` | varchar | Yes | 主键 |
+| `userId` | varchar | Yes | 关联 User ID |
+| `name` | varchar | Yes | 密钥名称 (如 "Obsidian Plugin") |
+| `key` | varchar | Yes | 密钥 Hash (或加密存储) |
+| `prefix` | varchar | Yes | 密钥前缀 (用于展示和索引) |
+| `lastUsedAt` | datetime | No | 最后使用时间 |
+| `createdAt` | datetime | Yes | 创建时间 |
+| `expiresAt` | datetime | No | 过期时间 (可选) |
 
-| `identifier` | text | Yes | 标识符 (如邮箱、手机号) |
-| `value` | text | Yes | 验证码/Token 值 |
+#### Verification (验证码表)
+
+用于邮箱验证、密码重置等。
+
+| 字段名 | 类型 | 必填 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `id` | varchar | Yes | 主键 |
+| `identifier` | text | Yes | 标识符 (邮箱/手机号) |
+| `value` | text | Yes | 验证码的值 |
 | `expiresAt` | datetime | Yes | 过期时间 |
 
 ### 3.2 内容系统 (Content System)
@@ -157,11 +164,19 @@ _(待完善，后续迭代补充)_
 | `translationId` | varchar  | No   | 翻译组 ID (用于关联多语言版本)  |
 | `authorId`      | varchar  | Yes  | 作者 ID                         |
 | `categoryId`    | varchar  | No   | 分类 ID                         |
-| `status`        | varchar  | Yes  | 状态: published, draft, pending, rejected, hidden |
+| `status`        | varchar  | Yes  | 状态: published, draft, pending, rejected, hidden, scheduled |
 | `visibility`    | varchar  | Yes  | 可见性: public, private, password, registered, subscriber |
 | `password`      | varchar  | No   | 访问密码 (当 visibility 为 password 时) |
 | `copyright`     | text     | No   | 版权声明                        |
 | `views`         | integer  | No   | 阅读量 (默认 0)                 |
+| `audioUrl`      | text     | No   | 音频文件地址                    |
+| `audioDuration` | integer  | No   | 音频时长 (秒)                   |
+| `audioSize`     | integer  | No   | 音频文件大小 (字节)             |
+| `audioMimeType` | varchar  | No   | 音频 MIME 类型                  |
+| `scaffoldOutline`| text    | No   | AI 生成的大纲原文               |
+| `scaffoldMetadata`| text   | No   | 大纲生成的元数据 (JSON)         |
+| `publishIntent` | text     | No   | 发布意图 (JSON，用于定时发布)   |
+| `memosId`       | varchar  | No   | 关联的 Memos ID                 |
 | `publishedAt`   | datetime | No   | 发布时间                        |
 | `createdAt`     | datetime | Yes  | 创建时间                        |
 | `updatedAt`     | datetime | Yes  | 更新时间                        |
@@ -251,18 +266,19 @@ _(待完善，后续迭代补充)_
 
 用于存储语音转文字、绘图等耗时任务。
 
-| 字段名      | 类型     | 必填 | 说明                                    |
-| :---------- | :------- | :--- | :-------------------------------------- |
-| `id`        | varchar  | Yes  | 主键                                    |
-| `type`      | varchar  | Yes  | 任务类型: aiaudio-to-text, aiimage-gen  |
-| `status`    | varchar  | Yes  | 状态: pending, processing, success, fail|
-| `input`     | text     | No   | 输入参数 (JSON)                         |
-| `output`    | text     | No   | 任务结果 (JSON/URL)                     |
-| `error`     | text     | No   | 错误分析信息                            |
-| `userId`    | varchar  | Yes  | 关联用户 ID                             |
-| `expiredAt` | datetime | No   | 任务结果过期时间                        |
-| `createdAt` | datetime | Yes  | 创建时间                                |
-| `updatedAt` | datetime | Yes  | 更新时间                                |
+| 字段名         | 类型     | 必填 | 说明                                    |
+| :------------- | :------- | :--- | :-------------------------------------- |
+| `id`           | varchar  | Yes  | 主键                                    |
+| `type`         | varchar  | Yes  | 任务类型: aiaudio-to-text, aiimage-gen, aipaint, aipost-scaffold |
+| `status`       | varchar  | Yes  | 状态: pending, processing, success, fail|
+| `payload`      | text     | No   | 输入参数 (JSON 字符串)                  |
+| `result`       | text     | No   | 任务结果 (JSON 字符串 / URL 地址)       |
+| `errorMessage` | text     | No   | 错误分析信息                            |
+| `userId`       | varchar  | Yes  | 关联用户 ID                             |
+| `startedAt`    | datetime | No   | 任务开始执行时间                        |
+| `completedAt`  | datetime | No   | 任务完成/失败时间                        |
+| `createdAt`    | datetime | Yes  | 创建时间                                |
+| `updatedAt`    | datetime | Yes  | 更新时间                                |
 
 #### Setting (设置表)
 

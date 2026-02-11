@@ -28,7 +28,7 @@
 | :--- | :--- | :--- |
 | `userId` | `string` | 关联的用户 ID |
 | `type` | `enum` | 通知类型 (SECURITY, SYSTEM, MARKETING, COMMENT_REPLY) |
-| `channel` | `enum` | 通知渠道 (EMAIL, IN_APP) |
+| `channel` | `enum` | 通知渠道 (目前支持 EMAIL，规划中：IN_APP) |
 | `isEnabled` | `boolean` | 是否开启 |
 
 ### 3.3 营销推送表 (`MarketingCampaign`)
@@ -53,19 +53,6 @@
 | `event` | `enum` | 场景: `NEW_USER`, `NEW_COMMENT`, `API_ERROR`, `SYSTEM_ALERT` |
 | `isEmailEnabled` | `boolean` | 是否发送邮件 |
 | `isBrowserEnabled` | `boolean` | 是否发送浏览器通知 |
-
-### 3.5 站内通知表 (`InAppNotification`)
-存储发送给特定用户的具体通知消息。
-
-| 字段 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| `userId` | `string` | 接收者 ID |
-| `title` | `string` | 通知标题 |
-| `content` | `text` | 通知正文 |
-| `link` | `string` | 关联跳转链接 (可选) |
-| `type` | `enum` | 类型 (SYSTEM, MARKETING, COMMENT, SECURITY) |
-| `isRead` | `boolean` | 是否已读 |
-| `createdAt` | `datetime` | 创建时间 |
 
 ## 4. 博客发布集成 (Blog Integration)
 
@@ -130,17 +117,12 @@
 - `PUT /api/user/subscription`: 更新用户的多维度订阅设置（分类/标签/营销开关）。
 - `GET /api/user/notifications/settings`: 获取通知渠道偏好。
 - `PUT /api/user/notifications/settings`: 更新通知偏好。
-- `GET /api/user/notifications`: 获取站内通知列表（支持分页）。
-- `PATCH /api/user/notifications/:id/read`: 标记通知为已读。
-- `POST /api/user/notifications/read-all`: 标记所有通知为已读。
-- `GET /api/user/notifications/stream`: **核心 (SSE)**: 站内通知实时推送接口。
 
 ### 7.2 管理员侧 (Admin Side)
 
 - `POST /api/admin/marketing/campaigns`: 创建营销推送草案。
 - `POST /api/admin/marketing/campaigns/:id/send`: 触发推送任务。
 - `GET /api/admin/marketing/campaigns`: 获取推送历史记录。
-- `GET /api/admin/marketing/stats`: 获取推送统计（到达率、点击率预留等）。
 - `GET /api/admin/notifications/settings`: 获取站务通知接收偏好。
 - `PUT /api/admin/notifications/settings`: 更新站务通知接收偏好。
 - `POST /api/admin/marketing/from-post/:postId`: **核心联动**: 从特定文章快速生成营销推送。
@@ -153,12 +135,7 @@
     - [pages/settings.vue](pages/settings.vue): 增加侧边栏入口。
     - [components/settings/settings-notifications.vue](components/settings/settings-notifications.vue) (新): 提供订阅与通知的配置表单。
 
-### 8.2 站内通知 UI (In-app UI)
-- **通知铃铛**: 在 [components/app-header.vue](components/app-header.vue) 中增加通知图标，显示未读红点。
-- **通知面板**: 点击铃铛弹出下拉列表，展示最近 5-10 条通知，底部有“查看全部”跳转到 [pages/notifications.vue](pages/notifications.vue)。
-- **实时弹窗 (Toast)**: 监听到新消息时，在页面右上角通过 PrimeVue 的 `Toast` 组件进行实时提醒。
-
-### 8.3 管理员营销中心 (Admin Marketing Center)
+### 8.2 管理员营销中心 (Admin Marketing Center)
 - **涉及组件**:
     - [pages/admin/marketing.vue](pages/admin/marketing.vue) (新): 营销中心主页。
     - [components/admin/marketing-campaign-form.vue](components/admin/marketing-campaign-form.vue): 增加 `type` 选择和更丰富的预览。
@@ -168,34 +145,23 @@
 - **数据库实体**:
     - [server/entities/subscriber.ts](server/entities/subscriber.ts): 扩展字段。
     - [server/entities/marketing-campaign.ts](server/entities/marketing-campaign.ts) (新): 记录营销任务。
-    - [server/entities/in-app-notification.ts](server/entities/in-app-notification.ts) (新): 存储推送实例。
 - **API 路由**:
     - [server/api/user/subscription.get.ts](server/api/user/subscription.get.ts)
     - [server/api/user/subscription.put.ts](server/api/user/subscription.put.ts)
-    - [server/api/admin/marketing/campaigns.post.ts](server/api/admin/marketing/campaigns.post.ts)
-- **实时推送方案**:
-    - **SSE (Server-Sent Events)**: 采用 SSE 实现低延迟单向推送。后端维持一个 `stream` 接口，前端通过 `EventSource` 或 `useFetch` 的流模式订阅。
-- **后台任务**: 推送任务应通过异步队列（如集成现有的 `server/utils/tasks` 或简单后台进程）执行。
+- **后台任务**: 推送任务通过异步队列执行。
 - **频率限制**: 营销邮件应强制包含退订链接及发送频率控制。
 
-## 10. 浏览器推送设计 (Web Push Design - 规划中)
+## 10. 未来规划与积压项 (Future Planning & Backlog)
 
-### 10.1 核心机制
+### 10.1 站内通知与实时推送 (In-app & SSE)
+- **目标**: 实现无需刷新页面的实时通知提醒。
+- **技术**: 采用 **SSE (Server-Sent Events)** 实现轻量化推送。
+- **存储**: 引入 `InAppNotification` 实体持久化通知，支持未读计数。
+- **UI**: 增加顶部导航铃铛组件及 Toast 实时浮层。
+
+### 10.2 浏览器推送 (Web Push)
 - **技术栈**: Web Push API + Service Worker + VAPID 协议。
-- **订阅流程**:
-    1. 前端请求浏览器通知权限。
-    2. 授权后，Service Worker 获取 `PushSubscription`。
-    3. 将订阅对象发送到后端并关联到当前用户/订阅者。
-- **推送流程**:
-    - 后端触发事件时，通过 Web-Push 库向 Google/Mozilla 的推送服务器发送加密消息。
-    - 浏览器接收到消息后，由后台运行的 Service Worker 解析并调用 `self.registration.showNotification()`。
+- **功能**: 支持网页关闭时接收关键业务通知（如评论被回复、系统警报）。
 
-### 10.2 优势与限制
-- **优势**: 网页关闭时仍能接收，触达率极高（类似移动端原生推送）。
-- **限制**: 需要浏览器支持，且必须通过 HTTPS 部署。
-
-### 10.3 实现路径 (后续阶段)
-1. 集成 `web-push` NPM 包。
-2. 生成 VAPID 公私钥对并配置到环境变量。
-3. 在 `public/sw.js` 中增加推送处理逻辑。
-4. 在用户中心增加“开启浏览器通知”开关。
+### 10.3 推送统计增强 (Advanced Analytics)
+- **指标**: 记录邮件打开率、点击率（通过追踪像素/重定向链接）。
