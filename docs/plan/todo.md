@@ -153,11 +153,11 @@
 - [ ] **i18n 基础架构搭建 (Base Infrastructure)**
     - 验收: 完成 VitePress 多语言配置，实现 URL 前缀路由控制。
 - [ ] **英文站点脚手架 (English Docs Scaffolding)**
-    - 验收: 初始化 `docs/en/` 目录并同步核心目录结构。
+    - 验收: 初始化 `docs/en-US/` 目录并同步核心目录结构。
 - [ ] **核心文档首轮翻译 (Core Translation)**
     - 验收: 完成首页、快速开始、部署指南、功能特性的首轮人工/AI 协同翻译。
 - [ ] **动态文档同步策略 (Sync Strategy)**
-    - 验收: 制定 `roadmap.md` 与 `todo.md` 的双语滚动更新机制，确保规划一致性。
+    - 验收: 制定 `README.md` 等文件的双语滚动更新机制，确保一致性。
 
 ---
 
