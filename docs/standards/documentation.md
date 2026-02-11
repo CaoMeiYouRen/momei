@@ -46,21 +46,65 @@
 
 ## 4. 国际化 (Internationalization)
 
-目前文档以中文为主，正在逐步推进国际化。
+本项目文档采用“中英文分治”策略，优先保证核心文档的同步，针对快速迭代的模块文档采取“原文为主、只翻稳定”原则。
 
--   **主目录优先**: `docs/` 直接存放默认语言（中文）文档。
--   **语言分包**: 英文文档将存放在 `docs/en-US/` 目录下，并保持与根目录完全一致的代码结构和文件名。
--   **同步原则**: 修改中文文档后，应同步更新对应的英文文档。
+### 4.1 核心原则 (Core Principles)
+
+1.  **分级翻译**: 并非所有文档都需要翻译。优先处理对外部用户及新接触博主至关重要的文档。
+2.  **源地一致**: 英文文档存放在 `docs/en-US/` 目录下，并严格保持与 `docs/` 根目录一致的目录结构和文件名。
+3.  **时效性声明**: 所有翻译文档必须在顶部包含“翻译版本声明”，明确指向中文原文（Source of Truth）。
+4.  **人工+AI 协同**: 允许使用大模型进行首轮翻译，但必须经过人工或专项 Agent (`documentation-specialist`) 审核术语一致性。
+
+### 4.2 范围评估 (Scope Assessment)
+
+| 目录/文件 | 翻译要求 | 策略说明 |
+| :-- | :-- | :-- |
+| `README.md` (根目录) | **强制全部** | 生成 `README.en-US.md`，作为国际门户。 |
+| `docs/guide/` | **强制全部** | 用户手册（快速开始、部署、特性）必须保持双语。 |
+| `docs/standards/` | **高度推荐** | 开发规范相对稳定，应提供翻译以指导全球参与者。 |
+| `docs/design/` | **高层翻译** | 仅翻译全局设计（UI、数据库、API），不深入模块。 |
+| `docs/design/modules/` | **暂不翻译** | 模块设计变动频繁，保持中文原文。 |
+| `docs/plan/` | **部分翻译** | 仅翻译 `roadmap.md` 已完成的阶段；未来规划免翻。 |
+| `docs/plan/todo.md` | **不翻译** | 任务管理文件，仅保留中文。 |
+
+### 4.3 翻译件规范 (Standard for Translated Docs)
+
+1.  **顶部提示旗标 (Header Notice)**:
+    使用 VitePress 的 `::: warning` 容器：
+    ```markdown
+    ::: warning Translation Notice
+    This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](RELATIVE_PATH_TO_ZH) shall prevail.
+    :::
+    ```
+2.  **Frontmatter (版本溯源)**:
+    所有英文文档必须在 Frontmatter 中标注同步元数据，以便 AI 审计员检测过时内容：
+    ```yaml
+    ---
+    source_branch: master
+    last_sync: 2026-02-11  # ISO 日期格式
+    # 可选：source_hash: <git_commit_hash>
+    ---
+    ```
+
+### 4.4 路线图翻译特殊逻辑 (Roadmap Sync)
+
+针对 `roadmap.md`，执行 **渐进式翻译策略 (Progressive Translation)**：
+1.  **已完成章节**: 必须提供完整、高质量的对等翻译。
+2.  **规划中/积压章节**:
+    -   保留二级/三级标题的翻译，以展示蓝图全貌。
+    -   正文内容可暂不翻译，使用统一占位符提示：`> [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](RELATIVE_PATH).`
+    -   避免因路线图频繁微调而产生大量陈旧的英文描述。
 
 ## 5. 特殊文件维护 (Special File Maintenance)
 
-### 5.1 根目录 README.md
+### 5.1 根目录 README.en-US.md
 
-`README.md` 是项目的门户，必须在以下情况发生时进行同步更新：
--   核心特性 (Features) 增删。
--   技术栈变更。
--   项目演示链接或截图更新。
--   安装/运行步骤发生重大变化。
+作为 `README.md` 的对等镜像，必须包含：
+-   项目简介与核心价值主张。
+-   特性列表 (Features)。
+-   技术栈 (Tech Stack)。
+-   快速上手链接（指向英文文档站）。
+-   顶部增加互跳链接：`[中文版](./README.md) | [English Edition](./README.en-US.md)`。
 
 ### 5.2 项目规划文档 (Plan Docs)
 
