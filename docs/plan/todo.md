@@ -18,6 +18,7 @@
 ---
 
 ### 1. 创作安全增强 (Creative Security & Resilience) (P0)
+具体文档：[创作安全增强](../design/modules/creative-security.md)
 
 - [ ] **本地草稿自动保存 (Local Draft Auto-save)**
     - 验收: 实现基于 LocalStorage 的文章实时编辑缓存 (防抖处理)。

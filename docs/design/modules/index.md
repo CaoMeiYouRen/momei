@@ -5,6 +5,7 @@
 ## 核心业务模块 (Core Business)
 
 - **[博客内容 (Blog Content)](./blog)**: 文章创作、分类、标签及阅读统计。
+- **[创作安全 (Creative Security)](./creative-security)**: 本地草稿自动保存与内容版本化管理。
 - **[认证系统 (Auth System)](./auth)**: 基于 Better-Auth 的多端登录、OAuth 及权限管理。
 - **[分类与标签 (Taxonomy)](./taxonomy)**: 多维度的内容组织架构，支持翻译。
 - **[用户空间 (User Space)](./user)**: 个人资料、偏好设置和我的文章。

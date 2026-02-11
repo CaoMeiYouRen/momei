@@ -23,6 +23,7 @@ erDiagram
     Category }o--o| Category : "has parent"
     User ||--o{ ThemeConfig : "manages"
     User ||--o{ AITask : "triggers"
+    Post ||--o{ PostVersion : "has"
     MarketingCampaign ||--o{ Subscriber : "targets"
     Subscriber }o--o{ Category : "subscribed to"
     Subscriber }o--o{ Tag : "subscribed to"
@@ -180,6 +181,19 @@ _(待完善，后续迭代补充)_
 | `publishedAt`   | datetime | No   | 发布时间                        |
 | `createdAt`     | datetime | Yes  | 创建时间                        |
 | `updatedAt`     | datetime | Yes  | 更新时间                        |
+
+#### PostVersion (文章版本表)
+
+| 字段名      | 类型     | 必填 | 说明                           |
+| :---------- | :------- | :--- | :----------------------------- |
+| `id`        | varchar  | Yes  | 主键                           |
+| `postId`    | varchar  | Yes  | 关联的文章 ID                  |
+| `title`     | varchar  | Yes  | 标题快照                       |
+| `content`   | text     | Yes  | 正文快照                       |
+| `summary`   | text     | No   | 摘要快照                       |
+| `authorId`  | varchar  | Yes  | 本次修改者 ID                  |
+| `reason`    | varchar  | No   | 修改原因                       |
+| `createdAt` | datetime | Yes  | 版本创建时间                   |
 
 #### Category (分类表)
 
