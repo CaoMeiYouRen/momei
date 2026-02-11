@@ -6,11 +6,17 @@ export function usePostExport() {
     const toast = useToast()
     const exporting = ref(false)
 
-    const exportPost = async (id: string, slug?: string) => {
+    const exportPost = async (id: string, options: { slug?: string, all?: boolean } = {}) => {
         try {
             exporting.value = true
-            const response = await fetch(`/api/posts/${id}/export`)
-            if (!response.ok) { throw new Error('Export failed') }
+            const urlObj = new URL(`/api/posts/${id}/export`, window.location.origin)
+            if (options.all) {
+                urlObj.searchParams.set('all', 'true')
+            }
+            const response = await fetch(urlObj.toString())
+            if (!response.ok) {
+                throw new Error('Export failed')
+            }
             const blob = await response.blob()
             const url = window.URL.createObjectURL(blob)
             const a = document.createElement('a')
@@ -18,12 +24,14 @@ export function usePostExport() {
 
             // 尝试从响应头获取文件名
             const contentDisposition = response.headers.get('Content-Disposition')
-            let filename = `${slug || id}.md`
+            let filename = `${options.slug || id}.md`
             if (contentDisposition) {
                 const filenameMatch = /filename\*?=['"]?(?:UTF-8'')?([^'"]+)['"]?/.exec(contentDisposition)
                 if (filenameMatch?.[1]) {
                     filename = decodeURIComponent(filenameMatch[1])
                 }
+            } else if (options.all) {
+                filename = `momei-translations-${options.slug || id}.zip`
             }
 
             a.download = filename

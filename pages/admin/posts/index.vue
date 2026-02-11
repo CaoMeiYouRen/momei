@@ -188,7 +188,7 @@
                             text
                             rounded
                             severity="secondary"
-                            @click="handleExport(slotProps.data.id)"
+                            @click="handleExport(slotProps.data)"
                         />
                         <Button
                             icon="pi pi-pencil"
@@ -390,13 +390,26 @@ const getStatusSeverity = (status: string) => {
     return map[status] || 'info'
 }
 
-const handleExport = (id: string) => {
-    exportPost(id)
+const handleExport = (post: Post) => {
+    exportPost(post.id, {
+        slug: post.slug,
+        all: !!filters.aggregate && (post.translations?.length || 0) > 1,
+    })
 }
 
 const handleBatchExport = async () => {
     if (selectedItems.value.length === 0) return
-    const ids = selectedItems.value.map((item) => item.id)
+    const ids: string[] = []
+    selectedItems.value.forEach((item) => {
+        ids.push(item.id)
+        if (filters.aggregate && item.translations) {
+            item.translations.forEach((t) => {
+                if (t.id !== item.id) {
+                    ids.push(t.id)
+                }
+            })
+        }
+    })
     await exportBatch(ids)
     selectedItems.value = []
 }

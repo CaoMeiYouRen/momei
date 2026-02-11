@@ -36,8 +36,8 @@ export function formatPostToMarkdown(post: Post): string {
 export async function createPostsZip(posts: Post[]): Promise<Buffer> {
     const zip = new JSZip()
     posts.forEach((post) => {
-        // 使用 slug 作为文件名，如果没有则使用 id
-        const filename = `${post.slug || post.id}.md`
+        // 使用 slug 作为文件名，如果没有则使用 id，并带上语言后缀
+        const filename = `${post.slug || post.id}.${post.language}.md`
         const content = formatPostToMarkdown(post)
         zip.file(filename, content)
     })
