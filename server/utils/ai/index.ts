@@ -74,9 +74,9 @@ export async function getAIImageProvider(configOverride?: Partial<AIImageConfig>
     const config: AIImageConfig = {
         enabled: dbSettings[SettingKey.AI_IMAGE_ENABLED] === 'true',
         provider: (dbSettings[SettingKey.AI_IMAGE_PROVIDER] as any) || 'openai',
-        apiKey: dbSettings[SettingKey.AI_IMAGE_API_KEY]!,
+        apiKey: dbSettings[SettingKey.AI_IMAGE_API_KEY]! || dbSettings[SettingKey.AI_API_KEY]!,
         model: dbSettings[SettingKey.AI_IMAGE_MODEL] || '',
-        endpoint: dbSettings[SettingKey.AI_IMAGE_ENDPOINT] || '',
+        endpoint: dbSettings[SettingKey.AI_IMAGE_ENDPOINT] || dbSettings[SettingKey.AI_ENDPOINT] || '',
     }
     const finalConfig = { ...config, ...configOverride }
 

@@ -21,6 +21,7 @@ import { NotificationSettings } from '../entities/notification-settings'
 import { MarketingCampaign } from '../entities/marketing-campaign'
 import { AdminNotificationSettings } from '../entities/admin-notification-settings'
 import { AITask } from '../entities/ai-task'
+import { PostVersion } from '../entities/post-version'
 import logger from '../utils/logger'
 import { isServerlessEnvironment } from '../utils/env'
 import { CustomLogger } from './logger'
@@ -69,6 +70,7 @@ const entities = [
     MarketingCampaign,
     AdminNotificationSettings,
     AITask,
+    PostVersion,
 ]
 
 /**
