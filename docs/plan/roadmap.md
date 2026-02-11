@@ -196,18 +196,34 @@
     - **自动化工作流**: 完成原生 Anthropic MCP Server 实现。
     - **计划任务 (Scheduled Tasks)**: 实现全场景兼容的定时发布系统，支持文章定时发布与营销邮件定时推送。
 
+### 第六阶段：全方位体验与创作精修 (Global Experience & Creative Refinement) (策划中)
+
+**时间表**: 待定
+
+**目标**: 强化创作过程的安全感与灵活性，深化多媒体内容生产力，并优化极客阅读与系统交互体验。
+
+1.  **创作安全与健壮性 (Creative Security & Resilience)**:
+    -   **本地草稿自动保存**: 实现基于 LocalStorage/IndexedDB 的实时编辑缓存，防止网络波动或误操作导致内容丢失。
+    -   **草稿恢复机制**: 检测到本地未发布的草稿时，主动提示用户恢复或丢弃，确保创作连续性。
+    -   **有限版本化管理**: 实现文章修订记录系统，优先保留最近 3-5 个版本，平衡回滚需求与数据库压力。
+2.  **播客与多媒体创作进阶 (Advanced Media & AI)**:
+    -   **文章转音频 (TTS)**: 集成 OpenAI/Azure 等高性能 AI 语音合成服务，支持为长文一键生成音频版。
+    -   **高精度语音转录优化**: 针对语音写文章场景，引入 OpenAI Whisper 等专业 API，解决 Web Speech API 的环境局限与同音字问题。
+    -   **AI 图像驱动补全**: 完成对 Gemini 3 Pro Image 及 Stable Diffusion (WebUI/ComfyUI) 的原生驱动适配。
+3.  **极客阅读与交互升级 (User Experience)**:
+    -   **沉浸式阅读模式**: 为技术博客定制极简阅读视图，消除侧边栏及交互噪音，支持自定义阅读字号与行高。
+    -   **实时通知系统 (SSE/Web Push)**: 实现低延迟的站内通知、评论提醒与系统警报。针对 Serverless/Cloud Functions 环境进行专项适配（如心跳管理或替代方案）。
+4.  **国际化与架构固化 (i18n & Architecture)**:
+    -   **后端统一 i18n 机制**: 在 Nitro 层级集成翻译插件，覆盖邮件模板、RSS Feed 及动态元数据的多语言输出。
+    -   **翻译字段复用精简**: 深度审计并提取跨模块通用字段，消除冗余映射。
+5.  **MCP 生态验证 (Connectivity)**:
+    -   **MCP Server 强化**: 完成生产环境下的性能验证，并针对更多开发者工具进行适配与连接优化。
+
 ## 3. 未来规划与积压项 (Backlog & Long-term Roadmap)
 
 此处记录由于优先级或开发周期原因暂不进入当前迭代，但具有长期价值的功能。
 
 **说明**: 以下积压项按照优先级排序，后续新功能需求应直接添加至本部分，而非添加至待办事项 (todo.md)。
-
-### 0. 待处理迁移项 (Pending Migrations from Phase 5)
-- **多模型 AI 图像适配 (Advanced AI Image Drivers)**: 
-    - 实现 **Gemini 3 Pro Image** 驱动适配。
-    - 实现 **Stable Diffusion** (WebUI/ComfyUI API) 驱动适配。
-- **Anthropic MCP Server 增强**:
-    - 完成 MCP Server 的进一步生产环境验证与生态适配。
 
 ### 1. 桌面端应用 (Desktop Application)
 - **Tauri 跨平台应用**:

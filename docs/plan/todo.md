@@ -10,15 +10,54 @@
 - [x] 已完成 (Done)
 - [-] 已取消 (Cancelled)
 
-## 第六阶段：全能创作与极致极客体验 (Versatile Creation & Ultimate Geek Experience) (策划中)
+## 第六阶段：全方位体验与创作精修 (Global Experience & Creative Refinement)
 
-> **当前状态**: 正在规划中。具体待办事项待下一轮需求分析后确立。
-> 
-> **核心方向预告**:
-> 1. **极致交互增强**: 引入全站实时通知系统 (SSE/Web Push) 与沉浸式阅读模式。
-> 2. **极客内容赋能**: 实现 Markdown 可执行代码块支持与更深度的 Git 版本追踪。
-> 3. **生态系统升级**: 探索主题/脚本插件中心雏形，并增强 ActivityPub 联邦宇宙连接能力。
-> 4. **AI 知识图谱**: 建立基于全站内容的 AI 知识库与智能关联探索。
+> **当前阶段**: Phase 6
+> **核心目标**: 强化创作安全感、提升多媒体生产力，并优化极客阅读交互。
+
+---
+
+### 1. 创作安全增强 (Creative Security & Resilience) (P0)
+
+- [ ] **本地草稿自动保存 (Local Draft Auto-save)**
+    - 验收: 实现基于 LocalStorage 的文章实时编辑缓存 (防抖处理)。
+    - 验收: 用户刷新或重新进入编辑器时，检测到本地缓存后弹出“恢复/丢弃”选择框。
+    - 验收: 成功发布文章后，自动清除对应的本地缓存。
+- [ ] **有限版本化管理 (Limited Content Versioning)**
+    - 验收: 文章保存时记录版本快照，数据库保留最近 3-5 个修改版本。
+    - 验收: 编辑器增加“历史版本”查看面板，支持对比不同时间点的文字差异。
+    - 验收: 支持“一键回滚”至选中的旧版本。
+
+### 2. 播客与多媒体生产力 (Advanced Multimedia & AI) (P1)
+
+- [ ] **文章转语音 (TTS Integration)**
+    - 验收: 编辑器增加“生成音频”功能，支持选择语音模型 (OpenAI TTS/Azure)。
+    - 验收: 生成的音频自动保存至存储系统，并作为 RSS 的 Enclosure 附件发布。
+- [ ] **高精度语音转录 (AI Voice Transcription)**
+    - 验收: 升级现有 Web Speech API 方案，集成 OpenAI Whisper API 以实现高精度转换。
+    - 验收: 优化移动端语音输入流程，修复长句断断续续的问题。
+- [ ] **AI 图像驱动补全 (AI Image Drivers)**
+    - 验收: 完成 **Gemini 3 Pro Image** 驱动，支持文本生成图片。
+    - 验收: 完成 **Stable Diffusion** (WebUI API) 驱动，支持调用本地或云端 SD 实例。
+
+### 3. 极客阅读与系统交互 (Geek UX & Notifications) (P1)
+
+- [ ] **沉浸式阅读模式 (Immersive Reader Mode)**
+    - 验收: 文章详情页增加“沉浸阅读”开关，消除所有 UI 噪音。
+    - 验收: 提供字号、行高调节以及“羊皮纸/护眼/暗黑”背景切换。
+- [ ] **实时通知系统基础 (SSE/Web Push Core)**
+    - 验收: 建立基于 SSE (Server-Sent Events) 的实时连接中心。
+    - 验收: 针对 Serverless 环境实现降级轮询机制，确保通知不中断。
+    - 验收: 实现评论即时提醒与系统维护公告推送。
+
+### 4. 全局架构固化与连接 (Architecture & Ecosystem) (P1/P2)
+
+- [ ] **后端统一 i18n 机制 (Backend i18n Integration)**
+    - 验收: 基于 Nitro 钩子实现请求级的语言识别。
+    - 验收: 邮件模板、RSS 摘要及错误码反馈实现全自动关联翻译。
+- [ ] **MCP 生态生产验证 (MCP Validation)**
+    - 验收: 完成 MCP Server 在多环境下的性能压力测试。
+    - 验收: 完善 MCP 对 Cursor/Claude 等 AI 编辑器的交互定义文件。
 
 ---
 
