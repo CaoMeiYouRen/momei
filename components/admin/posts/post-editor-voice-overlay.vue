@@ -13,10 +13,26 @@
                     />
                     {{ isListening ? $t('pages.admin.posts.ai.voice_listening') : $t('pages.admin.posts.ai.voice_input') }}
                 </span>
+                <SelectButton
+                    v-model="internalMode"
+                    :options="modeOptions"
+                    option-label="label"
+                    option-value="value"
+                    size="small"
+                    :disabled="isListening"
+                />
             </div>
 
             <div class="voice-popover__content">
-                <div v-if="error" class="voice-popover__error">
+                <div v-if="isLoadingModel" class="voice-popover__loading">
+                    <span class="mb-2 text-sm">{{ $t('pages.admin.posts.ai.voice_model_loading') }}</span>
+                    <ProgressBar
+                        :value="Math.round(modelProgress)"
+                        class="w-full"
+                        style="height: 6px"
+                    />
+                </div>
+                <div v-else-if="error" class="voice-popover__error">
                     <i class="pi pi-exclamation-circle" />
                     <span>{{ errorText }}</span>
                     <Button
@@ -34,6 +50,12 @@
                         class="voice-popover__placeholder"
                     >
                         ...
+                    </div>
+                    <div
+                        v-if="!isListening && !finalTranscript && !interimTranscript && mode === 'local-whisper'"
+                        class="voice-popover__placeholder"
+                    >
+                        {{ $t('pages.admin.posts.ai.voice_model_ready') }}
                     </div>
                 </div>
             </div>
@@ -66,6 +88,7 @@
                     <Button
                         :label="$t('pages.admin.posts.ai.voice_retry')"
                         icon="pi pi-refresh"
+                        :loading="isLoadingModel"
                         @click="$emit('retry')"
                     />
                 </template>
@@ -75,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
@@ -84,12 +107,29 @@ const props = defineProps<{
     finalTranscript: string
     error: string
     refining: boolean
+    mode: 'web-speech' | 'local-whisper'
+    isLoadingModel: boolean
+    modelProgress: number
+    isModelReady: boolean
 }>()
 
-defineEmits(['stop', 'retry', 'insert', 'refine', 'hide'])
+const emit = defineEmits(['stop', 'retry', 'insert', 'refine', 'hide', 'update:mode'])
 
 const { t } = useI18n()
 const op = ref<any>(null)
+
+const internalMode = ref(props.mode)
+watch(() => props.mode, (newMode) => {
+    internalMode.value = newMode
+})
+watch(internalMode, (newMode) => {
+    emit('update:mode', newMode)
+})
+
+const modeOptions = computed(() => [
+    { label: t('pages.admin.posts.ai.voice_mode_basic'), value: 'web-speech' },
+    { label: t('pages.admin.posts.ai.voice_mode_high_precision'), value: 'local-whisper' },
+])
 
 const toggle = (event: any) => {
     op.value?.toggle(event)
@@ -160,6 +200,17 @@ const errorText = computed(() => {
         background: var(--p-surface-50);
         border-radius: var(--p-border-radius-md);
         border: 1px inset var(--p-surface-border);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    &__loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        padding: 0.5rem;
     }
 
     &__transcript {

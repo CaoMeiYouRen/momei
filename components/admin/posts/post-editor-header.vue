@@ -55,11 +55,15 @@
             </ButtonGroup>
             <AdminPostsPostEditorVoiceOverlay
                 ref="voiceOp"
+                v-model:mode="voiceMode"
                 :is-listening="isListening"
                 :interim-transcript="interimTranscript"
                 :final-transcript="finalTranscript"
                 :error="voiceError"
                 :refining="refiningVoice"
+                :is-loading-model="isLoadingModel"
+                :model-progress="modelProgress"
+                :is-model-ready="isModelReady"
                 @stop="stopListening()"
                 @retry="resetVoice(); startListening(post.language)"
                 @insert="handleVoiceInsert"
@@ -270,6 +274,10 @@ const {
     interimTranscript,
     finalTranscript,
     error: voiceError,
+    mode: voiceMode,
+    isLoadingModel,
+    modelProgress,
+    isModelReady,
     startListening,
     stopListening,
     reset: resetVoice,

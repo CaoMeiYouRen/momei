@@ -554,6 +554,10 @@
                     "voice_error": "语音识别出错",
                     "voice_permission_denied": "未获得麦克风权限",
                     "voice_retry": "重试",
+                    "voice_mode_basic": "基础 (Web)",
+                    "voice_mode_high_precision": "高精度 (Local)",
+                    "voice_model_loading": "正在加载 AI 模型...",
+                    "voice_model_ready": "AI 模型已就绪",
                     "generate_cover": "AI 生成封面图",
                     "cover_generator": {
                         "title": "AI 封面生成器",

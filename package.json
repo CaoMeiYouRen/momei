@@ -27,6 +27,7 @@
     "@aws-sdk/client-s3": "^3.985.0",
     "@axiomhq/winston": "^1.4.0",
     "@better-auth/sso": "^1.4.10",
+    "@huggingface/transformers": "^3.8.1",
     "@mdi/font": "^7.4.47",
     "@microsoft/clarity": "^1.0.2",
     "@nuxtjs/i18n": "^10.2.3",
