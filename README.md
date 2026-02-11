@@ -30,6 +30,10 @@
 </p>
 
 <p align="center">
+  <a href="./README.md">简体中文</a> | <a href="./README.en-US.md">English</a>
+</p>
+
+<p align="center">
   <a href="https://momei.app/"><strong>🌐 主站</strong></a> &nbsp;|&nbsp;
   <a href="https://docs.momei.app/"><strong>📚 文档站</strong></a>
 </p>

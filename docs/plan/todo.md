@@ -150,13 +150,13 @@
     - 验收: 修复全站 MD 链接失效，规范化“翻译簇”、“发布意图”等核心术语。
 
 ### 10. 文档国际化 (Documentation Internationalization) (P1)
-- [ ] **i18n 基础架构搭建 (Base Infrastructure)**
+- [x] **i18n 基础架构搭建 (Base Infrastructure)**
     - 验收: 完成 VitePress 多语言配置，实现 URL 前缀路由控制。
-- [ ] **英文站点脚手架 (English Docs Scaffolding)**
+- [x] **英文站点脚手架 (English Docs Scaffolding)**
     - 验收: 初始化 `docs/en-US/` 目录并同步核心目录结构。
-- [ ] **核心文档首轮翻译 (Core Translation)**
+- [x] **核心文档首轮翻译 (Core Translation)**
     - 验收: 完成首页、快速开始、部署指南、功能特性的首轮人工/AI 协同翻译。
-- [ ] **动态文档同步策略 (Sync Strategy)**
+- [x] **动态文档同步策略 (Sync Strategy)**
     - 验收: 制定 `README.md` 等文件的双语滚动更新机制，确保一致性。
 
 ---
