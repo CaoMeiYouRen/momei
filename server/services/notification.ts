@@ -1,3 +1,4 @@
+import { convert } from 'html-to-text'
 import { dataSource } from '@/server/database'
 import { Subscriber } from '@/server/entities/subscriber'
 import { MarketingCampaign } from '@/server/entities/marketing-campaign'
@@ -96,7 +97,13 @@ export async function createCampaignFromPost(
     campaign.title = post.title
 
     // 提取正文摘要，不带多余的 HTML 容器，真正的模板在发送阶段渲染
-    campaign.content = post.summary || post.content.substring(0, 300).replace(/<[^>]*>?/gm, '').trim()
+    campaign.content = post.summary || convert(post.content, {
+        wordwrap: false,
+        selectors: [
+            { selector: 'img', format: 'skip' },
+            { selector: 'a', options: { hideLinkHrefIfSameAsText: true } },
+        ],
+    }).substring(0, 200).trim()
 
     campaign.type = MarketingCampaignType.BLOG_POST
     campaign.senderId = senderId
