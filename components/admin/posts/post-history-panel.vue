@@ -4,7 +4,7 @@
         :header="$t('pages.admin.posts.history_versions')"
         position="right"
         class="history-drawer"
-        :style="{width: '450px'}"
+        :style="{width: '600px'}"
     >
         <div v-if="loading" class="flex justify-center p-4">
             <ProgressSpinner />
@@ -58,15 +58,37 @@
         <template #footer>
             <div v-if="selectedVersion" class="border-t flex flex-col gap-4 p-4 surface-border">
                 <div class="selected-version-info">
-                    <h4 class="font-bold m-0 mb-2 text-lg">
-                        {{ selectedVersion.title }}
-                    </h4>
-                    <div class="mb-2 text-secondary text-sm">
-                        {{ $t('pages.admin.posts.content_preview') }}
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold m-0 text-lg">
+                            {{ selectedVersion.title }}
+                        </h4>
+                        <div class="flex gap-2 items-center">
+                            <span class="text-secondary text-sm">{{ $t('pages.admin.posts.version_compare') }}</span>
+                            <ToggleSwitch v-model="showDiff" />
+                        </div>
                     </div>
-                    <div class="preview-box">
-                        {{ selectedVersion.content.substring(0, 300) }}...
+
+                    <div v-if="showDiff" class="diff-container">
+                        <div
+                            v-for="(part, index) in diffs"
+                            :key="index"
+                            class="diff-part"
+                            :class="{
+                                'diff-part--added': part.added,
+                                'diff-part--removed': part.removed
+                            }"
+                        >
+                            {{ part.value }}
+                        </div>
                     </div>
+                    <template v-else>
+                        <div class="mb-2 text-secondary text-sm">
+                            {{ $t('pages.admin.posts.content_preview') }}
+                        </div>
+                        <div class="preview-box">
+                            {{ selectedVersion.content.substring(0, 500) }}...
+                        </div>
+                    </template>
                 </div>
                 <div class="flex gap-2">
                     <Button
@@ -88,13 +110,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import { useI18n } from 'vue-i18n'
+import { diffLines } from 'diff'
 
 const props = defineProps<{
     postId: string | null | undefined
+    currentContent: string | null | undefined
 }>()
 
 const visible = defineModel<boolean>('visible', { default: false })
@@ -108,6 +132,14 @@ const { formatDateTime } = useI18nDate()
 const versions = ref<any[]>([])
 const loading = ref(false)
 const selectedVersion = ref<any>(null)
+const showDiff = ref(true)
+
+const diffs = computed(() => {
+    if (!selectedVersion.value || props.currentContent === undefined) return []
+    // 注意：diffLines 比较的是 历史版本内容(old) vs 当前编辑器内容(new)
+    // 红色(removed) 表示历史版本独有，绿色(added) 表示当前版本独有
+    return diffLines(selectedVersion.value.content || '', props.currentContent || '')
+})
 
 const fetchVersions = async () => {
     if (!props.postId) return
@@ -272,9 +304,46 @@ watch(visible, (newVal) => {
     font-size: 0.85rem;
     white-space: pre-wrap;
     word-break: break-all;
-    max-height: 150px;
+    max-height: 250px;
     overflow-y: auto;
     color: var(--p-text-color-secondary);
+}
+
+.diff-container {
+    background-color: var(--p-surface-ground);
+    padding: 0.75rem;
+    border-radius: var(--p-content-border-radius);
+    font-family: var(--p-font-family-monospace);
+    font-size: 0.85rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--p-surface-border);
+}
+
+.diff-part {
+    &--added {
+        background-color: var(--p-emerald-100);
+        color: var(--p-emerald-900);
+        text-decoration: none;
+
+        &::before {
+            content: '+';
+            margin-right: 4px;
+        }
+    }
+
+    &--removed {
+        background-color: var(--p-red-100);
+        color: var(--p-red-900);
+        text-decoration: line-through;
+
+        &::before {
+            content: '-';
+            margin-right: 4px;
+        }
+    }
 }
 
 .author-name {
