@@ -6,12 +6,14 @@
         class="history-drawer"
         :style="{width: '600px'}"
     >
-        <div v-if="loading" class="flex justify-center p-4">
+        <div v-if="loading" class="history-panel__loading">
             <ProgressSpinner />
         </div>
-        <div v-else-if="versions.length === 0" class="p-8 text-center text-secondary">
-            <i class="block mb-4 pi pi-history text-4xl" />
-            <p>{{ $t('common.no_data') }}</p>
+        <div v-else-if="versions.length === 0" class="history-panel__empty">
+            <i class="history-panel__empty-icon pi pi-history" />
+            <p class="history-panel__empty-text">
+                {{ $t('common.no_data') }}
+            </p>
         </div>
         <div v-else class="history-list">
             <div
@@ -56,51 +58,52 @@
         </div>
 
         <template #footer>
-            <div v-if="selectedVersion" class="border-t flex flex-col gap-4 p-4 surface-border">
-                <div class="selected-version-info">
-                    <div class="flex items-center justify-between mb-2">
-                        <h4 class="font-bold m-0 text-lg">
+            <div v-if="selectedVersion" class="history-panel__footer">
+                <div class="history-panel__selected-info">
+                    <div class="history-panel__compare-header">
+                        <h4 class="history-panel__selected-title">
                             {{ selectedVersion.title }}
                         </h4>
-                        <div class="flex gap-2 items-center">
-                            <span class="text-secondary text-sm">{{ $t('pages.admin.posts.version_compare') }}</span>
-                            <ToggleSwitch v-model="showDiff" />
+                        <div class="history-panel__compare-controls">
+                            <span class="history-panel__compare-label">{{ $t('pages.admin.posts.version_compare') }}</span>
+                            <ToggleSwitch v-model="showDiff" class="history-panel__switch" />
                         </div>
                     </div>
 
-                    <div v-if="showDiff" class="diff-container">
+                    <div v-if="showDiff" class="history-panel__diff-container">
                         <div
                             v-for="(part, index) in diffs"
                             :key="index"
-                            class="diff-part"
+                            class="history-panel__diff-part"
                             :class="{
-                                'diff-part--added': part.added,
-                                'diff-part--removed': part.removed
+                                'history-panel__diff-part--added': part.added,
+                                'history-panel__diff-part--removed': part.removed
                             }"
                         >
                             {{ part.value }}
                         </div>
                     </div>
                     <template v-else>
-                        <div class="mb-2 text-secondary text-sm">
+                        <div class="history-panel__preview-label">
                             {{ $t('pages.admin.posts.content_preview') }}
                         </div>
-                        <div class="preview-box">
+                        <div class="history-panel__preview-box">
                             {{ selectedVersion.content.substring(0, 500) }}...
                         </div>
                     </template>
                 </div>
-                <div class="flex gap-2">
+                <div class="history-panel__footer-actions">
                     <Button
                         :label="$t('pages.admin.posts.restore_version')"
                         icon="pi pi-replay"
-                        class="flex-1"
+                        class="history-panel__btn-restore"
                         @click="restoreConfirm"
                     />
                     <Button
                         :label="$t('common.close')"
                         severity="secondary"
                         outlined
+                        class="history-panel__btn-close"
                         @click="selectedVersion = null"
                     />
                 </div>
@@ -236,10 +239,202 @@ watch(visible, (newVal) => {
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.history-panel {
+    &__loading {
+        display: flex;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    &__empty {
+        padding: 2rem;
+        text-align: center;
+        color: var(--p-text-color-secondary);
+    }
+
+    &__empty-icon {
+        display: block;
+        margin-bottom: 1rem;
+        font-size: 2.25rem;
+    }
+
+    &__empty-text {
+        margin: 0;
+    }
+
+    &__footer {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        padding: 1.25rem;
+        background-color: var(--p-surface-0);
+        border-top: 1px solid var(--p-surface-border);
+    }
+
+    &__selected-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__compare-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px dashed var(--p-surface-border);
+    }
+
+    &__selected-title {
+        font-weight: 700;
+        margin: 0;
+        font-size: 1.125rem;
+
+        @include text-ellipsis;
+
+        max-width: 300px;
+    }
+
+    &__compare-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    &__compare-label {
+        font-weight: 500;
+        font-size: 0.875rem;
+        color: var(--p-text-color-secondary);
+    }
+
+    &__switch {
+        transform: scale(0.9);
+    }
+
+    &__diff-container {
+        margin-top: 0.5rem;
+        background-color: var(--p-surface-ground);
+        padding: 1rem;
+        border-radius: $border-radius-md;
+        font-family: var(--p-font-family-monospace);
+        max-height: 40vh; /* 限制对比区域高度，超过则内部滚动 */
+        overflow-y: auto;
+        border: 1px solid var(--p-surface-200);
+        font-size: 0.85rem;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+
+    &__diff-part {
+        &--added {
+            background-color: rgb(var(--p-emerald-500-rgb), 0.1);
+            color: var(--p-emerald-700);
+
+            &::before {
+                content: '+';
+                margin-right: 4px;
+                font-weight: bold;
+            }
+        }
+
+        &--removed {
+            background-color: rgb(var(--p-red-500-rgb), 0.1);
+            color: var(--p-red-700);
+            text-decoration: line-through;
+
+            &::before {
+                content: '-';
+                margin-right: 4px;
+                font-weight: bold;
+            }
+        }
+    }
+
+    &__preview-label {
+        font-weight: 500;
+        font-size: 0.875rem;
+        color: var(--p-text-color-secondary);
+        margin-bottom: 0.75rem;
+    }
+
+    &__preview-box {
+        background-color: var(--p-surface-ground);
+        padding: 1rem;
+        border-radius: $border-radius-md;
+        font-family: var(--p-font-family-monospace);
+        font-size: 0.85rem;
+        white-space: pre-wrap;
+        word-break: break-all;
+        max-height: 250px;
+        overflow-y: auto;
+        color: var(--p-text-color-secondary);
+        border: 1px solid var(--p-surface-border);
+    }
+
+    &__footer-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    &__btn-restore {
+        flex: 1;
+        background: linear-gradient(135deg, $color-primary 0%, #3b82f6 100%);
+        border: 1px solid transparent;
+        color: white;
+        font-weight: 600;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: $transition-base;
+        box-shadow: 0 4px 12px rgba($color-primary, 0.2);
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba($color-primary, 0.3);
+            background: linear-gradient(135deg, $color-primary-hover 0%, #2563eb 100%);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+
+        :deep(.p-button-icon) {
+            color: white;
+            margin-right: 0.5rem;
+        }
+    }
+
+    &__btn-close {
+        transition: $transition-base;
+        font-weight: 500;
+        height: 42px;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            background-color: var(--p-surface-100);
+            border-color: var(--p-surface-300);
+            color: var(--p-surface-700);
+        }
+    }
+}
+
 .history-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
+
+    /* 大幅增加底部内边距，确保底部项目不会被展开的对比面板遮挡 */
+    padding-bottom: 350px;
+    transition: padding-bottom 0.3s ease;
 }
 
 .history-item {
@@ -250,19 +445,24 @@ watch(visible, (newVal) => {
     overflow: hidden;
     transition: all 0.2s ease;
 
+    /* 增加右侧间距，避免在大滚动条环境下删除按钮太靠边 */
+    margin-right: 0.75rem;
+
     &:hover {
         background-color: var(--p-surface-hover);
         border-color: var(--p-primary-color);
+        box-shadow: 0 2px 8px rgb(0 0 0 / 0.05);
     }
 
     &--selected {
         border-color: var(--p-primary-color);
         background-color: var(--p-primary-50);
+        box-shadow: inset 2px 0 0 var(--p-primary-color);
     }
 
     &__main {
         flex: 1;
-        padding: 0.75rem 1rem;
+        padding: 0.85rem 1.25rem;
         cursor: pointer;
     }
 
@@ -270,12 +470,13 @@ watch(visible, (newVal) => {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.65rem;
     }
 
     &__time {
-        font-weight: 500;
-        font-size: 0.9rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--p-text-color);
     }
 
     &__footer {
@@ -286,68 +487,22 @@ watch(visible, (newVal) => {
     &__author {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        font-size: 0.8rem;
+        gap: 0.6rem;
+        font-size: 0.825rem;
         color: var(--p-text-color-secondary);
     }
 
     &__actions {
-        padding: 0.25rem;
-    }
-}
-
-.preview-box {
-    background-color: var(--p-surface-ground);
-    padding: 0.75rem;
-    border-radius: var(--p-content-border-radius);
-    font-family: var(--p-font-family-monospace);
-    font-size: 0.85rem;
-    white-space: pre-wrap;
-    word-break: break-all;
-    max-height: 250px;
-    overflow-y: auto;
-    color: var(--p-text-color-secondary);
-}
-
-.diff-container {
-    background-color: var(--p-surface-ground);
-    padding: 0.75rem;
-    border-radius: var(--p-content-border-radius);
-    font-family: var(--p-font-family-monospace);
-    font-size: 0.85rem;
-    white-space: pre-wrap;
-    word-break: break-all;
-    max-height: 400px;
-    overflow-y: auto;
-    border: 1px solid var(--p-surface-border);
-}
-
-.diff-part {
-    &--added {
-        background-color: var(--p-emerald-100);
-        color: var(--p-emerald-900);
-        text-decoration: none;
-
-        &::before {
-            content: '+';
-            margin-right: 4px;
-        }
-    }
-
-    &--removed {
-        background-color: var(--p-red-100);
-        color: var(--p-red-900);
-        text-decoration: line-through;
-
-        &::before {
-            content: '-';
-            margin-right: 4px;
-        }
+        padding: 0.5rem;
+        padding-right: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 
 .author-name {
-    max-width: 100px;
+    max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

@@ -3,12 +3,12 @@
         v-model:visible="visible"
         :header="$t('pages.admin.posts.ai.cover_generator.title')"
         modal
-        :style="{width: '500px'}"
+        class="ai-generator-dialog"
     >
-        <div class="flex flex-col gap-4">
-            <div class="flex flex-col gap-2">
-                <div class="flex items-center justify-between">
-                    <label for="prompt" class="font-bold">
+        <div class="ai-generator__container">
+            <div class="ai-generator__section">
+                <div class="ai-generator__label-row">
+                    <label for="prompt" class="ai-generator__label">
                         {{ $t('pages.admin.posts.ai.cover_generator.prompt_label') }}
                     </label>
                     <Button
@@ -27,43 +27,43 @@
                     rows="5"
                     :placeholder="$t('pages.admin.posts.ai.cover_generator.prompt_placeholder')"
                     fluid
-                    class="resize-none"
+                    class="ai-generator__textarea"
                     :disabled="generating"
                 />
             </div>
 
-            <div v-if="generating" class="flex flex-col gap-3 items-center py-4">
+            <div v-if="generating" class="ai-generator__status">
                 <ProgressSpinner
                     style="width: 50px; height: 50px"
                     stroke-width="4"
                     fill="transparent"
                     animation-duration=".5s"
                 />
-                <div class="text-center">
-                    <p class="font-bold text-primary">
+                <div class="ai-generator__status-content">
+                    <p class="ai-generator__status-text">
                         {{ statusText }}
                     </p>
-                    <p class="mt-1 text-sm text-surface-500">
+                    <p class="ai-generator__status-sub">
                         {{ $t('pages.admin.posts.ai.cover_generator.polling', {step: pollCount}) }}
                     </p>
                 </div>
             </div>
 
             <!-- Generated Image Preview -->
-            <div v-if="generatedUrl" class="flex flex-col gap-3 items-center py-2">
-                <div class="flex font-bold gap-2 items-center text-lg">
+            <div v-if="generatedUrl" class="ai-generator__preview">
+                <div class="ai-generator__preview-header">
                     <i class="pi pi-image text-primary" />
                     {{ $t('common.preview') }}
                 </div>
-                <div class="group relative">
+                <div class="ai-generator__image-wrapper">
                     <Image
                         :src="generatedUrl"
                         alt="Generated Cover"
                         width="400"
                         preview
-                        class="border border-surface-200 overflow-hidden rounded-lg shadow-md"
+                        class="ai-generator__image"
                     />
-                    <div class="mt-2 text-center text-surface-500 text-xs">
+                    <div class="ai-generator__image-hint">
                         {{ $t('pages.admin.posts.ai.cover_generator.success') }}
                     </div>
                 </div>
@@ -71,23 +71,25 @@
         </div>
 
         <template #footer>
-            <div class="flex justify-between w-full">
+            <div class="ai-generator__footer">
                 <Button
                     v-if="generatedUrl"
                     :label="$t('common.retry')"
                     icon="pi pi-refresh"
                     text
                     severity="warn"
+                    class="ai-generator__btn-retry"
                     :disabled="generating"
                     @click="resetGenerator"
                 />
                 <div v-else />
 
-                <div class="flex gap-2">
+                <div class="ai-generator__actions">
                     <Button
                         :label="$t('common.cancel')"
                         text
                         severity="secondary"
+                        class="ai-generator__btn-cancel"
                         @click="visible = false"
                     />
                     <Button
@@ -95,12 +97,14 @@
                         :label="$t('common.confirm')"
                         icon="pi pi-check"
                         severity="success"
+                        class="ai-generator__btn-apply"
                         @click="applyImage"
                     />
                     <Button
                         v-else
                         :label="$t('pages.admin.posts.ai.cover_generator.generate_btn')"
                         icon="pi pi-wand-lines"
+                        class="ai-generator__btn-generate"
                         :loading="generating"
                         :disabled="!prompt"
                         @click="generateImage"
@@ -255,3 +259,212 @@ watch(visible, (val) => {
     }
 })
 </script>
+
+<style lang="scss" scoped>
+@use "@/styles/variables" as *;
+
+.ai-generator-dialog {
+    :deep(.p-dialog) {
+        width: 500px;
+    }
+}
+
+.ai-generator {
+    &__container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    &__section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    &__label-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    &__label {
+        font-weight: 700;
+        color: var(--p-text-color);
+    }
+
+    &__textarea {
+        resize: none;
+        border-radius: $border-radius-md;
+    }
+
+    &__status {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+        padding: 1.5rem 0;
+    }
+
+    &__status-content {
+        text-align: center;
+    }
+
+    &__status-text {
+        font-weight: 700;
+        color: $color-primary;
+        margin: 0;
+    }
+
+    &__status-sub {
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+        color: var(--p-surface-500);
+    }
+
+    &__preview {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+        padding: 0.5rem 0;
+    }
+
+    &__preview-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 700;
+        font-size: 1.125rem;
+    }
+
+    &__image-wrapper {
+        position: relative;
+    }
+
+    &__image {
+        border-radius: $border-radius-md;
+        border: 1px solid var(--p-surface-200);
+        overflow: hidden;
+        box-shadow: $shadow-md;
+    }
+
+    &__image-hint {
+        margin-top: 0.75rem;
+        text-align: center;
+        color: var(--p-surface-500);
+        font-size: 0.75rem;
+    }
+
+    &__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem; /* Increased gap for better clarity */
+    }
+
+    &__btn-cancel {
+        transition: $transition-base;
+        font-weight: 500;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 1.25rem;
+
+        &:hover {
+            background-color: var(--p-surface-100);
+            color: var(--p-surface-700);
+        }
+    }
+
+    &__btn-generate {
+        background: linear-gradient(135deg, $color-primary 0%, #a855f7 100%);
+        border: 1px solid transparent;
+        color: white;
+        font-weight: 600;
+        height: 40px;
+        padding: 0 1.5rem;
+        transition: $transition-base;
+        box-shadow: 0 4px 12px rgba($color-primary, 0.2);
+
+        &:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba($color-primary, 0.3);
+            background: linear-gradient(135deg, $color-primary-hover 0%, #9333ea 100%);
+        }
+
+        &:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: var(--p-surface-200) !important;
+            color: var(--p-surface-500) !important;
+            border-color: var(--p-surface-300) !important;
+            box-shadow: none;
+        }
+
+        /* 确保按钮内容（图标+文字）完美居中 */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+
+        :deep(.p-button-label) {
+            flex: none;
+            line-height: 1;
+            display: inline-block;
+        }
+
+        :deep(.p-button-icon) {
+            margin: 0 !important; /* 取消默认 margin，使用 gap 控制 */
+            color: white;
+            font-size: 1rem;
+        }
+    }
+
+    &__btn-retry {
+        font-weight: normal;
+        opacity: 0.8;
+        transition: $transition-fast;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+
+        &:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+    }
+
+    &__btn-apply {
+        font-weight: 600;
+        height: 40px;
+        padding: 0 1.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba($color-success, 0.2);
+        transition: $transition-base;
+
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba($color-success, 0.3);
+        }
+
+        :deep(.p-button-icon) {
+            margin-right: 0.5rem;
+        }
+    }
+}
+</style>
