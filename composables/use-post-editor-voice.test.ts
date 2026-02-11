@@ -29,6 +29,7 @@ global.AudioContext = vi.fn().mockImplementation(() => ({
 global.SpeechRecognition = MockSpeechRecognition
 
 vi.mock('#app', () => ({
+    defineNuxtPlugin: (plugin: any) => plugin,
     useRuntimeConfig: () => ({
         public: {
             hfProxy: 'https://huggingface.co',
@@ -50,14 +51,16 @@ describe('usePostEditorVoice', () => {
         expect(isSupported.value).toBe(true)
     })
 
-    it('should switch mode and trigger model loading', async () => {
-        const { mode, isLoadingModel } = usePostEditorVoice()
+    it('should switch mode and handle model loading', async () => {
+        const { mode, isLoadingModel, loadModel } = usePostEditorVoice()
 
-        mode.value = 'local-whisper'
+        mode.value = 'local-standard'
         await nextTick()
 
-        // In our mock, loadModel is called which sets isLoadingModel to true
-        expect(mode.value).toBe('local-whisper')
+        expect(mode.value).toBe('local-standard')
+        expect(isLoadingModel.value).toBe(false) // Should not auto-load anymore
+
+        loadModel()
         expect(isLoadingModel.value).toBe(true)
     })
 
