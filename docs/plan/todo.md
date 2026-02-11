@@ -34,8 +34,9 @@
     - 验收: 编辑器增加“生成音频”功能，支持选择语音模型 (OpenAI TTS/Azure)。
     - 验收: 生成的音频自动保存至存储系统，并作为 RSS 的 Enclosure 附件发布。
 - [ ] **高精度语音转录 (AI Voice Transcription)**
-    - 验收: 升级现有 Web Speech API 方案，集成 OpenAI Whisper API 以实现高精度转换。
-    - 验收: 优化移动端语音输入流程，修复长句断断续续的问题。
+    - 验收: 实现基于 **Transformers.js (Local Whisper)** 的前端转录模式，支持 WebGPU 加速。
+    - 验收: 提供 Web Speech API (基础) 与 Local Whisper (高精度) 的无缝切换。
+    - 验收: 优化移动端语音输入流程，解决长句识别精度与电池消耗的平衡问题。
 - [ ] **AI 图像驱动补全 (AI Image Drivers)**
     - 验收: 完成 **Gemini 3 Pro Image** 驱动，支持文本生成图片。
     - 验收: 完成 **Stable Diffusion** (WebUI API) 驱动，支持调用本地或云端 SD 实例。

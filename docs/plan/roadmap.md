@@ -277,8 +277,8 @@
     - 集成 AI TTS 服务，为文章一键生成/刷新音频版本。
 - **高精度语音识别优化 (High-precision Voice Recognition)**:
     - **背景**: 浏览器原生 Web Speech API 在复杂环境及语义理解上存在局限。
-    - **方向**: 引入 OpenAI Whisper, Azure Speech Service 或 Groq 等高性能 AI 转写 API。
-    - **功能**: 支持后台静默转录、长音频文件处理，并结合 LLM 自动修正同音字错误。
+    - **方向**: 优先采用 **Transformers.js (Local Whisper)** 实现全本地高精度转录，针对极高性能场景保留 OpenAI Whisper API 开关。
+    - **功能**: 支持 WebGPU 加速、后台静默转录、长音频文件处理，并结合 LLM 自动修正同音字错误。
 
 ### 9. 开放发布协议支持 (Open Federation)
 - 支持 ActivityPub 等联邦协议，将博客接入去中心化社交网络。
