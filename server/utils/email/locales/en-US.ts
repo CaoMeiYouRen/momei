@@ -118,7 +118,7 @@ export const emailLocalesEnUS = {
     },
 
     marketingCampaign: {
-        title: '{title}',
+        title: '{title} - {appName}',
         preheader: '{summary}',
         headerIcon: '✨',
         greeting: 'Dear Subscriber,',

@@ -107,7 +107,7 @@ export const emailLocalesZhCN = {
     },
 
     marketingCampaign: {
-        title: '{title}',
+        title: '{title} - {appName}',
         preheader: '{summary}',
         headerIcon: '✨',
         greeting: '亲爱的订阅者：',

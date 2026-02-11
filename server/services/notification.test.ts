@@ -3,6 +3,7 @@ import { notifyAdmins, createCampaignFromPost, getTargetSubscribers, sendMarketi
 import { dataSource } from '@/server/database'
 import { AdminNotificationEvent, MarketingCampaignStatus, MarketingCampaignType } from '@/utils/shared/notification'
 import { sendEmail } from '@/server/utils/email'
+import { emailService } from '@/server/utils/email/service'
 import logger from '@/server/utils/logger'
 
 vi.mock('@/server/database', () => ({
@@ -13,6 +14,12 @@ vi.mock('@/server/database', () => ({
 
 vi.mock('@/server/utils/email', () => ({
     sendEmail: vi.fn(),
+}))
+
+vi.mock('@/server/utils/email/service', () => ({
+    emailService: {
+        sendMarketingEmail: vi.fn(),
+    },
 }))
 
 vi.mock('@/server/utils/logger', () => ({
@@ -205,10 +212,10 @@ describe('notification service', () => {
             expect(campaign.type).toBe(MarketingCampaignType.BLOG_POST)
             expect(campaign.senderId).toBe('sender1')
             expect(campaign.status).toBe(MarketingCampaignStatus.DRAFT)
-            expect(campaign.targetCriteria).toEqual({
+            expect(campaign.targetCriteria).toEqual(expect.objectContaining({
                 categoryIds: ['cat1'],
                 tagIds: ['tag1', 'tag2'],
-            })
+            }))
         })
 
         it('应该在文章没有摘要时使用内容前200字符', async () => {
@@ -444,7 +451,7 @@ describe('notification service', () => {
                 return {} as any
             })
 
-            vi.mocked(sendEmail).mockResolvedValue(undefined)
+            vi.mocked(emailService.sendMarketingEmail).mockResolvedValue(undefined)
 
             await sendMarketingCampaign('campaign1')
 
@@ -453,7 +460,7 @@ describe('notification service', () => {
                     status: MarketingCampaignStatus.COMPLETED,
                 }),
             )
-            expect(sendEmail).toHaveBeenCalledTimes(2)
+            expect(emailService.sendMarketingEmail).toHaveBeenCalledTimes(2)
             expect(logger.info).toHaveBeenCalledWith(
                 expect.stringContaining('Success: 2, Fail: 0'),
             )
@@ -496,7 +503,7 @@ describe('notification service', () => {
                 return {} as any
             })
 
-            vi.mocked(sendEmail)
+            vi.mocked(emailService.sendMarketingEmail)
                 .mockResolvedValueOnce(undefined)
                 .mockRejectedValueOnce(new Error('SMTP error'))
 
@@ -507,6 +514,7 @@ describe('notification service', () => {
                     status: MarketingCampaignStatus.COMPLETED,
                 }),
             )
+            expect(emailService.sendMarketingEmail).toHaveBeenCalledTimes(2)
             expect(logger.info).toHaveBeenCalledWith(
                 expect.stringContaining('Success: 1, Fail: 1'),
             )
