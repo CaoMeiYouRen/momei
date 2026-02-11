@@ -48,8 +48,7 @@
 - **[法律合规 (Compliance)](modules/system.md)**: `/api/agreements/*` (隐私政策、用户协议获取)。
 - **[代码片段 (Snippets)](modules/blog.md)**: `/api/snippets/*` (复用的页面组件/内容块)。
 - **[开放平台 (Open API)](modules/open-api.md)**: `/api/external/*` (外部发布接口)。
-- **[系统能力 (System)](modules/system.md)**: `/api/upload/*` (文件上传)、`/api/settings/*` (公开设置)。
-
+- **[系统能力 (System)](modules/system.md)**: `/api/upload/*` (文件上传)、`/api/settings/*` (公开设置)。- **[文章导出 (Export)](modules/export.md)**: `/api/admin/posts/export` (单篇/批量)。
 ## 5. 国际化路由与 Slug 设计
 
 ### 5.1 唯一性冲突优化
