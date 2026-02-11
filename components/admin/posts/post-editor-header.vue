@@ -64,10 +64,12 @@
                 :is-loading-model="isLoadingModel"
                 :model-progress="modelProgress"
                 :is-model-ready="isModelReady"
+                @start="startListening(post.language)"
                 @stop="stopListening()"
                 @retry="resetVoice(); startListening(post.language)"
                 @insert="handleVoiceInsert"
                 @refine="handleVoiceRefine"
+                @load-model="loadModel"
                 @hide="stopListening()"
             />
             <Popover ref="translateOp" class="translate-menu">
@@ -278,6 +280,7 @@ const {
     isLoadingModel,
     modelProgress,
     isModelReady,
+    loadModel,
     startListening,
     stopListening,
     reset: resetVoice,
@@ -288,7 +291,6 @@ const handleVoiceClick = (event: any) => {
         stopListening()
     } else {
         voiceOp.value?.show(event)
-        startListening(post.value.language)
     }
 }
 

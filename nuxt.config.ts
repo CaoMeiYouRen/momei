@@ -166,6 +166,8 @@ export default defineNuxtConfig({
             maxUploadSize: process.env.NUXT_PUBLIC_MAX_UPLOAD_SIZE,
             maxAudioUploadSize: process.env.NUXT_PUBLIC_MAX_AUDIO_UPLOAD_SIZE,
             localStorageBaseUrl: process.env.NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL,
+            // Hugging Face 镜像代理
+            hfProxy: process.env.NUXT_PUBLIC_HF_PROXY || 'https://huggingface.co',
         },
     },
     sitemap: {

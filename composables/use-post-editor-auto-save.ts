@@ -1,6 +1,5 @@
 import { watch, computed, type Ref } from 'vue'
 import { useLocalStorage, useDebounceFn } from '@vueuse/core'
-import { useI18n } from 'vue-i18n'
 import type { PostEditorData } from '@/types/post-editor'
 
 /**

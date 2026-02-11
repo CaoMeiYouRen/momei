@@ -32,6 +32,30 @@
                         style="height: 6px"
                     />
                 </div>
+                <!-- 模型确认对话框区域 -->
+                <div v-else-if="showLoadConfirm" class="voice-popover__confirm-panel">
+                    <div class="flex font-bold gap-2 items-center mb-2 text-orange-500">
+                        <i class="pi pi-info-circle" />
+                        <span>{{ $t('pages.admin.posts.ai.voice_load_confirm_title') }}</span>
+                    </div>
+                    <p class="leading-relaxed mb-4 opacity-80 text-sm">
+                        {{ confirmMessage }}
+                    </p>
+                    <div class="flex gap-2 justify-end">
+                        <Button
+                            :label="$t('common.cancel')"
+                            size="small"
+                            text
+                            @click="internalMode = 'web-speech'"
+                        />
+                        <Button
+                            :label="$t('pages.admin.posts.ai.voice_load_confirm_btn')"
+                            size="small"
+                            severity="primary"
+                            @click="handleLoadModel"
+                        />
+                    </div>
+                </div>
                 <div v-else-if="error" class="voice-popover__error">
                     <i class="pi pi-exclamation-circle" />
                     <span>{{ errorText }}</span>
@@ -52,7 +76,7 @@
                         ...
                     </div>
                     <div
-                        v-if="!isListening && !finalTranscript && !interimTranscript && mode === 'local-whisper'"
+                        v-if="!isListening && !finalTranscript && !interimTranscript && mode !== 'web-speech'"
                         class="voice-popover__placeholder"
                     >
                         {{ $t('pages.admin.posts.ai.voice_model_ready') }}
@@ -71,6 +95,13 @@
                 </template>
                 <template v-else-if="finalTranscript">
                     <Button
+                        v-tooltip="$t('pages.admin.posts.ai.voice_retry')"
+                        icon="pi pi-refresh"
+                        severity="secondary"
+                        text
+                        @click="$emit('retry')"
+                    />
+                    <Button
                         :label="$t('pages.admin.posts.ai.voice_insert')"
                         severity="secondary"
                         outlined
@@ -86,10 +117,11 @@
                 </template>
                 <template v-else>
                     <Button
-                        :label="$t('pages.admin.posts.ai.voice_retry')"
-                        icon="pi pi-refresh"
+                        :label="$t('pages.admin.posts.ai.voice_start_record')"
+                        icon="pi pi-microphone"
                         :loading="isLoadingModel"
-                        @click="$emit('retry')"
+                        :disabled="isLoadingModel || (mode !== 'web-speech' && !isModelReady) || showLoadConfirm"
+                        @click="$emit('start')"
                     />
                 </template>
             </div>
@@ -107,13 +139,13 @@ const props = defineProps<{
     finalTranscript: string
     error: string
     refining: boolean
-    mode: 'web-speech' | 'local-whisper'
+    mode: 'web-speech' | 'local-standard' | 'local-advanced'
     isLoadingModel: boolean
     modelProgress: number
     isModelReady: boolean
 }>()
 
-const emit = defineEmits(['stop', 'retry', 'insert', 'refine', 'hide', 'update:mode'])
+const emit = defineEmits(['stop', 'retry', 'insert', 'refine', 'hide', 'update:mode', 'start', 'load-model'])
 
 const { t } = useI18n()
 const op = ref<any>(null)
@@ -128,8 +160,29 @@ watch(internalMode, (newMode) => {
 
 const modeOptions = computed(() => [
     { label: t('pages.admin.posts.ai.voice_mode_basic'), value: 'web-speech' },
-    { label: t('pages.admin.posts.ai.voice_mode_high_precision'), value: 'local-whisper' },
+    { label: t('pages.admin.posts.ai.voice_mode_local_standard'), value: 'local-standard' },
+    { label: t('pages.admin.posts.ai.voice_mode_local_advanced'), value: 'local-advanced' },
 ])
+
+const showLoadConfirm = computed(() => {
+    if (props.isLoadingModel) return false
+    if (internalMode.value === 'web-speech') return false
+    return !props.isModelReady
+})
+
+const confirmMessage = computed(() => {
+    if (internalMode.value === 'local-standard') {
+        return t('pages.admin.posts.ai.voice_load_confirm_standard_desc')
+    }
+    if (internalMode.value === 'local-advanced') {
+        return t('pages.admin.posts.ai.voice_load_confirm_advanced_desc')
+    }
+    return ''
+})
+
+const handleLoadModel = () => {
+    emit('load-model')
+}
 
 const toggle = (event: any) => {
     op.value?.toggle(event)
@@ -211,6 +264,12 @@ const errorText = computed(() => {
         align-items: center;
         width: 100%;
         padding: 0.5rem;
+    }
+
+    &__confirm-panel {
+        padding: 0.25rem;
+        display: flex;
+        flex-direction: column;
     }
 
     &__transcript {

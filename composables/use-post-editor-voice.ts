@@ -1,6 +1,6 @@
 import { ref, onUnmounted, computed, watch } from 'vue'
 
-export type VoiceTranscriptionMode = 'web-speech' | 'local-whisper'
+export type VoiceTranscriptionMode = 'web-speech' | 'local-standard' | 'local-advanced'
 
 export function usePostEditorVoice() {
     const isListening = ref(false)
@@ -12,9 +12,38 @@ export function usePostEditorVoice() {
 
     // 模式切换
     const mode = ref<VoiceTranscriptionMode>('web-speech')
+
+    // 记录每个模式下的就绪状态
+    const readyModels = ref<Record<string, boolean>>({
+        'local-standard': false,
+        'local-advanced': false,
+    })
+
+    const isModelReady = computed(() => {
+        if (mode.value === 'web-speech') { return true }
+        return readyModels.value[mode.value] || false
+    })
+
+    // 初始化时从 localStorage 读取模式
+    if (import.meta.client) {
+        const savedMode = localStorage.getItem('momei_voice_mode') as VoiceTranscriptionMode
+        if (savedMode && (savedMode === 'web-speech' || savedMode === 'local-standard' || savedMode === 'local-advanced')) {
+            mode.value = savedMode
+        }
+    }
+
+    watch(mode, (newMode) => {
+        if (import.meta.client) {
+            localStorage.setItem('momei_voice_mode', newMode)
+        }
+    })
+
     const isLoadingModel = ref(false)
     const modelProgress = ref(0)
-    const isModelReady = ref(false)
+    const isWorkerBusy = ref(false)
+
+    const config = useRuntimeConfig()
+    const hfProxy = config.public.hfProxy
 
     // 对外暴露的最终文本：已提交的 + 当前会话已确认的
     const finalTranscript = computed(() => committedTranscript.value + currentSessionFinal.value)
@@ -25,6 +54,8 @@ export function usePostEditorVoice() {
     let mediaStream: MediaStream | null = null
     let processor: ScriptProcessorNode | null = null
     let audioData: Float32Array[] = []
+    let transcribeTimer: any = null
+    let currentLang = 'zh-CN'
 
     // 初始化 Web Speech API
     if (import.meta.client) {
@@ -80,25 +111,44 @@ export function usePostEditorVoice() {
         })
 
         worker.onmessage = (event) => {
-            const { type, data } = event.data
+            const { type, data, isFinal, model } = event.data
+            // console.debug('[Voice Composable] Received worker message:', type, data)
             switch (type) {
                 case 'progress':
                     if (data.status === 'progress') {
                         modelProgress.value = data.progress
+                    } else if (data.status === 'done' || data.status === 'ready') {
+                        modelProgress.value = 100
                     }
                     break
                 case 'ready':
-                    isModelReady.value = true
-                    isLoadingModel.value = false
+                    console.info(`[Voice Composable] Model ${model} is ready`)
+                    if (model) {
+                        readyModels.value[model === 'onnx-community/whisper-tiny' ? 'local-standard' : 'local-advanced'] = true
+                    }
+                    if (
+                        (mode.value === 'local-standard' && model === 'onnx-community/whisper-tiny')
+                        || (mode.value === 'local-advanced' && model === 'Xenova/whisper-base')
+                    ) {
+                        isLoadingModel.value = false
+                        modelProgress.value = 100
+                    }
                     break
                 case 'result':
-                    currentSessionFinal.value = data.text
-                    isListening.value = false
+                    if (isFinal) {
+                        currentSessionFinal.value = data.text
+                        interimTranscript.value = ''
+                        isListening.value = false
+                    } else {
+                        interimTranscript.value = data.text
+                    }
+                    isWorkerBusy.value = false
                     break
                 case 'error':
                     error.value = data
                     isLoadingModel.value = false
                     isListening.value = false
+                    isWorkerBusy.value = false
                     break
             }
         }
@@ -106,10 +156,41 @@ export function usePostEditorVoice() {
 
     const loadModel = () => {
         if (!worker) { initWorker() }
-        if (isModelReady.value) { return }
+        if (isModelReady.value) {
+            isLoadingModel.value = false
+            return
+        }
+        if (isLoadingModel.value) { return }
 
         isLoadingModel.value = true
-        worker?.postMessage({ type: 'load' })
+        modelProgress.value = 0
+        const modelName = mode.value === 'local-standard' ? 'onnx-community/whisper-tiny' : 'Xenova/whisper-base'
+        console.info(`[Voice Composable] Posting load message to worker for ${modelName} with proxy:`, hfProxy)
+        worker?.postMessage({ type: 'load', hfProxy, model: modelName })
+    }
+
+    const sendCurrentBuffer = (isFinal: boolean = false) => {
+        if (!worker || !isModelReady.value || audioData.length === 0) { return }
+        if (isWorkerBusy.value && !isFinal) { return }
+
+        isWorkerBusy.value = true
+
+        // 合并数据并发送给 Worker
+        const length = audioData.reduce((acc, curr) => acc + curr.length, 0)
+        const merged = new Float32Array(length)
+        let offset = 0
+        for (const chunk of audioData) {
+            merged.set(chunk, offset)
+            offset += chunk.length
+        }
+
+        worker?.postMessage({
+            type: 'transcribe',
+            audio: merged,
+            language: currentLang.split('-')[0] || 'zh',
+            model: mode.value === 'local-standard' ? 'onnx-community/whisper-tiny' : 'Xenova/whisper-base',
+            isFinal,
+        })
     }
 
     // 处理音频录制 (用于 Local Whisper)
@@ -129,6 +210,13 @@ export function usePostEditorVoice() {
             source.connect(processor)
             processor.connect(audioContext.destination)
             isListening.value = true
+
+            // 定时进行增量识别（实时显示）
+            transcribeTimer = setInterval(() => {
+                if (isListening.value && !isWorkerBusy.value) {
+                    sendCurrentBuffer(false)
+                }
+            }, 3000)
         } catch (err: any) {
             console.error('Failed to start recording', err)
             error.value = err.name === 'NotAllowedError' ? 'permission_denied' : 'failed_to_start'
@@ -136,6 +224,10 @@ export function usePostEditorVoice() {
     }
 
     const stopRecording = () => {
+        if (transcribeTimer) {
+            clearInterval(transcribeTimer)
+            transcribeTimer = null
+        }
         if (processor) {
             processor.disconnect()
             processor = null
@@ -149,21 +241,8 @@ export function usePostEditorVoice() {
             audioContext = null
         }
 
-        // 合并数据并发送给 Worker
-        if (audioData.length > 0) {
-            const length = audioData.reduce((acc, curr) => acc + curr.length, 0)
-            const merged = new Float32Array(length)
-            let offset = 0
-            for (const chunk of audioData) {
-                merged.set(chunk, offset)
-                offset += chunk.length
-            }
-            worker?.postMessage({
-                type: 'transcribe',
-                audio: merged,
-                language: recognition?.lang?.split('-')[0] || 'zh', // Whisper usually takes 'zh', 'en' etc.
-            })
-        }
+        // 发送最终完整数据包
+        sendCurrentBuffer(true)
     }
 
     const startListening = (lang: string = 'zh-CN') => {
@@ -180,6 +259,7 @@ export function usePostEditorVoice() {
         } else if (lang === 'en') {
             recognitionLang = 'en-US'
         }
+        currentLang = recognitionLang
 
         if (mode.value === 'web-speech') {
             if (!recognition) {
@@ -219,12 +299,6 @@ export function usePostEditorVoice() {
         error.value = ''
     }
 
-    watch(mode, (newMode) => {
-        if (newMode === 'local-whisper' && !isModelReady.value) {
-            loadModel()
-        }
-    })
-
     onUnmounted(() => {
         if (recognition && isListening.value) {
             recognition.stop()
@@ -245,6 +319,7 @@ export function usePostEditorVoice() {
         isLoadingModel,
         modelProgress,
         isModelReady,
+        loadModel,
         startListening,
         stopListening,
         reset,
