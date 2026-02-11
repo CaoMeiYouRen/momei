@@ -136,6 +136,7 @@
         }
     },
     "common": {
+        "export": "Export",
         "next": "Next",
         "prev": "Prev",
         "done": "Done",
@@ -474,6 +475,11 @@
             "posts": {
                 "title": "Post Management",
                 "create": "New Post",
+                "export_selected": "Export Selected",
+                "export_as_markdown": "Export as Markdown",
+                "export_zip": "Export ZIP",
+                "export_success": "Export Successful",
+                "export_error": "Export Failed",
                 "search_placeholder": "Search title...",
                 "status": "Status",
                 "podcast_column": "Podcast",

@@ -3,6 +3,15 @@
         <AdminPageHeader :title="$t('pages.admin.posts.title')" show-language-switcher>
             <template #actions>
                 <Button
+                    v-if="selectedItems.length > 0"
+                    :label="$t('pages.admin.posts.export_selected')"
+                    icon="pi pi-download"
+                    severity="secondary"
+                    :loading="exporting"
+                    class="mr-2"
+                    @click="handleBatchExport"
+                />
+                <Button
                     :label="$t('pages.admin.posts.create')"
                     icon="pi pi-plus"
                     @click="navigateTo(localePath('/admin/posts/new'))"
@@ -43,6 +52,7 @@
             </div>
 
             <DataTable
+                v-model:selection="selectedItems"
                 :value="items"
                 :loading="loading"
                 lazy
@@ -55,6 +65,7 @@
                 @page="onPage"
                 @sort="onSort"
             >
+                <Column selection-mode="multiple" header-style="width: 3rem" />
                 <Column
                     field="title"
                     :header="$t('common.title')"
@@ -172,6 +183,14 @@
                             @click="confirmRepush(slotProps.data)"
                         />
                         <Button
+                            v-tooltip.top="$t('common.export')"
+                            icon="pi pi-download"
+                            text
+                            rounded
+                            severity="secondary"
+                            @click="handleExport(slotProps.data.id)"
+                        />
+                        <Button
                             icon="pi pi-pencil"
                             text
                             rounded
@@ -220,6 +239,9 @@ const localePath = useLocalePath()
 const { formatDateTime, relativeTime, isFuture } = useI18nDate()
 const confirm = useConfirm()
 const toast = useToast()
+
+const selectedItems = ref<Post[]>([])
+const { exporting, exportPost, exportBatch } = usePostExport()
 
 const {
     items,
@@ -366,6 +388,17 @@ const getStatusSeverity = (status: string) => {
         hidden: 'info',
     }
     return map[status] || 'info'
+}
+
+const handleExport = (id: string) => {
+    exportPost(id)
+}
+
+const handleBatchExport = async () => {
+    if (selectedItems.value.length === 0) return
+    const ids = selectedItems.value.map((item) => item.id)
+    await exportBatch(ids)
+    selectedItems.value = []
 }
 </script>
 

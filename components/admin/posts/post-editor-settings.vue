@@ -297,6 +297,21 @@
                     />
                 </div>
             </div>
+
+            <Divider />
+
+            <div class="form-group">
+                <Button
+                    :label="$t('pages.admin.posts.export_as_markdown')"
+                    icon="pi pi-download"
+                    severity="secondary"
+                    outlined
+                    fluid
+                    :loading="exporting"
+                    :disabled="!post.id"
+                    @click="exportPost(post.id, post.slug)"
+                />
+            </div>
         </div>
         <div class="drawer-footer">
             <Button
@@ -316,6 +331,7 @@ import { format as bytes } from 'better-bytes'
 import { secondsToDuration, durationToSeconds } from '@/utils/shared/date'
 import { isValidCustomUrl } from '@/utils/shared/validate'
 import { UploadType } from '@/composables/use-upload'
+import { usePostExport } from '@/composables/use-post-export'
 
 const post = defineModel<any>('post', { required: true })
 
@@ -341,6 +357,7 @@ const probing = ref(false)
 const showImagePreview = ref(false)
 const showAudioPlayer = ref(false)
 const toast = useToast()
+const { exporting, exportPost } = usePostExport()
 
 const isValidImageUrl = computed(() => {
     return post.value.coverImage && isValidCustomUrl(post.value.coverImage)

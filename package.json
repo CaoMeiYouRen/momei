@@ -57,6 +57,7 @@
     "html-to-text": "^9.0.5",
     "ioredis": "^5.9.2",
     "js-yaml": "^4.1.0",
+    "jszip": "^3.10.1",
     "katex": "^0.16.0",
     "lodash-es": "^4.17.21",
     "lru-cache": "^11.2.5",
