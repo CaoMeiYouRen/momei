@@ -33,6 +33,18 @@ interface SimpleMessageConfig extends BaseTemplateConfig {
     extraInfo?: string
 }
 
+interface MarketingTemplateConfig extends BaseTemplateConfig {
+    articleTitle: string
+    authorLabel: string
+    authorName: string
+    categoryLabel: string
+    categoryName: string
+    dateLabel: string
+    publishDate: string
+    buttonText: string
+    actionUrl: string
+}
+
 interface TemplateOptions {
     title: string
     preheader?: string
@@ -265,6 +277,19 @@ export class EmailTemplateEngine {
         const fragments = ['verification-code', 'security-tip']
 
         return await this.generateTemplate('code-email', fragments, { ...templateData, ...templateConfig }, options)
+    }
+
+    /**
+     * 生成营销/博客发布邮件模板
+     */
+    public async generateMarketingEmailTemplate(
+        templateConfig: MarketingTemplateConfig,
+        options: TemplateOptions,
+    ): Promise<EmailResult> {
+        const templateData = await this.buildBaseTemplateData(templateConfig, options, '你收到此邮件是因为你订阅了我们的更新。')
+        const fragments = ['marketing-campaign']
+
+        return await this.generateTemplate('marketing-email', fragments, { ...templateData, ...templateConfig }, options)
     }
 
     /**

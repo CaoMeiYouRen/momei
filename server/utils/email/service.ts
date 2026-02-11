@@ -464,5 +464,70 @@ export const emailService = {
             throw error
         }
     },
+
+    /**
+     * 发送营销/博客推送邮件（支持国际化）
+     */
+    async sendMarketingEmail(
+        email: string,
+        campaignData: {
+            title: string
+            summary: string
+            articleTitle: string
+            authorName: string
+            categoryName: string
+            publishDate: string
+            actionUrl: string
+        },
+        locale?: string,
+    ): Promise<void> {
+        try {
+            const i18n = emailI18n.getText('marketingCampaign', locale)
+            if (!i18n) {
+                return
+            }
+
+            const params = {
+                appName: APP_NAME,
+                ...campaignData,
+            }
+
+            const { html, text } = await emailTemplateEngine.generateMarketingEmailTemplate(
+                {
+                    headerIcon: i18n.headerIcon,
+                    message: campaignData.summary,
+                    articleTitle: campaignData.articleTitle,
+                    authorLabel: i18n.author,
+                    authorName: campaignData.authorName,
+                    categoryLabel: i18n.category,
+                    categoryName: campaignData.categoryName,
+                    dateLabel: i18n.publishedAt,
+                    publishDate: campaignData.publishDate,
+                    buttonText: i18n.buttonText,
+                    actionUrl: campaignData.actionUrl,
+                },
+                {
+                    title: emailI18n.replaceParameters(i18n.title, params),
+                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
+                },
+            )
+
+            await sendEmail({
+                to: email,
+                subject: emailI18n.replaceParameters(i18n.title, params),
+                html,
+                text,
+            })
+
+            logger.email.sent({ type: 'marketing-campaign', email })
+        } catch (error) {
+            logger.email.failed({
+                type: 'marketing-campaign',
+                email,
+                error: error instanceof Error ? error.message : String(error),
+            })
+            throw error
+        }
+    },
 }
 

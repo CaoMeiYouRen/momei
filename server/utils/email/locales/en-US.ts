@@ -117,6 +117,17 @@ export const emailLocalesEnUS = {
             'This is your weekly article digest from <strong>{appName}</strong>. Below are the top articles from this week:',
     },
 
+    marketingCampaign: {
+        title: '{title}',
+        preheader: '{summary}',
+        headerIcon: '✨',
+        greeting: 'Dear Subscriber,',
+        buttonText: 'Read Full Article',
+        author: 'Author: ',
+        category: 'Category: ',
+        publishedAt: 'Published: ',
+    },
+
     adminAlert: {
         title: '{appName} Admin Notification',
         preheader: 'You have received a system admin alert from {appName}',

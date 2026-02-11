@@ -1,0 +1,26 @@
+<!-- 营销推送/博客发布 模板片段 -->
+<mj-text font-size="28px" color="#1e293b" font-weight="bold" padding="0 0 12px 0" line-height="1.3">
+  {{articleTitle}}
+</mj-text>
+
+<!-- 元信息 -->
+<mj-text font-size="14px" color="#64748b" padding="0 0 4px 0">
+  <span style="font-weight: 600; color: #475569;">{{authorLabel}}</span> {{authorName}} &nbsp;&nbsp;
+  <span style="font-weight: 600; color: #475569;">{{categoryLabel}}</span> {{categoryName}}
+</mj-text>
+<mj-text font-size="14px" color="#64748b" padding="0 0 24px 0">
+  <span style="font-weight: 600; color: #475569;">{{dateLabel}}</span> {{publishDate}}
+</mj-text>
+
+<!-- 分隔线 -->
+<mj-divider border-width="1px" border-style="solid" border-color="#e2e8f0" padding="0 0 32px 0" />
+
+<!-- 摘要内容 -->
+<mj-text font-size="16px" color="#334155" line-height="1.7" padding="0 0 40px 0">
+  {{message}}
+</mj-text>
+
+<!-- CTA Button -->
+<mj-button background-color="{{primaryColor}}" color="#ffffff" font-size="16px" font-weight="600" border-radius="8px" padding="16px 32px" href="{{actionUrl}}" target="_blank" rel="noopener noreferrer">
+  {{buttonText}}
+</mj-button>

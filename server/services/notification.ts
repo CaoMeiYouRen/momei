@@ -4,6 +4,7 @@ import { MarketingCampaign } from '@/server/entities/marketing-campaign'
 import { AdminNotificationSettings } from '@/server/entities/admin-notification-settings'
 import { MarketingCampaignStatus, MarketingCampaignType, AdminNotificationEvent } from '@/utils/shared/notification'
 import { sendEmail } from '@/server/utils/email'
+import { emailService } from '@/server/utils/email/service'
 import { Post } from '@/server/entities/post'
 import { User } from '@/server/entities/user'
 import { isAdmin } from '@/utils/shared/roles'
@@ -63,20 +64,54 @@ export async function createCampaignFromPost(
     criteria?: { categoryIds?: string[], tagIds?: string[] },
 ) {
     const postRepo = dataSource.getRepository(Post)
-    const post = await postRepo.findOne({ where: { id: postId }, relations: ['category', 'tags'] })
+    const post = await postRepo.findOne({
+        where: { id: postId },
+        relations: ['category', 'tags', 'author'],
+    })
     if (!post) {
         throw new Error('Post not found')
     }
 
+    const config = useRuntimeConfig()
+    const siteUrl = config.public.siteUrl || 'https://momei.app'
+
+    // 构造文章链接
+    const langPrefix = post.language === 'zh-CN' ? '' : `/${post.language}`
+    const postUrl = `${siteUrl}${langPrefix}/posts/${post.slug || post.id}`
+
+    // 格式化元数据
+    const authorName = post.author?.name || 'Admin'
+    const categoryName = post.category?.name || '未分类'
+    const publishDate = post.publishedAt
+        ? new Date(post.publishedAt).toLocaleString(post.language === 'zh-CN' ? 'zh-CN' : 'en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        })
+        : ''
+
     const campaign = new MarketingCampaign()
     campaign.title = post.title
-    campaign.content = post.summary || post.content.substring(0, 200)
+
+    // 提取正文摘要，不带多余的 HTML 容器，真正的模板在发送阶段渲染
+    campaign.content = post.summary || post.content.substring(0, 300).replace(/<[^>]*>?/gm, '').trim()
+
     campaign.type = MarketingCampaignType.BLOG_POST
     campaign.senderId = senderId
     campaign.status = status
-    campaign.targetCriteria = criteria || {
-        categoryIds: post.categoryId ? [post.categoryId] : [],
-        tagIds: post.tags?.map((t) => t.id) || [],
+    campaign.targetCriteria = {
+        ...(criteria || {
+            categoryIds: post.categoryId ? [post.categoryId] : [],
+            tagIds: post.tags?.map((t) => t.id) || [],
+        }),
+        articleId: post.id,
+        articleTitle: post.title,
+        authorName,
+        categoryName,
+        publishDate,
+        articleLink: postUrl,
     }
 
     const campaignRepo = dataSource.getRepository(MarketingCampaign)
@@ -145,12 +180,19 @@ export async function sendMarketingCampaign(campaignId: string) {
 
         for (const subscriber of subscribers) {
             try {
-                await sendEmail({
-                    to: subscriber.email,
-                    subject: campaign.title,
-                    // TODO: Use a proper HTML template engine as per line 43 of todo.md
-                    html: campaign.content,
-                })
+                await emailService.sendMarketingEmail(
+                    subscriber.email,
+                    {
+                        title: campaign.title,
+                        summary: campaign.content,
+                        articleTitle: campaign.targetCriteria?.articleTitle || campaign.title,
+                        authorName: campaign.targetCriteria?.authorName || 'Admin',
+                        categoryName: campaign.targetCriteria?.categoryName || 'General',
+                        publishDate: campaign.targetCriteria?.publishDate || '',
+                        actionUrl: campaign.targetCriteria?.articleLink || '/',
+                    },
+                    subscriber.language || 'zh-CN',
+                )
                 successCount++
             } catch (err) {
                 logger.error(`Failed to send campaign to ${subscriber.email}:`, err)

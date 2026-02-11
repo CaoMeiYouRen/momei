@@ -106,6 +106,17 @@ export const emailLocalesZhCN = {
         message: '这是您的 <strong>{appName}</strong> 每周文章摘要。以下是本周的热门文章：',
     },
 
+    marketingCampaign: {
+        title: '{title}',
+        preheader: '{summary}',
+        headerIcon: '✨',
+        greeting: '亲爱的订阅者：',
+        buttonText: '阅读全文',
+        author: '作者：',
+        category: '分类：',
+        publishedAt: '发布时间：',
+    },
+
     adminAlert: {
         title: '{appName} 站务通知',
         preheader: '您收到一则来自 {appName} 的系统站务提醒',
