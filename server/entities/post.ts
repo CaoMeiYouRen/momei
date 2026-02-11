@@ -5,6 +5,7 @@ import { User } from './user'
 import { Category } from './category'
 import { Tag } from './tag'
 import { Comment } from './comment'
+import { PostVersion } from './post-version'
 import { PostStatus, PostVisibility } from '@/types/post'
 
 @Entity('post')
@@ -122,4 +123,7 @@ export class Post extends BaseEntity {
 
     @OneToMany(() => Comment, (comment) => comment.post)
     comments: Comment[]
+
+    @OneToMany(() => PostVersion, (version) => version.post)
+    versions: PostVersion[]
 }

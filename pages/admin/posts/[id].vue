@@ -33,6 +33,7 @@
             @preview="handlePreview"
             @save="savePost"
             @open-settings="settingsVisible = true"
+            @open-history="historyVisible = true"
         />
 
         <!-- Editor Area -->
@@ -84,6 +85,12 @@
             @confirm="handlePublishConfirm"
         />
 
+        <PostHistoryPanel
+            v-model:visible="historyVisible"
+            :post-id="post.id"
+            @restore="handleRestore"
+        />
+
         <!-- Drag Mask -->
         <div v-if="isDragging" class="drag-mask">
             <div class="drag-tip">
@@ -108,6 +115,7 @@ import { COPYRIGHT_LICENSES } from '@/types/copyright'
 import PostEditorHeader from '@/components/admin/posts/post-editor-header.vue'
 import PostEditorSettings from '@/components/admin/posts/post-editor-settings.vue'
 import PublishPushDialog from '@/components/admin/posts/publish-push-dialog.vue'
+import PostHistoryPanel from '@/components/admin/posts/post-history-panel.vue'
 import { usePostEditorAI } from '@/composables/use-post-editor-ai'
 import { usePostEditorIO } from '@/composables/use-post-editor-io'
 import { usePostEditorAutoSave } from '@/composables/use-post-editor-auto-save'
@@ -227,6 +235,7 @@ const allTags = ref<string[]>([]) // Should be loaded from API
 const isNew = computed(() => route.params.id === 'new' || !route.params.id)
 const settingsVisible = ref(isNew.value)
 const settingsCompact = ref(false)
+const historyVisible = ref(false)
 const publishPushDialog = ref<any>(null)
 
 const {
@@ -316,6 +325,12 @@ const handlePreview = () => {
     if (previewLink.value) {
         window.open(previewLink.value, '_blank')
     }
+}
+
+const handleRestore = (data: { title: string, content: string, summary: string | null }) => {
+    post.value.title = data.title
+    post.value.content = data.content
+    post.value.summary = data.summary
 }
 
 const loadPost = async () => {

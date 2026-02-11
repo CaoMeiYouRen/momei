@@ -197,6 +197,14 @@
                 severity="secondary"
             />
             <Button
+                v-if="!isNew || post.id"
+                v-tooltip="$t('pages.admin.posts.history_versions')"
+                icon="pi pi-history"
+                text
+                rounded
+                @click="emit('open-history')"
+            />
+            <Button
                 v-tooltip="$t('common.settings')"
                 icon="pi pi-cog"
                 text
@@ -245,6 +253,7 @@ const emit = defineEmits([
     'preview',
     'save',
     'open-settings',
+    'open-history',
     'translate-content',
 ])
 

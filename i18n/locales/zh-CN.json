@@ -595,7 +595,17 @@
                 "category_not_found": "未找到分类：{name}",
                 "recover_draft_confirm": "检测到本地有未保存的草稿，是否恢复？",
                 "draft_recovered": "已恢复本地草稿",
-                "draft_discarded": "已清除本地草稿"
+                "draft_discarded": "已清除本地草稿",
+                "history_versions": "历史版本",
+                "no_history_versions": "暂无历史版本记录",
+                "version_rollback_confirm": "确定要回滚到该版本吗？当前编辑器的内容将被覆盖（保存后生效）。",
+                "version_rollback_success": "已将版本内容加载到编辑器",
+                "restore_version": "恢复此版本",
+                "content_preview": "内容预览",
+                "version_delete_confirm": "确定要永久删除该版本记录吗？",
+                "version_compare": "版本对比",
+                "version_current": "当前内容",
+                "version_selected": "选中版本"
             },
             "categories": {
                 "title": "分类管理",

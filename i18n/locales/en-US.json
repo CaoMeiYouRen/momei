@@ -596,7 +596,17 @@
                 "category_not_found": "Category \"{name}\" not found",
                 "recover_draft_confirm": "Unsaved local draft detected. Would you like to recover it?",
                 "draft_recovered": "Local draft recovered",
-                "draft_discarded": "Local draft cleared"
+                "draft_discarded": "Local draft cleared",
+                "history_versions": "Historical Versions",
+                "no_history_versions": "No historical versions found",
+                "version_rollback_confirm": "Are you sure you want to rollback to this version? Current editor content will be overwritten.",
+                "version_rollback_success": "Version content loaded into editor",
+                "restore_version": "Restore this version",
+                "content_preview": "Content Preview",
+                "version_delete_confirm": "Are you sure you want to permanently delete this version?",
+                "version_compare": "Compare Versions",
+                "version_current": "Current Content",
+                "version_selected": "Selected Version"
             },
             "categories": {
                 "title": "Categories Management",
