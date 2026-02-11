@@ -33,7 +33,9 @@ export function usePostEditorAutoSave(
      */
     const saveToLocal = useDebounceFn(() => {
         // 如果标题和内容都为空，说明可能是刚加载或者是清空了，不执行保存
-        if (!post.value.title && (!post.value.content || post.value.content.length === 0)) { return }
+        if (!post.value.title && (!post.value.content || post.value.content.length === 0)) {
+            return
+        }
 
         localDraft.value = {
             title: post.value.title,
@@ -55,7 +57,7 @@ export function usePostEditorAutoSave(
         post.value.categoryId,
         post.value.tags,
     ], () => {
-        saveToLocal()
+        void saveToLocal()
     }, { deep: true })
 
     /**
@@ -70,7 +72,9 @@ export function usePostEditorAutoSave(
      * @returns boolean 是否需要弹出恢复对话框
      */
     const hasRecoverableDraft = () => {
-        if (!localDraft.value) { return false }
+        if (!localDraft.value) {
+            return false
+        }
 
         const lastSavedAt = localDraft.value.lastSavedAt
         // post.updatedAt 是服务器返回的时间
@@ -84,15 +88,29 @@ export function usePostEditorAutoSave(
      * 恢复草稿数据到当前编辑器
      */
     const recoverDraft = () => {
-        if (!localDraft.value) { return }
+        if (!localDraft.value) {
+            return
+        }
 
         const draft = localDraft.value
-        if (draft.title !== undefined) { post.value.title = draft.title }
-        if (draft.content !== undefined) { post.value.content = draft.content }
-        if (draft.summary !== undefined) { post.value.summary = draft.summary }
-        if (draft.coverImage !== undefined) { post.value.coverImage = draft.coverImage }
-        if (draft.categoryId !== undefined) { post.value.categoryId = draft.categoryId }
-        if (draft.tags !== undefined) { post.value.tags = JSON.parse(JSON.stringify(draft.tags)) }
+        if (draft.title !== undefined) {
+            post.value.title = draft.title
+        }
+        if (draft.content !== undefined) {
+            post.value.content = draft.content
+        }
+        if (draft.summary !== undefined) {
+            post.value.summary = draft.summary
+        }
+        if (draft.coverImage !== undefined) {
+            post.value.coverImage = draft.coverImage
+        }
+        if (draft.categoryId !== undefined) {
+            post.value.categoryId = draft.categoryId
+        }
+        if (draft.tags !== undefined) {
+            post.value.tags = JSON.parse(JSON.stringify(draft.tags))
+        }
     }
 
     return {

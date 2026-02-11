@@ -49,7 +49,9 @@ export function usePostExport() {
     }
 
     const exportBatch = async (ids: string[]) => {
-        if (!ids || ids.length === 0) { return }
+        if (!ids || ids.length === 0) {
+            return
+        }
         try {
             exporting.value = true
             const response = await fetch('/api/posts/export', {
@@ -57,7 +59,9 @@ export function usePostExport() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ids }),
             })
-            if (!response.ok) { throw new Error('Batch export failed') }
+            if (!response.ok) {
+                throw new Error('Batch export failed')
+            }
             const blob = await response.blob()
             const url = window.URL.createObjectURL(blob)
             const a = document.createElement('a')

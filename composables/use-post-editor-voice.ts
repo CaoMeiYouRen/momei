@@ -20,7 +20,9 @@ export function usePostEditorVoice() {
     })
 
     const isModelReady = computed(() => {
-        if (mode.value === 'web-speech') { return true }
+        if (mode.value === 'web-speech') {
+            return true
+        }
         return readyModels.value[mode.value] || false
     })
 
@@ -52,6 +54,7 @@ export function usePostEditorVoice() {
     let worker: Worker | null = null
     let audioContext: AudioContext | null = null
     let mediaStream: MediaStream | null = null
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     let processor: ScriptProcessorNode | null = null
     let audioData: Float32Array[] = []
     let transcribeTimer: any = null
@@ -67,7 +70,9 @@ export function usePostEditorVoice() {
             recognition.interimResults = true
 
             recognition.onresult = (event: any) => {
-                if (mode.value !== 'web-speech') { return }
+                if (mode.value !== 'web-speech') {
+                    return
+                }
                 let interim = ''
                 let sessionFinal = ''
                 for (const result of event.results) {
@@ -82,7 +87,9 @@ export function usePostEditorVoice() {
             }
 
             recognition.onerror = (event: any) => {
-                if (mode.value !== 'web-speech') { return }
+                if (mode.value !== 'web-speech') {
+                    return
+                }
                 console.error('Speech recognition error', event.error)
                 error.value = event.error
                 if (event.error === 'not-allowed') {
@@ -92,7 +99,9 @@ export function usePostEditorVoice() {
             }
 
             recognition.onend = () => {
-                if (mode.value !== 'web-speech') { return }
+                if (mode.value !== 'web-speech') {
+                    return
+                }
                 committedTranscript.value += currentSessionFinal.value
                 currentSessionFinal.value = ''
                 interimTranscript.value = ''
@@ -103,8 +112,12 @@ export function usePostEditorVoice() {
 
     // 初始化 Worker (Local Whisper)
     const initWorker = () => {
-        if (typeof Worker === 'undefined') { return }
-        if (worker) { return }
+        if (typeof Worker === 'undefined') {
+            return
+        }
+        if (worker) {
+            return
+        }
 
         worker = new Worker(new URL('../assets/js/workers/transcription.worker.ts', import.meta.url), {
             type: 'module',
@@ -155,12 +168,16 @@ export function usePostEditorVoice() {
     }
 
     const loadModel = () => {
-        if (!worker) { initWorker() }
+        if (!worker) {
+            void initWorker()
+        }
         if (isModelReady.value) {
             isLoadingModel.value = false
             return
         }
-        if (isLoadingModel.value) { return }
+        if (isLoadingModel.value) {
+            return
+        }
 
         isLoadingModel.value = true
         modelProgress.value = 0
@@ -170,8 +187,12 @@ export function usePostEditorVoice() {
     }
 
     const sendCurrentBuffer = (isFinal: boolean = false) => {
-        if (!worker || !isModelReady.value || audioData.length === 0) { return }
-        if (isWorkerBusy.value && !isFinal) { return }
+        if (!worker || !isModelReady.value || audioData.length === 0) {
+            return
+        }
+        if (isWorkerBusy.value && !isFinal) {
+            return
+        }
 
         isWorkerBusy.value = true
 
@@ -199,10 +220,13 @@ export function usePostEditorVoice() {
             mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
             audioContext = new AudioContext({ sampleRate: 16000 })
             const source = audioContext.createMediaStreamSource(mediaStream)
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
             processor = audioContext.createScriptProcessor(4096, 1, 1)
 
             audioData = []
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
             processor.onaudioprocess = (e) => {
+                // eslint-disable-next-line @typescript-eslint/no-deprecated
                 const inputData = e.inputBuffer.getChannelData(0)
                 audioData.push(new Float32Array(inputData))
             }
@@ -237,7 +261,7 @@ export function usePostEditorVoice() {
             mediaStream = null
         }
         if (audioContext) {
-            audioContext.close()
+            void audioContext.close()
             audioContext = null
         }
 
@@ -246,7 +270,9 @@ export function usePostEditorVoice() {
     }
 
     const startListening = (lang: string = 'zh-CN') => {
-        if (isListening.value) { return }
+        if (isListening.value) {
+            return
+        }
         error.value = ''
         interimTranscript.value = ''
         currentSessionFinal.value = ''
@@ -268,7 +294,7 @@ export function usePostEditorVoice() {
             }
             recognition.lang = recognitionLang
             try {
-                recognition.start()
+                void recognition.start()
                 isListening.value = true
             } catch (e) {
                 console.error('Failed to start Web Speech recognition', e)
@@ -279,7 +305,7 @@ export function usePostEditorVoice() {
                 loadModel()
                 return
             }
-            startRecording()
+            void startRecording()
         }
     }
 
