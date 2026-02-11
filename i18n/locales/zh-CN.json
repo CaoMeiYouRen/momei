@@ -592,7 +592,10 @@
                 "file_empty": "文件内容为空",
                 "parse_failed": "解析 Markdown 文件失败",
                 "unsupported_file_type": "不支持的文件类型: {name}",
-                "category_not_found": "未找到分类：{name}"
+                "category_not_found": "未找到分类：{name}",
+                "recover_draft_confirm": "检测到本地有未保存的草稿，是否恢复？",
+                "draft_recovered": "已恢复本地草稿",
+                "draft_discarded": "已清除本地草稿"
             },
             "categories": {
                 "title": "分类管理",

@@ -593,7 +593,10 @@
                 "file_empty": "File is empty",
                 "parse_failed": "Failed to parse markdown file",
                 "unsupported_file_type": "Unsupported file type: {name}",
-                "category_not_found": "Category \"{name}\" not found"
+                "category_not_found": "Category \"{name}\" not found",
+                "recover_draft_confirm": "Unsaved local draft detected. Would you like to recover it?",
+                "draft_recovered": "Local draft recovered",
+                "draft_discarded": "Local draft cleared"
             },
             "categories": {
                 "title": "Categories Management",

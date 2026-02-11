@@ -100,6 +100,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
 import { PostStatus, PostVisibility, type Post } from '@/types/post'
 import type { PostEditorData } from '@/types/post-editor'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
@@ -109,6 +110,7 @@ import PostEditorSettings from '@/components/admin/posts/post-editor-settings.vu
 import PublishPushDialog from '@/components/admin/posts/publish-push-dialog.vue'
 import { usePostEditorAI } from '@/composables/use-post-editor-ai'
 import { usePostEditorIO } from '@/composables/use-post-editor-io'
+import { usePostEditorAutoSave } from '@/composables/use-post-editor-auto-save'
 import { formatMarkdown } from '@/utils/shared/markdown'
 
 definePageMeta({
@@ -124,6 +126,7 @@ const { contentLanguage } = useAdminI18n()
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const confirm = useConfirm()
 
 const md = ref<any>(null)
 const headerRef = ref<any>(null)
@@ -269,6 +272,12 @@ const { isDragging, onDragOver, onDragLeave, onDrop, imgAdd } = usePostEditorIO(
     md,
 )
 
+const {
+    hasRecoverableDraft,
+    recoverDraft,
+    clearLocalDraft,
+} = usePostEditorAutoSave(post, isNew)
+
 const saving = ref(false)
 const oldSlugValue = ref(post.value.slug)
 
@@ -384,6 +393,41 @@ const loadPost = async () => {
     } catch (error) {
         console.error('Failed to load post', error)
         // router.push('/admin/posts');
+    }
+
+    // 加载完成后检查是否有本地草稿可以恢复
+    if (hasRecoverableDraft()) {
+        confirm.require({
+            message: t('pages.admin.posts.recover_draft_confirm'),
+            header: t('common.confirmation'),
+            icon: 'pi pi-exclamation-triangle',
+            acceptProps: {
+                label: t('common.confirm'),
+            },
+            rejectProps: {
+                label: t('common.cancel'),
+                severity: 'secondary',
+                outlined: true,
+            },
+            accept: () => {
+                recoverDraft()
+                toast.add({
+                    severity: 'success',
+                    summary: t('common.success'),
+                    detail: t('pages.admin.posts.draft_recovered'),
+                    life: 3000,
+                })
+            },
+            reject: () => {
+                clearLocalDraft()
+                toast.add({
+                    severity: 'info',
+                    summary: t('common.info'),
+                    detail: t('pages.admin.posts.draft_discarded'),
+                    life: 3000,
+                })
+            },
+        })
     }
 }
 
@@ -542,6 +586,8 @@ const executeSave = async (
             if (response.code === 200 && response.data?.id) {
                 post.value.id = response.data.id
                 post.value.status = response.data.status
+                // 成功保存到服务器，清除本地草稿
+                clearLocalDraft()
                 toast.add({
                     severity: 'success',
                     summary: t('common.success'),
@@ -559,6 +605,8 @@ const executeSave = async (
             if (publish) {
                 post.value.status = isFuture ? PostStatus.SCHEDULED : PostStatus.PUBLISHED
             }
+            // 成功保存到服务器，清除本地草稿
+            clearLocalDraft()
             toast.add({
                 severity: 'success',
                 summary: t('common.success'),

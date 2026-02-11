@@ -20,7 +20,7 @@
 ### 1. 创作安全增强 (Creative Security & Resilience) (P0)
 具体文档：[创作安全增强](../design/modules/creative-security.md)
 
-- [ ] **本地草稿自动保存 (Local Draft Auto-save)**
+- [x] **本地草稿自动保存 (Local Draft Auto-save)**
     - 验收: 实现基于 LocalStorage 的文章实时编辑缓存 (防抖处理)。
     - 验收: 用户刷新或重新进入编辑器时，检测到本地缓存后弹出“恢复/丢弃”选择框。
     - 验收: 成功发布文章后，自动清除对应的本地缓存。
