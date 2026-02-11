@@ -514,3 +514,64 @@
     - [x] 验收: 提供默认本地 SQLite 路径，支持不创建 `.env` 直接运行。
 - [x] **分层环境变量管理**
     - [x] 验收: 重构 `.env.example`，区分“核心”与“增强”变量。
+
+## 第五阶段：生态深化与体验极致 (Ecosystem Deepening & Extreme Experience) (已完成)
+
+### 1. 订阅中心与通知系统 (Subscription Hub & Notification System) (P1)
+- [x] **多格式集成订阅源 (Universal Feeds)**
+- [x] **多维订阅管理中心 (Subscription Management)**
+- [x] **全站通知控制 (Unified Notifications)**
+- [x] **管理员营销管分发中心 (Marketing Admin Center)**
+- [x] **通知系统强化与模块补全 (Notification Strengthening)**
+- [x] **邮件模板与队列优化 (Templates & Queue)**
+- [x] **营销推送定时化 (Scheduled Marketing)**
+
+### 2. 商业化集成 (Monetization) (P2)
+- [x] **流量增长与变现 (Growth & Monetization)**
+- [x] **多维度显隐控制 (Dynamic Visibility)**
+- [x] **后台商业配置优化 (Admin UI)**
+- [x] **社交链接与打赏集成 (Sponsorship System)**
+
+### 3. AI 语音创作增强 (AI Voice Creative Enhancement) (P1)
+- [x] **语音创作工作流 (Voice-to-Post)**
+- [x] **轻量化识别内核 (Web Speech API)**
+- [x] **AI 联动润色 (AI Refinement)**
+
+### 4. 高级 AI 创作流 (Advanced AI Creative Flow) (P1)
+- [x] **多模态创作增强 (AI 图像生成)**
+- [x] **统一 AI 图像 API 入口**
+- [x] **异步任务处理系统**
+- [x] **多模型适配**: 
+    - [x] 豆包 (Doubao) 适配
+    - [x] OpenAI DALL-E 3 适配
+- [x] **图像持久化**
+- [x] **前端 UI 实现**
+
+### 5. 第三方平台集成 (Third-party Integration) (P2)
+- [x] **设计与调研 (Design & Research)**
+- [x] **Memos API 集成**
+- [x] **Wechatsync 插件联动**
+
+### 6. AI Agent 与自动化生态 (AI Agent & Automation Ecosystem) (P1)
+- [x] **Anthropic MCP Server 实现**
+- [x] **定时发布功能 (Scheduled Publication)**
+
+### 7. 系统固化 (System Hardening) (P1)
+- [x] **认证配置强制锁定**
+
+### 8. 质量与维护 (Quality & Maintenance) (P0)
+- [x] **修复组件单元测试失败**
+- [x] **文章编辑页面 UI/UX 优化**
+- [x] **修复类型检查错误**
+
+### 9. 文档同步与优化 (Documentation Sync & Optimization) (P1)
+- [x] **全站功能特性同步 (Feature Sync)**
+- [x] **部署与环境配置更新 (Deploy Guide Update)**
+- [x] **架构与数据库文档对齐**
+- [x] **模块化文档精修**
+
+### 10. 文档国际化 (Documentation Internationalization) (P1)
+- [x] **i18n 基础架构搭建**
+- [x] **英文站点脚手架**
+- [x] **核心文档首轮翻译**
+- [x] **动态文档同步策略**

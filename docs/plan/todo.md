@@ -10,7 +10,29 @@
 - [x] 已完成 (Done)
 - [-] 已取消 (Cancelled)
 
-## 第五阶段：生态深化与体验极致 (Ecosystem Deepening & Extreme Experience) (策划中)
+## 第六阶段：全能创作与极致极客体验 (Versatile Creation & Ultimate Geek Experience) (策划中)
+
+> **当前状态**: 正在规划中。具体待办事项待下一轮需求分析后确立。
+> 
+> **核心方向预告**:
+> 1. **极致交互增强**: 引入全站实时通知系统 (SSE/Web Push) 与沉浸式阅读模式。
+> 2. **极客内容赋能**: 实现 Markdown 可执行代码块支持与更深度的 Git 版本追踪。
+> 3. **生态系统升级**: 探索主题/脚本插件中心雏形，并增强 ActivityPub 联邦宇宙连接能力。
+> 4. **AI 知识图谱**: 建立基于全站内容的 AI 知识库与智能关联探索。
+
+---
+
+> **说明**: 长期规划与积压项已统一迁移至 [项目计划](./roadmap.md) 文档。
+> 待办事项 (Todo) 仅包含当前阶段的具体实施任务，新功能需求请直接在 [roadmap.md](./roadmap.md) 中添加。
+
+## 相关文档
+
+- [AI 代理配置](../../AGENTS.md)
+- [项目计划](./roadmap.md)
+- [开发规范](../standards/development.md)
+- [UI 设计](../design/ui.md)
+- [API 设计](../design/api.md)
+- [测试规范](../standards/testing.md)
 
 ### 1. 订阅中心与通知系统 (Subscription Hub & Notification System) (P1)
 具体文档：[订阅中心与通知系统](../design/modules/notifications.md)
@@ -140,13 +162,13 @@
     - 验收: 更新 `docs/guide/features.md`，补全语音写作、AI 生图、商业化、三方集成、定时发布、多维订阅等 P1 特性。
 - [x] **部署与环境配置更新 (Deploy Guide Update)** 
     - 验收: 同步 `docs/guide/deploy.md`，增补 Stage 5 引入的所有新环境变量（AI 生图 Provider、Memos 相关、任务 Token 等）。
-- [ ] **架构与数据库文档对齐 (Database & API Hardening)**
+- [x] **架构与数据库文档对齐 (Database & API Hardening)**
     - 验收: 更新 `docs/design/database.md`，补全 `MarketingCampaign` 实体及 `Subscriber` 的维度扩展字段。
     - 验收: 确保 `docs/design/api.md` 的模块列表与 `server/api` 真实目录结构完全对齐。
-- [ ] **模块化文档精修 (Module Docs Refinement)**
+- [x] **模块化文档精修 (Module Docs Refinement)**
     - 验收: 审计 `docs/design/modules/` 下的所有文档，修正已变更的接口字段名。
     - 验收: 为“定时发布”与“AI 异步任务”补全 Mermaid 流程图。
-- [ ] **全局链接与术语优化 (Cleanup)**
+- [x] **全局链接与术语优化 (Cleanup)**
     - 验收: 修复全站 MD 链接失效，规范化“翻译簇”、“发布意图”等核心术语。
 
 ### 10. 文档国际化 (Documentation Internationalization) (P1)

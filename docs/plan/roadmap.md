@@ -168,7 +168,7 @@
     -   **自动化元数据**: 针对远程音频 URL，支持通过 HEAD 请求获取文件大小与类型；UI 端支持手动录入时长等 ID3 信息。
     -   **混合输出与专项 Feed**: 同时提供主订阅混合输出、独立博文 Feed 及独立播客 Feed。
 
-### 第五阶段：生态深化与体验极致 (Ecosystem Deepening & Extreme Experience) (策划中)
+### 第五阶段：生态深化与体验极致 (Ecosystem Deepening & Extreme Experience) (已完成)
 
 **时间表**: 待定
 
@@ -201,6 +201,13 @@
 此处记录由于优先级或开发周期原因暂不进入当前迭代，但具有长期价值的功能。
 
 **说明**: 以下积压项按照优先级排序，后续新功能需求应直接添加至本部分，而非添加至待办事项 (todo.md)。
+
+### 0. 待处理迁移项 (Pending Migrations from Phase 5)
+- **多模型 AI 图像适配 (Advanced AI Image Drivers)**: 
+    - 实现 **Gemini 3 Pro Image** 驱动适配。
+    - 实现 **Stable Diffusion** (WebUI/ComfyUI API) 驱动适配。
+- **Anthropic MCP Server 增强**:
+    - 完成 MCP Server 的进一步生产环境验证与生态适配。
 
 ### 1. 桌面端应用 (Desktop Application)
 - **Tauri 跨平台应用**:
