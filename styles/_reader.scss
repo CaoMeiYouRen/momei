@@ -87,7 +87,7 @@
         width: 300px;
         animation: slide-up 0.3s ease-out;
 
-        @include mobile {
+        @include respond-below("md") {
             width: calc(100vw - 4rem);
         }
     }

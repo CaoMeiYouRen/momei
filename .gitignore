@@ -46,3 +46,4 @@ coverage-report.*
 # 目前通过本地链接的方式来进行复用配置，故不提交到版本库中。
 .claude/agents
 .claude/skills
+.vercel
