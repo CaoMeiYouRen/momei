@@ -69,7 +69,7 @@ export default defineNuxtConfig({
     devtools: { enabled: false },
     modules: [
         '@nuxt/eslint',
-        '@nuxt/test-utils/module',
+        process.env.VITEST && '@nuxt/test-utils/module',
         '@primevue/nuxt-module',
         '@nuxtjs/i18n',
         '@vueuse/nuxt',
@@ -288,6 +288,11 @@ export default defineNuxtConfig({
         },
     },
     nitro: {
+        ignore: [
+            '**/*.test.ts',
+            '**/*.spec.ts',
+            '**/tests/**',
+        ],
         prerender: {
             // 为匹配 Cloudflare 路由匹配规则，设置 nitro 选项 autoSubfolderIndex 为 false 。
             autoSubfolderIndex: false,
