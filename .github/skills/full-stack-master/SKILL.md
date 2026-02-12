@@ -43,7 +43,7 @@ appliesTo: "**/*"
     - **技能**：`code-quality-auditor`、`security-guardian`
 
 4. **C1 (Commit) - 功能提交**
-    1. **原子提交**：使用 `conventional-committer` 执行第一次提交。
+    1. **原子提交**：使用 `conventional-committer` 执行第一次提交。消息描述统一使用**中文**或用户的语言。
 
 5. **V (Validate) - UI 验证**
     1. **视觉准则**：浏览器验证实际渲染效果。若自动化工具失效，应向用户展示截图或请求人工验证。
@@ -54,7 +54,7 @@ appliesTo: "**/*"
     - **技能**：`test-engineer`
 
 7. **C2 (Commit) - 测试提交**
-    1. **最终交付**：提交测试代码。
+    1. **最终交付**：提交测试代码。消息描述统一使用**中文**或用户的语言。
 
 8. **F (Finish) - 任务完结**
     1. **文档更新**：更新 `todo.md` 状态，并归并项目变更文档。
