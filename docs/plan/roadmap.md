@@ -185,7 +185,8 @@
     -   **多平台支持**：预设 10+ 国内外主流平台，并支持 1-2 个完全自定义项。
     -   **私域转化**: 后台可配置公众号关注引导。
 4.  **AI 语音创作增强 (AI Voice Creative Enhancement) (P1)**:
-    -   **语音写文章**: 集成 Whisper 模型进行语音录入，配合 AI 助手实现“语音转博文”或“对话式润色”工作流。
+    -   **双模驱动识别**: 实现以 Web Speech API 为基础、Cloud ASR (SiliconFlow/Volcengine) 为进阶的语音创作引擎。
+    -   **语音写文章**: 集成语音录入，配合 AI 助手实现“语音转博文”或“对话式润色”工作流。
 4.  **高级 AI 创作流 (Advanced AI Creative Flow)**:
     -   **多模态增强**: 集成 AI 封面图生成 (支持 DALL-E 3, Stable Diffusion 等)，提供统一的异步任务入口以支持耗时绘图任务。 (原计划中的 DeepL 翻译由于已通过通用 LLM 覆盖，现已移除)
 5.  **文档全球化与系统化 (Hardening)**:
@@ -278,7 +279,7 @@
     - 集成 AI TTS 服务，为文章一键生成/刷新音频版本。
 - **高精度语音识别优化 (High-precision Voice Recognition)**:
     - **背景**: 浏览器原生 Web Speech API 在复杂环境及语义理解上存在局限。
-    - **方向**: 优先采用 **Transformers.js (Local Whisper)** 实现全本地高精度转录，针对极高性能场景保留 OpenAI Whisper API 开关。
+    -   **方向**: 建立以 **Cloud ASR (OpenAI/SiliconFlow/Volcengine)** 为核心的高精度识别体系，保留 **Transformers.js (Local/WebGPU)** 作为离线冗余方案。
     - **功能**: 支持 WebGPU 加速、后台静默转录、长音频文件处理，并结合 LLM 自动修正同音字错误。
 
 ### 9. 开放发布协议支持 (Open Federation)
@@ -304,7 +305,12 @@
     - **现状**: `AUTH_SECRET` 及 OAuth 凭据直接 from `process.env` 读取，导致无法在后台动态修改。
     - **优化方向**: 重构 `lib/auth.ts`，使其支持从 `SettingService` 动态加载配置，实现全量配置的 DB/ENV 混合接管。
 
-### 13. 系统元数据统一化与精细化管理 (System Metadata Unification)
+### 13. 创作流性能极限优化 (Creative Flow Performance)
+- **大文件 ASR 极速转录**:
+    - 实现前端直连 AI 厂商的签名认证机制，绕过后端转发瓶颈。
+    - 实现前端音频本地压缩采样策略，将录音体积在上传前减小 60% 以上。
+
+### 14. 系统元数据统一化与精细化管理 (System Metadata Unification)
 - **现状**: 文章相关的元数据（如 AI 大纲、音频属性、发布意图等）分布在多个独立字段中。简单引入通用的 `metadata` 字段可能面临前端全覆盖（Overwrite）的风险。
 - **优化方向**: 
     - 探索实现稳健的 `Metadata` 聚合管理逻辑，支持按需局部更新（Patch Update）而非整体覆盖。

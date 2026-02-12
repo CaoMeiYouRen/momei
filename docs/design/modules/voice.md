@@ -11,35 +11,34 @@
 
 ## 2. 技术方案
 
-### 2.1 语音识别驱动 (Core V2T)
+### 2.1 语音识别驱动矩阵 (ASR Drivers)
 
-- **核心 API**: `window.SpeechRecognition` (及其供应商前缀版 `window.webkitSpeechRecognition`)。
-- **降级处理**: 
-    - 若浏览器不支持（如 Firefox、部分国产移动浏览器），UI 端隐藏或置灰相关按钮，并提示用户切换至 Chrome/Edge。
-    - 未来若用户有高精度需求，可扩展支持 OpenAI Whisper 或其他高性能 API。
+系统采用多级冗余驱动架构，按优先级自动/手动切换：
 
-### 2.2 状态管理 (Composable Design)
+1.  **Web Speech API (优先/默认)**: 利用浏览器原生能力，零开销，适合大多数现代浏览器。
+2.  **Cloud ASR (高精度 - 下一阶段任务)**:
+    *   **SiliconFlow (Batch)**: 采用 OpenAI 兼容接口，通过 `POST /v1/audio/transcriptions` 上传文件转写。
+    *   **Volcengine (Streaming)**: 利用 WebSocket 实现流式语音转文字，支持毫秒级回显。
+3.  **Local Whisper (离线降级)**: 使用 Transformers.js + Whisper-Tiny，作为极端环境下的补充。
 
-新建 `composables/use-post-editor-voice.ts`，导出以下状态与方法：
+### 2.2 状态管理与抽象层
 
-- **State**:
-    - `isListening`: 是否正在监听录音。
-    - `isSupported`: 当前环境是否支持 Web Speech API。
-    - `interimTranscript`: 临时识别结果（随着实时识别不断更新）。
-    - `finalTranscript`: 已确认的识别结果。
-    - `error`: 识别过程中的错误信息（如“无麦克风权限”、“网络中断”）。
+通过全局 Composable `use-post-editor-voice.ts` 隐藏底层驱动差异：
+- **一致性输出**: 无论哪种模型，最终均输出格式化的识别文本。
+- **自动适配**: 检测宿主环境，若不支持 Web Speech 则引导开启云端模式。
 
-- **Methods**:
-    - `startListening(lang)`: 开启监听，指定识别语言。
-    - `stopListening()`: 停止监听并返回最终文本。
-    - `reset()`: 重置状态。
+### 2.3 后端代理与鉴权 (Cloud Proxy)
 
-### 2.3 自动语言适配 (Language Logic)
+为了保护 API Key 并不绕过 CORS 限制，所有云端请求由 Nitro 服务器转发：
+- `POST /api/ai/voice/transcribe`: 接收音频 Blob，在内存中直接转发至 AI 厂商（Fast-Path），避免 OSS 转存导致的延时。
+- `WS /api/ai/voice/stream`: WebSocket 隧道代理或签名发放，转发至火山引擎。
 
-- 系统将根据当前文章的 `post.language` 自动配置识别语言：
-    - `zh-CN` -> `zh-CN`
-    - `en-US` -> `en-US`
-    - 其他语言按需映射。
+### 2.4 性能与规模优化 (未来规划)
+
+对于超过 50MB-100MB 的超大音频文件，本版本采用“内存转发”可能导致云函数超时。未来优化方向：
+1.  **直连厂商 (Cloud-Direct)**：后端生成针对 AI 厂商 API 的签名，由前端直接上传音频，彻底解放后端带宽。
+2.  **分片处理 (Chunked Flow)**：前端将音频在本地进行切片，后端流式接收并拼装转发。
+3.  **本地预压缩 (Client-side Compression)**：前端引入 WASM 版本的 FFmpeg/LAME，在上传前将录音压缩为低比特率 Opus/MP3，减少传输量。
 
 ### 2.4 前端高精度转录方案调研 (Client-side High-precision V2T)
 
@@ -51,39 +50,38 @@
 | **Transformers.js** | ONNX Runtime + Whisper (Tiny/Base) | 纯本地运行、高隐私、模型可控、适配现代 JS。 | 需下载模型 (Tiny 约 95MB)，首屏加载有压力，低端设备 CPU 占用高。 | **推荐 (WebGPU 加速)**。 |
 | **Whisper.cpp (Wasm)** | C++ 编译至 Wasm | 性能极致优化，内存占用低。 | 接入复杂度高，工程化门槛相对较高。 | 作为性能补丁。 |
 
-#### 2.4.1 落地建议：Transformers.js + WebGPU
+### 2.4 云端高精度驱动方案对比
 
-考虑到 Nuxt 4 的现代化技术栈，建议采用 **Transformers.js (v3+)** 作为高精度模式的首选：
-1. **轻量化模型**: 默认使用 `openai/whisper-tiny` 或 `openai/whisper-base.en`。
-2. **加速机制**: 检测 WebGPU 支持。若支持则开启性能加速，否则回退至 WASM/CPU。
-3. **缓存策略**: 模型下载后存入 IndexedDB (Cache API)，后续使用无需重复下载。
-4. **分片处理**: 对于长语音，在 Web Worker 中进行异步分片转写，避免阻塞 UI。
+| 特性 | SiliconFlow (OpenAI 兼容) | Volcengine (火山/豆包) |
+| :--- | :--- | :--- |
+| **交互模式** | 后验式 (Batch) | 实时性 (Streaming) |
+| **擅长场景** | 录完一段音频后，全文高精度转换 | 边说边出字，极致输入体验 |
+| **开发难度** | 低 (标准 Multi-part HTTP) | 高 (WebSocket + 二进制协议) |
+| **建议** | 第一阶段集成，用于“转录已有录音” | 第二阶段集成，用于“沉浸式写作” |
 
 ## 3. UI/UX 交互设计
 
 ### 3.1 挂载位置
 
-- **PC 端**: 在 `PostEditorHeader.vue` 的工具栏部分（标题输入框右侧）增加一个麦克风按钮。
-- **移动端**: 增加底部的快捷浮动动作条。
+- **PC 端**: 在 `PostEditorHeader.vue` 的工具栏部分增加麦克风按钮。
+- **配置**: 在设置中允许设置 `ASR Provider` (Auto, Browser, Cloud)。
 
-### 3.2 流程图
+### 3.2 混合识别工作流
 
 ```mermaid
 graph TD
-    A[点击麦克风按钮] --> B{模式选择?}
-    B -- 基础: Web Speech --> D[开启 SpeechRecognition]
-    B -- 高级: Local Whisper --> L[初始化 Transformers.js]
-    L --> M{模型已加载?}
-    M -- 否 --> N[从 CDN/本地缓存下载模型]
-    M -- 是 --> O[启动录音与 V2T 线程]
-    D --> E[用户说话]
-    O --> E
-    E --> F[实时更新浮层文字]
-    F --> G[用户再次点击/超时停止]
-    G --> H{动作选择}
-    H -- 直接插入 --> I[Appending to Content]
-    H -- AI 润色 --> J[调用 /api/ai/refine-voice]
-    J --> K[插入优化后的文字]
+    A[点击麦克风按钮] --> B{识别模式选择}
+    B -- 模式 A: 浏览器原生 --> C[调用 Web Speech API]
+    B -- 模式 B: 云端高精度 --> D[开启 MediaRecorder 录制音频]
+    C --> E[实时预览识别文字]
+    D --> F[实时上传/缓存音频数据]
+    F --> G{驱动类型}
+    G -- Streaming --> H[WS 实时返回文本]
+    G -- Batch --> I[录音结束后 POST 转录]
+    E --> J[确认并存入编辑器]
+    H --> J
+    I --> J
+    J --> K[可选: AI 润色/Markdown 格式化]
 ```
 
 ### 3.3 录制过程流
