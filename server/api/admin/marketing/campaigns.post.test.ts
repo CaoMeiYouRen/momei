@@ -53,7 +53,7 @@ describe('POST /api/admin/marketing/campaigns', () => {
             },
         }
 
-        vi.mocked(readValidatedBody).mockImplementation(async (_event, validator) => validator(mockBody))
+        vi.mocked(readValidatedBody).mockImplementation((_event, validator) => Promise.resolve(validator(mockBody)))
 
         const result = await handler(mockEvent)
 
@@ -85,7 +85,7 @@ describe('POST /api/admin/marketing/campaigns', () => {
             scheduledAt: scheduledAt.toISOString(),
         }
 
-        vi.mocked(readValidatedBody).mockImplementation(async (_event, validator) => validator(mockBody))
+        vi.mocked(readValidatedBody).mockImplementation((_event, validator) => Promise.resolve(validator(mockBody)))
 
         const result = await handler(mockEvent)
 
@@ -159,7 +159,7 @@ describe('POST /api/admin/marketing/campaigns', () => {
                 type,
             }
 
-            vi.mocked(readValidatedBody).mockImplementation(async (_event, validator) => validator(mockBody))
+            vi.mocked(readValidatedBody).mockImplementation((_event, validator) => Promise.resolve(validator(mockBody)))
 
             const result = await handler(mockEvent)
 
@@ -190,7 +190,7 @@ describe('POST /api/admin/marketing/campaigns', () => {
             },
         }
 
-        vi.mocked(readValidatedBody).mockImplementation(async (_event, validator) => validator(mockBody))
+        vi.mocked(readValidatedBody).mockImplementation((_event, validator) => Promise.resolve(validator(mockBody)))
 
         const result = await handler(mockEvent)
 

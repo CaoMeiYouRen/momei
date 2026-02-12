@@ -37,7 +37,9 @@ export const useReaderMode = () => {
     }
 
     const updateCSSVariables = () => {
-        if (!import.meta.client) { return }
+        if (!import.meta.client) {
+            return
+        }
 
         const root = document.documentElement
         root.style.setProperty('--reader-font-size', `${settings.value.fontSize}px`)

@@ -29,7 +29,7 @@ const mockEventHandler = (handler: any) => handler
 
 const mockGetValidatedQuery = async (event: any, validate: any) => await validate(event.query || {})
 const mockReadValidatedBody = async (event: any, validate: any) => await validate(event.body || {})
-const mockReadBody = async (event: any) => event.body || {}
+const mockReadBody = (event: any) => Promise.resolve(event.body || {})
 const mockGetRouterParam = (event: any, key: string) => event.params?.[key]
 
 const mockCreateError = (err: any) => {

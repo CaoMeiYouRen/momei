@@ -25,10 +25,18 @@ vi.mock('vue-i18n', () => ({
             { code: 'ja', name: '日本語' },
         ]),
         t: (key: string) => {
-            if (key === 'common.all_languages') { return 'All Languages' }
-            if (key === 'common.languages.en') { return 'English' }
-            if (key === 'common.languages.zh-CN') { return '简体中文' }
-            if (key === 'common.languages.ja') { return '日本語' }
+            if (key === 'common.all_languages') {
+                return 'All Languages'
+            }
+            if (key === 'common.languages.en') {
+                return 'English'
+            }
+            if (key === 'common.languages.zh-CN') {
+                return '简体中文'
+            }
+            if (key === 'common.languages.ja') {
+                return '日本語'
+            }
             return key
         },
     }),

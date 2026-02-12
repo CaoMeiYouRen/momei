@@ -173,7 +173,7 @@ describe('usePostExport', () => {
             const mockBlob = new Blob(['content'])
             vi.mocked(fetch).mockResolvedValue({
                 ok: true,
-                blob: async () => mockBlob,
+                blob: () => Promise.resolve(mockBlob),
                 headers: new Headers(),
             } as Response)
 
@@ -190,7 +190,7 @@ describe('usePostExport', () => {
             const mockBlob = new Blob(['zip content'])
             vi.mocked(fetch).mockResolvedValue({
                 ok: true,
-                blob: async () => mockBlob,
+                blob: () => Promise.resolve(mockBlob),
                 headers: new Headers(),
             } as Response)
 
