@@ -24,7 +24,15 @@ vi.mock('vue-i18n', () => ({
             { code: 'zh-CN', name: '简体中文' },
             { code: 'ja', name: '日本語' },
         ]),
+        t: (key: string) => {
+            if (key === 'common.all_languages') { return 'All Languages' }
+            if (key === 'common.languages.en') { return 'English' }
+            if (key === 'common.languages.zh-CN') { return '简体中文' }
+            if (key === 'common.languages.ja') { return '日本語' }
+            return key
+        },
     }),
+    createI18n: vi.fn(),
 }))
 
 describe('useAdminI18n', () => {
@@ -63,8 +71,8 @@ describe('useAdminI18n', () => {
         const { availableLocales } = useAdminI18n()
 
         expect(availableLocales.value).toHaveLength(4)
-        expect(availableLocales.value[0]).toEqual({ code: null, name: 'All Languages' })
-        expect(availableLocales.value[1]).toEqual({ code: 'en', name: 'English' })
+        expect(availableLocales.value[0]).toEqual({ label: 'All Languages', value: null })
+        expect(availableLocales.value[1]).toEqual({ label: 'English', value: 'en' })
     })
 
     it('should share content language across multiple instances', async () => {

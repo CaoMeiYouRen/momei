@@ -29,6 +29,8 @@ const mockEventHandler = (handler: any) => handler
 
 const mockGetValidatedQuery = async (event: any, validate: any) => await validate(event.query || {})
 const mockReadValidatedBody = async (event: any, validate: any) => await validate(event.body || {})
+const mockReadBody = async (event: any) => event.body || {}
+const mockGetRouterParam = (event: any, key: string) => event.params?.[key]
 
 const mockCreateError = (err: any) => {
     const error = new Error(err.statusMessage || 'Error')
@@ -40,6 +42,8 @@ const mockCreateError = (err: any) => {
 vi.stubGlobal('defineEventHandler', mockEventHandler)
 vi.stubGlobal('getValidatedQuery', mockGetValidatedQuery)
 vi.stubGlobal('readValidatedBody', mockReadValidatedBody)
+vi.stubGlobal('readBody', mockReadBody)
+vi.stubGlobal('getRouterParam', mockGetRouterParam)
 vi.stubGlobal('createError', mockCreateError)
 vi.stubGlobal('getAppManifest', vi.fn(() => Promise.resolve({
     publicPath: '/',

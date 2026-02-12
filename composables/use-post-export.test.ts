@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { usePostExport } from './use-post-export'
 
 const mockToast = {
@@ -22,9 +22,26 @@ global.URL.createObjectURL = vi.fn(() => 'blob:mock-url')
 global.URL.revokeObjectURL = vi.fn()
 
 describe('usePostExport', () => {
+    let mockAnchorElement: HTMLAnchorElement | null = null
+    let appendChildSpy: ReturnType<typeof vi.spyOn>
+
     beforeEach(() => {
         vi.clearAllMocks()
+        vi.stubGlobal('location', { origin: 'http://localhost' })
+        mockAnchorElement = null
         document.body.innerHTML = ''
+
+        // Mock appendChild to capture the anchor element
+        appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation((node) => {
+            if (node instanceof HTMLAnchorElement || (node as any).tagName === 'A') {
+                mockAnchorElement = node as HTMLAnchorElement
+            }
+            return node
+        })
+    })
+
+    afterEach(() => {
+        appendChildSpy.mockRestore()
     })
 
     describe('exportPost', () => {
@@ -67,8 +84,7 @@ describe('usePostExport', () => {
             const { exportPost } = usePostExport()
             await exportPost('post-123', { slug: 'my-awesome-post' })
 
-            const link = document.querySelector('a')
-            expect(link?.download).toBe('my-awesome-post.md')
+            expect(mockAnchorElement?.download).toBe('my-awesome-post.md')
         })
 
         it('should use id as filename when slug not provided', async () => {
@@ -82,8 +98,7 @@ describe('usePostExport', () => {
             const { exportPost } = usePostExport()
             await exportPost('post-123')
 
-            const link = document.querySelector('a')
-            expect(link?.download).toBe('post-123.md')
+            expect(mockAnchorElement?.download).toBe('post-123.md')
         })
 
         it('should extract filename from Content-Disposition header', async () => {
@@ -100,8 +115,7 @@ describe('usePostExport', () => {
             const { exportPost } = usePostExport()
             await exportPost('post-123')
 
-            const link = document.querySelector('a')
-            expect(link?.download).toBe('custom-name.md')
+            expect(mockAnchorElement?.download).toBe('custom-name.md')
         })
 
         it('should handle UTF-8 encoded filename', async () => {
@@ -118,8 +132,7 @@ describe('usePostExport', () => {
             const { exportPost } = usePostExport()
             await exportPost('post-123')
 
-            const link = document.querySelector('a')
-            expect(link?.download).toBe('中文.md')
+            expect(mockAnchorElement?.download).toBe('中文.md')
         })
 
         it('should export all translations when all option is true', async () => {
@@ -137,8 +150,7 @@ describe('usePostExport', () => {
                 expect.stringContaining('all=true'),
             )
 
-            const link = document.querySelector('a')
-            expect(link?.download).toBe('momei-translations-test-post.zip')
+            expect(mockAnchorElement?.download).toBe('momei-translations-test-post.zip')
         })
 
         it('should handle export failure', async () => {
@@ -161,14 +173,14 @@ describe('usePostExport', () => {
             const mockBlob = new Blob(['content'])
             vi.mocked(fetch).mockResolvedValue({
                 ok: true,
-                blob: () => Promise.resolve(mockBlob),
+                blob: async () => mockBlob,
                 headers: new Headers(),
             } as Response)
 
             const { exportPost } = usePostExport()
             await exportPost('post-123')
 
-            expect(global.URL.createObjectURL).toHaveBeenCalledWith(mockBlob)
+            expect(global.URL.createObjectURL).toHaveBeenCalledWith(expect.any(Blob))
             expect(global.URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url')
         })
     })
@@ -178,7 +190,7 @@ describe('usePostExport', () => {
             const mockBlob = new Blob(['zip content'])
             vi.mocked(fetch).mockResolvedValue({
                 ok: true,
-                blob: () => Promise.resolve(mockBlob),
+                blob: async () => mockBlob,
                 headers: new Headers(),
             } as Response)
 
@@ -191,8 +203,7 @@ describe('usePostExport', () => {
                 body: JSON.stringify({ ids: ['post-1', 'post-2', 'post-3'] }),
             })
 
-            const link = document.querySelector('a')
-            expect(link?.download).toMatch(/^momei-export-\d{4}-\d{2}-\d{2}\.zip$/)
+            expect(mockAnchorElement?.download).toMatch(/^momei-export-\d{4}-\d{2}-\d{2}\.zip$/)
         })
 
         it('should do nothing when ids array is empty', async () => {

@@ -301,7 +301,9 @@ describe('AIService', () => {
 
             vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
 
-            const longContent = 'a'.repeat(6000) // Assuming AI_CHUNK_SIZE is 4000
+            // Create content that splits into exactly 2 chunks
+            // Each chunk is 3500 chars, separated by double newlines
+            const longContent = `${'a'.repeat(3500)}\n\n${'b'.repeat(3500)}`
             const result = await AIService.summarize(longContent, 200, 'zh-CN')
 
             expect(result).toBe('最终摘要')

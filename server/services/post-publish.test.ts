@@ -79,7 +79,7 @@ describe('post-publish service', () => {
                 'post-1',
                 'author-1',
                 MarketingCampaignStatus.SENDING,
-                { tags: ['tag-1'] },
+                { tagIds: ['tag-1'] },
             )
             expect(sendMarketingCampaign).toHaveBeenCalledWith('campaign-1')
         })
