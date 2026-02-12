@@ -15,28 +15,21 @@ vi.mock('@vueuse/core', async () => {
 
 describe('useReaderMode', () => {
     beforeEach(() => {
-        // 模拟浏览器环境
-        vi.stubGlobal('document', {
-            body: {
-                classList: {
-                    add: vi.fn(),
-                    remove: vi.fn(),
-                },
-                style: {
-                    backgroundColor: '',
-                    color: '',
-                },
-            },
-            documentElement: {
-                style: {
-                    setProperty: vi.fn(),
-                },
-            },
-        })
+        // 使用 spies 代替全局 stub，避免打断 VueUse 内部逻辑
+        vi.spyOn(document.body.classList, 'add')
+        vi.spyOn(document.body.classList, 'remove')
+        vi.spyOn(document.documentElement.style, 'setProperty')
+        vi.spyOn(document.documentElement.style, 'removeProperty')
+        vi.spyOn(document.body.style, 'setProperty')
+        vi.spyOn(document.body.style, 'removeProperty')
+
+        // 重置样式
+        document.body.style.backgroundColor = ''
+        document.body.style.color = ''
     })
 
     afterEach(() => {
-        vi.unstubAllGlobals()
+        vi.restoreAllMocks()
     })
 
     it('should initialize with default values', () => {
