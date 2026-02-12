@@ -208,10 +208,6 @@
     "language": "zh-CN"
   },
   "lint-staged": {
-    "*.{js,ts,vue}": [
-      "npm run lint",
-      "git add"
-    ],
     "*.{css,scss,vue}": [
       "npm run lint:css",
       "git add"
