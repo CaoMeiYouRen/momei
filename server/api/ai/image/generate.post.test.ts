@@ -48,7 +48,8 @@ describe('POST /api/ai/image/generate', () => {
         vi.mocked(readBody).mockResolvedValue(mockBody)
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: { id: 'user-1', role: 'author' } as any,
-        })
+            session: {} as any,
+        } as any)
 
         const result = await handler(mockEvent)
 
@@ -79,7 +80,8 @@ describe('POST /api/ai/image/generate', () => {
         vi.mocked(readBody).mockResolvedValue(mockBody)
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: { id: 'user-1', role: 'author' } as any,
-        })
+            session: {} as any,
+        } as any)
 
         await expect(handler(mockEvent)).rejects.toThrow()
     })
@@ -101,7 +103,8 @@ describe('POST /api/ai/image/generate', () => {
         vi.mocked(readBody).mockResolvedValue(mockBody)
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: { id: 'user-1', role: 'author' } as any,
-        })
+            session: {} as any,
+        } as any)
 
         await expect(handler(mockEvent)).rejects.toThrow()
     })
@@ -123,7 +126,8 @@ describe('POST /api/ai/image/generate', () => {
         vi.mocked(readBody).mockResolvedValue(mockBody)
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: { id: 'user-1', role: 'author' } as any,
-        })
+            session: {} as any,
+        } as any)
         vi.mocked(AIService.generateImage).mockRejectedValue(new Error('AI provider unavailable'))
 
         await expect(handler(mockEvent)).rejects.toThrow('AI provider unavailable')
@@ -146,7 +150,8 @@ describe('POST /api/ai/image/generate', () => {
         vi.mocked(readBody).mockResolvedValue(mockBody)
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: { id: 'user-1', role: 'author' } as any,
-        })
+            session: {} as any,
+        } as any)
 
         await expect(handler(mockEvent)).rejects.toThrow()
     })
@@ -168,7 +173,8 @@ describe('POST /api/ai/image/generate', () => {
         vi.mocked(readBody).mockResolvedValue(mockBody)
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: { id: 'user-1', role: 'author' } as any,
-        })
+            session: {} as any,
+        } as any)
 
         await expect(handler(mockEvent)).rejects.toThrow()
     })
