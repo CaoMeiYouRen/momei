@@ -254,6 +254,7 @@
                     </footer>
                 </main>
             </div>
+            <ReaderControls />
         </div>
     </div>
 </template>

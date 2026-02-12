@@ -78,6 +78,19 @@
         "toc": {
             "title": "Table of Contents"
         },
+        "reader": {
+            "mode_enter": "Reader Mode",
+            "mode_exit": "Exit Reader Mode",
+            "settings_title": "Reading Settings",
+            "font_size": "Font Size",
+            "line_height": "Line Height",
+            "page_width": "Page Width",
+            "theme": "Theme",
+            "theme_default": "Default",
+            "theme_sepia": "Sepia",
+            "theme_eyecare": "Eye Care",
+            "theme_dark": "Dark"
+        },
         "subscriber_form": {
             "title": "Newsletter",
             "description": "Get the latest posts and technical shares delivered to your inbox",
