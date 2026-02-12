@@ -11,15 +11,16 @@ appliesTo: "**/*"
 ## 一、能力定位 (Capability)
 
 - **工作流自动编排**：串联需求设计开发测试质量文档提交审核发布的全链路。
+- **Git Worktree 编排**：根据任务维度（dev/test/fix/docs）自动选择物理隔离的工作目录，加速并行开发。
 - **技能聚合**：集成所有核心原子技能（Todo Manager、Technical Planning、Backend Logic Expert、Vue Frontend Expert、Database Expert、Code Quality Auditor、Test Engineer、UI Validator、Conventional Committer）。
 - **可复用与可拓展**：可合并新场景（如数据库迁移、API 变更、运营发布等），支持多项目切换。
 - **分阶段接棒/派单**：可手动或脚本分配阶段任务给对应技能或专项 agent。
 
 ## 二、强制参考文档 (Mandatory Documentation)
 
-在执行任何写操作或决策前，必须确保已读取并理解以下文档的最新内容：
+在执行任何写操作 or 决策前，必须确保已读取并理解以下文档的最新内容：
 
-- **全周期基石**：[AGENTS.md](../../../AGENTS.md) (安全红线与身份)、[AI 协作规范](../../../docs/standards/ai-collaboration.md)
+- **全周期基石**：[AGENTS.md](../../../AGENTS.md) (安全红线与身份)、[AI 协作规范](../../../docs/standards/ai-collaboration.md)、[Git 规范](../../../docs/standards/git.md)
 - **规划与任务**：[项目规划](../../../docs/plan/roadmap.md)、[待办事项](../../../docs/plan/todo.md)、[项目规划规范](../../../docs/standards/planning.md)
 - **开发与设计**：[开发规范](../../../docs/standards/development.md)、[API 规范](../../../docs/standards/api.md)、[UI 设计](../../../docs/design/ui.md)
 - **安全与质量**：[安全规范](../../../docs/standards/security.md)、[测试规范](../../../docs/standards/testing.md)

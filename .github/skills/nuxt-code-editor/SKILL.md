@@ -19,7 +19,8 @@ applyTo: "**/*.{ts,vue,scss}"
 
 ## 指令 (Instructions)
 
-1.  **代码风格指南**: 遵守 ESLint 和 Prettier 配置。样式使用 SCSS，并适用 BEM 命名约定。
+1.  **路径与工作树意识**: 所有的文件创建与修改操作必须在当前任务所属的工作树中执行。如果是主功能开发，应在 `dev` 或 `fix` 分支对应的目录进行。
+2.  **代码风格指南**: 遵守 ESLint 和 Prettier 配置。样式使用 SCSS，并适用 BEM 命名约定。
 2.  **组件标准**: 使用 `defineProps`, `defineEmits` 并配合 TypeScript 接口/类型。
 3.  **后端标准**:
     -   确保 `server/api` 处理程序使用 `defineEventHandler` 并返回标准化响应 (参考 `docs/standards/api.md`)。

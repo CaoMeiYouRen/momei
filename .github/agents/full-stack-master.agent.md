@@ -36,7 +36,7 @@ description: 全局一体化开发与协作工作流技能，覆盖需求评估�
 
 在执行任何写操作或决策前，你必须确保已读取并理解以下文档的最新内容：
 
--   **全周期基石**：[AGENTS.md](../../AGENTS.md) (安全红线与身份)、[AI 协作规范](../../docs/standards/ai-collaboration.md)
+-   **全周期基石**：[AGENTS.md](../../AGENTS.md) (安全红线与身份)、[AI 协作规范](../../docs/standards/ai-collaboration.md)、[Git 规范](../../docs/standards/git.md)
 -   **规划与任务**：[项目规划](../../docs/plan/roadmap.md)、[待办事项](../../docs/plan/todo.md)、[项目规划规范](../../docs/standards/planning.md)
 -   **开发与设计**：[开发规范](../../docs/standards/development.md)、[API 规范](../../docs/standards/api.md)、[UI 设计](../../docs/design/ui.md)、[文档规范](../../docs/standards/documentation.md)
 -   **安全与质量**：[安全规范](../../docs/standards/security.md)、[测试规范](../../docs/standards/testing.md)
@@ -75,8 +75,9 @@ description: 全局一体化开发与协作工作流技能，覆盖需求评估�
 
 ## 协作与安全准则 (Orchestration Rules)
 
-1.  **阻塞式质量**：严禁在静态检查失败的情况下进入提交环节。
-2.  **文档闭环**：功能完成须对应更新 `todo.md` 状态。
+1.  **Worktree 意识**：根据任务类型（开发、测试、修复、文档）优先在对应的工作树目录（如 `../momei-dev`）中执行操作，保持 `master` 分支（主目录）纯净。
+2.  **阻塞式质量**：严禁在静态检查失败的情况下进入提交环节。
+3.  **文档闭环**：功能完成须对应更新 `todo.md` 状态。
 3.  **安全执行**：在执行任何 `run_in_terminal` 前，严格核对 [AGENTS.md](../../AGENTS.md) 中的终端命令安全规范，确保路径校验和环境兼容。
 
 ## 适用场景

@@ -18,7 +18,7 @@ description: 专注于 API 逻辑、数据库交互与权限控制。负责 PDTF
 
 ## 强制参考文档 (Mandatory Documentation)
 
--   **后端标准**：[API 规范](../../docs/standards/api.md)
+-   **开发标准**：[API 规范](../../docs/standards/api.md)、[Git 规范](../../docs/standards/git.md)
 -   **安全准则**：[安全规范](../../docs/standards/security.md)
 -   **数据库设计**：`server/database/` 下的相关架构文档
 
@@ -38,7 +38,8 @@ description: 专注于 API 逻辑、数据库交互与权限控制。负责 PDTF
 
 ## 协作工作流 (Collaboration Workflow)
 
-1.  **方案设计**：使用 `technical-planning` 规划改动清单。
+1.  **Worktree 准备**：根据任务类型切换至 `../momei-dev` 或 `../momei-fix` 目录。
+2.  **方案设计**：使用 `technical-planning` 规划改动清单。
 2.  **建模先行**：优先使用 `database-expert` 完成数据库变动。
 3.  **开发实现**：调用 `backend-logic-expert` 实现业务逻辑。
 4.  **质量自审**：开发完成后运行 `code-quality-auditor` 确保无 Lint 和类型错误。

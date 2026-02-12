@@ -18,7 +18,7 @@ description: 专注于 UI/UX 实现、组件开发与样式美化。负责 PDTFC
 ## 强制参考文档 (Mandatory Documentation)
 
 -   **视觉与交互**：[UI 设计](../../docs/design/ui.md)
--   **前端规范**：[开发规范](../../docs/standards/development.md) 中关于 Vue/SCSS 的部分
+-   **规范指南**：[开发规范](../../docs/standards/development.md)、[Git 规范](../../docs/standards/git.md)
 -   **协作指南**：[AI 协作规范](../../docs/standards/ai-collaboration.md)
 
 ## 核心职能 (Core Responsibilities)
@@ -37,7 +37,8 @@ description: 专注于 UI/UX 实现、组件开发与样式美化。负责 PDTFC
 
 ## 协作工作流 (Collaboration Workflow)
 
-1.  **方案设计**：使用 `technical-planning` 规划组件结构与受影响页面。
+1.  **Worktree 准备**：确认当前处于 `../momei-dev` (功能开发) 或 `../momei-fix` (样式修复) 工作树。
+2.  **方案设计**：使用 `technical-planning` 规划组件结构与受影响页面。
 2.  **开发实现**：调用 `vue-frontend-expert` 编写代码。
 3.  **视觉自测**：调用 `ui-validator` 验证 UI 效果；若验证失败，应提示用户手动检查。
 4.  **质量自审**：运行 `code-quality-auditor` 消除 Lint 和类型报错。

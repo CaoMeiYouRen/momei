@@ -18,8 +18,9 @@ applyTo: "docs/**/*.md"
 
 ## 指令 (Instructions)
 
-1.  **目录感知**: 始终在 `docs/` 目录下操作（除了根目录的 `README.md`）。了解子目录结构： `design/` (设计), `standards/` (规范), `plan/` (计划), `guide/` (指南)。
-2.  **标准对齐**: 在编写文档前，必须阅读并遵循 [文档规范](../../docs/standards/documentation.md)。
+1.  **Worktree 意识**: 大规模文档更新务必在 `../momei-docs` 目录执行，确保文档版本独立于代码开发分支。
+2.  **目录感知**: 始终在 `docs/` 目录下操作（除了根目录的 `README.md`）。了解子目录结构： `design/` (设计), `standards/` (规范), `plan/` (计划), `guide/` (指南)。
+3.  **标准对齐**: 在编写文档前，必须阅读并遵循 [文档规范](../../docs/standards/documentation.md)。
 3.  **交叉引用**: 在编写文档时，正确使用相对路径链接到其他文档。
 4.  **保持同步**: 当代码发生重大变更时，主动建议更新相关的 API 文档、设计文档以及根目录的 `README.md`。
 5.  **格式规范**: 使用标准的 Markdown 格式。对于图表，使用 Mermaid 语法。

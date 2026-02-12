@@ -17,7 +17,8 @@ tools: ["run_in_terminal", "read_file", "create_file"]
 
 ## 指令 (Instructions)
 
-1.  **规范对齐**: 在运行测试前必须阅读并遵循 [测试规范](../../../docs/standards/testing.md#6-高效测试策略-efficient-testing-strategy)。
+1.  **Worktree 意识**: 务必在 `../momei-test` 工作树中运行测试命令。如果尚不存在该路径，应引导用户或自动创建之。
+2.  **规范对齐**: 在运行测试前必须阅读并遵循 [测试规范](../../../docs/standards/testing.md#6-高效测试策略-efficient-testing-strategy)。
 2.  **测试策略**: 优先执行**定向测试** (Targeted Testing)，仅运行与改动相关的测试文件。
 3.  **全量测试条件**: 除非涉及大规模重构或安全风险，否则避免全量测试。全量测试通常仅在专门的“测试增强”任务中进行。
 4.  **用例设计**: 考虑正常流程、异常流程和边缘情况。

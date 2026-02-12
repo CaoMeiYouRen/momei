@@ -16,7 +16,7 @@ description: 融合代码审查与质量门禁的防线守卫。负责确保每�
 ## 强制参考文档 (Mandatory Documentation)
 
 -   **审计圣经**：[安全规范](../../docs/standards/security.md)
--   **质量红线**：[开发规范](../../docs/standards/development.md)、[API 规范](../../docs/standards/api.md)
+-   **质量红线**：[开发规范](../../docs/standards/development.md)、[API 规范](../../docs/standards/api.md)、[Git 规范](../../docs/standards/git.md)
 -   **目标对齐**：[待办事项](../../docs/plan/todo.md)
 
 ## 核心职能

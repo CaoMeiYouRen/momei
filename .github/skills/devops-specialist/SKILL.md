@@ -17,7 +17,8 @@ applyTo: "{Dockerfile,docker-compose.yml,vercel.json,wrangler.toml,.github/workf
 
 ## 指令 (Instructions)
 
-1.  **路径安全**: 在执行任何涉及删除的操作前，必须进行路径校验。
+1.  **分支与环境对齐**: 核心部署配置的修改应在 `master` 分支或专门的 `infra` 分支中执行。
+2.  **路径安全**: 在执行任何涉及删除的操作前，必须进行路径校验。
 2.  **构建验证**: 在提交构建配置变更前，应尝试在本地进行模拟构建。
 3.  **最小镜像**: 追求 Docker 镜像的分层优化与体积精简。
 

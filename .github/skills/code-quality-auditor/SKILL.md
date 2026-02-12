@@ -26,8 +26,9 @@ author: GitHub Copilot
 
 ## 指令 (Instructions)
 
-1.  **阻塞式交付**: 如果 `lint` 或 `typecheck` 失败，必须标记为“阻塞”，禁止进入提交环节。
-2.  **分级反馈**: 提供 `Blocker` (死档问题), `Warning` (风格问题), `Suggest` (重构建议)。
+1.  **路径感知与工作树隔离**: 审计工作应在具体的改动目录中执行。对于 `master` 分支的审计应侧重于 Hotfix，而日常审计应在 `dev` 或 `test` 工作树中进行。
+2.  **阻塞式交付**: 如果 `lint` 或 `typecheck` 失败，必须标记为“阻塞”，禁止进入提交环节。
+3.  **分级反馈**: 提供 `Blocker` (死档问题), `Warning` (风格问题), `Suggest` (重构建议)。
 3.  **零容忍 any**: 在 TypeScript 开发中，严禁无故使用 `any`。
 
 ## 使用示例 (Usage Example)

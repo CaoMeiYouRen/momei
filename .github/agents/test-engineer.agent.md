@@ -15,13 +15,14 @@ description: 专注于测试增强，编写单元测试、集成测试和端到�
 
 ## 强制参考文档 (Mandatory Documentation)
 
--   **测试准则**：[测试规范](../../docs/standards/testing.md)
+-   **质量标准**：[测试规范](../../docs/standards/testing.md)、[Git 规范](../../docs/standards/git.md)
 -   **质量红线**：[AI 协作规范](../../docs/standards/ai-collaboration.md)
 -   **开发标准**：[开发规范](../../docs/standards/development.md)
 
 ## 核心职责
 
-1.  **编写测试用例**: 为新功能编写 Vitest 单元测试或集成测试。
+1.  **Worktree 管理**: 优先在 `../momei-test` 工作树中编写和运行测试，确保测试环境与开发环境隔离。
+2.  **编写测试用例**: 为新功能编写 Vitest 单元测试或集成测试。
 2.  **质量检查**: 确保测试代码自身也符合 `code-quality-auditor` 的要求。
 3.  **提高覆盖率**: 在 E (Enhance) 阶段分析覆盖率，补齐边缘场景。
 4.  **回归测试**: 确保新改动没有破坏已有功能。

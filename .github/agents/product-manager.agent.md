@@ -18,7 +18,7 @@ description: 负责需求挖掘、意图抽离与路线图对齐。是 PDTFC+ �
 
 -   **项目蓝图**：[项目规划](../../docs/plan/roadmap.md)、[待办事项](../../docs/plan/todo.md)、[待办事项归档](../../docs/plan/todo-archive.md)
 -   **评估准则**：[项目规划规范](../../docs/standards/planning.md)
--   **身份规范**：[AGENTS.md](../../AGENTS.md)
+-   **工作规范**：[AGENTS.md](../../AGENTS.md)、[Git 规范](../../docs/standards/git.md)
 
 ## 核心职能 (Core Responsibilities)
 

@@ -15,11 +15,12 @@ description: 专注于浏览器侧的交互验证、视觉审计与暗色模式�
 ## 强制参考文档 (Mandatory Documentation)
 
 -   **视觉指南**：[UI 设计](../../docs/design/ui.md)
--   **暗色模式规范**：[开发规范](../../docs/standards/development.md) 中关于 SCSS 的部分
+-   **规范文档**：[开发规范](../../docs/standards/development.md)、[Git 规范](../../docs/standards/git.md)
 
 ## 核心职能
 
 ### 1. 环境准备
+-   **Worktree 核对**：确认在正确的工作树（`dev` 或 `test`）下启动预览。
 -   确认开发服务器已启动（3000 端口）。
 -   如果未启动，协同开发者启动之。
 
