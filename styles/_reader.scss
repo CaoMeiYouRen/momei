@@ -1,0 +1,183 @@
+@use './variables' as *;
+@use './mixins' as *;
+
+.reader-mode-active {
+    background-color: var(--reader-bg) !important;
+    color: var(--reader-text) !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
+
+    // 隐藏导航栏、页脚、侧边栏、封面图、面包屑
+    .app-header,
+    .app-footer,
+    .post-detail__sidebar,
+    .post-detail__cover,
+    .post-detail__breadcrumb,
+    .post-detail__status-banner,
+    .article-copyright,
+    .comment-section,
+    .post-detail__footer,
+    .commercial-link-manager,
+    .demo-banner {
+        display: none !important;
+    }
+
+    // 调整主区域布局
+    .post-detail {
+        padding: 0 !important;
+    }
+
+    .post-detail__layout {
+        display: block !important;
+        max-width: var(--reader-width) !important;
+        margin: 0 auto !important;
+        padding: 4rem 1.5rem !important;
+    }
+
+    .post-detail__main {
+        width: 100% !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+
+    // 正文排版
+    .markdown-body {
+        font-size: var(--reader-font-size) !important;
+        line-height: var(--reader-line-height) !important;
+        color: inherit !important;
+        background: transparent !important;
+
+        p, li {
+            margin-bottom: 1.5em;
+        }
+    }
+
+    // 标题处理
+    .post-detail__header {
+        margin-bottom: 3rem;
+        text-align: center;
+
+        .post-detail__title {
+            font-size: 2.5em;
+            margin-bottom: 1rem;
+        }
+
+        .post-detail__meta {
+            justify-content: center;
+        }
+    }
+}
+
+// 阅读器控制面板
+.reader-controls {
+    position: fixed;
+    right: 2rem;
+    bottom: 2rem;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    &__panel {
+        background: var(--p-content-background);
+        border: 1px solid var(--p-content-border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        animation: slide-up 0.3s ease-out;
+
+        @include mobile {
+            width: calc(100vw - 4rem);
+        }
+    }
+
+    &__section {
+        margin-bottom: 1.25rem;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            color: var(--p-text-secondary-color);
+        }
+    }
+
+    &__themes {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+    }
+
+    &__theme-btn {
+        height: 40px;
+        border-radius: 8px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--bg);
+        color: var(--text);
+        font-size: 0.75rem;
+        font-weight: bold;
+        transition: all 0.2s;
+
+        &--active {
+            border-color: var(--p-primary-color);
+            transform: translateY(-2px);
+        }
+
+        &.theme-default {
+            --bg: var(--p-content-background);
+            --text: var(--p-content-text-color);
+            border: 1px solid var(--p-content-border-color);
+        }
+
+        &.theme-sepia {
+            --bg: #f4ecd8;
+            --text: #5b4636;
+        }
+
+        &.theme-eye-care {
+            --bg: #c7edcc;
+            --text: #2c3e50;
+        }
+
+        &.theme-dark-night {
+            --bg: #1a1a1b;
+            --text: #d7dadc;
+        }
+    }
+
+    &__toggle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s;
+
+        &:hover {
+            transform: scale(1.1);
+        }
+    }
+}
+
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

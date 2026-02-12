@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - master
+      - test
+      - fix
+      - docs
+      - dev
   pull_request:
   workflow_dispatch:
 

@@ -78,6 +78,19 @@
         "toc": {
             "title": "目录"
         },
+        "reader": {
+            "mode_enter": "开启沉浸阅读",
+            "mode_exit": "退出沉浸模式",
+            "settings_title": "阅读排版设置",
+            "font_size": "字号",
+            "line_height": "行高",
+            "page_width": "页宽",
+            "theme": "阅读主题",
+            "theme_default": "默认",
+            "theme_sepia": "复古",
+            "theme_eyecare": "护眼",
+            "theme_dark": "深夜"
+        },
         "subscriber_form": {
             "title": "邮件订阅",
             "description": "第一时间获取最新文章与技术分享",
