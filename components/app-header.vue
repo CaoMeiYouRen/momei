@@ -48,6 +48,8 @@
 
                 <div class="app-header__action-group desktop-only">
                     <ClientOnly>
+                        <AppNotifications v-if="user" />
+
                         <template v-if="user && isAdminOrAuthor(user.role)">
                             <Button
                                 id="admin-menu-btn"

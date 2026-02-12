@@ -3,7 +3,8 @@ import { dataSource } from '@/server/database'
 import { Subscriber } from '@/server/entities/subscriber'
 import { MarketingCampaign } from '@/server/entities/marketing-campaign'
 import { AdminNotificationSettings } from '@/server/entities/admin-notification-settings'
-import { MarketingCampaignStatus, MarketingCampaignType, AdminNotificationEvent } from '@/utils/shared/notification'
+import { InAppNotification } from '@/server/entities/in-app-notification'
+import { MarketingCampaignStatus, MarketingCampaignType, AdminNotificationEvent, NotificationType } from '@/utils/shared/notification'
 import { sendEmail } from '@/server/utils/email'
 import { emailService } from '@/server/utils/email/service'
 import { Post } from '@/server/entities/post'
@@ -217,4 +218,72 @@ export async function sendMarketingCampaign(campaignId: string) {
         campaign.status = MarketingCampaignStatus.FAILED
         await campaignRepo.save(campaign)
     }
+}
+
+/**
+ * 实时连接中心 (SSE Connections)
+ */
+const connections = new Map<string, Set<any>>()
+
+/**
+ * 注册实时通知连接
+ */
+export function registerNotificationConnection(userId: string, stream: any) {
+    if (!connections.has(userId)) {
+        connections.set(userId, new Set())
+    }
+    connections.get(userId)?.add(stream)
+}
+
+/**
+ * 移除实时通知连接
+ */
+export function unregisterNotificationConnection(userId: string, stream: any) {
+    const userConnections = connections.get(userId)
+    if (userConnections) {
+        userConnections.delete(stream)
+        if (userConnections.size === 0) {
+            connections.delete(userId)
+        }
+    }
+}
+
+/**
+ * 发送站内通知
+ */
+export async function sendInAppNotification(data: {
+    userId: string | null
+    type: NotificationType
+    title: string
+    content: string
+    link?: string | null
+}) {
+    const notificationRepo = dataSource.getRepository(InAppNotification)
+    const notification = notificationRepo.create({
+        ...data,
+        isRead: false,
+    })
+    await notificationRepo.save(notification)
+
+    // 推送实时消息
+    const payload = JSON.stringify(notification)
+
+    if (data.userId) {
+        // 单个用户推送
+        const userConnections = connections.get(data.userId)
+        if (userConnections) {
+            for (const stream of userConnections) {
+                stream.push(payload)
+            }
+        }
+    } else {
+        // 全局广播推送 (userId 为 null)
+        for (const userConnections of connections.values()) {
+            for (const stream of userConnections) {
+                stream.push(payload)
+            }
+        }
+    }
+
+    return notification
 }

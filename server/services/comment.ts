@@ -1,5 +1,5 @@
 import { Brackets } from 'typeorm'
-import { notifyAdmins } from './notification'
+import { notifyAdmins, sendInAppNotification } from './notification'
 import { dataSource } from '@/server/database'
 import { Comment } from '@/server/entities/comment'
 import { Post } from '@/server/entities/post'
@@ -8,7 +8,7 @@ import { processAuthorPrivacy } from '@/server/utils/author'
 import { getSettings } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
 import { assignDefined } from '@/server/utils/object'
-import { AdminNotificationEvent } from '@/utils/shared/notification'
+import { AdminNotificationEvent, NotificationType } from '@/utils/shared/notification'
 
 /**
  * 评论服务
@@ -146,6 +146,36 @@ export const commentService = {
         }).catch((err) => {
             console.error('Failed to notify admins of new comment:', err)
         })
+
+        // 发送站内通知给文章作者
+        if (post.authorId && post.authorId !== data.authorId) {
+            sendInAppNotification({
+                userId: post.authorId,
+                type: NotificationType.COMMENT_REPLY,
+                title: `文章有新评论: ${post.title}`,
+                content: `${comment.authorName}: ${comment.content.substring(0, 50)}${comment.content.length > 50 ? '...' : ''}`,
+                link: `/posts/${post.slug || post.id}#comment-${comment.id}`,
+            }).catch((err) => {
+                console.error('Failed to send in-app notification to post author:', err)
+            })
+        }
+
+        // 如果是回复，发送站内通知给父评论作者
+        if (data.parentId) {
+            commentRepo.findOne({ where: { id: data.parentId } }).then((parent) => {
+                if (parent?.authorId && parent.authorId !== data.authorId && parent.authorId !== post.authorId) {
+                    sendInAppNotification({
+                        userId: parent.authorId,
+                        type: NotificationType.COMMENT_REPLY,
+                        title: `评论收到新回复: ${post.title}`,
+                        content: `${comment.authorName} 回复了你: ${comment.content.substring(0, 50)}${comment.content.length > 50 ? '...' : ''}`,
+                        link: `/posts/${post.slug || post.id}#comment-${comment.id}`,
+                    }).catch((err) => {
+                        console.error('Failed to send in-app notification to parent comment author:', err)
+                    })
+                }
+            })
+        }
 
         return comment
     },

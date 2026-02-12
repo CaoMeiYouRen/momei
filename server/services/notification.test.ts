@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { notifyAdmins, createCampaignFromPost, getTargetSubscribers, sendMarketingCampaign } from './notification'
+import { notifyAdmins, createCampaignFromPost, getTargetSubscribers, sendMarketingCampaign, sendInAppNotification, registerNotificationConnection } from './notification'
 import { dataSource } from '@/server/database'
-import { AdminNotificationEvent, MarketingCampaignStatus, MarketingCampaignType } from '@/utils/shared/notification'
+import { AdminNotificationEvent, MarketingCampaignStatus, MarketingCampaignType, NotificationType } from '@/utils/shared/notification'
 import { sendEmail } from '@/server/utils/email'
 import { emailService } from '@/server/utils/email/service'
 import logger from '@/server/utils/logger'
@@ -588,6 +588,34 @@ describe('notification service', () => {
                 }),
             )
             expect(logger.error).toHaveBeenCalled()
+        })
+    })
+
+    describe('In-App Notification broadcast', () => {
+        it('应该保存并推送实时通知给用户', async () => {
+            const mockRepo = {
+                create: vi.fn().mockImplementation((d) => d),
+                save: vi.fn().mockImplementation((d) => Promise.resolve(d)),
+            }
+            vi.mocked(dataSource.getRepository).mockReturnValue(mockRepo as any)
+
+            const mockStream = {
+                push: vi.fn(),
+            }
+            registerNotificationConnection('user123', mockStream)
+
+            const notificationData = {
+                userId: 'user123',
+                type: NotificationType.COMMENT_REPLY,
+                title: 'Test',
+                content: 'Content',
+            }
+
+            await sendInAppNotification(notificationData)
+
+            expect(mockRepo.create).toHaveBeenCalled()
+            expect(mockRepo.save).toHaveBeenCalled()
+            expect(mockStream.push).toHaveBeenCalledWith(expect.stringContaining('Test'))
         })
     })
 })

@@ -78,6 +78,12 @@
         "toc": {
             "title": "Table of Contents"
         },
+        "notifications": {
+            "title": "Notifications",
+            "empty": "No notifications",
+            "mark_all_read": "Mark all as read",
+            "view_all": "View all settings"
+        },
         "reader": {
             "mode_enter": "Reader Mode",
             "mode_exit": "Exit Reader Mode",

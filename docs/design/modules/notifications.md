@@ -120,6 +120,8 @@
 
 ### 7.2 管理员侧 (Admin Side)
 
+- `GET /api/notifications/stream`: **SSE 实时连接**: 建立双向通信通道。
+- `POST /api/admin/notifications/broadcast`: **全站广播**: 向所有在线/离线用户发送实时通知。
 - `POST /api/admin/marketing/campaigns`: 创建营销推送草案。
 - `POST /api/admin/marketing/campaigns/:id/send`: 触发推送任务。
 - `GET /api/admin/marketing/campaigns`: 获取推送历史记录。
@@ -129,23 +131,34 @@
 
 ## 8. UI/UX 设计 (UI/UX Design)
 
-### 8.1 用户设置页 (Settings Page)
+### 8.1 站内通知中心 (In-app Notifications)
+- **入口**: 顶部导航栏铃铛图标。
+- **状态**: 红点展示未读计数，SSE 实时更新。
+- **交互**: 点击展开最近 10 条通知，支持点击跳转关联资源及标记已读。
+
+### 8.2 用户设置页 (Settings Page)
 在 `pages/settings.vue` 中新增 “订阅与通知 (Subscription & Notifications)” 标签页。
 - **涉及组件**:
     - [pages/settings.vue](pages/settings.vue): 增加侧边栏入口。
     - [components/settings/settings-notifications.vue](components/settings/settings-notifications.vue) (新): 提供订阅与通知的配置表单。
 
-### 8.2 管理员营销中心 (Admin Marketing Center)
+### 8.3 管理员营销中心 (Admin Marketing Center)
 - **涉及组件**:
     - [pages/admin/marketing.vue](pages/admin/marketing.vue) (新): 营销中心主页。
     - [components/admin/marketing-campaign-form.vue](components/admin/marketing-campaign-form.vue): 增加 `type` 选择和更丰富的预览。
 
 ## 9. 技术实现要点 (Implementation Details)
 
+- **实时中心 (SSE Hub)**:
+    - [server/api/notifications/stream.get.ts](server/api/notifications/stream.get.ts): 管理心跳与连接生命周期。
+    - [composables/use-notifications.ts](composables/use-notifications.ts): 实现“SSE 优先 -> 轮询降级”的健壮逻辑。
 - **数据库实体**:
+    - [server/entities/in-app-notification.ts](server/entities/in-app-notification.ts): 记录通知状态。
     - [server/entities/subscriber.ts](server/entities/subscriber.ts): 扩展字段。
     - [server/entities/marketing-campaign.ts](server/entities/marketing-campaign.ts) (新): 记录营销任务。
 - **API 路由**:
+    - [server/api/notifications/index.get.ts](server/api/notifications/index.get.ts)
+    - [server/api/notifications/read.put.ts](server/api/notifications/read.put.ts)
     - [server/api/user/subscription.get.ts](server/api/user/subscription.get.ts)
     - [server/api/user/subscription.put.ts](server/api/user/subscription.put.ts)
 - **后台任务**: 推送任务通过异步队列执行。
@@ -153,15 +166,9 @@
 
 ## 10. 未来规划与积压项 (Future Planning & Backlog)
 
-### 10.1 站内通知与实时推送 (In-app & SSE)
-- **目标**: 实现无需刷新页面的实时通知提醒。
-- **技术**: 采用 **SSE (Server-Sent Events)** 实现轻量化推送。
-- **存储**: 引入 `InAppNotification` 实体持久化通知，支持未读计数。
-- **UI**: 增加顶部导航铃铛组件及 Toast 实时浮层。
-
-### 10.2 浏览器推送 (Web Push)
+### 10.1 浏览器推送 (Web Push)
 - **技术栈**: Web Push API + Service Worker + VAPID 协议。
 - **功能**: 支持网页关闭时接收关键业务通知（如评论被回复、系统警报）。
 
-### 10.3 推送统计增强 (Advanced Analytics)
+### 10.2 推送统计增强 (Advanced Analytics)
 - **指标**: 记录邮件打开率、点击率（通过追踪像素/重定向链接）。

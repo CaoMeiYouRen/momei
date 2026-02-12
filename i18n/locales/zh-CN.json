@@ -78,6 +78,12 @@
         "toc": {
             "title": "目录"
         },
+        "notifications": {
+            "title": "站内通知",
+            "empty": "暂无通知",
+            "mark_all_read": "全部已读",
+            "view_all": "查看全部设置"
+        },
         "reader": {
             "mode_enter": "开启沉浸阅读",
             "mode_exit": "退出沉浸模式",
