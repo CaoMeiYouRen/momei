@@ -12,6 +12,8 @@ vi.mock('@/server/utils/permission')
 vi.mock('@/server/utils/email')
 vi.mock('@/server/utils/logger')
 
+const { getRouterParam, createError } = global as any
+
 describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
     let mockCampaignRepo: any
     let mockSubscriberRepo: any
@@ -68,7 +70,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(global.getRouterParam).mockReturnValue('campaign-123')
+        vi.mocked(getRouterParam).mockReturnValue('campaign-123')
 
         const result = await handler(mockEvent)
 
@@ -90,7 +92,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(global.getRouterParam).mockReturnValue('invalid-id')
+        vi.mocked(getRouterParam).mockReturnValue('invalid-id')
 
         await expect(handler(mockEvent)).rejects.toThrow('Campaign not found')
     })
@@ -109,7 +111,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(global.getRouterParam).mockReturnValue('campaign-123')
+        vi.mocked(getRouterParam).mockReturnValue('campaign-123')
 
         await expect(handler(mockEvent)).rejects.toThrow('Campaign already sent')
     })
@@ -145,7 +147,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(global.getRouterParam).mockReturnValue('campaign-123')
+        vi.mocked(getRouterParam).mockReturnValue('campaign-123')
 
         await handler(mockEvent)
 
@@ -188,7 +190,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(global.getRouterParam).mockReturnValue('campaign-123')
+        vi.mocked(getRouterParam).mockReturnValue('campaign-123')
 
         await handler(mockEvent)
 
@@ -229,7 +231,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(global.getRouterParam).mockReturnValue('campaign-123')
+        vi.mocked(getRouterParam).mockReturnValue('campaign-123')
 
         await handler(mockEvent)
 
@@ -264,7 +266,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(global.getRouterParam).mockReturnValue('campaign-123')
+        vi.mocked(getRouterParam).mockReturnValue('campaign-123')
 
         await handler(mockEvent)
 
@@ -313,7 +315,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(global.getRouterParam).mockReturnValue('campaign-123')
+        vi.mocked(getRouterParam).mockReturnValue('campaign-123')
 
         await handler(mockEvent)
 

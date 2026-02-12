@@ -7,6 +7,8 @@ import { requireAdmin } from '@/server/utils/permission'
 vi.mock('@/server/database')
 vi.mock('@/server/utils/permission')
 
+const { readValidatedBody, createError } = global as any
+
 describe('POST /api/admin/marketing/campaigns', () => {
     let mockRepo: any
 
@@ -44,7 +46,7 @@ describe('POST /api/admin/marketing/campaigns', () => {
             },
         }
 
-        vi.mocked(global.readValidatedBody).mockImplementation(async (_event, validator) => await validator(mockBody))
+        vi.mocked(readValidatedBody).mockImplementation(async (_event, validator) => await validator(mockBody))
 
         const result = await handler(mockEvent)
 
@@ -76,7 +78,7 @@ describe('POST /api/admin/marketing/campaigns', () => {
             scheduledAt: scheduledAt.toISOString(),
         }
 
-        vi.mocked(global.readValidatedBody).mockImplementation(async (_event, validator) => await validator(mockBody))
+        vi.mocked(readValidatedBody).mockImplementation(async (_event, validator) => await validator(mockBody))
 
         const result = await handler(mockEvent)
 
@@ -103,10 +105,10 @@ describe('POST /api/admin/marketing/campaigns', () => {
             content: '<p>内容</p>',
         }
 
-        vi.mocked(global.readValidatedBody).mockImplementation((_event, validator) => {
+        vi.mocked(readValidatedBody).mockImplementation((_event, validator) => {
             const result = validator(mockBody)
             if (!result.success) {
-                throw global.createError({
+                throw createError({
                     statusCode: 400,
                     statusMessage: 'Bad Request',
                     data: result.error.issues,
@@ -122,7 +124,7 @@ describe('POST /api/admin/marketing/campaigns', () => {
         const mockEvent = {} as any
 
         vi.mocked(requireAdmin).mockRejectedValue(
-            global.createError({ statusCode: 403, statusMessage: 'Forbidden' }),
+            createError({ statusCode: 403, statusMessage: 'Forbidden' }),
         )
 
         await expect(handler(mockEvent)).rejects.toThrow('Forbidden')
@@ -150,7 +152,7 @@ describe('POST /api/admin/marketing/campaigns', () => {
                 type,
             }
 
-            vi.mocked(global.readValidatedBody).mockImplementation(async (_event, validator) => await validator(mockBody))
+            vi.mocked(readValidatedBody).mockImplementation(async (_event, validator) => await validator(mockBody))
 
             const result = await handler(mockEvent)
 
@@ -181,7 +183,7 @@ describe('POST /api/admin/marketing/campaigns', () => {
             },
         }
 
-        vi.mocked(global.readValidatedBody).mockImplementation(async (_event, validator) => await validator(mockBody))
+        vi.mocked(readValidatedBody).mockImplementation(async (_event, validator) => await validator(mockBody))
 
         const result = await handler(mockEvent)
 

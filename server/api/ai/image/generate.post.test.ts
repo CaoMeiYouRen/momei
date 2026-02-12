@@ -6,6 +6,8 @@ import { requireAdminOrAuthor } from '@/server/utils/permission'
 vi.mock('@/server/services/ai')
 vi.mock('@/server/utils/permission')
 
+const { readBody } = global as any
+
 describe('POST /api/ai/image/generate', () => {
     beforeEach(() => {
         vi.clearAllMocks()
@@ -36,7 +38,7 @@ describe('POST /api/ai/image/generate', () => {
             style: 'vivid',
         }
 
-        vi.mocked(global.readBody).mockResolvedValue(mockBody)
+        vi.mocked(readBody).mockResolvedValue(mockBody)
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: { id: 'user-1', role: 'author' } as any,
             session: {} as any,
@@ -68,7 +70,7 @@ describe('POST /api/ai/image/generate', () => {
             quality: 'standard',
         }
 
-        vi.mocked(global.readBody).mockResolvedValue(mockBody)
+        vi.mocked(readBody).mockResolvedValue(mockBody)
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: { id: 'user-1', role: 'author' } as any,
             session: {} as any,
@@ -91,7 +93,7 @@ describe('POST /api/ai/image/generate', () => {
             quality: 'standard',
         }
 
-        vi.mocked(global.readBody).mockResolvedValue(mockBody)
+        vi.mocked(readBody).mockResolvedValue(mockBody)
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: { id: 'user-1', role: 'author' } as any,
             session: {} as any,
@@ -114,7 +116,7 @@ describe('POST /api/ai/image/generate', () => {
             quality: 'standard',
         }
 
-        vi.mocked(global.readBody).mockResolvedValue(mockBody)
+        vi.mocked(readBody).mockResolvedValue(mockBody)
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: { id: 'user-1', role: 'author' } as any,
             session: {} as any,
@@ -138,7 +140,7 @@ describe('POST /api/ai/image/generate', () => {
             quality: 'ultra', // Invalid value
         }
 
-        vi.mocked(global.readBody).mockResolvedValue(mockBody)
+        vi.mocked(readBody).mockResolvedValue(mockBody)
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: { id: 'user-1', role: 'author' } as any,
             session: {} as any,
@@ -161,7 +163,7 @@ describe('POST /api/ai/image/generate', () => {
             style: 'cartoon', // Invalid value
         }
 
-        vi.mocked(global.readBody).mockResolvedValue(mockBody)
+        vi.mocked(readBody).mockResolvedValue(mockBody)
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: { id: 'user-1', role: 'author' } as any,
             session: {} as any,
