@@ -28,7 +28,10 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             createQueryBuilder: vi.fn(() => ({
                 where: vi.fn().mockReturnThis(),
                 andWhere: vi.fn().mockReturnThis(),
-                getMany: vi.fn().mockResolvedValue([]),
+                getMany: vi.fn(() => new Promise((resolve) => {
+                    // 延迟一丁点时间，确保异步发送逻辑在测试断言之后或过程中执行
+                    setTimeout(() => resolve([]), 50)
+                })),
             })),
         }
 
@@ -65,7 +68,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(getRouterParam).mockReturnValue('campaign-123')
+        vi.mocked(global.getRouterParam).mockReturnValue('campaign-123')
 
         const result = await handler(mockEvent)
 
@@ -87,7 +90,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(getRouterParam).mockReturnValue('invalid-id')
+        vi.mocked(global.getRouterParam).mockReturnValue('invalid-id')
 
         await expect(handler(mockEvent)).rejects.toThrow('Campaign not found')
     })
@@ -106,7 +109,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(getRouterParam).mockReturnValue('campaign-123')
+        vi.mocked(global.getRouterParam).mockReturnValue('campaign-123')
 
         await expect(handler(mockEvent)).rejects.toThrow('Campaign already sent')
     })
@@ -130,7 +133,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
         const mockQueryBuilder = {
             where: vi.fn().mockReturnThis(),
             andWhere: vi.fn().mockReturnThis(),
-            getMany: vi.fn().mockResolvedValue(mockSubscribers),
+            getMany: vi.fn(() => new Promise((resolve) => setTimeout(() => resolve(mockSubscribers), 50))),
         }
 
         mockSubscriberRepo.createQueryBuilder.mockReturnValue(mockQueryBuilder)
@@ -142,7 +145,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(getRouterParam).mockReturnValue('campaign-123')
+        vi.mocked(global.getRouterParam).mockReturnValue('campaign-123')
 
         await handler(mockEvent)
 
@@ -174,7 +177,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
         const mockQueryBuilder = {
             where: vi.fn().mockReturnThis(),
             andWhere: vi.fn().mockReturnThis(),
-            getMany: vi.fn().mockResolvedValue([]),
+            getMany: vi.fn(() => new Promise((resolve) => setTimeout(() => resolve([]), 50))),
         }
 
         mockSubscriberRepo.createQueryBuilder.mockReturnValue(mockQueryBuilder)
@@ -185,7 +188,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(getRouterParam).mockReturnValue('campaign-123')
+        vi.mocked(global.getRouterParam).mockReturnValue('campaign-123')
 
         await handler(mockEvent)
 
@@ -211,7 +214,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
         const mockQueryBuilder = {
             where: vi.fn().mockReturnThis(),
             andWhere: vi.fn().mockReturnThis(),
-            getMany: vi.fn().mockResolvedValue(mockSubscribers),
+            getMany: vi.fn(() => new Promise((resolve) => setTimeout(() => resolve(mockSubscribers), 50))),
         }
 
         mockSubscriberRepo.createQueryBuilder.mockReturnValue(mockQueryBuilder)
@@ -226,7 +229,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(getRouterParam).mockReturnValue('campaign-123')
+        vi.mocked(global.getRouterParam).mockReturnValue('campaign-123')
 
         await handler(mockEvent)
 
@@ -261,7 +264,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(getRouterParam).mockReturnValue('campaign-123')
+        vi.mocked(global.getRouterParam).mockReturnValue('campaign-123')
 
         await handler(mockEvent)
 
@@ -299,7 +302,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
         const mockQueryBuilder = {
             where: vi.fn().mockReturnThis(),
             andWhere: vi.fn().mockReturnThis(),
-            getMany: vi.fn().mockResolvedValue([]),
+            getMany: vi.fn(() => new Promise((resolve) => setTimeout(() => resolve([]), 50))),
         }
 
         mockSubscriberRepo.createQueryBuilder.mockReturnValue(mockQueryBuilder)
@@ -310,7 +313,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
             },
         } as any
 
-        vi.mocked(getRouterParam).mockReturnValue('campaign-123')
+        vi.mocked(global.getRouterParam).mockReturnValue('campaign-123')
 
         await handler(mockEvent)
 

@@ -54,7 +54,7 @@
 
 ### 3. 极客阅读与系统交互 (Geek UX & Notifications) (P1)
 
-- [ ] **沉浸式阅读模式 (Immersive Reader Mode)**
+- [x] **沉浸式阅读模式 (Immersive Reader Mode)**
     - 验收: 文章详情页增加“沉浸阅读”开关，消除所有 UI 噪音。
     - 验收: 提供字号、行高调节以及“羊皮纸/护眼/暗黑”背景切换。
 - [ ] **实时通知系统基础 (SSE/Web Push Core)**
