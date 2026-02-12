@@ -1,4 +1,4 @@
-# scripts/setup-ai.ps1
+# scripts/setup/setup-ai.ps1
 $links = @{
     ".claude/agents" = ".github/agents"
     ".claude/skills" = ".github/skills"
