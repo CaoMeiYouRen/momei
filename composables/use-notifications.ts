@@ -105,7 +105,7 @@ export function useNotifications() {
     const startPolling = () => {
         if (pollingTimer.value) { return }
         // 降级轮询机制：每 60 秒检查一次
-        pollingTimer.value = setInterval(fetchNotifications, 60000)
+        pollingTimer.value = setInterval(fetchNotifications, 60 * 1000 * 2)
     }
 
     const stopPolling = () => {

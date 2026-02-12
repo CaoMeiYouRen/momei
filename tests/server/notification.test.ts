@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { notifyAdmins, createCampaignFromPost, getTargetSubscribers, sendMarketingCampaign, sendInAppNotification, registerNotificationConnection } from './notification'
+import { notifyAdmins, createCampaignFromPost, getTargetSubscribers, sendMarketingCampaign, sendInAppNotification, registerNotificationConnection } from '@/server/services/notification'
 import { dataSource } from '@/server/database'
 import { AdminNotificationEvent, MarketingCampaignStatus, MarketingCampaignType, NotificationType } from '@/utils/shared/notification'
 import { sendEmail } from '@/server/utils/email'
