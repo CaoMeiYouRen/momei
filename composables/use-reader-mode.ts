@@ -1,4 +1,5 @@
 import { useStorage } from '@vueuse/core'
+import { watch, onMounted } from 'vue'
 
 export type ReaderTheme = 'default' | 'sepia' | 'eye-care' | 'dark-night'
 
@@ -10,15 +11,16 @@ export interface ReaderSettings {
     theme: ReaderTheme
 }
 
-export const useReaderMode = () => {
-    const settings = useStorage<ReaderSettings>('momei-reader-settings', {
-        active: false,
-        fontSize: 18,
-        lineHeight: 1.8,
-        width: 800,
-        theme: 'default',
-    })
+// 提升到模块作用域，实现状态共享单例
+const settings = useStorage<ReaderSettings>('momei-reader-settings', {
+    active: false,
+    fontSize: 18,
+    lineHeight: 1.8,
+    width: 800,
+    theme: 'default',
+})
 
+export const useReaderMode = () => {
     const toggleReaderMode = (val?: boolean) => {
         settings.value.active = val !== undefined ? val : !settings.value.active
 
@@ -32,6 +34,10 @@ export const useReaderMode = () => {
                 // 恢复默认背景
                 document.body.style.backgroundColor = ''
                 document.body.style.color = ''
+                // 重置变量
+                const root = document.documentElement
+                root.style.removeProperty('--reader-bg')
+                root.style.removeProperty('--reader-text')
             }
         }
     }
@@ -64,17 +70,24 @@ export const useReaderMode = () => {
                 text = '#d7dadc'
                 break
             default:
-                // 默认主题下不强制背景，跟随系统
+                // 默认模式
                 bg = ''
                 text = ''
         }
 
         if (settings.value.active) {
-            document.body.style.backgroundColor = bg
-            document.body.style.color = text
-            // Markdown 内容区域也需要跟随
+            // 设置关键变量
             root.style.setProperty('--reader-bg', bg || 'inherit')
             root.style.setProperty('--reader-text', text || 'inherit')
+
+            // 直接应用背景到 body 以确保即时性
+            if (bg) {
+                document.body.style.setProperty('background-color', bg, 'important')
+                document.body.style.setProperty('color', text, 'important')
+            } else {
+                document.body.style.backgroundColor = ''
+                document.body.style.color = ''
+            }
         }
     }
 

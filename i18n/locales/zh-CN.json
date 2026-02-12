@@ -89,7 +89,7 @@
             "theme_default": "默认",
             "theme_sepia": "复古",
             "theme_eyecare": "护眼",
-            "theme_dark": "深夜"
+            "theme_darknight": "深夜"
         },
         "subscriber_form": {
             "title": "邮件订阅",

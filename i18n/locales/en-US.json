@@ -89,7 +89,7 @@
             "theme_default": "Default",
             "theme_sepia": "Sepia",
             "theme_eyecare": "Eye Care",
-            "theme_dark": "Dark"
+            "theme_darknight": "Night"
         },
         "subscriber_form": {
             "title": "Newsletter",
