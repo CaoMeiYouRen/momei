@@ -34,13 +34,18 @@ export const useReaderMode = () => {
                 updateCSSVariables()
             } else {
                 document.body.classList.remove('reader-mode-active')
-                // 恢复默认背景
-                document.body.style.backgroundColor = ''
-                document.body.style.color = ''
-                // 清理变量
+                // 恢复默认背景 (使用 removeProperty 以确保清除 !important)
+                document.body.style.removeProperty('background-color')
+                document.body.style.removeProperty('color')
+                // 清理所有注入的变量
                 root.style.removeProperty('--reader-bg')
                 root.style.removeProperty('--reader-text')
+                root.style.removeProperty('--reader-font-size')
+                root.style.removeProperty('--reader-line-height')
+                root.style.removeProperty('--reader-width')
                 root.style.removeProperty('--p-content-background')
+                root.style.removeProperty('--p-surface-0')
+                root.style.removeProperty('--p-surface-ground')
                 root.style.removeProperty('--p-text-color')
             }
         }
@@ -97,8 +102,8 @@ export const useReaderMode = () => {
                 root.style.removeProperty('--p-surface-0')
                 root.style.removeProperty('--p-surface-ground')
                 root.style.removeProperty('--p-text-color')
-                document.body.style.backgroundColor = ''
-                document.body.style.color = ''
+                document.body.style.removeProperty('background-color')
+                document.body.style.removeProperty('color')
             }
         }
     }

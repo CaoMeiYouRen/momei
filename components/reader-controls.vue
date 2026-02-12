@@ -1,17 +1,7 @@
 <template>
     <div class="reader-controls">
-        <!-- 切换按钮 -->
-        <Button
-            v-tooltip.left="settings.active ? $t('components.reader.mode_exit') : $t('components.reader.mode_enter')"
-            :icon="settings.active ? 'pi pi-times' : 'pi pi-book'"
-            severity="secondary"
-            rounded
-            class="reader-controls__toggle"
-            @click="toggleReaderMode()"
-        />
-
         <!-- 设置面板 -->
-        <div v-if="settings.active" class="reader-controls__panel">
+        <div v-if="settings.active && isPanelExpanded" class="reader-controls__panel">
             <h3 class="font-bold mb-4 mt-0 text-lg">
                 {{ $t('components.reader.settings_title') }}
             </h3>
@@ -77,6 +67,29 @@
                 />
             </div>
         </div>
+
+        <div class="reader-controls__actions">
+            <!-- 退出沉浸模式按钮 (仅在激活时显示) -->
+            <Button
+                v-if="settings.active"
+                v-tooltip.left="$t('components.reader.mode_exit')"
+                icon="pi pi-times"
+                severity="secondary"
+                rounded
+                class="reader-controls__toggle"
+                @click="toggleReaderMode(false)"
+            />
+
+            <!-- 设置面板切换 / 开启沉浸阅读 -->
+            <Button
+                v-tooltip.left="settings.active ? $t('components.reader.settings_title') : $t('components.reader.mode_enter')"
+                :icon="settings.active ? 'pi pi-cog' : 'pi pi-book'"
+                :severity="settings.active && isPanelExpanded ? 'primary' : 'secondary'"
+                rounded
+                class="reader-controls__toggle"
+                @click="handleToggle"
+            />
+        </div>
     </div>
 </template>
 
@@ -84,6 +97,23 @@
 import { useReaderMode, type ReaderTheme } from '@/composables/use-reader-mode'
 
 const { settings, toggleReaderMode, isDark } = useReaderMode()
+
+const isPanelExpanded = ref(false)
+
+const handleToggle = () => {
+    if (settings.value.active) {
+        isPanelExpanded.value = !isPanelExpanded.value
+    } else {
+        toggleReaderMode(true)
+    }
+}
+
+// 监听状态变化，退出模式时重置面板展开状态
+watch(() => settings.value.active, (active) => {
+    if (!active) {
+        isPanelExpanded.value = false
+    }
+})
 
 const themes: { id: ReaderTheme }[] = [
     { id: 'default' },
@@ -113,7 +143,11 @@ const resetSettings = () => {
 // 监听 Esc 键退出
 const handleEsc = (e: KeyboardEvent) => {
     if (e.key === 'Escape' && settings.value.active) {
-        toggleReaderMode(false)
+        if (isPanelExpanded.value) {
+            isPanelExpanded.value = false
+        } else {
+            toggleReaderMode(false)
+        }
     }
 }
 
