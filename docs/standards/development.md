@@ -75,7 +75,15 @@ AI 在生成代码时应严格遵守以下约定：
 5.  **文件命名**: 统一使用 kebab-case 格式 (如 `article-card.vue`)。
 6.  **SEO 优化**: 每个页面及文章详情页必须配置 `useHead` 或 `definePageMeta` 中的 SEO 信息。
 
-### 2.6 提交规范 (Commit Standards)
+### 2.6 Git 工作流与 Worktree 规范 (Git Workflow & Worktree)
+
+项目采用 Git Worktree 进行多分支并行管理，详情请参阅 [Git 工作流规范](./git.md)。
+
+- **分支职责**: `master` (主分支/Hotfix), `dev` (开发), `test` (测试), `fix` (修复), `docs` (文档)。
+- **工作树路径**: 统一采用 `../momei-[branch]` 格式，与主目录同级。
+- **环境隔离**: 各工作树应保持环境独立，避免跨目录误操作。
+
+### 2.7 提交规范 (Commit Standards)
 
 遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范，commit message 使用中文描述变更内容：
 
@@ -90,7 +98,7 @@ AI 在生成代码时应严格遵守以下约定：
 -   `build`: 构建相关
 -   `chore`: 构建/工具链变动
 
-### 2.7 提交规模与原子化改动 (Commit Scale & Atomic Changes)
+### 2.8 提交规模与原子化改动 (Commit Scale & Atomic Changes)
 
 为了确保代码的可追溯性与审核效率，必须严格控制每次代码改动的规模：
 
@@ -100,7 +108,7 @@ AI 在生成代码时应严格遵守以下约定：
 4.  **大任务拆分**: 在执行大规模改动（重构或复杂功能实现）时，应当将其拆分为多个步骤的小规模改动，并分别进行提交。
 5.  **质量关卡**: 在执行 git commit 之前，必须确保代码通过了本地的质量校验（Lint + Typecheck + Test）。
 
-### 2.8 文档编写规范 (Documentation Standards)
+### 2.9 文档编写规范 (Documentation Standards)
 
 所有项目文档的编写必须遵循 [文档规范文档](./documentation.md)。
 

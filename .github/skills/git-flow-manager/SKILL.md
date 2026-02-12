@@ -10,34 +10,35 @@ applyTo: "**/*"
 
 ## 能力 (Capabilities)
 
--   **分支管理**: 创建、切换、删除分支 (`git branch`, `git checkout`, `git switch`)。
+-   **多分支并行管理**: 熟练操作 `master` (发布), `dev` (开发), `test` (测试), `fix` (修复) 和 `docs` (文档) 分支。
+-   **工作空间维护**: 深度集成 `git worktree` 管理多个物理工作目录；使用 `git stash` 暂存未完成的代码。
 -   **同步协作**: 拉取、推送与变基 (`git pull`, `git push`, `git rebase`, `git fetch`)。
--   **工作空间维护**: 使用 `git worktree` 管理多个工作目录；使用 `git stash` 暂存未完成的代码。
 -   **合并与冲突**: 处理代码合并 (`git merge`) 并辅助解决冲突。
 -   **历史审查**: 使用 `git log`, `git show`, `git diff` 审查变更历史。
 
 ## 指令 (Instructions)
 
-1.  **原子操作**: 在执行推送 (`push`) 前，必须确保本地代码已与远程分支同步 (`pull --rebase`)。
-2.  **上下文保护**: 当需要处理紧急 Bug 或审查其他分支代码时，优先使用 `git worktree` 或 `git stash` 保护当前工作现场。
-3.  **安全性**: 严禁在主分支执行危险操作（如 `force push`），除非有明确指示。
-4.  **与提交分离**: 本技能专注于 Git 基础架构操作。具体的代码暂存与规范化提交动作，请调用 [@conventional-committer](../conventional-committer/SKILL.md)。
+1.  **Worktree 优先**: 处理不同维度的任务（如开发 vs 测试）时，应优先检查并使用对应的 Git Worktree（如 `../momei-dev`, `../momei-test`）。
+2.  **原子操作**: 在执行推送 (`push`) 前，必须确保本地代码已与远程分支同步 (`pull --rebase`)。
+3.  **环境清理**: 任务完成后，及时使用 `git worktree remove` 移除临时工作树，并执行 `git worktree prune` 清理残留元数据。
+4.  **上下文保护**: 当需要处理紧急 Bug 时，若对应 Worktree 不可用，优先使用 `git worktree add` 创建新现场。
 
 ## 规范 (Conventions)
--   **分支命名**: 使用清晰的分支命名规范，如 `feature/xxx`, `bugfix/xxx`, `hotfix/xxx`。
--   **提交信息**: 遵循规范化提交格式，确保每次提交都包含明确的变更描述和关联的任务编号（如果适用）。
--   **工作树管理**: 在需要同时处理多个分支时，优先使用 `git worktree` 来避免频繁切换分支导致的上下文丢失。
--   **暂存管理**: 在切换分支前，使用 `git stash` 暂存未完成的工作，以确保工作环境的整洁和安全。
--   **代码审查**: 定期使用 `git log` 和 `git diff` 审查代码变更，确保代码质量和历史清晰。
--   **协作流程**: 在团队协作中，确保在推送代码前与团队成员同步，避免冲突和重复工作。
--   **清理工作树**: 定期清理不再需要的工作树和暂存，以保持仓库的整洁和高效。
--   **删除分支**: 在分支合并完成后，及时删除不再需要的分支，以减少仓库的混乱和维护成本。
--   **安全操作**: 在执行任何可能影响主分支的操作前，确保有备份或明确的回滚计划，以防止数据丢失。
+-   **分支角色**: 遵循 [Git 工作流规范](../../../docs/standards/git.md) 定义的分支职责：
+    -   `master`: 仅限合并与 Hotfix。
+    -   `dev`: 日常功能迭代。
+    -   `test`: 测试用例与质量保障。
+    -   `fix`: Bug 修复与非功能性改动。
+    -   `docs`: 文档维护。
+-   **工作树路径**: 统一使用 `../momei-[branch]` 格式的同级目录。
+-   **清理规范**: 定期清理不再需要的工作树，保持开发环境整洁。
+-   **暂存管理**: 切换分支或工作树前，确保当前改动已提交或 `stash`。
+-   **安全性**: 严禁在 `master` 分支执行非 Hotfix 的直接修改或 `force push`。
 
 ## 使用示例 (Usage Example)
 
-输入: "我想在不影响当前开发的情况下，另开一个目录修复 Bug。"
-动作: 执行 `git worktree add ../momei-hotfix hotfix-branch`。
+输入: "我需要去 dev 分支开发新功能。"
+动作: 检查 `../momei-dev` 目录，若不存在则执行 `git worktree add ../momei-dev dev`，随后在对应目录工作。
 
-输入: "把现在的改动存起来，我要切换到 master。"
-动作: 执行 `git stash push -m "work in progress"` 随后执行 `git checkout master`。
+输入: "清理所有没用的工作树。"
+动作: 执行 `git worktree prune` 随后根据需要 `rm` 或 `git worktree remove` 对应目录。

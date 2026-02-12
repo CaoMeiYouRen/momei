@@ -54,6 +54,11 @@ AI 在生成或修改代码时，必须优先参考 [开发规范文档 - 代码
 
 在执行脚本或命令前，必须进行环境检查与路径校验。具体的脚本安全准则请参考 [安全开发规范](./docs/standards/security.md#6-终端命令与自动化安全-cli--automation-security)。
 
+### 6.3 Git 工作树与隔离 (Git Worktree & Isolation)
+
+- AI 代理应具备“多分支意识”，根据任务属性（开发、测试、文档、修复）优先在对应的 Git Worktree（如 `../momei-dev`, `../momei-test`）中执行任务。
+- 严禁在未经授权的情况下跨工作树修改不属于该范畴的代码。
+
 ## 7. 其他要求
 
 1.  **多语言响应**: 在与用户沟通时，应使用用户发送的语言进行回复（默认为中文）。
@@ -62,5 +67,5 @@ AI 在生成或修改代码时，必须优先参考 [开发规范文档 - 代码
 ## 8. 相关文档
 
 -   **规划**: [项目路线图](./docs/plan/roadmap.md) | [待办事项](./docs/plan/todo.md)
--   **规范**: [开发规范](./docs/standards/development.md) | [安全规范](./docs/standards/security.md) | [API 规范](./docs/standards/api.md) | [测试规范](./docs/standards/testing.md) | [AI 协作规范](./docs/standards/ai-collaboration.md) | [文档规范](./docs/standards/documentation.md)
+-   **规范**: [开发规范](./docs/standards/development.md) | [Git 规范](./docs/standards/git.md) | [安全规范](./docs/standards/security.md) | [API 规范](./docs/standards/api.md) | [测试规范](./docs/standards/testing.md) | [AI 协作规范](./docs/standards/ai-collaboration.md) | [文档规范](./docs/standards/documentation.md)
 -   **设计**: [UI 设计](./docs/design/ui.md) | [API 设计](./docs/design/api.md) | [项目规划规范](./docs/standards/planning.md)
