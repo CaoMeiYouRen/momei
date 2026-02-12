@@ -21,7 +21,7 @@
                 <label>{{ $t('components.reader.theme') }}</label>
                 <div class="reader-controls__themes">
                     <button
-                        v-for="t in themes"
+                        v-for="t in filteredThemes"
                         :key="t.id"
                         :class="['reader-controls__theme-btn', `theme-${t.id}`, {'reader-controls__theme-btn--active': settings.theme === t.id}]"
                         @click="settings.theme = t.id"
@@ -83,7 +83,7 @@
 <script setup lang="ts">
 import { useReaderMode, type ReaderTheme } from '@/composables/use-reader-mode'
 
-const { settings, toggleReaderMode } = useReaderMode()
+const { settings, toggleReaderMode, isDark } = useReaderMode()
 
 const themes: { id: ReaderTheme }[] = [
     { id: 'default' },
@@ -91,6 +91,14 @@ const themes: { id: ReaderTheme }[] = [
     { id: 'eye-care' },
     { id: 'dark-night' },
 ]
+
+const filteredThemes = computed(() => {
+    // 亮色模式下隐藏深色阅读主题
+    if (!isDark.value) {
+        return themes.filter((t) => t.id !== 'dark-night')
+    }
+    return themes
+})
 
 const resetSettings = () => {
     settings.value = {

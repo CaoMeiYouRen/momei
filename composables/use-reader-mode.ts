@@ -1,4 +1,4 @@
-import { useStorage } from '@vueuse/core'
+import { useStorage, useDark } from '@vueuse/core'
 import { watch, onMounted } from 'vue'
 
 export type ReaderTheme = 'default' | 'sepia' | 'eye-care' | 'dark-night'
@@ -21,11 +21,14 @@ const settings = useStorage<ReaderSettings>('momei-reader-settings', {
 })
 
 export const useReaderMode = () => {
+    const isDark = useDark()
+
     const toggleReaderMode = (val?: boolean) => {
         settings.value.active = val !== undefined ? val : !settings.value.active
 
         // 当进入模式时，添加全局类名到 body
         if (import.meta.client) {
+            const root = document.documentElement
             if (settings.value.active) {
                 document.body.classList.add('reader-mode-active')
                 updateCSSVariables()
@@ -34,10 +37,11 @@ export const useReaderMode = () => {
                 // 恢复默认背景
                 document.body.style.backgroundColor = ''
                 document.body.style.color = ''
-                // 重置变量
-                const root = document.documentElement
+                // 清理变量
                 root.style.removeProperty('--reader-bg')
                 root.style.removeProperty('--reader-text')
+                root.style.removeProperty('--p-content-background')
+                root.style.removeProperty('--p-text-color')
             }
         }
     }
@@ -70,7 +74,7 @@ export const useReaderMode = () => {
                 text = '#d7dadc'
                 break
             default:
-                // 默认模式
+                // 默认模式跟随系统，不强制覆盖
                 bg = ''
                 text = ''
         }
@@ -80,11 +84,19 @@ export const useReaderMode = () => {
             root.style.setProperty('--reader-bg', bg || 'inherit')
             root.style.setProperty('--reader-text', text || 'inherit')
 
-            // 直接应用背景到 body 以确保即时性
+            // 如果选择了特定主题，强制覆盖 PrimeVue 基础变量以实现“主题透传”
             if (bg) {
+                root.style.setProperty('--p-content-background', bg)
+                root.style.setProperty('--p-surface-0', bg)
+                root.style.setProperty('--p-surface-ground', bg)
+                root.style.setProperty('--p-text-color', text)
                 document.body.style.setProperty('background-color', bg, 'important')
                 document.body.style.setProperty('color', text, 'important')
             } else {
+                root.style.removeProperty('--p-content-background')
+                root.style.removeProperty('--p-surface-0')
+                root.style.removeProperty('--p-surface-ground')
+                root.style.removeProperty('--p-text-color')
                 document.body.style.backgroundColor = ''
                 document.body.style.color = ''
             }
@@ -98,6 +110,13 @@ export const useReaderMode = () => {
         }
     }, { deep: true })
 
+    // 自动重置不兼容的主题（如：亮色模式下却设为深色阅读主题）
+    watch(() => isDark.value, (newIsDark) => {
+        if (!newIsDark && settings.value.theme === 'dark-night') {
+            settings.value.theme = 'default'
+        }
+    })
+
     // 初始化检查
     onMounted(() => {
         if (settings.value.active) {
@@ -107,6 +126,7 @@ export const useReaderMode = () => {
 
     return {
         settings,
+        isDark,
         toggleReaderMode,
         updateCSSVariables,
     }
