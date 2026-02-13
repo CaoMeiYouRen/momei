@@ -360,11 +360,7 @@ onMounted(async () => {
 .post-detail {
     max-width: 72rem;
     margin: 0 auto;
-    padding: 2rem 1.25rem;
-
-    @media (width <= 768px) {
-        padding: 1rem 0.75rem;
-    }
+    padding: 2rem 1rem;
 
     &__loading {
         display: flex;
@@ -454,12 +450,6 @@ onMounted(async () => {
         border-radius: 0.75rem;
         box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
 
-        @media (width <= 768px) {
-            aspect-ratio: 16 / 9;
-            margin-bottom: 1.5rem;
-            border-radius: 0.5rem;
-        }
-
         img {
             width: 100%;
             height: 100%;
@@ -508,17 +498,9 @@ onMounted(async () => {
         box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
         border: 1px solid var(--p-surface-border);
 
-        @media (width <= 1024px) {
-            padding: 2rem;
-        }
-
         @media (width <= 768px) {
             padding: 1.5rem;
             border-radius: 0.75rem;
-        }
-
-        @media (width <= 480px) {
-            padding: 1.25rem 1rem;
         }
     }
 
@@ -633,18 +615,6 @@ onMounted(async () => {
         margin-bottom: 1rem;
         font-size: 0.875rem;
         color: var(--p-text-muted-color);
-        overflow-x: auto;
-        white-space: nowrap;
-        scrollbar-width: none; // Hide scrollbar for cleaner look
-
-        &::-webkit-scrollbar {
-            display: none;
-        }
-
-        @media (width <= 768px) {
-            margin-bottom: 0.75rem;
-            font-size: 0.8125rem;
-        }
     }
 
     &__breadcrumb-separator {
@@ -657,11 +627,6 @@ onMounted(async () => {
         line-height: 1.25;
         margin-bottom: 1.5rem;
         color: var(--p-text-color);
-
-        @media (width <= 768px) {
-            font-size: 1.75rem;
-            margin-bottom: 1.25rem;
-        }
     }
 
     &__meta {
@@ -676,7 +641,6 @@ onMounted(async () => {
 
         @media (width <= 768px) {
             gap: 0.75rem 1rem;
-            padding-bottom: 1.5rem;
         }
     }
 
@@ -703,12 +667,6 @@ onMounted(async () => {
         align-items: center;
         gap: 0.25rem;
         white-space: nowrap;
-
-        @media (width <= 768px) {
-            i {
-                font-size: 0.75rem;
-            }
-        }
     }
 
     &__footer {
