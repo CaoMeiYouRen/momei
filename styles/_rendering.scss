@@ -42,6 +42,8 @@
   // Copy Code Button
   pre {
     position: relative;
+    overflow-x: auto;
+    max-width: 100%;
 
     .copy-code-wrapper {
         position: absolute;

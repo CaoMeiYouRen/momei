@@ -20,7 +20,7 @@
     background-color: var(--p-surface-ground);
 
     &__main {
-        @include page-container;
+        @include page-container(1440px);
 
         flex: 1;
         padding-top: $spacing-md;

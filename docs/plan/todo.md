@@ -48,6 +48,13 @@
     - 验收: 实现 **Volcengine (Streaming)** 驱动，支持通过 WebSocket 进行流式实时对讲。
     - 验收: 后端建立统一转写控制器，通过环境变量配置 API Key，确保密钥安全。
     - 验收: 优化文章编辑器中的“语音润色”工作流，支持识别后自动调用 LLM 整理大纲。
+
+### 3. UI 交互体验优化 (UI & UX Optimization) (P0)
+
+- [x] **文章详情页响应式布局优化 (Article Detail Responsive Layout)**
+    - 校验: 修复文章宽度导致的横向滚动条问题。
+    - 校验: 修复移动端工具栏和底边栏宽度及按钮定位问题。
+    - 校验: 优化文章正文在不同屏幕尺寸下的动态响应能力。
 - [ ] **AI 图像驱动补全 (AI Image Drivers)**
     - 验收: 完成 **Gemini 3 Pro Image** 驱动，支持文本生成图片。
     - 验收: 完成 **Stable Diffusion** (WebUI API) 驱动，支持调用本地或云端 SD 实例。

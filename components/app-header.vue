@@ -448,7 +448,6 @@ watch(preferredDark, (newVal) => {
     background-color: var(--p-surface-card);
     border-bottom: 1px solid var(--p-surface-border);
     height: 64px;
-    padding: 0 $spacing-md;
     position: sticky;
     top: 0;
     z-index: $z-index-header;
@@ -456,7 +455,7 @@ watch(preferredDark, (newVal) => {
     align-items: center;
 
     &__container {
-        @include page-container;
+        @include page-container(1440px);
 
         display: flex;
         justify-content: space-between;

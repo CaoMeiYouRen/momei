@@ -492,14 +492,19 @@ onMounted(async () => {
     &__main {
         flex: 1;
         min-width: 0;
+        max-width: 900px;
         background-color: var(--p-surface-card);
         padding: 2.5rem;
         border-radius: 1rem;
         box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
         border: 1px solid var(--p-surface-border);
 
+        @media (width <= 1024px) {
+            max-width: 100%;
+        }
+
         @media (width <= 768px) {
-            padding: 1.5rem;
+            padding: 1.25rem;
             border-radius: 0.75rem;
         }
     }

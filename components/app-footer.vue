@@ -67,7 +67,7 @@ const { siteLogo, currentTitle } = useMomeiConfig()
 @use "@/styles/mixins" as *;
 
 .footer {
-  padding: $spacing-xl $spacing-md;
+  padding: $spacing-xl 0;
   background-color: var(--p-surface-card);
   border-top: 1px solid var(--p-surface-border);
   color: var(--p-text-color);
@@ -75,7 +75,7 @@ const { siteLogo, currentTitle } = useMomeiConfig()
   margin-top: auto;
 
   &__container {
-    @include page-container;
+    @include page-container(1440px);
 
     display: flex;
     flex-direction: column;
