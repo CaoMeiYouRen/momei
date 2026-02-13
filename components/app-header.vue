@@ -460,6 +460,11 @@ watch(preferredDark, (newVal) => {
         display: flex;
         justify-content: space-between;
         align-items: center;
+
+        @media (width >= 768px) and (width < 1024px) {
+            padding-left: $spacing-md;
+            padding-right: $spacing-md;
+        }
     }
 
     &__actions {

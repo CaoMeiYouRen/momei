@@ -74,7 +74,11 @@
             </div>
 
             <!-- Cover Image -->
-            <div v-if="post.coverImage" class="post-detail__cover">
+            <div
+                v-if="post.coverImage"
+                class="post-detail__cover"
+                @click="openLightbox(post.coverImage)"
+            >
                 <img
                     :src="post.coverImage"
                     :alt="post.title"
@@ -256,6 +260,19 @@
             </div>
             <ReaderControls />
         </div>
+
+        <!-- 预览大图 Lightbox -->
+        <Dialog
+            v-model:visible="lightboxVisible"
+            modal
+            dismissable-mask
+            :show-header="false"
+            content-class="lightbox-dialog-content"
+        >
+            <div class="lightbox-wrapper" @click="lightboxVisible = false">
+                <img :src="lightboxImage" class="lightbox-image">
+            </div>
+        </Dialog>
     </div>
 </template>
 
@@ -285,6 +302,15 @@ const endpoint = isId ? `/api/posts/${idOrSlug}` : `/api/posts/slug/${idOrSlug}`
 const { data, pending, error, refresh } = await useAppFetch<any>(() => endpoint)
 
 const post = computed(() => data.value?.data)
+
+// Lightbox Logic
+const lightboxVisible = ref(false)
+const lightboxImage = ref('')
+
+const openLightbox = (image: string) => {
+    lightboxImage.value = image
+    lightboxVisible.value = true
+}
 
 // Unlock Logic
 const password = ref('')
@@ -358,9 +384,11 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .post-detail {
-    max-width: 72rem;
+    @include page-container(1440px);
+
     margin: 0 auto;
-    padding: 2rem 1rem;
+    padding-top: $spacing-lg;
+    padding-bottom: $spacing-xl;
 
     &__loading {
         display: flex;
@@ -444,16 +472,39 @@ onMounted(async () => {
     }
 
     &__cover {
-        aspect-ratio: 21 / 9;
-        margin-bottom: 2rem;
+        width: 100%;
+        margin: 0 auto 2rem;
         overflow: hidden;
         border-radius: 0.75rem;
         box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        cursor: zoom-in;
+        transition: transform $transition-base;
+
+        &:hover {
+            transform: scale(1.005);
+        }
 
         img {
             width: 100%;
-            height: 100%;
+            height: auto;
+            max-height: 60vh;
             object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+
+        @media (width <= 768px) {
+            border-radius: 0;
+            margin-left: -$spacing-md;
+            margin-right: -$spacing-md;
+            width: calc(100% + #{$spacing-md * 2});
+        }
+
+        @media (width > 768px) and (width < 1024px) {
+            margin-left: -$spacing-xl;
+            margin-right: -$spacing-xl;
+            width: calc(100% + #{$spacing-xl * 2});
+            border-radius: 0;
         }
     }
 
