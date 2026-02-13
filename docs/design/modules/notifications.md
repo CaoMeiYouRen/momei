@@ -4,112 +4,126 @@
 
 本模块旨在为用户提供中心化的订阅管理和通知偏好设置，同时为管理员提供轻量化的营销内容分发中心。系统明确区分**强制性系统通知**与**可选性营销通知**，确保用户体验与合规性。
 
-## 2. 核心概念 (Core Concepts)
+## 2. 核心架构 (Core Architecture)
 
-- **系统通知 (System Notifications)**: 涉及账户安全、法律合规及核心业务变更的通知。此类通知通常是强制性的。
-- **营销通知 (Marketing Notifications)**: 涉及内容更新、功能推荐及活动推广的通知。此类通知由管理员发起，用户可自主选择订阅或退订。
-- **维度级订阅 (Dimensional Subscription)**: 允许用户按分类 (Categories) 或标签 (Tags) 订阅特定内容的更新。
+### 2.1 统一通知矩阵 (Unified Notification Matrix)
+
+系统基于“事件 (Event) x 渠道 (Channel)”的矩阵模式管理所有通知。
+
+- **事件 (Event)**: 系统中触发通知的动作（如：新评论、用户注册、密码重置、文章发布）。
+- **渠道 (Channel)**: 通知送达的方式（如：邮件、站内信、Web Push、SMS、Webhook）。
+- **控制逻辑**:
+    - **系统默认 (Admin Matrix)**: 管理员全局配置哪些事件允许开启哪些渠道，并标记哪些是“强制性 (Mandatory)”的。
+        - **注意**: 集成在 `better-auth` 中的核心事件（如 OTP、重置密码）在矩阵中仅作为“只读”展示，确保管理员了解其触发逻辑但无法错误关闭。
+    - **用户偏好 (User Matrix)**: 用户在管理员允许的范围内，自主选择是否开启特定渠道。对于强制性通知，用户不可关闭。
+
+### 2.2 流程生命周期 (Lifecycle)
+
+1. **触发 (Trigger)**: 业务逻辑调用 `notificationService.send(eventId, data, recipients)`.
+2. **过滤 (Filter)**: 
+    - 检查 Admin 配置：该事件在此渠道是否启用？
+    - 检查 User 配置：用户是否订阅了此事件的此渠道？(若是 Mandatory 则跳过此步)。
+3. **分发 (Dispatch)**: 根据渠道调用对应的适配器（EmailAdapter, InAppAdapter 等）。
+4. **清理 (Cleanup)**: 针对非持久化渠道同步完成；针对站内信，根据保留策略定期清理旧记录。
 
 ## 3. 数据库设计 (Database Schema)
 
-### 3.1 订阅者表 (`Subscriber`) 扩展
-现有的 `Subscriber` 表需要扩展以支持多维度订阅偏好。
+### 3.1 事件定义 (NotificationEvent - 枚举)
+事件 ID 采用命名空间格式：`模块.对象.动作`。
+
+| 分类 | 事件 ID 示例 | 说明 | 强制性建议 | 管理权限 |
+| :--- | :--- | :--- | :--- | :--- |
+| **认证** | `auth.user.otp` | 登录验证码 | 是 | 只读 (Better-Auth) |
+| | `auth.user.reset_pwd` | 密码重置链接 | 是 | 只读 (Better-Auth) |
+| **站务** | `audit.comment.new` | 管理员收到新评论 | 否 | 可编辑 |
+| | `system.error.api` | API 异常警报 | 否 | 可编辑 |
+| **交互** | `social.comment.reply` | 评论被回复 | 否 | 可编辑 |
+| **营销** | `marketing.blog.publish` | 新文章发布 | 否 | 可编辑 |
+
+### 3.2 矩阵配置表
+/* ...existing code... */
+
+### 3.4 通知统计表 (`NotificationStatistics`)
+记录每日或核心维度的推送消耗，用于成本控制与异常监测。
 
 | 字段 | 类型 | 说明 |
 | :--- | :--- | :--- |
-| `subscribedCategories` | `json` | 订阅的分类 ID 数组 |
-| `subscribedTags` | `json` | 订阅的标签 ID 数组 |
-| `isMarketingEnabled` | `boolean` | 是否开启营销类邮件通知 |
+| `date` | `date` | 统计日期 |
+| `eventId` | `string` | 事件 ID |
+| `channel` | `string` | 渠道 |
+| `count` | `number` | 发送成功次数 |
+| `failCount` | `number` | 发送失败次数 |
+| `costInfo` | `json` | 预估成本（可选，如邮件服务商计费） |
 
-### 3.2 通知设置表 (`NotificationSettings`)
-存储用户对不同类型通知的接收偏好。
-
-| 字段 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| `userId` | `string` | 关联的用户 ID |
-| `type` | `enum` | 通知类型 (SECURITY, SYSTEM, MARKETING, COMMENT_REPLY) |
-| `channel` | `enum` | 通知渠道 (目前支持 EMAIL，规划中：IN_APP) |
-| `isEnabled` | `boolean` | 是否开启 |
-
-### 3.3 营销推送表 (`MarketingCampaign`)
-存储管理员发送的营销推送记录。
+#### 管理员矩阵 (`AdminNotificationConfig`)
+定义全局规则。
 
 | 字段 | 类型 | 说明 |
 | :--- | :--- | :--- |
-| `title` | `string` | 推送标题 |
-| `content` | `text` | 推送正文 (支持简单的 HTML/Markdown) |
-| `type` | `enum` | 邮件类型: <br> - `UPDATE`: 版本更新 <br> - `FEATURE`: 功能推荐 <br> - `PROMOTION`: 活动推广 <br> - `BLOG_POST`: 博客发布 <br> - `MAINTENANCE`: 停机维护 <br> - `SERVICE`: 服务变动 |
-| `targetCriteria` | `json` | 推送目标条件 (如特定标签/分类订阅者) |
-| `senderId` | `string` | 发送管理员 ID |
-| `sentAt` | `datetime` | 实际发送完成时间 |
-| `scheduledAt` | `datetime` | 计划发送时间 (若为定时任务) |
-| `status` | `enum` | 状态 (DRAFT, SCHEDULED, SENDING, COMPLETED, FAILED) |
+| `eventId` | `string` | 事件 ID (枚举值) |
+| `channel` | `string` | 渠道 (EMAIL, IN_APP, etc.) |
+| `isEnabled` | `boolean` | 全局是否启用 |
+| `isMandatory` | `boolean` | 是否强制（用户不可在前端关闭） |
 
-### 3.4 管理员通知配置 (`AdminNotificationSettings`)
-存储管理员对站务事件的接收偏好。
+#### 用户矩阵 (`UserNotificationPreference`)
+记录个人偏好。
 
 | 字段 | 类型 | 说明 |
 | :--- | :--- | :--- |
-| `event` | `enum` | 场景: `NEW_USER`, `NEW_COMMENT`, `API_ERROR`, `SYSTEM_ALERT` |
-| `isEmailEnabled` | `boolean` | 是否发送邮件 |
-| `isBrowserEnabled` | `boolean` | 是否发送浏览器通知 |
+| `userId` | `string` | 用户 ID |
+| `eventId` | `string` | 事件 ID |
+| `channel` | `string` | 渠道 |
+| `isEnabled` | `boolean` | 个人是否开启 |
 
-## 4. 博客发布集成 (Blog Integration)
+### 3.3 站内信表 (`InAppNotification`)
+存储用户可阅读的历史记录。
 
-### 4.1 自动推送流程 (自动化与人工介入权衡)
-1. **触发条件**: 管理员点击“发布”按钮。
-2. **二次确认 (Secondary Confirmation)**: 弹出一个小对话框，询问管理员：
-    - [ ] **不同步推送**: 仅发布文章。
-    - [ ] **存为推送草稿**: 自动生成营销记录，状态为 `DRAFT`，不实际发信。
-    - [ ] **立即推送到订阅者**: 自动生成记录并立即加入发送队列。
-3. **逻辑执行**:
-    - 仅在文章状态从 `DRAFT` 或 `HIDDEN` 变为 `PUBLISHED` 的**首次**发布时生效。
-    - 系统自动以文章标题为 `MarketingCampaign.title`，以摘要和封面图为 `content`。
-    - 目标人群默认为文章所属分类/标签的订阅者。
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `userId` | `string` | 接收者 ID |
+| `title` | `string` | 国际化标题 |
+| `content` | `text` | 国际化正文 |
+| `link` | `string` | 点击跳转链接 |
+| `isRead` | `boolean` | 已读状态 |
+| `expiresAt` | `datetime` | 过期时间 (用于自动清理) |
 
-### 4.2 手动重新推送 (Manual Re-push)
-- **入口**: 在文章管理列表或编辑页详情中。
-- **功能**: 对于状态已为 `PUBLISHED` 的文章，允许管理员随时触发“重新推送”。
-- **确认逻辑**: 同样提供“存为草稿”与“立即发送”的选择，或直接打开完整的营销编辑器进行微调。
+## 4. 界面设计 (UI/UX Design)
 
-### 4.3 定时推送 (Scheduled Push)
-除博客关联推送外，独立的营销任务也支持定时发送。
-1.  **设置**: 在营销编辑器中选择“计划发送时间”。
-2.  **状态**: 任务保存后进入 `SCHEDULED` 状态。
-3.  **扫描**: 任务引擎 (`server/services/task.ts`) 每 5 分钟扫描一次。
-4.  **执行**: 到达预定时间后，引擎自动调用推送接口。
+### 4.1 管理员：通知控制台 (Admin Notification Console)
+- **位置**: 后台管理 -> 系统设置 -> 通知中心。
+- **展示矩阵**: 
+    - 列表展示所有触发事件。
+    *Better-Auth 事件*（如找回密码）标记为“系统级/核心”，开关为禁用状态但显示为开启。
+- **监控仪表盘**: 
+    - **今日概览**: 实时显示各渠道发送量（Email/In-App）。
+    - **成本看板**: 根据发送频率计算预估消耗，设定“消耗预警阈值”，超过阈值（如一小时内发送超过 500 封邮件）自动锁定营销通道并通知管理员。
+    - **异常检测**: 监控验证码类邮件的请求频率，识别恶意刷信行为。
 
-## 5. 邮件模板系统 (Email Templates)
+### 4.2 用户：订阅管理 (User Subscription Center)
+- **位置**: 个人中心 -> 订阅与通知。
+- **展示**: 
+    - **频道管理**: 快速开启/重置所有邮件或站内信。
+    - **精细化设置**: 管理员标记为“可选”的事件列表，用户可勾选不同渠道。
 
-### 5.1 动态变量 (Dynamic Variables)
-- `{{userName}}`: 订阅者用户名/称呼。
-- `{{articleTitle}}`: 博客文章标题。
-- `{{articleSummary}}`: 博客摘要。
-- `{{articleCover}}`: 博客封面图 URL。
-- `{{articleLink}}`: 文章永久链接。
-- `{{siteUrl}}`: 博客主站链接。
-- `{{unsubLink}}`: 一键退订链接。
+### 4.3 用户：站内通知中心 (User Notification Hub)
+- **入口**: 顶部导航铃铛点击“查看全部”。
+- **功能**:
+    - 列表展示所有历史通知，支持按“未读/已读”筛选。
+    - 提供“全部标记已读”按钮。
+    - 自动清理：系统仅保留最近 30 天或 100 条记录（以先到者为准）。
 
-### 5.2 布局设计 (Card-Style HTML)
-借鉴 `components/article-card.vue` 的视觉风格，采用响应式 HTML 骨架：
-- **卡片容器**: 居中对齐，背景色 `#ffffff`，圆角 `8px`，轻微投影。
-- **封面图**: 如果有 `articleCover`，显示在最上方，铺满宽度。
-- **内容区**:
-    - **标题**: `font-size: 20px; font-weight: bold; color: #333; margin-bottom: 12px;`
-    - **元信息**: 分类名称或发布时间。
-    - **摘要**: `color: #666; font-size: 14px; line-height: 1.6;`
-- **操作区**: 居中的“阅读全文”按钮，背景色根据博客主色调动态填充。
-- **Footer**: 备案信息、社交媒体链接及**居中的退订链接**。
+## 5. 扩展性设计 (Extensibility)
 
-## 6. 管理员站务通知场景 (Admin Notification Scenarios)
+### 5.1 新渠道接入流程
+1. 在 `NotificationChannel` 枚举中增加新项。
+2. 实现 `NotificationAdapter` 接口（含 `send` 方法）。
+3. 在 `notificationService` 中注册该适配器。
+4. 管理员矩阵中自动出现该新渠道的列。
 
-管理员可配置在以下事件发生时接收邮件或站内通知：
-- **NEW_USER**: 当有新的订阅者或注册用户时。
-- **NEW_COMMENT**: 收到新评论（待审核）。
-- **API_ERROR**: 关键接口（如邮件发送接口、数据库迁移）报错时。
-- **SYSTEM_ALERT**: 登录异地提醒、连续登录失败或磁盘空间不足建议。
+### 5.2 必选通知逻辑 (Business Critical)
+对于“找回密码”、“登录验证”等核心流程，即使管理员在矩阵中误关闭，底层 Service 仍应具备“金牌通道”逻辑，确保业务不中断。
 
-## 7. API 接口设计 (API Design)
+## 6. API 接口设计 (API Design)
 
 ### 7.1 用户侧 (User Side)
 
@@ -128,6 +142,8 @@
 - `GET /api/admin/notifications/settings`: 获取站务通知接收偏好。
 - `PUT /api/admin/notifications/settings`: 更新站务通知接收偏好。
 - `POST /api/admin/marketing/from-post/:postId`: **核心联动**: 从特定文章快速生成营销推送。
+- `GET /api/admin/notifications/stats`: **成本控制**: 获取指定时间范围内的渠道消耗统计数据。
+- `GET /api/admin/notifications/alerts`: 获取异常发送警报记录。
 
 ## 8. UI/UX 设计 (UI/UX Design)
 
