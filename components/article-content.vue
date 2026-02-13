@@ -150,15 +150,31 @@ watch(() => props.content, () => {
         color: var(--p-text-color);
     }
 
-    h1 { font-size: 2.25em; }
+    h1 {
+        font-size: 2.25em;
+
+        @media (width <= 768px) { font-size: 1.875em; }
+    }
 
     h2 {
         font-size: 1.75em;
         border-bottom: 1px solid var(--p-surface-200);
         padding-bottom: 0.3em;
+
+        @media (width <= 768px) { font-size: 1.5em; }
     }
-    h3 { font-size: 1.5em; }
-    h4 { font-size: 1.25em; }
+
+    h3 {
+        font-size: 1.5em;
+
+        @media (width <= 768px) { font-size: 1.25em; }
+    }
+
+    h4 {
+        font-size: 1.25em;
+
+        @media (width <= 768px) { font-size: 1.1em; }
+    }
 
     p {
         margin-bottom: 1.5em;
@@ -233,6 +249,10 @@ watch(() => props.content, () => {
         margin: 2em auto;
         display: block;
         box-shadow: $shadow-md;
+
+        @media (width <= 768px) {
+            margin: 1.25em auto;
+        }
     }
 
     hr {
@@ -245,11 +265,24 @@ watch(() => props.content, () => {
         width: 100%;
         border-collapse: collapse;
         margin: 1.5em 0;
+        display: block; // Allow horizontal scrolling
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+
+        &::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: var(--p-surface-300);
+            border-radius: 2px;
+        }
 
         th, td {
             border: 1px solid var(--p-surface-200);
             padding: 0.75em;
             text-align: left;
+            min-width: 120px; // Ensure columns don't collapse too much
         }
 
         th {

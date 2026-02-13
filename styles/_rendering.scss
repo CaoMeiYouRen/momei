@@ -2,6 +2,37 @@
 @use "./variables" as *;
 
 .markdown-body {
+  line-height: 1.6;
+  font-size: 1rem;
+
+  @media (width <= 768px) {
+    font-size: 1.0625rem; // Slightly larger for mobile readability
+    line-height: 1.7;
+  }
+
+  // Headings
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--p-text-color);
+  }
+
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.5rem; border-bottom: 1px solid var(--p-surface-border); padding-bottom: 0.3em; }
+  h3 { font-size: 1.25rem; }
+  h4 { font-size: 1.1rem; }
+  h5 { font-size: 1rem; }
+  h6 { font-size: 0.875rem; color: var(--p-text-muted-color); }
+
+  @media (width <= 768px) {
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.4rem; }
+    h3 { font-size: 1.2rem; }
+    h4 { font-size: 1.1rem; }
+  }
+
   // Image Lightbox Support
   img {
     cursor: zoom-in;
@@ -155,6 +186,30 @@
       .markdown-alert-title {
         color: $color-gh-alert-caution;
       }
+    }
+  }
+
+  // Tables
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+
+    th, td {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--p-surface-border);
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--p-surface-50);
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+      background-color: var(--p-surface-20);
     }
   }
 
