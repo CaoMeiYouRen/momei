@@ -62,7 +62,7 @@
     "katex": "^0.16.0",
     "lodash-es": "^4.17.21",
     "lru-cache": "^11.2.5",
-    "markdown-it": "^14.1.0",
+    "markdown-it": "^14.1.1",
     "markdown-it-anchor": "^9.2.0",
     "markdown-it-container": "^4.0.0",
     "markdown-it-emoji": "^3.0.0",
