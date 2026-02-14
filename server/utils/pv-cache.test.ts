@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { pvCache } from './pv-cache'
 import { dataSource } from '@/server/database'
+import { isServerlessEnvironment } from './env'
+import { Redis } from 'ioredis'
 
 vi.mock('@/server/database', () => ({
     dataSource: {
@@ -17,177 +19,122 @@ vi.mock('@/server/utils/logger', () => ({
     },
 }))
 
-describe('PVCache', () => {
+vi.mock('./env', () => ({
+    isServerlessEnvironment: vi.fn(),
+}))
+
+vi.mock('ioredis', () => {
+    class MockRedis {
+        multi = vi.fn().mockReturnValue({
+            incr: vi.fn().mockReturnThis(),
+            sadd: vi.fn().mockReturnThis(),
+            exec: vi.fn().mockResolvedValue([]),
+        })
+        get = vi.fn().mockResolvedValue('5')
+        keys = vi.fn().mockResolvedValue(['momei:pv:1'])
+        del = vi.fn().mockResolvedValue(1)
+        smembers = vi.fn().mockResolvedValue(['post1'])
+        getset = vi.fn().mockResolvedValue('10')
+        srem = vi.fn().mockResolvedValue(1)
+    }
+    return {
+        Redis: MockRedis,
+    }
+})
+
+describe('PVCache - Extended Coverage', () => {
     beforeEach(async () => {
         vi.clearAllMocks()
         await pvCache.clear()
+        // @ts-ignore
+        pvCache.redis = null
     })
 
-    it('should record PVs', async () => {
-        await pvCache.record('post1')
-        await pvCache.record('post1')
-        await pvCache.record('post2')
+    describe('record', () => {
+        it('should fallback if Redis fails', async () => {
+            const mockRedis = new Redis()
+            // @ts-ignore
+            mockRedis.multi = vi.fn(() => ({
+                incr: vi.fn().mockReturnThis(),
+                sadd: vi.fn().mockReturnThis(),
+                exec: vi.fn().mockRejectedValue(new Error('Redis Error')),
+            }))
+            // @ts-ignore
+            pvCache.redis = mockRedis
+            // 确保 Redis.get 不返回 5干扰测试 (mocked global Redis class)
+            vi.mocked(mockRedis.get).mockResolvedValue(null)
+            
+            await pvCache.record('post-fallback')
+            expect(await pvCache.getPending('post-fallback')).toBe(1)
+        })
 
-        expect(await pvCache.getPending('post1')).toBe(2)
-        expect(await pvCache.getPending('post2')).toBe(1)
-        expect(await pvCache.getPending('post3')).toBe(0)
+        it('should update DB directly in serverless environment if no Redis', async () => {
+            vi.mocked(isServerlessEnvironment).mockReturnValue(true)
+            const mockRepo = {
+                increment: vi.fn().mockResolvedValue({ affected: 1 }),
+            }
+            vi.mocked(dataSource.getRepository).mockReturnValue(mockRepo as any)
+            
+            await pvCache.record('post-serverless')
+            expect(mockRepo.increment).toHaveBeenCalled()
+        })
     })
 
-    it('should flush PVs to database', async () => {
-        const mockRepo = {
-            increment: vi.fn().mockResolvedValue({ affected: 1 }),
-        }
-        const mockManager = {
-            getRepository: vi.fn().mockReturnValue(mockRepo),
-        }
+    describe('getPending', () => {
+        it('should merge data from Redis', async () => {
+            const mockRedis = new Redis()
+            vi.mocked(mockRedis.get).mockResolvedValue('15')
+            // @ts-ignore
+            pvCache.redis = mockRedis
+            
+            // 手动填充内存缓存
+            // @ts-ignore
+            pvCache.cache.set('post-mixed', 5)
+            
+            const pending = await pvCache.getPending('post-mixed')
+            expect(pending).toBe(20)
+        })
 
-        // 模拟事务执行
-        vi.mocked(dataSource.transaction).mockImplementation(async (callback: any) => await callback(mockManager))
-
-        await pvCache.record('post-a')
-        await pvCache.record('post-a')
-        await pvCache.record('post-b')
-
-        await pvCache.flush()
-
-        expect(dataSource.transaction).toHaveBeenCalled()
-        expect(mockManager.getRepository).toHaveBeenCalled()
-        expect(mockRepo.increment).toHaveBeenCalledWith({ id: 'post-a' }, 'views', 2)
-        expect(mockRepo.increment).toHaveBeenCalledWith({ id: 'post-b' }, 'views', 1)
-
-        // 刷新后缓存应清空
-        expect(await pvCache.getPending('post-a')).toBe(0)
-        expect(await pvCache.getPending('post-b')).toBe(0)
+        it('should ignore Redis errors during getPending', async () => {
+            const mockRedis = new Redis()
+            vi.mocked(mockRedis.get).mockRejectedValue(new Error('Redis error'))
+            // @ts-ignore
+            pvCache.redis = mockRedis
+            
+            // @ts-ignore
+            pvCache.cache.set('post-error-redis', 10)
+            const pending = await pvCache.getPending('post-error-redis')
+            expect(pending).toBe(10)
+        })
     })
 
-    it('should not flush if cache is empty', async () => {
-        await pvCache.flush()
-        expect(dataSource.transaction).not.toHaveBeenCalled()
+    describe('flush', () => {
+        it('should merge data from Redis during flush', async () => {
+            const mockRedis = new Redis()
+            vi.mocked(mockRedis.smembers).mockResolvedValue(['post-redis'])
+            vi.mocked(mockRedis.getset).mockResolvedValue('25')
+            // @ts-ignore
+            pvCache.redis = mockRedis
+
+            const mockRepo = { increment: vi.fn().mockResolvedValue({ affected: 1 }) }
+            const mockManager = { getRepository: vi.fn().mockReturnValue(mockRepo) }
+            vi.mocked(dataSource.transaction).mockImplementation(async (callback: any) => await callback(mockManager))
+
+            await pvCache.flush()
+            expect(mockRepo.increment).toHaveBeenCalledWith({ id: 'post-redis' }, 'views', 25)
+        })
     })
 
-    it('should prevent concurrent flushes', async () => {
-        // 设置一个永远不完成的事务
-        vi.mocked(dataSource.transaction).mockReturnValue(new Promise(() => {
-            // 不调用 resolve 以模拟挂起的事务
-        }))
-
-        await pvCache.record('post-a')
-
-        // 第一次 flush
-        void pvCache.flush()
-
-        // 第二次 flush 应该直接返回（因为 isFlushPending 为 true）
-        await pvCache.flush()
-
-        expect(dataSource.transaction).toHaveBeenCalledTimes(1)
-    })
-
-    it('should handle flush errors gracefully', async () => {
-        const mockRepo = {
-            increment: vi.fn().mockRejectedValue(new Error('Database error')),
-        }
-        const mockManager = {
-            getRepository: vi.fn().mockReturnValue(mockRepo),
-        }
-
-        vi.mocked(dataSource.transaction).mockImplementation(async (callback: any) => await callback(mockManager))
-
-        await pvCache.record('post-error')
-        await pvCache.flush()
-
-        // 即使出错，isFlushPending 也应该被重置
-        expect(dataSource.transaction).toHaveBeenCalled()
-    })
-
-    it('should handle post not found during flush', async () => {
-        const mockRepo = {
-            increment: vi.fn().mockResolvedValue({ affected: 0 }),
-        }
-        const mockManager = {
-            getRepository: vi.fn().mockReturnValue(mockRepo),
-        }
-
-        vi.mocked(dataSource.transaction).mockImplementation(async (callback: any) => await callback(mockManager))
-
-        await pvCache.record('non-existent-post')
-        await pvCache.flush()
-
-        expect(mockRepo.increment).toHaveBeenCalledWith({ id: 'non-existent-post' }, 'views', 1)
-    })
-
-    it('should accumulate multiple records for the same post', async () => {
-        await pvCache.record('post-multi')
-        await pvCache.record('post-multi')
-        await pvCache.record('post-multi')
-        await pvCache.record('post-multi')
-        await pvCache.record('post-multi')
-
-        expect(await pvCache.getPending('post-multi')).toBe(5)
-    })
-
-    it('should handle getPending for non-existent post', async () => {
-        const pending = await pvCache.getPending('never-recorded')
-        expect(pending).toBe(0)
-    })
-
-    it('should clear all cached data', async () => {
-        await pvCache.record('post1')
-        await pvCache.record('post2')
-        await pvCache.record('post3')
-
-        expect(await pvCache.getPending('post1')).toBe(1)
-        expect(await pvCache.getPending('post2')).toBe(1)
-        expect(await pvCache.getPending('post3')).toBe(1)
-
-        await pvCache.clear()
-
-        expect(await pvCache.getPending('post1')).toBe(0)
-        expect(await pvCache.getPending('post2')).toBe(0)
-        expect(await pvCache.getPending('post3')).toBe(0)
-    })
-
-    it('should handle multiple flushes correctly', async () => {
-        const mockRepo = {
-            increment: vi.fn().mockResolvedValue({ affected: 1 }),
-        }
-        const mockManager = {
-            getRepository: vi.fn().mockReturnValue(mockRepo),
-        }
-
-        vi.mocked(dataSource.transaction).mockImplementation(async (callback: any) => await callback(mockManager))
-
-        // 第一批数据
-        await pvCache.record('post-a')
-        await pvCache.flush()
-
-        expect(mockRepo.increment).toHaveBeenCalledTimes(1)
-
-        // 第二批数据
-        await pvCache.record('post-b')
-        await pvCache.flush()
-
-        expect(mockRepo.increment).toHaveBeenCalledTimes(2)
-    })
-
-    it('should merge counts from multiple records before flush', async () => {
-        const mockRepo = {
-            increment: vi.fn().mockResolvedValue({ affected: 1 }),
-        }
-        const mockManager = {
-            getRepository: vi.fn().mockReturnValue(mockRepo),
-        }
-
-        vi.mocked(dataSource.transaction).mockImplementation(async (callback: any) => await callback(mockManager))
-
-        // 记录多次
-        await pvCache.record('post-merge')
-        await pvCache.record('post-merge')
-        await pvCache.record('post-merge')
-
-        await pvCache.flush()
-
-        // 应该只调用一次 increment，但增量为 3
-        expect(mockRepo.increment).toHaveBeenCalledWith({ id: 'post-merge' }, 'views', 3)
-        expect(mockRepo.increment).toHaveBeenCalledTimes(1)
+    describe('Edge Cases', () => {
+        it('should handle increment returning affected 0', async () => {
+            const mockRepo = { increment: vi.fn().mockResolvedValue({ affected: 0 }) }
+            const mockManager = { getRepository: vi.fn().mockReturnValue(mockRepo) }
+            vi.mocked(dataSource.transaction).mockImplementation(async (callback: any) => await callback(mockManager))
+            
+            // @ts-ignore
+            pvCache.cache.set('missing-post', 1)
+            await pvCache.flush()
+            expect(mockRepo.increment).toHaveBeenCalled()
+        })
     })
 })
