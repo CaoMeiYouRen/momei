@@ -1,9 +1,7 @@
-import { describe, expect, it, vi, beforeAll } from 'vitest'
-
-// 记录原始配置，用于恢复
-let originalConfig: any;
+import { describe, expect, it, vi, beforeAll, beforeEach } from 'vitest'
 
 const mockFetch = vi.fn()
+// @ts-expect-error test-internal
 globalThis.$fetch = mockFetch
 
 // 导入要测试的函数
@@ -11,8 +9,10 @@ import { verifyCaptcha } from './captcha'
 
 describe('verifyCaptcha', () => {
     beforeAll(() => {
-        const app = useNuxtApp()
-        originalConfig = JSON.parse(JSON.stringify(app.$config))
+        // useNuxtApp() 可能会被初始化
+    })
+
+    beforeEach(() => {
         vi.clearAllMocks()
     })
 
@@ -24,10 +24,10 @@ describe('verifyCaptcha', () => {
             public: {
                 ...app.$config.public,
                 authCaptcha: {
-                    provider: provider,
-                    siteKey: 'test-site-key'
-                }
-            }
+                    provider,
+                    siteKey: 'test-site-key',
+                },
+            },
         })
     }
 
@@ -57,7 +57,7 @@ describe('verifyCaptcha', () => {
     ]
 
     providers.forEach((provider) => {
-        describe("Provider: ${provider.name}", () => {
+        describe('Provider: ${provider.name}', () => {
             it('验证成功应返回 true', async () => {
                 setMockConfig('test-secret', provider.name)
                 mockFetch.mockResolvedValueOnce({ success: true })
@@ -65,7 +65,7 @@ describe('verifyCaptcha', () => {
                 const result = await verifyCaptcha('test-token', '127.0.0.1')
                 expect(result).toBe(true)
                 expect(mockFetch).toHaveBeenCalledWith(provider.url, expect.objectContaining({
-                    method: 'POST'
+                    method: 'POST',
                 }))
             })
 

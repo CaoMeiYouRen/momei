@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { pvCache } from './pv-cache'
-import { dataSource } from '@/server/database'
-import { isServerlessEnvironment } from './env'
 import { Redis } from 'ioredis'
+import { pvCache } from './pv-cache'
+import { isServerlessEnvironment } from './env'
+import { dataSource } from '@/server/database'
 
 vi.mock('@/server/database', () => ({
     dataSource: {
@@ -30,6 +30,7 @@ vi.mock('ioredis', () => {
             sadd: vi.fn().mockReturnThis(),
             exec: vi.fn().mockResolvedValue([]),
         })
+
         get = vi.fn().mockResolvedValue('5')
         keys = vi.fn().mockResolvedValue(['momei:pv:1'])
         del = vi.fn().mockResolvedValue(1)
@@ -46,24 +47,24 @@ describe('PVCache - Extended Coverage', () => {
     beforeEach(async () => {
         vi.clearAllMocks()
         await pvCache.clear()
-        // @ts-ignore
+        // @ts-expect-error test-internal
         pvCache.redis = null
     })
 
     describe('record', () => {
         it('should fallback if Redis fails', async () => {
             const mockRedis = new Redis()
-            // @ts-ignore
+            // @ts-expect-error test-internal
             mockRedis.multi = vi.fn(() => ({
                 incr: vi.fn().mockReturnThis(),
                 sadd: vi.fn().mockReturnThis(),
                 exec: vi.fn().mockRejectedValue(new Error('Redis Error')),
             }))
-            // @ts-ignore
+            // @ts-expect-error test-internal
             pvCache.redis = mockRedis
             // 确保 Redis.get 不返回 5干扰测试 (mocked global Redis class)
             vi.mocked(mockRedis.get).mockResolvedValue(null)
-            
+
             await pvCache.record('post-fallback')
             expect(await pvCache.getPending('post-fallback')).toBe(1)
         })
@@ -74,7 +75,7 @@ describe('PVCache - Extended Coverage', () => {
                 increment: vi.fn().mockResolvedValue({ affected: 1 }),
             }
             vi.mocked(dataSource.getRepository).mockReturnValue(mockRepo as any)
-            
+
             await pvCache.record('post-serverless')
             expect(mockRepo.increment).toHaveBeenCalled()
         })
@@ -84,13 +85,13 @@ describe('PVCache - Extended Coverage', () => {
         it('should merge data from Redis', async () => {
             const mockRedis = new Redis()
             vi.mocked(mockRedis.get).mockResolvedValue('15')
-            // @ts-ignore
+            // @ts-expect-error test-internal
             pvCache.redis = mockRedis
-            
+
             // 手动填充内存缓存
-            // @ts-ignore
+            // @ts-expect-error test-internal
             pvCache.cache.set('post-mixed', 5)
-            
+
             const pending = await pvCache.getPending('post-mixed')
             expect(pending).toBe(20)
         })
@@ -98,10 +99,10 @@ describe('PVCache - Extended Coverage', () => {
         it('should ignore Redis errors during getPending', async () => {
             const mockRedis = new Redis()
             vi.mocked(mockRedis.get).mockRejectedValue(new Error('Redis error'))
-            // @ts-ignore
+            // @ts-expect-error test-internal
             pvCache.redis = mockRedis
-            
-            // @ts-ignore
+
+            // @ts-expect-error test-internal
             pvCache.cache.set('post-error-redis', 10)
             const pending = await pvCache.getPending('post-error-redis')
             expect(pending).toBe(10)
@@ -113,7 +114,7 @@ describe('PVCache - Extended Coverage', () => {
             const mockRedis = new Redis()
             vi.mocked(mockRedis.smembers).mockResolvedValue(['post-redis'])
             vi.mocked(mockRedis.getset).mockResolvedValue('25')
-            // @ts-ignore
+            // @ts-expect-error test-internal
             pvCache.redis = mockRedis
 
             const mockRepo = { increment: vi.fn().mockResolvedValue({ affected: 1 }) }
@@ -130,8 +131,8 @@ describe('PVCache - Extended Coverage', () => {
             const mockRepo = { increment: vi.fn().mockResolvedValue({ affected: 0 }) }
             const mockManager = { getRepository: vi.fn().mockReturnValue(mockRepo) }
             vi.mocked(dataSource.transaction).mockImplementation(async (callback: any) => await callback(mockManager))
-            
-            // @ts-ignore
+
+            // @ts-expect-error test-internal
             pvCache.cache.set('missing-post', 1)
             await pvCache.flush()
             expect(mockRepo.increment).toHaveBeenCalled()

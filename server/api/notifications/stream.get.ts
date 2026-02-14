@@ -12,15 +12,15 @@ export default eventHandler(async (event) => {
     registerNotificationConnection(userId, eventStream)
 
     // 发送初始心跳消息
-    eventStream.push(JSON.stringify({ type: 'HEARTBEAT', time: new Date().toISOString() }))
+    void eventStream.push(JSON.stringify({ type: 'HEARTBEAT', time: new Date().toISOString() }))
 
     // 间歇发送心跳，防止连接断开
     const interval = setInterval(() => {
-        eventStream.push(JSON.stringify({ type: 'HEARTBEAT', time: new Date().toISOString() }))
+        void eventStream.push(JSON.stringify({ type: 'HEARTBEAT', time: new Date().toISOString() }))
     }, 30000)
 
     // 当连接关闭时清理
-    eventStream.onClosed(async () => {
+    eventStream.onClosed(() => {
         clearInterval(interval)
         unregisterNotificationConnection(userId, eventStream)
     })

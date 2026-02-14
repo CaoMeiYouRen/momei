@@ -6,7 +6,7 @@ import { NotificationType } from '@/utils/shared/notification'
 const bodySchema = z.object({
     title: z.string().min(1).max(255),
     content: z.string().min(1),
-    link: z.string().url().optional().nullable(),
+    link: z.url().optional().nullable(),
 })
 
 export default eventHandler(async (event) => {

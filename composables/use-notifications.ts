@@ -23,7 +23,9 @@ export function useNotifications() {
     const authStatus = computed(() => session.value?.data ? 'authenticated' : 'unauthenticated')
 
     const fetchNotifications = async () => {
-        if (authStatus.value !== 'authenticated') { return }
+        if (authStatus.value !== 'authenticated') {
+            return
+        }
         try {
             const res = await $appFetch('/api/notifications', {
                 query: { limit: 10, unreadOnly: false },
@@ -46,7 +48,9 @@ export function useNotifications() {
             })
             if (ids) {
                 notifications.value.forEach((n) => {
-                    if (ids.includes(n.id)) { n.isRead = true }
+                    if (ids.includes(n.id)) {
+                        n.isRead = true
+                    }
                 })
             } else {
                 notifications.value.forEach((n) => (n.isRead = true))
@@ -63,7 +67,9 @@ export function useNotifications() {
             return
         }
 
-        if (eventSource.value) { return }
+        if (eventSource.value) {
+            return
+        }
 
         const url = '/api/notifications/stream'
         const es = new EventSource(url)
@@ -76,7 +82,9 @@ export function useNotifications() {
         es.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data)
-                if (data.type === 'HEARTBEAT') { return }
+                if (data.type === 'HEARTBEAT') {
+                    return
+                }
 
                 // 新通知，加到列表头部
                 notifications.value.unshift(data)
@@ -103,9 +111,13 @@ export function useNotifications() {
     }
 
     const startPolling = () => {
-        if (pollingTimer.value) { return }
+        if (pollingTimer.value) {
+            return
+        }
         // 降级轮询机制：每 60 秒检查一次
-        pollingTimer.value = setInterval(fetchNotifications, 60 * 1000 * 2)
+        pollingTimer.value = setInterval(() => {
+            void fetchNotifications()
+        }, 60 * 1000 * 2)
     }
 
     const stopPolling = () => {
@@ -126,7 +138,7 @@ export function useNotifications() {
 
     watch(authStatus, (newVal) => {
         if (newVal === 'authenticated') {
-            fetchNotifications()
+            void fetchNotifications()
             connectSSE()
         } else {
             disconnectSSE()
@@ -137,7 +149,7 @@ export function useNotifications() {
 
     onMounted(() => {
         if (authStatus.value === 'authenticated') {
-            fetchNotifications()
+            void fetchNotifications()
             connectSSE()
         }
     })

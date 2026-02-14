@@ -1,29 +1,4 @@
 {
     "version": 1,
-    "hooks": {
-        "preToolUse": [
-            {
-                "type": "command",
-                "powershell": "scripts/hooks/pre-tool.ps1",
-                "cwd": ".",
-                "timeoutSec": 5
-            }
-        ],
-        "postToolUse": [
-            {
-                "type": "command",
-                "powershell": "scripts/hooks/post-tool.ps1",
-                "cwd": ".",
-                "timeoutSec": 5
-            }
-        ],
-        "sessionEnd": [
-            {
-                "type": "command",
-                "powershell": "scripts/hooks/session-end.ps1",
-                "cwd": ".",
-                "timeoutSec": 10
-            }
-        ]
-    }
+    "hooks": {}
 }

@@ -162,7 +162,7 @@ export const commentService = {
 
         // 如果是回复，发送站内通知给父评论作者
         if (data.parentId) {
-            commentRepo.findOne({ where: { id: data.parentId } }).then((parent) => {
+            void commentRepo.findOne({ where: { id: data.parentId } }).then((parent) => {
                 if (parent?.authorId && parent.authorId !== data.authorId && parent.authorId !== post.authorId) {
                     sendInAppNotification({
                         userId: parent.authorId,
