@@ -42,6 +42,7 @@ jobs:
       - run: pnpm run test
       - name: Install Playwright Browsers
         run: pnpx playwright install --with-deps
+      - run: pnpm exec playwright install
       - run: pnpm run test:e2e
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
