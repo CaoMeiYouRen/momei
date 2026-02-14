@@ -77,6 +77,7 @@ export class Post extends BaseEntity {
 
     @CustomColumn({ type: 'varchar', length: 100, nullable: true, comment: '音频 MIME 类型' })
     audioMimeType: string | null
+
     @CustomColumn({ type: 'varchar', length: 50, nullable: true, comment: 'TTS 音色' })
     ttsVoice: string | null
 
@@ -85,6 +86,7 @@ export class Post extends BaseEntity {
 
     @CustomColumn({ type: 'datetime', nullable: true, comment: 'TTS 生成时间' })
     ttsGeneratedAt: Date | null
+
     @CustomColumn({ type: 'text', nullable: true, comment: 'AI 生成的大纲原文' })
     scaffoldOutline: string | null
 

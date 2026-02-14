@@ -16,7 +16,7 @@ export class OpenAITTSProvider implements TTSProvider {
     private endpoint: string
     private defaultModel: string
 
-    constructor(config: { apiKey: string; endpoint?: string; defaultModel?: string }) {
+    constructor(config: { apiKey: string, endpoint?: string, defaultModel?: string }) {
         this.apiKey = config.apiKey
         this.endpoint = config.endpoint || 'https://api.openai.com/v1'
         this.defaultModel = config.defaultModel || 'tts-1'

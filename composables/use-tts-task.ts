@@ -12,7 +12,7 @@ export function useTTSTask(taskIdRef: Ref<string | null>) {
 
     const { pause, resume } = useIntervalFn(async () => {
         const taskId = unref(taskIdRef)
-        if (!taskId) return
+        if (!taskId) { return }
 
         try {
             const data = await $fetch<any>(`/api/tasks/tts/${taskId}`)
@@ -36,7 +36,7 @@ export function useTTSTask(taskIdRef: Ref<string | null>) {
     }, 2000, { immediate: false })
 
     const startPolling = () => {
-        if (!unref(taskIdRef)) return
+        if (!unref(taskIdRef)) { return }
         error.value = null
         status.value = 'pending'
         progress.value = 0

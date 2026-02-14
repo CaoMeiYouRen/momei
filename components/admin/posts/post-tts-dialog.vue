@@ -99,13 +99,22 @@ watch(status, (newStatus) => {
         class="post-tts-dialog"
         style="width: 25rem"
     >
-        <div class="tts-config p-fluid">
+        <div class="p-fluid tts-config">
             <!-- Mode Selection -->
             <div class="field">
-                <label class="font-bold mb-2 block">{{ t('admin.posts.tts.mode') }}</label>
+                <label class="block font-bold mb-2">{{ t('admin.posts.tts.mode') }}</label>
                 <div class="flex gap-4">
-                    <div v-for="m in modes" :key="m.value" class="flex align-items-center">
-                        <RadioButton v-model="config.mode" :input-id="m.value" name="mode" :value="m.value" />
+                    <div
+                        v-for="m in modes"
+                        :key="m.value"
+                        class="align-items-center flex"
+                    >
+                        <RadioButton
+                            v-model="config.mode"
+                            :input-id="m.value"
+                            name="mode"
+                            :value="m.value"
+                        />
                         <label :for="m.value" class="ml-2">{{ m.label }}</label>
                     </div>
                 </div>
@@ -113,24 +122,24 @@ watch(status, (newStatus) => {
 
             <!-- Provider Selection -->
             <div class="field mt-4">
-                <label class="font-bold mb-2 block">{{ t('admin.posts.tts.provider') }}</label>
+                <label class="block font-bold mb-2">{{ t('admin.posts.tts.provider') }}</label>
                 <Dropdown
                     v-model="config.provider"
                     :options="providers"
-                    optionLabel="label"
-                    optionValue="value"
+                    option-label="label"
+                    option-value="value"
                     :placeholder="t('admin.posts.tts.select_provider')"
                 />
             </div>
 
             <!-- Voice Selection -->
             <div class="field mt-4">
-                <label class="font-bold mb-2 block">{{ t('admin.posts.tts.voice') }}</label>
+                <label class="block font-bold mb-2">{{ t('admin.posts.tts.voice') }}</label>
                 <Dropdown
                     v-model="config.voice"
                     :options="availableVoices"
-                    optionLabel="name"
-                    optionValue="id"
+                    option-label="name"
+                    option-value="id"
                     :placeholder="t('admin.posts.tts.select_voice')"
                 />
             </div>
@@ -142,8 +151,12 @@ watch(status, (newStatus) => {
 
             <!-- Progress Section -->
             <div v-if="status === 'processing' || status === 'pending'" class="mt-4">
-                <ProgressBar :value="progress" :show-value="false" style="height: 0.5rem" />
-                <p class="text-center mt-2 text-sm text-500">
+                <ProgressBar
+                    :value="progress"
+                    :show-value="false"
+                    style="height: 0.5rem"
+                />
+                <p class="mt-2 text-500 text-center text-sm">
                     {{ status === 'pending' ? t('admin.posts.tts.pending') : t('admin.posts.tts.processing') }}
                 </p>
             </div>
@@ -167,14 +180,14 @@ watch(status, (newStatus) => {
                 :label="t('common.cancel')"
                 severity="secondary"
                 outlined
-                @click="visible = false"
                 :disabled="status === 'processing'"
+                @click="visible = false"
             />
             <Button
                 :label="t('admin.posts.tts.start_generate')"
                 :loading="status === 'processing' || status === 'pending'"
-                @click="startGenerate"
                 :disabled="!config.voice || status === 'completed'"
+                @click="startGenerate"
             />
         </template>
     </Dialog>
