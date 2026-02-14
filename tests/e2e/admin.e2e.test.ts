@@ -72,7 +72,6 @@ test.describe('Admin E2E Tests', () => {
     test('should allow toggling settings panel', async ({ page }) => {
         await page.goto('/admin/posts/new')
 
-        const settingsPanel = page.locator('.post-editor-settings')
         // 初始可能可见盘
         const settingsBtn = page.locator('#settings-btn')
 

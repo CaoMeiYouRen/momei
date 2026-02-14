@@ -1,8 +1,8 @@
 import { test, expect, devices } from '@playwright/test'
 
-test.describe('Responsive Design E2E Tests', () => {
-    test.use({ ...devices['iPhone 13'] })
+test.use({ ...devices['iPhone 13'] })
 
+test.describe('Responsive Design E2E Tests', () => {
     test('should show mobile menu on small screens', async ({ page }) => {
         await page.goto('/')
 

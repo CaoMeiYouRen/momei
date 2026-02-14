@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { AuthHelper, TEST_ADMIN } from './helpers/auth.helper'
+import { AuthHelper } from './helpers/auth.helper'
 
 test.describe('Authentication E2E Tests', () => {
     test.beforeEach(async ({ page }) => {
