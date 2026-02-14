@@ -133,6 +133,59 @@ export async function uploadFromUrl(url: string, prefix: string, userId: string,
 }
 
 /**
+ * 从 Buffer 上传文件
+ */
+export async function uploadFromBuffer(buffer: Buffer, prefix: string, filename: string, mimetype: string, userId?: string): Promise<UploadedFile> {
+    if (userId) {
+        await checkUploadLimits(userId)
+    }
+
+    const dbSettings = await getSettings([
+        SettingKey.STORAGE_TYPE,
+        SettingKey.LOCAL_STORAGE_DIR,
+        SettingKey.LOCAL_STORAGE_BASE_URL,
+        SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE,
+        SettingKey.S3_ENDPOINT,
+        SettingKey.S3_BUCKET,
+        SettingKey.S3_REGION,
+        SettingKey.S3_ACCESS_KEY,
+        SettingKey.S3_SECRET_KEY,
+        SettingKey.S3_BASE_URL,
+        SettingKey.S3_BUCKET_PREFIX,
+        SettingKey.VERCEL_BLOB_TOKEN,
+    ])
+
+    const storageType = (dbSettings[SettingKey.STORAGE_TYPE] as string) || 'local'
+    const env: FileStorageEnv = {
+        ...(process.env as any),
+        STORAGE_TYPE: storageType,
+        LOCAL_STORAGE_DIR: String(dbSettings[SettingKey.LOCAL_STORAGE_DIR] || 'public/uploads'),
+        LOCAL_STORAGE_BASE_URL: String(dbSettings[SettingKey.LOCAL_STORAGE_BASE_URL] || '/uploads'),
+        LOCAL_STORAGE_MIN_FREE_SPACE: Number(dbSettings[SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE] || 100 * 1024 * 1024),
+        S3_ENDPOINT: String(dbSettings[SettingKey.S3_ENDPOINT] || ''),
+        S3_BUCKET_NAME: String(dbSettings[SettingKey.S3_BUCKET] || ''),
+        S3_REGION: String(dbSettings[SettingKey.S3_REGION] || ''),
+        S3_ACCESS_KEY_ID: String(dbSettings[SettingKey.S3_ACCESS_KEY] || ''),
+        S3_SECRET_ACCESS_KEY: String(dbSettings[SettingKey.S3_SECRET_KEY] || ''),
+        S3_BASE_URL: String(dbSettings[SettingKey.S3_BASE_URL] || ''),
+        VERCEL_BLOB_TOKEN: String(dbSettings[SettingKey.VERCEL_BLOB_TOKEN] || ''),
+        BLOB_READ_WRITE_TOKEN: String(dbSettings[SettingKey.VERCEL_BLOB_TOKEN] || ''),
+    }
+
+    const storage = getFileStorage(storageType, env)
+    const bucketPrefix = String(dbSettings[SettingKey.S3_BUCKET_PREFIX] || '')
+    const fullPath = `${bucketPrefix}${prefix}${filename}`.replace(/\\/g, '/')
+
+    const uploadResult = await storage.upload(buffer, fullPath, mimetype)
+
+    return {
+        filename,
+        url: uploadResult.url,
+        mimetype,
+    }
+}
+
+/**
  * 处理文件上传的核心逻辑
  */
 export async function handleFileUploads(event: H3Event, options: UploadOptions): Promise<UploadedFile[]> {

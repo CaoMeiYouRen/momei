@@ -312,6 +312,25 @@ export const AI_IMAGE_MODEL = process.env.AI_IMAGE_MODEL || 'dall-e-3'
 export const AI_IMAGE_ENDPOINT = process.env.AI_IMAGE_ENDPOINT
 
 /**
+ * TTS 配置
+ */
+export const TTS_ENABLED =
+    process.env.TTS_ENABLED === 'true'
+    || (!!process.env.TTS_API_KEY && process.env.TTS_ENABLED !== 'false')
+    || (!!AI_API_KEY && process.env.TTS_ENABLED !== 'false')
+export const TTS_API_KEY = process.env.TTS_API_KEY || AI_API_KEY
+export const TTS_ENDPOINT = process.env.TTS_ENDPOINT || AI_API_ENDPOINT
+export const TTS_DEFAULT_MODEL = process.env.TTS_DEFAULT_MODEL || 'tts-1'
+export const TTS_DEFAULT_VOICE = process.env.TTS_DEFAULT_VOICE || 'alloy'
+
+/**
+ * 火山引擎 (豆包语音) 配置
+ */
+export const VOLCENGINE_ACCESS_KEY = process.env.VOLCENGINE_ACCESS_KEY
+export const VOLCENGINE_SECRET_KEY = process.env.VOLCENGINE_SECRET_KEY
+export const VOLCENGINE_APP_ID = process.env.VOLCENGINE_APP_ID
+
+/**
  * 安全配置
  */
 // 外部资源 URL 域名白名单默认值

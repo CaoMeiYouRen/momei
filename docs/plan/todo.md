@@ -37,11 +37,25 @@
 
 ### 2. 播客与多媒体生产力 (Advanced Multimedia & AI) (P1)
 
-- [ ] **文章音频化系统 (Audio-ization System)**
-    - 验收: 实现统一的音频化控制器，支持 **标准 TTS** 与 **AI 播客 (Dual Human)** 模式。
-    - 验收: 编辑器增加“生成音频”功能，支持选择提供者 (OpenAI/Azure/Volcengine)。
-    - 验收: 集成 **火山引擎 (豆包)** WebSocket V3 接口，支持流式生成播客音频。
-    - 验收: 生成的音频自动保存并作为 RSS 的 Enclosure 附件发布。
+- [ ] **文章音频化系统 (Audio-ization System)** (P1)
+    - [ ] **Phase 1: 核心基础与数据库支持**
+        - [x] 实现 `TTSTask` 数据库实体
+        - [x] 扩展 `Post` 实体中的 TTS 相关字段
+        - [x] 实现 TTS 服务抽象接口与 OpenAI 提供者
+        - [x] 实现简单的异步任务处理逻辑
+    - [ ] **Phase 2: 页面集成与 API**
+        - [x] 实现 `POST /api/posts/:id/tts` 生成接口
+        - [x] 实现 `GET /api/tasks/tts/:id` 状态查询接口
+        - [x] 文章编辑器侧边栏增加音频设置面板与生成对话框
+    - [ ] **Phase 3: 火山引擎与播客模式**
+        - [ ] 实现火山引擎 (豆包) 提供者 (WebSocket V3)
+        - [ ] 实现 AI 播客 (Podcast) 模式生成逻辑
+        - [ ] 音频元数据保存与 RSS Enclosure 自动关联
+    - [ ] **验收点**:
+        - 验收: 实现统一的音频化控制器，支持 **标准 TTS** 与 **AI 播客 (Dual Human)** 模式。
+        - 验收: 编辑器增加“生成音频”功能，支持选择提供者 (OpenAI/Azure/Volcengine)。
+        - 验收: 集成 **火山引擎 (豆包)** WebSocket V3 接口，支持流式生成播客音频。
+        - 验收: 生成的音频自动保存并作为 RSS 的 Enclosure 附件发布。
 - [x] **高精度语音转录驱动演进 (AI Voice Transcription)**
     - 验收: 实现 Web Speech API (基础) 作为默认识别模式，提供低功耗、零延迟体验。
     - 验收: 将 Local Whisper 调整为实验性备用选项，移除其作为高精度核心的强制性。

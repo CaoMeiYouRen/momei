@@ -228,8 +228,26 @@
                 @generated="(url) => post.coverImage = url"
             />
 
+            <AdminPostsPostTtsDialog
+                v-model:visible="ttsVisible"
+                :post-id="post.id"
+                :content="post.content"
+                @completed="handleTTSCompleted"
+            />
+
             <div class="form-group">
-                <label for="audioUrl" class="form-label">{{ $t('pages.admin.posts.audio_url') }}</label>
+                <div class="flex items-center justify-between mb-2">
+                    <label for="audioUrl" class="form-label mb-0">{{ $t('pages.admin.posts.audio_url') }}</label>
+                    <Button
+                        id="ai-tts-btn"
+                        v-tooltip="$t('admin.posts.tts.generate_title')"
+                        icon="pi pi-sparkles"
+                        size="small"
+                        text
+                        rounded
+                        @click="ttsVisible = true"
+                    />
+                </div>
                 <AppUploader
                     id="audioUrl"
                     v-model="post.audioUrl"
@@ -353,6 +371,7 @@ const visible = defineModel<boolean>('visible', { default: false })
 const isCompact = defineModel<boolean>('compact', { default: false })
 
 const aiImageVisible = ref(false)
+const ttsVisible = ref(false)
 const probing = ref(false)
 const showImagePreview = ref(false)
 const showAudioPlayer = ref(false)
@@ -366,6 +385,18 @@ const isValidImageUrl = computed(() => {
 const isValidAudioUrl = computed(() => {
     return post.value.audioUrl && isValidCustomUrl(post.value.audioUrl)
 })
+
+const handleTTSCompleted = () => {
+    // 刷新文章数据以获取最新的音频 URL
+    // 实际上我们在 processor 中已经更新了数据库，但前台的 post 对象还没变
+    // 这里简单弹个窗提示，用户如果刷新页面或保存文章就能看到
+    toast.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Audio generation task submitted/completed. Please save or refresh to see changes.',
+        life: 5000,
+    })
+}
 
 const toggleImagePreview = () => {
     showImagePreview.value = !showImagePreview.value
