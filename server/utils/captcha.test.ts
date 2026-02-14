@@ -1,49 +1,89 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it, vi, beforeAll } from 'vitest'
 
-/**
- * captcha.ts 单元测试
- *
- * 注意：由于 verifyCaptcha 使用了 useRuntimeConfig() 和 $fetch (Nuxt API)，
- * 这些 API 在单元测试环境中难以 mock。完整的功能测试通过集成测试覆盖。
- *
- * 此文件保留基本的导出验证测试。
- */
+// 记录原始配置，用于恢复
+let originalConfig: any;
+
+const mockFetch = vi.fn()
+globalThis.$fetch = mockFetch
+
+// 导入要测试的函数
+import { verifyCaptcha } from './captcha'
 
 describe('verifyCaptcha', () => {
-    /**
-     * 单元测试：验证函数签名是否正确
-     */
-    it('should export verifyCaptcha function', async () => {
-        const { verifyCaptcha } = await import('./captcha')
-        expect(typeof verifyCaptcha).toBe('function')
+    beforeAll(() => {
+        const app = useNuxtApp()
+        originalConfig = JSON.parse(JSON.stringify(app.$config))
+        vi.clearAllMocks()
     })
 
-    /**
-     * 集成测试覆盖范围：
-     *
-     * verifyCaptcha 函数的完整测试覆盖应包括：
-     *
-     * 1. 配置验证：
-     *    - secretKey 缺失时返回 true
-     *    - token 缺失或为空时返回 false
-     *
-     * 2. 提供商支持：
-     *    - cloudflare-turnstile: URL 和参数验证
-     *    - google-recaptcha: URL 和参数验证
-     *    - hcaptcha: URL、参数及 siteKey 验证
-     *    - captchafox: URL、参数及 remoteIp (camelCase) 验证
-     *
-     * 3. 错误处理：
-     *    - $fetch 异常时返回 false
-     *    - API 返回 success: false 时返回 false
-     *    - API 返回 success: true 时返回 true
-     *
-     * 4. IP 参数处理：
-     *    - 含 IP 和不含 IP 时的请求体差异
-     *
-     * 这些测试在以下位置进行：
-     * - server/api/posts/submissions.post.test.ts (集成测试)
-     * - E2E 测试套件 (端到端)
-     */
-})
+    const setMockConfig = (secret: string, provider: string = 'cloudflare-turnstile') => {
+        const app = useNuxtApp()
+        // 使用 Object.assign 注入配置
+        Object.assign(app.$config, {
+            authCaptchaSecretKey: secret,
+            public: {
+                ...app.$config.public,
+                authCaptcha: {
+                    provider: provider,
+                    siteKey: 'test-site-key'
+                }
+            }
+        })
+    }
 
+    it('如果没有配置 secretKey，应返回 true', async () => {
+        setMockConfig('')
+        const result = await verifyCaptcha('test-token')
+        expect(result).toBe(true)
+    })
+
+    it('如果 token 为空，应返回 false', async () => {
+        setMockConfig('test-secret')
+        const result = await verifyCaptcha('')
+        expect(result).toBe(false)
+    })
+
+    it('未知 provider 应返回 true', async () => {
+        setMockConfig('test-secret', 'unknown')
+        const result = await verifyCaptcha('test-token')
+        expect(result).toBe(true)
+    })
+
+    const providers = [
+        { name: 'cloudflare-turnstile', url: 'https://challenges.cloudflare.com/turnstile/v0/siteverify' },
+        { name: 'google-recaptcha', url: 'https://www.google.com/recaptcha/api/siteverify' },
+        { name: 'hcaptcha', url: 'https://hcaptcha.com/siteverify' },
+        { name: 'captchafox', url: 'https://api.captchafox.com/siteverify' },
+    ]
+
+    providers.forEach((provider) => {
+        describe("Provider: ${provider.name}", () => {
+            it('验证成功应返回 true', async () => {
+                setMockConfig('test-secret', provider.name)
+                mockFetch.mockResolvedValueOnce({ success: true })
+
+                const result = await verifyCaptcha('test-token', '127.0.0.1')
+                expect(result).toBe(true)
+                expect(mockFetch).toHaveBeenCalledWith(provider.url, expect.objectContaining({
+                    method: 'POST'
+                }))
+            })
+
+            it('验证失败应返回 false', async () => {
+                setMockConfig('test-secret', provider.name)
+                mockFetch.mockResolvedValueOnce({ success: false })
+
+                const result = await verifyCaptcha('test-token')
+                expect(result).toBe(false)
+            })
+
+            it('网络错误应返回 false', async () => {
+                setMockConfig('test-secret', provider.name)
+                mockFetch.mockRejectedValueOnce(new Error('Network error'))
+
+                const result = await verifyCaptcha('test-token')
+                expect(result).toBe(false)
+            })
+        })
+    })
+})
