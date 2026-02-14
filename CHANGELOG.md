@@ -1,5 +1,77 @@
 # momei
 
+# [1.5.0](https://github.com/CaoMeiYouRen/momei/compare/v1.4.0...v1.5.0) (2026-02-14)
+
+
+### ✨ 新功能
+
+* **admin:** 优化文章编辑器布局，支持侧边栏精简模式并修复头部遮挡问题 ([cc6c5b0](https://github.com/CaoMeiYouRen/momei/commit/cc6c5b0))
+* **editor:** 使用 Transformers.js 实现高精度本地语音转录 ([c745138](https://github.com/CaoMeiYouRen/momei/commit/c745138))
+* **export:** 支持全量文章导出，优化文件名包含语言后缀 ([a56c949](https://github.com/CaoMeiYouRen/momei/commit/a56c949))
+* **notifications:** 实现基于 SSE 的实时通知系统及降级轮询机制 ([582254f](https://github.com/CaoMeiYouRen/momei/commit/582254f))
+* **notification:** 实现基于 MJML 模板系统的营销推送逻辑并完善文章元数据 ([5682070](https://github.com/CaoMeiYouRen/momei/commit/5682070))
+* **reader-controls:** 优化沉浸模式面板的切换逻辑和样式 ([b7a5af2](https://github.com/CaoMeiYouRen/momei/commit/b7a5af2))
+* **voice:** 增强语音创作功能，支持模型加载确认及多种模式选择 ([5a46ba3](https://github.com/CaoMeiYouRen/momei/commit/5a46ba3))
+* 优化移动端文章详情页的排版与样式，提升阅读体验 ([c6a3b13](https://github.com/CaoMeiYouRen/momei/commit/c6a3b13))
+* 优化语音编辑器，添加语音覆盖组件的显示和隐藏功能 ([e371086](https://github.com/CaoMeiYouRen/momei/commit/e371086))
+* 在历史版本面板中添加当前内容支持，便于版本比较 ([930e424](https://github.com/CaoMeiYouRen/momei/commit/930e424))
+* 实现文章编辑器自动保存功能，支持本地草稿恢复与清除 ([4ad9089](https://github.com/CaoMeiYouRen/momei/commit/4ad9089))
+* 实现沉浸式阅读模式，支持自定义字号、页宽、行高及预设主题 ([12fe455](https://github.com/CaoMeiYouRen/momei/commit/12fe455))
+* 实现沉浸式阅读模式，支持自定义字号、页宽、行高及预设主题 ([77a07b3](https://github.com/CaoMeiYouRen/momei/commit/77a07b3))
+* 更新社交和捐赠平台按钮样式，优化二维码提示信息 ([2cb817b](https://github.com/CaoMeiYouRen/momei/commit/2cb817b))
+* 添加 AI 任务管理模块，支持任务统计和记录功能 ([5643424](https://github.com/CaoMeiYouRen/momei/commit/5643424))
+* 添加 AI 图像生成模块，支持封面图生成和智能提示功能 ([45ff838](https://github.com/CaoMeiYouRen/momei/commit/45ff838))
+* 添加 Discord 社交平台支持至本地化文件 ([c5c14c4](https://github.com/CaoMeiYouRen/momei/commit/c5c14c4))
+* 添加 MCP 支持，支持帖子管理 API，包括获取、删除、更新和发布功能 ([95e64ab](https://github.com/CaoMeiYouRen/momei/commit/95e64ab))
+* 添加 Memos 同步功能，支持在发布时自动创建摘要笔记 ([97d0a99](https://github.com/CaoMeiYouRen/momei/commit/97d0a99))
+* 添加 WechatSync 多平台同步功能，优化用户体验和界面交互 ([f30bbaf](https://github.com/CaoMeiYouRen/momei/commit/f30bbaf))
+* 添加主题过滤逻辑以支持亮色模式下隐藏深色主题 ([bb6a09f](https://github.com/CaoMeiYouRen/momei/commit/bb6a09f))
+* 添加图像生成选项，支持宽高比和语言设置 ([2983cd8](https://github.com/CaoMeiYouRen/momei/commit/2983cd8))
+* 添加图像预览功能并优化上传组件样式 ([53237a6](https://github.com/CaoMeiYouRen/momei/commit/53237a6))
+* 添加定时发布功能，支持文章定时发送与状态管理 ([89b0ece](https://github.com/CaoMeiYouRen/momei/commit/89b0ece))
+* 添加定时发布功能，支持未来时间发布文章并同步到 Memos ([347cf61](https://github.com/CaoMeiYouRen/momei/commit/347cf61))
+* 添加定时发布功能，支持未来时间发布文章并持久化发布意图 ([b9c543a](https://github.com/CaoMeiYouRen/momei/commit/b9c543a))
+* 添加对未来日期的相对时间支持，并在文章列表中高亮显示 ([898b57b](https://github.com/CaoMeiYouRen/momei/commit/898b57b))
+* 添加推送选项和条件，支持按分类和标签匹配订阅者 ([2b50eab](https://github.com/CaoMeiYouRen/momei/commit/2b50eab))
+* 添加文章发布时间和同步到 Memos 的选项 ([ad6894d](https://github.com/CaoMeiYouRen/momei/commit/ad6894d))
+* 添加文章导出功能，支持导出为 Markdown 和 ZIP 格式 ([0b61917](https://github.com/CaoMeiYouRen/momei/commit/0b61917))
+* 添加文章版本管理功能，包括版本创建、查询和删除 ([47e76ac](https://github.com/CaoMeiYouRen/momei/commit/47e76ac))
+* 添加生成图像预览功能，优化按钮交互和状态管理 ([56cfe45](https://github.com/CaoMeiYouRen/momei/commit/56cfe45))
+* 添加语音识别功能，支持语音输入和文本润色 ([cbacdf3](https://github.com/CaoMeiYouRen/momei/commit/cbacdf3))
+
+
+### 🐛 Bug 修复
+
+* **cli:** 修复 cli 测试文件中未使用的导入变量 vi ([c1157e6](https://github.com/CaoMeiYouRen/momei/commit/c1157e6))
+* **database:** 修复 Postgres ID 字段类型以解决溢出问题并更新关联表结构 ([eb3a598](https://github.com/CaoMeiYouRen/momei/commit/eb3a598))
+* **lightbox:** 添加封面图点击放大预览功能，优化用户体验 ([72cd6fa](https://github.com/CaoMeiYouRen/momei/commit/72cd6fa))
+* **marketing:** 补全营销推送单条记录的查询、更新与删除接口，修复 404 错误 ([e754290](https://github.com/CaoMeiYouRen/momei/commit/e754290))
+* **mcp-server:** exclude config files from tsconfig to fix TS6059 ([d242fd3](https://github.com/CaoMeiYouRen/momei/commit/d242fd3))
+* **notification:** 优化营销推送内容提取，使用 html-to-text 转换 HTML 为文本 ([8e304e8](https://github.com/CaoMeiYouRen/momei/commit/8e304e8))
+* **ui:** 优化文章详情页布局及响应式宽度，修复工具栏与页脚宽度问题 ([d643886](https://github.com/CaoMeiYouRen/momei/commit/d643886))
+* 优化 AI 图像生成器和版本历史面板的样式，提升用户体验 ([619c6e1](https://github.com/CaoMeiYouRen/momei/commit/619c6e1))
+* 优化 MomeiApi 的模拟实现方式 ([914c051](https://github.com/CaoMeiYouRen/momei/commit/914c051))
+* 优化代码格式，增强可读性 ([542685d](https://github.com/CaoMeiYouRen/momei/commit/542685d))
+* 优化按钮样式，增强变换效果以提升用户体验 ([fd339d6](https://github.com/CaoMeiYouRen/momei/commit/fd339d6))
+* 修复响应式设计中的媒体查询以适应不同屏幕尺寸 ([194272a](https://github.com/CaoMeiYouRen/momei/commit/194272a))
+* 修复营销推送记录中的 scheduledAt 属性定义 ([0325b5a](https://github.com/CaoMeiYouRen/momei/commit/0325b5a))
+* 修改上传功能，支持自定义文件名以便于管理 ([6a2f384](https://github.com/CaoMeiYouRen/momei/commit/6a2f384))
+* 修正脚本文件路径注释格式 ([1d9f892](https://github.com/CaoMeiYouRen/momei/commit/1d9f892))
+* 暴露 visible 属性以便于外部控制对话框可见性 ([ddb55e8](https://github.com/CaoMeiYouRen/momei/commit/ddb55e8))
+* 更新 AI 图像 API 密钥和代理端点配置，支持默认值复用 ([45d9f6b](https://github.com/CaoMeiYouRen/momei/commit/45d9f6b))
+* 更新定时任务调度器以支持无服务器环境下的 Cron 作业禁用 ([0ed0edc](https://github.com/CaoMeiYouRen/momei/commit/0ed0edc))
+* 更新系统能力与设置文档，增加极端敏感变量隔离和认证配置解耦内容 ([7726ab3](https://github.com/CaoMeiYouRen/momei/commit/7726ab3))
+* 更新链接管理器以支持本地化标签显示并优化样式 ([3e2563d](https://github.com/CaoMeiYouRen/momei/commit/3e2563d))
+* 更新阅读模式主题名称为“夜间”以保持一致性 ([4455bf9](https://github.com/CaoMeiYouRen/momei/commit/4455bf9))
+* 根据环境变量条件加载测试工具模块并忽略测试文件 ([7184f1f](https://github.com/CaoMeiYouRen/momei/commit/7184f1f))
+* 添加 AI 图像生成配置，支持提供商和模型设置 ([cd4ad36](https://github.com/CaoMeiYouRen/momei/commit/cd4ad36))
+* 调整降级轮询机制的时间间隔为 120 秒 ([ada4247](https://github.com/CaoMeiYouRen/momei/commit/ada4247))
+
+
+### 📦 代码重构
+
+* 重构 AI 页面以使用新组件并简化代码 ([ec12da6](https://github.com/CaoMeiYouRen/momei/commit/ec12da6))
+
 # [1.4.0](https://github.com/CaoMeiYouRen/momei/compare/v1.3.0...v1.4.0) (2026-02-07)
 
 
