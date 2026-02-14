@@ -4,6 +4,7 @@
 $links = @{
     ".claude/agents" = ".github/agents"
     ".claude/skills" = ".github/skills"
+    ".agents/skills" = ".github/skills"
 }
 
 # 1. 获取所有工作树的路径
