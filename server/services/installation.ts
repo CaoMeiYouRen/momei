@@ -204,7 +204,13 @@ export interface ExtraConfig {
  * 检查环境变量中的安装标记
  */
 function checkEnvInstallationFlag(): boolean {
-    return process.env.MOMEI_INSTALLED === 'true' || TEST_MODE
+    if (process.env.MOMEI_INSTALLED === 'true') {
+        return true
+    }
+    if (process.env.MOMEI_INSTALLED === 'false') {
+        return false
+    }
+    return TEST_MODE
 }
 
 /**

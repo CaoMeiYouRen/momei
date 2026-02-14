@@ -11,7 +11,7 @@ export default defineVitestConfig({
         setupFiles: ['./tests/testSetup.ts'],
         include: ['./**/*.spec.ts', './**/*.test.ts'],
         // include: ['tests/**/*.spec.ts', 'tests/**/*.test.ts'],
-        exclude: ['**/node_modules/**', '**/.nuxt/**', '**/dist/**'],
+        exclude: ['**/node_modules/**', '**/.nuxt/**', '**/dist/**', '**/tests/e2e/**'],
         testTimeout: 60000,
         hookTimeout: 60000,
         teardownTimeout: 60000,

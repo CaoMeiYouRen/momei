@@ -64,15 +64,19 @@ describe('Installation Service', () => {
         })
 
         it('should return installed=false when database is not connected', async () => {
+            process.env.MOMEI_INSTALLED = 'false'
             vi.mocked(dataSource.query).mockRejectedValue(new Error('Connection failed'))
 
             const status = await getInstallationStatus()
 
             expect(status.installed).toBe(false)
             expect(status.databaseConnected).toBe(false)
+
+            delete process.env.MOMEI_INSTALLED
         })
 
         it('should return installed=false when no users exist', async () => {
+            process.env.MOMEI_INSTALLED = 'false'
             vi.mocked(dataSource.query).mockResolvedValue([])
             vi.mocked(dataSource.getRepository).mockReturnValue({
                 count: vi.fn().mockResolvedValue(0),
@@ -83,6 +87,8 @@ describe('Installation Service', () => {
 
             expect(status.installed).toBe(false)
             expect(status.hasUsers).toBe(false)
+
+            delete process.env.MOMEI_INSTALLED
         })
 
         it('should return installed=true when users exist and flag is set', async () => {

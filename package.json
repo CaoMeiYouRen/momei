@@ -106,6 +106,8 @@
       "better-sqlite3",
       "esbuild",
       "nice-napi",
+      "onnxruntime-node",
+      "protobufjs",
       "sharp",
       "unrs-resolver",
       "workerd"
