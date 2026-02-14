@@ -37,9 +37,11 @@
 
 ### 2. 播客与多媒体生产力 (Advanced Multimedia & AI) (P1)
 
-- [ ] **文章转语音 (TTS Integration)**
-    - 验收: 编辑器增加“生成音频”功能，支持选择语音模型 (OpenAI TTS/Azure)。
-    - 验收: 生成的音频自动保存至存储系统，并作为 RSS 的 Enclosure 附件发布。
+- [ ] **文章音频化系统 (Audio-ization System)**
+    - 验收: 实现统一的音频化控制器，支持 **标准 TTS** 与 **AI 播客 (Dual Human)** 模式。
+    - 验收: 编辑器增加“生成音频”功能，支持选择提供者 (OpenAI/Azure/Volcengine)。
+    - 验收: 集成 **火山引擎 (豆包)** WebSocket V3 接口，支持流式生成播客音频。
+    - 验收: 生成的音频自动保存并作为 RSS 的 Enclosure 附件发布。
 - [x] **高精度语音转录驱动演进 (AI Voice Transcription)**
     - 验收: 实现 Web Speech API (基础) 作为默认识别模式，提供低功耗、零延迟体验。
     - 验收: 将 Local Whisper 调整为实验性备用选项，移除其作为高精度核心的强制性。
