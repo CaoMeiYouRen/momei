@@ -187,42 +187,37 @@
 4.  **AI 语音创作增强 (AI Voice Creative Enhancement) (P1)**:
     -   **双模驱动识别**: 实现以 Web Speech API 为基础、Cloud ASR (SiliconFlow/Volcengine) 为进阶的语音创作引擎。
     -   **语音写文章**: 集成语音录入，配合 AI 助手实现“语音转博文”或“对话式润色”工作流。
-4.  **高级 AI 创作流 (Advanced AI Creative Flow)**:
+5.  **高级 AI 创作流 (Advanced AI Creative Flow)**:
     -   **多模态增强**: 集成 AI 封面图生成 (支持 DALL-E 3, Stable Diffusion 等)，提供统一的异步任务入口以支持耗时绘图任务。 (原计划中的 DeepL 翻译由于已通过通用 LLM 覆盖，现已移除)
-5.  **文档全球化与系统化 (Hardening)**:
+6.  **文档全球化与系统化 (Hardening)**:
     -   **国际化固化**: 完成核心部署与开发文档的英文翻译。
-6.  **第三方平台集成 (Third-party Integration)**:
+7.  **第三方平台集成 (Third-party Integration)**:
     -   **多平台同步**: 集成 Memos 及 Wechatsync，实现内容的一键分发与同步。
-7. **AI Agent 与自动化生态 (AI Agent & Automation Ecosystem)**:
+8. **AI Agent 与自动化生态 (AI Agent & Automation Ecosystem)**:
     - **自动化工作流**: 完成原生 Anthropic MCP Server 实现。
     - **计划任务 (Scheduled Tasks)**: 实现全场景兼容的定时发布系统，支持文章定时发布与营销邮件定时推送。
 
-### 第六阶段：全方位体验与创作精修 (Global Experience & Creative Refinement) (策划中)
+### 第六阶段：全方位体验与创作精修 (Global Experience & Creative Refinement) (进行中)
+**时间表**: 约 1.5 个月
+**目标**: 强化创作安全感、提升多媒体生产力，并优化极客阅读交互。
 
-**时间表**: 待定
+1. **创作安全增强 (Creative Security & Resilience)**:
+   - 本地草稿自动保存: 实现基于 LocalStorage 的文章实时编辑缓存，支持刷新恢复。
+   - 有限版本化管理: 实现数据库级别的文章修改快照，支持对比与一键回滚（3-5 个历史版本）。
+   - 全量文章导出: 支持单篇/批量导出文章为带 Front-matter 的 Markdown 格式，兼容各种静态博客。
+2. **多媒体生产力与 AI (Advanced Multimedia & AI)**:
+   - 文章转语音 (TTS): 集成 OpenAI/Azure TTS，实现自动化音频版内容生成与 RSS Podcasting 支持。
+   - 云端语音识别 (ASR): 构建统一 ASR 控制器，支持 SiliconFlow (Batch) 与 Volcengine (Streaming) 双模驱动。
+   - AI 图像驱动补全: 完成 Gemini 3 Pro Image 与 Stable Diffusion 等多驱动支持。
+3. **极客阅读体验优化 (Geek UX Optimization)**:
+   - 阅读模式: 实现无干扰的沉浸式阅读面板，支持自定义字号与背景色。
+   - 移动端适配深化: 全面优化移动端正文排版、面包屑及交互组件。
+4. **全局架构与生态 (Architecture & Ecosystem)**:
+   - 后端统一 i18n: 基于 Nitro 钩子的全量后端国际化支持（邮件、RSS、错误码）。
+   - 通知矩阵系统: 深化站内信与通知中心，实现 AdminConfig x UserPreference 的分级推送信矩阵。
+   - MCP 生态验证: 完善 Anthropic MCP Server 对各 AI 编辑器的兼容支持与性能验证。
 
-**目标**: 强化创作过程的安全感与灵活性，深化多媒体内容生产力，并优化极客阅读与系统交互体验。
-
-1.  **创作安全与健壮性 (Creative Security & Resilience)**:
-    -   **本地草稿自动保存**: 实现基于 LocalStorage/IndexedDB 的实时编辑缓存，防止网络波动或误操作导致内容丢失。
-    -   **草稿恢复机制**: 检测到本地未发布的草稿时，主动提示用户恢复或丢弃，确保创作连续性。
-    -   **有限版本化管理**: 实现文章修订记录系统，优先保留最近 3-5 个版本，平衡回滚需求与数据库压力。
-    -   **全量文章导出 (Universal Export)**: 支持将文章导出为标准的 Hexo 兼容 Markdown 格式，支持单篇下载及批量 ZIP 打包，确保数据自主。
-2.  **播客与多媒体创作进阶 (Advanced Media & AI)**:
-    -   **文章转音频 (TTS)**: 集成 OpenAI/Azure 等高性能 AI 语音合成服务，支持为长文一键生成音频版。
-    -   **高精度语音转录优化**: 针对语音写文章场景，引入 OpenAI Whisper 等专业 API，解决 Web Speech API 的环境局限与同音字问题。
-    -   **AI 图像驱动补全**: 完成对 Gemini 3 Pro Image 及 Stable Diffusion (WebUI/ComfyUI) 的原生驱动适配。
-3.  **极客阅读与交互升级 (User Experience)**:
-    -   **沉浸式阅读模式**: 为技术博客定制极简阅读视图，消除侧边栏及交互噪音，支持自定义阅读字号与行高。
-    -   **移动端阅读体验优化**: 深度优化文章详情页在不同尺寸移动设备下的排版表现，包含响应式字体缩放、元数据排版重构及内容容器间距调整。
-    -   **实时通知系统 (SSE/Web Push)**: 实现低延迟的站内通知、评论提醒与系统警报。针对 Serverless/Cloud Functions 环境进行专项适配（如心跳管理或替代方案）。
-4.  **国际化与架构固化 (i18n & Architecture)**:
-    -   **后端统一 i18n 机制**: 在 Nitro 层级集成翻译插件，覆盖邮件模板、RSS Feed 及动态元数据的多语言输出。
-    -   **翻译字段复用精简**: 深度审计并提取跨模块通用字段，消除冗余映射。
-5.  **MCP 生态验证 (Connectivity)**:
-    -   **MCP Server 强化**: 完成生产环境下的性能验证，并针对更多开发者工具进行适配与连接优化。
-
-## 3. 未来规划与积压项 (Backlog & Long-term Roadmap)
+### 未来规划与积压项 (Backlog & Long-term Roadmap)
 
 此处记录由于优先级或开发周期原因暂不进入当前迭代，但具有长期价值的功能。
 
@@ -317,7 +312,7 @@
     - 探索实现稳健的 `Metadata` 聚合管理逻辑，支持按需局部更新（Patch Update）而非整体覆盖。
     - 统一整合分散的元数据字段（如 `scaffoldMetadata`, `publishIntent` 等）进入结构化的统一存储模型，提高系统扩展性。
 
-## 4. 技术架构与质量保证
+## 3. 技术架构与质量保证
 
 ### 技术栈
 
