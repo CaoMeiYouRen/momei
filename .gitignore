@@ -49,3 +49,6 @@ coverage-report.*
 
 .vercel
 .vscode
+
+playwright-report
+test-results

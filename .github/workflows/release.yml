@@ -40,6 +40,9 @@ jobs:
       - run: pnpm run typecheck
       - run: pnpm run build
       - run: pnpm run test
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - run: pnpm run test:e2e
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm run release

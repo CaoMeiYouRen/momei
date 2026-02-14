@@ -34,6 +34,9 @@ jobs:
       - run: pnpm run lint:css
       - run: pnpm run typecheck
       - run: pnpm run test
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - run: pnpm run test:e2e
       - run: pnpm run test:coverage
       - run: pnpm run build
       # - run: pnpm run generate

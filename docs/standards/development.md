@@ -164,6 +164,12 @@ pnpm test
 # 运行测试覆盖率
 pnpm test:coverage
 
+# 运行端到端测试 (E2E)
+pnpm test:e2e
+
+# 全面质量验证 (Lint + Typecheck + Unit Test + E2E)
+pnpm verify
+
 # 构建生产版本
 pnpm build
 ```

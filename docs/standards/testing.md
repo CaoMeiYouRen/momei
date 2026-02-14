@@ -48,14 +48,18 @@ components/
 
 ### 3.3 端对端测试 (E2E Tests)
 
-所有 E2E 测试文件统一存放在项目根目录下的 `tests/e2e/` 目录中。
+所有 E2E 测试文件统一存放在项目根目录下的 `tests/e2e/` 目录中。本项目使用 **Playwright** 作为 E2E 测试框架。
 
 -   **目录位置**: `/tests/e2e/`
 -   **命名规则**: `[feature].e2e.test.ts`
+-   **配置文件**: `playwright.config.ts`
 -   **适用范围**:
     -   关键业务流程 (如：登录 -> 发布文章 -> 查看文章)
-    -   跨页面交互
-    -   真实浏览器环境验证
+    -   跨页面交互 (语言切换、主题切换)
+    -   真实浏览器环境验证 (Chromium, Firefox, Webkit)
+-   **运行命令**:
+    -   `pnpm test:e2e`: 在命令行界面运行所有 E2E 测试。
+    -   `pnpm test:e2e:ui`: 启动 Playwright UI 界面，方便调试。
 
 ## 4. 测试内容要求 (Testing Requirements)
 

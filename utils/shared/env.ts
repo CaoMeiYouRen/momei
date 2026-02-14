@@ -69,6 +69,14 @@ export const DEMO_MODE =
     process.env.NUXT_PUBLIC_DEMO_MODE === 'true'
     || process.env.DEMO_MODE === 'true'
     || import.meta.env.NUXT_PUBLIC_DEMO_MODE === 'true'
+
+// 是否启用测试模式
+export const TEST_MODE =
+    process.env.NUXT_PUBLIC_TEST_MODE === 'true'
+    || process.env.TEST_MODE === 'true'
+    || process.env.NODE_ENV === 'test'
+    || !!process.env.VITEST
+
 // Demo账号邮箱
 export const DEMO_USER_EMAIL =
     process.env.NUXT_PUBLIC_DEMO_USER_EMAIL
@@ -89,7 +97,7 @@ export const DATABASE_URL = process.env.DATABASE_URL || ''
 
 // 智能推断数据库类型
 const getAutoDatabaseType = () => {
-    if (DEMO_MODE) {
+    if (DEMO_MODE || TEST_MODE) {
         return 'sqlite'
     }
     if (process.env.DATABASE_TYPE) {
@@ -114,7 +122,7 @@ export const DATABASE_TYPE = getAutoDatabaseType()
 // SQLite 数据库路径 (仅SQLite使用)
 // 为了兼容性保留此环境变量，但文档中将不再推荐手动设置
 export const DATABASE_PATH = (() => {
-    if (DEMO_MODE) {
+    if (DEMO_MODE || TEST_MODE) {
         return ':memory:'
     }
     const url = DATABASE_URL.toLowerCase()

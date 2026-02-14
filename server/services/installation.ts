@@ -6,6 +6,7 @@ import { User } from '../entities/user'
 import { Setting } from '../entities/setting'
 import logger from '../utils/logger'
 import { SETTING_ENV_MAP } from './setting'
+import { TEST_MODE } from '@/utils/shared/env'
 import { inferSettingMaskType, isMaskedSettingPlaceholder, maskSettingValue } from '@/server/utils/settings'
 
 /**
@@ -203,7 +204,7 @@ export interface ExtraConfig {
  * 检查环境变量中的安装标记
  */
 function checkEnvInstallationFlag(): boolean {
-    return process.env.MOMEI_INSTALLED === 'true'
+    return process.env.MOMEI_INSTALLED === 'true' || TEST_MODE
 }
 
 /**
