@@ -1,10 +1,13 @@
-# 文章转语音 (TTS) 设计文档
+# 文章转语音 (TTS) 与音频化设计文档
 
-本文档定义了墨梅博客中文章转语音 (Text-to-Speech, TTS) 功能的实现方案。该功能旨在为博客文章提供高质量的 AI 语音合成，实现音频版内容的自动生成与分发。
+本文档定义了墨梅博客中文章转语音 (Text-to-Speech, TTS) 与音频化 (Audio-ization) 功能的实现方案。该功能旨在为博客文章提供高质量的 AI 语音合成及播客内容生成，实现音频版内容的自动生成与分发。
 
 ## 1. 核心目标
 
-- **多引擎支持**: 集成 OpenAI TTS、Azure TTS 等主流 AI 语音合成服务
+- **多引擎支持**: 集成 OpenAI TTS、Azure TTS、火山引擎 (豆包) 等主流 AI 语音合成服务
+- **多模式音频化**:
+  - **标准 TTS**: 针对单人朗读正文。
+  - **AI 播客 (Podcast)**: 针对双人对话式内容生成，提升听觉趣味性。
 - **自动化工作流**: 文章发布时可选择自动生成音频版本
 - **智能分段**: 支持长文本自动分段处理，确保语音连贯性
 - **RSS 集成**: 生成的音频自动作为 RSS Enclosure 附件发布
@@ -16,13 +19,34 @@
 
 系统采用统一的 TTS Provider 接口，支持多种服务：
 
-| 提供者 | 模型选项 | 音色选择 | 特点 | 成本等级 |
+| 提供者 | 模型选项 | 适用模式 | 特点 | 成本等级 |
 |:---|:---|:---|:---|:---|
-| **OpenAI** | `tts-1`, `tts-1-hd` | Alloy, Echo, Fable, Onyx, Nova, Shimmer | 高质量、多音色 | 中 |
-| **Azure** | 多种神经网络音色 | 丰富音色库 | 专业级质量、SSML 支持 | 高 |
-| **SiliconFlow** | 兼容 OpenAI API | - | 国内友好、成本较低 | 低 |
+| **OpenAI** | `tts-1`, `tts-1-hd` | 标准 TTS | 高质量、多音色 | 中 |
+| **Azure** | 多种神经网络音色 | 标准 TTS | 专业级质量、SSML 支持 | 高 |
+| **SiliconFlow** | 兼容 OpenAI API | 标准 TTS | 国内友好、成本较低 | 低 |
+| **火山引擎 (豆包)** | `Podcast TTS` | AI 播客 | 双人对话、原生播客感 | 中 |
+| **火山引擎 (豆包)** | `LLM TTS` | 标准 TTS | 极致性能、多情感支持 | 中 |
 
-### 2.2 异步任务处理
+### 2.2 火山引擎 (豆包语音) 接入细节
+
+针对火山引擎（豆包语音）提供的两种核心模型，采用 WebSocket v3 协议实现高性能流式接入：
+
+#### 2.2.1 豆包语音播客大模型 (Podcast TTS)
+- **协议**: `wss://openspeech.bytedance.com/api/v3/sami/podcasttts`
+- **功能**: 将博文总结并转化为双人对话式的播客音频。
+- **核心参数**:
+  - `action`: 生成类型（0: 总结生成, 3: 给定对话文本, 4: Prompt 扩展）。
+  - `speaker_info`: 指定双人音色组合（如：`zh_female_mizaitongxue_v2_saturn_bigtts` 与 `zh_male_dayixiansheng_v2_saturn_bigtts`）。
+  - `use_head_music / use_tail_music`: 自动增加播客片头片尾曲。
+- **应用场景**: 极客长文一键转播客。
+
+#### 2.2.2 大模型语音合成 (LLM TTS)
+- **协议**: `wss://openspeech.bytedance.com/api/v3/tts/unidirectional/stream` (推荐)
+- **功能**: 高质量单人文本转语音。
+- **优势**: 相比 V1 接口，V3 接口在延迟 (TTFB) 表现上更优，支持情感控制。
+- **应用场景**: 标准文章朗读。
+
+### 2.3 异步任务处理
 
 TTS 生成是耗时操作，采用基于数据库的异步任务系统：
 
@@ -53,7 +77,7 @@ sequenceDiagram
     F-->>U: 显示播放器
 ```
 
-### 2.3 文本分段策略
+### 2.4 文本分段策略
 
 针对长文本（超过单次 API 限制），采用智能分段：
 
@@ -73,9 +97,10 @@ sequenceDiagram
 | `id` | `uuid` | 主键 |
 | `postId` | `uuid` | 关联文章 ID |
 | `userId` | `uuid` | 触发用户 ID |
-| `provider` | `varchar(50)` | TTS 提供者 (openai, azure, siliconflow) |
+| `provider` | `varchar(50)` | TTS 提供者 (openai, azure, siliconflow, volcengine) |
+| `mode` | `varchar(20)` | 音频化模式 (speech, podcast) |
 | `model` | `varchar(100)` | 使用的模型 |
-| `voice` | `varchar(50)` | 选择的音色 |
+| `voice` | `varchar(150)` | 选择的音色（播客模式下可能为多个 ID 组合） |
 | `status` | `varchar(20)` | 任务状态 (pending, processing, completed, failed) |
 | `progress` | `integer` | 进度百分比 (0-100) |
 | `errorMessage` | `text` | 失败错误信息 |
@@ -106,9 +131,10 @@ ttsGeneratedAt: Date | null
 ```typescript
 // POST /api/posts/:postId/tts
 interface TTSGenerationRequest {
-    provider: 'openai' | 'azure' | 'siliconflow'
+    provider: 'openai' | 'azure' | 'siliconflow' | 'volcengine'
+    mode: 'speech' | 'podcast'
     model?: string  // 默认使用配置的默认模型
-    voice: string  // 音色 ID
+    voice: string | string[]  // 音色 ID 或音色 ID 列表（播客模式）
     autoAttach?: boolean  // 是否自动关联到文章
 }
 
@@ -273,10 +299,10 @@ export function useTTSTask(taskId: string) {
 interface TTSProvider {
     name: string
     availableVoices: TTSAudioVoice[]
-    estimateCost(text: string, voice: string): number
+    estimateCost(text: string, voice: string | string[]): number
     generateSpeech(
         text: string,
-        voice: string,
+        voice: string | string[],
         options: TTSOptions
     ): Promise<ReadableStream<Uint8Array>>
 }
@@ -286,10 +312,12 @@ interface TTSAudioVoice {
     name: string
     language: string
     gender: 'male' | 'female' | 'neutral'
+    mode?: 'speech' | 'podcast' // 某些音色仅适用于特定模式
     previewUrl?: string
 }
 
 interface TTSOptions {
+    mode: 'speech' | 'podcast'
     speed?: number
         pitch?: number
     outputFormat?: 'mp3' | 'opus' | 'aac'
@@ -520,18 +548,22 @@ SILICONFLOW_API_KEY=
 
 ### 11.1 主流 TTS 服务对比
 
-| 特性 | OpenAI TTS | Azure TTS | Google Cloud TTS | Amazon Polly |
+| 特性 | OpenAI TTS | Azure TTS | 火山引擎 (豆包) | SiliconFlow |
 |:---|:---|:---|:---|:---|
 | **神经网络模型** | ✅ | ✅ | ✅ | ✅ |
+| **播客模式 (对话)** | ❌ | ❌ | ✅ (原生支持) | ❌ |
 | **SSML 支持** | ❌ | ✅ | ✅ | ✅ |
-| **音色数量** | 6 | 100+ | 50+ | 50+ |
+| **音色数量** | 6 | 100+ | 50+ | 10+ |
 | **多语言** | 中等 | 优秀 | 优秀 | 优秀 |
+| **API 协议** | HTTP (Post) | HTTP | WebSocket (V3) | HTTP |
 | **API 复杂度** | 低 | 中 | 中 | 中 |
 | **延迟** | 低 | 低 | 低 | 低 |
-| **价格** | $15/1M 字符 | 按字符计费 | 按字符计费 | 按字符计费 |
-| **国内访问** | 需代理 | 需代理 | 需代理 | 需代理 |
+| **价格** | $15/1M 字符 | 按字符计费 | 阶梯计费 (有免费额度) | 极低 |
+| **国内访问** | 需代理 | 需代理 | 原生支持 | 原生支持 |
 
-**建议**: 首选 OpenAI TTS，其 API 简单且质量稳定。对于有复杂需求的场景，可集成 Azure TTS。
+**建议**:
+- **标准阅读**: 首选 OpenAI TTS 或火山引擎 LLM TTS。
+- **播客生成**: 必须使用火山引擎 Podcast TTS。
 
 ### 11.2 音频格式选择
 
@@ -545,20 +577,22 @@ SILICONFLOW_API_KEY=
 
 ## 12. 实现路线图
 
-### Phase 1: 核心功能
-- [ ] 实现 TTSTask 实体
+### Phase 1: 核心功能与火山接入
+- [ ] 实现 `TTSTask` 实体扩展（支持 `mode`）
 - [ ] 实现 OpenAI TTS 提供者
-- [ ] 实现基础任务处理流程
-- [ ] 文章编辑器基础集成
+- [ ] 实现 **火山引擎 (豆包) 提供者**（WebSocket V3 接入）
+- [ ] 实现基础任务处理流程与流式数据处理
+- [ ] 文章编辑器基础集成（支持模式选择）
 
-### Phase 2: 完整体验
+### Phase 2: 播客体验与完整工作流
+- [ ] 实现 **AI 播客对话生成** 逻辑
 - [ ] 添加 Azure TTS 支持
 - [ ] 实现进度追踪 UI
-- [ ] RSS Enclosure 集成
-- [ ] 文章详情页播放器
+- [ ] RSS Enclosure 集成（播客专题 Feed 支持）
+- [ ] 文章详情页播放器（UI 优化）
 
-### Phase 3: 高级特性
+### Phase 3: 高级特性与优化
 - [ ] 实现智能分段
 - [ ] 添加成本优化策略
 - [ ] 移动端 Media Session 集成
-- [ ] SiliconFlow 国内友好提供者
+- [ ] SiliconFlow 国内友好提供者接入

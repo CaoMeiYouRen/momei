@@ -206,7 +206,7 @@
    - 有限版本化管理: 实现数据库级别的文章修改快照，支持对比与一键回滚（3-5 个历史版本）。
    - 全量文章导出: 支持单篇/批量导出文章为带 Front-matter 的 Markdown 格式，兼容各种静态博客。
 2. **多媒体生产力与 AI (Advanced Multimedia & AI)**:
-   - 文章转语音 (TTS): 集成 OpenAI/Azure TTS，实现自动化音频版内容生成与 RSS Podcasting 支持。
+   - 文章音频化 (TTS & Podcast): 集成 OpenAI/Azure TTS 及 **火山引擎 (豆包) 播客大模型**，实现标准朗读与双人对话播客的自动生成，支持 RSS Podcasting。
    - 云端语音识别 (ASR): 构建统一 ASR 控制器，支持 SiliconFlow (Batch) 与 Volcengine (Streaming) 双模驱动。
    - AI 图像驱动补全: 完成 Gemini 3 Pro Image 与 Stable Diffusion 等多驱动支持。
 3. **极客阅读体验优化 (Geek UX Optimization)**:
