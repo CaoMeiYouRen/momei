@@ -38,7 +38,7 @@
     "@sentry/nuxt": "^10.38.0",
     "@tokenizer/http": "^0.9.2",
     "@vercel/blob": "^2.2.0",
-    "@vueuse/core": "^14.2.0",
+    "@vueuse/core": "^14.2.1",
     "@vueuse/nuxt": "^14.2.0",
     "animate.css": "^4.1.1",
     "better-auth": "1.4.18",
