@@ -7,7 +7,7 @@ import {
 } from '@/utils/shared/env'
 
 export class TTSService {
-    private static providers: Map<string, TTSProvider> = new Map()
+    private static providers = new Map<string, TTSProvider>()
 
     /**
      * 获取 TTS 提供者实例
@@ -57,9 +57,9 @@ export class TTSService {
      */
     static getAvailableProviders(): string[] {
         const available = []
+<<<<<<< HEAD
         if (TTS_API_KEY) available.push('openai')
         if (process.env.SILICONFLOW_API_KEY || TTS_API_KEY) available.push('siliconflow')
-        // TODO: 添加其他提供商检测
-        return available
-    }
-}
+=======
+        if (TTS_API_KEY) { available.push('openai') }
+        if (process.env.SILICONFLOW_API_KEY || TTS_API_KEY) { available.push('siliconflow') }

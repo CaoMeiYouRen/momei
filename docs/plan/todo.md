@@ -52,10 +52,10 @@
         - [ ] 实现 AI 播客 (Podcast) 模式生成逻辑
         - [ ] 音频元数据保存与 RSS Enclosure 自动关联
     - [ ] **验收点**:
-        - 验收: 实现统一的音频化控制器，支持 **标准 TTS** 与 **AI 播客 (Dual Human)** 模式.
-        - 验收: 编辑器增加“生成音频”功能，支持选择提供者 (OpenAI/Azure/Volcengine).
-        - 验收: 集成 **火山引擎 (豆包)** WebSocket V3 接口，支持流式生成播客音频.
-        - 验收: 生成的音频自动保存并作为 RSS 的 Enclosure 附件发布.
+        - 验收: 实现统一的音频化控制器，支持 **标准 TTS** 与 **AI 播客 (Dual Human)** 模式。
+        - 验收: 编辑器增加“生成音频”功能，支持选择提供者 (OpenAI/Azure/Volcengine)。
+        - 验收: 集成 **火山引擎 (豆包)** WebSocket V3 接口，支持流式生成播客音频。
+        - 验收: 生成的音频自动保存并作为 RSS 的 Enclosure 附件发布。
 - [x] **高精度语音转录驱动演进 (AI Voice Transcription)**
     - 验收: 实现 Web Speech API (基础) 作为默认识别模式，提供低功耗、零延迟体验。
     - 验收: 将 Local Whisper 调整为实验性备用选项，移除其作为高精度核心的强制性。
