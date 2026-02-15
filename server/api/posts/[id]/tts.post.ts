@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
     // 在生产环境中，这应该通过消息队列（如 Redis/BullMQ）处理
     // 在目前单机架构下，直接通过异步 Promise 触发执行
     processTTSTask(task.id).catch((err) => {
-        // eslint-disable-next-line no-console
+         
         console.error('TTS Background Task Error:', err)
     })
 

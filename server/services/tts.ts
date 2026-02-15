@@ -1,5 +1,5 @@
-import { OpenAITTSProvider } from './tts/openai'
 import type { TTSProvider } from '../types/tts'
+import { OpenAITTSProvider } from './tts/openai'
 import {
     TTS_API_KEY,
     TTS_ENDPOINT,
@@ -56,10 +56,14 @@ export class TTSService {
      * 获取所有可用的提供者名称
      */
     static getAvailableProviders(): string[] {
-        const available = []
-<<<<<<< HEAD
-        if (TTS_API_KEY) available.push('openai')
-        if (process.env.SILICONFLOW_API_KEY || TTS_API_KEY) available.push('siliconflow')
-=======
-        if (TTS_API_KEY) { available.push('openai') }
-        if (process.env.SILICONFLOW_API_KEY || TTS_API_KEY) { available.push('siliconflow') }
+        const available: string[] = []
+        if (TTS_API_KEY) {
+            available.push('openai')
+        }
+        if (process.env.SILICONFLOW_API_KEY || TTS_API_KEY) {
+            available.push('siliconflow')
+        }
+        // TODO: 添加其他提供商检测
+        return available
+    }
+}
