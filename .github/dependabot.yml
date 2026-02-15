@@ -7,6 +7,17 @@ updates:
       interval: weekly
       time: "05:00"
       timezone: Asia/Shanghai
+    ignore:
+      # 由于 playwright 高版本镜像无法拉取，故暂时锁定在 1.48.1 版本
+      - dependency-name: "playwright"
+        versions:
+          - ">=1.48.1"
+      - dependency-name: "playwright-core"
+        versions:
+          - ">=1.48.1"
+      - dependency-name: "@playwright/test"
+        versions:
+          - ">=1.48.1"
   - package-ecosystem: github-actions
     directory: /
     open-pull-requests-limit: 20
