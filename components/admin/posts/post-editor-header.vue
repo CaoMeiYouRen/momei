@@ -69,6 +69,7 @@
                 @retry="resetVoice(); startListening(post.language)"
                 @insert="handleVoiceInsert"
                 @refine="handleVoiceRefine"
+                @scaffold="handleVoiceScaffold"
                 @load-model="loadModel"
                 @hide="stopListening()"
             />
@@ -317,6 +318,28 @@ const handleVoiceRefine = async (text: string) => {
     } catch (e) {
         console.error('Refine voice error:', e)
         // Fallback to direct insert if AI fails
+        handleVoiceInsert(text)
+    } finally {
+        refiningVoice.value = false
+    }
+}
+
+const handleVoiceScaffold = async (text: string) => {
+    if (!text) return
+    refiningVoice.value = true
+    try {
+        const result = await $fetch<any>('/api/ai/scaffold/generate', {
+            method: 'POST',
+            body: {
+                snippets: [text],
+                topic: post.value.title,
+                language: post.value.language,
+            },
+        })
+        const data = result?.data?.scaffold || result?.data || result
+        handleVoiceInsert(data as string)
+    } catch (e) {
+        console.error('Scaffold voice error:', e)
         handleVoiceInsert(text)
     } finally {
         refiningVoice.value = false

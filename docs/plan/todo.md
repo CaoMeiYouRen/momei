@@ -59,7 +59,7 @@
 - [x] **高精度语音转录驱动演进 (AI Voice Transcription)**
     - 验收: 实现 Web Speech API (基础) 作为默认识别模式，提供低功耗、零延迟体验。
     - 验收: 将 Local Whisper 调整为实验性备用选项，移除其作为高精度核心的强制性。
-- [ ] **云端语音识别系统 (Cloud ASR Hub)** (P1)
+- [x] **云端语音识别系统 (Cloud ASR Hub)** (P1)
     - 验收: 实现 **SiliconFlow (Batch)** 驱动，支持上传录音文件进行全文精确转录。
     - 验收: 实现 **Volcengine (Streaming)** 驱动，支持通过 WebSocket 进行流式实时对讲。
     - 验收: 后端建立统一转写控制器，通过环境变量配置 API Key，确保密钥安全。

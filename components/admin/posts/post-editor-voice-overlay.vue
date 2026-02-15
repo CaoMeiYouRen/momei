@@ -114,6 +114,13 @@
                         icon="pi pi-sparkles"
                         @click="$emit('refine', finalTranscript)"
                     />
+                    <Button
+                        :label="$t('pages.admin.posts.ai.voice_scaffold_insert')"
+                        severity="info"
+                        :loading="refining"
+                        icon="pi pi-list"
+                        @click="$emit('scaffold', finalTranscript)"
+                    />
                 </template>
                 <template v-else>
                     <Button
@@ -139,13 +146,13 @@ const props = defineProps<{
     finalTranscript: string
     error: string
     refining: boolean
-    mode: 'web-speech' | 'local-standard' | 'local-advanced'
+    mode: 'web-speech' | 'local-standard' | 'local-advanced' | 'cloud-batch' | 'cloud-stream'
     isLoadingModel: boolean
     modelProgress: number
     isModelReady: boolean
 }>()
 
-const emit = defineEmits(['stop', 'retry', 'insert', 'refine', 'hide', 'update:mode', 'start', 'load-model'])
+const emit = defineEmits(['stop', 'retry', 'insert', 'refine', 'scaffold', 'hide', 'update:mode', 'start', 'load-model'])
 
 const { t } = useI18n()
 const op = ref<any>(null)
@@ -162,6 +169,8 @@ const modeOptions = computed(() => [
     { label: t('pages.admin.posts.ai.voice_mode_basic'), value: 'web-speech' },
     { label: t('pages.admin.posts.ai.voice_mode_local_standard'), value: 'local-standard' },
     { label: t('pages.admin.posts.ai.voice_mode_local_advanced'), value: 'local-advanced' },
+    { label: t('pages.admin.posts.ai.voice_mode_cloud_batch'), value: 'cloud-batch' },
+    { label: t('pages.admin.posts.ai.voice_mode_cloud_stream'), value: 'cloud-stream' },
 ])
 
 const showLoadConfirm = computed(() => {

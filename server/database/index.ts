@@ -22,6 +22,8 @@ import { MarketingCampaign } from '../entities/marketing-campaign'
 import { AdminNotificationSettings } from '../entities/admin-notification-settings'
 import { AITask } from '../entities/ai-task'
 import { TTSTask } from '../entities/tts-task'
+import { ASRQuota } from '../entities/asr-quota'
+import { ASRUsageLog } from '../entities/asr-usage-log'
 import { PostVersion } from '../entities/post-version'
 import { InAppNotification } from '../entities/in-app-notification'
 import logger from '../utils/logger'
@@ -73,6 +75,8 @@ const entities = [
     AdminNotificationSettings,
     AITask,
     TTSTask,
+    ASRQuota,
+    ASRUsageLog,
     PostVersion,
     InAppNotification,
 ]

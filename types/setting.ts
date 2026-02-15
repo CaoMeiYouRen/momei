@@ -26,6 +26,13 @@ export enum SettingKey {
     AI_IMAGE_MODEL = 'ai_image_model',
     AI_IMAGE_ENDPOINT = 'ai_image_endpoint',
 
+    // AI ASR (Speech to Text)
+    ASR_SILICONFLOW_API_KEY = 'asr_siliconflow_api_key',
+    ASR_SILICONFLOW_MODEL = 'asr_siliconflow_model',
+    ASR_VOLCENGINE_APP_ID = 'asr_volcengine_app_id',
+    ASR_VOLCENGINE_ACCESS_KEY = 'asr_volcengine_access_key',
+    ASR_VOLCENGINE_SECRET_KEY = 'asr_volcengine_secret_key',
+
     // Email
     EMAIL_HOST = 'email_host',
     EMAIL_PORT = 'email_port',

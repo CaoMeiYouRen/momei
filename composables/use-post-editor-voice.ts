@@ -1,6 +1,6 @@
 import { ref, onUnmounted, computed, watch } from 'vue'
 
-export type VoiceTranscriptionMode = 'web-speech' | 'local-standard' | 'local-advanced'
+export type VoiceTranscriptionMode = 'web-speech' | 'local-standard' | 'local-advanced' | 'cloud-batch' | 'cloud-stream'
 
 export function usePostEditorVoice() {
     const isListening = ref(false)
@@ -20,7 +20,7 @@ export function usePostEditorVoice() {
     })
 
     const isModelReady = computed(() => {
-        if (mode.value === 'web-speech') {
+        if (mode.value === 'web-speech' || mode.value === 'cloud-batch' || mode.value === 'cloud-stream') {
             return true
         }
         return readyModels.value[mode.value] || false
@@ -29,7 +29,8 @@ export function usePostEditorVoice() {
     // 初始化时从 localStorage 读取模式
     if (import.meta.client) {
         const savedMode = localStorage.getItem('momei_voice_mode') as VoiceTranscriptionMode
-        if (savedMode && (savedMode === 'web-speech' || savedMode === 'local-standard' || savedMode === 'local-advanced')) {
+        const validModes: VoiceTranscriptionMode[] = ['web-speech', 'local-standard', 'local-advanced', 'cloud-batch', 'cloud-stream']
+        if (savedMode && validModes.includes(savedMode)) {
             mode.value = savedMode
         }
     }
@@ -59,6 +60,10 @@ export function usePostEditorVoice() {
     let audioData: Float32Array[] = []
     let transcribeTimer: any = null
     let currentLang = 'zh-CN'
+
+    let mediaRecorder: MediaRecorder | null = null
+    let audioChunks: Blob[] = []
+    let ws: WebSocket | null = null
 
     // 初始化 Web Speech API
     if (import.meta.client) {
@@ -218,6 +223,55 @@ export function usePostEditorVoice() {
     const startRecording = async () => {
         try {
             mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+
+            if (mode.value === 'cloud-batch') {
+                audioChunks = []
+                mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'audio/webm' })
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) {
+                        audioChunks.push(e.data)
+                    }
+                }
+                mediaRecorder.start()
+                isListening.value = true
+                return
+            }
+
+            if (mode.value === 'cloud-stream') {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+                const host = window.location.host
+                ws = new WebSocket(`${protocol}//${host}/api/ai/voice/stream`)
+
+                ws.onopen = () => {
+                    ws?.send(JSON.stringify({ type: 'config', config: { language: currentLang, sampleRate: 16000, encoding: 'opus' } }))
+                    ws?.send(JSON.stringify({ type: 'start' }))
+                }
+
+                ws.onmessage = (event) => {
+                    const msg = JSON.parse(event.data)
+                    if (msg.type === 'transcript') {
+                        if (msg.transcript.isFinal) {
+                            currentSessionFinal.value += msg.transcript.text
+                            interimTranscript.value = ''
+                        } else {
+                            interimTranscript.value = msg.transcript.text
+                        }
+                    } else if (msg.type === 'started') {
+                        isListening.value = true
+                    }
+                }
+
+                mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'audio/webm' })
+                mediaRecorder.ondataavailable = async (e) => {
+                    if (e.data.size > 0 && ws?.readyState === WebSocket.OPEN) {
+                        const buffer = await e.data.arrayBuffer()
+                        ws.send(JSON.stringify({ type: 'audio', audio: Array.from(new Uint8Array(buffer)) }))
+                    }
+                }
+                mediaRecorder.start(250)
+                return
+            }
+
             audioContext = new AudioContext({ sampleRate: 16000 })
             const source = audioContext.createMediaStreamSource(mediaStream)
             // eslint-disable-next-line @typescript-eslint/no-deprecated
@@ -247,15 +301,30 @@ export function usePostEditorVoice() {
         }
     }
 
-    const stopRecording = () => {
+    const stopRecording = async () => {
         if (transcribeTimer) {
             clearInterval(transcribeTimer)
             transcribeTimer = null
         }
-        if (processor) {
+
+        if (mode.value === 'cloud-batch' && mediaRecorder) {
+            mediaRecorder.stop()
+            isListening.value = false
+            // Wait for last chunks
+            await new Promise((resolve) => setTimeout(resolve, 100))
+            const blob = new Blob(audioChunks, { type: 'audio/webm' })
+            await transcribeCloudBatch(blob)
+        } else if (mode.value === 'cloud-stream') {
+            mediaRecorder?.stop()
+            ws?.send(JSON.stringify({ type: 'stop' }))
+            ws?.close()
+            ws = null
+            isListening.value = false
+        } else if (processor) {
             processor.disconnect()
             processor = null
         }
+
         if (mediaStream) {
             mediaStream.getTracks().forEach((track) => track.stop())
             mediaStream = null
@@ -265,8 +334,33 @@ export function usePostEditorVoice() {
             audioContext = null
         }
 
-        // 发送最终完整数据包
-        sendCurrentBuffer(true)
+        if (mode.value !== 'cloud-batch' && mode.value !== 'cloud-stream') {
+            // 发送最终完整数据包
+            sendCurrentBuffer(true)
+        }
+    }
+
+    const transcribeCloudBatch = async (blob: Blob) => {
+        isLoadingModel.value = true // Reuse loading state for UI
+        try {
+            const formData = new FormData()
+            formData.append('audioFile', blob, 'recording.webm')
+            formData.append('language', currentLang)
+
+            const result = await $fetch<any>('/api/ai/voice/transcribe', {
+                method: 'POST',
+                body: formData,
+            })
+
+            currentSessionFinal.value = result.text
+            committedTranscript.value += result.text
+            currentSessionFinal.value = ''
+        } catch (err: any) {
+            console.error('Cloud batch transcription failed', err)
+            error.value = 'cloud_transcription_failed'
+        } finally {
+            isLoadingModel.value = false
+        }
     }
 
     const startListening = (lang: string = 'zh-CN') => {
@@ -302,7 +396,7 @@ export function usePostEditorVoice() {
             }
         } else {
             if (!isModelReady.value) {
-                loadModel()
+                void loadModel()
                 return
             }
             void startRecording()
@@ -314,7 +408,7 @@ export function usePostEditorVoice() {
             recognition?.stop()
             isListening.value = false
         } else {
-            stopRecording()
+            void stopRecording()
         }
     }
 
@@ -332,7 +426,10 @@ export function usePostEditorVoice() {
         if (worker) {
             worker.terminate()
         }
-        stopRecording()
+        if (ws) {
+            ws.close()
+        }
+        void stopRecording()
     })
 
     return {
