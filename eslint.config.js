@@ -20,6 +20,8 @@ export default withNuxt(
         'logs',
         'jscpd-report',
         'packages',
+        'playwright-report',
+        'test-results',
     ]),
     {
         plugins: {
