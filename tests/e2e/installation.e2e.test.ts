@@ -16,7 +16,6 @@ test.describe('Installation Flow', () => {
             await expect(nextButton).toBeVisible()
         } else {
             // 已经被重定向，说明已安装，测试也可以认为是通过的（不可达测试）
-            console.info('Already installed, redirected to:', currentUrl)
         }
     })
 })

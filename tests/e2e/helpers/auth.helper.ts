@@ -40,12 +40,12 @@ export class AuthHelper {
 
         // 等待登录成功跳转到首页
         // 增加超时时间以应对慢速环境下的重定向
-        await this.page.waitForURL(/\//, { timeout: 10000 })
+        await this.page.waitForURL(/\//, { timeout: 20000 })
 
         // 验证登录状态：用户菜单按钮应该可见
         // 如果页面是通过 ClientOnly 渲染的，可能需要一点时间
         const userMenuBtn = this.page.locator('#user-menu-btn')
-        await expect(userMenuBtn).toBeVisible({ timeout: 10000 })
+        await expect(userMenuBtn).toBeVisible({ timeout: 20000 })
     }
 
     /**
