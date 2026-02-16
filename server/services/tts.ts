@@ -71,15 +71,24 @@ export class TTSService {
      */
     static async getAvailableProviders(): Promise<string[]> {
         const dbSettings = await getSettings([
+            SettingKey.TTS_PROVIDER,
             SettingKey.TTS_API_KEY,
         ])
 
         const available: string[] = []
+        // 如果环境变量或数据库明确配置了其中之一，则认为它是可用的
+        // 这里的逻辑可以根据实际需求调整：是显示所有支持的，还是仅显示配置了 Key 的
         if (dbSettings[SettingKey.TTS_API_KEY]) {
             available.push('openai')
             available.push('siliconflow')
         }
-        // TODO: 细化检测逻辑
+
+        // 如果当前设置了一个提供商，且它不在列表中（虽然理论上不会），确保它在
+        const current = dbSettings[SettingKey.TTS_PROVIDER] as string
+        if (current && !available.includes(current.toLowerCase())) {
+            available.push(current.toLowerCase())
+        }
+
         return available
     }
 }
