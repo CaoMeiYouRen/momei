@@ -573,7 +573,11 @@
                     "completed": "Audio generated successfully",
                     "failed": "Generation failed",
                     "attach_success": "Audio attached to post successfully",
-                    "history": "Generation History"
+                    "history": "Generation History",
+                    "manuscript": "Audio Manuscript",
+                    "manuscript_hint": "You can fine-tune the script, or click AI Polish to generate a more engaging broadcast-style script.",
+                    "optimize_manuscript": "AI Polish Script",
+                    "optimizing": "Polishing..."
                 },
                 "ai": {
                     "suggest_titles": "AI Title Suggestions",

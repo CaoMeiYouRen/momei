@@ -572,7 +572,11 @@
                     "completed": "音频合成成功",
                     "failed": "合成失败",
                     "attach_success": "音频已成功关联到文章",
-                    "history": "生成记录"
+                    "history": "生成记录",
+                    "manuscript": "音频文稿",
+                    "manuscript_hint": "您可以对文稿进行微调，或点击 AI 优化生成更具感染力的广播稿。",
+                    "optimize_manuscript": "AI 润色文稿",
+                    "optimizing": "正在润色中..."
                 },
                 "ai": {
                     "suggest_titles": "AI 标题建议",

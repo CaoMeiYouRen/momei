@@ -29,14 +29,15 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody(event)
-    const { provider, mode = 'speech', voice, model } = body
+    const { provider, mode = 'speech', voice, model, script } = body
 
     if (!voice) {
         throw createError({ statusCode: 400, statusMessage: 'Voice is required' })
     }
 
     const ttsProvider = await TTSService.getProvider(provider)
-    const estimatedCost = await ttsProvider.estimateCost(post.content, voice)
+    const textToEstimate = script || post.content
+    const estimatedCost = await ttsProvider.estimateCost(textToEstimate, voice)
 
     const taskRepo = dataSource.getRepository(TTSTask)
     const task = taskRepo.create({
@@ -46,6 +47,7 @@ export default defineEventHandler(async (event) => {
         mode,
         voice,
         model: model || (ttsProvider as any).defaultModel,
+        script: script || null,
         status: 'pending',
         estimatedCost,
     })

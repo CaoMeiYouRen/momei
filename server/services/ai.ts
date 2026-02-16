@@ -397,6 +397,41 @@ export class AIService {
         return response.content.trim()
     }
 
+    static async optimizeManuscript(
+        content: string,
+        language: string = 'zh-CN',
+        userId?: string,
+    ) {
+        const provider = await getAIProvider()
+        const prompt = formatPrompt(AI_PROMPTS.MANUSCRIPT_OPTIMIZE, {
+            content: content.slice(0, AI_CHUNK_SIZE),
+            language,
+        })
+
+        const response = await provider.chat({
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are a professional podcast script writer. You help authors convert blog content into engaging broadcast manuscripts in ${language}.`,
+                },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.7,
+        })
+
+        this.logAIUsage('optimize-manuscript', response, userId)
+        await this.recordTask({
+            userId,
+            type: 'text_generation',
+            provider: provider.name,
+            model: response.model,
+            payload: { task: 'optimize-manuscript' },
+            response,
+        })
+
+        return response.content.trim()
+    }
+
     static async generateScaffold(
         options: ScaffoldOptions,
         userId?: string,

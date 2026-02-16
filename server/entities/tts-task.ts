@@ -64,6 +64,13 @@ export class TTSTask extends BaseEntity {
     status: 'pending' | 'processing' | 'completed' | 'failed'
 
     @CustomColumn({
+        type: 'text',
+        nullable: true,
+        comment: '朗读稿内容 (若为空则读取文章原内容)',
+    })
+    script: string | null
+
+    @CustomColumn({
         type: 'integer',
         default: 0,
         comment: '进度百分比 (0-100)',

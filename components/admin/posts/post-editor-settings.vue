@@ -386,15 +386,19 @@ const isValidAudioUrl = computed(() => {
     return post.value.audioUrl && isValidCustomUrl(post.value.audioUrl)
 })
 
-const handleTTSCompleted = () => {
-    // 刷新文章数据以获取最新的音频 URL
-    // 实际上我们在 processor 中已经更新了数据库，但前台的 post 对象还没变
-    // 这里简单弹个窗提示，用户如果刷新页面或保存文章就能看到
+const handleTTSCompleted = (url: string) => {
+    // 刷新文章局部数据以获取最新的音频相关信息
+    if (url) {
+        post.value.audioUrl = url
+        // 建议重新探测元数据或从后端同步
+        probeAudio()
+    }
+
     toast.add({
         severity: 'success',
-        summary: 'Success',
-        detail: 'Audio generation task submitted/completed. Please save or refresh to see changes.',
-        life: 5000,
+        summary: $t('common.success'),
+        detail: $t('pages.admin.posts.tts.attach_success'),
+        life: 3000,
     })
 }
 

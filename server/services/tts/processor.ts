@@ -31,11 +31,13 @@ export async function processTTSTask(taskId: string): Promise<void> {
 
         const ttsProvider = await TTSService.getProvider(task.provider)
 
-        // 默认处理全文内容
-        // 移除 Markdown 标签以获得更好的朗读效果（可选）
-        const textToProcess = post.content
-            .replace(/[#*`~]/g, '') // 简单移除一些 Markdown 符号
-            .trim()
+        // 优先使用任务中指定的朗读稿，否则读取文章内容并进行简单净化
+        let textToProcess = task.script
+        if (!textToProcess) {
+            textToProcess = post.content
+                .replace(/[#*`~]/g, '') // 简单移除一些 Markdown 符号
+                .trim()
+        }
 
         if (!textToProcess) {
             throw new Error('文章内容为空，无法生成音频')
@@ -69,6 +71,11 @@ export async function processTTSTask(taskId: string): Promise<void> {
         task.progress = 100
         // 计算实际成本
         task.actualCost = await ttsProvider.estimateCost(textToProcess, task.voice)
+        task.result = JSON.stringify({
+            audioUrl: uploadResult.url,
+            audioSize: buffer.length,
+            audioMimeType: 'audio/mpeg',
+        })
         await taskRepo.save(task)
 
         // 5. 更新 Post 记录

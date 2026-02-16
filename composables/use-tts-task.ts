@@ -23,8 +23,15 @@ export function useTTSTask(taskIdRef: Ref<string | null>) {
                 progress.value = data.progress
 
                 if (data.status === 'completed') {
-                    // 如果后端存入了 audioUrl，直接取（在 processor 中更新了 Post 记录，但 Task 中可能有结果缓存）
-                    // 也可以通过刷新文章数据来获取最新的 audioUrl
+                    // 如果后端存入了 result，解析出 audioUrl
+                    if (data.result) {
+                        try {
+                            const result = typeof data.result === 'string' ? JSON.parse(data.result) : data.result
+                            audioUrl.value = result.audioUrl
+                        } catch (e) {
+                            console.error('Failed to parse task result:', e)
+                        }
+                    }
                     status.value = 'completed'
                     pause()
                 } else if (data.status === 'failed') {

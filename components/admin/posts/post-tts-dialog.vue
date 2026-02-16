@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
@@ -7,7 +7,9 @@ import Dropdown from 'primevue/dropdown'
 import RadioButton from 'primevue/radiobutton'
 import ProgressBar from 'primevue/progressbar'
 import Message from 'primevue/message'
+import Textarea from 'primevue/textarea'
 import { useTTSTask } from '~/composables/use-tts-task'
+import { cleanTextForTTS } from '~/utils/shared/tts-cleaner'
 
 const props = defineProps<{
     postId: string
@@ -65,8 +67,24 @@ const loadingVoices = ref(false)
 
 const { $appFetch } = useAppApi()
 
-// 初始化加载配置
-fetchConfig()
+const script = ref('')
+const optimizing = ref(false)
+
+async function optimizeManuscript() {
+    if (!props.content || optimizing.value) return
+    optimizing.value = true
+    try {
+        const { data } = await $appFetch('/api/admin/tts/manuscript', {
+            method: 'POST',
+            body: { content: props.content },
+        })
+        script.value = data.manuscript
+    } catch (e) {
+        console.error('Failed to optimize manuscript:', e)
+    } finally {
+        optimizing.value = false
+    }
+}
 
 async function fetchVoices() {
     if (!config.value.provider) return
@@ -92,6 +110,17 @@ watch(() => config.value.provider, () => {
     fetchVoices()
 }, { immediate: true })
 
+// 监听 visible 变化，初始化文稿
+watch(visible, (val) => {
+    if (val && !script.value) {
+        script.value = cleanTextForTTS(props.content)
+    }
+})
+
+onMounted(() => {
+    fetchConfig()
+})
+
 const currentTaskId = ref<string | null>(null)
 const { status, progress, audioUrl, error, startPolling } = useTTSTask(currentTaskId)
 
@@ -99,8 +128,8 @@ const estimatedCost = ref(0)
 const loadingCost = ref(false)
 
 // 监听配置变化，重新计算预估成本
-watch([() => config.value.provider, () => config.value.voice], async () => {
-    if (!config.value.voice) {
+watch([() => config.value.provider, () => config.value.voice, script], async () => {
+    if (!config.value.voice || !script.value) {
         estimatedCost.value = 0
         return
     }
@@ -111,7 +140,7 @@ watch([() => config.value.provider, () => config.value.voice], async () => {
             query: {
                 provider: config.value.provider,
                 voice: config.value.voice,
-                post_id: props.postId,
+                text: script.value,
             },
         })
         estimatedCost.value = data.cost
@@ -125,9 +154,12 @@ watch([() => config.value.provider, () => config.value.voice], async () => {
 async function startGenerate() {
     try {
         error.value = null
-        const data = await $fetch<any>(`/api/posts/${props.postId}/tts`, {
+        const data = await $appFetch<any>(`/api/posts/${props.postId}/tts`, {
             method: 'POST',
-            body: config.value,
+            body: {
+                ...config.value,
+                script: script.value,
+            },
         })
         currentTaskId.value = data.taskId
         startPolling()
@@ -153,7 +185,7 @@ watch(status, (newStatus) => {
         :header="t('pages.admin.posts.tts.generate_title')"
         :modal="true"
         class="post-tts-dialog"
-        style="width: 25rem"
+        style="width: 32rem"
     >
         <div class="tts-dialog">
             <div class="tts-dialog__body">
@@ -186,6 +218,7 @@ watch(status, (newStatus) => {
                             :options="providers"
                             option-label="label"
                             option-value="value"
+                            class="w-full"
                             :placeholder="t('pages.admin.posts.tts.select_provider')"
                         />
                     </div>
@@ -200,9 +233,36 @@ watch(status, (newStatus) => {
                             :options="voices"
                             option-label="name"
                             option-value="id"
+                            class="w-full"
                             :loading="loadingVoices"
                             :placeholder="t('pages.admin.posts.tts.select_voice')"
                         />
+                    </div>
+                </div>
+
+                <!-- Manuscript -->
+                <div class="tts-field">
+                    <div class="tts-field__header">
+                        <label class="tts-field__label">{{ t('pages.admin.posts.tts.manuscript') }}</label>
+                        <Button
+                            icon="pi pi-sparkles"
+                            :label="t('pages.admin.posts.tts.optimize_manuscript')"
+                            size="small"
+                            text
+                            rounded
+                            :loading="optimizing"
+                            @click="optimizeManuscript"
+                        />
+                    </div>
+                    <div class="tts-field__content">
+                        <Textarea
+                            v-model="script"
+                            auto-resize
+                            rows="5"
+                            class="tts-manuscript w-full"
+                            :placeholder="t('pages.admin.posts.tts.manuscript_hint')"
+                        />
+                        <small class="text-gray-500 text-xs tts-field__hint">{{ t('pages.admin.posts.tts.manuscript_hint') }}</small>
                     </div>
                 </div>
 
@@ -294,10 +354,34 @@ watch(status, (newStatus) => {
     flex-direction: column;
     gap: 0.5rem;
 
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .p-button {
+            padding: 0 0.5rem;
+            height: 1.5rem;
+            font-size: 0.8125rem;
+
+            :deep(.p-button-icon) {
+                font-size: 0.75rem;
+                margin-right: 0.25rem;
+            }
+        }
+    }
+
     &__label {
         font-weight: 700;
         color: var(--surface-900);
         font-size: 0.935rem;
+    }
+
+    &__hint {
+        display: block;
+        margin-top: 0.375rem;
+        color: var(--surface-500);
+        line-height: 1.4;
     }
 
     &__content {
@@ -307,7 +391,18 @@ watch(status, (newStatus) => {
             align-items: center;
             padding: 0.25rem 0;
         }
+
+        .p-dropdown, .p-textarea {
+            width: 100%;
+        }
     }
+}
+
+.tts-manuscript {
+    font-family: var(--font-family, sans-serif);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    background: var(--surface-50);
 }
 
 .tts-radio-item {
