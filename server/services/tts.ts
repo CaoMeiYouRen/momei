@@ -1,6 +1,7 @@
 import type { TTSProvider } from '../types/tts'
 import { OpenAITTSProvider } from './tts/openai'
 import {
+    TTS_PROVIDER,
     TTS_API_KEY,
     TTS_ENDPOINT,
     TTS_DEFAULT_MODEL,
@@ -13,8 +14,8 @@ export class TTSService {
      * 获取 TTS 提供者实例
      * @param name 提供者名称 (openai, siliconflow)
      */
-    static getInstance(name: string): TTSProvider {
-        const providerName = name.toLowerCase()
+    static getInstance(name?: string): TTSProvider {
+        const providerName = (name || TTS_PROVIDER).toLowerCase()
         if (this.providers.has(providerName)) {
             return this.providers.get(providerName)!
         }

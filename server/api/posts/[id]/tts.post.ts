@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody(event)
-    const { provider = 'openai', mode = 'speech', voice, model } = body
+    const { provider, mode = 'speech', voice, model } = body
 
     if (!voice) {
         throw createError({ statusCode: 400, statusMessage: 'Voice is required' })
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
     const task = taskRepo.create({
         postId,
         userId: user.id,
-        provider,
+        provider: provider || ttsProvider.name,
         mode,
         voice,
         model: model || (ttsProvider as any).defaultModel,
@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
     // 在生产环境中，这应该通过消息队列（如 Redis/BullMQ）处理
     // 在目前单机架构下，直接通过异步 Promise 触发执行
     processTTSTask(task.id).catch((err) => {
-         
+
         console.error('TTS Background Task Error:', err)
     })
 

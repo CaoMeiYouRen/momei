@@ -27,11 +27,19 @@ export enum SettingKey {
     AI_IMAGE_ENDPOINT = 'ai_image_endpoint',
 
     // AI ASR (Speech to Text)
+    ASR_PROVIDER = 'asr_provider',
     ASR_SILICONFLOW_API_KEY = 'asr_siliconflow_api_key',
     ASR_SILICONFLOW_MODEL = 'asr_siliconflow_model',
     ASR_VOLCENGINE_APP_ID = 'asr_volcengine_app_id',
     ASR_VOLCENGINE_ACCESS_KEY = 'asr_volcengine_access_key',
     ASR_VOLCENGINE_SECRET_KEY = 'asr_volcengine_secret_key',
+
+    // AI TTS (Text to Speech)
+    TTS_PROVIDER = 'tts_provider',
+    TTS_ENABLED = 'tts_enabled',
+    TTS_API_KEY = 'tts_api_key',
+    TTS_MODEL = 'tts_model',
+    TTS_ENDPOINT = 'tts_endpoint',
 
     // Email
     EMAIL_HOST = 'email_host',

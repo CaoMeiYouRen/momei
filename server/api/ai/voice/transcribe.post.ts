@@ -22,17 +22,17 @@ export default defineEventHandler(async (event) => {
     }
 
     const language = formData.find((f) => f.name === 'language')?.data.toString()
-    const providerName = (formData.find((f) => f.name === 'provider')?.data.toString() || 'siliconflow') as 'siliconflow' | 'volcengine'
+    const providerName = formData.find((f) => f.name === 'provider')?.data.toString() as 'siliconflow' | 'volcengine' | undefined
     const model = formData.find((f) => f.name === 'model')?.data.toString()
 
     // Default model if not provided
-    const finalModel = model || (providerName === 'siliconflow' ? 'funasr/paraformer-zh' : '')
-
-    // Check quota (Pre-check)
-    // For batch, we don't know the exact duration yet, but we can check if they have any remaining quota
-    await ASRService.checkQuota(session.user.id, providerName, 0)
+    const finalModel = model || (providerName === 'volcengine' ? '' : 'funasr/paraformer-zh')
 
     const provider = await getASRProvider(providerName)
+
+    // Check quota (Pre-check)
+    await ASRService.checkQuota(session.user.id, provider.name, 0)
+
     const result = await provider.transcribe({
         audioBuffer: audioFile.data,
         fileName: audioFile.filename || 'recording.webm',
@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
     // Update quota and log
     await ASRService.updateQuotaAndLog({
         userId: session.user.id,
-        provider: providerName,
+        provider: providerName || provider.name,
         mode: 'batch',
         duration: result.usage.audioSeconds,
         size: audioFile.data.length,

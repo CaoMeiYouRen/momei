@@ -5,14 +5,16 @@ import { dataSource } from '~/server/database'
 import { ASRQuota } from '~/server/entities/asr-quota'
 import { ASRUsageLog } from '~/server/entities/asr-usage-log'
 import type { ASRProvider } from '~/types/asr'
+import { ASR_PROVIDER } from '~/utils/shared/env'
 
-export async function getASRProvider(providerName: 'siliconflow' | 'volcengine' = 'siliconflow'): Promise<ASRProvider> {
-    const settings = await getSettings([
-        SettingKey.ASR_SILICONFLOW_API_KEY,
-        SettingKey.ASR_SILICONFLOW_MODEL,
-    ])
+export async function getASRProvider(name?: 'siliconflow' | 'volcengine'): Promise<ASRProvider> {
+    const providerName = name || ASR_PROVIDER
 
     if (providerName === 'siliconflow') {
+        const settings = await getSettings([
+            SettingKey.ASR_SILICONFLOW_API_KEY,
+            SettingKey.ASR_SILICONFLOW_MODEL,
+        ])
         const apiKey = settings[SettingKey.ASR_SILICONFLOW_API_KEY]
         const model = settings[SettingKey.ASR_SILICONFLOW_MODEL] || 'FunAudioLLM/SenseVoiceSmall'
         if (!apiKey) {
@@ -22,6 +24,14 @@ export async function getASRProvider(providerName: 'siliconflow' | 'volcengine' 
             })
         }
         return new SiliconFlowASRProvider(apiKey, undefined, model)
+    }
+
+    if (providerName === 'volcengine') {
+        // TODO: Implement Volcengine ASR Provider
+        throw createError({
+            statusCode: 501,
+            message: 'Volcengine ASR Provider is not yet fully implemented',
+        })
     }
 
     throw createError({
