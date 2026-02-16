@@ -240,7 +240,7 @@
                     <label for="audioUrl" class="form-label mb-0">{{ $t('pages.admin.posts.audio_url') }}</label>
                     <Button
                         id="ai-tts-btn"
-                        v-tooltip="$t('admin.posts.tts.generate_title')"
+                        v-tooltip="$t('pages.admin.posts.tts.generate_title')"
                         icon="pi pi-sparkles"
                         size="small"
                         text

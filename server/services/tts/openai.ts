@@ -22,7 +22,11 @@ export class OpenAITTSProvider implements TTSProvider {
         this.defaultModel = config.defaultModel || 'tts-1'
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async getVoices(): Promise<TTSAudioVoice[]> {
+        return this.availableVoices
+    }
+
+     
     estimateCost(text: string, _voice: string): Promise<number> {
         // OpenAI TTS 定价: $15/1M 字符 (tts-1), $30/1M 字符 (tts-1-hd)
         const chars = text.length

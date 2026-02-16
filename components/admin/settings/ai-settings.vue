@@ -177,99 +177,105 @@
                     id="asr_provider"
                     v-model="settings.asr_provider"
                     :options="asrProviders"
+                    option-label="label"
+                    option-value="value"
                     :disabled="metadata.asr_provider?.isLocked"
                     fluid
                 />
             </div>
 
-            <Fieldset legend="SiliconFlow (Batch)" class="mb-4">
-                <div class="form-field">
-                    <label for="asr_siliconflow_api_key" class="flex gap-2 items-center">
-                        {{ $t('pages.admin.settings.system.keys.asr_siliconflow_api_key') }}
-                        <i
-                            v-if="metadata.asr_siliconflow_api_key?.isLocked"
-                            v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                            class="pi pi-lock text-orange-500 text-xs"
+            <div v-if="settings.asr_provider === 'siliconflow'" class="asr-provider-settings">
+                <Fieldset legend="SiliconFlow" class="mb-4">
+                    <div class="form-field">
+                        <label for="asr_siliconflow_api_key" class="flex gap-2 items-center">
+                            {{ $t('pages.admin.settings.system.keys.asr_siliconflow_api_key') }}
+                            <i
+                                v-if="metadata.asr_siliconflow_api_key?.isLocked"
+                                v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                                class="pi pi-lock text-orange-500 text-xs"
+                            />
+                        </label>
+                        <Password
+                            id="asr_siliconflow_api_key"
+                            v-model="settings.asr_siliconflow_api_key"
+                            :disabled="metadata.asr_siliconflow_api_key?.isLocked"
+                            :toggle-mask="true"
+                            fluid
                         />
-                    </label>
-                    <Password
-                        id="asr_siliconflow_api_key"
-                        v-model="settings.asr_siliconflow_api_key"
-                        :disabled="metadata.asr_siliconflow_api_key?.isLocked"
-                        :toggle-mask="true"
-                        fluid
-                    />
-                </div>
-                <div class="form-field">
-                    <label for="asr_siliconflow_model" class="flex gap-2 items-center">
-                        {{ $t('pages.admin.settings.system.keys.asr_siliconflow_model') }}
-                        <i
-                            v-if="metadata.asr_siliconflow_model?.isLocked"
-                            v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                            class="pi pi-lock text-orange-500 text-xs"
+                    </div>
+                    <div class="form-field">
+                        <label for="asr_siliconflow_model" class="flex gap-2 items-center">
+                            {{ $t('pages.admin.settings.system.keys.asr_siliconflow_model') }}
+                            <i
+                                v-if="metadata.asr_siliconflow_model?.isLocked"
+                                v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                                class="pi pi-lock text-orange-500 text-xs"
+                            />
+                        </label>
+                        <InputText
+                            id="asr_siliconflow_model"
+                            v-model="settings.asr_siliconflow_model"
+                            :disabled="metadata.asr_siliconflow_model?.isLocked"
+                            placeholder="FunAudioLLM/SenseVoiceSmall"
+                            fluid
                         />
-                    </label>
-                    <InputText
-                        id="asr_siliconflow_model"
-                        v-model="settings.asr_siliconflow_model"
-                        :disabled="metadata.asr_siliconflow_model?.isLocked"
-                        placeholder="FunAudioLLM/SenseVoiceSmall"
-                        fluid
-                    />
-                </div>
-            </Fieldset>
+                    </div>
+                </Fieldset>
+            </div>
 
-            <Fieldset legend="Volcengine (Real-time Streaming)">
-                <div class="form-field">
-                    <label for="asr_volcengine_app_id" class="flex gap-2 items-center">
-                        {{ $t('pages.admin.settings.system.keys.asr_volcengine_app_id') }}
-                        <i
-                            v-if="metadata.asr_volcengine_app_id?.isLocked"
-                            v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                            class="pi pi-lock text-orange-500 text-xs"
+            <div v-if="settings.asr_provider === 'volcengine'" class="asr-provider-settings">
+                <Fieldset legend="Volcengine">
+                    <div class="form-field">
+                        <label for="asr_volcengine_app_id" class="flex gap-2 items-center">
+                            {{ $t('pages.admin.settings.system.keys.asr_volcengine_app_id') }}
+                            <i
+                                v-if="metadata.asr_volcengine_app_id?.isLocked"
+                                v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                                class="pi pi-lock text-orange-500 text-xs"
+                            />
+                        </label>
+                        <InputText
+                            id="asr_volcengine_app_id"
+                            v-model="settings.asr_volcengine_app_id"
+                            :disabled="metadata.asr_volcengine_app_id?.isLocked"
+                            fluid
                         />
-                    </label>
-                    <InputText
-                        id="asr_volcengine_app_id"
-                        v-model="settings.asr_volcengine_app_id"
-                        :disabled="metadata.asr_volcengine_app_id?.isLocked"
-                        fluid
-                    />
-                </div>
-                <div class="form-field">
-                    <label for="asr_volcengine_access_key" class="flex gap-2 items-center">
-                        {{ $t('pages.admin.settings.system.keys.asr_volcengine_access_key') }}
-                        <i
-                            v-if="metadata.asr_volcengine_access_key?.isLocked"
-                            v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                            class="pi pi-lock text-orange-500 text-xs"
+                    </div>
+                    <div class="form-field">
+                        <label for="asr_volcengine_access_key" class="flex gap-2 items-center">
+                            {{ $t('pages.admin.settings.system.keys.asr_volcengine_access_key') }}
+                            <i
+                                v-if="metadata.asr_volcengine_access_key?.isLocked"
+                                v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                                class="pi pi-lock text-orange-500 text-xs"
+                            />
+                        </label>
+                        <InputText
+                            id="asr_volcengine_access_key"
+                            v-model="settings.asr_volcengine_access_key"
+                            :disabled="metadata.asr_volcengine_access_key?.isLocked"
+                            fluid
                         />
-                    </label>
-                    <InputText
-                        id="asr_volcengine_access_key"
-                        v-model="settings.asr_volcengine_access_key"
-                        :disabled="metadata.asr_volcengine_access_key?.isLocked"
-                        fluid
-                    />
-                </div>
-                <div class="form-field">
-                    <label for="asr_volcengine_secret_key" class="flex gap-2 items-center">
-                        {{ $t('pages.admin.settings.system.keys.asr_volcengine_secret_key') }}
-                        <i
-                            v-if="metadata.asr_volcengine_secret_key?.isLocked"
-                            v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                            class="pi pi-lock text-orange-500 text-xs"
+                    </div>
+                    <div class="form-field">
+                        <label for="asr_volcengine_secret_key" class="flex gap-2 items-center">
+                            {{ $t('pages.admin.settings.system.keys.asr_volcengine_secret_key') }}
+                            <i
+                                v-if="metadata.asr_volcengine_secret_key?.isLocked"
+                                v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                                class="pi pi-lock text-orange-500 text-xs"
+                            />
+                        </label>
+                        <Password
+                            id="asr_volcengine_secret_key"
+                            v-model="settings.asr_volcengine_secret_key"
+                            :disabled="metadata.asr_volcengine_secret_key?.isLocked"
+                            :toggle-mask="true"
+                            fluid
                         />
-                    </label>
-                    <Password
-                        id="asr_volcengine_secret_key"
-                        v-model="settings.asr_volcengine_secret_key"
-                        :disabled="metadata.asr_volcengine_secret_key?.isLocked"
-                        :toggle-mask="true"
-                        fluid
-                    />
-                </div>
-            </Fieldset>
+                    </div>
+                </Fieldset>
+            </div>
         </div>
 
         <Divider />
@@ -302,6 +308,8 @@
                     id="tts_provider"
                     v-model="settings.tts_provider"
                     :options="ttsProviders"
+                    option-label="label"
+                    option-value="value"
                     :disabled="metadata.tts_provider?.isLocked"
                     fluid
                 />
@@ -364,8 +372,14 @@ const settings = defineModel<any>('settings', { required: true })
 defineProps<{ metadata: any }>()
 const aiProviders = ['openai', 'groq', 'ollama', 'anthropic', 'google']
 const aiImageProviders = ['openai', 'gemini', 'stable-diffusion', 'doubao']
-const asrProviders = ['siliconflow', 'volcengine']
-const ttsProviders = ['openai', 'siliconflow']
+const asrProviders = [
+    { label: 'SiliconFlow (Batch)', value: 'siliconflow' },
+    { label: 'Volcengine (Streaming)', value: 'volcengine' },
+]
+const ttsProviders = [
+    { label: 'OpenAI', value: 'openai' },
+    { label: 'SiliconFlow', value: 'siliconflow' },
+]
 </script>
 
 <style lang="scss" scoped>

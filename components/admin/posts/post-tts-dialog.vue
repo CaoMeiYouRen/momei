@@ -24,45 +24,75 @@ const visible = defineModel<boolean>('visible', { default: false })
 const config = ref({
     provider: 'openai',
     mode: 'speech',
-    voice: 'alloy',
+    voice: '',
 })
 
 const modes = computed(() => [
-    { label: t('admin.posts.tts.mode_speech'), value: 'speech' },
-    { label: t('admin.posts.tts.mode_podcast'), value: 'podcast' },
+    { label: t('pages.admin.posts.tts.mode_speech'), value: 'speech' },
+    { label: t('pages.admin.posts.tts.mode_podcast'), value: 'podcast' },
 ])
 
 const providers = computed(() => [
     { label: 'OpenAI', value: 'openai' },
-    { label: 'SiliconFlow (OpenAI)', value: 'siliconflow' },
-    // { label: 'Volcengine (Doubao)', value: 'volcengine' }, // TODO
+    { label: 'SiliconFlow', value: 'siliconflow' },
 ])
 
-// TODO: 从后端获取真实的音色列表
-const voicesMap: Record<string, any[]> = {
-    openai: [
-        { id: 'alloy', name: 'Alloy', language: 'en', gender: 'neutral' },
-        { id: 'echo', name: 'Echo', language: 'en', gender: 'male' },
-        { id: 'fable', name: 'Fable', language: 'en', gender: 'neutral' },
-        { id: 'onyx', name: 'Onyx', language: 'en', gender: 'male' },
-        { id: 'nova', name: 'Nova', language: 'en', gender: 'female' },
-        { id: 'shimmer', name: 'Shimmer', language: 'en', gender: 'female' },
-    ],
-    siliconflow: [
-        { id: 'fishaudio/fish-speech-1.4', name: 'Fish Speech', language: 'zh-CN', gender: 'neutral' },
-    ],
+const voices = ref<any[]>([])
+const loadingVoices = ref(false)
+
+const { $appFetch } = useAppApi()
+
+async function fetchVoices() {
+    loadingVoices.value = true
+    try {
+        const { data } = await $appFetch('/api/admin/tts/voices', {
+            query: { provider: config.value.provider },
+        })
+        voices.value = data
+        // 如果当前音色不在新列表中，重置为空
+        if (!voices.value.find((v) => v.id === config.value.voice)) {
+            config.value.voice = voices.value[0]?.id || ''
+        }
+    } catch (e) {
+        console.error('Failed to fetch voices:', e)
+    } finally {
+        loadingVoices.value = false
+    }
 }
 
-const availableVoices = computed(() => voicesMap[config.value.provider] || voicesMap.openai)
+// 监听提供商变化，重新获取音色列表
+watch(() => config.value.provider, () => {
+    fetchVoices()
+}, { immediate: true })
 
 const currentTaskId = ref<string | null>(null)
 const { status, progress, error, startPolling } = useTTSTask(currentTaskId)
 
 const estimatedCost = ref(0)
+const loadingCost = ref(false)
 
 // 监听配置变化，重新计算预估成本
 watch([() => config.value.provider, () => config.value.voice], async () => {
-    // TODO: 实现预估成本 API
+    if (!config.value.voice) {
+        estimatedCost.value = 0
+        return
+    }
+
+    loadingCost.value = true
+    try {
+        const { data } = await $appFetch('/api/admin/tts/estimate', {
+            query: {
+                provider: config.value.provider,
+                voice: config.value.voice,
+                post_id: props.postId,
+            },
+        })
+        estimatedCost.value = data.cost
+    } catch (e) {
+        console.error('Failed to fetch estimated cost:', e)
+    } finally {
+        loadingCost.value = false
+    }
 }, { immediate: true })
 
 async function startGenerate() {
@@ -75,7 +105,7 @@ async function startGenerate() {
         currentTaskId.value = data.taskId
         startPolling()
     } catch (e: any) {
-        error.value = e.data?.message || e.message || '启动生成任务失败'
+        error.value = e.data?.message || e.message || t('pages.admin.posts.tts.failed')
     }
 }
 
@@ -94,7 +124,7 @@ watch(status, (newStatus) => {
 <template>
     <Dialog
         v-model:visible="visible"
-        :header="t('admin.posts.tts.generate_title')"
+        :header="t('pages.admin.posts.tts.generate_title')"
         :modal="true"
         class="post-tts-dialog"
         style="width: 25rem"
@@ -102,7 +132,7 @@ watch(status, (newStatus) => {
         <div class="p-fluid tts-config">
             <!-- Mode Selection -->
             <div class="field">
-                <label class="block font-bold mb-2">{{ t('admin.posts.tts.mode') }}</label>
+                <label class="block font-bold mb-2">{{ t('pages.admin.posts.tts.mode') }}</label>
                 <div class="flex gap-4">
                     <div
                         v-for="m in modes"
@@ -122,31 +152,39 @@ watch(status, (newStatus) => {
 
             <!-- Provider Selection -->
             <div class="field mt-4">
-                <label class="block font-bold mb-2">{{ t('admin.posts.tts.provider') }}</label>
+                <label class="block font-bold mb-2">{{ t('pages.admin.posts.tts.provider') }}</label>
                 <Dropdown
                     v-model="config.provider"
                     :options="providers"
                     option-label="label"
                     option-value="value"
-                    :placeholder="t('admin.posts.tts.select_provider')"
+                    :placeholder="t('pages.admin.posts.tts.select_provider')"
                 />
             </div>
 
             <!-- Voice Selection -->
             <div class="field mt-4">
-                <label class="block font-bold mb-2">{{ t('admin.posts.tts.voice') }}</label>
+                <label class="block font-bold mb-2">{{ t('pages.admin.posts.tts.voice') }}</label>
                 <Dropdown
                     v-model="config.voice"
-                    :options="availableVoices"
+                    :options="voices"
                     option-label="name"
                     option-value="id"
-                    :placeholder="t('admin.posts.tts.select_voice')"
+                    :loading="loadingVoices"
+                    :placeholder="t('pages.admin.posts.tts.select_voice')"
                 />
             </div>
 
             <!-- Cost Info -->
-            <div v-if="estimatedCost > 0" class="mt-4 p-message p-message-info">
-                <span>{{ t('admin.posts.tts.estimated_cost') }}: {{ estimatedCost.toFixed(4) }}</span>
+            <div v-if="estimatedCost > 0 || loadingCost" class="mt-4 p-message p-message-info">
+                <div class="flex gap-2 items-center">
+                    <span>{{ t('pages.admin.posts.tts.estimated_cost') }}:</span>
+                    <i v-if="loadingCost" class="pi pi-spin pi-spinner text-sm" />
+                    <span v-else class="font-bold">
+                        {{ estimatedCost.toFixed(4) }}
+                        <span class="font-normal text-xs">({{ config.provider === 'openai' ? '$' : '¥' }})</span>
+                    </span>
+                </div>
             </div>
 
             <!-- Progress Section -->
@@ -157,13 +195,13 @@ watch(status, (newStatus) => {
                     style="height: 0.5rem"
                 />
                 <p class="mt-2 text-500 text-center text-sm">
-                    {{ status === 'pending' ? t('admin.posts.tts.pending') : t('admin.posts.tts.processing') }}
+                    {{ status === 'pending' ? t('pages.admin.posts.tts.pending') : t('pages.admin.posts.tts.processing') }}
                 </p>
             </div>
 
             <div v-if="status === 'completed'" class="mt-4">
                 <Message severity="success" :closable="false">
-                    {{ t('admin.posts.tts.completed') }}
+                    {{ t('pages.admin.posts.tts.completed') }}
                 </Message>
             </div>
 
@@ -184,7 +222,7 @@ watch(status, (newStatus) => {
                 @click="visible = false"
             />
             <Button
-                :label="t('admin.posts.tts.start_generate')"
+                :label="t('pages.admin.posts.tts.start_generate')"
                 :loading="status === 'processing' || status === 'pending'"
                 :disabled="!config.voice || status === 'completed'"
                 @click="startGenerate"

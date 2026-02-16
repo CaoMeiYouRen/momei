@@ -17,6 +17,7 @@ export interface TTSOptions {
 export interface TTSProvider {
     name: string
     availableVoices: TTSAudioVoice[]
+    getVoices(): Promise<TTSAudioVoice[]>
     estimateCost(text: string, voice: string | string[]): Promise<number>
     generateSpeech(
         text: string,

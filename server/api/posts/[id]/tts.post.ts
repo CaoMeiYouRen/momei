@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'Voice is required' })
     }
 
-    const ttsProvider = TTSService.getInstance(provider)
+    const ttsProvider = await TTSService.getProvider(provider)
     const estimatedCost = await ttsProvider.estimateCost(post.content, voice)
 
     const taskRepo = dataSource.getRepository(TTSTask)

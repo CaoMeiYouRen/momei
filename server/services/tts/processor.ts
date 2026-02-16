@@ -29,7 +29,7 @@ export async function processTTSTask(taskId: string): Promise<void> {
             throw new Error(`Post ${task.postId} not found`)
         }
 
-        const ttsProvider = TTSService.getInstance(task.provider)
+        const ttsProvider = await TTSService.getProvider(task.provider)
 
         // 默认处理全文内容
         // 移除 Markdown 标签以获得更好的朗读效果（可选）
