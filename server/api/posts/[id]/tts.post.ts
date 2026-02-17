@@ -1,7 +1,7 @@
 import { defineEventHandler, createError, readBody } from 'h3'
 import { dataSource } from '../../../database'
 import { Post } from '../../../entities/post'
-import { TTSTask } from '../../../entities/tts-task'
+import { AITask } from '../../../entities/ai-task'
 import { TTSService } from '../../../services/tts'
 import { processTTSTask } from '../../../services/tts/processor'
 import { isAdmin } from '@/utils/shared/roles'
@@ -39,16 +39,18 @@ export default defineEventHandler(async (event) => {
     const textToEstimate = script || post.content
     const estimatedCost = await ttsProvider.estimateCost(textToEstimate, voice)
 
-    const taskRepo = dataSource.getRepository(TTSTask)
+    const taskRepo = dataSource.getRepository(AITask)
     const task = taskRepo.create({
+        type: mode === 'podcast' ? 'podcast' : 'tts',
         postId,
         userId: user.id,
         provider: provider || ttsProvider.name,
         mode,
         voice,
         model: model || (ttsProvider as any).defaultModel,
-        script: script || null,
+        payload: JSON.stringify({ script: script || null }),
         status: 'pending',
+        progress: 0,
         estimatedCost,
     })
 

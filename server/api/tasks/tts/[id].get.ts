@@ -1,6 +1,6 @@
 import { defineEventHandler, createError } from 'h3'
 import { dataSource } from '../../../database'
-import { TTSTask } from '../../../entities/tts-task'
+import { AITask } from '../../../entities/ai-task'
 import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'Task ID is required' })
     }
 
-    const taskRepo = dataSource.getRepository(TTSTask)
+    const taskRepo = dataSource.getRepository(AITask)
     const task = await taskRepo.findOneBy({ id: taskId })
 
     if (!task) {

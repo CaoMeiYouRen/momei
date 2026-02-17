@@ -69,6 +69,23 @@
                 </div>
             </div>
 
+            <div
+                v-if="(task.type === 'tts' || task.type === 'podcast') && task.status === 'completed'"
+                class="audio-preview-section"
+            >
+                <h4 class="font-bold m-0 mb-3 text-lg">
+                    <i class="mr-2 pi pi-volume-up" />{{ $t('pages.admin.ai.audio_preview') }}
+                </h4>
+                <div class="bg-emphasis border-round p-3">
+                    <audio
+                        v-if="getTaskAudio(task)"
+                        :src="getTaskAudio(task)"
+                        controls
+                        class="w-full"
+                    />
+                </div>
+            </div>
+
             <div class="data-section grid">
                 <div class="col-12 lg:col-6">
                     <h4 class="align-items-center flex font-bold m-0 mb-2">
@@ -131,6 +148,16 @@ const getTaskImages = (task: any) => {
         return []
     } catch (e) {
         return []
+    }
+}
+
+const getTaskAudio = (task: any) => {
+    if (!task || !task.result) return null
+    try {
+        const res = typeof task.result === 'string' ? JSON.parse(task.result) : task.result
+        return res.audioUrl || null
+    } catch (e) {
+        return null
     }
 }
 </script>

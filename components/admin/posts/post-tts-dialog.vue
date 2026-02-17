@@ -170,13 +170,16 @@ async function startGenerate() {
 
 watch(status, (newStatus) => {
     if (newStatus === 'completed') {
-        // 完成后通知父组件
-        emit('completed', audioUrl.value || '')
-        setTimeout(() => {
-            visible.value = false
-        }, 1500)
+        // 完成后不再自动通知，等待用户点击确认
     }
 })
+
+function handleConfirm() {
+    if (audioUrl.value) {
+        emit('completed', audioUrl.value)
+        visible.value = false
+    }
+}
 </script>
 
 <template>
@@ -296,6 +299,15 @@ watch(status, (newStatus) => {
                     <Message severity="success" :closable="false">
                         {{ t('pages.admin.posts.tts.completed') }}
                     </Message>
+                    <div class="mt-3 tts-preview">
+                        <label class="block mb-2 tts-field__label">{{ t('pages.admin.posts.tts.preview_audio') }}</label>
+                        <audio
+                            v-if="audioUrl"
+                            :src="audioUrl"
+                            controls
+                            class="w-full"
+                        />
+                    </div>
                 </div>
 
                 <!-- Error Section -->
@@ -317,9 +329,15 @@ watch(status, (newStatus) => {
                     @click="visible = false"
                 />
                 <Button
+                    v-if="status === 'completed'"
+                    :label="t('common.confirm')"
+                    @click="handleConfirm"
+                />
+                <Button
+                    v-else
                     :label="t('pages.admin.posts.tts.start_generate')"
                     :loading="status === 'processing' || status === 'pending'"
-                    :disabled="!config.voice || status === 'completed'"
+                    :disabled="!config.voice || optimizing"
                     @click="startGenerate"
                 />
             </div>

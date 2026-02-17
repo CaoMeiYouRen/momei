@@ -189,16 +189,24 @@ const { t } = useI18n()
 const taskTypes = computed(() => [
     { label: t('pages.admin.ai.types.text_generation'), value: 'text_generation' },
     { label: t('pages.admin.ai.types.image_generation'), value: 'image_generation' },
+    { label: t('pages.admin.ai.types.tts'), value: 'tts' },
+    { label: t('pages.admin.ai.types.podcast'), value: 'podcast' },
 ])
 
 const taskStatuses = computed(() => [
     { label: t('pages.admin.ai.statuses.completed'), value: 'completed' },
     { label: t('pages.admin.ai.statuses.processing'), value: 'processing' },
+    { label: t('pages.admin.ai.statuses.pending'), value: 'pending' },
     { label: t('pages.admin.ai.statuses.failed'), value: 'failed' },
 ])
 
 const getTypeIcon = (type: string) => {
-    return type === 'image_generation' ? 'pi pi-image' : 'pi pi-align-left'
+    switch (type) {
+        case 'image_generation': return 'pi pi-image'
+        case 'tts': return 'pi pi-volume-up'
+        case 'podcast': return 'pi pi-microphone'
+        default: return 'pi pi-align-left'
+    }
 }
 
 const getStatusSeverity = (status: string) => {

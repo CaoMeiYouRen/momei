@@ -473,6 +473,7 @@
                 "images": "Images",
                 "prompt": "Payload/Prompt",
                 "result": "Result Data",
+                "audio_preview": "Audio Preview",
                 "error": "Error Reason",
                 "delete_confirm": "Are you sure you want to delete selected AI task records? This action cannot be undone.",
                 "cleanup": "Cleanup Logs",
@@ -483,7 +484,9 @@
                 "chart_model": "Model Distribution",
                 "types": {
                     "text_generation": "Text Generation",
-                    "image_generation": "Image Generation"
+                    "image_generation": "Image Generation",
+                    "tts": "TTS",
+                    "podcast": "AI Podcast"
                 },
                 "statuses": {
                     "completed": "Completed",
@@ -571,6 +574,7 @@
                     "pending": "Waiting in queue...",
                     "processing": "Synthesizing audio...",
                     "completed": "Audio generated successfully",
+                    "preview_audio": "Preview Audio",
                     "failed": "Generation failed",
                     "attach_success": "Audio attached to post successfully",
                     "history": "Generation History",

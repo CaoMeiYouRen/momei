@@ -88,22 +88,23 @@ sequenceDiagram
 
 ## 3. 数据库设计
 
-### 3.1 TTS 任务表 (`TTSTask`)
+### 3.1 AI 任务表 (`AITask`)
 
-记录每次 TTS 生成任务的详细信息：
+TTS 任务现在与 AI 任务合并，统一使用 `ai_tasks` 表，通过 `type='tts'` 或 `type='podcast'` 进行区分。
 
 | 字段 | 类型 | 说明 |
 |:---|:---|:---|
 | `id` | `uuid` | 主键 |
-| `postId` | `uuid` | 关联文章 ID |
+| `type` | `varchar(50)` | 任务类型 (tts/podcast/image_generation/...) |
+| `postId` | `uuid` | 关联文章 ID (可选) |
 | `userId` | `uuid` | 触发用户 ID |
-| `provider` | `varchar(50)` | TTS 提供者 (openai, azure, siliconflow, volcengine) |
-| `mode` | `varchar(20)` | 音频化模式 (speech, podcast) |
+| `provider` | `varchar(50)` | 服务提供者 |
+| `mode` | `varchar(20)` | 子模式 (speech, podcast) |
 | `model` | `varchar(100)` | 使用的模型 |
-| `voice` | `varchar(150)` | 选择的音色（播客模式下可能为多个 ID 组合） |
+| `voice` | `varchar(150)` | 选择的音色 |
 | `status` | `varchar(20)` | 任务状态 (pending, processing, completed, failed) |
 | `progress` | `integer` | 进度百分比 (0-100) |
-| `errorMessage` | `text` | 失败错误信息 |
+| `error` | `text` | 失败错误信息 |
 | `estimatedCost` | `decimal` | 预估成本 |
 | `actualCost` | `decimal` | 实际成本 |
 | `startedAt` | `datetime` | 开始时间 |

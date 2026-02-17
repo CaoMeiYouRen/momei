@@ -473,6 +473,7 @@
                 "images": "图像",
                 "prompt": "参数/提示词",
                 "result": "结果数据",
+                "audio_preview": "音频预览",
                 "error": "失败原因",
                 "delete_confirm": "确定要删除选中的 AI 记录吗？此操作无法撤销。",
                 "cleanup": "清空记录",
@@ -483,7 +484,9 @@
                 "chart_model": "模型使用分布",
                 "types": {
                     "text_generation": "文本生成",
-                    "image_generation": "图像生成"
+                    "image_generation": "图像生成",
+                    "tts": "语音合成",
+                    "podcast": "AI 播客"
                 },
                 "statuses": {
                     "completed": "已完成",
@@ -570,6 +573,7 @@
                     "pending": "队列等待中...",
                     "processing": "正在合成音频...",
                     "completed": "音频合成成功",
+                    "preview_audio": "试听音频",
                     "failed": "合成失败",
                     "attach_success": "音频已成功关联到文章",
                     "history": "生成记录",

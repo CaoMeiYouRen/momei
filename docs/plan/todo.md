@@ -39,7 +39,7 @@
 
 - [ ] **文章音频化系统 (Audio-ization System)** (P1)
     - [ ] **Phase 1: 核心基础与数据库支持**
-        - [x] 实现 `TTSTask` 数据库实体
+        - [x] 重构 `AITask` 实体，合并 `TTSTask` 实现通用任务管理
         - [x] 扩展 `Post` 实体中的 TTS 相关字段
         - [x] 实现 TTS 服务抽象接口与 OpenAI 提供者
         - [x] 实现简单的异步任务处理逻辑

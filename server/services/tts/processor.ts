@@ -1,5 +1,5 @@
 import { dataSource } from '../../database'
-import { TTSTask } from '../../entities/tts-task'
+import { AITask } from '../../entities/ai-task'
 import { Post } from '../../entities/post'
 import { uploadFromBuffer } from '../upload'
 import { TTSService } from '../tts'
@@ -10,7 +10,7 @@ import logger from '../../utils/logger'
  * @param taskId 任务 ID
  */
 export async function processTTSTask(taskId: string): Promise<void> {
-    const taskRepo = dataSource.getRepository(TTSTask)
+    const taskRepo = dataSource.getRepository(AITask)
     const postRepo = dataSource.getRepository(Post)
 
     const task = await taskRepo.findOneBy({ id: taskId })
@@ -92,7 +92,7 @@ export async function processTTSTask(taskId: string): Promise<void> {
     } catch (error: any) {
         logger.error(`Failed to process TTS Task ${taskId}:`, error)
         task.status = 'failed'
-        task.errorMessage = error.message || String(error)
+        task.error = error.message || String(error)
         task.completedAt = new Date()
         await taskRepo.save(task)
     }
