@@ -275,8 +275,8 @@
     - 集成 AI TTS 服务，为文章一键生成/刷新音频版本。
 - **高精度语音识别优化 (High-precision Voice Recognition)**:
     - **背景**: 浏览器原生 Web Speech API 在复杂环境及语义理解上存在局限。
-    -   **方向**: 建立以 **Cloud ASR (OpenAI/SiliconFlow/Volcengine)** 为核心的高精度识别体系，保留 **Transformers.js (Local/WebGPU)** 作为离线冗余方案。
-    - **功能**: 支持 WebGPU 加速、后台静默转录、长音频文件处理，并结合 LLM 自动修正同音字错误。
+    -   **方向**: 建立以 **Cloud ASR (OpenAI/SiliconFlow/Volcengine)** 为核心的高精度识别体系，专注提供低延迟、高精度的混合云端识别体验。
+    - **功能**: 支持流式输出、后台静默转录、长音频文件处理，并结合 LLM 自动修正同音字错误。
 
 ### 9. 开放发布协议支持 (Open Federation)
 - 支持 ActivityPub 等联邦协议，将博客接入去中心化社交网络。

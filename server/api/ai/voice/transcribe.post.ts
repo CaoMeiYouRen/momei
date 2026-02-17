@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     const model = formData.find((f) => f.name === 'model')?.data.toString()
 
     // Default model if not provided
-    const finalModel = model || (providerName === 'volcengine' ? '' : 'funasr/paraformer-zh')
+    const finalModel = model || (providerName === 'volcengine' ? '' : 'FunAudioLLM/SenseVoiceSmall')
 
     const provider = await getASRProvider(providerName)
 

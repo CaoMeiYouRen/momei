@@ -28,9 +28,9 @@
                     </div>
                     <div class="detail-item mt-2">
                         <span class="label">{{ $t('common.author') }}:</span>
-                        <div class="value">
-                            <strong>{{ task.user_name || 'Unknown' }}</strong>
-                            <span>{{ task.user_email }}</span>
+                        <div class="author-info value">
+                            <span class="author-name">{{ task.user_name || 'Unknown' }}</span>
+                            <span class="author-email">{{ task.user_email }}</span>
                         </div>
                     </div>
                 </div>
@@ -164,10 +164,33 @@ const getTaskAudio = (task: any) => {
 
 <style lang="scss" scoped>
 .detail-item {
+    display: flex;
+    align-items: flex-start;
+
     .label {
         font-weight: bold;
-        margin-right: 0.5rem;
+        margin-right: 0.75rem;
         color: var(--text-color-secondary);
+        white-space: nowrap;
+    }
+
+    .value {
+        flex: 1;
+    }
+
+    .author-info {
+        display: flex;
+        flex-direction: column;
+
+        .author-name {
+            font-weight: bold;
+            line-height: 1.5;
+        }
+
+        .author-email {
+            color: var(--text-color-secondary);
+            font-size: 0.75rem;
+        }
     }
 }
 

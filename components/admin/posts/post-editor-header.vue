@@ -64,6 +64,7 @@
                 :is-loading-model="isLoadingModel"
                 :model-progress="modelProgress"
                 :is-model-ready="isModelReady"
+                :cloud-config="cloudConfig"
                 @start="startListening(post.language)"
                 @stop="stopListening()"
                 @retry="resetVoice(); startListening(post.language)"
@@ -281,6 +282,7 @@ const {
     isLoadingModel,
     modelProgress,
     isModelReady,
+    cloudConfig,
     loadModel,
     startListening,
     stopListening,

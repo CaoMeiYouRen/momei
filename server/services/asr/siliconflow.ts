@@ -15,6 +15,13 @@ export class SiliconFlowASRProvider implements ASRProvider {
     async transcribe(options: TranscribeOptions): Promise<TranscribeResponse> {
         const formData = new FormData()
 
+        // Normalize language for SiliconFlow (expects 2-letter codes for most part)
+        let normalizedLang = options.language
+        if (normalizedLang) {
+            const parts = normalizedLang.split(/[-_]/)
+            normalizedLang = parts[0]?.toLowerCase() || normalizedLang
+        }
+
         // Create a Blob from the Buffer
         // Important: Buffer needs to be converted to Uint8Array for Blob in some environments
         const uint8Array = new Uint8Array(options.audioBuffer)
@@ -22,8 +29,8 @@ export class SiliconFlowASRProvider implements ASRProvider {
         formData.append('file', blob, options.fileName)
         formData.append('model', options.model || this.model)
 
-        if (options.language) {
-            formData.append('language', options.language)
+        if (normalizedLang) {
+            formData.append('language', normalizedLang)
         }
         if (options.prompt) {
             formData.append('prompt', options.prompt)
@@ -40,7 +47,7 @@ export class SiliconFlowASRProvider implements ASRProvider {
 
             return {
                 text: response.text,
-                language: options.language || 'auto',
+                language: normalizedLang || 'auto',
                 duration: response.duration || 0,
                 confidence: 1.0,
                 usage: {
@@ -50,10 +57,13 @@ export class SiliconFlowASRProvider implements ASRProvider {
         } catch (error: any) {
             const status = error.statusCode || error.response?.status || 500
             const message = error.data?.error?.message || error.message || 'SiliconFlow ASR request failed'
+            const detail = error.data ? JSON.stringify(error.data) : ''
+
+            console.error('[ASR-SiliconFlow] Error Response:', detail)
 
             throw createError({
                 statusCode: status,
-                message: `SiliconFlow Error: ${message}`,
+                message: `SiliconFlow Error: ${message}${detail ? ` - ${detail}` : ''}`,
             })
         }
     }

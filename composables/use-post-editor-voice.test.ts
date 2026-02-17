@@ -51,17 +51,13 @@ describe('usePostEditorVoice', () => {
         expect(isSupported.value).toBe(true)
     })
 
-    it('should switch mode and handle model loading', async () => {
-        const { mode, isLoadingModel, loadModel } = usePostEditorVoice()
+    it('should switch mode correctly', async () => {
+        const { mode } = usePostEditorVoice()
 
-        mode.value = 'local-standard'
+        mode.value = 'cloud-batch'
         await nextTick()
 
-        expect(mode.value).toBe('local-standard')
-        expect(isLoadingModel.value).toBe(false) // Should not auto-load anymore
-
-        loadModel()
-        expect(isLoadingModel.value).toBe(true)
+        expect(mode.value).toBe('cloud-batch')
     })
 
     it('should reset transcripts correctly', () => {

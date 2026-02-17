@@ -146,10 +146,14 @@ const props = defineProps<{
     finalTranscript: string
     error: string
     refining: boolean
-    mode: 'web-speech' | 'local-standard' | 'local-advanced' | 'cloud-batch' | 'cloud-stream'
+    mode: 'web-speech' | 'cloud-batch' | 'cloud-stream'
     isLoadingModel: boolean
     modelProgress: number
     isModelReady: boolean
+    cloudConfig: {
+        siliconflow: boolean
+        volcengine: boolean
+    }
 }>()
 
 const emit = defineEmits(['stop', 'retry', 'insert', 'refine', 'scaffold', 'hide', 'update:mode', 'start', 'load-model'])
@@ -159,33 +163,33 @@ const op = ref<any>(null)
 
 const internalMode = ref(props.mode)
 watch(() => props.mode, (newMode) => {
-    internalMode.value = newMode
+    internalMode.value = newMode as any
 })
 watch(internalMode, (newMode) => {
     emit('update:mode', newMode)
 })
 
-const modeOptions = computed(() => [
-    { label: t('pages.admin.posts.ai.voice_mode_basic'), value: 'web-speech' },
-    { label: t('pages.admin.posts.ai.voice_mode_local_standard'), value: 'local-standard' },
-    { label: t('pages.admin.posts.ai.voice_mode_local_advanced'), value: 'local-advanced' },
-    { label: t('pages.admin.posts.ai.voice_mode_cloud_batch'), value: 'cloud-batch' },
-    { label: t('pages.admin.posts.ai.voice_mode_cloud_stream'), value: 'cloud-stream' },
-])
+const modeOptions = computed(() => {
+    const options = [
+        { label: t('pages.admin.posts.ai.voice_mode_basic'), value: 'web-speech' },
+    ]
+
+    if (props.cloudConfig?.siliconflow) {
+        options.push({ label: t('pages.admin.posts.ai.voice_mode_cloud_batch'), value: 'cloud-batch' })
+    }
+
+    if (props.cloudConfig?.volcengine) {
+        options.push({ label: t('pages.admin.posts.ai.voice_mode_cloud_stream'), value: 'cloud-stream' })
+    }
+
+    return options
+})
 
 const showLoadConfirm = computed(() => {
-    if (props.isLoadingModel) return false
-    if (internalMode.value === 'web-speech') return false
-    return !props.isModelReady
+    return false // No longer need local model loading confirm
 })
 
 const confirmMessage = computed(() => {
-    if (internalMode.value === 'local-standard') {
-        return t('pages.admin.posts.ai.voice_load_confirm_standard_desc')
-    }
-    if (internalMode.value === 'local-advanced') {
-        return t('pages.admin.posts.ai.voice_load_confirm_advanced_desc')
-    }
     return ''
 })
 
