@@ -1,4 +1,6 @@
-import { Entity, Column } from 'typeorm'
+import { Entity } from 'typeorm'
+import { CustomColumn } from '../decorators/custom-column'
+import { getDateType } from '../database/type'
 import { BaseEntity } from './base-entity'
 
 /**
@@ -7,14 +9,14 @@ import { BaseEntity } from './base-entity'
  */
 @Entity('ai_tasks')
 export class AITask extends BaseEntity {
-    @Column({
+    @CustomColumn({
         type: 'varchar',
         length: 50,
         comment: '任务类型',
     })
     type: string // 'image_generation' | 'tts' | 'podcast' | etc.
 
-    @Column({
+    @CustomColumn({
         type: 'varchar',
         length: 50,
         nullable: true,
@@ -22,7 +24,7 @@ export class AITask extends BaseEntity {
     })
     provider: string
 
-    @Column({
+    @CustomColumn({
         type: 'varchar',
         length: 100,
         nullable: true,
@@ -30,7 +32,7 @@ export class AITask extends BaseEntity {
     })
     model: string
 
-    @Column({
+    @CustomColumn({
         type: 'varchar',
         length: 20,
         default: 'pending',
@@ -38,28 +40,28 @@ export class AITask extends BaseEntity {
     })
     status: 'pending' | 'processing' | 'completed' | 'failed'
 
-    @Column({
+    @CustomColumn({
         type: 'text',
         nullable: true,
         comment: '任务参数 (JSON)',
     })
     payload: string
 
-    @Column({
+    @CustomColumn({
         type: 'text',
         nullable: true,
         comment: '任务结果 (JSON)',
     })
     result: string
 
-    @Column({
+    @CustomColumn({
         type: 'text',
         nullable: true,
         comment: '失败原因',
     })
     error: string
 
-    @Column({
+    @CustomColumn({
         type: 'varchar',
         length: 36,
         comment: '发起用户 ID',
@@ -67,7 +69,7 @@ export class AITask extends BaseEntity {
     userId: string
 
     // 以下为从 TTSTask 合并过来的字段，为了兼容性与统一查询
-    @Column({
+    @CustomColumn({
         type: 'varchar',
         length: 36,
         nullable: true,
@@ -75,7 +77,7 @@ export class AITask extends BaseEntity {
     })
     postId: string
 
-    @Column({
+    @CustomColumn({
         type: 'varchar',
         length: 20,
         nullable: true,
@@ -83,7 +85,7 @@ export class AITask extends BaseEntity {
     })
     mode: string
 
-    @Column({
+    @CustomColumn({
         type: 'varchar',
         length: 150,
         nullable: true,
@@ -91,21 +93,21 @@ export class AITask extends BaseEntity {
     })
     voice: string
 
-    @Column({
+    @CustomColumn({
         type: 'text',
         nullable: true,
         comment: '朗读稿内容 (若为空则读取文章原内容)',
     })
     script: string | null
 
-    @Column({
+    @CustomColumn({
         type: 'integer',
         default: 0,
         comment: '进度百分比 (0-100)',
     })
     progress: number
 
-    @Column({
+    @CustomColumn({
         type: 'decimal',
         precision: 10,
         scale: 4,
@@ -114,7 +116,7 @@ export class AITask extends BaseEntity {
     })
     estimatedCost: number
 
-    @Column({
+    @CustomColumn({
         type: 'decimal',
         precision: 10,
         scale: 4,
@@ -123,15 +125,15 @@ export class AITask extends BaseEntity {
     })
     actualCost: number
 
-    @Column({
-        type: 'datetime',
+    @CustomColumn({
+        type: getDateType(),
         nullable: true,
         comment: '开始时间',
     })
     startedAt: Date | null
 
-    @Column({
-        type: 'datetime',
+    @CustomColumn({
+        type: getDateType(),
         nullable: true,
         comment: '完成时间',
     })

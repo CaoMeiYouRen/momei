@@ -48,6 +48,7 @@ export default defineEventHandler(async (event) => {
         mode,
         voice,
         model: model || (ttsProvider as any).defaultModel,
+        script: script || null,
         payload: JSON.stringify({ script: script || null }),
         status: 'pending',
         progress: 0,

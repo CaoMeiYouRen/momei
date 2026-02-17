@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { watchDebounced } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
@@ -128,7 +129,7 @@ const estimatedCost = ref(0)
 const loadingCost = ref(false)
 
 // 监听配置变化，重新计算预估成本
-watch([() => config.value.provider, () => config.value.voice, script], async () => {
+watchDebounced([() => config.value.provider, () => config.value.voice, script], async () => {
     if (!config.value.voice || !script.value) {
         estimatedCost.value = 0
         return
@@ -137,7 +138,8 @@ watch([() => config.value.provider, () => config.value.voice, script], async () 
     loadingCost.value = true
     try {
         const { data } = await $appFetch('/api/admin/tts/estimate', {
-            query: {
+            method: 'POST',
+            body: {
                 provider: config.value.provider,
                 voice: config.value.voice,
                 text: script.value,
@@ -149,7 +151,7 @@ watch([() => config.value.provider, () => config.value.voice, script], async () 
     } finally {
         loadingCost.value = false
     }
-}, { immediate: true })
+}, { immediate: true, debounce: 1500 })
 
 async function startGenerate() {
     try {
@@ -299,13 +301,13 @@ function handleConfirm() {
                     <Message severity="success" :closable="false">
                         {{ t('pages.admin.posts.tts.completed') }}
                     </Message>
-                    <div class="mt-3 tts-preview">
-                        <label class="block mb-2 tts-field__label">{{ t('pages.admin.posts.tts.preview_audio') }}</label>
+                    <div class="tts-preview">
+                        <label class="tts-preview__label">{{ t('pages.admin.posts.tts.preview_audio') }}</label>
                         <audio
                             v-if="audioUrl"
                             :src="audioUrl"
                             controls
-                            class="w-full"
+                            class="tts-preview__audio"
                         />
                     </div>
                 </div>
@@ -494,6 +496,23 @@ function handleConfirm() {
 
     :deep(.p-message) {
         margin: 0;
+    }
+}
+
+.tts-preview {
+    margin-top: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    &__label {
+        font-weight: 700;
+        color: var(--surface-900);
+        font-size: 0.935rem;
+    }
+
+    &__audio {
+        width: 100%;
     }
 }
 </style>
