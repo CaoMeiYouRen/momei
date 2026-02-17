@@ -12,18 +12,23 @@ export async function getASRProvider(name?: 'siliconflow' | 'volcengine'): Promi
 
     if (providerName === 'siliconflow') {
         const settings = await getSettings([
+            SettingKey.ASR_API_KEY,
+            SettingKey.ASR_MODEL,
+            SettingKey.ASR_ENDPOINT,
             SettingKey.ASR_SILICONFLOW_API_KEY,
             SettingKey.ASR_SILICONFLOW_MODEL,
         ])
-        const apiKey = settings[SettingKey.ASR_SILICONFLOW_API_KEY]
-        const model = settings[SettingKey.ASR_SILICONFLOW_MODEL] || 'FunAudioLLM/SenseVoiceSmall'
+        const apiKey = settings[SettingKey.ASR_API_KEY] || settings[SettingKey.ASR_SILICONFLOW_API_KEY]
+        const model = settings[SettingKey.ASR_MODEL] || settings[SettingKey.ASR_SILICONFLOW_MODEL] || 'FunAudioLLM/SenseVoiceSmall'
+        const endpoint = settings[SettingKey.ASR_ENDPOINT] || undefined
+
         if (!apiKey) {
             throw createError({
                 statusCode: 400,
                 message: 'SiliconFlow API key is not configured',
             })
         }
-        return new SiliconFlowASRProvider(apiKey, undefined, model)
+        return new SiliconFlowASRProvider(apiKey, endpoint, model)
     }
 
     if (providerName === 'volcengine') {

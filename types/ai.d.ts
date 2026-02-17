@@ -31,7 +31,7 @@ export interface AIProvider {
     check(): Promise<boolean>
 }
 
-export type AIProviderType = 'openai' | 'anthropic' | 'gemini' | 'stable-diffusion' | 'doubao'
+export type AIProviderType = 'openai' | 'anthropic' | 'gemini' | 'stable-diffusion' | 'doubao' | 'siliconflow'
 
 export interface AIImageOptions {
     prompt: string

@@ -105,6 +105,7 @@ export async function getAIImageProvider(configOverride?: Partial<AIImageConfig>
         case 'gemini':
         case 'stable-diffusion':
         case 'doubao':
+        case 'siliconflow':
             return new OpenAIProvider({
                 ...finalConfig,
                 maxTokens: AI_MAX_TOKENS,

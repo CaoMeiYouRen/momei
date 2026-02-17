@@ -151,6 +151,7 @@ const props = defineProps<{
     modelProgress: number
     isModelReady: boolean
     cloudConfig: {
+        enabled: boolean
         siliconflow: boolean
         volcengine: boolean
     }

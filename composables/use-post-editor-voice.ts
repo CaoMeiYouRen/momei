@@ -15,6 +15,7 @@ export function usePostEditorVoice() {
 
     // 云端功能状态
     const cloudConfig = ref({
+        enabled: false,
         siliconflow: false,
         volcengine: false,
     })
@@ -34,8 +35,10 @@ export function usePostEditorVoice() {
         // 异步检查配置
         void $fetch<any>('/api/ai/voice/config').then((res) => {
             cloudConfig.value = res
-            // 如果当前选择的是没配置的云端模式，自动切回 web-speech
-            if (mode.value === 'cloud-batch' && !res.siliconflow) {
+            // 如果云端 ASR 被禁用，或者当前选择的是没配置的云端模式，自动切回 web-speech
+            if (!res.enabled) {
+                mode.value = 'web-speech'
+            } else if (mode.value === 'cloud-batch' && !res.siliconflow) {
                 mode.value = 'web-speech'
             } else if (mode.value === 'cloud-stream' && !res.volcengine) {
                 mode.value = 'web-speech'
@@ -171,7 +174,7 @@ export function usePostEditorVoice() {
                     }
                 }
                 mediaRecorder.start(500) // 500ms 一个分片
-                
+
             }
         } catch (err: any) {
             console.error('Failed to start recording', err)
