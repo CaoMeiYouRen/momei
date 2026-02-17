@@ -246,6 +246,11 @@ export default defineNuxtConfig({
         },
         baseUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://momei.app',
     },
+    vue: {
+        compilerOptions: {
+            isCustomElement: (tag) => tag === 'mavon-editor',
+        },
+    },
     build: {
         // 使用 Babel 转译不兼容的包
         transpile: [

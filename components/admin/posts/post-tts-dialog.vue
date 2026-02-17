@@ -35,7 +35,7 @@ const showProviderSelect = computed(() => availableProviders.value.length > 1)
 
 async function fetchConfig() {
     try {
-        const { data } = await $appFetch('/api/admin/tts/config')
+        const { data } = await $appFetch('/api/ai/tts/config')
         availableProviders.value = data.availableProviders
         if (!config.value.provider) {
             config.value.provider = data.defaultProvider
@@ -75,7 +75,7 @@ async function optimizeManuscript() {
     if (!props.content || optimizing.value) return
     optimizing.value = true
     try {
-        const { data } = await $appFetch('/api/admin/tts/manuscript', {
+        const { data } = await $appFetch('/api/ai/tts/manuscript', {
             method: 'POST',
             body: { content: props.content },
         })
@@ -91,7 +91,7 @@ async function fetchVoices() {
     if (!config.value.provider) return
     loadingVoices.value = true
     try {
-        const { data } = await $appFetch('/api/admin/tts/voices', {
+        const { data } = await $appFetch('/api/ai/tts/voices', {
             query: { provider: config.value.provider },
         })
         voices.value = data
@@ -137,7 +137,7 @@ watchDebounced([() => config.value.provider, () => config.value.voice, script], 
 
     loadingCost.value = true
     try {
-        const { data } = await $appFetch('/api/admin/tts/estimate', {
+        const { data } = await $appFetch('/api/ai/tts/estimate', {
             method: 'POST',
             body: {
                 provider: config.value.provider,

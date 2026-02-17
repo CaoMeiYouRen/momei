@@ -1,9 +1,9 @@
 import { readMultipartFormData } from 'h3'
 import { getASRProvider, ASRService } from '~/server/services/asr'
-import { requireAuth } from '~/server/utils/permission'
+import { requireAdminOrAuthor } from '~/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
-    const session = await requireAuth(event)
+    const session = await requireAdminOrAuthor(event)
 
     const formData = await readMultipartFormData(event)
     if (!formData) {

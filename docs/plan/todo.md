@@ -51,6 +51,11 @@
         - [ ] 实现火山引擎 (豆包) 提供者 (WebSocket V3)
         - [ ] 实现 AI 播客 (Podcast) 模式生成逻辑
         - [ ] 音频元数据保存与 RSS Enclosure 自动关联
+- [ ] **AI 基础设施重构 (AI Infrastructure Refactoring)** (P1)
+    - [ ] **API 路径统一**: 将 TTS 移至 `/api/ai/tts`，统一 ASR 风格。
+    - [ ] **权限松绑**: ASR/TTS API 支持 Author 角色。
+    - [ ] **逻辑分层**: Provider 驱动移至 `utils`，业务逻辑保留在 `services`。
+    - [ ] **配置外露**: 公共环境变量集成至 `public.get.ts`。
     - [ ] **验收点**:
         - 验收: 实现统一的音频化控制器，支持 **标准 TTS** 与 **AI 播客 (Dual Human)** 模式。
         - 验收: 编辑器增加“生成音频”功能，支持选择提供者 (OpenAI/Azure/Volcengine)。

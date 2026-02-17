@@ -1,7 +1,10 @@
 import { getSettings } from '~/server/services/setting'
 import { SettingKey } from '~/types/setting'
+import { requireAdminOrAuthor } from '~/server/utils/permission'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
+    await requireAdminOrAuthor(event)
+
     const settings = await getSettings([
         SettingKey.ASR_ENABLED,
         SettingKey.ASR_API_KEY,

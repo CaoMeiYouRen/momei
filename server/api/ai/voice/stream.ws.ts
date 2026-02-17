@@ -35,7 +35,7 @@ export default defineWebSocketHandler({
             if (!event) {
                 throw new Error('H3Event not found on peer')
             }
-            await requireAdmin(event)
+            await requireAdminOrAuthor(event)
             console.info('[ASR-WS] Peer connected:', peer.id)
         } catch (e) {
             console.error('[ASR-WS] Unauthorized WS connection attempt:', peer.id, e)

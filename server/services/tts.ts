@@ -1,6 +1,6 @@
 import type { TTSProvider } from '../types/tts'
-import { OpenAITTSProvider } from './tts/openai'
-import { SiliconFlowTTSProvider } from './tts/siliconflow'
+import { OpenAITTSProvider } from '../utils/ai/tts-openai'
+import { SiliconFlowTTSProvider } from '../utils/ai/tts-siliconflow'
 import { getSettings } from './setting'
 import { SettingKey } from '@/types/setting'
 

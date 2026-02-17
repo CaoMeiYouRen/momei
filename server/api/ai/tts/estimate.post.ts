@@ -1,11 +1,11 @@
 import { TTSService } from '@/server/services/tts'
 import { success } from '@/server/utils/response'
-import { requireAdmin } from '@/server/utils/permission'
+import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 
 export default defineEventHandler(async (event) => {
-    await requireAdmin(event)
+    await requireAdminOrAuthor(event)
 
     const body = await readBody(event)
     const { provider: providerName, voice, text } = body

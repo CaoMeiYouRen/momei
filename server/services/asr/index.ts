@@ -1,4 +1,4 @@
-import { SiliconFlowASRProvider } from './siliconflow'
+import { SiliconFlowASRProvider } from '../../utils/ai/asr-siliconflow'
 import { getSettings } from '~/server/services/setting'
 import { SettingKey } from '~/types/setting'
 import { dataSource } from '~/server/database'

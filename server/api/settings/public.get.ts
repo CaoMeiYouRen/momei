@@ -24,6 +24,9 @@ export default defineEventHandler(async () => {
             SettingKey.ICP_LICENSE_NUMBER,
             SettingKey.PUBLIC_SECURITY_NUMBER,
             SettingKey.FOOTER_CODE,
+            SettingKey.AI_ENABLED,
+            SettingKey.ASR_ENABLED,
+            SettingKey.TTS_ENABLED,
         ]
 
         const settings = await getSettings(publicKeys)
@@ -47,6 +50,9 @@ export default defineEventHandler(async () => {
                 icpLicenseNumber: settings[SettingKey.ICP_LICENSE_NUMBER],
                 publicSecurityNumber: settings[SettingKey.PUBLIC_SECURITY_NUMBER],
                 footerCode: settings[SettingKey.FOOTER_CODE],
+                aiEnabled: String(settings[SettingKey.AI_ENABLED]) === 'true',
+                asrEnabled: String(settings[SettingKey.ASR_ENABLED]) === 'true' || (!!process.env.ASR_API_KEY && settings[SettingKey.ASR_ENABLED] !== 'false'),
+                ttsEnabled: String(settings[SettingKey.TTS_ENABLED]) === 'true' || (!!process.env.TTS_API_KEY && settings[SettingKey.TTS_ENABLED] !== 'false'),
             },
         }
     } catch {
