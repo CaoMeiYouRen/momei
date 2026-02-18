@@ -45,7 +45,9 @@ function buildVolcFrame(messageType: number, flags: number, event: number, paylo
  * 解析火山引擎 V3 协议帧 (TTS)
  */
 function parseVolcFrame(buffer: Buffer) {
-    if (buffer.length < 12) { return null }
+    if (buffer.length < 12) {
+        return null
+    }
     // const head0 = buffer.readUInt8(0)
     const messageType = (buffer.readUInt8(1) >> 4) & 0x0F
     const event = buffer.readUInt32BE(4)
@@ -138,7 +140,9 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                 ws.onmessage = (event: MessageEvent) => {
                     const buffer = Buffer.from(event.data as ArrayBuffer)
                     const frame = parseVolcFrame(buffer)
-                    if (!frame) { return }
+                    if (!frame) {
+                        return
+                    }
 
                     const { event: eventNum, payload } = frame
 

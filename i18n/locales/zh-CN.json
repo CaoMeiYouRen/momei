@@ -585,7 +585,14 @@
                     "manuscript": "音频文稿",
                     "manuscript_hint": "您可以对文稿进行微调，或点击 AI 优化生成更具感染力的广播稿。",
                     "optimize_manuscript": "AI 润色文稿",
-                    "optimizing": "正在润色中..."
+                    "optimizing": "正在润色中...",
+                    "providers": {
+                        "openai": "OpenAI",
+                        "siliconflow": "SiliconFlow",
+                        "volcengine": "火山引擎",
+                        "azure": "Azure",
+                        "edge-tts": "Edge TTS"
+                    }
                 },
                 "ai": {
                     "suggest_titles": "AI 标题建议",

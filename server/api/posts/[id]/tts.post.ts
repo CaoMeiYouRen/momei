@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const textToEstimate = script || post.content
-    const estimatedCost = await TTSService.estimateCost(textToEstimate, voice)
+    const estimatedCost = await TTSService.estimateCost(textToEstimate, voice, provider)
 
     const taskRepo = dataSource.getRepository(AITask)
     const task = taskRepo.create({

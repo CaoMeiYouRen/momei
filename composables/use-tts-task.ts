@@ -27,7 +27,7 @@ export function useTTSTask(taskIdRef: Ref<string | null>) {
                     if (data.result) {
                         try {
                             const result = typeof data.result === 'string' ? JSON.parse(data.result) : data.result
-                            audioUrl.value = result.audioUrl
+                            audioUrl.value = result.audioUrl || result.url
                         } catch (e) {
                             console.error('Failed to parse task result:', e)
                         }

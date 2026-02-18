@@ -10,8 +10,8 @@ import { SettingKey } from '@/types/setting'
 import type { TTSOptions, TTSAudioVoice } from '@/types/ai'
 
 export class TTSService extends AIBaseService {
-    static async generateSpeech(text: string, voice: string = 'default', options: TTSOptions = {}, userId?: string) {
-        const provider = await getAIProvider('tts')
+    static async generateSpeech(text: string, voice: string = 'default', options: TTSOptions = {}, userId?: string, providerName?: string) {
+        const provider = await getAIProvider('tts', providerName ? { provider: providerName as any } : undefined)
 
         try {
             if (!provider.generateSpeech) {
@@ -80,7 +80,9 @@ export class TTSService extends AIBaseService {
         try {
             while (true) {
                 const { done, value } = await reader.read()
-                if (done) { break }
+                if (done) {
+                    break
+                }
                 chunks.push(value)
             }
             const buffer = Buffer.concat(chunks)
@@ -99,16 +101,16 @@ export class TTSService extends AIBaseService {
         }
     }
 
-    static async getVoices(): Promise<TTSAudioVoice[]> {
-        const provider = await getAIProvider('tts')
+    static async getVoices(providerName?: string): Promise<TTSAudioVoice[]> {
+        const provider = await getAIProvider('tts', providerName ? { provider: providerName as any } : undefined)
         if (!provider.getVoices) {
             return []
         }
         return await provider.getVoices()
     }
 
-    static async estimateCost(text: string, voice: string = 'default'): Promise<number> {
-        const provider = await getAIProvider('tts')
+    static async estimateCost(text: string, voice: string = 'default', providerName?: string): Promise<number> {
+        const provider = await getAIProvider('tts', providerName ? { provider: providerName as any } : undefined)
         if (!provider.estimateTTSCost) {
             return 0
         }
@@ -184,7 +186,8 @@ export class TTSService extends AIBaseService {
 
             const options = payload.options || {}
             const voice = payload.voice || 'default'
-            const stream = await this.generateSpeech(post.content, voice, options, task.userId)
+            const contentToUse = payload.script || post.content
+            const stream = await this.generateSpeech(contentToUse, voice, options, task.userId, task.provider)
 
             // Convert stream to Buffer
             const reader = stream.getReader()

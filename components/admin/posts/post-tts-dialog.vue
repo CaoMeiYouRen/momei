@@ -52,13 +52,8 @@ const modes = computed(() => [
 ])
 
 const providers = computed(() => {
-    const labels: Record<string, string> = {
-        openai: 'OpenAI',
-        siliconflow: 'SiliconFlow',
-        volcengine: 'Volcengine',
-    }
     return availableProviders.value.map((p) => ({
-        label: labels[p.toLowerCase()] || p,
+        label: t(`pages.admin.posts.tts.providers.${p.toLowerCase()}`),
         value: p,
     }))
 })
