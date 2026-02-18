@@ -230,6 +230,9 @@ importers:
       winston-daily-rotate-file:
         specifier: ^5.0.0
         version: 5.0.0(winston@3.19.0)
+      ws:
+        specifier: ^8.19.0
+        version: 8.19.0
       zhlint:
         specifier: ^0.8.2
         version: 0.8.2

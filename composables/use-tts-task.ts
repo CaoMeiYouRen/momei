@@ -35,7 +35,7 @@ export function useTTSTask(taskIdRef: Ref<string | null>) {
                     status.value = 'completed'
                     pause()
                 } else if (data.status === 'failed') {
-                    error.value = data.errorMessage
+                    error.value = data.error || data.errorMessage || '任务执行失败'
                     pause()
                 }
             } catch (e: any) {
@@ -44,7 +44,7 @@ export function useTTSTask(taskIdRef: Ref<string | null>) {
                 pause()
             }
         })()
-    }, 2000, { immediate: false })
+    }, 10000, { immediate: false })
 
     const startPolling = () => {
         if (!unref(taskIdRef)) {

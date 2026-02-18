@@ -1,5 +1,6 @@
 import crypto from 'node:crypto'
 import { createError } from 'h3'
+import { WebSocket } from 'ws'
 import logger from '../logger'
 import type { TTSAudioVoice, TTSOptions, AIProvider } from '@/types/ai'
 
@@ -109,12 +110,30 @@ function parseVolcFrame(buffer: Buffer) {
 export class VolcengineTTSProvider implements Partial<AIProvider> {
     name = 'volcengine'
 
-    // 预设一些常用的豆包音色
+    // 豆包语音合成模型 2.0 (Seed-TTS) 音色列表
     availableVoices: TTSAudioVoice[] = [
-        { id: 'zh_female_shuangkuaisisi_moon_bigtts', name: '爽快思思', language: 'zh', gender: 'female' },
-        { id: 'zh_male_dayixiansheng_moon_bigtts', name: '大义先生', language: 'zh', gender: 'male' },
-        { id: 'zh_female_mizaitongxue_v2_saturn_bigtts', name: '蜜仔同学', language: 'zh', gender: 'female' },
-        { id: 'zh_male_naxinglaoshi_v2_saturn_bigtts', name: '纳型老师', language: 'zh', gender: 'male' },
+        { id: 'zh_female_vv_uranus_bigtts', name: 'Vivi 2.0', language: 'zh', gender: 'female' },
+        { id: 'zh_female_xiaohe_uranus_bigtts', name: '小何 2.0', language: 'zh', gender: 'female' },
+        { id: 'zh_male_m191_uranus_bigtts', name: '云舟 2.0', language: 'zh', gender: 'male' },
+        { id: 'zh_male_taocheng_uranus_bigtts', name: '小天 2.0', language: 'zh', gender: 'male' },
+        { id: 'zh_female_xueayi_saturn_bigtts', name: '儿童绘本', language: 'zh', gender: 'female' },
+        { id: 'zh_male_dayi_saturn_bigtts', name: '大壹', language: 'zh', gender: 'male' },
+        { id: 'zh_female_mizai_saturn_bigtts', name: '黑猫侦探社咪', language: 'zh', gender: 'female' },
+        { id: 'zh_female_jitangnv_saturn_bigtts', name: '鸡汤女', language: 'zh', gender: 'female' },
+        { id: 'zh_female_meilinvyou_saturn_bigtts', name: '魅力女友', language: 'zh', gender: 'female' },
+        { id: 'zh_female_santongyongns_saturn_bigtts', name: '流畅女声', language: 'zh', gender: 'female' },
+        { id: 'zh_male_ruyayichen_saturn_bigtts', name: '儒雅逸辰', language: 'zh', gender: 'male' },
+        { id: 'saturn_zh_female_keainvsheng_tob', name: '可爱女生', language: 'zh', gender: 'female' },
+        { id: 'saturn_zh_female_tiaopigongzhu_tob', name: '调皮公主', language: 'zh', gender: 'female' },
+        { id: 'saturn_zh_male_shuanglangshaonian_tob', name: '爽朗少年', language: 'zh', gender: 'male' },
+        { id: 'saturn_zh_male_tiancaitongzhuo_tob', name: '天才同桌', language: 'zh', gender: 'male' },
+        { id: 'saturn_zh_female_cancan_tob', name: '知性灿灿', language: 'zh', gender: 'female' },
+        { id: 'saturn_zh_female_qingyingduoduo_cs_tob', name: '轻盈朵朵 2.0', language: 'zh', gender: 'female' },
+        { id: 'saturn_zh_female_wenwanshanshan_cs_tob', name: '温婉珊珊 2.0', language: 'zh', gender: 'female' },
+        { id: 'saturn_zh_female_reqingaina_cs_tob', name: '热情艾娜 2.0', language: 'zh', gender: 'female' },
+        { id: 'en_male_tim_uranus_bigtts', name: 'Tim', language: 'en', gender: 'male' },
+        { id: 'en_female_dacey_uranus_bigtts', name: 'Dacey', language: 'en', gender: 'female' },
+        { id: 'en_female_stokie_uranus_bigtts', name: 'Stokie', language: 'en', gender: 'female' },
     ]
 
     private config: VolcengineTTSConfig
@@ -146,14 +165,14 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
     ): Promise<ReadableStream<Uint8Array>> {
         const appId = this.config.appId
         const token = this.config.accessKey
-
+        logger.debug(`[VolcengineTTS] Starting TTS generation. Text length: ${text.length}, Voice: ${Array.isArray(voice) ? voice.join(',') : voice}`)
         if (!appId || !token) {
             throw createError({
                 statusCode: 500,
                 message: 'Volcengine TTS Error: AppID or Access Token (API Key) missing',
             })
         }
-
+        logger.debug(`[VolcengineTTS] Configuration - AppID: ${appId}, Resource: ${this.config.defaultModel}`)
         let speaker = 'zh_female_shuangkuaisisi_moon_bigtts'
         if (Array.isArray(voice) && voice.length > 0) {
             const v = voice[0]
@@ -165,24 +184,26 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
         }
 
         const sessionId = crypto.randomUUID()
-        const model = this.config.defaultModel || 'seed-tts-2.0'
 
         // 确定 Resource ID
-        let resourceId = this.config.defaultModel || ''
-        if (!resourceId || resourceId === 'seed-tts-2.0') {
-            if (speaker.startsWith('S_')) {
-                resourceId = 'volc.megatts.default'
-            } else {
-                resourceId = 'volc.service_type.10029'
-            }
-        }
+        const resourceId = this.config.defaultModel || ''
+        // if (!resourceId || resourceId === 'seed-tts-2.0') {
+        //     if (speaker.startsWith('S_')) {
+        //         resourceId = 'volc.megatts.default'
+        //     } else {
+        //         resourceId = 'volc.service_type.10029'
+        //     }
+        // }
+
+        let ws: WebSocket | null = null
 
         return new ReadableStream({
             async start(controller) {
                 const url = 'wss://openspeech.bytedance.com/api/v3/tts/bidirection'
 
                 try {
-                    const ws = new (globalThis.WebSocket as any)(url, {
+                    logger.debug(`[VolcengineTTS] Connecting to WebSocket. Resource: ${resourceId}, Speaker: ${speaker}`)
+                    ws = new WebSocket(url, {
                         headers: {
                             'X-Api-App-Key': appId,
                             'X-Api-Access-Key': token,
@@ -190,8 +211,6 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                             'X-Api-Connect-Id': crypto.randomUUID(),
                         },
                     })
-
-                    ws.binaryType = 'arraybuffer'
 
                     // 公共请求模板
                     const requestTemplate = {
@@ -205,78 +224,111 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                         },
                     }
 
-                    ws.onopen = () => {
-                        logger.debug(`[VolcengineTTS] WebSocket connected. Resource: ${resourceId}`)
+                    ws.on('open', () => {
+                        logger.debug(`[VolcengineTTS] WebSocket connected. Resource: ${resourceId}, Speaker: ${speaker}`)
                         // 1. 发送 StartConnection (Event 1)
-                        ws.send(buildVolcFrame(1, 4, 1, {}))
-                    }
+                        ws?.send(buildVolcFrame(1, 4, 1, {}))
+                    })
 
-                    ws.onmessage = (event: MessageEvent) => {
-                        const buffer = Buffer.from(event.data as ArrayBuffer)
-                        const frame = parseVolcFrame(buffer)
-                        if (!frame) { return }
+                    ws.on('message', (data: Buffer) => {
+                        try {
+                            const frame = parseVolcFrame(data)
+                            if (!frame) { return }
 
-                        const { type, event: eventNum, payload } = frame
+                            const { type, event: eventNum, payload } = frame
 
-                        // Type 0xB (11) is AudioOnlyServer
-                        if (type === 11) {
-                            controller.enqueue(new Uint8Array(payload))
-                            return
+                            // Type 0xB (11) is AudioOnlyServer
+                            if (type === 11) {
+                                controller.enqueue(new Uint8Array(payload))
+                                return
+                            }
+
+                            // Type 0xF (15) is Error
+                            if (type === 15) {
+                                const errorMsg = payload.toString()
+                                logger.error(`[VolcengineTTS] Error from server (Type 15): ${errorMsg}`)
+                                controller.error(new Error(`Volcengine TTS Error: ${errorMsg}`))
+                                ws?.close()
+                                return
+                            }
+
+                            // ConnectionStarted (50)
+                            if (eventNum === 50) {
+                                // 2. 发送 StartSession (Event 100)
+                                ws?.send(buildVolcFrame(1, 4, 100, {
+                                    ...requestTemplate,
+                                    event: 100,
+                                }, sessionId))
+                            } else if (eventNum === 150) {
+                                // SessionStarted (150)
+                                // 3. 发送 TaskRequest (Event 200)
+                                ws?.send(buildVolcFrame(1, 4, 200, {
+                                    ...requestTemplate,
+                                    req_params: {
+                                        ...requestTemplate.req_params,
+                                        text,
+                                    },
+                                    event: 200,
+                                }, sessionId))
+                                // 4. 紧接着发送 FinishSession (Event 102)
+                                ws?.send(buildVolcFrame(1, 4, 102, {}, sessionId))
+                            } else if (eventNum === 152) {
+                                // SessionFinished (152)
+                                logger.debug(`[VolcengineTTS] Session finished.`)
+                                // 5. 发送 FinishConnection (Event 2)
+                                ws?.send(buildVolcFrame(1, 4, 2, {}))
+                            } else if (eventNum === 52) {
+                                // ConnectionFinished (52)
+                                logger.debug(`[VolcengineTTS] Connection finished.`)
+                                ws?.close()
+                                controller.close()
+                            } else if (eventNum === 153 || eventNum === 51) {
+                                // SessionFailed (153) or ConnectionFailed (51)
+                                const errorMsg = payload.toString()
+                                logger.error(`[VolcengineTTS] Failed (Event ${eventNum}): ${errorMsg}`)
+                                controller.error(new Error(`Volcengine failed: ${errorMsg}`))
+                                ws?.close()
+                            }
+                        } catch (e) {
+                            logger.error(`[VolcengineTTS] Exception in onmessage:`, e)
+                            try {
+                                controller.error(e)
+                            } catch (ce) {
+                                // ignore
+                            }
+                            ws?.close()
                         }
+                    })
 
-                        // Type 0xF (15) is Error
-                        if (type === 15) {
-                            const errorMsg = payload.toString()
-                            logger.error(`[VolcengineTTS] Error from server (Type 15): ${errorMsg}`)
-                            controller.error(new Error(`Volcengine TTS Error: ${errorMsg}`))
-                            ws.close()
-                            return
-                        }
-
-                        // ConnectionStarted (50)
-                        if (eventNum === 50) {
-                            // 2. 发送 StartSession (Event 100)
-                            ws.send(buildVolcFrame(1, 4, 100, {
-                                ...requestTemplate,
-                                event: 100,
-                            }, sessionId))
-                        } else if (eventNum === 150) {
-                            // SessionStarted (150)
-                            // 3. 发送 TaskRequest (Event 200)
-                            ws.send(buildVolcFrame(1, 4, 200, {
-                                ...requestTemplate,
-                                req_params: {
-                                    ...requestTemplate.req_params,
-                                    text,
-                                },
-                                event: 200,
-                            }, sessionId))
-                            // 4. 紧接着发送 FinishSession (Event 102)
-                            ws.send(buildVolcFrame(1, 4, 102, {}, sessionId))
-                        } else if (eventNum === 152) {
-                            // SessionFinished (152)
-                            logger.debug(`[VolcengineTTS] Session finished.`)
-                            // 5. 发送 FinishConnection (Event 2)
-                            ws.send(buildVolcFrame(1, 4, 2, {}))
-                        } else if (eventNum === 52) {
-                            // ConnectionFinished (52)
-                            logger.debug(`[VolcengineTTS] Connection finished.`)
-                            ws.close()
-                            controller.close()
-                        } else if (eventNum === 153 || eventNum === 51) {
-                            // SessionFailed (153) or ConnectionFailed (51)
-                            const errorMsg = payload.toString()
-                            logger.error(`[VolcengineTTS] Failed (Event ${eventNum}): ${errorMsg}`)
-                            controller.error(new Error(`Volcengine failed: ${errorMsg}`))
-                            ws.close()
-                        }
-                    }
-
-                    ws.onerror = (err: any) => {
+                    ws.on('error', (err: any) => {
                         logger.error(`[VolcengineTTS] WebSocket error:`, err)
-                    }
+                        try {
+                            controller.error(new Error(`Volcengine TTS WS error: ${err.message || 'Unknown error'}`))
+                        } catch (e) {
+                            // ignore
+                        }
+                    })
+
+                    ws.on('close', (code, reason) => {
+                        logger.debug(`[VolcengineTTS] WebSocket closed. Code: ${code}, Reason: ${reason}`)
+                        if (code !== 1000 && code !== 1005) {
+                            try {
+                                controller.error(new Error(`WebSocket closed unexpectedly: ${code} ${reason}`))
+                            } catch (e) {
+                                // Already errored
+                            }
+                        }
+                    })
                 } catch (e) {
+                    logger.error(`[VolcengineTTS] Exception in start:`, e)
                     controller.error(e)
+                }
+            },
+            cancel() {
+                // 如果外部取消了流（例如请求超时或主动停止），则关闭 WebSocket
+                logger.debug(`[VolcengineTTS] Stream cancelled by consumer.`)
+                if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+                    ws.close()
                 }
             },
         })
