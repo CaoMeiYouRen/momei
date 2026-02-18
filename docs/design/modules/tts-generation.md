@@ -24,27 +24,36 @@
 | **OpenAI** | `tts-1`, `tts-1-hd` | 标准 TTS | 高质量、多音色 | 中 |
 | **Azure** | 多种神经网络音色 | 标准 TTS | 专业级质量、SSML 支持 | 高 |
 | **SiliconFlow** | 兼容 OpenAI API | 标准 TTS | 国内友好、成本较低 | 低 |
-| **火山引擎 (豆包)** | `Podcast TTS` | AI 播客 | 双人对话、原生播客感 | 中 |
-| **火山引擎 (豆包)** | `LLM TTS` | 标准 TTS | 极致性能、多情感支持 | 中 |
+| **火山引擎 (豆包)** | `seed-tts-2.0` | 标准 TTS | 2.0 模型、长文本稳定、自然听感 | 中 |
+| **火山引擎 (豆包)** | `Podcast TTS` | AI 播客 | 双人对话、原生播客感、情感丰富 | 中 |
+| **火山引擎 (豆包)** | `seed-icl-2.0` | 声音复刻 | 仅需 3-5 分钟音频复刻个人音色 | 中 |
 
 ### 2.2 火山引擎 (豆包语音) 接入细节
 
-针对火山引擎（豆包语音）提供的两种核心模型，采用 WebSocket v3 协议实现高性能流式接入：
+针对火山引擎（豆包语音）提供的核心模型，采用 WebSocket v3 协议实现高性能流式交互：
 
-#### 2.2.1 豆包语音播客大模型 (Podcast TTS)
+#### 2.2.1 豆包语音合成模型 2.0 (Standard/Expressive)
+- **协议**: `wss://openspeech.bytedance.com/api/v3/tts/bidirection` (双向流式，推荐)
+- **资源 ID**: `seed-tts-2.0`
+- **功能**: 真人级听感，长文本稳定无断层，支持语速、停顿、重音精细控制。
+- **子模型**:
+  - `seed-tts-2.0-expressive`: 表现力极强，支持语气调整。
+  - `seed-tts-2.0-standard`: 表现稳定，适合正式播报。
+- **应用场景**: 博客长文转播客、精品朗读。
+
+#### 2.2.2 声音复刻 2.0 (Voice Clone)
+- **资源 ID**: `seed-icl-2.0`
+- **功能**: 通过 3-5 分钟样本复刻博主个人音色，提升 IP 辨识度。
+- **优势**: 与 TTS 2.0 模型无缝结合，解决复刻音色机械感重的痛点。
+
+#### 2.2.3 豆包语音播客大模型 (Podcast TTS)
 - **协议**: `wss://openspeech.bytedance.com/api/v3/sami/podcasttts`
 - **功能**: 将博文总结并转化为双人对话式的播客音频。
 - **核心参数**:
   - `action`: 生成类型（0: 总结生成, 3: 给定对话文本, 4: Prompt 扩展）。
-  - `speaker_info`: 指定双人音色组合（如：`zh_female_mizaitongxue_v2_saturn_bigtts` 与 `zh_male_dayixiansheng_v2_saturn_bigtts`）。
+  - `speaker_info`: 指定双人音色组合。
   - `use_head_music / use_tail_music`: 自动增加播客片头片尾曲。
-- **应用场景**: 极客长文一键转播客。
-
-#### 2.2.2 大模型语音合成 (LLM TTS)
-- **协议**: `wss://openspeech.bytedance.com/api/v3/tts/unidirectional/stream` (推荐)
-- **功能**: 高质量单人文本转语音。
-- **优势**: 相比 V1 接口，V3 接口在延迟 (TTFB) 表现上更优，支持情感控制。
-- **应用场景**: 标准文章朗读。
+- **应用场景**: 极客长文一键转多人播客。
 
 ### 2.3 异步任务处理
 

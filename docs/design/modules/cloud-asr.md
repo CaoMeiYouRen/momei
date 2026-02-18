@@ -17,7 +17,8 @@
 | 驱动类型 | 交互模式 | API 协议 | 典型厂商 | 使用场景 |
 |:---|:---|:---|:---|:---|
 | **SiliconFlow** | Batch | HTTP POST (OpenAI 兼容) | SiliconFlow | 上传录音文件进行全文精确转录 |
-| **Volcengine** | Streaming | WebSocket + 二进制 | 字节火山/豆包 | 边说边转写，极致实时体验 |
+| **Volcengine** | Streaming | WebSocket (V3) | 豆包流式 ASR 2.0 | 边说边转写，写作实时录入 |
+| **Volcengine** | Batch | HTTP/WS | 豆包录音文件识别 2.0 | 长音频/全文转录 |
 
 ### 2.2 技术对比
 
@@ -36,12 +37,21 @@
 #### Volcengine (Streaming Mode)
 
 **优点**:
-- 毫秒级响应，边说边出字
-- 支持流式字幕生成
-- 可在识别过程中实时打断
+- **极低延迟**: 端到端延迟 <200ms，边说边出字，完美适配写作节奏。
+- **高准确率**: 豆包 2.0 模型字错误率降低 30%-50%，深度优化中英文混说与专业术语。
+- **写作专属优化**: 自带口语顺滑、无效语气词过滤（嗯、啊、然后等）、智能标点与分段。
+- **热词定制**: 支持实时录入博主专属名词、品牌名、技术术语。
+
+**关键技术细节**:
+- **协议端点**: `wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_async` (双向流式优化版，推荐)。
+- **资源 ID**: 
+  - 小时计费: `volc.seedasr.sauc.duration`
+  - 并发计费: `volc.seedasr.sauc.concurrent`
+- **二遍识别 (`enable_nonstream`)**: 在实时返回的同时，利用非流式模型对分句进行二次纠错，实现“快”与“准”的平衡。
+- **判停时间 (`end_window_size`)**: 默认 800ms，可按需配置以控制断句灵敏度。
 
 **缺点**:
-- 实现复杂度较高（WebSocket + 二进制协议）
+- 实现复杂度较高（WebSocket + 专用二进制协议）。
 - 需维护长连接状态
 
 ## 3. 数据库设计
