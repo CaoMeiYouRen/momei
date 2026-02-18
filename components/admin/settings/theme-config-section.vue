@@ -12,7 +12,7 @@
                             class="pi pi-lock text-muted-color text-xs"
                         />
                     </div>
-                    <Dropdown
+                    <Select
                         v-model="settings.themePreset"
                         :options="presetOptions"
                         option-label="label"

@@ -477,3 +477,5 @@ export class TextService extends AIBaseService {
         }
     }
 }
+
+export { TextService as AIService }

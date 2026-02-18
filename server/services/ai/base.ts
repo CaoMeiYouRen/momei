@@ -24,7 +24,7 @@ export abstract class AIBaseService {
         }
         try {
             const repo = dataSource.getRepository(AITask)
-            let result = undefined
+            let result: string | undefined
             if (response) {
                 result = typeof response === 'string' ? response : JSON.stringify(response)
             }

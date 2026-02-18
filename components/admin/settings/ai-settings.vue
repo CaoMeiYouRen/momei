@@ -75,7 +75,7 @@
                     <span class="font-bold text-lg">{{ $t('pages.admin.settings.system.keys.ai_image_title') }}</span>
                     <span class="text-sm text-surface-500">{{ $t('pages.admin.settings.system.keys.ai_image_description') }}</span>
                 </div>
-                <InputSwitch
+                <ToggleSwitch
                     id="ai_image_enabled"
                     v-model="settings.ai_image_enabled"
                     :disabled="metadata.ai_image_enabled?.isLocked"
@@ -160,7 +160,7 @@
                     <span class="font-bold text-lg">{{ $t('pages.admin.settings.system.keys.ai_asr_title') }}</span>
                     <span class="text-sm text-surface-500">{{ $t('pages.admin.settings.system.keys.ai_asr_description') }}</span>
                 </div>
-                <InputSwitch
+                <ToggleSwitch
                     id="asr_enabled"
                     v-model="settings.asr_enabled"
                     :disabled="metadata.asr_enabled?.isLocked"
@@ -303,7 +303,7 @@
                     <span class="font-bold text-lg">{{ $t('pages.admin.settings.system.keys.ai_tts_title') }}</span>
                     <span class="text-sm text-surface-500">{{ $t('pages.admin.settings.system.keys.ai_tts_description') }}</span>
                 </div>
-                <InputSwitch
+                <ToggleSwitch
                     id="tts_enabled"
                     v-model="settings.tts_enabled"
                     :disabled="metadata.tts_enabled?.isLocked"

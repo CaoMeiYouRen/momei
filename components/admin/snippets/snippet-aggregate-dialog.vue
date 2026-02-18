@@ -61,7 +61,7 @@
                     </div>
                     <div class="field-item">
                         <label>{{ t('pages.admin.snippets.expand_type') }}</label>
-                        <Dropdown
+                        <Select
                             v-model="expansionForm.expandType"
                             :options="expandTypeOptions"
                             option-label="label"
@@ -147,7 +147,7 @@
                 <div class="option-row">
                     <div class="option-field">
                         <label class="field-label">{{ t('pages.admin.snippets.template') }}</label>
-                        <Dropdown
+                        <Select
                             v-model="aggregateForm.template"
                             :options="templateOptions"
                             option-label="label"

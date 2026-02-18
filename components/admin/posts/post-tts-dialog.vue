@@ -4,7 +4,7 @@ import { watchDebounced } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
-import Dropdown from 'primevue/dropdown'
+import Select from 'primevue/select'
 import RadioButton from 'primevue/radiobutton'
 import ProgressBar from 'primevue/progressbar'
 import Message from 'primevue/message'
@@ -218,7 +218,7 @@ function handleConfirm() {
                 <div v-if="showProviderSelect" class="tts-field">
                     <label class="tts-field__label">{{ t('pages.admin.posts.tts.provider') }}</label>
                     <div class="tts-field__content">
-                        <Dropdown
+                        <Select
                             v-model="config.provider"
                             :options="providers"
                             option-label="label"
@@ -233,7 +233,7 @@ function handleConfirm() {
                 <div class="tts-field">
                     <label class="tts-field__label">{{ t('pages.admin.posts.tts.voice') }}</label>
                     <div class="tts-field__content">
-                        <Dropdown
+                        <Select
                             v-model="config.voice"
                             :options="voices"
                             option-label="name"
@@ -412,7 +412,7 @@ function handleConfirm() {
             padding: 0.25rem 0;
         }
 
-        .p-dropdown, .p-textarea {
+        .p-select, .p-textarea {
             width: 100%;
         }
     }
