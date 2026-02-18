@@ -49,6 +49,33 @@
                 </Message>
             </div>
 
+            <div v-if="task.type === 'transcription' && task.status === 'completed'" class="grid transcription-info">
+                <div class="col-12 md:col-3">
+                    <div class="detail-item">
+                        <span class="label">{{ $t('pages.admin.ai.audio_duration') }}:</span>
+                        <span class="value">{{ task.audioDuration || 0 }}s</span>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <div class="detail-item">
+                        <span class="label">{{ $t('pages.admin.ai.audio_size') }}:</span>
+                        <span class="value">{{ formatSize(task.audioSize) }}</span>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <div class="detail-item">
+                        <span class="label">{{ $t('pages.admin.ai.text_length') }}:</span>
+                        <span class="value">{{ task.textLength || 0 }}</span>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <div class="detail-item">
+                        <span class="label">{{ $t('pages.admin.ai.language') }}:</span>
+                        <span class="value">{{ task.language || '-' }}</span>
+                    </div>
+                </div>
+            </div>
+
             <div
                 v-if="task.type === 'image_generation' && getTaskImages(task).length > 0"
                 class="image-preview-section"
@@ -136,6 +163,14 @@ const formatJson = (data: any) => {
     } catch (e) {
         return data.toString()
     }
+}
+
+const formatSize = (bytes: number) => {
+    if (!bytes) return '0 B'
+    const k = 1024
+    const sizes = ['B', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
 const getTaskImages = (task: any) => {

@@ -471,6 +471,10 @@
                 "status": "状态",
                 "tokens": "Tokens",
                 "images": "图像",
+                "audio_duration": "音频时长",
+                "audio_size": "音频大小",
+                "text_length": "文本长度",
+                "language": "识别语言",
                 "prompt": "参数/提示词",
                 "result": "结果数据",
                 "audio_preview": "音频预览",
@@ -486,7 +490,8 @@
                     "text_generation": "文本生成",
                     "image_generation": "图像生成",
                     "tts": "语音合成",
-                    "podcast": "AI 播客"
+                    "podcast": "AI 播客",
+                    "transcription": "语音识别"
                 },
                 "statuses": {
                     "completed": "已完成",

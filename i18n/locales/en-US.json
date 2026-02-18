@@ -471,6 +471,10 @@
                 "status": "Status",
                 "tokens": "Tokens",
                 "images": "Images",
+                "audio_duration": "Audio Duration",
+                "audio_size": "Audio Size",
+                "text_length": "Text Length",
+                "language": "Language",
                 "prompt": "Payload/Prompt",
                 "result": "Result Data",
                 "audio_preview": "Audio Preview",
@@ -486,7 +490,8 @@
                     "text_generation": "Text Generation",
                     "image_generation": "Image Generation",
                     "tts": "TTS",
-                    "podcast": "AI Podcast"
+                    "podcast": "AI Podcast",
+                    "transcription": "Transcription"
                 },
                 "statuses": {
                     "completed": "Completed",

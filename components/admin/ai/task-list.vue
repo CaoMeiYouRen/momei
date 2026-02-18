@@ -191,6 +191,7 @@ const taskTypes = computed(() => [
     { label: t('pages.admin.ai.types.image_generation'), value: 'image_generation' },
     { label: t('pages.admin.ai.types.tts'), value: 'tts' },
     { label: t('pages.admin.ai.types.podcast'), value: 'podcast' },
+    { label: t('pages.admin.ai.types.transcription'), value: 'transcription' },
 ])
 
 const taskStatuses = computed(() => [
@@ -205,6 +206,7 @@ const getTypeIcon = (type: string) => {
         case 'image_generation': return 'pi pi-image'
         case 'tts': return 'pi pi-volume-up'
         case 'podcast': return 'pi pi-microphone'
+        case 'transcription': return 'pi pi-comment'
         default: return 'pi pi-align-left'
     }
 }
