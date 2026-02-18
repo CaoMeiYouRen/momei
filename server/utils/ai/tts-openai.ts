@@ -14,12 +14,12 @@ export class OpenAITTSProvider implements Partial<AIProvider> {
 
     private apiKey: string
     private endpoint: string
-    private defaultModel: string
+    public model: string
 
     constructor(config: { apiKey: string, endpoint?: string, defaultModel?: string }) {
         this.apiKey = config.apiKey
         this.endpoint = config.endpoint || 'https://api.openai.com/v1'
-        this.defaultModel = config.defaultModel || 'tts-1'
+        this.model = config.defaultModel || 'tts-1'
     }
 
     getVoices(): Promise<TTSAudioVoice[]> {
@@ -30,7 +30,7 @@ export class OpenAITTSProvider implements Partial<AIProvider> {
     estimateCost(text: string, _voice: string): Promise<number> {
         // OpenAI TTS 定价: $15/1M 字符 (tts-1), $30/1M 字符 (tts-1-hd)
         const chars = text.length
-        const rate = this.defaultModel.includes('hd') ? 30 : 15
+        const rate = this.model.includes('hd') ? 30 : 15
         return Promise.resolve((chars / 1000000) * rate)
     }
 
@@ -49,7 +49,7 @@ export class OpenAITTSProvider implements Partial<AIProvider> {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    model: this.defaultModel,
+                    model: this.model,
                     input: text,
                     voice,
                     response_format: options.outputFormat || 'mp3',

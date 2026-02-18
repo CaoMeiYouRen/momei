@@ -21,7 +21,7 @@ export class TTSService extends AIBaseService {
             this.logUsage({
                 task: 'tts',
                 response: {
-                    model: (provider as any).config?.model || 'unknown',
+                    model: (provider as any).model || (provider as any).defaultModel || (provider as any).config?.model || 'unknown',
                     content: `Audio generation for ${text.length} characters`,
                 },
                 userId,
@@ -32,7 +32,7 @@ export class TTSService extends AIBaseService {
                 category: 'tts',
                 type: 'tts',
                 provider: provider.name,
-                model: (provider as any).config?.model || 'unknown',
+                model: (provider as any).model || (provider as any).defaultModel || (provider as any).config?.model || 'unknown',
                 payload: { text, voice, options },
                 response: { status: 'success' },
             })
@@ -44,7 +44,7 @@ export class TTSService extends AIBaseService {
                 category: 'tts',
                 type: 'tts',
                 provider: provider.name,
-                model: 'unknown',
+                model: (provider as any).model || (provider as any).defaultModel || (provider as any).config?.model || 'unknown',
                 payload: { text, voice, options },
                 error,
             })

@@ -32,7 +32,7 @@ export class ASRService extends AIBaseService {
                 category: 'asr',
                 type: 'transcription',
                 provider: provider.name,
-                model: options.model || (provider as any).config?.model || 'unknown',
+                model: options.model || (provider as any).model || (provider as any).config?.model || 'unknown',
                 payload: { options, size: audioSize },
                 response: { text: response.text },
                 audioSize,
@@ -57,7 +57,7 @@ export class ASRService extends AIBaseService {
                 category: 'asr',
                 type: 'transcription',
                 provider: provider.name,
-                model: options.model || 'unknown',
+                model: options.model || (provider as any).model || (provider as any).config?.model || 'unknown',
                 payload: { options },
                 error,
             })

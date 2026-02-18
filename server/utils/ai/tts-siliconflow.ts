@@ -18,12 +18,12 @@ export class SiliconFlowTTSProvider implements Partial<AIProvider> {
 
     private apiKey: string
     private endpoint: string
-    private defaultModel: string
+    public model: string
 
     constructor(config: { apiKey: string, endpoint?: string, defaultModel?: string }) {
         this.apiKey = config.apiKey
         this.endpoint = config.endpoint || 'https://api.siliconflow.cn/v1'
-        this.defaultModel = config.defaultModel || 'FunAudioLLM/CosyVoice2-0.5B'
+        this.model = config.defaultModel || 'FunAudioLLM/CosyVoice2-0.5B'
     }
 
     get availableVoices(): TTSAudioVoice[] {
@@ -31,7 +31,7 @@ export class SiliconFlowTTSProvider implements Partial<AIProvider> {
         // 除非是 custom uri
         return this.systemVoices.map((v) => ({
             ...v,
-            id: `${this.defaultModel}:${v.id}`,
+            id: `${this.model}:${v.id}`,
         }))
     }
 
@@ -94,7 +94,7 @@ export class SiliconFlowTTSProvider implements Partial<AIProvider> {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    model: this.defaultModel,
+                    model: this.model,
                     input: text,
                     voice,
                     response_format: options.outputFormat || 'mp3',

@@ -18,6 +18,10 @@ export class VolcengineASRProvider implements Partial<AIProvider> {
         }
     }
 
+    get model() {
+        return this.config.cluster
+    }
+
     async transcribe(options: TranscribeOptions): Promise<TranscribeResponse> {
         // 实际上这应该是一个 WebSocket 实现，这里提供一个简化的 HTTPS 轮询或单次上传逻辑
         // 如果是 V3 版，通常推荐使用官方 SDK。这里实现一个符合接口声明的占位或轻量逻辑
