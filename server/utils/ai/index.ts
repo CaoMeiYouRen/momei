@@ -41,6 +41,7 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
         SettingKey.AI_MODEL,
         SettingKey.AI_ENDPOINT,
         SettingKey.ASR_VOLCENGINE_APP_ID,
+        SettingKey.ASR_VOLCENGINE_CLUSTER_ID,
         SettingKey.VOLCENGINE_APP_ID,
         SettingKey.VOLCENGINE_ACCESS_KEY,
         enabledKey,

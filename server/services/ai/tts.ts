@@ -3,8 +3,10 @@ import { dataSource } from '../../database'
 import { Post } from '../../entities/post'
 import { AITask } from '../../entities/ai-task'
 import { uploadFromBuffer } from '../upload'
+import { getSettings } from '../setting'
 import logger from '../../utils/logger'
 import { AIBaseService } from './base'
+import { SettingKey } from '@/types/setting'
 import type { TTSOptions, TTSAudioVoice } from '@/types/ai'
 
 export class TTSService extends AIBaseService {
@@ -117,7 +119,38 @@ export class TTSService extends AIBaseService {
      * 获取可用提供商
      */
     static async getAvailableProviders() {
-        return Promise.resolve(['openai', 'siliconflow', 'azure', 'edge-tts'])
+        const settings = await getSettings([
+            SettingKey.AI_API_KEY,
+            SettingKey.TTS_API_KEY,
+            SettingKey.ASR_VOLCENGINE_APP_ID,
+            SettingKey.VOLCENGINE_APP_ID,
+            SettingKey.VOLCENGINE_ACCESS_KEY,
+            SettingKey.AI_PROVIDER,
+            SettingKey.TTS_PROVIDER,
+        ])
+
+        const providers: string[] = []
+
+        // OpenAI
+        const hasOpenAI = settings[SettingKey.TTS_API_KEY] || settings[SettingKey.AI_API_KEY] || process.env.TTS_API_KEY || process.env.AI_API_KEY
+        if (hasOpenAI) {
+            providers.push('openai')
+        }
+
+        // SiliconFlow
+        const isSF = settings[SettingKey.TTS_PROVIDER] === 'siliconflow' || settings[SettingKey.AI_PROVIDER] === 'siliconflow' || process.env.TTS_PROVIDER === 'siliconflow'
+        if (isSF || hasOpenAI) {
+            // 如果明确配置了 SiliconFlow，或者有通用 API Key (通常 SF 也可以用通用 Key 配 Endpoint)
+            providers.push('siliconflow')
+        }
+
+        // Volcengine
+        const hasVolc = settings[SettingKey.VOLCENGINE_APP_ID] || settings[SettingKey.ASR_VOLCENGINE_APP_ID] || process.env.VOLCENGINE_APP_ID
+        if (hasVolc) {
+            providers.push('volcengine')
+        }
+
+        return providers
     }
 
     /**
@@ -135,7 +168,9 @@ export class TTSService extends AIBaseService {
         const postRepo = dataSource.getRepository(Post)
 
         const task = await taskRepo.findOneBy({ id: taskId })
-        if (!task?.userId) { return }
+        if (!task?.userId) {
+            return
+        }
 
         try {
             task.status = 'processing'
@@ -143,7 +178,9 @@ export class TTSService extends AIBaseService {
 
             const payload = typeof task.payload === 'string' ? JSON.parse(task.payload) : (task.payload || {})
             const post = await postRepo.findOneBy({ id: payload.postId })
-            if (!post) { throw new Error('Post not found') }
+            if (!post) {
+                throw new Error('Post not found')
+            }
 
             const options = payload.options || {}
             const voice = payload.voice || 'default'
@@ -154,7 +191,9 @@ export class TTSService extends AIBaseService {
             const chunks: Uint8Array[] = []
             while (true) {
                 const { done, value } = await reader.read()
-                if (done) { break }
+                if (done) {
+                    break
+                }
                 chunks.push(value)
             }
             const buffer = Buffer.concat(chunks)

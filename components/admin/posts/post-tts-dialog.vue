@@ -49,13 +49,13 @@ async function fetchConfig() {
 
 const modes = computed(() => [
     { label: t('pages.admin.posts.tts.mode_speech'), value: 'speech' },
-    { label: t('pages.admin.posts.tts.mode_podcast'), value: 'podcast' },
 ])
 
 const providers = computed(() => {
     const labels: Record<string, string> = {
         openai: 'OpenAI',
         siliconflow: 'SiliconFlow',
+        volcengine: 'Volcengine',
     }
     return availableProviders.value.map((p) => ({
         label: labels[p.toLowerCase()] || p,
@@ -195,7 +195,7 @@ function handleConfirm() {
         <div class="tts-dialog">
             <div class="tts-dialog__body">
                 <!-- Mode Selection -->
-                <div class="tts-field">
+                <div v-if="modes.length > 1" class="tts-field">
                     <label class="tts-field__label">{{ t('pages.admin.posts.tts.mode') }}</label>
                     <div class="tts-field__content tts-field__content--radio">
                         <div
@@ -279,7 +279,7 @@ function handleConfirm() {
                             <i v-if="loadingCost" class="pi pi-spin pi-spinner" />
                             <template v-else>
                                 <span class="tts-cost__amount">{{ estimatedCost.toFixed(4) }}</span>
-                                <span class="tts-cost__currency">{{ config.provider === 'openai' ? '$' : '¥' }}</span>
+                                <span class="tts-cost__currency">{{ (config.provider === 'openai' || config.provider === 'elevenlabs') ? '$' : '¥' }}</span>
                             </template>
                         </div>
                     </div>

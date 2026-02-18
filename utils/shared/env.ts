@@ -308,6 +308,7 @@ export const AI_IMAGE_PROVIDER = (process.env.AI_IMAGE_PROVIDER || 'openai') as
     | 'stable-diffusion'
     | 'doubao'
     | 'gemini'
+    | 'siliconflow'
 export const AI_IMAGE_MODEL = process.env.AI_IMAGE_MODEL || 'dall-e-3'
 export const AI_IMAGE_ENDPOINT = process.env.AI_IMAGE_ENDPOINT
 
