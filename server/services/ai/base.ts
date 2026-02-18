@@ -39,8 +39,13 @@ export abstract class AIBaseService {
         response?: any
         error?: any
         postId?: string
+        audioDuration?: number
+        audioSize?: number
+        textLength?: number
+        language?: string
+        cost?: number
     }) {
-        const { userId, type, provider, model, payload, response, error, postId } = options
+        const { userId, type, provider, model, payload, response, error, postId, audioDuration, audioSize, textLength, language, cost } = options
         if (!userId) {
             return
         }
@@ -61,6 +66,11 @@ export abstract class AIBaseService {
                 result,
                 error: error ? (error.message || String(error)) : undefined,
                 postId,
+                audioDuration,
+                audioSize,
+                textLength,
+                language,
+                actualCost: cost,
             })
             return await repo.save(task)
         } catch (e) {

@@ -125,6 +125,36 @@ export class AITask extends BaseEntity {
     })
     actualCost: number
 
+    // 以下为 ASR 相关字段
+    @CustomColumn({
+        type: 'integer',
+        default: 0,
+        comment: '音频时长（秒）',
+    })
+    audioDuration: number
+
+    @CustomColumn({
+        type: 'integer',
+        default: 0,
+        comment: '音频大小（字节）',
+    })
+    audioSize: number
+
+    @CustomColumn({
+        type: 'integer',
+        default: 0,
+        comment: '文本长度',
+    })
+    textLength: number
+
+    @CustomColumn({
+        type: 'varchar',
+        length: 20,
+        nullable: true,
+        comment: '识别语言',
+    })
+    language: string | null
+
     @CustomColumn({
         type: getDateType(),
         nullable: true,

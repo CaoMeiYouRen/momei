@@ -60,21 +60,25 @@
 | `maxSeconds` | `integer` | 最大允许秒数 |
 | `resetAt` | `datetime` | 重置时间 |
 
-### 3.2 ASR 使用记录表 (`ASRUsageLog`)
+### 3.2 ASR 使用记录
 
-记录每次识别请求的详细信息：
+ASR 的使用记录已整合进统一个 AI 任务追踪表 `AITask` 中。当 `type` 为 `transcription` 时记录 ASR 任务：
 
 | 字段 | 类型 | 说明 |
 |:---|:---|:---|
 | `id` | `uuid` | 主键 |
 | `userId` | `uuid` | 用户 ID |
+| `type` | `varchar(50)` | 任务类型 (transcription) |
 | `provider` | `varchar(50)` | 提供者 |
-| `mode` | `varchar(20)` | 模式 (batch, streaming) |
+| `model` | `varchar(100)` | 使用的模型 |
+| `status` | `varchar(20)` | 状态 |
+| `payload` | `text` | 原始参数 (JSON) |
+| `result` | `text` | 识别文本 (JSON) |
 | `audioDuration` | `integer` | 音频时长（秒） |
 | `audioSize` | `integer` | 音频大小（字节） |
 | `textLength` | `integer` | 识别文本长度 |
 | `language` | `varchar(10)` | 识别语言 |
-| `cost` | `decimal` | 预估成本 |
+| `actualCost` | `decimal` | 实际成本 |
 | `createdAt` | `datetime` | 创建时间 |
 
 ## 4. API 设计
@@ -638,17 +642,18 @@ export class ASRQuotaService {
             audioDuration
         )
 
-        // 记录日志
-        await asrUsageLogRepo.save({
+        // 记录任务 (已整合至 AITask)
+        await aiTaskRepo.save({
             userId,
+            category: 'asr',
+            type: 'transcription',
             provider,
-            mode,
+            status: 'completed',
             audioDuration,
             audioSize,
             textLength,
             language,
-            cost: this.estimateCost(provider, audioDuration),
-            createdAt: new Date(),
+            actualCost: this.estimateCost(provider, audioDuration),
         })
     }
 
