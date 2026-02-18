@@ -1,4 +1,4 @@
-import { TTSService } from '@/server/services/tts'
+import { TTSService } from '@/server/services/ai'
 import { success } from '@/server/utils/response'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { getSetting } from '@/server/services/setting'

@@ -1,7 +1,7 @@
 import { createError } from 'h3'
-import type { TTSAudioVoice, TTSOptions, TTSProvider } from '../../types/tts'
+import type { TTSAudioVoice, TTSOptions, AIProvider } from '@/types/ai'
 
-export class OpenAITTSProvider implements TTSProvider {
+export class OpenAITTSProvider implements Partial<AIProvider> {
     name = 'openai'
     availableVoices: TTSAudioVoice[] = [
         { id: 'alloy', name: 'Alloy', language: 'en', gender: 'neutral' },

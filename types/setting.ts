@@ -33,6 +33,7 @@ export enum SettingKey {
     ASR_MODEL = 'asr_model',
     ASR_ENDPOINT = 'asr_endpoint',
     ASR_VOLCENGINE_APP_ID = 'asr_volcengine_app_id',
+    ASR_VOLCENGINE_CLUSTER_ID = 'asr_volcengine_cluster_id',
     ASR_VOLCENGINE_ACCESS_KEY = 'asr_volcengine_access_key',
     ASR_VOLCENGINE_SECRET_KEY = 'asr_volcengine_secret_key',
     ASR_SILICONFLOW_API_KEY = 'asr_siliconflow_api_key', // Keep for compatibility if needed, but we will migrate

@@ -1,7 +1,7 @@
 import { createError } from 'h3'
-import type { TTSAudioVoice, TTSOptions, TTSProvider } from '../../types/tts'
+import type { TTSAudioVoice, TTSOptions, AIProvider } from '@/types/ai'
 
-export class SiliconFlowTTSProvider implements TTSProvider {
+export class SiliconFlowTTSProvider implements Partial<AIProvider> {
     name = 'siliconflow'
 
     // 系统预置音色

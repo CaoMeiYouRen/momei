@@ -38,6 +38,8 @@ export const AI_PROMPTS = {
         + '- If the tone is too formal, make it more relatable.\n'
         + '- Keep the core message but optimize for listening experience.\n'
         + 'Output ONLY the polished broadcast script: \n\n{{content}}',
+    RECOMMEND_TAGS:
+        'Help me recommend 5-10 tags for the following article in {{language}}. Choose tags that are relevant, SEO-friendly, and common in technical blogging. Output ONLY as a JSON array of strings: \n\n{{content}}',
 }
 
 export function formatPrompt(

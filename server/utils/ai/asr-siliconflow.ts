@@ -1,6 +1,6 @@
-import type { ASRProvider, TranscribeOptions, TranscribeResponse } from '~/types/asr'
+import type { AIProvider, TranscribeOptions, TranscribeResponse } from '@/types/ai'
 
-export class SiliconFlowASRProvider implements ASRProvider {
+export class SiliconFlowASRProvider implements Partial<AIProvider> {
     name = 'siliconflow'
     private apiKey: string
     private endpoint: string

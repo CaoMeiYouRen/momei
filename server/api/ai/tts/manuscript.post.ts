@@ -1,6 +1,6 @@
-import { AIService } from '@/server/services/ai'
-import { success } from '@/server/utils/response'
-import { requireAdminOrAuthor } from '@/server/utils/permission'
+import { AIService } from '~/server/services/ai/text'
+import { success } from '~/server/utils/response'
+import { requireAdminOrAuthor } from '~/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
     const session = await requireAdminOrAuthor(event)

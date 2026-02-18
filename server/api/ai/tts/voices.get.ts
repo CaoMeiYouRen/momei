@@ -1,15 +1,11 @@
-import { TTSService } from '@/server/services/tts'
-import { success } from '@/server/utils/response'
-import { requireAdminOrAuthor } from '@/server/utils/permission'
+import { TTSService } from '~/server/services/ai/tts'
+import { success } from '~/server/utils/response'
+import { requireAdminOrAuthor } from '~/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
     await requireAdminOrAuthor(event)
 
-    const query = getQuery(event)
-    const providerName = query.provider as string | undefined
-
-    const provider = await TTSService.getProvider(providerName)
-    const voices = await provider.getVoices()
+    const voices = await TTSService.getVoices()
 
     return success(voices)
 })

@@ -49,7 +49,7 @@ describe('AI Infrastructure', () => {
         })
 
         const provider = await getAIProvider()
-        const response = await provider.chat({
+        const response = await provider.chat!({
             messages: [{ role: 'user', content: 'Hi' }],
         })
 
@@ -69,7 +69,7 @@ describe('AI Infrastructure', () => {
     it('should verify connection with check()', async () => {
         mockFetch.mockResolvedValueOnce({})
         const provider = await getAIProvider()
-        const result = await provider.check()
+        const result = await provider.check!()
         expect(result).toBe(true)
         expect(mockFetch).toHaveBeenCalledWith(
             expect.stringContaining('/chat/completions'),
@@ -93,7 +93,7 @@ describe('AI Infrastructure', () => {
             model: 'deepseek-chat',
             endpoint: 'https://api.deepseek.com',
         })
-        await provider.chat({ messages: [] })
+        await provider.chat!({ messages: [] })
 
         expect(mockFetch).toHaveBeenCalledWith(
             'https://api.deepseek.com/chat/completions',
@@ -113,7 +113,7 @@ describe('AI Infrastructure', () => {
             apiKey: 'claude-key',
             model: 'claude-3-5-sonnet',
         })
-        const response = await provider.chat({
+        const response = await provider.chat!({
             messages: [
                 { role: 'system', content: 'You are an assistant' },
                 { role: 'user', content: 'Hi' },

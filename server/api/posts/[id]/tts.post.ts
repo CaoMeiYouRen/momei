@@ -2,8 +2,7 @@ import { defineEventHandler, createError, readBody } from 'h3'
 import { dataSource } from '../../../database'
 import { Post } from '../../../entities/post'
 import { AITask } from '../../../entities/ai-task'
-import { TTSService } from '../../../services/tts'
-import { processTTSTask } from '../../../services/tts/processor'
+import { TTSService } from '@/server/services/ai'
 import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
@@ -35,21 +34,20 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'Voice is required' })
     }
 
-    const ttsProvider = await TTSService.getProvider(provider)
     const textToEstimate = script || post.content
-    const estimatedCost = await ttsProvider.estimateCost(textToEstimate, voice)
+    const estimatedCost = await TTSService.estimateCost(textToEstimate, voice)
 
     const taskRepo = dataSource.getRepository(AITask)
     const task = taskRepo.create({
         type: mode === 'podcast' ? 'podcast' : 'tts',
         postId,
         userId: user.id,
-        provider: provider || ttsProvider.name,
+        provider,
         mode,
         voice,
-        model: model || (ttsProvider as any).defaultModel,
+        model,
         script: script || null,
-        payload: JSON.stringify({ script: script || null }),
+        payload: JSON.stringify({ postId, script: script || null, voice, mode }),
         status: 'pending',
         progress: 0,
         estimatedCost,
@@ -60,8 +58,7 @@ export default defineEventHandler(async (event) => {
     // 异步处理任务
     // 在生产环境中，这应该通过消息队列（如 Redis/BullMQ）处理
     // 在目前单机架构下，直接通过异步 Promise 触发执行
-    processTTSTask(task.id).catch((err) => {
-
+    TTSService.processTask(task.id).catch((err) => {
         console.error('TTS Background Task Error:', err)
     })
 

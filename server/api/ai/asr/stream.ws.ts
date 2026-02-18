@@ -2,7 +2,6 @@ import { defineWebSocketHandler } from 'h3'
 import WebSocket from 'ws'
 import { getSettings } from '~/server/services/setting'
 import { SettingKey } from '~/types/setting'
-import { requireAdmin } from '~/server/utils/permission'
 
 /**
  * 火山引擎 ASR V3 协议帧构建
