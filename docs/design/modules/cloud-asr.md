@@ -86,7 +86,7 @@ ASR 的使用记录已整合进统一个 AI 任务追踪表 `AITask` 中。当 `
 ### 4.1 Batch 模式接口
 
 ```typescript
-// POST /api/ai/voice/transcribe
+// POST /api/ai/asr/transcribe
 interface TranscribeRequest {
     audioFile: File | Blob
     language?: string  // 自动检测或指定
@@ -110,7 +110,7 @@ interface TranscribeResponse {
 ### 4.2 Streaming 模式接口
 
 ```typescript
-// WS /api/ai/voice/stream
+// WS /api/ai/asr/stream
 // WebSocket 连接
 
 // 客户端 -> 服务器
@@ -291,7 +291,7 @@ async function transcribe() {
         formData.append('audioFile', audioBlob.value, 'recording.webm')
         formData.append('language', currentLocale.value)
 
-        const result = await $fetch<TranscribeResponse>('/api/ai/voice/transcribe', {
+        const result = await $fetch<TranscribeResponse>('/api/ai/asr/transcribe', {
             method: 'POST',
             body: formData,
         })
@@ -406,7 +406,7 @@ async function toggleConnection() {
 }
 
 async function connect() {
-    ws = new WebSocket('/api/ai/voice/stream')
+    ws = new WebSocket('/api/ai/asr/stream')
 
     ws.onopen = () => {
         isConnected.value = true

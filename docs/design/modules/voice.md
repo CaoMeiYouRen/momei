@@ -30,8 +30,8 @@
 ### 2.3 后端代理与鉴权 (Cloud Proxy)
 
 为了保护 API Key 并不绕过 CORS 限制，所有云端请求由 Nitro 服务器转发：
-- `POST /api/ai/voice/transcribe`: 接收音频 Blob，在内存中直接转发至 AI 厂商（Fast-Path），避免 OSS 转存导致的延时。
-- `WS /api/ai/voice/stream`: WebSocket 隧道代理或签名发放，转发至火山引擎。
+- `POST /api/ai/asr/transcribe`: 接收音频 Blob，在内存中直接转发至 AI 厂商（Fast-Path），避免 OSS 转存导致的延时。
+- `WS /api/ai/asr/stream`: WebSocket 隧道代理或签名发放，转发至火山引擎。
 
 ### 2.4 性能与规模优化 (未来规划)
 

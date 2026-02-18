@@ -33,7 +33,7 @@ export function usePostEditorVoice() {
         }
 
         // 异步检查配置
-        void $fetch<any>('/api/ai/voice/config').then((res) => {
+        void $fetch<any>('/api/ai/asr/config').then((res) => {
             cloudConfig.value = res
             // 如果云端 ASR 被禁用，或者当前选择的是没配置的云端模式，自动切回 web-speech
             if (!res.enabled) {
@@ -139,7 +139,7 @@ export function usePostEditorVoice() {
             if (mode.value === 'cloud-stream') {
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
                 const host = window.location.host
-                ws = new WebSocket(`${protocol}//${host}/api/ai/voice/stream`)
+                ws = new WebSocket(`${protocol}//${host}/api/ai/asr/stream`)
 
                 ws.onopen = () => {
                     ws?.send(JSON.stringify({ type: 'start' }))
@@ -214,7 +214,7 @@ export function usePostEditorVoice() {
             formData.append('audioFile', blob, 'recording.webm')
             formData.append('language', currentLang)
 
-            const result = await $fetch<any>('/api/ai/voice/transcribe', {
+            const result = await $fetch<any>('/api/ai/asr/transcribe', {
                 method: 'POST',
                 body: formData,
             })
