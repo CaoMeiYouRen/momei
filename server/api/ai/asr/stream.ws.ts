@@ -1,7 +1,8 @@
 import { defineWebSocketHandler } from 'h3'
-import WebSocket from 'ws'
 import { getSettings } from '~/server/services/setting'
 import { SettingKey } from '~/types/setting'
+import { requireAdminOrAuthor } from '~/server/utils/permission'
+import logger from '~/server/utils/logger'
 
 /**
  * 火山引擎 ASR V3 协议帧构建
@@ -10,13 +11,6 @@ import { SettingKey } from '~/types/setting'
 function buildVolcengineFrame(type: number, sequence: number, payload: Buffer | string) {
     const payloadBuffer = typeof payload === 'string' ? Buffer.from(payload) : payload
     const header = Buffer.alloc(8)
-
-    // Header Format:
-    // byte 0: protocol version (1)
-    // byte 1: message type (1: JSON, 2: Audio, 15: Error)
-    // byte 2: sequence number (non-zero)
-    // byte 3: reserved
-    // byte 4-7: payload length (big-endian)
 
     header.writeUInt8(0x01, 0)
     header.writeUInt8(type, 1)
@@ -35,9 +29,9 @@ export default defineWebSocketHandler({
                 throw new Error('H3Event not found on peer')
             }
             await requireAdminOrAuthor(event)
-            console.info('[ASR-WS] Peer connected:', peer.id)
+            logger.info(`[ASR-WS] Peer connected: ${peer.id}`)
         } catch (e) {
-            console.error('[ASR-WS] Unauthorized WS connection attempt:', peer.id, e)
+            logger.error(`[ASR-WS] Unauthorized WS connection attempt: ${peer.id}`, e)
             peer.close(4001, 'Unauthorized')
         }
     },
@@ -63,7 +57,7 @@ export default defineWebSocketHandler({
 
                 const frame = buildVolcengineFrame(2, sequenceNum, audioBuffer)
                 const vClient = (peer as any).volcClient as WebSocket
-                if (vClient.readyState === WebSocket.OPEN) {
+                if (vClient.readyState === 1) { // 1 = OPEN
                     vClient.send(frame)
                 }
             }
@@ -72,13 +66,13 @@ export default defineWebSocketHandler({
                 const sequenceNum = ((peer as any).audioSeq || 1) + 1
                 const frame = buildVolcengineFrame(2, -sequenceNum, Buffer.alloc(0)) // 负值表示结束
                 const vClient = (peer as any).volcClient as WebSocket
-                if (vClient.readyState === WebSocket.OPEN) {
+                if (vClient.readyState === 1) { // 1 = OPEN
                     vClient.send(frame)
                 }
             }
         } catch (err) {
             // Ignore non-json or malformed messages
-            console.warn('[ASR-WS] Message processing error:', err)
+            logger.warn(`[ASR-WS] Message processing error:`, err)
         }
     },
 
@@ -86,8 +80,8 @@ export default defineWebSocketHandler({
         if ((peer as any).volcClient) {
             (peer as any).volcClient.close()
         }
-        await Promise.resolve() // satisfy require-await
-        console.info('[ASR-WS] Peer disconnected:', peer.id)
+        await Promise.resolve()
+        logger.info(`[ASR-WS] Peer disconnected: ${peer.id}`)
     },
 })
 
@@ -99,8 +93,7 @@ async function startVolcengineSession(peer: any) {
     ])
 
     const appId = settings[SettingKey.ASR_VOLCENGINE_APP_ID]
-    // const accessKey = settings[SettingKey.ASR_VOLCENGINE_ACCESS_KEY]
-    // const secretKey = settings[SettingKey.ASR_VOLCENGINE_SECRET_KEY]
+    const token = settings[SettingKey.ASR_VOLCENGINE_ACCESS_KEY]
 
     if (!appId) {
         peer.send(JSON.stringify({ type: 'error', message: 'ASR configuration missing' }))
@@ -110,28 +103,33 @@ async function startVolcengineSession(peer: any) {
     const url = 'wss://openspeech.bytedance.com/api/v3/asr'
 
     try {
-        const vClient = new WebSocket(url, {
+        // 使用原生 WebSocket (globalThis.WebSocket)
+        // 注意：Node.js 原生 WebSocket 支持 headers 选项 (经由 undici)
+        const vClient = new (globalThis.WebSocket as any)(url, {
             headers: {
-                Authorization: 'Bearer placeholder', // Placeholder for V3 signature
+                'X-Api-App-Key': appId,
+                'X-Api-Access-Key': token || 'bearer_token',
             },
         })
 
+        vClient.binaryType = 'arraybuffer'
         peer.volcClient = vClient
         peer.audioSeq = 1
 
-        vClient.on('open', () => {
+        vClient.onopen = () => {
             // 发送初始化帧 (JSON)
             const config = {
-                app: { appid: appId, cluster: 'volcengine_streaming_common', token: 'bearer_token' },
+                app: { appid: appId, cluster: 'volcengine_streaming_common', token: token || 'bearer_token' },
                 user: { uid: 'momei_user' },
                 audio: { format: 'wav', codec: 'pcm', rate: 16000, bits: 16, channel: 1 },
                 request: { reqid: peer.id, workflow: 'audio_asr', show_utterance: true },
             }
             vClient.send(buildVolcengineFrame(1, 1, JSON.stringify(config)))
             peer.send(JSON.stringify({ type: 'started' }))
-        })
+        }
 
-        vClient.on('message', (data: Buffer) => {
+        vClient.onmessage = (event: MessageEvent) => {
+            const data = Buffer.from(event.data as ArrayBuffer)
             if (data.length < 8) {
                 return
             }
@@ -147,18 +145,23 @@ async function startVolcengineSession(peer: any) {
                         isFinal: res.is_final,
                     }))
                 } catch (parseError) {
-                    console.error('[ASR-WS] JSON Parse Error:', parseError)
+                    logger.error(`[ASR-WS] JSON Parse Error:`, parseError)
                 }
             } else if (typeHeader === 15) { // Error
                 peer.send(JSON.stringify({ type: 'error', message: payload }))
             }
-        })
+        }
 
-        vClient.on('error', (err) => {
-            peer.send(JSON.stringify({ type: 'error', message: err.message }))
-        })
+        vClient.onerror = (err: any) => {
+            peer.send(JSON.stringify({ type: 'error', message: err.message || 'Unknown WebSocket Error' }))
+        }
+
+        vClient.onclose = () => {
+            logger.debug('[ASR-WS] Volcengine connection closed')
+        }
 
     } catch (error: any) {
         peer.send(JSON.stringify({ type: 'error', message: error.message }))
     }
 }
+

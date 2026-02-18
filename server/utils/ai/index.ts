@@ -5,6 +5,7 @@ import { SiliconFlowASRProvider } from './asr-siliconflow'
 import { VolcengineASRProvider } from './asr-volcengine'
 import { OpenAITTSProvider } from './tts-openai'
 import { SiliconFlowTTSProvider } from './tts-siliconflow'
+import { VolcengineTTSProvider } from './tts-volcengine'
 import type { AIConfig, AIProvider, AICategory } from '@/types/ai'
 import {
     AI_MAX_TOKENS,
@@ -40,6 +41,8 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
         SettingKey.AI_MODEL,
         SettingKey.AI_ENDPOINT,
         SettingKey.ASR_VOLCENGINE_APP_ID,
+        SettingKey.VOLCENGINE_APP_ID,
+        SettingKey.VOLCENGINE_ACCESS_KEY,
         enabledKey,
         providerKey,
         apiKeyKey,
@@ -107,6 +110,13 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
             return new SiliconFlowTTSProvider({
                 apiKey: finalConfig.apiKey,
                 endpoint: finalConfig.endpoint,
+                defaultModel: finalConfig.model,
+            }) as any
+        }
+        if (finalConfig.provider === 'volcengine') {
+            return new VolcengineTTSProvider({
+                appId: dbSettings[SettingKey.VOLCENGINE_APP_ID] || dbSettings[SettingKey.ASR_VOLCENGINE_APP_ID] || process.env.VOLCENGINE_APP_ID || '',
+                accessKey: finalConfig.apiKey || dbSettings[SettingKey.VOLCENGINE_ACCESS_KEY] || process.env.VOLCENGINE_ACCESS_KEY || '',
                 defaultModel: finalConfig.model,
             }) as any
         }

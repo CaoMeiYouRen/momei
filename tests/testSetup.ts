@@ -6,14 +6,6 @@ import { vi } from 'vitest'
 // process.env.BETTER_AUTH_TRUSTED_ORIGINS = 'http://localhost:3000';
 // process.env.DATABASE_URL = 'postgres://user:password@localhost:5432/test_db';
 
-// 模拟WebSocket服务器以避免端口冲突
-vi.mock('ws', () => ({
-    Server: vi.fn().mockImplementation(() => ({
-        on: vi.fn(),
-        close: vi.fn(),
-    })),
-}))
-
 // 强制测试环境使用内存数据库
 vi.stubEnv('DATABASE_TYPE', 'sqlite')
 vi.stubEnv('DATABASE_PATH', ':memory:')

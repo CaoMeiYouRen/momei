@@ -52,6 +52,51 @@ export class TTSService extends AIBaseService {
         }
     }
 
+    /**
+     * 合并生成与上传
+     */
+    static async generateAndUploadSpeech(text: string, voice: string = 'default', options: TTSOptions = {}, userId?: string, prefix: string = 'tts/') {
+        const stream = await this.generateSpeech(text, voice, options, userId)
+
+        // 复制流以便同时用于返回和上传
+        const [userStream, ossStream] = stream.tee()
+
+        // 后台异步上传
+        this.uploadStreamToOSS(ossStream, userId, prefix, options.outputFormat || 'mp3').catch((err) => {
+            logger.error('[TTSService] Background TTS upload failed:', err)
+        })
+
+        return userStream
+    }
+
+    /**
+     * 将流上传至存储
+     */
+    private static async uploadStreamToOSS(stream: ReadableStream<Uint8Array>, userId: string | undefined, prefix: string, format: string) {
+        const reader = stream.getReader()
+        const chunks: Uint8Array[] = []
+        try {
+            while (true) {
+                const { done, value } = await reader.read()
+                if (done) { break }
+                chunks.push(value)
+            }
+            const buffer = Buffer.concat(chunks)
+            const filename = `tts_${Date.now()}.${format}`
+            const mimetype = format === 'mp3' ? 'audio/mpeg' : `audio/${format}`
+
+            return await uploadFromBuffer(
+                buffer,
+                prefix,
+                filename,
+                mimetype,
+                userId,
+            )
+        } finally {
+            reader.releaseLock()
+        }
+    }
+
     static async getVoices(): Promise<TTSAudioVoice[]> {
         const provider = await getAIProvider('tts')
         if (!provider.getVoices) {

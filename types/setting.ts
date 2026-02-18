@@ -39,6 +39,11 @@ export enum SettingKey {
     ASR_SILICONFLOW_API_KEY = 'asr_siliconflow_api_key', // Keep for compatibility if needed, but we will migrate
     ASR_SILICONFLOW_MODEL = 'asr_siliconflow_model',
 
+    // Volcengine Global (Optional shared config)
+    VOLCENGINE_APP_ID = 'volcengine_app_id',
+    VOLCENGINE_ACCESS_KEY = 'volcengine_access_key',
+    VOLCENGINE_SECRET_KEY = 'volcengine_secret_key',
+
     // AI TTS (Text to Speech)
     TTS_PROVIDER = 'tts_provider',
     TTS_ENABLED = 'tts_enabled',
