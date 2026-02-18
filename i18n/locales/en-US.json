@@ -598,6 +598,9 @@
                     "format_markdown": "Normalize Markdown Format",
                     "voice_input": "AI Voice Creation",
                     "voice_listening": "Listening...",
+                    "voice_model_loading": "Loading voice model...",
+                    "voice_load_confirm_title": "Load Local Recognition Model",
+                    "voice_load_confirm_btn": "Load Now",
                     "voice_start_record": "Start Recording",
                     "voice_stop": "Stop Recording",
                     "voice_insert": "Insert Directly",
@@ -611,6 +614,7 @@
                     "voice_mode_basic": "Basic (Web)",
                     "voice_mode_cloud_batch": "Precision (Cloud Batch)",
                     "voice_mode_cloud_stream": "Instant (Cloud Stream)",
+                    "voice_model_ready": "AI model is ready",
                     "generate_cover": "AI Generate Cover Image",
                     "cover_generator": {
                         "title": "AI Image Generator",

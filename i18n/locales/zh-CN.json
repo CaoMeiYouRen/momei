@@ -597,6 +597,9 @@
                     "format_markdown": "规范化 Markdown 格式",
                     "voice_input": "AI 语音创作",
                     "voice_listening": "正在倾听...",
+                    "voice_model_loading": "正在加载声音模型...",
+                    "voice_load_confirm_title": "加载本地识别模型",
+                    "voice_load_confirm_btn": "立即加载",
                     "voice_start_record": "开始录音",
                     "voice_stop": "停止录音",
                     "voice_insert": "直接插入",
@@ -610,6 +613,7 @@
                     "voice_mode_basic": "基础 (Web)",
                     "voice_mode_cloud_batch": "精进 (Cloud Batch)",
                     "voice_mode_cloud_stream": "极速 (Cloud Stream)",
+                    "voice_model_ready": "AI 模型已就绪",
                     "generate_cover": "AI 生成封面图",
                     "cover_generator": {
                         "title": "AI 封面生成器",
