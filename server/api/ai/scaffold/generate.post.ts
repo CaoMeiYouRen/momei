@@ -3,7 +3,7 @@ import { In } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Snippet } from '@/server/entities/snippet'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
-import { AIService } from '@/server/services/ai'
+import { TextService } from '@/server/services/ai'
 
 const generateSchema = z.object({
     topic: z.string().optional(),
@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
         contents = snippets.map((s) => s.content)
     }
 
-    const scaffold = await AIService.generateScaffold({
+    const scaffold = await TextService.generateScaffold({
         topic,
         snippets: contents,
         template,

@@ -1,4 +1,4 @@
-import { AIService } from '@/server/services/ai'
+import { TextService } from '@/server/services/ai'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     }
 
     try {
-        const task = await AIService.getTaskStatus(taskId, session.user.id)
+        const task = await TextService.getTaskStatus(taskId, session.user.id)
         return {
             code: 200,
             data: task,

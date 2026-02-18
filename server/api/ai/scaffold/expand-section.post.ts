@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
-import { AIService } from '@/server/services/ai'
+import { TextService } from '@/server/services/ai'
 
 const expandSchema = z.object({
     topic: z.string(),
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const options = expandSchema.parse(body)
 
-    const expansion = await AIService.expandSection(options, session.user.id)
+    const expansion = await TextService.expandSection(options, session.user.id)
 
     return {
         code: 200,

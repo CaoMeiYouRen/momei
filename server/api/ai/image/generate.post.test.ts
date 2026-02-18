@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import handler from './generate.post'
-import { AIService } from '@/server/services/ai'
+import { ImageService } from '@/server/services/ai'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 
 vi.mock('@/server/services/ai')
@@ -21,7 +21,7 @@ describe('POST /api/ai/image/generate', () => {
             userId: 'user-1',
         }
 
-        vi.mocked(AIService.generateImage).mockResolvedValue(mockTask as any)
+        vi.mocked(ImageService.generateImage).mockResolvedValue(mockTask as any)
 
         const mockEvent = {
             context: {
@@ -53,7 +53,7 @@ describe('POST /api/ai/image/generate', () => {
                 status: 'processing',
             },
         })
-        expect(AIService.generateImage).toHaveBeenCalledWith(mockBody, 'user-1')
+        expect(ImageService.generateImage).toHaveBeenCalledWith(mockBody, 'user-1')
     })
 
     it('should reject invalid prompt (empty string)', async () => {
@@ -121,7 +121,7 @@ describe('POST /api/ai/image/generate', () => {
             user: { id: 'user-1', role: 'author' } as any,
             session: {} as any,
         } as any)
-        vi.mocked(AIService.generateImage).mockRejectedValue(new Error('AI provider unavailable'))
+        vi.mocked(ImageService.generateImage).mockRejectedValue(new Error('AI provider unavailable'))
 
         await expect(handler(mockEvent)).rejects.toThrow('AI provider unavailable')
     })

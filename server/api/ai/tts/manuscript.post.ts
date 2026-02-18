@@ -1,4 +1,4 @@
-import { AIService } from '~/server/services/ai/text'
+import { TextService } from '~/server/services/ai/text'
 import { success } from '~/server/utils/response'
 import { requireAdminOrAuthor } from '~/server/utils/permission'
 
@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, message: 'Content is required' })
     }
 
-    const manuscript = await AIService.optimizeManuscript(
+    const manuscript = await TextService.optimizeManuscript(
         content,
         language,
         session.user.id,

@@ -5,6 +5,28 @@ import type { AICategory } from '@/types/ai'
 
 export abstract class AIBaseService {
     /**
+     * 获取任务状态
+     */
+    static async getTaskStatus(taskId: string, userId: string) {
+        const repo = dataSource.getRepository(AITask)
+        const task = await repo.findOneBy({ id: taskId, userId })
+
+        if (!task) {
+            throw createError({
+                statusCode: 404,
+                message: 'Task not found',
+            })
+        }
+
+        return {
+            id: task.id,
+            status: task.status,
+            result: task.result ? JSON.parse(task.result) : null,
+            error: task.error,
+        }
+    }
+
+    /**
      * 记录 AI 任务到数据库
      */
     protected static async recordTask(options: {

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { AIService } from '@/server/services/ai'
+import { TextService } from '@/server/services/ai'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { aiTranslateSchema } from '@/utils/schemas/ai'
 
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     const response = event.node.res
 
     try {
-        const stream = AIService.translateStream(
+        const stream = TextService.translateStream(
             content,
             targetLanguage,
             session.user.id,

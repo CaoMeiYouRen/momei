@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { AIService } from '@/server/services/ai'
+import { TextService } from '@/server/services/ai'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 
 const translateNameSchema = z.object({
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     const { name, targetLanguage } = result.data
 
     try {
-        const translatedName = await AIService.translateName(
+        const translatedName = await TextService.translateName(
             name,
             targetLanguage,
             session.user.id,
