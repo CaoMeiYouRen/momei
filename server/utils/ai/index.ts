@@ -44,6 +44,7 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
         SettingKey.ASR_VOLCENGINE_CLUSTER_ID,
         SettingKey.VOLCENGINE_APP_ID,
         SettingKey.VOLCENGINE_ACCESS_KEY,
+        SettingKey.VOLCENGINE_SECRET_KEY,
         enabledKey,
         providerKey,
         apiKeyKey,
@@ -91,8 +92,8 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
         }
         if (finalConfig.provider === 'volcengine') {
             return new VolcengineASRProvider({
-                appId: dbSettings[SettingKey.ASR_VOLCENGINE_APP_ID] || '',
-                token: finalConfig.apiKey,
+                appId: dbSettings[SettingKey.ASR_VOLCENGINE_APP_ID] || dbSettings[SettingKey.VOLCENGINE_APP_ID] || '',
+                token: finalConfig.apiKey || dbSettings[SettingKey.ASR_VOLCENGINE_ACCESS_KEY] || dbSettings[SettingKey.VOLCENGINE_ACCESS_KEY] || '',
                 cluster: dbSettings[SettingKey.ASR_VOLCENGINE_CLUSTER_ID] || '',
             }) as any
         }
@@ -117,7 +118,7 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
         if (finalConfig.provider === 'volcengine') {
             return new VolcengineTTSProvider({
                 appId: dbSettings[SettingKey.VOLCENGINE_APP_ID] || dbSettings[SettingKey.ASR_VOLCENGINE_APP_ID] || process.env.VOLCENGINE_APP_ID || '',
-                accessKey: finalConfig.apiKey || dbSettings[SettingKey.VOLCENGINE_ACCESS_KEY] || process.env.VOLCENGINE_ACCESS_KEY || '',
+                accessKey: dbSettings[SettingKey.VOLCENGINE_ACCESS_KEY] || process.env.VOLCENGINE_ACCESS_KEY || '',
                 defaultModel: finalConfig.model,
             }) as any
         }

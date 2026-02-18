@@ -67,7 +67,7 @@
             />
         </div>
 
-        <Divider />
+        <Divider class="my-8" />
 
         <div class="form-field-sticky mb-6">
             <div class="flex items-center justify-between">
@@ -152,7 +152,7 @@
             </div>
         </div>
 
-        <Divider />
+        <Divider class="my-8" />
 
         <div class="form-field-sticky mb-6">
             <div class="flex items-center justify-between">
@@ -190,6 +190,7 @@
             </div>
 
             <div v-if="settings.asr_provider === 'siliconflow'" class="asr-provider-settings">
+                <Divider class="my-8" />
                 <div class="form-field">
                     <label for="asr_api_key" class="flex gap-2 items-center">
                         {{ $t('pages.admin.settings.system.keys.asr_api_key') }}
@@ -243,6 +244,7 @@
             </div>
 
             <div v-if="settings.asr_provider === 'volcengine'" class="asr-provider-settings">
+                <Divider class="my-8" />
                 <div class="form-field">
                     <label for="asr_volcengine_app_id" class="flex gap-2 items-center">
                         {{ $t('pages.admin.settings.system.keys.asr_volcengine_app_id') }}
@@ -311,7 +313,7 @@
             </div>
         </div>
 
-        <Divider />
+        <Divider class="my-8" />
 
         <div class="form-field-sticky mb-6">
             <div class="flex items-center justify-between">
@@ -347,104 +349,126 @@
                     fluid
                 />
             </div>
-            <div class="form-field">
-                <label for="tts_api_key" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.tts_api_key') }}
-                    <i
-                        v-if="metadata.tts_api_key?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
+
+            <div v-if="settings.tts_provider !== 'volcengine'" class="tts-standard-settings">
+                <!-- <Divider class="my-8" /> -->
+                <div class="form-field">
+                    <label for="tts_api_key" class="flex gap-2 items-center">
+                        {{ $t('pages.admin.settings.system.keys.tts_api_key') }}
+                        <i
+                            v-if="metadata.tts_api_key?.isLocked"
+                            v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                            class="pi pi-lock text-orange-500 text-xs"
+                        />
+                    </label>
+                    <Password
+                        id="tts_api_key"
+                        v-model="settings.tts_api_key"
+                        :disabled="metadata.tts_api_key?.isLocked"
+                        :toggle-mask="true"
+                        fluid
                     />
-                </label>
-                <Password
-                    id="tts_api_key"
-                    v-model="settings.tts_api_key"
-                    :disabled="metadata.tts_api_key?.isLocked"
-                    :toggle-mask="true"
-                    fluid
-                />
+                </div>
+                <div class="form-field">
+                    <label for="tts_model" class="flex gap-2 items-center">
+                        {{ $t('pages.admin.settings.system.keys.tts_model') }}
+                        <i
+                            v-if="metadata.tts_model?.isLocked"
+                            v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                            class="pi pi-lock text-orange-500 text-xs"
+                        />
+                    </label>
+                    <InputText
+                        id="tts_model"
+                        v-model="settings.tts_model"
+                        :disabled="metadata.tts_model?.isLocked"
+                        fluid
+                    />
+                </div>
+                <div class="form-field">
+                    <label for="tts_endpoint" class="flex gap-2 items-center">
+                        {{ $t('pages.admin.settings.system.keys.tts_endpoint') }}
+                        <i
+                            v-if="metadata.tts_endpoint?.isLocked"
+                            v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                            class="pi pi-lock text-orange-500 text-xs"
+                        />
+                    </label>
+                    <InputText
+                        id="tts_endpoint"
+                        v-model="settings.tts_endpoint"
+                        :disabled="metadata.tts_endpoint?.isLocked"
+                        fluid
+                    />
+                </div>
             </div>
-            <div class="form-field">
-                <label for="tts_model" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.tts_model') }}
-                    <i
-                        v-if="metadata.tts_model?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
+
+            <div v-if="settings.tts_provider === 'volcengine'" class="tts-volcengine-settings">
+                <!-- <Divider class="my-8" /> -->
+                <div class="form-field">
+                    <label for="tts_model" class="flex gap-2 items-center">
+                        {{ $t('pages.admin.settings.system.keys.tts_model') }}
+                        <i
+                            v-if="metadata.tts_model?.isLocked"
+                            v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                            class="pi pi-lock text-orange-500 text-xs"
+                        />
+                    </label>
+                    <InputText
+                        id="tts_model"
+                        v-model="settings.tts_model"
+                        :disabled="metadata.tts_model?.isLocked"
+                        fluid
                     />
-                </label>
-                <InputText
-                    id="tts_model"
-                    v-model="settings.tts_model"
-                    :disabled="metadata.tts_model?.isLocked"
-                    fluid
-                />
-            </div>
-            <div class="form-field">
-                <label for="tts_endpoint" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.tts_endpoint') }}
-                    <i
-                        v-if="metadata.tts_endpoint?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
+                </div>
+                <div class="form-field">
+                    <label for="volcengine_app_id" class="flex gap-2 items-center">
+                        {{ $t('pages.admin.settings.system.keys.volcengine_app_id') }}
+                        <i
+                            v-if="metadata.volcengine_app_id?.isLocked"
+                            v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                            class="pi pi-lock text-orange-500 text-xs"
+                        />
+                    </label>
+                    <InputText
+                        id="volcengine_app_id"
+                        v-model="settings.volcengine_app_id"
+                        :disabled="metadata.volcengine_app_id?.isLocked"
+                        fluid
                     />
-                </label>
-                <InputText
-                    id="tts_endpoint"
-                    v-model="settings.tts_endpoint"
-                    :disabled="metadata.tts_endpoint?.isLocked"
-                    fluid
-                />
-                <div v-if="settings.tts_provider === 'volcengine'" class="mt-4 tts-provider-settings">
-                    <div class="form-field">
-                        <label for="volcengine_app_id" class="flex gap-2 items-center">
-                            {{ $t('pages.admin.settings.system.keys.volcengine_app_id') }}
-                            <i
-                                v-if="metadata.volcengine_app_id?.isLocked"
-                                v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                                class="pi pi-lock text-orange-500 text-xs"
-                            />
-                        </label>
-                        <InputText
-                            id="volcengine_app_id"
-                            v-model="settings.volcengine_app_id"
-                            :disabled="metadata.volcengine_app_id?.isLocked"
-                            fluid
+                </div>
+                <div class="form-field">
+                    <label for="volcengine_access_key" class="flex gap-2 items-center">
+                        {{ $t('pages.admin.settings.system.keys.volcengine_access_key') }}
+                        <i
+                            v-if="metadata.volcengine_access_key?.isLocked"
+                            v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                            class="pi pi-lock text-orange-500 text-xs"
                         />
-                    </div>
-                    <div class="form-field">
-                        <label for="volcengine_access_key" class="flex gap-2 items-center">
-                            {{ $t('pages.admin.settings.system.keys.volcengine_access_key') }}
-                            <i
-                                v-if="metadata.volcengine_access_key?.isLocked"
-                                v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                                class="pi pi-lock text-orange-500 text-xs"
-                            />
-                        </label>
-                        <InputText
-                            id="volcengine_access_key"
-                            v-model="settings.volcengine_access_key"
-                            :disabled="metadata.volcengine_access_key?.isLocked"
-                            fluid
+                    </label>
+                    <InputText
+                        id="volcengine_access_key"
+                        v-model="settings.volcengine_access_key"
+                        :disabled="metadata.volcengine_access_key?.isLocked"
+                        fluid
+                    />
+                </div>
+                <div class="form-field">
+                    <label for="volcengine_secret_key" class="flex gap-2 items-center">
+                        {{ $t('pages.admin.settings.system.keys.volcengine_secret_key') }}
+                        <i
+                            v-if="metadata.volcengine_secret_key?.isLocked"
+                            v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                            class="pi pi-lock text-orange-500 text-xs"
                         />
-                    </div>
-                    <div class="form-field">
-                        <label for="volcengine_secret_key" class="flex gap-2 items-center">
-                            {{ $t('pages.admin.settings.system.keys.volcengine_secret_key') }}
-                            <i
-                                v-if="metadata.volcengine_secret_key?.isLocked"
-                                v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                                class="pi pi-lock text-orange-500 text-xs"
-                            />
-                        </label>
-                        <Password
-                            id="volcengine_secret_key"
-                            v-model="settings.volcengine_secret_key"
-                            :disabled="metadata.volcengine_secret_key?.isLocked"
-                            :toggle-mask="true"
-                            fluid
-                        />
-                    </div>
+                    </label>
+                    <Password
+                        id="volcengine_secret_key"
+                        v-model="settings.volcengine_secret_key"
+                        :disabled="metadata.volcengine_secret_key?.isLocked"
+                        :toggle-mask="true"
+                        fluid
+                    />
                 </div>
             </div>
         </div>

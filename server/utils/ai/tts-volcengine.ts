@@ -14,47 +14,92 @@ export interface VolcengineTTSConfig {
  * 构造火山引擎 V3 协议帧 (TTS)
  * 协议参考：https://www.volcengine.com/docs/6561/130101
  */
-function buildVolcFrame(messageType: number, flags: number, event: number, payload: Buffer | string | object) {
-    let payloadBuffer: Buffer
-    if (typeof payload === 'string') {
-        payloadBuffer = Buffer.from(payload)
-    } else if (payload instanceof Buffer) {
-        payloadBuffer = payload
-    } else {
-        payloadBuffer = Buffer.from(JSON.stringify(payload))
-    }
-
-    const header = Buffer.alloc(12)
+function buildVolcFrame(type: number, flags: number, event: number, payload: any, sessionId?: string) {
+    const buffers: Buffer[] = []
 
     // Header (4B)
-    header.writeUInt8(0x11, 0) // v1, head_size 4
-    header.writeUInt8((messageType << 4) | flags, 1) // message type (left 4) | flags (right 4)
-    header.writeUInt8(0x10, 2) // serialization JSON (1), compression None (0)
-    header.writeUInt8(0x00, 3) // reserved
+    const header = Buffer.alloc(4)
+    header[0] = 0x11 // v1, head_size 4
+    header[1] = (type << 4) | flags
+    header[2] = 0x10 // serialization JSON
+    header[3] = 0x00
+    buffers.push(header)
 
-    // Event (4B)
-    header.writeUInt32BE(event, 4)
+    if (flags & 0x04) {
+        // WithEvent
+        const eventBuf = Buffer.alloc(4)
+        eventBuf.writeUInt32BE(event, 0)
+        buffers.push(eventBuf)
 
-    // Payload Size (4B)
-    header.writeUInt32BE(payloadBuffer.length, 8)
+        const sid = sessionId || ''
+        const sidBuf = Buffer.from(sid, 'utf8')
+        const sidLen = Buffer.alloc(4)
+        sidLen.writeUInt32BE(sidBuf.length, 0)
+        buffers.push(sidLen, sidBuf)
+    }
 
-    return Buffer.concat([header, payloadBuffer])
+    let payloadBuf: Buffer
+    if (Buffer.isBuffer(payload)) {
+        payloadBuf = payload
+    } else if (typeof payload === 'string') {
+        payloadBuf = Buffer.from(payload, 'utf8')
+    } else {
+        payloadBuf = Buffer.from(JSON.stringify(payload), 'utf8')
+    }
+
+    const pLen = Buffer.alloc(4)
+    pLen.writeUInt32BE(payloadBuf.length, 0)
+    buffers.push(pLen, payloadBuf)
+
+    return Buffer.concat(buffers)
 }
 
 /**
  * 解析火山引擎 V3 协议帧 (TTS)
  */
 function parseVolcFrame(buffer: Buffer) {
-    if (buffer.length < 12) {
+    if (buffer.length < 4) {
         return null
     }
-    // const head0 = buffer.readUInt8(0)
-    const messageType = (buffer.readUInt8(1) >> 4) & 0x0F
-    const event = buffer.readUInt32BE(4)
-    const payloadSize = buffer.readUInt32BE(8)
-    const payload = buffer.subarray(12, 12 + payloadSize)
+    const type = (buffer.readUInt8(1) >> 4) & 0x0F
+    const flags = buffer.readUInt8(1) & 0x0F
 
-    return { messageType, event, payload, payloadSize }
+    let offset = 4
+    let event: number | undefined
+    let sessionId: string | undefined
+
+    if (flags & 0x04) {
+        if (buffer.length < offset + 4) {
+            return null
+        }
+        event = buffer.readUInt32BE(offset)
+        offset += 4
+
+        if (buffer.length < offset + 4) {
+            return null
+        }
+        const sidLen = buffer.readUInt32BE(offset)
+        offset += 4
+
+        if (buffer.length < offset + sidLen) {
+            return null
+        }
+        sessionId = buffer.subarray(offset, offset + sidLen).toString()
+        offset += sidLen
+    }
+
+    if (buffer.length < offset + 4) {
+        return null
+    }
+    const payloadLen = buffer.readUInt32BE(offset)
+    offset += 4
+
+    if (buffer.length < offset + payloadLen) {
+        return null
+    }
+    const payload = buffer.subarray(offset, offset + payloadLen)
+
+    return { type, event, sessionId, payload }
 }
 
 /**
@@ -109,85 +154,129 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
             })
         }
 
-        const model = this.config.defaultModel || 'seed-tts-2.0'
-        const speaker = Array.isArray(voice) ? voice[0] : voice
-        const sessionId = crypto.randomUUID()
+        let speaker = 'zh_female_shuangkuaisisi_moon_bigtts'
+        if (Array.isArray(voice) && voice.length > 0) {
+            const v = voice[0]
+            if (v) {
+                speaker = v
+            }
+        } else if (typeof voice === 'string' && voice) {
+            speaker = voice
+        }
 
-        // 豆包 2.0 双向流式接口 (WebSocket V3)
+        const sessionId = crypto.randomUUID()
+        const model = this.config.defaultModel || 'seed-tts-2.0'
+
+        // 确定 Resource ID
+        let resourceId = this.config.defaultModel || ''
+        if (!resourceId || resourceId === 'seed-tts-2.0') {
+            if (speaker.startsWith('S_')) {
+                resourceId = 'volc.megatts.default'
+            } else {
+                resourceId = 'volc.service_type.10029'
+            }
+        }
+
         return new ReadableStream({
-            start(controller) {
+            async start(controller) {
                 const url = 'wss://openspeech.bytedance.com/api/v3/tts/bidirection'
 
-                // 使用原生 WebSocket (Node.js 22+ 或浏览器端)
-                // 注意：Node.js 原生 WebSocket (基于 undici) 在构造函数中可能支持 headers 选项
-                const ws = new (globalThis.WebSocket as any)(url, {
-                    headers: {
-                        'X-Api-App-Key': appId,
-                        'X-Api-Access-Key': token,
-                        'X-Api-Resource-Id': model === 'seed-tts-2.0' ? 'seed-tts-2.0' : 'seed-tts-1.0',
-                        'X-Api-Connect-Id': crypto.randomUUID(),
-                    },
-                })
+                try {
+                    const ws = new (globalThis.WebSocket as any)(url, {
+                        headers: {
+                            'X-Api-App-Key': appId,
+                            'X-Api-Access-Key': token,
+                            'X-Api-Resource-Id': resourceId,
+                            'X-Api-Connect-Id': crypto.randomUUID(),
+                        },
+                    })
 
-                ws.binaryType = 'arraybuffer'
+                    ws.binaryType = 'arraybuffer'
 
-                ws.onopen = () => {
-                    logger.debug(`[VolcengineTTS] WebSocket connected. Session: ${sessionId}`)
-                    // 1. 发送 StartConnection (Event 1)
-                    ws.send(buildVolcFrame(1, 4, 1, {}))
-                }
-
-                ws.onmessage = (event: MessageEvent) => {
-                    const buffer = Buffer.from(event.data as ArrayBuffer)
-                    const frame = parseVolcFrame(buffer)
-                    if (!frame) {
-                        return
-                    }
-
-                    const { event: eventNum, payload } = frame
-
-                    // ConnectionStarted (50)
-                    if (eventNum === 50) {
-                        // 2. 发送 StartSession (Event 100)
-                        const sessionMeta = {
-                            user: { uid: 'momei-user' },
-                            event: 100,
-                            req_params: {
-                                text,
-                                speaker,
-                                model: model === 'seed-tts-2.0' ? 'seed-tts-2.0-expressive' : undefined,
-                                audio_params: {
-                                    format: 'mp3',
-                                    sample_rate: 24000,
-                                },
+                    // 公共请求模板
+                    const requestTemplate = {
+                        user: { uid: crypto.randomUUID() },
+                        req_params: {
+                            speaker,
+                            audio_params: {
+                                format: 'mp3',
+                                sample_rate: 24000,
                             },
-                        }
-                        ws.send(buildVolcFrame(1, 4, 100, sessionMeta))
-                    } else if (eventNum === 352) {
-                        // Audio Response (352)
-                        controller.enqueue(new Uint8Array(payload))
-                    } else if (eventNum === 152) {
-                        // Session Finished (152)
-                        logger.debug(`[VolcengineTTS] Session finished.`)
-                        ws.send(buildVolcFrame(1, 4, 2, {})) // FinishConnection (2)
-                        ws.close()
-                        controller.close()
-                    } else if (frame.messageType === 0xF) {
-                        // Error (Message Type 0xF)
-                        const errorMsg = payload.toString()
-                        logger.error(`[VolcengineTTS] Error from server: ${errorMsg}`)
-                        controller.error(new Error(`Volcengine TTS Error: ${errorMsg}`))
-                        ws.close()
+                        },
                     }
-                }
 
-                ws.onerror = (err: any) => {
-                    logger.error(`[VolcengineTTS] WebSocket error:`, err)
-                    controller.error(err)
-                }
+                    ws.onopen = () => {
+                        logger.debug(`[VolcengineTTS] WebSocket connected. Resource: ${resourceId}`)
+                        // 1. 发送 StartConnection (Event 1)
+                        ws.send(buildVolcFrame(1, 4, 1, {}))
+                    }
 
-                ws.onclose = () => {
-                    logger.debug(`[VolcengineTTS] WebSocket closed.`)
+                    ws.onmessage = (event: MessageEvent) => {
+                        const buffer = Buffer.from(event.data as ArrayBuffer)
+                        const frame = parseVolcFrame(buffer)
+                        if (!frame) { return }
+
+                        const { type, event: eventNum, payload } = frame
+
+                        // Type 0xB (11) is AudioOnlyServer
+                        if (type === 11) {
+                            controller.enqueue(new Uint8Array(payload))
+                            return
+                        }
+
+                        // Type 0xF (15) is Error
+                        if (type === 15) {
+                            const errorMsg = payload.toString()
+                            logger.error(`[VolcengineTTS] Error from server (Type 15): ${errorMsg}`)
+                            controller.error(new Error(`Volcengine TTS Error: ${errorMsg}`))
+                            ws.close()
+                            return
+                        }
+
+                        // ConnectionStarted (50)
+                        if (eventNum === 50) {
+                            // 2. 发送 StartSession (Event 100)
+                            ws.send(buildVolcFrame(1, 4, 100, {
+                                ...requestTemplate,
+                                event: 100,
+                            }, sessionId))
+                        } else if (eventNum === 150) {
+                            // SessionStarted (150)
+                            // 3. 发送 TaskRequest (Event 200)
+                            ws.send(buildVolcFrame(1, 4, 200, {
+                                ...requestTemplate,
+                                req_params: {
+                                    ...requestTemplate.req_params,
+                                    text,
+                                },
+                                event: 200,
+                            }, sessionId))
+                            // 4. 紧接着发送 FinishSession (Event 102)
+                            ws.send(buildVolcFrame(1, 4, 102, {}, sessionId))
+                        } else if (eventNum === 152) {
+                            // SessionFinished (152)
+                            logger.debug(`[VolcengineTTS] Session finished.`)
+                            // 5. 发送 FinishConnection (Event 2)
+                            ws.send(buildVolcFrame(1, 4, 2, {}))
+                        } else if (eventNum === 52) {
+                            // ConnectionFinished (52)
+                            logger.debug(`[VolcengineTTS] Connection finished.`)
+                            ws.close()
+                            controller.close()
+                        } else if (eventNum === 153 || eventNum === 51) {
+                            // SessionFailed (153) or ConnectionFailed (51)
+                            const errorMsg = payload.toString()
+                            logger.error(`[VolcengineTTS] Failed (Event ${eventNum}): ${errorMsg}`)
+                            controller.error(new Error(`Volcengine failed: ${errorMsg}`))
+                            ws.close()
+                        }
+                    }
+
+                    ws.onerror = (err: any) => {
+                        logger.error(`[VolcengineTTS] WebSocket error:`, err)
+                    }
+                } catch (e) {
+                    controller.error(e)
                 }
             },
         })
