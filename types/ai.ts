@@ -67,7 +67,12 @@ export interface TTSOptions {
     mode?: 'speech' | 'podcast'
     speed?: number
     pitch?: number
-    outputFormat?: 'mp3' | 'opus' | 'aac'
+    volume?: number
+    language?: string
+    model?: string
+    sampleRate?: number
+    outputFormat?: string
+    skipRecording?: boolean
 }
 
 // --- ASR (Speech to Text) ---

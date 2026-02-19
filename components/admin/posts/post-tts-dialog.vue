@@ -151,10 +151,11 @@ watchDebounced([() => config.value.provider, () => config.value.voice, script], 
 async function startGenerate() {
     try {
         error.value = null
-        const data = await $appFetch<any>(`/api/posts/${props.postId}/tts`, {
+        const data = await $appFetch<any>('/api/ai/tts/task', {
             method: 'POST',
             body: {
                 ...config.value,
+                postId: props.postId,
                 script: script.value,
             },
         })

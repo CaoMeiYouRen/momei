@@ -20,36 +20,41 @@ export class TTSService extends AIBaseService {
 
             const response = await provider.generateSpeech(text, voice, options)
 
-            this.logUsage({
-                task: 'tts',
-                response: {
-                    model: (provider as any).model || (provider as any).defaultModel || (provider as any).config?.model || 'unknown',
-                    content: `Audio generation for ${text.length} characters`,
-                },
-                userId,
-            })
+            // Only record if not explicitly skipped (e.g., when called from processTask which handles its own recording)
+            if (!options.skipRecording) {
+                this.logUsage({
+                    task: 'tts',
+                    response: {
+                        model: (provider as any).model || (provider as any).defaultModel || (provider as any).config?.model || 'unknown',
+                        content: `Audio generation for ${text.length} characters`,
+                    },
+                    userId,
+                })
 
-            await this.recordTask({
-                userId,
-                category: 'tts',
-                type: 'tts',
-                provider: provider.name,
-                model: (provider as any).model || (provider as any).defaultModel || (provider as any).config?.model || 'unknown',
-                payload: { text, voice, options },
-                response: { status: 'success' },
-            })
+                await this.recordTask({
+                    userId,
+                    category: 'tts',
+                    type: 'tts',
+                    provider: provider.name,
+                    model: (provider as any).model || (provider as any).defaultModel || (provider as any).config?.model || 'unknown',
+                    payload: { text, voice, options },
+                    response: { status: 'success' },
+                })
+            }
 
             return response
         } catch (error: any) {
-            await this.recordTask({
-                userId,
-                category: 'tts',
-                type: 'tts',
-                provider: provider.name,
-                model: (provider as any).model || (provider as any).defaultModel || (provider as any).config?.model || 'unknown',
-                payload: { text, voice, options },
-                error,
-            })
+            if (!options.skipRecording) {
+                await this.recordTask({
+                    userId,
+                    category: 'tts',
+                    type: 'tts',
+                    provider: provider.name,
+                    model: (provider as any).model || (provider as any).defaultModel || (provider as any).config?.model || 'unknown',
+                    payload: { text, voice, options },
+                    error,
+                })
+            }
             throw error
         }
     }
@@ -179,46 +184,95 @@ export class TTSService extends AIBaseService {
             await taskRepo.save(task)
 
             const payload = typeof task.payload === 'string' ? JSON.parse(task.payload) : (task.payload || {})
-            const post = await postRepo.findOneBy({ id: payload.postId })
-            if (!post) {
-                throw new Error('Post not found')
-            }
+            const postId = payload.postId
+
+            const post = postId ? await postRepo.findOneBy({ id: postId }) : null
 
             const options = payload.options || {}
             const voice = payload.voice || 'default'
-            const contentToUse = payload.script || post.content
-            const stream = await this.generateSpeech(contentToUse, voice, options, task.userId, task.provider)
+            const contentToUse = payload.text || payload.script || (post ? post.content : '')
+
+            if (!contentToUse) {
+                throw new Error('No content to generate speech from')
+            }
+
+            // Ensure model from task is passed to options if not present
+            if (task.model && !options.model) {
+                options.model = task.model
+            }
+
+            const stream = await this.generateSpeech(contentToUse, voice, { ...options, skipRecording: true }, task.userId, task.provider)
 
             // Convert stream to Buffer
             const reader = stream.getReader()
             const chunks: Uint8Array[] = []
+            let receivedBytes = 0
             while (true) {
                 const { done, value } = await reader.read()
                 if (done) {
                     break
                 }
-                chunks.push(value)
+                if (value) {
+                    chunks.push(value)
+                    receivedBytes += value.length
+                    // Update progress periodically
+                    if (receivedBytes % 102400 === 0) { // 每 100KB 更新一次进度 (示意)
+                        task.progress = Math.min(99, (task.progress || 0) + 1)
+                        await taskRepo.save(task)
+                    }
+                }
             }
+
+            if (receivedBytes === 0) {
+                throw new Error('Received empty audio data from provider')
+            }
+
             const buffer = Buffer.concat(chunks)
 
             // Upload to storage
-            const filename = `tts_${Date.now()}.mp3`
+            const format = options.outputFormat || 'mp3'
+            const filename = `tts_${Date.now()}.${format}`
+            const mimetype = format === 'mp3' ? 'audio/mpeg' : `audio/${format}`
+
+            const uploadPath = post ? `posts/${post.id}/tts/` : `tts/${task.userId}/`
+
             const uploadedFile = await uploadFromBuffer(
                 buffer,
-                `posts/${post.id}/tts/`,
+                uploadPath,
                 filename,
-                'audio/mpeg',
+                mimetype,
                 task.userId,
             )
 
-            // Update Post
-            post.audioUrl = uploadedFile.url
-            await postRepo.save(post)
+            // Update Post if exists
+            if (post) {
+                post.audioUrl = uploadedFile.url
+                await postRepo.save(post)
+            }
 
             // Mark Task Completed
             task.status = 'completed'
-            task.result = JSON.stringify({ url: uploadedFile.url })
+            task.progress = 100
+            task.textLength = contentToUse.length
+            task.audioSize = buffer.length
+            task.result = JSON.stringify({
+                url: uploadedFile.url,
+                audioUrl: uploadedFile.url,
+                filename: uploadedFile.filename,
+            })
             await taskRepo.save(task)
+
+            // Log usage for analytical purposes
+            this.logUsage({
+                task: 'tts',
+                response: {
+                    model: task.model || 'unknown',
+                    content: `Audio generation for ${contentToUse.length} characters (Task: ${taskId})`,
+                },
+                userId: task.userId,
+            })
+
+            logger.info(`[TTSService] Task ${taskId} completed successfully. URL: ${uploadedFile.url}`)
         } catch (error: any) {
             logger.error(`[TTSService] Task ${taskId} failed:`, error)
             task.status = 'failed'

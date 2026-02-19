@@ -39,6 +39,7 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
         { id: 'saturn_zh_female_qingyingduoduo_cs_tob', name: '轻盈朵朵 2.0', language: 'zh', gender: 'female' },
         { id: 'saturn_zh_female_wenwanshanshan_cs_tob', name: '温婉珊珊 2.0', language: 'zh', gender: 'female' },
         { id: 'saturn_zh_female_reqingaina_cs_tob', name: '热情艾娜 2.0', language: 'zh', gender: 'female' },
+        { id: 'saturn_zh_female_cancan_mars_bigtts', name: '灿灿 (Mars)', language: 'zh', gender: 'female' },
         { id: 'en_male_tim_uranus_bigtts', name: 'Tim', language: 'en', gender: 'male' },
         { id: 'en_female_dacey_uranus_bigtts', name: 'Dacey', language: 'en', gender: 'female' },
         { id: 'en_female_stokie_uranus_bigtts', name: 'Stokie', language: 'en', gender: 'female' },
@@ -93,11 +94,38 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
             speaker = voice
         }
 
-        const resourceId = this.config.defaultModel || 'seed-tts-2.0'
+        const resourceId = options.model || this.config.defaultModel || 'seed-tts-2.0'
         const url = 'https://openspeech.bytedance.com/api/v3/tts/unidirectional'
 
-        // 计算语速变换：V3 范围是 [-50, 100]，0 是正常速度 (1.0x)，100 是 2.0x，-50 是 0.5x
-        const speechRate = Math.round(((options.speed || 1.0) - 1.0) * 100)
+        // 语速变换：取值范围[-50,100]，100代表2.0倍速，-50代表0.5倍速
+        const speed = options.speed || 1.0
+        let speechRate = 0
+        if (speed >= 1) {
+            speechRate = Math.min(100, Math.round((speed - 1) * 100))
+        } else {
+            speechRate = Math.max(-50, Math.round((speed - 1) * 100))
+        }
+
+        // 音量变换：取值范围[-50,100]，100代表2.0倍音量，-50代表0.5倍音量
+        const volume = options.volume || 1.0
+        let loudnessRate = 0
+        if (volume >= 1) {
+            loudnessRate = Math.min(100, Math.round((volume - 1) * 100))
+        } else {
+            loudnessRate = Math.max(-50, Math.round((volume - 1) * 100))
+        }
+
+        const additions: any = {
+            explicit_language: options.language || 'zh',
+            disable_markdown_filter: true,
+        }
+
+        // 如果设置了音调
+        if (options.pitch !== undefined) {
+            additions.post_process = {
+                pitch: Math.max(-12, Math.min(12, Math.round(options.pitch))),
+            }
+        }
 
         const response = await fetch(url, {
             method: 'POST',
@@ -111,16 +139,17 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
             },
             body: JSON.stringify({
                 user: { uid: crypto.randomUUID() },
-                namespace: 'BidirectionalTTS',
                 req_params: {
                     text,
                     speaker,
+                    model: options.model || (speaker.startsWith('saturn_') ? 'seed-tts-2.0-expressive' : undefined),
                     audio_params: {
                         format: options.outputFormat || 'mp3',
-                        sample_rate: 24000,
+                        sample_rate: options.sampleRate || 24000,
                         speech_rate: speechRate,
-                        pitch_rate: options.pitch !== undefined ? Math.round(options.pitch * 10) : 0,
+                        loudness_rate: loudnessRate,
                     },
+                    additions: JSON.stringify(additions),
                 },
             }),
         })
@@ -147,59 +176,93 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
         let buffer = ''
 
         const processLine = (line: string, controller: ReadableStreamDefaultController<Uint8Array>) => {
-            // 处理 SSE 格式 (data: {...}) 或直接 JSON 格式
-            line = line.replace(/^data:\s*/, '').trim()
-            if (!line) {
-                return
+            const cleanLine = line.replace(/^data:\s*/, '').trim()
+            if (!cleanLine) {
+                return false
             }
             try {
-                const json = JSON.parse(line)
-                // 豆包 V3 的 code=0 表示成功，code=20000000 表示完成
-                if (json.code !== 0 && json.code !== 20000000) {
-                    logger.warn(`[VolcengineTTS] Message in stream (LogID: ${logId}): ${json.message} (code: ${json.code})`)
-                    // 如果是严重错误（例如欠费、并发超限等），抛出异常
-                    if (json.code >= 40402003 || json.code === 45000000 || json.code === 55000000) {
-                        controller.error(new Error(`Volcengine TTS Stream Error: ${json.message} (${json.code}, LogID: ${logId})`))
-                    }
-                    return
-                }
+                const json = JSON.parse(cleanLine)
+
+                // 处理音频数据 (即使是完成包，有时也可能带数据)
                 if (json.data) {
                     const binary = Buffer.from(json.data, 'base64')
                     controller.enqueue(new Uint8Array(binary))
                 }
+
+                // 20000000 表示正常完成
+                if (json.code === 20000000) {
+                    if (json.usage) {
+                        logger.debug(`[VolcengineTTS] Synthesis finished. Usage:`, json.usage)
+                    }
+                    return true // 标记完成
+                }
+
+                // 非 0 且非 20000000 的 code 视为错误
+                if (json.code !== 0) {
+                    const errorMsg = `Volcengine TTS Stream Error: ${json.message || 'Unknown error'} (code: ${json.code}, LogID: ${logId})`
+                    logger.error(`[VolcengineTTS] Error payload:`, json)
+
+                    // 如果已经有数据了，可能只是中间包报错，尝试继续还是直接报错？
+                    // 通常 code != 0 是致命的
+                    controller.error(new Error(errorMsg))
+                    return true
+                }
+
+                return false
             } catch (e) {
-                logger.warn(`[VolcengineTTS] Failed to parse line (LogID: ${logId}): ${line.substring(0, 100)}...`, e)
+                logger.warn(`[VolcengineTTS] Failed to parse line (LogID: ${logId}): ${cleanLine.substring(0, 100)}...`, e)
+                return false
             }
         }
 
+        let isFinished = false
+
         return new ReadableStream({
             async pull(controller) {
+                if (isFinished) {
+                    return
+                }
+
                 try {
                     const { done, value } = await reader.read()
+
                     if (done) {
+                        logger.debug(`[VolcengineTTS] Stream reader done. Remaining buffer length: ${buffer.length}`)
                         if (buffer.trim()) {
-                            // 处理最后可能剩余的缓冲区内容
                             processLine(buffer, controller)
                         }
-                        controller.close()
+                        if (!isFinished) {
+                            isFinished = true
+                            controller.close()
+                        }
                         return
                     }
 
-                    buffer += decoder.decode(value, { stream: true })
-                    // 分割行并处理
+                    const chunk = decoder.decode(value, { stream: true })
+                    buffer += chunk
+
                     const lines = buffer.split('\n')
-                    buffer = lines.pop() || '' // 最后一行可能不完整，保留到下一次
+                    buffer = lines.pop() || ''
 
                     for (const line of lines) {
-                        processLine(line, controller)
+                        if (processLine(line, controller)) {
+                            isFinished = true
+                            controller.close()
+                            await reader.cancel()
+                            break
+                        }
                     }
                 } catch (error) {
                     logger.error(`[VolcengineTTS] Stream read error:`, error)
-                    controller.error(error)
+                    if (!isFinished) {
+                        isFinished = true
+                        controller.error(error)
+                    }
                     await reader.cancel()
                 }
             },
             async cancel() {
+                isFinished = true
                 await reader.cancel()
             },
         })
