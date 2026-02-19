@@ -23,6 +23,7 @@ export class VolcengineASRProvider implements Partial<AIProvider> {
     }
 
     transcribe(_options: TranscribeOptions): Promise<TranscribeResponse> {
+        void _options
         // 实际上这应该是一个 WebSocket 实现，这里提供一个简化的 HTTPS 轮询或单次上传逻辑
         // 如果是 V3 版，通常推荐使用官方 SDK。这里实现一个符合接口声明的占位或轻量逻辑
         logger.info(`[VolcengineASR] Transcribing with appId: ${this.config.appId}`)

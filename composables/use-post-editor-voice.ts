@@ -163,7 +163,7 @@ export function usePostEditorVoice() {
                 }
 
                 mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'audio/webm' })
-                mediaRecorder.ondataavailable = async (e) => {
+                mediaRecorder.ondataavailable = (e) => {
                     if (e.data.size > 0 && ws?.readyState === WebSocket.OPEN) {
                         const reader = new FileReader()
                         reader.onloadend = () => {
@@ -303,7 +303,7 @@ export function usePostEditorVoice() {
         modelProgress,
         isModelReady,
         cloudConfig,
-        loadModel: () => {}, // No-op
+        loadModel: () => { /* no-op */ },
         startListening,
         stopListening,
         reset,

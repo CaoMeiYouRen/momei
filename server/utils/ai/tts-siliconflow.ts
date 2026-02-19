@@ -70,8 +70,9 @@ export class SiliconFlowTTSProvider implements Partial<AIProvider> {
         return voices
     }
 
-     
+
     estimateCost(text: string, _voice: string): Promise<number> {
+        void _voice
         // SiliconFlow TTS 计费: 按照输入文本长度对应的 UTF-8 字节数进行计费
         // 不同模型计费不同，这里取一个大概的中间值
         const bytes = Buffer.from(text).length

@@ -35,7 +35,9 @@ export class TextService extends AIBaseService {
             language,
         })
 
-        if (!provider.chat) { throw new Error('Provider does not support chat') }
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
 
         const response = await provider.chat({
             messages: [
@@ -81,7 +83,9 @@ export class TextService extends AIBaseService {
             content: content.slice(0, AI_CHUNK_SIZE),
         })
 
-        if (!provider.chat) { throw new Error('Provider does not support chat') }
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
 
         const response = await provider.chat({
             messages: [
@@ -126,7 +130,9 @@ export class TextService extends AIBaseService {
         }
 
         const provider = await getAIProvider('text')
-        if (!provider.chat) { throw new Error('Provider does not support chat') }
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
 
         if (content.length > AI_CHUNK_SIZE) {
             const chunks = ContentProcessor.splitMarkdown(content, {
@@ -190,7 +196,9 @@ export class TextService extends AIBaseService {
 
     static async refineVoice(content: string, language: string = 'zh-CN', userId?: string) {
         const provider = await getAIProvider('text')
-        if (!provider.chat) { throw new Error('Provider does not support chat') }
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
         const prompt = formatPrompt(AI_PROMPTS.REFINE_VOICE, {
             content: content.slice(0, AI_CHUNK_SIZE),
             language,
@@ -210,7 +218,9 @@ export class TextService extends AIBaseService {
 
     static async optimizeManuscript(content: string, language: string = 'zh-CN', userId?: string) {
         const provider = await getAIProvider('text')
-        if (!provider.chat) { throw new Error('Provider does not support chat') }
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
         const prompt = formatPrompt(AI_PROMPTS.MANUSCRIPT_OPTIMIZE, {
             content: content.slice(0, AI_CHUNK_SIZE),
             language,
@@ -239,7 +249,9 @@ export class TextService extends AIBaseService {
         }
 
         const provider = await getAIProvider('text')
-        if (!provider.chat) { throw new Error('Provider does not support chat') }
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
 
         const inputSource = snippets.length > 0
             ? `Source Snippets:\n${snippets.join('\n\n').slice(0, AI_CHUNK_SIZE)}`
@@ -266,7 +278,9 @@ export class TextService extends AIBaseService {
     static async expandSection(options: ExpandSectionOptions, userId?: string) {
         const { topic, sectionTitle, sectionContent, expandType, language = 'zh-CN' } = options
         const provider = await getAIProvider('text')
-        if (!provider.chat) { throw new Error('Provider does not support chat') }
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
         const prompt = formatPrompt(AI_PROMPTS.EXPAND_SECTION, {
             topic, sectionTitle, sectionContent, expandType, language,
         })
@@ -285,7 +299,9 @@ export class TextService extends AIBaseService {
 
     static async translate(content: string, to: string, userId?: string) {
         const provider = await getAIProvider('text')
-        if (!provider.chat) { throw new Error('Provider does not support chat') }
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
         const prompt = formatPrompt(AI_PROMPTS.TRANSLATE, { content: content.slice(0, AI_CHUNK_SIZE), to })
 
         const response = await provider.chat({
@@ -300,9 +316,11 @@ export class TextService extends AIBaseService {
         return response.content.trim()
     }
 
-    static async translateName(name: string, to: string, userId?: string) {
+    static async translateName(name: string, to: string, _userId?: string) {
         const provider = await getAIProvider('text')
-        if (!provider.chat) { throw new Error('Provider does not support chat') }
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
         const prompt = formatPrompt(AI_PROMPTS.TRANSLATE_NAME, { name, to })
 
         const response = await provider.chat({
@@ -316,9 +334,11 @@ export class TextService extends AIBaseService {
         return response.content.trim()
     }
 
-    static async suggestSlugFromName(name: string, userId?: string) {
+    static async suggestSlugFromName(name: string, _userId?: string) {
         const provider = await getAIProvider('text')
-        if (!provider.chat) { throw new Error('Provider does not support chat') }
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
         const prompt = formatPrompt(AI_PROMPTS.SUGGEST_SLUG_FROM_NAME, { name })
 
         const response = await provider.chat({
@@ -334,7 +354,9 @@ export class TextService extends AIBaseService {
 
     static async recommendTags(content: string, existingTags: string[] = [], language: string = 'zh-CN', userId?: string) {
         const provider = await getAIProvider('text')
-        if (!provider.chat) { throw new Error('Provider does not support chat') }
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
         const prompt = formatPrompt(AI_PROMPTS.RECOMMEND_TAGS, {
             content: content.slice(0, AI_CHUNK_SIZE),
             existingTags: existingTags.join(', '),
@@ -357,7 +379,7 @@ export class TextService extends AIBaseService {
                 return JSON.parse(match[0]) as string[]
             }
             return response.content.split(/[,\s，、]+/).filter((t) => t.trim()).slice(0, 10)
-        } catch (e) {
+        } catch (_e) {
             return []
         }
     }
@@ -370,7 +392,9 @@ export class TextService extends AIBaseService {
         const chunks = ContentProcessor.splitMarkdown(content, { chunkSize: AI_CHUNK_SIZE })
         for (let i = 0; i < chunks.length; i++) {
             const chunk = chunks[i]
-            if (!chunk) { continue }
+            if (!chunk) {
+                continue
+            }
             const translated = await this.translate(chunk, to, userId)
             yield {
                 content: translated,

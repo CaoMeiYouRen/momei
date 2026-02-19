@@ -62,6 +62,7 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
     }
 
     estimateTTSCost(text: string, _voice: string | string[]): Promise<number> {
+        void _voice
         // 豆包 2.0 价格大约 0.05 / 1k 字符 (仅供参考，具体以官网为准)
         return Promise.resolve((text.length / 1000) * 0.05)
     }

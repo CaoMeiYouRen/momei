@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { dataSource } from '../../database'
 import * as aiUtils from '../../utils/ai'
-import * as uploadService from '../upload'
 import { TextService } from './text'
 
 vi.mock('../../database')
