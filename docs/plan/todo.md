@@ -47,8 +47,8 @@
         - [x] 实现 `POST /api/posts/:id/tts` 生成接口
         - [x] 实现 `GET /api/tasks/tts/:id` 状态查询接口
         - [x] 文章编辑器侧边栏增加音频设置面板与生成对话框
-    - [ ] **Phase 3: 火山引擎与播客模式**
-        - [ ] 实现火山引擎 (豆包) 提供者 (WebSocket V3)
+    - [/] **Phase 3: 火山引擎与播客模式**
+        - [>] 实现火山引擎 (豆包) 提供者 (V3 HTTP) (In Progress)
         - [ ] 实现 AI 播客 (Podcast) 模式生成逻辑
         - [ ] 音频元数据保存与 RSS Enclosure 自动关联
 - [x] **AI 基础设施重构 (AI Infrastructure Refactoring)** (P1)

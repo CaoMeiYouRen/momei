@@ -1,111 +1,19 @@
 import crypto from 'node:crypto'
 import { createError } from 'h3'
-import { WebSocket } from 'ws'
 import logger from '../logger'
 import type { TTSAudioVoice, TTSOptions, AIProvider } from '@/types/ai'
 
 export interface VolcengineTTSConfig {
     appId: string
     accessKey: string // 即 Access Token
-    secretKey?: string // 目前 V3 接口主要使用 Access Token (握手头中的 X-Api-Access-Key)
+    secretKey?: string // 目前 V3 接口主要使用 Access Token
     defaultModel?: string
-}
-
-/**
- * 构造火山引擎 V3 协议帧 (TTS)
- * 协议参考：https://www.volcengine.com/docs/6561/130101
- */
-function buildVolcFrame(type: number, flags: number, event: number, payload: any, sessionId?: string) {
-    const buffers: Buffer[] = []
-
-    // Header (4B)
-    const header = Buffer.alloc(4)
-    header[0] = 0x11 // v1, head_size 4
-    header[1] = (type << 4) | flags
-    header[2] = 0x10 // serialization JSON
-    header[3] = 0x00
-    buffers.push(header)
-
-    if (flags & 0x04) {
-        // WithEvent
-        const eventBuf = Buffer.alloc(4)
-        eventBuf.writeUInt32BE(event, 0)
-        buffers.push(eventBuf)
-
-        const sid = sessionId || ''
-        const sidBuf = Buffer.from(sid, 'utf8')
-        const sidLen = Buffer.alloc(4)
-        sidLen.writeUInt32BE(sidBuf.length, 0)
-        buffers.push(sidLen, sidBuf)
-    }
-
-    let payloadBuf: Buffer
-    if (Buffer.isBuffer(payload)) {
-        payloadBuf = payload
-    } else if (typeof payload === 'string') {
-        payloadBuf = Buffer.from(payload, 'utf8')
-    } else {
-        payloadBuf = Buffer.from(JSON.stringify(payload), 'utf8')
-    }
-
-    const pLen = Buffer.alloc(4)
-    pLen.writeUInt32BE(payloadBuf.length, 0)
-    buffers.push(pLen, payloadBuf)
-
-    return Buffer.concat(buffers)
-}
-
-/**
- * 解析火山引擎 V3 协议帧 (TTS)
- */
-function parseVolcFrame(buffer: Buffer) {
-    if (buffer.length < 4) {
-        return null
-    }
-    const type = (buffer.readUInt8(1) >> 4) & 0x0F
-    const flags = buffer.readUInt8(1) & 0x0F
-
-    let offset = 4
-    let event: number | undefined
-    let sessionId: string | undefined
-
-    if (flags & 0x04) {
-        if (buffer.length < offset + 4) {
-            return null
-        }
-        event = buffer.readUInt32BE(offset)
-        offset += 4
-
-        if (buffer.length < offset + 4) {
-            return null
-        }
-        const sidLen = buffer.readUInt32BE(offset)
-        offset += 4
-
-        if (buffer.length < offset + sidLen) {
-            return null
-        }
-        sessionId = buffer.subarray(offset, offset + sidLen).toString()
-        offset += sidLen
-    }
-
-    if (buffer.length < offset + 4) {
-        return null
-    }
-    const payloadLen = buffer.readUInt32BE(offset)
-    offset += 4
-
-    if (buffer.length < offset + payloadLen) {
-        return null
-    }
-    const payload = buffer.subarray(offset, offset + payloadLen)
-
-    return { type, event, sessionId, payload }
 }
 
 /**
  * 火山引擎 (豆包) 语音合成提供者
  * 适配 豆包语音合成模型 2.0 (Seed-TTS)
+ * 采用 V3 HTTP 单向流式接口
  */
 export class VolcengineTTSProvider implements Partial<AIProvider> {
     name = 'volcengine'
@@ -161,18 +69,19 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
     async generateSpeech(
         text: string,
         voice: string | string[],
-        _options: TTSOptions,
+        options: TTSOptions,
     ): Promise<ReadableStream<Uint8Array>> {
         const appId = this.config.appId
         const token = this.config.accessKey
-        logger.debug(`[VolcengineTTS] Starting TTS generation. Text length: ${text.length}, Voice: ${Array.isArray(voice) ? voice.join(',') : voice}`)
+        logger.debug(`[VolcengineTTS] Starting HTTP V3 TTS generation. Text length: ${text.length}, Voice: ${Array.isArray(voice) ? voice.join(',') : voice}`)
+
         if (!appId || !token) {
             throw createError({
                 statusCode: 500,
-                message: 'Volcengine TTS Error: AppID or Access Token (API Key) missing',
+                message: 'Volcengine TTS Error: AppID or Access Token missing',
             })
         }
-        logger.debug(`[VolcengineTTS] Configuration - AppID: ${appId}, Resource: ${this.config.defaultModel}`)
+
         let speaker = 'zh_female_shuangkuaisisi_moon_bigtts'
         if (Array.isArray(voice) && voice.length > 0) {
             const v = voice[0]
@@ -183,158 +92,119 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
             speaker = voice
         }
 
-        const sessionId = crypto.randomUUID()
+        const resourceId = this.config.defaultModel || 'seed-tts-2.0'
+        const url = 'https://openspeech.bytedance.com/api/v3/tts/unidirectional'
 
-        // 确定 Resource ID
-        const resourceId = this.config.defaultModel || ''
-        // if (!resourceId || resourceId === 'seed-tts-2.0') {
-        //     if (speaker.startsWith('S_')) {
-        //         resourceId = 'volc.megatts.default'
-        //     } else {
-        //         resourceId = 'volc.service_type.10029'
-        //     }
-        // }
+        // 计算语速变换：V3 范围是 [-50, 100]，0 是正常速度 (1.0x)，100 是 2.0x，-50 是 0.5x
+        const speechRate = Math.round(((options.speed || 1.0) - 1.0) * 100)
 
-        let ws: WebSocket | null = null
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-Api-App-Id': appId,
+                'X-Api-Access-Key': token,
+                'X-Api-Resource-Id': resourceId,
+                'X-Api-Request-Id': crypto.randomUUID(),
+                'X-Control-Require-Usage-Tokens-Return': '*',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user: { uid: crypto.randomUUID() },
+                namespace: 'BidirectionalTTS',
+                req_params: {
+                    text,
+                    speaker,
+                    audio_params: {
+                        format: options.outputFormat || 'mp3',
+                        sample_rate: 24000,
+                        speech_rate: speechRate,
+                        pitch_rate: options.pitch !== undefined ? Math.round(options.pitch * 10) : 0,
+                    },
+                },
+            }),
+        })
+
+        const logId = response.headers.get('X-Tt-Logid')
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}))
+            logger.error(`[VolcengineTTS] HTTP Error: ${response.status}, LogID: ${logId}`, errorData)
+            throw createError({
+                statusCode: response.status,
+                message: `Volcengine TTS Error: ${errorData.message || response.statusText} (LogID: ${logId})`,
+            })
+        }
+
+        const reader = response.body?.getReader()
+        if (!reader) {
+            throw createError({
+                statusCode: 500,
+                message: `Volcengine TTS Error: Failed to get response stream (LogID: ${logId})`,
+            })
+        }
+
+        const decoder = new TextDecoder()
+        let buffer = ''
+
+        const processLine = (line: string, controller: ReadableStreamDefaultController<Uint8Array>) => {
+            // 处理 SSE 格式 (data: {...}) 或直接 JSON 格式
+            line = line.replace(/^data:\s*/, '').trim()
+            if (!line) {
+                return
+            }
+            try {
+                const json = JSON.parse(line)
+                // 豆包 V3 的 code=0 表示成功，code=20000000 表示完成
+                if (json.code !== 0 && json.code !== 20000000) {
+                    logger.warn(`[VolcengineTTS] Message in stream (LogID: ${logId}): ${json.message} (code: ${json.code})`)
+                    // 如果是严重错误（例如欠费、并发超限等），抛出异常
+                    if (json.code >= 40402003 || json.code === 45000000 || json.code === 55000000) {
+                        controller.error(new Error(`Volcengine TTS Stream Error: ${json.message} (${json.code}, LogID: ${logId})`))
+                    }
+                    return
+                }
+                if (json.data) {
+                    const binary = Buffer.from(json.data, 'base64')
+                    controller.enqueue(new Uint8Array(binary))
+                }
+            } catch (e) {
+                logger.warn(`[VolcengineTTS] Failed to parse line (LogID: ${logId}): ${line.substring(0, 100)}...`, e)
+            }
+        }
 
         return new ReadableStream({
-            async start(controller) {
-                const url = 'wss://openspeech.bytedance.com/api/v3/tts/bidirection'
-
+            async pull(controller) {
                 try {
-                    logger.debug(`[VolcengineTTS] Connecting to WebSocket. Resource: ${resourceId}, Speaker: ${speaker}`)
-                    ws = new WebSocket(url, {
-                        headers: {
-                            'X-Api-App-Key': appId,
-                            'X-Api-Access-Key': token,
-                            'X-Api-Resource-Id': resourceId,
-                            'X-Api-Connect-Id': crypto.randomUUID(),
-                        },
-                    })
-
-                    // 公共请求模板
-                    const requestTemplate = {
-                        user: { uid: crypto.randomUUID() },
-                        req_params: {
-                            speaker,
-                            audio_params: {
-                                format: 'mp3',
-                                sample_rate: 24000,
-                            },
-                        },
+                    const { done, value } = await reader.read()
+                    if (done) {
+                        if (buffer.trim()) {
+                            // 处理最后可能剩余的缓冲区内容
+                            processLine(buffer, controller)
+                        }
+                        controller.close()
+                        return
                     }
 
-                    ws.on('open', () => {
-                        logger.debug(`[VolcengineTTS] WebSocket connected. Resource: ${resourceId}, Speaker: ${speaker}`)
-                        // 1. 发送 StartConnection (Event 1)
-                        ws?.send(buildVolcFrame(1, 4, 1, {}))
-                    })
+                    buffer += decoder.decode(value, { stream: true })
+                    // 分割行并处理
+                    const lines = buffer.split('\n')
+                    buffer = lines.pop() || '' // 最后一行可能不完整，保留到下一次
 
-                    ws.on('message', (data: Buffer) => {
-                        try {
-                            const frame = parseVolcFrame(data)
-                            if (!frame) { return }
-
-                            const { type, event: eventNum, payload } = frame
-
-                            // Type 0xB (11) is AudioOnlyServer
-                            if (type === 11) {
-                                controller.enqueue(new Uint8Array(payload))
-                                return
-                            }
-
-                            // Type 0xF (15) is Error
-                            if (type === 15) {
-                                const errorMsg = payload.toString()
-                                logger.error(`[VolcengineTTS] Error from server (Type 15): ${errorMsg}`)
-                                controller.error(new Error(`Volcengine TTS Error: ${errorMsg}`))
-                                ws?.close()
-                                return
-                            }
-
-                            // ConnectionStarted (50)
-                            if (eventNum === 50) {
-                                // 2. 发送 StartSession (Event 100)
-                                ws?.send(buildVolcFrame(1, 4, 100, {
-                                    ...requestTemplate,
-                                    event: 100,
-                                }, sessionId))
-                            } else if (eventNum === 150) {
-                                // SessionStarted (150)
-                                // 3. 发送 TaskRequest (Event 200)
-                                ws?.send(buildVolcFrame(1, 4, 200, {
-                                    ...requestTemplate,
-                                    req_params: {
-                                        ...requestTemplate.req_params,
-                                        text,
-                                    },
-                                    event: 200,
-                                }, sessionId))
-                                // 4. 紧接着发送 FinishSession (Event 102)
-                                ws?.send(buildVolcFrame(1, 4, 102, {}, sessionId))
-                            } else if (eventNum === 152) {
-                                // SessionFinished (152)
-                                logger.debug(`[VolcengineTTS] Session finished.`)
-                                // 5. 发送 FinishConnection (Event 2)
-                                ws?.send(buildVolcFrame(1, 4, 2, {}))
-                            } else if (eventNum === 52) {
-                                // ConnectionFinished (52)
-                                logger.debug(`[VolcengineTTS] Connection finished.`)
-                                ws?.close()
-                                controller.close()
-                            } else if (eventNum === 153 || eventNum === 51) {
-                                // SessionFailed (153) or ConnectionFailed (51)
-                                const errorMsg = payload.toString()
-                                logger.error(`[VolcengineTTS] Failed (Event ${eventNum}): ${errorMsg}`)
-                                controller.error(new Error(`Volcengine failed: ${errorMsg}`))
-                                ws?.close()
-                            }
-                        } catch (e) {
-                            logger.error(`[VolcengineTTS] Exception in onmessage:`, e)
-                            try {
-                                controller.error(e)
-                            } catch (ce) {
-                                // ignore
-                            }
-                            ws?.close()
-                        }
-                    })
-
-                    ws.on('error', (err: any) => {
-                        logger.error(`[VolcengineTTS] WebSocket error:`, err)
-                        try {
-                            controller.error(new Error(`Volcengine TTS WS error: ${err.message || 'Unknown error'}`))
-                        } catch (e) {
-                            // ignore
-                        }
-                    })
-
-                    ws.on('close', (code, reason) => {
-                        logger.debug(`[VolcengineTTS] WebSocket closed. Code: ${code}, Reason: ${reason}`)
-                        if (code !== 1000 && code !== 1005) {
-                            try {
-                                controller.error(new Error(`WebSocket closed unexpectedly: ${code} ${reason}`))
-                            } catch (e) {
-                                // Already errored
-                            }
-                        }
-                    })
-                } catch (e) {
-                    logger.error(`[VolcengineTTS] Exception in start:`, e)
-                    controller.error(e)
+                    for (const line of lines) {
+                        processLine(line, controller)
+                    }
+                } catch (error) {
+                    logger.error(`[VolcengineTTS] Stream read error:`, error)
+                    controller.error(error)
+                    await reader.cancel()
                 }
             },
-            cancel() {
-                // 如果外部取消了流（例如请求超时或主动停止），则关闭 WebSocket
-                logger.debug(`[VolcengineTTS] Stream cancelled by consumer.`)
-                if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
-                    ws.close()
-                }
+            async cancel() {
+                await reader.cancel()
             },
         })
     }
 
-    async check(): Promise<boolean> {
+    check(): boolean {
         return !!(this.config.appId && this.config.accessKey)
     }
 }

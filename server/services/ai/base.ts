@@ -30,11 +30,13 @@ export abstract class AIBaseService {
      * 记录 AI 任务到数据库
      */
     protected static async recordTask(options: {
+        id?: string
         userId: string | undefined
         type: string
         category: AICategory
-        provider: string
-        model: string
+        status?: 'pending' | 'processing' | 'completed' | 'failed'
+        provider?: string
+        model?: string
         payload: any
         response?: any
         error?: any
@@ -45,7 +47,7 @@ export abstract class AIBaseService {
         language?: string
         cost?: number
     }) {
-        const { userId, type, provider, model, payload, response, error, postId, audioDuration, audioSize, textLength, language, cost } = options
+        const { id, userId, type, provider, model, status, payload, response, error, postId, audioDuration, audioSize, textLength, language, cost } = options
         if (!userId) {
             return
         }
@@ -56,22 +58,36 @@ export abstract class AIBaseService {
                 result = typeof response === 'string' ? response : JSON.stringify(response)
             }
 
-            const task = repo.create({
-                userId,
+            let task: AITask | null = null
+            if (id) {
+                task = await repo.findOneBy({ id, userId })
+            }
+
+            if (!task) {
+                task = repo.create({
+                    id,
+                    userId,
+                    type,
+                    payload: typeof payload === 'string' ? payload : JSON.stringify(payload),
+                })
+            }
+
+            Object.assign(task, {
                 type,
-                provider,
-                model,
-                status: error ? 'failed' : 'completed',
+                provider: provider || task.provider,
+                model: model || task.model,
+                status: status || (error ? 'failed' : 'completed'),
                 payload: typeof payload === 'string' ? payload : JSON.stringify(payload),
-                result,
-                error: error ? (error.message || String(error)) : undefined,
-                postId,
-                audioDuration,
-                audioSize,
-                textLength,
-                language,
-                actualCost: cost,
+                result: result || task.result,
+                error: error ? (error.message || String(error)) : (status ? task.error : undefined),
+                postId: postId || task.postId,
+                audioDuration: audioDuration || task.audioDuration,
+                audioSize: audioSize || task.audioSize,
+                textLength: textLength || task.textLength,
+                language: language || task.language,
+                actualCost: cost || task.actualCost,
             })
+
             return await repo.save(task)
         } catch (e) {
             logger.error(`[AIBaseService] Failed to record AI task (${type}):`, e)

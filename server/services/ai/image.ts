@@ -1,7 +1,5 @@
 import { getAIImageProvider } from '../../utils/ai'
 import logger from '../../utils/logger'
-import { dataSource } from '../../database'
-import { AITask } from '../../entities/ai-task'
 import { uploadFromUrl } from '../upload'
 import { AIBaseService } from './base'
 import type { AIImageOptions, AIImageResponse } from '@/types/ai'
@@ -14,14 +12,17 @@ export class ImageService extends AIBaseService {
         options: AIImageOptions,
         userId: string,
     ) {
-        const repo = dataSource.getRepository(AITask)
-        const task = repo.create({
+        const task = await this.recordTask({
             userId,
+            category: 'image',
             type: 'image_generation',
             status: 'processing',
-            payload: JSON.stringify(options),
+            payload: options,
         })
-        await repo.save(task)
+
+        if (!task) {
+            throw new Error('Failed to create AI task')
+        }
 
         this.processImageGeneration(task.id, options, userId).catch((err) => {
             logger.error(`Failed to process image generation task ${task.id}:`, err)
@@ -38,15 +39,8 @@ export class ImageService extends AIBaseService {
         options: AIImageOptions,
         userId: string,
     ) {
-        const repo = dataSource.getRepository(AITask)
-        const task = await repo.findOneBy({ id: taskId })
-        if (!task) { return }
-
         try {
             const provider = await getAIImageProvider()
-            task.provider = provider.name
-            task.model = (provider as any).config?.model || 'unknown'
-            await repo.save(task)
 
             if (!provider.generateImage) {
                 throw new Error(`Provider ${provider.name} does not support image generation`)
@@ -76,14 +70,27 @@ export class ImageService extends AIBaseService {
                 model: response.model,
             }
 
-            task.status = 'completed'
-            task.result = JSON.stringify(finalResponse)
-            await repo.save(task)
+            this.logUsage({ task: 'image-generation', response: finalResponse, userId })
+            await this.recordTask({
+                id: taskId,
+                userId,
+                category: 'image',
+                type: 'image_generation',
+                provider: provider.name,
+                model: finalResponse.model,
+                payload: options,
+                response: finalResponse,
+            })
         } catch (error: any) {
             logger.error(`AI Image Generation Error (Task ${taskId}):`, error)
-            task.status = 'failed'
-            task.error = error.message
-            await repo.save(task)
+            await this.recordTask({
+                id: taskId,
+                userId,
+                category: 'image',
+                type: 'image_generation',
+                payload: options,
+                error,
+            })
         }
     }
 }

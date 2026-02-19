@@ -106,6 +106,22 @@
             "error_exists": "This email is already in our subscription list",
             "submitting": "Processing..."
         },
+        "pages": {
+            "admin": {
+                "ai": {
+                    "types": {
+                        "tts": "Speech synthesis",
+                        "asr": "Speech recognition",
+                        "image": "Image generation",
+                        "text": "Text generation",
+                        "suggest_slug": "Suggest slug",
+                        "summarize": "Summarize",
+                        "translate": "Translate",
+                        "recommend_tags": "Recommend tags"
+                    }
+                }
+            }
+        },
         "post": {
             "copyright": {
                 "title": "Copyright Notice",
@@ -491,7 +507,14 @@
                     "image_generation": "Image Generation",
                     "tts": "TTS",
                     "podcast": "AI Podcast",
-                    "transcription": "Transcription"
+                    "transcription": "Transcription",
+                    "asr": "Transcription",
+                    "image": "Image Generation",
+                    "text": "Text Generation",
+                    "suggest_slug": "Suggest Slug",
+                    "summarize": "Summarize",
+                    "translate": "Translate",
+                    "recommend_tags": "Recommend Tags"
                 },
                 "statuses": {
                     "completed": "Completed",

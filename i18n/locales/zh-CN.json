@@ -491,7 +491,14 @@
                     "image_generation": "图像生成",
                     "tts": "语音合成",
                     "podcast": "AI 播客",
-                    "transcription": "语音识别"
+                    "transcription": "语音识别",
+                    "asr": "语音识别",
+                    "image": "图像生成",
+                    "text": "文本生成",
+                    "suggest_slug": "生成别名",
+                    "summarize": "生成摘要",
+                    "translate": "翻译",
+                    "recommend_tags": "推荐标签"
                 },
                 "statuses": {
                     "completed": "已完成",
