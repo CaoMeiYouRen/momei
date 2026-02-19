@@ -22,23 +22,23 @@ export class VolcengineASRProvider implements Partial<AIProvider> {
         return this.config.cluster
     }
 
-    async transcribe(options: TranscribeOptions): Promise<TranscribeResponse> {
+    transcribe(_options: TranscribeOptions): Promise<TranscribeResponse> {
         // 实际上这应该是一个 WebSocket 实现，这里提供一个简化的 HTTPS 轮询或单次上传逻辑
         // 如果是 V3 版，通常推荐使用官方 SDK。这里实现一个符合接口声明的占位或轻量逻辑
         logger.info(`[VolcengineASR] Transcribing with appId: ${this.config.appId}`)
 
         // 模拟返回
-        return {
+        return Promise.resolve({
             text: 'Volcengine ASR 暂时仅支持通过 WebSocket 实时流式传输或官方 SDK。',
             language: 'zh-CN',
             duration: 0,
             confidence: 1,
             usage: { audioSeconds: 0 },
-        }
+        })
     }
 
-    async check(): Promise<boolean> {
-        return !!(this.config.appId && this.config.token)
+    check(): Promise<boolean> {
+        return Promise.resolve(!!(this.config.appId && this.config.token))
     }
 }
 

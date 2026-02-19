@@ -72,6 +72,17 @@ export abstract class AIBaseService {
                 })
             }
 
+            let errorMsg = task.error
+            if (error) {
+                errorMsg = error.message || String(error)
+            } else if (status) {
+                // If status is provided but no error, we probably want to clear old error or keep it
+                // Logic check: if status is 'completed' or 'processing', we might want to clear error
+                if (status === 'completed' || status === 'processing') {
+                    errorMsg = null
+                }
+            }
+
             Object.assign(task, {
                 type,
                 provider: provider || task.provider,
@@ -79,7 +90,7 @@ export abstract class AIBaseService {
                 status: status || (error ? 'failed' : 'completed'),
                 payload: typeof payload === 'string' ? payload : JSON.stringify(payload),
                 result: result || task.result,
-                error: error ? (error.message || String(error)) : (status ? task.error : undefined),
+                error: errorMsg,
                 postId: postId || task.postId,
                 audioDuration: audioDuration || task.audioDuration,
                 audioSize: audioSize || task.audioSize,

@@ -59,7 +59,7 @@ export class AITask extends BaseEntity {
         nullable: true,
         comment: '失败原因',
     })
-    error: string
+    error: string | null
 
     @CustomColumn({
         type: 'varchar',

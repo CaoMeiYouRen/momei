@@ -204,8 +204,8 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
         })
     }
 
-    check(): boolean {
-        return !!(this.config.appId && this.config.accessKey)
+    check(): Promise<boolean> {
+        return Promise.resolve(!!(this.config.appId && this.config.accessKey))
     }
 }
 
