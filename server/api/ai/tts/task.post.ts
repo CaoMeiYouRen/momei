@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
         if (post.authorId !== user.id && !isAdmin(user.role)) {
             throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
         }
-        
+
         if (!contentToConvert) {
             contentToConvert = post.content
         }
@@ -44,6 +44,13 @@ export default defineEventHandler(async (event) => {
 
     const estimatedCost = await TTSService.estimateCost(contentToConvert, voice, provider)
 
+    // 如果没有传 model，则根据 provider 获取其默认 model
+    let finalModel = model
+    if (!finalModel) {
+        const providerObj = await TTSService.getProvider(provider || 'volcengine')
+        finalModel = (providerObj as any).model || (providerObj as any).defaultModel || 'unknown'
+    }
+
     const taskRepo = dataSource.getRepository(AITask)
     const task = taskRepo.create({
         type: mode === 'podcast' ? 'podcast' : 'tts',
@@ -52,7 +59,7 @@ export default defineEventHandler(async (event) => {
         provider,
         mode,
         voice,
-        model,
+        model: finalModel,
         script: contentToConvert,
         payload: JSON.stringify({
             postId: finalPostId || null,

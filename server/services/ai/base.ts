@@ -18,11 +18,17 @@ export abstract class AIBaseService {
             })
         }
 
+        const result = task.result ? JSON.parse(task.result) : null
+
         return {
             id: task.id,
             status: task.status,
-            result: task.result ? JSON.parse(task.result) : null,
+            progress: task.progress || 0,
+            result,
+            // 额外提取一些常用字段到外层方便前端使用
+            audioUrl: result?.audioUrl || result?.url || null,
             error: task.error,
+            updatedAt: task.updatedAt,
         }
     }
 

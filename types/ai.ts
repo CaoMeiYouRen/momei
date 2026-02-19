@@ -73,6 +73,7 @@ export interface TTSOptions {
     sampleRate?: number
     outputFormat?: string
     skipRecording?: boolean
+    taskId?: string
 }
 
 // --- ASR (Speech to Text) ---

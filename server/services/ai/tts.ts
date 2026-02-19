@@ -20,7 +20,8 @@ export class TTSService extends AIBaseService {
 
             const response = await provider.generateSpeech(text, voice, options)
 
-            // Only record if not explicitly skipped (e.g., when called from processTask which handles its own recording)
+            // Only record if not explicitly skipped
+            // If options.taskId is provided, we prefer updating that task instead of skipping or creating new
             if (!options.skipRecording) {
                 this.logUsage({
                     task: 'tts',
@@ -32,6 +33,7 @@ export class TTSService extends AIBaseService {
                 })
 
                 await this.recordTask({
+                    id: options.taskId,
                     userId,
                     category: 'tts',
                     type: 'tts',
@@ -46,6 +48,7 @@ export class TTSService extends AIBaseService {
         } catch (error: any) {
             if (!options.skipRecording) {
                 await this.recordTask({
+                    id: options.taskId,
                     userId,
                     category: 'tts',
                     type: 'tts',
@@ -164,7 +167,7 @@ export class TTSService extends AIBaseService {
      * 获取指定提供商
      */
     static async getProvider(name: string) {
-        return await getAIProvider({ provider: name as any })
+        return await getAIProvider('tts', { provider: name as any })
     }
 
     /**
@@ -203,10 +206,18 @@ export class TTSService extends AIBaseService {
 
             const stream = await this.generateSpeech(contentToUse, voice, { ...options, skipRecording: true }, task.userId, task.provider)
 
+            // 任务开始处理时，如果模型字段为空，尝试补全
+            if (!task.model) {
+                const providerObj = await getAIProvider('tts', { provider: task.provider as any })
+                task.model = (providerObj as any).model || (providerObj as any).defaultModel || 'unknown'
+            }
+
             // Convert stream to Buffer
             const reader = stream.getReader()
             const chunks: Uint8Array[] = []
             let receivedBytes = 0
+            let lastProgressUpdateBytes = 0
+
             while (true) {
                 const { done, value } = await reader.read()
                 if (done) {
@@ -215,17 +226,22 @@ export class TTSService extends AIBaseService {
                 if (value) {
                     chunks.push(value)
                     receivedBytes += value.length
-                    // Update progress periodically
-                    if (receivedBytes % 102400 === 0) { // 每 100KB 更新一次进度 (示意)
-                        task.progress = Math.min(99, (task.progress || 0) + 1)
+                    // 每收到约 100KB 数据就尝试更新一下进度，最高到 95% (保留 5% 给上传)
+                    if (receivedBytes - lastProgressUpdateBytes >= 102400) {
+                        lastProgressUpdateBytes = receivedBytes
+                        task.progress = Math.min(95, (task.progress || 0) + 1)
                         await taskRepo.save(task)
                     }
                 }
             }
 
             if (receivedBytes === 0) {
-                throw new Error('Received empty audio data from provider')
+                throw new Error('Received empty audio data from provider. Please check model and voice settings.')
             }
+
+            logger.debug(`[TTSService] Audio collected. Bytes: ${receivedBytes}. Starting upload...`)
+            task.progress = 96
+            await taskRepo.save(task)
 
             const buffer = Buffer.concat(chunks)
 

@@ -13,7 +13,7 @@ import { useTTSTask } from '~/composables/use-tts-task'
 import { cleanTextForTTS } from '~/utils/shared/tts-cleaner'
 
 const props = defineProps<{
-    postId: string
+    postId?: string
     content: string
 }>()
 
