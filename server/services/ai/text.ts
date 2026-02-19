@@ -316,7 +316,7 @@ export class TextService extends AIBaseService {
         return response.content.trim()
     }
 
-    static async translateName(name: string, to: string, _userId?: string) {
+    static async translateName(name: string, to: string, userId?: string) {
         const provider = await getAIProvider('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')
@@ -331,10 +331,11 @@ export class TextService extends AIBaseService {
             temperature: 0.3,
         })
 
+        this.logUsage({ task: 'translate-name', response, userId })
         return response.content.trim()
     }
 
-    static async suggestSlugFromName(name: string, _userId?: string) {
+    static async suggestSlugFromName(name: string, userId?: string) {
         const provider = await getAIProvider('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')
@@ -349,6 +350,7 @@ export class TextService extends AIBaseService {
             temperature: 0.3,
         })
 
+        this.logUsage({ task: 'suggest-slug', response, userId })
         return response.content.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-')
     }
 
@@ -379,7 +381,8 @@ export class TextService extends AIBaseService {
                 return JSON.parse(match[0]) as string[]
             }
             return response.content.split(/[,\s，、]+/).filter((t) => t.trim()).slice(0, 10)
-        } catch (_e) {
+        } catch (e) {
+            console.error('[RecommendTags Error]', e)
             return []
         }
     }
