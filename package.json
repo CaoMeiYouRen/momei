@@ -73,7 +73,7 @@
     "mavon-editor": "^3.0.2",
     "mjml": "^4.18.0",
     "ms": "4.0.0-nightly.202508271359",
-    "music-metadata": "^11.12.0",
+    "music-metadata": "^11.12.1",
     "mysql2": "^3.16.2",
     "nest-winston": "^1.10.2",
     "nodemailer": "^8.0.1",
