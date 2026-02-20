@@ -18,7 +18,7 @@
 1.  **Web Speech API (优先/默认)**: 利用浏览器原生能力，零开销，适合大多数现代浏览器。
 2.  **Cloud ASR (高精度)**:
     *   **SiliconFlow (Batch)**: 采用 OpenAI 兼容接口，通过 `POST /v1/audio/transcriptions` 上传文件转写。需要配置 SiliconFlow API Key。
-    *   **Volcengine (Streaming)**: 利用 WebSocket 实现流式语音转文字，支持毫秒级回显。需要配置火山引擎 AppID。
+    *   **Volcengine (Streaming)**: 利用 WebSocket 实现流式语音转文字，支持毫秒级回显。需要配置火山引擎 AppID。 **(注意：该渠道因接口对接问题暂时下线，代码已保留但前端隐藏)**
 
 ### 2.2 状态管理与抽象层
 

@@ -15,6 +15,6 @@ export default defineEventHandler(async (event) => {
     return {
         enabled: settings[SettingKey.ASR_ENABLED] !== 'false',
         siliconflow: !!(settings[SettingKey.ASR_API_KEY] || settings[SettingKey.ASR_SILICONFLOW_API_KEY]),
-        volcengine: !!settings[SettingKey.ASR_VOLCENGINE_APP_ID],
+        volcengine: false, // 暂时下线，因接口对接问题
     }
 })

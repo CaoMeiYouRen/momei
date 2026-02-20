@@ -154,11 +154,13 @@ export class TTSService extends AIBaseService {
             providers.push('siliconflow')
         }
 
-        // Volcengine
+        // Volcengine (暂时下线，因接口对接问题)
+        /*
         const hasVolc = settings[SettingKey.VOLCENGINE_APP_ID] || settings[SettingKey.ASR_VOLCENGINE_APP_ID] || process.env.VOLCENGINE_APP_ID
         if (hasVolc) {
             providers.push('volcengine')
         }
+        */
 
         return providers
     }
