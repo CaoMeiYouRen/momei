@@ -80,9 +80,10 @@
     - 校验: 优化文章正文在不同屏幕尺寸下的动态响应能力。
     - 校验: 优化头图缩放逻辑，修复裁剪不当问题。
     - 校验: 实现头图点击查看大图功能。
-- [ ] **AI 图像驱动补全 (AI Image Drivers)**
-    - 验收: 完成 **Gemini 3 Pro Image** 驱动，支持文本生成图片。
-    - 验收: 完成 **Stable Diffusion** (WebUI API) 驱动，支持调用本地或云端 SD 实例。
+- [/] **AI 图像驱动补全 (AI Image Drivers)**
+    - [x] **任务核心引擎**: 基于 `AITask` 实体与 API 轮询的异步生成闭环已打通。
+    - [x] 验收: 完成 **Gemini 3 Pro Image** 驱动，支持文本生成图片。
+    - [x] 验收: 完成 **Stable Diffusion** (WebUI API) 驱动，支持调用本地或云端 SD 实例。
 
 ### 4. 极客阅读与系统交互 (Geek UX & Notifications) (P1)
 

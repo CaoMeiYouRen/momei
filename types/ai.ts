@@ -51,6 +51,7 @@ export interface AIImageResponse {
         totalTokens: number
     }
     model?: string
+    raw?: any
 }
 
 // --- TTS (Text to Speech) ---

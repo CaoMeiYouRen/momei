@@ -68,6 +68,7 @@ export class ImageService extends AIBaseService {
                 images: persistedImages,
                 usage: response.usage,
                 model: response.model,
+                raw: response.raw,
             }
 
             this.logUsage({ task: 'image-generation', response: finalResponse, userId })

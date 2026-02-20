@@ -1,5 +1,7 @@
 import { OpenAIProvider } from './openai-provider'
 import { AnthropicProvider } from './anthropic-provider'
+import { GeminiProvider } from './gemini-provider'
+import { StableDiffusionProvider } from './stable-diffusion-provider'
 import { MockAIProvider } from './mock-provider'
 import { SiliconFlowASRProvider } from './asr-siliconflow'
 import { VolcengineASRProvider } from './asr-volcengine'
@@ -40,6 +42,7 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
         SettingKey.AI_API_KEY,
         SettingKey.AI_MODEL,
         SettingKey.AI_ENDPOINT,
+        SettingKey.GEMINI_API_TOKEN,
         SettingKey.ASR_VOLCENGINE_APP_ID,
         SettingKey.ASR_VOLCENGINE_CLUSTER_ID,
         SettingKey.VOLCENGINE_APP_ID,
@@ -131,11 +134,19 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
         case 'siliconflow':
         case 'volcengine':
         case 'deepseek':
-            return new OpenAIProvider(finalConfig) as any
+            return new OpenAIProvider(finalConfig)
         case 'anthropic':
-            return new AnthropicProvider(finalConfig) as any
+            return new AnthropicProvider(finalConfig)
+        case 'gemini':
+            return new GeminiProvider({
+                ...finalConfig,
+                // Gemini 可能需要额外的 apiToken 用于鉴权，优先从环境变量获取
+                apiToken: dbSettings[SettingKey.GEMINI_API_TOKEN] || process.env.GEMINI_API_TOKEN,
+            })
+        case 'stable-diffusion':
+            return new StableDiffusionProvider(finalConfig)
         default:
-            return new OpenAIProvider(finalConfig) as any
+            return new OpenAIProvider(finalConfig)
     }
 }
 

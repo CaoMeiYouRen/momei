@@ -18,6 +18,7 @@ export enum SettingKey {
     AI_API_KEY = 'ai_api_key',
     AI_MODEL = 'ai_model',
     AI_ENDPOINT = 'ai_endpoint',
+    GEMINI_API_TOKEN = 'gemini_api_token',
 
     // AI Image
     AI_IMAGE_ENABLED = 'ai_image_enabled',

@@ -134,4 +134,82 @@ describe('AI Infrastructure', () => {
             }),
         )
     })
+
+    it('should support Gemini provider', async () => {
+        mockFetch.mockResolvedValueOnce({
+            candidates: [{ content: { parts: [{ text: 'Gemini says hi' }] } }],
+            usageMetadata: { promptTokenCount: 10, candidatesTokenCount: 20, totalTokenCount: 30 },
+        })
+
+        const provider = await getAIProvider({
+            provider: 'gemini',
+            apiKey: 'gemini-key',
+            model: 'gemini-1.5-flash',
+        })
+        const response = await provider.chat!({
+            messages: [{ role: 'user', content: 'Hi' }],
+        })
+
+        expect(response.content).toBe('Gemini says hi')
+        expect(mockFetch).toHaveBeenCalledWith(
+            expect.stringContaining('/v1beta/models/gemini-1.5-flash:generateContent?key=gemini-key'),
+            expect.any(Object),
+        )
+    })
+
+    it('should support Gemini image generation', async () => {
+        mockFetch.mockResolvedValueOnce({
+            generatedImages: [{ bytesBase64Encoded: 'iVBORw...' }],
+        })
+
+        const provider = await getAIProvider({
+            provider: 'gemini',
+            apiKey: 'gemini-key',
+            model: 'imagen-3.0-generate-001',
+        })
+        const response = await provider.generateImage!({
+            prompt: 'A beautiful sunset',
+            aspectRatio: '16:9',
+        })
+
+        expect(response.images[0].url).toContain('data:image/png;base64,iVBORw')
+        expect(mockFetch).toHaveBeenCalledWith(
+            expect.stringContaining('/v1beta/models/imagen-3.0-generate-001:generateImage?key=gemini-key'),
+            expect.objectContaining({
+                method: 'POST',
+                body: expect.objectContaining({
+                    imageGenerationParams: expect.objectContaining({
+                        aspectRatio: '16:9',
+                    }),
+                }),
+            }),
+        )
+    })
+
+    it('should support Stable Diffusion image generation', async () => {
+        mockFetch.mockResolvedValueOnce({
+            images: ['iVBORw...'],
+            info: JSON.stringify({ prompt: 'A sunset' }),
+        })
+
+        const provider = await getAIProvider({
+            provider: 'stable-diffusion',
+            endpoint: 'http://localhost:7860',
+        })
+        const response = await provider.generateImage!({
+            prompt: 'A beautiful sunset',
+            size: '512x512',
+        })
+
+        expect(response.images[0].url).toContain('data:image/png;base64,iVBORw')
+        expect(mockFetch).toHaveBeenCalledWith(
+            'http://localhost:7860/sdapi/v1/txt2img',
+            expect.objectContaining({
+                method: 'POST',
+                body: expect.objectContaining({
+                    width: 512,
+                }),
+            }),
+        )
+    })
 })
