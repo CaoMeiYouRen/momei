@@ -1,8 +1,18 @@
-import { describe, it, expect } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 import App from './app.vue'
 
 describe('app.vue', () => {
+    beforeEach(() => {
+        registerEndpoint('/api/settings/public', () => ({
+            data: {
+                siteTitle: 'Momei Blog Test',
+                siteDescription: 'A test blog',
+                defaultLanguage: 'zh-CN',
+            },
+        }))
+    })
+
     it('should render the app layout with main components', async () => {
         const wrapper = await mountSuspended(App)
 

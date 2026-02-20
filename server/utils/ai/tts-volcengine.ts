@@ -290,7 +290,7 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                         await fetchReader.cancel().catch(() => { /* ignore */ })
                         try {
                             controller.close()
-                        } catch (_) {
+                        } catch {
                             // Already closed or other error
                         }
                     }
