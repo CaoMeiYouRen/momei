@@ -259,7 +259,7 @@ export class TTSService extends AIBaseService {
                             if (receivedBytes === 0) {
                                 logger.info(`[TTSService] First audio chunk received for task ${taskId} (${value.length} bytes)`)
                                 task.progress = 5
-                                await taskRepo.save(task).catch(() => {})
+                                await taskRepo.save(task).catch(() => { /* ignore */ })
                             }
                             chunks.push(value)
                             receivedBytes += value.length

@@ -287,10 +287,10 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                     }
 
                     if (isFinished) {
-                        await fetchReader.cancel().catch(() => {})
+                        await fetchReader.cancel().catch(() => { /* ignore */ })
                         try {
                             controller.close()
-                        } catch (e) {
+                        } catch (_) {
                             // Already closed or other error
                         }
                     }
@@ -300,12 +300,12 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                         isFinished = true
                         controller.error(error)
                     }
-                    await fetchReader.cancel().catch(() => {})
+                    await fetchReader.cancel().catch(() => { /* ignore */ })
                 }
             },
             cancel() {
                 isFinished = true
-                fetchReader.cancel().catch(() => {})
+                fetchReader.cancel().catch(() => { /* ignore */ })
             },
         })
 

@@ -41,10 +41,10 @@ describe('ImageService', () => {
 
             expect(result.id).toBe('task-123')
             expect(mockRepo.create).toHaveBeenCalledWith({
+                id: undefined,
                 type: 'image_generation',
-                status: 'processing',
-                payload: JSON.stringify(options),
                 userId: 'user-1',
+                payload: JSON.stringify(options),
             })
             expect(mockRepo.save).toHaveBeenCalled()
         })
@@ -133,8 +133,11 @@ describe('ImageService', () => {
             expect(result).toEqual({
                 id: 'task-123',
                 status: 'completed',
+                progress: 0,
                 result: { url: '/image.png' },
+                audioUrl: '/image.png',
                 error: null,
+                updatedAt: undefined,
             })
         })
 
