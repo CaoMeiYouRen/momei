@@ -204,12 +204,14 @@ export class TTSService extends AIBaseService {
                 options.model = task.model
             }
 
+            logger.info(`[TTSService] Starting speech synthesis for task ${taskId}. Text length: ${contentToUse.length}, Provider: ${task.provider}`)
             const stream = await this.generateSpeech(contentToUse, voice, { ...options, skipRecording: true }, task.userId, task.provider)
 
             // 任务开始处理时，如果模型字段为空，尝试补全
             if (!task.model) {
                 const providerObj = await getAIProvider('tts', { provider: task.provider as any })
                 task.model = (providerObj as any).model || (providerObj as any).defaultModel || 'unknown'
+                await taskRepo.save(task)
             }
 
             // Convert stream to Buffer
@@ -218,32 +220,91 @@ export class TTSService extends AIBaseService {
             let receivedBytes = 0
             let lastProgressUpdateBytes = 0
 
-            while (true) {
-                const { done, value } = await reader.read()
-                if (done) {
-                    break
-                }
-                if (value) {
-                    chunks.push(value)
-                    receivedBytes += value.length
-                    // 每收到约 100KB 数据就尝试更新一下进度，最高到 95% (保留 5% 给上传)
-                    if (receivedBytes - lastProgressUpdateBytes >= 102400) {
-                        lastProgressUpdateBytes = receivedBytes
-                        task.progress = Math.min(95, (task.progress || 0) + 1)
-                        await taskRepo.save(task)
+            // 设置读取超时 (60秒内没收到任何数据或总处理超时则报错)
+            const READ_TIMEOUT = 60000
+            const MAX_TOTAL_TIME = 120000
+            const startTime = Date.now()
+
+            try {
+                let chunkCount = 0
+                while (true) {
+                    // 检查总时间是否超限
+                    if (Date.now() - startTime > MAX_TOTAL_TIME) {
+                        throw new Error(`Speech synthesis timed out total execution time exceeded ${MAX_TOTAL_TIME}ms`)
+                    }
+
+                    // 使用可以清理的超时
+                    let timeoutId: any
+                    const timeoutPromise = new Promise<{ done: boolean, value?: Uint8Array }>((_, reject) => {
+                        timeoutId = setTimeout(() => reject(new Error('Stream read timeout: No data received for 60 seconds')), READ_TIMEOUT)
+                    })
+
+                    try {
+                        const result = await Promise.race([
+                            reader.read(),
+                            timeoutPromise as any,
+                        ])
+                        clearTimeout(timeoutId) // 成功读取，取消超时
+
+                        const { done, value } = result
+
+                        if (done) {
+                            logger.info(`[TTSService] Stream reading completed for task ${taskId}. Total chunks: ${chunkCount}, Total bytes: ${receivedBytes}`)
+                            break
+                        }
+                        if (value && value.length > 0) {
+                            chunkCount++
+                            if (receivedBytes === 0) {
+                                logger.info(`[TTSService] First audio chunk received for task ${taskId} (${value.length} bytes)`)
+                                task.progress = 5
+                                await taskRepo.save(task).catch(() => {})
+                            }
+                            chunks.push(value)
+                            receivedBytes += value.length
+                            // 每收到一些数据就更新进度 (每 50KB 或每收到块)，最高到 95%
+                            if (receivedBytes - lastProgressUpdateBytes >= 51200) {
+                                lastProgressUpdateBytes = receivedBytes
+                                // 步进式增加进度，在没有总大小参考时，采用平滑增长
+                                const currentProgress = typeof task.progress === 'number' ? task.progress : 5
+                                task.progress = Math.min(95, currentProgress + 1)
+                                logger.debug(`[TTSService] Task ${taskId} progress: ${task.progress}% (${receivedBytes} bytes)`)
+                                await taskRepo.save(task).catch((e) => logger.warn(`[TTSService] Task progress save failed (taskId: ${taskId}):`, e))
+                            }
+                        }
+                    } catch (readErr) {
+                        clearTimeout(timeoutId)
+                        throw readErr
                     }
                 }
+            } catch (readError) {
+                logger.error(`[TTSService] Stream reading failed for task ${taskId}:`, readError)
+                throw readError
+            } finally {
+                reader.releaseLock()
             }
 
             if (receivedBytes === 0) {
                 throw new Error('Received empty audio data from provider. Please check model and voice settings.')
             }
 
-            logger.debug(`[TTSService] Audio collected. Bytes: ${receivedBytes}. Starting upload...`)
+            logger.info(`[TTSService] Audio collected for task ${taskId}. Bytes: ${receivedBytes}. Starting OSS upload...`)
             task.progress = 96
             await taskRepo.save(task)
 
             const buffer = Buffer.concat(chunks)
+
+            // Debug: Save audio file to local .data directory
+            try {
+                const fs = await import('node:fs/promises')
+                const path = await import('node:path')
+                const debugDir = path.join(process.cwd(), '.data', 'debug-tts')
+                await fs.mkdir(debugDir, { recursive: true })
+                const debugFilePath = path.join(debugDir, `debug_${taskId}_${Date.now()}.mp3`)
+                await fs.writeFile(debugFilePath, buffer)
+                logger.info(`[TTSService] Debug: Audio saved to local file: ${debugFilePath}`)
+            } catch (debugErr) {
+                logger.warn(`[TTSService] Debug: Failed to save vocal file to .data:`, debugErr)
+            }
 
             // Upload to storage
             const format = options.outputFormat || 'mp3'

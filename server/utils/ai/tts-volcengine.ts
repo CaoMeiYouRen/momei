@@ -108,16 +108,15 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
 
         // 逻辑：如果 options.model 是通用的 'seed-tts-2.0'、'unknown' 或为空，我们根据音色精细化选择
         if (!bodyModel || bodyModel === 'seed-tts-2.0' || bodyModel === 'unknown') {
-            if (isSaturn) {
+            if (isSaturn || isUranus) {
                 // 声音复刻 2.0 必须使用 seed-tts-2.0-expressive
                 bodyModel = 'seed-tts-2.0-expressive'
             } else {
-                // 其他音色 (包括 2.0 标准版 uranus 和 1.0 版) 统一使用 1.1 提高质量
-                // 注意：由于之前尝试使用 'seed-tts-2.0' 作为模型导致了 InvalidModel 错误，
-                // 这里统一回退到兼容性更好的 'seed-tts-1.1'
+                // 1.0 版音色统一使用 1.1 提高质量
                 bodyModel = 'seed-tts-1.1'
             }
         }
+        logger.debug(`[VolcengineTTS] Resource ID: ${resourceId}, Final Body Model: ${bodyModel}`)
 
         const url = 'https://openspeech.bytedance.com/api/v3/tts/unidirectional'
 
@@ -142,6 +141,7 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
         const additions: any = {
             explicit_language: options.language || 'zh',
             disable_markdown_filter: true,
+            enable_timestamp: true,
         }
 
         // 如果设置了音调
@@ -151,8 +151,14 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
             }
         }
         logger.debug(`[VolcengineTTS] Request payload prepared. Speaker: ${speaker}, Model: ${bodyModel}, Speech Rate: ${speechRate}, Loudness Rate: ${loudnessRate}, Additions: ${JSON.stringify(additions)}`)
+
+        // 设置 30 秒连接并响应头部超时
+        const controller_abort = new AbortController()
+        const timeoutId = setTimeout(() => controller_abort.abort(), 30000)
+
         const response = await fetch(url, {
             method: 'POST',
+            signal: controller_abort.signal,
             headers: {
                 'X-Api-App-Id': appId,
                 'X-Api-Access-Key': token,
@@ -160,84 +166,85 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                 'X-Api-Request-Id': crypto.randomUUID(),
                 'X-Control-Require-Usage-Tokens-Return': '*',
                 'Content-Type': 'application/json',
+                Connection: 'keep-alive',
             },
             body: JSON.stringify({
                 user: { uid: crypto.randomUUID() },
                 req_params: {
                     text,
                     speaker,
-                    model: bodyModel,
                     audio_params: {
                         format: options.outputFormat || 'mp3',
                         sample_rate: options.sampleRate || 24000,
                         speech_rate: speechRate,
                         loudness_rate: loudnessRate,
+                        enable_timestamp: true,
                     },
                     additions: JSON.stringify(additions),
                 },
             }),
-        })
+        }).finally(() => clearTimeout(timeoutId))
 
         const logId = response.headers.get('X-Tt-Logid')
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}))
-            logger.error(`[VolcengineTTS] HTTP Error: ${response.status}, LogID: ${logId}`, errorData)
+            const errorText = await response.text()
+            logger.error(`[VolcengineTTS] HTTP request failed (LogID: ${logId}): ${response.status}`, errorText)
             throw createError({
                 statusCode: response.status,
-                message: `Volcengine TTS Error: ${errorData.message || response.statusText} (LogID: ${logId})`,
+                statusMessage: `Volcengine TTS Request Failed: ${errorText}`,
             })
         }
         logger.debug(`[VolcengineTTS] HTTP request successful. Status: ${response.status}, LogID: ${logId}`)
-        // logger.debug(`[VolcengineTTS] Response`, await response.text())
-        const reader = response.body?.getReader()
-        if (!reader) {
-            throw createError({
-                statusCode: 500,
-                message: `Volcengine TTS Error: Failed to get response stream (LogID: ${logId})`,
-            })
+
+        const fetchReader = response.body?.getReader()
+        if (!fetchReader) {
+            throw createError({ statusCode: 500, statusMessage: 'Failed to access response body' })
         }
 
-        const decoder = new TextDecoder()
-        let buffer = ''
-
         const processLine = (line: string, controller: ReadableStreamDefaultController<Uint8Array>) => {
-            const cleanLine = line.replace(/^data:\s*/, '').trim()
-            if (!cleanLine) {
+            const rawLine = line.trim()
+            if (!rawLine) {
                 return 'continue'
             }
+
             try {
-                const json = JSON.parse(cleanLine)
-                logger.debug(`[VolcengineTTS] Received line (LogID: ${logId}):`, json)
-                // 处理音频数据 (无论是中间包还是完成包，有数据先处理)
-                if (json.data) {
+                const json = JSON.parse(rawLine)
+
+                // 处理音频数据
+                if (json.code === 0 && json.data) {
                     const binary = Buffer.from(json.data, 'base64')
-                    controller.enqueue(new Uint8Array(binary))
+                    if (binary.length > 0) {
+                        controller.enqueue(new Uint8Array(binary))
+                    }
+                    return 'continue'
                 }
 
-                // 20000000 表示正常完成
+                // 合成完成 (20000000 是成功结束码)
                 if (json.code === 20000000) {
                     if (json.usage) {
-                        logger.debug(`[VolcengineTTS] Synthesis finished (LogID: ${logId}). Usage:`, json.usage)
+                        logger.info(`[VolcengineTTS] Synthesis finished (LogID: ${logId}). Usage tokens: ${json.usage.tokens_total || json.usage.tokens}`)
                     }
-                    return 'finish' // 标记逻辑完成
+                    return 'finish'
                 }
 
-                // 非 0 且非 20000000 的 code 视为错误
-                if (json.code !== 0) {
+                // 错误响应 (code > 0 且不等于 20000000)
+                if (json.code > 0) {
                     const errorMsg = `Volcengine TTS Stream Error: ${json.message || 'Unknown error'} (code: ${json.code}, LogID: ${logId})`
-                    logger.error(`[VolcengineTTS] Error payload:`, json)
-                    controller.error(new Error(errorMsg))
+                    logger.error(`[VolcengineTTS] ${errorMsg}`, json)
                     return 'error'
                 }
 
                 return 'continue'
             } catch (e) {
-                logger.warn(`[VolcengineTTS] JSON Parse Error (LogID: ${logId}). Line snippet: ${cleanLine.substring(0, 100)}`, e)
+                // 如果解析失败，可能是因为行内容非 JSON，但在 V3 接口中通常应该都是 JSON
+                logger.error(`[VolcengineTTS] JSON parse error (LogID: ${logId}). Content highlight: ${rawLine.substring(0, 100)}`, e)
                 return 'continue'
             }
         }
 
         let isFinished = false
+        const decoder = new TextDecoder()
+        let leftover = ''
 
         return new ReadableStream({
             async pull(controller) {
@@ -246,15 +253,18 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                 }
 
                 try {
-                    const { done, value } = await reader.read()
+                    const { done, value } = await fetchReader.read()
 
                     if (done) {
-                        logger.debug(`[VolcengineTTS] Stream reader done (LogID: ${logId}). Remaining buffer length: ${buffer.length}`)
-                        // 处理缓冲区中最后一行的逻辑
-                        if (buffer.trim()) {
-                            processLine(buffer, controller)
+                        // 处理流结束后的最后一部分
+                        const remaining = decoder.decode()
+                        const finalData = leftover + remaining
+                        if (finalData.trim()) {
+                            processLine(finalData, controller)
                         }
+
                         if (!isFinished) {
+                            logger.info(`[VolcengineTTS] Stream completed (LogID: ${logId})`)
                             isFinished = true
                             controller.close()
                         }
@@ -262,38 +272,40 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                     }
 
                     const chunk = decoder.decode(value, { stream: true })
-                    buffer += chunk
-
-                    const lines = buffer.split('\n')
-                    buffer = lines.pop() || ''
+                    const data = leftover + chunk
+                    const lines = data.split('\n')
+                    leftover = lines.pop() || ''
 
                     for (const line of lines) {
                         const status = processLine(line, controller)
-                        if (status === 'finish') {
+                        if (status === 'finish' || status === 'error') {
                             isFinished = true
-                            controller.close()
-                            // 逻辑结束时手动关闭 reader 以释放资源
-                            await reader.cancel().catch(() => {})
-                            break
-                        } else if (status === 'error') {
-                            isFinished = true
-                            // 重点：发生错误时不要再调用 close()
-                            await reader.cancel().catch(() => {})
+                            // 即使结束了也不要立即 break，因为后面的行可能包含 usage 等信息
+                            // 但在 V3 中 finish 包通常就是最后一个了
                             break
                         }
                     }
+
+                    if (isFinished) {
+                        await fetchReader.cancel().catch(() => {})
+                        try {
+                            controller.close()
+                        } catch (e) {
+                            // Already closed or other error
+                        }
+                    }
                 } catch (error) {
-                    logger.error(`[VolcengineTTS] Stream read error (LogID: ${logId}):`, error)
+                    logger.error(`[VolcengineTTS] Stream read exception (LogID: ${logId}):`, error)
                     if (!isFinished) {
                         isFinished = true
                         controller.error(error)
                     }
-                    await reader.cancel().catch(() => {})
+                    await fetchReader.cancel().catch(() => {})
                 }
             },
-            async cancel() {
+            cancel() {
                 isFinished = true
-                await reader.cancel().catch(() => {})
+                fetchReader.cancel().catch(() => {})
             },
         })
 
