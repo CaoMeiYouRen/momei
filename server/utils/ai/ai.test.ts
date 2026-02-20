@@ -172,7 +172,7 @@ describe('AI Infrastructure', () => {
             aspectRatio: '16:9',
         })
 
-        expect(response.images[0].url).toContain('data:image/png;base64,iVBORw')
+        expect(response.images[0]!.url).toContain('data:image/png;base64,iVBORw')
         expect(mockFetch).toHaveBeenCalledWith(
             expect.stringContaining('/v1beta/models/imagen-3.0-generate-001:generateImage?key=gemini-key'),
             expect.objectContaining({
@@ -201,7 +201,7 @@ describe('AI Infrastructure', () => {
             size: '512x512',
         })
 
-        expect(response.images[0].url).toContain('data:image/png;base64,iVBORw')
+        expect(response.images[0]!.url).toContain('data:image/png;base64,iVBORw')
         expect(mockFetch).toHaveBeenCalledWith(
             'http://localhost:7860/sdapi/v1/txt2img',
             expect.objectContaining({

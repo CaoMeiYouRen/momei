@@ -1,17 +1,42 @@
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import { test, expect } from '@playwright/test'
 import { AuthHelper } from './helpers/auth.helper'
 
+// ES 模块中获取 __dirname
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// 认证状态文件路径
+const authFile = path.join(__dirname, '.auth', 'admin.json')
+
+// 检查认证状态文件是否存在
+function hasStoredAuth(): boolean {
+    try {
+        return fs.existsSync(authFile)
+    } catch {
+        return false
+    }
+}
+
 test.describe('Admin E2E Tests', () => {
+    // 如果全局设置已保存认证状态，使用它；否则尝试登录
+    test.use({
+        storageState: hasStoredAuth() ? authFile : undefined,
+    })
+
     test.beforeEach(async ({ page }) => {
-        // 在正式集成测试中，通常需要一个真实的管理员账号
-        // 这里假设已经按照 AuthHelper 设置
-        const auth = new AuthHelper(page)
-        // 只有在非本地环境或有预置账户时才启用
-        // 这里只是为了演示代码覆盖，暂时在测试不满足条件时跳过
-        try {
-            await auth.loginAsAdmin()
-        } catch {
-            test.skip(true, 'Admin login failed, skipping admin pages tests')
+        // 如果没有存储的认证状态，尝试登录
+        if (!hasStoredAuth()) {
+            const auth = new AuthHelper(page)
+            try {
+                await auth.loginAsAdmin()
+            } catch {
+                // 登录失败，跳过测试
+                test.skip()
+                
+            }
         }
     })
 
