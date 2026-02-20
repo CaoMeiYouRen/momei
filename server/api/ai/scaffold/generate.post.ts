@@ -3,11 +3,12 @@ import { In } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Snippet } from '@/server/entities/snippet'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
-import { AIService } from '@/server/services/ai'
+import { TextService } from '@/server/services/ai'
 
 const generateSchema = z.object({
     topic: z.string().optional(),
     snippetIds: z.array(z.string()).optional(),
+    snippets: z.array(z.string()).optional(),
     template: z.enum(['blog', 'tutorial', 'note', 'report']).optional().default('blog'),
     sectionCount: z.number().min(3).max(8).optional().default(5),
     audience: z.enum(['beginner', 'intermediate', 'advanced']).optional().default('intermediate'),
@@ -21,6 +22,7 @@ export default defineEventHandler(async (event) => {
     const {
         topic,
         snippetIds,
+        snippets: rawSnippets,
         template,
         sectionCount,
         audience,
@@ -28,14 +30,14 @@ export default defineEventHandler(async (event) => {
         language,
     } = generateSchema.parse(body)
 
-    if (!topic && (!snippetIds || snippetIds.length === 0)) {
+    if (!topic && (!snippetIds || snippetIds.length === 0) && (!rawSnippets || rawSnippets.length === 0)) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Either topic or snippetIds must be provided',
+            statusMessage: 'Topic, snippetIds or snippets must be provided',
         })
     }
 
-    let contents: string[] = []
+    let contents: string[] = rawSnippets || []
     if (snippetIds && snippetIds.length > 0) {
         const repo = dataSource.getRepository(Snippet)
         const snippets = await repo.find({
@@ -47,7 +49,7 @@ export default defineEventHandler(async (event) => {
         contents = snippets.map((s) => s.content)
     }
 
-    const scaffold = await AIService.generateScaffold({
+    const scaffold = await TextService.generateScaffold({
         topic,
         snippets: contents,
         template,

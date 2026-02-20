@@ -17,7 +17,8 @@
 | 驱动类型 | 交互模式 | API 协议 | 典型厂商 | 使用场景 |
 |:---|:---|:---|:---|:---|
 | **SiliconFlow** | Batch | HTTP POST (OpenAI 兼容) | SiliconFlow | 上传录音文件进行全文精确转录 |
-| **Volcengine** | Streaming | WebSocket + 二进制 | 字节火山/豆包 | 边说边转写，极致实时体验 |
+| **Volcengine** | Streaming | WebSocket (V3) | 豆包流式 ASR 2.0 | 边说边转写，写作实时录入 |
+| **Volcengine** | Batch | HTTP/WS | 豆包录音文件识别 2.0 | 长音频/全文转录 |
 
 ### 2.2 技术对比
 
@@ -36,12 +37,21 @@
 #### Volcengine (Streaming Mode)
 
 **优点**:
-- 毫秒级响应，边说边出字
-- 支持流式字幕生成
-- 可在识别过程中实时打断
+- **极低延迟**: 端到端延迟 <200ms，边说边出字，完美适配写作节奏。
+- **高准确率**: 豆包 2.0 模型字错误率降低 30%-50%，深度优化中英文混说与专业术语。
+- **写作专属优化**: 自带口语顺滑、无效语气词过滤（嗯、啊、然后等）、智能标点与分段。
+- **热词定制**: 支持实时录入博主专属名词、品牌名、技术术语。
+
+**关键技术细节**:
+- **协议端点**: `wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_async` (双向流式优化版，推荐)。
+- **资源 ID**: 
+  - 小时计费: `volc.seedasr.sauc.duration`
+  - 并发计费: `volc.seedasr.sauc.concurrent`
+- **二遍识别 (`enable_nonstream`)**: 在实时返回的同时，利用非流式模型对分句进行二次纠错，实现“快”与“准”的平衡。
+- **判停时间 (`end_window_size`)**: 默认 800ms，可按需配置以控制断句灵敏度。
 
 **缺点**:
-- 实现复杂度较高（WebSocket + 二进制协议）
+- 实现复杂度较高（WebSocket + 专用二进制协议）。
 - 需维护长连接状态
 
 ## 3. 数据库设计
@@ -60,21 +70,25 @@
 | `maxSeconds` | `integer` | 最大允许秒数 |
 | `resetAt` | `datetime` | 重置时间 |
 
-### 3.2 ASR 使用记录表 (`ASRUsageLog`)
+### 3.2 ASR 使用记录
 
-记录每次识别请求的详细信息：
+ASR 的使用记录已整合进统一个 AI 任务追踪表 `AITask` 中。当 `type` 为 `transcription` 时记录 ASR 任务：
 
 | 字段 | 类型 | 说明 |
 |:---|:---|:---|
 | `id` | `uuid` | 主键 |
 | `userId` | `uuid` | 用户 ID |
+| `type` | `varchar(50)` | 任务类型 (transcription) |
 | `provider` | `varchar(50)` | 提供者 |
-| `mode` | `varchar(20)` | 模式 (batch, streaming) |
+| `model` | `varchar(100)` | 使用的模型 |
+| `status` | `varchar(20)` | 状态 |
+| `payload` | `text` | 原始参数 (JSON) |
+| `result` | `text` | 识别文本 (JSON) |
 | `audioDuration` | `integer` | 音频时长（秒） |
 | `audioSize` | `integer` | 音频大小（字节） |
 | `textLength` | `integer` | 识别文本长度 |
 | `language` | `varchar(10)` | 识别语言 |
-| `cost` | `decimal` | 预估成本 |
+| `actualCost` | `decimal` | 实际成本 |
 | `createdAt` | `datetime` | 创建时间 |
 
 ## 4. API 设计
@@ -82,7 +96,7 @@
 ### 4.1 Batch 模式接口
 
 ```typescript
-// POST /api/ai/voice/transcribe
+// POST /api/ai/asr/transcribe
 interface TranscribeRequest {
     audioFile: File | Blob
     language?: string  // 自动检测或指定
@@ -106,7 +120,7 @@ interface TranscribeResponse {
 ### 4.2 Streaming 模式接口
 
 ```typescript
-// WS /api/ai/voice/stream
+// WS /api/ai/asr/stream
 // WebSocket 连接
 
 // 客户端 -> 服务器
@@ -287,7 +301,7 @@ async function transcribe() {
         formData.append('audioFile', audioBlob.value, 'recording.webm')
         formData.append('language', currentLocale.value)
 
-        const result = await $fetch<TranscribeResponse>('/api/ai/voice/transcribe', {
+        const result = await $fetch<TranscribeResponse>('/api/ai/asr/transcribe', {
             method: 'POST',
             body: formData,
         })
@@ -402,7 +416,7 @@ async function toggleConnection() {
 }
 
 async function connect() {
-    ws = new WebSocket('/api/ai/voice/stream')
+    ws = new WebSocket('/api/ai/asr/stream')
 
     ws.onopen = () => {
         isConnected.value = true
@@ -638,17 +652,18 @@ export class ASRQuotaService {
             audioDuration
         )
 
-        // 记录日志
-        await asrUsageLogRepo.save({
+        // 记录任务 (已整合至 AITask)
+        await aiTaskRepo.save({
             userId,
+            category: 'asr',
+            type: 'transcription',
             provider,
-            mode,
+            status: 'completed',
             audioDuration,
             audioSize,
             textLength,
             language,
-            cost: this.estimateCost(provider, audioDuration),
-            createdAt: new Date(),
+            actualCost: this.estimateCost(provider, audioDuration),
         })
     }
 

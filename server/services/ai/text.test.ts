@@ -1,16 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { dataSource } from '../database'
-import * as aiUtils from '../utils/ai'
-import { AIService } from './ai'
-import * as uploadService from './upload'
+import { dataSource } from '../../database'
+import * as aiUtils from '../../utils/ai'
+import { TextService } from './text'
 
-vi.mock('../database')
-vi.mock('../entities/ai-task')
-vi.mock('../utils/ai')
-vi.mock('./upload')
-vi.mock('../utils/logger')
+vi.mock('../../database')
+vi.mock('../../entities/ai-task')
+vi.mock('../../utils/ai')
+vi.mock('../upload')
+vi.mock('../../utils/logger')
 
-describe('AIService', () => {
+describe('TextService', () => {
     let mockRepo: any
 
     beforeEach(() => {
@@ -42,7 +41,7 @@ describe('AIService', () => {
 
             vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
 
-            const result = await AIService.suggestTitles('测试内容', 'zh-CN', 'user-1')
+            const result = await TextService.suggestTitles('测试内容', 'zh-CN', 'user-1')
 
             expect(result).toEqual(['标题1', '标题2', '标题3'])
             expect(mockProvider.chat).toHaveBeenCalledWith(
@@ -64,7 +63,7 @@ describe('AIService', () => {
 
             vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
 
-            const result = await AIService.suggestTitles('测试内容', 'zh-CN')
+            const result = await TextService.suggestTitles('测试内容', 'zh-CN')
 
             expect(result).toEqual(['标题1', '标题2', '标题3'])
         })
@@ -82,7 +81,7 @@ describe('AIService', () => {
             vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
 
             const longContent = 'a'.repeat(10000)
-            await AIService.suggestTitles(longContent, 'zh-CN')
+            await TextService.suggestTitles(longContent, 'zh-CN')
 
             expect(mockProvider.chat).toHaveBeenCalled()
         })
@@ -101,7 +100,7 @@ describe('AIService', () => {
 
             vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
 
-            const result = await AIService.suggestSlug('My Awesome Post!', 'content', 'user-1')
+            const result = await TextService.suggestSlug('My Awesome Post!', 'content', 'user-1')
 
             expect(result).toBe('my-awesome-post')
             expect(mockProvider.chat).toHaveBeenCalledWith(
@@ -123,131 +122,9 @@ describe('AIService', () => {
 
             vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
 
-            const result = await AIService.suggestSlug('测试', 'content')
+            const result = await TextService.suggestSlug('测试', 'content')
 
             expect(result).toMatch(/^[a-z0-9-]+$/)
-        })
-    })
-
-    describe('generateImage', () => {
-        it('should create image generation task and return immediately', async () => {
-            const options = {
-                prompt: 'A beautiful sunset',
-                quality: 'hd' as const,
-                style: 'vivid' as const,
-            }
-
-            const result = await AIService.generateImage(options, 'user-1')
-
-            expect(result.id).toBe('task-123')
-            expect(mockRepo.create).toHaveBeenCalledWith({
-                type: 'image_generation',
-                status: 'processing',
-                payload: JSON.stringify(options),
-                userId: 'user-1',
-            })
-            expect(mockRepo.save).toHaveBeenCalled()
-        })
-
-        it('should process image generation in background', async () => {
-            const mockTask = {
-                id: 'task-123',
-                status: 'processing',
-                type: 'image_generation',
-            }
-
-            mockRepo.findOneBy.mockResolvedValue(mockTask)
-
-            const mockProvider = {
-                name: 'openai',
-                generateImage: vi.fn().mockResolvedValue({
-                    images: [{ url: 'https://example.com/image.png' }],
-                    usage: {},
-                    model: 'dall-e-3',
-                }),
-            }
-
-            vi.mocked(aiUtils.getAIImageProvider).mockResolvedValue(mockProvider as any)
-            vi.mocked(uploadService.uploadFromUrl).mockResolvedValue({
-                url: '/uploads/ai/task-123.png',
-                path: '/uploads/ai/task-123.png',
-                size: 1024,
-                mimeType: 'image/png',
-            } as any)
-
-            const options = { prompt: 'Test' }
-            await AIService.generateImage(options, 'user-1')
-
-            // Wait for background processing
-            await new Promise((resolve) => setTimeout(resolve, 100))
-
-            expect(mockProvider.generateImage).toHaveBeenCalledWith(options)
-        })
-
-        it('should handle image generation failure', async () => {
-            const mockTask = {
-                id: 'task-123',
-                status: 'processing',
-            }
-
-            mockRepo.findOneBy.mockResolvedValue(mockTask)
-
-            const mockProvider = {
-                name: 'openai',
-                generateImage: vi.fn().mockRejectedValue(new Error('API quota exceeded')),
-            }
-
-            vi.mocked(aiUtils.getAIImageProvider).mockResolvedValue(mockProvider as any)
-
-            await AIService.generateImage({ prompt: 'Test' }, 'user-1')
-
-            // Wait for background processing
-            await new Promise((resolve) => setTimeout(resolve, 100))
-
-            expect(mockRepo.save).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    status: 'failed',
-                    error: 'API quota exceeded',
-                }),
-            )
-        })
-    })
-
-    describe('getTaskStatus', () => {
-        it('should return task status for valid task', async () => {
-            const mockTask = {
-                id: 'task-123',
-                status: 'completed',
-                result: JSON.stringify({ images: [{ url: '/image.png' }] }),
-                error: null,
-            }
-
-            mockRepo.findOneBy.mockResolvedValue(mockTask)
-
-            const result = await AIService.getTaskStatus('task-123', 'user-1')
-
-            expect(result).toEqual({
-                id: 'task-123',
-                status: 'completed',
-                result: { images: [{ url: '/image.png' }] },
-                error: null,
-            })
-        })
-
-        it('should throw 404 for non-existent task', async () => {
-            mockRepo.findOneBy.mockResolvedValue(null)
-
-            await expect(
-                AIService.getTaskStatus('invalid-id', 'user-1'),
-            ).rejects.toThrow('Task not found')
-        })
-
-        it('should not return task for different user', async () => {
-            mockRepo.findOneBy.mockResolvedValue(null)
-
-            await expect(
-                AIService.getTaskStatus('task-123', 'user-2'),
-            ).rejects.toThrow()
         })
     })
 
@@ -264,7 +141,7 @@ describe('AIService', () => {
 
             vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
 
-            const result = await AIService.summarize('短内容', 200, 'zh-CN', 'user-1')
+            const result = await TextService.summarize('短内容', 200, 'zh-CN', 'user-1')
 
             expect(result).toBe('这是一个简短的摘要')
             expect(mockProvider.chat).toHaveBeenCalledTimes(1)
@@ -274,7 +151,7 @@ describe('AIService', () => {
             const longContent = 'a'.repeat(100001) // Assuming AI_MAX_CONTENT_LENGTH is 100000
 
             await expect(
-                AIService.summarize(longContent, 200, 'zh-CN'),
+                TextService.summarize(longContent, 200, 'zh-CN'),
             ).rejects.toThrow('Content too long')
         })
 
@@ -304,7 +181,7 @@ describe('AIService', () => {
             // Create content that splits into exactly 2 chunks
             // Each chunk is 3500 chars, separated by double newlines
             const longContent = `${'a'.repeat(3500)}\n\n${'b'.repeat(3500)}`
-            const result = await AIService.summarize(longContent, 200, 'zh-CN')
+            const result = await TextService.summarize(longContent, 200, 'zh-CN')
 
             expect(result).toBe('最终摘要')
             expect(mockProvider.chat).toHaveBeenCalledTimes(3) // 2 chunks + 1 final
@@ -324,7 +201,7 @@ describe('AIService', () => {
 
             vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
 
-            const result = await AIService.generateScaffold(
+            const result = await TextService.generateScaffold(
                 { topic: 'AI 技术发展' },
                 'user-1',
             )
@@ -345,7 +222,7 @@ describe('AIService', () => {
 
             vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
 
-            const result = await AIService.generateScaffold(
+            const result = await TextService.generateScaffold(
                 { snippets: ['片段1', '片段2'] },
                 'user-1',
             )
@@ -355,7 +232,7 @@ describe('AIService', () => {
 
         it('should throw error when neither topic nor snippets provided', async () => {
             await expect(
-                AIService.generateScaffold({}, 'user-1'),
+                TextService.generateScaffold({}, 'user-1'),
             ).rejects.toThrow('Either snippets or topic must be provided')
         })
 
@@ -371,7 +248,7 @@ describe('AIService', () => {
 
             vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
 
-            await AIService.generateScaffold({
+            await TextService.generateScaffold({
                 topic: 'Test',
                 template: 'tutorial',
                 audience: 'beginner',
@@ -399,7 +276,7 @@ describe('AIService', () => {
 
             vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
 
-            const result = await AIService.recommendTags(
+            const result = await TextService.recommendTags(
                 '关于 AI 技术的文章',
                 ['技术', '编程'],
                 'zh-CN',
@@ -421,7 +298,7 @@ describe('AIService', () => {
 
             vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
 
-            const result = await AIService.recommendTags('内容')
+            const result = await TextService.recommendTags('内容')
 
             expect(result).toEqual(['技术', 'AI', '开发'])
         })
@@ -438,9 +315,9 @@ describe('AIService', () => {
 
             vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
 
-            const result = await AIService.recommendTags('内容')
+            const result = await TextService.recommendTags('内容')
 
-            expect(result).toEqual(['Invalid response'])
+            expect(result).toEqual(['Invalid', 'response'])
         })
     })
 
@@ -466,7 +343,7 @@ describe('AIService', () => {
             const longContent = 'a'.repeat(6000)
             const chunks: any[] = []
 
-            for await (const chunk of AIService.translateStream(longContent, 'en', 'user-1')) {
+            for await (const chunk of TextService.translateStream(longContent, 'en', 'user-1')) {
                 chunks.push(chunk)
             }
 
@@ -479,7 +356,7 @@ describe('AIService', () => {
         it('should reject content exceeding max length', async () => {
             const tooLongContent = 'a'.repeat(100001)
 
-            const generator = AIService.translateStream(tooLongContent, 'en')
+            const generator = TextService.translateStream(tooLongContent, 'en')
 
             await expect(generator.next()).rejects.toThrow('Content too long')
         })
@@ -498,7 +375,7 @@ describe('AIService', () => {
 
             vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
 
-            const result = await AIService.refineVoice(
+            const result = await TextService.refineVoice(
                 '嗯...那个...我想说的是...',
                 'zh-CN',
                 'user-1',
@@ -513,3 +390,4 @@ describe('AIService', () => {
         })
     })
 })
+

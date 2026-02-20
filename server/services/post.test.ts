@@ -67,7 +67,7 @@ describe('post service', () => {
                 if (entity.name === 'Category') {
                     return mockCategoryRepo as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             const result = await createPostService(
@@ -94,9 +94,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             const result = await createPostService(
@@ -141,7 +141,7 @@ describe('post service', () => {
                 if (entity.name === 'Category') {
                     return mockCategoryRepo as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             const result = await createPostService(
@@ -169,7 +169,7 @@ describe('post service', () => {
                 if (entity.name === 'Category') {
                     return mockCategoryRepo as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             await expect(
@@ -192,9 +192,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             const result = await createPostService(
@@ -217,9 +217,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             const result = await createPostService(
@@ -242,9 +242,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             const result = await createPostService(
@@ -267,9 +267,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             const result = await createPostService(
@@ -292,9 +292,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             const result = await createPostService(
@@ -318,9 +318,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             const result = await createPostService(
@@ -348,9 +348,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             await createPostService(
@@ -379,9 +379,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             await createPostService(
@@ -420,9 +420,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             const result = await updatePostService(
@@ -493,9 +493,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             const result = await updatePostService(
@@ -561,9 +561,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             const result = await updatePostService(
@@ -597,9 +597,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             await updatePostService(
@@ -635,9 +635,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             await updatePostService(
@@ -670,9 +670,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             const result = await updatePostService(
@@ -705,9 +705,9 @@ describe('post service', () => {
                     return mockPostRepo as any
                 }
                 if (entity.name === 'Category') {
-                    return {} as any
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
                 }
-                return {} as any
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
             })
 
             const result = await updatePostService(

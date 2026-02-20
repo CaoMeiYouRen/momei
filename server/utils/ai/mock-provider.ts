@@ -2,6 +2,7 @@ import type { AIChatOptions, AIChatResponse, AIProvider, AIImageOptions, AIImage
 
 export class MockAIProvider implements AIProvider {
     name = 'mock'
+    model = 'mock-model'
 
     async chat(options: AIChatOptions): Promise<AIChatResponse> {
         const lastMessage = options.messages[options.messages.length - 1]?.content

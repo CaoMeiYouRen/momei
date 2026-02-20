@@ -228,8 +228,26 @@
                 @generated="(url) => post.coverImage = url"
             />
 
+            <AdminPostsPostTtsDialog
+                v-model:visible="ttsVisible"
+                :post-id="post.id"
+                :content="post.content"
+                @completed="handleTTSCompleted"
+            />
+
             <div class="form-group">
-                <label for="audioUrl" class="form-label">{{ $t('pages.admin.posts.audio_url') }}</label>
+                <div class="flex items-center justify-between mb-2">
+                    <label for="audioUrl" class="form-label mb-0">{{ $t('pages.admin.posts.audio_url') }}</label>
+                    <Button
+                        id="ai-tts-btn"
+                        v-tooltip="$t('pages.admin.posts.tts.generate_title')"
+                        icon="pi pi-sparkles"
+                        size="small"
+                        text
+                        rounded
+                        @click="ttsVisible = true"
+                    />
+                </div>
                 <AppUploader
                     id="audioUrl"
                     v-model="post.audioUrl"
@@ -353,6 +371,7 @@ const visible = defineModel<boolean>('visible', { default: false })
 const isCompact = defineModel<boolean>('compact', { default: false })
 
 const aiImageVisible = ref(false)
+const ttsVisible = ref(false)
 const probing = ref(false)
 const showImagePreview = ref(false)
 const showAudioPlayer = ref(false)
@@ -366,6 +385,22 @@ const isValidImageUrl = computed(() => {
 const isValidAudioUrl = computed(() => {
     return post.value.audioUrl && isValidCustomUrl(post.value.audioUrl)
 })
+
+const handleTTSCompleted = (url: string) => {
+    // 刷新文章局部数据以获取最新的音频相关信息
+    if (url) {
+        post.value.audioUrl = url
+        // 建议重新探测元数据或从后端同步
+        probeAudio()
+    }
+
+    toast.add({
+        severity: 'success',
+        summary: $t('common.success'),
+        detail: $t('pages.admin.posts.tts.attach_success'),
+        life: 3000,
+    })
+}
 
 const toggleImagePreview = () => {
     showImagePreview.value = !showImagePreview.value

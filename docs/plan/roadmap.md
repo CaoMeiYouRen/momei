@@ -206,8 +206,8 @@
    - 有限版本化管理: 实现数据库级别的文章修改快照，支持对比与一键回滚（3-5 个历史版本）。
    - 全量文章导出: 支持单篇/批量导出文章为带 Front-matter 的 Markdown 格式，兼容各种静态博客。
 2. **多媒体生产力与 AI (Advanced Multimedia & AI)**:
-   - 文章转语音 (TTS): 集成 OpenAI/Azure TTS，实现自动化音频版内容生成与 RSS Podcasting 支持。
-   - 云端语音识别 (ASR): 构建统一 ASR 控制器，支持 SiliconFlow (Batch) 与 Volcengine (Streaming) 双模驱动。
+   - 文章音频化 (TTS & Podcast): 集成 OpenAI/Azure TTS，实现标准朗读。**(注意：火山引擎播客模式由于接口对接问题，暂时下线并隐藏)**。
+   - 云端语音识别 (ASR): 构建统一 ASR 控制器，支持 SiliconFlow (Batch) 转录。**(注意：火山引擎流式识别目前处于延迟开发状态)**。
    - AI 图像驱动补全: 完成 Gemini 3 Pro Image 与 Stable Diffusion 等多驱动支持。
 3. **极客阅读体验优化 (Geek UX Optimization)**:
    - 阅读模式: 实现无干扰的沉浸式阅读面板，支持自定义字号与背景色。
@@ -275,8 +275,8 @@
     - 集成 AI TTS 服务，为文章一键生成/刷新音频版本。
 - **高精度语音识别优化 (High-precision Voice Recognition)**:
     - **背景**: 浏览器原生 Web Speech API 在复杂环境及语义理解上存在局限。
-    -   **方向**: 建立以 **Cloud ASR (OpenAI/SiliconFlow/Volcengine)** 为核心的高精度识别体系，保留 **Transformers.js (Local/WebGPU)** 作为离线冗余方案。
-    - **功能**: 支持 WebGPU 加速、后台静默转录、长音频文件处理，并结合 LLM 自动修正同音字错误。
+    -   **方向**: 建立以 **Cloud ASR (OpenAI/SiliconFlow/Volcengine)** 为核心的高精度识别体系，专注提供低延迟、高精度的混合云端识别体验。
+    - **功能**: 支持流式输出、后台静默转录、长音频文件处理，并结合 LLM 自动修正同音字错误。
 
 ### 9. 开放发布协议支持 (Open Federation)
 - 支持 ActivityPub 等联邦协议，将博客接入去中心化社交网络。

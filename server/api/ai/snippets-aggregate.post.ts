@@ -3,7 +3,7 @@ import { In } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Snippet } from '@/server/entities/snippet'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
-import { AIService } from '@/server/services/ai'
+import { TextService } from '@/server/services/ai'
 
 const aggregateSchema = z.object({
     ids: z.array(z.string()).min(1),
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const contents = snippets.map((s) => s.content)
-    const scaffold = await AIService.generateScaffold({
+    const scaffold = await TextService.generateScaffold({
         snippets: contents,
         language,
     }, session.user.id)

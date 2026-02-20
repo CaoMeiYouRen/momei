@@ -2,7 +2,7 @@
     <div class="marketing-campaign-form">
         <div class="marketing-campaign-form__field">
             <label for="type" class="marketing-campaign-form__label">{{ $t('pages.admin.marketing.form.type') }}</label>
-            <Dropdown
+            <Select
                 id="type"
                 v-model="form.type"
                 :options="campaignTypes"

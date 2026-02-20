@@ -28,9 +28,9 @@
                     </div>
                     <div class="detail-item mt-2">
                         <span class="label">{{ $t('common.author') }}:</span>
-                        <div class="value">
-                            <strong>{{ task.user_name || 'Unknown' }}</strong>
-                            <span>{{ task.user_email }}</span>
+                        <div class="author-info value">
+                            <span class="author-name">{{ task.user_name || 'Unknown' }}</span>
+                            <span class="author-email">{{ task.user_email }}</span>
                         </div>
                     </div>
                 </div>
@@ -49,6 +49,33 @@
                 </Message>
             </div>
 
+            <div v-if="task.type === 'transcription' && task.status === 'completed'" class="grid transcription-info">
+                <div class="col-12 md:col-3">
+                    <div class="detail-item">
+                        <span class="label">{{ $t('pages.admin.ai.audio_duration') }}:</span>
+                        <span class="value">{{ task.audioDuration || 0 }}s</span>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <div class="detail-item">
+                        <span class="label">{{ $t('pages.admin.ai.audio_size') }}:</span>
+                        <span class="value">{{ formatSize(task.audioSize) }}</span>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <div class="detail-item">
+                        <span class="label">{{ $t('pages.admin.ai.text_length') }}:</span>
+                        <span class="value">{{ task.textLength || 0 }}</span>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <div class="detail-item">
+                        <span class="label">{{ $t('pages.admin.ai.language') }}:</span>
+                        <span class="value">{{ task.language || '-' }}</span>
+                    </div>
+                </div>
+            </div>
+
             <div
                 v-if="task.type === 'image_generation' && getTaskImages(task).length > 0"
                 class="image-preview-section"
@@ -65,6 +92,23 @@
                         width="240"
                         preview
                         class="border-round hover:scale-105 overflow-hidden shadow-2 transition-transform"
+                    />
+                </div>
+            </div>
+
+            <div
+                v-if="(task.type === 'tts' || task.type === 'podcast') && task.status === 'completed'"
+                class="audio-preview-section"
+            >
+                <h4 class="font-bold m-0 mb-3 text-lg">
+                    <i class="mr-2 pi pi-volume-up" />{{ $t('pages.admin.ai.audio_preview') }}
+                </h4>
+                <div class="bg-emphasis border-round p-3">
+                    <audio
+                        v-if="getTaskAudio(task)"
+                        :src="getTaskAudio(task)"
+                        controls
+                        class="w-full"
                     />
                 </div>
             </div>
@@ -121,6 +165,14 @@ const formatJson = (data: any) => {
     }
 }
 
+const formatSize = (bytes: number) => {
+    if (!bytes) return '0 B'
+    const k = 1024
+    const sizes = ['B', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
 const getTaskImages = (task: any) => {
     if (!task || task.type !== 'image_generation' || !task.result) return []
     try {
@@ -133,14 +185,47 @@ const getTaskImages = (task: any) => {
         return []
     }
 }
+
+const getTaskAudio = (task: any) => {
+    if (!task || !task.result) return null
+    try {
+        const res = typeof task.result === 'string' ? JSON.parse(task.result) : task.result
+        return res.audioUrl || null
+    } catch (e) {
+        return null
+    }
+}
 </script>
 
 <style lang="scss" scoped>
 .detail-item {
+    display: flex;
+    align-items: flex-start;
+
     .label {
         font-weight: bold;
-        margin-right: 0.5rem;
+        margin-right: 0.75rem;
         color: var(--text-color-secondary);
+        white-space: nowrap;
+    }
+
+    .value {
+        flex: 1;
+    }
+
+    .author-info {
+        display: flex;
+        flex-direction: column;
+
+        .author-name {
+            font-weight: bold;
+            line-height: 1.5;
+        }
+
+        .author-email {
+            color: var(--text-color-secondary);
+            font-size: 0.75rem;
+        }
     }
 }
 

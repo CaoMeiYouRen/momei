@@ -1,6 +1,6 @@
 import { ref, onUnmounted, computed, watch } from 'vue'
 
-export type VoiceTranscriptionMode = 'web-speech' | 'local-standard' | 'local-advanced'
+export type VoiceTranscriptionMode = 'web-speech' | 'cloud-batch' | 'cloud-stream'
 
 export function usePostEditorVoice() {
     const isListening = ref(false)
@@ -13,25 +13,39 @@ export function usePostEditorVoice() {
     // 模式切换
     const mode = ref<VoiceTranscriptionMode>('web-speech')
 
-    // 记录每个模式下的就绪状态
-    const readyModels = ref<Record<string, boolean>>({
-        'local-standard': false,
-        'local-advanced': false,
+    // 云端功能状态
+    const cloudConfig = ref({
+        enabled: false,
+        siliconflow: false,
+        volcengine: false,
     })
 
-    const isModelReady = computed(() => {
-        if (mode.value === 'web-speech') {
-            return true
-        }
-        return readyModels.value[mode.value] || false
-    })
+    const isModelReady = computed(() =>
+        true, // Web Speech and Cloud modes don't need local model loading
+    )
 
-    // 初始化时从 localStorage 读取模式
+    // 初始化时从 localStorage 读取模式，并检查云端配置
     if (import.meta.client) {
         const savedMode = localStorage.getItem('momei_voice_mode') as VoiceTranscriptionMode
-        if (savedMode && (savedMode === 'web-speech' || savedMode === 'local-standard' || savedMode === 'local-advanced')) {
+        const validModes: VoiceTranscriptionMode[] = ['web-speech', 'cloud-batch', 'cloud-stream']
+        if (savedMode && validModes.includes(savedMode)) {
             mode.value = savedMode
         }
+
+        // 异步检查配置
+        void $fetch<any>('/api/ai/asr/config').then((res) => {
+            cloudConfig.value = res
+            // 如果云端 ASR 被禁用，或者当前选择的是没配置的云端模式，自动切回 web-speech
+            if (!res.enabled) {
+                mode.value = 'web-speech'
+            } else if (mode.value === 'cloud-batch' && !res.siliconflow) {
+                mode.value = 'web-speech'
+            } else if (mode.value === 'cloud-stream' && !res.volcengine) {
+                mode.value = 'web-speech'
+            }
+        }).catch((err) => {
+            console.warn('[Voice Composable] Failed to fetch voice config:', err)
+        })
     }
 
     watch(mode, (newMode) => {
@@ -42,23 +56,17 @@ export function usePostEditorVoice() {
 
     const isLoadingModel = ref(false)
     const modelProgress = ref(0)
-    const isWorkerBusy = ref(false)
-
-    const config = useRuntimeConfig()
-    const hfProxy = config.public.hfProxy
 
     // 对外暴露的最终文本：已提交的 + 当前会话已确认的
     const finalTranscript = computed(() => committedTranscript.value + currentSessionFinal.value)
 
     let recognition: any = null
-    let worker: Worker | null = null
-    let audioContext: AudioContext | null = null
     let mediaStream: MediaStream | null = null
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    let processor: ScriptProcessorNode | null = null
-    let audioData: Float32Array[] = []
-    let transcribeTimer: any = null
     let currentLang = 'zh-CN'
+
+    let mediaRecorder: MediaRecorder | null = null
+    let audioChunks: Blob[] = []
+    let ws: WebSocket | null = null
 
     // 初始化 Web Speech API
     if (import.meta.client) {
@@ -110,163 +118,116 @@ export function usePostEditorVoice() {
         }
     }
 
-    // 初始化 Worker (Local Whisper)
-    const initWorker = () => {
-        if (typeof Worker === 'undefined') {
-            return
-        }
-        if (worker) {
-            return
-        }
-
-        worker = new Worker(new URL('../assets/js/workers/transcription.worker.ts', import.meta.url), {
-            type: 'module',
-        })
-
-        worker.onmessage = (event) => {
-            const { type, data, isFinal, model } = event.data
-            // console.debug('[Voice Composable] Received worker message:', type, data)
-            switch (type) {
-                case 'progress':
-                    if (data.status === 'progress') {
-                        modelProgress.value = data.progress
-                    } else if (data.status === 'done' || data.status === 'ready') {
-                        modelProgress.value = 100
-                    }
-                    break
-                case 'ready':
-                    console.info(`[Voice Composable] Model ${model} is ready`)
-                    if (model) {
-                        readyModels.value[model === 'onnx-community/whisper-tiny' ? 'local-standard' : 'local-advanced'] = true
-                    }
-                    if (
-                        (mode.value === 'local-standard' && model === 'onnx-community/whisper-tiny')
-                        || (mode.value === 'local-advanced' && model === 'Xenova/whisper-base')
-                    ) {
-                        isLoadingModel.value = false
-                        modelProgress.value = 100
-                    }
-                    break
-                case 'result':
-                    if (isFinal) {
-                        currentSessionFinal.value = data.text
-                        interimTranscript.value = ''
-                        isListening.value = false
-                    } else {
-                        interimTranscript.value = data.text
-                    }
-                    isWorkerBusy.value = false
-                    break
-                case 'error':
-                    error.value = data
-                    isLoadingModel.value = false
-                    isListening.value = false
-                    isWorkerBusy.value = false
-                    break
-            }
-        }
-    }
-
-    const loadModel = () => {
-        if (!worker) {
-            void initWorker()
-        }
-        if (isModelReady.value) {
-            isLoadingModel.value = false
-            return
-        }
-        if (isLoadingModel.value) {
-            return
-        }
-
-        isLoadingModel.value = true
-        modelProgress.value = 0
-        const modelName = mode.value === 'local-standard' ? 'onnx-community/whisper-tiny' : 'Xenova/whisper-base'
-        console.info(`[Voice Composable] Posting load message to worker for ${modelName} with proxy:`, hfProxy)
-        worker?.postMessage({ type: 'load', hfProxy, model: modelName })
-    }
-
-    const sendCurrentBuffer = (isFinal: boolean = false) => {
-        if (!worker || !isModelReady.value || audioData.length === 0) {
-            return
-        }
-        if (isWorkerBusy.value && !isFinal) {
-            return
-        }
-
-        isWorkerBusy.value = true
-
-        // 合并数据并发送给 Worker
-        const length = audioData.reduce((acc, curr) => acc + curr.length, 0)
-        const merged = new Float32Array(length)
-        let offset = 0
-        for (const chunk of audioData) {
-            merged.set(chunk, offset)
-            offset += chunk.length
-        }
-
-        worker?.postMessage({
-            type: 'transcribe',
-            audio: merged,
-            language: currentLang.split('-')[0] || 'zh',
-            model: mode.value === 'local-standard' ? 'onnx-community/whisper-tiny' : 'Xenova/whisper-base',
-            isFinal,
-        })
-    }
-
-    // 处理音频录制 (用于 Local Whisper)
+    // 处理音频录制
     const startRecording = async () => {
         try {
             mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
-            audioContext = new AudioContext({ sampleRate: 16000 })
-            const source = audioContext.createMediaStreamSource(mediaStream)
-            // eslint-disable-next-line @typescript-eslint/no-deprecated
-            processor = audioContext.createScriptProcessor(4096, 1, 1)
 
-            audioData = []
-            // eslint-disable-next-line @typescript-eslint/no-deprecated
-            processor.onaudioprocess = (e) => {
-                // eslint-disable-next-line @typescript-eslint/no-deprecated
-                const inputData = e.inputBuffer.getChannelData(0)
-                audioData.push(new Float32Array(inputData))
+            if (mode.value === 'cloud-batch') {
+                audioChunks = []
+                mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'audio/webm' })
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) {
+                        audioChunks.push(e.data)
+                    }
+                }
+                mediaRecorder.start()
+                isListening.value = true
+                return
             }
 
-            source.connect(processor)
-            processor.connect(audioContext.destination)
-            isListening.value = true
+            if (mode.value === 'cloud-stream') {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+                const host = window.location.host
+                ws = new WebSocket(`${protocol}//${host}/api/ai/asr/stream`)
 
-            // 定时进行增量识别（实时显示）
-            transcribeTimer = setInterval(() => {
-                if (isListening.value && !isWorkerBusy.value) {
-                    sendCurrentBuffer(false)
+                ws.onopen = () => {
+                    ws?.send(JSON.stringify({ type: 'start' }))
                 }
-            }, 3000)
+
+                ws.onmessage = (event) => {
+                    const msg = JSON.parse(event.data)
+                    if (msg.type === 'transcript') {
+                        if (msg.isFinal) {
+                            currentSessionFinal.value += msg.text
+                            interimTranscript.value = ''
+                        } else {
+                            interimTranscript.value = msg.text
+                        }
+                    } else if (msg.type === 'started') {
+                        isListening.value = true
+                    } else if (msg.type === 'error') {
+                        error.value = msg.message
+                        isListening.value = false
+                    }
+                }
+
+                mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'audio/webm' })
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0 && ws?.readyState === WebSocket.OPEN) {
+                        const reader = new FileReader()
+                        reader.onloadend = () => {
+                            const base64 = (reader.result as string).split(',')[1]
+                            ws?.send(JSON.stringify({ type: 'audio', payload: base64 }))
+                        }
+                        reader.readAsDataURL(e.data)
+                    }
+                }
+                mediaRecorder.start(500) // 500ms 一个分片
+
+            }
         } catch (err: any) {
             console.error('Failed to start recording', err)
             error.value = err.name === 'NotAllowedError' ? 'permission_denied' : 'failed_to_start'
         }
     }
 
-    const stopRecording = () => {
-        if (transcribeTimer) {
-            clearInterval(transcribeTimer)
-            transcribeTimer = null
+    const stopRecording = async () => {
+        if (mode.value === 'cloud-batch' && mediaRecorder) {
+            mediaRecorder.stop()
+            isListening.value = false
+            // Wait for last chunks
+            await new Promise((resolve) => setTimeout(resolve, 100))
+            const blob = new Blob(audioChunks, { type: 'audio/webm' })
+            await transcribeCloudBatch(blob)
+        } else if (mode.value === 'cloud-stream') {
+            mediaRecorder?.stop()
+            ws?.send(JSON.stringify({ type: 'stop' }))
+            // Wait for final response before closing or just close after a short delay
+            setTimeout(() => {
+                ws?.close()
+                ws = null
+            }, 500)
+            isListening.value = false
         }
-        if (processor) {
-            processor.disconnect()
-            processor = null
-        }
+
         if (mediaStream) {
             mediaStream.getTracks().forEach((track) => track.stop())
             mediaStream = null
         }
-        if (audioContext) {
-            void audioContext.close()
-            audioContext = null
-        }
+    }
 
-        // 发送最终完整数据包
-        sendCurrentBuffer(true)
+    const transcribeCloudBatch = async (blob: Blob) => {
+        isLoadingModel.value = true // Reuse loading state for UI
+        try {
+            const formData = new FormData()
+            formData.append('audioFile', blob, 'recording.webm')
+            formData.append('language', currentLang)
+
+            const result = await $fetch<any>('/api/ai/asr/transcribe', {
+                method: 'POST',
+                body: formData,
+            })
+
+            currentSessionFinal.value = result.text
+            committedTranscript.value += result.text
+            currentSessionFinal.value = ''
+        } catch (err: any) {
+            console.error('Cloud batch transcription failed', err)
+            error.value = err.data?.message || 'cloud_transcription_failed'
+        } finally {
+            isLoadingModel.value = false
+        }
     }
 
     const startListening = (lang: string = 'zh-CN') => {
@@ -301,10 +262,6 @@ export function usePostEditorVoice() {
                 error.value = 'failed_to_start'
             }
         } else {
-            if (!isModelReady.value) {
-                loadModel()
-                return
-            }
             void startRecording()
         }
     }
@@ -314,7 +271,7 @@ export function usePostEditorVoice() {
             recognition?.stop()
             isListening.value = false
         } else {
-            stopRecording()
+            void stopRecording()
         }
     }
 
@@ -329,10 +286,10 @@ export function usePostEditorVoice() {
         if (recognition && isListening.value) {
             recognition.stop()
         }
-        if (worker) {
-            worker.terminate()
+        if (ws) {
+            ws.close()
         }
-        stopRecording()
+        void stopRecording()
     })
 
     return {
@@ -345,9 +302,11 @@ export function usePostEditorVoice() {
         isLoadingModel,
         modelProgress,
         isModelReady,
-        loadModel,
+        cloudConfig,
+        loadModel: () => { /* no-op */ },
         startListening,
         stopListening,
         reset,
     }
 }
+

@@ -31,6 +31,15 @@ export const AI_PROMPTS = {
         + 'Requirement: Provide 3-5 deep insights or suggestions specifically for this section based on the expansion type. Output as a bulleted list in Markdown.',
     REFINE_VOICE:
         'The following text is a rough transcript from a voice recording. Please polish it into a professional, coherent, and grammatically correct blog post snippet in {{language}}. Fix any misrecognitions, filter out filler words (umd, ah, etc.), and improve the flow while preserving the original meaning. Output ONLY the polished text, no explanations: \n\n{{content}}',
+    MANUSCRIPT_OPTIMIZE:
+        'You are a professional podcast script writer. Convert the following blog content into a natural, engaging broadcast manuscript in {{language}} suitable for text-to-speech. \n'
+        + '- Remove markdown artifacts, bracketed links, and technical URLs.\n'
+        + '- Use conversational language and spoken grammar.\n'
+        + '- If the tone is too formal, make it more relatable.\n'
+        + '- Keep the core message but optimize for listening experience.\n'
+        + 'Output ONLY the polished broadcast script: \n\n{{content}}',
+    RECOMMEND_TAGS:
+        'Help me recommend 5-10 tags for the following article in {{language}}. Choose tags that are relevant, SEO-friendly, and common in technical blogging. Output ONLY as a JSON array of strings: \n\n{{content}}',
 }
 
 export function formatPrompt(

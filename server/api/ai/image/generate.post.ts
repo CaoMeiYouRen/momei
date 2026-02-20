@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { AIService } from '@/server/services/ai'
+import { ImageService } from '@/server/services/ai'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { aiGenerateImageSchema } from '@/utils/schemas/ai'
 
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     }
 
     try {
-        const task = await AIService.generateImage(
+        const task = await ImageService.generateImage(
             result.data,
             session.user.id,
         )

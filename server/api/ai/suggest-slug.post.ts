@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { AIService } from '@/server/services/ai'
+import { TextService } from '@/server/services/ai'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 
 const schema = z.object({
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     const session = await requireAdminOrAuthor(event)
 
     const body = await readValidatedBody(event, (b) => schema.parse(b))
-    const slug = await AIService.suggestSlug(
+    const slug = await TextService.suggestSlug(
         body.title,
         body.content,
         session.user.id,

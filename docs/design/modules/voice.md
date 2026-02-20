@@ -13,25 +13,25 @@
 
 ### 2.1 语音识别驱动矩阵 (ASR Drivers)
 
-系统采用多级冗余驱动架构，按优先级自动/手动切换：
+系统提供多种识别方式，按需使用：
 
 1.  **Web Speech API (优先/默认)**: 利用浏览器原生能力，零开销，适合大多数现代浏览器。
-2.  **Cloud ASR (高精度 - 下一阶段任务)**:
-    *   **SiliconFlow (Batch)**: 采用 OpenAI 兼容接口，通过 `POST /v1/audio/transcriptions` 上传文件转写。
-    *   **Volcengine (Streaming)**: 利用 WebSocket 实现流式语音转文字，支持毫秒级回显。
-3.  **Local Whisper (离线降级)**: 使用 Transformers.js + Whisper-Tiny，作为极端环境下的补充。
+2.  **Cloud ASR (高精度)**:
+    *   **SiliconFlow (Batch)**: 采用 OpenAI 兼容接口，通过 `POST /v1/audio/transcriptions` 上传文件转写。需要配置 SiliconFlow API Key。
+    *   **Volcengine (Streaming)**: 利用 WebSocket 实现流式语音转文字，支持毫秒级回显。需要配置火山引擎 AppID。 **(注意：该渠道因接口对接问题暂时下线，代码已保留但前端隐藏)**
 
 ### 2.2 状态管理与抽象层
 
 通过全局 Composable `use-post-editor-voice.ts` 隐藏底层驱动差异：
 - **一致性输出**: 无论哪种模型，最终均输出格式化的识别文本。
-- **自动适配**: 检测宿主环境，若不支持 Web Speech 则引导开启云端模式。
+- **配置检测**: 只有在后台配置了对应的 API 密钥时，才会显示云端高精度选项。
+
 
 ### 2.3 后端代理与鉴权 (Cloud Proxy)
 
 为了保护 API Key 并不绕过 CORS 限制，所有云端请求由 Nitro 服务器转发：
-- `POST /api/ai/voice/transcribe`: 接收音频 Blob，在内存中直接转发至 AI 厂商（Fast-Path），避免 OSS 转存导致的延时。
-- `WS /api/ai/voice/stream`: WebSocket 隧道代理或签名发放，转发至火山引擎。
+- `POST /api/ai/asr/transcribe`: 接收音频 Blob，在内存中直接转发至 AI 厂商（Fast-Path），避免 OSS 转存导致的延时。
+- `WS /api/ai/asr/stream`: WebSocket 隧道代理或签名发放，转发至火山引擎。
 
 ### 2.4 性能与规模优化 (未来规划)
 
@@ -47,17 +47,21 @@
 | 方案 | 技术栈 | 优点 | 缺点 | 建议 |
 | :--- | :--- | :--- | :--- | :--- |
 | **Web Speech API** | 浏览器内置 | 零开销、无下载、支持流式输出。 | 严重依赖浏览器实现（Chrome 较好），部分浏览器需联网且隐私性存疑。 | **默认 baseline**。 |
-| **Transformers.js** | ONNX Runtime + Whisper (Tiny/Base) | 纯本地运行、高隐私、模型可控、适配现代 JS。 | 需下载模型 (Tiny 约 95MB)，首屏加载有压力，低端设备 CPU 占用高。 | **推荐 (WebGPU 加速)**。 |
-| **Whisper.cpp (Wasm)** | C++ 编译至 Wasm | 性能极致优化，内存占用低。 | 接入复杂度高，工程化门槛相对较高。 | 作为性能补丁。 |
+| **Cloud ASR (Hub)** | 后端 API | 极致精度、稳定可靠、多设备一致。 | 产生 API 费用，依赖网络。 | **推荐 (默认开启)**。 |
+
+---
+*注：Local Whisper (Transformers.js) 曾作为离线冗余方案调研，但因加载包体过大 (Tiny 95MB+) 且对性能有一定要求，现已移除，专注提供稳定且高质量的云端/原生方案。*
+
 
 ### 2.4 云端高精度驱动方案对比
 
-| 特性 | SiliconFlow (OpenAI 兼容) | Volcengine (火山/豆包) |
+| 特性 | SiliconFlow (OpenAI 兼容) | Volcengine (火山/豆包 2.0) |
 | :--- | :--- | :--- |
 | **交互模式** | 后验式 (Batch) | 实时性 (Streaming) |
-| **擅长场景** | 录完一段音频后，全文高精度转换 | 边说边出字，极致输入体验 |
+| **擅长场景** | 录完一段音频后，全文高精度转换 | 边说边出字，极致写作录入体验 |
+| **核心优势** | 适配 SiliconCloud 多模型 | 200ms 极速响应，口语顺滑优化 |
 | **开发难度** | 低 (标准 Multi-part HTTP) | 高 (WebSocket + 二进制协议) |
-| **建议** | 第一阶段集成，用于“转录已有录音” | 第二阶段集成，用于“沉浸式写作” |
+| **建议** | 用于录音文件转录 | 用于沉浸式语音写作 |
 
 ## 3. UI/UX 交互设计
 
@@ -99,12 +103,10 @@ graph TD
 ## 4. 后续扩展计划 (Phase 2)
 
 - **AI 对话式润色**: 允许用户通过语音发出指令，如“把这段改得幽默一点”或“给这段加个标题”。
-- **模型热切换**: 支持在 Tiny / Base / Medium 不同精度的 Whisper 模型间根据设备性能自动或手动切换。
-- **离线音频上传**: 支持上传现有的音频文件（MP3/WAV），通过 Local Whisper 进行批量转写。
-- **WebGPU 专属加速**: 针对支持 WebGPU 的浏览器（如 Chrome 113+）提供毫秒级转录体验。
+- **多渠道 ASR 智能选路**: 根据网络状况和硬件环境，自动在 Web Speech 与不同云端服务间路由。
 
 ## 5. 安全与隐私
 
-- **本地处理**: Local Whisper 模式下，所有音频数据均在用户浏览器内存中处理，**永不上传至任何服务器**，极大地保护了创作隐私。
+- **数据加密传输**: 所有上传至后端/云端的音频数据均通过 HTTPS/WSS 加密。
 - **权限管理**: 严禁在非录音状态下开启麦克风。
-- **存储说明**: 首次使用下载的模型将占用约 95MB~200MB 的浏览器持久化存储空间 (Cache API)。
+- **隐私保护**: 云端 ASR 仅用于转录，数据处理遵循厂商隐私协议，不用于模型训练。

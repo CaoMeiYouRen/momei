@@ -31,6 +31,13 @@ Rules for the prompt:
 6. Keep it under 200 words.
 `
 
+    if (!provider.chat) {
+        throw createError({
+            statusCode: 500,
+            statusMessage: 'AI provider does not support chat',
+        })
+    }
+
     const response = await provider.chat({
         messages: [
             { role: 'user', content: prompt },

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { AIService } from '@/server/services/ai'
+import { TextService } from '@/server/services/ai'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 
 const suggestSlugFromNameSchema = z.object({
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     const { name } = result.data
 
     try {
-        const slug = await AIService.suggestSlugFromName(name, session.user.id)
+        const slug = await TextService.suggestSlugFromName(name, session.user.id)
         return {
             code: 200,
             data: slug,
