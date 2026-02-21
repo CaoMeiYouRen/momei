@@ -610,6 +610,7 @@
                     "select_voice": "Select Reading Voice",
                     "estimated_cost": "Estimated Cost",
                     "start_generate": "Start Generating",
+                    "regenerate": "Regenerate",
                     "pending": "Waiting in queue...",
                     "processing": "Synthesizing audio...",
                     "completed": "Audio generated successfully",

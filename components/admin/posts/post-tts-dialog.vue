@@ -119,6 +119,7 @@ onMounted(() => {
 
 const currentTaskId = ref<string | null>(null)
 const { status, progress, audioUrl, error, startPolling } = useTTSTask(currentTaskId)
+const hasGeneratedAudio = computed(() => Boolean(audioUrl.value))
 
 const estimatedCost = ref(0)
 const loadingCost = ref(false)
@@ -318,26 +319,43 @@ function handleConfirm() {
         </div>
 
         <template #footer>
-            <div class="tts-dialog__footer">
+            <div
+                class="tts-dialog__footer"
+                :class="{'tts-dialog__footer--with-retry': hasGeneratedAudio}"
+            >
                 <Button
-                    :label="t('common.cancel')"
-                    severity="secondary"
+                    v-if="hasGeneratedAudio"
+                    icon="pi pi-refresh"
+                    severity="contrast"
                     outlined
-                    :disabled="status === 'processing'"
-                    @click="visible = false"
-                />
-                <Button
-                    v-if="status === 'completed'"
-                    :label="t('common.confirm')"
-                    @click="handleConfirm"
-                />
-                <Button
-                    v-else
-                    :label="t('pages.admin.posts.tts.start_generate')"
+                    :label="t('pages.admin.posts.tts.regenerate')"
                     :loading="status === 'processing' || status === 'pending'"
-                    :disabled="!config.voice || optimizing"
+                    :disabled="!config.voice || optimizing || status === 'processing' || status === 'pending'"
                     @click="startGenerate"
                 />
+
+                <div class="tts-dialog__actions">
+                    <Button
+                        :label="t('common.cancel')"
+                        severity="secondary"
+                        outlined
+                        :disabled="status === 'processing'"
+                        @click="visible = false"
+                    />
+                    <Button
+                        v-if="hasGeneratedAudio"
+                        :label="t('common.confirm')"
+                        :disabled="status === 'processing' || status === 'pending'"
+                        @click="handleConfirm"
+                    />
+                    <Button
+                        v-else
+                        :label="t('pages.admin.posts.tts.start_generate')"
+                        :loading="status === 'processing' || status === 'pending'"
+                        :disabled="!config.voice || optimizing || status === 'processing' || status === 'pending'"
+                        @click="startGenerate"
+                    />
+                </div>
             </div>
         </template>
     </Dialog>
@@ -359,9 +377,20 @@ function handleConfirm() {
 
     &__footer {
         display: flex;
+        align-items: center;
         justify-content: flex-end;
         gap: 0.75rem;
         width: 100%;
+
+        &--with-retry {
+            justify-content: space-between;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
     }
 }
 

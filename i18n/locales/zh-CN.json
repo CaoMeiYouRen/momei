@@ -593,6 +593,7 @@
                     "select_voice": "选择朗读音色",
                     "estimated_cost": "预估生成成本",
                     "start_generate": "开始生成",
+                    "regenerate": "重新生成",
                     "pending": "队列等待中...",
                     "processing": "正在合成音频...",
                     "completed": "音频合成成功",
