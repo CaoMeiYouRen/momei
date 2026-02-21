@@ -155,12 +155,12 @@ export class TTSService extends AIBaseService {
         }
 
         // Volcengine (暂时下线，因接口对接问题)
-        /*
+
         const hasVolc = settings[SettingKey.VOLCENGINE_APP_ID] || settings[SettingKey.ASR_VOLCENGINE_APP_ID] || process.env.VOLCENGINE_APP_ID
         if (hasVolc) {
             providers.push('volcengine')
         }
-        */
+
 
         return providers
     }
@@ -226,6 +226,7 @@ export class TTSService extends AIBaseService {
             const READ_TIMEOUT = 60000
             const MAX_TOTAL_TIME = 120000
             const startTime = Date.now()
+            let isReadTimeoutAfterReceivingData = false
 
             try {
                 let chunkCount = 0
@@ -275,8 +276,18 @@ export class TTSService extends AIBaseService {
                         }
                     } catch (readErr) {
                         clearTimeout(timeoutId)
+                        const message = readErr instanceof Error ? readErr.message : String(readErr)
+                        if (message.includes('Stream read timeout') && receivedBytes > 0) {
+                            isReadTimeoutAfterReceivingData = true
+                            logger.warn(`[TTSService] Stream timeout after receiving data for task ${taskId}. Continue with current audio buffer (${receivedBytes} bytes).`)
+                            break
+                        }
                         throw readErr
                     }
+                }
+
+                if (isReadTimeoutAfterReceivingData) {
+                    logger.info(`[TTSService] Continue post-processing after timeout with partial/complete stream data for task ${taskId}. Bytes: ${receivedBytes}`)
                 }
             } catch (readError) {
                 logger.error(`[TTSService] Stream reading failed for task ${taskId}:`, readError)

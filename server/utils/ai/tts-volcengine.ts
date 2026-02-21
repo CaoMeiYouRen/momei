@@ -172,6 +172,7 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                 user: { uid: crypto.randomUUID() },
                 req_params: {
                     text,
+                    model: bodyModel,
                     speaker,
                     audio_params: {
                         format: options.outputFormat || 'mp3',
@@ -194,11 +195,145 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                 statusMessage: `Volcengine TTS Request Failed: ${errorText}`,
             })
         }
-        logger.debug(`[VolcengineTTS] HTTP request successful. Status: ${response.status}, LogID: ${logId}`)
+        const contentType = response.headers.get('content-type') || 'unknown'
+        logger.debug(`[VolcengineTTS] HTTP request successful. Status: ${response.status}, LogID: ${logId}, Content-Type: ${contentType}`)
 
         const fetchReader = response.body?.getReader()
         if (!fetchReader) {
             throw createError({ statusCode: 500, statusMessage: 'Failed to access response body' })
+        }
+
+        const extractBalancedJsonFromStart = (input: string): { payload: string, rest: string } | null => {
+            if (!input.startsWith('{')) {
+                return null
+            }
+
+            let depth = 0
+            let inString = false
+            let escaped = false
+
+            for (let i = 0; i < input.length; i++) {
+                const char = input[i]
+
+                if (inString) {
+                    if (escaped) {
+                        escaped = false
+                        continue
+                    }
+                    if (char === '\\') {
+                        escaped = true
+                        continue
+                    }
+                    if (char === '"') {
+                        inString = false
+                    }
+                    continue
+                }
+
+                if (char === '"') {
+                    inString = true
+                    continue
+                }
+                if (char === '{') {
+                    depth++
+                    continue
+                }
+                if (char === '}') {
+                    depth--
+                    if (depth === 0) {
+                        return {
+                            payload: input.slice(0, i + 1),
+                            rest: input.slice(i + 1),
+                        }
+                    }
+                }
+            }
+
+            return null
+        }
+
+        const extractNextJsonPayload = (input: string): { payload: string, rest: string } | null => {
+            let textBuffer = input
+
+            while (textBuffer.length > 0) {
+                const trimmedStart = textBuffer.trimStart()
+                const leadingTrimmedLength = textBuffer.length - trimmedStart.length
+                if (leadingTrimmedLength > 0) {
+                    textBuffer = trimmedStart
+                }
+
+                if (!textBuffer) {
+                    return null
+                }
+
+                if (textBuffer.startsWith('data:')) {
+                    const afterDataPrefix = textBuffer.slice(5).trimStart()
+
+                    if (afterDataPrefix.startsWith('[DONE]')) {
+                        return {
+                            payload: '{"event":"end"}',
+                            rest: afterDataPrefix.slice('[DONE]'.length),
+                        }
+                    }
+
+                    const inlineJson = extractBalancedJsonFromStart(afterDataPrefix)
+                    if (inlineJson) {
+                        return inlineJson
+                    }
+
+                    const lineEnd = textBuffer.indexOf('\n')
+                    if (lineEnd < 0) {
+                        return null
+                    }
+
+                    const line = textBuffer.slice(0, lineEnd).trim()
+                    textBuffer = textBuffer.slice(lineEnd + 1)
+                    const payload = line.slice(5).trim()
+                    if (!payload) {
+                        continue
+                    }
+                    return { payload, rest: textBuffer }
+                }
+
+                if (textBuffer.startsWith('event:') || textBuffer.startsWith(':')) {
+                    const lineEnd = textBuffer.indexOf('\n')
+                    if (lineEnd < 0) {
+                        return null
+                    }
+                    textBuffer = textBuffer.slice(lineEnd + 1)
+                    continue
+                }
+
+                if (!textBuffer.startsWith('{')) {
+                    const nextData = textBuffer.indexOf('data:')
+                    const nextObject = textBuffer.indexOf('{')
+
+                    let nextStart = -1
+                    if (nextData >= 0 && nextObject >= 0) {
+                        nextStart = Math.min(nextData, nextObject)
+                    } else {
+                        nextStart = nextData >= 0 ? nextData : nextObject
+                    }
+
+                    if (nextStart < 0) {
+                        return null
+                    }
+                    textBuffer = textBuffer.slice(nextStart)
+                    continue
+                }
+
+                const compactConcatSeparatorIndex = textBuffer.indexOf('}{')
+                if (compactConcatSeparatorIndex > 0) {
+                    return {
+                        payload: textBuffer.slice(0, compactConcatSeparatorIndex + 1),
+                        rest: textBuffer.slice(compactConcatSeparatorIndex + 1),
+                    }
+                }
+
+                return extractBalancedJsonFromStart(textBuffer)
+            }
+
+            return null
         }
 
         const processLine = (line: string, controller: ReadableStreamDefaultController<Uint8Array>) => {
@@ -208,19 +343,40 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
             }
 
             try {
-                const json = JSON.parse(rawLine)
-
-                // 处理音频数据
-                if (json.code === 0 && json.data) {
-                    const binary = Buffer.from(json.data, 'base64')
-                    if (binary.length > 0) {
-                        controller.enqueue(new Uint8Array(binary))
-                    }
+                const normalizedLine = rawLine.startsWith('data:') ? rawLine.slice(5).trim() : rawLine
+                if (!normalizedLine) {
                     return 'continue'
                 }
 
+                const json = JSON.parse(normalizedLine)
+
+                let audioBase64 = ''
+                if (typeof json.data === 'string') {
+                    audioBase64 = json.data
+                } else if (typeof json.data?.audio === 'string') {
+                    audioBase64 = json.data.audio
+                } else if (typeof json.audio === 'string') {
+                    audioBase64 = json.audio
+                }
+
+                const isFinish = json.code === 20000000 || json.is_end === true || json.event === 'end'
+                const isError = typeof json.code === 'number' && json.code > 0 && json.code !== 20000000
+
+                if (typeof json.code === 'number' && (json.code === 20000000 || json.code === 0)) {
+                    logger.debug(`[VolcengineTTS] Parsed event (LogID: ${logId}): code=${json.code}, hasData=${Boolean(audioBase64)}, event=${json.event || ''}`)
+                }
+
+                // 处理音频数据
+                if (audioBase64) {
+                    const binary = Buffer.from(audioBase64, 'base64')
+                    if (binary.length > 0) {
+                        controller.enqueue(new Uint8Array(binary))
+                    }
+                    return 'audio'
+                }
+
                 // 合成完成 (20000000 是成功结束码)
-                if (json.code === 20000000) {
+                if (isFinish) {
                     if (json.usage) {
                         logger.info(`[VolcengineTTS] Synthesis finished (LogID: ${logId}). Usage tokens: ${json.usage.tokens_total || json.usage.tokens}`)
                     }
@@ -228,7 +384,7 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                 }
 
                 // 错误响应 (code > 0 且不等于 20000000)
-                if (json.code > 0) {
+                if (isError) {
                     const errorMsg = `Volcengine TTS Stream Error: ${json.message || 'Unknown error'} (code: ${json.code}, LogID: ${logId})`
                     logger.error(`[VolcengineTTS] ${errorMsg}`, json)
                     return 'error'
@@ -243,6 +399,7 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
         }
 
         let isFinished = false
+        let frameCount = 0
         const decoder = new TextDecoder()
         let leftover = ''
 
@@ -253,37 +410,63 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                 }
 
                 try {
-                    const { done, value } = await fetchReader.read()
+                    let emittedAudioInThisPull = false
 
-                    if (done) {
-                        // 处理流结束后的最后一部分
-                        const remaining = decoder.decode()
-                        const finalData = leftover + remaining
-                        if (finalData.trim()) {
-                            processLine(finalData, controller)
+                    while (!isFinished && !emittedAudioInThisPull) {
+                        const { done, value } = await fetchReader.read()
+
+                        if (done) {
+                            const remaining = decoder.decode()
+                            let finalData = leftover + remaining
+
+                            while (finalData.trim()) {
+                                const extracted = extractNextJsonPayload(finalData)
+                                if (!extracted) {
+                                    break
+                                }
+                                finalData = extracted.rest
+                                frameCount++
+                                const status = processLine(extracted.payload, controller)
+                                if (status === 'audio') {
+                                    emittedAudioInThisPull = true
+                                }
+                                if (status === 'finish' || status === 'error') {
+                                    isFinished = true
+                                }
+                            }
+
+                            if (!isFinished) {
+                                logger.info(`[VolcengineTTS] Stream completed (LogID: ${logId}, Frames: ${frameCount})`)
+                                isFinished = true
+                                controller.close()
+                            }
+                            return
                         }
 
-                        if (!isFinished) {
-                            logger.info(`[VolcengineTTS] Stream completed (LogID: ${logId})`)
-                            isFinished = true
-                            controller.close()
-                        }
-                        return
-                    }
+                        const chunk = decoder.decode(value, { stream: true })
+                        let data = leftover + chunk
 
-                    const chunk = decoder.decode(value, { stream: true })
-                    const data = leftover + chunk
-                    const lines = data.split('\n')
-                    leftover = lines.pop() || ''
-
-                    for (const line of lines) {
-                        const status = processLine(line, controller)
-                        if (status === 'finish' || status === 'error') {
-                            isFinished = true
-                            // 即使结束了也不要立即 break，因为后面的行可能包含 usage 等信息
-                            // 但在 V3 中 finish 包通常就是最后一个了
-                            break
+                        while (data.trim()) {
+                            const extracted = extractNextJsonPayload(data)
+                            if (!extracted) {
+                                if (data.includes('}{') || data.includes('"code":')) {
+                                    logger.debug(`[VolcengineTTS] Buffer not fully parsed yet (LogID: ${logId}). Remaining length: ${data.length}`)
+                                }
+                                break
+                            }
+                            data = extracted.rest
+                            frameCount++
+                            const status = processLine(extracted.payload, controller)
+                            if (status === 'audio') {
+                                emittedAudioInThisPull = true
+                            }
+                            if (status === 'finish' || status === 'error') {
+                                isFinished = true
+                                break
+                            }
                         }
+
+                        leftover = data
                     }
 
                     if (isFinished) {
