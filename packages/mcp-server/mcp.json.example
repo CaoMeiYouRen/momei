@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "momei": {
+      "command": "node",
+      "args": [
+        "D:/Projects/typescript-projects/momei/packages/mcp-server/dist/index.mjs"
+      ],
+      "env": {
+        "MOMEI_API_URL": "http://localhost:3000",
+        "MOMEI_API_KEY": "YOUR_MOMEI_API_KEY"
+      }
+    }
+  }
+}

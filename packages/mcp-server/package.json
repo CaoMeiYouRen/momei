@@ -23,7 +23,9 @@
     "lint": "eslint src --fix --no-warn-ignored",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:bench": "vitest bench",
+    "stress-test": "node scripts/stress-test.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",

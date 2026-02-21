@@ -1,0 +1,21 @@
+# Momei MCP Server Cursor Rules
+
+This ruleset optimizes Cursor's interaction with the Momei Blog MCP server.
+
+## Contextual Activation
+
+When editing blog posts, managing content, or interacting with the Momei blog system, prioritize using the provided MCP tools.
+
+## Key Tools Usage Guidelines
+
+- **`list_posts`**: Always use this before attempting to update or get a specific post if you don't have its ID.
+- **`get_post`**: Use this to read the full content and metadata of an article.
+- **`create_post`**: Prefer specifying `language` (default `zh-CN`) and providing meaningful context for `tags`.
+- **`update_post`**: Only modify fields that need changes. Ensure the `id` is valid.
+- **`publish_post`**: Check that the post is in 'draft' or 'pending' state before publishing.
+- **`delete_post`**: Extreme caution required. Verify with the user before performing a permanent deletion.
+
+## Metadata Guidelines
+
+Ensure consistency between `title` and `content`. Tags should follow a comma-separated or array format based on the client capability.
+The default language for this blog is typically Chinese (zh-CN) or English (en-US).

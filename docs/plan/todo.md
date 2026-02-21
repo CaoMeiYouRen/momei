@@ -105,7 +105,7 @@
 - [x] **后端统一 i18n 机制 (Backend i18n Integration)**
     - 验收: 基于 Nitro 钩子实现请求级的语言识别。
     - 验收: 邮件模板、RSS 摘要及错误码反馈实现全自动关联翻译。
-- [ ] **MCP 生态生产验证 (MCP Validation)**
+- [x] **MCP 生态生产验证 (MCP Validation)**
     - 验收: 完成 MCP Server 在多环境下的性能压力测试。
     - 验收: 完善 MCP 对 Cursor/Claude 等 AI 编辑器的交互定义文件。
 

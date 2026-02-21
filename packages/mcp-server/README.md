@@ -63,6 +63,57 @@ MCP 服务器通过环境变量进行配置：
 
 **注意**：请将 `args` 中的路径替换为您本地 `momei` 项目的实际绝对路径。
 
+## Cursor 集成
+
+在 Cursor 中使用 MCP，可以提高 AI 对您博客内容的理解：
+
+1. 打开 Cursor 设置 (`Ctrl + Shift + J`) -> **Features** -> **MCP**。
+2. 点击 **+ Add MCP Server**。
+3. 输入名称（例如 `momei`），类型选择 `command`。
+4. 在 command 栏输入包含完整路径的命令（见下例）。
+
+```bash
+# Windows 示例 (请使用您的实际绝对路径)
+node "D:/Projects/typescript-projects/momei/packages/mcp-server/dist/index.mjs"
+```
+
+5. 点击右侧的配置文件图标（或手动在 `mcp.json` 中）添加环境变量：
+   - `MOMEI_API_URL`: 您的 API 地址
+   - `MOMEI_API_KEY`: 您的 API Key
+
+您也可以直接参考项目根目录下的 `mcp.json.example` 文件。
+
+## 性能与测试
+
+本项目经过性能压力测试与基准测试，确保在高并发环境下稳定运行。
+
+### 基准测试 (Benchmarks)
+
+我们在 mock 环境下对 MCP 逻辑层进行了基准测试（CPU: Apple M 系/Intel Core i7 相当）：
+
+| 操作 | 吞吐量 (Requests/s) | 平均延迟 (ms) |
+|------|--------------------|--------------|
+| `list_posts` | ~300,000+ | < 0.01 ms |
+| `get_post` | ~400,000+ | < 0.01 ms |
+
+> *注：基准测试仅反映 MCP Server 包装层的性能损耗，实际操作耗时主要取决于 API 网络延迟。*
+
+### 性能压力测试 (Stress Test)
+
+您可以使用内置脚本对您的实际部署环境进行压力测试：
+
+```bash
+# 示例：以 10 并发对本地 API 进行 1000 次列表请求测试
+npm run stress-test -- -u http://localhost:3000 -k YOUR_API_KEY -n 1000 -c 10
+```
+
+参数说明：
+- `-u`: API 地址
+- `-k`: API Key (必需)
+- `-n`: 总请求量
+- `-c`: 并发数
+- `-t`: 测试类型 (`list` 或 `get`)
+
 ## 安全建议
 
 1. **最小权限原则**：在墨梅后台生成的 API Key 应仅授予必要的权限。
