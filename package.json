@@ -131,7 +131,7 @@
   "devDependencies": {
     "@lhci/cli": "^0.15.1",
     "@lint-md/cli": "^2.0.0",
-    "@nuxt/eslint": "^1.14.0",
+    "@nuxt/eslint": "^1.15.1",
     "@nuxt/eslint-config": "^1.15.1",
     "@nuxt/test-utils": "^4.0.0",
     "@nuxtjs/sitemap": "^7.6.0",
