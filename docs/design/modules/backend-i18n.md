@@ -40,83 +40,25 @@ graph TD
 
 ```typescript
 // server/middleware/i18n.ts
-import { defineEventHandler, getQuery, getRequestHeader } from 'h3'
-import type { H3Event } from 'h3'
+import { defineEventHandler } from 'h3'
+import { detectUserLocale, toProjectLocale } from '../utils/locale'
+import { AsyncLocalStorage } from 'node:async_hooks'
 
-const SUPPORTED_LOCALES = ['zh-CN', 'en-US'] as const
-const DEFAULT_LOCALE = 'zh-CN'
-
-export function getLocaleFromContext(event: H3Event): string {
-    // 1. 检查 URL 前缀
-    const url = new URL(event.node.req.url || '')
-    const pathLocale = url.pathname.split('/')[1]
-    if (SUPPORTED_LOCALES.includes(pathLocale as any)) {
-        return pathLocale
-    }
-
-    // 2. 检查查询参数
-    const query = getQuery(event)
-    if (query.lang && SUPPORTED_LOCALES.includes(query.lang as any)) {
-        return query.lang as string
-    }
-
-    // 3. 检查用户偏好（已认证）
-    const session = event.context.session
-    if (session?.user?.preferredLocale) {
-        return session.user.preferredLocale
-    }
-
-    // 4. 检查 Accept-Language 头
-    const acceptLanguage = getRequestHeader(event, 'accept-language') || ''
-    const preferredLocale = parseAcceptLanguage(acceptLanguage)
-    if (preferredLocale) {
-        return preferredLocale
-    }
-
-    return DEFAULT_LOCALE
-}
-
-function parseAcceptLanguage(header: string): string | null {
-    const locales = header
-        .split(',')
-        .map(lang => {
-            const [locale, q] = lang.trim().split(';q=')
-            return {
-                locale: locale.toLowerCase(),
-                quality: q ? parseFloat(q) : 1.0,
-            }
-        })
-        .sort((a, b) => b.quality - a.quality)
-
-    for (const { locale } of locales) {
-        const normalized = normalizeLocale(locale)
-        if (SUPPORTED_LOCALES.includes(normalized as any)) {
-            return normalized
-        }
-    }
-
-    return null
-}
-
-function normalizeLocale(locale: string): string {
-    // zh -> zh-CN
-    if (locale === 'zh') return 'zh-CN'
-    // en -> en-US
-    if (locale === 'en') return 'en-US'
-    // zh-CN -> zh-CN
-    if (locale.startsWith('zh')) return 'zh-CN'
-    // en-US -> en-US
-    if (locale.startsWith('en')) return 'en-US'
-    return locale
-}
+// 定义全局存储
+export const i18nStorage = new AsyncLocalStorage<string>()
 
 export default defineEventHandler((event) => {
     // 设置请求上下文中的语言
-    const locale = getLocaleFromContext(event)
+    const detectedLocale = detectUserLocale(event)
+    const locale = toProjectLocale(detectedLocale)
+    
     event.context.locale = locale
 
-    // 存储到 AsyncLocalStorage 供后续使用
-    AsyncLocalStorage.setStore('locale', locale)
+    // 存储到 AsyncLocalStorage 供后续使用（支持异步深度调用不传递 event）
+    // 注意：在 Nitro 中，AsyncLocalStorage.run 是最佳实践
+    return i18nStorage.run(locale, () => {
+        // 继续执行后续处理器
+    })
 })
 ```
 
@@ -139,7 +81,7 @@ interface I18nContext {
  * 获取当前请求上下文的翻译函数
  */
 export async function getI18n(): Promise<I18nContext> {
-    const locale = await AsyncLocalStorage.getStore('locale') || 'zh-CN'
+    const locale = i18nStorage.getStore() || 'zh-CN'
     const messages = await loadLocaleMessages(locale)
 
     return {
