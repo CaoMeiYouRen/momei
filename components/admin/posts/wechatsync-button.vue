@@ -172,6 +172,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useIntervalFn, useTimeoutFn } from '@vueuse/core'
 import { useToast } from 'primevue/usetoast'
 
 const props = defineProps<{
@@ -189,7 +190,7 @@ const checkCount = ref(0)
 const allAccounts = ref<any[]>([])
 const taskStatus = ref<any>({})
 
-const checkExtension = () => {
+const { pause, resume } = useIntervalFn(() => {
     // @ts-ignore
     const syncer = window.$syncer
     extensionInstalled.value = typeof syncer !== 'undefined'
@@ -197,16 +198,17 @@ const checkExtension = () => {
 
     if (extensionInstalled.value) {
         loadAccounts()
+        pause()
         return
     }
 
-    if (checkCount.value < 15) {
-        setTimeout(checkExtension, 800)
+    if (checkCount.value >= 15) {
+        pause()
     }
-}
+}, 800, { immediate: false })
 
 onMounted(() => {
-    checkExtension()
+    resume()
 })
 
 const openSyncDialog = () => {
@@ -218,7 +220,7 @@ const openSyncDialog = () => {
             life: 5000,
         })
         checkCount.value = 0
-        checkExtension()
+        resume()
     }
     dialogVisible.value = true
 }
@@ -276,13 +278,15 @@ const doSubmit = () => {
     }
 }
 
+const { start: startCloseTimeout } = useTimeoutFn(() => {
+    submitting.value = false
+    taskStatus.value = {}
+}, 300, { immediate: false })
+
 const closeDialog = () => {
     dialogVisible.value = false
     // Reset state after a short delay to allow dialog animation
-    setTimeout(() => {
-        submitting.value = false
-        taskStatus.value = {}
-    }, 300)
+    startCloseTimeout()
 }
 </script>
 

@@ -5,3 +5,8 @@
 *.ts
 _*
 /coverage
+/playwright-report
+/node_modules
+/test-results
+.vercel
+.lighthouseci

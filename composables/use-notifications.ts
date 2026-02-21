@@ -1,4 +1,5 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useIntervalFn } from '@vueuse/core'
 import { useAppApi } from './use-app-fetch'
 import { authClient } from '@/lib/auth-client'
 
@@ -17,8 +18,12 @@ export function useNotifications() {
     const unreadCount = ref(0)
     const isConnected = ref(false)
     const eventSource = ref<EventSource | null>(null)
-    const pollingTimer = ref<any>(null)
     const { $appFetch } = useAppApi()
+
+    const { pause, resume } = useIntervalFn(() => {
+        void fetchNotifications()
+    }, 60 * 1000 * 2, { immediate: false })
+
     const session = authClient.useSession()
     const authStatus = computed(() => session.value?.data ? 'authenticated' : 'unauthenticated')
 
@@ -111,20 +116,11 @@ export function useNotifications() {
     }
 
     const startPolling = () => {
-        if (pollingTimer.value) {
-            return
-        }
-        // 降级轮询机制：每 60 秒检查一次
-        pollingTimer.value = setInterval(() => {
-            void fetchNotifications()
-        }, 60 * 1000 * 2)
+        resume()
     }
 
     const stopPolling = () => {
-        if (pollingTimer.value) {
-            clearInterval(pollingTimer.value)
-            pollingTimer.value = null
-        }
+        pause()
     }
 
     const disconnectSSE = () => {

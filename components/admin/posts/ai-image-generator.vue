@@ -117,6 +117,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useIntervalFn } from '@vueuse/core'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 
@@ -139,6 +140,7 @@ const magicLoading = ref(false)
 const pollCount = ref(0)
 const statusText = ref('')
 const generatedUrl = ref('')
+const currentTaskId = ref<string | null>(null)
 
 const statusMessages = computed(() => [
     t('pages.admin.posts.ai.cover_generator.generating'),
@@ -190,6 +192,42 @@ const applyImage = () => {
     }
 }
 
+const { pause, resume } = useIntervalFn(async () => {
+    if (!currentTaskId.value || !generating.value) {
+        pause()
+        return
+    }
+
+    pollCount.value++
+
+    // 更新趣味状态文案
+    const idx = Math.min(pollCount.value, statusMessages.value.length - 1)
+    statusText.value = statusMessages.value[idx] || ''
+
+    try {
+        const { data } = await $fetch<any>(`/api/ai/task/status/${currentTaskId.value}`)
+
+        if (data.status === 'completed') {
+            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.posts.ai.cover_generator.success'), life: 3000 })
+
+            if (data.result && data.result.images && data.result.images[0]) {
+                generatedUrl.value = data.result.images[0].url
+            } else {
+                throw new Error('Result structure invalid')
+            }
+            generating.value = false
+            pause()
+        } else if (data.status === 'failed') {
+            throw new Error(data.error || 'Task failed')
+        }
+    } catch (error: any) {
+        generating.value = false
+        pause()
+        console.error('Poll task error:', error)
+        toast.add({ severity: 'error', summary: t('common.error'), detail: error.data?.message || t('pages.admin.posts.ai.cover_generator.error'), life: 5000 })
+    }
+}, 10000, { immediate: false })
+
 // 生成图像流程
 const generateImage = async () => {
     resetGenerator()
@@ -208,46 +246,13 @@ const generateImage = async () => {
 
         if (!task?.taskId) throw new Error('Task ID not returned')
 
-        // 2. 轮询状态
-        await pollTask(task.taskId)
+        // 2. 启动轮询
+        currentTaskId.value = task.taskId
+        resume()
     } catch (error: any) {
         console.error('Generate image error:', error)
         toast.add({ severity: 'error', summary: t('common.error'), detail: error.data?.message || t('pages.admin.posts.ai.cover_generator.error'), life: 5000 })
         generating.value = false
-    }
-}
-
-const pollTask = async (taskId: string) => {
-    // 如果已经不再生成状态（比如手动关闭或已取消），不再继续轮询
-    if (!generating.value) return
-
-    pollCount.value++
-
-    // 更新趣味状态文案
-    const idx = Math.min(pollCount.value, statusMessages.value.length - 1)
-    statusText.value = statusMessages.value[idx] || ''
-
-    try {
-        const { data } = await $fetch<any>(`/api/ai/task/status/${taskId}`)
-
-        if (data.status === 'completed') {
-            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.posts.ai.cover_generator.success'), life: 3000 })
-
-            if (data.result && data.result.images && data.result.images[0]) {
-                generatedUrl.value = data.result.images[0].url
-            } else {
-                throw new Error('Result structure invalid')
-            }
-            generating.value = false
-        } else if (data.status === 'failed') {
-            throw new Error(data.error || 'Task failed')
-        } else {
-            // 继续轮询，每 10 秒一次
-            setTimeout(() => pollTask(taskId), 10000)
-        }
-    } catch (error) {
-        generating.value = false
-        throw error
     }
 }
 
