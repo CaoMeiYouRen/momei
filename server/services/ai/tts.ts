@@ -306,19 +306,6 @@ export class TTSService extends AIBaseService {
 
             const buffer = Buffer.concat(chunks)
 
-            // Debug: Save audio file to local .data directory
-            try {
-                const fs = await import('node:fs/promises')
-                const path = await import('node:path')
-                const debugDir = path.join(process.cwd(), '.data', 'debug-tts')
-                await fs.mkdir(debugDir, { recursive: true })
-                const debugFilePath = path.join(debugDir, `debug_${taskId}_${Date.now()}.mp3`)
-                await fs.writeFile(debugFilePath, buffer)
-                logger.info(`[TTSService] Debug: Audio saved to local file: ${debugFilePath}`)
-            } catch (debugErr) {
-                logger.warn(`[TTSService] Debug: Failed to save vocal file to .data:`, debugErr)
-            }
-
             // Upload to storage
             const format = options.outputFormat || 'mp3'
             const filename = `tts_${Date.now()}.${format}`

@@ -195,8 +195,7 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                 statusMessage: `Volcengine TTS Request Failed: ${errorText}`,
             })
         }
-        const contentType = response.headers.get('content-type') || 'unknown'
-        logger.debug(`[VolcengineTTS] HTTP request successful. Status: ${response.status}, LogID: ${logId}, Content-Type: ${contentType}`)
+        logger.debug(`[VolcengineTTS] HTTP request successful. Status: ${response.status}, LogID: ${logId}`)
 
         const fetchReader = response.body?.getReader()
         if (!fetchReader) {
@@ -362,10 +361,6 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                 const isFinish = json.code === 20000000 || json.is_end === true || json.event === 'end'
                 const isError = typeof json.code === 'number' && json.code > 0 && json.code !== 20000000
 
-                if (typeof json.code === 'number' && (json.code === 20000000 || json.code === 0)) {
-                    logger.debug(`[VolcengineTTS] Parsed event (LogID: ${logId}): code=${json.code}, hasData=${Boolean(audioBase64)}, event=${json.event || ''}`)
-                }
-
                 // 处理音频数据
                 if (audioBase64) {
                     const binary = Buffer.from(audioBase64, 'base64')
@@ -449,9 +444,6 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
                         while (data.trim()) {
                             const extracted = extractNextJsonPayload(data)
                             if (!extracted) {
-                                if (data.includes('}{') || data.includes('"code":')) {
-                                    logger.debug(`[VolcengineTTS] Buffer not fully parsed yet (LogID: ${logId}). Remaining length: ${data.length}`)
-                                }
                                 break
                             }
                             data = extracted.rest
