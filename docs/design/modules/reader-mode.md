@@ -29,25 +29,17 @@
 
 使用 Vue Composable 管理阅读器状态：
 
-```typescript
-interface ReaderSettings {
-    active: boolean;
-    fontSize: number;    // px
-    lineHeight: number;  // unitless
-    width: number;       // px
-    theme: 'default' | 'sepia' | 'eye-care' | 'dark-night';
-}
-```
+## 4. 移动端适配与优化 (Mobile Optimization)
 
-### 3.2 样式控制
+### 4.1 全面响应式
+- **排版调整**: 针对小屏幕优化了 Markdown 内的代码块横向滚动、表格自适应展示。
+- **组件隐藏**: 在小屏幕下自动折叠非必要的浮动按钮。
 
-通过在 `<html>` 或 `<body>` 上切换 `.reader-mode-active` 类名，配合 CSS 变量实现：
+### 4.2 极客交互
+- **抽屉模式**: 在移动端，阅读器设置面板与目录展示均切换为“抽屉 (Drawer/Dialog)”模式，以保证最大阅读视野。
 
-```scss
-:root {
-    --reader-font-size: 18px;
-    --reader-line-height: 1.8;
-    --reader-width: 800px;
+---
+> 关联代码: `composables/use-reader-mode.ts` | `components/reader-controls.vue`
     --reader-bg: var(--p-content-background);
     --reader-text: var(--p-content-text-color);
 }

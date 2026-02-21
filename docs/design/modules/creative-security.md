@@ -48,6 +48,19 @@
 | `content` | text | Yes | 正文快照 |
 | `summary` | text | No | 摘要快照 |
 | `authorId` | varchar | Yes | 执行此次修改的作者 ID |
+
+## 4. 全量文章导出 (Article Export)
+
+### 4.1 核心逻辑
+为博主提供将文章内容导出为本地 Markdown 文件的能力，支持单篇下载及批量打包。导出格式深度兼容 **Hexo** 规范（包含 YAML Front-matter），便于内容迁移。
+
+### 4.2 导出规格
+- **单篇导出**: 导出当前文章。
+- **关联翻译导出**: 导出某篇文章及其所有语言版本。
+- **批量导出**: 在管理页多选选定内容后进行 ZIP 压缩导出。
+
+---
+> 关联代码: `composables/use-post-editor-auto-save.ts` | `composables/use-post-export.ts`
 | `reason` | varchar | No | 修改原因/备注 (可选) |
 | `createdAt` | datetime | Yes | 版本生成时间 |
 
