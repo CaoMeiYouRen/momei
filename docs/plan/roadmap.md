@@ -197,8 +197,9 @@
     - **自动化工作流**: 完成原生 Anthropic MCP Server 实现。
     - **计划任务 (Scheduled Tasks)**: 实现全场景兼容的定时发布系统，支持文章定时发布与营销邮件定时推送。
 
-### 第六阶段：全方位体验与创作精修 (Global Experience & Creative Refinement) (进行中)
-**时间表**: 约 1.5 个月
+### 第六阶段：全方位体验与创作精修 (Global Experience & Creative Refinement) (已完成)
+
+**时间表**: 2026 年 1 月 - 2026 年 2 月
 **目标**: 强化创作安全感、提升多媒体生产力，并优化极客阅读交互。
 
 1. **创作安全增强 (Creative Security & Resilience)**:
@@ -206,8 +207,8 @@
    - 有限版本化管理: 实现数据库级别的文章修改快照，支持对比与一键回滚（3-5 个历史版本）。
    - 全量文章导出: 支持单篇/批量导出文章为带 Front-matter 的 Markdown 格式，兼容各种静态博客。
 2. **多媒体生产力与 AI (Advanced Multimedia & AI)**:
-   - 文章音频化 (TTS & Podcast): 集成 OpenAI/Azure TTS，实现标准朗读。**(注意：火山引擎播客模式由于接口对接问题，暂时下线并隐藏)**。
-   - 云端语音识别 (ASR): 构建统一 ASR 控制器，支持 SiliconFlow (Batch) 转录。**(注意：火山引擎流式识别目前处于延迟开发状态)**。
+   - 文章音频化 (TTS & Podcast): 集成 OpenAI/Azure TTS，实现标准朗读。
+   - 云端语音识别 (ASR): 构建统一 ASR 控制器，支持 SiliconFlow (Batch) 转录。
    - AI 图像驱动补全: 完成 Gemini 3 Pro Image 与 Stable Diffusion 等多驱动支持。
 3. **极客阅读体验优化 (Geek UX Optimization)**:
    - 阅读模式: 实现无干扰的沉浸式阅读面板，支持自定义字号与背景色。
@@ -216,6 +217,24 @@
    - 后端统一 i18n: 基于 Nitro 钩子的全量后端国际化支持（邮件、RSS、错误码）。
    - 通知矩阵系统: 深化站内信与通知中心，实现 AdminConfig x UserPreference 的分级推送信矩阵。
    - MCP 生态验证: 完善 Anthropic MCP Server 对各 AI 编辑器的兼容支持与性能验证。
+
+### 第七阶段：系统固化与多媒体进阶 (System Hardening & Multimedia Evolution) (进行中)
+
+**时间表**: 约 1.5 个月
+**目标**: 提升系统安全性与元数据管理深度，强化多媒体生产力并引入感官增强体验。
+
+1. **播客全链路与多媒体进阶 (Podcast & Multimedia Evolution)**:
+    - **文本转播客 (Text-to-Podcast)**: 实现基于 LLM 的多人对话脚本生成，并配合分布式 TTS 任务流一键生成播客音频。
+    - **实时语音识别 (Real-time ASR)**: 构建稳定的流式 ASR 控制器，支持低延迟、高精度的实时语音转文字。
+2. **系统固化与安全校验 (System Hardening & Security)**:
+    - **全站权限深度审计**: 彻底排查并加固所有 API 及前端页面的权限逻辑，确保多租户/多角色环境下的绝对隔离。
+    - **元数据统一化管理**: 实现系统级元数据的精细化管理（如全局配置、SEO 变量、功能开关），支持多维度的推断与锁定。
+3. **感官体验增强 (Sensory Experience Enhancement)**:
+    - **看板娘系统 (Live2D)**: 引入可选的虚拟角色陪伴功能，提升创作与阅读的趣味性。
+    - **视觉增强特效**: 增加背景粒子、平滑过渡动画等可选的视觉优化，支持用户自主开启/关闭。
+4. **性能基准与优化 (Performance & Optimization)**:
+    - **Lighthouse 红线机制**: 在预发布环境/CI 流程中引入性能硬指标，核心页面分数若低于 90 则禁止发布。
+    - **极限加载优化**: 进一步精简 Bundle 体积，优化关键路径渲染。
 
 ### 未来规划与积压项 (Backlog & Long-term Roadmap)
 
@@ -248,69 +267,27 @@
     - 实现针对发布主题的自动化 XSS 扫描。
     - 使用 CSS Layer 分层策略提升主题性能。
 
-### 4. 感官体验增强 (Sensory Experience Enhancement)
-- **视觉增强开关**:
-    - 实现看板娘（虚拟角色陪伴）、背景粒子等可选的视觉增强功能。
-    - 提供性能友好的实现方案，避免影响页面性能。
-
-### 5. 商业化与会员体系 (Monetization & Membership)
+### 4. 商业化与会员体系 (Monetization & Membership)
 - **支付体系集成**:
     - 集成 Stripe/支付宝支付接口。
     - 支持打赏功能或 Pro 会员准入策略。
 
-### 6. 高级创作人工具 (Advanced Creator Tools)
-- **灵感重构**:
-    - 实现 AI 驱动的灵感片段自动分类、标注与关联知识图谱构建。
-
-### 7. 系统固化与安全校验 (System Hardening & Security)
-- **权限安全深度校验**:
-    - 彻底排查并修复所有页面的权限逻辑漏洞（如敏感设置页）。
-
-### 8. 播客与多媒体扩展 (Podcast & Multimedia)
-- **播客全链路支持**:
-    - 实现音轨上传、元数据自动化与符合播客规范的专项 RSS 输出。
+### 5. 播客与多媒体扩展 (Podcast & Multimedia)
 - **全站沉浸式播放**:
     - 全站悬浮播放器，支持跨页面断点续播与内容同步。
-- **音频文章协同 (AI TTS)**:
-    - 集成 AI TTS 服务，为文章一键生成/刷新音频版本。
-- **高精度语音识别优化 (High-precision Voice Recognition)**:
-    - **背景**: 浏览器原生 Web Speech API 在复杂环境及语义理解上存在局限。
-    -   **方向**: 建立以 **Cloud ASR (OpenAI/SiliconFlow/Volcengine)** 为核心的高精度识别体系，专注提供低延迟、高精度的混合云端识别体验。
-    - **功能**: 支持流式输出、后台静默转录、长音频文件处理，并结合 LLM 自动修正同音字错误。
 
-### 9. 开放发布协议支持 (Open Federation)
+### 6. 开放发布协议支持 (Open Federation)
 - 支持 ActivityPub 等联邦协议，将博客接入去中心化社交网络。
 
-### 10. 全站实时通知系统 (Real-time Notification Architecture)
-- **站内实时提醒 (SSE)**: 实现基于 Server-Sent Events 的低延迟通知分发，支持站内实时弹窗与未读红点。
-- **持久化通知记录**: 引入数据库存储历史通知，支持标记已读/全读及分页查看。
-- **Web Push**: 集成 Service Worker 与 VAPID，实现网页关闭状态下的浏览器原生推送。
-- **ActivityPub 适配**:
-    - 探索对 ActivityPub 等开放社交协议的支持，实现与联邦宇宙（Fediverse）平台的互操作性。
-
-### 11. 国际化体验优化 (i18n Experience Optimization)
-- **统一后端 i18n 机制**:
-    - **现状**: 邮件模板、RSS 摘要及 Feed 标题（如 `分类: {name}`）等后端生成的动态内容目前多为硬编码或独立实现，维护分散。
-    - **优化方向**: 分析并探索在 Nitro 后端集成 `i18n` 插件，实现邮件模板、RSS Feed 元数据等所有服务端生成内容的翻译共用。
-- **翻译字段复用与精简**:
-    - **优化逻辑**: 对现有的 `zh-CN.json` 和 `en-US.json` 进行深度审计，识别并提取跨模块的高频通用字段（如 `common` 命名空间）。
-    - **风险控制**: 严格区分“语义一致性复用”与“字面量巧合重复”，确保优化后的翻译键值在不同语境下依然准确，避免过度合并导致的歧义。
-
-### 12. 系统配置统一化 (System Config Unification)
+### 7. 系统配置统一化 (System Config Unification)
 - **Auth 配置解耦**:
     - **现状**: `AUTH_SECRET` 及 OAuth 凭据直接 from `process.env` 读取，导致无法在后台动态修改。
     - **优化方向**: 重构 `lib/auth.ts`，使其支持从 `SettingService` 动态加载配置，实现全量配置的 DB/ENV 混合接管。
 
-### 13. 创作流性能极限优化 (Creative Flow Performance)
+### 8. 创作流性能极限优化 (Creative Flow Performance)
 - **大文件 ASR 极速转录**:
     - 实现前端直连 AI 厂商的签名认证机制，绕过后端转发瓶颈。
     - 实现前端音频本地压缩采样策略，将录音体积在上传前减小 60% 以上。
-
-### 14. 系统元数据统一化与精细化管理 (System Metadata Unification)
-- **现状**: 文章相关的元数据（如 AI 大纲、音频属性、发布意图等）分布在多个独立字段中。简单引入通用的 `metadata` 字段可能面临前端全覆盖（Overwrite）的风险。
-- **优化方向**: 
-    - 探索实现稳健的 `Metadata` 聚合管理逻辑，支持按需局部更新（Patch Update）而非整体覆盖。
-    - 统一整合分散的元数据字段（如 `scaffoldMetadata`, `publishIntent` 等）进入结构化的统一存储模型，提高系统扩展性。
 
 ## 3. 技术架构与质量保证
 
