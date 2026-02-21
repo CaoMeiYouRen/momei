@@ -74,10 +74,15 @@ export default defineConfig({
                         items: [
                             { text: '模块概览', link: '/design/modules/index' },
                             { text: '博客内容', link: '/design/modules/blog' },
+                            { text: '创作安全', link: '/design/modules/creative-security' },
                             { text: '认证系统', link: '/design/modules/auth' },
                             { text: 'AI 辅助', link: '/design/modules/ai' },
+                            { text: '语音识别 (ASR)', link: '/design/modules/asr' },
+                            { text: '音频播客', link: '/design/modules/audio' },
                             { text: '国际化系统', link: '/design/modules/i18n' },
                             { text: '邮件系统', link: '/design/modules/email' },
+                            { text: '通知中心', link: '/design/modules/notifications' },
+                            { text: '阅读模式', link: '/design/modules/reader-mode' },
                             { text: '评论互动', link: '/design/modules/interactions' },
                             { text: '分类标签', link: '/design/modules/taxonomy' },
                             { text: '搜索系统', link: '/design/modules/search' },
@@ -87,6 +92,7 @@ export default defineConfig({
                             { text: '后台管理', link: '/design/modules/admin' },
                             { text: '用户空间', link: '/design/modules/user' },
                             { text: '开放接口', link: '/design/modules/open-api' },
+                            { text: 'MCP 服务器', link: '/design/modules/mcp' },
                         ],
                     },
                     {
