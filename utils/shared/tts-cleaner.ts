@@ -17,8 +17,16 @@ export function cleanTextForTTS(text: string): string {
         .replace(/```[\s\S]*?```/g, '')
         // 5. 移除行内代码: `code` -> code
         .replace(/`(.*?)`/g, '$1')
-        // 6. 移除 HTML 标签
-        .replace(/<[^>]*>?/g, '')
+
+    // 6. 移除 HTML 标签 (使用循环以防止嵌套绕过)
+    const htmlTagRegex = /<[^>]*>?/g
+    let previous: string
+    do {
+        previous = cleaned
+        cleaned = cleaned.replace(htmlTagRegex, '')
+    } while (cleaned !== previous)
+
+    cleaned = cleaned
         // 7. 移除常用的 Markdown 符号，但保留标点
         .replace(/^[#\->+*]+ /gm, '') // 标题和列表符号
         .replace(/[*_~]/g, '') // 加粗、斜体、删除线
