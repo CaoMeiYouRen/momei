@@ -26,6 +26,9 @@ export function cleanTextForTTS(text: string): string {
         cleaned = cleaned.replace(htmlTagRegex, '')
     } while (cleaned !== previous)
 
+    // 6.5 清除任何剩余的孤立括号，确保没有任何 HTML 注入风险
+    cleaned = cleaned.replace(/[<>]/g, '')
+
     cleaned = cleaned
         // 7. 移除常用的 Markdown 符号，但保留标点
         .replace(/^[#\->+*]+ /gm, '') // 标题和列表符号
