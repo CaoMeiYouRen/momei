@@ -10,6 +10,7 @@ describe('response utils', () => {
             expect(response).toEqual({
                 code: 200,
                 data,
+                locale: 'zh-CN',
             })
         })
 
@@ -20,6 +21,7 @@ describe('response utils', () => {
             expect(response).toEqual({
                 code: 201,
                 data,
+                locale: 'zh-CN',
             })
         })
 
@@ -29,6 +31,7 @@ describe('response utils', () => {
             expect(response).toEqual({
                 code: 200,
                 data: null,
+                locale: 'zh-CN',
             })
         })
 
@@ -39,6 +42,7 @@ describe('response utils', () => {
             expect(response).toEqual({
                 code: 200,
                 data,
+                locale: 'zh-CN',
             })
         })
     })
