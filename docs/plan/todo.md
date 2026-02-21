@@ -102,7 +102,7 @@
 
 ### 5. 全局架构固化与连接 (Architecture & Ecosystem) (P1/P2)
 
-- [ ] **后端统一 i18n 机制 (Backend i18n Integration)**
+- [x] **后端统一 i18n 机制 (Backend i18n Integration)**
     - 验收: 基于 Nitro 钩子实现请求级的语言识别。
     - 验收: 邮件模板、RSS 摘要及错误码反馈实现全自动关联翻译。
 - [ ] **MCP 生态生产验证 (MCP Validation)**

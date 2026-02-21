@@ -2,8 +2,9 @@ import { Feed } from 'feed'
 import MarkdownIt from 'markdown-it'
 import MarkdownItAnchor from 'markdown-it-anchor'
 import type { H3Event } from 'h3'
-import { detectUserLocale, toProjectLocale } from './locale'
+import { toProjectLocale } from './locale'
 import { applyPostVisibilityFilter } from './post-access'
+import { t, getLocale } from './i18n'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 
@@ -18,9 +19,9 @@ interface FeedOptions {
 
 export function getFeedLanguage(event: H3Event, explicitLanguage?: string): string {
     if (explicitLanguage) {
-        return explicitLanguage
+        return toProjectLocale(explicitLanguage)
     }
-    return toProjectLocale(detectUserLocale(event))
+    return getLocale()
 }
 
 export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
@@ -75,13 +76,13 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
 
     const feed = new Feed({
         title,
-        description: language === 'zh-CN' ? '墨梅博客 - 轻量跨语言博客创作平台' : 'Momei Blog - A lightweight cross-language blog platform',
+        description: await t('feed.description'),
         id: siteUrl,
         link: siteUrl,
         language,
         image: `${siteUrl}/logo.png`,
         favicon: `${siteUrl}/favicon.ico`,
-        copyright: `All rights reserved ${new Date().getFullYear()}, ${appName}`,
+        copyright: await t('feed.copyright', { year: new Date().getFullYear(), appName }),
         updated: posts[0] ? new Date(posts[0].publishedAt || posts[0].createdAt) : new Date(),
         generator: 'Momei Blog',
         feedLinks: {

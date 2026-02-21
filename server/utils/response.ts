@@ -1,7 +1,10 @@
+import { t, getLocale } from './i18n'
+
 export interface ApiResponse<T = any> {
     code: number
     data?: T
     message?: string
+    locale?: string
 }
 
 /**
@@ -13,6 +16,22 @@ export function success<T>(data: T, code = 200): ApiResponse<T> {
     return {
         code,
         data,
+        locale: getLocale(),
+    }
+}
+
+/**
+ * 带翻译支持的成功响应
+ */
+export async function localizedSuccess<T>(data: T, messageKey: string, params?: Record<string, any>, code = 200): Promise<ApiResponse<T>> {
+    const locale = getLocale()
+    const message = await t(messageKey, params)
+
+    return {
+        code,
+        data,
+        message,
+        locale,
     }
 }
 
@@ -28,6 +47,26 @@ export function fail(message: string, statusCode = 400) {
         data: {
             code: statusCode,
             message,
+            locale: getLocale(),
+        },
+    })
+}
+
+/**
+ * 带翻译支持的失败响应
+ */
+export async function localizedFail(messageKey: string, statusCode = 400, params?: Record<string, any>) {
+    const locale = getLocale()
+    const message = await t(messageKey, params)
+
+    throw createError({
+        statusCode,
+        statusMessage: message,
+        data: {
+            code: statusCode,
+            message,
+            locale,
+            key: messageKey,
         },
     })
 }
@@ -43,8 +82,11 @@ export function ensureFound<T>(entity: T | null | undefined, name: string): T {
             statusCode: 404,
             statusMessage: `${name} not found`,
             data: {
+                flag: 'NOT_FOUND',
                 code: 404,
                 message: `${name} not found`,
+                locale: getLocale(),
+                params: { resource: name },
             },
         })
     }

@@ -2,6 +2,7 @@
  * 邮件国际化管理器
  * 负责加载、管理和提供邮件的多语言支持
  */
+import { getLocale } from '../i18n'
 import logger from '../logger'
 import {
     EMAIL_SUPPORTED_LOCALES,
@@ -49,13 +50,13 @@ export class EmailI18nManager {
     /**
      * 获取指定邮件类型的文本配置
      * @param emailType - 邮件类型
-     * @param locale - 语言代码，如果不支持则降级到默认语言
+     * @param locale - 语言代码，如果不支持则由 resolveEmailLocale 自动从 getLocale() 获取
      */
     getText<T extends EmailLocaleType>(
         emailType: T,
         locale?: string,
     ): EmailLocaleConfig[T] | null {
-        const resolvedLocale = resolveEmailLocale(locale)
+        const resolvedLocale = resolveEmailLocale(locale || getLocale())
         const config = this.loadLocale(resolvedLocale)
         const result = config[emailType]
         return result ? (result as EmailLocaleConfig[T]) : null

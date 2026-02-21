@@ -50,6 +50,11 @@
             "description": "墨梅博客致力于通过 AI 辅助和深度国际化支持，帮助开发者更高效地创作优质内容，并触达全球读者。"
         }
     },
+    "feed": {
+        "title": "墨梅博客",
+        "description": "墨梅博客 - AI 驱动、原生国际化的开发者博客平台。AI 赋能，全球创作。",
+        "copyright": "© {{year}} {{appName}} - AI 赋能，全球创作。保留所有权利。"
+    },
     "components": {
         "search": {
             "title": "全局搜索",
@@ -304,7 +309,13 @@
             "404_title": "页面失踪了",
             "404_desc": "抱歉，您访问的页面不存在或已被移除。您可以尝试搜索其他内容，或者返回首页。",
             "back_home": "返回首页",
-            "retry": "重试"
+            "retry": "重试",
+            "unauthorized": "未授权，请先登录",
+            "forbidden": "拒绝访问，您没有权限",
+            "notFound": "资源不存在: {{resource}}",
+            "validation": "参数校验失败: {{field}}",
+            "rateLimited": "请求过于频繁，请稍后再试",
+            "internal": "服务器内部错误"
         },
         "posts": {
             "title": "文章列表",
