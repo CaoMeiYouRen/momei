@@ -44,10 +44,13 @@
 | 变量名 | 说明 | 示例 |
 | :--- | :--- | :--- |
 | `AI_API_KEY` | **设置后自动启用 AI 创作功能**。 | `sk-xxxx...` |
-| `AI_PROVIDER` | AI 服务商 (`openai`, `anthropic`, `deepseek`, `doubao`)。 | `openai` |
-| `AI_MODEL` | 使用的模型名称。 | `gpt-4o`, `deepseek-chat` |
+| `AI_PROVIDER` | AI 服务商 (`openai`, `anthropic`, `deepseek`, `doubao`, `siliconflow`)。 | `openai` |
+| `AI_MODEL` | 使用的模型名称。 | `gpt-4o`, `deepseek-chat`, `claude-3-5-sonnet-20240620` |
 | `AI_API_ENDPOINT` | 自定义 API 地址（如使用代理）。 | `https://api.openai.com/v1` |
-| `AI_IMAGE_PROVIDER` | AI 绘图服务商 (`dall-e-3`, `seedream`)。 | `seedream` |
+| `AI_IMAGE_PROVIDER` | AI 绘图服务商 (`dall-e-3`, `seedream`, `siliconflow`)。 | `seedream` |
+| `TTS_PROVIDER` | TTS 提供商 (`openai`, `siliconflow`)。 | `siliconflow` |
+| `ASR_PROVIDER` | ASR 提供商 (`openai`, `siliconflow`, `volcengine`)。 | `siliconflow` |
+| `VOLCENGINE_APP_ID` | 火山引擎 App ID (用于语音/ASR)。 | `xxxxxxxx` |
 | `AI_IMAGE_API_KEY` | AI 绘图专用 API KEY (可选，默认复用 `AI_API_KEY`)。 | `sk-xxxx...` |
 | `AI_IMAGE_API_ENDPOINT` | AI 绘图 API 地址（可选）。 | `https://api.openai.com/v1` |
 | `AI_IMAGE_MODEL` | 绘图模型 ID。 | `dall-e-3`, `Seedream-2.0` |
@@ -242,9 +245,3 @@ _注意_: Cloudflare 环境下不支持本地文件存储 (`STORAGE_TYPE=local`)
 
 1.  **首位自动提权 (推荐)**: 系统在安装后，数据库用户表为空时，**第一个成功注册或登录**的账号将自动获得 `admin` 角色。
 2.  **环境变量手动提权**: 后续若需添加其他管理员，可通过修改环境变量 `ADMIN_USER_IDS`，填入对应用户的唯一 ID，并以逗号分隔。
-
----
-
-::: warning 注意
-目前暂不支持部署到 **Cloudflare Workers** 或类似边缘环境（由于 TypeORM 和部分底层依赖的兼容性问题）。
-:::
