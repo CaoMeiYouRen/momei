@@ -18,8 +18,8 @@
 ### 1. 播客全链路与多媒体进阶 (Podcast & Multimedia Evolution)
 - [ ] **文本转播客 (Text-to-Podcast) (P1)**
     - [ ] 基于 LLM 的多人对话脚本生成引擎 (Scripter)
-    - [ ] 分布式 TTS 任务编排流实现
     - [ ] 播客音频合成与元数据注入
+    - [x] 火山引擎（Volcengine）TTS 接口对接与优化
 - [ ] **实时语音识别 (Real-time ASR) (P1)**
     - [ ] 流式 ASR 控制器扩展 (支持 WebSocket/Chunks)
     - [ ] 实时转录前端交互界面与低延迟显示
