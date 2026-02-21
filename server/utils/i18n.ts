@@ -1,10 +1,12 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { toProjectLocale, DEFAULT_LOCALE } from './locale'
 
 // 定义全局存储，保存当前请求转换后的标准区域代码 (如 zh-CN)
 export const i18nStorage = new AsyncLocalStorage<string>()
 
-// 缓存加载的翻译消息，避免重复读取（对于静态 JSON 也可以直接用 import）
+// 缓存加载的翻译消息，避免重复读取
 const localeCache = new Map<string, Record<string, any>>()
 
 /**
@@ -17,15 +19,16 @@ export async function loadLocaleMessages(locale: string): Promise<Record<string,
     }
 
     try {
-        // 在 Nitro 中可以直接 import JSON
-        const messages = await import(`../../i18n/locales/${projectLocale}.json`)
-        const data = messages.default || messages
+        // 使用 resolve + join 构建绝对路径，确保在不同运行环境下一致 (包括 Vitest)
+        const localePath = join(process.cwd(), 'i18n/locales', `${projectLocale}.json`)
+        const data = JSON.parse(readFileSync(localePath, 'utf8'))
         localeCache.set(projectLocale, data)
         return data
     } catch (error) {
         console.warn(`Failed to load locale messages for: ${projectLocale}`, error)
         // 回退加载默认语言
-        if (projectLocale !== toProjectLocale(DEFAULT_LOCALE)) {
+        const defaultProjectLocale = toProjectLocale(DEFAULT_LOCALE)
+        if (projectLocale !== defaultProjectLocale) {
             return loadLocaleMessages(DEFAULT_LOCALE)
         }
         return {}
@@ -36,10 +39,10 @@ export async function loadLocaleMessages(locale: string): Promise<Record<string,
  * 获取嵌套对象的值
  */
 function getNestedValue(obj: any, path: string): string | null {
-    if (!obj || !path) { return null }
-    return path.split('.').reduce((current, key) => {
-        return current?.[key]
-    }, obj)
+    if (!obj || !path) {
+        return null
+    }
+    return path.split('.').reduce((current, key) => current?.[key], obj)
 }
 
 /**
@@ -52,10 +55,14 @@ export async function t(key: string, params?: Record<string, any>): Promise<stri
 
     let message = getNestedValue(messages, key) || key
 
-    // 格式化参数，例如 "Hello {{name}}" 用 { name: 'World' } 替换为 "Hello World"
+    // 格式化参数，例如 "Hello {name}" 或 "Hello {{name}}" 用 { name: 'World' } 替换为 "Hello World"
     if (params && typeof message === 'string') {
         Object.entries(params).forEach(([param, value]) => {
-            message = (message).replace(new RegExp(`\\{\\{${param}\\}\\}`, 'g'), String(value))
+            // 同时支持 {param} 和 {{param}} 形式
+            const val = String(value)
+            message = message
+                .replace(new RegExp(`\\{${param}\\}`, 'g'), val)
+                .replace(new RegExp(`\\{\\{${param}\\}\\}`, 'g'), val)
         })
     }
 
