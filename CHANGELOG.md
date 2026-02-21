@@ -1,5 +1,60 @@
 # momei
 
+# [1.6.0](https://github.com/CaoMeiYouRen/momei/compare/v1.5.0...v1.6.0) (2026-02-21)
+
+
+### ✨ 新功能
+
+* 优化 TTS 配置界面，调整样式与标签顺序，增强用户体验 ([c0d1d35](https://github.com/CaoMeiYouRen/momei/commit/c0d1d35))
+* 合并 TTS 任务与 AI 任务，重构相关实体与数据库设计 ([fd36dd3](https://github.com/CaoMeiYouRen/momei/commit/fd36dd3))
+* 在任务详情中添加音频时长、音频大小、文本长度和识别语言信息 ([7322de3](https://github.com/CaoMeiYouRen/momei/commit/7322de3))
+* 完成 AI 音频生成和 AI 语音识别功能的接入 ([#151](https://github.com/CaoMeiYouRen/momei/issues/151)) ([eacd911](https://github.com/CaoMeiYouRen/momei/commit/eacd911))
+* 将 AIService 更改为 TextService 和 ImageService，重构图像生成逻辑 ([969e0dd](https://github.com/CaoMeiYouRen/momei/commit/969e0dd))
+* 将 Dropdown 组件替换为 Select 组件以增强用户体验 ([730d6ce](https://github.com/CaoMeiYouRen/momei/commit/730d6ce))
+* 更新 TTS 提供商支持，添加多个语音合成提供商选项 ([0de6865](https://github.com/CaoMeiYouRen/momei/commit/0de6865))
+* 更新语音识别驱动，移除 Local Whisper，优化云端识别配置 ([0cdaa3a](https://github.com/CaoMeiYouRen/momei/commit/0cdaa3a))
+* 添加 ASR 配置选项，支持启用状态及相关 API 密钥配置 ([4cef44b](https://github.com/CaoMeiYouRen/momei/commit/4cef44b))
+* 添加 Gemini 和 Stable Diffusion 提供者，支持图像生成 ([1afa6a6](https://github.com/CaoMeiYouRen/momei/commit/1afa6a6))
+* 添加 TTS 任务处理接口，支持音频生成和错误处理 ([c4a10d6](https://github.com/CaoMeiYouRen/momei/commit/c4a10d6))
+* 添加 TTS 任务处理逻辑，支持自动识别模型和资源 ID ([c0d4866](https://github.com/CaoMeiYouRen/momei/commit/c0d4866))
+* 添加 TTS 和 ASR 提供商支持，优化音色获取和成本估算功能 ([5678020](https://github.com/CaoMeiYouRen/momei/commit/5678020))
+* 添加 TTS 和 ASR 提供商配置，支持 openai 和 siliconflow ([060b07c](https://github.com/CaoMeiYouRen/momei/commit/060b07c))
+* 添加云端语音识别支持，包含批处理和流式处理模式 ([3ba4bc5](https://github.com/CaoMeiYouRen/momei/commit/3ba4bc5))
+* 添加文章音频化系统，支持 TTS 生成与管理功能 ([c6136cc](https://github.com/CaoMeiYouRen/momei/commit/c6136cc))
+* 添加文章音频化系统，支持 TTS 生成与管理功能 ([1f8d749](https://github.com/CaoMeiYouRen/momei/commit/1f8d749))
+* 添加测试模式支持并预填充测试数据 ([74aae56](https://github.com/CaoMeiYouRen/momei/commit/74aae56))
+* 添加火山引擎 TTS 提供者，支持语音合成与上传功能 ([6e60f19](https://github.com/CaoMeiYouRen/momei/commit/6e60f19))
+* 添加火山引擎 TTS 提供者支持，更新相关配置和协议处理 ([0a18160](https://github.com/CaoMeiYouRen/momei/commit/0a18160))
+* 添加火山引擎支持，更新相关配置和国际化文本 ([673320b](https://github.com/CaoMeiYouRen/momei/commit/673320b))
+* 添加音频文稿优化功能，支持用户自定义朗读稿 ([c54d1ed](https://github.com/CaoMeiYouRen/momei/commit/c54d1ed))
+* 重构 AI 基础设施，统一 API 路径，优化权限管理与逻辑分层 ([e2077c9](https://github.com/CaoMeiYouRen/momei/commit/e2077c9))
+
+
+### 🐛 Bug 修复
+
+* **docs:** 修复 TTS 设计文档与待办事项中的 git 冲突 ([c9b6edb](https://github.com/CaoMeiYouRen/momei/commit/c9b6edb))
+* **tts:** resolve merge conflicts in TTS feature ([eefbc0e](https://github.com/CaoMeiYouRen/momei/commit/eefbc0e))
+* **tts:** 修复合并冲突与 ESLint 警告 ([d40bbdc](https://github.com/CaoMeiYouRen/momei/commit/d40bbdc))
+* 修复自动填充演示账号时的类型检查 ([1cf064c](https://github.com/CaoMeiYouRen/momei/commit/1cf064c))
+* 更新 AI 任务错误处理逻辑，支持清除旧错误信息 ([438ce0d](https://github.com/CaoMeiYouRen/momei/commit/438ce0d))
+* 更新 API 路径以使用 ASR 相关接口 ([9e529f5](https://github.com/CaoMeiYouRen/momei/commit/9e529f5))
+* 更新 translateName 和 suggestSlugFromName 方法以支持用户 ID 记录 ([cafce3a](https://github.com/CaoMeiYouRen/momei/commit/cafce3a))
+* 更新 TTS 提供商支持的选项，添加 volcengine 作为可选提供商 ([0ba9506](https://github.com/CaoMeiYouRen/momei/commit/0ba9506))
+* 更新 TTS 服务，增加超时处理和进度更新逻辑 ([6318840](https://github.com/CaoMeiYouRen/momei/commit/6318840))
+* 更新火山引擎 TTS 提供者，切换至 V3 HTTP 接口并优化音频生成逻辑 ([c1230b3](https://github.com/CaoMeiYouRen/momei/commit/c1230b3))
+* 更新火山引擎 TTS 提供者，增加错误处理信息和 WebSocket 连接管理 ([286aa4b](https://github.com/CaoMeiYouRen/momei/commit/286aa4b))
+* 添加 AI 模型就绪提示信息 ([b0cfc9f](https://github.com/CaoMeiYouRen/momei/commit/b0cfc9f))
+* 添加 ASR 和 TTS 服务商配置，支持相关设置和描述 ([6f42f75](https://github.com/CaoMeiYouRen/momei/commit/6f42f75))
+* 添加 TTS 估算 API，支持动态计算音频生成成本 ([5b9e377](https://github.com/CaoMeiYouRen/momei/commit/5b9e377))
+* 添加 TTS 配置 API，支持动态获取可用提供商 ([7b50b2b](https://github.com/CaoMeiYouRen/momei/commit/7b50b2b))
+
+
+### 📦 代码重构
+
+* **ai:** 统一 AI 模块结构，修复服务迁移后的类型错误与路径引用 ([e590b93](https://github.com/CaoMeiYouRen/momei/commit/e590b93))
+* 优化代码格式，调整错误处理逻辑和参数使用 ([0a28afd](https://github.com/CaoMeiYouRen/momei/commit/0a28afd))
+* 整合 ASR 使用记录至 AITask，优化任务追踪与日志记录 ([e040764](https://github.com/CaoMeiYouRen/momei/commit/e040764))
+
 # [1.5.0](https://github.com/CaoMeiYouRen/momei/compare/v1.4.0...v1.5.0) (2026-02-14)
 
 
