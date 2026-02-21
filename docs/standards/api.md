@@ -24,6 +24,7 @@ interface ApiResponse<T = any> {
     code: number; // 业务状态码，200 表示成功，非 200 表示异常
     message: string; // 状态描述或错误信息
     data?: T; // 成功时返回的数据
+    locale?: string; // 响应所属的语言区域 (ISO 代码)
 }
 ```
 

@@ -33,6 +33,7 @@ interface ApiResponse<T = any> {
     code: number; // Business status code, 200 for success, non-200 for exceptions
     message: string; // Status description or error message
     data?: T; // Data returned on success
+    locale?: string; // Language locale of the response (ISO code)
 }
 ```
 
