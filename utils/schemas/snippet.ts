@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { SnippetStatus } from '../../types/snippet'
+import { SnippetStatus } from '@/types/snippet'
 
 export const snippetBodySchema = z.object({
     content: z.string().min(1),

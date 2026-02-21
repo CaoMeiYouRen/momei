@@ -1,6 +1,6 @@
 import { defineEventHandler, createError } from 'h3'
-import { dataSource } from '../../../database'
-import { AITask } from '../../../entities/ai-task'
+import { dataSource } from '@/server/database'
+import { AITask } from '@/server/entities/ai-task'
 import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {

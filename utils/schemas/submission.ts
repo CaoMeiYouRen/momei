@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { SubmissionStatus } from '../../types/submission'
+import { SubmissionStatus } from '@/types/submission'
 
 export const submissionSchema = z.object({
     title: z.string().min(1, '标题不能为空').max(200, '标题过长'),

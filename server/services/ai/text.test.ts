@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { dataSource } from '../../database'
-import * as aiUtils from '../../utils/ai'
 import { TextService } from './text'
+import { dataSource } from '@/server/database'
+import * as aiUtils from '@/server/utils/ai'
 
-vi.mock('../../database')
-vi.mock('../../entities/ai-task')
-vi.mock('../../utils/ai')
+vi.mock('@/server/database')
+vi.mock('@/server/entities/ai-task')
+vi.mock('@/server/utils/ai')
 vi.mock('../upload')
-vi.mock('../../utils/logger')
+vi.mock('@/server/utils/logger')
 
 describe('TextService', () => {
     let mockRepo: any

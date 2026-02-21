@@ -1,7 +1,7 @@
 import { defineEventHandler, createError, readBody } from 'h3'
-import { dataSource } from '../../../database'
-import { Post } from '../../../entities/post'
-import { AITask } from '../../../entities/ai-task'
+import { dataSource } from '@/server/database'
+import { Post } from '@/server/entities/post'
+import { AITask } from '@/server/entities/ai-task'
 import { TTSService } from '@/server/services/ai'
 import { isAdmin } from '@/utils/shared/roles'
 

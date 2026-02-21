@@ -1,8 +1,8 @@
-import { getAIProvider } from '../../utils/ai'
-import { dataSource } from '../../database'
-import { ASRQuota } from '../../entities/asr-quota'
-import logger from '../../utils/logger'
 import { AIBaseService } from './base'
+import { getAIProvider } from '@/server/utils/ai'
+import { dataSource } from '@/server/database'
+import { ASRQuota } from '@/server/entities/asr-quota'
+import logger from '@/server/utils/logger'
 import type { TranscribeOptions } from '@/types/ai'
 
 export class ASRService extends AIBaseService {

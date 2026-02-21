@@ -1,7 +1,7 @@
-import { getAIProvider } from '../../utils/ai'
-import { AI_PROMPTS, formatPrompt } from '../../utils/ai/prompt'
-import logger from '../../utils/logger'
 import { AIBaseService } from './base'
+import { getAIProvider } from '@/server/utils/ai'
+import { AI_PROMPTS, formatPrompt } from '@/server/utils/ai/prompt'
+import logger from '@/server/utils/logger'
 import { ContentProcessor } from '@/utils/shared/content-processor'
 import { AI_MAX_CONTENT_LENGTH, AI_CHUNK_SIZE } from '@/utils/shared/env'
 

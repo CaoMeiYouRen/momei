@@ -1,7 +1,7 @@
-import { getAIImageProvider } from '../../utils/ai'
-import logger from '../../utils/logger'
 import { uploadFromUrl } from '../upload'
 import { AIBaseService } from './base'
+import { getAIImageProvider } from '@/server/utils/ai'
+import logger from '@/server/utils/logger'
 import type { AIImageOptions, AIImageResponse } from '@/types/ai'
 
 export class ImageService extends AIBaseService {

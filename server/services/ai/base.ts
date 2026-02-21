@@ -1,6 +1,6 @@
-import { dataSource } from '../../database'
-import { AITask } from '../../entities/ai-task'
-import logger from '../../utils/logger'
+import { dataSource } from '@/server/database'
+import { AITask } from '@/server/entities/ai-task'
+import logger from '@/server/utils/logger'
 import type { AICategory } from '@/types/ai'
 
 export abstract class AIBaseService {
