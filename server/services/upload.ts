@@ -94,7 +94,7 @@ export async function uploadFromUrl(url: string, prefix: string, userId: string,
         SettingKey.CLOUDFLARE_R2_BASE_URL,
     ])
 
-    const storageType = (dbSettings[SettingKey.STORAGE_TYPE] as string) || 'local'
+    const storageType = (dbSettings[SettingKey.STORAGE_TYPE]!) || 'local'
 
     const env: FileStorageEnv = {
         ...(process.env as any),
@@ -155,7 +155,7 @@ export async function uploadFromBuffer(buffer: Buffer, prefix: string, filename:
         SettingKey.VERCEL_BLOB_TOKEN,
     ])
 
-    const storageType = (dbSettings[SettingKey.STORAGE_TYPE] as string) || 'local'
+    const storageType = (dbSettings[SettingKey.STORAGE_TYPE]!) || 'local'
     const env: FileStorageEnv = {
         ...(process.env as any),
         STORAGE_TYPE: storageType,

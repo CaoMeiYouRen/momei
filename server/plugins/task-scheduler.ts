@@ -17,7 +17,7 @@ export default defineNitroPlugin((nitroApp) => {
     }
 
     // 2. 注册定时任务 (默认每 5 分钟执行一次)
-    const cronExpression = (process.env.TASK_CRON_EXPRESSION as string) || '*/5 * * * *'
+    const cronExpression = (process.env.TASK_CRON_EXPRESSION!) || '*/5 * * * *'
 
     try {
         const job = new CronJob(

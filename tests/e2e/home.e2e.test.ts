@@ -42,7 +42,7 @@ test.describe('Homepage E2E Tests', () => {
 
     test('should toggle dark mode', async ({ page }) => {
     // 寻找主题切换按钮
-        const themeToggle = page.locator('.theme-switcher, button:has(i.pi-moon), button:has(i.pi-sun)')
+        const themeToggle = page.locator('.theme-switcher, button:has(.pi-moon), button:has(.pi-sun)')
 
         if (await themeToggle.count() > 0) {
             const html = page.locator('html')
