@@ -58,7 +58,7 @@
     "google-libphonenumber": "^3.2.44",
     "highlight.js": "^11.11.0",
     "html-to-text": "^9.0.5",
-    "ioredis": "^5.9.2",
+    "ioredis": "^5.9.3",
     "js-yaml": "^4.1.0",
     "jszip": "^3.10.1",
     "katex": "^0.16.0",
