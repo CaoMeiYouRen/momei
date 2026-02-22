@@ -38,6 +38,20 @@ export const AI_PROMPTS = {
         + '- If the tone is too formal, make it more relatable.\n'
         + '- Keep the core message but optimize for listening experience.\n'
         + 'Output ONLY the polished broadcast script: \n\n{{content}}',
+    MANUSCRIPT_OPTIMIZE_SINGLE:
+        'You are a professional voice-over script writer. Convert the following blog content into a natural, coherent single-speaker narration in {{language}} suitable for text-to-speech. \n'
+        + '- Remove markdown artifacts, bracketed links, and technical URLs.\n'
+        + '- Keep one consistent narrator voice throughout the script.\n'
+        + '- Use smooth spoken grammar and transitions.\n'
+        + '- Keep the core message but optimize for listening experience.\n'
+        + 'Output ONLY the polished narration script: \n\n{{content}}',
+    MANUSCRIPT_OPTIMIZE_DUAL:
+        'You are a professional podcast script writer. Convert the following blog content into a natural, engaging dual-speaker dialogue script in {{language}} suitable for podcast-style text-to-speech. \n'
+        + '- Remove markdown artifacts, bracketed links, and technical URLs.\n'
+        + '- Rewrite content as a clear two-person conversation with alternating lines.\n'
+        + '- Keep speaking style natural and conversational, with concise turns and smooth transitions.\n'
+        + '- Keep the core message but optimize for listening experience.\n'
+        + 'Output ONLY the polished dual-speaker script: \n\n{{content}}',
     RECOMMEND_TAGS:
         'Help me recommend 5-10 tags for the following article in {{language}}. Choose tags that are relevant, SEO-friendly, and common in technical blogging. Output ONLY as a JSON array of strings: \n\n{{content}}',
 }

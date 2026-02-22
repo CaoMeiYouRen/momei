@@ -603,6 +603,7 @@
                     "history": "生成记录",
                     "manuscript": "音频文稿",
                     "manuscript_hint": "您可以对文稿进行微调，或点击 AI 优化生成更具感染力的广播稿。",
+                    "podcast_manuscript_notice": "双人播客模式下，豆包模型会在合成时再次改写文案，最终音频可能与当前文稿不完全一致。",
                     "optimize_manuscript": "AI 润色文稿",
                     "optimizing": "正在润色中...",
                     "providers": {

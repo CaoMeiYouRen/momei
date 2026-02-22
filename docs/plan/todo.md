@@ -16,11 +16,11 @@
 > **核心目标**: 提升系统安全性与元数据管理深度，强化多媒体生产力并引入感官增强体验。
 
 ### 1. 播客全链路与多媒体进阶 (Podcast & Multimedia Evolution)
-- [ ] **文本转播客 (Text-to-Podcast) (P1)**
-    - [ ] 播客音频合成与元数据注入
+- [x] **文本转播客 (Text-to-Podcast) (P1)**
+    - [x] 播客音频合成与元数据注入
     - [x] 火山引擎（Volcengine）TTS 接口对接与优化
-    - [ ] 火山引擎（Volcengine）播客专用模型接入与评测
-- [ ] **实时语音识别 (Real-time ASR) (P1)**
+    - [x] 火山引擎（Volcengine）播客专用模型接入与评测
+- [x] **实时语音识别 (Real-time ASR) (P1)**
     - [x] 流式 ASR 控制器扩展 (支持 WebSocket/Chunks)
     - [x] 实时转录前端交互界面与低延迟显示
 

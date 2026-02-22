@@ -620,6 +620,7 @@
                     "history": "Generation History",
                     "manuscript": "Audio Manuscript",
                     "manuscript_hint": "You can fine-tune the script, or click AI Polish to generate a more engaging broadcast-style script.",
+                    "podcast_manuscript_notice": "In dual podcast mode, the Doubao podcast model may rewrite the script during synthesis, so final audio may not exactly match the manuscript.",
                     "optimize_manuscript": "AI Polish Script",
                     "optimizing": "Polishing...",
                     "providers": {

@@ -82,7 +82,10 @@ async function optimizeManuscript() {
     try {
         const { data } = await $appFetch('/api/ai/tts/manuscript', {
             method: 'POST',
-            body: { content: props.content },
+            body: {
+                content: props.content,
+                mode: config.value.mode,
+            },
         })
         script.value = data.manuscript
     } catch (e) {
@@ -228,6 +231,11 @@ function handleConfirm() {
                                 :value="m.value"
                             />
                             <label :for="m.value" class="tts-radio-item__label">{{ m.label }}</label>
+                            <i
+                                v-if="m.value === 'podcast'"
+                                v-tooltip.top="t('pages.admin.posts.tts.podcast_manuscript_notice')"
+                                class="pi pi-info-circle tts-radio-item__hint"
+                            />
                         </div>
                     </div>
                 </div>
@@ -481,6 +489,12 @@ function handleConfirm() {
         cursor: pointer;
         font-size: 0.875rem;
         color: var(--surface-700);
+    }
+
+    &__hint {
+        margin-left: 0.375rem;
+        color: var(--surface-500);
+        font-size: 0.875rem;
     }
 }
 

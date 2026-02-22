@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const session = await requireAdminOrAuthor(event)
 
     const body = await readBody(event)
-    const { content, language = 'zh-CN' } = body
+    const { content, language = 'zh-CN', mode = 'speech' } = body
 
     if (!content) {
         throw createError({ statusCode: 400, message: 'Content is required' })
@@ -16,6 +16,7 @@ export default defineEventHandler(async (event) => {
         content,
         language,
         session.user.id,
+        mode === 'podcast' ? 'podcast' : 'speech',
     )
 
     return success({

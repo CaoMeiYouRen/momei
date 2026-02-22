@@ -216,12 +216,16 @@ export class TextService extends AIBaseService {
         return response.content.trim()
     }
 
-    static async optimizeManuscript(content: string, language: string = 'zh-CN', userId?: string) {
+    static async optimizeManuscript(content: string, language: string = 'zh-CN', userId?: string, mode: 'speech' | 'podcast' = 'speech') {
         const provider = await getAIProvider('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')
         }
-        const prompt = formatPrompt(AI_PROMPTS.MANUSCRIPT_OPTIMIZE, {
+        const promptTemplate = mode === 'podcast'
+            ? AI_PROMPTS.MANUSCRIPT_OPTIMIZE_DUAL
+            : AI_PROMPTS.MANUSCRIPT_OPTIMIZE_SINGLE
+
+        const prompt = formatPrompt(promptTemplate, {
             content: content.slice(0, AI_CHUNK_SIZE),
             language,
         })
