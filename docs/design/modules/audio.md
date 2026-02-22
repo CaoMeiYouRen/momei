@@ -52,6 +52,17 @@
 - **上传管理**: 通过 `use-upload.ts` 组件支持大文件音频上传（最高 100MB）。
 - **任务追踪**: 通过 `use-tts-task.ts` 轮询后端生成的异步任务状态。
 
+### 3.4 实时语音识别 (Real-time ASR)
+- **传输架构**: 前端通过 WebSocket 连接 `/api/ai/asr/stream`，服务端再桥接 Volcengine 流式 ASR WebSocket。
+- **音频编码**: 浏览器侧采用 WebAudio 采集 `PCM 16-bit / mono / 16kHz`，按分片 base64 推送；服务端映射为 Volcengine `raw/pcm`。
+- **会话流程**: `start -> started -> audio* -> stop`。前端仅在收到 `started` 后发送 `audio`，避免启动竞态。
+- **可靠性策略**:
+  - 服务端在鉴权未就绪阶段忽略消息，避免误判 `Unauthorized`。
+  - 服务端在上游未 ready 时丢弃早到音频分片，避免 `stream not started` 报错。
+  - 前端对 `start` 执行有限重试与超时中止，避免“显示录音但无转写”的卡死状态。
+  - 上游 ASR 返回错误时执行熔断关闭，阻止持续推流和日志风暴。
+- **协议对齐**: 与 Volcengine 官方流式协议对齐 sequence 规则（full/audio/final 均带序号，final 使用负序号）。
+
 ## 4. 后后续演进 (Backlog)
 - **文本转播客 (Text-to-Podcast)**: 生成对话脚本并合成多人音频。
 - **全站悬浮播放器**: 支持断点续播与播放进度跨页面持久化。

@@ -67,10 +67,87 @@ export function usePostEditorVoice() {
     let mediaRecorder: MediaRecorder | null = null
     let audioChunks: Blob[] = []
     let ws: WebSocket | null = null
+    let streamStarted = false
+    let startRetryTimer: ReturnType<typeof setInterval> | null = null
+    let startRetryCount = 0
     let audioContext: AudioContext | null = null
     let sourceNode: MediaStreamAudioSourceNode | null = null
     let processorNode: ScriptProcessorNode | null = null
     let muteGainNode: GainNode | null = null
+
+    const stopMediaInput = () => {
+        if (mediaStream) {
+            mediaStream.getTracks().forEach((track) => track.stop())
+            mediaStream = null
+        }
+    }
+
+    const clearStartRetry = () => {
+        if (startRetryTimer) {
+            clearInterval(startRetryTimer)
+            startRetryTimer = null
+        }
+        startRetryCount = 0
+    }
+
+    const sendStartMessage = () => {
+        if (ws?.readyState !== WebSocket.OPEN) {
+            return
+        }
+
+        ws.send(JSON.stringify({
+            type: 'start',
+            language: currentLang,
+            mimeType: 'audio/pcm',
+            sampleRate: audioContext?.sampleRate || 16000,
+        }))
+    }
+
+    const clearCloudAudioPipeline = async () => {
+        if (processorNode) {
+            processorNode.onaudioprocess = null
+        }
+
+        sourceNode?.disconnect()
+        processorNode?.disconnect()
+        muteGainNode?.disconnect()
+
+        sourceNode = null
+        processorNode = null
+        muteGainNode = null
+
+        const currentAudioContext = audioContext
+        audioContext = null
+        if (currentAudioContext) {
+            try {
+                if (currentAudioContext.state !== 'closed') {
+                    await currentAudioContext.close()
+                }
+            } catch {
+                // ignore repeated close race
+            }
+        }
+    }
+
+    const abortCloudStreamSession = (messageKey: string) => {
+        error.value = messageKey
+        isListening.value = false
+        streamStarted = false
+        clearStartRetry()
+
+        void clearCloudAudioPipeline()
+
+        if (ws) {
+            try {
+                ws.close()
+            } catch {
+                // ignore
+            }
+            ws = null
+        }
+
+        stopMediaInput()
+    }
 
     const encodePcmToBase64 = (float32Samples: Float32Array) => {
         const pcmBuffer = new ArrayBuffer(float32Samples.length * 2)
@@ -161,7 +238,10 @@ export function usePostEditorVoice() {
             }
 
             if (mode.value === 'cloud-stream') {
-                audioContext = new AudioContext()
+                audioContext = new AudioContext({ sampleRate: 16000 })
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume()
+                }
                 sourceNode = audioContext.createMediaStreamSource(mediaStream)
                 processorNode = audioContext.createScriptProcessor(4096, 1, 1)
                 muteGainNode = audioContext.createGain()
@@ -172,12 +252,23 @@ export function usePostEditorVoice() {
                 ws = new WebSocket(`${protocol}//${host}/api/ai/asr/stream`)
 
                 ws.onopen = () => {
-                    ws?.send(JSON.stringify({
-                        type: 'start',
-                        language: currentLang,
-                        mimeType: 'audio/pcm',
-                        sampleRate: audioContext?.sampleRate || 16000,
-                    }))
+                    streamStarted = false
+                    clearStartRetry()
+                    sendStartMessage()
+                    startRetryTimer = setInterval(() => {
+                        if (streamStarted || ws?.readyState !== WebSocket.OPEN) {
+                            clearStartRetry()
+                            return
+                        }
+
+                        startRetryCount += 1
+                        if (startRetryCount > 20) {
+                            abortCloudStreamSession('cloud_stream_start_timeout')
+                            return
+                        }
+
+                        sendStartMessage()
+                    }, 300)
                 }
 
                 ws.onmessage = (event) => {
@@ -190,26 +281,32 @@ export function usePostEditorVoice() {
                             interimTranscript.value = msg.text
                         }
                     } else if (msg.type === 'started') {
+                        streamStarted = true
+                        clearStartRetry()
                         isListening.value = true
                     } else if (msg.type === 'error') {
-                        error.value = msg.message
-                        isListening.value = false
+                        abortCloudStreamSession(msg.message || 'cloud_transcription_failed')
                     }
                 }
 
                 ws.onerror = () => {
-                    error.value = 'cloud_transcription_failed'
-                    isListening.value = false
+                    abortCloudStreamSession('cloud_transcription_failed')
                 }
 
                 ws.onclose = () => {
+                    streamStarted = false
+                    clearStartRetry()
                     if (mode.value === 'cloud-stream') {
                         isListening.value = false
                     }
+
+                    void clearCloudAudioPipeline()
+                    stopMediaInput()
+                    ws = null
                 }
 
                 processorNode.onaudioprocess = (event) => {
-                    if (ws?.readyState === WebSocket.OPEN) {
+                    if (ws?.readyState === WebSocket.OPEN && streamStarted) {
                         const input = event.inputBuffer.getChannelData(0)
                         const payload = encodePcmToBase64(input)
                         ws.send(JSON.stringify({ type: 'audio', payload }))
@@ -219,8 +316,6 @@ export function usePostEditorVoice() {
                 sourceNode.connect(processorNode)
                 processorNode.connect(muteGainNode)
                 muteGainNode.connect(audioContext.destination)
-
-                isListening.value = true
 
             }
         } catch (err: any) {
@@ -238,22 +333,14 @@ export function usePostEditorVoice() {
             const blob = new Blob(audioChunks, { type: 'audio/webm' })
             await transcribeCloudBatch(blob)
         } else if (mode.value === 'cloud-stream') {
-            ws?.send(JSON.stringify({ type: 'stop' }))
-
-            if (processorNode) {
-                processorNode.onaudioprocess = null
+            if (ws?.readyState === WebSocket.OPEN && streamStarted) {
+                ws.send(JSON.stringify({ type: 'stop' }))
             }
-            sourceNode?.disconnect()
-            processorNode?.disconnect()
-            muteGainNode?.disconnect()
-            sourceNode = null
-            processorNode = null
-            muteGainNode = null
+            streamStarted = false
+            clearStartRetry()
 
-            if (audioContext) {
-                await audioContext.close()
-                audioContext = null
-            }
+            await clearCloudAudioPipeline()
+            stopMediaInput()
 
             // Wait for final response before closing or just close after a short delay
             setTimeout(() => {
@@ -263,10 +350,7 @@ export function usePostEditorVoice() {
             isListening.value = false
         }
 
-        if (mediaStream) {
-            mediaStream.getTracks().forEach((track) => track.stop())
-            mediaStream = null
-        }
+        stopMediaInput()
     }
 
     const transcribeCloudBatch = async (blob: Blob) => {
@@ -345,6 +429,7 @@ export function usePostEditorVoice() {
     }
 
     onUnmounted(() => {
+        clearStartRetry()
         if (recognition && isListening.value) {
             recognition.stop()
         }

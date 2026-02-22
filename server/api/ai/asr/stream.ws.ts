@@ -26,11 +26,17 @@ interface PeerWithVolcState {
     initialized?: boolean
     userId?: string
     authorized?: boolean
+    authReady?: boolean
+    audioChunkCount?: number
+    streamUnavailableNotified?: boolean
+    streamErrored?: boolean
+    requestSequence?: number
 }
 
 export default defineWebSocketHandler({
     async open(peer) {
         const currentPeer = peer as PeerWithVolcState
+        currentPeer.authReady = false
         try {
             const request = currentPeer.request
             if (!request?.headers) {
@@ -47,16 +53,22 @@ export default defineWebSocketHandler({
 
             currentPeer.userId = session.user.id
             currentPeer.authorized = true
+            currentPeer.authReady = true
             logger.info(`[ASR-WS] Peer connected: ${currentPeer.id}`)
         } catch (error) {
             logger.error(`[ASR-WS] Unauthorized WS connection attempt: ${currentPeer.id}`, error)
             currentPeer.authorized = false
+            currentPeer.authReady = true
             currentPeer.close(4001, 'Unauthorized')
         }
     },
 
     async message(peer, message) {
         const currentPeer = peer as PeerWithVolcState
+
+        if (currentPeer.authReady !== true) {
+            return
+        }
 
         if (currentPeer.authorized !== true) {
             currentPeer.send(JSON.stringify({ type: 'error', message: 'Unauthorized' }))
@@ -90,29 +102,33 @@ export default defineWebSocketHandler({
             }
 
             if (data.type === 'audio') {
-                if (currentPeer.volcClient?.readyState !== WebSocket.OPEN) {
-                    currentPeer.send(JSON.stringify({
-                        type: 'error',
-                        message: 'ASR stream is not started',
-                    }))
+                if (currentPeer.streamErrored) {
                     return
                 }
+
+                if (!currentPeer.initialized || currentPeer.volcClient?.readyState !== WebSocket.OPEN) {
+                    if (!currentPeer.streamUnavailableNotified) {
+                        currentPeer.streamUnavailableNotified = true
+                    }
+                    return
+                }
+
+                currentPeer.streamUnavailableNotified = false
                 const audioBuffer = Buffer.from(data.payload, 'base64')
-                logger.debug(`[ASR-WS] Audio chunk received peer=${currentPeer.id}, bytes=${audioBuffer.length}`)
-                currentPeer.volcClient.send(buildVolcengineAudioRequestFrame(audioBuffer, false))
+                currentPeer.audioChunkCount = (currentPeer.audioChunkCount || 0) + 1
+                const sequence = currentPeer.requestSequence || 1
+                currentPeer.volcClient.send(buildVolcengineAudioRequestFrame(audioBuffer, sequence, false))
+                currentPeer.requestSequence = sequence + 1
                 return
             }
 
             if (data.type === 'stop') {
-                if (currentPeer.volcClient?.readyState !== WebSocket.OPEN) {
-                    currentPeer.send(JSON.stringify({
-                        type: 'error',
-                        message: 'ASR stream is not started',
-                    }))
+                if (!currentPeer.initialized || currentPeer.volcClient?.readyState !== WebSocket.OPEN) {
                     return
                 }
 
-                currentPeer.volcClient.send(buildVolcengineAudioRequestFrame(Buffer.alloc(0), true))
+                const sequence = currentPeer.requestSequence || 1
+                currentPeer.volcClient.send(buildVolcengineAudioRequestFrame(Buffer.alloc(0), sequence, true))
                 logger.info(`[ASR-WS] Stop received peer=${currentPeer.id}, sent final frame`)
                 setTimeout(() => {
                     try {
@@ -174,6 +190,10 @@ async function startVolcengineSession(peer: PeerWithVolcState, options: { langua
     const connectId = randomUUID()
     const { format, codec } = resolveVolcengineAudioConfig(options.mimeType)
     const rate = Number.isFinite(options.sampleRate) && options.sampleRate > 0 ? options.sampleRate : 16000
+    peer.audioChunkCount = 0
+    peer.streamErrored = false
+    peer.streamUnavailableNotified = false
+    peer.requestSequence = 1
 
     logger.info(`[ASR-WS] Starting Volcengine session peer=${peer.id}, endpoint=${endpoint}, resourceId=${resourceId}, format=${format}, codec=${codec}, rate=${rate}`)
 
@@ -221,7 +241,9 @@ async function startVolcengineSession(peer: PeerWithVolcState, options: { langua
         })
 
         volcClient.on('open', () => {
-            volcClient.send(buildVolcengineFullClientRequestFrame(fullRequestPayload))
+            const sequence = peer.requestSequence || 1
+            volcClient.send(buildVolcengineFullClientRequestFrame(fullRequestPayload, sequence))
+            peer.requestSequence = sequence + 1
             peer.initialized = true
             logger.info(`[ASR-WS] Volcengine socket open peer=${peer.id}`)
             peer.send(JSON.stringify({ type: 'started' }))
@@ -233,10 +255,22 @@ async function startVolcengineSession(peer: PeerWithVolcState, options: { langua
 
             if (packet.type === 'error') {
                 logger.warn(`[ASR-WS] Volcengine server error peer=${peer.id} code=${packet.code} msg=${packet.message}`)
+                peer.streamErrored = true
+                peer.initialized = false
                 peer.send(JSON.stringify({
                     type: 'error',
                     message: `Volcengine ASR Error(${packet.code}): ${packet.message}`,
                 }))
+                try {
+                    peer.volcClient?.close()
+                } catch {
+                    // ignore
+                }
+                try {
+                    peer.close(1011, 'ASR upstream error')
+                } catch {
+                    // ignore
+                }
                 return
             }
 
@@ -246,7 +280,6 @@ async function startVolcengineSession(peer: PeerWithVolcState, options: { langua
 
             const text = extractVolcengineTranscript(packet.data)
             if (!text) {
-                logger.debug(`[ASR-WS] Empty transcript packet peer=${peer.id}`)
                 return
             }
 
@@ -258,21 +291,27 @@ async function startVolcengineSession(peer: PeerWithVolcState, options: { langua
                 text,
                 isFinal: packet.isFinal || hasDefiniteUtterance,
             }))
-            logger.debug(`[ASR-WS] Transcript forwarded peer=${peer.id}, len=${text.length}, final=${String(packet.isFinal || hasDefiniteUtterance)}`)
         })
 
         volcClient.on('error', (error) => {
             logger.error('[ASR-WS] Volcengine socket error', error)
+            peer.streamErrored = true
+            peer.initialized = false
             peer.send(JSON.stringify({
                 type: 'error',
                 message: error.message || 'Volcengine websocket error',
             }))
+            try {
+                peer.close(1011, 'ASR upstream socket error')
+            } catch {
+                // ignore
+            }
         })
 
         volcClient.on('close', () => {
             peer.volcClient = undefined
             peer.initialized = false
-            logger.debug('[ASR-WS] Volcengine connection closed')
+            logger.info('[ASR-WS] Volcengine connection closed')
         })
     } catch (error: any) {
         logger.error('[ASR-WS] Failed to start Volcengine session', error)

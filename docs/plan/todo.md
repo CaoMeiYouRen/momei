@@ -17,14 +17,12 @@
 
 ### 1. 播客全链路与多媒体进阶 (Podcast & Multimedia Evolution)
 - [ ] **文本转播客 (Text-to-Podcast) (P1)**
-    - [ ] 基于 LLM 的多人对话脚本生成引擎 (Scripter)
     - [ ] 播客音频合成与元数据注入
     - [x] 火山引擎（Volcengine）TTS 接口对接与优化
+    - [ ] 火山引擎（Volcengine）播客专用模型接入与评测
 - [ ] **实时语音识别 (Real-time ASR) (P1)**
     - [x] 流式 ASR 控制器扩展 (支持 WebSocket/Chunks)
-    - [ ] 实时转录前端交互界面与低延迟显示
-- [ ] **多媒体引擎增强 (P2)**
-    - [ ] 录音切片与语义修正逻辑优化
+    - [x] 实时转录前端交互界面与低延迟显示
 
 ### 2. 系统固化与安全校验 (System Hardening & Security)
 - [ ] **全站权限深度审计 (P1)**

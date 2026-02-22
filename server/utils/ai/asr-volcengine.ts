@@ -104,35 +104,39 @@ export function createVolcengineAuthHeaders(options: {
     }
 }
 
-export function buildVolcengineFullClientRequestFrame(payloadObject: Record<string, any>) {
+export function buildVolcengineFullClientRequestFrame(payloadObject: Record<string, any>, sequence = 1) {
     const payloadRaw = Buffer.from(JSON.stringify(payloadObject), 'utf-8')
     const payload = gzipSync(payloadRaw)
     const payloadSize = Buffer.alloc(4)
     payloadSize.writeUInt32BE(payload.length, 0)
+    const seqBuffer = Buffer.alloc(4)
+    seqBuffer.writeInt32BE(sequence, 0)
 
     const header = buildHeader({
         messageType: MESSAGE_TYPE_FULL_CLIENT_REQUEST,
-        messageTypeFlags: 0b0000,
+        messageTypeFlags: 0b0001,
         serialization: SERIALIZATION_JSON,
         compression: COMPRESSION_GZIP,
     })
 
-    return Buffer.concat([header, payloadSize, payload])
+    return Buffer.concat([header, seqBuffer, payloadSize, payload])
 }
 
-export function buildVolcengineAudioRequestFrame(audioBuffer: Buffer, isFinal = false) {
+export function buildVolcengineAudioRequestFrame(audioBuffer: Buffer, sequence: number, isFinal = false) {
     const payload = gzipSync(audioBuffer)
     const payloadSize = Buffer.alloc(4)
     payloadSize.writeUInt32BE(payload.length, 0)
+    const seqBuffer = Buffer.alloc(4)
+    seqBuffer.writeInt32BE(isFinal ? -Math.abs(sequence) : sequence, 0)
 
     const header = buildHeader({
         messageType: MESSAGE_TYPE_AUDIO_ONLY_REQUEST,
-        messageTypeFlags: isFinal ? 0b0010 : 0b0000,
+        messageTypeFlags: isFinal ? 0b0011 : 0b0001,
         serialization: SERIALIZATION_NONE,
         compression: COMPRESSION_GZIP,
     })
 
-    return Buffer.concat([header, payloadSize, payload])
+    return Buffer.concat([header, seqBuffer, payloadSize, payload])
 }
 
 export function parseVolcengineServerPacket(data: Buffer): VolcengineServerPacket {
@@ -309,6 +313,7 @@ export class VolcengineASRProvider implements Partial<AIProvider> {
 
             let finalText = ''
             let settled = false
+            let sequence = 1
 
             const settle = (fn: () => void) => {
                 if (settled) {
@@ -327,8 +332,9 @@ export class VolcengineASRProvider implements Partial<AIProvider> {
             })
 
             ws.on('open', () => {
-                ws.send(buildVolcengineFullClientRequestFrame(requestPayload))
-                ws.send(buildVolcengineAudioRequestFrame(options.audioBuffer, true))
+                ws.send(buildVolcengineFullClientRequestFrame(requestPayload, sequence))
+                sequence += 1
+                ws.send(buildVolcengineAudioRequestFrame(options.audioBuffer, sequence, true))
             })
 
             ws.on('message', (rawData: WebSocket.RawData) => {
