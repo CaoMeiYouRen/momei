@@ -1,6 +1,16 @@
 import crypto from 'node:crypto'
 import { createError } from 'h3'
+import WebSocket from 'ws'
 import logger from '../logger'
+import {
+    VOLCENGINE_COMPRESSION,
+    VOLCENGINE_MESSAGE_TYPE,
+    buildVolcengineConnectionClientRequestFrame,
+    buildVolcengineEventClientRequestFrame,
+    createVolcengineAuthHeaders,
+    parseVolcengineErrorPacket,
+    parseVolcengineEventPacket,
+} from './volcengine-protocol'
 import type { TTSAudioVoice, TTSOptions, AIProvider } from '@/types/ai'
 
 export interface VolcengineTTSConfig {
@@ -72,6 +82,10 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
         voice: string | string[],
         options: TTSOptions,
     ): Promise<ReadableStream<Uint8Array>> {
+        if (options.mode === 'podcast') {
+            return this.generatePodcastSpeech(text, voice, options)
+        }
+
         const appId = this.config.appId
         const token = this.config.accessKey
         logger.debug(`[VolcengineTTS] Starting HTTP V3 TTS generation. Text length: ${text.length}, Voice: ${Array.isArray(voice) ? voice.join(',') : voice}`)
@@ -484,6 +498,270 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
             },
         })
 
+    }
+
+    private resolvePodcastSpeakers(voice: string | string[]) {
+        if (Array.isArray(voice) && voice.length >= 2) {
+            return [voice[0], voice[1]].filter(Boolean) as string[]
+        }
+
+        if (typeof voice === 'string' && voice.includes(',')) {
+            const speakers = voice.split(',').map((item) => item.trim()).filter(Boolean)
+            if (speakers.length >= 2) {
+                return [speakers[0], speakers[1]]
+            }
+        }
+
+        return [
+            'zh_male_dayixiansheng_v2_saturn_bigtts',
+            'zh_female_mizaitongxue_v2_saturn_bigtts',
+        ]
+    }
+
+    private generatePodcastSpeech(
+        text: string,
+        voice: string | string[],
+        options: TTSOptions,
+    ): ReadableStream<Uint8Array> {
+        const appId = this.config.appId
+        const token = this.config.accessKey
+
+        if (!appId || !token) {
+            throw createError({
+                statusCode: 500,
+                message: 'Volcengine Podcast Error: AppID or Access Token missing',
+            })
+        }
+
+        const endpoint = 'wss://openspeech.bytedance.com/api/v3/sami/podcasttts'
+        const resourceId = 'volc.service_type.10050'
+        const sessionId = crypto.randomUUID()
+        const requestId = crypto.randomUUID()
+        const speakers = this.resolvePodcastSpeakers(voice)
+        const outputFormat = options.outputFormat === 'ogg' ? 'ogg_opus' : (options.outputFormat || 'mp3')
+
+        const startPayload: Record<string, any> = {
+            input_id: sessionId,
+            input_text: text,
+            action: 0,
+            use_head_music: false,
+            use_tail_music: false,
+            audio_config: {
+                format: outputFormat,
+                sample_rate: options.sampleRate || 24000,
+                speech_rate: 0,
+            },
+            speaker_info: {
+                random_order: true,
+                speakers,
+            },
+            aigc_watermark: false,
+        }
+
+        const startFrame = buildVolcengineEventClientRequestFrame({
+            event: 100,
+            sessionId,
+            payload: startPayload,
+            messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
+            messageTypeFlags: 0b0100,
+            compression: VOLCENGINE_COMPRESSION.none,
+        })
+
+        const finishConnectionFrame = buildVolcengineConnectionClientRequestFrame({
+            event: 2,
+            payload: {},
+            messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
+            messageTypeFlags: 0b0100,
+            compression: VOLCENGINE_COMPRESSION.none,
+        })
+
+        const ws = new WebSocket(endpoint, {
+            headers: createVolcengineAuthHeaders({
+                appId,
+                accessKey: token,
+                resourceId,
+                requestId,
+            }),
+        })
+
+        logger.info(`[VolcengineTTS] Starting Podcast WS generation. Session: ${sessionId}`)
+
+        let settled = false
+        let wsOpened = false
+
+        return new ReadableStream<Uint8Array>({
+            start(controller) {
+                ws.on('upgrade', (res) => {
+                    const logId = res.headers['x-tt-logid']
+                    if (logId) {
+                        logger.info(`[VolcengineTTS] Podcast WS connected, X-Tt-Logid=${String(logId)}`)
+                    }
+                })
+
+                ws.on('open', () => {
+                    wsOpened = true
+                    ws.send(startFrame)
+                })
+
+                ws.on('message', (rawData: WebSocket.RawData) => {
+                    const messageBuffer = Buffer.isBuffer(rawData) ? rawData : Buffer.from(rawData as ArrayBuffer)
+
+                    const errorPacket = parseVolcengineErrorPacket(messageBuffer)
+                    if (errorPacket) {
+                        settled = true
+                        controller.error(createError({
+                            statusCode: 502,
+                            message: `Volcengine Podcast Error(${errorPacket.code}): ${errorPacket.message}`,
+                        }))
+                        try {
+                            ws.close()
+                        } catch {
+                            // ignore
+                        }
+                        return
+                    }
+
+                    const packet = parseVolcengineEventPacket(messageBuffer)
+                    if (!packet) {
+                        return
+                    }
+
+                    if (packet.event === 361) {
+                        if (Buffer.isBuffer(packet.payload) && packet.payload.length > 0) {
+                            controller.enqueue(new Uint8Array(packet.payload))
+                            return
+                        }
+
+                        if (typeof packet.payload === 'string') {
+                            try {
+                                const binary = Buffer.from(packet.payload, 'base64')
+                                if (binary.length > 0) {
+                                    controller.enqueue(new Uint8Array(binary))
+                                }
+                            } catch {
+                                // ignore invalid payload
+                            }
+                            return
+                        }
+
+                        if (packet.payload && typeof packet.payload === 'object') {
+                            const objectPayload = packet.payload as Record<string, any>
+                            let audioBase64 = ''
+                            if (typeof objectPayload.data === 'string') {
+                                audioBase64 = objectPayload.data
+                            } else if (typeof objectPayload.audio === 'string') {
+                                audioBase64 = objectPayload.audio
+                            }
+                            if (audioBase64) {
+                                const binary = Buffer.from(audioBase64, 'base64')
+                                if (binary.length > 0) {
+                                    controller.enqueue(new Uint8Array(binary))
+                                }
+                            }
+                        }
+                        return
+                    }
+
+                    if (packet.event === 362 && packet.payload && typeof packet.payload === 'object') {
+                        const payloadObj = packet.payload as Record<string, any>
+                        if (payloadObj.is_error === true) {
+                            settled = true
+                            controller.error(createError({
+                                statusCode: 502,
+                                message: payloadObj.error_msg || 'Volcengine Podcast round error',
+                            }))
+                            try {
+                                ws.close()
+                            } catch {
+                                // ignore
+                            }
+                            return
+                        }
+                    }
+
+                    if (packet.event === 363 && packet.payload && typeof packet.payload === 'object') {
+                        const payloadObj = packet.payload as Record<string, any>
+                        const audioUrl = payloadObj?.meta_info?.audio_url
+                        if (audioUrl) {
+                            logger.info(`[VolcengineTTS] Podcast generated audio_url: ${String(audioUrl)}`)
+                        }
+                        return
+                    }
+
+                    if (packet.event === 154 && packet.payload && typeof packet.payload === 'object') {
+                        const payloadObj = packet.payload as Record<string, any>
+                        logger.info(`[VolcengineTTS] Podcast usage: ${JSON.stringify(payloadObj.usage || payloadObj)}`)
+                        return
+                    }
+
+                    if (packet.event === 152) {
+                        settled = true
+                        try {
+                            if (ws.readyState === WebSocket.OPEN) {
+                                ws.send(finishConnectionFrame)
+                            }
+                        } catch {
+                            // ignore
+                        }
+                        try {
+                            controller.close()
+                        } catch {
+                            // ignore
+                        }
+                        try {
+                            ws.close()
+                        } catch {
+                            // ignore
+                        }
+                    }
+                })
+
+                ws.on('error', (error) => {
+                    if (settled) {
+                        return
+                    }
+                    settled = true
+                    controller.error(createError({
+                        statusCode: 502,
+                        message: `Volcengine Podcast websocket error: ${error.message}`,
+                    }))
+                })
+
+                ws.on('close', () => {
+                    if (settled) {
+                        return
+                    }
+                    settled = true
+                    if (!wsOpened) {
+                        controller.error(createError({
+                            statusCode: 502,
+                            message: 'Volcengine Podcast connection closed before start',
+                        }))
+                        return
+                    }
+                    try {
+                        controller.close()
+                    } catch {
+                        // ignore
+                    }
+                })
+            },
+            cancel() {
+                try {
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send(finishConnectionFrame)
+                    }
+                } catch {
+                    // ignore
+                }
+
+                try {
+                    ws.close()
+                } catch {
+                    // ignore
+                }
+            },
+        })
     }
 
     check(): Promise<boolean> {

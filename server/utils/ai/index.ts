@@ -104,9 +104,12 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
         if (finalConfig.provider === 'volcengine') {
             const configuredModelOrResourceId = dbSettings[SettingKey.ASR_MODEL] || ''
             const configuredVolcResourceId = dbSettings[SettingKey.ASR_VOLCENGINE_CLUSTER_ID] || ''
-            const resolvedVolcResourceId = configuredModelOrResourceId.startsWith('volc.')
-                ? configuredModelOrResourceId
-                : (configuredVolcResourceId.startsWith('volc.') ? configuredVolcResourceId : '')
+            let resolvedVolcResourceId = ''
+            if (configuredModelOrResourceId.startsWith('volc.')) {
+                resolvedVolcResourceId = configuredModelOrResourceId
+            } else if (configuredVolcResourceId.startsWith('volc.')) {
+                resolvedVolcResourceId = configuredVolcResourceId
+            }
 
             return new VolcengineASRProvider({
                 appId: dbSettings[SettingKey.ASR_VOLCENGINE_APP_ID] || dbSettings[SettingKey.VOLCENGINE_APP_ID] || process.env.VOLCENGINE_APP_ID || '',

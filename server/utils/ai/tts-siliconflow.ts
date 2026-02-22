@@ -119,7 +119,7 @@ export class SiliconFlowTTSProvider implements Partial<AIProvider> {
                 })
             }
 
-            return response.body as unknown as ReadableStream<Uint8Array>
+            return response.body
         } catch (error: any) {
             throw createError({
                 statusCode: error.statusCode || 500,

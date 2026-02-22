@@ -11,11 +11,11 @@ import {
     DEFAULT_VOLCENGINE_STREAM_ENDPOINT,
     buildVolcengineAudioRequestFrame,
     buildVolcengineFullClientRequestFrame,
-    createVolcengineAuthHeaders,
     extractVolcengineTranscript,
     parseVolcengineServerPacket,
     resolveVolcengineAudioConfig,
 } from '~/server/utils/ai/asr-volcengine'
+import { createVolcengineAuthHeaders } from '~/server/utils/ai/volcengine-protocol'
 
 interface PeerWithVolcState {
     id: string

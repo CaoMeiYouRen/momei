@@ -1,23 +1,17 @@
 import { randomUUID } from 'node:crypto'
-import { gunzipSync, gzipSync } from 'node:zlib'
 import WebSocket from 'ws'
 import { createError } from 'h3'
 import logger from '../logger'
+import {
+    VOLCENGINE_COMPRESSION,
+    VOLCENGINE_MESSAGE_TYPE,
+    VOLCENGINE_SERIALIZATION,
+    buildVolcengineBinaryFrame,
+    createVolcengineAuthHeaders,
+    decodeVolcenginePayload,
+    decodeVolcenginePayloadBySerialization,
+} from './volcengine-protocol'
 import type { AIProvider, TranscribeOptions, TranscribeResponse } from '@/types/ai'
-
-const PROTOCOL_VERSION = 0b0001
-const HEADER_SIZE_UNITS = 0b0001
-
-const MESSAGE_TYPE_FULL_CLIENT_REQUEST = 0b0001
-const MESSAGE_TYPE_AUDIO_ONLY_REQUEST = 0b0010
-const MESSAGE_TYPE_FULL_SERVER_RESPONSE = 0b1001
-const MESSAGE_TYPE_ERROR = 0b1111
-
-const SERIALIZATION_NONE = 0b0000
-const SERIALIZATION_JSON = 0b0001
-
-const COMPRESSION_NONE = 0b0000
-const COMPRESSION_GZIP = 0b0001
 
 export const DEFAULT_VOLCENGINE_STREAM_ENDPOINT = 'wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_async'
 export const DEFAULT_VOLCENGINE_NOSTREAM_ENDPOINT = 'wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_nostream'
@@ -54,20 +48,6 @@ interface VolcengineUnknownPacket extends VolcenginePacketBase {
 
 export type VolcengineServerPacket = VolcengineResponsePacket | VolcengineErrorPacket | VolcengineUnknownPacket
 
-function buildHeader(options: {
-    messageType: number
-    messageTypeFlags: number
-    serialization: number
-    compression: number
-}) {
-    const header = Buffer.alloc(4)
-    header.writeUInt8((PROTOCOL_VERSION << 4) | HEADER_SIZE_UNITS, 0)
-    header.writeUInt8((options.messageType << 4) | options.messageTypeFlags, 1)
-    header.writeUInt8((options.serialization << 4) | options.compression, 2)
-    header.writeUInt8(0x00, 3)
-    return header
-}
-
 export function resolveVolcengineAudioConfig(mimeType = '') {
     const normalized = mimeType.toLowerCase()
 
@@ -90,53 +70,33 @@ export function resolveVolcengineAudioConfig(mimeType = '') {
     return { format: 'ogg', codec: 'opus' as const }
 }
 
-export function createVolcengineAuthHeaders(options: {
-    appId: string
-    accessKey: string
-    resourceId: string
-    connectId: string
-}) {
-    return {
-        'X-Api-App-Key': options.appId,
-        'X-Api-Access-Key': options.accessKey,
-        'X-Api-Resource-Id': options.resourceId,
-        'X-Api-Connect-Id': options.connectId,
-    }
-}
-
 export function buildVolcengineFullClientRequestFrame(payloadObject: Record<string, any>, sequence = 1) {
     const payloadRaw = Buffer.from(JSON.stringify(payloadObject), 'utf-8')
-    const payload = gzipSync(payloadRaw)
-    const payloadSize = Buffer.alloc(4)
-    payloadSize.writeUInt32BE(payload.length, 0)
     const seqBuffer = Buffer.alloc(4)
     seqBuffer.writeInt32BE(sequence, 0)
 
-    const header = buildHeader({
-        messageType: MESSAGE_TYPE_FULL_CLIENT_REQUEST,
+    return buildVolcengineBinaryFrame({
+        messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
         messageTypeFlags: 0b0001,
-        serialization: SERIALIZATION_JSON,
-        compression: COMPRESSION_GZIP,
+        serialization: VOLCENGINE_SERIALIZATION.json,
+        compression: VOLCENGINE_COMPRESSION.gzip,
+        prefixBuffers: [seqBuffer],
+        payload: payloadRaw,
     })
-
-    return Buffer.concat([header, seqBuffer, payloadSize, payload])
 }
 
 export function buildVolcengineAudioRequestFrame(audioBuffer: Buffer, sequence: number, isFinal = false) {
-    const payload = gzipSync(audioBuffer)
-    const payloadSize = Buffer.alloc(4)
-    payloadSize.writeUInt32BE(payload.length, 0)
     const seqBuffer = Buffer.alloc(4)
     seqBuffer.writeInt32BE(isFinal ? -Math.abs(sequence) : sequence, 0)
 
-    const header = buildHeader({
-        messageType: MESSAGE_TYPE_AUDIO_ONLY_REQUEST,
+    return buildVolcengineBinaryFrame({
+        messageType: VOLCENGINE_MESSAGE_TYPE.audioOnlyRequest,
         messageTypeFlags: isFinal ? 0b0011 : 0b0001,
-        serialization: SERIALIZATION_NONE,
-        compression: COMPRESSION_GZIP,
+        serialization: VOLCENGINE_SERIALIZATION.none,
+        compression: VOLCENGINE_COMPRESSION.gzip,
+        prefixBuffers: [seqBuffer],
+        payload: audioBuffer,
     })
-
-    return Buffer.concat([header, seqBuffer, payloadSize, payload])
 }
 
 export function parseVolcengineServerPacket(data: Buffer): VolcengineServerPacket {
@@ -152,7 +112,7 @@ export function parseVolcengineServerPacket(data: Buffer): VolcengineServerPacke
     const serialization = (data.readUInt8(2) >> 4) & 0x0f
     const compression = data.readUInt8(2) & 0x0f
 
-    if (messageType === MESSAGE_TYPE_FULL_SERVER_RESPONSE) {
+    if (messageType === VOLCENGINE_MESSAGE_TYPE.fullServerResponse) {
         if (data.length < 12) {
             return {
                 type: 'unknown',
@@ -164,20 +124,9 @@ export function parseVolcengineServerPacket(data: Buffer): VolcengineServerPacke
         const payloadSize = data.readUInt32BE(8)
         const payloadStart = 12
         const payloadEnd = payloadStart + payloadSize
-        let payload = data.subarray(payloadStart, payloadEnd)
-
-        if (compression === COMPRESSION_GZIP && payload.length > 0) {
-            payload = gunzipSync(payload)
-        }
-
-        let decoded: any = payload.toString('utf-8')
-        if (serialization === SERIALIZATION_JSON && payload.length > 0) {
-            try {
-                decoded = JSON.parse(decoded)
-            } catch {
-                // 保留原始字符串
-            }
-        }
+        const compressedPayload = data.subarray(payloadStart, payloadEnd)
+        const payload = decodeVolcenginePayload(compressedPayload, compression)
+        const decoded = decodeVolcenginePayloadBySerialization(payload, serialization)
 
         return {
             type: 'response',
@@ -188,7 +137,7 @@ export function parseVolcengineServerPacket(data: Buffer): VolcengineServerPacke
         }
     }
 
-    if (messageType === MESSAGE_TYPE_ERROR) {
+    if (messageType === VOLCENGINE_MESSAGE_TYPE.error) {
         if (data.length < 12) {
             return {
                 type: 'error',
