@@ -131,6 +131,7 @@ flowchart TD
 
 - 执行一次性迁移任务：将历史平铺字段转入 `metadata`。
 - 迁移任务要求可重入、可分批执行、可观测日志。
+- PostgreSQL 实施脚本：`database/postgres/migration_v6_post_metadata_unification.sql`。
 
 #### Phase 4：读路径切换
 
