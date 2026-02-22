@@ -6,7 +6,7 @@ import { Category } from './category'
 import { Tag } from './tag'
 import { Comment } from './comment'
 import { PostVersion } from './post-version'
-import { PostStatus, PostVisibility } from '@/types/post'
+import { PostStatus, PostVisibility, type PostMetadata, type PublishIntent } from '@/types/post'
 
 @Entity('post')
 @Unique(['slug', 'language'])
@@ -66,6 +66,12 @@ export class Post extends BaseEntity {
     @CustomColumn({ type: 'text', nullable: true })
     copyright: string | null
 
+    @CustomColumn({ type: 'integer', default: 1, nullable: false, comment: '元数据结构版本' })
+    metaVersion: number
+
+    @CustomColumn({ type: 'json', nullable: true, comment: '文章统一元数据容器' })
+    metadata: PostMetadata | null
+
     @CustomColumn({ type: 'text', nullable: true, comment: '音频文件地址' })
     audioUrl: string | null
 
@@ -91,10 +97,10 @@ export class Post extends BaseEntity {
     scaffoldOutline: string | null
 
     @CustomColumn({ type: 'json', nullable: true, comment: '大纲生成的元数据 (模板, 受众, 章节数等)' })
-    scaffoldMetadata: Record<string, any> | null
+    scaffoldMetadata: Record<string, unknown> | null
 
     @CustomColumn({ type: 'json', nullable: true, comment: '发布意图 (定时发布选项)' })
-    publishIntent: Record<string, any> | null
+    publishIntent: PublishIntent | null
 
     @CustomColumn({ type: 'datetime', nullable: true, index: true })
     publishedAt: Date | null

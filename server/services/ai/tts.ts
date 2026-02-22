@@ -6,6 +6,7 @@ import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { AITask } from '@/server/entities/ai-task'
 import logger from '@/server/utils/logger'
+import { applyPostMetadataPatch } from '@/server/utils/post-metadata'
 import { SettingKey } from '@/types/setting'
 import type { TTSOptions, TTSAudioVoice, TTSVoiceQuery } from '@/types/ai'
 
@@ -326,7 +327,14 @@ export class TTSService extends AIBaseService {
 
             // Update Post if exists
             if (post) {
-                post.audioUrl = uploadedFile.url
+                applyPostMetadataPatch(post, {
+                    audioUrl: uploadedFile.url,
+                    audioSize: buffer.length,
+                    audioMimeType: mimetype,
+                    ttsProvider: task.provider || null,
+                    ttsVoice: voice,
+                    ttsGeneratedAt: new Date(),
+                })
                 await postRepo.save(post)
             }
 

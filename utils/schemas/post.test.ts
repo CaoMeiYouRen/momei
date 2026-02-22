@@ -113,6 +113,28 @@ describe('utils/schemas/post', () => {
             }
         })
 
+        it('应该验证统一 metadata 字段', () => {
+            const validData = {
+                title: '标题',
+                content: '内容',
+                metadata: {
+                    audio: {
+                        url: '/uploads/audio.mp3',
+                        duration: 180,
+                    },
+                    publish: {
+                        intent: {
+                            syncToMemos: true,
+                            pushOption: 'draft',
+                        },
+                    },
+                },
+            }
+
+            const result = createPostSchema.safeParse(validData)
+            expect(result.success).toBe(true)
+        })
+
         it('应该拒绝负数的音频时长', () => {
             const invalidData = {
                 title: '标题',
@@ -206,6 +228,19 @@ describe('utils/schemas/post', () => {
         it('应该允许部分更新', () => {
             const partialData = {
                 title: '更新的标题',
+            }
+
+            const result = updatePostSchema.safeParse(partialData)
+            expect(result.success).toBe(true)
+        })
+
+        it('应该允许 metadata 局部更新', () => {
+            const partialData = {
+                metadata: {
+                    scaffold: {
+                        outline: 'new outline',
+                    },
+                },
             }
 
             const result = updatePostSchema.safeParse(partialData)

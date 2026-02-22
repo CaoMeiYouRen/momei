@@ -68,6 +68,53 @@ export enum PostVisibility {
 }
 
 /**
+ * 音频元数据
+ */
+export interface PostAudioMetadata {
+    url?: string | null
+    duration?: number | null
+    size?: number | null
+    mimeType?: string | null
+}
+
+/**
+ * TTS 元数据
+ */
+export interface PostTTSMetadata {
+    provider?: string | null
+    voice?: string | null
+    generatedAt?: string | Date | null
+}
+
+/**
+ * 大纲元数据
+ */
+export interface PostScaffoldMetadata {
+    outline?: string | null
+    metadata?: Record<string, unknown> | null
+}
+
+/**
+ * 集成元数据
+ */
+export interface PostIntegrationMetadata {
+    memosId?: string | null
+}
+
+/**
+ * 文章统一元数据结构
+ */
+export interface PostMetadata {
+    audio?: PostAudioMetadata
+    tts?: PostTTSMetadata
+    scaffold?: PostScaffoldMetadata
+    publish?: {
+        intent?: PublishIntent | null
+    }
+    integration?: PostIntegrationMetadata
+}
+
+/**
  * 文章基础信息接口
  */
 export interface Post {
@@ -85,9 +132,14 @@ export interface Post {
     audioDuration?: number | null
     audioSize?: number | null
     audioMimeType?: string | null
+    ttsProvider?: string | null
+    ttsVoice?: string | null
+    ttsGeneratedAt?: string | Date | null
     // AI 与元数据
     scaffoldOutline?: string | null
-    scaffoldMetadata?: Record<string, any> | null
+    scaffoldMetadata?: Record<string, unknown> | null
+    metadata?: PostMetadata | null
+    metaVersion?: number
     // 归类与时间
     categoryId?: string | null
     category?: {
@@ -121,6 +173,7 @@ export interface Post {
     publishIntent?: PublishIntent | null
     // 其他
     copyright?: string | null
+    memosId?: string | null
     // 权限标记 (前端辅助)
     locked?: boolean
     reason?: string

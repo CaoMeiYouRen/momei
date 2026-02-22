@@ -11,6 +11,7 @@ import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
 import { PostStatus, POST_STATUS_TRANSITIONS, type PublishIntent } from '@/types/post'
 import { hashPassword } from '@/server/utils/password'
 import { assignDefined } from '@/server/utils/object'
+import { applyPostMetadataPatch } from '@/server/utils/post-metadata'
 
 type CreatePostInput = z.infer<typeof createPostSchema>
 type UpdatePostInput = z.infer<typeof updatePostSchema>
@@ -29,10 +30,21 @@ async function applyPostChanges(
     // 1.基础字段赋值
     assignDefined(post, body, [
         'title', 'content', 'summary', 'coverImage',
-        'audioUrl', 'audioDuration', 'audioSize', 'audioMimeType',
         'language', 'translationId', 'copyright', 'visibility',
-        'scaffoldOutline', 'scaffoldMetadata', 'publishIntent',
+        'metaVersion',
     ])
+
+    applyPostMetadataPatch(post, {
+        metadata: body.metadata,
+        metaVersion: body.metaVersion,
+        audioUrl: body.audioUrl,
+        audioDuration: body.audioDuration,
+        audioSize: body.audioSize,
+        audioMimeType: body.audioMimeType,
+        scaffoldOutline: body.scaffoldOutline,
+        scaffoldMetadata: body.scaffoldMetadata,
+        publishIntent: body.publishIntent as PublishIntent | null | undefined,
+    })
 
     // 2. 分类处理 (逻辑复用)
     let targetCategoryId: string | null | undefined = undefined
