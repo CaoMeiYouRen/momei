@@ -1,5 +1,5 @@
 import { createError } from 'h3'
-import type { TTSAudioVoice, TTSOptions, AIProvider } from '@/types/ai'
+import type { TTSAudioVoice, TTSOptions, AIProvider, TTSVoiceQuery } from '@/types/ai'
 
 export class SiliconFlowTTSProvider implements Partial<AIProvider> {
     name = 'siliconflow'
@@ -35,7 +35,8 @@ export class SiliconFlowTTSProvider implements Partial<AIProvider> {
         }))
     }
 
-    async getVoices(): Promise<TTSAudioVoice[]> {
+    async getVoices(_query?: TTSVoiceQuery): Promise<TTSAudioVoice[]> {
+        void _query
         const voices = [...this.availableVoices]
 
         // 尝试获取动态音色

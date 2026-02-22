@@ -26,17 +26,19 @@ const visible = defineModel<boolean>('visible', { default: false })
 
 const config = ref({
     provider: '',
-    mode: 'speech',
+    mode: 'speech' as 'speech' | 'podcast',
     voice: '',
 })
 
 const availableProviders = ref<string[]>([])
+const providerModes = ref<Record<string, Array<'speech' | 'podcast'>>>({})
 const showProviderSelect = computed(() => availableProviders.value.length > 1)
 
 async function fetchConfig() {
     try {
         const { data } = await $appFetch('/api/ai/tts/config')
         availableProviders.value = data.availableProviders
+        providerModes.value = data.providerModes || {}
         if (!config.value.provider) {
             config.value.provider = data.defaultProvider
         }
@@ -47,9 +49,17 @@ async function fetchConfig() {
     }
 }
 
-const modes = computed(() => [
-    { label: t('pages.admin.posts.tts.mode_speech'), value: 'speech' },
-])
+const modes = computed(() => {
+    const currentProvider = config.value.provider
+    const enabledModes = providerModes.value[currentProvider] || ['speech']
+
+    return enabledModes.map((mode) => ({
+        label: mode === 'podcast'
+            ? t('pages.admin.posts.tts.mode_podcast')
+            : t('pages.admin.posts.tts.mode_speech'),
+        value: mode,
+    }))
+})
 
 const providers = computed(() => {
     return availableProviders.value.map((p) => ({
@@ -87,7 +97,10 @@ async function fetchVoices() {
     loadingVoices.value = true
     try {
         const { data } = await $appFetch('/api/ai/tts/voices', {
-            query: { provider: config.value.provider },
+            query: {
+                provider: config.value.provider,
+                mode: config.value.mode,
+            },
         })
         voices.value = data
         // 如果当前音色不在新列表中，重置为空
@@ -103,8 +116,16 @@ async function fetchVoices() {
 
 // 监听提供商变化，重新获取音色列表
 watch(() => config.value.provider, () => {
+    const enabledModes = providerModes.value[config.value.provider] || ['speech']
+    if (!enabledModes.includes(config.value.mode)) {
+        config.value.mode = 'speech'
+    }
     fetchVoices()
 }, { immediate: true })
+
+watch(() => config.value.mode, () => {
+    fetchVoices()
+})
 
 // 监听 visible 变化，初始化文稿
 watch(visible, (val) => {

@@ -77,6 +77,10 @@ export interface TTSOptions {
     taskId?: string
 }
 
+export interface TTSVoiceQuery {
+    mode?: 'speech' | 'podcast'
+}
+
 // --- ASR (Speech to Text) ---
 export interface TranscribeOptions {
     audioBuffer: Buffer
@@ -105,7 +109,7 @@ export interface AIProvider {
     // Image
     generateImage?(options: AIImageOptions): Promise<AIImageResponse>
     // TTS
-    getVoices?(): Promise<TTSAudioVoice[]>
+    getVoices?(query?: TTSVoiceQuery): Promise<TTSAudioVoice[]>
     generateSpeech?(text: string, voice: string | string[], options: TTSOptions): Promise<ReadableStream<Uint8Array>>
     estimateTTSCost?(text: string, voice: string | string[]): Promise<number>
     // ASR

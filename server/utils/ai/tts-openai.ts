@@ -1,5 +1,5 @@
 import { createError } from 'h3'
-import type { TTSAudioVoice, TTSOptions, AIProvider } from '@/types/ai'
+import type { TTSAudioVoice, TTSOptions, AIProvider, TTSVoiceQuery } from '@/types/ai'
 
 export class OpenAITTSProvider implements Partial<AIProvider> {
     name = 'openai'
@@ -22,7 +22,8 @@ export class OpenAITTSProvider implements Partial<AIProvider> {
         this.model = config.defaultModel || 'tts-1'
     }
 
-    getVoices(): Promise<TTSAudioVoice[]> {
+    getVoices(_query?: TTSVoiceQuery): Promise<TTSAudioVoice[]> {
+        void _query
         return Promise.resolve(this.availableVoices)
     }
 

@@ -11,7 +11,7 @@ import {
     parseVolcengineErrorPacket,
     parseVolcengineEventPacket,
 } from './volcengine-protocol'
-import type { TTSAudioVoice, TTSOptions, AIProvider } from '@/types/ai'
+import type { TTSAudioVoice, TTSOptions, AIProvider, TTSVoiceQuery } from '@/types/ai'
 
 export interface VolcengineTTSConfig {
     appId: string
@@ -55,6 +55,23 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
         { id: 'en_female_stokie_uranus_bigtts', name: 'Stokie', language: 'en', gender: 'female' },
     ]
 
+    podcastVoices: TTSAudioVoice[] = [
+        {
+            id: 'zh_male_dayixiansheng_v2_saturn_bigtts,zh_female_mizaitongxue_v2_saturn_bigtts',
+            name: '大壹先生 + 咪仔同学',
+            language: 'zh',
+            gender: 'neutral',
+            mode: 'podcast',
+        },
+        {
+            id: 'zh_male_liufei_v2_saturn_bigtts,zh_male_xiaolei_v2_saturn_bigtts',
+            name: '刘飞 + 潇磊',
+            language: 'zh',
+            gender: 'neutral',
+            mode: 'podcast',
+        },
+    ]
+
     private config: VolcengineTTSConfig
 
     constructor(config: VolcengineTTSConfig) {
@@ -67,7 +84,10 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
         return this.config.defaultModel || 'seed-tts-2.0'
     }
 
-    getVoices(): Promise<TTSAudioVoice[]> {
+    getVoices(query: TTSVoiceQuery = {}): Promise<TTSAudioVoice[]> {
+        if (query.mode === 'podcast') {
+            return Promise.resolve(this.podcastVoices)
+        }
         return Promise.resolve(this.availableVoices)
     }
 

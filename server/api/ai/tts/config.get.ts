@@ -10,8 +10,18 @@ export default defineEventHandler(async (event) => {
     const defaultProvider = await getSetting(SettingKey.TTS_PROVIDER, 'openai')
     const availableProviders = await TTSService.getAvailableProviders()
 
+    const providerModes = availableProviders.reduce<Record<string, ('speech' | 'podcast')[]>>((acc, provider) => {
+        if (provider === 'volcengine') {
+            acc[provider] = ['speech', 'podcast']
+        } else {
+            acc[provider] = ['speech']
+        }
+        return acc
+    }, {})
+
     return success({
         defaultProvider,
         availableProviders,
+        providerModes,
     })
 })

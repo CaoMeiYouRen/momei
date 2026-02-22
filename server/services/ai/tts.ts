@@ -7,7 +7,7 @@ import { Post } from '@/server/entities/post'
 import { AITask } from '@/server/entities/ai-task'
 import logger from '@/server/utils/logger'
 import { SettingKey } from '@/types/setting'
-import type { TTSOptions, TTSAudioVoice } from '@/types/ai'
+import type { TTSOptions, TTSAudioVoice, TTSVoiceQuery } from '@/types/ai'
 
 export class TTSService extends AIBaseService {
     static async generateSpeech(text: string, voice: string = 'default', options: TTSOptions = {}, userId?: string, providerName?: string) {
@@ -109,12 +109,12 @@ export class TTSService extends AIBaseService {
         }
     }
 
-    static async getVoices(providerName?: string): Promise<TTSAudioVoice[]> {
+    static async getVoices(providerName?: string, query: TTSVoiceQuery = {}): Promise<TTSAudioVoice[]> {
         const provider = await getAIProvider('tts', providerName ? { provider: providerName as any } : undefined)
         if (!provider.getVoices) {
             return []
         }
-        return await provider.getVoices()
+        return await provider.getVoices(query)
     }
 
     static async estimateCost(text: string, voice: string = 'default', providerName?: string): Promise<number> {
