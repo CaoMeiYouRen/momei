@@ -1,17 +1,13 @@
 import { dataSource } from '~/server/database'
 import { ASRQuota } from '~/server/entities/asr-quota'
+import { requireAuth } from '~/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
-    const user = event.context.user
-    if (!user) {
-        throw createError({
-            statusCode: 401,
-            message: 'Unauthorized',
-        })
-    }
+    const session = await requireAuth(event)
+    const userId = session.user.id
 
     const repo = dataSource.getRepository(ASRQuota)
-    const quotas = await repo.findBy({ userId: user.id })
+    const quotas = await repo.findBy({ userId })
 
     const info = {
         siliconflow: {

@@ -60,6 +60,10 @@ const { t } = useI18n()
 const confirm = useConfirm()
 const toast = useToast()
 
+definePageMeta({
+    middleware: 'admin',
+})
+
 const activeTab = ref('stats')
 const stats = ref<any>(null)
 const loadingStats = ref(false)

@@ -3,13 +3,12 @@ import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { AITask } from '@/server/entities/ai-task'
 import { TTSService } from '@/server/services/ai'
+import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
-    const user = event.context.user
-    if (!user) {
-        throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-    }
+    const session = await requireAdminOrAuthor(event)
+    const user = session.user
 
     const body = await readBody(event)
     const { postId, text, provider, mode = 'speech', voice, model, script, options = {} } = body

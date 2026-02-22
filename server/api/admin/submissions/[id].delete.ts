@@ -1,7 +1,10 @@
 import { submissionService } from '~/server/services/submission'
+import { requireAdmin } from '~/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
     try {
+        await requireAdmin(event)
+
         const id = getRouterParam(event, 'id')
         if (!id) {
             throw createError({

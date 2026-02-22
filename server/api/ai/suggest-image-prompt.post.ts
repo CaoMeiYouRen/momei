@@ -1,7 +1,10 @@
 import { defineEventHandler, readBody } from 'h3'
 import { getAIProvider } from '~/server/utils/ai'
+import { requireAdminOrAuthor } from '~/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
+    await requireAdminOrAuthor(event)
+
     const body = await readBody(event)
     const { title, content, language = 'zh-CN' } = body
 
