@@ -193,7 +193,10 @@ export class TTSService extends AIBaseService {
 
             const post = postId ? await postRepo.findOneBy({ id: postId }) : null
 
-            const options = payload.options || {}
+            const options = {
+                ...(payload.options || {}),
+                mode: payload.mode || task.mode || payload.options?.mode || 'speech',
+            }
             const voice = payload.voice || 'default'
             const contentToUse = payload.text || payload.script || (post ? post.content : '')
 

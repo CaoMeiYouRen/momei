@@ -27,6 +27,7 @@ export interface VolcengineTTSConfig {
  */
 export class VolcengineTTSProvider implements Partial<AIProvider> {
     name = 'volcengine'
+    private static readonly PODCAST_APP_KEY = 'aGjiRDfUWi'
 
     // 豆包语音合成模型 2.0 (Seed-TTS) 音色列表
     availableVoices: TTSAudioVoice[] = [
@@ -598,6 +599,8 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
         const ws = new WebSocket(endpoint, {
             headers: createVolcengineAuthHeaders({
                 appId,
+                // 播客 API 的 appKey 固定为 'aGjiRDfUWi'，与 TTS 接口不同
+                appKey: VolcengineTTSProvider.PODCAST_APP_KEY,
                 accessKey: token,
                 resourceId,
                 requestId,
