@@ -28,6 +28,7 @@
 - **[主题系统 (Theme System)](./theme)**: 可视化风格定制、画廊方案与零闪烁切换。
 - **[后台管理 (Admin)](./admin)**: 全局仪表盘、实体运维及系统监控。
 - **[系统能力与设置 (System & Settings)](./system)**: 混合配置模式、安装向导与部署优化。
+- **[文章元数据统一化 (Post Metadata Unification)](./post-metadata-unification)**: 面向 `Post` 的统一元数据模型、Patch 规则与分阶段迁移方案。
 - **[存储管理 (Storage)](./storage)**: 本地存储与对象存储 (S3/Cloudflare) 的统一抽象。
 - **[定时任务 (Scheduled Tasks)](./scheduled-publication)**: 适配 Serverless 的定时发布与任务引擎。
 
