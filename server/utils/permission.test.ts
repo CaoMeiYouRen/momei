@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { H3Event } from 'h3'
-import { requireAdmin, requireAdminOrAuthor, requireAuth, requireRole } from './permission'
+import { requireAdmin, requireAdminOrAuthor, requireAuth, requireRole, requireWsAdminOrAuthor, requireWsAuth, requireWsRole } from './permission'
 import { UserRole } from '@/utils/shared/roles'
 
 // Mock auth module
@@ -156,6 +156,66 @@ describe('permission utils', () => {
             } as unknown as H3Event
 
             await expect(requireAdminOrAuthor(mockEvent)).rejects.toThrow()
+        })
+    })
+
+    describe('requireWsAuth', () => {
+        it('应该在 WS 用户已登录时返回 session', async () => {
+            const mockSession = {
+                user: { id: '1', name: 'Test User', role: UserRole.USER },
+            }
+
+            const { auth } = await import('@/lib/auth')
+            vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any)
+
+            const request = new Request('http://localhost', {
+                headers: new Headers({ cookie: 'session=test' }),
+            })
+
+            const result = await requireWsAuth(request)
+            expect(result).toEqual(mockSession)
+        })
+
+        it('应该在 WS 未登录时抛出 401 错误', async () => {
+            const { auth } = await import('@/lib/auth')
+            vi.mocked(auth.api.getSession).mockResolvedValue(null)
+
+            await expect(requireWsAuth(undefined)).rejects.toThrow()
+        })
+    })
+
+    describe('requireWsRole', () => {
+        it('应该在 WS 用户角色不符合时抛出 403 错误', async () => {
+            const mockSession = {
+                user: { id: '1', name: 'User', role: UserRole.USER },
+            }
+
+            const { auth } = await import('@/lib/auth')
+            vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any)
+
+            const request = new Request('http://localhost', {
+                headers: new Headers({ cookie: 'session=test' }),
+            })
+
+            await expect(requireWsRole(request, [UserRole.ADMIN])).rejects.toThrow()
+        })
+    })
+
+    describe('requireWsAdminOrAuthor', () => {
+        it('应该在 WS 用户是管理员时通过', async () => {
+            const mockSession = {
+                user: { id: '1', name: 'Admin', role: UserRole.ADMIN },
+            }
+
+            const { auth } = await import('@/lib/auth')
+            vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any)
+
+            const request = new Request('http://localhost', {
+                headers: new Headers({ cookie: 'session=test' }),
+            })
+
+            const result = await requireWsAdminOrAuthor(request)
+            expect(result).toEqual(mockSession)
         })
     })
 })

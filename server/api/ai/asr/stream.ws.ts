@@ -4,8 +4,7 @@ import WebSocket from 'ws'
 import { getSettings } from '~/server/services/setting'
 import { SettingKey } from '~/types/setting'
 import logger from '~/server/utils/logger'
-import { auth } from '@/lib/auth'
-import { hasRole, UserRole } from '@/utils/shared/roles'
+import { requireWsAdminOrAuthor } from '~/server/utils/permission'
 import {
     DEFAULT_VOLCENGINE_RESOURCE_ID,
     DEFAULT_VOLCENGINE_STREAM_ENDPOINT,
@@ -38,18 +37,7 @@ export default defineWebSocketHandler({
         const currentPeer = peer as PeerWithVolcState
         currentPeer.authReady = false
         try {
-            const request = currentPeer.request
-            if (!request?.headers) {
-                throw new Error('Upgrade request headers not found on peer')
-            }
-
-            const session = await auth.api.getSession({
-                headers: request.headers,
-            })
-
-            if (!session?.user || !hasRole(session.user.role, [UserRole.ADMIN, UserRole.AUTHOR])) {
-                throw new Error('Unauthorized')
-            }
+            const session = await requireWsAdminOrAuthor(currentPeer.request)
 
             currentPeer.userId = session.user.id
             currentPeer.authorized = true
