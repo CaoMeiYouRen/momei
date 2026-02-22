@@ -72,40 +72,73 @@ export class Post extends BaseEntity {
     @CustomColumn({ type: 'json', nullable: true, comment: '文章统一元数据容器' })
     metadata: PostMetadata | null
 
-    @CustomColumn({ type: 'text', nullable: true, comment: '音频文件地址' })
+    /**
+     * @deprecated 请改用 metadata.audio.url
+     */
+    @CustomColumn({ type: 'text', nullable: true, comment: '音频文件地址（兼容字段，建议使用 metadata.audio.url）' })
     audioUrl: string | null
 
-    @CustomColumn({ type: 'integer', nullable: true, comment: '音频时长 (秒)' })
+    /**
+     * @deprecated 请改用 metadata.audio.duration
+     */
+    @CustomColumn({ type: 'integer', nullable: true, comment: '音频时长 (秒)（兼容字段，建议使用 metadata.audio.duration）' })
     audioDuration: number | null
 
-    @CustomColumn({ type: 'integer', nullable: true, comment: '音频文件大小 (字节)' })
+    /**
+     * @deprecated 请改用 metadata.audio.size
+     */
+    @CustomColumn({ type: 'integer', nullable: true, comment: '音频文件大小 (字节)（兼容字段，建议使用 metadata.audio.size）' })
     audioSize: number | null
 
-    @CustomColumn({ type: 'varchar', length: 100, nullable: true, comment: '音频 MIME 类型' })
+    /**
+     * @deprecated 请改用 metadata.audio.mimeType
+     */
+    @CustomColumn({ type: 'varchar', length: 100, nullable: true, comment: '音频 MIME 类型（兼容字段，建议使用 metadata.audio.mimeType）' })
     audioMimeType: string | null
 
-    @CustomColumn({ type: 'varchar', length: 50, nullable: true, comment: 'TTS 提供者' })
+    /**
+     * @deprecated 请改用 metadata.tts.provider
+     */
+    @CustomColumn({ type: 'varchar', length: 50, nullable: true, comment: 'TTS 提供者（兼容字段，建议使用 metadata.tts.provider）' })
     ttsProvider: string | null
 
-    @CustomColumn({ type: 'varchar', length: 50, nullable: true, comment: 'TTS 语音' })
+    /**
+     * @deprecated 请改用 metadata.tts.voice
+     */
+    @CustomColumn({ type: 'varchar', length: 50, nullable: true, comment: 'TTS 语音（兼容字段，建议使用 metadata.tts.voice）' })
     ttsVoice: string | null
 
-    @CustomColumn({ type: 'datetime', nullable: true, comment: 'TTS 生成时间' })
+    /**
+     * @deprecated 请改用 metadata.tts.generatedAt
+     */
+    @CustomColumn({ type: 'datetime', nullable: true, comment: 'TTS 生成时间（兼容字段，建议使用 metadata.tts.generatedAt）' })
     ttsGeneratedAt: Date | null
 
-    @CustomColumn({ type: 'text', nullable: true, comment: 'AI 生成的大纲原文' })
+    /**
+     * @deprecated 请改用 metadata.scaffold.outline
+     */
+    @CustomColumn({ type: 'text', nullable: true, comment: 'AI 生成的大纲原文（兼容字段，建议使用 metadata.scaffold.outline）' })
     scaffoldOutline: string | null
 
-    @CustomColumn({ type: 'json', nullable: true, comment: '大纲生成的元数据 (模板, 受众, 章节数等)' })
+    /**
+     * @deprecated 请改用 metadata.scaffold.metadata
+     */
+    @CustomColumn({ type: 'json', nullable: true, comment: '大纲生成元数据（兼容字段，建议使用 metadata.scaffold.metadata）' })
     scaffoldMetadata: Record<string, unknown> | null
 
-    @CustomColumn({ type: 'json', nullable: true, comment: '发布意图 (定时发布选项)' })
+    /**
+     * @deprecated 请改用 metadata.publish.intent
+     */
+    @CustomColumn({ type: 'json', nullable: true, comment: '发布意图（兼容字段，建议使用 metadata.publish.intent）' })
     publishIntent: PublishIntent | null
 
     @CustomColumn({ type: 'datetime', nullable: true, index: true })
     publishedAt: Date | null
 
-    @CustomColumn({ type: 'varchar', length: 255, nullable: true, comment: '关联的 Memos ID', index: true })
+    /**
+     * @deprecated 请改用 metadata.integration.memosId
+     */
+    @CustomColumn({ type: 'varchar', length: 255, nullable: true, comment: '关联 Memos ID（兼容字段，建议使用 metadata.integration.memosId）', index: true })
     memosId: string | null
 
     // ========== 关系定义 ==========

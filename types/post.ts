@@ -128,15 +128,24 @@ export interface Post {
     password?: string | null
     coverImage?: string | null
     // 音频相关 (Podcast)
+    /** @deprecated 请改用 metadata.audio.url */
     audioUrl?: string | null
+    /** @deprecated 请改用 metadata.audio.duration */
     audioDuration?: number | null
+    /** @deprecated 请改用 metadata.audio.size */
     audioSize?: number | null
+    /** @deprecated 请改用 metadata.audio.mimeType */
     audioMimeType?: string | null
+    /** @deprecated 请改用 metadata.tts.provider */
     ttsProvider?: string | null
+    /** @deprecated 请改用 metadata.tts.voice */
     ttsVoice?: string | null
+    /** @deprecated 请改用 metadata.tts.generatedAt */
     ttsGeneratedAt?: string | Date | null
     // AI 与元数据
+    /** @deprecated 请改用 metadata.scaffold.outline */
     scaffoldOutline?: string | null
+    /** @deprecated 请改用 metadata.scaffold.metadata */
     scaffoldMetadata?: Record<string, unknown> | null
     metadata?: PostMetadata | null
     metaVersion?: number
@@ -170,9 +179,11 @@ export interface Post {
     translationId?: string | null
     translations?: Post[] | null
     // 发布意图 (副作用控制)
+    /** @deprecated 请改用 metadata.publish.intent */
     publishIntent?: PublishIntent | null
     // 其他
     copyright?: string | null
+    /** @deprecated 请改用 metadata.integration.memosId */
     memosId?: string | null
     // 权限标记 (前端辅助)
     locked?: boolean
