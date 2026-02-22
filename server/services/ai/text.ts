@@ -23,7 +23,61 @@ export interface ExpandSectionOptions {
     language?: string
 }
 
+export interface SuggestImagePromptOptions {
+    title?: string
+    content?: string
+    language?: string
+}
+
 export class TextService extends AIBaseService {
+    static async suggestImagePrompt(options: SuggestImagePromptOptions, userId?: string) {
+        const { title = '', content = '', language = 'zh-CN' } = options
+
+        if (!title && !content) {
+            throw createError({
+                statusCode: 400,
+                message: 'Title or content is required',
+            })
+        }
+
+        const provider = await getAIProvider('text')
+        if (!provider.chat) {
+            throw createError({
+                statusCode: 500,
+                statusMessage: 'AI provider does not support chat',
+            })
+        }
+
+        const prompt = formatPrompt(AI_PROMPTS.SUGGEST_IMAGE_PROMPT, {
+            title: title || 'N/A',
+            contentSummary: content.slice(0, 500) || 'N/A',
+            language,
+        })
+
+        const response = await provider.chat({
+            messages: [
+                { role: 'user', content: prompt },
+            ],
+        })
+
+        this.logUsage({ task: 'suggest-image-prompt', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'suggest_image_prompt',
+            provider: provider.name,
+            model: response.model,
+            payload: {
+                title,
+                content: content.slice(0, 500),
+                language,
+            },
+            response: { content: response.content },
+        })
+
+        return response.content.trim().replace(/^"(.*)"$/, '$1')
+    }
+
     static async suggestTitles(
         content: string,
         language: string = 'zh-CN',

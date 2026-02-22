@@ -52,6 +52,19 @@ export const AI_PROMPTS = {
         + '- Keep speaking style natural and conversational, with concise turns and smooth transitions.\n'
         + '- Keep the core message but optimize for listening experience.\n'
         + 'Output ONLY the polished dual-speaker script: \n\n{{content}}',
+    SUGGEST_IMAGE_PROMPT:
+        'You are a professional blog cover artist.\n'
+        + 'Your task is to create a high-quality, artistic, and visually striking image prompt for AI image generators (DALL-E, Stable Diffusion, etc).\n'
+        + 'The image should represent the core theme of the following blog post.\n\n'
+        + 'Title: {{title}}\n'
+        + 'Content Summary: {{contentSummary}}\n\n'
+        + 'Rules for the prompt:\n'
+        + '1. Describe a scene or abstract concept that is professional and high-end.\n'
+        + '2. Mention artistic style (e.g., "minimalist digital art", "vivid oil painting", "isometric 3D render", "clean modern photography").\n'
+        + '3. Mention lighting and color palette (e.g., "warm cinematic lighting", "soft pastel colors", "dark mode neon style").\n'
+        + '4. Response ONLY with the final prompt content, no other text.\n'
+        + '5. Provide the prompt in the following language: {{language}}.\n'
+        + '6. Keep it under 200 words.',
     RECOMMEND_TAGS:
         'Help me recommend 5-10 tags for the following article in {{language}}. Choose tags that are relevant, SEO-friendly, and common in technical blogging. Output ONLY as a JSON array of strings: \n\n{{content}}',
 }
