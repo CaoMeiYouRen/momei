@@ -33,6 +33,10 @@ vi.mock('@vueuse/core', () => ({
     useDark: vi.fn(() => mockIsDarkRef),
     useToggle: vi.fn(() => mockToggleDark),
     usePreferredDark: vi.fn(() => ref(false)),
+    useIntervalFn: vi.fn(() => ({
+        pause: vi.fn(),
+        resume: vi.fn(),
+    })),
 }))
 
 // Mock useSearch
