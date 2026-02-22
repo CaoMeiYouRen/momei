@@ -288,6 +288,9 @@ export default defineNuxtConfig({
         },
     },
     nitro: {
+        experimental: {
+            websocket: true,
+        },
         ignore: [
             '**/*.test.ts',
             '**/*.spec.ts',

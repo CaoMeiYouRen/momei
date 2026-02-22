@@ -67,6 +67,30 @@ export function usePostEditorVoice() {
     let mediaRecorder: MediaRecorder | null = null
     let audioChunks: Blob[] = []
     let ws: WebSocket | null = null
+    let audioContext: AudioContext | null = null
+    let sourceNode: MediaStreamAudioSourceNode | null = null
+    let processorNode: ScriptProcessorNode | null = null
+    let muteGainNode: GainNode | null = null
+
+    const encodePcmToBase64 = (float32Samples: Float32Array) => {
+        const pcmBuffer = new ArrayBuffer(float32Samples.length * 2)
+        const pcmView = new DataView(pcmBuffer)
+
+        for (let i = 0; i < float32Samples.length; i++) {
+            const sample = float32Samples[i] ?? 0
+            const clamped = Math.max(-1, Math.min(1, sample))
+            const int16 = clamped < 0 ? clamped * 0x8000 : clamped * 0x7FFF
+            pcmView.setInt16(i * 2, int16, true)
+        }
+
+        const pcmBytes = new Uint8Array(pcmBuffer)
+        let binary = ''
+        const chunkSize = 0x8000
+        for (let i = 0; i < pcmBytes.length; i += chunkSize) {
+            binary += String.fromCharCode(...pcmBytes.subarray(i, i + chunkSize))
+        }
+        return btoa(binary)
+    }
 
     // 初始化 Web Speech API
     if (import.meta.client) {
@@ -137,12 +161,23 @@ export function usePostEditorVoice() {
             }
 
             if (mode.value === 'cloud-stream') {
+                audioContext = new AudioContext()
+                sourceNode = audioContext.createMediaStreamSource(mediaStream)
+                processorNode = audioContext.createScriptProcessor(4096, 1, 1)
+                muteGainNode = audioContext.createGain()
+                muteGainNode.gain.value = 0
+
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
                 const host = window.location.host
                 ws = new WebSocket(`${protocol}//${host}/api/ai/asr/stream`)
 
                 ws.onopen = () => {
-                    ws?.send(JSON.stringify({ type: 'start' }))
+                    ws?.send(JSON.stringify({
+                        type: 'start',
+                        language: currentLang,
+                        mimeType: 'audio/pcm',
+                        sampleRate: audioContext?.sampleRate || 16000,
+                    }))
                 }
 
                 ws.onmessage = (event) => {
@@ -162,18 +197,30 @@ export function usePostEditorVoice() {
                     }
                 }
 
-                mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'audio/webm' })
-                mediaRecorder.ondataavailable = (e) => {
-                    if (e.data.size > 0 && ws?.readyState === WebSocket.OPEN) {
-                        const reader = new FileReader()
-                        reader.onloadend = () => {
-                            const base64 = (reader.result as string).split(',')[1]
-                            ws?.send(JSON.stringify({ type: 'audio', payload: base64 }))
-                        }
-                        reader.readAsDataURL(e.data)
+                ws.onerror = () => {
+                    error.value = 'cloud_transcription_failed'
+                    isListening.value = false
+                }
+
+                ws.onclose = () => {
+                    if (mode.value === 'cloud-stream') {
+                        isListening.value = false
                     }
                 }
-                mediaRecorder.start(500) // 500ms 一个分片
+
+                processorNode.onaudioprocess = (event) => {
+                    if (ws?.readyState === WebSocket.OPEN) {
+                        const input = event.inputBuffer.getChannelData(0)
+                        const payload = encodePcmToBase64(input)
+                        ws.send(JSON.stringify({ type: 'audio', payload }))
+                    }
+                }
+
+                sourceNode.connect(processorNode)
+                processorNode.connect(muteGainNode)
+                muteGainNode.connect(audioContext.destination)
+
+                isListening.value = true
 
             }
         } catch (err: any) {
@@ -191,8 +238,23 @@ export function usePostEditorVoice() {
             const blob = new Blob(audioChunks, { type: 'audio/webm' })
             await transcribeCloudBatch(blob)
         } else if (mode.value === 'cloud-stream') {
-            mediaRecorder?.stop()
             ws?.send(JSON.stringify({ type: 'stop' }))
+
+            if (processorNode) {
+                processorNode.onaudioprocess = null
+            }
+            sourceNode?.disconnect()
+            processorNode?.disconnect()
+            muteGainNode?.disconnect()
+            sourceNode = null
+            processorNode = null
+            muteGainNode = null
+
+            if (audioContext) {
+                await audioContext.close()
+                audioContext = null
+            }
+
             // Wait for final response before closing or just close after a short delay
             setTimeout(() => {
                 ws?.close()

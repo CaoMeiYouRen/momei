@@ -21,7 +21,7 @@
     - [ ] 播客音频合成与元数据注入
     - [x] 火山引擎（Volcengine）TTS 接口对接与优化
 - [ ] **实时语音识别 (Real-time ASR) (P1)**
-    - [ ] 流式 ASR 控制器扩展 (支持 WebSocket/Chunks)
+    - [x] 流式 ASR 控制器扩展 (支持 WebSocket/Chunks)
     - [ ] 实时转录前端交互界面与低延迟显示
 - [ ] **多媒体引擎增强 (P2)**
     - [ ] 录音切片与语义修正逻辑优化
