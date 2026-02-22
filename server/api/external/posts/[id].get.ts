@@ -2,6 +2,7 @@ import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
 import { isAdmin } from '@/utils/shared/roles'
+import { applyPostReadModelFromMetadata } from '@/server/utils/post-metadata'
 
 export default defineEventHandler(async (event) => {
     const { user } = await validateApiKeyRequest(event)
@@ -21,6 +22,8 @@ export default defineEventHandler(async (event) => {
     if (!isAdmin(user.role) && post.authorId !== user.id) {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
+
+    applyPostReadModelFromMetadata(post)
 
     // 处理敏感信息（如密码等，如果有的话）
     const safePost = { ...post }

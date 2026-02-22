@@ -8,6 +8,7 @@ import { dataSource } from '@/server/database'
 import { PostStatus, type PublishIntent } from '@/types/post'
 import { MarketingCampaignStatus } from '@/utils/shared/notification'
 import { acquireLock, releaseLock } from '@/server/utils/redis'
+import { resolvePostPublishIntent } from '@/server/utils/post-metadata'
 
 const LOCK_KEY = 'momei:lock:scheduled-tasks'
 const LOCK_TTL = 60000 // 1 minute
@@ -63,7 +64,7 @@ export const processScheduledPosts = async (now = new Date()) => {
                 })
 
                 // 执行发布副作用 (从 metadata 中恢复意图)
-                const intent = (post.publishIntent as PublishIntent) || {}
+                const intent: PublishIntent = resolvePostPublishIntent(post)
                 await executePublishEffects(post as any, intent)
 
                 logger.info(`[TaskEngine] Successfully published post: ${post.title} (ID: ${post.id})`)

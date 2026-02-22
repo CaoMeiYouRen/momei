@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { applyPostMetadataPatch, buildPostMetadataPatch } from './post-metadata'
+import {
+    applyPostMetadataPatch,
+    applyPostReadModelFromMetadata,
+    buildPostMetadataPatch,
+    resolvePostPublishIntent,
+} from './post-metadata'
 
 function createMockPost(overrides: Record<string, unknown> = {}) {
     return {
@@ -99,5 +104,46 @@ describe('server/utils/post-metadata', () => {
         expect(post.metadata).toBeNull()
         expect(post.audioUrl).toBeNull()
         expect(post.scaffoldOutline).toBeNull()
+    })
+
+    it('should apply metadata-first values on read model without clearing legacy fallback', () => {
+        const post = createMockPost({
+            audioUrl: '/legacy/audio.mp3',
+            metadata: {
+                audio: {
+                    url: '/metadata/audio.mp3',
+                },
+            },
+        })
+
+        applyPostReadModelFromMetadata(post)
+
+        expect(post.audioUrl).toBe('/metadata/audio.mp3')
+    })
+
+    it('should resolve publish intent from metadata first then fallback to legacy field', () => {
+        const fromMetadata = resolvePostPublishIntent({
+            metadata: {
+                publish: {
+                    intent: {
+                        pushOption: 'draft',
+                    },
+                },
+            },
+            publishIntent: {
+                pushOption: 'now',
+            },
+        })
+
+        expect(fromMetadata.pushOption).toBe('draft')
+
+        const fromLegacy = resolvePostPublishIntent({
+            metadata: null,
+            publishIntent: {
+                pushOption: 'now',
+            },
+        })
+
+        expect(fromLegacy.pushOption).toBe('now')
     })
 })

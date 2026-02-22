@@ -5,6 +5,7 @@ import { checkPostAccess } from '@/server/utils/post-access'
 import { isAdmin } from '@/utils/shared/roles'
 import { getRequiredRouterParam } from '@/server/utils/router'
 import { success, ensureFound } from '@/server/utils/response'
+import { applyPostReadModelFromMetadata } from '@/server/utils/post-metadata'
 
 export default defineEventHandler(async (event) => {
     const id = getRequiredRouterParam(event, 'id')
@@ -22,6 +23,7 @@ export default defineEventHandler(async (event) => {
     qb.where('post.id = :id', { id })
 
     const post = ensureFound(await qb.getOne(), 'Post')
+    applyPostReadModelFromMetadata(post)
 
     // 处理作者哈希并保护隐私
     await processAuthorPrivacy(post.author, !!isUserAdmin)

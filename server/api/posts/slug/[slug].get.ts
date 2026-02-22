@@ -4,6 +4,7 @@ import { PostStatus } from '@/types/post'
 import { processAuthorPrivacy } from '@/server/utils/author'
 import { checkPostAccess } from '@/server/utils/post-access'
 import { isAdmin } from '@/utils/shared/roles'
+import { applyPostReadModelFromMetadata } from '@/server/utils/post-metadata'
 
 export default defineEventHandler(async (event) => {
     const slug = getRouterParam(event, 'slug')
@@ -35,6 +36,8 @@ export default defineEventHandler(async (event) => {
     if (!post) {
         throw createError({ statusCode: 404, statusMessage: 'Post not found' })
     }
+
+    applyPostReadModelFromMetadata(post)
 
     // 处理作者哈希并保护隐私
     await processAuthorPrivacy(post.author, !!isUserAdmin)

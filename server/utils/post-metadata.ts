@@ -17,6 +17,11 @@ interface PostMetadataInput {
     memosId?: string | null
 }
 
+interface PostIntentCarrier {
+    metadata?: PostMetadata | null
+    publishIntent?: PublishIntent | null
+}
+
 type PostMetadataPatch = Partial<PostMetadata> | null
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -75,19 +80,21 @@ function setPatchValue<T extends object>(
     patch[groupKey] = group as T[keyof T]
 }
 
-function applyShadowFieldsFromMetadata(post: Post, metadata: PostMetadata | null) {
+function applyShadowFieldsFromMetadata(post: Post, metadata: PostMetadata | null, options: { clearWhenMetadataNull: boolean }) {
     if (metadata === null) {
-        post.audioUrl = null
-        post.audioDuration = null
-        post.audioSize = null
-        post.audioMimeType = null
-        post.ttsProvider = null
-        post.ttsVoice = null
-        post.ttsGeneratedAt = null
-        post.scaffoldOutline = null
-        post.scaffoldMetadata = null
-        post.publishIntent = null
-        post.memosId = null
+        if (options.clearWhenMetadataNull) {
+            post.audioUrl = null
+            post.audioDuration = null
+            post.audioSize = null
+            post.audioMimeType = null
+            post.ttsProvider = null
+            post.ttsVoice = null
+            post.ttsGeneratedAt = null
+            post.scaffoldOutline = null
+            post.scaffoldMetadata = null
+            post.publishIntent = null
+            post.memosId = null
+        }
         return
     }
 
@@ -123,6 +130,26 @@ function applyShadowFieldsFromMetadata(post: Post, metadata: PostMetadata | null
     if (Object.prototype.hasOwnProperty.call(metadata, 'integration')) {
         post.memosId = metadata.integration?.memosId ?? null
     }
+}
+
+export function applyPostReadModelFromMetadata(post: Post) {
+    applyShadowFieldsFromMetadata(post, post.metadata || null, {
+        clearWhenMetadataNull: false,
+    })
+}
+
+export function applyPostsReadModelFromMetadata(posts: Post[]) {
+    for (const post of posts) {
+        applyPostReadModelFromMetadata(post)
+    }
+}
+
+export function resolvePostPublishIntent(post: PostIntentCarrier): PublishIntent {
+    const metadataIntent = post.metadata?.publish?.intent
+    if (metadataIntent) {
+        return metadataIntent
+    }
+    return post.publishIntent || {}
 }
 
 export function buildPostMetadataPatch(input: PostMetadataInput): PostMetadataPatch | undefined {
@@ -177,7 +204,9 @@ export function applyPostMetadataPatch(post: Post, input: PostMetadataInput) {
             ? null
             : deepMerge<PostMetadata>(cloneValue(post.metadata) || {} as PostMetadata, patch)
 
-        applyShadowFieldsFromMetadata(post, post.metadata)
+        applyShadowFieldsFromMetadata(post, post.metadata, {
+            clearWhenMetadataNull: true,
+        })
 
         if (post.metadata && !post.metaVersion) {
             post.metaVersion = 1

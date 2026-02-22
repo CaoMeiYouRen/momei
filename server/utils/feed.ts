@@ -5,6 +5,7 @@ import type { H3Event } from 'h3'
 import { toProjectLocale } from './locale'
 import { applyPostVisibilityFilter } from './post-access'
 import { t, getLocale } from './i18n'
+import { applyPostsReadModelFromMetadata } from './post-metadata'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 
@@ -69,6 +70,8 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
         .orderBy('post.publishedAt', 'DESC')
         .take(options.limit || 20)
         .getMany()
+
+    applyPostsReadModelFromMetadata(posts)
 
     const title = options.titleSuffix ? `${appName} - ${options.titleSuffix}` : appName
     const path = event.path || '/'

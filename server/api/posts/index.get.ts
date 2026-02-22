@@ -9,6 +9,7 @@ import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { processAuthorsPrivacy } from '@/server/utils/author'
 import { applyPostVisibilityFilter } from '@/server/utils/post-access'
 import { applyTranslationAggregation, attachTranslations } from '@/server/utils/translation'
+import { applyPostsReadModelFromMetadata } from '@/server/utils/post-metadata'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(q))
@@ -149,6 +150,7 @@ export default defineEventHandler(async (event) => {
     applyPagination(qb, query)
 
     const [items, total] = await qb.getManyAndCount()
+    applyPostsReadModelFromMetadata(items)
 
     // 处理作者哈希并保护隐私
     const isUserAdmin = user && isAdmin(user.role)

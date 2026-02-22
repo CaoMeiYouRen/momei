@@ -6,6 +6,7 @@ import { success, paginate } from '@/server/utils/response'
 import { processAuthorsPrivacy } from '@/server/utils/author'
 import { isAdmin } from '@/utils/shared/roles'
 import { applyPostVisibilityFilter } from '@/server/utils/post-access'
+import { applyPostsReadModelFromMetadata } from '@/server/utils/post-metadata'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => archiveQuerySchema.parse(q))
@@ -150,6 +151,7 @@ export default defineEventHandler(async (event) => {
     postsQb.take(query.limit)
 
     const [items, total] = await postsQb.getManyAndCount()
+    applyPostsReadModelFromMetadata(items)
 
     // 处理作者哈希并保护隐私
     const isUserAdmin = session?.user && isAdmin(session.user.role)
