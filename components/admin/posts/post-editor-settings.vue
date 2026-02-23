@@ -250,7 +250,7 @@
                 </div>
                 <AppUploader
                     id="audioUrl"
-                    v-model="post.audioUrl"
+                    v-model="audioUrlModel"
                     :type="UploadType.AUDIO"
                     accept="audio/*"
                     placeholder="https://... (mp3, m4a)"
@@ -276,14 +276,14 @@
                 </AppUploader>
                 <div v-if="showAudioPlayer && isValidAudioUrl" class="mt-2 preview-container">
                     <audio
-                        :src="post.audioUrl"
+                        :src="audioUrlValue"
                         controls
                         class="w-full"
                     />
                 </div>
             </div>
 
-            <div v-if="post.audioUrl" class="audio-metadata-group">
+            <div v-if="audioUrlValue" class="audio-metadata-group">
                 <div class="audio-metadata-row">
                     <div class="form-group">
                         <label for="audioDuration" class="form-label">{{ $t('pages.admin.posts.podcast.duration') }}</label>
@@ -293,13 +293,13 @@
                             placeholder="00:00:00"
                             fluid
                         />
-                        <small class="form-hint">秒数: {{ post.audioDuration || 0 }}s</small>
+                        <small class="form-hint">秒数: {{ audioDurationModel || 0 }}s</small>
                     </div>
                     <div class="form-group">
                         <label for="audioSize" class="form-label">{{ $t('pages.admin.posts.podcast.size') }}</label>
                         <InputNumber
                             id="audioSize"
-                            v-model="post.audioSize"
+                            v-model="audioSizeModel"
                             :min="0"
                             fluid
                         />
@@ -310,7 +310,7 @@
                     <label for="audioMimeType" class="form-label">{{ $t('pages.admin.posts.podcast.mime_type') }}</label>
                     <InputText
                         id="audioMimeType"
-                        v-model="post.audioMimeType"
+                        v-model="audioMimeTypeModel"
                         placeholder="audio/mpeg"
                     />
                 </div>
@@ -383,13 +383,75 @@ const isValidImageUrl = computed(() => {
 })
 
 const isValidAudioUrl = computed(() => {
-    return post.value.audioUrl && isValidCustomUrl(post.value.audioUrl)
+    return audioUrlValue.value && isValidCustomUrl(audioUrlValue.value)
+})
+
+const ensureMetadata = () => {
+    if (!post.value.metadata || typeof post.value.metadata !== 'object') {
+        post.value.metadata = {}
+    }
+
+    if (!post.value.metadata.audio || typeof post.value.metadata.audio !== 'object') {
+        post.value.metadata.audio = {}
+    }
+
+    return post.value.metadata
+}
+
+const audioUrlValue = computed(() => post.value.metadata?.audio?.url ?? post.value.audioUrl ?? null)
+
+const audioUrlModel = computed({
+    get: () => audioUrlValue.value,
+    set: (value: string | null | undefined) => {
+        const metadata = ensureMetadata()
+        metadata.audio = {
+            ...metadata.audio,
+            url: value || null,
+        }
+        post.value.audioUrl = value || null
+    },
+})
+
+const audioDurationModel = computed({
+    get: () => post.value.metadata?.audio?.duration ?? post.value.audioDuration ?? null,
+    set: (value: number | null | undefined) => {
+        const metadata = ensureMetadata()
+        metadata.audio = {
+            ...metadata.audio,
+            duration: value ?? null,
+        }
+        post.value.audioDuration = value ?? null
+    },
+})
+
+const audioSizeModel = computed({
+    get: () => post.value.metadata?.audio?.size ?? post.value.audioSize ?? null,
+    set: (value: number | null | undefined) => {
+        const metadata = ensureMetadata()
+        metadata.audio = {
+            ...metadata.audio,
+            size: value ?? null,
+        }
+        post.value.audioSize = value ?? null
+    },
+})
+
+const audioMimeTypeModel = computed({
+    get: () => post.value.metadata?.audio?.mimeType ?? post.value.audioMimeType ?? null,
+    set: (value: string | null | undefined) => {
+        const metadata = ensureMetadata()
+        metadata.audio = {
+            ...metadata.audio,
+            mimeType: value || null,
+        }
+        post.value.audioMimeType = value || null
+    },
 })
 
 const handleTTSCompleted = (url: string) => {
     // 刷新文章局部数据以获取最新的音频相关信息
     if (url) {
-        post.value.audioUrl = url
+        audioUrlModel.value = url
         // 建议重新探测元数据或从后端同步
         probeAudio()
     }
@@ -414,37 +476,37 @@ watch(() => post.value.coverImage, () => {
     showImagePreview.value = false
 })
 
-watch(() => post.value.audioUrl, () => {
+watch(audioUrlValue, () => {
     showAudioPlayer.value = false
 })
 
 // 人类可读的文件大小
 const readableSize = computed(() => {
-    if (!post.value.audioSize) return '0 B'
-    return bytes(post.value.audioSize)
+    if (!audioSizeModel.value) return '0 B'
+    return bytes(audioSizeModel.value)
 })
 
 // 音频时长展示逻辑 (HH:mm:ss <-> seconds)
 const displayDuration = computed({
-    get: () => secondsToDuration(post.value.audioDuration),
+    get: () => secondsToDuration(audioDurationModel.value),
     set: (val: string) => {
-        post.value.audioDuration = durationToSeconds(val)
+        audioDurationModel.value = durationToSeconds(val)
     },
 })
 
 const probeAudio = async () => {
-    if (!post.value.audioUrl) return
+    if (!audioUrlValue.value) return
 
     probing.value = true
     try {
         const res = await $fetch<any>('/api/admin/audio/probe', {
-            query: { url: post.value.audioUrl },
+            query: { url: audioUrlValue.value },
         })
 
         if (res.code === 200 && res.data) {
-            if (res.data.size) post.value.audioSize = res.data.size
-            if (res.data.mimeType) post.value.audioMimeType = res.data.mimeType
-            if (res.data.duration) post.value.audioDuration = res.data.duration
+            if (res.data.size) audioSizeModel.value = res.data.size
+            if (res.data.mimeType) audioMimeTypeModel.value = res.data.mimeType
+            if (res.data.duration) audioDurationModel.value = res.data.duration
             toast.add({
                 severity: 'success',
                 summary: 'Success',

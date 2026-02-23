@@ -15,6 +15,35 @@ export function usePostEditorIO(
     const toast = useToast()
     const isDragging = ref(false)
 
+    const mergeAudioMetadata = (patch: {
+        url?: string | null
+        duration?: number | null
+        size?: number | null
+        mimeType?: string | null
+    }) => {
+        const nextAudio = {
+            ...(post.value.metadata?.audio || {}),
+            ...patch,
+        }
+        post.value.metadata = {
+            ...(post.value.metadata || {}),
+            audio: nextAudio,
+        }
+
+        if (patch.url !== undefined) {
+            post.value.audioUrl = patch.url
+        }
+        if (patch.duration !== undefined) {
+            post.value.audioDuration = patch.duration
+        }
+        if (patch.size !== undefined) {
+            post.value.audioSize = patch.size
+        }
+        if (patch.mimeType !== undefined) {
+            post.value.audioMimeType = patch.mimeType
+        }
+    }
+
     const uploadFile = async (file: File) => {
         const formData = new FormData()
         formData.append('file', file)
@@ -112,23 +141,33 @@ export function usePostEditorIO(
                 }
 
                 if (frontMatter.audio || frontMatter.audio_url || frontMatter.media) {
-                    post.value.audioUrl = (frontMatter.audio || frontMatter.audio_url || frontMatter.media)!
+                    mergeAudioMetadata({
+                        url: (frontMatter.audio || frontMatter.audio_url || frontMatter.media)!,
+                    })
                 }
                 const rawDuration = frontMatter.audio_duration || frontMatter.duration
                 if (rawDuration) {
                     if (typeof rawDuration === 'string') {
                         // Support HH:mm:ss conversion
-                        post.value.audioDuration = durationToSeconds(rawDuration)
+                        mergeAudioMetadata({
+                            duration: durationToSeconds(rawDuration),
+                        })
                     } else {
-                        post.value.audioDuration = rawDuration
+                        mergeAudioMetadata({
+                            duration: rawDuration,
+                        })
                     }
                 }
                 if (frontMatter.audio_size || frontMatter.medialength || frontMatter.mediaLength) {
                     const size = (frontMatter.audio_size || frontMatter.medialength || frontMatter.mediaLength)
-                    post.value.audioSize = typeof size === 'string' ? parseInt(size, 10) : (size!)
+                    mergeAudioMetadata({
+                        size: typeof size === 'string' ? parseInt(size, 10) : (size!),
+                    })
                 }
                 if (frontMatter.audio_mime_type || frontMatter.mediatype || frontMatter.mediaType) {
-                    post.value.audioMimeType = (frontMatter.audio_mime_type || frontMatter.mediatype || frontMatter.mediaType)!
+                    mergeAudioMetadata({
+                        mimeType: (frontMatter.audio_mime_type || frontMatter.mediatype || frontMatter.mediaType)!,
+                    })
                 }
 
                 if (frontMatter.tags) {

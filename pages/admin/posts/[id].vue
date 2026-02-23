@@ -109,7 +109,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
-import { PostStatus, PostVisibility, type Post } from '@/types/post'
+import { PostStatus, PostVisibility, type Post, type PublishIntent } from '@/types/post'
 import type { PostEditorData } from '@/types/post-editor'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
 import { COPYRIGHT_LICENSES } from '@/types/copyright'
@@ -499,11 +499,29 @@ const handlePublishConfirm = async (options: {
     await executeSave(true, options.pushOption, options.syncToMemos, options.pushCriteria)
 }
 
+const getPublishIntent = () => {
+    return (post.value.metadata?.publish?.intent || post.value.publishIntent || {}) as PublishIntent
+}
+
+const setPublishIntent = (intent: PublishIntent) => {
+    if (!post.value.metadata || typeof post.value.metadata !== 'object') {
+        post.value.metadata = {}
+    }
+
+    post.value.metadata.publish = {
+        ...(post.value.metadata.publish || {}),
+        intent,
+    }
+
+    post.value.publishIntent = intent
+}
+
 const savePost = async (publish = false) => {
     // 仅在首次发布（从非发布状态变为发布状态）时弹出推送选项
     if (publish && post.value.status !== PostStatus.PUBLISHED) {
+        const publishIntent = getPublishIntent()
         publishPushDialog.value?.open({
-            syncToMemos: post.value.publishIntent?.syncToMemos ?? false,
+            syncToMemos: Boolean(publishIntent.syncToMemos),
             publishedAt: post.value.publishedAt,
             criteria: {
                 categoryIds: post.value.categoryId ? [post.value.categoryId] : [],
@@ -537,12 +555,21 @@ const executeSave = async (
     delete payload.author
 
     // 封装 publishIntent
-    payload.publishIntent = {
-        ...(post.value.publishIntent || {}),
+    const nextPublishIntent = {
+        ...getPublishIntent(),
         pushOption,
-        syncToMemos: syncToMemos || post.value.publishIntent?.syncToMemos,
+        syncToMemos: syncToMemos || Boolean(getPublishIntent().syncToMemos),
         pushCriteria,
     }
+    setPublishIntent(nextPublishIntent)
+    payload.metadata = {
+        ...(payload.metadata || {}),
+        publish: {
+            ...(payload.metadata?.publish || {}),
+            intent: nextPublishIntent,
+        },
+    }
+    payload.publishIntent = nextPublishIntent
 
     if (publish) {
         payload.status = isFuture ? 'scheduled' : 'published'
