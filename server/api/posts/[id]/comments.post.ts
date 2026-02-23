@@ -1,8 +1,8 @@
+import { z } from 'zod'
 import { commentService } from '@/server/services/comment'
 import { signCookieValue } from '@/server/utils/security'
 import { commentBodySchema } from '@/utils/schemas/comment'
 import { isSnowflakeId } from '@/utils/shared/validate'
-import { z } from 'zod'
 
 const postIdParamSchema = z.object({
     postId: z.string().trim().refine((value) => isSnowflakeId(value), {
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, (value) => commentBodySchema.parse(value))
     const session = event.context?.auth
 
-    const commentData: Parameters<typeof commentService.createComment>[0] = {
+    const commonCommentData = {
         postId,
         parentId: body.parentId ?? null,
         content: body.content,
@@ -23,27 +23,32 @@ export default defineEventHandler(async (event) => {
         userAgent: getRequestHeader(event, 'user-agent'),
     }
 
+    let comment: Awaited<ReturnType<typeof commentService.createComment>>
+
     if (session?.user) {
-        commentData.authorId = session.user.id
-        commentData.authorName = session.user.name
-        commentData.authorEmail = session.user.email
-        commentData.authorUrl = null // 待从 User 实体扩展
+        comment = await commentService.createComment({
+            ...commonCommentData,
+            authorId: session.user.id,
+            authorName: session.user.name,
+            authorEmail: session.user.email,
+            authorUrl: null, // 待从 User 实体扩展
+        })
     } else {
         // 游客评论
         if (!body.authorName || !body.authorEmail) {
             throw createError({ statusCode: 400, statusMessage: 'Name and Email are required for guests' })
         }
-        commentData.authorName = body.authorName
-        commentData.authorEmail = body.authorEmail
-        commentData.authorUrl = body.authorUrl ?? null
-    }
+        const guestCommentData = {
+            ...commonCommentData,
+            authorName: body.authorName,
+            authorEmail: body.authorEmail,
+            authorUrl: body.authorUrl ?? null,
+        }
+        comment = await commentService.createComment(guestCommentData)
 
-    const comment = await commentService.createComment(commentData)
-
-    // 如果是游客评论，设置一个本地 Cookie 作为身份凭证（有效期 30 天）
-    if (!session?.user) {
+        // 如果是游客评论，设置一个本地 Cookie 作为身份凭证（有效期 30 天）
         // 使用签名增强安全性，防止伪造邮箱查看他人待审核评论
-        const signedEmail = signCookieValue(commentData.authorEmail)
+        const signedEmail = signCookieValue(guestCommentData.authorEmail)
         setCookie(event, 'momei_guest_email', signedEmail, {
             httpOnly: false, // 前端可能需要读取展示，采用 value.signature 格式
             maxAge: 30 * 24 * 3600,

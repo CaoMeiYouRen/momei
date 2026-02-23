@@ -28,7 +28,7 @@ const stubs = {
         name: 'Menu',
         props: ['model'],
         created() {
-            capturedMenuModel = this.model ?? []
+            capturedMenuModel = (this as { model?: Record<string, any>[] }).model ?? []
         },
         template: '<div class="lang-menu" />',
         methods: {
@@ -59,7 +59,7 @@ describe('LanguageSwitcher', () => {
     })
 
     it('当前语言菜单项应带激活 class', async () => {
-        const wrapper = await mountSuspended(LanguageSwitcher, {
+        await mountSuspended(LanguageSwitcher, {
             global: {
                 stubs,
                 mocks: {
@@ -73,7 +73,7 @@ describe('LanguageSwitcher', () => {
     })
 
     it('执行语言菜单命令会调用 setLocale', async () => {
-        const wrapper = await mountSuspended(LanguageSwitcher, {
+        await mountSuspended(LanguageSwitcher, {
             global: {
                 stubs,
                 mocks: {
