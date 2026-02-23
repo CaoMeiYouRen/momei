@@ -81,6 +81,8 @@ const createPostSchema = z.object({
 });
 ```
 
+对于前后端均会使用到的 schema，应该在 `utils\schemas` 目录下定义并导出，避免重复编写。
+
 ## 5. 邮件服务规范 (Email Service Standards)
 
 -   **服务提供商**: 使用 **Nodemailer** 作为统一的邮件发送接口。
