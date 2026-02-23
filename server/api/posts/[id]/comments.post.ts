@@ -1,18 +1,23 @@
 import { commentService } from '@/server/services/comment'
 import { signCookieValue } from '@/server/utils/security'
+import { commentBodySchema } from '@/utils/schemas/comment'
+import { isSnowflakeId } from '@/utils/shared/validate'
+import { z } from 'zod'
+
+const postIdParamSchema = z.object({
+    postId: z.string().trim().refine((value) => isSnowflakeId(value), {
+        message: 'Post ID required',
+    }),
+})
 
 export default defineEventHandler(async (event) => {
-    const postId = getRouterParam(event, 'id')
-    if (!postId) {
-        throw createError({ statusCode: 400, statusMessage: 'Post ID required' })
-    }
-
-    const body = await readBody(event)
+    const { postId } = postIdParamSchema.parse({ postId: getRouterParam(event, 'id') })
+    const body = await readValidatedBody(event, (value) => commentBodySchema.parse(value))
     const session = event.context?.auth
 
-    const commentData: any = {
+    const commentData: Parameters<typeof commentService.createComment>[0] = {
         postId,
-        parentId: body.parentId,
+        parentId: body.parentId ?? null,
         content: body.content,
         ip: getRequestIP(event),
         userAgent: getRequestHeader(event, 'user-agent'),
@@ -30,11 +35,7 @@ export default defineEventHandler(async (event) => {
         }
         commentData.authorName = body.authorName
         commentData.authorEmail = body.authorEmail
-        commentData.authorUrl = body.authorUrl
-    }
-
-    if (!commentData.content) {
-        throw createError({ statusCode: 400, statusMessage: 'Comment content is required' })
+        commentData.authorUrl = body.authorUrl ?? null
     }
 
     const comment = await commentService.createComment(commentData)

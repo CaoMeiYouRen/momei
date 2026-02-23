@@ -1,13 +1,14 @@
 import { dataSource } from '@/server/database'
 import { Subscriber } from '@/server/entities/subscriber'
 import { requireAdmin } from '@/server/utils/permission'
+import { subscriberListQuerySchema } from '@/utils/schemas/subscriber'
 
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
 
-    const { page = 1, pageSize = 20, email } = getQuery(event)
-    const skip = (Number(page) - 1) * Number(pageSize)
-    const take = Number(pageSize)
+    const { page, pageSize, email } = await getValidatedQuery(event, (query) => subscriberListQuerySchema.parse(query))
+    const skip = (page - 1) * pageSize
+    const take = pageSize
 
     const subscriberRepo = dataSource.getRepository(Subscriber)
     const queryBuilder = subscriberRepo.createQueryBuilder('subscriber')
@@ -27,8 +28,8 @@ export default defineEventHandler(async (event) => {
         data: {
             items,
             total,
-            page: Number(page),
-            pageSize: Number(pageSize),
+            page,
+            pageSize,
         },
     }
 })

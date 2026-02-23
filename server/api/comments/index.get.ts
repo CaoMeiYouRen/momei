@@ -1,17 +1,12 @@
 import { dataSource } from '@/server/database'
 import { Comment } from '@/server/entities/comment'
-import { CommentStatus } from '@/types/comment'
-import { parsePagination } from '@/server/utils/pagination'
 import { requireAdmin } from '@/server/utils/permission'
+import { commentListQuerySchema } from '@/utils/schemas/comment'
 
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
 
-    const query = getQuery(event)
-    const { page, limit } = parsePagination(query)
-    const status = query.status as CommentStatus
-    const keyword = query.keyword as string
-    const postId = query.postId as string
+    const { page, limit, status, keyword, postId } = await getValidatedQuery(event, (query) => commentListQuerySchema.parse(query))
 
     const commentRepo = dataSource.getRepository(Comment)
     const qb = commentRepo.createQueryBuilder('comment')

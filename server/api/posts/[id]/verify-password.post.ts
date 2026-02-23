@@ -1,17 +1,24 @@
+import { z } from 'zod'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { PostVisibility } from '@/types/post'
 import { verifyPassword } from '@/server/utils/password'
 import { rateLimit } from '@/server/utils/rate-limit'
+import { isSnowflakeId } from '@/utils/shared/validate'
+
+const postIdParamSchema = z.object({
+    id: z.string().trim().refine((value) => isSnowflakeId(value), {
+        message: 'ID and Password required',
+    }),
+})
+
+const verifyPasswordBodySchema = z.object({
+    password: z.string().trim().min(1).max(128),
+})
 
 export default defineEventHandler(async (event) => {
-    const id = getRouterParam(event, 'id')
-    const body = await readBody(event)
-    const { password } = body
-
-    if (!id || !password) {
-        throw createError({ statusCode: 400, statusMessage: 'ID and Password required' })
-    }
+    const { id } = postIdParamSchema.parse({ id: getRouterParam(event, 'id') })
+    const { password } = await readValidatedBody(event, (body) => verifyPasswordBodySchema.parse(body))
 
     // 1. Rate Limiting: Max 5 attempts per minute per IP for this post
     await rateLimit(event, { window: 60, max: 5 })
