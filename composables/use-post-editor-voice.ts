@@ -72,8 +72,34 @@ export function usePostEditorVoice() {
     let startRetryCount = 0
     let audioContext: AudioContext | null = null
     let sourceNode: MediaStreamAudioSourceNode | null = null
-    let processorNode: ScriptProcessorNode | null = null
+    let workletNode: AudioWorkletNode | null = null
+    let processorNode: LegacyScriptProcessorNode | null = null
     let muteGainNode: GainNode | null = null
+
+    interface LegacyAudioProcessEvent {
+        inputBuffer: {
+            getChannelData: (channel: number) => Float32Array
+        }
+    }
+
+    interface LegacyScriptProcessorNode {
+        connect: (destinationNode: AudioNode) => void
+        disconnect: () => void
+        onaudioprocess: ((event: LegacyAudioProcessEvent) => void) | null
+    }
+
+    interface LegacyScriptProcessorFactory {
+        createScriptProcessor?: (bufferSize: number, numberOfInputChannels: number, numberOfOutputChannels: number) => LegacyScriptProcessorNode
+    }
+
+    const getLegacyScriptProcessor = (ctx: AudioContext): LegacyScriptProcessorNode | null => {
+        const legacyFactory = ctx as unknown as LegacyScriptProcessorFactory
+        if (!legacyFactory.createScriptProcessor) {
+            return null
+        }
+
+        return legacyFactory.createScriptProcessor(4096, 1, 1)
+    }
 
     const stopMediaInput = () => {
         if (mediaStream) {
@@ -104,15 +130,21 @@ export function usePostEditorVoice() {
     }
 
     const clearCloudAudioPipeline = async () => {
+        if (workletNode) {
+            workletNode.port.onmessage = null
+        }
+
         if (processorNode) {
             processorNode.onaudioprocess = null
         }
 
         sourceNode?.disconnect()
+        workletNode?.disconnect()
         processorNode?.disconnect()
         muteGainNode?.disconnect()
 
         sourceNode = null
+        workletNode = null
         processorNode = null
         muteGainNode = null
 
@@ -243,7 +275,6 @@ export function usePostEditorVoice() {
                     await audioContext.resume()
                 }
                 sourceNode = audioContext.createMediaStreamSource(mediaStream)
-                processorNode = audioContext.createScriptProcessor(4096, 1, 1)
                 muteGainNode = audioContext.createGain()
                 muteGainNode.gain.value = 0
 
@@ -305,17 +336,49 @@ export function usePostEditorVoice() {
                     ws = null
                 }
 
-                processorNode.onaudioprocess = (event) => {
-                    if (ws?.readyState === WebSocket.OPEN && streamStarted) {
-                        const input = event.inputBuffer.getChannelData(0)
-                        const payload = encodePcmToBase64(input)
-                        ws.send(JSON.stringify({ type: 'audio', payload }))
-                    }
-                }
+                const canUseAudioWorklet = Boolean(
+                    audioContext.audioWorklet
+                    && typeof AudioWorkletNode !== 'undefined',
+                )
 
-                sourceNode.connect(processorNode)
-                processorNode.connect(muteGainNode)
-                muteGainNode.connect(audioContext.destination)
+                if (canUseAudioWorklet) {
+                    await audioContext.audioWorklet.addModule('/worklets/pcm-capture-processor.js')
+                    workletNode = new AudioWorkletNode(audioContext, 'pcm-capture-processor', {
+                        numberOfInputs: 1,
+                        numberOfOutputs: 1,
+                        outputChannelCount: [1],
+                        channelCount: 1,
+                    })
+
+                    workletNode.port.onmessage = (event: MessageEvent<Float32Array>) => {
+                        if (ws?.readyState === WebSocket.OPEN && streamStarted) {
+                            const payload = encodePcmToBase64(event.data)
+                            ws.send(JSON.stringify({ type: 'audio', payload }))
+                        }
+                    }
+
+                    sourceNode.connect(workletNode)
+                    workletNode.connect(muteGainNode)
+                    muteGainNode.connect(audioContext.destination)
+                } else {
+                    const legacyNode = getLegacyScriptProcessor(audioContext)
+                    if (!legacyNode) {
+                        throw new Error('audio_processor_not_supported')
+                    }
+
+                    processorNode = legacyNode
+                    legacyNode.onaudioprocess = (event) => {
+                        if (ws?.readyState === WebSocket.OPEN && streamStarted) {
+                            const input = event.inputBuffer.getChannelData(0)
+                            const payload = encodePcmToBase64(input)
+                            ws.send(JSON.stringify({ type: 'audio', payload }))
+                        }
+                    }
+
+                    sourceNode.connect(processorNode as unknown as AudioNode)
+                    processorNode.connect(muteGainNode)
+                    muteGainNode.connect(audioContext.destination)
+                }
 
             }
         } catch (err: any) {

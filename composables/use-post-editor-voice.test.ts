@@ -21,9 +21,20 @@ class MockSpeechRecognition {
 // @ts-expect-error global mock
 global.Worker = MockWorker
 global.AudioContext = vi.fn().mockImplementation(() => ({
+    state: 'running',
+    resume: vi.fn(),
+    audioWorklet: {
+        addModule: vi.fn().mockResolvedValue(undefined),
+    },
     createMediaStreamSource: vi.fn().mockReturnValue({ connect: vi.fn() }),
+    createGain: vi.fn().mockReturnValue({
+        gain: { value: 1 },
+        connect: vi.fn(),
+        disconnect: vi.fn(),
+    }),
     createScriptProcessor: vi.fn().mockReturnValue({ connect: vi.fn(), onaudioprocess: null }),
     destination: {},
+    sampleRate: 16000,
     close: vi.fn(),
 }))
 global.SpeechRecognition = MockSpeechRecognition
