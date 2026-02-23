@@ -10,7 +10,9 @@ overrides:
   vite: ^7.3.1
   esbuild: ^0.25.0
   brace-expansion: ^2.0.2
-  tar: ^7.5.7
+  tar: ^7.5.8
+  minimatch: ^10.2.1
+  html-minifier: npm:html-minifier-terser@^7.2.0
   node-forge: ^1.3.2
   js-yaml: ^4.1.0
   tmp: ^0.2.4
@@ -5584,8 +5586,8 @@ packages:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
     engines: {node: '>=6'}
 
-  camel-case@3.0.0:
-    resolution: {integrity: sha512-+MbKztAYHXPr1jNTSKQF52VpcFjwY5RkR7fxksV8Doo4KAYc5Fl4UJRgthBbTmEx8C54DqahhbLJkDwjI3PI/w==}
+  camel-case@4.1.2:
+    resolution: {integrity: sha512-gxGWBrTT1JuMx6R+o5PTXMmUnhnVzLQ9SNutD4YqKtI6ap897t3tKECYla6gCWEkplXnlNybEkZg9GEGxKFCgw==}
 
   camelcase@5.3.1:
     resolution: {integrity: sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==}
@@ -5717,9 +5719,9 @@ packages:
   class-validator@0.14.3:
     resolution: {integrity: sha512-rXXekcjofVN1LTOSw+u4u9WXVEUvNBVjORW154q/IdmYWy1nMbOU9aNtZB0t8m+FJQ9q91jlr2f9CwwUFdFMRA==}
 
-  clean-css@4.2.4:
-    resolution: {integrity: sha512-EJUDT7nDVFDvaQgAo2G/PJvxmp1o/c6iXLbswsBbUFXi1Nr+AjA2cKmfbKDMjMvzEe75g3P6JkaDDAKk96A85A==}
-    engines: {node: '>= 4.0'}
+  clean-css@5.3.3:
+    resolution: {integrity: sha512-D5J+kHaVb/wKSFcyyV75uCn8fiY4sV38XJoe4CUyGQ+mOU/fMVYUdH1hJC+CJQ5uY3EnW27SbJYS4X8BiLrAFg==}
+    engines: {node: '>= 10.0'}
 
   clean-regexp@1.0.0:
     resolution: {integrity: sha512-GfisEZEJvzKrmGWkvfhgzcz/BllN1USeqD2V6tg14OAOgaCD2Z/PUEuxnAZ/nPvmaHRG7a8y77p1T/IRQ4D1Hw==}
@@ -6362,6 +6364,9 @@ packages:
 
   domutils@3.2.2:
     resolution: {integrity: sha512-6kZKyUajlDuqlHKVX1w7gyslj9MPIXzIFiz/rGu35uC1wMi+kMhQwGhl4lt9unC9Vb9INnY9Z3/ZA3+FhASLaw==}
+
+  dot-case@3.0.4:
+    resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
 
   dot-prop@10.1.0:
     resolution: {integrity: sha512-MVUtAugQMOff5RnBy2d9N31iG0lNwg1qAoAOn7pOK5wf94WIaE3My2p3uwTQuvS2AcqchkcR3bHByjaM0mmi7Q==}
@@ -7486,10 +7491,6 @@ packages:
   hdr-histogram-percentiles-obj@3.0.0:
     resolution: {integrity: sha512-7kIufnBqdsBGcSZLPJwqHT3yhk1QTsSlFsVD3kx5ixH/AlgBs9yM1q6DPhXZ8f8gtdqgh7N7/5btRLpQsS2gHw==}
 
-  he@1.2.0:
-    resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
-    hasBin: true
-
   highlight.js@10.7.3:
     resolution: {integrity: sha512-tzcUFauisWKNHaRkN4Wjl/ZA07gENAjFl3J/c480dprkGTg5EQstgaNFqBfUqCq54kZRIEcreTsAgF/m2quD7A==}
 
@@ -7535,9 +7536,9 @@ packages:
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
 
-  html-minifier@4.0.0:
-    resolution: {integrity: sha512-aoGxanpFPLg7MkIl/DDFYtb0iWz7jMFGqFhvEDZga6/4QTjneiD8I/NXL1x5aaoCp7FSIT6h/OhykDdPsbtMig==}
-    engines: {node: '>=6'}
+  html-minifier-terser@7.2.0:
+    resolution: {integrity: sha512-tXgn3QfqPIpGl9o+K5tpcj3/MN4SfLtsx2GWwBC3SSd0tXQGyF3gsSqad8loJgKZGM3ZxbYDd5yhiBIdWpmvLA==}
+    engines: {node: ^14.13.1 || >=16.0.0}
     hasBin: true
 
   html-tags@3.3.1:
@@ -8405,8 +8406,8 @@ packages:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
     hasBin: true
 
-  lower-case@1.1.4:
-    resolution: {integrity: sha512-2Fgx1Ycm599x+WGpIYwJOvsjmXFzTSc34IwDWALRA/8AopUKAVPwfJ+h5+f85BCp0PWmmJcWzEpxOpoXycMpdA==}
+  lower-case@2.0.2:
+    resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
 
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
@@ -8797,28 +8798,9 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  minimatch@10.2.0:
-    resolution: {integrity: sha512-ugkC31VaVg9cF0DFVoADH12k6061zNZkZON+aX8AWsR9GhPcErkcMBceb6znR8wLERM2AkkOxy2nWRLpT9Jq5w==}
-    engines: {node: 20 || >=22}
-
   minimatch@10.2.2:
     resolution: {integrity: sha512-+G4CpNBxa5MprY+04MbgOw1v7So6n5JY166pFi9KfYwT78fxScCeSNQSNzp6dpPSW2rONOps6Ocam1wFhCgoVw==}
     engines: {node: 18 || 20 || >=22}
-
-  minimatch@3.1.2:
-    resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
-
-  minimatch@5.1.6:
-    resolution: {integrity: sha512-lKwV/1brpG6mBUFHtb7NUmtABCb2WZZmm2wNiOA5hAb8VdCS4B3dtMWyvcoViccwAW/COERjXLt0zP1zXUN26g==}
-    engines: {node: '>=10'}
-
-  minimatch@9.0.1:
-    resolution: {integrity: sha512-0jWhJpD/MdhPXwPuiRkCbfYfSKp2qnn2eOc279qI7f+osl/l+prKSrvhg157zSYvx/1nmgn2NqdT6k2Z7zSH9w==}
-    engines: {node: '>=16 || 14 >=14.17'}
-
-  minimatch@9.0.5:
-    resolution: {integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==}
-    engines: {node: '>=16 || 14 >=14.17'}
 
   minimist@1.2.7:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
@@ -9078,8 +9060,8 @@ packages:
       xml2js:
         optional: true
 
-  no-case@2.3.2:
-    resolution: {integrity: sha512-rmTZ9kz+f3rCvK2TD1Ue/oZlns7OGoIWP4fc3llxxRXlOkHKoWPPWJOfFYpITabSow43QJbRIoHQXtt10VldyQ==}
+  no-case@3.0.4:
+    resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
 
   node-abi@3.87.0:
     resolution: {integrity: sha512-+CGM1L1CgmtheLcBuleyYOn7NWPVu0s0EJH2C4puxgEZb9h8QpR9G2dBfZJOAUhi7VQxuBPMd0hiISWcTyiYyQ==}
@@ -9525,8 +9507,8 @@ packages:
   pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
 
-  param-case@2.1.1:
-    resolution: {integrity: sha512-eQE845L6ot89sk2N8liD8HAuH4ca6Vvr7VWAWwt7+kvvG5aBcPmmphQ68JsEG2qa9n1TykS2DLeMt363AAH8/w==}
+  param-case@3.0.4:
+    resolution: {integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==}
 
   parchment@3.0.0:
     resolution: {integrity: sha512-HUrJFQ/StvgmXRcQ1ftY6VEZUq3jA2t9ncFN4F84J/vN0/FPpQF+8FKXb3l6fLces6q0uOHj6NJn+2xvZnxO6A==}
@@ -9591,6 +9573,9 @@ packages:
   parseurl@1.3.3:
     resolution: {integrity: sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==}
     engines: {node: '>= 0.8'}
+
+  pascal-case@3.1.2:
+    resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
 
   path-browserify@1.0.1:
     resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
@@ -11069,10 +11054,9 @@ packages:
   tar-stream@3.1.7:
     resolution: {integrity: sha512-qJj60CXt7IU1Ffyc3NJMjh6EkuCFej46zUqJ4J7pqYlThyd9bO0XBTmcOIhSzZJVWfsLks0+nle/j538YAW9RQ==}
 
-  tar@7.5.7:
-    resolution: {integrity: sha512-fov56fJiRuThVFXD6o6/Q354S7pnWMJIVlDBYijsTNx6jKSE4pvrDTs6lUnmGvNyfJwFQQwWy3owKz1ucIhveQ==}
+  tar@7.5.9:
+    resolution: {integrity: sha512-BTLcK0xsDh2+PUe9F6c2TlRp4zOOBMTkoQHQIWSIzI0R7KG46uEwq4OPk2W7bZcprBMsuaeFsqwYr7pjh6CuHg==}
     engines: {node: '>=18'}
-    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   temp-dir@2.0.0:
     resolution: {integrity: sha512-aoBAniQmmwtcKp/7BzsH8Cxzv8OL736p7v1ihGb5e9DJ9kTwGWHrQrVB5+lfVDzfGrdRzXch+ig7LHaY1JTOrg==}
@@ -11689,9 +11673,6 @@ packages:
     hasBin: true
     peerDependencies:
       browserslist: '>= 4.21.0'
-
-  upper-case@1.1.3:
-    resolution: {integrity: sha512-WRbjgmYzgXkCV7zNVpy5YgrHgbBv126rMALQQMrmzOVC4GM2waQ9x7xtm8VU+1yF2kWyPzI9zbZ48n4vSxwfSA==}
 
   uqr@0.1.2:
     resolution: {integrity: sha512-MJu7ypHq6QasgF5YRTjqscSzQp/W11zoUk6kvmlH+fmWEs63Y0Eib13hYFwAzagRJcVY8WVnlV+eBDUGMJ5IbA==}
@@ -14254,7 +14235,7 @@ snapshots:
     dependencies:
       '@eslint/object-schema': 2.1.7
       debug: 4.4.3
-      minimatch: 3.1.2
+      minimatch: 10.2.2
     transitivePeerDependencies:
       - supports-color
 
@@ -14298,7 +14279,7 @@ snapshots:
       ignore: 5.3.2
       import-fresh: 3.3.1
       js-yaml: 4.1.1
-      minimatch: 3.1.2
+      minimatch: 10.2.2
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
       - supports-color
@@ -14543,7 +14524,7 @@ snapshots:
 
   '@isaacs/fs-minipass@4.0.1':
     dependencies:
-      minipass: 7.1.2
+      minipass: 7.1.3
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -14681,7 +14662,7 @@ snapshots:
       node-fetch: 2.7.0
       nopt: 8.1.0
       semver: 7.7.4
-      tar: 7.5.7
+      tar: 7.5.9
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -16624,7 +16605,7 @@ snapshots:
       '@sentry/node-core': 10.39.0(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@2.5.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@2.5.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.211.0(@opentelemetry/api@1.9.0))(@opentelemetry/resources@2.5.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.5.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.39.0)
       '@sentry/opentelemetry': 10.39.0(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@2.5.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@2.5.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.5.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.39.0)
       import-in-the-middle: 2.0.6
-      minimatch: 9.0.5
+      minimatch: 10.2.2
     transitivePeerDependencies:
       - supports-color
 
@@ -17507,7 +17488,7 @@ snapshots:
       '@typescript-eslint/types': 8.54.0
       '@typescript-eslint/visitor-keys': 8.54.0
       debug: 4.4.3
-      minimatch: 9.0.5
+      minimatch: 10.2.2
       semver: 7.7.4
       tinyglobby: 0.2.15
       ts-api-utils: 2.4.0(typescript@5.9.3)
@@ -17522,7 +17503,7 @@ snapshots:
       '@typescript-eslint/types': 8.55.0
       '@typescript-eslint/visitor-keys': 8.55.0
       debug: 4.4.3
-      minimatch: 9.0.5
+      minimatch: 10.2.2
       semver: 7.7.4
       tinyglobby: 0.2.15
       ts-api-utils: 2.4.0(typescript@5.9.3)
@@ -17537,7 +17518,7 @@ snapshots:
       '@typescript-eslint/types': 8.56.0
       '@typescript-eslint/visitor-keys': 8.56.0
       debug: 4.4.3
-      minimatch: 9.0.5
+      minimatch: 10.2.2
       semver: 7.7.4
       tinyglobby: 0.2.15
       ts-api-utils: 2.4.0(typescript@5.9.3)
@@ -18633,10 +18614,10 @@ snapshots:
 
   callsites@3.1.0: {}
 
-  camel-case@3.0.0:
+  camel-case@4.1.2:
     dependencies:
-      no-case: 2.3.2
-      upper-case: 1.1.3
+      pascal-case: 3.1.2
+      tslib: 2.8.1
 
   camelcase@5.3.1: {}
 
@@ -18782,7 +18763,7 @@ snapshots:
       libphonenumber-js: 1.12.36
       validator: 13.15.26
 
-  clean-css@4.2.4:
+  clean-css@5.3.3:
     dependencies:
       source-map: 0.6.1
 
@@ -19421,6 +19402,11 @@ snapshots:
       domelementtype: 2.3.0
       domhandler: 5.0.3
 
+  dot-case@3.0.4:
+    dependencies:
+      no-case: 3.0.4
+      tslib: 2.8.1
+
   dot-prop@10.1.0:
     dependencies:
       type-fest: 5.4.4
@@ -19455,7 +19441,7 @@ snapshots:
     dependencies:
       '@one-ini/wasm': 0.1.1
       commander: 10.0.1
-      minimatch: 9.0.1
+      minimatch: 10.2.2
       semver: 7.7.4
 
   ee-first@1.1.1: {}
@@ -19802,7 +19788,7 @@ snapshots:
       eslint: 9.39.2(jiti@2.6.1)
       eslint-import-context: 0.1.9(unrs-resolver@1.11.1)
       is-glob: 4.0.3
-      minimatch: 10.2.0
+      minimatch: 10.2.2
       semver: 7.7.4
       stable-hash-x: 0.2.0
       unrs-resolver: 1.11.1
@@ -19827,7 +19813,7 @@ snapshots:
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
-      minimatch: 3.1.2
+      minimatch: 10.2.2
       object.fromentries: 2.0.8
       object.groupby: 1.0.3
       object.values: 1.2.1
@@ -19856,7 +19842,7 @@ snapshots:
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
-      minimatch: 3.1.2
+      minimatch: 10.2.2
       object.fromentries: 2.0.8
       object.groupby: 1.0.3
       object.values: 1.2.1
@@ -19920,7 +19906,7 @@ snapshots:
       eslint-utils: 3.0.0(eslint@9.39.2(jiti@2.6.1))
       ignore: 5.3.2
       is-core-module: 2.16.1
-      minimatch: 3.1.2
+      minimatch: 10.2.2
       resolve: 1.22.11
       semver: 7.7.4
 
@@ -19944,7 +19930,7 @@ snapshots:
       estraverse: 5.3.0
       hasown: 2.0.2
       jsx-ast-utils: 3.3.5
-      minimatch: 3.1.2
+      minimatch: 10.2.2
       object.entries: 1.1.9
       object.fromentries: 2.0.8
       object.values: 1.2.1
@@ -20138,7 +20124,7 @@ snapshots:
       is-glob: 4.0.3
       json-stable-stringify-without-jsonify: 1.0.1
       lodash.merge: 4.6.2
-      minimatch: 3.1.2
+      minimatch: 10.2.2
       natural-compare: 1.4.0
       optionator: 0.9.4
     optionalDependencies:
@@ -20450,7 +20436,7 @@ snapshots:
 
   filelist@1.0.4:
     dependencies:
-      minimatch: 5.1.6
+      minimatch: 10.2.2
 
   fill-range@7.1.1:
     dependencies:
@@ -20731,7 +20717,7 @@ snapshots:
     dependencies:
       foreground-child: 3.3.1
       jackspeak: 3.4.3
-      minimatch: 9.0.5
+      minimatch: 10.2.2
       minipass: 7.1.2
       package-json-from-dist: 1.0.1
       path-scurry: 1.11.1
@@ -20756,7 +20742,7 @@ snapshots:
       fs.realpath: 1.0.0
       inflight: 1.0.6
       inherits: 2.0.4
-      minimatch: 3.1.2
+      minimatch: 10.2.2
       once: 1.4.0
       path-is-absolute: 1.0.1
 
@@ -20765,7 +20751,7 @@ snapshots:
       fs.realpath: 1.0.0
       inflight: 1.0.6
       inherits: 2.0.4
-      minimatch: 5.1.6
+      minimatch: 10.2.2
       once: 1.4.0
 
   global-directory@4.0.1:
@@ -20944,8 +20930,6 @@ snapshots:
 
   hdr-histogram-percentiles-obj@3.0.0: {}
 
-  he@1.2.0: {}
-
   highlight.js@10.7.3: {}
 
   highlight.js@11.11.1: {}
@@ -20978,15 +20962,15 @@ snapshots:
 
   html-escaper@2.0.2: {}
 
-  html-minifier@4.0.0:
+  html-minifier-terser@7.2.0:
     dependencies:
-      camel-case: 3.0.0
-      clean-css: 4.2.4
-      commander: 2.20.3
-      he: 1.2.0
-      param-case: 2.1.1
+      camel-case: 4.1.2
+      clean-css: 5.3.3
+      commander: 10.0.1
+      entities: 4.5.0
+      param-case: 3.0.4
       relateurl: 0.2.7
-      uglify-js: 3.19.3
+      terser: 5.46.0
 
   html-tags@3.3.1: {}
 
@@ -21887,7 +21871,9 @@ snapshots:
     dependencies:
       js-tokens: 4.0.0
 
-  lower-case@1.1.4: {}
+  lower-case@2.0.2:
+    dependencies:
+      tslib: 2.8.1
 
   lru-cache@10.4.3: {}
 
@@ -22457,27 +22443,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  minimatch@10.2.0:
-    dependencies:
-      brace-expansion: 2.0.2
-
   minimatch@10.2.2:
-    dependencies:
-      brace-expansion: 2.0.2
-
-  minimatch@3.1.2:
-    dependencies:
-      brace-expansion: 2.0.2
-
-  minimatch@5.1.6:
-    dependencies:
-      brace-expansion: 2.0.2
-
-  minimatch@9.0.1:
-    dependencies:
-      brace-expansion: 2.0.2
-
-  minimatch@9.0.5:
     dependencies:
       brace-expansion: 2.0.2
 
@@ -22493,7 +22459,7 @@ snapshots:
 
   minizlib@3.1.0:
     dependencies:
-      minipass: 7.1.2
+      minipass: 7.1.3
 
   mitt@3.0.1: {}
 
@@ -22534,10 +22500,10 @@ snapshots:
       '@babel/runtime': 7.28.6
       chokidar: 3.6.0
       glob: 10.5.0
-      html-minifier: 4.0.0
+      html-minifier: html-minifier-terser@7.2.0
       js-beautify: 1.15.4
       lodash: 4.17.23
-      minimatch: 9.0.5
+      minimatch: 10.2.2
       mjml-core: 4.18.0
       mjml-migrate: 4.18.0
       mjml-parser-xml: 4.18.0
@@ -22559,7 +22525,7 @@ snapshots:
       '@babel/runtime': 7.28.6
       cheerio: 1.0.0-rc.12
       detect-node: 2.1.0
-      html-minifier: 4.0.0
+      html-minifier: html-minifier-terser@7.2.0
       js-beautify: 1.15.4
       juice: 10.0.1
       lodash: 4.17.23
@@ -23007,9 +22973,10 @@ snapshots:
       - supports-color
       - uploadthing
 
-  no-case@2.3.2:
+  no-case@3.0.4:
     dependencies:
-      lower-case: 1.1.4
+      lower-case: 2.0.2
+      tslib: 2.8.1
 
   node-abi@3.87.0:
     dependencies:
@@ -23624,9 +23591,10 @@ snapshots:
 
   pako@1.0.11: {}
 
-  param-case@2.1.1:
+  param-case@3.0.4:
     dependencies:
-      no-case: 2.3.2
+      dot-case: 3.0.4
+      tslib: 2.8.1
 
   parchment@3.0.0: {}
 
@@ -23706,6 +23674,11 @@ snapshots:
       peberminta: 0.9.0
 
   parseurl@1.3.3: {}
+
+  pascal-case@3.1.2:
+    dependencies:
+      no-case: 3.0.4
+      tslib: 2.8.1
 
   path-browserify@1.0.1: {}
 
@@ -24297,7 +24270,7 @@ snapshots:
 
   readdir-glob@1.1.3:
     dependencies:
-      minimatch: 5.1.6
+      minimatch: 10.2.2
 
   readdirp@3.6.0:
     dependencies:
@@ -25468,11 +25441,11 @@ snapshots:
       - bare-abort-controller
       - react-native-b4a
 
-  tar@7.5.7:
+  tar@7.5.9:
     dependencies:
       '@isaacs/fs-minipass': 4.0.1
       chownr: 3.0.0
-      minipass: 7.1.2
+      minipass: 7.1.3
       minizlib: 3.1.0
       yallist: 5.0.0
 
@@ -25776,7 +25749,8 @@ snapshots:
 
   ufo@1.6.3: {}
 
-  uglify-js@3.19.3: {}
+  uglify-js@3.19.3:
+    optional: true
 
   uid@2.0.2:
     dependencies:
@@ -26097,8 +26071,6 @@ snapshots:
       browserslist: 4.28.1
       escalade: 3.2.0
       picocolors: 1.1.1
-
-  upper-case@1.1.3: {}
 
   uqr@0.1.2: {}
 
