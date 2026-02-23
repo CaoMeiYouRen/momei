@@ -36,6 +36,9 @@
 - [x] **接口安全增强和漏洞修复 (P1)**
     - [x] 增强 api 的 zod 验证覆盖，特别是边界条件和异常输入
     - [x] 完成漏洞修复，确保 Dependabot alerts 没有 High 级别的未修复项
+- [x] **修复 ajv 漏洞 (ReDoS) (P1)**
+    - [x] 在 package.json 中添加 pnpm.overrides 强制升级 ajv 到安全版本
+    - [x] 验证 lockfile 更新
 
 ### 3. 感官体验增强 (Sensory Experience Enhancement)
 - [ ] **看板娘系统 (Live2D) (P2)**
