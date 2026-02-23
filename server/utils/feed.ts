@@ -18,6 +18,16 @@ interface FeedOptions {
     isPodcast?: boolean
 }
 
+interface LegacyAudioCarrier {
+    audioUrl?: string | null
+    audioSize?: number | null
+    audioMimeType?: string | null
+}
+
+function getLegacyAudio(post: Post): LegacyAudioCarrier {
+    return post as unknown as LegacyAudioCarrier
+}
+
 export function getFeedLanguage(event: H3Event, explicitLanguage?: string): string {
     if (explicitLanguage) {
         return toProjectLocale(explicitLanguage)
@@ -62,16 +72,25 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
         queryBuilder.innerJoin('post.tags', 'filterTag', 'filterTag.id = :tagId', { tagId: options.tagId })
     }
 
-    if (options.isPodcast) {
-        queryBuilder.andWhere('post.audioUrl IS NOT NULL')
-    }
+    const fetchLimit = options.isPodcast
+        ? Math.max((options.limit || 20) * 3, options.limit || 20)
+        : (options.limit || 20)
 
     const posts = await queryBuilder
         .orderBy('post.publishedAt', 'DESC')
-        .take(options.limit || 20)
+        .take(fetchLimit)
         .getMany()
 
     applyPostsReadModelFromMetadata(posts)
+
+    const feedPosts = options.isPodcast
+        ? posts
+            .filter((post) => {
+                const legacy = getLegacyAudio(post)
+                return Boolean(post.metadata?.audio?.url || legacy.audioUrl)
+            })
+            .slice(0, options.limit || 20)
+        : posts
 
     const title = options.titleSuffix ? `${appName} - ${options.titleSuffix}` : appName
     const path = event.path || '/'
@@ -86,7 +105,7 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
         image: `${siteUrl}/logo.png`,
         favicon: `${siteUrl}/favicon.ico`,
         copyright: await t('feed.copyright', { year: new Date().getFullYear(), appName }),
-        updated: posts[0] ? new Date(posts[0].publishedAt || posts[0].createdAt) : new Date(),
+        updated: feedPosts[0] ? new Date(feedPosts[0].publishedAt || feedPosts[0].createdAt) : new Date(),
         generator: 'Momei Blog',
         feedLinks: {
             rss: `${siteUrl}${basePath}.xml`,
@@ -98,15 +117,20 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
         },
     })
 
-    posts.forEach((post: Post) => {
+    feedPosts.forEach((post: Post) => {
         const itemDate = post.publishedAt || post.createdAt || new Date()
         let content = md.render(post.content)
 
-        const enclosure = post.audioUrl
+        const legacy = getLegacyAudio(post)
+        const audioUrl = post.metadata?.audio?.url || legacy.audioUrl
+        const audioSize = post.metadata?.audio?.size ?? legacy.audioSize ?? 0
+        const audioMimeType = post.metadata?.audio?.mimeType || legacy.audioMimeType || 'audio/mpeg'
+
+        const enclosure = audioUrl
             ? {
-                url: post.audioUrl,
-                length: post.audioSize || 0,
-                type: post.audioMimeType || 'audio/mpeg',
+                url: audioUrl,
+                length: audioSize,
+                type: audioMimeType,
             }
             : undefined
 

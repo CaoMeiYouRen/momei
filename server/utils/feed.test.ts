@@ -192,9 +192,16 @@ describe('Feed Generation Utility', () => {
         postPod.language = 'en-US'
         postPod.status = PostStatus.PUBLISHED
         postPod.author = author
-        postPod.audioUrl = 'https://example.com/audio.mp3'
-        postPod.audioSize = 5000
-        postPod.audioMimeType = 'audio/mpeg'
+        postPod.metadata = {
+            audio: {
+                url: 'https://example.com/audio.mp3',
+                size: 5000,
+                mimeType: 'audio/mpeg',
+            },
+        }
+        postPod.audioUrl = null
+        postPod.audioSize = null
+        postPod.audioMimeType = null
         postPod.coverImage = 'https://example.com/cover.png'
         postPod.publishedAt = new Date()
         await postRepo.save(postPod)
@@ -223,7 +230,12 @@ describe('Feed Generation Utility', () => {
         postWithAudio.language = 'en-US'
         postWithAudio.status = PostStatus.PUBLISHED
         postWithAudio.author = author
-        postWithAudio.audioUrl = 'https://example.com/other.mp3'
+        postWithAudio.metadata = {
+            audio: {
+                url: 'https://example.com/other.mp3',
+            },
+        }
+        postWithAudio.audioUrl = null
         postWithAudio.coverImage = 'https://example.com/reg-cover.png'
         postWithAudio.publishedAt = new Date()
         await postRepo.save(postWithAudio)

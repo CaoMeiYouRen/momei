@@ -20,8 +20,9 @@ export function formatPostToMarkdown(post: Post): string {
         frontMatter.image = post.coverImage
     }
 
-    if (post.audioUrl) {
-        frontMatter.audio = post.audioUrl
+    const audioUrl = post.metadata?.audio?.url || post.audioUrl
+    if (audioUrl) {
+        frontMatter.audio = audioUrl
     }
 
     // 可以在这里根据需要添加更多字段映射
