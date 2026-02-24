@@ -102,7 +102,7 @@ jobs:
       - run: pnpm run build
       - name: Download bundle baseline report (master)
         if: github.event_name == 'pull_request'
-        uses: dawidd6/action-download-artifact@v9
+        uses: dawidd6/action-download-artifact@v15
         with:
           workflow: test.yml
           branch: master
