@@ -120,6 +120,9 @@ importers:
       highlight.js:
         specifier: ^11.11.0
         version: 11.11.1
+      html-minifier:
+        specifier: npm:html-minifier-terser@^7.2.0
+        version: html-minifier-terser@7.2.0
       html-to-text:
         specifier: ^9.0.5
         version: 9.0.5
