@@ -305,7 +305,7 @@ export default defineNuxtConfig({
             external: ['debug'],
         },
         externals: {
-            inline: ['mjml', 'mjml-core', 'html-minifier', 'html-minifier-terser'],
+            inline: ['mjml', 'mjml-core', 'html-minifier', 'html-minifier-terser', 'lodash', 'lodash-es'],
         },
         esbuild: {
             options: {
