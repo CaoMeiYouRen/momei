@@ -81,9 +81,9 @@ export default defineEventHandler(async () => {
                 canvasNestMobileEnabled: String(settings[SettingKey.CANVAS_NEST_MOBILE_ENABLED]) === 'true',
                 canvasNestMinWidth: Number(settings[SettingKey.CANVAS_NEST_MIN_WIDTH] || 1024),
                 canvasNestDataSaverBlock: settings[SettingKey.CANVAS_NEST_DATA_SAVER_BLOCK] !== 'false',
-                effectsMobileEnabled: settings[SettingKey.EFFECTS_MOBILE_ENABLED] == null ? null : String(settings[SettingKey.EFFECTS_MOBILE_ENABLED]) === 'true',
-                effectsMinWidth: settings[SettingKey.EFFECTS_MIN_WIDTH] == null ? null : Number(settings[SettingKey.EFFECTS_MIN_WIDTH]),
-                effectsDataSaverBlock: settings[SettingKey.EFFECTS_DATA_SAVER_BLOCK] == null ? null : settings[SettingKey.EFFECTS_DATA_SAVER_BLOCK] !== 'false',
+                effectsMobileEnabled: settings[SettingKey.EFFECTS_MOBILE_ENABLED] === null || settings[SettingKey.EFFECTS_MOBILE_ENABLED] === undefined ? null : String(settings[SettingKey.EFFECTS_MOBILE_ENABLED]) === 'true',
+                effectsMinWidth: settings[SettingKey.EFFECTS_MIN_WIDTH] === null || settings[SettingKey.EFFECTS_MIN_WIDTH] === undefined ? null : Number(settings[SettingKey.EFFECTS_MIN_WIDTH]),
+                effectsDataSaverBlock: settings[SettingKey.EFFECTS_DATA_SAVER_BLOCK] === null || settings[SettingKey.EFFECTS_DATA_SAVER_BLOCK] === undefined ? null : settings[SettingKey.EFFECTS_DATA_SAVER_BLOCK] !== 'false',
                 aiEnabled: String(settings[SettingKey.AI_ENABLED]) === 'true',
                 asrEnabled: String(settings[SettingKey.ASR_ENABLED]) === 'true' || ((
                     !!process.env.ASR_API_KEY
