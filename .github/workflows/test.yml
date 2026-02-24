@@ -130,14 +130,14 @@ jobs:
           PORT: 3000
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
       - name: Upload bundle budget report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: bundle-budget-report
           path: .lighthouseci/bundle-budget-report.json
           if-no-files-found: warn
       - name: Upload bundle baseline report (master)
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: bundle-baseline-report
           path: .lighthouseci/bundle-budget-report.json
