@@ -13,8 +13,7 @@
                 "http://localhost:3000/posts",
                 "http://localhost:3000/tags",
                 "http://localhost:3000/categories",
-                "http://localhost:3000/posts/welcome-to-momei-demo",
-                "http://localhost:3000/posts/hello-momei-test"
+                "http://localhost:3000/posts/welcome-to-momei-demo"
             ],
             "numberOfRuns": 3
         },
