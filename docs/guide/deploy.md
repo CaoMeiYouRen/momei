@@ -52,7 +52,7 @@
 | `ASR_PROVIDER` | ASR 提供商 (`openai`, `siliconflow`, `volcengine`)。 | `siliconflow` |
 | `VOLCENGINE_APP_ID` | 火山引擎 App ID (用于语音/ASR)。 | `xxxxxxxx` |
 | `AI_IMAGE_API_KEY` | AI 绘图专用 API KEY (可选，默认复用 `AI_API_KEY`)。 | `sk-xxxx...` |
-| `AI_IMAGE_API_ENDPOINT` | AI 绘图 API 地址（可选）。 | `https://api.openai.com/v1` |
+| `AI_IMAGE_ENDPOINT` | AI 绘图 API 地址（可选）。 | `https://api.openai.com/v1` |
 | `AI_IMAGE_MODEL` | 绘图模型 ID。 | `dall-e-3`, `Seedream-2.0` |
 
 ### 2.3 邮件系统 (用于订阅与找回密码)
@@ -108,15 +108,17 @@
 | 变量名 | 说明 | 默认值 / 示例 |
 | :--- | :--- | :--- |
 | `LOCAL_STORAGE_DIR` | 本地文件保存目录。 | `public/uploads` |
-| `LOCAL_STORAGE_BASE_URL` | 公开访问的基础 URL 路径。 | `/uploads` |
+| `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL` | 公开访问的基础 URL 路径。 | `/uploads` |
 | `LOCAL_STORAGE_MIN_FREE_SPACE` | 磁盘最小剩余空间（阻止写入）。 | `100MiB` |
 
 ### 2.5 Memos 同步
 
 | 变量名 | 说明 | 示例 |
 | :--- | :--- | :--- |
-| `MEMOS_API_URL` | Memos 实例的基础地址 (v1 API)。 | `https://memos.example.com` |
-| `MEMOS_API_KEY` | Memos 的访问令牌。 | `eyJhbGci...` |
+| `MEMOS_ENABLED` | 是否启用 Memos 同步。 | `false` |
+| `MEMOS_INSTANCE_URL` | Memos 实例的基础地址。 | `https://memos.example.com` |
+| `MEMOS_ACCESS_TOKEN` | Memos 的访问令牌。 | `eyJhbGci...` |
+| `MEMOS_DEFAULT_VISIBILITY` | 默认可见性 (`PRIVATE`/`PROTECTED`/`PUBLIC`)。 | `PRIVATE` |
 
 ### 2.6 定时任务与自动化 (Automation)
 
@@ -133,8 +135,8 @@
 
 | 变量名 | 说明 | 默认值 / 示例 |
 | :--- | :--- | :--- |
-| `NUXT_PUBLIC_SITE_URL` | 站点正式 URL。 | `https://momei.app` |
-| `NUXT_PUBLIC_AUTH_BASE_URL` | 认证系统的 API 基础路径。 | `https://momei.app/api/auth` |
+| `NUXT_PUBLIC_SITE_URL` | 站点正式 URL（用于站点展示与部分 SEO 场景）。 | `https://momei.app` |
+| `NUXT_PUBLIC_AUTH_BASE_URL` | 认证系统基础 URL（设置中心中的站点 URL 目前由该值锁定）。 | `https://momei.app` |
 | `NUXT_PUBLIC_APP_NAME` | 站点名称。 | `墨梅博客` |
 | `NUXT_PUBLIC_SITE_OPERATOR` | 站点运营商/所有者。 | `墨梅团队` |
 | `NUXT_PUBLIC_CONTACT_EMAIL` | 联系邮箱。 | `admin@example.com` |

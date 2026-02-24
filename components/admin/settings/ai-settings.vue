@@ -190,7 +190,7 @@
             </div>
 
             <div v-if="settings.asr_provider === 'siliconflow'" class="asr-provider-settings">
-                <Divider class="my-8" />
+                <!-- <Divider class="my-8" /> -->
                 <div class="form-field">
                     <label for="asr_api_key" class="flex gap-2 items-center">
                         {{ $t('pages.admin.settings.system.keys.asr_api_key') }}
@@ -244,7 +244,7 @@
             </div>
 
             <div v-if="settings.asr_provider === 'volcengine'" class="asr-provider-settings">
-                <Divider class="my-8" />
+                <!-- <Divider class="my-8" /> -->
                 <div class="form-field">
                     <label for="asr_volcengine_app_id" class="flex gap-2 items-center">
                         {{ $t('pages.admin.settings.system.keys.asr_volcengine_app_id') }}

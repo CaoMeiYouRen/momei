@@ -80,12 +80,15 @@ pnpm dev
 - 自动生成开发用的 `AUTH_SECRET`。
 - 无需配置 `.env` 即可直接运行。
 
+如需启用完整功能，建议基于 `.env.full.example` 配置，并以设置服务映射为准（例如 `AI_IMAGE_ENDPOINT`、`MEMOS_INSTANCE_URL`、`MEMOS_ACCESS_TOKEN`）。
+
 浏览器访问 `http://localhost:3000` 即可查看效果。
 
 ## 4. 下一步
 
 -   **进入后台**: 访问 `/admin` 登录管理端。如果是全新安装，请参考控制台日志中的初始化账号信息。
 -   **开启 AI 助手**: 在 `.env` 中配置 `AI_API_KEY` 以启用智能标题生成和一键翻译功能。
+-   **启用 Memos 同步**: 配置 `MEMOS_ENABLED=true`、`MEMOS_INSTANCE_URL`、`MEMOS_ACCESS_TOKEN`。
 -   **体验 Demo 模式**: 设置 `NUXT_PUBLIC_DEMO_MODE=true` 即可在内存中快速体验管理后台的所有功能（不保存数据）。
 
 ---

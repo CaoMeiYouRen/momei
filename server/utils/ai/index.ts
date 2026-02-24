@@ -26,15 +26,50 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
     const category = typeof categoryOrConfig === 'string' ? categoryOrConfig : 'text'
     const manualConfig = typeof categoryOrConfig === 'object' ? categoryOrConfig : configOverride
 
-    const isMain = category === 'text'
-    const prefix = category === 'text' ? 'AI' : category.toUpperCase()
+    const categorySettingKeys: Partial<Record<AICategory, {
+        enabled: SettingKey
+        provider: SettingKey
+        apiKey: SettingKey
+        model: SettingKey
+        endpoint: SettingKey
+    }>> = {
+        text: {
+            enabled: SettingKey.AI_ENABLED,
+            provider: SettingKey.AI_PROVIDER,
+            apiKey: SettingKey.AI_API_KEY,
+            model: SettingKey.AI_MODEL,
+            endpoint: SettingKey.AI_ENDPOINT,
+        },
+        image: {
+            enabled: SettingKey.AI_IMAGE_ENABLED,
+            provider: SettingKey.AI_IMAGE_PROVIDER,
+            apiKey: SettingKey.AI_IMAGE_API_KEY,
+            model: SettingKey.AI_IMAGE_MODEL,
+            endpoint: SettingKey.AI_IMAGE_ENDPOINT,
+        },
+        asr: {
+            enabled: SettingKey.ASR_ENABLED,
+            provider: SettingKey.ASR_PROVIDER,
+            apiKey: SettingKey.ASR_API_KEY,
+            model: SettingKey.ASR_MODEL,
+            endpoint: SettingKey.ASR_ENDPOINT,
+        },
+        tts: {
+            enabled: SettingKey.TTS_ENABLED,
+            provider: SettingKey.TTS_PROVIDER,
+            apiKey: SettingKey.TTS_API_KEY,
+            model: SettingKey.TTS_MODEL,
+            endpoint: SettingKey.TTS_ENDPOINT,
+        },
+    }
 
     // 确定需要获取的设置键
-    const enabledKey = isMain ? SettingKey.AI_ENABLED : (SettingKey as any)[`${prefix}_ENABLED`]
-    const providerKey = isMain ? SettingKey.AI_PROVIDER : (SettingKey as any)[`${prefix}_PROVIDER`]
-    const apiKeyKey = isMain ? SettingKey.AI_API_KEY : (SettingKey as any)[`${prefix}_API_KEY`]
-    const modelKey = isMain ? SettingKey.AI_MODEL : (SettingKey as any)[`${prefix}_MODEL`]
-    const endpointKey = isMain ? SettingKey.AI_ENDPOINT : (SettingKey as any)[`${prefix}_ENDPOINT`]
+    const resolvedCategoryKeys = categorySettingKeys[category] ?? categorySettingKeys.text!
+    const enabledKey = resolvedCategoryKeys.enabled
+    const providerKey = resolvedCategoryKeys.provider
+    const apiKeyKey = resolvedCategoryKeys.apiKey
+    const modelKey = resolvedCategoryKeys.model
+    const endpointKey = resolvedCategoryKeys.endpoint
 
     const dbSettings = await getSettings([
         SettingKey.AI_ENABLED,

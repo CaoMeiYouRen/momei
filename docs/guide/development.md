@@ -36,6 +36,7 @@
     ```
 
     修改 `.env` 中的配置。如不配置，系统将默认使用 SQLite 并自动生成开发 Secret。
+    涉及后台“设置中心”可管理项时，请优先使用与 `server/services/setting.ts` 映射一致的变量名（例如 `AI_IMAGE_ENDPOINT`、`MEMOS_INSTANCE_URL`、`MEMOS_ACCESS_TOKEN`）。
 
 4. **启动开发服务器**:
     ```bash
