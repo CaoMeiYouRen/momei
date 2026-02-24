@@ -50,10 +50,22 @@
 | `AI_IMAGE_PROVIDER` | AI 绘图服务商 (`dall-e-3`, `seedream`, `siliconflow`)。 | `seedream` |
 | `TTS_PROVIDER` | TTS 提供商 (`openai`, `siliconflow`)。 | `siliconflow` |
 | `ASR_PROVIDER` | ASR 提供商 (`openai`, `siliconflow`, `volcengine`)。 | `siliconflow` |
-| `VOLCENGINE_APP_ID` | 火山引擎 App ID (用于语音/ASR)。 | `xxxxxxxx` |
 | `AI_IMAGE_API_KEY` | AI 绘图专用 API KEY (可选，默认复用 `AI_API_KEY`)。 | `sk-xxxx...` |
 | `AI_IMAGE_ENDPOINT` | AI 绘图 API 地址（可选）。 | `https://api.openai.com/v1` |
 | `AI_IMAGE_MODEL` | 绘图模型 ID。 | `dall-e-3`, `Seedream-2.0` |
+
+#### Volcengine (豆包语音) 推荐配置（ASR/TTS 共用一套凭据）
+
+| 变量名 | 说明 | 示例 |
+| :--- | :--- | :--- |
+| `VOLCENGINE_APP_ID` | 火山引擎应用 ID（ASR/TTS 共用）。 | `xxxxxxxx` |
+| `VOLCENGINE_ACCESS_KEY` | 火山引擎访问密钥（ASR/TTS 共用）。 | `xxxxxxxx` |
+| `VOLCENGINE_SECRET_KEY` | 可选密钥（部分接口或后续能力可能使用）。 | `xxxxxxxx` |
+| `ASR_MODEL` | ASR 资源 ID（推荐 `volc.seedasr.sauc.duration`）。 | `volc.seedasr.sauc.duration` |
+| `ASR_ENDPOINT` | ASR 接口地址（可选，默认内置官方地址）。 | `wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_async` |
+| `TTS_DEFAULT_MODEL` | TTS 默认模型（如 `seed-tts-2.0`）。 | `seed-tts-2.0` |
+
+> 说明：为降低配置复杂度，当前推荐 Volcengine 的 ASR 与 TTS 共用同一套 `VOLCENGINE_*` 凭据。
 
 ### 2.3 邮件系统 (用于订阅与找回密码)
 

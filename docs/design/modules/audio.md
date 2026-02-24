@@ -43,6 +43,8 @@
 - **Azure**: 神经网络音色，适合长文本。
 - **SiliconFlow**: 兼容 OpenAI API 的国内高性价比替代方案。
 
+> Volcengine 配置约定：TTS 与 ASR 共用一套凭据（`VOLCENGINE_APP_ID`、`VOLCENGINE_ACCESS_KEY`，可选 `VOLCENGINE_SECRET_KEY`），TTS 模型由 `TTS_DEFAULT_MODEL` 控制。
+
 ### 3.2 播客分发 (RSS/Podcast Feed)
 - **Enclosure 标签**: 在 RSS 生成逻辑中，若文章存在 `audioUrl`，则自动生成 `<enclosure url="..." length="..." type="..." />`。
 - **独立播客源**: `/feed/podcast.xml` 路由仅输出带有音频的文章。

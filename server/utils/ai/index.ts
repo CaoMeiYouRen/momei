@@ -78,10 +78,7 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
         SettingKey.AI_MODEL,
         SettingKey.AI_ENDPOINT,
         SettingKey.GEMINI_API_TOKEN,
-        SettingKey.ASR_VOLCENGINE_APP_ID,
-        SettingKey.ASR_VOLCENGINE_ACCESS_KEY,
         SettingKey.ASR_VOLCENGINE_CLUSTER_ID,
-        SettingKey.ASR_VOLCENGINE_SECRET_KEY,
         SettingKey.VOLCENGINE_APP_ID,
         SettingKey.VOLCENGINE_ACCESS_KEY,
         SettingKey.VOLCENGINE_SECRET_KEY,
@@ -147,8 +144,8 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
             }
 
             return new VolcengineASRProvider({
-                appId: dbSettings[SettingKey.ASR_VOLCENGINE_APP_ID] || dbSettings[SettingKey.VOLCENGINE_APP_ID] || process.env.VOLCENGINE_APP_ID || '',
-                token: dbSettings[SettingKey.ASR_VOLCENGINE_ACCESS_KEY] || dbSettings[SettingKey.VOLCENGINE_ACCESS_KEY] || process.env.VOLCENGINE_ACCESS_KEY || '',
+                appId: dbSettings[SettingKey.VOLCENGINE_APP_ID] || process.env.VOLCENGINE_APP_ID || '',
+                token: dbSettings[SettingKey.VOLCENGINE_ACCESS_KEY] || process.env.VOLCENGINE_ACCESS_KEY || '',
                 cluster: dbSettings[SettingKey.ASR_VOLCENGINE_CLUSTER_ID] || '',
                 endpoint: dbSettings[SettingKey.ASR_ENDPOINT] || process.env.ASR_ENDPOINT || '',
                 resourceId: resolvedVolcResourceId,
@@ -176,6 +173,7 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
             return new VolcengineTTSProvider({
                 appId: dbSettings[SettingKey.VOLCENGINE_APP_ID] || process.env.VOLCENGINE_APP_ID || '',
                 accessKey: dbSettings[SettingKey.VOLCENGINE_ACCESS_KEY] || process.env.VOLCENGINE_ACCESS_KEY || '',
+                secretKey: dbSettings[SettingKey.VOLCENGINE_SECRET_KEY] || process.env.VOLCENGINE_SECRET_KEY || '',
                 defaultModel: finalConfig.model,
             }) as any
         }

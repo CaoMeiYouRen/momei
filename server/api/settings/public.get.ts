@@ -42,8 +42,6 @@ export default defineEventHandler(async () => {
             SettingKey.AI_ENABLED,
             SettingKey.ASR_ENABLED,
             SettingKey.TTS_ENABLED,
-            SettingKey.ASR_VOLCENGINE_APP_ID,
-            SettingKey.ASR_VOLCENGINE_ACCESS_KEY,
             SettingKey.VOLCENGINE_APP_ID,
             SettingKey.VOLCENGINE_ACCESS_KEY,
         ]
@@ -87,7 +85,6 @@ export default defineEventHandler(async () => {
                 aiEnabled: String(settings[SettingKey.AI_ENABLED]) === 'true',
                 asrEnabled: String(settings[SettingKey.ASR_ENABLED]) === 'true' || ((
                     !!process.env.ASR_API_KEY
-                    || !!settings[SettingKey.ASR_VOLCENGINE_APP_ID]
                     || !!settings[SettingKey.VOLCENGINE_APP_ID]
                 ) && settings[SettingKey.ASR_ENABLED] !== 'false'),
                 ttsEnabled: String(settings[SettingKey.TTS_ENABLED]) === 'true' || (!!process.env.TTS_API_KEY && settings[SettingKey.TTS_ENABLED] !== 'false'),

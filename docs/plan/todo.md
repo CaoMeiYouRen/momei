@@ -43,6 +43,9 @@
     - [ ] 回滚 `html-minifier` / Nitro externals 临时 workaround，恢复稳定基线
     - [ ] 定位 `mjml`/`lodash`/`htmlparser2` 在 Node ESM + Serverless 下的真实根因
     - [ ] 设计并验证最终方案（依赖替代或构建策略），避免再次出现 `ERR_MODULE_NOT_FOUND`
+- [ ] **配置文档分层与场景化改造 (P2)**
+    - [ ] 将部署配置按“基础必填 / 功能模块 / 厂商专题”分层，减少单页信息过载
+    - [ ] 为 AI/ASR/TTS 增加“按提供商最小配置清单”与排障指引
 
 ### 3. 感官体验增强 (Sensory Experience Enhancement)
 - [ ] **看板娘系统 (Live2D) (P2)**

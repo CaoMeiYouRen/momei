@@ -44,3 +44,8 @@ graph TD
 ## 5. 限制与优化
 - **文件限额**: 默认限制单次转录音频大小为 25MB。
 - **降噪优化**: 前端在采集音频时默认开启 `noiseSuppression` 与 `echoCancellation`。
+
+## 6. Volcengine 配置约定
+
+- 当 `ASR_PROVIDER=volcengine` 时，凭据统一使用 `VOLCENGINE_APP_ID` 与 `VOLCENGINE_ACCESS_KEY`（可选 `VOLCENGINE_SECRET_KEY`）。
+- ASR 专属参数通过 `ASR_MODEL`（资源 ID）与 `ASR_ENDPOINT` 控制，不再推荐维护单独的 `ASR_VOLCENGINE_*` 凭据。

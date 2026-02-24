@@ -146,8 +146,6 @@ export default defineWebSocketHandler({
 
 async function startVolcengineSession(peer: PeerWithVolcState, options: { language: string, mimeType: string, sampleRate: number }) {
     const settings = await getSettings([
-        SettingKey.ASR_VOLCENGINE_APP_ID,
-        SettingKey.ASR_VOLCENGINE_ACCESS_KEY,
         SettingKey.ASR_VOLCENGINE_CLUSTER_ID,
         SettingKey.ASR_MODEL,
         SettingKey.ASR_ENDPOINT,
@@ -155,8 +153,8 @@ async function startVolcengineSession(peer: PeerWithVolcState, options: { langua
         SettingKey.VOLCENGINE_ACCESS_KEY,
     ])
 
-    const appId = settings[SettingKey.ASR_VOLCENGINE_APP_ID] || settings[SettingKey.VOLCENGINE_APP_ID] || ''
-    const accessKey = settings[SettingKey.ASR_VOLCENGINE_ACCESS_KEY] || settings[SettingKey.VOLCENGINE_ACCESS_KEY] || ''
+    const appId = settings[SettingKey.VOLCENGINE_APP_ID] || ''
+    const accessKey = settings[SettingKey.VOLCENGINE_ACCESS_KEY] || ''
     const endpoint = settings[SettingKey.ASR_ENDPOINT] || DEFAULT_VOLCENGINE_STREAM_ENDPOINT
     const configuredModelOrResourceId = settings[SettingKey.ASR_MODEL] || ''
     const configuredVolcResourceId = settings[SettingKey.ASR_VOLCENGINE_CLUSTER_ID] || ''

@@ -122,3 +122,9 @@ AI_TEMPERATURE=0.7
 -   **限流**: 默认每分钟限制 10 次请求 (Rate Limit)。
 -   **反馈**: 所有 AI 操作必须有明确的 Loading 状态。
 -   **错误处理**: API Key 失效、网络超时、Token 溢出均需友好提示。
+
+## 7. Volcengine 配置约定（语音能力）
+
+-   为降低部署复杂度，Volcengine 语音能力（ASR/TTS）默认共用一套凭据：`VOLCENGINE_APP_ID`、`VOLCENGINE_ACCESS_KEY`（可选 `VOLCENGINE_SECRET_KEY`）。
+-   ASR 专属参数通过 `ASR_MODEL`、`ASR_ENDPOINT` 控制；TTS 专属参数通过 `TTS_DEFAULT_MODEL` 控制。
+-   不再推荐为 ASR 与 TTS 分别维护两套火山凭据，避免配置漂移与排障成本上升。

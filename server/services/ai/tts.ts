@@ -133,7 +133,6 @@ export class TTSService extends AIBaseService {
         const settings = await getSettings([
             SettingKey.AI_API_KEY,
             SettingKey.TTS_API_KEY,
-            SettingKey.ASR_VOLCENGINE_APP_ID,
             SettingKey.VOLCENGINE_APP_ID,
             SettingKey.VOLCENGINE_ACCESS_KEY,
             SettingKey.AI_PROVIDER,
@@ -155,9 +154,8 @@ export class TTSService extends AIBaseService {
             providers.push('siliconflow')
         }
 
-        // Volcengine (暂时下线，因接口对接问题)
-
-        const hasVolc = settings[SettingKey.VOLCENGINE_APP_ID] || settings[SettingKey.ASR_VOLCENGINE_APP_ID] || process.env.VOLCENGINE_APP_ID
+        // Volcengine
+        const hasVolc = settings[SettingKey.VOLCENGINE_APP_ID] || process.env.VOLCENGINE_APP_ID
         if (hasVolc) {
             providers.push('volcengine')
         }
