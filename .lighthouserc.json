@@ -2,11 +2,19 @@
     "ci": {
         "collect": {
             "startServerCommand": "pnpm run preview",
+            "startServerReadyPattern": "Listening|listen|ready|Local|Network",
+            "startServerReadyTimeout": 120000,
             "url": [
                 "http://localhost:3000/",
                 "http://localhost:3000/about",
                 "http://localhost:3000/archives",
-                "http://localhost:3000/login"
+                "http://localhost:3000/login",
+                "http://localhost:3000/register",
+                "http://localhost:3000/posts",
+                "http://localhost:3000/tags",
+                "http://localhost:3000/categories",
+                "http://localhost:3000/posts/welcome-to-momei-demo",
+                "http://localhost:3000/posts/hello-momei-test"
             ],
             "numberOfRuns": 3
         },
@@ -18,7 +26,7 @@
                 "categories:performance": [
                     "warn",
                     {
-                        "minScore": 0.8
+                        "minScore": 0.6
                     }
                 ],
                 "categories:accessibility": [
@@ -30,13 +38,13 @@
                 "categories:best-practices": [
                     "warn",
                     {
-                        "minScore": 0.8
+                        "minScore": 0.85
                     }
                 ],
                 "categories:seo": [
                     "warn",
                     {
-                        "minScore": 0.8
+                        "minScore": 0.9
                     }
                 ]
             }

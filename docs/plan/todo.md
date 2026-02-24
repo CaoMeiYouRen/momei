@@ -58,6 +58,7 @@
 ### 4. 性能基准与优化 (Performance & Optimization)
 - [ ] **Lighthouse 红线机制 (P2)**
     - [ ] 文档基线：补充并维护 [性能规范](../standards/performance.md)，明确审计对象、采样策略和发布门禁
+    - [ ] 阈值策略：采用分阶段爬坡（Phase A 跑通基线 -> Phase B 守住基线 -> Phase C 四项 >= 90 阻断）
     - [ ] CI/CD 流程中集成 Lighthouse CI 审计（核心页面、移动端+桌面端、每页 3 次取中位数）
     - [ ] 配置核心页面性能红线（Performance/Accessibility/Best Practices/SEO 全部 >= 90）
     - [ ] 配置关键指标红线（LCP <= 2.5s、CLS <= 0.1、TBT <= 200ms）并在失败时阻断发布

@@ -31,9 +31,35 @@
 
 ## 3. Lighthouse 红线 (Release Gates)
 
+为避免“标准过高导致流程无法落地”，采用分阶段爬坡策略。
+
+### 3.0 阶段化策略 (Phased Baseline)
+
+#### Phase A：跑通基线（当前阶段，先稳定）
+
+-   目标：流水线稳定产出 Lighthouse 报告，不因环境噪声（如安装态重定向）失败。
+-   判定：以 `warn` 级断言为主，不阻断合并。
+-   建议阈值（移动端中位数）：
+	-   Performance >= 60
+	-   Accessibility >= 80
+	-   Best Practices >= 85
+	-   SEO >= 90
+
+#### Phase B：守住基线（短周期）
+
+-   目标：先锁住 A11y / Best Practices / SEO，防止回退。
+-   判定：
+	-   Accessibility / Best Practices / SEO 进入 `error` 阻断。
+	-   Performance 继续 `warn`，并逐步提升到 >= 60。
+
+#### Phase C：红线门禁（目标态）
+
+-   目标：核心页面四维度全部 >= 90，进入发布阻断门禁。
+-   判定：四类评分均为 `error`，低于阈值即阻断发布。
+
 ### 3.1 分类得分红线 (Category Gates)
 
-以下阈值适用于核心页面中位数结果：
+以下阈值适用于核心页面中位数结果（目标态，Phase C）：
 
 | 维度 | 移动端硬门槛 | 桌面端硬门槛 |
 | :--- | :--- | :--- |
@@ -78,7 +104,7 @@
 
 ## 6. CI/CD 门禁策略 (Pipeline Policy)
 
--   Pull Request：执行核心页面 Lighthouse 审计，红线触发则阻断合并。
+-   Pull Request：执行核心页面 Lighthouse 审计；Phase A 以 `warn` 为主，Phase B/C 按阶段切换到阻断。
 -   主分支发布前：执行完整审计（移动端 + 桌面端 + 预算检查）。
 -   每周基线任务：生成趋势快照，识别“缓慢退化”而非仅检测“硬失败”。
 

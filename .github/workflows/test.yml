@@ -45,6 +45,9 @@ jobs:
         run: pnpm exec lhci autorun
         env:
           NUXT_PUBLIC_DEMO_MODE: true
+          NUXT_PUBLIC_TEST_MODE: true
+          TEST_MODE: true
+          MOMEI_INSTALLED: true
           PORT: 3000
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
       # 上传代码覆盖率报告到 Codecov
