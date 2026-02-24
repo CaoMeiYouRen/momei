@@ -100,6 +100,8 @@
 -   CI 在 `build` 后执行 `pnpm run test:perf:budget`，生成 `.lighthouseci/bundle-budget-report.json`。
 -   MVP 阶段使用 `warn` 模式，不阻断合并，先建立稳定的预算观测能力。
 -   报告通过 GitHub Actions Artifact 上传，供 PR 评审查看超预算项。
+-   PR 场景会优先下载 `master` 分支最近一次成功构建产出的 `bundle-baseline-report` 作为增量基线。
+-   `master` 推送时会同步上传最新 `bundle-baseline-report`，供后续 PR 增量对比。
 -   当预算波动趋稳后，切换到 `pnpm run test:perf:budget:strict`（`error` 模式）进入阻断门禁。
 
 ## 5. 关键路径渲染标准 (Critical Path)

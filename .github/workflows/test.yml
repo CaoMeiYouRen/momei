@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -99,8 +100,25 @@ jobs:
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - run: pnpm run build
+      - name: Download bundle baseline report (master)
+        if: github.event_name == 'pull_request'
+        uses: dawidd6/action-download-artifact@v9
+        with:
+          workflow: test.yml
+          branch: master
+          name: bundle-baseline-report
+          path: .lighthouseci
+          if_no_artifact_found: warn
+          search_artifacts: true
       - name: Run Bundle Budget Check (MVP)
-        run: pnpm run test:perf:budget
+        shell: bash
+        run: |
+          BASELINE=".github/perf/bundle-baseline.json"
+          if [ -f ".lighthouseci/bundle-baseline-report.json" ]; then
+            BASELINE=".lighthouseci/bundle-baseline-report.json"
+          fi
+          echo "Using baseline: ${BASELINE}"
+          pnpm exec node scripts/perf/check-bundle-budget.mjs --mode=warn --output=.lighthouseci/bundle-budget-report.json --baseline="${BASELINE}"
       # - run: pnpm run generate
       - name: Run Lighthouse CI
         run: pnpm exec lhci autorun
@@ -116,6 +134,14 @@ jobs:
         with:
           name: bundle-budget-report
           path: .lighthouseci/bundle-budget-report.json
+          if-no-files-found: warn
+      - name: Upload bundle baseline report (master)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-baseline-report
+          path: .lighthouseci/bundle-budget-report.json
+          overwrite: true
           if-no-files-found: warn
   cli:
     name: CLI Test
