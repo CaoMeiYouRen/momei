@@ -305,6 +305,99 @@
                 />
             </div>
         </template>
+
+        <Divider align="left">
+            <b>{{ $t('pages.admin.settings.system.sections.canvas_nest') }}</b>
+        </Divider>
+
+        <div class="form-field">
+            <label for="canvas_nest_enabled" class="flex gap-2 items-center">
+                {{ $t('pages.admin.settings.system.keys.canvas_nest_enabled') }}
+                <i
+                    v-if="metadata.canvas_nest_enabled?.isLocked"
+                    v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                    class="pi pi-lock text-orange-500 text-xs"
+                />
+            </label>
+            <ToggleSwitch
+                id="canvas_nest_enabled"
+                v-model="settings.canvas_nest_enabled"
+                :disabled="metadata.canvas_nest_enabled?.isLocked"
+            />
+        </div>
+
+        <template v-if="settings.canvas_nest_enabled">
+            <div class="form-field">
+                <label for="canvas_nest_options_json" class="flex gap-2 items-center">
+                    {{ $t('pages.admin.settings.system.keys.canvas_nest_options_json') }}
+                    <i
+                        v-if="metadata.canvas_nest_options_json?.isLocked"
+                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                        class="pi pi-lock text-orange-500 text-xs"
+                    />
+                </label>
+                <Textarea
+                    id="canvas_nest_options_json"
+                    v-model="settings.canvas_nest_options_json"
+                    :disabled="metadata.canvas_nest_options_json?.isLocked"
+                    :placeholder="$t('pages.admin.settings.system.hints.canvas_nest_options_json')"
+                    rows="6"
+                    fluid
+                />
+            </div>
+
+            <div class="form-field">
+                <label for="canvas_nest_mobile_enabled" class="flex gap-2 items-center">
+                    {{ $t('pages.admin.settings.system.keys.canvas_nest_mobile_enabled') }}
+                    <i
+                        v-if="metadata.canvas_nest_mobile_enabled?.isLocked"
+                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                        class="pi pi-lock text-orange-500 text-xs"
+                    />
+                </label>
+                <ToggleSwitch
+                    id="canvas_nest_mobile_enabled"
+                    v-model="settings.canvas_nest_mobile_enabled"
+                    :disabled="metadata.canvas_nest_mobile_enabled?.isLocked"
+                />
+            </div>
+
+            <div class="form-field">
+                <label for="canvas_nest_min_width" class="flex gap-2 items-center">
+                    {{ $t('pages.admin.settings.system.keys.canvas_nest_min_width') }}
+                    <i
+                        v-if="metadata.canvas_nest_min_width?.isLocked"
+                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                        class="pi pi-lock text-orange-500 text-xs"
+                    />
+                </label>
+                <InputNumber
+                    id="canvas_nest_min_width"
+                    v-model="settings.canvas_nest_min_width"
+                    :disabled="metadata.canvas_nest_min_width?.isLocked"
+                    :min="320"
+                    :max="2560"
+                    :step="1"
+                    fluid
+                />
+            </div>
+
+            <div class="form-field">
+                <label for="canvas_nest_data_saver_block" class="flex gap-2 items-center">
+                    {{ $t('pages.admin.settings.system.keys.canvas_nest_data_saver_block') }}
+                    <i
+                        v-if="metadata.canvas_nest_data_saver_block?.isLocked"
+                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                        class="pi pi-lock text-orange-500 text-xs"
+                    />
+                </label>
+                <ToggleSwitch
+                    id="canvas_nest_data_saver_block"
+                    v-model="settings.canvas_nest_data_saver_block"
+                    :disabled="metadata.canvas_nest_data_saver_block?.isLocked"
+                />
+            </div>
+        </template>
     </div>
 </template>
 

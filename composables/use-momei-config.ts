@@ -23,6 +23,11 @@ export const useMomeiConfig = () => {
         live2dMobileEnabled: false,
         live2dMinWidth: 1024,
         live2dDataSaverBlock: true,
+        canvasNestEnabled: false,
+        canvasNestOptionsJson: '',
+        canvasNestMobileEnabled: false,
+        canvasNestMinWidth: 1024,
+        canvasNestDataSaverBlock: true,
     }))
 
     const { t } = useI18n()

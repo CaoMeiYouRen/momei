@@ -10,6 +10,7 @@ const { siteConfig } = useMomeiConfig()
 const DEFAULT_LIVE2D_PATH = 'https://unpkg.com/live2d-widgets@1.0.0/dist/'
 
 const isInitialized = ref(false)
+const { canLoadEffect, runWhenIdle } = useClientEffectGuard()
 
 type Live2dLogLevel = 'error' | 'warn' | 'info' | 'trace'
 
@@ -88,39 +89,14 @@ const parseLive2dOptions = (raw: unknown): Partial<Live2dWidgetOptions> => {
 }
 
 const shouldLoadLive2d = () => {
-    if (!import.meta.client) return false
-
     const current = config.value
-    if (!current.enabled) return false
-
-    if (window.innerWidth < current.minWidth) {
-        return false
-    }
-
-    const coarsePointer = window.matchMedia('(pointer: coarse)').matches
-    if (!current.mobileEnabled && coarsePointer) {
-        return false
-    }
-
-    const connection = (navigator as Navigator & {
-        connection?: {
-            saveData?: boolean
-            effectiveType?: string
-        }
-    }).connection
-
-    if (current.dataSaverBlock && connection?.saveData) {
-        return false
-    }
-
-    if (current.dataSaverBlock && typeof connection?.effectiveType === 'string') {
-        const networkType = connection.effectiveType.toLowerCase()
-        if (networkType === 'slow-2g' || networkType === '2g' || networkType === '3g') {
-            return false
-        }
-    }
-
-    return true
+    return canLoadEffect({
+        enabled: current.enabled,
+        minWidth: current.minWidth,
+        mobileEnabled: current.mobileEnabled,
+        dataSaverBlock: current.dataSaverBlock,
+        slowNetworkBlock: current.dataSaverBlock,
+    })
 }
 
 const loadExternalResource = (url: string, type: 'css' | 'js') => {
@@ -217,16 +193,9 @@ const initLive2d = async () => {
 onMounted(() => {
     if (!shouldLoadLive2d()) return
 
-    if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(() => {
-            initLive2d()
-        }, { timeout: 4000 })
-        return
-    }
-
-    setTimeout(() => {
+    runWhenIdle(() => {
         initLive2d()
-    }, 1200)
+    }, { timeout: 4000, fallbackDelay: 1200 })
 })
 </script>
 

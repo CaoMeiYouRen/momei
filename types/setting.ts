@@ -113,6 +113,11 @@ export enum SettingKey {
     LIVE2D_MOBILE_ENABLED = 'live2d_mobile_enabled',
     LIVE2D_MIN_WIDTH = 'live2d_min_width',
     LIVE2D_DATA_SAVER_BLOCK = 'live2d_data_saver_block',
+    CANVAS_NEST_ENABLED = 'canvas_nest_enabled',
+    CANVAS_NEST_OPTIONS_JSON = 'canvas_nest_options_json',
+    CANVAS_NEST_MOBILE_ENABLED = 'canvas_nest_mobile_enabled',
+    CANVAS_NEST_MIN_WIDTH = 'canvas_nest_min_width',
+    CANVAS_NEST_DATA_SAVER_BLOCK = 'canvas_nest_data_saver_block',
 
     // Limits
     MAX_UPLOAD_SIZE = 'max_upload_size',

@@ -7,6 +7,7 @@
         <AppFooter />
         <LazyAppSearch />
         <ClientOnly>
+            <LazyCanvasNestEffect />
             <LazyLive2dWidget />
         </ClientOnly>
     </div>

@@ -152,6 +152,8 @@ const loadSettings = async () => {
                 val = parseInt(val) || 587
             } else if (s.key === 'live2d_min_width') {
                 val = parseInt(val) || 1024
+            } else if (s.key === 'canvas_nest_min_width') {
+                val = parseInt(val) || 1024
             }
             obj[s.key] = val
             meta[s.key] = {

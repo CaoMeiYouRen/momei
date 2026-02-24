@@ -868,6 +868,7 @@
                         "branding": "Branding & Assets",
                         "footer": "Footer Settings",
                         "live2d": "Live2D Widget",
+                        "canvas_nest": "CanvasNest Particle Effect",
                         "memos": "Memos Sync"
                     },
                     "notifications": {
@@ -924,6 +925,11 @@
                         "live2d_mobile_enabled": "Allow on Mobile",
                         "live2d_min_width": "Minimum Viewport Width (px)",
                         "live2d_data_saver_block": "Disable on Data Saver / Slow Network",
+                        "canvas_nest_enabled": "Enable CanvasNest Particle Effect",
+                        "canvas_nest_options_json": "CanvasNest Options (JSON Override)",
+                        "canvas_nest_mobile_enabled": "Allow on Mobile",
+                        "canvas_nest_min_width": "Minimum Viewport Width (px)",
+                        "canvas_nest_data_saver_block": "Disable on Data Saver / Slow Network",
                         "ai_enabled": "Enable AI",
                         "ai_provider": "AI Provider",
                         "ai_api_key": "API Key",
@@ -992,6 +998,7 @@
                         "live2d_script_url": "e.g., https://unpkg.com/live2d-widgets{'@'}1.0.0/dist/",
                         "live2d_model_url": "e.g., https://unpkg.com/live2d-widgets{'@'}1.0.0/dist/waifu-tips.json",
                         "live2d_options_json": "e.g., {'{'}\n  \"modelId\": 0,\n  \"cdnPath\": \"https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/\",\n  \"tools\": [\"hitokoto\", \"switch-model\", \"switch-texture\", \"photo\", \"info\", \"quit\"],\n  \"drag\": false,\n  \"logLevel\": \"warn\"\n{'}'}",
+                        "canvas_nest_options_json": "e.g., {'{'}\n  \"color\": \"0,0,0\",\n  \"pointColor\": \"0,0,0\",\n  \"opacity\": 0.7,\n  \"count\": 88,\n  \"zIndex\": -1\n{'}'}",
                         "memos_instance_url": "e.g., https://memos.example.com",
                         "memos_access_token": "Generate in Memos Settings -> Account -> Access Tokens"
                     },

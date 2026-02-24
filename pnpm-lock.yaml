@@ -80,6 +80,9 @@ importers:
       better-sqlite3:
         specifier: ^12.6.2
         version: 12.6.2
+      canvas-nest.js:
+        specifier: ^2.0.4
+        version: 2.0.4
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -5603,6 +5606,9 @@ packages:
   caniuse-lite@1.0.30001769:
     resolution: {integrity: sha512-BCfFL1sHijQlBGWBMuJyhZUhzo7wer5sVj9hqekB/7xn0Ypy+pER/edCYQm4exbXj4WiySGp40P8UuTh6w1srg==}
 
+  canvas-nest.js@2.0.4:
+    resolution: {integrity: sha512-Wgc+39fQBIP8fm9+Rq+Zt6+QLHZRsIKpaOQPL5KcWPlXTAalCKY4KCuklY7qzzZqBRF/t2APIrk+PuRw6ZlOog==}
+
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
 
@@ -10619,6 +10625,9 @@ packages:
     resolution: {integrity: sha512-DJLEbH3WePmwdSDUCKCZTCc6xvY/Uuy3Qk5YG+5z5W7yMQbfRHRlEYhJbh4E431/V4aMROXH8lw5x8ETB71Nig==}
     peerDependencies:
       vue: ^3
+
+  size-sensor@0.2.6:
+    resolution: {integrity: sha512-0EZ0tXXjyRl9R9+JpoBdH57Xpnbf5NTyDdj7fnFL6KqCsdKyah286ShMflnV2SonnrSFH4OAT/52Jy8qqnoerg==}
 
   skin-tone@2.0.0:
     resolution: {integrity: sha512-kUMbT1oBJCpgrnKoSr0o6wPtvRWT9W9UKvGLwfJYO2WuahZRHOpEyL1ckyMGgMWh0UdpmaoFqKKD29WTomNEGA==}
@@ -18626,6 +18635,10 @@ snapshots:
 
   caniuse-lite@1.0.30001769: {}
 
+  canvas-nest.js@2.0.4:
+    dependencies:
+      size-sensor: 0.2.6
+
   ccount@2.0.1: {}
 
   chai@6.2.2: {}
@@ -24925,6 +24938,8 @@ snapshots:
     dependencies:
       ufo: 1.6.3
       vue: 3.5.28(typescript@5.9.3)
+
+  size-sensor@0.2.6: {}
 
   skin-tone@2.0.0:
     dependencies:

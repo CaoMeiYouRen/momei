@@ -851,6 +851,7 @@
                         "branding": "品牌与资产",
                         "footer": "页脚设置",
                         "live2d": "看板娘 (Live2D)",
+                        "canvas_nest": "粒子背景特效 (CanvasNest)",
                         "memos": "Memos 同步"
                     },
                     "notifications": {
@@ -907,6 +908,11 @@
                         "live2d_mobile_enabled": "允许移动端加载",
                         "live2d_min_width": "最小加载宽度 (px)",
                         "live2d_data_saver_block": "省流量/慢速网络自动禁用",
+                        "canvas_nest_enabled": "启用粒子背景特效 (CanvasNest)",
+                        "canvas_nest_options_json": "CanvasNest 配置 (JSON 覆盖)",
+                        "canvas_nest_mobile_enabled": "允许移动端加载",
+                        "canvas_nest_min_width": "最小加载宽度 (px)",
+                        "canvas_nest_data_saver_block": "省流量/慢速网络自动禁用",
                         "ai_enabled": "启用 AI",
                         "ai_provider": "AI 服务商",
                         "ai_api_key": "API 密钥",
@@ -975,6 +981,7 @@
                         "live2d_script_url": "例如: https://unpkg.com/live2d-widgets{'@'}1.0.0/dist/",
                         "live2d_model_url": "例如: https://unpkg.com/live2d-widgets{'@'}1.0.0/dist/waifu-tips.json",
                         "live2d_options_json": "例如: {'{'}\n  \"modelId\": 0,\n  \"cdnPath\": \"https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/\",\n  \"tools\": [\"hitokoto\", \"switch-model\", \"switch-texture\", \"photo\", \"info\", \"quit\"],\n  \"drag\": false,\n  \"logLevel\": \"warn\"\n{'}'}",
+                        "canvas_nest_options_json": "例如: {'{'}\n  \"color\": \"0,0,0\",\n  \"pointColor\": \"0,0,0\",\n  \"opacity\": 0.7,\n  \"count\": 88,\n  \"zIndex\": -1\n{'}'}",
                         "memos_instance_url": "例如: https://memos.example.com",
                         "memos_access_token": "在 Memos 设置 -> 账户 -> 访问令牌中生成"
                     },

@@ -31,6 +31,11 @@ export default defineEventHandler(async () => {
             SettingKey.LIVE2D_MOBILE_ENABLED,
             SettingKey.LIVE2D_MIN_WIDTH,
             SettingKey.LIVE2D_DATA_SAVER_BLOCK,
+            SettingKey.CANVAS_NEST_ENABLED,
+            SettingKey.CANVAS_NEST_OPTIONS_JSON,
+            SettingKey.CANVAS_NEST_MOBILE_ENABLED,
+            SettingKey.CANVAS_NEST_MIN_WIDTH,
+            SettingKey.CANVAS_NEST_DATA_SAVER_BLOCK,
             SettingKey.AI_ENABLED,
             SettingKey.ASR_ENABLED,
             SettingKey.TTS_ENABLED,
@@ -68,6 +73,11 @@ export default defineEventHandler(async () => {
                 live2dMobileEnabled: String(settings[SettingKey.LIVE2D_MOBILE_ENABLED]) === 'true',
                 live2dMinWidth: Number(settings[SettingKey.LIVE2D_MIN_WIDTH] || 1024),
                 live2dDataSaverBlock: settings[SettingKey.LIVE2D_DATA_SAVER_BLOCK] !== 'false',
+                canvasNestEnabled: String(settings[SettingKey.CANVAS_NEST_ENABLED]) === 'true',
+                canvasNestOptionsJson: settings[SettingKey.CANVAS_NEST_OPTIONS_JSON] || '',
+                canvasNestMobileEnabled: String(settings[SettingKey.CANVAS_NEST_MOBILE_ENABLED]) === 'true',
+                canvasNestMinWidth: Number(settings[SettingKey.CANVAS_NEST_MIN_WIDTH] || 1024),
+                canvasNestDataSaverBlock: settings[SettingKey.CANVAS_NEST_DATA_SAVER_BLOCK] !== 'false',
                 aiEnabled: String(settings[SettingKey.AI_ENABLED]) === 'true',
                 asrEnabled: String(settings[SettingKey.ASR_ENABLED]) === 'true' || ((
                     !!process.env.ASR_API_KEY
