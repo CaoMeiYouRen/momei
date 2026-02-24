@@ -39,6 +39,10 @@
 - [x] **修复 ajv 漏洞 (ReDoS) (P1)**
     - [x] 在 package.json 中添加 pnpm.overrides 强制升级 ajv 到安全版本
     - [x] 验证 lockfile 更新
+- [ ] **Serverless ESM 依赖解析兼容修复 (P1)**
+    - [ ] 回滚 `html-minifier` / Nitro externals 临时 workaround，恢复稳定基线
+    - [ ] 定位 `mjml`/`lodash`/`htmlparser2` 在 Node ESM + Serverless 下的真实根因
+    - [ ] 设计并验证最终方案（依赖替代或构建策略），避免再次出现 `ERR_MODULE_NOT_FOUND`
 
 ### 3. 感官体验增强 (Sensory Experience Enhancement)
 - [ ] **看板娘系统 (Live2D) (P2)**
