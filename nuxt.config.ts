@@ -261,7 +261,6 @@ export default defineNuxtConfig({
     },
     css: [
         'normalize.css/normalize.css',
-        'driver.js/dist/driver.css',
         'primeicons/primeicons.css',
         '@/styles/main.scss',
     ],

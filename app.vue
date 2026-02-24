@@ -25,7 +25,11 @@ const isInstallationPage = computed(() => {
     return route.path.includes('/installation')
 })
 
-if (!isInstallationPage.value) {
+const initializeAppSettings = async () => {
+    if (isInstallationPage.value) {
+        return
+    }
+
     try {
         await Promise.all([
             fetchTheme(),
@@ -35,7 +39,9 @@ if (!isInstallationPage.value) {
         console.error('Failed to fetch initial data:', error)
     }
 }
+
 applyTheme()
+void initializeAppSettings()
 
 onMounted(() => {
     window.addEventListener('momei:start-tour', startTour)

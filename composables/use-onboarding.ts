@@ -1,5 +1,32 @@
-import { driver, type DriveStep } from 'driver.js'
-import 'driver.js/dist/driver.css'
+interface TourStep {
+    element: string
+    popover: {
+        title: string
+        description: string
+        side?: 'top' | 'bottom' | 'left' | 'right'
+        align?: 'start' | 'center' | 'end'
+    }
+    onHighlighted?: () => void
+}
+
+let driverModulePromise: Promise<typeof import('driver.js')> | null = null
+let driverStylePromise: Promise<unknown> | null = null
+
+async function loadDriverAssets() {
+    if (!driverModulePromise) {
+        driverModulePromise = import('driver.js')
+    }
+    if (!driverStylePromise) {
+        driverStylePromise = import('driver.js/dist/driver.css')
+    }
+
+    const [driverModule] = await Promise.all([
+        driverModulePromise,
+        driverStylePromise,
+    ])
+
+    return driverModule
+}
 
 export const useOnboarding = () => {
     const { t } = useI18n()
@@ -7,7 +34,7 @@ export const useOnboarding = () => {
     const route = useRoute()
     const config = useRuntimeConfig()
 
-    const createDriver = () => driver({
+    const createDriver = (driverFactory: (options: Record<string, unknown>) => any) => driverFactory({
         showProgress: true,
         animate: true,
         doneBtnText: t('common.done') || '完成',
@@ -17,9 +44,14 @@ export const useOnboarding = () => {
         steps: [], // Will be populated dynamically
     })
 
-    const startTour = () => {
-        const d = createDriver()
-        const steps: DriveStep[] = []
+    const startTour = async () => {
+        if (!import.meta.client || !config.public.demoMode) {
+            return
+        }
+
+        const { driver } = await loadDriverAssets()
+        const d = createDriver(driver)
+        const steps: TourStep[] = []
 
         // 0. Demo Banner (If exists) - Explain the demo context
         const demoBanner = document.querySelector('.demo-banner')
