@@ -12,8 +12,55 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false # Release 作业不取消，因为要确保版本发布成功
 jobs:
+  qa:
+    name: QA
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "latest"
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: pnpm i --frozen-lockfile
+      - run: pnpm run lint
+      - run: pnpm run lint:css
+      - run: pnpm run typecheck
+      - run: pnpm run build
+      - run: pnpm run test
+
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "latest"
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: pnpm i --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: pnpx playwright install --with-deps
+      - run: pnpm run test:e2e
+
   release:
     name: Release
+    needs: [qa, e2e]
     runs-on: ubuntu-latest
     timeout-minutes: 90
     permissions:
@@ -35,23 +82,15 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
-      - run: pnpm run lint
-      - run: pnpm run lint:css
-      - run: pnpm run typecheck
-      - run: pnpm run build
-      - run: pnpm run test
-      - name: Install Playwright Browsers
-        run: pnpx playwright install --with-deps
-      - run: pnpm exec playwright install
-      - run: pnpm run test:e2e
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm run release
       # 发布到 docker
       - name: Get git tag
+        id: git_tag
         run: |
           GIT_TAG=$(git describe --tags --exact-match HEAD 2>/dev/null || true)
-          echo "GIT_TAG=$GIT_TAG" >> ${GITHUB_ENV}
+          echo "tag=$GIT_TAG" >> ${GITHUB_OUTPUT}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -83,7 +122,7 @@ jobs:
             ghcr.io/${{ github.repository }}
             registry.cn-hangzhou.aliyuncs.com/${{ github.repository }}
           tags: |
-            type=semver,priority=1100,pattern={{version}},value=${{env.GIT_TAG}},enable=true
+            type=semver,priority=1100,pattern={{version}},value=${{ steps.git_tag.outputs.tag }},enable=true
             type=raw,value=latest,enable=true
             type=raw,value={{date 'YYYY-MM-DD' tz='Asia/Shanghai'}},enable=true
             type=sha,format=short,prefix=sha-,enable=true
@@ -91,7 +130,7 @@ jobs:
       - name: Build and push Docker images
         uses: docker/build-push-action@v6
         # 如果有 GIT_TAG ，就发布
-        if: ${{ env.GIT_TAG }}
+        if: ${{ steps.git_tag.outputs.tag != '' }}
         with:
           context: .
           file: ./Dockerfile
@@ -99,3 +138,5 @@ jobs:
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -12,8 +12,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: Test
+  qa:
+    name: QA
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -34,14 +34,32 @@ jobs:
       - run: pnpm run lint:css
       - run: pnpm run typecheck
       - run: pnpm run test
-      - name: Install Playwright Browsers
-        run: pnpx playwright install --with-deps
-      - run: pnpm exec playwright install
-      - run: pnpm run test:e2e
       - run: pnpm run build
 
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "latest"
+      - name: Setup Node.js@lts environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: pnpm i --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: pnpx playwright install --with-deps
+      - run: pnpm run test:e2e
+
   build:
-    needs: test # 等待 test 执行成功
+    needs: [qa, e2e] # 等待 QA 和 E2E 执行成功
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
@@ -100,6 +118,8 @@ jobs:
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Docker Hub README & description sync
         uses: meeDamian/sync-readme@v1.0.6
         with:
