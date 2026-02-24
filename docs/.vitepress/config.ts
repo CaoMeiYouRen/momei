@@ -66,6 +66,7 @@ export default defineConfig({
                             { text: 'API 规范', link: '/standards/api' },
                             { text: '测试规范', link: '/standards/testing' },
                             { text: '安全规范', link: '/standards/security' },
+                            { text: '性能规范', link: '/standards/performance' },
                             { text: '文档规范', link: '/standards/documentation' },
                         ],
                     },

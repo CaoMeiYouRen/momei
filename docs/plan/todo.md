@@ -57,11 +57,15 @@
 
 ### 4. 性能基准与优化 (Performance & Optimization)
 - [ ] **Lighthouse 红线机制 (P2)**
-    - [ ] CI/CD 流程中集成 Lighthouse CI 审计
-    - [ ] 配置核心页面性能红线（最低 90 分）
+    - [ ] 文档基线：补充并维护 [性能规范](../standards/performance.md)，明确审计对象、采样策略和发布门禁
+    - [ ] CI/CD 流程中集成 Lighthouse CI 审计（核心页面、移动端+桌面端、每页 3 次取中位数）
+    - [ ] 配置核心页面性能红线（Performance/Accessibility/Best Practices/SEO 全部 >= 90）
+    - [ ] 配置关键指标红线（LCP <= 2.5s、CLS <= 0.1、TBT <= 200ms）并在失败时阻断发布
 - [ ] **极限加载优化 (P2)**
-    - [ ] Bundle 体积精算与依赖项裁剪
-    - [ ] 关键路径渲染 (Critical Path) 深度调优
+    - [ ] 建立并执行 Bundle 预算（核心首屏 JS gzip <= 260KB、单异步 Chunk <= 120KB、关键 CSS <= 70KB）
+    - [ ] 建立 PR 增量预算（核心首屏 JS 单次增量 <= 20KB，超标需附收益说明）
+    - [ ] Bundle 体积精算与依赖项裁剪（优先清理高体积低频依赖）
+    - [ ] 关键路径渲染 (Critical Path) 深度调优（首屏阻塞资源最小化、非关键资源延迟加载）
 
 ---
 
@@ -73,6 +77,7 @@
 - [AI 代理配置](../../AGENTS.md)
 - [项目计划](./roadmap.md)
 - [开发规范](../standards/development.md)
+- [性能规范](../standards/performance.md)
 - [UI 设计](../design/ui.md)
 - [API 设计](../design/api.md)
 - [测试规范](../standards/testing.md)
