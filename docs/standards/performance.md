@@ -93,6 +93,15 @@
 -   单个 PR 对核心页面首屏 JS 增量：<= 20KB（gzip）
 -   若超过预算，必须在 PR 描述中给出收益说明与回滚预案。
 
+### 4.3 MVP 执行策略 (Current Rollout)
+
+当前阶段采用“先跑通、后收紧”的预算执行策略：
+
+-   CI 在 `build` 后执行 `pnpm run test:perf:budget`，生成 `.lighthouseci/bundle-budget-report.json`。
+-   MVP 阶段使用 `warn` 模式，不阻断合并，先建立稳定的预算观测能力。
+-   报告通过 GitHub Actions Artifact 上传，供 PR 评审查看超预算项。
+-   当预算波动趋稳后，切换到 `pnpm run test:perf:budget:strict`（`error` 模式）进入阻断门禁。
+
 ## 5. 关键路径渲染标准 (Critical Path)
 
 必须满足以下实践要求：

@@ -20,6 +20,8 @@
     "prepare": "husky",
     "test:coverage": "vitest run --coverage",
     "test:perf": "lhci autorun",
+    "test:perf:budget": "node scripts/perf/check-bundle-budget.mjs --mode=warn --output=.lighthouseci/bundle-budget-report.json --baseline=.github/perf/bundle-baseline.json",
+    "test:perf:budget:strict": "node scripts/perf/check-bundle-budget.mjs --mode=error --output=.lighthouseci/bundle-budget-report.json --baseline=.github/perf/bundle-baseline.json",
     "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:e2e",
     "docs:dev": "vitepress dev docs --open",
     "docs:build": "vitepress build docs",

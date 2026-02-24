@@ -99,6 +99,8 @@ jobs:
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - run: pnpm run build
+      - name: Run Bundle Budget Check (MVP)
+        run: pnpm run test:perf:budget
       # - run: pnpm run generate
       - name: Run Lighthouse CI
         run: pnpm exec lhci autorun
@@ -109,6 +111,12 @@ jobs:
           MOMEI_INSTALLED: true
           PORT: 3000
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+      - name: Upload bundle budget report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-budget-report
+          path: .lighthouseci/bundle-budget-report.json
+          if-no-files-found: warn
   cli:
     name: CLI Test
     runs-on: ubuntu-latest
