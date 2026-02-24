@@ -38,12 +38,17 @@
     - 全文模式：同步文章标题、摘要及链接。
     - 碎片模式：仅同步摘要及 #Momei 标签。
 - **可见性控制**：支持同步时指定 Memos 的可见性（PUBLIC / PROTECTED / PRIVATE）。
+- **Markdown 处理**: 自动处理本地存储图片路径到完整 URL 地址。
 
 ### 3.3 配置管理
 在系统设置中支持：
 - `MEMOS_INSTANCE_URL`: 目标 Memos 实例地址（如 `https://memos.example.com`）。
 - `MEMOS_ACCESS_TOKEN`: 安全存储的 API 密钥。
 - `MEMOS_DEFAULT_VISIBILITY`: 默认可见性设置。
+- `MEMOS_ENABLED`: 是否启用同步功能。
+
+### 3.4 核心实现 (Implementation)
+见 `server/utils/memos.ts` 中的 `createMemo` 函数。它封装了对 Memos API v1 的异步调用。
 
 ## 4. 评估与影响 (Assessment)
 

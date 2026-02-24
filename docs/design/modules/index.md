@@ -17,7 +17,8 @@
 - **[语音识别 (ASR)](./asr)**: 浏览器原生 V2T 与云端高精度驱动集成。
 - **[音频与播客 (Audio & Podcast)](./audio)**: 音频托管、TTS 自动生成以及 Podcast RSS 支持。
 - **[AI 绘图 (AI Image)](./ai-image)**: 多模态异步图像生成任务与任务追踪。
-- **[订阅与通知 (Notifications)](./notifications)**: 多维订阅、通知矩阵管理及实时推送中心。
+- **[内容订阅 (Subscription)](./subscription)**: 全站 RSS/Atom/JSON Feed 及邮件订阅工作流。
+- **[通知系统 (Notifications)](./notifications)**: 多维通知矩阵管理、实时站内信推送与偏好控制。
 - **[邮件系统 (Email System)](./email)**: 国际化系统邮件、验证码与响应式模板。
 - **[搜索系统 (Search)](./search)**: 多维度过滤与即时全文检索。
 - **[阅读模式 (Reader Mode)](./reader-mode)**: 极简沉浸式阅读面板与视觉自定义方案。

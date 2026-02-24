@@ -1,261 +1,119 @@
 # 部署指南 (Deployment Guide)
 
-墨梅 (Momei) 遵循 **约定优于配置 (Convention over Configuration)** 的原则。大部分功能在检测到相关密钥时会自动激活，从而尽可能减少环境变量的配置负担。
+墨梅 (Momei) 遵循 **约定优于配置 (Convention over Configuration)** 的原则。系统会自动检测环境变量，只需填入对应密钥，相关功能即可在后台自动激活，无需手动修改代码。
 
-## 1. 核心环境变量
-
-墨梅提供了两个示例文件供参考：
--   [**.env.example**](../../.env.example): 极简版，仅包含快速启动所需的最小配置。
--   [**.env.full.example**](../../.env.full.example): 完整版，包含所有可用的功能配置项。
-
-在生产环境部署时，通常只需要配置以下两个变量即可运行：
-
-| 变量名 | 必填 | 说明 | 示例 |
-| :--- | :--- | :--- | :--- |
-| `AUTH_SECRET` | **是** | 认证系统的密钥，长度建议不少于 32 位。 | `j8H2...k9L1` |
-| `DATABASE_URL` | 否 | 数据库连接地址。如不填，默认使用本地 SQLite 路径。 | `mysql://user:pass@host:3306/db` |
-
-### 1.1 自动推断逻辑 (Smart Inference)
-
-墨梅会根据你的配置自动推断系统行为：
-
-- **数据库类型**: 自动根据 `DATABASE_URL` 的协议头（`sqlite://`, `file://`, `mysql://`, `postgres://` 等）推断数据库类型。
-- **AI 助手**: 只要配置了 `AI_API_KEY`，相关功能（一键翻译、SEO 优化）会自动激活。
-- **开发模式**: 在 `NODE_ENV=development` 下，`AUTH_SECRET` 会自动生成，数据库默认使用 SQLite，实现零配置开发。
+为了方便快速上手，我们将配置分为三个层级：**核心必填 (Level 1)**、**核心推荐 (Level 2)** 和 **体验增强 (Level 3)**。
 
 ---
 
-## 2. 功能配置参考
+## 1. 核心必填 (Level 1: Essential)
+> **必须设置，缺失则系统无法正常运行或认证失败。**
 
-以下是各功能模块的详细变量说明：
-
-### 2.1 数据库与管理
-
-| 变量名 | 说明 | 默认值 / 示例 |
-| :--- | :--- | :--- |
-| `DATABASE_URL` | 数据库连接地址。推荐使用 `sqlite://` 前缀。 | `sqlite://database/momei.sqlite` |
-| `DATABASE_SYNCHRONIZE` | 是否自动同步表结构。生产环境建议为 `false`。 | `false` |
-| `REDIS_URL` | Redis 连接地址 (可选，用于更高性能的缓存)。 | `redis://localhost:6379` |
-| `ADMIN_USER_IDS` | 管理员用户 ID 列表（逗号分隔）。 | `123123123,456456456` |
-| `NUXT_PUBLIC_DEMO_MODE` | 开启演示模式（数据不落盘）。 | `false` |
-
-### 2.2 AI 助手 (Multimodal AI)
-
-| 变量名 | 说明 | 示例 |
-| :--- | :--- | :--- |
-| `AI_API_KEY` | **设置后自动启用 AI 创作功能**。 | `sk-xxxx...` |
-| `AI_PROVIDER` | AI 服务商 (`openai`, `anthropic`, `deepseek`, `doubao`, `siliconflow`)。 | `openai` |
-| `AI_MODEL` | 使用的模型名称。 | `gpt-4o`, `deepseek-chat`, `claude-3-5-sonnet-20240620` |
-| `AI_API_ENDPOINT` | 自定义 API 地址（如使用代理）。 | `https://api.openai.com/v1` |
-| `AI_IMAGE_PROVIDER` | AI 绘图服务商 (`dall-e-3`, `seedream`, `siliconflow`)。 | `seedream` |
-| `TTS_PROVIDER` | TTS 提供商 (`openai`, `siliconflow`)。 | `siliconflow` |
-| `ASR_PROVIDER` | ASR 提供商 (`openai`, `siliconflow`, `volcengine`)。 | `siliconflow` |
-| `AI_IMAGE_API_KEY` | AI 绘图专用 API KEY (可选，默认复用 `AI_API_KEY`)。 | `sk-xxxx...` |
-| `AI_IMAGE_ENDPOINT` | AI 绘图 API 地址（可选）。 | `https://api.openai.com/v1` |
-| `AI_IMAGE_MODEL` | 绘图模型 ID。 | `dall-e-3`, `Seedream-2.0` |
-
-#### Volcengine (豆包语音) 推荐配置（ASR/TTS 共用一套凭据）
-
-| 变量名 | 说明 | 示例 |
-| :--- | :--- | :--- |
-| `VOLCENGINE_APP_ID` | 火山引擎应用 ID（ASR/TTS 共用）。 | `xxxxxxxx` |
-| `VOLCENGINE_ACCESS_KEY` | 火山引擎访问密钥（ASR/TTS 共用）。 | `xxxxxxxx` |
-| `VOLCENGINE_SECRET_KEY` | 可选密钥（部分接口或后续能力可能使用）。 | `xxxxxxxx` |
-| `ASR_MODEL` | ASR 资源 ID（推荐 `volc.seedasr.sauc.duration`）。 | `volc.seedasr.sauc.duration` |
-| `ASR_ENDPOINT` | ASR 接口地址（可选，默认内置官方地址）。 | `wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_async` |
-| `TTS_DEFAULT_MODEL` | TTS 默认模型（如 `seed-tts-2.0`）。 | `seed-tts-2.0` |
-
-> 说明：为降低配置复杂度，当前推荐 Volcengine 的 ASR 与 TTS 共用同一套 `VOLCENGINE_*` 凭据。
-
-### 2.3 邮件系统 (用于订阅与找回密码)
-
-| 变量名 | 说明 | 示例 |
-| :--- | :--- | :--- |
-| `EMAIL_HOST` | SMTP 服务器地址。 | `smtp.gmail.com` |
-| `EMAIL_PORT` | SMTP 服务器端口。 | `587` |
-| `EMAIL_USER` | SMTP 用户名。 | `user@example.com` |
-| `EMAIL_PASS` | SMTP 密码（应用专用密码）。 | `xxxx xxxx xxxx xxxx` |
-| `EMAIL_SECURE` | 是否使用 SSL/TLS。 | `false` |
-| `EMAIL_FROM` | 邮件发送者地址 (包含显示名称)。 | `Momei Blog <admin@example.com>` |
-
-### 2.4 对象存储 (Storage)
-
-墨梅支持多种存储后端，默认为 `local`。你可以通过 `STORAGE_TYPE` 进行切换。
-
-| 变量名 | 说明 | 默认值 / 示例 |
-| :--- | :--- | :--- |
-| `STORAGE_TYPE` | 存储引擎 (`local`, `s3`, `vercel-blob`)。 | `local` |
-| `BUCKET_PREFIX` | 文件上传后的路径前缀。 | `momei/` |
-| `NUXT_PUBLIC_MAX_UPLOAD_SIZE` | 最大允许上传的文件大小。 | `10MB` (默认 4.5MiB) |
-
-::: tip 提示
-如果你使用 Docker 部署并选择 `STORAGE_TYPE=local`，请务必挂载对应的上传目录（详见第 4.2 节），否则在容器重启或重新部署后，已上传的文件将会丢失。
-:::
-
-#### 2.4.1 S3 兼容存储 (STORAGE_TYPE=s3)
-
-适用于 Cloudflare R2, AWS S3, MinIO 等。
-
-| 变量名 | 说明 | 示例 |
-| :--- | :--- | :--- |
-| `S3_REGION` | S3 区域（必填）。 | `auto` |
-| `S3_BUCKET_NAME` | 存储桶名称（必填）。 | `momei-assets` |
-| `S3_ACCESS_KEY_ID` | S3 Access Key（必填）。 | `xxxx...` |
-| `S3_SECRET_ACCESS_KEY` | S3 Secret Key（必填）。 | `xxxx...` |
-| `S3_ENDPOINT` | S3 兼容服务的端点（可选）。 | `https://<id>.r2.cloudflarestorage.com` |
-| `S3_BASE_URL` | 生成的公共访问 URL 前缀（可选）。 | `https://pub-xxxx.r2.dev` |
-
-#### 2.4.2 Vercel Blob 存储 (STORAGE_TYPE=vercel-blob)
-
-适用于部署在 Vercel 上的项目。
-
-| 变量名 | 说明 | 示例 |
-| :--- | :--- | :--- |
-| `BLOB_READ_WRITE_TOKEN` | Vercel Blob 令牌。 | `vercel_blob_rw_...` |
-
-#### 2.4.3 本地存储 (STORAGE_TYPE=local)
-
-**注意**: 不支持 Serverless 环境（如 Vercel）。
-
-| 变量名 | 说明 | 默认值 / 示例 |
-| :--- | :--- | :--- |
-| `LOCAL_STORAGE_DIR` | 本地文件保存目录。 | `public/uploads` |
-| `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL` | 公开访问的基础 URL 路径。 | `/uploads` |
-| `LOCAL_STORAGE_MIN_FREE_SPACE` | 磁盘最小剩余空间（阻止写入）。 | `100MiB` |
-
-### 2.5 Memos 同步
-
-| 变量名 | 说明 | 示例 |
-| :--- | :--- | :--- |
-| `MEMOS_ENABLED` | 是否启用 Memos 同步。 | `false` |
-| `MEMOS_INSTANCE_URL` | Memos 实例的基础地址。 | `https://memos.example.com` |
-| `MEMOS_ACCESS_TOKEN` | Memos 的访问令牌。 | `eyJhbGci...` |
-| `MEMOS_DEFAULT_VISIBILITY` | 默认可见性 (`PRIVATE`/`PROTECTED`/`PUBLIC`)。 | `PRIVATE` |
-
-### 2.6 定时任务与自动化 (Automation)
-
-| 变量名 | 说明 | 示例 |
-| :--- | :--- | :--- |
-| `TASKS_TOKEN` | 用于触发内部定时任务的鉴权令牌（建议设为长随机字符串）。 | `super-secret-token-123` |
-| `TASKS_CRON_SCHEDULE` | 本地执行 Cron 任务的表达式（可选，需环境支持）。 | `0 0 * * *` (每天零点) |
+- **`AUTH_SECRET`**: 认证加密密钥 (推荐 32 位)。用于保护用户 Session 和 Cookie 安全。
+  - *生成方法*: `openssl rand -hex 32`。
+- **`NUXT_PUBLIC_AUTH_BASE_URL`**: 认证回调基址。
+  - *注意*: 必须包含协议 (http/https)，且必须与最终访问站点的地址完全一致（例如 `https://blog.example.com`）。
 
 ---
 
-## 3. 站点与合规配置
+## 2. 核心推荐 (Level 2: Recommended)
+> **这些配置虽然可选，但它们构成了墨梅作为 AI 博客的灵魂。**
 
-### 3.1 基础站点配置
+### 2.1 数据库与性能 (Database)
+- **`DATABASE_URL`**: 连接协议。墨梅支持 **智能推断**：
+    - `sqlite://database/momei.sqlite` (默认值，适合小型站或演示)。
+    - `mysql://user:pass@host:3306/db` (生产环境首选)。
+    - `postgres://user:pass@host:5432/db` (适合高度扩展)。
+- **`REDIS_URL`**: 开启后将显著提升页面加载速度及高并发下的限流性能。
 
-| 变量名 | 说明 | 默认值 / 示例 |
-| :--- | :--- | :--- |
-| `NUXT_PUBLIC_SITE_URL` | 站点正式 URL（用于站点展示与部分 SEO 场景）。 | `https://momei.app` |
-| `NUXT_PUBLIC_AUTH_BASE_URL` | 认证系统基础 URL（设置中心中的站点 URL 目前由该值锁定）。 | `https://momei.app` |
-| `NUXT_PUBLIC_APP_NAME` | 站点名称。 | `墨梅博客` |
-| `NUXT_PUBLIC_SITE_OPERATOR` | 站点运营商/所有者。 | `墨梅团队` |
-| `NUXT_PUBLIC_CONTACT_EMAIL` | 联系邮箱。 | `admin@example.com` |
-| `NUXT_PUBLIC_DEFAULT_COPYRIGHT` | 默认版权声明类型。 | `all-rights-reserved`, `cc-by-nc-sa` |
+### 2.2 AI 创作引擎 (AI Content)
+- **`AI_API_KEY`**: 填入后点亮全站 AI 翻译、自动 SEO、摘要提取及标题建议。
+- **`AI_PROVIDER`**: 可选 `openai`, `siliconflow`, `anthropic`, `deepseek` 等。
+- **`AI_MODEL`**: 指定默认执行模型。
 
-### 3.2 备案与合规
+### 2.3 存储与媒体 (Storage)
+- **`STORAGE_TYPE`**: 缺省为 `local` (存储在服务器硬盘)。建议设为 `s3` 以支持分布式部署。
+- **`S3_ENDPOINT` / `BUCKET_NAME`**: 当使用 R2、AWS S3 或阿里云 OSS 时填写。
 
-| 变量名 | 说明 | 默认值 / 示例 |
-| :--- | :--- | :--- |
-| `NUXT_PUBLIC_SHOW_COMPLIANCE_INFO` | 是否显示备案信息。 | `false` |
-| `NUXT_PUBLIC_ICP_LICENSE_NUMBER` | ICP 备案号。 | `粤ICP备xxxxxxxx号` |
-| `NUXT_PUBLIC_PUBLIC_SECURITY_NUMBER` | 公安备案号。 | `粤公网安备 xxxxxxxxxxxxxx号` |
-| `NUXT_PUBLIC_SECURITY_URL_WHITELIST` | 外部资源 URL 域名白名单（逗号分隔）。 | `images.unsplash.com,i.imgur.com` |
+### 2.4 邮件与通知 (Email)
+- **`EMAIL_USER` / `PASS`**: SMTP 认证信息。
+- **`EMAIL_REQUIRE_VERIFICATION`**: 开启后，新用户注册必须验证邮箱，极大减少垃圾账户。
 
-### 3.3 分析与监控
-
-| 变量名 | 说明 | 示例 |
-| :--- | :--- | :--- |
-| `NUXT_PUBLIC_SENTRY_DSN` | Sentry DSN。 | `https://xxx@sentry.io/xxx` |
-| `NUXT_PUBLIC_SENTRY_ENVIRONMENT` | Sentry 环境名称。 | `production`, `staging` |
-| `NUXT_PUBLIC_BAIDU_ANALYTICS_ID` | 百度统计 ID。 | `xxxxxxxx` |
-| `NUXT_PUBLIC_GOOGLE_ANALYTICS_ID` | Google Analytics ID。 | `G-xxxxxxxx` |
-| `NUXT_PUBLIC_CLARITY_PROJECT_ID` | Microsoft Clarity 项目 ID。 | `xxxxxxxx` |
-
-### 3.4 验证码 (Captcha)
-
-墨梅支持多种验证码提供商，用于增强安全性（如登录、注册、评论）。
-
-| 变量名 | 说明 | 示例 |
-| :--- | :--- | :--- |
-| `NUXT_PUBLIC_AUTH_CAPTCHA_PROVIDER` | 验证码提供商。 | `cloudflare-turnstile`, `google-recaptcha`, `hcaptcha` |
-| `NUXT_PUBLIC_AUTH_CAPTCHA_SITE_KEY` | 验证码站点密钥 (公开)。 | `xxxx...` |
-| `AUTH_CAPTCHA_SECRET_KEY` | 验证码秘密密钥 (私有)。 | `xxxx...` |
+### 2.5 任务自动化 (Tasks)
+- **`TASKS_TOKEN`**: 设置一个长随机字符串。用于通过 Webhook 触发定时发布文章、自动清理过期临时文件等系统维护任务。
 
 ---
 
-## 4. 数据库部署建议
+## 3. 体验增强 (Level 3: Optional)
+> **用于微调视觉表现、监控与站点合规。**
 
-### 3.1 SQLite (默认方案)
-
-最适合个人博客和 Docker/VPS 部署。
-
-- **优势**: 部署简单，无需独立进程。
-- **重要**: 必须确保数据目录有持久化挂载。否则，在 **Serverless (如 Vercel)** 环境下，数据将在每次部署或函数超时后归零。
-- **SQLite 文件路径**: 若需自定义路径，请在 `DATABASE_URL` 中指定，例如 `sqlite:./data/my-blog.sqlite`。
-
-### 3.2 MySQL / PostgreSQL (生产推荐)
-
-适合多实例运行或对性能、备份有更高要求的场景。
-
-- **自动配置**: 你只需设置 `DATABASE_URL`，系统将检测到 `mysql` 或 `postgres` 驱动并自动初始化。
-- **驱动安装**: 墨梅已内置常用驱动库，无需额外操作。
+- **视觉特效**:
+  - `LIVE2D_ENABLED`: 是否加载 3D 看板娘。
+  - `CANVAS_NEST_ENABLED`: 是否启用首页背景粒子连线效果。
+- **站点统计**:
+  - `BAIDU_ANALYTICS_ID` / `GOOGLE_ANALYTICS_ID`: 接入主流统计平台。
+  - `CLARITY_PROJECT_ID`: 录制用户点击行为，用于热力图分析。
+- **故障监控**:
+  - `SENTRY_DSN`: 在系统崩溃时第一时间接收邮件通知。
+- **中国区合规**:
+  - `SHOW_COMPLIANCE_INFO`: 快捷展示 ICP 备案号。
+  - `ICP_LICENSE_NUMBER`: 备案号内容。
 
 ---
 
-## 4. 部署到主流平台
+## 4. 各渠道配置示例 (Channel-Specific Guide)
 
-### 4.1 Vercel (推荐)
-
-这是最简便的部署方式。
-
-1. 点击 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCaoMeiYouRen%2Fmomei)
-2. 填入环境变量 `AUTH_SECRET`。
-3. _注意_: Vercel 环境下不支持 SQLite 的持久化。如需保存数据，请填入云数据库（如 Neon 或 TiDB Cloud）的 `DATABASE_URL`。
-
-### 4.2 Docker 部署 (私有服务器)
-
-使用 `docker-compose.yml`:
-
-```yaml
-version: "3.8"
-services:
-    momei:
-        image: caomeiyouren/momei
-        ports:
-            - "3000:3000"
-        environment:
-            - NODE_ENV=production
-            - AUTH_SECRET=your-secret-key
-        volumes:
-            - ./logs:/app/logs
-            - ./database:/app/database
-            - ./uploads:/app/public/uploads # 持久化存储上传的文件
+### 4.1 硅基流动 (SiliconFlow) - **全栈多模态方案**
+SiliconFlow 提供了极高性价比的 ASR/TTS 与 LLM 聚合方案。
+```dotenv
+AI_PROVIDER=siliconflow
+AI_API_KEY=sk-xxxx
+AI_API_ENDPOINT=https://api.siliconflow.cn/v1
+# 一键复用 key 到语音识别与合成
+ASR_PROVIDER=siliconflow
+TTS_PROVIDER=siliconflow
 ```
 
-### 4.3 Cloudflare Pages / Workers 部署
+### 4.2 火山引擎 (Volcengine / 豆包)
+需要填写身份凭证与应用 ID。
+```dotenv
+VOLCENGINE_APP_ID=888888
+VOLCENGINE_ACCESS_KEY=AK-xxx
+VOLCENGINE_SECRET_KEY=SK-xxx
+# 文本模型 AI_MODEL 需填写接入点 Endpoint ID
+AI_MODEL=ep-2024xxx
+```
 
-墨梅支持部署到 Cloudflare 平台上。
-
-1. **准备工作**: 确保你已安装 `Wrangler` 并完成登录。
-2. **构建项目**:
-   ```bash
-   pnpm build
-   ```
-3. **部署**:
-   ```bash
-   pnpm wrangler deploy
-   ```
-4. **环境变量**: 在 Cloudflare 控制面板中配置 `AUTH_SECRET` 和 `DATABASE_URL` (推荐使用外部数据库如 Neon 或 TiDB Cloud)。
-
-_注意_: Cloudflare 环境下不支持本地文件存储 (`STORAGE_TYPE=local`)，建议配合 Cloudflare R2 使用 (`STORAGE_TYPE=s3`)。
+### 4.3 生活流同步 (Memos)
+将博客灵感与生活足迹实时推送到你的 Memos 实例。
+```dotenv
+MEMOS_ENABLED=true
+MEMOS_INSTANCE_URL=https://memos.yourdomain.com
+MEMOS_ACCESS_TOKEN=xxx
+```
 
 ---
 
-## 5. 管理员账号配置
+## 5. 部署到主流平台
 
-为了方便初始部署，墨梅提供了两种管理员设置方式：
+- **Vercel**: 完美适配 Serverless 环境。推荐使用 `STORAGE_TYPE=vercel-blob`。可参考 [Vercel 部署演示](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCaoMeiYouRen%2Fmomei)。
+- **Docker**: 生产环境首选。建议映射两个 Volume：`./database` (存放 sqlite) 和 `./uploads` (存放上传文件)。
+- **Cloudflare Pages**: 推荐搭配 R2 存储方案，实现全站静态加速与存储。
 
-1.  **首位自动提权 (推荐)**: 系统在安装后，数据库用户表为空时，**第一个成功注册或登录**的账号将自动获得 `admin` 角色。
-2.  **环境变量手动提权**: 后续若需添加其他管理员，可通过修改环境变量 `ADMIN_USER_IDS`，填入对应用户的唯一 ID，并以逗号分隔。
+---
+
+## 6. 排障指引 (Troubleshooting) 
+
+- **认证失败**: 检查 `AUTH_BASE_URL` 的协议是否与你的 Nginx/Caddy 配置一致（必须匹配 https）。
+- **AI 报错 500**: 检查 `AI_API_ENDPOINT` 是否需要特定的 `/v1` 后缀（查看厂商文档）。
+- **静态资源 404**: 若使用 Docker 部署，请确认 `public/uploads` 目录具备读写权限。
+
+---
+
+## 7. 更多参考资源 (References)
+
+- **[环境配置与系统设置映射 (Variables & Settings Mapping)](./variables)**: 详细列出了每一个变量的权限等级、脱敏类型及底层键名。
+- **[完整环境变量示例文件 (.env.full.example)](../../.env.full.example)**: 查看项目支持的所有环境变量矩阵。
+- **[系统集成设计文档](../design/modules/index)**: 深入了解各模块的技术选型与集成细节。
+
+墨梅的部署原则是：**先配齐 Level 1 必修配置让系统跑起来，再根据需要逐步点亮 Level 2/3 的功能灯泡。**

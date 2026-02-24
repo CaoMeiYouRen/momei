@@ -43,6 +43,7 @@ export default defineConfig({
                         items: [
                             { text: '快速开始', link: '/guide/quick-start' },
                             { text: '部署指南', link: '/guide/deploy' },
+                            { text: '环境与系统设置', link: '/guide/variables' },
                             { text: '开发指南', link: '/guide/development' },
                             { text: 'AI 协同开发', link: '/guide/ai-development' },
                             { text: '功能特性', link: '/guide/features' },
@@ -138,6 +139,7 @@ export default defineConfig({
                         items: [
                             { text: 'Quick Start', link: '/en-US/guide/quick-start' },
                             { text: 'Deployment', link: '/en-US/guide/deploy' },
+                            { text: 'Variables & Settings', link: '/en-US/guide/variables' },
                             { text: 'Dev Guide', link: '/en-US/guide/development' },
                             { text: 'AI Synergy', link: '/en-US/guide/ai-development' },
                             { text: 'Features', link: '/en-US/guide/features' },

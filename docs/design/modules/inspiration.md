@@ -80,3 +80,13 @@
 -   **极简主义**: 采集框应只需一次点击即可聚焦输入。
 -   **时间线视图**: 类似 Memos/Flomo 的瀑布流或日历热力图，展示灵感产出频率。
 -   **拖拽支持**: 支持将灵感碎片直接拖入文章编辑器侧边栏。
+## 7. 技术配置 (Technical Configuration)
+
+灵感捕捉引擎的部分高级功能（如 AI 辅助转化）属于 **[体验增强 (Level 3)](../guide/deploy#level-3-体验增强-experience-enhancement)** 部署项：
+
+| 配置项 | 环境变量 (ENV) | 说明 |
+| :--- | :--- | :--- |
+| AI 提供商 | `NUXT_AI_DEFAULT_PROVIDER` | 用于转写、打标和内容聚合 |
+| 存储服务 | `NUXT_STORAGE_DRIVER` | 用于存储灵感中附带的图片或音频 |
+
+详细配置参考：[环境与系统设置映射表](../guide/variables)
