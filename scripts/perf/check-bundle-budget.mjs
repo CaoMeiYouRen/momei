@@ -198,14 +198,14 @@ async function main() {
     await fs.mkdir(path.dirname(path.resolve(args.output)), { recursive: true })
     await fs.writeFile(path.resolve(args.output), JSON.stringify(report, null, 2), 'utf8')
 
-    console.log('Bundle Budget Report (MVP):')
-    console.log(`- coreEntryJs: ${toKBString(coreEntryJsGzipBytes)} / ${toKBString(BUDGETS.coreEntryJsGzipBytes)}`)
-    console.log(`- maxAsyncChunkJs: ${toKBString(maxAsyncChunkJs.gzipBytes)} / ${toKBString(BUDGETS.maxAsyncChunkJsGzipBytes)} (${rel(path.relative(process.cwd(), maxAsyncChunkJs.file))})`)
-    console.log(`- keyCss: ${toKBString(keyCss.gzipBytes)} / ${toKBString(BUDGETS.keyCssGzipBytes)} (${rel(path.relative(process.cwd(), keyCss.file))})`)
+    console.info('Bundle Budget Report (MVP):')
+    console.info(`- coreEntryJs: ${toKBString(coreEntryJsGzipBytes)} / ${toKBString(BUDGETS.coreEntryJsGzipBytes)}`)
+    console.info(`- maxAsyncChunkJs: ${toKBString(maxAsyncChunkJs.gzipBytes)} / ${toKBString(BUDGETS.maxAsyncChunkJsGzipBytes)} (${rel(path.relative(process.cwd(), maxAsyncChunkJs.file))})`)
+    console.info(`- keyCss: ${toKBString(keyCss.gzipBytes)} / ${toKBString(BUDGETS.keyCssGzipBytes)} (${rel(path.relative(process.cwd(), keyCss.file))})`)
     if (prIncrementJsGzipBytes !== null) {
-        console.log(`- prIncrementJs: ${toKBString(prIncrementJsGzipBytes)} / ${toKBString(BUDGETS.prIncrementJsGzipBytes)}`)
+        console.info(`- prIncrementJs: ${toKBString(prIncrementJsGzipBytes)} / ${toKBString(BUDGETS.prIncrementJsGzipBytes)}`)
     } else {
-        console.log(`- prIncrementJs: baseline missing (${args.baseline}), skip in MVP phase`)
+        console.info(`- prIncrementJs: baseline missing (${args.baseline}), skip in MVP phase`)
     }
 
     if (failedChecks.length > 0) {
