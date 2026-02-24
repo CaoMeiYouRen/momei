@@ -304,6 +304,9 @@ export default defineNuxtConfig({
         unenv: {
             external: ['debug'],
         },
+        externals: {
+            inline: ['mjml', 'mjml-core', 'html-minifier', 'html-minifier-terser'],
+        },
         esbuild: {
             options: {
                 target: 'esnext',
