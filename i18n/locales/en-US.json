@@ -989,9 +989,9 @@
                         "max_upload_size": "Unit: MB. 0 for unlimited.",
                         "keywords_placeholder": "One keyword per line. Matching comments will be marked as pending or spam.",
                         "file_types_placeholder": "e.g., .jpg, .png, .mp3 (Comma separated)",
-                        "live2d_script_url": "e.g., https://unpkg.com/live2d-widgets@1.0.0/dist/",
-                        "live2d_model_url": "e.g., https://unpkg.com/live2d-widgets@1.0.0/dist/waifu-tips.json",
-                        "live2d_options_json": "e.g., {\n  \"modelId\": 0,\n  \"cdnPath\": \"https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/\",\n  \"tools\": [\"hitokoto\", \"switch-model\", \"switch-texture\", \"photo\", \"info\", \"quit\"],\n  \"drag\": false,\n  \"logLevel\": \"warn\"\n}",
+                        "live2d_script_url": "e.g., https://unpkg.com/live2d-widgets{'@'}1.0.0/dist/",
+                        "live2d_model_url": "e.g., https://unpkg.com/live2d-widgets{'@'}1.0.0/dist/waifu-tips.json",
+                        "live2d_options_json": "e.g., {'{'}\n  \"modelId\": 0,\n  \"cdnPath\": \"https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/\",\n  \"tools\": [\"hitokoto\", \"switch-model\", \"switch-texture\", \"photo\", \"info\", \"quit\"],\n  \"drag\": false,\n  \"logLevel\": \"warn\"\n{'}'}",
                         "memos_instance_url": "e.g., https://memos.example.com",
                         "memos_access_token": "Generate in Memos Settings -> Account -> Access Tokens"
                     },
