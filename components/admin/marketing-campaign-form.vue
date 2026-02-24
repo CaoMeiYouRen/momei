@@ -27,7 +27,7 @@
             <label for="content" class="marketing-campaign-form__label">{{ $t('pages.admin.marketing.form.content') }}</label>
             <div class="marketing-campaign-form__editor">
                 <ClientOnly>
-                    <mavon-editor
+                    <AdminMavonEditorClient
                         v-model="form.content"
                         :placeholder="$t('pages.admin.marketing.form.placeholder_content')"
                         language="zh-CN"

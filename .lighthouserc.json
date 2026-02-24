@@ -8,8 +8,6 @@
                 "http://localhost:3000/",
                 "http://localhost:3000/about",
                 "http://localhost:3000/archives",
-                "http://localhost:3000/login",
-                "http://localhost:3000/register",
                 "http://localhost:3000/posts",
                 "http://localhost:3000/tags",
                 "http://localhost:3000/categories",

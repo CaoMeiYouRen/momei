@@ -46,7 +46,7 @@
             }"
         >
             <ClientOnly>
-                <mavon-editor
+                <AdminMavonEditorClient
                     ref="md"
                     v-model="post.content"
                     class="mavon-editor"

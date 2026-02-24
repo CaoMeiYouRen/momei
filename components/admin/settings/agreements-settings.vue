@@ -190,7 +190,7 @@
             <div class="field">
                 <label for="content">{{ $t('pages.admin.settings.system.agreements.content') }}</label>
                 <ClientOnly>
-                    <mavon-editor
+                    <AdminMavonEditorClient
                         id="content"
                         v-model="formData.content"
                         class="agreements-settings__editor"
