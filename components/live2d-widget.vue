@@ -34,7 +34,7 @@ const config = computed(() => {
         live2dPath: normalizedPath,
         waifuPath: String(settings.live2dModelUrl || `${normalizedPath}waifu-tips.json`),
         mobileEnabled: toBoolean(settings.live2dMobileEnabled, false),
-        minWidth: toNumber(settings.live2dMinWidth, 1024),
+        minWidth: toNumber(settings.live2dMinWidth, 768),
         dataSaverBlock: toBoolean(settings.live2dDataSaverBlock, true),
     }
 })
