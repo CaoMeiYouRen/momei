@@ -150,6 +150,8 @@ const loadSettings = async () => {
                 val = parseInt(val) || 10
             } else if (s.key === 'email_port') {
                 val = parseInt(val) || 587
+            } else if (s.key === 'live2d_min_width') {
+                val = parseInt(val) || 1024
             }
             obj[s.key] = val
             meta[s.key] = {

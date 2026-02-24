@@ -16,6 +16,13 @@ export const useMomeiConfig = () => {
         icpLicenseNumber: '',
         publicSecurityNumber: '',
         footerCode: '',
+        live2dEnabled: false,
+        live2dScriptUrl: '',
+        live2dModelUrl: '',
+        live2dOptionsJson: '',
+        live2dMobileEnabled: false,
+        live2dMinWidth: 1024,
+        live2dDataSaverBlock: true,
     }))
 
     const { t } = useI18n()

@@ -35,6 +35,7 @@
 ## 扩展与集成 (Extensions)
 
 - **[商业化与社交 (Commercial)](./commercial)**: 打赏赞助系统及多语言社交名片展示。
+- **[看板娘系统 (Live2D)](./live2d)**: 可选虚拟角色组件，支持移动端/省流量降级与异步加载。
 - **[第三方集成 (Third-party)](./third-party)**: Wechatsync 插件同步及 Memos 碎片知识集成。
 - **[开放接口 (Open API)](./open-api)**: 提供外部发布与数据同步的标准化接口。
 - **[MCP 服务器 (MCP Server)](./mcp)**: 基于 Model Context Protocol 的 AI 自动化接口，支持 Claude Desktop 集成。

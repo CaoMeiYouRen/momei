@@ -106,6 +106,13 @@ export enum SettingKey {
     ICP_LICENSE_NUMBER = 'icp_license_number',
     PUBLIC_SECURITY_NUMBER = 'public_security_number',
     FOOTER_CODE = 'footer_code',
+    LIVE2D_ENABLED = 'live2d_enabled',
+    LIVE2D_SCRIPT_URL = 'live2d_script_url',
+    LIVE2D_MODEL_URL = 'live2d_model_url',
+    LIVE2D_OPTIONS_JSON = 'live2d_options_json',
+    LIVE2D_MOBILE_ENABLED = 'live2d_mobile_enabled',
+    LIVE2D_MIN_WIDTH = 'live2d_min_width',
+    LIVE2D_DATA_SAVER_BLOCK = 'live2d_data_saver_block',
 
     // Limits
     MAX_UPLOAD_SIZE = 'max_upload_size',

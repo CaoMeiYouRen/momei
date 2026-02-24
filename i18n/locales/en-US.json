@@ -867,6 +867,7 @@
                         "compliance": "Compliance & Filing",
                         "branding": "Branding & Assets",
                         "footer": "Footer Settings",
+                        "live2d": "Live2D Widget",
                         "memos": "Memos Sync"
                     },
                     "notifications": {
@@ -916,6 +917,13 @@
                         "show_compliance_info": "Show Compliance Footer",
                         "icp_license_number": "ICP License Number",
                         "public_security_number": "Public Security Number",
+                        "live2d_enabled": "Enable Live2D Widget",
+                        "live2d_script_url": "Live2D Script URL (CDN)",
+                        "live2d_model_url": "Live2D Model URL",
+                        "live2d_options_json": "Live2D Advanced Options (JSON Override)",
+                        "live2d_mobile_enabled": "Allow on Mobile",
+                        "live2d_min_width": "Minimum Viewport Width (px)",
+                        "live2d_data_saver_block": "Disable on Data Saver / Slow Network",
                         "ai_enabled": "Enable AI",
                         "ai_provider": "AI Provider",
                         "ai_api_key": "API Key",
@@ -981,6 +989,9 @@
                         "max_upload_size": "Unit: MB. 0 for unlimited.",
                         "keywords_placeholder": "One keyword per line. Matching comments will be marked as pending or spam.",
                         "file_types_placeholder": "e.g., .jpg, .png, .mp3 (Comma separated)",
+                        "live2d_script_url": "e.g., https://unpkg.com/live2d-widgets@1.0.0/dist/",
+                        "live2d_model_url": "e.g., https://unpkg.com/live2d-widgets@1.0.0/dist/waifu-tips.json",
+                        "live2d_options_json": "e.g., {\n  \"modelId\": 0,\n  \"cdnPath\": \"https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/\",\n  \"tools\": [\"hitokoto\", \"switch-model\", \"switch-texture\", \"photo\", \"info\", \"quit\"],\n  \"drag\": false,\n  \"logLevel\": \"warn\"\n}",
                         "memos_instance_url": "e.g., https://memos.example.com",
                         "memos_access_token": "Generate in Memos Settings -> Account -> Access Tokens"
                     },

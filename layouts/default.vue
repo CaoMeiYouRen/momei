@@ -6,6 +6,9 @@
         </main>
         <AppFooter />
         <LazyAppSearch />
+        <ClientOnly>
+            <LazyLive2dWidget />
+        </ClientOnly>
     </div>
 </template>
 

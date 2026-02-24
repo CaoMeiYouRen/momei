@@ -850,6 +850,7 @@
                         "compliance": "合规与备案",
                         "branding": "品牌与资产",
                         "footer": "页脚设置",
+                        "live2d": "看板娘 (Live2D)",
                         "memos": "Memos 同步"
                     },
                     "notifications": {
@@ -899,6 +900,13 @@
                         "show_compliance_info": "在页脚显示备案信息",
                         "icp_license_number": "ICP 备案号",
                         "public_security_number": "公安联网备案号",
+                        "live2d_enabled": "启用看板娘 (Live2D)",
+                        "live2d_script_url": "Live2D 脚本地址 (CDN)",
+                        "live2d_model_url": "Live2D 模型地址",
+                        "live2d_options_json": "Live2D 高级配置 (JSON 覆盖)",
+                        "live2d_mobile_enabled": "允许移动端加载",
+                        "live2d_min_width": "最小加载宽度 (px)",
+                        "live2d_data_saver_block": "省流量/慢速网络自动禁用",
                         "ai_enabled": "启用 AI",
                         "ai_provider": "AI 服务商",
                         "ai_api_key": "API 密钥",
@@ -964,6 +972,9 @@
                         "max_upload_size": "单位为 MB。如果设置为 0 则不限制。",
                         "keywords_placeholder": "每行一个关键词，匹配到的评论将自动设为待审核或垃圾评论",
                         "file_types_placeholder": "例如: .jpg, .png, .mp3 (逗号分隔)",
+                        "live2d_script_url": "例如: https://unpkg.com/live2d-widgets@1.0.0/dist/",
+                        "live2d_model_url": "例如: https://unpkg.com/live2d-widgets@1.0.0/dist/waifu-tips.json",
+                        "live2d_options_json": "例如: {\n  \"modelId\": 0,\n  \"cdnPath\": \"https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/\",\n  \"tools\": [\"hitokoto\", \"switch-model\", \"switch-texture\", \"photo\", \"info\", \"quit\"],\n  \"drag\": false,\n  \"logLevel\": \"warn\"\n}",
                         "memos_instance_url": "例如: https://memos.example.com",
                         "memos_access_token": "在 Memos 设置 -> 账户 -> 访问令牌中生成"
                     },
