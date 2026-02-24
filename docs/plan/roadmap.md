@@ -236,6 +236,23 @@
     - **Lighthouse 红线机制**: 在预发布环境/CI 流程中引入性能硬指标，核心页面分数若低于 90 则禁止发布。
     - **极限加载优化**: 进一步精简 Bundle 体积，优化关键路径渲染。
 
+### 第八阶段：生态扩展与架构闭环 (Ecosystem Expansion & Architecture Closure) (进行中)
+
+**时间表**: 约 1.5 个月
+**目标**: 突破 Web 边界，实现多端同步，完成系统配置的 DB/ENV 混合接管，并深度优化 ASR 转录性能。
+
+1. **系统配置深度解耦 (System Config Unification)**:
+    - **Auth 配置解耦**: 重构 `lib/auth.ts`，支持从 `SettingService` 动态加载配置，实现全量配置的 DB/ENV 混合接管。
+    - **UI 联动**: 更新管理后台设置界面，支持环境变量锁定的视觉反馈。
+2. **商业化与广告联盟 (Monetization & Ad Networks)**:
+    - **广告联盟集成**: 实现 Google AdSense、百度广告联盟等主流平台的原生接入与 Slot 自动注入系统。
+    - **外链管理**: 实现站内商业内容/投放链接的集中管理系统，支持按关键词自动插入。
+3. **开放发布协议 (Open Federation)**:
+    - **基础适配**: 实现 ActivityPub 协议的基础发现与 Actor 骨架，支持 Fediverse 基础交互。
+    - **协议补完**: 补全 Atom 1.0 与 JSON Feed 1.1 支持。
+4. **ASR 性能极限优化 (Extreme Performance)**:
+    - **极速转录**: 实现前端直连厂商签名机制与本地 Wasm 音频压缩采样，大幅提升转录响应速度。
+
 ### 未来规划与积压项 (Backlog & Long-term Roadmap)
 
 此处记录由于优先级或开发周期原因暂不进入当前迭代，但具有长期价值的功能。
@@ -275,19 +292,6 @@
 ### 5. 播客与多媒体扩展 (Podcast & Multimedia)
 - **全站沉浸式播放**:
     - 全站悬浮播放器，支持跨页面断点续播与内容同步。
-
-### 6. 开放发布协议支持 (Open Federation)
-- 支持 ActivityPub 等联邦协议，将博客接入去中心化社交网络。
-
-### 7. 系统配置统一化 (System Config Unification)
-- **Auth 配置解耦**:
-    - **现状**: `AUTH_SECRET` 及 OAuth 凭据直接 from `process.env` 读取，导致无法在后台动态修改。
-    - **优化方向**: 重构 `lib/auth.ts`，使其支持从 `SettingService` 动态加载配置，实现全量配置的 DB/ENV 混合接管。
-
-### 8. 创作流性能极限优化 (Creative Flow Performance)
-- **大文件 ASR 极速转录**:
-    - 实现前端直连 AI 厂商的签名认证机制，绕过后端转发瓶颈。
-    - 实现前端音频本地压缩采样策略，将录音体积在上传前减小 60% 以上。
 
 ## 3. 技术架构与质量保证
 
