@@ -869,6 +869,7 @@
                         "footer": "Footer Settings",
                         "live2d": "Live2D Widget",
                         "canvas_nest": "CanvasNest Particle Effect",
+                        "effects_performance": "Visual Effects Performance",
                         "memos": "Memos Sync"
                     },
                     "notifications": {
@@ -930,6 +931,9 @@
                         "canvas_nest_mobile_enabled": "Allow on Mobile",
                         "canvas_nest_min_width": "Minimum Viewport Width (px)",
                         "canvas_nest_data_saver_block": "Disable on Data Saver / Slow Network",
+                        "effects_mobile_enabled": "Allow Visual Effects on Mobile",
+                        "effects_min_width": "Visual Effects Minimum Viewport Width (px)",
+                        "effects_data_saver_block": "Disable Visual Effects on Data Saver / Slow Network",
                         "ai_enabled": "Enable AI",
                         "ai_provider": "AI Provider",
                         "ai_api_key": "API Key",

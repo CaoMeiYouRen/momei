@@ -28,6 +28,9 @@ export const useMomeiConfig = () => {
         canvasNestMobileEnabled: false,
         canvasNestMinWidth: 1024,
         canvasNestDataSaverBlock: true,
+        effectsMobileEnabled: null,
+        effectsMinWidth: null,
+        effectsDataSaverBlock: null,
     }))
 
     const { t } = useI18n()

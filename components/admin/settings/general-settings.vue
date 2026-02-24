@@ -252,58 +252,6 @@
                     fluid
                 />
             </div>
-
-            <div class="form-field">
-                <label for="live2d_mobile_enabled" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.live2d_mobile_enabled') }}
-                    <i
-                        v-if="metadata.live2d_mobile_enabled?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
-                <ToggleSwitch
-                    id="live2d_mobile_enabled"
-                    v-model="settings.live2d_mobile_enabled"
-                    :disabled="metadata.live2d_mobile_enabled?.isLocked"
-                />
-            </div>
-
-            <div class="form-field">
-                <label for="live2d_min_width" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.live2d_min_width') }}
-                    <i
-                        v-if="metadata.live2d_min_width?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
-                <InputNumber
-                    id="live2d_min_width"
-                    v-model="settings.live2d_min_width"
-                    :disabled="metadata.live2d_min_width?.isLocked"
-                    :min="320"
-                    :max="2560"
-                    :step="1"
-                    fluid
-                />
-            </div>
-
-            <div class="form-field">
-                <label for="live2d_data_saver_block" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.live2d_data_saver_block') }}
-                    <i
-                        v-if="metadata.live2d_data_saver_block?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
-                <ToggleSwitch
-                    id="live2d_data_saver_block"
-                    v-model="settings.live2d_data_saver_block"
-                    :disabled="metadata.live2d_data_saver_block?.isLocked"
-                />
-            </div>
         </template>
 
         <Divider align="left">
@@ -345,59 +293,63 @@
                     fluid
                 />
             </div>
-
-            <div class="form-field">
-                <label for="canvas_nest_mobile_enabled" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.canvas_nest_mobile_enabled') }}
-                    <i
-                        v-if="metadata.canvas_nest_mobile_enabled?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
-                <ToggleSwitch
-                    id="canvas_nest_mobile_enabled"
-                    v-model="settings.canvas_nest_mobile_enabled"
-                    :disabled="metadata.canvas_nest_mobile_enabled?.isLocked"
-                />
-            </div>
-
-            <div class="form-field">
-                <label for="canvas_nest_min_width" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.canvas_nest_min_width') }}
-                    <i
-                        v-if="metadata.canvas_nest_min_width?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
-                <InputNumber
-                    id="canvas_nest_min_width"
-                    v-model="settings.canvas_nest_min_width"
-                    :disabled="metadata.canvas_nest_min_width?.isLocked"
-                    :min="320"
-                    :max="2560"
-                    :step="1"
-                    fluid
-                />
-            </div>
-
-            <div class="form-field">
-                <label for="canvas_nest_data_saver_block" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.canvas_nest_data_saver_block') }}
-                    <i
-                        v-if="metadata.canvas_nest_data_saver_block?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
-                <ToggleSwitch
-                    id="canvas_nest_data_saver_block"
-                    v-model="settings.canvas_nest_data_saver_block"
-                    :disabled="metadata.canvas_nest_data_saver_block?.isLocked"
-                />
-            </div>
         </template>
+
+        <Divider align="left">
+            <b>{{ $t('pages.admin.settings.system.sections.effects_performance') }}</b>
+        </Divider>
+
+        <div class="form-field">
+            <label for="effects_mobile_enabled" class="flex gap-2 items-center">
+                {{ $t('pages.admin.settings.system.keys.effects_mobile_enabled') }}
+                <i
+                    v-if="metadata.effects_mobile_enabled?.isLocked"
+                    v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                    class="pi pi-lock text-orange-500 text-xs"
+                />
+            </label>
+            <ToggleSwitch
+                id="effects_mobile_enabled"
+                v-model="settings.effects_mobile_enabled"
+                :disabled="metadata.effects_mobile_enabled?.isLocked"
+            />
+        </div>
+
+        <div class="form-field">
+            <label for="effects_min_width" class="flex gap-2 items-center">
+                {{ $t('pages.admin.settings.system.keys.effects_min_width') }}
+                <i
+                    v-if="metadata.effects_min_width?.isLocked"
+                    v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                    class="pi pi-lock text-orange-500 text-xs"
+                />
+            </label>
+            <InputNumber
+                id="effects_min_width"
+                v-model="settings.effects_min_width"
+                :disabled="metadata.effects_min_width?.isLocked"
+                :min="320"
+                :max="2560"
+                :step="1"
+                fluid
+            />
+        </div>
+
+        <div class="form-field">
+            <label for="effects_data_saver_block" class="flex gap-2 items-center">
+                {{ $t('pages.admin.settings.system.keys.effects_data_saver_block') }}
+                <i
+                    v-if="metadata.effects_data_saver_block?.isLocked"
+                    v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
+                    class="pi pi-lock text-orange-500 text-xs"
+                />
+            </label>
+            <ToggleSwitch
+                id="effects_data_saver_block"
+                v-model="settings.effects_data_saver_block"
+                :disabled="metadata.effects_data_saver_block?.isLocked"
+            />
+        </div>
     </div>
 </template>
 

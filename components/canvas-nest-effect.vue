@@ -27,13 +27,17 @@ interface CanvasNestConfig {
 
 const config = computed(() => {
     const settings = siteConfig.value || {}
+    const effectsMobileEnabled = settings.effectsMobileEnabled
+    const effectsMinWidth = settings.effectsMinWidth
+    const effectsDataSaverBlock = settings.effectsDataSaverBlock
+    const minWidthSource = effectsMinWidth == null ? settings.canvasNestMinWidth : effectsMinWidth
 
     return {
         enabled: toBoolean(settings.canvasNestEnabled, false),
         optionsJson: settings.canvasNestOptionsJson,
-        mobileEnabled: toBoolean(settings.canvasNestMobileEnabled, false),
-        minWidth: toNumber(settings.canvasNestMinWidth, 1024),
-        dataSaverBlock: toBoolean(settings.canvasNestDataSaverBlock, true),
+        mobileEnabled: toBoolean(effectsMobileEnabled, toBoolean(settings.canvasNestMobileEnabled, false)),
+        minWidth: toNumber(minWidthSource, toNumber(settings.canvasNestMinWidth, 1024)),
+        dataSaverBlock: toBoolean(effectsDataSaverBlock, toBoolean(settings.canvasNestDataSaverBlock, true)),
     }
 })
 

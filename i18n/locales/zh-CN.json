@@ -852,6 +852,7 @@
                         "footer": "页脚设置",
                         "live2d": "看板娘 (Live2D)",
                         "canvas_nest": "粒子背景特效 (CanvasNest)",
+                        "effects_performance": "视觉特效性能策略",
                         "memos": "Memos 同步"
                     },
                     "notifications": {
@@ -913,6 +914,9 @@
                         "canvas_nest_mobile_enabled": "允许移动端加载",
                         "canvas_nest_min_width": "最小加载宽度 (px)",
                         "canvas_nest_data_saver_block": "省流量/慢速网络自动禁用",
+                        "effects_mobile_enabled": "允许在移动端加载视觉特效",
+                        "effects_min_width": "视觉特效最小加载宽度 (px)",
+                        "effects_data_saver_block": "省流量/慢速网络自动禁用视觉特效",
                         "ai_enabled": "启用 AI",
                         "ai_provider": "AI 服务商",
                         "ai_api_key": "API 密钥",

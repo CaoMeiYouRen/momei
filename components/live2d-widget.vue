@@ -29,14 +29,18 @@ const config = computed(() => {
     const settings = siteConfig.value || {}
     const live2dPath = String(settings.live2dScriptUrl || DEFAULT_LIVE2D_PATH)
     const normalizedPath = live2dPath.endsWith('/') ? live2dPath : `${live2dPath}/`
+    const effectsMobileEnabled = settings.effectsMobileEnabled
+    const effectsMinWidth = settings.effectsMinWidth
+    const effectsDataSaverBlock = settings.effectsDataSaverBlock
+    const minWidthSource = effectsMinWidth == null ? settings.live2dMinWidth : effectsMinWidth
 
     return {
         enabled: toBoolean(settings.live2dEnabled, false),
         live2dPath: normalizedPath,
         waifuPath: String(settings.live2dModelUrl || `${normalizedPath}waifu-tips.json`),
-        mobileEnabled: toBoolean(settings.live2dMobileEnabled, false),
-        minWidth: toNumber(settings.live2dMinWidth, 768),
-        dataSaverBlock: toBoolean(settings.live2dDataSaverBlock, true),
+        mobileEnabled: toBoolean(effectsMobileEnabled, toBoolean(settings.live2dMobileEnabled, false)),
+        minWidth: toNumber(minWidthSource, toNumber(settings.live2dMinWidth, 768)),
+        dataSaverBlock: toBoolean(effectsDataSaverBlock, toBoolean(settings.live2dDataSaverBlock, true)),
     }
 })
 

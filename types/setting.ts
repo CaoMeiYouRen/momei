@@ -118,6 +118,9 @@ export enum SettingKey {
     CANVAS_NEST_MOBILE_ENABLED = 'canvas_nest_mobile_enabled',
     CANVAS_NEST_MIN_WIDTH = 'canvas_nest_min_width',
     CANVAS_NEST_DATA_SAVER_BLOCK = 'canvas_nest_data_saver_block',
+    EFFECTS_MOBILE_ENABLED = 'effects_mobile_enabled',
+    EFFECTS_MIN_WIDTH = 'effects_min_width',
+    EFFECTS_DATA_SAVER_BLOCK = 'effects_data_saver_block',
 
     // Limits
     MAX_UPLOAD_SIZE = 'max_upload_size',

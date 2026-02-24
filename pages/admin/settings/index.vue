@@ -154,6 +154,8 @@ const loadSettings = async () => {
                 val = parseInt(val) || 1024
             } else if (s.key === 'canvas_nest_min_width') {
                 val = parseInt(val) || 1024
+            } else if (s.key === 'effects_min_width') {
+                val = parseInt(val) || 1024
             }
             obj[s.key] = val
             meta[s.key] = {
