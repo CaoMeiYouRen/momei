@@ -57,16 +57,20 @@
 
 ### 4. 性能基准与优化 (Performance & Optimization)
 - [ ] **Lighthouse 红线机制 (P2)**
-    - [ ] 文档基线：补充并维护 [性能规范](../standards/performance.md)，明确审计对象、采样策略和发布门禁
-    - [ ] 阈值策略：采用分阶段爬坡（Phase A 跑通基线 -> Phase B 守住基线 -> Phase C 四项 >= 90 阻断）
-    - [ ] CI/CD 流程中集成 Lighthouse CI 审计（核心页面、移动端+桌面端、每页 3 次取中位数）
+    - [x] 文档基线：补充并维护 [性能规范](../standards/performance.md)，明确审计对象、采样策略和发布门禁
+    - [x] 阈值策略：采用分阶段爬坡（Phase A 跑通基线 -> Phase B 守住基线 -> Phase C 四项 >= 90 阻断）
+    - [x] CI/CD 流程中集成 Lighthouse CI 审计（核心页面、移动端+桌面端、每页 3 次取中位数）
+    - [x] 核心采样页收敛：移除 `/login`、`/register`，避免非内容页噪声干扰门禁判断
     - [ ] 配置核心页面性能红线（Performance/Accessibility/Best Practices/SEO 全部 >= 90）
     - [ ] 配置关键指标红线（LCP <= 2.5s、CLS <= 0.1、TBT <= 200ms）并在失败时阻断发布
 - [ ] **极限加载优化 (P2)**
     - [ ] 建立并执行 Bundle 预算（核心首屏 JS gzip <= 260KB、单异步 Chunk <= 120KB、关键 CSS <= 70KB）
     - [ ] 建立 PR 增量预算（核心首屏 JS 单次增量 <= 20KB，超标需附收益说明）
     - [ ] Bundle 体积精算与依赖项裁剪（优先清理高体积低频依赖）
+        - [x] 首轮裁剪：`mavon-editor` 改为仅在管理端使用页动态加载，移除全局插件注册
+        - [x] 首轮裁剪：`driver.js` 改为 Demo 引导触发时动态加载，移除全局 `driver.css`
     - [ ] 关键路径渲染 (Critical Path) 深度调优（首屏阻塞资源最小化、非关键资源延迟加载）
+        - [x] 首轮调优：`app.vue` 初始化从阻塞式改为非阻塞执行（先渲染，后拉主题与站点配置）
 
 ---
 
