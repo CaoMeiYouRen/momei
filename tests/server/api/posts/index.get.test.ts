@@ -1,93 +1,231 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { setup, fetch } from '@nuxt/test-utils/e2e'
+import { describe, it, expect, beforeAll, vi } from 'vitest'
+import { dataSource } from '@/server/database'
+import { Post } from '@/server/entities/post'
+import { User } from '@/server/entities/user'
+import { Category } from '@/server/entities/category'
+import { Tag } from '@/server/entities/tag'
+import { PostStatus } from '@/types/post'
+import { generateRandomString } from '@/utils/shared/random'
+import postsHandler from '@/server/api/posts/index.get'
+
+// Mock auth
+vi.mock('@/lib/auth', () => ({
+    auth: {
+        api: {
+            getSession: vi.fn().mockResolvedValue(null),
+        },
+    },
+}))
 
 describe('/api/posts', () => {
-    beforeEach(async () => {
-        await setup({
-            server: true,
-        })
-    })
+    let author: User
+    let category: Category
+    let tag: Tag
 
-    afterEach(async () => {
-        // Cleanup if needed
+    beforeAll(async () => {
+        // Initialize DB
+        const { initializeDB } = await import('@/server/database')
+        await initializeDB()
+
+        const userRepo = dataSource.getRepository(User)
+        author = new User()
+        author.name = 'Test Author'
+        author.email = `author_${generateRandomString(5)}@example.com`
+        author.role = 'author'
+        await userRepo.save(author)
+
+        const categoryRepo = dataSource.getRepository(Category)
+        category = new Category()
+        category.name = 'Technology'
+        category.slug = 'tech'
+        category.description = 'Tech articles'
+        category.language = 'en'
+        await categoryRepo.save(category)
+
+        const tagRepo = dataSource.getRepository(Tag)
+        tag = new Tag()
+        tag.name = 'Test Tag'
+        tag.slug = 'test'
+        tag.language = 'en'
+        await tagRepo.save(tag)
+
+        const postRepo = dataSource.getRepository(Post)
+        const posts = [
+            { title: 'Published Post 1', status: PostStatus.PUBLISHED, category, tag: true },
+            { title: 'Published Post 2', status: PostStatus.PUBLISHED, category, tag: true },
+            { title: 'Draft Post', status: PostStatus.DRAFT, category, tag: false },
+        ]
+
+        for (const p of posts) {
+            const post = new Post()
+            post.title = p.title
+            post.slug = generateRandomString(10)
+            post.content = 'Content'
+            post.summary = 'Summary'
+            post.status = p.status
+            post.author = author
+            post.category = p.category
+            if (p.tag) {
+                post.tags = [tag]
+            }
+            post.publishedAt = new Date()
+            await postRepo.save(post)
+        }
     })
 
     it('should return posts list', async () => {
-        const response = await fetch('/api/posts')
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {},
+        } as any
 
-        expect(response.status).toBe(200)
+        const result = await postsHandler(event)
 
-        const data: any = await response.json()
-        expect(data).toHaveProperty('code', 200)
-        expect(data).toHaveProperty('data')
+        expect(result.code).toBe(200)
+        expect(result.data).toHaveProperty('items')
+        expect(result.data).toHaveProperty('total')
     })
 
     it('should support pagination', async () => {
-        const response = await fetch('/api/posts?page=1&limit=10')
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                page: 1,
+                limit: 10,
+            },
+        } as any
 
-        expect(response.status).toBe(200)
+        const result = await postsHandler(event)
 
-        const data = await response.json()
-        expect(data).toHaveProperty('code', 200)
-        expect(data.data).toHaveProperty('items')
-        expect(data.data).toHaveProperty('total')
-        expect(data.data).toHaveProperty('totalPages')
-        expect(data.data).toHaveProperty('page')
-        expect(data.data).toHaveProperty('limit')
+        expect(result.code).toBe(200)
+        expect(result.data).toHaveProperty('items')
+        expect(result.data).toHaveProperty('total')
+        expect(result.data).toHaveProperty('totalPages')
+        expect(result.data).toHaveProperty('page', 1)
+        expect(result.data).toHaveProperty('limit', 10)
     })
 
     it('should filter by status', async () => {
-        const response = await fetch('/api/posts?status=published')
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                status: 'published',
+            },
+        } as any
 
-        expect(response.status).toBe(200)
+        const result = await postsHandler(event)
 
-        const data = await response.json()
-        expect(data).toHaveProperty('code', 200)
+        expect(result.code).toBe(200)
+        expect(result.data!.items.length).toBeGreaterThan(0)
     })
 
     it('should support search', async () => {
-        const response = await fetch('/api/posts?search=test')
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                search: 'Published',
+            },
+        } as any
 
-        expect(response.status).toBe(200)
+        const result = await postsHandler(event)
 
-        const data = await response.json()
-        expect(data).toHaveProperty('code', 200)
+        expect(result.code).toBe(200)
+        expect(result.data!.items.length).toBeGreaterThan(0)
     })
 
     it('should filter by category', async () => {
-        const response = await fetch('/api/posts?category=tech')
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                category: 'tech',
+            },
+        } as any
 
-        expect(response.status).toBe(200)
+        const result = await postsHandler(event)
 
-        const data = await response.json()
-        expect(data).toHaveProperty('code', 200)
+        expect(result.code).toBe(200)
+        expect(result.data!.items.length).toBeGreaterThan(0)
     })
 
     it('should filter by tag', async () => {
-        const response = await fetch('/api/posts?tag=test')
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                tag: 'test',
+            },
+        } as any
 
-        expect(response.status).toBe(200)
+        const result = await postsHandler(event)
 
-        const data = await response.json()
-        expect(data).toHaveProperty('code', 200)
+        expect(result.code).toBe(200)
+        expect(result.data!.items.length).toBeGreaterThan(0)
     })
 
     it('should support sorting', async () => {
-        const response = await fetch('/api/posts?orderBy=publishedAt&order=DESC')
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                orderBy: 'publishedAt',
+                order: 'DESC',
+            },
+        } as any
 
-        expect(response.status).toBe(200)
+        const result = await postsHandler(event)
 
-        const data = await response.json()
-        expect(data).toHaveProperty('code', 200)
+        expect(result.code).toBe(200)
     })
 
     it('should return empty array when no posts found', async () => {
-        const response = await fetch('/api/posts?search=nonexistent')
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                search: 'nonexistent',
+            },
+        } as any
 
-        expect(response.status).toBe(200)
+        const result = await postsHandler(event)
 
-        const data = await response.json()
-        expect(data).toHaveProperty('code', 200)
-        expect(data.data.items).toEqual([])
+        expect(result.code).toBe(200)
+        expect(result.data!.items).toEqual([])
     })
 })
