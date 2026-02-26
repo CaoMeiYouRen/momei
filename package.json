@@ -113,6 +113,7 @@
       "workerd"
     ],
     "overrides": {
+      "basic-ftp": "^5.2.0",
       "fast-xml-parser": "^5.3.6",
       "preact": "^10.28.2",
       "vite": "$vite",
