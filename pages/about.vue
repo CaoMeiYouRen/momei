@@ -1,5 +1,5 @@
 <template>
-    <div class="home-page">
+    <div class="about-page">
         <!-- 英雄区 -->
         <section class="hero">
             <div class="container hero__container">

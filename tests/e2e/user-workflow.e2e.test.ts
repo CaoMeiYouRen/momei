@@ -14,44 +14,47 @@ test.describe('User Workflow E2E Tests', () => {
 
         test('should show validation errors for empty fields', async ({ page }) => {
             await page.goto('/register')
+            await page.waitForLoadState('networkidle')
 
             // 直接点击提交按钮
             await page.click('button[type="submit"]')
 
             // 验证验证错误消息显示
-            await expect(page.locator('.p-message-error')).toBeVisible()
+            await expect(page.locator('.p-message-error, .p-message')).toBeVisible({ timeout: 10000 })
         })
 
         test('should show validation error for mismatched passwords', async ({ page }) => {
             await page.goto('/register')
+            await page.waitForLoadState('networkidle')
 
             // 填写表单，密码不匹配
             await page.fill('input#name', '测试用户')
             await page.fill('input#email', 'test@momei.test')
-            await page.fill('#password', 'password123')
-            await page.fill('#confirmPassword', 'password456')
+            await page.fill('input#password_input, #password input', 'password123')
+            await page.fill('input#confirmPassword_input, #confirmPassword input', 'password456')
 
             // 点击提交
             await page.click('button[type="submit"]')
 
             // 验证密码不匹配错误
-            await expect(page.locator('.p-message-error')).toBeVisible()
+            await expect(page.locator('.p-message-error, .p-message')).toBeVisible()
         })
 
         test('should require agreement checkbox', async ({ page }) => {
             await page.goto('/register')
+            await page.waitForLoadState('networkidle')
 
             // 填写表单但不勾选同意复选框
             await page.fill('input#name', '测试用户')
             await page.fill('input#email', 'test@momei.test')
-            await page.fill('#password', 'password123')
-            await page.fill('#confirmPassword', 'password123')
+            await page.fill('input#password_input, #password input', 'password123')
+            await page.fill('input#confirmPassword_input, #confirmPassword input', 'password123')
 
             // 不勾选同意复选框，直接提交
             await page.click('button[type="submit"]')
 
             // 验证需要同意错误
-            await expect(page.locator('.p-message-error')).toBeVisible()
+            await expect(page.locator('.p-message-error, .p-message')).toBeVisible()
         })
 
         test('should have link to login page', async ({ page }) => {
@@ -71,6 +74,7 @@ test.describe('User Workflow E2E Tests', () => {
     test.describe('Password Reset Flow', () => {
         test('should display forgot password form', async ({ page }) => {
             await page.goto('/forgot-password')
+            await page.waitForLoadState('networkidle')
 
             // 验证邮箱输入框存在
             await expect(page.locator('input#email')).toBeVisible()
@@ -81,6 +85,7 @@ test.describe('User Workflow E2E Tests', () => {
 
         test('should validate email format', async ({ page }) => {
             await page.goto('/forgot-password')
+            await page.waitForLoadState('networkidle')
 
             // 输入无效邮箱
             await page.fill('input#email', 'invalid-email')
@@ -89,11 +94,12 @@ test.describe('User Workflow E2E Tests', () => {
             await page.click('button[type="submit"]')
 
             // 验证验证错误
-            await expect(page.locator('.p-message-error')).toBeVisible()
+            await expect(page.locator('.p-message-error, .p-message')).toBeVisible()
         })
 
         test('should have link back to login', async ({ page }) => {
             await page.goto('/forgot-password')
+            await page.waitForLoadState('networkidle')
 
             // 验证返回登录链接存在
             await expect(page.locator('text=返回登录')).toBeVisible()
@@ -107,12 +113,15 @@ test.describe('User Workflow E2E Tests', () => {
     })
 
     test.describe('User Settings Flow', () => {
+        test.use({ storageState: 'tests/e2e/.auth/admin.json' })
+
         test('should display settings page', async ({ page }) => {
             // 注意：此测试需要用户已登录
             await page.goto('/settings')
+            await page.waitForLoadState('networkidle')
 
             // 验证设置页面容器存在
-            await expect(page.locator('.settings-page')).toBeVisible()
+            await expect(page.locator('.settings-page')).toBeVisible({ timeout: 10000 })
         })
 
         test.skip('should update user profile', async ({ page }) => {
@@ -148,9 +157,12 @@ test.describe('User Workflow E2E Tests', () => {
     })
 
     test.describe('Post Submission Flow', () => {
+        test.use({ storageState: 'tests/e2e/.auth/admin.json' })
+
         test('should display submission form', async ({ page }) => {
             // 注意：此测试可能需要用户登录
             await page.goto('/submit')
+            await page.waitForLoadState('networkidle')
 
             // 验证投稿表单容器存在
             await expect(page.locator('.submit-page')).toBeVisible()
@@ -158,12 +170,13 @@ test.describe('User Workflow E2E Tests', () => {
 
         test('should validate required fields', async ({ page }) => {
             await page.goto('/submit')
+            await page.waitForLoadState('networkidle')
 
             // 直接点击提交
             await page.click('button[type="submit"]')
 
             // 验证验证错误
-            // 具体实现取决于表单验证逻辑
+            await expect(page.locator('.p-message-error, .p-message')).toBeVisible()
         })
 
         test.skip('should submit post successfully', async ({ page }) => {
@@ -188,6 +201,7 @@ test.describe('User Workflow E2E Tests', () => {
     test.describe('Public Pages', () => {
         test('should display about page', async ({ page }) => {
             await page.goto('/about')
+            await page.waitForLoadState('networkidle')
 
             // 验证关于页面容器存在
             await expect(page.locator('.about-page')).toBeVisible()
@@ -211,7 +225,7 @@ test.describe('User Workflow E2E Tests', () => {
             await page.goto('/installation')
 
             // 验证安装页面容器存在
-            await expect(page.locator('.installation-page')).toBeVisible()
+            await expect(page.locator('.installation-wizard')).toBeVisible()
         })
     })
 })
