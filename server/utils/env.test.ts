@@ -1,11 +1,11 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { describe, expect, it, vi, beforeEach, afterAll } from 'vitest'
 
 describe('env utils', () => {
     const originalEnv = { ...process.env }
 
     beforeEach(() => {
         // Reset environment variables before each test
-        Object.keys(process.env).forEach(key => {
+        Object.keys(process.env).forEach((key) => {
             if (key !== 'NODE_ENV') {
                 delete process.env[key]
             }
@@ -14,7 +14,7 @@ describe('env utils', () => {
 
     afterAll(() => {
         // Restore original environment
-        Object.keys(process.env).forEach(key => {
+        Object.keys(process.env).forEach((key) => {
             delete process.env[key]
         })
         Object.assign(process.env, originalEnv)

@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { ref } from 'vue'
 import ResetPasswordPage from './reset-password.vue'
 
 // Mock auth-client
@@ -14,9 +13,9 @@ vi.mock('@/lib/auth-client', () => ({
 vi.mock('@/utils/schemas/auth', () => ({
     resetPasswordSchema: {
         safeParse: vi.fn((data) => {
-            const errors = []
-            if (!data.password) errors.push({ path: ['password'], message: 'validation.required' })
-            if (!data.confirmPassword) errors.push({ path: ['confirmPassword'], message: 'validation.required' })
+            const errors: any[] = []
+            if (!data.password) { errors.push({ path: ['password'], message: 'validation.required' }) }
+            if (!data.confirmPassword) { errors.push({ path: ['confirmPassword'], message: 'validation.required' }) }
 
             if (errors.length > 0) {
                 return { success: false, error: { issues: errors } }

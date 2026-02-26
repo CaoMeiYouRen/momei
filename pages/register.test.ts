@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { ref, reactive } from 'vue'
 import RegisterPage from './register.vue'
 
 // Mock auth-client
@@ -19,12 +18,12 @@ vi.mock('@/lib/auth-client', () => ({
 vi.mock('@/utils/schemas/auth', () => ({
     registerSchema: {
         safeParse: vi.fn((data) => {
-            const errors = []
-            if (!data.name) errors.push({ path: ['name'], message: 'validation.required' })
-            if (!data.email) errors.push({ path: ['email'], message: 'validation.required' })
-            if (!data.password) errors.push({ path: ['password'], message: 'validation.required' })
-            if (!data.confirmPassword) errors.push({ path: ['confirmPassword'], message: 'validation.required' })
-            if (!data.agreed) errors.push({ path: ['agreed'], message: 'validation.required' })
+            const errors: any[] = []
+            if (!data.name) { errors.push({ path: ['name'], message: 'validation.required' }) }
+            if (!data.email) { errors.push({ path: ['email'], message: 'validation.required' }) }
+            if (!data.password) { errors.push({ path: ['password'], message: 'validation.required' }) }
+            if (!data.confirmPassword) { errors.push({ path: ['confirmPassword'], message: 'validation.required' }) }
+            if (!data.agreed) { errors.push({ path: ['agreed'], message: 'validation.required' }) }
 
             if (errors.length > 0) {
                 return { success: false, error: { issues: errors } }

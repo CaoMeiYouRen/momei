@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import PostDetailPage from './[id].vue'
 
 // Mock utilities
@@ -89,9 +89,15 @@ vi.mock('#imports', async (importOriginal) => {
         useRoute: () => mockRoute,
         useI18n: () => ({
             t: (key: string, params?: any) => {
-                if (params?.min !== undefined) return `${params.min} min`
-                if (params?.status !== undefined) return `Status: ${params.status}`
-                if (key.startsWith('pages.posts.locked.')) return key
+                if (params?.min !== undefined) {
+                    return `${params.min} min`
+                }
+                if (params?.status !== undefined) {
+                    return `Status: ${params.status}`
+                }
+                if (key.startsWith('pages.posts.locked.')) {
+                    return key
+                }
                 return key
             },
         }),
@@ -109,8 +115,12 @@ vi.mock('#imports', async (importOriginal) => {
 vi.stubGlobal('useRoute', () => mockRoute)
 vi.stubGlobal('useI18n', () => ({
     t: (key: string, params?: any) => {
-        if (params?.min !== undefined) return `${params.min} min`
-        if (params?.status !== undefined) return `Status: ${params.status}`
+        if (params?.min !== undefined) {
+            return `${params.min} min`
+        }
+        if (params?.status !== undefined) {
+            return `Status: ${params.status}`
+        }
         return key
     },
 }))

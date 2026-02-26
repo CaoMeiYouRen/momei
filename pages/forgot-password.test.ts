@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { ref } from 'vue'
 import ForgotPasswordPage from './forgot-password.vue'
 
 // Mock auth-client
