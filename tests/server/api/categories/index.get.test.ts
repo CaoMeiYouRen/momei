@@ -1,6 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { $fetch, createFetch } from 'ofetch'
-import { setup } from '@nuxt/test-utils/e2e'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { setup, fetch } from '@nuxt/test-utils/e2e'
 
 // Mock database and dependencies
 const mockCategories = [
@@ -10,13 +9,10 @@ const mockCategories = [
 ]
 
 describe('/api/categories', () => {
-    let fetch: any
-
     beforeEach(async () => {
         await setup({
             server: true,
         })
-        fetch = createFetch({ defaults: { baseURL: 'http://localhost:3000' } })
     })
 
     afterEach(async () => {
@@ -28,7 +24,7 @@ describe('/api/categories', () => {
 
         expect(response.status).toBe(200)
 
-        const data = await response.json()
+        const data: any = await response.json()
         expect(data).toHaveProperty('code', 200)
         expect(data).toHaveProperty('data')
     })

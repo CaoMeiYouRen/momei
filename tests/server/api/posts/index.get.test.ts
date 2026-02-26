@@ -1,15 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { createFetch } from 'ofetch'
-import { setup } from '@nuxt/test-utils/e2e'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { setup, fetch } from '@nuxt/test-utils/e2e'
 
 describe('/api/posts', () => {
-    let fetch: any
-
     beforeEach(async () => {
         await setup({
             server: true,
         })
-        fetch = createFetch({ defaults: { baseURL: 'http://localhost:3000' } })
     })
 
     afterEach(async () => {
@@ -21,7 +17,7 @@ describe('/api/posts', () => {
 
         expect(response.status).toBe(200)
 
-        const data = await response.json()
+        const data: any = await response.json()
         expect(data).toHaveProperty('code', 200)
         expect(data).toHaveProperty('data')
     })
