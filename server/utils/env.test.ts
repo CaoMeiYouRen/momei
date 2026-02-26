@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach, afterAll } from 'vitest'
+import { describe, expect, it, beforeEach, afterAll } from 'vitest'
 
 describe('env utils', () => {
     const originalEnv = { ...process.env }

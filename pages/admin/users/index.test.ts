@@ -10,12 +10,12 @@ const stubs = {
         props: ['title', 'showLanguageSwitcher'],
     },
     Button: {
-        template: '<button @click="$emit(\'click\')"><slot /></button>',
-        props: ['label', 'loading', 'icon', 'severity', 'class'],
+        template: '<button :class="icon" @click="$emit(\'click\')"><slot /></button>',
+        props: ['label', 'loading', 'icon', 'severity'],
         emits: ['click'],
     },
     IconField: { template: '<div class="icon-field"><slot /></div>' },
-    InputIcon: { template: '<i class="input-icon" />', props: ['class'] },
+    InputIcon: { template: '<i :class="$attrs.class" class="input-icon" />' },
     InputText: {
         template: '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" :placeholder="placeholder" />',
         props: ['modelValue', 'placeholder'],
@@ -23,15 +23,15 @@ const stubs = {
     },
     Select: {
         template: '<select :value="modelValue" @change="$emit(\'update:modelValue\', $event.target.value)"><slot /></select>',
-        props: ['modelValue', 'options', 'optionLabel', 'optionValue', 'placeholder', 'showClear', 'class'],
+        props: ['modelValue', 'options', 'optionLabel', 'optionValue', 'placeholder', 'showClear'],
         emits: ['update:modelValue', 'change'],
     },
     DataTable: {
         template: '<div class="datatable"><slot /></div>',
-        props: ['value', 'loading', 'lazy', 'totalRecords', 'rows', 'paginator', 'rowsPerPageOptions', 'tableStyle', 'class'],
+        props: ['value', 'loading', 'lazy', 'totalRecords', 'rows', 'paginator', 'rowsPerPageOptions', 'tableStyle'],
         emits: ['page', 'sort'],
     },
-    Column: { template: '<div class="column"><slot /></div>', props: ['field', 'header', 'sortable', 'headerStyle', 'bodyClass', 'headerClass', 'class', 'selectionMode'] },
+    Column: { template: '<div class="column"><slot /></div>', props: ['field', 'header', 'sortable', 'headerStyle', 'bodyClass', 'headerClass', 'selectionMode'] },
     Tag: { template: '<span class="tag">{{ value }}</span>', props: ['value', 'severity'] },
 }
 
@@ -111,6 +111,6 @@ describe('AdminUsersPage', () => {
             },
         })
 
-        expect(wrapper.find('.admin-page-container').exists()).toBe(true)
+        expect(wrapper.find('.user-management').exists()).toBe(true)
     })
 })

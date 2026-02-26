@@ -19,11 +19,21 @@ vi.mock('@/utils/schemas/auth', () => ({
     registerSchema: {
         safeParse: vi.fn((data) => {
             const errors: any[] = []
-            if (!data.name) { errors.push({ path: ['name'], message: 'validation.required' }) }
-            if (!data.email) { errors.push({ path: ['email'], message: 'validation.required' }) }
-            if (!data.password) { errors.push({ path: ['password'], message: 'validation.required' }) }
-            if (!data.confirmPassword) { errors.push({ path: ['confirmPassword'], message: 'validation.required' }) }
-            if (!data.agreed) { errors.push({ path: ['agreed'], message: 'validation.required' }) }
+            if (!data.name) {
+                errors.push({ path: ['name'], message: 'validation.required' })
+            }
+            if (!data.email) {
+                errors.push({ path: ['email'], message: 'validation.required' })
+            }
+            if (!data.password) {
+                errors.push({ path: ['password'], message: 'validation.required' })
+            }
+            if (!data.confirmPassword) {
+                errors.push({ path: ['confirmPassword'], message: 'validation.required' })
+            }
+            if (!data.agreed) {
+                errors.push({ path: ['agreed'], message: 'validation.required' })
+            }
 
             if (errors.length > 0) {
                 return { success: false, error: { issues: errors } }

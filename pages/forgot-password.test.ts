@@ -15,7 +15,7 @@ vi.mock('@/lib/auth-client', () => ({
 const stubs = {
     Card: { template: '<div class="card"><slot name="title"/><slot name="content"/><slot name="footer"/></div>' },
     Button: {
-        template: '<button @click="$emit(\'click\')"><slot /></button>',
+        template: '<button :type="type" @click="$emit(\'click\')"><slot /></button>',
         props: ['label', 'loading', 'icon', 'severity', 'outlined', 'type', 'class'],
         emits: ['click'],
     },
@@ -105,8 +105,10 @@ describe('ForgotPasswordPage', () => {
             },
         })
 
-        const submitBtn = wrapper.find('button[type="submit"]')
+        const submitBtn = wrapper.find('button')
         expect(submitBtn.exists()).toBe(true)
+        // Since we fixed the stub to include :type="type", this should also work
+        expect(submitBtn.attributes('type')).toBe('submit')
     })
 
     it('shows back to login link', async () => {

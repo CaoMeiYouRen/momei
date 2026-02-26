@@ -1,21 +1,60 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { ref, computed } from 'vue'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { ref } from 'vue'
 import PostsIndexPage from './index.vue'
 
-// Mock useRoute and useRouter
-const mockRoute = {
+// Mock data
+const mockPosts = [
+    { id: '1', title: 'Post 1' },
+    { id: '2', title: 'Post 2' },
+]
+
+// Control useAppFetch state
+const mockFetchData = ref<any>({
+    data: {
+        items: mockPosts,
+        total: 2,
+        totalPages: 1,
+    },
+})
+const mockFetchPending = ref(false)
+const mockFetchError = ref<any>(null)
+
+// Use mockNuxtImport for Nuxt composables
+mockNuxtImport('useI18n', () => () => ({
+    t: (key: string) => key,
+    d: (date: string) => date,
+    locale: ref('en'),
+}))
+
+mockNuxtImport('useLocalePath', () => () => (path: string) => path)
+
+mockNuxtImport('useHead', () => vi.fn())
+
+mockNuxtImport('useAppFetch', () => () => ({
+    data: mockFetchData,
+    pending: mockFetchPending,
+    error: mockFetchError,
+}))
+
+mockNuxtImport('useRoute', () => () => ({
     params: {},
     query: { page: '1' },
-}
-const mockRouter = {
+}))
+
+mockNuxtImport('useRouter', () => () => ({
     push: vi.fn(),
-}
+    replace: vi.fn(() => Promise.resolve()),
+    afterEach: vi.fn(),
+    beforeEach: vi.fn(),
+    beforeResolve: vi.fn(),
+    onError: vi.fn(),
+}))
 
 // Stub components
 const stubs = {
     Skeleton: { template: '<div class="skeleton"><slot /></div>' },
-    Message: { template: '<div v-if="severity" class="message"><slot /></div>', props: ['severity', 'text'] },
+    Message: { template: '<div v-if="severity" class="message">{{ text }}<slot /></div>', props: ['severity', 'text'] },
     Paginator: {
         template: '<div class="paginator" @click="$emit(\'page\', {page: 0, first: 0})"><slot /></div>',
         props: ['first', 'rows', 'totalRecords'],
@@ -27,29 +66,19 @@ const stubs = {
     },
 }
 
-// Mock Nuxt auto-imports
-vi.mock('#imports', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('#imports')>()
-    return {
-        ...actual,
-        useRoute: () => mockRoute,
-        useRouter: () => mockRouter,
-        useI18n: () => ({
-            t: (key: string) => key,
-        }),
-        useHead: vi.fn(),
-    }
-})
-
-vi.stubGlobal('useRoute', () => mockRoute)
-vi.stubGlobal('useRouter', () => mockRouter)
-vi.stubGlobal('useI18n', () => ({ t: (key: string) => key }))
-vi.stubGlobal('useHead', vi.fn())
-
 describe('PostsIndexPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        mockRoute.query = { page: '1' }
+        // Reset fetch state
+        mockFetchData.value = {
+            data: {
+                items: mockPosts,
+                total: 2,
+                totalPages: 1,
+            },
+        }
+        mockFetchPending.value = false
+        mockFetchError.value = null
     })
 
     it('renders page title correctly', async () => {
@@ -63,6 +92,9 @@ describe('PostsIndexPage', () => {
     })
 
     it('shows skeleton when pending', async () => {
+        // Set pending state
+        mockFetchPending.value = true
+
         const wrapper = await mountSuspended(PostsIndexPage, {
             global: {
                 stubs,
@@ -76,6 +108,10 @@ describe('PostsIndexPage', () => {
     })
 
     it('shows empty state when no posts', async () => {
+        // Set empty state
+        mockFetchData.value = { data: { items: [], total: 0, totalPages: 0 } }
+        mockFetchPending.value = false
+
         const wrapper = await mountSuspended(PostsIndexPage, {
             global: {
                 stubs,
@@ -87,8 +123,9 @@ describe('PostsIndexPage', () => {
     })
 
     it('shows error state when there is an error', async () => {
-        // This test would need to mock useAppFetch to return an error
-        // For now, just verify the error element exists in the template
+        // Set error state
+        mockFetchError.value = { message: 'Error message' }
+
         const wrapper = await mountSuspended(PostsIndexPage, {
             global: {
                 stubs,
@@ -96,10 +133,14 @@ describe('PostsIndexPage', () => {
         })
 
         // Error state div should exist in template
-        expect(wrapper.html()).toContain('posts-page__error')
+        expect(wrapper.find('.posts-page__error').exists()).toBe(true)
+        expect(wrapper.find('.posts-page__error').text()).toContain('Error message')
     })
 
     it('renders paginator when there are multiple pages', async () => {
+        // Set multiple pages state
+        mockFetchData.value = { data: { items: [], total: 20, totalPages: 2 } }
+
         const wrapper = await mountSuspended(PostsIndexPage, {
             global: {
                 stubs,
@@ -121,3 +162,4 @@ describe('PostsIndexPage', () => {
         expect(wrapper.find('.posts-page__list').exists()).toBe(true)
     })
 })
+

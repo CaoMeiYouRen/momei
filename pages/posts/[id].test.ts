@@ -104,7 +104,7 @@ vi.mock('#imports', async (importOriginal) => {
         useLocalePath: () => (path: string) => path,
         useSetI18nParams: () => vi.fn(),
         useI18nDate: () => ({
-            formatDateTime: (date: string) => '2024-01-01',
+            formatDateTime: (_date: string) => '2024-01-01',
         }),
         useHead: vi.fn(),
         useRequestURL: () => ({ href: 'http://localhost:3000/posts/test' }),
@@ -127,7 +127,7 @@ vi.stubGlobal('useI18n', () => ({
 vi.stubGlobal('useLocalePath', () => (path: string) => path)
 vi.stubGlobal('useSetI18nParams', () => vi.fn())
 vi.stubGlobal('useI18nDate', () => ({
-    formatDateTime: (date: string) => '2024-01-01',
+    formatDateTime: (_date: string) => '2024-01-01',
 }))
 vi.stubGlobal('useHead', vi.fn())
 vi.stubGlobal('useRequestURL', () => ({ href: 'http://localhost:3000/posts/test' }))

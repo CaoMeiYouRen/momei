@@ -14,8 +14,12 @@ vi.mock('@/utils/schemas/auth', () => ({
     resetPasswordSchema: {
         safeParse: vi.fn((data) => {
             const errors: any[] = []
-            if (!data.password) { errors.push({ path: ['password'], message: 'validation.required' }) }
-            if (!data.confirmPassword) { errors.push({ path: ['confirmPassword'], message: 'validation.required' }) }
+            if (!data.password) {
+                errors.push({ path: ['password'], message: 'validation.required' })
+            }
+            if (!data.confirmPassword) {
+                errors.push({ path: ['confirmPassword'], message: 'validation.required' })
+            }
 
             if (errors.length > 0) {
                 return { success: false, error: { issues: errors } }
