@@ -3,6 +3,7 @@ import { Setting } from '../entities/setting'
 import { User } from '../entities/user'
 import { Post } from '../entities/post'
 import logger from '../utils/logger'
+import { snowflake } from '../utils/snowflake'
 import { auth } from '@/lib/auth'
 import { PostStatus, PostVisibility } from '@/types/post'
 
@@ -81,6 +82,13 @@ export async function seedTestData(ds: DataSource) {
             }
         } else {
             logger.info('[Test Seed] Test user already exists')
+            if (existingUser.role !== 'admin' || !existingUser.emailVerified) {
+                await userRepo.update(existingUser.id, {
+                    role: 'admin',
+                    emailVerified: true,
+                })
+                logger.info('[Test Seed] Existing test user promoted to admin')
+            }
         }
 
         // 4. 创建一个测试文章
@@ -92,7 +100,8 @@ export async function seedTestData(ds: DataSource) {
             const admin = await userRepo.findOne({ where: { email: testEmail } })
             if (admin) {
                 logger.info('[Test Seed] Creating test post...')
-                await postRepo.save({
+                const post = postRepo.create({
+                    id: snowflake.generateId(),
                     title: 'Hello Momei Test',
                     slug: testSlug,
                     content: '# Hello Momei\n\nThis is a test post for E2E testing.\n\n## Section 1\nContent 1\n\n## Section 2\nContent 2',
@@ -103,6 +112,7 @@ export async function seedTestData(ds: DataSource) {
                     language: 'zh-CN',
                     publishedAt: new Date(),
                 })
+                await postRepo.save(post)
                 logger.info('[Test Seed] Test post created')
             }
         }
