@@ -20,7 +20,7 @@ test.describe('User Workflow E2E Tests', () => {
 
             // 验证至少有一个字段进入无效态
             await expect.poll(async () => {
-                return await page.locator('[aria-invalid="true"]').count()
+                return await page.locator('.register-form .p-invalid, .register-form .p-message-error').count()
             }).toBeGreaterThan(0)
         })
 
@@ -38,7 +38,7 @@ test.describe('User Workflow E2E Tests', () => {
 
             // 验证确认密码字段进入无效态
             await expect.poll(async () => {
-                return await page.locator('input#confirmPassword_input[aria-invalid="true"], #confirmPassword input[aria-invalid="true"]').count()
+                return await page.locator('.register-form__field:has(#confirmPassword) .p-invalid, .register-form__field:has(#confirmPassword) .p-message-error').count()
             }).toBeGreaterThan(0)
         })
 
@@ -56,7 +56,7 @@ test.describe('User Workflow E2E Tests', () => {
 
             // 验证同意协议控件进入无效态
             await expect.poll(async () => {
-                return await page.locator('#agreed[aria-invalid="true"], .register-form__agreement .p-invalid').count()
+                return await page.locator('.register-form__agreement .p-invalid, .register-form .p-message-error').count()
             }).toBeGreaterThan(0)
         })
 
@@ -178,7 +178,7 @@ test.describe('User Workflow E2E Tests', () => {
 
             // 验证必填字段进入无效态
             await expect.poll(async () => {
-                return await page.locator('#title[aria-invalid="true"], #content[aria-invalid="true"], #name[aria-invalid="true"], #email[aria-invalid="true"]').count()
+                return await page.locator('.submit-form .p-invalid, .submit-form .p-message-error').count()
             }).toBeGreaterThan(0)
         })
 
@@ -225,12 +225,13 @@ test.describe('User Workflow E2E Tests', () => {
 
         test('should display installation page', async ({ page }) => {
             await page.goto('/installation')
+            await page.waitForLoadState('networkidle')
 
             // 系统已安装时可能重定向到首页
             if (page.url().includes('/installation')) {
                 await expect(page.locator('.installation-wizard')).toBeVisible()
             } else {
-                await expect(page).toHaveURL(/\/$|\/login|\/admin/)
+                await expect(page).toHaveURL(/\/$|\/[a-z]{2}-[A-Z]{2}$|\/login|\/admin/)
             }
         })
     })

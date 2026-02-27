@@ -42,18 +42,18 @@ test.describe('Homepage E2E Tests', () => {
 
     test('should toggle dark mode', async ({ page }) => {
     // 寻找主题切换按钮
-        const themeToggle = page.locator('.theme-switcher, button:has(.pi-moon), button:has(.pi-sun)')
+        const themeToggle = page.locator('#theme-switcher, .theme-switcher, button:has(.pi-moon), button:has(.pi-sun)')
 
         if (await themeToggle.count() > 0) {
             const html = page.locator('html')
             const isDarkBefore = await html.evaluate((el) => el.classList.contains('dark'))
 
+            await expect(themeToggle.first()).toBeVisible()
             await themeToggle.first().click()
 
-            // 这里的 class 变化可能是异步的
-            await page.waitForTimeout(500)
-            const isDarkAfter = await html.evaluate((el) => el.classList.contains('dark'))
-            expect(isDarkAfter).not.toBe(isDarkBefore)
+            await expect.poll(async () => {
+                return await html.evaluate((el) => el.classList.contains('dark'))
+            }, { timeout: 3000 }).not.toBe(isDarkBefore)
         }
     })
 
