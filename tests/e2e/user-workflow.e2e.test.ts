@@ -160,10 +160,7 @@ test.describe('User Workflow E2E Tests', () => {
     })
 
     test.describe('Post Submission Flow', () => {
-        test.use({ storageState: 'tests/e2e/.auth/admin.json' })
-
         test('should display submission form', async ({ page }) => {
-            // 注意：此测试可能需要用户登录
             await page.goto('/submit')
 
             // 验证投稿表单容器存在
@@ -173,6 +170,7 @@ test.describe('User Workflow E2E Tests', () => {
         test('should validate required fields', async ({ page }) => {
             await page.goto('/submit')
             await page.waitForLoadState('networkidle')
+            await expect(page.locator('.submit-page')).toBeVisible()
 
             const submitButton = page.locator('.submit-btn')
             await expect(submitButton).toBeVisible()
@@ -181,7 +179,9 @@ test.describe('User Workflow E2E Tests', () => {
             await submitButton.click()
 
             // 验证必填字段进入无效态
-            await expect(page.locator('.submit-form .p-message').first()).toBeVisible()
+            const errorMessages = page.locator('.p-message.p-message-error')
+            await expect(errorMessages.first()).toBeVisible()
+            await expect(errorMessages).toHaveCount(4)
         })
 
         test.skip('should submit post successfully', async ({ page }) => {
