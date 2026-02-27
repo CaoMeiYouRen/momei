@@ -14,18 +14,21 @@ test.describe('User Workflow E2E Tests', () => {
 
         test('should show validation errors for empty fields', async ({ page }) => {
             await page.goto('/register')
+            await page.waitForLoadState('networkidle')
+
+            const submitButton = page.locator('.register-form__submit-btn')
+            await expect(submitButton).toBeVisible()
 
             // 直接点击提交按钮
-            await page.click('button[type="submit"]')
+            await submitButton.click()
 
             // 验证至少有一个字段进入无效态
-            await expect.poll(async () => {
-                return await page.locator('.register-form .p-invalid, .register-form .p-message-error').count()
-            }).toBeGreaterThan(0)
+            await expect(page.locator('.register-form .p-message').first()).toBeVisible()
         })
 
         test('should show validation error for mismatched passwords', async ({ page }) => {
             await page.goto('/register')
+            await page.waitForLoadState('networkidle')
 
             // 填写表单，密码不匹配
             await page.fill('input#name', '测试用户')
@@ -34,16 +37,15 @@ test.describe('User Workflow E2E Tests', () => {
             await page.fill('input#confirmPassword_input, #confirmPassword input', 'password456')
 
             // 点击提交
-            await page.click('button[type="submit"]')
+            await page.click('.register-form__submit-btn')
 
             // 验证确认密码字段进入无效态
-            await expect.poll(async () => {
-                return await page.locator('.register-form__field:has(#confirmPassword) .p-invalid, .register-form__field:has(#confirmPassword) .p-message-error').count()
-            }).toBeGreaterThan(0)
+            await expect(page.locator('input#confirmPassword_input, #confirmPassword input')).toHaveAttribute('aria-invalid', 'true')
         })
 
         test('should require agreement checkbox', async ({ page }) => {
             await page.goto('/register')
+            await page.waitForLoadState('networkidle')
 
             // 填写表单但不勾选同意复选框
             await page.fill('input#name', '测试用户')
@@ -52,12 +54,10 @@ test.describe('User Workflow E2E Tests', () => {
             await page.fill('input#confirmPassword_input, #confirmPassword input', 'password123')
 
             // 不勾选同意复选框，直接提交
-            await page.click('button[type="submit"]')
+            await page.click('.register-form__submit-btn')
 
             // 验证同意协议控件进入无效态
-            await expect.poll(async () => {
-                return await page.locator('.register-form__agreement .p-invalid, .register-form .p-message-error').count()
-            }).toBeGreaterThan(0)
+            await expect(page.locator('#agreed')).toHaveAttribute('aria-invalid', 'true')
         })
 
         test('should have link to login page', async ({ page }) => {
@@ -172,14 +172,16 @@ test.describe('User Workflow E2E Tests', () => {
 
         test('should validate required fields', async ({ page }) => {
             await page.goto('/submit')
+            await page.waitForLoadState('networkidle')
+
+            const submitButton = page.locator('.submit-btn')
+            await expect(submitButton).toBeVisible()
 
             // 直接点击提交
-            await page.click('button[type="submit"]')
+            await submitButton.click()
 
             // 验证必填字段进入无效态
-            await expect.poll(async () => {
-                return await page.locator('.submit-form .p-invalid, .submit-form .p-message-error').count()
-            }).toBeGreaterThan(0)
+            await expect(page.locator('.submit-form .p-message').first()).toBeVisible()
         })
 
         test.skip('should submit post successfully', async ({ page }) => {
