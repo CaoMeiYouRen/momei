@@ -236,10 +236,10 @@
     - **Lighthouse 红线机制**: 在预发布环境/CI 流程中引入性能硬指标，核心页面分数若低于 90 则禁止发布。
     - **极限加载优化**: 进一步精简 Bundle 体积，优化关键路径渲染。
 
-### 第八阶段：生态扩展与架构闭环 (Ecosystem Expansion & Architecture Closure) (进行中)
+### 第八阶段：生态能力收敛与协议落地 (Ecosystem Convergence & Protocol Delivery) (进行中)
 
 **时间表**: 约 1.5 个月
-**目标**: 突破 Web 边界，实现多端同步，完成系统配置的 DB/ENV 混合接管，并深度优化 ASR 转录性能。
+**目标**: 聚焦现有 Web 架构内的能力收敛，完成系统配置闭环、商业化投放基础、开放协议最小可用落地，并推进 ASR 性能增量优化。
 
 1. **系统配置深度解耦 (System Config Unification)**:
     - **Auth 配置解耦**: 重构 `lib/auth.ts`，支持从 `SettingService` 动态加载配置，实现全量配置的 DB/ENV 混合接管。
@@ -249,7 +249,7 @@
     - **外链管理**: 实现站内商业内容/投放链接的集中管理系统，支持按关键词自动插入。
 3. **开放发布协议 (Open Federation)**:
     - **基础适配**: 实现 ActivityPub 协议的基础发现与 Actor 骨架，支持 Fediverse 基础交互。
-    - **协议补完**: 补全 Atom 1.0 与 JSON Feed 1.1 支持。
+    - **协议补完**: 完成 WebFinger 与 ActivityPub 骨架落地，并对现有 Atom 1.0 / JSON Feed 1.1 输出做兼容性验证与补强。
 4. **ASR 性能极限优化 (Extreme Performance)**:
     - **极速转录**: 实现前端直连厂商签名机制与本地 Wasm 音频压缩采样，大幅提升转录响应速度。
 
