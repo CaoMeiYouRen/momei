@@ -1,5 +1,72 @@
 # momei
 
+# [1.7.0](https://github.com/CaoMeiYouRen/momei/compare/v1.6.0...v1.7.0) (2026-02-28)
+
+
+### ✨ 新功能
+
+* 更新国际化错误信息，优化错误处理逻辑 ([86035f7](https://github.com/CaoMeiYouRen/momei/commit/86035f7))
+* 更新环境变量示例和文档，添加 Memos 同步配置支持 ([7dcd01c](https://github.com/CaoMeiYouRen/momei/commit/7dcd01c))
+* 更新音频元数据处理逻辑，支持从元数据导出音频信息 ([d55b410](https://github.com/CaoMeiYouRen/momei/commit/d55b410))
+* 添加 AudioWorklet 支持以优化音频处理 ([ae7a9d5](https://github.com/CaoMeiYouRen/momei/commit/ae7a9d5))
+* 添加 CanvasNest 粒子特效支持，包含配置项和运行时集成 ([e3d3e5e](https://github.com/CaoMeiYouRen/momei/commit/e3d3e5e))
+* 添加 MCP 服务器的 Cursor 规则和性能测试脚本 ([507a776](https://github.com/CaoMeiYouRen/momei/commit/507a776))
+* 添加 Post 元数据统一化迁移脚本，支持历史数据回填 ([159fb6a](https://github.com/CaoMeiYouRen/momei/commit/159fb6a))
+* 添加元数据处理功能，优化文章读取模型和发布意图解析 ([3561926](https://github.com/CaoMeiYouRen/momei/commit/3561926))
+* 添加国际化支持，优化错误处理和响应格式 ([b07bc82](https://github.com/CaoMeiYouRen/momei/commit/b07bc82))
+* 添加播客模式支持，优化文稿生成逻辑并更新相关提示信息 ([e56a307](https://github.com/CaoMeiYouRen/momei/commit/e56a307))
+* 添加文章元数据支持，优化音频和发布意图处理 ([3463542](https://github.com/CaoMeiYouRen/momei/commit/3463542))
+* 添加火山引擎 ASR 配置支持并优化 WebSocket 处理逻辑 ([f2bb9f5](https://github.com/CaoMeiYouRen/momei/commit/f2bb9f5))
+* 添加火山引擎 TTS 和 ASR 协议支持，优化 WebSocket 处理逻辑 ([0c85561](https://github.com/CaoMeiYouRen/momei/commit/0c85561))
+* 添加火山引擎 TTS 提供者的语音模式支持，优化语音获取逻辑 ([ab16cb9](https://github.com/CaoMeiYouRen/momei/commit/ab16cb9))
+* 添加看板娘系统支持，包含配置项和运行时集成 ([06f608c](https://github.com/CaoMeiYouRen/momei/commit/06f608c))
+* 添加视觉特效配置支持，整合 Live2D 和 CanvasNest 设置 ([b76c9e5](https://github.com/CaoMeiYouRen/momei/commit/b76c9e5))
+* 添加评论和订阅相关的验证模式，优化查询参数处理 ([eebc6c6](https://github.com/CaoMeiYouRen/momei/commit/eebc6c6))
+* 添加音频生成的重新生成功能并更新相关文本 ([f27e38e](https://github.com/CaoMeiYouRen/momei/commit/f27e38e))
+* 统一火山引擎凭据配置，简化 ASR/TTS 设置，更新相关文档 ([29492ee](https://github.com/CaoMeiYouRen/momei/commit/29492ee))
+* 统一音频元数据处理，简化音频相关字段的更新逻辑 ([4e58786](https://github.com/CaoMeiYouRen/momei/commit/4e58786))
+
+
+### 🐛 Bug 修复
+
+* **security:** resolve ajv ReDoS vulnerability using pnpm overrides ([2aba9ae](https://github.com/CaoMeiYouRen/momei/commit/2aba9ae))
+* **security:** 修复 tts-cleaner 漏洞并升级 fast-xml-parser 依赖 ([be661ac](https://github.com/CaoMeiYouRen/momei/commit/be661ac))
+* 优化效果相关设置的空值处理逻辑 ([1e5e20c](https://github.com/CaoMeiYouRen/momei/commit/1e5e20c))
+* 修复 Playwright 配置命令顺序，确保测试服务器正常启动 ([b60f999](https://github.com/CaoMeiYouRen/momei/commit/b60f999))
+* 修复 TTS 服务流处理中的超时问题并优化错误日志 ([5b3f881](https://github.com/CaoMeiYouRen/momei/commit/5b3f881))
+* 修复语言切换器中菜单模型的类型捕获 ([acdbfad](https://github.com/CaoMeiYouRen/momei/commit/acdbfad))
+* 修改关于页面的类名为 about-page 并更新 E2E 测试以提高稳定性 ([cc062ec](https://github.com/CaoMeiYouRen/momei/commit/cc062ec))
+* 回滚 html-minifier 相关改动 ([de7c50d](https://github.com/CaoMeiYouRen/momei/commit/de7c50d))
+* 在 ApiResponse 接口中添加 locale 字段以支持语言区域 ([daa1fd7](https://github.com/CaoMeiYouRen/momei/commit/daa1fd7))
+* 增强云端流处理，添加错误处理和音频流状态管理 ([790439b](https://github.com/CaoMeiYouRen/momei/commit/790439b))
+* 将日志输出从 console.log 更改为 console.info 以提高可读性 ([bcc5af6](https://github.com/CaoMeiYouRen/momei/commit/bcc5af6))
+* 更新 brace-expansion 依赖版本至 5.0.2，确保兼容性和安全性 ([4d70178](https://github.com/CaoMeiYouRen/momei/commit/4d70178))
+* 更新 html-minifier 依赖至 html-minifier-terser@^7.2.0 ([3e0dc91](https://github.com/CaoMeiYouRen/momei/commit/3e0dc91))
+* 更新 Live2D 最小加载宽度为 768 像素以支持移动端显示 ([a50c722](https://github.com/CaoMeiYouRen/momei/commit/a50c722))
+* 更新 live2d 相关配置示例以支持新格式 ([4aa0734](https://github.com/CaoMeiYouRen/momei/commit/4aa0734))
+* 更新 minimatch 依赖版本至 10.2.3 ([0663e72](https://github.com/CaoMeiYouRen/momei/commit/0663e72))
+* 更新 rollup 版本 ([54e5df0](https://github.com/CaoMeiYouRen/momei/commit/54e5df0))
+* 更新 tar 依赖版本至 7.5.8，添加 minimatch 和 html-minifier-terser 依赖 ([4d3c59e](https://github.com/CaoMeiYouRen/momei/commit/4d3c59e))
+* 更新 TTS 选项合并逻辑，支持模式配置 ([9a6058b](https://github.com/CaoMeiYouRen/momei/commit/9a6058b))
+* 添加 basic-ftp 依赖项以支持文件传输功能 ([896b4e6](https://github.com/CaoMeiYouRen/momei/commit/896b4e6))
+* 添加 externals 配置以支持 mjml 和 html-minifier 相关模块 ([cd6996f](https://github.com/CaoMeiYouRen/momei/commit/cd6996f))
+* 添加 lodash 和 lodash-es 到 externals 配置 ([476e8d9](https://github.com/CaoMeiYouRen/momei/commit/476e8d9))
+* 添加音频相关字段的弃用提示，建议使用统一元数据结构 ([e3f45e7](https://github.com/CaoMeiYouRen/momei/commit/e3f45e7))
+* 移除 TTS 服务调试时保存音频文件的代码 ([a97222a](https://github.com/CaoMeiYouRen/momei/commit/a97222a))
+
+
+### 📦 代码重构
+
+* 优化 HTML 标签移除逻辑，使用循环防止嵌套绕过 ([00fb793](https://github.com/CaoMeiYouRen/momei/commit/00fb793))
+* 优化初始化设置逻辑，延迟主题和配置加载 ([7b027dc](https://github.com/CaoMeiYouRen/momei/commit/7b027dc))
+* 优化图像生成和任务轮询逻辑，使用 useIntervalFn 管理定时器 ([ddd7f89](https://github.com/CaoMeiYouRen/momei/commit/ddd7f89))
+* 更新导入路径为绝对路径以提高可读性 ([0d96a02](https://github.com/CaoMeiYouRen/momei/commit/0d96a02))
+* 替换 MavonEditor 组件为 AdminMavonEditorClient，优化编辑器使用 ([20076df](https://github.com/CaoMeiYouRen/momei/commit/20076df))
+* 添加 suggestImagePrompt 方法，支持生成图像提示并记录使用情况 ([08b99a6](https://github.com/CaoMeiYouRen/momei/commit/08b99a6))
+* 添加 WebSocket 权限校验，支持管理员和作者角色 ([c4ea238](https://github.com/CaoMeiYouRen/momei/commit/c4ea238))
+* 添加权限校验，优化相关 API 处理逻辑 ([936e7fc](https://github.com/CaoMeiYouRen/momei/commit/936e7fc))
+* 重新组织数据库表结构，调整表顺序并添加新表 ([caf8132](https://github.com/CaoMeiYouRen/momei/commit/caf8132))
+
 # [1.6.0](https://github.com/CaoMeiYouRen/momei/compare/v1.5.0...v1.6.0) (2026-02-21)
 
 
