@@ -75,7 +75,7 @@ export default defineConfig({
 
     /* Run your local dev server before starting the tests */
     webServer: {
-        command: 'cross-env TEST_MODE=true pnpm exec nuxt dev --port 3001',
+        command: 'pnpm exec cross-env TEST_MODE=true pnpm exec nuxt dev --port 3001',
         url: 'http://localhost:3001',
         reuseExistingServer: !process.env.CI,
         timeout: 180000,
