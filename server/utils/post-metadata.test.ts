@@ -146,4 +146,22 @@ describe('server/utils/post-metadata', () => {
 
         expect(fromLegacy.pushOption).toBe('now')
     })
+
+    it('should keep metadata tts voice and clamp legacy shadow ttsVoice length', () => {
+        const longVoice = 'zh_male_dayixiansheng_v2_saturn_bigtts,zh_female_mizaitongxue_v2_saturn_bigtts'
+        const post = createMockPost()
+
+        applyPostMetadataPatch(post, {
+            metadata: {
+                tts: {
+                    provider: 'volcengine',
+                    voice: longVoice,
+                    generatedAt: '2026-03-01T15:53:44.711Z',
+                },
+            },
+        })
+
+        expect(post.metadata?.tts?.voice).toBe(longVoice)
+        expect(post.ttsVoice).toBe('zh_male_dayixiansheng_v2_saturn_bigtts,zh_female')
+    })
 })

@@ -1,3 +1,4 @@
+import { ms } from 'ms'
 import { uploadFromBuffer } from '../upload'
 import { getSettings } from '../setting'
 import { AIBaseService } from './base'
@@ -225,8 +226,8 @@ export class TTSService extends AIBaseService {
             let lastProgressUpdateBytes = 0
 
             // 设置读取超时 (60秒内没收到任何数据或总处理超时则报错)
-            const READ_TIMEOUT = 60000
-            const MAX_TOTAL_TIME = 120000
+            const READ_TIMEOUT = ms('60s')
+            const MAX_TOTAL_TIME = ms('5m') // 整体处理超时，防止长时间挂起
             const startTime = Date.now()
             let isReadTimeoutAfterReceivingData = false
 
