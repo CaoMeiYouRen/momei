@@ -147,7 +147,7 @@ describe('server/utils/post-metadata', () => {
         expect(fromLegacy.pushOption).toBe('now')
     })
 
-    it('should keep metadata tts voice and clamp legacy shadow ttsVoice length', () => {
+    it('should keep metadata tts voice and sync full legacy shadow ttsVoice', () => {
         const longVoice = 'zh_male_dayixiansheng_v2_saturn_bigtts,zh_female_mizaitongxue_v2_saturn_bigtts'
         const post = createMockPost()
 
@@ -162,6 +162,6 @@ describe('server/utils/post-metadata', () => {
         })
 
         expect(post.metadata?.tts?.voice).toBe(longVoice)
-        expect(post.ttsVoice).toBe('zh_male_dayixiansheng_v2_saturn_bigtts,zh_female')
+        expect(post.ttsVoice).toBe(longVoice)
     })
 })

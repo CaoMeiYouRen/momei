@@ -96,7 +96,7 @@ CREATE TABLE `momei_post` (
   `audio_size` int DEFAULT NULL,
   `audio_mime_type` varchar(100) DEFAULT NULL,
   `tts_provider` varchar(50) DEFAULT NULL,
-  `tts_voice` varchar(50) DEFAULT NULL,
+  `tts_voice` varchar(255) DEFAULT NULL,
   `tts_generated_at` datetime(6) DEFAULT NULL,
   `scaffold_outline` text DEFAULT NULL,
   `scaffold_metadata` json DEFAULT NULL,

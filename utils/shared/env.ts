@@ -1,4 +1,4 @@
-import { ms } from 'ms'
+import { ms, type StringValue } from 'ms'
 import { parse } from 'better-bytes'
 import { generateRandomString } from './random'
 
@@ -295,6 +295,13 @@ export const AI_MAX_CONTENT_LENGTH = Number(
 )
 // 分段处理的目标块大小
 export const AI_CHUNK_SIZE = Number(process.env.AI_CHUNK_SIZE || 4000)
+
+// AI 重任务超时（用于 TTS / ASR / 图片生成等耗时任务），支持 ms 风格字符串，例如 5m、300s
+export const AI_HEAVY_TASK_TIMEOUT = process.env.AI_HEAVY_TASK_TIMEOUT || '5m'
+const parsedAIHeavyTaskTimeout = Number(ms(AI_HEAVY_TASK_TIMEOUT as StringValue))
+export const AI_HEAVY_TASK_TIMEOUT_MS = Number.isFinite(parsedAIHeavyTaskTimeout) && parsedAIHeavyTaskTimeout > 0
+    ? parsedAIHeavyTaskTimeout
+    : ms('5m')
 
 /**
  * AI 图像生成配置

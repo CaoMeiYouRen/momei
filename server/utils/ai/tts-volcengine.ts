@@ -11,6 +11,7 @@ import {
     parseVolcengineErrorPacket,
     parseVolcengineEventPacket,
 } from './volcengine-protocol'
+import { AI_HEAVY_TASK_TIMEOUT_MS } from '@/utils/shared/env'
 import type { TTSAudioVoice, TTSOptions, AIProvider, TTSVoiceQuery } from '@/types/ai'
 
 export interface VolcengineTTSConfig {
@@ -187,9 +188,9 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
         }
         logger.debug(`[VolcengineTTS] Request payload prepared. Speaker: ${speaker}, Model: ${bodyModel}, Speech Rate: ${speechRate}, Loudness Rate: ${loudnessRate}, Additions: ${JSON.stringify(additions)}`)
 
-        // 设置 30 秒连接并响应头部超时
+        // 连接并响应头部超时（可通过 AI_HEAVY_TASK_TIMEOUT 环境变量统一配置，默认 5 分钟）
         const controller_abort = new AbortController()
-        const timeoutId = setTimeout(() => controller_abort.abort(), 30000)
+        const timeoutId = setTimeout(() => controller_abort.abort(), AI_HEAVY_TASK_TIMEOUT_MS)
 
         const response = await fetch(url, {
             method: 'POST',

@@ -105,7 +105,7 @@ export class Post extends BaseEntity {
     /**
      * @deprecated 请改用 metadata.tts.voice
      */
-    @CustomColumn({ type: 'varchar', length: 50, nullable: true, comment: 'TTS 语音（兼容字段，建议使用 metadata.tts.voice）' })
+    @CustomColumn({ type: 'varchar', length: 255, nullable: true, comment: 'TTS 语音（兼容字段，建议使用 metadata.tts.voice）' })
     ttsVoice: string | null
 
     /**

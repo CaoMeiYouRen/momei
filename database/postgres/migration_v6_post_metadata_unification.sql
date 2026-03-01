@@ -15,7 +15,7 @@ ALTER TABLE "momei_post" ADD COLUMN IF NOT EXISTS "audio_duration" integer;
 ALTER TABLE "momei_post" ADD COLUMN IF NOT EXISTS "audio_size" integer;
 ALTER TABLE "momei_post" ADD COLUMN IF NOT EXISTS "audio_mime_type" varchar(100);
 ALTER TABLE "momei_post" ADD COLUMN IF NOT EXISTS "tts_provider" varchar(50);
-ALTER TABLE "momei_post" ADD COLUMN IF NOT EXISTS "tts_voice" varchar(50);
+ALTER TABLE "momei_post" ADD COLUMN IF NOT EXISTS "tts_voice" varchar(255);
 ALTER TABLE "momei_post" ADD COLUMN IF NOT EXISTS "tts_generated_at" timestamptz(6);
 ALTER TABLE "momei_post" ADD COLUMN IF NOT EXISTS "scaffold_outline" text;
 ALTER TABLE "momei_post" ADD COLUMN IF NOT EXISTS "scaffold_metadata" json;

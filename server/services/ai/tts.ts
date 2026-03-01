@@ -1,4 +1,3 @@
-import { ms } from 'ms'
 import { uploadFromBuffer } from '../upload'
 import { getSettings } from '../setting'
 import { AIBaseService } from './base'
@@ -8,7 +7,9 @@ import { Post } from '@/server/entities/post'
 import { AITask } from '@/server/entities/ai-task'
 import logger from '@/server/utils/logger'
 import { applyPostMetadataPatch } from '@/server/utils/post-metadata'
+import { withAITimeout } from '@/server/utils/ai/timeout'
 import { SettingKey } from '@/types/setting'
+import { AI_HEAVY_TASK_TIMEOUT_MS } from '@/utils/shared/env'
 import type { TTSOptions, TTSAudioVoice, TTSVoiceQuery } from '@/types/ai'
 
 export class TTSService extends AIBaseService {
@@ -210,7 +211,10 @@ export class TTSService extends AIBaseService {
             }
 
             logger.info(`[TTSService] Starting speech synthesis for task ${taskId}. Text length: ${contentToUse.length}, Provider: ${task.provider}`)
-            const stream = await this.generateSpeech(contentToUse, voice, { ...options, skipRecording: true }, task.userId, task.provider)
+            const stream = await withAITimeout(
+                this.generateSpeech(contentToUse, voice, { ...options, skipRecording: true }, task.userId, task.provider),
+                'TTS generation',
+            )
 
             // 任务开始处理时，如果模型字段为空，尝试补全
             if (!task.model) {
@@ -225,9 +229,9 @@ export class TTSService extends AIBaseService {
             let receivedBytes = 0
             let lastProgressUpdateBytes = 0
 
-            // 设置读取超时 (60秒内没收到任何数据或总处理超时则报错)
-            const READ_TIMEOUT = ms('60s')
-            const MAX_TOTAL_TIME = ms('5m') // 整体处理超时，防止长时间挂起
+            // 设置读取超时与总处理超时（可通过 AI_HEAVY_TASK_TIMEOUT 环境变量统一配置，默认 5 分钟）
+            const READ_TIMEOUT = AI_HEAVY_TASK_TIMEOUT_MS
+            const MAX_TOTAL_TIME = AI_HEAVY_TASK_TIMEOUT_MS
             const startTime = Date.now()
             let isReadTimeoutAfterReceivingData = false
 
@@ -242,7 +246,7 @@ export class TTSService extends AIBaseService {
                     // 使用可以清理的超时
                     let timeoutId: any
                     const timeoutPromise = new Promise<{ done: boolean, value?: Uint8Array }>((_, reject) => {
-                        timeoutId = setTimeout(() => reject(new Error('Stream read timeout: No data received for 60 seconds')), READ_TIMEOUT)
+                        timeoutId = setTimeout(() => reject(new Error(`Stream read timeout: No data received for ${Math.round(READ_TIMEOUT / 1000)} seconds`)), READ_TIMEOUT)
                     })
 
                     try {

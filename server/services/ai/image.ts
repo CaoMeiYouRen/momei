@@ -1,6 +1,7 @@
 import { uploadFromUrl } from '../upload'
 import { AIBaseService } from './base'
 import { getAIImageProvider } from '@/server/utils/ai'
+import { withAITimeout } from '@/server/utils/ai/timeout'
 import logger from '@/server/utils/logger'
 import type { AIImageOptions, AIImageResponse } from '@/types/ai'
 
@@ -46,22 +47,28 @@ export class ImageService extends AIBaseService {
                 throw new Error(`Provider ${provider.name} does not support image generation`)
             }
 
-            const response = await provider.generateImage(options)
+            const response = await withAITimeout(
+                provider.generateImage(options),
+                'Image generation',
+            )
 
-            const persistedImages = await Promise.all(
-                response.images.map(async (img, index) => {
-                    const filename = response.images.length > 1 ? `${taskId}_${index}` : taskId
-                    const uploadedImage = await uploadFromUrl(
-                        img.url,
-                        'ai-images',
-                        userId,
-                        filename,
-                    )
-                    return {
-                        ...img,
-                        url: uploadedImage.url,
-                    }
-                }),
+            const persistedImages = await withAITimeout(
+                Promise.all(
+                    response.images.map(async (img, index) => {
+                        const filename = response.images.length > 1 ? `${taskId}_${index}` : taskId
+                        const uploadedImage = await uploadFromUrl(
+                            img.url,
+                            'ai-images',
+                            userId,
+                            filename,
+                        )
+                        return {
+                            ...img,
+                            url: uploadedImage.url,
+                        }
+                    }),
+                ),
+                'Image persistence',
             )
 
             const finalResponse: AIImageResponse = {

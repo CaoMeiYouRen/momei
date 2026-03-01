@@ -83,7 +83,7 @@ CREATE TABLE "momei_post" (
   "audio_size" integer,
   "audio_mime_type" varchar(100),
   "tts_provider" varchar(50),
-  "tts_voice" varchar(50),
+  "tts_voice" varchar(255),
   "tts_generated_at" datetime,
   "scaffold_outline" text,
   "scaffold_metadata" text,

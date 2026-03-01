@@ -11,6 +11,7 @@ import {
     decodeVolcenginePayload,
     decodeVolcenginePayloadBySerialization,
 } from './volcengine-protocol'
+import { AI_HEAVY_TASK_TIMEOUT_MS } from '@/utils/shared/env'
 import type { AIProvider, TranscribeOptions, TranscribeResponse } from '@/types/ai'
 
 export const DEFAULT_VOLCENGINE_STREAM_ENDPOINT = 'wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_async'
@@ -256,9 +257,9 @@ export class VolcengineASRProvider implements Partial<AIProvider> {
                 ws.close()
                 reject(createError({
                     statusCode: 504,
-                    message: 'Volcengine ASR timeout',
+                    message: `Volcengine ASR timeout (${AI_HEAVY_TASK_TIMEOUT_MS}ms)`,
                 }))
-            }, 30000)
+            }, AI_HEAVY_TASK_TIMEOUT_MS)
 
             let finalText = ''
             let settled = false

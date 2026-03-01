@@ -1,5 +1,6 @@
 import { AIBaseService } from './base'
 import { getAIProvider } from '@/server/utils/ai'
+import { withAITimeout } from '@/server/utils/ai/timeout'
 import { dataSource } from '@/server/database'
 import { ASRQuota } from '@/server/entities/asr-quota'
 import logger from '@/server/utils/logger'
@@ -17,12 +18,15 @@ export class ASRService extends AIBaseService {
                 throw new Error(`Provider ${provider.name} does not support ASR`)
             }
 
-            const response = await provider.transcribe({
-                audioBuffer: audio instanceof Buffer ? audio : Buffer.from(await (audio as Blob).arrayBuffer()),
-                fileName: (options as any).fileName || 'audio.webm',
-                mimeType: (options as any).mimeType || 'audio/webm',
-                ...options,
-            } as TranscribeOptions)
+            const response = await withAITimeout(
+                provider.transcribe({
+                    audioBuffer: audio instanceof Buffer ? audio : Buffer.from(await (audio as Blob).arrayBuffer()),
+                    fileName: (options as any).fileName || 'audio.webm',
+                    mimeType: (options as any).mimeType || 'audio/webm',
+                    ...options,
+                } as TranscribeOptions),
+                'ASR transcription',
+            )
 
             const audioSize = audio instanceof Buffer ? audio.length : (audio as any).size
             const textLength = response.text.length

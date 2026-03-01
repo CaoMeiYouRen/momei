@@ -24,16 +24,6 @@ interface PostIntentCarrier {
 
 type PostMetadataPatch = Partial<PostMetadata> | null
 
-const LEGACY_TTS_PROVIDER_MAX_LENGTH = 50
-const LEGACY_TTS_VOICE_MAX_LENGTH = 50
-
-function clampLegacyText(value: string | null | undefined, maxLength: number): string | null {
-    if (typeof value !== 'string') {
-        return null
-    }
-    return value.length > maxLength ? value.slice(0, maxLength) : value
-}
-
 function isPlainObject(value: unknown): value is Record<string, unknown> {
     return Object.prototype.toString.call(value) === '[object Object]'
 }
@@ -122,8 +112,8 @@ function applyShadowFieldsFromMetadata(post: Post, metadata: PostMetadata | null
 
     if (Object.prototype.hasOwnProperty.call(metadata, 'tts')) {
         const tts = metadata.tts
-        post.ttsProvider = clampLegacyText(tts?.provider, LEGACY_TTS_PROVIDER_MAX_LENGTH)
-        post.ttsVoice = clampLegacyText(tts?.voice, LEGACY_TTS_VOICE_MAX_LENGTH)
+        post.ttsProvider = tts?.provider ?? null
+        post.ttsVoice = tts?.voice ?? null
         post.ttsGeneratedAt = tts?.generatedAt ? new Date(tts.generatedAt) : null
     }
 
