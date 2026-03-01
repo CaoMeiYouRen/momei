@@ -174,9 +174,11 @@
 import { ref, onMounted } from 'vue'
 import { useIntervalFn, useTimeoutFn } from '@vueuse/core'
 import { useToast } from 'primevue/usetoast'
+import type { Post } from '@/types/post'
+import { createMarkdownRenderer } from '@/utils/shared/markdown'
 
 const props = defineProps<{
-    post: any
+    post: Post
     isNew: boolean
 }>()
 
@@ -252,12 +254,20 @@ const doSubmit = () => {
     submitting.value = true
     taskStatus.value = {}
 
+    const md = createMarkdownRenderer({
+        html: true,
+        withAnchor: true,
+    })
+
+    const renderedContent = md.render(props.post.content || '')
+
     const postToSync = {
         title: props.post.title,
-        content: props.post.content,
+        markdown: props.post.content, // markdown 格式
+        content: renderedContent, // HTML 格式，供部分平台使用
         // desc for some platforms
         desc: props.post.summary || props.post.content.substring(0, 100).replace(/[#*`]/g, ''),
-        thumb: props.post.coverImage || '',
+        cover: props.post.coverImage || '',
     }
 
     // @ts-ignore
