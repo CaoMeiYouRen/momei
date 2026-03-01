@@ -149,6 +149,57 @@ const createWinstonLogger = () => {
 
 const winstonLogger = createWinstonLogger()
 
+const MAX_LOG_STRING_LENGTH = 500
+const MAX_LOG_ARRAY_LENGTH = 10
+const MAX_LOG_OBJECT_KEYS = 20
+const MAX_LOG_DEPTH = 3
+
+function truncateLogValue(value: unknown, depth: number = 0): unknown {
+    if (value === null || value === undefined) {
+        return value
+    }
+
+    if (typeof value === 'string') {
+        if (value.length <= MAX_LOG_STRING_LENGTH) {
+            return value
+        }
+        return `${value.slice(0, MAX_LOG_STRING_LENGTH)}... [truncated ${value.length - MAX_LOG_STRING_LENGTH} chars]`
+    }
+
+    if (typeof value === 'number' || typeof value === 'boolean') {
+        return value
+    }
+
+    if (depth >= MAX_LOG_DEPTH) {
+        return '[Max depth reached]'
+    }
+
+    if (Array.isArray(value)) {
+        const truncatedItems = value
+            .slice(0, MAX_LOG_ARRAY_LENGTH)
+            .map((item) => truncateLogValue(item, depth + 1))
+        if (value.length > MAX_LOG_ARRAY_LENGTH) {
+            truncatedItems.push(`[... ${value.length - MAX_LOG_ARRAY_LENGTH} more items]`)
+        }
+        return truncatedItems
+    }
+
+    if (typeof value === 'object') {
+        const entries = Object.entries(value as Record<string, unknown>)
+        const result: Record<string, unknown> = {}
+        for (const [index, [key, val]] of entries.entries()) {
+            if (index >= MAX_LOG_OBJECT_KEYS) {
+                result.__truncatedKeys = `${entries.length - MAX_LOG_OBJECT_KEYS} keys omitted`
+                break
+            }
+            result[key] = truncateLogValue(val, depth + 1)
+        }
+        return result
+    }
+
+    return '[Unsupported log value]'
+}
+
 // 基于 Winston 的标准日志级别
 const baseLogger = {
     withTag: (tag: string) => ({
@@ -363,12 +414,12 @@ const extendedLogger: ExtendedLogger = {
             if (data.slow || data.sensitive) {
                 databaseLogger.warn(message, {
                     query: data.sensitive ? '[REDACTED]' : data.query?.substring(0, 200),
-                    params: data.sensitive ? '[REDACTED]' : data.params,
+                    params: data.sensitive ? '[REDACTED]' : truncateLogValue(data.params),
                 })
             } else if (__DEV__) {
                 databaseLogger.debug(message, {
                     query: data.query?.substring(0, 200),
-                    params: data.params,
+                    params: truncateLogValue(data.params),
                 })
             } else if (data.type && data.type !== 'SELECT') {
                 // 生产环境只记录非SELECT操作的概要

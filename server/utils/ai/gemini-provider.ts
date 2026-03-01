@@ -29,10 +29,21 @@ export class GeminiProvider implements AIProvider {
         const apiKey = this.config.apiKey
         const apiToken = this.config.apiToken
         try {
-            const contents = options.messages.map((msg: AIChatMessage) => ({
+            const systemMessages = options.messages.filter((msg: AIChatMessage) => msg.role === 'system')
+            const conversationMessages = options.messages.filter((msg: AIChatMessage) => msg.role !== 'system')
+
+            const contents = conversationMessages.map((msg: AIChatMessage) => ({
                 role: msg.role === 'assistant' ? 'model' : 'user',
                 parts: [{ text: msg.content }],
             }))
+
+            const systemInstruction = systemMessages.length > 0
+                ? {
+                    parts: [{
+                        text: systemMessages.map((message) => message.content).join('\n'),
+                    }],
+                }
+                : undefined
 
             const response = await $fetch<any>(`${baseUrl}/v1beta/models/${model}:generateContent?key=${apiKey}`, {
                 method: 'POST',
@@ -42,6 +53,7 @@ export class GeminiProvider implements AIProvider {
                     ...(apiToken ? { Authorization: `Bearer ${apiToken}` } : {}),
                 },
                 body: {
+                    ...(systemInstruction ? { systemInstruction } : {}),
                     contents,
                     generationConfig: {
                         temperature: options.temperature ?? this.config.temperature,
@@ -83,54 +95,65 @@ export class GeminiProvider implements AIProvider {
         const apiKey = this.config.apiKey
         const apiToken = this.config.apiToken
         try {
-            const response = await $fetch<any>(`${baseUrl}/v1beta/models/${model}:generateImage?key=${apiKey}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // 如果有额外的 API Token，添加到 Authorization
-                    ...(apiToken ? { Authorization: `Bearer ${apiToken}` } : {}),
-                },
-                body: {
-                    prompt: {
-                        text: options.prompt,
+            const useGenerateContentApi = this.shouldUseGenerateContentForImage(model)
+            const response = await $fetch<any>(
+                `${baseUrl}/v1beta/models/${model}:${useGenerateContentApi ? 'generateContent' : 'generateImage'}?key=${apiKey}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // 如果有额外的 API Token，添加到 Authorization
+                        ...(apiToken ? { Authorization: `Bearer ${apiToken}` } : {}),
                     },
-                    imageGenerationParams: {
-                        numberOfImages: options.n || 1,
-                        aspectRatio: this.mapAspectRatio(options.aspectRatio || '1:1'),
-                        // quality/style mapping
-                        addWatermark: false, // Default to false for better integration
-                    },
-                    safetySettings: [
-                        {
-                            category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-                            threshold: 'BLOCK_LOW_AND_ABOVE',
+                    body: useGenerateContentApi
+                        ? {
+                            contents: [
+                                {
+                                    role: 'user',
+                                    parts: [{ text: options.prompt }],
+                                },
+                            ],
+                            generationConfig: {
+                                responseModalities: ['TEXT', 'IMAGE'],
+                            },
+                        }
+                        : {
+                            prompt: {
+                                text: options.prompt,
+                            },
+                            imageGenerationParams: {
+                                numberOfImages: options.n || 1,
+                                aspectRatio: this.mapAspectRatio(options.aspectRatio || '1:1'),
+                                addWatermark: false,
+                            },
+                            safetySettings: [
+                                {
+                                    category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+                                    threshold: 'BLOCK_LOW_AND_ABOVE',
+                                },
+                                {
+                                    category: 'HARM_CATEGORY_HATE_SPEECH',
+                                    threshold: 'BLOCK_LOW_AND_ABOVE',
+                                },
+                                {
+                                    category: 'HARM_CATEGORY_HARASSMENT',
+                                    threshold: 'BLOCK_LOW_AND_ABOVE',
+                                },
+                                {
+                                    category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                                    threshold: 'BLOCK_LOW_AND_ABOVE',
+                                },
+                            ],
                         },
-                        {
-                            category: 'HARM_CATEGORY_HATE_SPEECH',
-                            threshold: 'BLOCK_LOW_AND_ABOVE',
-                        },
-                        {
-                            category: 'HARM_CATEGORY_HARASSMENT',
-                            threshold: 'BLOCK_LOW_AND_ABOVE',
-                        },
-                        {
-                            category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                            threshold: 'BLOCK_LOW_AND_ABOVE',
-                        },
-                    ],
-                },
-            })
+                })
 
-            if (!response.generatedImages || response.generatedImages.length === 0) {
+            const imageUrls = this.extractImageUrlsFromResponse(response)
+            if (imageUrls.length === 0) {
                 throw new Error('No images generated by Gemini')
             }
 
             return {
-                images: response.generatedImages.map((img: any) => ({
-                    url: img.bytesBase64Encoded
-                        ? `data:image/png;base64,${img.bytesBase64Encoded}`
-                        : img.imageUri,
-                })),
+                images: imageUrls.map((url) => ({ url })),
                 model,
                 raw: response,
             }
@@ -155,6 +178,47 @@ export class GeminiProvider implements AIProvider {
             case '3:4': return '3:4'
             default: return '1:1'
         }
+    }
+
+    private shouldUseGenerateContentForImage(model: string): boolean {
+        return !model.toLowerCase().startsWith('imagen')
+    }
+
+    private extractImageUrlsFromResponse(response: any): string[] {
+        if (Array.isArray(response?.generatedImages) && response.generatedImages.length > 0) {
+            return response.generatedImages
+                .map((img: any) => {
+                    const base64Data = img?.bytesBase64Encoded
+                    if (typeof base64Data === 'string' && base64Data.length > 0) {
+                        return `data:image/png;base64,${base64Data}`
+                    }
+                    const imageUri = img?.imageUri
+                    return typeof imageUri === 'string' ? imageUri : ''
+                })
+                .filter((url: string) => url.length > 0)
+        }
+
+        const candidateParts = response?.candidates?.[0]?.content?.parts
+        if (!Array.isArray(candidateParts)) {
+            return []
+        }
+
+        return candidateParts
+            .map((part: any) => {
+                const inlineData = part?.inlineData || part?.inline_data
+                const base64Data = inlineData?.data
+                if (typeof base64Data === 'string' && base64Data.length > 0) {
+                    const mimeType = inlineData?.mimeType || inlineData?.mime_type || 'image/png'
+                    return `data:${mimeType};base64,${base64Data}`
+                }
+
+                const imageUri = part?.imageUri || part?.image_uri
+                if (typeof imageUri === 'string' && imageUri.length > 0) {
+                    return imageUri
+                }
+                return ''
+            })
+            .filter((url: string) => url.length > 0)
     }
 
     async check?(): Promise<boolean> {

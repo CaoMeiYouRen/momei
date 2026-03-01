@@ -60,11 +60,14 @@ export const AI_PROMPTS = {
         + 'Content Summary: {{contentSummary}}\n\n'
         + 'Rules for the prompt:\n'
         + '1. Describe a scene or abstract concept that is professional and high-end.\n'
-        + '2. Mention artistic style (e.g., "minimalist digital art", "vivid oil painting", "isometric 3D render", "clean modern photography").\n'
-        + '3. Mention lighting and color palette (e.g., "warm cinematic lighting", "soft pastel colors", "dark mode neon style").\n'
-        + '4. Response ONLY with the final prompt content, no other text.\n'
-        + '5. Provide the prompt in the following language: {{language}}.\n'
-        + '6. Keep it under 200 words.',
+        + '2. Include visible cover title text extracted from the article title/summary, and place the text in the exact center of the image.\n'
+        + '3. Keep enough blank space around the centered title (top, bottom, left, right) so the title remains readable after thumbnail or responsive cropping.\n'
+        + '4. The cover title text language must match the article language: {{language}}.\n'
+        + '5. Mention artistic style (e.g., "minimalist digital art", "vivid oil painting", "isometric 3D render", "clean modern photography").\n'
+        + '6. Mention lighting and color palette (e.g., "warm cinematic lighting", "soft pastel colors", "dark mode neon style").\n'
+        + '5. Response ONLY with the final prompt content, no other text.\n'
+        + '6. Provide the prompt in the following language: {{language}}.\n'
+        + '7. Keep it under 200 words.',
     RECOMMEND_TAGS:
         'Help me recommend 5-10 tags for the following article in {{language}}. Choose tags that are relevant, SEO-friendly, and common in technical blogging. Output ONLY as a JSON array of strings: \n\n{{content}}',
 }

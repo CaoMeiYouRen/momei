@@ -157,6 +157,36 @@ describe('AI Infrastructure', () => {
         )
     })
 
+    it('should map system message to Gemini systemInstruction', async () => {
+        mockFetch.mockResolvedValueOnce({
+            candidates: [{ content: { parts: [{ text: 'Gemini says hi' }] } }],
+        })
+
+        const provider = await getAIProvider({
+            provider: 'gemini',
+            apiKey: 'gemini-key',
+            model: 'gemini-3-pro-preview',
+        })
+        await provider.chat!({
+            messages: [
+                { role: 'system', content: '你是一只小猪' },
+                { role: 'user', content: '你是谁?' },
+            ],
+        })
+
+        expect(mockFetch).toHaveBeenCalledWith(
+            expect.stringContaining('/v1beta/models/gemini-3-pro-preview:generateContent?key=gemini-key'),
+            expect.objectContaining({
+                body: expect.objectContaining({
+                    systemInstruction: expect.objectContaining({
+                        parts: [{ text: '你是一只小猪' }],
+                    }),
+                    contents: [{ role: 'user', parts: [{ text: '你是谁?' }] }],
+                }),
+            }),
+        )
+    })
+
     it('should support Gemini image generation', async () => {
         mockFetch.mockResolvedValueOnce({
             generatedImages: [{ bytesBase64Encoded: 'iVBORw...' }],
@@ -180,6 +210,47 @@ describe('AI Infrastructure', () => {
                 body: expect.objectContaining({
                     imageGenerationParams: expect.objectContaining({
                         aspectRatio: '16:9',
+                    }),
+                }),
+            }),
+        )
+    })
+
+    it('should support Gemini preview image model via generateContent', async () => {
+        mockFetch.mockResolvedValueOnce({
+            candidates: [{
+                content: {
+                    parts: [{
+                        inlineData: {
+                            mimeType: 'image/png',
+                            data: 'iVBORw-preview...',
+                        },
+                    }],
+                },
+            }],
+        })
+
+        const provider = await getAIProvider({
+            provider: 'gemini',
+            apiKey: 'gemini-key',
+            model: 'gemini-3-pro-image-preview',
+        })
+        const response = await provider.generateImage!({
+            prompt: 'A beautiful sunset',
+            aspectRatio: '16:9',
+        })
+
+        expect(response.images[0]!.url).toContain('data:image/png;base64,iVBORw-preview')
+        expect(mockFetch).toHaveBeenCalledWith(
+            expect.stringContaining('/v1beta/models/gemini-3-pro-image-preview:generateContent?key=gemini-key'),
+            expect.objectContaining({
+                method: 'POST',
+                body: expect.objectContaining({
+                    contents: expect.arrayContaining([
+                        expect.objectContaining({ role: 'user' }),
+                    ]),
+                    generationConfig: expect.objectContaining({
+                        responseModalities: ['TEXT', 'IMAGE'],
                     }),
                 }),
             }),
