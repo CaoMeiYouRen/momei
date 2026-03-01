@@ -12,6 +12,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check-env:
+    name: Check Secrets
+    runs-on: ubuntu-latest
+    outputs:
+      docker-enabled: ${{ steps.check.outputs.docker }}
+      aliyun-enabled: ${{ steps.check.outputs.aliyun }}
+    steps:
+      - id: check
+        run: |
+          if [ "${{ secrets.DOCKER_USERNAME }}" != "" ]; then echo "docker=true" >> $GITHUB_OUTPUT; fi
+          if [ "${{ secrets.ALIYUN_USERNAME }}" != "" ]; then echo "aliyun=true" >> $GITHUB_OUTPUT; fi
+
   qa:
     name: QA
     runs-on: ubuntu-latest
@@ -59,9 +71,17 @@ jobs:
       - run: pnpm run test:e2e
 
   build:
-    needs: [qa, e2e] # 等待 QA 和 E2E 执行成功
-    runs-on: ubuntu-latest
+    needs: [qa, e2e, check-env] # 等待 QA 和 E2E 执行成功
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
     permissions:
       packages: write
       contents: read
@@ -69,10 +89,20 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
+      - name: Enable ZRAM
+        run: |
+          sudo apt-get update -yq
+          sudo apt-get install -yq zram-tools
+          echo -e 'ALGO=zstd\nPERCENT=100' | sudo tee -a /etc/default/zramswap
+          sudo systemctl restart zramswap
       - name: Lowercase the repo name
         run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
       - name: Get short commit hash
         run: echo "TAG=sha-${GITHUB_SHA::7}" >>${GITHUB_ENV}
+      - name: Prepare Platform Name
+        run: |
+          platform=${{ matrix.platform }}
+          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -84,11 +114,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Login to Docker Hub
+        if: needs.check-env.outputs.docker-enabled == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Login to Alibaba Cloud Container Registry
+        if: needs.check-env.outputs.aliyun-enabled == 'true'
         uses: docker/login-action@v3
         with:
           registry: registry.cn-hangzhou.aliyuncs.com
@@ -109,17 +141,93 @@ jobs:
             type=sha,format=short,prefix=sha-,enable=true
           flavor: latest=false
       - name: Build and push Docker images
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
-          # 推送到 dockerhub
+          # 推送到各个仓库，按需开启
           push: true
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          platforms: ${{ matrix.platform }}
+          cache-from: type=gha,scope=docker-${{ env.PLATFORM_PAIR }}
+          cache-to: type=gha,mode=max,scope=docker-${{ env.PLATFORM_PAIR }}
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=true
+      - name: Export digest
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ env.PLATFORM_PAIR }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    needs: [check-env, build]
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to Docker Hub
+        if: needs.check-env.outputs.docker-enabled == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Login to Alibaba Cloud Container Registry
+        if: needs.check-env.outputs.aliyun-enabled == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: registry.cn-hangzhou.aliyuncs.com
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+      - name: Extract Docker metadata
+        id: metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ github.repository }}
+            ghcr.io/${{ github.repository }}
+            registry.cn-hangzhou.aliyuncs.com/${{ github.repository }}
+          tags: |
+            type=raw,value=latest,enable=true
+            type=raw,value={{date 'YYYY-MM-DD' tz='Asia/Shanghai'}},enable=true
+            type=sha,format=short,prefix=sha-,enable=true
+          flavor: latest=false
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ github.repository }}@sha256:%s ' *) \
+            $(printf 'ghcr.io/${{ github.repository }}@sha256:%s ' *) \
+            $(printf 'registry.cn-hangzhou.aliyuncs.com/${{ github.repository }}@sha256:%s ' *)
+
+  sync-readme:
+    needs: [check-env, merge]
+    if: needs.check-env.outputs.docker-enabled == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
       - name: Docker Hub README & description sync
         uses: meeDamian/sync-readme@v1.0.6
         with:
