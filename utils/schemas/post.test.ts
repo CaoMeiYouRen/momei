@@ -198,6 +198,20 @@ describe('utils/schemas/post', () => {
             expect(result.success).toBe(true)
         })
 
+        it('publishedAt 为 null 时不应被转换为 1970', () => {
+            const data = {
+                title: '标题',
+                content: '内容',
+                publishedAt: null,
+            }
+
+            const result = createPostSchema.safeParse(data)
+            expect(result.success).toBe(true)
+            if (result.success) {
+                expect(result.data.publishedAt).toBeUndefined()
+            }
+        })
+
         it('应该验证浏览量字段', () => {
             const validData = {
                 title: '标题',

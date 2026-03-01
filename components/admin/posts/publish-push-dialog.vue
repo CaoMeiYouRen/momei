@@ -163,6 +163,19 @@ const publishedAt = ref<Date | null>(null)
 const targetType = ref<'all' | 'criteria'>('criteria')
 const articleCriteria = ref<{ categoryIds?: string[], tagIds?: string[] }>({})
 
+const parsePublishedAt = (value?: string | Date | null) => {
+    if (!value) {
+        return null
+    }
+
+    const parsed = value instanceof Date ? value : new Date(value)
+    if (Number.isNaN(parsed.getTime()) || parsed.getTime() <= 0) {
+        return null
+    }
+
+    return parsed
+}
+
 const handleConfirm = () => {
     emit('confirm', {
         pushOption: pushOption.value,
@@ -179,7 +192,7 @@ const open = (options?: {
 }) => {
     pushOption.value = 'none'
     syncToMemos.value = options?.syncToMemos || false
-    publishedAt.value = options?.publishedAt ? new Date(options.publishedAt) : null
+    publishedAt.value = parsePublishedAt(options?.publishedAt) || new Date()
     targetType.value = 'criteria'
     articleCriteria.value = options?.criteria || {}
     visible.value = true
