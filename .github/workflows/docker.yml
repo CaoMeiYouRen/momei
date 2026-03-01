@@ -124,15 +124,11 @@ jobs:
         id: metadata
         uses: docker/metadata-action@v5
         with:
-          # 发布到 docker.io / ghcr.io / registry.cn-hangzhou.aliyuncs.com
+          # 在 build 阶段我们只需要镜像名，不需要具体的 tags，因为导出到 digest
           images: |
             ${{ github.repository }}
             ghcr.io/${{ github.repository }}
             registry.cn-hangzhou.aliyuncs.com/${{ github.repository }}
-          tags: |
-            type=raw,value=latest,enable=true
-            type=raw,value={{date 'YYYY-MM-DD' tz='Asia/Shanghai'}},enable=true
-            type=sha,format=short,prefix=sha-,enable=true
           flavor: latest=false
       - name: Build and push Docker images
         id: build
@@ -140,9 +136,8 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          # 推送到各个仓库，按需开启
+          # 在 build 阶段不使用 tags，直接通过 digest 推送
           push: true
-          tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           platforms: ${{ matrix.platform }}
           cache-from: type=gha,scope=docker-${{ env.PLATFORM_PAIR }}
