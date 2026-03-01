@@ -82,6 +82,12 @@ describe('ImageService', () => {
             await new Promise((resolve) => setTimeout(resolve, 100))
 
             expect(mockProvider.generateImage).toHaveBeenCalledWith(options)
+            expect(uploadService.uploadFromUrl).toHaveBeenCalledWith(
+                'https://example.com/image.png',
+                'ai-images/',
+                'user-1',
+                'task-123',
+            )
             expect(mockRepo.save).toHaveBeenCalledWith(
                 expect.objectContaining({
                     status: 'completed',

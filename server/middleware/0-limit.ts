@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
             }
             await rateLimit(event, {
                 window: 60,
-                max: 5,
+                max: 10,
             })
             return
         }

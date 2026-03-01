@@ -58,7 +58,7 @@ export class ImageService extends AIBaseService {
                         const filename = response.images.length > 1 ? `${taskId}_${index}` : taskId
                         const uploadedImage = await uploadFromUrl(
                             img.url,
-                            'ai-images',
+                            'ai-images/',
                             userId,
                             filename,
                         )
