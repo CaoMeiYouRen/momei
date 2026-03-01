@@ -5,7 +5,7 @@ export interface GeminiConfig extends AIConfig {
     // 这里可以添加任何 Gemini 特有的配置项
     // 例如：projectId, location, etc. 但目前 Gemini API 主要通过 endpoint 和 apiKey 配置
     /**
-     * 部分平台可能会要求添加一个额外的 API Token 放在 Authorization 用于鉴权
+     * 部分代理平台可能会要求添加一个额外的 API Token 放在 Authorization 用于鉴权
      */
     apiToken?: string
 }

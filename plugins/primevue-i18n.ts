@@ -2,21 +2,21 @@
  * PrimeVue 与 Vue-i18n 动态同步插件
  * 监听 Vue-i18n 语言变化，自动同步 PrimeVue 组件的内置文本
  */
-import { watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { isRef, unref, watch } from 'vue'
 import { usePrimeVue } from 'primevue/config'
 import { zh_CN } from 'primelocale/js/zh_CN.js'
 import { en } from 'primelocale/js/en.js'
 
-export default defineNuxtPlugin(() => {
+export default defineNuxtPlugin((nuxtApp) => {
     // 避免在服务端执行
     if (import.meta.server) {
         return
     }
 
     try {
-        const { locale } = useI18n()
+        const i18n = nuxtApp.$i18n as { locale?: string | { value: string } } | undefined
         const primevue = usePrimeVue()
+        const localeSource = i18n?.locale
 
         // PrimeVue 语言映射表
         const localeMap: Record<string, any> = {
@@ -40,13 +40,19 @@ export default defineNuxtPlugin(() => {
             }
         }
 
+        if (!localeSource) {
+            return
+        }
+
         // 初始化时同步当前语言
-        syncPrimeVueLocale(locale.value)
+        syncPrimeVueLocale(unref(localeSource as any) || 'zh-CN')
 
         // 监听 Vue-i18n 语言变化，自动同步 PrimeVue
-        watch(() => locale.value, (newLocale) => {
-            syncPrimeVueLocale(newLocale)
-        })
+        if (isRef(localeSource)) {
+            watch(localeSource, (newLocale) => {
+                syncPrimeVueLocale(typeof newLocale === 'string' ? newLocale : 'zh-CN')
+            })
+        }
     } catch (error) {
         // 在某些非页面环境（如部分测试）下可能无法获取 i18n 实例，静默失败
         if (process.env.NODE_ENV !== 'test') {

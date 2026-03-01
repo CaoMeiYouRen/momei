@@ -41,17 +41,19 @@
                     outlined
                     @click="handleFormatMarkdown"
                 />
-                <Button
-                    v-if="isVoiceSupported"
-                    id="ai-voice-btn"
-                    v-tooltip="isListening ? $t('pages.admin.posts.ai.voice_stop') : $t('pages.admin.posts.ai.voice_input')"
-                    :icon="isListening ? 'pi pi-stop-circle' : 'pi pi-microphone'"
-                    text
-                    outlined
-                    :severity="isListening ? 'danger' : 'secondary'"
-                    :class="{'pulse-animation': isListening}"
-                    @click="handleVoiceClick($event)"
-                />
+                <ClientOnly>
+                    <Button
+                        v-if="isVoiceSupported"
+                        id="ai-voice-btn"
+                        v-tooltip="isListening ? $t('pages.admin.posts.ai.voice_stop') : $t('pages.admin.posts.ai.voice_input')"
+                        :icon="isListening ? 'pi pi-stop-circle' : 'pi pi-microphone'"
+                        text
+                        outlined
+                        :severity="isListening ? 'danger' : 'secondary'"
+                        :class="{'pulse-animation': isListening}"
+                        @click="handleVoiceClick($event)"
+                    />
+                </ClientOnly>
             </ButtonGroup>
             <AdminPostsPostEditorVoiceOverlay
                 ref="voiceOp"

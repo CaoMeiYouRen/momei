@@ -16,6 +16,7 @@ const mockI18n = {
 
 // Mock PrimeVue composable
 vi.mock('primevue/config', () => ({
+    default: {},
     usePrimeVue: () => mockPrimeVueConfig,
 }))
 
@@ -63,6 +64,7 @@ describe('primevue-i18n plugin', () => {
         // 执行插件
         const nuxtApp = {
             provide: vi.fn(),
+            $i18n: mockI18n,
         }
         await plugin.default(nuxtApp as any)
 
@@ -76,6 +78,7 @@ describe('primevue-i18n plugin', () => {
 
         const nuxtApp = {
             provide: vi.fn(),
+            $i18n: mockI18n,
         }
         await plugin.default(nuxtApp as any)
 
@@ -97,6 +100,7 @@ describe('primevue-i18n plugin', () => {
 
         const nuxtApp = {
             provide: vi.fn(),
+            $i18n: mockI18n,
         }
 
         // 设置不支持的语言
