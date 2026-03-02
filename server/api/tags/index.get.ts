@@ -13,13 +13,21 @@ export default defineEventHandler(async (event) => {
     const tagRepo = dataSource.getRepository(Tag)
 
     const queryBuilder = tagRepo.createQueryBuilder('tag')
-        .loadRelationCountAndMap('tag.postCount', 'tag.posts', 'post', (qb: SelectQueryBuilder<Post>) => {
-            qb.where('post.status = :status', { status: 'published' })
+        .addSelect((subQuery) => {
+            const qb = subQuery
+                .select('count(p.id)', 'postCount')
+                .from(Post, 'p')
+                .innerJoin('p.tags', 'pt')
+                .where('pt.id = tag.id')
+                .andWhere('p.status = :publishedStatus', { publishedStatus: 'published' })
+
             if (query.language) {
-                qb.andWhere('post.language = :language', { language: query.language })
+                qb.andWhere('p.language = :language', { language: query.language })
+            } else {
+                qb.andWhere('p.language = tag.language')
             }
             return qb
-        })
+        }, 'tag_postCount')
 
     // Handle Aggregation
     if (query.aggregate) {

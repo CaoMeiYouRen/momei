@@ -11,11 +11,11 @@ interface PostIntentCarrier {
     publishIntent?: PublishIntent | null
 }
 
-export function applyPostReadModelFromMetadata() {
+export function applyPostReadModelFromMetadata(_post?: any) {
     // metadata is now the source of truth
 }
 
-export function applyPostsReadModelFromMetadata() {
+export function applyPostsReadModelFromMetadata(_posts?: any[]) {
     applyPostReadModelFromMetadata()
 }
 

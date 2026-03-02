@@ -14,13 +14,20 @@ export default defineEventHandler(async (event) => {
 
     const queryBuilder = categoryRepo.createQueryBuilder('category')
         .leftJoinAndSelect('category.parent', 'parent')
-        .loadRelationCountAndMap('category.postCount', 'category.posts', 'post', (qb: SelectQueryBuilder<Post>) => {
-            qb.where('post.status = :status', { status: 'published' })
+        .addSelect((subQuery) => {
+            const qb = subQuery
+                .select('count(p.id)', 'postCount')
+                .from(Post, 'p')
+                .where('p.categoryId = category.id')
+                .andWhere('p.status = :publishedStatus', { publishedStatus: 'published' })
+
             if (query.language) {
-                qb.andWhere('post.language = :language', { language: query.language })
+                qb.andWhere('p.language = :language', { language: query.language })
+            } else {
+                qb.andWhere('p.language = category.language')
             }
             return qb
-        })
+        }, 'category_postCount')
 
     // Handle Aggregation
     if (query.aggregate) {
