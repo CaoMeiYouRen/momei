@@ -247,11 +247,46 @@ describe('AI Infrastructure', () => {
                 method: 'POST',
                 body: expect.objectContaining({
                     contents: expect.arrayContaining([
-                        expect.objectContaining({ role: 'user' }),
+                        expect.objectContaining({
+                            parts: expect.arrayContaining([
+                                expect.objectContaining({ text: 'A beautiful sunset' }),
+                            ]),
+                            role: 'user',
+                        }),
                     ]),
                     generationConfig: expect.objectContaining({
-                        responseModalities: ['TEXT', 'IMAGE'],
+                        responseModalities: ['IMAGE'],
+                        imageConfig: expect.objectContaining({
+                            aspectRatio: '16:9',
+                        }),
                     }),
+                }),
+            }),
+        )
+    })
+
+    it('should support OpenAI image generation', async () => {
+        mockFetch.mockResolvedValueOnce({
+            data: [
+                { url: 'https://openai.com/image.png', revised_prompt: 'A revised sunset' },
+            ],
+        })
+
+        const provider = await getAIProvider('image', {
+            provider: 'openai',
+            apiKey: 'openai-key',
+        })
+        const response = await provider.generateImage!({
+            prompt: 'A beautiful sunset',
+        })
+
+        expect(response.images[0]!.url).toBe('https://openai.com/image.png')
+        expect(mockFetch).toHaveBeenCalledWith(
+            expect.stringContaining('/images/generations'),
+            expect.objectContaining({
+                method: 'POST',
+                body: expect.objectContaining({
+                    prompt: 'A beautiful sunset',
                 }),
             }),
         )
@@ -263,7 +298,7 @@ describe('AI Infrastructure', () => {
             info: JSON.stringify({ prompt: 'A sunset' }),
         })
 
-        const provider = await getAIProvider({
+        const provider = await getAIProvider('image', {
             provider: 'stable-diffusion',
             endpoint: 'http://localhost:7860',
         })
