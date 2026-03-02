@@ -178,8 +178,28 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
             }) as any
         }
     }
+    // 通用图像提供者 (OpenAI 兼容)
+    if (category === 'image') {
+        switch (finalConfig.provider) {
+            case 'openai':
+            case 'doubao':
+            case 'siliconflow':
+            case 'volcengine':
+                return new OpenAIProvider(finalConfig)
+            case 'gemini':
+                return new GeminiProvider({
+                    ...finalConfig,
+                    // Gemini 可能需要额外的 apiToken 用于鉴权，优先从环境变量获取
+                    apiToken: dbSettings[SettingKey.GEMINI_API_TOKEN] || process.env.GEMINI_API_TOKEN,
+                }) as any
+            case 'stable-diffusion':
+                return new StableDiffusionProvider(finalConfig)
+            default:
+                return new OpenAIProvider(finalConfig)
+        }
+    }
 
-    // 通用文本/图像提供者 (OpenAI 兼容)
+    // 通用文本提供者 (OpenAI 兼容)
     switch (finalConfig.provider as string) {
         case 'openai':
         case 'doubao':
@@ -195,8 +215,6 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
                 // Gemini 可能需要额外的 apiToken 用于鉴权，优先从环境变量获取
                 apiToken: dbSettings[SettingKey.GEMINI_API_TOKEN] || process.env.GEMINI_API_TOKEN,
             })
-        case 'stable-diffusion':
-            return new StableDiffusionProvider(finalConfig)
         default:
             return new OpenAIProvider(finalConfig)
     }
