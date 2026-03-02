@@ -1,3 +1,4 @@
+import { normalizeAspectRatio, getSemanticScale, calculateDimension } from './image-utils'
 import type { AIConfig, AIProvider, AIImageOptions, AIImageResponse } from '@/types/ai'
 
 /**
@@ -17,7 +18,23 @@ export class StableDiffusionProvider implements AIProvider {
         const endpoint = this.config.endpoint || 'http://127.0.0.1:7860'
         const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
 
-        const [width, height] = (options.size || '1024x1024').split('x').map((num) => parseInt(num))
+        let width = 1024
+        let height = 1024
+
+        const inputSize = options.size || '1K'
+        if (inputSize.includes('x')) {
+            const parts = inputSize.split('x').map((num) => parseInt(num))
+            width = parts[0] || 1024
+            height = parts[1] || 1024
+        } else {
+            // 语义化分辨率处理 (对齐 1K, 2K, 4K)
+            const scale = getSemanticScale(inputSize)
+            const base = 1024 * scale
+            const aspectRatio = normalizeAspectRatio(options.aspectRatio || '1:1')
+            const dims = calculateDimension(base, aspectRatio)
+            width = dims.width
+            height = dims.height
+        }
 
         try {
             const response = await $fetch<any>(`${baseUrl}/sdapi/v1/txt2img`, {

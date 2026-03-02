@@ -51,9 +51,7 @@ test.describe('Homepage E2E Tests', () => {
             await expect(themeToggle.first()).toBeVisible()
             await themeToggle.first().click()
 
-            await expect.poll(async () => {
-                return await html.evaluate((el) => el.classList.contains('dark'))
-            }, { timeout: 3000 }).not.toBe(isDarkBefore)
+            await expect.poll(async () => await html.evaluate((el) => el.classList.contains('dark')), { timeout: 3000 }).not.toBe(isDarkBefore)
         }
     })
 

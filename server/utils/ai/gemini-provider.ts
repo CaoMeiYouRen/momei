@@ -116,8 +116,8 @@ export class GeminiProvider implements AIProvider {
                             generationConfig: {
                                 responseModalities: ['IMAGE'],
                                 imageConfig: {
-                                    aspect_ratio: this.mapAspectRatio(options.aspectRatio || '1:1'),
-                                    image_size: this.mapImageSize(options.size || '1K'),
+                                    aspectRatio: this.mapAspectRatio(options.aspectRatio || '1:1'),
+                                    imageSize: this.mapImageSize(options.size || '1K'),
                                 },
                             },
                         }
@@ -127,7 +127,7 @@ export class GeminiProvider implements AIProvider {
                             },
                             imageGenerationParams: {
                                 numberOfImages: options.n || 1,
-                                aspect_ratio: this.mapAspectRatio(options.aspectRatio || '1:1'),
+                                aspectRatio: this.mapAspectRatio(options.aspectRatio || '1:1'),
                                 addWatermark: false,
                             },
                             safetySettings: [
@@ -199,10 +199,18 @@ export class GeminiProvider implements AIProvider {
         }
 
         // 处理形如 '1024x1024' 的传统格式，尝试映射到 1K 等
-        if (size.includes('1024')) { return '1K' }
-        if (size.includes('2048')) { return '2K' }
-        if (size.includes('4096')) { return '4K' }
-        if (size.includes('512')) { return '512px' }
+        if (size.includes('1024')) {
+            return '1K'
+        }
+        if (size.includes('2048')) {
+            return '2K'
+        }
+        if (size.includes('4096')) {
+            return '4K'
+        }
+        if (size.includes('512')) {
+            return '512px'
+        }
 
         return '1K' // 默认 1K
     }

@@ -1,3 +1,4 @@
+import { normalizeAspectRatio, getSemanticScale, calculateDimension } from './image-utils'
 import type { AIConfig, AIChatOptions, AIChatResponse, AIProvider, AIImageOptions, AIImageResponse } from '@/types/ai'
 
 export class OpenAIProvider implements AIProvider {
@@ -58,47 +59,41 @@ export class OpenAIProvider implements AIProvider {
         const endpoint = this.config.endpoint || 'https://api.openai.com/v1'
         const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
 
-        // 解析尺寸和宽高比
+        // 统一映射语义化分辨率 (1K, 2K, 4K) 到像素字符串
         let finalSize = options.size
-        if (!finalSize && options.aspectRatio) {
+        const aspectRatio = normalizeAspectRatio(options.aspectRatio || '1:1')
+
+        if (!finalSize || ['1K', '2K', '4K', '512px'].includes(finalSize.toUpperCase())) {
+            const semanticSize = finalSize || '1K'
             const provider = (this.config.provider as string || 'openai').toLowerCase()
-            // 针对不同提供商映射最佳分辨率
-            // 注意：某些提供商（如字节跳动/豆包）在 OpenAI 兼容模式下对某些模型有最小像素要求（如 3.68M 像素）
-            if (provider === 'doubao' || provider === 'stable-diffusion') {
-                switch (options.aspectRatio) {
-                    case '1:1':
-                        finalSize = '2048x2048'
-                        break
-                    case '16:9':
-                        finalSize = '2560x1440'
-                        break
-                    case '4:3':
-                        finalSize = '2048x1536'
-                        break
-                    case '3:2':
-                        finalSize = '2048x1365'
-                        break
-                    case '9:16':
-                        finalSize = '1440x2560'
-                        break
-                    default:
-                        finalSize = '2048x2048'
+
+            // 针对 OpenAI (DALL-E 3) 的标准映射
+            if (provider === 'openai') {
+                // DALL-E 3 仅支持 1024 或 1792 (HD)
+                if (aspectRatio === '1:1') {
+                    finalSize = '1024x1024'
+                } else if (aspectRatio === '16:9') {
+                    finalSize = '1792x1024'
+                } else if (aspectRatio === '9:16') {
+                    finalSize = '1024x1792'
+                } else {
+                    finalSize = '1024x1024'
                 }
+            } else if (provider === 'doubao' || provider === 'volcengine' || provider === 'stable-diffusion') {
+                // 针对兼容 OpenAI 接口的第三方高分辨率模型 (如豆包、SD 转发层)
+                const scale = getSemanticScale(semanticSize)
+                const base = 1024 * scale
+                const { width, height } = calculateDimension(base, aspectRatio)
+                finalSize = `${width}x${height}`
+            } else if (aspectRatio === '1:1') {
+                // 其他兼容接口默认 1K 映射
+                finalSize = '1024x1024'
+            } else if (aspectRatio === '16:9') {
+                finalSize = '1792x1024'
+            } else if (aspectRatio === '9:16') {
+                finalSize = '1024x1792'
             } else {
-                // OpenAI DALL-E 3 标准尺寸
-                switch (options.aspectRatio) {
-                    case '1:1':
-                        finalSize = '1024x1024'
-                        break
-                    case '16:9':
-                        finalSize = '1792x1024'
-                        break
-                    case '9:16':
-                        finalSize = '1024x1792'
-                        break
-                    default:
-                        finalSize = '1024x1024'
-                }
+                finalSize = '1024x1024'
             }
         }
 
