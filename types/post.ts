@@ -127,26 +127,7 @@ export interface Post {
     visibility: PostVisibility
     password?: string | null
     coverImage?: string | null
-    // 音频相关 (Podcast)
-    /** @deprecated 请改用 metadata.audio.url */
-    audioUrl?: string | null
-    /** @deprecated 请改用 metadata.audio.duration */
-    audioDuration?: number | null
-    /** @deprecated 请改用 metadata.audio.size */
-    audioSize?: number | null
-    /** @deprecated 请改用 metadata.audio.mimeType */
-    audioMimeType?: string | null
-    /** @deprecated 请改用 metadata.tts.provider */
-    ttsProvider?: string | null
-    /** @deprecated 请改用 metadata.tts.voice */
-    ttsVoice?: string | null
-    /** @deprecated 请改用 metadata.tts.generatedAt */
-    ttsGeneratedAt?: string | Date | null
     // AI 与元数据
-    /** @deprecated 请改用 metadata.scaffold.outline */
-    scaffoldOutline?: string | null
-    /** @deprecated 请改用 metadata.scaffold.metadata */
-    scaffoldMetadata?: Record<string, unknown> | null
     metadata?: PostMetadata | null
     metaVersion?: number
     // 归类与时间

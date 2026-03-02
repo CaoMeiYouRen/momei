@@ -29,19 +29,6 @@ export function usePostEditorIO(
             ...(post.value.metadata || {}),
             audio: nextAudio,
         }
-
-        if (patch.url !== undefined) {
-            post.value.audioUrl = patch.url
-        }
-        if (patch.duration !== undefined) {
-            post.value.audioDuration = patch.duration
-        }
-        if (patch.size !== undefined) {
-            post.value.audioSize = patch.size
-        }
-        if (patch.mimeType !== undefined) {
-            post.value.audioMimeType = patch.mimeType
-        }
     }
 
     const uploadFile = async (file: File) => {

@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 
-    applyPostReadModelFromMetadata(post)
+    applyPostReadModelFromMetadata()
 
     // 处理敏感信息（如密码等，如果有的话）
     const safePost = { ...post }

@@ -199,9 +199,6 @@ describe('Feed Generation Utility', () => {
                 mimeType: 'audio/mpeg',
             },
         }
-        postPod.audioUrl = null
-        postPod.audioSize = null
-        postPod.audioMimeType = null
         postPod.coverImage = 'https://example.com/cover.png'
         postPod.publishedAt = new Date()
         await postRepo.save(postPod)
@@ -235,7 +232,6 @@ describe('Feed Generation Utility', () => {
                 url: 'https://example.com/other.mp3',
             },
         }
-        postWithAudio.audioUrl = null
         postWithAudio.coverImage = 'https://example.com/reg-cover.png'
         postWithAudio.publishedAt = new Date()
         await postRepo.save(postWithAudio)

@@ -32,7 +32,7 @@
                     <i class="pi pi-eye" />
                     {{ post.views }}
                 </span>
-                <span v-if="post.audioUrl" class="article-card__meta-item article-card__meta-item--podcast">
+                <span v-if="post.metadata?.audio?.url" class="article-card__meta-item article-card__meta-item--podcast">
                     <i class="pi pi-headphones" />
                     {{ $t('common.podcast') }}
                 </span>

@@ -331,12 +331,21 @@ export class TTSService extends AIBaseService {
             // Update Post if exists
             if (post) {
                 applyPostMetadataPatch(post, {
-                    audioUrl: uploadedFile.url,
-                    audioSize: buffer.length,
-                    audioMimeType: mimetype,
-                    ttsProvider: task.provider || null,
-                    ttsVoice: voice,
-                    ttsGeneratedAt: new Date(),
+                    metadata: {
+                        ...post.metadata,
+                        audio: {
+                            ...post.metadata?.audio,
+                            url: uploadedFile.url,
+                            size: buffer.length,
+                            mimeType: mimetype,
+                        },
+                        tts: {
+                            ...post.metadata?.tts,
+                            provider: task.provider || null,
+                            voice,
+                            generatedAt: new Date(),
+                        },
+                    },
                 })
                 await postRepo.save(post)
             }

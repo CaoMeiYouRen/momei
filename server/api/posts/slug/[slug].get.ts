@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 404, statusMessage: 'Post not found' })
     }
 
-    applyPostReadModelFromMetadata(post)
+    applyPostReadModelFromMetadata()
 
     // 处理作者哈希并保护隐私
     await processAuthorPrivacy(post.author, !!isUserAdmin)

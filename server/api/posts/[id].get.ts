@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     qb.where('post.id = :id', { id })
 
     const post = ensureFound(await qb.getOne(), 'Post')
-    applyPostReadModelFromMetadata(post)
+    applyPostReadModelFromMetadata()
 
     // 处理作者哈希并保护隐私
     await processAuthorPrivacy(post.author, !!isUserAdmin)

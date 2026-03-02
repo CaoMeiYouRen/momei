@@ -37,13 +37,6 @@ async function applyPostChanges(
     applyPostMetadataPatch(post, {
         metadata: body.metadata,
         metaVersion: body.metaVersion,
-        audioUrl: body.audioUrl,
-        audioDuration: body.audioDuration,
-        audioSize: body.audioSize,
-        audioMimeType: body.audioMimeType,
-        scaffoldOutline: body.scaffoldOutline,
-        scaffoldMetadata: body.scaffoldMetadata,
-        publishIntent: body.publishIntent as PublishIntent | null | undefined,
     })
 
     // 2. 分类处理 (逻辑复用)

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Admin Workflow E2E Tests', () => {
     // 使用辅助类进行认证
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async () => {
         // 在每个测试前确保已登录
         // 注意：这需要在测试环境中设置管理员账号
         // 如果没有，这些测试将被跳过

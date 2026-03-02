@@ -79,12 +79,16 @@ describe('ArticleCard', () => {
         expect(img.attributes('decoding')).toBe('async')
     })
 
-    it('renders podcast label when audioUrl is present', async () => {
+    it('renders podcast label when audio is present in metadata', async () => {
         const wrapper = await mountSuspended(ArticleCard, {
             props: {
                 post: {
                     ...mockPost,
-                    audioUrl: 'https://example.com/audio.mp3',
+                    metadata: {
+                        audio: {
+                            url: 'https://example.com/audio.mp3',
+                        },
+                    },
                 },
             },
         })

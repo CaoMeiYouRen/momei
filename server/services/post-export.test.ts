@@ -48,12 +48,11 @@ describe('Post Export Service', () => {
         expect(markdown).toContain('Content')
     })
 
-    it('should export audio from metadata when legacy audioUrl is empty', () => {
+    it('should export audio from metadata', () => {
         const post = new Post()
         post.title = 'Audio Metadata Post'
         post.content = 'Audio Content'
         post.slug = 'audio-metadata'
-        post.audioUrl = null
         post.metadata = {
             audio: {
                 url: 'https://example.com/metadata-audio.mp3',

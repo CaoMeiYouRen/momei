@@ -20,7 +20,7 @@ export function formatPostToMarkdown(post: Post): string {
         frontMatter.image = post.coverImage
     }
 
-    const audioUrl = post.metadata?.audio?.url || post.audioUrl
+    const audioUrl = post.metadata?.audio?.url
     if (audioUrl) {
         frontMatter.audio = audioUrl
     }
