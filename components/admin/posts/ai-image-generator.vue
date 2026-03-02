@@ -240,7 +240,8 @@ const generateImage = async () => {
             method: 'POST',
             body: {
                 prompt: prompt.value,
-                aspectRatio: '16:9',
+                aspectRatio: '16:9', // 宽高比
+                // size: '2K', // 不设置分辨率以走每个渠道的默认分辨率，避免某些渠道不支持特定分辨率导致失败
             },
         })
 
