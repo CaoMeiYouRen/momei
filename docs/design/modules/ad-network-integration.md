@@ -792,9 +792,9 @@ export function evaluateTargeting(
 - [x] 实现 Locale 定向
 
 ### Phase 3: 国产广告 (Week 3)
-- [ ] 开发百度联盟适配器
-- [ ] 开发腾讯广告适配器
-- [ ] 完善定向投放逻辑
+- [x] 开发百度联盟适配器
+- [x] 开发腾讯广告适配器
+- [x] 完善定向投放逻辑
 
 ### Phase 4: 外链管理 (Week 4)
 - [ ] 实现外链短码生成
