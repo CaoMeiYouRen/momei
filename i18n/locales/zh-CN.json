@@ -485,6 +485,40 @@
                 "tags": "关键词标签",
                 "review_success": "操作成功"
             },
+            "ad": {
+                "placements": {
+                    "title": "广告位管理",
+                    "empty": "暂无广告位",
+                    "location": "位置",
+                    "format": "格式",
+                    "adapter": "适配器",
+                    "priority": "优先级",
+                    "slot_id": "广告位 ID",
+                    "slot_id_placeholder": "例如: ca-pub-1234567890/1234567890",
+                    "slot_id_hint": "请输入您的广告平台广告位 ID"
+                },
+                "campaigns": {
+                    "title": "广告活动",
+                    "empty": "暂无广告活动",
+                    "start_date": "开始日期",
+                    "end_date": "结束日期",
+                    "impressions": "展示次数",
+                    "clicks": "点击次数",
+                    "revenue": "收益"
+                }
+            },
+            "external_links": {
+                "title": "外链管理",
+                "empty": "暂无外链",
+                "short_code": "短码",
+                "original_url": "原始链接",
+                "clicks": "点击次数",
+                "show_redirect": "跳转页",
+                "no_follow": "No Follow",
+                "show_redirect_page": "显示跳转页",
+                "stats": "统计信息",
+                "title_placeholder": "可选链接标题"
+            },
             "ai": {
                 "title": "AI 任务与统计",
                 "tasks": "任务记录",

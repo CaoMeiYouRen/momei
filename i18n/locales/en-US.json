@@ -501,6 +501,40 @@
                 "tags": "Tags",
                 "review_success": "Action successful"
             },
+            "ad": {
+                "placements": {
+                    "title": "Ad Placements",
+                    "empty": "No placements found",
+                    "location": "Location",
+                    "format": "Format",
+                    "adapter": "Adapter",
+                    "priority": "Priority",
+                    "slot_id": "Slot ID",
+                    "slot_id_placeholder": "e.g., ca-pub-1234567890/1234567890",
+                    "slot_id_hint": "Enter your ad platform slot ID"
+                },
+                "campaigns": {
+                    "title": "Ad Campaigns",
+                    "empty": "No campaigns found",
+                    "start_date": "Start Date",
+                    "end_date": "End Date",
+                    "impressions": "Impressions",
+                    "clicks": "Clicks",
+                    "revenue": "Revenue"
+                }
+            },
+            "external_links": {
+                "title": "External Links",
+                "empty": "No links found",
+                "short_code": "Short Code",
+                "original_url": "Original URL",
+                "clicks": "Clicks",
+                "show_redirect": "Redirect Page",
+                "no_follow": "No Follow",
+                "show_redirect_page": "Show Redirect Page",
+                "stats": "Statistics",
+                "title_placeholder": "Optional link title"
+            },
             "ai": {
                 "title": "AI Tasks & Stats",
                 "tasks": "Task History",
