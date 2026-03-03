@@ -1,4 +1,3 @@
-import { convert } from 'html-to-text'
 import { dataSource } from '@/server/database'
 import { Subscriber } from '@/server/entities/subscriber'
 import { MarketingCampaign } from '@/server/entities/marketing-campaign'
@@ -11,6 +10,7 @@ import { Post } from '@/server/entities/post'
 import { User } from '@/server/entities/user'
 import { isAdmin } from '@/utils/shared/roles'
 import logger from '@/server/utils/logger'
+import { htmlToPlainText } from '@/server/utils/html'
 
 /**
  * 发送管理员站务通知
@@ -98,13 +98,7 @@ export async function createCampaignFromPost(
     campaign.title = post.title
 
     // 提取正文摘要，不带多余的 HTML 容器，真正的模板在发送阶段渲染
-    campaign.content = post.summary || convert(post.content, {
-        wordwrap: false,
-        selectors: [
-            { selector: 'img', format: 'skip' },
-            { selector: 'a', options: { hideLinkHrefIfSameAsText: true } },
-        ],
-    }).substring(0, 200).trim()
+    campaign.content = post.summary || htmlToPlainText(post.content).substring(0, 200).trim()
 
     campaign.type = MarketingCampaignType.BLOG_POST
     campaign.senderId = senderId

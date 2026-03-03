@@ -1,4 +1,5 @@
 import { AdFormat, type AdPlacementMetadata } from '@/types/ad'
+import { sanitizeHtmlToText } from '@/server/utils/html'
 
 /**
  * Generate ad code for specified adapter
@@ -109,20 +110,7 @@ export function sanitizeMetadata(metadata: Record<string, any> | null): Record<s
 
     for (const [key, value] of Object.entries(metadata)) {
         if (typeof value === 'string') {
-            // Remove script tags, iframes and dangerous URL schemes
-            let previousVal: string
-            let currentVal = value
-
-            do {
-                previousVal = currentVal
-                currentVal = currentVal
-                    .replace(/<(?:script|iframe|style)\b[^>]*>([\s\S]*?)<\/(?:script|iframe|style)[\s\t\n\/]*>/gi, '')
-                    .replace(/<\/?(?:script|iframe|style)[\s\t\n\/]*>/gi, '')
-                    .replace(/(?:javascript|data|vbscript):[^"']*/gi, '')
-                    .replace(/(?:javascript|data|vbscript):/gi, '')
-            } while (currentVal !== previousVal)
-
-            sanitized[key] = currentVal
+            sanitized[key] = sanitizeHtmlToText(value)
         } else {
             sanitized[key] = value
         }

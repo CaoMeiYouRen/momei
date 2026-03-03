@@ -96,6 +96,7 @@ describe('Ad Utility Functions', () => {
                 description: 'Description',
                 badTag: '</script >',
                 iframe: '<iframe src="malicious.com"></iframe>',
+                malformedScriptClose: '</script\t\n bar>',
             }
 
             const sanitized = sanitizeMetadata(metadata)
@@ -104,6 +105,7 @@ describe('Ad Utility Functions', () => {
             expect(sanitized.description).toBe('Description')
             expect(sanitized.badTag).toBe('')
             expect(sanitized.iframe).toBe('')
+            expect(sanitized.malformedScriptClose).toBe('')
         })
 
         it('should preserve safe metadata', () => {

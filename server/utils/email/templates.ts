@@ -3,12 +3,12 @@ import { join } from 'path'
 
 import mjml2html from 'mjml'
 import dayjs from 'dayjs'
-import { convert } from 'html-to-text'
 
 import logger from '../logger'
 import { getFallbackFragment, getFallbackMjmlTemplate, generateFallbackHtml } from './templates-fallback'
 import { getSettings } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
+import { htmlToPlainText } from '@/server/utils/html'
 
 type EmailTemplateData = Record<string, string | number | boolean>
 
@@ -309,13 +309,7 @@ export class EmailTemplateEngine {
      * 生成纯文本版本
      */
     private generateTextVersion(html: string): string {
-        return convert(html, {
-            wordwrap: false,
-            selectors: [
-                { selector: 'img', format: 'skip' },
-                { selector: 'a', options: { hideLinkHrefIfSameAsText: true } },
-            ],
-        }).trim()
+        return htmlToPlainText(html)
     }
 
 
