@@ -90,6 +90,11 @@
             <div class="post-detail__layout">
                 <!-- Sidebar (TOC) -->
                 <aside class="post-detail__sidebar">
+                    <!-- Ad: Sidebar -->
+                    <AdPlacement
+                        :location="AdLocation.SIDEBAR"
+                        :context="{postId: post.id, categories: post.category?.id ? [post.category.id] : [], tags: post.tags?.map(t => t.id) || []}"
+                    />
                     <div class="post-detail__sidebar-content">
                         <TableOfContents :content="post.content" />
                     </div>
@@ -216,7 +221,20 @@
                                 Your browser does not support the audio element.
                             </audio>
                         </div>
+
+                        <!-- Ad: Content Top -->
+                        <AdPlacement
+                            :location="AdLocation.CONTENT_TOP"
+                            :context="{postId: post.id, categories: post.category?.id ? [post.category.id] : [], tags: post.tags?.map(t => t.id) || []}"
+                        />
+
                         <ArticleContent :content="post.content" />
+
+                        <!-- Ad: Content Bottom -->
+                        <AdPlacement
+                            :location="AdLocation.CONTENT_BOTTOM"
+                            :context="{postId: post.id, categories: post.category?.id ? [post.category.id] : [], tags: post.tags?.map(t => t.id) || []}"
+                        />
                     </template>
 
                     <!-- Copyright -->
@@ -279,6 +297,7 @@
 <script setup lang="ts">
 import { isSnowflakeId } from '@/utils/shared/validate'
 import { countWords, estimateReadingTime } from '@/utils/shared/post-stats'
+import { AdLocation } from '@/types/ad'
 
 const route = useRoute()
 const localePath = useLocalePath()

@@ -1,5 +1,5 @@
-import { AdPlacement } from '@/server/entities/ad-placement'
 import { BaseAdAdapter, AdError } from './base'
+import { AdPlacement } from '@/server/entities/ad-placement'
 
 /**
  * Google AdSense 适配器配置接口
