@@ -15,8 +15,7 @@ vi.mock('@/lib/auth', () => ({
     },
 }))
 
-// TODO: Skipped due to database initialization timing issues. See docs/plan/todo.md
-describe.skip('Archive API', () => {
+describe('Archive API', () => {
     let author: User
 
     // Skip actual Nuxt setup since we are unit testing the handler logic with mocked globals

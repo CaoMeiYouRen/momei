@@ -7,7 +7,14 @@ import { LinkStatus } from '@/types/ad'
 import { createLink } from '@/server/services/link'
 import gotoCodeGetHandler from '@/server/api/goto/[code].get'
 
-// TODO: Skipped due to database initialization timing issues. See docs/plan/todo.md
+vi.mock('h3', async () => {
+    const actual = await vi.importActual<typeof import('h3')>('h3')
+    return {
+        ...actual,
+        getRouterParam: (event: any, key: string) => event.params?.[key],
+    }
+})
+
 // Mock auth
 vi.mock('@/lib/auth', () => ({
     auth: {
@@ -17,7 +24,7 @@ vi.mock('@/lib/auth', () => ({
     },
 }))
 
-describe.skip('GET /api/goto/[code]', () => {
+describe('GET /api/goto/[code]', () => {
     let user: User
 
     beforeAll(async () => {
@@ -69,8 +76,8 @@ describe.skip('GET /api/goto/[code]', () => {
                 node: {
                     req: { headers: {} },
                     res: {},
-                    params: { code: activeLink.shortCode },
                 },
+                params: { code: activeLink.shortCode },
             } as any
 
             const result = await gotoCodeGetHandler(event)
@@ -88,8 +95,8 @@ describe.skip('GET /api/goto/[code]', () => {
                 node: {
                     req: { headers: {} },
                     res: {},
-                    params: { code: disabledRedirectLink.shortCode },
                 },
+                params: { code: disabledRedirectLink.shortCode },
             } as any
 
             const result = await gotoCodeGetHandler(event)
@@ -106,8 +113,8 @@ describe.skip('GET /api/goto/[code]', () => {
                 node: {
                     req: { headers: {} },
                     res: {},
-                    params: { code: 'nonexistent' },
                 },
+                params: { code: 'nonexistent' },
             } as any
 
             const result = await gotoCodeGetHandler(event)
@@ -121,8 +128,8 @@ describe.skip('GET /api/goto/[code]', () => {
                 node: {
                     req: { headers: {} },
                     res: {},
-                    params: { code: expiredLink.shortCode },
                 },
+                params: { code: expiredLink.shortCode },
             } as any
 
             const result = await gotoCodeGetHandler(event)
@@ -144,8 +151,8 @@ describe.skip('GET /api/goto/[code]', () => {
                 node: {
                     req: { headers: {} },
                     res: {},
-                    params: { code: blockedLink.shortCode },
                 },
+                params: { code: blockedLink.shortCode },
             } as any
 
             const result = await gotoCodeGetHandler(event)
@@ -166,8 +173,8 @@ describe.skip('GET /api/goto/[code]', () => {
                 node: {
                     req: { headers: {} },
                     res: {},
-                    params: { code: testLink.shortCode },
                 },
+                params: { code: testLink.shortCode },
             } as any
 
             await gotoCodeGetHandler(event)

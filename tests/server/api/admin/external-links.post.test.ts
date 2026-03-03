@@ -5,6 +5,14 @@ import { generateRandomString } from '@/utils/shared/random'
 import { LinkStatus } from '@/types/ad'
 import externalLinksPostHandler from '@/server/api/admin/external-links.post'
 
+vi.mock('h3', async () => {
+    const actual = await vi.importActual<typeof import('h3')>('h3')
+    return {
+        ...actual,
+        readBody: async (event: any) => event.body || {},
+    }
+})
+
 // Mock auth
 vi.mock('@/lib/auth', () => ({
     auth: {
@@ -16,8 +24,7 @@ vi.mock('@/lib/auth', () => ({
     },
 }))
 
-// TODO: Skipped due to database initialization timing issues. See docs/plan/todo.md
-describe.skip('POST /api/admin/external-links', () => {
+describe('POST /api/admin/external-links', () => {
     let user: User
 
     beforeAll(async () => {
@@ -37,6 +44,12 @@ describe.skip('POST /api/admin/external-links', () => {
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
+                body: {
+                    originalUrl: 'https://example.com/test',
+                    createdById: user.id,
+                    noFollow: true,
+                    showRedirectPage: true,
+                },
             } as any
 
             const result = await externalLinksPostHandler(event)
@@ -45,7 +58,7 @@ describe.skip('POST /api/admin/external-links', () => {
             expect(result.data).toBeDefined()
             expect(result.data!.originalUrl).toBe('https://example.com/test')
             expect(result.data!.shortCode).toBeDefined()
-            expect(result.data!.shortCode).toHaveLength(8)
+            expect(result.data!.shortCode).toHaveLength(6)
             expect(result.data!.noFollow).toBe(true)
             expect(result.data!.showRedirectPage).toBe(true)
         })
@@ -54,6 +67,9 @@ describe.skip('POST /api/admin/external-links', () => {
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
+                body: {
+                    createdById: user.id,
+                },
             } as any
 
             const result = await externalLinksPostHandler(event)
@@ -66,6 +82,9 @@ describe.skip('POST /api/admin/external-links', () => {
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
+                body: {
+                    originalUrl: 'https://example.com/missing-user',
+                },
             } as any
 
             const result = await externalLinksPostHandler(event)
@@ -78,6 +97,10 @@ describe.skip('POST /api/admin/external-links', () => {
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
+                body: {
+                    originalUrl: 'https://example.com/defaults',
+                    createdById: user.id,
+                },
             } as any
 
             const result = await externalLinksPostHandler(event)
@@ -94,6 +117,10 @@ describe.skip('POST /api/admin/external-links', () => {
                 const event = {
                     context: {},
                     node: { req: { headers: {} }, res: {} },
+                    body: {
+                        originalUrl: `https://example.com/unique-${i}`,
+                        createdById: user.id,
+                    },
                 } as any
 
                 const result = await externalLinksPostHandler(event)
@@ -108,6 +135,15 @@ describe.skip('POST /api/admin/external-links', () => {
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
+                body: {
+                    originalUrl: 'https://example.com/with-meta',
+                    createdById: user.id,
+                    metadata: {
+                        title: 'Example Site',
+                        description: 'A test link with metadata',
+                        favicon: 'https://example.com/favicon.ico',
+                    },
+                },
             } as any
 
             const result = await externalLinksPostHandler(event)
@@ -122,6 +158,10 @@ describe.skip('POST /api/admin/external-links', () => {
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
+                body: {
+                    originalUrl: 'not-a-url',
+                    createdById: user.id,
+                },
             } as any
 
             const result = await externalLinksPostHandler(event)

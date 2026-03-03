@@ -16,8 +16,7 @@ vi.mock('@/lib/auth', () => ({
     },
 }))
 
-// TODO: Skipped due to database initialization timing issues. See docs/plan/todo.md
-describe.skip('/api/tags', () => {
+describe('/api/tags', () => {
     let author: User
 
     beforeAll(async () => {

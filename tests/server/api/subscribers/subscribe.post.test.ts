@@ -23,8 +23,7 @@ vi.mock('@/server/utils/email/service', () => ({
 
 import { emailService } from '@/server/utils/email/service'
 
-// TODO: Skipped due to database initialization timing issues. See docs/plan/todo.md
-describe.skip('Subscribe API', () => {
+describe('Subscribe API', () => {
     beforeAll(async () => {
         const { initializeDB } = await import('@/server/database')
         await initializeDB()

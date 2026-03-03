@@ -8,8 +8,7 @@ import { PostStatus, PostVisibility } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
 import { generateFeed } from '@/server/utils/feed'
 
-// TODO: Skipped due to database initialization timing issues. See docs/plan/todo.md
-describe.skip('Feed Generation Utility', () => {
+describe('Feed Generation Utility', () => {
     let author: User
     let category: Category
     let tag: Tag

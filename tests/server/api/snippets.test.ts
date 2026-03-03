@@ -8,8 +8,7 @@ import listSnippetsHandler from '@/server/api/admin/snippets/index.get'
 import convertSnippetHandler from '@/server/api/admin/snippets/[id]/convert.post'
 import { SnippetStatus } from '@/types/snippet'
 
-// TODO: Skipped due to database initialization timing issues. See docs/plan/todo.md
-describe.skip('Snippets API', () => {
+describe('Snippets API', () => {
     let user: User
 
     beforeAll(async () => {
@@ -75,7 +74,7 @@ describe.skip('Snippets API', () => {
             context: {
                 auth: { user },
             },
-            contextParameters: { id: snippet.id }, // Mocking router params
+            params: { id: snippet.id },
         } as any
 
         // Workaround for getRouterParam since it's hard to mock directly without h3 context

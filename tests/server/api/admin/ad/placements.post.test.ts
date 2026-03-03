@@ -5,6 +5,14 @@ import { generateRandomString } from '@/utils/shared/random'
 import { AdFormat, AdLocation } from '@/types/ad'
 import placementsPostHandler from '@/server/api/admin/ad/placements.post'
 
+vi.mock('h3', async () => {
+    const actual = await vi.importActual<typeof import('h3')>('h3')
+    return {
+        ...actual,
+        readBody: async (event: any) => event.body || {},
+    }
+})
+
 // Mock auth
 vi.mock('@/lib/auth', () => ({
     auth: {
@@ -16,8 +24,7 @@ vi.mock('@/lib/auth', () => ({
     },
 }))
 
-// TODO: Skipped due to database initialization timing issues. See docs/plan/todo.md
-describe.skip('POST /api/admin/ad/placements', () => {
+describe('POST /api/admin/ad/placements', () => {
     let user: User
 
     beforeAll(async () => {
@@ -37,6 +44,12 @@ describe.skip('POST /api/admin/ad/placements', () => {
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
+                body: {
+                    name: 'Test Sidebar Ad',
+                    format: AdFormat.RESPONSIVE,
+                    location: AdLocation.SIDEBAR,
+                    adapterId: 'test-adapter',
+                },
             } as any
 
             const result = await placementsPostHandler(event)
@@ -57,13 +70,8 @@ describe.skip('POST /api/admin/ad/placements', () => {
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
+                body,
             } as any
-
-            // Mock readBody
-            vi.mock('h3', () => ({
-                readBody: vi.fn().mockResolvedValue(body),
-                defineEventHandler: vi.fn(),
-            }))
 
             const result = await placementsPostHandler(event)
 
@@ -75,6 +83,12 @@ describe.skip('POST /api/admin/ad/placements', () => {
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
+                body: {
+                    name: 'Default Ad',
+                    format: AdFormat.DISPLAY,
+                    location: AdLocation.CONTENT_TOP,
+                    adapterId: 'adapter-default',
+                },
             } as any
 
             const result = await placementsPostHandler(event)
@@ -87,6 +101,12 @@ describe.skip('POST /api/admin/ad/placements', () => {
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
+                body: {
+                    name: 'Invalid Ad',
+                    format: 'invalid-format',
+                    location: AdLocation.SIDEBAR,
+                    adapterId: 'test-adapter',
+                },
             } as any
 
             // Force database error by using invalid data

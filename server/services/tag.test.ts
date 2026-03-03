@@ -3,8 +3,7 @@ import { createTag, ensureTags, updateTag } from './tag'
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
 
-// TODO: Skipped due to database initialization timing issues. See docs/plan/todo.md
-describe.skip('tag service', () => {
+describe('tag service', () => {
     beforeAll(async () => {
         if (!dataSource.isInitialized) {
             await dataSource.initialize()
