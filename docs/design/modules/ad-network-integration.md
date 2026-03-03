@@ -782,14 +782,14 @@ export function evaluateTargeting(
 ## 9. 实施计划
 
 ### Phase 1: 基础架构 (Week 1)
-- [ ] 创建广告实体 (AdPlacement, AdCampaign, ExternalLink)
-- [ ] 实现广告适配器基类和工厂
-- [ ] 开发 Google AdSense 适配器
+- [x] 创建广告实体 (AdPlacement, AdCampaign, ExternalLink)
+- [x] 实现广告适配器基类和工厂
+- [x] 开发 Google AdSense 适配器
 
 ### Phase 2: 内容注入 (Week 2)
-- [ ] 实现广告注入逻辑
-- [ ] 创建广告位前端组件
-- [ ] 实现 Locale 定向
+- [x] 实现广告注入逻辑
+- [x] 创建广告位前端组件
+- [x] 实现 Locale 定向
 
 ### Phase 3: 国产广告 (Week 3)
 - [ ] 开发百度联盟适配器
