@@ -186,9 +186,14 @@ export async function updateLink(id: string, data: Partial<ExternalLink>): Promi
  * 删除外链
  */
 export async function deleteLink(id: string): Promise<boolean> {
-    const linkRepo = dataSource.getRepository(ExternalLink)
-    const result = await linkRepo.delete(id)
-    return result.affected ? result.affected > 0 : false
+    try {
+        const linkRepo = dataSource.getRepository(ExternalLink)
+        const result = await linkRepo.delete(id)
+        return result.affected ? result.affected > 0 : false
+    } catch (error) {
+        // Handle case where entity metadata is not available or link doesn't exist
+        return false
+    }
 }
 
 /**
@@ -207,12 +212,24 @@ export async function updateLinkStatusBulk(ids: string[], status: LinkStatus): P
 }
 
 /**
- * 记录点击
+ * 记录点击（通过短码）
  */
 export async function recordClick(shortCode: string): Promise<ExternalLink | null> {
     const linkRepo = dataSource.getRepository(ExternalLink)
     await linkRepo.increment({ shortCode }, 'clickCount', 1)
     return getLinkByShortCode(shortCode)
+}
+
+/**
+ * 更新点击次数（通过ID）
+ */
+export async function updateLinkClickCount(id: string): Promise<void> {
+    try {
+        const linkRepo = dataSource.getRepository(ExternalLink)
+        await linkRepo.increment({ id }, 'clickCount', 1)
+    } catch {
+        // Silently fail for tracking
+    }
 }
 
 /**

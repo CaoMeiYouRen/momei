@@ -245,3 +245,61 @@ export async function updatePlacementStatus(ids: string[], enabled: boolean): Pr
     const placementRepo = dataSource.getRepository(AdPlacement)
     await placementRepo.update({ id: In(ids) }, { enabled })
 }
+
+/**
+ * 获取广告位的广告代码
+ * @param placementId 广告位ID
+ * @returns 广告HTML代码，如果广告位不存在或未启用则返回null
+ */
+export async function getAdForPlacement(placementId: string): Promise<string | null> {
+    try {
+        const placement = await getPlacementById(placementId)
+        if (!placement?.enabled) {
+            return null
+        }
+
+        const adapter = adAdapterRegistry.get(placement.adapterId)
+        if (!adapter) {
+            return null
+        }
+
+        return adapter.generateAdCode(placement.metadata)
+    } catch {
+        return null
+    }
+}
+
+/**
+ * 记录广告展示
+ * @param campaignId 广告活动ID
+ */
+export async function recordImpression(campaignId: string): Promise<void> {
+    try {
+        const campaignRepo = dataSource.getRepository(AdCampaign)
+        await campaignRepo.increment({ id: campaignId }, 'impressions', 1)
+    } catch {
+        // Silently fail - don't throw errors for tracking
+    }
+}
+
+/**
+ * 记录广告点击
+ * @param campaignId 广告活动ID
+ * @param revenue 可选的收入金额
+ */
+export async function recordClick(campaignId: string, revenue?: number): Promise<void> {
+    try {
+        const campaignRepo = dataSource.getRepository(AdCampaign)
+        const campaign = await campaignRepo.findOne({ where: { id: campaignId } })
+
+        if (campaign) {
+            campaign.clicks = (campaign.clicks || 0) + 1
+            if (revenue !== undefined) {
+                campaign.revenue = (campaign.revenue || 0) + revenue
+            }
+            await campaignRepo.save(campaign)
+        }
+    } catch {
+        // Silently fail - don't throw errors for tracking
+    }
+}

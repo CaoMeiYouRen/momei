@@ -24,6 +24,9 @@ import { AITask } from '../entities/ai-task'
 import { ASRQuota } from '../entities/asr-quota'
 import { PostVersion } from '../entities/post-version'
 import { InAppNotification } from '../entities/in-app-notification'
+import { AdPlacement } from '../entities/ad-placement'
+import { AdCampaign } from '../entities/ad-campaign'
+import { ExternalLink } from '../entities/external-link'
 import logger from '../utils/logger'
 import { isServerlessEnvironment } from '../utils/env'
 import { CustomLogger } from './logger'
@@ -75,6 +78,9 @@ const entities = [
     ASRQuota,
     PostVersion,
     InAppNotification,
+    AdPlacement,
+    AdCampaign,
+    ExternalLink,
 ]
 
 /**
@@ -106,7 +112,7 @@ async function syncAdminRoles(ds: DataSource) {
 }
 
 export const initializeDB = async () => {
-    if (isInitialized && AppDataSource) {
+    if (isInitialized && AppDataSource && AppDataSource.isInitialized) {
         return AppDataSource
     }
 
@@ -202,6 +208,9 @@ export const initializeDB = async () => {
             })
             logger.info(`Database initialized successfully with type: ${actualDbType}${isMemoryDB ? ' (memory)' : ''}${DEMO_MODE ? ' [DEMO MODE]' : ''}`)
         }
+
+        isInitialized = true
+        return AppDataSource
     } catch (error: any) {
         // 重要修复：对于安装向导，我们不希望数据库初始化失败导致整个应用崩溃
         // 记录错误但不重新抛出，让 AppDataSource 保持未初始化状态
@@ -224,5 +233,5 @@ export const initializeDB = async () => {
     return AppDataSource
 }
 
-// 修改顶级 await 为捕获错误的调用
+// 顶级 await - 数据库在模块导入时自动初始化
 export const dataSource = await initializeDB()
