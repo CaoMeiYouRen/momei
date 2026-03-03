@@ -117,8 +117,7 @@
             v-model:visible="dialogVisible"
             :header="editingItem ? $t('common.edit') : $t('common.create')"
             modal
-            class="p-fluid"
-            style="width: 36rem"
+            class="admin-external-links__dialog p-fluid"
         >
             <div class="field">
                 <label for="originalUrl">{{ $t('pages.admin.external_links.original_url') }} *</label>
@@ -448,6 +447,58 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+:deep(.admin-external-links__dialog) {
+    width: 38rem;
+    max-width: calc(100vw - 1.5rem);
+}
+
+:deep(.admin-external-links__dialog .p-dialog-content) {
+    padding-top: 0.75rem;
+}
+
+:deep(.admin-external-links__dialog .field) {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+    margin-bottom: 0.875rem;
+}
+
+:deep(.admin-external-links__dialog .field > label) {
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+:deep(.admin-external-links__dialog .field > .p-error) {
+    grid-column: 2;
+    margin-top: 0.125rem;
+}
+
+:deep(.admin-external-links__dialog .field.flex) {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: calc(6rem + 0.75rem);
+}
+
+:deep(.admin-external-links__dialog .field.flex > label) {
+    margin: 0;
+    font-weight: 500;
+}
+
+:deep(.admin-external-links__dialog .p-inputtext),
+:deep(.admin-external-links__dialog .p-dropdown) {
+    width: 100%;
+}
+
+:deep(.admin-external-links__dialog .p-dialog-footer) {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 0.875rem;
+}
+
 .short-code {
     background: var(--surface-ground);
     padding: 0.25rem 0.5rem;

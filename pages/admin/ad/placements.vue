@@ -104,8 +104,7 @@
             v-model:visible="dialogVisible"
             :header="editingItem ? $t('common.edit') : $t('common.create')"
             modal
-            class="p-fluid"
-            style="width: 32rem"
+            class="admin-placements__dialog p-fluid"
         >
             <div class="field">
                 <label for="name">{{ $t('common.name') }} *</label>
@@ -447,3 +446,60 @@ onMounted(() => {
     loadPlacements()
 })
 </script>
+
+<style scoped lang="scss">
+:deep(.admin-placements__dialog) {
+    width: 36rem;
+    max-width: calc(100vw - 1.5rem);
+}
+
+:deep(.admin-placements__dialog .p-dialog-content) {
+    padding-top: 0.75rem;
+}
+
+:deep(.admin-placements__dialog .field) {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+    margin-bottom: 0.875rem;
+}
+
+:deep(.admin-placements__dialog .field > label) {
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+:deep(.admin-placements__dialog .field > .p-error),
+:deep(.admin-placements__dialog .field > .text-color-secondary) {
+    grid-column: 2;
+    margin-top: 0.125rem;
+}
+
+:deep(.admin-placements__dialog .field.flex) {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: calc(6rem + 0.75rem);
+}
+
+:deep(.admin-placements__dialog .field.flex > label) {
+    margin: 0;
+    font-weight: 500;
+}
+
+:deep(.admin-placements__dialog .p-inputtext),
+:deep(.admin-placements__dialog .p-dropdown),
+:deep(.admin-placements__dialog .p-inputnumber),
+:deep(.admin-placements__dialog .p-inputnumber-input) {
+    width: 100%;
+}
+
+:deep(.admin-placements__dialog .p-dialog-footer) {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 0.875rem;
+}
+</style>

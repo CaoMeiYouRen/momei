@@ -102,8 +102,7 @@
             v-model:visible="dialogVisible"
             :header="editingItem ? $t('common.edit') : $t('common.create')"
             modal
-            class="p-fluid"
-            style="width: 32rem"
+            class="admin-campaigns__dialog p-fluid"
         >
             <div class="field">
                 <label for="name">{{ $t('common.name') }} *</label>
@@ -361,3 +360,47 @@ onMounted(() => {
     loadCampaigns()
 })
 </script>
+
+<style scoped lang="scss">
+:deep(.admin-campaigns__dialog) {
+    width: 34rem;
+    max-width: calc(100vw - 1.5rem);
+}
+
+:deep(.admin-campaigns__dialog .p-dialog-content) {
+    padding-top: 0.75rem;
+}
+
+:deep(.admin-campaigns__dialog .field) {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+    margin-bottom: 0.875rem;
+}
+
+:deep(.admin-campaigns__dialog .field > label) {
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+:deep(.admin-campaigns__dialog .field > .p-error) {
+    grid-column: 2;
+    margin-top: 0.125rem;
+}
+
+:deep(.admin-campaigns__dialog .p-inputtext),
+:deep(.admin-campaigns__dialog .p-dropdown),
+:deep(.admin-campaigns__dialog .p-datepicker),
+:deep(.admin-campaigns__dialog .p-datepicker-input) {
+    width: 100%;
+}
+
+:deep(.admin-campaigns__dialog .p-dialog-footer) {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 0.875rem;
+}
+</style>
