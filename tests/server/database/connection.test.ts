@@ -22,7 +22,7 @@ describe.skip('Database Connection', async () => {
     })
 
     beforeAll(async () => {
-        dataSource = await initializeDB()
+        dataSource = (await initializeDB())!
     })
 
     afterAll(async () => {

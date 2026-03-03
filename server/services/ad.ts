@@ -263,7 +263,7 @@ export async function getAdForPlacement(placementId: string): Promise<string | n
             return null
         }
 
-        return adapter.generateAdCode(placement.metadata)
+        return adapter.getPlacementHtml(placement)
     } catch {
         return null
     }

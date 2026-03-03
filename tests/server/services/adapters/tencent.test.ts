@@ -149,7 +149,7 @@ describe('Tencent Adapter', () => {
         })
 
         it('should throw error when metadata is missing', () => {
-            placement.metadata = undefined
+            placement.metadata = null
 
             expect(() => adapter.getPlacementHtml(placement)).toThrow(AdError)
             expect(() => adapter.getPlacementHtml(placement)).toThrow('Ad placement metadata is required')

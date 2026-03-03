@@ -234,4 +234,5 @@ export const initializeDB = async () => {
 }
 
 // 顶级 await - 数据库在模块导入时自动初始化
-export const dataSource = await initializeDB()
+// 使用非空断言，因为数据库应该在应用启动时初始化
+export const dataSource: DataSource = (await initializeDB())!
