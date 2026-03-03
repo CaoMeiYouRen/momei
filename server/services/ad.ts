@@ -5,6 +5,35 @@ import { AdLocation, CampaignStatus } from '@/types/ad'
 import { AdPlacement } from '@/server/entities/ad-placement'
 import { AdCampaign } from '@/server/entities/ad-campaign'
 
+const MAX_TRACKED_SESSIONS = 10_000
+const sessionViewCounts = new Map<string, Map<string, number>>()
+
+function canTrackSessionView(sessionId: string, placementId: string, maxViewsPerSession: number): boolean {
+    if (maxViewsPerSession <= 0) {
+        return true
+    }
+
+    let placementCountMap = sessionViewCounts.get(sessionId)
+    if (!placementCountMap) {
+        if (sessionViewCounts.size >= MAX_TRACKED_SESSIONS) {
+            const oldestKey = sessionViewCounts.keys().next().value
+            if (oldestKey !== undefined) {
+                sessionViewCounts.delete(oldestKey)
+            }
+        }
+        placementCountMap = new Map<string, number>()
+        sessionViewCounts.set(sessionId, placementCountMap)
+    }
+
+    const current = placementCountMap.get(placementId) ?? 0
+    if (current >= maxViewsPerSession) {
+        return false
+    }
+
+    placementCountMap.set(placementId, current + 1)
+    return true
+}
+
 /**
  * 广告服务
  * 提供广告位和广告活动的管理功能
@@ -65,8 +94,19 @@ export async function getPlacementsByLocation(
             }
         }
 
-        // 评估定向规则
-        return evaluateTargeting(placement, context)
+        if (!evaluateTargeting(placement, context)) {
+            return false
+        }
+
+        const maxViewsPerSession = placement.targeting?.maxViewsPerSession
+        if (maxViewsPerSession && maxViewsPerSession > 0) {
+            if (!context?.sessionId) {
+                return false
+            }
+            return canTrackSessionView(context.sessionId, placement.id, maxViewsPerSession)
+        }
+
+        return true
     })
 }
 
@@ -122,14 +162,6 @@ export function evaluateTargeting(
         if (!hasMatch) {
             return false
         }
-    }
-
-    // 会话展示次数限制 (需要配合会话存储使用)
-    // 注意：此功能需要前端配合，记录当前会话已展示次数
-    if (targeting.maxViewsPerSession && targeting.maxViewsPerSession > 0) {
-        // 此处需要实现会话级别的计数逻辑
-        // 可以使用 Redis 或内存缓存存储会话展示次数
-        // 暂时跳过此检查，实际使用时需要配合中间件实现
     }
 
     return true

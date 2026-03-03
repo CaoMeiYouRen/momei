@@ -1,5 +1,6 @@
 import { defineEventHandler, getRouterParam } from 'h3'
 import { getLinkStats } from '@/server/services/link'
+import { requireAdmin } from '@/server/utils/permission'
 
 /**
  * 获取外链统计信息
@@ -7,6 +8,8 @@ import { getLinkStats } from '@/server/services/link'
  */
 export default defineEventHandler(async (event) => {
     try {
+        await requireAdmin(event)
+
         const id = getRouterParam(event, 'id')
         if (!id) {
             return {
@@ -29,10 +32,10 @@ export default defineEventHandler(async (event) => {
             data: stats,
             message: 'Success',
         }
-    } catch (error: any) {
+    } catch (error: unknown) {
         return {
             code: 500,
-            message: error.message || 'Internal server error',
+            message: error instanceof Error ? error.message : 'Internal server error',
         }
     }
 })

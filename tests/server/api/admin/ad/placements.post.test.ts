@@ -42,7 +42,7 @@ describe('POST /api/admin/ad/placements', () => {
     describe('Create Ad Placement', () => {
         it('should create a new placement with valid data', async () => {
             const event = {
-                context: {},
+                context: { auth: { user: { id: user.id, role: 'admin' } } },
                 node: { req: { headers: {} }, res: {} },
                 body: {
                     name: 'Test Sidebar Ad',
@@ -68,7 +68,7 @@ describe('POST /api/admin/ad/placements', () => {
             }
 
             const event = {
-                context: {},
+                context: { auth: { user: { id: user.id, role: 'admin' } } },
                 node: { req: { headers: {} }, res: {} },
                 body,
             } as any
@@ -76,12 +76,12 @@ describe('POST /api/admin/ad/placements', () => {
             const result = await placementsPostHandler(event)
 
             expect(result.code).toBe(400)
-            expect(result.message).toContain('required')
+            expect(result.message).toContain('expected string')
         })
 
         it('should create placement with default values', async () => {
             const event = {
-                context: {},
+                context: { auth: { user: { id: user.id, role: 'admin' } } },
                 node: { req: { headers: {} }, res: {} },
                 body: {
                     name: 'Default Ad',
@@ -99,7 +99,7 @@ describe('POST /api/admin/ad/placements', () => {
 
         it('should handle database errors gracefully', async () => {
             const event = {
-                context: {},
+                context: { auth: { user: { id: user.id, role: 'admin' } } },
                 node: { req: { headers: {} }, res: {} },
                 body: {
                     name: 'Invalid Ad',

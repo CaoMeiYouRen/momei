@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { getPlacementsByLocation } from '../../services/ad'
 import { AdLocation } from '@/types/ad'
 
@@ -27,7 +28,21 @@ export default defineEventHandler(async (event) => {
             locale?: string
             categories?: string[]
             tags?: string[]
+            sessionId?: string
         } = {}
+
+        let sessionId = getCookie(event, 'momei_ad_session_id')
+        if (!sessionId) {
+            sessionId = randomUUID()
+            setCookie(event, 'momei_ad_session_id', sessionId, {
+                path: '/',
+                httpOnly: true,
+                sameSite: 'lax',
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 60 * 60 * 24,
+            })
+        }
+        context.sessionId = sessionId
 
         if (query.locale) {
             context.locale = query.locale as string

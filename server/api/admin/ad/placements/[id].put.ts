@@ -1,5 +1,20 @@
+import { z } from 'zod'
 import { updatePlacement } from '../../../../services/ad'
 import { AdFormat, AdLocation } from '@/types/ad'
+import { requireAdmin } from '@/server/utils/permission'
+
+const updatePlacementSchema = z.object({
+    name: z.string().trim().min(1).optional(),
+    format: z.nativeEnum(AdFormat).optional(),
+    location: z.nativeEnum(AdLocation).optional(),
+    adapterId: z.string().trim().min(1).optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
+    enabled: z.boolean().optional(),
+    targeting: z.record(z.string(), z.unknown()).optional(),
+    priority: z.number().int().min(0).optional(),
+    customCss: z.string().nullable().optional(),
+    campaignId: z.string().nullable().optional(),
+})
 
 /**
  * 更新广告位
@@ -7,6 +22,8 @@ import { AdFormat, AdLocation } from '@/types/ad'
  */
 export default defineEventHandler(async (event) => {
     try {
+        await requireAdmin(event)
+
         const id = getRouterParam(event, 'id')
         if (!id) {
             return {
@@ -15,41 +32,7 @@ export default defineEventHandler(async (event) => {
             }
         }
 
-        const body = await readBody(event)
-
-        // 构建更新数据
-        const updateData: Record<string, any> = {}
-
-        if (body.name !== undefined) {
-            updateData.name = body.name
-        }
-        if (body.format !== undefined && Object.values(AdFormat).includes(body.format)) {
-            updateData.format = body.format
-        }
-        if (body.location !== undefined && Object.values(AdLocation).includes(body.location)) {
-            updateData.location = body.location
-        }
-        if (body.adapterId !== undefined) {
-            updateData.adapterId = body.adapterId
-        }
-        if (body.metadata !== undefined) {
-            updateData.metadata = body.metadata
-        }
-        if (body.enabled !== undefined) {
-            updateData.enabled = body.enabled
-        }
-        if (body.targeting !== undefined) {
-            updateData.targeting = body.targeting
-        }
-        if (body.priority !== undefined) {
-            updateData.priority = body.priority
-        }
-        if (body.customCss !== undefined) {
-            updateData.customCss = body.customCss
-        }
-        if (body.campaignId !== undefined) {
-            updateData.campaignId = body.campaignId
-        }
+        const updateData = await readValidatedBody(event, (payload) => updatePlacementSchema.parse(payload))
 
         const placement = await updatePlacement(id, updateData)
 
@@ -66,6 +49,13 @@ export default defineEventHandler(async (event) => {
             message: 'Ad placement updated successfully',
         }
     } catch (error) {
+        if (error instanceof z.ZodError) {
+            return {
+                code: 400,
+                message: error.issues[0]?.message || 'Invalid request body',
+            }
+        }
+
         return {
             code: 500,
             message: error instanceof Error ? error.message : 'Failed to update ad placement',

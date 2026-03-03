@@ -1,4 +1,5 @@
 import { deleteCampaign } from '../../../../services/ad'
+import { requireAdmin } from '@/server/utils/permission'
 
 /**
  * 删除广告活动
@@ -6,6 +7,8 @@ import { deleteCampaign } from '../../../../services/ad'
  */
 export default defineEventHandler(async (event) => {
     try {
+        await requireAdmin(event)
+
         const id = getRouterParam(event, 'id')
         if (!id) {
             return {

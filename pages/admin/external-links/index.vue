@@ -333,10 +333,7 @@ async function save() {
 
         const method = editingItem.value ? 'PUT' : 'POST'
 
-        // TODO: Get actual user ID
-        const body = editingItem.value
-            ? { ...formData }
-            : { ...formData, createdById: '1' }
+        const body = { ...formData }
 
         await $fetch(url, {
             method,

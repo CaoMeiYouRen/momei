@@ -1,5 +1,20 @@
+import { z } from 'zod'
 import { createPlacement } from '../../../services/ad'
 import { AdFormat, AdLocation } from '@/types/ad'
+import { requireAdmin } from '@/server/utils/permission'
+
+const createPlacementSchema = z.object({
+    name: z.string().trim().min(1),
+    format: z.enum(AdFormat),
+    location: z.enum(AdLocation),
+    adapterId: z.string().trim().min(1),
+    metadata: z.record(z.string(), z.unknown()).optional().default({}),
+    enabled: z.boolean().optional(),
+    targeting: z.record(z.string(), z.unknown()).optional().default({}),
+    priority: z.number().int().min(0).optional(),
+    customCss: z.string().nullable().optional(),
+    campaignId: z.string().nullable().optional(),
+})
 
 /**
  * 创建广告位
@@ -7,36 +22,8 @@ import { AdFormat, AdLocation } from '@/types/ad'
  */
 export default defineEventHandler(async (event) => {
     try {
-        const body = await readBody(event)
-
-        // 验证必填字段
-        if (!body.name) {
-            return {
-                code: 400,
-                message: 'Ad placement name is required',
-            }
-        }
-
-        if (!body.format || !Object.values(AdFormat).includes(body.format)) {
-            return {
-                code: 400,
-                message: 'Invalid ad format',
-            }
-        }
-
-        if (!body.location || !Object.values(AdLocation).includes(body.location)) {
-            return {
-                code: 400,
-                message: 'Invalid ad location',
-            }
-        }
-
-        if (!body.adapterId) {
-            return {
-                code: 400,
-                message: 'Adapter ID is required',
-            }
-        }
+        await requireAdmin(event)
+        const body = await readValidatedBody(event, (payload) => createPlacementSchema.parse(payload))
 
         const placement = await createPlacement({
             name: body.name,
@@ -57,6 +44,13 @@ export default defineEventHandler(async (event) => {
             message: 'Ad placement created successfully',
         }
     } catch (error) {
+        if (error instanceof z.ZodError) {
+            return {
+                code: 400,
+                message: error.issues[0]?.message || 'Invalid request body',
+            }
+        }
+
         return {
             code: 500,
             message: error instanceof Error ? error.message : 'Failed to create ad placement',

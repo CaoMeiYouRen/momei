@@ -1,11 +1,14 @@
 import { getAllCampaigns } from '../../../services/ad'
+import { requireAdmin } from '@/server/utils/permission'
 
 /**
  * 获取所有广告活动
  * GET /api/admin/ad/campaigns
  */
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
     try {
+        await requireAdmin(event)
+
         const campaigns = await getAllCampaigns()
 
         return {

@@ -230,6 +230,12 @@
 
                         <ArticleContent :content="post.content" />
 
+                        <!-- Ad: Content Middle -->
+                        <AdPlacement
+                            :location="AdLocation.CONTENT_MIDDLE"
+                            :context="{postId: post.id, categories: post.category?.id ? [post.category.id] : [], tags: post.tags?.map(t => t.id) || []}"
+                        />
+
                         <!-- Ad: Content Bottom -->
                         <AdPlacement
                             :location="AdLocation.CONTENT_BOTTOM"

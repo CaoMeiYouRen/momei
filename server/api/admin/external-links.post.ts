@@ -1,5 +1,14 @@
 import { defineEventHandler, readBody } from 'h3'
+import { z } from 'zod'
 import { createLink } from '@/server/services/link'
+import { requireAdmin } from '@/server/utils/permission'
+
+const createExternalLinkSchema = z.object({
+    originalUrl: z.string().trim().min(1),
+    noFollow: z.boolean().optional(),
+    showRedirectPage: z.boolean().optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
+})
 
 /**
  * 创建外链
@@ -7,26 +16,13 @@ import { createLink } from '@/server/services/link'
  */
 export default defineEventHandler(async (event) => {
     try {
-        const body = await readBody(event)
-
-        // 验证必填字段
-        if (!body.originalUrl) {
-            return {
-                code: 400,
-                message: 'Original URL is required',
-            }
-        }
-
-        if (!body.createdById) {
-            return {
-                code: 400,
-                message: 'User ID is required',
-            }
-        }
+        const session = await requireAdmin(event)
+        const rawBody = await readBody(event)
+        const body = createExternalLinkSchema.parse(rawBody)
 
         const link = await createLink({
             originalUrl: body.originalUrl,
-            createdById: body.createdById,
+            createdById: session.user.id,
             noFollow: body.noFollow ?? false,
             showRedirectPage: body.showRedirectPage ?? true,
             metadata: body.metadata,
@@ -37,10 +33,24 @@ export default defineEventHandler(async (event) => {
             data: link,
             message: 'Link created successfully',
         }
-    } catch (error: any) {
+    } catch (error: unknown) {
+        if (error instanceof z.ZodError) {
+            return {
+                code: 400,
+                message: error.issues[0]?.message || 'Invalid request body',
+            }
+        }
+
+        if (error instanceof Error && (error.message === 'Invalid URL' || error.message === 'URL is blacklisted')) {
+            return {
+                code: 400,
+                message: error.message,
+            }
+        }
+
         return {
             code: 500,
-            message: error.message || 'Internal server error',
+            message: error instanceof Error ? error.message : 'Internal server error',
         }
     }
 })

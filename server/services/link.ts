@@ -4,6 +4,18 @@ import { dataSource } from '@/server/database'
 import { ExternalLink } from '@/server/entities/external-link'
 import { LinkStatus, type ExternalLinkMetadata } from '@/types/ad'
 
+function getExternalLinkBlacklist(): string[] {
+    const raw = process.env.EXTERNAL_LINK_BLACKLIST
+    if (!raw) {
+        return []
+    }
+
+    return raw
+        .split(',')
+        .map((domain) => domain.trim())
+        .filter(Boolean)
+}
+
 /**
  * 外链管理服务
  * 提供短链生成、跳转追踪和安全过滤功能
@@ -145,11 +157,11 @@ export async function createLink(data: {
         throw new Error('Invalid URL')
     }
 
-    // 检查黑名单（可选）
-    // const blacklist = ['spam.com', 'malicious.site']
-    // if (isBlacklistedUrl(data.originalUrl, blacklist)) {
-    //     throw new Error('URL is blacklisted')
-    // }
+    // 检查黑名单
+    const blacklist = getExternalLinkBlacklist()
+    if (blacklist.length > 0 && isBlacklistedUrl(data.originalUrl, blacklist)) {
+        throw new Error('URL is blacklisted')
+    }
 
     const linkRepo = dataSource.getRepository(ExternalLink)
 

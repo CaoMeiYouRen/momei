@@ -42,11 +42,10 @@ describe('POST /api/admin/external-links', () => {
     describe('Create External Link', () => {
         it('should create a new link with valid data', async () => {
             const event = {
-                context: {},
+                context: { auth: { user: { id: user.id, role: 'admin' } } },
                 node: { req: { headers: {} }, res: {} },
                 body: {
                     originalUrl: 'https://example.com/test',
-                    createdById: user.id,
                     noFollow: true,
                     showRedirectPage: true,
                 },
@@ -65,41 +64,39 @@ describe('POST /api/admin/external-links', () => {
 
         it('should validate required fields - missing originalUrl', async () => {
             const event = {
-                context: {},
+                context: { auth: { user: { id: user.id, role: 'admin' } } },
                 node: { req: { headers: {} }, res: {} },
                 body: {
-                    createdById: user.id,
                 },
             } as any
 
             const result = await externalLinksPostHandler(event)
 
             expect(result.code).toBe(400)
-            expect(result.message).toContain('Original URL is required')
+            expect(result.message).toContain('expected string')
         })
 
-        it('should validate required fields - missing createdById', async () => {
+        it('should not require createdById from client body', async () => {
             const event = {
-                context: {},
+                context: { auth: { user: { id: user.id, role: 'admin' } } },
                 node: { req: { headers: {} }, res: {} },
                 body: {
-                    originalUrl: 'https://example.com/missing-user',
+                    originalUrl: 'https://example.com/from-session',
                 },
             } as any
 
             const result = await externalLinksPostHandler(event)
 
-            expect(result.code).toBe(400)
-            expect(result.message).toContain('User ID is required')
+            expect(result.code).toBe(201)
+            expect(result.data!.createdById).toBe(user.id)
         })
 
         it('should create link with default values', async () => {
             const event = {
-                context: {},
+                context: { auth: { user: { id: user.id, role: 'admin' } } },
                 node: { req: { headers: {} }, res: {} },
                 body: {
                     originalUrl: 'https://example.com/defaults',
-                    createdById: user.id,
                 },
             } as any
 
@@ -115,11 +112,10 @@ describe('POST /api/admin/external-links', () => {
             const codes: string[] = []
             for (let i = 0; i < 3; i++) {
                 const event = {
-                    context: {},
+                    context: { auth: { user: { id: user.id, role: 'admin' } } },
                     node: { req: { headers: {} }, res: {} },
                     body: {
                         originalUrl: `https://example.com/unique-${i}`,
-                        createdById: user.id,
                     },
                 } as any
 
@@ -133,11 +129,10 @@ describe('POST /api/admin/external-links', () => {
 
         it('should store metadata', async () => {
             const event = {
-                context: {},
+                context: { auth: { user: { id: user.id, role: 'admin' } } },
                 node: { req: { headers: {} }, res: {} },
                 body: {
                     originalUrl: 'https://example.com/with-meta',
-                    createdById: user.id,
                     metadata: {
                         title: 'Example Site',
                         description: 'A test link with metadata',
@@ -156,11 +151,10 @@ describe('POST /api/admin/external-links', () => {
 
         it('should handle invalid URL format gracefully', async () => {
             const event = {
-                context: {},
+                context: { auth: { user: { id: user.id, role: 'admin' } } },
                 node: { req: { headers: {} }, res: {} },
                 body: {
                     originalUrl: 'not-a-url',
-                    createdById: user.id,
                 },
             } as any
 
