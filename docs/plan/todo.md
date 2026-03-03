@@ -24,12 +24,12 @@
     - [ ] 增加配置项变更审计日志，记录管理员操作历史
 
 ### 2. 商业化与广告联盟集成 (Commercial & Ad Networks) (P1)
-- [ ] **多平台广告系统接入**
+- [x] **多平台广告系统接入**
     - [x] 实现 Google AdSense 自动广告与手动 Slot 注入逻辑，支持在文章中间或末尾动态展示
     - [x] 实现百度、腾讯等国产广告联盟的接入，支持按 Locale (zh-CN) 定向显隐
-- [ ] **商业与投放管理 (Ad/Link Management)**
+- [x] **商业与投放管理 (Ad/Link Management)**
     - [x] 实现站内商业内容管理，支持全局/按分类/按标签注入广告占位符
-    - [ ] 实现外链安全过滤与跳转页 (Redirect Gate)，提升商业点击的可追踪性
+    - [x] 实现外链安全过滤与跳转页 (Redirect Gate)，提升商业点击的可追踪性
 
 ### 3. 开放发布协议支持 (Open Federation - Phase I) (P2)
 - [ ] **ActivityPub 基础骨架 (Foundation)**
