@@ -273,6 +273,19 @@
         "no": "否",
         "custom": "自定义平台"
     },
+    "redirect": {
+        "loading": "加载链接信息中...",
+        "leaving_site": "您即将离开本站",
+        "auto_continue": "将在 {seconds} 秒后自动跳转...",
+        "continue_now": "立即继续",
+        "cancel": "返回",
+        "back_home": "返回首页",
+        "disclaimer": "您即将访问外部网站，我们不对外部网站的内容负责。",
+        "error": {
+            "title": "链接不可用",
+            "message": "请求的链接不存在或已被禁用。"
+        }
+    },
     "error": {
         "title": "发生错误",
         "404_title": "页面失踪了",

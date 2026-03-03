@@ -289,6 +289,19 @@
         "no": "No",
         "custom": "Custom Platform"
     },
+    "redirect": {
+        "loading": "Loading link information...",
+        "leaving_site": "You are leaving this site",
+        "auto_continue": "Redirecting in {seconds} seconds...",
+        "continue_now": "Continue Now",
+        "cancel": "Go Back",
+        "back_home": "Back to Home",
+        "disclaimer": "You are about to visit an external website. We are not responsible for the content of external sites.",
+        "error": {
+            "title": "Link Not Available",
+            "message": "The requested link could not be found or has been disabled."
+        }
+    },
     "error": {
         "title": "An error occurred",
         "404_title": "Page Not Found",
