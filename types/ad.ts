@@ -60,6 +60,7 @@ export interface AdPlacementMetadata {
     // 腾讯广告
     appId?: string
     placementId?: string
+    adType?: string // banner, native, feed, etc.
     // 通用
     responsive?: boolean
 }

@@ -1,4 +1,6 @@
 import { createAdSenseAdapter } from './adsense'
+import { createBaiduAdapter } from './baidu'
+import { createTencentAdapter } from './tencent'
 import type { IAdAdapter, AdAdapterConfig } from './base'
 
 /**
@@ -44,6 +46,8 @@ export const adAdapterRegistry = new AdAdapterRegistry()
 
 // 注册内置适配器
 adAdapterRegistry.register(createAdSenseAdapter())
+adAdapterRegistry.register(createBaiduAdapter())
+adAdapterRegistry.register(createTencentAdapter())
 
 /**
  * 广告适配器工厂
@@ -101,3 +105,5 @@ export class AdAdapterFactory {
 // 导出类型和工厂
 export * from './base'
 export * from './adsense'
+export * from './baidu'
+export * from './tencent'

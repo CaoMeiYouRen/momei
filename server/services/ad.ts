@@ -1,4 +1,5 @@
 import { In } from 'typeorm'
+import { adAdapterRegistry } from './adapters'
 import { dataSource } from '@/server/database'
 import { AdLocation } from '@/types/ad'
 import { AdPlacement } from '@/server/entities/ad-placement'
@@ -23,12 +24,14 @@ export async function getPlacementsByLocation(
         locale?: string
         categories?: string[]
         tags?: string[]
+        sessionId?: string
     },
 ): Promise<AdPlacement[]> {
     const placementRepo = dataSource.getRepository(AdPlacement)
 
     const queryBuilder = placementRepo
         .createQueryBuilder('placement')
+        .leftJoinAndSelect('placement.campaign', 'campaign')
         .where('placement.location = :location', { location })
         .andWhere('placement.enabled = :enabled', { enabled: true })
         .orderBy('placement.priority', 'DESC')
@@ -36,8 +39,35 @@ export async function getPlacementsByLocation(
 
     const placements = await queryBuilder.getMany()
 
-    // 根据定向规则过滤
-    return placements.filter((placement) => evaluateTargeting(placement, context))
+    // 根据定向规则和适配器支持过滤
+    const now = new Date()
+    return placements.filter((placement) => {
+        // 检查适配器是否支持当前语言环境
+        if (context?.locale) {
+            const adapter = adAdapterRegistry.get(placement.adapterId)
+            if (adapter && !adapter.supportsLocale(context.locale)) {
+                return false
+            }
+        }
+
+        // 检查广告活动是否处于活跃状态
+        if (placement.campaign) {
+            const campaign = placement.campaign
+            if (campaign.status !== 'active') {
+                return false
+            }
+            // 检查日期范围
+            if (campaign.startDate && campaign.startDate > now) {
+                return false
+            }
+            if (campaign.endDate && campaign.endDate < now) {
+                return false
+            }
+        }
+
+        // 评估定向规则
+        return evaluateTargeting(placement, context)
+    })
 }
 
 /**
@@ -51,6 +81,7 @@ export function evaluateTargeting(
         locale?: string
         categories?: string[]
         tags?: string[]
+        sessionId?: string
     },
 ): boolean {
     const targeting = placement.targeting
@@ -67,7 +98,7 @@ export function evaluateTargeting(
         }
     }
 
-    // 分类定向
+    // 分类定向 (OR 逻辑：匹配任一分类即展示)
     if (targeting.categories && targeting.categories.length > 0) {
         if (!context?.categories) {
             return false
@@ -80,7 +111,7 @@ export function evaluateTargeting(
         }
     }
 
-    // 标签定向
+    // 标签定向 (OR 逻辑：匹配任一标签即展示)
     if (targeting.tags && targeting.tags.length > 0) {
         if (!context?.tags) {
             return false
@@ -91,6 +122,14 @@ export function evaluateTargeting(
         if (!hasMatch) {
             return false
         }
+    }
+
+    // 会话展示次数限制 (需要配合会话存储使用)
+    // 注意：此功能需要前端配合，记录当前会话已展示次数
+    if (targeting.maxViewsPerSession && targeting.maxViewsPerSession > 0) {
+        // 此处需要实现会话级别的计数逻辑
+        // 可以使用 Redis 或内存缓存存储会话展示次数
+        // 暂时跳过此检查，实际使用时需要配合中间件实现
     }
 
     return true
