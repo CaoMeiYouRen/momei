@@ -109,11 +109,20 @@ export function sanitizeMetadata(metadata: Record<string, any> | null): Record<s
 
     for (const [key, value] of Object.entries(metadata)) {
         if (typeof value === 'string') {
-            // Remove script tags and other dangerous HTML
-            sanitized[key] = value
-                .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-                .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-                .replace(/javascript:/gi, '')
+            // Remove script tags, iframes and dangerous URL schemes
+            let previousVal: string
+            let currentVal = value
+
+            do {
+                previousVal = currentVal
+                currentVal = currentVal
+                    .replace(/<(?:script|iframe|style)\b[^>]*>([\s\S]*?)<\/(?:script|iframe|style)[\s\t\n\/]*>/gi, '')
+                    .replace(/<\/?(?:script|iframe|style)[\s\t\n\/]*>/gi, '')
+                    .replace(/(?:javascript|data|vbscript):[^"']*/gi, '')
+                    .replace(/(?:javascript|data|vbscript):/gi, '')
+            } while (currentVal !== previousVal)
+
+            sanitized[key] = currentVal
         } else {
             sanitized[key] = value
         }

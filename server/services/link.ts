@@ -18,14 +18,20 @@ import { LinkStatus, type ExternalLinkMetadata } from '@/types/ad'
  */
 export function generateShortCode(length: number = 6): string {
     const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    const bytes = randomBytes(length)
+    const charLen = chars.length
+    const maxByte = 256 - (256 % charLen)
     let result = ''
-    for (let i = 0; i < length; i++) {
-        const byte = bytes[i]
-        if (byte !== undefined) {
-            result += chars[byte % chars.length]
+
+    while (result.length < length) {
+        const bytes = randomBytes(length - result.length)
+        for (let i = 0; i < bytes.length; i++) {
+            const byte = bytes[i]
+            if (byte !== undefined && byte < maxByte) {
+                result += chars[byte % charLen]
+            }
         }
     }
+
     return result
 }
 

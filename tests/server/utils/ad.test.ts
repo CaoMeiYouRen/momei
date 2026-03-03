@@ -94,12 +94,16 @@ describe('Ad Utility Functions', () => {
             const metadata = {
                 title: '<script>alert("xss")</script>Title',
                 description: 'Description',
+                badTag: '</script >',
+                iframe: '<iframe src="malicious.com"></iframe>',
             }
 
             const sanitized = sanitizeMetadata(metadata)
 
-            expect(sanitized.title).not.toContain('<script>')
-            expect(sanitized.title).toContain('Title')
+            expect(sanitized.title).toBe('Title')
+            expect(sanitized.description).toBe('Description')
+            expect(sanitized.badTag).toBe('')
+            expect(sanitized.iframe).toBe('')
         })
 
         it('should preserve safe metadata', () => {
