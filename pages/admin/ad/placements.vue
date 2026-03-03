@@ -25,7 +25,7 @@
                 />
                 <Column
                     field="location"
-                    :header="$t('pages.admin.ad.location')"
+                    :header="$t('pages.admin.ad.placements.location')"
                 >
                     <template #body="{data}">
                         <Tag :value="data.location" severity="secondary" />
@@ -33,7 +33,7 @@
                 </Column>
                 <Column
                     field="format"
-                    :header="$t('pages.admin.ad.format')"
+                    :header="$t('pages.admin.ad.placements.format')"
                 >
                     <template #body="{data}">
                         <Tag :value="data.format" severity="info" />
@@ -41,7 +41,7 @@
                 </Column>
                 <Column
                     field="adapterId"
-                    :header="$t('pages.admin.ad.adapter')"
+                    :header="$t('pages.admin.ad.placements.adapter')"
                 >
                     <template #body="{data}">
                         {{ getAdapterName(data.adapterId) }}
@@ -49,18 +49,18 @@
                 </Column>
                 <Column
                     field="enabled"
-                    :header="$t('common.status')"
+                    :header="$t('pages.admin.ad.placements.status')"
                 >
                     <template #body="{data}">
                         <Tag
-                            :value="data.enabled ? $t('common.enabled') : $t('common.disabled')"
+                            :value="data.enabled ? $t('pages.admin.ad.placements.enabled') : $t('pages.admin.ad.placements.disabled')"
                             :severity="data.enabled ? 'success' : 'danger'"
                         />
                     </template>
                 </Column>
                 <Column
                     field="priority"
-                    :header="$t('pages.admin.ad.priority')"
+                    :header="$t('pages.admin.ad.placements.priority')"
                     sortable
                 />
                 <Column
@@ -120,7 +120,7 @@
             </div>
 
             <div class="field">
-                <label for="location">{{ $t('pages.admin.ad.location') }} *</label>
+                <label for="location">{{ $t('pages.admin.ad.placements.location') }} *</label>
                 <Dropdown
                     id="location"
                     v-model="formData.location"
@@ -133,7 +133,7 @@
             </div>
 
             <div class="field">
-                <label for="format">{{ $t('pages.admin.ad.format') }} *</label>
+                <label for="format">{{ $t('pages.admin.ad.placements.format') }} *</label>
                 <Dropdown
                     id="format"
                     v-model="formData.format"
@@ -146,7 +146,7 @@
             </div>
 
             <div class="field">
-                <label for="adapterId">{{ $t('pages.admin.ad.adapter') }} *</label>
+                <label for="adapterId">{{ $t('pages.admin.ad.placements.adapter') }} *</label>
                 <Dropdown
                     id="adapterId"
                     v-model="formData.adapterId"
@@ -159,17 +159,17 @@
             </div>
 
             <div class="field">
-                <label for="metadata_slot">{{ $t('pages.admin.ad.slot_id') }}</label>
+                <label for="metadata_slot">{{ $t('pages.admin.ad.placements.slot_id') }}</label>
                 <InputText
                     id="metadata_slot"
                     v-model.trim="formData.metadata.slot"
-                    :placeholder="$t('pages.admin.ad.slot_id_placeholder')"
+                    :placeholder="$t('pages.admin.ad.placements.slot_id_placeholder')"
                 />
-                <small class="text-color-secondary">{{ $t('pages.admin.ad.slot_id_hint') }}</small>
+                <small class="text-color-secondary">{{ $t('pages.admin.ad.placements.slot_id_hint') }}</small>
             </div>
 
             <div class="field">
-                <label for="priority">{{ $t('pages.admin.ad.priority') }}</label>
+                <label for="priority">{{ $t('pages.admin.ad.placements.priority') }}</label>
                 <InputNumber
                     id="priority"
                     v-model="formData.priority"
@@ -184,7 +184,7 @@
                     :binary="true"
                     input-id="enabled"
                 />
-                <label for="enabled" class="cursor-pointer">{{ $t('common.enabled') }}</label>
+                <label for="enabled" class="cursor-pointer">{{ $t('pages.admin.ad.placements.enabled') }}</label>
             </div>
 
             <template #footer>
@@ -211,9 +211,11 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { AdFormat, AdLocation, type AdPlacementMetadata } from '@/types/ad'
 
+const { t } = useI18n()
+
 definePageMeta({
-    middleware: ['auth'],
-    layout: 'admin' as any,
+    middleware: 'admin',
+    layout: 'default',
 })
 
 const confirm = useConfirm()
@@ -253,22 +255,22 @@ const adapterOptions = [
 ]
 
 // 位置选项
-const locationOptions = [
-    { label: 'Header', value: AdLocation.HEADER },
-    { label: 'Sidebar', value: AdLocation.SIDEBAR },
-    { label: 'Content Top', value: AdLocation.CONTENT_TOP },
-    { label: 'Content Middle', value: AdLocation.CONTENT_MIDDLE },
-    { label: 'Content Bottom', value: AdLocation.CONTENT_BOTTOM },
-    { label: 'Footer', value: AdLocation.FOOTER },
-]
+const locationOptions = computed(() => [
+    { label: t('pages.admin.ad.placements.locations.header'), value: AdLocation.HEADER },
+    { label: t('pages.admin.ad.placements.locations.sidebar'), value: AdLocation.SIDEBAR },
+    { label: t('pages.admin.ad.placements.locations.content_top'), value: AdLocation.CONTENT_TOP },
+    { label: t('pages.admin.ad.placements.locations.content_middle'), value: AdLocation.CONTENT_MIDDLE },
+    { label: t('pages.admin.ad.placements.locations.content_bottom'), value: AdLocation.CONTENT_BOTTOM },
+    { label: t('pages.admin.ad.placements.locations.footer'), value: AdLocation.FOOTER },
+])
 
 // 格式选项
-const formatOptions = [
-    { label: 'Display', value: AdFormat.DISPLAY },
-    { label: 'Native', value: AdFormat.NATIVE },
-    { label: 'Video', value: AdFormat.VIDEO },
-    { label: 'Responsive', value: AdFormat.RESPONSIVE },
-]
+const formatOptions = computed(() => [
+    { label: t('pages.admin.ad.placements.formats.display'), value: AdFormat.DISPLAY },
+    { label: t('pages.admin.ad.placements.formats.native'), value: AdFormat.NATIVE },
+    { label: t('pages.admin.ad.placements.formats.video'), value: AdFormat.VIDEO },
+    { label: t('pages.admin.ad.placements.formats.responsive'), value: AdFormat.RESPONSIVE },
+])
 
 async function loadPlacements() {
     loading.value = true
@@ -278,8 +280,8 @@ async function loadPlacements() {
     } catch (error: any) {
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: error.message || 'Failed to load placements',
+            summary: t('common.error'),
+            detail: error.message || t('pages.admin.ad.placements.messages.load_failed'),
             life: 3000,
         })
     } finally {
@@ -321,16 +323,16 @@ async function save() {
     Object.keys(errors).forEach((key) => delete errors[key])
 
     if (!formData.name) {
-        errors.name = 'Name is required'
+        errors.name = t('pages.admin.ad.placements.messages.name_required')
     }
     if (!formData.location) {
-        errors.location = 'Location is required'
+        errors.location = t('pages.admin.ad.placements.messages.location_required')
     }
     if (!formData.format) {
-        errors.format = 'Format is required'
+        errors.format = t('pages.admin.ad.placements.messages.format_required')
     }
     if (!formData.adapterId) {
-        errors.adapterId = 'Adapter is required'
+        errors.adapterId = t('pages.admin.ad.placements.messages.adapter_required')
     }
 
     if (Object.keys(errors).length > 0) {
@@ -352,10 +354,10 @@ async function save() {
 
         toast.add({
             severity: 'success',
-            summary: 'Success',
+            summary: t('common.success'),
             detail: editingItem.value
-                ? 'Placement updated successfully'
-                : 'Placement created successfully',
+                ? t('pages.admin.ad.placements.messages.update_success')
+                : t('pages.admin.ad.placements.messages.create_success'),
             life: 3000,
         })
 
@@ -364,8 +366,8 @@ async function save() {
     } catch (error: any) {
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: error.message || 'Failed to save placement',
+            summary: t('common.error'),
+            detail: error.message || t('pages.admin.ad.placements.messages.save_failed'),
             life: 3000,
         })
     } finally {
@@ -375,8 +377,8 @@ async function save() {
 
 function confirmDelete(item: any) {
     confirm.require({
-        message: 'Are you sure you want to delete this placement?',
-        header: 'Confirm Delete',
+        message: t('pages.admin.ad.placements.messages.delete_confirm'),
+        header: t('common.confirm_delete'),
         icon: 'pi pi-exclamation-triangle',
         accept: () => deleteItem(item),
     })
@@ -390,8 +392,8 @@ async function deleteItem(item: any) {
 
         toast.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Placement deleted successfully',
+            summary: t('common.success'),
+            detail: t('pages.admin.ad.placements.messages.delete_success'),
             life: 3000,
         })
 
@@ -399,8 +401,8 @@ async function deleteItem(item: any) {
     } catch (error: any) {
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: error.message || 'Failed to delete placement',
+            summary: t('common.error'),
+            detail: error.message || t('pages.admin.ad.placements.messages.delete_failed'),
             life: 3000,
         })
     }
@@ -418,8 +420,10 @@ async function toggleEnabled(item: any) {
 
         toast.add({
             severity: 'success',
-            summary: 'Success',
-            detail: `Placement ${item.enabled ? 'disabled' : 'enabled'} successfully`,
+            summary: t('common.success'),
+            detail: item.enabled
+                ? t('pages.admin.ad.placements.messages.disable_success')
+                : t('pages.admin.ad.placements.messages.enable_success'),
             life: 3000,
         })
 
@@ -427,8 +431,8 @@ async function toggleEnabled(item: any) {
     } catch (error: any) {
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: error.message || 'Failed to update placement',
+            summary: t('common.error'),
+            detail: error.message || t('pages.admin.ad.placements.messages.update_failed'),
             life: 3000,
         })
     }

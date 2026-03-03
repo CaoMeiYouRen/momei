@@ -360,6 +360,27 @@ const adminMenuItems = computed(() => {
                 command: () => navigateTo(localePath('/admin/subscribers')),
             },
             {
+                label: t('pages.admin.ad.title'),
+                icon: 'pi pi-percentage',
+                items: [
+                    {
+                        label: t('pages.admin.ad.campaigns.title'),
+                        icon: 'pi pi-megaphone',
+                        command: () => navigateTo(localePath('/admin/ad/campaigns')),
+                    },
+                    {
+                        label: t('pages.admin.ad.placements.title'),
+                        icon: 'pi pi-map',
+                        command: () => navigateTo(localePath('/admin/ad/placements')),
+                    },
+                ],
+            },
+            {
+                label: t('pages.admin.external_links.title'),
+                icon: 'pi pi-external-link',
+                command: () => navigateTo(localePath('/admin/external-links')),
+            },
+            {
                 label: t('pages.admin.marketing.title'),
                 icon: 'pi pi-megaphone',
                 command: () => navigateTo(localePath('/admin/marketing')),

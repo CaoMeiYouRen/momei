@@ -25,7 +25,7 @@
                 />
                 <Column
                     field="status"
-                    :header="$t('common.status')"
+                    :header="$t('pages.admin.ad.campaigns.status')"
                 >
                     <template #body="{data}">
                         <Tag
@@ -36,7 +36,7 @@
                 </Column>
                 <Column
                     field="startDate"
-                    :header="$t('pages.admin.ad.start_date')"
+                    :header="$t('pages.admin.ad.campaigns.start_date')"
                 >
                     <template #body="{data}">
                         {{ formatDate(data.startDate) }}
@@ -44,7 +44,7 @@
                 </Column>
                 <Column
                     field="endDate"
-                    :header="$t('pages.admin.ad.end_date')"
+                    :header="$t('pages.admin.ad.campaigns.end_date')"
                 >
                     <template #body="{data}">
                         {{ formatDate(data.endDate) }}
@@ -52,17 +52,17 @@
                 </Column>
                 <Column
                     field="impressions"
-                    :header="$t('pages.admin.ad.impressions')"
+                    :header="$t('pages.admin.ad.campaigns.impressions')"
                     sortable
                 />
                 <Column
                     field="clicks"
-                    :header="$t('pages.admin.ad.clicks')"
+                    :header="$t('pages.admin.ad.campaigns.clicks')"
                     sortable
                 />
                 <Column
                     field="revenue"
-                    :header="$t('pages.admin.ad.revenue')"
+                    :header="$t('pages.admin.ad.campaigns.revenue')"
                 >
                     <template #body="{data}">
                         ${{ data.revenue?.toFixed(2) || '0.00' }}
@@ -118,7 +118,7 @@
             </div>
 
             <div class="field">
-                <label for="status">{{ $t('common.status') }} *</label>
+                <label for="status">{{ $t('pages.admin.ad.campaigns.status') }} *</label>
                 <Dropdown
                     id="status"
                     v-model="formData.status"
@@ -131,7 +131,7 @@
             </div>
 
             <div class="field">
-                <label for="startDate">{{ $t('pages.admin.ad.start_date') }}</label>
+                <label for="startDate">{{ $t('pages.admin.ad.campaigns.start_date') }}</label>
                 <DatePicker
                     id="startDate"
                     v-model="formData.startDate"
@@ -142,7 +142,7 @@
             </div>
 
             <div class="field">
-                <label for="endDate">{{ $t('pages.admin.ad.end_date') }}</label>
+                <label for="endDate">{{ $t('pages.admin.ad.campaigns.end_date') }}</label>
                 <DatePicker
                     id="endDate"
                     v-model="formData.endDate"
@@ -176,9 +176,11 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { CampaignStatus } from '@/types/ad'
 
+const { t } = useI18n()
+
 definePageMeta({
-    middleware: ['auth'],
-    layout: 'admin' as any,
+    middleware: 'admin',
+    layout: 'default',
 })
 
 const confirm = useConfirm()
@@ -204,12 +206,12 @@ const formData = reactive<{
 
 const errors = reactive<Record<string, string>>({})
 
-const statusOptions = [
-    { label: 'Draft', value: CampaignStatus.DRAFT },
-    { label: 'Active', value: CampaignStatus.ACTIVE },
-    { label: 'Paused', value: CampaignStatus.PAUSED },
-    { label: 'Ended', value: CampaignStatus.ENDED },
-]
+const statusOptions = computed(() => [
+    { label: t('pages.admin.ad.campaigns.statuses.draft'), value: CampaignStatus.DRAFT },
+    { label: t('pages.admin.ad.campaigns.statuses.active'), value: CampaignStatus.ACTIVE },
+    { label: t('pages.admin.ad.campaigns.statuses.paused'), value: CampaignStatus.PAUSED },
+    { label: t('pages.admin.ad.campaigns.statuses.ended'), value: CampaignStatus.ENDED },
+])
 
 async function loadCampaigns() {
     loading.value = true
@@ -219,8 +221,8 @@ async function loadCampaigns() {
     } catch (error: any) {
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: error.message || 'Failed to load campaigns',
+            summary: t('common.error'),
+            detail: error.message || t('pages.admin.ad.campaigns.messages.load_failed'),
             life: 3000,
         })
     } finally {
@@ -255,7 +257,7 @@ async function save() {
     Object.keys(errors).forEach((key) => delete errors[key])
 
     if (!formData.name) {
-        errors.name = 'Name is required'
+        errors.name = t('pages.admin.ad.campaigns.messages.name_required')
     }
 
     if (Object.keys(errors).length > 0) {
@@ -283,10 +285,10 @@ async function save() {
 
         toast.add({
             severity: 'success',
-            summary: 'Success',
+            summary: t('common.success'),
             detail: editingItem.value
-                ? 'Campaign updated successfully'
-                : 'Campaign created successfully',
+                ? t('pages.admin.ad.campaigns.messages.update_success')
+                : t('pages.admin.ad.campaigns.messages.create_success'),
             life: 3000,
         })
 
@@ -295,8 +297,8 @@ async function save() {
     } catch (error: any) {
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: error.message || 'Failed to save campaign',
+            summary: t('common.error'),
+            detail: error.message || t('pages.admin.ad.campaigns.messages.save_failed'),
             life: 3000,
         })
     } finally {
@@ -306,8 +308,8 @@ async function save() {
 
 function confirmDelete(item: any) {
     confirm.require({
-        message: 'Are you sure you want to delete this campaign?',
-        header: 'Confirm Delete',
+        message: t('pages.admin.ad.campaigns.messages.delete_confirm'),
+        header: t('common.confirm_delete'),
         icon: 'pi pi-exclamation-triangle',
         accept: () => deleteItem(item),
     })
@@ -321,8 +323,8 @@ async function deleteItem(item: any) {
 
         toast.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Campaign deleted successfully',
+            summary: t('common.success'),
+            detail: t('pages.admin.ad.campaigns.messages.delete_success'),
             life: 3000,
         })
 
@@ -330,8 +332,8 @@ async function deleteItem(item: any) {
     } catch (error: any) {
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: error.message || 'Failed to delete campaign',
+            summary: t('common.error'),
+            detail: error.message || t('pages.admin.ad.campaigns.messages.delete_failed'),
             life: 3000,
         })
     }

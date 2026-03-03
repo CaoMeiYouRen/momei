@@ -502,25 +502,76 @@
                 "review_success": "Action successful"
             },
             "ad": {
+                "title": "Ad Monetization",
                 "placements": {
                     "title": "Ad Placements",
                     "empty": "No placements found",
+                    "status": "Status",
+                    "enabled": "Enabled",
+                    "disabled": "Disabled",
                     "location": "Location",
                     "format": "Format",
                     "adapter": "Adapter",
                     "priority": "Priority",
                     "slot_id": "Slot ID",
                     "slot_id_placeholder": "e.g., ca-pub-1234567890/1234567890",
-                    "slot_id_hint": "Enter your ad platform slot ID"
+                    "slot_id_hint": "Enter your ad platform slot ID",
+                    "locations": {
+                        "header": "Header",
+                        "sidebar": "Sidebar",
+                        "content_top": "Content Top",
+                        "content_middle": "Content Middle",
+                        "content_bottom": "Content Bottom",
+                        "footer": "Footer"
+                    },
+                    "formats": {
+                        "display": "Display",
+                        "native": "Native",
+                        "video": "Video",
+                        "responsive": "Responsive"
+                    },
+                    "messages": {
+                        "load_failed": "Failed to load placements",
+                        "name_required": "Name is required",
+                        "location_required": "Location is required",
+                        "format_required": "Format is required",
+                        "adapter_required": "Adapter is required",
+                        "create_success": "Placement created successfully",
+                        "update_success": "Placement updated successfully",
+                        "save_failed": "Failed to save placement",
+                        "delete_confirm": "Are you sure you want to delete this placement?",
+                        "delete_success": "Placement deleted successfully",
+                        "delete_failed": "Failed to delete placement",
+                        "enable_success": "Placement enabled successfully",
+                        "disable_success": "Placement disabled successfully",
+                        "update_failed": "Failed to update placement"
+                    }
                 },
                 "campaigns": {
                     "title": "Ad Campaigns",
                     "empty": "No campaigns found",
+                    "status": "Status",
                     "start_date": "Start Date",
                     "end_date": "End Date",
                     "impressions": "Impressions",
                     "clicks": "Clicks",
-                    "revenue": "Revenue"
+                    "revenue": "Revenue",
+                    "statuses": {
+                        "draft": "Draft",
+                        "active": "Active",
+                        "paused": "Paused",
+                        "ended": "Ended"
+                    },
+                    "messages": {
+                        "load_failed": "Failed to load campaigns",
+                        "name_required": "Name is required",
+                        "create_success": "Campaign created successfully",
+                        "update_success": "Campaign updated successfully",
+                        "save_failed": "Failed to save campaign",
+                        "delete_confirm": "Are you sure you want to delete this campaign?",
+                        "delete_success": "Campaign deleted successfully",
+                        "delete_failed": "Failed to delete campaign"
+                    }
                 }
             },
             "external_links": {
@@ -528,12 +579,31 @@
                 "empty": "No links found",
                 "short_code": "Short Code",
                 "original_url": "Original URL",
+                "status": "Status",
                 "clicks": "Clicks",
                 "show_redirect": "Redirect Page",
                 "no_follow": "No Follow",
                 "show_redirect_page": "Show Redirect Page",
                 "stats": "Statistics",
-                "title_placeholder": "Optional link title"
+                "title_placeholder": "Optional link title",
+                "url_placeholder": "e.g. https://example.com",
+                "statuses": {
+                    "active": "Active",
+                    "blocked": "Blocked",
+                    "expired": "Expired"
+                },
+                "messages": {
+                    "load_failed": "Failed to load links",
+                    "url_required": "URL is required",
+                    "create_success": "Link created successfully",
+                    "update_success": "Link updated successfully",
+                    "save_failed": "Failed to save link",
+                    "delete_confirm": "Are you sure you want to delete this link?",
+                    "delete_success": "Link deleted successfully",
+                    "delete_failed": "Failed to delete link",
+                    "stats_failed": "Failed to load statistics",
+                    "copy_success": "URL copied to clipboard"
+                }
             },
             "ai": {
                 "title": "AI Tasks & Stats",

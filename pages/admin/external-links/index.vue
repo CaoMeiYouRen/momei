@@ -48,7 +48,7 @@
                 </Column>
                 <Column
                     field="status"
-                    :header="$t('common.status')"
+                    :header="$t('pages.admin.external_links.status')"
                 >
                     <template #body="{data}">
                         <Tag
@@ -125,7 +125,7 @@
                 <InputText
                     id="originalUrl"
                     v-model.trim="formData.originalUrl"
-                    placeholder="https://example.com"
+                    :placeholder="$t('pages.admin.external_links.url_placeholder')"
                     :class="{'p-invalid': errors.originalUrl}"
                 />
                 <small v-if="errors.originalUrl" class="p-error">{{ errors.originalUrl }}</small>
@@ -141,7 +141,7 @@
             </div>
 
             <div class="field">
-                <label for="status">{{ $t('common.status') }} *</label>
+                <label for="status">{{ $t('pages.admin.external_links.status') }} *</label>
                 <Dropdown
                     id="status"
                     v-model="formData.status"
@@ -234,9 +234,11 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { LinkStatus, type ExternalLinkMetadata } from '@/types/ad'
 
+const { t } = useI18n()
+
 definePageMeta({
-    middleware: ['auth'],
-    layout: 'admin' as any,
+    middleware: 'admin',
+    layout: 'default',
 })
 
 const confirm = useConfirm()
@@ -266,11 +268,11 @@ const formData = reactive<{
 
 const errors = reactive<Record<string, string>>({})
 
-const statusOptions = [
-    { label: 'Active', value: LinkStatus.ACTIVE },
-    { label: 'Blocked', value: LinkStatus.BLOCKED },
-    { label: 'Expired', value: LinkStatus.EXPIRED },
-]
+const statusOptions = computed(() => [
+    { label: t('pages.admin.external_links.statuses.active'), value: LinkStatus.ACTIVE },
+    { label: t('pages.admin.external_links.statuses.blocked'), value: LinkStatus.BLOCKED },
+    { label: t('pages.admin.external_links.statuses.expired'), value: LinkStatus.EXPIRED },
+])
 
 async function loadLinks() {
     loading.value = true
@@ -280,8 +282,8 @@ async function loadLinks() {
     } catch (error: any) {
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: error.message || 'Failed to load links',
+            summary: t('common.error'),
+            detail: error.message || t('pages.admin.external_links.messages.load_failed'),
             life: 3000,
         })
     } finally {
@@ -318,7 +320,7 @@ async function save() {
     Object.keys(errors).forEach((key) => delete errors[key])
 
     if (!formData.originalUrl) {
-        errors.originalUrl = 'URL is required'
+        errors.originalUrl = t('pages.admin.external_links.messages.url_required')
     }
 
     if (Object.keys(errors).length > 0) {
@@ -342,10 +344,10 @@ async function save() {
 
         toast.add({
             severity: 'success',
-            summary: 'Success',
+            summary: t('common.success'),
             detail: editingItem.value
-                ? 'Link updated successfully'
-                : 'Link created successfully',
+                ? t('pages.admin.external_links.messages.update_success')
+                : t('pages.admin.external_links.messages.create_success'),
             life: 3000,
         })
 
@@ -354,8 +356,8 @@ async function save() {
     } catch (error: any) {
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: error.message || 'Failed to save link',
+            summary: t('common.error'),
+            detail: error.message || t('pages.admin.external_links.messages.save_failed'),
             life: 3000,
         })
     } finally {
@@ -365,8 +367,8 @@ async function save() {
 
 function confirmDelete(item: any) {
     confirm.require({
-        message: 'Are you sure you want to delete this link?',
-        header: 'Confirm Delete',
+        message: t('pages.admin.external_links.messages.delete_confirm'),
+        header: t('common.confirm_delete'),
         icon: 'pi pi-exclamation-triangle',
         accept: () => deleteItem(item),
     })
@@ -380,8 +382,8 @@ async function deleteItem(item: any) {
 
         toast.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Link deleted successfully',
+            summary: t('common.success'),
+            detail: t('pages.admin.external_links.messages.delete_success'),
             life: 3000,
         })
 
@@ -389,8 +391,8 @@ async function deleteItem(item: any) {
     } catch (error: any) {
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: error.message || 'Failed to delete link',
+            summary: t('common.error'),
+            detail: error.message || t('pages.admin.external_links.messages.delete_failed'),
             life: 3000,
         })
     }
@@ -404,8 +406,8 @@ async function showStats(item: any) {
     } catch (error: any) {
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: error.message || 'Failed to load stats',
+            summary: t('common.error'),
+            detail: error.message || t('pages.admin.external_links.messages.stats_failed'),
             life: 3000,
         })
     }
@@ -416,8 +418,8 @@ function copyShortCode(code: string) {
     navigator.clipboard.writeText(url).then(() => {
         toast.add({
             severity: 'success',
-            summary: 'Copied',
-            detail: 'URL copied to clipboard',
+            summary: t('common.success'),
+            detail: t('pages.admin.external_links.messages.copy_success'),
             life: 2000,
         })
     })
