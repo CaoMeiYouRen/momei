@@ -1,4 +1,13 @@
+import fs from 'fs'
 import { test, expect } from '@playwright/test'
+
+function hasAdminAuthState(): boolean {
+    try {
+        return fs.existsSync('tests/e2e/.auth/admin.json')
+    } catch {
+        return false
+    }
+}
 
 test.describe('User Workflow E2E Tests', () => {
     test.describe('User Registration Flow', () => {
@@ -114,7 +123,7 @@ test.describe('User Workflow E2E Tests', () => {
     })
 
     test.describe('User Settings Flow', () => {
-        test.use({ storageState: 'tests/e2e/.auth/admin.json' })
+        test.use({ storageState: hasAdminAuthState() ? 'tests/e2e/.auth/admin.json' : undefined })
 
         test('should display settings page', async ({ page }) => {
             // 注意：此测试需要用户已登录

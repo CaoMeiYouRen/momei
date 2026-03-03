@@ -28,11 +28,13 @@ import {
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
     AUTH_BASE_URL,
+    SITE_URL,
     APP_NAME,
     EMAIL_REQUIRE_VERIFICATION,
     PHONE_EXPIRES_IN,
     AUTH_CAPTCHA_PROVIDER,
     AUTH_CAPTCHA_SECRET_KEY,
+    TEST_MODE,
 } from '@/utils/shared/env'
 import { Subscriber } from '@/server/entities/subscriber'
 import { User } from '@/server/entities/user'
@@ -41,9 +43,15 @@ import { getTempEmail, getTempName } from '@/server/utils/auth-generators'
 import { emailService } from '@/server/utils/email/service'
 import { getUserLocale } from '@/server/utils/locale'
 
+const defaultLocalOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3001']
+const resolvedAuthBaseUrl = AUTH_BASE_URL || SITE_URL || (TEST_MODE ? 'http://localhost:3001' : '')
+const trustedOrigins = [AUTH_BASE_URL, SITE_URL, ...(TEST_MODE ? defaultLocalOrigins : [])]
+    .filter(Boolean)
+    .filter((value, index, array) => array.indexOf(value) === index)
+
 export const auth = betterAuth({
     appName: APP_NAME, // 应用名称。它将被用作发行者。
-    baseURL: AUTH_BASE_URL,
+    baseURL: resolvedAuthBaseUrl,
     // 数据库适配器
     // 使用 TypeORM 适配器
     database: typeormAdapter(dataSource),
@@ -115,7 +123,7 @@ export const auth = betterAuth({
         },
     },
     // 可信来源列表。
-    trustedOrigins: [AUTH_BASE_URL].filter(Boolean),
+    trustedOrigins,
     // 用于加密、签名和哈希的秘密。
     secret: AUTH_SECRET,
     advanced: {

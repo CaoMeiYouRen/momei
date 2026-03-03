@@ -13,7 +13,6 @@ import { LinkStatus, type ExternalLinkMetadata } from '@/types/ad'
  */
 @Entity('external_links')
 @Index(['shortCode'], { unique: true })
-@Index(['status'])
 export class ExternalLink extends BaseEntity {
 
     @CustomColumn({ type: 'text', nullable: false })
