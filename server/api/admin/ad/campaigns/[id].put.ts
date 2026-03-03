@@ -20,16 +20,30 @@ export default defineEventHandler(async (event) => {
         // 构建更新数据
         const updateData: Record<string, any> = {}
 
-        if (body.name !== undefined) { updateData.name = body.name }
+        if (body.name !== undefined) {
+            updateData.name = body.name
+        }
         if (body.status !== undefined && Object.values(CampaignStatus).includes(body.status)) {
             updateData.status = body.status
         }
-        if (body.startDate !== undefined) { updateData.startDate = body.startDate }
-        if (body.endDate !== undefined) { updateData.endDate = body.endDate }
-        if (body.targeting !== undefined) { updateData.targeting = body.targeting }
-        if (body.impressions !== undefined) { updateData.impressions = body.impressions }
-        if (body.clicks !== undefined) { updateData.clicks = body.clicks }
-        if (body.revenue !== undefined) { updateData.revenue = body.revenue }
+        if (body.startDate !== undefined) {
+            updateData.startDate = body.startDate
+        }
+        if (body.endDate !== undefined) {
+            updateData.endDate = body.endDate
+        }
+        if (body.targeting !== undefined) {
+            updateData.targeting = body.targeting
+        }
+        if (body.impressions !== undefined) {
+            updateData.impressions = body.impressions
+        }
+        if (body.clicks !== undefined) {
+            updateData.clicks = body.clicks
+        }
+        if (body.revenue !== undefined) {
+            updateData.revenue = body.revenue
+        }
 
         const campaign = await updateCampaign(id, updateData)
 

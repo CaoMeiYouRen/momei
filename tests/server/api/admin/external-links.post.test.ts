@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest'
 import { dataSource } from '@/server/database'
-import { ExternalLink } from '@/server/entities/external-link'
 import { User } from '@/server/entities/user'
 import { generateRandomString } from '@/utils/shared/random'
 import { LinkStatus } from '@/types/ad'
@@ -35,14 +34,6 @@ describe.skip('POST /api/admin/external-links', () => {
 
     describe('Create External Link', () => {
         it('should create a new link with valid data', async () => {
-            const body = {
-                originalUrl: 'https://example.com/test',
-                createdById: user.id,
-                noFollow: true,
-                showRedirectPage: true,
-                metadata: { title: 'Test Link' },
-            }
-
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
@@ -60,10 +51,6 @@ describe.skip('POST /api/admin/external-links', () => {
         })
 
         it('should validate required fields - missing originalUrl', async () => {
-            const body = {
-                createdById: user.id,
-            }
-
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
@@ -76,10 +63,6 @@ describe.skip('POST /api/admin/external-links', () => {
         })
 
         it('should validate required fields - missing createdById', async () => {
-            const body = {
-                originalUrl: 'https://example.com',
-            }
-
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
@@ -92,11 +75,6 @@ describe.skip('POST /api/admin/external-links', () => {
         })
 
         it('should create link with default values', async () => {
-            const body = {
-                originalUrl: 'https://example.com/default',
-                createdById: user.id,
-            }
-
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
@@ -111,14 +89,8 @@ describe.skip('POST /api/admin/external-links', () => {
         })
 
         it('should generate unique short codes', async () => {
-            const bodies = [
-                { originalUrl: 'https://example.com/1', createdById: user.id },
-                { originalUrl: 'https://example.com/2', createdById: user.id },
-                { originalUrl: 'https://example.com/3', createdById: user.id },
-            ]
-
             const codes: string[] = []
-            for (const body of bodies) {
+            for (let i = 0; i < 3; i++) {
                 const event = {
                     context: {},
                     node: { req: { headers: {} }, res: {} },
@@ -133,16 +105,6 @@ describe.skip('POST /api/admin/external-links', () => {
         })
 
         it('should store metadata', async () => {
-            const body = {
-                originalUrl: 'https://example.com/with-meta',
-                createdById: user.id,
-                metadata: {
-                    title: 'Example Site',
-                    description: 'A test link with metadata',
-                    favicon: 'https://example.com/favicon.ico',
-                },
-            }
-
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
@@ -157,11 +119,6 @@ describe.skip('POST /api/admin/external-links', () => {
         })
 
         it('should handle invalid URL format gracefully', async () => {
-            const body = {
-                originalUrl: 'not-a-valid-url',
-                createdById: user.id,
-            }
-
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },

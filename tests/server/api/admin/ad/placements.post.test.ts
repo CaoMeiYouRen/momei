@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest'
 import { dataSource } from '@/server/database'
-import { AdPlacement } from '@/server/entities/ad-placement'
 import { User } from '@/server/entities/user'
 import { generateRandomString } from '@/utils/shared/random'
 import { AdFormat, AdLocation } from '@/types/ad'
@@ -35,16 +34,6 @@ describe.skip('POST /api/admin/ad/placements', () => {
 
     describe('Create Ad Placement', () => {
         it('should create a new placement with valid data', async () => {
-            const body = {
-                name: 'Test Sidebar Ad',
-                location: AdLocation.SIDEBAR,
-                format: AdFormat.RESPONSIVE,
-                adapterId: 'adsense',
-                priority: 10,
-                enabled: true,
-                metadata: { slot: 'test-slot-123' },
-            }
-
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
@@ -83,13 +72,6 @@ describe.skip('POST /api/admin/ad/placements', () => {
         })
 
         it('should create placement with default values', async () => {
-            const body = {
-                name: 'Default Ad',
-                location: AdLocation.FOOTER,
-                format: AdFormat.DISPLAY,
-                adapterId: 'adsense',
-            }
-
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },
@@ -102,13 +84,6 @@ describe.skip('POST /api/admin/ad/placements', () => {
         })
 
         it('should handle database errors gracefully', async () => {
-            const body = {
-                name: 'Error Test',
-                location: AdLocation.HEADER,
-                format: AdFormat.NATIVE,
-                adapterId: 'baidu',
-            }
-
             const event = {
                 context: {},
                 node: { req: { headers: {} }, res: {} },

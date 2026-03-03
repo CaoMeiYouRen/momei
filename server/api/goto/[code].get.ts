@@ -1,4 +1,4 @@
-import { defineEventHandler, getRouterParam, setHeader } from 'h3'
+import { defineEventHandler, getRouterParam } from 'h3'
 import { getLinkByShortCode, recordClick } from '@/server/services/link'
 import { LinkStatus } from '@/types/ad'
 

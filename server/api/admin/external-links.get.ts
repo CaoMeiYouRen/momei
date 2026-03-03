@@ -1,11 +1,11 @@
-import { defineEventHandler, getQuery } from 'h3'
+import { defineEventHandler } from 'h3'
 import { getAllLinks } from '@/server/services/link'
 
 /**
  * 获取外链列表
  * GET /api/admin/external-links
  */
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
     try {
         const links = await getAllLinks()
 

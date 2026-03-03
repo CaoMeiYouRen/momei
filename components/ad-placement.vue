@@ -7,12 +7,14 @@
     >
         <div v-if="showLabel" class="ad-placement__label">
             {{ $t('common.advertisement') }}
+            <!-- eslint-disable vue/no-v-html -->
+            <div
+                class="ad-placement__content"
+                :data-ad-location="location"
+                v-html="placementHtml"
+            />
+            <!-- eslint-enable vue/no-v-html -->
         </div>
-        <div
-            class="ad-placement__content"
-            :data-ad-location="location"
-            v-html="placementHtml"
-        />
     </div>
 </template>
 

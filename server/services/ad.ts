@@ -1,7 +1,7 @@
 import { In } from 'typeorm'
 import { adAdapterRegistry } from './adapters'
 import { dataSource } from '@/server/database'
-import { AdLocation } from '@/types/ad'
+import { AdLocation, CampaignStatus } from '@/types/ad'
 import { AdPlacement } from '@/server/entities/ad-placement'
 import { AdCampaign } from '@/server/entities/ad-campaign'
 
@@ -53,7 +53,7 @@ export async function getPlacementsByLocation(
         // 检查广告活动是否处于活跃状态
         if (placement.campaign) {
             const campaign = placement.campaign
-            if (campaign.status !== 'active') {
+            if (campaign.status !== CampaignStatus.ACTIVE) {
                 return false
             }
             // 检查日期范围

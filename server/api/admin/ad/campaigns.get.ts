@@ -4,7 +4,7 @@ import { getAllCampaigns } from '../../../services/ad'
  * 获取所有广告活动
  * GET /api/admin/ad/campaigns
  */
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
     try {
         const campaigns = await getAllCampaigns()
 

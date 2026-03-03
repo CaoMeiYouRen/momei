@@ -26,7 +26,7 @@ export class TencentAdapter extends BaseAdAdapter {
     /**
      * 验证配置
      */
-    protected override async validateConfig(config: TencentConfig): Promise<void> {
+    protected override validateConfig(config: TencentConfig): Promise<void> {
         if (!config.appId) {
             throw new AdError('Tencent App ID is required')
         }
@@ -36,13 +36,15 @@ export class TencentAdapter extends BaseAdAdapter {
         if (!appIdPattern.test(config.appId)) {
             throw new AdError('Invalid Tencent App ID format. Expected numeric ID')
         }
+
+        return Promise.resolve()
     }
 
     /**
      * 验证凭据
      */
-    override async verifyCredentials(): Promise<boolean> {
-        return !!(this.config as TencentConfig).appId
+    override verifyCredentials(): Promise<boolean> {
+        return Promise.resolve(!!(this.config as TencentConfig).appId)
     }
 
     /**

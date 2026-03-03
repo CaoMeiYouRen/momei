@@ -4,7 +4,7 @@ import { getAllPlacements } from '../../../services/ad'
  * 获取所有广告位
  * GET /api/admin/ad/placements
  */
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
     try {
         const placements = await getAllPlacements()
 

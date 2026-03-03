@@ -7,7 +7,7 @@ import {
     parseTargetingRules,
     isAdFormatSupported,
 } from '@/server/utils/ad'
-import { AdFormat, AdLocation } from '@/types/ad'
+import { AdFormat } from '@/types/ad'
 
 describe('Ad Utility Functions', () => {
     describe('generateAdCode', () => {

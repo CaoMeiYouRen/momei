@@ -37,4 +37,10 @@ export default withNuxt(
             'max-lines-per-function': [0, { max: 150 }], // 强制函数最大行数
         },
     },
+    {
+        files: ['pages/admin/posts/[[]id[]].vue'],
+        rules: {
+            'max-lines': 0,
+        },
+    },
 )

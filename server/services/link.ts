@@ -24,8 +24,7 @@ export function generateShortCode(length: number = 6): string {
 
     while (result.length < length) {
         const bytes = randomBytes(length - result.length)
-        for (let i = 0; i < bytes.length; i++) {
-            const byte = bytes[i]
+        for (const byte of bytes) {
             if (byte !== undefined && byte < maxByte) {
                 result += chars[byte % charLen]
             }
@@ -42,12 +41,14 @@ export function generateShortCode(length: number = 6): string {
 export async function generateUniqueShortCode(maxRetries: number = 10): Promise<string> {
     const linkRepo = dataSource.getRepository(ExternalLink)
 
-    for (let i = 0; i < maxRetries; i++) {
+    let retries = 0
+    while (retries < maxRetries) {
         const code = generateShortCode()
         const existing = await linkRepo.findOne({ where: { shortCode: code } })
         if (!existing) {
             return code
         }
+        retries++
     }
 
     // 如果随机生成失败，使用更长的短码
@@ -183,7 +184,8 @@ export async function updateLink(id: string, data: Partial<ExternalLink>): Promi
     }
 
     // 只更新基本字段，不包含关系
-    const { createdBy, ...updateData } = data as any
+    const updateData = { ...data } as any
+    delete updateData.createdBy
     await linkRepo.update(id, updateData)
     return getLinkById(id)
 }
@@ -196,7 +198,7 @@ export async function deleteLink(id: string): Promise<boolean> {
         const linkRepo = dataSource.getRepository(ExternalLink)
         const result = await linkRepo.delete(id)
         return result.affected ? result.affected > 0 : false
-    } catch (error) {
+    } catch {
         // Handle case where entity metadata is not available or link doesn't exist
         return false
     }

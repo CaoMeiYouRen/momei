@@ -97,7 +97,7 @@ async function syncAdminRoles(ds: DataSource) {
 
         for (const user of admins) {
             if (!isAdmin(user.role)) {
-                const roles = user.role ? user.role.split(',').map((r) => r.trim()).filter(Boolean) : []
+                const roles = user.role?.split(',')?.map((r) => r.trim())?.filter(Boolean) || []
                 if (!roles.includes('admin')) {
                     roles.push('admin')
                     user.role = roles.join(',')
@@ -112,7 +112,7 @@ async function syncAdminRoles(ds: DataSource) {
 }
 
 export const initializeDB = async () => {
-    if (isInitialized && AppDataSource && AppDataSource.isInitialized) {
+    if (isInitialized && AppDataSource?.isInitialized) {
         return AppDataSource
     }
 
@@ -230,9 +230,8 @@ export const initializeDB = async () => {
         return AppDataSource
     }
 
-    return AppDataSource
 }
 
 // 顶级 await - 数据库在模块导入时自动初始化
 // 使用非空断言，因为数据库应该在应用启动时初始化
-export const dataSource: DataSource = (await initializeDB())!
+export const dataSource: DataSource = (await initializeDB())

@@ -26,7 +26,7 @@ export class BaiduAdapter extends BaseAdAdapter {
     /**
      * 验证配置
      */
-    protected override async validateConfig(config: BaiduConfig): Promise<void> {
+    protected override validateConfig(config: BaiduConfig): Promise<void> {
         if (!config.slotId) {
             throw new AdError('Baidu slot ID is required')
         }
@@ -36,13 +36,15 @@ export class BaiduAdapter extends BaseAdAdapter {
         if (typeof config.slotId !== 'string' || config.slotId.trim().length === 0) {
             throw new AdError('Invalid Baidu slot ID format')
         }
+
+        return Promise.resolve()
     }
 
     /**
      * 验证凭据
      */
-    override async verifyCredentials(): Promise<boolean> {
-        return !!(this.config as BaiduConfig).slotId
+    override verifyCredentials(): Promise<boolean> {
+        return Promise.resolve(!!(this.config as BaiduConfig).slotId)
     }
 
     /**

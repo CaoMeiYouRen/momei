@@ -103,8 +103,10 @@ export abstract class BaseAdAdapter implements IAdAdapter {
     /**
      * 验证配置（子类可覆盖）
      */
-    protected async validateConfig(_config: AdAdapterConfig): Promise<void> {
+    protected validateConfig(config: AdAdapterConfig): Promise<void> {
+        void config
         // 默认实现，子类可覆盖以添加特定验证
+        return Promise.resolve()
     }
 
     /**

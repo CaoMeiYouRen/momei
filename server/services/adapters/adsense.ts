@@ -23,7 +23,7 @@ export class AdSenseAdapter extends BaseAdAdapter {
     /**
      * 验证配置
      */
-    protected override async validateConfig(config: AdSenseConfig): Promise<void> {
+    protected override validateConfig(config: AdSenseConfig): Promise<void> {
         if (!config.clientId) {
             throw new AdError('AdSense Client ID is required')
         }
@@ -33,14 +33,16 @@ export class AdSenseAdapter extends BaseAdAdapter {
         if (!clientIdPattern.test(config.clientId)) {
             throw new AdError('Invalid AdSense Client ID format. Expected format: ca-pub-XXXXXXXXXXXXXXXX')
         }
+
+        return Promise.resolve()
     }
 
     /**
      * 验证凭据
      * 注意：AdSense 无法通过 API 验证，这里只检查配置是否存在
      */
-    override async verifyCredentials(): Promise<boolean> {
-        return !!(this.config as AdSenseConfig).clientId
+    override verifyCredentials(): Promise<boolean> {
+        return Promise.resolve(!!(this.config as AdSenseConfig).clientId)
     }
 
     /**

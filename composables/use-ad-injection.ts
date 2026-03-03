@@ -19,11 +19,6 @@ export function useAdInjection() {
      */
     async function injectAds(
         content: string,
-        context: {
-            postId: string
-            categories: string[]
-            tags: string[]
-        },
     ): Promise<string> {
         try {
             // 获取中部和底部广告位

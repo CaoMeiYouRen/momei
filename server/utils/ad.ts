@@ -82,15 +82,25 @@ export function validateAdConfig(
 
     switch (adapterId) {
         case 'adsense':
-            if (!config.publisherId) { errors.push('Publisher ID is required') }
+            if (!config.publisherId) {
+                errors.push('Publisher ID is required')
+            }
             break
         case 'baidu':
-            if (!config.publisherId) { errors.push('Publisher ID is required') }
-            if (!config.tokenId) { errors.push('Token ID is required') }
+            if (!config.publisherId) {
+                errors.push('Publisher ID is required')
+            }
+            if (!config.tokenId) {
+                errors.push('Token ID is required')
+            }
             break
         case 'tencent':
-            if (!config.appId) { errors.push('App ID is required') }
-            if (!config.placementId) { errors.push('Placement ID is required') }
+            if (!config.appId) {
+                errors.push('App ID is required')
+            }
+            if (!config.placementId) {
+                errors.push('Placement ID is required')
+            }
             break
     }
 
@@ -104,7 +114,9 @@ export function validateAdConfig(
  * Sanitize metadata to prevent XSS
  */
 export function sanitizeMetadata(metadata: Record<string, any> | null): Record<string, any> {
-    if (!metadata) { return {} }
+    if (!metadata) {
+        return {}
+    }
 
     const sanitized: Record<string, any> = {}
 
@@ -135,7 +147,9 @@ export function formatAdSize(width: number | string, height: number | string): s
  */
 export function parseTargetingRules(rulesStr: string): Record<string, any> {
     try {
-        if (!rulesStr || rulesStr.trim() === '') { return {} }
+        if (!rulesStr || rulesStr.trim() === '') {
+            return {}
+        }
         return JSON.parse(rulesStr)
     } catch {
         return {}

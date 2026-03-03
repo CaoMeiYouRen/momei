@@ -88,7 +88,7 @@ describe('Baidu Adapter', () => {
             placement.priority = 10
         })
 
-        it('should generate valid Baidu ad HTML with slotId in metadata', async () => {
+        it('should generate valid Baidu ad HTML with slotId in metadata', () => {
             placement.metadata = {
                 slotId: 'u123456',
                 width: 300,
@@ -115,7 +115,7 @@ describe('Baidu Adapter', () => {
             expect(html).toContain('728*90')
         })
 
-        it('should throw error when no slotId is available', async () => {
+        it('should throw error when no slotId is available', () => {
             placement.metadata = {
                 width: 300,
                 height: 250,

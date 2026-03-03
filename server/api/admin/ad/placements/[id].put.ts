@@ -20,20 +20,36 @@ export default defineEventHandler(async (event) => {
         // 构建更新数据
         const updateData: Record<string, any> = {}
 
-        if (body.name !== undefined) { updateData.name = body.name }
+        if (body.name !== undefined) {
+            updateData.name = body.name
+        }
         if (body.format !== undefined && Object.values(AdFormat).includes(body.format)) {
             updateData.format = body.format
         }
         if (body.location !== undefined && Object.values(AdLocation).includes(body.location)) {
             updateData.location = body.location
         }
-        if (body.adapterId !== undefined) { updateData.adapterId = body.adapterId }
-        if (body.metadata !== undefined) { updateData.metadata = body.metadata }
-        if (body.enabled !== undefined) { updateData.enabled = body.enabled }
-        if (body.targeting !== undefined) { updateData.targeting = body.targeting }
-        if (body.priority !== undefined) { updateData.priority = body.priority }
-        if (body.customCss !== undefined) { updateData.customCss = body.customCss }
-        if (body.campaignId !== undefined) { updateData.campaignId = body.campaignId }
+        if (body.adapterId !== undefined) {
+            updateData.adapterId = body.adapterId
+        }
+        if (body.metadata !== undefined) {
+            updateData.metadata = body.metadata
+        }
+        if (body.enabled !== undefined) {
+            updateData.enabled = body.enabled
+        }
+        if (body.targeting !== undefined) {
+            updateData.targeting = body.targeting
+        }
+        if (body.priority !== undefined) {
+            updateData.priority = body.priority
+        }
+        if (body.customCss !== undefined) {
+            updateData.customCss = body.customCss
+        }
+        if (body.campaignId !== undefined) {
+            updateData.campaignId = body.campaignId
+        }
 
         const placement = await updatePlacement(id, updateData)
 
