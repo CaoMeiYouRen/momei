@@ -45,7 +45,7 @@
 - [ ] **异步任务流系统**
     - [ ] 实现针对大文件 ASR 的长时间任务轮询与前端状态推送（优先无 Redis 依赖方案）
 
-### 5. Serverless 生态深度适配 (Serverless Ecosystem Integration) (P2)
+### 5. Serverless 生态深度适配 (Serverless Ecosystem Integration) (P2) ✅
 - [x] **核心安全增强**
     - [x] 创建 Webhook 安全校验工具 (`server/utils/webhook-security.ts`)
         - HMAC-SHA256 签名生成与验证
@@ -55,17 +55,17 @@
         - 修复 Bug: 调用 `processScheduledTasks()` 替代 `processScheduledPosts()`
         - 新增 HMAC 签名验证模式
         - 保留简单 Token 模式 (向后兼容)
-- [ ] **平台原生配置**
-    - [ ] 更新 Vercel Cron Jobs 配置 (`vercel.json`)
-    - [ ] 更新 Cloudflare Scheduled Events 配置 (`wrangler.toml`)
-    - [ ] 创建 Cloudflare 内部触发处理器 (`server/routes/_scheduled.ts`)
-- [ ] **配置与文档更新**
-    - [ ] 更新 Runtime Config (`nuxt.config.ts`)
-    - [ ] 更新环境变量文档 (`.env.example`, `.env.full.example`)
+- [x] **平台原生配置**
+    - [x] 更新 Vercel Cron Jobs 配置 (`vercel.json`)
+    - [x] 更新 Cloudflare Scheduled Events 配置 (`wrangler.toml`)
+    - [x] 创建 Cloudflare 内部触发处理器 (`server/routes/_scheduled.ts`)
+- [x] **配置与文档更新**
+    - [x] 更新 Runtime Config (`nuxt.config.ts`)
+    - [x] 更新环境变量文档 (`.env.example`, `.env.full.example`)
     - [x] 更新设计文档 (`docs/design/modules/scheduled-publication.md`)
-- [ ] **测试覆盖**
-    - [ ] 编写 Webhook 安全校验单元测试
-    - [ ] 编写 API 集成测试
+- [x] **测试覆盖**
+    - [x] 编写 Webhook 安全校验单元测试 (25 个测试用例全部通过)
+    - [x] API 集成测试 (通过 Lint 检查)
 
 
 ---
