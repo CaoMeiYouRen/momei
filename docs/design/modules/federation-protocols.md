@@ -702,30 +702,41 @@ export function verifyHttpSignature(
 
 ## 9. 实施计划
 
-### Phase 1: WebFinger + Actor (Week 1)
-- [ ] 实现 WebFinger 端点
-- [ ] 实现 Actor 获取端点
-- [ ] 生成用户密钥对
+> **更新日期**: 2025-03-04
+> **当前状态**: Phase 1 进行中
 
-### Phase 2: Feed 增强 (Week 1-2)
-- [ ] 实现 Atom 1.0 输出
-- [ ] 实现 JSON Feed 1.1 输出
+### Phase 1: 基础设施 (进行中)
+- [x] 创建 ActivityPub 类型定义 (`types/federation.ts`)
+- [x] 创建密钥实体 (`server/entities/fed-key.ts`)
+- [ ] 创建加密工具 (`server/utils/fed/crypto.ts`)
+
+### Phase 2: WebFinger + Actor
+- [ ] 实现 WebFinger 端点 (`server/routes/.well-known/webfinger.ts`)
+- [ ] 实现 Actor 获取端点 (`server/routes/fed/actor/[username].ts`)
+- [ ] 创建内容映射工具 (`server/utils/fed/mapper.ts`)
+
+### Phase 3: ActivityPub Note
+- [ ] 实现 Note 获取端点 (`server/routes/fed/note/[id].ts`)
+- [ ] 实现 Outbox 端点 (`server/routes/fed/outbox/[username].ts`)
+
+### Phase 4: Feed 兼容性验证
+- [ ] 验证 Atom 1.0 输出
+- [ ] 验证 JSON Feed 1.1 输出
 - [ ] 添加 Feed 发现标签
 
-### Phase 3: ActivityPub Note (Week 2)
-- [ ] 实现 Post → Note 映射
-- [ ] 实现 Note 获取端点
-- [ ] 实现 Outbox 基础功能
-
-### Phase 4: Inbox 接收 (Week 3)
-- [ ] 实现 HTTP 签名验证
-- [ ] 处理 Follow 活动
-- [ ] 处理 Accept 活动
-
-### Phase 5: 测试与验证 (Week 4)
+### Phase 5: 测试与验证
 - [ ] 与 Mastodon 实例互测
 - [ ] 验证 Feed 阅读器兼容性
-- [ ] E2E 测试
+- [ ] 单元测试
+
+---
+
+### 已实现文件
+
+| 文件 | 状态 | 说明 |
+|-----|------|------|
+| `types/federation.ts` | ✅ 完成 | ActivityPub/WebFinger 类型定义 |
+| `server/entities/fed-key.ts` | ✅ 完成 | RSA 密钥存储实体 |
 
 ## 10. 相关文档
 
