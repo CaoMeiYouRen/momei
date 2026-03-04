@@ -38,7 +38,7 @@
 - [ ] **Feed 协议兼容性补强**
     - [ ] 对现有 Atom 1.0 / JSON Feed 1.1 输出做阅读器兼容性回归验证并修正边界问题
 
-### 4. ASR 性能与体验极限优化 (Extreme ASR Performance) (P1)
+### 4. ASR 性能与体验极限优化 (Extreme ASR Performance) (P1) ✅
 - [x] **Phase 1: 前端直连签名认证**
     - [x] 创建 ASR 类型定义 (`types/asr.ts`)
     - [x] 创建凭证生成工具 (`server/utils/ai/asr-credentials.ts`)
@@ -47,12 +47,14 @@
 - [x] **Phase 2: 音频压缩优化**
     - [x] 创建音频压缩工具 (`utils/audio-compression.ts`)
     - [x] 实现轻量级 PCM 重采样策略
-- [ ] **Phase 3: 异步任务支持**
-    - [ ] 扩展 ASR 服务异步任务方法 (`server/services/ai/asr.ts`)
+- [x] **Phase 3: 异步任务支持**
+    - [x] 扩展 ASR 服务异步任务方法 (`server/services/ai/asr.ts`)
+    - [x] 创建异步转录 API 端点 (`server/api/ai/asr/transcribe/async.post.ts`)
     - [x] 创建任务追踪 Composable (`composables/use-asr-task.ts`)
-- [ ] **Phase 4: 集成与测试**
-    - [ ] 集成直连模式到语音编辑器 (`composables/use-post-editor-voice.ts`)
-    - [ ] 编写单元测试和验证
+    - [x] 修复 AIBaseService 支持可选 payload 和 progress
+- [x] **Phase 4: 集成与测试**
+    - [x] 集成直连模式到语音编辑器 (`composables/use-post-editor-voice.ts`)
+    - [x] 编写 ASR 凭证工具单元测试 (`tests/server/utils/ai/asr-credentials.test.ts`)
 
 ### 5. Serverless 生态深度适配 (Serverless Ecosystem Integration) (P2) ✅
 - [x] **核心安全增强**
