@@ -1,9 +1,15 @@
 import { defineEventHandler, getRouterParam, createError, setHeader, getQuery, getHeader } from 'h3'
 import MarkdownIt from 'markdown-it'
+import { z } from 'zod'
 import { dataSource } from '@/server/database'
 import { User } from '@/server/entities/user'
 import { Post } from '@/server/entities/post'
 import { applyPostVisibilityFilter } from '@/server/utils/post-access'
+
+/**
+ * 分页参数校验 Schema
+ */
+const pageSchema = z.coerce.number().int().min(1).max(1000).optional()
 
 /**
  * Markdown 渲染器
@@ -50,8 +56,9 @@ export default defineEventHandler(async (event) => {
     const siteUrl = config.public.siteUrl
     const outboxUrl = `${siteUrl}/fed/outbox/${username}`
 
-    // 分页参数
-    const page = query.page ? parseInt(query.page as string, 10) : undefined
+    // 分页参数 (使用 Zod 校验)
+    const pageResult = pageSchema.safeParse(query.page)
+    const page = pageResult.success ? pageResult.data : undefined
     const limit = 20
 
     // 获取总数

@@ -93,12 +93,13 @@ export interface ActivityPubArticle extends ActivityPubNote {
 
 /**
  * ActivityPub 对象基类
+ * 使用 unknown 替代 any 以提供类型安全
  */
 export interface ActivityPubObject {
     '@context'?: string[]
     id?: string
     type?: string
-    [key: string]: any
+    [key: string]: unknown
 }
 
 /**
@@ -205,25 +206,43 @@ export interface ActivityPubActivity {
 /**
  * Follow 活动
  */
-export interface FollowActivity extends ActivityPubActivity {
+export interface FollowActivity {
+    '@context': string[]
+    id: string
     type: 'Follow'
+    actor: string
     object: string
+    published?: string
+    to?: string[]
+    cc?: string[]
 }
 
 /**
  * Accept 活动
  */
-export interface AcceptActivity extends ActivityPubActivity {
+export interface AcceptActivity {
+    '@context': string[]
+    id: string
     type: 'Accept'
+    actor: string
     object: FollowActivity
+    published?: string
+    to?: string[]
+    cc?: string[]
 }
 
 /**
  * Create 活动
  */
-export interface CreateActivity extends ActivityPubActivity {
+export interface CreateActivity {
+    '@context': string[]
+    id: string
     type: 'Create'
+    actor: string
     object: ActivityPubNote | ActivityPubArticle
+    published?: string
+    to?: string[]
+    cc?: string[]
 }
 
 // ============================================================================
@@ -264,9 +283,14 @@ export interface HTTPSignatureVerification {
 /**
  * Outbox 响应
  */
-export interface OutboxResponse extends ActivityPubCollection {
+export interface OutboxResponse {
+    '@context': string[]
+    id: string
     type: 'OrderedCollection'
+    totalItems?: number
     orderedItems?: (CreateActivity | ActivityPubNote)[]
+    first?: string
+    last?: string
 }
 
 // ============================================================================

@@ -4,6 +4,24 @@ import { User } from '@/server/entities/user'
 import type { WebFingerResponse } from '@/types/federation'
 
 /**
+ * 根据图片 URL 猜测 MIME 类型
+ */
+function guessImageMimeType(url: string): string {
+    const ext = url.split('.').pop()?.toLowerCase()?.split('?')[0]
+    const mimeTypes: Record<string, string> = {
+        jpg: 'image/jpeg',
+        jpeg: 'image/jpeg',
+        png: 'image/png',
+        gif: 'image/gif',
+        webp: 'image/webp',
+        svg: 'image/svg+xml',
+        avif: 'image/avif',
+        ico: 'image/x-icon',
+    }
+    return mimeTypes[ext || ''] || 'image/webp' // 默认 webp
+}
+
+/**
  * WebFinger 协议端点
  * 用于发现用户的 ActivityPub Actor
  *
@@ -84,11 +102,11 @@ export default defineEventHandler(async (event): Promise<WebFingerResponse> => {
                 type: 'text/html',
                 href: `${siteUrl}/authors/${user.username}`,
             },
-            // Avatar
+            // Avatar (动态检测 MIME 类型)
             ...(user.image
                 ? [{
                     rel: 'http://webfinger.net/rel/avatar',
-                    type: 'image/webp',
+                    type: guessImageMimeType(user.image),
                     href: user.image,
                 }]
                 : []),
