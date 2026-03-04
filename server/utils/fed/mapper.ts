@@ -77,7 +77,7 @@ export async function userToActor(user: User, siteUrl: string): Promise<Activity
  * @param siteUrl 站点 URL
  * @returns ActivityPub Note 对象
  */
-export async function postToNote(post: Post, siteUrl: string): Promise<ActivityPubNote> {
+export function postToNote(post: Post, siteUrl: string): ActivityPubNote {
     const author = post.author
     const tags = post.tags || []
 
@@ -140,8 +140,8 @@ export async function postToNote(post: Post, siteUrl: string): Promise<ActivityP
  * @param siteUrl 站点 URL
  * @returns Create 活动对象
  */
-export async function postToCreateActivity(post: Post, siteUrl: string) {
-    const note = await postToNote(post, siteUrl)
+export function postToCreateActivity(post: Post, siteUrl: string) {
+    const note = postToNote(post, siteUrl)
     const authorUrl = `${siteUrl}/fed/actor/${post.author.username}`
 
     return {
@@ -186,7 +186,7 @@ function guessMediaType(url: string): string {
  * @param total 总数
  * @returns OrderedCollection
  */
-export async function buildOutboxCollection(
+export function buildOutboxCollection(
     username: string,
     posts: Post[],
     siteUrl: string,
@@ -194,9 +194,7 @@ export async function buildOutboxCollection(
 ) {
     const outboxUrl = `${siteUrl}/fed/outbox/${username}`
 
-    const items = await Promise.all(
-        posts.map((post) => postToCreateActivity(post, siteUrl)),
-    )
+    const items = posts.map((post) => postToCreateActivity(post, siteUrl))
 
     return {
         '@context': DEFAULT_ACTIVITY_PUB_CONTEXT,

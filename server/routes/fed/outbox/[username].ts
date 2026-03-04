@@ -3,7 +3,6 @@ import { dataSource } from '@/server/database'
 import { User } from '@/server/entities/user'
 import { Post } from '@/server/entities/post'
 import { applyPostVisibilityFilter } from '@/server/utils/post-access'
-import { buildOutboxCollection, buildCollection } from '@/server/utils/fed/mapper'
 
 /**
  * ActivityPub Outbox 端点
@@ -73,26 +72,24 @@ export default defineEventHandler(async (event) => {
 
         const posts = await postsQb.getMany()
 
-        const items = await Promise.all(
-            posts.map(async (post) => ({
-                '@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
-                id: `${siteUrl}/fed/note/${post.id}#create`,
-                type: 'Create',
-                actor: `${siteUrl}/fed/actor/${username}`,
-                object: {
-                    '@context': ['https://www.w3.org/ns/activitystreams'],
-                    id: `${siteUrl}/fed/note/${post.id}`,
-                    type: 'Article',
-                    published: post.publishedAt?.toISOString() || post.createdAt.toISOString(),
-                    attributedTo: `${siteUrl}/fed/actor/${username}`,
-                    content: post.content,
-                    summary: post.summary,
-                    url: `${siteUrl}/posts/${post.slug}`,
-                    to: ['https://www.w3.org/ns/activitystreams#Public'],
-                    cc: [`${siteUrl}/fed/actor/${username}/followers`],
-                },
-            })),
-        )
+        const items = posts.map((post) => ({
+            '@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
+            id: `${siteUrl}/fed/note/${post.id}#create`,
+            type: 'Create',
+            actor: `${siteUrl}/fed/actor/${username}`,
+            object: {
+                '@context': ['https://www.w3.org/ns/activitystreams'],
+                id: `${siteUrl}/fed/note/${post.id}`,
+                type: 'Article',
+                published: post.publishedAt?.toISOString() || post.createdAt.toISOString(),
+                attributedTo: `${siteUrl}/fed/actor/${username}`,
+                content: post.content,
+                summary: post.summary,
+                url: `${siteUrl}/posts/${post.slug}`,
+                to: ['https://www.w3.org/ns/activitystreams#Public'],
+                cc: [`${siteUrl}/fed/actor/${username}/followers`],
+            },
+        }))
 
         const response = {
             '@context': ['https://www.w3.org/ns/activitystreams'],
