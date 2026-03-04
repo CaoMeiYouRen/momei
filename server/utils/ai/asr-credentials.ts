@@ -110,8 +110,11 @@ function generateVolcengineCredentials(options: {
 }): ASRCredentials {
     const { mode, expiresAt, connectId, settings, securityToken } = options
 
-    const appId = settings[SettingKey.VOLCENGINE_APP_ID]
-    const accessKey = settings[SettingKey.VOLCENGINE_ACCESS_KEY]
+    // 优先使用 ASR 专用配置，回退到通用配置
+    const appId = settings[SettingKey.ASR_VOLCENGINE_APP_ID]
+        || settings[SettingKey.VOLCENGINE_APP_ID]
+    const accessKey = settings[SettingKey.ASR_VOLCENGINE_ACCESS_KEY]
+        || settings[SettingKey.VOLCENGINE_ACCESS_KEY]
 
     if (!appId || !accessKey) {
         throw createError({
@@ -124,7 +127,7 @@ function generateVolcengineCredentials(options: {
         || 'wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_async'
 
     const resourceId = settings[SettingKey.ASR_MODEL]
-        || settings[SettingKey.VOLCENGINE_CLUSTER_ID]
+        || settings[SettingKey.ASR_VOLCENGINE_CLUSTER_ID]
         || 'volc.seedasr.sauc.duration'
 
     // 生成火山签名头

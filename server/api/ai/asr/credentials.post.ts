@@ -34,11 +34,15 @@ export default defineEventHandler(async (event) => {
         // SiliconFlow 配置
         SettingKey.ASR_SILICONFLOW_API_KEY,
         SettingKey.ASR_SILICONFLOW_MODEL,
-        // 火山引擎配置
+        // 火山引擎 ASR 专用配置 (优先)
+        SettingKey.ASR_VOLCENGINE_APP_ID,
+        SettingKey.ASR_VOLCENGINE_ACCESS_KEY,
+        SettingKey.ASR_VOLCENGINE_SECRET_KEY,
+        SettingKey.ASR_VOLCENGINE_CLUSTER_ID,
+        // 火山引擎通用配置 (回退)
         SettingKey.VOLCENGINE_APP_ID,
         SettingKey.VOLCENGINE_ACCESS_KEY,
         SettingKey.VOLCENGINE_SECRET_KEY,
-        SettingKey.VOLCENGINE_CLUSTER_ID,
     ])
 
     // 生成临时凭证
