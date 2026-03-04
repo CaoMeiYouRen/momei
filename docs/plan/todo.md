@@ -46,10 +46,26 @@
     - [ ] 实现针对大文件 ASR 的长时间任务轮询与前端状态推送（优先无 Redis 依赖方案）
 
 ### 5. Serverless 生态深度适配 (Serverless Ecosystem Integration) (P2)
-- [ ] **原生定时任务触发器 (Scheduled Triggers)**
-    - [ ] 深度集成 Vercel Cron Jobs 与 Cloudflare Workers/Pages Scheduled Events
-    - [ ] 实现高性能的 Webhook 任务分发器，支持安全令牌 (Secret Token) 校验
-    - [ ] 确保定时发布任务在无持久化后台进程的环境下稳定运行
+- [x] **核心安全增强**
+    - [x] 创建 Webhook 安全校验工具 (`server/utils/webhook-security.ts`)
+        - HMAC-SHA256 签名生成与验证
+        - 时间戳防重放攻击 (5 分钟容差)
+        - 时序安全比较 (timingSafeEqual)
+    - [x] 重构 Webhook API 接口 (`server/api/tasks/run-scheduled.post.ts`)
+        - 修复 Bug: 调用 `processScheduledTasks()` 替代 `processScheduledPosts()`
+        - 新增 HMAC 签名验证模式
+        - 保留简单 Token 模式 (向后兼容)
+- [ ] **平台原生配置**
+    - [ ] 更新 Vercel Cron Jobs 配置 (`vercel.json`)
+    - [ ] 更新 Cloudflare Scheduled Events 配置 (`wrangler.toml`)
+    - [ ] 创建 Cloudflare 内部触发处理器 (`server/routes/_scheduled.ts`)
+- [ ] **配置与文档更新**
+    - [ ] 更新 Runtime Config (`nuxt.config.ts`)
+    - [ ] 更新环境变量文档 (`.env.example`, `.env.full.example`)
+    - [x] 更新设计文档 (`docs/design/modules/scheduled-publication.md`)
+- [ ] **测试覆盖**
+    - [ ] 编写 Webhook 安全校验单元测试
+    - [ ] 编写 API 集成测试
 
 
 ---
