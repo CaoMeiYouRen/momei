@@ -196,6 +196,8 @@ describe('ASR Credentials Utility', () => {
 
         it('should return correct status when only SiliconFlow is configured', () => {
             const settingsWithoutVolcengine = { ...mockSettings }
+            delete settingsWithoutVolcengine[SettingKey.ASR_VOLCENGINE_APP_ID]
+            delete settingsWithoutVolcengine[SettingKey.ASR_VOLCENGINE_ACCESS_KEY]
             delete settingsWithoutVolcengine[SettingKey.VOLCENGINE_APP_ID]
             delete settingsWithoutVolcengine[SettingKey.VOLCENGINE_ACCESS_KEY]
 
@@ -204,6 +206,18 @@ describe('ASR Credentials Utility', () => {
             expect(status.enabled).toBe(true)
             expect(status.siliconflow).toBe(true)
             expect(status.volcengine).toBe(false)
+        })
+
+        it('should fallback to generic Volcengine keys', () => {
+            const settingsOnlyGenericVolcengine = { ...mockSettings }
+            delete settingsOnlyGenericVolcengine[SettingKey.ASR_VOLCENGINE_APP_ID]
+            delete settingsOnlyGenericVolcengine[SettingKey.ASR_VOLCENGINE_ACCESS_KEY]
+
+            const status = getASRConfigStatus(settingsOnlyGenericVolcengine)
+
+            expect(status.enabled).toBe(true)
+            expect(status.siliconflow).toBe(true)
+            expect(status.volcengine).toBe(true)
         })
 
         it('should return disabled when no providers are configured', () => {

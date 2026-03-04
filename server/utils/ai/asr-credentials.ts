@@ -216,8 +216,10 @@ export function getASRConfigStatus(settings: Record<string, string | undefined>)
     const siliconflowApiKey = settings[SettingKey.ASR_SILICONFLOW_API_KEY]
         || settings[SettingKey.ASR_API_KEY]
 
-    const volcengineAppId = settings[SettingKey.VOLCENGINE_APP_ID]
-    const volcengineAccessKey = settings[SettingKey.VOLCENGINE_ACCESS_KEY]
+    const volcengineAppId = settings[SettingKey.ASR_VOLCENGINE_APP_ID]
+        || settings[SettingKey.VOLCENGINE_APP_ID]
+    const volcengineAccessKey = settings[SettingKey.ASR_VOLCENGINE_ACCESS_KEY]
+        || settings[SettingKey.VOLCENGINE_ACCESS_KEY]
 
     const siliconflow = !!siliconflowApiKey
     const volcengine = !!(volcengineAppId && volcengineAccessKey)

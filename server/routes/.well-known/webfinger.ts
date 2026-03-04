@@ -125,10 +125,14 @@ export default defineEventHandler(async (event): Promise<WebFingerResponse> => {
     // 如需浏览器访问，应配置具体的允许域名
     const origin = getHeader(event, 'origin')
     if (origin) {
-        // 验证 origin 是否为已知的联邦实例或本站
-        const allowedOrigins = [siteUrl]
-        if (allowedOrigins.some((allowed) => origin.startsWith(allowed))) {
-            setHeader(event, 'Access-Control-Allow-Origin', origin)
+        try {
+            const requestOrigin = new URL(origin).origin
+            const siteOrigin = new URL(siteUrl).origin
+            if (requestOrigin === siteOrigin) {
+                setHeader(event, 'Access-Control-Allow-Origin', requestOrigin)
+            }
+        } catch {
+            // ignore invalid origin
         }
     }
 

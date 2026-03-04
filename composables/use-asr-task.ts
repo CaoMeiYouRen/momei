@@ -2,6 +2,33 @@ import { ref, unref, onUnmounted, type Ref } from 'vue'
 import { useIntervalFn } from '@vueuse/core'
 import type { ASRTaskStatus } from '~/types/asr'
 
+interface ASRTaskResult {
+    text: string
+    duration?: number
+    language?: string
+}
+
+interface ASRTaskResponseData {
+    status: ASRTaskStatus
+    progress: number
+    result?: ASRTaskResult
+    error?: string
+}
+
+interface ASRTaskWrappedResponse {
+    code: number
+    data: ASRTaskResponseData
+}
+
+type ASRTaskApiResponse = ASRTaskResponseData | ASRTaskWrappedResponse
+
+function normalizeTaskResponse(response: ASRTaskApiResponse): ASRTaskResponseData {
+    if ('data' in response) {
+        return response.data
+    }
+    return response
+}
+
 export interface ASRTaskOptions {
     /** 轮询间隔 (毫秒) */
     pollingInterval?: number
@@ -53,12 +80,8 @@ export function useASRTask(
 
             void (async () => {
                 try {
-                    const data = await $fetch<{
-                        status: ASRTaskStatus
-                        progress: number
-                        result?: { text: string }
-                        error?: string
-                    }>(`/api/ai/task/status/${taskId}`)
+                    const response = await $fetch<ASRTaskApiResponse>(`/api/ai/task/status/${taskId}`)
+                    const data = normalizeTaskResponse(response)
 
                     status.value = data.status
                     progress.value = data.progress || 0
@@ -163,10 +186,9 @@ export function useASRTask(
         isTracking.value = true
 
         // 优先尝试 SSE
-        if (!startSSE()) {
-            // SSE 不可用时使用轮询
-            resumePolling()
-        }
+        // 无论 SSE 是否可用，都启用轮询兜底，避免 SSE 事件契约变化导致卡死
+        resumePolling()
+        startSSE()
     }
 
     /**
@@ -248,5 +270,6 @@ export function getASRTaskStatus(taskId: string): Promise<{
     result?: { text: string, duration?: number, language?: string }
     error?: string
 }> {
-    return $fetch(`/api/ai/task/status/${taskId}`) as any
+    return $fetch<ASRTaskApiResponse>(`/api/ai/task/status/${taskId}`)
+        .then((response) => normalizeTaskResponse(response))
 }

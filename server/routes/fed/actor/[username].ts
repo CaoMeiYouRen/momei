@@ -45,9 +45,14 @@ export default defineEventHandler(async (event) => {
     // ActivityPub 跨域访问控制
     const origin = getHeader(event, 'origin')
     if (origin) {
-        const allowedOrigins = [siteUrl]
-        if (allowedOrigins.some((allowed) => origin.startsWith(allowed))) {
-            setHeader(event, 'Access-Control-Allow-Origin', origin)
+        try {
+            const requestOrigin = new URL(origin).origin
+            const siteOrigin = new URL(siteUrl).origin
+            if (requestOrigin === siteOrigin) {
+                setHeader(event, 'Access-Control-Allow-Origin', requestOrigin)
+            }
+        } catch {
+            // ignore invalid origin
         }
     }
 

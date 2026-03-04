@@ -3,7 +3,7 @@ import { getAIProvider } from '@/server/utils/ai'
 import { withAITimeout } from '@/server/utils/ai/timeout'
 import { dataSource } from '@/server/database'
 import { ASRQuota } from '@/server/entities/asr-quota'
-import { sendInAppNotification } from '@/server/services/notification'
+import { sendInAppNotification, pushRealtimeEvent } from '@/server/services/notification'
 import { NotificationType } from '@/utils/shared/notification'
 import logger from '@/server/utils/logger'
 import type { TranscribeOptions } from '@/types/ai'
@@ -135,6 +135,14 @@ export class ASRService extends AIBaseService {
                 error: err,
             })
 
+            pushRealtimeEvent(userId, {
+                type: 'ASR_TASK_UPDATE',
+                taskId: task.id,
+                status: 'failed',
+                progress: 100,
+                error: err.message || '任务执行失败',
+            })
+
             // 发送失败通知
             await sendInAppNotification({
                 userId,
@@ -167,6 +175,13 @@ export class ASRService extends AIBaseService {
             userId,
             type: 'async_transcription',
             category: 'asr',
+            status: 'processing',
+            progress: 10,
+        })
+
+        pushRealtimeEvent(userId, {
+            type: 'ASR_TASK_UPDATE',
+            taskId,
             status: 'processing',
             progress: 10,
         })
@@ -207,6 +222,18 @@ export class ASRService extends AIBaseService {
                 language: response.language,
             })
 
+            pushRealtimeEvent(userId, {
+                type: 'ASR_TASK_UPDATE',
+                taskId,
+                status: 'completed',
+                progress: 100,
+                result: {
+                    text: response.text,
+                    duration: response.duration,
+                    language: response.language,
+                },
+            })
+
             // 更新配额
             await this.updateQuota({
                 userId,
@@ -231,6 +258,14 @@ export class ASRService extends AIBaseService {
                 category: 'asr',
                 status: 'failed',
                 error: err,
+            })
+
+            pushRealtimeEvent(userId, {
+                type: 'ASR_TASK_UPDATE',
+                taskId,
+                status: 'failed',
+                progress: 100,
+                error: err.message || '任务执行失败',
             })
 
             throw err

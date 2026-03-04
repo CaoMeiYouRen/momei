@@ -28,8 +28,8 @@ jobs:
 
           if [ -n "$SECRET" ]; then
             # 计算 HMAC-SHA256 签名 (逻辑参考 server/utils/webhook-security.ts)
-            # Payload: timestamp + "\n" + source + "\n" + empty_body
-            PAYLOAD="$TIMESTAMP\n$SOURCE\n"
+            # Payload: timestamp + "\n" + source + "\n" + body_json
+            PAYLOAD="$TIMESTAMP\n$SOURCE\n{}"
             SIGNATURE=$(echo -ne "$PAYLOAD" | openssl dgst -sha256 -hmac "$SECRET" -hex | sed 's/^.* //')
 
             curl -X POST "$TARGET_URL" \

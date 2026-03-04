@@ -217,12 +217,16 @@ export async function sendMarketingCampaign(campaignId: string) {
 /**
  * 实时连接中心 (SSE Connections)
  */
-const connections = new Map<string, Set<any>>()
+interface NotificationStream {
+    push: (payload: string) => void | Promise<void>
+}
+
+const connections = new Map<string, Set<NotificationStream>>()
 
 /**
  * 注册实时通知连接
  */
-export function registerNotificationConnection(userId: string, stream: any) {
+export function registerNotificationConnection(userId: string, stream: NotificationStream) {
     if (!connections.has(userId)) {
         connections.set(userId, new Set())
     }
@@ -232,7 +236,7 @@ export function registerNotificationConnection(userId: string, stream: any) {
 /**
  * 移除实时通知连接
  */
-export function unregisterNotificationConnection(userId: string, stream: any) {
+export function unregisterNotificationConnection(userId: string, stream: NotificationStream) {
     const userConnections = connections.get(userId)
     if (userConnections) {
         userConnections.delete(stream)
@@ -267,17 +271,32 @@ export async function sendInAppNotification(data: {
         const userConnections = connections.get(data.userId)
         if (userConnections) {
             for (const stream of userConnections) {
-                stream.push(payload)
+                void stream.push(payload)
             }
         }
     } else {
         // 全局广播推送 (userId 为 null)
         for (const userConnections of connections.values()) {
             for (const stream of userConnections) {
-                stream.push(payload)
+                void stream.push(payload)
             }
         }
     }
 
     return notification
+}
+
+/**
+ * 推送实时事件（不落库）
+ */
+export function pushRealtimeEvent(userId: string, payload: Record<string, unknown>) {
+    const userConnections = connections.get(userId)
+    if (!userConnections || userConnections.size === 0) {
+        return
+    }
+
+    const serializedPayload = JSON.stringify(payload)
+    for (const stream of userConnections) {
+        void stream.push(serializedPayload)
+    }
 }
