@@ -45,38 +45,42 @@ export function useASRTask(
      * 轮询模式
      */
     const { pause: pausePolling, resume: resumePolling } = useIntervalFn(
-        async () => {
+        () => {
             const taskId = unref(taskIdRef)
-            if (!taskId) { return }
+            if (!taskId) {
+                return
+            }
 
-            try {
-                const data = await $fetch<{
-                    status: ASRTaskStatus
-                    progress: number
-                    result?: { text: string }
-                    error?: string
-                }>(`/api/ai/task/status/${taskId}`)
+            void (async () => {
+                try {
+                    const data = await $fetch<{
+                        status: ASRTaskStatus
+                        progress: number
+                        result?: { text: string }
+                        error?: string
+                    }>(`/api/ai/task/status/${taskId}`)
 
-                status.value = data.status
-                progress.value = data.progress || 0
+                    status.value = data.status
+                    progress.value = data.progress || 0
 
-                if (data.status === 'completed') {
-                    if (data.result?.text) {
-                        transcript.value = data.result.text
+                    if (data.status === 'completed') {
+                        if (data.result?.text) {
+                            transcript.value = data.result.text
+                        }
+                        pausePolling()
+                        isTracking.value = false
+                    } else if (data.status === 'failed') {
+                        error.value = data.error || '任务执行失败'
+                        pausePolling()
+                        isTracking.value = false
                     }
-                    pausePolling()
-                    isTracking.value = false
-                } else if (data.status === 'failed') {
-                    error.value = data.error || '任务执行失败'
+                } catch (e: any) {
+                    error.value = e.data?.message || '获取任务状态失败'
+                    status.value = 'failed'
                     pausePolling()
                     isTracking.value = false
                 }
-            } catch (e: any) {
-                error.value = e.data?.message || '获取任务状态失败'
-                status.value = 'failed'
-                pausePolling()
-                isTracking.value = false
-            }
+            })()
         },
         pollingInterval,
         { immediate: false },
@@ -91,7 +95,9 @@ export function useASRTask(
         }
 
         const taskId = unref(taskIdRef)
-        if (!taskId) { return false }
+        if (!taskId) {
+            return false
+        }
 
         try {
             // 使用现有通知 SSE 端点
@@ -145,7 +151,9 @@ export function useASRTask(
      * 开始追踪任务
      */
     const startTracking = () => {
-        if (!unref(taskIdRef)) { return }
+        if (!unref(taskIdRef)) {
+            return
+        }
 
         // 重置状态
         error.value = null
@@ -234,11 +242,11 @@ export async function createASRTask(options: {
 /**
  * 获取 ASR 任务状态
  */
-export async function getASRTaskStatus(taskId: string): Promise<{
+export function getASRTaskStatus(taskId: string): Promise<{
     status: ASRTaskStatus
     progress: number
     result?: { text: string, duration?: number, language?: string }
     error?: string
 }> {
-    return $fetch(`/api/ai/task/status/${taskId}`)
+    return $fetch(`/api/ai/task/status/${taskId}`) as any
 }

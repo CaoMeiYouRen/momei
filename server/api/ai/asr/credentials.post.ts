@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
         mode: body.mode as ASRMode,
         userId: session.user.id,
         connectId: body.connectId || randomUUID(),
-        settings,
+        settings: settings as Record<string, string | undefined>,
         expiresIn: 5 * 60 * 1000, // 5 分钟有效期
     })
 

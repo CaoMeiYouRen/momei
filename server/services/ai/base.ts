@@ -3,6 +3,19 @@ import { AITask } from '@/server/entities/ai-task'
 import logger from '@/server/utils/logger'
 import type { AICategory } from '@/types/ai'
 
+/**
+ * 序列化 payload
+ */
+function serializePayload(payload: unknown): string {
+    if (!payload) {
+        return '{}'
+    }
+    if (typeof payload === 'string') {
+        return payload
+    }
+    return JSON.stringify(payload)
+}
+
 export abstract class AIBaseService {
     /**
      * 获取任务状态
@@ -43,7 +56,7 @@ export abstract class AIBaseService {
         status?: 'pending' | 'processing' | 'completed' | 'failed'
         provider?: string
         model?: string
-        payload: any
+        payload?: any
         response?: any
         error?: any
         postId?: string
@@ -52,8 +65,9 @@ export abstract class AIBaseService {
         textLength?: number
         language?: string
         cost?: number
+        progress?: number
     }) {
-        const { id, userId, type, provider, model, status, payload, response, error, postId, audioDuration, audioSize, textLength, language, cost } = options
+        const { id, userId, type, provider, model, status, payload, response, error, postId, audioDuration, audioSize, textLength, language, cost, progress } = options
         if (!userId) {
             return
         }
@@ -74,7 +88,7 @@ export abstract class AIBaseService {
                     id,
                     userId,
                     type,
-                    payload: typeof payload === 'string' ? payload : JSON.stringify(payload),
+                    payload: serializePayload(payload),
                 })
             }
 
@@ -94,7 +108,7 @@ export abstract class AIBaseService {
                 provider: provider || task.provider,
                 model: model || task.model,
                 status: status || (error ? 'failed' : 'completed'),
-                payload: typeof payload === 'string' ? payload : JSON.stringify(payload),
+                payload: payload ? serializePayload(payload) : task.payload,
                 result: result || task.result,
                 error: errorMsg,
                 postId: postId || task.postId,
@@ -103,6 +117,7 @@ export abstract class AIBaseService {
                 textLength: textLength || task.textLength,
                 language: language || task.language,
                 actualCost: cost || task.actualCost,
+                progress: progress ?? task.progress,
             })
 
             return await repo.save(task)

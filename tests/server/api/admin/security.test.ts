@@ -1,9 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { eventHandler } from 'h3'
-import * as authUtils from '@/server/utils/auth'
+import * as authUtils from '@/server/utils/permission'
 
 // Mock requireAdmin to test its behavior
-vi.mock('@/server/utils/auth', () => ({
+vi.mock('@/server/utils/permission', () => ({
     requireAdmin: vi.fn((handler) => handler),
 }))
 
