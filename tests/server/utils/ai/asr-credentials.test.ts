@@ -1,10 +1,15 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeAll } from 'vitest'
 import {
     generateASRCredentials,
     verifyASRSecurityToken,
     getASRConfigStatus,
 } from '@/server/utils/ai/asr-credentials'
 import { SettingKey } from '@/types/setting'
+
+// Mock environment variables for tests
+beforeAll(() => {
+    vi.stubEnv('WEBHOOK_SECRET', 'test-webhook-secret')
+})
 
 describe('ASR Credentials Utility', () => {
     const mockSettings: Record<string, string | undefined> = {

@@ -13,7 +13,18 @@ const RequestSchema = z.object({
  *
  * 用于大文件或长时间转录场景
  * 返回任务 ID，前端可通过轮询或 SSE 追踪状态
+ *
+ * 限制:
+ * - 最大文件大小: 50MB
+ * - 支持格式: audio/webm, audio/mp3, audio/wav, audio/mpeg
  */
+
+// 最大音频文件大小 (50MB)
+const MAX_AUDIO_SIZE = 50 * 1024 * 1024
+
+// 支持的音频格式
+const SUPPORTED_MIME_TYPES = ['audio/webm', 'audio/mp3', 'audio/wav', 'audio/mpeg', 'audio/ogg']
+
 export default defineEventHandler(async (event) => {
     // 权限验证
     const session = await requireAdminOrAuthor(event)
@@ -36,6 +47,23 @@ export default defineEventHandler(async (event) => {
         })
     }
 
+    // 检查文件大小
+    if (fileField.data.length > MAX_AUDIO_SIZE) {
+        throw createError({
+            statusCode: 413,
+            message: 'Audio file too large. Maximum size is 50MB',
+        })
+    }
+
+    // 检查文件格式
+    const mimeType = fileField.type || 'audio/webm'
+    if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
+        throw createError({
+            statusCode: 400,
+            message: `Unsupported audio format: ${mimeType}. Supported formats: ${SUPPORTED_MIME_TYPES.join(', ')}`,
+        })
+    }
+
     // 提取选项
     const providerField = formData.find((field) => field.name === 'provider')
     const languageField = formData.find((field) => field.name === 'language')
@@ -46,9 +74,8 @@ export default defineEventHandler(async (event) => {
         language: languageField?.data?.toString(),
     })
 
-    // 获取文件名和 MIME 类型
+    // 获取文件名
     const fileName = fileField.filename || 'recording.webm'
-    const mimeType = fileField.type || 'audio/webm'
 
     // 创建异步任务
     const { taskId } = await ASRService.createAsyncTask({

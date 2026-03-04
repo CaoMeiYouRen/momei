@@ -9,6 +9,10 @@ import { SettingKey } from '~/types/setting'
  * 1. 凭证有效期 5 分钟
  * 2. 绑定用户 ID 和 connectId
  * 3. 安全令牌用于后续回调验证
+ *
+ * 安全警告:
+ * - 直连模式下 API Key 会暴露给前端，请使用有限权限的 API Key
+ * - 必须配置 WEBHOOK_SECRET 或 TASKS_TOKEN 环境变量
  */
 export function generateASRCredentials(options: ASRCredentialsOptions): ASRCredentials {
     const {
@@ -25,7 +29,15 @@ export function generateASRCredentials(options: ASRCredentialsOptions): ASRCrede
 
     // 生成安全令牌 (用于验证前端请求合法性)
     const securityPayload = `${userId}|${connectId}|${expiresAt}`
-    const secret = process.env.WEBHOOK_SECRET || process.env.TASKS_TOKEN || 'asr-default-secret'
+    const secret = process.env.WEBHOOK_SECRET || process.env.TASKS_TOKEN
+
+    if (!secret) {
+        throw createError({
+            statusCode: 500,
+            message: 'WEBHOOK_SECRET or TASKS_TOKEN environment variable is required for ASR direct mode',
+        })
+    }
+
     const securityToken = crypto
         .createHmac('sha256', secret)
         .update(securityPayload)
@@ -166,7 +178,12 @@ export function verifyASRSecurityToken(
         return false
     }
 
-    const secret = process.env.WEBHOOK_SECRET || process.env.TASKS_TOKEN || 'asr-default-secret'
+    const secret = process.env.WEBHOOK_SECRET || process.env.TASKS_TOKEN
+    if (!secret) {
+        console.error('[ASR Security] WEBHOOK_SECRET or TASKS_TOKEN not configured')
+        return false
+    }
+
     const expectedPayload = `${userId}|${connectId}|${expiresAt}`
     const expectedToken = crypto
         .createHmac('sha256', secret)

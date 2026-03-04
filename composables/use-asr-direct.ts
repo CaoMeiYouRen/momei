@@ -235,7 +235,7 @@ export function useASRDirect(options: ASRDirectOptions) {
     onUnmounted(() => {
         disconnect()
         if (audioContext) {
-            audioContext.close()
+            void audioContext.close()
             audioContext = null
         }
     })
