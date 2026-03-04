@@ -4,12 +4,12 @@ import { useASRDirect } from './use-asr-direct'
 export type VoiceTranscriptionMode = 'web-speech' | 'cloud-batch' | 'cloud-stream'
 
 export interface UsePostEditorVoiceOptions {
-    /** 是否启用直连模式 (默认 true) */
+    /** 是否启用直连模式 (默认 false，优先使用后端桥接) */
     directMode?: boolean
 }
 
 export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
-    const { directMode = true } = options
+    const { directMode = false } = options
 
     const isListening = ref(false)
     const isSupported = ref(false)
@@ -510,12 +510,20 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
         isLoadingModel.value = true // Reuse loading state for UI
         try {
             let text: string
+            let shouldUseProxy = !asrDirectBatch
 
             // 优先使用直连模式
             if (asrDirectBatch) {
-                text = await asrDirectBatch.transcribeBatch(blob)
-            } else {
-                // 回退到后端代理模式
+                try {
+                    text = await asrDirectBatch.transcribeBatch(blob)
+                } catch (err) {
+                    console.warn('Direct batch transcription failed, fallback to proxy mode', err)
+                    shouldUseProxy = true
+                    text = ''
+                }
+            }
+
+            if (shouldUseProxy) {
                 const formData = new FormData()
                 formData.append('audioFile', blob, 'recording.webm')
                 formData.append('language', currentLang)
