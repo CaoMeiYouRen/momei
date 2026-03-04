@@ -1,4 +1,4 @@
-import { defineEventHandler, getRouterParam, createError, setHeader } from 'h3'
+import { defineEventHandler, getRouterParam, createError, setHeader, getHeader } from 'h3'
 import { dataSource } from '@/server/database'
 import { User } from '@/server/entities/user'
 import { userToActor } from '@/server/utils/fed/mapper'
@@ -42,8 +42,14 @@ export default defineEventHandler(async (event) => {
 
     // 设置正确的 Content-Type
     setHeader(event, 'Content-Type', 'application/activity+json')
-    // 允许跨域访问
-    setHeader(event, 'Access-Control-Allow-Origin', '*')
+    // ActivityPub 跨域访问控制
+    const origin = getHeader(event, 'origin')
+    if (origin) {
+        const allowedOrigins = [siteUrl]
+        if (allowedOrigins.some((allowed) => origin.startsWith(allowed))) {
+            setHeader(event, 'Access-Control-Allow-Origin', origin)
+        }
+    }
 
     return actor
 })

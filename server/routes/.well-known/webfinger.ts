@@ -1,4 +1,4 @@
-import { defineEventHandler, getQuery, createError, setHeader } from 'h3'
+import { defineEventHandler, getQuery, createError, setHeader, getHeader } from 'h3'
 import { dataSource } from '@/server/database'
 import { User } from '@/server/entities/user'
 import type { WebFingerResponse } from '@/types/federation'
@@ -31,11 +31,21 @@ export default defineEventHandler(async (event): Promise<WebFingerResponse> => {
         })
     }
 
-    const [, username] = match
+    const [, username, domain] = match
 
     // 获取配置
     const config = useRuntimeConfig()
     const siteUrl = config.public.siteUrl
+    const siteDomain = new URL(siteUrl).hostname
+
+    // 验证域名: 确保请求是针对当前实例的
+    // 这可以防止跨域联邦发现被滥用
+    if (domain !== siteDomain) {
+        throw createError({
+            statusCode: 404,
+            message: 'User not found',
+        })
+    }
 
     // 查找用户
     const userRepo = dataSource.getRepository(User)
@@ -92,8 +102,17 @@ export default defineEventHandler(async (event): Promise<WebFingerResponse> => {
 
     // 设置正确的 Content-Type
     setHeader(event, 'Content-Type', 'application/jrd+json')
-    // 允许跨域访问
-    setHeader(event, 'Access-Control-Allow-Origin', '*')
+    // ActivityPub 需要跨域访问，但不使用通配符 *
+    // 联邦协议主要是服务端到服务端通信，浏览器 CORS 不是主要场景
+    // 如需浏览器访问，应配置具体的允许域名
+    const origin = getHeader(event, 'origin')
+    if (origin) {
+        // 验证 origin 是否为已知的联邦实例或本站
+        const allowedOrigins = [siteUrl]
+        if (allowedOrigins.some((allowed) => origin.startsWith(allowed))) {
+            setHeader(event, 'Access-Control-Allow-Origin', origin)
+        }
+    }
 
     return response
 })

@@ -1,4 +1,4 @@
-import { defineEventHandler, getRouterParam, createError, setHeader } from 'h3'
+import { defineEventHandler, getRouterParam, createError, setHeader, getHeader } from 'h3'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { PostStatus, PostVisibility } from '@/types/post'
@@ -49,13 +49,19 @@ export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
     const siteUrl = config.public.siteUrl
 
-    // 转换为 Note
-    const note = await postToNote(post, siteUrl)
+    // 转换为 Note (postToNote 是同步函数)
+    const note = postToNote(post, siteUrl)
 
     // 设置正确的 Content-Type
     setHeader(event, 'Content-Type', 'application/activity+json')
-    // 允许跨域访问
-    setHeader(event, 'Access-Control-Allow-Origin', '*')
+    // ActivityPub 跨域访问控制
+    const origin = getHeader(event, 'origin')
+    if (origin) {
+        const allowedOrigins = [siteUrl]
+        if (allowedOrigins.some((allowed) => origin.startsWith(allowed))) {
+            setHeader(event, 'Access-Control-Allow-Origin', origin)
+        }
+    }
 
     return note
 })

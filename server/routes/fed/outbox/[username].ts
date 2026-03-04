@@ -1,8 +1,18 @@
-import { defineEventHandler, getRouterParam, createError, setHeader, getQuery } from 'h3'
+import { defineEventHandler, getRouterParam, createError, setHeader, getQuery, getHeader } from 'h3'
+import MarkdownIt from 'markdown-it'
 import { dataSource } from '@/server/database'
 import { User } from '@/server/entities/user'
 import { Post } from '@/server/entities/post'
 import { applyPostVisibilityFilter } from '@/server/utils/post-access'
+
+/**
+ * Markdown 渲染器
+ */
+const md = new MarkdownIt({
+    html: true,
+    linkify: true,
+    typographer: true,
+})
 
 /**
  * ActivityPub Outbox 端点
@@ -72,24 +82,29 @@ export default defineEventHandler(async (event) => {
 
         const posts = await postsQb.getMany()
 
-        const items = posts.map((post) => ({
-            '@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
-            id: `${siteUrl}/fed/note/${post.id}#create`,
-            type: 'Create',
-            actor: `${siteUrl}/fed/actor/${username}`,
-            object: {
-                '@context': ['https://www.w3.org/ns/activitystreams'],
-                id: `${siteUrl}/fed/note/${post.id}`,
-                type: 'Article',
-                published: post.publishedAt?.toISOString() || post.createdAt.toISOString(),
-                attributedTo: `${siteUrl}/fed/actor/${username}`,
-                content: post.content,
-                summary: post.summary,
-                url: `${siteUrl}/posts/${post.slug}`,
-                to: ['https://www.w3.org/ns/activitystreams#Public'],
-                cc: [`${siteUrl}/fed/actor/${username}/followers`],
-            },
-        }))
+        // 构建 ActivityPub Create 活动
+        // 使用渲染后的 HTML 内容，而非原始 Markdown
+        const items = posts.map((post) => {
+            const contentHtml = md.render(post.content || '')
+            return {
+                '@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
+                id: `${siteUrl}/fed/note/${post.id}#create`,
+                type: 'Create',
+                actor: `${siteUrl}/fed/actor/${username}`,
+                object: {
+                    '@context': ['https://www.w3.org/ns/activitystreams'],
+                    id: `${siteUrl}/fed/note/${post.id}`,
+                    type: 'Article',
+                    published: post.publishedAt?.toISOString() || post.createdAt.toISOString(),
+                    attributedTo: `${siteUrl}/fed/actor/${username}`,
+                    content: contentHtml,
+                    summary: post.summary,
+                    url: `${siteUrl}/posts/${post.slug}`,
+                    to: ['https://www.w3.org/ns/activitystreams#Public'],
+                    cc: [`${siteUrl}/fed/actor/${username}/followers`],
+                },
+            }
+        })
 
         const response = {
             '@context': ['https://www.w3.org/ns/activitystreams'],
@@ -102,7 +117,14 @@ export default defineEventHandler(async (event) => {
         }
 
         setHeader(event, 'Content-Type', 'application/activity+json')
-        setHeader(event, 'Access-Control-Allow-Origin', '*')
+        // ActivityPub 跨域访问控制
+        const origin = getHeader(event, 'origin')
+        if (origin) {
+            const allowedOrigins = [siteUrl]
+            if (allowedOrigins.some((allowed) => origin.startsWith(allowed))) {
+                setHeader(event, 'Access-Control-Allow-Origin', origin)
+            }
+        }
 
         return response
     }
@@ -118,7 +140,14 @@ export default defineEventHandler(async (event) => {
     }
 
     setHeader(event, 'Content-Type', 'application/activity+json')
-    setHeader(event, 'Access-Control-Allow-Origin', '*')
+    // ActivityPub 跨域访问控制
+    const origin = getHeader(event, 'origin')
+    if (origin) {
+        const allowedOrigins = [siteUrl]
+        if (allowedOrigins.some((allowed) => origin.startsWith(allowed))) {
+            setHeader(event, 'Access-Control-Allow-Origin', origin)
+        }
+    }
 
     return response
 })
