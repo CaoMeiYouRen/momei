@@ -128,14 +128,16 @@
 
 ```json
 {
-    “crons”: [
+    "crons": [
         {
-            “path”: “/api/tasks/run-scheduled”,
-            “schedule”: “*/15 * * * *”
+            "path": "/api/tasks/run-scheduled",
+            "schedule": "0 0 * * *"
         }
     ]
 }
 ```
+
+> **注意**: Vercel Hobby (免费) 套餐限制 Cron 任务每天只能运行一次。如果您需要更频繁的触发（如每 15 分钟），建议使用 GitHub Actions 定时触发 Webhook 或升级至 Pro 套餐。
 
 **触发流程**:
 1. Vercel 平台按 Cron 表达式自动调用 `/api/tasks/run-scheduled`

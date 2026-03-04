@@ -1,0 +1,53 @@
+name: External Scheduled Tasks
+
+on:
+  schedule:
+    # 每 15 分钟运行一次
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # 支持手动触发
+
+jobs:
+  trigger-webhook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Momei Scheduled Tasks
+        run: |
+          # 建议在 GitHub Secrets 中配置 WEBHOOK_SECRET 和 WEBHOOK_URL
+          # 如果没有配置 WEBHOOK_SECRET，将退回到使用 TASKS_TOKEN (如果配置了)
+
+          TIMESTAMP=$(date +%s%3N)
+          SOURCE="external"
+          # 注意：这里的 URL 需要包含协议和域名，例如 https://momei.example.com/api/tasks/run-scheduled
+          TARGET_URL="${{ secrets.WEBHOOK_URL }}"
+          SECRET="${{ secrets.WEBHOOK_SECRET }}"
+
+          if [ -z "$TARGET_URL" ]; then
+            echo "Error: WEBHOOK_URL secret is not defined."
+            exit 1
+          fi
+
+          if [ -n "$SECRET" ]; then
+            # 计算 HMAC-SHA256 签名 (逻辑参考 server/utils/webhook-security.ts)
+            # Payload: timestamp + "\n" + source + "\n" + empty_body
+            PAYLOAD="$TIMESTAMP\n$SOURCE\n"
+            SIGNATURE=$(echo -ne "$PAYLOAD" | openssl dgst -sha256 -hmac "$SECRET" -hex | sed 's/^.* //')
+
+            curl -X POST "$TARGET_URL" \
+              -H "Content-Type: application/json" \
+              -H "X-Webhook-Timestamp: $TIMESTAMP" \
+              -H "X-Webhook-Source: $SOURCE" \
+              -H "X-Webhook-Signature: $SIGNATURE" \
+              -d '{}'
+          else
+            # 退回到简单 Token 模式
+            TOKEN="${{ secrets.TASKS_TOKEN }}"
+            if [ -n "$TOKEN" ]; then
+              curl -X POST "$TARGET_URL" \
+                -H "Content-Type: application/json" \
+                -H "X-Tasks-Token: $TOKEN" \
+                -d '{}'
+            else
+              echo "Error: Neither WEBHOOK_SECRET nor TASKS_TOKEN secrets are defined."
+              exit 1
+            fi
+          fi
