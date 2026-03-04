@@ -45,6 +45,12 @@
 - [ ] **异步任务流系统**
     - [ ] 实现针对大文件 ASR 的长时间任务轮询与前端状态推送（优先无 Redis 依赖方案）
 
+### 5. Serverless 生态深度适配 (Serverless Ecosystem Integration) (P2)
+- [ ] **原生定时任务触发器 (Scheduled Triggers)**
+    - [ ] 深度集成 Vercel Cron Jobs 与 Cloudflare Workers/Pages Scheduled Events
+    - [ ] 实现高性能的 Webhook 任务分发器，支持安全令牌 (Secret Token) 校验
+    - [ ] 确保定时发布任务在无持久化后台进程的环境下稳定运行
+
 
 ---
 

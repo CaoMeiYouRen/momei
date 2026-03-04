@@ -253,6 +253,8 @@
     - **协议补完**: 完成 WebFinger 与 ActivityPub 骨架落地，并对现有 Atom 1.0 / JSON Feed 1.1 输出做兼容性验证与补强。
 4. **ASR 性能极限优化 (Extreme Performance)**:
     - **极速转录**: 实现前端直连厂商签名机制与本地 Wasm 音频压缩采样，大幅提升转录响应速度。
+5. **Serverless 生态深度适配 (Serverless Ecosystem Integration)**:
+    - **原生定时任务触发器 (Scheduled Triggers)**: 深度集成 Vercel Cron Jobs 与 Cloudflare Workers/Pages Scheduled Events，实现高性能的 Webhook 任务分发器，支持安全令牌校验。
 
 ### 未来规划与积压项 (Backlog & Long-term Roadmap)
 
@@ -302,17 +304,12 @@
     - 建立统一的资源路径管理规范，支持全局配置资源前缀（CDN 域名）。
     - 实现对存量静态资源的路径迁移工具与链接自动重写机制。
 
-### 7. Serverless 生态深度适配 (Serverless Ecosystem Deep Integration)
-- **原生定时任务触发器 (Scheduled Triggers)**:
-    - 深度集成 Vercel Cron Jobs 与 Cloudflare Workers/Pages Scheduled Events。
-    - 实现高性能的 Webhook 任务分发器，支持安全令牌（Secret Token）校验，确保护排期任务在无持久化后台进程的环境下稳定运行。
-
-### 8. AI 视频生成与增强 (AI Video Generation & Enhancement)
+### 7. AI 视频生成与增强 (AI Video Generation & Enhancement)
 - **多模态内容产出**:
     - 探索集成视频生成模型（如 Seedance 2.0、Sora 2.0 等），支持基于文章内容或脚本生成动态视频素材。
     - 实现“文章转视频”工作流，为技术博文自动生成短视频概览或演示。
 
-### 9. 代码质量与工程化 (Code Quality & Engineering)
+### 8. 代码质量与工程化 (Code Quality & Engineering)
 - **工程质量提升**:
     - **消灭 `any` 类型**: 对全站代码进行深度类型审计，将现有的 `any` 替换为更精确的 TypeScript 类型、接口或泛型，提升类型安全性与开发体验。
     - **代码复用与抽象**: 识别并提取冗余的业务逻辑与 UI 组件，构建统一的工具函数库 (Utils) 与可重用组件库 (Components)，降低系统冗余。
