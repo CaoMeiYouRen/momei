@@ -39,11 +39,20 @@
     - [ ] 对现有 Atom 1.0 / JSON Feed 1.1 输出做阅读器兼容性回归验证并修正边界问题
 
 ### 4. ASR 性能与体验极限优化 (Extreme ASR Performance) (P1)
-- [ ] **前端极速转录方案**
-    - [ ] 实现前端直连 AI 厂商 (SiliconFlow/Volcengine) 的签名认证机制，绕过后端转发瓶颈
-    - [ ] 实现前端音频压缩的分级策略（优先轻量方案，Wasm 方案作为可选增强）
-- [ ] **异步任务流系统**
-    - [ ] 实现针对大文件 ASR 的长时间任务轮询与前端状态推送（优先无 Redis 依赖方案）
+- [x] **Phase 1: 前端直连签名认证**
+    - [x] 创建 ASR 类型定义 (`types/asr.ts`)
+    - [x] 创建凭证生成工具 (`server/utils/ai/asr-credentials.ts`)
+    - [x] 创建凭证颁发 API (`server/api/ai/asr/credentials.post.ts`)
+    - [ ] 创建前端直连 Composable (`composables/use-asr-direct.ts`)
+- [ ] **Phase 2: 音频压缩优化**
+    - [ ] 创建音频压缩工具 (`utils/audio-compression.ts`)
+    - [ ] 实现轻量级 PCM 重采样策略
+- [ ] **Phase 3: 异步任务支持**
+    - [ ] 扩展 ASR 服务异步任务方法 (`server/services/ai/asr.ts`)
+    - [ ] 创建任务追踪 Composable (`composables/use-asr-task.ts`)
+- [ ] **Phase 4: 集成与测试**
+    - [ ] 集成直连模式到语音编辑器 (`composables/use-post-editor-voice.ts`)
+    - [ ] 编写单元测试和验证
 
 ### 5. Serverless 生态深度适配 (Serverless Ecosystem Integration) (P2) ✅
 - [x] **核心安全增强**

@@ -45,7 +45,85 @@ graph TD
 - **文件限额**: 默认限制单次转录音频大小为 25MB。
 - **降噪优化**: 前端在采集音频时默认开启 `noiseSuppression` 与 `echoCancellation`。
 
-## 6. Volcengine 配置约定
+## 6. 前端直连架构 (Direct Connection)
+
+为提升 ASR 性能，降低延迟和服务器带宽消耗，支持前端直连 AI 厂商模式。
+
+### 6.1 架构对比
+
+```
+传统代理模式:
+前端 → 后端 API → AI 厂商 (延迟高，占用服务器带宽)
+
+直连模式:
+前端 → 凭证 API (获取临时签名) → 前端直连 AI 厂商 (低延迟，无服务器中转)
+```
+
+### 6.2 安全机制
+
+- **临时凭证**: 通过 `/api/ai/asr/credentials` 获取临时签名凭证
+- **有效期**: 凭证 5 分钟有效期，过期需重新获取
+- **签名验证**: 使用 HMAC-SHA256 签名，绑定用户 ID 和连接 ID
+- **权限控制**: 仅 Admin 和 Author 角色可获取凭证
+
+### 6.3 支持的直连模式
+
+| 厂商 | 模式 | 直连方式 |
+|-----|------|---------|
+| SiliconFlow | Batch | HTTP REST (Bearer Token) |
+| Volcengine | Stream | WebSocket (签名 Headers) |
+
+### 6.4 相关文件
+
+| 文件路径 | 说明 |
+|---------|------|
+| `types/asr.ts` | ASR 类型定义 |
+| `server/utils/ai/asr-credentials.ts` | 凭证生成工具 |
+| `server/api/ai/asr/credentials.post.ts` | 凭证颁发 API |
+| `composables/use-asr-direct.ts` | 前端直连 Composable |
+
+## 7. 音频压缩优化
+
+为减少传输数据量，前端支持音频压缩策略：
+
+### 7.1 压缩策略
+
+| 策略 | 说明 | 适用场景 |
+|-----|------|---------|
+| Opus/WebM | 浏览器内置，高压缩比 | 优先使用 |
+| PCM 16kHz | ASR 最佳采样率，单声道 | 降级方案 |
+| WASM Opus | 可选增强 | 需要更高压缩比时 |
+
+### 7.2 相关文件
+
+| 文件路径 | 说明 |
+|---------|------|
+| `utils/audio-compression.ts` | 音频压缩工具 |
+
+## 8. 异步任务支持
+
+针对大文件 ASR 任务，支持异步处理和状态追踪：
+
+### 8.1 任务流程
+
+1. 前端上传音频文件
+2. 后端创建异步任务，返回任务 ID
+3. 前端通过轮询或 SSE 追踪任务状态
+4. 任务完成后推送通知
+
+### 8.2 状态追踪
+
+- **轮询模式**: 5 秒间隔查询任务状态
+- **SSE 模式**: 实时推送任务状态更新 (优先)
+
+### 8.3 相关文件
+
+| 文件路径 | 说明 |
+|---------|------|
+| `composables/use-asr-task.ts` | 任务追踪 Composable |
+| `server/services/ai/asr.ts` | ASR 服务 (含异步任务方法) |
+
+## 9. Volcengine 配置约定
 
 - 当 `ASR_PROVIDER=volcengine` 时，凭据统一使用 `VOLCENGINE_APP_ID` 与 `VOLCENGINE_ACCESS_KEY`（可选 `VOLCENGINE_SECRET_KEY`）。
 - ASR 专属参数通过 `ASR_MODEL`（资源 ID）与 `ASR_ENDPOINT` 控制，不再推荐维护单独的 `ASR_VOLCENGINE_*` 凭据。
