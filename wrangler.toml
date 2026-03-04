@@ -16,3 +16,7 @@ invocation_logs = true
 persist = true
 
 [vars]
+
+# Cloudflare Scheduled Events (Cron Triggers)
+[triggers]
+crons = ["*/5 * * * *"]

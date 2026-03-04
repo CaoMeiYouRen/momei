@@ -110,6 +110,9 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         authCaptchaSecretKey: process.env.AUTH_CAPTCHA_SECRET_KEY,
+        // 定时任务安全配置
+        tasksToken: process.env.TASKS_TOKEN,
+        webhookSecret: process.env.WEBHOOK_SECRET || process.env.TASKS_TOKEN,
         public: {
             NODE_ENV: process.env.NODE_ENV,
             siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://momei.app',

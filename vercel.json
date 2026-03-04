@@ -1,4 +1,10 @@
 {
     "devCommand": "pnpm dev",
-    "framework": "nuxtjs"
+    "framework": "nuxtjs",
+    "crons": [
+        {
+            "path": "/api/tasks/run-scheduled",
+            "schedule": "*/5 * * * *"
+        }
+    ]
 }
