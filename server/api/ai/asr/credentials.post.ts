@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
     ])
 
     // 生成临时凭证
-    const credentials = await generateASRCredentials({
+    const credentials = generateASRCredentials({
         provider: body.provider as ASRProvider,
         mode: body.mode as ASRMode,
         userId: session.user.id,

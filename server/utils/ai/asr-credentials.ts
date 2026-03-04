@@ -1,5 +1,5 @@
 import crypto from 'node:crypto'
-import type { ASRProvider, ASRMode, ASRCredentialsOptions, ASRCredentials } from '~/types/asr'
+import type { ASRMode, ASRCredentialsOptions, ASRCredentials } from '~/types/asr'
 import { SettingKey } from '~/types/setting'
 
 /**
@@ -10,7 +10,7 @@ import { SettingKey } from '~/types/setting'
  * 2. 绑定用户 ID 和 connectId
  * 3. 安全令牌用于后续回调验证
  */
-export async function generateASRCredentials(options: ASRCredentialsOptions): Promise<ASRCredentials> {
+export function generateASRCredentials(options: ASRCredentialsOptions): ASRCredentials {
     const {
         provider,
         mode,

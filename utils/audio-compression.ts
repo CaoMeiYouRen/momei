@@ -162,8 +162,12 @@ export function pcmInt16ToFloat32(int16Array: Int16Array): Float32Array {
  * 合并多个 AudioBuffer
  */
 export function mergeAudioBuffers(buffers: AudioBuffer[]): AudioBuffer | null {
-    if (buffers.length === 0) { return null }
-    if (buffers.length === 1) { return buffers[0] ?? null }
+    if (buffers.length === 0) {
+        return null
+    }
+    if (buffers.length === 1) {
+        return buffers[0] ?? null
+    }
 
     const firstBuffer = buffers[0]!
     const sampleRate = firstBuffer.sampleRate
@@ -194,7 +198,7 @@ export function mergeAudioBuffers(buffers: AudioBuffer[]): AudioBuffer | null {
         offset += buffer.length
     }
 
-    audioContext.close()
+    void audioContext.close()
 
     return mergedBuffer
 }

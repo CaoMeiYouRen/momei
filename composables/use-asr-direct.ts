@@ -51,7 +51,9 @@ export function useASRDirect(options: ASRDirectOptions) {
      * 连接到 AI 厂商 (直连模式)
      */
     const connect = async () => {
-        if (isConnected.value || isConnecting.value) { return }
+        if (isConnected.value || isConnecting.value) {
+            return
+        }
 
         isConnecting.value = true
         error.value = null
@@ -123,9 +125,9 @@ export function useASRDirect(options: ASRDirectOptions) {
             }
         }
 
-        ws.onerror = (err) => {
+        ws.onerror = () => {
             error.value = 'websocket_error'
-            reject(err)
+            reject(new Error('WebSocket connection error'))
         }
 
         ws.onclose = () => {
@@ -137,7 +139,9 @@ export function useASRDirect(options: ASRDirectOptions) {
      * 发送音频数据 (流式模式)
      */
     const sendAudio = (pcmData: Float32Array) => {
-        if (ws?.readyState !== WebSocket.OPEN) { return }
+        if (ws?.readyState !== WebSocket.OPEN) {
+            return
+        }
 
         // Base64 编码 PCM 数据
         const base64 = encodePcmToBase64(pcmData)
