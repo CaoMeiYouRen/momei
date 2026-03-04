@@ -19,4 +19,4 @@ persist = true
 
 # Cloudflare Scheduled Events (Cron Triggers)
 [triggers]
-crons = ["*/5 * * * *"]
+crons = ["*/15 * * * *"]

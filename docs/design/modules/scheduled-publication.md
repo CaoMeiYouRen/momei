@@ -131,7 +131,7 @@
     “crons”: [
         {
             “path”: “/api/tasks/run-scheduled”,
-            “schedule”: “*/5 * * * *”
+            “schedule”: “*/15 * * * *”
         }
     ]
 }
@@ -148,7 +148,7 @@
 
 ```toml
 [triggers]
-crons = [“*/5 * * * *”]
+crons = [“*/15 * * * *”]
 ```
 
 **处理路由**: `server/routes/_scheduled.ts`
