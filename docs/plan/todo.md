@@ -43,13 +43,13 @@
     - [x] 创建 ASR 类型定义 (`types/asr.ts`)
     - [x] 创建凭证生成工具 (`server/utils/ai/asr-credentials.ts`)
     - [x] 创建凭证颁发 API (`server/api/ai/asr/credentials.post.ts`)
-    - [ ] 创建前端直连 Composable (`composables/use-asr-direct.ts`)
-- [ ] **Phase 2: 音频压缩优化**
-    - [ ] 创建音频压缩工具 (`utils/audio-compression.ts`)
-    - [ ] 实现轻量级 PCM 重采样策略
+    - [x] 创建前端直连 Composable (`composables/use-asr-direct.ts`)
+- [x] **Phase 2: 音频压缩优化**
+    - [x] 创建音频压缩工具 (`utils/audio-compression.ts`)
+    - [x] 实现轻量级 PCM 重采样策略
 - [ ] **Phase 3: 异步任务支持**
     - [ ] 扩展 ASR 服务异步任务方法 (`server/services/ai/asr.ts`)
-    - [ ] 创建任务追踪 Composable (`composables/use-asr-task.ts`)
+    - [x] 创建任务追踪 Composable (`composables/use-asr-task.ts`)
 - [ ] **Phase 4: 集成与测试**
     - [ ] 集成直连模式到语音编辑器 (`composables/use-post-editor-voice.ts`)
     - [ ] 编写单元测试和验证
