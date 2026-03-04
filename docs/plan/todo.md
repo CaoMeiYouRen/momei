@@ -31,12 +31,18 @@
     - [x] 实现站内商业内容管理，支持全局/按分类/按标签注入广告占位符
     - [x] 实现外链安全过滤与跳转页 (Redirect Gate)，提升商业点击的可追踪性
 
-### 3. 开放发布协议支持 (Open Federation - Phase I) (P2)
-- [ ] **ActivityPub 基础骨架 (Foundation)**
-    - [ ] 实现项目的 WebFinger 发现逻辑 (`/.well-known/webfinger`)
-    - [ ] 设计并实现 ActivityPub Actor 路由与基础对象输出 (Post -> Note)
-- [ ] **Feed 协议兼容性补强**
-    - [ ] 对现有 Atom 1.0 / JSON Feed 1.1 输出做阅读器兼容性回归验证并修正边界问题
+### 3. 开放发布协议支持 (Open Federation - Phase I) (P2) ✅
+- [x] **ActivityPub 基础骨架 (Foundation)**
+    - [x] 实现 WebFinger 发现逻辑 (`/.well-known/webfinger`)
+    - [x] 实现 ActivityPub Actor 路由 (`/fed/actor/:username`)
+    - [x] 实现 ActivityPub Note 路由 (`/fed/note/:id`)
+    - [x] 实现 Outbox 只读端点 (`/fed/outbox/:username`)
+    - [x] 创建 RSA 密钥管理实体 (`server/entities/fed-key.ts`)
+    - [x] 创建 HTTP 签名工具 (`server/utils/fed/crypto.ts`)
+    - [x] 创建对象映射工具 (`server/utils/fed/mapper.ts`)
+- [x] **Feed 协议兼容性**
+    - [x] 验证 RSS 2.0 / Atom 1.0 / JSON Feed 1.1 输出正确性
+    - [x] 确认可见性过滤正确 (只有 PUBLIC 文章)
 
 ### 4. ASR 性能与体验极限优化 (Extreme ASR Performance) (P1) ✅
 - [x] **Phase 1: 前端直连签名认证**

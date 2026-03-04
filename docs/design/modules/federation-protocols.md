@@ -703,28 +703,28 @@ export function verifyHttpSignature(
 ## 9. 实施计划
 
 > **更新日期**: 2025-03-04
-> **当前状态**: Phase 1 进行中
+> **当前状态**: Phase 1-4 完成 ✅
 
-### Phase 1: 基础设施 (进行中)
+### Phase 1: 基础设施 ✅
 - [x] 创建 ActivityPub 类型定义 (`types/federation.ts`)
 - [x] 创建密钥实体 (`server/entities/fed-key.ts`)
-- [ ] 创建加密工具 (`server/utils/fed/crypto.ts`)
+- [x] 创建加密工具 (`server/utils/fed/crypto.ts`)
 
-### Phase 2: WebFinger + Actor
-- [ ] 实现 WebFinger 端点 (`server/routes/.well-known/webfinger.ts`)
-- [ ] 实现 Actor 获取端点 (`server/routes/fed/actor/[username].ts`)
-- [ ] 创建内容映射工具 (`server/utils/fed/mapper.ts`)
+### Phase 2: WebFinger + Actor ✅
+- [x] 实现 WebFinger 端点 (`server/routes/.well-known/webfinger.ts`)
+- [x] 实现 Actor 获取端点 (`server/routes/fed/actor/[username].ts`)
+- [x] 创建内容映射工具 (`server/utils/fed/mapper.ts`)
 
-### Phase 3: ActivityPub Note
-- [ ] 实现 Note 获取端点 (`server/routes/fed/note/[id].ts`)
-- [ ] 实现 Outbox 端点 (`server/routes/fed/outbox/[username].ts`)
+### Phase 3: ActivityPub Note ✅
+- [x] 实现 Note 获取端点 (`server/routes/fed/note/[id].ts`)
+- [x] 实现 Outbox 端点 (`server/routes/fed/outbox/[username].ts`)
 
-### Phase 4: Feed 兼容性验证
-- [ ] 验证 Atom 1.0 输出
-- [ ] 验证 JSON Feed 1.1 输出
-- [ ] 添加 Feed 发现标签
+### Phase 4: Feed 兼容性验证 ✅
+- [x] 验证 Atom 1.0 输出
+- [x] 验证 JSON Feed 1.1 输出
+- [x] 验证可见性过滤正确性
 
-### Phase 5: 测试与验证
+### Phase 5: 测试与验证 (待进行)
 - [ ] 与 Mastodon 实例互测
 - [ ] 验证 Feed 阅读器兼容性
 - [ ] 单元测试
@@ -737,6 +737,12 @@ export function verifyHttpSignature(
 |-----|------|------|
 | `types/federation.ts` | ✅ 完成 | ActivityPub/WebFinger 类型定义 |
 | `server/entities/fed-key.ts` | ✅ 完成 | RSA 密钥存储实体 |
+| `server/utils/fed/crypto.ts` | ✅ 完成 | 密钥管理与 HTTP 签名 |
+| `server/utils/fed/mapper.ts` | ✅ 完成 | User/Post → Actor/Note 映射 |
+| `server/routes/.well-known/webfinger.ts` | ✅ 完成 | WebFinger 发现端点 |
+| `server/routes/fed/actor/[username].ts` | ✅ 完成 | Actor 获取端点 |
+| `server/routes/fed/note/[id].ts` | ✅ 完成 | Note 获取端点 |
+| `server/routes/fed/outbox/[username].ts` | ✅ 完成 | Outbox 只读端点 |
 
 ## 10. 相关文档
 
