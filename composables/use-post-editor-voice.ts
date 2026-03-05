@@ -509,7 +509,7 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
     const transcribeCloudBatch = async (blob: Blob) => {
         isLoadingModel.value = true // Reuse loading state for UI
         try {
-            let text: string
+            let text = ''
             let shouldUseProxy = !asrDirectBatch
 
             // 优先使用直连模式
