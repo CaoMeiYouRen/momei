@@ -57,6 +57,7 @@ export const aiGenerateImageSchema = z.object({
     aspectRatio: z.string().optional(),
     quality: z.enum(['standard', 'hd']).optional().default('standard'),
     style: z.enum(['vivid', 'natural']).optional().default('vivid'),
+    n: z.number().int().min(1).max(4).optional().default(1),
 })
 
 export type AiTranslateInput = z.infer<typeof aiTranslateSchema>

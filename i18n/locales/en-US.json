@@ -778,7 +778,9 @@
                         "status_finishing": "Final touch...",
                         "polling": "Drawing round {step} (Keep this open)...",
                         "success": "Cover generated and saved to media library",
-                        "error": "Failed to generate image, please try again"
+                        "error": "Failed to generate image, please try again",
+                        "images_count": "Count",
+                        "resolution": "Resolution"
                     }
                 },
                 "translate_success": "Translation completed and applied",

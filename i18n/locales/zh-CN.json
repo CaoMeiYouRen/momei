@@ -785,7 +785,9 @@
                         "status_finishing": "最后润色...",
                         "polling": "正在绘制第 {step} 轮 (请勿关闭面板)...",
                         "success": "封面已生成并保存到媒体库",
-                        "error": "生成失败，请重试"
+                        "error": "生成失败，请重试",
+                        "images_count": "生成数量",
+                        "resolution": "分辨率"
                     }
                 },
                 "translate_success": "翻译已完成，已覆盖内容区",

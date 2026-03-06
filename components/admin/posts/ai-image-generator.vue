@@ -32,6 +32,31 @@
                 />
             </div>
 
+            <div class="ai-generator__options">
+                <div class="ai-generator__option-item">
+                    <label class="ai-generator__label">{{ $t('pages.admin.posts.ai.cover_generator.images_count') }}</label>
+                    <SelectButton
+                        v-model="imageCount"
+                        :options="imageCountOptions"
+                        option-label="label"
+                        option-value="value"
+                        aria-labelledby="image-count"
+                        :disabled="generating"
+                    />
+                </div>
+                <div class="ai-generator__option-item">
+                    <label class="ai-generator__label">{{ $t('pages.admin.posts.ai.cover_generator.resolution') }}</label>
+                    <SelectButton
+                        v-model="resolution"
+                        :options="resolutionOptions"
+                        option-label="label"
+                        option-value="value"
+                        aria-labelledby="resolution"
+                        :disabled="generating"
+                    />
+                </div>
+            </div>
+
             <div v-if="generating" class="ai-generator__status">
                 <ProgressSpinner
                     style="width: 50px; height: 50px"
@@ -49,23 +74,33 @@
                 </div>
             </div>
 
-            <!-- Generated Image Preview -->
-            <div v-if="generatedUrl" class="ai-generator__preview">
+            <!-- Generated Images Preview -->
+            <div v-if="generatedImages.length > 0" class="ai-generator__preview">
                 <div class="ai-generator__preview-header">
                     <i class="pi pi-image text-primary" />
                     {{ $t('common.preview') }}
                 </div>
-                <div class="ai-generator__image-wrapper">
-                    <Image
-                        :src="generatedUrl"
-                        alt="Generated Cover"
-                        width="400"
-                        preview
-                        class="ai-generator__image"
-                    />
-                    <div class="ai-generator__image-hint">
-                        {{ $t('pages.admin.posts.ai.cover_generator.success') }}
+                <div class="ai-generator__images-grid">
+                    <div
+                        v-for="(img, index) in generatedImages"
+                        :key="index"
+                        class="ai-generator__image-card"
+                        :class="{'ai-generator__image-card--selected': selectedImageIndex === index}"
+                        @click="selectedImageIndex = index"
+                    >
+                        <Image
+                            :src="img.url"
+                            alt="Generated Cover"
+                            width="180"
+                            class="ai-generator__image"
+                        />
+                        <div v-if="selectedImageIndex === index" class="ai-generator__selected-badge">
+                            <i class="pi pi-check" />
+                        </div>
                     </div>
+                </div>
+                <div class="ai-generator__image-hint">
+                    {{ $t('pages.admin.posts.ai.cover_generator.success') }}
                 </div>
             </div>
         </div>
@@ -73,7 +108,7 @@
         <template #footer>
             <div class="ai-generator__footer">
                 <Button
-                    v-if="generatedUrl"
+                    v-if="generatedImages.length > 0"
                     :label="$t('common.retry')"
                     icon="pi pi-refresh"
                     text
@@ -93,7 +128,7 @@
                         @click="visible = false"
                     />
                     <Button
-                        v-if="generatedUrl"
+                        v-if="generatedImages.length > 0"
                         :label="$t('common.confirm')"
                         icon="pi pi-check"
                         severity="success"
@@ -139,8 +174,24 @@ const generating = ref(false)
 const magicLoading = ref(false)
 const pollCount = ref(0)
 const statusText = ref('')
-const generatedUrl = ref('')
+const generatedImages = ref<{ url: string }[]>([])
+const selectedImageIndex = ref(0)
 const currentTaskId = ref<string | null>(null)
+
+const imageCount = ref(1)
+const imageCountOptions = [
+    { label: '1', value: 1 },
+    { label: '2', value: 2 },
+    { label: '3', value: 3 },
+    { label: '4', value: 4 },
+]
+
+const resolution = ref('2K')
+const resolutionOptions = [
+    { label: '1K', value: '1K' },
+    { label: '2K', value: '2K' },
+    { label: '4K', value: '4K' },
+]
 
 const statusMessages = computed(() => [
     t('pages.admin.posts.ai.cover_generator.generating'),
@@ -178,15 +229,17 @@ const generateMagicPrompt = async () => {
 
 // 重置状态
 const resetGenerator = () => {
-    generatedUrl.value = ''
+    generatedImages.value = []
+    selectedImageIndex.value = 0
     generating.value = false
     pollCount.value = 0
 }
 
 // 应用图片
 const applyImage = () => {
-    if (generatedUrl.value) {
-        emit('generated', generatedUrl.value)
+    const selectedImage = generatedImages.value[selectedImageIndex.value]
+    if (selectedImage?.url) {
+        emit('generated', selectedImage.url)
         visible.value = false
         resetGenerator()
     }
@@ -210,8 +263,9 @@ const { pause, resume } = useIntervalFn(async () => {
         if (data.status === 'completed') {
             toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.posts.ai.cover_generator.success'), life: 3000 })
 
-            if (data.result && data.result.images && data.result.images[0]) {
-                generatedUrl.value = data.result.images[0].url
+            if (data.result && data.result.images && data.result.images.length > 0) {
+                generatedImages.value = data.result.images
+                selectedImageIndex.value = 0
             } else {
                 throw new Error('Result structure invalid')
             }
@@ -241,7 +295,8 @@ const generateImage = async () => {
             body: {
                 prompt: prompt.value,
                 aspectRatio: '16:9', // 宽高比
-                size: '2K', // 默认封面使用 2K 高清，Provider 会自动向下兼容转换
+                size: resolution.value,
+                n: imageCount.value,
             },
         })
 
@@ -304,6 +359,27 @@ watch(visible, (val) => {
         border-radius: $border-radius-md;
     }
 
+    &__options {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    &__option-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+
+        label {
+            white-space: nowrap;
+        }
+
+        :deep(.p-selectbutton) {
+            flex-shrink: 0;
+        }
+    }
+
     &__status {
         display: flex;
         flex-direction: column;
@@ -342,6 +418,62 @@ watch(visible, (val) => {
         gap: 0.75rem;
         font-weight: 700;
         font-size: 1.125rem;
+    }
+
+    &__images-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        width: 100%;
+    }
+
+    &__image-card {
+        position: relative;
+        cursor: pointer;
+        border-radius: $border-radius-md;
+        border: 2px solid transparent;
+        overflow: hidden;
+        transition: $transition-base;
+        aspect-ratio: 16 / 9;
+
+        &:hover {
+            transform: scale(1.02);
+            box-shadow: $shadow-md;
+        }
+
+        &--selected {
+            border-color: $color-primary;
+            box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
+        }
+
+        :deep(.p-image) {
+            display: block;
+            width: 100%;
+            height: 100%;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+        }
+    }
+
+    &__selected-badge {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background-color: $color-primary;
+        color: white;
+        border-radius: 50%;
+        width: 1.5rem;
+        height: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        box-shadow: $shadow-sm;
     }
 
     &__image-wrapper {
