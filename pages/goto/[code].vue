@@ -5,10 +5,10 @@
             <p>{{ $t('redirect.loading') }}</p>
         </div>
 
-        <div v-else-if="error" class="error">
+        <div v-else-if="errorMessage" class="error">
             <i class="pi pi-exclamation-triangle" />
             <h2>{{ $t('redirect.error.title') }}</h2>
-            <p>{{ error }}</p>
+            <p>{{ errorMessage }}</p>
             <Button
                 :label="$t('redirect.back_home')"
                 icon="pi pi-home"
@@ -16,7 +16,7 @@
             />
         </div>
 
-        <div v-else-if="data" class="redirect-info">
+        <div v-else-if="redirectData" class="redirect-info">
             <div class="icon">
                 <i class="pi pi-external-link" />
             </div>
@@ -25,13 +25,13 @@
 
             <div class="target-info">
                 <img
-                    v-if="data.favicon"
-                    :src="data.favicon"
+                    v-if="redirectData.favicon"
+                    :src="redirectData.favicon"
                     class="favicon"
                     alt=""
                     onerror="this.style.display='none'"
                 >
-                <span class="url">{{ data.url }}</span>
+                <span class="url">{{ redirectData.url }}</span>
             </div>
 
             <div v-if="countdown > 0" class="countdown">
@@ -46,7 +46,7 @@
                 <Button
                     :label="$t('redirect.cancel')"
                     severity="secondary"
-                    @click="$router.back()"
+                    @click="handleCancel"
                 />
             </div>
 
@@ -58,34 +58,66 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import type { ApiResponse } from '@/types/api'
 import { useRoute, useRouter } from 'vue-router'
 import { useLocalePath } from '#i18n'
 
-const route = useRoute()
-const router = useRouter()
-const localePath = useLocalePath()
-
-const code = route.params.code as string
-const countdown = ref(3)
-let timer: ReturnType<typeof setInterval> | null = null
-let redirectTimer: ReturnType<typeof setTimeout> | null = null
-
-const { data, pending, error } = await useFetch<{
+interface RedirectData {
     url: string
     favicon: string
     title: string
     showRedirectPage: boolean
-}>(`/api/goto/${code}`)
+}
+
+const route = useRoute()
+const router = useRouter()
+const localePath = useLocalePath()
+const { t } = useI18n()
+
+const code = route.params.code as string
+const countdown = ref(3)
+let timer: ReturnType<typeof setInterval> | null = null
+
+const { data: response, pending, error } = await useFetch<ApiResponse<RedirectData>>(`/api/goto/${code}`)
+
+const redirectData = computed<RedirectData | null>(() => {
+    if (response.value?.code !== 200 || !response.value.data) {
+        return null
+    }
+
+    return response.value.data
+})
+
+const errorMessage = computed(() => {
+    if (error.value) {
+        return error.value.message
+    }
+
+    if (response.value && response.value.code !== 200) {
+        return t('redirect.error.message')
+    }
+
+    return ''
+})
 
 function navigateToUrl() {
-    if (data.value?.url) {
-        window.location.href = data.value.url
+    if (redirectData.value?.url) {
+        window.location.href = redirectData.value.url
     }
 }
 
+function handleCancel() {
+    if (window.history.length > 1) {
+        router.back()
+        return
+    }
+
+    navigateTo(localePath('/'))
+}
+
 onMounted(() => {
-    if (data.value?.url && data.value.showRedirectPage !== false) {
+    if (redirectData.value?.url && redirectData.value.showRedirectPage !== false) {
         // 开始倒计时
         timer = setInterval(() => {
             countdown.value--
@@ -94,12 +126,7 @@ onMounted(() => {
                 navigateToUrl()
             }
         }, 1000)
-
-        // 3秒后自动跳转
-        redirectTimer = setTimeout(() => {
-            navigateToUrl()
-        }, 3000)
-    } else if (data.value?.url) {
+    } else if (redirectData.value?.url) {
         // 如果不需要显示跳转页，直接跳转
         navigateToUrl()
     }
@@ -107,7 +134,6 @@ onMounted(() => {
 
 onUnmounted(() => {
     if (timer) clearInterval(timer)
-    if (redirectTimer) clearTimeout(redirectTimer)
 })
 </script>
 
