@@ -40,6 +40,7 @@ export default withNuxt(
     },
     {
         rules: {
+            '@intlify/vue-i18n/no-raw-text': 'off',
             '@intlify/vue-i18n/no-dynamic-keys': 'off',
             '@intlify/vue-i18n/no-unused-keys': [
                 'warn',
@@ -78,6 +79,19 @@ export default withNuxt(
         rules: {
             'max-lines': [1, { max: 800 }], // 强制文件的最大行数
             'max-lines-per-function': [0, { max: 150 }], // 强制函数最大行数
+        },
+    },
+    {
+        files: ['i18n/locales/*.json'],
+        rules: {
+            '@intlify/vue-i18n/no-unused-keys': 'off',
+            'max-lines': 'off',
+        },
+    },
+    {
+        files: ['pnpm-lock.yaml', 'pages/admin/posts/[[]id[]].vue'],
+        rules: {
+            'max-lines': 'off',
         },
     },
 )

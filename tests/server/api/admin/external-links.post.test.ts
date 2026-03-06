@@ -9,7 +9,7 @@ vi.mock('h3', async () => {
     const actual = await vi.importActual<typeof import('h3')>('h3')
     return {
         ...actual,
-        readBody: async (event: any) => event.body || {},
+        readBody: (event: { body?: unknown }) => event.body || {},
     }
 })
 

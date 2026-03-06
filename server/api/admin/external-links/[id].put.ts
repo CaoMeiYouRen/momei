@@ -6,7 +6,7 @@ import { requireAdmin } from '@/server/utils/permission'
 
 const updateExternalLinkSchema = z.object({
     originalUrl: z.string().trim().min(1).optional(),
-    status: z.nativeEnum(LinkStatus).optional(),
+    status: z.enum(LinkStatus).optional(),
     noFollow: z.boolean().optional(),
     showRedirectPage: z.boolean().optional(),
     metadata: z.record(z.string(), z.unknown()).optional(),

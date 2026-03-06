@@ -1285,9 +1285,6 @@
         },
         "settings": {
             "title": "个人中心",
-            "commercial": {
-                "validation_error": "商业配置验证失败"
-            },
             "profile": {
                 "title": "公开资料",
                 "avatar": "头像",

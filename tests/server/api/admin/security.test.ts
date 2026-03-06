@@ -16,21 +16,15 @@ describe('Admin API Security Perimeter', () => {
         { path: '/api/admin/external-links', method: 'POST' },
     ]
 
-    it('should have requireAdmin wrapper on all sensitive endpoints', async () => {
-        for (const endpoint of adminEndpoints) {
-            // We verify by checking if the implementation files actually call requireAdmin
-            // This is a static analysis check since we can't easily introspect Nitro routes at runtime in unit tests
-            // But we can check a few key files we just edited
-            const filePath = `server/api/admin/${endpoint.path.split('/admin/')[1]}${endpoint.method === 'GET' ? '.get.ts' : '.post.ts'}`
-            // Note: Some might be index.get.ts or similar, but the logic remains
-        }
+    it('should keep all tracked sensitive endpoints under the admin namespace', () => {
+        expect(adminEndpoints.length).toBeGreaterThan(0)
+        expect(adminEndpoints.every(({ path }) => path.startsWith('/api/admin/'))).toBe(true)
+        expect(adminEndpoints.every(({ method }) => ['GET', 'POST'].includes(method))).toBe(true)
     })
 
-    it('requireAdmin should block non-admin users', async () => {
+    it('requireAdmin should be available for admin checks', () => {
         const spy = vi.spyOn(authUtils, 'requireAdmin')
 
-        // This is a placeholder for actual integration tests if needed,
-        // but here we validate our understanding of the security layer.
         expect(spy).toBeDefined()
     })
 })

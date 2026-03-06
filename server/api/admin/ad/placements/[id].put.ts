@@ -5,8 +5,8 @@ import { requireAdmin } from '@/server/utils/permission'
 
 const updatePlacementSchema = z.object({
     name: z.string().trim().min(1).optional(),
-    format: z.nativeEnum(AdFormat).optional(),
-    location: z.nativeEnum(AdLocation).optional(),
+    format: z.enum(AdFormat).optional(),
+    location: z.enum(AdLocation).optional(),
     adapterId: z.string().trim().min(1).optional(),
     metadata: z.record(z.string(), z.unknown()).optional(),
     enabled: z.boolean().optional(),

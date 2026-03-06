@@ -441,7 +441,7 @@ const openSocialDialog = (link?: SocialLink, index?: number) => {
 
 const addLink = () => {
     if (!currentLink.value.url && !currentLink.value.image) {
-        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('pages.settings.commercial.validation_error'), life: 3000 })
+        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('common.validation_error'), life: 3000 })
         return
     }
     if (editingIndex.value > -1) {
@@ -454,7 +454,7 @@ const addLink = () => {
 
 const addSocialLink = () => {
     if (!currentSocialLink.value.url && !currentSocialLink.value.image) {
-        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('pages.settings.commercial.validation_error'), life: 3000 })
+        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('common.validation_error'), life: 3000 })
         return
     }
     if (editingSocialIndex.value > -1) {
