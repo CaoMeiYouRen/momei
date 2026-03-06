@@ -32,7 +32,100 @@
         text-decoration: none;
     }
 
-/* ... existing code ... */
+    // 轻量兼容层：为项目中已存在的 PrimeVue 示例工具类提供基础样式，避免引入 PrimeFlex/Tailwind。
+    .flex {
+        display: flex;
+    }
+
+    .inline-flex {
+        display: inline-flex;
+    }
+
+    .flex-column {
+        flex-direction: column;
+    }
+
+    .items-center,
+    .align-items-center {
+        align-items: center;
+    }
+
+    .justify-end {
+        justify-content: flex-end;
+    }
+
+    .justify-between,
+    .justify-content-between {
+        justify-content: space-between;
+    }
+
+    .gap-2 {
+        gap: 0.5rem;
+    }
+
+    .gap-4 {
+        gap: 1rem;
+    }
+
+    .w-full {
+        width: 100%;
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-secondary {
+        color: var(--p-text-muted-color);
+    }
+
+    .text-success {
+        color: var(--p-green-500, #22c55e);
+    }
+
+    .mr-2 {
+        margin-right: 0.5rem;
+    }
+
+    .ml-1 {
+        margin-left: 0.25rem;
+    }
+
+    .ml-2 {
+        margin-left: 0.5rem;
+    }
+
+    .mt-1 {
+        margin-top: 0.25rem;
+    }
+
+    .mt-2 {
+        margin-top: 0.5rem;
+    }
+
+    .mt-4 {
+        margin-top: 1rem;
+    }
+
+    .mb-2 {
+        margin-bottom: 0.5rem;
+    }
+
+    .mb-4 {
+        margin-bottom: 1rem;
+    }
+
+    .mb-8 {
+        margin-bottom: 2rem;
+    }
 
 // PrimeVue Select (Dropdown) Dark Mode Fixes
 .p-select {

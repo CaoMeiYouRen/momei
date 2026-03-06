@@ -449,8 +449,8 @@ onMounted(() => {
 
 <style scoped lang="scss">
 :deep(.admin-placements__dialog) {
-    width: 36rem;
-    max-width: calc(100vw - 1.5rem);
+    width: min(36rem, calc(100vw - 1.5rem));
+    min-width: 31rem;
 }
 
 :deep(.admin-placements__dialog .p-dialog-content) {
@@ -459,7 +459,7 @@ onMounted(() => {
 
 :deep(.admin-placements__dialog .field) {
     display: grid;
-    grid-template-columns: 6rem minmax(0, 1fr);
+    grid-template-columns: 6.5rem minmax(0, 1fr);
     align-items: center;
     gap: 0.25rem 0.75rem;
     margin-bottom: 0.875rem;
@@ -481,7 +481,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-left: calc(6rem + 0.75rem);
+    margin-left: calc(6.5rem + 0.75rem);
 }
 
 :deep(.admin-placements__dialog .field.flex > label) {
@@ -490,7 +490,7 @@ onMounted(() => {
 }
 
 :deep(.admin-placements__dialog .p-inputtext),
-:deep(.admin-placements__dialog .p-dropdown),
+:deep(.admin-placements__dialog .p-select),
 :deep(.admin-placements__dialog .p-inputnumber),
 :deep(.admin-placements__dialog .p-inputnumber-input) {
     width: 100%;
@@ -501,5 +501,25 @@ onMounted(() => {
     justify-content: flex-end;
     gap: 0.75rem;
     padding-top: 0.875rem;
+}
+
+@media (width <= 640px) {
+    :deep(.admin-placements__dialog) {
+        min-width: 0;
+    }
+
+    :deep(.admin-placements__dialog .field) {
+        grid-template-columns: 1fr;
+        gap: 0.375rem;
+    }
+
+    :deep(.admin-placements__dialog .field > .p-error),
+    :deep(.admin-placements__dialog .field > .text-color-secondary) {
+        grid-column: auto;
+    }
+
+    :deep(.admin-placements__dialog .field.flex) {
+        margin-left: 0;
+    }
 }
 </style>

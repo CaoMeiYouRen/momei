@@ -363,8 +363,8 @@ onMounted(() => {
 
 <style scoped lang="scss">
 :deep(.admin-campaigns__dialog) {
-    width: 34rem;
-    max-width: calc(100vw - 1.5rem);
+    width: min(34rem, calc(100vw - 1.5rem));
+    min-width: 30rem;
 }
 
 :deep(.admin-campaigns__dialog .p-dialog-content) {
@@ -373,7 +373,7 @@ onMounted(() => {
 
 :deep(.admin-campaigns__dialog .field) {
     display: grid;
-    grid-template-columns: 6rem minmax(0, 1fr);
+    grid-template-columns: 6.5rem minmax(0, 1fr);
     align-items: center;
     gap: 0.25rem 0.75rem;
     margin-bottom: 0.875rem;
@@ -391,7 +391,7 @@ onMounted(() => {
 }
 
 :deep(.admin-campaigns__dialog .p-inputtext),
-:deep(.admin-campaigns__dialog .p-dropdown),
+:deep(.admin-campaigns__dialog .p-select),
 :deep(.admin-campaigns__dialog .p-datepicker),
 :deep(.admin-campaigns__dialog .p-datepicker-input) {
     width: 100%;
@@ -402,5 +402,20 @@ onMounted(() => {
     justify-content: flex-end;
     gap: 0.75rem;
     padding-top: 0.875rem;
+}
+
+@media (width <= 640px) {
+    :deep(.admin-campaigns__dialog) {
+        min-width: 0;
+    }
+
+    :deep(.admin-campaigns__dialog .field) {
+        grid-template-columns: 1fr;
+        gap: 0.375rem;
+    }
+
+    :deep(.admin-campaigns__dialog .field > .p-error) {
+        grid-column: auto;
+    }
 }
 </style>

@@ -273,6 +273,32 @@ export default defineNuxtConfig({
         },
     },
     vite: {
+        resolve: {
+            // 规避 pnpm + Vite 下 PrimeVue Overlay / 动态组件样式变量偶发丢失
+            dedupe: [
+                'primevue',
+                '@primevue/core',
+                '@primevue/icons',
+                '@primeuix/styled',
+                '@primeuix/styles',
+                '@primeuix/themes',
+            ],
+        },
+        optimizeDeps: {
+            include: [
+                'primevue/config',
+                'primevue/dialog',
+                'primevue/confirmdialog',
+                'primevue/toast',
+                'primevue/datepicker',
+                'primevue/select',
+                'primevue/autocomplete',
+                'primevue/dynamicdialog',
+                '@primevue/core',
+                '@primeuix/styled',
+                '@primeuix/styles',
+            ],
+        },
         css: {
             preprocessorOptions: {
                 scss: {

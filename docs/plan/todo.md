@@ -30,6 +30,7 @@
 - [x] **商业与投放管理 (Ad/Link Management)**
     - [x] 实现站内商业内容管理，支持全局/按分类/按标签注入广告占位符
     - [x] 实现外链安全过滤与跳转页 (Redirect Gate)，提升商业点击的可追踪性
+    - [x] 修复广告活动、广告位与外链管理页面的 PrimeVue 样式兼容问题，补齐 Vite 去重与弹窗表单布局
 
 ### 3. 开放发布协议支持 (Open Federation - Phase I) (P2) ✅
 - [x] **ActivityPub 基础骨架 (Foundation)**
