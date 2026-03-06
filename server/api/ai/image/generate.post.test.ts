@@ -53,7 +53,13 @@ describe('POST /api/ai/image/generate', () => {
                 status: 'processing',
             },
         })
-        expect(ImageService.generateImage).toHaveBeenCalledWith(mockBody, 'user-1')
+        expect(ImageService.generateImage).toHaveBeenCalledWith(
+            {
+                ...mockBody,
+                n: 1,
+            },
+            'user-1',
+        )
     })
 
     it('should reject invalid prompt (empty string)', async () => {
