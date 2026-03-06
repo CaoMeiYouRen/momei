@@ -124,6 +124,14 @@
                         "translate": "Translate",
                         "recommend_tags": "Recommend tags"
                     }
+                },
+                "statuses": {
+                    "pending": "Pending"
+                }
+            },
+            "settings": {
+                "system": {
+                    "locked_by_env": "This config is currently forced by environment variables and cannot be modified manually."
                 }
             }
         },
@@ -228,6 +236,7 @@
         "drag_drop_help": "Drag & drop Markdown or image files to editor",
         "cancel": "Cancel",
         "confirm": "Confirm",
+        "confirm_publish": "Confirm Publish",
         "delete": "Delete",
         "edit": "Edit",
         "create": "Create",
@@ -245,9 +254,11 @@
         "translation_id_hint": "Used to manually link the same entity across different languages. Recommended to use a unique English identifier (like URL Slug).",
         "save_success": "Saved successfully",
         "save_failed": "Save failed",
+        "error_saving": "Error saving",
         "upload_failed": "Upload failed",
         "success": "Success",
         "error": "Error",
+        "error_occurred": "An error occurred",
         "warn": "Warning",
         "retry": "Retry",
         "info": "Info",
@@ -264,7 +275,10 @@
         "optional": "Optional",
         "confirmation": "Confirm Action",
         "confirm_delete": "Confirm Delete",
+        "delete_confirm": "Confirm Delete",
         "delete_confirm_message": "Are you sure you want to delete this item? This action cannot be undone.",
+        "delete_success": "Deleted successfully",
+        "delete_failed": "Delete failed",
         "danger": "Danger",
         "admin": "Admin",
         "all": "All",
@@ -278,6 +292,7 @@
         "translation_status": "Translation status",
         "no_source_content": "No content available for AI processing",
         "no_description": "No description",
+        "not_found": "Not Found",
         "system": "System",
         "ai_translate": "AI Translate",
         "ai_generate_slug": "AI Generate Slug",
@@ -287,7 +302,9 @@
         "switch": "Switch",
         "yes": "Yes",
         "no": "No",
-        "custom": "Custom Platform"
+        "custom": "Custom Platform",
+        "created_at": "Created At",
+        "back_to_home": "Back to Home"
     },
     "redirect": {
         "loading": "Loading link information...",
@@ -345,6 +362,11 @@
                 "success": "Submission successful! Please wait for admin review. We will notify you of the result via email.",
                 "error": "Submission failed, please try again later.",
                 "captcha_required": "Please complete the captcha verification"
+            }
+        },
+        "installation": {
+            "preview": {
+                "error": "Failed to load preview config"
             }
         },
         "posts": {
