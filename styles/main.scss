@@ -127,6 +127,85 @@
         margin-bottom: 2rem;
     }
 
+    .admin-form-dialog {
+        width: min(36rem, calc(100vw - 1.5rem));
+        min-width: min(31rem, calc(100vw - 1.5rem));
+
+        .p-dialog-header {
+            padding-bottom: 0;
+        }
+
+        .p-dialog-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding-top: 1rem;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 0;
+        }
+
+        .field > label {
+            margin: 0;
+            font-weight: 600;
+            line-height: 1.5;
+            color: var(--p-text-color);
+        }
+
+        .field > .p-error,
+        .field > .text-color-secondary {
+            margin-top: 0;
+        }
+
+        .field.flex {
+            flex-direction: row;
+            align-items: center;
+            gap: 0.625rem;
+        }
+
+        .field.flex > label {
+            font-weight: 500;
+        }
+
+        .p-inputtext,
+        .p-select,
+        .p-inputnumber,
+        .p-inputnumber-input,
+        .p-datepicker,
+        .p-datepicker-input {
+            width: 100%;
+        }
+
+        .p-dialog-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            padding-top: 1rem;
+        }
+
+        @media (width <= 640px) {
+            min-width: 0;
+
+            .p-dialog-footer {
+                flex-wrap: wrap;
+            }
+        }
+    }
+
+    .admin-form-dialog--compact {
+        width: min(34rem, calc(100vw - 1.5rem));
+        min-width: min(30rem, calc(100vw - 1.5rem));
+    }
+
+    .admin-form-dialog--wide {
+        width: min(38rem, calc(100vw - 1.5rem));
+        min-width: min(32rem, calc(100vw - 1.5rem));
+    }
+
 // PrimeVue Select (Dropdown) Dark Mode Fixes
 .p-select {
     background-color: var(--p-surface-card);

@@ -102,7 +102,7 @@
             v-model:visible="dialogVisible"
             :header="editingItem ? $t('common.edit') : $t('common.create')"
             modal
-            class="admin-campaigns__dialog p-fluid"
+            class="admin-campaigns__dialog admin-form-dialog admin-form-dialog--compact p-fluid"
         >
             <div class="field">
                 <label for="name">{{ $t('common.name') }} *</label>
@@ -362,60 +362,4 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-:deep(.admin-campaigns__dialog) {
-    width: min(34rem, calc(100vw - 1.5rem));
-    min-width: 30rem;
-}
-
-:deep(.admin-campaigns__dialog .p-dialog-content) {
-    padding-top: 0.75rem;
-}
-
-:deep(.admin-campaigns__dialog .field) {
-    display: grid;
-    grid-template-columns: 6.5rem minmax(0, 1fr);
-    align-items: center;
-    gap: 0.25rem 0.75rem;
-    margin-bottom: 0.875rem;
-}
-
-:deep(.admin-campaigns__dialog .field > label) {
-    margin: 0;
-    font-weight: 600;
-    line-height: 1.35;
-}
-
-:deep(.admin-campaigns__dialog .field > .p-error) {
-    grid-column: 2;
-    margin-top: 0.125rem;
-}
-
-:deep(.admin-campaigns__dialog .p-inputtext),
-:deep(.admin-campaigns__dialog .p-select),
-:deep(.admin-campaigns__dialog .p-datepicker),
-:deep(.admin-campaigns__dialog .p-datepicker-input) {
-    width: 100%;
-}
-
-:deep(.admin-campaigns__dialog .p-dialog-footer) {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    padding-top: 0.875rem;
-}
-
-@media (width <= 640px) {
-    :deep(.admin-campaigns__dialog) {
-        min-width: 0;
-    }
-
-    :deep(.admin-campaigns__dialog .field) {
-        grid-template-columns: 1fr;
-        gap: 0.375rem;
-    }
-
-    :deep(.admin-campaigns__dialog .field > .p-error) {
-        grid-column: auto;
-    }
-}
 </style>

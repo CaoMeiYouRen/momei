@@ -576,7 +576,7 @@
                 "status": "状态",
                 "clicks": "点击次数",
                 "show_redirect": "跳转页",
-                "no_follow": "No Follow",
+                "no_follow": "不跟随",
                 "show_redirect_page": "显示跳转页",
                 "stats": "统计信息",
                 "title_placeholder": "可选链接标题",
