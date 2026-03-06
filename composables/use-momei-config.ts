@@ -8,6 +8,7 @@ export const useMomeiConfig = () => {
         baiduAnalytics: '',
         googleAnalytics: '',
         clarityAnalytics: '',
+        googleAdsenseAccount: '',
         siteLogo: '',
         siteFavicon: '',
         siteOperator: '',
@@ -50,6 +51,7 @@ export const useMomeiConfig = () => {
     const currentDescription = computed(() => siteConfig.value.siteDescription || t('app.description'))
     const currentKeywords = computed(() => siteConfig.value.siteKeywords || t('app.keywords'))
     const currentCopyright = computed(() => siteConfig.value.siteCopyright || '')
+    const googleAdsenseAccount = computed(() => siteConfig.value.googleAdsenseAccount || '')
     const siteLogo = computed(() => siteConfig.value.siteLogo || '')
     const siteFavicon = computed(() => siteConfig.value.siteFavicon || '')
 
@@ -60,6 +62,7 @@ export const useMomeiConfig = () => {
         currentDescription,
         currentKeywords,
         currentCopyright,
+        googleAdsenseAccount,
         siteLogo,
         siteFavicon,
     }

@@ -1,4 +1,5 @@
-import { getSettings } from '~/server/services/setting'
+import { getSetting, getSettings } from '~/server/services/setting'
+import { resolveGoogleAdSenseAccount } from '~/server/utils/ad-network-config'
 import { SettingKey } from '~/types/setting'
 
 /**
@@ -7,6 +8,7 @@ import { SettingKey } from '~/types/setting'
  */
 export default defineEventHandler(async () => {
     try {
+        const commercialRaw = await getSetting<string>(SettingKey.COMMERCIAL_SPONSORSHIP, null)
         const publicKeys = [
             SettingKey.SITE_TITLE,
             SettingKey.SITE_DESCRIPTION,
@@ -63,6 +65,7 @@ export default defineEventHandler(async () => {
                 siteFavicon: settings[SettingKey.SITE_FAVICON],
                 siteOperator: settings[SettingKey.SITE_OPERATOR],
                 contactEmail: settings[SettingKey.CONTACT_EMAIL],
+                googleAdsenseAccount: resolveGoogleAdSenseAccount(typeof commercialRaw === 'string' ? commercialRaw : null),
                 showComplianceInfo: String(settings[SettingKey.SHOW_COMPLIANCE_INFO]) === 'true',
                 icpLicenseNumber: settings[SettingKey.ICP_LICENSE_NUMBER],
                 publicSecurityNumber: settings[SettingKey.PUBLIC_SECURITY_NUMBER],

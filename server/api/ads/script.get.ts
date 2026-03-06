@@ -1,80 +1,13 @@
 import { AdAdapterFactory } from '../../services/adapters'
+import type { AdAdapterConfig } from '../../services/adapters/base'
 import { getSetting } from '@/server/services/setting'
+import { resolveAdNetworkConfigs } from '@/server/utils/ad-network-config'
 import { SettingKey } from '@/types/setting'
 
-type AdapterConfigMap = Record<string, Record<string, unknown>>
-
-function parseCommercialConfig(raw: string | null): Record<string, unknown> {
-    if (!raw) {
-        return {}
-    }
-
-    try {
-        const parsed = JSON.parse(raw)
-        if (parsed && typeof parsed === 'object') {
-            return parsed as Record<string, unknown>
-        }
-    } catch {
-        // ignore invalid JSON
-    }
-
-    return {}
-}
-
-function normalizeAdapterConfig(config: unknown): Record<string, unknown> | null {
-    if (!config || typeof config !== 'object') {
-        return null
-    }
-
-    const normalized = config as Record<string, unknown>
-    if (normalized.enabled === false) {
-        return null
-    }
-
-    return normalized
-}
-
-async function resolveAdapterConfigs(): Promise<AdapterConfigMap> {
+async function resolveAdapterConfigs() {
     const commercialRaw = await getSetting<string>(SettingKey.COMMERCIAL_SPONSORSHIP, null)
-    const commercial = parseCommercialConfig(typeof commercialRaw === 'string' ? commercialRaw : null)
 
-    const adNetworksFromRoot = normalizeAdapterConfig((commercial).adNetworks)
-    const source = adNetworksFromRoot ?? commercial
-
-    const adsense = normalizeAdapterConfig((source).adsense) ?? (
-        process.env.ADSENSE_CLIENT_ID
-            ? { clientId: process.env.ADSENSE_CLIENT_ID }
-            : null
-    )
-    const baidu = normalizeAdapterConfig((source).baidu) ?? (
-        process.env.BAIDU_SLOT_ID
-            ? {
-                slotId: process.env.BAIDU_SLOT_ID,
-                userId: process.env.BAIDU_USER_ID,
-            }
-            : null
-    )
-    const tencent = normalizeAdapterConfig((source).tencent) ?? (
-        process.env.TENCENT_APP_ID
-            ? {
-                appId: process.env.TENCENT_APP_ID,
-                placementId: process.env.TENCENT_PLACEMENT_ID,
-            }
-            : null
-    )
-
-    const result: AdapterConfigMap = {}
-    if (adsense) {
-        result.adsense = adsense
-    }
-    if (baidu) {
-        result.baidu = baidu
-    }
-    if (tencent) {
-        result.tencent = tencent
-    }
-
-    return result
+    return resolveAdNetworkConfigs(typeof commercialRaw === 'string' ? commercialRaw : null)
 }
 
 /**
@@ -117,8 +50,12 @@ export default defineEventHandler(async (event) => {
         const scripts: { adapter: string, script: string }[] = []
 
         for (const [id, config] of Object.entries(adapterConfigs)) {
+            if (!config) {
+                continue
+            }
+
             try {
-                const adapter = await AdAdapterFactory.create(id, config)
+                const adapter = await AdAdapterFactory.create(id, config as AdAdapterConfig)
                 scripts.push({
                     adapter: id,
                     script: adapter.getScript(),

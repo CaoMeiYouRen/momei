@@ -17,7 +17,15 @@ const route = useRoute()
 const session = authClient.useSession()
 const { startTour } = useOnboarding()
 const { fetchTheme, applyTheme } = useTheme()
-const { fetchSiteConfig, currentTitle, currentDescription, currentKeywords, siteFavicon, siteLogo } = useMomeiConfig()
+const {
+    fetchSiteConfig,
+    currentTitle,
+    currentDescription,
+    currentKeywords,
+    googleAdsenseAccount,
+    siteFavicon,
+    siteLogo,
+} = useMomeiConfig()
 
 // 初始化主题与站点配置
 // 排除安装页面，避免在数据库未就绪时请求主题导致错误
@@ -41,7 +49,12 @@ const initializeAppSettings = async () => {
 }
 
 applyTheme()
-void initializeAppSettings()
+
+if (import.meta.server) {
+    await initializeAppSettings()
+} else {
+    void initializeAppSettings()
+}
 
 onMounted(() => {
     window.addEventListener('momei:start-tour', startTour)
@@ -72,6 +85,9 @@ useHead({
     meta: [
         { name: 'description', content: currentDescription.value },
         { name: 'keywords', content: currentKeywords.value },
+        ...(googleAdsenseAccount.value
+            ? [{ name: 'google-adsense-account', content: googleAdsenseAccount.value }]
+            : []),
         ...(head.value.meta || []),
     ],
     link: [

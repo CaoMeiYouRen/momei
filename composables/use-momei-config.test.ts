@@ -34,6 +34,7 @@ describe('useMomeiConfig', () => {
             baiduAnalytics: '',
             googleAnalytics: '',
             clarityAnalytics: '',
+            googleAdsenseAccount: '',
             siteLogo: '',
             siteFavicon: '',
             siteOperator: '',
@@ -138,6 +139,15 @@ describe('useMomeiConfig', () => {
         // Should use config value when set
         siteConfig.value.siteCopyright = '© 2024 My Blog'
         expect(currentCopyright.value).toBe('© 2024 My Blog')
+    })
+
+    it('should compute googleAdsenseAccount', () => {
+        const { googleAdsenseAccount, siteConfig } = useMomeiConfig()
+
+        expect(googleAdsenseAccount.value).toBe('')
+
+        siteConfig.value.googleAdsenseAccount = 'ca-pub-1234567890123456'
+        expect(googleAdsenseAccount.value).toBe('ca-pub-1234567890123456')
     })
 
     it('should compute siteLogo', () => {
