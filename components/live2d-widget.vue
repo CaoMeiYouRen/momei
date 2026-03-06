@@ -6,10 +6,22 @@
 import { toBoolean, toNumber } from '@/utils/shared/coerce'
 
 const { siteConfig } = useMomeiConfig()
+const route = useRoute()
+const { availableLocales } = useI18n()
+const localeCodes = availableLocales as readonly string[]
 
 const DEFAULT_LIVE2D_PATH = 'https://unpkg.com/live2d-widgets@1.0.0/dist/'
+const LIVE2D_ALLOWED_ROUTE_PATTERNS = [
+    /^\/$/,
+    /^\/about$/,
+    /^\/posts(?:\/[^/]+)?$/,
+    /^\/archives$/,
+    /^\/categories(?:\/[^/]+)?$/,
+    /^\/tags(?:\/[^/]+)?$/,
+]
 
 const isInitialized = ref(false)
+const isInitScheduled = ref(false)
 const { canLoadEffect, runWhenIdle } = useClientEffectGuard()
 
 type Live2dLogLevel = 'error' | 'warn' | 'info' | 'trace'
@@ -92,6 +104,34 @@ const parseLive2dOptions = (raw: unknown): Partial<Live2dWidgetOptions> => {
     return result
 }
 
+const normalizeRoutePath = (path: string) => {
+    if (!path) {
+        return '/'
+    }
+
+    const normalizedSource = path.startsWith('/') ? path : `/${path}`
+    const segments = normalizedSource.split('/')
+    const firstSegment = segments[1]
+    const strippedLocalePath = firstSegment && localeCodes.includes(firstSegment)
+        ? `/${segments.slice(2).join('/')}`
+        : normalizedSource
+
+    if (!strippedLocalePath || strippedLocalePath === '//') {
+        return '/'
+    }
+
+    if (strippedLocalePath.length > 1 && strippedLocalePath.endsWith('/')) {
+        return strippedLocalePath.slice(0, -1)
+    }
+
+    return strippedLocalePath
+}
+
+const isRouteAllowed = computed(() => {
+    const currentPath = normalizeRoutePath(route.path)
+    return LIVE2D_ALLOWED_ROUTE_PATTERNS.some((pattern) => pattern.test(currentPath))
+})
+
 const shouldLoadLive2d = () => {
     const current = config.value
     return canLoadEffect({
@@ -102,6 +142,10 @@ const shouldLoadLive2d = () => {
         slowNetworkBlock: current.dataSaverBlock,
     })
 }
+
+const shouldShowLive2d = computed(() => {
+    return config.value.enabled && isRouteAllowed.value
+})
 
 const loadExternalResource = (url: string, type: 'css' | 'js') => {
     return new Promise<void>((resolve, reject) => {
@@ -162,8 +206,29 @@ const patchImageCrossOrigin = () => {
     window.__live2dImagePatched = true
 }
 
+const syncInjectedWidgetVisibility = (visible: boolean) => {
+    if (!import.meta.client) {
+        return
+    }
+
+    const elements = ['waifu', 'waifu-toggle']
+        .map((id) => document.getElementById(id))
+        .filter((element): element is HTMLElement => element instanceof HTMLElement)
+
+    for (const element of elements) {
+        if (visible) {
+            element.style.removeProperty('display')
+            element.removeAttribute('data-route-hidden')
+            continue
+        }
+
+        element.style.setProperty('display', 'none')
+        element.setAttribute('data-route-hidden', 'true')
+    }
+}
+
 const initLive2d = async () => {
-    if (isInitialized.value || !shouldLoadLive2d()) return
+    if (isInitialized.value || !shouldLoadLive2d() || !shouldShowLive2d.value) return
 
     try {
         patchImageCrossOrigin()
@@ -194,12 +259,45 @@ const initLive2d = async () => {
     }
 }
 
-onMounted(() => {
-    if (!shouldLoadLive2d()) return
+const scheduleLive2dInit = () => {
+    if (isInitialized.value || isInitScheduled.value || !shouldLoadLive2d() || !shouldShowLive2d.value) {
+        return
+    }
+
+    isInitScheduled.value = true
 
     runWhenIdle(() => {
-        initLive2d()
+        isInitScheduled.value = false
+        void initLive2d()
     }, { timeout: 4000, fallbackDelay: 1200 })
+}
+
+const syncLive2dState = () => {
+    syncInjectedWidgetVisibility(shouldShowLive2d.value)
+
+    if (shouldShowLive2d.value) {
+        scheduleLive2dInit()
+    }
+}
+
+watch([
+    () => route.path,
+    () => config.value.enabled,
+], () => {
+    if (!import.meta.client) {
+        return
+    }
+
+    syncLive2dState()
+})
+
+onMounted(() => {
+    isInitialized.value = Boolean(document.getElementById('waifu') || document.getElementById('waifu-toggle'))
+    syncLive2dState()
+})
+
+onUnmounted(() => {
+    syncInjectedWidgetVisibility(false)
 })
 </script>
 
