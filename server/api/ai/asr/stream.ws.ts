@@ -23,6 +23,7 @@ interface PeerWithVolcState {
     request?: Request
     volcClient?: WebSocket
     initialized?: boolean
+    initializing?: boolean
     userId?: string
     authorized?: boolean
     authReady?: boolean
@@ -79,8 +80,13 @@ export default defineWebSocketHandler({
                     return
                 }
 
+                if (currentPeer.initializing) {
+                    return
+                }
+
                 logger.info(`[ASR-WS] Received start from peer=${currentPeer.id}, lang=${String(data.language || 'zh-CN')}, mime=${String(data.mimeType || 'unknown')}`)
 
+                currentPeer.initializing = true
                 await startVolcengineSession(currentPeer, {
                     language: typeof data.language === 'string' ? data.language : 'zh-CN',
                     mimeType: typeof data.mimeType === 'string' ? data.mimeType : 'audio/ogg;codecs=opus',
@@ -137,6 +143,7 @@ export default defineWebSocketHandler({
 
     close(peer) {
         const currentPeer = peer as PeerWithVolcState
+        currentPeer.initializing = false
         if (currentPeer.volcClient) {
             currentPeer.volcClient.close()
         }
@@ -166,6 +173,7 @@ async function startVolcengineSession(peer: PeerWithVolcState, options: { langua
     }
 
     if (!appId || !accessKey) {
+        peer.initializing = false
         peer.send(JSON.stringify({
             type: 'error',
             message: 'ASR configuration missing: appId/accessKey',
@@ -180,6 +188,7 @@ async function startVolcengineSession(peer: PeerWithVolcState, options: { langua
     peer.streamErrored = false
     peer.streamUnavailableNotified = false
     peer.requestSequence = 1
+    peer.initialized = false
 
     logger.info(`[ASR-WS] Starting Volcengine session peer=${peer.id}, endpoint=${endpoint}, resourceId=${resourceId}, format=${format}, codec=${codec}, rate=${rate}`)
 
@@ -231,6 +240,7 @@ async function startVolcengineSession(peer: PeerWithVolcState, options: { langua
             volcClient.send(buildVolcengineFullClientRequestFrame(fullRequestPayload, sequence))
             peer.requestSequence = sequence + 1
             peer.initialized = true
+            peer.initializing = false
             logger.info(`[ASR-WS] Volcengine socket open peer=${peer.id}`)
             peer.send(JSON.stringify({ type: 'started' }))
         })
@@ -243,6 +253,7 @@ async function startVolcengineSession(peer: PeerWithVolcState, options: { langua
                 logger.warn(`[ASR-WS] Volcengine server error peer=${peer.id} code=${packet.code} msg=${packet.message}`)
                 peer.streamErrored = true
                 peer.initialized = false
+                peer.initializing = false
                 peer.send(JSON.stringify({
                     type: 'error',
                     message: `Volcengine ASR Error(${packet.code}): ${packet.message}`,
@@ -283,6 +294,7 @@ async function startVolcengineSession(peer: PeerWithVolcState, options: { langua
             logger.error('[ASR-WS] Volcengine socket error', error)
             peer.streamErrored = true
             peer.initialized = false
+            peer.initializing = false
             peer.send(JSON.stringify({
                 type: 'error',
                 message: error.message || 'Volcengine websocket error',
@@ -297,10 +309,12 @@ async function startVolcengineSession(peer: PeerWithVolcState, options: { langua
         volcClient.on('close', () => {
             peer.volcClient = undefined
             peer.initialized = false
+            peer.initializing = false
             logger.info('[ASR-WS] Volcengine connection closed')
         })
     } catch (error: any) {
         logger.error('[ASR-WS] Failed to start Volcengine session', error)
+        peer.initializing = false
         peer.send(JSON.stringify({
             type: 'error',
             message: error.message || 'Failed to start Volcengine ASR stream',

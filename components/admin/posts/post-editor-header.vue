@@ -289,7 +289,9 @@ const {
     startListening,
     stopListening,
     reset: resetVoice,
-} = usePostEditorVoice()
+} = usePostEditorVoice({
+    directMode: true,
+})
 
 const handleVoiceClick = (event: any) => {
     if (isListening.value) {
