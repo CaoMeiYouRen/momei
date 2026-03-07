@@ -67,7 +67,7 @@
                 </template>
                 <template #content>
                     <div class="card-value card-value--compact">
-                        {{ formatNumber(stats.overview?.quotaUnits) }}
+                        {{ formatDecimal(stats.overview?.quotaUnits) }}
                     </div>
                 </template>
             </Card>
@@ -132,7 +132,7 @@
                             class="stats-item"
                         >
                             <span class="label">{{ $t(`pages.admin.ai.types.${categoryItem.category}`) }}</span>
-                            <Tag :value="formatNumber(categoryItem.quotaUnits)" severity="info" />
+                            <Tag :value="formatDecimal(categoryItem.quotaUnits)" severity="info" />
                         </div>
                     </div>
                 </template>
@@ -184,6 +184,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatCurrency, formatDecimal } from '@/utils/shared/number'
+
 const props = defineProps<{
     stats: any
     loading: boolean
@@ -195,14 +197,6 @@ const getTotalTasks = () => {
 
 const getStatusCount = (status: string) => {
     return props.stats?.statusStats?.find((s: any) => s.status === status)?.count || 0
-}
-
-const formatNumber = (value: number) => {
-    return Number(value || 0).toFixed(2)
-}
-
-const formatCurrency = (value: number) => {
-    return `$${Number(value || 0).toFixed(4)}`
 }
 
 const formatPercent = (value: number) => {

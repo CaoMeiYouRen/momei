@@ -210,6 +210,7 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs'
+import { formatCurrency, formatDecimal } from '@/utils/shared/number'
 
 const props = defineProps<{
     tasks: any[]
@@ -278,10 +279,6 @@ const getChargeStatusSeverity = (status: string) => {
 const formatDateTime = (date: any) => {
     return dayjs(date).format('YYYY-MM-DD HH:mm')
 }
-
-const formatDecimal = (value: number) => Number(value || 0).toFixed(2)
-
-const formatCurrency = (value: number) => `$${Number(value || 0).toFixed(4)}`
 </script>
 
 <style lang="scss" scoped>

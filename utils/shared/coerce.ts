@@ -8,7 +8,29 @@ export const toBoolean = (value: unknown, fallback = false): boolean => {
     return fallback
 }
 
-export const toNumber = (value: unknown, fallback: number): number => {
+export const toNumber = (value: unknown, fallback = 0): number => {
     const num = Number(value)
     return Number.isFinite(num) ? num : fallback
+}
+
+export const parseMaybeJson = <T = Record<string, unknown>>(value: unknown, fallback?: T): T => {
+    const normalizedFallback = fallback ?? ({} as T)
+
+    if (!value) {
+        return normalizedFallback
+    }
+
+    if (typeof value === 'string') {
+        try {
+            return JSON.parse(value) as T
+        } catch {
+            return normalizedFallback
+        }
+    }
+
+    if (typeof value === 'object') {
+        return value as T
+    }
+
+    return normalizedFallback
 }

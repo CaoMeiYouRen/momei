@@ -1,4 +1,6 @@
 import type { AICategory, AIChargeStatus, AIFailureStage, AIUsageSnapshot } from '@/types/ai'
+import { parseMaybeJson, toNumber } from '@/utils/shared/coerce'
+import { roundTo } from '@/utils/shared/number'
 
 type GovernanceCategory = Exclude<AICategory, 'video'>
 
@@ -27,41 +29,7 @@ const CATEGORY_WEIGHTS: Record<GovernanceCategory, number> = {
     podcast: 6,
 }
 
-function roundTo(value: number, digits: number = 2) {
-    return Number(value.toFixed(digits))
-}
-
-function toNumber(value: unknown): number | undefined {
-    if (typeof value === 'number' && Number.isFinite(value)) {
-        return value
-    }
-    if (typeof value === 'string' && value.trim()) {
-        const parsed = Number(value)
-        if (Number.isFinite(parsed)) {
-            return parsed
-        }
-    }
-    return undefined
-}
-
-function parseMaybeJson<T = Record<string, any>>(value: unknown): T {
-    if (!value) {
-        return {} as T
-    }
-    if (typeof value === 'string') {
-        try {
-            return JSON.parse(value) as T
-        } catch {
-            return {} as T
-        }
-    }
-    if (typeof value === 'object') {
-        return value as T
-    }
-    return {} as T
-}
-
-function getPayloadTextLength(payload: Record<string, any>) {
+function getPayloadTextLength(payload: Record<string, unknown>) {
     const directText = [payload.text, payload.script, payload.content, payload.sectionContent, payload.title, payload.name]
         .filter((item): item is string => typeof item === 'string')
         .join('\n')
@@ -81,7 +49,7 @@ function getPayloadTextLength(payload: Record<string, any>) {
     return 0
 }
 
-function getImageResolution(payload: Record<string, any>, response: Record<string, any>) {
+function getImageResolution(payload: Record<string, unknown>, response: Record<string, unknown>) {
     if (typeof payload.size === 'string') {
         return payload.size
     }
@@ -108,25 +76,25 @@ export function normalizeTaskCategory(category?: string | null, type?: string | 
 }
 
 export function normalizeUsageSnapshot(options: NormalizeUsageOptions): AIUsageSnapshot {
-    const payload = parseMaybeJson<Record<string, any>>(options.payload)
-    const response = parseMaybeJson<Record<string, any>>(options.response)
-    const usage = parseMaybeJson<Record<string, any>>(response.usage)
+    const payload = parseMaybeJson<Record<string, unknown>>(options.payload)
+    const response = parseMaybeJson<Record<string, unknown>>(options.response)
+    const usage = parseMaybeJson<Record<string, unknown>>(response.usage)
     const normalizedCategory = normalizeTaskCategory(options.category, options.type)
 
     const snapshot: AIUsageSnapshot = {
         requestCount: 1,
     }
 
-    const promptTokens = toNumber(usage.promptTokens)
-    const completionTokens = toNumber(usage.completionTokens)
-    const totalTokens = toNumber(usage.totalTokens)
-    if (promptTokens !== undefined) {
+    const promptTokens = toNumber(usage.promptTokens, Number.NaN)
+    const completionTokens = toNumber(usage.completionTokens, Number.NaN)
+    const totalTokens = toNumber(usage.totalTokens, Number.NaN)
+    if (Number.isFinite(promptTokens)) {
         snapshot.promptTokens = promptTokens
     }
-    if (completionTokens !== undefined) {
+    if (Number.isFinite(completionTokens)) {
         snapshot.completionTokens = completionTokens
     }
-    if (totalTokens !== undefined) {
+    if (Number.isFinite(totalTokens)) {
         snapshot.totalTokens = totalTokens
     }
 
@@ -146,7 +114,7 @@ export function normalizeUsageSnapshot(options: NormalizeUsageOptions): AIUsageS
     if (normalizedCategory === 'image') {
         const imageCount = Array.isArray(response.images)
             ? response.images.length
-            : toNumber(payload.n) || 1
+            : toNumber(payload.n, 1)
         snapshot.imageCount = imageCount
         const resolution = getImageResolution(payload, response)
         if (resolution) {
@@ -155,9 +123,16 @@ export function normalizeUsageSnapshot(options: NormalizeUsageOptions): AIUsageS
     }
 
     if (normalizedCategory === 'asr') {
-        const audioSeconds = toNumber(usage.audioSeconds)
-            ?? toNumber(response.duration)
-            ?? options.audioDuration
+        const usageAudioSeconds = toNumber(usage.audioSeconds, Number.NaN)
+        const responseAudioSeconds = toNumber(response.duration, Number.NaN)
+        let audioSeconds = options.audioDuration
+
+        if (Number.isFinite(usageAudioSeconds)) {
+            audioSeconds = usageAudioSeconds
+        } else if (Number.isFinite(responseAudioSeconds)) {
+            audioSeconds = responseAudioSeconds
+        }
+
         if (audioSeconds !== undefined && audioSeconds > 0) {
             snapshot.audioSeconds = audioSeconds
         }
@@ -170,7 +145,7 @@ export function normalizeUsageSnapshot(options: NormalizeUsageOptions): AIUsageS
     return snapshot
 }
 
-function getImageModelFactor(snapshot: AIUsageSnapshot, payload: Record<string, any>) {
+function getImageModelFactor(snapshot: AIUsageSnapshot, payload: Record<string, unknown>) {
     const resolution = snapshot.imageResolution || ''
     if (/2048|1792/i.test(resolution) || payload.quality === 'hd') {
         return 2
@@ -193,7 +168,7 @@ export function calculateQuotaUnits(options: {
         type: options.type || undefined,
         payload: options.payload,
     })
-    const payload = parseMaybeJson<Record<string, any>>(options.payload)
+    const payload = parseMaybeJson<Record<string, unknown>>(options.payload)
 
     let baseMeasure = 1
     if (normalizedCategory === 'text') {
@@ -218,7 +193,11 @@ export function calculateQuotaUnits(options: {
 }
 
 export function inferFailureStage(error: unknown, fallback: AIFailureStage = 'provider_processing'): AIFailureStage {
-    const statusCode = toNumber((error as any)?.statusCode) ?? toNumber((error as any)?.status)
+    const rawError = parseMaybeJson<Record<string, unknown>>(error)
+    const primaryStatusCode = toNumber(rawError.statusCode, Number.NaN)
+    const secondaryStatusCode = toNumber(rawError.status, Number.NaN)
+    const statusCode = Number.isFinite(primaryStatusCode) ? primaryStatusCode : secondaryStatusCode
+
     if (statusCode && [400, 401, 403, 404, 409, 413, 422, 429].includes(statusCode)) {
         return 'provider_rejected'
     }

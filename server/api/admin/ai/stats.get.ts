@@ -1,11 +1,7 @@
 import { dataSource } from '~/server/database'
 import { AITask } from '~/server/entities/ai-task'
 import { User } from '~/server/entities/user'
-
-function toNumber(value: unknown) {
-    const num = Number(value || 0)
-    return Number.isFinite(num) ? num : 0
-}
+import { toNumber } from '@/utils/shared/coerce'
 
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)

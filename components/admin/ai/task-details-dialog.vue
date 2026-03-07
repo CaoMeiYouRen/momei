@@ -203,6 +203,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatCurrency, formatDecimal } from '@/utils/shared/number'
+
 defineProps<{
     visible: boolean
     task: any
@@ -247,10 +249,6 @@ const formatSize = (bytes: number) => {
     const i = Math.floor(Math.log(bytes) / Math.log(k))
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
-
-const formatCurrency = (value: number) => `$${Number(value || 0).toFixed(4)}`
-
-const formatDecimal = (value: number) => Number(value || 0).toFixed(2)
 
 const formatDuration = (durationMs: number) => {
     const ms = Number(durationMs || 0)
