@@ -1,14 +1,18 @@
-import { describe, it, expect, vi, beforeAll } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
     generateASRCredentials,
-    verifyASRSecurityToken,
     getASRConfigStatus,
 } from '@/server/utils/ai/asr-credentials'
 import { SettingKey } from '@/types/setting'
 
-// Mock environment variables for tests
+const fetchMock = vi.fn()
+
 beforeAll(() => {
-    vi.stubEnv('WEBHOOK_SECRET', 'test-webhook-secret')
+    vi.stubGlobal('fetch', fetchMock)
+})
+
+afterAll(() => {
+    vi.unstubAllGlobals()
 })
 
 describe('ASR Credentials Utility', () => {
@@ -27,12 +31,21 @@ describe('ASR Credentials Utility', () => {
         [SettingKey.ASR_VOLCENGINE_CLUSTER_ID]: 'test-cluster',
     }
 
+    beforeEach(() => {
+        fetchMock.mockReset()
+        fetchMock.mockResolvedValue({
+            ok: true,
+            json: () => Promise.resolve({
+                jwt_token: 'temporary-jwt-token',
+            }),
+        })
+    })
+
     describe('generateASRCredentials', () => {
-        it('should generate SiliconFlow batch credentials', () => {
-            const credentials = generateASRCredentials({
+        it('should generate SiliconFlow batch credentials', async () => {
+            const credentials = await generateASRCredentials({
                 provider: 'siliconflow',
                 mode: 'batch',
-                userId: 'user-123',
                 connectId: 'connect-123',
                 settings: mockSettings,
                 expiresIn: 5 * 60 * 1000,
@@ -40,23 +53,22 @@ describe('ASR Credentials Utility', () => {
 
             expect(credentials.provider).toBe('siliconflow')
             expect(credentials.mode).toBe('batch')
+            expect(credentials.authType).toBe('bearer')
             expect(credentials.apiKey).toBe('test-siliconflow-key')
             expect(credentials.model).toBe('FunAudioLLM/SenseVoiceSmall')
             expect(credentials.endpoint).toBe('https://api.siliconflow.cn/v1')
-            expect(credentials.securityToken).toBeDefined()
             expect(credentials.expiresAt).toBeGreaterThan(Date.now())
         })
 
-        it('should fallback to generic API key for SiliconFlow', () => {
+        it('should fallback to generic API key for SiliconFlow', async () => {
             const settingsWithoutSpecificKey = {
                 ...mockSettings,
                 [SettingKey.ASR_SILICONFLOW_API_KEY]: undefined,
             }
 
-            const credentials = generateASRCredentials({
+            const credentials = await generateASRCredentials({
                 provider: 'siliconflow',
                 mode: 'batch',
-                userId: 'user-123',
                 connectId: 'connect-123',
                 settings: settingsWithoutSpecificKey,
                 expiresIn: 5 * 60 * 1000,
@@ -65,11 +77,10 @@ describe('ASR Credentials Utility', () => {
             expect(credentials.apiKey).toBe('test-generic-key')
         })
 
-        it('should generate Volcengine stream credentials', () => {
-            const credentials = generateASRCredentials({
+        it('should generate Volcengine stream credentials with temporary jwt query auth', async () => {
+            const credentials = await generateASRCredentials({
                 provider: 'volcengine',
                 mode: 'stream',
-                userId: 'user-123',
                 connectId: 'connect-123',
                 settings: mockSettings,
                 expiresIn: 5 * 60 * 1000,
@@ -77,111 +88,78 @@ describe('ASR Credentials Utility', () => {
 
             expect(credentials.provider).toBe('volcengine')
             expect(credentials.mode).toBe('stream')
+            expect(credentials.authType).toBe('query')
             expect(credentials.appId).toBe('test-app-id')
-            expect(credentials.authHeaders).toBeDefined()
-            expect(credentials.authHeaders?.['X-Api-App-Id']).toBe('test-app-id')
-            expect(credentials.authHeaders?.['X-Api-Access-Key']).toBe('test-access-key')
-            expect(credentials.securityToken).toBeDefined()
+            expect(credentials.jwtToken).toBe('temporary-jwt-token')
+            expect(credentials.authQuery).toEqual({
+                api_resource_id: 'test-cluster',
+                api_app_key: 'test-app-id',
+                api_access_key: 'Jwt; temporary-jwt-token',
+            })
+            expect(credentials.temporaryUserId).toBeTruthy()
+            expect(fetchMock).toHaveBeenCalledTimes(1)
+            expect(fetchMock).toHaveBeenCalledWith(
+                'https://openspeech.bytedance.com/api/v1/sts/token',
+                expect.objectContaining({
+                    method: 'POST',
+                    headers: expect.objectContaining({
+                        Authorization: 'Bearer; test-access-key',
+                    }),
+                }),
+            )
         })
 
-        it('should throw error when SiliconFlow API key is missing', () => {
-            const emptySettings: Record<string, string | undefined> = {}
-
-            expect(() => generateASRCredentials({
-                provider: 'siliconflow',
-                mode: 'batch',
-                userId: 'user-123',
-                connectId: 'connect-123',
-                settings: emptySettings,
-                expiresIn: 5 * 60 * 1000,
-            })).toThrow()
-        })
-
-        it('should throw error when Volcengine credentials are missing', () => {
-            const emptySettings: Record<string, string | undefined> = {}
-
-            expect(() => generateASRCredentials({
+        it('should clamp volcengine token duration to provider minimum', async () => {
+            await generateASRCredentials({
                 provider: 'volcengine',
                 mode: 'stream',
-                userId: 'user-123',
+                connectId: 'connect-123',
+                settings: mockSettings,
+                expiresIn: 1000,
+            })
+
+            const requestInit = fetchMock.mock.calls[0]?.[1] as RequestInit
+            const body = JSON.parse(typeof requestInit.body === 'string' ? requestInit.body : '{}')
+
+            expect(body.duration).toBe(300)
+        })
+
+        it('should throw error when SiliconFlow API key is missing', async () => {
+            const emptySettings: Record<string, string | undefined> = {}
+
+            await expect(generateASRCredentials({
+                provider: 'siliconflow',
+                mode: 'batch',
                 connectId: 'connect-123',
                 settings: emptySettings,
                 expiresIn: 5 * 60 * 1000,
-            })).toThrow()
+            })).rejects.toThrow()
         })
-    })
 
-    describe('verifyASRSecurityToken', () => {
-        it('should verify valid security token', () => {
-            const credentials = generateASRCredentials({
-                provider: 'siliconflow',
-                mode: 'batch',
-                userId: 'user-123',
+        it('should throw error when Volcengine credentials are missing', async () => {
+            const emptySettings: Record<string, string | undefined> = {}
+
+            await expect(generateASRCredentials({
+                provider: 'volcengine',
+                mode: 'stream',
+                connectId: 'connect-123',
+                settings: emptySettings,
+                expiresIn: 5 * 60 * 1000,
+            })).rejects.toThrow()
+        })
+        it('should throw error when Volcengine token api returns invalid payload', async () => {
+            fetchMock.mockResolvedValueOnce({
+                ok: true,
+                json: () => Promise.resolve({ foo: 'bar' }),
+            })
+
+            await expect(generateASRCredentials({
+                provider: 'volcengine',
+                mode: 'stream',
                 connectId: 'connect-123',
                 settings: mockSettings,
                 expiresIn: 5 * 60 * 1000,
-            })
-
-            const isValid = verifyASRSecurityToken(
-                'user-123',
-                'connect-123',
-                credentials.expiresAt,
-                credentials.securityToken,
-            )
-
-            expect(isValid).toBe(true)
-        })
-
-        it('should reject invalid security token', () => {
-            const isValid = verifyASRSecurityToken(
-                'user-123',
-                'connect-123',
-                Date.now() + 5 * 60 * 1000,
-                'invalid-token',
-            )
-
-            expect(isValid).toBe(false)
-        })
-
-        it('should reject expired token', () => {
-            const credentials = generateASRCredentials({
-                provider: 'siliconflow',
-                mode: 'batch',
-                userId: 'user-123',
-                connectId: 'connect-123',
-                settings: mockSettings,
-                expiresIn: 5 * 60 * 1000,
-            })
-
-            // Simulate expired token by using past timestamp
-            const isValid = verifyASRSecurityToken(
-                'user-123',
-                'connect-123',
-                Date.now() - 1000, // 1 second ago
-                credentials.securityToken,
-            )
-
-            expect(isValid).toBe(false)
-        })
-
-        it('should reject token with wrong user ID', () => {
-            const credentials = generateASRCredentials({
-                provider: 'siliconflow',
-                mode: 'batch',
-                userId: 'user-123',
-                connectId: 'connect-123',
-                settings: mockSettings,
-                expiresIn: 5 * 60 * 1000,
-            })
-
-            const isValid = verifyASRSecurityToken(
-                'wrong-user',
-                'connect-123',
-                credentials.expiresAt,
-                credentials.securityToken,
-            )
-
-            expect(isValid).toBe(false)
+            })).rejects.toThrow()
         })
     })
 

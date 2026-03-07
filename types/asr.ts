@@ -18,7 +18,6 @@ export type ASRMode = 'batch' | 'stream'
 export interface ASRCredentialsOptions {
     provider: ASRProvider
     mode: ASRMode
-    userId: string
     connectId: string
     settings: Record<string, string | undefined>
     expiresIn: number
@@ -32,6 +31,8 @@ export interface ASRCredentials {
     provider: ASRProvider
     /** 模式 */
     mode: ASRMode
+    /** 鉴权方式 */
+    authType: 'bearer' | 'query'
     /** 过期时间 (毫秒时间戳) */
     expiresAt: number
     /** 连接端点 */
@@ -44,12 +45,14 @@ export interface ASRCredentials {
     model?: string
     /** 火山引擎 App ID (仅 stream 模式) */
     appId?: string
-    /** 火山引擎认证头 (仅 stream 模式) */
-    authHeaders?: Record<string, string>
+    /** 火山引擎临时 JWT (仅 stream 模式) */
+    jwtToken?: string
+    /** 火山引擎 Query 鉴权参数 (仅 stream 模式) */
+    authQuery?: Record<string, string>
     /** 资源 ID */
     resourceId?: string
-    /** 安全令牌 (用于后端验证) */
-    securityToken: string
+    /** 前端会话使用的临时 UID */
+    temporaryUserId?: string
 }
 
 /**

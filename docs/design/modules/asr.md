@@ -63,7 +63,8 @@ graph TD
 
 - **临时凭证**: 通过 `/api/ai/asr/credentials` 获取临时签名凭证
 - **有效期**: 凭证 5 分钟有效期，过期需重新获取
-- **签名验证**: 使用 HMAC-SHA256 签名，绑定用户 ID 和连接 ID
+- **火山引擎直连**: 服务端使用 `appid + access token` 换取临时 JWT，前端不再接触永久 Access Key
+- **临时身份**: 前端直连会话统一使用服务端签发的临时 `uid`，避免暴露站内永久用户标识
 - **权限控制**: 仅 Admin 和 Author 角色可获取凭证
 
 ### 6.3 支持的直连模式
@@ -71,7 +72,7 @@ graph TD
 | 厂商 | 模式 | 直连方式 |
 |-----|------|---------|
 | SiliconFlow | Batch | HTTP REST (Bearer Token) |
-| Volcengine | Stream | WebSocket (签名 Headers) |
+| Volcengine | Stream | WebSocket (Query JWT) |
 
 ### 6.4 相关文件
 

@@ -39,210 +39,103 @@ graph TD
     F -->|完成| G[获取结果]
 ```
 
-## 3. 前端直连签名机制
+## 3. 前端直连临时 JWT 机制
 
-### 3.1 签名方案
+### 3.1 设计目标
 
-使用 HMAC-SHA256 签名，允许前端直接调用 AI 厂商 API，无需后端转发。
+- 服务端只向前端发放短时有效的临时 JWT，不暴露永久 Access Key
+- 浏览器 WebSocket 通过 Query 参数完成鉴权，不依赖自定义握手 Header
+- 前端请求体中的 `uid` 使用临时会话 ID，而非站内永久用户 ID
 
-**位置**: `server/services/ai/signature.ts`
+### 3.2 服务端凭证颁发
 
-```typescript
-import crypto from 'node:crypto'
-
-interface SignaturePayload {
-  provider: 'siliconflow' | 'volcengine'
-  timestamp: number
-  nonce: string
-  userId?: string
-}
-
-interface SignatureResult {
-  signature: string
-  payload: SignaturePayload
-  expiresIn: number // 签名有效期（秒）
-  provider: string
-  endpoint: string // 厂商 API 端点
-  headers: Record<string, string> // 额外的请求头
-}
-
-/**
- * 生成前端直连签名
- * @param userId 用户 ID
- * @param provider AI 提供商
- * @returns 签名结果
- */
-export async function generateDirectAccessSignature(
-  userId?: string,
-  provider: 'siliconflow' | 'volcengine' = 'siliconflow'
-): Promise<SignatureResult> {
-  const timestamp = Date.now()
-  const nonce = crypto.randomBytes(16).toString('hex')
-  const expiresIn = 300 // 5 分钟有效期
-
-  const payload: SignaturePayload = {
-    provider,
-    timestamp,
-    nonce,
-    userId,
-  }
-
-  // 构建签名字符串
-  const message = JSON.stringify(payload)
-  const secret = getProviderSecret(provider)
-
-  // 生成 HMAC-SHA256 签名
-  const signature = crypto
-    .createHmac('sha256', secret)
-    .update(message)
-    .digest('hex')
-
-  return {
-    signature,
-    payload,
-    expiresIn,
-    provider,
-    endpoint: getProviderEndpoint(provider),
-    headers: await getProviderHeaders(provider),
-  }
-}
-
-function getProviderSecret(provider: string): string {
-  switch (provider) {
-    case 'siliconflow':
-      return process.env.SILICONFLOW_API_KEY!
-    case 'volcengine':
-      return process.env.VOLCENGINE_ACCESS_KEY!
-    default:
-      throw new Error(`Unknown provider: ${provider}`)
-  }
-}
-
-function getProviderEndpoint(provider: string): string {
-  switch (provider) {
-    case 'siliconflow':
-      return 'https://api.siliconflow.cn/v1/audio/transcriptions'
-    case 'volcengine':
-      return process.env.VOLCENGINE_ASR_ENDPOINT || ''
-    default:
-      throw new Error(`Unknown provider: ${provider}`)
-  }
-}
-```
-
-### 3.2 签名验证端点
+当前落地范围为 **Volcengine 大模型 ASR 直连**。服务端使用 `appid + access token` 调用火山 STS 接口换取临时 JWT，然后把 Query 鉴权参数与临时 `uid` 返回给前端。
 
 ```typescript
-// server/api/ai/asr/signature.get.ts
-export default defineEventHandler(async (event) => {
-  const user = await requireAuth(event)
-  const query = getQuery(event)
+import { z } from 'zod'
 
-  const provider = (query.provider as 'siliconflow' | 'volcengine') || 'siliconflow'
-
-  const result = await generateDirectAccessSignature(user.id, provider)
-
-  return {
-    code: 0,
-    data: result,
-  }
+const VolcengineTokenResponseSchema = z.object({
+  jwt_token: z.string().min(1),
 })
-```
 
-### 3.3 前端签名调用
+async function requestVolcengineJWTToken(appId: string, accessKey: string, durationSeconds: number) {
+  const response = await fetch('https://openspeech.bytedance.com/api/v1/sts/token', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer; ${accessKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      appid: appId,
+      duration: durationSeconds,
+    }),
+  })
 
-**位置**: `composables/useAsrDirectClient.ts`
+  const payload = await response.json()
+  const parsed = VolcengineTokenResponseSchema.parse(payload)
 
-```typescript
-import { hmac } from '@noble/hash/hmac'
-import { sha256 } from '@noble/hash/sha256'
-
-interface DirectTranscribeOptions {
-  audioFile: File
-  provider?: 'siliconflow' | 'volcengine'
-  model?: string
-  language?: string
+  return parsed.jwt_token
 }
 
-interface AsrSignature {
-  signature: string
-  payload: {
-    provider: string
-    timestamp: number
-    nonce: string
-    userId?: string
-  }
-  expiresIn: number
-  endpoint: string
-  headers: Record<string, string>
-}
-
-export function useAsrDirectClient() {
-  async function getSignature(provider: 'siliconflow' | 'volcengine' = 'siliconflow') {
-    const { data, error } = await useFetch<ApiResult<AsrSignature>>('/api/ai/asr/signature', {
-      method: 'GET',
-      query: { provider },
-    })
-
-    if (error.value || !data.value?.data) {
-      throw new Error('Failed to get signature')
-    }
-
-    return data.value.data
-  }
-
-  async function transcribeDirect(options: DirectTranscribeOptions) {
-    const { audioFile, provider = 'siliconflow', model = 'whisper-1', language = 'zh' } = options
-
-    // 获取签名
-    const signature = await getSignature(provider)
-
-    // 验证签名有效期
-    const now = Date.now()
-    const expiresAt = signature.payload.timestamp + signature.expiresIn * 1000
-    if (now > expiresAt) {
-      throw new Error('Signature expired')
-    }
-
-    // 准备表单数据
-    const formData = new FormData()
-    formData.append('file', audioFile)
-    formData.append('model', model)
-    formData.append('language', language)
-    formData.append('response_format', 'text')
-
-    // 添加认证信息
-    const headers: Record<string, string> = {
-      ...signature.headers,
-      'X-Signature': signature.signature,
-      'X-Signature-Payload': btoa(JSON.stringify(signature.payload)),
-    }
-
-    // 直接调用厂商 API
-    const response = await fetch(signature.endpoint, {
-      method: 'POST',
-      headers,
-      body: formData,
-    })
-
-    if (!response.ok) {
-      throw new Error(`Transcription failed: ${response.statusText}`)
-    }
-
-    const text = await response.text()
-
-    return {
-      text,
-      provider,
-      duration: audioFile.size, // 简化，实际应该计算音频时长
-    }
-  }
+export async function issueVolcengineDirectASRCredentials(appId: string, accessKey: string) {
+  const jwtToken = await requestVolcengineJWTToken(appId, accessKey, 300)
 
   return {
-    transcribeDirect,
+    endpoint: 'wss://openspeech.bytedance.com/api/v3/sauc/bigmodel',
+    expiresIn: 300,
+    temporaryUserId: crypto.randomUUID(),
+    authQuery: {
+      api_resource_id: 'volc.bigasr.sauc.duration',
+      api_app_key: appId,
+      api_access_key: `Jwt; ${jwtToken}`,
+    },
   }
 }
 ```
+
+### 3.3 前端 Query 鉴权
+
+```typescript
+export function buildFullUrl(url: string, auth: Record<string, string>) {
+  const fullUrl = new URL(url)
+
+  Object.entries(auth).forEach(([key, value]) => {
+    fullUrl.searchParams.set(key, value)
+  })
+
+  return fullUrl.toString()
+}
+
+const socketUrl = buildFullUrl('wss://openspeech.bytedance.com/api/v3/sauc/bigmodel', {
+  api_resource_id: 'volc.bigasr.sauc.duration',
+  api_app_key: appId,
+  api_access_key: `Jwt; ${jwtToken}`,
+})
+
+const ws = new WebSocket(socketUrl)
+
+const requestPayload = {
+  user: {
+    uid: temporaryUserId,
+  }
+  audio: {
+    format: 'pcm',
+    rate: 16000,
+    bits: 16,
+    channel: 1,
+  },
+  request: {
+    model_name: 'bigmodel',
+    show_utterances: true,
+  }
+}
+```
+
+### 3.4 方案边界
+
+- 当前已实现：Volcengine 大模型 ASR 前端直连，使用临时 JWT + Query 鉴权
+- 当前保留：SiliconFlow 批量直连仍为 Bearer Token 模式，后续若厂商支持临时凭证再进一步收敛
+- TTS 双向流与单向流可复用相同的 STS JWT 思路，但暂未接入当前编辑器直连链路
 
 ## 4. Wasm 音频压缩
 

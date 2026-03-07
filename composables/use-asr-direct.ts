@@ -1,5 +1,5 @@
-import { ref, onUnmounted, computed } from 'vue'
-import type { ASRProvider, ASRMode, ASRCredentials, CompressionLevel } from '~/types/asr'
+import { computed, onUnmounted, ref } from 'vue'
+import type { ASRCredentials, ASRMode, ASRProvider, CompressionLevel } from '~/types/asr'
 
 export interface ASRDirectOptions {
     provider: ASRProvider
@@ -7,6 +7,44 @@ export interface ASRDirectOptions {
     language?: string
     compressionLevel?: CompressionLevel
 }
+
+interface VolcengineResponsePacket {
+    type: 'response'
+    data: unknown
+    isFinal: boolean
+}
+
+interface VolcengineErrorPacket {
+    type: 'error'
+    code: number
+    message: string
+}
+
+interface VolcengineUnknownPacket {
+    type: 'unknown'
+}
+
+type VolcengineServerPacket = VolcengineResponsePacket | VolcengineErrorPacket | VolcengineUnknownPacket
+
+const VOLCENGINE_MESSAGE_TYPE = {
+    fullClientRequest: 0b0001,
+    audioOnlyRequest: 0b0010,
+    fullServerResponse: 0b1001,
+    error: 0b1111,
+} as const
+
+const VOLCENGINE_SERIALIZATION = {
+    none: 0b0000,
+    json: 0b0001,
+} as const
+
+const VOLCENGINE_COMPRESSION = {
+    none: 0b0000,
+    gzip: 0b0001,
+} as const
+
+const textEncoder = new TextEncoder()
+const textDecoder = new TextDecoder()
 
 /**
  * ASR 前端直连 Composable
@@ -23,7 +61,7 @@ export function useASRDirect(options: ASRDirectOptions) {
 
     let ws: WebSocket | null = null
     let credentials: ASRCredentials | null = null
-    let audioContext: AudioContext | null = null
+    let requestSequence = 1
 
     // 计算属性
     const isReady = computed(() => isConnected.value && !isProcessing.value)
@@ -74,8 +112,8 @@ export function useASRDirect(options: ASRDirectOptions) {
 
             isConnected.value = true
             isConnecting.value = false
-        } catch (err: any) {
-            error.value = err.message || 'connection_failed'
+        } catch (err: unknown) {
+            error.value = toError(err).message || 'connection_failed'
             isConnecting.value = false
             throw err
         }
@@ -85,70 +123,120 @@ export function useASRDirect(options: ASRDirectOptions) {
      * 建立火山引擎 WebSocket 直连 (流式模式)
      */
     const connectVolcengineWebSocket = async (creds: ASRCredentials): Promise<void> => new Promise((resolve, reject) => {
-        // 构建 WebSocket URL (带签名参数)
-        const url = new URL(creds.endpoint)
-        if (creds.authHeaders) {
-            Object.entries(creds.authHeaders).forEach(([key, value]) => {
-                url.searchParams.set(key, value)
-            })
+        if (!creds.authQuery) {
+            reject(new Error('Missing Volcengine query auth parameters'))
+            return
         }
 
-        ws = new WebSocket(url.toString())
+        const socketUrl = buildFullUrl(creds.endpoint, creds.authQuery)
+        ws = new WebSocket(socketUrl)
+        ws.binaryType = 'arraybuffer'
 
-        ws.onopen = () => {
-            // 发送初始化请求
-            const initPayload = {
-                type: 'start',
-                language: options.language || 'zh-CN',
-                mimeType: 'audio/pcm',
-                sampleRate: 16000,
+        let settled = false
+
+        const resolveOnce = () => {
+            if (settled) {
+                return
             }
-            ws?.send(JSON.stringify(initPayload))
+            settled = true
             resolve()
         }
 
-        ws.onmessage = (event) => {
-            try {
-                const msg = JSON.parse(event.data)
-                if (msg.type === 'transcript' || msg.result) {
-                    if (msg.isFinal) {
-                        finalTranscript.value += msg.text || msg.result?.text || ''
-                        interimTranscript.value = ''
-                    } else {
-                        interimTranscript.value = msg.text || msg.result?.text || ''
-                    }
-                } else if (msg.type === 'error' || msg.error) {
-                    error.value = msg.message || msg.error || 'transcription_error'
-                }
-            } catch {
-                // 忽略解析错误
+        const rejectOnce = (reason: Error) => {
+            if (settled) {
+                return
             }
+            settled = true
+            reject(reason)
+        }
+
+        ws.onopen = () => {
+            try {
+                requestSequence = 1
+                const frame = buildVolcengineStartFrame({
+                    sequence: requestSequence,
+                    temporaryUserId: creds.temporaryUserId || createTemporaryUserId(),
+                })
+                requestSequence += 1
+                ws?.send(frame)
+                resolveOnce()
+            } catch (err: unknown) {
+                rejectOnce(toError(err))
+            }
+        }
+
+        ws.onmessage = (event) => {
+            void handleVolcengineMessage(event.data)
         }
 
         ws.onerror = () => {
             error.value = 'websocket_error'
-            reject(new Error('WebSocket connection error'))
+            rejectOnce(new Error('WebSocket connection error'))
         }
 
         ws.onclose = () => {
             isConnected.value = false
+
+            if (!settled) {
+                rejectOnce(new Error('WebSocket closed before initialization'))
+            }
         }
     })
+
+    const handleVolcengineMessage = async (rawData: Blob | ArrayBuffer | string) => {
+        try {
+            const packet = await parseVolcengineServerPacket(rawData)
+
+            if (packet.type === 'error') {
+                error.value = packet.message || `transcription_error_${packet.code}`
+                return
+            }
+
+            if (packet.type !== 'response') {
+                return
+            }
+
+            const text = extractVolcengineTranscript(packet.data)
+            if (!text) {
+                return
+            }
+
+            if (packet.isFinal || hasDefiniteUtterance(packet.data)) {
+                finalTranscript.value += text
+                interimTranscript.value = ''
+                return
+            }
+
+            interimTranscript.value = text
+        } catch (err: unknown) {
+            error.value = toError(err).message || 'response_parse_failed'
+        }
+    }
 
     /**
      * 发送音频数据 (流式模式)
      */
     const sendAudio = (pcmData: Float32Array) => {
+        if (options.mode !== 'stream' || options.provider !== 'volcengine') {
+            return
+        }
+
         if (ws?.readyState !== WebSocket.OPEN) {
             return
         }
 
-        // Base64 编码 PCM 数据
-        const base64 = encodePcmToBase64(pcmData)
-        ws.send(JSON.stringify({
-            type: 'audio',
-            payload: base64,
-        }))
+        try {
+            const audioBytes = encodePcmToInt16Bytes(pcmData)
+            const frame = buildVolcengineAudioFrame({
+                sequence: requestSequence,
+                audioBytes,
+                isFinal: false,
+            })
+            requestSequence += 1
+            ws.send(frame)
+        } catch (err: unknown) {
+            error.value = toError(err).message || 'audio_send_failed'
+        }
     }
 
     /**
@@ -190,8 +278,9 @@ export function useASRDirect(options: ASRDirectOptions) {
 
             finalTranscript.value = response.text
             return response.text
-        } catch (err: any) {
-            error.value = err.data?.error?.message || 'transcription_failed'
+        } catch (err: unknown) {
+            const fetchError = err as { data?: { error?: { message?: string } } }
+            error.value = fetchError.data?.error?.message || 'transcription_failed'
             throw err
         } finally {
             isProcessing.value = false
@@ -202,12 +291,23 @@ export function useASRDirect(options: ASRDirectOptions) {
      * 停止识别
      */
     const stop = () => {
-        if (ws?.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type: 'stop' }))
+        if (options.mode === 'stream' && options.provider === 'volcengine' && ws?.readyState === WebSocket.OPEN) {
+            try {
+                const frame = buildVolcengineAudioFrame({
+                    sequence: requestSequence,
+                    audioBytes: new Uint8Array(0),
+                    isFinal: true,
+                })
+                requestSequence += 1
+                ws.send(frame)
+            } catch (err: unknown) {
+                error.value = toError(err).message || 'stream_stop_failed'
+            }
+
             setTimeout(() => {
                 ws?.close()
                 ws = null
-            }, 500)
+            }, 800)
         }
 
         isConnected.value = false
@@ -234,10 +334,6 @@ export function useASRDirect(options: ASRDirectOptions) {
     // 清理资源
     onUnmounted(() => {
         disconnect()
-        if (audioContext) {
-            void audioContext.close()
-            audioContext = null
-        }
     })
 
     return {
@@ -261,10 +357,133 @@ export function useASRDirect(options: ASRDirectOptions) {
     }
 }
 
-/**
- * PCM Float32 转 Base64
- */
-function encodePcmToBase64(float32Samples: Float32Array): string {
+function buildFullUrl(url: string, query: Record<string, string>): string {
+    const fullUrl = new URL(url)
+
+    Object.entries(query).forEach(([key, value]) => {
+        fullUrl.searchParams.set(key, value)
+    })
+
+    return fullUrl.toString()
+}
+
+function createTemporaryUserId(): string {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID()
+    }
+
+    return `asr-${Date.now()}`
+}
+
+function toError(value: unknown): Error {
+    if (value instanceof Error) {
+        return value
+    }
+
+    return new Error(typeof value === 'string' ? value : 'unknown_error')
+}
+
+function buildVolcengineStartFrame(options: {
+    sequence: number
+    temporaryUserId: string
+}): Uint8Array {
+    const audio = {
+        format: 'pcm',
+        codec: 'raw',
+        rate: 16000,
+        bits: 16,
+        channel: 1,
+    }
+
+    const request = {
+        model_name: 'bigmodel',
+        enable_itn: true,
+        enable_punc: true,
+        show_utterances: true,
+        result_type: 'single',
+    }
+
+    const payload = textEncoder.encode(JSON.stringify({
+        user: {
+            uid: options.temporaryUserId,
+        },
+        audio,
+        request,
+    }))
+
+    return buildVolcengineBinaryFrame({
+        messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
+        messageTypeFlags: 0b0001,
+        serialization: VOLCENGINE_SERIALIZATION.json,
+        compression: VOLCENGINE_COMPRESSION.none,
+        prefixBuffers: [createSignedInt32Buffer(options.sequence)],
+        payload,
+    })
+}
+
+function buildVolcengineAudioFrame(options: {
+    sequence: number
+    audioBytes: Uint8Array
+    isFinal: boolean
+}): Uint8Array {
+    return buildVolcengineBinaryFrame({
+        messageType: VOLCENGINE_MESSAGE_TYPE.audioOnlyRequest,
+        messageTypeFlags: options.isFinal ? 0b0011 : 0b0001,
+        serialization: VOLCENGINE_SERIALIZATION.none,
+        compression: VOLCENGINE_COMPRESSION.none,
+        prefixBuffers: [createSignedInt32Buffer(options.isFinal ? -Math.abs(options.sequence) : options.sequence)],
+        payload: options.audioBytes,
+    })
+}
+
+function buildVolcengineBinaryFrame(options: {
+    messageType: number
+    messageTypeFlags: number
+    serialization: number
+    compression: number
+    prefixBuffers?: Uint8Array[]
+    payload: Uint8Array
+}): Uint8Array {
+    const header = new Uint8Array(4)
+    header[0] = (0b0001 << 4) | 0b0001
+    header[1] = (options.messageType << 4) | options.messageTypeFlags
+    header[2] = (options.serialization << 4) | options.compression
+    header[3] = 0
+
+    return concatBytes(
+        header,
+        ...(options.prefixBuffers || []),
+        createUnsignedInt32Buffer(options.payload.length),
+        options.payload,
+    )
+}
+
+function createSignedInt32Buffer(value: number): Uint8Array {
+    const buffer = new ArrayBuffer(4)
+    new DataView(buffer).setInt32(0, value, false)
+    return new Uint8Array(buffer)
+}
+
+function createUnsignedInt32Buffer(value: number): Uint8Array {
+    const buffer = new ArrayBuffer(4)
+    new DataView(buffer).setUint32(0, value, false)
+    return new Uint8Array(buffer)
+}
+
+function concatBytes(...chunks: Uint8Array[]): Uint8Array {
+    const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0)
+    const merged = new Uint8Array(totalLength)
+    let offset = 0
+
+    chunks.forEach((chunk) => {
+        merged.set(chunk, offset)
+        offset += chunk.length
+    })
+
+    return merged
+}
+
+function encodePcmToInt16Bytes(float32Samples: Float32Array): Uint8Array {
     const pcmBuffer = new ArrayBuffer(float32Samples.length * 2)
     const pcmView = new DataView(pcmBuffer)
 
@@ -275,11 +494,130 @@ function encodePcmToBase64(float32Samples: Float32Array): string {
         pcmView.setInt16(i * 2, int16, true)
     }
 
-    const pcmBytes = new Uint8Array(pcmBuffer)
-    let binary = ''
-    const chunkSize = 0x8000
-    for (let i = 0; i < pcmBytes.length; i += chunkSize) {
-        binary += String.fromCharCode(...pcmBytes.subarray(i, i + chunkSize))
+    return new Uint8Array(pcmBuffer)
+}
+
+async function parseVolcengineServerPacket(rawData: Blob | ArrayBuffer | string): Promise<VolcengineServerPacket> {
+    if (typeof rawData === 'string') {
+        return { type: 'unknown' }
     }
-    return btoa(binary)
+
+    const data = rawData instanceof Blob
+        ? new Uint8Array(await rawData.arrayBuffer())
+        : new Uint8Array(rawData)
+
+    if (data.length < 4) {
+        return { type: 'unknown' }
+    }
+
+    const view = new DataView(data.buffer, data.byteOffset, data.byteLength)
+    const messageType = (view.getUint8(1) >> 4) & 0x0f
+    const messageTypeFlags = view.getUint8(1) & 0x0f
+    const serialization = (view.getUint8(2) >> 4) & 0x0f
+    const compression = view.getUint8(2) & 0x0f
+
+    if (messageType === VOLCENGINE_MESSAGE_TYPE.error) {
+        if (data.length < 12) {
+            return {
+                type: 'error',
+                code: 0,
+                message: 'Unknown server error',
+            }
+        }
+
+        const code = view.getUint32(4, false)
+        const size = view.getUint32(8, false)
+        const message = textDecoder.decode(data.subarray(12, 12 + size))
+
+        return {
+            type: 'error',
+            code,
+            message,
+        }
+    }
+
+    if (messageType !== VOLCENGINE_MESSAGE_TYPE.fullServerResponse || data.length < 12) {
+        return { type: 'unknown' }
+    }
+
+    const payloadSize = view.getUint32(8, false)
+    const payloadStart = 12
+    const payloadEnd = payloadStart + payloadSize
+
+    if (data.length < payloadEnd) {
+        return { type: 'unknown' }
+    }
+
+    const payload = await decodeVolcenginePayload(data.subarray(payloadStart, payloadEnd), compression)
+
+    return {
+        type: 'response',
+        data: decodeVolcengineSerializedPayload(payload, serialization),
+        isFinal: messageTypeFlags === 0b0010 || messageTypeFlags === 0b0011,
+    }
+}
+
+async function decodeVolcenginePayload(payload: Uint8Array, compression: number): Promise<Uint8Array> {
+    if (compression !== VOLCENGINE_COMPRESSION.gzip || payload.length === 0) {
+        return payload
+    }
+
+    if (typeof DecompressionStream === 'undefined') {
+        throw new Error('gzip_response_not_supported')
+    }
+
+    const payloadBuffer = payload.slice().buffer
+    const stream = new Blob([payloadBuffer]).stream().pipeThrough(new DecompressionStream('gzip'))
+    const buffer = await new Response(stream).arrayBuffer()
+    return new Uint8Array(buffer)
+}
+
+function decodeVolcengineSerializedPayload(payload: Uint8Array, serialization: number): unknown {
+    if (serialization === VOLCENGINE_SERIALIZATION.none) {
+        return textDecoder.decode(payload)
+    }
+
+    const text = textDecoder.decode(payload)
+    if (serialization === VOLCENGINE_SERIALIZATION.json) {
+        try {
+            return JSON.parse(text) as unknown
+        } catch {
+            return text
+        }
+    }
+
+    return text
+}
+
+function extractVolcengineTranscript(payload: unknown): string {
+    if (!isRecord(payload)) {
+        return ''
+    }
+
+    const result = payload.result
+    if (isRecord(result) && typeof result.text === 'string') {
+        return result.text
+    }
+
+    if (Array.isArray(result)) {
+        return result
+            .map((item) => (isRecord(item) && typeof item.text === 'string' ? item.text : ''))
+            .join('')
+    }
+
+    return typeof payload.text === 'string' ? payload.text : ''
+}
+
+function hasDefiniteUtterance(payload: unknown): boolean {
+    if (!isRecord(payload) || !isRecord(payload.result)) {
+        return false
+    }
+
+    const utterances = payload.result.utterances
+    return Array.isArray(utterances)
+        && utterances.some((item) => isRecord(item) && item.definite === true)
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null
 }

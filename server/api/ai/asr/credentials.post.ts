@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { getSettings } from '~/server/services/setting'
 import { SettingKey } from '~/types/setting'
 import { requireAdminOrAuthor } from '~/server/utils/permission'
-import { generateASRCredentials, verifyASRSecurityToken } from '~/server/utils/ai/asr-credentials'
+import { generateASRCredentials } from '~/server/utils/ai/asr-credentials'
 import type { ASRProvider, ASRMode } from '~/types/asr'
 
 const RequestSchema = z.object({
@@ -46,28 +46,13 @@ export default defineEventHandler(async (event) => {
     ])
 
     // 生成临时凭证
-    const credentials = generateASRCredentials({
+    const credentials = await generateASRCredentials({
         provider: body.provider as ASRProvider,
         mode: body.mode as ASRMode,
-        userId: session.user.id,
         connectId: body.connectId || randomUUID(),
         settings: settings as Record<string, string | undefined>,
         expiresIn: 5 * 60 * 1000, // 5 分钟有效期
     })
-
-    const tokenValid = verifyASRSecurityToken(
-        session.user.id,
-        credentials.connectId,
-        credentials.expiresAt,
-        credentials.securityToken,
-    )
-
-    if (!tokenValid) {
-        throw createError({
-            statusCode: 500,
-            statusMessage: 'Failed to generate valid ASR credentials',
-        })
-    }
 
     return {
         code: 200,
