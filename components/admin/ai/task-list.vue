@@ -65,6 +65,20 @@
             </template>
             <Column selection-mode="multiple" class="col-selection" />
             <Column
+                field="category"
+                :header="$t('pages.admin.ai.category')"
+                class="col-category"
+            >
+                <template #body="{data}">
+                    <Tag
+                        v-if="data.category"
+                        :value="$t(`pages.admin.ai.types.${data.category}`)"
+                        severity="contrast"
+                    />
+                    <span v-else>-</span>
+                </template>
+            </Column>
+            <Column
                 field="type"
                 :header="$t('pages.admin.ai.type')"
                 class="col-type"
@@ -126,6 +140,38 @@
                         v-if="data.status"
                         :value="$t(`pages.admin.ai.statuses.${data.status}`)"
                         :severity="getStatusSeverity(data.status)"
+                    />
+                    <span v-else>-</span>
+                </template>
+            </Column>
+            <Column
+                field="quotaUnits"
+                :header="$t('pages.admin.ai.quota_units')"
+                class="col-quota"
+            >
+                <template #body="{data}">
+                    {{ formatDecimal(data.quotaUnits) }}
+                </template>
+            </Column>
+            <Column
+                field="actualCost"
+                :header="$t('pages.admin.ai.actual_cost')"
+                class="col-cost"
+            >
+                <template #body="{data}">
+                    {{ formatCurrency(data.actualCost) }}
+                </template>
+            </Column>
+            <Column
+                field="chargeStatus"
+                :header="$t('pages.admin.ai.charge_status')"
+                class="col-charge-status"
+            >
+                <template #body="{data}">
+                    <Tag
+                        v-if="data.chargeStatus"
+                        :value="$t(`pages.admin.ai.charge_statuses.${data.chargeStatus}`)"
+                        :severity="getChargeStatusSeverity(data.chargeStatus)"
                     />
                     <span v-else>-</span>
                 </template>
@@ -220,9 +266,22 @@ const getStatusSeverity = (status: string) => {
     }
 }
 
+const getChargeStatusSeverity = (status: string) => {
+    switch (status) {
+        case 'actual': return 'success'
+        case 'estimated': return 'warning'
+        case 'waived': return 'secondary'
+        default: return 'contrast'
+    }
+}
+
 const formatDateTime = (date: any) => {
     return dayjs(date).format('YYYY-MM-DD HH:mm')
 }
+
+const formatDecimal = (value: number) => Number(value || 0).toFixed(2)
+
+const formatCurrency = (value: number) => `$${Number(value || 0).toFixed(4)}`
 </script>
 
 <style lang="scss" scoped>

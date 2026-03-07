@@ -57,6 +57,48 @@
                     </div>
                 </template>
             </Card>
+
+            <Card class="ai-stat-card quota">
+                <template #title>
+                    <div class="card-header">
+                        <span class="card-title">{{ $t('pages.admin.ai.quota_units') }}</span>
+                        <i class="icon pi pi-bolt" />
+                    </div>
+                </template>
+                <template #content>
+                    <div class="card-value card-value--compact">
+                        {{ formatNumber(stats.overview?.quotaUnits) }}
+                    </div>
+                </template>
+            </Card>
+
+            <Card class="ai-stat-card cost">
+                <template #title>
+                    <div class="card-header">
+                        <span class="card-title">{{ $t('pages.admin.ai.actual_cost') }}</span>
+                        <i class="icon pi pi-wallet" />
+                    </div>
+                </template>
+                <template #content>
+                    <div class="card-value card-value--compact">
+                        {{ formatCurrency(stats.overview?.actualCost) }}
+                    </div>
+                </template>
+            </Card>
+
+            <Card class="ai-stat-card success-rate">
+                <template #title>
+                    <div class="card-header">
+                        <span class="card-title">{{ $t('pages.admin.ai.success_rate') }}</span>
+                        <i class="icon pi pi-chart-line" />
+                    </div>
+                </template>
+                <template #content>
+                    <div class="card-value card-value--compact">
+                        {{ formatPercent(stats.overview?.successRate) }}
+                    </div>
+                </template>
+            </Card>
         </div>
 
         <div class="ai-charts-grid">
@@ -80,17 +122,53 @@
 
             <Card class="ai-chart-card">
                 <template #title>
-                    <span class="card-title">{{ $t('pages.admin.ai.chart_type') }}</span>
+                    <span class="card-title">{{ $t('pages.admin.ai.chart_category') }}</span>
                 </template>
                 <template #content>
                     <div class="stats-list">
                         <div
-                            v-for="typeItem in stats.typeStats"
-                            :key="typeItem.type"
+                            v-for="categoryItem in stats.categoryStats || []"
+                            :key="categoryItem.category"
                             class="stats-item"
                         >
-                            <span class="label">{{ $t(`pages.admin.ai.types.${typeItem.type}`) }}</span>
-                            <Tag :value="typeItem.count" severity="info" />
+                            <span class="label">{{ $t(`pages.admin.ai.types.${categoryItem.category}`) }}</span>
+                            <Tag :value="formatNumber(categoryItem.quotaUnits)" severity="info" />
+                        </div>
+                    </div>
+                </template>
+            </Card>
+
+            <Card class="ai-chart-card">
+                <template #title>
+                    <span class="card-title">{{ $t('pages.admin.ai.chart_charge_status') }}</span>
+                </template>
+                <template #content>
+                    <div class="stats-list">
+                        <div
+                            v-for="chargeItem in stats.chargeStatusStats || []"
+                            :key="chargeItem.chargeStatus"
+                            class="stats-item"
+                        >
+                            <span class="label">{{ $t(`pages.admin.ai.charge_statuses.${chargeItem.chargeStatus}`) }}</span>
+                            <Tag :value="chargeItem.count" severity="contrast" />
+                        </div>
+                    </div>
+                </template>
+            </Card>
+
+            <Card class="ai-chart-card">
+                <template #title>
+                    <span class="card-title">{{ $t('pages.admin.ai.chart_failure_stage') }}</span>
+                </template>
+                <template #content>
+                    <div class="stats-list">
+                        <div
+                            v-for="failureItem in stats.failureStageStats || []"
+                            :key="failureItem.failureStage"
+                            class="stats-item"
+                        >
+                            <span class="label">{{ $t(`pages.admin.ai.failure_stages.${failureItem.failureStage}`) }}</span>
+                            <Tag :value="failureItem.count" severity="warning" />
                         </div>
                     </div>
                 </template>
@@ -112,11 +190,23 @@ const props = defineProps<{
 }>()
 
 const getTotalTasks = () => {
-    return props.stats?.statusStats?.reduce((acc: number, s: any) => acc + Number(s.count), 0) || 0
+    return props.stats?.overview?.totalTasks || props.stats?.statusStats?.reduce((acc: number, s: any) => acc + Number(s.count), 0) || 0
 }
 
 const getStatusCount = (status: string) => {
     return props.stats?.statusStats?.find((s: any) => s.status === status)?.count || 0
+}
+
+const formatNumber = (value: number) => {
+    return Number(value || 0).toFixed(2)
+}
+
+const formatCurrency = (value: number) => {
+    return `$${Number(value || 0).toFixed(4)}`
+}
+
+const formatPercent = (value: number) => {
+    return `${((value || 0) * 100).toFixed(1)}%`
 }
 </script>
 
@@ -171,10 +261,17 @@ const getStatusCount = (status: string) => {
         margin-top: 0.5rem;
     }
 
+    .card-value--compact {
+        font-size: 2rem;
+    }
+
     &.total .icon { color: var(--primary-color); }
     &.completed .icon { color: var(--green-500); }
     &.failed .icon { color: var(--red-500); }
     &.processing .icon { color: var(--blue-500); }
+    &.quota .icon { color: var(--orange-500); }
+    &.cost .icon { color: var(--teal-500); }
+    &.success-rate .icon { color: var(--cyan-500); }
 }
 
 .ai-charts-grid {

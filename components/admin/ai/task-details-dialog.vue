@@ -10,6 +10,15 @@
             <div class="detail-info grid">
                 <div class="col-12 md:col-6">
                     <div class="detail-item">
+                        <span class="label">{{ $t('pages.admin.ai.category') }}:</span>
+                        <Tag
+                            v-if="task.category"
+                            :value="$t(`pages.admin.ai.types.${task.category}`)"
+                            severity="contrast"
+                        />
+                        <span v-else class="value">-</span>
+                    </div>
+                    <div class="detail-item mt-2">
                         <span class="label">{{ $t('pages.admin.ai.type') }}:</span>
                         <span class="value">{{ $t(`pages.admin.ai.types.${task.type}`) }}</span>
                     </div>
@@ -27,11 +36,59 @@
                         <span class="value">{{ task.provider }} / {{ task.model }}</span>
                     </div>
                     <div class="detail-item mt-2">
+                        <span class="label">{{ $t('pages.admin.ai.charge_status') }}:</span>
+                        <Tag
+                            v-if="task.chargeStatus"
+                            :value="$t(`pages.admin.ai.charge_statuses.${task.chargeStatus}`)"
+                            :severity="getChargeStatusSeverity(task.chargeStatus)"
+                        />
+                        <span v-else class="value">-</span>
+                    </div>
+                    <div class="detail-item mt-2">
                         <span class="label">{{ $t('common.author') }}:</span>
                         <div class="author-info value">
                             <span class="author-name">{{ task.user_name || 'Unknown' }}</span>
                             <span class="author-email">{{ task.user_email }}</span>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="governance-metrics grid">
+                <div class="col-12 md:col-3">
+                    <div class="detail-item">
+                        <span class="label">{{ $t('pages.admin.ai.estimated_cost') }}:</span>
+                        <span class="value">{{ formatCurrency(task.estimatedCost) }}</span>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <div class="detail-item">
+                        <span class="label">{{ $t('pages.admin.ai.actual_cost') }}:</span>
+                        <span class="value">{{ formatCurrency(task.actualCost) }}</span>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <div class="detail-item">
+                        <span class="label">{{ $t('pages.admin.ai.estimated_quota_units') }}:</span>
+                        <span class="value">{{ formatDecimal(task.estimatedQuotaUnits) }}</span>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <div class="detail-item">
+                        <span class="label">{{ $t('pages.admin.ai.quota_units') }}:</span>
+                        <span class="value">{{ formatDecimal(task.quotaUnits) }}</span>
+                    </div>
+                </div>
+                <div class="col-12 md:col-6">
+                    <div class="detail-item">
+                        <span class="label">{{ $t('pages.admin.ai.failure_stage') }}:</span>
+                        <span class="value">{{ task.failureStage ? $t(`pages.admin.ai.failure_stages.${task.failureStage}`) : '-' }}</span>
+                    </div>
+                </div>
+                <div class="col-12 md:col-6">
+                    <div class="detail-item">
+                        <span class="label">{{ $t('pages.admin.ai.duration_ms') }}:</span>
+                        <span class="value">{{ formatDuration(task.durationMs) }}</span>
                     </div>
                 </div>
             </div>
@@ -131,6 +188,15 @@
                         <pre>{{ formatJson(task.result) }}</pre>
                     </div>
                 </div>
+
+                <div v-if="task.usageSnapshot" class="col-12 lg:col-6">
+                    <h4 class="align-items-center flex font-bold m-0 mb-2">
+                        <i class="mr-2 pi pi-chart-bar" />{{ $t('pages.admin.ai.usage_snapshot') }}
+                    </h4>
+                    <div class="json-container">
+                        <pre>{{ formatJson(task.usageSnapshot) }}</pre>
+                    </div>
+                </div>
             </div>
         </div>
     </Dialog>
@@ -155,6 +221,15 @@ const getStatusSeverity = (status: string) => {
     }
 }
 
+const getChargeStatusSeverity = (status: string) => {
+    switch (status) {
+        case 'actual': return 'success'
+        case 'estimated': return 'warning'
+        case 'waived': return 'secondary'
+        default: return 'contrast'
+    }
+}
+
 const formatJson = (data: any) => {
     if (!data) return ''
     try {
@@ -171,6 +246,17 @@ const formatSize = (bytes: number) => {
     const sizes = ['B', 'KB', 'MB', 'GB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
+const formatCurrency = (value: number) => `$${Number(value || 0).toFixed(4)}`
+
+const formatDecimal = (value: number) => Number(value || 0).toFixed(2)
+
+const formatDuration = (durationMs: number) => {
+    const ms = Number(durationMs || 0)
+    if (!ms) return '-'
+    if (ms < 1000) return `${ms} ms`
+    return `${(ms / 1000).toFixed(2)} s`
 }
 
 const getTaskImages = (task: any) => {

@@ -1,5 +1,6 @@
 import { AIBaseService } from './base'
 import { getAIProvider } from '@/server/utils/ai'
+import { inferFailureStage } from '@/server/utils/ai/cost-governance'
 import { withAITimeout } from '@/server/utils/ai/timeout'
 import { sendInAppNotification, pushRealtimeEvent } from '@/server/services/notification'
 import { NotificationType } from '@/utils/shared/notification'
@@ -55,6 +56,8 @@ export class ASRService extends AIBaseService {
                 model: options.model || (provider as any).model || (provider as any).config?.model || 'unknown',
                 payload: { options },
                 error,
+                failureStage: inferFailureStage(error),
+                settlementSource: 'actual',
             })
             throw error
         }
@@ -93,6 +96,7 @@ export class ASRService extends AIBaseService {
                 size: audioBuffer.length,
             },
             audioSize: audioBuffer.length,
+            settlementSource: 'estimated',
         })
 
         if (!task?.id) {
@@ -122,6 +126,8 @@ export class ASRService extends AIBaseService {
                 category: 'asr',
                 status: 'failed',
                 error: err,
+                failureStage: inferFailureStage(err),
+                settlementSource: 'actual',
             })
 
             pushRealtimeEvent(userId, {
@@ -166,6 +172,7 @@ export class ASRService extends AIBaseService {
             category: 'asr',
             status: 'processing',
             progress: 10,
+            settlementSource: 'estimated',
         })
 
         pushRealtimeEvent(userId, {
@@ -209,6 +216,7 @@ export class ASRService extends AIBaseService {
                 textLength: response.text.length,
                 audioDuration: response.duration,
                 language: response.language,
+                settlementSource: 'actual',
             })
 
             pushRealtimeEvent(userId, {
@@ -240,6 +248,8 @@ export class ASRService extends AIBaseService {
                 category: 'asr',
                 status: 'failed',
                 error: err,
+                failureStage: inferFailureStage(err),
+                settlementSource: 'actual',
             })
 
             pushRealtimeEvent(userId, {

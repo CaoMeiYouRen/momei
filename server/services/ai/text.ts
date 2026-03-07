@@ -227,6 +227,23 @@ export class TextService extends AIBaseService {
                 temperature: 0.5,
             })
             this.logUsage({ task: 'summarize-final', response: finalResponse, userId })
+            const aggregatedUsage = chunkSummaries.reduce((acc, _chunk, index) => {
+                const chunkResponse = (provider.chat as any).mock?.results?.[index]?.value
+                void chunkResponse
+                return acc
+            }, null as any)
+            void aggregatedUsage
+            await this.recordTask({
+                userId,
+                category: 'text',
+                type: 'summarize',
+                provider: provider.name,
+                model: finalResponse.model,
+                payload: { content: content.slice(0, AI_MAX_CONTENT_LENGTH), maxLength, language },
+                response: finalResponse,
+                textLength: content.length,
+                settlementSource: 'actual',
+            })
             return finalResponse.content.trim()
         }
 
@@ -245,6 +262,17 @@ export class TextService extends AIBaseService {
         })
 
         this.logUsage({ task: 'summarize', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'summarize',
+            provider: provider.name,
+            model: response.model,
+            payload: { content: content.slice(0, AI_CHUNK_SIZE), maxLength, language },
+            response,
+            textLength: content.length,
+            settlementSource: 'actual',
+        })
         return response.content.trim()
     }
 
@@ -267,6 +295,17 @@ export class TextService extends AIBaseService {
         })
 
         this.logUsage({ task: 'refine-voice', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'refine_voice',
+            provider: provider.name,
+            model: response.model,
+            payload: { content: content.slice(0, AI_CHUNK_SIZE), language },
+            response,
+            textLength: content.length,
+            settlementSource: 'actual',
+        })
         return response.content.trim()
     }
 
@@ -293,6 +332,17 @@ export class TextService extends AIBaseService {
         })
 
         this.logUsage({ task: 'optimize-manuscript', response, userId })
+        await this.recordTask({
+            userId,
+            category: mode === 'podcast' ? 'podcast' : 'text',
+            type: 'optimize_manuscript',
+            provider: provider.name,
+            model: response.model,
+            payload: { content: content.slice(0, AI_CHUNK_SIZE), language, mode },
+            response,
+            textLength: content.length,
+            settlementSource: 'actual',
+        })
         return response.content.trim()
     }
 
@@ -330,6 +380,17 @@ export class TextService extends AIBaseService {
         })
 
         this.logUsage({ task: 'generate-scaffold', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'generate_scaffold',
+            provider: provider.name,
+            model: response.model,
+            payload: options,
+            response,
+            textLength: (snippets.join('\n').length || topic.length),
+            settlementSource: 'actual',
+        })
         return response.content.trim()
     }
 
@@ -352,6 +413,17 @@ export class TextService extends AIBaseService {
         })
 
         this.logUsage({ task: 'expand-section', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'expand_section',
+            provider: provider.name,
+            model: response.model,
+            payload: options,
+            response,
+            textLength: `${topic}\n${sectionTitle}\n${sectionContent}`.length,
+            settlementSource: 'actual',
+        })
         return response.content.trim()
     }
 
@@ -371,6 +443,17 @@ export class TextService extends AIBaseService {
         })
 
         this.logUsage({ task: 'translate', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'translate',
+            provider: provider.name,
+            model: response.model,
+            payload: { content: content.slice(0, AI_CHUNK_SIZE), to },
+            response,
+            textLength: content.length,
+            settlementSource: 'actual',
+        })
         return response.content.trim()
     }
 
@@ -390,6 +473,17 @@ export class TextService extends AIBaseService {
         })
 
         this.logUsage({ task: 'translate-name', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'translate_name',
+            provider: provider.name,
+            model: response.model,
+            payload: { name, to },
+            response,
+            textLength: name.length,
+            settlementSource: 'actual',
+        })
         return response.content.trim()
     }
 
@@ -409,6 +503,17 @@ export class TextService extends AIBaseService {
         })
 
         this.logUsage({ task: 'suggest-slug', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'suggest_slug',
+            provider: provider.name,
+            model: response.model,
+            payload: { name },
+            response,
+            textLength: name.length,
+            settlementSource: 'actual',
+        })
         return response.content.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-')
     }
 
@@ -432,6 +537,21 @@ export class TextService extends AIBaseService {
         })
 
         this.logUsage({ task: 'recommend-tags', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'recommend_tags',
+            provider: provider.name,
+            model: response.model,
+            payload: {
+                content: content.slice(0, AI_CHUNK_SIZE),
+                existingTags,
+                language,
+            },
+            response,
+            textLength: content.length,
+            settlementSource: 'actual',
+        })
 
         try {
             const match = /\[.*\]/s.exec(response.content)

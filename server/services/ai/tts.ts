@@ -5,6 +5,7 @@ import { getAIProvider } from '@/server/utils/ai'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { AITask } from '@/server/entities/ai-task'
+import { calculateQuotaUnits, deriveChargeStatus, inferFailureStage, normalizeUsageSnapshot, serializeUsageSnapshot } from '@/server/utils/ai/cost-governance'
 import logger from '@/server/utils/logger'
 import { applyPostMetadataPatch } from '@/server/utils/post-metadata'
 import { withAITimeout } from '@/server/utils/ai/timeout'
@@ -187,6 +188,7 @@ export class TTSService extends AIBaseService {
 
         try {
             task.status = 'processing'
+            task.startedAt = task.startedAt || new Date()
             await taskRepo.save(task)
 
             const payload = typeof task.payload === 'string' ? JSON.parse(task.payload) : (task.payload || {})
@@ -351,10 +353,34 @@ export class TTSService extends AIBaseService {
             }
 
             // Mark Task Completed
+            const usageSnapshot = normalizeUsageSnapshot({
+                category: task.category || task.type,
+                type: task.type,
+                payload,
+                response: { audioUrl: uploadedFile.url },
+                audioSize: buffer.length,
+                textLength: contentToUse.length,
+            })
             task.status = 'completed'
             task.progress = 100
             task.textLength = contentToUse.length
             task.audioSize = buffer.length
+            task.actualCost = task.estimatedCost
+            task.quotaUnits = calculateQuotaUnits({
+                category: task.category || task.type,
+                type: task.type,
+                payload,
+                usageSnapshot,
+            })
+            task.chargeStatus = deriveChargeStatus({
+                status: 'completed',
+                quotaUnits: task.quotaUnits,
+                settlementSource: 'estimated',
+            })
+            task.failureStage = null
+            task.usageSnapshot = serializeUsageSnapshot(usageSnapshot)
+            task.completedAt = new Date()
+            task.durationMs = task.startedAt ? task.completedAt.getTime() - task.startedAt.getTime() : task.durationMs
             task.result = JSON.stringify({
                 url: uploadedFile.url,
                 audioUrl: uploadedFile.url,
@@ -377,6 +403,16 @@ export class TTSService extends AIBaseService {
             logger.error(`[TTSService] Task ${taskId} failed:`, error)
             task.status = 'failed'
             task.error = error.message
+            task.failureStage = inferFailureStage(error, task.progress >= 96 ? 'post_process' : 'provider_processing')
+            task.chargeStatus = deriveChargeStatus({
+                status: 'failed',
+                failureStage: task.failureStage,
+                quotaUnits: task.failureStage === 'post_process' ? (task.estimatedQuotaUnits || task.quotaUnits) : 0,
+                settlementSource: 'estimated',
+            })
+            task.quotaUnits = task.chargeStatus === 'waived' ? 0 : (task.quotaUnits || task.estimatedQuotaUnits)
+            task.completedAt = new Date()
+            task.durationMs = task.startedAt ? task.completedAt.getTime() - task.startedAt.getTime() : task.durationMs
             await taskRepo.save(task)
         }
     }

@@ -1,5 +1,22 @@
 // --- Categories ---
-export type AICategory = 'text' | 'image' | 'tts' | 'asr' | 'video'
+export type AICategory = 'text' | 'image' | 'tts' | 'asr' | 'video' | 'podcast'
+
+export type AIChargeStatus = 'none' | 'estimated' | 'actual' | 'waived'
+
+export type AIFailureStage = 'preflight' | 'provider_rejected' | 'provider_processing' | 'post_process'
+
+export interface AIUsageSnapshot {
+    promptTokens?: number
+    completionTokens?: number
+    totalTokens?: number
+    imageCount?: number
+    imageResolution?: string
+    audioSeconds?: number
+    audioBytes?: number
+    textChars?: number
+    outputChars?: number
+    requestCount?: number
+}
 
 export type AIRole = 'system' | 'user' | 'assistant'
 

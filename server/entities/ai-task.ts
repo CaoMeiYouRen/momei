@@ -2,6 +2,7 @@ import { Entity } from 'typeorm'
 import { CustomColumn } from '../decorators/custom-column'
 import { getDateType } from '../database/type'
 import { BaseEntity } from './base-entity'
+import type { AIChargeStatus, AIFailureStage, AICategory } from '@/types/ai'
 
 /**
  * AI 任务实体
@@ -9,6 +10,14 @@ import { BaseEntity } from './base-entity'
  */
 @Entity('ai_tasks')
 export class AITask extends BaseEntity {
+    @CustomColumn({
+        type: 'varchar',
+        length: 20,
+        nullable: true,
+        comment: '任务分类',
+    })
+    category: AICategory | null
+
     @CustomColumn({
         type: 'varchar',
         length: 50,
@@ -119,11 +128,59 @@ export class AITask extends BaseEntity {
     @CustomColumn({
         type: 'decimal',
         precision: 10,
+        scale: 2,
+        default: 0,
+        comment: '预估额度单位',
+    })
+    estimatedQuotaUnits: number
+
+    @CustomColumn({
+        type: 'decimal',
+        precision: 10,
         scale: 4,
         default: 0,
         comment: '实际成本',
     })
     actualCost: number
+
+    @CustomColumn({
+        type: 'decimal',
+        precision: 10,
+        scale: 2,
+        default: 0,
+        comment: '实际额度单位',
+    })
+    quotaUnits: number
+
+    @CustomColumn({
+        type: 'varchar',
+        length: 20,
+        default: 'none',
+        comment: '扣费状态',
+    })
+    chargeStatus: AIChargeStatus
+
+    @CustomColumn({
+        type: 'varchar',
+        length: 30,
+        nullable: true,
+        comment: '失败阶段',
+    })
+    failureStage: AIFailureStage | null
+
+    @CustomColumn({
+        type: 'text',
+        nullable: true,
+        comment: '标准化用量快照 (JSON)',
+    })
+    usageSnapshot: string | null
+
+    @CustomColumn({
+        type: 'integer',
+        default: 0,
+        comment: '执行耗时（毫秒）',
+    })
+    durationMs: number
 
     // 以下为 ASR 相关字段
     @CustomColumn({

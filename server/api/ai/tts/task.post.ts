@@ -3,6 +3,7 @@ import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { AITask } from '@/server/entities/ai-task'
 import { TTSService } from '@/server/services/ai'
+import { calculateQuotaUnits, deriveChargeStatus, normalizeUsageSnapshot } from '@/server/utils/ai/cost-governance'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { isAdmin } from '@/utils/shared/roles'
 
@@ -42,6 +43,17 @@ export default defineEventHandler(async (event) => {
     }
 
     const estimatedCost = await TTSService.estimateCost(contentToConvert, voice, provider)
+    const estimatedQuotaUnits = calculateQuotaUnits({
+        category: mode === 'podcast' ? 'podcast' : 'tts',
+        type: mode === 'podcast' ? 'podcast' : 'tts',
+        payload: { text: contentToConvert, voice, mode, options },
+        usageSnapshot: normalizeUsageSnapshot({
+            category: mode === 'podcast' ? 'podcast' : 'tts',
+            type: mode === 'podcast' ? 'podcast' : 'tts',
+            payload: { text: contentToConvert, voice, mode, options },
+            textLength: contentToConvert.length,
+        }),
+    })
 
     // 如果没有传 model，则根据 provider 获取其默认 model
     let finalModel = model
@@ -52,6 +64,7 @@ export default defineEventHandler(async (event) => {
 
     const taskRepo = dataSource.getRepository(AITask)
     const task = taskRepo.create({
+        category: mode === 'podcast' ? 'podcast' : 'tts',
         type: mode === 'podcast' ? 'podcast' : 'tts',
         postId: finalPostId || null,
         userId: user.id,
@@ -70,6 +83,8 @@ export default defineEventHandler(async (event) => {
         status: 'pending',
         progress: 0,
         estimatedCost,
+        estimatedQuotaUnits,
+        chargeStatus: deriveChargeStatus({ status: 'pending', quotaUnits: estimatedQuotaUnits, settlementSource: 'estimated' }),
     })
 
     await taskRepo.save(task)
@@ -82,5 +97,6 @@ export default defineEventHandler(async (event) => {
     return {
         taskId: task.id,
         estimatedCost,
+        estimatedQuotaUnits,
     }
 })

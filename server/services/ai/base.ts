@@ -1,7 +1,15 @@
 import { dataSource } from '@/server/database'
 import { AITask } from '@/server/entities/ai-task'
+import {
+    calculateQuotaUnits,
+    deriveChargeStatus,
+    inferFailureStage,
+    normalizeTaskCategory,
+    normalizeUsageSnapshot,
+    serializeUsageSnapshot,
+} from '@/server/utils/ai/cost-governance'
 import logger from '@/server/utils/logger'
-import type { AICategory } from '@/types/ai'
+import type { AICategory, AIChargeStatus, AIFailureStage, AIUsageSnapshot } from '@/types/ai'
 
 /**
  * 序列化 payload
@@ -65,9 +73,47 @@ export abstract class AIBaseService {
         textLength?: number
         language?: string
         cost?: number
+        estimatedCost?: number
         progress?: number
+        estimatedQuotaUnits?: number
+        quotaUnits?: number
+        usageSnapshot?: AIUsageSnapshot
+        chargeStatus?: AIChargeStatus
+        failureStage?: AIFailureStage
+        settlementSource?: 'estimated' | 'actual'
+        startedAt?: Date | null
+        completedAt?: Date | null
+        durationMs?: number
     }) {
-        const { id, userId, type, provider, model, status, payload, response, error, postId, audioDuration, audioSize, textLength, language, cost, progress } = options
+        const {
+            id,
+            userId,
+            type,
+            category,
+            provider,
+            model,
+            status,
+            payload,
+            response,
+            error,
+            postId,
+            audioDuration,
+            audioSize,
+            textLength,
+            language,
+            cost,
+            estimatedCost,
+            progress,
+            estimatedQuotaUnits,
+            quotaUnits,
+            usageSnapshot,
+            chargeStatus,
+            failureStage,
+            settlementSource,
+            startedAt,
+            completedAt,
+            durationMs,
+        } = options
         if (!userId) {
             return
         }
@@ -87,10 +133,41 @@ export abstract class AIBaseService {
                 task = repo.create({
                     id,
                     userId,
+                    category: normalizeTaskCategory(category, type),
                     type,
                     payload: serializePayload(payload),
                 })
             }
+
+            const nextStatus = status || (error ? 'failed' : 'completed')
+            const normalizedCategory = normalizeTaskCategory(category || task.category, type)
+            const derivedUsageSnapshot = usageSnapshot || normalizeUsageSnapshot({
+                category: normalizedCategory,
+                type,
+                payload,
+                response,
+                audioDuration,
+                audioSize,
+                textLength,
+            })
+            const derivedEstimatedQuotaUnits = estimatedQuotaUnits ?? calculateQuotaUnits({
+                category: normalizedCategory,
+                type,
+                payload,
+            })
+            const derivedQuotaUnits = quotaUnits ?? calculateQuotaUnits({
+                category: normalizedCategory,
+                type,
+                usageSnapshot: derivedUsageSnapshot,
+                payload,
+            })
+            const resolvedFailureStage = failureStage ?? (error ? inferFailureStage(error) : task.failureStage)
+            const resolvedChargeStatus = chargeStatus ?? deriveChargeStatus({
+                status: nextStatus,
+                failureStage: resolvedFailureStage,
+                settlementSource,
+                quotaUnits: derivedQuotaUnits || derivedEstimatedQuotaUnits,
+            })
 
             let errorMsg = task.error
             if (error) {
@@ -103,21 +180,45 @@ export abstract class AIBaseService {
                 }
             }
 
+            const now = new Date()
+            let resolvedStartedAt = startedAt
+            if (startedAt === undefined) {
+                resolvedStartedAt = nextStatus === 'processing' ? (task.startedAt || now) : task.startedAt
+            }
+
+            let resolvedCompletedAt = completedAt
+            if (completedAt === undefined) {
+                resolvedCompletedAt = nextStatus === 'completed' || nextStatus === 'failed' ? now : task.completedAt
+            }
+
+            const resolvedDurationMs = durationMs
+                ?? (resolvedStartedAt && resolvedCompletedAt ? resolvedCompletedAt.getTime() - resolvedStartedAt.getTime() : task.durationMs)
+
             Object.assign(task, {
+                category: normalizedCategory,
                 type,
-                provider: provider || task.provider,
-                model: model || task.model,
-                status: status || (error ? 'failed' : 'completed'),
+                provider: provider ?? task.provider,
+                model: model ?? task.model,
+                status: nextStatus,
                 payload: payload ? serializePayload(payload) : task.payload,
                 result: result || task.result,
                 error: errorMsg,
-                postId: postId || task.postId,
-                audioDuration: audioDuration || task.audioDuration,
-                audioSize: audioSize || task.audioSize,
-                textLength: textLength || task.textLength,
-                language: language || task.language,
-                actualCost: cost || task.actualCost,
+                postId: postId ?? task.postId,
+                audioDuration: audioDuration ?? task.audioDuration,
+                audioSize: audioSize ?? task.audioSize,
+                textLength: textLength ?? task.textLength,
+                language: language ?? task.language,
+                estimatedCost: estimatedCost ?? task.estimatedCost,
+                actualCost: cost ?? task.actualCost,
+                estimatedQuotaUnits: derivedEstimatedQuotaUnits ?? task.estimatedQuotaUnits,
+                quotaUnits: resolvedChargeStatus === 'waived' ? 0 : (derivedQuotaUnits ?? task.quotaUnits),
+                chargeStatus: resolvedChargeStatus,
+                failureStage: resolvedFailureStage ?? null,
+                usageSnapshot: serializeUsageSnapshot(derivedUsageSnapshot) ?? task.usageSnapshot,
                 progress: progress ?? task.progress,
+                startedAt: resolvedStartedAt ?? task.startedAt,
+                completedAt: resolvedCompletedAt ?? task.completedAt,
+                durationMs: resolvedDurationMs ?? task.durationMs,
             })
 
             return await repo.save(task)

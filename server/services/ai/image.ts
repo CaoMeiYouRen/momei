@@ -1,9 +1,10 @@
 import { uploadFromUrl } from '../upload'
 import { AIBaseService } from './base'
 import { getAIImageProvider } from '@/server/utils/ai'
+import { deriveChargeStatus, inferFailureStage } from '@/server/utils/ai/cost-governance'
 import { withAITimeout } from '@/server/utils/ai/timeout'
 import logger from '@/server/utils/logger'
-import type { AIImageOptions, AIImageResponse } from '@/types/ai'
+import type { AIFailureStage, AIImageOptions, AIImageResponse } from '@/types/ai'
 
 export class ImageService extends AIBaseService {
     /**
@@ -19,6 +20,7 @@ export class ImageService extends AIBaseService {
             type: 'image_generation',
             status: 'processing',
             payload: options,
+            settlementSource: 'estimated',
         })
 
         if (!task) {
@@ -40,6 +42,7 @@ export class ImageService extends AIBaseService {
         options: AIImageOptions,
         userId: string,
     ) {
+        let failureStage: AIFailureStage = 'provider_processing'
         try {
             const provider = await getAIImageProvider()
 
@@ -51,6 +54,8 @@ export class ImageService extends AIBaseService {
                 provider.generateImage(options),
                 'Image generation',
             )
+
+            failureStage = 'post_process'
 
             const persistedImages = await withAITimeout(
                 Promise.all(
@@ -88,6 +93,8 @@ export class ImageService extends AIBaseService {
                 model: finalResponse.model,
                 payload: options,
                 response: finalResponse,
+                chargeStatus: deriveChargeStatus({ status: 'completed', quotaUnits: finalResponse.images.length, settlementSource: 'actual' }),
+                settlementSource: 'actual',
             })
         } catch (error: any) {
             logger.error(`AI Image Generation Error (Task ${taskId}):`, error)
@@ -98,6 +105,8 @@ export class ImageService extends AIBaseService {
                 type: 'image_generation',
                 payload: options,
                 error,
+                failureStage: inferFailureStage(error, failureStage),
+                settlementSource: failureStage === 'post_process' ? 'actual' : 'estimated',
             })
         }
     }
