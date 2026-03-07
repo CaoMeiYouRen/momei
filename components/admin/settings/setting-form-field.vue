@@ -14,6 +14,7 @@
                     <span
                         v-if="metadata.source"
                         v-tooltip="resolvedMessage || undefined"
+                        :title="resolvedMessage || undefined"
                         class="setting-form-field__status-item"
                     >
                         <Tag
@@ -24,6 +25,7 @@
                     <i
                         v-if="metadata.isLocked"
                         v-tooltip="resolvedMessage"
+                        :title="resolvedMessage || undefined"
                         class="pi pi-lock setting-form-field__lock setting-form-field__status-item"
                     />
                 </div>

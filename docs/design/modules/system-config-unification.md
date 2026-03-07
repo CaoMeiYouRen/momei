@@ -8,12 +8,13 @@
 - 当前项目已经实现了基于 `ENV -> DB -> Default` 的轻量三层读取模型。
 - 当前项目已经实现了后台设置页的环境变量锁定提示、字段禁用和安装期 ENV 同步。
 - `Better-Auth` 仍然属于启动期静态配置，短期继续维持环境变量锁定，不再承诺运行时热重载。
-- 配置变更审计日志已经落地，当前剩余缺口主要是设置页层面的“智能混合模式”说明卡片、来源徽标与更细粒度锁定原因提示。
+- 配置变更审计日志已经落地，系统设置页的“智能混合模式”说明卡片、来源徽标与结构化锁定原因也已经完成首轮实现。
+- 最新一轮 UI 收敛已将字段下方的重复说明小字改为 tooltip 优先，避免来源解释导致整页表单高度膨胀。
 
-本轮执行策略明确为“文档与契约先行”：
-- 先收敛解释层的数据契约、页面结构和测试边界。
-- 不在本轮设计阶段调整 `Setting` 实体 Schema。
-- 代码实现将在设计评审后按增量方式落地，优先补服务层与接口层，再补后台页面消费。
+本轮执行策略已经从“文档与契约先行”推进到“实现与体验收敛并行”：
+- 已完成解释层的数据契约、页面结构和测试边界收敛。
+- 未调整 `Setting` 实体 Schema，继续沿用轻量 KV 结构。
+- 已按增量方式完成服务层、接口层和后台页面首轮实现，当前重点转向交互密度优化与测试补强。
 
 ## 2. 当前实现现状 (Current State)
 
@@ -24,12 +25,13 @@
 - **三层读取逻辑**: `getSetting()` 与 `getSettings()` 已按 `ENV ?? DB ?? Default` 顺序解析。
 - **锁定规则**: 通过 `FORCED_ENV_LOCKED_KEYS` 和 `INTERNAL_ONLY_KEYS` 管理强制锁定项与后端私有项。
 - **后台设置展示**: `/api/admin/settings` 已返回 `isLocked`、`source`、`description` 等元信息，供后台 UI 呈现。
-- **字段级只读反馈**: 管理后台设置页已对锁定项显示锁图标并禁用输入组件，但仍以逐字段模板判断为主，尚未抽象成统一解释层组件。
+- **增强元信息返回**: `/api/admin/settings` 当前已返回 `source`、`isLocked`、`envKey`、`defaultUsed`、`lockReason`、`requiresRestart` 等结构化解释字段。
+- **字段级统一解释组件**: 管理后台设置页已抽象公共字段容器，统一渲染来源徽标、锁定图标与 tooltip 提示，减少各设置子组件中的重复模板。
 - **安装期同步**: 安装流程会将已存在的 ENV 配置同步进 `setting` 表，保证后台状态与运行环境一致。
 - **审计实体与写入链路**: 已存在 `SettingAuditLog` 实体、`setSettings()` 写入审计日志以及按脱敏策略存储敏感字段快照。
 - **审计查询与后台视图**: 已提供 `/api/admin/settings/audit-logs` 分页接口，并在系统设置页接入“变更审计”标签页。
-- **基础测试覆盖**: `server/services/setting.test.ts` 已覆盖 ENV 优先和后台设置聚合等基础逻辑。
-- **兼容性写入链路已预留**: `PUT /api/admin/settings` 已支持 `{ settings, reason, source }` 包装体，但当前后台页面仍发送旧的扁平键值对。
+- **基础测试覆盖**: `server/services/setting.test.ts` 已覆盖 ENV 优先、解释层元信息和后台设置聚合逻辑，`tests/pages/admin/settings/index.test.ts` 已覆盖设置页概览卡片与包装体保存请求。
+- **包装体写入链路已启用**: 后台页面当前已切换为 `{ settings, reason, source }` 结构写入，并保留接口端对旧扁平 payload 的兼容。
 
 ### 2.2 当前数据模型
 
@@ -56,10 +58,10 @@
    - `lib/auth-client.ts` 在模块加载时创建单例。
    - 即使补一个 `/api/auth/config`，也只能影响客户端展示层，无法真正替换服务端认证实例。
 
-3. **来源解释 UI 仍未完全落地**
-   - 当前 `/api/admin/settings` 已返回 `source` 与 `isLocked`，但后台设置页尚未统一展示来源徽标、说明卡片以及更细粒度的锁定原因。
-   - `getSettingEffectiveSource()` 当前只区分 `env` / `db`，其判断与“是否锁定”耦合，无法准确表达“字段被强制锁定但当前实际值并非来自 ENV”的场景。
-   - 目前设置页主要提供字段禁用与通用 ENV 锁定提示，尚未补充 `envKey`、`defaultUsed`、`lockReason` 等更结构化的解释信息。
+3. **来源解释 UI 仍在做体验收敛**
+   - 当前 `/api/admin/settings` 已返回结构化解释字段，后台设置页也已统一展示来源徽标、页级概览卡片和更细粒度的锁定原因。
+   - `getSettingEffectiveSource()` 已按实际生效来源输出 `env` / `db` / `default`，不再简单与“是否锁定”耦合。
+   - 当前剩余问题主要是提示密度控制，例如哪些配置保留显式说明、哪些配置只保留 tooltip，以避免表单高度继续膨胀。
 
 ### 2.4 本轮设计要解决的根因
 
@@ -239,6 +241,13 @@ interface UpdateSettingsRequest {
     - 优先在页级引入统一的解释型组件，例如来源徽标和字段提示容器。
     - 现有各设置子组件先复用统一组件，再逐步移除散落的 `metadata.xxx?.isLocked` 模板判断。
 
+#### 当前实现备注
+
+- 顶部“智能混合模式”说明卡片已经收敛为摘要视图，不再展示冗长的字段明细列表。
+- 字段级提示已统一收敛到公共组件，默认采用“来源徽标 / 锁图标悬浮提示”模式。
+- 为避免表单长度失控，普通字段默认不再在输入框下方重复渲染整段说明文本；只有标题描述类说明仍保留在字段头部。
+- `DB` 生效场景同样支持 tooltip 提示，不再因为缺少锁图标而丢失解释能力。
+
 ### 4.4 审计日志当前实现与后续增强
 
 审计日志已经采用独立实体落地，而不是复用普通文本日志。当前实现具备：
@@ -326,11 +335,11 @@ interface UpdateSettingsRequest {
 - [x] 落地安装期 ENV 同步
 
 ### Phase 2: 配置来源元信息增强
-- [ ] 为 `SettingService` 增加更完整的结构化解析结果，并拆开 `source` 与 `lockReason`
+- [x] 为 `SettingService` 增加更完整的结构化解析结果，并拆开 `source` 与 `lockReason`
 - [x] 在后台设置接口中补充 `source` 等基础元信息
-- [ ] 在后台设置接口中继续补充 `envKey`、`defaultUsed`、`lockReason`、`requiresRestart` 等元信息
-- [ ] 在设置页增加“智能混合模式”说明卡片、来源徽标与字段级解释提示
-- [ ] 将系统设置页保存请求切换到 `{ settings, source: 'admin_ui', reason }` 包装体
+- [x] 在后台设置接口中继续补充 `envKey`、`defaultUsed`、`lockReason`、`requiresRestart` 等元信息
+- [x] 在设置页增加“智能混合模式”说明卡片、来源徽标与字段级解释提示
+- [x] 将系统设置页保存请求切换到 `{ settings, source: 'admin_ui', reason }` 包装体
 
 ### Phase 3: 审计日志落地
 - [x] 新增 `SettingAuditLog` 实体
@@ -349,9 +358,9 @@ interface UpdateSettingsRequest {
 - `server/services/setting.ts`: 增加解释层注册表与 `resolveSetting()` / `resolveSettings()`。
 - `server/api/admin/settings/index.get.ts`: 返回增强后的扁平元信息结构。
 - `pages/admin/settings/index.vue`: 接入页级说明卡片、包装体保存请求和统一元信息归一化。
-- `components/admin/settings/*.vue`: 从零散锁图标判断迁移到统一的来源徽标与解释提示组件。
+- `components/admin/settings/*.vue`: 从零散锁图标判断迁移到统一的来源徽标与解释提示组件，并继续收敛表单密度。
 - `server/services/setting.test.ts`: 补充 `source` / `defaultUsed` / `lockReason` 判定测试。
-- `tests/pages/admin/settings/*`: 补充后台设置页对说明卡片、来源徽标和锁定提示的交互测试。
+- `tests/pages/admin/settings/*`: 已补充后台设置页对说明卡片与包装体保存请求的测试，后续继续补字段级 tooltip 交互测试。
 
 ## 7. 不纳入当前阶段的内容 (Out of Scope)
 
