@@ -38,7 +38,19 @@
     -   **Token 追溯**: (可选) 记录请求与响应的 Token 消耗，用于成本核算。
 -   **流式响应 (SSE)**: (增强阶段) 针对长文本任务，提供流式实时反馈。
 
-### 3.2 环境变量配置
+### 3.2 成本治理与审计演进
+
+随着 AI 图像、ASR 与 TTS 等高成本能力接入，AI 模块的治理重点已经从“是否启用 AI”扩展为“如何统一计量不同任务的成本与额度”。
+
+当前设计约束如下：
+
+- 继续以 `AITask` 作为统一审计事实来源。
+- 将“货币成本”和“配额额度”拆开处理，避免直接把厂商单价映射为用户额度。
+- 第一阶段优先落地终态结算与失败归因，不引入复杂的预扣费与退款流水。
+
+详细方案请参考 [AI 成本治理与多用户配额](./ai-cost-governance.md)。
+
+### 3.3 环境变量配置
 
 ```bash
 # 是否启用 AI
@@ -128,3 +140,10 @@ AI_TEMPERATURE=0.7
 -   为降低部署复杂度，Volcengine 语音能力（ASR/TTS）默认共用一套凭据：`VOLCENGINE_APP_ID`、`VOLCENGINE_ACCESS_KEY`（可选 `VOLCENGINE_SECRET_KEY`）。
 -   ASR 专属参数通过 `ASR_MODEL`、`ASR_ENDPOINT` 控制；TTS 专属参数通过 `TTS_DEFAULT_MODEL` 控制。
 -   不再推荐为 ASR 与 TTS 分别维护两套火山凭据，避免配置漂移与排障成本上升。
+
+## 8. 相关文档 (Related Docs)
+
+- [AI 图像生成模块](./ai-image.md)
+- [AI 成本治理与多用户配额](./ai-cost-governance.md)
+- [语音识别系统](./asr.md)
+- [音频处理与播客系统](./audio.md)

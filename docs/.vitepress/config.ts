@@ -79,6 +79,7 @@ export default defineConfig({
                             { text: '创作安全', link: '/design/modules/creative-security' },
                             { text: '认证系统', link: '/design/modules/auth' },
                             { text: 'AI 辅助', link: '/design/modules/ai' },
+                            { text: 'AI 成本治理', link: '/design/modules/ai-cost-governance' },
                             { text: '商业化与社交', link: '/design/modules/commercial' },
                             { text: '广告投放与外链跳转', link: '/design/modules/ad-network-integration' },
                             { text: '语音识别 (ASR)', link: '/design/modules/asr' },

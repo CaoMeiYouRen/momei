@@ -14,6 +14,7 @@
 ## 增强功能模块 (Enhanced Features)
 
 - **[AI 辅助创作 (AI Assistant)](./ai)**: 支持标题生成、SEO 优化及智能翻译。
+- **[AI 成本治理与多用户配额 (AI Cost Governance)](./ai-cost-governance)**: 统一 AI 审计模型、额度单位、失败扣额口径与后台治理视图。
 - **[语音识别 (ASR)](./asr)**: 语音识别模块总览、驱动模式与治理边界。
 - **[ASR 性能与体验优化 (ASR Performance)](./asr-performance-optimization)**: 临时凭证、轻量压缩与异步任务追踪。
 - **[音频与播客 (Audio & Podcast)](./audio)**: 音频托管、TTS 自动生成以及 Podcast RSS 支持。
