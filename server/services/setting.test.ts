@@ -125,7 +125,7 @@ describe('settingService', () => {
                 value: 'val',
                 description: '',
                 level: 2,
-                maskType: 'none',
+                maskType: 'key',
             })
             expect(mockSettingRepo.save).toHaveBeenCalledWith(newSetting)
         })

@@ -3,10 +3,12 @@ import { requireAdmin } from '@/server/utils/permission'
 import { success } from '@/server/utils/response'
 import { setSettings } from '@/server/services/setting'
 
+const settingAuditSourceSchema = z.enum(['admin_ui', 'theme_settings', 'commercial_settings', 'api'])
+
 const settingsUpdateSchema = z.object({
     settings: z.record(z.string(), z.any()).optional(),
     reason: z.string().trim().max(255).optional(),
-    source: z.string().trim().max(64).optional(),
+    source: settingAuditSourceSchema.optional(),
 }).passthrough()
 
 export default defineEventHandler(async (event) => {

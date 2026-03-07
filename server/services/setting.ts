@@ -388,14 +388,18 @@ export const setSettings = async (settings: Record<string, any>, auditContext?: 
         const previousValue = existingSetting?.value ?? null
         const previousMaskType = String(existingSetting?.maskType ?? extra.maskType ?? inferSettingMaskType(key, previousValue ?? '')) as 'none' | 'password' | 'key' | 'email'
         const normalizedIncomingValue = normalizeSettingValue(value)
-        const nextValue = existingSetting && isMaskedSettingPlaceholder(normalizedIncomingValue, existingSetting.maskType)
+        const isExistingMaskedPlaceholder = normalizedIncomingValue !== null
+            && existingSetting !== null
+            && existingSetting !== undefined
+            && isMaskedSettingPlaceholder(normalizedIncomingValue, existingSetting.maskType)
+        const nextValue = isExistingMaskedPlaceholder
             ? existingSetting.value
             : normalizedIncomingValue
         const nextMaskType = String(extra.maskType ?? existingSetting?.maskType ?? inferSettingMaskType(key, nextValue ?? '')) as 'none' | 'password' | 'key' | 'email'
 
         if (setting) {
             // 如果是脱敏过的值且没有变化（即用户提交的是脱敏后的占位符），则跳过值更新
-            if (!isMaskedSettingPlaceholder(normalizedIncomingValue, setting.maskType)) {
+            if (!(normalizedIncomingValue !== null && isMaskedSettingPlaceholder(normalizedIncomingValue, setting.maskType))) {
                 setting.value = nextValue
             }
 
