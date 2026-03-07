@@ -30,6 +30,20 @@ export interface SuggestImagePromptOptions {
 }
 
 export class TextService extends AIBaseService {
+    private static async assertTextQuota(options: {
+        userId?: string
+        type: string
+        payload: Record<string, unknown>
+        category?: 'text' | 'podcast'
+    }) {
+        await this.assertQuotaAllowance({
+            userId: options.userId,
+            category: options.category || 'text',
+            type: options.type,
+            payload: options.payload,
+        })
+    }
+
     static async suggestImagePrompt(options: SuggestImagePromptOptions, userId?: string) {
         const { title = '', content = '', language = 'zh-CN' } = options
 
@@ -39,6 +53,12 @@ export class TextService extends AIBaseService {
                 message: 'Title or content is required',
             })
         }
+
+        await this.assertTextQuota({
+            userId,
+            type: 'suggest_image_prompt',
+            payload: { title, content: content.slice(0, 500), language },
+        })
 
         const provider = await getAIProvider('text')
         if (!provider.chat) {
@@ -83,6 +103,12 @@ export class TextService extends AIBaseService {
         language: string = 'zh-CN',
         userId?: string,
     ) {
+        await this.assertTextQuota({
+            userId,
+            type: 'suggest_titles',
+            payload: { content: content.slice(0, AI_CHUNK_SIZE), language },
+        })
+
         const provider = await getAIProvider('text')
         const prompt = formatPrompt(AI_PROMPTS.SUGGEST_TITLES, {
             content: content.slice(0, AI_CHUNK_SIZE),
@@ -131,6 +157,12 @@ export class TextService extends AIBaseService {
     }
 
     static async suggestSlug(title: string, content: string, userId?: string) {
+        await this.assertTextQuota({
+            userId,
+            type: 'suggest_slug',
+            payload: { title, content: content.slice(0, AI_CHUNK_SIZE) },
+        })
+
         const provider = await getAIProvider('text')
         const prompt = formatPrompt(AI_PROMPTS.SUGGEST_SLUG, {
             title,
@@ -182,6 +214,16 @@ export class TextService extends AIBaseService {
                 message: 'Content too long for AI analysis',
             })
         }
+
+        await this.assertTextQuota({
+            userId,
+            type: 'summarize',
+            payload: {
+                content: content.slice(0, AI_MAX_CONTENT_LENGTH),
+                maxLength,
+                language,
+            },
+        })
 
         const provider = await getAIProvider('text')
         if (!provider.chat) {
@@ -277,6 +319,12 @@ export class TextService extends AIBaseService {
     }
 
     static async refineVoice(content: string, language: string = 'zh-CN', userId?: string) {
+        await this.assertTextQuota({
+            userId,
+            type: 'refine_voice',
+            payload: { content: content.slice(0, AI_CHUNK_SIZE), language },
+        })
+
         const provider = await getAIProvider('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')
@@ -310,6 +358,13 @@ export class TextService extends AIBaseService {
     }
 
     static async optimizeManuscript(content: string, language: string = 'zh-CN', userId?: string, mode: 'speech' | 'podcast' = 'speech') {
+        await this.assertTextQuota({
+            userId,
+            type: 'optimize_manuscript',
+            category: mode === 'podcast' ? 'podcast' : 'text',
+            payload: { content: content.slice(0, AI_CHUNK_SIZE), language, mode },
+        })
+
         const provider = await getAIProvider('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')
@@ -356,6 +411,20 @@ export class TextService extends AIBaseService {
             throw createError({ statusCode: 400, statusMessage: 'Either snippets or topic must be provided' })
         }
 
+        await this.assertTextQuota({
+            userId,
+            type: 'generate_scaffold',
+            payload: {
+                snippets: snippets.slice(0, 10),
+                topic,
+                template,
+                sectionCount,
+                audience,
+                includeIntroConclusion,
+                language,
+            },
+        })
+
         const provider = await getAIProvider('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')
@@ -396,6 +465,19 @@ export class TextService extends AIBaseService {
 
     static async expandSection(options: ExpandSectionOptions, userId?: string) {
         const { topic, sectionTitle, sectionContent, expandType, language = 'zh-CN' } = options
+
+        await this.assertTextQuota({
+            userId,
+            type: 'expand_section',
+            payload: {
+                topic,
+                sectionTitle,
+                sectionContent,
+                expandType,
+                language,
+            },
+        })
+
         const provider = await getAIProvider('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')
@@ -428,6 +510,12 @@ export class TextService extends AIBaseService {
     }
 
     static async translate(content: string, to: string, userId?: string) {
+        await this.assertTextQuota({
+            userId,
+            type: 'translate',
+            payload: { content: content.slice(0, AI_CHUNK_SIZE), to },
+        })
+
         const provider = await getAIProvider('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')
@@ -458,6 +546,12 @@ export class TextService extends AIBaseService {
     }
 
     static async translateName(name: string, to: string, userId?: string) {
+        await this.assertTextQuota({
+            userId,
+            type: 'translate_name',
+            payload: { name, to },
+        })
+
         const provider = await getAIProvider('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')
@@ -488,6 +582,12 @@ export class TextService extends AIBaseService {
     }
 
     static async suggestSlugFromName(name: string, userId?: string) {
+        await this.assertTextQuota({
+            userId,
+            type: 'suggest_slug',
+            payload: { name },
+        })
+
         const provider = await getAIProvider('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')
@@ -518,6 +618,16 @@ export class TextService extends AIBaseService {
     }
 
     static async recommendTags(content: string, existingTags: string[] = [], language: string = 'zh-CN', userId?: string) {
+        await this.assertTextQuota({
+            userId,
+            type: 'recommend_tags',
+            payload: {
+                content: content.slice(0, AI_CHUNK_SIZE),
+                existingTags,
+                language,
+            },
+        })
+
         const provider = await getAIProvider('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')

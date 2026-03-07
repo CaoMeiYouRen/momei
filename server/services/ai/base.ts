@@ -8,6 +8,7 @@ import {
     normalizeUsageSnapshot,
     serializeUsageSnapshot,
 } from '@/server/utils/ai/cost-governance'
+import { assertAIQuotaAllowance } from '@/server/services/ai/quota-governance'
 import logger from '@/server/utils/logger'
 import type { AICategory, AIChargeStatus, AIFailureStage, AIUsageSnapshot } from '@/types/ai'
 
@@ -25,6 +26,18 @@ function serializePayload(payload: unknown): string {
 }
 
 export abstract class AIBaseService {
+    protected static async assertQuotaAllowance(options: {
+        userId?: string
+        userRole?: string | null
+        category?: string | null
+        type: string
+        payload?: unknown
+        estimatedQuotaUnits?: number
+        estimatedCost?: number
+    }) {
+        await assertAIQuotaAllowance(options)
+    }
+
     /**
      * 获取任务状态
      */

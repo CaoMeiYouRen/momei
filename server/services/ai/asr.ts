@@ -12,6 +12,20 @@ export class ASRService extends AIBaseService {
      * 转录音频为文本
      */
     static async transcribe(audio: Buffer | Blob, options: Partial<TranscribeOptions> = {}, userId?: string) {
+        const audioSize = audio instanceof Buffer ? audio.length : (audio as any).size
+
+        await this.assertQuotaAllowance({
+            userId,
+            category: 'asr',
+            type: 'transcription',
+            payload: {
+                options,
+                size: audioSize,
+                fileName: (options as any).fileName || 'audio.webm',
+                mimeType: (options as any).mimeType || 'audio/webm',
+            },
+        })
+
         const provider = await getAIProvider('asr')
 
         try {
@@ -29,7 +43,6 @@ export class ASRService extends AIBaseService {
                 'ASR transcription',
             )
 
-            const audioSize = audio instanceof Buffer ? audio.length : (audio as any).size
             const textLength = response.text.length
 
             await this.recordTask({
@@ -76,6 +89,19 @@ export class ASRService extends AIBaseService {
         provider?: string
     }): Promise<{ taskId: string }> {
         const { userId, audioBuffer, fileName, mimeType, language, provider: preferredProvider } = options
+
+        await this.assertQuotaAllowance({
+            userId,
+            category: 'asr',
+            type: 'async_transcription',
+            payload: {
+                fileName,
+                mimeType,
+                language,
+                size: audioBuffer.length,
+                provider: preferredProvider,
+            },
+        })
 
         // 获取提供者
         const provider = await getAIProvider('asr')

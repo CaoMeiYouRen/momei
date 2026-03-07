@@ -1,5 +1,28 @@
 import { z } from 'zod'
 
+const aiQuotaScopeSchema = z.string().trim().refine((value) => {
+    return value === 'all'
+        || ['text', 'image', 'asr', 'tts', 'podcast'].includes(value)
+        || value.startsWith('type:')
+}, {
+    message: 'Invalid AI quota scope',
+})
+
+export const aiQuotaPolicySchema = z.object({
+    subjectType: z.enum(['global', 'role', 'trust_level', 'user']),
+    subjectValue: z.string().trim().min(1),
+    scope: aiQuotaScopeSchema,
+    period: z.enum(['day', 'month']),
+    maxRequests: z.number().int().min(0).optional(),
+    maxQuotaUnits: z.number().min(0).optional(),
+    maxActualCost: z.number().min(0).optional(),
+    maxConcurrentHeavyTasks: z.number().int().min(0).optional(),
+    isExempt: z.boolean().optional().default(false),
+    enabled: z.boolean().optional().default(true),
+})
+
+export const aiQuotaPoliciesSchema = z.array(aiQuotaPolicySchema)
+
 export const aiTranslateSchema = z.object({
     content: z.string().min(1),
     targetLanguage: z.string().min(2).max(10),

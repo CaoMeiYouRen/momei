@@ -57,6 +57,45 @@
         <Divider class="my-8" />
 
         <SettingFormField
+            input-id="ai_quota_enabled"
+            :label="$t('pages.admin.settings.system.keys.ai_quota_title')"
+            :description="$t('pages.admin.settings.system.keys.ai_quota_description')"
+            :metadata="metadata.ai_quota_enabled"
+            inline
+        >
+            <ToggleSwitch
+                id="ai_quota_enabled"
+                v-model="settings.ai_quota_enabled"
+                :disabled="metadata.ai_quota_enabled?.isLocked"
+            />
+        </SettingFormField>
+
+        <div v-if="settings.ai_quota_enabled" class="ai-settings__group">
+            <SettingFormField
+                field-key="ai_quota_policies"
+                input-id="ai_quota_policies"
+                :label="$t('pages.admin.settings.system.keys.ai_quota_policies')"
+                :description="$t('pages.admin.settings.system.hints.ai_quota_policies_description')"
+                :metadata="metadata.ai_quota_policies"
+            >
+                <Textarea
+                    id="ai_quota_policies"
+                    v-model="settings.ai_quota_policies"
+                    :disabled="metadata.ai_quota_policies?.isLocked"
+                    rows="14"
+                    auto-resize
+                    fluid
+                />
+            </SettingFormField>
+
+            <p class="ai-settings__hint">
+                {{ $t('pages.admin.settings.system.hints.ai_quota_policies') }}
+            </p>
+        </div>
+
+        <Divider class="my-8" />
+
+        <SettingFormField
             input-id="ai_image_enabled"
             :label="$t('pages.admin.settings.system.keys.ai_image_title')"
             :description="$t('pages.admin.settings.system.keys.ai_image_description')"
@@ -410,6 +449,13 @@ const ttsProviders = [
     &__shared-group {
         display: flex;
         flex-direction: column;
+    }
+
+    &__hint {
+        margin: 0 0 1.5rem;
+        color: var(--p-text-muted-color);
+        line-height: 1.6;
+        white-space: pre-line;
     }
 }
 </style>

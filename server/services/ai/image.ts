@@ -14,6 +14,13 @@ export class ImageService extends AIBaseService {
         options: AIImageOptions,
         userId: string,
     ) {
+        await this.assertQuotaAllowance({
+            userId,
+            category: 'image',
+            type: 'image_generation',
+            payload: options,
+        })
+
         const task = await this.recordTask({
             userId,
             category: 'image',

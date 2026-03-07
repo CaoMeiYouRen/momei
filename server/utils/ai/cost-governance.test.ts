@@ -56,6 +56,16 @@ describe('ai cost governance utils', () => {
         expect(quota).toBe(12)
     })
 
+    it('should calculate asr quota by audio bytes when duration is unavailable', () => {
+        const quota = calculateQuotaUnits({
+            category: 'asr',
+            type: 'transcription',
+            usageSnapshot: { audioBytes: 5 * 1024 * 1024 },
+        })
+
+        expect(quota).toBe(12)
+    })
+
     it('should infer provider_rejected for 429 errors', () => {
         expect(inferFailureStage({ statusCode: 429 })).toBe('provider_rejected')
     })

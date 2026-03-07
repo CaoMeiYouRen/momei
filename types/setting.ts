@@ -19,6 +19,8 @@ export enum SettingKey {
     AI_MODEL = 'ai_model',
     AI_ENDPOINT = 'ai_endpoint',
     GEMINI_API_TOKEN = 'gemini_api_token',
+    AI_QUOTA_ENABLED = 'ai_quota_enabled',
+    AI_QUOTA_POLICIES = 'ai_quota_policies',
 
     // AI Image
     AI_IMAGE_ENABLED = 'ai_image_enabled',

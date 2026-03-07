@@ -6,6 +6,10 @@ import * as aiUtils from '@/server/utils/ai'
 
 vi.mock('@/server/database')
 vi.mock('@/server/entities/ai-task')
+vi.mock('@/server/services/ai/quota-governance', () => ({
+    assertAIQuotaAllowance: vi.fn(),
+    resolveAIQuotaPolicy: vi.fn(),
+}))
 vi.mock('@/server/utils/ai')
 vi.mock('../upload')
 vi.mock('@/server/utils/logger')
@@ -41,6 +45,7 @@ describe('ImageService', () => {
 
             expect(result.id).toBe('task-123')
             expect(mockRepo.create).toHaveBeenCalledWith({
+                category: 'image',
                 id: undefined,
                 type: 'image_generation',
                 userId: 'user-1',

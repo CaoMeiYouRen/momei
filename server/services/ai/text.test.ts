@@ -5,6 +5,10 @@ import * as aiUtils from '@/server/utils/ai'
 
 vi.mock('@/server/database')
 vi.mock('@/server/entities/ai-task')
+vi.mock('@/server/services/ai/quota-governance', () => ({
+    assertAIQuotaAllowance: vi.fn(),
+    resolveAIQuotaPolicy: vi.fn(),
+}))
 vi.mock('@/server/utils/ai')
 vi.mock('../upload')
 vi.mock('@/server/utils/logger')

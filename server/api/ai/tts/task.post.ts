@@ -3,6 +3,7 @@ import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { AITask } from '@/server/entities/ai-task'
 import { TTSService } from '@/server/services/ai'
+import { assertAIQuotaAllowance } from '@/server/services/ai/quota-governance'
 import { calculateQuotaUnits, deriveChargeStatus, normalizeUsageSnapshot } from '@/server/utils/ai/cost-governance'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { isAdmin } from '@/utils/shared/roles'
@@ -53,6 +54,16 @@ export default defineEventHandler(async (event) => {
             payload: { text: contentToConvert, voice, mode, options },
             textLength: contentToConvert.length,
         }),
+    })
+
+    await assertAIQuotaAllowance({
+        userId: user.id,
+        userRole: user.role,
+        category: mode === 'podcast' ? 'podcast' : 'tts',
+        type: mode === 'podcast' ? 'podcast' : 'tts',
+        payload: { text: contentToConvert, voice, mode, options },
+        estimatedQuotaUnits,
+        estimatedCost,
     })
 
     // 如果没有传 model，则根据 provider 获取其默认 model

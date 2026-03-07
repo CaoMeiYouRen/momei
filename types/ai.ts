@@ -18,6 +18,25 @@ export interface AIUsageSnapshot {
     requestCount?: number
 }
 
+export type AIQuotaPolicySubjectType = 'global' | 'role' | 'trust_level' | 'user'
+
+export type AIQuotaPolicyPeriod = 'day' | 'month'
+
+export type AIQuotaPolicyScope = 'all' | Exclude<AICategory, 'video'> | `type:${string}`
+
+export interface AIQuotaPolicy {
+    subjectType: AIQuotaPolicySubjectType
+    subjectValue: string
+    scope: AIQuotaPolicyScope
+    period: AIQuotaPolicyPeriod
+    maxRequests?: number
+    maxQuotaUnits?: number
+    maxActualCost?: number
+    maxConcurrentHeavyTasks?: number
+    isExempt?: boolean
+    enabled: boolean
+}
+
 export type AIRole = 'system' | 'user' | 'assistant'
 
 // --- Text/Chat ---

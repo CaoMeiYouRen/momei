@@ -1,7 +1,10 @@
 import { z } from 'zod'
 import { requireAdmin } from '@/server/utils/permission'
+import { aiQuotaPoliciesSchema } from '@/utils/schemas/ai'
+import { parseMaybeJson } from '@/utils/shared/coerce'
 import { success } from '@/server/utils/response'
 import { setSettings } from '@/server/services/setting'
+import { SettingKey } from '@/types/setting'
 
 const settingAuditSourceSchema = z.enum(['admin_ui', 'theme_settings', 'commercial_settings', 'api'])
 
@@ -9,7 +12,7 @@ const settingsUpdateSchema = z.object({
     settings: z.record(z.string(), z.any()).optional(),
     reason: z.string().trim().max(255).optional(),
     source: settingAuditSourceSchema.optional(),
-}).passthrough()
+}).loose()
 
 export default defineEventHandler(async (event) => {
     const session = await requireAdmin(event)
@@ -19,6 +22,24 @@ export default defineEventHandler(async (event) => {
     const settingsPayload = body.settings && typeof body.settings === 'object'
         ? body.settings
         : Object.fromEntries(Object.entries(body).filter(([key]) => !reservedKeys.has(key)))
+
+    if (Object.hasOwn(settingsPayload, SettingKey.AI_QUOTA_POLICIES)) {
+        const rawPolicies = settingsPayload[SettingKey.AI_QUOTA_POLICIES]
+        const parsedPolicies = Array.isArray(rawPolicies)
+            ? rawPolicies
+            : parseMaybeJson<unknown[] | null>(String(rawPolicies ?? ''), null)
+        const validation = aiQuotaPoliciesSchema.safeParse(parsedPolicies)
+
+        if (!validation.success) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: 'Invalid AI quota policies JSON',
+                data: z.treeifyError(validation.error),
+            })
+        }
+
+        settingsPayload[SettingKey.AI_QUOTA_POLICIES] = JSON.stringify(validation.data, null, 2)
+    }
 
     await setSettings(settingsPayload, {
         operatorId: session.user.id,

@@ -181,7 +181,11 @@ export function calculateQuotaUnits(options: {
         baseMeasure = Math.max(1, snapshot.imageCount || 1)
         baseMeasure *= getImageModelFactor(snapshot, payload)
     } else if (normalizedCategory === 'asr') {
-        baseMeasure = Math.max(1, Math.ceil((snapshot.audioSeconds || 0) / 30))
+        if (snapshot.audioSeconds && snapshot.audioSeconds > 0) {
+            baseMeasure = Math.max(1, Math.ceil(snapshot.audioSeconds / 30))
+        } else if (snapshot.audioBytes && snapshot.audioBytes > 0) {
+            baseMeasure = Math.max(1, Math.ceil(snapshot.audioBytes / (1024 * 1024 * 2)))
+        }
     } else if (normalizedCategory === 'tts') {
         baseMeasure = Math.max(1, Math.ceil((snapshot.textChars || 0) / 1000))
     } else if (normalizedCategory === 'podcast') {

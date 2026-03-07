@@ -1126,6 +1126,9 @@
                         "ai_api_key": "API Key",
                         "ai_model": "Model Name",
                         "ai_endpoint": "API Endpoint",
+                        "ai_quota_title": "AI Tiered Quota Governance",
+                        "ai_quota_description": "Configure request, quota unit, cost, and heavy-task concurrency limits by global, role, and user layers.",
+                        "ai_quota_policies": "AI Quota Policies JSON",
                         "ai_image_title": "AI Image Generation",
                         "ai_image_description": "Configure models for generating blog covers and illustrations",
                         "ai_image_provider": "AI Image Provider",
@@ -1173,6 +1176,8 @@
                     },
                     "hints": {
                         "env_locked": "Locked by environment variable",
+                        "ai_quota_policies_description": "Enter a JSON array of policies. The current implementation supports global, role, and user overrides; trust_level is reserved for a later phase.",
+                        "ai_quota_policies": "Example:\n[\n  ｛\n    \"subjectType\": \"global\",\n    \"subjectValue\": \"default\",\n    \"scope\": \"all\",\n    \"period\": \"day\",\n    \"maxRequests\": 100,\n    \"maxQuotaUnits\": 200\n  ｝,\n  ｛\n    \"subjectType\": \"role\",\n    \"subjectValue\": \"author\",\n    \"scope\": \"image\",\n    \"period\": \"day\",\n    \"maxConcurrentHeavyTasks\": 2\n  ｝\n]",
                         "keywords_placeholder": "One keyword per line. Matching comments will be marked as pending or spam.",
                         "file_types_placeholder": "e.g., .jpg, .png, .mp3 (Comma separated)",
                         "live2d_script_url": "e.g., https://unpkg.com/live2d-widgets{'@'}1.0.0/dist/",
