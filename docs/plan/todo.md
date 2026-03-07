@@ -67,6 +67,13 @@
 	- [ ] 补充上传签名、资源访问、路径重写与迁移工具相关测试
 	- [ ] 更新存储模块设计文档与部署说明，明确直传与 CDN 配置路径
 
+### 6. 安全热修复 (Security Hotfixes) (P0)
+- [x] **Dependabot 传递依赖漏洞热修复**
+	- [x] 通过 pnpm overrides 将 `immutable` 锁定到 `>= 5.1.5`
+	- [x] 通过 pnpm overrides 将 `tar` 锁定到 `>= 7.5.10`
+	- [x] 通过 pnpm overrides 将 `svgo` 锁定到 `>= 4.0.1`
+	- [x] 更新 lockfile 并验证漏洞版本不再出现在依赖树中
+
 
 ---
 
