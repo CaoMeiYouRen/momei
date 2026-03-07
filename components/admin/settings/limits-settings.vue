@@ -1,14 +1,10 @@
 <template>
     <div class="settings-form">
-        <div class="form-field">
-            <label for="posts_per_page" class="flex gap-2 items-center">
-                {{ $t('pages.admin.settings.system.keys.posts_per_page') }}
-                <i
-                    v-if="metadata.posts_per_page?.isLocked"
-                    v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                    class="pi pi-lock text-orange-500 text-xs"
-                />
-            </label>
+        <SettingFormField
+            field-key="posts_per_page"
+            input-id="posts_per_page"
+            :metadata="metadata.posts_per_page"
+        >
             <InputNumber
                 id="posts_per_page"
                 v-model="settings.posts_per_page"
@@ -17,16 +13,13 @@
                 :min="1"
                 :max="100"
             />
-        </div>
-        <div class="form-field">
-            <label for="max_upload_size" class="flex gap-2 items-center">
-                {{ $t('pages.admin.settings.system.keys.max_upload_size') }}
-                <i
-                    v-if="metadata.max_upload_size?.isLocked"
-                    v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                    class="pi pi-lock text-orange-500 text-xs"
-                />
-            </label>
+        </SettingFormField>
+
+        <SettingFormField
+            field-key="max_upload_size"
+            input-id="max_upload_size"
+            :metadata="metadata.max_upload_size"
+        >
             <InputNumber
                 id="max_upload_size"
                 v-model="settings.max_upload_size"
@@ -35,16 +28,13 @@
                 :min="1"
                 suffix=" MB"
             />
-        </div>
-        <div class="form-field">
-            <label for="allowed_file_types" class="flex gap-2 items-center">
-                {{ $t('pages.admin.settings.system.keys.allowed_file_types') }}
-                <i
-                    v-if="metadata.allowed_file_types?.isLocked"
-                    v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                    class="pi pi-lock text-orange-500 text-xs"
-                />
-            </label>
+        </SettingFormField>
+
+        <SettingFormField
+            field-key="allowed_file_types"
+            input-id="allowed_file_types"
+            :metadata="metadata.allowed_file_types"
+        >
             <InputText
                 id="allowed_file_types"
                 v-model="settings.allowed_file_types"
@@ -52,16 +42,13 @@
                 fluid
                 :placeholder="$t('pages.admin.settings.system.hints.file_types_placeholder')"
             />
-        </div>
-        <div class="form-field">
-            <label for="comment_interval" class="flex gap-2 items-center">
-                {{ $t('pages.admin.settings.system.keys.comment_interval') }}
-                <i
-                    v-if="metadata.comment_interval?.isLocked"
-                    v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                    class="pi pi-lock text-orange-500 text-xs"
-                />
-            </label>
+        </SettingFormField>
+
+        <SettingFormField
+            field-key="comment_interval"
+            input-id="comment_interval"
+            :metadata="metadata.comment_interval"
+        >
             <InputNumber
                 id="comment_interval"
                 v-model="settings.comment_interval"
@@ -70,23 +57,13 @@
                 :min="0"
                 suffix=" s"
             />
-        </div>
+        </SettingFormField>
     </div>
 </template>
 
 <script setup lang="ts">
+import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
+
 const settings = defineModel<any>('settings', { required: true })
 defineProps<{ metadata: any }>()
 </script>
-
-<style lang="scss" scoped>
-.form-field {
-    margin-bottom: 1.5rem;
-
-    label {
-        display: block;
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-    }
-}
-</style>

@@ -1,14 +1,10 @@
 <template>
     <div class="settings-form">
-        <div class="form-field">
-            <label for="storage_type" class="flex gap-2 items-center">
-                {{ $t('pages.admin.settings.system.keys.storage_type') }}
-                <i
-                    v-if="metadata.storage_type?.isLocked"
-                    v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                    class="pi pi-lock text-orange-500 text-xs"
-                />
-            </label>
+        <SettingFormField
+            field-key="storage_type"
+            input-id="storage_type"
+            :metadata="metadata.storage_type"
+        >
             <Select
                 id="storage_type"
                 v-model="settings.storage_type"
@@ -16,101 +12,81 @@
                 :disabled="metadata.storage_type?.isLocked"
                 fluid
             />
-        </div>
+        </SettingFormField>
 
         <template v-if="settings.storage_type === 'local'">
-            <div class="form-field">
-                <label for="local_storage_dir" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.local_storage_dir') }}
-                    <i
-                        v-if="metadata.local_storage_dir?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
+            <SettingFormField
+                field-key="local_storage_dir"
+                input-id="local_storage_dir"
+                :metadata="metadata.local_storage_dir"
+            >
                 <InputText
                     id="local_storage_dir"
                     v-model="settings.local_storage_dir"
                     :disabled="metadata.local_storage_dir?.isLocked"
                     fluid
                 />
-            </div>
-            <div class="form-field">
-                <label for="local_storage_base_url" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.local_storage_base_url') }}
-                    <i
-                        v-if="metadata.local_storage_base_url?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="local_storage_base_url"
+                input-id="local_storage_base_url"
+                :metadata="metadata.local_storage_base_url"
+            >
                 <InputText
                     id="local_storage_base_url"
                     v-model="settings.local_storage_base_url"
                     :disabled="metadata.local_storage_base_url?.isLocked"
                     fluid
                 />
-            </div>
+            </SettingFormField>
         </template>
 
         <template v-if="settings.storage_type === 's3'">
-            <div class="form-field">
-                <label for="s3_endpoint" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.s3_endpoint') }}
-                    <i
-                        v-if="metadata.s3_endpoint?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
+            <SettingFormField
+                field-key="s3_endpoint"
+                input-id="s3_endpoint"
+                :metadata="metadata.s3_endpoint"
+            >
                 <InputText
                     id="s3_endpoint"
                     v-model="settings.s3_endpoint"
                     :disabled="metadata.s3_endpoint?.isLocked"
                     fluid
                 />
-            </div>
-            <div class="form-field">
-                <label for="s3_bucket" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.s3_bucket') }}
-                    <i
-                        v-if="metadata.s3_bucket?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="s3_bucket"
+                input-id="s3_bucket"
+                :metadata="metadata.s3_bucket"
+            >
                 <InputText
                     id="s3_bucket"
                     v-model="settings.s3_bucket"
                     :disabled="metadata.s3_bucket?.isLocked"
                     fluid
                 />
-            </div>
-            <div class="form-field">
-                <label for="s3_region" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.s3_region') }}
-                    <i
-                        v-if="metadata.s3_region?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="s3_region"
+                input-id="s3_region"
+                :metadata="metadata.s3_region"
+            >
                 <InputText
                     id="s3_region"
                     v-model="settings.s3_region"
                     :disabled="metadata.s3_region?.isLocked"
                     fluid
                 />
-            </div>
-            <div class="form-field">
-                <label for="s3_access_key" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.s3_access_key') }}
-                    <i
-                        v-if="metadata.s3_access_key?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="s3_access_key"
+                input-id="s3_access_key"
+                :metadata="metadata.s3_access_key"
+            >
                 <Password
                     id="s3_access_key"
                     v-model="settings.s3_access_key"
@@ -118,16 +94,13 @@
                     :toggle-mask="true"
                     fluid
                 />
-            </div>
-            <div class="form-field">
-                <label for="s3_secret_key" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.s3_secret_key') }}
-                    <i
-                        v-if="metadata.s3_secret_key?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="s3_secret_key"
+                input-id="s3_secret_key"
+                :metadata="metadata.s3_secret_key"
+            >
                 <Password
                     id="s3_secret_key"
                     v-model="settings.s3_secret_key"
@@ -135,35 +108,28 @@
                     :toggle-mask="true"
                     fluid
                 />
-            </div>
-            <div class="form-field">
-                <label for="s3_base_url" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.s3_base_url') }}
-                    <i
-                        v-if="metadata.s3_base_url?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="s3_base_url"
+                input-id="s3_base_url"
+                :metadata="metadata.s3_base_url"
+            >
                 <InputText
                     id="s3_base_url"
                     v-model="settings.s3_base_url"
                     :disabled="metadata.s3_base_url?.isLocked"
                     fluid
                 />
-            </div>
+            </SettingFormField>
         </template>
 
         <template v-if="settings.storage_type === 'vercel_blob'">
-            <div class="form-field">
-                <label for="vercel_blob_token" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.vercel_blob_token') }}
-                    <i
-                        v-if="metadata.vercel_blob_token?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
+            <SettingFormField
+                field-key="vercel_blob_token"
+                input-id="vercel_blob_token"
+                :metadata="metadata.vercel_blob_token"
+            >
                 <Password
                     id="vercel_blob_token"
                     v-model="settings.vercel_blob_token"
@@ -171,25 +137,15 @@
                     :toggle-mask="true"
                     fluid
                 />
-            </div>
+            </SettingFormField>
         </template>
     </div>
 </template>
 
 <script setup lang="ts">
+import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
+
 const settings = defineModel<any>('settings', { required: true })
 defineProps<{ metadata: any }>()
 const storageTypes = ['local', 's3', 'vercel_blob']
 </script>
-
-<style lang="scss" scoped>
-.form-field {
-    margin-bottom: 1.5rem;
-
-    label {
-        display: block;
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-    }
-}
-</style>

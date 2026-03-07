@@ -39,31 +39,7 @@
                 <span>{{ $t('pages.admin.settings.system.smart_mode.source_counts.db') }}</span>
                 <Tag severity="success" :value="String(stats.sources.db)" />
             </div>
-            <div class="setting-explanation-card__stat">
-                <span>{{ $t('pages.admin.settings.system.smart_mode.source_counts.default') }}</span>
-                <Tag severity="info" :value="String(stats.sources.default)" />
-            </div>
         </div>
-
-        <div v-if="items.length" class="setting-explanation-card__list">
-            <div
-                v-for="item in items"
-                :key="item.key"
-                class="setting-explanation-card__item"
-            >
-                <div class="setting-explanation-card__item-header">
-                    <span class="setting-explanation-card__item-title">{{ item.label }}</span>
-                    <Tag :severity="sourceSeverity[item.source]" :value="$t(`pages.admin.settings.system.source_badges.${item.source}`)" />
-                </div>
-                <p class="setting-explanation-card__item-message">
-                    {{ item.message }}
-                </p>
-            </div>
-        </div>
-
-        <p v-else class="setting-explanation-card__empty">
-            {{ $t('pages.admin.settings.system.smart_mode.empty') }}
-        </p>
     </div>
 </template>
 
@@ -77,23 +53,9 @@ interface ExplanationCardStats {
     sources: Record<SettingSource, number>
 }
 
-interface ExplanationCardItem {
-    key: string
-    label: string
-    source: SettingSource
-    message: string
-}
-
 defineProps<{
     stats: ExplanationCardStats
-    items: ExplanationCardItem[]
 }>()
-
-const sourceSeverity: Record<SettingSource, 'warn' | 'success' | 'info'> = {
-    env: 'warn',
-    db: 'success',
-    default: 'info',
-}
 </script>
 
 <style lang="scss" scoped>
@@ -145,9 +107,8 @@ const sourceSeverity: Record<SettingSource, 'warn' | 'success' | 'info'> = {
 
     &__stats {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 0.75rem;
-        margin-bottom: 1rem;
     }
 
     &__stat {
@@ -158,39 +119,6 @@ const sourceSeverity: Record<SettingSource, 'warn' | 'success' | 'info'> = {
         padding: 0.75rem;
         border-radius: 0.75rem;
         background: color-mix(in srgb, var(--p-surface-0) 88%, transparent);
-    }
-
-    &__list {
-        display: grid;
-        gap: 0.75rem;
-    }
-
-    &__item {
-        padding: 0.85rem 1rem;
-        border-radius: 0.75rem;
-        background: color-mix(in srgb, var(--p-surface-0) 92%, transparent);
-    }
-
-    &__item-header {
-        display: flex;
-        gap: 0.75rem;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    &__item-title {
-        font-weight: 600;
-    }
-
-    &__item-message {
-        margin: 0.5rem 0 0;
-        color: var(--p-text-muted-color);
-        line-height: 1.5;
-    }
-
-    &__empty {
-        margin: 0;
-        color: var(--p-text-muted-color);
     }
 }
 

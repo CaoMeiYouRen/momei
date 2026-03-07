@@ -13,7 +13,7 @@
 
         <Card>
             <template #content>
-                <SettingExplanationCard :stats="smartModeStats" :items="smartModeItems" />
+                <SettingExplanationCard :stats="smartModeStats" />
 
                 <Tabs v-model:value="activeTab">
                     <TabList>
@@ -189,28 +189,6 @@ function normalizeFormValue(setting: SettingItem): SettingFormValue {
     return setting.value
 }
 
-function getSmartModeMessage(key: string, item: SettingMetadata) {
-    if (item.lockReason === 'env_override') {
-        return t('pages.admin.settings.system.smart_mode.messages.env_override', {
-            envKey: item.envKey ?? key.toUpperCase(),
-        })
-    }
-
-    if (item.lockReason === 'forced_env_lock') {
-        return t('pages.admin.settings.system.smart_mode.messages.forced_env_lock')
-    }
-
-    if (item.defaultUsed) {
-        return t('pages.admin.settings.system.smart_mode.messages.default_used')
-    }
-
-    if (item.requiresRestart) {
-        return t('pages.admin.settings.system.smart_mode.messages.restart_required')
-    }
-
-    return item.description || t('pages.admin.settings.system.smart_mode.messages.db_active')
-}
-
 const smartModeStats = computed(() => {
     const items = Object.values(metadata.value)
 
@@ -224,23 +202,6 @@ const smartModeStats = computed(() => {
             default: items.filter((item) => item.source === 'default').length,
         } satisfies Record<SettingSource, number>,
     }
-})
-
-const smartModeItems = computed(() => {
-    return Object.entries(metadata.value)
-        .filter(([, item]) => item.isLocked || item.defaultUsed || item.requiresRestart)
-        .sort(([, left], [, right]) => {
-            const leftScore = Number(left.isLocked) * 4 + Number(left.defaultUsed) * 2 + Number(left.requiresRestart)
-            const rightScore = Number(right.isLocked) * 4 + Number(right.defaultUsed) * 2 + Number(right.requiresRestart)
-            return rightScore - leftScore
-        })
-        .slice(0, 12)
-        .map(([key, item]) => ({
-            key,
-            label: t(`pages.admin.settings.system.keys.${key}`),
-            source: item.source,
-            message: getSmartModeMessage(key, item),
-        }))
 })
 
 const loadSettings = async () => {

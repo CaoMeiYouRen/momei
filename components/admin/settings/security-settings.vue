@@ -1,47 +1,37 @@
 <template>
     <div class="settings-form">
-        <div class="form-field">
-            <label for="allow_registration" class="flex gap-2 items-center">
-                {{ $t('pages.admin.settings.system.keys.allow_registration') }}
-                <i
-                    v-if="metadata.allow_registration?.isLocked"
-                    v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                    class="pi pi-lock text-orange-500 text-xs"
-                />
-            </label>
+        <SettingFormField
+            field-key="allow_registration"
+            input-id="allow_registration"
+            :metadata="metadata.allow_registration"
+            inline
+        >
             <ToggleSwitch
                 id="allow_registration"
                 v-model="settings.allow_registration"
                 :disabled="metadata.allow_registration?.isLocked"
             />
-        </div>
+        </SettingFormField>
 
-        <div class="form-field">
-            <label for="enable_captcha" class="flex gap-2 items-center">
-                {{ $t('pages.admin.settings.system.keys.enable_captcha') }}
-                <i
-                    v-if="metadata.enable_captcha?.isLocked"
-                    v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                    class="pi pi-lock text-orange-500 text-xs"
-                />
-            </label>
+        <SettingFormField
+            field-key="enable_captcha"
+            input-id="enable_captcha"
+            :metadata="metadata.enable_captcha"
+            inline
+        >
             <ToggleSwitch
                 id="enable_captcha"
                 v-model="settings.enable_captcha"
                 :disabled="metadata.enable_captcha?.isLocked"
             />
-        </div>
+        </SettingFormField>
 
         <template v-if="settings.enable_captcha">
-            <div class="form-field">
-                <label for="captcha_provider" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.captcha_provider') }}
-                    <i
-                        v-if="metadata.captcha_provider?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
+            <SettingFormField
+                field-key="captcha_provider"
+                input-id="captcha_provider"
+                :metadata="metadata.captcha_provider"
+            >
                 <Select
                     id="captcha_provider"
                     v-model="settings.captcha_provider"
@@ -49,32 +39,26 @@
                     :disabled="metadata.captcha_provider?.isLocked"
                     fluid
                 />
-            </div>
-            <div class="form-field">
-                <label for="captcha_site_key" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.captcha_site_key') }}
-                    <i
-                        v-if="metadata.captcha_site_key?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="captcha_site_key"
+                input-id="captcha_site_key"
+                :metadata="metadata.captcha_site_key"
+            >
                 <InputText
                     id="captcha_site_key"
                     v-model="settings.captcha_site_key"
                     :disabled="metadata.captcha_site_key?.isLocked"
                     fluid
                 />
-            </div>
-            <div class="form-field">
-                <label for="captcha_secret_key" class="flex gap-2 items-center">
-                    {{ $t('pages.admin.settings.system.keys.captcha_secret_key') }}
-                    <i
-                        v-if="metadata.captcha_secret_key?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="pi pi-lock text-orange-500 text-xs"
-                    />
-                </label>
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="captcha_secret_key"
+                input-id="captcha_secret_key"
+                :metadata="metadata.captcha_secret_key"
+            >
                 <Password
                     id="captcha_secret_key"
                     v-model="settings.captcha_secret_key"
@@ -82,36 +66,29 @@
                     :toggle-mask="true"
                     fluid
                 />
-            </div>
+            </SettingFormField>
         </template>
 
         <Divider />
 
-        <div class="form-field">
-            <label for="enable_comment_review" class="flex gap-2 items-center">
-                {{ $t('pages.admin.settings.system.keys.enable_comment_review') }}
-                <i
-                    v-if="metadata.enable_comment_review?.isLocked"
-                    v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                    class="pi pi-lock text-orange-500 text-xs"
-                />
-            </label>
+        <SettingFormField
+            field-key="enable_comment_review"
+            input-id="enable_comment_review"
+            :metadata="metadata.enable_comment_review"
+            inline
+        >
             <ToggleSwitch
                 id="enable_comment_review"
                 v-model="settings.enable_comment_review"
                 :disabled="metadata.enable_comment_review?.isLocked"
             />
-        </div>
+        </SettingFormField>
 
-        <div class="form-field">
-            <label for="blacklisted_keywords" class="flex gap-2 items-center">
-                {{ $t('pages.admin.settings.system.keys.blacklisted_keywords') }}
-                <i
-                    v-if="metadata.blacklisted_keywords?.isLocked"
-                    v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                    class="pi pi-lock text-orange-500 text-xs"
-                />
-            </label>
+        <SettingFormField
+            field-key="blacklisted_keywords"
+            input-id="blacklisted_keywords"
+            :metadata="metadata.blacklisted_keywords"
+        >
             <Textarea
                 id="blacklisted_keywords"
                 v-model="settings.blacklisted_keywords"
@@ -120,24 +97,14 @@
                 fluid
                 :placeholder="$t('pages.admin.settings.system.hints.keywords_placeholder')"
             />
-        </div>
+        </SettingFormField>
     </div>
 </template>
 
 <script setup lang="ts">
+import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
+
 const settings = defineModel<any>('settings', { required: true })
 defineProps<{ metadata: any }>()
 const captchaTypes = ['turnstile', 'recaptcha', 'hcaptcha']
 </script>
-
-<style lang="scss" scoped>
-.form-field {
-    margin-bottom: 1.5rem;
-
-    label {
-        display: block;
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-    }
-}
-</style>

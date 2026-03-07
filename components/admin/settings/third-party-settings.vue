@@ -5,17 +5,12 @@
                 {{ $t('pages.admin.settings.system.sections.memos') }}
             </h3>
 
-            <div class="third-party-settings__field third-party-settings__field--switch">
-                <div class="third-party-settings__label-group">
-                    <label for="memos_enabled">
-                        {{ $t('pages.admin.settings.system.keys.memos_enabled') }}
-                    </label>
-                    <i
-                        v-if="metadata.memos_enabled?.isLocked"
-                        v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                        class="lock-icon pi pi-lock"
-                    />
-                </div>
+            <SettingFormField
+                field-key="memos_enabled"
+                input-id="memos_enabled"
+                :metadata="metadata.memos_enabled"
+                inline
+            >
                 <ToggleSwitch
                     id="memos_enabled"
                     v-model="settings.memos_enabled"
@@ -23,20 +18,14 @@
                     :false-value="'false'"
                     :disabled="metadata.memos_enabled?.isLocked"
                 />
-            </div>
+            </SettingFormField>
 
             <div v-if="settings.memos_enabled === 'true'" class="third-party-settings__sub-fields">
-                <div class="third-party-settings__field">
-                    <div class="third-party-settings__label-group">
-                        <label for="memos_instance_url">
-                            {{ $t('pages.admin.settings.system.keys.memos_instance_url') }}
-                        </label>
-                        <i
-                            v-if="metadata.memos_instance_url?.isLocked"
-                            v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                            class="lock-icon pi pi-lock"
-                        />
-                    </div>
+                <SettingFormField
+                    field-key="memos_instance_url"
+                    input-id="memos_instance_url"
+                    :metadata="metadata.memos_instance_url"
+                >
                     <InputText
                         id="memos_instance_url"
                         v-model="settings.memos_instance_url"
@@ -44,19 +33,13 @@
                         :disabled="metadata.memos_instance_url?.isLocked"
                         fluid
                     />
-                </div>
+                </SettingFormField>
 
-                <div class="third-party-settings__field">
-                    <div class="third-party-settings__label-group">
-                        <label for="memos_access_token">
-                            {{ $t('pages.admin.settings.system.keys.memos_access_token') }}
-                        </label>
-                        <i
-                            v-if="metadata.memos_access_token?.isLocked"
-                            v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                            class="lock-icon pi pi-lock"
-                        />
-                    </div>
+                <SettingFormField
+                    field-key="memos_access_token"
+                    input-id="memos_access_token"
+                    :metadata="metadata.memos_access_token"
+                >
                     <Password
                         id="memos_access_token"
                         v-model="settings.memos_access_token"
@@ -65,19 +48,13 @@
                         :toggle-mask="true"
                         fluid
                     />
-                </div>
+                </SettingFormField>
 
-                <div class="third-party-settings__field">
-                    <div class="third-party-settings__label-group">
-                        <label for="memos_default_visibility">
-                            {{ $t('pages.admin.settings.system.keys.memos_default_visibility') }}
-                        </label>
-                        <i
-                            v-if="metadata.memos_default_visibility?.isLocked"
-                            v-tooltip="$t('pages.admin.settings.system.hints.env_locked')"
-                            class="lock-icon pi pi-lock"
-                        />
-                    </div>
+                <SettingFormField
+                    field-key="memos_default_visibility"
+                    input-id="memos_default_visibility"
+                    :metadata="metadata.memos_default_visibility"
+                >
                     <Select
                         id="memos_default_visibility"
                         v-model="settings.memos_default_visibility"
@@ -87,7 +64,7 @@
                         :disabled="metadata.memos_default_visibility?.isLocked"
                         fluid
                     />
-                </div>
+                </SettingFormField>
             </div>
         </div>
     </div>
@@ -96,6 +73,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 
 const { t } = useI18n()
 
@@ -121,36 +99,6 @@ const visibilityOptions = computed(() => [
         padding-bottom: 0.5rem;
         margin-bottom: 1.5rem;
         border-bottom: 1px solid var(--p-surface-border);
-    }
-
-    &__field {
-        margin-bottom: 1.5rem;
-
-        &--switch {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-    }
-
-    &__label-group {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-
-        label {
-            font-weight: 500;
-        }
-
-        .lock-icon {
-            font-size: 0.75rem;
-            color: var(--p-orange-500);
-        }
-    }
-
-    &__field--switch &__label-group {
-        margin-bottom: 0;
     }
 
     &__sub-fields {
