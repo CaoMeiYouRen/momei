@@ -32,10 +32,12 @@
 
 | 环境变量 | 系统设置键名 (SettingKey) | 等级 | 脱敏 | 说明 |
 | :--- | :--- | :--- | :--- | :--- |
-| `NUXT_PUBLIC_APP_NAME` | `site_name` | 0 | none | 站点名称，显示在标题栏与页脚 |
-| `NUXT_PUBLIC_SITE_URL` | `site_url` | 0 | none | 站点基础 URL，影响 SEO 与 RSS |
+| `NUXT_PUBLIC_APP_NAME` | `site_name` / `site_title` | 0 | none | 站点名称，同时影响标题与部分公开文案 |
+| `NUXT_PUBLIC_SITE_URL` | - | 0 | none | 运行时公开站点 URL，用于 SEO、Sitemap、RSS 和公开链接生成 |
 | `AUTH_SECRET` | - | 3 | password | **核心密钥**，不进入数据库，仅限 ENV |
-| `NUXT_PUBLIC_AUTH_BASE_URL` | `site_url` | 0 | none | 认证回调地址，建议与 SITE_URL 一致 |
+| `NUXT_PUBLIC_AUTH_BASE_URL` | `site_url` | 0 | none | Better Auth 回调地址，系统设置锁定态主要基于此变量 |
+| `NUXT_PUBLIC_DEFAULT_COPYRIGHT` | `site_copyright` | 0 | none | 默认版权声明类型 |
+| `NUXT_PUBLIC_CONTACT_EMAIL` | `contact_email` | 0 | email | 站点公开联系邮箱 |
 | `MACHINE_ID` | - | 3 | none | 分布式 ID 机器码 (0-1023) |
 
 ### 2.2 AI 引擎 (AI Integration)
@@ -48,7 +50,18 @@
 | `AI_API_KEY` | `ai_api_key` | 2 | key | AI 服务商生成的 API 密钥 |
 | `AI_MODEL` | `ai_model` | 2 | none | 默认执行模型名称 |
 | `AI_API_ENDPOINT` | `ai_endpoint` | 2 | none | API 代理/转发地址 |
+| `GEMINI_API_TOKEN` | `gemini_api_token` | 2 | key | Gemini 独立 Token 鉴权 |
 | `ASR_ENABLED` | `asr_enabled` | 0 | none | 语音转文字 (ASR) 开关 |
+| `ASR_PROVIDER` | `asr_provider` | 2 | none | ASR 提供商 |
+| `ASR_API_KEY` | `asr_api_key` | 2 | key | ASR 通用 API Key |
+| `ASR_MODEL` | `asr_model` | 2 | none | ASR 默认模型或资源 ID |
+| `ASR_ENDPOINT` | `asr_endpoint` | 2 | none | ASR 兼容接口或直连端点 |
+| `ASR_SILICONFLOW_API_KEY` | `asr_siliconflow_api_key` | 2 | key | SiliconFlow ASR 专用 Key |
+| `ASR_SILICONFLOW_MODEL` | `asr_siliconflow_model` | 2 | none | SiliconFlow ASR 专用模型 |
+| `ASR_VOLCENGINE_APP_ID` | `asr_volcengine_app_id` | 2 | none | Volcengine ASR 专用 App ID |
+| `ASR_VOLCENGINE_ACCESS_KEY` | `asr_volcengine_access_key` | 2 | key | Volcengine ASR 专用 Access Key |
+| `ASR_VOLCENGINE_SECRET_KEY` | `asr_volcengine_secret_key` | 2 | password | Volcengine ASR 专用 Secret Key |
+| `ASR_VOLCENGINE_CLUSTER_ID` | `asr_volcengine_cluster_id` | 2 | none | Volcengine ASR 专用资源 ID |
 | `TTS_ENABLED` | `tts_enabled` | 0 | none | 文字转语音 (TTS) 开关 |
 
 ### 2.3 数据库与存储 (Storage & DB)
@@ -68,8 +81,11 @@
 | :--- | :--- | :--- | :--- | :--- |
 | `ALLOW_REGISTRATION` | `allow_registration` | 0 | none | 是否开放新用户注册 |
 | `ANONYMOUS_LOGIN_ENABLED`| `anonymous_login_enabled`| 0 | none | 是否开启免密匿名访问 |
+| `ENABLE_CAPTCHA` | `enable_captcha` | 0 | none | 是否启用验证码 |
 | `NUXT_PUBLIC_GITHUB_CLIENT_ID`| `github_client_id` | 2 | none | GitHub OAuth ID |
 | `GITHUB_CLIENT_SECRET` | `github_client_secret` | 3 | password | GitHub OAuth Secret (系统锁定) |
+| `NUXT_PUBLIC_AUTH_CAPTCHA_PROVIDER` | `captcha_provider` | 2 | none | 验证码提供商 |
+| `NUXT_PUBLIC_AUTH_CAPTCHA_SITE_KEY` | `captcha_site_key` | 2 | none | 验证码站点公钥 |
 | `AUTH_CAPTCHA_SECRET_KEY` | `captcha_secret_key` | 3 | password | 验证码密钥 (系统锁定) |
 
 ### 2.5 运维与视觉服务 (Operations)
@@ -77,8 +93,9 @@
 | 环境变量 | 系统设置键名 (SettingKey) | 等级 | 脱敏 | 说明 |
 | :--- | :--- | :--- | :--- | :--- |
 | `TASKS_TOKEN` | - | 3 | password | Webhook 任务鉴权令牌 |
+| `WEBHOOK_SECRET` | - | 3 | password | Webhook HMAC 验签密钥 |
 | `NUXT_PUBLIC_BAIDU_ANALYTICS_ID`| `baidu_analytics` | 0 | none | 百度统计 ID |
-| `NUXT_PUBLIC_SENTRY_DSN` | - | 3 | key | Sentry 监控 DSN |
+| `NUXT_PUBLIC_SENTRY_DSN` | - | 0 | key | Sentry 前后端共享监控 DSN |
 | `LOG_LEVEL` | - | 3 | none | 日志等级 (debug/info/error) |
 | `NUXT_PUBLIC_LIVE2D_ENABLED`| `live2d_enabled` | 0 | none | 看板娘系统开关 |
 
@@ -94,3 +111,6 @@
 
 3. **热更新响应**:
    非锁定类的配置在后台修改后通常会立即生效（部分存储引擎切换可能需要重启服务以重置驱动）。
+
+4. **调度相关补充**:
+   `WEBHOOK_TIMESTAMP_TOLERANCE` 这个变量名目前仍保留在示例文件中，但当前实现尚未真正读取；Webhook 时间戳容差默认固定为 5 分钟。

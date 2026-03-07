@@ -1,119 +1,168 @@
 # 部署指南 (Deployment Guide)
 
-墨梅 (Momei) 遵循 **约定优于配置 (Convention over Configuration)** 的原则。系统会自动检测环境变量，只需填入对应密钥，相关功能即可在后台自动激活，无需手动修改代码。
+墨梅 (Momei) 的部署配置以环境变量为主，并与当前代码实现保持同步。大多数功能遵循“填入对应变量即可启用”的原则，但认证、定时任务与对象存储这几类能力仍然建议优先通过环境变量管理，而不是依赖后台动态修改。
 
-为了方便快速上手，我们将配置分为三个层级：**核心必填 (Level 1)**、**核心推荐 (Level 2)** 和 **体验增强 (Level 3)**。
+为了方便落地，本指南把配置分为三层：**核心必填**、**生产推荐** 和 **体验增强**。
 
 ---
 
 ## 1. 核心必填 (Level 1: Essential)
-> **必须设置，缺失则系统无法正常运行或认证失败。**
 
-- **`AUTH_SECRET`**: 认证加密密钥 (推荐 32 位)。用于保护用户 Session 和 Cookie 安全。
-  - *生成方法*: `openssl rand -hex 32`。
-- **`NUXT_PUBLIC_AUTH_BASE_URL`**: 认证回调基址。
-  - *注意*: 必须包含协议 (http/https)，且必须与最终访问站点的地址完全一致（例如 `https://blog.example.com`）。
+> 缺失这些配置时，系统要么无法启动，要么会在认证、公开链接生成或数据库初始化阶段出现明显错误。
 
----
+- **`AUTH_SECRET`**: Better Auth 与服务端签名的核心密钥。
+  - 生成方式：`openssl rand -hex 32`
+- **`NUXT_PUBLIC_SITE_URL`**: 站点公开访问地址，用于 SEO、Sitemap、RSS、联邦协议和公开链接生成。
+- **`NUXT_PUBLIC_AUTH_BASE_URL`**: Better Auth 回调基址。
+  - 生产环境中通常应与 `NUXT_PUBLIC_SITE_URL` 保持一致。
+- **`DATABASE_URL`**: 数据库连接串。
+  - SQLite：`sqlite://database/momei.sqlite`
+  - MySQL：`mysql://user:pass@host:3306/db`
+  - PostgreSQL：`postgres://user:pass@host:5432/db`
 
-## 2. 核心推荐 (Level 2: Recommended)
-> **这些配置虽然可选，但它们构成了墨梅作为 AI 博客的灵魂。**
+## 2. 生产推荐 (Level 2: Recommended)
 
-### 2.1 数据库与性能 (Database)
-- **`DATABASE_URL`**: 连接协议。墨梅支持 **智能推断**：
-    - `sqlite://database/momei.sqlite` (默认值，适合小型站或演示)。
-    - `mysql://user:pass@host:3306/db` (生产环境首选)。
-    - `postgres://user:pass@host:5432/db` (适合高度扩展)。
-- **`REDIS_URL`**: 开启后将显著提升页面加载速度及高并发下的限流性能。
+> 这些配置不是“启动必需”，但基本决定了线上部署是否稳定、好用、可维护。
 
-### 2.2 AI 创作引擎 (AI Content)
-- **`AI_API_KEY`**: 填入后点亮全站 AI 翻译、自动 SEO、摘要提取及标题建议。
-- **`AI_PROVIDER`**: 可选 `openai`, `siliconflow`, `anthropic`, `deepseek` 等。
-- **`AI_MODEL`**: 指定默认执行模型。
+### 2.1 数据库与缓存
 
-### 2.3 存储与媒体 (Storage)
-- **`STORAGE_TYPE`**: 缺省为 `local` (存储在服务器硬盘)。建议设为 `s3` 以支持分布式部署。
-- **`S3_ENDPOINT` / `BUCKET_NAME`**: 当使用 R2、AWS S3 或阿里云 OSS 时填写。
+- **`DATABASE_SYNCHRONIZE=false`**: 生产环境建议固定为 `false`。
+- **`REDIS_URL`**: 启用缓存、部分限流与分布式能力时推荐配置。
 
-### 2.4 邮件与通知 (Email)
-- **`EMAIL_USER` / `PASS`**: SMTP 认证信息。
-- **`EMAIL_REQUIRE_VERIFICATION`**: 开启后，新用户注册必须验证邮箱，极大减少垃圾账户。
+### 2.2 AI 与多模态能力
 
-### 2.5 任务自动化 (Tasks)
-- **`TASKS_TOKEN`**: 设置一个长随机字符串。用于通过 Webhook 触发定时发布文章、自动清理过期临时文件等系统维护任务。
+- **`AI_PROVIDER`** / **`AI_API_KEY`** / **`AI_MODEL`**: 文本 AI 主引擎。
+- **`AI_API_ENDPOINT`**: OpenAI 兼容服务或代理端点。
+- **`GEMINI_API_TOKEN`**: 当 Gemini 需要独立 Token 鉴权时使用。
+- **`AI_IMAGE_ENABLED`** / **`AI_IMAGE_PROVIDER`** / **`AI_IMAGE_API_KEY`**: AI 绘图链路。
+- **`ASR_ENABLED`** / **`ASR_PROVIDER`** / **`ASR_API_KEY`** / **`ASR_MODEL`** / **`ASR_ENDPOINT`**: 语音识别基础配置。
+- **`TTS_ENABLED`** / **`TTS_PROVIDER`** / **`TTS_API_KEY`** / **`TTS_DEFAULT_MODEL`**: 文本转语音基础配置。
 
----
+### 2.3 存储与媒体
+
+- **`STORAGE_TYPE`**: `local`、`s3` 或 `vercel-blob`。
+- **本地存储**: `LOCAL_STORAGE_DIR` + `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL`
+- **S3 兼容存储**: `S3_ENDPOINT`、`S3_BUCKET_NAME`、`S3_ACCESS_KEY_ID`、`S3_SECRET_ACCESS_KEY`、`S3_BASE_URL`
+- **路径前缀**: `BUCKET_PREFIX`
+- **Vercel Blob**: `BLOB_READ_WRITE_TOKEN`
+
+### 2.4 邮件与通知
+
+- **`EMAIL_HOST`** / **`EMAIL_PORT`** / **`EMAIL_USER`** / **`EMAIL_PASS`** / **`EMAIL_FROM`**
+- **`EMAIL_REQUIRE_VERIFICATION`**: 生产环境推荐开启，减少垃圾注册。
+
+### 2.5 定时任务与自动化
+
+- **`TASKS_TOKEN`**: 定时任务 Webhook 的基础鉴权令牌。
+- **`WEBHOOK_SECRET`**: 推荐单独配置，用于 HMAC 模式验签。
+- **`TASK_CRON_EXPRESSION`**: 仅自部署环境有效，用于覆盖内置 Cron 频率。
+- **`DISABLE_CRON_JOB=true`**: 用于显式关闭自部署环境内置 Cron。
+
+说明：`WEBHOOK_TIMESTAMP_TOLERANCE` 这个变量名当前仍保留在示例文件中，但现版本实现尚未读取它；Webhook 校验默认固定为 5 分钟容差。
 
 ## 3. 体验增强 (Level 3: Optional)
-> **用于微调视觉表现、监控与站点合规。**
 
+> 用于补齐监控、站点品牌、视觉效果与商业化默认配置。
+
+- **站点元数据**:
+  - `NUXT_PUBLIC_APP_NAME`
+  - `NUXT_PUBLIC_SITE_DESCRIPTION`
+  - `NUXT_PUBLIC_SITE_KEYWORDS`
+  - `NUXT_PUBLIC_CONTACT_EMAIL`
+  - `NUXT_PUBLIC_DEFAULT_COPYRIGHT`
+- **统计与监控**:
+  - `NUXT_PUBLIC_BAIDU_ANALYTICS_ID`
+  - `NUXT_PUBLIC_GOOGLE_ANALYTICS_ID`
+  - `NUXT_PUBLIC_CLARITY_PROJECT_ID`
+  - `NUXT_PUBLIC_SENTRY_DSN`
 - **视觉特效**:
-  - `LIVE2D_ENABLED`: 是否加载 3D 看板娘。
-  - `CANVAS_NEST_ENABLED`: 是否启用首页背景粒子连线效果。
-- **站点统计**:
-  - `BAIDU_ANALYTICS_ID` / `GOOGLE_ANALYTICS_ID`: 接入主流统计平台。
-  - `CLARITY_PROJECT_ID`: 录制用户点击行为，用于热力图分析。
-- **故障监控**:
-  - `SENTRY_DSN`: 在系统崩溃时第一时间接收邮件通知。
+  - `NUXT_PUBLIC_LIVE2D_ENABLED`
+  - `NUXT_PUBLIC_CANVAS_NEST_ENABLED`
+  - `NUXT_PUBLIC_EFFECTS_MOBILE_ENABLED`
 - **中国区合规**:
-  - `SHOW_COMPLIANCE_INFO`: 快捷展示 ICP 备案号。
-  - `ICP_LICENSE_NUMBER`: 备案号内容。
-
----
+  - `NUXT_PUBLIC_SHOW_COMPLIANCE_INFO`
+  - `NUXT_PUBLIC_ICP_LICENSE_NUMBER`
+  - `NUXT_PUBLIC_PUBLIC_SECURITY_NUMBER`
+- **商业化默认配置**:
+  - `COMMERCIAL_SPONSORSHIP_JSON`
 
 ## 4. 各渠道配置示例 (Channel-Specific Guide)
 
-### 4.1 硅基流动 (SiliconFlow) - **全栈多模态方案**
-SiliconFlow 提供了极高性价比的 ASR/TTS 与 LLM 聚合方案。
+### 4.1 SiliconFlow: 文本 + ASR/TTS 一体化
+
 ```dotenv
 AI_PROVIDER=siliconflow
 AI_API_KEY=sk-xxxx
+AI_MODEL=Qwen/Qwen2.5-72B-Instruct
 AI_API_ENDPOINT=https://api.siliconflow.cn/v1
-# 一键复用 key 到语音识别与合成
+
+ASR_ENABLED=true
 ASR_PROVIDER=siliconflow
+ASR_SILICONFLOW_API_KEY=sk-xxxx
+ASR_SILICONFLOW_MODEL=FunAudioLLM/SenseVoiceSmall
+
+TTS_ENABLED=true
 TTS_PROVIDER=siliconflow
+TTS_API_KEY=sk-xxxx
 ```
 
-### 4.2 火山引擎 (Volcengine / 豆包)
-需要填写身份凭证与应用 ID。
+### 4.2 Volcengine / 豆包: 文本或 ASR 分离接入
+
+如果你只接入火山 ASR，建议优先填写 ASR 专用凭据：
+
 ```dotenv
-VOLCENGINE_APP_ID=888888
-VOLCENGINE_ACCESS_KEY=AK-xxx
-VOLCENGINE_SECRET_KEY=SK-xxx
-# 文本模型 AI_MODEL 需填写接入点 Endpoint ID
+ASR_ENABLED=true
+ASR_PROVIDER=volcengine
+ASR_VOLCENGINE_APP_ID=888888
+ASR_VOLCENGINE_ACCESS_KEY=AK-xxx
+ASR_VOLCENGINE_SECRET_KEY=SK-xxx
+ASR_VOLCENGINE_CLUSTER_ID=volc.bigasr.sauc.duration
+```
+
+如果文本 AI 也走火山体系，再补充：
+
+```dotenv
+AI_PROVIDER=volcengine
+AI_API_KEY=your-text-api-key
 AI_MODEL=ep-2024xxx
 ```
 
-### 4.3 生活流同步 (Memos)
-将博客灵感与生活足迹实时推送到你的 Memos 实例。
+### 4.3 Memos 同步
+
 ```dotenv
 MEMOS_ENABLED=true
 MEMOS_INSTANCE_URL=https://memos.yourdomain.com
 MEMOS_ACCESS_TOKEN=xxx
+MEMOS_DEFAULT_VISIBILITY=PRIVATE
 ```
-
----
 
 ## 5. 部署到主流平台
 
-- **Vercel**: 完美适配 Serverless 环境。推荐使用 `STORAGE_TYPE=vercel-blob`。可参考 [Vercel 部署演示](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCaoMeiYouRen%2Fmomei)。
-- **Docker**: 生产环境首选。建议映射两个 Volume：`./database` (存放 sqlite) 和 `./uploads` (存放上传文件)。
-- **Cloudflare Pages**: 推荐搭配 R2 存储方案，实现全站静态加速与存储。
+- **Vercel**: 适合 Serverless 部署。
+  - 推荐 `STORAGE_TYPE=vercel-blob` 或外接 S3/R2。
+  - 必须配置 `TASKS_TOKEN`，推荐再配 `WEBHOOK_SECRET`。
+  - 内置 Cron 由 [vercel.json](../../vercel.json) 触发，默认每天一次。
+- **Docker / 自部署服务器**: 适合需要本地磁盘、定时任务和更强可控性的场景。
+  - 建议挂载 `database/` 与上传目录。
+  - 如需内置 Cron，可使用 `TASK_CRON_EXPRESSION` 自定义频率。
+- **Cloudflare Pages / Workers**:
+  - 推荐搭配 R2 或 S3 兼容存储。
+  - 定时任务由平台 Scheduled Events 触发，而不是本地 Cron 进程。
 
----
+## 6. 排障指引 (Troubleshooting)
 
-## 6. 排障指引 (Troubleshooting) 
-
-- **认证失败**: 检查 `AUTH_BASE_URL` 的协议是否与你的 Nginx/Caddy 配置一致（必须匹配 https）。
-- **AI 报错 500**: 检查 `AI_API_ENDPOINT` 是否需要特定的 `/v1` 后缀（查看厂商文档）。
-- **静态资源 404**: 若使用 Docker 部署，请确认 `public/uploads` 目录具备读写权限。
-
----
+- **认证回调错误**: 检查 `NUXT_PUBLIC_SITE_URL` 与 `NUXT_PUBLIC_AUTH_BASE_URL` 是否都使用最终公开域名，且协议一致。
+- **定时任务返回 401**: 检查触发方式是否和当前配置一致。
+  - Token 模式：`TASKS_TOKEN`
+  - HMAC 模式：`WEBHOOK_SECRET`
+- **Volcengine ASR 未生效**: 优先检查 `ASR_VOLCENGINE_APP_ID` / `ASR_VOLCENGINE_ACCESS_KEY` / `ASR_VOLCENGINE_CLUSTER_ID`，其次再检查通用 `VOLCENGINE_*` 回退配置。
+- **AI 兼容接口报错**: 检查 `AI_API_ENDPOINT` 是否需要带 `/v1` 后缀。
+- **本地上传资源 404**: 检查 `LOCAL_STORAGE_DIR` 是否存在，以及 `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL` 是否与实际静态路径匹配。
 
 ## 7. 更多参考资源 (References)
 
-- **[环境配置与系统设置映射 (Variables & Settings Mapping)](./variables)**: 详细列出了每一个变量的权限等级、脱敏类型及底层键名。
-- **[完整环境变量示例文件 (.env.full.example)](../../.env.full.example)**: 查看项目支持的所有环境变量矩阵。
-- **[系统集成设计文档](../design/modules/index)**: 深入了解各模块的技术选型与集成细节。
+- **[环境配置与系统设置映射 (Variables & Settings Mapping)](./variables)**: 查看变量和设置中心键名的大致对应关系。
+- **[完整环境变量示例文件 (.env.full.example)](../../.env.full.example)**: 查看当前版本支持的完整环境变量矩阵。
+- **[系统集成设计文档](../design/modules/index)**: 了解各功能模块的技术边界与集成方式。
 
-墨梅的部署原则是：**先配齐 Level 1 必修配置让系统跑起来，再根据需要逐步点亮 Level 2/3 的功能灯泡。**
+墨梅的部署原则仍然不变：**先把核心变量配齐让系统稳定跑起来，再按模块逐步点亮 AI、存储、任务和商业化能力。**

@@ -23,6 +23,7 @@ export const SETTING_ENV_MAP: Record<string, string> = {
     [SettingKey.AI_API_KEY]: 'AI_API_KEY',
     [SettingKey.AI_MODEL]: 'AI_MODEL',
     [SettingKey.AI_ENDPOINT]: 'AI_API_ENDPOINT',
+    [SettingKey.GEMINI_API_TOKEN]: 'GEMINI_API_TOKEN',
     // AI Image
     [SettingKey.AI_IMAGE_ENABLED]: 'AI_IMAGE_ENABLED',
     [SettingKey.AI_IMAGE_PROVIDER]: 'AI_IMAGE_PROVIDER',
@@ -129,6 +130,10 @@ export const SETTING_ENV_MAP: Record<string, string> = {
     [SettingKey.ASR_API_KEY]: 'ASR_API_KEY',
     [SettingKey.ASR_MODEL]: 'ASR_MODEL',
     [SettingKey.ASR_ENDPOINT]: 'ASR_ENDPOINT',
+    [SettingKey.ASR_VOLCENGINE_APP_ID]: 'ASR_VOLCENGINE_APP_ID',
+    [SettingKey.ASR_VOLCENGINE_CLUSTER_ID]: 'ASR_VOLCENGINE_CLUSTER_ID',
+    [SettingKey.ASR_VOLCENGINE_ACCESS_KEY]: 'ASR_VOLCENGINE_ACCESS_KEY',
+    [SettingKey.ASR_VOLCENGINE_SECRET_KEY]: 'ASR_VOLCENGINE_SECRET_KEY',
     [SettingKey.ASR_SILICONFLOW_API_KEY]: 'ASR_SILICONFLOW_API_KEY',
     [SettingKey.ASR_SILICONFLOW_MODEL]: 'ASR_SILICONFLOW_MODEL',
     // Volcengine Global
