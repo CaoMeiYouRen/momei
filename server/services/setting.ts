@@ -1,7 +1,9 @@
 import { dataSource } from '@/server/database'
 import { Setting } from '@/server/entities/setting'
-import { SettingKey } from '@/types/setting'
+import { recordSettingAuditLogs, type SettingAuditChange, type SettingAuditContext } from '@/server/services/setting-audit'
+import logger from '@/server/utils/logger'
 import { inferSettingMaskType, isMaskedSettingPlaceholder, maskSettingValue } from '@/server/utils/settings'
+import { SettingKey } from '@/types/setting'
 
 /**
  * 数据库键名与环境变量键名的映射关系
@@ -173,6 +175,23 @@ export const INTERNAL_ONLY_KEYS: string[] = [
     'AXIOM_API_TOKEN',
 ]
 
+export function isSettingEnvLocked(key: string) {
+    const envKey = SETTING_ENV_MAP[key]
+    return Boolean((envKey && process.env[envKey] !== undefined) || FORCED_ENV_LOCKED_KEYS.includes(key))
+}
+
+export function getSettingEffectiveSource(key: string) {
+    return isSettingEnvLocked(key) ? 'env' : 'db'
+}
+
+function normalizeSettingValue(value: unknown): string | null {
+    if (value === null || value === undefined) {
+        return null
+    }
+
+    return typeof value === 'string' ? value : String(value)
+}
+
 /**
  * 获取指定键的设置值
  * 遵循优先从环境变量获取，其次数据库的原则
@@ -262,38 +281,16 @@ export const setSetting = async (
         description?: string
         maskType?: string
     },
+    auditContext?: SettingAuditContext,
 ) => {
-    // 检查是否受环境变量锁定
-    const envKey = SETTING_ENV_MAP[key]
-    if ((envKey && process.env[envKey] !== undefined) || FORCED_ENV_LOCKED_KEYS.includes(key)) {
-        return // 跳过锁定的配置项
-    }
-
-    const settingRepo = dataSource.getRepository(Setting)
-    let setting = await settingRepo.findOne({ where: { key } })
-
-    if (setting) {
-        setting.value = value
-        if (options?.description !== undefined) {
-            setting.description = options.description
-        }
-        if (options?.level !== undefined) {
-            setting.level = options.level
-        }
-        if (options?.maskType !== undefined) {
-            setting.maskType = options.maskType
-        }
-    } else {
-        setting = settingRepo.create({
-            key,
+    await setSettings({
+        [key]: {
             value,
-            description: options?.description ?? '',
-            level: options?.level ?? 2,
-            maskType: options?.maskType ?? 'none',
-        })
-    }
-
-    await settingRepo.save(setting)
+            description: options?.description,
+            level: options?.level,
+            maskType: options?.maskType,
+        },
+    }, auditContext)
 }
 
 /**
@@ -331,7 +328,7 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
 
         const envKey = (SETTING_ENV_MAP)[key]
         const envValue = envKey ? process.env[envKey] : undefined
-        const isLocked = envValue !== undefined || FORCED_ENV_LOCKED_KEYS.includes(key)
+        const isLocked = isSettingEnvLocked(key)
         // 优先使用环境变量的值，其次是数据库的值，最后是空字符串
         const value = isLocked ? (envValue ?? '') : (dbSetting?.value ?? '')
 
@@ -355,7 +352,7 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
             description,
             level,
             maskType,
-            source: isLocked ? 'env' : 'db',
+            source: getSettingEffectiveSource(key),
             isLocked,
         })
     }
@@ -368,26 +365,33 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
  *
  * @param settings 键值对对象，key 也可以是对象包含具体属性
  */
-export const setSettings = async (settings: Record<string, any>) => {
+export const setSettings = async (settings: Record<string, any>, auditContext?: SettingAuditContext) => {
     const settingRepo = dataSource.getRepository(Setting)
     const entries = Object.entries(settings)
+    const auditChanges: SettingAuditChange[] = []
 
     for (const [key, val] of entries) {
-        // 检查是否受环境变量锁定
-        const envKey = SETTING_ENV_MAP[key]
-        if ((envKey && process.env[envKey] !== undefined) || FORCED_ENV_LOCKED_KEYS.includes(key)) {
+        if (isSettingEnvLocked(key)) {
             continue // 跳过锁定的配置项
         }
 
-        let setting = await settingRepo.findOne({ where: { key } })
+        const existingSetting = await settingRepo.findOne({ where: { key } })
+        let setting = existingSetting
 
         const value = typeof val === 'object' && val !== null ? val.value : val
         const extra = typeof val === 'object' && val !== null ? val : {}
+        const previousValue = existingSetting?.value ?? null
+        const previousMaskType = String(existingSetting?.maskType ?? extra.maskType ?? inferSettingMaskType(key, previousValue ?? '')) as 'none' | 'password' | 'key' | 'email'
+        const normalizedIncomingValue = normalizeSettingValue(value)
+        const nextValue = existingSetting && isMaskedSettingPlaceholder(normalizedIncomingValue, existingSetting.maskType)
+            ? existingSetting.value
+            : normalizedIncomingValue
+        const nextMaskType = String(extra.maskType ?? existingSetting?.maskType ?? inferSettingMaskType(key, nextValue ?? '')) as 'none' | 'password' | 'key' | 'email'
 
         if (setting) {
             // 如果是脱敏过的值且没有变化（即用户提交的是脱敏后的占位符），则跳过值更新
-            if (!isMaskedSettingPlaceholder(value, setting.maskType)) {
-                setting.value = value
+            if (!isMaskedSettingPlaceholder(normalizedIncomingValue, setting.maskType)) {
+                setting.value = nextValue
             }
 
             if (extra.description !== undefined) {
@@ -397,17 +401,33 @@ export const setSettings = async (settings: Record<string, any>) => {
                 setting.level = Number(extra.level)
             }
             if (extra.maskType !== undefined) {
-                setting.maskType = String(extra.maskType)
+                setting.maskType = nextMaskType
             }
         } else {
             setting = settingRepo.create({
                 key,
-                value,
+                value: nextValue,
                 description: String(extra.description ?? ''),
                 level: Number(extra.level ?? 2),
-                maskType: String(extra.maskType ?? 'none'),
+                maskType: nextMaskType,
             })
         }
         await settingRepo.save(setting)
+
+        if (!existingSetting || previousValue !== nextValue || previousMaskType !== nextMaskType) {
+            auditChanges.push({
+                key,
+                action: existingSetting ? 'update' : 'create',
+                oldValue: previousValue,
+                newValue: nextValue,
+                maskType: nextMaskType,
+                effectiveSource: getSettingEffectiveSource(key),
+                isOverriddenByEnv: getSettingEffectiveSource(key) === 'env',
+            })
+        }
+    }
+
+    if (auditChanges.length > 0) {
+        await recordSettingAuditLogs(auditChanges, auditContext)
     }
 }

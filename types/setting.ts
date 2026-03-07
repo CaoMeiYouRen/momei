@@ -169,12 +169,45 @@ export enum SettingKey {
     MEMOS_DEFAULT_VISIBILITY = 'memos_default_visibility',
 }
 
+export type SettingMaskType = 'none' | 'password' | 'key' | 'email'
+
+export type SettingSource = 'env' | 'db' | 'default'
+
+export type SettingEffectiveSource = 'env' | 'db'
+
+export type SettingAuditAction = 'create' | 'update'
+
+export type SettingAuditSourceType = 'admin_ui' | 'theme_settings' | 'commercial_settings' | 'api'
+
 export interface SettingItem {
     key: string
     value: string | null
     description: string
     level: number
-    maskType: 'none' | 'password' | 'key' | 'email'
-    source: 'env' | 'db' | 'default'
+    maskType: SettingMaskType
+    source: SettingSource
     isLocked: boolean
+}
+
+export interface SettingAuditActor {
+    id: string | null
+    name: string | null
+    email: string | null
+}
+
+export interface SettingAuditItem {
+    id: string
+    settingKey: string
+    action: SettingAuditAction
+    oldValue: string | null
+    newValue: string | null
+    maskType: SettingMaskType
+    effectiveSource: SettingEffectiveSource
+    isOverriddenByEnv: boolean
+    source: string
+    reason: string | null
+    ipAddress: string | null
+    userAgent: string | null
+    createdAt: string
+    operator: SettingAuditActor | null
 }

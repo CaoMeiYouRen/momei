@@ -48,6 +48,9 @@
                         <Tab value="commercial">
                             {{ $t('pages.admin.settings.system.tabs.commercial') }}
                         </Tab>
+                        <Tab value="audit_logs">
+                            {{ $t('pages.admin.settings.system.tabs.audit_logs') }}
+                        </Tab>
                         <Tab value="third_party">
                             {{ $t('pages.admin.settings.system.tabs.third_party') }}
                         </Tab>
@@ -97,6 +100,10 @@
                             <CommercialSettings />
                         </TabPanel>
 
+                        <TabPanel value="audit_logs">
+                            <SettingAuditLogList />
+                        </TabPanel>
+
                         <TabPanel value="third_party">
                             <ThirdPartySettings v-model:settings="settings" :metadata="metadata" />
                         </TabPanel>
@@ -123,6 +130,7 @@ import AdminNotificationSettings from '@/components/admin/settings/admin-notific
 import LimitsSettings from '@/components/admin/settings/limits-settings.vue'
 import AgreementsSettings from '@/components/admin/settings/agreements-settings.vue'
 import CommercialSettings from '@/components/admin/settings/commercial-settings.vue'
+import SettingAuditLogList from '@/components/admin/settings/setting-audit-log-list.vue'
 import ThirdPartySettings from '@/components/admin/settings/third-party-settings.vue'
 
 const { t } = useI18n()

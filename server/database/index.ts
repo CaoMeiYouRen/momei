@@ -26,6 +26,7 @@ import { InAppNotification } from '../entities/in-app-notification'
 import { AdPlacement } from '../entities/ad-placement'
 import { AdCampaign } from '../entities/ad-campaign'
 import { ExternalLink } from '../entities/external-link'
+import { SettingAuditLog } from '../entities/setting-audit-log'
 import logger from '../utils/logger'
 import { isServerlessEnvironment } from '../utils/env'
 import { CustomLogger } from './logger'
@@ -79,6 +80,7 @@ const entities = [
     AdPlacement,
     AdCampaign,
     ExternalLink,
+    SettingAuditLog,
 ]
 
 /**

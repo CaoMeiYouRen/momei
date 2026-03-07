@@ -971,7 +971,34 @@
                         "agreements": "协议管理",
                         "notifications": "站务通知",
                         "commercial": "商业赞助",
+                        "audit_logs": "变更审计",
                         "third_party": "第三方集成"
+                    },
+                    "audit_logs": {
+                        "title": "配置变更审计日志",
+                        "description": "记录管理员对数据库配置的写入历史，并标明当前是否仍由数据库生效。",
+                        "refresh": "刷新",
+                        "empty": "暂无配置变更记录",
+                        "overridden_by_env": "当前已被环境变量覆盖",
+                        "actions": {
+                            "create": "新建",
+                            "update": "更新"
+                        },
+                        "effective_sources": {
+                            "env": "ENV 生效",
+                            "db": "数据库生效"
+                        },
+                        "columns": {
+                            "time": "时间",
+                            "key": "配置项",
+                            "action": "动作",
+                            "old_value": "变更前",
+                            "new_value": "变更后",
+                            "effective_source": "当前生效来源",
+                            "operator": "操作人",
+                            "source": "触发来源",
+                            "reason": "变更原因"
+                        }
                     },
                     "sections": {
                         "branding": "品牌与资产",

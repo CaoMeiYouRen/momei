@@ -4,7 +4,7 @@ import { SettingKey } from '@/types/setting'
 import { CommercialConfigSchema } from '~/utils/shared/commercial-schema'
 
 export default defineEventHandler(async (event) => {
-    await requireAdmin(event)
+    const session = await requireAdmin(event)
 
     const body = await readValidatedBody(event, (b) => CommercialConfigSchema.parse(b))
 
@@ -14,6 +14,13 @@ export default defineEventHandler(async (event) => {
         {
             description: 'Global commercial and sponsorship configuration',
             level: 1,
+        },
+        {
+            operatorId: session.user.id,
+            ipAddress: getRequestIP(event, { xForwardedFor: true }) || null,
+            userAgent: getRequestHeader(event, 'user-agent') || null,
+            reason: 'commercial_settings_update',
+            source: 'commercial_settings',
         },
     )
 

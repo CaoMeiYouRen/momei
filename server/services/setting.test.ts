@@ -25,6 +25,12 @@ describe('settingService', () => {
         createQueryBuilder: vi.fn().mockReturnValue(mockQueryBuilder),
     }
 
+    const mockSettingAuditRepo = {
+        create: vi.fn(),
+        save: vi.fn(),
+        findAndCount: vi.fn(),
+    }
+
     const originalEnv = process.env
 
     beforeEach(() => {
@@ -34,8 +40,12 @@ describe('settingService', () => {
             if (entity.name === 'Setting') {
                 return mockSettingRepo
             }
+            if (entity.name === 'SettingAuditLog') {
+                return mockSettingAuditRepo
+            }
             return {}
         })
+        mockSettingAuditRepo.create.mockImplementation((data) => data)
     })
 
     afterEach(() => {
@@ -93,7 +103,7 @@ describe('settingService', () => {
 
     describe('setSetting', () => {
         it('should update existing setting', async () => {
-            const existing = { key: 'title', value: 'Old' }
+            const existing = { id: '1', key: 'title', value: 'Old', maskType: 'none' }
             mockSettingRepo.findOne.mockResolvedValue(existing)
 
             await settingService.setSetting('title', 'New', { description: 'New Desc' })
@@ -105,7 +115,7 @@ describe('settingService', () => {
 
         it('should create new setting if not exists', async () => {
             mockSettingRepo.findOne.mockResolvedValue(null)
-            const newSetting = { key: 'new_key', value: 'val' }
+            const newSetting = { id: '2', key: 'new_key', value: 'val', maskType: 'none' }
             mockSettingRepo.create.mockReturnValue(newSetting)
 
             await settingService.setSetting('new_key', 'val')
@@ -118,6 +128,36 @@ describe('settingService', () => {
                 maskType: 'none',
             })
             expect(mockSettingRepo.save).toHaveBeenCalledWith(newSetting)
+        })
+
+        it('should record masked audit log when setting value changes', async () => {
+            const existing = {
+                id: '3',
+                key: SettingKey.AI_API_KEY,
+                value: 'sk-old-secret',
+                description: '',
+                level: 3,
+                maskType: 'key',
+            }
+            mockSettingRepo.findOne.mockResolvedValue(existing)
+
+            await settingService.setSetting(SettingKey.AI_API_KEY, 'sk-new-secret', undefined, {
+                operatorId: 'admin-1',
+                reason: 'rotate-key',
+                source: 'admin_ui',
+            })
+
+            expect(mockSettingAuditRepo.save).toHaveBeenCalledWith([
+                expect.objectContaining({
+                    settingKey: SettingKey.AI_API_KEY,
+                    action: 'update',
+                    operatorId: 'admin-1',
+                    reason: 'rotate-key',
+                    source: 'admin_ui',
+                    oldValue: expect.stringContaining('***'),
+                    newValue: expect.stringContaining('***'),
+                }),
+            ])
         })
     })
 

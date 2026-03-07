@@ -964,7 +964,34 @@
                         "agreements": "Agreements",
                         "notifications": "Admin Notifications",
                         "commercial": "Monetization",
+                        "audit_logs": "Audit Logs",
                         "third_party": "Third Party"
+                    },
+                    "audit_logs": {
+                        "title": "Configuration Audit Logs",
+                        "description": "Tracks administrator writes to database-backed settings and shows whether the database value is still the active source.",
+                        "refresh": "Refresh",
+                        "empty": "No configuration changes recorded yet",
+                        "overridden_by_env": "Currently overridden by environment variables",
+                        "actions": {
+                            "create": "Created",
+                            "update": "Updated"
+                        },
+                        "effective_sources": {
+                            "env": "ENV active",
+                            "db": "Database active"
+                        },
+                        "columns": {
+                            "time": "Time",
+                            "key": "Setting",
+                            "action": "Action",
+                            "old_value": "Previous Value",
+                            "new_value": "New Value",
+                            "effective_source": "Effective Source",
+                            "operator": "Operator",
+                            "source": "Trigger Source",
+                            "reason": "Reason"
+                        }
                     },
                     "sections": {
                         "branding": "Branding & Assets",

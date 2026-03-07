@@ -4,7 +4,7 @@ import { SettingKey } from '@/types/setting'
 import { themeUpdateSchema } from '@/utils/schemas/settings'
 
 export default defineEventHandler(async (event) => {
-    await requireAdmin(event)
+    const session = await requireAdmin(event)
 
     const body = await readValidatedBody(event, (b) => themeUpdateSchema.parse(b))
 
@@ -41,7 +41,13 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    await setSettings(settingsToSave)
+    await setSettings(settingsToSave, {
+        operatorId: session.user.id,
+        ipAddress: getRequestIP(event, { xForwardedFor: true }) || null,
+        userAgent: getRequestHeader(event, 'user-agent') || null,
+        reason: 'theme_settings_update',
+        source: 'theme_settings',
+    })
 
     return {
         code: 200,
