@@ -330,21 +330,6 @@ CREATE TABLE "momei_ai_tasks" (
   PRIMARY KEY ("id")
 );
 
--- 20. ASR 配额表
-CREATE TABLE "momei_asr_quotas" (
-  "id" varchar(36) NOT NULL,
-  "user_id" varchar(36) NOT NULL,
-  "provider" varchar(50) NOT NULL,
-  "period_type" varchar(20) NOT NULL,
-  "used_seconds" integer NOT NULL DEFAULT 0,
-  "max_seconds" integer NOT NULL DEFAULT 3600,
-  "reset_at" timestamptz(6),
-  "created_at" timestamptz(6) NOT NULL DEFAULT now(),
-  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
-  CONSTRAINT "UQ_asr_quotas_user_provider_period" UNIQUE ("user_id", "provider", "period_type"),
-  PRIMARY KEY ("id")
-);
-
 -- 21. 协议内容版本表
 CREATE TABLE "momei_agreement_content" (
   "id" varchar(36) NOT NULL,
@@ -472,8 +457,6 @@ CREATE INDEX "IDX_in_app_notification_created_at" ON "momei_in_app_notification"
 
 CREATE INDEX "IDX_marketing_campaign_scheduled_at" ON "momei_marketing_campaign" ("scheduled_at");
 CREATE INDEX "IDX_marketing_campaign_status" ON "momei_marketing_campaign" ("status");
-
-CREATE INDEX "IDX_asr_quotas_user_id" ON "momei_asr_quotas" ("user_id");
 
 CREATE INDEX "IDX_snippet_source" ON "momei_snippet" ("source");
 CREATE INDEX "IDX_snippet_status" ON "momei_snippet" ("status");

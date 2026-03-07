@@ -124,7 +124,14 @@ graph TD
 | `composables/use-asr-task.ts` | 任务追踪 Composable |
 | `server/services/ai/asr.ts` | ASR 服务 (含异步任务方法) |
 
-## 9. Volcengine 配置约定
+## 9. 配额与成本治理策略
+
+- 当前策略：部署者、作者与管理员默认视为可信用户，不额外施加独立 ASR 额度限制。
+- 当前防护：保留请求频率限制、单次音频大小限制以及厂商接口自身的时长约束，避免异常消耗。
+- 数据归集：ASR 用量统计统一沉淀到 `AITask`，用于后台审计、成本观测与后续分析。
+- 后续演进：若未来进入多用户、多租户或开放投稿场景，再基于角色、用户组或站点套餐引入 AI/ASR 配额治理。
+
+## 10. Volcengine 配置约定
 
 - 当 `ASR_PROVIDER=volcengine` 时，凭据统一使用 `VOLCENGINE_APP_ID` 与 `VOLCENGINE_ACCESS_KEY`（可选 `VOLCENGINE_SECRET_KEY`）。
 - ASR 专属参数通过 `ASR_MODEL`（资源 ID）与 `ASR_ENDPOINT` 控制，不再推荐维护单独的 `ASR_VOLCENGINE_*` 凭据。

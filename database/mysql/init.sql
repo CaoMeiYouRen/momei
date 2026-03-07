@@ -368,22 +368,6 @@ CREATE TABLE `momei_ai_tasks` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- 20. ASR 配额表
-CREATE TABLE `momei_asr_quotas` (
-  `id` varchar(36) NOT NULL,
-  `user_id` varchar(36) NOT NULL,
-  `provider` varchar(50) NOT NULL,
-  `period_type` varchar(20) NOT NULL,
-  `used_seconds` int NOT NULL DEFAULT 0,
-  `max_seconds` int NOT NULL DEFAULT 3600,
-  `reset_at` datetime(6) DEFAULT NULL,
-  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `UQ_asr_quotas_user_provider_period` (`user_id`, `provider`, `period_type`),
-  KEY `IDX_asr_quotas_user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 -- 21. 协议内容版本表
 CREATE TABLE `momei_agreement_content` (
   `id` varchar(36) NOT NULL,

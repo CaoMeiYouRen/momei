@@ -21,7 +21,6 @@ import { NotificationSettings } from '../entities/notification-settings'
 import { MarketingCampaign } from '../entities/marketing-campaign'
 import { AdminNotificationSettings } from '../entities/admin-notification-settings'
 import { AITask } from '../entities/ai-task'
-import { ASRQuota } from '../entities/asr-quota'
 import { PostVersion } from '../entities/post-version'
 import { InAppNotification } from '../entities/in-app-notification'
 import { AdPlacement } from '../entities/ad-placement'
@@ -75,7 +74,6 @@ const entities = [
     MarketingCampaign,
     AdminNotificationSettings,
     AITask,
-    ASRQuota,
     PostVersion,
     InAppNotification,
     AdPlacement,

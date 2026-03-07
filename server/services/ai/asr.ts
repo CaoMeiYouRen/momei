@@ -1,8 +1,6 @@
 import { AIBaseService } from './base'
 import { getAIProvider } from '@/server/utils/ai'
 import { withAITimeout } from '@/server/utils/ai/timeout'
-import { dataSource } from '@/server/database'
-import { ASRQuota } from '@/server/entities/asr-quota'
 import { sendInAppNotification, pushRealtimeEvent } from '@/server/services/notification'
 import { NotificationType } from '@/utils/shared/notification'
 import logger from '@/server/utils/logger'
@@ -45,15 +43,6 @@ export class ASRService extends AIBaseService {
                 textLength,
                 language: options.language,
             })
-
-            // 更新 ASR 特定配额
-            if (userId) {
-                await this.updateQuota({
-                    userId,
-                    provider: provider.name,
-                    duration: 0, // 如果能获取时长更好
-                }).catch((e) => logger.error('[ASRService] Failed to update quota:', e))
-            }
 
             return response
         } catch (error: any) {
@@ -234,13 +223,6 @@ export class ASRService extends AIBaseService {
                 },
             })
 
-            // 更新配额
-            await this.updateQuota({
-                userId,
-                provider: options.provider,
-                duration: response.duration || 0,
-            }).catch((e) => logger.error('[ASRService] Failed to update quota:', e))
-
             // 发送完成通知
             await sendInAppNotification({
                 userId,
@@ -277,51 +259,5 @@ export class ASRService extends AIBaseService {
      */
     static async getASRTaskStatus(taskId: string, userId: string) {
         return super.getTaskStatus(taskId, userId)
-    }
-
-    static async checkQuota(userId: string, provider: string, durationSeconds: number) {
-        const repo = dataSource.getRepository(ASRQuota)
-
-        // Check daily/monthly/total quota
-        const quota = await repo.findOneBy({ userId, provider, periodType: 'total' })
-
-        if (!quota) {
-            // Create a default quota if not exists
-            const newQuota = repo.create({
-                userId,
-                provider,
-                periodType: 'total',
-                usedSeconds: 0,
-                maxSeconds: 3600, // 1 hour free
-            })
-            await repo.save(newQuota)
-            return true
-        }
-
-        if (quota.usedSeconds + durationSeconds > quota.maxSeconds) {
-            throw createError({
-                statusCode: 403,
-                message: 'ASR quota exceeded',
-            })
-        }
-
-        return true
-    }
-
-    static async updateQuota(options: {
-        userId: string
-        provider: string
-        duration: number
-    }) {
-        const { userId, provider, duration } = options
-
-        const quotaRepo = dataSource.getRepository(ASRQuota)
-
-        // Update quota
-        const quota = await quotaRepo.findOneBy({ userId, provider, periodType: 'total' })
-        if (quota) {
-            quota.usedSeconds += duration
-            await quotaRepo.save(quota)
-        }
     }
 }
