@@ -1,203 +1,111 @@
 # 定时任务与发布功能设计 (Scheduled Tasks & Publication Design)
 
-## 1. 概述 (Overview)
+## 1. 概述
 
-本模块旨在实现站内的定时自动化任务，主要包括**文章定时发布**与**营销邮件定时推送**。由于项目需要兼容**自部署 (VPS/Docker)** 与 **Serverless (Cloud Functions)** 环境，设计上采用“业务逻辑解耦，触发方式适配”的原则。
+当前定时任务模块已经形成“统一任务引擎 + 多环境触发适配”的实际实现，用于处理：
 
-## 2. 核心架构 (Architecture)
+- 文章定时发布
+- 营销任务定时执行
 
-### 2.1 任务执行引擎 (Task Engine)
-位于 `server/services/task.ts`，负责核心检索与状态变更逻辑。
+设计重点不再是“是否可行”，而是不同部署环境如何安全触发同一条任务执行链路。
 
-#### 2.1.1 文章定时发布 (Post)
-1.  检索所有 `status === 'scheduled'` 且 `publishedAt <= now()` 的文章。
-2.  **状态变更**: 将状态变更为 `published`。
-3.  **副作用触发**:
-    -   从 `publishIntent` 读取该文章计划时的发布偏好（如同步 Memos、发送邮件等）。
-    -   调用 `executePublishEffects` 触发实际的同步和推送。
+## 2. 当前执行模型
 
-#### 2.1.2 营销定时推送 (MarketingCampaign)
-1.  检索所有 `status === 'SCHEDULED'` 且 `scheduledAt <= now()` 的营销任务。
-2.  **推送启动**: 调用 `sendMarketingCampaign` 异步执行实际的邮件投递。
-3.  **异常重试**: 若发送失败，状态将变更为 `FAILED`，管理员可手动重新触发。
+### 2.1 统一任务引擎
 
-### 2.2 锁竞争与安全性 (Locking)
-位于 `server/services/task.ts`，负责核心检索与状态变更逻辑。
-1.  **锁竞争**: 尝试获取 Redis 锁 `momei:lock:scheduled-tasks` (仅在集群环境下生效)。
-2.  **解锁**: 任务结束或异常后释放锁。
+任务执行逻辑统一收敛在 `processScheduledTasks()`，由不同触发入口复用。
 
-### 2.3 环境适配器 (Environment Adapters)
+相关文件：
 
-- **自部署 (Self-hosted)**:
-    -   利用 Nitro 的 `server/plugins` 注册启动任务。
-    -   使用 `cron` 库 (`CronJob`) 驱动，默认每 5 分钟执行一次 (`*/5 * * * *`)。
-    -   **分布式锁**: 
-        -   当配置外部 Redis 时，使用 `ioredis` 实现分布式锁，防止多实例并发执行任务。
-        -   降级机制：无 Redis 时，默认视为单实例环境直接运行。
+- [server/services/task.ts](../../server/services/task.ts)
+- [server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts)
+- [server/api/tasks/run-scheduled.post.ts](../../server/api/tasks/run-scheduled.post.ts)
+- [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts)
 
-- **Serverless (如 Vercel, Cloudflare)**:
-    -   由于 Serverless 环境无法维持后台 CronJob 进程，`cron` 插件将根据环境变量自动检测并禁用。
-    -   暴露受保护的 Webhook API 接口：`POST /api/tasks/run-scheduled`。
-    -   **安全机制**:
-        -   **HMAC 签名模式 (推荐)**: 通过 `X-Webhook-Signature` + `X-Webhook-Timestamp` 验证，支持防重放攻击。
-        -   **简单 Token 模式 (向后兼容)**: 校验请求头 `X-Tasks-Token` 或 `?token=...`。
-        -   Token 由环境变量 `TASKS_TOKEN` 或 `WEBHOOK_SECRET` 定义。
-    -   **原生触发集成**:
-        -   **Vercel Cron Jobs**: 通过 `vercel.json` 配置自动注册定时任务。
-        -   **Cloudflare Scheduled Events**: 通过 `wrangler.toml` + `server/routes/_scheduled.ts` 实现。
-    -   **外部触发**: GitHub Actions 或其他监控服务定期请求 Webhook 接口。
+### 2.2 自部署触发
 
-## 3. 数据库与意图持久化 (Data & Persistence)
+[server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts) 在非 Serverless 环境下注册 CronJob：
 
-### 3.1 发布意图 (Publish Intent)
-编辑器中“发布”按钮的选项（推送通知、同步 Memos、推送条件）在“定时发布”场景下不会立即执行，必须被持久化。系统将这些选项存储在 `Post` 实体的 `publishIntent` 字段中：
+- 默认表达式：`*/5 * * * *`
+- 时区：`UTC`
+- 可通过 `TASK_CRON_EXPRESSION` 覆盖
+- 当检测到 Serverless 环境或 `DISABLE_CRON_JOB=true` 时自动禁用
 
-```json
-{
-  "syncToMemos": true,
-  "pushOption": "now",
-  "pushCriteria": { "categoryIds": [], "tagIds": [] }
-}
-```
+### 2.3 Serverless 触发
 
-### 3.2 PostStatus 枚举
--   新增 `SCHEDULED = 'scheduled'`。
--   转换路径扩展：
-    -   `DRAFT` -> `SCHEDULED` (校验 `publishedAt` > now)
-    -   `PENDING` -> `SCHEDULED` (管理员审核通过并排期)
-    -   `SCHEDULED` -> `PUBLISHED` (引擎自动完成)
-    -   `SCHEDULED` -> `DRAFT/HIDDEN` (手动取消定时)
+当前项目已支持两类 Serverless 触发方式：
 
-## 4. 时区与时间处理 (Timezone)
+- Vercel Cron：通过 [vercel.json](../../vercel.json) 调用 `/api/tasks/run-scheduled`
+- Cloudflare Scheduled Events：通过 [wrangler.toml](../../wrangler.toml) 触发 [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts)
 
--   前端统一传递 **ISO 8601** 格式的时间字符串。
--   后端及数据库统一存储为 UTC 时间。
--   执行引擎通过 `publishedAt <= now()` 进行判断，不受本地时区差异影响。
+其中 Cloudflare 路由要求存在 `cf-scheduled` 请求头，否则直接返回 404。
 
-## 5. 业务逻辑分离 (Logic Separation)
+## 3. Webhook 安全模型
 
-1.  **副作用剥离**: `server/services/post-publish.ts` 封装 `executePublishEffects`。
-2.  **任务引擎**: `server/services/task.ts` 负责业务逻辑调度。
-3.  **插件集成**: `server/plugins/task-scheduler.ts` 负责自部署环境的 Cron 注册。
+### 3.1 HMAC 模式
 
-## 6. 前端交互 (User Experience)
+当前推荐模式为 HMAC 签名校验，实际实现位于 [server/utils/webhook-security.ts](../../server/utils/webhook-security.ts)。
 
-### 6.1 编辑器
--   发布前弹出确认框，若探测到 `publishedAt` 为未来时间，底部主按钮文字变为”计划发布”。
--   提供取消计划的入口。
+请求头约定：
 
-### 6.2 状态提示
--   列表页使用特殊的颜色（如紫色）标记 `SCHEDULED` 状态。
+- `X-Webhook-Signature`
+- `X-Webhook-Timestamp`
+- `X-Webhook-Source`
 
-## 7. Serverless 生态深度适配 (Serverless Ecosystem Integration)
+签名载荷格式为：
 
-### 7.1 架构概览
+`timestamp + "\n" + source + "\n" + body`
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Serverless Cron Triggers                      │
-├───────────────────┬───────────────────┬─────────────────────────┤
-│  Vercel Cron Jobs │ Cloudflare Cron   │   External Services     │
-│  (vercel.json)    │ (wrangler.toml)   │   (GitHub Actions, etc) │
-└─────────┬─────────┴─────────┬─────────┴───────────┬─────────────┘
-          │                   │                     │
-          └───────────────────┼─────────────────────┘
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              Webhook Task Dispatcher (API Layer)                 │
-│  server/api/tasks/run-scheduled.post.ts                         │
-│  - HMAC-SHA256 签名验证                                          │
-│  - 时间戳防重放攻击                                              │
-│  - 请求来源识别                                                  │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              Task Execution Engine (Service Layer)               │
-│  server/services/task.ts                                        │
-│  - processScheduledPosts()                                      │
-│  - processScheduledCampaigns()                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
+当前实现特征：
 
-### 7.2 平台配置
+- 默认容差 5 分钟
+- 使用 `timingSafeEqual` 避免时序攻击
+- 默认算法为 `sha256`
 
-#### 7.2.1 Vercel Cron Jobs
+### 3.2 Token 兼容模式
 
-**配置文件**: `vercel.json`
+为兼容旧触发器，当前仍保留简单 Token 模式：
 
-```json
-{
-    "crons": [
-        {
-            "path": "/api/tasks/run-scheduled",
-            "schedule": "0 0 * * *"
-        }
-    ]
-}
-```
+- 请求头 `X-Tasks-Token`
+- 或查询参数 `?token=...`
 
-> **注意**: Vercel Hobby (免费) 套餐限制 Cron 任务每天只能运行一次。如果您需要更频繁的触发（如每 15 分钟），建议使用 GitHub Actions 定时触发 Webhook 或升级至 Pro 套餐。
+### 3.3 环境行为
 
-**触发流程**:
-1. Vercel 平台按 Cron 表达式自动调用 `/api/tasks/run-scheduled`
-2. 请求自动携带 Vercel 内部认证信息
-3. 服务端验证并执行任务
+| 环境/条件 | 行为 |
+| :--- | :--- |
+| 已配置 HMAC 头 | 走签名校验 |
+| 未配置 HMAC，但存在 `TASKS_TOKEN` | 走 Token 校验 |
+| 生产环境且无任何安全配置 | 拒绝执行 |
+| 开发环境且无安全配置 | 允许执行并记录警告 |
 
-#### 7.2.2 Cloudflare Workers/Pages
+## 4. 平台适配现状
 
-**配置文件**: `wrangler.toml`
+### 4.1 Vercel
 
-```toml
-[triggers]
-crons = [“*/15 * * * *”]
-```
+[vercel.json](../../vercel.json) 当前配置为每天执行一次：
 
-**处理路由**: `server/routes/_scheduled.ts`
-- 通过 `cf-scheduled` 请求头识别 Cloudflare 内部触发
-- 直接执行 `processScheduledTasks()`，无需额外认证
+- 路径：`/api/tasks/run-scheduled`
+- 计划：`0 0 * * *`
 
-### 7.3 安全机制
+### 4.2 Cloudflare
 
-#### 7.3.1 HMAC 签名验证 (推荐)
+[wrangler.toml](../../wrangler.toml) 当前配置为每 15 分钟一次：
 
-**请求头**:
-- `X-Webhook-Timestamp`: 请求时间戳 (毫秒)
-- `X-Webhook-Signature`: HMAC-SHA256 签名
-- `X-Webhook-Source`: 来源标识 (`vercel` | `cloudflare` | `external`)
+- 计划：`*/15 * * * *`
 
-**签名计算**:
-```
-payload = timestamp + “\n” + source + “\n” + body
-signature = HMAC-SHA256(payload, WEBHOOK_SECRET)
-```
+这两种频率不同是部署平台适配策略的一部分，而不是文档误差。
 
-**防重放攻击**:
-- 时间戳容差默认 5 分钟
-- 超出容差的请求将被拒绝
+## 5. 当前边界
 
-#### 7.3.2 简单 Token 模式 (向后兼容)
+以下内容仍然属于后续增强项：
 
-**请求方式**:
-- Query 参数: `?token=<TASKS_TOKEN>`
-- 请求头: `X-Tasks-Token: <TASKS_TOKEN>`
+- 更细粒度的任务执行报表
+- 后台手动重试与任务可视化控制台
+- 更丰富的触发来源白名单与专用密钥轮换策略
 
-### 7.4 环境变量
+另外，当前实现并未读取 `WEBHOOK_TIMESTAMP_TOLERANCE` 环境变量，文档不再把它描述为现有配置项。
 
-| 变量名 | 必需 | 默认值 | 说明 |
-|-------|------|-------|------|
-| `TASKS_TOKEN` | 生产必需 | - | 简单 Token 模式密钥 |
-| `WEBHOOK_SECRET` | 推荐 | `TASKS_TOKEN` | HMAC 签名密钥 |
-| `WEBHOOK_TIMESTAMP_TOLERANCE` | 可选 | `300000` | 时间戳容差 (毫秒) |
+## 6. 相关文档
 
-### 7.5 相关文件
-
-| 文件路径 | 用途 |
-|---------|------|
-| `server/utils/webhook-security.ts` | Webhook 安全校验工具 |
-| `server/api/tasks/run-scheduled.post.ts` | Webhook API 接口 |
-| `server/routes/_scheduled.ts` | Cloudflare 内部触发处理器 |
-| `server/services/task.ts` | 任务执行引擎 |
-| `server/plugins/task-scheduler.ts` | 自部署环境 Cron 插件 |
-| `vercel.json` | Vercel Cron Jobs 配置 |
-| `wrangler.toml` | Cloudflare Scheduled Events 配置 |
+- [系统能力与设置](./system.md)
+- [部署优化模块设计](./deployment-optimization.md)
