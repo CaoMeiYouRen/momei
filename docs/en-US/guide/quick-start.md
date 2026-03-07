@@ -1,9 +1,13 @@
 ---
 source_branch: master
-last_sync: 2026-02-11
+last_sync: 2026-03-07
 ---
 
 # Quick Start
+
+::: warning Translation Notice
+This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../guide/quick-start.md) shall prevail.
+:::
 
 Welcome to Momei! This guide will walk you through the fastest ways to deploy and run your blog.
 
@@ -15,7 +19,7 @@ This is the easiest way to get your blog online in minutes.
 
 1. Click the button above.
 2. Follow Vercel's instructions to create or select your GitHub repository.
-3. Configure environment variables (optional, see documentation below).
+3. Configure environment variables if needed.
 4. Click **Deploy**.
 
 ## 2. Fast Deployment with Docker
@@ -85,12 +89,15 @@ Momei supports **Zero-Config Startup** for development:
 - Generates a development `AUTH_SECRET` automatically.
 - No `.env` configuration required to run.
 
+If you want the full feature set, start from `.env.full.example` and follow the settings mapping used by the settings service, especially for values such as `AI_IMAGE_ENDPOINT`, `MEMOS_INSTANCE_URL`, and `MEMOS_ACCESS_TOKEN`.
+
 Visit `http://localhost:3000` in your browser.
 
 ## 5. Next Steps
 
 -   **Admin Dashboard**: Visit `/admin` to log in. For a fresh installation, check the console logs for initialization credentials.
 -   **AI Assistant**: Configure `AI_API_KEY` in your `.env` to enable smart title generation and one-click translation.
+-   **Enable Memos Sync**: Configure `MEMOS_ENABLED=true`, `MEMOS_INSTANCE_URL`, and `MEMOS_ACCESS_TOKEN`.
 -   **Demo Mode**: Set `NUXT_PUBLIC_DEMO_MODE=true` to preview all admin features in-memory (data is not persisted).
 
 ---

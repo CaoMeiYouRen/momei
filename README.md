@@ -49,11 +49,13 @@
 ## ✨ 核心特性
 
 -   **AI 驱动**: 深度集成 AI 助手，支持全自动翻译、智能标题、摘要生成等功能，大幅提升创作效率。
+-   **多模态内容工作流**: 已支持 AI 配图、语音转文字 (ASR)、Memos 灵感同步与定时任务自动化，覆盖从灵感采集到发布的完整链路。
 -   **原生国际化 (i18n)**: 内置多语言支持，从 UI 到内容管理的深度集成，助你轻松触达全球读者。
 -   **现代化技术栈**: 基于 Nuxt (Vue 3 + TypeScript) 构建，支持 SSG/SSR 混合渲染，性能卓越。
 -   **平滑迁移**: 支持自定义 URL Slug (路径别名)，确保从旧博客迁移时 SEO 零损失。
 -   **Markdown 创作**: 简洁高效的 Markdown 编辑器，支持实时预览和图片拖拽上传。
 -   **多层级订阅**: 全局、分类及标签的多维度 RSS 订阅，支持多语言探测。
+-   **可配置的系统治理**: 系统设置中心、环境变量锁定、配置审计日志和部署指引已打通，便于在自部署与 Serverless 场景中统一管理。
 -   **多端支持 (规划中)**: 未来将支持 Tauri 桌面端应用，实现离线写作与云端同步。
 
 ## 🏠 在线体验
@@ -123,7 +125,8 @@
 -   [**快速开始**](https://docs.momei.app/guide/quick-start) - 一键部署与启动
 -   [**方案对比**](https://docs.momei.app/plan/comparison) - 为什么选择墨梅?
 -   [**部署指南**](https://docs.momei.app/guide/deploy) - Vercel/Docker/私有服务器
--   [**开发指南**](https://docs.momei.app/guide/setup) - 环境搭建与贡献
+-   [**环境与系统设置**](https://docs.momei.app/guide/variables) - 环境变量、设置中心映射与锁定策略
+-   [**开发指南**](https://docs.momei.app/guide/development) - 环境搭建与贡献
 -   [**API 设计**](https://docs.momei.app/design/api) - 接口规范与定义
 -   [**数据库设计**](https://docs.momei.app/design/database) - 表结构与关系
 
@@ -137,6 +140,8 @@
 ### 支持情况
 
 建议使用 Vercel、Netlify、Cloudflare 或 Docker 进行部署。
+
+当前版本的部署配置以环境变量为主，推荐优先阅读 [部署指南](https://docs.momei.app/guide/deploy) 和 [环境与系统设置](https://docs.momei.app/guide/variables)，先完成核心变量，再按需启用 AI、对象存储、ASR、Webhook 定时任务等增强能力。
 
 点击下方按钮一键部署到 Vercel。
 

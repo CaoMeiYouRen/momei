@@ -3,7 +3,7 @@
 layout: home
 
 source_branch: master
-last_sync: 2026-02-11
+last_sync: 2026-03-07
 
 hero:
     name: "Momei Blog"
@@ -33,6 +33,12 @@ features:
     - title: Project Planning
       details: "Understand the overall project plan, MVP goals, and future roadmap."
       link: /en-US/plan/roadmap
+    - title: Current Todo
+      details: "Track the current phase goals, active development focus, and acceptance checkpoints from the Chinese planning source."
+      link: /plan/todo
+    - title: Planning Standard
+      details: "Understand the evaluation method and planning constraints that keep implementation focused on core value."
+      link: /en-US/standards/planning
     - title: Development Guide
       details: "Get started quickly with project development, standards, and best practices."
       link: /en-US/guide/development
@@ -48,10 +54,16 @@ features:
     - title: Design Docs
       details: "Deep dive into UI design systems, API architecture, and database modeling."
       link: /en-US/design/ui
+    - title: Functional Modules
+      details: "Explore module-level documentation for blog content, authentication, AI, email, theme, and other domain areas in the Chinese source docs."
+      link: /design/modules/index
     - title: Standards
       details: "Development, safety, and testing standards for global contributors."
       link: /en-US/standards/development
-    - title: Technical Planning
-      details: "Master project evaluation methodology and planning constraints."
-      link: /en-US/standards/planning
+    - title: Testing Standard
+      details: "Learn the project conventions for unit tests, integration tests, and end-to-end validation."
+      link: /en-US/standards/testing
+    - title: Security Standard
+      details: "Review the security baseline, auth constraints, and data protection practices used by the project."
+      link: /en-US/standards/security
 ---

@@ -1,9 +1,13 @@
 ---
 source_branch: master
-last_sync: 2026-02-11
+last_sync: 2026-03-07
 ---
 
 # Features
+
+::: warning Translation Notice
+This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../guide/features.md) shall prevail.
+:::
 
 Momei is an **AI-driven, Native i18n** modern blogging platform. It integrates deep AI creative assistance and a ground-up internationalization design to achieve "AI-Empowered Global Creation," helping technical creators connect seamlessly with readers worldwide.
 
@@ -14,10 +18,12 @@ Momei features deep integration with AI providers (OpenAI, Anthropic, DeepSeek, 
 -   **Smart Title Suggestions**: Automatically generate multiple attractive and SEO-friendly titles based on your content.
 -   **Automated Abstracts**: One-click extraction of the article's essence, automatically filling SEO descriptions.
 -   **Intelligent Tagging**: Analyze content to recommend appropriate tags.
+-   **Scaffold-style Writing Assistant**: AI can provide outlines and argument prompts to help authors build an article structure faster.
 -   **SEO Slug Generation**: Generate clean, readable URL slugs based on titles.
 -   **One-Click Translation**: Full-text translation preserving Markdown formatting (including code blocks and formulas), syncing content, categories, and tags across languages.
 -   **AI Image Generation**: Integrated with DALL-E 3 and Seedream for one-click high-quality cover images.
--   **Speech-to-Text (ASR)**: Quickly convert voice inspirations into text drafts via OpenAI Whisper.
+-   **Speech-to-Text (ASR)**: Quickly convert voice inspirations into text drafts via OpenAI Whisper, SenseVoice (SiliconFlow), and other supported providers.
+-   **Inspiration Capture Engine**: Collect fragmented ideas quickly and turn them into formal content later.
 
 ## 2. Deep Internationalization (I18n Anywhere)
 
@@ -45,7 +51,10 @@ Momei builds a powerful hub to ensure your readers never miss an update:
 
 ## 5. Reading Experience & SEO
 
+-   **Math Rendering**: Native support for KaTeX inline and block formulas.
 -   **Auto-generated TOC**: Automatically generate a sidebar table of contents based on Markdown headers.
+-   **Immersive Reading Mode**: Reduce distractions with configurable font size, line height, page width, and eye-friendly themes.
+-   **End-to-end Performance Optimization**: Core pages target strong Lighthouse scores with fast loading behavior.
 -   **Reading Time Estimation**: Calculate word counts and estimate reading duration.
 -   **Copyright Attribution**: Support for CC BY-NC-SA 4.0 and other licenses with prominent display at the bottom of articles.
 -   **Dark Mode Support**: Seamlessly matches system preferences (Light/Dark) with no flickering on switch.
@@ -64,6 +73,8 @@ Momei builds a powerful hub to ensure your readers never miss an update:
 
 ## 8. Developer & Demo Modes
 
+-   **Installation Wizard**: New installations can use a guided setup flow to complete the initial database and base configuration.
+-   **Momei CLI Migration Tool**: Import Markdown content from Hexo and similar systems through a dedicated CLI.
 -   **Publishing API**: Integrate Momei into your automation flows (e.g., publish from Obsidian) via API keys.
 -   **Demo Mode**: Uses an in-memory database and blocks persistent changes, perfect for product demonstrations.
 

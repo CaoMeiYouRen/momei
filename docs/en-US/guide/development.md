@@ -1,9 +1,13 @@
 ---
 source_branch: master
-last_sync: 2026-02-11
+last_sync: 2026-03-07
 ---
 
 # Development Guide
+
+::: warning Translation Notice
+This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../guide/development.md) shall prevail.
+:::
 
 This guide is designed to help developers quickly set up the local development environment for Momei and contribute code to the project.
 
@@ -41,6 +45,7 @@ Ensure the following are installed on your system:
     ```
 
     Editing `.env` is optional; without it, the system defaults to SQLite and generates a development secret automatically.
+    For values that can also be managed in the admin settings center, prefer the environment variable names that match the mapping used by `server/services/setting.ts`, such as `AI_IMAGE_ENDPOINT`, `MEMOS_INSTANCE_URL`, and `MEMOS_ACCESS_TOKEN`.
 
 4. **Start Development Server**:
     ```bash

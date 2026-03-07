@@ -1,138 +1,173 @@
 ---
 source_branch: master
-last_sync: 2026-02-11
+last_sync: 2026-03-07
 ---
 
 # Deployment Guide
 
-Momei follows the **Convention over Configuration** principle. Most features are automatically activated upon detecting relevant keys, minimizing the burden of environment variable configuration.
-
-## 1. Core Environment Variables
-
-Momei provides two example files for reference:
--   [**.env.example**](../../.env.example): Minimalist version with only the essentials.
--   [**.env.full.example**](../../.env.full.example): Full version with all available configuration options.
-
-For production deployment, you typically only need to configure these two variables:
-
-| Variable | Required | Description | Example |
-| :--- | :--- | :--- | :--- |
-| `AUTH_SECRET` | **YES** | Secret key for the auth system (recommended length: 32+ chars). | `j8H2...k9L1` |
-| `DATABASE_URL` | NO | Database connection URL. Defaults to local SQLite if empty. | `mysql://user:pass@host:3306/db` |
-
-### 1.1 Smart Inference
-
-Momei automatically infers system behavior based on your configuration:
-
-- **Database Type**: Automatically inferred from the `DATABASE_URL` protocol (`sqlite://`, `mysql://`, `postgres://`, etc.).
-- **AI Assistant**: Features (one-click translation, SEO optimization) are activated automatically once `AI_API_KEY` is provided.
-- **Dev Mode**: In `NODE_ENV=development`, `AUTH_SECRET` is auto-generated and SQLite is used by default for a zero-config experience.
-
----
-
-## 2. Functional Configuration
-
-Detailed variables for each module:
-
-### 2.1 Database & Management
-
-| Variable | Description | Default / Example |
-| :--- | :--- | :--- |
-| `DATABASE_URL` | Database connection string. `sqlite://` prefix recommended. | `sqlite://database/momei.sqlite` |
-| `DATABASE_SYNCHRONIZE` | Auto-sync schema. Set to `false` in production. | `false` |
-| `REDIS_URL` | Redis URL (optional, for higher performance caching). | `redis://localhost:6379` |
-| `ADMIN_USER_IDS` | List of admin user IDs (comma-separated). | `123123123,456456456` |
-| `NUXT_PUBLIC_DEMO_MODE`| Enable Demo Mode (data is not persisted). | `false` |
-
-### 2.2 AI Assistant (Multimodal AI)
-
-| Variable | Description | Example |
-| :--- | :--- | :--- |
-| `AI_API_KEY` | **Enables AI features once set**. | `sk-xxxx...` |
-| `AI_PROVIDER` | AI provider (`openai`, `anthropic`, `deepseek`, `doubao`). | `openai` |
-| `AI_MODEL` | Model ID to use. | `gpt-4o`, `deepseek-chat` |
-| `AI_API_ENDPOINT` | Custom API endpoint (e.g., for proxy). | `https://api.openai.com/v1` |
-| `AI_IMAGE_PROVIDER` | AI Image generator provider (`dall-e-3`, `seedream`). | `seedream` |
-| `AI_IMAGE_API_KEY` | Dedicated image API key (optional, defaults to `AI_API_KEY`).| `sk-xxxx...` |
-| `AI_IMAGE_API_ENDPOINT`| Image API endpoint (optional). | `https://api.openai.com/v1` |
-| `AI_IMAGE_MODEL` | Image model ID. | `dall-e-3`, `Seedream-2.0` |
-
-### 2.3 Email System (Subscription & Password Recovery)
-
-| Variable | Description | Example |
-| :--- | :--- | :--- |
-| `EMAIL_HOST` | SMTP server host. | `smtp.gmail.com` |
-| `EMAIL_PORT` | SMTP server port. | `587` |
-| `EMAIL_USER` | SMTP username. | `user@example.com` |
-| `EMAIL_PASS` | SMTP password (App-specific password). | `xxxx xxxx xxxx xxxx` |
-| `EMAIL_SECURE` | Use SSL/TLS. | `false` |
-| `EMAIL_FROM` | Email sender address (including display name). | `Momei Blog <admin@example.com>` |
-
-### 2.4 Object Storage
-
-Momei supports multiple storage backends, defaulting to `local`. Switch via `STORAGE_TYPE`.
-
-| Variable | Description | Default / Example |
-| :--- | :--- | :--- |
-| `STORAGE_TYPE` | Storage engine (`local`, `s3`, `vercel-blob`). | `local` |
-| `BUCKET_PREFIX` | Path prefix for uploaded files. | `momei/` |
-| `NUXT_PUBLIC_MAX_UPLOAD_SIZE` | Max upload size. | `10MB` (Default 4.5MiB) |
-
-::: tip
-If using Docker with `STORAGE_TYPE=local`, ensure you mount the upload directory to prevent data loss on container restart.
+::: warning Translation Notice
+This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../guide/deploy.md) shall prevail.
 :::
 
-#### 2.4.1 S3 Compatible Storage (STORAGE_TYPE=s3)
+Momei uses an environment-variable-first deployment model that stays aligned with the current codebase. Most capabilities follow a simple rule: once the required variables are present, the feature is enabled. Authentication, scheduled tasks, and object storage should still be managed primarily through environment variables rather than runtime edits in the admin panel.
 
-Works with Cloudflare R2, AWS S3, MinIO, etc.
+To make rollout easier, the configuration is grouped into three layers: **Essential**, **Recommended for production**, and **Optional enhancements**.
 
-| Variable | Description | Example |
-| :--- | :--- | :--- |
-| `S3_REGION` | S3 Region (Required). | `auto` |
-| `S3_BUCKET_NAME` | Bucket name (Required). | `momei-assets` |
-| `S3_ACCESS_KEY_ID` | Access Key (Required). | `xxxx...` |
-| `S3_SECRET_ACCESS_KEY` | Secret Key (Required). | `xxxx...` |
-| `S3_ENDPOINT` | S3 API Endpoint (Optional). | `https://<id>.r2.cloudflarestorage.com` |
-| `S3_BASE_URL` | Public access URL prefix (Optional). | `https://pub-xxxx.r2.dev` |
+## 1. Essential
 
-#### 2.4.2 Vercel Blob Storage (STORAGE_TYPE=vercel-blob)
+- **`AUTH_SECRET`**: Core secret used by Better Auth and server-side signatures.
+	- Generate it with: `openssl rand -hex 32`
+- **`NUXT_PUBLIC_SITE_URL`**: Public site URL used for SEO, sitemap, RSS, federation, and absolute links.
+- **`NUXT_PUBLIC_AUTH_BASE_URL`**: Base URL used for Better Auth callbacks.
+	- In production, it should usually match `NUXT_PUBLIC_SITE_URL`.
+- **`DATABASE_URL`**: Database connection string.
+	- SQLite: `sqlite://database/momei.sqlite`
+	- MySQL: `mysql://user:pass@host:3306/db`
+	- PostgreSQL: `postgres://user:pass@host:5432/db`
 
-For projects deployed on Vercel.
+## 2. Recommended For Production
 
-| Variable | Description | Example |
-| :--- | :--- | :--- |
-| `BLOB_READ_WRITE_TOKEN`| Vercel Blob Token. | `vercel_blob_rw_...` |
+These settings are not strictly required to boot the app, but they largely determine whether the production deployment is stable, maintainable, and feature-complete.
 
-#### 2.4.3 Local Storage (STORAGE_TYPE=local)
+### 2.1 Database And Cache
 
-**Note**: Not supported in Serverless environments like Vercel.
+- **`DATABASE_SYNCHRONIZE=false`**: Recommended in production.
+- **`REDIS_URL`**: Recommended when you need cache, parts of rate limiting, or distributed behavior.
 
-| Variable | Description | Default / Example |
-| :--- | :--- | :--- |
-| `LOCAL_STORAGE_DIR` | Directory for local file storage. | `public/uploads` |
-| `LOCAL_STORAGE_BASE_URL`| Base URL path for public access. | `/uploads` |
-| `LOCAL_STORAGE_MIN_FREE_SPACE` | Min free space to allow writes. | `100MiB` |
+### 2.2 AI And Multimodal Services
 
----
+- **`AI_PROVIDER`** / **`AI_API_KEY`** / **`AI_MODEL`**: Core text AI engine.
+- **`AI_API_ENDPOINT`**: Endpoint for OpenAI-compatible services or proxies.
+- **`GEMINI_API_TOKEN`**: Used when Gemini requires a dedicated token.
+- **`AI_IMAGE_ENABLED`** / **`AI_IMAGE_PROVIDER`** / **`AI_IMAGE_API_KEY`**: AI image generation pipeline.
+- **`ASR_ENABLED`** / **`ASR_PROVIDER`** / **`ASR_API_KEY`** / **`ASR_MODEL`** / **`ASR_ENDPOINT`**: Base ASR configuration.
+- **`TTS_ENABLED`** / **`TTS_PROVIDER`** / **`TTS_API_KEY`** / **`TTS_DEFAULT_MODEL`**: Base text-to-speech configuration.
 
-## 3. Site & Compliance
+### 2.3 Storage And Media
 
-### 3.1 Basic Site Config
+- **`STORAGE_TYPE`**: `local`, `s3`, or `vercel-blob`.
+- **Local storage**: `LOCAL_STORAGE_DIR` + `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL`
+- **S3-compatible storage**: `S3_ENDPOINT`, `S3_BUCKET_NAME`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_BASE_URL`
+- **Path prefix**: `BUCKET_PREFIX`
+- **Vercel Blob**: `BLOB_READ_WRITE_TOKEN`
 
-| Variable | Description | Default / Example |
-| :--- | :--- | :--- |
-| `NUXT_PUBLIC_SITE_URL` | Official site URL. | `https://momei.app` |
-| `NUXT_PUBLIC_AUTH_BASE_URL`| Auth API base path. | `https://momei.app/api/auth` |
-| `NUXT_PUBLIC_APP_NAME` | Site title. | `Momei Blog` |
-| `NUXT_PUBLIC_SITE_OPERATOR`| Site owner/operator. | `Momei Team` |
-| `NUXT_PUBLIC_CONTACT_EMAIL`| Contact email. | `admin@example.com` |
-| `NUXT_PUBLIC_DEFAULT_COPYRIGHT`| Default copyright type. | `all-rights-reserved`, `cc-by-nc-sa` |
+### 2.4 Email And Notifications
 
-### 3.2 Compliance (Beian)
+- **`EMAIL_HOST`** / **`EMAIL_PORT`** / **`EMAIL_USER`** / **`EMAIL_PASS`** / **`EMAIL_FROM`**
+- **`EMAIL_REQUIRE_VERIFICATION`**: Recommended in production to reduce abusive registrations.
 
-| Variable | Description | Default / Example |
-| :--- | :--- | :--- |
-| `NUXT_PUBLIC_SHOW_COMPLIANCE_INFO` | Toggle compliance info display. | `false` |
-| `NUXT_PUBLIC_ICP_LICENSE_NUMBER` | ICP License ID. | `粤ICP备xxxxxxxx号` |
-| `NUXT_PUBLIC_PUBLIC_SECURITY_NUMBER`| Public Security ID. | `粤公网安备 xxxxxxxxxxxxxx号` |
-| `NUXT_PUBLIC_SECURITY_URL_WHITELIST`| External resource domain whitelist. | `images.unsplash.com,i.imgur.com` |
+### 2.5 Scheduled Tasks And Automation
+
+- **`TASKS_TOKEN`**: Base token used for task webhook authentication.
+- **`WEBHOOK_SECRET`**: Recommended as a dedicated HMAC signing secret.
+- **`TASK_CRON_EXPRESSION`**: Only effective in self-hosted mode to override the built-in cron frequency.
+- **`DISABLE_CRON_JOB=true`**: Explicitly disables the built-in cron job in self-hosted mode.
+
+`WEBHOOK_TIMESTAMP_TOLERANCE` still appears in the example file, but the current implementation does not read it. Webhook validation uses a fixed 5-minute tolerance window.
+
+## 3. Optional Enhancements
+
+These settings round out observability, branding, visual effects, and monetization defaults.
+
+- **Site metadata**:
+	- `NUXT_PUBLIC_APP_NAME`
+	- `NUXT_PUBLIC_SITE_DESCRIPTION`
+	- `NUXT_PUBLIC_SITE_KEYWORDS`
+	- `NUXT_PUBLIC_CONTACT_EMAIL`
+	- `NUXT_PUBLIC_DEFAULT_COPYRIGHT`
+- **Analytics and monitoring**:
+	- `NUXT_PUBLIC_BAIDU_ANALYTICS_ID`
+	- `NUXT_PUBLIC_GOOGLE_ANALYTICS_ID`
+	- `NUXT_PUBLIC_CLARITY_PROJECT_ID`
+	- `NUXT_PUBLIC_SENTRY_DSN`
+- **Visual effects**:
+	- `NUXT_PUBLIC_LIVE2D_ENABLED`
+	- `NUXT_PUBLIC_CANVAS_NEST_ENABLED`
+	- `NUXT_PUBLIC_EFFECTS_MOBILE_ENABLED`
+- **China-region compliance**:
+	- `NUXT_PUBLIC_SHOW_COMPLIANCE_INFO`
+	- `NUXT_PUBLIC_ICP_LICENSE_NUMBER`
+	- `NUXT_PUBLIC_PUBLIC_SECURITY_NUMBER`
+- **Commercial defaults**:
+	- `COMMERCIAL_SPONSORSHIP_JSON`
+
+## 4. Channel-Specific Examples
+
+### 4.1 SiliconFlow: Text + ASR/TTS
+
+```dotenv
+AI_PROVIDER=siliconflow
+AI_API_KEY=sk-xxxx
+AI_MODEL=Qwen/Qwen2.5-72B-Instruct
+AI_API_ENDPOINT=https://api.siliconflow.cn/v1
+
+ASR_ENABLED=true
+ASR_PROVIDER=siliconflow
+ASR_SILICONFLOW_API_KEY=sk-xxxx
+ASR_SILICONFLOW_MODEL=FunAudioLLM/SenseVoiceSmall
+
+TTS_ENABLED=true
+TTS_PROVIDER=siliconflow
+TTS_API_KEY=sk-xxxx
+```
+
+### 4.2 Volcengine / Doubao: Split Text And ASR Access
+
+If you only use Volcengine for ASR, prefer the dedicated ASR credentials:
+
+```dotenv
+ASR_ENABLED=true
+ASR_PROVIDER=volcengine
+ASR_VOLCENGINE_APP_ID=888888
+ASR_VOLCENGINE_ACCESS_KEY=AK-xxx
+ASR_VOLCENGINE_SECRET_KEY=SK-xxx
+ASR_VOLCENGINE_CLUSTER_ID=volc.bigasr.sauc.duration
+```
+
+If text AI also runs on Volcengine, add:
+
+```dotenv
+AI_PROVIDER=volcengine
+AI_API_KEY=your-text-api-key
+AI_MODEL=ep-2024xxx
+```
+
+### 4.3 Memos Sync
+
+```dotenv
+MEMOS_ENABLED=true
+MEMOS_INSTANCE_URL=https://memos.yourdomain.com
+MEMOS_ACCESS_TOKEN=xxx
+MEMOS_DEFAULT_VISIBILITY=PRIVATE
+```
+
+## 5. Deploying To Major Platforms
+
+- **Vercel**: Best for serverless deployments.
+	- Prefer `STORAGE_TYPE=vercel-blob` or an external S3/R2 bucket.
+	- `TASKS_TOKEN` is required, and `WEBHOOK_SECRET` is strongly recommended.
+	- Built-in scheduled triggers are defined in [vercel.json](../../vercel.json) and currently run once per day.
+- **Docker / Self-hosted server**: Best when you need local disk, built-in cron, and tighter operational control.
+	- Mount `database/` and upload directories.
+	- Use `TASK_CRON_EXPRESSION` if you want to customize the built-in cron schedule.
+- **Cloudflare Pages / Workers**:
+	- Prefer R2 or another S3-compatible store.
+	- Scheduled tasks should come from platform scheduled events, not a local cron process.
+
+## 6. Troubleshooting
+
+- **Auth callback errors**: Verify that both `NUXT_PUBLIC_SITE_URL` and `NUXT_PUBLIC_AUTH_BASE_URL` use the final public domain and the same protocol.
+- **Scheduled task returns 401**: Check which auth mode your trigger is using.
+	- Token mode: `TASKS_TOKEN`
+	- HMAC mode: `WEBHOOK_SECRET`
+- **Volcengine ASR is not taking effect**: Check `ASR_VOLCENGINE_APP_ID`, `ASR_VOLCENGINE_ACCESS_KEY`, and `ASR_VOLCENGINE_CLUSTER_ID` first, then inspect generic `VOLCENGINE_*` fallback config.
+- **OpenAI-compatible endpoint errors**: Confirm whether `AI_API_ENDPOINT` needs a `/v1` suffix.
+- **Local uploads return 404**: Verify that `LOCAL_STORAGE_DIR` exists and that `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL` matches the exposed static path.
+
+## 7. References
+
+- [Variables & Settings Mapping](./variables): Overview of how environment variables map to settings keys.
+- [Full environment variable example (.env.full.example)](../../.env.full.example): Complete configuration matrix supported by the current version.
+- [System integration design docs](../../design/modules/index): Module-level integration boundaries and implementation notes.
+
+Momei keeps the same deployment principle: configure the essential variables first so the site runs reliably, then enable AI, storage, tasks, and monetization step by step.

@@ -49,11 +49,13 @@ Momei is a modern blog platform built on **Nuxt**. It aims to provide an efficie
 ## ✨ Key Features
 
 -   **AI Driven**: Deeply integrated AI assistant, supporting automated translation, smart titles, summary generation, etc., significantly improving creative efficiency.
+-   **Multimodal Content Workflow**: Already supports AI image generation, speech-to-text (ASR), Memos inspiration sync, and scheduled task automation across the full path from idea capture to publishing.
 -   **Native i18n**: Built-in multi-language support, from UI to content management, helping you easily reach global readers.
 -   **Modern Tech Stack**: Built on Nuxt (Vue 3 + TypeScript), supporting SSG/SSR mixed rendering with excellent performance.
 -   **Smooth Migration**: Supports custom URL Slugs (path aliases), ensuring zero SEO loss when migrating from legacy blogs.
 -   **Markdown Creation**: Concise and efficient Markdown editor with real-time preview and drag-and-drop image upload.
 -   **Multi-layer Subscription**: Global, category, and tag multi-dimensional RSS feeds with multi-language detection.
+-   **Configurable System Governance**: The settings center, ENV locking, audit logs, and deployment guidance now align for both self-hosted and serverless operations.
 -   **Multi-terminal (Planned)**: Future support for Tauri desktop applications, enabling offline writing and cloud synchronization.
 
 ## 🏠 Live Demo
@@ -119,6 +121,7 @@ Main Sections:
 -   [**Quick Start**](https://docs.momei.app/en-US/guide/quick-start) - One-click deployment
 -   [**Comparison**](https://docs.momei.app/en-US/plan/comparison) - Why choose Momei?
 -   [**Deploy Guide**](https://docs.momei.app/en-US/guide/deploy) - Vercel/Docker/Self-host
+-   [**Variables & Settings**](https://docs.momei.app/en-US/guide/variables) - Environment variables, settings mapping, and locking rules
 -   [**Dev Guide**](https://docs.momei.app/en-US/guide/development) - Setup and contribution
 -   [**API Design**](https://docs.momei.app/en-US/design/api) - Interface standards
 -   [**Database Design**](https://docs.momei.app/en-US/design/database) - Schema and relations
@@ -133,6 +136,8 @@ Main Sections:
 ### Support
 
 Recommended deployment options include Vercel, Netlify, Cloudflare, or Docker.
+
+The current deployment model is environment-variable first. Start with the [Deploy Guide](https://docs.momei.app/en-US/guide/deploy) and [Variables & Settings](https://docs.momei.app/en-US/guide/variables), then enable AI, object storage, ASR, and webhook-based scheduled tasks module by module.
 
 Click the button below for one-click deployment to Vercel.
 
