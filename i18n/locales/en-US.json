@@ -973,9 +973,24 @@
                         "refresh": "Refresh",
                         "empty": "No configuration changes recorded yet",
                         "overridden_by_env": "Currently overridden by environment variables",
+                        "value_states": {
+                            "unset": "Unset",
+                            "empty_string": "Empty string"
+                        },
                         "actions": {
                             "create": "Created",
                             "update": "Updated"
+                        },
+                        "sources": {
+                            "admin_ui": "System settings page",
+                            "theme_settings": "Theme settings page",
+                            "commercial_settings": "Commercial settings page",
+                            "api": "Admin API"
+                        },
+                        "reasons": {
+                            "system_settings_update": "Saved system settings",
+                            "theme_settings_update": "Saved theme settings",
+                            "commercial_settings_update": "Saved commercial settings"
                         },
                         "effective_sources": {
                             "env": "ENV active",

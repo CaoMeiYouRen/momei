@@ -980,9 +980,24 @@
                         "refresh": "刷新",
                         "empty": "暂无配置变更记录",
                         "overridden_by_env": "当前已被环境变量覆盖",
+                        "value_states": {
+                            "unset": "未设置",
+                            "empty_string": "空字符串"
+                        },
                         "actions": {
                             "create": "新建",
                             "update": "更新"
+                        },
+                        "sources": {
+                            "admin_ui": "系统设置页",
+                            "theme_settings": "主题设置页",
+                            "commercial_settings": "商业设置页",
+                            "api": "后台接口"
+                        },
+                        "reasons": {
+                            "system_settings_update": "保存系统设置",
+                            "theme_settings_update": "保存主题设置",
+                            "commercial_settings_update": "保存商业设置"
                         },
                         "effective_sources": {
                             "env": "ENV 生效",

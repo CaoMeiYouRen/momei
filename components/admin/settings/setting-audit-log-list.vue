@@ -31,7 +31,7 @@
 
             <Column :header="$t('pages.admin.settings.system.audit_logs.columns.time')" class="setting-audit-log-list__time-column">
                 <template #body="slotProps">
-                    {{ formatDate(slotProps.data.createdAt) }}
+                    {{ formatDateTime(slotProps.data.createdAt) }}
                 </template>
             </Column>
 
@@ -47,13 +47,13 @@
 
             <Column :header="$t('pages.admin.settings.system.audit_logs.columns.old_value')">
                 <template #body="slotProps">
-                    <span class="setting-audit-log-list__value">{{ slotProps.data.oldValue || '-' }}</span>
+                    <span class="setting-audit-log-list__value">{{ formatAuditValue(slotProps.data.oldValue) }}</span>
                 </template>
             </Column>
 
             <Column :header="$t('pages.admin.settings.system.audit_logs.columns.new_value')">
                 <template #body="slotProps">
-                    <span class="setting-audit-log-list__value">{{ slotProps.data.newValue || '-' }}</span>
+                    <span class="setting-audit-log-list__value">{{ formatAuditValue(slotProps.data.newValue) }}</span>
                 </template>
             </Column>
 
@@ -80,11 +80,15 @@
                 </template>
             </Column>
 
-            <Column field="source" :header="$t('pages.admin.settings.system.audit_logs.columns.source')" />
+            <Column :header="$t('pages.admin.settings.system.audit_logs.columns.source')">
+                <template #body="slotProps">
+                    <span class="setting-audit-log-list__value">{{ translateAuditSource(slotProps.data.source) }}</span>
+                </template>
+            </Column>
 
             <Column :header="$t('pages.admin.settings.system.audit_logs.columns.reason')">
                 <template #body="slotProps">
-                    <span class="setting-audit-log-list__value">{{ slotProps.data.reason || '-' }}</span>
+                    <span class="setting-audit-log-list__value">{{ translateAuditReason(slotProps.data.reason) }}</span>
                 </template>
             </Column>
 
@@ -102,7 +106,7 @@ import type { ApiResponse } from '@/types/api'
 import type { SettingAuditItem } from '@/types/setting'
 
 const { $appFetch } = useAppApi()
-const { formatDate } = useI18nDate()
+const { formatDateTime } = useI18nDate()
 const toast = useToast()
 const { t } = useI18n()
 
@@ -119,6 +123,38 @@ type AuditLogResponse = ApiResponse<{
     limit: number
     totalPages: number
 }>
+
+const formatAuditValue = (value: string | null) => {
+    if (value === null) {
+        return t('pages.admin.settings.system.audit_logs.value_states.unset')
+    }
+
+    if (value === '') {
+        return t('pages.admin.settings.system.audit_logs.value_states.empty_string')
+    }
+
+    return value
+}
+
+const translateAuditSource = (source: string | null) => {
+    if (!source) {
+        return t('pages.admin.settings.system.audit_logs.value_states.unset')
+    }
+
+    const key = `pages.admin.settings.system.audit_logs.sources.${source}`
+    const translated = t(key)
+    return translated === key ? source : translated
+}
+
+const translateAuditReason = (reason: string | null) => {
+    if (!reason) {
+        return t('pages.admin.settings.system.audit_logs.value_states.unset')
+    }
+
+    const key = `pages.admin.settings.system.audit_logs.reasons.${reason}`
+    const translated = t(key)
+    return translated === key ? reason : translated
+}
 
 const loadLogs = async () => {
     loading.value = true
@@ -214,7 +250,7 @@ defineExpose({ refresh: loadLogs })
     }
 
     &__time-column {
-        min-width: 11rem;
+        min-width: 12rem;
     }
 }
 </style>
