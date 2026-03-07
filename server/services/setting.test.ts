@@ -101,6 +101,48 @@ describe('settingService', () => {
         })
     })
 
+    describe('resolveSetting', () => {
+        it('should expose env override metadata when environment variable is present', async () => {
+            process.env.NUXT_PUBLIC_APP_NAME = 'EnvTitle'
+
+            const result = await settingService.resolveSetting(SettingKey.SITE_TITLE)
+
+            expect(result).toMatchObject({
+                key: SettingKey.SITE_TITLE,
+                value: 'EnvTitle',
+                source: 'env',
+                isLocked: true,
+                envKey: 'NUXT_PUBLIC_APP_NAME',
+                defaultUsed: false,
+                lockReason: 'env_override',
+                requiresRestart: false,
+            })
+        })
+
+        it('should keep actual source as db for forced lock keys without env override', async () => {
+            mockSettingRepo.findOne.mockResolvedValue({
+                key: SettingKey.GITHUB_CLIENT_ID,
+                value: 'db-client-id',
+                level: 2,
+                description: 'GitHub client id',
+                maskType: 'none',
+            })
+
+            const result = await settingService.resolveSetting(SettingKey.GITHUB_CLIENT_ID)
+
+            expect(result).toMatchObject({
+                key: SettingKey.GITHUB_CLIENT_ID,
+                value: 'db-client-id',
+                source: 'db',
+                isLocked: true,
+                envKey: 'NUXT_PUBLIC_GITHUB_CLIENT_ID',
+                defaultUsed: false,
+                lockReason: 'forced_env_lock',
+                requiresRestart: true,
+            })
+        })
+    })
+
     describe('setSetting', () => {
         it('should update existing setting', async () => {
             const existing = { id: '1', key: 'title', value: 'Old', maskType: 'none' }
@@ -203,6 +245,23 @@ describe('settingService', () => {
             )
             // Should also contain default settings from SETTING_ENV_MAP
             expect(result.length).toBeGreaterThan(Object.keys(settingService.SETTING_ENV_MAP).length)
+        })
+
+        it('should expose default-backed metadata for registered defaults', async () => {
+            mockQueryBuilder.getMany.mockResolvedValue([])
+
+            const result = await settingService.getAllSettings()
+            const emailPortSetting = result.find((item) => item.key === String(SettingKey.EMAIL_PORT))
+
+            expect(emailPortSetting).toMatchObject({
+                key: SettingKey.EMAIL_PORT,
+                value: '587',
+                source: 'default',
+                envKey: 'EMAIL_PORT',
+                defaultUsed: true,
+                lockReason: null,
+                requiresRestart: false,
+            })
         })
     })
 })

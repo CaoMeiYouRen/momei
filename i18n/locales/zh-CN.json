@@ -959,6 +959,32 @@
                 "system": {
                     "title": "系统设置",
                     "locked_by_env": "该配置现由环境变量强制指定，无法进行手动修改。",
+                    "source_badges": {
+                        "env": "ENV",
+                        "db": "DB",
+                        "default": "DEFAULT"
+                    },
+                    "smart_mode": {
+                        "title": "智能混合模式说明",
+                        "description": "系统配置会按照 ENV、数据库和默认值三层优先级决议。下方摘要会标出当前最值得注意的锁定项、默认值项和需要重启的配置项。",
+                        "priority_label": "生效优先级",
+                        "stat_locked": "只读配置",
+                        "stat_default_used": "默认值生效",
+                        "stat_requires_restart": "需要重启",
+                        "source_counts": {
+                            "env": "ENV 生效",
+                            "db": "数据库生效",
+                            "default": "默认值生效"
+                        },
+                        "empty": "当前没有需要额外解释的配置项。",
+                        "messages": {
+                            "env_override": "当前值由环境变量 {envKey} 覆盖，后台保存不会立即生效。",
+                            "forced_env_lock": "该配置由启动期依赖直接读取，需要通过环境变量调整并重启服务。",
+                            "default_used": "当前使用默认值，建议在部署前显式配置。",
+                            "restart_required": "当前已保存到数据库，但需要重启服务后才能完全生效。",
+                            "db_active": "当前值来自数据库配置。"
+                        }
+                    },
                     "tabs": {
                         "general": "常规",
                         "auth": "账户验证",

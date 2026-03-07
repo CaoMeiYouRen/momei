@@ -952,6 +952,32 @@
                 "system": {
                     "title": "System Settings",
                     "locked_by_env": "This config is currently forced by environment variables and cannot be modified manually.",
+                    "source_badges": {
+                        "env": "ENV",
+                        "db": "DB",
+                        "default": "DEFAULT"
+                    },
+                    "smart_mode": {
+                        "title": "Smart Hybrid Mode",
+                        "description": "System settings are resolved through ENV, database, and fallback defaults. The summary below highlights the most important read-only, default-backed, and restart-required items.",
+                        "priority_label": "Resolution Priority",
+                        "stat_locked": "Read-only Settings",
+                        "stat_default_used": "Default-backed",
+                        "stat_requires_restart": "Restart Required",
+                        "source_counts": {
+                            "env": "ENV Active",
+                            "db": "Database Active",
+                            "default": "Default Active"
+                        },
+                        "empty": "There are no settings that currently need extra explanation.",
+                        "messages": {
+                            "env_override": "The current value is overridden by environment variable {envKey}, so saving here will not take effect immediately.",
+                            "forced_env_lock": "This setting is read by startup-time dependencies and must be changed through environment variables followed by a service restart.",
+                            "default_used": "The current value comes from the fallback default. Consider configuring it explicitly before deployment.",
+                            "restart_required": "This value is stored in the database, but a service restart is required before it is fully applied.",
+                            "db_active": "The current value comes from the database configuration."
+                        }
+                    },
                     "tabs": {
                         "general": "General",
                         "auth": "Authentication",

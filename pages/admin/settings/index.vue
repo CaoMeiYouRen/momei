@@ -13,7 +13,9 @@
 
         <Card>
             <template #content>
-                <Tabs value="general">
+                <SettingExplanationCard :stats="smartModeStats" :items="smartModeItems" />
+
+                <Tabs v-model:value="activeTab">
                     <TabList>
                         <Tab value="general">
                             {{ $t('pages.admin.settings.system.tabs.general') }}
@@ -131,45 +133,132 @@ import LimitsSettings from '@/components/admin/settings/limits-settings.vue'
 import AgreementsSettings from '@/components/admin/settings/agreements-settings.vue'
 import CommercialSettings from '@/components/admin/settings/commercial-settings.vue'
 import SettingAuditLogList from '@/components/admin/settings/setting-audit-log-list.vue'
+import SettingExplanationCard from '@/components/admin/settings/setting-explanation-card.vue'
 import ThirdPartySettings from '@/components/admin/settings/third-party-settings.vue'
+import type { SettingItem, SettingLockReason, SettingSource } from '@/types/setting'
 
 const { t } = useI18n()
 const toast = useToast()
 const { $appFetch } = useAppApi()
 
+type SettingFormValue = string | number | boolean | null
+
+interface SettingMetadata {
+    isLocked: boolean
+    source: SettingSource
+    description: string
+    envKey: string | null
+    defaultUsed: boolean
+    lockReason: SettingLockReason | null
+    requiresRestart: boolean
+}
+
+interface SettingsApiResponse {
+    data: SettingItem[]
+}
+
 const loading = ref(true)
 const saving = ref(false)
-const settings = ref<Record<string, any>>({})
-const metadata = ref<Record<string, { isLocked: boolean, source: string, description: string }>>({})
+const activeTab = ref('general')
+const settings = ref<Record<string, SettingFormValue>>({})
+const metadata = ref<Record<string, SettingMetadata>>({})
+
+const numberSettingFallbacks: Record<string, number> = {
+    posts_per_page: 10,
+    email_port: 587,
+    live2d_min_width: 1024,
+    canvas_nest_min_width: 1024,
+    effects_min_width: 1024,
+}
+
+function normalizeFormValue(setting: SettingItem): SettingFormValue {
+    if (setting.value === 'true') {
+        return true
+    }
+
+    if (setting.value === 'false') {
+        return false
+    }
+
+    if (setting.key in numberSettingFallbacks) {
+        const fallback = numberSettingFallbacks[setting.key] ?? 0
+        const parsedValue = Number.parseInt(setting.value ?? '', 10)
+        return Number.isNaN(parsedValue) ? fallback : parsedValue
+    }
+
+    return setting.value
+}
+
+function getSmartModeMessage(key: string, item: SettingMetadata) {
+    if (item.lockReason === 'env_override') {
+        return t('pages.admin.settings.system.smart_mode.messages.env_override', {
+            envKey: item.envKey ?? key.toUpperCase(),
+        })
+    }
+
+    if (item.lockReason === 'forced_env_lock') {
+        return t('pages.admin.settings.system.smart_mode.messages.forced_env_lock')
+    }
+
+    if (item.defaultUsed) {
+        return t('pages.admin.settings.system.smart_mode.messages.default_used')
+    }
+
+    if (item.requiresRestart) {
+        return t('pages.admin.settings.system.smart_mode.messages.restart_required')
+    }
+
+    return item.description || t('pages.admin.settings.system.smart_mode.messages.db_active')
+}
+
+const smartModeStats = computed(() => {
+    const items = Object.values(metadata.value)
+
+    return {
+        locked: items.filter((item) => item.isLocked).length,
+        defaultUsed: items.filter((item) => item.defaultUsed).length,
+        requiresRestart: items.filter((item) => item.requiresRestart).length,
+        sources: {
+            env: items.filter((item) => item.source === 'env').length,
+            db: items.filter((item) => item.source === 'db').length,
+            default: items.filter((item) => item.source === 'default').length,
+        } satisfies Record<SettingSource, number>,
+    }
+})
+
+const smartModeItems = computed(() => {
+    return Object.entries(metadata.value)
+        .filter(([, item]) => item.isLocked || item.defaultUsed || item.requiresRestart)
+        .sort(([, left], [, right]) => {
+            const leftScore = Number(left.isLocked) * 4 + Number(left.defaultUsed) * 2 + Number(left.requiresRestart)
+            const rightScore = Number(right.isLocked) * 4 + Number(right.defaultUsed) * 2 + Number(right.requiresRestart)
+            return rightScore - leftScore
+        })
+        .slice(0, 12)
+        .map(([key, item]) => ({
+            key,
+            label: t(`pages.admin.settings.system.keys.${key}`),
+            source: item.source,
+            message: getSmartModeMessage(key, item),
+        }))
+})
 
 const loadSettings = async () => {
     try {
-        const { data } = await $appFetch('/api/admin/settings')
-        const obj: Record<string, any> = {}
-        const meta: Record<string, any> = {}
+        const { data } = await $appFetch<SettingsApiResponse>('/api/admin/settings')
+        const obj: Record<string, SettingFormValue> = {}
+        const meta: Record<string, SettingMetadata> = {}
 
-        data.forEach((s: any) => {
-            let val: any = s.value
-            if (val === 'true') {
-                val = true
-            } else if (val === 'false') {
-                val = false
-            } else if (s.key === 'posts_per_page') {
-                val = parseInt(val) || 10
-            } else if (s.key === 'email_port') {
-                val = parseInt(val) || 587
-            } else if (s.key === 'live2d_min_width') {
-                val = parseInt(val) || 1024
-            } else if (s.key === 'canvas_nest_min_width') {
-                val = parseInt(val) || 1024
-            } else if (s.key === 'effects_min_width') {
-                val = parseInt(val) || 1024
-            }
-            obj[s.key] = val
-            meta[s.key] = {
-                isLocked: s.isLocked,
-                source: s.source,
-                description: s.description,
+        data.forEach((setting) => {
+            obj[setting.key] = normalizeFormValue(setting)
+            meta[setting.key] = {
+                isLocked: setting.isLocked,
+                source: setting.source,
+                description: setting.description,
+                envKey: setting.envKey ?? null,
+                defaultUsed: setting.defaultUsed ?? false,
+                lockReason: setting.lockReason ?? null,
+                requiresRestart: setting.requiresRestart ?? false,
             }
         })
         settings.value = obj
@@ -194,8 +283,13 @@ const saveSettings = async () => {
 
         await $appFetch('/api/admin/settings', {
             method: 'PUT',
-            body: payload,
+            body: {
+                settings: payload,
+                reason: 'system_settings_update',
+                source: 'admin_ui',
+            },
         })
+        await loadSettings()
         toast.add({ severity: 'success', summary: t('common.success'), detail: t('common.save_success'), life: 3000 })
     } catch (error) {
         toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.error_saving'), life: 3000 })

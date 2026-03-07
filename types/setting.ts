@@ -175,6 +175,8 @@ export type SettingSource = 'env' | 'db' | 'default'
 
 export type SettingEffectiveSource = 'env' | 'db'
 
+export type SettingLockReason = 'env_override' | 'forced_env_lock'
+
 export type SettingAuditAction = 'create' | 'update'
 
 export type SettingAuditSourceType = 'admin_ui' | 'theme_settings' | 'commercial_settings' | 'api'
@@ -187,6 +189,18 @@ export interface SettingItem {
     maskType: SettingMaskType
     source: SettingSource
     isLocked: boolean
+    envKey?: string | null
+    defaultUsed?: boolean
+    lockReason?: SettingLockReason | null
+    requiresRestart?: boolean
+}
+
+export interface SettingResolvedItem extends SettingItem {
+    envKey: string | null
+    defaultValue: string | null
+    defaultUsed: boolean
+    lockReason: SettingLockReason | null
+    requiresRestart: boolean
 }
 
 export interface SettingAuditActor {

@@ -3,7 +3,12 @@ import { Setting } from '@/server/entities/setting'
 import { recordSettingAuditLogs, type SettingAuditChange, type SettingAuditContext } from '@/server/services/setting-audit'
 import logger from '@/server/utils/logger'
 import { inferSettingMaskType, isMaskedSettingPlaceholder, maskSettingValue } from '@/server/utils/settings'
-import { SettingKey } from '@/types/setting'
+import {
+    SettingKey,
+    type SettingEffectiveSource,
+    type SettingLockReason,
+    type SettingResolvedItem,
+} from '@/types/setting'
 
 /**
  * 数据库键名与环境变量键名的映射关系
@@ -180,13 +185,47 @@ export const INTERNAL_ONLY_KEYS: string[] = [
     'AXIOM_API_TOKEN',
 ]
 
+const SETTING_DEFAULT_MAP: Partial<Record<string, string>> = {
+    [SettingKey.DEFAULT_LANGUAGE]: 'zh-CN',
+    [SettingKey.EMAIL_PORT]: '587',
+    [SettingKey.POSTS_PER_PAGE]: '10',
+    [SettingKey.LIVE2D_MIN_WIDTH]: '1024',
+    [SettingKey.CANVAS_NEST_MIN_WIDTH]: '1024',
+    [SettingKey.EFFECTS_MIN_WIDTH]: '1024',
+}
+
+const RESTART_REQUIRED_KEYS = new Set<string>(FORCED_ENV_LOCKED_KEYS)
+
 export function isSettingEnvLocked(key: string) {
     const envKey = SETTING_ENV_MAP[key]
     return Boolean((envKey && process.env[envKey] !== undefined) || FORCED_ENV_LOCKED_KEYS.includes(key))
 }
 
-export function getSettingEffectiveSource(key: string) {
-    return isSettingEnvLocked(key) ? 'env' : 'db'
+export function getSettingEffectiveSource(key: string): SettingEffectiveSource {
+    const envKey = SETTING_ENV_MAP[key]
+    return envKey && process.env[envKey] !== undefined ? 'env' : 'db'
+}
+
+export function getSettingDefaultValue(key: string) {
+    return SETTING_DEFAULT_MAP[key] ?? null
+}
+
+export function getSettingLockReason(key: string): SettingLockReason | null {
+    const envKey = SETTING_ENV_MAP[key]
+
+    if (envKey && process.env[envKey] !== undefined) {
+        return 'env_override'
+    }
+
+    if (FORCED_ENV_LOCKED_KEYS.includes(key)) {
+        return 'forced_env_lock'
+    }
+
+    return null
+}
+
+export function doesSettingRequireRestart(key: string) {
+    return RESTART_REQUIRED_KEYS.has(key)
 }
 
 function normalizeSettingValue(value: unknown): string | null {
@@ -194,7 +233,101 @@ function normalizeSettingValue(value: unknown): string | null {
         return null
     }
 
-    return typeof value === 'string' ? value : String(value)
+    if (typeof value === 'string') {
+        return value
+    }
+
+    if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+        return String(value)
+    }
+
+    try {
+        return JSON.stringify(value)
+    } catch {
+        return null
+    }
+}
+
+function createResolvedSettingItem(
+    key: string,
+    dbSetting?: Setting | null,
+    explicitDefaultValue?: unknown,
+): SettingResolvedItem {
+    const envKey = SETTING_ENV_MAP[key] ?? null
+    const envValue = envKey ? process.env[envKey] : undefined
+    const defaultValue = normalizeSettingValue(explicitDefaultValue) ?? getSettingDefaultValue(key)
+
+    let value = defaultValue ?? ''
+    let source: SettingResolvedItem['source'] = 'default'
+
+    if (envValue !== undefined) {
+        value = envValue
+        source = 'env'
+    } else if (dbSetting?.value !== null && dbSetting?.value !== undefined) {
+        value = dbSetting.value
+        source = 'db'
+    }
+
+    const maskType = (dbSetting?.maskType ?? inferSettingMaskType(key, value)) as SettingResolvedItem['maskType']
+    const level = Number(dbSetting?.level ?? (key.includes('api_key') || key.includes('secret') || key.includes('pass') ? 3 : 2))
+
+    return {
+        key,
+        value,
+        description: dbSetting?.description ?? '',
+        level,
+        maskType,
+        source,
+        isLocked: isSettingEnvLocked(key),
+        envKey,
+        defaultValue,
+        defaultUsed: source === 'default',
+        lockReason: getSettingLockReason(key),
+        requiresRestart: doesSettingRequireRestart(key),
+    }
+}
+
+export async function resolveSetting(key: SettingKey | string, defaultValue: unknown = null) {
+    if (!dataSource.isInitialized) {
+        return createResolvedSettingItem(key, null, defaultValue)
+    }
+
+    try {
+        const settingRepo = dataSource.getRepository(Setting)
+        const setting = await settingRepo.findOne({ where: { key } })
+        return createResolvedSettingItem(key, setting, defaultValue)
+    } catch (error) {
+        logger.error(`Failed to resolve setting ${key} from database:`, error)
+        return createResolvedSettingItem(key, null, defaultValue)
+    }
+}
+
+export const resolveSettings = async (keys: (SettingKey | string)[]) => {
+    const result: SettingResolvedItem[] = []
+
+    if (!dataSource.isInitialized) {
+        keys.forEach((key) => {
+            result.push(createResolvedSettingItem(key))
+        })
+        return result
+    }
+
+    try {
+        const settingRepo = dataSource.getRepository(Setting)
+        const settings = await settingRepo.find()
+        const settingsMap = new Map<string, Setting>(settings.map((setting) => [setting.key, setting]))
+
+        keys.forEach((key) => {
+            result.push(createResolvedSettingItem(key, settingsMap.get(key) ?? null))
+        })
+    } catch (error) {
+        logger.error('Failed to resolve settings from database:', error)
+        keys.forEach((key) => {
+            result.push(createResolvedSettingItem(key))
+        })
+    }
+
+    return result
 }
 
 /**
@@ -317,7 +450,7 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
     // 确保所有在 SETTING_ENV_MAP 中定义的键都能出现在列表中，即使数据库中不存在
     const allKeys = new Set<string>([...Object.keys(SETTING_ENV_MAP), ...dbSettingsMap.keys()])
 
-    const result: any[] = []
+    const result: Omit<SettingResolvedItem, 'defaultValue'>[] = []
     for (const key of allKeys) {
         // 如果是极端敏感的内部键，则完全跳过，不在 UI 展示
         if (INTERNAL_ONLY_KEYS.includes(key)) {
@@ -331,34 +464,20 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
             continue
         }
 
-        const envKey = (SETTING_ENV_MAP)[key]
-        const envValue = envKey ? process.env[envKey] : undefined
-        const isLocked = isSettingEnvLocked(key)
-        // 优先使用环境变量的值，其次是数据库的值，最后是空字符串
-        const value = isLocked ? (envValue ?? '') : (dbSetting?.value ?? '')
-
-        // 尝试推断或从数据库获取元数据
-        let maskType = dbSetting?.maskType ?? 'none'
-        const description = dbSetting?.description ?? ''
-        let level = Number(dbSetting?.level ?? 2)
-
-        // 如果数据库中没有该配置项，尝试从 key 关键字推断元数据
-        if (!dbSetting) {
-            maskType = inferSettingMaskType(key, value)
-
-            if (key.includes('api_key') || key.includes('secret') || key.includes('pass')) {
-                level = 3 // 默认为强机密级别
-            }
-        }
+        const resolved = createResolvedSettingItem(key, dbSetting)
 
         result.push({
             key,
-            value: options?.shouldMask ? maskSettingValue(value, maskType) : value,
-            description,
-            level,
-            maskType,
-            source: getSettingEffectiveSource(key),
-            isLocked,
+            value: options?.shouldMask ? maskSettingValue(resolved.value ?? '', resolved.maskType) : resolved.value,
+            description: resolved.description,
+            level: resolved.level,
+            maskType: resolved.maskType,
+            source: resolved.source,
+            isLocked: resolved.isLocked,
+            envKey: resolved.envKey,
+            defaultUsed: resolved.defaultUsed,
+            lockReason: resolved.lockReason,
+            requiresRestart: resolved.requiresRestart,
         })
     }
 
