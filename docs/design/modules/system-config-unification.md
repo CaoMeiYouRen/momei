@@ -8,7 +8,7 @@
 - 当前项目已经实现了基于 `ENV -> DB -> Default` 的轻量三层读取模型。
 - 当前项目已经实现了后台设置页的环境变量锁定提示、字段禁用和安装期 ENV 同步。
 - `Better-Auth` 仍然属于启动期静态配置，短期继续维持环境变量锁定，不再承诺运行时热重载。
-- 配置变更审计日志是下一阶段最值得补齐的能力，应作为本模块的核心增量目标。
+- 配置变更审计日志已经落地，当前剩余缺口主要是设置页层面的“智能混合模式”说明卡片、来源徽标与更细粒度锁定原因提示。
 
 ## 2. 当前实现现状 (Current State)
 
@@ -21,6 +21,8 @@
 - **后台设置展示**: `/api/admin/settings` 已返回 `isLocked`、`source`、`description` 等元信息，供后台 UI 呈现。
 - **字段级只读反馈**: 管理后台设置页已对锁定项显示锁图标并禁用输入组件。
 - **安装期同步**: 安装流程会将已存在的 ENV 配置同步进 `setting` 表，保证后台状态与运行环境一致。
+- **审计实体与写入链路**: 已存在 `SettingAuditLog` 实体、`setSettings()` 写入审计日志以及按脱敏策略存储敏感字段快照。
+- **审计查询与后台视图**: 已提供 `/api/admin/settings/audit-logs` 分页接口，并在系统设置页接入“变更审计”标签页。
 - **基础测试覆盖**: `server/services/setting.test.ts` 已覆盖 ENV 优先和后台设置聚合等基础逻辑。
 
 ### 2.2 当前数据模型
@@ -48,8 +50,9 @@
    - `lib/auth-client.ts` 在模块加载时创建单例。
    - 即使补一个 `/api/auth/config`，也只能影响客户端展示层，无法真正替换服务端认证实例。
 
-3. **审计日志尚未落地**
-   - 当前 `/api/admin/settings` 的更新接口只负责写入设置，不记录操作者、原因、旧值、新值或请求来源。
+3. **来源解释 UI 仍未完全落地**
+   - 当前 `/api/admin/settings` 已返回 `source` 与 `isLocked`，但后台设置页尚未统一展示来源徽标、说明卡片以及更细粒度的锁定原因。
+   - 目前设置页主要提供字段禁用与通用 ENV 锁定提示，尚未补充 `envKey`、`defaultUsed` 等更结构化的解释信息。
 
 ## 3. 收敛后的设计原则 (Converged Principles)
 
@@ -106,74 +109,33 @@ interface ResolvedSetting<T = string | null> {
 
 ### 4.2 设置页智能混合模式增强
 
-当前后台已具备字段级锁定提示，下一阶段建议继续补齐以下 UI 信息：
+当前后台已具备字段级锁定提示和审计日志标签页，后续建议继续补齐以下 UI 信息：
 - 顶部增加“智能混合模式”说明卡片，明确说明 `ENV > DB > Default` 优先级。
 - 按当前 tab 统计锁定项数量，帮助管理员快速识别只读字段。
 - 对每个字段展示来源徽标，例如 `ENV`、`DB`、`DEFAULT`。
 - 对强制锁定项补充解释文案，例如“该配置被底层认证库在启动时直接读取，需要通过环境变量调整并重启服务”。
 
-这一阶段不要求重做后台结构，只需要在现有 `/api/admin/settings` 返回模型中补充足够的元信息即可。
+这一阶段不要求重做后台结构，只需要在现有 `/api/admin/settings` 返回模型中补充足够的元信息并在现有设置表单中完成可视化接入即可。
 
-### 4.3 审计日志最小可行方案
+### 4.3 审计日志当前实现与后续增强
 
-审计日志建议采用独立实体实现，而不是复用普通文本日志。
+审计日志已经采用独立实体落地，而不是复用普通文本日志。当前实现具备：
+- `SettingAuditLog` 实体，记录设置键、变更动作、脱敏后的前后值、当前生效来源、请求来源、原因、操作者与请求元信息。
+- `setSettings()` 写入后自动记录审计日志，并对密钥类字段按 `maskType` 存储脱敏快照。
+- `/api/admin/settings/audit-logs` 分页查询接口与后台“变更审计”列表视图。
 
-#### 建议实体
+后续增强重点应放在查询体验和来源解释，而不是重新设计实体。
 
-```typescript
-export enum SettingAuditAction {
-  CREATE = 'create',
-  UPDATE = 'update',
-  DELETE = 'delete',
-}
-
-@Entity('setting_audit_log')
-export class SettingAuditLog {
-  @PrimaryGeneratedColumn('uuid')
-  id: string
-
-  @Column({ type: 'varchar', length: 128 })
-  settingKey: string
-
-  @Column({ type: 'varchar', length: 16 })
-  action: SettingAuditAction
-
-  @Column({ type: 'text', nullable: true })
-  oldValue: string | null
-
-  @Column({ type: 'text', nullable: true })
-  newValue: string | null
-
-  @Column({ type: 'text', nullable: true })
-  reason: string | null
-
-  @Column({ type: 'varchar', length: 16, default: 'ui' })
-  source: 'ui' | 'api' | 'migration'
-
-  @Column({ type: 'varchar', length: 64, nullable: true })
-  operatorId: string | null
-
-  @Column({ type: 'varchar', length: 128, nullable: true })
-  ipAddress: string | null
-
-  @Column({ type: 'text', nullable: true })
-  userAgent: string | null
-
-  @CreateDateColumn()
-  createdAt: Date
-}
-```
-
-#### 审计记录规则
+#### 当前审计记录规则
 
 - 对普通文本配置记录 `oldValue` 和 `newValue`。
 - 对 `maskType` 为 `password` / `key` 的配置仅记录脱敏值。
 - 对 `INTERNAL_ONLY_KEYS` 不记录变更，因为它们不允许从 UI 进入写流程。
 - 对被锁定的字段，如果收到非法写入请求，可以选择记录一条“拒绝修改”的安全日志，但不写入审计实体。
 
-#### API 设计
+#### API 现状
 
-建议在保留现有接口的基础上增量扩展：
+当前已具备以下接口：
 
 | 方法 | 路径 | 描述 |
 | :--- | :--- | :--- |
@@ -181,7 +143,7 @@ export class SettingAuditLog {
 | PUT | `/api/admin/settings` | 批量保存设置，并写入审计日志 |
 | GET | `/api/admin/settings/audit-logs` | 获取配置变更日志 |
 
-更新请求体建议扩展为：
+当前更新请求体已经支持：
 
 ```typescript
 interface UpdateSettingsRequest {
@@ -191,9 +153,9 @@ interface UpdateSettingsRequest {
 }
 ```
 
-为兼容当前实现，也可以保留旧格式：
+为兼容历史调用，当前仍保留旧格式：
 - 若 body 是键值对，则按旧逻辑处理。
-- 若 body 包含 `settings` 包装层和 `reason`，则启用审计增强逻辑。
+- 若 body 包含 `settings` 包装层和 `reason` / `source`，则启用审计增强逻辑。
 
 ### 4.4 Better-Auth 可实施替代方案
 
@@ -240,15 +202,16 @@ interface UpdateSettingsRequest {
 - [x] 落地安装期 ENV 同步
 
 ### Phase 2: 配置来源元信息增强
-- [ ] 为 `SettingService` 增加结构化解析结果
-- [ ] 在后台设置接口中补充 `source`、`envKey`、`defaultUsed` 等元信息
+- [ ] 为 `SettingService` 增加更完整的结构化解析结果
+- [x] 在后台设置接口中补充 `source` 等基础元信息
+- [ ] 在后台设置接口中继续补充 `envKey`、`defaultUsed` 等元信息
 - [ ] 在设置页增加“智能混合模式”说明卡片与来源徽标
 
 ### Phase 3: 审计日志落地
-- [ ] 新增 `SettingAuditLog` 实体
-- [ ] 在设置写入流程中记录配置变更日志
-- [ ] 提供管理员审计查询接口
-- [ ] 在后台增加配置审计日志列表视图
+- [x] 新增 `SettingAuditLog` 实体
+- [x] 在设置写入流程中记录配置变更日志
+- [x] 提供管理员审计查询接口
+- [x] 在后台增加配置审计日志列表视图
 
 ### Phase 4: 非认证类配置体验补强
 - [ ] 为部分非认证配置增加更明确的即时生效提示
