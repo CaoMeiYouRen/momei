@@ -1,5 +1,76 @@
 # momei
 
+# [1.8.0](https://github.com/CaoMeiYouRen/momei/compare/v1.7.0...v1.8.0) (2026-03-07)
+
+
+### ⚡ 性能优化
+
+* **serverless:** 将定时任务间隔从 5 分钟调整为 15 分钟 ([805c8a4](https://github.com/CaoMeiYouRen/momei/commit/805c8a4))
+
+
+### ✨ 新功能
+
+* **ai-image-generator:** 添加图像生成选项和多图像预览功能 ([6b02411](https://github.com/CaoMeiYouRen/momei/commit/6b02411))
+* **asr:** 增强前端直连鉴权机制 ([11482d5](https://github.com/CaoMeiYouRen/momei/commit/11482d5))
+* **asr:** 完成 ASR 异步任务支持 (Phase 3) ([1eb7bdc](https://github.com/CaoMeiYouRen/momei/commit/1eb7bdc))
+* **asr:** 实现 ASR 性能极限优化 - Phase 1 & 2 ([7bc9f23](https://github.com/CaoMeiYouRen/momei/commit/7bc9f23))
+* **asr:** 集成直连模式到语音编辑器 (Phase 4) ([41c0015](https://github.com/CaoMeiYouRen/momei/commit/41c0015))
+* **config:** 添加 Google Adsense 账户支持 ([9191c7b](https://github.com/CaoMeiYouRen/momei/commit/9191c7b))
+* **federation:** 实现 ActivityPub 基础协议 (Phase 1-4) ([4de536f](https://github.com/CaoMeiYouRen/momei/commit/4de536f))
+* **serverless:** 实现 Serverless 生态深度适配 ([4cf08a4](https://github.com/CaoMeiYouRen/momei/commit/4cf08a4))
+* 增加图像分辨率与宽高比处理逻辑，支持 1K、2K、4K 映射 ([45b2a38](https://github.com/CaoMeiYouRen/momei/commit/45b2a38))
+* 实现国产广告联盟适配器 (Phase 3) ([49c6a89](https://github.com/CaoMeiYouRen/momei/commit/49c6a89))
+* 实现外链管理系统 (Phase 4) ([37a3748](https://github.com/CaoMeiYouRen/momei/commit/37a3748))
+* 实现广告联盟内容注入 (Phase 2) ([1a133f6](https://github.com/CaoMeiYouRen/momei/commit/1a133f6))
+* 实现广告联盟管理后台 UI (Phase 5) ([52f8e52](https://github.com/CaoMeiYouRen/momei/commit/52f8e52))
+* 实现广告联盟集成基础架构 (Phase 1) ([b963db1](https://github.com/CaoMeiYouRen/momei/commit/b963db1))
+* 更新图像生成配置，支持 2K 分辨率和 Gemini 3.1 模型 ([9083119](https://github.com/CaoMeiYouRen/momei/commit/9083119))
+* 添加 AI 重任务超时配置，扩展 tts_voice 字段长度以支持更长音色 ID ([b273ccf](https://github.com/CaoMeiYouRen/momei/commit/b273ccf))
+* 添加管理员权限验证，增强安全性并优化外链和广告位的创建与更新逻辑 ([713f155](https://github.com/CaoMeiYouRen/momei/commit/713f155))
+
+
+### 🐛 Bug 修复
+
+* **ad:** 修复广告管理页面 PrimeVue 样式兼容问题 ([9f4f0bf](https://github.com/CaoMeiYouRen/momei/commit/9f4f0bf))
+* **asr:** 修复 ASR 直连相关代码的 Lint 问题 ([30ecf23](https://github.com/CaoMeiYouRen/momei/commit/30ecf23))
+* **asr:** 修复代码审计发现的安全问题 ([4fb361c](https://github.com/CaoMeiYouRen/momei/commit/4fb361c))
+* **asr:** 修复代码审计发现的问题 ([40d7997](https://github.com/CaoMeiYouRen/momei/commit/40d7997))
+* **asr:** 增加对音频流初始化状态的管理 ([4a463a2](https://github.com/CaoMeiYouRen/momei/commit/4a463a2))
+* **database:** 移除 ASR 配额相关表和逻辑 ([b13d4c9](https://github.com/CaoMeiYouRen/momei/commit/b13d4c9))
+* **federation:** 修复代码审计发现的 Minor 问题 ([1ebcc6b](https://github.com/CaoMeiYouRen/momei/commit/1ebcc6b))
+* **federation:** 修复代码审计发现的安全问题 ([9359a8f](https://github.com/CaoMeiYouRen/momei/commit/9359a8f))
+* **gemini-provider:** 添加图像生成候选数量和响应处理优化 ([8063253](https://github.com/CaoMeiYouRen/momei/commit/8063253))
+* **goto:** 添加重定向页面的错误处理和数据渲染逻辑 ([984599e](https://github.com/CaoMeiYouRen/momei/commit/984599e))
+* **i18n:** 更新多语言文件，移除冗余内容并添加必要字段 ([178b091](https://github.com/CaoMeiYouRen/momei/commit/178b091))
+* **i18n:** 添加多语言支持和错误提示信息 ([99eaad0](https://github.com/CaoMeiYouRen/momei/commit/99eaad0))
+* **live2d-widget:** 添加 Live2D 组件的路由控制和初始化逻辑 ([5cd291c](https://github.com/CaoMeiYouRen/momei/commit/5cd291c))
+* **use-post-editor-voice:** 初始化文本变量为默认空字符串 ([ddc7ab2](https://github.com/CaoMeiYouRen/momei/commit/ddc7ab2))
+* **validation:** 更新验证错误提示信息的多语言支持 ([f727d69](https://github.com/CaoMeiYouRen/momei/commit/f727d69))
+* 优化 publishedAt 字段处理，确保 null 值不被转换为 1970 年 ([53c5d9c](https://github.com/CaoMeiYouRen/momei/commit/53c5d9c))
+* 优化广告和外链管理对话框样式，提升用户体验 ([e23fed6](https://github.com/CaoMeiYouRen/momei/commit/e23fed6))
+* 优化短代码生成逻辑，增强安全性并修复潜在的 XSS 漏洞 ([de1eaf4](https://github.com/CaoMeiYouRen/momei/commit/de1eaf4))
+* 使用 ClientOnly 包裹语音按钮，确保在 SSR 环境下正常渲染 ([69ddf9b](https://github.com/CaoMeiYouRen/momei/commit/69ddf9b))
+* 修改直连模式默认值为 false，并添加错误处理以回退到代理模式 ([aa40233](https://github.com/CaoMeiYouRen/momei/commit/aa40233))
+* 增加 API 请求频率限制，允许每分钟最多 10 次请求 ([d24c849](https://github.com/CaoMeiYouRen/momei/commit/d24c849))
+* 增加图像提供者支持，兼容 OpenAI 和 Gemini 模型 ([0cd421d](https://github.com/CaoMeiYouRen/momei/commit/0cd421d))
+* 增加对 OpenAI 图像生成的支持，优化生成请求结构 ([cc2dc04](https://github.com/CaoMeiYouRen/momei/commit/cc2dc04))
+* 更新 post 类型为严格类型，支持 markdown 和 HTML 格式内容 ([e19e216](https://github.com/CaoMeiYouRen/momei/commit/e19e216))
+* 更新认证配置，支持测试模式下的可信来源和状态保存 ([85e502d](https://github.com/CaoMeiYouRen/momei/commit/85e502d))
+* 添加 serialize-javascript 依赖以支持序列化功能 ([f5b497d](https://github.com/CaoMeiYouRen/momei/commit/f5b497d))
+* 添加定时任务的 GitHub Actions 工作流示例 ([ef3a76b](https://github.com/CaoMeiYouRen/momei/commit/ef3a76b))
+* 添加实时事件推送功能以更新 ASR 任务状态 ([a2718c6](https://github.com/CaoMeiYouRen/momei/commit/a2718c6))
+* 添加广告管理和外链管理功能，增强管理员界面 ([c170c8d](https://github.com/CaoMeiYouRen/momei/commit/c170c8d))
+
+
+### 📦 代码重构
+
+* 优化代码结构，简化条件判断，提升可读性和维护性 ([eee1a01](https://github.com/CaoMeiYouRen/momei/commit/eee1a01))
+* 优化查询构建逻辑，使用子查询计算分类和标签的帖子数量 ([fe453d0](https://github.com/CaoMeiYouRen/momei/commit/fe453d0))
+* 使用 ms 库优化超时设置，增强代码可读性 ([2a75629](https://github.com/CaoMeiYouRen/momei/commit/2a75629))
+* 添加 HTML 清洗和转换功能，增强安全性和文本处理能力 ([27af3b8](https://github.com/CaoMeiYouRen/momei/commit/27af3b8))
+* 移除 ZRAM 启用步骤以简化 Docker 工作流 ([7049cb1](https://github.com/CaoMeiYouRen/momei/commit/7049cb1))
+* 移除音频相关的过时字段，改用元数据结构管理音频信息 ([870a104](https://github.com/CaoMeiYouRen/momei/commit/870a104))
+
 # [1.7.0](https://github.com/CaoMeiYouRen/momei/compare/v1.6.0...v1.7.0) (2026-02-28)
 
 
