@@ -2,6 +2,8 @@ import { ref, unref, onUnmounted, type Ref } from 'vue'
 import { useIntervalFn } from '@vueuse/core'
 import type { ASRTaskStatus } from '~/types/asr'
 
+const MIN_TASK_POLLING_INTERVAL = 10000
+
 interface ASRTaskResult {
     text: string
     duration?: number
@@ -55,9 +57,10 @@ export function useASRTask(
     options: ASRTaskOptions = {},
 ) {
     const {
-        pollingInterval = 5000, // ASR 任务较短，5 秒轮询
+        pollingInterval = MIN_TASK_POLLING_INTERVAL,
         enableSSE = true,
     } = options
+    const normalizedPollingInterval = Math.max(pollingInterval, MIN_TASK_POLLING_INTERVAL)
 
     const status = ref<ASRTaskStatus | null>(null)
     const progress = ref(0)
@@ -105,7 +108,7 @@ export function useASRTask(
                 }
             })()
         },
-        pollingInterval,
+        normalizedPollingInterval,
         { immediate: false },
     )
 

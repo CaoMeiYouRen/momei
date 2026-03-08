@@ -1,9 +1,20 @@
 import { AIBaseService } from './base'
+import {
+    requestTranslation,
+    shouldUseAsyncTranslateTask,
+    translateInChunks,
+    type ChunkedTranslateOptions,
+    type ChunkedTranslateResult,
+} from './text-translation'
+import { TextTranslationTaskService } from './text-translation-task'
 import { getAIProvider } from '@/server/utils/ai'
 import { AI_PROMPTS, formatPrompt } from '@/server/utils/ai/prompt'
 import logger from '@/server/utils/logger'
 import { ContentProcessor } from '@/utils/shared/content-processor'
-import { AI_MAX_CONTENT_LENGTH, AI_CHUNK_SIZE } from '@/utils/shared/env'
+import {
+    AI_MAX_CONTENT_LENGTH,
+    AI_CHUNK_SIZE,
+} from '@/utils/shared/env'
 
 export interface ScaffoldOptions {
     topic?: string
@@ -509,6 +520,22 @@ export class TextService extends AIBaseService {
         return response.content.trim()
     }
 
+    static shouldUseAsyncTranslateTask(content: string) {
+        return shouldUseAsyncTranslateTask(content)
+    }
+
+    static async translateInChunks(
+        content: string,
+        to: string,
+        options: ChunkedTranslateOptions = {},
+    ): Promise<ChunkedTranslateResult> {
+        return await translateInChunks(content, to, options)
+    }
+
+    static async createTranslateTask(content: string, to: string, userId: string) {
+        return await TextTranslationTaskService.createTranslateTask(content, to, userId)
+    }
+
     static async translate(content: string, to: string, userId?: string) {
         await this.assertTextQuota({
             userId,
@@ -516,19 +543,11 @@ export class TextService extends AIBaseService {
             payload: { content: content.slice(0, AI_CHUNK_SIZE), to },
         })
 
-        const provider = await getAIProvider('text')
-        if (!provider.chat) {
-            throw new Error('Provider does not support chat')
-        }
-        const prompt = formatPrompt(AI_PROMPTS.TRANSLATE, { content: content.slice(0, AI_CHUNK_SIZE), to })
-
-        const response = await provider.chat({
-            messages: [
-                { role: 'system', content: `Translate content to ${to}` },
-                { role: 'user', content: prompt },
-            ],
-            temperature: 0.3,
-        })
+        const requestContent = content.slice(0, AI_CHUNK_SIZE)
+        const { provider, response, translatedContent } = await requestTranslation(
+            requestContent,
+            to,
+        )
 
         this.logUsage({ task: 'translate', response, userId })
         await this.recordTask({
@@ -537,12 +556,12 @@ export class TextService extends AIBaseService {
             type: 'translate',
             provider: provider.name,
             model: response.model,
-            payload: { content: content.slice(0, AI_CHUNK_SIZE), to },
+            payload: { content: requestContent, to },
             response,
             textLength: content.length,
             settlementSource: 'actual',
         })
-        return response.content.trim()
+        return translatedContent
     }
 
     static async translateName(name: string, to: string, userId?: string) {

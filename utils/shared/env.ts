@@ -295,6 +295,18 @@ export const AI_MAX_CONTENT_LENGTH = Number(
 )
 // 分段处理的目标块大小
 export const AI_CHUNK_SIZE = Number(process.env.AI_CHUNK_SIZE || 4000)
+// 直接返回的最大文本长度，超过该长度的翻译任务转为异步 AITask
+export const AI_TEXT_DIRECT_RETURN_MAX_CHARS = Number(
+    process.env.AI_TEXT_DIRECT_RETURN_MAX_CHARS || 1000,
+)
+// 长文本任务的分块大小
+export const AI_TEXT_TASK_CHUNK_SIZE = Number(
+    process.env.AI_TEXT_TASK_CHUNK_SIZE || AI_CHUNK_SIZE,
+)
+// 长文本任务的分块并发数
+export const AI_TEXT_TASK_CONCURRENCY = Number(
+    process.env.AI_TEXT_TASK_CONCURRENCY || 3,
+)
 
 // AI 重任务超时（用于 TTS / ASR / 图片生成等耗时任务），支持 ms 风格字符串，例如 5m、300s
 export const AI_HEAVY_TASK_TIMEOUT = process.env.AI_HEAVY_TASK_TIMEOUT || '5m'

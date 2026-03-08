@@ -366,6 +366,42 @@ describe('TextService', () => {
         })
     })
 
+    describe('translateInChunks', () => {
+        it('should aggregate translated chunks and usage', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn()
+                    .mockResolvedValueOnce({
+                        content: 'Translated chunk 1',
+                        model: 'gpt-4',
+                        usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 },
+                    })
+                    .mockResolvedValueOnce({
+                        content: 'Translated chunk 2',
+                        model: 'gpt-4',
+                        usage: { promptTokens: 15, completionTokens: 25, totalTokens: 40 },
+                    }),
+            }
+
+            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
+
+            const result = await TextService.translateInChunks(
+                `${'a'.repeat(3500)}\n\n${'b'.repeat(3500)}`,
+                'en',
+                { chunkSize: 4000, concurrency: 2 },
+            )
+
+            expect(result.content).toBe('Translated chunk 1\n\nTranslated chunk 2')
+            expect(result.chunkCount).toBe(2)
+            expect(result.usage).toEqual({
+                promptTokens: 25,
+                completionTokens: 45,
+                totalTokens: 70,
+            })
+            expect(result.usageSnapshot.requestCount).toBe(2)
+        })
+    })
+
     describe('refineVoice', () => {
         it('should refine voice transcript into professional content', async () => {
             const mockProvider = {

@@ -1,8 +1,32 @@
 import { ref, type Ref } from 'vue'
+import { useIntervalFn } from '@vueuse/core'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
-import { ContentProcessor } from '@/utils/shared/content-processor'
 import type { PostEditorData } from '@/types/post-editor'
+
+const MIN_TASK_POLLING_INTERVAL = 10000
+
+interface TranslateDirectResult {
+    mode: 'direct'
+    content: string
+}
+
+interface TranslateTaskResult {
+    mode: 'task'
+    taskId: string
+    status: 'pending' | 'processing' | 'completed' | 'failed'
+}
+
+type TranslateApiResult = string | TranslateDirectResult | TranslateTaskResult
+
+interface AITaskStatusPayload {
+    status: 'pending' | 'processing' | 'completed' | 'failed'
+    progress: number
+    result?: string | {
+        content?: string
+    }
+    error?: string | null
+}
 
 export function usePostEditorAI(
     post: Ref<PostEditorData>,
@@ -22,6 +46,105 @@ export function usePostEditorAI(
 
     const titleSuggestions = ref<string[]>([])
     const titleOp = ref<any>(null)
+
+    const extractTranslatedContent = (result: AITaskStatusPayload['result']) => {
+        if (!result) {
+            return ''
+        }
+
+        if (typeof result === 'string') {
+            try {
+                const parsed = JSON.parse(result) as { content?: string }
+                return parsed.content || ''
+            } catch {
+                return result
+            }
+        }
+
+        return result.content || ''
+    }
+
+    const toError = (error: unknown) => {
+        if (error instanceof Error) {
+            return error
+        }
+
+        return new Error(t('pages.admin.posts.ai_error'))
+    }
+
+    const waitForTranslationTask = async (taskId: string) => {
+        return await new Promise<string>((resolve, reject) => {
+            let settled = false
+            let requestInFlight = false
+            let stopPolling = () => {}
+
+            const finalize = (handler: () => void) => {
+                if (settled) {
+                    return
+                }
+
+                settled = true
+                stopPolling()
+                handler()
+            }
+
+            const pollTask = async () => {
+                if (settled || requestInFlight) {
+                    return
+                }
+
+                requestInFlight = true
+                try {
+                    const response = await $fetch<{ code: number, data: AITaskStatusPayload }>(
+                        `/api/ai/task/status/${taskId}`,
+                    )
+                    const task = response.data
+
+                    if (task.status === 'completed') {
+                        finalize(() => resolve(extractTranslatedContent(task.result)))
+                        return
+                    }
+
+                    if (task.status === 'failed') {
+                        finalize(() => reject(new Error(task.error || t('pages.admin.posts.ai_error'))))
+                    }
+                } catch (error) {
+                    finalize(() => reject(toError(error)))
+                } finally {
+                    requestInFlight = false
+                }
+            }
+
+            const { pause, resume } = useIntervalFn(() => {
+                void pollTask()
+            }, MIN_TASK_POLLING_INTERVAL, { immediate: false })
+
+            stopPolling = pause
+            void pollTask()
+            resume()
+        })
+    }
+
+    const requestTranslatedText = async (content: string, targetLanguage: string) => {
+        const response = await $fetch<{ code: number, data: TranslateApiResult }>('/api/ai/translate', {
+            method: 'POST',
+            body: {
+                content,
+                targetLanguage,
+            },
+        })
+
+        const result = response.data
+        if (typeof result === 'string') {
+            return result
+        }
+
+        if (result.mode === 'direct') {
+            return result.content
+        }
+
+        return await waitForTranslationTask(result.taskId)
+    }
 
     const suggestTitles = async (event: any) => {
         if (!post.value.content || post.value.content.length < 10) {
@@ -225,42 +348,14 @@ export function usePostEditorAI(
             // Translate Summary if exists
             if (summaryToTranslate) {
                 translationTasks.push((async () => {
-                    const { data: translatedSummary } = await $fetch<any>(
-                        '/api/ai/translate',
-                        {
-                            method: 'POST',
-                            body: {
-                                content: summaryToTranslate,
-                                targetLanguage: lang,
-                            },
-                        },
+                    post.value.summary = await requestTranslatedText(
+                        summaryToTranslate,
+                        lang,
                     )
-                    post.value.summary = translatedSummary as string
                 })())
             }
 
-            // Translate Content (Chunked to avoid timeouts)
-            const chunks = ContentProcessor.splitMarkdown(content, {
-                chunkSize: 2000,
-                minChunkSize: 200,
-            })
-            post.value.content = ''
-
-            for (const chunk of chunks) {
-                const { data: translatedChunk } = await $fetch<any>(
-                    '/api/ai/translate',
-                    {
-                        method: 'POST',
-                        body: {
-                            content: chunk,
-                            targetLanguage: lang,
-                        },
-                    },
-                )
-                if (translatedChunk) {
-                    post.value.content += (post.value.content ? '\n\n' : '') + translatedChunk
-                }
-            }
+            post.value.content = await requestTranslatedText(content, lang)
 
             // Wait for parallel translation tasks (title, summary) to complete
             await Promise.all(translationTasks)
