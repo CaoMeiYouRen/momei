@@ -8,7 +8,7 @@ const DirectUploadRequestSchema = z.object({
     filename: z.string().min(1).max(255),
     contentType: z.string().min(1).max(255),
     size: z.number().int().positive(),
-    type: z.nativeEnum(UploadType).optional(),
+    type: z.enum(UploadType).optional(),
     prefix: z.string().max(255).optional(),
 })
 

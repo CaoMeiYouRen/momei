@@ -18,6 +18,17 @@ export class GeminiProvider implements AIProvider {
     name = 'gemini'
     private config: GeminiConfig
 
+    private buildImageGenerationContext(options: AIImageOptions) {
+        const endpoint = this.config.endpoint || 'https://generativelanguage.googleapis.com'
+
+        return {
+            baseUrl: endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint,
+            model: options.model || this.config.model || 'imagen-3.0-generate-001',
+            apiKey: this.config.apiKey,
+            apiToken: this.config.apiToken,
+        }
+    }
+
     constructor(config: GeminiConfig) {
         this.config = config
     }
@@ -89,26 +100,29 @@ export class GeminiProvider implements AIProvider {
     }
 
     async generateImage(options: AIImageOptions): Promise<AIImageResponse> {
-        const endpoint = this.config.endpoint || 'https://generativelanguage.googleapis.com'
-        const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
-        const model = options.model || this.config.model || 'imagen-3.0-generate-001'
-        const apiKey = this.config.apiKey
-        const apiToken = this.config.apiToken
+        const context = this.buildImageGenerationContext(options)
 
         const n = options.n || 1
-        const useGenerateContentApi = this.shouldUseGenerateContentForImage(model)
+        const useGenerateContentApi = this.shouldUseGenerateContentForImage(context.model)
 
         // If n > 1 and it's a Gemini model using generateContent, execute multiple requests in parallel.
         // Many Gemini models for IMAGE modality only support candidateCount = 1.
         if (n > 1 && useGenerateContentApi) {
-            const tasks = Array.from({ length: n }).map(() => this.executeSingleImageGeneration(baseUrl, model, apiKey, apiToken, useGenerateContentApi, { ...options, n: 1 }))
+            const tasks = Array.from({ length: n }).map(() => this.executeSingleImageGeneration({
+                ...context,
+                useGenerateContentApi,
+                options: { ...options, n: 1 },
+            }))
             const results = await Promise.all(tasks)
 
             return {
                 images: results.flatMap((r) => r.images),
-                model,
+                model: context.model,
                 usage: results.reduce((acc, r) => {
-                    if (!r.usage) { return acc }
+                    if (!r.usage) {
+                        return acc
+                    }
+
                     return {
                         promptTokens: (acc?.promptTokens || 0) + (r.usage.promptTokens || 0),
                         completionTokens: (acc?.completionTokens || 0) + (r.usage.completionTokens || 0),
@@ -119,17 +133,28 @@ export class GeminiProvider implements AIProvider {
             }
         }
 
-        return this.executeSingleImageGeneration(baseUrl, model, apiKey, apiToken, useGenerateContentApi, options)
+        return this.executeSingleImageGeneration({
+            ...context,
+            useGenerateContentApi,
+            options,
+        })
     }
 
-    private async executeSingleImageGeneration(
-        baseUrl: string,
-        model: string,
-        apiKey: string,
-        apiToken: string | undefined,
-        useGenerateContentApi: boolean,
-        options: AIImageOptions,
-    ): Promise<AIImageResponse> {
+    private async executeSingleImageGeneration({
+        baseUrl,
+        model,
+        apiKey,
+        apiToken,
+        useGenerateContentApi,
+        options,
+    }: {
+        baseUrl: string
+        model: string
+        apiKey: string
+        apiToken?: string
+        useGenerateContentApi: boolean
+        options: AIImageOptions
+    }): Promise<AIImageResponse> {
         try {
             const response = await $fetch<any>(
                 `${baseUrl}/v1beta/models/${model}:${useGenerateContentApi ? 'generateContent' : 'generateImage'}?key=${apiKey}`,

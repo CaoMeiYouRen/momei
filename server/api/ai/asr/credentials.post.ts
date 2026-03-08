@@ -20,7 +20,7 @@ const RequestSchema = z.object({
  */
 export default defineEventHandler(async (event) => {
     // 权限验证
-    const session = await requireAdminOrAuthor(event)
+    await requireAdminOrAuthor(event)
 
     // 解析请求体
     const body = await readValidatedBody(event, RequestSchema.parse)

@@ -36,7 +36,7 @@ export class SettingAuditLog extends BaseEntity {
     isOverriddenByEnv: boolean
 
     @CustomColumn({ type: 'varchar', length: 64, nullable: false, default: 'admin_ui', comment: '变更触发来源' })
-    source: SettingAuditSourceType | string
+    source: SettingAuditSourceType
 
     @CustomColumn({ type: 'varchar', length: 255, nullable: true, comment: '变更原因' })
     reason: string | null
