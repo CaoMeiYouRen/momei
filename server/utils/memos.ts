@@ -6,11 +6,16 @@ export interface MemosCreatePayload {
     visibility?: 'PUBLIC' | 'PROTECTED' | 'PRIVATE'
 }
 
+export interface MemosCreateResponse {
+    name?: string
+    uid?: string
+}
+
 /**
  * 在受配置的 Memos 实例中创建一个 Memo
  * 遵循 Memos API v1 规范
  */
-export const createMemo = async (payload: MemosCreatePayload) => {
+export const createMemo = async (payload: MemosCreatePayload): Promise<MemosCreateResponse | null> => {
     const isEnabled = await getSetting(SettingKey.MEMOS_ENABLED)
     if (isEnabled !== 'true') {
         return null
@@ -28,7 +33,7 @@ export const createMemo = async (payload: MemosCreatePayload) => {
     const baseUrl = instanceUrl.replace(/\/$/, '')
     const url = `${baseUrl}/api/v1/memos`
 
-    const response = await $fetch(url, {
+    const response = await $fetch<MemosCreateResponse>(url, {
         method: 'POST',
         headers: {
             Authorization: `Bearer ${accessToken}`,

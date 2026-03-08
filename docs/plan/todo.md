@@ -95,6 +95,15 @@
 	- [x] 抽离 `pages/admin/posts/[id].vue` 的派生展示逻辑或辅助逻辑，使页面重新满足 `max-lines` 限制
 	- [x] 运行针对性 Lint / Typecheck，确认拆分后行为与现有编辑流程一致
 
+### 8. 内容分发集成热修复 (Content Distribution Integration Hotfix) (P1)
+
+> 当前执行策略: 已完成本轮热修复。已补齐文章发布后同步到 Memos 的真实落地逻辑，并补录遗漏的实现任务与测试闭环。
+
+- [x] **Memos 发布同步逻辑补完**
+	- [x] 在 `server/services/post-publish.ts` 中接入现有 Memos 工具，生成可读摘要与文章链接并发起创建请求
+	- [x] 在同步成功后回写文章集成元数据，记录 `metadata.integration.memosId` 以便追踪
+	- [x] 补齐定向测试，覆盖同步成功与异常兜底场景
+
 
 ---
 
