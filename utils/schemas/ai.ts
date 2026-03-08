@@ -1,10 +1,8 @@
 import { z } from 'zod'
 
-const aiQuotaScopeSchema = z.string().trim().refine((value) => {
-    return value === 'all'
-        || ['text', 'image', 'asr', 'tts', 'podcast'].includes(value)
-        || value.startsWith('type:')
-}, {
+const aiQuotaScopeSchema = z.string().trim().refine((value) => value === 'all'
+    || ['text', 'image', 'asr', 'tts', 'podcast'].includes(value)
+    || value.startsWith('type:'), {
     message: 'Invalid AI quota scope',
 })
 

@@ -11,6 +11,7 @@ export enum UploadType {
 export interface UseUploadOptions {
     type?: UploadType
     prefix?: string
+    showErrorToast?: boolean
 }
 
 interface DirectUploadProxyStrategy {
@@ -32,9 +33,7 @@ export function useUpload(options: UseUploadOptions = {}) {
     const toast = useToast()
     const uploading = ref(false)
 
-    const resolveUploadPrefix = (type: UploadType) => {
-        return options.prefix || (type === UploadType.AUDIO ? 'audios/' : 'file/')
-    }
+    const resolveUploadPrefix = (type: UploadType) => options.prefix || (type === UploadType.AUDIO ? 'audios/' : 'file/')
 
     const requestDirectUpload = async (file: File, type: UploadType, prefix: string) => {
         const { data } = await $fetch<{
@@ -101,13 +100,15 @@ export function useUpload(options: UseUploadOptions = {}) {
             return await uploadThroughProxy(file, type, prefix)
         } catch (error: any) {
             console.error('Upload failed', error)
-            const detail = error.data?.statusMessage || error.message || t('common.upload_failed')
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail,
-                life: 3000,
-            })
+            if (options.showErrorToast !== false) {
+                const detail = error.data?.statusMessage || error.message || t('common.upload_failed')
+                toast.add({
+                    severity: 'error',
+                    summary: t('common.error'),
+                    detail,
+                    life: 3000,
+                })
+            }
             throw error
         } finally {
             uploading.value = false

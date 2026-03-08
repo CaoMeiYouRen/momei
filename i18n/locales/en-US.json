@@ -1190,6 +1190,14 @@
                         "s3_access_key": "Access Key",
                         "s3_secret_key": "Secret Key",
                         "s3_base_url": "S3 Base URL",
+                        "s3_bucket_prefix": "Bucket Prefix",
+                        "asset_public_base_url": "Asset Public Base URL",
+                        "asset_object_prefix": "Asset Object Prefix",
+                        "cloudflare_r2_account_id": "Cloudflare R2 Account ID",
+                        "cloudflare_r2_bucket": "Cloudflare R2 Bucket",
+                        "cloudflare_r2_access_key": "Cloudflare R2 Access Key",
+                        "cloudflare_r2_secret_key": "Cloudflare R2 Secret Key",
+                        "cloudflare_r2_base_url": "Cloudflare R2 Public Base URL",
                         "vercel_blob_token": "Vercel Blob Token",
                         "baidu_analytics": "Baidu Analytics ID",
                         "google_analytics": "Google Analytics ID",
@@ -1663,7 +1671,10 @@
                 "s3Region": "Region",
                 "s3AccessKey": "Access Key ID",
                 "s3SecretKey": "Secret Access Key",
-                "s3BaseUrl": "Public Domain (Base URL)"
+                "s3BaseUrl": "Public Domain (Base URL)",
+                "s3BucketPrefix": "Object Prefix",
+                "assetPublicBaseUrl": "Unified Asset Public Base URL",
+                "assetObjectPrefix": "Unified Object Prefix"
             },
             "analytics": {
                 "baidu": "Baidu Analytics ID",

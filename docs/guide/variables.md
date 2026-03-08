@@ -70,9 +70,18 @@
 | :--- | :--- | :--- | :--- | :--- |
 | `DATABASE_URL` | - | 3 | password | 数据库连接串，不进入数据库 |
 | `REDIS_URL` | - | 3 | password | 缓存/限流连接串 |
-| `STORAGE_TYPE` | `storage_type` | 2 | none | 存储引擎 (local/s3/vercel-blob) |
+| `STORAGE_TYPE` | `storage_type` | 2 | none | 存储引擎 (local/s3/r2/vercel_blob) |
 | `S3_ACCESS_KEY_ID` | `s3_access_key` | 2 | key | S3 兼容存储的归档 Key |
 | `S3_SECRET_ACCESS_KEY` | `s3_secret_key` | 2 | password | S3 兼容存储的机密密钥 |
+| `S3_BASE_URL` | `s3_base_url` | 2 | none | S3 兼容存储的公共访问域名 |
+| `BUCKET_PREFIX` | `s3_bucket_prefix` | 2 | none | 兼容旧配置的对象前缀 |
+| `ASSET_PUBLIC_BASE_URL` | `asset_public_base_url` | 2 | none | 静态资源统一公共访问前缀，优先级高于驱动 base_url |
+| `ASSET_OBJECT_PREFIX` | `asset_object_prefix` | 2 | none | 静态资源统一对象前缀，优先级高于 `s3_bucket_prefix` |
+| `CLOUDFLARE_R2_ACCOUNT_ID` | `cloudflare_r2_account_id` | 2 | none | Cloudflare R2 账户 ID |
+| `CLOUDFLARE_R2_ACCESS_KEY` | `cloudflare_r2_access_key` | 2 | key | Cloudflare R2 Access Key |
+| `CLOUDFLARE_R2_SECRET_KEY` | `cloudflare_r2_secret_key` | 2 | password | Cloudflare R2 Secret Key |
+| `CLOUDFLARE_R2_BUCKET` | `cloudflare_r2_bucket` | 2 | none | Cloudflare R2 存储桶 |
+| `CLOUDFLARE_R2_BASE_URL` | `cloudflare_r2_base_url` | 2 | none | Cloudflare R2 公共访问域名 |
 | `BLOB_READ_WRITE_TOKEN`| `vercel_blob_token` | 3 | password | Vercel Blob 专有令牌 |
 
 ### 2.4 认证与系统安全 (Security)

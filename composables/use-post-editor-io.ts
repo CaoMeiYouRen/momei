@@ -2,6 +2,7 @@ import { ref, type Ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import yaml from 'js-yaml'
+import { useUpload, UploadType } from '@/composables/use-upload'
 import type { PostFrontMatter, PostEditorData, CategoryOption } from '@/types/post-editor'
 import { durationToSeconds } from '@/utils/shared/date'
 
@@ -14,6 +15,10 @@ export function usePostEditorIO(
     const { t } = useI18n()
     const toast = useToast()
     const isDragging = ref(false)
+    const { uploadFile } = useUpload({
+        type: UploadType.IMAGE,
+        showErrorToast: false,
+    })
 
     const mergeAudioMetadata = (patch: {
         url?: string | null
@@ -29,21 +34,6 @@ export function usePostEditorIO(
             ...(post.value.metadata || {}),
             audio: nextAudio,
         }
-    }
-
-    const uploadFile = async (file: File) => {
-        const formData = new FormData()
-        formData.append('file', file)
-
-        const { data } = await $fetch<{
-            code: number
-            data: { url: string }[]
-        }>('/api/upload', {
-            method: 'POST',
-            body: formData,
-        })
-
-        return data?.[0]?.url
     }
 
     const imgAdd = async (pos: number, $file: File) => {

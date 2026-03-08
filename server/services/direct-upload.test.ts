@@ -4,6 +4,7 @@ const {
     mockCheckUploadLimits,
     mockGetUploadStorageContext,
     mockResolveUploadPrefix,
+    mockResolveUploadedFileUrl,
     mockValidateUploadPayload,
     mockBuildUploadObjectKey,
     mockCreateS3Client,
@@ -13,6 +14,7 @@ const {
     mockCheckUploadLimits: vi.fn(),
     mockGetUploadStorageContext: vi.fn(),
     mockResolveUploadPrefix: vi.fn(),
+    mockResolveUploadedFileUrl: vi.fn(),
     mockValidateUploadPayload: vi.fn(),
     mockBuildUploadObjectKey: vi.fn(),
     mockCreateS3Client: vi.fn(),
@@ -24,6 +26,7 @@ vi.mock('./upload', () => ({
     checkUploadLimits: mockCheckUploadLimits,
     getUploadStorageContext: mockGetUploadStorageContext,
     resolveUploadPrefix: mockResolveUploadPrefix,
+    resolveUploadedFileUrl: mockResolveUploadedFileUrl,
     validateUploadPayload: mockValidateUploadPayload,
     buildUploadObjectKey: mockBuildUploadObjectKey,
 }))
@@ -47,6 +50,7 @@ describe('direct upload service', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         mockResolveUploadPrefix.mockReturnValue('file/')
+        mockResolveUploadedFileUrl.mockReturnValue('https://cdn.example.com/file/generated.jpg')
         mockBuildUploadObjectKey.mockReturnValue('file/generated.jpg')
         mockCreateS3Client.mockReturnValue({ client: 's3' })
         mockGetSignedUrl.mockResolvedValue('https://storage.example.com/presigned')
@@ -59,6 +63,8 @@ describe('direct upload service', () => {
         mockGetUploadStorageContext.mockResolvedValue({
             normalizedStorageType: 'local',
             bucketPrefix: '',
+            assetPublicBaseUrl: '',
+            driverBaseUrl: '',
             env: {},
             settings: {},
         })
@@ -79,6 +85,8 @@ describe('direct upload service', () => {
         mockGetUploadStorageContext.mockResolvedValue({
             normalizedStorageType: 's3',
             bucketPrefix: 'blog/',
+            assetPublicBaseUrl: 'https://assets.example.com',
+            driverBaseUrl: 'https://cdn.example.com',
             env: {
                 S3_BUCKET_NAME: 'media',
                 S3_BASE_URL: 'https://cdn.example.com',
@@ -103,6 +111,10 @@ describe('direct upload service', () => {
             Key: 'file/generated.jpg',
             ContentType: 'image/jpeg',
         })
+        expect(mockResolveUploadedFileUrl).toHaveBeenCalledWith('file/generated.jpg', expect.objectContaining({
+            assetPublicBaseUrl: 'https://assets.example.com',
+            driverBaseUrl: 'https://cdn.example.com',
+        }))
         expect(result).toEqual({
             strategy: 'put-presign',
             method: 'PUT',

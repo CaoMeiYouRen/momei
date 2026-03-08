@@ -32,6 +32,8 @@ export const extraConfigSchema = z.object({
     s3SecretKey: z.string().optional(),
     s3BaseUrl: z.string().optional(),
     s3BucketPrefix: z.string().optional(),
+    assetPublicBaseUrl: z.string().optional(),
+    assetObjectPrefix: z.string().optional(),
     // Analytics
     baiduAnalytics: z.string().optional(),
     googleAnalytics: z.string().optional(),

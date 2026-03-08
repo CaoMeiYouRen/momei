@@ -181,6 +181,8 @@ export interface ExtraConfig {
     s3SecretKey?: string
     s3BaseUrl?: string
     s3BucketPrefix?: string
+    assetPublicBaseUrl?: string
+    assetObjectPrefix?: string
     // Analytics
     baiduAnalytics?: string
     googleAnalytics?: string
@@ -498,6 +500,8 @@ export async function saveExtraConfig(config: ExtraConfig): Promise<void> {
         { key: 's3_secret_key', value: config.s3SecretKey || '', description: 'S3 Secret Key', level: 2, maskType: 'password' },
         { key: 's3_base_url', value: config.s3BaseUrl || '', description: 'S3 基础 URL', level: 2 },
         { key: 's3_bucket_prefix', value: config.s3BucketPrefix || '', description: 'S3 目录前缀', level: 2 },
+        { key: 'asset_public_base_url', value: config.assetPublicBaseUrl || '', description: '静态资源公共访问前缀', level: 2 },
+        { key: 'asset_object_prefix', value: config.assetObjectPrefix || '', description: '静态资源对象前缀', level: 2 },
         // Analytics
         { key: 'baidu_analytics', value: config.baiduAnalytics || '', description: '百度统计 ID', level: 0 },
         { key: 'google_analytics', value: config.googleAnalytics || '', description: 'Google Analytics ID', level: 0 },

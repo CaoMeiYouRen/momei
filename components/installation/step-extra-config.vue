@@ -218,6 +218,40 @@
                                 fluid
                             />
                         </div>
+                        <div class="form-field">
+                            <label for="asset_public_base_url">
+                                {{ $t('installation.preview.storage.assetPublicBaseUrl') }}
+                                <Tag
+                                    v-if="isLocked('asset_public_base_url')"
+                                    severity="info"
+                                    value="ENV"
+                                    class="ml-2"
+                                />
+                            </label>
+                            <InputText
+                                id="asset_public_base_url"
+                                v-model="extraConfig.assetPublicBaseUrl"
+                                :disabled="isLocked('asset_public_base_url')"
+                                fluid
+                            />
+                        </div>
+                        <div class="form-field">
+                            <label for="asset_object_prefix">
+                                {{ $t('installation.preview.storage.assetObjectPrefix') }}
+                                <Tag
+                                    v-if="isLocked('asset_object_prefix')"
+                                    severity="info"
+                                    value="ENV"
+                                    class="ml-2"
+                                />
+                            </label>
+                            <InputText
+                                id="asset_object_prefix"
+                                v-model="extraConfig.assetObjectPrefix"
+                                :disabled="isLocked('asset_object_prefix')"
+                                fluid
+                            />
+                        </div>
                         <template v-if="extraConfig.storageType === 'local'">
                             <div class="form-field">
                                 <label for="storage_dir">
@@ -339,6 +373,40 @@
                                     v-model="extraConfig.s3SecretKey"
                                     :toggle-mask="true"
                                     :disabled="isLocked('s3_secret_key')"
+                                    fluid
+                                />
+                            </div>
+                            <div class="form-field">
+                                <label for="s3_base_url">
+                                    {{ $t('installation.preview.storage.s3BaseUrl') }}
+                                    <Tag
+                                        v-if="isLocked('s3_base_url')"
+                                        severity="info"
+                                        value="ENV"
+                                        class="ml-2"
+                                    />
+                                </label>
+                                <InputText
+                                    id="s3_base_url"
+                                    v-model="extraConfig.s3BaseUrl"
+                                    :disabled="isLocked('s3_base_url')"
+                                    fluid
+                                />
+                            </div>
+                            <div class="form-field">
+                                <label for="s3_bucket_prefix">
+                                    {{ $t('installation.preview.storage.s3BucketPrefix') }}
+                                    <Tag
+                                        v-if="isLocked('s3_bucket_prefix')"
+                                        severity="info"
+                                        value="ENV"
+                                        class="ml-2"
+                                    />
+                                </label>
+                                <InputText
+                                    id="s3_bucket_prefix"
+                                    v-model="extraConfig.s3BucketPrefix"
+                                    :disabled="isLocked('s3_bucket_prefix')"
                                     fluid
                                 />
                             </div>

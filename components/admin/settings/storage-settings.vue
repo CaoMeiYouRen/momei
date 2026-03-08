@@ -14,6 +14,32 @@
             />
         </SettingFormField>
 
+        <SettingFormField
+            field-key="asset_public_base_url"
+            input-id="asset_public_base_url"
+            :metadata="metadata.asset_public_base_url"
+        >
+            <InputText
+                id="asset_public_base_url"
+                v-model="settings.asset_public_base_url"
+                :disabled="metadata.asset_public_base_url?.isLocked"
+                fluid
+            />
+        </SettingFormField>
+
+        <SettingFormField
+            field-key="asset_object_prefix"
+            input-id="asset_object_prefix"
+            :metadata="metadata.asset_object_prefix"
+        >
+            <InputText
+                id="asset_object_prefix"
+                v-model="settings.asset_object_prefix"
+                :disabled="metadata.asset_object_prefix?.isLocked"
+                fluid
+            />
+        </SettingFormField>
+
         <template v-if="settings.storage_type === 'local'">
             <SettingFormField
                 field-key="local_storage_dir"
@@ -119,6 +145,19 @@
                     id="s3_base_url"
                     v-model="settings.s3_base_url"
                     :disabled="metadata.s3_base_url?.isLocked"
+                    fluid
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="s3_bucket_prefix"
+                input-id="s3_bucket_prefix"
+                :metadata="metadata.s3_bucket_prefix"
+            >
+                <InputText
+                    id="s3_bucket_prefix"
+                    v-model="settings.s3_bucket_prefix"
+                    :disabled="metadata.s3_bucket_prefix?.isLocked"
                     fluid
                 />
             </SettingFormField>

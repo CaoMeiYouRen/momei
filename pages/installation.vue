@@ -254,6 +254,8 @@ async function fetchInstallationStatus() {
                 s3_secret_key: 's3SecretKey',
                 s3_base_url: 's3BaseUrl',
                 s3_bucket_prefix: 's3BucketPrefix',
+                asset_public_base_url: 'assetPublicBaseUrl',
+                asset_object_prefix: 'assetObjectPrefix',
                 baidu_analytics: 'baiduAnalytics',
                 google_analytics: 'googleAnalytics',
                 clarity_analytics: 'clarityAnalytics',

@@ -39,6 +39,8 @@ export interface UploadStorageContext {
     rawStorageType: string
     normalizedStorageType: string
     bucketPrefix: string
+    assetPublicBaseUrl: string
+    driverBaseUrl: string
     env: FileStorageEnv
     settings: UploadSettings
 }
@@ -55,6 +57,8 @@ const COMMON_UPLOAD_SETTING_KEYS = [
     SettingKey.S3_SECRET_KEY,
     SettingKey.S3_BASE_URL,
     SettingKey.S3_BUCKET_PREFIX,
+    SettingKey.ASSET_PUBLIC_BASE_URL,
+    SettingKey.ASSET_OBJECT_PREFIX,
     SettingKey.VERCEL_BLOB_TOKEN,
     SettingKey.CLOUDFLARE_R2_ACCOUNT_ID,
     SettingKey.CLOUDFLARE_R2_ACCESS_KEY,
@@ -85,6 +89,54 @@ function getSettingValue(settings: UploadSettings, key: SettingKey, fallback = '
 function getNumericLimit(settings: UploadSettings, key: SettingKey, fallback: number) {
     const value = Number(settings[key])
     return Number.isFinite(value) ? value : fallback
+}
+
+function getAssetObjectPrefix(settings: UploadSettings) {
+    return normalizePrefix(
+        getSettingValue(settings, SettingKey.ASSET_OBJECT_PREFIX)
+        || getSettingValue(settings, SettingKey.S3_BUCKET_PREFIX),
+    )
+}
+
+export function resolveUploadPublicBaseUrl(settings: UploadSettings, rawStorageType: string, env: FileStorageEnv) {
+    const globalBaseUrl = getSettingValue(settings, SettingKey.ASSET_PUBLIC_BASE_URL)
+    if (globalBaseUrl) {
+        return globalBaseUrl
+    }
+
+    if (rawStorageType === 'r2') {
+        return getSettingValue(settings, SettingKey.CLOUDFLARE_R2_BASE_URL)
+    }
+
+    if (rawStorageType === 's3') {
+        return getSettingValue(settings, SettingKey.S3_BASE_URL)
+    }
+
+    if (rawStorageType === 'local') {
+        return getSettingValue(settings, SettingKey.LOCAL_STORAGE_BASE_URL)
+    }
+
+    if (rawStorageType === 'vercel_blob') {
+        return getSettingValue(settings, SettingKey.ASSET_PUBLIC_BASE_URL)
+    }
+
+    const fallbackBaseUrl = (env as Record<string, unknown>).S3_BASE_URL
+    return typeof fallbackBaseUrl === 'string' ? fallbackBaseUrl : ''
+}
+
+export function resolveUploadedFileUrl(objectKey: string, storageContext: Pick<UploadStorageContext, 'assetPublicBaseUrl' | 'driverBaseUrl'>) {
+    const candidateBaseUrl = storageContext.assetPublicBaseUrl || storageContext.driverBaseUrl
+    if (!candidateBaseUrl) {
+        return objectKey
+    }
+
+    if (candidateBaseUrl.startsWith('http')) {
+        const normalizedBaseUrl = candidateBaseUrl.endsWith('/') ? candidateBaseUrl : `${candidateBaseUrl}/`
+        return new URL(objectKey, normalizedBaseUrl).toString()
+    }
+
+    const normalizedBaseUrl = candidateBaseUrl.endsWith('/') ? candidateBaseUrl : `${candidateBaseUrl}/`
+    return `${normalizedBaseUrl}${objectKey}`.replace(/\/+/g, '/').replace(':/', '://')
 }
 
 function buildS3CompatibleEnv(settings: UploadSettings, rawStorageType: string): FileStorageEnv {
@@ -224,7 +276,9 @@ export async function getUploadStorageContext(): Promise<UploadStorageContext> {
     return {
         rawStorageType,
         normalizedStorageType,
-        bucketPrefix: normalizePrefix(getSettingValue(settings, SettingKey.S3_BUCKET_PREFIX)),
+        bucketPrefix: getAssetObjectPrefix(settings),
+        assetPublicBaseUrl: getSettingValue(settings, SettingKey.ASSET_PUBLIC_BASE_URL),
+        driverBaseUrl: resolveUploadPublicBaseUrl(settings, rawStorageType, env),
         env,
         settings,
     }
@@ -269,7 +323,8 @@ export async function checkUploadLimits(userId: string) {
  */
 export async function uploadFromUrl(url: string, prefix: string, userId: string, customFilename?: string): Promise<UploadedFile> {
     await checkUploadLimits(userId)
-    const { normalizedStorageType, env, bucketPrefix } = await getUploadStorageContext()
+    const storageContext = await getUploadStorageContext()
+    const { normalizedStorageType, env, bucketPrefix } = storageContext
     const storage = getFileStorage(normalizedStorageType, env)
     const response = await $fetch.raw(url, { responseType: 'arrayBuffer' })
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
@@ -280,11 +335,11 @@ export async function uploadFromUrl(url: string, prefix: string, userId: string,
     const fullPath = `${bucketPrefix}${prefix}${filename}`.replace(/\\/g, '/')
 
     const buffer = Buffer.from(response._data as ArrayBuffer)
-    const uploadResult = await storage.upload(buffer, fullPath, contentType)
+    await storage.upload(buffer, fullPath, contentType)
 
     return {
         filename,
-        url: uploadResult.url,
+        url: resolveUploadedFileUrl(fullPath, storageContext),
         mimetype: contentType,
     }
 }
@@ -296,15 +351,16 @@ export async function uploadFromBuffer(buffer: Buffer, prefix: string, filename:
     if (userId) {
         await checkUploadLimits(userId)
     }
-    const { normalizedStorageType, env, bucketPrefix } = await getUploadStorageContext()
+    const storageContext = await getUploadStorageContext()
+    const { normalizedStorageType, env, bucketPrefix } = storageContext
     const storage = getFileStorage(normalizedStorageType, env)
     const fullPath = `${bucketPrefix}${prefix}${filename}`.replace(/\\/g, '/')
 
-    const uploadResult = await storage.upload(buffer, fullPath, mimetype)
+    await storage.upload(buffer, fullPath, mimetype)
 
     return {
         filename,
-        url: uploadResult.url,
+        url: resolveUploadedFileUrl(fullPath, storageContext),
         mimetype,
     }
 }
@@ -325,7 +381,8 @@ export async function handleFileUploads(event: H3Event, options: UploadOptions):
         throw createError({ statusCode: 400, statusMessage: `最多允许同时上传 ${maxFiles} 个文件` })
     }
 
-    const { normalizedStorageType, env, bucketPrefix, settings } = await getUploadStorageContext()
+    const storageContext = await getUploadStorageContext()
+    const { normalizedStorageType, env, bucketPrefix, settings } = storageContext
     const storage = getFileStorage(normalizedStorageType, env)
     const uploadedFiles: UploadedFile[] = []
 
@@ -349,11 +406,11 @@ export async function handleFileUploads(event: H3Event, options: UploadOptions):
         })
 
         // 执行上传
-        const { url } = await storage.upload(file.data, newFilename, file.type)
+        await storage.upload(file.data, newFilename, file.type)
 
         uploadedFiles.push({
             filename: file.filename,
-            url,
+            url: resolveUploadedFileUrl(newFilename, storageContext),
             mimetype: file.type,
         })
     }

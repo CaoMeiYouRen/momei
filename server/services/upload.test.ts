@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { readMultipartFormData } from 'h3'
-import { checkUploadLimits, getUploadStorageContext, handleFileUploads, normalizeStorageType, resolveUploadPrefix, UploadType } from './upload'
+import { checkUploadLimits, getUploadStorageContext, handleFileUploads, normalizeStorageType, resolveUploadedFileUrl, resolveUploadPrefix, UploadType } from './upload'
 import { limiterStorage } from '@/server/database/storage'
 import { getFileStorage } from '@/server/utils/storage/factory'
 import { getSettings } from '~/server/services/setting'
@@ -93,6 +93,38 @@ describe('UploadService', () => {
             expect(context.env.S3_BUCKET_NAME).toBe('r2-bucket')
             expect(context.env.S3_BASE_URL).toBe('https://pub.example.com')
         })
+
+        it('should prefer asset object prefix and asset public base url', async () => {
+            vi.mocked(getSettings).mockResolvedValueOnce({
+                storage_type: 's3',
+                asset_object_prefix: 'assets/',
+                asset_public_base_url: 'https://assets.example.com',
+                s3_bucket_prefix: 'blog/',
+                s3_bucket: 'bucket',
+                s3_region: 'auto',
+                s3_access_key: 'key',
+                s3_secret_key: 'secret',
+                s3_base_url: 'https://cdn.example.com',
+                local_storage_dir: 'public/uploads',
+                local_storage_base_url: '/uploads',
+                local_storage_min_free_space: String(100 * 1024 * 1024),
+                max_upload_size: '10',
+                max_audio_upload_size: '20',
+            })
+
+            const context = await getUploadStorageContext()
+
+            expect(context.bucketPrefix).toBe('assets/')
+            expect(context.assetPublicBaseUrl).toBe('https://assets.example.com')
+            expect(context.driverBaseUrl).toBe('https://assets.example.com')
+        })
+
+        it('should resolve uploaded file url with global asset prefix first', () => {
+            expect(resolveUploadedFileUrl('file/test.jpg', {
+                assetPublicBaseUrl: 'https://assets.example.com',
+                driverBaseUrl: 'https://cdn.example.com',
+            })).toBe('https://assets.example.com/file/test.jpg')
+        })
     })
 
     describe('checkUploadLimits', () => {
@@ -136,7 +168,7 @@ describe('UploadService', () => {
             const result = await handleFileUploads(mockEvent, { prefix: 'test/' })
 
             expect(result).toHaveLength(1)
-            expect(result[0]!.url).toBe('http://test.com/test.jpg')
+            expect(result[0]!.url).toMatch(/^\/uploads\/blog\/test\/.*\.jpg$/)
             expect(mockStorage.upload).toHaveBeenCalled()
         })
 
@@ -164,7 +196,7 @@ describe('UploadService', () => {
             const result = await handleFileUploads(mockEvent, { prefix: 'test/', type: UploadType.AUDIO })
 
             expect(result).toHaveLength(1)
-            expect(result[0]!.url).toBe('http://test.com/test.mp3')
+            expect(result[0]!.url).toMatch(/^\/uploads\/blog\/test\/.*\.mp3$/)
             expect(mockStorage.upload).toHaveBeenCalled()
         })
 

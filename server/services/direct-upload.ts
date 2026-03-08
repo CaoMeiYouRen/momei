@@ -5,6 +5,7 @@ import {
     checkUploadLimits,
     getUploadStorageContext,
     resolveUploadPrefix,
+    resolveUploadedFileUrl,
     type UploadType,
     validateUploadPayload,
 } from './upload'
@@ -34,11 +35,6 @@ export interface DirectUploadPresignStrategy {
 }
 
 export type DirectUploadAuthorization = DirectUploadProxyStrategy | DirectUploadPresignStrategy
-
-function resolvePublicUrl(baseUrl: string, objectKey: string) {
-    const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
-    return new URL(objectKey, normalizedBaseUrl).toString()
-}
 
 export async function authorizeDirectUpload(input: DirectUploadAuthorizationRequest): Promise<DirectUploadAuthorization> {
     const { filename, contentType, size } = input
@@ -83,7 +79,7 @@ export async function authorizeDirectUpload(input: DirectUploadAuthorizationRequ
         headers: {
             'content-type': contentType,
         },
-        publicUrl: resolvePublicUrl(s3Env.S3_BASE_URL, objectKey),
+        publicUrl: resolveUploadedFileUrl(objectKey, storageContext),
         objectKey,
         expiresIn,
     }

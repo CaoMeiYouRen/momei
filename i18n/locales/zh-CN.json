@@ -1197,6 +1197,14 @@
                         "s3_access_key": "Access Key",
                         "s3_secret_key": "Secret Key",
                         "s3_base_url": "访问域名 (Base URL)",
+                        "s3_bucket_prefix": "存储前缀",
+                        "asset_public_base_url": "静态资源公共前缀",
+                        "asset_object_prefix": "静态资源对象前缀",
+                        "cloudflare_r2_account_id": "Cloudflare R2 账户 ID",
+                        "cloudflare_r2_bucket": "Cloudflare R2 存储桶",
+                        "cloudflare_r2_access_key": "Cloudflare R2 Access Key",
+                        "cloudflare_r2_secret_key": "Cloudflare R2 Secret Key",
+                        "cloudflare_r2_base_url": "Cloudflare R2 公共访问域名",
                         "vercel_blob_token": "Vercel Blob Token",
                         "baidu_analytics": "百度统计 ID",
                         "google_analytics": "Google Analytics ID",
@@ -1670,7 +1678,10 @@
                 "s3Region": "区域 (Region)",
                 "s3AccessKey": "Access Key ID",
                 "s3SecretKey": "Secret Access Key",
-                "s3BaseUrl": "公开域名 (Base URL)"
+                "s3BaseUrl": "公开域名 (Base URL)",
+                "s3BucketPrefix": "对象前缀",
+                "assetPublicBaseUrl": "统一静态资源访问前缀",
+                "assetObjectPrefix": "统一对象前缀"
             },
             "analytics": {
                 "baidu": "百度统计 ID",
