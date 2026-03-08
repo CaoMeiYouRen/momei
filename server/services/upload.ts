@@ -33,6 +33,203 @@ export interface UploadedFile {
     mimetype: string | undefined
 }
 
+export type UploadSettings = Partial<Record<SettingKey, string | null | undefined>>
+
+export interface UploadStorageContext {
+    rawStorageType: string
+    normalizedStorageType: string
+    bucketPrefix: string
+    env: FileStorageEnv
+    settings: UploadSettings
+}
+
+const COMMON_UPLOAD_SETTING_KEYS = [
+    SettingKey.STORAGE_TYPE,
+    SettingKey.LOCAL_STORAGE_DIR,
+    SettingKey.LOCAL_STORAGE_BASE_URL,
+    SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE,
+    SettingKey.S3_ENDPOINT,
+    SettingKey.S3_BUCKET,
+    SettingKey.S3_REGION,
+    SettingKey.S3_ACCESS_KEY,
+    SettingKey.S3_SECRET_KEY,
+    SettingKey.S3_BASE_URL,
+    SettingKey.S3_BUCKET_PREFIX,
+    SettingKey.VERCEL_BLOB_TOKEN,
+    SettingKey.CLOUDFLARE_R2_ACCOUNT_ID,
+    SettingKey.CLOUDFLARE_R2_ACCESS_KEY,
+    SettingKey.CLOUDFLARE_R2_SECRET_KEY,
+    SettingKey.CLOUDFLARE_R2_BUCKET,
+    SettingKey.CLOUDFLARE_R2_BASE_URL,
+    SettingKey.MAX_UPLOAD_SIZE,
+    SettingKey.MAX_AUDIO_UPLOAD_SIZE,
+] as const
+
+function normalizePrefix(prefix?: string) {
+    if (!prefix) {
+        return ''
+    }
+
+    const normalized = prefix.replace(/\\/g, '/').trim().replace(/^\/+/, '')
+    if (!normalized) {
+        return ''
+    }
+
+    return normalized.endsWith('/') ? normalized : `${normalized}/`
+}
+
+function getSettingValue(settings: UploadSettings, key: SettingKey, fallback = '') {
+    return String(settings[key] || fallback)
+}
+
+function getNumericLimit(settings: UploadSettings, key: SettingKey, fallback: number) {
+    const value = Number(settings[key])
+    return Number.isFinite(value) ? value : fallback
+}
+
+function buildS3CompatibleEnv(settings: UploadSettings, rawStorageType: string): FileStorageEnv {
+    if (rawStorageType === 'r2') {
+        const accountId = getSettingValue(settings, SettingKey.CLOUDFLARE_R2_ACCOUNT_ID)
+        const bucket = getSettingValue(settings, SettingKey.CLOUDFLARE_R2_BUCKET)
+        const endpoint = accountId ? `https://${accountId}.r2.cloudflarestorage.com` : ''
+        const baseUrl = getSettingValue(settings, SettingKey.CLOUDFLARE_R2_BASE_URL) || (endpoint && bucket ? `${endpoint}/${bucket}` : endpoint)
+
+        return {
+            ...(process.env as any),
+            S3_ENDPOINT: endpoint,
+            S3_BUCKET_NAME: bucket,
+            S3_BUCKET: bucket,
+            S3_REGION: 'auto',
+            S3_ACCESS_KEY_ID: getSettingValue(settings, SettingKey.CLOUDFLARE_R2_ACCESS_KEY),
+            S3_ACCESS_KEY: getSettingValue(settings, SettingKey.CLOUDFLARE_R2_ACCESS_KEY),
+            S3_SECRET_ACCESS_KEY: getSettingValue(settings, SettingKey.CLOUDFLARE_R2_SECRET_KEY),
+            S3_SECRET_KEY: getSettingValue(settings, SettingKey.CLOUDFLARE_R2_SECRET_KEY),
+            S3_BASE_URL: baseUrl,
+        }
+    }
+
+    const bucket = getSettingValue(settings, SettingKey.S3_BUCKET)
+
+    return {
+        ...(process.env as any),
+        S3_ENDPOINT: getSettingValue(settings, SettingKey.S3_ENDPOINT),
+        S3_BUCKET_NAME: bucket,
+        S3_BUCKET: bucket,
+        S3_REGION: getSettingValue(settings, SettingKey.S3_REGION, 'auto'),
+        S3_ACCESS_KEY_ID: getSettingValue(settings, SettingKey.S3_ACCESS_KEY),
+        S3_ACCESS_KEY: getSettingValue(settings, SettingKey.S3_ACCESS_KEY),
+        S3_SECRET_ACCESS_KEY: getSettingValue(settings, SettingKey.S3_SECRET_KEY),
+        S3_SECRET_KEY: getSettingValue(settings, SettingKey.S3_SECRET_KEY),
+        S3_BASE_URL: getSettingValue(settings, SettingKey.S3_BASE_URL),
+    }
+}
+
+export function normalizeStorageType(storageType?: string | null) {
+    const rawStorageType = (storageType || 'local').trim()
+
+    switch (rawStorageType) {
+        case 'r2':
+            return 's3'
+        case 'vercel_blob':
+            return 'vercel-blob'
+        case 's3':
+        case 'vercel-blob':
+        case 'local':
+            return rawStorageType
+        default:
+            return rawStorageType
+    }
+}
+
+export function resolveUploadPrefix(type: UploadType, prefix?: string) {
+    const normalized = normalizePrefix(prefix)
+    if (normalized) {
+        return normalized
+    }
+
+    return type === UploadType.AUDIO ? 'audios/' : 'file/'
+}
+
+export function resolveUploadSizeLimit(type: UploadType, settings: UploadSettings) {
+    if (type === UploadType.AUDIO) {
+        const configuredLimit = getNumericLimit(settings, SettingKey.MAX_AUDIO_UPLOAD_SIZE, 20)
+        return {
+            bytes: configuredLimit * 1024 * 1024,
+            text: `${configuredLimit}MB`,
+        }
+    }
+
+    const configuredLimit = getNumericLimit(settings, SettingKey.MAX_UPLOAD_SIZE, 10)
+    return {
+        bytes: configuredLimit * 1024 * 1024,
+        text: `${configuredLimit}MB`,
+    }
+}
+
+export function validateUploadPayload(input: {
+    type: UploadType
+    size: number
+    contentType?: string
+    settings: UploadSettings
+}) {
+    const { type, size, contentType, settings } = input
+    const { bytes, text } = resolveUploadSizeLimit(type, settings)
+
+    if (size > bytes) {
+        throw createError({ statusCode: 400, statusMessage: `文件大小超出 ${text} 限制` })
+    }
+
+    if (type === UploadType.IMAGE && !contentType?.startsWith('image/')) {
+        throw createError({ statusCode: 400, statusMessage: '仅支持图片上传' })
+    }
+
+    if (type === UploadType.AUDIO && !contentType?.startsWith('audio/')) {
+        throw createError({ statusCode: 400, statusMessage: '仅支持音频上传' })
+    }
+}
+
+export function buildUploadObjectKey(options: {
+    prefix: string
+    originalFilename: string
+    bucketPrefix?: string
+}) {
+    const timestamp = dayjs().format('YYYYMMDDHHmmssSSS')
+    const random = Math.random().toString(36).slice(2, 9)
+    const ext = path.extname(options.originalFilename)
+    const bucketPrefix = normalizePrefix(options.bucketPrefix)
+    const prefix = normalizePrefix(options.prefix)
+
+    return `${bucketPrefix}${prefix}${timestamp}-${random}${ext}`
+}
+
+export async function getUploadStorageContext(): Promise<UploadStorageContext> {
+    const settings = await getSettings([...COMMON_UPLOAD_SETTING_KEYS]) as UploadSettings
+    const rawStorageType = getSettingValue(settings, SettingKey.STORAGE_TYPE, 'local')
+    const normalizedStorageType = normalizeStorageType(rawStorageType)
+    const baseEnv: FileStorageEnv = {
+        ...(process.env as any),
+        STORAGE_TYPE: normalizedStorageType,
+        LOCAL_STORAGE_DIR: getSettingValue(settings, SettingKey.LOCAL_STORAGE_DIR, 'public/uploads'),
+        LOCAL_STORAGE_BASE_URL: getSettingValue(settings, SettingKey.LOCAL_STORAGE_BASE_URL, '/uploads'),
+        LOCAL_STORAGE_MIN_FREE_SPACE: getNumericLimit(settings, SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE, 100 * 1024 * 1024),
+        VERCEL_BLOB_TOKEN: getSettingValue(settings, SettingKey.VERCEL_BLOB_TOKEN),
+        BLOB_READ_WRITE_TOKEN: getSettingValue(settings, SettingKey.VERCEL_BLOB_TOKEN),
+    }
+
+    const env: FileStorageEnv = {
+        ...baseEnv,
+        ...buildS3CompatibleEnv(settings, rawStorageType),
+    }
+
+    return {
+        rawStorageType,
+        normalizedStorageType,
+        bucketPrefix: normalizePrefix(getSettingValue(settings, SettingKey.S3_BUCKET_PREFIX)),
+        env,
+        settings,
+    }
+}
+
 /**
  * 检查并增加上传次数限制
  * @param userId 用户 ID
@@ -72,51 +269,11 @@ export async function checkUploadLimits(userId: string) {
  */
 export async function uploadFromUrl(url: string, prefix: string, userId: string, customFilename?: string): Promise<UploadedFile> {
     await checkUploadLimits(userId)
-
-    const dbSettings = await getSettings([
-        SettingKey.STORAGE_TYPE,
-        SettingKey.LOCAL_STORAGE_DIR,
-        SettingKey.LOCAL_STORAGE_BASE_URL,
-        SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE,
-        SettingKey.S3_ENDPOINT,
-        SettingKey.S3_BUCKET,
-        SettingKey.S3_REGION,
-        SettingKey.S3_ACCESS_KEY,
-        SettingKey.S3_SECRET_KEY,
-        SettingKey.S3_BASE_URL,
-        SettingKey.S3_BUCKET_PREFIX,
-        SettingKey.MAX_UPLOAD_SIZE,
-        SettingKey.VERCEL_BLOB_TOKEN,
-        SettingKey.CLOUDFLARE_R2_ACCOUNT_ID,
-        SettingKey.CLOUDFLARE_R2_ACCESS_KEY,
-        SettingKey.CLOUDFLARE_R2_SECRET_KEY,
-        SettingKey.CLOUDFLARE_R2_BUCKET,
-        SettingKey.CLOUDFLARE_R2_BASE_URL,
-    ])
-
-    const storageType = (dbSettings[SettingKey.STORAGE_TYPE]!) || 'local'
-
-    const env: FileStorageEnv = {
-        ...(process.env as any),
-        STORAGE_TYPE: storageType,
-        LOCAL_STORAGE_DIR: String(dbSettings[SettingKey.LOCAL_STORAGE_DIR] || 'public/uploads'),
-        LOCAL_STORAGE_BASE_URL: String(dbSettings[SettingKey.LOCAL_STORAGE_BASE_URL] || '/uploads'),
-        LOCAL_STORAGE_MIN_FREE_SPACE: Number(dbSettings[SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE] || 100 * 1024 * 1024),
-        S3_ENDPOINT: String(dbSettings[SettingKey.S3_ENDPOINT] || ''),
-        S3_BUCKET_NAME: String(dbSettings[SettingKey.S3_BUCKET] || ''),
-        S3_REGION: String(dbSettings[SettingKey.S3_REGION] || ''),
-        S3_ACCESS_KEY_ID: String(dbSettings[SettingKey.S3_ACCESS_KEY] || ''),
-        S3_SECRET_ACCESS_KEY: String(dbSettings[SettingKey.S3_SECRET_KEY] || ''),
-        S3_BASE_URL: String(dbSettings[SettingKey.S3_BASE_URL] || ''),
-        VERCEL_BLOB_TOKEN: String(dbSettings[SettingKey.VERCEL_BLOB_TOKEN] || ''),
-        BLOB_READ_WRITE_TOKEN: String(dbSettings[SettingKey.VERCEL_BLOB_TOKEN] || ''),
-    }
-
-    const storage = getFileStorage(storageType, env)
+    const { normalizedStorageType, env, bucketPrefix } = await getUploadStorageContext()
+    const storage = getFileStorage(normalizedStorageType, env)
     const response = await $fetch.raw(url, { responseType: 'arrayBuffer' })
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
     const extension = contentType.split('/')[1]?.split(';')[0] || 'bin'
-    const bucketPrefix = String(dbSettings[SettingKey.S3_BUCKET_PREFIX] || '')
 
     const nameWithoutExt = customFilename || crypto.randomUUID()
     const filename = nameWithoutExt.includes('.') ? nameWithoutExt : `${nameWithoutExt}.${extension}`
@@ -139,41 +296,8 @@ export async function uploadFromBuffer(buffer: Buffer, prefix: string, filename:
     if (userId) {
         await checkUploadLimits(userId)
     }
-
-    const dbSettings = await getSettings([
-        SettingKey.STORAGE_TYPE,
-        SettingKey.LOCAL_STORAGE_DIR,
-        SettingKey.LOCAL_STORAGE_BASE_URL,
-        SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE,
-        SettingKey.S3_ENDPOINT,
-        SettingKey.S3_BUCKET,
-        SettingKey.S3_REGION,
-        SettingKey.S3_ACCESS_KEY,
-        SettingKey.S3_SECRET_KEY,
-        SettingKey.S3_BASE_URL,
-        SettingKey.S3_BUCKET_PREFIX,
-        SettingKey.VERCEL_BLOB_TOKEN,
-    ])
-
-    const storageType = (dbSettings[SettingKey.STORAGE_TYPE]!) || 'local'
-    const env: FileStorageEnv = {
-        ...(process.env as any),
-        STORAGE_TYPE: storageType,
-        LOCAL_STORAGE_DIR: String(dbSettings[SettingKey.LOCAL_STORAGE_DIR] || 'public/uploads'),
-        LOCAL_STORAGE_BASE_URL: String(dbSettings[SettingKey.LOCAL_STORAGE_BASE_URL] || '/uploads'),
-        LOCAL_STORAGE_MIN_FREE_SPACE: Number(dbSettings[SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE] || 100 * 1024 * 1024),
-        S3_ENDPOINT: String(dbSettings[SettingKey.S3_ENDPOINT] || ''),
-        S3_BUCKET_NAME: String(dbSettings[SettingKey.S3_BUCKET] || ''),
-        S3_REGION: String(dbSettings[SettingKey.S3_REGION] || ''),
-        S3_ACCESS_KEY_ID: String(dbSettings[SettingKey.S3_ACCESS_KEY] || ''),
-        S3_SECRET_ACCESS_KEY: String(dbSettings[SettingKey.S3_SECRET_KEY] || ''),
-        S3_BASE_URL: String(dbSettings[SettingKey.S3_BASE_URL] || ''),
-        VERCEL_BLOB_TOKEN: String(dbSettings[SettingKey.VERCEL_BLOB_TOKEN] || ''),
-        BLOB_READ_WRITE_TOKEN: String(dbSettings[SettingKey.VERCEL_BLOB_TOKEN] || ''),
-    }
-
-    const storage = getFileStorage(storageType, env)
-    const bucketPrefix = String(dbSettings[SettingKey.S3_BUCKET_PREFIX] || '')
+    const { normalizedStorageType, env, bucketPrefix } = await getUploadStorageContext()
+    const storage = getFileStorage(normalizedStorageType, env)
     const fullPath = `${bucketPrefix}${prefix}${filename}`.replace(/\\/g, '/')
 
     const uploadResult = await storage.upload(buffer, fullPath, mimetype)
@@ -201,45 +325,9 @@ export async function handleFileUploads(event: H3Event, options: UploadOptions):
         throw createError({ statusCode: 400, statusMessage: `最多允许同时上传 ${maxFiles} 个文件` })
     }
 
-    // 加载存储配置
-    const dbSettings = await getSettings([
-        SettingKey.STORAGE_TYPE,
-        SettingKey.LOCAL_STORAGE_DIR,
-        SettingKey.LOCAL_STORAGE_BASE_URL,
-        SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE,
-        SettingKey.S3_ENDPOINT,
-        SettingKey.S3_BUCKET,
-        SettingKey.S3_REGION,
-        SettingKey.S3_ACCESS_KEY,
-        SettingKey.S3_SECRET_KEY,
-        SettingKey.S3_BASE_URL,
-        SettingKey.S3_BUCKET_PREFIX,
-        SettingKey.MAX_UPLOAD_SIZE,
-        SettingKey.MAX_AUDIO_UPLOAD_SIZE,
-    ])
-
-    const storageType = (dbSettings[SettingKey.STORAGE_TYPE] as any) || 'local'
-    const storageConfig: FileStorageEnv = {
-        ...(process.env as any),
-        STORAGE_TYPE: storageType,
-        LOCAL_STORAGE_DIR: String(dbSettings[SettingKey.LOCAL_STORAGE_DIR] || ''),
-        LOCAL_STORAGE_BASE_URL: String(dbSettings[SettingKey.LOCAL_STORAGE_BASE_URL] || ''),
-        LOCAL_STORAGE_MIN_FREE_SPACE: Number(dbSettings[SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE] || 100 * 1024 * 1024),
-        S3_ENDPOINT: String(dbSettings[SettingKey.S3_ENDPOINT] || ''),
-        S3_BUCKET: String(dbSettings[SettingKey.S3_BUCKET] || ''),
-        S3_REGION: String(dbSettings[SettingKey.S3_REGION] || ''),
-        S3_ACCESS_KEY: String(dbSettings[SettingKey.S3_ACCESS_KEY] || ''),
-        S3_SECRET_KEY: String(dbSettings[SettingKey.S3_SECRET_KEY] || ''),
-        S3_BASE_URL: String(dbSettings[SettingKey.S3_BASE_URL] || ''),
-    }
-
-    const bucketPrefix = String(dbSettings[SettingKey.S3_BUCKET_PREFIX] || '')
-
-    const storage = getFileStorage(storageType, storageConfig)
+    const { normalizedStorageType, env, bucketPrefix, settings } = await getUploadStorageContext()
+    const storage = getFileStorage(normalizedStorageType, env)
     const uploadedFiles: UploadedFile[] = []
-
-    const maxFileSize = Number(dbSettings[SettingKey.MAX_UPLOAD_SIZE] || 10) * 1024 * 1024
-    const maxAudioSize = Number(dbSettings[SettingKey.MAX_AUDIO_UPLOAD_SIZE] || 20) * 1024 * 1024
 
     for (const file of files) {
         // multipart/form-data 可能会包含非文件字段，简单检查是否有文件名
@@ -247,33 +335,18 @@ export async function handleFileUploads(event: H3Event, options: UploadOptions):
             continue
         }
 
-        // 校验文件大小和类型
-        let maxSize = maxFileSize
-        let maxSizeText = `${dbSettings[SettingKey.MAX_UPLOAD_SIZE] || 10}MB`
+        validateUploadPayload({
+            type,
+            size: file.data.length,
+            contentType: file.type,
+            settings,
+        })
 
-        if (type === UploadType.AUDIO) {
-            maxSize = maxAudioSize
-            maxSizeText = `${dbSettings[SettingKey.MAX_AUDIO_UPLOAD_SIZE] || 20}MB`
-        }
-
-        if (file.data.length > maxSize) {
-            throw createError({ statusCode: 400, statusMessage: `文件大小超出 ${maxSizeText} 限制` })
-        }
-
-        // 校验文件类型
-        if (type === UploadType.IMAGE && (!file.type?.startsWith('image/'))) {
-            throw createError({ statusCode: 400, statusMessage: '仅支持图片上传' })
-        }
-
-        if (type === UploadType.AUDIO && (!file.type?.startsWith('audio/'))) {
-            throw createError({ statusCode: 400, statusMessage: '仅支持音频上传' })
-        }
-
-        // 生成新文件名
-        const timestamp = dayjs().format('YYYYMMDDHHmmssSSS')
-        const random = Math.random().toString(36).slice(2, 9)
-        const ext = path.extname(file.filename)
-        const newFilename = `${bucketPrefix}${prefix}${timestamp}-${random}${ext}`
+        const newFilename = buildUploadObjectKey({
+            bucketPrefix,
+            prefix,
+            originalFilename: file.filename,
+        })
 
         // 执行上传
         const { url } = await storage.upload(file.data, newFilename, file.type)

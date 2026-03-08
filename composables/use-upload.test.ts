@@ -9,6 +9,7 @@ const mockT = vi.fn((key: string) => {
 })
 
 const mockToastAdd = vi.fn()
+const mockBrowserFetch = vi.fn()
 
 // Mock useI18n
 vi.mock('vue-i18n', async (importOriginal) => ({
@@ -29,6 +30,7 @@ vi.mock('primevue/usetoast', async (importOriginal) => ({
 // Mock $fetch
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
+vi.stubGlobal('fetch', mockBrowserFetch)
 
 import { useUpload, UploadType } from './use-upload'
 
@@ -46,6 +48,9 @@ describe('useUpload', () => {
     it('should upload file successfully', async () => {
         const mockUrl = 'https://example.com/uploaded-file.jpg'
         mockFetch.mockResolvedValueOnce({
+            data: { strategy: 'proxy' },
+        })
+        mockFetch.mockResolvedValueOnce({
             data: [{ url: mockUrl }],
         })
 
@@ -59,6 +64,19 @@ describe('useUpload', () => {
 
         expect(result).toBe(mockUrl)
         expect(uploading.value).toBe(false)
+        expect(mockFetch).toHaveBeenCalledWith(
+            '/api/upload/direct-auth',
+            expect.objectContaining({
+                method: 'POST',
+                body: {
+                    filename: 'test.jpg',
+                    contentType: 'image/jpeg',
+                    size: file.size,
+                    type: UploadType.IMAGE,
+                    prefix: 'file/',
+                },
+            }),
+        )
         expect(mockFetch).toHaveBeenCalledWith(
             '/api/upload',
             expect.objectContaining({
@@ -75,6 +93,9 @@ describe('useUpload', () => {
     it('should use custom type and prefix', async () => {
         const mockUrl = 'https://example.com/audio.mp3'
         mockFetch.mockResolvedValueOnce({
+            data: { strategy: 'proxy' },
+        })
+        mockFetch.mockResolvedValueOnce({
             data: [{ url: mockUrl }],
         })
 
@@ -86,6 +107,18 @@ describe('useUpload', () => {
 
         await uploadFile(file)
 
+        expect(mockFetch).toHaveBeenCalledWith(
+            '/api/upload/direct-auth',
+            expect.objectContaining({
+                body: {
+                    filename: 'audio.mp3',
+                    contentType: 'audio/mpeg',
+                    size: file.size,
+                    type: UploadType.AUDIO,
+                    prefix: 'custom-prefix/',
+                },
+            }),
+        )
         expect(mockFetch).toHaveBeenCalledWith(
             '/api/upload',
             expect.objectContaining({
@@ -100,6 +133,9 @@ describe('useUpload', () => {
     it('should use default audio prefix for audio type', async () => {
         const mockUrl = 'https://example.com/audio.mp3'
         mockFetch.mockResolvedValueOnce({
+            data: { strategy: 'proxy' },
+        })
+        mockFetch.mockResolvedValueOnce({
             data: [{ url: mockUrl }],
         })
 
@@ -110,6 +146,18 @@ describe('useUpload', () => {
 
         await uploadFile(file)
 
+        expect(mockFetch).toHaveBeenCalledWith(
+            '/api/upload/direct-auth',
+            expect.objectContaining({
+                body: {
+                    filename: 'audio.mp3',
+                    contentType: 'audio/mpeg',
+                    size: file.size,
+                    type: UploadType.AUDIO,
+                    prefix: 'audios/',
+                },
+            }),
+        )
         expect(mockFetch).toHaveBeenCalledWith(
             '/api/upload',
             expect.objectContaining({
@@ -175,6 +223,9 @@ describe('useUpload', () => {
 
     it('should throw error when no URL returned', async () => {
         mockFetch.mockResolvedValueOnce({
+            data: { strategy: 'proxy' },
+        })
+        mockFetch.mockResolvedValueOnce({
             data: [],
         })
 
@@ -198,6 +249,57 @@ describe('useUpload', () => {
         expect(consoleErrorSpy).toHaveBeenCalledWith('Upload failed', expect.any(Error))
 
         consoleErrorSpy.mockRestore()
+    })
+
+    it('should upload file through presigned put when available', async () => {
+        const mockUrl = 'https://cdn.example.com/file/test.jpg'
+        mockFetch.mockResolvedValueOnce({
+            data: {
+                strategy: 'put-presign',
+                method: 'PUT',
+                url: 'https://storage.example.com/presigned',
+                headers: { 'content-type': 'image/jpeg' },
+                publicUrl: mockUrl,
+            },
+        })
+        mockBrowserFetch.mockResolvedValueOnce({
+            ok: true,
+            status: 200,
+        })
+
+        const { uploadFile } = useUpload()
+        const file = new File(['content'], 'test.jpg', { type: 'image/jpeg' })
+
+        const result = await uploadFile(file)
+
+        expect(result).toBe(mockUrl)
+        expect(mockBrowserFetch).toHaveBeenCalledWith('https://storage.example.com/presigned', {
+            method: 'PUT',
+            headers: { 'content-type': 'image/jpeg' },
+            body: file,
+        })
+        expect(mockFetch).toHaveBeenCalledTimes(1)
+    })
+
+    it('should throw when presigned put request fails', async () => {
+        mockFetch.mockResolvedValueOnce({
+            data: {
+                strategy: 'put-presign',
+                method: 'PUT',
+                url: 'https://storage.example.com/presigned',
+                headers: { 'content-type': 'image/jpeg' },
+                publicUrl: 'https://cdn.example.com/file/test.jpg',
+            },
+        })
+        mockBrowserFetch.mockResolvedValueOnce({
+            ok: false,
+            status: 403,
+        })
+
+        const { uploadFile } = useUpload()
+        const file = new File(['content'], 'test.jpg', { type: 'image/jpeg' })
+
+        await expect(uploadFile(file)).rejects.toThrow('Upload failed with status 403')
     })
 })
 

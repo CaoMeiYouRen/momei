@@ -43,6 +43,30 @@ describe('storage factory utils', () => {
             expect(VercelBlobStorage).toHaveBeenCalledWith(env)
         })
 
+        it('should return VercelBlobStorage for vercel_blob alias', () => {
+            const env = {
+                BLOB_READ_WRITE_TOKEN: 'test-token',
+            }
+
+            getFileStorage('vercel_blob', env as any)
+
+            expect(VercelBlobStorage).toHaveBeenCalledWith(env)
+        })
+
+        it('should return S3Storage for r2 alias', () => {
+            const env = {
+                S3_ENDPOINT: 'https://example.r2.cloudflarestorage.com',
+                S3_REGION: 'auto',
+                S3_BUCKET_NAME: 'test-bucket',
+                S3_ACCESS_KEY_ID: 'test-key',
+                S3_SECRET_ACCESS_KEY: 'test-secret',
+            }
+
+            getFileStorage('r2', env as any)
+
+            expect(S3Storage).toHaveBeenCalledWith(env)
+        })
+
         it('should return LocalStorage for local type', () => {
             const env = {
                 UPLOAD_DIR: '/uploads',

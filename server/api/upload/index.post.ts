@@ -6,13 +6,16 @@ export default defineEventHandler(async (event) => {
     const { user } = session
     const query = getQuery(event)
     const type = (query.type as UploadType) || UploadType.IMAGE
+    const prefix = typeof query.prefix === 'string' && query.prefix.trim()
+        ? query.prefix
+        : (type === UploadType.AUDIO ? 'audios/' : 'file/')
 
     // 1. 检查上传限制
     await checkUploadLimits(user.id)
 
     // 2. 执行上传
     const uploadedFiles = await handleFileUploads(event, {
-        prefix: type === UploadType.AUDIO ? 'audios/' : 'file/',
+        prefix,
         maxFiles: 10,
         type,
     })

@@ -124,6 +124,75 @@
             </SettingFormField>
         </template>
 
+        <template v-if="settings.storage_type === 'r2'">
+            <SettingFormField
+                field-key="cloudflare_r2_account_id"
+                input-id="cloudflare_r2_account_id"
+                :metadata="metadata.cloudflare_r2_account_id"
+            >
+                <InputText
+                    id="cloudflare_r2_account_id"
+                    v-model="settings.cloudflare_r2_account_id"
+                    :disabled="metadata.cloudflare_r2_account_id?.isLocked"
+                    fluid
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="cloudflare_r2_bucket"
+                input-id="cloudflare_r2_bucket"
+                :metadata="metadata.cloudflare_r2_bucket"
+            >
+                <InputText
+                    id="cloudflare_r2_bucket"
+                    v-model="settings.cloudflare_r2_bucket"
+                    :disabled="metadata.cloudflare_r2_bucket?.isLocked"
+                    fluid
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="cloudflare_r2_access_key"
+                input-id="cloudflare_r2_access_key"
+                :metadata="metadata.cloudflare_r2_access_key"
+            >
+                <Password
+                    id="cloudflare_r2_access_key"
+                    v-model="settings.cloudflare_r2_access_key"
+                    :disabled="metadata.cloudflare_r2_access_key?.isLocked"
+                    :toggle-mask="true"
+                    fluid
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="cloudflare_r2_secret_key"
+                input-id="cloudflare_r2_secret_key"
+                :metadata="metadata.cloudflare_r2_secret_key"
+            >
+                <Password
+                    id="cloudflare_r2_secret_key"
+                    v-model="settings.cloudflare_r2_secret_key"
+                    :disabled="metadata.cloudflare_r2_secret_key?.isLocked"
+                    :toggle-mask="true"
+                    fluid
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="cloudflare_r2_base_url"
+                input-id="cloudflare_r2_base_url"
+                :metadata="metadata.cloudflare_r2_base_url"
+            >
+                <InputText
+                    id="cloudflare_r2_base_url"
+                    v-model="settings.cloudflare_r2_base_url"
+                    :disabled="metadata.cloudflare_r2_base_url?.isLocked"
+                    fluid
+                />
+            </SettingFormField>
+        </template>
+
         <template v-if="settings.storage_type === 'vercel_blob'">
             <SettingFormField
                 field-key="vercel_blob_token"
@@ -147,5 +216,5 @@ import SettingFormField from '@/components/admin/settings/setting-form-field.vue
 
 const settings = defineModel<any>('settings', { required: true })
 defineProps<{ metadata: any }>()
-const storageTypes = ['local', 's3', 'vercel_blob']
+const storageTypes = ['local', 's3', 'r2', 'vercel_blob']
 </script>

@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { readMultipartFormData } from 'h3'
-import { checkUploadLimits, handleFileUploads, UploadType } from './upload'
+import { checkUploadLimits, getUploadStorageContext, handleFileUploads, normalizeStorageType, resolveUploadPrefix, UploadType } from './upload'
 import { limiterStorage } from '@/server/database/storage'
 import { getFileStorage } from '@/server/utils/storage/factory'
+import { getSettings } from '~/server/services/setting'
 import { MAX_UPLOAD_SIZE, MAX_AUDIO_UPLOAD_SIZE } from '@/utils/shared/env'
 
 vi.mock('@/server/database/storage', () => ({
@@ -13,6 +14,10 @@ vi.mock('@/server/database/storage', () => ({
 
 vi.mock('@/server/utils/storage/factory', () => ({
     getFileStorage: vi.fn(),
+}))
+
+vi.mock('~/server/services/setting', () => ({
+    getSettings: vi.fn(),
 }))
 
 vi.mock('h3', async (importOriginal) => {
@@ -26,6 +31,68 @@ vi.mock('h3', async (importOriginal) => {
 describe('UploadService', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        vi.mocked(getSettings).mockResolvedValue({
+            storage_type: 'local',
+            local_storage_dir: 'public/uploads',
+            local_storage_base_url: '/uploads',
+            local_storage_min_free_space: String(100 * 1024 * 1024),
+            s3_endpoint: 'https://s3.example.com',
+            s3_bucket: 'bucket',
+            s3_region: 'auto',
+            s3_access_key: 'key',
+            s3_secret_key: 'secret',
+            s3_base_url: 'https://cdn.example.com',
+            s3_bucket_prefix: 'blog/',
+            vercel_blob_token: 'blob-token',
+            cloudflare_r2_account_id: 'account-id',
+            cloudflare_r2_access_key: 'r2-key',
+            cloudflare_r2_secret_key: 'r2-secret',
+            cloudflare_r2_bucket: 'r2-bucket',
+            cloudflare_r2_base_url: 'https://pub.example.com',
+            max_upload_size: '10',
+            max_audio_upload_size: '20',
+            upload_limit_window: '86400',
+            upload_daily_limit: '100',
+            upload_single_user_daily_limit: '5',
+        })
+    })
+
+    describe('storage normalization', () => {
+        it('should normalize storage aliases', () => {
+            expect(normalizeStorageType('r2')).toBe('s3')
+            expect(normalizeStorageType('vercel_blob')).toBe('vercel-blob')
+            expect(normalizeStorageType('s3')).toBe('s3')
+        })
+
+        it('should resolve upload prefix', () => {
+            expect(resolveUploadPrefix(UploadType.IMAGE)).toBe('file/')
+            expect(resolveUploadPrefix(UploadType.AUDIO)).toBe('audios/')
+            expect(resolveUploadPrefix(UploadType.FILE, 'custom')).toBe('custom/')
+        })
+
+        it('should build s3-compatible env for r2 settings', async () => {
+            vi.mocked(getSettings).mockResolvedValueOnce({
+                storage_type: 'r2',
+                s3_bucket_prefix: 'blog/',
+                cloudflare_r2_account_id: 'account-id',
+                cloudflare_r2_access_key: 'r2-key',
+                cloudflare_r2_secret_key: 'r2-secret',
+                cloudflare_r2_bucket: 'r2-bucket',
+                cloudflare_r2_base_url: 'https://pub.example.com',
+                local_storage_dir: 'public/uploads',
+                local_storage_base_url: '/uploads',
+                local_storage_min_free_space: String(100 * 1024 * 1024),
+                max_upload_size: '10',
+                max_audio_upload_size: '20',
+            })
+
+            const context = await getUploadStorageContext()
+
+            expect(context.normalizedStorageType).toBe('s3')
+            expect(context.env.S3_ENDPOINT).toBe('https://account-id.r2.cloudflarestorage.com')
+            expect(context.env.S3_BUCKET_NAME).toBe('r2-bucket')
+            expect(context.env.S3_BASE_URL).toBe('https://pub.example.com')
+        })
     })
 
     describe('checkUploadLimits', () => {

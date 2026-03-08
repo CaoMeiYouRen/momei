@@ -17,7 +17,9 @@ export type FileStorageEnv = S3Env & VercelEnv & LocalEnv
 export function getFileStorage(type: string, env: FileStorageEnv): Storage {
     switch (type) {
         case 's3':
+        case 'r2':
             return new S3Storage(env)
+        case 'vercel_blob':
         case 'vercel-blob':
             return new VercelBlobStorage(env)
         case 'local':
