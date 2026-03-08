@@ -89,7 +89,7 @@ export default withNuxt(
         },
     },
     {
-        files: ['pnpm-lock.yaml', 'pages/admin/posts/[[]id[]].vue'],
+        files: ['pnpm-lock.yaml'],
         rules: {
             'max-lines': 'off',
         },

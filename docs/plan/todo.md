@@ -82,6 +82,12 @@
 	- [x] 通过 pnpm overrides 将 `svgo` 锁定到 `>= 4.0.1`
 	- [x] 更新 lockfile 并验证漏洞版本不再出现在依赖树中
 
+### 7. 管理端代码治理热修复 (Admin Code Quality Hotfix) (P1)
+- [x] **超长文件拆分以恢复 ESLint max-lines 合规**
+	- [x] 拆分 `components/admin/settings/ai-settings.vue` 中的配额策略与告警阈值编辑区，避免单文件继续膨胀
+	- [x] 抽离 `pages/admin/posts/[id].vue` 的派生展示逻辑或辅助逻辑，使页面重新满足 `max-lines` 限制
+	- [x] 运行针对性 Lint / Typecheck，确认拆分后行为与现有编辑流程一致
+
 
 ---
 

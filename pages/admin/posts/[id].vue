@@ -93,14 +93,7 @@
         />
 
         <!-- Drag Mask -->
-        <div v-if="isDragging" class="drag-mask">
-            <div class="drag-tip">
-                <i class="pi pi-upload upload-icon" />
-                <div class="upload-text">
-                    {{ $t("common.drag_drop_tip") }}
-                </div>
-            </div>
-        </div>
+        <PostEditorDragMask v-if="isDragging" />
     </div>
 </template>
 
@@ -117,6 +110,7 @@ import PostEditorHeader from '@/components/admin/posts/post-editor-header.vue'
 import PostEditorSettings from '@/components/admin/posts/post-editor-settings.vue'
 import PublishPushDialog from '@/components/admin/posts/publish-push-dialog.vue'
 import PostHistoryPanel from '@/components/admin/posts/post-history-panel.vue'
+import PostEditorDragMask from '@/components/admin/posts/post-editor-drag-mask.vue'
 import { usePostEditorAI } from '@/composables/use-post-editor-ai'
 import { usePostEditorIO } from '@/composables/use-post-editor-io'
 import { usePostEditorAutoSave } from '@/composables/use-post-editor-auto-save'
@@ -219,7 +213,7 @@ const handleTranslationClick = async (
             path: newPostPath,
             query: {
                 language: langCode,
-                sourceId: post.value.id, // 使用当前文章的真实 ID 作为来源获取数据
+                sourceId: post.value.id,
                 translationId: post.value.translationId || post.value.id,
                 autoTranslate: autoTranslate ? 'true' : undefined,
             },
@@ -746,33 +740,6 @@ onMounted(() => {
     flex-direction: column;
     background-color: var(--p-surface-ground);
     position: relative;
-}
-
-.drag-mask {
-    position: absolute;
-    inset: 0;
-    background-color: rgb(0 0 0 / 0.3);
-    border: 3px dashed var(--p-primary-500);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-    backdrop-filter: blur(2px);
-
-    i {
-        font-size: 4rem;
-        color: var(--p-primary-500);
-        margin-bottom: 1rem;
-    }
-
-    p {
-        font-size: 1.5rem;
-        color: var(--p-primary-500);
-        font-weight: bold;
-        text-shadow: 0 2px 4px rgb(0 0 0 / 0.5);
-    }
 }
 
 .editor-area {
