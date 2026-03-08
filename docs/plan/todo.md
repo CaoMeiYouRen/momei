@@ -58,7 +58,7 @@
 
 ### 4. 多语言 SEO 深度优化 (Multilingual SEO) (P1)
 
-> 当前执行策略: 本项与上方 i18n 配置中心化共用一套设计与交付链路。只有当 Locale Registry、翻译模块和语言就绪度模型建立后，`hreflang`、canonical、Open Graph、Twitter Card、JSON-LD 与 sitemap 才能稳定生成；因此本项后续实现将以内聚的页面 SEO 契约和 sitemap 扩展为主，而不再继续分散在各页面手工维护。专项设计见 [国际化扩展与多语言 SEO 统一设计](../design/modules/i18n-seo-unification.md)。
+> 当前执行策略: 已进入首轮实现。本轮已开始复用 Locale Registry 落地统一页面 SEO 契约，并将首页、文章页、分类页、标签页逐步切到共享的 canonical / Open Graph / Twitter Card / JSON-LD 输出链路；同时继续扩展动态 sitemap 的语言变体与 alternates，后续再补齐更多公开页覆盖和自动化回归校验。专项设计见 [国际化扩展与多语言 SEO 统一设计](../design/modules/i18n-seo-unification.md)。
 
 - [ ] **多语言元标签增强**
 	- [ ] 自动生成并校验 `hreflang`、canonical、Open Graph、Twitter Card 的多语言版本

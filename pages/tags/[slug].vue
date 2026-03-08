@@ -83,7 +83,7 @@
 <script setup lang="ts">
 const route = useRoute()
 const router = useRouter()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const setI18nParams = useSetI18nParams()
 const localePath = useLocalePath()
 
@@ -111,9 +111,13 @@ const posts = computed(() => postsData.value?.data?.items || [])
 const total = computed(() => postsData.value?.data?.total || 0)
 const totalPages = computed(() => postsData.value?.data?.totalPages || 0)
 
-// Combined SEO and Head Metadata
+usePageSeo({
+    type: 'collection',
+    title: () => tag.value?.name ? `#${tag.value.name} - ${t('common.tag')}` : t('pages.posts.title'),
+    description: () => t('app.description'),
+})
+
 useHead(() => ({
-    title: tag.value?.name ? `#${tag.value.name} - ${t('common.tag')}` : t('pages.posts.title'),
     link: tag.value
         ? [
                 {

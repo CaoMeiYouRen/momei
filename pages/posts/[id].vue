@@ -374,11 +374,16 @@ watch(post, (newPost) => {
     }
 }, { immediate: true })
 
-useHead({
-    title: computed(() => post.value?.title || 'Article'),
-    meta: [
-        { name: 'description', content: computed(() => post.value?.summary || '') },
-    ],
+usePageSeo({
+    type: 'article',
+    title: () => post.value?.title || t('pages.posts.title'),
+    description: () => post.value?.summary || t('app.description'),
+    image: () => post.value?.coverImage || null,
+    publishedAt: () => post.value?.publishedAt || post.value?.createdAt || null,
+    updatedAt: () => post.value?.updatedAt || post.value?.publishedAt || null,
+    section: () => post.value?.category?.name || null,
+    tags: () => Array.isArray(post.value?.tags) ? post.value.tags.map((tag: { name: string }) => tag.name) : [],
+    authorName: () => post.value?.author?.name || null,
 })
 
 onMounted(async () => {

@@ -115,6 +115,10 @@ export function getLocaleRoutePrefix(locale?: string | null): string {
 }
 
 export function isSeoReadyLocale(locale?: string | null): boolean {
+    if (!locale || !isAppLocale(locale)) {
+        return false
+    }
+
     const item = getLocaleRegistryItem(locale)
     return item.readiness === 'seo-ready' && item.indexable
 }

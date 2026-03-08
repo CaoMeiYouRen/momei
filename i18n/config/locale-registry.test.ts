@@ -31,6 +31,7 @@ describe('i18n locale registry', () => {
     it('should report seo ready locales', () => {
         expect(isSeoReadyLocale('zh-CN')).toBe(true)
         expect(isSeoReadyLocale('en-US')).toBe(true)
+        expect(isSeoReadyLocale('fr-FR')).toBe(false)
     })
 
     it('should expose locale metadata', () => {

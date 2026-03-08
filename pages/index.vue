@@ -94,11 +94,10 @@
 const localePath = useLocalePath()
 const { t } = useI18n()
 
-useHead({
-    title: t('home.meta.title'),
-    meta: [
-        { name: 'description', content: t('home.meta.description') },
-    ],
+usePageSeo({
+    type: 'website',
+    title: () => t('home.meta.title'),
+    description: () => t('home.meta.description'),
 })
 
 // Fetch latest 3 posts

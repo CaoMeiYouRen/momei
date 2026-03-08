@@ -3,9 +3,11 @@ import { Post } from '@/server/entities/post'
 import { Category } from '@/server/entities/category'
 import { Tag } from '@/server/entities/tag'
 import { PostStatus, PostVisibility } from '@/types/post'
-import { getLocaleRoutePrefix } from '@/i18n/config/locale-registry'
+import { buildLocalizedSitemapEntries } from '@/server/utils/sitemap'
 
-export default defineEventHandler(async () => {
+export default defineSitemapEventHandler(async () => {
+    const runtimeConfig = useRuntimeConfig()
+    const baseUrl = runtimeConfig.public.siteUrl || 'https://momei.app'
     const postRepo = dataSource.getRepository(Post)
     const categoryRepo = dataSource.getRepository(Category)
     const tagRepo = dataSource.getRepository(Tag)
@@ -16,44 +18,19 @@ export default defineEventHandler(async () => {
                 status: PostStatus.PUBLISHED,
                 visibility: PostVisibility.PUBLIC,
             },
-            select: ['slug', 'language', 'updatedAt'],
+            select: ['id', 'slug', 'language', 'translationId', 'updatedAt'],
         }),
         categoryRepo.find({
-            select: ['slug', 'language', 'updatedAt'],
+            select: ['id', 'slug', 'language', 'translationId', 'updatedAt'],
         }),
         tagRepo.find({
-            select: ['slug', 'language', 'updatedAt'],
+            select: ['id', 'slug', 'language', 'translationId', 'updatedAt'],
         }),
     ])
 
-    const urls: { loc: string, lastmod?: Date }[] = []
-
-    // Posts
-    for (const post of posts) {
-        const prefix = getLocaleRoutePrefix(post.language)
-        urls.push({
-            loc: `${prefix}/posts/${post.slug}`,
-            lastmod: post.updatedAt,
-        })
-    }
-
-    // Categories
-    for (const cat of categories) {
-        const prefix = getLocaleRoutePrefix(cat.language)
-        urls.push({
-            loc: `${prefix}/categories/${cat.slug}`,
-            lastmod: cat.updatedAt,
-        })
-    }
-
-    // Tags
-    for (const tag of tags) {
-        const prefix = getLocaleRoutePrefix(tag.language)
-        urls.push({
-            loc: `${prefix}/tags/${tag.slug}`,
-            lastmod: tag.updatedAt,
-        })
-    }
-
-    return urls
+    return [
+        ...buildLocalizedSitemapEntries(posts, baseUrl, (post) => `/posts/${post.slug}`),
+        ...buildLocalizedSitemapEntries(categories, baseUrl, (category) => `/categories/${category.slug}`),
+        ...buildLocalizedSitemapEntries(tags, baseUrl, (tag) => `/tags/${tag.slug}`),
+    ]
 })

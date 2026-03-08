@@ -17,7 +17,7 @@
 
 **以 Locale Registry 作为单一事实源，同时驱动前端 i18n、后端语言识别、页面 Head 输出、结构化数据与站点地图生成。**
 
-> 当前进度: 首轮基础设施已落地 `Locale Registry`、Nuxt i18n 多文件 lazy load、服务端模块化消息装配以及 sitemap 默认语言前缀中心化；剩余工作主要集中在更细粒度的翻译域拆分、冗余词条清理与统一页面 SEO 契约。
+> 当前进度: 首轮基础设施已落地 `Locale Registry`、Nuxt i18n 多文件 lazy load、服务端模块化消息装配以及 sitemap 默认语言前缀中心化；当前又进一步落地了统一页面 SEO 契约，已覆盖首页、文章页、分类页、标签页的 Open Graph / Twitter Card / JSON-LD 输出，并为动态 sitemap URL 增加了基于翻译簇的 alternates。剩余工作主要集中在更细粒度的翻译域拆分、冗余词条清理、更多公开页接入与自动化回归校验。
 
 ## 2. 当前现状与问题 (Current State & Gaps)
 

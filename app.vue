@@ -71,7 +71,9 @@ onMounted(() => {
 })
 
 const head = useLocaleHead({
-    seo: true,
+    seo: {
+        canonicalQueries: ['page'],
+    },
 })
 
 useHead({
