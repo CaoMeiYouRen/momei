@@ -49,7 +49,7 @@ const postMetadataSchema = z.object({
     tts: z
         .object({
             provider: z.string().max(50).nullable().optional(),
-            voice: z.string().max(50).nullable().optional(),
+            voice: z.string().max(150).nullable().optional(),
             generatedAt: z.coerce.date().nullable().optional(),
         })
         .optional(),

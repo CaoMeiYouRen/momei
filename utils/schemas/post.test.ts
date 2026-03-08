@@ -135,6 +135,22 @@ describe('utils/schemas/post', () => {
             expect(result.success).toBe(true)
         })
 
+        it('应该允许较长的 TTS 音色标识写入 metadata', () => {
+            const validData = {
+                title: '标题',
+                content: '内容',
+                metadata: {
+                    tts: {
+                        provider: 'siliconflow',
+                        voice: 'speech:custom-voice-uri-with-long-identifier-1234567890abcdefghijklmnopqrstuvwxyz-extra',
+                    },
+                },
+            }
+
+            const result = createPostSchema.safeParse(validData)
+            expect(result.success).toBe(true)
+        })
+
         it('应该拒绝负数的音频时长', () => {
             const invalidData = {
                 title: '标题',

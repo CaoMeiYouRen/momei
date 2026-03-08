@@ -596,7 +596,7 @@ const executeSave = async (
 
         const firstError = result.error.issues[0]
         const errorDetail = firstError
-            ? `${String(firstError.path[0])}: ${firstError.message}`
+            ? `${firstError.path.join('.')}: ${firstError.message}`
             : t('common.validation_error')
         toast.add({
             severity: 'error',
