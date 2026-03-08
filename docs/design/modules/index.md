@@ -8,6 +8,7 @@
 - **[创作安全 (Creative Security)](./creative-security)**: 本地草稿自动保存与内容版本化管理。
 - **[认证系统 (Auth System)](./auth)**: 基于 Better-Auth 的多端登录、 OAuth 及权限管理。
 - **[国际化系统 (Internationalization)](./i18n)**: 原生多语言支持、后端全量国际化与翻译关联。
+- **[国际化扩展与多语言 SEO 统一设计 (I18n & SEO Unification)](./i18n-seo-unification)**: 面向多语言扩展、翻译模块化、页面 SEO 契约与 sitemap 统一生成的阶段性专项设计。
 - **[分类与标签 (Taxonomy)](./taxonomy)**: 多维度的内容组织架构，支持翻译。
 - **[用户空间 (User Space)](./user)**: 个人资料、偏好设置和我的文章。
 

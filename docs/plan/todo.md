@@ -42,6 +42,9 @@
 	- [x] 补齐用量统计、额度判定与告警逻辑测试
 
 ### 3. 国际化语言扩展与配置模块化 (I18n Expansion & Modularization) (P1)
+
+> 当前执行策略: 本轮不将“国际化语言扩展与配置模块化”和“多语言 SEO 深度优化”拆成两份孤立方案，而是以 Locale Registry 为统一事实源进行一体化设计。设计重点是先收敛默认语言、回退链、Locale 元数据、翻译模块拆分与语言准入规则，再让页面 Head、结构化数据和站点地图共享同一套语言配置。专项设计见 [国际化扩展与多语言 SEO 统一设计](../design/modules/i18n-seo-unification.md)。
+
 - [ ] **多语言配置中心化**
 	- [ ] 将当前双语言能力抽象为可配置 Locale 集合，支持默认语言、回退策略与 Locale 元数据集中管理
 	- [ ] 建立新增语言的最小准入清单与启用规则，避免出现半完成语种
@@ -53,6 +56,9 @@
 	- [ ] 补充 i18n 配置、加载与回退策略测试
 
 ### 4. 多语言 SEO 深度优化 (Multilingual SEO) (P1)
+
+> 当前执行策略: 本项与上方 i18n 配置中心化共用一套设计与交付链路。只有当 Locale Registry、翻译模块和语言就绪度模型建立后，`hreflang`、canonical、Open Graph、Twitter Card、JSON-LD 与 sitemap 才能稳定生成；因此本项后续实现将以内聚的页面 SEO 契约和 sitemap 扩展为主，而不再继续分散在各页面手工维护。专项设计见 [国际化扩展与多语言 SEO 统一设计](../design/modules/i18n-seo-unification.md)。
+
 - [ ] **多语言元标签增强**
 	- [ ] 自动生成并校验 `hreflang`、canonical、Open Graph、Twitter Card 的多语言版本
 	- [ ] 明确 SSR 输出策略，确保搜索引擎抓取结果稳定
