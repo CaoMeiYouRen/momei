@@ -130,12 +130,35 @@ describe('ImageService', () => {
     })
 
     describe('getTaskStatus', () => {
-        it('should return task status for valid task', async () => {
+        it('should only return minimal fields while task is still running', async () => {
+            const mockTask = {
+                id: 'task-123',
+                status: 'processing',
+                progress: 45,
+                result: JSON.stringify({ url: '/image.png', raw: { providerRequestId: 'req-1' } }),
+                error: null,
+                updatedAt: undefined,
+            }
+            mockRepo.findOneBy.mockResolvedValue(mockTask)
+
+            const result = await ImageService.getTaskStatus('task-123', 'user-1')
+
+            expect(result).toEqual({
+                id: 'task-123',
+                status: 'processing',
+                progress: 45,
+                error: null,
+                updatedAt: undefined,
+            })
+        })
+
+        it('should hide raw result data for non-admin callers after completion', async () => {
             const mockTask = {
                 id: 'task-123',
                 status: 'completed',
-                result: JSON.stringify({ url: '/image.png' }),
+                result: JSON.stringify({ url: '/image.png', raw: { providerRequestId: 'req-1' } }),
                 error: null,
+                updatedAt: undefined,
             }
             mockRepo.findOneBy.mockResolvedValue(mockTask)
 
@@ -146,6 +169,37 @@ describe('ImageService', () => {
                 status: 'completed',
                 progress: 0,
                 result: { url: '/image.png' },
+                audioUrl: '/image.png',
+                error: null,
+                updatedAt: undefined,
+            })
+        })
+
+        it('should allow admins to read raw result data', async () => {
+            const mockTask = {
+                id: 'task-123',
+                userId: 'user-1',
+                status: 'completed',
+                result: JSON.stringify({ url: '/image.png', raw: { providerRequestId: 'req-1' } }),
+                error: null,
+                updatedAt: undefined,
+            }
+            mockRepo.findOneBy.mockResolvedValue(mockTask)
+
+            const result = await ImageService.getTaskStatus('task-123', 'admin-1', {
+                isAdmin: true,
+                includeRaw: true,
+            })
+
+            expect(mockRepo.findOneBy).toHaveBeenCalledWith({ id: 'task-123' })
+            expect(result).toEqual({
+                id: 'task-123',
+                status: 'completed',
+                progress: 0,
+                result: {
+                    url: '/image.png',
+                    raw: { providerRequestId: 'req-1' },
+                },
                 audioUrl: '/image.png',
                 error: null,
                 updatedAt: undefined,

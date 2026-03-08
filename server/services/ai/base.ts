@@ -12,6 +12,37 @@ import { assertAIQuotaAllowance } from '@/server/services/ai/quota-governance'
 import logger from '@/server/utils/logger'
 import type { AICategory, AIChargeStatus, AIFailureStage, AIUsageSnapshot } from '@/types/ai'
 
+function parseTaskResult(taskResult: string | null | undefined): unknown {
+    if (!taskResult) {
+        return null
+    }
+
+    try {
+        return JSON.parse(taskResult)
+    } catch {
+        return taskResult
+    }
+}
+
+function stripRawFromTaskResult(taskResult: unknown): unknown {
+    if (!taskResult || typeof taskResult !== 'object' || Array.isArray(taskResult)) {
+        return taskResult
+    }
+
+    const { raw: _raw, ...rest } = taskResult as Record<string, unknown>
+    return rest
+}
+
+function resolveTaskAudioUrl(taskResult: unknown): string | null {
+    if (!taskResult || typeof taskResult !== 'object' || Array.isArray(taskResult)) {
+        return null
+    }
+
+    const resultRecord = taskResult as Record<string, unknown>
+    const audioUrl = resultRecord.audioUrl ?? resultRecord.url
+    return typeof audioUrl === 'string' ? audioUrl : null
+}
+
 /**
  * 序列化 payload
  */
@@ -41,9 +72,46 @@ export abstract class AIBaseService {
     /**
      * 获取任务状态
      */
-    static async getTaskStatus(taskId: string, userId: string) {
+    static serializeTaskStatus(
+        task: Pick<AITask, 'id' | 'status' | 'progress' | 'result' | 'error' | 'updatedAt'>,
+        options: {
+            includeRaw?: boolean
+        } = {},
+    ) {
+        const response = {
+            id: task.id,
+            status: task.status,
+            progress: task.progress || 0,
+            error: task.error,
+            updatedAt: task.updatedAt,
+        }
+
+        if (task.status !== 'completed') {
+            return response
+        }
+
+        const parsedResult = parseTaskResult(task.result)
+        const result = options.includeRaw ? parsedResult : stripRawFromTaskResult(parsedResult)
+
+        return {
+            ...response,
+            result,
+            audioUrl: resolveTaskAudioUrl(result),
+        }
+    }
+
+    static async getTaskStatus(
+        taskId: string,
+        userId: string,
+        options: {
+            isAdmin?: boolean
+            includeRaw?: boolean
+        } = {},
+    ) {
         const repo = dataSource.getRepository(AITask)
-        const task = await repo.findOneBy({ id: taskId, userId })
+        const task = options.isAdmin
+            ? await repo.findOneBy({ id: taskId })
+            : await repo.findOneBy({ id: taskId, userId })
 
         if (!task) {
             throw createError({
@@ -52,18 +120,9 @@ export abstract class AIBaseService {
             })
         }
 
-        const result = task.result ? JSON.parse(task.result) : null
-
-        return {
-            id: task.id,
-            status: task.status,
-            progress: task.progress || 0,
-            result,
-            // 额外提取一些常用字段到外层方便前端使用
-            audioUrl: result?.audioUrl || result?.url || null,
-            error: task.error,
-            updatedAt: task.updatedAt,
-        }
+        return this.serializeTaskStatus(task, {
+            includeRaw: options.includeRaw,
+        })
     }
 
     /**

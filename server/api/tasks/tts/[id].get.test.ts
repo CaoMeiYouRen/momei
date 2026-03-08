@@ -25,6 +25,11 @@ describe('GET /api/tasks/tts/[id]', () => {
         mockRepo.findOneBy.mockResolvedValue({
             id: 'task-1',
             userId: 'user-1',
+            status: 'completed',
+            progress: 100,
+            result: JSON.stringify({ audioUrl: '/audio.mp3', raw: { requestId: 'req-1' } }),
+            error: null,
+            updatedAt: '2026-03-09T00:00:00.000Z',
         })
 
         const result = await handler({
@@ -33,7 +38,15 @@ describe('GET /api/tasks/tts/[id]', () => {
             },
         } as any)
 
-        expect(result).toEqual(expect.objectContaining({ id: 'task-1' }))
+        expect(result).toEqual({
+            id: 'task-1',
+            status: 'completed',
+            progress: 100,
+            result: { audioUrl: '/audio.mp3' },
+            audioUrl: '/audio.mp3',
+            error: null,
+            updatedAt: '2026-03-09T00:00:00.000Z',
+        })
     })
 
     it('should reject non-owner non-admin', async () => {
@@ -61,6 +74,11 @@ describe('GET /api/tasks/tts/[id]', () => {
         mockRepo.findOneBy.mockResolvedValue({
             id: 'task-1',
             userId: 'user-1',
+            status: 'completed',
+            progress: 100,
+            result: JSON.stringify({ audioUrl: '/audio.mp3', raw: { requestId: 'req-1' } }),
+            error: null,
+            updatedAt: '2026-03-09T00:00:00.000Z',
         })
 
         const result = await handler({
@@ -69,6 +87,17 @@ describe('GET /api/tasks/tts/[id]', () => {
             },
         } as any)
 
-        expect(result).toEqual(expect.objectContaining({ id: 'task-1' }))
+        expect(result).toEqual({
+            id: 'task-1',
+            status: 'completed',
+            progress: 100,
+            result: {
+                audioUrl: '/audio.mp3',
+                raw: { requestId: 'req-1' },
+            },
+            audioUrl: '/audio.mp3',
+            error: null,
+            updatedAt: '2026-03-09T00:00:00.000Z',
+        })
     })
 })

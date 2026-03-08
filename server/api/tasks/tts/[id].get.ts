@@ -1,6 +1,7 @@
 import { defineEventHandler, createError } from 'h3'
 import { dataSource } from '@/server/database'
 import { AITask } from '@/server/entities/ai-task'
+import { TTSService } from '@/server/services/ai'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { isAdmin } from '@/utils/shared/roles'
 
@@ -25,5 +26,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 
-    return task
+    return TTSService.serializeTaskStatus(task, {
+        includeRaw: isAdmin(user.role),
+    })
 })
