@@ -177,6 +177,8 @@ const extraConfig = ref({
     s3SecretKey: '',
     s3BaseUrl: '',
     s3BucketPrefix: '',
+    assetPublicBaseUrl: '',
+    assetObjectPrefix: '',
     baiduAnalytics: '',
     googleAnalytics: '',
     clarityAnalytics: '',

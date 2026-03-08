@@ -6,7 +6,7 @@ import {
     getUploadStorageContext,
     resolveUploadPrefix,
     resolveUploadedFileUrl,
-    type UploadType,
+    UploadType,
     validateUploadPayload,
 } from './upload'
 import { createS3Client, resolveS3Env } from '@/server/utils/storage/s3'
@@ -38,7 +38,7 @@ export type DirectUploadAuthorization = DirectUploadProxyStrategy | DirectUpload
 
 export async function authorizeDirectUpload(input: DirectUploadAuthorizationRequest): Promise<DirectUploadAuthorization> {
     const { filename, contentType, size } = input
-    const type = input.type || 'image'
+    const type = input.type ?? UploadType.IMAGE
     const prefix = resolveUploadPrefix(type, input.prefix)
     const storageContext = await getUploadStorageContext()
 

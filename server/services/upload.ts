@@ -120,8 +120,7 @@ export function resolveUploadPublicBaseUrl(settings: UploadSettings, rawStorageT
         return getSettingValue(settings, SettingKey.ASSET_PUBLIC_BASE_URL)
     }
 
-    const fallbackBaseUrl = (env as Record<string, unknown>).S3_BASE_URL
-    return typeof fallbackBaseUrl === 'string' ? fallbackBaseUrl : ''
+    return env.S3_BASE_URL || ''
 }
 
 export function resolveUploadedFileUrl(objectKey: string, storageContext: Pick<UploadStorageContext, 'assetPublicBaseUrl' | 'driverBaseUrl'>) {

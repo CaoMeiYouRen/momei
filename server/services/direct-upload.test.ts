@@ -29,6 +29,11 @@ vi.mock('./upload', () => ({
     resolveUploadedFileUrl: mockResolveUploadedFileUrl,
     validateUploadPayload: mockValidateUploadPayload,
     buildUploadObjectKey: mockBuildUploadObjectKey,
+    UploadType: {
+        IMAGE: 'image',
+        AUDIO: 'audio',
+        FILE: 'file',
+    },
 }))
 
 vi.mock('@/server/utils/storage/s3', () => ({

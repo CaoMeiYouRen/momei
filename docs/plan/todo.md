@@ -46,10 +46,10 @@
 > 当前执行策略: 本轮不将“国际化语言扩展与配置模块化”和“多语言 SEO 深度优化”拆成两份孤立方案，而是以 Locale Registry 为统一事实源进行一体化设计。设计重点是先收敛默认语言、回退链、Locale 元数据、翻译模块拆分与语言准入规则，再让页面 Head、结构化数据和站点地图共享同一套语言配置。专项设计见 [国际化扩展与多语言 SEO 统一设计](../design/modules/i18n-seo-unification.md)。
 
 - [ ] **多语言配置中心化**
-	- [ ] 将当前双语言能力抽象为可配置 Locale 集合，支持默认语言、回退策略与 Locale 元数据集中管理
-	- [ ] 建立新增语言的最小准入清单与启用规则，避免出现半完成语种
+	- [x] 将当前双语言能力抽象为可配置 Locale 集合，支持默认语言、回退策略与 Locale 元数据集中管理
+	- [x] 建立新增语言的最小准入清单与启用规则，避免出现半完成语种
 - [ ] **翻译文件模块化拆分**
-	- [ ] 将翻译文件按 `common`、`auth`、`admin`、`post` 等模块拆分，降低维护成本
+	- [x] 将翻译文件按 `common`、`auth`、`admin`、`post` 等模块拆分，降低维护成本
 	- [ ] 支持按需加载或渐进式加载，控制首屏负担
     - [ ] 排查未配置字段和未使用字段，清理冗余翻译
 - [ ] **测试与迁移保障**
@@ -58,11 +58,11 @@
 
 ### 4. 多语言 SEO 深度优化 (Multilingual SEO) (P1)
 
-> 当前执行策略: 已进入首轮实现。本轮已开始复用 Locale Registry 落地统一页面 SEO 契约，并将首页、文章页、分类页、标签页逐步切到共享的 canonical / Open Graph / Twitter Card / JSON-LD 输出链路；同时继续扩展动态 sitemap 的语言变体与 alternates，后续再补齐更多公开页覆盖和自动化回归校验。专项设计见 [国际化扩展与多语言 SEO 统一设计](../design/modules/i18n-seo-unification.md)。
+> 当前执行策略: 已完成首轮基础设施落地，并复用 Locale Registry 收敛共享页面 SEO 契约。当前已补齐共享 absolute URL / SEO 图片 / JSON-LD 构建器，首页已切到统一 `usePageSeo` 链路，动态 sitemap 已支持语言变体 alternates，相关定向测试与本轮 `typecheck` 已通过；下一步继续扩展文章页、分类页、标签页等公开页面覆盖，并补齐更高层级的自动化回归校验。专项设计见 [国际化扩展与多语言 SEO 统一设计](../design/modules/i18n-seo-unification.md)。
 
 - [ ] **多语言元标签增强**
-	- [ ] 自动生成并校验 `hreflang`、canonical、Open Graph、Twitter Card 的多语言版本
-	- [ ] 明确 SSR 输出策略，确保搜索引擎抓取结果稳定
+	- [x] 自动生成并校验 `hreflang`、canonical、Open Graph、Twitter Card 的多语言版本
+	- [x] 明确 SSR 输出策略，确保搜索引擎抓取结果稳定
 - [ ] **结构化数据与站点地图深化**
 	- [ ] 为多语言页面补齐 JSON-LD 等结构化数据输出
 	- [ ] 扩展站点地图，确保语言变体在 Google、Bing、Baidu 等搜索引擎中可稳定索引
