@@ -122,32 +122,34 @@ export interface DirectUploadCapability {
         contentType: string
         contentLength: number
         expiresIn: number
-        callback?: {
-            url: string
-            body: string
-            bodyType?: 'application/x-www-form-urlencoded' | 'application/json'
-        }
-    }): Promise<
-        | {
-            mode: 'put-presign'
-            method: 'PUT'
-            uploadUrl: string
-            uploadHeaders: Record<string, string>
-            objectKey: string
-            publicUrl: string
-            expiresIn: number
-        }
-        | {
-            mode: 'post-policy'
-            method: 'POST'
-            uploadUrl: string
-            formFields: Record<string, string>
-            objectKey: string
-            publicUrl: string
-            expiresIn: number
-        }
-        | {
-            mode: 'sts-credential'
+        // ... 其他元数据
+    }): Promise<DirectUploadAuthorization>
+}
+```
+
+## 6. 静态资源地址治理 (Asset URL Governance)
+
+为了支持 CDN 切换、域名迁移以及对象路径的统一管理，系统引入了全局地址解析优先级：
+
+### 6.1 公开访问地址 (Public Base URL)
+
+系统按照以下优先级解析文件的公开访问地址：
+1. **`ASSET_PUBLIC_BASE_URL` (全局)**: 如果配置了此项，所有上行资源链接将以此为前缀（支持含有路径，如 `https://cdn.example.com/assets`）。
+2. **驱动级 Base URL**: 如 `S3_BASE_URL`、`CLOUDFLARE_R2_BASE_URL` 或 `LOCAL_STORAGE_BASE_URL`。
+3. **驱动默认地址**: 如果以上均未配置，则回退到驱动返回的原始地址。
+
+### 6.2 对象键前缀 (Object Prefix)
+
+对象存储中的路径前缀遵循以下规则：
+1. **`ASSET_OBJECT_PREFIX` (全局)**: 统一的对象键前缀（如 `momei-blog/`）。
+2. **驱动级前缀**: 如 `S3_BUCKET_PREFIX` 或 `BUCKET_PREFIX`。
+3. **业务默认路径**: 如 `image/`、`audio/`。
+
+最终生成的对象路径格式为：`[GlobalPrefix][DriverPrefix][BusinessPrefix][Filename]`。
+
+## 7. 存量资源迁移与重写 (Migration & Rewrite)
+
+（待更新：链接重写工具的具体实现细节）
             credentials: Record<string, string>
             objectKeyPrefix: string
             expiresIn: number

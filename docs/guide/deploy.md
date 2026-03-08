@@ -40,10 +40,14 @@
 
 ### 2.3 存储与媒体
 
-- **`STORAGE_TYPE`**: `local`、`s3` 或 `vercel-blob`。
+- **`STORAGE_TYPE`**: `local`、`s3`、`r2` 或 `vercel-blob`。
 - **本地存储**: `LOCAL_STORAGE_DIR` + `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL`
 - **S3 兼容存储**: `S3_ENDPOINT`、`S3_BUCKET_NAME`、`S3_ACCESS_KEY_ID`、`S3_SECRET_ACCESS_KEY`、`S3_BASE_URL`
-- **路径前缀**: `BUCKET_PREFIX`
+- **Cloudflare R2**: `CLOUDFLARE_R2_ACCOUNT_ID`、`CLOUDFLARE_R2_ACCESS_KEY`、`CLOUDFLARE_R2_SECRET_KEY`、`CLOUDFLARE_R2_BUCKET`、`CLOUDFLARE_R2_BASE_URL`
+- **路径前缀治理**:
+  - `ASSET_PUBLIC_BASE_URL`: 统一 CDN/公共访问域名。
+  - `ASSET_OBJECT_PREFIX`: 统一对象存储路径前缀。
+  - `BUCKET_PREFIX`: 兼容旧版 S3 前缀配置。
 - **Vercel Blob**: `BLOB_READ_WRITE_TOKEN`
 
 ### 2.4 邮件与通知
