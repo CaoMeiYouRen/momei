@@ -1,7 +1,9 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { toProjectLocale, DEFAULT_LOCALE } from './locale'
+import { APP_DEFAULT_LOCALE, resolveAppLocaleCode } from '@/i18n/config/locale-registry'
+import { getLocaleMessageFilePaths } from '@/i18n/config/locale-modules'
 
 // 定义全局存储，保存当前请求转换后的标准区域代码 (如 zh-CN)
 export const i18nStorage = new AsyncLocalStorage<string>()
@@ -9,27 +11,65 @@ export const i18nStorage = new AsyncLocalStorage<string>()
 // 缓存加载的翻译消息，避免重复读取
 const localeCache = new Map<string, Record<string, any>>()
 
+function deepMergeMessages(
+    target: Record<string, any>,
+    source: Record<string, any>,
+): Record<string, any> {
+    Object.entries(source).forEach(([key, value]) => {
+        const current = target[key]
+        if (
+            value
+            && typeof value === 'object'
+            && !Array.isArray(value)
+            && current
+            && typeof current === 'object'
+            && !Array.isArray(current)
+        ) {
+            target[key] = deepMergeMessages(current, value as Record<string, any>)
+            return
+        }
+
+        target[key] = value
+    })
+
+    return target
+}
+
+function cloneMessages(messages: Record<string, any>): Record<string, any> {
+    return JSON.parse(JSON.stringify(messages)) as Record<string, any>
+}
+
 /**
  * 加载并获取指定语言的消息集
  */
 export async function loadLocaleMessages(locale: string): Promise<Record<string, any>> {
-    const projectLocale = toProjectLocale(locale)
-    if (localeCache.has(projectLocale)) {
-        return localeCache.get(projectLocale)!
+    const resolvedLocale = resolveAppLocaleCode(toProjectLocale(locale))
+    if (localeCache.has(resolvedLocale)) {
+        return localeCache.get(resolvedLocale)!
     }
 
     try {
-        // 使用 resolve + join 构建绝对路径，确保在不同运行环境下一致 (包括 Vitest)
-        const localePath = join(process.cwd(), 'i18n/locales', `${projectLocale}.json`)
-        const data = JSON.parse(readFileSync(localePath, 'utf8'))
-        localeCache.set(projectLocale, data)
-        return data
+        const mergedMessages = resolvedLocale === APP_DEFAULT_LOCALE
+            ? {}
+            : cloneMessages(await loadLocaleMessages(APP_DEFAULT_LOCALE))
+
+        for (const filePath of getLocaleMessageFilePaths(resolvedLocale)) {
+            const absolutePath = join(process.cwd(), 'i18n', 'locales', filePath)
+            if (!existsSync(absolutePath)) {
+                continue
+            }
+
+            const moduleMessages = JSON.parse(readFileSync(absolutePath, 'utf8')) as Record<string, any>
+            deepMergeMessages(mergedMessages, moduleMessages)
+        }
+
+        localeCache.set(resolvedLocale, mergedMessages)
+        return mergedMessages
     } catch (error) {
-        console.warn(`Failed to load locale messages for: ${projectLocale}`, error)
+        console.warn(`Failed to load locale messages for: ${resolvedLocale}`, error)
         // 回退加载默认语言
-        const defaultProjectLocale = toProjectLocale(DEFAULT_LOCALE)
-        if (projectLocale !== defaultProjectLocale) {
-            return loadLocaleMessages(DEFAULT_LOCALE)
+        if (resolvedLocale !== APP_DEFAULT_LOCALE) {
+            return loadLocaleMessages(APP_DEFAULT_LOCALE)
         }
         return {}
     }
@@ -50,7 +90,7 @@ function getNestedValue(obj: any, path: string): string | null {
  * 支持异步获取当前请求上下文中的 locale，并根据嵌套路径获取映射值
  */
 export async function t(key: string, params?: Record<string, any>): Promise<string> {
-    const locale = i18nStorage.getStore() || toProjectLocale(DEFAULT_LOCALE)
+    const locale = getLocale()
     const messages = await loadLocaleMessages(locale)
 
     let message = getNestedValue(messages, key) || key
@@ -73,5 +113,6 @@ export async function t(key: string, params?: Record<string, any>): Promise<stri
  * 获取当前 locale
  */
 export function getLocale(): string {
-    return i18nStorage.getStore() || toProjectLocale(DEFAULT_LOCALE)
+    const locale = i18nStorage.getStore() || toProjectLocale(DEFAULT_LOCALE)
+    return resolveAppLocaleCode(locale)
 }

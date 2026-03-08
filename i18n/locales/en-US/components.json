@@ -1,0 +1,117 @@
+{
+  "components": {
+    "search": {
+      "title": "Global Search",
+      "placeholder": "Search posts, categories or tags...",
+      "no_results": "No results found",
+      "help_hint": "Type keywords to search...",
+      "loading": "Searching...",
+      "ctrl_k": "Search"
+    },
+    "header": {
+      "language": "Language",
+      "title": "Momei",
+      "dark_mode": "Dark Mode",
+      "light_mode": "Light Mode"
+    },
+    "footer": {
+      "docs": "Docs",
+      "copyright": "© 2026 Momei Blog - AI-powered, Global Creation",
+      "compliance": {
+        "icp": "ICP License",
+        "police": "Public Security Filing"
+      }
+    },
+    "toc": {
+      "title": "Table of Contents"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "empty": "No notifications",
+      "mark_all_read": "Mark all as read",
+      "view_all": "View all settings"
+    },
+    "reader": {
+      "mode_enter": "Reader Mode",
+      "mode_exit": "Exit Reader Mode",
+      "settings_title": "Reading Settings",
+      "font_size": "Font Size",
+      "line_height": "Line Height",
+      "page_width": "Page Width",
+      "theme": "Theme"
+    },
+    "subscriber_form": {
+      "title": "Newsletter",
+      "description": "Get the latest posts and technical shares delivered to your inbox",
+      "placeholder": "Enter your email address",
+      "submit": "Subscribe",
+      "success": "Subscription successful! Thank you for following.",
+      "submitting": "Processing..."
+    },
+    "post": {
+      "copyright": {
+        "title": "Copyright Notice",
+        "author": "Author",
+        "link": "Link",
+        "license_title": "Copyright Notice",
+        "license_pre": "Except where otherwise noted, all articles in this blog are licensed under ",
+        "license_post": ". Please credit the source when reposting!",
+        "default_license": "all-rights-reserved",
+        "licenses": {
+          "all-rights-reserved": "All Rights Reserved (No Reposting)",
+          "cc-by": "CC BY 4.0 (Attribution)",
+          "cc-by-sa": "CC BY-SA 4.0 (Attribution-ShareAlike)",
+          "cc-by-nd": "CC BY-ND 4.0 (Attribution-NoDerivs)",
+          "cc-by-nc": "CC BY-NC 4.0 (Attribution-NonCommercial)",
+          "cc-by-nc-sa": "CC BY-NC-SA 4.0 (Attribution-NonCommercial-ShareAlike)",
+          "cc-by-nc-nd": "CC BY-NC-ND 4.0 (Attribution-NonCommercial-NoDerivs)",
+          "cc-zero": "CC0 1.0 (Public Domain)"
+        }
+      },
+      "sponsor": {
+        "title": "Sponsor",
+        "social_title": "Follow Me",
+        "donation_title": "Support the Author",
+        "qr_scan_tip": "Open mobile app to scan and pay",
+        "qr_scan_follow_tip": "Open mobile app to scan and follow",
+        "qr_scan_pay_tip": "Open mobile app to scan and pay",
+        "platforms": {
+          "wechat_mp": "WeChat MP",
+          "bilibili": "Bilibili",
+          "weibo": "Weibo",
+          "zhihu": "Zhihu",
+          "x": "X (Twitter)",
+          "youtube": "YouTube",
+          "facebook": "Facebook",
+          "github": "GitHub",
+          "wechat_pay": "WeChat Pay",
+          "alipay": "Alipay",
+          "afdian": "Afdian",
+          "github_sponsors": "GitHub Sponsors",
+          "opencollective": "Open Collective",
+          "patreon": "Patreon",
+          "buymeacoffee": "Buy Me a Coffee",
+          "paypal": "PayPal"
+        }
+      }
+    }
+  },
+  "comments": {
+    "title": "Comments",
+    "reply": "Reply",
+    "submit": "Post Comment",
+    "nickname": "Nickname",
+    "nickname_placeholder": "How should we call you?",
+    "email": "Email Address",
+    "email_placeholder": "For avatar & notifications (Will not be public)",
+    "website": "Website",
+    "website_placeholder": "https://...",
+    "content_placeholder_guest": "Write something... (Requires moderation)",
+    "content_placeholder_logged_in": "Share your thoughts...",
+    "guest_tip": "You are posting as a guest",
+    "replying_to": "Replying to",
+    "no_comments": "No comments yet. Be the first to share your thoughts!",
+    "pending_audit": "Your comment has been submitted and is pending moderation.",
+    "sticked": "Sticked"
+  }
+}

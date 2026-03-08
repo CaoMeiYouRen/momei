@@ -6,6 +6,7 @@ import { isRef, unref, watch } from 'vue'
 import { usePrimeVue } from 'primevue/config'
 import { zh_CN } from 'primelocale/js/zh_CN.js'
 import { en } from 'primelocale/js/en.js'
+import { APP_DEFAULT_LOCALE, resolveAppLocaleCode } from '@/i18n/config/locale-registry'
 
 export default defineNuxtPlugin((nuxtApp) => {
     // 避免在服务端执行
@@ -30,8 +31,9 @@ export default defineNuxtPlugin((nuxtApp) => {
          * @param localeCode - 语言代码（如 'zh-CN', 'en-US'）
          */
         const syncPrimeVueLocale = (localeCode: string): void => {
-            if (localeMap[localeCode] && primevue?.config?.locale) {
-                const newLocale = localeMap[localeCode]
+            const resolvedLocale = resolveAppLocaleCode(localeCode)
+            if (localeMap[resolvedLocale] && primevue?.config?.locale) {
+                const newLocale = localeMap[resolvedLocale]
                 // 深度更新所有字段而不是替换整个对象引用
                 // 这样可以确保 Password 等组件能正确响应语言变化
                 Object.entries(newLocale).forEach(([key, value]) => {
@@ -45,12 +47,12 @@ export default defineNuxtPlugin((nuxtApp) => {
         }
 
         // 初始化时同步当前语言
-        syncPrimeVueLocale(unref(localeSource as any) || 'zh-CN')
+        syncPrimeVueLocale(unref(localeSource as any) || APP_DEFAULT_LOCALE)
 
         // 监听 Vue-i18n 语言变化，自动同步 PrimeVue
         if (isRef(localeSource)) {
             watch(localeSource, (newLocale) => {
-                syncPrimeVueLocale(typeof newLocale === 'string' ? newLocale : 'zh-CN')
+                syncPrimeVueLocale(typeof newLocale === 'string' ? newLocale : APP_DEFAULT_LOCALE)
             })
         }
     } catch (error) {

@@ -1,6 +1,7 @@
 import Aura from '@primevue/themes/aura'
 import { definePreset } from '@primevue/themes'
 import { zh_CN } from 'primelocale/js/zh_CN.js'
+import { APP_DEFAULT_LOCALE, NUXT_I18N_LOCALES } from './i18n/config/locale-registry'
 const MomeiPreset = definePreset(Aura, {
     semantic: {
         primary: {
@@ -225,21 +226,9 @@ export default defineNuxtConfig({
         },
     },
     i18n: {
-        locales: [
-            {
-                code: 'en-US',
-                language: 'en-US',
-                name: 'English',
-                file: 'en-US.json',
-            },
-            {
-                code: 'zh-CN',
-                language: 'zh-CN',
-                name: '简体中文',
-                file: 'zh-CN.json',
-            },
-        ],
-        defaultLocale: 'zh-CN',
+        locales: NUXT_I18N_LOCALES,
+        defaultLocale: APP_DEFAULT_LOCALE,
+        // lazy: true,
         langDir: 'locales',
         strategy: 'prefix_and_default',
         detectBrowserLanguage: {

@@ -82,7 +82,7 @@ export default withNuxt(
         },
     },
     {
-        files: ['i18n/locales/*.json'],
+        files: ['i18n/locales/*.json', 'i18n/locales/**/*.json'],
         rules: {
             '@intlify/vue-i18n/no-unused-keys': 'off',
             'max-lines': 'off',

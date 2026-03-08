@@ -19,6 +19,11 @@ describe('server/utils/i18n.ts', () => {
         expect(typeof messages).toBe('object')
     })
 
+    it('should fall back to app default locale for unsupported messages locale', async () => {
+        const messages = await loadLocaleMessages('fr-FR')
+        expect(messages.app.name).toBe('墨梅博客')
+    })
+
     it('should translate keys correctly in store run', async () => {
         await i18nStorage.run('zh-CN', async () => {
             const result = await t('app.name')
@@ -39,6 +44,12 @@ describe('server/utils/i18n.ts', () => {
         await i18nStorage.run('en-US', async () => {
             const result = await t('error.unauthorized')
             expect(result).toBe('Unauthorized, please login first')
+        })
+    })
+
+    it('should expose resolved app locale from storage', async () => {
+        await i18nStorage.run('fr-FR', async () => {
+            expect(getLocale()).toBe('zh-CN')
         })
     })
 })

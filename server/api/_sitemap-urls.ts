@@ -3,6 +3,7 @@ import { Post } from '@/server/entities/post'
 import { Category } from '@/server/entities/category'
 import { Tag } from '@/server/entities/tag'
 import { PostStatus, PostVisibility } from '@/types/post'
+import { getLocaleRoutePrefix } from '@/i18n/config/locale-registry'
 
 export default defineEventHandler(async () => {
     const postRepo = dataSource.getRepository(Post)
@@ -27,12 +28,9 @@ export default defineEventHandler(async () => {
 
     const urls: { loc: string, lastmod?: Date }[] = []
 
-    // 默认语言不带前缀，其他语言带上语言代码作为前缀
-    const defaultLocale = 'zh-CN'
-
     // Posts
     for (const post of posts) {
-        const prefix = post.language === defaultLocale ? '' : `/${post.language}`
+        const prefix = getLocaleRoutePrefix(post.language)
         urls.push({
             loc: `${prefix}/posts/${post.slug}`,
             lastmod: post.updatedAt,
@@ -41,7 +39,7 @@ export default defineEventHandler(async () => {
 
     // Categories
     for (const cat of categories) {
-        const prefix = cat.language === defaultLocale ? '' : `/${cat.language}`
+        const prefix = getLocaleRoutePrefix(cat.language)
         urls.push({
             loc: `${prefix}/categories/${cat.slug}`,
             lastmod: cat.updatedAt,
@@ -50,7 +48,7 @@ export default defineEventHandler(async () => {
 
     // Tags
     for (const tag of tags) {
-        const prefix = tag.language === defaultLocale ? '' : `/${tag.language}`
+        const prefix = getLocaleRoutePrefix(tag.language)
         urls.push({
             loc: `${prefix}/tags/${tag.slug}`,
             lastmod: tag.updatedAt,

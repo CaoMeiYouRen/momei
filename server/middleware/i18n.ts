@@ -1,6 +1,7 @@
 import { defineEventHandler } from 'h3'
 import { detectUserLocale, toProjectLocale } from '../utils/locale'
 import { i18nStorage } from '../utils/i18n'
+import { resolveAppLocaleCode } from '@/i18n/config/locale-registry'
 
 /**
  * 国际化中间件 (Request-level i18n Recognition)
@@ -14,7 +15,7 @@ export default defineEventHandler((event) => {
 
     // 1. 设置请求上下文中的语言标识
     const rawLocale = detectUserLocale(event)
-    const projectLocale = toProjectLocale(rawLocale)
+    const projectLocale = resolveAppLocaleCode(toProjectLocale(rawLocale))
 
     // 保存到 H3 Event 上下文，供不需要 AsyncLocalStorage 的逻辑使用
     event.context.locale = projectLocale
