@@ -23,14 +23,16 @@ interface AIQuotaCheckOptions {
     estimatedCost?: number
 }
 
-interface AIUsageSummary {
+export interface AIUsageSummary {
     requests: number
     quotaUnits: number
     actualCost: number
     concurrentHeavyTasks: number
 }
 
-interface ResolvedAIQuotaPolicy {
+export interface ResolvedAIQuotaPolicy {
+    subjectType: AIQuotaPolicy['subjectType']
+    subjectValue: string
     scope: AIQuotaPolicy['scope']
     period: AIQuotaPolicy['period']
     maxRequests?: number
@@ -39,6 +41,8 @@ interface ResolvedAIQuotaPolicy {
     maxConcurrentHeavyTasks?: number
     isExempt: boolean
 }
+
+export type AIUsageTaskSnapshot = Pick<AITask, 'actualCost' | 'category' | 'createdAt' | 'estimatedCost' | 'estimatedQuotaUnits' | 'quotaUnits' | 'status' | 'type'>
 
 function normalizePolicyScope(scope: string): AIQuotaPolicy['scope'] {
     if (scope === 'all' || scope.startsWith('type:')) {
@@ -83,7 +87,7 @@ function matchesScope(scope: AIQuotaPolicy['scope'], category: AICategory, type:
     return scope === category
 }
 
-function getPeriodStart(period: AIQuotaPolicy['period'], now = new Date()) {
+export function getPeriodStart(period: AIQuotaPolicy['period'], now = new Date()) {
     const start = new Date(now)
     start.setHours(0, 0, 0, 0)
 
@@ -129,6 +133,8 @@ async function resolveUserRole(userId: string, userRole?: string | null) {
 
 function mergePolicies(policies: AIQuotaPolicy[]) {
     const resolved: ResolvedAIQuotaPolicy = {
+        subjectType: policies[0]?.subjectType || 'global',
+        subjectValue: policies[0]?.subjectValue || 'default',
         scope: policies[0]?.scope || 'all',
         period: policies[0]?.period || 'day',
         isExempt: false,
@@ -208,25 +214,17 @@ function estimateTaskCost(task: Pick<AITask, 'status' | 'actualCost' | 'estimate
     return toNumber(task.actualCost, toNumber(task.estimatedCost, 0))
 }
 
-async function getUsageSummary(userId: string, scope: AIQuotaPolicy['scope'], period: AIQuotaPolicy['period']) {
-    if (!dataSource.isInitialized) {
-        return {
-            requests: 0,
-            quotaUnits: 0,
-            actualCost: 0,
-            concurrentHeavyTasks: 0,
-        } satisfies AIUsageSummary
-    }
-
-    const repo = dataSource.getRepository(AITask)
-    const tasks = await repo.find({
-        where: {
-            userId,
-            createdAt: MoreThanOrEqual(getPeriodStart(period)),
-        },
-    })
-
+export function summarizeAIQuotaUsage(
+    tasks: AIUsageTaskSnapshot[],
+    scope: AIQuotaPolicy['scope'],
+    period: AIQuotaPolicy['period'],
+    now = new Date(),
+) {
     const relevantTasks = tasks.filter((task) => {
+        if (task.createdAt < getPeriodStart(period, now)) {
+            return false
+        }
+
         const taskCategory = normalizeTaskCategory(task.category, task.type)
         return matchesScope(scope, taskCategory, task.type)
     })
@@ -251,6 +249,27 @@ async function getUsageSummary(userId: string, scope: AIQuotaPolicy['scope'], pe
     })
 }
 
+async function getUsageSummary(userId: string, scope: AIQuotaPolicy['scope'], period: AIQuotaPolicy['period']) {
+    if (!dataSource.isInitialized) {
+        return {
+            requests: 0,
+            quotaUnits: 0,
+            actualCost: 0,
+            concurrentHeavyTasks: 0,
+        } satisfies AIUsageSummary
+    }
+
+    const repo = dataSource.getRepository(AITask)
+    const tasks = await repo.find({
+        where: {
+            userId,
+            createdAt: MoreThanOrEqual(getPeriodStart(period)),
+        },
+    })
+
+    return summarizeAIQuotaUsage(tasks, scope, period)
+}
+
 function isResolvedQuotaPolicy(policy: ResolvedAIQuotaPolicy | null): policy is ResolvedAIQuotaPolicy {
     if (!policy) {
         return false
@@ -263,7 +282,7 @@ function isResolvedQuotaPolicy(policy: ResolvedAIQuotaPolicy | null): policy is 
         || isFiniteNumber(policy.maxConcurrentHeavyTasks)
 }
 
-export async function resolveAIQuotaPolicy(options: Pick<AIQuotaCheckOptions, 'userId' | 'userRole' | 'category' | 'type'>) {
+export async function resolveAllAIQuotaPolicies(options: Pick<AIQuotaCheckOptions, 'userId' | 'userRole'>) {
     if (!options.userId) {
         return { enabled: false, policies: [] as ResolvedAIQuotaPolicy[] }
     }
@@ -273,9 +292,8 @@ export async function resolveAIQuotaPolicy(options: Pick<AIQuotaCheckOptions, 'u
         return { enabled: false, policies: [] as ResolvedAIQuotaPolicy[] }
     }
 
-    const category = normalizeTaskCategory(options.category, options.type)
     const effectiveUserRole = await resolveUserRole(options.userId, options.userRole)
-    const matchedPolicies = policies.filter((policy) => policy.enabled && matchesScope(policy.scope, category, options.type))
+    const matchedPolicies = policies.filter((policy) => policy.enabled)
 
     const groupedPolicies = new Map<string, AIQuotaPolicy[]>()
     matchedPolicies.forEach((policy) => {
@@ -299,6 +317,23 @@ export async function resolveAIQuotaPolicy(options: Pick<AIQuotaCheckOptions, 'u
     return {
         enabled,
         policies: resolvedPolicies,
+    }
+}
+
+export async function resolveAIQuotaPolicy(options: Pick<AIQuotaCheckOptions, 'userId' | 'userRole' | 'category' | 'type'>) {
+    if (!options.userId) {
+        return { enabled: false, policies: [] as ResolvedAIQuotaPolicy[] }
+    }
+
+    const category = normalizeTaskCategory(options.category, options.type)
+    const resolved = await resolveAllAIQuotaPolicies({
+        userId: options.userId,
+        userRole: options.userRole,
+    })
+
+    return {
+        enabled: resolved.enabled,
+        policies: resolved.policies.filter((policy) => matchesScope(policy.scope, category, options.type)),
     }
 }
 

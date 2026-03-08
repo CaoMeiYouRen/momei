@@ -24,6 +24,10 @@ export type AIQuotaPolicyPeriod = 'day' | 'month'
 
 export type AIQuotaPolicyScope = 'all' | Exclude<AICategory, 'video'> | `type:${string}`
 
+export type AIAlertSeverity = 'info' | 'warning' | 'critical'
+
+export type AIAlertKind = 'quota_usage' | 'cost_usage' | 'failure_burst'
+
 export interface AIQuotaPolicy {
     subjectType: AIQuotaPolicySubjectType
     subjectValue: string
@@ -35,6 +39,42 @@ export interface AIQuotaPolicy {
     maxConcurrentHeavyTasks?: number
     isExempt?: boolean
     enabled: boolean
+}
+
+export interface AIAlertFailureBurstConfig {
+    enabled?: boolean
+    windowMinutes?: number
+    maxFailures?: number
+    categories?: (Exclude<AICategory, 'video'> | 'all')[]
+}
+
+export interface AIAlertThresholdSettings {
+    enabled?: boolean
+    quotaUsageRatios?: number[]
+    costUsageRatios?: number[]
+    failureBurst?: AIAlertFailureBurstConfig
+    dedupeWindowMinutes?: number
+    maxAlerts?: number
+}
+
+export interface AIUsageAlert {
+    dedupeKey: string
+    kind: AIAlertKind
+    severity: AIAlertSeverity
+    period: AIQuotaPolicyPeriod | 'rolling'
+    scope: AIQuotaPolicyScope | 'all'
+    subjectType: 'user'
+    subjectValue: string
+    subjectName?: string
+    userRole?: string | null
+    threshold: number
+    usedValue: number
+    limitValue: number
+    ratio?: number
+    failureCount?: number
+    windowMinutes?: number
+    policySubjectType?: AIQuotaPolicySubjectType
+    policySubjectValue?: string
 }
 
 export type AIRole = 'system' | 'user' | 'assistant'

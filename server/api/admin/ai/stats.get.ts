@@ -1,6 +1,7 @@
 import { dataSource } from '~/server/database'
 import { AITask } from '~/server/entities/ai-task'
 import { User } from '~/server/entities/user'
+import { evaluateAIUsageAlerts } from '@/server/services/ai/usage-alerts'
 import { toNumber } from '@/utils/shared/coerce'
 
 export default defineEventHandler(async (event) => {
@@ -111,6 +112,7 @@ export default defineEventHandler(async (event) => {
     const totalTasks = toNumber(overviewRaw?.totalTasks)
     const completedTasks = normalizedStatusStats.find((item) => item.status === 'completed')?.count || 0
     const failedTasks = normalizedStatusStats.find((item) => item.status === 'failed')?.count || 0
+    const alerts = await evaluateAIUsageAlerts()
 
     return {
         overview: {
@@ -156,5 +158,6 @@ export default defineEventHandler(async (event) => {
             actualCost: toNumber(item.actualCost),
             quotaUnits: toNumber(item.quotaUnits),
         })),
+        alerts,
     }
 })

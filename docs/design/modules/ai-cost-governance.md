@@ -251,6 +251,42 @@ interface AIQuotaPolicy {
 }
 ```
 
+当前已落地的 `AI_ALERT_THRESHOLDS` 最小结构如下：
+
+```ts
+interface AIAlertThresholdSettings {
+  enabled?: boolean
+  quotaUsageRatios?: number[]
+  costUsageRatios?: number[]
+  failureBurst?: {
+    enabled?: boolean
+    windowMinutes?: number
+    maxFailures?: number
+    categories?: Array<'all' | 'text' | 'image' | 'asr' | 'tts' | 'podcast'>
+  }
+  dedupeWindowMinutes?: number
+  maxAlerts?: number
+}
+```
+
+推荐默认值：
+
+```json
+{
+  "enabled": true,
+  "quotaUsageRatios": [0.5, 0.8, 1],
+  "costUsageRatios": [0.8, 1],
+  "failureBurst": {
+    "enabled": true,
+    "windowMinutes": 10,
+    "maxFailures": 3,
+    "categories": ["image", "asr", "tts", "podcast"]
+  },
+  "dedupeWindowMinutes": 1440,
+  "maxAlerts": 10
+}
+```
+
 这样既可以贴合当前设置体系，也为后续迁移到实体表保留结构兼容性。
 
 ### 7.3 推荐默认策略
@@ -354,7 +390,7 @@ flowchart TD
 优先增强现有接口，而不是立即拆很多新接口：
 
 - `GET /api/admin/ai/stats`
-  - 增加成本、额度、失败阶段、Top 用户与趋势数据
+  - 增加成本、额度、失败阶段、Top 用户、趋势数据与 `alerts` 告警摘要
 - `GET /api/admin/ai/tasks`
   - 增加治理字段和更细筛选参数
 
@@ -432,6 +468,8 @@ dedupeKey = subject + scope + period + threshold
 $$
 
 相同主体、相同范围、相同周期、相同阈值，在一个统计窗口内只发一次。
+
+当前最小实现已先在 `GET /api/admin/ai/stats` 中返回结构化 `alerts` 数组，并在后台 AI 统计页直出展示。这样管理员无需等待异步推送即可先发现日/月额度逼近、成本逼近和短窗口失败突增等异常。后续若需要复用 SSE / 站内通知，只需在现有 `dedupeKey` 基础上追加通知派发层即可。
 
 ## 11. 分阶段落地建议 (Phased Rollout)
 

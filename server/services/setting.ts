@@ -31,6 +31,7 @@ export const SETTING_ENV_MAP: Record<string, string> = {
     [SettingKey.GEMINI_API_TOKEN]: 'GEMINI_API_TOKEN',
     [SettingKey.AI_QUOTA_ENABLED]: 'AI_QUOTA_ENABLED',
     [SettingKey.AI_QUOTA_POLICIES]: 'AI_QUOTA_POLICIES',
+    [SettingKey.AI_ALERT_THRESHOLDS]: 'AI_ALERT_THRESHOLDS',
     // AI Image
     [SettingKey.AI_IMAGE_ENABLED]: 'AI_IMAGE_ENABLED',
     [SettingKey.AI_IMAGE_PROVIDER]: 'AI_IMAGE_PROVIDER',
@@ -191,6 +192,7 @@ const SETTING_DEFAULT_MAP: Partial<Record<string, string>> = {
     [SettingKey.DEFAULT_LANGUAGE]: 'zh-CN',
     [SettingKey.AI_QUOTA_ENABLED]: 'false',
     [SettingKey.AI_QUOTA_POLICIES]: '[]',
+    [SettingKey.AI_ALERT_THRESHOLDS]: '{"enabled":true,"quotaUsageRatios":[0.5,0.8,1],"costUsageRatios":[0.8,1],"failureBurst":{"enabled":true,"windowMinutes":10,"maxFailures":3,"categories":["image","asr","tts","podcast"]},"dedupeWindowMinutes":1440,"maxAlerts":10}',
     [SettingKey.EMAIL_PORT]: '587',
     [SettingKey.POSTS_PER_PAGE]: '10',
     [SettingKey.LIVE2D_MIN_WIDTH]: '1024',

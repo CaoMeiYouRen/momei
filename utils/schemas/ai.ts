@@ -8,6 +8,10 @@ const aiQuotaScopeSchema = z.string().trim().refine((value) => {
     message: 'Invalid AI quota scope',
 })
 
+const aiAlertRatioSchema = z.number().gt(0).lte(1)
+
+const aiAlertCategorySchema = z.enum(['all', 'text', 'image', 'asr', 'tts', 'podcast'])
+
 export const aiQuotaPolicySchema = z.object({
     subjectType: z.enum(['global', 'role', 'trust_level', 'user']),
     subjectValue: z.string().trim().min(1),
@@ -22,6 +26,25 @@ export const aiQuotaPolicySchema = z.object({
 })
 
 export const aiQuotaPoliciesSchema = z.array(aiQuotaPolicySchema)
+
+export const aiAlertThresholdsSchema = z.object({
+    enabled: z.boolean().optional().default(true),
+    quotaUsageRatios: z.array(aiAlertRatioSchema).min(1).optional().default([0.5, 0.8, 1]),
+    costUsageRatios: z.array(aiAlertRatioSchema).min(1).optional().default([0.8, 1]),
+    failureBurst: z.object({
+        enabled: z.boolean().optional().default(true),
+        windowMinutes: z.number().int().min(1).max(1440).optional().default(10),
+        maxFailures: z.number().int().min(1).max(1000).optional().default(3),
+        categories: z.array(aiAlertCategorySchema).min(1).optional().default(['image', 'asr', 'tts', 'podcast']),
+    }).optional().default({
+        enabled: true,
+        windowMinutes: 10,
+        maxFailures: 3,
+        categories: ['image', 'asr', 'tts', 'podcast'],
+    }),
+    dedupeWindowMinutes: z.number().int().min(1).max(44640).optional().default(1440),
+    maxAlerts: z.number().int().min(1).max(100).optional().default(10),
+})
 
 export const aiTranslateSchema = z.object({
     content: z.string().min(1),

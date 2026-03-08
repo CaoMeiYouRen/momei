@@ -91,6 +91,27 @@
             <p class="ai-settings__hint">
                 {{ $t('pages.admin.settings.system.hints.ai_quota_policies') }}
             </p>
+
+            <SettingFormField
+                field-key="ai_alert_thresholds"
+                input-id="ai_alert_thresholds"
+                :label="$t('pages.admin.settings.system.keys.ai_alert_thresholds')"
+                :description="$t('pages.admin.settings.system.hints.ai_alert_thresholds_description')"
+                :metadata="metadata.ai_alert_thresholds"
+            >
+                <Textarea
+                    id="ai_alert_thresholds"
+                    v-model="settings.ai_alert_thresholds"
+                    :disabled="metadata.ai_alert_thresholds?.isLocked"
+                    rows="10"
+                    auto-resize
+                    fluid
+                />
+            </SettingFormField>
+
+            <p class="ai-settings__hint">
+                {{ $t('pages.admin.settings.system.hints.ai_alert_thresholds') }}
+            </p>
         </div>
 
         <Divider class="my-8" />

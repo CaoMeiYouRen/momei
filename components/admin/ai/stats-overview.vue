@@ -1,5 +1,38 @@
 <template>
     <div v-if="stats" class="ai-stats-container">
+        <Card v-if="stats.alerts?.length" class="ai-alert-card">
+            <template #title>
+                <div class="card-header">
+                    <span class="card-title">{{ $t('pages.admin.ai.alerts.title') }}</span>
+                    <i class="icon pi pi-bell" />
+                </div>
+            </template>
+            <template #content>
+                <div class="alert-list">
+                    <div
+                        v-for="alert in stats.alerts"
+                        :key="alert.dedupeKey"
+                        class="alert-item"
+                    >
+                        <div class="alert-copy">
+                            <div class="alert-title">
+                                {{ formatAlertMessage(alert) }}
+                            </div>
+                            <div class="alert-meta">
+                                {{ formatAlertDetail(alert) }}
+                            </div>
+                        </div>
+
+                        <div class="alert-tags">
+                            <Tag :value="formatAlertSeverity(alert)" :severity="getAlertTagSeverity(alert)" />
+                            <Tag :value="formatAlertPeriod(alert)" severity="secondary" />
+                            <Tag :value="formatAlertScope(alert)" severity="contrast" />
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </Card>
+
         <!-- Stats Overview Cards -->
         <div class="ai-overview-grid">
             <Card class="ai-stat-card total">
@@ -185,11 +218,14 @@
 
 <script setup lang="ts">
 import { formatCurrency, formatDecimal } from '@/utils/shared/number'
+import type { AIUsageAlert } from '@/types/ai'
 
 const props = defineProps<{
     stats: any
     loading: boolean
 }>()
+
+const { t } = useI18n()
 
 const getTotalTasks = () => {
     return props.stats?.overview?.totalTasks || props.stats?.statusStats?.reduce((acc: number, s: any) => acc + Number(s.count), 0) || 0
@@ -202,6 +238,75 @@ const getStatusCount = (status: string) => {
 const formatPercent = (value: number) => {
     return `${((value || 0) * 100).toFixed(1)}%`
 }
+
+const resolveSubjectLabel = (alert: AIUsageAlert) => {
+    return alert.subjectName || alert.subjectValue
+}
+
+const formatAlertSeverity = (alert: AIUsageAlert) => {
+    return t(`pages.admin.ai.alerts.severity.${alert.severity}`)
+}
+
+const getAlertTagSeverity = (alert: AIUsageAlert) => {
+    switch (alert.severity) {
+        case 'critical':
+            return 'danger'
+        case 'warning':
+            return 'warn'
+        default:
+            return 'info'
+    }
+}
+
+const formatAlertPeriod = (alert: AIUsageAlert) => {
+    return t(`pages.admin.ai.alerts.periods.${alert.period}`)
+}
+
+const formatAlertScope = (alert: AIUsageAlert) => {
+    if (alert.scope === 'all') {
+        return t('pages.admin.ai.all_scope')
+    }
+
+    return t(`pages.admin.ai.types.${alert.scope}`)
+}
+
+const formatAlertMessage = (alert: AIUsageAlert) => {
+    if (alert.kind === 'failure_burst') {
+        return t('pages.admin.ai.alerts.messages.failure_burst', {
+            name: resolveSubjectLabel(alert),
+            window: alert.windowMinutes || 0,
+            count: alert.failureCount || alert.usedValue,
+        })
+    }
+
+    return t(`pages.admin.ai.alerts.messages.${alert.kind}`, {
+        name: resolveSubjectLabel(alert),
+        period: formatAlertPeriod(alert),
+        scope: formatAlertScope(alert),
+        percent: formatPercent(alert.threshold),
+    })
+}
+
+const formatAlertDetail = (alert: AIUsageAlert) => {
+    if (alert.kind === 'cost_usage') {
+        return t('pages.admin.ai.alerts.details.cost_usage', {
+            used: formatCurrency(alert.usedValue),
+            limit: formatCurrency(alert.limitValue),
+        })
+    }
+
+    if (alert.kind === 'failure_burst') {
+        return t('pages.admin.ai.alerts.details.failure_burst', {
+            window: alert.windowMinutes || 0,
+            limit: alert.limitValue,
+        })
+    }
+
+    return t('pages.admin.ai.alerts.details.quota_usage', {
+        used: formatDecimal(alert.usedValue),
+        limit: formatDecimal(alert.limitValue),
+    })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -210,6 +315,66 @@ const formatPercent = (value: number) => {
     display: flex;
     flex-direction: column;
     gap: 2rem;
+}
+
+.ai-alert-card {
+    border-radius: 12px;
+    border: 1px solid rgb(245 158 11 / 0.25);
+    background: linear-gradient(135deg, rgb(255 251 235 / 0.95), rgb(255 247 237 / 0.98));
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .icon {
+        color: var(--orange-500);
+        font-size: 1.25rem;
+    }
+}
+
+.alert-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.alert-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 10px;
+    background: rgb(255 255 255 / 0.75);
+    border: 1px solid rgb(251 191 36 / 0.2);
+
+    @media (width <= 768px) {
+        flex-direction: column;
+    }
+}
+
+.alert-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.alert-title {
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.alert-meta {
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+}
+
+.alert-tags {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .ai-overview-grid {

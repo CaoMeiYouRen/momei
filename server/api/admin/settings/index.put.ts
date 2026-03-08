@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { requireAdmin } from '@/server/utils/permission'
-import { aiQuotaPoliciesSchema } from '@/utils/schemas/ai'
+import { aiAlertThresholdsSchema, aiQuotaPoliciesSchema } from '@/utils/schemas/ai'
 import { parseMaybeJson } from '@/utils/shared/coerce'
 import { success } from '@/server/utils/response'
 import { setSettings } from '@/server/services/setting'
@@ -39,6 +39,24 @@ export default defineEventHandler(async (event) => {
         }
 
         settingsPayload[SettingKey.AI_QUOTA_POLICIES] = JSON.stringify(validation.data, null, 2)
+    }
+
+    if (Object.hasOwn(settingsPayload, SettingKey.AI_ALERT_THRESHOLDS)) {
+        const rawThresholds = settingsPayload[SettingKey.AI_ALERT_THRESHOLDS]
+        const parsedThresholds = typeof rawThresholds === 'object' && rawThresholds !== null
+            ? rawThresholds
+            : parseMaybeJson<Record<string, unknown> | null>(String(rawThresholds ?? ''), null)
+        const validation = aiAlertThresholdsSchema.safeParse(parsedThresholds)
+
+        if (!validation.success) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: 'Invalid AI alert thresholds JSON',
+                data: z.treeifyError(validation.error),
+            })
+        }
+
+        settingsPayload[SettingKey.AI_ALERT_THRESHOLDS] = JSON.stringify(validation.data, null, 2)
     }
 
     await setSettings(settingsPayload, {

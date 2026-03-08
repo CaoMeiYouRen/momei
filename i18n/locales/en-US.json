@@ -630,6 +630,30 @@
                 "chart_charge_status": "Charge Status Distribution",
                 "chart_failure_stage": "Failure Stage Distribution",
                 "chart_model": "Model Distribution",
+                "all_scope": "All Capabilities",
+                "alerts": {
+                    "title": "Governance Alerts",
+                    "severity": {
+                        "info": "Info",
+                        "warning": "Warning",
+                        "critical": "Critical"
+                    },
+                    "periods": {
+                        "day": "Daily",
+                        "month": "Monthly",
+                        "rolling": "Rolling Window"
+                    },
+                    "messages": {
+                        "quota_usage": "{name} has reached {percent} of the {period} {scope} quota limit",
+                        "cost_usage": "{name} has reached {percent} of the {period} {scope} cost limit",
+                        "failure_burst": "{name} triggered {count} failed tasks within the last {window} minutes"
+                    },
+                    "details": {
+                        "quota_usage": "Used {used} / Limit {limit}",
+                        "cost_usage": "Used {used} / Limit {limit}",
+                        "failure_burst": "Threshold {limit} within a {window}-minute window"
+                    }
+                },
                 "types": {
                     "text_generation": "Text Generation",
                     "image_generation": "Image Generation",
@@ -1129,6 +1153,7 @@
                         "ai_quota_title": "AI Tiered Quota Governance",
                         "ai_quota_description": "Configure request, quota unit, cost, and heavy-task concurrency limits by global, role, and user layers.",
                         "ai_quota_policies": "AI Quota Policies JSON",
+                        "ai_alert_thresholds": "AI Alert Thresholds JSON",
                         "ai_image_title": "AI Image Generation",
                         "ai_image_description": "Configure models for generating blog covers and illustrations",
                         "ai_image_provider": "AI Image Provider",
@@ -1178,6 +1203,8 @@
                         "env_locked": "Locked by environment variable",
                         "ai_quota_policies_description": "Enter a JSON array of policies. The current implementation supports global, role, and user overrides; trust_level is reserved for a later phase.",
                         "ai_quota_policies": "Example:\n[\n  ｛\n    \"subjectType\": \"global\",\n    \"subjectValue\": \"default\",\n    \"scope\": \"all\",\n    \"period\": \"day\",\n    \"maxRequests\": 100,\n    \"maxQuotaUnits\": 200\n  ｝,\n  ｛\n    \"subjectType\": \"role\",\n    \"subjectValue\": \"author\",\n    \"scope\": \"image\",\n    \"period\": \"day\",\n    \"maxConcurrentHeavyTasks\": 2\n  ｝\n]",
+                        "ai_alert_thresholds_description": "Enter alert thresholds JSON. The first release supports quota usage, cost usage, and short-window failure burst alerts.",
+                        "ai_alert_thresholds": "Example:\n｛\n  \"enabled\": true,\n  \"quotaUsageRatios\": [0.5, 0.8, 1],\n  \"costUsageRatios\": [0.8, 1],\n  \"failureBurst\": ｛\n    \"enabled\": true,\n    \"windowMinutes\": 10,\n    \"maxFailures\": 3,\n    \"categories\": [\"image\", \"asr\", \"tts\", \"podcast\"]\n  ｝,\n  \"dedupeWindowMinutes\": 1440,\n  \"maxAlerts\": 10\n｝",
                         "keywords_placeholder": "One keyword per line. Matching comments will be marked as pending or spam.",
                         "file_types_placeholder": "e.g., .jpg, .png, .mp3 (Comma separated)",
                         "live2d_script_url": "e.g., https://unpkg.com/live2d-widgets{'@'}1.0.0/dist/",

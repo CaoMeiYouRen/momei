@@ -1,8 +1,27 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import handler from './stats.get'
 import { dataSource } from '@/server/database'
+import { evaluateAIUsageAlerts } from '@/server/services/ai/usage-alerts'
 
 vi.mock('@/server/database')
+vi.mock('@/server/services/ai/usage-alerts', () => ({
+    evaluateAIUsageAlerts: vi.fn().mockResolvedValue([
+        {
+            dedupeKey: 'quota_usage:user-1:all:day:0.8',
+            kind: 'quota_usage',
+            severity: 'warning',
+            period: 'day',
+            scope: 'all',
+            subjectType: 'user',
+            subjectValue: 'user-1',
+            subjectName: 'Author',
+            threshold: 0.8,
+            usedValue: 18,
+            limitValue: 20,
+            ratio: 0.9,
+        },
+    ]),
+}))
 
 function createAggregateBuilder(result: any, method: 'getRawOne' | 'getRawMany' = 'getRawMany') {
     const queryBuilder: Record<string, any> = {
@@ -31,6 +50,22 @@ describe('GET /api/admin/ai/stats', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         vi.stubGlobal('requireAdmin', vi.fn().mockResolvedValue({ user: { id: 'admin-1', role: 'admin' } }))
+        vi.mocked(evaluateAIUsageAlerts).mockResolvedValue([
+            {
+                dedupeKey: 'quota_usage:user-1:all:day:0.8',
+                kind: 'quota_usage',
+                severity: 'warning',
+                period: 'day',
+                scope: 'all',
+                subjectType: 'user',
+                subjectValue: 'user-1',
+                subjectName: 'Author',
+                threshold: 0.8,
+                usedValue: 18,
+                limitValue: 20,
+                ratio: 0.9,
+            },
+        ])
     })
 
     it('should return governance overview and grouped stats', async () => {
@@ -72,5 +107,10 @@ describe('GET /api/admin/ai/stats', () => {
         expect(result.failureStageStats[0]).toEqual(expect.objectContaining({
             failureStage: 'provider_processing',
         }))
+        expect(result.alerts[0]).toEqual(expect.objectContaining({
+            kind: 'quota_usage',
+            severity: 'warning',
+        }))
+        expect(evaluateAIUsageAlerts).toHaveBeenCalledTimes(1)
     })
 })
