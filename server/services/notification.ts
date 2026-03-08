@@ -11,6 +11,7 @@ import { User } from '@/server/entities/user'
 import { isAdmin } from '@/utils/shared/roles'
 import logger from '@/server/utils/logger'
 import { htmlToPlainText } from '@/server/utils/html'
+import { appendPostCopyrightNotice } from '@/utils/shared/post-copyright'
 
 /**
  * 发送管理员站务通知
@@ -76,6 +77,7 @@ export async function createCampaignFromPost(
 
     const config = useRuntimeConfig()
     const siteUrl = config.public.siteUrl || 'https://momei.app'
+    const defaultLicense = config.public.defaultCopyright || 'all-rights-reserved'
 
     // 构造文章链接
     const langPrefix = post.language === 'zh-CN' ? '' : `/${post.language}`
@@ -98,7 +100,14 @@ export async function createCampaignFromPost(
     campaign.title = post.title
 
     // 提取正文摘要，不带多余的 HTML 容器，真正的模板在发送阶段渲染
-    campaign.content = post.summary || htmlToPlainText(post.content).substring(0, 200).trim()
+    const excerpt = post.summary || htmlToPlainText(post.content).substring(0, 200).trim()
+    campaign.content = appendPostCopyrightNotice(excerpt, {
+        authorName: post.author?.name || post.author?.email || null,
+        url: postUrl,
+        license: post.copyright,
+        defaultLicense,
+        locale: post.language,
+    })
 
     campaign.type = MarketingCampaignType.BLOG_POST
     campaign.senderId = senderId

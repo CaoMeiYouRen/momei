@@ -20,6 +20,10 @@ vi.mock('./templates', () => ({
             html: '<html>Test Message HTML</html>',
             text: 'Test Message Text',
         }),
+        generateMarketingEmailTemplate: vi.fn().mockResolvedValue({
+            html: '<html>Test Marketing HTML</html>',
+            text: 'Test Marketing Text',
+        }),
     },
 }))
 
@@ -288,6 +292,47 @@ describe('server/utils/email/service', () => {
             })
             expect(logger.email.sent).toHaveBeenCalledWith({
                 type: 'subscription-confirm',
+                email,
+            })
+        })
+    })
+
+    describe('sendMarketingEmail', () => {
+        it('应该将当前版权尾注文案作为摘要的一部分发送', async () => {
+            const email = 'test@example.com'
+            const summary = [
+                '这是摘要',
+                '----------',
+                '本文作者: 草梅友仁',
+                '本文链接: https://momei.app/posts/test-post',
+                '版权声明: 本博客所有文章除特别声明外，均采用 CC BY-NC-SA 4.0（署名-非商业性使用-相同方式共享） 许可协议。转载请注明出处！',
+            ].join('\n')
+
+            await emailService.sendMarketingEmail(email, {
+                title: '测试营销邮件',
+                summary,
+                articleTitle: '测试文章',
+                authorName: '草梅友仁',
+                categoryName: '默认分类',
+                publishDate: '2026-03-09 10:00',
+                actionUrl: 'https://momei.app/posts/test-post',
+            })
+
+            expect(emailTemplateEngine.generateMarketingEmailTemplate).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    message: expect.stringContaining('本文链接: https://momei.app/posts/test-post<br/>版权声明: 本博客所有文章除特别声明外，均采用 CC BY-NC-SA 4.0（署名-非商业性使用-相同方式共享） 许可协议。转载请注明出处！'),
+                    articleTitle: '测试文章',
+                }),
+                expect.any(Object),
+            )
+            expect(sendEmail).toHaveBeenCalledWith({
+                to: email,
+                subject: expect.stringContaining('测试营销邮件'),
+                html: '<html>Test Marketing HTML</html>',
+                text: 'Test Marketing Text',
+            })
+            expect(logger.email.sent).toHaveBeenCalledWith({
+                type: 'marketing-campaign',
                 email,
             })
         })

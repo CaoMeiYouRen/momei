@@ -183,8 +183,12 @@ describe('notification service', () => {
                 title: '测试文章',
                 summary: '这是摘要',
                 content: '这是内容',
+                slug: 'test-post',
+                language: 'zh-CN',
+                copyright: 'cc-by-nc-sa',
                 categoryId: 'cat1',
                 tags: [{ id: 'tag1' }, { id: 'tag2' }],
+                author: { name: '草梅友仁', email: 'author@example.com' },
             }
 
             const mockPostRepo = {
@@ -208,7 +212,10 @@ describe('notification service', () => {
             const campaign = await createCampaignFromPost('post1', 'sender1', MarketingCampaignStatus.DRAFT)
 
             expect(campaign.title).toBe('测试文章')
-            expect(campaign.content).toBe('这是摘要')
+            expect(campaign.content).toContain('这是摘要')
+            expect(campaign.content).toContain('本文作者: 草梅友仁')
+            expect(campaign.content).toContain('本文链接: https://momei.app/posts/test-post')
+            expect(campaign.content).toContain('版权声明: 本博客所有文章除特别声明外，均采用 CC BY-NC-SA 4.0（署名-非商业性使用-相同方式共享） 许可协议。转载请注明出处！')
             expect(campaign.type).toBe(MarketingCampaignType.BLOG_POST)
             expect(campaign.senderId).toBe('sender1')
             expect(campaign.status).toBe(MarketingCampaignStatus.DRAFT)
@@ -225,8 +232,12 @@ describe('notification service', () => {
                 title: '测试文章',
                 summary: null,
                 content: longContent,
+                slug: 'test-post',
+                language: 'zh-CN',
+                copyright: 'all-rights-reserved',
                 categoryId: null,
                 tags: [],
+                author: { name: '草梅友仁', email: 'author@example.com' },
             }
 
             const mockPostRepo = {
@@ -249,7 +260,8 @@ describe('notification service', () => {
 
             const campaign = await createCampaignFromPost('post1', 'sender1')
 
-            expect(campaign.content).toBe(longContent.substring(0, 200))
+            expect(campaign.content).toContain(longContent.substring(0, 200))
+            expect(campaign.content).toContain('版权声明: 所有权利保留（禁止转载）')
         })
 
         it('应该在文章不存在时抛出错误', async () => {

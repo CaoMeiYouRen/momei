@@ -36,3 +36,20 @@ export function htmlToPlainText(html: string): string {
 
     return convert(html, defaultTextConvertOptions).trim()
 }
+
+/**
+ * 将纯文本安全转换为 HTML（保留换行）。
+ */
+export function plainTextToHtml(input: string): string {
+    if (!input) {
+        return ''
+    }
+
+    return input
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll('\'', '&#39;')
+        .replace(/\n/gu, '<br/>')
+}

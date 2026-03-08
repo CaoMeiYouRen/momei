@@ -7,6 +7,7 @@ import logger from '@/server/utils/logger'
 import { createMemo, type MemosCreateResponse } from '@/server/utils/memos'
 import type { Post, PublishIntent } from '@/types/post'
 import { SettingKey } from '@/types/setting'
+import { appendPostCopyrightNotice } from '@/utils/shared/post-copyright'
 import { buildAbsoluteUrl } from '@/utils/shared/seo'
 import { MarketingCampaignStatus } from '@/utils/shared/notification'
 
@@ -83,9 +84,11 @@ async function syncPostToMemos(post: Post) {
 
 async function buildMemoContent(post: Post) {
     const siteUrl = await resolveSiteUrl()
+    const distributionPost = await loadDistributionPost(post)
     const langPrefix = post.language === 'zh-CN' ? '' : `/${post.language}`
     const postUrl = buildAbsoluteUrl(siteUrl, `${langPrefix}/posts/${post.slug || post.id}`)
-    const excerpt = buildPostExcerpt(post)
+    const excerpt = buildPostExcerpt(distributionPost)
+    const defaultLicense = await getSetting(SettingKey.SITE_COPYRIGHT)
 
     const parts = [`# ${post.title}`]
     if (excerpt) {
@@ -93,7 +96,13 @@ async function buildMemoContent(post: Post) {
     }
     parts.push(`[阅读全文](${postUrl})`)
 
-    return parts.join('\n\n')
+    return appendPostCopyrightNotice(parts.join('\n\n'), {
+        authorName: distributionPost.author?.name || null,
+        url: postUrl,
+        license: distributionPost.copyright,
+        defaultLicense,
+        locale: distributionPost.language,
+    }, 'markdown')
 }
 
 function buildPostExcerpt(post: Post) {
@@ -119,6 +128,14 @@ async function resolveSiteUrl() {
 
     const runtimeConfig = useRuntimeConfig()
     return runtimeConfig.public.siteUrl || 'https://momei.app'
+}
+
+async function loadDistributionPost(post: Post) {
+    const postRepo = dataSource.getRepository(PostEntity)
+    return await postRepo.findOne({
+        where: { id: post.id },
+        relations: ['author'],
+    }) || post
 }
 
 function resolveMemosId(memo: MemosCreateResponse) {

@@ -1,4 +1,5 @@
 import logger from '../logger'
+import { plainTextToHtml } from '../html'
 import { emailTemplateEngine } from './templates'
 import { emailI18n } from './i18n'
 import { sendEmail } from './index'
@@ -495,7 +496,7 @@ export const emailService = {
             const { html, text } = await emailTemplateEngine.generateMarketingEmailTemplate(
                 {
                     headerIcon: i18n.headerIcon,
-                    message: campaignData.summary,
+                    message: plainTextToHtml(campaignData.summary),
                     articleTitle: campaignData.articleTitle,
                     authorLabel: i18n.author,
                     authorName: campaignData.authorName,

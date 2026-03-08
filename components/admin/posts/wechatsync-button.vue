@@ -175,7 +175,9 @@ import { ref, onMounted } from 'vue'
 import { useIntervalFn, useTimeoutFn } from '@vueuse/core'
 import { useToast } from 'primevue/usetoast'
 import type { Post } from '@/types/post'
+import { appendPostCopyrightNotice } from '@/utils/shared/post-copyright'
 import { createMarkdownRenderer } from '@/utils/shared/markdown'
+import { buildAbsoluteUrl } from '@/utils/shared/seo'
 
 const props = defineProps<{
     post: Post
@@ -184,6 +186,7 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const toast = useToast()
+const runtimeConfig = useRuntimeConfig()
 
 const dialogVisible = ref(false)
 const submitting = ref(false)
@@ -259,11 +262,24 @@ const doSubmit = () => {
         withAnchor: true,
     })
 
-    const renderedContent = md.render(props.post.content || '')
+    const langPrefix = props.post.language === 'zh-CN' ? '' : `/${props.post.language}`
+    const postUrl = buildAbsoluteUrl(
+        runtimeConfig.public.siteUrl || window.location.origin,
+        `${langPrefix}/posts/${props.post.slug || props.post.id}`,
+    )
+    const markdownWithCopyright = appendPostCopyrightNotice(props.post.content || '', {
+        authorName: props.post.author?.name || null,
+        url: postUrl,
+        license: props.post.copyright,
+        defaultLicense: runtimeConfig.public.defaultCopyright || 'all-rights-reserved',
+        locale: props.post.language,
+    }, 'markdown')
+
+    const renderedContent = md.render(markdownWithCopyright)
 
     const postToSync = {
         title: props.post.title,
-        markdown: props.post.content, // markdown 格式
+        markdown: markdownWithCopyright, // markdown 格式
         content: renderedContent, // HTML 格式，供部分平台使用
         // desc for some platforms
         desc: props.post.summary || props.post.content.substring(0, 100).replace(/[#*`]/g, ''),

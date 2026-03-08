@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { executePublishEffects } from './post-publish'
 import { createCampaignFromPost, sendMarketingCampaign } from './notification'
+import { Post as PostEntity } from '@/server/entities/post'
 import { PostStatus, PostVisibility, type Post } from '@/types/post'
 import { getSetting } from '@/server/services/setting'
 import { createMemo } from '@/server/utils/memos'
@@ -41,10 +42,37 @@ describe('post-publish service', () => {
             findOne: findOneMock,
             save: saveMock,
         })
-        findOneMock.mockResolvedValue({ id: 'post-1', metadata: null, metaVersion: 0 })
+        getRepositoryMock.mockImplementation((entity: unknown) => {
+            if ((entity as { name?: string })?.name === PostEntity.name) {
+                return {
+                    findOne: findOneMock,
+                    save: saveMock,
+                }
+            }
+
+            return {
+                findOne: findOneMock,
+                save: saveMock,
+            }
+        })
+        findOneMock
+            .mockResolvedValueOnce({
+                id: 'post-1',
+                title: 'Test Post',
+                summary: 'Test summary',
+                content: 'Test content',
+                slug: 'test-post',
+                language: 'zh-CN',
+                copyright: 'cc-by-nc-sa',
+                author: { name: '草梅友仁', email: 'author@example.com' },
+            })
+            .mockResolvedValueOnce({ id: 'post-1', metadata: null, metaVersion: 0 })
         vi.mocked(getSetting).mockImplementation((key: string) => {
             if (key === 'site_url') {
                 return Promise.resolve('https://momei.app')
+            }
+            if (key === 'site_copyright') {
+                return Promise.resolve('all-rights-reserved')
             }
             return Promise.resolve(null)
         })
@@ -81,7 +109,11 @@ describe('post-publish service', () => {
             expect(vi.mocked(createMemo).mock.calls[0]?.[0]?.content).toContain('# Test Post')
             expect(vi.mocked(createMemo).mock.calls[0]?.[0]?.content).toContain('Test summary')
             expect(vi.mocked(createMemo).mock.calls[0]?.[0]?.content).toContain('[阅读全文](https://momei.app/posts/test-post)')
-            expect(findOneMock).toHaveBeenCalledWith({ where: { id: 'post-1' } })
+            expect(vi.mocked(createMemo).mock.calls[0]?.[0]?.content).toContain('本文作者: 草梅友仁')
+            expect(vi.mocked(createMemo).mock.calls[0]?.[0]?.content).toContain('本文链接: https://momei.app/posts/test-post')
+            expect(vi.mocked(createMemo).mock.calls[0]?.[0]?.content).toContain('版权声明: 本博客所有文章除特别声明外，均采用 CC BY-NC-SA 4.0（署名-非商业性使用-相同方式共享） 许可协议。转载请注明出处！')
+            expect(findOneMock).toHaveBeenNthCalledWith(1, { where: { id: 'post-1' }, relations: ['author'] })
+            expect(findOneMock).toHaveBeenNthCalledWith(2, { where: { id: 'post-1' } })
             expect(saveMock).toHaveBeenCalledWith({
                 id: 'post-1',
                 metadata: {
@@ -161,6 +193,13 @@ describe('post-publish service', () => {
         })
 
         it('should swallow memos sync errors and continue', async () => {
+            findOneMock.mockReset()
+            findOneMock.mockResolvedValue({
+                id: 'post-1',
+                language: 'zh-CN',
+                copyright: 'cc-by-nc-sa',
+                author: { name: '草梅友仁', email: 'author@example.com' },
+            })
             vi.mocked(createMemo).mockRejectedValue(new Error('Memos sync failed'))
 
             const intent = {
@@ -206,6 +245,7 @@ describe('post-publish service', () => {
         })
 
         it('should skip memos sync when integration metadata already exists', async () => {
+            findOneMock.mockReset()
             const syncedPost: Post = {
                 ...mockPost,
                 metadata: {
