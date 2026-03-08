@@ -125,6 +125,41 @@ describe('UploadService', () => {
                 driverBaseUrl: 'https://cdn.example.com',
             })).toBe('https://assets.example.com/file/test.jpg')
         })
+
+        it('should resolve uploaded file url with driver base url when asset public base url is missing', () => {
+            expect(resolveUploadedFileUrl('file/test.jpg', {
+                assetPublicBaseUrl: '',
+                driverBaseUrl: 'https://cdn.example.com',
+            })).toBe('https://cdn.example.com/file/test.jpg')
+        })
+
+        it('should return object key directly when both base urls are missing', () => {
+            expect(resolveUploadedFileUrl('file/test.jpg', {
+                assetPublicBaseUrl: '',
+                driverBaseUrl: '',
+            })).toBe('file/test.jpg')
+        })
+
+        it('should handle trailing slashes in base url correctly', () => {
+            expect(resolveUploadedFileUrl('file/test.jpg', {
+                assetPublicBaseUrl: 'https://assets.example.com/',
+                driverBaseUrl: 'https://cdn.example.com',
+            })).toBe('https://assets.example.com/file/test.jpg')
+        })
+
+        it('should handle absolute paths without http protocol', () => {
+            expect(resolveUploadedFileUrl('file/test.jpg', {
+                assetPublicBaseUrl: '/uploads',
+                driverBaseUrl: '',
+            })).toBe('/uploads/file/test.jpg')
+        })
+
+        it('should normalize multiple slashes in non-http urls', () => {
+            expect(resolveUploadedFileUrl('file/test.jpg', {
+                assetPublicBaseUrl: '/uploads/',
+                driverBaseUrl: '',
+            })).toBe('/uploads/file/test.jpg')
+        })
     })
 
     describe('checkUploadLimits', () => {
