@@ -50,7 +50,12 @@ export function resolveS3Env(env: S3Env): ResolvedS3Env {
 }
 
 export function shouldUseS3PathStyle(env: ResolvedS3Env): boolean {
-    return !env.S3_ENDPOINT.includes('.amazonaws.com')
+    try {
+        const url = new URL(env.S3_ENDPOINT)
+        return !url.hostname.endsWith('.amazonaws.com')
+    } catch {
+        return !env.S3_ENDPOINT.includes('.amazonaws.com')
+    }
 }
 
 export function createS3Client(env: S3Env): S3Client {

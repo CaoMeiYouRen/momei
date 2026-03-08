@@ -11,11 +11,15 @@ export const i18nStorage = new AsyncLocalStorage<string>()
 // 缓存加载的翻译消息，避免重复读取
 const localeCache = new Map<string, Record<string, any>>()
 
-function deepMergeMessages(
+export function deepMergeMessages(
     target: Record<string, any>,
     source: Record<string, any>,
 ): Record<string, any> {
     Object.entries(source).forEach(([key, value]) => {
+        if (key === '__proto__' || key === 'constructor') {
+            return
+        }
+
         const current = target[key]
         if (
             value

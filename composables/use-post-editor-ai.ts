@@ -72,58 +72,56 @@ export function usePostEditorAI(
         return new Error(t('pages.admin.posts.ai_error'))
     }
 
-    const waitForTranslationTask = async (taskId: string) => {
-        return await new Promise<string>((resolve, reject) => {
-            let settled = false
-            let requestInFlight = false
-            let stopPolling = () => {}
+    const waitForTranslationTask = async (taskId: string) => await new Promise<string>((resolve, reject) => {
+        let settled = false
+        let requestInFlight = false
+        let stopPolling = () => {}
 
-            const finalize = (handler: () => void) => {
-                if (settled) {
+        const finalize = (handler: () => void) => {
+            if (settled) {
+                return
+            }
+
+            settled = true
+            stopPolling()
+            handler()
+        }
+
+        const pollTask = async () => {
+            if (settled || requestInFlight) {
+                return
+            }
+
+            requestInFlight = true
+            try {
+                const response = await $fetch<{ code: number, data: AITaskStatusPayload }>(
+                    `/api/ai/task/status/${taskId}`,
+                )
+                const task = response.data
+
+                if (task.status === 'completed') {
+                    finalize(() => resolve(extractTranslatedContent(task.result)))
                     return
                 }
 
-                settled = true
-                stopPolling()
-                handler()
-            }
-
-            const pollTask = async () => {
-                if (settled || requestInFlight) {
-                    return
+                if (task.status === 'failed') {
+                    finalize(() => reject(new Error(task.error || t('pages.admin.posts.ai_error'))))
                 }
-
-                requestInFlight = true
-                try {
-                    const response = await $fetch<{ code: number, data: AITaskStatusPayload }>(
-                        `/api/ai/task/status/${taskId}`,
-                    )
-                    const task = response.data
-
-                    if (task.status === 'completed') {
-                        finalize(() => resolve(extractTranslatedContent(task.result)))
-                        return
-                    }
-
-                    if (task.status === 'failed') {
-                        finalize(() => reject(new Error(task.error || t('pages.admin.posts.ai_error'))))
-                    }
-                } catch (error) {
-                    finalize(() => reject(toError(error)))
-                } finally {
-                    requestInFlight = false
-                }
+            } catch (error) {
+                finalize(() => reject(toError(error)))
+            } finally {
+                requestInFlight = false
             }
+        }
 
-            const { pause, resume } = useIntervalFn(() => {
-                void pollTask()
-            }, MIN_TASK_POLLING_INTERVAL, { immediate: false })
-
-            stopPolling = pause
+        const { pause, resume } = useIntervalFn(() => {
             void pollTask()
-            resume()
-        })
-    }
+        }, MIN_TASK_POLLING_INTERVAL, { immediate: false })
+
+        stopPolling = pause
+        void pollTask()
+        resume()
+    })
 
     const requestTranslatedText = async (content: string, targetLanguage: string) => {
         const response = await $fetch<{ code: number, data: TranslateApiResult }>('/api/ai/translate', {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { i18nStorage, t, loadLocaleMessages, getLocale } from './i18n'
+import { i18nStorage, t, loadLocaleMessages, getLocale, deepMergeMessages } from './i18n'
 import { toProjectLocale, DEFAULT_LOCALE } from './locale'
 
 describe('server/utils/i18n.ts', () => {
@@ -51,5 +51,25 @@ describe('server/utils/i18n.ts', () => {
         await i18nStorage.run('fr-FR', async () => {
             expect(getLocale()).toBe('zh-CN')
         })
+    })
+
+    it('should prevent prototype pollution in deepMergeMessages', () => {
+        const target: Record<string, any> = {}
+        const source = JSON.parse('{"__proto__": {"polluted1": "yes"}, "constructor": {"polluted2": "yes"}}')
+
+        deepMergeMessages(target, source)
+
+        expect(Object.hasOwn(target, '__proto__')).toBe(false)
+        expect(Object.hasOwn(target, 'constructor')).toBe(false)
+        // Ensure no actual pollution happened
+        // @ts-expect-error test pollution
+        expect({}.polluted1).toBeUndefined()
+    })
+
+    it('should deep merge objects correctly', () => {
+        const target = { a: { b: 1 } }
+        const source = { a: { c: 2 }, d: 3 }
+        const result = deepMergeMessages(target, source)
+        expect(result).toEqual({ a: { b: 1, c: 2 }, d: 3 })
     })
 })
