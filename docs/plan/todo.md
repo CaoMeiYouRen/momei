@@ -63,6 +63,8 @@
 	- [ ] 建立多语言 SEO 关键页面的自动化校验方案，覆盖首页、文章页、分类页等核心场景
 
 ### 5. 云端存储与静态资源优化 (Cloud Storage & Static Assets Optimization) (P1)
+> 当前执行策略: 先完成存储模块设计文档，收敛 `local / s3 / r2 / oss / vercel_blob` 的统一枚举与 provider profile，明确 `put-presign`、`post-policy`、`sts-credential` 三类直传模式，以及公共访问地址解析优先级与存量资源重写边界；随后按“统一授权接口 -> 首批 put-presign profile -> 前端直传 -> 地址治理与迁移 -> 测试与部署文档”顺序实施。
+
 - [ ] **前端直传 OSS 能力**
 	- [ ] 建立后端签名、前端直传的图片/音频/视频上传链路，减少服务端中转压力
 	- [ ] 兼容主流对象存储接口（如 S3 兼容协议），并明确权限与时效边界
