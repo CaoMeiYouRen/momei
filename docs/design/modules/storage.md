@@ -143,9 +143,18 @@ export interface DirectUploadCapability {
 对象存储中的路径前缀遵循以下规则：
 1. **`ASSET_OBJECT_PREFIX` (全局)**: 统一的对象键前缀（如 `momei-blog/`）。
 2. **驱动级前缀**: 如 `S3_BUCKET_PREFIX` 或 `BUCKET_PREFIX`。
-3. **业务默认路径**: 如 `image/`、`audio/`。
+3. **业务默认路径**: 优先按业务归属建模，例如 `avatars/{userId}/` 与 `posts/{postId}/{image|audio|video|file}/`。
 
 最终生成的对象路径格式为：`[GlobalPrefix][DriverPrefix][BusinessPrefix][Filename]`。
+
+### 6.3 业务默认路径策略 (Business Default Path Strategy)
+
+- 路径规划遵循“业务归属优先，媒体类型次之”的原则，而不是单纯按来源或 MIME 大类切一级目录。
+- 用户头像继续固定归档到 `avatars/{userId}/`，便于后续用户资料替换、清理与配额治理。
+- 文章关联资源统一归档到 `posts/{postId}/{image|audio|video|file}/`。
+- 若文章资源还需要表达用途，可在媒体类型后追加用途子目录，例如 `posts/{postId}/audio/tts/`、`posts/{postId}/image/cover/`。
+- 文章相关的 AI 图片、TTS 音频等产物在生成时就应直接写入对应文章目录，不再额外拆分独立的来源型顶级目录，以避免后续搬运、回写与清理链路复杂化。
+- `image/`、`audio/`、`video/`、`file/` 仍可作为未来“无明确业务归属”文件的兜底类型目录，但不作为文章资源的主路径模型。
 
 ## 7. 存量资源迁移与重写 (Migration & Rewrite)
 
@@ -373,6 +382,7 @@ interface CreateUploadPresignResponse {
 ### 7.3 渐进式迁移策略 (Progressive Migration)
 
 - 新上传资源从落地开始返回 `objectKey + publicUrl`。
+- 新路径策略仅约束后续新写入对象键；文章相关 AI 图片、TTS 音频等应在生成时直接落到文章目录，不依赖生成后的二次搬运。
 - 存量历史数据先保持可用，优先通过解析器和公共域名完成“零改数据”切换。
 - 只有在确实存储了大量绝对 URL 且无法通过公共前缀覆盖时，才执行批量重写。
 
@@ -405,13 +415,15 @@ interface CreateUploadPresignResponse {
 3. 以 R2 和通用 S3 兼容存储作为第一批 `put-presign` profile 落地。
 4. 为 OSS 预留 `post-policy`、回调和 `sts-credential` profile 扩展点。
 5. 改造前端上传 composable，支持按模式分流。
-6. 收敛公共访问地址解析与对象前缀策略。
+6. 收敛公共访问地址解析、对象前缀与业务默认路径策略。
 7. 增加链接重写工具、测试与部署文档更新。
 
 受影响文件预计包括：
 
 - `server/utils/storage/*`
 - `server/services/upload.ts`
+- `server/services/ai/image.ts`
+- `server/services/ai/tts.ts`
 - `server/api/uploads/*`
 - `components/admin/settings/storage-settings.vue`
 - `components/installation/step-extra-config.vue`
@@ -426,5 +438,5 @@ interface CreateUploadPresignResponse {
 - [ ] 为 R2、通用 S3 兼容存储补齐 `put-presign` profile。
 - [ ] 为 OSS 设计并预留 `post-policy`、回调与 `sts-credential` profile。
 - [ ] 新增浏览器直传接口与前端上传链路。
-- [ ] 收敛 `asset_public_base_url` 与对象前缀策略。
+- [ ] 收敛 `asset_public_base_url`、对象前缀与业务默认路径策略。
 - [ ] 提供资源地址重写工具与测试。
