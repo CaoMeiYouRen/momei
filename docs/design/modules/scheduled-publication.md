@@ -79,11 +79,13 @@
 
 Vercel Cron 会自动把项目中的 `CRON_SECRET` 作为 `Authorization: Bearer <secret>` 发送到任务端点。
 
-当前实现约定：
+由于 Vercel Hobby 套餐限制单个 Cron 任务每天仅能执行一次，本项目采取了**多任务分发策略**：
 
-- Vercel 使用 [server/api/tasks/run-scheduled.get.ts](../../server/api/tasks/run-scheduled.get.ts) 处理平台默认 GET 调用
-- Bearer Token 与 `CRON_SECRET` 完全匹配时，任务来源标记为 `vercel`
-- 若未命中 `CRON_SECRET`，才会继续回落到旧版 `TASKS_TOKEN` 兼容模式
+- **实现方式**：在 [vercel.json](../../vercel.json) 中配置多个独立的 Cron 任务（默认为 12 个）。
+- **调度频率**：采取**隔小时触发**策略（如 00:00, 02:00 等），以规避 Vercel Hobby 套餐 $\pm 59$ 分钟的调度偏移导致的并发冲突。
+- **自定义建议**：若用户不需要高频执行，建议删除 [vercel.json](../../vercel.json) 中的冗余任务以节省 Serverless 额度；若需更高频率，可继续添加任务并保持至少 1 小时的理论间隔。
+- **鉴权机制**：Vercel 使用 [server/api/tasks/run-scheduled.get.ts](../../server/api/tasks/run-scheduled.get.ts) 处理平台默认 GET 调用。
+- **配置要求**：需在 Vercel 项目控制面板添加 `CRON_SECRET` 环境变量。
 
 ### 3.4 环境行为
 
