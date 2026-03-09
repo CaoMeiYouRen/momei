@@ -332,6 +332,18 @@ const form = ref({
 const submitting = ref(false)
 const captchaRef = ref<any>(null)
 
+// 如果用户已登录，预填充其姓名和邮箱
+watchEffect(() => {
+    if (user.value) {
+        if (user.value.name && !form.value.contactName) {
+            form.value.contactName = user.value.name
+        }
+        if (user.value.email && !form.value.contactEmail) {
+            form.value.contactEmail = user.value.email
+        }
+    }
+})
+
 const resetForm = () => {
     form.value = {
         name: '',
