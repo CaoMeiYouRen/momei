@@ -128,6 +128,13 @@
             "uncategorized": "未分类",
             "empty": "暂时还没有公开展示的友链。",
             "disabled": "当前站点暂未开放友链页面。",
+            "last_checked_at": "最近巡检",
+            "health_statuses": {
+                "unknown": "未巡检",
+                "healthy": "可访问",
+                "checking": "巡检中",
+                "unreachable": "访问异常"
+            },
             "form": {
                 "url": "站点地址",
                 "logo": "Logo 图片",

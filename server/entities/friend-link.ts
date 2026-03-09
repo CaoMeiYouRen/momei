@@ -3,7 +3,7 @@ import { CustomColumn } from '../decorators/custom-column'
 import { getDateType } from '../database/type'
 import { BaseEntity } from './base-entity'
 import { FriendLinkCategory } from './friend-link-category'
-import { FriendLinkStatus, type FriendLinkSource } from '@/types/friend-link'
+import { FriendLinkHealthStatus, FriendLinkStatus, type FriendLinkSource } from '@/types/friend-link'
 
 @Entity('friend_links')
 @Unique(['url'])
@@ -44,6 +44,12 @@ export class FriendLink extends BaseEntity {
 
     @CustomColumn({ type: 'int', default: 0 })
     sortOrder: number
+
+    @CustomColumn({ type: 'varchar', length: 20, default: FriendLinkHealthStatus.UNKNOWN, index: true })
+    healthStatus: FriendLinkHealthStatus
+
+    @CustomColumn({ type: 'int', default: 0 })
+    consecutiveFailures: number
 
     @CustomColumn({ type: getDateType(), nullable: true })
     lastCheckedAt: Date | null

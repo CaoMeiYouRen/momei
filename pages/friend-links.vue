@@ -80,6 +80,16 @@
                                     {{ item.description || $t('common.no_description') }}
                                 </p>
 
+                                <div class="links-page__health">
+                                    <Tag
+                                        :value="tt(`pages.links.health_statuses.${item.healthStatus || 'unknown'}`)"
+                                        :severity="getHealthStatusSeverity(item.healthStatus)"
+                                    />
+                                    <span class="links-page__health-time">
+                                        {{ tt('pages.links.last_checked_at') }}: {{ formatDateTime(item.lastCheckedAt) }}
+                                    </span>
+                                </div>
+
                                 <div class="links-page__card-actions">
                                     <a
                                         :href="item.url"
@@ -361,6 +371,27 @@ const resetForm = () => {
     }
 }
 
+const getHealthStatusSeverity = (status?: string) => {
+    switch (status) {
+        case 'healthy':
+            return 'success'
+        case 'unreachable':
+            return 'danger'
+        case 'checking':
+            return 'warning'
+        default:
+            return 'secondary'
+    }
+}
+
+const formatDateTime = (value?: string | null) => {
+    if (!value) {
+        return '-'
+    }
+
+    return new Date(value).toLocaleString()
+}
+
 const handleSubmit = async () => {
     const result = friendLinkApplicationSchema.safeParse(form.value)
 
@@ -568,6 +599,23 @@ const handleSubmit = async () => {
         margin: 0;
         color: var(--p-text-color);
         line-height: 1.7;
+    }
+
+    &__health {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+
+        @media (width <= 640px) {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    &__health-time {
+        color: var(--p-text-muted-color);
+        font-size: 0.85rem;
     }
 
     &__card-actions {

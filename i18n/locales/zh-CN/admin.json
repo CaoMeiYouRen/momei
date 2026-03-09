@@ -200,6 +200,7 @@
                 "review_note": "审核备注",
                 "sort_order": "排序值",
                 "last_checked_at": "最近巡检",
+                "health_status": "巡检状态",
                 "featured": "精选",
                 "pinned": "置顶",
                 "is_featured": "加入页脚精选",
@@ -217,6 +218,12 @@
                     "inactive": "停用",
                     "checking": "检测中",
                     "unreachable": "不可达"
+                },
+                "health_statuses": {
+                    "unknown": "未巡检",
+                    "healthy": "可访问",
+                    "checking": "巡检中",
+                    "unreachable": "访问异常"
                 },
                 "application_statuses": {
                     "pending": "待审核",

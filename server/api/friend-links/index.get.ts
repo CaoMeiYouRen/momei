@@ -1,5 +1,4 @@
 import { friendLinkService } from '@/server/services/friend-link'
-import { FriendLinkStatus } from '@/types/friend-link'
 import { success } from '@/server/utils/response'
 
 export default defineEventHandler(async (event) => {
@@ -14,8 +13,5 @@ export default defineEventHandler(async (event) => {
         categoryId,
     })
 
-    return success({
-        ...data,
-        status: FriendLinkStatus.ACTIVE,
-    })
+    return success(data)
 })

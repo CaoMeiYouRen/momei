@@ -55,6 +55,11 @@
                         <Tag :value="tt(`pages.admin.friend_links.statuses.${data.status}`)" :severity="getLinkStatusSeverity(data.status)" />
                     </template>
                 </Column>
+                <Column field="healthStatus" :header="tt('pages.admin.friend_links.health_status')">
+                    <template #body="{data}">
+                        <Tag :value="tt(`pages.admin.friend_links.health_statuses.${data.healthStatus || 'unknown'}`)" :severity="getHealthStatusSeverity(data.healthStatus)" />
+                    </template>
+                </Column>
                 <Column :header="tt('pages.admin.friend_links.featured')">
                     <template #body="{data}">
                         <Tag :value="data.isFeatured ? $t('common.yes') : $t('common.no')" :severity="data.isFeatured ? 'success' : 'secondary'" />
@@ -479,7 +484,7 @@
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { UploadType } from '@/composables/use-upload'
-import { FriendLinkApplicationStatus, FriendLinkStatus } from '@/types/friend-link'
+import { FriendLinkApplicationStatus, FriendLinkHealthStatus, FriendLinkStatus } from '@/types/friend-link'
 import { friendLinkSchema } from '@/utils/schemas/friend-link'
 
 definePageMeta({
@@ -546,7 +551,6 @@ const linkStatusOptions = computed(() => [
     { label: tt('pages.admin.friend_links.statuses.draft'), value: FriendLinkStatus.DRAFT },
     { label: tt('pages.admin.friend_links.statuses.active'), value: FriendLinkStatus.ACTIVE },
     { label: tt('pages.admin.friend_links.statuses.inactive'), value: FriendLinkStatus.INACTIVE },
-    { label: tt('pages.admin.friend_links.statuses.unreachable'), value: FriendLinkStatus.UNREACHABLE },
 ])
 
 const resetLinkForm = () => {
@@ -579,11 +583,20 @@ const getLinkStatusSeverity = (status: FriendLinkStatus) => {
     switch (status) {
         case FriendLinkStatus.ACTIVE:
             return 'success'
-        case FriendLinkStatus.UNREACHABLE:
-            return 'danger'
         case FriendLinkStatus.DRAFT:
             return 'info'
-        case FriendLinkStatus.CHECKING:
+        default:
+            return 'secondary'
+    }
+}
+
+const getHealthStatusSeverity = (status?: FriendLinkHealthStatus) => {
+    switch (status) {
+        case FriendLinkHealthStatus.HEALTHY:
+            return 'success'
+        case FriendLinkHealthStatus.UNREACHABLE:
+            return 'danger'
+        case FriendLinkHealthStatus.CHECKING:
             return 'warning'
         default:
             return 'secondary'

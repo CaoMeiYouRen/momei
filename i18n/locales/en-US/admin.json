@@ -200,6 +200,7 @@
                 "review_note": "Review Note",
                 "sort_order": "Sort Order",
                 "last_checked_at": "Last Checked",
+                "health_status": "Health Status",
                 "featured": "Featured",
                 "pinned": "Pinned",
                 "is_featured": "Include in Footer Feature",
@@ -215,6 +216,12 @@
                     "draft": "Draft",
                     "active": "Active",
                     "inactive": "Inactive",
+                    "checking": "Checking",
+                    "unreachable": "Unreachable"
+                },
+                "health_statuses": {
+                    "unknown": "Not Checked",
+                    "healthy": "Reachable",
                     "checking": "Checking",
                     "unreachable": "Unreachable"
                 },

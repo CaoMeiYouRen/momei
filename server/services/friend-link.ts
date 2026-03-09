@@ -9,6 +9,7 @@ import { assignDefined } from '@/server/utils/object'
 import { ensureFound, paginate } from '@/server/utils/response'
 import { isValidCustomUrl } from '@/server/utils/security'
 import {
+    FriendLinkHealthStatus,
     FriendLinkApplicationStatus,
     FriendLinkStatus,
     type FriendLinkHealthCheckResult,
@@ -18,6 +19,17 @@ import { SettingKey } from '@/types/setting'
 
 const DEFAULT_FOOTER_LIMIT = 6
 const DEFAULT_CHECK_INTERVAL_MINUTES = 1440
+const LEGACY_UNREACHABLE_STATUS = 'unreachable'
+
+function getAutoDisableFailureThreshold() {
+    const raw = Number(process.env.FRIEND_LINKS_AUTO_DISABLE_FAILURE_THRESHOLD || 0)
+
+    if (!Number.isFinite(raw) || raw < 0) {
+        return 0
+    }
+
+    return Math.floor(raw)
+}
 
 function normalizeOptionalString(value?: string | null) {
     const normalized = value?.trim()
@@ -336,7 +348,9 @@ export const friendLinkService = {
         const friendLinkRepo = dataSource.getRepository(FriendLink)
         const qb = friendLinkRepo.createQueryBuilder('friendLink')
             .leftJoinAndSelect('friendLink.category', 'category')
-            .where('friendLink.status = :status', { status: FriendLinkStatus.ACTIVE })
+            .where('friendLink.status IN (:...statuses)', {
+                statuses: [FriendLinkStatus.ACTIVE, LEGACY_UNREACHABLE_STATUS],
+            })
             .orderBy('friendLink.isPinned', 'DESC')
             .addOrderBy('friendLink.sortOrder', 'ASC')
             .addOrderBy('friendLink.createdAt', 'DESC')
@@ -409,6 +423,8 @@ export const friendLinkService = {
         entity.isPinned = input.isPinned ?? false
         entity.isFeatured = input.isFeatured ?? false
         entity.sortOrder = input.sortOrder ?? 0
+        entity.healthStatus = FriendLinkHealthStatus.UNKNOWN
+        entity.consecutiveFailures = 0
         entity.createdById = operatorId
 
         return await saveFriendLinkEntity(entity, input, operatorId)
@@ -562,6 +578,8 @@ export const friendLinkService = {
                 existingLink.contactEmail = normalizeOptionalString(input.linkData?.contactEmail as string | undefined) ?? application.contactEmail
                 existingLink.categoryId = normalizeOptionalString(input.linkData?.categoryId as string | undefined) ?? application.categoryId
                 existingLink.status = input.linkData?.status ?? FriendLinkStatus.ACTIVE
+                existingLink.healthStatus = FriendLinkHealthStatus.UNKNOWN
+                existingLink.consecutiveFailures = 0
                 existingLink.isPinned = input.linkData?.isPinned ?? existingLink.isPinned
                 existingLink.isFeatured = input.linkData?.isFeatured ?? existingLink.isFeatured
                 existingLink.sortOrder = input.linkData?.sortOrder ?? existingLink.sortOrder
@@ -607,9 +625,10 @@ export const friendLinkService = {
 
         const friendLinkRepo = dataSource.getRepository(FriendLink)
         const cutoff = new Date(Date.now() - meta.checkIntervalMinutes * 60 * 1000)
+        const autoDisableFailureThreshold = getAutoDisableFailureThreshold()
         const candidates = await friendLinkRepo.createQueryBuilder('friendLink')
             .where('friendLink.status IN (:...statuses)', {
-                statuses: [FriendLinkStatus.ACTIVE, FriendLinkStatus.UNREACHABLE],
+                statuses: [FriendLinkStatus.ACTIVE, LEGACY_UNREACHABLE_STATUS],
             })
             .andWhere('(friendLink.lastCheckedAt IS NULL OR friendLink.lastCheckedAt <= :cutoff)', { cutoff })
             .orderBy('friendLink.lastCheckedAt', 'ASC')
@@ -618,11 +637,29 @@ export const friendLinkService = {
             .getMany()
 
         for (const candidate of candidates) {
+            // 历史兼容：旧数据可能把巡检结果写进 status，这里统一迁回人工状态。
+            if (String(candidate.status) === LEGACY_UNREACHABLE_STATUS) {
+                candidate.status = FriendLinkStatus.ACTIVE
+            }
+
+            candidate.healthStatus = FriendLinkHealthStatus.CHECKING
             const result = await probeFriendLink(candidate.url)
             candidate.lastCheckedAt = new Date()
             candidate.lastHttpStatus = result.httpStatus
             candidate.lastErrorMessage = result.errorMessage
-            candidate.status = result.ok ? FriendLinkStatus.ACTIVE : FriendLinkStatus.UNREACHABLE
+
+            if (result.ok) {
+                candidate.healthStatus = FriendLinkHealthStatus.HEALTHY
+                candidate.consecutiveFailures = 0
+            } else {
+                candidate.healthStatus = FriendLinkHealthStatus.UNREACHABLE
+                candidate.consecutiveFailures = (candidate.consecutiveFailures || 0) + 1
+
+                if (autoDisableFailureThreshold > 0 && candidate.consecutiveFailures >= autoDisableFailureThreshold) {
+                    candidate.status = FriendLinkStatus.INACTIVE
+                }
+            }
+
             await friendLinkRepo.save(candidate)
         }
 

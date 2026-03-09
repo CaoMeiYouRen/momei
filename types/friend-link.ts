@@ -2,8 +2,13 @@ export enum FriendLinkStatus {
     DRAFT = 'draft',
     ACTIVE = 'active',
     INACTIVE = 'inactive',
-    CHECKING = 'checking',
+}
+
+export enum FriendLinkHealthStatus {
+    UNKNOWN = 'unknown',
+    HEALTHY = 'healthy',
     UNREACHABLE = 'unreachable',
+    CHECKING = 'checking',
 }
 
 export enum FriendLinkApplicationStatus {

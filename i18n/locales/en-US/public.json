@@ -128,6 +128,13 @@
             "uncategorized": "Uncategorized",
             "empty": "There are no public friend links yet.",
             "disabled": "Friend links are currently not enabled on this site.",
+            "last_checked_at": "Last Checked",
+            "health_statuses": {
+                "unknown": "Not Checked",
+                "healthy": "Reachable",
+                "checking": "Checking",
+                "unreachable": "Unreachable"
+            },
             "form": {
                 "url": "Site URL",
                 "logo": "Logo Image",

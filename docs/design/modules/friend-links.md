@@ -71,7 +71,9 @@ flowchart TD
 - `rssUrl`: 可选 RSS 地址。
 - `contactEmail`: 可选联系方式。
 - `categoryId`: 分类 ID。
-- `status`: `draft | active | inactive | checking | unreachable`。
+- `status`: `draft | active | inactive`，用于管理员控制是否上架。
+- `healthStatus`: `unknown | healthy | checking | unreachable`，用于记录巡检结果，不直接决定上架状态。
+- `consecutiveFailures`: 连续失败次数，用于阈值化自动处理策略。
 - `source`: `manual | application`，标识来源。
 - `isPinned`: 是否置顶。
 - `isFeatured`: 是否在底栏精选展示。
@@ -185,7 +187,8 @@ flowchart TD
 - 默认仅扫描 `active` 状态的正式友链。
 - 使用 `HEAD` 优先，失败时可回退 `GET`。
 - 记录 HTTP 状态码、错误摘要和最近巡检时间。
-- 连续失败不立即删除，仅标记为 `unreachable`，交由管理员处理。
+- 巡检结果仅写入 `healthStatus` 与连续失败计数，不直接修改 `status`。
+- 默认不自动下架；可通过环境变量配置“连续失败阈值”后再自动转为 `inactive`。
 
 ## 9. 安全与风控 (Security)
 
