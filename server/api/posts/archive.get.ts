@@ -1,15 +1,19 @@
 import { Brackets, type SelectQueryBuilder, type WhereExpressionBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
+import { getSetting } from '@/server/services/setting'
 import { archiveQuerySchema } from '@/utils/schemas/post'
 import { success, paginate } from '@/server/utils/response'
+import { applyDefaultPaginationLimit } from '@/server/utils/pagination'
 import { processAuthorsPrivacy } from '@/server/utils/author'
 import { isAdmin } from '@/utils/shared/roles'
 import { applyPostVisibilityFilter } from '@/server/utils/post-access'
 import { applyPostsReadModelFromMetadata } from '@/server/utils/post-metadata'
+import { SettingKey } from '@/types/setting'
 
 export default defineEventHandler(async (event) => {
-    const query = await getValidatedQuery(event, (q) => archiveQuerySchema.parse(q))
+    const postsPerPage = await getSetting(SettingKey.POSTS_PER_PAGE, '10')
+    const query = await getValidatedQuery(event, (q) => archiveQuerySchema.parse(applyDefaultPaginationLimit(q as Record<string, unknown>, postsPerPage)))
 
     const session = event.context?.auth
     const user = event.context?.user

@@ -73,6 +73,7 @@ const COMMON_UPLOAD_SETTING_KEYS = [
     SettingKey.CLOUDFLARE_R2_BASE_URL,
     SettingKey.MAX_UPLOAD_SIZE,
     SettingKey.MAX_AUDIO_UPLOAD_SIZE,
+    SettingKey.ALLOWED_FILE_TYPES,
 ] as const
 
 function normalizePrefix(prefix?: string) {
@@ -273,13 +274,73 @@ export function resolveUploadSizeLimit(type: UploadType, settings: UploadSetting
     return resolveUploadSizeSetting(settings[SettingKey.MAX_UPLOAD_SIZE] ?? null, 10)
 }
 
+function parseAllowedFileTypes(settings: UploadSettings) {
+    return String(settings[SettingKey.ALLOWED_FILE_TYPES] || '')
+        .split(/[\n,]/)
+        .map((item) => item.trim().toLowerCase())
+        .filter(Boolean)
+}
+
+function inferUploadTypeFromContentType(contentType?: string) {
+    const normalizedContentType = contentType?.split(';')[0]?.trim().toLowerCase()
+
+    if (normalizedContentType?.startsWith('audio/')) {
+        return UploadType.AUDIO
+    }
+
+    if (normalizedContentType?.startsWith('image/')) {
+        return UploadType.IMAGE
+    }
+
+    return UploadType.FILE
+}
+
+function isAllowedUploadFileType(options: {
+    allowedFileTypes: string[]
+    contentType?: string
+    filename?: string
+}) {
+    if (options.allowedFileTypes.length === 0) {
+        return true
+    }
+
+    const normalizedContentType = options.contentType?.split(';')[0]?.trim().toLowerCase()
+    const normalizedExtension = path.extname(options.filename || '').toLowerCase()
+
+    return options.allowedFileTypes.some((rule) => {
+        if (rule === '*') {
+            return true
+        }
+
+        if (rule.includes('/')) {
+            if (!normalizedContentType) {
+                return false
+            }
+
+            if (rule.endsWith('/*')) {
+                return normalizedContentType.startsWith(rule.slice(0, -1))
+            }
+
+            return normalizedContentType === rule
+        }
+
+        if (!normalizedExtension) {
+            return false
+        }
+
+        const normalizedRule = rule.startsWith('.') ? rule : `.${rule}`
+        return normalizedExtension === normalizedRule
+    })
+}
+
 export function validateUploadPayload(input: {
     type: UploadType
     size: number
     contentType?: string
+    filename?: string
     settings: UploadSettings
 }) {
-    const { type, size, contentType, settings } = input
+    const { type, size, contentType, filename, settings } = input
     const { bytes, text } = resolveUploadSizeLimit(type, settings)
 
     if (size > bytes) {
@@ -292,6 +353,15 @@ export function validateUploadPayload(input: {
 
     if (type === UploadType.AUDIO && !contentType?.startsWith('audio/')) {
         throw createError({ statusCode: 400, statusMessage: '仅支持音频上传' })
+    }
+
+    const allowedFileTypes = parseAllowedFileTypes(settings)
+    if (!isAllowedUploadFileType({
+        allowedFileTypes,
+        contentType,
+        filename,
+    })) {
+        throw createError({ statusCode: 400, statusMessage: '文件类型不被允许' })
     }
 }
 
@@ -384,14 +454,21 @@ export async function uploadFromUrl(url: string, prefix: string, userId: string,
     const response = await $fetch.raw(url, { responseType: 'arrayBuffer' })
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
     const extension = contentType.split('/')[1]?.split(';')[0] || 'bin'
+    const buffer = Buffer.from(response._data as ArrayBuffer)
 
     const filename = buildUploadStoredFilename({
         basename: customFilename,
         extension,
     })
+    validateUploadPayload({
+        type: inferUploadTypeFromContentType(contentType),
+        size: buffer.length,
+        contentType,
+        filename,
+        settings: storageContext.settings,
+    })
     const fullPath = `${bucketPrefix}${prefix}${filename}`.replace(/\\/g, '/')
 
-    const buffer = Buffer.from(response._data as ArrayBuffer)
     await storage.upload(buffer, fullPath, contentType)
 
     return {
@@ -412,6 +489,14 @@ export async function uploadFromBuffer(buffer: Buffer, prefix: string, filename:
     const { normalizedStorageType, env, bucketPrefix } = storageContext
     const storage = getFileStorage(normalizedStorageType, env)
     const fullPath = `${bucketPrefix}${prefix}${filename}`.replace(/\\/g, '/')
+
+    validateUploadPayload({
+        type: inferUploadTypeFromContentType(mimetype),
+        size: buffer.length,
+        contentType: mimetype,
+        filename,
+        settings: storageContext.settings,
+    })
 
     await storage.upload(buffer, fullPath, mimetype)
 
@@ -453,6 +538,7 @@ export async function handleFileUploads(event: H3Event, options: UploadOptions):
             type,
             size: file.data.length,
             contentType: file.type,
+            filename: file.filename,
             settings,
         })
 

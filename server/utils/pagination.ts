@@ -6,6 +6,28 @@ export interface PaginationOptions {
     limit: number
 }
 
+const DEFAULT_PAGINATION_LIMIT = 10
+
+function normalizePaginationLimit(limit: unknown) {
+    const parsed = Number(limit)
+    if (!Number.isFinite(parsed) || parsed < 1) {
+        return DEFAULT_PAGINATION_LIMIT
+    }
+
+    return Math.min(Math.floor(parsed), 500)
+}
+
+export function applyDefaultPaginationLimit<T extends Record<string, unknown>>(query: T, defaultLimit: unknown) {
+    if (query.limit !== undefined && query.limit !== null && query.limit !== '') {
+        return query
+    }
+
+    return {
+        ...query,
+        limit: normalizePaginationLimit(defaultLimit),
+    }
+}
+
 /**
  * 为 TypeORM QueryBuilder 应用分页设置
  * @param qb SelectQueryBuilder
@@ -29,6 +51,6 @@ export function parsePagination(query: any): PaginationOptions {
     }
     return {
         page: 1,
-        limit: 10,
+        limit: DEFAULT_PAGINATION_LIMIT,
     }
 }

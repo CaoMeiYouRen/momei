@@ -1,14 +1,17 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
+import { getSetting } from '@/server/services/setting'
 import { postQuerySchema } from '@/utils/schemas/post'
-import { applyPagination } from '@/server/utils/pagination'
+import { applyDefaultPaginationLimit, applyPagination } from '@/server/utils/pagination'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
 import { isAdmin } from '@/utils/shared/roles'
+import { SettingKey } from '@/types/setting'
 
 export default defineEventHandler(async (event) => {
     const { user } = await validateApiKeyRequest(event)
 
-    const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(q))
+    const postsPerPage = await getSetting(SettingKey.POSTS_PER_PAGE, '10')
+    const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(applyDefaultPaginationLimit(q as Record<string, unknown>, postsPerPage)))
 
     const postRepo = dataSource.getRepository(Post)
     const qb = postRepo.createQueryBuilder('post')

@@ -115,6 +115,64 @@ describe('/api/posts', () => {
         expect(result.data).toHaveProperty('limit', 10)
     })
 
+    it('should use posts_per_page as default limit when request limit is missing', async () => {
+        const previous = process.env.NUXT_PUBLIC_POSTS_PER_PAGE
+        process.env.NUXT_PUBLIC_POSTS_PER_PAGE = '1'
+
+        try {
+            const event = {
+                context: {},
+                node: {
+                    req: { headers: {} },
+                    res: { setHeader: vi.fn() },
+                },
+                req: { headers: {} },
+                query: {},
+            } as any
+
+            const result = await postsHandler(event)
+
+            expect(result.code).toBe(200)
+            expect(result.data).toHaveProperty('limit', 1)
+        } finally {
+            if (previous === undefined) {
+                delete process.env.NUXT_PUBLIC_POSTS_PER_PAGE
+            } else {
+                process.env.NUXT_PUBLIC_POSTS_PER_PAGE = previous
+            }
+        }
+    })
+
+    it('should prefer explicit request limit over posts_per_page setting', async () => {
+        const previous = process.env.NUXT_PUBLIC_POSTS_PER_PAGE
+        process.env.NUXT_PUBLIC_POSTS_PER_PAGE = '1'
+
+        try {
+            const event = {
+                context: {},
+                node: {
+                    req: { headers: {} },
+                    res: { setHeader: vi.fn() },
+                },
+                req: { headers: {} },
+                query: {
+                    limit: 2,
+                },
+            } as any
+
+            const result = await postsHandler(event)
+
+            expect(result.code).toBe(200)
+            expect(result.data).toHaveProperty('limit', 2)
+        } finally {
+            if (previous === undefined) {
+                delete process.env.NUXT_PUBLIC_POSTS_PER_PAGE
+            } else {
+                process.env.NUXT_PUBLIC_POSTS_PER_PAGE = previous
+            }
+        }
+    })
+
     it('should filter by status', async () => {
         const event = {
             context: {},

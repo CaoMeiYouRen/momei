@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { applyPagination, parsePagination } from './pagination'
+import { applyDefaultPaginationLimit, applyPagination, parsePagination } from './pagination'
 
 describe('pagination utils', () => {
     describe('applyPagination', () => {
@@ -74,6 +74,29 @@ describe('pagination utils', () => {
 
             expect(result1).toEqual({ page: 1, limit: 10 })
             expect(result2).toEqual({ page: 1, limit: 10 })
+        })
+    })
+
+    describe('applyDefaultPaginationLimit', () => {
+        it('should inject configured limit when request limit is missing', () => {
+            expect(applyDefaultPaginationLimit({ page: '1' }, '25')).toEqual({
+                page: '1',
+                limit: 25,
+            })
+        })
+
+        it('should keep explicit request limit', () => {
+            expect(applyDefaultPaginationLimit({ page: '1', limit: '5' }, '25')).toEqual({
+                page: '1',
+                limit: '5',
+            })
+        })
+
+        it('should fall back to built-in default when configured limit is invalid', () => {
+            expect(applyDefaultPaginationLimit({ page: '1' }, 'invalid')).toEqual({
+                page: '1',
+                limit: 10,
+            })
         })
     })
 })

@@ -1,18 +1,21 @@
 import { Brackets, type WhereExpressionBuilder, type SelectQueryBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
+import { getSetting } from '@/server/services/setting'
 import { postQuerySchema } from '@/utils/schemas/post'
 import { success, paginate } from '@/server/utils/response'
-import { applyPagination } from '@/server/utils/pagination'
+import { applyDefaultPaginationLimit, applyPagination } from '@/server/utils/pagination'
 import { isAdmin } from '@/utils/shared/roles'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { processAuthorsPrivacy } from '@/server/utils/author'
 import { applyPostVisibilityFilter } from '@/server/utils/post-access'
 import { applyTranslationAggregation, attachTranslations } from '@/server/utils/translation'
 import { applyPostsReadModelFromMetadata } from '@/server/utils/post-metadata'
+import { SettingKey } from '@/types/setting'
 
 export default defineEventHandler(async (event) => {
-    const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(q))
+    const postsPerPage = await getSetting(SettingKey.POSTS_PER_PAGE, '10')
+    const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(applyDefaultPaginationLimit(q as Record<string, unknown>, postsPerPage)))
     const user = event.context?.user
 
     // 如果是管理模式，强制校验权限

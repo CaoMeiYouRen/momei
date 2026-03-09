@@ -1,6 +1,7 @@
 import { Brackets } from 'typeorm'
 import { notifyAdmins, sendInAppNotification } from './notification'
 import { dataSource } from '@/server/database'
+import { limiterStorage } from '@/server/database/storage'
 import { Comment } from '@/server/entities/comment'
 import { Post } from '@/server/entities/post'
 import { CommentStatus } from '@/types/comment'
@@ -9,6 +10,58 @@ import { getSettings } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
 import { assignDefined } from '@/server/utils/object'
 import { AdminNotificationEvent, NotificationType } from '@/utils/shared/notification'
+
+interface CreateCommentInput {
+    postId: string
+    parentId?: string | null
+    content: string
+    authorName: string
+    authorEmail: string
+    authorUrl?: string | null
+    authorId?: string | null
+    ip?: string | null
+    userAgent?: string | null
+}
+
+function normalizeCommentInterval(value: string | null | undefined) {
+    const parsed = Number(value)
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+        return 0
+    }
+
+    return Math.floor(parsed)
+}
+
+function buildCommentIntervalKey(data: CreateCommentInput) {
+    if (data.authorId) {
+        return `comment_interval:user:${data.authorId}`
+    }
+
+    if (data.authorEmail) {
+        return `comment_interval:email:${data.authorEmail.trim().toLowerCase()}`
+    }
+
+    if (data.ip) {
+        return `comment_interval:ip:${data.ip}`
+    }
+
+    return 'comment_interval:anonymous'
+}
+
+async function enforceCommentInterval(data: CreateCommentInput, intervalValue: string | null | undefined) {
+    const interval = normalizeCommentInterval(intervalValue)
+    if (interval <= 0) {
+        return
+    }
+
+    const count = await limiterStorage.increment(buildCommentIntervalKey(data), interval)
+    if (count > 1) {
+        throw createError({
+            statusCode: 429,
+            statusMessage: `评论过于频繁，请在 ${interval} 秒后重试`,
+        })
+    }
+}
 
 /**
  * 评论服务
@@ -60,17 +113,7 @@ export const commentService = {
     /**
      * 创建评论
      */
-    async createComment(data: {
-        postId: string
-        parentId?: string | null
-        content: string
-        authorName: string
-        authorEmail: string
-        authorUrl?: string | null
-        authorId?: string | null
-        ip?: string | null
-        userAgent?: string | null
-    }) {
+    async createComment(data: CreateCommentInput) {
         const postRepo = dataSource.getRepository(Post)
         const commentRepo = dataSource.getRepository(Comment)
 
@@ -84,6 +127,7 @@ export const commentService = {
         const settings = await getSettings([
             SettingKey.BLACKLISTED_KEYWORDS,
             SettingKey.ENABLE_COMMENT_REVIEW,
+            SettingKey.COMMENT_INTERVAL,
         ])
 
         const blacklistedKeywords = String(settings[SettingKey.BLACKLISTED_KEYWORDS] || '')
@@ -94,6 +138,8 @@ export const commentService = {
         if (blacklistedKeywords.some((keyword) => data.content.includes(keyword))) {
             throw createError({ statusCode: 400, statusMessage: '评论包含不当内容' })
         }
+
+        await enforceCommentInterval(data, settings[SettingKey.COMMENT_INTERVAL])
 
         const comment = new Comment()
         assignDefined(comment, data, [

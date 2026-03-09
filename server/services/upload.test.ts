@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { readMultipartFormData } from 'h3'
-import { buildAvatarUploadPrefix, buildPostUploadPrefix, buildUploadObjectKey, buildUploadStoredFilename, checkUploadLimits, getUploadStorageContext, handleFileUploads, normalizeStorageType, resolveUploadedFileUrl, resolveUploadPrefix, resolveUploadSizeLimit, UploadType } from './upload'
+import { buildAvatarUploadPrefix, buildPostUploadPrefix, buildUploadObjectKey, buildUploadStoredFilename, checkUploadLimits, getUploadStorageContext, handleFileUploads, normalizeStorageType, resolveUploadedFileUrl, resolveUploadPrefix, resolveUploadSizeLimit, UploadType, validateUploadPayload } from './upload'
 import { limiterStorage } from '@/server/database/storage'
 import { getFileStorage } from '@/server/utils/storage/factory'
 import { getSettings } from '~/server/services/setting'
@@ -296,6 +296,29 @@ describe('UploadService', () => {
                 bytes: 10 * 1024 * 1024,
                 text: '10MB',
             })
+        })
+
+        it('should reject files outside configured allowed file types', () => {
+            expect(() => validateUploadPayload({
+                type: UploadType.IMAGE,
+                size: 1024,
+                contentType: 'image/jpeg',
+                filename: 'cover.jpg',
+                settings: {
+                    allowed_file_types: 'image/png,image/webp',
+                },
+            })).toThrow('文件类型不被允许')
+        })
+
+        it('should allow extension-based file type rules when mime is unavailable', () => {
+            expect(() => validateUploadPayload({
+                type: UploadType.FILE,
+                size: 1024,
+                filename: 'cover.webp',
+                settings: {
+                    allowed_file_types: 'png,webp',
+                },
+            })).not.toThrow()
         })
     })
 

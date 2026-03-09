@@ -2,12 +2,37 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { commentService } from './comment'
 import { CommentStatus } from '@/types/comment'
 import { dataSource } from '@/server/database'
+import { limiterStorage } from '@/server/database/storage'
+import { getSettings } from '@/server/services/setting'
 
 // Mock dataSource
 vi.mock('@/server/database', () => ({
     dataSource: {
         getRepository: vi.fn(),
     },
+}))
+
+vi.mock('@/server/database/storage', () => ({
+    limiterStorage: {
+        increment: vi.fn(),
+    },
+}))
+
+vi.mock('@/server/services/setting', () => ({
+    getSettings: vi.fn(),
+}))
+
+vi.mock('./notification', () => ({
+    notifyAdmins: vi.fn().mockResolvedValue(undefined),
+    sendInAppNotification: vi.fn().mockResolvedValue(undefined),
+}))
+
+vi.mock('@/server/utils/author', () => ({
+    processAuthorPrivacy: vi.fn().mockImplementation(async (item: Record<string, unknown>, isAdmin: boolean, emailKey: string) => {
+        if (!isAdmin) {
+            delete item[emailKey]
+        }
+    }),
 }))
 
 describe('commentService', () => {
@@ -27,6 +52,12 @@ describe('commentService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks()
+        vi.mocked(getSettings).mockResolvedValue({
+            blacklisted_keywords: '',
+            enable_comment_review: 'false',
+            comment_interval: '0',
+        })
+        vi.mocked(limiterStorage.increment).mockResolvedValue(1)
         ;(dataSource.getRepository as any).mockImplementation((entity: any) => {
             if (entity.name === 'Comment') {
                 return mockCommentRepo
@@ -114,6 +145,7 @@ describe('commentService', () => {
 
             expect(result.status).toBe(CommentStatus.PUBLISHED)
             expect(mockCommentRepo.save).toHaveBeenCalled()
+            expect(limiterStorage.increment).not.toHaveBeenCalled()
         })
 
         it('should create a pending comment for guest', async () => {
@@ -132,6 +164,27 @@ describe('commentService', () => {
 
             expect(result.status).toBe(CommentStatus.PENDING)
             expect(mockCommentRepo.save).toHaveBeenCalled()
+        })
+
+        it('should reject comments posted within the configured interval', async () => {
+            mockPostRepo.findOne.mockResolvedValue({ id: mockPostId })
+            vi.mocked(getSettings).mockResolvedValue({
+                blacklisted_keywords: '',
+                enable_comment_review: 'false',
+                comment_interval: '60',
+            })
+            vi.mocked(limiterStorage.increment).mockResolvedValue(2)
+
+            const commentData = {
+                postId: mockPostId,
+                content: 'Test content',
+                authorName: 'Guest',
+                authorEmail: 'guest@test.com',
+                authorId: null,
+            }
+
+            await expect(commentService.createComment(commentData)).rejects.toThrow('评论过于频繁')
+            expect(limiterStorage.increment).toHaveBeenCalledWith('comment_interval:email:guest@test.com', 60)
         })
 
         it('should throw error if post not found', async () => {
