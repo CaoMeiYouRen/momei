@@ -3,9 +3,11 @@ import { FriendLinkApplication } from '@/server/entities/friend-link-application
 import { FriendLinkCategory } from '@/server/entities/friend-link-category'
 import { FriendLink } from '@/server/entities/friend-link'
 import { getSetting } from '@/server/services/setting'
+import { getUploadStorageContext } from '@/server/services/upload'
 import logger from '@/server/utils/logger'
 import { assignDefined } from '@/server/utils/object'
 import { ensureFound, paginate } from '@/server/utils/response'
+import { isValidCustomUrl } from '@/server/utils/security'
 import {
     FriendLinkApplicationStatus,
     FriendLinkStatus,
@@ -38,6 +40,60 @@ function slugify(value: string) {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '')
     return slug || `category-${Date.now()}`
+}
+
+function normalizeBaseUrl(value?: string | null) {
+    const normalized = value?.trim()
+
+    if (!normalized) {
+        return null
+    }
+
+    return normalized.endsWith('/') ? normalized : `${normalized}/`
+}
+
+function isUrlWithinBase(url: string, baseUrl: string) {
+    const normalizedBaseUrl = normalizeBaseUrl(baseUrl)
+
+    if (!normalizedBaseUrl) {
+        return false
+    }
+
+    if (normalizedBaseUrl.startsWith('http://') || normalizedBaseUrl.startsWith('https://')) {
+        return url === normalizedBaseUrl.slice(0, -1) || url.startsWith(normalizedBaseUrl)
+    }
+
+    return url === normalizedBaseUrl.slice(0, -1) || url.startsWith(normalizedBaseUrl)
+}
+
+async function isUploadedAssetUrl(url: string) {
+    const storageContext = await getUploadStorageContext()
+    const baseUrls = [storageContext.assetPublicBaseUrl, storageContext.driverBaseUrl]
+        .map((value) => normalizeBaseUrl(value))
+        .filter((value): value is string => Boolean(value))
+
+    return baseUrls.some((baseUrl) => isUrlWithinBase(url, baseUrl))
+}
+
+async function ensureAllowedLogoUrl(url?: string | null, allowUploadedAsset = false) {
+    const normalizedUrl = normalizeOptionalString(url)
+
+    if (!normalizedUrl) {
+        return
+    }
+
+    if (isValidCustomUrl(normalizedUrl)) {
+        return
+    }
+
+    if (allowUploadedAsset && await isUploadedAssetUrl(normalizedUrl)) {
+        return
+    }
+
+    throw createError({
+        statusCode: 400,
+        statusMessage: 'Invalid friend link logo URL',
+    })
 }
 
 async function resolveFriendLinkMeta(): Promise<FriendLinkMeta> {
@@ -108,6 +164,7 @@ async function saveFriendLinkEntity(
         entity.status = FriendLinkStatus.DRAFT
     }
 
+    await ensureAllowedLogoUrl(entity.logo, Boolean(operatorId))
     await ensureUniqueFriendLinkUrl(entity.url, entity.id)
 
     return await dataSource.getRepository(FriendLink).save(entity)
@@ -402,6 +459,7 @@ export const friendLinkService = {
         const page = options.page ?? 1
         const limit = options.limit ?? 20
         const qb = applicationRepo.createQueryBuilder('application')
+            .leftJoinAndSelect('application.applicant', 'applicant')
             .orderBy('application.createdAt', 'DESC')
             .skip((page - 1) * limit)
             .take(limit)
@@ -426,6 +484,7 @@ export const friendLinkService = {
         rssUrl?: string | null
         reciprocalUrl?: string | null
         message?: string | null
+        applicantId?: string | null
         submittedIp?: string | null
         submittedUserAgent?: string | null
     }) {
@@ -459,6 +518,7 @@ export const friendLinkService = {
         entity.rssUrl = normalizeOptionalString(input.rssUrl)
         entity.reciprocalUrl = normalizeOptionalString(input.reciprocalUrl)
         entity.message = normalizeOptionalString(input.message)
+        entity.applicantId = normalizeOptionalString(input.applicantId)
         entity.status = FriendLinkApplicationStatus.PENDING
         entity.submittedIp = normalizeOptionalString(input.submittedIp)
         entity.submittedUserAgent = normalizeOptionalString(input.submittedUserAgent)
@@ -466,6 +526,8 @@ export const friendLinkService = {
         entity.reviewedById = null
         entity.reviewedAt = null
         entity.friendLinkId = null
+
+        await ensureAllowedLogoUrl(entity.logo, Boolean(entity.applicantId))
 
         return await applicationRepo.save(entity)
     },

@@ -199,7 +199,7 @@
         >
             <div class="admin-friend-links__form">
                 <div class="admin-friend-links__field">
-                    <label for="link-name">{{ $t('common.name') }}</label>
+                    <label for="link-name">{{ $t('common.name') }} *</label>
                     <InputText
                         id="link-name"
                         v-model="linkForm.name"
@@ -207,7 +207,7 @@
                     />
                 </div>
                 <div class="admin-friend-links__field">
-                    <label for="link-url">{{ tt('pages.admin.friend_links.site_url') }}</label>
+                    <label for="link-url">{{ tt('pages.admin.friend_links.site_url') }} *</label>
                     <InputText
                         id="link-url"
                         v-model="linkForm.url"
@@ -216,10 +216,13 @@
                 </div>
                 <div class="admin-friend-links__field">
                     <label for="link-logo">{{ tt('pages.admin.friend_links.logo') }}</label>
-                    <InputText
+                    <AppUploader
                         id="link-logo"
                         v-model="linkForm.logo"
-                        fluid
+                        :type="UploadType.IMAGE"
+                        :placeholder="tt('pages.admin.friend_links.logo_placeholder')"
+                        accept="image/*"
+                        :readonly="true"
                     />
                 </div>
                 <div class="admin-friend-links__field">
@@ -231,7 +234,7 @@
                     />
                 </div>
                 <div class="admin-friend-links__field">
-                    <label for="link-email">{{ tt('pages.admin.friend_links.contact_email') }}</label>
+                    <label for="link-email">{{ tt('pages.admin.friend_links.contact_email') }} *</label>
                     <InputText
                         id="link-email"
                         v-model="linkForm.contactEmail"
@@ -385,6 +388,9 @@
                 <div class="admin-friend-links__review-grid">
                     <div><strong>{{ $t('common.name') }}:</strong> {{ selectedApplication.name }}</div>
                     <div><strong>{{ tt('pages.admin.friend_links.contact_email') }}:</strong> {{ selectedApplication.contactEmail }}</div>
+                    <div v-if="selectedApplication.applicant">
+                        <strong>{{ tt('pages.admin.friend_links.applicant_account') }}:</strong> {{ selectedApplication.applicant.name || selectedApplication.applicant.email || selectedApplication.applicant.id }}
+                    </div>
                     <div><strong>{{ tt('pages.admin.friend_links.site_url') }}:</strong> {{ selectedApplication.url }}</div>
                     <div><strong>{{ tt('pages.admin.friend_links.reciprocal_url') }}:</strong> {{ selectedApplication.reciprocalUrl || '-' }}</div>
                     <div><strong>{{ tt('pages.admin.friend_links.submitted_ip') }}:</strong> {{ selectedApplication.submittedIp || '-' }}</div>
@@ -472,7 +478,9 @@
 <script setup lang="ts">
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
+import { UploadType } from '@/composables/use-upload'
 import { FriendLinkApplicationStatus, FriendLinkStatus } from '@/types/friend-link'
+import { friendLinkSchema } from '@/utils/schemas/friend-link'
 
 definePageMeta({
     middleware: 'admin',
@@ -657,11 +665,23 @@ const openLinkDialog = (item?: any) => {
 }
 
 const saveLink = async () => {
+    const validation = friendLinkSchema.safeParse(linkForm)
+
+    if (!validation.success) {
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: validation.error.issues[0]?.message || tt('pages.admin.friend_links.messages.save_failed'),
+            life: 3000,
+        })
+        return
+    }
+
     saving.value = true
     try {
         const url = editingLink.value ? `/api/admin/friend-links/${editingLink.value.id}` : '/api/admin/friend-links'
         const method = editingLink.value ? 'PUT' : 'POST'
-        await $fetch(url, { method, body: linkForm })
+        await $fetch(url, { method, body: validation.data })
 
         toast.add({
             severity: 'success',

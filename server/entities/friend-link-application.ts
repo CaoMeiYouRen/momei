@@ -1,7 +1,8 @@
-import { Entity } from 'typeorm'
+import { Entity, ManyToOne } from 'typeorm'
 import { CustomColumn } from '../decorators/custom-column'
 import { getDateType } from '../database/type'
 import { BaseEntity } from './base-entity'
+import { User } from './user'
 import { FriendLinkApplicationStatus } from '@/types/friend-link'
 
 @Entity('friend_link_applications')
@@ -43,6 +44,9 @@ export class FriendLinkApplication extends BaseEntity {
     @CustomColumn({ type: 'varchar', length: 20, default: FriendLinkApplicationStatus.PENDING, index: true })
     status: FriendLinkApplicationStatus
 
+    @CustomColumn({ type: 'varchar', length: 36, nullable: true, index: true })
+    applicantId: string | null
+
     @CustomColumn({ type: 'text', nullable: true })
     reviewNote: string | null
 
@@ -60,4 +64,10 @@ export class FriendLinkApplication extends BaseEntity {
 
     @CustomColumn({ type: 'varchar', length: 36, nullable: true, index: true })
     friendLinkId: string | null
+
+    @ManyToOne(() => User, {
+        onDelete: 'SET NULL',
+        nullable: true,
+    })
+    applicant: User | null
 }

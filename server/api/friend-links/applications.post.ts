@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
 
     const ip = getRequestIP(event, { xForwardedFor: true })
     const userAgent = getRequestHeader(event, 'user-agent')
+    const applicantId = event.context.user?.id || null
     const { captchaToken, ...data } = result.data
 
     const isValid = await verifyCaptcha(captchaToken, ip || undefined)
@@ -30,6 +31,7 @@ export default defineEventHandler(async (event) => {
 
     const application = await friendLinkService.createApplication({
         ...data,
+        applicantId,
         submittedIp: ip,
         submittedUserAgent: userAgent,
     })

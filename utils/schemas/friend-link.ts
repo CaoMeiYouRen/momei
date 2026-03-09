@@ -10,8 +10,24 @@ const httpUrlSchema = z.string().trim().url('无效的网址格式').refine((val
     }
 }, '仅支持 http/https 链接')
 
+const isBasicLogoUrl = (value: string) => {
+    try {
+        const url = new URL(value)
+        return ['http:', 'https:'].includes(url.protocol)
+    } catch {
+        return false
+    }
+}
+
 const optionalHttpUrlSchema = z.union([httpUrlSchema, z.literal('')]).optional()
 const optionalTextSchema = z.string().trim().max(500, '内容过长').optional().or(z.literal(''))
+const optionalLogoSchema = z.string().trim().refine((value) => {
+    if (!value) {
+        return true
+    }
+
+    return value.startsWith('/') || value.startsWith('data:image/') || isBasicLogoUrl(value)
+}, 'Logo 必须是有效的图片地址').optional().or(z.literal(''))
 
 export const friendLinkCategorySchema = z.object({
     name: z.string().trim().min(1, '分类名称不能为空').max(100, '分类名称过长'),
@@ -24,10 +40,10 @@ export const friendLinkCategorySchema = z.object({
 export const friendLinkSchema = z.object({
     name: z.string().trim().min(1, '站点名称不能为空').max(120, '站点名称过长'),
     url: httpUrlSchema,
-    logo: optionalHttpUrlSchema,
+    logo: optionalLogoSchema,
     description: z.string().trim().max(2000, '简介过长').optional().or(z.literal('')),
     rssUrl: optionalHttpUrlSchema,
-    contactEmail: z.email('无效的邮箱地址').optional().or(z.literal('')),
+    contactEmail: z.email('无效的邮箱地址'),
     categoryId: z.string().trim().optional().nullable().or(z.literal('')),
     status: z.nativeEnum(FriendLinkStatus).optional(),
     isPinned: z.boolean().optional(),
@@ -38,7 +54,7 @@ export const friendLinkSchema = z.object({
 export const friendLinkApplicationSchema = z.object({
     name: z.string().trim().min(1, '站点名称不能为空').max(120, '站点名称过长'),
     url: httpUrlSchema,
-    logo: optionalHttpUrlSchema,
+    logo: optionalLogoSchema,
     description: z.string().trim().max(2000, '简介过长').optional().or(z.literal('')),
     categoryId: z.string().trim().optional().nullable().or(z.literal('')),
     categorySuggestion: z.string().trim().max(100, '分类建议过长').optional().or(z.literal('')),

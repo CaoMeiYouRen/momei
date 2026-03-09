@@ -134,11 +134,34 @@
                                 </div>
                                 <div class="links-page__field">
                                     <label for="logo">{{ tt('pages.links.form.logo') }}</label>
-                                    <InputText
-                                        id="logo"
-                                        v-model="form.logo"
-                                        fluid
-                                    />
+                                    <ClientOnly>
+                                        <AppUploader
+                                            v-if="canUploadLogo"
+                                            id="logo"
+                                            v-model="form.logo"
+                                            :type="UploadType.IMAGE"
+                                            accept="image/*"
+                                            :placeholder="tt('pages.links.form.logo_upload_placeholder')"
+                                        />
+                                        <InputText
+                                            v-else
+                                            id="logo"
+                                            v-model="form.logo"
+                                            :placeholder="tt('pages.links.form.logo_placeholder')"
+                                            fluid
+                                        />
+                                        <template #fallback>
+                                            <InputText
+                                                id="logo"
+                                                v-model="form.logo"
+                                                :placeholder="tt('pages.links.form.logo_placeholder')"
+                                                fluid
+                                            />
+                                        </template>
+                                    </ClientOnly>
+                                    <small class="links-page__field-hint">
+                                        {{ canUploadLogo ? tt('pages.links.form.logo_upload_hint') : tt('pages.links.form.logo_hint') }}
+                                    </small>
                                 </div>
                                 <div class="links-page__field">
                                     <label for="rssUrl">{{ tt('pages.links.form.rss_url') }}</label>
@@ -238,12 +261,17 @@
 </template>
 
 <script setup lang="ts">
+import { authClient } from '@/lib/auth-client'
+import { UploadType } from '@/composables/use-upload'
 import { friendLinkApplicationSchema } from '@/utils/schemas/friend-link'
 
 const { t } = useI18n()
 const toast = useToast()
 const config = useRuntimeConfig()
 const tt = (key: string) => t(key as never)
+const session = authClient.useSession()
+const user = computed(() => session.value?.data?.user || null)
+const canUploadLogo = computed(() => Boolean(user.value))
 
 usePageSeo({
     type: 'website',
@@ -576,6 +604,11 @@ const handleSubmit = async () => {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+    }
+
+    &__field-hint {
+        color: var(--p-text-muted-color);
+        line-height: 1.5;
     }
 
     &__captcha {

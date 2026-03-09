@@ -1,180 +1,184 @@
 {
-  "pages": {
-    "submit": {
-      "title": "Guest Submission",
-      "meta": {
-        "description": "Submit your original writing or technical ideas to Momei and join a global developer publishing community."
-      },
-      "subtitle": "Welcome to share your insights and stories",
-      "form": {
-        "title": "Article Title",
-        "title_placeholder": "Enter article title",
-        "content": "Content (Markdown)",
-        "content_placeholder": "Write in Markdown format...",
-        "name": "Your Name",
-        "name_placeholder": "Nicknames supported",
-        "email": "Email Address",
-        "email_placeholder": "For review feedback",
-        "url": "Personal Site",
-        "url_placeholder": "Optional",
-        "submit": "Submit Post",
-        "submitting": "Submitting...",
-        "success": "Submission successful! Please wait for admin review. We will notify you of the result via email.",
-        "error": "Submission failed, please try again later.",
-        "captcha_required": "Please complete the captcha verification"
-      }
-    },
-    "posts": {
-      "title": "Articles",
-      "meta": {
-        "description": "Browse the latest technical posts, essays, and creator updates published on Momei Blog across languages and topics."
-      },
-      "empty": "No articles found",
-      "status_warning": "The current article is in {status} status and has not been officially published. It is only visible to relevant authorized personnel.",
-      "article_count": "{count} Articles",
-      "total_count": "{count} articles in total",
-      "total_categories": "{count} categories so far",
-      "total_tags": "{count} tags so far",
-      "password_placeholder": "Enter access password",
-      "login_to_read": "Login to continue reading",
-      "locked": {
-        "password_required": "Content Restricted",
-        "password_required_desc": "This article is password protected. Please enter the correct password to access the full content.",
-        "auth_required": "Login Required",
-        "auth_required_desc": "This article is restricted to registered users. Please login to continue reading.",
-        "subscription_required": "Subscribers Only",
-        "subscription_required_desc": "This article is restricted to email subscribers. Please subscribe to continue reading.",
-        "private": "Private Content",
-        "private_desc": "You do not have permission to access this private article."
-      }
-    },
-    "error": {
-      "title": "An error occurred",
-      "404_title": "Page Not Found",
-      "404_desc": "Sorry, the page you are looking for does not exist or has been moved. You can try searching for something else or return to the home page.",
-      "back_home": "Back to Home",
-      "retry": "Retry"
-    },
-    "user_agreement": {
-      "title": "User Agreement",
-      "last_updated": "Last updated: January 18, 2026",
-      "meta": {
-        "description": "Read the Momei user agreement to understand the terms for access, registration, publishing, and site usage."
-      }
-    },
-    "privacy_policy": {
-      "title": "Privacy Policy",
-      "last_updated": "Last updated: January 18, 2026",
-      "meta": {
-        "description": "Review the latest Momei privacy policy covering data collection, storage, processing, and your rights as a user."
-      }
-    },
-    "about": {
-      "meta": {
-        "description": "Learn how Momei leverages AI to empower full-stack internationalization for developers."
-      },
-      "hero": {
-        "title": "Momei",
-        "subtitle": "AI-powered, Global Creation. An intelligent blog system tailored for developers.",
-        "cta": "Learn More"
-      },
-      "meaning": {
-        "title": "Origin and Meaning",
-        "text_1": "The name \"Momei\" (Ink Plum) is inspired by the poem \"Ink Plum\" by Wang Mian of the Yuan Dynasty:",
-        "poem": "\"My home is by the tree near the ink-washing pool,\nEvery flower blooms with faint traces of ink.\nI don't need people to praise its good color,\nOnly leaving a clear fragrance filling the universe.\"",
-        "text_2": "Taking \"Mo\" (Ink) symbolizes writing and cultivation, echoing the essence of blog content; taking \"Mei\" (Plum) implies the tenacious creative spirit and unique personal style.",
-        "intro": "Momei platform is dedicated to providing creators with:",
-        "features": [
-          "AI-driven intelligent content creation experience",
-          "Native internationalized content management & distribution",
-          "Seamless blog migration tools and SEO preservation",
-          "Global reach by bridging language gaps with AI"
-        ]
-      },
-      "features": {
-        "title": "Core Advantages",
-        "items": [
-          {
-            "title": "AI Assistant",
-            "desc": "Deeply integrated AI for automated translation, smart title suggestions, and summary generation to boost productivity."
-          },
-          {
-            "title": "Path Management",
-            "desc": "Fully customizable URL Slugs, ensuring zero SEO loss when migrating from other platforms."
-          },
-          {
-            "title": "Native I18n",
-            "desc": "Goes beyond UI translation with cluster-based content management and smart language routing."
-          }
-        ]
-      },
-      "contact": {
-        "title": "Contact Us",
-        "email": "Email",
-        "blog": "Blog",
-        "message": "Any questions or suggestions about Momei platform?",
-        "subtitle": "We look forward to hearing from you"
-      }
-    },
-    "links": {
-      "title": "Friend Links",
-      "subtitle": "A curated list of independent sites and creators we genuinely want to keep recommending.",
-      "meta": {
-        "description": "Browse the Momei friend links page and submit your own site for review."
-      },
-      "guidelines_title": "Application Guidelines",
-      "application_title": "Apply for a Friend Link",
-      "application_subtitle": "After submission, your application enters the review queue. Approved sites may appear on the public page and featured footer area.",
-      "uncategorized": "Uncategorized",
-      "empty": "There are no public friend links yet.",
-      "disabled": "Friend links are currently not enabled on this site.",
-      "form": {
-        "url": "Site URL",
-        "logo": "Logo URL",
-        "rss_url": "RSS URL",
-        "contact_name": "Contact Name",
-        "contact_email": "Contact Email",
-        "category_placeholder": "Optional: choose the closest category",
-        "category_suggestion": "Category Suggestion",
-        "reciprocal_url": "Reciprocal Link Page",
-        "message": "Additional Notes",
-        "submit": "Submit Application",
-        "submitting": "Submitting...",
-        "success": "Application submitted successfully and pending admin review.",
-        "error": "Failed to submit application. Please try again later.",
-        "captcha_required": "Please complete captcha verification first"
-      }
-    },
-    "categories_index": {
-      "meta": {
-        "description": "Browse all Momei Blog categories to quickly discover article collections grouped by topic."
-      }
-    },
-    "tags_index": {
-      "meta": {
-        "description": "Explore the Momei tag cloud to discover related articles and content clusters by technical topic."
-      }
-    },
-    "archives": {
-      "meta": {
-        "description": "Explore the historical post archive of Momei Blog by year and month to revisit past updates and essays."
-      },
-      "title": "Archives",
-      "count": "{count} articles",
-      "months": {
-        "1": "January",
-        "2": "February",
-        "3": "March",
-        "4": "April",
-        "5": "May",
-        "6": "June",
-        "7": "July",
-        "8": "August",
-        "9": "September",
-        "10": "October",
-        "11": "November",
-        "12": "December"
-      }
+    "pages": {
+        "submit": {
+            "title": "Guest Submission",
+            "meta": {
+                "description": "Submit your original writing or technical ideas to Momei and join a global developer publishing community."
+            },
+            "subtitle": "Welcome to share your insights and stories",
+            "form": {
+                "title": "Article Title",
+                "title_placeholder": "Enter article title",
+                "content": "Content (Markdown)",
+                "content_placeholder": "Write in Markdown format...",
+                "name": "Your Name",
+                "name_placeholder": "Nicknames supported",
+                "email": "Email Address",
+                "email_placeholder": "For review feedback",
+                "url": "Personal Site",
+                "url_placeholder": "Optional",
+                "submit": "Submit Post",
+                "submitting": "Submitting...",
+                "success": "Submission successful! Please wait for admin review. We will notify you of the result via email.",
+                "error": "Submission failed, please try again later.",
+                "captcha_required": "Please complete the captcha verification"
+            }
+        },
+        "posts": {
+            "title": "Articles",
+            "meta": {
+                "description": "Browse the latest technical posts, essays, and creator updates published on Momei Blog across languages and topics."
+            },
+            "empty": "No articles found",
+            "status_warning": "The current article is in {status} status and has not been officially published. It is only visible to relevant authorized personnel.",
+            "article_count": "{count} Articles",
+            "total_count": "{count} articles in total",
+            "total_categories": "{count} categories so far",
+            "total_tags": "{count} tags so far",
+            "password_placeholder": "Enter access password",
+            "login_to_read": "Login to continue reading",
+            "locked": {
+                "password_required": "Content Restricted",
+                "password_required_desc": "This article is password protected. Please enter the correct password to access the full content.",
+                "auth_required": "Login Required",
+                "auth_required_desc": "This article is restricted to registered users. Please login to continue reading.",
+                "subscription_required": "Subscribers Only",
+                "subscription_required_desc": "This article is restricted to email subscribers. Please subscribe to continue reading.",
+                "private": "Private Content",
+                "private_desc": "You do not have permission to access this private article."
+            }
+        },
+        "error": {
+            "title": "An error occurred",
+            "404_title": "Page Not Found",
+            "404_desc": "Sorry, the page you are looking for does not exist or has been moved. You can try searching for something else or return to the home page.",
+            "back_home": "Back to Home",
+            "retry": "Retry"
+        },
+        "user_agreement": {
+            "title": "User Agreement",
+            "last_updated": "Last updated: January 18, 2026",
+            "meta": {
+                "description": "Read the Momei user agreement to understand the terms for access, registration, publishing, and site usage."
+            }
+        },
+        "privacy_policy": {
+            "title": "Privacy Policy",
+            "last_updated": "Last updated: January 18, 2026",
+            "meta": {
+                "description": "Review the latest Momei privacy policy covering data collection, storage, processing, and your rights as a user."
+            }
+        },
+        "about": {
+            "meta": {
+                "description": "Learn how Momei leverages AI to empower full-stack internationalization for developers."
+            },
+            "hero": {
+                "title": "Momei",
+                "subtitle": "AI-powered, Global Creation. An intelligent blog system tailored for developers.",
+                "cta": "Learn More"
+            },
+            "meaning": {
+                "title": "Origin and Meaning",
+                "text_1": "The name \"Momei\" (Ink Plum) is inspired by the poem \"Ink Plum\" by Wang Mian of the Yuan Dynasty:",
+                "poem": "\"My home is by the tree near the ink-washing pool,\nEvery flower blooms with faint traces of ink.\nI don't need people to praise its good color,\nOnly leaving a clear fragrance filling the universe.\"",
+                "text_2": "Taking \"Mo\" (Ink) symbolizes writing and cultivation, echoing the essence of blog content; taking \"Mei\" (Plum) implies the tenacious creative spirit and unique personal style.",
+                "intro": "Momei platform is dedicated to providing creators with:",
+                "features": [
+                    "AI-driven intelligent content creation experience",
+                    "Native internationalized content management & distribution",
+                    "Seamless blog migration tools and SEO preservation",
+                    "Global reach by bridging language gaps with AI"
+                ]
+            },
+            "features": {
+                "title": "Core Advantages",
+                "items": [
+                    {
+                        "title": "AI Assistant",
+                        "desc": "Deeply integrated AI for automated translation, smart title suggestions, and summary generation to boost productivity."
+                    },
+                    {
+                        "title": "Path Management",
+                        "desc": "Fully customizable URL Slugs, ensuring zero SEO loss when migrating from other platforms."
+                    },
+                    {
+                        "title": "Native I18n",
+                        "desc": "Goes beyond UI translation with cluster-based content management and smart language routing."
+                    }
+                ]
+            },
+            "contact": {
+                "title": "Contact Us",
+                "email": "Email",
+                "blog": "Blog",
+                "message": "Any questions or suggestions about Momei platform?",
+                "subtitle": "We look forward to hearing from you"
+            }
+        },
+        "links": {
+            "title": "Friend Links",
+            "subtitle": "A curated list of independent sites and creators we genuinely want to keep recommending.",
+            "meta": {
+                "description": "Browse the Momei friend links page and submit your own site for review."
+            },
+            "guidelines_title": "Application Guidelines",
+            "application_title": "Apply for a Friend Link",
+            "application_subtitle": "After submission, your application enters the review queue. Approved sites may appear on the public page and featured footer area.",
+            "uncategorized": "Uncategorized",
+            "empty": "There are no public friend links yet.",
+            "disabled": "Friend links are currently not enabled on this site.",
+            "form": {
+                "url": "Site URL",
+                "logo": "Logo Image",
+                "logo_placeholder": "Only uploaded site assets or whitelisted image URLs are allowed",
+                "logo_hint": "The logo only accepts uploaded site assets or image URLs from the security whitelist.",
+                "logo_upload_placeholder": "Upload a logo image or enter a URL from the security whitelist",
+                "logo_upload_hint": "Signed-in users can upload a logo image directly. If you enter it manually, it still must be a site asset or a whitelisted image URL.",
+                "rss_url": "RSS URL",
+                "contact_name": "Contact Name",
+                "contact_email": "Contact Email",
+                "category_placeholder": "Optional: choose the closest category",
+                "category_suggestion": "Category Suggestion",
+                "reciprocal_url": "Reciprocal Link Page",
+                "message": "Additional Notes",
+                "submit": "Submit Application",
+                "submitting": "Submitting...",
+                "success": "Application submitted successfully and pending admin review.",
+                "error": "Failed to submit application. Please try again later.",
+                "captcha_required": "Please complete captcha verification first"
+            }
+        },
+        "categories_index": {
+            "meta": {
+                "description": "Browse all Momei Blog categories to quickly discover article collections grouped by topic."
+            }
+        },
+        "tags_index": {
+            "meta": {
+                "description": "Explore the Momei tag cloud to discover related articles and content clusters by technical topic."
+            }
+        },
+        "archives": {
+            "meta": {
+                "description": "Explore the historical post archive of Momei Blog by year and month to revisit past updates and essays."
+            },
+            "title": "Archives",
+            "count": "{count} articles",
+            "months": {
+                "1": "January",
+                "2": "February",
+                "3": "March",
+                "4": "April",
+                "5": "May",
+                "6": "June",
+                "7": "July",
+                "8": "August",
+                "9": "September",
+                "10": "October",
+                "11": "November",
+                "12": "December"
+            }
+        }
     }
-  }
 }

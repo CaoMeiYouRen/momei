@@ -11,6 +11,7 @@
                 v-model="modelValue"
                 :placeholder="placeholder"
                 :disabled="uploading || disabled"
+                :readonly="readonly"
             />
             <Button
                 v-tooltip="$t('common.upload')"
@@ -44,6 +45,7 @@ const props = defineProps<{
     type?: UploadType
     postId?: string | null
     disabled?: boolean
+    readonly?: boolean
 }>()
 
 const modelValue = defineModel<string | null>()
