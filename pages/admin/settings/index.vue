@@ -169,6 +169,10 @@ const numberSettingFallbacks: Record<string, number> = {
     live2d_min_width: 1024,
     canvas_nest_min_width: 1024,
     effects_min_width: 1024,
+    comment_interval: 0,
+    upload_daily_limit: 100,
+    upload_single_user_daily_limit: 5,
+    upload_limit_window: 86400,
 }
 
 function normalizeFormValue(setting: SettingItem): SettingFormValue {

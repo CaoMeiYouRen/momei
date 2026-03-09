@@ -2,6 +2,7 @@ import path from 'node:path'
 import dayjs from 'dayjs'
 import { type H3Event, readMultipartFormData } from 'h3'
 import { getFileStorage, type FileStorageEnv } from '@/server/utils/storage/factory'
+import { resolveUploadSizeSetting } from '@/utils/shared/upload-size'
 import { limiterStorage } from '@/server/database/storage'
 import { getSettings } from '~/server/services/setting'
 import { SettingKey } from '~/types/setting'
@@ -266,18 +267,10 @@ export function buildUploadStoredFilename(options: {
 
 export function resolveUploadSizeLimit(type: UploadType, settings: UploadSettings) {
     if (type === UploadType.AUDIO) {
-        const configuredLimit = getNumericLimit(settings, SettingKey.MAX_AUDIO_UPLOAD_SIZE, 20)
-        return {
-            bytes: configuredLimit * 1024 * 1024,
-            text: `${configuredLimit}MB`,
-        }
+        return resolveUploadSizeSetting(settings[SettingKey.MAX_AUDIO_UPLOAD_SIZE] ?? null, 20)
     }
 
-    const configuredLimit = getNumericLimit(settings, SettingKey.MAX_UPLOAD_SIZE, 10)
-    return {
-        bytes: configuredLimit * 1024 * 1024,
-        text: `${configuredLimit}MB`,
-    }
+    return resolveUploadSizeSetting(settings[SettingKey.MAX_UPLOAD_SIZE] ?? null, 10)
 }
 
 export function validateUploadPayload(input: {

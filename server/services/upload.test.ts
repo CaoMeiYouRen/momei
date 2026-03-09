@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { readMultipartFormData } from 'h3'
-import { buildAvatarUploadPrefix, buildPostUploadPrefix, buildUploadObjectKey, buildUploadStoredFilename, checkUploadLimits, getUploadStorageContext, handleFileUploads, normalizeStorageType, resolveUploadedFileUrl, resolveUploadPrefix, UploadType } from './upload'
+import { buildAvatarUploadPrefix, buildPostUploadPrefix, buildUploadObjectKey, buildUploadStoredFilename, checkUploadLimits, getUploadStorageContext, handleFileUploads, normalizeStorageType, resolveUploadedFileUrl, resolveUploadPrefix, resolveUploadSizeLimit, UploadType } from './upload'
 import { limiterStorage } from '@/server/database/storage'
 import { getFileStorage } from '@/server/utils/storage/factory'
 import { getSettings } from '~/server/services/setting'
@@ -269,6 +269,33 @@ describe('UploadService', () => {
                 return Promise.resolve(1)
             })
             await expect(checkUploadLimits('user1')).rejects.toThrow('您今日上传次数超出限制')
+        })
+    })
+
+    describe('resolveUploadSizeLimit', () => {
+        it('should support unit-based size settings', () => {
+            expect(resolveUploadSizeLimit(UploadType.FILE, {
+                max_upload_size: '4.5MiB',
+            })).toEqual({
+                bytes: 4718592,
+                text: '4.5MiB',
+            })
+
+            expect(resolveUploadSizeLimit(UploadType.AUDIO, {
+                max_audio_upload_size: '100MiB',
+            })).toEqual({
+                bytes: 104857600,
+                text: '100MiB',
+            })
+        })
+
+        it('should keep supporting legacy numeric megabyte values', () => {
+            expect(resolveUploadSizeLimit(UploadType.FILE, {
+                max_upload_size: '10',
+            })).toEqual({
+                bytes: 10 * 1024 * 1024,
+                text: '10MB',
+            })
         })
     })
 

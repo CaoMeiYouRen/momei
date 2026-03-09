@@ -66,6 +66,32 @@ const mockSettingsResponse = {
             lockReason: 'forced_env_lock',
             requiresRestart: true,
         },
+        {
+            key: 'max_upload_size',
+            value: '4.5MiB',
+            description: 'max upload size',
+            level: 1,
+            maskType: 'none',
+            source: 'db',
+            isLocked: false,
+            envKey: 'NUXT_PUBLIC_MAX_UPLOAD_SIZE',
+            defaultUsed: false,
+            lockReason: null,
+            requiresRestart: false,
+        },
+        {
+            key: 'upload_limit_window',
+            value: '86400',
+            description: 'upload limit window',
+            level: 1,
+            maskType: 'none',
+            source: 'db',
+            isLocked: false,
+            envKey: 'UPLOAD_LIMIT_WINDOW',
+            defaultUsed: false,
+            lockReason: null,
+            requiresRestart: false,
+        },
     ],
 }
 
@@ -167,6 +193,8 @@ describe('Admin Settings Page', () => {
             body: {
                 settings: {
                     site_title: 'Momei',
+                    max_upload_size: '4.5MiB',
+                    upload_limit_window: '86400',
                 },
                 reason: 'system_settings_update',
                 source: 'admin_ui',
