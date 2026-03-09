@@ -390,6 +390,29 @@ $$
    - 使用 `scripts/i18n/split-locale-files.mjs` 承担旧结构到新模块目录的拆分与重复执行能力。
    - 增补 locale registry、fallback、模块解析与按路由渐进加载测试。
 
+#### 旧结构迁移方案
+
+为避免旧翻译在拆分过程中丢失，迁移必须遵循“先冻结输入，再批量生成，再自动审计”的顺序。
+
+1. **冻结输入源**
+   - 若仓库仍保留 `i18n/locales/<locale>.json` 根级大文件，先把其中 `pages` 命名空间导出为 `i18n/locales/<locale>/pages.json` 临时快照。
+   - 若根级大文件已经移除，则以 Git 历史中的最后一个有效版本或当前 `i18n/locales/<locale>/*.json` 模块文件作为恢复输入，不允许直接在迁移过程中手工拷贝零散字段。
+   - `common.json`、`components.json`、`feed.json` 作为静态模块输入单独保留，不与 `pages.json` 混写。
+
+2. **执行可重复拆分**
+   - 统一使用 `scripts/i18n/split-locale-files.mjs` 生成 `public / settings / auth / admin / home / demo / installation / legal` 模块。
+   - 该脚本优先读取 `pages.json`；若 `pages.json` 已不存在，会回退读取当前模块文件并重建页面命名空间，因此可以重复执行用于校正目录结构与格式。
+   - 迁移完成后再移除 `pages.json`，模块目录成为唯一事实源。
+
+3. **执行迁移后审计**
+   - 运行 `pnpm i18n:audit`，要求 `Missing parity keys` 与 `Unused candidate keys` 均为 `none`。
+   - 运行定向 Vitest，覆盖 `locale-registry`、`locale-modules`、`locale-runtime-loader` 与服务端消息装配。
+   - 运行关键页面 SEO 回归，确认 canonical、`hreflang`、Open Graph 与 JSON-LD 未因拆分回退而缺失。
+
+4. **回滚策略**
+   - 任何迁移失败场景都应整体回滚到“迁移前快照”或 Git 历史中的上一个有效 locale 版本，禁止只回滚单个模块文件。
+   - 若审计脚本或回归测试失败，不允许继续删除旧输入文件；必须先恢复到可审计状态后再重新执行拆分。
+
 ### 8.2 对应待办 4: 多语言 SEO 深度优化
 
 该待办在统一设计下应包含以下内容：
@@ -439,6 +462,15 @@ $$
 - SEO 组装工具测试
 - JSON-LD 生成测试
 
+当前建议至少落到以下测试文件：
+
+- `i18n/config/locale-registry.test.ts`
+- `i18n/config/locale-modules.test.ts`
+- `i18n/config/locale-runtime-loader.test.ts`
+- `server/utils/i18n.test.ts`
+- `server/utils/sitemap.test.ts`
+- `utils/shared/seo.test.ts`
+
 ### 10.2 页面级回归测试
 
 优先覆盖以下页面：
@@ -457,6 +489,13 @@ $$
 - `og:locale`
 - JSON-LD 中的 `inLanguage`
 
+当前回归入口建议收敛到 `tests/e2e/seo-regression.e2e.test.ts`，优先覆盖：
+
+- 首页默认语言输出
+- 英文静态公开页的 canonical 与 alternates
+- 文章详情页的 `og:type=article` 与结构化数据
+- 分类详情页的 collection 级结构化数据
+
 ### 10.3 搜索引擎交付验证
 
 在接入层面，至少验证以下输出一致性：
@@ -464,6 +503,7 @@ $$
 - 页面 Head 中的 canonical 与 sitemap URL 一致。
 - `hreflang` 只包含真实存在页面。
 - `robots.txt` 能正确指向站点地图入口。
+- locale 模块拆分后，页面首屏 SSR 仍能拿到生成 Head 所需的最小翻译集。
 
 ## 11. 分阶段落地顺序 (Implementation Sequence)
 

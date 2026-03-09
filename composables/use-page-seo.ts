@@ -189,7 +189,7 @@ export function usePageSeo(options: UsePageSeoOptions) {
             script: structuredDataNodes.value.map((node, index) => ({
                 key: `structured-data-${options.type}-${index}`,
                 type: 'application/ld+json',
-                children: JSON.stringify(node),
+                textContent: JSON.stringify(node),
             })),
         }
     })
