@@ -77,7 +77,11 @@ import Skeleton from 'primevue/skeleton'
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
-useHead({ title: t('pages.archives.meta.title') })
+usePageSeo({
+    type: 'collection',
+    title: () => t('pages.archives.title'),
+    description: () => t('pages.archives.meta.description'),
+})
 
 const { data, pending, error } = await useAppFetch<ApiResponse<ArchiveYear[]>>('/api/posts/archive')
 const list = computed<ArchiveYear[]>(() => (data.value?.data || []) as ArchiveYear[])

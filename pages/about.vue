@@ -144,14 +144,11 @@ const { t, tm, rt } = useI18n()
 const meaningFeatures = computed(() => tm('pages.about.meaning.features') as any[])
 const featureItems = computed(() => tm('pages.about.features.items') as any[])
 
-useHead({
-    title: t('pages.about.meta.title'),
-    meta: [
-        {
-            name: 'description',
-            content: t('pages.about.meta.description'),
-        },
-    ],
+usePageSeo({
+    type: 'website',
+    title: () => t('common.about'),
+    description: () => t('pages.about.meta.description'),
+    image: '/logo.png',
 })
 
 const getFeatureIcon = (index: number) => {

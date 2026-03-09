@@ -1,4 +1,5 @@
 import {
+    APP_ENABLED_LOCALES,
     getLocaleRegistryItem,
     getLocaleRoutePrefix,
     isSeoReadyLocale,
@@ -25,8 +26,33 @@ export interface SitemapEntry {
     alternatives?: SitemapAlternative[]
 }
 
+export interface StaticSitemapPage {
+    path: string
+    lastmod?: Date
+}
+
 function resolveEntryPath(language: string, path: string): string {
     return `${getLocaleRoutePrefix(language)}${path}` || '/'
+}
+
+export function buildStaticSitemapEntries(
+    pages: StaticSitemapPage[],
+    baseUrl: string,
+): SitemapEntry[] {
+    const locales = APP_ENABLED_LOCALES.filter((locale) => isSeoReadyLocale(locale.code))
+
+    return pages.flatMap((page) => {
+        const alternatives = locales.map((locale) => ({
+            hreflang: locale.languageTag,
+            href: buildAbsoluteUrl(baseUrl, resolveEntryPath(locale.code, page.path)),
+        }))
+
+        return locales.map((locale) => ({
+            loc: buildAbsoluteUrl(baseUrl, resolveEntryPath(locale.code, page.path)),
+            lastmod: page.lastmod,
+            alternatives,
+        }))
+    })
 }
 
 export function buildLocalizedSitemapEntries<T extends LocalizedSitemapItem>(

@@ -77,8 +77,10 @@ watch(() => route.query.page, (newPage) => {
     }
 })
 
-useHead({
-    title: t('pages.posts.title'),
+usePageSeo({
+    type: 'collection',
+    title: () => t('pages.posts.title'),
+    description: () => t('pages.posts.meta.description'),
 })
 </script>
 

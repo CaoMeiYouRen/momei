@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const localePath = useLocalePath()
 
 const { data, pending, error } = await useAppFetch<any>('/api/categories', {
@@ -63,8 +63,10 @@ const { data, pending, error } = await useAppFetch<any>('/api/categories', {
 const categories = computed(() => data.value?.data?.items || [])
 const total = computed(() => data.value?.data?.total || 0)
 
-useHead({
-    title: `${t('common.category')} - ${t('components.header.title')}`,
+usePageSeo({
+    type: 'collection',
+    title: () => t('common.category'),
+    description: () => t('pages.categories_index.meta.description', { count: total.value }),
 })
 </script>
 

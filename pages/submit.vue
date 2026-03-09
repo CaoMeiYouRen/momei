@@ -151,8 +151,10 @@ const { t } = useI18n()
 const toast = useToast()
 const config = useRuntimeConfig()
 
-useHead({
-    title: t('pages.submit.title'),
+usePageSeo({
+    type: 'website',
+    title: () => t('pages.submit.title'),
+    description: () => t('pages.submit.meta.description'),
 })
 
 const isCaptchaEnabled = computed(() => !!(config.public.authCaptcha?.provider && config.public.authCaptcha?.siteKey))

@@ -1,7 +1,27 @@
 import { describe, expect, it } from 'vitest'
-import { buildLocalizedSitemapEntries } from './sitemap'
+import { buildLocalizedSitemapEntries, buildStaticSitemapEntries } from './sitemap'
 
 describe('server/utils/sitemap', () => {
+    it('should build localized static sitemap entries with alternates', () => {
+        const entries = buildStaticSitemapEntries(
+            [
+                { path: '/' },
+                { path: '/archives' },
+            ],
+            'https://momei.app',
+        )
+
+        expect(entries).toHaveLength(4)
+        expect(entries[0]?.loc).toBe('https://momei.app/')
+        expect(entries[1]?.loc).toBe('https://momei.app/en-US/')
+        expect(entries[2]?.loc).toBe('https://momei.app/archives')
+        expect(entries[3]?.loc).toBe('https://momei.app/en-US/archives')
+        expect(entries[0]?.alternatives).toEqual([
+            { hreflang: 'zh-CN', href: 'https://momei.app/' },
+            { hreflang: 'en-US', href: 'https://momei.app/en-US/' },
+        ])
+    })
+
     it('should build sitemap entries with locale alternates for translation groups', () => {
         const entries = buildLocalizedSitemapEntries(
             [

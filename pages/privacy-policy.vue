@@ -31,8 +31,10 @@ const content = ref<string>('')
 const isDefault = ref(false)
 const { t } = useI18n()
 
-useHead({
-    title: t('pages.privacy_policy.title'),
+usePageSeo({
+    type: 'website',
+    title: () => t('pages.privacy_policy.title'),
+    description: () => t('pages.privacy_policy.meta.description'),
 })
 
 onMounted(async () => {

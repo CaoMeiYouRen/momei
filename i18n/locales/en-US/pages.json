@@ -2,6 +2,9 @@
   "pages": {
     "submit": {
       "title": "Guest Submission",
+      "meta": {
+        "description": "Submit your original writing or technical ideas to Momei and join a global developer publishing community."
+      },
       "subtitle": "Welcome to share your insights and stories",
       "form": {
         "title": "Article Title",
@@ -23,6 +26,9 @@
     },
     "posts": {
       "title": "Articles",
+      "meta": {
+        "description": "Browse the latest technical posts, essays, and creator updates published on Momei Blog across languages and topics."
+      },
       "empty": "No articles found",
       "status_warning": "The current article is in {status} status and has not been officially published. It is only visible to relevant authorized personnel.",
       "article_count": "{count} Articles",
@@ -44,11 +50,17 @@
     },
     "user_agreement": {
       "title": "User Agreement",
-      "last_updated": "Last updated: January 18, 2026"
+      "last_updated": "Last updated: January 18, 2026",
+      "meta": {
+        "description": "Read the Momei user agreement to understand the terms for access, registration, publishing, and site usage."
+      }
     },
     "privacy_policy": {
       "title": "Privacy Policy",
-      "last_updated": "Last updated: January 18, 2026"
+      "last_updated": "Last updated: January 18, 2026",
+      "meta": {
+        "description": "Review the latest Momei privacy policy covering data collection, storage, processing, and your rights as a user."
+      }
     },
     "about": {
       "meta": {
@@ -97,6 +109,16 @@
         "blog": "Blog",
         "message": "Any questions or suggestions about Momei platform?",
         "subtitle": "We look forward to hearing from you"
+      }
+    },
+    "categories_index": {
+      "meta": {
+        "description": "Browse all Momei Blog categories to quickly discover article collections grouped by topic."
+      }
+    },
+    "tags_index": {
+      "meta": {
+        "description": "Explore the Momei tag cloud to discover related articles and content clusters by technical topic."
       }
     },
     "admin": {
@@ -1089,7 +1111,8 @@
     },
     "archives": {
       "meta": {
-        "title": "Archives - Momei Blog"
+        "title": "Archives - Momei Blog",
+        "description": "Explore the historical post archive of Momei Blog by year and month to revisit past updates and essays."
       },
       "title": "Archives",
       "count": "{count} articles",

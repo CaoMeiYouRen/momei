@@ -2,6 +2,9 @@
   "pages": {
     "submit": {
       "title": "访客投稿",
+      "meta": {
+        "description": "向墨梅博客提交您的原创内容或技术见解，参与全球化开发者创作社区。"
+      },
       "subtitle": "欢迎分享您的见解与故事",
       "form": {
         "title": "文章标题",
@@ -23,6 +26,9 @@
     },
     "posts": {
       "title": "文章列表",
+      "meta": {
+        "description": "浏览墨梅博客最新发布的技术文章、实践总结与创作内容，按语言与主题持续获取更新。"
+      },
       "empty": "暂无文章",
       "status_warning": "当前文章处于 {status} 状态，尚未正式发布，仅相关权限人员可见。",
       "article_count": "{count} 篇文章",
@@ -52,11 +58,17 @@
     },
     "user_agreement": {
       "title": "用户协议",
-      "last_updated": "最后更新日期：2026年1月18日"
+      "last_updated": "最后更新日期：2026年1月18日",
+      "meta": {
+        "description": "查看墨梅博客的用户协议与站点使用条款，了解访问、注册与内容发布相关规则。"
+      }
     },
     "privacy_policy": {
       "title": "隐私政策",
-      "last_updated": "最后更新日期：2026年1月18日"
+      "last_updated": "最后更新日期：2026年1月18日",
+      "meta": {
+        "description": "查看墨梅博客关于数据收集、使用、存储与用户权利说明的最新隐私政策。"
+      }
     },
     "about": {
       "meta": {
@@ -105,6 +117,16 @@
         "blog": "博客",
         "message": "对墨梅平台有任何疑问或建议？",
         "subtitle": "我们期待听到您的声音"
+      }
+    },
+    "categories_index": {
+      "meta": {
+        "description": "浏览墨梅博客全部分类，按主题快速定位感兴趣的文章与内容集合。"
+      }
+    },
+    "tags_index": {
+      "meta": {
+        "description": "浏览墨梅博客热门标签云，按技术主题聚合发现相关文章与创作线索。"
       }
     },
     "admin": {
@@ -1096,7 +1118,8 @@
     },
     "archives": {
       "meta": {
-        "title": "归档 - 墨梅博客"
+        "title": "归档 - 墨梅博客",
+        "description": "按年份与月份浏览墨梅博客的历史文章归档，快速回顾往期内容与更新轨迹。"
       },
       "title": "归档",
       "count": "共计 {count} 篇",

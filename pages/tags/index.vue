@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const localePath = useLocalePath()
 
 const { data, pending, error } = await useAppFetch<any>('/api/tags', {
@@ -73,8 +73,10 @@ const getTagWeight = (count: number = 0) => {
     return `${size}rem`
 }
 
-useHead({
-    title: `${t('common.tags')} - ${t('components.header.title')}`,
+usePageSeo({
+    type: 'collection',
+    title: () => t('common.tags'),
+    description: () => t('pages.tags_index.meta.description', { count: total.value }),
 })
 </script>
 
