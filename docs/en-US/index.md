@@ -26,7 +26,7 @@ features:
       link: /en-US/guide/quick-start
     - title: Comparison
       details: "Compare Momei with WordPress, Hugo, Hexo, and other platforms."
-      link: /en-US/plan/comparison
+      link: /en-US/guide/comparison
     - title: Deploy Guide
       details: "Covering multiple deployment options from Vercel to private servers."
       link: /en-US/guide/deploy

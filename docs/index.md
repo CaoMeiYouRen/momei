@@ -23,7 +23,7 @@ features:
       link: /guide/quick-start
     - title: 方案对比
       details: 了解墨梅与 WordPress、Hugo、Hexo 等平台的对比优势。
-      link: /plan/comparison
+      link: /guide/comparison
     - title: 部署指南
       details: 涵盖从 Vercel 到私有服务器的多种部署方案。
       link: /guide/deploy

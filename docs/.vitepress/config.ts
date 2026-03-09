@@ -47,6 +47,7 @@ export default defineConfig({
                             { text: '开发指南', link: '/guide/development' },
                             { text: 'AI 协同开发', link: '/guide/ai-development' },
                             { text: '功能特性', link: '/guide/features' },
+                            { text: '方案对比', link: '/guide/comparison' },
                         ],
                     },
                     {
@@ -55,7 +56,6 @@ export default defineConfig({
                             { text: '路线图', link: '/plan/roadmap' },
                             { text: '待办事项', link: '/plan/todo' },
                             { text: '待办归档', link: '/plan/todo-archive' },
-                            { text: '方案对比', link: '/plan/comparison' },
                         ],
                     },
                     {
@@ -151,13 +151,14 @@ export default defineConfig({
                             { text: 'Dev Guide', link: '/en-US/guide/development' },
                             { text: 'AI Synergy', link: '/en-US/guide/ai-development' },
                             { text: 'Features', link: '/en-US/guide/features' },
+                            { text: 'Comparison', link: '/en-US/guide/comparison' },
                         ],
                     },
                     {
                         text: 'Planning',
                         items: [
                             { text: 'Roadmap', link: '/en-US/plan/roadmap' },
-                            { text: 'Comparison', link: '/en-US/plan/comparison' },
+
                         ],
                     },
                     {
