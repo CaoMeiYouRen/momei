@@ -10,6 +10,8 @@ const aiAlertRatioSchema = z.number().gt(0).lte(1)
 
 const aiAlertCategorySchema = z.enum(['all', 'text', 'image', 'asr', 'tts', 'podcast'])
 
+const aiCurrencyCodeSchema = z.string().trim().min(1).max(8)
+
 export const aiQuotaPolicySchema = z.object({
     subjectType: z.enum(['global', 'role', 'trust_level', 'user']),
     subjectValue: z.string().trim().min(1),
@@ -42,6 +44,26 @@ export const aiAlertThresholdsSchema = z.object({
     }),
     dedupeWindowMinutes: z.number().int().min(1).max(44640).optional().default(1440),
     maxAlerts: z.number().int().min(1).max(100).optional().default(10),
+})
+
+export const aiCostFactorsSchema = z.object({
+    currencyCode: aiCurrencyCodeSchema.optional().default('CNY'),
+    currencySymbol: z.string().trim().min(1).max(8).optional().default('¥'),
+    quotaUnitPrice: z.number().min(0).optional().default(0.1),
+    exchangeRates: z.record(z.string().trim().min(1).max(8), z.number().positive()).optional().default({
+        CNY: 1,
+        USD: 7.2,
+    }),
+    providerCurrencies: z.record(z.string().trim().min(1).max(64), aiCurrencyCodeSchema).optional().default({
+        openai: 'USD',
+        anthropic: 'USD',
+        gemini: 'USD',
+        groq: 'USD',
+        siliconflow: 'CNY',
+        volcengine: 'CNY',
+        doubao: 'CNY',
+        deepseek: 'CNY',
+    }),
 })
 
 export const aiTranslateSchema = z.object({

@@ -1,4 +1,4 @@
-import type { AICategory, AIChargeStatus, AIFailureStage, AIUsageSnapshot } from '@/types/ai'
+import type { AICategory, AIChargeStatus, AICostFactors, AIFailureStage, AIUsageSnapshot } from '@/types/ai'
 import { parseMaybeJson, toNumber } from '@/utils/shared/coerce'
 import { roundTo } from '@/utils/shared/number'
 
@@ -27,6 +27,83 @@ const CATEGORY_WEIGHTS: Record<GovernanceCategory, number> = {
     asr: 4,
     tts: 3,
     podcast: 6,
+}
+
+export const DEFAULT_AI_COST_FACTORS: AICostFactors = {
+    currencyCode: 'CNY',
+    currencySymbol: '¥',
+    quotaUnitPrice: 0.1,
+    exchangeRates: {
+        CNY: 1,
+        USD: 7.2,
+    },
+    providerCurrencies: {
+        openai: 'USD',
+        anthropic: 'USD',
+        gemini: 'USD',
+        groq: 'USD',
+        siliconflow: 'CNY',
+        volcengine: 'CNY',
+        doubao: 'CNY',
+        deepseek: 'CNY',
+    },
+}
+
+function normalizeCurrencyCode(currency: string | null | undefined, fallback: string) {
+    const normalized = String(currency || '').trim().toUpperCase()
+    return normalized || fallback
+}
+
+export function normalizeAICostFactors(rawFactors?: Partial<AICostFactors> | null): AICostFactors {
+    const currencyCode = normalizeCurrencyCode(rawFactors?.currencyCode, DEFAULT_AI_COST_FACTORS.currencyCode)
+    const exchangeRates = {
+        ...DEFAULT_AI_COST_FACTORS.exchangeRates,
+        ...(rawFactors?.exchangeRates || {}),
+    }
+    const normalizedExchangeRates = Object.fromEntries(
+        Object.entries(exchangeRates)
+            .map(([currency, rate]) => [normalizeCurrencyCode(currency, currencyCode), toNumber(rate, Number.NaN)] as const)
+            .filter((entry): entry is readonly [string, number] => Number.isFinite(entry[1]) && entry[1] > 0),
+    ) as Record<string, number>
+
+    normalizedExchangeRates[currencyCode] = 1
+
+    return {
+        currencyCode,
+        currencySymbol: String(rawFactors?.currencySymbol || DEFAULT_AI_COST_FACTORS.currencySymbol).trim() || DEFAULT_AI_COST_FACTORS.currencySymbol,
+        quotaUnitPrice: Math.max(0, toNumber(rawFactors?.quotaUnitPrice, DEFAULT_AI_COST_FACTORS.quotaUnitPrice)),
+        exchangeRates: normalizedExchangeRates,
+        providerCurrencies: Object.fromEntries(
+            Object.entries({
+                ...DEFAULT_AI_COST_FACTORS.providerCurrencies,
+                ...(rawFactors?.providerCurrencies || {}),
+            }).map(([provider, currency]) => [provider, normalizeCurrencyCode(currency, currencyCode)]),
+        ),
+    }
+}
+
+export function resolveProviderCostCurrency(provider: string | null | undefined, factors: AICostFactors = DEFAULT_AI_COST_FACTORS) {
+    if (!provider) {
+        return factors.currencyCode
+    }
+
+    return normalizeCurrencyCode(factors.providerCurrencies[provider] || factors.currencyCode, factors.currencyCode)
+}
+
+export function convertCostToDisplayCurrency(amount: number, sourceCurrency: string | null | undefined, factors: AICostFactors = DEFAULT_AI_COST_FACTORS) {
+    const normalizedAmount = toNumber(amount, 0)
+    if (!Number.isFinite(normalizedAmount) || normalizedAmount <= 0) {
+        return 0
+    }
+
+    const normalizedSourceCurrency = normalizeCurrencyCode(sourceCurrency, factors.currencyCode)
+    const rate = toNumber(factors.exchangeRates[normalizedSourceCurrency], Number.NaN)
+
+    if (!Number.isFinite(rate) || rate <= 0) {
+        return normalizedSourceCurrency === factors.currencyCode ? roundTo(normalizedAmount, 4) : 0
+    }
+
+    return roundTo(normalizedAmount * rate, 4)
 }
 
 function getPayloadTextLength(payload: Record<string, unknown>) {
@@ -194,6 +271,39 @@ export function calculateQuotaUnits(options: {
     }
 
     return roundTo(baseMeasure * CATEGORY_WEIGHTS[normalizedCategory])
+}
+
+export function calculateDisplayCost(options: {
+    category?: string | null
+    type?: string | null
+    usageSnapshot?: AIUsageSnapshot | null
+    payload?: unknown
+    quotaUnits?: number | null
+    provider?: string | null
+    providerCost?: number | null
+    providerCurrency?: string | null
+    factors?: Partial<AICostFactors> | AICostFactors | null
+}): number {
+    const factors = normalizeAICostFactors(options.factors)
+    const resolvedQuotaUnits = Number.isFinite(toNumber(options.quotaUnits, Number.NaN))
+        ? Math.max(0, toNumber(options.quotaUnits, 0))
+        : calculateQuotaUnits({
+            category: options.category,
+            type: options.type,
+            usageSnapshot: options.usageSnapshot,
+            payload: options.payload,
+        })
+    const quotaMappedCost = roundTo(resolvedQuotaUnits * factors.quotaUnitPrice, 4)
+    const rawProviderCost = toNumber(options.providerCost, 0)
+
+    if (!Number.isFinite(rawProviderCost) || rawProviderCost <= 0) {
+        return quotaMappedCost
+    }
+
+    const providerCurrency = options.providerCurrency || resolveProviderCostCurrency(options.provider, factors)
+    const convertedProviderCost = convertCostToDisplayCurrency(rawProviderCost, providerCurrency, factors)
+
+    return roundTo(Math.max(quotaMappedCost, convertedProviderCost), 4)
 }
 
 export function inferFailureStage(error: unknown, fallback: AIFailureStage = 'provider_processing'): AIFailureStage {

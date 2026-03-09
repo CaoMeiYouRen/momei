@@ -23,6 +23,14 @@ vi.mock('@/server/services/ai/usage-alerts', () => ({
     ]),
 }))
 
+vi.mock('@/server/services/ai/cost-display', () => ({
+    getAICostDisplayConfig: vi.fn().mockResolvedValue({
+        currencyCode: 'CNY',
+        currencySymbol: '¥',
+        quotaUnitPrice: 0.1,
+    }),
+}))
+
 function createAggregateBuilder(result: any, method: 'getRawOne' | 'getRawMany' = 'getRawMany') {
     const queryBuilder: Record<string, any> = {
         select: vi.fn(),
@@ -106,6 +114,10 @@ describe('GET /api/admin/ai/stats', () => {
         }))
         expect(result.failureStageStats[0]).toEqual(expect.objectContaining({
             failureStage: 'provider_processing',
+        }))
+        expect(result.costDisplay).toEqual(expect.objectContaining({
+            currencyCode: 'CNY',
+            currencySymbol: '¥',
         }))
         expect(result.alerts[0]).toEqual(expect.objectContaining({
             kind: 'quota_usage',

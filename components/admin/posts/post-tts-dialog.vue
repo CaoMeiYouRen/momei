@@ -146,10 +146,14 @@ const { status, progress, audioUrl, error, startPolling } = useTTSTask(currentTa
 const hasGeneratedAudio = computed(() => Boolean(audioUrl.value))
 
 const estimatedCost = ref(0)
+const estimatedCostDisplay = ref({
+    currencyCode: 'CNY',
+    currencySymbol: '¥',
+})
 const loadingCost = ref(false)
 
 // 监听配置变化，重新计算预估成本
-watchDebounced([() => config.value.provider, () => config.value.voice, script], async () => {
+watchDebounced([() => config.value.provider, () => config.value.voice, () => config.value.mode, script], async () => {
     if (!config.value.voice || !script.value) {
         estimatedCost.value = 0
         return
@@ -163,9 +167,14 @@ watchDebounced([() => config.value.provider, () => config.value.voice, script], 
                 provider: config.value.provider,
                 voice: config.value.voice,
                 text: script.value,
+                mode: config.value.mode,
             },
         })
         estimatedCost.value = data.cost
+        estimatedCostDisplay.value = {
+            currencyCode: data.currencyCode || 'CNY',
+            currencySymbol: data.currencySymbol || '¥',
+        }
     } catch (e) {
         console.error('Failed to fetch estimated cost:', e)
     } finally {
@@ -305,7 +314,8 @@ function handleConfirm() {
                             <i v-if="loadingCost" class="pi pi-spin pi-spinner" />
                             <template v-else>
                                 <span class="tts-cost__amount">{{ estimatedCost.toFixed(4) }}</span>
-                                <span class="tts-cost__currency">{{ (config.provider === 'openai' || config.provider === 'elevenlabs') ? '$' : '¥' }}</span>
+                                <span class="tts-cost__currency">{{ estimatedCostDisplay.currencySymbol }}</span>
+                                <span class="tts-cost__code">{{ estimatedCostDisplay.currencyCode }}</span>
                             </template>
                         </div>
                     </div>
@@ -532,6 +542,12 @@ function handleConfirm() {
     &__currency {
         font-size: 0.75rem;
         opacity: 0.8;
+    }
+
+    &__code {
+        font-size: 0.75rem;
+        color: var(--text-color-secondary);
+        text-transform: uppercase;
     }
 }
 

@@ -54,7 +54,7 @@ export function shouldUseS3PathStyle(env: ResolvedS3Env): boolean {
         const url = new URL(env.S3_ENDPOINT)
         return !url.hostname.endsWith('.amazonaws.com')
     } catch {
-        return !env.S3_ENDPOINT.includes('.amazonaws.com')
+        return false
     }
 }
 

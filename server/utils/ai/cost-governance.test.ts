@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { calculateQuotaUnits, deriveChargeStatus, inferFailureStage, normalizeTaskCategory, normalizeUsageSnapshot } from './cost-governance'
+import {
+    calculateDisplayCost,
+    calculateQuotaUnits,
+    convertCostToDisplayCurrency,
+    deriveChargeStatus,
+    inferFailureStage,
+    normalizeTaskCategory,
+    normalizeUsageSnapshot,
+} from './cost-governance'
 
 describe('ai cost governance utils', () => {
     it('should normalize task category by type', () => {
@@ -85,5 +93,34 @@ describe('ai cost governance utils', () => {
             quotaUnits: 3,
             settlementSource: 'estimated',
         })).toBe('estimated')
+    })
+
+    it('should convert provider cost into configured display currency', () => {
+        expect(convertCostToDisplayCurrency(1, 'USD', {
+            currencyCode: 'CNY',
+            currencySymbol: '¥',
+            quotaUnitPrice: 0.1,
+            exchangeRates: { CNY: 1, USD: 7.2 },
+            providerCurrencies: {},
+        })).toBe(7.2)
+    })
+
+    it('should keep displayed cost correlated with quota units', () => {
+        const displayCost = calculateDisplayCost({
+            category: 'tts',
+            type: 'tts',
+            quotaUnits: 6,
+            provider: 'openai',
+            providerCost: 0.15,
+            factors: {
+                currencyCode: 'CNY',
+                currencySymbol: '¥',
+                quotaUnitPrice: 0.2,
+                exchangeRates: { CNY: 1, USD: 7.2 },
+                providerCurrencies: { openai: 'USD' },
+            },
+        })
+
+        expect(displayCost).toBe(1.2)
     })
 })

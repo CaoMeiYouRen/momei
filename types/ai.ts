@@ -57,6 +57,14 @@ export interface AIAlertThresholdSettings {
     maxAlerts?: number
 }
 
+export interface AICostFactors {
+    currencyCode: string
+    currencySymbol: string
+    quotaUnitPrice: number
+    exchangeRates: Record<string, number>
+    providerCurrencies: Record<string, string>
+}
+
 export interface AIUsageAlert {
     dedupeKey: string
     kind: AIAlertKind
@@ -189,6 +197,7 @@ export interface AIProvider {
     getVoices?(query?: TTSVoiceQuery): Promise<TTSAudioVoice[]>
     generateSpeech?(text: string, voice: string | string[], options: TTSOptions): Promise<ReadableStream<Uint8Array>>
     estimateTTSCost?(text: string, voice: string | string[]): Promise<number>
+    estimateCost?(text: string, voice: string | string[]): Promise<number>
     // ASR
     transcribe?(options: TranscribeOptions): Promise<TranscribeResponse>
     // General

@@ -29,10 +29,12 @@
 虽然 `AITask` 已经包含 `estimatedCost`、`actualCost`、`startedAt`、`completedAt` 等字段，但目前仍存在以下问题：
 
 - 文本、图像、ASR、TTS 的计量口径不统一。
+- TTS provider 的预估成本接口契约存在命名不一致问题，容易导致部分厂商预估值失效或直接回落为零。
 - 后台统计仍以“任务数量”维度为主，缺少成本、时长、失败阶段和配额消耗维度。
 - 不同厂商返回的 usage 结构不一致，尚未沉淀成统一字段。
 - 失败任务只有 `failed` 状态，没有“失败发生在哪个阶段”的归因。
 - 还没有真正意义上的多用户配额策略解析层。
+- 后台与业务弹窗同时存在美元和人民币符号，且 `Quota Units` 尚未稳定映射为管理员可解释的展示成本，容易形成两套价值体系。
 
 ### 2.3 设计约束
 
@@ -73,6 +75,17 @@
 
 - 货币成本服务于管理员和审计运营。
 - 配额消耗服务于限额、风控和多用户治理。
+
+### 4.1 统一展示货币原则
+
+为了避免后台同时出现多种货币符号、不同提供商各自报价导致的认知偏差，首版展示侧采用“管理员统一指定展示货币”的策略：
+
+- `Quota Units` 仍然是平台内部治理单位，不直接暴露为最终展示金额。
+- `Estimated Cost` 与 `Actual Cost` 面向管理员展示时，必须先换算为同一种展示货币。
+- 管理端、AI 统计、任务详情、TTS 预估弹窗等入口必须消费同一套货币代码、符号与换算规则。
+- 若厂商提供原始报价，则先按配置汇率换算到展示货币；若厂商未提供报价，则回退到额度映射成本。
+
+该策略追求“统一、可解释、可配置”，而不是追求和厂商账单逐笔完全一致。
 
 ## 5. 统一用量审计模型 (Unified Usage Audit Model)
 
@@ -203,6 +216,75 @@ $$
 | `2048` 或高质量模式 | `2.0` |
 
 若厂商提供更精确的 usage 或价格字段，则以厂商返回为准。
+
+### 6.6 展示成本映射 (Display Cost Mapping)
+
+为了让后台中的货币成本与平台额度体系保持关联，首版定义统一展示成本公式：
+
+$$
+DisplayCost = \max(QuotaUnits \times QuotaUnitPrice, ConvertedProviderCost)
+$$
+
+其中：
+
+- `QuotaUnits × QuotaUnitPrice` 表示平台内部额度映射出的展示成本。
+- `ConvertedProviderCost` 表示厂商原始报价按展示货币汇率换算后的结果。
+- 若厂商未返回报价，则 `ConvertedProviderCost` 视为 `0`，最终展示成本完全由额度映射决定。
+- 取两者较高值，是为了避免因 provider 返回值缺失、精度不足或折算滞后而系统性低估成本。
+
+该公式同时适用于：
+
+- 任务创建时的 `Estimated Cost`
+- 任务完成后的 `Actual Cost`
+- 管理后台聚合统计中的成本汇总
+- 前台/管理端发起 TTS 时的预估展示
+
+### 6.7 `AI_COST_FACTORS` 配置结构
+
+首版将展示货币与成本映射配置收敛为系统设置 `AI_COST_FACTORS`，建议结构如下：
+
+```ts
+interface AICostFactors {
+  currencyCode: string
+  currencySymbol: string
+  quotaUnitPrice: number
+  exchangeRates: Record<string, number>
+  providerCurrencies: Record<string, string>
+}
+```
+
+字段说明：
+
+- `currencyCode`：管理员指定的展示货币代码，例如 `CNY`、`USD`。
+- `currencySymbol`：后台和弹窗统一使用的货币符号，例如 `¥`、`$`。
+- `quotaUnitPrice`：每个 `Quota Unit` 对应的展示货币单价。
+- `exchangeRates`：从 provider 原始报价货币换算到展示货币的汇率表。
+- `providerCurrencies`：不同 AI provider 的原始报价币种声明，用于在 provider 只返回数值时完成换算。
+
+推荐默认值：
+
+```json
+{
+  "currencyCode": "CNY",
+  "currencySymbol": "¥",
+  "quotaUnitPrice": 0.1,
+  "exchangeRates": {
+    "USD": 7.2,
+    "CNY": 1
+  },
+  "providerCurrencies": {
+    "openai": "USD",
+    "siliconflow": "CNY",
+    "volcengine": "CNY"
+  }
+}
+```
+
+约束说明：
+
+- 所有管理端成本展示必须以 `AI_COST_FACTORS` 为唯一配置来源，避免组件内硬编码币种。
+- 当管理员切换展示货币后，新的预估与后续聚合展示应立即使用新配置。
+- 历史任务记录中的 `estimatedCost` 与 `actualCost` 仍保留数值快照，不做全量回填重算。
 
 ## 7. 多用户配额策略 (Multi-user Quota Policies)
 
@@ -498,6 +580,7 @@ $$
 
 - 审计归一化测试：不同 provider usage 归一为统一结构。
 - 配额计算测试：文本、图像、ASR、TTS 的额度换算。
+- 成本映射测试：`Quota Units` 到展示成本的映射、汇率换算以及 `max(mappedCost, convertedProviderCost)` 规则。
 - 策略解析测试：`user > trust_level > role > global` 的覆盖优先级。
 - 失败口径测试：不同 `failureStage` 下是否计入消耗。
 - 后台统计测试：聚合视图包含成本、额度和失败阶段维度。

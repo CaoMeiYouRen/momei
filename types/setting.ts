@@ -22,6 +22,7 @@ export enum SettingKey {
     AI_QUOTA_ENABLED = 'ai_quota_enabled',
     AI_QUOTA_POLICIES = 'ai_quota_policies',
     AI_ALERT_THRESHOLDS = 'ai_alert_thresholds',
+    AI_COST_FACTORS = 'ai_cost_factors',
 
     // AI Image
     AI_IMAGE_ENABLED = 'ai_image_enabled',

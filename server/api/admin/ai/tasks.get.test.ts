@@ -3,6 +3,13 @@ import handler from './tasks.get'
 import { dataSource } from '@/server/database'
 
 vi.mock('@/server/database')
+vi.mock('@/server/services/ai/cost-display', () => ({
+    getAICostDisplayConfig: vi.fn().mockResolvedValue({
+        currencyCode: 'CNY',
+        currencySymbol: '¥',
+        quotaUnitPrice: 0.1,
+    }),
+}))
 
 function createQueryBuilderMock(rawData: any[], total: number) {
     const queryBuilder: Record<string, any> = {
@@ -83,6 +90,10 @@ describe('GET /api/admin/ai/tasks', () => {
             estimatedQuotaUnits: 20,
             quotaUnits: 18,
             durationMs: 3600,
+        }))
+        expect(result.costDisplay).toEqual(expect.objectContaining({
+            currencyCode: 'CNY',
+            currencySymbol: '¥',
         }))
     })
 })

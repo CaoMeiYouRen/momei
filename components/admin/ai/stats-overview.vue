@@ -114,7 +114,7 @@
                 </template>
                 <template #content>
                     <div class="card-value card-value--compact">
-                        {{ formatCurrency(stats.overview?.actualCost) }}
+                        {{ formatMoney(stats.overview?.actualCost) }}
                     </div>
                 </template>
             </Card>
@@ -223,9 +223,14 @@ import type { AIUsageAlert } from '@/types/ai'
 const props = defineProps<{
     stats: any
     loading: boolean
+    costDisplay?: {
+        currencyCode?: string
+        currencySymbol?: string
+    } | null
 }>()
 
 const { t } = useI18n()
+const currencySymbol = computed(() => props.costDisplay?.currencySymbol || '$')
 
 const getTotalTasks = () => {
     return props.stats?.overview?.totalTasks || props.stats?.statusStats?.reduce((acc: number, s: any) => acc + Number(s.count), 0) || 0
@@ -238,6 +243,8 @@ const getStatusCount = (status: string) => {
 const formatPercent = (value: number) => {
     return `${((value || 0) * 100).toFixed(1)}%`
 }
+
+const formatMoney = (value: unknown) => formatCurrency(value, 4, currencySymbol.value)
 
 const resolveSubjectLabel = (alert: AIUsageAlert) => {
     return alert.subjectName || alert.subjectValue
@@ -290,8 +297,8 @@ const formatAlertMessage = (alert: AIUsageAlert) => {
 const formatAlertDetail = (alert: AIUsageAlert) => {
     if (alert.kind === 'cost_usage') {
         return t('pages.admin.ai.alerts.details.cost_usage', {
-            used: formatCurrency(alert.usedValue),
-            limit: formatCurrency(alert.limitValue),
+            used: formatMoney(alert.usedValue),
+            limit: formatMoney(alert.limitValue),
         })
     }
 

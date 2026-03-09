@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { requireAdmin } from '@/server/utils/permission'
-import { aiAlertThresholdsSchema, aiQuotaPoliciesSchema } from '@/utils/schemas/ai'
+import { aiAlertThresholdsSchema, aiCostFactorsSchema, aiQuotaPoliciesSchema } from '@/utils/schemas/ai'
 import { parseMaybeJson } from '@/utils/shared/coerce'
 import { success } from '@/server/utils/response'
 import { setSettings } from '@/server/services/setting'
@@ -57,6 +57,24 @@ export default defineEventHandler(async (event) => {
         }
 
         settingsPayload[SettingKey.AI_ALERT_THRESHOLDS] = JSON.stringify(validation.data, null, 2)
+    }
+
+    if (Object.hasOwn(settingsPayload, SettingKey.AI_COST_FACTORS)) {
+        const rawCostFactors = settingsPayload[SettingKey.AI_COST_FACTORS]
+        const parsedCostFactors = typeof rawCostFactors === 'object' && rawCostFactors !== null
+            ? rawCostFactors
+            : parseMaybeJson<Record<string, unknown> | null>(String(rawCostFactors ?? ''), null)
+        const validation = aiCostFactorsSchema.safeParse(parsedCostFactors)
+
+        if (!validation.success) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: 'Invalid AI cost factors JSON',
+                data: z.treeifyError(validation.error),
+            })
+        }
+
+        settingsPayload[SettingKey.AI_COST_FACTORS] = JSON.stringify(validation.data, null, 2)
     }
 
     await setSettings(settingsPayload, {

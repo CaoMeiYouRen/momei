@@ -43,7 +43,6 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'Text or postId is required' })
     }
 
-    const estimatedCost = await TTSService.estimateCost(contentToConvert, voice, provider)
     const estimatedQuotaUnits = calculateQuotaUnits({
         category: mode === 'podcast' ? 'podcast' : 'tts',
         type: mode === 'podcast' ? 'podcast' : 'tts',
@@ -54,6 +53,10 @@ export default defineEventHandler(async (event) => {
             payload: { text: contentToConvert, voice, mode, options },
             textLength: contentToConvert.length,
         }),
+    })
+    const estimatedCost = await TTSService.estimateCost(contentToConvert, voice, provider, {
+        mode,
+        quotaUnits: estimatedQuotaUnits,
     })
 
     await assertAIQuotaAllowance({

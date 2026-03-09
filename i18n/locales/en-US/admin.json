@@ -724,6 +724,7 @@
             "ai_quota_description": "Configure request, quota unit, cost, and heavy-task concurrency limits by global, role, and user layers.",
             "ai_quota_policies": "AI Quota Policies",
             "ai_alert_thresholds": "AI Alert Thresholds",
+            "ai_cost_factors": "AI Cost Mapping",
             "ai_image_title": "AI Image Generation",
             "ai_image_description": "Configure models for generating blog covers and illustrations",
             "ai_image_provider": "AI Image Provider",
@@ -783,6 +784,7 @@
             "ai_quota_policies": "Example:\n[\n  ｛\n    \"subjectType\": \"global\",\n    \"subjectValue\": \"default\",\n    \"scope\": \"all\",\n    \"period\": \"day\",\n    \"maxRequests\": 100,\n    \"maxQuotaUnits\": 200\n  ｝,\n  ｛\n    \"subjectType\": \"role\",\n    \"subjectValue\": \"author\",\n    \"scope\": \"image\",\n    \"period\": \"day\",\n    \"maxConcurrentHeavyTasks\": 2\n  ｝\n]",
             "ai_alert_thresholds_description": "Configure quota usage, cost usage, and short-window failure burst alert thresholds with a form-based editor.",
             "ai_alert_thresholds": "Example:\n｛\n  \"enabled\": true,\n  \"quotaUsageRatios\": [0.5, 0.8, 1],\n  \"costUsageRatios\": [0.8, 1],\n  \"failureBurst\": ｛\n    \"enabled\": true,\n    \"windowMinutes\": 10,\n    \"maxFailures\": 3,\n    \"categories\": [\"image\", \"asr\", \"tts\", \"podcast\"]\n  ｝,\n  \"dedupeWindowMinutes\": 1440,\n  \"maxAlerts\": 10\n｝",
+            "ai_cost_factors_description": "Use quota-unit price and exchange rates to unify AI cost display. The current rule uses the higher one between quota mapping and converted provider price.",
             "keywords_placeholder": "One keyword per line. Matching comments will be marked as pending or spam.",
             "file_types_placeholder": "e.g., .jpg, .png, .mp3 (Comma separated)",
             "live2d_script_url": "e.g., https://unpkg.com/live2d-widgets{'@'}1.0.0/dist/",
@@ -834,12 +836,21 @@
             "max_alerts": "Max Alerts Per Response",
             "failure_burst_title": "Failure Burst Alert",
             "failure_burst_description": "Trigger when failures spike within a short window to spot provider, model, or pipeline issues.",
+            "cost_mapping_title": "Cost Mapping",
+            "cost_mapping_description": "Map quota units to the unified admin-facing currency while still converting provider-native pricing when available.",
+            "currency_code": "Currency Code",
+            "currency_symbol": "Currency Symbol",
+            "quota_unit_price": "Unit Price Per Quota",
+            "usd_exchange_rate": "USD to Display Currency Rate",
+            "cny_exchange_rate": "CNY to Display Currency Rate",
+            "cost_mapping_hint": "Displayed cost defaults to quota units × unit price. If the converted provider price is higher, the higher value is used to avoid underestimation.",
             "window_minutes": "Window (minutes)",
             "max_failures": "Max Failures Threshold",
             "failure_categories": "Observed Categories",
             "invalid_quota_json": "The current quota policy JSON cannot be parsed. Switched to raw editing mode so you can repair it first.",
             "invalid_advanced_json": "Advanced JSON must be a valid policy array before saving.",
-            "invalid_alert_json": "The current alert threshold JSON cannot be parsed. Switched to raw editing mode so you can repair it first."
+            "invalid_alert_json": "The current alert threshold JSON cannot be parsed. Switched to raw editing mode so you can repair it first.",
+            "invalid_cost_json": "The current cost mapping JSON cannot be parsed. Switched to raw editing mode so you can repair it first."
           },
           "memos": {
             "visibility": {

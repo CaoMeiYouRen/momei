@@ -72,13 +72,17 @@ export class SiliconFlowTTSProvider implements Partial<AIProvider> {
     }
 
 
-    estimateCost(text: string, _voice: string): Promise<number> {
+    estimateTTSCost(text: string, _voice: string): Promise<number> {
         void _voice
         // SiliconFlow TTS 计费: 按照输入文本长度对应的 UTF-8 字节数进行计费
         // 不同模型计费不同，这里取一个大概的中间值
         const bytes = Buffer.from(text).length
         // 假设每 1M 字节 5 元 (RMB) -> 约 $0.7
         return Promise.resolve((bytes / 1000000) * 0.7)
+    }
+
+    estimateCost(text: string, voice: string): Promise<number> {
+        return this.estimateTTSCost(text, voice)
     }
 
     async generateSpeech(

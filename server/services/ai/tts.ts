@@ -1,6 +1,7 @@
 import { buildPostUploadPrefix, buildUploadStoredFilename, uploadFromBuffer, UploadType } from '../upload'
 import { getSettings } from '../setting'
 import { AIBaseService } from './base'
+import { estimateAIDisplayCost } from './cost-display'
 import { getAIProvider } from '@/server/utils/ai'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
@@ -123,12 +124,43 @@ export class TTSService extends AIBaseService {
         return await provider.getVoices(query)
     }
 
-    static async estimateCost(text: string, voice: string = 'default', providerName?: string): Promise<number> {
+    static async estimateProviderCost(text: string, voice: string = 'default', providerName?: string): Promise<number> {
         const provider = await getAIProvider('tts', providerName ? { provider: providerName as any } : undefined)
-        if (!provider.estimateTTSCost) {
+        const estimateFn = provider.estimateTTSCost || provider.estimateCost
+        if (!estimateFn) {
             return 0
         }
-        return await provider.estimateTTSCost(text, voice)
+
+        return await estimateFn.call(provider, text, voice)
+    }
+
+    static async estimateCost(
+        text: string,
+        voice: string = 'default',
+        providerName?: string,
+        options: Pick<TTSOptions, 'mode'> & {
+            quotaUnits?: number
+        } = {},
+    ): Promise<number> {
+        const provider = await getAIProvider('tts', providerName ? { provider: providerName as any } : undefined)
+        const providerCost = await this.estimateProviderCost(text, voice, providerName)
+        const category = options.mode === 'podcast' ? 'podcast' : 'tts'
+        const usageSnapshot = normalizeUsageSnapshot({
+            category,
+            type: category,
+            payload: { text, voice, mode: options.mode || 'speech' },
+            textLength: text.length,
+        })
+
+        return await estimateAIDisplayCost({
+            category,
+            type: category,
+            provider: provider.name,
+            providerCost,
+            quotaUnits: options.quotaUnits,
+            payload: { text, voice, mode: options.mode || 'speech' },
+            usageSnapshot,
+        })
     }
 
     /**
@@ -375,10 +407,17 @@ export class TTSService extends AIBaseService {
             task.progress = 100
             task.textLength = contentToUse.length
             task.audioSize = buffer.length
-            task.actualCost = task.estimatedCost
             task.quotaUnits = calculateQuotaUnits({
                 category: task.category || task.type,
                 type: task.type,
+                payload,
+                usageSnapshot,
+            })
+            task.actualCost = await estimateAIDisplayCost({
+                category: task.category || task.type,
+                type: task.type,
+                provider: task.provider || null,
+                quotaUnits: task.quotaUnits,
                 payload,
                 usageSnapshot,
             })
@@ -421,6 +460,7 @@ export class TTSService extends AIBaseService {
                 settlementSource: 'estimated',
             })
             task.quotaUnits = task.chargeStatus === 'waived' ? 0 : (task.quotaUnits || task.estimatedQuotaUnits)
+            task.actualCost = task.chargeStatus === 'waived' ? 0 : (task.actualCost || task.estimatedCost)
             task.completedAt = new Date()
             task.durationMs = task.startedAt ? task.completedAt.getTime() - task.startedAt.getTime() : task.durationMs
             await taskRepo.save(task)

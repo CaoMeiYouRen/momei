@@ -1,6 +1,7 @@
 import { dataSource } from '~/server/database'
 import { AITask } from '~/server/entities/ai-task'
 import { User } from '~/server/entities/user'
+import { getAICostDisplayConfig } from '@/server/services/ai/cost-display'
 import { evaluateAIUsageAlerts } from '@/server/services/ai/usage-alerts'
 import { toNumber } from '@/utils/shared/coerce'
 
@@ -113,6 +114,7 @@ export default defineEventHandler(async (event) => {
     const completedTasks = normalizedStatusStats.find((item) => item.status === 'completed')?.count || 0
     const failedTasks = normalizedStatusStats.find((item) => item.status === 'failed')?.count || 0
     const alerts = await evaluateAIUsageAlerts()
+    const costDisplay = await getAICostDisplayConfig()
 
     return {
         overview: {
@@ -159,5 +161,6 @@ export default defineEventHandler(async (event) => {
             quotaUnits: toNumber(item.quotaUnits),
         })),
         alerts,
+        costDisplay,
     }
 })

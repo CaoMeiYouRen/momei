@@ -58,13 +58,13 @@
                 <div class="col-12 md:col-3">
                     <div class="detail-item">
                         <span class="label">{{ $t('pages.admin.ai.estimated_cost') }}:</span>
-                        <span class="value">{{ formatCurrency(task.estimatedCost) }}</span>
+                        <span class="value">{{ formatMoney(task.estimatedCost) }}</span>
                     </div>
                 </div>
                 <div class="col-12 md:col-3">
                     <div class="detail-item">
                         <span class="label">{{ $t('pages.admin.ai.actual_cost') }}:</span>
-                        <span class="value">{{ formatCurrency(task.actualCost) }}</span>
+                        <span class="value">{{ formatMoney(task.actualCost) }}</span>
                     </div>
                 </div>
                 <div class="col-12 md:col-3">
@@ -205,14 +205,21 @@
 <script setup lang="ts">
 import { formatCurrency, formatDecimal } from '@/utils/shared/number'
 
-defineProps<{
+const props = defineProps<{
     visible: boolean
     task: any
+    costDisplay?: {
+        currencyCode?: string
+        currencySymbol?: string
+    } | null
 }>()
 
 defineEmits<{
     (e: 'update:visible', value: boolean): void
 }>()
+
+const currencySymbol = computed(() => props.costDisplay?.currencySymbol || '$')
+const formatMoney = (value: unknown) => formatCurrency(value, 4, currencySymbol.value)
 
 const getStatusSeverity = (status: string) => {
     switch (status) {

@@ -18,7 +18,11 @@
                 <TabPanels>
                     <!-- Statistics Panel -->
                     <TabPanel value="stats">
-                        <AdminAiStatsOverview :stats="stats" :loading="loadingStats" />
+                        <AdminAiStatsOverview
+                            :stats="stats"
+                            :loading="loadingStats"
+                            :cost-display="costDisplay"
+                        />
                     </TabPanel>
 
                     <!-- Task List Panel -->
@@ -30,6 +34,7 @@
                             :total="totalTasks"
                             :loading="loadingTasks"
                             :page-size="pageSize"
+                            :cost-display="costDisplay"
                             @refresh="loadTasks"
                             @page-change="onPage"
                             @filter-change="onFilterChange"
@@ -45,6 +50,7 @@
         <AdminAiTaskDetailsDialog
             v-model:visible="detailsVisible"
             :task="selectedTask"
+            :cost-display="costDisplay"
         />
 
         <ConfirmDialog />
@@ -67,6 +73,7 @@ definePageMeta({
 const activeTab = ref('stats')
 const stats = ref<any>(null)
 const loadingStats = ref(false)
+const costDisplay = ref<any>(null)
 
 const tasks = ref<any[]>([])
 const totalTasks = ref(0)
@@ -87,7 +94,9 @@ const selectedTask = ref<any>(null)
 const loadStats = async () => {
     loadingStats.value = true
     try {
-        stats.value = await $fetch('/api/admin/ai/stats')
+        const response: any = await $fetch('/api/admin/ai/stats')
+        stats.value = response
+        costDisplay.value = response.costDisplay || costDisplay.value
     } catch (e: any) {
         toast.add({ severity: 'error', summary: 'Error', detail: e.message })
     } finally {
@@ -109,6 +118,7 @@ const loadTasks = async () => {
         })
         tasks.value = response.items
         totalTasks.value = response.total
+        costDisplay.value = response.costDisplay || costDisplay.value
     } catch (e: any) {
         toast.add({ severity: 'error', summary: 'Error', detail: e.message })
     } finally {

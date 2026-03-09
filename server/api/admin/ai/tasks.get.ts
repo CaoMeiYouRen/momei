@@ -2,6 +2,7 @@ import { Brackets } from 'typeorm'
 import { dataSource } from '~/server/database'
 import { AITask } from '~/server/entities/ai-task'
 import { User } from '~/server/entities/user'
+import { getAICostDisplayConfig } from '@/server/services/ai/cost-display'
 import { toNumber } from '@/utils/shared/coerce'
 
 export default defineEventHandler(async (event) => {
@@ -84,6 +85,7 @@ export default defineEventHandler(async (event) => {
 
     const total = await qb.getCount()
     const rawData = await qb.getRawMany()
+    const costDisplay = await getAICostDisplayConfig()
 
     return {
         items: rawData.map((item) => ({
@@ -98,5 +100,6 @@ export default defineEventHandler(async (event) => {
             textLength: toNumber(item.textLength),
         })),
         total,
+        costDisplay,
     }
 })

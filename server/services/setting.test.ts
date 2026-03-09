@@ -252,12 +252,21 @@ describe('settingService', () => {
 
             const result = await settingService.getAllSettings()
             const emailPortSetting = result.find((item) => item.key === String(SettingKey.EMAIL_PORT))
+            const aiCostFactorsSetting = result.find((item) => item.key === String(SettingKey.AI_COST_FACTORS))
 
             expect(emailPortSetting).toMatchObject({
                 key: SettingKey.EMAIL_PORT,
                 value: '587',
                 source: 'default',
                 envKey: 'EMAIL_PORT',
+                defaultUsed: true,
+                lockReason: null,
+                requiresRestart: false,
+            })
+            expect(aiCostFactorsSetting).toMatchObject({
+                key: SettingKey.AI_COST_FACTORS,
+                source: 'default',
+                envKey: 'AI_COST_FACTORS',
                 defaultUsed: true,
                 lockReason: null,
                 requiresRestart: false,

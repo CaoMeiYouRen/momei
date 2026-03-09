@@ -28,12 +28,16 @@ export class OpenAITTSProvider implements Partial<AIProvider> {
     }
 
 
-    estimateCost(text: string, _voice: string): Promise<number> {
+    estimateTTSCost(text: string, _voice: string): Promise<number> {
         void _voice
         // OpenAI TTS 定价: $15/1M 字符 (tts-1), $30/1M 字符 (tts-1-hd)
         const chars = text.length
         const rate = this.model.includes('hd') ? 30 : 15
         return Promise.resolve((chars / 1000000) * rate)
+    }
+
+    estimateCost(text: string, voice: string): Promise<number> {
+        return this.estimateTTSCost(text, voice)
     }
 
     async generateSpeech(

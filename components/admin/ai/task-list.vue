@@ -159,7 +159,7 @@
                 class="col-cost"
             >
                 <template #body="{data}">
-                    {{ formatCurrency(data.actualCost) }}
+                    {{ formatMoney(data.actualCost) }}
                 </template>
             </Column>
             <Column
@@ -217,6 +217,10 @@ const props = defineProps<{
     total: number
     loading: boolean
     pageSize: number
+    costDisplay?: {
+        currencyCode?: string
+        currencySymbol?: string
+    } | null
 }>()
 
 const selection = defineModel<any[]>('selection', { default: () => [] })
@@ -232,6 +236,8 @@ defineEmits<{
 }>()
 
 const { t } = useI18n()
+const currencySymbol = computed(() => props.costDisplay?.currencySymbol || '$')
+const formatMoney = (value: unknown) => formatCurrency(value, 4, currencySymbol.value)
 
 const taskTypes = computed(() => [
     { label: t('pages.admin.ai.types.text_generation'), value: 'text_generation' },

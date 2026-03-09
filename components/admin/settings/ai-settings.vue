@@ -84,6 +84,11 @@
                 v-model="settings.ai_alert_thresholds"
                 :metadata="metadata.ai_alert_thresholds"
             />
+
+            <AiCostFactorsEditor
+                v-model="settings.ai_cost_factors"
+                :metadata="metadata.ai_cost_factors"
+            />
         </div>
 
         <Divider class="my-8" />
@@ -421,6 +426,7 @@
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import AiQuotaPoliciesEditor from '@/components/admin/settings/ai-quota-policies-editor.vue'
 import AiAlertThresholdsEditor from '@/components/admin/settings/ai-alert-thresholds-editor.vue'
+import AiCostFactorsEditor from '@/components/admin/settings/ai-cost-factors-editor.vue'
 
 const settings = defineModel<any>('settings', { required: true })
 defineProps<{ metadata: any }>()

@@ -724,6 +724,7 @@
                         "ai_quota_description": "按 global、role、user 三层配置请求、额度单位、成本与重任务并发限制。",
                         "ai_quota_policies": "AI 额度策略",
                         "ai_alert_thresholds": "AI 告警阈值",
+                        "ai_cost_factors": "AI 成本映射",
                         "ai_image_title": "AI 图像生成",
                         "ai_image_description": "配置用于生成博文封面、插图的模型",
                         "ai_image_provider": "AI 图像服务商",
@@ -783,6 +784,7 @@
                         "ai_quota_policies": "示例:\n[\n  ｛\n    \"subjectType\": \"global\",\n    \"subjectValue\": \"default\",\n    \"scope\": \"all\",\n    \"period\": \"day\",\n    \"maxRequests\": 100,\n    \"maxQuotaUnits\": 200\n  ｝,\n  ｛\n    \"subjectType\": \"role\",\n    \"subjectValue\": \"author\",\n    \"scope\": \"image\",\n    \"period\": \"day\",\n    \"maxConcurrentHeavyTasks\": 2\n  ｝\n]",
                         "ai_alert_thresholds_description": "通过表单配置额度使用率、成本使用率与短窗口失败突增告警阈值。",
                         "ai_alert_thresholds": "示例:\n｛\n  \"enabled\": true,\n  \"quotaUsageRatios\": [0.5, 0.8, 1],\n  \"costUsageRatios\": [0.8, 1],\n  \"failureBurst\": ｛\n    \"enabled\": true,\n    \"windowMinutes\": 10,\n    \"maxFailures\": 3,\n    \"categories\": [\"image\", \"asr\", \"tts\", \"podcast\"]\n  ｝,\n  \"dedupeWindowMinutes\": 1440,\n  \"maxAlerts\": 10\n｝",
+                        "ai_cost_factors_description": "通过额度单位单价与汇率配置统一 AI 成本展示口径；当前默认用额度映射与供应商报价取高值。",
                         "keywords_placeholder": "每行一个关键词，匹配到的评论将自动设为待审核或垃圾评论",
                         "file_types_placeholder": "例如: .jpg, .png, .mp3 (逗号分隔)",
                         "live2d_script_url": "例如: https://unpkg.com/live2d-widgets{'@'}1.0.0/dist/",
@@ -834,12 +836,21 @@
                         "max_alerts": "单次返回最大告警数",
                         "failure_burst_title": "失败突增告警",
                         "failure_burst_description": "当短时间内失败次数快速上升时触发，用于发现模型、供应商或任务链路异常。",
+                        "cost_mapping_title": "成本映射配置",
+                        "cost_mapping_description": "把额度单位映射为后台审计使用的统一货币成本，同时兼容不同供应商原始报价的换算。",
+                        "currency_code": "货币代码",
+                        "currency_symbol": "货币符号",
+                        "quota_unit_price": "每额度单位单价",
+                        "usd_exchange_rate": "USD 到展示货币汇率",
+                        "cny_exchange_rate": "CNY 到展示货币汇率",
+                        "cost_mapping_hint": "展示成本默认按“额度单位 × 单价”计算；若供应商原始报价换算后更高，则会取更高值，避免低估。",
                         "window_minutes": "统计窗口（分钟）",
                         "max_failures": "最大失败次数阈值",
                         "failure_categories": "监控分类",
                         "invalid_quota_json": "当前额度策略 JSON 无法解析，已切换为原始编辑模式，请先修复格式。",
                         "invalid_advanced_json": "高级 JSON 必须是合法的策略数组，保存前请先修复格式。",
-                        "invalid_alert_json": "当前告警阈值 JSON 无法解析，已切换为原始编辑模式，请先修复格式。"
+                        "invalid_alert_json": "当前告警阈值 JSON 无法解析，已切换为原始编辑模式，请先修复格式。",
+                        "invalid_cost_json": "当前成本映射 JSON 无法解析，已切换为原始编辑模式，请先修复格式。"
                     },
                     "memos": {
                         "visibility": {
