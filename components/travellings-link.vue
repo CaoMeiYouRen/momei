@@ -9,19 +9,20 @@
         :title="t('common.travellings_title')"
         :aria-label="t('common.travellings_title')"
     >
-        <img
-            v-if="currentLogoUrl"
-            :src="currentLogoUrl"
-            :alt="t('common.travellings_title')"
-            class="travellings-link__logo"
-            @error="handleLogoError"
-        >
+
         <span
-            v-else
-            class="travellings-link__logo-fallback"
+            v-if="placement === 'mobile'"
+            class="travellings-link__leading-icon"
             aria-hidden="true"
         >
-            <span class="travellings-link__logo-fallback-glyph">🚇</span>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 640 640"
+                :style="{fill: 'var(--p-text-muted-color)'}"
+            >
+                <!-- !Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc. -->
+                <path d="M128 160C128 107 171 64 224 64L416 64C469 64 512 107 512 160L512 416C512 456.1 487.4 490.5 452.5 504.8L506.4 568.5C515 578.6 513.7 593.8 503.6 602.3C493.5 610.8 478.3 609.6 469.8 599.5L395.8 512L244.5 512L170.5 599.5C161.9 609.6 146.8 610.9 136.7 602.3C126.6 593.7 125.3 578.6 133.9 568.5L187.8 504.8C152.6 490.5 128 456.1 128 416L128 160zM192 192L192 288C192 305.7 206.3 320 224 320L296 320L296 160L224 160C206.3 160 192 174.3 192 192zM344 320L416 320C433.7 320 448 305.7 448 288L448 192C448 174.3 433.7 160 416 160L344 160L344 320zM224 448C241.7 448 256 433.7 256 416C256 398.3 241.7 384 224 384C206.3 384 192 398.3 192 416C192 433.7 206.3 448 224 448zM448 416C448 398.3 433.7 384 416 384C398.3 384 384 398.3 384 416C384 433.7 398.3 448 416 448C433.7 448 448 433.7 448 416z" />
+            </svg>
         </span>
 
         <span class="travellings-link__content">
@@ -32,10 +33,6 @@
             <span v-if="placement === 'sidebar'" class="travellings-link__description">
                 {{ t('common.travellings_description') }}
             </span>
-        </span>
-
-        <span v-if="placement === 'sidebar'" class="travellings-link__cta">
-            {{ t('common.travellings_cta') }}
         </span>
     </a>
 </template>
@@ -51,20 +48,6 @@ const { t } = useI18n()
 const { siteConfig } = useMomeiConfig()
 
 const travellingsUrl = 'https://www.travellings.cn/go.html'
-const travellingsLogoUrls = [
-    'https://www.travellings.cn/assets/logo.svg',
-    'https://cdn.jsdelivr.net/gh/travellings-link/travellings/assets/logo.svg',
-] as const
-
-const logoUrlIndex = ref(0)
-
-const currentLogoUrl = computed(() => travellingsLogoUrls[logoUrlIndex.value] ?? '')
-
-const handleLogoError = () => {
-    if (logoUrlIndex.value < travellingsLogoUrls.length) {
-        logoUrlIndex.value += 1
-    }
-}
 
 const placementEnabledMap: Record<TravellingsPlacement, keyof typeof siteConfig.value> = {
     header: 'travellingsHeaderEnabled',
@@ -88,139 +71,100 @@ const isVisible = computed(() => {
 .travellings-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.625rem;
+    gap: 0.375rem;
+    color: inherit;
+    line-height: inherit;
     text-decoration: none;
-    transition:
-        transform $transition-fast,
-        border-color $transition-fast,
-        background-color $transition-fast,
-        color $transition-fast;
-
-    &:hover {
-        transform: translateY(-1px);
-    }
-
-    &__logo {
-        display: block;
-        width: 1.375rem;
-        height: 1.375rem;
-        object-fit: contain;
-        flex-shrink: 0;
-    }
-
-    &__logo-fallback {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 1.375rem;
-        height: 1.375rem;
-        border-radius: 999px;
-        background: color-mix(in srgb, var(--p-primary-color) 12%, transparent);
-        color: var(--p-primary-color);
-        flex-shrink: 0;
-    }
-
-    &__logo-fallback-glyph {
-        font-size: 0.875rem;
-        line-height: 1;
-    }
+    transition: color $transition-fast;
 
     &__content {
-        display: flex;
-        flex-direction: column;
+        display: inline-flex;
+        align-items: center;
         min-width: 0;
     }
 
     &__title-row {
         display: inline-flex;
         align-items: center;
-        gap: 0.375rem;
+        gap: 0.25rem;
     }
 
     &__title {
-        font-weight: 600;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
         white-space: nowrap;
     }
 
     &__icon {
-        font-size: 0.75rem;
-        color: var(--p-primary-color);
+        font-size: 0.7rem;
+        color: currentcolor;
+        opacity: 0.8;
+    }
+
+    &__leading-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.1rem;
+        font-size: 1rem;
+        color: var(--p-text-muted-color);
+        line-height: 1;
+        flex-shrink: 0;
     }
 
     &__description {
-        margin-top: 0.25rem;
+        margin-top: 0.35rem;
         font-size: 0.8125rem;
         line-height: 1.5;
         color: var(--p-text-muted-color);
     }
 
-    &__cta {
-        margin-left: auto;
-        padding: 0.35rem 0.7rem;
-        border-radius: 999px;
-        background: color-mix(in srgb, var(--p-primary-color) 12%, transparent);
-        color: var(--p-primary-color);
-        font-size: 0.75rem;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
     &--header {
-        padding: 0.42rem 0.75rem;
-        border: 1px solid color-mix(in srgb, var(--p-primary-color) 22%, var(--p-surface-border));
-        border-radius: 999px;
-        background: color-mix(in srgb, var(--p-primary-color) 7%, var(--p-surface-card));
-        color: var(--p-text-color);
-
-        .travellings-link__title {
-            font-size: 0.875rem;
-        }
+        color: inherit;
     }
 
     &--footer {
-        color: var(--p-text-muted-color);
-
-        .travellings-link__title {
-            font-size: 0.875rem;
-        }
-
-        &:hover {
-            color: var(--p-primary-color);
-        }
+        color: inherit;
     }
 
     &--sidebar {
         width: 100%;
         align-items: flex-start;
-        padding: 1rem;
-        border: 1px solid var(--p-surface-border);
-        border-radius: 1rem;
-        background: color-mix(in srgb, var(--p-surface-card) 90%, var(--p-primary-color) 10%);
+        padding: 0;
         color: var(--p-text-color);
 
-        .travellings-link__logo {
-            width: 1.75rem;
-            height: 1.75rem;
-            margin-top: 0.125rem;
-        }
-
-        .travellings-link__logo-fallback {
-            width: 1.75rem;
-            height: 1.75rem;
-            margin-top: 0.125rem;
+        .travellings-link__content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
 
         .travellings-link__title {
             font-size: 0.95rem;
+            font-weight: 600;
         }
     }
 
     &--mobile {
         width: 100%;
+        color: var(--p-text-color);
         padding: 0.75rem;
         border-radius: $border-radius-md;
-        color: var(--p-text-color);
-        background: color-mix(in srgb, var(--p-primary-color) 7%, transparent);
+        background: transparent;
+
+        &:hover {
+            background-color: var(--p-surface-hover);
+        }
+
+        .travellings-link__content {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .travellings-link__leading-icon {
+            color: var(--p-text-muted-color);
+        }
 
         .travellings-link__title {
             font-size: 0.95rem;

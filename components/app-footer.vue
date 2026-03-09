@@ -9,41 +9,46 @@
                 <NuxtLink :to="localePath('friend-links')" class="footer__link">
                     {{ $t('common.friend_links') }}
                 </NuxtLink>
-                <TravellingsLink placement="footer" />
+                <TravellingsLink placement="footer" class="footer__link footer__link--external" />
                 <NuxtLink
                     to="https://github.com/CaoMeiYouRen/momei"
                     target="_blank"
-                    class="footer__link"
+                    class="footer__link footer__link--external"
                 >
-                    GitHub
+                    <span>GitHub</span>
+                    <i class="footer__link-icon pi pi-external-link" aria-hidden="true" />
                 </NuxtLink>
                 <NuxtLink
                     to="https://docs.momei.app/"
                     target="_blank"
-                    class="footer__link"
+                    class="footer__link footer__link--external"
                 >
-                    {{ $t('components.footer.docs') }}
+                    <span>{{ $t('components.footer.docs') }}</span>
+                    <i class="footer__link-icon pi pi-external-link" aria-hidden="true" />
                 </NuxtLink>
                 <NuxtLink
                     to="/feed.xml"
                     target="_blank"
-                    class="footer__link"
+                    class="footer__link footer__link--external"
                 >
-                    {{ $t('common.rss') }}
+                    <span>{{ $t('common.rss') }}</span>
+                    <i class="footer__link-icon pi pi-external-link" aria-hidden="true" />
                 </NuxtLink>
                 <NuxtLink
                     to="/feed/podcast.xml"
                     target="_blank"
-                    class="footer__link"
+                    class="footer__link footer__link--external"
                 >
-                    {{ $t('common.podcast_rss') }}
+                    <span>{{ $t('common.podcast_rss') }}</span>
+                    <i class="footer__link-icon pi pi-external-link" aria-hidden="true" />
                 </NuxtLink>
                 <NuxtLink
                     to="/sitemap.xml"
                     target="_blank"
-                    class="footer__link"
+                    class="footer__link footer__link--external"
                 >
-                    {{ $t('common.sitemap') }}
+                    <span>{{ $t('common.sitemap') }}</span>
+                    <i class="footer__link-icon pi pi-external-link" aria-hidden="true" />
                 </NuxtLink>
                 <NuxtLink :to="localePath('/user-agreement')" class="footer__link">
                     {{ $t('legal.user_agreement') }}
@@ -156,6 +161,17 @@ const footerFriendLinks = computed(() => footerFriendLinkData.value?.items || []
       text-decoration: underline;
     }
   }
+
+    &__link--external {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    &__link-icon {
+        font-size: 0.7rem;
+        opacity: 0.8;
+    }
 
   &__copyright {
     font-size: 0.875rem;

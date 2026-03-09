@@ -95,9 +95,13 @@
                         :location="AdLocation.SIDEBAR"
                         :context="{postId: post.id, categories: post.category?.id ? [post.category.id] : [], tags: post.tags?.map(t => t.id) || []}"
                     />
-                    <div class="post-detail__sidebar-content">
-                        <TableOfContents :content="post.content" />
-                        <TravellingsLink placement="sidebar" />
+                    <div class="post-detail__sidebar-stack">
+                        <div class="post-detail__sidebar-panel">
+                            <TableOfContents :content="post.content" />
+                        </div>
+                        <div class="post-detail__sidebar-panel post-detail__sidebar-panel--travellings">
+                            <TravellingsLink placement="sidebar" />
+                        </div>
                     </div>
                 </aside>
 
@@ -562,13 +566,22 @@ onMounted(async () => {
         }
     }
 
-    &__sidebar-content {
+    &__sidebar-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    &__sidebar-panel {
         background-color: var(--p-surface-card);
-        padding: 1.5rem;
+        padding: 1.25rem;
         border-radius: 1rem;
         border: 1px solid var(--p-surface-border);
-        max-height: calc(100vh - 8rem);
-        overflow-y: auto;
+
+        &--travellings {
+            padding: 1rem 1.25rem;
+            background: color-mix(in srgb, var(--p-surface-card) 94%, var(--p-primary-color) 6%);
+        }
     }
 
     &__main {

@@ -78,9 +78,6 @@ const scrollToHeading = (id: string) => {
 
 <style lang="scss" scoped>
 .toc {
-    position: sticky;
-    top: 6rem;
-
     &__title {
         font-size: 1.125rem;
         font-weight: 700;
@@ -92,6 +89,8 @@ const scrollToHeading = (id: string) => {
         list-style: none;
         margin: 0;
         padding: 0;
+        max-height: calc(100vh - 12rem);
+        overflow-y: auto;
     }
 
     &__item {

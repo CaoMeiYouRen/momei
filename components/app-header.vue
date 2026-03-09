@@ -53,7 +53,7 @@
                         {{ $t('common.friend_link_application') }}
                     </NuxtLink>
 
-                    <TravellingsLink placement="header" />
+                    <TravellingsLink placement="header" class="nav-link" />
                 </nav>
 
                 <div class="app-header__action-group desktop-only">
