@@ -202,6 +202,96 @@
             />
         </SettingFormField>
 
+        <Divider align="left">
+            <b>{{ $t('pages.admin.settings.system.sections.friend_links') }}</b>
+        </Divider>
+
+        <SettingFormField
+            field-key="friend_links_enabled"
+            input-id="friend_links_enabled"
+            :metadata="metadata.friend_links_enabled"
+            inline
+        >
+            <ToggleSwitch
+                id="friend_links_enabled"
+                v-model="settings.friend_links_enabled"
+                :disabled="metadata.friend_links_enabled?.isLocked"
+            />
+        </SettingFormField>
+
+        <template v-if="settings.friend_links_enabled">
+            <SettingFormField
+                field-key="friend_links_application_enabled"
+                input-id="friend_links_application_enabled"
+                :metadata="metadata.friend_links_application_enabled"
+                inline
+            >
+                <ToggleSwitch
+                    id="friend_links_application_enabled"
+                    v-model="settings.friend_links_application_enabled"
+                    :disabled="metadata.friend_links_application_enabled?.isLocked"
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="friend_links_footer_enabled"
+                input-id="friend_links_footer_enabled"
+                :metadata="metadata.friend_links_footer_enabled"
+                inline
+            >
+                <ToggleSwitch
+                    id="friend_links_footer_enabled"
+                    v-model="settings.friend_links_footer_enabled"
+                    :disabled="metadata.friend_links_footer_enabled?.isLocked"
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="friend_links_footer_limit"
+                input-id="friend_links_footer_limit"
+                :metadata="metadata.friend_links_footer_limit"
+                :description="$t('pages.admin.settings.system.hints.friend_links_footer_limit')"
+            >
+                <InputNumber
+                    id="friend_links_footer_limit"
+                    v-model="settings.friend_links_footer_limit"
+                    :disabled="metadata.friend_links_footer_limit?.isLocked"
+                    :min="1"
+                    fluid
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="friend_links_check_interval_minutes"
+                input-id="friend_links_check_interval_minutes"
+                :metadata="metadata.friend_links_check_interval_minutes"
+                :description="$t('pages.admin.settings.system.hints.friend_links_check_interval_minutes')"
+            >
+                <InputNumber
+                    id="friend_links_check_interval_minutes"
+                    v-model="settings.friend_links_check_interval_minutes"
+                    :disabled="metadata.friend_links_check_interval_minutes?.isLocked"
+                    :min="5"
+                    fluid
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="friend_links_application_guidelines"
+                input-id="friend_links_application_guidelines"
+                :metadata="metadata.friend_links_application_guidelines"
+                :description="$t('pages.admin.settings.system.hints.friend_links_application_guidelines')"
+            >
+                <Textarea
+                    id="friend_links_application_guidelines"
+                    v-model="settings.friend_links_application_guidelines"
+                    :disabled="metadata.friend_links_application_guidelines?.isLocked"
+                    rows="5"
+                    fluid
+                />
+            </SettingFormField>
+        </template>
+
         <SettingFormField
             field-key="public_security_number"
             input-id="public_security_number"

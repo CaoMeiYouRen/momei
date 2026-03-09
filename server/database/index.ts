@@ -26,6 +26,9 @@ import { InAppNotification } from '../entities/in-app-notification'
 import { AdPlacement } from '../entities/ad-placement'
 import { AdCampaign } from '../entities/ad-campaign'
 import { ExternalLink } from '../entities/external-link'
+import { FriendLinkCategory } from '../entities/friend-link-category'
+import { FriendLink } from '../entities/friend-link'
+import { FriendLinkApplication } from '../entities/friend-link-application'
 import { SettingAuditLog } from '../entities/setting-audit-log'
 import logger from '../utils/logger'
 import { isServerlessEnvironment } from '../utils/env'
@@ -80,6 +83,9 @@ const entities = [
     AdPlacement,
     AdCampaign,
     ExternalLink,
+    FriendLinkCategory,
+    FriendLink,
+    FriendLinkApplication,
     SettingAuditLog,
 ]
 

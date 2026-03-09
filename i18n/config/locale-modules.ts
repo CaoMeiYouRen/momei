@@ -1,7 +1,7 @@
 export const LOCALE_MESSAGE_MODULE_GROUPS = {
     common: ['app', 'common', 'error', 'redirect'],
     components: ['components', 'comments'],
-    public: ['pages.submit', 'pages.posts', 'pages.error', 'pages.user_agreement', 'pages.privacy_policy', 'pages.about', 'pages.categories_index', 'pages.tags_index', 'pages.archives'],
+    public: ['pages.submit', 'pages.posts', 'pages.error', 'pages.user_agreement', 'pages.privacy_policy', 'pages.about', 'pages.links', 'pages.categories_index', 'pages.tags_index', 'pages.archives'],
     settings: ['pages.settings'],
     legal: ['legal'],
     auth: ['pages.login', 'pages.register', 'pages.forgot_password', 'pages.reset_password'],

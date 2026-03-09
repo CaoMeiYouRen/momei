@@ -116,6 +116,35 @@
         "subtitle": "We look forward to hearing from you"
       }
     },
+    "links": {
+      "title": "Friend Links",
+      "subtitle": "A curated list of independent sites and creators we genuinely want to keep recommending.",
+      "meta": {
+        "description": "Browse the Momei friend links page and submit your own site for review."
+      },
+      "guidelines_title": "Application Guidelines",
+      "application_title": "Apply for a Friend Link",
+      "application_subtitle": "After submission, your application enters the review queue. Approved sites may appear on the public page and featured footer area.",
+      "uncategorized": "Uncategorized",
+      "empty": "There are no public friend links yet.",
+      "disabled": "Friend links are currently not enabled on this site.",
+      "form": {
+        "url": "Site URL",
+        "logo": "Logo URL",
+        "rss_url": "RSS URL",
+        "contact_name": "Contact Name",
+        "contact_email": "Contact Email",
+        "category_placeholder": "Optional: choose the closest category",
+        "category_suggestion": "Category Suggestion",
+        "reciprocal_url": "Reciprocal Link Page",
+        "message": "Additional Notes",
+        "submit": "Submit Application",
+        "submitting": "Submitting...",
+        "success": "Application submitted successfully and pending admin review.",
+        "error": "Failed to submit application. Please try again later.",
+        "captcha_required": "Please complete captcha verification first"
+      }
+    },
     "categories_index": {
       "meta": {
         "description": "Browse all Momei Blog categories to quickly discover article collections grouped by topic."

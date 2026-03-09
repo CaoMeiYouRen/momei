@@ -26,6 +26,7 @@
 - **[搜索系统 (Search)](./search)**: 多维度过滤与即时全文检索。
 - **[阅读模式 (Reader Mode)](./reader-mode)**: 极简沉浸式阅读面板与视觉自定义方案。
 - **[评论与互动 (Interactions)](./interactions)**: 评论树、订阅表单与反馈机制。
+- **[友链系统 (Friend Links)](./friend-links)**: 友链展示、自助申请、后台审核与巡检闭环。
 - **[商业化与社交 (Commercial)](./commercial)**: 作者社交链接、打赏配置与文章页赞助展示。
 - **[广告投放与外链跳转 (Ad Delivery)](./ad-network-integration)**: 广告位、广告脚本与短链跳转门。
 

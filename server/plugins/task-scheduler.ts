@@ -1,5 +1,6 @@
 import { CronJob } from 'cron'
 import { processScheduledTasks } from '../services/task'
+import { friendLinkService } from '../services/friend-link'
 import { isServerlessEnvironment } from '../utils/env'
 import logger from '@/server/utils/logger'
 
@@ -25,6 +26,7 @@ export default defineNitroPlugin((nitroApp) => {
             async () => {
                 logger.info(`[TaskScheduler] Running scheduled task scan: ${new Date().toISOString()}`)
                 await processScheduledTasks()
+                await friendLinkService.runHealthCheck()
             },
             null,
             true, // 立即启动

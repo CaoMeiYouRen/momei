@@ -91,6 +91,7 @@ export default defineConfig({
                             { text: '通知中心', link: '/design/modules/notifications' },
                             { text: '阅读模式', link: '/design/modules/reader-mode' },
                             { text: '评论互动', link: '/design/modules/interactions' },
+                            { text: '友链系统', link: '/design/modules/friend-links' },
                             { text: '分类标签', link: '/design/modules/taxonomy' },
                             { text: '搜索系统', link: '/design/modules/search' },
                             { text: '主题系统', link: '/design/modules/theme' },

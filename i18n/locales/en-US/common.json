@@ -122,6 +122,9 @@
     "switch": "Switch",
     "yes": "Yes",
     "no": "No",
+    "friend_links": "Friend Links",
+    "featured_friend_links": "Featured Links",
+    "visit_site": "Visit Site",
     "custom": "Custom Platform",
     "created_at": "Created At",
     "back_to_home": "Back to Home"

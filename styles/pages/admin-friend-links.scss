@@ -1,0 +1,130 @@
+.admin-friend-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding-bottom: 2rem;
+
+    &__header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    &__section {
+        padding: 1rem;
+        border: 1px solid var(--p-content-border-color);
+        border-radius: 1rem;
+        background: var(--p-content-background);
+    }
+
+    &__split {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+
+        @media (width <= 960px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &__section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+
+        h2 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+    }
+
+    &__table {
+        overflow: hidden;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    &__external-link {
+        color: var(--p-primary-color);
+        text-decoration: none;
+        word-break: break-all;
+    }
+
+    &__empty {
+        color: var(--p-text-muted-color);
+        text-align: center;
+        padding: 1rem 0;
+    }
+
+    &__dialog {
+        width: min(720px, 92vw);
+
+        &--wide {
+            width: min(860px, 96vw);
+        }
+    }
+
+    &__form {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+
+        @media (width <= 700px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        &--full {
+            grid-column: 1 / -1;
+        }
+    }
+
+    &__toggles {
+        display: flex;
+        grid-column: 1 / -1;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    &__toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    &__review {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    &__review-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem 1rem;
+
+        @media (width <= 700px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &__review-options {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+
+        @media (width <= 700px) {
+            grid-template-columns: 1fr;
+        }
+    }
+}

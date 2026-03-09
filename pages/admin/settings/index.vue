@@ -176,6 +176,8 @@ const numberSettingFallbacks: Record<string, number> = {
     upload_daily_limit: 100,
     upload_single_user_daily_limit: 5,
     upload_limit_window: 86400,
+    friend_links_footer_limit: 6,
+    friend_links_check_interval_minutes: 1440,
     local_storage_min_free_space: 104857600,
 }
 

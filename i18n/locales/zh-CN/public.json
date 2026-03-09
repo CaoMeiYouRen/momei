@@ -116,6 +116,35 @@
                 "subtitle": "我们期待听到您的声音"
             }
         },
+        "links": {
+            "title": "友链",
+            "subtitle": "记录我们愿意长期互相看见、互相推荐的独立站点与创作者。",
+            "meta": {
+                "description": "浏览墨梅博客的友链页面，查看精选站点，并提交您的友链申请。"
+            },
+            "guidelines_title": "申请说明",
+            "application_title": "申请友链",
+            "application_subtitle": "提交后将进入审核队列，管理员通过后会展示在公开页面与精选位。",
+            "uncategorized": "未分类",
+            "empty": "暂时还没有公开展示的友链。",
+            "disabled": "当前站点暂未开放友链页面。",
+            "form": {
+                "url": "站点地址",
+                "logo": "Logo 地址",
+                "rss_url": "RSS 地址",
+                "contact_name": "联系人",
+                "contact_email": "联系邮箱",
+                "category_placeholder": "可选：选择更接近的分类",
+                "category_suggestion": "分类建议",
+                "reciprocal_url": "互链页面地址",
+                "message": "补充说明",
+                "submit": "提交申请",
+                "submitting": "提交中...",
+                "success": "申请已提交，等待管理员审核。",
+                "error": "提交失败，请稍后再试。",
+                "captcha_required": "请先完成验证码校验"
+            }
+        },
         "categories_index": {
             "meta": {
                 "description": "浏览墨梅博客全部分类，按主题快速定位感兴趣的文章与内容集合。"
