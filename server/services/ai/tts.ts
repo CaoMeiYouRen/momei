@@ -1,4 +1,4 @@
-import { buildPostUploadPrefix, uploadFromBuffer, UploadType } from '../upload'
+import { buildPostUploadPrefix, buildUploadStoredFilename, uploadFromBuffer, UploadType } from '../upload'
 import { getSettings } from '../setting'
 import { AIBaseService } from './base'
 import { getAIProvider } from '@/server/utils/ai'
@@ -98,7 +98,9 @@ export class TTSService extends AIBaseService {
                 chunks.push(value)
             }
             const buffer = Buffer.concat(chunks)
-            const filename = `tts_${Date.now()}.${format}`
+            const filename = buildUploadStoredFilename({
+                extension: format,
+            })
             const mimetype = format === 'mp3' ? 'audio/mpeg' : `audio/${format}`
 
             return await uploadFromBuffer(
@@ -317,7 +319,9 @@ export class TTSService extends AIBaseService {
 
             // Upload to storage
             const format = options.outputFormat || 'mp3'
-            const filename = `tts_${Date.now()}.${format}`
+            const filename = buildUploadStoredFilename({
+                extension: format,
+            })
             const mimetype = format === 'mp3' ? 'audio/mpeg' : `audio/${format}`
 
             const uploadPath = post

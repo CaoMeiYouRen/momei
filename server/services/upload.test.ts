@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { readMultipartFormData } from 'h3'
-import { buildAvatarUploadPrefix, buildPostUploadPrefix, buildUploadObjectKey, checkUploadLimits, getUploadStorageContext, handleFileUploads, normalizeStorageType, resolveUploadedFileUrl, resolveUploadPrefix, UploadType } from './upload'
+import { buildAvatarUploadPrefix, buildPostUploadPrefix, buildUploadObjectKey, buildUploadStoredFilename, checkUploadLimits, getUploadStorageContext, handleFileUploads, normalizeStorageType, resolveUploadedFileUrl, resolveUploadPrefix, UploadType } from './upload'
 import { limiterStorage } from '@/server/database/storage'
 import { getFileStorage } from '@/server/utils/storage/factory'
 import { getSettings } from '~/server/services/setting'
@@ -170,6 +170,12 @@ describe('UploadService', () => {
     })
 
     describe('buildUploadObjectKey', () => {
+        it('should generate stored filenames with optional business basename', () => {
+            expect(buildUploadStoredFilename({ originalFilename: 'hello.png' })).toMatch(/^\d{17}-[a-z0-9]{7}\.png$/)
+            expect(buildUploadStoredFilename({ basename: 'tts', extension: 'mp3' })).toMatch(/^tts-\d{17}-[a-z0-9]{7}\.mp3$/)
+            expect(buildUploadStoredFilename({ basename: '../../cover image.png', extension: 'webp' })).toMatch(/^cover-image-\d{17}-[a-z0-9]{7}\.webp$/)
+        })
+
         it('should generate a valid object key with timestamp and random string', () => {
             const result = buildUploadObjectKey({
                 prefix: 'test/',

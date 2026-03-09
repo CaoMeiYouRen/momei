@@ -1,5 +1,4 @@
 import path from 'node:path'
-import crypto from 'node:crypto'
 import dayjs from 'dayjs'
 import { type H3Event, readMultipartFormData } from 'h3'
 import { getFileStorage, type FileStorageEnv } from '@/server/utils/storage/factory'
@@ -228,6 +227,44 @@ export function buildPostUploadPrefix(options: {
         : `posts/${options.postId}/${typeDirectory}/`
 }
 
+function sanitizeUploadBasename(basename?: string) {
+    if (!basename) {
+        return ''
+    }
+
+    const normalized = basename.replace(/\\/g, '/').trim().split('/').pop() || ''
+    const stem = path.parse(normalized).name.trim()
+
+    if (!stem) {
+        return ''
+    }
+
+    return stem
+        .replace(/\s+/g, '-')
+        .replace(/[^\p{L}\p{N}_-]+/gu, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '')
+}
+
+export function buildUploadStoredFilename(options: {
+    originalFilename?: string
+    extension?: string
+    basename?: string
+}) {
+    const timestamp = dayjs().format('YYYYMMDDHHmmssSSS')
+    const random = Math.random().toString(36).slice(2, 9)
+    const rawExtension = options.extension || path.extname(options.originalFilename || '')
+    let extension = ''
+    if (rawExtension) {
+        extension = rawExtension.startsWith('.') ? rawExtension : `.${rawExtension}`
+    }
+    const basename = sanitizeUploadBasename(options.basename)
+
+    return basename
+        ? `${basename}-${timestamp}-${random}${extension}`
+        : `${timestamp}-${random}${extension}`
+}
+
 export function resolveUploadSizeLimit(type: UploadType, settings: UploadSettings) {
     if (type === UploadType.AUDIO) {
         const configuredLimit = getNumericLimit(settings, SettingKey.MAX_AUDIO_UPLOAD_SIZE, 20)
@@ -271,13 +308,13 @@ export function buildUploadObjectKey(options: {
     originalFilename: string
     bucketPrefix?: string
 }) {
-    const timestamp = dayjs().format('YYYYMMDDHHmmssSSS')
-    const random = Math.random().toString(36).slice(2, 9)
-    const ext = path.extname(options.originalFilename)
     const bucketPrefix = normalizePrefix(options.bucketPrefix)
     const prefix = normalizePrefix(options.prefix)
+    const filename = buildUploadStoredFilename({
+        originalFilename: options.originalFilename,
+    })
 
-    return `${bucketPrefix}${prefix}${timestamp}-${random}${ext}`
+    return `${bucketPrefix}${prefix}${filename}`
 }
 
 export async function getUploadStorageContext(): Promise<UploadStorageContext> {
@@ -356,8 +393,10 @@ export async function uploadFromUrl(url: string, prefix: string, userId: string,
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
     const extension = contentType.split('/')[1]?.split(';')[0] || 'bin'
 
-    const nameWithoutExt = customFilename || crypto.randomUUID()
-    const filename = nameWithoutExt.includes('.') ? nameWithoutExt : `${nameWithoutExt}.${extension}`
+    const filename = buildUploadStoredFilename({
+        basename: customFilename,
+        extension,
+    })
     const fullPath = `${bucketPrefix}${prefix}${filename}`.replace(/\\/g, '/')
 
     const buffer = Buffer.from(response._data as ArrayBuffer)
