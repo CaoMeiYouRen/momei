@@ -16,7 +16,6 @@
     "read_more": "阅读更多",
     "views": "阅读",
     "word_count": "字数",
-    "reading_time": "阅读时长",
     "minutes": "{min} 分钟",
     "published_at": "发布于",
     "author": "作者",
@@ -24,7 +23,6 @@
     "loading": "加载中...",
     "refresh": "刷新",
     "search": "搜索",
-    "tag_cloud": "标签云",
     "status": {
       "published": "已发布",
       "scheduled": "定时发布",
@@ -129,11 +127,6 @@
     "back_to_home": "返回首页"
   },
   "error": {
-    "title": "发生错误",
-    "404_title": "页面失踪了",
-    "404_desc": "抱歉，您访问的页面不存在或已被移除。您可以尝试搜索其他内容，或者返回首页。",
-    "back_home": "返回首页",
-    "retry": "重试",
     "unauthorized": "未授权，请先登录",
     "forbidden": "拒绝访问，您没有权限",
     "notFound": "资源不存在: {resource}",

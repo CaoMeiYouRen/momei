@@ -48,7 +48,6 @@
         },
         "actions": {
           "send_now": "Send Now",
-          "sending": "Sending...",
           "send_success": "Campaign task started",
           "send_failed": "Failed to start campaign"
         }
@@ -68,12 +67,9 @@
         "reject": "Reject",
         "admin_note": "Admin Note",
         "admin_note_placeholder": "Internal only review notes",
-        "accept_title": "Accept Submission",
-        "accept_desc": "Accepting will automatically create a post, which you can further edit later.",
         "publish_immediately": "Publish immediately",
         "language": "Publish Language",
         "category": "Category",
-        "tags": "Tags",
         "review_success": "Action successful"
       },
       "ad": {
@@ -188,7 +184,6 @@
         "provider": "Provider",
         "model": "Model",
         "category": "Category",
-        "consumption": "Consumption",
         "status": "Status",
         "estimated_cost": "Estimated Cost",
         "actual_cost": "Actual Cost",
@@ -199,7 +194,6 @@
         "usage_snapshot": "Usage Snapshot",
         "success_rate": "Success Rate",
         "duration_ms": "Duration",
-        "tokens": "Tokens",
         "images": "Images",
         "audio_duration": "Audio Duration",
         "audio_size": "Audio Size",
@@ -210,15 +204,11 @@
         "audio_preview": "Audio Preview",
         "error": "Error Reason",
         "delete_confirm": "Are you sure you want to delete selected AI task records? This action cannot be undone.",
-        "cleanup": "Cleanup Logs",
         "no_stats": "No statistics available",
-        "chart_trend": "Usage Trend (Last 14 days)",
         "chart_status": "Status Distribution",
-        "chart_type": "Type Distribution",
         "chart_category": "Category Quota Distribution",
         "chart_charge_status": "Charge Status Distribution",
         "chart_failure_stage": "Failure Stage Distribution",
-        "chart_model": "Model Distribution",
         "all_scope": "All Capabilities",
         "alerts": {
           "title": "Governance Alerts",
@@ -289,7 +279,6 @@
         "create": "New Post",
         "export_selected": "Export Selected",
         "export_as_markdown": "Export as Markdown",
-        "export_zip": "Export ZIP",
         "export_success": "Export Successful",
         "export_error": "Export Failed",
         "search_placeholder": "Search title...",
@@ -300,7 +289,6 @@
         "content_placeholder": "Start writing... (Markdown supported)",
         "settings_title": "Post Settings",
         "slug": "URL Slug",
-        "slug_placeholder": "custom-url-slug",
         "slug_hint": "Custom URL path for the post",
         "category_placeholder": "Select Category",
         "tags_placeholder": "Enter tags...",
@@ -312,8 +300,7 @@
           "probe_metadata": "Probe Metadata",
           "duration": "Duration",
           "size": "Size",
-          "mime_type": "MIME Type",
-          "probing": "Probing..."
+          "mime_type": "MIME Type"
         },
         "copyright": "Copyright Notice",
         "copyright_hint": "Leave empty for global default",
@@ -344,7 +331,6 @@
         "language": "Post Language",
         "translation_group": "Translation Association",
         "translation_group_hint": "Link different language versions of the same post to enable switcher on front end",
-        "title_required": "Please enter post title",
         "save_current_first": "Please save the current post first before creating a translation",
         "repush": "Repush",
         "repush_confirm_title": "Confirm Repush Post",
@@ -460,15 +446,12 @@
         "draft_recovered": "Local draft recovered",
         "draft_discarded": "Local draft cleared",
         "history_versions": "Historical Versions",
-        "no_history_versions": "No historical versions found",
         "version_rollback_confirm": "Are you sure you want to rollback to this version? Current editor content will be overwritten.",
         "version_rollback_success": "Version content loaded into editor",
         "restore_version": "Restore this version",
         "content_preview": "Content Preview",
         "version_delete_confirm": "Are you sure you want to permanently delete this version?",
-        "version_compare": "Compare Versions",
-        "version_current": "Current Content",
-        "version_selected": "Selected Version"
+        "version_compare": "Compare Versions"
       },
       "categories": {
         "title": "Categories Management",
@@ -573,7 +556,6 @@
           "background_none": "None (Default)",
           "background_color": "Solid Color",
           "background_image": "Background Image",
-          "background_value": "Background Value",
           "save_success": "Theme settings updated",
           "preview": "Preview Effect",
           "gallery_title": "Theme Gallery",
@@ -615,7 +597,6 @@
               "db": "Database Active",
               "default": "Default Active"
             },
-            "empty": "There are no settings that currently need extra explanation.",
             "messages": {
               "env_override": "The current value is controlled by environment variable {envKey}, so saving here will not take effect immediately.",
               "forced_env_lock": "This setting is read during startup and must be changed through environment variables followed by a restart.",

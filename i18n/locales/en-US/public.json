@@ -48,6 +48,13 @@
         "private_desc": "You do not have permission to access this private article."
       }
     },
+    "error": {
+      "title": "An error occurred",
+      "404_title": "Page Not Found",
+      "404_desc": "Sorry, the page you are looking for does not exist or has been moved. You can try searching for something else or return to the home page.",
+      "back_home": "Back to Home",
+      "retry": "Retry"
+    },
     "user_agreement": {
       "title": "User Agreement",
       "last_updated": "Last updated: January 18, 2026",
@@ -64,11 +71,9 @@
     },
     "about": {
       "meta": {
-        "title": "About Momei - AI-driven, Natively Internationalized Developer Blog Platform",
         "description": "Learn how Momei leverages AI to empower full-stack internationalization for developers."
       },
       "hero": {
-        "logo_text": "M",
         "title": "Momei",
         "subtitle": "AI-powered, Global Creation. An intelligent blog system tailored for developers.",
         "cta": "Learn More"
@@ -123,7 +128,6 @@
     },
     "archives": {
       "meta": {
-        "title": "Archives - Momei Blog",
         "description": "Explore the historical post archive of Momei Blog by year and month to revisit past updates and essays."
       },
       "title": "Archives",

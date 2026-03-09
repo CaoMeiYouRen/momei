@@ -9,6 +9,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "i18n:audit": "node scripts/i18n/audit-locale-keys.mjs",
     "lint": "cross-env NODE_ENV=production eslint . --fix --max-warnings 10",
     "lint:css": "stylelint ./**/*.{html,css,scss,sass,vue} --fix",
     "lint:md": "lint-md *.md docs/**/*.md .github/**/*.md --fix",
