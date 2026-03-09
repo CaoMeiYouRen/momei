@@ -26,6 +26,7 @@ const RequestSchema = z.object({
  */
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
+    const cronSecret = config.cronSecret || process.env.CRON_SECRET
     const tasksToken = config.tasksToken || process.env.TASKS_TOKEN
     const webhookSecret = config.webhookSecret || process.env.WEBHOOK_SECRET || tasksToken
 
@@ -33,9 +34,12 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event).catch(() => ({}))
     const query = getQuery(event)
     const headerToken = getHeader(event, 'X-Tasks-Token')
+    const headerAuthorization = getHeader(event, 'Authorization')
     const headerSignature = getHeader(event, 'X-Webhook-Signature')
     const headerTimestamp = getHeader(event, 'X-Webhook-Timestamp')
     const headerSource = getHeader(event, 'X-Webhook-Source')
+    const queryToken = Array.isArray(query.token) ? query.token[0] : query.token
+    const bearerToken = extractBearerToken(headerAuthorization)
 
     // 模式 1: HMAC 签名模式 (推荐)
     if (headerSignature && headerTimestamp) {
@@ -84,9 +88,22 @@ export default defineEventHandler(async (event) => {
         return executeTasks(parseResult.data.source || 'external')
     }
 
-    // 模式 2: 简单 Token 模式 (向后兼容)
+    // 模式 2: Vercel Cron Bearer 鉴权
+    if (bearerToken && cronSecret) {
+        if (bearerToken !== cronSecret) {
+            logger.warn('[TasksWebhook] Invalid CRON_SECRET provided')
+            throw createError({
+                statusCode: 401,
+                statusMessage: 'Unauthorized: Invalid CRON_SECRET',
+            })
+        }
+
+        return executeTasks('vercel')
+    }
+
+    // 模式 3: 简单 Token 模式 (向后兼容)
     if (tasksToken) {
-        const requestToken = query.token || headerToken
+        const requestToken = queryToken || headerToken || bearerToken
 
         if (requestToken !== tasksToken) {
             logger.warn('[TasksWebhook] Invalid token provided')
@@ -99,7 +116,7 @@ export default defineEventHandler(async (event) => {
         return executeTasks('external')
     }
 
-    // 模式 3: 生产环境未配置安全机制
+    // 模式 4: 生产环境未配置安全机制
     if (process.env.NODE_ENV === 'production') {
         logger.warn('[TasksWebhook] No security mechanism configured in production')
         throw createError({
@@ -108,10 +125,24 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // 模式 4: 开发环境无安全配置 (仅允许开发使用)
+    // 模式 5: 开发环境无安全配置 (仅允许开发使用)
     logger.warn('[TasksWebhook] Running without security in development mode')
     return executeTasks('external')
 })
+
+function extractBearerToken(authorizationHeader?: string | null) {
+    if (!authorizationHeader) {
+        return undefined
+    }
+
+    const [scheme, token] = authorizationHeader.trim().split(/\s+/, 2)
+
+    if (scheme?.toLowerCase() !== 'bearer' || !token) {
+        return undefined
+    }
+
+    return token
+}
 
 /**
  * 执行定时任务

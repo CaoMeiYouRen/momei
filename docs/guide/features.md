@@ -76,7 +76,7 @@
 
 ## 10. 定时任务与自动化
 
--   **内置调度引擎**: 基于 `TASKS_TOKEN` 安全验证，支持通过 Webhook 或系统 Cron 触发任务。
+-   **内置调度引擎**: 支持通过 `CRON_SECRET`（Vercel Cron）、`WEBHOOK_SECRET`（HMAC）或 `TASKS_TOKEN`（兼容模式）进行安全验证，并可由 Webhook 或系统 Cron 触发任务。
 -   **自动化管理**: 支持定时发布文章、清理缓存、同步外部数据（如 Memos）等后台任务。
 
 ---

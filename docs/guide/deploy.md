@@ -63,7 +63,8 @@
 
 ### 2.5 定时任务与自动化
 
-- **`TASKS_TOKEN`**: 定时任务 Webhook 的基础鉴权令牌。
+- **`CRON_SECRET`**: Vercel Cron 专用 Bearer 鉴权密钥，平台会自动以 `Authorization: Bearer <secret>` 调用任务端点。
+- **`TASKS_TOKEN`**: 定时任务 Webhook 的基础鉴权令牌，主要用于手动触发或兼容旧集成。
 - **`WEBHOOK_SECRET`**: 推荐单独配置，用于 HMAC 模式验签。
 - **`TASK_CRON_EXPRESSION`**: 仅自部署环境有效，用于覆盖内置 Cron 频率。
 - **`DISABLE_CRON_JOB=true`**: 用于显式关闭自部署环境内置 Cron。
@@ -150,7 +151,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 
 - **Vercel**: 适合 Serverless 部署。
   - 推荐 `STORAGE_TYPE=vercel_blob` 或外接 S3/R2。
-  - 必须配置 `TASKS_TOKEN`，推荐再配 `WEBHOOK_SECRET`。
+  - 应配置 `CRON_SECRET` 供平台自动注入 Bearer 头；如需兼容手动调用，再额外配置 `TASKS_TOKEN` 或 `WEBHOOK_SECRET`。
   - 内置 Cron 由 [vercel.json](../../vercel.json) 触发，默认每天一次。
 - **Docker / 自部署服务器**: 适合需要本地磁盘、定时任务和更强可控性的场景。
   - 建议挂载 `database/` 与上传目录。
@@ -164,6 +165,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 
 - **认证回调错误**: 检查 `NUXT_PUBLIC_SITE_URL` 与 `NUXT_PUBLIC_AUTH_BASE_URL` 是否都使用最终公开域名，且协议一致。
 - **定时任务返回 401**: 检查触发方式是否和当前配置一致。
+  - Vercel Cron 模式：`CRON_SECRET`
   - Token 模式：`TASKS_TOKEN`
   - HMAC 模式：`WEBHOOK_SECRET`
 - **Volcengine ASR 未生效**: 优先检查 `ASR_VOLCENGINE_APP_ID` / `ASR_VOLCENGINE_ACCESS_KEY` / `ASR_VOLCENGINE_CLUSTER_ID`，其次再检查通用 `VOLCENGINE_*` 回退配置。

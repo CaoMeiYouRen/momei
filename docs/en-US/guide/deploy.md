@@ -69,7 +69,8 @@ Note: browser direct upload currently uses presigned `PUT` requests when `STORAG
 
 ### 2.5 Scheduled Tasks And Automation
 
-- **`TASKS_TOKEN`**: Base token used for task webhook authentication.
+- **`CRON_SECRET`**: Bearer auth secret dedicated to Vercel Cron. Vercel sends it automatically as `Authorization: Bearer <secret>`.
+- **`TASKS_TOKEN`**: Base token used for task webhook authentication, mainly for manual triggers or legacy integrations.
 - **`WEBHOOK_SECRET`**: Recommended as a dedicated HMAC signing secret.
 - **`TASK_CRON_EXPRESSION`**: Only effective in self-hosted mode to override the built-in cron frequency.
 - **`DISABLE_CRON_JOB=true`**: Explicitly disables the built-in cron job in self-hosted mode.
@@ -156,7 +157,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 
 - **Vercel**: Best for serverless deployments.
 	- Prefer `STORAGE_TYPE=vercel_blob` or an external S3/R2 bucket.
-	- `TASKS_TOKEN` is required, and `WEBHOOK_SECRET` is strongly recommended.
+	- Configure `CRON_SECRET` so Vercel can inject the Bearer token automatically. Add `TASKS_TOKEN` or `WEBHOOK_SECRET` only if you also need manual or external triggers.
 	- Built-in scheduled triggers are defined in [vercel.json](../../vercel.json) and currently run once per day.
 - **Docker / Self-hosted server**: Best when you need local disk, built-in cron, and tighter operational control.
 	- Mount `database/` and upload directories.
@@ -170,6 +171,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 
 - **Auth callback errors**: Verify that both `NUXT_PUBLIC_SITE_URL` and `NUXT_PUBLIC_AUTH_BASE_URL` use the final public domain and the same protocol.
 - **Scheduled task returns 401**: Check which auth mode your trigger is using.
+	- Vercel Cron mode: `CRON_SECRET`
 	- Token mode: `TASKS_TOKEN`
 	- HMAC mode: `WEBHOOK_SECRET`
 - **Volcengine ASR is not taking effect**: Check `ASR_VOLCENGINE_APP_ID`, `ASR_VOLCENGINE_ACCESS_KEY`, and `ASR_VOLCENGINE_CLUSTER_ID` first, then inspect generic `VOLCENGINE_*` fallback config.

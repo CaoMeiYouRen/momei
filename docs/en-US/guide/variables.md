@@ -140,6 +140,7 @@ Browser direct upload currently prefers presigned `PUT` mode when `STORAGE_TYPE=
 
 | Environment Variable | SettingKey | Level | Mask | Notes |
 | :--- | :--- | :--- | :--- | :--- |
+| `CRON_SECRET` | - | 3 | password | Vercel Cron Bearer auth secret |
 | `TASKS_TOKEN` | - | 3 | password | Task webhook token |
 | `WEBHOOK_SECRET` | - | 3 | password | Webhook HMAC signing secret |
 | `TASK_CRON_EXPRESSION` | - | 3 | none | Built-in cron expression for self-hosted deployments |

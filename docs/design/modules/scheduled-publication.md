@@ -75,11 +75,22 @@
 - 请求头 `X-Tasks-Token`
 - 或查询参数 `?token=...`
 
-### 3.3 环境行为
+### 3.3 Vercel Cron 模式
+
+Vercel Cron 会自动把项目中的 `CRON_SECRET` 作为 `Authorization: Bearer <secret>` 发送到任务端点。
+
+当前实现约定：
+
+- Vercel 使用 [server/api/tasks/run-scheduled.get.ts](../../server/api/tasks/run-scheduled.get.ts) 处理平台默认 GET 调用
+- Bearer Token 与 `CRON_SECRET` 完全匹配时，任务来源标记为 `vercel`
+- 若未命中 `CRON_SECRET`，才会继续回落到旧版 `TASKS_TOKEN` 兼容模式
+
+### 3.4 环境行为
 
 | 环境/条件 | 行为 |
 | :--- | :--- |
 | 已配置 HMAC 头 | 走签名校验 |
+| 已配置 `CRON_SECRET` 且存在 `Authorization: Bearer` | 走 Vercel Cron 鉴权 |
 | 未配置 HMAC，但存在 `TASKS_TOKEN` | 走 Token 校验 |
 | 生产环境且无任何安全配置 | 拒绝执行 |
 | 开发环境且无安全配置 | 允许执行并记录警告 |
@@ -92,6 +103,8 @@
 
 - 路径：`/api/tasks/run-scheduled`
 - 计划：`0 0 * * *`
+- 请求方法：`GET`
+- 鉴权头：`Authorization: Bearer ${CRON_SECRET}`
 
 ### 4.2 Cloudflare
 

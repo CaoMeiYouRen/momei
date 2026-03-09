@@ -104,7 +104,7 @@ const createPostSchema = z.object({
 
 ## 6. 定时任务与自动化 (Task & Automation Standards)
 
--   **安全性**: 所有可由外部触发的任务接口（如 `/api/tasks/*`）必须包含 `TASKS_TOKEN` 校验。
+-   **安全性**: 所有可由外部触发的任务接口（如 `/api/tasks/*`）必须包含鉴权校验；Vercel Cron 场景优先使用 `CRON_SECRET`（`Authorization: Bearer <secret>`），其他 Webhook 场景使用 `WEBHOOK_SECRET` 或 `TASKS_TOKEN`。
 -   **异步性**: 长耗时任务（如 AI 生成、数据重构）必须设计为异步任务系统。
     -   API 返回任务 ID。
     -   前端轮询或通过 WebSocket 接收任务状态。

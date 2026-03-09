@@ -126,6 +126,7 @@
 
 | 环境变量 | 系统设置键名 (SettingKey) | 等级 | 脱敏 | 说明 |
 | :--- | :--- | :--- | :--- | :--- |
+| `CRON_SECRET` | - | 3 | password | Vercel Cron Bearer 鉴权密钥 |
 | `TASKS_TOKEN` | - | 3 | password | Webhook 任务鉴权令牌 |
 | `WEBHOOK_SECRET` | - | 3 | password | Webhook HMAC 验签密钥 |
 | `TASK_CRON_EXPRESSION` | - | 3 | none | 自部署环境内置 Cron 表达式，默认每 5 分钟执行一次 |

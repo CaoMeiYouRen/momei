@@ -85,7 +85,7 @@ Momei builds a powerful hub to ensure your readers never miss an update:
 
 ## 10. Automation & Scheduled Tasks
 
--   **Built-in Task Engine**: Secure task triggering via Webhooks or system Cron using `TASKS_TOKEN`.
+-   **Built-in Task Engine**: Secure task triggering via `CRON_SECRET` (Vercel Cron), `WEBHOOK_SECRET` (HMAC), or `TASKS_TOKEN` (compat mode), with support for Webhooks and system Cron.
 -   **Automated Management**: Supports scheduled post publishing, cache clearing, and external data syncing (like Memos).
 
 ---

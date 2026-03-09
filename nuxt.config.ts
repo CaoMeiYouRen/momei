@@ -112,6 +112,7 @@ export default defineNuxtConfig({
     runtimeConfig: {
         authCaptchaSecretKey: process.env.AUTH_CAPTCHA_SECRET_KEY,
         // 定时任务安全配置
+        cronSecret: process.env.CRON_SECRET,
         tasksToken: process.env.TASKS_TOKEN,
         webhookSecret: process.env.WEBHOOK_SECRET || process.env.TASKS_TOKEN,
         public: {
