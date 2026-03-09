@@ -47,7 +47,7 @@
 
                     <NuxtLink
                         id="nav-friend-link-application"
-                        :to="localePath('/links')"
+                        :to="localePath('friend-links')"
                         class="nav-link"
                     >
                         {{ $t('common.friend_link_application') }}
@@ -235,7 +235,7 @@
                 </NuxtLink>
                 <NuxtLink
                     id="mobile-nav-friend-link-application"
-                    :to="localePath('/links')"
+                    :to="localePath('friend-links')"
                     class="mobile-nav-link"
                     @click="isMobileMenuOpen = false"
                 >

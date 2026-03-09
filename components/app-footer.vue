@@ -6,7 +6,7 @@
                 <NuxtLink :to="localePath('/about')" class="footer__link">
                     {{ $t('common.about') }}
                 </NuxtLink>
-                <NuxtLink :to="localePath('/links')" class="footer__link">
+                <NuxtLink :to="localePath('friend-links')" class="footer__link">
                     {{ $t('common.friend_links') }}
                 </NuxtLink>
                 <NuxtLink
@@ -56,7 +56,7 @@
                     <h3 class="footer__friend-links-title">
                         {{ $t('common.featured_friend_links') }}
                     </h3>
-                    <NuxtLink :to="localePath('/links')" class="footer__friend-links-more">
+                    <NuxtLink :to="localePath('friend-links')" class="footer__friend-links-more">
                         {{ $t('common.view_all') }}
                     </NuxtLink>
                 </div>
