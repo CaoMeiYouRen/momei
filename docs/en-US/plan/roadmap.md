@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-02-11
+last_sync: 2026-03-09
 ---
 
 # Momei - Project Roadmap
@@ -146,6 +146,19 @@ This document outlines the development blueprint for the project. For specific t
 6.  **AI Agent & Automation Ecosystem**:
     -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
+### Stage 10: Notification Closure & Global Experience Enhancement (Planned)
+
+**Goal**: Build a tighter loop across delivery, localization, maintainability, and first-run experience on top of the existing SSE, Locale Registry, and Demo / onboarding foundations.
+
+1.  **Browser Push Reinforcement (P0)**:
+    -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+2.  **Code Quality & Engineering (P0)**:
+    -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+3.  **I18n & L10n Enhancements (P1)**:
+    -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+4.  **User Experience Optimization (P1)**:
+    -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+
 ## 3. Backlog & Long-term Roadmap
 
 This section records features with long-term value but not prioritized for the current iteration.
@@ -166,10 +179,4 @@ This section records features with long-term value but not prioritized for the c
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
 ### 6. Podcast & Multimedia Expansion
--   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
-
-### 7. Real-time Notification Architecture (SSE/Web Push)
--   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
-
-### 8. I18n Experience Optimization
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
