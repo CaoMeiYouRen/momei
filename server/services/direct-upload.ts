@@ -69,8 +69,13 @@ export async function authorizeDirectUpload(input: DirectUploadAuthorizationRequ
         Bucket: s3Env.S3_BUCKET_NAME,
         Key: objectKey,
         ContentType: contentType,
+        ContentLength: size, // 将文件大小写入签名
     })
-    const url = await getSignedUrl(s3Client, command, { expiresIn })
+    const url = await getSignedUrl(s3Client, command, {
+        expiresIn,
+        // 把 content-length 加入签名校验，客户端必须完全匹配
+        signableHeaders: new Set(['content-type', 'content-length']),
+    })
 
     return {
         strategy: 'put-presign',
@@ -78,6 +83,7 @@ export async function authorizeDirectUpload(input: DirectUploadAuthorizationRequ
         url,
         headers: {
             'content-type': contentType,
+            'content-length': size.toString(),
         },
         publicUrl: resolveUploadedFileUrl(objectKey, storageContext),
         objectKey,
