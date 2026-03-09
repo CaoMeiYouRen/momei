@@ -17,6 +17,9 @@ describe('server/utils/i18n.ts', () => {
         const messages = await loadLocaleMessages('zh-CN')
         expect(messages).toBeDefined()
         expect(typeof messages).toBe('object')
+        expect(messages.pages.login.title).toBe('欢迎回来，请登录')
+        expect(messages.home.meta.title).toBe('首页 - 墨梅博客')
+        expect(messages.legal.user_agreement).toBe('用户协议')
     })
 
     it('should fall back to app default locale for unsupported messages locale', async () => {

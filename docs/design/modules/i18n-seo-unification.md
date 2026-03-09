@@ -17,7 +17,7 @@
 
 **以 Locale Registry 作为单一事实源，同时驱动前端 i18n、后端语言识别、页面 Head 输出、结构化数据与站点地图生成。**
 
-> 当前进度: 首轮基础设施已落地 `Locale Registry`、Nuxt i18n 多文件 lazy load、服务端模块化消息装配以及 sitemap 默认语言前缀中心化；当前又进一步落地了统一页面 SEO 契约，已覆盖首页、文章页、分类页、标签页的 Open Graph / Twitter Card / JSON-LD 输出，并为动态 sitemap URL 增加了基于翻译簇的 alternates。剩余工作主要集中在更细粒度的翻译域拆分、冗余词条清理、更多公开页接入与自动化回归校验。
+> 当前进度: 首轮基础设施已落地 `Locale Registry`、Nuxt i18n 多文件配置、服务端模块化消息装配以及 sitemap 默认语言前缀中心化；当前又进一步落地了统一页面 SEO 契约，已覆盖首页、文章页、分类页、标签页以及多类公开静态页的 Open Graph / Twitter Card / JSON-LD 输出，并为动态 sitemap URL 增加了基于翻译簇的 alternates。翻译资源也已从粗粒度页面单文件进一步拆分为 `public / settings / auth / admin / home / demo / installation / legal` 等模块，Nuxt 默认仅注入核心模块，额外词条通过全局路由中间件按路径与 demo 模式渐进加载；剩余工作主要集中在冗余词条清理、旧结构迁移收口与自动化回归校验。
 
 ## 2. 当前现状与问题 (Current State & Gaps)
 
@@ -150,7 +150,7 @@ interface LocaleRegistryItem {
 
 ### 5.2 目录与模块拆分设计
 
-建议将翻译资源从“单文件模式”迁移到“按 locale + 按模块拆分”的结构：
+建议将翻译资源迁移到“按 locale + 按模块拆分”的结构：
 
 ```plain
 i18n/
@@ -158,22 +158,31 @@ i18n/
     locale-registry.ts
     locale-readiness.ts
     locale-modules.ts
+      locale-runtime-loader.ts
   locales/
     zh-CN/
       common.json
+         components.json
+         public.json
+         settings.json
+         legal.json
       auth.json
       admin.json
-      post.json
-      taxonomy.json
-      seo.json
+         home.json
+         demo.json
+         installation.json
       feed.json
     en-US/
       common.json
+         components.json
+         public.json
+         settings.json
+         legal.json
       auth.json
       admin.json
-      post.json
-      taxonomy.json
-      seo.json
+         home.json
+         demo.json
+         installation.json
       feed.json
 ```
 
@@ -182,26 +191,36 @@ i18n/
 | 模块 | 内容范围 |
 | :--- | :--- |
 | `common` | 全局导航、按钮、错误消息、空状态等通用文案。 |
+| `components` | 可复用组件级文案，如页脚、通知、阅读控件。 |
+| `public` | 公开列表页与公共内容页，如文章列表、分类、标签、归档、关于、投稿。 |
+| `settings` | 面向前台与基础设置入口的通用设置页文案。 |
+| `legal` | 用户协议、隐私政策与全局页脚法律链接。 |
 | `auth` | 登录、注册、密码找回、协议确认。 |
-| `admin` | 后台菜单、设置页、列表页与表单文案。 |
-| `post` | 文章页、阅读模式、版权、评论交互。 |
-| `taxonomy` | 分类、标签、归档、列表筛选。 |
-| `seo` | 站点级默认 Meta、Open Graph、Twitter Card、结构化数据文案模板。 |
+| `admin` | 后台菜单、安装向导依赖的后台提示、列表页与表单文案。 |
+| `home` | 首页独有版块与文案。 |
+| `demo` | 演示模式横幅、提示与只读限制文案。 |
+| `installation` | 安装流程专属文案。 |
 | `feed` | RSS/Atom/JSON Feed 标题、描述与频道级文本。 |
 
 ### 5.3 加载策略
 
-本阶段建议采用“模块拆分 + SSR 可用 + 渐进式懒加载”的折中方案：
+本阶段建议采用“模块拆分 + SSR 可用 + 渐进式懒加载”的折中方案，当前实现已经按以下规则落地：
 
 1. **首屏必需模块同步可用**
-   - `common` 与当前页面对应模块必须在 SSR 阶段可读取。
-   - 例如文章页至少需要 `common + post + seo`。
+   - Nuxt 默认注入 `common + components + public + settings + legal` 五个核心模块。
+   - 这样首页导航、页脚法律链接、通用组件和大多数公开页 SEO 文案在 SSR 阶段即可稳定可用。
 
 2. **后台与低频模块可延迟加载**
-   - `admin` 等非公开页面文案可按页面分组加载。
+   - `auth`、`admin`、`home`、`demo`、`installation` 通过全局路由中间件按路径分组加载。
+   - 例如 `/login` 仅追加 `auth`，`/admin/**` 追加 `admin`，`/installation` 追加 `installation + admin`。
 
-3. **SEO 文案单独成组**
-   - 把 SEO 模板文案独立在 `seo.json`，避免页面 Meta 依赖大体积业务词条。
+3. **回退链与运行时补全一起处理**
+   - 渐进加载不仅追加当前 locale 对应模块，也会沿 `fallbackChain` 同步补齐相同模块。
+   - 这样可避免某个按需模块局部缺词时，SSR/CSR 切换后出现不一致回退。
+
+4. **服务端维持全模块装配**
+   - `server/utils/i18n.ts` 仍会为服务端场景装配完整模块集合。
+   - 这样邮件、SEO、feed、站点地图等服务端链路不会因为前端首屏裁剪而缺词。
 
 ### 5.4 新语言准入清单
 
@@ -360,16 +379,16 @@ $$
    - 将 `nuxt.config.ts`、服务端 locale 工具、sitemap 逻辑中的硬编码语言配置迁移到共享注册表。
 
 2. **翻译文件模块化拆分**
-   - 将当前 `zh-CN.json` / `en-US.json` 拆分为 `common`、`auth`、`admin`、`post`、`taxonomy`、`seo`、`feed` 等模块。
-   - 为 SSR 提供页面所需模块的装配策略，避免页面 Meta 在首屏阶段拿不到翻译文本。
+   - 将原先集中在 `pages.json` 中的页面文案细分为 `public`、`settings`、`auth`、`admin`、`home`、`demo`、`installation`、`legal` 等模块。
+   - 通过 `locale-runtime-loader.ts` 与全局中间件实现“核心模块默认加载 + 路由级额外模块渐进加载”，避免页面 Meta 在首屏阶段拿不到翻译文本。
 
 3. **语言准入与启用规则**
    - 建立 `draft -> ui-ready -> seo-ready` 的语言生命周期。
    - 规定哪些模块缺失时禁止进入切换器，哪些 SEO 能力缺失时禁止进入搜索索引。
 
 4. **迁移与测试保障**
-   - 设计旧版单文件翻译向模块化目录的迁移脚本或映射表。
-   - 增补 locale registry、fallback、模块加载与缺词回退测试。
+   - 使用 `scripts/i18n/split-locale-files.mjs` 承担旧结构到新模块目录的拆分与重复执行能力。
+   - 增补 locale registry、fallback、模块解析与按路由渐进加载测试。
 
 ### 8.2 对应待办 4: 多语言 SEO 深度优化
 

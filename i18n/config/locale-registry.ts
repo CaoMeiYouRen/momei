@@ -1,4 +1,4 @@
-import { getLocaleMessageFilePaths } from './locale-modules'
+import { getNuxtLocaleMessageFilePaths } from './locale-modules'
 
 export type LocaleReadiness = 'draft' | 'ui-ready' | 'seo-ready'
 export type AppLocaleCode = 'zh-CN' | 'en-US'
@@ -85,7 +85,7 @@ export const NUXT_I18N_LOCALES = APP_ENABLED_LOCALES.map((locale) => ({
     language: locale.languageTag,
     name: locale.name,
     dir: locale.dir,
-    files: getLocaleMessageFilePaths(locale.code),
+    files: getNuxtLocaleMessageFilePaths(locale.code),
 }))
 
 export function isAppLocale(locale: string): locale is AppLocaleCode {

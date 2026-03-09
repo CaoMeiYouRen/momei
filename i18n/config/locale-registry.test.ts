@@ -9,7 +9,7 @@ import {
     NUXT_I18N_LOCALES,
     resolveAppLocaleCode,
 } from './locale-registry'
-import { getLocaleMessageFilePaths } from './locale-modules'
+import { getNuxtLocaleMessageFilePaths } from './locale-modules'
 
 describe('i18n locale registry', () => {
     it('should expose enabled app locales', () => {
@@ -40,11 +40,12 @@ describe('i18n locale registry', () => {
     })
 
     it('should build module file paths for enabled locales', () => {
-        expect(getLocaleMessageFilePaths('zh-CN')).toEqual([
+        expect(getNuxtLocaleMessageFilePaths('zh-CN')).toEqual([
             'zh-CN/common.json',
             'zh-CN/components.json',
-            'zh-CN/pages.json',
-            'zh-CN/feed.json',
+            'zh-CN/public.json',
+            'zh-CN/settings.json',
+            'zh-CN/legal.json',
         ])
     })
 })

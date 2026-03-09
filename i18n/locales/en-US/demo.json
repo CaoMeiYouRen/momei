@@ -1,0 +1,30 @@
+{
+  "demo": {
+    "banner_text": "Demo Mode is active. You can explore all features, but data will be reset periodically.",
+    "start_tour": "Start Tour",
+    "tour": {
+      "welcome_title": "Welcome to Momei Blog",
+      "welcome_desc": "Momei is an AI-driven, natively internationalized blog platform. We'll show you how to use AI to boost productivity and reach a global audience.",
+      "login_title": "Auto Login",
+      "login_desc": "In Demo mode, we auto-fill the demo account. Just click Login to enter the admin panel.",
+      "editor_title": "Efficient Creation",
+      "editor_desc": "This is our powerful Markdown editor. The 'stars' menu on the right holds AI tools.",
+      "ai_title": "AI Assistant",
+      "ai_desc": "Click here! AI can suggest titles, generate summaries, extract tags, or translate the entire post.",
+      "publish_title": "Publish & Manage",
+      "publish_desc": "Once done, set your Slug and publish. Remember, data here is ephemeral.",
+      "nav_title": "Content Navigation",
+      "nav_desc": "Easily access the post list, categories, tags, and archives through the navigation bar.",
+      "admin_title": "Admin Dashboard",
+      "admin_desc": "Admins can access the dashboard here to manage content, users, and system settings.",
+      "search_title": "Global Search",
+      "search_desc": "Powerful and fast search functionality, accessible anytime with Ctrl + K.",
+      "theme_title": "Appearance Switch",
+      "theme_desc": "Toggle between Light or Dark theme for the most comfortable reading experience.",
+      "lang_title": "I18n System",
+      "lang_desc": "Momei supports multiple languages. You can switch the UI and content language here.",
+      "user_title": "User Center",
+      "user_desc": "Manage your profile, security settings, or sign in to your account."
+    }
+  }
+}
