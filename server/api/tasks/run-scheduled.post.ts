@@ -4,7 +4,7 @@ import {
     buildSignaturePayload,
     generateSignature,
 } from '@/server/utils/webhook-security'
-import { processScheduledTasks } from '@/server/services/task'
+import { runRoutineMaintenanceTasks } from '@/server/services/task'
 import logger from '@/server/utils/logger'
 
 /**
@@ -119,7 +119,7 @@ export default defineEventHandler(async (event) => {
 async function executeTasks(source: string) {
     try {
         logger.info(`[TasksWebhook] Starting scheduled tasks (triggered by: ${source})`)
-        await processScheduledTasks()
+        const result = await runRoutineMaintenanceTasks()
 
         return {
             code: 200,
@@ -127,6 +127,7 @@ async function executeTasks(source: string) {
             data: {
                 executedAt: new Date().toISOString(),
                 source,
+                friendLinksChecked: result.friendLinksChecked,
             },
         }
     } catch (err: any) {

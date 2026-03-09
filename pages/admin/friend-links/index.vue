@@ -80,6 +80,15 @@
                     <template #body="{data}">
                         <div class="admin-friend-links__actions">
                             <Button
+                                v-if="shouldSuggestReviewOrDisable(data)"
+                                :label="tt('pages.admin.friend_links.suggest_review_or_disable')"
+                                icon="pi pi-exclamation-triangle"
+                                text
+                                size="small"
+                                severity="warning"
+                                @click="confirmReviewOrDisable(data)"
+                            />
+                            <Button
                                 icon="pi pi-pencil"
                                 text
                                 rounded
@@ -617,6 +626,51 @@ const getApplicationStatusSeverity = (status: FriendLinkApplicationStatus) => {
 }
 
 const formatDate = (value?: string | null) => value ? new Date(value).toLocaleString() : '-'
+
+const shouldSuggestReviewOrDisable = (item: any) => item.status === FriendLinkStatus.ACTIVE && item.healthStatus === FriendLinkHealthStatus.UNREACHABLE
+
+const disableLink = async (item: any) => {
+    try {
+        await $fetch(`/api/admin/friend-links/${item.id}`, {
+            method: 'PUT',
+            body: {
+                status: FriendLinkStatus.INACTIVE,
+            },
+        })
+
+        toast.add({
+            severity: 'success',
+            summary: t('common.success'),
+            detail: tt('pages.admin.friend_links.messages.disable_link_success'),
+            life: 3000,
+        })
+
+        await loadLinks()
+    } catch (error: any) {
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: error.data?.message || error.message || tt('pages.admin.friend_links.messages.disable_link_failed'),
+            life: 3000,
+        })
+    }
+}
+
+const confirmReviewOrDisable = (item: any) => {
+    confirm.require({
+        message: tt('pages.admin.friend_links.messages.review_or_disable_confirm'),
+        header: tt('pages.admin.friend_links.review_or_disable_title'),
+        icon: 'pi pi-info-circle',
+        acceptLabel: tt('pages.admin.friend_links.disable_now'),
+        rejectLabel: tt('pages.admin.friend_links.open_site_recheck'),
+        accept: async () => {
+            await disableLink(item)
+        },
+        reject: () => {
+            window.open(item.url, '_blank', 'noopener,noreferrer')
+        },
+    })
+}
 
 const loadLinks = async () => {
     loading.links = true

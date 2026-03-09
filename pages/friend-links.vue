@@ -33,6 +33,10 @@
             </Card>
 
             <template v-else>
+                <div class="links-page__health-notice">
+                    {{ tt('pages.links.health_reference_notice') }}
+                </div>
+
                 <section v-if="groups.length > 0" class="links-page__groups">
                     <article
                         v-for="group in groups"
@@ -509,6 +513,16 @@ const handleSubmit = async () => {
         display: flex;
         flex-direction: column;
         gap: 1rem;
+    }
+
+    &__health-notice {
+        padding: 0.85rem 1rem;
+        border: 1px solid var(--p-content-border-color);
+        border-radius: 0.9rem;
+        background: var(--p-surface-50);
+        color: var(--p-text-muted-color);
+        line-height: 1.6;
+        font-size: 0.95rem;
     }
 
     &__group-header {

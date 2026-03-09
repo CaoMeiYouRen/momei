@@ -1,4 +1,4 @@
-import { processScheduledTasks } from '@/server/services/task'
+import { runRoutineMaintenanceTasks } from '@/server/services/task'
 import logger from '@/server/utils/logger'
 
 /**
@@ -24,12 +24,13 @@ export default defineEventHandler(async (event) => {
     logger.info('[CloudflareScheduled] Triggered by Cloudflare Scheduled Events')
 
     try {
-        await processScheduledTasks()
+        const result = await runRoutineMaintenanceTasks()
 
         return {
             success: true,
             executedAt: new Date().toISOString(),
             source: 'cloudflare',
+            friendLinksChecked: result.friendLinksChecked,
         }
     } catch (err: any) {
         logger.error('[CloudflareScheduled] Execution failed:', err)

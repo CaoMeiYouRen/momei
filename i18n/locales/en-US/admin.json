@@ -201,6 +201,10 @@
                 "sort_order": "Sort Order",
                 "last_checked_at": "Last Checked",
                 "health_status": "Health Status",
+                "suggest_review_or_disable": "Review / Disable",
+                "review_or_disable_title": "Health Check Warning",
+                "open_site_recheck": "Open Site to Recheck",
+                "disable_now": "Disable Link",
                 "featured": "Featured",
                 "pinned": "Pinned",
                 "is_featured": "Include in Footer Feature",
@@ -215,9 +219,7 @@
                 "statuses": {
                     "draft": "Draft",
                     "active": "Active",
-                    "inactive": "Inactive",
-                    "checking": "Checking",
-                    "unreachable": "Unreachable"
+                    "inactive": "Inactive"
                 },
                 "health_statuses": {
                     "unknown": "Not Checked",
@@ -247,6 +249,9 @@
                     "delete_category_confirm": "Are you sure you want to delete this category?",
                     "delete_category_success": "Category deleted successfully",
                     "delete_category_failed": "Failed to delete category",
+                    "review_or_disable_confirm": "This link recently failed health checks. It is recommended to manually open the site and verify it first. If it should be removed from public display, you can disable it directly.",
+                    "disable_link_success": "Friend link disabled successfully",
+                    "disable_link_failed": "Failed to disable friend link",
                     "review_success": "Application reviewed successfully",
                     "review_failed": "Failed to review application"
                 }

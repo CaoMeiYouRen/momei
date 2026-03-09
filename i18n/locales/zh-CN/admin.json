@@ -201,6 +201,10 @@
                 "sort_order": "排序值",
                 "last_checked_at": "最近巡检",
                 "health_status": "巡检状态",
+                "suggest_review_or_disable": "建议复检/下架",
+                "review_or_disable_title": "巡检异常提醒",
+                "open_site_recheck": "打开站点复检",
+                "disable_now": "直接下架",
                 "featured": "精选",
                 "pinned": "置顶",
                 "is_featured": "加入页脚精选",
@@ -215,9 +219,7 @@
                 "statuses": {
                     "draft": "草稿",
                     "active": "启用",
-                    "inactive": "停用",
-                    "checking": "检测中",
-                    "unreachable": "不可达"
+                    "inactive": "停用"
                 },
                 "health_statuses": {
                     "unknown": "未巡检",
@@ -247,6 +249,9 @@
                     "delete_category_confirm": "确定要删除这个分类吗？",
                     "delete_category_success": "分类删除成功",
                     "delete_category_failed": "删除分类失败",
+                    "review_or_disable_confirm": "该友链最近巡检异常。建议先手动访问站点进行复检；如果确认需要撤下，可直接将其下架。",
+                    "disable_link_success": "友链已下架",
+                    "disable_link_failed": "下架友链失败",
                     "review_success": "申请审核成功",
                     "review_failed": "申请审核失败"
                 }

@@ -1,6 +1,7 @@
 import { LessThanOrEqual } from 'typeorm'
 import { executePublishEffects } from './post-publish'
 import { sendMarketingCampaign } from './notification'
+import { friendLinkService } from './friend-link'
 import logger from '@/server/utils/logger'
 import { Post } from '@/server/entities/post'
 import { MarketingCampaign } from '@/server/entities/marketing-campaign'
@@ -31,6 +32,22 @@ export const processScheduledTasks = async () => {
     } finally {
         // 释放锁
         await releaseLock(LOCK_KEY)
+    }
+}
+
+/**
+ * 执行常规定时维护任务。
+ *
+ * 包括：
+ * 1. 文章发布 / 营销投递等统一调度任务
+ * 2. 友链可用性巡检
+ */
+export const runRoutineMaintenanceTasks = async () => {
+    await processScheduledTasks()
+    const friendLinksChecked = await friendLinkService.runHealthCheck()
+
+    return {
+        friendLinksChecked,
     }
 }
 

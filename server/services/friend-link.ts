@@ -19,7 +19,6 @@ import { SettingKey } from '@/types/setting'
 
 const DEFAULT_FOOTER_LIMIT = 6
 const DEFAULT_CHECK_INTERVAL_MINUTES = 1440
-const LEGACY_UNREACHABLE_STATUS = 'unreachable'
 
 function getAutoDisableFailureThreshold() {
     const raw = Number(process.env.FRIEND_LINKS_AUTO_DISABLE_FAILURE_THRESHOLD || 0)
@@ -348,9 +347,7 @@ export const friendLinkService = {
         const friendLinkRepo = dataSource.getRepository(FriendLink)
         const qb = friendLinkRepo.createQueryBuilder('friendLink')
             .leftJoinAndSelect('friendLink.category', 'category')
-            .where('friendLink.status IN (:...statuses)', {
-                statuses: [FriendLinkStatus.ACTIVE, LEGACY_UNREACHABLE_STATUS],
-            })
+            .where('friendLink.status = :status', { status: FriendLinkStatus.ACTIVE })
             .orderBy('friendLink.isPinned', 'DESC')
             .addOrderBy('friendLink.sortOrder', 'ASC')
             .addOrderBy('friendLink.createdAt', 'DESC')
@@ -627,9 +624,7 @@ export const friendLinkService = {
         const cutoff = new Date(Date.now() - meta.checkIntervalMinutes * 60 * 1000)
         const autoDisableFailureThreshold = getAutoDisableFailureThreshold()
         const candidates = await friendLinkRepo.createQueryBuilder('friendLink')
-            .where('friendLink.status IN (:...statuses)', {
-                statuses: [FriendLinkStatus.ACTIVE, LEGACY_UNREACHABLE_STATUS],
-            })
+            .where('friendLink.status = :status', { status: FriendLinkStatus.ACTIVE })
             .andWhere('(friendLink.lastCheckedAt IS NULL OR friendLink.lastCheckedAt <= :cutoff)', { cutoff })
             .orderBy('friendLink.lastCheckedAt', 'ASC')
             .addOrderBy('friendLink.createdAt', 'ASC')
@@ -637,11 +632,6 @@ export const friendLinkService = {
             .getMany()
 
         for (const candidate of candidates) {
-            // 历史兼容：旧数据可能把巡检结果写进 status，这里统一迁回人工状态。
-            if (String(candidate.status) === LEGACY_UNREACHABLE_STATUS) {
-                candidate.status = FriendLinkStatus.ACTIVE
-            }
-
             candidate.healthStatus = FriendLinkHealthStatus.CHECKING
             const result = await probeFriendLink(candidate.url)
             candidate.lastCheckedAt = new Date()

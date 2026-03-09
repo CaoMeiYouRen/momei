@@ -6,6 +6,7 @@
 
 - 文章定时发布
 - 营销任务定时执行
+- Serverless / 手动触发入口下的友链可用性巡检
 
 设计重点不再是“是否可行”，而是不同部署环境如何安全触发同一条任务执行链路。
 
@@ -39,6 +40,11 @@
 - Cloudflare Scheduled Events：通过 [wrangler.toml](../../wrangler.toml) 触发 [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts)
 
 其中 Cloudflare 路由要求存在 `cf-scheduled` 请求头，否则直接返回 404。
+
+补充说明：
+
+- 自部署环境下，友链巡检由 [server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts) 中的独立 Cron 表达式驱动。
+- Serverless 或手动触发入口下，`/api/tasks/run-scheduled` 与 [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts) 会在执行统一调度任务后补充执行一次友链巡检。
 
 ## 3. Webhook 安全模型
 
