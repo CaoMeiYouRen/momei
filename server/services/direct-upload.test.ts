@@ -115,6 +115,7 @@ describe('direct upload service', () => {
             Bucket: 'media',
             Key: 'image/generated.jpg',
             ContentType: 'image/jpeg',
+            ContentLength: 1024,
         })
         expect(mockResolveUploadedFileUrl).toHaveBeenCalledWith('image/generated.jpg', expect.objectContaining({
             assetPublicBaseUrl: 'https://assets.example.com',
@@ -126,6 +127,7 @@ describe('direct upload service', () => {
             url: 'https://storage.example.com/presigned',
             headers: {
                 'content-type': 'image/jpeg',
+                'content-length': '1024',
             },
             publicUrl: 'https://cdn.example.com/image/generated.jpg',
             objectKey: 'image/generated.jpg',

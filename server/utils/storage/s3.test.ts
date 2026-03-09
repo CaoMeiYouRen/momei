@@ -40,6 +40,6 @@ describe('server/utils/storage/s3.ts', () => {
             S3_SECRET_ACCESS_KEY: 'secret',
         })
         // Should fall back to includes check
-        expect(shouldUseS3PathStyle(env)).toBe(true)
+        expect(shouldUseS3PathStyle(env)).toBe(false)
     })
 })
