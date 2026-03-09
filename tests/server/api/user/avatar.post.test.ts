@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { requireAuth } from '@/server/utils/permission'
-import { checkUploadLimits, handleFileUploads } from '@/server/services/upload'
+import { buildAvatarUploadPrefix, checkUploadLimits, handleFileUploads } from '@/server/services/upload'
 import { auth } from '@/lib/auth'
 import handler from '@/server/api/user/avatar.post'
 
@@ -18,6 +18,7 @@ vi.mock('@/server/utils/permission', () => ({
 }))
 
 vi.mock('@/server/services/upload', () => ({
+    buildAvatarUploadPrefix: vi.fn((userId: string) => `avatars/${userId}/`),
     checkUploadLimits: vi.fn(),
     handleFileUploads: vi.fn(),
 }))
@@ -43,6 +44,7 @@ describe('avatar.post API handler', () => {
         const result = await handler(mockEvent)
 
         expect(requireAuth).toHaveBeenCalledWith(mockEvent)
+        expect(buildAvatarUploadPrefix).toHaveBeenCalledWith('user-1')
         expect(checkUploadLimits).toHaveBeenCalledWith('user-1')
         expect(handleFileUploads).toHaveBeenCalledWith(mockEvent, expect.objectContaining({
             prefix: 'avatars/user-1/',

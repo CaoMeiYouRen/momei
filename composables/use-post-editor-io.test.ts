@@ -50,8 +50,9 @@ describe('usePostEditorIO', () => {
     })
 
     it('should use shared upload composable for image uploads', async () => {
-        mockUploadFile.mockResolvedValueOnce('https://assets.example.com/file/test.jpg')
+        mockUploadFile.mockResolvedValueOnce('https://assets.example.com/posts/post-123/image/test.jpg')
         const post = ref({
+            id: 'post-123',
             content: '',
             metadata: {},
         } as any)
@@ -65,11 +66,12 @@ describe('usePostEditorIO', () => {
 
         await imgAdd(2, new File(['content'], 'test.jpg', { type: 'image/jpeg' }))
 
-        expect(mockUseUpload).toHaveBeenCalledWith({
+        expect(mockUseUpload).toHaveBeenCalledWith(expect.objectContaining({
             type: 'image',
             showErrorToast: false,
-        })
+            postId: expect.any(Object),
+        }))
         expect(mockUploadFile).toHaveBeenCalledTimes(1)
-        expect(md.value.$img2Url).toHaveBeenCalledWith(2, 'https://assets.example.com/file/test.jpg')
+        expect(md.value.$img2Url).toHaveBeenCalledWith(2, 'https://assets.example.com/posts/post-123/image/test.jpg')
     })
 })

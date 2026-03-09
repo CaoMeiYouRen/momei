@@ -1,6 +1,8 @@
 import { uploadFromUrl } from '../upload'
 import { AIBaseService } from './base'
 import { getAIImageProvider } from '@/server/utils/ai'
+import { dataSource } from '@/server/database'
+import { Post } from '@/server/entities/post'
 import { deriveChargeStatus, inferFailureStage } from '@/server/utils/ai/cost-governance'
 import { withAITimeout } from '@/server/utils/ai/timeout'
 import logger from '@/server/utils/logger'
@@ -27,6 +29,7 @@ export class ImageService extends AIBaseService {
             type: 'image_generation',
             status: 'processing',
             payload: options,
+            postId: options.postId,
             settlementSource: 'estimated',
         })
 
@@ -51,6 +54,9 @@ export class ImageService extends AIBaseService {
     ) {
         let failureStage: AIFailureStage = 'provider_processing'
         try {
+            const post = options.postId
+                ? await dataSource.getRepository(Post).findOneBy({ id: options.postId })
+                : null
             const provider = await getAIImageProvider()
 
             if (!provider.generateImage) {
@@ -70,7 +76,7 @@ export class ImageService extends AIBaseService {
                         const filename = response.images.length > 1 ? `${taskId}_${index}` : taskId
                         const uploadedImage = await uploadFromUrl(
                             img.url,
-                            'ai-images/',
+                            post ? `posts/${post.id}/image/ai/` : 'image/ai/',
                             userId,
                             filename,
                         )

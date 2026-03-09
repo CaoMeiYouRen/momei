@@ -1,4 +1,4 @@
-import { uploadFromBuffer } from '../upload'
+import { buildPostUploadPrefix, uploadFromBuffer, UploadType } from '../upload'
 import { getSettings } from '../setting'
 import { AIBaseService } from './base'
 import { getAIProvider } from '@/server/utils/ai'
@@ -320,7 +320,13 @@ export class TTSService extends AIBaseService {
             const filename = `tts_${Date.now()}.${format}`
             const mimetype = format === 'mp3' ? 'audio/mpeg' : `audio/${format}`
 
-            const uploadPath = post ? `posts/${post.id}/tts/` : `tts/${task.userId}/`
+            const uploadPath = post
+                ? buildPostUploadPrefix({
+                    postId: post.id,
+                    type: UploadType.AUDIO,
+                    usage: 'tts',
+                })
+                : 'audio/tts/'
 
             const uploadedFile = await uploadFromBuffer(
                 buffer,

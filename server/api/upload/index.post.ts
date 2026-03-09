@@ -1,4 +1,4 @@
-import { checkUploadLimits, handleFileUploads, UploadType } from '@/server/services/upload'
+import { checkUploadLimits, handleFileUploads, resolveUploadPrefix, UploadType } from '@/server/services/upload'
 import { requireAuth } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
@@ -6,14 +6,10 @@ export default defineEventHandler(async (event) => {
     const { user } = session
     const query = getQuery(event)
     const type = (query.type as UploadType) || UploadType.IMAGE
-    let prefix = 'file/'
-
-    if (type === UploadType.AUDIO) {
-        prefix = 'audios/'
-    }
+    let prefix = resolveUploadPrefix(type)
 
     if (typeof query.prefix === 'string' && query.prefix.trim()) {
-        prefix = query.prefix
+        prefix = resolveUploadPrefix(type, query.prefix)
     }
 
     // 1. 检查上传限制

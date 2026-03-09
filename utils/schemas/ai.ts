@@ -96,6 +96,7 @@ export const aiRecommendTagsSchema = z.object({
 
 export const aiGenerateImageSchema = z.object({
     prompt: z.string().min(1).max(1000),
+    postId: z.string().min(1).max(64).optional(),
     model: z.string().optional(),
     size: z.string().optional(),
     aspectRatio: z.string().optional(),

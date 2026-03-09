@@ -35,13 +35,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { UploadType, useUpload } from '@/composables/use-upload'
 
 const props = defineProps<{
     placeholder?: string
     accept?: string
     type?: UploadType
+    postId?: string | null
     disabled?: boolean
 }>()
 
@@ -52,6 +53,7 @@ const isDragging = ref(false)
 
 const { uploading, uploadFile } = useUpload({
     type: props.type,
+    postId: computed(() => props.postId || null),
 })
 
 const triggerFileSelect = () => {

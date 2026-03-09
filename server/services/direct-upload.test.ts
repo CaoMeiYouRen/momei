@@ -54,9 +54,9 @@ import { authorizeDirectUpload } from './direct-upload'
 describe('direct upload service', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        mockResolveUploadPrefix.mockReturnValue('file/')
-        mockResolveUploadedFileUrl.mockReturnValue('https://cdn.example.com/file/generated.jpg')
-        mockBuildUploadObjectKey.mockReturnValue('file/generated.jpg')
+        mockResolveUploadPrefix.mockReturnValue('image/')
+        mockResolveUploadedFileUrl.mockReturnValue('https://cdn.example.com/image/generated.jpg')
+        mockBuildUploadObjectKey.mockReturnValue('image/generated.jpg')
         mockCreateS3Client.mockReturnValue({ client: 's3' })
         mockGetSignedUrl.mockResolvedValue('https://storage.example.com/presigned')
         mockPutObjectCommand.mockImplementation(function (this: { input: unknown }, input) {
@@ -113,10 +113,10 @@ describe('direct upload service', () => {
         expect(mockCheckUploadLimits).toHaveBeenCalledWith('user-1')
         expect(mockPutObjectCommand).toHaveBeenCalledWith({
             Bucket: 'media',
-            Key: 'file/generated.jpg',
+            Key: 'image/generated.jpg',
             ContentType: 'image/jpeg',
         })
-        expect(mockResolveUploadedFileUrl).toHaveBeenCalledWith('file/generated.jpg', expect.objectContaining({
+        expect(mockResolveUploadedFileUrl).toHaveBeenCalledWith('image/generated.jpg', expect.objectContaining({
             assetPublicBaseUrl: 'https://assets.example.com',
             driverBaseUrl: 'https://cdn.example.com',
         }))
@@ -127,8 +127,8 @@ describe('direct upload service', () => {
             headers: {
                 'content-type': 'image/jpeg',
             },
-            publicUrl: 'https://cdn.example.com/file/generated.jpg',
-            objectKey: 'file/generated.jpg',
+            publicUrl: 'https://cdn.example.com/image/generated.jpg',
+            objectKey: 'image/generated.jpg',
             expiresIn: 300,
         })
     })

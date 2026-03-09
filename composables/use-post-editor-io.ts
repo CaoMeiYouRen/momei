@@ -1,4 +1,4 @@
-import { ref, type Ref } from 'vue'
+import { computed, ref, type Ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import yaml from 'js-yaml'
@@ -17,6 +17,7 @@ export function usePostEditorIO(
     const isDragging = ref(false)
     const { uploadFile } = useUpload({
         type: UploadType.IMAGE,
+        postId: computed(() => post.value.id || null),
         showErrorToast: false,
     })
 

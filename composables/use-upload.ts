@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { computed, ref, unref, type MaybeRefOrGetter } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 
@@ -11,6 +11,7 @@ export enum UploadType {
 export interface UseUploadOptions {
     type?: UploadType
     prefix?: string
+    postId?: MaybeRefOrGetter<string | null | undefined>
     showErrorToast?: boolean
 }
 
@@ -32,8 +33,25 @@ export function useUpload(options: UseUploadOptions = {}) {
     const { t } = useI18n()
     const toast = useToast()
     const uploading = ref(false)
+    const typeSegments: Record<UploadType, string> = {
+        [UploadType.IMAGE]: 'image',
+        [UploadType.AUDIO]: 'audio',
+        [UploadType.FILE]: 'file',
+    }
 
-    const resolveUploadPrefix = (type: UploadType) => options.prefix || (type === UploadType.AUDIO ? 'audios/' : 'file/')
+    const resolvedPostId = computed(() => {
+        const postId = options.postId ? unref(options.postId) : null
+        return typeof postId === 'string' && postId.trim() ? postId.trim() : null
+    })
+
+    const resolveUploadPrefix = (type: UploadType) => {
+        if (options.prefix) {
+            return options.prefix
+        }
+
+        const typeSegment = typeSegments[type] || typeSegments[UploadType.FILE]
+        return resolvedPostId.value ? `posts/${resolvedPostId.value}/${typeSegment}/` : `${typeSegment}/`
+    }
 
     const requestDirectUpload = async (file: File, type: UploadType, prefix: string) => {
         const { data } = await $fetch<{

@@ -16,8 +16,14 @@ export enum UploadType {
     FILE = 'file',
 }
 
+const UPLOAD_TYPE_DIRECTORIES: Record<UploadType, string> = {
+    [UploadType.IMAGE]: 'image',
+    [UploadType.AUDIO]: 'audio',
+    [UploadType.FILE]: 'file',
+}
+
 export interface UploadOptions {
-    /** 文件路径前缀，例如 'file/' 或 'avatars/1/' */
+    /** 文件路径前缀，例如 'image/' 或 'posts/post-1/image/' */
     prefix: string
     /** 最大文件数量限制 */
     maxFiles?: number
@@ -198,7 +204,28 @@ export function resolveUploadPrefix(type: UploadType, prefix?: string) {
         return normalized
     }
 
-    return type === UploadType.AUDIO ? 'audios/' : 'file/'
+    return `${UPLOAD_TYPE_DIRECTORIES[type] || UPLOAD_TYPE_DIRECTORIES[UploadType.FILE]}/`
+}
+
+export function buildAvatarUploadPrefix(userId: string) {
+    return normalizePrefix(`avatars/${userId}`)
+}
+
+export function buildPostUploadPrefix(options: {
+    postId?: string | null
+    type: UploadType
+    usage?: string
+}) {
+    const typeDirectory = UPLOAD_TYPE_DIRECTORIES[options.type] || UPLOAD_TYPE_DIRECTORIES[UploadType.FILE]
+    const usage = normalizePrefix(options.usage)
+
+    if (!options.postId) {
+        return usage ? `${typeDirectory}/${usage}` : `${typeDirectory}/`
+    }
+
+    return usage
+        ? `posts/${options.postId}/${typeDirectory}/${usage}`
+        : `posts/${options.postId}/${typeDirectory}/`
 }
 
 export function resolveUploadSizeLimit(type: UploadType, settings: UploadSettings) {

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { readMultipartFormData } from 'h3'
-import { buildUploadObjectKey, checkUploadLimits, getUploadStorageContext, handleFileUploads, normalizeStorageType, resolveUploadedFileUrl, resolveUploadPrefix, UploadType } from './upload'
+import { buildAvatarUploadPrefix, buildPostUploadPrefix, buildUploadObjectKey, checkUploadLimits, getUploadStorageContext, handleFileUploads, normalizeStorageType, resolveUploadedFileUrl, resolveUploadPrefix, UploadType } from './upload'
 import { limiterStorage } from '@/server/database/storage'
 import { getFileStorage } from '@/server/utils/storage/factory'
 import { getSettings } from '~/server/services/setting'
@@ -65,9 +65,16 @@ describe('UploadService', () => {
         })
 
         it('should resolve upload prefix', () => {
-            expect(resolveUploadPrefix(UploadType.IMAGE)).toBe('file/')
-            expect(resolveUploadPrefix(UploadType.AUDIO)).toBe('audios/')
+            expect(resolveUploadPrefix(UploadType.IMAGE)).toBe('image/')
+            expect(resolveUploadPrefix(UploadType.AUDIO)).toBe('audio/')
             expect(resolveUploadPrefix(UploadType.FILE, 'custom')).toBe('custom/')
+        })
+
+        it('should build avatar and post upload prefixes', () => {
+            expect(buildAvatarUploadPrefix('user-1')).toBe('avatars/user-1/')
+            expect(buildPostUploadPrefix({ postId: 'post-1', type: UploadType.IMAGE })).toBe('posts/post-1/image/')
+            expect(buildPostUploadPrefix({ postId: 'post-1', type: UploadType.AUDIO, usage: 'tts' })).toBe('posts/post-1/audio/tts/')
+            expect(buildPostUploadPrefix({ type: UploadType.IMAGE, usage: 'ai' })).toBe('image/ai/')
         })
 
         it('should build s3-compatible env for r2 settings', async () => {
@@ -120,45 +127,45 @@ describe('UploadService', () => {
         })
 
         it('should resolve uploaded file url with global asset prefix first', () => {
-            expect(resolveUploadedFileUrl('file/test.jpg', {
+            expect(resolveUploadedFileUrl('image/test.jpg', {
                 assetPublicBaseUrl: 'https://assets.example.com',
                 driverBaseUrl: 'https://cdn.example.com',
-            })).toBe('https://assets.example.com/file/test.jpg')
+            })).toBe('https://assets.example.com/image/test.jpg')
         })
 
         it('should resolve uploaded file url with driver base url when asset public base url is missing', () => {
-            expect(resolveUploadedFileUrl('file/test.jpg', {
+            expect(resolveUploadedFileUrl('image/test.jpg', {
                 assetPublicBaseUrl: '',
                 driverBaseUrl: 'https://cdn.example.com',
-            })).toBe('https://cdn.example.com/file/test.jpg')
+            })).toBe('https://cdn.example.com/image/test.jpg')
         })
 
         it('should return object key directly when both base urls are missing', () => {
-            expect(resolveUploadedFileUrl('file/test.jpg', {
+            expect(resolveUploadedFileUrl('image/test.jpg', {
                 assetPublicBaseUrl: '',
                 driverBaseUrl: '',
-            })).toBe('file/test.jpg')
+            })).toBe('image/test.jpg')
         })
 
         it('should handle trailing slashes in base url correctly', () => {
-            expect(resolveUploadedFileUrl('file/test.jpg', {
+            expect(resolveUploadedFileUrl('image/test.jpg', {
                 assetPublicBaseUrl: 'https://assets.example.com/',
                 driverBaseUrl: 'https://cdn.example.com',
-            })).toBe('https://assets.example.com/file/test.jpg')
+            })).toBe('https://assets.example.com/image/test.jpg')
         })
 
         it('should handle absolute paths without http protocol', () => {
-            expect(resolveUploadedFileUrl('file/test.jpg', {
+            expect(resolveUploadedFileUrl('image/test.jpg', {
                 assetPublicBaseUrl: '/uploads',
                 driverBaseUrl: '',
-            })).toBe('/uploads/file/test.jpg')
+            })).toBe('/uploads/image/test.jpg')
         })
 
         it('should normalize multiple slashes in non-http urls', () => {
-            expect(resolveUploadedFileUrl('file/test.jpg', {
+            expect(resolveUploadedFileUrl('image/test.jpg', {
                 assetPublicBaseUrl: '/uploads/',
                 driverBaseUrl: '',
-            })).toBe('/uploads/file/test.jpg')
+            })).toBe('/uploads/image/test.jpg')
         })
     })
 

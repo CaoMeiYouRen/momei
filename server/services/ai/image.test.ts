@@ -61,7 +61,14 @@ describe('ImageService', () => {
                 type: 'image_generation',
             }
 
-            mockRepo.findOneBy.mockResolvedValue(mockTask)
+            const postRepo = {
+                findOneBy: vi.fn().mockResolvedValue({ id: 'post-123' }),
+            }
+
+            vi.mocked(dataSource.getRepository)
+                .mockReturnValueOnce(mockRepo)
+                .mockReturnValueOnce(postRepo as any)
+                .mockReturnValue(mockRepo)
 
             const mockProvider = {
                 name: 'openai',
@@ -74,13 +81,13 @@ describe('ImageService', () => {
 
             vi.mocked(aiUtils.getAIImageProvider).mockResolvedValue(mockProvider as any)
             vi.mocked(uploadService.uploadFromUrl).mockResolvedValue({
-                url: '/uploads/ai/task-123.png',
-                path: '/uploads/ai/task-123.png',
+                url: '/uploads/posts/post-123/image/ai/task-123.png',
+                path: '/uploads/posts/post-123/image/ai/task-123.png',
                 size: 1024,
                 mimeType: 'image/png',
             } as any)
 
-            const options = { prompt: 'Test' }
+            const options = { prompt: 'Test', postId: 'post-123' }
             await ImageService.generateImage(options, 'user-1')
 
             // Wait for background processing
@@ -89,10 +96,11 @@ describe('ImageService', () => {
             expect(mockProvider.generateImage).toHaveBeenCalledWith(options)
             expect(uploadService.uploadFromUrl).toHaveBeenCalledWith(
                 'https://example.com/image.png',
-                'ai-images/',
+                'posts/post-123/image/ai/',
                 'user-1',
                 'task-123',
             )
+            expect(postRepo.findOneBy).toHaveBeenCalledWith({ id: 'post-123' })
             expect(mockRepo.save).toHaveBeenCalledWith(
                 expect.objectContaining({
                     status: 'completed',

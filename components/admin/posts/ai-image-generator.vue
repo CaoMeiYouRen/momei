@@ -159,6 +159,7 @@ import { useI18n } from 'vue-i18n'
 const props = defineProps<{
     articleTitle?: string
     articleContent?: string
+    postId?: string
 }>()
 
 const visible = defineModel<boolean>('visible', { default: false })
@@ -294,6 +295,7 @@ const generateImage = async () => {
             method: 'POST',
             body: {
                 prompt: prompt.value,
+                postId: props.postId,
                 aspectRatio: '16:9', // 宽高比
                 size: resolution.value,
                 n: imageCount.value,

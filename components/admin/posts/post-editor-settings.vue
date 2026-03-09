@@ -195,6 +195,7 @@
                     id="cover"
                     v-model="post.coverImage"
                     :type="UploadType.IMAGE"
+                    :post-id="post.id"
                     accept="image/*"
                     placeholder="https://..."
                 >
@@ -225,6 +226,7 @@
                 v-model:visible="aiImageVisible"
                 :article-title="post.title"
                 :article-content="post.content"
+                :post-id="post.id"
                 @generated="(url) => post.coverImage = url"
             />
 
@@ -252,6 +254,7 @@
                     id="audioUrl"
                     v-model="audioUrlModel"
                     :type="UploadType.AUDIO"
+                    :post-id="post.id"
                     accept="audio/*"
                     placeholder="https://... (mp3, m4a)"
                 >

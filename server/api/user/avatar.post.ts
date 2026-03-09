@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth'
-import { checkUploadLimits, handleFileUploads } from '@/server/services/upload'
+import { buildAvatarUploadPrefix, checkUploadLimits, handleFileUploads } from '@/server/services/upload'
 import { requireAuth } from '@/server/utils/permission'
 
 export default defineEventHandler(async (event) => {
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
     // 2. 执行上传 (仅允许 1 个文件，且必须是图片)
     const uploadedFiles = await handleFileUploads(event, {
-        prefix: `avatars/${user.id}/`,
+        prefix: buildAvatarUploadPrefix(user.id),
         maxFiles: 1,
         mustBeImage: true,
     })

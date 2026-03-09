@@ -108,6 +108,7 @@ export interface AIChatResponse {
 // --- Image ---
 export interface AIImageOptions {
     prompt: string
+    postId?: string
     model?: string
     size?: string // e.g., '1024x1024'
     aspectRatio?: string // e.g., '1:1', '16:9', '9:16'
