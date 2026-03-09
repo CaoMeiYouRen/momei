@@ -36,7 +36,7 @@
     ```
 
     修改 `.env` 中的配置。如不配置，系统将默认使用 SQLite 并自动生成开发 Secret。
-    涉及后台“设置中心”可管理项时，请优先使用与 `server/services/setting.ts` 映射一致的变量名（例如 `AI_IMAGE_ENDPOINT`、`MEMOS_INSTANCE_URL`、`MEMOS_ACCESS_TOKEN`）。
+    涉及后台“设置中心”可管理项时，请优先使用与 `server/services/setting.ts` 映射一致的变量名（例如 `AI_QUOTA_ENABLED`、`AI_QUOTA_POLICIES`、`ASSET_PUBLIC_BASE_URL`、`ASSET_OBJECT_PREFIX`、`MEMOS_INSTANCE_URL`、`MEMOS_ACCESS_TOKEN`）。
 
 4. **启动开发服务器**:
     ```bash
@@ -65,8 +65,11 @@
 | `pnpm build` | 构建生产版本 |
 | `pnpm lint` | 运行 TS/Vue 代码检查 |
 | `pnpm lint:css` | 运行样式检查 |
+| `pnpm i18n:audit` | 审计 i18n 词条与模块拆分状态 |
 | `pnpm test` | 运行单测 |
+| `pnpm test:e2e` | 运行 Playwright 端到端测试 |
 | `pnpm typecheck`| 运行类型检查 |
+| `pnpm deploy:wrangler` | 构建后部署到 Cloudflare |
 
 ## 5. 参与贡献
 

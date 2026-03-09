@@ -63,7 +63,7 @@ If you prefer a seamless Serverless experience at the edge:
 
 ```bash
 pnpm build
-pnpm wrangler deploy
+pnpm deploy:wrangler
 ```
 
 See [Deployment Guide - Cloudflare](./deploy.md) for more details.
@@ -89,7 +89,7 @@ Momei supports **Zero-Config Startup** for development:
 - Generates a development `AUTH_SECRET` automatically.
 - No `.env` configuration required to run.
 
-If you want the full feature set, start from `.env.full.example` and follow the settings mapping used by the settings service, especially for values such as `AI_IMAGE_ENDPOINT`, `MEMOS_INSTANCE_URL`, and `MEMOS_ACCESS_TOKEN`.
+If you want the full feature set, start from `.env.full.example` and follow the settings mapping used by the settings service, especially for values such as `AI_QUOTA_ENABLED`, `AI_QUOTA_POLICIES`, `ASSET_PUBLIC_BASE_URL`, `MEMOS_INSTANCE_URL`, and `MEMOS_ACCESS_TOKEN`.
 
 Visit `http://localhost:3000` in your browser.
 

@@ -25,15 +25,15 @@
 
 ## 2. 现状基线与问题 (Current Baseline & Gaps)
 
-当前仓库已经具备一部分存储能力，但实现和文档之间存在明显断层：
+当前仓库已经具备第九阶段的大部分存储能力，但设计文档仍需明确哪些能力已经落地、哪些仍处于后续增强阶段：
 
 | 维度 | 当前现状 | 风险/问题 | 本轮设计决策 |
 | :--- | :--- | :--- | :--- |
-| 驱动实现 | 已有 `local`、`s3`、`vercel-blob` 三类驱动，统一实现 `Storage.upload()` | 上传默认仍走服务端中转，应用节点会承受文件流量与内存压力 | 保留代理上传作为兼容回退，同时新增“签名直传能力层” |
-| R2/OSS 支持 | `cloudflare_r2_*` 设置项已存在，安装向导也暴露了 `r2`；但当前没有统一的 provider profile 设计，OSS 也尚未被纳入 | 当前文档把 R2 写成专有能力，容易割裂 S3 兼容存储与 OSS 的通用建模 | 改为按“签名协议 + provider profile”建模，R2/OSS 都归入通用直传能力体系 |
-| 枚举一致性 | 后台设置页使用 `vercel_blob`，工厂与文档使用 `vercel-blob`，安装向导使用 `r2` | 同一配置值在 UI、文档、运行时不一致，容易导致切换失败或脏数据扩散 | 规定规范化枚举，并保留旧值兼容读取 |
-| 公共访问地址 | 本地、S3、R2 分别维护各自的 `base_url` 概念 | CDN 切换或域名迁移成本高，文档缺少统一规则 | 新增全局资源地址解析优先级 |
-| 迁移能力 | 当前没有资源重写或迁移工具 | 历史文章内如果写入绝对 URL，切换存储后端成本极高 | 明确迁移工具与干跑校验流程 |
+| 驱动实现 | 已有 `local`、`s3`、`r2`、`vercel_blob` 四类规范化存储类型，继续复用 `Storage.upload()` | 浏览器直传只在 S3 兼容链路下启用，其他驱动仍通过代理上传 | 保留代理上传作为兼容回退，同时在 S3 兼容链路启用“签名直传能力层” |
+| R2/OSS 支持 | `cloudflare_r2_*` 设置、R2 provider profile、统一直传授权服务和前端直传链路均已落地；OSS 仍处于预留阶段 | R2 已形成闭环，但 OSS 仍未提供正式 profile | 继续按“签名协议 + provider profile”建模，OSS 作为下一阶段扩展位 |
+| 枚举一致性 | 后台设置页、运行时与文档已经收敛到 `vercel_blob`，同时兼容历史值 `vercel-blob` | 若外部部署仍沿用旧枚举，容易误判当前规范值 | 明确规范化枚举，并保留旧值兼容读取 |
+| 公共访问地址 | `ASSET_PUBLIC_BASE_URL`、`ASSET_OBJECT_PREFIX` 与驱动级 `base_url` 已进入统一解析链路 | 仍需补齐迁移工具，处理历史内容里写死的绝对 URL | 继续使用全局资源地址解析优先级，并补齐迁移工具 |
+| 迁移能力 | 当前仍未交付资源重写或迁移工具 | 历史文章内如果写入绝对 URL，切换存储后端成本极高 | 将迁移工具与干跑校验流程顺延到下一阶段 |
 
 ## 3. 核心方案决策 (Key Decisions)
 
@@ -187,13 +187,13 @@ export interface DirectUploadCapability {
 | 范围 | 键名 | 状态 | 说明 |
 | :--- | :--- | :--- | :--- |
 | 全局 | `storage_type` | 已存在 | 存储类型枚举 |
-| 全局 | `asset_public_base_url` | 规划新增 | 全局静态资源公共访问前缀，优先级高于各驱动自带地址 |
-| 全局 | `asset_object_prefix` | 规划新增 | 通用对象路径前缀，长期替代偏 S3 语义的 `s3_bucket_prefix` |
+| 全局 | `asset_public_base_url` | 已实现 | 全局静态资源公共访问前缀，优先级高于各驱动自带地址 |
+| 全局 | `asset_object_prefix` | 已实现 | 通用对象路径前缀，长期替代偏 S3 语义的 `s3_bucket_prefix` |
 | 本地 | `local_storage_dir` | 已存在 | 本地存储目录 |
 | 本地 | `local_storage_base_url` | 已存在 | 本地资源公开访问前缀 |
 | 本地 | `local_storage_min_free_space` | 已存在 | 磁盘空间保护阈值 |
 | S3 | `s3_endpoint` / `s3_bucket` / `s3_region` / `s3_access_key` / `s3_secret_key` / `s3_base_url` | 已存在 | 通用 S3 兼容配置 |
-| R2 | `cloudflare_r2_account_id` / `cloudflare_r2_access_key` / `cloudflare_r2_secret_key` / `cloudflare_r2_bucket` / `cloudflare_r2_base_url` | 已存在但未形成闭环 | R2 provider profile 的默认 endpoint 和公共地址配置 |
+| R2 | `cloudflare_r2_account_id` / `cloudflare_r2_access_key` / `cloudflare_r2_secret_key` / `cloudflare_r2_bucket` / `cloudflare_r2_base_url` | 已实现 | R2 provider profile 的默认 endpoint、直传签名与公共地址配置 |
 | OSS | `oss_region` / `oss_bucket` / `oss_access_key_id` / `oss_access_key_secret` / `oss_role_arn` / `oss_base_url` | 规划新增 | 阿里云 OSS provider profile，覆盖 PUT 签名、POST Policy、STS 与回调 |
 | Vercel Blob | `vercel_blob_token` | 已存在 | Vercel Blob 专用令牌 |
 | 兼容 | `s3_bucket_prefix` | 已存在 | 本轮继续兼容，后续迁移到 `asset_object_prefix` |
@@ -261,16 +261,16 @@ export interface DirectUploadCapability {
 
 ### 6.4 PUT 预签名 API 契约 (API Contract)
 
-建议新增接口：`POST /api/uploads/presign`
+当前实现接口：`POST /api/upload/direct-auth`
 
 请求体：
 
 ```typescript
-interface CreateUploadPresignBody {
-    purpose: 'image' | 'audio' | 'file'
+interface DirectUploadRequestBody {
     filename: string
     contentType: string
-    contentLength: number
+    size: number
+    type?: 'image' | 'audio' | 'file'
     prefix?: string
 }
 ```
@@ -278,32 +278,30 @@ interface CreateUploadPresignBody {
 响应体：
 
 ```typescript
-interface CreateUploadPresignResponse {
+interface DirectUploadAuthorizationResponse {
     code: 200
-    message: string
     data: {
+        strategy: 'proxy'
+    } | {
+        strategy: 'put-presign'
         method: 'PUT'
-        uploadUrl: string
-        uploadHeaders: {
+        url: string
+        headers: {
             'content-type': string
-            'content-length': string
         }
         objectKey: string
         publicUrl: string
         expiresIn: number
-        storageType: 'r2' | 's3' | 'oss'
-        providerProfile: 'r2' | 's3-compatible' | 'oss'
     }
 }
 ```
 
 说明：
 
-- `uploadUrl` 用于浏览器直接 PUT。
+- `strategy=proxy` 表示当前存储驱动不支持浏览器直传，前端需回退到既有 `/api/upload` 代理上传链路。
+- `strategy=put-presign` 表示当前存储驱动走 S3 兼容签名上传；`url` 用于浏览器直接 `PUT`。
 - `publicUrl` 用于业务层写入文章、头像、播客封面等字段。
 - `objectKey` 用于未来迁移工具、审计日志和去重策略。
-- `storageType` 用于前端和日志侧识别具体链路。
-- `providerProfile` 用于区分“同一种直传模式下的不同厂商 profile”。
 
 ### 6.5 POST Policy 模式 (OSS-first Profile)
 
@@ -411,7 +409,7 @@ interface CreateUploadPresignResponse {
 建议按照以下顺序推进：
 
 1. 统一 `storage_type` 枚举、兼容别名，并补齐 provider profile 配置模型。
-2. 新增统一直传授权 service 与 `POST /api/uploads/presign`，先实现 `put-presign`。
+2. 新增统一直传授权 service 与 `POST /api/upload/direct-auth`，先实现 `put-presign`。
 3. 以 R2 和通用 S3 兼容存储作为第一批 `put-presign` profile 落地。
 4. 为 OSS 预留 `post-policy`、回调和 `sts-credential` profile 扩展点。
 5. 改造前端上传 composable，支持按模式分流。
@@ -424,7 +422,7 @@ interface CreateUploadPresignResponse {
 - `server/services/upload.ts`
 - `server/services/ai/image.ts`
 - `server/services/ai/tts.ts`
-- `server/api/uploads/*`
+- `server/api/upload/*`
 - `components/admin/settings/storage-settings.vue`
 - `components/installation/step-extra-config.vue`
 - `composables/use-upload.ts`
@@ -433,10 +431,10 @@ interface CreateUploadPresignResponse {
 
 ## 10. 待办事项 (Next Steps)
 
-- [ ] 统一 `storage_type` 的规范值与 provider profile。
-- [ ] 实现通用直传授权 service，首批落地 `put-presign` 模式。
-- [ ] 为 R2、通用 S3 兼容存储补齐 `put-presign` profile。
+- [x] 统一 `storage_type` 的规范值与 provider profile。
+- [x] 实现通用直传授权 service，首批落地 `put-presign` 模式。
+- [x] 为 R2、通用 S3 兼容存储补齐 `put-presign` profile。
 - [ ] 为 OSS 设计并预留 `post-policy`、回调与 `sts-credential` profile。
-- [ ] 新增浏览器直传接口与前端上传链路。
-- [ ] 收敛 `asset_public_base_url`、对象前缀与业务默认路径策略。
+- [x] 新增浏览器直传接口与前端上传链路。
+- [x] 收敛 `asset_public_base_url`、对象前缀与业务默认路径策略。
 - [ ] 提供资源地址重写工具与测试。

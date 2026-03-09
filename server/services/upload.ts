@@ -184,12 +184,11 @@ export function normalizeStorageType(storageType?: string | null) {
     const rawStorageType = (storageType || 'local').trim()
 
     switch (rawStorageType) {
-        case 'r2':
-            return 's3'
-        case 'vercel_blob':
-            return 'vercel-blob'
-        case 's3':
         case 'vercel-blob':
+            return 'vercel_blob'
+        case 'r2':
+        case 's3':
+        case 'vercel_blob':
         case 'local':
             return rawStorageType
         default:

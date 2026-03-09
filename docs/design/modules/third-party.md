@@ -48,7 +48,11 @@
 - `MEMOS_ENABLED`: 是否启用同步功能。
 
 ### 3.4 核心实现 (Implementation)
-见 `server/utils/memos.ts` 中的 `createMemo` 函数。它封装了对 Memos API v1 的异步调用。
+当前实现已经形成以下闭环：
+
+- `server/utils/memos.ts` 中的 `createMemo` 封装了对 Memos API v1 的异步调用。
+- `server/services/post-publish.ts` 在文章发布流程中负责生成摘要、附加文章链接并触发 Memos 同步。
+- 同步成功后会回写 `metadata.integration.memosId`，便于后续追踪和防止重复同步。
 
 ## 4. 评估与影响 (Assessment)
 
@@ -59,9 +63,11 @@
 ### 4.2 扩展性
 - **Webhooks**：未来可支持 Momei 接收来自 Memos 的 Webhook，实现将 Memos 内容集成到博客的“动态/说说”栏目。
 
-## 5. 待办计划
+## 5. 当前状态与后续计划
 
-- [ ] 在 `components/admin/` 下创建 `third-party-sync-manager.vue` 用于 Wechatsync 触发。
-- [ ] 在 `server/utils/memos.ts` 实现 Memos API 封装。
-- [ ] 在 `pages/admin/settings.vue` 增加“第三方集成”配置项。
-- [ ] 配合 `Article` 管理逻辑，增加同步状态追踪。
+- [x] 已通过 `components/admin/posts/wechatsync-button.vue` 提供 Wechatsync 触发入口，并按需加载外部 SDK。
+- [x] 已在 `server/utils/memos.ts` 实现 Memos API 封装，并由 `server/services/post-publish.ts` 接入发布流程。
+- [x] 已通过 `components/admin/settings/third-party-settings.vue` 提供第三方集成配置项。
+- [x] 已通过文章 `metadata.integration.memosId` 形成最小同步状态追踪。
+- [ ] 为 Memos / Wechatsync 补齐失败重试、幂等保护与更细粒度的状态时间线。
+- [ ] 评估是否引入来自 Memos 的回流能力（Webhook / 动态流整合），避免过早扩大集成边界。

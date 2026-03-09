@@ -54,7 +54,7 @@ docker-compose up -d
 
 ```bash
 pnpm build
-pnpm wrangler deploy
+pnpm deploy:wrangler
 ```
 
 详见 [部署指南 - Cloudflare 章节](./deploy.md#_4-3-cloudflare-pages-workers-部署)。
@@ -80,11 +80,11 @@ pnpm dev
 - 自动生成开发用的 `AUTH_SECRET`。
 - 无需配置 `.env` 即可直接运行。
 
-如需启用完整功能，建议基于 `.env.full.example` 配置，并以设置服务映射为准（例如 `AI_IMAGE_ENDPOINT`、`MEMOS_INSTANCE_URL`、`MEMOS_ACCESS_TOKEN`）。
+如需启用完整功能，建议基于 `.env.full.example` 配置，并以设置服务映射为准，重点关注 `AI_QUOTA_ENABLED`、`AI_QUOTA_POLICIES`、`ASSET_PUBLIC_BASE_URL`、`MEMOS_INSTANCE_URL`、`MEMOS_ACCESS_TOKEN` 等变量。
 
 浏览器访问 `http://localhost:3000` 即可查看效果。
 
-## 4. 下一步
+## 5. 下一步
 
 -   **进入后台**: 访问 `/admin` 登录管理端。如果是全新安装，请参考控制台日志中的初始化账号信息。
 -   **开启 AI 助手**: 在 `.env` 中配置 `AI_API_KEY` 以启用智能标题生成和一键翻译功能。

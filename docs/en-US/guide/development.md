@@ -45,7 +45,7 @@ Ensure the following are installed on your system:
     ```
 
     Editing `.env` is optional; without it, the system defaults to SQLite and generates a development secret automatically.
-    For values that can also be managed in the admin settings center, prefer the environment variable names that match the mapping used by `server/services/setting.ts`, such as `AI_IMAGE_ENDPOINT`, `MEMOS_INSTANCE_URL`, and `MEMOS_ACCESS_TOKEN`.
+    For values that can also be managed in the admin settings center, prefer the environment variable names that match the mapping used by `server/services/setting.ts`, such as `AI_QUOTA_ENABLED`, `AI_QUOTA_POLICIES`, `ASSET_PUBLIC_BASE_URL`, `ASSET_OBJECT_PREFIX`, `MEMOS_INSTANCE_URL`, and `MEMOS_ACCESS_TOKEN`.
 
 4. **Start Development Server**:
     ```bash
@@ -74,8 +74,11 @@ For deeper insights into code standards, directory structure, and security requi
 | `pnpm build` | Build for production |
 | `pnpm lint` | Run TS/Vue linting |
 | `pnpm lint:css` | Run style linting |
+| `pnpm i18n:audit` | Audit i18n keys and module split status |
 | `pnpm test` | Run unit tests |
+| `pnpm test:e2e` | Run Playwright end-to-end tests |
 | `pnpm typecheck`| Run type checking |
+| `pnpm deploy:wrangler` | Deploy to Cloudflare after build |
 
 ## 5. Contributing
 

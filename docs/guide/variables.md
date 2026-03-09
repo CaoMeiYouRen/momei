@@ -50,7 +50,19 @@
 | `AI_API_KEY` | `ai_api_key` | 2 | key | AI 服务商生成的 API 密钥 |
 | `AI_MODEL` | `ai_model` | 2 | none | 默认执行模型名称 |
 | `AI_API_ENDPOINT` | `ai_endpoint` | 2 | none | API 代理/转发地址 |
+| `AI_HEAVY_TASK_TIMEOUT` | - | 3 | none | TTS / ASR / 图片生成等重任务的统一超时窗口 |
+| `AI_TEXT_DIRECT_RETURN_MAX_CHARS` | - | 3 | none | 文本翻译在同步直返和异步任务之间切换的字符阈值 |
+| `AI_TEXT_TASK_CHUNK_SIZE` | - | 3 | none | 长文本翻译任务的默认分块大小 |
+| `AI_TEXT_TASK_CONCURRENCY` | - | 3 | none | 长文本翻译任务的默认并发度 |
 | `GEMINI_API_TOKEN` | `gemini_api_token` | 2 | key | Gemini 独立 Token 鉴权 |
+| `AI_IMAGE_ENABLED` | `ai_image_enabled` | 0 | none | 是否启用 AI 图像能力 |
+| `AI_IMAGE_PROVIDER` | `ai_image_provider` | 2 | none | AI 图像提供商 |
+| `AI_IMAGE_API_KEY` | `ai_image_api_key` | 2 | key | AI 图像 API Key |
+| `AI_IMAGE_MODEL` | `ai_image_model` | 2 | none | AI 图像模型 |
+| `AI_IMAGE_ENDPOINT` | `ai_image_endpoint` | 2 | none | AI 图像兼容接口或代理端点 |
+| `AI_QUOTA_ENABLED` | `ai_quota_enabled` | 2 | none | 是否启用 AI 分级额度治理 |
+| `AI_QUOTA_POLICIES` | `ai_quota_policies` | 2 | none | AI 配额策略 JSON，支持 global / role / trust_level / user 多层覆盖 |
+| `AI_ALERT_THRESHOLDS` | `ai_alert_thresholds` | 2 | none | AI 告警阈值 JSON，覆盖额度、成本与失败突增告警 |
 | `ASR_ENABLED` | `asr_enabled` | 0 | none | 语音转文字 (ASR) 开关 |
 | `ASR_PROVIDER` | `asr_provider` | 2 | none | ASR 提供商 |
 | `ASR_API_KEY` | `asr_api_key` | 2 | key | ASR 通用 API Key |
@@ -63,6 +75,11 @@
 | `ASR_VOLCENGINE_SECRET_KEY` | `asr_volcengine_secret_key` | 2 | password | Volcengine ASR 专用 Secret Key |
 | `ASR_VOLCENGINE_CLUSTER_ID` | `asr_volcengine_cluster_id` | 2 | none | Volcengine ASR 专用资源 ID |
 | `TTS_ENABLED` | `tts_enabled` | 0 | none | 文字转语音 (TTS) 开关 |
+| `TTS_PROVIDER` | `tts_provider` | 2 | none | TTS 提供商 |
+| `TTS_API_KEY` | `tts_api_key` | 2 | key | TTS API Key，默认可回退复用 `AI_API_KEY` |
+| `TTS_ENDPOINT` | `tts_endpoint` | 2 | none | TTS 兼容接口或代理端点 |
+| `TTS_DEFAULT_MODEL` | `tts_model` | 2 | none | 默认 TTS 模型 |
+| `TTS_DEFAULT_VOICE` | - | 2 | none | 默认 TTS 音色 |
 
 ### 2.3 数据库与存储 (Storage & DB)
 
@@ -70,7 +87,13 @@
 | :--- | :--- | :--- | :--- | :--- |
 | `DATABASE_URL` | - | 3 | password | 数据库连接串，不进入数据库 |
 | `REDIS_URL` | - | 3 | password | 缓存/限流连接串 |
-| `STORAGE_TYPE` | `storage_type` | 2 | none | 存储引擎 (local/s3/r2/vercel_blob) |
+| `STORAGE_TYPE` | `storage_type` | 2 | none | 存储引擎，规范值为 `local` / `s3` / `r2` / `vercel_blob`，兼容旧值 `vercel-blob` |
+| `LOCAL_STORAGE_DIR` | `local_storage_dir` | 2 | none | 本地存储目录 |
+| `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL` | `local_storage_base_url` | 2 | none | 本地静态资源公开前缀 |
+| `LOCAL_STORAGE_MIN_FREE_SPACE` | `local_storage_min_free_space` | 2 | none | 本地磁盘剩余空间保护阈值 |
+| `S3_ENDPOINT` | `s3_endpoint` | 2 | none | S3 兼容存储 endpoint |
+| `S3_BUCKET_NAME` | `s3_bucket` | 2 | none | S3 兼容存储桶名称 |
+| `S3_REGION` | `s3_region` | 2 | none | S3 区域 |
 | `S3_ACCESS_KEY_ID` | `s3_access_key` | 2 | key | S3 兼容存储的归档 Key |
 | `S3_SECRET_ACCESS_KEY` | `s3_secret_key` | 2 | password | S3 兼容存储的机密密钥 |
 | `S3_BASE_URL` | `s3_base_url` | 2 | none | S3 兼容存储的公共访问域名 |
@@ -83,6 +106,8 @@
 | `CLOUDFLARE_R2_BUCKET` | `cloudflare_r2_bucket` | 2 | none | Cloudflare R2 存储桶 |
 | `CLOUDFLARE_R2_BASE_URL` | `cloudflare_r2_base_url` | 2 | none | Cloudflare R2 公共访问域名 |
 | `BLOB_READ_WRITE_TOKEN`| `vercel_blob_token` | 3 | password | Vercel Blob 专有令牌 |
+
+说明：浏览器直传目前在 `STORAGE_TYPE=s3` 或 `STORAGE_TYPE=r2` 时优先走预签名 `PUT` 上传；其他驱动仍回退到服务端代理上传。
 
 ### 2.4 认证与系统安全 (Security)
 
@@ -103,10 +128,21 @@
 | :--- | :--- | :--- | :--- | :--- |
 | `TASKS_TOKEN` | - | 3 | password | Webhook 任务鉴权令牌 |
 | `WEBHOOK_SECRET` | - | 3 | password | Webhook HMAC 验签密钥 |
+| `TASK_CRON_EXPRESSION` | - | 3 | none | 自部署环境内置 Cron 表达式，默认每 5 分钟执行一次 |
+| `DISABLE_CRON_JOB` | - | 3 | none | 显式禁用自部署环境内置 Cron |
 | `NUXT_PUBLIC_BAIDU_ANALYTICS_ID`| `baidu_analytics` | 0 | none | 百度统计 ID |
 | `NUXT_PUBLIC_SENTRY_DSN` | - | 0 | key | Sentry 前后端共享监控 DSN |
 | `LOG_LEVEL` | - | 3 | none | 日志等级 (debug/info/error) |
 | `NUXT_PUBLIC_LIVE2D_ENABLED`| `live2d_enabled` | 0 | none | 看板娘系统开关 |
+
+### 2.6 第三方与内容分发 (Third-party & Distribution)
+
+| 环境变量 | 系统设置键名 (SettingKey) | 等级 | 脱敏 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| `MEMOS_ENABLED` | `memos_enabled` | 2 | none | 是否启用 Memos 发布同步 |
+| `MEMOS_INSTANCE_URL` | `memos_instance_url` | 2 | none | Memos 实例地址 |
+| `MEMOS_ACCESS_TOKEN` | `memos_access_token` | 2 | key | Memos API Token |
+| `MEMOS_DEFAULT_VISIBILITY` | `memos_default_visibility` | 2 | none | Memos 默认可见性 |
 
 ---
 

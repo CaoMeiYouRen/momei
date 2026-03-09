@@ -49,14 +49,14 @@ Momei is a modern blog platform built on **Nuxt**. It aims to provide an efficie
 ## ✨ Key Features
 
 -   **AI Driven**: Deeply integrated AI assistant, supporting automated translation, smart titles, summary generation, etc., significantly improving creative efficiency.
--   **Multimodal Content Workflow**: Already supports AI image generation, speech-to-text (ASR), Memos inspiration sync, and scheduled task automation across the full path from idea capture to publishing.
+-   **Multimodal Content Workflow**: Already supports AI image generation, speech-to-text (ASR), Memos publishing sync, and scheduled task automation across the full path from idea capture to publishing.
 -   **Native i18n**: Built-in multi-language support, from UI to content management, helping you easily reach global readers.
 -   **Modern Tech Stack**: Built on Nuxt (Vue 3 + TypeScript), supporting SSG/SSR mixed rendering with excellent performance.
 -   **Smooth Migration**: Supports custom URL Slugs (path aliases), ensuring zero SEO loss when migrating from legacy blogs.
 -   **Markdown Creation**: Concise and efficient Markdown editor with real-time preview and drag-and-drop image upload.
 -   **Multi-layer Subscription**: Global, category, and tag multi-dimensional RSS feeds with multi-language detection.
 -   **Configurable System Governance**: The settings center, ENV locking, audit logs, and deployment guidance now align for both self-hosted and serverless operations.
--   **Multi-terminal (Planned)**: Future support for Tauri desktop applications, enabling offline writing and cloud synchronization.
+-   **Cloud Asset Delivery**: Supports S3 / R2 direct-upload authorization, unified public asset URL governance, and business-scoped object key strategies for users and posts.
 
 ## 🏠 Live Demo
 

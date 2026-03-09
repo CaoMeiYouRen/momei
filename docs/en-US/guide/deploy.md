@@ -38,18 +38,29 @@ These settings are not strictly required to boot the app, but they largely deter
 
 - **`AI_PROVIDER`** / **`AI_API_KEY`** / **`AI_MODEL`**: Core text AI engine.
 - **`AI_API_ENDPOINT`**: Endpoint for OpenAI-compatible services or proxies.
+- **`AI_HEAVY_TASK_TIMEOUT`**: Shared timeout window for TTS, ASR, and other heavy AI jobs.
+- **`AI_TEXT_DIRECT_RETURN_MAX_CHARS`** / **`AI_TEXT_TASK_CHUNK_SIZE`** / **`AI_TEXT_TASK_CONCURRENCY`**: Tune direct-return threshold, chunk size, and concurrency for long-text translation.
 - **`GEMINI_API_TOKEN`**: Used when Gemini requires a dedicated token.
 - **`AI_IMAGE_ENABLED`** / **`AI_IMAGE_PROVIDER`** / **`AI_IMAGE_API_KEY`**: AI image generation pipeline.
 - **`ASR_ENABLED`** / **`ASR_PROVIDER`** / **`ASR_API_KEY`** / **`ASR_MODEL`** / **`ASR_ENDPOINT`**: Base ASR configuration.
 - **`TTS_ENABLED`** / **`TTS_PROVIDER`** / **`TTS_API_KEY`** / **`TTS_DEFAULT_MODEL`**: Base text-to-speech configuration.
+- **`AI_QUOTA_ENABLED`** / **`AI_QUOTA_POLICIES`** / **`AI_ALERT_THRESHOLDS`**: Enable tiered AI quota governance and threshold-based alerts. Reusing JSON exported from the admin settings UI is recommended.
 
 ### 2.3 Storage And Media
 
-- **`STORAGE_TYPE`**: `local`, `s3`, or `vercel-blob`.
-- **Local storage**: `LOCAL_STORAGE_DIR` + `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL`
+- **`STORAGE_TYPE`**: Recommended values are `local`, `s3`, `r2`, and `vercel_blob`.
+	- Compatibility note: the legacy alias `vercel-blob` is still accepted at runtime, but new configuration should use `vercel_blob`.
+- **Local storage**: `LOCAL_STORAGE_DIR` + `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL` + `LOCAL_STORAGE_MIN_FREE_SPACE`
 - **S3-compatible storage**: `S3_ENDPOINT`, `S3_BUCKET_NAME`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_BASE_URL`
+- **Cloudflare R2**: `CLOUDFLARE_R2_ACCOUNT_ID`, `CLOUDFLARE_R2_ACCESS_KEY`, `CLOUDFLARE_R2_SECRET_KEY`, `CLOUDFLARE_R2_BUCKET`, `CLOUDFLARE_R2_BASE_URL`
+- **Path prefix governance**:
+	- `ASSET_PUBLIC_BASE_URL`: Unified CDN or public asset domain.
+	- `ASSET_OBJECT_PREFIX`: Unified object-key prefix.
+	- `BUCKET_PREFIX`: Backward-compatible S3-style prefix.
 - **Path prefix**: `BUCKET_PREFIX`
 - **Vercel Blob**: `BLOB_READ_WRITE_TOKEN`
+
+Note: browser direct upload currently uses presigned `PUT` requests when `STORAGE_TYPE=s3` or `STORAGE_TYPE=r2`. `local` and `vercel_blob` still fall back to proxy upload through the app server.
 
 ### 2.4 Email And Notifications
 
@@ -144,7 +155,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 ## 5. Deploying To Major Platforms
 
 - **Vercel**: Best for serverless deployments.
-	- Prefer `STORAGE_TYPE=vercel-blob` or an external S3/R2 bucket.
+	- Prefer `STORAGE_TYPE=vercel_blob` or an external S3/R2 bucket.
 	- `TASKS_TOKEN` is required, and `WEBHOOK_SECRET` is strongly recommended.
 	- Built-in scheduled triggers are defined in [vercel.json](../../vercel.json) and currently run once per day.
 - **Docker / Self-hosted server**: Best when you need local disk, built-in cron, and tighter operational control.
@@ -153,6 +164,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **Cloudflare Pages / Workers**:
 	- Prefer R2 or another S3-compatible store.
 	- Scheduled tasks should come from platform scheduled events, not a local cron process.
+	- CLI deployment can use `pnpm deploy:wrangler`.
 
 ## 6. Troubleshooting
 
@@ -162,6 +174,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 	- HMAC mode: `WEBHOOK_SECRET`
 - **Volcengine ASR is not taking effect**: Check `ASR_VOLCENGINE_APP_ID`, `ASR_VOLCENGINE_ACCESS_KEY`, and `ASR_VOLCENGINE_CLUSTER_ID` first, then inspect generic `VOLCENGINE_*` fallback config.
 - **OpenAI-compatible endpoint errors**: Confirm whether `AI_API_ENDPOINT` needs a `/v1` suffix.
+- **Direct upload still falls back to proxy mode**: Make sure `STORAGE_TYPE` is `s3` or `r2` and that bucket credentials, bucket name, and public base URL are configured.
 - **Local uploads return 404**: Verify that `LOCAL_STORAGE_DIR` exists and that `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL` matches the exposed static path.
 
 ## 7. References

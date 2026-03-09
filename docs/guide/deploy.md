@@ -33,15 +33,19 @@
 
 - **`AI_PROVIDER`** / **`AI_API_KEY`** / **`AI_MODEL`**: 文本 AI 主引擎。
 - **`AI_API_ENDPOINT`**: OpenAI 兼容服务或代理端点。
+- **`AI_HEAVY_TASK_TIMEOUT`**: 统一控制 TTS / ASR / AI 图片等重任务超时窗口。
+- **`AI_TEXT_DIRECT_RETURN_MAX_CHARS`** / **`AI_TEXT_TASK_CHUNK_SIZE`** / **`AI_TEXT_TASK_CONCURRENCY`**: 控制翻译与长文本处理的直返阈值、分块大小和并发度。
 - **`GEMINI_API_TOKEN`**: 当 Gemini 需要独立 Token 鉴权时使用。
 - **`AI_IMAGE_ENABLED`** / **`AI_IMAGE_PROVIDER`** / **`AI_IMAGE_API_KEY`**: AI 绘图链路。
 - **`ASR_ENABLED`** / **`ASR_PROVIDER`** / **`ASR_API_KEY`** / **`ASR_MODEL`** / **`ASR_ENDPOINT`**: 语音识别基础配置。
 - **`TTS_ENABLED`** / **`TTS_PROVIDER`** / **`TTS_API_KEY`** / **`TTS_DEFAULT_MODEL`**: 文本转语音基础配置。
+- **`AI_QUOTA_ENABLED`** / **`AI_QUOTA_POLICIES`** / **`AI_ALERT_THRESHOLDS`**: 启用 AI 分级额度与阈值告警；建议直接复用后台设置页导出的 JSON 结构。
 
 ### 2.3 存储与媒体
 
-- **`STORAGE_TYPE`**: `local`、`s3`、`r2` 或 `vercel-blob`。
-- **本地存储**: `LOCAL_STORAGE_DIR` + `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL`
+- **`STORAGE_TYPE`**: 推荐使用 `local`、`s3`、`r2` 或 `vercel_blob`。
+  - 兼容说明：历史值 `vercel-blob` 仍可读取，但新配置统一使用 `vercel_blob`。
+- **本地存储**: `LOCAL_STORAGE_DIR` + `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL` + `LOCAL_STORAGE_MIN_FREE_SPACE`
 - **S3 兼容存储**: `S3_ENDPOINT`、`S3_BUCKET_NAME`、`S3_ACCESS_KEY_ID`、`S3_SECRET_ACCESS_KEY`、`S3_BASE_URL`
 - **Cloudflare R2**: `CLOUDFLARE_R2_ACCOUNT_ID`、`CLOUDFLARE_R2_ACCESS_KEY`、`CLOUDFLARE_R2_SECRET_KEY`、`CLOUDFLARE_R2_BUCKET`、`CLOUDFLARE_R2_BASE_URL`
 - **路径前缀治理**:
@@ -49,6 +53,8 @@
   - `ASSET_OBJECT_PREFIX`: 统一对象存储路径前缀。
   - `BUCKET_PREFIX`: 兼容旧版 S3 前缀配置。
 - **Vercel Blob**: `BLOB_READ_WRITE_TOKEN`
+
+说明：浏览器直传目前在 `STORAGE_TYPE=s3` 或 `STORAGE_TYPE=r2` 时优先走 `PUT` 预签名授权；`local` 和 `vercel_blob` 继续回退到服务端代理上传。
 
 ### 2.4 邮件与通知
 
@@ -143,7 +149,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 ## 5. 部署到主流平台
 
 - **Vercel**: 适合 Serverless 部署。
-  - 推荐 `STORAGE_TYPE=vercel-blob` 或外接 S3/R2。
+  - 推荐 `STORAGE_TYPE=vercel_blob` 或外接 S3/R2。
   - 必须配置 `TASKS_TOKEN`，推荐再配 `WEBHOOK_SECRET`。
   - 内置 Cron 由 [vercel.json](../../vercel.json) 触发，默认每天一次。
 - **Docker / 自部署服务器**: 适合需要本地磁盘、定时任务和更强可控性的场景。
@@ -152,6 +158,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **Cloudflare Pages / Workers**:
   - 推荐搭配 R2 或 S3 兼容存储。
   - 定时任务由平台 Scheduled Events 触发，而不是本地 Cron 进程。
+  - CLI 部署可直接执行 `pnpm deploy:wrangler`。
 
 ## 6. 排障指引 (Troubleshooting)
 
@@ -161,6 +168,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
   - HMAC 模式：`WEBHOOK_SECRET`
 - **Volcengine ASR 未生效**: 优先检查 `ASR_VOLCENGINE_APP_ID` / `ASR_VOLCENGINE_ACCESS_KEY` / `ASR_VOLCENGINE_CLUSTER_ID`，其次再检查通用 `VOLCENGINE_*` 回退配置。
 - **AI 兼容接口报错**: 检查 `AI_API_ENDPOINT` 是否需要带 `/v1` 后缀。
+- **直传仍走代理上传**: 检查 `STORAGE_TYPE` 是否为 `s3` 或 `r2`，并确认对象存储凭据、Bucket 与公开地址已配置完整。
 - **本地上传资源 404**: 检查 `LOCAL_STORAGE_DIR` 是否存在，以及 `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL` 是否与实际静态路径匹配。
 
 ## 7. 更多参考资源 (References)
