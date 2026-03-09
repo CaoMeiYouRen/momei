@@ -42,13 +42,18 @@ This document outlines the development blueprint for the project. For specific t
     -   **Taxonomy**: Basic category management.
 2.  **User System (Lite)**
     -   **Auth**: Email/Password and OAuth (via `Better-Auth`, supporting GitHub, Google, etc.).
+    -   **Logout**: Added logout button for secure session termination.
+    -   **Anonymous Access**: Default support for anonymous browsing without login.
+    -   **Anonymous Management**: Defined permissions and behavior rules for anonymous users.
     -   **Roles**: Creator (Admin) vs. Guest.
     -   **User Management**: Admin can view user lists, adjust roles, and disable accounts.
+    -   **Personal Center**: Article management and profile editing.
 3.  **Content Display**
     -   **Pages**: Home (Pagination), Article Detail (TOC), Archive.
     -   **Search**: Basic keyword search (Local filtering or simple DB query).
     -   **Responsive**: PC and Mobile support with a focus on mobile navigation (Hamburger menu).
     -   **Themes**: Light/Dark mode with persistence.
+    -   **SSR**: Ensure core pages (Home, Article) are server-side rendered for SEO.
     -   **PV Stats**: Basic page view tracking with anti-spam logic.
 4.  **Internationalization (Basic)**
     -   **UI**: Lang switcher (ZH/EN).
@@ -129,42 +134,135 @@ This document outlines the development blueprint for the project. For specific t
 5.  **Podcast Native Support**:
     -   Audio attachment management, automated metadata (via HEAD requests), and dedicated Podcast RSS feeds.
 
-### Stage 5: Ecosystem Deepening (In Progress)
+### Stage 5: Ecosystem Deepening (Completed)
 
 **Goal**: Multimedia integration, commercialization, and full AI creative loop.
 
 1.  **Advanced Subscription (P1)**:
-    -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+    -   **Protocol Expansion**: Native support for Atom 1.0 and JSON Feed 1.1, optimized for Enclosures.
+    -   **Subscription Hub**: Admin/User interface for granular subscription management.
 2.  **Notification & Preference System (P1)**:
-    -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+    -   **Channel Management**: Centralized UI for email/push notification preferences.
+    -   **Marketing Admin**: Targeted campaign delivery based on user preferences.
 3.  **Monetization & Growth (P2)**:
-    -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+    -   **Multilingual Sponsorship**: Dynamic display of PayPal/Sponsors/Alipay links based on locale.
+    -   **Private Traffic**: Integration of Wechat Official Account following guides.
 4.  **AI Voice Creative Enhancement (P1)**:
-    -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
-5.  **Third-party Integration**:
-    -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
-6.  **AI Agent & Automation Ecosystem**:
-    -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+    -   **Dual-mode ASR**: Web Speech API and Cloud ASR (SiliconFlow) integration.
+    -   **Voice-to-Post**: Workflow for voice input to polished blog posts.
+5.  **Advanced AI Creative Flow**:
+    -   **Multimodal Tasks**: AI Cover generation (DALL-E 3, Stable Diffusion).
+6.  **Hardening**:
+    -   Complete English translation of deployment and development guides.
+7.  **Third-party Integration**:
+    -   One-click sync with Memos and Wechatsync.
+8. **AI Agent & Automation Ecosystem**:
+    - **MCP Server**: Native Anthropic MCP implementation.
+    - **Scheduled Tasks**: Timed post publishing and email delivery.
 
-### Stage 10: Notification Closure & Global Experience Enhancement (Planned)
+### Stage 6: Global Experience & Creative Refinement (Completed)
 
-**Goal**: Build a tighter loop across delivery, localization, maintainability, and first-run experience on top of the existing SSE, Locale Registry, and Demo / onboarding foundations.
+**Timeline**: Jan 2026 - Feb 2026
+**Goal**: Enhance creative security, multimedia productivity, and geek reading experience.
 
-1.  **Browser Push Reinforcement (P0)**:
-    -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
-2.  **Code Quality & Engineering (P0)**:
-    -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
-3.  **I18n & L10n Enhancements (P1)**:
-    -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
-4.  **User Experience Optimization (P1)**:
-    -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+1. **Creative Security & Resilience**:
+   - Local Auto-save: Editor snapshotting via LocalStorage.
+   - Versioning: DB-level post history with rollbacks (3-5 versions).
+   - Full Export: Batch Markdown export with Front-matter.
+2. **Advanced Multimedia & AI**:
+   - Audiofication (TTS): OpenAI/Azure TTS integration.
+   - Cloud ASR: Unified SiliconFlow batch transcription controller.
+   - AI Image Support: Gemini 3 Pro Vision and Stable Diffusion drivers.
+3. **Geek UX Optimization**:
+   - Reading Mode: Distraction-free panel with customizable typography.
+   - Deep Mobile Adaption: Optimized layouts for nested components.
+4. **Architecture & Ecosystem**:
+   - Backend i18n: Nitro hooks for global error/email/RSS localization.
+   - Notification Matrix: Hierarchical delivery based on AdminConfig x UserPreference.
+   - MCP Validation: Verification against modern AI editors.
+
+### Stage 7: System Hardening & Multimedia Evolution (Completed)
+
+**Timeline**: ~1.5 months
+**Goal**: Elevate security, metadata depth, and sensory experience.
+
+1. **Podcast & Multimedia Evolution**:
+    - **Text-to-Podcast**: LLM-driven dialog generation with distributed TTS tasks.
+    - **Real-time ASR**: Low-latency streaming ASR controller.
+2. **System Hardening & Security**:
+    - **Permissions Audit**: Deep sanitization of API roles and tenant isolation.
+    - **Metadata Management**: Fine-grained ENV/DB config unification.
+3. **Sensory Experience Enhancement**:
+    - **Live2D System**: Optional virtual companion for creation/reading.
+    - **Visual Effects**: Optional particle backgrounds and smooth transitions.
+4. **Performance & Optimization**:
+    - **Lighthouse Redline**: CI gatekeeping for Lighthouse scores (>= 90).
+    - **Extreme Loading**: Bundle size optimization and critical path rendering.
+
+### Stage 8: Ecosystem Convergence & Protocol Delivery (Completed)
+
+**Timeline**: ~1.5 months
+**Goal**: Converge existing capabilities within Web architecture, focusing on setting unification and open protocols.
+
+1. **System Config Unification**:
+    - **Convergence**: Solidified `ENV -> DB -> Default` hierarchy with source labels.
+    - **Auth Boundary**: Better-Auth ENV locking for security.
+2. **Monetization & Ad Networks**:
+    - **Ad Integration**: Native Google AdSense/Baidu Ads slots.
+    - **Commercial Link Management**: Centralized management of referral/ad links.
+3. **Open Federation**:
+    - **ActivityPub Core**: Actor skeleton and WebFinger discovery for Fediverse.
+4. **Extreme ASR Performance**:
+    - **Speedup**: Direct-to-provider signing and Wasm-based compression.
+5. **Serverless Ecosystem Integration**:
+    - **Scheduled Triggers**: Native Vercel/Cloudflare Cron/Scheduled event triggers.
+
+### Stage 9: Globalization Governance & Delivery Infrastructure (Completed)
+
+**Timeline**: ~1.5 - 2 months
+**Goal**: Scalable i18n, AI cost governance, and cloud delivery infrastructure.
+
+1. **System Config UX Enhancements**:
+    - **Source Indicators**: Background UI with source badges and lock reason tooltips.
+2. **AI Cost Governance & Multi-user Quotas**:
+    - **Governance Model**: Unified `AITask` usage auditing for AI/ASR/TTS.
+    - **Quota Policies**: Role-based and user-level limits with threshold alerts.
+3. **I18n Expansion & Modularization**:
+    - **Locale Registry**: Solidified fallback strategies and modular translation loading.
+4. **Multilingual SEO**:
+    - **Deep Meta**: Unified `hreflang`, canonical, and JSON-LD output.
+    - **Sitemap Alternates**: Multi-language support in sitemap.xml.
+5. **Cloud Storage & Assets**:
+    - **Browser Direct-upload**: Backend signing with direct-to-S3/Vercel Blob support.
+    - **Asset Prefixes**: Unified CDN and storage path prefixes.
+
+
+### Stage 10: Notification Closure & Global Experience Enhancement (In Progress)
+
+**Timeline**: ~1 - 1.5 months
+**Goal**: Close the loop on notifications, language reach, and onboarding experience.
+
+1. **Browser Push Reinforcement (P0)**:
+    - **Full Loop**: Web Push integration for admin events and AI task completion.
+    - **Gradual Delivery**: Service Worker fallback logic (SSE first when online).
+2. **Code Quality & Engineering (P0)**:
+   - **Type Sanitization**: Elimination of `any` in critical notification/config paths.
+   - **Decoupling**: Extraction of shared composables for admin CRUD.
+3. **I18n & L10n Enhancements (P1)**:
+    - **Extensions**: Adding Traditional Chinese and Korean support via readiness tiers.
+4. **User Experience Optimization (P1)**:
+    - **Demo Enhancement**: Richer preset content and guided scripts.
+    - **Feedback Loop**: Lightweight feedback entry for product suggestions.
 
 ## 3. Backlog & Long-term Roadmap
 
 This section records features with long-term value but not prioritized for the current iteration.
 
 ### 1. Desktop Application
--   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+- **Tauri Cross-platform App**:
+    - Desktop skeleton with multi-site management.
+    - Offline Markdown editing with cloud sync.
+    - Native system menus and integration.
 
 ### 2. Geek Tech Extras
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
@@ -180,3 +278,5 @@ This section records features with long-term value but not prioritized for the c
 
 ### 6. Podcast & Multimedia Expansion
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+
+
