@@ -14,7 +14,7 @@ function normalizePaginationLimit(limit: unknown) {
         return DEFAULT_PAGINATION_LIMIT
     }
 
-    return Math.min(Math.floor(parsed), 500)
+    return Math.min(Math.floor(parsed), 200)
 }
 
 export function applyDefaultPaginationLimit<T extends Record<string, unknown>>(query: T, defaultLimit: unknown) {

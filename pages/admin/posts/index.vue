@@ -59,7 +59,7 @@
                 :total-records="pagination.total"
                 :rows="pagination.limit"
                 paginator
-                :rows-per-page-options="[5, 10, 20]"
+                :rows-per-page-options="[5, 10, 20, 50]"
                 table-style="min-width: 80rem"
                 scrollable
                 @page="onPage"

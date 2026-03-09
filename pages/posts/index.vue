@@ -47,13 +47,11 @@ const router = useRouter()
 const { t } = useI18n()
 
 const page = ref(Number(route.query.page) || 1)
-const limit = ref(10)
-const first = ref((page.value - 1) * limit.value)
+const first = ref(0)
 
 const { data, pending, error } = await useAppFetch('/api/posts', {
     query: {
         page,
-        limit,
         status: 'published',
     },
     watch: [page],
@@ -62,6 +60,7 @@ const { data, pending, error } = await useAppFetch('/api/posts', {
 const posts = computed(() => data.value?.data?.items || [])
 const total = computed(() => data.value?.data?.total || 0)
 const totalPages = computed(() => data.value?.data?.totalPages || 0)
+const limit = computed(() => data.value?.data?.limit || 10)
 
 const onPageChange = (event: any) => {
     page.value = event.page + 1
@@ -73,9 +72,12 @@ const onPageChange = (event: any) => {
 watch(() => route.query.page, (newPage) => {
     if (newPage) {
         page.value = Number(newPage)
-        first.value = (page.value - 1) * limit.value
     }
 })
+
+watch([page, limit], ([currentPage, currentLimit]) => {
+    first.value = (currentPage - 1) * currentLimit
+}, { immediate: true })
 
 usePageSeo({
     type: 'collection',

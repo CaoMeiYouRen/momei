@@ -4,6 +4,7 @@
             field-key="posts_per_page"
             input-id="posts_per_page"
             :metadata="metadata.posts_per_page"
+            :description="$t('pages.admin.settings.system.hints.posts_per_page')"
         >
             <InputNumber
                 id="posts_per_page"
