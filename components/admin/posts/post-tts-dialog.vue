@@ -11,6 +11,7 @@ import Message from 'primevue/message'
 import Textarea from 'primevue/textarea'
 import { useTTSTask } from '~/composables/use-tts-task'
 import { cleanTextForTTS } from '~/utils/shared/tts-cleaner'
+import { formatDecimal } from '~/utils/shared/number'
 
 const props = defineProps<{
     postId?: string
@@ -150,6 +151,7 @@ const estimatedCostDisplay = ref({
     currencyCode: 'CNY',
     currencySymbol: '¥',
 })
+const formattedEstimatedCost = computed(() => formatDecimal(estimatedCost.value, 2))
 const loadingCost = ref(false)
 
 // 监听配置变化，重新计算预估成本
@@ -313,9 +315,11 @@ function handleConfirm() {
                         <div class="tts-cost__value">
                             <i v-if="loadingCost" class="pi pi-spin pi-spinner" />
                             <template v-else>
-                                <span class="tts-cost__amount">{{ estimatedCost.toFixed(4) }}</span>
-                                <span class="tts-cost__currency">{{ estimatedCostDisplay.currencySymbol }}</span>
-                                <span class="tts-cost__code">{{ estimatedCostDisplay.currencyCode }}</span>
+                                <span class="tts-cost__amount">{{ formattedEstimatedCost }}</span>
+                                <span class="tts-cost__unit">
+                                    <span class="tts-cost__currency">{{ estimatedCostDisplay.currencySymbol }}</span>
+                                    <span class="tts-cost__code">{{ estimatedCostDisplay.currencyCode }}</span>
+                                </span>
                             </template>
                         </div>
                     </div>
@@ -528,25 +532,38 @@ function handleConfirm() {
 
     &__value {
         display: flex;
-        align-items: center;
-        gap: 0.375rem;
+        align-items: baseline;
+        gap: 0.5rem;
         font-size: 1rem;
         color: var(--primary-900);
     }
 
     &__amount {
         font-weight: 700;
+        font-size: 1.125rem;
+        line-height: 1;
         font-family: var(--font-family-monospace, monospace);
     }
 
+    &__unit {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.25rem;
+        line-height: 1;
+    }
+
     &__currency {
-        font-size: 0.75rem;
-        opacity: 0.8;
+        font-size: 0.875rem;
+        font-weight: 600;
+        opacity: 0.9;
     }
 
     &__code {
         font-size: 0.75rem;
+        font-weight: 500;
         color: var(--text-color-secondary);
+        opacity: 0.8;
+        letter-spacing: 0.04em;
         text-transform: uppercase;
     }
 }

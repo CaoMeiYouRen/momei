@@ -237,7 +237,7 @@ defineEmits<{
 
 const { t } = useI18n()
 const currencySymbol = computed(() => props.costDisplay?.currencySymbol || '$')
-const formatMoney = (value: unknown) => formatCurrency(value, 4, currencySymbol.value)
+const formatMoney = (value: unknown) => formatCurrency(value, 2, currencySymbol.value)
 
 const taskTypes = computed(() => [
     { label: t('pages.admin.ai.types.text_generation'), value: 'text_generation' },

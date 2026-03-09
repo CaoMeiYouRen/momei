@@ -244,7 +244,7 @@ const formatPercent = (value: number) => {
     return `${((value || 0) * 100).toFixed(1)}%`
 }
 
-const formatMoney = (value: unknown) => formatCurrency(value, 4, currencySymbol.value)
+const formatMoney = (value: unknown) => formatCurrency(value, 2, currencySymbol.value)
 
 const resolveSubjectLabel = (alert: AIUsageAlert) => {
     return alert.subjectName || alert.subjectValue

@@ -219,7 +219,7 @@ defineEmits<{
 }>()
 
 const currencySymbol = computed(() => props.costDisplay?.currencySymbol || '$')
-const formatMoney = (value: unknown) => formatCurrency(value, 4, currencySymbol.value)
+const formatMoney = (value: unknown) => formatCurrency(value, 2, currencySymbol.value)
 
 const getStatusSeverity = (status: string) => {
     switch (status) {
