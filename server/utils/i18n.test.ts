@@ -47,8 +47,8 @@ describe('server/utils/i18n.ts', () => {
         })
     })
 
-    it('should expose resolved app locale from storage', async () => {
-        await i18nStorage.run('fr-FR', async () => {
+    it('should expose resolved app locale from storage', () => {
+        i18nStorage.run('fr-FR', () => {
             expect(getLocale()).toBe('zh-CN')
         })
     })

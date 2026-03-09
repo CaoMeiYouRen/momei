@@ -55,12 +55,6 @@ describe('ImageService', () => {
         })
 
         it('should process image generation in background', async () => {
-            const mockTask = {
-                id: 'task-123',
-                status: 'processing',
-                type: 'image_generation',
-            }
-
             const postRepo = {
                 findOneBy: vi.fn().mockResolvedValue({ id: 'post-123' }),
             }

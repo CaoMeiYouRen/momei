@@ -69,7 +69,10 @@ export default withNuxt(
         },
         settings: {
             'vue-i18n': {
-                localeDir: './i18n/locales/*.json',
+                localeDir: [
+                    './i18n/locales/*.json',
+                    './i18n/locales/**/*.json',
+                ],
                 messageSyntaxVersion: '^10.0.0',
             },
         },

@@ -29,7 +29,8 @@ function stripRawFromTaskResult(taskResult: unknown): unknown {
         return taskResult
     }
 
-    const { raw: _raw, ...rest } = taskResult as Record<string, unknown>
+    const rest = { ...(taskResult as Record<string, unknown>) }
+    delete rest.raw
     return rest
 }
 

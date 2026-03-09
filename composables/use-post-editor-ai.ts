@@ -75,7 +75,7 @@ export function usePostEditorAI(
     const waitForTranslationTask = async (taskId: string) => await new Promise<string>((resolve, reject) => {
         let settled = false
         let requestInFlight = false
-        let stopPolling = () => {}
+        const pollingController: { stop?: () => void } = {}
 
         const finalize = (handler: () => void) => {
             if (settled) {
@@ -83,7 +83,7 @@ export function usePostEditorAI(
             }
 
             settled = true
-            stopPolling()
+            pollingController.stop?.()
             handler()
         }
 
@@ -118,7 +118,7 @@ export function usePostEditorAI(
             void pollTask()
         }, MIN_TASK_POLLING_INTERVAL, { immediate: false })
 
-        stopPolling = pause
+        pollingController.stop = pause
         void pollTask()
         resume()
     })

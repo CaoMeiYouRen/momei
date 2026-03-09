@@ -5,7 +5,6 @@ import { Post as PostEntity } from '@/server/entities/post'
 import { PostStatus, PostVisibility, type Post } from '@/types/post'
 import { getSetting } from '@/server/services/setting'
 import { createMemo } from '@/server/utils/memos'
-import { SettingKey } from '@/types/setting'
 import { MarketingCampaignStatus } from '@/utils/shared/notification'
 
 const { saveMock, findOneMock, getRepositoryMock } = vi.hoisted(() => ({
