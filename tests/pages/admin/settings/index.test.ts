@@ -1,7 +1,38 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
+import { ref } from 'vue'
 import SettingsPage from '@/pages/admin/settings/index.vue'
+
+const translations: Record<string, string> = {
+    'pages.admin.settings.system.smart_mode.title': '智能混合模式说明',
+}
+
+function translate(key: string, params?: Record<string, string>) {
+    const template = translations[key]
+
+    if (!template) {
+        return key
+    }
+
+    if (!params) {
+        return template
+    }
+
+    return template.replace(/\{(\w+)\}/g, (_, token: string) => params[token] ?? `{${token}}`)
+}
+
+vi.mock('vue-i18n', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('vue-i18n')>()
+
+    return {
+        ...actual,
+        useI18n: () => ({
+            locale: ref('zh-CN'),
+            t: translate,
+        }),
+    }
+})
 
 const mockToast = {
     add: vi.fn(),
@@ -54,13 +85,8 @@ vi.mock('#imports', async (importOriginal) => {
     return {
         ...actual,
         useI18n: () => ({
-            t: (key: string, params?: Record<string, string>) => {
-                if (params?.envKey) {
-                    return `${key}:${params.envKey}`
-                }
-
-                return key
-            },
+            locale: ref('zh-CN'),
+            t: translate,
         }),
         useToast: () => mockToast,
         useAppApi: () => ({
@@ -78,14 +104,29 @@ vi.mock('#imports', async (importOriginal) => {
     }
 })
 
+vi.stubGlobal('useI18n', () => ({
+    locale: ref('zh-CN'),
+    t: translate,
+}))
+
 describe('Admin Settings Page', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        mockFetch.mockImplementation((url: string, options?: { method?: string, body?: unknown }) => {
+            if (url === '/api/admin/settings' && options?.method === 'PUT') {
+                return Promise.resolve({ data: null })
+            }
+
+            return Promise.resolve(mockSettingsResponse)
+        })
     })
 
     it('renders smart mode summary and saves wrapped payload', async () => {
         const wrapper = await mountSuspended(SettingsPage, {
             global: {
+                mocks: {
+                    $t: translate,
+                },
                 stubs: {
                     AdminPageHeader: { template: '<div><slot name="actions" /></div>' },
                     GeneralSettings: { template: '<div>General</div>' },
@@ -116,33 +157,6 @@ describe('Admin Settings Page', () => {
         await flushPromises()
 
         expect(wrapper.text()).toContain('智能混合模式说明')
-
-        // @ts-expect-error script setup refs are exposed on the component instance in tests
-        wrapper.vm.settings = {
-            site_title: 'Momei',
-            github_client_id: '',
-        }
-        // @ts-expect-error script setup refs are exposed on the component instance in tests
-        wrapper.vm.metadata = {
-            site_title: {
-                isLocked: false,
-                source: 'db',
-                description: 'site title',
-                envKey: 'NUXT_PUBLIC_APP_NAME',
-                defaultUsed: false,
-                lockReason: null,
-                requiresRestart: false,
-            },
-            github_client_id: {
-                isLocked: true,
-                source: 'default',
-                description: 'github client id',
-                envKey: 'NUXT_PUBLIC_GITHUB_CLIENT_ID',
-                defaultUsed: true,
-                lockReason: 'forced_env_lock',
-                requiresRestart: true,
-            },
-        }
 
         // @ts-expect-error access exposed script setup binding for test
         await wrapper.vm.saveSettings()

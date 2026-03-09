@@ -2,22 +2,50 @@ import { describe, it, expect, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import SettingFormField from './setting-form-field.vue'
 
+const translations: Record<string, string> = {
+    'pages.admin.settings.system.smart_mode.messages.db_active': '当前值来自数据库配置。',
+    'pages.admin.settings.system.smart_mode.messages.env_override': '当前值由环境变量 {envKey} 接管，后台保存不会立即生效。',
+}
+
+function translate(key: string, params?: Record<string, string>) {
+    const template = translations[key]
+
+    if (!template) {
+        return key
+    }
+
+    if (!params) {
+        return template
+    }
+
+    return template.replace(/\{(\w+)\}/g, (_, token: string) => params[token] ?? `{${token}}`)
+}
+
+vi.mock('vue-i18n', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('vue-i18n')>()
+
+    return {
+        ...actual,
+        useI18n: () => ({
+            t: translate,
+        }),
+    }
+})
+
 vi.mock('#imports', async (importOriginal) => {
     const actual = await importOriginal<typeof import('#imports')>()
 
     return {
         ...actual,
         useI18n: () => ({
-            t: (key: string, params?: Record<string, string>) => {
-                if (params?.envKey) {
-                    return `${key}:${params.envKey}`
-                }
-
-                return key
-            },
+            t: translate,
         }),
     }
 })
+
+vi.stubGlobal('useI18n', () => ({
+    t: translate,
+}))
 
 describe('SettingFormField', () => {
     it('uses badge tooltip for db source without rendering inline message', async () => {
@@ -38,6 +66,9 @@ describe('SettingFormField', () => {
                 default: '<input id="site_title" />',
             },
             global: {
+                mocks: {
+                    $t: translate,
+                },
                 stubs: {
                     Tag: {
                         props: ['value'],
@@ -72,6 +103,9 @@ describe('SettingFormField', () => {
                 default: '<input id="site_title" />',
             },
             global: {
+                mocks: {
+                    $t: translate,
+                },
                 stubs: {
                     Tag: {
                         props: ['value'],

@@ -49,7 +49,7 @@ export async function authorizeDirectUpload(input: DirectUploadAuthorizationRequ
         settings: storageContext.settings,
     })
 
-    if (storageContext.normalizedStorageType !== 's3') {
+    if (!['s3', 'r2'].includes(storageContext.normalizedStorageType)) {
         return {
             strategy: 'proxy',
         }

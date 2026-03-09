@@ -132,4 +132,37 @@ describe('direct upload service', () => {
             expiresIn: 300,
         })
     })
+
+    it('should issue presigned put auth for r2 profile', async () => {
+        mockGetUploadStorageContext.mockResolvedValue({
+            normalizedStorageType: 'r2',
+            bucketPrefix: 'blog/',
+            assetPublicBaseUrl: 'https://assets.example.com',
+            driverBaseUrl: 'https://cdn.example.com',
+            env: {
+                S3_BUCKET_NAME: 'media',
+                S3_BASE_URL: 'https://cdn.example.com',
+                S3_ENDPOINT: 'https://account-id.r2.cloudflarestorage.com',
+                S3_REGION: 'auto',
+                S3_ACCESS_KEY_ID: 'key',
+                S3_SECRET_ACCESS_KEY: 'secret',
+            },
+            settings: {},
+        })
+
+        const result = await authorizeDirectUpload({
+            userId: 'user-1',
+            filename: 'test.jpg',
+            contentType: 'image/jpeg',
+            size: 1024,
+        })
+
+        expect(mockCheckUploadLimits).toHaveBeenCalledWith('user-1')
+        expect(mockGetSignedUrl).toHaveBeenCalled()
+        expect(result).toEqual(expect.objectContaining({
+            strategy: 'put-presign',
+            publicUrl: 'https://cdn.example.com/image/generated.jpg',
+            objectKey: 'image/generated.jpg',
+        }))
+    })
 })

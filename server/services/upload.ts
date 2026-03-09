@@ -121,7 +121,7 @@ export function resolveUploadPublicBaseUrl(settings: UploadSettings, rawStorageT
         return getSettingValue(settings, SettingKey.LOCAL_STORAGE_BASE_URL)
     }
 
-    if (rawStorageType === 'vercel_blob') {
+    if (rawStorageType === 'vercel_blob' || rawStorageType === 'vercel-blob') {
         return getSettingValue(settings, SettingKey.ASSET_PUBLIC_BASE_URL)
     }
 
@@ -187,8 +187,8 @@ export function normalizeStorageType(storageType?: string | null) {
         case 'vercel-blob':
             return 'vercel_blob'
         case 'r2':
-        case 's3':
         case 'vercel_blob':
+        case 's3':
         case 'local':
             return rawStorageType
         default:

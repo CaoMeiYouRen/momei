@@ -59,8 +59,9 @@ describe('UploadService', () => {
 
     describe('storage normalization', () => {
         it('should normalize storage aliases', () => {
-            expect(normalizeStorageType('r2')).toBe('s3')
-            expect(normalizeStorageType('vercel_blob')).toBe('vercel-blob')
+            expect(normalizeStorageType('r2')).toBe('r2')
+            expect(normalizeStorageType('vercel-blob')).toBe('vercel_blob')
+            expect(normalizeStorageType('vercel_blob')).toBe('vercel_blob')
             expect(normalizeStorageType('s3')).toBe('s3')
         })
 
@@ -95,7 +96,7 @@ describe('UploadService', () => {
 
             const context = await getUploadStorageContext()
 
-            expect(context.normalizedStorageType).toBe('s3')
+            expect(context.normalizedStorageType).toBe('r2')
             expect(context.env.S3_ENDPOINT).toBe('https://account-id.r2.cloudflarestorage.com')
             expect(context.env.S3_BUCKET_NAME).toBe('r2-bucket')
             expect(context.env.S3_BASE_URL).toBe('https://pub.example.com')
