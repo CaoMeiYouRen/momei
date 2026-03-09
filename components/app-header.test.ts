@@ -90,6 +90,7 @@ describe('AppHeader', () => {
         const text = wrapper.text()
         expect(text.includes('pages.posts.title') || text.includes('文章列表')).toBe(true)
         expect(text.includes('pages.archives.title') || text.includes('归档')).toBe(true)
+        expect(text.includes('common.friend_link_application') || text.includes('友链申请')).toBe(true)
     })
 
     it('shows login button when not logged in', async () => {

@@ -44,6 +44,14 @@
                     >
                         {{ $t('pages.submit.title') }}
                     </NuxtLink>
+
+                    <NuxtLink
+                        id="nav-friend-link-application"
+                        :to="localePath('/links')"
+                        class="nav-link"
+                    >
+                        {{ $t('common.friend_link_application') }}
+                    </NuxtLink>
                 </nav>
 
                 <div class="app-header__action-group desktop-only">
@@ -224,6 +232,15 @@
                 >
                     <i class="pi pi-send" />
                     {{ $t('pages.submit.title') }}
+                </NuxtLink>
+                <NuxtLink
+                    id="mobile-nav-friend-link-application"
+                    :to="localePath('/links')"
+                    class="mobile-nav-link"
+                    @click="isMobileMenuOpen = false"
+                >
+                    <i class="pi pi-link" />
+                    {{ $t('common.friend_link_application') }}
                 </NuxtLink>
 
                 <Divider />
