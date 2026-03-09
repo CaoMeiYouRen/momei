@@ -1,10 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { ref, nextTick } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import AppHeader from './app-header.vue'
 import { authClient } from '@/lib/auth-client'
 
+const { mockEnsureLocaleMessageModules } = vi.hoisted(() => ({
+    mockEnsureLocaleMessageModules: vi.fn(),
+}))
+
+vi.mock('@/i18n/config/locale-runtime-loader', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@/i18n/config/locale-runtime-loader')>()
+
+    return {
+        ...actual,
+        ensureLocaleMessageModules: mockEnsureLocaleMessageModules,
+    }
+})
+
 // Mock PrimeVue components
 const stubs = {
+    AppLogo: { template: '<div class="app-logo" />' },
+    AppNotifications: { template: '<div class="app-notifications" />' },
     NuxtLink: { template: '<a><slot /></a>' },
     Button: { template: '<button @click="$emit(\'click\', $event)"><slot /></button>' },
     Menu: {
@@ -22,6 +38,11 @@ vi.mock('@/lib/auth-client', () => ({
         useSession: vi.fn(() => ({ value: { data: null, isPending: false } })),
     },
 }))
+
+const sessionState = ref<{ data: { user: { id: string, role: string, name?: string } } | null, isPending: boolean }>({
+    data: null,
+    isPending: false,
+})
 
 // Mock @vueuse/core
 const mockIsDarkRef = ref(false)
@@ -51,8 +72,12 @@ describe('AppHeader', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         mockIsDarkRef.value = false
+        sessionState.value = {
+            data: null,
+            isPending: false,
+        }
         // @ts-expect-error - mock function
-        authClient.useSession.mockReturnValue({ value: { data: null, isPending: false } })
+        authClient.useSession.mockReturnValue(sessionState)
     })
 
     it('renders logo and navigation links', async () => {
@@ -75,15 +100,12 @@ describe('AppHeader', () => {
     })
 
     it('shows user profile button and admin menu when logged in as admin', async () => {
-        // @ts-expect-error - mock function
-        authClient.useSession.mockReturnValue({
-            value: {
-                data: {
-                    user: { id: '1', role: 'admin' },
-                },
-                isPending: false,
+        sessionState.value = {
+            data: {
+                user: { id: '1', role: 'admin', name: 'Admin' },
             },
-        })
+            isPending: false,
+        }
 
         const wrapper = await mountSuspended(AppHeader, {
             global: { stubs },
@@ -91,6 +113,38 @@ describe('AppHeader', () => {
 
         expect(wrapper.find('#user-menu-btn').attributes('icon')).toBe('pi pi-user')
         expect(wrapper.find('#admin-menu-btn').exists()).toBe(true)
+        expect(mockEnsureLocaleMessageModules).toHaveBeenCalledWith(
+            expect.objectContaining({
+                locale: expect.any(String),
+                modules: ['auth', 'admin'],
+            }),
+        )
+    })
+
+    it('loads auth locale module when session changes from anonymous to user', async () => {
+        const wrapper = await mountSuspended(AppHeader, {
+            global: { stubs },
+        })
+
+        expect(mockEnsureLocaleMessageModules).not.toHaveBeenCalled()
+
+        sessionState.value = {
+            data: {
+                user: { id: '2', role: 'user', name: 'User' },
+            },
+            isPending: false,
+        }
+
+        await nextTick()
+        await nextTick()
+
+        expect(wrapper.find('#user-menu-btn').exists()).toBe(true)
+        expect(mockEnsureLocaleMessageModules).toHaveBeenCalledWith(
+            expect.objectContaining({
+                locale: expect.any(String),
+                modules: ['auth'],
+            }),
+        )
     })
 
     it('calls openSearch when search button is clicked', async () => {

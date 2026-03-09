@@ -294,16 +294,18 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import type { MenuItem } from 'primevue/menuitem'
+import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
 import { authClient } from '@/lib/auth-client'
 import { isAdminOrAuthor, isAdmin } from '@/utils/shared/roles'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { openSearch } = useSearch()
 const { siteLogo, currentTitle } = useMomeiConfig()
 const session = authClient.useSession()
 const user = computed(() => session.value?.data?.user)
 const isSessionPending = computed(() => session.value?.isPending)
 const localePath = useLocalePath()
+const nuxtApp = useNuxtApp()
 
 const isMobileMenuOpen = ref(false)
 
@@ -454,6 +456,30 @@ const preferredDark = usePreferredDark()
 watch(preferredDark, (newVal) => {
     isDark.value = newVal
 }, { immediate: true })
+
+watch(
+    () => ({
+        locale: locale.value,
+        role: user.value?.role ?? null,
+    }),
+    async ({ locale: currentLocale, role }) => {
+        const modulesToLoad = [
+            role ? 'auth' : null,
+            role && isAdminOrAuthor(role) ? 'admin' : null,
+        ].filter((moduleName): moduleName is 'auth' | 'admin' => Boolean(moduleName))
+
+        if (modulesToLoad.length === 0) {
+            return
+        }
+
+        await ensureLocaleMessageModules({
+            i18n: nuxtApp.$i18n as object,
+            locale: currentLocale,
+            modules: modulesToLoad,
+        })
+    },
+    { immediate: true },
+)
 
 </script>
 

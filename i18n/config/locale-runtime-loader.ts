@@ -84,19 +84,32 @@ async function ensureLocaleModules(i18n: object, locale: AppLocaleCode, modules:
     }
 }
 
+export async function ensureLocaleMessageModules(options: {
+    i18n: object
+    locale: string
+    modules: readonly LocaleMessageModule[]
+}) {
+    const locale = resolveAppLocaleCode(options.locale)
+    const localesToLoad = getLocaleRegistryItem(locale).fallbackChain
+
+    for (const localeCode of localesToLoad) {
+        await ensureLocaleModules(options.i18n, localeCode, options.modules)
+    }
+}
+
 export async function ensureRouteLocaleMessages(options: {
     i18n: object
     locale: string
     path: string
     demoMode?: boolean
 }) {
-    const locale = resolveAppLocaleCode(options.locale)
     const modules = resolveLocaleMessageModulesForRoute(options.path, {
         demoMode: options.demoMode,
     })
-    const localesToLoad = getLocaleRegistryItem(locale).fallbackChain
 
-    for (const localeCode of localesToLoad) {
-        await ensureLocaleModules(options.i18n, localeCode, modules)
-    }
+    await ensureLocaleMessageModules({
+        i18n: options.i18n,
+        locale: options.locale,
+        modules,
+    })
 }
