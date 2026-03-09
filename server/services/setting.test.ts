@@ -74,11 +74,30 @@ describe('settingService', () => {
 
         it('should prioritize environment variable over database', async () => {
             process.env.NUXT_PUBLIC_APP_NAME = 'EnvTitle'
+            mockSettingRepo.findOne.mockResolvedValue({ key: SettingKey.SITE_NAME, value: 'DbTitle' })
+
+            const result = await settingService.getSetting(SettingKey.SITE_NAME)
+            expect(result).toBe('EnvTitle')
+            // Should not even query DB if ENV exists and is in the map
+            expect(mockSettingRepo.findOne).not.toHaveBeenCalled()
+        })
+
+        it('should keep site title independent from app name env override', async () => {
+            process.env.NUXT_PUBLIC_APP_NAME = 'EnvAppName'
             mockSettingRepo.findOne.mockResolvedValue({ key: SettingKey.SITE_TITLE, value: 'DbTitle' })
 
             const result = await settingService.getSetting(SettingKey.SITE_TITLE)
-            expect(result).toBe('EnvTitle')
-            // Should not even query DB if ENV exists and is in the map
+
+            expect(result).toBe('DbTitle')
+            expect(mockSettingRepo.findOne).toHaveBeenCalledWith({ where: { key: SettingKey.SITE_TITLE } })
+        })
+
+        it('should read site url from NUXT_PUBLIC_SITE_URL', async () => {
+            process.env.NUXT_PUBLIC_SITE_URL = 'https://example.com'
+
+            const result = await settingService.getSetting(SettingKey.SITE_URL)
+
+            expect(result).toBe('https://example.com')
             expect(mockSettingRepo.findOne).not.toHaveBeenCalled()
         })
     })
@@ -87,14 +106,14 @@ describe('settingService', () => {
         it('should return a record with found values and prioritize ENV', async () => {
             process.env.NUXT_PUBLIC_APP_NAME = 'EnvTitle'
             mockSettingRepo.find.mockResolvedValue([
-                { key: SettingKey.SITE_TITLE, value: 'DbTitle' },
+                { key: SettingKey.SITE_NAME, value: 'DbTitle' },
                 { key: SettingKey.SITE_DESCRIPTION, value: 'DbDesc' },
             ])
 
-            const result = await settingService.getSettings([SettingKey.SITE_TITLE, SettingKey.SITE_DESCRIPTION, 'unknown'])
+            const result = await settingService.getSettings([SettingKey.SITE_NAME, SettingKey.SITE_DESCRIPTION, 'unknown'])
 
             expect(result).toEqual({
-                [SettingKey.SITE_TITLE]: 'EnvTitle',
+                [SettingKey.SITE_NAME]: 'EnvTitle',
                 [SettingKey.SITE_DESCRIPTION]: 'DbDesc',
                 unknown: null,
             })
@@ -105,10 +124,10 @@ describe('settingService', () => {
         it('should expose env override metadata when environment variable is present', async () => {
             process.env.NUXT_PUBLIC_APP_NAME = 'EnvTitle'
 
-            const result = await settingService.resolveSetting(SettingKey.SITE_TITLE)
+            const result = await settingService.resolveSetting(SettingKey.SITE_NAME)
 
             expect(result).toMatchObject({
-                key: SettingKey.SITE_TITLE,
+                key: SettingKey.SITE_NAME,
                 value: 'EnvTitle',
                 source: 'env',
                 isLocked: true,
@@ -243,8 +262,8 @@ describe('settingService', () => {
                     isLocked: false,
                 }),
             )
-            // Should also contain default settings from SETTING_ENV_MAP
-            expect(result.length).toBeGreaterThan(Object.keys(settingService.SETTING_ENV_MAP).length)
+            // Should also contain mapped settings from SETTING_ENV_MAP alongside DB records.
+            expect(result.length).toBeGreaterThanOrEqual(Object.keys(settingService.SETTING_ENV_MAP).length)
         })
 
         it('should expose default-backed metadata for registered defaults', async () => {

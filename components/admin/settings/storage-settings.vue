@@ -66,6 +66,22 @@
                     fluid
                 />
             </SettingFormField>
+
+            <SettingFormField
+                field-key="local_storage_min_free_space"
+                input-id="local_storage_min_free_space"
+                :metadata="metadata.local_storage_min_free_space"
+                :description="$t('pages.admin.settings.system.hints.local_storage_min_free_space')"
+            >
+                <InputNumber
+                    id="local_storage_min_free_space"
+                    v-model="settings.local_storage_min_free_space"
+                    :disabled="metadata.local_storage_min_free_space?.isLocked"
+                    :use-grouping="false"
+                    :min="0"
+                    fluid
+                />
+            </SettingFormField>
         </template>
 
         <template v-if="settings.storage_type === 's3'">

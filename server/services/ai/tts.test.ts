@@ -64,4 +64,18 @@ describe('TTSService estimateProviderCost', () => {
 
         await expect(TTSService.estimateProviderCost('hello', 'alex', 'siliconflow')).resolves.toBe(0.08)
     })
+
+    it('should use configured default voice when voice is omitted or set to default', async () => {
+        const estimateTTSCost = vi.fn().mockResolvedValue(0.15)
+        vi.mocked(getAIProvider).mockResolvedValue({
+            name: 'openai',
+            estimateTTSCost,
+        } as any)
+
+        await TTSService.estimateProviderCost('hello', undefined as any, 'openai')
+        await TTSService.estimateProviderCost('hello', 'default', 'openai')
+
+        expect(estimateTTSCost).toHaveBeenNthCalledWith(1, 'hello', 'alloy')
+        expect(estimateTTSCost).toHaveBeenNthCalledWith(2, 'hello', 'alloy')
+    })
 })

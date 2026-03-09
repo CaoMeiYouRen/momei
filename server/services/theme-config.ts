@@ -3,17 +3,30 @@ import { ThemeConfig } from '@/server/entities/theme-config'
 import { Setting } from '@/server/entities/setting'
 import type { ThemeConfigInput, ThemeConfigUpdateInput } from '@/utils/schemas/theme-config'
 import { assignDefined } from '@/server/utils/object'
+import { SettingKey } from '@/types/setting'
 
 /**
  * 获取所有主题方案
  */
 export const getThemeConfigsService = async () => {
     const themeConfigRepo = dataSource.getRepository(ThemeConfig)
-    return await themeConfigRepo.find({
-        order: {
-            createdAt: 'DESC',
-        },
-    })
+    const settingRepo = dataSource.getRepository(Setting)
+
+    const [themeConfigs, activeThemeSetting] = await Promise.all([
+        themeConfigRepo.find({
+            order: {
+                createdAt: 'DESC',
+            },
+        }),
+        settingRepo.findOneBy({ key: SettingKey.THEME_ACTIVE_CONFIG_ID }),
+    ])
+
+    const activeConfigId = activeThemeSetting?.value || null
+
+    return themeConfigs.map((themeConfig) => ({
+        ...themeConfig,
+        isActive: themeConfig.id === activeConfigId,
+    }))
 }
 
 /**
@@ -104,10 +117,10 @@ export const applyThemeConfigService = async (id: string) => {
     }
 
     // 特殊：保存当前生效的画廊 ID (可选，用于在画廊中标注“使用中”)
-    let activeSetting = await settingRepo.findOneBy({ key: 'theme_active_config_id' })
+    let activeSetting = await settingRepo.findOneBy({ key: SettingKey.THEME_ACTIVE_CONFIG_ID })
     if (!activeSetting) {
         activeSetting = new Setting()
-        activeSetting.key = 'theme_active_config_id'
+        activeSetting.key = SettingKey.THEME_ACTIVE_CONFIG_ID
         activeSetting.description = '当前生效的主题方案 ID'
     }
     activeSetting.value = id

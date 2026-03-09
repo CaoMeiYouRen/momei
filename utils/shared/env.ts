@@ -181,9 +181,7 @@ export const EMAIL_LIMIT_WINDOW = Number(
 // 邮件验证码有效时间（秒）
 export const EMAIL_EXPIRES_IN = Number(process.env.EMAIL_EXPIRES_IN || 300)
 
-// 匿名和临时邮箱配置
-export const ANONYMOUS_EMAIL_DOMAIN_NAME =
-    process.env.ANONYMOUS_EMAIL_DOMAIN_NAME || 'anonymous.com'
+// 临时邮箱配置
 export const TEMP_EMAIL_DOMAIN_NAME =
     process.env.TEMP_EMAIL_DOMAIN_NAME || 'example.com'
 

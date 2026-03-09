@@ -1,6 +1,19 @@
 <template>
     <div class="settings-form">
         <SettingFormField
+            field-key="ai_enabled"
+            input-id="ai_enabled"
+            :metadata="metadata.ai_enabled"
+            inline
+        >
+            <ToggleSwitch
+                id="ai_enabled"
+                v-model="settings.ai_enabled"
+                :disabled="metadata.ai_enabled?.isLocked"
+            />
+        </SettingFormField>
+
+        <SettingFormField
             field-key="ai_provider"
             input-id="ai_provider"
             :metadata="metadata.ai_provider"
@@ -50,6 +63,21 @@
                 id="ai_endpoint"
                 v-model="settings.ai_endpoint"
                 :disabled="metadata.ai_endpoint?.isLocked"
+                fluid
+            />
+        </SettingFormField>
+
+        <SettingFormField
+            v-if="settings.ai_provider === 'google' || settings.ai_image_provider === 'gemini'"
+            field-key="gemini_api_token"
+            input-id="gemini_api_token"
+            :metadata="metadata.gemini_api_token"
+        >
+            <Password
+                id="gemini_api_token"
+                v-model="settings.gemini_api_token"
+                :disabled="metadata.gemini_api_token?.isLocked"
+                :toggle-mask="true"
                 fluid
             />
         </SettingFormField>

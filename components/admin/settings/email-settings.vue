@@ -66,6 +66,57 @@
                 fluid
             />
         </SettingFormField>
+
+        <Divider />
+
+        <SettingFormField
+            field-key="email_daily_limit"
+            input-id="email_daily_limit"
+            :metadata="metadata.email_daily_limit"
+            :description="$t('pages.admin.settings.system.hints.email_daily_limit')"
+        >
+            <InputNumber
+                id="email_daily_limit"
+                v-model="settings.email_daily_limit"
+                :disabled="metadata.email_daily_limit?.isLocked"
+                :use-grouping="false"
+                :min="1"
+                fluid
+            />
+        </SettingFormField>
+
+        <SettingFormField
+            field-key="email_single_user_daily_limit"
+            input-id="email_single_user_daily_limit"
+            :metadata="metadata.email_single_user_daily_limit"
+            :description="$t('pages.admin.settings.system.hints.email_single_user_daily_limit')"
+        >
+            <InputNumber
+                id="email_single_user_daily_limit"
+                v-model="settings.email_single_user_daily_limit"
+                :disabled="metadata.email_single_user_daily_limit?.isLocked"
+                :use-grouping="false"
+                :min="1"
+                fluid
+            />
+        </SettingFormField>
+
+        <SettingFormField
+            field-key="email_limit_window"
+            input-id="email_limit_window"
+            :metadata="metadata.email_limit_window"
+            :description="$t('pages.admin.settings.system.hints.email_limit_window')"
+        >
+            <InputNumber
+                id="email_limit_window"
+                v-model="settings.email_limit_window"
+                :disabled="metadata.email_limit_window?.isLocked"
+                :use-grouping="false"
+                :min="1"
+                suffix=" s"
+                fluid
+            />
+        </SettingFormField>
     </div>
 </template>
 

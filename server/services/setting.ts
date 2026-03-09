@@ -16,11 +16,10 @@ import {
 export const SETTING_ENV_MAP: Record<string, string> = {
     // Site
     [SettingKey.SITE_NAME]: 'NUXT_PUBLIC_APP_NAME',
-    [SettingKey.SITE_TITLE]: 'NUXT_PUBLIC_APP_NAME',
     [SettingKey.SITE_DESCRIPTION]: 'NUXT_PUBLIC_SITE_DESCRIPTION',
     [SettingKey.SITE_KEYWORDS]: 'NUXT_PUBLIC_SITE_KEYWORDS',
     [SettingKey.SITE_COPYRIGHT]: 'NUXT_PUBLIC_DEFAULT_COPYRIGHT',
-    [SettingKey.SITE_URL]: 'NUXT_PUBLIC_AUTH_BASE_URL',
+    [SettingKey.SITE_URL]: 'NUXT_PUBLIC_SITE_URL',
     [SettingKey.DEFAULT_LANGUAGE]: 'NUXT_PUBLIC_DEFAULT_LANGUAGE',
     // AI
     [SettingKey.AI_ENABLED]: 'AI_ENABLED',
@@ -172,6 +171,7 @@ export const SETTING_ENV_MAP: Record<string, string> = {
  */
 export const FORCED_ENV_LOCKED_KEYS: string[] = [
     SettingKey.SITE_URL,
+    SettingKey.EMAIL_REQUIRE_VERIFICATION,
     SettingKey.GITHUB_CLIENT_ID,
     SettingKey.GITHUB_CLIENT_SECRET,
     SettingKey.GOOGLE_CLIENT_ID,
@@ -189,6 +189,7 @@ export const INTERNAL_ONLY_KEYS: string[] = [
     'DATABASE_URL',
     'REDIS_URL',
     'AXIOM_API_TOKEN',
+    SettingKey.ASR_VOLCENGINE_SECRET_KEY,
 ]
 
 const SETTING_DEFAULT_MAP: Partial<Record<string, string>> = {

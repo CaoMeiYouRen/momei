@@ -165,12 +165,13 @@ export class EmailTemplateEngine {
      */
     private async buildBaseTemplateData(config: BaseTemplateConfig, options: TemplateOptions, footerNote?: string): Promise<EmailTemplateData> {
         const settings = await getSettings([
+            SettingKey.SITE_NAME,
             SettingKey.SITE_TITLE,
             SettingKey.SITE_URL,
             SettingKey.CONTACT_EMAIL,
         ])
 
-        const appName = String(settings[SettingKey.SITE_TITLE] || '墨梅博客')
+        const appName = String(settings[SettingKey.SITE_TITLE] || settings[SettingKey.SITE_NAME] || '墨梅博客')
         const baseUrl = String(settings[SettingKey.SITE_URL] || '')
         const contactEmail = String(settings[SettingKey.CONTACT_EMAIL] || 'admin@example.com')
 

@@ -37,11 +37,18 @@
                             <template #title>
                                 <div class="theme-config-card__title-row">
                                     <span class="theme-config-card__name">{{ item.name }}</span>
-                                    <Tag
-                                        v-if="item.isSystem"
-                                        severity="info"
-                                        :value="$t('common.system')"
-                                    />
+                                    <div class="theme-config-card__tags">
+                                        <Tag
+                                            v-if="item.isActive"
+                                            severity="success"
+                                            :value="$t('common.current')"
+                                        />
+                                        <Tag
+                                            v-if="item.isSystem"
+                                            severity="info"
+                                            :value="$t('common.system')"
+                                        />
+                                    </div>
                                 </div>
                             </template>
                             <template #subtitle>
@@ -63,8 +70,9 @@
                                     />
                                     <Button
                                         icon="pi pi-check"
-                                        :label="$t('common.apply')"
+                                        :label="item.isActive ? $t('common.current') : $t('common.apply')"
                                         size="small"
+                                        :disabled="item.isActive"
                                         @click="applyConfig(item)"
                                     />
                                     <Button
@@ -311,6 +319,13 @@ watch(() => props.modelValue, (val) => {
         align-items: center;
         justify-content: space-between;
         gap: 0.5rem;
+    }
+
+    &__tags {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
     }
 
     &__name {

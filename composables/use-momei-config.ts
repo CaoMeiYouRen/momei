@@ -1,5 +1,6 @@
 export const useMomeiConfig = () => {
     const siteConfig = useState<any>('siteConfig', () => ({
+        siteName: '',
         siteTitle: '',
         siteDescription: '',
         siteKeywords: '',
@@ -47,7 +48,7 @@ export const useMomeiConfig = () => {
         }
     }
 
-    const currentTitle = computed(() => siteConfig.value.siteTitle || t('app.name'))
+    const currentTitle = computed(() => siteConfig.value.siteTitle || siteConfig.value.siteName || t('app.name'))
     const currentDescription = computed(() => siteConfig.value.siteDescription || t('app.description'))
     const currentKeywords = computed(() => siteConfig.value.siteKeywords || t('app.keywords'))
     const currentCopyright = computed(() => siteConfig.value.siteCopyright || '')

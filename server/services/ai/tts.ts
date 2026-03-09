@@ -11,19 +11,28 @@ import logger from '@/server/utils/logger'
 import { applyPostMetadataPatch } from '@/server/utils/post-metadata'
 import { withAITimeout } from '@/server/utils/ai/timeout'
 import { SettingKey } from '@/types/setting'
-import { AI_HEAVY_TASK_TIMEOUT_MS } from '@/utils/shared/env'
+import { AI_HEAVY_TASK_TIMEOUT_MS, TTS_DEFAULT_VOICE } from '@/utils/shared/env'
 import type { TTSOptions, TTSAudioVoice, TTSVoiceQuery } from '@/types/ai'
 
 export class TTSService extends AIBaseService {
-    static async generateSpeech(text: string, voice: string = 'default', options: TTSOptions = {}, userId?: string, providerName?: string) {
+    private static resolveVoice(voice?: string | null) {
+        if (!voice || voice === 'default') {
+            return TTS_DEFAULT_VOICE
+        }
+
+        return voice
+    }
+
+    static async generateSpeech(text: string, voice: string = TTS_DEFAULT_VOICE, options: TTSOptions = {}, userId?: string, providerName?: string) {
         const provider = await getAIProvider('tts', providerName ? { provider: providerName as any } : undefined)
+        const resolvedVoice = this.resolveVoice(voice)
 
         try {
             if (!provider.generateSpeech) {
                 throw new Error(`Provider ${provider.name} does not support text-to-speech`)
             }
 
-            const response = await provider.generateSpeech(text, voice, options)
+            const response = await provider.generateSpeech(text, resolvedVoice, options)
 
             // Only record if not explicitly skipped
             // If options.taskId is provided, we prefer updating that task instead of skipping or creating new
@@ -44,7 +53,7 @@ export class TTSService extends AIBaseService {
                     type: 'tts',
                     provider: provider.name,
                     model: (provider as any).model || (provider as any).defaultModel || (provider as any).config?.model || 'unknown',
-                    payload: { text, voice, options },
+                    payload: { text, voice: resolvedVoice, options },
                     response: { status: 'success' },
                 })
             }
@@ -59,7 +68,7 @@ export class TTSService extends AIBaseService {
                     type: 'tts',
                     provider: provider.name,
                     model: (provider as any).model || (provider as any).defaultModel || (provider as any).config?.model || 'unknown',
-                    payload: { text, voice, options },
+                    payload: { text, voice: resolvedVoice, options },
                     error,
                 })
             }
@@ -70,7 +79,7 @@ export class TTSService extends AIBaseService {
     /**
      * 合并生成与上传
      */
-    static async generateAndUploadSpeech(text: string, voice: string = 'default', options: TTSOptions = {}, userId?: string, prefix: string = 'tts/') {
+    static async generateAndUploadSpeech(text: string, voice: string = TTS_DEFAULT_VOICE, options: TTSOptions = {}, userId?: string, prefix: string = 'tts/') {
         const stream = await this.generateSpeech(text, voice, options, userId)
 
         // 复制流以便同时用于返回和上传
@@ -124,31 +133,32 @@ export class TTSService extends AIBaseService {
         return await provider.getVoices(query)
     }
 
-    static async estimateProviderCost(text: string, voice: string = 'default', providerName?: string): Promise<number> {
+    static async estimateProviderCost(text: string, voice: string = TTS_DEFAULT_VOICE, providerName?: string): Promise<number> {
         const provider = await getAIProvider('tts', providerName ? { provider: providerName as any } : undefined)
         const estimateFn = provider.estimateTTSCost || provider.estimateCost
         if (!estimateFn) {
             return 0
         }
 
-        return await estimateFn.call(provider, text, voice)
+        return await estimateFn.call(provider, text, this.resolveVoice(voice))
     }
 
     static async estimateCost(
         text: string,
-        voice: string = 'default',
+        voice: string = TTS_DEFAULT_VOICE,
         providerName?: string,
         options: Pick<TTSOptions, 'mode'> & {
             quotaUnits?: number
         } = {},
     ): Promise<number> {
         const provider = await getAIProvider('tts', providerName ? { provider: providerName as any } : undefined)
-        const providerCost = await this.estimateProviderCost(text, voice, providerName)
+        const resolvedVoice = this.resolveVoice(voice)
+        const providerCost = await this.estimateProviderCost(text, resolvedVoice, providerName)
         const category = options.mode === 'podcast' ? 'podcast' : 'tts'
         const usageSnapshot = normalizeUsageSnapshot({
             category,
             type: category,
-            payload: { text, voice, mode: options.mode || 'speech' },
+            payload: { text, voice: resolvedVoice, mode: options.mode || 'speech' },
             textLength: text.length,
         })
 
@@ -158,7 +168,7 @@ export class TTSService extends AIBaseService {
             provider: provider.name,
             providerCost,
             quotaUnits: options.quotaUnits,
-            payload: { text, voice, mode: options.mode || 'speech' },
+            payload: { text, voice: resolvedVoice, mode: options.mode || 'speech' },
             usageSnapshot,
         })
     }
@@ -234,7 +244,7 @@ export class TTSService extends AIBaseService {
                 ...(payload.options || {}),
                 mode: payload.mode || task.mode || payload.options?.mode || 'speech',
             }
-            const voice = payload.voice || 'default'
+            const voice = this.resolveVoice(payload.voice)
             const contentToUse = payload.text || payload.script || (post ? post.content : '')
 
             if (!contentToUse) {

@@ -10,6 +10,7 @@ export default defineEventHandler(async () => {
     try {
         const commercialRaw = await getSetting<string>(SettingKey.COMMERCIAL_SPONSORSHIP, null)
         const publicKeys = [
+            SettingKey.SITE_NAME,
             SettingKey.SITE_TITLE,
             SettingKey.SITE_DESCRIPTION,
             SettingKey.SITE_KEYWORDS,
@@ -53,7 +54,8 @@ export default defineEventHandler(async () => {
         return {
             code: 200,
             data: {
-                siteTitle: settings[SettingKey.SITE_TITLE],
+                siteName: settings[SettingKey.SITE_NAME] || settings[SettingKey.SITE_TITLE],
+                siteTitle: settings[SettingKey.SITE_TITLE] || settings[SettingKey.SITE_NAME],
                 siteDescription: settings[SettingKey.SITE_DESCRIPTION],
                 siteKeywords: settings[SettingKey.SITE_KEYWORDS],
                 siteCopyright: settings[SettingKey.SITE_COPYRIGHT],

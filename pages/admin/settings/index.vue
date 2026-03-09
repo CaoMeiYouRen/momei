@@ -166,6 +166,9 @@ const metadata = ref<Record<string, SettingMetadata>>({})
 const numberSettingFallbacks: Record<string, number> = {
     posts_per_page: 10,
     email_port: 587,
+    email_daily_limit: 100,
+    email_single_user_daily_limit: 5,
+    email_limit_window: 86400,
     live2d_min_width: 1024,
     canvas_nest_min_width: 1024,
     effects_min_width: 1024,
@@ -173,6 +176,7 @@ const numberSettingFallbacks: Record<string, number> = {
     upload_daily_limit: 100,
     upload_single_user_daily_limit: 5,
     upload_limit_window: 86400,
+    local_storage_min_free_space: 104857600,
 }
 
 function normalizeFormValue(setting: SettingItem): SettingFormValue {

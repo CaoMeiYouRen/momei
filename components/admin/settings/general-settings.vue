@@ -14,6 +14,20 @@
         </SettingFormField>
 
         <SettingFormField
+            field-key="site_name"
+            input-id="site_name"
+            :metadata="metadata.site_name"
+            :description="$t('pages.admin.settings.system.hints.site_name')"
+        >
+            <InputText
+                id="site_name"
+                v-model="settings.site_name"
+                :disabled="metadata.site_name?.isLocked"
+                fluid
+            />
+        </SettingFormField>
+
+        <SettingFormField
             field-key="site_description"
             input-id="site_description"
             :metadata="metadata.site_description"
@@ -117,9 +131,48 @@
             </SettingFormField>
         </div>
 
+        <SettingFormField
+            field-key="site_operator"
+            input-id="site_operator"
+            :metadata="metadata.site_operator"
+        >
+            <InputText
+                id="site_operator"
+                v-model="settings.site_operator"
+                :disabled="metadata.site_operator?.isLocked"
+                fluid
+            />
+        </SettingFormField>
+
+        <SettingFormField
+            field-key="contact_email"
+            input-id="contact_email"
+            :metadata="metadata.contact_email"
+        >
+            <InputText
+                id="contact_email"
+                v-model="settings.contact_email"
+                :disabled="metadata.contact_email?.isLocked"
+                fluid
+            />
+        </SettingFormField>
+
         <Divider align="left">
             <b>{{ $t('pages.admin.settings.system.sections.footer') }}</b>
         </Divider>
+
+        <SettingFormField
+            field-key="show_compliance_info"
+            input-id="show_compliance_info"
+            :metadata="metadata.show_compliance_info"
+            inline
+        >
+            <ToggleSwitch
+                id="show_compliance_info"
+                v-model="settings.show_compliance_info"
+                :disabled="metadata.show_compliance_info?.isLocked"
+            />
+        </SettingFormField>
 
         <SettingFormField
             field-key="icp_license_number"
@@ -130,6 +183,21 @@
                 id="icp_license_number"
                 v-model="settings.icp_license_number"
                 :disabled="metadata.icp_license_number?.isLocked"
+                fluid
+            />
+        </SettingFormField>
+
+        <SettingFormField
+            field-key="footer_code"
+            input-id="footer_code"
+            :metadata="metadata.footer_code"
+            :description="$t('pages.admin.settings.system.hints.footer_code')"
+        >
+            <Textarea
+                id="footer_code"
+                v-model="settings.footer_code"
+                :disabled="metadata.footer_code?.isLocked"
+                rows="4"
                 fluid
             />
         </SettingFormField>
@@ -207,6 +275,48 @@
                     fluid
                 />
             </SettingFormField>
+
+            <SettingFormField
+                field-key="live2d_mobile_enabled"
+                input-id="live2d_mobile_enabled"
+                :metadata="metadata.live2d_mobile_enabled"
+                inline
+            >
+                <ToggleSwitch
+                    id="live2d_mobile_enabled"
+                    v-model="settings.live2d_mobile_enabled"
+                    :disabled="metadata.live2d_mobile_enabled?.isLocked"
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="live2d_min_width"
+                input-id="live2d_min_width"
+                :metadata="metadata.live2d_min_width"
+            >
+                <InputNumber
+                    id="live2d_min_width"
+                    v-model="settings.live2d_min_width"
+                    :disabled="metadata.live2d_min_width?.isLocked"
+                    :min="320"
+                    :max="2560"
+                    :step="1"
+                    fluid
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="live2d_data_saver_block"
+                input-id="live2d_data_saver_block"
+                :metadata="metadata.live2d_data_saver_block"
+                inline
+            >
+                <ToggleSwitch
+                    id="live2d_data_saver_block"
+                    v-model="settings.live2d_data_saver_block"
+                    :disabled="metadata.live2d_data_saver_block?.isLocked"
+                />
+            </SettingFormField>
         </template>
 
         <Divider align="left">
@@ -239,6 +349,48 @@
                     :placeholder="$t('pages.admin.settings.system.hints.canvas_nest_options_json')"
                     rows="6"
                     fluid
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="canvas_nest_mobile_enabled"
+                input-id="canvas_nest_mobile_enabled"
+                :metadata="metadata.canvas_nest_mobile_enabled"
+                inline
+            >
+                <ToggleSwitch
+                    id="canvas_nest_mobile_enabled"
+                    v-model="settings.canvas_nest_mobile_enabled"
+                    :disabled="metadata.canvas_nest_mobile_enabled?.isLocked"
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="canvas_nest_min_width"
+                input-id="canvas_nest_min_width"
+                :metadata="metadata.canvas_nest_min_width"
+            >
+                <InputNumber
+                    id="canvas_nest_min_width"
+                    v-model="settings.canvas_nest_min_width"
+                    :disabled="metadata.canvas_nest_min_width?.isLocked"
+                    :min="320"
+                    :max="2560"
+                    :step="1"
+                    fluid
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="canvas_nest_data_saver_block"
+                input-id="canvas_nest_data_saver_block"
+                :metadata="metadata.canvas_nest_data_saver_block"
+                inline
+            >
+                <ToggleSwitch
+                    id="canvas_nest_data_saver_block"
+                    v-model="settings.canvas_nest_data_saver_block"
+                    :disabled="metadata.canvas_nest_data_saver_block?.isLocked"
                 />
             </SettingFormField>
         </template>

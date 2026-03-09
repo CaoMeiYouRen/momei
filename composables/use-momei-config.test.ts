@@ -26,6 +26,7 @@ describe('useMomeiConfig', () => {
         // Reset the shared state by getting a fresh instance
         const { siteConfig } = useMomeiConfig()
         siteConfig.value = {
+            siteName: '',
             siteTitle: '',
             siteDescription: '',
             siteKeywords: '',
@@ -50,6 +51,7 @@ describe('useMomeiConfig', () => {
         const { siteConfig } = useMomeiConfig()
 
         expect(siteConfig.value).toMatchObject({
+            siteName: '',
             siteTitle: '',
             siteDescription: '',
             siteKeywords: '',
@@ -102,6 +104,9 @@ describe('useMomeiConfig', () => {
 
         // Should use fallback when empty
         expect(currentTitle.value).toBe('Momei Blog')
+
+        siteConfig.value.siteName = 'Fallback Name'
+        expect(currentTitle.value).toBe('Fallback Name')
 
         // Should use config value when set
         siteConfig.value.siteTitle = 'Custom Title'
