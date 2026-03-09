@@ -52,6 +52,8 @@
                     >
                         {{ $t('common.friend_link_application') }}
                     </NuxtLink>
+
+                    <TravellingsLink placement="header" />
                 </nav>
 
                 <div class="app-header__action-group desktop-only">
@@ -242,6 +244,8 @@
                     <i class="pi pi-link" />
                     {{ $t('common.friend_link_application') }}
                 </NuxtLink>
+
+                <TravellingsLink placement="mobile" />
 
                 <Divider />
 

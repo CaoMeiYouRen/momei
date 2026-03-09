@@ -97,6 +97,7 @@
                     />
                     <div class="post-detail__sidebar-content">
                         <TableOfContents :content="post.content" />
+                        <TravellingsLink placement="sidebar" />
                     </div>
                 </aside>
 

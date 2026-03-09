@@ -9,6 +9,7 @@
                 <NuxtLink :to="localePath('friend-links')" class="footer__link">
                     {{ $t('common.friend_links') }}
                 </NuxtLink>
+                <TravellingsLink placement="footer" />
                 <NuxtLink
                     to="https://github.com/CaoMeiYouRen/momei"
                     target="_blank"

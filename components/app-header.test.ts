@@ -21,6 +21,7 @@ vi.mock('@/i18n/config/locale-runtime-loader', async (importOriginal) => {
 const stubs = {
     AppLogo: { template: '<div class="app-logo" />' },
     AppNotifications: { template: '<div class="app-notifications" />' },
+    TravellingsLink: { template: '<div class="travellings-link-stub" />' },
     NuxtLink: { template: '<a><slot /></a>' },
     Button: { template: '<button @click="$emit(\'click\', $event)"><slot /></button>' },
     Menu: {

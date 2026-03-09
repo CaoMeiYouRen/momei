@@ -44,6 +44,25 @@ describe('useMomeiConfig', () => {
             icpLicenseNumber: '',
             publicSecurityNumber: '',
             footerCode: '',
+            travellingsEnabled: true,
+            travellingsHeaderEnabled: true,
+            travellingsFooterEnabled: true,
+            travellingsSidebarEnabled: true,
+            live2dEnabled: false,
+            live2dScriptUrl: '',
+            live2dModelUrl: '',
+            live2dOptionsJson: '',
+            live2dMobileEnabled: false,
+            live2dMinWidth: 1024,
+            live2dDataSaverBlock: true,
+            canvasNestEnabled: false,
+            canvasNestOptionsJson: '',
+            canvasNestMobileEnabled: false,
+            canvasNestMinWidth: 1024,
+            canvasNestDataSaverBlock: true,
+            effectsMobileEnabled: null,
+            effectsMinWidth: null,
+            effectsDataSaverBlock: null,
         }
     })
 
@@ -67,6 +86,7 @@ describe('useMomeiConfig', () => {
             siteKeywords: 'blog, tech',
             siteCopyright: '© 2024',
             defaultLanguage: 'en-US',
+            travellingsEnabled: false,
         }
 
         mockFetch.mockResolvedValueOnce({ data: mockData })
@@ -76,6 +96,19 @@ describe('useMomeiConfig', () => {
 
         expect(mockFetch).toHaveBeenCalledWith('/api/settings/public')
         expect(siteConfig.value).toMatchObject(mockData)
+    })
+
+    it('should keep travellings flags reactive', () => {
+        const { siteConfig } = useMomeiConfig()
+
+        expect(siteConfig.value.travellingsEnabled).toBe(true)
+        expect(siteConfig.value.travellingsSidebarEnabled).toBe(true)
+
+        siteConfig.value.travellingsEnabled = false
+        siteConfig.value.travellingsSidebarEnabled = false
+
+        expect(siteConfig.value.travellingsEnabled).toBe(false)
+        expect(siteConfig.value.travellingsSidebarEnabled).toBe(false)
     })
 
     it('should handle fetch error gracefully', async () => {

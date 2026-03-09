@@ -13,6 +13,15 @@
     </div>
 </template>
 
+<script setup lang="ts">
+const { fetchSiteConfig, siteConfig } = useMomeiConfig()
+
+await useAsyncData('momei-public-settings', async () => {
+    await fetchSiteConfig()
+    return siteConfig.value
+})
+</script>
+
 <style lang="scss" scoped>
 @use "@/styles/variables" as *;
 @use "@/styles/mixins" as *;

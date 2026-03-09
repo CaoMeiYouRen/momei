@@ -1,47 +1,96 @@
+export interface MomeiPublicConfig {
+    siteName: string
+    siteTitle: string
+    siteDescription: string
+    siteKeywords: string
+    siteCopyright: string
+    defaultLanguage: string
+    baiduAnalytics: string
+    googleAnalytics: string
+    clarityAnalytics: string
+    googleAdsenseAccount: string
+    siteLogo: string
+    siteFavicon: string
+    siteOperator: string
+    contactEmail: string
+    showComplianceInfo: boolean
+    icpLicenseNumber: string
+    publicSecurityNumber: string
+    footerCode: string
+    travellingsEnabled: boolean
+    travellingsHeaderEnabled: boolean
+    travellingsFooterEnabled: boolean
+    travellingsSidebarEnabled: boolean
+    live2dEnabled: boolean
+    live2dScriptUrl: string
+    live2dModelUrl: string
+    live2dOptionsJson: string
+    live2dMobileEnabled: boolean
+    live2dMinWidth: number
+    live2dDataSaverBlock: boolean
+    canvasNestEnabled: boolean
+    canvasNestOptionsJson: string
+    canvasNestMobileEnabled: boolean
+    canvasNestMinWidth: number
+    canvasNestDataSaverBlock: boolean
+    effectsMobileEnabled: boolean | null
+    effectsMinWidth: number | null
+    effectsDataSaverBlock: boolean | null
+}
+
+const createDefaultSiteConfig = (): MomeiPublicConfig => ({
+    siteName: '',
+    siteTitle: '',
+    siteDescription: '',
+    siteKeywords: '',
+    siteCopyright: '',
+    defaultLanguage: 'zh-CN',
+    baiduAnalytics: '',
+    googleAnalytics: '',
+    clarityAnalytics: '',
+    googleAdsenseAccount: '',
+    siteLogo: '',
+    siteFavicon: '',
+    siteOperator: '',
+    contactEmail: '',
+    showComplianceInfo: false,
+    icpLicenseNumber: '',
+    publicSecurityNumber: '',
+    footerCode: '',
+    travellingsEnabled: true,
+    travellingsHeaderEnabled: true,
+    travellingsFooterEnabled: true,
+    travellingsSidebarEnabled: true,
+    live2dEnabled: false,
+    live2dScriptUrl: '',
+    live2dModelUrl: '',
+    live2dOptionsJson: '',
+    live2dMobileEnabled: false,
+    live2dMinWidth: 1024,
+    live2dDataSaverBlock: true,
+    canvasNestEnabled: false,
+    canvasNestOptionsJson: '',
+    canvasNestMobileEnabled: false,
+    canvasNestMinWidth: 1024,
+    canvasNestDataSaverBlock: true,
+    effectsMobileEnabled: null,
+    effectsMinWidth: null,
+    effectsDataSaverBlock: null,
+})
+
 export const useMomeiConfig = () => {
-    const siteConfig = useState<any>('siteConfig', () => ({
-        siteName: '',
-        siteTitle: '',
-        siteDescription: '',
-        siteKeywords: '',
-        siteCopyright: '',
-        defaultLanguage: 'zh-CN',
-        baiduAnalytics: '',
-        googleAnalytics: '',
-        clarityAnalytics: '',
-        googleAdsenseAccount: '',
-        siteLogo: '',
-        siteFavicon: '',
-        siteOperator: '',
-        contactEmail: '',
-        showComplianceInfo: false,
-        icpLicenseNumber: '',
-        publicSecurityNumber: '',
-        footerCode: '',
-        live2dEnabled: false,
-        live2dScriptUrl: '',
-        live2dModelUrl: '',
-        live2dOptionsJson: '',
-        live2dMobileEnabled: false,
-        live2dMinWidth: 1024,
-        live2dDataSaverBlock: true,
-        canvasNestEnabled: false,
-        canvasNestOptionsJson: '',
-        canvasNestMobileEnabled: false,
-        canvasNestMinWidth: 1024,
-        canvasNestDataSaverBlock: true,
-        effectsMobileEnabled: null,
-        effectsMinWidth: null,
-        effectsDataSaverBlock: null,
-    }))
+    const siteConfig = useState<MomeiPublicConfig>('siteConfig', createDefaultSiteConfig)
 
     const { t } = useI18n()
 
     const fetchSiteConfig = async () => {
         try {
-            const { data } = await $fetch<any>('/api/settings/public')
+            const { data } = await $fetch<{ data: Partial<MomeiPublicConfig> }>('/api/settings/public')
             if (data) {
-                siteConfig.value = data
+                siteConfig.value = {
+                    ...createDefaultSiteConfig(),
+                    ...data,
+                }
             }
         } catch (error) {
             console.error('Failed to fetch site config:', error)

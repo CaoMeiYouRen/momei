@@ -8,6 +8,7 @@ describe('AppFooter', () => {
             global: {
                 stubs: {
                     ComplianceInfo: true,
+                    TravellingsLink: true,
                 },
             },
         })
@@ -22,6 +23,7 @@ describe('AppFooter', () => {
             global: {
                 stubs: {
                     ComplianceInfo: true,
+                    TravellingsLink: true,
                 },
             },
         })
@@ -35,6 +37,7 @@ describe('AppFooter', () => {
             global: {
                 stubs: {
                     ComplianceInfo: true,
+                    TravellingsLink: true,
                 },
             },
         })
@@ -47,6 +50,7 @@ describe('AppFooter', () => {
             global: {
                 stubs: {
                     ComplianceInfo: true,
+                    TravellingsLink: true,
                 },
             },
         })

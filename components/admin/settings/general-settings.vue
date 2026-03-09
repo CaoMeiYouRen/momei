@@ -188,6 +188,19 @@
         </SettingFormField>
 
         <SettingFormField
+            field-key="public_security_number"
+            input-id="public_security_number"
+            :metadata="metadata.public_security_number"
+        >
+            <InputText
+                id="public_security_number"
+                v-model="settings.public_security_number"
+                :disabled="metadata.public_security_number?.isLocked"
+                fluid
+            />
+        </SettingFormField>
+
+        <SettingFormField
             field-key="footer_code"
             input-id="footer_code"
             :metadata="metadata.footer_code"
@@ -292,18 +305,66 @@
             </SettingFormField>
         </template>
 
+        <Divider align="left">
+            <b>{{ $t('pages.admin.settings.system.sections.travellings') }}</b>
+        </Divider>
+
         <SettingFormField
-            field-key="public_security_number"
-            input-id="public_security_number"
-            :metadata="metadata.public_security_number"
+            field-key="travellings_enabled"
+            input-id="travellings_enabled"
+            :metadata="metadata.travellings_enabled"
+            inline
         >
-            <InputText
-                id="public_security_number"
-                v-model="settings.public_security_number"
-                :disabled="metadata.public_security_number?.isLocked"
-                fluid
+            <ToggleSwitch
+                id="travellings_enabled"
+                v-model="settings.travellings_enabled"
+                :disabled="metadata.travellings_enabled?.isLocked"
             />
         </SettingFormField>
+
+        <template v-if="settings.travellings_enabled">
+            <SettingFormField
+                field-key="travellings_header_enabled"
+                input-id="travellings_header_enabled"
+                :metadata="metadata.travellings_header_enabled"
+                :description="$t('pages.admin.settings.system.hints.travellings_header_enabled')"
+                inline
+            >
+                <ToggleSwitch
+                    id="travellings_header_enabled"
+                    v-model="settings.travellings_header_enabled"
+                    :disabled="metadata.travellings_header_enabled?.isLocked"
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="travellings_footer_enabled"
+                input-id="travellings_footer_enabled"
+                :metadata="metadata.travellings_footer_enabled"
+                :description="$t('pages.admin.settings.system.hints.travellings_footer_enabled')"
+                inline
+            >
+                <ToggleSwitch
+                    id="travellings_footer_enabled"
+                    v-model="settings.travellings_footer_enabled"
+                    :disabled="metadata.travellings_footer_enabled?.isLocked"
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="travellings_sidebar_enabled"
+                input-id="travellings_sidebar_enabled"
+                :metadata="metadata.travellings_sidebar_enabled"
+                :description="$t('pages.admin.settings.system.hints.travellings_sidebar_enabled')"
+                inline
+            >
+                <ToggleSwitch
+                    id="travellings_sidebar_enabled"
+                    v-model="settings.travellings_sidebar_enabled"
+                    :disabled="metadata.travellings_sidebar_enabled?.isLocked"
+                />
+            </SettingFormField>
+        </template>
 
         <Divider align="left">
             <b>{{ $t('pages.admin.settings.system.sections.live2d') }}</b>
