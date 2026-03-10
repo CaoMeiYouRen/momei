@@ -13,15 +13,15 @@ const payload = {
 }
 
 if (jsonOutput) {
-    console.log(JSON.stringify(payload, null, 2))
+    console.info(JSON.stringify(payload, null, 2))
     process.exit(0)
 }
 
-console.log('# Add the following values to your environment variables')
-console.log(`WEB_PUSH_VAPID_SUBJECT=${payload.WEB_PUSH_VAPID_SUBJECT}`)
-console.log(`WEB_PUSH_VAPID_PUBLIC_KEY=${payload.WEB_PUSH_VAPID_PUBLIC_KEY}`)
-console.log(`WEB_PUSH_VAPID_PRIVATE_KEY=${payload.WEB_PUSH_VAPID_PRIVATE_KEY}`)
-console.log('')
-console.log('# Optional flags')
-console.log('#   --subject=mailto:you@example.com')
-console.log('#   --json')
+console.info('# Add the following values to your environment variables')
+console.info(`WEB_PUSH_VAPID_SUBJECT=${payload.WEB_PUSH_VAPID_SUBJECT}`)
+console.info(`WEB_PUSH_VAPID_PUBLIC_KEY=${payload.WEB_PUSH_VAPID_PUBLIC_KEY}`)
+console.info(`WEB_PUSH_VAPID_PRIVATE_KEY=${payload.WEB_PUSH_VAPID_PRIVATE_KEY}`)
+console.info('')
+console.info('# Optional flags')
+console.info('#   --subject=mailto:you@example.com')
+console.info('#   --json')

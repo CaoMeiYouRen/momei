@@ -13,6 +13,7 @@ const { mockConfig, mockNavigateTo, mockRoute, mockT } = vi.hoisted(() => ({
     mockNavigateTo: vi.fn(),
     mockRoute: {
         path: '/',
+        fullPath: '/',
     },
     mockConfig: {
         app: {

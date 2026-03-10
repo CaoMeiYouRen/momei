@@ -26,62 +26,56 @@
                 </Tag>
             </div>
 
-            <Message
-                :severity="webPush.isConfigured ? 'success' : 'warn'"
-                :closable="false"
-                class="admin-notifications__status-message"
-            >
-                <div class="admin-notifications__status-copy">
-                    <span>{{ $t('pages.admin.settings.system.notifications.web_push.private_key_status') }}</span>
-                    <strong>
-                        {{ webPush.privateKeyConfigured
-                            ? $t('pages.admin.settings.system.notifications.web_push.private_key_ready')
-                            : $t('pages.admin.settings.system.notifications.web_push.private_key_missing') }}
-                    </strong>
-                </div>
-            </Message>
+            <div class="admin-notifications__status-panel">
+                <Message
+                    :severity="webPush.isConfigured ? 'success' : 'warn'"
+                    :closable="false"
+                    class="admin-notifications__status-message"
+                >
+                    <div class="admin-notifications__status-copy">
+                        <span>{{ $t('pages.admin.settings.system.notifications.web_push.private_key_status') }}</span>
+                        <strong>
+                            {{ webPush.privateKeyConfigured
+                                ? $t('pages.admin.settings.system.notifications.web_push.private_key_ready')
+                                : $t('pages.admin.settings.system.notifications.web_push.private_key_missing') }}
+                        </strong>
+                    </div>
+                </Message>
 
-            <div class="admin-notifications__field-grid">
-                <div class="admin-notifications__field">
-                    <label class="admin-notifications__field-label" for="web-push-subject">
-                        {{ $t('pages.admin.settings.system.keys.web_push_vapid_subject') }}
-                    </label>
-                    <InputText
-                        id="web-push-subject"
-                        v-model="webPush.subject.value"
-                        :disabled="webPush.subject.isLocked"
-                        fluid
-                    />
-                    <small class="admin-notifications__field-hint">
-                        {{ webPush.subject.isLocked
-                            ? `${$t('pages.admin.settings.system.hints.env_locked')} (${webPush.subject.envKey})`
-                            : $t('pages.admin.settings.system.notifications.web_push.subject_hint') }}
-                    </small>
+                <div class="admin-notifications__field-grid">
+                    <SettingFormField
+                        field-key="web_push_vapid_subject"
+                        input-id="web-push-subject"
+                        :metadata="webPush.subject"
+                    >
+                        <InputText
+                            id="web-push-subject"
+                            v-model="webPush.subject.value"
+                            :disabled="webPush.subject.isLocked"
+                            fluid
+                        />
+                    </SettingFormField>
+
+                    <SettingFormField
+                        field-key="web_push_vapid_public_key"
+                        input-id="web-push-public-key"
+                        :metadata="webPush.publicKey"
+                    >
+                        <Textarea
+                            id="web-push-public-key"
+                            v-model="webPush.publicKey.value"
+                            :disabled="webPush.publicKey.isLocked"
+                            rows="4"
+                            auto-resize
+                            fluid
+                        />
+                    </SettingFormField>
                 </div>
 
-                <div class="admin-notifications__field">
-                    <label class="admin-notifications__field-label" for="web-push-public-key">
-                        {{ $t('pages.admin.settings.system.keys.web_push_vapid_public_key') }}
-                    </label>
-                    <Textarea
-                        id="web-push-public-key"
-                        v-model="webPush.publicKey.value"
-                        :disabled="webPush.publicKey.isLocked"
-                        rows="4"
-                        auto-resize
-                        fluid
-                    />
-                    <small class="admin-notifications__field-hint">
-                        {{ webPush.publicKey.isLocked
-                            ? `${$t('pages.admin.settings.system.hints.env_locked')} (${webPush.publicKey.envKey})`
-                            : $t('pages.admin.settings.system.notifications.web_push.public_key_hint') }}
-                    </small>
-                </div>
+                <p class="admin-notifications__helper">
+                    {{ $t('pages.admin.settings.system.notifications.web_push.private_key_hint') }}
+                </p>
             </div>
-
-            <small class="admin-notifications__field-hint">
-                {{ $t('pages.admin.settings.system.notifications.web_push.private_key_hint') }}
-            </small>
         </div>
 
         <div class="mb-4">
@@ -137,6 +131,7 @@
 import { ref, onMounted } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
+import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import type { SettingLockReason, SettingSource } from '@/types/setting'
 
 interface AdminNotificationSettingItem {
@@ -155,16 +150,18 @@ interface AdminNotificationWebPushField {
     requiresRestart: boolean
 }
 
+interface AdminNotificationWebPushState {
+    subject: AdminNotificationWebPushField
+    publicKey: AdminNotificationWebPushField
+    privateKeyConfigured: boolean
+    isConfigured: boolean
+}
+
 interface AdminNotificationResponse {
     data: {
         items: AdminNotificationSettingItem[]
         demoPreview?: boolean
-        webPush?: {
-            subject: AdminNotificationWebPushField
-            publicKey: AdminNotificationWebPushField
-            privateKeyConfigured: boolean
-            isConfigured: boolean
-        }
+        webPush?: AdminNotificationWebPushState
     }
 }
 
@@ -176,7 +173,7 @@ const settings = ref<AdminNotificationSettingItem[]>([])
 const loading = ref(false)
 const saving = ref(false)
 const demoPreview = ref(false)
-const webPush = ref<AdminNotificationResponse['data']['webPush']>({
+const defaultWebPushState: AdminNotificationWebPushState = {
     subject: {
         value: '',
         source: 'default',
@@ -197,7 +194,17 @@ const webPush = ref<AdminNotificationResponse['data']['webPush']>({
     },
     privateKeyConfigured: false,
     isConfigured: false,
-})
+}
+
+const webPush = ref<AdminNotificationWebPushState>(defaultWebPushState)
+
+function getFieldDescription(field: AdminNotificationWebPushField, unlockedHint: string) {
+    if (field.isLocked) {
+        return `${t('pages.admin.settings.system.hints.env_locked')} (${field.envKey})`
+    }
+
+    return unlockedHint
+}
 
 function getErrorDetail(error: unknown, fallback: string) {
     const candidate = error as {
@@ -219,7 +226,7 @@ const load = async () => {
         const response = await $appFetch<AdminNotificationResponse>('/api/admin/settings/notifications/admin')
         settings.value = response.data.items || []
         demoPreview.value = Boolean(response.data.demoPreview)
-        webPush.value = response.data.webPush || webPush.value
+        webPush.value = response.data.webPush || defaultWebPushState
     } catch (error) {
         toast.add({
             severity: 'error',
@@ -278,9 +285,10 @@ onMounted(load)
         flex-direction: column;
         gap: 1rem;
         padding: 1.25rem;
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--p-surface-border);
         border-radius: 1rem;
-        background: color-mix(in srgb, var(--p-surface-0) 94%, var(--p-primary-100));
+        background: var(--p-surface-0);
+        box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
     }
 
     &__section-header {
@@ -298,6 +306,7 @@ onMounted(load)
         display: flex;
         flex-direction: column;
         gap: 0.35rem;
+        min-width: 0;
     }
 
     &__section-title {
@@ -314,6 +323,16 @@ onMounted(load)
 
     &__status-message {
         margin: 0;
+    }
+
+    &__status-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 0.875rem;
+        background: color-mix(in srgb, var(--p-surface-50) 78%, white);
+        border: 1px solid color-mix(in srgb, var(--p-surface-border) 88%, white);
     }
 
     &__status-copy {
@@ -333,17 +352,9 @@ onMounted(load)
         }
     }
 
-    &__field {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    &__field-label {
-        font-weight: 600;
-    }
-
-    &__field-hint {
+    &__helper {
+        margin: 0;
+        font-size: 0.875rem;
         color: var(--p-text-muted-color);
         line-height: 1.5;
     }

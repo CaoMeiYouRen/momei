@@ -39,9 +39,7 @@ export function useNotifications() {
 
         return 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window
     })
-    const browserPushReady = computed(() => {
-        return isBrowserPushSupported.value && siteConfig.value.webPushEnabled && Boolean(siteConfig.value.webPushPublicKey)
-    })
+    const browserPushReady = computed(() => isBrowserPushSupported.value && siteConfig.value.webPushEnabled && Boolean(siteConfig.value.webPushPublicKey))
 
     const updateBrowserPermission = () => {
         if (!isBrowserPushSupported.value) {

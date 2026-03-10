@@ -3,11 +3,11 @@ import { AdminNotificationSettings } from '@/server/entities/admin-notification-
 import { getDemoAdminNotificationSettingsPreview } from '@/server/utils/demo-settings'
 import { requireAdmin } from '@/server/utils/permission'
 import { success } from '@/server/utils/response'
-import { getSetting, resolveSettings } from '@/server/services/setting'
+import { getSetting, resolveSetting } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
 import { AdminNotificationEvent } from '@/utils/shared/notification'
 
-function toWebPushSetting(item: Awaited<ReturnType<typeof resolveSettings>>[number]) {
+function toWebPushSetting(item: Awaited<ReturnType<typeof resolveSetting>>) {
     return {
         value: item.value || '',
         source: item.source,
@@ -28,9 +28,13 @@ export default defineEventHandler(async (event) => {
 
     const repo = dataSource.getRepository(AdminNotificationSettings)
     const settings = await repo.find()
-    const [subjectSetting, publicKeySetting] = await resolveSettings([
-        SettingKey.WEB_PUSH_VAPID_SUBJECT,
-        SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY,
+    const [subjectSetting, publicKeySetting] = await Promise.all([
+        resolveSetting(
+            SettingKey.WEB_PUSH_VAPID_SUBJECT,
+        ),
+        resolveSetting(
+            SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY,
+        ),
     ])
     const privateKeyConfigured = Boolean(await getSetting(SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY))
 
