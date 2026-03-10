@@ -236,7 +236,6 @@
                         :type="UploadType.IMAGE"
                         :placeholder="tt('pages.admin.friend_links.logo_placeholder')"
                         accept="image/*"
-                        :readonly="true"
                     />
                 </div>
                 <div class="admin-friend-links__field">
