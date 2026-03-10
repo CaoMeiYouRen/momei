@@ -1,36 +1,61 @@
-import { computed, unref } from 'vue'
+import { computed, unref, type ComputedRef, type Ref } from 'vue'
 import { type UseFetchOptions } from '#app'
+import type { ApiResponse } from '@/types/api'
+
+type MaybeReactive<T> = T | Ref<T> | ComputedRef<T>
+
+type AppQueryScalar = string | number | boolean | null | undefined
+
+type AppQueryValue = AppQueryScalar | MaybeReactive<AppQueryScalar>
+
+type AppQueryRecord = Record<string, AppQueryValue>
+
+type AppFetchResponse<T> = T extends void ? unknown : T
+
+type AppFetchOptions<T> = Omit<UseFetchOptions<AppFetchResponse<T>>, 'query'> & {
+    query?: MaybeReactive<AppQueryRecord | undefined>
+}
+
+type AppApiFetchOptions = Omit<NonNullable<Parameters<typeof $fetch>[1]>, 'query'> & {
+    query?: MaybeReactive<AppQueryRecord | undefined>
+}
+
+function resolveQueryRecord(query?: MaybeReactive<AppQueryRecord | undefined>) {
+    const baseQuery = unref(query) || {}
+    const params: Record<string, AppQueryScalar> = {}
+
+    for (const [key, value] of Object.entries(baseQuery)) {
+        params[key] = unref(value as MaybeReactive<AppQueryScalar>)
+    }
+
+    return params
+}
 
 /**
  * A wrapper around useFetch that automatically appends the current language to the query.
  * This ensures that the data fetched matches the current UI locale.
  */
-export function useAppFetch<T = any>(
+export function useAppFetch<T = ApiResponse<unknown>>(
     url: string | (() => string),
-    options: UseFetchOptions<T> = {},
+    options: AppFetchOptions<T> = {},
 ) {
     const { locale } = useI18n()
 
-    const mergedOptions = {
-        ...options,
-        query: computed(() => {
-            const baseQuery = unref(options.query) || {}
-            const params: Record<string, any> = { ...baseQuery }
+    const baseOptions = options as Omit<UseFetchOptions<AppFetchResponse<T>>, 'query'>
 
-            // Unref each property to ensure reactive values are correctly resolved
-            // before being passed to the API.
-            for (const key in params) {
-                params[key] = unref(params[key])
-            }
+    const mergedOptions: UseFetchOptions<AppFetchResponse<T>> = {
+        ...baseOptions,
+        query: computed(() => {
+            const params = resolveQueryRecord(options.query)
 
             return {
                 language: locale.value,
                 ...params,
             }
-        }),
+        }) as UseFetchOptions<AppFetchResponse<T>>['query'],
     }
 
-    return useFetch<T>(url, mergedOptions as any)
+    return useFetch<AppFetchResponse<T>>(url, mergedOptions as never)
 }
 
 /**
@@ -40,13 +65,8 @@ export function useAppFetch<T = any>(
 export function useAppApi() {
     const { locale } = useI18n()
 
-    const $appFetch = <T = any>(url: string, options: any = {}) => {
-        const rawQuery = unref(options.query) || {}
-        const params: Record<string, any> = { ...rawQuery }
-
-        for (const key in params) {
-            params[key] = unref(params[key])
-        }
+    const $appFetch = <T = ApiResponse<unknown>>(url: string, options: AppApiFetchOptions = {}) => {
+        const params = resolveQueryRecord(options.query)
 
         const query = {
             language: locale.value,

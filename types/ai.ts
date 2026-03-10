@@ -81,6 +81,31 @@ export interface AICostDisplay {
     quotaUnitPrice: number
 }
 
+export type TTSSynthesisMode = 'speech' | 'podcast'
+
+export interface TTSConfigResponse {
+    defaultProvider: string
+    availableProviders: string[]
+    providerModes: Record<string, TTSSynthesisMode[]>
+}
+
+export interface TTSVoiceOption {
+    id: string
+    name: string
+    description?: string | null
+}
+
+export interface TTSEstimateResponse extends AICostDisplay {
+    cost: number
+    quotaUnits: number
+}
+
+export interface TTSTaskCreateResponse {
+    taskId: string
+    estimatedCost: number
+    estimatedQuotaUnits: number
+}
+
 export type AIAdminTaskDataValue = string | Record<string, unknown> | null
 
 export interface AIAdminTaskListFilters {

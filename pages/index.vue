@@ -91,6 +91,17 @@
 </template>
 
 <script setup lang="ts">
+import type { ApiResponse } from '@/types/api'
+import type { Post } from '@/types/post'
+
+interface PublicPostListData {
+    items: Post[]
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+}
+
 const localePath = useLocalePath()
 const { t } = useI18n()
 
@@ -101,7 +112,7 @@ usePageSeo({
 })
 
 // Fetch latest 3 posts
-const { data, pending, error } = await useAppFetch('/api/posts', {
+const { data, pending, error } = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {
     query: {
         limit: 3,
         status: 'published',

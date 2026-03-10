@@ -237,6 +237,7 @@ import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import DOMPurify from 'dompurify'
+import type { ApiResponse } from '@/types/api'
 
 interface AgreementData {
     id?: string
@@ -279,7 +280,8 @@ const formatDate = (date: string | undefined) => {
 const loadAgreements = async (type: 'user_agreement' | 'privacy_policy') => {
     loadingAgreements.value = true
     try {
-        const { data } = await $appFetch(`/api/admin/agreements?type=${type}`)
+        const response = await $appFetch<ApiResponse<AgreementData[]>>(`/api/admin/agreements?type=${type}`)
+        const data = response.data
         if (type === 'user_agreement') {
             userAgreements.value = data || []
         } else {

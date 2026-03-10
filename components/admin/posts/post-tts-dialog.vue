@@ -10,6 +10,15 @@ import ProgressBar from 'primevue/progressbar'
 import Message from 'primevue/message'
 import Textarea from 'primevue/textarea'
 import { useTTSTask } from '~/composables/use-tts-task'
+import type {
+    AICostDisplay,
+    TTSConfigResponse,
+    TTSEstimateResponse,
+    TTSSynthesisMode,
+    TTSTaskCreateResponse,
+    TTSVoiceOption,
+} from '~/types/ai'
+import type { ApiResponse } from '~/types/api'
 import { cleanTextForTTS } from '~/utils/shared/tts-cleaner'
 import { formatDecimal } from '~/utils/shared/number'
 
@@ -25,26 +34,49 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const visible = defineModel<boolean>('visible', { default: false })
 
-const config = ref({
+interface TTSDialogConfig {
+    provider: string
+    mode: TTSSynthesisMode
+    voice: string
+}
+
+function getErrorDetail(error: unknown, fallback: string) {
+    const candidate = error as {
+        data?: { message?: string, statusMessage?: string }
+        statusMessage?: string
+        message?: string
+    }
+
+    return candidate?.data?.message
+        || candidate?.data?.statusMessage
+        || candidate?.statusMessage
+        || candidate?.message
+        || fallback
+}
+
+const config = ref<TTSDialogConfig>({
     provider: '',
-    mode: 'speech' as 'speech' | 'podcast',
+    mode: 'speech',
     voice: '',
 })
 
 const availableProviders = ref<string[]>([])
-const providerModes = ref<Record<string, Array<'speech' | 'podcast'>>>({})
+const providerModes = ref<Record<string, TTSSynthesisMode[]>>({})
 const showProviderSelect = computed(() => availableProviders.value.length > 1)
+
+const { $appFetch } = useAppApi()
 
 async function fetchConfig() {
     try {
-        const { data } = await $appFetch('/api/ai/tts/config')
+        const response = await $appFetch<ApiResponse<TTSConfigResponse>>('/api/ai/tts/config')
+        const data = response.data
         availableProviders.value = data.availableProviders
         providerModes.value = data.providerModes || {}
         if (!config.value.provider) {
             config.value.provider = data.defaultProvider
         }
-    } catch (e) {
-        console.error('Failed to fetch TTS config:', e)
+    } catch (error) {
+        console.error('Failed to fetch TTS config:', error)
         // Fallback
         config.value.provider = 'openai'
     }
@@ -69,10 +101,8 @@ const providers = computed(() => {
     }))
 })
 
-const voices = ref<any[]>([])
+const voices = ref<TTSVoiceOption[]>([])
 const loadingVoices = ref(false)
-
-const { $appFetch } = useAppApi()
 
 const script = ref('')
 const optimizing = ref(false)
@@ -81,16 +111,16 @@ async function optimizeManuscript() {
     if (!props.content || optimizing.value) return
     optimizing.value = true
     try {
-        const { data } = await $appFetch('/api/ai/tts/manuscript', {
+        const response = await $appFetch<ApiResponse<{ manuscript: string }>>('/api/ai/tts/manuscript', {
             method: 'POST',
             body: {
                 content: props.content,
                 mode: config.value.mode,
             },
         })
-        script.value = data.manuscript
-    } catch (e) {
-        console.error('Failed to optimize manuscript:', e)
+        script.value = response.data.manuscript
+    } catch (error) {
+        console.error('Failed to optimize manuscript:', error)
     } finally {
         optimizing.value = false
     }
@@ -100,19 +130,19 @@ async function fetchVoices() {
     if (!config.value.provider) return
     loadingVoices.value = true
     try {
-        const { data } = await $appFetch('/api/ai/tts/voices', {
+        const response = await $appFetch<ApiResponse<TTSVoiceOption[]>>('/api/ai/tts/voices', {
             query: {
                 provider: config.value.provider,
                 mode: config.value.mode,
             },
         })
-        voices.value = data
+        voices.value = response.data
         // 如果当前音色不在新列表中，重置为空
         if (!voices.value.find((v) => v.id === config.value.voice)) {
             config.value.voice = voices.value[0]?.id || ''
         }
-    } catch (e) {
-        console.error('Failed to fetch voices:', e)
+    } catch (error) {
+        console.error('Failed to fetch voices:', error)
     } finally {
         loadingVoices.value = false
     }
@@ -147,9 +177,10 @@ const { status, progress, audioUrl, error, startPolling } = useTTSTask(currentTa
 const hasGeneratedAudio = computed(() => Boolean(audioUrl.value))
 
 const estimatedCost = ref(0)
-const estimatedCostDisplay = ref({
+const estimatedCostDisplay = ref<AICostDisplay>({
     currencyCode: 'CNY',
     currencySymbol: '¥',
+    quotaUnitPrice: 0,
 })
 const formattedEstimatedCost = computed(() => formatDecimal(estimatedCost.value, 2))
 const loadingCost = ref(false)
@@ -163,7 +194,7 @@ watchDebounced([() => config.value.provider, () => config.value.voice, () => con
 
     loadingCost.value = true
     try {
-        const { data } = await $appFetch('/api/ai/tts/estimate', {
+        const response = await $appFetch<ApiResponse<TTSEstimateResponse>>('/api/ai/tts/estimate', {
             method: 'POST',
             body: {
                 provider: config.value.provider,
@@ -172,13 +203,15 @@ watchDebounced([() => config.value.provider, () => config.value.voice, () => con
                 mode: config.value.mode,
             },
         })
+        const data = response.data
         estimatedCost.value = data.cost
         estimatedCostDisplay.value = {
             currencyCode: data.currencyCode || 'CNY',
             currencySymbol: data.currencySymbol || '¥',
+            quotaUnitPrice: data.quotaUnitPrice || 0,
         }
-    } catch (e) {
-        console.error('Failed to fetch estimated cost:', e)
+    } catch (error) {
+        console.error('Failed to fetch estimated cost:', error)
     } finally {
         loadingCost.value = false
     }
@@ -187,7 +220,7 @@ watchDebounced([() => config.value.provider, () => config.value.voice, () => con
 async function startGenerate() {
     try {
         error.value = null
-        const data = await $appFetch<any>('/api/ai/tts/task', {
+        const data = await $appFetch<TTSTaskCreateResponse>('/api/ai/tts/task', {
             method: 'POST',
             body: {
                 ...config.value,
@@ -197,8 +230,8 @@ async function startGenerate() {
         })
         currentTaskId.value = data.taskId
         startPolling()
-    } catch (e: any) {
-        error.value = e.data?.message || e.message || t('pages.admin.posts.tts.failed')
+    } catch (requestError) {
+        error.value = getErrorDetail(requestError, t('pages.admin.posts.tts.failed'))
     }
 }
 

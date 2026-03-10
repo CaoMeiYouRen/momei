@@ -15,6 +15,14 @@ export interface Notification {
     createdAt: string
 }
 
+interface NotificationListResponse {
+    items: Notification[]
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+}
+
 export function useNotifications() {
     const notifications = ref<Notification[]>([])
     const unreadCount = ref(0)
@@ -183,14 +191,11 @@ export function useNotifications() {
             return
         }
         try {
-            const res = await $appFetch('/api/notifications', {
+            const res = await $appFetch<NotificationListResponse>('/api/notifications', {
                 query: { limit: 10, unreadOnly: false },
             })
-            if (res.code === 200 && res.data) {
-                notifications.value = res.data.items
-                // 重新统计未读数（通常后端应该给个总数，这里简单处理）
-                unreadCount.value = res.data.items.filter((n: Notification) => !n.isRead).length
-            }
+            notifications.value = res.items
+            unreadCount.value = res.items.filter((notification) => !notification.isRead).length
         } catch (err) {
             console.error('Failed to fetch notifications:', err)
         }

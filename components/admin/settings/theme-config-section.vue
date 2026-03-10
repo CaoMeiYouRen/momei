@@ -314,17 +314,42 @@
 </template>
 
 <script setup lang="ts">
-import { useTheme, PRESETS } from '@/composables/use-theme'
+import {
+    useTheme,
+    PRESETS,
+    type ThemeColorSettingKey,
+    type ThemeMode,
+    type ThemePresetColorKey,
+    type ThemePresetKey,
+    type ThemePresetValueKey,
+} from '@/composables/use-theme'
 
 const { t } = useI18n()
 const { settings, isLocked } = useTheme()
 const isDark = useDark()
 
-const getCurrentPresetValue = (type: 'primary' | 'accent' | 'surface' | 'text' | 'radius', forceDark?: boolean) => {
+type ThemeSelectablePresetKey = ThemePresetKey | 'custom'
+
+const colorTypeMap: Record<ThemeColorSettingKey, ThemePresetColorKey> = {
+    themePrimaryColor: 'primary',
+    themeAccentColor: 'accent',
+    themeSurfaceColor: 'surface',
+    themeTextColor: 'text',
+    themeDarkPrimaryColor: 'primary',
+    themeDarkAccentColor: 'accent',
+    themeDarkSurfaceColor: 'surface',
+    themeDarkTextColor: 'text',
+}
+
+function resolvePresetKey(preset: string | null | undefined): ThemePresetKey {
+    return preset && preset in PRESETS ? preset as ThemePresetKey : 'default'
+}
+
+const getCurrentPresetValue = (type: ThemePresetValueKey, forceDark = false) => {
     if (!settings.value) {
         return ''
     }
-    const presetKey = (settings.value.themePreset || 'default') as keyof typeof PRESETS
+    const presetKey = resolvePresetKey(settings.value.themePreset)
     const preset = PRESETS[presetKey] || PRESETS.default
     if (!preset) {
         return ''
@@ -332,12 +357,12 @@ const getCurrentPresetValue = (type: 'primary' | 'accent' | 'surface' | 'text' |
     if (type === 'radius') {
         return preset.radius || ''
     }
-    const mode = forceDark ? 'dark' : 'light'
-    const value = (preset[type] as any)?.[mode]
+    const mode: ThemeMode = forceDark ? 'dark' : 'light'
+    const value = preset[type][mode]
     return value || ''
 }
 
-const presetOptions = computed(() => [
+const presetOptions = computed<Array<{ label: string, value: ThemeSelectablePresetKey }>>(() => [
     { label: t('pages.admin.settings.theme.presets.default'), value: 'default' },
     { label: t('pages.admin.settings.theme.presets.green'), value: 'green' },
     { label: t('pages.admin.settings.theme.presets.amber'), value: 'amber' },
@@ -362,10 +387,10 @@ const onPresetChange = () => {
 }
 
 // 处理颜色值的双向绑定
-const createColorModel = (key: any) => {
+const createColorModel = (key: ThemeColorSettingKey) => {
     return computed({
         get: () => {
-            const val = (settings.value as any)?.[key]
+            const val = settings.value?.[key]
             if (!val) {
                 return ''
             }
@@ -374,40 +399,29 @@ const createColorModel = (key: any) => {
         set: (newVal: string) => {
             if (settings.value) {
                 if (!newVal) {
-                    (settings.value as any)[key] = null
+                    settings.value[key] = null
                     return
                 }
-                (settings.value as any)[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
+                settings.value[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
             }
         },
     })
 }
 
 // 专门为 ColorPicker 创建的 Model
-const createColorPickerModel = (key: any) => {
-    const typeMap: Record<string, string> = {
-        themePrimaryColor: 'primary',
-        themeAccentColor: 'accent',
-        themeSurfaceColor: 'surface',
-        themeTextColor: 'text',
-        themeDarkPrimaryColor: 'primary',
-        themeDarkAccentColor: 'accent',
-        themeDarkSurfaceColor: 'surface',
-        themeDarkTextColor: 'text',
-    }
-
+const createColorPickerModel = (key: ThemeColorSettingKey) => {
     return computed({
         get: () => {
-            let val = (settings.value as any)?.[key]
+            let val = settings.value?.[key]
             if (!val) {
                 const isDarkField = key.toLowerCase().includes('dark')
-                val = getCurrentPresetValue(typeMap[key] as any, isDarkField)
+                val = getCurrentPresetValue(colorTypeMap[key], isDarkField)
             }
             return val ? val.replace('#', '') : ''
         },
         set: (newVal: string) => {
             if (settings.value) {
-                (settings.value as any)[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
+                settings.value[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
             }
         },
     })

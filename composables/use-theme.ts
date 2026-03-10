@@ -1,6 +1,51 @@
 import { useDark } from '@vueuse/core'
 import { useAppFetch } from './use-app-fetch'
 
+export type ThemeMode = 'light' | 'dark'
+
+export type ThemeBackgroundType = 'none' | 'color' | 'image' | (string & {})
+
+export type ThemePresetKey = 'default' | 'green' | 'amber' | 'geek'
+
+export type ThemePresetColorKey = 'primary' | 'accent' | 'surface' | 'text'
+
+export type ThemePresetValueKey = ThemePresetColorKey | 'radius'
+
+export type ThemeColorSettingKey =
+    | 'themePrimaryColor'
+    | 'themeAccentColor'
+    | 'themeSurfaceColor'
+    | 'themeTextColor'
+    | 'themeDarkPrimaryColor'
+    | 'themeDarkAccentColor'
+    | 'themeDarkSurfaceColor'
+    | 'themeDarkTextColor'
+
+export type ThemePreviewColorSettingKey = ThemeColorSettingKey | 'themeBackgroundValue'
+
+export type ThemeLockKey =
+    | 'themePreset'
+    | ThemeColorSettingKey
+    | 'themeBorderRadius'
+    | 'themeLogoUrl'
+    | 'themeFaviconUrl'
+    | 'themeMourningMode'
+    | 'themeBackgroundType'
+    | 'themeBackgroundValue'
+
+export interface ThemePresetPalette {
+    light: string
+    dark: string
+}
+
+export interface ThemePresetDefinition {
+    primary: ThemePresetPalette
+    accent: ThemePresetPalette
+    surface: ThemePresetPalette
+    text: ThemePresetPalette
+    radius: string
+}
+
 export interface ThemeSettings {
     themePreset: string | null
     themePrimaryColor: string | null
@@ -15,11 +60,11 @@ export interface ThemeSettings {
     themeLogoUrl: string | null
     themeFaviconUrl: string | null
     themeMourningMode: boolean | string | null
-    themeBackgroundType: 'none' | 'color' | 'image' | (string & {}) | null
+    themeBackgroundType: ThemeBackgroundType | null
     themeBackgroundValue: string | null
 }
 
-export const PRESETS = {
+export const PRESETS: Record<ThemePresetKey, ThemePresetDefinition> = {
     default: {
         primary: { light: '#64748b', dark: '#94a3b8' },
         accent: { light: '#f43f5e', dark: '#fb7185' },
@@ -79,17 +124,24 @@ export const useTheme = () => {
     }))
 
     const previewSettings = useState<ThemeSettings | null>('theme-preview-settings', () => null)
-    const locks = useState<Record<string, boolean>>('theme-locks', () => ({}) as any)
+    const locks = useState<Record<string, boolean>>('theme-locks', () => ({}))
+
+    interface ThemeSettingsResponse {
+        data: ThemeSettings
+        meta?: Record<string, { isLocked: boolean }>
+    }
 
     const effectiveSettings = computed(() => previewSettings.value || settings.value)
 
     const fetchTheme = async () => {
-        const { data } = await useAppFetch<{ data: ThemeSettings, meta?: Record<string, { isLocked: boolean }> }>('/api/settings/theme')
-        if (data.value) {
-            settings.value = { ...settings.value, ...data.value.data }
-            if (data.value.meta) {
-                const newLocks: any = {}
-                Object.entries(data.value.meta).forEach(([key, val]) => {
+        const { data } = await useAppFetch<ThemeSettingsResponse>('/api/settings/theme')
+        const payload = data.value as ThemeSettingsResponse | null
+
+        if (payload) {
+            settings.value = { ...settings.value, ...payload.data }
+            if (payload.meta) {
+                const newLocks: Record<string, boolean> = {}
+                Object.entries(payload.meta).forEach(([key, val]) => {
                     newLocks[key] = val.isLocked
                 })
                 locks.value = newLocks
@@ -122,7 +174,7 @@ export const useTheme = () => {
             themeBackgroundValue,
         } = effectiveSettings.value
 
-        const presetKey = (themePreset || 'default') as keyof typeof PRESETS
+        const presetKey = (themePreset || 'default') as ThemePresetKey
         const preset = PRESETS[presetKey] || PRESETS.default
 
         // 辅助函数：确保十六进制颜色以 # 开头且格式正确，否则 CSS 会失效
@@ -139,7 +191,7 @@ export const useTheme = () => {
 
         const radius = themeBorderRadius || preset.radius
 
-        const generateVariables = (mode: 'light' | 'dark') => {
+        const generateVariables = (mode: ThemeMode) => {
             const isDarkMode = mode === 'dark'
 
             // 核心逻辑：如果是深色模式且没有设置专门的深色覆盖，则优先尝试使用浅色覆盖，最后使用预设默认值
@@ -288,7 +340,7 @@ export const useTheme = () => {
                 },
             ],
             link: computed(() => {
-                const links: any[] = []
+                const links: { rel: 'icon', href: string }[] = []
                 if (effectiveSettings.value?.themeFaviconUrl) {
                     links.push({
                         rel: 'icon',
@@ -300,7 +352,7 @@ export const useTheme = () => {
         })
     }
 
-    const isLocked = (key: keyof ThemeSettings | (string & {})) => !!locks.value[key]
+    const isLocked = (key: ThemeLockKey | (string & {})) => !!locks.value[key]
 
     return {
         settings,

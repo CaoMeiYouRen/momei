@@ -12,17 +12,7 @@
                     }"
                 >
                     <ArticleCard
-                        :post="{
-                            id: 1,
-                            title: '预览文章标题 (Preview Title)',
-                            summary: '这是一个预览摘要，用于展示主题配置后的实时效果。您可以尝试更改主色调、圆角或背景来观察变化。',
-                            cover: settings?.themeLogoUrl || '',
-                            createdAt: new Date().toISOString(),
-                            tags: [{name: 'Theme'}, {name: 'Preview'}],
-                            viewCount: 1234,
-                            commentCount: 56,
-                            category: {name: 'Demo'}
-                        } as any"
+                        :post="previewPost"
                     />
                     <div class="preview-actions">
                         <Button :label="$t('common.preview')" class="p-button-sm" />
@@ -108,8 +98,17 @@
 </template>
 
 <script setup lang="ts">
-import { useTheme, PRESETS } from '@/composables/use-theme'
+import {
+    useTheme,
+    PRESETS,
+    type ThemeMode,
+    type ThemePresetColorKey,
+    type ThemePresetKey,
+    type ThemePresetValueKey,
+    type ThemePreviewColorSettingKey,
+} from '@/composables/use-theme'
 import ArticleCard from '@/components/article-card.vue'
+import { PostStatus, PostVisibility, type Post } from '@/types/post'
 
 const { t } = useI18n()
 const { settings, isLocked } = useTheme()
@@ -117,15 +116,55 @@ const isDark = useDark()
 
 const previewInner = ref<HTMLElement | null>(null)
 
+const previewColorTypeMap: Record<ThemePreviewColorSettingKey, ThemePresetColorKey> = {
+    themePrimaryColor: 'primary',
+    themeAccentColor: 'accent',
+    themeSurfaceColor: 'surface',
+    themeTextColor: 'text',
+    themeDarkPrimaryColor: 'primary',
+    themeDarkAccentColor: 'accent',
+    themeDarkSurfaceColor: 'surface',
+    themeDarkTextColor: 'text',
+    themeBackgroundValue: 'surface',
+}
+
+function resolvePresetKey(preset: string | null | undefined): ThemePresetKey {
+    return preset && preset in PRESETS ? preset as ThemePresetKey : 'default'
+}
+
 defineExpose({
     previewInner,
 })
 
-const getCurrentPresetValue = (type: 'primary' | 'accent' | 'surface' | 'text' | 'radius', forceDark?: boolean) => {
+const previewPost = computed<Post>(() => ({
+    id: 'theme-preview-post',
+    title: '预览文章标题 (Preview Title)',
+    content: '',
+    summary: '这是一个预览摘要，用于展示主题配置后的实时效果。您可以尝试更改主色调、圆角或背景来观察变化。',
+    slug: 'theme-preview',
+    status: PostStatus.PUBLISHED,
+    visibility: PostVisibility.PUBLIC,
+    coverImage: settings.value?.themeLogoUrl || null,
+    category: {
+        id: 'theme-preview-category',
+        name: 'Demo',
+        slug: 'demo',
+    },
+    tags: [
+        { id: 'theme-preview-tag', name: 'Theme', slug: 'theme' },
+        { id: 'theme-preview-preview-tag', name: 'Preview', slug: 'preview' },
+    ],
+    views: 1234,
+    publishedAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    language: 'zh-CN',
+}))
+
+const getCurrentPresetValue = (type: ThemePresetValueKey, forceDark = false) => {
     if (!settings.value) {
         return ''
     }
-    const presetKey = (settings.value.themePreset || 'default') as keyof typeof PRESETS
+    const presetKey = resolvePresetKey(settings.value.themePreset)
     const preset = PRESETS[presetKey] || PRESETS.default
     if (!preset) {
         return ''
@@ -133,52 +172,40 @@ const getCurrentPresetValue = (type: 'primary' | 'accent' | 'surface' | 'text' |
     if (type === 'radius') {
         return preset.radius || ''
     }
-    const mode = forceDark ? 'dark' : 'light'
-    const value = (preset[type] as any)?.[mode]
+    const mode: ThemeMode = forceDark ? 'dark' : 'light'
+    const value = preset[type][mode]
     return value || ''
 }
 
-const backgroundOptions = computed(() => [
+const backgroundOptions = computed<Array<{ label: string, value: 'none' | 'color' | 'image' }>>(() => [
     { label: t('pages.admin.settings.theme.background_none'), value: 'none' },
     { label: t('pages.admin.settings.theme.background_color'), value: 'color' },
     { label: t('pages.admin.settings.theme.background_image'), value: 'image' },
 ])
 
 // 专门为 ColorPicker 创建的 Model，处理 fallback 到 Preset 默认值，且去掉 # 号
-const createColorPickerModel = (key: any) => {
-    const typeMap: Record<string, string> = {
-        themePrimaryColor: 'primary',
-        themeAccentColor: 'accent',
-        themeSurfaceColor: 'surface',
-        themeTextColor: 'text',
-        themeDarkPrimaryColor: 'primary',
-        themeDarkAccentColor: 'accent',
-        themeDarkSurfaceColor: 'surface',
-        themeDarkTextColor: 'text',
-        themeBackgroundValue: 'surface',
-    }
-
+const createColorPickerModel = (key: ThemePreviewColorSettingKey) => {
     return computed({
         get: () => {
-            let val = (settings.value as any)?.[key]
+            let val = settings.value?.[key]
             if (!val) {
                 const isDarkField = key.toLowerCase().includes('dark') || (key === 'themeBackgroundValue' && isDark.value)
-                val = getCurrentPresetValue(typeMap[key] as any, isDarkField)
+                val = getCurrentPresetValue(previewColorTypeMap[key], isDarkField)
             }
             return val ? val.replace('#', '') : ''
         },
         set: (newVal: string) => {
             if (settings.value) {
-                (settings.value as any)[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
+                settings.value[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
             }
         },
     })
 }
 
-const createColorModel = (key: any) => {
+const createColorModel = (key: ThemePreviewColorSettingKey) => {
     return computed({
         get: () => {
-            const val = (settings.value as any)?.[key]
+            const val = settings.value?.[key]
             if (!val) {
                 return ''
             }
@@ -187,10 +214,10 @@ const createColorModel = (key: any) => {
         set: (newVal: string) => {
             if (settings.value) {
                 if (!newVal) {
-                    (settings.value as any)[key] = null
+                    settings.value[key] = null
                     return
                 }
-                (settings.value as any)[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
+                settings.value[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
             }
         },
     })

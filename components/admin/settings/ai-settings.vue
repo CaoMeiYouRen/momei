@@ -455,17 +455,28 @@ import SettingFormField from '@/components/admin/settings/setting-form-field.vue
 import AiQuotaPoliciesEditor from '@/components/admin/settings/ai-quota-policies-editor.vue'
 import AiAlertThresholdsEditor from '@/components/admin/settings/ai-alert-thresholds-editor.vue'
 import AiCostFactorsEditor from '@/components/admin/settings/ai-cost-factors-editor.vue'
+import type {
+    AISettingsMetadata,
+    AISettingsModel,
+    AdminAIImageProvider,
+    AdminAIProvider,
+    AdminASRProvider,
+    AdminTTSProvider,
+} from '@/types/setting'
 
-const settings = defineModel<any>('settings', { required: true })
-defineProps<{ metadata: any }>()
+const settings = defineModel<AISettingsModel>('settings', { required: true })
 
-const aiProviders = ['openai', 'groq', 'ollama', 'anthropic', 'google']
-const aiImageProviders = ['openai', 'gemini', 'stable-diffusion', 'doubao', 'siliconflow']
-const asrProviders = [
+defineProps<{
+    metadata: AISettingsMetadata
+}>()
+
+const aiProviders: AdminAIProvider[] = ['openai', 'groq', 'ollama', 'anthropic', 'google']
+const aiImageProviders: AdminAIImageProvider[] = ['openai', 'gemini', 'stable-diffusion', 'doubao', 'siliconflow']
+const asrProviders: Array<{ label: string, value: AdminASRProvider }> = [
     { label: 'SiliconFlow (Batch)', value: 'siliconflow' },
     { label: 'Volcengine (Streaming)', value: 'volcengine' },
 ]
-const ttsProviders = [
+const ttsProviders: Array<{ label: string, value: AdminTTSProvider }> = [
     { label: 'OpenAI', value: 'openai' },
     { label: 'SiliconFlow', value: 'siliconflow' },
     { label: 'Volcengine', value: 'volcengine' },

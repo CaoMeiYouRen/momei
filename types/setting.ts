@@ -246,3 +246,109 @@ export interface SettingAuditItem {
     createdAt: string
     operator: SettingAuditActor | null
 }
+
+export type SettingFormValue = string | number | boolean | null
+
+export interface SettingFieldMetadata {
+    isLocked?: boolean
+    source?: SettingSource
+    description?: string
+    envKey?: string | null
+    defaultUsed?: boolean
+    lockReason?: SettingLockReason | null
+    requiresRestart?: boolean
+}
+
+export type SettingMetadataMap<Key extends string = string> = Partial<Record<Key, SettingFieldMetadata>>
+
+export type AdminLanguageCode = 'zh-CN' | 'en-US' | (string & {})
+
+export type AdminAIProvider = 'openai' | 'groq' | 'ollama' | 'anthropic' | 'google' | (string & {})
+
+export type AdminAIImageProvider = 'openai' | 'gemini' | 'stable-diffusion' | 'doubao' | 'siliconflow' | (string & {})
+
+export type AdminASRProvider = 'siliconflow' | 'volcengine' | (string & {})
+
+export type AdminTTSProvider = 'openai' | 'siliconflow' | 'volcengine' | (string & {})
+
+export interface GeneralSettingsFields {
+    site_title: string | null
+    site_name: string | null
+    site_description: string | null
+    site_keywords: string | null
+    site_copyright: string | null
+    default_language: AdminLanguageCode | null
+    site_logo: string | null
+    site_favicon: string | null
+    site_operator: string | null
+    contact_email: string | null
+    show_compliance_info: boolean
+    icp_license_number: string | null
+    public_security_number: string | null
+    footer_code: string | null
+    friend_links_enabled: boolean
+    friend_links_application_enabled: boolean
+    friend_links_footer_enabled: boolean
+    friend_links_footer_limit: number | null
+    friend_links_check_interval_minutes: number | null
+    friend_links_application_guidelines: string | null
+    travellings_enabled: boolean
+    travellings_header_enabled: boolean
+    travellings_footer_enabled: boolean
+    travellings_sidebar_enabled: boolean
+    live2d_enabled: boolean
+    live2d_script_url: string | null
+    live2d_model_url: string | null
+    live2d_options_json: string | null
+    live2d_mobile_enabled: boolean
+    live2d_min_width: number | null
+    live2d_data_saver_block: boolean
+    canvas_nest_enabled: boolean
+    canvas_nest_options_json: string | null
+    canvas_nest_mobile_enabled: boolean
+    canvas_nest_min_width: number | null
+    canvas_nest_data_saver_block: boolean
+    effects_mobile_enabled: boolean
+    effects_min_width: number | null
+    effects_data_saver_block: boolean
+}
+
+export type GeneralSettingsModel = Record<string, SettingFormValue> & Partial<GeneralSettingsFields>
+
+export type GeneralSettingsMetadata = SettingMetadataMap<keyof GeneralSettingsFields>
+
+export interface AISettingsFields {
+    ai_enabled: boolean
+    ai_provider: AdminAIProvider | null
+    ai_model: string | null
+    ai_api_key: string | null
+    ai_endpoint: string | null
+    gemini_api_token: string | null
+    ai_quota_enabled: boolean
+    ai_quota_policies: string | null
+    ai_alert_thresholds: string | null
+    ai_cost_factors: string | null
+    ai_image_enabled: boolean
+    ai_image_provider: AdminAIImageProvider | null
+    ai_image_model: string | null
+    ai_image_api_key: string | null
+    ai_image_endpoint: string | null
+    asr_enabled: boolean
+    asr_provider: AdminASRProvider | null
+    asr_api_key: string | null
+    asr_model: string | null
+    asr_endpoint: string | null
+    asr_volcengine_cluster_id: string | null
+    volcengine_app_id: string | null
+    volcengine_access_key: string | null
+    volcengine_secret_key: string | null
+    tts_enabled: boolean
+    tts_provider: AdminTTSProvider | null
+    tts_api_key: string | null
+    tts_model: string | null
+    tts_endpoint: string | null
+}
+
+export type AISettingsModel = Record<string, SettingFormValue> & Partial<AISettingsFields>
+
+export type AISettingsMetadata = SettingMetadataMap<keyof AISettingsFields>

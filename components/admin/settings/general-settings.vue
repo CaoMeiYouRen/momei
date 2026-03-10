@@ -596,14 +596,15 @@
 
 <script setup lang="ts">
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
+import type { AdminLanguageCode, GeneralSettingsMetadata, GeneralSettingsModel } from '@/types/setting'
 
-const settings = defineModel<any>('settings', { required: true })
+const settings = defineModel<GeneralSettingsModel>('settings', { required: true })
 
 defineProps<{
-    metadata: any
+    metadata: GeneralSettingsMetadata
 }>()
 
-const languageOptions = [
+const languageOptions: Array<{ label: string, value: AdminLanguageCode }> = [
     { label: '简体中文', value: 'zh-CN' },
     { label: 'English', value: 'en-US' },
 ]

@@ -42,6 +42,17 @@
 </template>
 
 <script setup lang="ts">
+import type { ApiResponse } from '@/types/api'
+import type { Post } from '@/types/post'
+
+interface PublicPostListData {
+    items: Post[]
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+}
+
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
@@ -49,7 +60,7 @@ const { t } = useI18n()
 const page = ref(Number(route.query.page) || 1)
 const first = ref(0)
 
-const { data, pending, error } = await useAppFetch('/api/posts', {
+const { data, pending, error } = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {
     query: {
         page,
         status: 'published',
