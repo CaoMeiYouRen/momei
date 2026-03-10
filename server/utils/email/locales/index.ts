@@ -8,7 +8,9 @@ export type EmailLocaleType = keyof typeof emailLocalesZhCN
 
 export const EMAIL_SUPPORTED_LOCALES = {
     'zh-CN': emailLocalesZhCN,
+    'zh-TW': emailLocalesZhCN,
     'en-US': emailLocalesEnUS,
+    'ko-KR': emailLocalesEnUS,
 } as const
 
 export const DEFAULT_EMAIL_LOCALE = 'zh-CN'

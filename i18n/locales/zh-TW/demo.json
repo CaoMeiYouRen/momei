@@ -1,0 +1,63 @@
+{
+    "demo": {
+        "banner_text": "当前处于演示模式。您可以体验所有功能，但数据将在系统重启后自动重置为初始状态。",
+        "start_tour": "开始引导",
+        "collapse_banner": "收起横幅",
+        "expand_banner": "展开横幅",
+        "journey_badge": "3 - 5 分钟体验路线",
+        "journey_title": "先看公开内容，再体验 AI 创作",
+        "current_stage": "当前推荐阶段：{stage}",
+        "stages": {
+            "public": "公开体验",
+            "login": "登录后台",
+            "editor": "编辑器实战"
+        },
+        "paths": {
+            "read_article": {
+                "label": "先读一篇示例文章",
+                "description": "直接进入欢迎文章，快速感受阅读页、目录和内容呈现。",
+                "action": "打开文章"
+            },
+            "browse_content": {
+                "label": "浏览内容导航",
+                "description": "查看文章列表、搜索、分类和归档，理解公开站点结构。",
+                "action": "浏览内容"
+            },
+            "creator_mode": {
+                "label": "进入创作后台",
+                "description": "直接尝试文章编辑器；若尚未登录，会先进入登录页，再自动回到编辑器。",
+                "action": "直达编辑器"
+            }
+        },
+        "tour": {
+            "welcome_title": "欢迎体验墨梅博客",
+            "welcome_desc": "墨梅博客是一个 AI 驱动、原生国际化的现代化博客平台。我们将带您快速了解如何利用 AI 提升创作效率，实现全球化内容分发。",
+            "login_title": "自动登录",
+            "login_desc": "在演示模式下，我们将自动为您填充演示账号。点击登录进入管理后台。",
+            "login_action_title": "继续进入后台",
+            "login_action_desc": "提交后即可进入后台，接着体验文章管理与 AI 创作流程。",
+            "editor_title": "高效创作",
+            "editor_desc": "这是功能强大的 Markdown 编辑器。右侧的星星按钮是 AI 辅助工具库。",
+            "ai_title": "AI 辅助创作",
+            "ai_desc": "点击这里！AI 可以为您建议标题、自动生成摘要、提取标签，甚至一键翻译全文。",
+            "translate_title": "多语言创作",
+            "translate_desc": "这里可以快速切换或生成翻译版本，把同一篇内容扩展到更多语言。",
+            "publish_title": "发布与管理",
+            "publish_desc": "创作完成后，您可以设置 Slug 并发布。再次提醒，演示环境的数据是临时的。",
+            "nav_title": "内容导航",
+            "nav_desc": "通过导航栏快速访问文章列表、分类、标签和归档页面。",
+            "article_title": "预置演示内容",
+            "article_desc": "首页和文章列表已预置多篇 Demo 内容，覆盖公开阅读、AI 创作和多语言工作流。",
+            "admin_title": "管理后台",
+            "admin_desc": "管理员由此进入后台，管理内容、用户和系统配置。",
+            "search_title": "全局搜索",
+            "search_desc": "强大且快速的搜索功能，支持通过快捷键 Ctrl + K 随时唤起。",
+            "theme_title": "一键换肤",
+            "theme_desc": "切换浅色或深色主题，提供最舒适的阅读体验。",
+            "lang_title": "多语言系统",
+            "lang_desc": "墨梅支持多语言界面和内容，您可以由此切换语言环境。",
+            "user_title": "个人中心",
+            "user_desc": "管理您的账户信息、安全设置或由此登录系统。"
+        }
+    }
+}

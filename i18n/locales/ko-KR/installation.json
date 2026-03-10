@@ -1,0 +1,106 @@
+{
+  "installation": {
+    "title": "Momei Blog Installation Wizard",
+    "subtitle": "Welcome to Momei Blog, let's set up your site",
+    "steps": {
+      "healthCheck": "Health Check",
+      "database": "Database",
+      "siteConfig": "Site Config",
+      "adminAccount": "Admin Account",
+      "preview": "Preview",
+      "complete": "Complete"
+    },
+    "healthCheck": {
+      "title": "Environment Check",
+      "description": "Checking system environment and dependencies...",
+      "database": "Database Connection",
+      "node": "Node.js Version",
+      "dbVersion": "Database Version",
+      "serverless": "Serverless Environment",
+      "os": "Operating System",
+      "language": "Installation Language",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "nodeVersionWarning": "Node.js version is low. It is recommended to use v20 or higher for best stability."
+    },
+    "database": {
+      "title": "Database Initialization",
+      "description": "Initialize database schema and seed data",
+      "initialize": "Initialize Database",
+      "success": "Database initialized successfully",
+      "error": "Failed to initialize database, please check your configuration"
+    },
+    "siteConfig": {
+      "title": "Site Configuration",
+      "description": "Configure your site basic information",
+      "siteTitle": "Site Title",
+      "siteDescription": "Site Description",
+      "siteKeywords": "Site Keywords",
+      "siteUrl": "Site URL",
+      "siteUrlPlaceholder": "e.g.: https://blog.example.com",
+      "siteCopyright": "Copyright",
+      "defaultLanguage": "Default Language",
+      "error": "Failed to save site configuration"
+    },
+    "adminAccount": {
+      "title": "Create Admin Account",
+      "description": "Set up your administrator account",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "error": "Failed to create admin account"
+    },
+    "preview": {
+      "title": "Optional Features",
+      "description": "Configure core optional features. These settings can be modified anytime in the admin panel after installation.",
+      "error": "Failed to load preview config",
+      "sections": {
+        "ai": "AI Assistant",
+        "email": "Email Service",
+        "storage": "Attachment Storage",
+        "analytics": "Analytics & SEO"
+      },
+      "ai": {
+        "provider": "AI Provider",
+        "apiKey": "API Key",
+        "model": "Default Model",
+        "endpoint": "API Endpoint (Optional)"
+      },
+      "email": {
+        "host": "SMTP Host",
+        "port": "Port",
+        "user": "Account",
+        "pass": "Password/App Key",
+        "from": "Sender Address"
+      },
+      "storage": {
+        "type": "Storage Type",
+        "localDir": "Storage Path (Relative/Absolute)",
+        "localBaseUrl": "Base Access URL",
+        "s3Endpoint": "S3 Endpoint",
+        "s3Bucket": "Bucket Name",
+        "s3Region": "Region",
+        "s3AccessKey": "Access Key ID",
+        "s3SecretKey": "Secret Access Key",
+        "s3BaseUrl": "Public Domain (Base URL)",
+        "s3BucketPrefix": "Object Prefix",
+        "assetPublicBaseUrl": "Unified Asset Public Base URL",
+        "assetObjectPrefix": "Unified Object Prefix"
+      },
+      "analytics": {
+        "baidu": "Baidu Analytics ID",
+        "google": "Google Tracking ID",
+        "clarity": "Microsoft Clarity ID"
+      }
+    },
+    "complete": {
+      "title": "Installation Complete",
+      "description": "Congratulations! Momei Blog has been successfully installed",
+      "finalize": "Complete Installation",
+      "success": "Installation completed!",
+      "envHint": "To prevent reinstallation, please add the following to your environment variables:",
+      "goToAdmin": "Go to Admin Panel",
+      "error": "Failed to complete installation"
+    }
+  }
+}

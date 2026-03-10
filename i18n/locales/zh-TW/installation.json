@@ -1,0 +1,106 @@
+{
+  "installation": {
+    "title": "墨梅博客安装向导",
+    "subtitle": "欢迎使用墨梅博客,让我们开始配置您的站点",
+    "steps": {
+      "healthCheck": "环境检查",
+      "database": "数据库初始化",
+      "siteConfig": "站点配置",
+      "adminAccount": "管理员账号",
+      "preview": "功能预览",
+      "complete": "完成安装"
+    },
+    "healthCheck": {
+      "title": "环境检查",
+      "description": "正在检查系统环境和依赖项...",
+      "database": "数据库连接",
+      "node": "Node.js 版本",
+      "dbVersion": "数据库版本",
+      "serverless": "Serverless 环境",
+      "os": "操作系统",
+      "language": "安装语言(Language)",
+      "enabled": "已启用",
+      "disabled": "未启用",
+      "nodeVersionWarning": "Node.js 版本较低，建议使用 v20 或更高版本以获得最佳稳定性。"
+    },
+    "database": {
+      "title": "数据库初始化",
+      "description": "初始化数据库表结构和基础数据",
+      "initialize": "初始化数据库",
+      "success": "数据库初始化成功",
+      "error": "数据库初始化失败,请检查配置"
+    },
+    "siteConfig": {
+      "title": "站点配置",
+      "description": "配置您的站点基本信息",
+      "siteTitle": "站点标题",
+      "siteDescription": "站点描述",
+      "siteKeywords": "站点关键词",
+      "siteUrl": "站点地址",
+      "siteUrlPlaceholder": "例如:https://blog.example.com",
+      "siteCopyright": "版权信息",
+      "defaultLanguage": "默认语言",
+      "error": "保存站点配置失败"
+    },
+    "adminAccount": {
+      "title": "创建管理员账号",
+      "description": "设置您的管理员账号信息",
+      "name": "昵称",
+      "email": "邮箱",
+      "password": "密码",
+      "error": "创建管理员账号失败"
+    },
+    "preview": {
+      "title": "可选功能配置",
+      "description": "您可以选择性地开启并配置以下核心功能。这些设置也可以在安装完成后通过管理后台随时修改。",
+      "error": "预览配置加载失败",
+      "sections": {
+        "ai": "AI 创作助手",
+        "email": "邮件服务",
+        "storage": "文件存储",
+        "analytics": "统计与分析"
+      },
+      "ai": {
+        "provider": "AI 服务商",
+        "apiKey": "API 密钥",
+        "model": "默认模型",
+        "endpoint": "API 代理端点 (可选)"
+      },
+      "email": {
+        "host": "SMTP 地址",
+        "port": "端口",
+        "user": "账号",
+        "pass": "授权码/密码",
+        "from": "发件人地址"
+      },
+      "storage": {
+        "type": "存储类型",
+        "localDir": "存储路径 (相对或绝对)",
+        "localBaseUrl": "访问基础 URL",
+        "s3Endpoint": "S3 端点地址",
+        "s3Bucket": "Bucket 名称",
+        "s3Region": "区域 (Region)",
+        "s3AccessKey": "Access Key ID",
+        "s3SecretKey": "Secret Access Key",
+        "s3BaseUrl": "公开域名 (Base URL)",
+        "s3BucketPrefix": "对象前缀",
+        "assetPublicBaseUrl": "统一静态资源访问前缀",
+        "assetObjectPrefix": "统一对象前缀"
+      },
+      "analytics": {
+        "baidu": "百度统计 ID",
+        "google": "Google 分析 ID",
+        "clarity": "Microsoft Clarity ID"
+      }
+    },
+    "complete": {
+      "title": "安装完成",
+      "description": "恭喜!墨梅博客已成功安装",
+      "finalize": "完成安装",
+      "success": "安装已完成!",
+      "envHint": "为了防止重复安装,请在您的环境变量中添加以下配置:",
+      "goToAdmin": "进入管理后台",
+      "error": "完成安装失败"
+    }
+  }
+}

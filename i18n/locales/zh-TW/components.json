@@ -1,0 +1,121 @@
+{
+  "components": {
+    "search": {
+      "title": "全局搜索",
+      "placeholder": "搜索文章、分类或标签...",
+      "no_results": "未找到相关内容",
+      "help_hint": "输入关键词进行全文搜索...",
+      "loading": "搜索中...",
+      "ctrl_k": "进入搜索"
+    },
+    "header": {
+      "language": "语言",
+      "title": "墨梅",
+      "dark_mode": "深色模式",
+      "light_mode": "浅色模式"
+    },
+    "footer": {
+      "docs": "文档",
+      "copyright": "© 2026 墨梅博客 - AI 赋能，全球创作",
+      "compliance": {
+        "icp": "ICP备案",
+        "police": "公安网安备"
+      }
+    },
+    "toc": {
+      "title": "目录"
+    },
+    "notifications": {
+      "title": "站内通知",
+      "empty": "暂无通知",
+      "mark_all_read": "全部已读",
+      "view_all": "查看全部设置",
+      "browser_enable": "启用浏览器通知",
+      "browser_status": {
+        "default": "启用后，离线时也能收到高价值任务提醒。",
+        "denied": "浏览器通知已被禁用，请在浏览器设置中手动重新开启。"
+      }
+    },
+    "reader": {
+      "mode_enter": "开启沉浸阅读",
+      "mode_exit": "退出沉浸模式",
+      "settings_title": "阅读排版设置",
+      "font_size": "字号",
+      "line_height": "行高",
+      "page_width": "页宽",
+      "theme": "阅读主题"
+    },
+    "subscriber_form": {
+      "title": "邮件订阅",
+      "description": "第一时间获取最新文章与技术分享",
+      "placeholder": "请输入邮箱地址",
+      "submit": "立即订阅",
+      "success": "订阅成功！感谢您的关注。",
+      "submitting": "处理中..."
+    },
+    "post": {
+      "copyright": {
+        "title": "版权声明",
+        "author": "本文作者",
+        "link": "本文链接",
+        "license_title": "版权声明",
+        "license_pre": "本博客所有文章除特别声明外，均采用 ",
+        "license_post": " 许可协议。转载请注明出处！",
+        "default_license": "all-rights-reserved",
+        "licenses": {
+          "all-rights-reserved": "所有权利保留（禁止转载）",
+          "cc-by": "CC BY 4.0（署名）",
+          "cc-by-sa": "CC BY-SA 4.0（署名-相同方式共享）",
+          "cc-by-nd": "CC BY-ND 4.0（署名-禁止演绎）",
+          "cc-by-nc": "CC BY-NC 4.0（署名-非商业性使用）",
+          "cc-by-nc-sa": "CC BY-NC-SA 4.0（署名-非商业性使用-相同方式共享）",
+          "cc-by-nc-nd": "CC BY-NC-ND 4.0（署名-非商业性使用-禁止演绎）",
+          "cc-zero": "CC0 1.0（取消版权 / 进入公共领域）"
+        }
+      },
+      "sponsor": {
+        "title": "赞赏支持",
+        "social_title": "关注我",
+        "donation_title": "支持作者",
+        "qr_scan_follow_tip": "打开移动端 App 扫码关注",
+        "qr_scan_pay_tip": "打开移动端 App 扫码支付",
+        "platforms": {
+          "wechat_mp": "微信公众号",
+          "bilibili": "Bilibili",
+          "weibo": "微博",
+          "zhihu": "知乎",
+          "x": "X (Twitter)",
+          "youtube": "YouTube",
+          "facebook": "Facebook",
+          "github": "GitHub",
+          "wechat_pay": "微信支付",
+          "alipay": "支付宝",
+          "afdian": "爱发电",
+          "github_sponsors": "GitHub Sponsors",
+          "opencollective": "Open Collective",
+          "patreon": "Patreon",
+          "buymeacoffee": "Buy Me a Coffee",
+          "paypal": "PayPal"
+        }
+      }
+    }
+  },
+  "comments": {
+    "title": "评论",
+    "reply": "回复",
+    "submit": "发表评论",
+    "nickname": "昵称",
+    "nickname_placeholder": "您的称呼",
+    "email": "电子邮箱",
+    "email_placeholder": "用于头像与通知 (不会公开)",
+    "website": "个人网站",
+    "website_placeholder": "https://...",
+    "content_placeholder_guest": "说点什么吧... (需审核后展示)",
+    "content_placeholder_logged_in": "分享您的看法...",
+    "guest_tip": "您正在以游客身份发表评论",
+    "replying_to": "正在回复",
+    "no_comments": "暂无评论，快来抢沙发吧！",
+    "pending_audit": "您的评论已提交，正在等待管理员审核展示。",
+    "sticked": "置顶"
+  }
+}

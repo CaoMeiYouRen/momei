@@ -1,0 +1,19 @@
+{
+  "home": {
+    "meta": {
+      "title": "Home - Momei Blog",
+      "description": "Momei Blog: An AI-driven, natively internationalized developer blog platform. AI-powered, Global Creation."
+    },
+    "hero": {
+      "title": "AI-Driven, Native I18n",
+      "subtitle": "Momei Blog: A smart creation platform built for developers, helping your tech reach the world.",
+      "cta": "Start Reading"
+    },
+    "latest_posts": {
+      "title": "Latest Posts"
+    },
+    "about": {
+      "description": "Momei Blog is dedicated to empowering creators through AI and deep internationalization, enabling content to be born global."
+    }
+  }
+}

@@ -1,7 +1,7 @@
 import { getNuxtLocaleMessageFilePaths } from './locale-modules'
 
 export type LocaleReadiness = 'draft' | 'ui-ready' | 'seo-ready'
-export type AppLocaleCode = 'zh-CN' | 'en-US'
+export type AppLocaleCode = 'zh-CN' | 'en-US' | 'zh-TW' | 'ko-KR'
 
 export interface LocaleRegistryItem {
     code: AppLocaleCode
@@ -65,6 +65,44 @@ export const APP_LOCALE_REGISTRY = [
         ogLocale: 'en_US',
         ogAlternateLocales: ['zh_CN'],
     },
+    {
+        code: 'zh-TW',
+        languageTag: 'zh-TW',
+        name: '繁體中文',
+        nativeName: '繁體中文',
+        isoName: 'Chinese (Traditional)',
+        dir: 'ltr',
+        enabled: true,
+        default: false,
+        fallbackChain: ['zh-TW', 'zh-CN', 'en-US'],
+        routePrefix: '/zh-TW',
+        readiness: 'ui-ready',
+        switchable: true,
+        indexable: false,
+        sitemapEnabled: false,
+        feedEnabled: false,
+        ogLocale: 'zh_TW',
+        ogAlternateLocales: ['zh_CN', 'en_US'],
+    },
+    {
+        code: 'ko-KR',
+        languageTag: 'ko-KR',
+        name: 'Korean',
+        nativeName: '한국어',
+        isoName: 'Korean (South Korea)',
+        dir: 'ltr',
+        enabled: true,
+        default: false,
+        fallbackChain: ['ko-KR', 'en-US', 'zh-CN'],
+        routePrefix: '/ko-KR',
+        readiness: 'ui-ready',
+        switchable: true,
+        indexable: false,
+        sitemapEnabled: false,
+        feedEnabled: false,
+        ogLocale: 'ko_KR',
+        ogAlternateLocales: ['en_US', 'zh_CN'],
+    },
 ] as const satisfies readonly LocaleRegistryItem[]
 
 export const APP_ENABLED_LOCALES = APP_LOCALE_REGISTRY.filter((locale) => locale.enabled)
@@ -74,9 +112,14 @@ const APP_LOCALE_ALIAS_MAP: Record<string, AppLocaleCode> = {
     zh: 'zh-CN',
     'zh-cn': 'zh-CN',
     'zh-hans': 'zh-CN',
-    'zh-hant': 'zh-CN',
+    'zh-hant': 'zh-TW',
+    'zh-tw': 'zh-TW',
+    'zh-hk': 'zh-TW',
+    'zh-mo': 'zh-TW',
     en: 'en-US',
     'en-us': 'en-US',
+    ko: 'ko-KR',
+    'ko-kr': 'ko-KR',
     default: APP_DEFAULT_LOCALE,
 }
 

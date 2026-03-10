@@ -5,7 +5,9 @@
 import { isRef, unref, watch } from 'vue'
 import { usePrimeVue } from 'primevue/config'
 import { zh_CN } from 'primelocale/js/zh_CN.js'
+import { zh_TW } from 'primelocale/js/zh_TW.js'
 import { en } from 'primelocale/js/en.js'
+import { ko } from 'primelocale/js/ko.js'
 import { APP_DEFAULT_LOCALE, resolveAppLocaleCode } from '@/i18n/config/locale-registry'
 
 export default defineNuxtPlugin((nuxtApp) => {
@@ -23,6 +25,8 @@ export default defineNuxtPlugin((nuxtApp) => {
         const localeMap: Record<string, any> = {
             'zh-CN': zh_CN,
             'en-US': en,
+            'zh-TW': zh_TW,
+            'ko-KR': ko,
         }
 
         /**

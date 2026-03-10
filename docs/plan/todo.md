@@ -52,12 +52,21 @@
 	- 验收: 首页、文章列表等文章卡片改为链接语义导航，不再仅依赖按钮或整卡点击跳转。
 	- 验收: 沉浸式阅读开启后自动隐藏 Live2D 挂件，避免打断阅读。
 	- 验收: 登录页首次进入时确保认证文案模块已预加载，`pages.login.submit` 等按钮文案不再缺失。
-- [ ] **新增繁体中文与韩语支持**
+- [ ] **新增繁体中文与韩语支持** (进行中)
 	- 验收: Locale Registry、新语言词条、语言切换入口与回退策略完成接入。
 	- 验收: 首轮至少覆盖公共页面、认证、核心设置与 Demo / Onboarding 关键链路。
+	- 当前拆解:
+		- [x] 设计方案：明确 `zh-TW` / `ko-KR` 的 readiness、路由前缀、回退链与 SEO 发布边界。
+		- [ ] 基础接入：扩展 Locale Registry、PrimeVue locale 与语言切换入口。
+		- [ ] 词条补齐：完成 `common / components / public / settings / legal / auth / home / demo` 首轮翻译。
+		- [ ] 质量校验：补齐 locale registry、模块加载、登录页与 Onboarding 的定向测试，并执行 i18n audit。
 - [ ] **翻译治理与贡献流程**
 	- 验收: 建立新增语言准入 checklist、术语约束与翻译贡献指南。
 	- 验收: 补齐 i18n audit、SEO、邮件文本的定向回归校验，避免出现“UI 已翻译、系统链路未跟上”的半完成语种。
+	- 当前拆解:
+		- [x] 准入策略：新增语言默认以 `ui-ready` 接入，待邮件与 SEO 回归齐备后再升级到 `seo-ready`。
+		- [ ] 治理清单：沉淀模块 parity、PrimeVue、邮件 locale、SEO 与 sitemap 五类发布门禁。
+		- [ ] 贡献指南：补充新增语言的术语约束、翻译流程与回归命令说明。
 
 ### 4. 反馈与互动增强 (Feedback & Interaction Enhancement) (P1)
 
