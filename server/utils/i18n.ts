@@ -1,11 +1,11 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { toProjectLocale, DEFAULT_LOCALE } from './locale'
+import { mapAuthLocaleToAppLocale, AUTH_DEFAULT_LOCALE } from './locale'
 import { APP_DEFAULT_LOCALE, resolveAppLocaleCode } from '@/i18n/config/locale-registry'
 import { getLocaleMessageFilePaths } from '@/i18n/config/locale-modules'
 
-// 定义全局存储，保存当前请求转换后的标准区域代码 (如 zh-CN)
+// 定义全局存储，保存当前请求解析后的 AppLocaleCode (如 zh-CN)
 export const i18nStorage = new AsyncLocalStorage<string>()
 
 // 缓存加载的翻译消息，避免重复读取
@@ -47,7 +47,7 @@ function cloneMessages(messages: Record<string, any>): Record<string, any> {
  * 加载并获取指定语言的消息集
  */
 export async function loadLocaleMessages(locale: string): Promise<Record<string, any>> {
-    const resolvedLocale = resolveAppLocaleCode(toProjectLocale(locale))
+    const resolvedLocale = resolveAppLocaleCode(mapAuthLocaleToAppLocale(locale))
     if (localeCache.has(resolvedLocale)) {
         return localeCache.get(resolvedLocale)!
     }
@@ -117,6 +117,6 @@ export async function t(key: string, params?: Record<string, any>): Promise<stri
  * 获取当前 locale
  */
 export function getLocale(): string {
-    const locale = i18nStorage.getStore() || toProjectLocale(DEFAULT_LOCALE)
+    const locale = i18nStorage.getStore() || mapAuthLocaleToAppLocale(AUTH_DEFAULT_LOCALE)
     return resolveAppLocaleCode(locale)
 }

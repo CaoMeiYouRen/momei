@@ -3,14 +3,14 @@ import { parseCookies, getHeader, setCookie, getQuery, type H3Event } from 'h3'
 import {
     normalizeLocale,
     parseAcceptLanguage,
-    DEFAULT_LOCALE,
+    AUTH_DEFAULT_LOCALE,
     getLocaleFromCookie,
     getLocaleFromHeaders,
     getLocaleFromQuery,
-    detectUserLocale,
-    getUserLocale,
+    detectRequestAuthLocale,
+    getAuthLocaleFromRequest,
     setLocaleCookie,
-    toProjectLocale,
+    mapAuthLocaleToAppLocale,
 } from './locale'
 
 // Mock h3 utils
@@ -50,7 +50,7 @@ describe('server/utils/locale.ts', () => {
         })
 
         it('should return default for unknown', () => {
-            expect(normalizeLocale('xx-XX')).toBe(DEFAULT_LOCALE)
+            expect(normalizeLocale('xx-XX')).toBe(AUTH_DEFAULT_LOCALE)
         })
 
         it('should handle whitespace', () => {
@@ -66,7 +66,7 @@ describe('server/utils/locale.ts', () => {
         it('should handle malformed accept-language', () => {
             // Empty parts or missing q
             const result = parseAcceptLanguage(',;q=0.5')
-            expect(result).toContain(DEFAULT_LOCALE)
+            expect(result).toContain(AUTH_DEFAULT_LOCALE)
         })
 
         it('should parse multiple languages with q-values', () => {
@@ -82,7 +82,7 @@ describe('server/utils/locale.ts', () => {
         })
 
         it('should return default if empty', () => {
-            expect(parseAcceptLanguage('')).toEqual([DEFAULT_LOCALE])
+            expect(parseAcceptLanguage('')).toEqual([AUTH_DEFAULT_LOCALE])
         })
 
         it('should deduplicate results', () => {
@@ -163,23 +163,23 @@ describe('server/utils/locale.ts', () => {
         it('should return default if no headers', () => {
             vi.mocked(getHeader).mockReturnValue(undefined)
             const event = {} as H3Event
-            expect(getLocaleFromHeaders(event)).toBe(DEFAULT_LOCALE)
+            expect(getLocaleFromHeaders(event)).toBe(AUTH_DEFAULT_LOCALE)
         })
 
         it('should handle errors', () => {
             vi.mocked(getHeader).mockImplementation(() => {
                 throw new Error('fail')
             })
-            expect(getLocaleFromHeaders({} as any)).toBe(DEFAULT_LOCALE)
+            expect(getLocaleFromHeaders({} as any)).toBe(AUTH_DEFAULT_LOCALE)
         })
     })
 
-    describe('detectUserLocale', () => {
+    describe('detectRequestAuthLocale', () => {
         it('should prioritize cookie', () => {
             vi.mocked(parseCookies).mockReturnValue({ locale: 'zh-Hans' })
             vi.mocked(getHeader).mockReturnValue('en-US')
             const event = {} as H3Event
-            expect(detectUserLocale(event)).toBe('zh-Hans')
+            expect(detectRequestAuthLocale(event)).toBe('zh-Hans')
         })
 
         it('should fallback to header', () => {
@@ -191,14 +191,14 @@ describe('server/utils/locale.ts', () => {
                 return undefined
             })
             const event = {} as H3Event
-            expect(detectUserLocale(event)).toBe('en-US')
+            expect(detectRequestAuthLocale(event)).toBe('en-US')
         })
 
         it('should handle errors', () => {
             vi.mocked(parseCookies).mockImplementation(() => {
                 throw new Error('fatal')
             })
-            expect(detectUserLocale({} as any)).toBe(DEFAULT_LOCALE)
+            expect(detectRequestAuthLocale({} as any)).toBe(AUTH_DEFAULT_LOCALE)
         })
     })
 
@@ -224,18 +224,18 @@ describe('server/utils/locale.ts', () => {
         })
     })
 
-    describe('getUserLocale', () => {
+    describe('getAuthLocaleFromRequest', () => {
         it('should get locale from url', () => {
             const request = new Request('http://localhost/?locale=zh-Hans')
-            expect(getUserLocale(request)).toBe('zh-Hans')
+            expect(getAuthLocaleFromRequest(request)).toBe('zh-Hans')
         })
 
         it('should check alternative query params', () => {
             const request = new Request('http://localhost/?lang=en-US')
-            expect(getUserLocale(request)).toBe('en-US')
+            expect(getAuthLocaleFromRequest(request)).toBe('en-US')
 
             const request2 = new Request('http://localhost/?language=fr-FR')
-            expect(getUserLocale(request2)).toBe('fr-FR')
+            expect(getAuthLocaleFromRequest(request2)).toBe('fr-FR')
         })
 
         it('should get locale from cookie header', () => {
@@ -245,7 +245,7 @@ describe('server/utils/locale.ts', () => {
                 url: 'http://localhost/',
                 headers,
             } as any
-            expect(getUserLocale(request)).toBe('pt-BR')
+            expect(getAuthLocaleFromRequest(request)).toBe('pt-BR')
 
             const headers2 = new Headers()
             headers2.set('cookie', 'lang=fr-FR')
@@ -253,7 +253,7 @@ describe('server/utils/locale.ts', () => {
                 url: 'http://localhost/',
                 headers: headers2,
             } as any
-            expect(getUserLocale(request2)).toBe('fr-FR')
+            expect(getAuthLocaleFromRequest(request2)).toBe('fr-FR')
 
             const headers3 = new Headers()
             headers3.set('cookie', 'language=pt-PT')
@@ -261,7 +261,7 @@ describe('server/utils/locale.ts', () => {
                 url: 'http://localhost/',
                 headers: headers3,
             } as any
-            expect(getUserLocale(request3)).toBe('pt-PT')
+            expect(getAuthLocaleFromRequest(request3)).toBe('pt-PT')
 
             // Partial cookie (key only)
             const headers4 = new Headers()
@@ -270,7 +270,7 @@ describe('server/utils/locale.ts', () => {
                 url: 'http://localhost/',
                 headers: headers4,
             } as any
-            expect(getUserLocale(request4)).toBe(DEFAULT_LOCALE)
+            expect(getAuthLocaleFromRequest(request4)).toBe(AUTH_DEFAULT_LOCALE)
         })
 
         it('should handle multiple cookies in header', () => {
@@ -280,7 +280,7 @@ describe('server/utils/locale.ts', () => {
                 url: 'http://localhost/',
                 headers,
             } as any
-            expect(getUserLocale(request)).toBe('pt-PT')
+            expect(getAuthLocaleFromRequest(request)).toBe('pt-PT')
         })
 
         it('should hit normalizeLocale fallback in cookie header', () => {
@@ -290,7 +290,7 @@ describe('server/utils/locale.ts', () => {
                 url: 'http://localhost/',
                 headers,
             } as any
-            expect(getUserLocale(request)).toBe('en-US')
+            expect(getAuthLocaleFromRequest(request)).toBe('en-US')
         })
 
         it('should get locale from custom headers', () => {
@@ -300,7 +300,7 @@ describe('server/utils/locale.ts', () => {
                 url: 'http://localhost/',
                 headers,
             } as any
-            expect(getUserLocale(request)).toBe('zh-Hant')
+            expect(getAuthLocaleFromRequest(request)).toBe('zh-Hant')
 
             const headers2 = new Headers()
             headers2.set('x-language', 'fr-FR')
@@ -308,7 +308,7 @@ describe('server/utils/locale.ts', () => {
                 url: 'http://localhost/',
                 headers: headers2,
             } as any
-            expect(getUserLocale(request2)).toBe('fr-FR')
+            expect(getAuthLocaleFromRequest(request2)).toBe('fr-FR')
 
             const headers3 = new Headers()
             headers3.set('x-lang', 'zh-Hans')
@@ -316,7 +316,7 @@ describe('server/utils/locale.ts', () => {
                 url: 'http://localhost/',
                 headers: headers3,
             } as any
-            expect(getUserLocale(request3)).toBe('zh-Hans')
+            expect(getAuthLocaleFromRequest(request3)).toBe('zh-Hans')
         })
 
         it('should get locale from accept-language header', () => {
@@ -326,35 +326,39 @@ describe('server/utils/locale.ts', () => {
                 url: 'http://localhost/',
                 headers,
             } as any
-            expect(getUserLocale(request)).toBe('zh-Hans')
+            expect(getAuthLocaleFromRequest(request)).toBe('zh-Hans')
         })
 
         it('should return default if nothing found', () => {
             const request = new Request('http://localhost/')
-            expect(getUserLocale(request)).toBe(DEFAULT_LOCALE)
+            expect(getAuthLocaleFromRequest(request)).toBe(AUTH_DEFAULT_LOCALE)
         })
 
         it('should handle errors', () => {
             const request = { url: 'invalid' } as any
-            expect(getUserLocale(request)).toBe(DEFAULT_LOCALE)
+            expect(getAuthLocaleFromRequest(request)).toBe(AUTH_DEFAULT_LOCALE)
         })
     })
 
-    describe('toProjectLocale', () => {
+    describe('mapAuthLocaleToAppLocale', () => {
         it('should map zh-Hans to zh-CN', () => {
-            expect(toProjectLocale('zh-Hans')).toBe('zh-CN')
+            expect(mapAuthLocaleToAppLocale('zh-Hans')).toBe('zh-CN')
+        })
+
+        it('should map zh-Hant to zh-TW', () => {
+            expect(mapAuthLocaleToAppLocale('zh-Hant')).toBe('zh-TW')
         })
 
         it('should map default to en-US', () => {
-            expect(toProjectLocale('default')).toBe('en-US')
+            expect(mapAuthLocaleToAppLocale('default')).toBe('en-US')
         })
 
         it('should map en-US to en-US', () => {
-            expect(toProjectLocale('en-US')).toBe('en-US')
+            expect(mapAuthLocaleToAppLocale('en-US')).toBe('en-US')
         })
 
         it('should return original if no mapping', () => {
-            expect(toProjectLocale('ja-JP')).toBe('ja-JP')
+            expect(mapAuthLocaleToAppLocale('ja-JP')).toBe('ja-JP')
         })
     })
 

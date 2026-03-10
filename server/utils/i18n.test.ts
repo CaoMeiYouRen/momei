@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { i18nStorage, t, loadLocaleMessages, getLocale, deepMergeMessages } from './i18n'
-import { toProjectLocale, DEFAULT_LOCALE } from './locale'
+import { mapAuthLocaleToAppLocale, AUTH_DEFAULT_LOCALE } from './locale'
 
 describe('server/utils/i18n.ts', () => {
     it('should fall back to default locale if not in store', () => {
-        expect(getLocale()).toBe(toProjectLocale(DEFAULT_LOCALE))
+        expect(getLocale()).toBe(mapAuthLocaleToAppLocale(AUTH_DEFAULT_LOCALE))
     })
 
     it('should use locale from AsyncLocalStorage run', () => {

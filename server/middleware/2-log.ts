@@ -1,4 +1,5 @@
 import logger from '@/server/utils/logger'
+import { detectRequestAuthLocale } from '@/server/utils/locale'
 
 export default defineEventHandler((event) => {
     // 只记录 API 请求
@@ -11,7 +12,7 @@ export default defineEventHandler((event) => {
     const path = event.path
     const ip = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
     const userAgent = getHeader(event, 'user-agent') || ''
-    const locale = detectUserLocale(event)
+    const locale = detectRequestAuthLocale(event)
 
     // 获取用户信息（已由 1-auth.ts 中间件挂载）
     const userId = event.context.user?.id

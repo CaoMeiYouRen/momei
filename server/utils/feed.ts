@@ -2,7 +2,7 @@ import { Feed } from 'feed'
 import MarkdownIt from 'markdown-it'
 import MarkdownItAnchor from 'markdown-it-anchor'
 import type { H3Event } from 'h3'
-import { toProjectLocale } from './locale'
+import { mapAuthLocaleToAppLocale } from './locale'
 import { applyPostVisibilityFilter } from './post-access'
 import { t, getLocale } from './i18n'
 import { applyPostsReadModelFromMetadata } from './post-metadata'
@@ -30,7 +30,7 @@ function getLegacyAudio(post: Post): LegacyAudioCarrier {
 
 export function getFeedLanguage(event: H3Event, explicitLanguage?: string): string {
     if (explicitLanguage) {
-        return toProjectLocale(explicitLanguage)
+        return mapAuthLocaleToAppLocale(explicitLanguage)
     }
     return getLocale()
 }

@@ -41,7 +41,21 @@ import { User } from '@/server/entities/user'
 import logger from '@/server/utils/logger'
 import { getTempEmail, getTempName } from '@/server/utils/auth-generators'
 import { emailService } from '@/server/utils/email/service'
-import { getUserLocale } from '@/server/utils/locale'
+import {
+    AUTH_PLUGIN_DEFAULT_LOCALE,
+    AUTH_PLUGIN_FALLBACK_LOCALE,
+    type AuthBoundaryLocale,
+    type BetterAuthPluginLocale,
+    getAuthLocaleFromRequest,
+} from '@/server/utils/locale'
+
+function toBetterAuthPluginLocale(locale?: AuthBoundaryLocale): BetterAuthPluginLocale {
+    if (!locale || locale === 'en-US') {
+        return AUTH_PLUGIN_FALLBACK_LOCALE
+    }
+
+    return locale
+}
 
 const defaultLocalOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3001']
 const resolvedAuthBaseUrl = AUTH_BASE_URL || SITE_URL || (TEST_MODE ? 'http://localhost:3001' : '')
@@ -383,20 +397,17 @@ export const auth = betterAuth({
         localization({
             // better-auth-localization 使用自己的 locale 标识体系；
             // 项目内部仍以 Locale Registry 的 AppLocaleCode 为主规范，认证层仅在这里做边界适配。
-            defaultLocale: 'zh-Hans', // better-auth 边界默认值，对应项目内部 zh-CN
-            fallbackLocale: 'default', // better-auth 默认回退值，对应项目内部默认语言
+            defaultLocale: AUTH_PLUGIN_DEFAULT_LOCALE, // better-auth 插件默认值，对应项目内部 zh-CN
+            fallbackLocale: AUTH_PLUGIN_FALLBACK_LOCALE, // better-auth 插件默认回退值，对应项目内部默认语言
             getLocale: (request) => {
                 try {
-                    const userLocale = request
-                        ? getUserLocale(request)
+                    const authLocale = request
+                        ? getAuthLocaleFromRequest(request)
                         : undefined
-                    if (!userLocale || userLocale === 'en-US') {
-                        return 'default'
-                    }
-                    return userLocale as 'default' | 'zh-Hans' | 'zh-Hant'
+                    return toBetterAuthPluginLocale(authLocale)
                 } catch (error) {
                     console.warn('Error detecting locale:', error)
-                    return 'default' // 安全回退
+                    return AUTH_PLUGIN_FALLBACK_LOCALE // 安全回退
                 }
             },
         }),

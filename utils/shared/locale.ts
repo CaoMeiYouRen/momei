@@ -5,12 +5,13 @@ import type { BuiltInLocales } from 'better-auth-localization'
  * 注意：该类型只用于认证本地化边界，不代表项目内部 locale 主规范。
  */
 export type BetterAuthLocale = BuiltInLocales | 'en-US'
+export type BetterAuthPluginLocale = Exclude<BetterAuthLocale, 'en-US'>
 
 /**
  * 认证本地化边界可识别的语言列表。
  * 项目内部业务逻辑、路由、翻译目录与 SEO 仍以 Locale Registry 中的 AppLocaleCode 为准。
  */
-export const SUPPORTED_LOCALES: readonly BetterAuthLocale[] = [
+export const AUTH_BOUNDARY_LOCALES: readonly BetterAuthLocale[] = [
     'zh-Hans', // 简体中文
     'zh-Hant', // 繁体中文
     'en-US', // 英语
@@ -33,10 +34,17 @@ export const SUPPORTED_LOCALES: readonly BetterAuthLocale[] = [
     'tr-TR', // 土耳其语
 ] as const
 
-export type SupportedLocale = typeof SUPPORTED_LOCALES[number]
+export type AuthBoundaryLocale = typeof AUTH_BOUNDARY_LOCALES[number]
 
 /**
  * better-auth 本地化边界的默认语言设置（简体中文脚本标识）。
  */
-export const DEFAULT_LOCALE: SupportedLocale = 'zh-Hans'
-export const FALLBACK_LOCALE: SupportedLocale = 'default'
+export const AUTH_DEFAULT_LOCALE: AuthBoundaryLocale = 'zh-Hans'
+export const AUTH_FALLBACK_LOCALE: AuthBoundaryLocale = 'default'
+
+/**
+ * better-auth-localization 插件实际接受的 locale 值。
+ * `en-US` 仅用于请求边界探测，传递给插件时需要折叠到 `default`。
+ */
+export const AUTH_PLUGIN_DEFAULT_LOCALE: BetterAuthPluginLocale = 'zh-Hans'
+export const AUTH_PLUGIN_FALLBACK_LOCALE: BetterAuthPluginLocale = 'default'

@@ -4,33 +4,48 @@
  */
 
 import { type H3Event, parseCookies, getHeader, setCookie, getQuery } from 'h3'
-import { SUPPORTED_LOCALES, DEFAULT_LOCALE, FALLBACK_LOCALE, type SupportedLocale } from '@/utils/shared/locale'
+import type { AppLocaleCode } from '@/i18n/config/locale-registry'
+import {
+    AUTH_BOUNDARY_LOCALES,
+    AUTH_DEFAULT_LOCALE,
+    AUTH_FALLBACK_LOCALE,
+    type AuthBoundaryLocale,
+    type BetterAuthPluginLocale,
+    AUTH_PLUGIN_DEFAULT_LOCALE,
+    AUTH_PLUGIN_FALLBACK_LOCALE,
+} from '@/utils/shared/locale'
 
-export { SUPPORTED_LOCALES, DEFAULT_LOCALE, FALLBACK_LOCALE, type SupportedLocale }
+export {
+    AUTH_BOUNDARY_LOCALES,
+    AUTH_DEFAULT_LOCALE,
+    AUTH_FALLBACK_LOCALE,
+    type AuthBoundaryLocale,
+    type BetterAuthPluginLocale,
+    AUTH_PLUGIN_DEFAULT_LOCALE,
+    AUTH_PLUGIN_FALLBACK_LOCALE,
+}
+
+const AUTH_TO_APP_LOCALE_MAP: Partial<Record<AuthBoundaryLocale, AppLocaleCode>> = {
+    'zh-Hans': 'zh-CN',
+    'zh-Hant': 'zh-TW',
+    'en-US': 'en-US',
+    'ko-KR': 'ko-KR',
+    default: 'en-US',
+}
 
 /**
- * 将支持的语言代码转换为项目内部使用的语言代码 (如数据库和 i18n 文件)
- * zh-Hans -> zh-CN
- * en-US -> en-US
- * default -> en-US
- * @param locale 支持的语言代码
- * @returns 项目内部语言代码
+ * 将认证本地化边界的语言代码映射为项目内部使用的 AppLocaleCode。
+ * 例如：zh-Hans -> zh-CN, zh-Hant -> zh-TW, default -> en-US。
  */
-export function toProjectLocale(locale: string): string {
-    if (locale === 'zh-Hans') {
-        return 'zh-CN'
-    }
-    if (locale === 'en-US' || locale === 'default') {
-        return 'en-US'
-    }
-    return locale
+export function mapAuthLocaleToAppLocale(locale: string): string {
+    return AUTH_TO_APP_LOCALE_MAP[locale as AuthBoundaryLocale] || locale
 }
 
 /**
  * 语言代码映射表
  * 用于将常见的语言代码转换为支持的语言代码
  */
-const LOCALE_MAPPING: Record<string, SupportedLocale> = {
+const LOCALE_MAPPING: Record<string, AuthBoundaryLocale> = {
     // 中文变体映射
     zh: 'zh-Hans',
     'zh-cn': 'zh-Hans',
@@ -114,12 +129,12 @@ const LOCALE_MAPPING: Record<string, SupportedLocale> = {
  * @param locale 原始语言代码
  * @returns 标准化后的语言代码
  */
-export function normalizeLocale(locale: string): SupportedLocale {
+export function normalizeLocale(locale: string): AuthBoundaryLocale {
     // 转换为小写并去除空格
     const cleanLocale = locale.trim().toLowerCase()
 
     // 如果直接匹配支持的语言，返回该语言
-    const directMatch = SUPPORTED_LOCALES.find(
+    const directMatch = AUTH_BOUNDARY_LOCALES.find(
         (supportedLocale) => supportedLocale.toLowerCase() === cleanLocale,
     )
     if (directMatch) {
@@ -134,7 +149,7 @@ export function normalizeLocale(locale: string): SupportedLocale {
 
     // 尝试前缀匹配（例如 'zh-xxx' -> 'zh-Hans'）
     const languagePrefix = cleanLocale.split('-')[0]
-    const prefixMatch = SUPPORTED_LOCALES.find(
+    const prefixMatch = AUTH_BOUNDARY_LOCALES.find(
         (supportedLocale) => supportedLocale.toLowerCase().startsWith(`${languagePrefix}-`)
             || supportedLocale.toLowerCase() === languagePrefix,
     )
@@ -143,7 +158,7 @@ export function normalizeLocale(locale: string): SupportedLocale {
     }
 
     // 如果都不匹配，返回默认语言
-    return DEFAULT_LOCALE
+    return AUTH_DEFAULT_LOCALE
 }
 
 /**
@@ -151,9 +166,9 @@ export function normalizeLocale(locale: string): SupportedLocale {
  * @param acceptLanguage Accept-Language 头部值
  * @returns 按优先级排序的语言列表
  */
-export function parseAcceptLanguage(acceptLanguage: string): SupportedLocale[] {
+export function parseAcceptLanguage(acceptLanguage: string): AuthBoundaryLocale[] {
     if (!acceptLanguage) {
-        return [DEFAULT_LOCALE]
+        return [AUTH_DEFAULT_LOCALE]
     }
 
     // 解析 Accept-Language 头部
@@ -173,8 +188,8 @@ export function parseAcceptLanguage(acceptLanguage: string): SupportedLocale[] {
 
     // 去重并确保至少有默认语言
     const uniqueLanguages = [...new Set(languages)]
-    if (!uniqueLanguages.includes(DEFAULT_LOCALE)) {
-        uniqueLanguages.push(DEFAULT_LOCALE)
+    if (!uniqueLanguages.includes(AUTH_DEFAULT_LOCALE)) {
+        uniqueLanguages.push(AUTH_DEFAULT_LOCALE)
     }
 
     return uniqueLanguages
@@ -185,13 +200,13 @@ export function parseAcceptLanguage(acceptLanguage: string): SupportedLocale[] {
  * @param event H3Event 对象
  * @returns 用户设置的语言或 null
  */
-export function getLocaleFromQuery(event: H3Event): SupportedLocale | null {
+export function getLocaleFromQuery(event: H3Event): AuthBoundaryLocale | null {
     try {
         const query = getQuery(event)
         const locale = (query.locale || query.lang || query.language) as string
 
-        if (locale && SUPPORTED_LOCALES.includes(locale as SupportedLocale)) {
-            return locale as SupportedLocale
+        if (locale && AUTH_BOUNDARY_LOCALES.includes(locale as AuthBoundaryLocale)) {
+            return locale as AuthBoundaryLocale
         }
 
         if (locale) {
@@ -210,13 +225,13 @@ export function getLocaleFromQuery(event: H3Event): SupportedLocale | null {
  * @param event H3Event 对象
  * @returns 用户设置的语言或 null
  */
-export function getLocaleFromCookie(event: H3Event): SupportedLocale | null {
+export function getLocaleFromCookie(event: H3Event): AuthBoundaryLocale | null {
     try {
         const cookies = parseCookies(event)
         const locale = cookies.locale || cookies.language || cookies.lang
 
-        if (locale && SUPPORTED_LOCALES.includes(locale as SupportedLocale)) {
-            return locale as SupportedLocale
+        if (locale && AUTH_BOUNDARY_LOCALES.includes(locale as AuthBoundaryLocale)) {
+            return locale as AuthBoundaryLocale
         }
 
         if (locale) {
@@ -235,7 +250,7 @@ export function getLocaleFromCookie(event: H3Event): SupportedLocale | null {
  * @param event H3Event 对象
  * @returns 首选语言
  */
-export function getLocaleFromHeaders(event: H3Event): SupportedLocale {
+export function getLocaleFromHeaders(event: H3Event): AuthBoundaryLocale {
     try {
         // 检查自定义头部
         const customLocale = getHeader(event, 'x-locale')
@@ -250,13 +265,13 @@ export function getLocaleFromHeaders(event: H3Event): SupportedLocale {
         const acceptLanguage = getHeader(event, 'accept-language')
         if (acceptLanguage) {
             const languages = parseAcceptLanguage(acceptLanguage)
-            return languages[0] || DEFAULT_LOCALE
+            return languages[0] || AUTH_DEFAULT_LOCALE
         }
 
-        return DEFAULT_LOCALE
+        return AUTH_DEFAULT_LOCALE
     } catch (error) {
         console.warn('Error getting locale from headers:', error)
-        return DEFAULT_LOCALE
+        return AUTH_DEFAULT_LOCALE
     }
 }
 
@@ -267,10 +282,10 @@ export function getLocaleFromHeaders(event: H3Event): SupportedLocale {
  * @param options 配置选项
  * @returns 检测到的语言
  */
-export function detectUserLocale(
+export function detectRequestAuthLocale(
     event: H3Event,
     options: { includeQuery?: boolean } = { includeQuery: true },
-): SupportedLocale {
+): AuthBoundaryLocale {
     // 0. 从查询参数获取（如果启用）
     if (options.includeQuery) {
         const queryLocale = getLocaleFromQuery(event)
@@ -297,7 +312,7 @@ export function detectUserLocale(
  */
 export function setLocaleCookie(
     event: H3Event,
-    locale: SupportedLocale,
+    locale: AuthBoundaryLocale,
     options: {
         maxAge?: number
         domain?: string
@@ -321,11 +336,11 @@ export function setLocaleCookie(
 }
 
 /**
- * 获取用户语言（为 better-auth localization 插件使用）
+ * 获取认证层应使用的语言（供 better-auth localization 插件消费）
  * @param request Request 对象
  * @returns 用户语言
  */
-export function getUserLocale(request: Request): SupportedLocale {
+export function getAuthLocaleFromRequest(request: Request): AuthBoundaryLocale {
     try {
         // 从 URL 查询参数获取语言
         const url = new URL(request.url)
@@ -333,8 +348,8 @@ export function getUserLocale(request: Request): SupportedLocale {
             || url.searchParams.get('lang')
             || url.searchParams.get('language')
 
-        if (urlLocale && SUPPORTED_LOCALES.includes(urlLocale as SupportedLocale)) {
-            return urlLocale as SupportedLocale
+        if (urlLocale && AUTH_BOUNDARY_LOCALES.includes(urlLocale as AuthBoundaryLocale)) {
+            return urlLocale as AuthBoundaryLocale
         }
 
         if (urlLocale) {
@@ -355,8 +370,8 @@ export function getUserLocale(request: Request): SupportedLocale {
                 }, {} as Record<string, string>)
 
             const cookieLocale = cookies.locale || cookies.language || cookies.lang
-            if (cookieLocale && SUPPORTED_LOCALES.includes(cookieLocale as SupportedLocale)) {
-                return cookieLocale as SupportedLocale
+            if (cookieLocale && AUTH_BOUNDARY_LOCALES.includes(cookieLocale as AuthBoundaryLocale)) {
+                return cookieLocale as AuthBoundaryLocale
             }
 
             if (cookieLocale) {
@@ -377,12 +392,12 @@ export function getUserLocale(request: Request): SupportedLocale {
         const acceptLanguage = request.headers.get('accept-language')
         if (acceptLanguage) {
             const languages = parseAcceptLanguage(acceptLanguage)
-            return languages[0] || DEFAULT_LOCALE
+            return languages[0] || AUTH_DEFAULT_LOCALE
         }
 
-        return DEFAULT_LOCALE
+        return AUTH_DEFAULT_LOCALE
     } catch (error) {
         console.warn('Error getting user locale:', error)
-        return DEFAULT_LOCALE
+        return AUTH_DEFAULT_LOCALE
     }
 }

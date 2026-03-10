@@ -1,5 +1,5 @@
 import { defineEventHandler } from 'h3'
-import { detectUserLocale, toProjectLocale } from '../utils/locale'
+import { detectRequestAuthLocale, mapAuthLocaleToAppLocale } from '../utils/locale'
 import { i18nStorage } from '../utils/i18n'
 import { resolveAppLocaleCode } from '@/i18n/config/locale-registry'
 
@@ -14,15 +14,15 @@ export default defineEventHandler((event) => {
     }
 
     // 1. 设置请求上下文中的语言标识
-    const rawLocale = detectUserLocale(event)
-    const projectLocale = resolveAppLocaleCode(toProjectLocale(rawLocale))
+    const rawLocale = detectRequestAuthLocale(event)
+    const appLocale = resolveAppLocaleCode(mapAuthLocaleToAppLocale(rawLocale))
 
     // 保存到 H3 Event 上下文，供不需要 AsyncLocalStorage 的逻辑使用
-    event.context.locale = projectLocale
+    event.context.locale = appLocale
 
     // 2. 利用 AsyncLocalStorage.run() 实现异步生命周期隔离
-    // 该方法能让所有在此期间运行的子任务、工具方法等感知当前的 projectLocale
-    return i18nStorage.run(projectLocale, () => {
+    // 该方法能让所有在此期间运行的子任务、工具方法等感知当前的 appLocale
+    return i18nStorage.run(appLocale, () => {
         // 继续执行后续 Handler
     })
 })
