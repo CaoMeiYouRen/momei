@@ -21,6 +21,7 @@ describe('/api/posts', () => {
     let author: User
     let category: Category
     let tag: Tag
+    const translationClusterId = generateRandomString(12)
 
     beforeAll(async () => {
         // Initialize DB
@@ -71,6 +72,30 @@ describe('/api/posts', () => {
             post.publishedAt = new Date()
             await postRepo.save(post)
         }
+
+        const translatedZhPost = new Post()
+        translatedZhPost.title = '回退中文文章'
+        translatedZhPost.slug = generateRandomString(10)
+        translatedZhPost.content = 'Chinese fallback content'
+        translatedZhPost.summary = 'Chinese summary'
+        translatedZhPost.status = PostStatus.PUBLISHED
+        translatedZhPost.author = author
+        translatedZhPost.language = 'zh-CN'
+        translatedZhPost.translationId = translationClusterId
+        translatedZhPost.publishedAt = new Date()
+        await postRepo.save(translatedZhPost)
+
+        const translatedEnPost = new Post()
+        translatedEnPost.title = 'Fallback English Post'
+        translatedEnPost.slug = generateRandomString(10)
+        translatedEnPost.content = 'English fallback content'
+        translatedEnPost.summary = 'English summary'
+        translatedEnPost.status = PostStatus.PUBLISHED
+        translatedEnPost.author = author
+        translatedEnPost.language = 'en-US'
+        translatedEnPost.translationId = translationClusterId
+        translatedEnPost.publishedAt = new Date()
+        await postRepo.save(translatedEnPost)
     })
 
     it('should return posts list', async () => {
@@ -285,5 +310,29 @@ describe('/api/posts', () => {
 
         expect(result.code).toBe(200)
         expect(result.data!.items).toEqual([])
+    })
+
+    it('should deduplicate fallback translations for ui-ready locales', async () => {
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                language: 'zh-TW',
+                orderBy: 'publishedAt',
+                order: 'DESC',
+            },
+        } as any
+
+        const result = await postsHandler(event)
+        const clusterPosts = result.data!.items.filter((item: any) => item.translationId === translationClusterId)
+
+        expect(result.code).toBe(200)
+        expect(clusterPosts).toHaveLength(1)
+        expect(clusterPosts[0]?.language).toBe('zh-CN')
+        expect(clusterPosts[0]?.title).toBe('回退中文文章')
     })
 })

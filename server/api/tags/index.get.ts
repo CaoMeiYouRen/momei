@@ -11,22 +11,16 @@ export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => tagQuerySchema.parse(q))
 
     const tagRepo = dataSource.getRepository(Tag)
+    const postCountSelect = 'COUNT(DISTINCT COALESCE(p.translationId, p.id))'
 
     const queryBuilder = tagRepo.createQueryBuilder('tag')
         .addSelect((subQuery) => {
-            const qb = subQuery
-                .select('count(p.id)', 'postCount')
+            return subQuery
+                .select(postCountSelect, 'postCount')
                 .from(Post, 'p')
                 .innerJoin('p.tags', 'pt')
-                .where('pt.id = tag.id')
+                .where('COALESCE(pt.translationId, pt.id) = COALESCE(tag.translationId, tag.id)')
                 .andWhere('p.status = :publishedStatus', { publishedStatus: 'published' })
-
-            if (query.language) {
-                qb.andWhere('p.language = :language', { language: query.language })
-            } else {
-                qb.andWhere('p.language = tag.language')
-            }
-            return qb
         }, 'tag_postCount')
 
     // Handle Aggregation
@@ -48,26 +42,23 @@ export default defineEventHandler(async (event) => {
     if (query.orderBy === 'postCount') {
         // Use subquery for sorting by relation count
         queryBuilder.addSelect((subQuery: SelectQueryBuilder<any>) => {
-            const qb = subQuery
-                .select('count(p.id)', 'pcount')
+            return subQuery
+                .select(postCountSelect, 'pcount')
                 .from(Post, 'p')
                 .innerJoin('p.tags', 'pt')
-                .where('pt.id = tag.id')
+                .where('COALESCE(pt.translationId, pt.id) = COALESCE(tag.translationId, tag.id)')
                 .andWhere('p.status = :publishedStatus', { publishedStatus: 'published' })
-
-            if (query.language) {
-                qb.andWhere('p.language = :language', { language: query.language })
-            } else {
-                qb.andWhere('p.language = tag.language')
-            }
-            return qb
         }, 'pcount')
         queryBuilder.orderBy('pcount', query.order || 'DESC')
     } else {
         queryBuilder.orderBy(`tag.${query.orderBy || 'createdAt'}`, query.order || 'DESC')
     }
 
-    const [items, total] = await applyPagination(queryBuilder, query).getManyAndCount()
+    const total = await queryBuilder.clone().getCount()
+    const { entities, raw } = await applyPagination(queryBuilder, query).getRawAndEntities()
+    const items = entities.map((item, index) => Object.assign(item, {
+        postCount: Number(raw[index]?.tag_postCount || 0),
+    }))
 
     // Attach translation information
     await attachTranslations(items as any, tagRepo, {

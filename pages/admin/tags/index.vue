@@ -39,6 +39,7 @@
                 :total-records="pagination.total"
                 :rows="pagination.limit"
                 paginator
+                :rows-per-page-options="[5, 10, 20, 50]"
                 class="p-datatable-sm"
                 @page="onPage"
                 @sort="onSort"

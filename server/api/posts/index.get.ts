@@ -12,6 +12,7 @@ import { applyPostVisibilityFilter } from '@/server/utils/post-access'
 import { applyTranslationAggregation, attachTranslations } from '@/server/utils/translation'
 import { applyPostsReadModelFromMetadata } from '@/server/utils/post-metadata'
 import { SettingKey } from '@/types/setting'
+import { getLocaleRegistryItem } from '@/i18n/config/locale-registry'
 
 export default defineEventHandler(async (event) => {
     const postsPerPage = await getSetting(SettingKey.POSTS_PER_PAGE, '10')
@@ -102,27 +103,39 @@ export default defineEventHandler(async (event) => {
     }
 
     if (query.language && query.scope !== 'manage') {
-        // Public Multi-language aggregation logic:
-        // 1. Show posts in the target language.
-        // 2. Show posts in other languages ONLY IF there is no version in the target language for that cluster.
-        // 3. Unique posts (translationId is null) are always shown.
+        const fallbackChain = getLocaleRegistryItem(query.language).fallbackChain
+
         qb.andWhere(new Brackets((sub: WhereExpressionBuilder) => {
-            sub.where('post.language = :language', { language: query.language })
-                .orWhere(new Brackets((ss: WhereExpressionBuilder) => {
-                    ss.where('post.translationId IS NOT NULL')
-                        .andWhere('post.language != :language', { language: query.language })
-                        .andWhere((subQb: SelectQueryBuilder<any>) => {
+            sub.where('post.translationId IS NULL')
+
+            fallbackChain.forEach((fallbackLanguage, index) => {
+                const languageParam = index === 0 ? 'language' : `fallbackLanguage${index}`
+                const params: Record<string, string | string[]> = {
+                    [languageParam]: fallbackLanguage,
+                }
+
+                sub.orWhere(new Brackets((candidate: WhereExpressionBuilder) => {
+                    candidate.where('post.translationId IS NOT NULL')
+                        .andWhere(`post.language = :${languageParam}`, params)
+
+                    const previousLanguages = fallbackChain.slice(0, index)
+                    if (previousLanguages.length > 0) {
+                        const previousLanguagesParam = `previousLanguages${index}`
+                        candidate.andWhere((subQb: SelectQueryBuilder<Post>) => {
                             const existsQuery = subQb.subQuery()
                                 .select('1')
                                 .from(Post, 'p2')
                                 .where('p2.translationId = post.translationId')
-                                .andWhere('p2.language = :language', { language: query.language })
-                                .andWhere('p2.status = :status', { status: 'published' })
+                                .andWhere('p2.status = :publishedStatus', { publishedStatus: 'published' })
+                                .andWhere(`p2.language IN (:...${previousLanguagesParam})`, {
+                                    [previousLanguagesParam]: previousLanguages,
+                                })
                                 .getQuery()
                             return `NOT EXISTS ${existsQuery}`
                         })
+                    }
                 }))
-                .orWhere('post.translationId IS NULL')
+            })
         }))
     }
 

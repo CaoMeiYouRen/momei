@@ -97,16 +97,29 @@
             <div class="form-group">
                 <div class="flex items-center justify-between mb-2">
                     <label for="tags" class="form-label mb-0">{{ $t('common.tags') }}</label>
-                    <Button
-                        id="ai-tags-btn"
-                        v-tooltip="$t('pages.admin.posts.ai.recommend_tags')"
-                        icon="pi pi-sparkles"
-                        size="small"
-                        text
-                        rounded
-                        :loading="aiLoading.tags"
-                        @click="emit('recommend-tags')"
-                    />
+                    <div class="settings-sidebar__tag-actions">
+                        <Button
+                            v-if="post.tags?.length"
+                            id="clear-tags-btn"
+                            v-tooltip="$t('pages.admin.posts.clear_tags')"
+                            icon="pi pi-trash"
+                            size="small"
+                            text
+                            rounded
+                            severity="danger"
+                            @click="confirmClearTags"
+                        />
+                        <Button
+                            id="ai-tags-btn"
+                            v-tooltip="$t('pages.admin.posts.ai.recommend_tags')"
+                            icon="pi pi-sparkles"
+                            size="small"
+                            text
+                            rounded
+                            :loading="aiLoading.tags"
+                            @click="emit('recommend-tags')"
+                        />
+                    </div>
                 </div>
                 <AutoComplete
                     v-model="post.tags"
@@ -347,14 +360,16 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { format as bytes } from 'better-bytes'
 import { secondsToDuration, durationToSeconds } from '@/utils/shared/date'
 import { isValidCustomUrl } from '@/utils/shared/validate'
 import { UploadType } from '@/composables/use-upload'
 import { usePostExport } from '@/composables/use-post-export'
+import type { PostEditorData } from '@/types/post-editor'
 
-const post = defineModel<any>('post', { required: true })
+const post = defineModel<PostEditorData>('post', { required: true })
 
 const props = defineProps<{
     errors: Record<string, string>
@@ -379,7 +394,9 @@ const probing = ref(false)
 const showImagePreview = ref(false)
 const showAudioPlayer = ref(false)
 const toast = useToast()
+const confirm = useConfirm()
 const { exporting, exportPost } = usePostExport()
+const { t } = useI18n()
 
 const isValidImageUrl = computed(() => {
     return post.value.coverImage && isValidCustomUrl(post.value.coverImage)
@@ -475,6 +492,30 @@ const toggleAudio = () => {
     showAudioPlayer.value = !showAudioPlayer.value
 }
 
+const confirmClearTags = () => {
+    if (!post.value.tags.length) {
+        return
+    }
+
+    confirm.require({
+        message: t('pages.admin.posts.clear_tags_confirm_message'),
+        header: t('pages.admin.posts.clear_tags_confirm_title'),
+        icon: 'pi pi-exclamation-triangle',
+        acceptProps: {
+            label: t('common.delete'),
+            severity: 'danger',
+        },
+        rejectProps: {
+            label: t('common.cancel'),
+            severity: 'secondary',
+            text: true,
+        },
+        accept: () => {
+            post.value.tags = []
+        },
+    })
+}
+
 watch(() => post.value.coverImage, () => {
     showImagePreview.value = false
 })
@@ -563,6 +604,12 @@ const probeAudio = async () => {
 
     &__actions {
         display: flex;
+        gap: 0.25rem;
+    }
+
+    &__tag-actions {
+        display: flex;
+        align-items: center;
         gap: 0.25rem;
     }
 

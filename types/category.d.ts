@@ -2,6 +2,7 @@ export interface Category {
     id: string
     name: string
     slug: string
+    postCount?: number
     description?: string | null
     parentId?: string | null
     parent?: Category | null

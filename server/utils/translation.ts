@@ -1,4 +1,9 @@
 import { type SelectQueryBuilder, type Repository, type ObjectLiteral, In } from 'typeorm'
+import { getLocaleRegistryItem } from '@/i18n/config/locale-registry'
+
+export function resolveTranslationFallbackChain(language?: string) {
+    return [...getLocaleRegistryItem(language).fallbackChain]
+}
 
 /**
  * 为 QueryBuilder 应用翻译聚合逻辑
@@ -19,9 +24,19 @@ export function applyTranslationAggregation<T extends ObjectLiteral>(
     },
 ) {
     const { language = 'zh-CN', mainAlias, subAlias = 't2', applyFilters } = options
+    const [preferredLanguage, ...fallbackLanguages] = resolveTranslationFallbackChain(language)
+    const fallbackParams = fallbackLanguages.reduce<Record<string, string>>((acc, fallbackLanguage, index) => {
+        acc[`fallbackLang${index}`] = fallbackLanguage
+        return acc
+    }, {})
+
+    const languageSelectors = [
+        `MIN(CASE WHEN ${subAlias}.language = :prefLang THEN ${subAlias}.id END)`,
+        ...fallbackLanguages.map((_, index) => `MIN(CASE WHEN ${subAlias}.language = :fallbackLang${index} THEN ${subAlias}.id END)`),
+    ]
 
     const subQuery = repo.createQueryBuilder(subAlias)
-        .select(`COALESCE(MIN(CASE WHEN ${subAlias}.language = :prefLang THEN ${subAlias}.id END), MIN(${subAlias}.id))`)
+        .select(`COALESCE(${languageSelectors.join(', ')}, MIN(${subAlias}.id))`)
         .groupBy(`COALESCE(${subAlias}.translationId, ${subAlias}.id)`)
 
     if (applyFilters) {
@@ -29,7 +44,8 @@ export function applyTranslationAggregation<T extends ObjectLiteral>(
     }
 
     qb.andWhere(`${mainAlias}.id IN (${subQuery.getQuery()})`)
-    qb.setParameter('prefLang', language)
+    qb.setParameter('prefLang', preferredLanguage)
+    qb.setParameters(fallbackParams)
     qb.setParameters(subQuery.getParameters())
 
     return qb

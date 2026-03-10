@@ -18,6 +18,7 @@ vi.mock('@/lib/auth', () => ({
 
 describe('/api/categories', () => {
     let author: User
+    const translatedCategoryGroup = `tech-group-${generateRandomString(6)}`
 
     beforeAll(async () => {
         // Initialize DB
@@ -36,6 +37,9 @@ describe('/api/categories', () => {
             { name: '技术', slug: 'tech', description: '技术相关文章', language: 'zh' },
             { name: '生活', slug: 'life', description: '生活随笔', language: 'zh' },
             { name: 'Technology', slug: 'technology', description: 'Tech articles', language: 'en' },
+            { name: '技术专题', slug: 'tech-cn-fallback', description: '简体分类', language: 'zh-CN', translationId: translatedCategoryGroup },
+            { name: 'Technology Fallback', slug: 'tech-en-fallback', description: 'English category', language: 'en-US', translationId: translatedCategoryGroup },
+            { name: '技術專題', slug: 'tech-zh-tw-fallback', description: '繁體分類', language: 'zh-TW', translationId: translatedCategoryGroup },
         ]
 
         for (const cat of categories) {
@@ -44,6 +48,7 @@ describe('/api/categories', () => {
             category.slug = cat.slug
             category.description = cat.description
             category.language = cat.language
+            category.translationId = cat.translationId || null
             await categoryRepo.save(category)
         }
 
@@ -63,6 +68,35 @@ describe('/api/categories', () => {
                 post.publishedAt = new Date()
                 await postRepo.save(post)
             }
+        }
+
+        const translatedZhCategory = await categoryRepo.findOne({ where: { slug: 'tech-cn-fallback' } })
+        const translatedEnCategory = await categoryRepo.findOne({ where: { slug: 'tech-en-fallback' } })
+
+        if (translatedZhCategory && translatedEnCategory) {
+            const zhPost = new Post()
+            zhPost.title = '分类回退中文文章'
+            zhPost.slug = generateRandomString(10)
+            zhPost.content = 'Content'
+            zhPost.status = PostStatus.PUBLISHED
+            zhPost.author = author
+            zhPost.category = translatedZhCategory
+            zhPost.language = 'zh-CN'
+            zhPost.translationId = 'category-fallback-post'
+            zhPost.publishedAt = new Date()
+            await postRepo.save(zhPost)
+
+            const enPost = new Post()
+            enPost.title = 'Category fallback English post'
+            enPost.slug = generateRandomString(10)
+            enPost.content = 'Content'
+            enPost.status = PostStatus.PUBLISHED
+            enPost.author = author
+            enPost.category = translatedEnCategory
+            enPost.language = 'en-US'
+            enPost.translationId = 'category-fallback-post'
+            enPost.publishedAt = new Date()
+            await postRepo.save(enPost)
         }
     })
 
@@ -189,5 +223,26 @@ describe('/api/categories', () => {
         // The 'tech' category should have the highest post count
         const techCategory = result.data!.items.find((item: Category) => item.slug === 'tech')
         expect(techCategory).toBeDefined()
+    })
+
+    it('should count translated category posts for zh-TW fallback pages', async () => {
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                language: 'zh-TW',
+            },
+        } as any
+
+        const result = await categoriesHandler(event)
+        const translatedCategory = result.data!.items.find((item: any) => item.slug === 'tech-zh-tw-fallback')
+
+        expect(result.code).toBe(200)
+        expect(translatedCategory).toBeDefined()
+        expect(translatedCategory.postCount).toBe(1)
     })
 })

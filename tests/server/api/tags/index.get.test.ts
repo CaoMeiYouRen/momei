@@ -18,6 +18,7 @@ vi.mock('@/lib/auth', () => ({
 
 describe('/api/tags', () => {
     let author: User
+    const translatedTagGroup = `tag-group-${generateRandomString(6)}`
 
     beforeAll(async () => {
         // Initialize DB
@@ -36,6 +37,9 @@ describe('/api/tags', () => {
             { name: 'JavaScript', slug: 'javascript', language: 'en' },
             { name: 'Python', slug: 'python', language: 'en' },
             { name: '前端', slug: 'frontend', language: 'zh' },
+            { name: '回退标签', slug: 'fallback-tag-zh-cn', language: 'zh-CN', translationId: translatedTagGroup },
+            { name: 'Fallback Tag', slug: 'fallback-tag-en-us', language: 'en-US', translationId: translatedTagGroup },
+            { name: '回退標籤', slug: 'fallback-tag-zh-tw', language: 'zh-TW', translationId: translatedTagGroup },
         ]
 
         for (const t of tags) {
@@ -43,6 +47,7 @@ describe('/api/tags', () => {
             tag.name = t.name
             tag.slug = t.slug
             tag.language = t.language
+            tag.translationId = t.translationId || null
             await tagRepo.save(tag)
         }
 
@@ -62,6 +67,35 @@ describe('/api/tags', () => {
                 post.publishedAt = new Date()
                 await postRepo.save(post)
             }
+        }
+
+        const fallbackZhTag = await tagRepo.findOne({ where: { slug: 'fallback-tag-zh-cn' } })
+        const fallbackEnTag = await tagRepo.findOne({ where: { slug: 'fallback-tag-en-us' } })
+
+        if (fallbackZhTag && fallbackEnTag) {
+            const zhPost = new Post()
+            zhPost.title = '标签回退中文文章'
+            zhPost.slug = generateRandomString(10)
+            zhPost.content = 'Content'
+            zhPost.status = PostStatus.PUBLISHED
+            zhPost.author = author
+            zhPost.tags = [fallbackZhTag]
+            zhPost.language = 'zh-CN'
+            zhPost.translationId = 'tag-fallback-post'
+            zhPost.publishedAt = new Date()
+            await postRepo.save(zhPost)
+
+            const enPost = new Post()
+            enPost.title = 'Tag fallback English post'
+            enPost.slug = generateRandomString(10)
+            enPost.content = 'Content'
+            enPost.status = PostStatus.PUBLISHED
+            enPost.author = author
+            enPost.tags = [fallbackEnTag]
+            enPost.language = 'en-US'
+            enPost.translationId = 'tag-fallback-post'
+            enPost.publishedAt = new Date()
+            await postRepo.save(enPost)
         }
     })
 
@@ -165,5 +199,26 @@ describe('/api/tags', () => {
 
         expect(result.code).toBe(200)
         expect(result.data!.items).toEqual([])
+    })
+
+    it('should count translated tag posts for zh-TW fallback pages', async () => {
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                language: 'zh-TW',
+            },
+        } as any
+
+        const result = await tagsHandler(event)
+        const translatedTag = result.data!.items.find((item: any) => item.slug === 'fallback-tag-zh-tw')
+
+        expect(result.code).toBe(200)
+        expect(translatedTag).toBeDefined()
+        expect(translatedTag.postCount).toBe(1)
     })
 })

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import type { SelectQueryBuilder, Repository } from 'typeorm'
-import { applyTranslationAggregation, attachTranslations } from './translation'
+import { applyTranslationAggregation, attachTranslations, resolveTranslationFallbackChain } from './translation'
 
 describe('translation utils', () => {
     beforeEach(() => {
@@ -8,6 +8,11 @@ describe('translation utils', () => {
     })
 
     describe('applyTranslationAggregation', () => {
+        it('should resolve locale fallback chain from locale registry', () => {
+            expect(resolveTranslationFallbackChain('zh-TW')).toEqual(['zh-TW', 'zh-CN', 'en-US'])
+            expect(resolveTranslationFallbackChain('ko-KR')).toEqual(['ko-KR', 'en-US', 'zh-CN'])
+        })
+
         it('should apply translation aggregation with default language', () => {
             const mockSubQuery = {
                 select: vi.fn().mockReturnThis(),
@@ -62,6 +67,7 @@ describe('translation utils', () => {
             })
 
             expect(mockQb.setParameter).toHaveBeenCalledWith('prefLang', 'en-US')
+            expect(mockQb.setParameters).toHaveBeenCalledWith({ fallbackLang0: 'zh-CN' })
         })
 
         it('should use custom subAlias when provided', () => {

@@ -11,22 +11,17 @@ export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => categoryQuerySchema.parse(q))
 
     const categoryRepo = dataSource.getRepository(Category)
+    const postCountSelect = 'COUNT(DISTINCT COALESCE(p.translationId, p.id))'
 
     const queryBuilder = categoryRepo.createQueryBuilder('category')
         .leftJoinAndSelect('category.parent', 'parent')
         .addSelect((subQuery) => {
-            const qb = subQuery
-                .select('count(p.id)', 'postCount')
+            return subQuery
+                .select(postCountSelect, 'postCount')
                 .from(Post, 'p')
-                .where('p.categoryId = category.id')
+                .innerJoin(Category, 'postCategory', 'postCategory.id = p.categoryId')
+                .where('COALESCE(postCategory.translationId, postCategory.id) = COALESCE(category.translationId, category.id)')
                 .andWhere('p.status = :publishedStatus', { publishedStatus: 'published' })
-
-            if (query.language) {
-                qb.andWhere('p.language = :language', { language: query.language })
-            } else {
-                qb.andWhere('p.language = category.language')
-            }
-            return qb
         }, 'category_postCount')
 
     // Handle Aggregation
@@ -52,25 +47,23 @@ export default defineEventHandler(async (event) => {
     if (query.orderBy === 'postCount') {
         // Use subquery for sorting by relation count
         queryBuilder.addSelect((subQuery: SelectQueryBuilder<any>) => {
-            const qb = subQuery
-                .select('count(p.id)', 'pcount')
+            return subQuery
+                .select(postCountSelect, 'pcount')
                 .from(Post, 'p')
-                .where('p.categoryId = category.id')
+                .innerJoin(Category, 'postCategory', 'postCategory.id = p.categoryId')
+                .where('COALESCE(postCategory.translationId, postCategory.id) = COALESCE(category.translationId, category.id)')
                 .andWhere('p.status = :publishedStatus', { publishedStatus: 'published' })
-
-            if (query.language) {
-                qb.andWhere('p.language = :language', { language: query.language })
-            } else {
-                qb.andWhere('p.language = category.language')
-            }
-            return qb
         }, 'pcount')
         queryBuilder.orderBy('pcount', query.order || 'DESC')
     } else {
         queryBuilder.orderBy(`category.${query.orderBy || 'createdAt'}`, query.order || 'DESC')
     }
 
-    const [items, total] = await applyPagination(queryBuilder, query).getManyAndCount()
+    const total = await queryBuilder.clone().getCount()
+    const { entities, raw } = await applyPagination(queryBuilder, query).getRawAndEntities()
+    const items = entities.map((item, index) => Object.assign(item, {
+        postCount: Number(raw[index]?.category_postCount || 0),
+    }))
 
     // Attach translation information
     await attachTranslations(items as any, categoryRepo, {

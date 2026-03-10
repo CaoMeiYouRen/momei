@@ -86,6 +86,16 @@
 		- [x] 治理清单：沉淀模块 parity、PrimeVue、邮件 locale、SEO 与 sitemap 五类发布门禁。
 		- [x] 贡献指南：补充新增语言的术语约束、翻译流程与回归命令说明。
 		- [x] 发布回归：补齐 i18n audit、SEO 与邮件链路的定向回归记录。
+- [x] **多语言文章回退与分类标签管理修复**
+	- 验收: 文章列表在 `zh-TW` / `ko-KR` 缺少对应译文时，按 locale fallback 链仅展示一个回退版本，不再同时出现英文与简体中文的同源文章。
+	- 验收: 分类页、标签页返回的 `postCount` 改为基于翻译组去重后的文章数量，公开页不再长期显示 `0`。
+	- 验收: 分类管理页、标签管理页补齐分页数选择器，保持与文章管理页一致的后台列表体验。
+	- 验收: 文章编辑器的标签输入区新增“清空所有标签”按钮，并要求二次确认，便于翻译文章重新打标签。
+	- 当前拆解:
+		- [x] 公开文章列表：基于 locale registry fallback chain 收敛同一 `translationId` 的候选版本，只保留首个可用语言。
+		- [x] 分类 / 标签计数：改为按 `COALESCE(translationId, id)` 去重统计，并回填到 API 返回实体。
+		- [x] 后台交互增强：为分类管理页、标签管理页补齐 `rowsPerPageOptions`，为文章设置抽屉补齐标签清空确认流程。
+		- [x] 定向回归：补充 `/api/posts`、`/api/categories`、`/api/tags` 与翻译工具的回归用例并通过定向测试。
 
 ### 4. 反馈与互动增强 (Feedback & Interaction Enhancement) (P1)
 
