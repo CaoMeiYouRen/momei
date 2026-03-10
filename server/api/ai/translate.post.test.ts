@@ -71,5 +71,28 @@ describe('POST /api/ai/translate', () => {
             },
         })
     })
+
+    it('should forward translation context when provided', async () => {
+        vi.mocked(readBody).mockResolvedValue({
+            content: 'field scoped content',
+            targetLanguage: 'ko-KR',
+            sourceLanguage: 'zh-CN',
+            field: 'summary',
+        })
+        vi.mocked(TextService.shouldUseAsyncTranslateTask).mockReturnValue(false)
+        vi.mocked(TextService.translate).mockResolvedValue('translated summary')
+
+        await handler({ context: {} } as any)
+
+        expect(TextService.translate).toHaveBeenCalledWith(
+            'field scoped content',
+            'ko-KR',
+            'user-1',
+            {
+                sourceLanguage: 'zh-CN',
+                field: 'summary',
+            },
+        )
+    })
 })
 

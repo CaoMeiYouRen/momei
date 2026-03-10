@@ -219,6 +219,6 @@ describe('/api/tags', () => {
 
         expect(result.code).toBe(200)
         expect(translatedTag).toBeDefined()
-        expect(translatedTag.postCount).toBe(1)
+        expect(translatedTag?.postCount).toBe(1)
     })
 })

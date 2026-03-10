@@ -18,15 +18,25 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    const { content, targetLanguage } = result.data
+    const { content, targetLanguage, sourceLanguage, field } = result.data
+    const translationOptions = sourceLanguage || field
+        ? { sourceLanguage, field }
+        : undefined
 
     try {
         if (TextService.shouldUseAsyncTranslateTask(content)) {
-            const task = await TextService.createTranslateTask(
-                content,
-                targetLanguage,
-                session.user.id,
-            )
+            const task = translationOptions
+                ? await TextService.createTranslateTask(
+                    content,
+                    targetLanguage,
+                    session.user.id,
+                    translationOptions,
+                )
+                : await TextService.createTranslateTask(
+                    content,
+                    targetLanguage,
+                    session.user.id,
+                )
 
             return {
                 code: 200,
@@ -39,11 +49,18 @@ export default defineEventHandler(async (event) => {
             }
         }
 
-        const translatedContent = await TextService.translate(
-            content,
-            targetLanguage,
-            session.user.id,
-        )
+        const translatedContent = translationOptions
+            ? await TextService.translate(
+                content,
+                targetLanguage,
+                session.user.id,
+                translationOptions,
+            )
+            : await TextService.translate(
+                content,
+                targetLanguage,
+                session.user.id,
+            )
         return {
             code: 200,
             data: {

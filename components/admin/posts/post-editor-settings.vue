@@ -225,7 +225,7 @@
                 </AppUploader>
                 <div v-if="showImagePreview && isValidImageUrl" class="mt-2 preview-container">
                     <Image
-                        :src="post.coverImage"
+                        :src="post.coverImage || undefined"
                         alt="Cover Preview"
                         preview
                         class="h-auto max-w-full rounded shadow-sm"
@@ -292,7 +292,7 @@
                 </AppUploader>
                 <div v-if="showAudioPlayer && isValidAudioUrl" class="mt-2 preview-container">
                     <audio
-                        :src="audioUrlValue"
+                        :src="audioUrlValue || undefined"
                         controls
                         class="w-full"
                     />
@@ -343,7 +343,7 @@
                     fluid
                     :loading="exporting"
                     :disabled="!post.id"
-                    @click="exportPost(post.id, post.slug)"
+                    @click="handleExport"
                 />
             </div>
         </div>
@@ -484,6 +484,14 @@ const handleTTSCompleted = (url: string) => {
     })
 }
 
+const handleExport = () => {
+    if (!post.value.id) {
+        return
+    }
+
+    exportPost(post.value.id, { slug: post.value.slug })
+}
+
 const toggleImagePreview = () => {
     showImagePreview.value = !showImagePreview.value
 }
@@ -574,8 +582,8 @@ const probeAudio = async () => {
 <style lang="scss" scoped>
 .settings-sidebar {
     position: fixed;
-    top: 4rem; // Below header
-    right: -24rem; // Hidden initially
+    top: 4rem;
+    right: -24rem;
     width: 20rem;
     height: calc(100vh - 4rem);
     background-color: var(--p-surface-card);

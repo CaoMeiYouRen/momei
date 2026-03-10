@@ -1,5 +1,5 @@
 import { AIBaseService } from './base'
-import { translateInChunks } from './text-translation'
+import { translateInChunks, type TranslateRequestOptions } from './text-translation'
 import { dataSource } from '@/server/database'
 import { AITask } from '@/server/entities/ai-task'
 import { calculateQuotaUnits, deriveChargeStatus, inferFailureStage } from '@/server/utils/ai/cost-governance'
@@ -13,7 +13,7 @@ import {
 import { NotificationType } from '@/utils/shared/notification'
 
 export class TextTranslationTaskService extends AIBaseService {
-    static async createTranslateTask(content: string, to: string, userId: string) {
+    static async createTranslateTask(content: string, to: string, userId: string, options?: TranslateRequestOptions) {
         if (content.length > AI_MAX_CONTENT_LENGTH) {
             throw createError({
                 statusCode: 413,
@@ -24,6 +24,8 @@ export class TextTranslationTaskService extends AIBaseService {
         const payload = {
             content,
             to,
+            sourceLanguage: options?.sourceLanguage,
+            field: options?.field,
             chunkSize: AI_TEXT_TASK_CHUNK_SIZE,
             concurrency: AI_TEXT_TASK_CONCURRENCY,
         }
@@ -62,7 +64,7 @@ export class TextTranslationTaskService extends AIBaseService {
             throw new Error('Failed to create AI task')
         }
 
-        this.processTranslateTask(task.id, content, to, userId).catch((error) => {
+        this.processTranslateTask(task.id, content, to, userId, options).catch((error) => {
             logger.error(`[TextTranslationTaskService] Failed to process translation task ${task.id}:`, error)
         })
 
@@ -74,6 +76,7 @@ export class TextTranslationTaskService extends AIBaseService {
         content: string,
         to: string,
         userId: string,
+        options?: TranslateRequestOptions,
     ) {
         const taskRepo = dataSource.getRepository(AITask)
         const task = await taskRepo.findOneBy({ id: taskId, userId })
@@ -84,6 +87,8 @@ export class TextTranslationTaskService extends AIBaseService {
         const payload = {
             content,
             to,
+            sourceLanguage: options?.sourceLanguage,
+            field: options?.field,
             chunkSize: AI_TEXT_TASK_CHUNK_SIZE,
             concurrency: AI_TEXT_TASK_CONCURRENCY,
         }
@@ -97,6 +102,7 @@ export class TextTranslationTaskService extends AIBaseService {
             const result = await translateInChunks(content, to, {
                 chunkSize: AI_TEXT_TASK_CHUNK_SIZE,
                 concurrency: AI_TEXT_TASK_CONCURRENCY,
+                sourceLanguage: options?.sourceLanguage,
                 onChunkComplete: async ({ completedChunks, totalChunks }) => {
                     task.progress = Math.min(
                         95,

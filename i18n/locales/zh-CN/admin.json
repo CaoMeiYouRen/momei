@@ -498,6 +498,34 @@
                         "resolution": "分辨率"
                     }
                 },
+                "translation_workflow": {
+                    "title": "全文翻译工作流",
+                    "intro": "选择翻译来源、目标语言和需要覆盖的字段。长文本会自动复用 AI 异步任务并显示进度。",
+                    "no_sources": "当前没有可用的来源文章，请先保存源文章或加载同一翻译簇中的其他版本。",
+                    "source_post": "来源文章",
+                    "select_source": "选择一个来源版本",
+                    "target_language": "目标语言",
+                    "source_language_value": "来源语言：{language}",
+                    "target_language_value": "目标语言：{language}",
+                    "scope_title": "翻译范围",
+                    "scope_hint": "分类和标签会优先尝试匹配同一翻译簇中的目标语言实体。",
+                    "fields": {
+                        "title": "标题",
+                        "content": "正文",
+                        "summary": "摘要",
+                        "category": "分类",
+                        "tags": "标签"
+                    },
+                    "start": "开始翻译",
+                    "progress_running": "翻译进行中",
+                    "progress_completed": "翻译已完成",
+                    "progress_failed": "翻译失败",
+                    "current_field": "当前字段：{field}",
+                    "overwrite_title": "确认覆盖当前翻译",
+                    "overwrite_draft": "当前目标版本已经包含内容。继续后，所选字段会被新的翻译结果覆盖。",
+                    "overwrite_published_first": "当前目标版本已发布。继续翻译将覆盖线上版本对应字段，请先确认是否继续。",
+                    "overwrite_published_second": "这是第二次确认。若继续，已发布版本的所选字段将被新的翻译结果替换。"
+                },
                 "translate_success": "翻译已完成，已覆盖内容区",
                 "content_too_short": "文章内容太短，无法分析",
                 "ai_error": "AI 服务调用失败",

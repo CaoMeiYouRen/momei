@@ -21,15 +21,7 @@
             @suggest-titles="suggestTitles"
             @select-title="selectTitle"
             @handle-translation="(lang) => handleTranslationClick(lang)"
-            @translate-content="
-                (lang) => {
-                    if (lang === null) {
-                        translateContent();
-                    } else {
-                        handleTranslationClick(lang, true);
-                    }
-                }
-            "
+            @translate-content="(lang) => openTranslationWorkflow(lang)"
             @preview="handlePreview"
             @save="savePost"
             @open-settings="settingsVisible = true"
@@ -79,6 +71,19 @@
             @suggest-summary="suggestSummary"
         />
 
+        <PostTranslationWorkflowDialog
+            v-model:visible="translationDialogVisible"
+            :locales="locales"
+            :source-options="translationSourceOptions"
+            :default-source-post-id="translationWorkflowDefaults.sourcePostId"
+            :default-target-language="translationWorkflowDefaults.targetLanguage"
+            :progress="translationProgress.progress"
+            :translation-status="translationProgress.status"
+            :active-field="translationProgress.activeField"
+            :error-text="translationProgress.error"
+            @start="handleStartTranslationWorkflow"
+        />
+
         <PublishPushDialog
             ref="publishPushDialog"
             :loading="saving"
@@ -102,16 +107,27 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
+import type { ApiResponse } from '@/types/api'
 import { PostStatus, PostVisibility, type Post, type PublishIntent } from '@/types/post'
 import type { PostEditorData } from '@/types/post-editor'
+import type {
+    PostTranslationCategoryOption,
+    PostTranslationSourceDetail,
+    PostTranslationSourceOption,
+    PostTranslationTagOption,
+    PostTranslationWorkflowRequest,
+    TranslationScopeField,
+} from '@/types/post-translation'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
 import { COPYRIGHT_LICENSES } from '@/types/copyright'
 import PostEditorHeader from '@/components/admin/posts/post-editor-header.vue'
 import PostEditorSettings from '@/components/admin/posts/post-editor-settings.vue'
+import PostTranslationWorkflowDialog from '@/components/admin/posts/post-translation-workflow-dialog.vue'
 import PublishPushDialog from '@/components/admin/posts/publish-push-dialog.vue'
 import PostHistoryPanel from '@/components/admin/posts/post-history-panel.vue'
 import PostEditorDragMask from '@/components/admin/posts/post-editor-drag-mask.vue'
 import { usePostEditorAI } from '@/composables/use-post-editor-ai'
+import { usePostTranslationAI } from '@/composables/use-post-translation-ai'
 import { usePostEditorIO } from '@/composables/use-post-editor-io'
 import { usePostEditorAutoSave } from '@/composables/use-post-editor-auto-save'
 import { formatMarkdown } from '@/utils/shared/markdown'
@@ -182,7 +198,25 @@ const post = ref<PostEditorData>({
     views: 0,
 })
 
-const translations = ref<any[]>([])
+interface TranslationGroupOption {
+    label: string
+    value: string
+}
+
+interface TranslationSearchItem {
+    id: string
+    title: string
+    language: string
+    translationId?: string | null
+}
+
+const translations = ref<PostTranslationSourceOption[]>([])
+const sourcePostSnapshot = ref<PostTranslationSourceDetail | null>(null)
+const translationDialogVisible = ref(false)
+const translationWorkflowDefaults = ref({
+    sourcePostId: null as string | null,
+    targetLanguage: post.value.language,
+})
 
 const hasTranslation = (langCode: string) => {
     if (post.value.language === langCode && !isNew.value) return post.value
@@ -222,7 +256,8 @@ const handleTranslationClick = async (
 }
 
 const filteredTags = ref<string[]>([])
-const allTags = ref<string[]>([]) // Should be loaded from API
+const allTags = ref<string[]>([])
+const tagEntities = ref<PostTranslationTagOption[]>([])
 
 const isNew = computed(() => route.params.id === 'new' || !route.params.id)
 const settingsVisible = ref(isNew.value)
@@ -239,7 +274,6 @@ const {
     suggestSlug,
     suggestSummary,
     recommendTags,
-    translateContent,
 } = usePostEditorAI(
     post,
     allTags,
@@ -251,6 +285,12 @@ const {
     }),
 )
 
+const {
+    resetTranslationProgress,
+    translatePostFields,
+    translationProgress,
+} = usePostTranslationAI(post)
+
 // Override titleOp to use the one from header component
 watch(headerRef, (header) => {
     if (header) {
@@ -258,7 +298,7 @@ watch(headerRef, (header) => {
     }
 })
 
-const categories = ref<{ id: string, name: string }[]>([])
+const categories = ref<PostTranslationCategoryOption[]>([])
 const errors = ref<Record<string, string>>({})
 
 const { isDragging, onDragOver, onDragLeave, onDrop, imgAdd } = usePostEditorIO(
@@ -282,11 +322,11 @@ const {
 const saving = ref(false)
 const oldSlugValue = ref(post.value.slug)
 
-const postsForTranslation = ref<any[]>([])
+const postsForTranslation = ref<TranslationGroupOption[]>([])
 const searchPosts = async (event: { query: string }) => {
     if (!event.query.trim()) return
     try {
-        const { data } = await $fetch<{ data: { items: any[] } }>(
+        const { data } = await $fetch<ApiResponse<{ items: TranslationSearchItem[] }>>(
             '/api/posts',
             {
                 query: {
@@ -306,6 +346,191 @@ const searchPosts = async (event: { query: string }) => {
     } catch (error) {
         console.error('Failed to search posts', error)
     }
+}
+
+const translationSourceOptions = computed<PostTranslationSourceOption[]>(() => {
+    const sourceMap = new Map<string, PostTranslationSourceOption>()
+
+    const upsert = (item: PostTranslationSourceOption | null | undefined) => {
+        if (!item?.id) {
+            return
+        }
+
+        sourceMap.set(item.id, item)
+    }
+
+    upsert(sourcePostSnapshot.value)
+
+    if (post.value.id) {
+        upsert({
+            id: post.value.id,
+            title: post.value.title,
+            language: post.value.language,
+            translationId: post.value.translationId,
+            status: post.value.status,
+        })
+    }
+
+    translations.value.forEach(upsert)
+
+    return Array.from(sourceMap.values())
+})
+
+const hasSelectedScopesContent = (scopes: TranslationScopeField[]) => scopes.some((scope) => {
+    if (scope === 'title') {
+        return Boolean(post.value.title?.trim())
+    }
+
+    if (scope === 'content') {
+        return Boolean(post.value.content?.trim())
+    }
+
+    if (scope === 'summary') {
+        return Boolean(post.value.summary?.trim())
+    }
+
+    if (scope === 'category') {
+        return Boolean(post.value.categoryId)
+    }
+
+    return (post.value.tags?.length || 0) > 0
+})
+
+const confirmTranslationOverwrite = async (scopes: TranslationScopeField[]) => {
+    if ((isNew.value && !post.value.id) || !hasSelectedScopesContent(scopes)) {
+        return true
+    }
+
+    const requestConfirm = (message: string) => new Promise<boolean>((resolve) => {
+        confirm.require({
+            message,
+            header: t('pages.admin.posts.translation_workflow.overwrite_title'),
+            icon: 'pi pi-exclamation-triangle',
+            acceptProps: {
+                label: t('common.confirm'),
+                severity: 'danger',
+            },
+            rejectProps: {
+                label: t('common.cancel'),
+                severity: 'secondary',
+                outlined: true,
+            },
+            accept: () => resolve(true),
+            reject: () => resolve(false),
+        })
+    })
+
+    if (post.value.status === PostStatus.PUBLISHED) {
+        const firstConfirmed = await requestConfirm(t('pages.admin.posts.translation_workflow.overwrite_published_first'))
+        if (!firstConfirmed) {
+            return false
+        }
+
+        return await requestConfirm(t('pages.admin.posts.translation_workflow.overwrite_published_second'))
+    }
+
+    return await requestConfirm(t('pages.admin.posts.translation_workflow.overwrite_draft'))
+}
+
+const applyTranslatedCategory = (source: PostTranslationSourceDetail) => {
+    if (!source.category) {
+        post.value.categoryId = null
+        return
+    }
+
+    if (source.category.translationId) {
+        const matchedCategory = categories.value.find((category) => category.translationId === source.category?.translationId)
+        if (matchedCategory) {
+            post.value.categoryId = matchedCategory.id
+            return
+        }
+    }
+
+    post.value.categoryId = source.category.id
+}
+
+const applyTranslatedTags = (source: PostTranslationSourceDetail) => {
+    const mappedTags = (source.tags || []).map((tag) => {
+        if (tag.translationId) {
+            const matchedTag = tagEntities.value.find((targetTag) => targetTag.translationId === tag.translationId)
+            if (matchedTag) {
+                return matchedTag.name
+            }
+        }
+
+        return tag.name
+    })
+
+    post.value.tags = Array.from(new Set(mappedTags.filter(Boolean)))
+}
+
+const fetchSourcePostDetail = async (postId: string) => {
+    if (sourcePostSnapshot.value?.id === postId) {
+        return sourcePostSnapshot.value
+    }
+
+    const response = await $fetch<ApiResponse<PostTranslationSourceDetail>>(`/api/posts/${postId}`)
+    return response.data
+}
+
+const openTranslationWorkflow = async (requestedLanguage: string | null) => {
+    const targetLanguage = requestedLanguage || post.value.language
+
+    if (targetLanguage !== post.value.language && post.value.id && !isNew.value) {
+        await handleTranslationClick(targetLanguage, true)
+        return
+    }
+
+    resetTranslationProgress()
+    translationWorkflowDefaults.value = {
+        sourcePostId: sourcePostSnapshot.value?.id || post.value.id || translations.value[0]?.id || null,
+        targetLanguage,
+    }
+
+    translationDialogVisible.value = true
+}
+
+const handleStartTranslationWorkflow = async (payload: PostTranslationWorkflowRequest) => {
+    const source = await fetchSourcePostDetail(payload.sourcePostId)
+
+    if (!source) {
+        return
+    }
+
+    const confirmed = await confirmTranslationOverwrite(payload.scopes)
+    if (!confirmed) {
+        return
+    }
+
+    if (post.value.language !== payload.targetLanguage) {
+        post.value.language = payload.targetLanguage
+        await Promise.all([
+            loadCategories(payload.targetLanguage),
+            loadTags(payload.targetLanguage),
+        ])
+    }
+
+    const translated = await translatePostFields({
+        source,
+        sourceLanguage: payload.sourceLanguage,
+        targetLanguage: payload.targetLanguage,
+        scopes: payload.scopes,
+    })
+
+    if (!translated) {
+        return
+    }
+
+    if (payload.scopes.includes('category')) {
+        applyTranslatedCategory(source)
+    }
+
+    if (payload.scopes.includes('tags')) {
+        applyTranslatedTags(source)
+    }
+
+    post.value.translationId = source.translationId || source.id
+    translationDialogVisible.value = false
 }
 
 const previewLink = computed(() => {
@@ -332,15 +557,17 @@ const loadPost = async () => {
         const sourceId = route.query.sourceId as string
         if (sourceId) {
             try {
-                const { data } = await $fetch<any>(`/api/posts/${sourceId}`)
+                const { data } = await $fetch<ApiResponse<PostTranslationSourceDetail>>(`/api/posts/${sourceId}`)
                 if (data) {
+                    sourcePostSnapshot.value = data
                     // 预填标题、摘要、封面图、标签等
                     post.value.title = data.title
                     post.value.summary = data.summary
+                    post.value.content = data.content
                     post.value.coverImage = data.coverImage
-                    post.value.tags = data.tags?.map((t: any) => t.name) || []
+                    post.value.tags = data.tags?.map((tag) => tag.name) || []
                     post.value.translationId = data.translationId || data.id
-                    post.value.slug = data.slug // 建议相同的 slug
+                    post.value.slug = data.slug || ''
                     post.value.copyright = data.copyright
 
                     // 尝试匹配目标语言的分类 (通过 translationId)
@@ -351,7 +578,7 @@ const loadPost = async () => {
                             post.value.categoryId = sourceCategory.id
                             const unwatch = watch(categories, (newCats) => {
                                 if (newCats.length > 0) {
-                                    const match = newCats.find((c: any) => c.translationId === sourceCategory.translationId)
+                                    const match = newCats.find((category) => category.translationId === sourceCategory.translationId)
                                     if (match) {
                                         post.value.categoryId = match.id
                                     }
@@ -361,11 +588,6 @@ const loadPost = async () => {
                         } else {
                             post.value.categoryId = sourceCategory.id
                         }
-                    }
-
-                    // 如果请求了自动翻译，则获取内容并翻译
-                    if (route.query.autoTranslate === 'true' && data.content) {
-                        translateContent(post.value.language, data.content, data.title, data.summary)
                     }
                 }
             } catch (e) {
@@ -377,21 +599,40 @@ const loadPost = async () => {
         if (route.query.translationId) {
             fetchTranslations(route.query.translationId as string)
         }
+
+        if (route.query.autoTranslate === 'true') {
+            translationWorkflowDefaults.value = {
+                sourcePostId: sourceId || sourcePostSnapshot.value?.id || null,
+                targetLanguage: post.value.language,
+            }
+            translationDialogVisible.value = true
+        }
+
         return
     }
     try {
-        const { data } = await $fetch<{ data: any }>(
+        const { data } = await $fetch<ApiResponse<PostTranslationSourceDetail>>(
             `/api/posts/${route.params.id}`,
         )
         if (data) {
-            post.value = {
-                ...data,
-                categoryId: data.category?.id || null,
-                tags: data.tags?.map((t: any) => t.name) || [],
-                language: data.language || 'zh-CN',
-                translationId: data.translationId || null,
+            const detailedPost = data as PostTranslationSourceDetail & {
+                visibility?: PostVisibility
+                views?: number
             }
-            oldSlugValue.value = data.slug
+
+            post.value = {
+                ...post.value,
+                ...detailedPost,
+                slug: detailedPost.slug || '',
+                status: (detailedPost.status as PostStatus) || PostStatus.DRAFT,
+                visibility: detailedPost.visibility || PostVisibility.PUBLIC,
+                views: detailedPost.views || 0,
+                categoryId: detailedPost.category?.id || null,
+                tags: detailedPost.tags?.map((tag) => tag.name) || [],
+                language: detailedPost.language || 'zh-CN',
+                translationId: detailedPost.translationId || null,
+            }
+            oldSlugValue.value = detailedPost.slug || ''
 
             if (post.value.translationId) {
                 fetchTranslations(post.value.translationId)
@@ -444,11 +685,11 @@ const fetchTranslations = async (translationId: string) => {
         return
     }
     try {
-        const { data } = await $fetch<any>('/api/posts', {
+        const { data } = await $fetch<ApiResponse<{ items: PostTranslationSourceOption[] }>>('/api/posts', {
             query: { translationId, limit: 10, scope: 'manage' },
         })
         translations.value = data.items.filter(
-            (p: any) => p.id !== post.value.id,
+            (item) => item.id !== post.value.id,
         )
     } catch (e) {
         console.error('Failed to fetch translations', e)
@@ -689,12 +930,12 @@ const getStatusSeverity = (status: string) => {
     return map[status] || 'info'
 }
 
-const loadCategories = async () => {
+const loadCategories = async (language = post.value.language) => {
     try {
-        const response = await $fetch<{ data: { items: any[] } }>(
+        const response = await $fetch<ApiResponse<{ items: PostTranslationCategoryOption[] }>>(
             '/api/categories',
             {
-                query: { limit: 100, language: post.value.language },
+                query: { limit: 100, language },
             },
         )
         if (response.data) {
@@ -705,13 +946,14 @@ const loadCategories = async () => {
     }
 }
 
-const loadTags = async () => {
+const loadTags = async (language = post.value.language) => {
     try {
-        const response = await $fetch<{ data: { items: any[] } }>('/api/tags', {
-            query: { limit: 100, language: post.value.language },
+        const response = await $fetch<ApiResponse<{ items: PostTranslationTagOption[] }>>('/api/tags', {
+            query: { limit: 100, language },
         })
         if (response.data) {
-            allTags.value = response.data.items.map((t: any) => t.name)
+            tagEntities.value = response.data.items
+            allTags.value = response.data.items.map((tag) => tag.name)
         }
     } catch (error) {
         console.error('Failed to load tags', error)

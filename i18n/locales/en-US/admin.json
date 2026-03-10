@@ -498,6 +498,34 @@
                         "resolution": "Resolution"
                     }
                 },
+                "translation_workflow": {
+                    "title": "Full Translation Workflow",
+                    "intro": "Choose the source post, target language, and fields to overwrite. Long content reuses AI async tasks and shows progress here.",
+                    "no_sources": "No translation source is available yet. Save the source post first or load another version from the same translation cluster.",
+                    "source_post": "Source Post",
+                    "select_source": "Select a source version",
+                    "target_language": "Target Language",
+                    "source_language_value": "Source: {language}",
+                    "target_language_value": "Target: {language}",
+                    "scope_title": "Translation Scope",
+                    "scope_hint": "Categories and tags will first try to map to entities in the same translation cluster.",
+                    "fields": {
+                        "title": "Title",
+                        "content": "Content",
+                        "summary": "Summary",
+                        "category": "Category",
+                        "tags": "Tags"
+                    },
+                    "start": "Start Translation",
+                    "progress_running": "Translation in progress",
+                    "progress_completed": "Translation completed",
+                    "progress_failed": "Translation failed",
+                    "current_field": "Current field: {field}",
+                    "overwrite_title": "Confirm Overwrite",
+                    "overwrite_draft": "The target version already contains content. Continuing will overwrite the selected fields with new translation output.",
+                    "overwrite_published_first": "The target version is already published. Continuing will overwrite the selected fields in the live version.",
+                    "overwrite_published_second": "Second confirmation: continuing now will replace the selected fields of the published version."
+                },
                 "translate_success": "Translation completed and applied",
                 "content_too_short": "Article content too short for analysis",
                 "ai_error": "AI service call failed",

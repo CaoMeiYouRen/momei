@@ -17,7 +17,10 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    const { content, targetLanguage } = result.data
+    const { content, targetLanguage, sourceLanguage, field } = result.data
+    const translationOptions = sourceLanguage || field
+        ? { sourceLanguage, field }
+        : undefined
 
     // 设置响应头以支持 SSE
     setResponseHeader(event, 'Content-Type', 'text/event-stream')
@@ -27,11 +30,18 @@ export default defineEventHandler(async (event) => {
     const response = event.node.res
 
     try {
-        const stream = TextService.translateStream(
-            content,
-            targetLanguage,
-            session.user.id,
-        )
+        const stream = translationOptions
+            ? TextService.translateStream(
+                content,
+                targetLanguage,
+                session.user.id,
+                translationOptions,
+            )
+            : TextService.translateStream(
+                content,
+                targetLanguage,
+                session.user.id,
+            )
 
         for await (const chunk of stream) {
             response.write(`data: ${JSON.stringify(chunk)}\n\n`)

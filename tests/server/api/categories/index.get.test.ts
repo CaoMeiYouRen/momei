@@ -243,6 +243,6 @@ describe('/api/categories', () => {
 
         expect(result.code).toBe(200)
         expect(translatedCategory).toBeDefined()
-        expect(translatedCategory.postCount).toBe(1)
+        expect(translatedCategory?.postCount).toBe(1)
     })
 })

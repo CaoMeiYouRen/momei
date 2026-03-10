@@ -164,6 +164,14 @@ export interface Post {
     publishIntent?: PublishIntent | null
     // 其他
     copyright?: string | null
+    /** @deprecated 请改用 metadata.audio.url */
+    audioUrl?: string | null
+    /** @deprecated 请改用 metadata.audio.duration */
+    audioDuration?: number | null
+    /** @deprecated 请改用 metadata.audio.size */
+    audioSize?: number | null
+    /** @deprecated 请改用 metadata.audio.mimeType */
+    audioMimeType?: string | null
     /** @deprecated 请改用 metadata.integration.memosId */
     memosId?: string | null
     // 权限标记 (前端辅助)

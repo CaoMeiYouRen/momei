@@ -5,6 +5,7 @@ import {
     translateInChunks,
     type ChunkedTranslateOptions,
     type ChunkedTranslateResult,
+    type TranslateRequestOptions,
 } from './text-translation'
 import { TextTranslationTaskService } from './text-translation-task'
 import { getAIProvider } from '@/server/utils/ai'
@@ -532,21 +533,28 @@ export class TextService extends AIBaseService {
         return await translateInChunks(content, to, options)
     }
 
-    static async createTranslateTask(content: string, to: string, userId: string) {
-        return await TextTranslationTaskService.createTranslateTask(content, to, userId)
+    static async createTranslateTask(content: string, to: string, userId: string, options?: TranslateRequestOptions) {
+        return await TextTranslationTaskService.createTranslateTask(content, to, userId, options)
     }
 
-    static async translate(content: string, to: string, userId?: string) {
+    static async translate(content: string, to: string, userId?: string, options?: TranslateRequestOptions) {
         await this.assertTextQuota({
             userId,
             type: 'translate',
-            payload: { content: content.slice(0, AI_CHUNK_SIZE), to },
+            payload: {
+                content: content.slice(0, AI_CHUNK_SIZE),
+                to,
+                sourceLanguage: options?.sourceLanguage,
+                field: options?.field,
+            },
         })
 
         const requestContent = content.slice(0, AI_CHUNK_SIZE)
         const { provider, response, translatedContent } = await requestTranslation(
             requestContent,
             to,
+            undefined,
+            options,
         )
 
         this.logUsage({ task: 'translate', response, userId })
@@ -556,7 +564,12 @@ export class TextService extends AIBaseService {
             type: 'translate',
             provider: provider.name,
             model: response.model,
-            payload: { content: requestContent, to },
+            payload: {
+                content: requestContent,
+                to,
+                sourceLanguage: options?.sourceLanguage,
+                field: options?.field,
+            },
             response,
             textLength: content.length,
             settlementSource: 'actual',
@@ -694,7 +707,7 @@ export class TextService extends AIBaseService {
         }
     }
 
-    static async* translateStream(content: string, to: string, userId?: string) {
+    static async* translateStream(content: string, to: string, userId?: string, options?: TranslateRequestOptions) {
         if (content.length > AI_MAX_CONTENT_LENGTH) {
             throw createError({ statusCode: 413, message: 'Content too long' })
         }
@@ -705,7 +718,10 @@ export class TextService extends AIBaseService {
             if (!chunk) {
                 continue
             }
-            const translated = await this.translate(chunk, to, userId)
+            const translated = await this.translate(chunk, to, userId, {
+                sourceLanguage: options?.sourceLanguage,
+                field: options?.field || 'content',
+            })
             yield {
                 content: translated,
                 chunkIndex: i,

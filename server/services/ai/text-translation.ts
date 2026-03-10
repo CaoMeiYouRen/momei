@@ -8,10 +8,17 @@ import {
     AI_TEXT_TASK_CONCURRENCY,
 } from '@/utils/shared/env'
 import type { AIChatResponse, AIUsageSnapshot } from '@/types/ai'
+import type { TranslationTextField } from '@/types/post-translation'
+
+export interface TranslateRequestOptions {
+    sourceLanguage?: string
+    field?: TranslationTextField
+}
 
 export interface ChunkedTranslateOptions {
     chunkSize?: number
     concurrency?: number
+    sourceLanguage?: string
     onChunkComplete?: (state: {
         completedChunks: number
         totalChunks: number
@@ -46,6 +53,7 @@ export async function requestTranslation(
     content: string,
     to: string,
     providerArg?: Awaited<ReturnType<typeof getAIProvider>>,
+    options: TranslateRequestOptions = {},
 ) {
     const provider = providerArg || await getAIProvider('text')
 
@@ -54,9 +62,14 @@ export async function requestTranslation(
     }
 
     const prompt = formatPrompt(AI_PROMPTS.TRANSLATE, { content, to })
+    const systemPrompt = [
+        `Translate ${options.field || 'content'} to ${to}.`,
+        options.sourceLanguage ? `Source language is ${options.sourceLanguage}.` : 'Auto-detect the source language.',
+        'Preserve markdown structure, links, and code blocks when present.',
+    ].join(' ')
     const response = await provider.chat({
         messages: [
-            { role: 'system', content: `Translate content to ${to}` },
+            { role: 'system', content: systemPrompt },
             { role: 'user', content: prompt },
         ],
         temperature: 0.3,
@@ -118,6 +131,10 @@ export async function translateInChunks(
                 chunk,
                 to,
                 provider,
+                {
+                    sourceLanguage: options.sourceLanguage,
+                    field: 'content',
+                },
             )
 
             resolvedModel = resolvedModel || response.model

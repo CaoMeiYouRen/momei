@@ -69,6 +69,8 @@ export const aiCostFactorsSchema = z.object({
 export const aiTranslateSchema = z.object({
     content: z.string().min(1),
     targetLanguage: z.string().min(2).max(10),
+    sourceLanguage: z.string().min(2).max(10).optional(),
+    field: z.enum(['title', 'content', 'summary']).optional(),
 })
 
 export const aiTranslateNameSchema = z.object({

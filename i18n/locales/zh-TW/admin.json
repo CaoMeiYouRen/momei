@@ -498,6 +498,34 @@
                         "resolution": "解析度"
                     }
                 },
+                "translation_workflow": {
+                    "title": "全文翻譯工作流",
+                    "intro": "選擇翻譯來源、目標語言與需要覆蓋的欄位。長文本會自動復用 AI 非同步任務並顯示進度。",
+                    "no_sources": "目前沒有可用的來源文章，請先儲存來源文章或載入同一翻譯簇中的其他版本。",
+                    "source_post": "來源文章",
+                    "select_source": "選擇一個來源版本",
+                    "target_language": "目標語言",
+                    "source_language_value": "來源語言：{language}",
+                    "target_language_value": "目標語言：{language}",
+                    "scope_title": "翻譯範圍",
+                    "scope_hint": "分類與標籤會優先嘗試對應到同一翻譯簇中的目標語言實體。",
+                    "fields": {
+                        "title": "標題",
+                        "content": "正文",
+                        "summary": "摘要",
+                        "category": "分類",
+                        "tags": "標籤"
+                    },
+                    "start": "開始翻譯",
+                    "progress_running": "翻譯進行中",
+                    "progress_completed": "翻譯已完成",
+                    "progress_failed": "翻譯失敗",
+                    "current_field": "目前欄位：{field}",
+                    "overwrite_title": "確認覆蓋目前翻譯",
+                    "overwrite_draft": "目前目標版本已包含內容。繼續後，所選欄位會被新的翻譯結果覆蓋。",
+                    "overwrite_published_first": "目前目標版本已發佈。若繼續翻譯，線上版本的對應欄位將被覆蓋，請先確認是否繼續。",
+                    "overwrite_published_second": "這是第二次確認。若繼續，已發佈版本的所選欄位將被新的翻譯結果取代。"
+                },
                 "translate_success": "翻譯已完成，已套用到內容區",
                 "content_too_short": "文章內容太短，無法分析",
                 "ai_error": "AI 服務呼叫失敗",
