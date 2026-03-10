@@ -1,15 +1,14 @@
 import type { BuiltInLocales } from 'better-auth-localization'
 
 /**
- * better-auth 内置支持的语言代码类型
- * 直接使用 better-auth-localization 的语言代码，避免额外转换
+ * better-auth 内置支持的语言代码类型。
+ * 注意：该类型只用于认证本地化边界，不代表项目内部 locale 主规范。
  */
 export type BetterAuthLocale = BuiltInLocales | 'en-US'
 
 /**
- * 项目支持的语言列表
- * 直接使用 better-auth-localization 支持的完整语言代码
- * 避免简化格式和额外的转换层
+ * 认证本地化边界可识别的语言列表。
+ * 项目内部业务逻辑、路由、翻译目录与 SEO 仍以 Locale Registry 中的 AppLocaleCode 为准。
  */
 export const SUPPORTED_LOCALES: readonly BetterAuthLocale[] = [
     'zh-Hans', // 简体中文
@@ -37,7 +36,7 @@ export const SUPPORTED_LOCALES: readonly BetterAuthLocale[] = [
 export type SupportedLocale = typeof SUPPORTED_LOCALES[number]
 
 /**
- * 默认语言设置（简体中文）
+ * better-auth 本地化边界的默认语言设置（简体中文脚本标识）。
  */
 export const DEFAULT_LOCALE: SupportedLocale = 'zh-Hans'
 export const FALLBACK_LOCALE: SupportedLocale = 'default'

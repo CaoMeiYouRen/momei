@@ -381,8 +381,10 @@ export const auth = betterAuth({
         }), // 支持 JWT 认证
 
         localization({
-            defaultLocale: 'zh-Hans', // 默认为简体中文
-            fallbackLocale: 'default', // 回退到默认语言
+            // better-auth-localization 使用自己的 locale 标识体系；
+            // 项目内部仍以 Locale Registry 的 AppLocaleCode 为主规范，认证层仅在这里做边界适配。
+            defaultLocale: 'zh-Hans', // better-auth 边界默认值，对应项目内部 zh-CN
+            fallbackLocale: 'default', // better-auth 默认回退值，对应项目内部默认语言
             getLocale: (request) => {
                 try {
                     const userLocale = request

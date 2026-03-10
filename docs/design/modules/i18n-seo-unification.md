@@ -87,6 +87,25 @@ $$
 - `Content Availability` 定义对应语言内容是否真正存在。
 - `SEO Policy` 定义该语言是否可以被索引、是否进入 sitemap、是否输出 alternates。
 
+#### 4.1.1 语言标识规范
+
+当前项目明确以 `Locale Registry` 中的 `AppLocaleCode` 作为单一事实源，也就是：
+
+- `zh-CN`
+- `en-US`
+- `zh-TW`
+- `ko-KR`
+
+这套标识用于：
+
+- Nuxt i18n locale 配置
+- 页面路由与语言切换
+- 翻译资源目录名
+- 页面 SEO / sitemap / feed / 结构化数据
+- 服务端消息装配与业务层语言字段
+
+`better-auth-localization` 的 `zh-Hans`、`zh-Hant`、`default` 只保留在认证插件适配层，不作为 `Locale Registry`、路由或 SEO 的规范值。认证边界需要通过映射把这些值转换回项目内部 locale，再进入后续业务链路。
+
 ### 4.2 i18n 与 SEO 共用一套“语言就绪度”模型
 
 语言不能只按“开关”判断，而要区分至少三种状态：
