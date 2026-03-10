@@ -2,35 +2,33 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import DemoBanner from './demo-banner.vue'
 
-const { mockConfig, mockNavigateTo, mockRoute, mockT } = vi.hoisted(() => {
-    return {
-        mockT: vi.fn((key: string, params?: Record<string, string>) => {
-            if (params?.stage) {
-                return `${key}:${params.stage}`
-            }
+const { mockConfig, mockNavigateTo, mockRoute, mockT } = vi.hoisted(() => ({
+    mockT: vi.fn((key: string, params?: Record<string, string>) => {
+        if (params?.stage) {
+            return `${key}:${params.stage}`
+        }
 
-            return key
-        }),
-        mockNavigateTo: vi.fn(),
-        mockRoute: {
-            path: '/',
+        return key
+    }),
+    mockNavigateTo: vi.fn(),
+    mockRoute: {
+        path: '/',
+    },
+    mockConfig: {
+        app: {
+            baseURL: '/',
+            buildAssetsDir: '/_nuxt/',
+            cdnURL: '',
         },
-        mockConfig: {
-            app: {
-                baseURL: '/',
-                buildAssetsDir: '/_nuxt/',
-                cdnURL: '',
-            },
-            public: {
-                demoMode: true,
-                sentry: {
-                    dsn: '',
-                    environment: 'test',
-                },
+        public: {
+            demoMode: true,
+            sentry: {
+                dsn: '',
+                environment: 'test',
             },
         },
-    }
-})
+    },
+}))
 
 mockNuxtImport('useI18n', () => () => ({
     t: mockT,

@@ -64,13 +64,9 @@ export const useOnboarding = () => {
         return 'public'
     }
 
-    const getStageSeenKey = (stage: DemoTourStage) => {
-        return `${DEMO_TOUR_SEEN_PREFIX}${stage}`
-    }
+    const getStageSeenKey = (stage: DemoTourStage) => `${DEMO_TOUR_SEEN_PREFIX}${stage}`
 
-    const hasSeenStage = (stage: DemoTourStage) => {
-        return localStorage.getItem(getStageSeenKey(stage)) === 'true'
-    }
+    const hasSeenStage = (stage: DemoTourStage) => localStorage.getItem(getStageSeenKey(stage)) === 'true'
 
     const markStageSeen = (stage: DemoTourStage) => {
         localStorage.setItem(getStageSeenKey(stage), 'true')
@@ -265,8 +261,9 @@ export const useOnboarding = () => {
 
         const currentStage = getCurrentStage()
         const queuedStage = localStorage.getItem(DEMO_TOUR_QUEUE_KEY)
-        const shouldStartQueued = queuedStage === currentStage && !hasSeenStage(currentStage)
-        const shouldStartInitialPublic = currentStage === 'public' && !queuedStage && !hasSeenStage('public')
+        const normalizedQueuedStage = isDemoTourStage(queuedStage) ? queuedStage : null
+        const shouldStartQueued = normalizedQueuedStage === currentStage && !hasSeenStage(currentStage)
+        const shouldStartInitialPublic = currentStage === 'public' && !normalizedQueuedStage && !hasSeenStage('public')
 
         if (!shouldStartQueued && !shouldStartInitialPublic) {
             return

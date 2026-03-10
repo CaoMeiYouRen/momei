@@ -3,7 +3,7 @@ import { success } from '@/server/utils/response'
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event)
-    const featured = String(query.featured || 'false') === 'true'
+    const featured = typeof query.featured === 'string' ? query.featured === 'true' : false
     const limit = query.limit ? Number(query.limit) : undefined
     const categoryId = typeof query.categoryId === 'string' ? query.categoryId : undefined
 

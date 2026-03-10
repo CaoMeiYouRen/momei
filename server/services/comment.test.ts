@@ -28,7 +28,7 @@ vi.mock('./notification', () => ({
 }))
 
 vi.mock('@/server/utils/author', () => ({
-    processAuthorPrivacy: vi.fn().mockImplementation(async (item: Record<string, unknown>, isAdmin: boolean, emailKey: string) => {
+    processAuthorPrivacy: vi.fn().mockImplementation((item: Record<string, unknown>, isAdmin: boolean, emailKey: string) => {
         if (!isAdmin) {
             delete item[emailKey]
         }

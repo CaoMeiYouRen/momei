@@ -6,8 +6,7 @@ import {
     getSettingDefaultValue,
 } from '@/server/services/setting'
 import { inferSettingMaskType } from '@/server/utils/settings'
-import type { SettingAuditItem, SettingItem, SettingLockReason, SettingSource } from '@/types/setting'
-import { SettingKey } from '@/types/setting'
+import { SettingKey, type SettingAuditItem, type SettingItem, type SettingLockReason, type SettingSource } from '@/types/setting'
 import { type DonationLink, type SocialLink } from '@/utils/shared/commercial'
 import { AdminNotificationEvent } from '@/utils/shared/notification'
 

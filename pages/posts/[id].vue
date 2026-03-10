@@ -59,7 +59,6 @@
         </div>
 
         <div v-else-if="post" class="post-detail__content">
-            <!-- Status Banner -->
             <div
                 v-if="post.status !== 'published'"
                 class="post-detail__status-banner"
@@ -73,7 +72,6 @@
                 </Message>
             </div>
 
-            <!-- Cover Image -->
             <div
                 v-if="post.coverImage"
                 class="post-detail__cover"
@@ -88,9 +86,7 @@
             </div>
 
             <div class="post-detail__layout">
-                <!-- Sidebar (TOC) -->
                 <aside class="post-detail__sidebar">
-                    <!-- Ad: Sidebar -->
                     <AdPlacement
                         :location="AdLocation.SIDEBAR"
                         :context="{postId: post.id, categories: post.category?.id ? [post.category.id] : [], tags: post.tags?.map(t => t.id) || []}"
@@ -105,9 +101,7 @@
                     </div>
                 </aside>
 
-                <!-- Main Content -->
                 <main class="post-detail__main">
-                    <!-- Header -->
                     <header class="post-detail__header">
                         <div class="post-detail__breadcrumb">
                             <NuxtLink :to="localePath('/')" class="breadcrumb-link">
@@ -170,7 +164,6 @@
                         </div>
                     </header>
 
-                    <!-- Content -->
                     <template v-if="post.locked">
                         <div class="post-detail__locked">
                             <div class="post-detail__locked-card">
@@ -182,7 +175,6 @@
                                     {{ $t(`pages.posts.locked.${post.reason?.toLowerCase()}_desc`) }}
                                 </p>
 
-                                <!-- Password Input -->
                                 <div v-if="post.reason === 'PASSWORD_REQUIRED'" class="post-detail__unlock-form">
                                     <div class="flex gap-2 w-full">
                                         <InputText
@@ -203,7 +195,6 @@
                                     </small>
                                 </div>
 
-                                <!-- Auth/Subscription Redirects -->
                                 <div v-else class="post-detail__unlock-actions">
                                     <Button
                                         v-if="post.reason === 'AUTH_REQUIRED'"
@@ -219,7 +210,6 @@
                         </div>
                     </template>
                     <template v-else>
-                        <!-- Audio Player -->
                         <div v-if="post.audioUrl" class="post-detail__audio">
                             <audio controls>
                                 <source :src="post.audioUrl" :type="post.audioMimeType || 'audio/mpeg'">
@@ -227,7 +217,6 @@
                             </audio>
                         </div>
 
-                        <!-- Ad: Content Top -->
                         <AdPlacement
                             :location="AdLocation.CONTENT_TOP"
                             :context="{postId: post.id, categories: post.category?.id ? [post.category.id] : [], tags: post.tags?.map(t => t.id) || []}"
@@ -235,20 +224,17 @@
 
                         <ArticleContent :content="post.content" />
 
-                        <!-- Ad: Content Middle -->
                         <AdPlacement
                             :location="AdLocation.CONTENT_MIDDLE"
                             :context="{postId: post.id, categories: post.category?.id ? [post.category.id] : [], tags: post.tags?.map(t => t.id) || []}"
                         />
 
-                        <!-- Ad: Content Bottom -->
                         <AdPlacement
                             :location="AdLocation.CONTENT_BOTTOM"
                             :context="{postId: post.id, categories: post.category?.id ? [post.category.id] : [], tags: post.tags?.map(t => t.id) || []}"
                         />
                     </template>
 
-                    <!-- Copyright -->
                     <ArticleCopyright
                         v-if="!post.locked"
                         :author-name="post.author?.name || post.author?.email || ''"
@@ -256,14 +242,12 @@
                         :license="post.copyright"
                     />
 
-                    <!-- Sponsor -->
                     <ArticleSponsor
                         v-if="!post.locked"
                         :social-links="post.author?.socialLinks"
                         :donation-links="post.author?.donationLinks"
                     />
 
-                    <!-- Footer -->
                     <footer class="post-detail__footer">
                         <div v-if="post.tags && post.tags.length > 0" class="post-detail__tags">
                             <NuxtLink
@@ -282,7 +266,6 @@
                         <hr class="post-detail__divider">
                         <SubscriberForm v-if="!post.locked" />
 
-                        <!-- Comment List -->
                         <CommentList v-if="!post.locked" :post-id="post.id" />
                     </footer>
                 </main>
@@ -290,7 +273,6 @@
             <ReaderControls />
         </div>
 
-        <!-- 预览大图 Lightbox -->
         <Dialog
             v-model:visible="lightboxVisible"
             modal
@@ -325,7 +307,6 @@ const fullUrl = computed(() => {
     return window.location.href
 })
 
-// Determine if the parameter is an ID or a Slug
 const isId = isSnowflakeId(idOrSlug)
 const endpoint = isId ? `/api/posts/${idOrSlug}` : `/api/posts/slug/${idOrSlug}`
 
@@ -333,7 +314,6 @@ const { data, pending, error, refresh } = await useAppFetch<any>(() => endpoint)
 
 const post = computed(() => data.value?.data)
 
-// Lightbox Logic
 const lightboxVisible = ref(false)
 const lightboxImage = ref('')
 
@@ -342,7 +322,6 @@ const openLightbox = (image: string) => {
     lightboxVisible.value = true
 }
 
-// Unlock Logic
 const password = ref('')
 const unlocking = ref(false)
 const unlockError = ref('')
@@ -357,7 +336,6 @@ const unlockPost = async () => {
             body: { password: password.value },
         })
         if (res.code === 200) {
-            // Refresh post data
             await refresh()
             password.value = ''
         }
@@ -368,7 +346,6 @@ const unlockPost = async () => {
     }
 }
 
-// Handle dynamic route translations for i18n language switcher
 watch(post, (newPost) => {
     if (newPost?.translations) {
         const params: Record<string, any> = {}

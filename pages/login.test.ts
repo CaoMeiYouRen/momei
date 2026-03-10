@@ -84,12 +84,25 @@ mockNuxtImport('useI18n', () => () => ({
 }))
 mockNuxtImport('useRouter', () => () => ({
     afterEach: vi.fn(),
+    beforeEach: vi.fn(),
+    beforeResolve: vi.fn(),
+    onError: vi.fn(),
+    replace: vi.fn().mockResolvedValue(undefined),
 }))
 mockNuxtImport('useRoute', () => () => mockRoute)
 mockNuxtImport('useLocalePath', () => () => (path: string) => path)
 mockNuxtImport('useRuntimeConfig', () => () => mockRuntimeConfig)
 mockNuxtImport('useHead', () => vi.fn())
 mockNuxtImport('navigateTo', () => mockNavigateTo)
+
+const mountLoginPage = () => mountSuspended(LoginPage, {
+    global: {
+        stubs,
+        mocks: {
+            $t: (key: string) => key,
+        },
+    },
+})
 
 describe('LoginPage', () => {
     beforeEach(() => {
@@ -98,33 +111,21 @@ describe('LoginPage', () => {
     })
 
     it('renders login form correctly', async () => {
-        const wrapper = await mountSuspended(LoginPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountLoginPage()
 
         expect(wrapper.find('.login-page').exists()).toBe(true)
         expect(wrapper.find('.login-card').exists()).toBe(true)
     })
 
     it('shows email input field', async () => {
-        const wrapper = await mountSuspended(LoginPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountLoginPage()
 
         const emailInput = wrapper.find('input#email')
         expect(emailInput.exists()).toBe(true)
     })
 
     it('shows password input field', async () => {
-        const wrapper = await mountSuspended(LoginPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountLoginPage()
 
         // Password component is stubbed, check for the wrapper div
         const passwordField = wrapper.find('.login-form__field')
@@ -132,22 +133,14 @@ describe('LoginPage', () => {
     })
 
     it('shows submit button', async () => {
-        const wrapper = await mountSuspended(LoginPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountLoginPage()
 
         const submitBtn = wrapper.find('button[type="submit"]')
         expect(submitBtn.exists()).toBe(true)
     })
 
     it('shows social login buttons when providers are enabled', async () => {
-        const wrapper = await mountSuspended(LoginPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountLoginPage()
 
         // Check that the page renders correctly with social providers enabled
         // The v-if directive controls visibility based on hasSocialLogin computed property
@@ -157,33 +150,21 @@ describe('LoginPage', () => {
     })
 
     it('shows forgot password link', async () => {
-        const wrapper = await mountSuspended(LoginPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountLoginPage()
 
         const forgotLink = wrapper.find('.login-form__forgot')
         expect(forgotLink.exists()).toBe(true)
     })
 
     it('shows register link', async () => {
-        const wrapper = await mountSuspended(LoginPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountLoginPage()
 
         const registerLink = wrapper.find('.login-card__register-link')
         expect(registerLink.exists()).toBe(true)
     })
 
     it('shows remember me checkbox', async () => {
-        const wrapper = await mountSuspended(LoginPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountLoginPage()
 
         // Check for remember me section (stubbed checkbox)
         const rememberSection = wrapper.find('.login-form__remember')
@@ -191,11 +172,7 @@ describe('LoginPage', () => {
     })
 
     it('shows legal notice with links', async () => {
-        const wrapper = await mountSuspended(LoginPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountLoginPage()
 
         const legalNotice = wrapper.find('.login-form__legal-notice')
         expect(legalNotice.exists()).toBe(true)
@@ -206,16 +183,15 @@ describe('LoginPage', () => {
             redirect: '/admin/posts/new',
         }
 
-        const wrapper = await mountSuspended(LoginPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountLoginPage()
 
         await wrapper.vm.$nextTick()
 
-        expect(wrapper.find('input#email').element.value).toBe('demo@momei.dev')
-        expect(wrapper.find('input#password').element.value).toBe('demo-password')
+        const emailInput = wrapper.find('input#email').element as HTMLInputElement
+        const passwordInput = wrapper.find('input#password').element as HTMLInputElement
+
+        expect(emailInput.value).toBe('demo@momei.dev')
+        expect(passwordInput.value).toBe('demo-password')
     })
 
     it('uses redirect target for email sign in', async () => {
@@ -224,11 +200,7 @@ describe('LoginPage', () => {
         }
         mockEmailSignIn.mockResolvedValue({ error: null })
 
-        const wrapper = await mountSuspended(LoginPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountLoginPage()
 
         await wrapper.vm.$nextTick()
 

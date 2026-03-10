@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { FriendLinkApplicationStatus, FriendLinkStatus } from '@/types/friend-link'
 
-const httpUrlSchema = z.string().trim().url('无效的网址格式').refine((value) => {
+const httpUrlSchema = z.url('无效的网址格式').trim().refine((value) => {
     try {
         const url = new URL(value)
         return ['http:', 'https:'].includes(url.protocol)
@@ -67,7 +67,7 @@ export const friendLinkApplicationSchema = z.object({
 })
 
 export const friendLinkApplicationReviewSchema = z.object({
-    status: z.nativeEnum(FriendLinkApplicationStatus),
+    status: z.enum(FriendLinkApplicationStatus),
     reviewNote: z.string().trim().max(1000, '审核备注过长').optional().nullable().or(z.literal('')),
     linkData: friendLinkSchema.partial().optional(),
 })

@@ -43,7 +43,7 @@ describe('scheduled task webhook', () => {
         vi.clearAllMocks()
         mocks.runRoutineMaintenanceTasks.mockResolvedValue({ friendLinksChecked: 2 })
 
-        vi.stubGlobal('readBody', vi.fn(async (event: { body?: Record<string, unknown> }) => event.body || {}))
+        vi.stubGlobal('readBody', vi.fn((event: { body?: Record<string, unknown> }) => Promise.resolve(event.body || {})))
         vi.stubGlobal('getQuery', vi.fn((event: { query?: Record<string, string> }) => event.query || {}))
         vi.stubGlobal(
             'getHeader',

@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     const limit = Number(query.limit || 20)
     const status = typeof query.status === 'string' ? query.status as FriendLinkStatus : undefined
     const categoryId = typeof query.categoryId === 'string' ? query.categoryId : undefined
-    const featured = query.featured === undefined ? undefined : String(query.featured) === 'true'
+    const featured = typeof query.featured === 'string' ? query.featured === 'true' : undefined
     const keyword = typeof query.keyword === 'string' ? query.keyword : undefined
 
     const data = await friendLinkService.getFriendLinks({
