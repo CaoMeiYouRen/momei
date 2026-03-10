@@ -3,11 +3,13 @@
 </template>
 
 <script setup lang="ts">
+import { useReaderMode } from '@/composables/use-reader-mode'
 import { toBoolean, toNumber } from '@/utils/shared/coerce'
 
 const { siteConfig } = useMomeiConfig()
 const route = useRoute()
 const { availableLocales } = useI18n()
+const { settings: readerSettings } = useReaderMode()
 const localeCodes = availableLocales as readonly string[]
 
 const DEFAULT_LIVE2D_PATH = 'https://unpkg.com/live2d-widgets@1.0.0/dist/'
@@ -144,7 +146,7 @@ const shouldLoadLive2d = () => {
 }
 
 const shouldShowLive2d = computed(() => {
-    return config.value.enabled && isRouteAllowed.value
+    return config.value.enabled && isRouteAllowed.value && !readerSettings.value.active
 })
 
 const loadExternalResource = (url: string, type: 'css' | 'js') => {
@@ -283,6 +285,7 @@ const syncLive2dState = () => {
 watch([
     () => route.path,
     () => config.value.enabled,
+    () => readerSettings.value.active,
 ], () => {
     if (!import.meta.client) {
         return

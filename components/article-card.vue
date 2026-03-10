@@ -1,10 +1,14 @@
 <template>
-    <div
+    <article
         class="article-card"
         :class="{'article-card--horizontal': layout === 'horizontal'}"
-        @click="navigateToPost"
     >
-        <div v-if="post.coverImage" class="article-card__cover">
+        <NuxtLink
+            v-if="post.coverImage"
+            :to="postPath"
+            class="article-card__cover"
+            :aria-label="post.title"
+        >
             <img
                 :src="post.coverImage"
                 :alt="post.title"
@@ -13,34 +17,36 @@
                 loading="lazy"
                 decoding="async"
             >
-        </div>
+        </NuxtLink>
         <div class="article-card__content">
-            <h2 class="article-card__title">
-                {{ post.title }}
-            </h2>
+            <NuxtLink :to="postPath" class="article-card__main-link">
+                <h2 class="article-card__title">
+                    {{ post.title }}
+                </h2>
 
-            <div class="article-card__meta">
-                <span v-if="post.author" class="article-card__meta-item">
-                    <i class="pi pi-user" />
-                    {{ post.author.name }}
-                </span>
-                <span v-if="post.publishedAt" class="article-card__meta-item">
-                    <i class="pi pi-calendar" />
-                    {{ formatDate(post.publishedAt) }}
-                </span>
-                <span class="article-card__meta-item">
-                    <i class="pi pi-eye" />
-                    {{ post.views }}
-                </span>
-                <span v-if="post.metadata?.audio?.url" class="article-card__meta-item article-card__meta-item--podcast">
-                    <i class="pi pi-headphones" />
-                    {{ $t('common.podcast') }}
-                </span>
-            </div>
+                <div class="article-card__meta">
+                    <span v-if="post.author" class="article-card__meta-item">
+                        <i class="pi pi-user" />
+                        {{ post.author.name }}
+                    </span>
+                    <span v-if="post.publishedAt" class="article-card__meta-item">
+                        <i class="pi pi-calendar" />
+                        {{ formatDate(post.publishedAt) }}
+                    </span>
+                    <span class="article-card__meta-item">
+                        <i class="pi pi-eye" />
+                        {{ post.views }}
+                    </span>
+                    <span v-if="post.metadata?.audio?.url" class="article-card__meta-item article-card__meta-item--podcast">
+                        <i class="pi pi-headphones" />
+                        {{ $t('common.podcast') }}
+                    </span>
+                </div>
 
-            <p class="article-card__summary" :title="post.summary || ''">
-                {{ formattedSummary }}
-            </p>
+                <p class="article-card__summary" :title="post.summary || ''">
+                    {{ formattedSummary }}
+                </p>
+            </NuxtLink>
 
             <div class="article-card__footer">
                 <div class="article-card__taxonomy" @click.stop>
@@ -65,17 +71,16 @@
                         </NuxtLink>
                     </div>
                 </div>
-                <Button
-                    :label="$t('common.read_more')"
-                    icon="pi pi-arrow-right"
-                    icon-pos="right"
-                    link
-                    size="small"
+                <NuxtLink
+                    :to="postPath"
                     class="article-card__read-more"
-                />
+                >
+                    {{ $t('common.read_more') }}
+                    <i class="pi pi-arrow-right" />
+                </NuxtLink>
             </div>
         </div>
-    </div>
+    </article>
 </template>
 
 <script setup lang="ts">
@@ -96,9 +101,7 @@ const formattedSummary = computed(() => {
     return summary.length > 200 ? summary.substring(0, 200) + '...' : summary
 })
 
-const navigateToPost = () => {
-    navigateTo(localePath(`/posts/${props.post.slug || props.post.id}`))
-}
+const postPath = computed(() => localePath(`/posts/${props.post.slug || props.post.id}`))
 </script>
 
 <style lang="scss" scoped>
@@ -110,9 +113,9 @@ const navigateToPost = () => {
     @include hover-lift;
 
     overflow: hidden;
-    cursor: pointer;
 
     &__cover {
+        display: block;
         aspect-ratio: 16 / 9;
         overflow: hidden;
 
@@ -134,11 +137,25 @@ const navigateToPost = () => {
         padding: $spacing-md;
     }
 
+    &__main-link {
+        display: block;
+        color: inherit;
+        text-decoration: none;
+
+        &:hover,
+        &:focus-visible {
+            .article-card__title {
+                color: var(--m-accent-color);
+            }
+        }
+    }
+
     &__title {
         font-size: 1.25rem;
         font-weight: 700;
         color: var(--p-text-color);
         margin-bottom: $spacing-sm;
+        transition: color $transition-fast;
 
         @include text-ellipsis-multiline(2);
     }
@@ -208,8 +225,17 @@ const navigateToPost = () => {
     }
 
     &__read-more {
-        &.p-button {
-            padding: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-xs;
+        color: var(--m-accent-color);
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+
+        &:hover,
+        &:focus-visible {
+            text-decoration: underline;
         }
     }
 

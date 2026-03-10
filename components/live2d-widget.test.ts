@@ -9,9 +9,18 @@ const mockRoute = reactive({
 const mockSiteConfig = ref({
     live2dEnabled: true,
 })
+const mockReaderSettings = ref({
+    active: false,
+})
 
 const mockRunWhenIdle = vi.fn()
 const mockCanLoadEffect = vi.fn(() => true)
+
+vi.mock('@/composables/use-reader-mode', () => ({
+    useReaderMode: () => ({
+        settings: mockReaderSettings,
+    }),
+}))
 
 mockNuxtImport('useRoute', () => () => mockRoute)
 mockNuxtImport('useI18n', () => () => ({
@@ -35,6 +44,9 @@ describe('Live2dWidget', () => {
         mockRoute.path = '/'
         mockSiteConfig.value = {
             live2dEnabled: true,
+        }
+        mockReaderSettings.value = {
+            active: false,
         }
         document.body.innerHTML = ''
     })
@@ -97,5 +109,26 @@ describe('Live2dWidget', () => {
 
         expect(waifu.style.display).toBe('')
         expect(toggle.style.display).toBe('')
+    })
+
+    it('should hide the widget when immersive reader mode is enabled', async () => {
+        const waifu = document.createElement('div')
+        waifu.id = 'waifu'
+        document.body.appendChild(waifu)
+
+        const toggle = document.createElement('div')
+        toggle.id = 'waifu-toggle'
+        document.body.appendChild(toggle)
+
+        mockRoute.path = '/posts/demo'
+        wrapper = await mountSuspended(Live2dWidget)
+
+        expect(waifu.style.display).toBe('')
+
+        mockReaderSettings.value.active = true
+        await nextTick()
+
+        expect(waifu.style.display).toBe('none')
+        expect(toggle.style.display).toBe('none')
     })
 })

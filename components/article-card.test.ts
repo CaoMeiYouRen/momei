@@ -96,4 +96,15 @@ describe('ArticleCard', () => {
         // Should contain the translated word (we check for the tag since mountSuspended uses real translations if configured, or keys if not)
         expect(wrapper.find('.article-card__meta-item--podcast').exists()).toBe(true)
     })
+
+    it('renders semantic links for article navigation', async () => {
+        const wrapper = await mountSuspended(ArticleCard, {
+            props: {
+                post: mockPost,
+            },
+        })
+
+        expect(wrapper.find('.article-card__main-link').exists()).toBe(true)
+        expect(wrapper.find('.article-card__read-more').exists()).toBe(true)
+    })
 })

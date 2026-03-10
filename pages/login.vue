@@ -160,13 +160,21 @@
 </template>
 
 <script setup lang="ts">
+import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
 import { authClient } from '@/lib/auth-client'
 import { loginSchema } from '@/utils/schemas/auth'
 
-const { t } = useI18n()
+const i18n = useI18n()
+const { t, locale } = i18n
 const route = useRoute()
 const localePath = useLocalePath()
 const runtimeConfig = useRuntimeConfig()
+
+await ensureLocaleMessageModules({
+    i18n,
+    locale: locale.value,
+    modules: ['auth'],
+})
 
 const normalizeRedirectTarget = (value: unknown) => {
     if (typeof value !== 'string') {

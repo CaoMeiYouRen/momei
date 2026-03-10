@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
-import LoginPage from './login.vue'
 
-const { mockEmailSignIn, mockSocialSignIn, mockNavigateTo, mockRoute, mockRuntimeConfig } = vi.hoisted(() => ({
+const { mockEmailSignIn, mockSocialSignIn, mockNavigateTo, mockRoute, mockRuntimeConfig, mockEnsureLocaleMessageModules } = vi.hoisted(() => ({
     mockEmailSignIn: vi.fn(),
     mockSocialSignIn: vi.fn(),
     mockNavigateTo: vi.fn(),
+    mockEnsureLocaleMessageModules: vi.fn(),
     mockRoute: {
         query: {} as Record<string, unknown>,
     },
@@ -26,6 +26,15 @@ const { mockEmailSignIn, mockSocialSignIn, mockNavigateTo, mockRoute, mockRuntim
         },
     },
 }))
+
+vi.mock('@/i18n/config/locale-runtime-loader', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@/i18n/config/locale-runtime-loader')>()
+
+    return {
+        ...actual,
+        ensureLocaleMessageModules: mockEnsureLocaleMessageModules,
+    }
+})
 
 // Mock auth-client
 vi.mock('@/lib/auth-client', () => ({
@@ -81,6 +90,7 @@ mockNuxtImport('useToast', () => () => mockToast)
 mockNuxtImport('useI18n', () => () => ({
     t: (key: string) => key,
     locale: { value: 'zh-CN' },
+    mergeLocaleMessage: vi.fn(),
 }))
 mockNuxtImport('useRouter', () => () => ({
     afterEach: vi.fn(),
@@ -95,6 +105,8 @@ mockNuxtImport('useRuntimeConfig', () => () => mockRuntimeConfig)
 mockNuxtImport('useHead', () => vi.fn())
 mockNuxtImport('navigateTo', () => mockNavigateTo)
 
+import LoginPage from './login.vue'
+
 const mountLoginPage = () => mountSuspended(LoginPage, {
     global: {
         stubs,
@@ -108,6 +120,7 @@ describe('LoginPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         mockRoute.query = {}
+        mockEnsureLocaleMessageModules.mockResolvedValue(undefined)
     })
 
     it('renders login form correctly', async () => {
@@ -115,6 +128,18 @@ describe('LoginPage', () => {
 
         expect(wrapper.find('.login-page').exists()).toBe(true)
         expect(wrapper.find('.login-card').exists()).toBe(true)
+    })
+
+    it('preloads auth locale messages before render', async () => {
+        await mountLoginPage()
+
+        expect(mockEnsureLocaleMessageModules).toHaveBeenCalledWith({
+            i18n: expect.objectContaining({
+                locale: { value: 'zh-CN' },
+            }),
+            locale: 'zh-CN',
+            modules: ['auth'],
+        })
     })
 
     it('shows email input field', async () => {
