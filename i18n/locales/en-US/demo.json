@@ -2,19 +2,50 @@
   "demo": {
     "banner_text": "Demo Mode is active. You can explore all features, but data will be reset periodically.",
     "start_tour": "Start Tour",
+    "journey_badge": "3-5 Minute Journey",
+    "journey_title": "Explore public content, then try AI creation",
+    "current_stage": "Recommended stage: {stage}",
+    "stages": {
+      "public": "Public experience",
+      "login": "Sign in to admin",
+      "editor": "Editor hands-on"
+    },
+    "paths": {
+      "read_article": {
+        "label": "Read a sample article first",
+        "description": "Jump straight into the welcome post and experience reading, TOC, and content rendering.",
+        "action": "Open article"
+      },
+      "browse_content": {
+        "label": "Browse the content structure",
+        "description": "Inspect posts, search, categories, and archives to understand the public site flow.",
+        "action": "Browse content"
+      },
+      "creator_mode": {
+        "label": "Enter creator mode",
+        "description": "Go to the login page, auto-fill the demo account, and continue into the AI editor.",
+        "action": "Start creating"
+      }
+    },
     "tour": {
       "welcome_title": "Welcome to Momei Blog",
       "welcome_desc": "Momei is an AI-driven, natively internationalized blog platform. We'll show you how to use AI to boost productivity and reach a global audience.",
       "login_title": "Auto Login",
       "login_desc": "In Demo mode, we auto-fill the demo account. Just click Login to enter the admin panel.",
+      "login_action_title": "Continue to admin",
+      "login_action_desc": "Submit the form to continue into the dashboard, then try the editor and AI workflow.",
       "editor_title": "Efficient Creation",
       "editor_desc": "This is our powerful Markdown editor. The 'stars' menu on the right holds AI tools.",
       "ai_title": "AI Assistant",
       "ai_desc": "Click here! AI can suggest titles, generate summaries, extract tags, or translate the entire post.",
+      "translate_title": "Multilingual writing",
+      "translate_desc": "Switch or generate translated versions here to extend one post into multiple languages.",
       "publish_title": "Publish & Manage",
       "publish_desc": "Once done, set your Slug and publish. Remember, data here is ephemeral.",
       "nav_title": "Content Navigation",
       "nav_desc": "Easily access the post list, categories, tags, and archives through the navigation bar.",
+      "article_title": "Seeded demo content",
+      "article_desc": "The homepage and post list already include demo articles that cover reading, AI creation, and multilingual workflows.",
       "admin_title": "Admin Dashboard",
       "admin_desc": "Admins can access the dashboard here to manage content, users, and system settings.",
       "search_title": "Global Search",

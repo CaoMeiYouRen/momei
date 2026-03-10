@@ -1,82 +1,74 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import DemoBanner from './demo-banner.vue'
 
-const mockT = vi.fn((key: string) => key)
+const { mockConfig, mockNavigateTo, mockRoute, mockT } = vi.hoisted(() => {
+    return {
+        mockT: vi.fn((key: string, params?: Record<string, string>) => {
+            if (params?.stage) {
+                return `${key}:${params.stage}`
+            }
+
+            return key
+        }),
+        mockNavigateTo: vi.fn(),
+        mockRoute: {
+            path: '/',
+        },
+        mockConfig: {
+            app: {
+                baseURL: '/',
+                buildAssetsDir: '/_nuxt/',
+                cdnURL: '',
+            },
+            public: {
+                demoMode: true,
+                sentry: {
+                    dsn: '',
+                    environment: 'test',
+                },
+            },
+        },
+    }
+})
+
 mockNuxtImport('useI18n', () => () => ({
     t: mockT,
     locale: { value: 'zh-CN' },
 }))
 
-const mockConfig = {
-    app: {
-        baseURL: '/',
-        buildAssetsDir: '/_nuxt/',
-        cdnURL: '',
-    },
-    public: {
-        demoMode: true,
-        sentry: {
-            dsn: '',
-            environment: 'test',
-        },
-    },
-}
+mockNuxtImport('navigateTo', () => mockNavigateTo)
+mockNuxtImport('useLocalePath', () => () => (path: string) => path)
+mockNuxtImport('useRoute', () => () => mockRoute)
 mockNuxtImport('useRuntimeConfig', () => () => mockConfig)
 
 describe('DemoBanner', () => {
-    it('should render when demoMode is enabled', async () => {
+    beforeEach(() => {
         mockConfig.public.demoMode = true
-        const wrapper = await mountSuspended(DemoBanner, {
-            global: {
-                mocks: {
-                    $t: mockT,
-                },
-                stubs: {
-                    Button: {
-                        template: '<button @click="$emit(\'click\')"><slot /></button>',
-                    },
-                },
-            },
-        })
+        mockRoute.path = '/'
+        mockNavigateTo.mockReset()
+        localStorage.clear()
+    })
+
+    it('should render when demoMode is enabled', async () => {
+        const wrapper = await mountSuspended(DemoBanner)
 
         expect(wrapper.find('.demo-banner').exists()).toBe(true)
-        // 既然加载了真实翻译，我们就不检查翻译 key 了
         expect(wrapper.find('.demo-banner__text').text()).not.toBe('')
+        expect(wrapper.findAll('.demo-banner__path')).toHaveLength(3)
     })
 
     it('should not render when demoMode is disabled', async () => {
         mockConfig.public.demoMode = false
-        const wrapper = await mountSuspended(DemoBanner, {
-            global: {
-                mocks: {
-                    $t: mockT,
-                },
-                stubs: {
-                    Button: true,
-                },
-            },
-        })
+        const wrapper = await mountSuspended(DemoBanner)
 
         expect(wrapper.find('.demo-banner').exists()).toBe(false)
     })
 
     it('should dispatch custom event when start tour button is clicked', async () => {
-        mockConfig.public.demoMode = true
         const dispatchEventSpy = vi.spyOn(window, 'dispatchEvent')
 
-        const wrapper = await mountSuspended(DemoBanner, {
-            global: {
-                mocks: {
-                    $t: mockT,
-                },
-                stubs: {
-                    Button: {
-                        template: '<button @click="$emit(\'click\')"><slot /></button>',
-                    },
-                },
-            },
-        })
+        const wrapper = await mountSuspended(DemoBanner)
 
         await wrapper.find('.demo-banner__btn').trigger('click')
 
@@ -85,5 +77,14 @@ describe('DemoBanner', () => {
         expect(event.type).toBe('momei:start-tour')
 
         dispatchEventSpy.mockRestore()
+    })
+
+    it('should queue the next onboarding stage and navigate when opening a demo path', async () => {
+        const wrapper = await mountSuspended(DemoBanner)
+
+        await wrapper.findAll('.demo-banner__path')[2]!.trigger('click')
+
+        expect(localStorage.getItem('momei_demo_next_stage')).toBe('login')
+        expect(mockNavigateTo).toHaveBeenCalledWith('/login')
     })
 })

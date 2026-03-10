@@ -14,8 +14,9 @@ import { authClient } from '@/lib/auth-client'
 
 const { t, setLocale } = useI18n()
 const route = useRoute()
+const config = useRuntimeConfig()
 const session = authClient.useSession()
-const { startTour } = useOnboarding()
+const { startTour, maybeAutoStartTour } = useOnboarding()
 const { fetchTheme, applyTheme } = useTheme()
 const {
     fetchSiteConfig,
@@ -50,6 +51,10 @@ const initializeAppSettings = async () => {
 
 applyTheme()
 
+const handleStartTour = () => {
+    void startTour()
+}
+
 if (import.meta.server) {
     await initializeAppSettings()
 } else {
@@ -57,17 +62,26 @@ if (import.meta.server) {
 }
 
 onMounted(() => {
-    window.addEventListener('momei:start-tour', startTour)
+    window.addEventListener('momei:start-tour', handleStartTour)
 
-    // 如果是 Demo 模式且是第一次访问，自动开启引导
-    const config = useRuntimeConfig()
     if (config.public.demoMode) {
-        const hasToured = localStorage.getItem('momei_demo_toured')
-        if (!hasToured) {
-            setTimeout(startTour, 1500)
-            localStorage.setItem('momei_demo_toured', 'true')
-        }
+        maybeAutoStartTour()
     }
+})
+
+onBeforeUnmount(() => {
+    if (import.meta.client) {
+        window.removeEventListener('momei:start-tour', handleStartTour)
+    }
+})
+
+watch(() => route.fullPath, async () => {
+    if (!import.meta.client || !config.public.demoMode) {
+        return
+    }
+
+    await nextTick()
+    maybeAutoStartTour()
 })
 
 const head = useLocaleHead({

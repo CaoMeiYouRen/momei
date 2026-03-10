@@ -80,6 +80,7 @@ export async function seedDemoData(ds: DataSource) {
 
         // 4. 创建演示文章
         const postRepo = ds.getRepository(Post)
+        const now = Date.now()
         const demoPosts = [
             {
                 title: '欢迎来到墨梅博客演示模式',
@@ -99,7 +100,7 @@ export async function seedDemoData(ds: DataSource) {
 ### 开始您的探索之旅吧！`,
                 language: 'zh-CN',
                 status: 'published' as any,
-                publishedAt: new Date(),
+                publishedAt: new Date(now - 1000 * 60 * 60 * 6),
                 authorId: admin.id,
                 categoryId: techCat?.id,
                 tags: savedTags,
@@ -123,11 +124,113 @@ This is your first demo post. In **Demo Mode**, you can:
 ### Start your journey now!`,
                 language: 'en-US',
                 status: 'published' as any,
-                publishedAt: new Date(),
+                publishedAt: new Date(now - 1000 * 60 * 60 * 6),
                 authorId: admin.id,
                 categoryId: techEnCat?.id,
                 tags: [],
                 views: 42,
+            },
+            {
+                title: '3 分钟体验路线：从公开内容到后台创作',
+                slug: 'demo-journey-in-three-minutes',
+                translationId: 'demo-journey-in-three-minutes',
+                summary: '如果您想在几分钟内理解墨梅的公开内容、搜索、多语言与后台创作能力，这篇文章就是最佳起点。',
+                content: `## 为什么先看这篇
+
+这是一条为首次访问者准备的 Demo 路线图：
+
+1. 打开公开文章，感受阅读页、目录与内容渲染。
+2. 试试搜索、分类、标签和归档，理解站点结构。
+3. 登录后台，体验 AI 标题、摘要、翻译和发布流程。
+
+### 推荐您继续体验
+
+- 在顶部导航切换语言，查看多语言界面的差异。
+- 进入后台后点击编辑器上的 AI 按钮，快速生成标题与摘要。
+- 最后打开文章列表，看看多语言和状态管理如何协同工作。`,
+                language: 'zh-CN',
+                status: 'published' as any,
+                publishedAt: new Date(now - 1000 * 60 * 35),
+                authorId: admin.id,
+                categoryId: techCat?.id,
+                tags: savedTags.slice(0, 2),
+                views: 96,
+            },
+            {
+                title: '3-Minute Journey: From Public Reading to AI Creation',
+                slug: 'demo-journey-in-three-minutes',
+                translationId: 'demo-journey-in-three-minutes',
+                summary: 'This guided route helps first-time visitors understand public content, search, multilingual publishing, and the admin creation flow in a few minutes.',
+                content: `## Why start here
+
+This post is the fastest route through the demo experience:
+
+1. Open a public article and inspect reading, TOC, and rendering.
+2. Try search, categories, tags, and archives to understand the site structure.
+3. Sign in to the admin panel and explore AI-assisted writing, translation, and publishing.
+
+### Recommended next steps
+
+- Switch the UI language from the header.
+- Use the AI tools in the editor to generate titles and summaries.
+- Revisit the admin list to see translation and status management together.`,
+                language: 'en-US',
+                status: 'published' as any,
+                publishedAt: new Date(now - 1000 * 60 * 35),
+                authorId: admin.id,
+                categoryId: techEnCat?.id,
+                tags: [],
+                views: 55,
+            },
+            {
+                title: '用 AI 将灵感整理成文章与多语言版本',
+                slug: 'ai-creation-workflow-demo',
+                translationId: 'ai-creation-workflow-demo',
+                summary: '这篇 Demo 文章专门展示标题建议、摘要生成、标签推荐和翻译工作流如何串成一条可操作的内容生产链路。',
+                content: `## 一条更接近真实创作的路径
+
+在后台编辑器里，您可以把一次 Demo 体验分成四步：
+
+1. 先输入一段草稿或灵感。
+2. 用 AI 生成候选标题与摘要。
+3. 继续推荐标签、整理 Markdown 格式。
+4. 一键翻译到另一种语言，再进入发布流程。
+
+### 为什么这个流程重要
+
+它不是单点功能展示，而是帮助您判断墨梅是否适合真实创作节奏。`,
+                language: 'zh-CN',
+                status: 'published' as any,
+                publishedAt: new Date(now - 1000 * 60 * 10),
+                authorId: admin.id,
+                categoryId: techCat?.id,
+                tags: savedTags,
+                views: 164,
+            },
+            {
+                title: 'Turn Ideas into Multilingual Posts with AI',
+                slug: 'ai-creation-workflow-demo',
+                translationId: 'ai-creation-workflow-demo',
+                summary: 'This demo post shows how title suggestions, summary generation, tag recommendation, and translation can become one practical content workflow.',
+                content: `## A workflow that feels closer to real writing
+
+Inside the admin editor, the demo follows four steps:
+
+1. Start with a rough draft or a short idea.
+2. Generate title options and summaries with AI.
+3. Clean up tags and formatting.
+4. Translate the post into another language before publishing.
+
+### Why this matters
+
+The goal is not to showcase isolated tricks, but to help you evaluate whether Momei fits a real publishing rhythm.`,
+                language: 'en-US',
+                status: 'published' as any,
+                publishedAt: new Date(now - 1000 * 60 * 10),
+                authorId: admin.id,
+                categoryId: techEnCat?.id,
+                tags: [],
+                views: 71,
             },
         ]
 
