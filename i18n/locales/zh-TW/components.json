@@ -1,121 +1,121 @@
 {
-  "components": {
-    "search": {
-      "title": "全局搜索",
-      "placeholder": "搜索文章、分类或标签...",
-      "no_results": "未找到相关内容",
-      "help_hint": "输入关键词进行全文搜索...",
-      "loading": "搜索中...",
-      "ctrl_k": "进入搜索"
-    },
-    "header": {
-      "language": "语言",
-      "title": "墨梅",
-      "dark_mode": "深色模式",
-      "light_mode": "浅色模式"
-    },
-    "footer": {
-      "docs": "文档",
-      "copyright": "© 2026 墨梅博客 - AI 赋能，全球创作",
-      "compliance": {
-        "icp": "ICP备案",
-        "police": "公安网安备"
-      }
-    },
-    "toc": {
-      "title": "目录"
-    },
-    "notifications": {
-      "title": "站内通知",
-      "empty": "暂无通知",
-      "mark_all_read": "全部已读",
-      "view_all": "查看全部设置",
-      "browser_enable": "启用浏览器通知",
-      "browser_status": {
-        "default": "启用后，离线时也能收到高价值任务提醒。",
-        "denied": "浏览器通知已被禁用，请在浏览器设置中手动重新开启。"
-      }
-    },
-    "reader": {
-      "mode_enter": "开启沉浸阅读",
-      "mode_exit": "退出沉浸模式",
-      "settings_title": "阅读排版设置",
-      "font_size": "字号",
-      "line_height": "行高",
-      "page_width": "页宽",
-      "theme": "阅读主题"
-    },
-    "subscriber_form": {
-      "title": "邮件订阅",
-      "description": "第一时间获取最新文章与技术分享",
-      "placeholder": "请输入邮箱地址",
-      "submit": "立即订阅",
-      "success": "订阅成功！感谢您的关注。",
-      "submitting": "处理中..."
-    },
-    "post": {
-      "copyright": {
-        "title": "版权声明",
-        "author": "本文作者",
-        "link": "本文链接",
-        "license_title": "版权声明",
-        "license_pre": "本博客所有文章除特别声明外，均采用 ",
-        "license_post": " 许可协议。转载请注明出处！",
-        "default_license": "all-rights-reserved",
-        "licenses": {
-          "all-rights-reserved": "所有权利保留（禁止转载）",
-          "cc-by": "CC BY 4.0（署名）",
-          "cc-by-sa": "CC BY-SA 4.0（署名-相同方式共享）",
-          "cc-by-nd": "CC BY-ND 4.0（署名-禁止演绎）",
-          "cc-by-nc": "CC BY-NC 4.0（署名-非商业性使用）",
-          "cc-by-nc-sa": "CC BY-NC-SA 4.0（署名-非商业性使用-相同方式共享）",
-          "cc-by-nc-nd": "CC BY-NC-ND 4.0（署名-非商业性使用-禁止演绎）",
-          "cc-zero": "CC0 1.0（取消版权 / 进入公共领域）"
+    "components": {
+        "search": {
+            "title": "全域搜尋",
+            "placeholder": "搜尋文章、分類或標籤...",
+            "no_results": "找不到相關內容",
+            "help_hint": "輸入關鍵字以進行全文搜尋...",
+            "loading": "搜尋中...",
+            "ctrl_k": "進入搜尋"
+        },
+        "header": {
+            "language": "語言",
+            "title": "墨梅",
+            "dark_mode": "深色模式",
+            "light_mode": "淺色模式"
+        },
+        "footer": {
+            "docs": "文件",
+            "copyright": "© 2026 墨梅部落格 - AI 賦能，全球創作",
+            "compliance": {
+                "icp": "ICP 備案",
+                "police": "公安網安備"
+            }
+        },
+        "toc": {
+            "title": "目錄"
+        },
+        "notifications": {
+            "title": "站內通知",
+            "empty": "暫無通知",
+            "mark_all_read": "全部標示為已讀",
+            "view_all": "查看全部設定",
+            "browser_enable": "啟用瀏覽器通知",
+            "browser_status": {
+                "default": "啟用後，即使離線也能收到高價值任務提醒。",
+                "denied": "瀏覽器通知已被停用，請至瀏覽器設定手動重新開啟。"
+            }
+        },
+        "reader": {
+            "mode_enter": "開啟沉浸閱讀",
+            "mode_exit": "退出沉浸模式",
+            "settings_title": "閱讀排版設定",
+            "font_size": "字級",
+            "line_height": "行高",
+            "page_width": "頁寬",
+            "theme": "閱讀主題"
+        },
+        "subscriber_form": {
+            "title": "電子報訂閱",
+            "description": "第一時間取得最新文章與技術分享",
+            "placeholder": "請輸入電子郵件地址",
+            "submit": "立即訂閱",
+            "success": "訂閱成功！感謝您的關注。",
+            "submitting": "處理中..."
+        },
+        "post": {
+            "copyright": {
+                "title": "版權聲明",
+                "author": "本文作者",
+                "link": "本文連結",
+                "license_title": "版權聲明",
+                "license_pre": "本部落格所有文章除特別聲明外，均採用 ",
+                "license_post": " 授權條款。轉載請註明出處！",
+                "default_license": "all-rights-reserved",
+                "licenses": {
+                    "all-rights-reserved": "保留所有權利（禁止轉載）",
+                    "cc-by": "CC BY 4.0（姓名標示）",
+                    "cc-by-sa": "CC BY-SA 4.0（姓名標示-相同方式分享）",
+                    "cc-by-nd": "CC BY-ND 4.0（姓名標示-禁止改作）",
+                    "cc-by-nc": "CC BY-NC 4.0（姓名標示-非商業性使用）",
+                    "cc-by-nc-sa": "CC BY-NC-SA 4.0（姓名標示-非商業性使用-相同方式分享）",
+                    "cc-by-nc-nd": "CC BY-NC-ND 4.0（姓名標示-非商業性使用-禁止改作）",
+                    "cc-zero": "CC0 1.0（拋棄版權 / 進入公有領域）"
+                }
+            },
+            "sponsor": {
+                "title": "贊助支持",
+                "social_title": "追蹤我",
+                "donation_title": "支持作者",
+                "qr_scan_follow_tip": "開啟行動端 App 掃碼追蹤",
+                "qr_scan_pay_tip": "開啟行動端 App 掃碼付款",
+                "platforms": {
+                    "wechat_mp": "微信公眾號",
+                    "bilibili": "Bilibili",
+                    "weibo": "微博",
+                    "zhihu": "知乎",
+                    "x": "X (Twitter)",
+                    "youtube": "YouTube",
+                    "facebook": "Facebook",
+                    "github": "GitHub",
+                    "wechat_pay": "微信支付",
+                    "alipay": "支付寶",
+                    "afdian": "愛發電",
+                    "github_sponsors": "GitHub Sponsors",
+                    "opencollective": "Open Collective",
+                    "patreon": "Patreon",
+                    "buymeacoffee": "Buy Me a Coffee",
+                    "paypal": "PayPal"
+                }
+            }
         }
-      },
-      "sponsor": {
-        "title": "赞赏支持",
-        "social_title": "关注我",
-        "donation_title": "支持作者",
-        "qr_scan_follow_tip": "打开移动端 App 扫码关注",
-        "qr_scan_pay_tip": "打开移动端 App 扫码支付",
-        "platforms": {
-          "wechat_mp": "微信公众号",
-          "bilibili": "Bilibili",
-          "weibo": "微博",
-          "zhihu": "知乎",
-          "x": "X (Twitter)",
-          "youtube": "YouTube",
-          "facebook": "Facebook",
-          "github": "GitHub",
-          "wechat_pay": "微信支付",
-          "alipay": "支付宝",
-          "afdian": "爱发电",
-          "github_sponsors": "GitHub Sponsors",
-          "opencollective": "Open Collective",
-          "patreon": "Patreon",
-          "buymeacoffee": "Buy Me a Coffee",
-          "paypal": "PayPal"
-        }
-      }
+    },
+    "comments": {
+        "title": "留言",
+        "reply": "回覆",
+        "submit": "發表留言",
+        "nickname": "暱稱",
+        "nickname_placeholder": "您希望我們如何稱呼您",
+        "email": "電子郵件",
+        "email_placeholder": "用於頭像與通知（不會公開）",
+        "website": "個人網站",
+        "website_placeholder": "https://...",
+        "content_placeholder_guest": "說點什麼吧...（需審核後顯示）",
+        "content_placeholder_logged_in": "分享您的想法...",
+        "guest_tip": "您正以訪客身分發表留言",
+        "replying_to": "正在回覆",
+        "no_comments": "暫無留言，快來搶頭香吧！",
+        "pending_audit": "您的留言已送出，正在等待管理員審核顯示。",
+        "sticked": "置頂"
     }
-  },
-  "comments": {
-    "title": "评论",
-    "reply": "回复",
-    "submit": "发表评论",
-    "nickname": "昵称",
-    "nickname_placeholder": "您的称呼",
-    "email": "电子邮箱",
-    "email_placeholder": "用于头像与通知 (不会公开)",
-    "website": "个人网站",
-    "website_placeholder": "https://...",
-    "content_placeholder_guest": "说点什么吧... (需审核后展示)",
-    "content_placeholder_logged_in": "分享您的看法...",
-    "guest_tip": "您正在以游客身份发表评论",
-    "replying_to": "正在回复",
-    "no_comments": "暂无评论，快来抢沙发吧！",
-    "pending_audit": "您的评论已提交，正在等待管理员审核展示。",
-    "sticked": "置顶"
-  }
 }

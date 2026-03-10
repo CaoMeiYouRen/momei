@@ -1,178 +1,178 @@
 {
     "pages": {
         "submit": {
-            "title": "访客投稿",
+            "title": "訪客投稿",
             "meta": {
-                "description": "向墨梅博客提交您的原创内容或技术见解，参与全球化开发者创作社区。"
+                "description": "向墨梅部落格提交您的原創內容或技術見解，參與全球化開發者創作社群。"
             },
-            "subtitle": "欢迎分享您的见解与故事",
+            "subtitle": "歡迎分享您的觀點與故事",
             "form": {
-                "title": "文章标题",
-                "title_placeholder": "请输入文章标题",
-                "content": "正文内容 (Markdown)",
-                "content_placeholder": "请使用 Markdown 格式编写...",
-                "name": "您的称呼",
-                "name_placeholder": "支持昵称",
-                "email": "电子邮箱",
-                "email_placeholder": "用于接收审核反馈",
-                "url": "个人站点",
-                "url_placeholder": "可选",
+                "title": "文章標題",
+                "title_placeholder": "請輸入文章標題",
+                "content": "正文內容（Markdown）",
+                "content_placeholder": "請使用 Markdown 格式撰寫...",
+                "name": "您的稱呼",
+                "name_placeholder": "支援暱稱",
+                "email": "電子郵件",
+                "email_placeholder": "用於接收審核回饋",
+                "url": "個人網站",
+                "url_placeholder": "可選",
                 "submit": "立即投稿",
                 "submitting": "提交中...",
-                "success": "投稿成功！请等待管理员审核，我们会通过邮件通知您结果。",
-                "error": "投稿失败，请稍后再试。",
-                "captcha_required": "请完成验证码校验"
+                "success": "投稿成功！請等待管理員審核，我們會透過電子郵件通知您結果。",
+                "error": "投稿失敗，請稍後再試。",
+                "captcha_required": "請完成驗證碼校驗"
             }
         },
         "posts": {
             "title": "文章列表",
             "meta": {
-                "description": "浏览墨梅博客最新发布的技术文章、实践总结与创作内容，按语言与主题持续获取更新。"
+                "description": "瀏覽墨梅部落格最新發佈的技術文章、實踐總結與創作內容，依語言與主題持續獲取更新。"
             },
-            "empty": "暂无文章",
-            "status_warning": "当前文章处于 {status} 状态，尚未正式发布，仅相关权限人员可见。",
+            "empty": "暫無文章",
+            "status_warning": "目前文章處於 {status} 狀態，尚未正式發佈，僅相關權限人員可見。",
             "article_count": "{count} 篇文章",
-            "total_count": "共计 {count} 篇文章",
-            "total_categories": "目前共计 {count} 个分类",
-            "total_tags": "目前共计 {count} 个标签",
-            "password_placeholder": "请输入访问密码",
-            "login_to_read": "登录后继续阅读",
+            "total_count": "共 {count} 篇文章",
+            "total_categories": "目前共 {count} 個分類",
+            "total_tags": "目前共 {count} 個標籤",
+            "password_placeholder": "請輸入存取密碼",
+            "login_to_read": "登入後繼續閱讀",
             "locked": {
-                "password_required": "内容已受限",
-                "password_required_desc": "本文章受密码保护，请输入正确密码以访问完整内容。",
-                "auth_required": "仅限登录可见",
-                "auth_required_desc": "本文章仅限注册用户访问，请先登录后再继续阅读。",
-                "subscription_required": "仅限订阅者访问",
-                "subscription_required_desc": "本文章仅限邮件订阅者访问，请订阅后再继续阅读。",
-                "private": "内容为私有",
-                "private_desc": "您没有权限访问此私有文章。"
+                "password_required": "內容受限",
+                "password_required_desc": "本文受密碼保護，請輸入正確密碼以查看完整內容。",
+                "auth_required": "僅限登入可見",
+                "auth_required_desc": "本文僅限註冊使用者查看，請先登入後再繼續閱讀。",
+                "subscription_required": "僅限訂閱者存取",
+                "subscription_required_desc": "本文僅限電子報訂閱者查看，請訂閱後再繼續閱讀。",
+                "private": "內容為私人",
+                "private_desc": "您沒有權限存取這篇私人文章。"
             }
         },
         "error": {
-            "title": "发生错误",
-            "404_title": "页面未找到",
-            "404_desc": "很抱歉，您访问的页面不存在或已被移除。您可以尝试搜索其他内容或返回首页。",
-            "back_home": "返回首页",
-            "retry": "重试"
+            "title": "發生錯誤",
+            "404_title": "找不到頁面",
+            "404_desc": "抱歉，您造訪的頁面不存在或已被移除。您可以嘗試搜尋其他內容或返回首頁。",
+            "back_home": "返回首頁",
+            "retry": "重試"
         },
         "user_agreement": {
-            "title": "用户协议",
-            "last_updated": "最后更新日期：2026年1月18日",
+            "title": "使用者協議",
+            "last_updated": "最後更新日期：2026年1月18日",
             "meta": {
-                "description": "查看墨梅博客的用户协议与站点使用条款，了解访问、注册与内容发布相关规则。"
+                "description": "查看墨梅部落格的使用者協議與站點使用條款，了解存取、註冊與內容發佈的相關規則。"
             }
         },
         "privacy_policy": {
-            "title": "隐私政策",
-            "last_updated": "最后更新日期：2026年1月18日",
+            "title": "隱私權政策",
+            "last_updated": "最後更新日期：2026年1月18日",
             "meta": {
-                "description": "查看墨梅博客关于数据收集、使用、存储与用户权利说明的最新隐私政策。"
+                "description": "查看墨梅部落格關於資料蒐集、使用、儲存與使用者權利說明的最新隱私權政策。"
             }
         },
         "about": {
             "meta": {
-                "description": "了解墨梅博客：如何通过 AI 赋能实现全方位的国际化内容创作与管理。"
+                "description": "了解墨梅部落格：如何透過 AI 賦能實現全方位的國際化內容創作與管理。"
             },
             "hero": {
                 "title": "墨梅",
-                "subtitle": "AI 赋能，全球创作。为开发者量身定制的智能博客系统。",
+                "subtitle": "AI 賦能，全球創作。為開發者量身打造的智慧部落格系統。",
                 "cta": "了解更多"
             },
             "meaning": {
-                "title": "名称由来与寓意",
-                "text_1": "\"墨梅\"之名，灵感源自元代王冕《墨梅》诗句：",
-                "poem": "\"吾家洗砚池头树，朵朵花开淡墨痕。\n不要人夸好颜色，只留清气满乾坤。\"",
-                "text_2": "取\"墨\"字，象征文字创作、笔墨耕耘，呼应博客的内容本质；取\"梅\"字，寓意坚韧不拔的创作精神与独特的个人风格。",
-                "intro": "墨梅平台致力于为创作者提供：",
+                "title": "名稱由來與寓意",
+                "text_1": "\"墨梅\"之名，靈感來自元代王冕《墨梅》詩句：",
+                "poem": "\"吾家洗硯池頭樹，朵朵花開淡墨痕。\n不要人誇好顏色，只留清氣滿乾坤。\"",
+                "text_2": "取\"墨\"字，象徵文字創作與筆墨耕耘，呼應部落格的內容本質；取\"梅\"字，寓意堅韌不拔的創作精神與獨特的個人風格。",
+                "intro": "墨梅平台致力於為創作者提供：",
                 "features": [
-                    "AI 赋能的智能化内容创作体验",
-                    "底层的原生国际化内容管理与分发",
-                    "便捷的博客迁移工具与路径管理",
-                    "专注内容本身，借助 AI 跨越语言障碍"
+                    "AI 賦能的智慧內容創作體驗",
+                    "底層原生的國際化內容管理與分發",
+                    "便捷的部落格遷移工具與路徑管理",
+                    "專注內容本身，藉由 AI 跨越語言障礙"
                 ]
             },
             "features": {
-                "title": "核心优势",
+                "title": "核心優勢",
                 "items": [
                     {
                         "title": "AI 助手",
-                        "desc": "深度集成 AI，支持全自动翻译、智能标题建议、自动摘要生成，成倍提升创作效率。"
+                        "desc": "深度整合 AI，支援全自動翻譯、智慧標題建議與摘要生成，大幅提升創作效率。"
                     },
                     {
-                        "title": "路径管理",
-                        "desc": "完全自定义 URL Slug，支持无缝迁移旧博客，永久保留 SEO 权重。"
+                        "title": "路徑管理",
+                        "desc": "可完全自訂 URL Slug，支援無縫遷移舊部落格，長期保留 SEO 權重。"
                     },
                     {
-                        "title": "原生国际化",
-                        "desc": "不仅仅是 UI 翻译，更支持内容的翻译簇管理与智能语言路由。"
+                        "title": "原生國際化",
+                        "desc": "不僅是 UI 翻譯，更支援內容翻譯簇管理與智慧語言路由。"
                     }
                 ]
             },
             "contact": {
-                "title": "联系我们",
-                "email": "邮箱",
-                "blog": "博客",
-                "message": "对墨梅平台有任何疑问或建议？",
-                "subtitle": "我们期待听到您的声音"
+                "title": "聯絡我們",
+                "email": "電子郵件",
+                "blog": "部落格",
+                "message": "對墨梅平台有任何疑問或建議嗎？",
+                "subtitle": "我們期待聽見您的聲音"
             }
         },
         "links": {
-            "title": "友链",
-            "subtitle": "记录我们愿意长期互相看见、互相推荐的独立站点与创作者。",
+            "title": "友情連結",
+            "subtitle": "記錄那些我們願意長期互相看見、互相推薦的獨立站點與創作者。",
             "meta": {
-                "description": "浏览墨梅博客的友链页面，查看精选站点，并提交您的友链申请。"
+                "description": "瀏覽墨梅部落格的友情連結頁面，查看精選站點，並提交您的友鏈申請。"
             },
-            "guidelines_title": "申请说明",
-            "application_title": "申请友链",
-            "application_subtitle": "提交后将进入审核队列，管理员通过后会展示在公开页面与精选位。",
-            "uncategorized": "未分类",
-            "empty": "暂时还没有公开展示的友链。",
-            "disabled": "当前站点暂未开放友链页面。",
-            "health_reference_notice": "巡检结果仅供参考，请以实际网站可访问状态为准。",
-            "last_checked_at": "最近巡检",
+            "guidelines_title": "申請說明",
+            "application_title": "申請友情連結",
+            "application_subtitle": "提交後將進入審核佇列，管理員通過後會顯示於公開頁面與精選區。",
+            "uncategorized": "未分類",
+            "empty": "目前尚無公開展示的友情連結。",
+            "disabled": "本站目前尚未開放友情連結頁面。",
+            "health_reference_notice": "巡檢結果僅供參考，請以實際網站可訪問狀態為準。",
+            "last_checked_at": "最近巡檢",
             "health_statuses": {
-                "unknown": "未巡检",
-                "healthy": "可访问",
-                "checking": "巡检中",
-                "unreachable": "访问异常"
+                "unknown": "未巡檢",
+                "healthy": "可訪問",
+                "checking": "巡檢中",
+                "unreachable": "訪問異常"
             },
             "form": {
-                "url": "站点地址",
-                "logo": "Logo 图片",
-                "logo_placeholder": "仅支持本站上传后的图片地址或白名单图片链接",
-                "logo_hint": "Logo 仅支持本站已上传资源或安全白名单中的图片链接。",
-                "logo_upload_placeholder": "可直接上传 Logo，或填写安全白名单中的图片地址",
-                "logo_upload_hint": "已登录用户可以直接上传 Logo 图片；如果手动填写，仍需使用本站资源或安全白名单中的图片链接。",
-                "rss_url": "RSS 地址",
-                "contact_name": "联系人",
-                "contact_email": "联系邮箱",
-                "category_placeholder": "可选：选择更接近的分类",
-                "category_suggestion": "分类建议",
-                "reciprocal_url": "互链页面地址",
-                "message": "补充说明",
-                "submit": "提交申请",
+                "url": "網站位址",
+                "logo": "Logo 圖片",
+                "logo_placeholder": "僅支援本站上傳後的圖片位址或白名單圖片連結",
+                "logo_hint": "Logo 僅支援本站已上傳資源或安全白名單中的圖片連結。",
+                "logo_upload_placeholder": "可直接上傳 Logo，或填寫安全白名單中的圖片位址",
+                "logo_upload_hint": "已登入使用者可直接上傳 Logo 圖片；若手動填寫，仍需使用本站資源或白名單圖片連結。",
+                "rss_url": "RSS 位址",
+                "contact_name": "聯絡人",
+                "contact_email": "聯絡信箱",
+                "category_placeholder": "可選：選擇較接近的分類",
+                "category_suggestion": "分類建議",
+                "reciprocal_url": "互鏈頁面位址",
+                "message": "補充說明",
+                "submit": "提交申請",
                 "submitting": "提交中...",
-                "success": "申请已提交，等待管理员审核。",
-                "error": "提交失败，请稍后再试。",
-                "captcha_required": "请先完成验证码校验"
+                "success": "申請已提交，等待管理員審核。",
+                "error": "提交失敗，請稍後再試。",
+                "captcha_required": "請先完成驗證碼校驗"
             }
         },
         "categories_index": {
             "meta": {
-                "description": "浏览墨梅博客全部分类，按主题快速定位感兴趣的文章与内容集合。"
+                "description": "瀏覽墨梅部落格所有分類，依主題快速定位感興趣的文章與內容集合。"
             }
         },
         "tags_index": {
             "meta": {
-                "description": "浏览墨梅博客热门标签云，按技术主题聚合发现相关文章与创作线索。"
+                "description": "瀏覽墨梅部落格熱門標籤雲，依技術主題聚合探索相關文章與創作線索。"
             }
         },
         "archives": {
             "meta": {
-                "description": "按年份与月份浏览墨梅博客的历史文章归档，快速回顾往期内容与更新轨迹。"
+                "description": "按年份與月份瀏覽墨梅部落格的歷史文章歸檔，快速回顧過往內容與更新軌跡。"
             },
-            "title": "归档",
-            "count": "共计 {count} 篇",
+            "title": "歸檔",
+            "count": "共 {count} 篇",
             "months": {
                 "1": "1月",
                 "2": "2月",

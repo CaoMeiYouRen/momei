@@ -1,86 +1,86 @@
 {
   "components": {
     "search": {
-      "title": "Global Search",
-      "placeholder": "Search posts, categories or tags...",
-      "no_results": "No results found",
-      "help_hint": "Type keywords to search...",
-      "loading": "Searching...",
-      "ctrl_k": "Search"
+      "title": "전역 검색",
+      "placeholder": "게시글, 카테고리 또는 태그 검색...",
+      "no_results": "관련 결과가 없습니다",
+      "help_hint": "키워드를 입력해 검색하세요...",
+      "loading": "검색 중...",
+      "ctrl_k": "검색 열기"
     },
     "header": {
-      "language": "Language",
-      "title": "Momei",
-      "dark_mode": "Dark Mode",
-      "light_mode": "Light Mode"
+      "language": "언어",
+      "title": "모메이",
+      "dark_mode": "다크 모드",
+      "light_mode": "라이트 모드"
     },
     "footer": {
-      "docs": "Docs",
-      "copyright": "© 2026 Momei Blog - AI-powered, Global Creation",
+      "docs": "문서",
+      "copyright": "© 2026 모메이 블로그 - AI와 함께, 전 세계를 향한 창작",
       "compliance": {
-        "icp": "ICP License",
-        "police": "Public Security Filing"
+        "icp": "ICP 등록",
+        "police": "공안 보안 등록"
       }
     },
     "toc": {
-      "title": "Table of Contents"
+      "title": "목차"
     },
     "notifications": {
-      "title": "Notifications",
-      "empty": "No notifications",
-      "mark_all_read": "Mark all as read",
-      "view_all": "View all settings",
-      "browser_enable": "Enable browser alerts",
+      "title": "알림",
+      "empty": "알림이 없습니다",
+      "mark_all_read": "모두 읽음 처리",
+      "view_all": "모든 설정 보기",
+      "browser_enable": "브라우저 알림 활성화",
       "browser_status": {
-        "default": "Enable browser alerts to receive high-value task reminders while offline.",
-        "denied": "Browser notifications are blocked. Re-enable them in your browser settings."
+        "default": "브라우저 알림을 켜면 오프라인 상태에서도 중요한 작업 알림을 받을 수 있습니다.",
+        "denied": "브라우저 알림이 차단되었습니다. 브라우저 설정에서 다시 활성화해 주세요."
       }
     },
     "reader": {
-      "mode_enter": "Reader Mode",
-      "mode_exit": "Exit Reader Mode",
-      "settings_title": "Reading Settings",
-      "font_size": "Font Size",
-      "line_height": "Line Height",
-      "page_width": "Page Width",
-      "theme": "Theme"
+      "mode_enter": "몰입형 읽기 시작",
+      "mode_exit": "몰입형 읽기 종료",
+      "settings_title": "읽기 레이아웃 설정",
+      "font_size": "글자 크기",
+      "line_height": "줄 높이",
+      "page_width": "페이지 너비",
+      "theme": "읽기 테마"
     },
     "subscriber_form": {
-      "title": "Newsletter",
-      "description": "Get the latest posts and technical shares delivered to your inbox",
-      "placeholder": "Enter your email address",
-      "submit": "Subscribe",
-      "success": "Subscription successful! Thank you for following.",
-      "submitting": "Processing..."
+      "title": "이메일 구독",
+      "description": "최신 글과 기술 공유를 가장 먼저 받아보세요",
+      "placeholder": "이메일 주소를 입력해 주세요",
+      "submit": "지금 구독",
+      "success": "구독이 완료되었습니다! 관심 가져 주셔서 감사합니다.",
+      "submitting": "처리 중..."
     },
     "post": {
       "copyright": {
-        "title": "Copyright Notice",
-        "author": "Author",
-        "link": "Link",
-        "license_title": "Copyright Notice",
-        "license_pre": "Except where otherwise noted, all articles in this blog are licensed under ",
-        "license_post": ". Please credit the source when reposting!",
+        "title": "저작권 안내",
+        "author": "작성자",
+        "link": "원문 링크",
+        "license_title": "저작권 안내",
+        "license_pre": "별도 안내가 없는 한 이 블로그의 모든 글은 ",
+        "license_post": " 라이선스를 따릅니다. 재게시 시 출처를 밝혀 주세요!",
         "default_license": "all-rights-reserved",
         "licenses": {
-          "all-rights-reserved": "All Rights Reserved (No Reposting)",
-          "cc-by": "CC BY 4.0 (Attribution)",
-          "cc-by-sa": "CC BY-SA 4.0 (Attribution-ShareAlike)",
-          "cc-by-nd": "CC BY-ND 4.0 (Attribution-NoDerivs)",
-          "cc-by-nc": "CC BY-NC 4.0 (Attribution-NonCommercial)",
-          "cc-by-nc-sa": "CC BY-NC-SA 4.0 (Attribution-NonCommercial-ShareAlike)",
-          "cc-by-nc-nd": "CC BY-NC-ND 4.0 (Attribution-NonCommercial-NoDerivs)",
-          "cc-zero": "CC0 1.0 (Public Domain)"
+          "all-rights-reserved": "모든 권리 보유(재게시 금지)",
+          "cc-by": "CC BY 4.0 (저작자 표시)",
+          "cc-by-sa": "CC BY-SA 4.0 (저작자 표시-동일조건변경허락)",
+          "cc-by-nd": "CC BY-ND 4.0 (저작자 표시-변경 금지)",
+          "cc-by-nc": "CC BY-NC 4.0 (저작자 표시-비영리)",
+          "cc-by-nc-sa": "CC BY-NC-SA 4.0 (저작자 표시-비영리-동일조건변경허락)",
+          "cc-by-nc-nd": "CC BY-NC-ND 4.0 (저작자 표시-비영리-변경 금지)",
+          "cc-zero": "CC0 1.0 (퍼블릭 도메인)"
         }
       },
       "sponsor": {
-        "title": "Sponsor",
-        "social_title": "Follow Me",
-        "donation_title": "Support the Author",
-        "qr_scan_follow_tip": "Open mobile app to scan and follow",
-        "qr_scan_pay_tip": "Open mobile app to scan and pay",
+        "title": "후원",
+        "social_title": "팔로우하기",
+        "donation_title": "작성자 후원",
+        "qr_scan_follow_tip": "모바일 앱으로 QR 코드를 스캔해 팔로우하세요",
+        "qr_scan_pay_tip": "모바일 앱으로 QR 코드를 스캔해 후원하세요",
         "platforms": {
-          "wechat_mp": "WeChat MP",
+          "wechat_mp": "WeChat 공식 계정",
           "bilibili": "Bilibili",
           "weibo": "Weibo",
           "zhihu": "Zhihu",
@@ -101,21 +101,21 @@
     }
   },
   "comments": {
-    "title": "Comments",
-    "reply": "Reply",
-    "submit": "Post Comment",
-    "nickname": "Nickname",
-    "nickname_placeholder": "How should we call you?",
-    "email": "Email Address",
-    "email_placeholder": "For avatar & notifications (Will not be public)",
-    "website": "Website",
+    "title": "댓글",
+    "reply": "답글",
+    "submit": "댓글 작성",
+    "nickname": "닉네임",
+    "nickname_placeholder": "어떻게 불러드릴까요?",
+    "email": "이메일 주소",
+    "email_placeholder": "아바타와 알림에 사용됩니다(공개되지 않음)",
+    "website": "웹사이트",
     "website_placeholder": "https://...",
-    "content_placeholder_guest": "Write something... (Requires moderation)",
-    "content_placeholder_logged_in": "Share your thoughts...",
-    "guest_tip": "You are posting as a guest",
-    "replying_to": "Replying to",
-    "no_comments": "No comments yet. Be the first to share your thoughts!",
-    "pending_audit": "Your comment has been submitted and is pending moderation.",
-    "sticked": "Sticked"
+    "content_placeholder_guest": "의견을 남겨 주세요... (관리자 승인 후 표시)",
+    "content_placeholder_logged_in": "생각을 공유해 주세요...",
+    "guest_tip": "현재 게스트로 댓글을 작성하고 있습니다",
+    "replying_to": "답글 작성 중",
+    "no_comments": "아직 댓글이 없습니다. 첫 의견을 남겨 보세요!",
+    "pending_audit": "댓글이 제출되었으며 관리자 검토를 기다리고 있습니다.",
+    "sticked": "고정됨"
   }
 }

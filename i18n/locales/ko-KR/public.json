@@ -1,191 +1,191 @@
 {
     "pages": {
         "submit": {
-            "title": "Guest Submission",
+            "title": "게스트 투고",
             "meta": {
-                "description": "Submit your original writing or technical ideas to Momei and join a global developer publishing community."
+                "description": "모메이 블로그에 직접 쓴 글이나 기술 인사이트를 제출하고 글로벌 개발자 창작 커뮤니티에 참여해 보세요."
             },
-            "subtitle": "Welcome to share your insights and stories",
+            "subtitle": "당신의 통찰과 이야기를 들려주세요",
             "form": {
-                "title": "Article Title",
-                "title_placeholder": "Enter article title",
-                "content": "Content (Markdown)",
-                "content_placeholder": "Write in Markdown format...",
-                "name": "Your Name",
-                "name_placeholder": "Nicknames supported",
-                "email": "Email Address",
-                "email_placeholder": "For review feedback",
-                "url": "Personal Site",
-                "url_placeholder": "Optional",
-                "submit": "Submit Post",
-                "submitting": "Submitting...",
-                "success": "Submission successful! Please wait for admin review. We will notify you of the result via email.",
-                "error": "Submission failed, please try again later.",
-                "captcha_required": "Please complete the captcha verification"
+                "title": "글 제목",
+                "title_placeholder": "글 제목을 입력해 주세요",
+                "content": "본문 내용 (Markdown)",
+                "content_placeholder": "Markdown 형식으로 작성해 주세요...",
+                "name": "이름",
+                "name_placeholder": "닉네임 사용 가능",
+                "email": "이메일 주소",
+                "email_placeholder": "검토 결과 안내용",
+                "url": "개인 사이트",
+                "url_placeholder": "선택 사항",
+                "submit": "지금 제출",
+                "submitting": "제출 중...",
+                "success": "투고가 접수되었습니다! 관리자 검토를 기다려 주세요. 결과는 이메일로 안내드립니다.",
+                "error": "투고에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+                "captcha_required": "캡차 인증을 완료해 주세요"
             }
         },
         "posts": {
-            "title": "Articles",
+            "title": "게시글 목록",
             "meta": {
-                "description": "Browse the latest technical posts, essays, and creator updates published on Momei Blog across languages and topics."
+                "description": "모메이 블로그에 게시된 최신 기술 글, 에세이, 창작 업데이트를 언어와 주제별로 살펴보세요."
             },
-            "empty": "No articles found",
-            "status_warning": "The current article is in {status} status and has not been officially published. It is only visible to relevant authorized personnel.",
-            "article_count": "{count} Articles",
-            "total_count": "{count} articles in total",
-            "total_categories": "{count} categories so far",
-            "total_tags": "{count} tags so far",
-            "password_placeholder": "Enter access password",
-            "login_to_read": "Login to continue reading",
+            "empty": "게시글이 없습니다",
+            "status_warning": "현재 글은 {status} 상태이며 아직 정식 게시되지 않았습니다. 관련 권한을 가진 사용자에게만 표시됩니다.",
+            "article_count": "게시글 {count}개",
+            "total_count": "총 {count}개의 게시글",
+            "total_categories": "현재 카테고리 {count}개",
+            "total_tags": "현재 태그 {count}개",
+            "password_placeholder": "접근 비밀번호를 입력해 주세요",
+            "login_to_read": "로그인 후 계속 읽기",
             "locked": {
-                "password_required": "Content Restricted",
-                "password_required_desc": "This article is password protected. Please enter the correct password to access the full content.",
-                "auth_required": "Login Required",
-                "auth_required_desc": "This article is restricted to registered users. Please login to continue reading.",
-                "subscription_required": "Subscribers Only",
-                "subscription_required_desc": "This article is restricted to email subscribers. Please subscribe to continue reading.",
-                "private": "Private Content",
-                "private_desc": "You do not have permission to access this private article."
+                "password_required": "콘텐츠가 제한되어 있습니다",
+                "password_required_desc": "이 글은 비밀번호로 보호됩니다. 전체 내용을 보려면 올바른 비밀번호를 입력해 주세요.",
+                "auth_required": "로그인 필요",
+                "auth_required_desc": "이 글은 등록된 사용자만 볼 수 있습니다. 계속 읽으려면 로그인해 주세요.",
+                "subscription_required": "구독자 전용",
+                "subscription_required_desc": "이 글은 이메일 구독자만 볼 수 있습니다. 계속 읽으려면 먼저 구독해 주세요.",
+                "private": "비공개 콘텐츠",
+                "private_desc": "이 비공개 글에 접근할 권한이 없습니다."
             }
         },
         "error": {
-            "title": "An error occurred",
-            "404_title": "Page Not Found",
-            "404_desc": "Sorry, the page you are looking for does not exist or has been moved. You can try searching for something else or return to the home page.",
-            "back_home": "Back to Home",
-            "retry": "Retry"
+            "title": "오류가 발생했습니다",
+            "404_title": "페이지를 찾을 수 없습니다",
+            "404_desc": "죄송합니다. 요청하신 페이지가 없거나 이동되었습니다. 다른 콘텐츠를 검색하거나 홈으로 돌아가 보세요.",
+            "back_home": "홈으로 돌아가기",
+            "retry": "다시 시도"
         },
         "user_agreement": {
-            "title": "User Agreement",
-            "last_updated": "Last updated: January 18, 2026",
+            "title": "이용 약관",
+            "last_updated": "최종 업데이트: 2026년 1월 18일",
             "meta": {
-                "description": "Read the Momei user agreement to understand the terms for access, registration, publishing, and site usage."
+                "description": "모메이 이용 약관을 확인하고 접근, 가입, 게시, 사이트 사용에 관한 규칙을 살펴보세요."
             }
         },
         "privacy_policy": {
-            "title": "Privacy Policy",
-            "last_updated": "Last updated: January 18, 2026",
+            "title": "개인정보 처리방침",
+            "last_updated": "최종 업데이트: 2026년 1월 18일",
             "meta": {
-                "description": "Review the latest Momei privacy policy covering data collection, storage, processing, and your rights as a user."
+                "description": "데이터 수집, 저장, 처리 방식과 사용자 권리를 다루는 최신 모메이 개인정보 처리방침을 확인해 보세요."
             }
         },
         "about": {
             "meta": {
-                "description": "Learn how Momei leverages AI to empower full-stack internationalization for developers."
+                "description": "모메이가 AI를 통해 개발자를 위한 전방위 국제화 콘텐츠 제작과 관리를 어떻게 지원하는지 알아보세요."
             },
             "hero": {
-                "title": "Momei",
-                "subtitle": "AI-powered, Global Creation. An intelligent blog system tailored for developers.",
-                "cta": "Learn More"
+                "title": "모메이",
+                "subtitle": "AI와 함께, 전 세계를 향한 창작. 개발자를 위해 설계된 지능형 블로그 시스템입니다.",
+                "cta": "더 알아보기"
             },
             "meaning": {
-                "title": "Origin and Meaning",
-                "text_1": "The name \"Momei\" (Ink Plum) is inspired by the poem \"Ink Plum\" by Wang Mian of the Yuan Dynasty:",
-                "poem": "\"My home is by the tree near the ink-washing pool,\nEvery flower blooms with faint traces of ink.\nI don't need people to praise its good color,\nOnly leaving a clear fragrance filling the universe.\"",
-                "text_2": "Taking \"Mo\" (Ink) symbolizes writing and cultivation, echoing the essence of blog content; taking \"Mei\" (Plum) implies the tenacious creative spirit and unique personal style.",
-                "intro": "Momei platform is dedicated to providing creators with:",
+                "title": "이름의 유래와 의미",
+                "text_1": "\"모메이(墨梅)\"라는 이름은 원나라 시인 왕면의 시 <묵매>에서 영감을 받았습니다:",
+                "poem": "\"우리 집 연못가 나무에는\n꽃마다 옅은 먹빛 자국이 피어 있네.\n남들이 고운 색이라 칭찬하지 않아도\n맑은 향기만 천지에 가득하네.\"",
+                "text_2": "\"묵(墨)\"은 글쓰기와 사유의 축적을, \"매(梅)\"는 끈질긴 창작 정신과 고유한 개성을 상징합니다.",
+                "intro": "모메이 플랫폼은 창작자를 위해 다음을 제공합니다:",
                 "features": [
-                    "AI-driven intelligent content creation experience",
-                    "Native internationalized content management & distribution",
-                    "Seamless blog migration tools and SEO preservation",
-                    "Global reach by bridging language gaps with AI"
+                    "AI 기반의 지능형 콘텐츠 제작 경험",
+                    "네이티브 국제화 콘텐츠 관리와 배포",
+                    "SEO를 보존하는 매끄러운 블로그 마이그레이션 도구",
+                    "AI로 언어 장벽을 넘어 더 넓은 독자에게 도달하는 창작 환경"
                 ]
             },
             "features": {
-                "title": "Core Advantages",
+                "title": "핵심 장점",
                 "items": [
                     {
-                        "title": "AI Assistant",
-                        "desc": "Deeply integrated AI for automated translation, smart title suggestions, and summary generation to boost productivity."
+                        "title": "AI 어시스턴트",
+                        "desc": "자동 번역, 제목 제안, 요약 생성 등 깊이 통합된 AI 기능으로 창작 효율을 크게 높입니다."
                     },
                     {
-                        "title": "Path Management",
-                        "desc": "Fully customizable URL Slugs, ensuring zero SEO loss when migrating from other platforms."
+                        "title": "경로 관리",
+                        "desc": "URL 슬러그를 자유롭게 설정할 수 있어 다른 플랫폼에서 옮겨와도 SEO 손실을 최소화합니다."
                     },
                     {
-                        "title": "Native I18n",
-                        "desc": "Goes beyond UI translation with cluster-based content management and smart language routing."
+                        "title": "네이티브 국제화",
+                        "desc": "UI 번역을 넘어 번역 클러스터 관리와 지능형 언어 라우팅까지 지원합니다."
                     }
                 ]
             },
             "contact": {
-                "title": "Contact Us",
-                "email": "Email",
-                "blog": "Blog",
-                "message": "Any questions or suggestions about Momei platform?",
-                "subtitle": "We look forward to hearing from you"
+                "title": "문의하기",
+                "email": "이메일",
+                "blog": "블로그",
+                "message": "모메이 플랫폼에 대한 질문이나 제안이 있으신가요?",
+                "subtitle": "여러분의 의견을 기다립니다"
             }
         },
         "links": {
-            "title": "Friend Links",
-            "subtitle": "A curated list of independent sites and creators we genuinely want to keep recommending.",
+            "title": "친구 링크",
+            "subtitle": "오랫동안 서로를 발견하고 추천하고 싶은 독립 사이트와 창작자를 모아 둔 큐레이션 목록입니다.",
             "meta": {
-                "description": "Browse the Momei friend links page and submit your own site for review."
+                "description": "모메이 친구 링크 페이지를 둘러보고 자신의 사이트도 심사 대상으로 제출해 보세요."
             },
-            "guidelines_title": "Application Guidelines",
-            "application_title": "Apply for a Friend Link",
-            "application_subtitle": "After submission, your application enters the review queue. Approved sites may appear on the public page and featured footer area.",
-            "uncategorized": "Uncategorized",
-            "empty": "There are no public friend links yet.",
-            "disabled": "Friend links are currently not enabled on this site.",
-            "health_reference_notice": "Health check results are for reference only. Please rely on the actual website availability.",
-            "last_checked_at": "Last Checked",
+            "guidelines_title": "신청 안내",
+            "application_title": "친구 링크 신청",
+            "application_subtitle": "제출 후 심사 대기열에 등록됩니다. 승인된 사이트는 공개 페이지와 추천 영역에 노출될 수 있습니다.",
+            "uncategorized": "미분류",
+            "empty": "아직 공개된 친구 링크가 없습니다.",
+            "disabled": "현재 이 사이트에서는 친구 링크 기능이 활성화되어 있지 않습니다.",
+            "health_reference_notice": "상태 점검 결과는 참고용입니다. 실제 사이트 접속 가능 여부를 우선 확인해 주세요.",
+            "last_checked_at": "최근 점검 시각",
             "health_statuses": {
-                "unknown": "Not Checked",
-                "healthy": "Reachable",
-                "checking": "Checking",
-                "unreachable": "Unreachable"
+                "unknown": "미점검",
+                "healthy": "접속 가능",
+                "checking": "점검 중",
+                "unreachable": "접속 불가"
             },
             "form": {
-                "url": "Site URL",
-                "logo": "Logo Image",
-                "logo_placeholder": "Only uploaded site assets or whitelisted image URLs are allowed",
-                "logo_hint": "The logo only accepts uploaded site assets or image URLs from the security whitelist.",
-                "logo_upload_placeholder": "Upload a logo image or enter a URL from the security whitelist",
-                "logo_upload_hint": "Signed-in users can upload a logo image directly. If you enter it manually, it still must be a site asset or a whitelisted image URL.",
+                "url": "사이트 URL",
+                "logo": "로고 이미지",
+                "logo_placeholder": "사이트에 업로드된 자산 또는 허용 목록 이미지 URL만 사용할 수 있습니다",
+                "logo_hint": "로고는 사이트에 업로드된 자산 또는 보안 허용 목록의 이미지 URL만 허용됩니다.",
+                "logo_upload_placeholder": "로고 이미지를 업로드하거나 허용 목록 URL을 입력해 주세요",
+                "logo_upload_hint": "로그인한 사용자는 로고 이미지를 직접 업로드할 수 있습니다. 수동으로 입력할 경우에도 사이트 자산 또는 허용 목록 URL이어야 합니다.",
                 "rss_url": "RSS URL",
-                "contact_name": "Contact Name",
-                "contact_email": "Contact Email",
-                "category_placeholder": "Optional: choose the closest category",
-                "category_suggestion": "Category Suggestion",
-                "reciprocal_url": "Reciprocal Link Page",
-                "message": "Additional Notes",
-                "submit": "Submit Application",
-                "submitting": "Submitting...",
-                "success": "Application submitted successfully and pending admin review.",
-                "error": "Failed to submit application. Please try again later.",
-                "captcha_required": "Please complete captcha verification first"
+                "contact_name": "담당자 이름",
+                "contact_email": "연락처 이메일",
+                "category_placeholder": "선택 사항: 가장 가까운 카테고리를 선택해 주세요",
+                "category_suggestion": "카테고리 제안",
+                "reciprocal_url": "상호 링크 페이지",
+                "message": "추가 메모",
+                "submit": "신청 제출",
+                "submitting": "제출 중...",
+                "success": "신청이 접수되었으며 관리자 검토를 기다리고 있습니다.",
+                "error": "신청 제출에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+                "captcha_required": "먼저 캡차 인증을 완료해 주세요"
             }
         },
         "categories_index": {
             "meta": {
-                "description": "Browse all Momei Blog categories to quickly discover article collections grouped by topic."
+                "description": "모메이 블로그의 모든 카테고리를 둘러보고 주제별로 묶인 글을 빠르게 찾아보세요."
             }
         },
         "tags_index": {
             "meta": {
-                "description": "Explore the Momei tag cloud to discover related articles and content clusters by technical topic."
+                "description": "모메이 태그 클라우드를 탐색하며 기술 주제별 관련 글과 콘텐츠 묶음을 발견해 보세요."
             }
         },
         "archives": {
             "meta": {
-                "description": "Explore the historical post archive of Momei Blog by year and month to revisit past updates and essays."
+                "description": "연도와 월별로 모메이 블로그의 과거 글 아카이브를 살펴보며 이전 업데이트와 에세이를 다시 확인해 보세요."
             },
-            "title": "Archives",
-            "count": "{count} articles",
+            "title": "아카이브",
+            "count": "글 {count}개",
             "months": {
-                "1": "January",
-                "2": "February",
-                "3": "March",
-                "4": "April",
-                "5": "May",
-                "6": "June",
-                "7": "July",
-                "8": "August",
-                "9": "September",
-                "10": "October",
-                "11": "November",
-                "12": "December"
+                "1": "1월",
+                "2": "2월",
+                "3": "3월",
+                "4": "4월",
+                "5": "5월",
+                "6": "6월",
+                "7": "7월",
+                "8": "8월",
+                "9": "9월",
+                "10": "10월",
+                "11": "11월",
+                "12": "12월"
             }
         }
     }
