@@ -1,125 +1,141 @@
 {
-  "pages": {
-    "settings": {
-      "title": "User Center",
-      "profile": {
-        "title": "Public Profile",
-        "avatar": "Avatar",
-        "upload": "Upload Avatar",
-        "upload_success": "Avatar updated successfully",
-        "upload_failed": "Failed to upload avatar",
-        "name": "Nickname",
-        "language": "UI Language",
-        "timezone": "Timezone",
-        "save": "Save Changes",
-        "success": "Profile updated successfully"
-      },
-      "security": {
-        "title": "Security",
-        "change_password": "Change Password",
-        "set_password_hint": "If you haven't set a password (e.g. logged in via OAuth), or forgot your current password, please use the ",
-        "current_password": "Current Password",
-        "new_password": "New Password",
-        "confirm_password": "Confirm New Password",
-        "update_password": "Update Password",
-        "password_updated": "Password updated successfully",
-        "linked_accounts": "Linked Accounts",
-        "link_github": "Link GitHub",
-        "link_google": "Link Google",
-        "unlink_account": "Unlink Account",
-        "unlink_success": "Account unlinked successfully",
-        "unlink_error": "Failed to unlink account",
-        "link_error": "Failed to initiate linking"
-      },
-      "api_keys": {
-        "title": "API Keys",
-        "description": "API keys allow you to publish content via external applications.",
-        "create_btn": "Create New Key",
-        "new_key_title": "New API Key",
-        "new_key_hint": "Please make sure to copy your API key now. You won't be able to see it again for security reasons.",
-        "name": "Name",
-        "prefix": "Prefix",
-        "expires_at": "Expires At",
-        "never_expires": "Never Expires",
-        "expired_at_options": {
-          "never": "Never",
-          "7d": "7 Days",
-          "30d": "30 Days",
-          "365d": "365 Days"
-        },
-        "last_used_at": "Last Used",
-        "create_success": "API key created successfully",
-        "delete_success": "API key revoked"
-      },
-      "notifications": {
-        "title": "Subscription & Notifications",
-        "subscription_management_desc": "Manage your post subscription preferences. Choose categories or tags you are interested in to get updates as soon as possible.",
-        "categories": "Category Subscriptions",
-        "tags": "Tag Subscriptions",
-        "web_push": "Browser Notifications",
-        "web_push_desc": "Configure how offline browser alerts are delivered. Once enabled, comment replies, system messages, and security reminders can reach your browser even when you are away.",
-        "browser_status": "Browser Notification Status",
-        "browser_status_site_disabled": "The site has not finished Web Push configuration yet. Please try again later or contact an administrator.",
-        "browser_status_unsupported": "Your current browser or device does not support Web Push.",
-        "browser_status_granted": "Browser notifications are enabled. You can receive high-value reminders while offline.",
-        "browser_status_denied": "Browser notifications were blocked. Re-enable them in your browser settings.",
-        "browser_status_default": "You have not granted browser notification permission yet. You can authorize it first and then save your delivery preferences.",
-        "enable_browser_push": "Enable Browser Notifications",
-        "browser_types": {
-          "COMMENT_REPLY": "Comment Replies",
-          "SYSTEM": "System Notifications",
-          "SECURITY": "Security Alerts"
-        },
-        "browser_type_desc": {
-          "COMMENT_REPLY": "Send a browser alert when someone replies to your comment.",
-          "SYSTEM": "Deliver browser alerts for completed async tasks and other important system messages.",
-          "SECURITY": "Deliver browser alerts for login security and other high-priority security events.",
-          "MARKETING": "Marketing messages currently do not enter the Web Push channel."
-        },
-        "marketing": "Marketing & Features",
-        "marketing_desc": "Receive functional updates, activity recommendations and other email suggestions from the Momei team.",
-        "marketing_enable": "Enable marketing email notifications",
-        "save_success": "Subscription preferences updated",
-        "save_failed": "Failed to update subscription preferences",
-        "active_status": "Subscription Status",
-        "active": "Subscription Enabled",
-        "inactive": "Subscription Paused",
-        "pause_subscription": "Pause all subscriptions",
-        "resume_subscription": "Resume subscriptions"
-      },
-      "commercial": {
-        "title": "Monetization",
-        "subtitle": "Configure your personal social links and sponsorship info. These will be displayed in the author card at the end of your articles.",
-        "social_links": "Social Links",
-        "social_desc": "Add your social media, personal website, or other external links here.",
-        "donation_links": "Sponsorship & Donation",
-        "donation_desc": "Configure your donation/sponsorship links or QR codes, making it easier for readers to support you.",
-        "add_social": "Add Social Platform",
-        "add_donation": "Add Donation Platform",
-        "platform": "Platform",
-        "url": "URL",
-        "image": "QR Code Image",
-        "label": "Custom Label",
-        "locales": "Display Languages",
-        "locales_hint": "Leave empty to show in all languages",
-        "success": "Monetization settings updated",
-        "empty_social": "No social links configured",
-        "empty_donation": "No donation links configured",
-        "delete_confirm": "Are you sure you want to delete this link?",
-        "edit_social": "Edit Social Link",
-        "edit_donation": "Edit Donation Link",
-        "social_platforms": {
-          "wechat_mp": "WeChat MP",
-          "bilibili": "Bilibili",
-          "weibo": "Weibo",
-          "zhihu": "Zhihu",
-          "x": "X (Twitter)",
-          "youtube": "YouTube",
-          "facebook": "Facebook",
-          "github": "GitHub",
-          "discord": "Discord"
+    "pages": {
+        "settings": {
+            "title": "User Center",
+            "profile": {
+                "title": "Public Profile",
+                "avatar": "Avatar",
+                "upload": "Upload Avatar",
+                "upload_success": "Avatar updated successfully",
+                "upload_failed": "Failed to upload avatar",
+                "name": "Nickname",
+                "language": "UI Language",
+                "timezone": "Timezone",
+                "save": "Save Changes",
+                "success": "Profile updated successfully"
+            },
+            "security": {
+                "title": "Security",
+                "change_password": "Change Password",
+                "set_password_hint": "If you haven't set a password (e.g. logged in via OAuth), or forgot your current password, please use the ",
+                "current_password": "Current Password",
+                "new_password": "New Password",
+                "confirm_password": "Confirm New Password",
+                "update_password": "Update Password",
+                "password_updated": "Password updated successfully",
+                "linked_accounts": "Linked Accounts",
+                "link_github": "Link GitHub",
+                "link_google": "Link Google",
+                "unlink_account": "Unlink Account",
+                "unlink_success": "Account unlinked successfully",
+                "unlink_error": "Failed to unlink account",
+                "link_error": "Failed to initiate linking"
+            },
+            "api_keys": {
+                "title": "API Keys",
+                "description": "API keys allow you to publish content via external applications.",
+                "create_btn": "Create New Key",
+                "new_key_title": "New API Key",
+                "new_key_hint": "Please make sure to copy your API key now. You won't be able to see it again for security reasons.",
+                "name": "Name",
+                "prefix": "Prefix",
+                "expires_at": "Expires At",
+                "never_expires": "Never Expires",
+                "expired_at_options": {
+                    "never": "Never",
+                    "7d": "7 Days",
+                    "30d": "30 Days",
+                    "365d": "365 Days"
+                },
+                "last_used_at": "Last Used",
+                "create_success": "API key created successfully",
+                "delete_success": "API key revoked"
+            },
+            "notifications": {
+                "title": "Subscription & Notifications",
+                "subscription_management_desc": "Manage your post subscription preferences. Choose categories or tags you are interested in to get updates as soon as possible.",
+                "categories": "Category Subscriptions",
+                "tags": "Tag Subscriptions",
+                "notification_methods": "Delivery Channels",
+                "notification_methods_desc": "Manage high-value reminders across email and browser push. Security alerts always stay on, while comment replies and system notifications can be adjusted per channel.",
+                "notification_types": {
+                    "comment_reply": "Comment Replies",
+                    "system": "System Notifications",
+                    "security": "Security Alerts"
+                },
+                "security_fixed_hint": "Security alerts are high-priority messages and remain enabled at all times.",
+                "email": {
+                    "title": "Email Notifications",
+                    "description": "Send important updates to the email address linked to your account for reliable cross-device delivery."
+                },
+                "email_type_desc": {
+                    "comment_reply": "Email me when someone replies to one of my comments.",
+                    "system": "Deliver completed async tasks and other important system messages by email.",
+                    "security": "Deliver login security and other high-priority security events by email."
+                },
+                "browser": {
+                    "title": "Browser Notifications",
+                    "description": "Browser delivery preferences stay enabled by default. Even if permission has not been granted yet, you can save the policy first and authorize the browser later."
+                },
+                "web_push": "Browser Notifications",
+                "web_push_desc": "Configure how offline browser alerts are delivered. Once enabled, comment replies, system messages, and security reminders can reach your browser even when you are away.",
+                "browser_status": "Browser Notification Status",
+                "browser_status_site_disabled": "The site has not finished Web Push configuration yet. Please try again later or contact an administrator.",
+                "browser_status_unsupported": "Your current browser or device does not support Web Push.",
+                "browser_status_granted": "Browser notifications are enabled. You can receive high-value reminders while offline.",
+                "browser_status_denied": "Browser notifications were blocked. Re-enable them in your browser settings.",
+                "browser_status_default": "You have not granted browser notification permission yet. You can authorize it first and then save your delivery preferences.",
+                "enable_browser_push": "Enable Browser Notifications",
+                "browser_type_desc": {
+                    "comment_reply": "Send a browser alert when someone replies to your comment.",
+                    "system": "Deliver browser alerts for completed async tasks and other important system messages.",
+                    "security": "Deliver browser alerts for login security and other high-priority security events.",
+                    "marketing": "Marketing messages currently do not enter the Web Push channel."
+                },
+                "marketing": "Marketing & Features",
+                "marketing_desc": "Receive functional updates, activity recommendations and other email suggestions from the Momei team.",
+                "marketing_enable": "Enable marketing email notifications",
+                "save_success": "Subscription preferences updated",
+                "save_failed": "Failed to update subscription preferences",
+                "active_status": "Subscription Status",
+                "active": "Subscription Enabled",
+                "inactive": "Subscription Paused",
+                "pause_subscription": "Pause all subscriptions",
+                "resume_subscription": "Resume subscriptions"
+            },
+            "commercial": {
+                "title": "Monetization",
+                "subtitle": "Configure your personal social links and sponsorship info. These will be displayed in the author card at the end of your articles.",
+                "social_links": "Social Links",
+                "social_desc": "Add your social media, personal website, or other external links here.",
+                "donation_links": "Sponsorship & Donation",
+                "donation_desc": "Configure your donation/sponsorship links or QR codes, making it easier for readers to support you.",
+                "add_social": "Add Social Platform",
+                "add_donation": "Add Donation Platform",
+                "platform": "Platform",
+                "url": "URL",
+                "image": "QR Code Image",
+                "label": "Custom Label",
+                "locales": "Display Languages",
+                "locales_hint": "Leave empty to show in all languages",
+                "success": "Monetization settings updated",
+                "empty_social": "No social links configured",
+                "empty_donation": "No donation links configured",
+                "delete_confirm": "Are you sure you want to delete this link?",
+                "edit_social": "Edit Social Link",
+                "edit_donation": "Edit Donation Link",
+                "social_platforms": {
+                    "wechat_mp": "WeChat MP",
+                    "bilibili": "Bilibili",
+                    "weibo": "Weibo",
+                    "zhihu": "Zhihu",
+                    "x": "X (Twitter)",
+                    "youtube": "YouTube",
+                    "facebook": "Facebook",
+                    "github": "GitHub",
+                    "discord": "Discord"
+                }
+            }
         }
-      }
     }
-  }
 }

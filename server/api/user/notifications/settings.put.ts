@@ -2,6 +2,12 @@ import { dataSource } from '@/server/database'
 import { NotificationSettings } from '@/server/entities/notification-settings'
 import { requireAuth } from '@/server/utils/permission'
 import { updateNotificationSettingsSchema } from '@/utils/schemas/notification'
+import { NotificationChannel, NotificationType } from '@/utils/shared/notification'
+
+function isFixedNotificationPreference(type: NotificationType, channel: NotificationChannel) {
+    return type === NotificationType.SECURITY
+        && (channel === NotificationChannel.EMAIL || channel === NotificationChannel.WEB_PUSH)
+}
 
 export default defineEventHandler(async (event) => {
     const session = await requireAuth(event)
@@ -35,7 +41,9 @@ export default defineEventHandler(async (event) => {
             setting.channel = item.channel
         }
 
-        setting.isEnabled = item.isEnabled
+        setting.isEnabled = isFixedNotificationPreference(item.type, item.channel)
+            ? true
+            : item.isEnabled
         await settingsRepo.save(setting)
     }
 

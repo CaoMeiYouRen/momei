@@ -11,19 +11,20 @@
 
         <div class="admin-notifications__web-push">
             <div class="admin-notifications__section-header">
-                <h4 class="admin-notifications__section-title">
-                    {{ $t('pages.admin.settings.system.notifications.web_push.title') }}
-                </h4>
+                <div class="admin-notifications__section-copy">
+                    <h4 class="admin-notifications__section-title">
+                        {{ $t('pages.admin.settings.system.notifications.web_push.title') }}
+                    </h4>
+                    <p class="admin-notifications__description">
+                        {{ $t('pages.admin.settings.system.notifications.web_push.description') }}
+                    </p>
+                </div>
                 <Tag :severity="webPush.isConfigured ? 'success' : 'warn'">
                     {{ webPush.isConfigured
                         ? $t('pages.admin.settings.system.notifications.web_push.status_ready')
                         : $t('pages.admin.settings.system.notifications.web_push.status_incomplete') }}
                 </Tag>
             </div>
-
-            <p class="admin-notifications__description">
-                {{ $t('pages.admin.settings.system.notifications.web_push.description') }}
-            </p>
 
             <Message
                 :severity="webPush.isConfigured ? 'success' : 'warn'"
@@ -49,7 +50,7 @@
                         id="web-push-subject"
                         v-model="webPush.subject.value"
                         :disabled="webPush.subject.isLocked"
-                        class="w-full"
+                        fluid
                     />
                     <small class="admin-notifications__field-hint">
                         {{ webPush.subject.isLocked
@@ -67,7 +68,8 @@
                         v-model="webPush.publicKey.value"
                         :disabled="webPush.publicKey.isLocked"
                         rows="4"
-                        class="w-full"
+                        auto-resize
+                        fluid
                     />
                     <small class="admin-notifications__field-hint">
                         {{ webPush.publicKey.isLocked
@@ -267,20 +269,35 @@ onMounted(load)
 
 <style lang="scss" scoped>
 .admin-notifications {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
     &__web-push {
-        margin-bottom: 1.5rem;
-        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.25rem;
         border: 1px solid var(--p-content-border-color);
-        border-radius: 0.75rem;
-        background: var(--p-content-background);
+        border-radius: 1rem;
+        background: color-mix(in srgb, var(--p-surface-0) 94%, var(--p-primary-100));
     }
 
     &__section-header {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         gap: 1rem;
-        margin-bottom: 0.75rem;
+
+        @media (width <= 768px) {
+            flex-direction: column;
+        }
+    }
+
+    &__section-copy {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
     }
 
     &__section-title {
@@ -290,13 +307,13 @@ onMounted(load)
     }
 
     &__description {
-        margin: 0 0 1rem;
+        margin: 0;
         color: var(--p-text-muted-color);
         line-height: 1.6;
     }
 
     &__status-message {
-        margin-bottom: 1rem;
+        margin: 0;
     }
 
     &__status-copy {
@@ -310,7 +327,6 @@ onMounted(load)
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 1rem;
-        margin-bottom: 0.75rem;
 
         @media (width <= 768px) {
             grid-template-columns: 1fr;

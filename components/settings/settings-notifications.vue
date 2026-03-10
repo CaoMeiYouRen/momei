@@ -103,50 +103,103 @@
             <Divider class="subscription-settings__divider" />
 
             <div class="subscription-settings__section">
-                <label class="subscription-settings__label">{{ $t("pages.settings.notifications.web_push") }}</label>
+                <label class="subscription-settings__label">{{ $t("pages.settings.notifications.notification_methods") }}</label>
                 <p class="subscription-settings__description">
-                    {{ $t("pages.settings.notifications.web_push_desc") }}
+                    {{ $t("pages.settings.notifications.notification_methods_desc") }}
                 </p>
 
-                <Message
-                    :severity="browserStatus.severity"
-                    :closable="false"
-                    class="subscription-settings__browser-message"
-                >
-                    <div class="subscription-settings__browser-status">
-                        <div class="subscription-settings__browser-copy">
-                            <strong>{{ $t("pages.settings.notifications.browser_status") }}</strong>
-                            <span>{{ browserStatus.text }}</span>
+                <div class="subscription-settings__channel-grid">
+                    <section class="subscription-settings__channel-card">
+                        <div class="subscription-settings__channel-header">
+                            <div class="subscription-settings__channel-copy">
+                                <h4 class="subscription-settings__channel-title">
+                                    {{ $t("pages.settings.notifications.email.title") }}
+                                </h4>
+                                <p class="subscription-settings__description subscription-settings__description--compact">
+                                    {{ $t("pages.settings.notifications.email.description") }}
+                                </p>
+                            </div>
                         </div>
-                        <Button
-                            v-if="browserStatus.actionable"
-                            :label="$t('pages.settings.notifications.enable_browser_push')"
-                            size="small"
-                            :loading="enablingBrowserPush"
-                            @click="handleEnableBrowserPush"
-                        />
-                    </div>
-                </Message>
 
-                <div class="subscription-settings__browser-grid">
-                    <div
-                        v-for="type in webPushTypes"
-                        :key="type"
-                        class="subscription-settings__browser-item"
-                    >
-                        <div class="subscription-settings__browser-item-copy">
-                            <span class="subscription-settings__browser-item-title">
-                                {{ $t(`pages.settings.notifications.browser_types.${type}`) }}
-                            </span>
-                            <small class="subscription-settings__field-help">
-                                {{ $t(`pages.settings.notifications.browser_type_desc.${type}`) }}
-                            </small>
+                        <div class="subscription-settings__channel-list">
+                            <div
+                                v-for="type in notificationTypes"
+                                :key="`email-${type}`"
+                                class="subscription-settings__channel-item"
+                            >
+                                <div class="subscription-settings__channel-item-copy">
+                                    <span class="subscription-settings__channel-item-title">
+                                        {{ $t(`pages.settings.notifications.notification_types.${getNotificationTypeKey(type)}`) }}
+                                    </span>
+                                    <small class="subscription-settings__field-help">
+                                        {{ $t(`pages.settings.notifications.email_type_desc.${getNotificationTypeKey(type)}`) }}
+                                    </small>
+                                </div>
+                                <ToggleSwitch
+                                    v-model="channelNotificationSettings[NotificationChannel.EMAIL][type]"
+                                    :disabled="isNotificationTypeLocked(type)"
+                                />
+                            </div>
                         </div>
-                        <ToggleSwitch
-                            v-model="browserNotificationSettings[type]"
-                            :disabled="browserSettingsDisabled"
-                        />
-                    </div>
+
+                        <small class="subscription-settings__field-help">
+                            {{ $t("pages.settings.notifications.security_fixed_hint") }}
+                        </small>
+                    </section>
+
+                    <section class="subscription-settings__channel-card">
+                        <div class="subscription-settings__channel-header">
+                            <div class="subscription-settings__channel-copy">
+                                <h4 class="subscription-settings__channel-title">
+                                    {{ $t("pages.settings.notifications.browser.title") }}
+                                </h4>
+                                <p class="subscription-settings__description subscription-settings__description--compact">
+                                    {{ $t("pages.settings.notifications.browser.description") }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <Message
+                            :severity="browserStatus.severity"
+                            :closable="false"
+                            class="subscription-settings__browser-message"
+                        >
+                            <div class="subscription-settings__browser-status">
+                                <div class="subscription-settings__browser-copy">
+                                    <strong>{{ $t("pages.settings.notifications.browser_status") }}</strong>
+                                    <span>{{ browserStatus.text }}</span>
+                                </div>
+                                <Button
+                                    v-if="browserStatus.actionable"
+                                    :label="$t('pages.settings.notifications.enable_browser_push')"
+                                    size="small"
+                                    :loading="enablingBrowserPush"
+                                    @click="handleEnableBrowserPush"
+                                />
+                            </div>
+                        </Message>
+
+                        <div class="subscription-settings__channel-list">
+                            <div
+                                v-for="type in notificationTypes"
+                                :key="`browser-${type}`"
+                                class="subscription-settings__channel-item"
+                            >
+                                <div class="subscription-settings__channel-item-copy">
+                                    <span class="subscription-settings__channel-item-title">
+                                        {{ $t(`pages.settings.notifications.notification_types.${getNotificationTypeKey(type)}`) }}
+                                    </span>
+                                    <small class="subscription-settings__field-help">
+                                        {{ $t(`pages.settings.notifications.browser_type_desc.${getNotificationTypeKey(type)}`) }}
+                                    </small>
+                                </div>
+                                <ToggleSwitch
+                                    v-model="channelNotificationSettings[NotificationChannel.WEB_PUSH][type]"
+                                    :disabled="isNotificationTypeLocked(type) || browserChannelUnavailable"
+                                />
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </div>
 
@@ -181,19 +234,39 @@ const { browserPermission, browserPushReady, isBrowserPushSupported, enableBrows
 
 const categories = ref<Category[]>([])
 const tags = ref<Tag[]>([])
-const webPushTypes = [
+const notificationTypes = [
     NotificationType.COMMENT_REPLY,
     NotificationType.SYSTEM,
     NotificationType.SECURITY,
 ] as const
+const configurableChannels = [
+    NotificationChannel.EMAIL,
+    NotificationChannel.WEB_PUSH,
+] as const
 
-const browserNotificationSettings = reactive<Record<string, boolean>>({
-    [NotificationType.COMMENT_REPLY]: true,
-    [NotificationType.SYSTEM]: true,
-    [NotificationType.SECURITY]: true,
+type ManagedNotificationType = typeof notificationTypes[number]
+type ConfigurableNotificationChannel = typeof configurableChannels[number]
+
+const notificationTypeKeyMap: Record<ManagedNotificationType, 'comment_reply' | 'system' | 'security'> = {
+    [NotificationType.COMMENT_REPLY]: 'comment_reply',
+    [NotificationType.SYSTEM]: 'system',
+    [NotificationType.SECURITY]: 'security',
+}
+
+const channelNotificationSettings = reactive<Record<ConfigurableNotificationChannel, Record<ManagedNotificationType, boolean>>>({
+    [NotificationChannel.EMAIL]: {
+        [NotificationType.COMMENT_REPLY]: true,
+        [NotificationType.SYSTEM]: true,
+        [NotificationType.SECURITY]: true,
+    },
+    [NotificationChannel.WEB_PUSH]: {
+        [NotificationType.COMMENT_REPLY]: true,
+        [NotificationType.SYSTEM]: true,
+        [NotificationType.SECURITY]: true,
+    },
 })
 
-const browserSettingsDisabled = computed(() => {
+const browserChannelUnavailable = computed(() => {
     return !siteConfig.value.webPushEnabled || !siteConfig.value.webPushPublicKey || !isBrowserPushSupported.value
 })
 
@@ -236,6 +309,18 @@ const browserStatus = computed(() => {
         actionable: browserPushReady.value,
     }
 })
+
+function isNotificationTypeLocked(type: ManagedNotificationType) {
+    return type === NotificationType.SECURITY
+}
+
+function getNotificationTypeKey(type: ManagedNotificationType) {
+    return notificationTypeKeyMap[type]
+}
+
+function normalizeNotificationSetting(type: ManagedNotificationType, isEnabled: boolean) {
+    return isNotificationTypeLocked(type) ? true : isEnabled
+}
 
 const subscription = reactive({
     isActive: true,
@@ -287,9 +372,13 @@ const loadData = async () => {
         }
 
         notificationSettingsRes.data
-            .filter((item) => item.channel === NotificationChannel.WEB_PUSH && webPushTypes.includes(item.type))
+            .filter((item) => configurableChannels.includes(item.channel as ConfigurableNotificationChannel)
+                && notificationTypes.includes(item.type as ManagedNotificationType))
             .forEach((item) => {
-                browserNotificationSettings[item.type] = item.isEnabled
+                const channel = item.channel as ConfigurableNotificationChannel
+                const type = item.type as ManagedNotificationType
+
+                channelNotificationSettings[channel][type] = normalizeNotificationSetting(type, item.isEnabled)
             })
     } catch (error) {
         console.error('Failed to load settings:', error)
@@ -342,6 +431,14 @@ const handleSave = async () => {
             }
         })
 
+        const notificationPayload = configurableChannels.flatMap((channel) => {
+            return notificationTypes.map((type) => ({
+                type,
+                channel,
+                isEnabled: normalizeNotificationSetting(type, channelNotificationSettings[channel][type]),
+            }))
+        })
+
         await Promise.all([
             $fetch('/api/user/subscription', {
                 method: 'PUT' as any,
@@ -354,11 +451,7 @@ const handleSave = async () => {
             }),
             $fetch('/api/user/notifications/settings', {
                 method: 'PUT' as any,
-                body: webPushTypes.map((type) => ({
-                    type,
-                    channel: NotificationChannel.WEB_PUSH,
-                    isEnabled: browserNotificationSettings[type],
-                })),
+                body: notificationPayload,
             }),
         ])
 
@@ -416,6 +509,10 @@ const handleSave = async () => {
         font-size: 0.875rem;
         margin-bottom: $spacing-md;
         line-height: $line-height-relaxed;
+
+        &--compact {
+            margin-bottom: 0;
+        }
     }
 
     &__status-control {
@@ -493,13 +590,53 @@ const handleSave = async () => {
         line-height: $line-height-relaxed;
     }
 
-    &__browser-grid {
+    &__channel-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: $spacing-lg;
+
+        @media (width <= 768px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &__channel-card {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+        padding: $spacing-lg;
+        border: 1px solid var(--p-surface-border);
+        border-radius: $border-radius-lg;
+        background: var(--p-surface-0);
+    }
+
+    &__channel-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: $spacing-md;
+    }
+
+    &__channel-copy {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+    }
+
+    &__channel-title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--p-text-color);
+    }
+
+    &__channel-list {
         display: flex;
         flex-direction: column;
         gap: $spacing-md;
     }
 
-    &__browser-item {
+    &__channel-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -507,16 +644,17 @@ const handleSave = async () => {
         padding: $spacing-md;
         border: 1px solid var(--p-surface-border);
         border-radius: $border-radius-md;
-        background: var(--p-surface-0);
+        background: color-mix(in srgb, var(--p-surface-0) 92%, var(--p-primary-50));
     }
 
-    &__browser-item-copy {
+    &__channel-item-copy {
         display: flex;
         flex-direction: column;
         gap: $spacing-xs;
+        flex: 1;
     }
 
-    &__browser-item-title {
+    &__channel-item-title {
         font-weight: 600;
         color: var(--p-text-color);
     }

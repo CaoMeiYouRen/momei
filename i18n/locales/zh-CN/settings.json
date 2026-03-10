@@ -1,124 +1,140 @@
 {
-  "pages": {
-    "settings": {
-      "title": "个人中心",
-      "profile": {
-        "title": "公开资料",
-        "avatar": "头像",
-        "upload": "上传头像",
-        "upload_success": "头像上传成功",
-        "upload_failed": "头像上传失败",
-        "name": "昵称",
-        "language": "界面语言",
-        "timezone": "时区设置",
-        "save": "保存更改",
-        "success": "个人资料已更新"
-      },
-      "security": {
-        "title": "账号安全",
-        "change_password": "修改密码",
-        "set_password_hint": "如果您尚未设置密码（例如通过第三方登录），或者忘记了当前密码，请使用",
-        "current_password": "当前密码",
-        "new_password": "新密码",
-        "confirm_password": "确认新密码",
-        "update_password": "更新密码",
-        "password_updated": "密码已更新",
-        "linked_accounts": "已绑定账号",
-        "link_github": "绑定 GitHub",
-        "link_google": "绑定 Google",
-        "unlink_account": "解绑账号",
-        "unlink_success": "账号解绑成功",
-        "unlink_error": "账号解绑失败",
-        "link_error": "发起绑定失败"
-      },
-      "api_keys": {
-        "title": "API 密钥",
-        "description": "使用 API 密钥可以通过外部程序发布内容。",
-        "create_btn": "创建新密钥",
-        "new_key_title": "新 API 密钥",
-        "new_key_hint": "请务必立即复制此密钥。出于安全考虑，它将不会再次显示。",
-        "name": "名称",
-        "prefix": "前缀",
-        "expires_at": "过期时间",
-        "never_expires": "永不过期",
-        "expired_at_options": {
-          "never": "永不过期",
-          "7d": "7天",
-          "30d": "30天",
-          "365d": "365天"
-        },
-        "last_used_at": "最后使用",
-        "create_success": "API 密钥创建成功",
-        "delete_success": "API 密钥已撤销"
-      },
-      "notifications": {
-        "title": "订阅与通知",
-        "subscription_management_desc": "管理您的文章订阅偏好。您可以选择感兴趣的分类或标签，第一时间获取内容更新。",
-        "categories": "分类订阅",
-        "tags": "标签订阅",
-        "web_push": "浏览器通知",
-        "web_push_desc": "配置离线浏览器通知的接收方式。开启后，评论回复、系统消息和安全提醒可以在您不在线时送达浏览器。",
-        "browser_status": "浏览器通知状态",
-        "browser_status_site_disabled": "站点尚未完成 Web Push 配置，请稍后再试或联系管理员。",
-        "browser_status_unsupported": "当前浏览器或设备不支持 Web Push。",
-        "browser_status_granted": "浏览器通知已启用，离线时可接收高价值提醒。",
-        "browser_status_denied": "浏览器通知已被拒绝，请在浏览器设置中手动重新开启。",
-        "browser_status_default": "您还没有授权浏览器通知，可以先完成授权再保存接收偏好。",
-        "enable_browser_push": "启用浏览器通知",
-        "browser_types": {
-          "COMMENT_REPLY": "评论回复",
-          "SYSTEM": "系统通知",
-          "SECURITY": "安全提醒"
-        },
-        "browser_type_desc": {
-          "COMMENT_REPLY": "有人回复您的评论时发送浏览器提醒。",
-          "SYSTEM": "异步任务完成、站内重要变更等系统消息通过浏览器提醒。",
-          "SECURITY": "登录安全、异常操作等高优先级安全消息通过浏览器提醒。"
-        },
-        "marketing": "营销与功能通知",
-        "marketing_desc": "接收来自墨梅团队的功能更新、活动推荐等邮件建议。",
-        "marketing_enable": "接收营销邮件通知",
-        "save_success": "订阅偏好已更新",
-        "save_failed": "更新订阅偏好失败",
-        "active_status": "订阅状态",
-        "active": "已启用订阅",
-        "inactive": "已暂停订阅",
-        "pause_subscription": "暂停所有订阅",
-        "resume_subscription": "恢复订阅"
-      },
-      "commercial": {
-        "title": "商业化与赞助",
-        "subtitle": "配置您的个人社交链接与赞助信息。这些信息将展示在您的文章页底部的作者卡片中。",
-        "social_links": "社交链接",
-        "social_desc": "在这里添加您的社交媒体、个人网站或其他外部链接。",
-        "donation_links": "打赏与赞助",
-        "donation_desc": "配置您的打赏、赞助链接或收款码，方便读者为您提供支持。",
-        "add_social": "添加社交平台",
-        "add_donation": "添加打赏平台",
-        "platform": "平台",
-        "url": "链接地址",
-        "image": "二维码图片",
-        "label": "自定义标签",
-        "locales": "展示语言",
-        "locales_hint": "不选则在所有语言环境下显示",
-        "success": "商业化设置已更新",
-        "empty_social": "尚未配置社交链接",
-        "empty_donation": "尚未配置打赏链接",
-        "delete_confirm": "确定要删除此链接吗？",
-        "edit_social": "编辑社交链接",
-        "edit_donation": "编辑打赏链接",
-        "social_platforms": {
-          "wechat_mp": "微信公众号",
-          "bilibili": "Bilibili",
-          "weibo": "微博",
-          "zhihu": "知乎",
-          "x": "X (Twitter)",
-          "youtube": "YouTube",
-          "facebook": "Facebook",
-          "github": "GitHub",
-          "discord": "Discord"
+    "pages": {
+        "settings": {
+            "title": "个人中心",
+            "profile": {
+                "title": "公开资料",
+                "avatar": "头像",
+                "upload": "上传头像",
+                "upload_success": "头像上传成功",
+                "upload_failed": "头像上传失败",
+                "name": "昵称",
+                "language": "界面语言",
+                "timezone": "时区设置",
+                "save": "保存更改",
+                "success": "个人资料已更新"
+            },
+            "security": {
+                "title": "账号安全",
+                "change_password": "修改密码",
+                "set_password_hint": "如果您尚未设置密码（例如通过第三方登录），或者忘记了当前密码，请使用",
+                "current_password": "当前密码",
+                "new_password": "新密码",
+                "confirm_password": "确认新密码",
+                "update_password": "更新密码",
+                "password_updated": "密码已更新",
+                "linked_accounts": "已绑定账号",
+                "link_github": "绑定 GitHub",
+                "link_google": "绑定 Google",
+                "unlink_account": "解绑账号",
+                "unlink_success": "账号解绑成功",
+                "unlink_error": "账号解绑失败",
+                "link_error": "发起绑定失败"
+            },
+            "api_keys": {
+                "title": "API 密钥",
+                "description": "使用 API 密钥可以通过外部程序发布内容。",
+                "create_btn": "创建新密钥",
+                "new_key_title": "新 API 密钥",
+                "new_key_hint": "请务必立即复制此密钥。出于安全考虑，它将不会再次显示。",
+                "name": "名称",
+                "prefix": "前缀",
+                "expires_at": "过期时间",
+                "never_expires": "永不过期",
+                "expired_at_options": {
+                    "never": "永不过期",
+                    "7d": "7天",
+                    "30d": "30天",
+                    "365d": "365天"
+                },
+                "last_used_at": "最后使用",
+                "create_success": "API 密钥创建成功",
+                "delete_success": "API 密钥已撤销"
+            },
+            "notifications": {
+                "title": "订阅与通知",
+                "subscription_management_desc": "管理您的文章订阅偏好。您可以选择感兴趣的分类或标签，第一时间获取内容更新。",
+                "categories": "分类订阅",
+                "tags": "标签订阅",
+                "notification_methods": "通知接收方式",
+                "notification_methods_desc": "围绕邮件和浏览器推送管理高价值提醒。安全提醒始终保持开启，评论回复和系统通知可按渠道单独调整。",
+                "notification_types": {
+                    "comment_reply": "评论回复",
+                    "system": "系统通知",
+                    "security": "安全提醒"
+                },
+                "security_fixed_hint": "安全提醒属于高优先级消息，当前保持固定开启。",
+                "email": {
+                    "title": "邮件通知",
+                    "description": "将重要通知发送到您当前账号绑定的邮箱，适合接收跨设备的稳定提醒。"
+                },
+                "email_type_desc": {
+                    "comment_reply": "有人回复您的评论时，向账号邮箱发送提醒。",
+                    "system": "异步任务完成、站内重要变更等系统消息通过邮件提醒。",
+                    "security": "登录安全、异常操作等高优先级安全消息通过邮件提醒。"
+                },
+                "browser": {
+                    "title": "浏览器通知",
+                    "description": "浏览器通知偏好默认开启。即使尚未授权，也可以先保存接收策略，稍后完成浏览器授权。"
+                },
+                "web_push": "浏览器通知",
+                "web_push_desc": "配置离线浏览器通知的接收方式。开启后，评论回复、系统消息和安全提醒可以在您不在线时送达浏览器。",
+                "browser_status": "浏览器通知状态",
+                "browser_status_site_disabled": "站点尚未完成 Web Push 配置，请稍后再试或联系管理员。",
+                "browser_status_unsupported": "当前浏览器或设备不支持 Web Push。",
+                "browser_status_granted": "浏览器通知已启用，离线时可接收高价值提醒。",
+                "browser_status_denied": "浏览器通知已被拒绝，请在浏览器设置中手动重新开启。",
+                "browser_status_default": "您还没有授权浏览器通知，可以先完成授权再保存接收偏好。",
+                "enable_browser_push": "启用浏览器通知",
+                "browser_type_desc": {
+                    "comment_reply": "有人回复您的评论时发送浏览器提醒。",
+                    "system": "异步任务完成、站内重要变更等系统消息通过浏览器提醒。",
+                    "security": "登录安全、异常操作等高优先级安全消息通过浏览器提醒。"
+                },
+                "marketing": "营销与功能通知",
+                "marketing_desc": "接收来自墨梅团队的功能更新、活动推荐等邮件建议。",
+                "marketing_enable": "接收营销邮件通知",
+                "save_success": "订阅偏好已更新",
+                "save_failed": "更新订阅偏好失败",
+                "active_status": "订阅状态",
+                "active": "已启用订阅",
+                "inactive": "已暂停订阅",
+                "pause_subscription": "暂停所有订阅",
+                "resume_subscription": "恢复订阅"
+            },
+            "commercial": {
+                "title": "商业化与赞助",
+                "subtitle": "配置您的个人社交链接与赞助信息。这些信息将展示在您的文章页底部的作者卡片中。",
+                "social_links": "社交链接",
+                "social_desc": "在这里添加您的社交媒体、个人网站或其他外部链接。",
+                "donation_links": "打赏与赞助",
+                "donation_desc": "配置您的打赏、赞助链接或收款码，方便读者为您提供支持。",
+                "add_social": "添加社交平台",
+                "add_donation": "添加打赏平台",
+                "platform": "平台",
+                "url": "链接地址",
+                "image": "二维码图片",
+                "label": "自定义标签",
+                "locales": "展示语言",
+                "locales_hint": "不选则在所有语言环境下显示",
+                "success": "商业化设置已更新",
+                "empty_social": "尚未配置社交链接",
+                "empty_donation": "尚未配置打赏链接",
+                "delete_confirm": "确定要删除此链接吗？",
+                "edit_social": "编辑社交链接",
+                "edit_donation": "编辑打赏链接",
+                "social_platforms": {
+                    "wechat_mp": "微信公众号",
+                    "bilibili": "Bilibili",
+                    "weibo": "微博",
+                    "zhihu": "知乎",
+                    "x": "X (Twitter)",
+                    "youtube": "YouTube",
+                    "facebook": "Facebook",
+                    "github": "GitHub",
+                    "discord": "Discord"
+                }
+            }
         }
-      }
     }
-  }
 }

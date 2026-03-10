@@ -3,6 +3,11 @@ import { NotificationSettings } from '@/server/entities/notification-settings'
 import { requireAuth } from '@/server/utils/permission'
 import { NotificationType, NotificationChannel } from '@/utils/shared/notification'
 
+function isFixedNotificationPreference(type: NotificationType, channel: NotificationChannel) {
+    return type === NotificationType.SECURITY
+        && (channel === NotificationChannel.EMAIL || channel === NotificationChannel.WEB_PUSH)
+}
+
 export default defineEventHandler(async (event) => {
     const session = await requireAuth(event)
     const userId = session.user.id
@@ -21,10 +26,12 @@ export default defineEventHandler(async (event) => {
     for (const type of allTypes) {
         for (const channel of allChannels) {
             const existing = existingSettings.find((s) => s.type === type && s.channel === channel)
+            const isEnabled = existing ? existing.isEnabled : true
+
             result.push({
                 type,
                 channel,
-                isEnabled: existing ? existing.isEnabled : true, // 默认为开启
+                isEnabled: isFixedNotificationPreference(type, channel) ? true : isEnabled,
             })
         }
     }
