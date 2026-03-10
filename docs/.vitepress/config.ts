@@ -25,6 +25,7 @@ export default defineConfig({
                 nav: [
                     { text: '首页', link: '/' },
                     { text: '快速开始', link: '/guide/quick-start' },
+                    { text: '翻译治理', link: '/guide/translation-governance' },
                     { text: '部署指南', link: '/guide/deploy' },
                     { text: 'API 设计', link: '/design/api' },
                     {
@@ -42,6 +43,7 @@ export default defineConfig({
                         text: '指南',
                         items: [
                             { text: '快速开始', link: '/guide/quick-start' },
+                            { text: '翻译治理与贡献流程', link: '/guide/translation-governance' },
                             { text: '部署指南', link: '/guide/deploy' },
                             { text: '环境与系统设置', link: '/guide/variables' },
                             { text: '开发指南', link: '/guide/development' },
@@ -129,6 +131,49 @@ export default defineConfig({
                 },
             },
         },
+             'zh-TW': {
+            label: '繁體中文',
+            lang: 'zh-TW',
+            link: '/zh-TW/',
+            title: '墨梅部落格',
+            description: 'AI 驅動、原生國際化的開發者部落格平台',
+            themeConfig: {
+                nav: [
+                    { text: '首頁', link: '/zh-TW/' },
+                    { text: '快速開始', link: '/zh-TW/guide/quick-start' },
+                    { text: '翻譯治理', link: '/zh-TW/guide/translation-governance' },
+                    { text: '中文原文規劃', link: '/plan/roadmap' },
+                ],
+                sidebar: [
+                    {
+                        text: '指南',
+                        items: [
+                            { text: '快速開始', link: '/zh-TW/guide/quick-start' },
+                            { text: '翻譯治理與貢獻流程', link: '/zh-TW/guide/translation-governance' },
+                        ],
+                    },
+                    {
+                        text: '規劃與原文',
+                        items: [
+                            { text: '中文路線圖', link: '/plan/roadmap' },
+                            { text: '中文待辦事項', link: '/plan/todo' },
+                        ],
+                    },
+                ],
+                lastUpdatedText: '最後更新',
+                docFooter: {
+                    prev: '上一頁',
+                    next: '下一頁',
+                },
+                outline: {
+                    label: '頁面導覽',
+                },
+                editLink: {
+                    pattern: 'https://github.com/CaoMeiYouRen/momei/edit/master/docs/:path',
+                    text: '在 GitHub 上編輯此頁',
+                },
+            },
+        },
         'en-US': {
             label: 'English',
             lang: 'en-US',
@@ -139,6 +184,7 @@ export default defineConfig({
                 nav: [
                     { text: 'Home', link: '/en-US/' },
                     { text: 'Quick Start', link: '/en-US/guide/quick-start' },
+                    { text: 'Translation Governance', link: '/en-US/guide/translation-governance' },
                     { text: 'Deploy', link: '/en-US/guide/deploy' },
                     { text: 'API Design', link: '/en-US/design/api' },
                 ],
@@ -147,6 +193,7 @@ export default defineConfig({
                         text: 'Guide',
                         items: [
                             { text: 'Quick Start', link: '/en-US/guide/quick-start' },
+                            { text: 'Translation Governance', link: '/en-US/guide/translation-governance' },
                             { text: 'Deployment', link: '/en-US/guide/deploy' },
                             { text: 'Variables & Settings', link: '/en-US/guide/variables' },
                             { text: 'Dev Guide', link: '/en-US/guide/development' },
@@ -192,6 +239,49 @@ export default defineConfig({
                 editLink: {
                     pattern: 'https://github.com/CaoMeiYouRen/momei/edit/master/docs/:path',
                     text: 'Edit this page on GitHub',
+                },
+            },
+        },
+        'ko-KR': {
+            label: '한국어',
+            lang: 'ko-KR',
+            link: '/ko-KR/',
+            title: '모메이 블로그',
+            description: 'AI 기반 네이티브 i18n 개발자 블로그 플랫폼',
+            themeConfig: {
+                nav: [
+                    { text: '홈', link: '/ko-KR/' },
+                    { text: '빠른 시작', link: '/ko-KR/guide/quick-start' },
+                    { text: '번역 거버넌스', link: '/ko-KR/guide/translation-governance' },
+                    { text: '중문 로드맵', link: '/plan/roadmap' },
+                ],
+                sidebar: [
+                    {
+                        text: '가이드',
+                        items: [
+                            { text: '빠른 시작', link: '/ko-KR/guide/quick-start' },
+                            { text: '번역 거버넌스와 기여 절차', link: '/ko-KR/guide/translation-governance' },
+                        ],
+                    },
+                    {
+                        text: '원문 참조',
+                        items: [
+                            { text: '중문 로드맵', link: '/plan/roadmap' },
+                            { text: '중문 할 일 목록', link: '/plan/todo' },
+                        ],
+                    },
+                ],
+                lastUpdatedText: '마지막 업데이트',
+                docFooter: {
+                    prev: '이전',
+                    next: '다음',
+                },
+                outline: {
+                    label: '이 페이지에서',
+                },
+                editLink: {
+                    pattern: 'https://github.com/CaoMeiYouRen/momei/edit/master/docs/:path',
+                    text: 'GitHub에서 이 페이지 편집',
                 },
             },
         },
