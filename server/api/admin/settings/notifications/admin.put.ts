@@ -1,24 +1,18 @@
 import { dataSource } from '@/server/database'
 import { AdminNotificationSettings } from '@/server/entities/admin-notification-settings'
 import { requireAdmin } from '@/server/utils/permission'
-import { updateAdminNotificationSettingsSchema } from '@/utils/schemas/notification'
+import { setSettings } from '@/server/services/setting'
+import { SettingKey } from '@/types/setting'
+import { updateAdminNotificationSettingsPayloadSchema } from '@/utils/schemas/notification'
 
 export default defineEventHandler(async (event) => {
-    await requireAdmin(event)
+    const session = await requireAdmin(event)
 
-    const result = await readValidatedBody(event, (body) => updateAdminNotificationSettingsSchema.safeParse(body))
-
-    if (!result.success) {
-        throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
-            data: result.error.issues,
-        })
-    }
+    const payload = await readValidatedBody(event, (body) => updateAdminNotificationSettingsPayloadSchema.parse(body))
 
     const repo = dataSource.getRepository(AdminNotificationSettings)
 
-    for (const item of result.data) {
+    for (const item of payload.items) {
         let setting = await repo.findOne({ where: { event: item.event } })
         if (!setting) {
             setting = new AdminNotificationSettings()
@@ -27,6 +21,19 @@ export default defineEventHandler(async (event) => {
         setting.isEmailEnabled = item.isEmailEnabled
         setting.isBrowserEnabled = item.isBrowserEnabled
         await repo.save(setting)
+    }
+
+    if (payload.webPush) {
+        await setSettings({
+            [SettingKey.WEB_PUSH_VAPID_SUBJECT]: payload.webPush.subject,
+            [SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY]: payload.webPush.publicKey,
+        }, {
+            operatorId: session.user.id,
+            ipAddress: getRequestIP(event, { xForwardedFor: true }) || null,
+            userAgent: getRequestHeader(event, 'user-agent') || null,
+            reason: 'admin_notification_web_push_update',
+            source: 'admin_ui',
+        })
     }
 
     return {

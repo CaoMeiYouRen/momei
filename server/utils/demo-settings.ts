@@ -113,6 +113,8 @@ const demoSettingValues: Partial<Record<string, string>> = {
     [SettingKey.EFFECTS_MOBILE_ENABLED]: 'false',
     [SettingKey.EFFECTS_MIN_WIDTH]: '1024',
     [SettingKey.EFFECTS_DATA_SAVER_BLOCK]: 'true',
+    [SettingKey.WEB_PUSH_VAPID_SUBJECT]: 'mailto:demo@momei.app',
+    [SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY]: 'BOr-demo-public-key-preview',
     [SettingKey.MAX_UPLOAD_SIZE]: '4.5MiB',
     [SettingKey.MAX_AUDIO_UPLOAD_SIZE]: '128MiB',
     [SettingKey.ALLOWED_FILE_TYPES]: '.jpg,.png,.webp,image/webp,audio/mpeg',
@@ -249,6 +251,28 @@ export function getDemoAdminNotificationSettingsPreview() {
             isEmailEnabled: true,
             isBrowserEnabled: index % 2 === 0,
         })),
+        webPush: {
+            subject: {
+                value: demoSettingValues[SettingKey.WEB_PUSH_VAPID_SUBJECT] || '',
+                source: 'db',
+                isLocked: false,
+                envKey: 'WEB_PUSH_VAPID_SUBJECT',
+                defaultUsed: false,
+                lockReason: null,
+                requiresRestart: false,
+            },
+            publicKey: {
+                value: demoSettingValues[SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY] || '',
+                source: 'db',
+                isLocked: false,
+                envKey: 'WEB_PUSH_VAPID_PUBLIC_KEY',
+                defaultUsed: false,
+                lockReason: null,
+                requiresRestart: false,
+            },
+            privateKeyConfigured: true,
+            isConfigured: true,
+        },
         demoPreview: true,
     }
 }

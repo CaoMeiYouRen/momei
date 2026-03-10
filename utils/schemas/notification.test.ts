@@ -1,8 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { NotificationType, NotificationChannel } from '../shared/notification'
 import {
+    adminNotificationWebPushConfigSchema,
     notificationSettingSchema,
     updateNotificationSettingsSchema,
+    updateAdminNotificationSettingsPayloadSchema,
     marketingCampaignSchema,
     webPushSubscriptionSchema,
 } from './notification'
@@ -359,6 +361,55 @@ describe('utils/schemas/notification', () => {
 
             const result = marketingCampaignSchema.safeParse(validData)
             expect(result.success).toBe(true)
+        })
+    })
+
+    describe('admin notification payload schemas', () => {
+        it('应该验证有效的 web push 配置', () => {
+            const result = adminNotificationWebPushConfigSchema.safeParse({
+                subject: 'mailto:admin@example.com',
+                publicKey: 'test-public-key',
+            })
+
+            expect(result.success).toBe(true)
+        })
+
+        it('应该兼容旧的站务通知数组请求体', () => {
+            const result = updateAdminNotificationSettingsPayloadSchema.safeParse([
+                {
+                    event: 'NEW_COMMENT',
+                    isEmailEnabled: true,
+                    isBrowserEnabled: false,
+                },
+            ])
+
+            expect(result.success).toBe(true)
+            if (result.success) {
+                expect(result.data.items).toHaveLength(1)
+                expect(result.data.webPush).toBeUndefined()
+            }
+        })
+
+        it('应该验证带 web push 配置的新请求体', () => {
+            const result = updateAdminNotificationSettingsPayloadSchema.safeParse({
+                items: [
+                    {
+                        event: 'SYSTEM_ALERT',
+                        isEmailEnabled: true,
+                        isBrowserEnabled: true,
+                    },
+                ],
+                webPush: {
+                    subject: 'mailto:admin@example.com',
+                    publicKey: 'test-public-key',
+                },
+            })
+
+            expect(result.success).toBe(true)
+            if (result.success) {
+                expect(result.data.items).toHaveLength(1)
+                expect(result.data.webPush?.subject).toBe('mailto:admin@example.com')
+            }
         })
     })
 

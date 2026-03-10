@@ -56,6 +56,26 @@
         "subscription_management_desc": "Manage your post subscription preferences. Choose categories or tags you are interested in to get updates as soon as possible.",
         "categories": "Category Subscriptions",
         "tags": "Tag Subscriptions",
+        "web_push": "Browser Notifications",
+        "web_push_desc": "Configure how offline browser alerts are delivered. Once enabled, comment replies, system messages, and security reminders can reach your browser even when you are away.",
+        "browser_status": "Browser Notification Status",
+        "browser_status_site_disabled": "The site has not finished Web Push configuration yet. Please try again later or contact an administrator.",
+        "browser_status_unsupported": "Your current browser or device does not support Web Push.",
+        "browser_status_granted": "Browser notifications are enabled. You can receive high-value reminders while offline.",
+        "browser_status_denied": "Browser notifications were blocked. Re-enable them in your browser settings.",
+        "browser_status_default": "You have not granted browser notification permission yet. You can authorize it first and then save your delivery preferences.",
+        "enable_browser_push": "Enable Browser Notifications",
+        "browser_types": {
+          "COMMENT_REPLY": "Comment Replies",
+          "SYSTEM": "System Notifications",
+          "SECURITY": "Security Alerts"
+        },
+        "browser_type_desc": {
+          "COMMENT_REPLY": "Send a browser alert when someone replies to your comment.",
+          "SYSTEM": "Deliver browser alerts for completed async tasks and other important system messages.",
+          "SECURITY": "Deliver browser alerts for login security and other high-priority security events.",
+          "MARKETING": "Marketing messages currently do not enter the Web Push channel."
+        },
         "marketing": "Marketing & Features",
         "marketing_desc": "Receive functional updates, activity recommendations and other email suggestions from the Momei team.",
         "marketing_enable": "Enable marketing email notifications",

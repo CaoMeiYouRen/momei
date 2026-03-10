@@ -43,5 +43,29 @@ export const adminNotificationSettingSchema = z.object({
 
 export const updateAdminNotificationSettingsSchema = z.array(adminNotificationSettingSchema)
 
+export const adminNotificationWebPushConfigSchema = z.object({
+    subject: z.string().trim().max(255).default(''),
+    publicKey: z.string().trim().max(4096).default(''),
+})
+
+export const updateAdminNotificationSettingsPayloadSchema = z.union([
+    updateAdminNotificationSettingsSchema,
+    z.object({
+        items: updateAdminNotificationSettingsSchema,
+        webPush: adminNotificationWebPushConfigSchema.optional(),
+    }),
+]).transform((value) => {
+    if (Array.isArray(value)) {
+        return {
+            items: value,
+            webPush: undefined,
+        }
+    }
+
+    return value
+})
+
 export type AdminNotificationSettingInput = z.infer<typeof adminNotificationSettingSchema>
 export type UpdateAdminNotificationSettingsInput = z.infer<typeof updateAdminNotificationSettingsSchema>
+export type AdminNotificationWebPushConfigInput = z.infer<typeof adminNotificationWebPushConfigSchema>
+export type UpdateAdminNotificationSettingsPayloadInput = z.infer<typeof updateAdminNotificationSettingsPayloadSchema>

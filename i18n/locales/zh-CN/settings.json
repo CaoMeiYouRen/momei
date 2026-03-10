@@ -56,6 +56,25 @@
         "subscription_management_desc": "管理您的文章订阅偏好。您可以选择感兴趣的分类或标签，第一时间获取内容更新。",
         "categories": "分类订阅",
         "tags": "标签订阅",
+        "web_push": "浏览器通知",
+        "web_push_desc": "配置离线浏览器通知的接收方式。开启后，评论回复、系统消息和安全提醒可以在您不在线时送达浏览器。",
+        "browser_status": "浏览器通知状态",
+        "browser_status_site_disabled": "站点尚未完成 Web Push 配置，请稍后再试或联系管理员。",
+        "browser_status_unsupported": "当前浏览器或设备不支持 Web Push。",
+        "browser_status_granted": "浏览器通知已启用，离线时可接收高价值提醒。",
+        "browser_status_denied": "浏览器通知已被拒绝，请在浏览器设置中手动重新开启。",
+        "browser_status_default": "您还没有授权浏览器通知，可以先完成授权再保存接收偏好。",
+        "enable_browser_push": "启用浏览器通知",
+        "browser_types": {
+          "COMMENT_REPLY": "评论回复",
+          "SYSTEM": "系统通知",
+          "SECURITY": "安全提醒"
+        },
+        "browser_type_desc": {
+          "COMMENT_REPLY": "有人回复您的评论时发送浏览器提醒。",
+          "SYSTEM": "异步任务完成、站内重要变更等系统消息通过浏览器提醒。",
+          "SECURITY": "登录安全、异常操作等高优先级安全消息通过浏览器提醒。"
+        },
         "marketing": "营销与功能通知",
         "marketing_desc": "接收来自墨梅团队的功能更新、活动推荐等邮件建议。",
         "marketing_enable": "接收营销邮件通知",

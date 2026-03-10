@@ -102,6 +102,54 @@
 
             <Divider class="subscription-settings__divider" />
 
+            <div class="subscription-settings__section">
+                <label class="subscription-settings__label">{{ $t("pages.settings.notifications.web_push") }}</label>
+                <p class="subscription-settings__description">
+                    {{ $t("pages.settings.notifications.web_push_desc") }}
+                </p>
+
+                <Message
+                    :severity="browserStatus.severity"
+                    :closable="false"
+                    class="subscription-settings__browser-message"
+                >
+                    <div class="subscription-settings__browser-status">
+                        <div class="subscription-settings__browser-copy">
+                            <strong>{{ $t("pages.settings.notifications.browser_status") }}</strong>
+                            <span>{{ browserStatus.text }}</span>
+                        </div>
+                        <Button
+                            v-if="browserStatus.actionable"
+                            :label="$t('pages.settings.notifications.enable_browser_push')"
+                            size="small"
+                            :loading="enablingBrowserPush"
+                            @click="handleEnableBrowserPush"
+                        />
+                    </div>
+                </Message>
+
+                <div class="subscription-settings__browser-grid">
+                    <div
+                        v-for="type in webPushTypes"
+                        :key="type"
+                        class="subscription-settings__browser-item"
+                    >
+                        <div class="subscription-settings__browser-item-copy">
+                            <span class="subscription-settings__browser-item-title">
+                                {{ $t(`pages.settings.notifications.browser_types.${type}`) }}
+                            </span>
+                            <small class="subscription-settings__field-help">
+                                {{ $t(`pages.settings.notifications.browser_type_desc.${type}`) }}
+                            </small>
+                        </div>
+                        <ToggleSwitch
+                            v-model="browserNotificationSettings[type]"
+                            :disabled="browserSettingsDisabled"
+                        />
+                    </div>
+                </div>
+            </div>
+
             <div class="subscription-settings__actions">
                 <Button
                     :label="$t('pages.settings.profile.save')"
@@ -114,20 +162,80 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { Category } from '@/types/category'
 import type { Tag } from '@/types/tag'
 import type { ApiResponse } from '@/types/api'
 import type { PaginatedData } from '@/types/marketing'
 
 import type { Subscriber } from '@/types/subscriber'
+import { NotificationChannel, NotificationType } from '@/utils/shared/notification'
 
 const { t, locale } = useI18n()
 const toast = useToast()
 const loading = ref(true)
 const saving = ref(false)
+const enablingBrowserPush = ref(false)
+const { siteConfig, fetchSiteConfig } = useMomeiConfig()
+const { browserPermission, browserPushReady, isBrowserPushSupported, enableBrowserPush } = useNotifications()
 
 const categories = ref<Category[]>([])
 const tags = ref<Tag[]>([])
+const webPushTypes = [
+    NotificationType.COMMENT_REPLY,
+    NotificationType.SYSTEM,
+    NotificationType.SECURITY,
+] as const
+
+const browserNotificationSettings = reactive<Record<string, boolean>>({
+    [NotificationType.COMMENT_REPLY]: true,
+    [NotificationType.SYSTEM]: true,
+    [NotificationType.SECURITY]: true,
+})
+
+const browserSettingsDisabled = computed(() => {
+    return !siteConfig.value.webPushEnabled || !siteConfig.value.webPushPublicKey || !isBrowserPushSupported.value
+})
+
+const browserStatus = computed(() => {
+    if (!siteConfig.value.webPushEnabled || !siteConfig.value.webPushPublicKey) {
+        return {
+            severity: 'secondary' as const,
+            text: t('pages.settings.notifications.browser_status_site_disabled'),
+            actionable: false,
+        }
+    }
+
+    if (!isBrowserPushSupported.value) {
+        return {
+            severity: 'warn' as const,
+            text: t('pages.settings.notifications.browser_status_unsupported'),
+            actionable: false,
+        }
+    }
+
+    if (browserPermission.value === 'granted') {
+        return {
+            severity: 'success' as const,
+            text: t('pages.settings.notifications.browser_status_granted'),
+            actionable: false,
+        }
+    }
+
+    if (browserPermission.value === 'denied') {
+        return {
+            severity: 'warn' as const,
+            text: t('pages.settings.notifications.browser_status_denied'),
+            actionable: false,
+        }
+    }
+
+    return {
+        severity: 'info' as const,
+        text: t('pages.settings.notifications.browser_status_default'),
+        actionable: browserPushReady.value,
+    }
+})
 
 const subscription = reactive({
     isActive: true,
@@ -140,7 +248,7 @@ const subscription = reactive({
 const loadData = async () => {
     loading.value = true
     try {
-        const [catsRes, tagsRes, subRes] = await Promise.all([
+        const [catsRes, tagsRes, subRes, notificationSettingsRes] = await Promise.all([
             $fetch<ApiResponse<PaginatedData<Category>>>('/api/categories', {
                 query: { limit: 500, aggregate: true, language: locale.value },
             }),
@@ -148,6 +256,8 @@ const loadData = async () => {
                 query: { limit: 500, aggregate: true, language: locale.value },
             }),
             $fetch<ApiResponse<Subscriber>>('/api/user/subscription'),
+            $fetch<{ data: Array<{ type: NotificationType, channel: NotificationChannel, isEnabled: boolean }> }>('/api/user/notifications/settings'),
+            fetchSiteConfig(),
         ])
 
         categories.value = catsRes.data.items || []
@@ -175,6 +285,12 @@ const loadData = async () => {
                 subscription.selectedTagMap[tag.id] = clusterIds.some((id) => serverTagIds.includes(id))
             })
         }
+
+        notificationSettingsRes.data
+            .filter((item) => item.channel === NotificationChannel.WEB_PUSH && webPushTypes.includes(item.type))
+            .forEach((item) => {
+                browserNotificationSettings[item.type] = item.isEnabled
+            })
     } catch (error) {
         console.error('Failed to load settings:', error)
         toast.add({
@@ -194,6 +310,16 @@ onMounted(() => {
 
 const toggleSubscription = (val: boolean) => {
     subscription.isActive = val
+}
+
+const handleEnableBrowserPush = async () => {
+    enablingBrowserPush.value = true
+
+    try {
+        await enableBrowserPush()
+    } finally {
+        enablingBrowserPush.value = false
+    }
 }
 
 const handleSave = async () => {
@@ -216,15 +342,25 @@ const handleSave = async () => {
             }
         })
 
-        await $fetch('/api/user/subscription', {
-            method: 'PUT' as any,
-            body: {
-                isActive: subscription.isActive,
-                subscribedCategoryIds: Array.from(finalCategoryIds),
-                subscribedTagIds: Array.from(finalTagIds),
-                isMarketingEnabled: subscription.isMarketingEnabled,
-            },
-        })
+        await Promise.all([
+            $fetch('/api/user/subscription', {
+                method: 'PUT' as any,
+                body: {
+                    isActive: subscription.isActive,
+                    subscribedCategoryIds: Array.from(finalCategoryIds),
+                    subscribedTagIds: Array.from(finalTagIds),
+                    isMarketingEnabled: subscription.isMarketingEnabled,
+                },
+            }),
+            $fetch('/api/user/notifications/settings', {
+                method: 'PUT' as any,
+                body: webPushTypes.map((type) => ({
+                    type,
+                    channel: NotificationChannel.WEB_PUSH,
+                    isEnabled: browserNotificationSettings[type],
+                })),
+            }),
+        ])
 
         toast.add({
             severity: 'success',
@@ -332,6 +468,62 @@ const handleSave = async () => {
         font-weight: 600;
         margin-bottom: $spacing-xs;
         color: var(--p-text-color);
+    }
+
+    &__browser-message {
+        margin-bottom: $spacing-md;
+    }
+
+    &__browser-status {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: $spacing-md;
+
+        @media (width <= 768px) {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    &__browser-copy {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+        line-height: $line-height-relaxed;
+    }
+
+    &__browser-grid {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+    }
+
+    &__browser-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-lg;
+        padding: $spacing-md;
+        border: 1px solid var(--p-surface-border);
+        border-radius: $border-radius-md;
+        background: var(--p-surface-0);
+    }
+
+    &__browser-item-copy {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+    }
+
+    &__browser-item-title {
+        font-weight: 600;
+        color: var(--p-text-color);
+    }
+
+    &__field-help {
+        color: var(--p-text-color-secondary);
+        line-height: $line-height-relaxed;
     }
 
     &__divider {

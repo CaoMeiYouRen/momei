@@ -86,11 +86,20 @@ definePageMeta({
 })
 
 const session = authClient.useSession()
+const route = useRoute()
 const canViewCommercial = computed(() => {
     return isAdminOrAuthor((session.value as any)?.data?.user?.role)
 })
 
-const activeTab = ref('profile')
+const availableTabs = ['profile', 'security', 'apiKeys', 'notifications', 'commercial'] as const
+const activeTab = ref<(typeof availableTabs)[number]>('profile')
+
+const syncTabFromRoute = () => {
+    const nextTab = typeof route.query.tab === 'string' ? route.query.tab : 'profile'
+    if (availableTabs.includes(nextTab as (typeof availableTabs)[number])) {
+        activeTab.value = nextTab as (typeof availableTabs)[number]
+    }
+}
 
 // Watch for role changes or initial access
 watch(canViewCommercial, (can) => {
@@ -98,6 +107,8 @@ watch(canViewCommercial, (can) => {
         activeTab.value = 'profile'
     }
 }, { immediate: true })
+
+watch(() => route.query.tab, syncTabFromRoute, { immediate: true })
 </script>
 
 <style lang="scss" scoped>
