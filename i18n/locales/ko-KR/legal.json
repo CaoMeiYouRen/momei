@@ -1,10 +1,10 @@
 {
   "legal": {
-    "user_agreement": "User Agreement",
-    "privacy_policy": "Privacy Policy",
-    "agreement_checkbox": "I have read and agree to the {agreement} and {privacy}",
-    "login_notice": "By logging in, you agree to the {agreement} and {privacy}",
-    "notice": "Note: This agreement and policy are provided as examples. The developer of this project shall not be held legally responsible for any deployment instances. The specific legal agreement is entered into between you and the operator of this website, and the actual legal responsibility is borne by the website deployer.",
-    "agreement_required": "Please read and agree to the User Agreement and Privacy Policy"
+    "user_agreement": "이용 약관",
+    "privacy_policy": "개인정보 처리방침",
+    "agreement_checkbox": "{agreement} 및 {privacy}을 읽고 동의했습니다",
+    "login_notice": "로그인하면 {agreement} 및 {privacy}에 동의한 것으로 간주됩니다",
+    "notice": "안내: 본 약관과 정책은 예시로 제공됩니다. 이 프로젝트의 개발자는 어떠한 배포 인스턴스에 대해서도 법적 책임을 지지 않습니다. 실제 법적 계약은 현재 사이트 운영자와 사용자 사이에 체결되며, 최종 법적 책임은 사이트 배포자에게 있습니다.",
+    "agreement_required": "이용 약관과 개인정보 처리방침을 읽고 동의해 주세요"
   }
 }

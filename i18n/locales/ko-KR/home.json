@@ -1,19 +1,19 @@
 {
   "home": {
     "meta": {
-      "title": "Home - Momei Blog",
-      "description": "Momei Blog: An AI-driven, natively internationalized developer blog platform. AI-powered, Global Creation."
+      "title": "홈 - Momei Blog",
+      "description": "Momei Blog는 AI 기반과 네이티브 국제화를 갖춘 개발자 블로그 플랫폼으로, 기술과 삶, 사유를 전 세계 독자와 나눕니다."
     },
     "hero": {
-      "title": "AI-Driven, Native I18n",
-      "subtitle": "Momei Blog: A smart creation platform built for developers, helping your tech reach the world.",
-      "cta": "Start Reading"
+      "title": "AI 기반, 네이티브 국제화",
+      "subtitle": "AI로 창작을 확장하고 전 세계로 전달하는, 개발자를 위한 지능형 블로그 플랫폼입니다.",
+      "cta": "읽기 시작"
     },
     "latest_posts": {
-      "title": "Latest Posts"
+      "title": "최신 글"
     },
     "about": {
-      "description": "Momei Blog is dedicated to empowering creators through AI and deep internationalization, enabling content to be born global."
+      "description": "Momei Blog는 AI 보조와 깊은 국제화 지원을 통해 개발자가 더 효율적으로 좋은 콘텐츠를 만들고, 전 세계 독자에게 도달하도록 돕습니다."
     }
   }
 }

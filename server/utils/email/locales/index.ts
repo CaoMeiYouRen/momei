@@ -2,15 +2,17 @@
  * 邮件国际化配置导出
  */
 import { emailLocalesZhCN } from './zh-CN'
+import { emailLocalesZhTW } from './zh-TW'
 import { emailLocalesEnUS } from './en-US'
+import { emailLocalesKoKR } from './ko-KR'
 
 export type EmailLocaleType = keyof typeof emailLocalesZhCN
 
 export const EMAIL_SUPPORTED_LOCALES = {
     'zh-CN': emailLocalesZhCN,
-    'zh-TW': emailLocalesZhCN,
+    'zh-TW': emailLocalesZhTW,
     'en-US': emailLocalesEnUS,
-    'ko-KR': emailLocalesEnUS,
+    'ko-KR': emailLocalesKoKR,
 } as const
 
 export const DEFAULT_EMAIL_LOCALE = 'zh-CN'

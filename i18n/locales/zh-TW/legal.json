@@ -1,10 +1,10 @@
 {
   "legal": {
-    "user_agreement": "用户协议",
-    "privacy_policy": "隐私政策",
-    "agreement_checkbox": "我已阅读并同意 {agreement} 和 {privacy}",
-    "login_notice": "登录即代表您同意 {agreement} 和 {privacy}",
-    "notice": "注意：本协议及政策仅作为示例。本项目的开发者不对任何部署实例承担法律责任。具体的法律协议由当前网站的运营方与您签订，实际法律责任由网站部署者承担。",
-    "agreement_required": "请阅读并同意用户协议和隐私政策"
+    "user_agreement": "使用者協議",
+    "privacy_policy": "隱私政策",
+    "agreement_checkbox": "我已閱讀並同意 {agreement} 與 {privacy}",
+    "login_notice": "登入即代表您同意 {agreement} 與 {privacy}",
+    "notice": "注意：本協議與政策僅作為範例提供。本專案的開發者不對任何部署實例承擔法律責任。具體法律協議由目前網站的營運方與您簽訂，實際法律責任由網站部署者承擔。",
+    "agreement_required": "請閱讀並同意使用者協議與隱私政策"
   }
 }
