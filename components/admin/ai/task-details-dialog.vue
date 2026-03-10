@@ -163,7 +163,7 @@
                 <div class="bg-emphasis border-round p-3">
                     <audio
                         v-if="getTaskAudio(task)"
-                        :src="getTaskAudio(task)"
+                        :src="getTaskAudio(task) || undefined"
                         controls
                         class="w-full"
                     />
@@ -203,15 +203,31 @@
 </template>
 
 <script setup lang="ts">
+import { parseMaybeJson } from '@/utils/shared/coerce'
 import { formatCurrency, formatDecimal } from '@/utils/shared/number'
+import type {
+    AIAdminTaskDataValue,
+    AIAdminTaskListItem,
+    AICostDisplay,
+    AITaskStatus,
+} from '@/types/ai'
+
+function parseTaskDataValue(value: AIAdminTaskDataValue): Record<string, unknown> | null {
+    if (!value) {
+        return null
+    }
+
+    if (typeof value === 'string') {
+        return parseMaybeJson<Record<string, unknown> | null>(value, null)
+    }
+
+    return value
+}
 
 const props = defineProps<{
     visible: boolean
-    task: any
-    costDisplay?: {
-        currencyCode?: string
-        currencySymbol?: string
-    } | null
+    task: AIAdminTaskListItem | null
+    costDisplay?: AICostDisplay | null
 }>()
 
 defineEmits<{
@@ -221,7 +237,7 @@ defineEmits<{
 const currencySymbol = computed(() => props.costDisplay?.currencySymbol || '$')
 const formatMoney = (value: unknown) => formatCurrency(value, 2, currencySymbol.value)
 
-const getStatusSeverity = (status: string) => {
+const getStatusSeverity = (status: AITaskStatus) => {
     switch (status) {
         case 'completed': return 'success'
         case 'processing': return 'info'
@@ -230,7 +246,7 @@ const getStatusSeverity = (status: string) => {
     }
 }
 
-const getChargeStatusSeverity = (status: string) => {
+const getChargeStatusSeverity = (status: AIAdminTaskListItem['chargeStatus']) => {
     switch (status) {
         case 'actual': return 'success'
         case 'estimated': return 'warning'
@@ -239,17 +255,18 @@ const getChargeStatusSeverity = (status: string) => {
     }
 }
 
-const formatJson = (data: any) => {
+const formatJson = (data: AIAdminTaskDataValue) => {
     if (!data) return ''
-    try {
-        const parsed = typeof data === 'string' ? JSON.parse(data) : data
-        return JSON.stringify(parsed, null, 2)
-    } catch (e) {
-        return data.toString()
+
+    if (typeof data === 'string') {
+        const parsed = parseMaybeJson<unknown>(data, data)
+        return typeof parsed === 'string' ? parsed : JSON.stringify(parsed, null, 2)
     }
+
+    return JSON.stringify(data, null, 2)
 }
 
-const formatSize = (bytes: number) => {
+const formatSize = (bytes?: number | null) => {
     if (!bytes) return '0 B'
     const k = 1024
     const sizes = ['B', 'KB', 'MB', 'GB']
@@ -257,34 +274,38 @@ const formatSize = (bytes: number) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
-const formatDuration = (durationMs: number) => {
+const formatDuration = (durationMs?: number | null) => {
     const ms = Number(durationMs || 0)
     if (!ms) return '-'
     if (ms < 1000) return `${ms} ms`
     return `${(ms / 1000).toFixed(2)} s`
 }
 
-const getTaskImages = (task: any) => {
+const getTaskImages = (task: AIAdminTaskListItem | null) => {
     if (!task || task.type !== 'image_generation' || !task.result) return []
-    try {
-        const res = typeof task.result === 'string' ? JSON.parse(task.result) : task.result
-        if (res.images && Array.isArray(res.images)) {
-            return res.images.map((img: any) => img.url).filter(Boolean)
-        }
-        return []
-    } catch (e) {
+
+    const result = parseTaskDataValue(task.result)
+    const images = result?.images
+
+    if (!Array.isArray(images)) {
         return []
     }
+
+    return images.flatMap((image) => {
+        if (typeof image !== 'object' || image === null) {
+            return []
+        }
+
+        const { url } = image as { url?: unknown }
+        return typeof url === 'string' && url ? [url] : []
+    })
 }
 
-const getTaskAudio = (task: any) => {
+const getTaskAudio = (task: AIAdminTaskListItem | null) => {
     if (!task || !task.result) return null
-    try {
-        const res = typeof task.result === 'string' ? JSON.parse(task.result) : task.result
-        return res.audioUrl || null
-    } catch (e) {
-        return null
-    }
+
+    const result = parseTaskDataValue(task.result)
+    return typeof result?.audioUrl === 'string' && result.audioUrl ? result.audioUrl : null
 }
 </script>
 

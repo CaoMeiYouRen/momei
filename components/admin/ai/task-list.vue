@@ -211,27 +211,36 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import { formatCurrency, formatDecimal } from '@/utils/shared/number'
+import type {
+    AIAdminTaskListFilters,
+    AIAdminTaskListItem,
+    AIAdminTaskType,
+    AICostDisplay,
+    AITaskStatus,
+} from '@/types/ai'
+
+type AdminAiPageEvent = {
+    page: number
+    rows: number
+}
 
 const props = defineProps<{
-    tasks: any[]
+    tasks: AIAdminTaskListItem[]
     total: number
     loading: boolean
     pageSize: number
-    costDisplay?: {
-        currencyCode?: string
-        currencySymbol?: string
-    } | null
+    costDisplay?: AICostDisplay | null
 }>()
 
-const selection = defineModel<any[]>('selection', { default: () => [] })
-const filters = defineModel<any>('filters', { required: true })
+const selection = defineModel<AIAdminTaskListItem[]>('selection', { default: () => [] })
+const filters = defineModel<AIAdminTaskListFilters>('filters', { required: true })
 
 defineEmits<{
     (e: 'refresh'): void
-    (e: 'page-change', event: any): void
+    (e: 'page-change', event: AdminAiPageEvent): void
     (e: 'filter-change'): void
-    (e: 'show-details', task: any): void
-    (e: 'delete', task: any): void
+    (e: 'show-details', task: AIAdminTaskListItem): void
+    (e: 'delete', task: AIAdminTaskListItem): void
     (e: 'bulk-delete'): void
 }>()
 
@@ -254,7 +263,7 @@ const taskStatuses = computed(() => [
     { label: t('pages.admin.ai.statuses.failed'), value: 'failed' },
 ])
 
-const getTypeIcon = (type: string) => {
+const getTypeIcon = (type: AIAdminTaskType) => {
     switch (type) {
         case 'image_generation': return 'pi pi-image'
         case 'tts': return 'pi pi-volume-up'
@@ -264,7 +273,7 @@ const getTypeIcon = (type: string) => {
     }
 }
 
-const getStatusSeverity = (status: string) => {
+const getStatusSeverity = (status: AITaskStatus) => {
     switch (status) {
         case 'completed': return 'success'
         case 'processing': return 'info'
@@ -273,7 +282,7 @@ const getStatusSeverity = (status: string) => {
     }
 }
 
-const getChargeStatusSeverity = (status: string) => {
+const getChargeStatusSeverity = (status: AIAdminTaskListItem['chargeStatus']) => {
     switch (status) {
         case 'actual': return 'success'
         case 'estimated': return 'warning'
@@ -282,8 +291,8 @@ const getChargeStatusSeverity = (status: string) => {
     }
 }
 
-const formatDateTime = (date: any) => {
-    return dayjs(date).format('YYYY-MM-DD HH:mm')
+const formatDateTime = (date: string | Date | null) => {
+    return date ? dayjs(date).format('YYYY-MM-DD HH:mm') : '-'
 }
 </script>
 

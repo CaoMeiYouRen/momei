@@ -61,6 +61,32 @@
 import { ref, onMounted } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
+import type {
+    AIAdminStatsResponse,
+    AIAdminTaskListFilters,
+    AIAdminTaskListItem,
+    AIAdminTaskListResponse,
+    AICostDisplay,
+} from '@/types/ai'
+
+type AdminAiPageEvent = {
+    page: number
+    rows: number
+}
+
+function getErrorDetail(error: unknown, fallback: string) {
+    const candidate = error as {
+        data?: { message?: string, statusMessage?: string }
+        statusMessage?: string
+        message?: string
+    }
+
+    return candidate?.data?.message
+        || candidate?.data?.statusMessage
+        || candidate?.statusMessage
+        || candidate?.message
+        || fallback
+}
 
 const { t } = useI18n()
 const confirm = useConfirm()
@@ -71,34 +97,34 @@ definePageMeta({
 })
 
 const activeTab = ref('stats')
-const stats = ref<any>(null)
+const stats = ref<AIAdminStatsResponse | null>(null)
 const loadingStats = ref(false)
-const costDisplay = ref<any>(null)
+const costDisplay = ref<AICostDisplay | null>(null)
 
-const tasks = ref<any[]>([])
+const tasks = ref<AIAdminTaskListItem[]>([])
 const totalTasks = ref(0)
 const loadingTasks = ref(false)
-const selectedTasks = ref<any[]>([])
+const selectedTasks = ref<AIAdminTaskListItem[]>([])
 const page = ref(1)
 const pageSize = ref(10)
 
-const filters = ref({
+const filters = ref<AIAdminTaskListFilters>({
     search: '',
     type: null,
     status: null,
 })
 
 const detailsVisible = ref(false)
-const selectedTask = ref<any>(null)
+const selectedTask = ref<AIAdminTaskListItem | null>(null)
 
 const loadStats = async () => {
     loadingStats.value = true
     try {
-        const response: any = await $fetch('/api/admin/ai/stats')
+        const response = await $fetch<AIAdminStatsResponse>('/api/admin/ai/stats')
         stats.value = response
-        costDisplay.value = response.costDisplay || costDisplay.value
-    } catch (e: any) {
-        toast.add({ severity: 'error', summary: 'Error', detail: e.message })
+        costDisplay.value = response.costDisplay
+    } catch (error: unknown) {
+        toast.add({ severity: 'error', summary: 'Error', detail: getErrorDetail(error, 'Failed to load AI stats') })
     } finally {
         loadingStats.value = false
     }
@@ -107,7 +133,7 @@ const loadStats = async () => {
 const loadTasks = async () => {
     loadingTasks.value = true
     try {
-        const response: any = await $fetch('/api/admin/ai/tasks', {
+        const response = await $fetch<AIAdminTaskListResponse>('/api/admin/ai/tasks', {
             query: {
                 page: page.value,
                 pageSize: pageSize.value,
@@ -118,31 +144,31 @@ const loadTasks = async () => {
         })
         tasks.value = response.items
         totalTasks.value = response.total
-        costDisplay.value = response.costDisplay || costDisplay.value
-    } catch (e: any) {
-        toast.add({ severity: 'error', summary: 'Error', detail: e.message })
+        costDisplay.value = response.costDisplay
+    } catch (error: unknown) {
+        toast.add({ severity: 'error', summary: 'Error', detail: getErrorDetail(error, 'Failed to load AI tasks') })
     } finally {
         loadingTasks.value = false
     }
 }
 
-const onPage = (event: any) => {
+const onPage = (event: AdminAiPageEvent) => {
     page.value = event.page + 1
     pageSize.value = event.rows
-    loadTasks()
+    void loadTasks()
 }
 
 const onFilterChange = () => {
     page.value = 1
-    loadTasks()
+    void loadTasks()
 }
 
-const showDetails = (task: any) => {
+const showDetails = (task: AIAdminTaskListItem) => {
     selectedTask.value = task
     detailsVisible.value = true
 }
 
-const confirmDelete = (task: any) => {
+const confirmDelete = (task: AIAdminTaskListItem) => {
     confirm.require({
         message: t('pages.admin.ai.delete_confirm'),
         header: t('common.confirm_delete'),
@@ -163,10 +189,9 @@ const confirmDelete = (task: any) => {
                     query: { ids: task.id },
                 })
                 toast.add({ severity: 'success', summary: t('common.success'), life: 3000 })
-                loadTasks()
-                loadStats()
-            } catch (e: any) {
-                toast.add({ severity: 'error', summary: 'Error', detail: e.message })
+                await Promise.all([loadTasks(), loadStats()])
+            } catch (error: unknown) {
+                toast.add({ severity: 'error', summary: 'Error', detail: getErrorDetail(error, 'Failed to delete AI task') })
             }
         },
     })
@@ -179,25 +204,24 @@ const confirmBulkDelete = () => {
         icon: 'pi pi-exclamation-triangle',
         accept: async () => {
             try {
-                const ids = selectedTasks.value.map((t) => t.id).join(',')
+                const ids = selectedTasks.value.map((task) => task.id).join(',')
                 await $fetch('/api/admin/ai/tasks', {
                     method: 'DELETE',
                     query: { ids },
                 })
                 toast.add({ severity: 'success', summary: t('common.success'), life: 3000 })
                 selectedTasks.value = []
-                loadTasks()
-                loadStats()
-            } catch (e: any) {
-                toast.add({ severity: 'error', summary: 'Error', detail: e.message })
+                await Promise.all([loadTasks(), loadStats()])
+            } catch (error: unknown) {
+                toast.add({ severity: 'error', summary: 'Error', detail: getErrorDetail(error, 'Failed to delete AI tasks') })
             }
         },
     })
 }
 
 onMounted(() => {
-    loadStats()
-    loadTasks()
+    void loadStats()
+    void loadTasks()
 })
 </script>
 

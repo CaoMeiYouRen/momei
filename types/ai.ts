@@ -1,6 +1,16 @@
 // --- Categories ---
 export type AICategory = 'text' | 'image' | 'tts' | 'asr' | 'video' | 'podcast'
 
+export type AITaskStatus = 'pending' | 'processing' | 'completed' | 'failed'
+
+export type AIAdminTaskType =
+    | 'text_generation'
+    | 'image_generation'
+    | 'tts'
+    | 'podcast'
+    | 'transcription'
+    | (string & {})
+
 export type AIChargeStatus = 'none' | 'estimated' | 'actual' | 'waived'
 
 export type AIFailureStage = 'preflight' | 'provider_rejected' | 'provider_processing' | 'post_process'
@@ -63,6 +73,130 @@ export interface AICostFactors {
     quotaUnitPrice: number
     exchangeRates: Record<string, number>
     providerCurrencies: Record<string, string>
+}
+
+export interface AICostDisplay {
+    currencyCode: string
+    currencySymbol: string
+    quotaUnitPrice: number
+}
+
+export type AIAdminTaskDataValue = string | Record<string, unknown> | null
+
+export interface AIAdminTaskListFilters {
+    search: string
+    type: AIAdminTaskType | null
+    status: AITaskStatus | null
+}
+
+export interface AIAdminTaskListItem {
+    id: string
+    category: AICategory | null
+    type: AIAdminTaskType
+    status: AITaskStatus
+    provider: string | null
+    model: string | null
+    estimatedCost: number
+    actualCost: number
+    estimatedQuotaUnits: number
+    quotaUnits: number
+    chargeStatus: AIChargeStatus | null
+    failureStage: AIFailureStage | null
+    durationMs: number
+    usageSnapshot: AIAdminTaskDataValue
+    createdAt: string | Date
+    startedAt: string | Date | null
+    completedAt: string | Date | null
+    userId: string
+    payload: AIAdminTaskDataValue
+    result: AIAdminTaskDataValue
+    error: string | null
+    audioDuration: number
+    audioSize: number
+    textLength: number
+    language: string | null
+    user_name: string | null
+    user_email: string | null
+    user_image: string | null
+}
+
+export interface AIAdminTaskListResponse {
+    items: AIAdminTaskListItem[]
+    total: number
+    costDisplay: AICostDisplay
+}
+
+export interface AIAdminStatsOverview {
+    totalTasks: number
+    estimatedCost: number
+    actualCost: number
+    estimatedQuotaUnits: number
+    quotaUnits: number
+    avgDurationMs: number
+    successRate: number
+    failureRate: number
+}
+
+export interface AIAdminStatusStat {
+    status: AITaskStatus
+    count: number
+}
+
+export interface AIAdminTypeStat {
+    type: AIAdminTaskType
+    count: number
+}
+
+export interface AIAdminCategoryStat {
+    category: AICategory | null
+    count: number
+    actualCost: number
+    quotaUnits: number
+}
+
+export interface AIAdminChargeStatusStat {
+    chargeStatus: AIChargeStatus
+    count: number
+}
+
+export interface AIAdminFailureStageStat {
+    failureStage: AIFailureStage
+    count: number
+}
+
+export interface AIAdminModelStat {
+    provider: string | null
+    model: string | null
+    count: number
+}
+
+export interface AIAdminTopUserStat {
+    userId: string
+    name: string | null
+    actualCost: number
+    quotaUnits: number
+    taskCount: number
+}
+
+export interface AIAdminDailyTrendStat {
+    date: string
+    count: number
+    actualCost: number
+    quotaUnits: number
+}
+
+export interface AIAdminStatsResponse {
+    overview: AIAdminStatsOverview
+    statusStats: AIAdminStatusStat[]
+    typeStats: AIAdminTypeStat[]
+    categoryStats: AIAdminCategoryStat[]
+    chargeStatusStats: AIAdminChargeStatusStat[]
+    failureStageStats: AIAdminFailureStageStat[]
+    modelStats: AIAdminModelStat[]
+    topUsers: AIAdminTopUserStat[]
+    dailyTrend: AIAdminDailyTrendStat[]
+    alerts: AIUsageAlert[]
+    costDisplay: AICostDisplay
 }
 
 export interface AIUsageAlert {

@@ -161,7 +161,7 @@
                     <div class="stats-list">
                         <div
                             v-for="categoryItem in stats.categoryStats || []"
-                            :key="categoryItem.category"
+                            :key="categoryItem.category || 'uncategorized'"
                             class="stats-item"
                         >
                             <span class="label">{{ $t(`pages.admin.ai.types.${categoryItem.category}`) }}</span>
@@ -218,29 +218,33 @@
 
 <script setup lang="ts">
 import { formatCurrency, formatDecimal } from '@/utils/shared/number'
-import type { AIUsageAlert } from '@/types/ai'
+import type {
+    AIAdminStatsResponse,
+    AICostDisplay,
+    AIUsageAlert,
+    AITaskStatus,
+} from '@/types/ai'
 
 const props = defineProps<{
-    stats: any
+    stats: AIAdminStatsResponse | null
     loading: boolean
-    costDisplay?: {
-        currencyCode?: string
-        currencySymbol?: string
-    } | null
+    costDisplay?: AICostDisplay | null
 }>()
 
 const { t } = useI18n()
 const currencySymbol = computed(() => props.costDisplay?.currencySymbol || '$')
 
 const getTotalTasks = () => {
-    return props.stats?.overview?.totalTasks || props.stats?.statusStats?.reduce((acc: number, s: any) => acc + Number(s.count), 0) || 0
+    return props.stats?.overview.totalTasks
+        || props.stats?.statusStats.reduce((acc, stat) => acc + stat.count, 0)
+        || 0
 }
 
-const getStatusCount = (status: string) => {
-    return props.stats?.statusStats?.find((s: any) => s.status === status)?.count || 0
+const getStatusCount = (status: AITaskStatus) => {
+    return props.stats?.statusStats.find((stat) => stat.status === status)?.count || 0
 }
 
-const formatPercent = (value: number) => {
+const formatPercent = (value?: number | null) => {
     return `${((value || 0) * 100).toFixed(1)}%`
 }
 
