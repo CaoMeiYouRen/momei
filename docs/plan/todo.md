@@ -33,18 +33,34 @@
 	- 验收: 首轮仅覆盖管理员站务通知、AI / ASR / TTS 等异步任务完成提醒，明确不纳入营销通知与低价值提醒。
 	- 验收: 管理端可配置浏览器通知开关，并与现有邮件通知策略保持一致。
 
-### 2. 代码质量与工程化 (Code Quality & Engineering) (P0)
+### 2. 代码质量与工程化 (Code Quality & Engineering) (P0, 进行中)
 
-- [ ] **核心路径类型治理**
+- [ ] **核心路径类型治理** (进行中)
 	- 验收: 为通知、设置、编辑器、AI 相关核心模块建立 `any` 清单，按优先级完成首轮消减与类型收敛。
 	- 验收: 新增或重构的接口边界统一使用共享 schema / type，避免继续扩散隐式对象结构。
+	- 当前拆解:
+		- [ ] 基线盘点：围绕 `pages/admin/ai/index.vue`、`components/admin/ai/*`、`components/admin/settings/*.vue`、`components/admin/posts/post-editor-*`、`components/app-notifications.vue`、`composables/use-admin-list.ts`、`composables/use-app-fetch.ts` 建立首轮 `any` 清单，并按“请求边界 -> 列表页 -> 详情/弹窗 -> 设置页”排序处理。
+		- [ ] AI 管理域收口：补齐 `types/ai.ts` 周边的共享类型，新增任务列表项、任务详情、统计面板、成本展示等前后端共用 type，优先替换 `pages/admin/ai/index.vue` 与 `components/admin/ai/task-list.vue`、`stats-overview.vue`、`task-details-dialog.vue` 中的 `any`。
+		- [ ] 设置与主题收口：为 `components/admin/settings/ai-settings.vue`、`general-settings.vue`、`theme-config-section.vue`、`theme-preview-section.vue` 的 `settings` / `metadata` / theme key 建立明确类型，减少 `defineModel<any>`、`Record<string, any>` 和颜色 key 的隐式写法。
+		- [ ] 公共请求层收口：收紧 `useAdminList` 与 `useAppFetch` 的泛型、查询参数和返回结构，统一 `items` / `total` / `costDisplay` 等契约，避免 `options: any`、`filters: any`、`response: any` 继续向页面层扩散。
 - [ ] **AI 成本口径统一与货币展示**
 	- 验收: TTS provider 预估接口命名与调用链统一，避免同类能力出现多套成本估算入口。
 	- 验收: 基于系统设置提供 `AI_COST_FACTORS`，由管理员统一配置展示货币、符号、额度单价与汇率。
 	- 验收: 后台 AI 统计、任务列表、任务详情和文章 TTS 弹窗统一消费同一套成本映射与货币展示配置，不再混用美元与人民币符号。
+	- 当前拆解:
+		- [ ] 事实源统一：以 `server/utils/ai/cost-governance.ts`、`server/services/ai/cost-display.ts` 与 `AI_COST_FACTORS` 为唯一成本口径，梳理 provider 原始成本、quota 单价、汇率换算与展示货币的责任边界。
+		- [ ] TTS 预估命名收口：梳理 `TTSService.estimateProviderCost`、`TTSService.estimateCost`、`/api/ai/tts/estimate` 三层命名与返回结构，统一成“provider 原始估算 + display cost 展示值”的单一路径，避免后续再出现平行入口。
+		- [ ] 前端展示收口：为 AI 后台页和文章 TTS 弹窗新增共享 `AICostDisplay` 类型/格式化入口，统一替换 `components/admin/ai/*` 与 `components/admin/posts/post-tts-dialog.vue` 中各自维护的 `currencySymbol`、`currencyCode`、`formatMoney` 与默认币种回退逻辑。
+		- [ ] 定向回归：补齐 `/api/admin/ai/stats`、`/api/admin/ai/tasks`、`/api/ai/tts/estimate` 的契约测试，并补充 AI 后台页和 TTS 弹窗的定向回归，确保展示符号、汇率与金额精度一致。
 - [ ] **复用抽象与质量门禁**
 	- 验收: 抽离至少一组高重复的管理端列表、表单或服务逻辑为共享能力，并通过既有场景复用验证。
 	- 验收: 收紧 ESLint、TypeScript、i18n audit 与定向测试门禁，确保新增代码默认纳入质量检查。
+	- 当前拆解:
+		- [ ] 工具函数去重：优先抽离 AI 管理页中的状态 Tag severity、成本格式化、日期展示、JSON 序列化等重复函数，并检查 `utils/`、`server/utils/`、`composables/` 内完全相同或高度相似的 helper，统一归并到共享工具层。
+		- [ ] 样式复用：以 `components/admin/settings/theme-config-section.vue`、`theme-preview-section.vue`、`components/admin/posts/post-editor-settings.vue` 为首批样本，抽离可复用的 `form-group`、`color-input-group`、输入附加器和 AI 详情块样式，沉淀到共享 SCSS 片段或管理端公共样式层。
+		- [ ] 模板与组件复用：针对主题设置、AI 统计卡片、AI 详情指标块和管理端表单项提炼可复用的展示组件或 slot 模板，减少同类 `<label + 输入 + 锁定提示>`、`<标题 + 指标 + 图标>`、`<label + value>` 结构的重复。
+		- [ ] 大文件拆分：首轮优先拆分 `components/admin/posts/post-tts-dialog.vue`、`components/admin/settings/theme-config-section.vue`、`components/admin/posts/post-editor-settings.vue`、`pages/admin/ai/index.vue`，按“容器页 / 纯展示组件 / composable / 样式”分层，避免继续向 500+ 行增长。
+		- [ ] 质量门禁收紧：在首轮重构范围内同步补齐 lint、typecheck、i18n audit 与定向测试清单；新增代码默认要求无新增 `any`、有共享类型边界、并覆盖至少一条对应回归用例。
 
 ### 3. 国际化与本地化增强 (I18n & L10n Enhancements) (P1)
 
@@ -52,7 +68,7 @@
 	- 验收: 首页、文章列表等文章卡片改为链接语义导航，不再仅依赖按钮或整卡点击跳转。
 	- 验收: 沉浸式阅读开启后自动隐藏 Live2D 挂件，避免打断阅读。
 	- 验收: 登录页首次进入时确保认证文案模块已预加载，`pages.login.submit` 等按钮文案不再缺失。
-- [ ] **新增繁体中文与韩语支持** (进行中)
+- [x] **新增繁体中文与韩语支持** (进行中)
 	- 验收: Locale Registry、新语言词条、语言切换入口与回退策略完成接入。
 	- 验收: 首轮至少覆盖公共页面、认证、核心设置与 Demo / Onboarding 关键链路。
 	- 验收: 文档站补齐繁体中文与韩语首页、快速开始与翻译治理页面。
@@ -61,15 +77,15 @@
 		- [x] 基础接入：扩展 Locale Registry、PrimeVue locale 与语言切换入口。
 		- [x] 词条补齐：完成 `common / components / public / settings / legal / auth / home / demo / admin / email` 首轮翻译补齐。
 		- [x] 文档站接入：补齐 `zh-TW` / `ko-KR` 首页、快速开始与翻译治理页面。
-		- [ ] 质量校验：补齐 locale registry、模块加载、登录页与 Onboarding 的定向测试，并执行 i18n audit。
-- [ ] **翻译治理与贡献流程**
+		- [x] 质量校验：补齐 locale registry、模块加载、登录页与 Onboarding 的定向测试，并执行 i18n audit。
+- [x] **翻译治理与贡献流程**
 	- 验收: 建立新增语言准入 checklist、术语约束与翻译贡献指南。
 	- 验收: 补齐 i18n audit、SEO、邮件文本的定向回归校验，避免出现“UI 已翻译、系统链路未跟上”的半完成语种。
 	- 当前拆解:
 		- [x] 准入策略：新增语言默认以 `ui-ready` 接入，待邮件与 SEO 回归齐备后再升级到 `seo-ready`。
 		- [x] 治理清单：沉淀模块 parity、PrimeVue、邮件 locale、SEO 与 sitemap 五类发布门禁。
 		- [x] 贡献指南：补充新增语言的术语约束、翻译流程与回归命令说明。
-		- [ ] 发布回归：补齐 i18n audit、SEO 与邮件链路的定向回归记录。
+		- [x] 发布回归：补齐 i18n audit、SEO 与邮件链路的定向回归记录。
 
 ### 4. 反馈与互动增强 (Feedback & Interaction Enhancement) (P1)
 
