@@ -64,6 +64,7 @@ if (process.env.NUXT_PUBLIC_DEMO_MODE === "true") {
 ## 4. 安全与维护 (Security & Maintenance)
 
 -   **状态隔离**: 演示账号不具备修改系统级敏感配置（如环境变量、密钥）的权限。
+-   **敏感面收口**: Demo Guard 需额外拦截 `/api/admin/settings`、`/api/auth/admin`、`/api/user/api-keys` 等系统设置与管理敏感接口，避免共享演示环境中的配置、用户信息和密钥元数据被读取或修改。
 -   **会话控制**: 演示模式的 Session 过期时间较短（如 1 小时）。
 -   **性能**: 内存数据库可极大提升 Demo 环境响应速度。
 

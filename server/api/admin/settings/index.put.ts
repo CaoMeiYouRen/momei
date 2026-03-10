@@ -5,6 +5,7 @@ import { parseMaybeJson } from '@/utils/shared/coerce'
 import { success } from '@/server/utils/response'
 import { setSettings } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
+import { assertDemoModeRequestAllowed } from '@/server/utils/demo-security'
 
 const settingAuditSourceSchema = z.enum(['admin_ui', 'theme_settings', 'commercial_settings', 'api'])
 
@@ -14,7 +15,18 @@ const settingsUpdateSchema = z.object({
     source: settingAuditSourceSchema.optional(),
 }).loose()
 
+export function assertDemoSettingsWriteAllowed(
+    method = 'PUT',
+    runtimeConfig: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig(),
+) {
+    if (runtimeConfig.public.demoMode === true) {
+        assertDemoModeRequestAllowed('/api/admin/settings', method)
+    }
+}
+
 export default defineEventHandler(async (event) => {
+    assertDemoSettingsWriteAllowed(event.method || 'PUT')
+
     const session = await requireAdmin(event)
 
     const body = await readValidatedBody(event, (payload) => settingsUpdateSchema.parse(payload))
