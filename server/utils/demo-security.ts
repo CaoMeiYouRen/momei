@@ -21,12 +21,12 @@ const sensitiveWriteRestriction = {
 }
 
 const demoReadRestrictedPrefixes = [
-    '/api/admin/settings',
     '/api/auth/admin',
     '/api/user/api-keys',
 ] as const
 
 const demoWriteRestrictedPrefixes = [
+    '/api/admin/settings',
     ...demoReadRestrictedPrefixes,
     '/api/auth/update-user',
     '/api/auth/change-password',

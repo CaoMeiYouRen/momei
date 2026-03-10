@@ -4,7 +4,7 @@ import { isAdmin } from '@/utils/shared/roles'
 /**
  * 管理员权限中间件 (需要登录且具有管理员角色)
  */
-export default defineNuxtRouteMiddleware(async () => {
+export default defineNuxtRouteMiddleware(async (to) => {
     const localePath = useLocalePath()
 
     const { data: session } = await authClient.useSession((url, options) => useFetch(url, {
@@ -16,7 +16,12 @@ export default defineNuxtRouteMiddleware(async () => {
     }))
 
     if (!session.value) {
-        return navigateTo(localePath('/login'))
+        return navigateTo({
+            path: localePath('/login'),
+            query: {
+                redirect: to.fullPath,
+            },
+        })
     }
 
     if (!isAdmin(session.value.user.role)) {

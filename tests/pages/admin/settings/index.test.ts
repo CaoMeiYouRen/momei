@@ -6,6 +6,8 @@ import SettingsPage from '@/pages/admin/settings/index.vue'
 
 const translations: Record<string, string> = {
     'pages.admin.settings.system.smart_mode.title': '智能混合模式说明',
+    'pages.admin.settings.system.demo_preview.title': '演示模式样例数据',
+    'pages.admin.settings.system.demo_preview.description': '当前页面展示的是脱敏后的演示样例，用于说明系统设置能力。读取已切换为安全预览数据，保存、删除等修改操作仍会被拦截。',
 }
 
 function translate(key: string, params?: Record<string, string>) {
@@ -39,60 +41,63 @@ const mockToast = {
 }
 
 const mockSettingsResponse = {
-    data: [
-        {
-            key: 'site_title',
-            value: 'Momei',
-            description: 'site title',
-            level: 2,
-            maskType: 'none',
-            source: 'db',
-            isLocked: false,
-            envKey: 'NUXT_PUBLIC_APP_NAME',
-            defaultUsed: false,
-            lockReason: null,
-            requiresRestart: false,
-        },
-        {
-            key: 'github_client_id',
-            value: '',
-            description: 'github client id',
-            level: 2,
-            maskType: 'none',
-            source: 'default',
-            isLocked: true,
-            envKey: 'NUXT_PUBLIC_GITHUB_CLIENT_ID',
-            defaultUsed: true,
-            lockReason: 'forced_env_lock',
-            requiresRestart: true,
-        },
-        {
-            key: 'max_upload_size',
-            value: '4.5MiB',
-            description: 'max upload size',
-            level: 1,
-            maskType: 'none',
-            source: 'db',
-            isLocked: false,
-            envKey: 'NUXT_PUBLIC_MAX_UPLOAD_SIZE',
-            defaultUsed: false,
-            lockReason: null,
-            requiresRestart: false,
-        },
-        {
-            key: 'upload_limit_window',
-            value: '86400',
-            description: 'upload limit window',
-            level: 1,
-            maskType: 'none',
-            source: 'db',
-            isLocked: false,
-            envKey: 'UPLOAD_LIMIT_WINDOW',
-            defaultUsed: false,
-            lockReason: null,
-            requiresRestart: false,
-        },
-    ],
+    data: {
+        items: [
+            {
+                key: 'site_title',
+                value: 'Momei',
+                description: 'site title',
+                level: 2,
+                maskType: 'none',
+                source: 'db',
+                isLocked: false,
+                envKey: 'NUXT_PUBLIC_APP_NAME',
+                defaultUsed: false,
+                lockReason: null,
+                requiresRestart: false,
+            },
+            {
+                key: 'github_client_id',
+                value: '',
+                description: 'github client id',
+                level: 2,
+                maskType: 'none',
+                source: 'default',
+                isLocked: true,
+                envKey: 'NUXT_PUBLIC_GITHUB_CLIENT_ID',
+                defaultUsed: true,
+                lockReason: 'forced_env_lock',
+                requiresRestart: true,
+            },
+            {
+                key: 'max_upload_size',
+                value: '4.5MiB',
+                description: 'max upload size',
+                level: 1,
+                maskType: 'none',
+                source: 'db',
+                isLocked: false,
+                envKey: 'NUXT_PUBLIC_MAX_UPLOAD_SIZE',
+                defaultUsed: false,
+                lockReason: null,
+                requiresRestart: false,
+            },
+            {
+                key: 'upload_limit_window',
+                value: '86400',
+                description: 'upload limit window',
+                level: 1,
+                maskType: 'none',
+                source: 'db',
+                isLocked: false,
+                envKey: 'UPLOAD_LIMIT_WINDOW',
+                defaultUsed: false,
+                lockReason: null,
+                requiresRestart: false,
+            },
+        ],
+        demoPreview: true,
+    },
 }
 
 const mockFetch = vi.fn((url: string, options?: { method?: string, body?: unknown }) => {
@@ -175,6 +180,7 @@ describe('Admin Settings Page', () => {
                     TabPanels: { template: '<div><slot /></div>' },
                     TabPanel: { template: '<div><slot /></div>' },
                     Button: { template: '<button @click="$emit(\'click\')"><slot /></button>' },
+                    Message: { template: '<div><slot /></div>' },
                     Tag: { props: ['value'], template: '<span>{{ value }}</span>' },
                 },
             },
@@ -183,6 +189,7 @@ describe('Admin Settings Page', () => {
         await flushPromises()
 
         expect(wrapper.text()).toContain('智能混合模式说明')
+        expect(wrapper.text()).toContain('演示模式样例数据')
 
         // @ts-expect-error access exposed script setup binding for test
         await wrapper.vm.saveSettings()

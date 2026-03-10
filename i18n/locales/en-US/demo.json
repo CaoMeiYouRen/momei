@@ -2,6 +2,8 @@
   "demo": {
     "banner_text": "Demo Mode is active. You can explore all features, but data will be reset periodically.",
     "start_tour": "Start Tour",
+    "collapse_banner": "Collapse banner",
+    "expand_banner": "Expand banner",
     "journey_badge": "3-5 Minute Journey",
     "journey_title": "Explore public content, then try AI creation",
     "current_stage": "Recommended stage: {stage}",
@@ -23,8 +25,8 @@
       },
       "creator_mode": {
         "label": "Enter creator mode",
-        "description": "Go to the login page, auto-fill the demo account, and continue into the AI editor.",
-        "action": "Start creating"
+        "description": "Jump straight to the editor; if you are not signed in yet, the app will send you to login and then return you to the editor.",
+        "action": "Open editor"
       }
     },
     "tour": {

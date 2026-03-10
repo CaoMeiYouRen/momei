@@ -13,6 +13,18 @@
 
         <Card>
             <template #content>
+                <Message
+                    v-if="isDemoPreview"
+                    severity="info"
+                    :closable="false"
+                    class="admin-system-settings__demo-notice"
+                >
+                    <div class="admin-system-settings__demo-copy">
+                        <strong>{{ $t('pages.admin.settings.system.demo_preview.title') }}</strong>
+                        <p>{{ $t('pages.admin.settings.system.demo_preview.description') }}</p>
+                    </div>
+                </Message>
+
                 <SettingExplanationCard :stats="smartModeStats" />
 
                 <Tabs v-model:value="activeTab">
@@ -154,12 +166,16 @@ interface SettingMetadata {
 }
 
 interface SettingsApiResponse {
-    data: SettingItem[]
+    data: {
+        items: SettingItem[]
+        demoPreview?: boolean
+    }
 }
 
 const loading = ref(true)
 const saving = ref(false)
 const activeTab = ref('general')
+const isDemoPreview = ref(false)
 const settings = ref<Record<string, SettingFormValue>>({})
 const metadata = ref<Record<string, SettingMetadata>>({})
 
@@ -214,13 +230,30 @@ const smartModeStats = computed(() => {
     }
 })
 
+function getErrorDetail(error: unknown, fallback: string) {
+    const candidate = error as {
+        data?: { message?: string, statusMessage?: string }
+        statusMessage?: string
+        message?: string
+    }
+
+    return candidate?.data?.message
+        || candidate?.data?.statusMessage
+        || candidate?.statusMessage
+        || candidate?.message
+        || fallback
+}
+
 const loadSettings = async () => {
     try {
         const { data } = await $appFetch<SettingsApiResponse>('/api/admin/settings')
         const obj: Record<string, SettingFormValue> = {}
         const meta: Record<string, SettingMetadata> = {}
+        const items = data.items || []
 
-        data.forEach((setting) => {
+        isDemoPreview.value = Boolean(data.demoPreview)
+
+        items.forEach((setting) => {
             obj[setting.key] = normalizeFormValue(setting)
             meta[setting.key] = {
                 isLocked: setting.isLocked,
@@ -235,7 +268,7 @@ const loadSettings = async () => {
         settings.value = obj
         metadata.value = meta
     } catch (error) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.error_loading'), life: 3000 })
+        toast.add({ severity: 'error', summary: t('common.error'), detail: getErrorDetail(error, t('common.error_loading')), life: 3000 })
     } finally {
         loading.value = false
     }
@@ -263,7 +296,7 @@ const saveSettings = async () => {
         await loadSettings()
         toast.add({ severity: 'success', summary: t('common.success'), detail: t('common.save_success'), life: 3000 })
     } catch (error) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.error_saving'), life: 3000 })
+        toast.add({ severity: 'error', summary: t('common.error'), detail: getErrorDetail(error, t('common.error_saving')), life: 3000 })
     } finally {
         saving.value = false
     }
@@ -278,5 +311,19 @@ onMounted(() => {
 .admin-system-settings {
     max-width: 1000px;
     margin: 0 auto;
+
+    &__demo-notice {
+        margin-bottom: 1rem;
+    }
+
+    &__demo-copy {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+
+        p {
+            margin: 0;
+        }
+    }
 }
 </style>

@@ -1,5 +1,14 @@
 <template>
     <div class="admin-notifications">
+        <Message
+            v-if="demoPreview"
+            severity="info"
+            :closable="false"
+            class="mb-4"
+        >
+            {{ $t('pages.admin.settings.system.demo_preview.description') }}
+        </Message>
+
         <div class="mb-4">
             <h3 class="font-bold mb-2 text-xl">
                 {{ $t('pages.admin.settings.system.notifications.title') }}
@@ -56,18 +65,40 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const toast = useToast()
+const { $appFetch } = useAppApi()
 
 const settings = ref<any[]>([])
 const loading = ref(false)
 const saving = ref(false)
+const demoPreview = ref(false)
+
+function getErrorDetail(error: unknown, fallback: string) {
+    const candidate = error as {
+        data?: { message?: string, statusMessage?: string }
+        statusMessage?: string
+        message?: string
+    }
+
+    return candidate?.data?.message
+        || candidate?.data?.statusMessage
+        || candidate?.statusMessage
+        || candidate?.message
+        || fallback
+}
 
 const load = async () => {
     loading.value = true
     try {
-        const response = await $fetch<{ data: any[] }>('/api/admin/settings/notifications/admin')
-        settings.value = response.data
-    } catch (e) {
-        console.error('Failed to load admin notifications', e)
+        const response = await $appFetch<{ data: { items: any[], demoPreview?: boolean } }>('/api/admin/settings/notifications/admin')
+        settings.value = response.data.items || []
+        demoPreview.value = Boolean(response.data.demoPreview)
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: getErrorDetail(error, t('common.error_loading')),
+            life: 5000,
+        })
     } finally {
         loading.value = false
     }
@@ -76,7 +107,7 @@ const load = async () => {
 const save = async () => {
     saving.value = true
     try {
-        await $fetch('/api/admin/settings/notifications/admin', {
+        await $appFetch('/api/admin/settings/notifications/admin', {
             method: 'PUT',
             body: settings.value,
         })
@@ -86,12 +117,11 @@ const save = async () => {
             detail: t('common.save_success'),
             life: 3000,
         })
-    } catch (e) {
-        console.error('Failed to save admin notifications', e)
+    } catch (error) {
         toast.add({
             severity: 'error',
             summary: t('common.error'),
-            detail: t('common.save_failed'),
+            detail: getErrorDetail(error, t('common.save_failed')),
             life: 5000,
         })
     } finally {

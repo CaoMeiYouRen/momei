@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { getSettingAuditLogs } from '@/server/services/setting-audit'
+import { getDemoSettingAuditLogsPreview } from '@/server/utils/demo-settings'
 import { requireAdmin } from '@/server/utils/permission'
 import { success } from '@/server/utils/response'
 
@@ -14,7 +15,15 @@ export default defineEventHandler(async (event) => {
 
     const queryResult = querySchema.safeParse(getQuery(event))
     const query = queryResult.success ? queryResult.data : { page: 1, limit: 10 }
+
+    if (useRuntimeConfig().public.demoMode === true) {
+        return success(getDemoSettingAuditLogsPreview(query.page, query.limit))
+    }
+
     const data = await getSettingAuditLogs(query)
 
-    return success(data)
+    return success({
+        ...data,
+        demoPreview: false,
+    })
 })

@@ -1,21 +1,48 @@
 <template>
     <div v-if="config.public.demoMode" class="demo-banner">
-        <div class="demo-banner__content">
-            <div class="demo-banner__intro">
-                <div class="demo-banner__eyebrow">
-                    <span class="demo-banner__badge">{{ $t('demo.journey_badge') }}</span>
-                    <span class="demo-banner__stage">{{ $t('demo.current_stage', {stage: $t(`demo.stages.${currentStage}`)}) }}</span>
+        <div class="demo-banner__content" :class="{'demo-banner__content--collapsed': isCollapsed}">
+            <div class="demo-banner__top-row">
+                <div class="demo-banner__intro">
+                    <div class="demo-banner__eyebrow">
+                        <span class="demo-banner__badge">{{ $t('demo.journey_badge') }}</span>
+                        <span class="demo-banner__stage">{{ $t('demo.current_stage', {stage: $t(`demo.stages.${currentStage}`)}) }}</span>
+                    </div>
+                    <div class="demo-banner__headline">
+                        <i class="demo-banner__icon pi pi-info-circle" />
+                        <span class="demo-banner__title">{{ $t('demo.journey_title') }}</span>
+                    </div>
+                    <p v-if="!isCollapsed" class="demo-banner__text">
+                        {{ $t('demo.banner_text') }}
+                    </p>
                 </div>
-                <div class="demo-banner__headline">
-                    <i class="demo-banner__icon pi pi-info-circle" />
-                    <span class="demo-banner__title">{{ $t('demo.journey_title') }}</span>
+
+                <div class="demo-banner__actions">
+                    <button
+                        v-if="isCollapsed"
+                        type="button"
+                        class="demo-banner__btn demo-banner__btn--primary"
+                        @click="openDemoPath(creatorEntry.to, creatorEntry.stage)"
+                    >
+                        {{ creatorEntry.action }}
+                    </button>
+                    <button
+                        type="button"
+                        class="demo-banner__btn"
+                        @click="startTour"
+                    >
+                        {{ $t('demo.start_tour') }}
+                    </button>
+                    <button
+                        type="button"
+                        class="demo-banner__toggle"
+                        @click="toggleCollapsed"
+                    >
+                        {{ isCollapsed ? $t('demo.expand_banner') : $t('demo.collapse_banner') }}
+                    </button>
                 </div>
-                <p class="demo-banner__text">
-                    {{ $t('demo.banner_text') }}
-                </p>
             </div>
 
-            <div class="demo-banner__paths">
+            <div v-if="!isCollapsed" class="demo-banner__paths">
                 <button
                     v-for="entry in demoEntries"
                     :key="entry.key"
@@ -31,22 +58,14 @@
                     <span class="demo-banner__path-action">{{ entry.action }}</span>
                 </button>
             </div>
-
-            <div class="demo-banner__actions">
-                <button
-                    type="button"
-                    class="demo-banner__btn"
-                    @click="startTour"
-                >
-                    {{ $t('demo.start_tour') }}
-                </button>
-            </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { DEMO_TOUR_QUEUE_KEY } from '@/composables/use-onboarding'
+
+const DEMO_BANNER_COLLAPSED_KEY = 'momei_demo_banner_collapsed'
 
 const config = useRuntimeConfig()
 const { t } = useI18n()
@@ -56,7 +75,7 @@ const localePath = useLocalePath()
 type DemoTourStage = 'public' | 'login' | 'editor'
 
 const currentStage = computed<DemoTourStage>(() => {
-    if (route.path.includes('/admin/posts/')) {
+    if (route.path.includes('/admin')) {
         return 'editor'
     }
 
@@ -66,6 +85,25 @@ const currentStage = computed<DemoTourStage>(() => {
 
     return 'public'
 })
+
+const isCollapsed = ref(false)
+const hasStoredCollapsePreference = ref(false)
+
+const shouldCollapseByDefault = computed(() => {
+    return route.path.includes('/admin') || route.path.includes('/login')
+})
+
+const syncCollapsedState = () => {
+    if (!import.meta.client) {
+        return
+    }
+
+    const storedValue = localStorage.getItem(DEMO_BANNER_COLLAPSED_KEY)
+    hasStoredCollapsePreference.value = storedValue !== null
+    isCollapsed.value = storedValue !== null
+        ? storedValue === 'true'
+        : shouldCollapseByDefault.value
+}
 
 const demoEntries = computed(() => [
     {
@@ -92,10 +130,43 @@ const demoEntries = computed(() => [
         title: t('demo.paths.creator_mode.label'),
         description: t('demo.paths.creator_mode.description'),
         action: t('demo.paths.creator_mode.action'),
-        to: localePath('/login'),
-        stage: 'login' as DemoTourStage,
+        to: localePath('/admin/posts/new'),
+        stage: 'editor' as DemoTourStage,
     },
 ])
+
+const creatorEntry = computed(() => {
+    return demoEntries.value.find((entry) => entry.key === 'creator_mode') ?? {
+        key: 'creator_mode',
+        icon: 'pi pi-sparkles',
+        title: t('demo.paths.creator_mode.label'),
+        description: t('demo.paths.creator_mode.description'),
+        action: t('demo.paths.creator_mode.action'),
+        to: localePath('/admin/posts/new'),
+        stage: 'editor' as DemoTourStage,
+    }
+})
+
+const toggleCollapsed = () => {
+    isCollapsed.value = !isCollapsed.value
+
+    if (import.meta.client) {
+        hasStoredCollapsePreference.value = true
+        localStorage.setItem(DEMO_BANNER_COLLAPSED_KEY, String(isCollapsed.value))
+    }
+}
+
+onMounted(() => {
+    syncCollapsedState()
+})
+
+watch(() => route.fullPath, () => {
+    if (!import.meta.client || hasStoredCollapsePreference.value) {
+        return
+    }
+
+    isCollapsed.value = shouldCollapseByDefault.value
+})
 
 const startTour = () => {
     const event = new CustomEvent('momei:start-tour')
@@ -124,11 +195,25 @@ const openDemoPath = (path: string, stage: DemoTourStage) => {
         margin: 0 auto;
         display: grid;
         gap: 0.75rem;
+
+        &--collapsed {
+            gap: 0;
+        }
+    }
+
+    &__top-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
     }
 
     &__intro {
         display: grid;
         gap: 0.35rem;
+        flex: 1;
+        min-width: min(100%, 18rem);
     }
 
     &__eyebrow {
@@ -250,6 +335,7 @@ const openDemoPath = (path: string, stage: DemoTourStage) => {
         display: flex;
         gap: 0.5rem;
         flex-wrap: wrap;
+        align-items: center;
     }
 
     &__btn {
@@ -270,11 +356,42 @@ const openDemoPath = (path: string, stage: DemoTourStage) => {
         &:hover {
             background-color: color-mix(in srgb, $demo-banner-btn 8%, transparent);
         }
+
+        &--primary {
+            background: color-mix(in srgb, $demo-banner-btn 12%, white 88%);
+        }
+    }
+
+    &__toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.25rem;
+        padding: 0.5rem 0.9rem;
+        border: 0;
+        background: transparent;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: $demo-banner-text;
+        cursor: pointer;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: $demo-banner-icon;
+        }
     }
 
     @media (width <= 959px) {
+        &__top-row {
+            align-items: stretch;
+        }
+
         &__paths {
             grid-template-columns: 1fr;
+        }
+
+        &__actions {
+            width: 100%;
         }
     }
 
@@ -338,6 +455,18 @@ const openDemoPath = (path: string, stage: DemoTourStage) => {
 
             &:hover {
                 background-color: rgba($demo-banner-btn-dark, 0.1);
+            }
+
+            &.demo-banner__btn--primary {
+                background: color-mix(in srgb, $demo-banner-btn-dark 12%, #0f172a 88%);
+            }
+        }
+
+        .demo-banner__toggle {
+            color: $demo-banner-text-dark;
+
+            &:hover {
+                color: $demo-banner-icon-dark;
             }
         }
     }

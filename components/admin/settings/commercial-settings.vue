@@ -1,5 +1,14 @@
 <template>
     <div class="commercial-settings">
+        <Message
+            v-if="demoPreview"
+            severity="info"
+            :closable="false"
+            class="commercial-settings__demo-notice"
+        >
+            {{ $t('pages.admin.settings.system.demo_preview.description') }}
+        </Message>
+
         <!-- 全局开关 -->
         <section class="commercial-settings__section commercial-settings__section--toggle">
             <div class="commercial-settings__toggle-wrapper">
@@ -51,19 +60,35 @@ const { $appFetch } = useAppApi()
 const enabled = ref(false)
 const socialLinks = ref<SocialLink[]>([])
 const donationLinks = ref<DonationLink[]>([])
+const demoPreview = ref(false)
 const saving = ref(false)
+
+function getErrorDetail(error: unknown, fallback: string) {
+    const candidate = error as {
+        data?: { message?: string, statusMessage?: string }
+        statusMessage?: string
+        message?: string
+    }
+
+    return candidate?.data?.message
+        || candidate?.data?.statusMessage
+        || candidate?.statusMessage
+        || candidate?.message
+        || fallback
+}
 
 // 数据获取
 const loadSettings = async () => {
     try {
         const res = await $appFetch<any>('/api/admin/settings/commercial')
         if (res.code === 200 && res.data) {
+            demoPreview.value = Boolean(res.data.demoPreview)
             enabled.value = res.data.enabled !== false
             socialLinks.value = [...(res.data.socialLinks || [])]
             donationLinks.value = [...(res.data.donationLinks || [])]
         }
     } catch (error) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.error_loading'), life: 3000 })
+        toast.add({ severity: 'error', summary: t('common.error'), detail: getErrorDetail(error, t('common.error_loading')), life: 3000 })
     }
 }
 
@@ -81,8 +106,8 @@ const saveSettings = async () => {
         if (res.code === 200) {
             toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.commercial.success'), life: 3000 })
         }
-    } catch (e: any) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: e.data?.message || t('common.save_failed'), life: 3000 })
+    } catch (error) {
+        toast.add({ severity: 'error', summary: t('common.error'), detail: getErrorDetail(error, t('common.save_failed')), life: 3000 })
     } finally {
         saving.value = false
     }
@@ -97,6 +122,10 @@ onMounted(() => {
 @use "@/styles/variables" as *;
 
 .commercial-settings {
+    &__demo-notice {
+        margin-bottom: $spacing-lg;
+    }
+
     &__section {
         background-color: var(--p-surface-0);
         border: 1px solid var(--p-surface-200);

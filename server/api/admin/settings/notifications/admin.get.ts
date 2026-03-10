@@ -1,10 +1,16 @@
 import { dataSource } from '@/server/database'
 import { AdminNotificationSettings } from '@/server/entities/admin-notification-settings'
+import { getDemoAdminNotificationSettingsPreview } from '@/server/utils/demo-settings'
 import { requireAdmin } from '@/server/utils/permission'
+import { success } from '@/server/utils/response'
 import { AdminNotificationEvent } from '@/utils/shared/notification'
 
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
+
+    if (useRuntimeConfig().public.demoMode === true) {
+        return success(getDemoAdminNotificationSettingsPreview())
+    }
 
     const repo = dataSource.getRepository(AdminNotificationSettings)
     const settings = await repo.find()
@@ -20,8 +26,8 @@ export default defineEventHandler(async (event) => {
         }
     })
 
-    return {
-        code: 200,
-        data: result,
-    }
+    return success({
+        items: result,
+        demoPreview: false,
+    })
 })

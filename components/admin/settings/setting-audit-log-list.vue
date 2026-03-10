@@ -19,6 +19,9 @@
                         <p class="setting-audit-log-list__description">
                             {{ $t('pages.admin.settings.system.audit_logs.description') }}
                         </p>
+                        <p v-if="demoPreview" class="setting-audit-log-list__demo-note">
+                            {{ $t('pages.admin.settings.system.demo_preview.description') }}
+                        </p>
                     </div>
                     <Button
                         icon="pi pi-refresh"
@@ -115,6 +118,7 @@ const total = ref(0)
 const page = ref(1)
 const limit = ref(10)
 const loading = ref(true)
+const demoPreview = ref(false)
 
 type AuditLogResponse = ApiResponse<{
     items: SettingAuditItem[]
@@ -122,7 +126,22 @@ type AuditLogResponse = ApiResponse<{
     page: number
     limit: number
     totalPages: number
+    demoPreview?: boolean
 }>
+
+function getErrorDetail(error: unknown, fallback: string) {
+    const candidate = error as {
+        data?: { message?: string, statusMessage?: string }
+        statusMessage?: string
+        message?: string
+    }
+
+    return candidate?.data?.message
+        || candidate?.data?.statusMessage
+        || candidate?.statusMessage
+        || candidate?.message
+        || fallback
+}
 
 const formatAuditValue = (value: string | null) => {
     if (value === null) {
@@ -167,11 +186,12 @@ const loadLogs = async () => {
         })
         items.value = response.data.items || []
         total.value = response.data.total || 0
-    } catch {
+        demoPreview.value = Boolean(response.data.demoPreview)
+    } catch (error) {
         toast.add({
             severity: 'error',
             summary: t('common.error'),
-            detail: t('common.error_loading'),
+            detail: getErrorDetail(error, t('common.error_loading')),
             life: 3000,
         })
     } finally {
@@ -212,6 +232,11 @@ defineExpose({ refresh: loadLogs })
     &__description {
         margin: $spacing-xs 0 0;
         color: var(--p-text-muted-color);
+    }
+
+    &__demo-note {
+        margin: $spacing-xs 0 0;
+        color: var(--p-primary-600);
     }
 
     &__table {

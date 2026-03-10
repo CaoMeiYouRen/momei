@@ -40,8 +40,8 @@ const normalRuntimeConfig = {
 } as ReturnType<typeof useRuntimeConfig>
 
 describe('demo mode admin settings security', () => {
-    it('应该在 demo 模式下阻止读取系统设置', () => {
-        expect(() => assertDemoSettingsReadAllowed(demoRuntimeConfig)).toThrowError(/敏感数据读取/)
+    it('应该在 demo 模式下允许系统设置读取走演示预览', () => {
+        expect(() => assertDemoSettingsReadAllowed(demoRuntimeConfig)).not.toThrow()
     })
 
     it('应该在 demo 模式下阻止更新系统设置', () => {

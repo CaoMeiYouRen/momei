@@ -1,13 +1,38 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import LoginPage from './login.vue'
+
+const { mockEmailSignIn, mockSocialSignIn, mockNavigateTo, mockRoute, mockRuntimeConfig } = vi.hoisted(() => ({
+    mockEmailSignIn: vi.fn(),
+    mockSocialSignIn: vi.fn(),
+    mockNavigateTo: vi.fn(),
+    mockRoute: {
+        query: {} as Record<string, unknown>,
+    },
+    mockRuntimeConfig: {
+        app: {
+            baseURL: '/',
+            buildAssetsDir: '/_nuxt/',
+            cdnURL: '',
+        },
+        public: {
+            socialProviders: {
+                github: true,
+                google: true,
+            },
+            demoMode: true,
+            demoUserEmail: 'demo@momei.dev',
+            demoPassword: 'demo-password',
+        },
+    },
+}))
 
 // Mock auth-client
 vi.mock('@/lib/auth-client', () => ({
     authClient: {
         signIn: {
-            email: vi.fn(),
-            social: vi.fn(),
+            email: mockEmailSignIn,
+            social: mockSocialSignIn,
         },
     },
 }))
@@ -36,9 +61,9 @@ vi.mock('@/utils/schemas/auth', () => ({
 // Stub components
 const stubs = {
     Card: { template: '<div class="card"><slot name="title"/><slot name="content"/><slot name="footer"/></div>' },
-    Button: { template: '<button @click="$emit(\'click\')"><slot /></button>', props: ['label', 'loading', 'icon', 'severity', 'outlined'] },
-    InputText: { template: '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" :class="{ \'p-invalid\': invalid }" />', props: ['modelValue', 'type', 'invalid'] },
-    Password: { template: '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />', props: ['modelValue', 'feedback', 'toggleMask', 'fluid', 'invalid'] },
+    Button: { template: '<button :type="type" @click="$emit(\'click\')">{{ label }}<slot /></button>', props: ['label', 'loading', 'icon', 'severity', 'outlined', 'type'] },
+    InputText: { template: '<input :id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" :class="[{ \'p-invalid\': invalid }, $attrs.class]" />', props: ['id', 'modelValue', 'type', 'invalid'] },
+    Password: { template: '<input :id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />', props: ['id', 'modelValue', 'feedback', 'toggleMask', 'fluid', 'invalid'] },
     Checkbox: { template: '<input type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />', props: ['modelValue', 'binary', 'inputId'] },
     Divider: { template: '<hr />' },
     Message: { template: '<div v-if="severity"><slot /></div>', props: ['severity', 'size', 'variant'] },
@@ -52,47 +77,24 @@ const mockToast = {
     add: vi.fn(),
 }
 
-// Mock Nuxt auto-imports
-vi.mock('#imports', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('#imports')>()
-    return {
-        ...actual,
-        useToast: () => mockToast,
-        useI18n: () => ({
-            t: (key: string) => key,
-        }),
-        useLocalePath: () => (path: string) => path,
-        useHead: vi.fn(),
-        useRuntimeConfig: () => ({
-            public: {
-                socialProviders: {
-                    github: true,
-                    google: true,
-                },
-            },
-        }),
-        navigateTo: vi.fn(),
-        definePageMeta: vi.fn(),
-    }
-})
-
-vi.stubGlobal('useToast', () => mockToast)
-vi.stubGlobal('useI18n', () => ({ t: (key: string) => key }))
-vi.stubGlobal('useLocalePath', () => (path: string) => path)
-vi.stubGlobal('useRuntimeConfig', () => ({
-    public: {
-        socialProviders: {
-            github: true,
-            google: true,
-        },
-    },
+mockNuxtImport('useToast', () => () => mockToast)
+mockNuxtImport('useI18n', () => () => ({
+    t: (key: string) => key,
+    locale: { value: 'zh-CN' },
 }))
-vi.stubGlobal('useHead', vi.fn())
-vi.stubGlobal('navigateTo', vi.fn())
+mockNuxtImport('useRouter', () => () => ({
+    afterEach: vi.fn(),
+}))
+mockNuxtImport('useRoute', () => () => mockRoute)
+mockNuxtImport('useLocalePath', () => () => (path: string) => path)
+mockNuxtImport('useRuntimeConfig', () => () => mockRuntimeConfig)
+mockNuxtImport('useHead', () => vi.fn())
+mockNuxtImport('navigateTo', () => mockNavigateTo)
 
 describe('LoginPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        mockRoute.query = {}
     })
 
     it('renders login form correctly', async () => {
@@ -197,5 +199,48 @@ describe('LoginPage', () => {
 
         const legalNotice = wrapper.find('.login-form__legal-notice')
         expect(legalNotice.exists()).toBe(true)
+    })
+
+    it('prefills demo account when redirecting to the editor in demo mode', async () => {
+        mockRoute.query = {
+            redirect: '/admin/posts/new',
+        }
+
+        const wrapper = await mountSuspended(LoginPage, {
+            global: {
+                stubs,
+            },
+        })
+
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.find('input#email').element.value).toBe('demo@momei.dev')
+        expect(wrapper.find('input#password').element.value).toBe('demo-password')
+    })
+
+    it('uses redirect target for email sign in', async () => {
+        mockRoute.query = {
+            redirect: '/admin/posts/new',
+        }
+        mockEmailSignIn.mockResolvedValue({ error: null })
+
+        const wrapper = await mountSuspended(LoginPage, {
+            global: {
+                stubs,
+            },
+        })
+
+        await wrapper.vm.$nextTick()
+
+        await wrapper.find('input#email').setValue('writer@momei.dev')
+        await wrapper.find('input#password').setValue('secure-pass')
+        await wrapper.find('form').trigger('submit.prevent')
+
+        expect(mockEmailSignIn).toHaveBeenCalledWith(expect.objectContaining({
+            callbackURL: '/admin/posts/new',
+            email: 'writer@momei.dev',
+            password: 'secure-pass',
+        }))
+        expect(mockNavigateTo).toHaveBeenCalledWith('/admin/posts/new')
     })
 })

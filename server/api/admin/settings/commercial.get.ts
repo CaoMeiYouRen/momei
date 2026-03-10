@@ -2,12 +2,20 @@ import { getSetting } from '@/server/services/setting'
 import { requireAdmin } from '@/server/utils/permission'
 import { SettingKey } from '@/types/setting'
 import { success } from '@/server/utils/response'
+import { getDemoCommercialSettingsPreview } from '@/server/utils/demo-settings'
 
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
 
+    if (useRuntimeConfig().public.demoMode === true) {
+        return success(getDemoCommercialSettingsPreview())
+    }
+
     const raw = await getSetting(SettingKey.COMMERCIAL_SPONSORSHIP)
     const config = raw ? JSON.parse(raw) : { enabled: false, donationLinks: [], socialLinks: [] }
 
-    return success(config)
+    return success({
+        ...config,
+        demoPreview: false,
+    })
 })

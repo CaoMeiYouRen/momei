@@ -6,11 +6,8 @@ describe('demo-security.ts', () => {
         expect(getDemoModeRestriction('/api/posts', 'GET')).toBeNull()
     })
 
-    it('应该拦截系统设置读取', () => {
-        expect(getDemoModeRestriction('/api/admin/settings', 'GET')).toMatchObject({
-            statusCode: 403,
-            statusMessage: 'Forbidden in Demo Mode',
-        })
+    it('应该允许系统设置读取进入演示预览', () => {
+        expect(getDemoModeRestriction('/api/admin/settings', 'GET')).toBeNull()
     })
 
     it('应该拦截 Better Auth 管理接口读取', () => {

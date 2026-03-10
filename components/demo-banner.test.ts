@@ -46,6 +46,7 @@ describe('DemoBanner', () => {
     beforeEach(() => {
         mockConfig.public.demoMode = true
         mockRoute.path = '/'
+        mockRoute.fullPath = '/'
         mockNavigateTo.mockReset()
         localStorage.clear()
     })
@@ -84,7 +85,26 @@ describe('DemoBanner', () => {
 
         await wrapper.findAll('.demo-banner__path')[2]!.trigger('click')
 
-        expect(localStorage.getItem('momei_demo_next_stage')).toBe('login')
-        expect(mockNavigateTo).toHaveBeenCalledWith('/login')
+        expect(localStorage.getItem('momei_demo_next_stage')).toBe('editor')
+        expect(mockNavigateTo).toHaveBeenCalledWith('/admin/posts/new')
+    })
+
+    it('should collapse the banner and persist preference', async () => {
+        const wrapper = await mountSuspended(DemoBanner)
+
+        await wrapper.find('.demo-banner__toggle').trigger('click')
+
+        expect(wrapper.find('.demo-banner__paths').exists()).toBe(false)
+        expect(localStorage.getItem('momei_demo_banner_collapsed')).toBe('true')
+    })
+
+    it('should default to collapsed on admin routes', async () => {
+        mockRoute.path = '/admin/posts'
+        mockRoute.fullPath = '/admin/posts'
+
+        const wrapper = await mountSuspended(DemoBanner)
+
+        expect(wrapper.find('.demo-banner__paths').exists()).toBe(false)
+        expect(wrapper.find('.demo-banner__btn--primary').exists()).toBe(true)
     })
 })

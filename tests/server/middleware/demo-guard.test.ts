@@ -50,8 +50,8 @@ describe('demo guard middleware', () => {
         expect(() => runDemoGuard(createEvent('GET', '/api/posts'), demoRuntimeConfig)).not.toThrow()
     })
 
-    it('应该拦截系统设置 GET 请求', () => {
-        expect(() => runDemoGuard(createEvent('GET', '/api/admin/settings'), demoRuntimeConfig)).toThrowError(/敏感数据读取/)
+    it('应该允许系统设置 GET 请求进入演示预览处理', () => {
+        expect(() => runDemoGuard(createEvent('GET', '/api/admin/settings'), demoRuntimeConfig)).not.toThrow()
     })
 
     it('应该拦截系统设置写入请求', () => {

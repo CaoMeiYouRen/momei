@@ -685,6 +685,10 @@
                             "db_active": "The current value comes from the database configuration."
                         }
                     },
+                    "demo_preview": {
+                        "title": "Demo Preview Data",
+                        "description": "This page is showing sanitized sample data so the system settings experience remains demonstrable in Demo mode. Reads are redirected to safe preview content, while save and delete operations are still blocked."
+                    },
                     "tabs": {
                         "general": "General",
                         "auth": "Authentication",

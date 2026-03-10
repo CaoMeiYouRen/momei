@@ -160,12 +160,34 @@
 </template>
 
 <script setup lang="ts">
-import { z } from 'zod'
 import { authClient } from '@/lib/auth-client'
 import { loginSchema } from '@/utils/schemas/auth'
 
 const { t } = useI18n()
+const route = useRoute()
 const localePath = useLocalePath()
+const runtimeConfig = useRuntimeConfig()
+
+const normalizeRedirectTarget = (value: unknown) => {
+    if (typeof value !== 'string') {
+        return localePath('/')
+    }
+
+    if (!value.startsWith('/') || value.startsWith('//')) {
+        return localePath('/')
+    }
+
+    return value
+}
+
+const redirectTarget = computed(() => {
+    return normalizeRedirectTarget(route.query.redirect)
+})
+
+const shouldPrefillDemoAccount = computed(() => {
+    return runtimeConfig.public.demoMode
+        && redirectTarget.value.includes('/admin/posts/')
+})
 
 useHead({
     title: t('pages.login.title'),
@@ -175,7 +197,7 @@ useHead({
 })
 
 const toast = useToast()
-const { socialProviders } = useRuntimeConfig().public
+const { socialProviders } = runtimeConfig.public
 const loading = ref(false)
 const captchaToken = ref('')
 const captchaRef = ref<any>(null)
@@ -190,17 +212,31 @@ const errors = reactive({
     password: '',
 })
 
+onMounted(() => {
+    if (!shouldPrefillDemoAccount.value) {
+        return
+    }
+
+    if (!form.email) {
+        form.email = runtimeConfig.public.demoUserEmail || ''
+    }
+
+    if (!form.password) {
+        form.password = runtimeConfig.public.demoPassword || ''
+    }
+})
+
 const handleGithubLogin = async () => {
     await authClient.signIn.social({
         provider: 'github',
-        callbackURL: localePath('/'),
+        callbackURL: redirectTarget.value,
     })
 }
 
 const handleGoogleLogin = async () => {
     await authClient.signIn.social({
         provider: 'google',
-        callbackURL: localePath('/'),
+        callbackURL: redirectTarget.value,
     })
 }
 
@@ -226,7 +262,7 @@ const handleEmailLogin = async () => {
             email: form.email,
             password: form.password,
             rememberMe: form.rememberMe,
-            callbackURL: localePath('/'),
+            callbackURL: redirectTarget.value,
             fetchOptions: {
                 headers: {
                     'x-captcha-response': captchaToken.value,
@@ -243,7 +279,7 @@ const handleEmailLogin = async () => {
             })
             captchaRef.value?.reset()
         } else {
-            navigateTo(localePath('/'))
+            navigateTo(redirectTarget.value)
         }
     } catch (e) {
         console.error(e)
