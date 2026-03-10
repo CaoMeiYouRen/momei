@@ -36,6 +36,8 @@ export interface MomeiPublicConfig {
     effectsMobileEnabled: boolean | null
     effectsMinWidth: number | null
     effectsDataSaverBlock: boolean | null
+    webPushEnabled: boolean
+    webPushPublicKey: string
 }
 
 const createDefaultSiteConfig = (): MomeiPublicConfig => ({
@@ -76,6 +78,8 @@ const createDefaultSiteConfig = (): MomeiPublicConfig => ({
     effectsMobileEnabled: null,
     effectsMinWidth: null,
     effectsDataSaverBlock: null,
+    webPushEnabled: false,
+    webPushPublicKey: '',
 })
 
 export const useMomeiConfig = () => {

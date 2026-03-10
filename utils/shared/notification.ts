@@ -20,6 +20,8 @@ export enum NotificationChannel {
     EMAIL = 'EMAIL',
     /** 站内信 */
     IN_APP = 'IN_APP',
+    /** 浏览器推送 */
+    WEB_PUSH = 'WEB_PUSH',
 }
 
 /**

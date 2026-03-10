@@ -10,8 +10,10 @@ import { calculateQuotaUnits, deriveChargeStatus, inferFailureStage, normalizeUs
 import logger from '@/server/utils/logger'
 import { applyPostMetadataPatch } from '@/server/utils/post-metadata'
 import { withAITimeout } from '@/server/utils/ai/timeout'
+import { sendInAppNotification } from '@/server/services/notification'
 import { SettingKey } from '@/types/setting'
 import { AI_HEAVY_TASK_TIMEOUT_MS, TTS_DEFAULT_VOICE } from '@/utils/shared/env'
+import { NotificationType } from '@/utils/shared/notification'
 import type { TTSOptions, TTSAudioVoice, TTSVoiceQuery } from '@/types/ai'
 
 export class TTSService extends AIBaseService {
@@ -447,6 +449,16 @@ export class TTSService extends AIBaseService {
             })
             await taskRepo.save(task)
 
+            await sendInAppNotification({
+                userId: task.userId,
+                type: NotificationType.SYSTEM,
+                title: '语音合成完成',
+                content: '您的语音合成任务已完成，可点击查看音频结果。',
+                link: `/posts?taskId=${taskId}`,
+            }).catch((notificationError) => {
+                logger.error('[TTSService] Failed to send completion notification:', notificationError)
+            })
+
             // Log usage for analytical purposes
             this.logUsage({
                 task: 'tts',
@@ -474,6 +486,16 @@ export class TTSService extends AIBaseService {
             task.completedAt = new Date()
             task.durationMs = task.startedAt ? task.completedAt.getTime() - task.startedAt.getTime() : task.durationMs
             await taskRepo.save(task)
+
+            await sendInAppNotification({
+                userId: task.userId,
+                type: NotificationType.SYSTEM,
+                title: '语音合成失败',
+                content: `您的语音合成任务失败: ${error.message || '未知错误'}`,
+                link: `/posts?taskId=${taskId}`,
+            }).catch((notificationError) => {
+                logger.error('[TTSService] Failed to send failure notification:', notificationError)
+            })
         }
     }
 }

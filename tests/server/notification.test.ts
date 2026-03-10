@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { notifyAdmins, createCampaignFromPost, getTargetSubscribers, sendMarketingCampaign, sendInAppNotification, registerNotificationConnection } from '@/server/services/notification'
 import { dataSource } from '@/server/database'
-import { AdminNotificationEvent, MarketingCampaignStatus, MarketingCampaignType, NotificationType } from '@/utils/shared/notification'
+import { AdminNotificationEvent, MarketingCampaignStatus, MarketingCampaignType, NotificationChannel, NotificationType } from '@/utils/shared/notification'
 import { sendEmail } from '@/server/utils/email'
 import { emailService } from '@/server/utils/email/service'
 import logger from '@/server/utils/logger'
+import { sendWebPushToUser } from '@/server/services/web-push'
 
 vi.mock('@/server/database', () => ({
     dataSource: {
@@ -26,7 +27,16 @@ vi.mock('@/server/utils/logger', () => ({
     default: {
         info: vi.fn(),
         error: vi.fn(),
+        warn: vi.fn(),
     },
+}))
+
+vi.mock('@/server/services/web-push', () => ({
+    sendWebPushToUser: vi.fn().mockResolvedValue({
+        attempted: 1,
+        sent: 1,
+        removed: 0,
+    }),
 }))
 
 describe('notification service', () => {
@@ -605,11 +615,26 @@ describe('notification service', () => {
 
     describe('In-App Notification broadcast', () => {
         it('应该保存并推送实时通知给用户', async () => {
-            const mockRepo = {
+            const mockNotificationRepo = {
                 create: vi.fn().mockImplementation((d) => d),
                 save: vi.fn().mockImplementation((d) => Promise.resolve(d)),
             }
-            vi.mocked(dataSource.getRepository).mockReturnValue(mockRepo as any)
+            const mockNotificationSettingsRepo = {
+                findOne: vi.fn().mockResolvedValue({
+                    channel: NotificationChannel.WEB_PUSH,
+                    type: NotificationType.COMMENT_REPLY,
+                    isEnabled: true,
+                }),
+            }
+            vi.mocked(dataSource.getRepository).mockImplementation((entity: any) => {
+                if (entity.name === 'InAppNotification') {
+                    return mockNotificationRepo as any
+                }
+                if (entity.name === 'NotificationSettings') {
+                    return mockNotificationSettingsRepo as any
+                }
+                return {} as any
+            })
 
             const mockStream = {
                 push: vi.fn(),
@@ -625,9 +650,48 @@ describe('notification service', () => {
 
             await sendInAppNotification(notificationData)
 
-            expect(mockRepo.create).toHaveBeenCalled()
-            expect(mockRepo.save).toHaveBeenCalled()
+            expect(mockNotificationRepo.create).toHaveBeenCalled()
+            expect(mockNotificationRepo.save).toHaveBeenCalled()
             expect(mockStream.push).toHaveBeenCalledWith(expect.stringContaining('Test'))
+            expect(sendWebPushToUser).not.toHaveBeenCalled()
+        })
+
+        it('应该在用户离线且开启 Web Push 时发送浏览器推送', async () => {
+            const mockNotificationRepo = {
+                create: vi.fn().mockImplementation((d) => ({ id: 'notification-1', ...d })),
+                save: vi.fn().mockImplementation((d) => Promise.resolve({ id: 'notification-1', ...d })),
+            }
+            const mockNotificationSettingsRepo = {
+                findOne: vi.fn().mockResolvedValue({
+                    channel: NotificationChannel.WEB_PUSH,
+                    type: NotificationType.SYSTEM,
+                    isEnabled: true,
+                }),
+            }
+
+            vi.mocked(dataSource.getRepository).mockImplementation((entity: any) => {
+                if (entity.name === 'InAppNotification') {
+                    return mockNotificationRepo as any
+                }
+                if (entity.name === 'NotificationSettings') {
+                    return mockNotificationSettingsRepo as any
+                }
+                return {} as any
+            })
+
+            await sendInAppNotification({
+                userId: 'offline-user',
+                type: NotificationType.SYSTEM,
+                title: '离线提醒',
+                content: '任务完成',
+                link: '/posts?taskId=1',
+            })
+
+            expect(sendWebPushToUser).toHaveBeenCalledWith('offline-user', expect.objectContaining({
+                title: '离线提醒',
+                body: '任务完成',
+                url: '/posts?taskId=1',
+            }))
         })
     })
 })

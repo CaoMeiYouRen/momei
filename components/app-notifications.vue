@@ -1,11 +1,25 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useNotifications } from '@/composables/use-notifications'
 import type { Notification } from '@/composables/use-notifications'
 
-const { notifications, unreadCount, markAsRead } = useNotifications()
+const { t } = useI18n()
+const { notifications, unreadCount, markAsRead, browserPermission, browserPushReady, enableBrowserPush } = useNotifications()
 const localePath = useLocalePath()
 const op = ref()
+const enablingBrowserPush = ref(false)
+
+const browserPushHint = computed(() => {
+    if (!browserPushReady.value) {
+        return ''
+    }
+
+    if (browserPermission.value === 'denied') {
+        return t('components.notifications.browser_status.denied')
+    }
+
+    return t('components.notifications.browser_status.default')
+})
 
 const toggle = (event: any) => {
     op.value.toggle(event)
@@ -13,6 +27,16 @@ const toggle = (event: any) => {
 
 const handleMarkAsRead = async (id?: string) => {
     await markAsRead(id ? [id] : undefined)
+}
+
+const handleEnableBrowserPush = async () => {
+    enablingBrowserPush.value = true
+
+    try {
+        await enableBrowserPush()
+    } finally {
+        enablingBrowserPush.value = false
+    }
 }
 
 const getNotificationIcon = (type: string) => {
@@ -64,6 +88,28 @@ const formatTime = (time: string) => {
                 </div>
 
                 <div class="notification-content">
+                    <div
+                        v-if="browserPushReady && browserPermission !== 'granted'"
+                        class="notification-browser-state"
+                    >
+                        <Message
+                            :severity="browserPermission === 'denied' ? 'warn' : 'secondary'"
+                            :closable="false"
+                        >
+                            <div class="browser-state-content">
+                                <span>{{ browserPushHint }}</span>
+                                <Button
+                                    v-if="browserPermission === 'default'"
+                                    size="small"
+                                    text
+                                    :label="$t('components.notifications.browser_enable')"
+                                    :loading="enablingBrowserPush"
+                                    @click.stop="handleEnableBrowserPush"
+                                />
+                            </div>
+                        </Message>
+                    </div>
+
                     <div
                         v-if="notifications.length === 0"
                         class="empty-state"
@@ -151,6 +197,14 @@ const formatTime = (time: string) => {
     flex: 1;
     overflow-y: auto;
 
+    .notification-browser-state {
+        padding: 12px 16px 0;
+
+        :deep(.p-message) {
+            margin: 0;
+        }
+    }
+
     .empty-state {
         padding: 40px 20px;
         text-align: center;
@@ -161,6 +215,13 @@ const formatTime = (time: string) => {
             margin-bottom: 8px;
         }
     }
+}
+
+.browser-state-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 .notification-list {

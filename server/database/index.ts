@@ -30,6 +30,7 @@ import { FriendLinkCategory } from '../entities/friend-link-category'
 import { FriendLink } from '../entities/friend-link'
 import { FriendLinkApplication } from '../entities/friend-link-application'
 import { SettingAuditLog } from '../entities/setting-audit-log'
+import { WebPushSubscription } from '../entities/web-push-subscription'
 import logger from '../utils/logger'
 import { isServerlessEnvironment } from '../utils/env'
 import { CustomLogger } from './logger'
@@ -87,6 +88,7 @@ const entities = [
     FriendLink,
     FriendLinkApplication,
     SettingAuditLog,
+    WebPushSubscription,
 ]
 
 /**

@@ -9,6 +9,16 @@ export const notificationSettingSchema = z.object({
 
 export const updateNotificationSettingsSchema = z.array(notificationSettingSchema)
 
+export const webPushSubscriptionSchema = z.object({
+    endpoint: z.url(),
+    expirationTime: z.number().nullable().optional().default(null),
+    keys: z.object({
+        p256dh: z.string().min(1),
+        auth: z.string().min(1),
+    }),
+    permission: z.enum(['default', 'granted', 'denied']).optional().default('default'),
+})
+
 export const marketingCampaignSchema = z.object({
     title: z.string().min(1).max(255),
     content: z.string().min(1),
@@ -22,6 +32,7 @@ export const marketingCampaignSchema = z.object({
 
 export type NotificationSettingInput = z.infer<typeof notificationSettingSchema>
 export type UpdateNotificationSettingsInput = z.infer<typeof updateNotificationSettingsSchema>
+export type WebPushSubscriptionInput = z.infer<typeof webPushSubscriptionSchema>
 export type MarketingCampaignInput = z.infer<typeof marketingCampaignSchema>
 
 export const adminNotificationSettingSchema = z.object({

@@ -3,6 +3,8 @@ import { useIntervalFn } from '@vueuse/core'
 import { useAppApi } from './use-app-fetch'
 import { authClient } from '@/lib/auth-client'
 
+type BrowserPushPermission = NotificationPermission | 'unsupported'
+
 export interface Notification {
     id: string
     type: string
@@ -18,7 +20,11 @@ export function useNotifications() {
     const unreadCount = ref(0)
     const isConnected = ref(false)
     const eventSource = ref<EventSource | null>(null)
+    const browserPermission = ref<BrowserPushPermission>('unsupported')
     const { $appFetch } = useAppApi()
+    const { siteConfig } = useMomeiConfig()
+
+    let permissionStatus: PermissionStatus | null = null
 
     const { pause, resume } = useIntervalFn(() => {
         void fetchNotifications()
@@ -26,6 +32,153 @@ export function useNotifications() {
 
     const session = authClient.useSession()
     const authStatus = computed(() => session.value?.data ? 'authenticated' : 'unauthenticated')
+    const isBrowserPushSupported = computed(() => {
+        if (typeof window === 'undefined') {
+            return false
+        }
+
+        return 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window
+    })
+    const browserPushReady = computed(() => {
+        return isBrowserPushSupported.value && siteConfig.value.webPushEnabled && Boolean(siteConfig.value.webPushPublicKey)
+    })
+
+    const updateBrowserPermission = () => {
+        if (!isBrowserPushSupported.value) {
+            browserPermission.value = 'unsupported'
+            return
+        }
+
+        browserPermission.value = window.Notification.permission
+    }
+
+    const urlBase64ToUint8Array = (base64String: string) => {
+        const normalized = base64String.padEnd(Math.ceil(base64String.length / 4) * 4, '=')
+            .replace(/-/g, '+')
+            .replace(/_/g, '/')
+        const rawData = window.atob(normalized)
+        const outputArray = new Uint8Array(rawData.length)
+
+        for (let index = 0; index < rawData.length; index += 1) {
+            outputArray[index] = rawData.charCodeAt(index)
+        }
+
+        return outputArray
+    }
+
+    const getPushRegistration = async () => {
+        if (!browserPushReady.value) {
+            return null
+        }
+
+        const existingRegistration = await navigator.serviceWorker.getRegistration('/web-push-sw.js')
+        if (existingRegistration) {
+            return existingRegistration
+        }
+
+        return await navigator.serviceWorker.register('/web-push-sw.js')
+    }
+
+    const removeServerSubscription = async (endpoint?: string) => {
+        if (authStatus.value !== 'authenticated') {
+            return
+        }
+
+        await $appFetch('/api/user/notifications/push-subscription', {
+            method: 'DELETE',
+            body: endpoint ? { endpoint } : {},
+        })
+    }
+
+    const syncServerSubscription = async (subscription: PushSubscription) => {
+        const serialized = subscription.toJSON()
+        if (!serialized.endpoint || !serialized.keys?.p256dh || !serialized.keys.auth) {
+            return
+        }
+
+        await $appFetch('/api/user/notifications/push-subscription', {
+            method: 'PUT',
+            body: {
+                endpoint: serialized.endpoint,
+                expirationTime: serialized.expirationTime ?? null,
+                keys: serialized.keys,
+                permission: browserPermission.value === 'unsupported' ? 'default' : browserPermission.value,
+            },
+        })
+    }
+
+    const syncBrowserPushSubscription = async () => {
+        if (!import.meta.client || authStatus.value !== 'authenticated' || !browserPushReady.value) {
+            return
+        }
+
+        updateBrowserPermission()
+
+        const registration = await getPushRegistration()
+        if (!registration) {
+            return
+        }
+
+        const existingSubscription = await registration.pushManager.getSubscription()
+
+        if (browserPermission.value !== 'granted') {
+            if (existingSubscription) {
+                const endpoint = existingSubscription.endpoint
+                await existingSubscription.unsubscribe().catch((error) => {
+                    console.error('Failed to unsubscribe browser push:', error)
+                })
+                await removeServerSubscription(endpoint).catch((error) => {
+                    console.error('Failed to remove browser push subscription:', error)
+                })
+            }
+            return
+        }
+
+        let subscription = existingSubscription
+
+        if (!subscription) {
+            subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(siteConfig.value.webPushPublicKey),
+            })
+        }
+
+        await syncServerSubscription(subscription)
+    }
+
+    const enableBrowserPush = async () => {
+        if (!browserPushReady.value) {
+            return false
+        }
+
+        const permission = await window.Notification.requestPermission()
+        browserPermission.value = permission
+
+        await syncBrowserPushSubscription().catch((error) => {
+            console.error('Failed to enable browser push:', error)
+        })
+
+        return permission === 'granted'
+    }
+
+    const observeNotificationPermission = async () => {
+        updateBrowserPermission()
+
+        if (!isBrowserPushSupported.value || !('permissions' in navigator)) {
+            return
+        }
+
+        permissionStatus = await navigator.permissions.query({
+            name: 'notifications' as PermissionName,
+        })
+
+        permissionStatus.onchange = () => {
+            browserPermission.value = permissionStatus?.state === 'prompt'
+                ? 'default'
+                : (permissionStatus?.state || 'default')
+            void syncBrowserPushSubscription()
+        }
+    }
 
     const fetchNotifications = async () => {
         if (authStatus.value !== 'authenticated') {
@@ -136,6 +289,7 @@ export function useNotifications() {
         if (newVal === 'authenticated') {
             void fetchNotifications()
             connectSSE()
+            void syncBrowserPushSubscription()
         } else {
             disconnectSSE()
             notifications.value = []
@@ -143,22 +297,44 @@ export function useNotifications() {
         }
     }, { immediate: true })
 
+    watch([
+        authStatus,
+        () => siteConfig.value.webPushEnabled,
+        () => siteConfig.value.webPushPublicKey,
+    ], ([newStatus]) => {
+        if (newStatus === 'authenticated') {
+            void syncBrowserPushSubscription()
+        }
+    })
+
     onMounted(() => {
+        void observeNotificationPermission()
+
         if (authStatus.value === 'authenticated') {
             void fetchNotifications()
             connectSSE()
+            void syncBrowserPushSubscription()
         }
     })
 
     onUnmounted(() => {
         disconnectSSE()
+
+        if (permissionStatus) {
+            permissionStatus.onchange = null
+            permissionStatus = null
+        }
     })
 
     return {
         notifications,
         unreadCount,
         isConnected,
+        browserPermission,
+        isBrowserPushSupported,
+        browserPushReady,
         fetchNotifications,
         markAsRead,
+        enableBrowserPush,
     }
 }

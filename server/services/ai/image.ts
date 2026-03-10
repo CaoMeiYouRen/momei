@@ -6,6 +6,8 @@ import { Post } from '@/server/entities/post'
 import { deriveChargeStatus, inferFailureStage } from '@/server/utils/ai/cost-governance'
 import { withAITimeout } from '@/server/utils/ai/timeout'
 import logger from '@/server/utils/logger'
+import { sendInAppNotification } from '@/server/services/notification'
+import { NotificationType } from '@/utils/shared/notification'
 import type { AIFailureStage, AIImageOptions, AIImageResponse } from '@/types/ai'
 
 export class ImageService extends AIBaseService {
@@ -109,6 +111,14 @@ export class ImageService extends AIBaseService {
                 chargeStatus: deriveChargeStatus({ status: 'completed', quotaUnits: finalResponse.images.length, settlementSource: 'actual' }),
                 settlementSource: 'actual',
             })
+
+            await sendInAppNotification({
+                userId,
+                type: NotificationType.SYSTEM,
+                title: 'AI 图片生成完成',
+                content: `您的图片生成任务已完成，共生成 ${finalResponse.images.length} 张图片。`,
+                link: `/posts?taskId=${taskId}`,
+            }).catch((error) => logger.error('[ImageService] Failed to send completion notification:', error))
         } catch (error: any) {
             logger.error(`AI Image Generation Error (Task ${taskId}):`, error)
             await this.recordTask({
@@ -121,6 +131,14 @@ export class ImageService extends AIBaseService {
                 failureStage: inferFailureStage(error, failureStage),
                 settlementSource: failureStage === 'post_process' ? 'actual' : 'estimated',
             })
+
+            await sendInAppNotification({
+                userId,
+                type: NotificationType.SYSTEM,
+                title: 'AI 图片生成失败',
+                content: `您的图片生成任务失败: ${error.message || '未知错误'}`,
+                link: `/posts?taskId=${taskId}`,
+            }).catch((notificationError) => logger.error('[ImageService] Failed to send failure notification:', notificationError))
         }
     }
 }

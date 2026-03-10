@@ -3,7 +3,8 @@ import { Subscriber } from '@/server/entities/subscriber'
 import { MarketingCampaign } from '@/server/entities/marketing-campaign'
 import { AdminNotificationSettings } from '@/server/entities/admin-notification-settings'
 import { InAppNotification } from '@/server/entities/in-app-notification'
-import { MarketingCampaignStatus, MarketingCampaignType, AdminNotificationEvent, NotificationType } from '@/utils/shared/notification'
+import { NotificationSettings } from '@/server/entities/notification-settings'
+import { MarketingCampaignStatus, MarketingCampaignType, AdminNotificationEvent, NotificationChannel, NotificationType } from '@/utils/shared/notification'
 import { sendEmail } from '@/server/utils/email'
 import { emailService } from '@/server/utils/email/service'
 import { Post } from '@/server/entities/post'
@@ -12,6 +13,25 @@ import { isAdmin } from '@/utils/shared/roles'
 import logger from '@/server/utils/logger'
 import { htmlToPlainText } from '@/server/utils/html'
 import { appendPostCopyrightNotice } from '@/utils/shared/post-copyright'
+import { sendWebPushToUser } from '@/server/services/web-push'
+
+async function isWebPushEnabledForUser(userId: string, type: NotificationType) {
+    const notificationSettingsRepo = dataSource.getRepository(NotificationSettings)
+    const setting = await notificationSettingsRepo.findOne({
+        where: {
+            userId,
+            type,
+            channel: NotificationChannel.WEB_PUSH,
+        },
+    })
+
+    return setting ? setting.isEnabled : true
+}
+
+function hasActiveNotificationConnection(userId: string) {
+    const userConnections = connections.get(userId)
+    return Boolean(userConnections && userConnections.size > 0)
+}
 
 /**
  * 发送管理员站务通知
@@ -52,7 +72,15 @@ export async function notifyAdmins(event: AdminNotificationEvent, data: { title:
         }
 
         if (isBrowserEnabled) {
-            // TODO: Implement browser push (Sse / Socket.io / WebPush)
+            await sendInAppNotification({
+                userId: admin.id,
+                type: NotificationType.SYSTEM,
+                title: data.title,
+                content: data.content,
+                link: '/admin',
+            }).catch((err) => {
+                logger.error(`Failed to send admin browser notification to ${admin.email}:`, err)
+            })
         }
     }
 }
@@ -282,6 +310,21 @@ export async function sendInAppNotification(data: {
             for (const stream of userConnections) {
                 void stream.push(payload)
             }
+        }
+
+        if (!hasActiveNotificationConnection(data.userId) && await isWebPushEnabledForUser(data.userId, data.type)) {
+            await sendWebPushToUser(data.userId, {
+                title: data.title,
+                body: data.content,
+                tag: `notification-${notification.id}`,
+                url: data.link || '/',
+                data: {
+                    notificationId: notification.id,
+                    type: data.type,
+                },
+            }).catch((error) => {
+                logger.error(`[Notification] Failed to send web push for notification ${notification.id}:`, error)
+            })
         }
     } else {
         // 全局广播推送 (userId 为 null)

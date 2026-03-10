@@ -29,7 +29,12 @@
       "title": "Notifications",
       "empty": "No notifications",
       "mark_all_read": "Mark all as read",
-      "view_all": "View all settings"
+      "view_all": "View all settings",
+      "browser_enable": "Enable browser alerts",
+      "browser_status": {
+        "default": "Enable browser alerts to receive high-value task reminders while offline.",
+        "denied": "Browser notifications are blocked. Re-enable them in your browser settings."
+      }
     },
     "reader": {
       "mode_enter": "Reader Mode",

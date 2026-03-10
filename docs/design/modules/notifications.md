@@ -47,12 +47,51 @@
 | `isRead` | `boolean` | 已读状态 |
 | `expiresAt` | `datetime` | 自动清理时间 (默认 30-90 天) |
 
+### 3.4 浏览器推送订阅 (`WebPushSubscription`)
+存储每个登录设备的浏览器推送订阅信息。
+
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `userId` | `string` | 订阅所属用户 |
+| `endpoint` | `string` | Push Service 端点，按用户 + 端点去重 |
+| `subscription` | `json` | 浏览器返回的 PushSubscription 对象 |
+| `permission` | `string` | 最近一次同步的权限状态（default / granted / denied） |
+| `userAgent` | `string` | 设备浏览器信息，便于排查 |
+| `locale` | `string` | 同步订阅时的语言环境 |
+
 ## 4. 实时通信 (Real-time Messaging)
 系统通过 **SSE (Server-Sent Events)** 实现站内信的实时推送。
 - 入口：`GET /api/notifications/stream`。
 - 回退：若 SSE 不可用，前端将降级为长轮询。
 
-## 5. 成本监控与统计
+## 5. 浏览器推送补强 (Web Push Reinforcement)
+
+### 5.1 首轮策略
+
+- 在线场景优先复用 SSE，不重复发送 Web Push。
+- 离线场景仅对高价值事件发送 Web Push：管理员站务通知、AI 图片生成、ASR、TTS 与文本翻译等异步任务完成/失败提醒。
+- 营销通知暂不进入 Web Push 通道，避免首轮范围失控。
+
+### 5.2 VAPID 与配置
+
+- `WEB_PUSH_VAPID_SUBJECT`: VAPID Subject，建议使用 `mailto:`。
+- `WEB_PUSH_VAPID_PUBLIC_KEY`: 提供给前端订阅浏览器推送使用。
+- `WEB_PUSH_VAPID_PRIVATE_KEY`: 仅服务端使用，禁止暴露到前端。
+- 前端通过 `GET /api/settings/public` 获取公开 VAPID 公钥与 `webPushEnabled` 状态。
+
+### 5.3 订阅链路
+
+- 前端在通知中心检测 `Notification.permission`、Service Worker 与 PushManager 能力。
+- 订阅写入：`PUT /api/user/notifications/push-subscription`。
+- 订阅注销：`DELETE /api/user/notifications/push-subscription`。
+- 静态 Service Worker：`public/web-push-sw.js` 负责展示系统通知并处理点击跳转。
+
+### 5.4 失效清理
+
+- 服务端发送 Web Push 时若收到 `404` 或 `410`，立即删除对应订阅记录。
+- 当前设备权限从 `granted` 变为 `default / denied` 时，前端会主动取消订阅并通知服务端清理当前端点。
+
+## 6. 成本监控与统计
 `NotificationStatistics` 表记录每日各渠道的发送量，支持管理员查看推送成本分析与异常频率告警。
 
 ---

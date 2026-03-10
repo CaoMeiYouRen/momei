@@ -51,6 +51,7 @@ export default defineEventHandler(async () => {
             SettingKey.TTS_ENABLED,
             SettingKey.VOLCENGINE_APP_ID,
             SettingKey.VOLCENGINE_ACCESS_KEY,
+            SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY,
         ]
 
         const settings = await getSettings(publicKeys)
@@ -101,6 +102,8 @@ export default defineEventHandler(async () => {
                     || !!settings[SettingKey.VOLCENGINE_APP_ID]
                 ) && settings[SettingKey.ASR_ENABLED] !== 'false'),
                 ttsEnabled: String(settings[SettingKey.TTS_ENABLED]) === 'true' || (!!process.env.TTS_API_KEY && settings[SettingKey.TTS_ENABLED] !== 'false'),
+                webPushEnabled: Boolean(settings[SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY]),
+                webPushPublicKey: settings[SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY] || '',
             },
         }
     } catch {

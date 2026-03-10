@@ -138,6 +138,11 @@ export enum SettingKey {
     EFFECTS_MIN_WIDTH = 'effects_min_width',
     EFFECTS_DATA_SAVER_BLOCK = 'effects_data_saver_block',
 
+    // Web Push
+    WEB_PUSH_VAPID_SUBJECT = 'web_push_vapid_subject',
+    WEB_PUSH_VAPID_PUBLIC_KEY = 'web_push_vapid_public_key',
+    WEB_PUSH_VAPID_PRIVATE_KEY = 'web_push_vapid_private_key',
+
     // Limits
     MAX_UPLOAD_SIZE = 'max_upload_size',
     MAX_AUDIO_UPLOAD_SIZE = 'max_audio_upload_size',

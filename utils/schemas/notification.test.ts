@@ -4,6 +4,7 @@ import {
     notificationSettingSchema,
     updateNotificationSettingsSchema,
     marketingCampaignSchema,
+    webPushSubscriptionSchema,
 } from './notification'
 
 describe('utils/schemas/notification', () => {
@@ -358,6 +359,33 @@ describe('utils/schemas/notification', () => {
 
             const result = marketingCampaignSchema.safeParse(validData)
             expect(result.success).toBe(true)
+        })
+    })
+
+    describe('webPushSubscriptionSchema', () => {
+        it('应该验证有效的 Web Push 订阅', () => {
+            const result = webPushSubscriptionSchema.safeParse({
+                endpoint: 'https://example.com/push/123',
+                expirationTime: null,
+                keys: {
+                    p256dh: 'public-key',
+                    auth: 'auth-key',
+                },
+                permission: 'granted',
+            })
+
+            expect(result.success).toBe(true)
+        })
+
+        it('应该拒绝缺少密钥的 Web Push 订阅', () => {
+            const result = webPushSubscriptionSchema.safeParse({
+                endpoint: 'https://example.com/push/123',
+                keys: {
+                    p256dh: '',
+                },
+            })
+
+            expect(result.success).toBe(false)
         })
     })
 })

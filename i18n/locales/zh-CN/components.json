@@ -29,7 +29,12 @@
       "title": "站内通知",
       "empty": "暂无通知",
       "mark_all_read": "全部已读",
-      "view_all": "查看全部设置"
+      "view_all": "查看全部设置",
+      "browser_enable": "启用浏览器通知",
+      "browser_status": {
+        "default": "启用后，离线时也能收到高价值任务提醒。",
+        "denied": "浏览器通知已被禁用，请在浏览器设置中手动重新开启。"
+      }
     },
     "reader": {
       "mode_enter": "开启沉浸阅读",

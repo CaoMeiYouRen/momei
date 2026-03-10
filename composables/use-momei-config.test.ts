@@ -63,6 +63,8 @@ describe('useMomeiConfig', () => {
             effectsMobileEnabled: null,
             effectsMinWidth: null,
             effectsDataSaverBlock: null,
+            webPushEnabled: false,
+            webPushPublicKey: '',
         }
     })
 
@@ -87,6 +89,8 @@ describe('useMomeiConfig', () => {
             siteCopyright: '© 2024',
             defaultLanguage: 'en-US',
             travellingsEnabled: false,
+            webPushEnabled: true,
+            webPushPublicKey: 'public-key',
         }
 
         mockFetch.mockResolvedValueOnce({ data: mockData })
