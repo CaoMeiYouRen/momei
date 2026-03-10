@@ -100,6 +100,27 @@ describe('settingService', () => {
             expect(result).toBe('https://example.com')
             expect(mockSettingRepo.findOne).not.toHaveBeenCalled()
         })
+
+        it('should ignore database fallback for internal-only settings', async () => {
+            mockSettingRepo.findOne.mockResolvedValue({
+                key: SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY,
+                value: 'db-private-key',
+            })
+
+            const result = await settingService.getSetting(SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY)
+
+            expect(result).toBeNull()
+            expect(mockSettingRepo.findOne).not.toHaveBeenCalled()
+        })
+
+        it('should read internal-only settings from env only', async () => {
+            process.env.WEB_PUSH_VAPID_PRIVATE_KEY = 'env-private-key'
+
+            const result = await settingService.getSetting(SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY)
+
+            expect(result).toBe('env-private-key')
+            expect(mockSettingRepo.findOne).not.toHaveBeenCalled()
+        })
     })
 
     describe('getSettings', () => {
@@ -116,6 +137,18 @@ describe('settingService', () => {
                 [SettingKey.SITE_NAME]: 'EnvTitle',
                 [SettingKey.SITE_DESCRIPTION]: 'DbDesc',
                 unknown: null,
+            })
+        })
+
+        it('should not hydrate internal-only settings from database', async () => {
+            mockSettingRepo.find.mockResolvedValue([
+                { key: SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY, value: 'db-private-key' },
+            ])
+
+            const result = await settingService.getSettings([SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY])
+
+            expect(result).toEqual({
+                [SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY]: null,
             })
         })
     })
@@ -234,6 +267,15 @@ describe('settingService', () => {
 
             expect(mockSettingRepo.save).toHaveBeenCalledTimes(2)
         })
+
+        it('should skip persisting internal-only settings', async () => {
+            await settingService.setSettings({
+                [SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY]: 'private-key',
+            })
+
+            expect(mockSettingRepo.findOne).not.toHaveBeenCalled()
+            expect(mockSettingRepo.save).not.toHaveBeenCalled()
+        })
     })
 
     describe('getAllSettings', () => {
@@ -263,7 +305,9 @@ describe('settingService', () => {
                 }),
             )
             // Should also contain mapped settings from SETTING_ENV_MAP alongside DB records.
-            expect(result.length).toBeGreaterThanOrEqual(Object.keys(settingService.SETTING_ENV_MAP).length)
+            expect(result.length).toBeGreaterThanOrEqual(
+                Object.keys(settingService.SETTING_ENV_MAP).length - settingService.INTERNAL_ONLY_SETTING_KEYS.length,
+            )
         })
 
         it('should expose default-backed metadata for registered defaults', async () => {
@@ -290,6 +334,22 @@ describe('settingService', () => {
                 lockReason: null,
                 requiresRestart: false,
             })
+        })
+
+        it('should not expose internal-only settings in admin listing', async () => {
+            mockQueryBuilder.getMany.mockResolvedValue([
+                {
+                    key: SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY,
+                    value: 'db-private-key',
+                    level: 3,
+                    description: 'secret',
+                    maskType: 'password',
+                },
+            ])
+
+            const result = await settingService.getAllSettings({ includeSecrets: true })
+
+            expect(result.find((item) => item.key === String(SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY))).toBeUndefined()
         })
     })
 })

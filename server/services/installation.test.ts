@@ -4,9 +4,11 @@ import {
     isSystemInstalled,
     saveSiteConfig,
     markSystemInstalled,
+    syncSettingsFromEnv,
     validateAdminPassword,
 } from '../services/installation'
 import { dataSource } from '../database'
+import { SettingKey } from '@/types/setting'
 
 // Mock 数据库
 vi.mock('../database', () => ({
@@ -104,6 +106,19 @@ describe('Installation Service', () => {
             expect(status.hasUsers).toBe(true)
             expect(status.hasInstallationFlag).toBe(true)
         })
+
+        it('should not expose internal-only setting env values', async () => {
+            process.env = {
+                MOMEI_INSTALLED: 'true',
+                WEB_PUSH_VAPID_PRIVATE_KEY: 'private-key',
+                WEB_PUSH_VAPID_PUBLIC_KEY: 'public-key',
+            } as NodeJS.ProcessEnv
+
+            const status = await getInstallationStatus()
+
+            expect(status.envSettings[SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY]).toBeUndefined()
+            expect(status.envSettings[SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY]).toBeDefined()
+        })
     })
 
     describe('isSystemInstalled', () => {
@@ -165,6 +180,31 @@ describe('Installation Service', () => {
                 value: 'true',
                 description: '系统安装标记',
             })
+        })
+    })
+
+    describe('syncSettingsFromEnv', () => {
+        it('should skip syncing internal-only setting keys to database', async () => {
+            process.env = {
+                WEB_PUSH_VAPID_PRIVATE_KEY: 'private-key',
+                WEB_PUSH_VAPID_PUBLIC_KEY: 'public-key',
+            } as NodeJS.ProcessEnv
+
+            const mockSave = vi.fn()
+            const mockCreate = vi.fn((item) => item)
+            const mockFindOne = vi.fn().mockResolvedValue(null)
+
+            vi.mocked(dataSource.getRepository).mockReturnValue({
+                findOne: mockFindOne,
+                create: mockCreate,
+                save: mockSave,
+            } as any)
+
+            await syncSettingsFromEnv()
+
+            expect(mockFindOne).toHaveBeenCalledWith({ where: { key: SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY } })
+            expect(mockFindOne).not.toHaveBeenCalledWith({ where: { key: SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY } })
+            expect(mockSave).not.toHaveBeenCalledWith(expect.objectContaining({ key: SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY }))
         })
     })
 })

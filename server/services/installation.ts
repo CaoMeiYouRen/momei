@@ -5,7 +5,7 @@ import { dataSource } from '../database'
 import { User } from '../entities/user'
 import { Setting } from '../entities/setting'
 import logger from '../utils/logger'
-import { SETTING_ENV_MAP } from './setting'
+import { isInternalOnlySettingKey, SETTING_ENV_MAP } from './setting'
 import { TEST_MODE } from '@/utils/shared/env'
 import { inferSettingMaskType, isMaskedSettingPlaceholder, maskSettingValue } from '@/server/utils/settings'
 
@@ -391,6 +391,10 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
 function getEnvSettingsDetails(): Record<string, EnvSetting> {
     const envSettings: Record<string, EnvSetting> = {}
     Object.entries(SETTING_ENV_MAP).forEach(([key, envKey]) => {
+        if (isInternalOnlySettingKey(key)) {
+            return
+        }
+
         const envValue = process.env[envKey]
         if (envValue !== undefined && envValue !== '') {
             // 推断脱敏类型
@@ -607,6 +611,10 @@ export async function syncSettingsFromEnv(): Promise<void> {
     logger.info('Starting to sync settings from environment variables...')
 
     for (const [key, envKey] of entries) {
+        if (isInternalOnlySettingKey(key)) {
+            continue
+        }
+
         const envValue = process.env[envKey]
         if (envValue !== undefined && envValue !== '') {
             let setting = await settingRepo.findOne({ where: { key } })

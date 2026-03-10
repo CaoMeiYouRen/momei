@@ -195,17 +195,33 @@ export const FORCED_ENV_LOCKED_KEYS: string[] = [
 ]
 
 /**
- * 极端敏感且仅限后端加载的键名 (完全不在后台设置 UI 中展示)
+ * 仅作为宿主环境变量存在的后端私有键名
  */
-export const INTERNAL_ONLY_KEYS: string[] = [
+export const INTERNAL_ONLY_ENV_KEYS: string[] = [
     'AUTH_SECRET',
     'BETTER_AUTH_SECRET',
     'DATABASE_URL',
     'REDIS_URL',
     'AXIOM_API_TOKEN',
+]
+
+/**
+ * 使用 SettingKey 表示、但只允许后端从环境变量读取的键名
+ */
+export const INTERNAL_ONLY_SETTING_KEYS: string[] = [
     SettingKey.ASR_VOLCENGINE_SECRET_KEY,
     SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY,
 ]
+
+/**
+ * 极端敏感且仅限后端加载的键名 (完全不在后台设置 UI 中展示)
+ */
+export const INTERNAL_ONLY_KEYS: string[] = [
+    ...INTERNAL_ONLY_ENV_KEYS,
+    ...INTERNAL_ONLY_SETTING_KEYS,
+]
+
+const INTERNAL_ONLY_SETTING_KEY_SET = new Set<string>(INTERNAL_ONLY_SETTING_KEYS)
 
 const SETTING_DEFAULT_MAP: Partial<Record<string, string>> = {
     [SettingKey.DEFAULT_LANGUAGE]: 'zh-CN',
@@ -232,12 +248,24 @@ const SETTING_DEFAULT_MAP: Partial<Record<string, string>> = {
 
 const RESTART_REQUIRED_KEYS = new Set<string>(FORCED_ENV_LOCKED_KEYS)
 
+export function isInternalOnlySettingKey(key: string) {
+    return INTERNAL_ONLY_SETTING_KEY_SET.has(key)
+}
+
 export function isSettingEnvLocked(key: string) {
     const envKey = SETTING_ENV_MAP[key]
-    return Boolean((envKey && process.env[envKey] !== undefined) || FORCED_ENV_LOCKED_KEYS.includes(key))
+    return Boolean(
+        isInternalOnlySettingKey(key)
+        || (envKey && process.env[envKey] !== undefined)
+        || FORCED_ENV_LOCKED_KEYS.includes(key),
+    )
 }
 
 export function getSettingEffectiveSource(key: string): SettingEffectiveSource {
+    if (isInternalOnlySettingKey(key)) {
+        return 'env'
+    }
+
     const envKey = SETTING_ENV_MAP[key]
     return envKey && process.env[envKey] !== undefined ? 'env' : 'db'
 }
@@ -251,6 +279,10 @@ export function getSettingLockReason(key: string): SettingLockReason | null {
 
     if (envKey && process.env[envKey] !== undefined) {
         return 'env_override'
+    }
+
+    if (isInternalOnlySettingKey(key)) {
+        return 'forced_env_lock'
     }
 
     if (FORCED_ENV_LOCKED_KEYS.includes(key)) {
@@ -289,6 +321,7 @@ function createResolvedSettingItem(
     dbSetting?: Setting | null,
     explicitDefaultValue?: unknown,
 ): SettingResolvedItem {
+    const effectiveDbSetting = isInternalOnlySettingKey(key) ? null : dbSetting
     const envKey = SETTING_ENV_MAP[key] ?? null
     const envValue = envKey ? process.env[envKey] : undefined
     const defaultValue = normalizeSettingValue(explicitDefaultValue) ?? getSettingDefaultValue(key)
@@ -299,18 +332,18 @@ function createResolvedSettingItem(
     if (envValue !== undefined) {
         value = envValue
         source = 'env'
-    } else if (dbSetting?.value !== null && dbSetting?.value !== undefined) {
-        value = dbSetting.value
+    } else if (effectiveDbSetting?.value !== null && effectiveDbSetting?.value !== undefined) {
+        value = effectiveDbSetting.value
         source = 'db'
     }
 
-    const maskType = (dbSetting?.maskType ?? inferSettingMaskType(key, value)) as SettingResolvedItem['maskType']
-    const level = Number(dbSetting?.level ?? (key.includes('api_key') || key.includes('secret') || key.includes('pass') ? 3 : 2))
+    const maskType = (effectiveDbSetting?.maskType ?? inferSettingMaskType(key, value)) as SettingResolvedItem['maskType']
+    const level = Number(effectiveDbSetting?.level ?? (key.includes('api_key') || key.includes('secret') || key.includes('pass') ? 3 : 2))
 
     return {
         key,
         value,
-        description: dbSetting?.description ?? '',
+        description: effectiveDbSetting?.description ?? '',
         level,
         maskType,
         source,
@@ -381,6 +414,10 @@ export async function getSetting<T = string>(key: SettingKey | string, defaultVa
         return process.env[envKey]
     }
 
+    if (isInternalOnlySettingKey(key)) {
+        return defaultValue
+    }
+
     // 如果数据库未初始化，返回默认值
     if (!dataSource.isInitialized) {
         return defaultValue
@@ -428,7 +465,7 @@ export const getSettings = async (keys: (SettingKey | string)[]): Promise<Record
         settings.forEach((s: Setting) => {
             if (keys.includes(s.key)) {
                 // 如果环境变量没配，才用数据库的
-                if (result[s.key] === null) {
+                if (result[s.key] === null && !isInternalOnlySettingKey(s.key)) {
                     result[s.key] = s.value
                 }
             }
@@ -489,7 +526,7 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
     const result: Omit<SettingResolvedItem, 'defaultValue'>[] = []
     for (const key of allKeys) {
         // 如果是极端敏感的内部键，则完全跳过，不在 UI 展示
-        if (INTERNAL_ONLY_KEYS.includes(key)) {
+        if (isInternalOnlySettingKey(key)) {
             continue
         }
 
@@ -531,6 +568,11 @@ export const setSettings = async (settings: Record<string, any>, auditContext?: 
     const auditChanges: SettingAuditChange[] = []
 
     for (const [key, val] of entries) {
+        if (isInternalOnlySettingKey(key)) {
+            logger.warn(`[Settings] Ignored attempt to persist internal-only setting: ${key}`)
+            continue
+        }
+
         if (isSettingEnvLocked(key)) {
             continue // 跳过锁定的配置项
         }

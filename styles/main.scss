@@ -436,7 +436,7 @@
 }
 
 .section {
-    padding: $spacing-xl * 2 0;
+    padding: $spacing-xl 0;
 
     @include respond-below("md") {
         padding: $spacing-xl 0;

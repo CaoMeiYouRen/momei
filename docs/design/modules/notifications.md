@@ -76,7 +76,8 @@
 
 - `WEB_PUSH_VAPID_SUBJECT`: VAPID Subject，建议使用 `mailto:`。
 - `WEB_PUSH_VAPID_PUBLIC_KEY`: 提供给前端订阅浏览器推送使用。
-- `WEB_PUSH_VAPID_PRIVATE_KEY`: 仅服务端使用，禁止暴露到前端。
+- `WEB_PUSH_VAPID_PRIVATE_KEY`: 仅服务端使用，禁止暴露到前端，也不会同步到数据库。
+- 可通过 `pnpm web-push:generate-vapid` 生成一组可直接写入环境变量的 VAPID 配置。
 - 前端通过 `GET /api/settings/public` 获取公开 VAPID 公钥与 `webPushEnabled` 状态。
 
 ### 5.3 订阅链路
