@@ -18,6 +18,10 @@ export interface CategoryOption {
 export interface PostEditorData extends Omit<Post, 'id' | 'tags' | 'category' | 'author'> {
     id?: string
     tags: string[]
+    audioUrl?: string | null
+    audioDuration?: number | null
+    audioSize?: number | null
+    audioMimeType?: string | null
 }
 
 /**

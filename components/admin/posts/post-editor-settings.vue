@@ -225,7 +225,7 @@
                 </AppUploader>
                 <div v-if="showImagePreview && isValidImageUrl" class="mt-2 preview-container">
                     <Image
-                        :src="post.coverImage || undefined"
+                        :src="post.coverImage ?? undefined"
                         alt="Cover Preview"
                         preview
                         class="h-auto max-w-full rounded shadow-sm"
@@ -292,7 +292,7 @@
                 </AppUploader>
                 <div v-if="showAudioPlayer && isValidAudioUrl" class="mt-2 preview-container">
                     <audio
-                        :src="audioUrlValue || undefined"
+                        :src="audioUrlValue ?? undefined"
                         controls
                         class="w-full"
                     />
@@ -399,11 +399,11 @@ const { exporting, exportPost } = usePostExport()
 const { t } = useI18n()
 
 const isValidImageUrl = computed(() => {
-    return post.value.coverImage && isValidCustomUrl(post.value.coverImage)
+    return typeof post.value.coverImage === 'string' && isValidCustomUrl(post.value.coverImage)
 })
 
 const isValidAudioUrl = computed(() => {
-    return audioUrlValue.value && isValidCustomUrl(audioUrlValue.value)
+    return typeof audioUrlValue.value === 'string' && isValidCustomUrl(audioUrlValue.value)
 })
 
 const ensureMetadata = () => {
@@ -418,9 +418,9 @@ const ensureMetadata = () => {
     return post.value.metadata
 }
 
-const audioUrlValue = computed(() => post.value.metadata?.audio?.url ?? post.value.audioUrl ?? null)
+const audioUrlValue = computed<string | null>(() => post.value.metadata?.audio?.url ?? post.value.audioUrl ?? null)
 
-const audioUrlModel = computed({
+const audioUrlModel = computed<string | null>({
     get: () => audioUrlValue.value,
     set: (value: string | null | undefined) => {
         const metadata = ensureMetadata()
@@ -432,7 +432,7 @@ const audioUrlModel = computed({
     },
 })
 
-const audioDurationModel = computed({
+const audioDurationModel = computed<number | null>({
     get: () => post.value.metadata?.audio?.duration ?? post.value.audioDuration ?? null,
     set: (value: number | null | undefined) => {
         const metadata = ensureMetadata()
@@ -444,7 +444,7 @@ const audioDurationModel = computed({
     },
 })
 
-const audioSizeModel = computed({
+const audioSizeModel = computed<number | null>({
     get: () => post.value.metadata?.audio?.size ?? post.value.audioSize ?? null,
     set: (value: number | null | undefined) => {
         const metadata = ensureMetadata()
@@ -456,7 +456,7 @@ const audioSizeModel = computed({
     },
 })
 
-const audioMimeTypeModel = computed({
+const audioMimeTypeModel = computed<string | null>({
     get: () => post.value.metadata?.audio?.mimeType ?? post.value.audioMimeType ?? null,
     set: (value: string | null | undefined) => {
         const metadata = ensureMetadata()

@@ -13,7 +13,7 @@ import { getNuxtLocaleMessageFilePaths } from './locale-modules'
 
 describe('i18n locale registry', () => {
     it('should expose enabled app locales', () => {
-        expect(APP_LOCALE_CODES).toEqual(['zh-CN', 'en-US', 'zh-TW', 'ko-KR'])
+        expect(APP_LOCALE_CODES).toEqual(['zh-CN', 'zh-TW', 'en-US', 'ko-KR'])
         expect(NUXT_I18N_LOCALES).toHaveLength(4)
     })
 

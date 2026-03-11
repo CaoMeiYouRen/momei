@@ -219,6 +219,9 @@ describe('/api/tags', () => {
 
         expect(result.code).toBe(200)
         expect(translatedTag).toBeDefined()
-        expect(translatedTag?.postCount).toBe(1)
+        if (!translatedTag) {
+            throw new Error('Expected zh-TW fallback tag to exist')
+        }
+        expect(translatedTag.postCount).toBe(1)
     })
 })
