@@ -251,9 +251,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         return response.data
     }
 
-    const translateTitle = async (title: string, targetLanguage: string) => {
-        return await translateTaxonomyName(title, targetLanguage)
-    }
+    const translateTitle = async (title: string, targetLanguage: string) => await translateTaxonomyName(title, targetLanguage)
 
     const translatePostFields = async (options: {
         source: PostTranslationSourceDetail

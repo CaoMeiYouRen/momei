@@ -24,10 +24,13 @@ interface TranslationAudioState {
         size?: number | null
         mimeType?: string | null
     } | null
-    audioUrl: string | null
-    audioDuration: number | null
-    audioSize: number | null
-    audioMimeType: string | null
+}
+
+interface LegacyAudioCompat {
+    audioUrl?: string | null
+    audioDuration?: number | null
+    audioSize?: number | null
+    audioMimeType?: string | null
 }
 
 interface LocaleOption {
@@ -111,33 +114,42 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
     })
     const postsForTranslation = ref<TranslationGroupOption[]>([])
 
-    const getAudioState = (value: Pick<PostTranslationSourceDetail, 'metadata' | 'audioUrl' | 'audioDuration' | 'audioSize' | 'audioMimeType'>): TranslationAudioState => {
-        const metadataAudio = value.metadata?.audio && typeof value.metadata.audio === 'object'
-            ? { ...value.metadata.audio }
-            : null
-        const audioUrl = metadataAudio?.url ?? value.audioUrl ?? null
-        const audioDuration = metadataAudio?.duration ?? value.audioDuration ?? null
-        const audioSize = metadataAudio?.size ?? value.audioSize ?? null
-        const audioMimeType = metadataAudio?.mimeType ?? value.audioMimeType ?? null
+    const getLegacyAudioState = (value: LegacyAudioCompat) => {
+        const audioUrl = value.audioUrl ?? null
+        const audioDuration = value.audioDuration ?? null
+        const audioSize = value.audioSize ?? null
+        const audioMimeType = value.audioMimeType ?? null
         const hasAudio = Boolean(audioUrl)
             || audioDuration !== null
             || audioSize !== null
             || Boolean(audioMimeType)
 
+        return hasAudio
+            ? {
+                url: audioUrl,
+                duration: audioDuration,
+                size: audioSize,
+                mimeType: audioMimeType,
+            }
+            : null
+    }
+
+    const getAudioState = (value: Pick<PostTranslationSourceDetail, 'metadata'> & LegacyAudioCompat): TranslationAudioState => {
+        const metadataAudio = value.metadata?.audio && typeof value.metadata.audio === 'object'
+            ? { ...value.metadata.audio }
+            : null
+        const resolvedAudio = metadataAudio || getLegacyAudioState(value)
+
         return {
-            metadataAudio: hasAudio
-                ? {
-                    url: audioUrl,
-                    duration: audioDuration,
-                    size: audioSize,
-                    mimeType: audioMimeType,
-                }
-                : null,
-            audioUrl,
-            audioDuration,
-            audioSize,
-            audioMimeType,
+            metadataAudio: resolvedAudio ? { ...resolvedAudio } : null,
         }
+    }
+
+    const syncLegacyAudioState = (target: LegacyAudioCompat, audio: TranslationAudioState['metadataAudio']) => {
+        target.audioUrl = audio?.url ?? null
+        target.audioDuration = audio?.duration ?? null
+        target.audioSize = audio?.size ?? null
+        target.audioMimeType = audio?.mimeType ?? null
     }
 
     const applyAudioState = (state: TranslationAudioState) => {
@@ -152,10 +164,7 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         }
 
         options.post.value.metadata = Object.keys(nextMetadata).length > 0 ? nextMetadata : null
-        options.post.value.audioUrl = state.audioUrl
-        options.post.value.audioDuration = state.audioDuration
-        options.post.value.audioSize = state.audioSize
-        options.post.value.audioMimeType = state.audioMimeType
+        syncLegacyAudioState(options.post.value as PostEditorData & LegacyAudioCompat, state.metadataAudio)
     }
 
     const parseTranslationScopes = (value: string | string[] | undefined) => {
@@ -464,10 +473,6 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         if (scopes.includes('audio')) {
             applyAudioState({
                 metadataAudio: null,
-                audioUrl: null,
-                audioDuration: null,
-                audioSize: null,
-                audioMimeType: null,
             })
         }
     }
@@ -527,7 +532,7 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         }
 
         if (scope === 'audio') {
-            return Boolean(options.post.value.metadata?.audio?.url || options.post.value.audioUrl)
+            return Boolean(getAudioState(options.post.value as PostEditorData & LegacyAudioCompat).metadataAudio?.url)
         }
 
         return (options.post.value.tags?.length || 0) > 0

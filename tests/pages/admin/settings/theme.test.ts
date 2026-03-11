@@ -4,6 +4,14 @@ import { ref } from 'vue'
 import ThemePage from '@/pages/admin/settings/theme.vue'
 import * as useThemeComposable from '@/composables/use-theme'
 
+const { mockToast, mockShowErrorToast, mockShowSuccessToast } = vi.hoisted(() => ({
+    mockToast: {
+        add: vi.fn(),
+    },
+    mockShowErrorToast: vi.fn(),
+    mockShowSuccessToast: vi.fn(),
+}))
+
 // Mock PrimeVue components and others
 vi.mock('@/components/admin-page-header.vue', () => ({
     default: {
@@ -17,6 +25,13 @@ vi.mock('@/components/article-card.vue', () => ({
         name: 'ArticleCard',
         template: '<div>ArticleCard</div>',
     },
+}))
+
+vi.mock('@/composables/use-request-feedback', () => ({
+    useRequestFeedback: () => ({
+        showErrorToast: mockShowErrorToast,
+        showSuccessToast: mockShowSuccessToast,
+    }),
 }))
 
 // Mock PrimeVue usetoast
@@ -43,11 +58,6 @@ const stubs = {
     Tab: { template: '<div><slot /></div>' },
     TabPanels: { template: '<div><slot /></div>' },
     TabPanel: { template: '<div><slot /></div>' },
-}
-
-// Mock composables
-const mockToast = {
-    add: vi.fn(),
 }
 
 // Mock Nuxt auto-imports
@@ -154,9 +164,7 @@ describe('Admin Theme Settings Page', () => {
             method: 'PUT',
             body: mockSettings.value,
         }))
-        expect(mockToast.add).toHaveBeenCalledWith(expect.objectContaining({
-            severity: 'success',
-        }))
+        expect(mockShowSuccessToast).toHaveBeenCalledWith('pages.admin.settings.theme.save_success')
     })
 
     it('handles save error', async () => {
@@ -171,9 +179,8 @@ describe('Admin Theme Settings Page', () => {
         // @ts-expect-error - call internal method for testing
         await wrapper.vm.saveTheme()
 
-        expect(mockToast.add).toHaveBeenCalledWith(expect.objectContaining({
-            severity: 'error',
-            detail: errorMsg,
-        }))
+        expect(mockShowErrorToast).toHaveBeenCalledWith(expect.any(Error), {
+            fallbackKey: 'common.error_saving',
+        })
     })
 })

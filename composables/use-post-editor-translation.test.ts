@@ -27,10 +27,6 @@ function createPostEditorState(language = 'en-US') {
         language,
         translationId: null,
         views: 0,
-        audioUrl: null,
-        audioDuration: null,
-        audioSize: null,
-        audioMimeType: null,
     })
 }
 
@@ -53,10 +49,6 @@ function createSourcePost(): PostTranslationSourceDetail {
                 mimeType: 'audio/mpeg',
             },
         },
-        audioUrl: 'https://example.com/source-audio.mp3',
-        audioDuration: 180,
-        audioSize: 2048,
-        audioMimeType: 'audio/mpeg',
         tags: [{
             id: 'source-tag-id',
             name: '源标签',
@@ -87,9 +79,9 @@ function createComposable(options?: {
     const post = createPostEditorState(options?.language)
     post.value.tags = [...(options?.initialTags || [])]
     const tagBindings = ref<PostTagBindingInput[]>([...(options?.initialTagBindings || [])])
-    const translateTaxonomyNames = options?.translateTaxonomyNames || vi.fn(async (names: string[], targetLanguage: string) => names.map((name) => `${name}-${targetLanguage}`))
+    const translateTaxonomyNames = options?.translateTaxonomyNames || vi.fn((names: string[], targetLanguage: string) => Promise.resolve(names.map((name) => `${name}-${targetLanguage}`)))
     const toastAdd = vi.fn()
-    const translatePostFields = vi.fn(async () => true)
+    const translatePostFields = vi.fn(() => Promise.resolve(true))
 
     const composable = usePostEditorTranslation({
         post,
@@ -105,8 +97,8 @@ function createComposable(options?: {
         },
         t: (key: string) => key,
         localePath: (path: string) => path,
-        loadCategories: vi.fn(async () => {}),
-        loadTags: vi.fn(async () => {}),
+        loadCategories: vi.fn(() => Promise.resolve()),
+        loadTags: vi.fn(() => Promise.resolve()),
         getTagBindings: () => tagBindings.value,
         applyTagBindings: (bindings) => {
             tagBindings.value = bindings
@@ -153,7 +145,7 @@ describe('usePostEditorTranslation', () => {
     })
 
     it('应该在目标语言缺少同簇标签时生成带翻译簇的标签绑定', async () => {
-        const translateTaxonomyNames = vi.fn(async () => ['Generated Target Tag'])
+        const translateTaxonomyNames = vi.fn(() => Promise.resolve(['Generated Target Tag']))
         const { handleStartTranslationWorkflow, post, tagBindings } = createComposable({
             translateTaxonomyNames,
         })
@@ -171,7 +163,7 @@ describe('usePostEditorTranslation', () => {
     })
 
     it('未选择 tags 范围时应该保留目标文章原有标签', async () => {
-        const translateTaxonomyNames = vi.fn(async () => ['Generated Target Tag'])
+        const translateTaxonomyNames = vi.fn(() => Promise.resolve(['Generated Target Tag']))
         const { handleStartTranslationWorkflow, post, tagBindings } = createComposable({
             translateTaxonomyNames,
             initialTags: ['Existing Draft Tag'],
@@ -199,7 +191,7 @@ describe('usePostEditorTranslation', () => {
     })
 
     it('选择 tags 范围时应该替换目标文章原有标签', async () => {
-        const translateTaxonomyNames = vi.fn(async () => ['Generated Target Tag'])
+        const translateTaxonomyNames = vi.fn(() => Promise.resolve(['Generated Target Tag']))
         const { handleStartTranslationWorkflow, post, tagBindings } = createComposable({
             translateTaxonomyNames,
             initialTags: ['Existing Draft Tag'],
@@ -234,10 +226,6 @@ describe('usePostEditorTranslation', () => {
                 mimeType: 'audio/ogg',
             },
         }
-        post.value.audioUrl = 'https://example.com/old-audio.mp3'
-        post.value.audioDuration = 90
-        post.value.audioSize = 1024
-        post.value.audioMimeType = 'audio/ogg'
 
         await handleStartTranslationWorkflow({
             ...createWorkflowRequest(),
@@ -251,10 +239,6 @@ describe('usePostEditorTranslation', () => {
             size: 2048,
             mimeType: 'audio/mpeg',
         })
-        expect(post.value.audioUrl).toBe('https://example.com/source-audio.mp3')
-        expect(post.value.audioDuration).toBe(180)
-        expect(post.value.audioSize).toBe(2048)
-        expect(post.value.audioMimeType).toBe('audio/mpeg')
     })
 
     it('来源语言和目标语言一致时应该提醒并拒绝翻译', async () => {
