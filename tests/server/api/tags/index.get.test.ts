@@ -224,4 +224,62 @@ describe('/api/tags', () => {
         }
         expect(translatedTag.postCount).toBe(1)
     })
+
+    it('should filter tags by translation cluster id', async () => {
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                translationId: translatedTagGroup,
+                aggregate: false,
+            },
+        } as any
+
+        const result = await tagsHandler(event)
+
+        expect(result.code).toBe(200)
+        expect(result.data!.items).toHaveLength(3)
+        expect(result.data!.items.every((item: Tag) => item.translationId === translatedTagGroup)).toBe(true)
+    })
+
+    it('should filter tags by slug fallback when translationId is empty', async () => {
+        const tagRepo = dataSource.getRepository(Tag)
+        const fallbackClusterSlug = `manual-tag-cluster-${generateRandomString(5)}`
+
+        const zhTag = new Tag()
+        zhTag.name = '手动修复标签'
+        zhTag.slug = fallbackClusterSlug
+        zhTag.language = 'zh-CN'
+        zhTag.translationId = null
+        await tagRepo.save(zhTag)
+
+        const enTag = new Tag()
+        enTag.name = 'Manual Repair Tag'
+        enTag.slug = `manual-repair-tag-${generateRandomString(4)}`
+        enTag.language = 'en-US'
+        enTag.translationId = fallbackClusterSlug
+        await tagRepo.save(enTag)
+
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                translationId: fallbackClusterSlug,
+                aggregate: false,
+            },
+        } as any
+
+        const result = await tagsHandler(event)
+
+        expect(result.code).toBe(200)
+        expect(result.data!.items.map((item: Tag) => item.id)).toEqual(expect.arrayContaining([zhTag.id, enTag.id]))
+    })
 })

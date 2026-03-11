@@ -60,6 +60,16 @@ describe('usePostEditorAutoSave', () => {
             mockPost.value.language = 'en-US'
             expect(draftKey.value).toBe('momei-draft-en-US-new')
         })
+
+        it('should keep translation drafts isolated by language within the same cluster', () => {
+            mockPost.value.translationId = 'translation-cluster-1'
+
+            const { draftKey } = usePostEditorAutoSave(mockPost, isNew)
+            expect(draftKey.value).toBe('momei-draft-zh-CN-translation-cluster-1')
+
+            mockPost.value.language = 'en-US'
+            expect(draftKey.value).toBe('momei-draft-en-US-translation-cluster-1')
+        })
     })
 
     describe('hasRecoverableDraft', () => {
@@ -135,6 +145,19 @@ describe('usePostEditorAutoSave', () => {
             expect(mockPost.value.coverImage).toBe('https://example.com/image.jpg')
             expect(mockPost.value.categoryId).toBe('cat-1')
             expect(mockPost.value.tags).toEqual(['tag1', 'tag2'])
+        })
+
+        it('should restore tags with copy semantics', () => {
+            const { recoverDraft, localDraft } = usePostEditorAutoSave(mockPost, isNew)
+
+            localDraft.value = {
+                tags: ['tag1', 'tag2'],
+            }
+
+            recoverDraft()
+            mockPost.value.tags.push('tag3')
+
+            expect(localDraft.value.tags).toEqual(['tag1', 'tag2'])
         })
 
         it('should handle partial draft data', () => {

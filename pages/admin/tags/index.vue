@@ -223,6 +223,18 @@
                                     @click="syncTranslationIdFromSlugMulti(l.code)"
                                 />
                             </InputGroup>
+                            <TaxonomyTranslationAssociationCard
+                                v-if="getAssociationState(l.code).clusterId"
+                                :cluster-id="getAssociationState(l.code).clusterId || ''"
+                                :uses-slug-fallback="getAssociationState(l.code).usesSlugFallback"
+                                :same-language-conflict="getAssociationState(l.code).sameLanguageConflict"
+                                :linked-peers="getAssociationState(l.code).linkedPeers"
+                                :related-candidates="getAssociationState(l.code).relatedCandidates.map((candidate) => ({
+                                    ...candidate,
+                                    language: $t(`common.languages.${candidate.language}`)
+                                }))"
+                                @open-candidate="openAssociationCandidate"
+                            />
                         </div>
                     </TabPanel>
                 </TabPanels>
@@ -330,6 +342,14 @@ const activeTab = ref(locale.value)
 const syncToAllLanguages = ref(false)
 
 const multiForm = ref<Record<string, any>>({})
+const {
+    getAssociationState,
+} = useTaxonomyTranslationAssociation<Tag>({
+    endpoint: '/api/tags',
+    dialogVisible,
+    locales: locales as any,
+    multiForm,
+})
 const { aiLoading, translateName, generateSlug, syncAIAllLanguages } = useAdminAI(multiForm, activeTab)
 
 const createEmptyForm = (lang: string) => ({
@@ -369,6 +389,10 @@ const syncTranslationIdFromSlugMulti = (lang: string) => {
             }
         })
     }
+}
+
+const openAssociationCandidate = async (candidate: Tag) => {
+    await openDialog(candidate)
 }
 
 const openDialog = async (item?: any) => {
@@ -542,47 +566,9 @@ onMounted(() => {
     }
 
     &__filters {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    &__dialog {
-        width: 450px;
-    }
-}
-
-.translation-badges {
-    display: flex;
-    gap: 0.25rem;
-    flex-wrap: wrap;
-
-    &.justify-content-center {
-        justify-content: center;
-    }
-}
-
-.translation-badge {
-    cursor: pointer;
-    transition: opacity 0.2s;
-
-    &:hover {
-        opacity: 0.8;
-    }
-
-    &--missing {
-        filter: grayscale(1) opacity(0.5);
-    }
-}
-
-.field {
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-
-    label {
-        font-weight: 600;
+        label {
+            font-weight: 600;
+        }
     }
 }
 

@@ -248,4 +248,62 @@ describe('/api/categories', () => {
         }
         expect(translatedCategory.postCount).toBe(1)
     })
+
+    it('should filter categories by translation cluster id', async () => {
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                translationId: translatedCategoryGroup,
+                aggregate: false,
+            },
+        } as any
+
+        const result = await categoriesHandler(event)
+
+        expect(result.code).toBe(200)
+        expect(result.data!.items).toHaveLength(3)
+        expect(result.data!.items.every((item: Category) => item.translationId === translatedCategoryGroup)).toBe(true)
+    })
+
+    it('should filter categories by slug fallback when translationId is empty', async () => {
+        const categoryRepo = dataSource.getRepository(Category)
+        const fallbackClusterSlug = `manual-cluster-${generateRandomString(5)}`
+
+        const zhCategory = new Category()
+        zhCategory.name = '手动修复分类'
+        zhCategory.slug = fallbackClusterSlug
+        zhCategory.language = 'zh-CN'
+        zhCategory.translationId = null
+        await categoryRepo.save(zhCategory)
+
+        const enCategory = new Category()
+        enCategory.name = 'Manual Repair Category'
+        enCategory.slug = `manual-repair-${generateRandomString(4)}`
+        enCategory.language = 'en-US'
+        enCategory.translationId = fallbackClusterSlug
+        await categoryRepo.save(enCategory)
+
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                translationId: fallbackClusterSlug,
+                aggregate: false,
+            },
+        } as any
+
+        const result = await categoriesHandler(event)
+
+        expect(result.code).toBe(200)
+        expect(result.data!.items.map((item: Category) => item.id)).toEqual(expect.arrayContaining([zhCategory.id, enCategory.id]))
+    })
 })

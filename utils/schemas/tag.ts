@@ -20,5 +20,6 @@ export const tagUpdateSchema = tagBodySchema.partial().extend({
 export const tagQuerySchema = paginationSchema.extend(sortingSchema.shape).extend({
     search: z.string().optional(),
     language: z.string().optional(),
+    translationId: z.string().optional(),
     aggregate: z.preprocess((val) => val === 'true' || val === true, z.boolean().default(false)),
 })

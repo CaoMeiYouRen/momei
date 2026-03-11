@@ -40,6 +40,7 @@ const translations: Record<string, string> = {
     'pages.admin.posts.translation_workflow.progress_running': '翻译进行中',
     'pages.admin.posts.translation_workflow.progress_completed': '翻译已完成',
     'pages.admin.posts.translation_workflow.progress_failed': '翻译失败',
+    'pages.admin.posts.translation_workflow.current_field': '当前字段：{field}',
 }
 
 function translate(key: string, params?: Record<string, string>) {
@@ -148,7 +149,7 @@ const globalOptions = {
         Button: {
             props: ['label', 'severity', 'disabled', 'loading'],
             emits: ['click'],
-            template: '<button class="button-stub" :data-label="label" :data-severity="severity" @click="$emit(\'click\')">{{ label }}</button>',
+            template: '<button class="button-stub" :data-label="label" :data-severity="severity" :disabled="disabled" @click="$emit(\'click\')">{{ label }}</button>',
         },
     },
 }
@@ -208,5 +209,42 @@ describe('PostTranslationWorkflowDialog', () => {
 
         const startButton = wrapper.find('button[data-label="覆盖翻译"]')
         expect(startButton.attributes('data-severity')).toBe('danger')
+    })
+
+    it('shows no-source warning and disables start when no source is available', async () => {
+        const wrapper = await mountSuspended(PostTranslationWorkflowDialog, {
+            props: {
+                ...defaultProps,
+                sourceOptions: [],
+                defaultSourcePostId: null,
+                targetStatuses: [],
+            },
+            global: globalOptions,
+        })
+
+        await nextTick()
+
+        expect(wrapper.text()).toContain('no_sources')
+        expect(wrapper.find('button[data-label="开始翻译"]').attributes('disabled')).toBeDefined()
+    })
+
+    it('shows progress details and failure message during translation', async () => {
+        const wrapper = await mountSuspended(PostTranslationWorkflowDialog, {
+            props: {
+                ...defaultProps,
+                progress: 66,
+                translationStatus: 'failed',
+                activeField: 'content',
+                errorText: 'network error',
+            },
+            global: globalOptions,
+        })
+
+        await nextTick()
+
+        expect(wrapper.text()).toContain('翻译失败')
+        expect(wrapper.text()).toContain('当前字段：正文')
+        expect(wrapper.text()).toContain('network error')
+        expect(wrapper.text()).toContain('66')
     })
 })

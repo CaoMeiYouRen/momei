@@ -33,6 +33,12 @@ export default defineEventHandler(async (event) => {
         queryBuilder.andWhere('tag.name LIKE :search', { search: `%${query.search}%` })
     }
 
+    if (query.translationId) {
+        queryBuilder.andWhere('COALESCE(tag.translationId, tag.slug) = :translationId', {
+            translationId: query.translationId,
+        })
+    }
+
     if (query.language && !query.aggregate) {
         queryBuilder.andWhere('tag.language = :language', { language: query.language })
     }

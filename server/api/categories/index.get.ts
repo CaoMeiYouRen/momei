@@ -38,6 +38,12 @@ export default defineEventHandler(async (event) => {
         queryBuilder.andWhere('category.parentId = :parentId', { parentId: query.parentId })
     }
 
+    if (query.translationId) {
+        queryBuilder.andWhere('COALESCE(category.translationId, category.slug) = :translationId', {
+            translationId: query.translationId,
+        })
+    }
+
     if (query.language && !query.aggregate) {
         queryBuilder.andWhere('category.language = :language', { language: query.language })
     }

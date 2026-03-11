@@ -26,15 +26,15 @@ const stubs = {
         props: ['title', 'showLanguageSwitcher'],
     },
     Button: {
-        template: '<button :class="icon" @click="$emit(\'click\')"><slot /></button>',
-        props: ['label', 'loading', 'icon', 'severity'],
+        template: '<button :class="icon" :disabled="disabled" @click="$emit(\'click\')"><slot />{{ label }}</button>',
+        props: ['label', 'loading', 'icon', 'severity', 'disabled'],
         emits: ['click'],
     },
     IconField: { template: '<div class="icon-field"><slot /></div>' },
     InputIcon: { template: '<i :class="$attrs.class" class="input-icon" />' },
     InputText: {
-        template: '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" :placeholder="placeholder" />',
-        props: ['modelValue', 'placeholder'],
+        template: '<input :id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" :placeholder="placeholder" />',
+        props: ['id', 'modelValue', 'placeholder'],
         emits: ['update:modelValue', 'input'],
     },
     ToggleSwitch: {
@@ -61,11 +61,16 @@ const stubs = {
     Textarea: { template: '<textarea class="textarea" />', props: ['modelValue', 'rows', 'cols'] },
     Select: { template: '<select class="select" />', props: ['modelValue', 'options', 'optionLabel', 'optionValue'] },
     TabsPanel: { template: '<div><slot /></div>' },
+    TaxonomyTranslationAssociationCard: {
+        template: '<div class="taxonomy-translation-association" :class="{\'taxonomy-translation-association--warn\': Boolean(sameLanguageConflict)}"><span>{{ clusterId }}</span><span v-for="candidate in relatedCandidates" :key="candidate.id">{{ candidate.name }}</span></div>',
+        props: ['clusterId', 'usesSlugFallback', 'sameLanguageConflict', 'linkedPeers', 'relatedCandidates'],
+    },
     ConfirmDeleteDialog: { template: '<div class="confirm-delete-dialog" />', props: ['visible', 'title', 'message'] },
 }
 
 const loadData = vi.fn()
 const addToast = vi.fn()
+const fetchMock: any = vi.fn(() => Promise.resolve({ data: { items: [] } }))
 
 // Mock Nuxt auto-imports
 vi.mock('#imports', async (importOriginal) => {
@@ -114,11 +119,12 @@ vi.stubGlobal('useAdminList', () => ({
     onFilterChange: vi.fn(),
     refresh: loadData,
 }))
-vi.stubGlobal('$fetch', vi.fn(() => Promise.resolve({ data: { items: [] } })))
+vi.stubGlobal('$fetch', fetchMock)
 
 describe('AdminCategoriesPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        fetchMock.mockImplementation(() => Promise.resolve({ data: { items: [] } }))
     })
 
     it('renders page header correctly', async () => {
@@ -197,5 +203,39 @@ describe('AdminCategoriesPage', () => {
 
         expect(wrapper.find('.taxonomy-dialog__sync-controls').exists()).toBe(true)
         expect(wrapper.find('.taxonomy-dialog__sync-toggle').exists()).toBe(true)
+    })
+
+    it('shows translation association candidates after entering a matching slug', async () => {
+        fetchMock.mockImplementation((...args: any[]) => {
+            const options = args[1]
+            if (options?.query?.translationId === 'tech-group') {
+                return Promise.resolve({
+                    data: {
+                        items: [
+                            { id: 'cat-en', name: 'Technology', language: 'en-US', slug: 'technology', translationId: 'tech-group' },
+                        ],
+                    },
+                })
+            }
+
+            return Promise.resolve({ data: { items: [] } })
+        })
+
+        const wrapper = await mountSuspended(AdminCategoriesPage, {
+            global: {
+                stubs,
+            },
+        })
+
+        await wrapper.find('button.pi-plus').trigger('click')
+        await nextTick()
+
+        await wrapper.find('input#slug_zh-CN').setValue('tech-group')
+        await nextTick()
+        await Promise.resolve()
+        await nextTick()
+
+        expect(wrapper.find('.taxonomy-translation-association').exists()).toBe(true)
+        expect(wrapper.text()).toContain('Technology')
     })
 })
