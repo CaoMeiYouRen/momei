@@ -220,6 +220,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import NotificationHistoryList from '@/components/settings/notification-history-list.vue'
 import type { Category } from '@/types/category'
 import type { Tag } from '@/types/tag'
 import type { ApiResponse } from '@/types/api'

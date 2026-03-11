@@ -414,6 +414,11 @@ const adminMenuItems = computed(() => {
                 command: () => navigateTo(localePath('/admin/marketing')),
             },
             {
+                label: t('pages.admin.notifications.title'),
+                icon: 'pi pi-bell',
+                command: () => navigateTo(localePath('/admin/notifications')),
+            },
+            {
                 label: t('common.settings'),
                 icon: 'pi pi-cog',
                 items: [

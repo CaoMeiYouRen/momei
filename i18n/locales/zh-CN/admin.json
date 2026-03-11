@@ -1138,6 +1138,12 @@
                 "join_date": "加入日期",
                 "delete_confirm": "确定要删除这个订阅者吗？"
             },
+            "notifications": {
+                "title": "通知管理",
+                "overview_title": "通知投递审计",
+                "description": "集中查看站内通知、SSE、浏览器推送和邮件通知的投递结果，确认哪些通知已经送达、失败或被跳过。",
+                "go_to_marketing": "前往营销中心"
+            },
             "snippets": {
                 "title": "灵感收纳箱",
                 "edit": "编辑灵感",

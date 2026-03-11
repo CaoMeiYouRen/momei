@@ -124,10 +124,6 @@
                 @click="save"
             />
         </div>
-
-        <Divider />
-
-        <NotificationDeliveryLogList />
     </div>
 </template>
 

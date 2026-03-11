@@ -1138,6 +1138,12 @@
                 "join_date": "가입일",
                 "delete_confirm": "이 구독자를 삭제하시겠습니까?"
             },
+            "notifications": {
+                "title": "알림 관리",
+                "overview_title": "알림 전달 감사",
+                "description": "인앱 알림, SSE, 웹 푸시, 이메일 알림의 전달 결과를 한곳에서 확인하여 어떤 알림이 실제로 전달되었고 실패했거나 건너뛰었는지 추적합니다.",
+                "go_to_marketing": "마케팅 센터로 이동"
+            },
             "snippets": {
                 "title": "영감 보관함",
                 "edit": "영감 편집",

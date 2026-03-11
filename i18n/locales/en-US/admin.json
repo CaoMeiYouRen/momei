@@ -1138,6 +1138,12 @@
                 "join_date": "Join Date",
                 "delete_confirm": "Are you sure you want to delete this subscriber?"
             },
+            "notifications": {
+                "title": "Notification Management",
+                "overview_title": "Notification Delivery Audit",
+                "description": "Review in-app, SSE, web push, and email delivery outcomes in one place so you can confirm which notifications were delivered, failed, or skipped.",
+                "go_to_marketing": "Go to Marketing Center"
+            },
             "snippets": {
                 "title": "Inspiration Inbox",
                 "edit": "Edit Inspiration",
