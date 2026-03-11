@@ -371,6 +371,7 @@
                 "export_error": "내보내기에 실패했습니다",
                 "search_placeholder": "제목 검색...",
                 "status": "상태",
+                "cover_column": "커버",
                 "podcast_column": "팟캐스트",
                 "back_to_list": "목록으로 돌아가기",
                 "title_placeholder": "게시글 제목",
@@ -387,6 +388,12 @@
                 "summary_placeholder": "게시글 요약...",
                 "cover_image": "커버 이미지 URL",
                 "audio_url": "오디오 URL (팟캐스트)",
+                "media": {
+                    "cover_available": "커버 있음",
+                    "cover_missing": "커버 없음",
+                    "audio_available": "바로 재생 가능",
+                    "audio_missing": "오디오 없음"
+                },
                 "podcast": {
                     "probe_metadata": "메타데이터 확인",
                     "duration": "길이",

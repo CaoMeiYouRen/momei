@@ -90,14 +90,33 @@
                     </template>
                 </Column>
                 <Column
+                    field="coverImage"
+                    :header="$t('pages.admin.posts.cover_column')"
+                    header-class="text-center"
+                    body-class="text-center"
+                    header-style="min-width: 7rem"
+                >
+                    <template #body="{data}">
+                        <PostMediaPreviewCell
+                            :post="data"
+                            mode="cover"
+                            :preferred-locale="preferredMediaLocale"
+                        />
+                    </template>
+                </Column>
+                <Column
                     field="audioUrl"
                     :header="$t('pages.admin.posts.podcast_column')"
                     header-class="text-center"
                     body-class="text-center"
-                    header-style="min-width: 5rem"
+                    header-style="min-width: 14rem"
                 >
                     <template #body="{data}">
-                        <i v-if="data.audioUrl" class="pi pi-headphones text-primary" />
+                        <PostMediaPreviewCell
+                            :post="data"
+                            mode="audio"
+                            :preferred-locale="preferredMediaLocale"
+                        />
                     </template>
                 </Column>
                 <Column
@@ -225,6 +244,8 @@
 import { ref, computed } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
+import PostMediaPreviewCell from '@/components/admin/posts/post-media-preview-cell.vue'
+import { useAdminI18n } from '@/composables/use-admin-i18n'
 import type { Post } from '@/types/post'
 import { useAdminList } from '@/composables/use-admin-list'
 import { useI18nDate } from '@/composables/use-i18n-date'
@@ -234,11 +255,12 @@ definePageMeta({
     layout: 'default',
 })
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const { formatDateTime, relativeTime, isFuture } = useI18nDate()
 const confirm = useConfirm()
 const toast = useToast()
+const { contentLanguage } = useAdminI18n()
 
 const selectedItems = ref<Post[]>([])
 const { exporting, exportPost, exportBatch } = usePostExport()
@@ -267,6 +289,7 @@ const {
 
 const { locales } = useI18n()
 const availableLocalesList = computed(() => locales.value as { code: string, name: string }[])
+const preferredMediaLocale = computed(() => contentLanguage.value || locale.value)
 
 const hasTranslation = (post: Post, lang: string) => {
     return post.translations?.some((t) => t.language === lang)

@@ -166,18 +166,19 @@ export default defineEventHandler(async (event) => {
     applyPagination(qb, query)
 
     const [items, total] = await qb.getManyAndCount()
+
+    // Attach translation information for management mode
+    if (query.scope === 'manage') {
+        await attachTranslations(items as any, postRepo, {
+            select: ['id', 'language', 'status', 'translationId', 'title', 'coverImage', 'metadata'],
+        })
+    }
+
     applyPostsReadModelFromMetadata(items)
 
     // 处理作者哈希并保护隐私
     const isUserAdmin = user && isAdmin(user.role)
     await processAuthorsPrivacy(items, !!isUserAdmin)
-
-    // Attach translation information for management mode
-    if (query.scope === 'manage') {
-        await attachTranslations(items as any, postRepo, {
-            select: ['id', 'language', 'status', 'translationId', 'title'],
-        })
-    }
 
     return success(paginate(items, total, query.page, query.limit))
 })

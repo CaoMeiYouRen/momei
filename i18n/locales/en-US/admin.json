@@ -371,6 +371,7 @@
                 "export_error": "Export Failed",
                 "search_placeholder": "Search title...",
                 "status": "Status",
+                "cover_column": "Cover",
                 "podcast_column": "Podcast",
                 "back_to_list": "Back to list",
                 "title_placeholder": "Post Title",
@@ -387,6 +388,12 @@
                 "summary_placeholder": "Post summary...",
                 "cover_image": "Cover Image URL",
                 "audio_url": "Audio URL (Podcast)",
+                "media": {
+                    "cover_available": "Cover Ready",
+                    "cover_missing": "No Cover",
+                    "audio_available": "Playable",
+                    "audio_missing": "No Audio"
+                },
                 "podcast": {
                     "probe_metadata": "Probe Metadata",
                     "duration": "Duration",

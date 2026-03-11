@@ -22,6 +22,7 @@ describe('/api/posts', () => {
     let category: Category
     let tag: Tag
     const translationClusterId = generateRandomString(12)
+    const mediaTranslationClusterId = generateRandomString(12)
 
     beforeAll(async () => {
         // Initialize DB
@@ -96,6 +97,37 @@ describe('/api/posts', () => {
         translatedEnPost.translationId = translationClusterId
         translatedEnPost.publishedAt = new Date()
         await postRepo.save(translatedEnPost)
+
+        const translatedMediaZhPost = new Post()
+        translatedMediaZhPost.title = '媒体回退中文文章'
+        translatedMediaZhPost.slug = generateRandomString(10)
+        translatedMediaZhPost.content = 'Chinese media fallback content'
+        translatedMediaZhPost.summary = 'Chinese media summary'
+        translatedMediaZhPost.status = PostStatus.PUBLISHED
+        translatedMediaZhPost.author = author
+        translatedMediaZhPost.language = 'zh-CN'
+        translatedMediaZhPost.translationId = mediaTranslationClusterId
+        translatedMediaZhPost.coverImage = '/covers/zh-media-cover.webp'
+        translatedMediaZhPost.publishedAt = new Date()
+        await postRepo.save(translatedMediaZhPost)
+
+        const translatedMediaEnPost = new Post()
+        translatedMediaEnPost.title = 'Media Fallback English Post'
+        translatedMediaEnPost.slug = generateRandomString(10)
+        translatedMediaEnPost.content = 'English media fallback content'
+        translatedMediaEnPost.summary = 'English media summary'
+        translatedMediaEnPost.status = PostStatus.PUBLISHED
+        translatedMediaEnPost.author = author
+        translatedMediaEnPost.language = 'en-US'
+        translatedMediaEnPost.translationId = mediaTranslationClusterId
+        translatedMediaEnPost.metadata = {
+            audio: {
+                url: '/audio/fallback-en.mp3',
+                duration: 75,
+            },
+        }
+        translatedMediaEnPost.publishedAt = new Date()
+        await postRepo.save(translatedMediaEnPost)
     })
 
     it('should return posts list', async () => {
@@ -334,5 +366,58 @@ describe('/api/posts', () => {
         expect(clusterPosts).toHaveLength(1)
         expect(clusterPosts[0]?.language).toBe('zh-CN')
         expect(clusterPosts[0]?.title).toBe('回退中文文章')
+    })
+
+    it('should include aggregated translation media for management preview fallback', async () => {
+        interface ManagementPostResponse {
+            translationId?: string | null
+            coverImage?: string | null
+            translations?: {
+                language: string
+                translationId?: string | null
+                metadata?: {
+                    audio?: {
+                        url?: string | null
+                        duration?: number | null
+                    }
+                } | null
+            }[] | null
+        }
+
+        const event = {
+            context: {
+                auth: {
+                    user: {
+                        id: 'admin-user',
+                        role: 'admin',
+                    },
+                },
+                user: {
+                    id: 'admin-user',
+                    role: 'admin',
+                },
+            },
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                scope: 'manage',
+                aggregate: true,
+                language: 'zh-TW',
+                search: '媒体回退中文文章',
+            },
+        } as any
+
+        const result = await postsHandler(event)
+        const responseItems = result.data!.items as ManagementPostResponse[]
+        const mediaPost = responseItems.find((item) => item.translationId === mediaTranslationClusterId)
+        const englishTranslation = mediaPost?.translations?.find((translation) => translation.language === 'en-US' && translation.translationId === mediaTranslationClusterId)
+
+        expect(result.code).toBe(200)
+        expect(mediaPost?.coverImage).toBe('/covers/zh-media-cover.webp')
+        expect(englishTranslation?.metadata?.audio?.url).toBe('/audio/fallback-en.mp3')
+        expect(englishTranslation?.metadata?.audio?.duration).toBe(75)
     })
 })

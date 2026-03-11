@@ -9,6 +9,10 @@ const stubs = {
         template: '<div class="admin-header"><slot name="actions" /></div>',
         props: ['title', 'showLanguageSwitcher'],
     },
+    PostMediaPreviewCell: {
+        template: '<div class="post-media-preview-cell-stub">media</div>',
+        props: ['post', 'mode', 'preferredLocale'],
+    },
     Button: {
         template: '<button :class="icon" @click="$emit(\'click\')"><slot /></button>',
         props: ['label', 'loading', 'icon', 'severity'],

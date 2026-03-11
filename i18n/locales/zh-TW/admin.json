@@ -371,6 +371,7 @@
                 "export_error": "匯出失敗",
                 "search_placeholder": "搜尋標題...",
                 "status": "狀態",
+                "cover_column": "封面",
                 "podcast_column": "播客",
                 "back_to_list": "返回列表",
                 "title_placeholder": "文章標題",
@@ -387,6 +388,12 @@
                 "summary_placeholder": "文章摘要...",
                 "cover_image": "封面圖 URL",
                 "audio_url": "音訊 URL (Podcast)",
+                "media": {
+                    "cover_available": "有封面",
+                    "cover_missing": "無封面",
+                    "audio_available": "可試聽",
+                    "audio_missing": "無音訊"
+                },
                 "podcast": {
                     "probe_metadata": "探測音訊中繼資料",
                     "duration": "音訊時長",
