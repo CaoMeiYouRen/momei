@@ -172,253 +172,45 @@ import StepSiteConfig from '@/components/installation/step-site-config.vue'
 import StepAdminAccount from '@/components/installation/step-admin-account.vue'
 import StepExtraConfig from '@/components/installation/step-extra-config.vue'
 import StepComplete from '@/components/installation/step-complete.vue'
-import { isCopyrightType } from '@/types/copyright'
-import { getCopyrightLicenseOptions, resolveDefaultCopyrightLicense } from '@/utils/shared/copyright-options'
-import { getInstallationChecklist, type InstallationChecklistMode } from '@/utils/shared/installation-checklist'
-import {
-    DEFAULT_INSTALLATION_EXTRA_CONFIG,
-    DEFAULT_INSTALLATION_SITE_CONFIG,
-    INSTALLATION_EXTRA_ENV_BACKFILL_MAP,
-    INSTALLATION_SITE_ENV_BACKFILL_MAP,
-    type InstallationExtraConfigModel,
-    type InstallationExtraFieldErrors,
-    type InstallationSiteConfigModel,
-    type InstallationSiteFieldErrors,
-} from '@/utils/shared/installation-settings'
+import { useInstallationWizard } from '@/composables/use-installation-wizard'
 
 definePageMeta({
     layout: 'installation',
 })
 
-const { t } = useI18n()
-const config = useRuntimeConfig()
-const localePath = useLocalePath()
-
-const currentStep = ref('1')
-const installationStatus = ref<any>(null)
-const installationMode = computed<InstallationChecklistMode>(() => config.public.demoMode ? 'demo' : 'production')
-const setupChecklist = computed(() => getInstallationChecklist(installationMode.value))
-const immediateChecklist = computed(() => setupChecklist.value.immediate)
-
-const dbInitLoading = ref(false)
-const dbInitSuccess = ref(false)
-const dbInitError = ref('')
-
-const siteConfig = ref<InstallationSiteConfigModel>({
-    ...DEFAULT_INSTALLATION_SITE_CONFIG,
-    siteUrl: typeof window !== 'undefined' ? window.location.origin : '',
-    siteCopyright: resolveDefaultCopyrightLicense(config.public.defaultCopyright as string | undefined),
-})
-const siteConfigLoading = ref(false)
-const siteConfigError = ref('')
-const siteFieldErrors = ref<InstallationSiteFieldErrors>({})
-
-const languageOptions = computed(() => [
-    { label: t('common.languages.zh-CN'), value: 'zh-CN' },
-    { label: t('common.languages.en-US'), value: 'en-US' },
-    { label: t('common.languages.zh-TW'), value: 'zh-TW' },
-    { label: t('common.languages.ko-KR'), value: 'ko-KR' },
-])
-const licenseOptions = computed(() => getCopyrightLicenseOptions(t))
-
-const adminData = ref({
-    name: '',
-    email: '',
-    password: '',
-})
-const adminLoading = ref(false)
-const adminError = ref('')
-const adminFieldErrors = ref<Record<string, string>>({})
-
-const extraConfig = ref<InstallationExtraConfigModel>({
-    ...DEFAULT_INSTALLATION_EXTRA_CONFIG,
-})
-const extraConfigLoading = ref(false)
-const extraConfigError = ref('')
-const extraFieldErrors = ref<InstallationExtraFieldErrors>({})
-
-/**
- * 映射 Zod 错误到字段对象
- */
-function mapFieldErrors(issues: any[]) {
-    const errors: Record<string, string> = {}
-    if (Array.isArray(issues)) {
-        issues.forEach((issue) => {
-            const field = issue.path[0]
-            if (field) {
-                errors[field] = issue.message
-            }
-        })
-    }
-    return errors
-}
-
-function extractValidationIssues(error: any): any[] {
-    if (Array.isArray(error?.data)) {
-        return error.data
-    }
-
-    if (Array.isArray(error?.data?.data)) {
-        return error.data.data
-    }
-
-    return []
-}
-
-const finalizeLoading = ref(false)
-const finalizeSuccess = ref(false)
-const finalizeError = ref('')
-
-async function fetchInstallationStatus() {
-    try {
-        const response: any = await $fetch('/api/install/status')
-        installationStatus.value = response.data
-        if (response.data?.installed && !finalizeSuccess.value) {
-            navigateTo('/')
-        }
-
-        // 自动检测环境变量状态并回填
-        if (response.data?.envSettings) {
-            const env = response.data.envSettings
-
-            Object.entries(INSTALLATION_SITE_ENV_BACKFILL_MAP).forEach(([settingKey, configKey]) => {
-                if (env[settingKey]) {
-                    if (configKey === 'siteCopyright') {
-                        siteConfig.value.siteCopyright = isCopyrightType(env[settingKey].value)
-                            ? env[settingKey].value
-                            : siteConfig.value.siteCopyright
-                    } else {
-                        siteConfig.value[configKey] = env[settingKey].value
-                    }
-                }
-            })
-
-            Object.entries(INSTALLATION_EXTRA_ENV_BACKFILL_MAP).forEach(([settingKey, configKey]) => {
-                if (env[settingKey]) {
-                    if (configKey === 'emailPort') {
-                        extraConfig.value.emailPort = parseInt(env[settingKey].value) || 587
-                    } else {
-                        extraConfig.value[configKey] = env[settingKey].value
-                    }
-                }
-            })
-        }
-    } catch (error: any) {
-        console.error('Failed to fetch installation status:', error)
-    }
-}
-
-async function initDatabase() {
-    dbInitLoading.value = true
-    dbInitError.value = ''
-    try {
-        await $fetch('/api/install/init-db', { method: 'POST' })
-        dbInitSuccess.value = true
-    } catch (error: any) {
-        dbInitError.value = error.data?.message || t('installation.database.error')
-    } finally {
-        dbInitLoading.value = false
-    }
-}
-
-async function saveSiteConfig(activateCallback: (step: string) => void) {
-    siteConfigLoading.value = true
-    siteConfigError.value = ''
-    siteFieldErrors.value = {}
-    try {
-        await $fetch('/api/install/setup-site', { method: 'POST', body: siteConfig.value })
-        activateCallback('4')
-    } catch (error: any) {
-        siteConfigError.value = error.data?.statusMessage || error.data?.message || t('installation.siteConfig.error')
-        const issues = extractValidationIssues(error)
-        if (issues.length > 0) {
-            siteFieldErrors.value = mapFieldErrors(issues)
-        }
-    } finally {
-        siteConfigLoading.value = false
-    }
-}
-
-async function createAdmin(activateCallback: (step: string) => void) {
-    adminLoading.value = true
-    adminError.value = ''
-    adminFieldErrors.value = {}
-    try {
-        await $fetch('/api/install/create-admin', { method: 'POST', body: adminData.value })
-        activateCallback('5')
-    } catch (error: any) {
-        adminError.value = error.data?.statusMessage || error.data?.message || t('installation.adminAccount.error')
-        const issues = extractValidationIssues(error)
-        if (issues.length > 0) {
-            adminFieldErrors.value = mapFieldErrors(issues)
-        }
-    } finally {
-        adminLoading.value = false
-    }
-}
-
-async function saveExtraConfig(activateCallback: (step: string) => void) {
-    extraConfigLoading.value = true
-    extraConfigError.value = ''
-    extraFieldErrors.value = {}
-    try {
-        await $fetch('/api/install/setup-extra', { method: 'POST', body: extraConfig.value })
-        activateCallback('6')
-    } catch (error: any) {
-        extraConfigError.value = error.data?.statusMessage || error.data?.message || t('installation.preview.error')
-        const issues = extractValidationIssues(error)
-        if (issues.length > 0) {
-            extraFieldErrors.value = mapFieldErrors(issues)
-        }
-        // 可选配置，即使报错也允许进入下一步，除非是关键错误
-        if (Object.keys(extraFieldErrors.value).length === 0) {
-            activateCallback('6')
-        }
-    } finally {
-        extraConfigLoading.value = false
-    }
-}
-
-async function finalizeInstallation() {
-    finalizeLoading.value = true
-    finalizeError.value = ''
-    try {
-        await $fetch('/api/install/finalize', { method: 'POST' })
-        finalizeSuccess.value = true
-    } catch (error: any) {
-        finalizeError.value = error.data?.message || t('installation.complete.error')
-    } finally {
-        finalizeLoading.value = false
-    }
-}
-
-function openAdminSettings() {
-    const target = localePath({
-        path: '/login',
-        query: {
-            redirect: localePath({
-                path: '/admin/settings',
-                query: { tab: 'general' },
-            }),
-        },
-    })
-
-    return navigateWithReloadFallback(target)
-}
-
-async function navigateWithReloadFallback(target: string) {
-    try {
-        await navigateTo(target)
-    } catch {
-        if (import.meta.client) {
-            window.location.assign(target)
-        }
-    }
-}
-
-onMounted(() => {
-    fetchInstallationStatus()
-})
+const {
+    currentStep,
+    installationStatus,
+    installationMode,
+    setupChecklist,
+    immediateChecklist,
+    dbInitLoading,
+    dbInitSuccess,
+    dbInitError,
+    siteConfig,
+    siteConfigLoading,
+    siteConfigError,
+    siteFieldErrors,
+    languageOptions,
+    licenseOptions,
+    adminData,
+    adminLoading,
+    adminError,
+    adminFieldErrors,
+    extraConfig,
+    extraConfigLoading,
+    extraConfigError,
+    extraFieldErrors,
+    finalizeLoading,
+    finalizeSuccess,
+    finalizeError,
+    initDatabase,
+    saveSiteConfig,
+    createAdmin,
+    saveExtraConfig,
+    finalizeInstallation,
+    openAdminSettings,
+} = useInstallationWizard()
 </script>
 
 <style scoped lang="scss">

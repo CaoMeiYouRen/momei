@@ -1,19 +1,6 @@
-interface RequestFeedbackError {
-    statusCode?: number
-    statusMessage?: string
-    message?: string
-    data?: {
-        code?: number | string
-        i18nKey?: string
-        message?: string
-        statusMessage?: string
-    }
-}
+import { resolveRequestErrorMessage, type RequestFeedbackOptions } from '@/utils/shared/request-feedback'
 
-interface RequestFeedbackOptions {
-    fallbackKey: string
-    statusKeyMap?: Partial<Record<number, string>>
-    codeKeyMap?: Record<string, string>
+interface ToastFeedbackOptions extends RequestFeedbackOptions {
     life?: number
 }
 
@@ -21,31 +8,9 @@ export function useRequestFeedback() {
     const { t } = useI18n()
     const toast = useToast()
 
-    const resolveErrorMessage = (error: unknown, options: RequestFeedbackOptions) => {
-        const candidate = error as RequestFeedbackError | null | undefined
+    const resolveErrorMessage = (error: unknown, options: RequestFeedbackOptions) => resolveRequestErrorMessage(error, options, t)
 
-        if (candidate?.data?.i18nKey) {
-            return t(candidate.data.i18nKey)
-        }
-
-        if (candidate?.data?.code !== undefined) {
-            const mappedKey = options.codeKeyMap?.[String(candidate.data.code)]
-            if (mappedKey) {
-                return t(mappedKey)
-            }
-        }
-
-        if (candidate?.statusCode !== undefined) {
-            const mappedKey = options.statusKeyMap?.[candidate.statusCode]
-            if (mappedKey) {
-                return t(mappedKey)
-            }
-        }
-
-        return t(options.fallbackKey)
-    }
-
-    const showErrorToast = (error: unknown, options: RequestFeedbackOptions) => {
+    const showErrorToast = (error: unknown, options: ToastFeedbackOptions) => {
         toast.add({
             severity: 'error',
             summary: t('common.error'),

@@ -1,0 +1,561 @@
+import { computed, ref, type ComputedRef, type Ref } from 'vue'
+import type { ApiResponse } from '@/types/api'
+import type { PostEditorData } from '@/types/post-editor'
+import { PostStatus } from '@/types/post'
+import type {
+    PostTranslationCategoryOption,
+    PostTranslationSourceDetail,
+    PostTranslationSourceOption,
+    PostTranslationTagOption,
+    PostTranslationTargetState,
+    PostTranslationTargetStatus,
+    PostTranslationWorkflowAction,
+    PostTranslationWorkflowRequest,
+    TranslationScopeField,
+} from '@/types/post-translation'
+import { hasSharedTranslationCluster, resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
+
+interface LocaleOption {
+    code: string
+}
+
+interface TranslationGroupOption {
+    label: string
+    value: string
+}
+
+interface TranslationSearchItem {
+    id: string
+    title: string
+    language: string
+    translationId?: string | null
+}
+
+interface ToastApi {
+    add: (options: {
+        severity: string
+        summary: string
+        detail: string
+        life: number
+    }) => void
+}
+
+interface ConfirmApi {
+    require: (options: {
+        message: string
+        header: string
+        icon: string
+        acceptProps: {
+            label: string
+            severity: 'warn' | 'danger'
+        }
+        rejectProps: {
+            label: string
+            severity: 'secondary'
+            outlined: true
+        }
+        accept: () => void
+        reject: () => void
+    }) => void
+}
+
+interface UsePostEditorTranslationOptions {
+    post: Ref<PostEditorData>
+    isNew: ComputedRef<boolean>
+    localeItems: ComputedRef<LocaleOption[]>
+    categories: Ref<PostTranslationCategoryOption[]>
+    tagEntities: Ref<PostTranslationTagOption[]>
+    toast: ToastApi
+    confirm: ConfirmApi
+    t: (key: string) => string
+    localePath: (path: string) => string
+    loadCategories: (language?: string) => Promise<void>
+    loadTags: (language?: string) => Promise<void>
+    translatePostFields: (payload: {
+        source: PostTranslationSourceDetail
+        sourceLanguage: string
+        targetLanguage: string
+        scopes: TranslationScopeField[]
+    }) => Promise<boolean>
+    resetTranslationProgress: () => void
+}
+
+const DEFAULT_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags']
+
+export function usePostEditorTranslation(options: UsePostEditorTranslationOptions) {
+    const translations = ref<PostTranslationSourceOption[]>([])
+    const sourcePostSnapshot = ref<PostTranslationSourceDetail | null>(null)
+    const translationDialogVisible = ref(false)
+    const translationWorkflowDefaults = ref({
+        sourcePostId: null as string | null,
+        targetLanguage: options.post.value.language,
+        scopes: [...DEFAULT_TRANSLATION_SCOPES],
+    })
+    const postsForTranslation = ref<TranslationGroupOption[]>([])
+
+    const parseTranslationScopes = (value: string | string[] | undefined) => {
+        const rawValue = Array.isArray(value) ? value[0] : value
+        if (!rawValue) {
+            return [...DEFAULT_TRANSLATION_SCOPES]
+        }
+
+        const scopes = rawValue
+            .split(',')
+            .map((item) => item.trim())
+            .filter((item): item is TranslationScopeField => DEFAULT_TRANSLATION_SCOPES.includes(item as TranslationScopeField))
+
+        return scopes.length > 0 ? Array.from(new Set(scopes)) : [...DEFAULT_TRANSLATION_SCOPES]
+    }
+
+    const serializeTranslationScopes = (scopes: TranslationScopeField[]) => {
+        const normalizedScopes = Array.from(new Set(
+            scopes.filter((scope) => DEFAULT_TRANSLATION_SCOPES.includes(scope)),
+        ))
+
+        return normalizedScopes.length > 0 ? normalizedScopes.join(',') : undefined
+    }
+
+    const hasTranslation = (langCode: string) => {
+        if (options.post.value.language === langCode && !options.isNew.value) {
+            return options.post.value
+        }
+
+        return translations.value.find((item) => item.language === langCode) || null
+    }
+
+    const resolveTranslationTargetStatus = (langCode: string): PostTranslationTargetStatus => {
+        if (langCode === options.post.value.language) {
+            if (options.isNew.value && !options.post.value.id) {
+                return {
+                    language: langCode,
+                    state: 'missing',
+                    action: 'create',
+                    postId: null,
+                    isCurrentEditor: true,
+                }
+            }
+
+            const state: PostTranslationTargetState = options.post.value.status === PostStatus.PUBLISHED ? 'published' : 'draft'
+
+            return {
+                language: langCode,
+                state,
+                action: state === 'published' ? 'overwrite' : 'continue',
+                postId: options.post.value.id || null,
+                isCurrentEditor: true,
+            }
+        }
+
+        const targetTranslation = translations.value.find((item) => item.language === langCode)
+        if (!targetTranslation) {
+            return {
+                language: langCode,
+                state: 'missing',
+                action: 'create',
+                postId: null,
+                isCurrentEditor: false,
+            }
+        }
+
+        const state: PostTranslationTargetState = targetTranslation.status === PostStatus.PUBLISHED ? 'published' : 'draft'
+
+        return {
+            language: langCode,
+            state,
+            action: state === 'published' ? 'overwrite' : 'continue',
+            postId: targetTranslation.id,
+            isCurrentEditor: false,
+        }
+    }
+
+    const translationTargetStatuses = computed<PostTranslationTargetStatus[]>(() =>
+        options.localeItems.value.map((item) => resolveTranslationTargetStatus(item.code)),
+    )
+
+    const handleTranslationClick = async (
+        langCode: string,
+        autoTranslate = false,
+        overrideOptions?: {
+            sourceId?: string | null
+            scopes?: TranslationScopeField[]
+        },
+    ) => {
+        const targetTranslation = hasTranslation(langCode)
+        const sourceId = overrideOptions?.sourceId || options.post.value.id || sourcePostSnapshot.value?.id || null
+
+        if (!targetTranslation && options.isNew.value && !options.post.value.id) {
+            options.toast.add({
+                severity: 'warn',
+                summary: options.t('common.warn'),
+                detail: options.t('pages.admin.posts.save_current_first'),
+                life: 3000,
+            })
+            return
+        }
+
+        const autoTranslateQuery = autoTranslate
+            ? {
+                autoTranslate: 'true',
+                sourceId: sourceId || undefined,
+                translationScopes: serializeTranslationScopes(overrideOptions?.scopes || DEFAULT_TRANSLATION_SCOPES),
+            }
+            : undefined
+
+        if (targetTranslation?.id) {
+            await navigateTo({
+                path: options.localePath(`/admin/posts/${targetTranslation.id}`),
+                query: autoTranslateQuery,
+            })
+            return
+        }
+
+        await navigateTo({
+            path: options.localePath('/admin/posts/new'),
+            query: {
+                language: langCode,
+                sourceId: sourceId || undefined,
+                translationId: options.post.value.translationId || sourcePostSnapshot.value?.translationId || sourceId || undefined,
+                ...autoTranslateQuery,
+            },
+        })
+    }
+
+    const searchPosts = async (event: { query: string }) => {
+        if (!event.query.trim()) {
+            return
+        }
+
+        try {
+            const { data } = await $fetch<ApiResponse<{ items: TranslationSearchItem[] }>>('/api/posts', {
+                query: {
+                    search: event.query,
+                    limit: 10,
+                    scope: 'manage',
+                },
+            })
+
+            postsForTranslation.value = data.items
+                .filter((item) => item.id !== options.post.value.id)
+                .map((item) => ({
+                    label: `[${item.language}] ${item.title}`,
+                    value: item.translationId || item.id,
+                }))
+        } catch (error) {
+            console.error('Failed to search posts', error)
+        }
+    }
+
+    const translationSourceOptions = computed<PostTranslationSourceOption[]>(() => {
+        const sourceMap = new Map<string, PostTranslationSourceOption>()
+
+        const upsert = (item: PostTranslationSourceOption | null | undefined) => {
+            if (!item?.id) {
+                return
+            }
+
+            sourceMap.set(item.id, item)
+        }
+
+        upsert(sourcePostSnapshot.value)
+
+        if (options.post.value.id) {
+            upsert({
+                id: options.post.value.id,
+                title: options.post.value.title,
+                language: options.post.value.language,
+                translationId: options.post.value.translationId,
+                status: options.post.value.status,
+            })
+        }
+
+        translations.value.forEach(upsert)
+
+        return Array.from(sourceMap.values())
+    })
+
+    const resolveMatchedCategoryId = (
+        sourceCategory: PostTranslationSourceDetail['category'],
+        sourceLanguage: string,
+    ) => {
+        if (!sourceCategory) {
+            return null
+        }
+
+        const allowIdFallback = sourceLanguage === options.post.value.language
+        const matchedCategory = options.categories.value.find((category) => hasSharedTranslationCluster(sourceCategory, category, {
+            includeSourceId: allowIdFallback,
+            includeTargetId: allowIdFallback,
+        }))
+
+        return matchedCategory?.id || null
+    }
+
+    const resolveMatchedTagNames = (
+        sourceTags: PostTranslationSourceDetail['tags'],
+        sourceLanguage: string,
+    ) => {
+        if (!sourceTags?.length) {
+            return []
+        }
+
+        const allowIdFallback = sourceLanguage === options.post.value.language
+        const mappedTags = sourceTags.flatMap((tag) => {
+            const matchedTag = options.tagEntities.value.find((targetTag) => hasSharedTranslationCluster(tag, targetTag, {
+                includeSourceId: allowIdFallback,
+                includeTargetId: allowIdFallback,
+            }))
+
+            if (matchedTag?.name) {
+                return [matchedTag.name]
+            }
+
+            return allowIdFallback && tag.name ? [tag.name] : []
+        })
+
+        return Array.from(new Set(mappedTags.filter(Boolean)))
+    }
+
+    const createTranslationScopeSnapshot = () => ({
+        title: options.post.value.title,
+        content: options.post.value.content,
+        summary: options.post.value.summary,
+        categoryId: options.post.value.categoryId,
+        tags: [...options.post.value.tags],
+    })
+
+    const clearTranslatedScopes = (scopes: TranslationScopeField[]) => {
+        if (scopes.includes('title')) {
+            options.post.value.title = ''
+        }
+
+        if (scopes.includes('content')) {
+            options.post.value.content = ''
+        }
+
+        if (scopes.includes('summary')) {
+            options.post.value.summary = ''
+        }
+
+        if (scopes.includes('category')) {
+            options.post.value.categoryId = null
+        }
+
+        if (scopes.includes('tags')) {
+            options.post.value.tags = []
+        }
+    }
+
+    const restoreTranslatedScopes = (
+        scopes: TranslationScopeField[],
+        snapshot: ReturnType<typeof createTranslationScopeSnapshot>,
+    ) => {
+        if (scopes.includes('title')) {
+            options.post.value.title = snapshot.title
+        }
+
+        if (scopes.includes('content')) {
+            options.post.value.content = snapshot.content
+        }
+
+        if (scopes.includes('summary')) {
+            options.post.value.summary = snapshot.summary
+        }
+
+        if (scopes.includes('category')) {
+            options.post.value.categoryId = snapshot.categoryId
+        }
+
+        if (scopes.includes('tags')) {
+            options.post.value.tags = [...snapshot.tags]
+        }
+    }
+
+    const hasSelectedScopesContent = (scopes: TranslationScopeField[]) => scopes.some((scope) => {
+        if (scope === 'title') {
+            return Boolean(options.post.value.title?.trim())
+        }
+
+        if (scope === 'content') {
+            return Boolean(options.post.value.content?.trim())
+        }
+
+        if (scope === 'summary') {
+            return Boolean(options.post.value.summary?.trim())
+        }
+
+        if (scope === 'category') {
+            return Boolean(options.post.value.categoryId)
+        }
+
+        return (options.post.value.tags?.length || 0) > 0
+    })
+
+    const confirmTranslationOverwrite = async (
+        scopes: TranslationScopeField[],
+        targetState: PostTranslationTargetState,
+        action: PostTranslationWorkflowAction,
+    ) => {
+        if (targetState === 'missing' || (options.isNew.value && !options.post.value.id) || !hasSelectedScopesContent(scopes)) {
+            return true
+        }
+
+        const requestConfirm = (message: string, confirmOptions?: { header?: string, severity?: 'warn' | 'danger' }) => new Promise<boolean>((resolve) => {
+            options.confirm.require({
+                message,
+                header: confirmOptions?.header || options.t('pages.admin.posts.translation_workflow.overwrite_title'),
+                icon: 'pi pi-exclamation-triangle',
+                acceptProps: {
+                    label: options.t('common.confirm'),
+                    severity: confirmOptions?.severity || 'danger',
+                },
+                rejectProps: {
+                    label: options.t('common.cancel'),
+                    severity: 'secondary',
+                    outlined: true,
+                },
+                accept: () => resolve(true),
+                reject: () => resolve(false),
+            })
+        })
+
+        if (targetState === 'published') {
+            const firstConfirmed = await requestConfirm(options.t('pages.admin.posts.translation_workflow.overwrite_published_first'), {
+                severity: 'danger',
+            })
+            if (!firstConfirmed) {
+                return false
+            }
+
+            return await requestConfirm(options.t('pages.admin.posts.translation_workflow.overwrite_published_second'), {
+                severity: 'danger',
+            })
+        }
+
+        return await requestConfirm(
+            action === 'continue'
+                ? options.t('pages.admin.posts.translation_workflow.continue_draft')
+                : options.t('pages.admin.posts.translation_workflow.overwrite_draft'),
+            {
+                header: options.t('pages.admin.posts.translation_workflow.continue_title'),
+                severity: 'warn',
+            },
+        )
+    }
+
+    const fetchSourcePostDetail = async (postId: string) => {
+        if (sourcePostSnapshot.value?.id === postId) {
+            return sourcePostSnapshot.value
+        }
+
+        const response = await $fetch<ApiResponse<PostTranslationSourceDetail>>(`/api/posts/${postId}`)
+        return response.data
+    }
+
+    const openTranslationWorkflow = async (requestedLanguage: string | null) => {
+        const targetLanguage = requestedLanguage || options.post.value.language
+
+        if (targetLanguage !== options.post.value.language && options.post.value.id && !options.isNew.value) {
+            await handleTranslationClick(targetLanguage, true)
+            return
+        }
+
+        options.resetTranslationProgress()
+        translationWorkflowDefaults.value = {
+            sourcePostId: sourcePostSnapshot.value?.id || options.post.value.id || translations.value[0]?.id || null,
+            targetLanguage,
+            scopes: [...DEFAULT_TRANSLATION_SCOPES],
+        }
+
+        translationDialogVisible.value = true
+    }
+
+    const handleStartTranslationWorkflow = async (payload: PostTranslationWorkflowRequest) => {
+        if (payload.targetLanguage !== options.post.value.language) {
+            translationDialogVisible.value = false
+            await handleTranslationClick(payload.targetLanguage, true, {
+                sourceId: payload.sourcePostId,
+                scopes: payload.scopes,
+            })
+            return
+        }
+
+        const source = await fetchSourcePostDetail(payload.sourcePostId)
+        if (!source) {
+            return
+        }
+
+        const confirmed = await confirmTranslationOverwrite(payload.scopes, payload.targetState, payload.action)
+        if (!confirmed) {
+            return
+        }
+
+        if (options.post.value.language !== payload.targetLanguage) {
+            options.post.value.language = payload.targetLanguage
+            await Promise.all([
+                options.loadCategories(payload.targetLanguage),
+                options.loadTags(payload.targetLanguage),
+            ])
+        }
+
+        const translationScopeSnapshot = createTranslationScopeSnapshot()
+        clearTranslatedScopes(payload.scopes)
+
+        const translated = await options.translatePostFields({
+            source,
+            sourceLanguage: payload.sourceLanguage,
+            targetLanguage: payload.targetLanguage,
+            scopes: payload.scopes,
+        })
+
+        if (!translated) {
+            restoreTranslatedScopes(payload.scopes, translationScopeSnapshot)
+            return
+        }
+
+        if (payload.scopes.includes('category')) {
+            options.post.value.categoryId = resolveMatchedCategoryId(source.category, source.language)
+        }
+
+        if (payload.scopes.includes('tags')) {
+            options.post.value.tags = resolveMatchedTagNames(source.tags || [], source.language)
+        }
+
+        options.post.value.translationId = resolveTranslationClusterId(source.translationId, source.slug, source.id)
+        translationDialogVisible.value = false
+    }
+
+    const fetchTranslations = async (translationId: string) => {
+        if (!translationId?.trim()) {
+            translations.value = []
+            return
+        }
+
+        try {
+            const { data } = await $fetch<ApiResponse<{ items: PostTranslationSourceOption[] }>>('/api/posts', {
+                query: { translationId, limit: 10, scope: 'manage' },
+            })
+            translations.value = data.items.filter((item) => item.id !== options.post.value.id)
+        } catch (error) {
+            console.error('Failed to fetch translations', error)
+        }
+    }
+
+    return {
+        postsForTranslation,
+        translations,
+        sourcePostSnapshot,
+        translationDialogVisible,
+        translationWorkflowDefaults,
+        translationSourceOptions,
+        translationTargetStatuses,
+        hasTranslation,
+        searchPosts,
+        handleTranslationClick,
+        openTranslationWorkflow,
+        handleStartTranslationWorkflow,
+        fetchTranslations,
+        parseTranslationScopes,
+        resolveMatchedCategoryId,
+        resolveMatchedTagNames,
+    }
+}

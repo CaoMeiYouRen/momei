@@ -84,7 +84,7 @@ const adminData = defineModel<any>('adminData', { required: true })
 defineProps<{
     adminLoading: boolean
     adminError: string
-    fieldErrors: Record<string, string>
+    fieldErrors: Partial<Record<string, string>>
 }>()
 defineEmits(['prev', 'next'])
 </script>

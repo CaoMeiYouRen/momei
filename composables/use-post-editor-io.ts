@@ -6,11 +6,15 @@ import { useUpload, UploadType } from '@/composables/use-upload'
 import type { PostFrontMatter, PostEditorData, CategoryOption } from '@/types/post-editor'
 import { durationToSeconds } from '@/utils/shared/date'
 
+interface MarkdownEditorRef {
+    $img2Url?: (position: number, url: string) => void
+}
+
 export function usePostEditorIO(
     post: Ref<PostEditorData>,
     selectedTags: Ref<string[]>,
     categories: Ref<CategoryOption[]>,
-    md: Ref<any>,
+    md: Ref<MarkdownEditorRef | null>,
 ) {
     const { t } = useI18n()
     const toast = useToast()
@@ -41,7 +45,7 @@ export function usePostEditorIO(
         try {
             const url = await uploadFile($file)
             if (url) {
-                md.value?.$img2Url(pos, url)
+                md.value?.$img2Url?.(pos, url)
             }
         } catch (error) {
             console.error('Upload failed', error)

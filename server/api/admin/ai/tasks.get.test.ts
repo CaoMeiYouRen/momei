@@ -90,6 +90,9 @@ describe('GET /api/admin/ai/tasks', () => {
             estimatedQuotaUnits: 20,
             quotaUnits: 18,
             durationMs: 3600,
+            audioDuration: 0,
+            audioSize: 0,
+            textLength: 0,
         }))
         expect(result.costDisplay).toEqual(expect.objectContaining({
             currencyCode: 'CNY',

@@ -146,7 +146,11 @@ export default defineEventHandler(async (event) => {
             failureStage: item.failureStage,
             count: toNumber(item.count),
         })),
-        modelStats,
+        modelStats: modelStats.map((item) => ({
+            provider: item.provider,
+            model: item.model,
+            count: toNumber(item.count),
+        })),
         topUsers: topUsers.map((item) => ({
             userId: item.userId,
             name: item.name,

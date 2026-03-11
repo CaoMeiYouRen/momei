@@ -112,6 +112,20 @@ describe('GET /api/admin/ai/stats', () => {
             category: 'image',
             quotaUnits: 28,
         }))
+        expect(result.modelStats[0]).toEqual(expect.objectContaining({
+            provider: 'openai',
+            model: 'gpt-4o',
+            count: 5,
+        }))
+        expect(result.topUsers[0]).toEqual(expect.objectContaining({
+            userId: 'user-1',
+            taskCount: 4,
+        }))
+        expect(result.dailyTrend[0]).toEqual(expect.objectContaining({
+            date: '2026-03-08',
+            actualCost: 1.5,
+            quotaUnits: 8,
+        }))
         expect(result.failureStageStats[0]).toEqual(expect.objectContaining({
             failureStage: 'provider_processing',
         }))
