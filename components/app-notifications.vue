@@ -58,6 +58,14 @@ const formatTime = (time: string) => {
     const date = new Date(time)
     return date.toLocaleString()
 }
+
+const resolveNotificationTarget = (link: string | null) => {
+    if (!link || link.includes('taskId=')) {
+        return undefined
+    }
+
+    return localePath(link)
+}
 </script>
 
 <template>
@@ -134,8 +142,8 @@ const formatTime = (time: string) => {
                             </div>
                             <div class="item-body">
                                 <NuxtLink
-                                    v-if="item.link"
-                                    :to="localePath(item.link)"
+                                    v-if="resolveNotificationTarget(item.link)"
+                                    :to="resolveNotificationTarget(item.link)"
                                     class="item-title"
                                 >
                                     {{ item.title }}

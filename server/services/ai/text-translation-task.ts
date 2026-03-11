@@ -4,13 +4,11 @@ import { dataSource } from '@/server/database'
 import { AITask } from '@/server/entities/ai-task'
 import { calculateQuotaUnits, deriveChargeStatus, inferFailureStage } from '@/server/utils/ai/cost-governance'
 import logger from '@/server/utils/logger'
-import { sendInAppNotification } from '@/server/services/notification'
 import {
     AI_MAX_CONTENT_LENGTH,
     AI_TEXT_TASK_CHUNK_SIZE,
     AI_TEXT_TASK_CONCURRENCY,
 } from '@/utils/shared/env'
-import { NotificationType } from '@/utils/shared/notification'
 
 export class TextTranslationTaskService extends AIBaseService {
     static async createTranslateTask(content: string, to: string, userId: string, options?: TranslateRequestOptions) {
@@ -142,15 +140,6 @@ export class TextTranslationTaskService extends AIBaseService {
                 settlementSource: 'actual',
             })
 
-            await sendInAppNotification({
-                userId,
-                type: NotificationType.SYSTEM,
-                title: 'AI 翻译完成',
-                content: `您的翻译任务已完成，目标语言为 ${to}。`,
-                link: `/posts?taskId=${taskId}`,
-            }).catch((notificationError) => {
-                logger.error('[TextTranslationTaskService] Failed to send completion notification:', notificationError)
-            })
         } catch (error) {
             await this.recordTask({
                 id: taskId,
@@ -163,16 +152,6 @@ export class TextTranslationTaskService extends AIBaseService {
                 textLength: content.length,
                 failureStage: inferFailureStage(error),
                 settlementSource: 'estimated',
-            })
-
-            await sendInAppNotification({
-                userId,
-                type: NotificationType.SYSTEM,
-                title: 'AI 翻译失败',
-                content: `您的翻译任务失败，请稍后重试。`,
-                link: `/posts?taskId=${taskId}`,
-            }).catch((notificationError) => {
-                logger.error('[TextTranslationTaskService] Failed to send failure notification:', notificationError)
             })
         }
     }

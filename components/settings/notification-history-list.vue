@@ -75,8 +75,8 @@
             <Column :header="$t('pages.settings.notifications.history.columns.target')">
                 <template #body="slotProps">
                     <NuxtLink
-                        v-if="slotProps.data.link"
-                        :to="localePath(slotProps.data.link)"
+                        v-if="resolveNotificationTarget(slotProps.data.link)"
+                        :to="resolveNotificationTarget(slotProps.data.link)"
                         class="notification-history-list__target"
                     >
                         {{ $t('pages.settings.notifications.history.view_target') }}
@@ -123,6 +123,14 @@ const limit = ref(10)
 const loading = ref(false)
 
 const hasUnread = computed(() => items.value.some((item) => !item.isRead))
+
+function resolveNotificationTarget(link: string | null) {
+    if (!link || link.includes('taskId=')) {
+        return undefined
+    }
+
+    return localePath(link)
+}
 
 function getErrorDetail(error: unknown, fallback: string) {
     const candidate = error as {
