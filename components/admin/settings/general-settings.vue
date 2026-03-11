@@ -59,9 +59,12 @@
             input-id="site_copyright"
             :metadata="metadata.site_copyright"
         >
-            <InputText
+            <Select
                 id="site_copyright"
                 v-model="settings.site_copyright"
+                :options="copyrightOptions"
+                option-label="label"
+                option-value="value"
                 :disabled="metadata.site_copyright?.isLocked"
                 fluid
             />
@@ -596,6 +599,7 @@
 
 <script setup lang="ts">
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
+import { getCopyrightLicenseOptions } from '@/utils/shared/copyright-options'
 import type { AdminLanguageCode, GeneralSettingsMetadata, GeneralSettingsModel } from '@/types/setting'
 
 const settings = defineModel<GeneralSettingsModel>('settings', { required: true })
@@ -604,10 +608,14 @@ defineProps<{
     metadata: GeneralSettingsMetadata
 }>()
 
+const { t } = useI18n()
+
 const languageOptions: Array<{ label: string, value: AdminLanguageCode }> = [
     { label: '简体中文', value: 'zh-CN' },
     { label: 'English', value: 'en-US' },
 ]
+
+const copyrightOptions = computed(() => getCopyrightLicenseOptions(t))
 </script>
 
 <style lang="scss" scoped>

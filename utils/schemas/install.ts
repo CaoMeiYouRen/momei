@@ -1,12 +1,14 @@
 import { z } from 'zod'
+import { isAppLocale } from '@/i18n/config/locale-registry'
+import { isCopyrightType } from '@/types/copyright'
 
 export const siteConfigSchema = z.object({
     siteTitle: z.string().min(1, '站点标题不能为空').max(100),
     siteDescription: z.string().max(500).optional().or(z.literal('')),
     siteKeywords: z.string().max(200).optional().or(z.literal('')),
     siteUrl: z.string().max(500).optional().or(z.literal('')),
-    siteCopyright: z.string().max(200).optional().or(z.literal('')),
-    defaultLanguage: z.enum(['zh-CN', 'en-US']),
+    siteCopyright: z.string().refine((value) => value === '' || isCopyrightType(value), '请选择有效的版权协议'),
+    defaultLanguage: z.string().refine(isAppLocale, '请选择有效的默认语言'),
 })
 
 export const extraConfigSchema = z.object({

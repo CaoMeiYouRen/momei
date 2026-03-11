@@ -77,15 +77,29 @@ const props = defineProps<{
 const emit = defineEmits(['finalize', 'goToAdmin'])
 const localePath = useLocalePath()
 
-const openChecklistLink = (item: InstallationChecklistItem) => {
+const navigateWithReloadFallback = async (target: string) => {
+    try {
+        await navigateTo(target)
+    } catch {
+        if (import.meta.client) {
+            window.location.assign(target)
+        }
+    }
+}
+
+const openChecklistLink = async (item: InstallationChecklistItem) => {
     if (!item.link) {
         return
     }
 
-    return navigateTo(localePath({
-        path: item.link.path,
-        query: item.link.query,
-    }))
+    const target = localePath({
+        path: item.link.path.startsWith('/admin') ? '/login' : item.link.path,
+        query: item.link.path.startsWith('/admin')
+            ? { redirect: localePath({ path: item.link.path, query: item.link.query }) }
+            : item.link.query,
+    })
+
+    return navigateWithReloadFallback(target)
 }
 
 const onFinalize = () => emit('finalize')

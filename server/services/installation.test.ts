@@ -118,6 +118,10 @@ describe('Installation Service', () => {
 
             expect(status.envSettings[SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY]).toBeUndefined()
             expect(status.envSettings[SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY]).toBeDefined()
+            expect(status.envSettings[SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY]).toMatchObject({
+                envKey: 'WEB_PUSH_VAPID_PUBLIC_KEY',
+                lockReason: 'env_override',
+            })
         })
     })
 
@@ -157,7 +161,7 @@ describe('Installation Service', () => {
             expect(mockSave).toHaveBeenCalledTimes(15)
             expect(mockSave).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    key: 'site_title',
+                    key: SettingKey.SITE_TITLE,
                     value: 'Test Blog',
                 }),
             )

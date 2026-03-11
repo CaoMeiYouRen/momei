@@ -46,3 +46,15 @@ export const COPYRIGHT_LICENSES: Record<CopyrightType, LicenseMeta> = {
         url: 'https://creativecommons.org/publicdomain/zero/1.0/',
     },
 }
+
+export function isCopyrightType(value: string): value is CopyrightType {
+    return value in COPYRIGHT_LICENSES
+}
+
+export function resolveCopyrightType(value?: string | null, fallback: CopyrightType = 'all-rights-reserved'): CopyrightType {
+    if (value && isCopyrightType(value)) {
+        return value
+    }
+
+    return fallback
+}

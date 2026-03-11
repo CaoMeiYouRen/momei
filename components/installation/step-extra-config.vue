@@ -21,11 +21,10 @@
                         <div class="form-field">
                             <label for="ai_provider">
                                 {{ $t('installation.preview.ai.provider') }}
-                                <Tag
+                                <InstallationFieldStatus
                                     v-if="isLocked('ai_provider')"
-                                    severity="warn"
-                                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                                    class="ml-2"
+                                    field-key="ai_provider"
+                                    :env-setting="envSettings.ai_provider"
                                 />
                             </label>
                             <Select
@@ -43,11 +42,10 @@
                         <div class="form-field">
                             <label for="ai_model">
                                 {{ $t('installation.preview.ai.model') }}
-                                <Tag
+                                <InstallationFieldStatus
                                     v-if="isLocked('ai_model')"
-                                    severity="warn"
-                                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                                    class="ml-2"
+                                    field-key="ai_model"
+                                    :env-setting="envSettings.ai_model"
                                 />
                             </label>
                             <InputText
@@ -64,11 +62,10 @@
                         <div class="form-field">
                             <label for="ai_api_key">
                                 {{ $t('installation.preview.ai.apiKey') }}
-                                <Tag
+                                <InstallationFieldStatus
                                     v-if="isLocked('ai_api_key')"
-                                    severity="warn"
-                                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                                    class="ml-2"
+                                    field-key="ai_api_key"
+                                    :env-setting="envSettings.ai_api_key"
                                 />
                             </label>
                             <Password
@@ -86,11 +83,10 @@
                         <div class="form-field">
                             <label for="ai_endpoint">
                                 {{ $t('installation.preview.ai.endpoint') }}
-                                <Tag
+                                <InstallationFieldStatus
                                     v-if="isLocked('ai_endpoint')"
-                                    severity="warn"
-                                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                                    class="ml-2"
+                                    field-key="ai_endpoint"
+                                    :env-setting="envSettings.ai_endpoint"
                                 />
                             </label>
                             <InputText
@@ -116,11 +112,10 @@
                         <div class="form-field">
                             <label for="email_host">
                                 {{ $t('installation.preview.email.host') }}
-                                <Tag
+                                <InstallationFieldStatus
                                     v-if="isLocked('email_host')"
-                                    severity="warn"
-                                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                                    class="ml-2"
+                                    field-key="email_host"
+                                    :env-setting="envSettings.email_host"
                                 />
                             </label>
                             <InputText
@@ -133,11 +128,10 @@
                         <div class="form-field">
                             <label for="email_port">
                                 {{ $t('installation.preview.email.port') }}
-                                <Tag
+                                <InstallationFieldStatus
                                     v-if="isLocked('email_port')"
-                                    severity="warn"
-                                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                                    class="ml-2"
+                                    field-key="email_port"
+                                    :env-setting="envSettings.email_port"
                                 />
                             </label>
                             <InputNumber
@@ -151,11 +145,10 @@
                         <div class="form-field">
                             <label for="email_user">
                                 {{ $t('installation.preview.email.user') }}
-                                <Tag
+                                <InstallationFieldStatus
                                     v-if="isLocked('email_user')"
-                                    severity="warn"
-                                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                                    class="ml-2"
+                                    field-key="email_user"
+                                    :env-setting="envSettings.email_user"
                                 />
                             </label>
                             <InputText
@@ -168,11 +161,10 @@
                         <div class="form-field">
                             <label for="email_pass">
                                 {{ $t('installation.preview.email.pass') }}
-                                <Tag
+                                <InstallationFieldStatus
                                     v-if="isLocked('email_pass')"
-                                    severity="warn"
-                                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                                    class="ml-2"
+                                    field-key="email_pass"
+                                    :env-setting="envSettings.email_pass"
                                 />
                             </label>
                             <Password
@@ -186,11 +178,10 @@
                         <div class="form-field">
                             <label for="email_from">
                                 {{ $t('installation.preview.email.from') }}
-                                <Tag
+                                <InstallationFieldStatus
                                     v-if="isLocked('email_from')"
-                                    severity="warn"
-                                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                                    class="ml-2"
+                                    field-key="email_from"
+                                    :env-setting="envSettings.email_from"
                                 />
                             </label>
                             <InputText
@@ -212,11 +203,10 @@
                         <div class="form-field">
                             <label for="storage_type">
                                 {{ $t('installation.preview.storage.type') }}
-                                <Tag
+                                <InstallationFieldStatus
                                     v-if="isLocked('storage_type')"
-                                    severity="warn"
-                                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                                    class="ml-2"
+                                    field-key="storage_type"
+                                    :env-setting="envSettings.storage_type"
                                 />
                             </label>
                             <Select
@@ -230,11 +220,10 @@
                         <div class="form-field">
                             <label for="asset_public_base_url">
                                 {{ $t('installation.preview.storage.assetPublicBaseUrl') }}
-                                <Tag
+                                <InstallationFieldStatus
                                     v-if="isLocked('asset_public_base_url')"
-                                    severity="warn"
-                                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                                    class="ml-2"
+                                    field-key="asset_public_base_url"
+                                    :env-setting="envSettings.asset_public_base_url"
                                 />
                             </label>
                             <InputText
@@ -247,11 +236,10 @@
                         <div class="form-field">
                             <label for="asset_object_prefix">
                                 {{ $t('installation.preview.storage.assetObjectPrefix') }}
-                                <Tag
+                                <InstallationFieldStatus
                                     v-if="isLocked('asset_object_prefix')"
-                                    severity="warn"
-                                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                                    class="ml-2"
+                                    field-key="asset_object_prefix"
+                                    :env-setting="envSettings.asset_object_prefix"
                                 />
                             </label>
                             <InputText
@@ -265,11 +253,10 @@
                             <div class="form-field">
                                 <label for="storage_dir">
                                     {{ $t('installation.preview.storage.localDir') }}
-                                    <Tag
+                                    <InstallationFieldStatus
                                         v-if="isLocked('local_storage_dir')"
-                                        severity="warn"
-                                        :value="$t('pages.admin.settings.system.source_badges.env')"
-                                        class="ml-2"
+                                        field-key="local_storage_dir"
+                                        :env-setting="envSettings.local_storage_dir"
                                     />
                                 </label>
                                 <InputText
@@ -282,11 +269,10 @@
                             <div class="form-field">
                                 <label for="storage_url">
                                     {{ $t('installation.preview.storage.localBaseUrl') }}
-                                    <Tag
+                                    <InstallationFieldStatus
                                         v-if="isLocked('local_storage_base_url')"
-                                        severity="warn"
-                                        :value="$t('pages.admin.settings.system.source_badges.env')"
-                                        class="ml-2"
+                                        field-key="local_storage_base_url"
+                                        :env-setting="envSettings.local_storage_base_url"
                                     />
                                 </label>
                                 <InputText
@@ -301,11 +287,10 @@
                             <div class="form-field">
                                 <label for="s3_endpoint">
                                     {{ $t('installation.preview.storage.s3Endpoint') }}
-                                    <Tag
+                                    <InstallationFieldStatus
                                         v-if="isLocked('s3_endpoint')"
-                                        severity="warn"
-                                        :value="$t('pages.admin.settings.system.source_badges.env')"
-                                        class="ml-2"
+                                        field-key="s3_endpoint"
+                                        :env-setting="envSettings.s3_endpoint"
                                     />
                                 </label>
                                 <InputText
@@ -318,11 +303,10 @@
                             <div class="form-field">
                                 <label for="s3_bucket">
                                     {{ $t('installation.preview.storage.s3Bucket') }}
-                                    <Tag
+                                    <InstallationFieldStatus
                                         v-if="isLocked('s3_bucket')"
-                                        severity="warn"
-                                        :value="$t('pages.admin.settings.system.source_badges.env')"
-                                        class="ml-2"
+                                        field-key="s3_bucket"
+                                        :env-setting="envSettings.s3_bucket"
                                     />
                                 </label>
                                 <InputText
@@ -335,11 +319,10 @@
                             <div class="form-field">
                                 <label for="s3_region">
                                     {{ $t('installation.preview.storage.s3Region') }}
-                                    <Tag
+                                    <InstallationFieldStatus
                                         v-if="isLocked('s3_region')"
-                                        severity="warn"
-                                        :value="$t('pages.admin.settings.system.source_badges.env')"
-                                        class="ml-2"
+                                        field-key="s3_region"
+                                        :env-setting="envSettings.s3_region"
                                     />
                                 </label>
                                 <InputText
@@ -352,11 +335,10 @@
                             <div class="form-field">
                                 <label for="s3_key">
                                     {{ $t('installation.preview.storage.s3AccessKey') }}
-                                    <Tag
+                                    <InstallationFieldStatus
                                         v-if="isLocked('s3_access_key')"
-                                        severity="warn"
-                                        :value="$t('pages.admin.settings.system.source_badges.env')"
-                                        class="ml-2"
+                                        field-key="s3_access_key"
+                                        :env-setting="envSettings.s3_access_key"
                                     />
                                 </label>
                                 <Password
@@ -370,11 +352,10 @@
                             <div class="form-field">
                                 <label for="s3_secret">
                                     {{ $t('installation.preview.storage.s3SecretKey') }}
-                                    <Tag
+                                    <InstallationFieldStatus
                                         v-if="isLocked('s3_secret_key')"
-                                        severity="warn"
-                                        :value="$t('pages.admin.settings.system.source_badges.env')"
-                                        class="ml-2"
+                                        field-key="s3_secret_key"
+                                        :env-setting="envSettings.s3_secret_key"
                                     />
                                 </label>
                                 <Password
@@ -388,11 +369,10 @@
                             <div class="form-field">
                                 <label for="s3_base_url">
                                     {{ $t('installation.preview.storage.s3BaseUrl') }}
-                                    <Tag
+                                    <InstallationFieldStatus
                                         v-if="isLocked('s3_base_url')"
-                                        severity="warn"
-                                        :value="$t('pages.admin.settings.system.source_badges.env')"
-                                        class="ml-2"
+                                        field-key="s3_base_url"
+                                        :env-setting="envSettings.s3_base_url"
                                     />
                                 </label>
                                 <InputText
@@ -405,11 +385,10 @@
                             <div class="form-field">
                                 <label for="s3_bucket_prefix">
                                     {{ $t('installation.preview.storage.s3BucketPrefix') }}
-                                    <Tag
+                                    <InstallationFieldStatus
                                         v-if="isLocked('s3_bucket_prefix')"
-                                        severity="warn"
-                                        :value="$t('pages.admin.settings.system.source_badges.env')"
-                                        class="ml-2"
+                                        field-key="s3_bucket_prefix"
+                                        :env-setting="envSettings.s3_bucket_prefix"
                                     />
                                 </label>
                                 <InputText
@@ -432,11 +411,10 @@
                         <div class="form-field">
                             <label for="baidu_analytics">
                                 {{ $t('installation.preview.analytics.baidu') }}
-                                <Tag
+                                <InstallationFieldStatus
                                     v-if="isLocked('baidu_analytics')"
-                                    severity="warn"
-                                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                                    class="ml-2"
+                                    field-key="baidu_analytics"
+                                    :env-setting="envSettings.baidu_analytics"
                                 />
                             </label>
                             <InputText
@@ -449,11 +427,10 @@
                         <div class="form-field">
                             <label for="google_analytics">
                                 {{ $t('installation.preview.analytics.google') }}
-                                <Tag
+                                <InstallationFieldStatus
                                     v-if="isLocked('google_analytics')"
-                                    severity="warn"
-                                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                                    class="ml-2"
+                                    field-key="google_analytics"
+                                    :env-setting="envSettings.google_analytics"
                                 />
                             </label>
                             <InputText
@@ -466,11 +443,10 @@
                         <div class="form-field">
                             <label for="clarity_analytics">
                                 {{ $t('installation.preview.analytics.clarity') }}
-                                <Tag
+                                <InstallationFieldStatus
                                     v-if="isLocked('clarity_analytics')"
-                                    severity="warn"
-                                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                                    class="ml-2"
+                                    field-key="clarity_analytics"
+                                    :env-setting="envSettings.clarity_analytics"
                                 />
                             </label>
                             <InputText
@@ -511,12 +487,14 @@
 </template>
 
 <script setup lang="ts">
+import type { InstallationEnvSetting } from '@/utils/shared/installation-env-setting'
+
 const extraConfig = defineModel<any>('extraConfig', { required: true })
 const props = defineProps<{
     extraConfigLoading: boolean
     extraConfigError: string
     fieldErrors: Record<string, string>
-    envSettings: Record<string, any>
+    envSettings: Record<string, InstallationEnvSetting | undefined>
 }>()
 defineEmits(['prev', 'skip', 'next'])
 

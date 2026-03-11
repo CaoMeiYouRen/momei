@@ -7,6 +7,9 @@ import { Setting } from '../entities/setting'
 import logger from '../utils/logger'
 import { isInternalOnlySettingKey, SETTING_ENV_MAP } from './setting'
 import { TEST_MODE } from '@/utils/shared/env'
+import type { InstallationEnvSetting } from '@/utils/shared/installation-env-setting'
+import type { InstallationSiteConfigModel } from '@/utils/shared/installation-settings'
+import { SettingKey } from '@/types/setting'
 import { inferSettingMaskType, isMaskedSettingPlaceholder, maskSettingValue } from '@/server/utils/settings'
 
 /**
@@ -17,20 +20,7 @@ import { inferSettingMaskType, isMaskedSettingPlaceholder, maskSettingValue } fr
 /**
  * 环境变量配置项接口
  */
-export interface EnvSetting {
-    /**
-     * 脱敏后的值 (如果不需要脱敏则为原值)
-     */
-    value: string
-    /**
-     * 是否受环境变量锁定
-     */
-    isLocked: boolean
-    /**
-     * 脱敏类型
-     */
-    maskType: string
-}
+export type EnvSetting = InstallationEnvSetting
 
 /**
  * 安装状态接口
@@ -89,31 +79,10 @@ export interface InstallationStatus {
 /**
  * 站点配置接口
  */
-export interface SiteConfig {
+export interface SiteConfig extends InstallationSiteConfigModel {
     /**
      * 站点标题
      */
-    siteTitle: string
-    /**
-     * 站点描述
-     */
-    siteDescription?: string
-    /**
-     * 站点关键词
-     */
-    siteKeywords?: string
-    /**
-     * 站点地址 (用于 Auth 和 生成链接)
-     */
-    siteUrl?: string
-    /**
-     * 底部版权信息
-     */
-    siteCopyright?: string
-    /**
-     * 默认语言
-     */
-    defaultLanguage: string
     /**
      * 运营方名称
      */
@@ -404,6 +373,8 @@ function getEnvSettingsDetails(): Record<string, EnvSetting> {
                 value: maskSettingValue(envValue, maskType) || '',
                 isLocked: true,
                 maskType,
+                envKey,
+                lockReason: 'env_override',
             }
         }
     })
@@ -426,21 +397,21 @@ export async function saveSiteConfig(config: SiteConfig): Promise<void> {
     const settingRepo = dataSource.getRepository(Setting)
 
     const settings = [
-        { key: 'site_title', value: config.siteTitle, description: '站点标题', level: 0 },
-        { key: 'site_name', value: config.siteTitle, description: '站点名称', level: 0 },
-        { key: 'site_url', value: config.siteUrl || '', description: '站点地址', level: 0 },
-        { key: 'site_description', value: config.siteDescription ?? '', description: '站点描述', level: 0 },
-        { key: 'site_keywords', value: config.siteKeywords ?? '', description: '站点关键词', level: 0 },
-        { key: 'site_copyright', value: config.siteCopyright || '', description: '底部版权信息', level: 0 },
-        { key: 'default_language', value: config.defaultLanguage, description: '默认语言', level: 0 },
-        { key: 'site_operator', value: config.siteOperator || '', description: '运营方名称', level: 0 },
-        { key: 'contact_email', value: config.contactEmail || '', description: '联系邮箱', level: 0 },
-        { key: 'site_logo', value: '', description: '站点 Logo', level: 0 },
-        { key: 'site_favicon', value: '', description: '站点图标', level: 0 },
-        { key: 'footer_code', value: '', description: '页脚附加代码', level: 0 },
-        { key: 'show_compliance_info', value: config.showComplianceInfo ? 'true' : 'false', description: '是否显示备案信息', level: 0 },
-        { key: 'icp_license_number', value: config.icpLicenseNumber || '', description: 'ICP 备案号', level: 0 },
-        { key: 'public_security_number', value: config.publicSecurityNumber || '', description: '公安备案号', level: 0 },
+        { key: SettingKey.SITE_TITLE, value: config.siteTitle, description: '站点标题', level: 0 },
+        { key: SettingKey.SITE_NAME, value: config.siteTitle, description: '站点名称', level: 0 },
+        { key: SettingKey.SITE_URL, value: config.siteUrl || '', description: '站点地址', level: 0 },
+        { key: SettingKey.SITE_DESCRIPTION, value: config.siteDescription ?? '', description: '站点描述', level: 0 },
+        { key: SettingKey.SITE_KEYWORDS, value: config.siteKeywords ?? '', description: '站点关键词', level: 0 },
+        { key: SettingKey.SITE_COPYRIGHT, value: config.siteCopyright || '', description: '默认版权协议', level: 0 },
+        { key: SettingKey.DEFAULT_LANGUAGE, value: config.defaultLanguage, description: '默认语言', level: 0 },
+        { key: SettingKey.SITE_OPERATOR, value: config.siteOperator || '', description: '运营方名称', level: 0 },
+        { key: SettingKey.CONTACT_EMAIL, value: config.contactEmail || '', description: '联系邮箱', level: 0 },
+        { key: SettingKey.SITE_LOGO, value: '', description: '站点 Logo', level: 0 },
+        { key: SettingKey.SITE_FAVICON, value: '', description: '站点图标', level: 0 },
+        { key: SettingKey.FOOTER_CODE, value: '', description: '页脚附加代码', level: 0 },
+        { key: SettingKey.SHOW_COMPLIANCE_INFO, value: config.showComplianceInfo ? 'true' : 'false', description: '是否显示备案信息', level: 0 },
+        { key: SettingKey.ICP_LICENSE_NUMBER, value: config.icpLicenseNumber || '', description: 'ICP 备案号', level: 0 },
+        { key: SettingKey.PUBLIC_SECURITY_NUMBER, value: config.publicSecurityNumber || '', description: '公安备案号', level: 0 },
     ]
 
     for (const setting of settings) {
@@ -482,50 +453,50 @@ export async function saveExtraConfig(config: ExtraConfig): Promise<void> {
 
     const settings = [
         // AI
-        { key: 'ai_enabled', value: config.aiApiKey ? 'true' : 'false', description: '是否启用 AI 功能', level: 0 },
-        { key: 'ai_provider', value: config.aiProvider || '', description: 'AI 服务商', level: 2 },
-        { key: 'ai_api_key', value: config.aiApiKey || '', description: 'AI API Key', level: 2, maskType: 'key' },
-        { key: 'ai_model', value: config.aiModel || '', description: 'AI 模型', level: 2 },
-        { key: 'ai_endpoint', value: config.aiEndpoint || '', description: 'AI 代理地址', level: 2 },
+        { key: SettingKey.AI_ENABLED, value: config.aiApiKey ? 'true' : 'false', description: '是否启用 AI 功能', level: 0 },
+        { key: SettingKey.AI_PROVIDER, value: config.aiProvider || '', description: 'AI 服务商', level: 2 },
+        { key: SettingKey.AI_API_KEY, value: config.aiApiKey || '', description: 'AI API Key', level: 2, maskType: 'key' },
+        { key: SettingKey.AI_MODEL, value: config.aiModel || '', description: 'AI 模型', level: 2 },
+        { key: SettingKey.AI_ENDPOINT, value: config.aiEndpoint || '', description: 'AI 代理地址', level: 2 },
         // Email
-        { key: 'email_host', value: config.emailHost || '', description: 'SMTP 服务器', level: 2 },
-        { key: 'email_port', value: String(config.emailPort || 587), description: 'SMTP 端口', level: 2 },
-        { key: 'email_user', value: config.emailUser || '', description: 'SMTP 用户名', level: 2, maskType: 'email' },
-        { key: 'email_pass', value: config.emailPass || '', description: 'SMTP 密码', level: 2, maskType: 'password' },
-        { key: 'email_from', value: config.emailFrom || '', description: '发件人邮箱', level: 2 },
+        { key: SettingKey.EMAIL_HOST, value: config.emailHost || '', description: 'SMTP 服务器', level: 2 },
+        { key: SettingKey.EMAIL_PORT, value: String(config.emailPort || 587), description: 'SMTP 端口', level: 2 },
+        { key: SettingKey.EMAIL_USER, value: config.emailUser || '', description: 'SMTP 用户名', level: 2, maskType: 'email' },
+        { key: SettingKey.EMAIL_PASS, value: config.emailPass || '', description: 'SMTP 密码', level: 2, maskType: 'password' },
+        { key: SettingKey.EMAIL_FROM, value: config.emailFrom || '', description: '发件人邮箱', level: 2 },
         // Storage
-        { key: 'storage_type', value: config.storageType || 'local', description: '存储类型', level: 2 },
-        { key: 'local_storage_dir', value: config.localStorageDir || 'public/uploads', description: '本地存储目录', level: 2 },
-        { key: 'local_storage_base_url', value: config.localStorageBaseUrl || '/uploads', description: '本地存储基础 URL', level: 2 },
-        { key: 's3_endpoint', value: config.s3Endpoint || '', description: 'S3 终端地址', level: 2 },
-        { key: 's3_bucket', value: config.s3Bucket || '', description: 'S3 桶名称', level: 2 },
-        { key: 's3_region', value: config.s3Region || 'auto', description: 'S3 区域', level: 2 },
-        { key: 's3_access_key', value: config.s3AccessKey || '', description: 'S3 Access Key', level: 2, maskType: 'key' },
-        { key: 's3_secret_key', value: config.s3SecretKey || '', description: 'S3 Secret Key', level: 2, maskType: 'password' },
-        { key: 's3_base_url', value: config.s3BaseUrl || '', description: 'S3 基础 URL', level: 2 },
-        { key: 's3_bucket_prefix', value: config.s3BucketPrefix || '', description: 'S3 目录前缀', level: 2 },
-        { key: 'asset_public_base_url', value: config.assetPublicBaseUrl || '', description: '静态资源公共访问前缀', level: 2 },
-        { key: 'asset_object_prefix', value: config.assetObjectPrefix || '', description: '静态资源对象前缀', level: 2 },
+        { key: SettingKey.STORAGE_TYPE, value: config.storageType || 'local', description: '存储类型', level: 2 },
+        { key: SettingKey.LOCAL_STORAGE_DIR, value: config.localStorageDir || 'public/uploads', description: '本地存储目录', level: 2 },
+        { key: SettingKey.LOCAL_STORAGE_BASE_URL, value: config.localStorageBaseUrl || '/uploads', description: '本地存储基础 URL', level: 2 },
+        { key: SettingKey.S3_ENDPOINT, value: config.s3Endpoint || '', description: 'S3 终端地址', level: 2 },
+        { key: SettingKey.S3_BUCKET, value: config.s3Bucket || '', description: 'S3 桶名称', level: 2 },
+        { key: SettingKey.S3_REGION, value: config.s3Region || 'auto', description: 'S3 区域', level: 2 },
+        { key: SettingKey.S3_ACCESS_KEY, value: config.s3AccessKey || '', description: 'S3 Access Key', level: 2, maskType: 'key' },
+        { key: SettingKey.S3_SECRET_KEY, value: config.s3SecretKey || '', description: 'S3 Secret Key', level: 2, maskType: 'password' },
+        { key: SettingKey.S3_BASE_URL, value: config.s3BaseUrl || '', description: 'S3 基础 URL', level: 2 },
+        { key: SettingKey.S3_BUCKET_PREFIX, value: config.s3BucketPrefix || '', description: 'S3 目录前缀', level: 2 },
+        { key: SettingKey.ASSET_PUBLIC_BASE_URL, value: config.assetPublicBaseUrl || '', description: '静态资源公共访问前缀', level: 2 },
+        { key: SettingKey.ASSET_OBJECT_PREFIX, value: config.assetObjectPrefix || '', description: '静态资源对象前缀', level: 2 },
         // Analytics
-        { key: 'baidu_analytics', value: config.baiduAnalytics || '', description: '百度统计 ID', level: 0 },
-        { key: 'google_analytics', value: config.googleAnalytics || '', description: 'Google Analytics ID', level: 0 },
-        { key: 'clarity_analytics', value: config.clarityAnalytics || '', description: 'Microsoft Clarity ID', level: 0 },
+        { key: SettingKey.BAIDU_ANALYTICS, value: config.baiduAnalytics || '', description: '百度统计 ID', level: 0 },
+        { key: SettingKey.GOOGLE_ANALYTICS, value: config.googleAnalytics || '', description: 'Google Analytics ID', level: 0 },
+        { key: SettingKey.CLARITY_ANALYTICS, value: config.clarityAnalytics || '', description: 'Microsoft Clarity ID', level: 0 },
         // Social Auth
-        { key: 'github_client_id', value: config.githubClientId || '', description: 'GitHub Client ID', level: 2 },
-        { key: 'github_client_secret', value: config.githubClientSecret || '', description: 'GitHub Client Secret', level: 2, maskType: 'password' },
-        { key: 'google_client_id', value: config.googleClientId || '', description: 'Google Client ID', level: 2 },
-        { key: 'google_client_secret', value: config.googleClientSecret || '', description: 'Google Client Secret', level: 2, maskType: 'password' },
-        { key: 'anonymous_login_enabled', value: config.anonymousLoginEnabled ? 'true' : 'false', description: '是否启用匿名登录', level: 2 },
-        { key: 'allow_registration', value: 'true', description: '是否允许新用户注册', level: 2 },
+        { key: SettingKey.GITHUB_CLIENT_ID, value: config.githubClientId || '', description: 'GitHub Client ID', level: 2 },
+        { key: SettingKey.GITHUB_CLIENT_SECRET, value: config.githubClientSecret || '', description: 'GitHub Client Secret', level: 2, maskType: 'password' },
+        { key: SettingKey.GOOGLE_CLIENT_ID, value: config.googleClientId || '', description: 'Google Client ID', level: 2 },
+        { key: SettingKey.GOOGLE_CLIENT_SECRET, value: config.googleClientSecret || '', description: 'Google Client Secret', level: 2, maskType: 'password' },
+        { key: SettingKey.ANONYMOUS_LOGIN_ENABLED, value: config.anonymousLoginEnabled ? 'true' : 'false', description: '是否启用匿名登录', level: 2 },
+        { key: SettingKey.ALLOW_REGISTRATION, value: 'true', description: '是否允许新用户注册', level: 2 },
         // Security & Captcha
-        { key: 'captcha_provider', value: config.captchaProvider || '', description: '验证码提供商', level: 2 },
-        { key: 'captcha_site_key', value: config.captchaSiteKey || '', description: '验证码 Site Key', level: 2 },
-        { key: 'captcha_secret_key', value: config.captchaSecretKey || '', description: '验证码 Secret Key', level: 2, maskType: 'password' },
+        { key: SettingKey.CAPTCHA_PROVIDER, value: config.captchaProvider || '', description: '验证码提供商', level: 2 },
+        { key: SettingKey.CAPTCHA_SITE_KEY, value: config.captchaSiteKey || '', description: '验证码 Site Key', level: 2 },
+        { key: SettingKey.CAPTCHA_SECRET_KEY, value: config.captchaSecretKey || '', description: '验证码 Secret Key', level: 2, maskType: 'password' },
         // Limits
-        { key: 'max_upload_size', value: config.maxUploadSize || '4.5MiB', description: '最大上传限制', level: 1 },
-        { key: 'max_audio_upload_size', value: config.maxAudioUploadSize || '100MiB', description: '最大音频上传限制', level: 1 },
-        { key: 'email_require_verification', value: config.emailRequireVerification ? 'true' : 'false', description: '是否强制邮箱验证', level: 1 },
-        { key: 'posts_per_page', value: '10', description: '每页文章显示数量', level: 1 },
+        { key: SettingKey.MAX_UPLOAD_SIZE, value: config.maxUploadSize || '4.5MiB', description: '最大上传限制', level: 1 },
+        { key: SettingKey.MAX_AUDIO_UPLOAD_SIZE, value: config.maxAudioUploadSize || '100MiB', description: '最大音频上传限制', level: 1 },
+        { key: SettingKey.EMAIL_REQUIRE_VERIFICATION, value: config.emailRequireVerification ? 'true' : 'false', description: '是否强制邮箱验证', level: 1 },
+        { key: SettingKey.POSTS_PER_PAGE, value: '10', description: '每页文章显示数量', level: 1 },
     ]
 
     for (const setting of settings) {

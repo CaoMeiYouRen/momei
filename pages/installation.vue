@@ -116,6 +116,7 @@
                                 :site-config-error="siteConfigError"
                                 :field-errors="siteFieldErrors"
                                 :language-options="languageOptions"
+                                :license-options="licenseOptions"
                                 :env-settings="installationStatus?.envSettings || {}"
                                 @prev="activateCallback('2')"
                                 @next="saveSiteConfig(activateCallback)"
@@ -171,7 +172,19 @@ import StepSiteConfig from '@/components/installation/step-site-config.vue'
 import StepAdminAccount from '@/components/installation/step-admin-account.vue'
 import StepExtraConfig from '@/components/installation/step-extra-config.vue'
 import StepComplete from '@/components/installation/step-complete.vue'
+import { isCopyrightType } from '@/types/copyright'
+import { getCopyrightLicenseOptions, resolveDefaultCopyrightLicense } from '@/utils/shared/copyright-options'
 import { getInstallationChecklist, type InstallationChecklistMode } from '@/utils/shared/installation-checklist'
+import {
+    DEFAULT_INSTALLATION_EXTRA_CONFIG,
+    DEFAULT_INSTALLATION_SITE_CONFIG,
+    INSTALLATION_EXTRA_ENV_BACKFILL_MAP,
+    INSTALLATION_SITE_ENV_BACKFILL_MAP,
+    type InstallationExtraConfigModel,
+    type InstallationExtraFieldErrors,
+    type InstallationSiteConfigModel,
+    type InstallationSiteFieldErrors,
+} from '@/utils/shared/installation-settings'
 
 definePageMeta({
     layout: 'installation',
@@ -191,17 +204,14 @@ const dbInitLoading = ref(false)
 const dbInitSuccess = ref(false)
 const dbInitError = ref('')
 
-const siteConfig = ref({
-    siteTitle: '',
-    siteDescription: '',
-    siteKeywords: '',
+const siteConfig = ref<InstallationSiteConfigModel>({
+    ...DEFAULT_INSTALLATION_SITE_CONFIG,
     siteUrl: typeof window !== 'undefined' ? window.location.origin : '',
-    siteCopyright: '',
-    defaultLanguage: 'zh-CN',
+    siteCopyright: resolveDefaultCopyrightLicense(config.public.defaultCopyright as string | undefined),
 })
 const siteConfigLoading = ref(false)
 const siteConfigError = ref('')
-const siteFieldErrors = ref<Record<string, string>>({})
+const siteFieldErrors = ref<InstallationSiteFieldErrors>({})
 
 const languageOptions = computed(() => [
     { label: t('common.languages.zh-CN'), value: 'zh-CN' },
@@ -209,6 +219,7 @@ const languageOptions = computed(() => [
     { label: t('common.languages.zh-TW'), value: 'zh-TW' },
     { label: t('common.languages.ko-KR'), value: 'ko-KR' },
 ])
+const licenseOptions = computed(() => getCopyrightLicenseOptions(t))
 
 const adminData = ref({
     name: '',
@@ -219,35 +230,12 @@ const adminLoading = ref(false)
 const adminError = ref('')
 const adminFieldErrors = ref<Record<string, string>>({})
 
-const extraConfig = ref({
-    aiProvider: 'openai',
-    aiApiKey: '',
-    aiModel: 'gpt-4o',
-    aiEndpoint: '',
-    emailHost: '',
-    emailPort: 587,
-    emailUser: '',
-    emailPass: '',
-    emailFrom: '',
-    storageType: 'local',
-    localStorageDir: 'public/uploads',
-    localStorageBaseUrl: '/uploads',
-    s3Endpoint: '',
-    s3Bucket: '',
-    s3Region: 'auto',
-    s3AccessKey: '',
-    s3SecretKey: '',
-    s3BaseUrl: '',
-    s3BucketPrefix: '',
-    assetPublicBaseUrl: '',
-    assetObjectPrefix: '',
-    baiduAnalytics: '',
-    googleAnalytics: '',
-    clarityAnalytics: '',
+const extraConfig = ref<InstallationExtraConfigModel>({
+    ...DEFAULT_INSTALLATION_EXTRA_CONFIG,
 })
 const extraConfigLoading = ref(false)
 const extraConfigError = ref('')
-const extraFieldErrors = ref<Record<string, string>>({})
+const extraFieldErrors = ref<InstallationExtraFieldErrors>({})
 
 /**
  * 映射 Zod 错误到字段对象
@@ -263,6 +251,18 @@ function mapFieldErrors(issues: any[]) {
         })
     }
     return errors
+}
+
+function extractValidationIssues(error: any): any[] {
+    if (Array.isArray(error?.data)) {
+        return error.data
+    }
+
+    if (Array.isArray(error?.data?.data)) {
+        return error.data.data
+    }
+
+    return []
 }
 
 const finalizeLoading = ref(false)
@@ -281,56 +281,24 @@ async function fetchInstallationStatus() {
         if (response.data?.envSettings) {
             const env = response.data.envSettings
 
-            // Site Config mapping
-            const siteMap: Record<string, keyof typeof siteConfig.value> = {
-                site_title: 'siteTitle',
-                site_description: 'siteDescription',
-                site_keywords: 'siteKeywords',
-                site_url: 'siteUrl',
-                site_copyright: 'siteCopyright',
-                default_language: 'defaultLanguage' as any,
-            }
-
-            Object.entries(siteMap).forEach(([dbKey, configKey]) => {
-                if (env[dbKey]) {
-                    (siteConfig.value as any)[configKey] = env[dbKey].value
+            Object.entries(INSTALLATION_SITE_ENV_BACKFILL_MAP).forEach(([settingKey, configKey]) => {
+                if (env[settingKey]) {
+                    if (configKey === 'siteCopyright') {
+                        siteConfig.value.siteCopyright = isCopyrightType(env[settingKey].value)
+                            ? env[settingKey].value
+                            : siteConfig.value.siteCopyright
+                    } else {
+                        siteConfig.value[configKey] = env[settingKey].value
+                    }
                 }
             })
 
-            // Extra Config mapping
-            const extraMap: Record<string, keyof typeof extraConfig.value> = {
-                ai_provider: 'aiProvider',
-                ai_api_key: 'aiApiKey',
-                ai_model: 'aiModel',
-                ai_endpoint: 'aiEndpoint',
-                email_host: 'emailHost',
-                email_port: 'emailPort' as any,
-                email_user: 'emailUser',
-                email_pass: 'emailPass',
-                email_from: 'emailFrom',
-                storage_type: 'storageType',
-                local_storage_dir: 'localStorageDir',
-                local_storage_base_url: 'localStorageBaseUrl',
-                s3_endpoint: 's3Endpoint',
-                s3_bucket: 's3Bucket',
-                s3_region: 's3Region',
-                s3_access_key: 's3AccessKey',
-                s3_secret_key: 's3SecretKey',
-                s3_base_url: 's3BaseUrl',
-                s3_bucket_prefix: 's3BucketPrefix',
-                asset_public_base_url: 'assetPublicBaseUrl',
-                asset_object_prefix: 'assetObjectPrefix',
-                baidu_analytics: 'baiduAnalytics',
-                google_analytics: 'googleAnalytics',
-                clarity_analytics: 'clarityAnalytics',
-            }
-
-            Object.entries(extraMap).forEach(([dbKey, configKey]) => {
-                if (env[dbKey]) {
+            Object.entries(INSTALLATION_EXTRA_ENV_BACKFILL_MAP).forEach(([settingKey, configKey]) => {
+                if (env[settingKey]) {
                     if (configKey === 'emailPort') {
-                        extraConfig.value.emailPort = parseInt(env[dbKey].value) || 587
+                        extraConfig.value.emailPort = parseInt(env[settingKey].value) || 587
                     } else {
-                        (extraConfig.value as any)[configKey] = env[dbKey].value
+                        extraConfig.value[configKey] = env[settingKey].value
                     }
                 }
             })
@@ -362,8 +330,9 @@ async function saveSiteConfig(activateCallback: (step: string) => void) {
         activateCallback('4')
     } catch (error: any) {
         siteConfigError.value = error.data?.statusMessage || error.data?.message || t('installation.siteConfig.error')
-        if (error.data?.data) {
-            siteFieldErrors.value = mapFieldErrors(error.data.data)
+        const issues = extractValidationIssues(error)
+        if (issues.length > 0) {
+            siteFieldErrors.value = mapFieldErrors(issues)
         }
     } finally {
         siteConfigLoading.value = false
@@ -379,8 +348,9 @@ async function createAdmin(activateCallback: (step: string) => void) {
         activateCallback('5')
     } catch (error: any) {
         adminError.value = error.data?.statusMessage || error.data?.message || t('installation.adminAccount.error')
-        if (error.data?.data) {
-            adminFieldErrors.value = mapFieldErrors(error.data.data)
+        const issues = extractValidationIssues(error)
+        if (issues.length > 0) {
+            adminFieldErrors.value = mapFieldErrors(issues)
         }
     } finally {
         adminLoading.value = false
@@ -396,8 +366,9 @@ async function saveExtraConfig(activateCallback: (step: string) => void) {
         activateCallback('6')
     } catch (error: any) {
         extraConfigError.value = error.data?.statusMessage || error.data?.message || t('installation.preview.error')
-        if (error.data?.data) {
-            extraFieldErrors.value = mapFieldErrors(error.data.data)
+        const issues = extractValidationIssues(error)
+        if (issues.length > 0) {
+            extraFieldErrors.value = mapFieldErrors(issues)
         }
         // 可选配置，即使报错也允许进入下一步，除非是关键错误
         if (Object.keys(extraFieldErrors.value).length === 0) {
@@ -422,10 +393,27 @@ async function finalizeInstallation() {
 }
 
 function openAdminSettings() {
-    return navigateTo(localePath({
-        path: '/admin/settings',
-        query: { tab: 'general' },
-    }))
+    const target = localePath({
+        path: '/login',
+        query: {
+            redirect: localePath({
+                path: '/admin/settings',
+                query: { tab: 'general' },
+            }),
+        },
+    })
+
+    return navigateWithReloadFallback(target)
+}
+
+async function navigateWithReloadFallback(target: string) {
+    try {
+        await navigateTo(target)
+    } catch {
+        if (import.meta.client) {
+            window.location.assign(target)
+        }
+    }
 }
 
 onMounted(() => {
@@ -567,6 +555,7 @@ onMounted(() => {
 
     :deep(.installation-wizard__field-error) {
         display: block;
+        margin-top: 0.25rem;
         color: var(--p-red-500);
         font-size: 0.8125rem;
         line-height: 1.5;
@@ -574,6 +563,7 @@ onMounted(() => {
 
     :deep(.installation-wizard__field-lock) {
         display: block;
+        margin-top: 0.25rem;
         color: var(--p-orange-500);
         font-size: 0.8125rem;
         line-height: 1.5;
@@ -707,7 +697,7 @@ onMounted(() => {
                 color: var(--p-text-color);
             }
 
-            small {
+            small:not(.installation-wizard__field-error, .installation-wizard__field-lock) {
                 display: block;
                 margin-top: 0.25rem;
                 color: var(--p-text-muted-color);
