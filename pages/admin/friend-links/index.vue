@@ -489,398 +489,45 @@
 </template>
 
 <script setup lang="ts">
-import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
 import { UploadType } from '@/composables/use-upload'
-import { FriendLinkApplicationStatus, FriendLinkHealthStatus, FriendLinkStatus } from '@/types/friend-link'
-import { friendLinkSchema } from '@/utils/schemas/friend-link'
 
 definePageMeta({
     middleware: 'admin',
 })
 
-const { t } = useI18n()
-const toast = useToast()
-const confirm = useConfirm()
-const tt = (key: string) => t(key as never)
-
-const loading = reactive({
-    links: false,
-    categories: false,
-    applications: false,
-})
-const saving = ref(false)
-
-const links = ref<any[]>([])
-const categories = ref<any[]>([])
-const applications = ref<any[]>([])
-
-const linkDialogVisible = ref(false)
-const categoryDialogVisible = ref(false)
-const reviewDialogVisible = ref(false)
-
-const editingLink = ref<any>(null)
-const editingCategory = ref<any>(null)
-const selectedApplication = ref<any>(null)
-
-const linkForm = reactive({
-    name: '',
-    url: '',
-    logo: '',
-    description: '',
-    rssUrl: '',
-    contactEmail: '',
-    categoryId: '',
-    status: FriendLinkStatus.ACTIVE,
-    isPinned: false,
-    isFeatured: false,
-    sortOrder: 0,
-})
-
-const categoryForm = reactive({
-    name: '',
-    slug: '',
-    description: '',
-    sortOrder: 0,
-    isEnabled: true,
-})
-
-const reviewForm = reactive({
-    reviewNote: '',
-    linkData: {
-        categoryId: '',
-        sortOrder: 0,
-        isPinned: false,
-        isFeatured: false,
-    },
-})
-
-const linkStatusOptions = computed(() => [
-    { label: tt('pages.admin.friend_links.statuses.draft'), value: FriendLinkStatus.DRAFT },
-    { label: tt('pages.admin.friend_links.statuses.active'), value: FriendLinkStatus.ACTIVE },
-    { label: tt('pages.admin.friend_links.statuses.inactive'), value: FriendLinkStatus.INACTIVE },
-])
-
-const resetLinkForm = () => {
-    Object.assign(linkForm, {
-        name: '',
-        url: '',
-        logo: '',
-        description: '',
-        rssUrl: '',
-        contactEmail: '',
-        categoryId: '',
-        status: FriendLinkStatus.ACTIVE,
-        isPinned: false,
-        isFeatured: false,
-        sortOrder: 0,
-    })
-}
-
-const resetCategoryForm = () => {
-    Object.assign(categoryForm, {
-        name: '',
-        slug: '',
-        description: '',
-        sortOrder: 0,
-        isEnabled: true,
-    })
-}
-
-const getLinkStatusSeverity = (status: FriendLinkStatus) => {
-    switch (status) {
-        case FriendLinkStatus.ACTIVE:
-            return 'success'
-        case FriendLinkStatus.DRAFT:
-            return 'info'
-        default:
-            return 'secondary'
-    }
-}
-
-const getHealthStatusSeverity = (status?: FriendLinkHealthStatus) => {
-    switch (status) {
-        case FriendLinkHealthStatus.HEALTHY:
-            return 'success'
-        case FriendLinkHealthStatus.UNREACHABLE:
-            return 'danger'
-        case FriendLinkHealthStatus.CHECKING:
-            return 'warning'
-        default:
-            return 'secondary'
-    }
-}
-
-const getApplicationStatusSeverity = (status: FriendLinkApplicationStatus) => {
-    switch (status) {
-        case FriendLinkApplicationStatus.APPROVED:
-            return 'success'
-        case FriendLinkApplicationStatus.REJECTED:
-            return 'danger'
-        case FriendLinkApplicationStatus.ARCHIVED:
-            return 'secondary'
-        default:
-            return 'info'
-    }
-}
-
-const formatDate = (value?: string | null) => value ? new Date(value).toLocaleString() : '-'
-
-const shouldSuggestReviewOrDisable = (item: any) => item.status === FriendLinkStatus.ACTIVE && item.healthStatus === FriendLinkHealthStatus.UNREACHABLE
-
-const disableLink = async (item: any) => {
-    try {
-        await $fetch(`/api/admin/friend-links/${item.id}`, {
-            method: 'PUT',
-            body: {
-                status: FriendLinkStatus.INACTIVE,
-            },
-        })
-
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: tt('pages.admin.friend_links.messages.disable_link_success'),
-            life: 3000,
-        })
-
-        await loadLinks()
-    } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.data?.message || error.message || tt('pages.admin.friend_links.messages.disable_link_failed'),
-            life: 3000,
-        })
-    }
-}
-
-const confirmReviewOrDisable = (item: any) => {
-    confirm.require({
-        message: tt('pages.admin.friend_links.messages.review_or_disable_confirm'),
-        header: tt('pages.admin.friend_links.review_or_disable_title'),
-        icon: 'pi pi-info-circle',
-        acceptLabel: tt('pages.admin.friend_links.disable_now'),
-        rejectLabel: tt('pages.admin.friend_links.open_site_recheck'),
-        accept: async () => {
-            await disableLink(item)
-        },
-        reject: () => {
-            window.open(item.url, '_blank', 'noopener,noreferrer')
-        },
-    })
-}
-
-const loadLinks = async () => {
-    loading.links = true
-    try {
-        const response = await $fetch<any>('/api/admin/friend-links', { query: { limit: 100 } })
-        links.value = response.data.items || []
-    } catch (error: any) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || tt('pages.admin.friend_links.messages.load_links_failed'), life: 3000 })
-    } finally {
-        loading.links = false
-    }
-}
-
-const loadCategories = async () => {
-    loading.categories = true
-    try {
-        const response = await $fetch<any>('/api/admin/friend-link-categories')
-        categories.value = response.data || []
-    } catch (error: any) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || tt('pages.admin.friend_links.messages.load_categories_failed'), life: 3000 })
-    } finally {
-        loading.categories = false
-    }
-}
-
-const loadApplications = async () => {
-    loading.applications = true
-    try {
-        const response = await $fetch<any>('/api/admin/friend-link-applications', { query: { limit: 100 } })
-        applications.value = response.data.items || []
-    } catch (error: any) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || tt('pages.admin.friend_links.messages.load_applications_failed'), life: 3000 })
-    } finally {
-        loading.applications = false
-    }
-}
-
-const openLinkDialog = (item?: any) => {
-    editingLink.value = item || null
-    resetLinkForm()
-
-    if (item) {
-        Object.assign(linkForm, {
-            name: item.name,
-            url: item.url,
-            logo: item.logo || '',
-            description: item.description || '',
-            rssUrl: item.rssUrl || '',
-            contactEmail: item.contactEmail || '',
-            categoryId: item.categoryId || '',
-            status: item.status,
-            isPinned: item.isPinned,
-            isFeatured: item.isFeatured,
-            sortOrder: item.sortOrder,
-        })
-    }
-
-    linkDialogVisible.value = true
-}
-
-const saveLink = async () => {
-    const validation = friendLinkSchema.safeParse(linkForm)
-
-    if (!validation.success) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: validation.error.issues[0]?.message || tt('pages.admin.friend_links.messages.save_failed'),
-            life: 3000,
-        })
-        return
-    }
-
-    saving.value = true
-    try {
-        const url = editingLink.value ? `/api/admin/friend-links/${editingLink.value.id}` : '/api/admin/friend-links'
-        const method = editingLink.value ? 'PUT' : 'POST'
-        await $fetch(url, { method, body: validation.data })
-
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: editingLink.value ? tt('pages.admin.friend_links.messages.update_success') : tt('pages.admin.friend_links.messages.create_success'),
-            life: 3000,
-        })
-
-        linkDialogVisible.value = false
-        await loadLinks()
-    } catch (error: any) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: error.data?.message || error.message || tt('pages.admin.friend_links.messages.save_failed'), life: 3000 })
-    } finally {
-        saving.value = false
-    }
-}
-
-const confirmDeleteLink = (item: any) => {
-    confirm.require({
-        message: tt('pages.admin.friend_links.messages.delete_link_confirm'),
-        header: t('common.confirm_delete'),
-        icon: 'pi pi-exclamation-triangle',
-        accept: async () => {
-            try {
-                await $fetch(`/api/admin/friend-links/${item.id}`, { method: 'DELETE' })
-                toast.add({ severity: 'success', summary: t('common.success'), detail: tt('pages.admin.friend_links.messages.delete_link_success'), life: 3000 })
-                await loadLinks()
-            } catch (error: any) {
-                toast.add({ severity: 'error', summary: t('common.error'), detail: error.data?.message || error.message || tt('pages.admin.friend_links.messages.delete_link_failed'), life: 3000 })
-            }
-        },
-    })
-}
-
-const openCategoryDialog = (item?: any) => {
-    editingCategory.value = item || null
-    resetCategoryForm()
-
-    if (item) {
-        Object.assign(categoryForm, {
-            name: item.name,
-            slug: item.slug,
-            description: item.description || '',
-            sortOrder: item.sortOrder,
-            isEnabled: item.isEnabled,
-        })
-    }
-
-    categoryDialogVisible.value = true
-}
-
-const saveCategory = async () => {
-    saving.value = true
-    try {
-        const url = editingCategory.value ? `/api/admin/friend-link-categories/${editingCategory.value.id}` : '/api/admin/friend-link-categories'
-        const method = editingCategory.value ? 'PUT' : 'POST'
-        await $fetch(url, { method, body: categoryForm })
-
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: editingCategory.value ? tt('pages.admin.friend_links.messages.update_category_success') : tt('pages.admin.friend_links.messages.create_category_success'),
-            life: 3000,
-        })
-
-        categoryDialogVisible.value = false
-        await Promise.all([loadCategories(), loadLinks()])
-    } catch (error: any) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: error.data?.message || error.message || tt('pages.admin.friend_links.messages.save_category_failed'), life: 3000 })
-    } finally {
-        saving.value = false
-    }
-}
-
-const confirmDeleteCategory = (item: any) => {
-    confirm.require({
-        message: tt('pages.admin.friend_links.messages.delete_category_confirm'),
-        header: t('common.confirm_delete'),
-        icon: 'pi pi-exclamation-triangle',
-        accept: async () => {
-            try {
-                await $fetch(`/api/admin/friend-link-categories/${item.id}`, { method: 'DELETE' })
-                toast.add({ severity: 'success', summary: t('common.success'), detail: tt('pages.admin.friend_links.messages.delete_category_success'), life: 3000 })
-                await Promise.all([loadCategories(), loadLinks()])
-            } catch (error: any) {
-                toast.add({ severity: 'error', summary: t('common.error'), detail: error.data?.message || error.message || tt('pages.admin.friend_links.messages.delete_category_failed'), life: 3000 })
-            }
-        },
-    })
-}
-
-const openReviewDialog = (item: any) => {
-    selectedApplication.value = item
-    Object.assign(reviewForm, {
-        reviewNote: item.reviewNote || '',
-        linkData: {
-            categoryId: item.categoryId || '',
-            sortOrder: 0,
-            isPinned: false,
-            isFeatured: false,
-        },
-    })
-    reviewDialogVisible.value = true
-}
-
-const submitReview = async (status: 'approved' | 'rejected') => {
-    if (!selectedApplication.value) {
-        return
-    }
-
-    saving.value = true
-    try {
-        await $fetch(`/api/admin/friend-link-applications/${selectedApplication.value.id}/review`, {
-            method: 'PUT',
-            body: {
-                status,
-                reviewNote: reviewForm.reviewNote,
-                linkData: reviewForm.linkData,
-            },
-        })
-
-        toast.add({ severity: 'success', summary: t('common.success'), detail: tt('pages.admin.friend_links.messages.review_success'), life: 3000 })
-        reviewDialogVisible.value = false
-        await Promise.all([loadApplications(), loadLinks()])
-    } catch (error: any) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: error.data?.message || error.message || tt('pages.admin.friend_links.messages.review_failed'), life: 3000 })
-    } finally {
-        saving.value = false
-    }
-}
-onMounted(async () => {
-    await Promise.all([loadLinks(), loadCategories(), loadApplications()])
-})
+const {
+    tt,
+    loading,
+    saving,
+    links,
+    categories,
+    applications,
+    linkDialogVisible,
+    categoryDialogVisible,
+    reviewDialogVisible,
+    editingLink,
+    editingCategory,
+    selectedApplication,
+    linkForm,
+    categoryForm,
+    reviewForm,
+    linkStatusOptions,
+    getLinkStatusSeverity,
+    getHealthStatusSeverity,
+    getApplicationStatusSeverity,
+    formatDate,
+    shouldSuggestReviewOrDisable,
+    loadLinks,
+    openLinkDialog,
+    saveLink,
+    confirmDeleteLink,
+    openCategoryDialog,
+    saveCategory,
+    confirmDeleteCategory,
+    openReviewDialog,
+    submitReview,
+    confirmReviewOrDisable,
+} = useAdminFriendLinksPage()
 </script>
 
 <style scoped src="@/styles/pages/admin-friend-links.scss" lang="scss"></style>

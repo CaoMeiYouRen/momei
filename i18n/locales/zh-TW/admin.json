@@ -70,7 +70,10 @@
                 "publish_immediately": "立即發佈文章",
                 "language": "發佈語言",
                 "category": "所屬分類",
-                "review_success": "操作成功"
+                "review_success": "操作成功",
+                "review_failed": "審核稿件失敗",
+                "delete_success": "稿件刪除成功",
+                "delete_failed": "刪除稿件失敗"
             },
             "ad": {
                 "title": "商業化管理",
@@ -668,7 +671,12 @@
                     "update_role_success": "使用者角色已更新",
                     "update_role_failed": "更新使用者角色失敗",
                     "ban_user_success": "使用者已封鎖",
-                    "ban_user_failed": "封鎖使用者失敗"
+                    "ban_user_failed": "封鎖使用者失敗",
+                    "unban_user_success": "使用者已解除封鎖",
+                    "unban_user_failed": "解除封鎖使用者失敗",
+                    "impersonate_user_failed": "模擬登入失敗",
+                    "delete_user_success": "使用者刪除成功",
+                    "delete_user_failed": "刪除使用者失敗"
                 },
                 "roles": {
                     "all": "所有角色",

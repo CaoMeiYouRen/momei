@@ -151,7 +151,7 @@ import { resolveAdminSettingsTab, type AdminSettingsTab } from '@/utils/shared/a
 import type { SettingItem, SettingLockReason, SettingSource } from '@/types/setting'
 
 const { t } = useI18n()
-const toast = useToast()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 const { $appFetch } = useAppApi()
 const route = useRoute()
 
@@ -232,20 +232,6 @@ const smartModeStats = computed(() => {
     }
 })
 
-function getErrorDetail(error: unknown, fallback: string) {
-    const candidate = error as {
-        data?: { message?: string, statusMessage?: string }
-        statusMessage?: string
-        message?: string
-    }
-
-    return candidate?.data?.message
-        || candidate?.data?.statusMessage
-        || candidate?.statusMessage
-        || candidate?.message
-        || fallback
-}
-
 const loadSettings = async () => {
     try {
         const { data } = await $appFetch<SettingsApiResponse>('/api/admin/settings')
@@ -270,7 +256,7 @@ const loadSettings = async () => {
         settings.value = obj
         metadata.value = meta
     } catch (error) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: getErrorDetail(error, t('common.error_loading')), life: 3000 })
+        showErrorToast(error, { fallbackKey: 'common.error_loading' })
     } finally {
         loading.value = false
     }
@@ -296,9 +282,9 @@ const saveSettings = async () => {
             },
         })
         await loadSettings()
-        toast.add({ severity: 'success', summary: t('common.success'), detail: t('common.save_success'), life: 3000 })
+        showSuccessToast('common.save_success')
     } catch (error) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: getErrorDetail(error, t('common.error_saving')), life: 3000 })
+        showErrorToast(error, { fallbackKey: 'common.error_saving' })
     } finally {
         saving.value = false
     }

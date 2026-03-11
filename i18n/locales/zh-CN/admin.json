@@ -70,7 +70,10 @@
                 "publish_immediately": "立即发布文章",
                 "language": "发布语言",
                 "category": "所属分类",
-                "review_success": "操作成功"
+                "review_success": "操作成功",
+                "review_failed": "审核稿件失败",
+                "delete_success": "稿件删除成功",
+                "delete_failed": "删除稿件失败"
             },
             "ad": {
                 "title": "商业化管理",
@@ -668,7 +671,12 @@
                     "update_role_success": "用户角色已更新",
                     "update_role_failed": "更新用户角色失败",
                     "ban_user_success": "用户已封禁",
-                    "ban_user_failed": "封禁用户失败"
+                    "ban_user_failed": "封禁用户失败",
+                    "unban_user_success": "用户已解封",
+                    "unban_user_failed": "解封用户失败",
+                    "impersonate_user_failed": "模拟登录失败",
+                    "delete_user_success": "用户删除成功",
+                    "delete_user_failed": "删除用户失败"
                 },
                 "roles": {
                     "all": "所有角色",

@@ -84,7 +84,7 @@
 <script setup lang="ts">
 const { t } = useI18n()
 const route = useRoute()
-const toast = useToast()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
 const content = ref('')
 const pendingMedia = ref<string[]>([])
@@ -145,8 +145,8 @@ const onFileChange = async (event: Event) => {
             })
             pendingMedia.value.push(res.data.url)
         }
-    } catch (e) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'common.unexpected_error' })
     } finally {
         isUploading.value = false
         if (fileInput.value) fileInput.value.value = ''
@@ -175,12 +175,7 @@ const saveSnippet = async () => {
             },
         } as any)
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('common.save_success'),
-            life: 2000,
-        })
+        showSuccessToast('common.save_success', { life: 2000 })
 
         // Handle closure for bookmarklet window or redirection for PWA
         setTimeout(() => {
@@ -190,8 +185,8 @@ const saveSnippet = async () => {
                 navigateTo('/admin/snippets')
             }
         }, 1200)
-    } catch (e: any) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: e.data?.message || t('common.save_failed'), life: 3000 })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'common.save_failed' })
     } finally {
         isSaving.value = false
     }

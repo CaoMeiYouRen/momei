@@ -286,7 +286,7 @@ definePageMeta({
 })
 
 const { t, locale, locales } = useI18n()
-const toast = useToast()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
 const {
     items,
@@ -505,12 +505,12 @@ const saveItemMulti = async () => {
             }
         }
 
-        toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.tags.save_success'), life: 3000 })
+        showSuccessToast('pages.admin.tags.save_success')
         hideDialog()
         loadData()
-    } catch (error: any) {
+    } catch (error) {
         console.error('Failed to save tag', error)
-        toast.add({ severity: 'error', summary: t('common.error'), detail: error.data?.message || t('common.save_failed'), life: 5000 })
+        showErrorToast(error, { fallbackKey: 'common.save_failed' })
     } finally {
         saving.value = false
     }
@@ -543,10 +543,10 @@ const deleteTag = async () => {
         await $fetch(`/api/tags/${deleteDialog.item.id}`, {
             method: 'DELETE' as any,
         })
-        toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.tags.delete_success'), life: 3000 })
+        showSuccessToast('pages.admin.tags.delete_success')
         loadData()
-    } catch (error: any) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: error.statusMessage || t('common.save_failed'), life: 3000 })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'common.delete_failed' })
     }
 }
 

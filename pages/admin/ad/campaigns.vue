@@ -172,7 +172,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
 import { CampaignStatus } from '@/types/ad'
 
 const { t } = useI18n()
@@ -183,7 +182,7 @@ definePageMeta({
 })
 
 const confirm = useConfirm()
-const toast = useToast()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
 const loading = ref(true)
 const campaigns = ref<any[]>([])
@@ -217,13 +216,8 @@ async function loadCampaigns() {
     try {
         const response = await $fetch<any>('/api/admin/ad/campaigns')
         campaigns.value = response.data || []
-    } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || t('pages.admin.ad.campaigns.messages.load_failed'),
-            life: 3000,
-        })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.ad.campaigns.messages.load_failed' })
     } finally {
         loading.value = false
     }
@@ -282,24 +276,16 @@ async function save() {
             },
         })
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: editingItem.value
-                ? t('pages.admin.ad.campaigns.messages.update_success')
-                : t('pages.admin.ad.campaigns.messages.create_success'),
-            life: 3000,
-        })
+        showSuccessToast(
+            editingItem.value
+                ? 'pages.admin.ad.campaigns.messages.update_success'
+                : 'pages.admin.ad.campaigns.messages.create_success',
+        )
 
         dialogVisible.value = false
         await loadCampaigns()
-    } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || t('pages.admin.ad.campaigns.messages.save_failed'),
-            life: 3000,
-        })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.ad.campaigns.messages.save_failed' })
     } finally {
         saving.value = false
     }
@@ -310,7 +296,9 @@ function confirmDelete(item: any) {
         message: t('pages.admin.ad.campaigns.messages.delete_confirm'),
         header: t('common.confirm_delete'),
         icon: 'pi pi-exclamation-triangle',
-        accept: () => deleteItem(item),
+        accept: () => {
+            void deleteItem(item)
+        },
     })
 }
 
@@ -320,21 +308,11 @@ async function deleteItem(item: any) {
             method: 'DELETE',
         })
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.admin.ad.campaigns.messages.delete_success'),
-            life: 3000,
-        })
+        showSuccessToast('pages.admin.ad.campaigns.messages.delete_success')
 
         await loadCampaigns()
-    } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || t('pages.admin.ad.campaigns.messages.delete_failed'),
-            life: 3000,
-        })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.ad.campaigns.messages.delete_failed' })
     }
 }
 

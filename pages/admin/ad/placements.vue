@@ -207,7 +207,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
 import { AdFormat, AdLocation, type AdPlacementMetadata } from '@/types/ad'
 
 const { t } = useI18n()
@@ -218,7 +217,7 @@ definePageMeta({
 })
 
 const confirm = useConfirm()
-const toast = useToast()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
 const loading = ref(true)
 const placements = ref<any[]>([])
@@ -276,13 +275,8 @@ async function loadPlacements() {
     try {
         const response = await $fetch<any>('/api/admin/ad/placements')
         placements.value = response.data || []
-    } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || t('pages.admin.ad.placements.messages.load_failed'),
-            life: 3000,
-        })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.ad.placements.messages.load_failed' })
     } finally {
         loading.value = false
     }
@@ -351,24 +345,16 @@ async function save() {
             body: formData,
         })
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: editingItem.value
-                ? t('pages.admin.ad.placements.messages.update_success')
-                : t('pages.admin.ad.placements.messages.create_success'),
-            life: 3000,
-        })
+        showSuccessToast(
+            editingItem.value
+                ? 'pages.admin.ad.placements.messages.update_success'
+                : 'pages.admin.ad.placements.messages.create_success',
+        )
 
         dialogVisible.value = false
         await loadPlacements()
-    } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || t('pages.admin.ad.placements.messages.save_failed'),
-            life: 3000,
-        })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.ad.placements.messages.save_failed' })
     } finally {
         saving.value = false
     }
@@ -379,7 +365,9 @@ function confirmDelete(item: any) {
         message: t('pages.admin.ad.placements.messages.delete_confirm'),
         header: t('common.confirm_delete'),
         icon: 'pi pi-exclamation-triangle',
-        accept: () => deleteItem(item),
+        accept: () => {
+            void deleteItem(item)
+        },
     })
 }
 
@@ -389,21 +377,11 @@ async function deleteItem(item: any) {
             method: 'DELETE',
         })
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.admin.ad.placements.messages.delete_success'),
-            life: 3000,
-        })
+        showSuccessToast('pages.admin.ad.placements.messages.delete_success')
 
         await loadPlacements()
-    } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || t('pages.admin.ad.placements.messages.delete_failed'),
-            life: 3000,
-        })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.ad.placements.messages.delete_failed' })
     }
 }
 
@@ -417,23 +395,15 @@ async function toggleEnabled(item: any) {
             },
         })
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: item.enabled
-                ? t('pages.admin.ad.placements.messages.disable_success')
-                : t('pages.admin.ad.placements.messages.enable_success'),
-            life: 3000,
-        })
+        showSuccessToast(
+            item.enabled
+                ? 'pages.admin.ad.placements.messages.disable_success'
+                : 'pages.admin.ad.placements.messages.enable_success',
+        )
 
         await loadPlacements()
-    } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || t('pages.admin.ad.placements.messages.update_failed'),
-            life: 3000,
-        })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.ad.placements.messages.update_failed' })
     }
 }
 

@@ -259,7 +259,7 @@ const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const { formatDateTime, relativeTime, isFuture } = useI18nDate()
 const confirm = useConfirm()
-const toast = useToast()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 const { contentLanguage } = useAdminI18n()
 
 const selectedItems = ref<Post[]>([])
@@ -342,26 +342,18 @@ const confirmRepush = (post: any) => {
             text: true,
             severity: 'secondary',
         },
-        accept: async () => {
-            try {
-                await $fetch(`/api/admin/posts/${post.id}/repush`, {
-                    method: 'POST',
-                })
-                toast.add({
-                    severity: 'success',
-                    summary: t('common.success'),
-                    detail: t('pages.admin.posts.repush_success'),
-                    life: 3000,
-                })
-            } catch (err) {
-                console.error('Failed to repush post', err)
-                toast.add({
-                    severity: 'error',
-                    summary: t('common.error'),
-                    detail: t('common.save_failed'),
-                    life: 5000,
-                })
-            }
+        accept: () => {
+            void (async () => {
+                try {
+                    await $fetch(`/api/admin/posts/${post.id}/repush`, {
+                        method: 'POST',
+                    })
+                    showSuccessToast('pages.admin.posts.repush_success')
+                } catch (error) {
+                    console.error('Failed to repush post', error)
+                    showErrorToast(error, { fallbackKey: 'common.save_failed' })
+                }
+            })()
         },
     })
 }

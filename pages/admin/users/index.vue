@@ -164,7 +164,6 @@
 
 <script setup lang="ts">
 import { authClient } from '@/lib/auth-client'
-import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 
 definePageMeta({
@@ -174,8 +173,8 @@ definePageMeta({
 
 const { t } = useI18n()
 const { d, relativeTime } = useI18nDate()
-const toast = useToast()
 const confirm = useConfirm()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
 // Admin List Management
 const {
@@ -259,10 +258,10 @@ const unbanUser = async (user: any) => {
             userId: user.id,
         })
         if (error) throw error
-        toast.add({ severity: 'success', summary: t('common.success'), detail: 'User unbanned', life: 3000 })
+        showSuccessToast('pages.admin.users.feedback.unban_user_success')
         fetchUsers()
-    } catch (err: any) {
-        toast.add({ severity: 'error', summary: 'Error', detail: err.message || 'Unban failed' })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.users.feedback.unban_user_failed' })
     }
 }
 
@@ -280,8 +279,8 @@ const impersonateUser = async (user: any) => {
                 })
                 if (error) throw error
                 window.location.href = '/'
-            } catch (err: any) {
-                toast.add({ severity: 'error', summary: 'Error', detail: err.message || 'Impersonation failed' })
+            } catch (error) {
+                showErrorToast(error, { fallbackKey: 'pages.admin.users.feedback.impersonate_user_failed' })
             }
         },
     })
@@ -305,10 +304,10 @@ const deleteUser = async () => {
             userId: deleteDialog.user.id,
         })
         if (error) throw error
-        toast.add({ severity: 'success', summary: 'Deleted', detail: 'User removed', life: 3000 })
+        showSuccessToast('pages.admin.users.feedback.delete_user_success')
         fetchUsers()
-    } catch (err: any) {
-        toast.add({ severity: 'error', summary: 'Error', detail: err.message || 'Delete failed' })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.users.feedback.delete_user_failed' })
     }
 }
 

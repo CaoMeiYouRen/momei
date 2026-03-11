@@ -70,7 +70,10 @@
                 "publish_immediately": "즉시 게시",
                 "language": "게시 언어",
                 "category": "카테고리",
-                "review_success": "작업이 완료되었습니다"
+                "review_success": "작업이 완료되었습니다",
+                "review_failed": "원고 검토에 실패했습니다",
+                "delete_success": "원고를 삭제했습니다",
+                "delete_failed": "원고 삭제에 실패했습니다"
             },
             "ad": {
                 "title": "광고 수익화 관리",
@@ -668,7 +671,12 @@
                     "update_role_success": "사용자 역할을 업데이트했습니다",
                     "update_role_failed": "사용자 역할 업데이트에 실패했습니다",
                     "ban_user_success": "사용자를 차단했습니다",
-                    "ban_user_failed": "사용자 차단에 실패했습니다"
+                    "ban_user_failed": "사용자 차단에 실패했습니다",
+                    "unban_user_success": "사용자 차단을 해제했습니다",
+                    "unban_user_failed": "사용자 차단 해제에 실패했습니다",
+                    "impersonate_user_failed": "사용자 대리 로그인에 실패했습니다",
+                    "delete_user_success": "사용자를 삭제했습니다",
+                    "delete_user_failed": "사용자 삭제에 실패했습니다"
                 },
                 "roles": {
                     "all": "모든 역할",

@@ -202,7 +202,6 @@
 <script setup lang="ts">
 import { SubmissionStatus } from '@/types/submission'
 import { useAdminList } from '@/composables/use-admin-list'
-import dayjs from 'dayjs'
 // @ts-ignore
 import { marked } from 'marked'
 
@@ -212,7 +211,8 @@ definePageMeta({
 })
 
 const { t, locales } = useI18n()
-const toast = useToast()
+const { formatDateTime } = useI18nDate()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
 const filters = reactive({
     keyword: '',
@@ -230,7 +230,7 @@ const { items, loading, pagination, onPage, onFilterChange, refresh } = useAdmin
     initialFilters: filters,
 })
 
-const formatDate = (date: string) => dayjs(date).format('YYYY-MM-DD HH:mm')
+const formatDate = (date: string) => formatDateTime(date)
 
 const getStatusSeverity = (status: SubmissionStatus) => {
     switch (status) {
@@ -256,9 +256,13 @@ const reviewForm = reactive({
 
 const categories = ref<any[]>([])
 const fetchCategories = async () => {
-    const res = await $fetch<any>('/api/admin/categories')
-    if (res.code === 200) {
-        categories.value = res.data.items || res.data.list
+    try {
+        const res = await $fetch<any>('/api/admin/categories')
+        if (res.code === 200) {
+            categories.value = res.data.items || res.data.list
+        }
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'common.error_loading' })
     }
 }
 
@@ -289,11 +293,11 @@ const submitReview = async (status: SubmissionStatus) => {
                 acceptOptions: status === SubmissionStatus.ACCEPTED ? reviewForm.acceptOptions : undefined,
             },
         })
-        toast.add({ severity: 'success', summary: t('pages.admin.submissions.review_success'), life: 3000 })
+        showSuccessToast('pages.admin.submissions.review_success')
         reviewVisible.value = false
         refresh()
-    } catch (error: any) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: error.message, life: 3000 })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.submissions.review_failed' })
     } finally {
         reviewLoading.value = false
     }
@@ -313,10 +317,10 @@ const handleDelete = async () => {
         // 虽然 design doc 没写 DELETE API，但通常后台需要，我顺便实现一个对应的 API 或用通用删除
         // 暂时假设有 DELETE /api/admin/submissions/:id
         await $fetch(`/api/admin/submissions/${submissionToDelete.value.id}`, { method: 'DELETE' })
-        toast.add({ severity: 'success', summary: t('common.delete_success'), life: 3000 })
+        showSuccessToast('pages.admin.submissions.delete_success')
         refresh()
-    } catch (error: any) {
-        toast.add({ severity: 'error', summary: t('common.delete_failed'), life: 3000 })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.submissions.delete_failed' })
     }
 }
 </script>

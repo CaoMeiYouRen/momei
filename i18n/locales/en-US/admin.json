@@ -70,7 +70,10 @@
                 "publish_immediately": "Publish immediately",
                 "language": "Publish Language",
                 "category": "Category",
-                "review_success": "Action successful"
+                "review_success": "Action successful",
+                "review_failed": "Failed to review submission",
+                "delete_success": "Submission deleted successfully",
+                "delete_failed": "Failed to delete submission"
             },
             "ad": {
                 "title": "Ad Monetization",
@@ -668,7 +671,12 @@
                     "update_role_success": "User role updated",
                     "update_role_failed": "Failed to update user role",
                     "ban_user_success": "User banned",
-                    "ban_user_failed": "Failed to ban user"
+                    "ban_user_failed": "Failed to ban user",
+                    "unban_user_success": "User unbanned",
+                    "unban_user_failed": "Failed to unban user",
+                    "impersonate_user_failed": "Failed to impersonate user",
+                    "delete_user_success": "User deleted successfully",
+                    "delete_user_failed": "Failed to delete user"
                 },
                 "roles": {
                     "all": "All Roles",

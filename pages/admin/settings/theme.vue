@@ -81,6 +81,7 @@ definePageMeta({
 
 const { t } = useI18n()
 const toast = useToast()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 const { settings, previewSettings, applyTheme } = useTheme()
 const loading = ref(false)
 
@@ -126,19 +127,9 @@ const saveTheme = async () => {
             method: 'PUT',
             body: settings.value,
         })
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.admin.settings.theme.save_success'),
-            life: 3000,
-        })
-    } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || t('common.error'),
-            life: 5000,
-        })
+        showSuccessToast('pages.admin.settings.theme.save_success')
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'common.error_saving' })
     } finally {
         loading.value = false
     }

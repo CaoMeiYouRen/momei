@@ -230,7 +230,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
 import { LinkStatus, type ExternalLinkMetadata } from '@/types/ad'
 
 const { t } = useI18n()
@@ -241,7 +240,7 @@ definePageMeta({
 })
 
 const confirm = useConfirm()
-const toast = useToast()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
 const loading = ref(true)
 const links = ref<any[]>([])
@@ -278,13 +277,8 @@ async function loadLinks() {
     try {
         const response = await $fetch<any>('/api/admin/external-links')
         links.value = response.data || []
-    } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || t('pages.admin.external_links.messages.load_failed'),
-            life: 3000,
-        })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.external_links.messages.load_failed' })
     } finally {
         loading.value = false
     }
@@ -341,24 +335,16 @@ async function save() {
             body,
         })
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: editingItem.value
-                ? t('pages.admin.external_links.messages.update_success')
-                : t('pages.admin.external_links.messages.create_success'),
-            life: 3000,
-        })
+        showSuccessToast(
+            editingItem.value
+                ? 'pages.admin.external_links.messages.update_success'
+                : 'pages.admin.external_links.messages.create_success',
+        )
 
         dialogVisible.value = false
         await loadLinks()
-    } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || t('pages.admin.external_links.messages.save_failed'),
-            life: 3000,
-        })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.external_links.messages.save_failed' })
     } finally {
         saving.value = false
     }
@@ -369,7 +355,9 @@ function confirmDelete(item: any) {
         message: t('pages.admin.external_links.messages.delete_confirm'),
         header: t('common.confirm_delete'),
         icon: 'pi pi-exclamation-triangle',
-        accept: () => deleteItem(item),
+        accept: () => {
+            void deleteItem(item)
+        },
     })
 }
 
@@ -379,21 +367,11 @@ async function deleteItem(item: any) {
             method: 'DELETE',
         })
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.admin.external_links.messages.delete_success'),
-            life: 3000,
-        })
+        showSuccessToast('pages.admin.external_links.messages.delete_success')
 
         await loadLinks()
-    } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || t('pages.admin.external_links.messages.delete_failed'),
-            life: 3000,
-        })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.external_links.messages.delete_failed' })
     }
 }
 
@@ -402,25 +380,15 @@ async function showStats(item: any) {
         const response = await $fetch<any>(`/api/admin/external-links/${item.id}/stats`)
         currentStats.value = response.data
         statsDialogVisible.value = true
-    } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || t('pages.admin.external_links.messages.stats_failed'),
-            life: 3000,
-        })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.external_links.messages.stats_failed' })
     }
 }
 
 function copyShortCode(code: string) {
     const url = `${window.location.origin}/goto/${code}`
     navigator.clipboard.writeText(url).then(() => {
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.admin.external_links.messages.copy_success'),
-            life: 2000,
-        })
+        showSuccessToast('pages.admin.external_links.messages.copy_success', { life: 2000 })
     })
 }
 
