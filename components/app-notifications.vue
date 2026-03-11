@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { authClient } from '@/lib/auth-client'
 import { useNotifications } from '@/composables/use-notifications'
 import type { Notification } from '@/composables/use-notifications'
+import { resolveNotificationLinkTarget } from '@/utils/shared/notification'
+import { isAdmin } from '@/utils/shared/roles'
 
 const { t } = useI18n()
 const { notifications, unreadCount, markAsRead, browserPermission, browserPushReady, enableBrowserPush } = useNotifications()
 const localePath = useLocalePath()
+const session = authClient.useSession()
 const op = ref()
 const enablingBrowserPush = ref(false)
+const allowAdminNotificationTargets = computed(() => isAdmin(session.value?.data?.user?.role))
 
 const browserPushHint = computed(() => {
     if (!browserPushReady.value) {
@@ -60,11 +65,15 @@ const formatTime = (time: string) => {
 }
 
 const resolveNotificationTarget = (link: string | null) => {
-    if (!link || link.includes('taskId=')) {
+    const resolved = resolveNotificationLinkTarget(link, {
+        allowAdminPaths: allowAdminNotificationTargets.value,
+    })
+
+    if (!resolved) {
         return undefined
     }
 
-    return localePath(link)
+    return localePath(resolved)
 }
 </script>
 

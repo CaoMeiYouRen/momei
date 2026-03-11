@@ -108,13 +108,17 @@
 </template>
 
 <script setup lang="ts">
+import { authClient } from '@/lib/auth-client'
 import type { NotificationHistoryResponseData, UserNotificationHistoryItem } from '@/types/notification'
+import { resolveNotificationLinkTarget } from '@/utils/shared/notification'
+import { isAdmin } from '@/utils/shared/roles'
 
 const { $appFetch } = useAppApi()
 const { formatDateTime } = useI18nDate()
 const toast = useToast()
 const { t } = useI18n()
 const localePath = useLocalePath()
+const session = authClient.useSession()
 
 const items = ref<UserNotificationHistoryItem[]>([])
 const total = ref(0)
@@ -123,13 +127,18 @@ const limit = ref(10)
 const loading = ref(false)
 
 const hasUnread = computed(() => items.value.some((item) => !item.isRead))
+const allowAdminNotificationTargets = computed(() => isAdmin(session.value?.data?.user?.role))
 
 function resolveNotificationTarget(link: string | null) {
-    if (!link || link.includes('taskId=')) {
+    const resolved = resolveNotificationLinkTarget(link, {
+        allowAdminPaths: allowAdminNotificationTargets.value,
+    })
+
+    if (!resolved) {
         return undefined
     }
 
-    return localePath(link)
+    return localePath(resolved)
 }
 
 function getErrorDetail(error: unknown, fallback: string) {

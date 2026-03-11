@@ -284,6 +284,14 @@
                 "audio_preview": "音訊預覽",
                 "error": "失敗原因",
                 "delete_confirm": "確定要刪除選取的 AI 記錄嗎？此操作無法復原。",
+                "task_detail": {
+                    "title": "AI 任務詳情",
+                    "page_title": "AI 任務 {id}",
+                    "back_to_previous": "返回上一頁",
+                    "task_id": "任務 ID",
+                    "copy_task_id": "複製任務 ID",
+                    "copy_task_id_success": "任務 ID 已複製"
+                },
                 "no_stats": "目前尚無統計資料",
                 "chart_status": "任務狀態分布",
                 "chart_category": "類別額度分布",
@@ -836,10 +844,11 @@
                             "refresh": "重新整理",
                             "empty": "目前沒有通知投遞紀錄",
                             "value_states": {
-                                "none": "無"
+                                "none": "無",
+                                "unknown_user": "未關聯使用者"
                             },
                             "filters": {
-                                "recipient": "篩選接收者",
+                                "recipient": "篩選接收者 / 信箱 / ID",
                                 "type": "通知類型",
                                 "channel": "投遞通道",
                                 "status": "投遞結果",
@@ -858,6 +867,11 @@
                                 "success": "成功",
                                 "failed": "失敗",
                                 "skipped": "已略過"
+                            },
+                            "recipient": {
+                                "user_id": "使用者 ID",
+                                "copy_id": "複製使用者 ID",
+                                "copy_id_success": "使用者 ID 已複製"
                             },
                             "columns": {
                                 "sent_at": "投遞時間",

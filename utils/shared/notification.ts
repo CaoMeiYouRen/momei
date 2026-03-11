@@ -97,3 +97,57 @@ export enum AdminNotificationEvent {
     /** 系统警报 */
     SYSTEM_ALERT = 'SYSTEM_ALERT',
 }
+
+const AI_TASK_DETAIL_PATH = '/admin/ai/tasks/'
+
+interface ResolveNotificationLinkTargetOptions {
+    allowAdminPaths?: boolean
+}
+
+export function buildAITaskDetailPath(taskId: string) {
+    return `${AI_TASK_DETAIL_PATH}${encodeURIComponent(taskId)}`
+}
+
+export function resolveNotificationLinkTarget(link: string | null | undefined, options: ResolveNotificationLinkTargetOptions = {}) {
+    if (!link) {
+        return null
+    }
+
+    const allowAdminPaths = options.allowAdminPaths ?? true
+
+    const taskId = extractTaskIdFromNotificationLink(link)
+
+    if (taskId) {
+        if (!allowAdminPaths) {
+            return null
+        }
+
+        return buildAITaskDetailPath(taskId)
+    }
+
+    if (!allowAdminPaths && isAdminPath(link)) {
+        return null
+    }
+
+    return link
+}
+
+function isAdminPath(link: string) {
+    try {
+        const parsed = new URL(link, 'https://momei.local')
+        return parsed.pathname.startsWith('/admin/')
+    } catch {
+        return link.startsWith('/admin/')
+    }
+}
+
+function extractTaskIdFromNotificationLink(link: string) {
+    try {
+        const parsed = new URL(link, 'https://momei.local')
+        const taskId = parsed.searchParams.get('taskId')
+
+        return taskId?.trim() || null
+    } catch {
+        return null
+    }
+}

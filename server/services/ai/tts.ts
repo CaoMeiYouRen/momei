@@ -13,7 +13,7 @@ import { withAITimeout } from '@/server/utils/ai/timeout'
 import { sendInAppNotification } from '@/server/services/notification'
 import { SettingKey } from '@/types/setting'
 import { AI_HEAVY_TASK_TIMEOUT_MS, TTS_DEFAULT_VOICE } from '@/utils/shared/env'
-import { NotificationType } from '@/utils/shared/notification'
+import { NotificationType, buildAITaskDetailPath } from '@/utils/shared/notification'
 import type { TTSOptions, TTSAudioVoice, TTSVoiceQuery } from '@/types/ai'
 
 export class TTSService extends AIBaseService {
@@ -454,7 +454,7 @@ export class TTSService extends AIBaseService {
                 type: NotificationType.SYSTEM,
                 title: '语音合成完成',
                 content: '您的语音合成任务已完成，可点击查看音频结果。',
-                link: `/posts?taskId=${taskId}`,
+                link: buildAITaskDetailPath(taskId),
             }).catch((notificationError) => {
                 logger.error('[TTSService] Failed to send completion notification:', notificationError)
             })
@@ -492,7 +492,7 @@ export class TTSService extends AIBaseService {
                 type: NotificationType.SYSTEM,
                 title: '语音合成失败',
                 content: `您的语音合成任务失败: ${error.message || '未知错误'}`,
-                link: `/posts?taskId=${taskId}`,
+                link: buildAITaskDetailPath(taskId),
             }).catch((notificationError) => {
                 logger.error('[TTSService] Failed to send failure notification:', notificationError)
             })

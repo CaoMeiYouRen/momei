@@ -128,18 +128,45 @@
                 </template>
             </Column>
 
-            <Column field="recipient" :header="$t('pages.admin.settings.system.notifications.delivery_logs.columns.recipient')" />
+            <Column :header="$t('pages.admin.settings.system.notifications.delivery_logs.columns.recipient')">
+                <template #body="slotProps">
+                    <div class="notification-delivery-log-list__recipient-cell">
+                        <strong class="notification-delivery-log-list__recipient-primary">
+                            {{ getRecipientPrimary(slotProps.data) }}
+                        </strong>
+                        <span
+                            v-if="getRecipientSecondary(slotProps.data)"
+                            class="notification-delivery-log-list__recipient-secondary"
+                        >
+                            {{ getRecipientSecondary(slotProps.data) }}
+                        </span>
+                        <div
+                            v-if="slotProps.data.userId"
+                            class="notification-delivery-log-list__recipient-id"
+                        >
+                            <span>{{ $t('pages.admin.settings.system.notifications.delivery_logs.recipient.user_id') }}: {{ slotProps.data.userId }}</span>
+                            <Button
+                                icon="pi pi-copy"
+                                text
+                                size="small"
+                                :aria-label="$t('pages.admin.settings.system.notifications.delivery_logs.recipient.copy_id')"
+                                @click="copyUserId(slotProps.data.userId)"
+                            />
+                        </div>
+                    </div>
+                </template>
+            </Column>
 
             <Column :header="$t('pages.admin.settings.system.notifications.delivery_logs.columns.title')">
                 <template #body="slotProps">
                     <div class="notification-delivery-log-list__title-cell">
                         <strong>{{ slotProps.data.title }}</strong>
                         <NuxtLink
-                            v-if="slotProps.data.targetUrl"
-                            :to="localePath(slotProps.data.targetUrl)"
+                            v-if="resolveNotificationTarget(slotProps.data.targetUrl)"
+                            :to="resolveNotificationTarget(slotProps.data.targetUrl)"
                             class="notification-delivery-log-list__target"
                         >
-                            {{ slotProps.data.targetUrl }}
+                            {{ getNotificationTargetLabel(slotProps.data.targetUrl) }}
                         </NuxtLink>
                     </div>
                 </template>
@@ -165,7 +192,12 @@
 <script setup lang="ts">
 import type { ApiResponse } from '@/types/api'
 import type { NotificationDeliveryLogItem, NotificationDeliveryLogListData } from '@/types/notification'
-import { NotificationDeliveryChannel, NotificationDeliveryStatus, NotificationType } from '@/utils/shared/notification'
+import {
+    NotificationDeliveryChannel,
+    NotificationDeliveryStatus,
+    NotificationType,
+    resolveNotificationLinkTarget,
+} from '@/utils/shared/notification'
 
 const { $appFetch } = useAppApi()
 const { formatDateTime } = useI18nDate()
@@ -236,6 +268,55 @@ function translateStatus(status: string) {
     const key = `pages.admin.settings.system.notifications.delivery_logs.statuses.${status.toLowerCase()}`
     const translated = t(key)
     return translated === key ? status : translated
+}
+
+function resolveNotificationTarget(link: string | null) {
+    const resolved = resolveNotificationLinkTarget(link)
+
+    if (!resolved) {
+        return undefined
+    }
+
+    return localePath(resolved)
+}
+
+function getNotificationTargetLabel(link: string | null) {
+    return resolveNotificationLinkTarget(link) || ''
+}
+
+function getRecipientPrimary(item: NotificationDeliveryLogItem) {
+    return item.recipientName || item.recipientEmail || item.recipient || t('pages.admin.settings.system.notifications.delivery_logs.value_states.unknown_user')
+}
+
+function getRecipientSecondary(item: NotificationDeliveryLogItem) {
+    if (item.recipientEmail && item.recipientEmail !== item.recipientName) {
+        return item.recipientEmail
+    }
+
+    if (item.recipient && item.recipient !== item.recipientName && item.recipient !== item.recipientEmail) {
+        return item.recipient
+    }
+
+    return null
+}
+
+async function copyUserId(userId: string) {
+    try {
+        await navigator.clipboard.writeText(userId)
+        toast.add({
+            severity: 'success',
+            summary: t('common.success'),
+            detail: t('pages.admin.settings.system.notifications.delivery_logs.recipient.copy_id_success'),
+            life: 2000,
+        })
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: getErrorDetail(error, t('common.error_loading')),
+            life: 3000,
+        })
+    }
 }
 
 function getNotificationTypeSeverity(type: string) {
@@ -391,6 +472,33 @@ onMounted(() => {
         display: flex;
         flex-direction: column;
         gap: $spacing-xs;
+    }
+
+    &__recipient-cell {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+        min-width: 0;
+    }
+
+    &__recipient-primary {
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+    }
+
+    &__recipient-secondary {
+        color: var(--p-text-muted-color);
+        font-size: 0.85rem;
+        overflow-wrap: anywhere;
+    }
+
+    &__recipient-id {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        color: var(--p-text-muted-color);
+        font-size: 0.75rem;
+        overflow-wrap: anywhere;
     }
 
     &__target {

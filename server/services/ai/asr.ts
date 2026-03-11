@@ -3,7 +3,7 @@ import { getAIProvider } from '@/server/utils/ai'
 import { inferFailureStage } from '@/server/utils/ai/cost-governance'
 import { withAITimeout } from '@/server/utils/ai/timeout'
 import { sendInAppNotification, pushRealtimeEvent } from '@/server/services/notification'
-import { NotificationType } from '@/utils/shared/notification'
+import { NotificationType, buildAITaskDetailPath } from '@/utils/shared/notification'
 import logger from '@/server/utils/logger'
 import type { TranscribeOptions } from '@/types/ai'
 
@@ -263,7 +263,7 @@ export class ASRService extends AIBaseService {
                 type: NotificationType.SYSTEM,
                 title: '语音转写完成',
                 content: `您的音频文件已成功转写，共 ${response.text.length} 个字符。`,
-                link: `/posts?taskId=${taskId}`,
+                link: buildAITaskDetailPath(taskId),
             }).catch((e) => logger.error('[ASRService] Failed to send notification:', e))
         } catch (err: any) {
             // 更新状态为失败

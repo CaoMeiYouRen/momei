@@ -284,6 +284,14 @@
                 "audio_preview": "오디오 미리보기",
                 "error": "실패 원인",
                 "delete_confirm": "선택한 AI 작업 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+                "task_detail": {
+                    "title": "AI 작업 상세",
+                    "page_title": "AI 작업 {id}",
+                    "back_to_previous": "뒤로 가기",
+                    "task_id": "작업 ID",
+                    "copy_task_id": "작업 ID 복사",
+                    "copy_task_id_success": "작업 ID가 복사되었습니다"
+                },
                 "no_stats": "사용 가능한 통계가 없습니다",
                 "chart_status": "작업 상태 분포",
                 "chart_category": "분류별 쿼터 분포",
@@ -836,10 +844,11 @@
                             "refresh": "새로고침",
                             "empty": "알림 전달 기록이 없습니다",
                             "value_states": {
-                                "none": "없음"
+                                "none": "없음",
+                                "unknown_user": "연결된 사용자가 없습니다"
                             },
                             "filters": {
-                                "recipient": "수신자 필터",
+                                "recipient": "수신자 / 이메일 / ID 필터",
                                 "type": "알림 유형",
                                 "channel": "전달 채널",
                                 "status": "전달 결과",
@@ -858,6 +867,11 @@
                                 "success": "성공",
                                 "failed": "실패",
                                 "skipped": "건너뜀"
+                            },
+                            "recipient": {
+                                "user_id": "사용자 ID",
+                                "copy_id": "사용자 ID 복사",
+                                "copy_id_success": "사용자 ID가 복사되었습니다"
                             },
                             "columns": {
                                 "sent_at": "전달 시각",

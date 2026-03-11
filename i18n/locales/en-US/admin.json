@@ -284,6 +284,14 @@
                 "audio_preview": "Audio Preview",
                 "error": "Error Reason",
                 "delete_confirm": "Are you sure you want to delete selected AI task records? This action cannot be undone.",
+                "task_detail": {
+                    "title": "AI Task Detail",
+                    "page_title": "AI Task {id}",
+                    "back_to_previous": "Back",
+                    "task_id": "Task ID",
+                    "copy_task_id": "Copy task ID",
+                    "copy_task_id_success": "Task ID copied"
+                },
                 "no_stats": "No statistics available",
                 "chart_status": "Status Distribution",
                 "chart_category": "Category Quota Distribution",
@@ -836,10 +844,11 @@
                             "refresh": "Refresh",
                             "empty": "No notification delivery records yet",
                             "value_states": {
-                                "none": "None"
+                                "none": "None",
+                                "unknown_user": "Unknown user"
                             },
                             "filters": {
-                                "recipient": "Filter recipient",
+                                "recipient": "Filter recipient / email / ID",
                                 "type": "Notification type",
                                 "channel": "Delivery channel",
                                 "status": "Delivery result",
@@ -858,6 +867,11 @@
                                 "success": "Success",
                                 "failed": "Failed",
                                 "skipped": "Skipped"
+                            },
+                            "recipient": {
+                                "user_id": "User ID",
+                                "copy_id": "Copy user ID",
+                                "copy_id_success": "User ID copied"
                             },
                             "columns": {
                                 "sent_at": "Sent At",

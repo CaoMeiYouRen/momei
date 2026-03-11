@@ -26,6 +26,8 @@ export interface NotificationDeliveryLogItem {
     id: string
     notificationId: string | null
     userId: string | null
+    recipientName?: string | null
+    recipientEmail?: string | null
     channel: NotificationDeliveryChannel | string
     status: NotificationDeliveryStatus | string
     notificationType: NotificationType | string

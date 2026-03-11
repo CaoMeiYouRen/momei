@@ -1,5 +1,7 @@
+import { Brackets } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { NotificationDeliveryLog } from '@/server/entities/notification-delivery-log'
+import { User } from '@/server/entities/user'
 import type {
     NotificationDeliveryLogItem,
     NotificationDeliveryLogListData,
@@ -39,11 +41,16 @@ function toIsoString(value: Date | string) {
     return value instanceof Date ? value.toISOString() : String(value)
 }
 
-function mapNotificationDeliveryLogItem(item: NotificationDeliveryLog): NotificationDeliveryLogItem {
+function mapNotificationDeliveryLogItem(
+    item: NotificationDeliveryLog,
+    raw: { user_name?: string | null, user_email?: string | null },
+): NotificationDeliveryLogItem {
     return {
         id: item.id,
         notificationId: item.notificationId,
         userId: item.userId,
+        recipientName: raw.user_name ?? null,
+        recipientEmail: raw.user_email ?? null,
         channel: item.channel,
         status: item.status,
         notificationType: item.notificationType,
@@ -92,6 +99,9 @@ export async function getNotificationDeliveryLogs(filters: NotificationDeliveryL
 
     const repo = dataSource.getRepository(NotificationDeliveryLog)
     const queryBuilder = repo.createQueryBuilder('log')
+        .leftJoin(User, 'user', 'log.userId = user.id')
+        .addSelect('user.name', 'user_name')
+        .addSelect('user.email', 'user_email')
         .orderBy('log.sentAt', 'DESC')
 
     if (filters.notificationType) {
@@ -107,7 +117,12 @@ export async function getNotificationDeliveryLogs(filters: NotificationDeliveryL
     }
 
     if (filters.recipient) {
-        queryBuilder.andWhere('log.recipient LIKE :recipient', { recipient: `%${filters.recipient}%` })
+        queryBuilder.andWhere(new Brackets((subQueryBuilder) => {
+            subQueryBuilder.where('log.recipient LIKE :recipient', { recipient: `%${filters.recipient}%` })
+                .orWhere('user.name LIKE :recipient', { recipient: `%${filters.recipient}%` })
+                .orWhere('user.email LIKE :recipient', { recipient: `%${filters.recipient}%` })
+                .orWhere('log.userId LIKE :recipient', { recipient: `%${filters.recipient}%` })
+        }))
     }
 
     if (filters.startDate) {
@@ -118,13 +133,15 @@ export async function getNotificationDeliveryLogs(filters: NotificationDeliveryL
         queryBuilder.andWhere('log.sentAt <= :endDate', { endDate: filters.endDate.toISOString() })
     }
 
-    const [items, total] = await queryBuilder
+    const total = await queryBuilder.getCount()
+    const { entities, raw } = await queryBuilder
+        .clone()
         .skip((filters.page - 1) * filters.limit)
         .take(filters.limit)
-        .getManyAndCount()
+        .getRawAndEntities()
 
     return {
-        items: items.map(mapNotificationDeliveryLogItem),
+        items: entities.map((item, index) => mapNotificationDeliveryLogItem(item, raw[index] ?? {})),
         total,
         page: filters.page,
         limit: filters.limit,

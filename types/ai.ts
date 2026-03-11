@@ -151,6 +151,11 @@ export interface AIAdminTaskListResponse {
     costDisplay: AICostDisplay
 }
 
+export interface AITaskDetailResponse {
+    item: AIAdminTaskListItem
+    costDisplay: AICostDisplay
+}
+
 export interface AIAdminStatsOverview {
     totalTasks: number
     estimatedCost: number

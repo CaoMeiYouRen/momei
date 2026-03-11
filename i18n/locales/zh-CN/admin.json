@@ -284,6 +284,14 @@
                 "audio_preview": "音频预览",
                 "error": "失败原因",
                 "delete_confirm": "确定要删除选中的 AI 记录吗？此操作无法撤销。",
+                "task_detail": {
+                    "title": "AI 任务详情",
+                    "page_title": "AI 任务 {id}",
+                    "back_to_previous": "返回上一页",
+                    "task_id": "任务 ID",
+                    "copy_task_id": "复制任务 ID",
+                    "copy_task_id_success": "任务 ID 已复制"
+                },
                 "no_stats": "暂无统计数据",
                 "chart_status": "任务状态分布",
                 "chart_category": "类别额度分布",
@@ -836,10 +844,11 @@
                             "refresh": "刷新",
                             "empty": "暂无通知投递记录",
                             "value_states": {
-                                "none": "无"
+                                "none": "无",
+                                "unknown_user": "未关联用户"
                             },
                             "filters": {
-                                "recipient": "筛选接收者",
+                                "recipient": "筛选接收者 / 邮箱 / ID",
                                 "type": "通知类型",
                                 "channel": "投递渠道",
                                 "status": "投递结果",
@@ -858,6 +867,11 @@
                                 "success": "成功",
                                 "failed": "失败",
                                 "skipped": "已跳过"
+                            },
+                            "recipient": {
+                                "user_id": "用户 ID",
+                                "copy_id": "复制用户 ID",
+                                "copy_id_success": "用户 ID 已复制"
                             },
                             "columns": {
                                 "sent_at": "投递时间",
