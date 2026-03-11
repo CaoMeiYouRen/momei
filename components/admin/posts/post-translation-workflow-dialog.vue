@@ -81,6 +81,38 @@
                 />
             </div>
 
+            <div v-if="selectedTargetStatus" class="translation-workflow__target-summary">
+                <div class="translation-workflow__target-summary-row">
+                    <span class="translation-workflow__target-summary-label">
+                        {{ targetStatusTitle }}
+                    </span>
+                    <Tag
+                        :severity="targetStateSeverity"
+                        :value="targetStatusValue"
+                    />
+                </div>
+                <div class="translation-workflow__target-summary-row">
+                    <span class="translation-workflow__target-summary-label">
+                        {{ targetActionTitle }}
+                    </span>
+                    <Tag
+                        :severity="actionTagSeverity"
+                        :value="startLabel"
+                    />
+                </div>
+                <p class="translation-workflow__target-summary-description">
+                    {{ targetActionDescription }}
+                </p>
+            </div>
+
+            <Message
+                v-if="switchTargetHint"
+                severity="info"
+                :closable="false"
+            >
+                {{ switchTargetHint }}
+            </Message>
+
             <div class="translation-workflow__field">
                 <div class="translation-workflow__scope-header">
                     <label class="translation-workflow__label">
@@ -135,7 +167,7 @@
             />
             <Button
                 :label="startLabel"
-                severity="contrast"
+                :severity="startButtonSeverity"
                 :loading="isBusy"
                 :disabled="!canStart"
                 @click="handleStart"
@@ -148,24 +180,32 @@
 import { computed, ref, watch } from 'vue'
 import type {
     PostTranslationSourceOption,
+    PostTranslationTargetState,
+    PostTranslationTargetStatus,
     PostTranslationWorkflowRequest,
+    PostTranslationWorkflowAction,
     TranslationScopeField,
     TranslationTextField,
 } from '@/types/post-translation'
+
+const DEFAULT_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags']
 
 const visible = defineModel<boolean>('visible', { default: false })
 
 const props = withDefaults(defineProps<{
     locales: Array<{ code: string, name?: string }>
     sourceOptions: PostTranslationSourceOption[]
+    targetStatuses: PostTranslationTargetStatus[]
     defaultSourcePostId?: string | null
     defaultTargetLanguage: string
+    defaultScopes?: TranslationScopeField[]
     progress?: number
     translationStatus?: 'idle' | 'pending' | 'processing' | 'completed' | 'failed'
     activeField?: TranslationTextField | null
     errorText?: string | null
 }>(), {
     defaultSourcePostId: null,
+    defaultScopes: () => ['title', 'content', 'summary', 'category', 'tags'],
     progress: 0,
     translationStatus: 'idle',
     activeField: null,
@@ -179,15 +219,14 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const tt = (key: string, params?: Record<string, string>) => t(key as never, params as never)
 
-const DEFAULT_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags']
-
 const sourcePostId = ref('')
 const targetLanguage = ref(props.defaultTargetLanguage)
-const selectedScopes = ref<TranslationScopeField[]>([...DEFAULT_SCOPES])
+const selectedScopes = ref<TranslationScopeField[]>([...(props.defaultScopes || DEFAULT_SCOPES)])
 
 const hasSourceOptions = computed(() => props.sourceOptions.length > 0)
 const isBusy = computed(() => props.translationStatus === 'pending' || props.translationStatus === 'processing')
 const selectedSource = computed(() => props.sourceOptions.find((item) => item.id === sourcePostId.value) || null)
+const selectedTargetStatus = computed(() => props.targetStatuses.find((item) => item.language === targetLanguage.value) || null)
 
 const dialogTitle = computed(() => tt('pages.admin.posts.translation_workflow.title'))
 const introText = computed(() => tt('pages.admin.posts.translation_workflow.intro'))
@@ -195,9 +234,21 @@ const noSourcesText = computed(() => tt('pages.admin.posts.translation_workflow.
 const sourcePostLabel = computed(() => tt('pages.admin.posts.translation_workflow.source_post'))
 const selectSourceLabel = computed(() => tt('pages.admin.posts.translation_workflow.select_source'))
 const targetLanguageLabelText = computed(() => tt('pages.admin.posts.translation_workflow.target_language'))
+const targetStatusTitle = computed(() => tt('pages.admin.posts.translation_workflow.target_status_title'))
+const targetActionTitle = computed(() => tt('pages.admin.posts.translation_workflow.action_title'))
 const scopeTitle = computed(() => tt('pages.admin.posts.translation_workflow.scope_title'))
 const scopeHint = computed(() => tt('pages.admin.posts.translation_workflow.scope_hint'))
-const startLabel = computed(() => tt('pages.admin.posts.translation_workflow.start'))
+
+const getActionLabel = (action: PostTranslationWorkflowAction) => tt(`pages.admin.posts.translation_workflow.actions.${action}`)
+const getTargetStateLabel = (state: PostTranslationTargetState) => tt(`pages.admin.posts.translation_workflow.target_states.${state}`)
+
+const startLabel = computed(() => {
+    if (!selectedTargetStatus.value) {
+        return tt('pages.admin.posts.translation_workflow.start')
+    }
+
+    return getActionLabel(selectedTargetStatus.value.action)
+})
 
 const targetLanguageOptions = computed(() => props.locales.map((locale) => ({
     label: locale.name || locale.code,
@@ -217,6 +268,72 @@ const sourceLanguageValue = computed(() => {
 })
 
 const targetLanguageValue = computed(() => tt('pages.admin.posts.translation_workflow.target_language_value', { language: targetLanguageLabel.value }))
+const targetStatusValue = computed(() => {
+    if (!selectedTargetStatus.value) {
+        return ''
+    }
+
+    return getTargetStateLabel(selectedTargetStatus.value.state)
+})
+const targetActionDescription = computed(() => {
+    if (!selectedTargetStatus.value) {
+        return ''
+    }
+
+    return tt(`pages.admin.posts.translation_workflow.action_descriptions.${selectedTargetStatus.value.action}`)
+})
+const switchTargetHint = computed(() => {
+    if (!selectedTargetStatus.value || selectedTargetStatus.value.isCurrentEditor) {
+        return ''
+    }
+
+    return tt('pages.admin.posts.translation_workflow.switch_target_hint')
+})
+const targetStateSeverity = computed(() => {
+    if (!selectedTargetStatus.value) {
+        return 'secondary'
+    }
+
+    if (selectedTargetStatus.value.state === 'published') {
+        return 'danger'
+    }
+
+    if (selectedTargetStatus.value.state === 'draft') {
+        return 'warn'
+    }
+
+    return 'info'
+})
+const actionTagSeverity = computed(() => {
+    if (!selectedTargetStatus.value) {
+        return 'secondary'
+    }
+
+    if (selectedTargetStatus.value.action === 'overwrite') {
+        return 'danger'
+    }
+
+    if (selectedTargetStatus.value.action === 'continue') {
+        return 'warn'
+    }
+
+    return 'info'
+})
+const startButtonSeverity = computed(() => {
+    if (!selectedTargetStatus.value) {
+        return 'contrast'
+    }
+
+    if (selectedTargetStatus.value.action === 'overwrite') {
+        return 'danger'
+    }
+
+    if (selectedTargetStatus.value.action === 'continue') {
+        return 'warn'
+    }
+
+    return 'contrast'
+})
 
 const scopeOptions = computed(() => ([
     { value: 'title' as const, label: tt('pages.admin.posts.translation_workflow.fields.title') },
@@ -265,14 +382,14 @@ const canStart = computed(() => {
 const resetForm = () => {
     sourcePostId.value = props.defaultSourcePostId || props.sourceOptions[0]?.id || ''
     targetLanguage.value = props.defaultTargetLanguage
-    selectedScopes.value = [...DEFAULT_SCOPES]
+    selectedScopes.value = [...(props.defaultScopes?.length ? props.defaultScopes : DEFAULT_SCOPES)]
 }
 
 watch(() => visible.value, (isVisible) => {
     if (isVisible) {
         resetForm()
     }
-})
+}, { immediate: true })
 
 watch(() => props.defaultTargetLanguage, (value) => {
     if (!visible.value) {
@@ -283,6 +400,12 @@ watch(() => props.defaultTargetLanguage, (value) => {
 watch(() => props.defaultSourcePostId, (value) => {
     if (!visible.value) {
         sourcePostId.value = value || props.sourceOptions[0]?.id || ''
+    }
+})
+
+watch(() => props.defaultScopes, (value) => {
+    if (!visible.value) {
+        selectedScopes.value = [...(value?.length ? value : DEFAULT_SCOPES)]
     }
 })
 
@@ -305,6 +428,9 @@ const handleStart = () => {
         sourceLanguage: selectedSource.value.language,
         targetLanguage: targetLanguage.value,
         scopes: [...selectedScopes.value],
+        action: selectedTargetStatus.value?.action || 'create',
+        targetState: selectedTargetStatus.value?.state || 'missing',
+        targetPostId: selectedTargetStatus.value?.postId || null,
     })
 }
 </script>
@@ -350,6 +476,34 @@ const handleStart = () => {
         display: flex;
         flex-wrap: wrap;
         gap: 0.5rem;
+    }
+
+    &__target-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1rem;
+        border: 1px solid var(--p-surface-border);
+        border-radius: $border-radius-md;
+        background: color-mix(in srgb, var(--p-primary-color) 3%, var(--p-content-background));
+    }
+
+    &__target-summary-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    &__target-summary-label {
+        font-weight: 600;
+        color: var(--p-text-muted-color);
+    }
+
+    &__target-summary-description {
+        margin: 0;
+        color: var(--p-text-color);
+        line-height: 1.6;
     }
 
     &__scope-header {
@@ -411,6 +565,7 @@ const handleStart = () => {
             grid-template-columns: 1fr;
         }
 
+        &__target-summary-row,
         &__scope-header {
             align-items: flex-start;
             flex-direction: column;

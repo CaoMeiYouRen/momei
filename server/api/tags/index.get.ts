@@ -14,14 +14,12 @@ export default defineEventHandler(async (event) => {
     const postCountSelect = 'COUNT(DISTINCT COALESCE(p.translationId, p.id))'
 
     const queryBuilder = tagRepo.createQueryBuilder('tag')
-        .addSelect((subQuery) => {
-            return subQuery
-                .select(postCountSelect, 'postCount')
-                .from(Post, 'p')
-                .innerJoin('p.tags', 'pt')
-                .where('COALESCE(pt.translationId, pt.id) = COALESCE(tag.translationId, tag.id)')
-                .andWhere('p.status = :publishedStatus', { publishedStatus: 'published' })
-        }, 'tag_postCount')
+        .addSelect((subQuery) => subQuery
+            .select(postCountSelect, 'postCount')
+            .from(Post, 'p')
+            .innerJoin('p.tags', 'pt')
+            .where('COALESCE(pt.translationId, pt.id) = COALESCE(tag.translationId, tag.id)')
+            .andWhere('p.status = :publishedStatus', { publishedStatus: 'published' }), 'tag_postCount')
 
     // Handle Aggregation
     if (query.aggregate) {
@@ -41,14 +39,12 @@ export default defineEventHandler(async (event) => {
 
     if (query.orderBy === 'postCount') {
         // Use subquery for sorting by relation count
-        queryBuilder.addSelect((subQuery: SelectQueryBuilder<any>) => {
-            return subQuery
-                .select(postCountSelect, 'pcount')
-                .from(Post, 'p')
-                .innerJoin('p.tags', 'pt')
-                .where('COALESCE(pt.translationId, pt.id) = COALESCE(tag.translationId, tag.id)')
-                .andWhere('p.status = :publishedStatus', { publishedStatus: 'published' })
-        }, 'pcount')
+        queryBuilder.addSelect((subQuery: SelectQueryBuilder<any>) => subQuery
+            .select(postCountSelect, 'pcount')
+            .from(Post, 'p')
+            .innerJoin('p.tags', 'pt')
+            .where('COALESCE(pt.translationId, pt.id) = COALESCE(tag.translationId, tag.id)')
+            .andWhere('p.status = :publishedStatus', { publishedStatus: 'published' }), 'pcount')
         queryBuilder.orderBy('pcount', query.order || 'DESC')
     } else {
         queryBuilder.orderBy(`tag.${query.orderBy || 'createdAt'}`, query.order || 'DESC')

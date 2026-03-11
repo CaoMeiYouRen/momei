@@ -5,6 +5,10 @@ export type TranslationScopeField = 'title' | 'content' | 'summary' | 'category'
 
 export type TranslationTextField = Extract<TranslationScopeField, 'title' | 'content' | 'summary'>
 
+export type PostTranslationTargetState = 'missing' | 'draft' | 'published'
+
+export type PostTranslationWorkflowAction = 'create' | 'continue' | 'overwrite'
+
 export interface PostTranslationTaxonomyItem {
     id: string
     name: string
@@ -31,11 +35,22 @@ export interface PostTranslationSourceDetail extends PostTranslationSourceOption
     tags?: PostTranslationTaxonomyItem[] | null
 }
 
+export interface PostTranslationTargetStatus {
+    language: string
+    state: PostTranslationTargetState
+    action: PostTranslationWorkflowAction
+    postId?: string | null
+    isCurrentEditor: boolean
+}
+
 export interface PostTranslationWorkflowRequest {
     sourcePostId: string
     sourceLanguage: string
     targetLanguage: string
     scopes: TranslationScopeField[]
+    action: PostTranslationWorkflowAction
+    targetState: PostTranslationTargetState
+    targetPostId?: string | null
 }
 
 export interface PostTranslationProgress {

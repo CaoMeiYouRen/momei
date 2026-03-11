@@ -505,10 +505,28 @@
                     "source_post": "來源文章",
                     "select_source": "選擇一個來源版本",
                     "target_language": "目標語言",
+                    "target_status_title": "目標版本狀態",
+                    "action_title": "本次動作",
                     "source_language_value": "來源語言：{language}",
                     "target_language_value": "目標語言：{language}",
                     "scope_title": "翻譯範圍",
                     "scope_hint": "分類與標籤會優先嘗試對應到同一翻譯簇中的目標語言實體。",
+                    "target_states": {
+                        "missing": "尚未建立版本",
+                        "draft": "草稿版本",
+                        "published": "已發佈版本"
+                    },
+                    "actions": {
+                        "create": "建立翻譯",
+                        "continue": "繼續翻譯",
+                        "overwrite": "覆蓋翻譯"
+                    },
+                    "action_descriptions": {
+                        "create": "將在目標語言下建立新的翻譯版本，僅寫入這次選取的欄位。",
+                        "continue": "將在目前草稿基礎上繼續翻譯，所選欄位會以新的翻譯結果更新。",
+                        "overwrite": "將重新翻譯並覆蓋目前已發佈版本的所選欄位，請謹慎操作。"
+                    },
+                    "switch_target_hint": "目前編輯器不是目標語言版本。開始後會先切換到對應的目標版本編輯器，並保留來源與範圍選擇。",
                     "fields": {
                         "title": "標題",
                         "content": "正文",
@@ -521,7 +539,9 @@
                     "progress_completed": "翻譯已完成",
                     "progress_failed": "翻譯失敗",
                     "current_field": "目前欄位：{field}",
+                    "continue_title": "確認繼續翻譯目前草稿",
                     "overwrite_title": "確認覆蓋目前翻譯",
+                    "continue_draft": "目前目標草稿已包含內容。繼續後，所選欄位會以新的翻譯結果更新。",
                     "overwrite_draft": "目前目標版本已包含內容。繼續後，所選欄位會被新的翻譯結果覆蓋。",
                     "overwrite_published_first": "目前目標版本已發佈。若繼續翻譯，線上版本的對應欄位將被覆蓋，請先確認是否繼續。",
                     "overwrite_published_second": "這是第二次確認。若繼續，已發佈版本的所選欄位將被新的翻譯結果取代。"

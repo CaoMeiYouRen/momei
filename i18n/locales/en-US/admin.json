@@ -505,10 +505,28 @@
                     "source_post": "Source Post",
                     "select_source": "Select a source version",
                     "target_language": "Target Language",
+                    "target_status_title": "Target Version State",
+                    "action_title": "Planned Action",
                     "source_language_value": "Source: {language}",
                     "target_language_value": "Target: {language}",
                     "scope_title": "Translation Scope",
                     "scope_hint": "Categories and tags will first try to map to entities in the same translation cluster.",
+                    "target_states": {
+                        "missing": "No saved version",
+                        "draft": "Draft version",
+                        "published": "Published version"
+                    },
+                    "actions": {
+                        "create": "Create Translation",
+                        "continue": "Continue Translation",
+                        "overwrite": "Overwrite Translation"
+                    },
+                    "action_descriptions": {
+                        "create": "A new translation version will be created for the target language and only the selected fields will be written.",
+                        "continue": "Translation will continue from the current draft and refresh the selected fields with new output.",
+                        "overwrite": "The selected fields of the published target version will be replaced with fresh translation output."
+                    },
+                    "switch_target_hint": "The current editor is not the target language version. Starting will switch to the matching target editor and keep your source and scope choices.",
                     "fields": {
                         "title": "Title",
                         "content": "Content",
@@ -521,7 +539,9 @@
                     "progress_completed": "Translation completed",
                     "progress_failed": "Translation failed",
                     "current_field": "Current field: {field}",
+                    "continue_title": "Confirm Continue Translation",
                     "overwrite_title": "Confirm Overwrite",
+                    "continue_draft": "The target draft already contains content. Continuing will refresh the selected fields with new translation output.",
                     "overwrite_draft": "The target version already contains content. Continuing will overwrite the selected fields with new translation output.",
                     "overwrite_published_first": "The target version is already published. Continuing will overwrite the selected fields in the live version.",
                     "overwrite_published_second": "Second confirmation: continuing now will replace the selected fields of the published version."

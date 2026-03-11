@@ -505,10 +505,28 @@
                     "source_post": "원본 게시글",
                     "select_source": "원본 버전 선택",
                     "target_language": "대상 언어",
+                    "target_status_title": "대상 버전 상태",
+                    "action_title": "이번 작업",
                     "source_language_value": "원본 언어: {language}",
                     "target_language_value": "대상 언어: {language}",
                     "scope_title": "번역 범위",
                     "scope_hint": "카테고리와 태그는 같은 번역 묶음의 대상 언어 엔티티와 먼저 매칭을 시도합니다.",
+                    "target_states": {
+                        "missing": "저장된 버전 없음",
+                        "draft": "초안 버전",
+                        "published": "발행된 버전"
+                    },
+                    "actions": {
+                        "create": "번역 생성",
+                        "continue": "번역 이어서 진행",
+                        "overwrite": "번역 덮어쓰기"
+                    },
+                    "action_descriptions": {
+                        "create": "대상 언어에 새 번역 버전을 만들고, 이번에 선택한 필드만 채웁니다.",
+                        "continue": "현재 초안을 기준으로 번역을 이어서 진행하고, 선택한 필드를 새 결과로 갱신합니다.",
+                        "overwrite": "발행된 대상 버전의 선택한 필드를 새 번역 결과로 교체합니다. 신중히 진행하세요."
+                    },
+                    "switch_target_hint": "현재 편집기는 대상 언어 버전이 아닙니다. 시작하면 해당 대상 버전 편집기로 이동하고 원본/범위 선택을 유지합니다.",
                     "fields": {
                         "title": "제목",
                         "content": "본문",
@@ -521,7 +539,9 @@
                     "progress_completed": "번역 완료",
                     "progress_failed": "번역 실패",
                     "current_field": "현재 필드: {field}",
+                    "continue_title": "현재 초안 번역을 계속할지 확인",
                     "overwrite_title": "덮어쓰기 확인",
+                    "continue_draft": "대상 초안에 이미 내용이 있습니다. 계속하면 선택한 필드가 새 번역 결과로 갱신됩니다.",
                     "overwrite_draft": "대상 버전에 이미 내용이 있습니다. 계속하면 선택한 필드가 새 번역 결과로 덮어써집니다.",
                     "overwrite_published_first": "대상 버전이 이미 발행되었습니다. 계속하면 공개 중인 버전의 선택한 필드가 덮어써집니다.",
                     "overwrite_published_second": "두 번째 확인입니다. 계속하면 발행된 버전의 선택한 필드가 새 번역 결과로 교체됩니다."

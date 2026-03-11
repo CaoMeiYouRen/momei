@@ -75,8 +75,10 @@
             v-model:visible="translationDialogVisible"
             :locales="locales"
             :source-options="translationSourceOptions"
+            :target-statuses="translationTargetStatuses"
             :default-source-post-id="translationWorkflowDefaults.sourcePostId"
             :default-target-language="translationWorkflowDefaults.targetLanguage"
+            :default-scopes="translationWorkflowDefaults.scopes"
             :progress="translationProgress.progress"
             :translation-status="translationProgress.status"
             :active-field="translationProgress.activeField"
@@ -115,7 +117,10 @@ import type {
     PostTranslationSourceDetail,
     PostTranslationSourceOption,
     PostTranslationTagOption,
+    PostTranslationTargetState,
+    PostTranslationTargetStatus,
     PostTranslationWorkflowRequest,
+    PostTranslationWorkflowAction,
     TranslationScopeField,
 } from '@/types/post-translation'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
@@ -210,49 +215,140 @@ interface TranslationSearchItem {
     translationId?: string | null
 }
 
+const DEFAULT_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags']
+
 const translations = ref<PostTranslationSourceOption[]>([])
 const sourcePostSnapshot = ref<PostTranslationSourceDetail | null>(null)
 const translationDialogVisible = ref(false)
 const translationWorkflowDefaults = ref({
     sourcePostId: null as string | null,
     targetLanguage: post.value.language,
+    scopes: [...DEFAULT_TRANSLATION_SCOPES],
 })
+
+const parseTranslationScopes = (value: string | string[] | undefined) => {
+    const rawValue = Array.isArray(value) ? value[0] : value
+    if (!rawValue) {
+        return [...DEFAULT_TRANSLATION_SCOPES]
+    }
+
+    const scopes = rawValue
+        .split(',')
+        .map((item) => item.trim())
+        .filter((item): item is TranslationScopeField => DEFAULT_TRANSLATION_SCOPES.includes(item as TranslationScopeField))
+
+    return scopes.length > 0 ? Array.from(new Set(scopes)) : [...DEFAULT_TRANSLATION_SCOPES]
+}
+
+const serializeTranslationScopes = (scopes: TranslationScopeField[]) => {
+    const normalizedScopes = Array.from(new Set(
+        scopes.filter((scope) => DEFAULT_TRANSLATION_SCOPES.includes(scope)),
+    ))
+
+    return normalizedScopes.length > 0 ? normalizedScopes.join(',') : undefined
+}
 
 const hasTranslation = (langCode: string) => {
     if (post.value.language === langCode && !isNew.value) return post.value
     return translations.value.find((t) => t.language === langCode) || null
 }
 
+const resolveTranslationTargetStatus = (langCode: string): PostTranslationTargetStatus => {
+    if (langCode === post.value.language) {
+        if (isNew.value && !post.value.id) {
+            return {
+                language: langCode,
+                state: 'missing',
+                action: 'create',
+                postId: null,
+                isCurrentEditor: true,
+            }
+        }
+
+        const state: PostTranslationTargetState = post.value.status === PostStatus.PUBLISHED ? 'published' : 'draft'
+
+        return {
+            language: langCode,
+            state,
+            action: state === 'published' ? 'overwrite' : 'continue',
+            postId: post.value.id || null,
+            isCurrentEditor: true,
+        }
+    }
+
+    const targetTranslation = translations.value.find((item) => item.language === langCode)
+    if (!targetTranslation) {
+        return {
+            language: langCode,
+            state: 'missing',
+            action: 'create',
+            postId: null,
+            isCurrentEditor: false,
+        }
+    }
+
+    const state: PostTranslationTargetState = targetTranslation.status === PostStatus.PUBLISHED ? 'published' : 'draft'
+
+    return {
+        language: langCode,
+        state,
+        action: state === 'published' ? 'overwrite' : 'continue',
+        postId: targetTranslation.id,
+        isCurrentEditor: false,
+    }
+}
+
+const translationTargetStatuses = computed<PostTranslationTargetStatus[]>(() =>
+    locales.value.map((item: any) => resolveTranslationTargetStatus(item.code)),
+)
+
 const handleTranslationClick = async (
     langCode: string,
     autoTranslate = false,
+    options?: {
+        sourceId?: string | null
+        scopes?: TranslationScopeField[]
+    },
 ) => {
     const trans = hasTranslation(langCode)
-    if (trans && trans.id) {
-        navigateTo(localePath(`/admin/posts/${trans.id}`))
-    } else {
-        // Confirm before creating new translation if current post is not saved
-        if (isNew.value && !post.value.id) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.save_current_first'),
-                life: 3000,
-            })
-            return
-        }
+    const sourceId = options?.sourceId || post.value.id || sourcePostSnapshot.value?.id || null
 
-        const newPostPath = localePath('/admin/posts/new')
-        navigateTo({
-            path: newPostPath,
-            query: {
-                language: langCode,
-                sourceId: post.value.id,
-                translationId: post.value.translationId || post.value.id,
-                autoTranslate: autoTranslate ? 'true' : undefined,
-            },
+    if (!trans && isNew.value && !post.value.id) {
+        toast.add({
+            severity: 'warn',
+            summary: t('common.warn'),
+            detail: t('pages.admin.posts.save_current_first'),
+            life: 3000,
         })
+        return
     }
+
+    const autoTranslateQuery = autoTranslate
+        ? {
+                autoTranslate: 'true',
+                sourceId: sourceId || undefined,
+                translationScopes: serializeTranslationScopes(options?.scopes || DEFAULT_TRANSLATION_SCOPES),
+            }
+        : undefined
+
+    if (trans && trans.id) {
+        await navigateTo({
+            path: localePath(`/admin/posts/${trans.id}`),
+            query: autoTranslateQuery,
+        })
+        return
+    }
+
+    const newPostPath = localePath('/admin/posts/new')
+    await navigateTo({
+        path: newPostPath,
+        query: {
+            language: langCode,
+            sourceId: sourceId || undefined,
+            translationId: post.value.translationId || sourcePostSnapshot.value?.translationId || sourceId || undefined,
+            ...autoTranslateQuery,
+        },
+    })
 }
 
 const filteredTags = ref<string[]>([])
@@ -396,19 +492,23 @@ const hasSelectedScopesContent = (scopes: TranslationScopeField[]) => scopes.som
     return (post.value.tags?.length || 0) > 0
 })
 
-const confirmTranslationOverwrite = async (scopes: TranslationScopeField[]) => {
-    if ((isNew.value && !post.value.id) || !hasSelectedScopesContent(scopes)) {
+const confirmTranslationOverwrite = async (
+    scopes: TranslationScopeField[],
+    targetState: PostTranslationTargetState,
+    action: PostTranslationWorkflowAction,
+) => {
+    if (targetState === 'missing' || (isNew.value && !post.value.id) || !hasSelectedScopesContent(scopes)) {
         return true
     }
 
-    const requestConfirm = (message: string) => new Promise<boolean>((resolve) => {
+    const requestConfirm = (message: string, options?: { header?: string, severity?: 'warn' | 'danger' }) => new Promise<boolean>((resolve) => {
         confirm.require({
             message,
-            header: t('pages.admin.posts.translation_workflow.overwrite_title'),
+            header: options?.header || t('pages.admin.posts.translation_workflow.overwrite_title'),
             icon: 'pi pi-exclamation-triangle',
             acceptProps: {
                 label: t('common.confirm'),
-                severity: 'danger',
+                severity: options?.severity || 'danger',
             },
             rejectProps: {
                 label: t('common.cancel'),
@@ -420,16 +520,28 @@ const confirmTranslationOverwrite = async (scopes: TranslationScopeField[]) => {
         })
     })
 
-    if (post.value.status === PostStatus.PUBLISHED) {
-        const firstConfirmed = await requestConfirm(t('pages.admin.posts.translation_workflow.overwrite_published_first'))
+    if (targetState === 'published') {
+        const firstConfirmed = await requestConfirm(t('pages.admin.posts.translation_workflow.overwrite_published_first'), {
+            severity: 'danger',
+        })
         if (!firstConfirmed) {
             return false
         }
 
-        return await requestConfirm(t('pages.admin.posts.translation_workflow.overwrite_published_second'))
+        return await requestConfirm(t('pages.admin.posts.translation_workflow.overwrite_published_second'), {
+            severity: 'danger',
+        })
     }
 
-    return await requestConfirm(t('pages.admin.posts.translation_workflow.overwrite_draft'))
+    return await requestConfirm(
+        action === 'continue'
+            ? t('pages.admin.posts.translation_workflow.continue_draft')
+            : t('pages.admin.posts.translation_workflow.overwrite_draft'),
+        {
+            header: t('pages.admin.posts.translation_workflow.continue_title'),
+            severity: 'warn',
+        },
+    )
 }
 
 const applyTranslatedCategory = (source: PostTranslationSourceDetail) => {
@@ -485,19 +597,29 @@ const openTranslationWorkflow = async (requestedLanguage: string | null) => {
     translationWorkflowDefaults.value = {
         sourcePostId: sourcePostSnapshot.value?.id || post.value.id || translations.value[0]?.id || null,
         targetLanguage,
+        scopes: [...DEFAULT_TRANSLATION_SCOPES],
     }
 
     translationDialogVisible.value = true
 }
 
 const handleStartTranslationWorkflow = async (payload: PostTranslationWorkflowRequest) => {
+    if (payload.targetLanguage !== post.value.language) {
+        translationDialogVisible.value = false
+        await handleTranslationClick(payload.targetLanguage, true, {
+            sourceId: payload.sourcePostId,
+            scopes: payload.scopes,
+        })
+        return
+    }
+
     const source = await fetchSourcePostDetail(payload.sourcePostId)
 
     if (!source) {
         return
     }
 
-    const confirmed = await confirmTranslationOverwrite(payload.scopes)
+    const confirmed = await confirmTranslationOverwrite(payload.scopes, payload.targetState, payload.action)
     if (!confirmed) {
         return
     }
@@ -604,6 +726,7 @@ const loadPost = async () => {
             translationWorkflowDefaults.value = {
                 sourcePostId: sourceId || sourcePostSnapshot.value?.id || null,
                 targetLanguage: post.value.language,
+                scopes: parseTranslationScopes(route.query.translationScopes as string | string[] | undefined),
             }
             translationDialogVisible.value = true
         }
@@ -637,10 +760,28 @@ const loadPost = async () => {
             if (post.value.translationId) {
                 fetchTranslations(post.value.translationId)
             }
+
+            const requestedSourceId = route.query.sourceId as string | undefined
+            if (requestedSourceId && requestedSourceId !== detailedPost.id) {
+                try {
+                    sourcePostSnapshot.value = await fetchSourcePostDetail(requestedSourceId)
+                } catch (sourceError) {
+                    console.error('Failed to load translation source snapshot', sourceError)
+                }
+            }
         }
     } catch (error) {
         console.error('Failed to load post', error)
         // router.push('/admin/posts');
+    }
+
+    if (route.query.autoTranslate === 'true') {
+        translationWorkflowDefaults.value = {
+            sourcePostId: (route.query.sourceId as string) || sourcePostSnapshot.value?.id || null,
+            targetLanguage: post.value.language,
+            scopes: parseTranslationScopes(route.query.translationScopes as string | string[] | undefined),
+        }
+        translationDialogVisible.value = true
     }
 
     // 加载完成后检查是否有本地草稿可以恢复

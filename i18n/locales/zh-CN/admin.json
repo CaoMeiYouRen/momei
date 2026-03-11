@@ -505,10 +505,28 @@
                     "source_post": "来源文章",
                     "select_source": "选择一个来源版本",
                     "target_language": "目标语言",
+                    "target_status_title": "目标版本状态",
+                    "action_title": "本次动作",
                     "source_language_value": "来源语言：{language}",
                     "target_language_value": "目标语言：{language}",
                     "scope_title": "翻译范围",
                     "scope_hint": "分类和标签会优先尝试匹配同一翻译簇中的目标语言实体。",
+                    "target_states": {
+                        "missing": "未创建版本",
+                        "draft": "草稿版本",
+                        "published": "已发布版本"
+                    },
+                    "actions": {
+                        "create": "新建翻译",
+                        "continue": "继续翻译",
+                        "overwrite": "覆盖翻译"
+                    },
+                    "action_descriptions": {
+                        "create": "将在目标语言下创建新的翻译版本，仅写入本次选中的字段。",
+                        "continue": "将在当前草稿基础上继续翻译，所选字段会用新的翻译结果更新。",
+                        "overwrite": "将重新翻译并覆盖当前已发布版本的所选字段，请谨慎操作。"
+                    },
+                    "switch_target_hint": "当前编辑器不是目标语言版本。开始后会先切换到对应目标版本编辑器，并保留来源与范围选择。",
                     "fields": {
                         "title": "标题",
                         "content": "正文",
@@ -521,7 +539,9 @@
                     "progress_completed": "翻译已完成",
                     "progress_failed": "翻译失败",
                     "current_field": "当前字段：{field}",
+                    "continue_title": "确认继续翻译当前草稿",
                     "overwrite_title": "确认覆盖当前翻译",
+                    "continue_draft": "当前目标草稿已经包含内容。继续后，所选字段会被新的翻译结果更新。",
                     "overwrite_draft": "当前目标版本已经包含内容。继续后，所选字段会被新的翻译结果覆盖。",
                     "overwrite_published_first": "当前目标版本已发布。继续翻译将覆盖线上版本对应字段，请先确认是否继续。",
                     "overwrite_published_second": "这是第二次确认。若继续，已发布版本的所选字段将被新的翻译结果替换。"
