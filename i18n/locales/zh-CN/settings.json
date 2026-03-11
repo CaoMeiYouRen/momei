@@ -101,7 +101,28 @@
                 "active": "已启用订阅",
                 "inactive": "已暂停订阅",
                 "pause_subscription": "暂停所有订阅",
-                "resume_subscription": "恢复订阅"
+                "resume_subscription": "恢复订阅",
+                "history": {
+                    "title": "通知历史",
+                    "description": "查看已经接收过的站内通知历史，并在这里补齐已读状态。",
+                    "refresh": "刷新",
+                    "mark_all_read": "全部设为已读",
+                    "mark_read": "标记为已读",
+                    "view_target": "查看目标",
+                    "empty": "暂无通知历史",
+                    "status": {
+                        "read": "已读",
+                        "unread": "未读"
+                    },
+                    "columns": {
+                        "time": "时间",
+                        "type": "类型",
+                        "content": "通知内容",
+                        "status": "状态",
+                        "target": "跳转目标",
+                        "actions": "操作"
+                    }
+                }
             },
             "commercial": {
                 "title": "商业化与赞助",

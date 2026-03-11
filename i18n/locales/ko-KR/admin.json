@@ -829,6 +829,45 @@
                             "NEW_COMMENT": "새 댓글 수신",
                             "API_ERROR": "시스템 API 오류",
                             "SYSTEM_ALERT": "치명적 시스템 경보"
+                        },
+                        "delivery_logs": {
+                            "title": "알림 전달 감사",
+                            "description": "알림 유형, 전달 채널, 결과, 시간 범위별로 전달 상태를 추적해 관리 화면에서도 전체 흐름을 확인할 수 있게 합니다.",
+                            "refresh": "새로고침",
+                            "empty": "알림 전달 기록이 없습니다",
+                            "value_states": {
+                                "none": "없음"
+                            },
+                            "filters": {
+                                "recipient": "수신자 필터",
+                                "type": "알림 유형",
+                                "channel": "전달 채널",
+                                "status": "전달 결과",
+                                "start_date": "시작 날짜",
+                                "end_date": "종료 날짜",
+                                "apply": "필터 적용",
+                                "reset": "초기화"
+                            },
+                            "channels": {
+                                "in_app": "인앱 알림",
+                                "sse": "SSE 실시간 전달",
+                                "email": "이메일",
+                                "web_push": "웹 푸시"
+                            },
+                            "statuses": {
+                                "success": "성공",
+                                "failed": "실패",
+                                "skipped": "건너뜀"
+                            },
+                            "columns": {
+                                "sent_at": "전달 시각",
+                                "type": "알림 유형",
+                                "channel": "채널",
+                                "status": "결과",
+                                "recipient": "수신자",
+                                "title": "알림 제목 / 대상",
+                                "error": "실패 또는 건너뛴 이유"
+                            }
                         }
                     },
                     "keys": {

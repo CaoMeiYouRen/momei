@@ -59,6 +59,23 @@
 | `userAgent` | `string` | 设备浏览器信息，便于排查 |
 | `locale` | `string` | 同步订阅时的语言环境 |
 
+### 3.5 通知投递日志 (`NotificationDeliveryLog`)
+统一沉淀通知事件在不同渠道上的投递结果，供管理员审计查询使用。
+
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `notificationId` | `string \\| null` | 关联的站内通知 ID |
+| `userId` | `string \\| null` | 接收用户 ID |
+| `channel` | `string` | 投递渠道（IN_APP / SSE / EMAIL / WEB_PUSH） |
+| `status` | `string` | 投递结果（SUCCESS / FAILED / SKIPPED） |
+| `notificationType` | `string` | 通知类型（SYSTEM / SECURITY / COMMENT_REPLY 等） |
+| `title` | `string` | 通知标题 |
+| `recipient` | `string \\| null` | 接收对象展示值（邮箱、用户标识或 broadcast） |
+| `targetUrl` | `string \\| null` | 点击跳转目标 |
+| `errorMessage` | `string \\| null` | 失败或跳过原因 |
+| `sentAt` | `datetime` | 实际投递时间 |
+| `metadata` | `json \\| null` | 渠道扩展信息（如连接数、推送尝试次数） |
+
 ## 4. 实时通信 (Real-time Messaging)
 系统通过 **SSE (Server-Sent Events)** 实现站内信的实时推送。
 - 入口：`GET /api/notifications/stream`。
@@ -91,6 +108,13 @@
 
 - 服务端发送 Web Push 时若收到 `404` 或 `410`，立即删除对应订阅记录。
 - 当前设备权限从 `granted` 变为 `default / denied` 时，前端会主动取消订阅并通知服务端清理当前端点。
+
+### 5.5 历史与投递审计
+
+- 用户通知历史接口：`GET /api/notifications`，支持分页查询已接收过的站内通知。
+- 已读状态回填接口：`PUT /api/notifications/read`，支持单条或全部标记为已读。
+- 管理员投递审计接口：`GET /api/admin/notifications/delivery-logs`，支持按通知类型、投递渠道、投递结果、接收者与时间范围筛选。
+- `server/services/notification.ts` 作为统一通知入口，在落库站内信后继续按在线状态分流到 SSE 或 Web Push，并为 EMAIL / IN_APP / SSE / WEB_PUSH 统一记录 `NotificationDeliveryLog`。
 
 ## 6. 成本监控与统计
 `NotificationStatistics` 表记录每日各渠道的发送量，支持管理员查看推送成本分析与异常频率告警。

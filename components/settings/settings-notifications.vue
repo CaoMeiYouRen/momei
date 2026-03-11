@@ -210,6 +210,10 @@
                     @click="handleSave"
                 />
             </div>
+
+            <Divider class="subscription-settings__divider" />
+
+            <NotificationHistoryList />
         </div>
     </div>
 </template>

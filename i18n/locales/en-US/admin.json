@@ -829,6 +829,45 @@
                             "NEW_COMMENT": "New Comment Received",
                             "API_ERROR": "System API Error",
                             "SYSTEM_ALERT": "Critical System Alert"
+                        },
+                        "delivery_logs": {
+                            "title": "Notification Delivery Audit",
+                            "description": "Track notification delivery by type, channel, result, and time range so delivery remains observable end to end.",
+                            "refresh": "Refresh",
+                            "empty": "No notification delivery records yet",
+                            "value_states": {
+                                "none": "None"
+                            },
+                            "filters": {
+                                "recipient": "Filter recipient",
+                                "type": "Notification type",
+                                "channel": "Delivery channel",
+                                "status": "Delivery result",
+                                "start_date": "Start date",
+                                "end_date": "End date",
+                                "apply": "Apply filters",
+                                "reset": "Reset"
+                            },
+                            "channels": {
+                                "in_app": "In-app",
+                                "sse": "SSE",
+                                "email": "Email",
+                                "web_push": "Web Push"
+                            },
+                            "statuses": {
+                                "success": "Success",
+                                "failed": "Failed",
+                                "skipped": "Skipped"
+                            },
+                            "columns": {
+                                "sent_at": "Sent At",
+                                "type": "Type",
+                                "channel": "Channel",
+                                "status": "Result",
+                                "recipient": "Recipient",
+                                "title": "Title / Target",
+                                "error": "Failure or Skip Reason"
+                            }
                         }
                     },
                     "keys": {

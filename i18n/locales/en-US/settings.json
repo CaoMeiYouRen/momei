@@ -101,7 +101,28 @@
                 "active": "Subscription Enabled",
                 "inactive": "Subscription Paused",
                 "pause_subscription": "Pause all subscriptions",
-                "resume_subscription": "Resume subscriptions"
+                "resume_subscription": "Resume subscriptions",
+                "history": {
+                    "title": "Notification History",
+                    "description": "Review notifications you have already received and keep their read state in sync here.",
+                    "refresh": "Refresh",
+                    "mark_all_read": "Mark all as read",
+                    "mark_read": "Mark as read",
+                    "view_target": "Open target",
+                    "empty": "No notification history yet",
+                    "status": {
+                        "read": "Read",
+                        "unread": "Unread"
+                    },
+                    "columns": {
+                        "time": "Time",
+                        "type": "Type",
+                        "content": "Content",
+                        "status": "Status",
+                        "target": "Target",
+                        "actions": "Actions"
+                    }
+                }
             },
             "commercial": {
                 "title": "Monetization",

@@ -6,9 +6,10 @@ import {
     getSettingDefaultValue,
 } from '@/server/services/setting'
 import { inferSettingMaskType } from '@/server/utils/settings'
+import type { NotificationDeliveryLogItem } from '@/types/notification'
 import { SettingKey, type SettingAuditItem, type SettingItem, type SettingLockReason, type SettingSource } from '@/types/setting'
 import { type DonationLink, type SocialLink } from '@/utils/shared/commercial'
-import { AdminNotificationEvent } from '@/utils/shared/notification'
+import { AdminNotificationEvent, NotificationDeliveryChannel, NotificationDeliveryStatus, NotificationType } from '@/utils/shared/notification'
 
 const demoSettingValues: Partial<Record<string, string>> = {
     [SettingKey.SITE_NAME]: '墨梅 Demo',
@@ -350,6 +351,65 @@ export function getDemoSettingAuditLogsPreview(page: number, limit: number) {
         page,
         limit,
         totalPages: Math.ceil(demoAuditLogSeed.length / limit),
+        demoPreview: true,
+    }
+}
+
+const demoNotificationDeliveryLogSeed: NotificationDeliveryLogItem[] = [
+    {
+        id: 'demo-notification-log-1',
+        notificationId: 'demo-notification-1',
+        userId: 'demo-admin-1',
+        channel: NotificationDeliveryChannel.EMAIL,
+        status: NotificationDeliveryStatus.SUCCESS,
+        notificationType: NotificationType.SYSTEM,
+        title: '新评论待审核',
+        recipient: 'admin-demo@momei.app',
+        targetUrl: '/admin/comments',
+        errorMessage: null,
+        sentAt: '2025-02-18T09:32:00.000Z',
+        createdAt: '2025-02-18T09:32:00.000Z',
+    },
+    {
+        id: 'demo-notification-log-2',
+        notificationId: 'demo-notification-1',
+        userId: 'demo-admin-1',
+        channel: NotificationDeliveryChannel.WEB_PUSH,
+        status: NotificationDeliveryStatus.SKIPPED,
+        notificationType: NotificationType.SYSTEM,
+        title: '新评论待审核',
+        recipient: 'admin-demo@momei.app',
+        targetUrl: '/admin/comments',
+        errorMessage: 'online_sse_delivery',
+        sentAt: '2025-02-18T09:32:01.000Z',
+        createdAt: '2025-02-18T09:32:01.000Z',
+    },
+    {
+        id: 'demo-notification-log-3',
+        notificationId: 'demo-notification-2',
+        userId: 'demo-user-1',
+        channel: NotificationDeliveryChannel.WEB_PUSH,
+        status: NotificationDeliveryStatus.FAILED,
+        notificationType: NotificationType.SYSTEM,
+        title: 'AI 转录已完成',
+        recipient: 'writer-demo@momei.app',
+        targetUrl: '/admin/ai',
+        errorMessage: 'web_push_unavailable',
+        sentAt: '2025-02-17T14:20:00.000Z',
+        createdAt: '2025-02-17T14:20:00.000Z',
+    },
+]
+
+export function getDemoNotificationDeliveryLogsPreview(page: number, limit: number) {
+    const startIndex = (page - 1) * limit
+    const items = demoNotificationDeliveryLogSeed.slice(startIndex, startIndex + limit)
+
+    return {
+        items,
+        total: demoNotificationDeliveryLogSeed.length,
+        page,
+        limit,
+        totalPages: Math.ceil(demoNotificationDeliveryLogSeed.length / limit),
         demoPreview: true,
     }
 }

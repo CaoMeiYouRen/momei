@@ -829,6 +829,45 @@
                             "NEW_COMMENT": "收到新評論",
                             "API_ERROR": "系統 API 異常",
                             "SYSTEM_ALERT": "高風險系統警報"
+                        },
+                        "delivery_logs": {
+                            "title": "通知投遞稽核",
+                            "description": "依通知類型、投遞通道、結果與時間範圍追蹤通知送達情況，避免出現使用者收到但後台無法追蹤。",
+                            "refresh": "重新整理",
+                            "empty": "目前沒有通知投遞紀錄",
+                            "value_states": {
+                                "none": "無"
+                            },
+                            "filters": {
+                                "recipient": "篩選接收者",
+                                "type": "通知類型",
+                                "channel": "投遞通道",
+                                "status": "投遞結果",
+                                "start_date": "開始時間",
+                                "end_date": "結束時間",
+                                "apply": "套用篩選",
+                                "reset": "重設"
+                            },
+                            "channels": {
+                                "in_app": "站內通知",
+                                "sse": "SSE 即時推送",
+                                "email": "電子郵件",
+                                "web_push": "瀏覽器推播"
+                            },
+                            "statuses": {
+                                "success": "成功",
+                                "failed": "失敗",
+                                "skipped": "已略過"
+                            },
+                            "columns": {
+                                "sent_at": "投遞時間",
+                                "type": "通知類型",
+                                "channel": "通道",
+                                "status": "結果",
+                                "recipient": "接收者",
+                                "title": "通知標題 / 目標",
+                                "error": "失敗或略過原因"
+                            }
                         }
                     },
                     "keys": {

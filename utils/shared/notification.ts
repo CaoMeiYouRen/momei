@@ -25,6 +25,32 @@ export enum NotificationChannel {
 }
 
 /**
+ * 通知投递渠道
+ */
+export enum NotificationDeliveryChannel {
+    /** 站内信落库 */
+    IN_APP = 'IN_APP',
+    /** SSE 实时推送 */
+    SSE = 'SSE',
+    /** 邮件 */
+    EMAIL = 'EMAIL',
+    /** 浏览器推送 */
+    WEB_PUSH = 'WEB_PUSH',
+}
+
+/**
+ * 通知投递结果
+ */
+export enum NotificationDeliveryStatus {
+    /** 发送成功 */
+    SUCCESS = 'SUCCESS',
+    /** 发送失败 */
+    FAILED = 'FAILED',
+    /** 主动跳过 */
+    SKIPPED = 'SKIPPED',
+}
+
+/**
  * 营销推送状态
  */
 export enum MarketingCampaignStatus {

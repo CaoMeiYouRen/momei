@@ -101,7 +101,28 @@
                 "active": "已啟用訂閱",
                 "inactive": "已暫停訂閱",
                 "pause_subscription": "暫停所有訂閱",
-                "resume_subscription": "恢復訂閱"
+                "resume_subscription": "恢復訂閱",
+                "history": {
+                    "title": "通知歷史",
+                    "description": "查看已接收過的站內通知歷史，並在此同步已讀狀態。",
+                    "refresh": "重新整理",
+                    "mark_all_read": "全部標示為已讀",
+                    "mark_read": "標示為已讀",
+                    "view_target": "查看目標",
+                    "empty": "目前沒有通知歷史",
+                    "status": {
+                        "read": "已讀",
+                        "unread": "未讀"
+                    },
+                    "columns": {
+                        "time": "時間",
+                        "type": "類型",
+                        "content": "通知內容",
+                        "status": "狀態",
+                        "target": "跳轉目標",
+                        "actions": "操作"
+                    }
+                }
             },
             "commercial": {
                 "title": "商業化與贊助",

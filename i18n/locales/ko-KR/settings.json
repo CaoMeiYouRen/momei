@@ -101,7 +101,28 @@
                 "active": "구독 활성화",
                 "inactive": "구독 일시중지",
                 "pause_subscription": "모든 구독 일시중지",
-                "resume_subscription": "구독 다시 시작"
+                "resume_subscription": "구독 다시 시작",
+                "history": {
+                    "title": "알림 기록",
+                    "description": "이미 받은 알림 기록을 확인하고 여기서 읽음 상태를 동기화합니다.",
+                    "refresh": "새로고침",
+                    "mark_all_read": "모두 읽음 처리",
+                    "mark_read": "읽음 처리",
+                    "view_target": "대상 열기",
+                    "empty": "알림 기록이 없습니다",
+                    "status": {
+                        "read": "읽음",
+                        "unread": "읽지 않음"
+                    },
+                    "columns": {
+                        "time": "시간",
+                        "type": "유형",
+                        "content": "알림 내용",
+                        "status": "상태",
+                        "target": "이동 대상",
+                        "actions": "작업"
+                    }
+                }
             },
             "commercial": {
                 "title": "수익화 및 후원",

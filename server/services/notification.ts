@@ -4,7 +4,7 @@ import { MarketingCampaign } from '@/server/entities/marketing-campaign'
 import { AdminNotificationSettings } from '@/server/entities/admin-notification-settings'
 import { InAppNotification } from '@/server/entities/in-app-notification'
 import { NotificationSettings } from '@/server/entities/notification-settings'
-import { MarketingCampaignStatus, MarketingCampaignType, AdminNotificationEvent, NotificationChannel, NotificationType } from '@/utils/shared/notification'
+import { MarketingCampaignStatus, MarketingCampaignType, AdminNotificationEvent, NotificationChannel, NotificationType, NotificationDeliveryChannel, NotificationDeliveryStatus } from '@/utils/shared/notification'
 import { sendEmail } from '@/server/utils/email'
 import { emailService } from '@/server/utils/email/service'
 import { Post } from '@/server/entities/post'
@@ -14,6 +14,7 @@ import logger from '@/server/utils/logger'
 import { htmlToPlainText } from '@/server/utils/html'
 import { appendPostCopyrightNotice } from '@/utils/shared/post-copyright'
 import { sendWebPushToUser } from '@/server/services/web-push'
+import { recordNotificationDeliveryLog } from '@/server/services/notification-delivery'
 
 async function isWebPushEnabledForUser(userId: string, type: NotificationType) {
     const notificationSettingsRepo = dataSource.getRepository(NotificationSettings)
@@ -26,11 +27,6 @@ async function isWebPushEnabledForUser(userId: string, type: NotificationType) {
     })
 
     return setting ? setting.isEnabled : true
-}
-
-function hasActiveNotificationConnection(userId: string) {
-    const userConnections = connections.get(userId)
-    return Boolean(userConnections && userConnections.size > 0)
 }
 
 /**
@@ -66,8 +62,27 @@ export async function notifyAdmins(event: AdminNotificationEvent, data: { title:
                     subject: `[站务通知] ${data.title}`,
                     html: data.content,
                 })
+                await recordNotificationDeliveryLog({
+                    userId: admin.id,
+                    recipient: admin.email,
+                    channel: NotificationDeliveryChannel.EMAIL,
+                    status: NotificationDeliveryStatus.SUCCESS,
+                    notificationType: NotificationType.SYSTEM,
+                    title: data.title,
+                    targetUrl: '/admin',
+                })
             } catch (err) {
                 logger.error(`Failed to send admin notification email to ${admin.email}:`, err)
+                await recordNotificationDeliveryLog({
+                    userId: admin.id,
+                    recipient: admin.email,
+                    channel: NotificationDeliveryChannel.EMAIL,
+                    status: NotificationDeliveryStatus.FAILED,
+                    notificationType: NotificationType.SYSTEM,
+                    title: data.title,
+                    targetUrl: '/admin',
+                    errorMessage: err instanceof Error ? err.message : String(err),
+                })
             }
         }
 
@@ -78,6 +93,7 @@ export async function notifyAdmins(event: AdminNotificationEvent, data: { title:
                 title: data.title,
                 content: data.content,
                 link: '/admin',
+                recipient: admin.email,
             }).catch((err) => {
                 logger.error(`Failed to send admin browser notification to ${admin.email}:`, err)
             })
@@ -292,13 +308,31 @@ export async function sendInAppNotification(data: {
     title: string
     content: string
     link?: string | null
+    recipient?: string | null
 }) {
     const notificationRepo = dataSource.getRepository(InAppNotification)
     const notification = notificationRepo.create({
-        ...data,
+        userId: data.userId,
+        type: data.type,
+        title: data.title,
+        content: data.content,
+        link: data.link || null,
         isRead: false,
     })
     await notificationRepo.save(notification)
+
+    const recipient = data.recipient ?? data.userId ?? 'broadcast'
+
+    await recordNotificationDeliveryLog({
+        notificationId: notification.id,
+        userId: data.userId,
+        recipient,
+        channel: NotificationDeliveryChannel.IN_APP,
+        status: NotificationDeliveryStatus.SUCCESS,
+        notificationType: data.type,
+        title: data.title,
+        targetUrl: data.link || null,
+    })
 
     // 推送实时消息
     const payload = JSON.stringify(notification)
@@ -306,33 +340,136 @@ export async function sendInAppNotification(data: {
     if (data.userId) {
         // 单个用户推送
         const userConnections = connections.get(data.userId)
-        if (userConnections) {
-            for (const stream of userConnections) {
-                void stream.push(payload)
-            }
-        }
+        if (userConnections && userConnections.size > 0) {
+            let delivered = false
 
-        if (!hasActiveNotificationConnection(data.userId) && await isWebPushEnabledForUser(data.userId, data.type)) {
-            await sendWebPushToUser(data.userId, {
+            for (const stream of userConnections) {
+                try {
+                    await stream.push(payload)
+                    delivered = true
+                } catch (error) {
+                    logger.error(`[Notification] Failed to push SSE notification ${notification.id} to user ${data.userId}:`, error)
+                }
+            }
+
+            await recordNotificationDeliveryLog({
+                notificationId: notification.id,
+                userId: data.userId,
+                recipient,
+                channel: NotificationDeliveryChannel.SSE,
+                status: delivered ? NotificationDeliveryStatus.SUCCESS : NotificationDeliveryStatus.FAILED,
+                notificationType: data.type,
                 title: data.title,
-                body: data.content,
-                tag: `notification-${notification.id}`,
-                url: data.link || '/',
-                data: {
-                    notificationId: notification.id,
-                    type: data.type,
+                targetUrl: data.link || null,
+                errorMessage: delivered ? null : 'sse_delivery_failed',
+                metadata: {
+                    connectionCount: userConnections.size,
                 },
-            }).catch((error) => {
-                logger.error(`[Notification] Failed to send web push for notification ${notification.id}:`, error)
             })
+
+            await recordNotificationDeliveryLog({
+                notificationId: notification.id,
+                userId: data.userId,
+                recipient,
+                channel: NotificationDeliveryChannel.WEB_PUSH,
+                status: NotificationDeliveryStatus.SKIPPED,
+                notificationType: data.type,
+                title: data.title,
+                targetUrl: data.link || null,
+                errorMessage: 'online_sse_delivery',
+            })
+        } else {
+            const webPushEnabled = await isWebPushEnabledForUser(data.userId, data.type)
+
+            if (!webPushEnabled) {
+                await recordNotificationDeliveryLog({
+                    notificationId: notification.id,
+                    userId: data.userId,
+                    recipient,
+                    channel: NotificationDeliveryChannel.WEB_PUSH,
+                    status: NotificationDeliveryStatus.SKIPPED,
+                    notificationType: data.type,
+                    title: data.title,
+                    targetUrl: data.link || null,
+                    errorMessage: 'user_disabled',
+                })
+            } else {
+                try {
+                    const result = await sendWebPushToUser(data.userId, {
+                        title: data.title,
+                        body: data.content,
+                        tag: `notification-${notification.id}`,
+                        url: data.link || '/',
+                        data: {
+                            notificationId: notification.id,
+                            type: data.type,
+                        },
+                    })
+
+                    let webPushStatus = NotificationDeliveryStatus.FAILED
+                    if (result.sent > 0) {
+                        webPushStatus = NotificationDeliveryStatus.SUCCESS
+                    } else if (result.skipped) {
+                        webPushStatus = NotificationDeliveryStatus.SKIPPED
+                    }
+                    const webPushErrorMessage = result.sent > 0 ? null : 'web_push_unavailable'
+
+                    await recordNotificationDeliveryLog({
+                        notificationId: notification.id,
+                        userId: data.userId,
+                        recipient,
+                        channel: NotificationDeliveryChannel.WEB_PUSH,
+                        status: webPushStatus,
+                        notificationType: data.type,
+                        title: data.title,
+                        targetUrl: data.link || null,
+                        errorMessage: webPushErrorMessage,
+                        metadata: result,
+                    })
+                } catch (error) {
+                    logger.error(`[Notification] Failed to send web push for notification ${notification.id}:`, error)
+                    await recordNotificationDeliveryLog({
+                        notificationId: notification.id,
+                        userId: data.userId,
+                        recipient,
+                        channel: NotificationDeliveryChannel.WEB_PUSH,
+                        status: NotificationDeliveryStatus.FAILED,
+                        notificationType: data.type,
+                        title: data.title,
+                        targetUrl: data.link || null,
+                        errorMessage: error instanceof Error ? error.message : String(error),
+                    })
+                }
+            }
         }
     } else {
         // 全局广播推送 (userId 为 null)
+        let pushedConnections = 0
+
         for (const userConnections of connections.values()) {
             for (const stream of userConnections) {
-                void stream.push(payload)
+                try {
+                    await stream.push(payload)
+                    pushedConnections += 1
+                } catch (error) {
+                    logger.error(`[Notification] Failed to push broadcast notification ${notification.id}:`, error)
+                }
             }
         }
+
+        await recordNotificationDeliveryLog({
+            notificationId: notification.id,
+            recipient,
+            channel: NotificationDeliveryChannel.SSE,
+            status: pushedConnections > 0 ? NotificationDeliveryStatus.SUCCESS : NotificationDeliveryStatus.SKIPPED,
+            notificationType: data.type,
+            title: data.title,
+            targetUrl: data.link || null,
+            errorMessage: pushedConnections > 0 ? null : 'no_active_connections',
+            metadata: {
+                connectionCount: pushedConnections,
+            },
+        })
     }
 
     return notification

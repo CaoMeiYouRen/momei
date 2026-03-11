@@ -2,26 +2,11 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useIntervalFn } from '@vueuse/core'
 import { useAppApi } from './use-app-fetch'
 import { authClient } from '@/lib/auth-client'
+import type { NotificationHistoryResponseData, UserNotificationHistoryItem } from '@/types/notification'
 
 type BrowserPushPermission = NotificationPermission | 'unsupported'
 
-export interface Notification {
-    id: string
-    type: string
-    title: string
-    content: string
-    link: string | null
-    isRead: boolean
-    createdAt: string
-}
-
-interface NotificationListResponse {
-    items: Notification[]
-    total: number
-    page: number
-    limit: number
-    totalPages: number
-}
+export type Notification = UserNotificationHistoryItem
 
 export function useNotifications() {
     const notifications = ref<Notification[]>([])
@@ -191,7 +176,7 @@ export function useNotifications() {
             return
         }
         try {
-            const res = await $appFetch<NotificationListResponse>('/api/notifications', {
+            const res = await $appFetch<NotificationHistoryResponseData>('/api/notifications', {
                 query: { limit: 10, unreadOnly: false },
             })
             notifications.value = res.items
