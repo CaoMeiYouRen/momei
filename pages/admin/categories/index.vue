@@ -297,6 +297,7 @@
 
 <script setup lang="ts">
 import { categoryBodySchema, categoryUpdateSchema } from '@/utils/schemas/category'
+import { resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
 import { isPureEnglish } from '@/utils/shared/validate'
 import type { Category } from '@/types/category'
 
@@ -334,12 +335,14 @@ const handleTranslationClick = (langCode: string, translation: any, item: any) =
     if (translation) {
         openDialog(translation)
     } else {
+        const translationClusterId = resolveTranslationClusterId(item.translationId, item.slug, item.id)
+
         // Create new translation
         openDialog({
             name: '',
             slug: item.slug,
             language: langCode,
-            translationId: item.translationId || item.id,
+            translationId: translationClusterId,
             parentId: item.parentId,
         } as any)
     }
@@ -395,12 +398,14 @@ watch(syncToAllLanguages, (val) => {
 })
 
 const syncTranslationIdFromSlugMulti = (lang: string) => {
-    if (multiForm.value[lang].slug) {
-        multiForm.value[lang].translationId = multiForm.value[lang].slug
+    const translationClusterId = resolveTranslationClusterId(undefined, multiForm.value[lang].slug)
+
+    if (translationClusterId) {
+        multiForm.value[lang].translationId = translationClusterId
         // Default sync to other tabs if they are empty
         locales.value.forEach((l: any) => {
             if (!multiForm.value[l.code].translationId) {
-                multiForm.value[l.code].translationId = multiForm.value[lang].translationId
+                multiForm.value[l.code].translationId = translationClusterId
             }
         })
     }
@@ -444,13 +449,14 @@ const openDialog = async (item?: any) => {
                     description: it.description || '',
                     parentId: it.parentId || null,
                     language: it.language,
-                    translationId: it.translationId || null,
+                    translationId: resolveTranslationClusterId(it.translationId, it.slug),
                 }
             }
-        } else if (item.translationId) {
+        } else if (resolveTranslationClusterId(item.translationId, item.slug, item.id)) {
             // It's a single item with translationId, fetch peers
+            const translationClusterId = resolveTranslationClusterId(item.translationId, item.slug, item.id)
             const res = await $fetch<any>('/api/categories', {
-                query: { translationId: item.translationId, limit: 10 },
+                query: { translationId: translationClusterId, limit: 10 },
             })
             res.data.items.forEach((it: any) => {
                 multiForm.value[it.language] = {
@@ -460,7 +466,7 @@ const openDialog = async (item?: any) => {
                     description: it.description || '',
                     parentId: it.parentId || null,
                     language: it.language,
-                    translationId: it.translationId || null,
+                    translationId: resolveTranslationClusterId(it.translationId, it.slug),
                 }
             })
         } else {
@@ -472,7 +478,7 @@ const openDialog = async (item?: any) => {
                 description: item.description || '',
                 parentId: item.parentId || null,
                 language: item.language,
-                translationId: item.translationId || null,
+                translationId: resolveTranslationClusterId(item.translationId, item.slug),
             }
         }
     }
@@ -517,13 +523,18 @@ const saveItemMulti = async () => {
     saving.value = true
     try {
         // Find a common translationId if possible
-        let sharedTranslationId = modifiedLocales.find((l) => multiForm.value[l.code].translationId)?.translationId
-            || modifiedLocales.find((l) => multiForm.value[l.code].id)?.translationId
+        let sharedTranslationId = modifiedLocales
+            .map((l) => resolveTranslationClusterId(
+                multiForm.value[l.code].translationId,
+                multiForm.value[l.code].slug,
+                multiForm.value[l.code].id,
+            ))
+            .find(Boolean) || null
 
         // Sequential save to ensure translationId consistency
         for (const l of modifiedLocales) {
             const formData = { ...multiForm.value[l.code] }
-            if (sharedTranslationId) formData.translationId = sharedTranslationId
+            formData.translationId = resolveTranslationClusterId(sharedTranslationId, formData.slug, formData.id)
 
             if (formData.id) {
                 await $fetch(`/api/categories/${formData.id}`, {

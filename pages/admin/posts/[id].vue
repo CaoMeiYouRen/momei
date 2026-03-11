@@ -136,6 +136,7 @@ import { usePostTranslationAI } from '@/composables/use-post-translation-ai'
 import { usePostEditorIO } from '@/composables/use-post-editor-io'
 import { usePostEditorAutoSave } from '@/composables/use-post-editor-auto-save'
 import { formatMarkdown } from '@/utils/shared/markdown'
+import { hasSharedTranslationCluster, resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
 
 definePageMeta({
     middleware: 'author',
@@ -472,6 +473,103 @@ const translationSourceOptions = computed<PostTranslationSourceOption[]>(() => {
     return Array.from(sourceMap.values())
 })
 
+const resolveMatchedCategoryId = (
+    sourceCategory: PostTranslationSourceDetail['category'],
+    sourceLanguage: string,
+) => {
+    if (!sourceCategory) {
+        return null
+    }
+
+    const allowIdFallback = sourceLanguage === post.value.language
+    const matchedCategory = categories.value.find((category) => hasSharedTranslationCluster(sourceCategory, category, {
+        includeSourceId: allowIdFallback,
+        includeTargetId: allowIdFallback,
+    }))
+
+    return matchedCategory?.id || null
+}
+
+const resolveMatchedTagNames = (
+    sourceTags: PostTranslationSourceDetail['tags'],
+    sourceLanguage: string,
+) => {
+    if (!sourceTags?.length) {
+        return []
+    }
+
+    const allowIdFallback = sourceLanguage === post.value.language
+    const mappedTags = sourceTags.flatMap((tag) => {
+        const matchedTag = tagEntities.value.find((targetTag) => hasSharedTranslationCluster(tag, targetTag, {
+            includeSourceId: allowIdFallback,
+            includeTargetId: allowIdFallback,
+        }))
+
+        if (matchedTag?.name) {
+            return [matchedTag.name]
+        }
+
+        return allowIdFallback && tag.name ? [tag.name] : []
+    })
+
+    return Array.from(new Set(mappedTags.filter(Boolean)))
+}
+
+const createTranslationScopeSnapshot = () => ({
+    title: post.value.title,
+    content: post.value.content,
+    summary: post.value.summary,
+    categoryId: post.value.categoryId,
+    tags: [...post.value.tags],
+})
+
+const clearTranslatedScopes = (scopes: TranslationScopeField[]) => {
+    if (scopes.includes('title')) {
+        post.value.title = ''
+    }
+
+    if (scopes.includes('content')) {
+        post.value.content = ''
+    }
+
+    if (scopes.includes('summary')) {
+        post.value.summary = ''
+    }
+
+    if (scopes.includes('category')) {
+        post.value.categoryId = null
+    }
+
+    if (scopes.includes('tags')) {
+        post.value.tags = []
+    }
+}
+
+const restoreTranslatedScopes = (
+    scopes: TranslationScopeField[],
+    snapshot: ReturnType<typeof createTranslationScopeSnapshot>,
+) => {
+    if (scopes.includes('title')) {
+        post.value.title = snapshot.title
+    }
+
+    if (scopes.includes('content')) {
+        post.value.content = snapshot.content
+    }
+
+    if (scopes.includes('summary')) {
+        post.value.summary = snapshot.summary
+    }
+
+    if (scopes.includes('category')) {
+        post.value.categoryId = snapshot.categoryId
+    }
+
+    if (scopes.includes('tags')) {
+        post.value.tags = [...snapshot.tags]
+    }
+}
+
 const hasSelectedScopesContent = (scopes: TranslationScopeField[]) => scopes.some((scope) => {
     if (scope === 'title') {
         return Boolean(post.value.title?.trim())
@@ -545,35 +643,11 @@ const confirmTranslationOverwrite = async (
 }
 
 const applyTranslatedCategory = (source: PostTranslationSourceDetail) => {
-    if (!source.category) {
-        post.value.categoryId = null
-        return
-    }
-
-    if (source.category.translationId) {
-        const matchedCategory = categories.value.find((category) => category.translationId === source.category?.translationId)
-        if (matchedCategory) {
-            post.value.categoryId = matchedCategory.id
-            return
-        }
-    }
-
-    post.value.categoryId = source.category.id
+    post.value.categoryId = resolveMatchedCategoryId(source.category, source.language)
 }
 
 const applyTranslatedTags = (source: PostTranslationSourceDetail) => {
-    const mappedTags = (source.tags || []).map((tag) => {
-        if (tag.translationId) {
-            const matchedTag = tagEntities.value.find((targetTag) => targetTag.translationId === tag.translationId)
-            if (matchedTag) {
-                return matchedTag.name
-            }
-        }
-
-        return tag.name
-    })
-
-    post.value.tags = Array.from(new Set(mappedTags.filter(Boolean)))
+    post.value.tags = resolveMatchedTagNames(source.tags || [], source.language)
 }
 
 const fetchSourcePostDetail = async (postId: string) => {
@@ -632,6 +706,9 @@ const handleStartTranslationWorkflow = async (payload: PostTranslationWorkflowRe
         ])
     }
 
+    const translationScopeSnapshot = createTranslationScopeSnapshot()
+    clearTranslatedScopes(payload.scopes)
+
     const translated = await translatePostFields({
         source,
         sourceLanguage: payload.sourceLanguage,
@@ -640,6 +717,7 @@ const handleStartTranslationWorkflow = async (payload: PostTranslationWorkflowRe
     })
 
     if (!translated) {
+        restoreTranslatedScopes(payload.scopes, translationScopeSnapshot)
         return
     }
 
@@ -651,7 +729,7 @@ const handleStartTranslationWorkflow = async (payload: PostTranslationWorkflowRe
         applyTranslatedTags(source)
     }
 
-    post.value.translationId = source.translationId || source.id
+    post.value.translationId = resolveTranslationClusterId(source.translationId, source.slug, source.id)
     translationDialogVisible.value = false
 }
 
@@ -687,30 +765,29 @@ const loadPost = async () => {
                     post.value.summary = data.summary
                     post.value.content = data.content
                     post.value.coverImage = data.coverImage
-                    post.value.tags = data.tags?.map((tag) => tag.name) || []
-                    post.value.translationId = data.translationId || data.id
+                    post.value.tags = resolveMatchedTagNames(data.tags || [], data.language)
+                    post.value.translationId = resolveTranslationClusterId(data.translationId, data.slug, data.id)
                     post.value.slug = data.slug || ''
                     post.value.copyright = data.copyright
 
-                    // 尝试匹配目标语言的分类 (通过 translationId)
-                    const sourceCategory = data.category
-                    if (sourceCategory) {
-                        if (sourceCategory.translationId) {
-                            // 暂时设置源 ID，确保在 loadCategories 完成后尝试寻找匹配语言的分类
-                            post.value.categoryId = sourceCategory.id
-                            const unwatch = watch(categories, (newCats) => {
-                                if (newCats.length > 0) {
-                                    const match = newCats.find((category) => category.translationId === sourceCategory.translationId)
-                                    if (match) {
-                                        post.value.categoryId = match.id
-                                    }
-                                    unwatch()
-                                }
-                            }, { immediate: true })
-                        } else {
-                            post.value.categoryId = sourceCategory.id
-                        }
-                    }
+                    post.value.categoryId = resolveMatchedCategoryId(data.category, data.language)
+
+                    const stopTaxonomySync = watch(
+                        [categories, tagEntities],
+                        ([nextCategories, nextTags]) => {
+                            if (nextCategories.length === 0 && nextTags.length === 0) {
+                                return
+                            }
+
+                            post.value.categoryId = resolveMatchedCategoryId(data.category, data.language)
+                            post.value.tags = resolveMatchedTagNames(data.tags || [], data.language)
+
+                            if (nextCategories.length > 0 && nextTags.length > 0) {
+                                stopTaxonomySync()
+                            }
+                        },
+                        { immediate: true },
+                    )
                 }
             } catch (e) {
                 console.error('Failed to pre-fill from source post', e)

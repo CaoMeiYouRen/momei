@@ -2,6 +2,7 @@ import { Not } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
 import { assignDefined } from '@/server/utils/object'
+import { resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
 
 export interface CategoryData {
     name: string
@@ -14,6 +15,7 @@ export interface CategoryData {
 
 export async function createCategory(data: CategoryData): Promise<Category> {
     const categoryRepo = dataSource.getRepository(Category)
+    const translationClusterId = resolveTranslationClusterId(data.translationId, data.slug)
 
     // Check slug uniqueness within same language
     const existingSlug = await categoryRepo.findOneBy({
@@ -34,9 +36,9 @@ export async function createCategory(data: CategoryData): Promise<Category> {
     }
 
     // Check translation group uniqueness
-    if (data.translationId) {
+    if (translationClusterId) {
         const existingTranslation = await categoryRepo.findOneBy({
-            translationId: data.translationId,
+            translationId: translationClusterId,
             language: data.language,
         })
         if (existingTranslation) {
@@ -60,7 +62,7 @@ export async function createCategory(data: CategoryData): Promise<Category> {
         'description',
         'parentId',
     ])
-    category.translationId = data.translationId || data.slug
+    category.translationId = translationClusterId
 
     return await categoryRepo.save(category)
 }
@@ -72,6 +74,10 @@ export async function updateCategory(id: string, data: Partial<CategoryData>): P
     if (!category) {
         throw createError({ statusCode: 404, statusMessage: 'Category not found' })
     }
+
+    const targetTranslationId = data.translationId !== undefined
+        ? resolveTranslationClusterId(data.translationId, data.slug ?? category.slug)
+        : resolveTranslationClusterId(category.translationId, data.slug ?? category.slug)
 
     // Check slug uniqueness if updating
     if (
@@ -116,7 +122,6 @@ export async function updateCategory(id: string, data: Partial<CategoryData>): P
         (data.translationId !== undefined && data.translationId !== category.translationId)
         || (data.language && data.language !== category.language)
     ) {
-        const targetTranslationId = data.translationId ?? category.translationId
         const targetLanguage = data.language ?? category.language
         if (targetTranslationId) {
             const existing = await categoryRepo.findOne({
@@ -144,10 +149,10 @@ export async function updateCategory(id: string, data: Partial<CategoryData>): P
         'name',
         'slug',
         'language',
-        'translationId',
         'description',
         'parentId',
     ])
+    category.translationId = targetTranslationId
 
     return await categoryRepo.save(category)
 }

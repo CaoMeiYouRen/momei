@@ -188,5 +188,29 @@ describe('category service', () => {
 
             expect(mockCategoryRepo.save).toHaveBeenCalled()
         })
+
+        it('should fall back to slug when translationId is cleared', async () => {
+            const existingCategory = {
+                id: '1',
+                name: 'Technology',
+                slug: 'technology',
+                language: 'zh-CN',
+                translationId: 'legacy-cluster',
+            }
+
+            mockCategoryRepo.findOneBy.mockResolvedValue(existingCategory)
+            mockCategoryRepo.findOne.mockResolvedValue(null)
+            mockCategoryRepo.save.mockImplementation((cat) => Promise.resolve(cat))
+
+            await updateCategory('1', {
+                slug: 'frontend',
+                translationId: ' ',
+            })
+
+            expect(mockCategoryRepo.save).toHaveBeenCalledWith(expect.objectContaining({
+                slug: 'frontend',
+                translationId: 'frontend',
+            }))
+        })
     })
 })

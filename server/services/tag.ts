@@ -4,6 +4,7 @@ import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
 import { generateRandomString } from '@/utils/shared/random'
 import { assignDefined } from '@/server/utils/object'
+import { resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
 
 interface TagData {
     name: string
@@ -17,6 +18,7 @@ interface TagData {
  */
 export async function createTag(data: TagData): Promise<Tag> {
     const tagRepo = dataSource.getRepository(Tag)
+    const translationClusterId = resolveTranslationClusterId(data.translationId, data.slug)
 
     // 校验 Slug
     const existingSlug = await tagRepo.findOneBy({ slug: data.slug, language: data.language })
@@ -31,9 +33,9 @@ export async function createTag(data: TagData): Promise<Tag> {
     }
 
     // 校验翻译组唯一性 (translationId + language)
-    if (data.translationId) {
+    if (translationClusterId) {
         const existingTranslation = await tagRepo.findOneBy({
-            translationId: data.translationId,
+            translationId: translationClusterId,
             language: data.language,
         })
         if (existingTranslation) {
@@ -43,7 +45,7 @@ export async function createTag(data: TagData): Promise<Tag> {
 
     const tag = new Tag()
     assignDefined(tag, data, ['name', 'slug', 'language'])
-    tag.translationId = data.translationId || tag.slug
+    tag.translationId = translationClusterId
 
     return await tagRepo.save(tag)
 }
@@ -57,6 +59,10 @@ export async function updateTag(id: string, data: Partial<TagData>): Promise<Tag
     if (!tag) {
         throw createError({ statusCode: 404, statusMessage: 'Tag not found' })
     }
+
+    const targetTranslationId = data.translationId !== undefined
+        ? resolveTranslationClusterId(data.translationId, data.slug ?? tag.slug)
+        : resolveTranslationClusterId(tag.translationId, data.slug ?? tag.slug)
 
     // 检查 slug 唯一性
     if (
@@ -101,7 +107,6 @@ export async function updateTag(id: string, data: Partial<TagData>): Promise<Tag
         (data.translationId !== undefined && data.translationId !== tag.translationId)
         || (data.language && data.language !== tag.language)
     ) {
-        const targetTranslationId = data.translationId ?? tag.translationId
         const targetLanguage = data.language ?? tag.language
         if (targetTranslationId) {
             const existing = await tagRepo.findOne({
@@ -117,7 +122,8 @@ export async function updateTag(id: string, data: Partial<TagData>): Promise<Tag
         }
     }
 
-    assignDefined(tag, data, ['name', 'slug', 'language', 'translationId'])
+    assignDefined(tag, data, ['name', 'slug', 'language'])
+    tag.translationId = targetTranslationId
 
     return await tagRepo.save(tag)
 }

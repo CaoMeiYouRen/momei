@@ -12,6 +12,7 @@ export type PostTranslationWorkflowAction = 'create' | 'continue' | 'overwrite'
 export interface PostTranslationTaxonomyItem {
     id: string
     name: string
+    slug?: string | null
     translationId?: string | null
 }
 
@@ -64,11 +65,13 @@ export interface PostTranslationProgress {
 export interface PostTranslationCategoryOption {
     id: string
     name: string
+    slug?: string | null
     translationId?: string | null
 }
 
 export interface PostTranslationTagOption {
     id: string
     name: string
+    slug?: string | null
     translationId?: string | null
 }

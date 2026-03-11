@@ -165,6 +165,22 @@ describe('tag service', () => {
 
             await expect(updateTag(tag1.id, { name: 'Name 2' })).rejects.toThrow()
         })
+
+        it('应该在 translationId 被清空时回退到 slug', async () => {
+            const tag = await createTag({
+                name: 'Alias Tag',
+                slug: 'alias-tag',
+                language: 'zh-CN',
+                translationId: 'legacy-cluster',
+            })
+
+            const updatedTag = await updateTag(tag.id, {
+                slug: 'alias-tag-updated',
+                translationId: ' ',
+            })
+
+            expect(updatedTag.translationId).toBe('alias-tag-updated')
+        })
     })
 
     describe('ensureTags', () => {
