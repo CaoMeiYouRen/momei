@@ -461,6 +461,8 @@ const mourningModeRef = computed({
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/admin-form" as *;
+
 .theme-config-section {
     background-color: var(--p-surface-0);
     border-radius: 12px;
@@ -525,69 +527,14 @@ const mourningModeRef = computed({
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
-
-    label {
-        display: block;
-        font-weight: 600;
-        font-size: 0.875rem;
-        margin-bottom: 0.75rem;
-        color: var(--p-text-color);
-    }
-
-    .hint-text {
-        font-size: 0.75rem;
-        color: var(--p-text-muted-color);
-        line-height: 1.4;
-    }
+    @include admin-form-group;
 }
 
 .color-input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-
-    :deep(.p-colorpicker) {
-        flex-shrink: 0;
-        width: 32px;
-        height: 32px;
-
-        .p-colorpicker-preview {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            border: 1px solid var(--p-content-border-color);
-        }
-    }
-
-    :deep(.p-inputtext) {
-        flex: 1;
-        min-width: 0;
-    }
+    @include admin-color-input-group;
 }
 
 .input-with-addon {
-    display: flex;
-    align-items: stretch;
-
-    :deep(.p-inputtext) {
-        flex: 1;
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-    }
-
-    .addon {
-        display: flex;
-        align-items: center;
-        background-color: var(--p-surface-100);
-        border: 1px solid var(--p-content-border-color);
-        border-left: none;
-        padding: 0 0.75rem;
-        font-size: 0.75rem;
-        color: var(--p-text-muted-color);
-        border-top-right-radius: 6px;
-        border-bottom-right-radius: 6px;
-    }
+    @include admin-input-with-addon;
 }
 </style>

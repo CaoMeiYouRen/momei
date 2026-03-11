@@ -52,6 +52,12 @@ describe('Date Utils', () => {
             expect(result).toContain('2023')
         })
 
+        it('should apply timezone offsets deterministically for UTC inputs', () => {
+            const result = formatDateTime('2023-01-01T00:00:00Z', 'YYYY-MM-DD HH:mm:ss', 'en', 'Asia/Shanghai')
+
+            expect(result).toBe('2023-01-01 08:00:00')
+        })
+
         it('should return empty string for null/undefined', () => {
             expect(formatDateTime(null as any)).toBe('')
         })

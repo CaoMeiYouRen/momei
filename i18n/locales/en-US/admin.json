@@ -407,6 +407,8 @@
                 },
                 "podcast": {
                     "probe_metadata": "Probe Metadata",
+                    "probe_metadata_success": "Audio metadata updated",
+                    "probe_metadata_failed": "Failed to probe audio metadata",
                     "duration": "Duration",
                     "size": "Size",
                     "mime_type": "MIME Type"

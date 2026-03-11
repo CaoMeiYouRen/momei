@@ -65,19 +65,19 @@
 	- 验收: 收紧 ESLint、TypeScript、i18n audit 与定向测试门禁，确保新增代码默认纳入质量检查。
 	- 当前拆解:
 		- [x] 工具函数去重：优先抽离 AI 管理页中的状态 Tag severity、成本格式化、日期展示、JSON 序列化等重复函数，并检查 `utils/`、`server/utils/`、`composables/` 内完全相同或高度相似的 helper，统一归并到共享工具层。
-		- [ ] 样式复用：以 `components/admin/settings/theme-config-section.vue`、`theme-preview-section.vue`、`components/admin/posts/post-editor-settings.vue` 为首批样本，抽离可复用的 `form-group`、`color-input-group`、输入附加器和 AI 详情块样式，沉淀到共享 SCSS 片段或管理端公共样式层。
+		- [x] 样式复用：以 `components/admin/settings/theme-config-section.vue`、`theme-preview-section.vue`、`components/admin/posts/post-editor-settings.vue` 为首批样本，抽离可复用的 `form-group`、`color-input-group`、输入附加器和 AI 详情块样式，沉淀到共享 SCSS 片段或管理端公共样式层。
 		- [ ] 模板与组件复用：针对主题设置、AI 统计卡片、AI 详情指标块和管理端表单项提炼可复用的展示组件或 slot 模板，减少同类 `<label + 输入 + 锁定提示>`、`<标题 + 指标 + 图标>`、`<label + value>` 结构的重复。
 		- [x] 页面拆分收口：抽离 `use-installation-wizard.ts`、`use-post-editor-page.ts`、`use-post-editor-translation.ts` 与 `use-admin-friend-links-page.ts`，将 `pages/installation.vue`、`pages/admin/posts/[id].vue`、`pages/admin/friend-links/index.vue` 收敛为装配层，清除本轮相关大文件告警。
 		- [ ] 大文件拆分：首轮优先拆分 `components/admin/posts/post-tts-dialog.vue`、`components/admin/settings/theme-config-section.vue`、`components/admin/posts/post-editor-settings.vue`、`pages/admin/ai/index.vue`，按“容器页 / 纯展示组件 / composable / 样式”分层，避免继续向 500+ 行增长。
-		- [ ] 质量门禁收紧：在首轮重构范围内同步补齐 lint、typecheck、i18n audit 与定向测试清单；新增代码默认要求无新增 `any`、有共享类型边界、并覆盖至少一条对应回归用例。
-- [ ] **日期时间与请求反馈治理**
+		- [x] 质量门禁收紧：在首轮重构范围内同步补齐 lint、typecheck、i18n audit 与定向测试清单；新增代码默认要求无新增 `any`、有共享类型边界、并覆盖至少一条对应回归用例。
+	- [x] **日期时间与请求反馈治理**
 	- 验收: 业务逻辑中的日期格式化、比较、排序、区间判断等优先统一使用 `dayjs`；直接 `new Date()` 仅保留在运行时边界、原生 API 入参或极简环境。
 	- 验收: 请求成功 / 失败后的 toast、message、dialog 与表单反馈优先消费 i18n key、错误码或稳定状态枚举，不再直接暴露硬编码字段名、后端原始 message 或未国际化文本。
 	- 验收: 补齐日期工具与请求反馈链路的定向回归或 audit，防止新增原生 `Date` 业务逻辑和未国际化提示回流。
 	- 当前拆解:
 		- [x] 日期逻辑收口：盘点 `composables/`、`utils/`、管理端列表、通知链路中的日期格式化 / 比较逻辑，约定“模板 `useI18nDate`、逻辑 `dayjs`、边界 `new Date()`”三层边界，并沉淀共享 helper。
 		- [x] 请求反馈文案收口：梳理 `useAppFetch`、后台表单、批量操作、异步任务提示与通知确认链路，建立错误码 / 状态枚举到 i18n key 的映射；已完成 AI、友链、外链、广告、分类、标签、投稿、文章、系统设置、主题设置与用户管理页的后台提示收口，移除直接拼接字段名、英文 message 和服务端原文的主要入口。
-		- [ ] 门禁补强：为首轮治理范围补充 lint / i18n audit / 定向测试，至少覆盖一条成功提示、一条错误提示，以及一条 `dayjs` 替换后的日期比较或格式化回归用例。
+		- [x] 门禁补强：为首轮治理范围补充 lint / i18n audit / 定向测试，至少覆盖一条成功提示、一条错误提示，以及一条 `dayjs` 替换后的日期比较或格式化回归用例。
 
 ### 3. 国际化与本地化增强 (I18n & L10n Enhancements) (P1)
 

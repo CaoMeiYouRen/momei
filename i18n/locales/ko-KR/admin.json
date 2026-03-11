@@ -407,6 +407,8 @@
                 },
                 "podcast": {
                     "probe_metadata": "메타데이터 확인",
+                    "probe_metadata_success": "오디오 메타데이터가 업데이트되었습니다",
+                    "probe_metadata_failed": "오디오 메타데이터를 확인하지 못했습니다",
                     "duration": "길이",
                     "size": "크기",
                     "mime_type": "MIME 유형"

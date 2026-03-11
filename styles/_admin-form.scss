@@ -1,0 +1,119 @@
+@mixin admin-form-label($weight: 600, $size: 0.875rem, $margin-bottom: 0.75rem, $line-height: 1.4) {
+    display: block;
+    font-weight: $weight;
+    line-height: $line-height;
+    color: var(--p-text-color);
+
+    @if $size != null {
+        font-size: $size;
+    }
+
+    @if $margin-bottom != null {
+        margin-bottom: $margin-bottom;
+    }
+}
+
+@mixin admin-form-hint($size: 0.75rem, $color: var(--p-text-muted-color), $line-height: 1.4) {
+    font-size: $size;
+    color: $color;
+    line-height: $line-height;
+}
+
+@mixin admin-form-group($label-selector: 'label', $hint-selector: '.hint-text', $margin-bottom: 1.5rem, $label-weight: 600, $label-size: 0.875rem, $label-margin-bottom: 0.75rem) {
+    margin-bottom: $margin-bottom;
+
+    #{$label-selector} {
+        @include admin-form-label($weight: $label-weight, $size: $label-size, $margin-bottom: $label-margin-bottom);
+    }
+
+    @if $hint-selector != null {
+        #{$hint-selector} {
+            @include admin-form-hint();
+        }
+    }
+}
+
+@mixin admin-form-stack($gap: 0.375rem) {
+    display: flex;
+    flex-direction: column;
+    gap: $gap;
+}
+
+@mixin admin-color-input-group() {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+
+    :deep(.p-colorpicker) {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+
+        .p-colorpicker-preview {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid var(--p-content-border-color);
+        }
+    }
+
+    :deep(.p-inputtext) {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+@mixin admin-input-with-addon($addon-selector: '.addon') {
+    display: flex;
+    align-items: stretch;
+
+    :deep(.p-inputtext) {
+        flex: 1;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    #{$addon-selector} {
+        display: flex;
+        align-items: center;
+        background-color: var(--p-surface-100);
+        border: 1px solid var(--p-content-border-color);
+        border-left: none;
+        padding: 0 0.75rem;
+        font-size: 0.75rem;
+        color: var(--p-text-muted-color);
+        border-top-right-radius: 6px;
+        border-bottom-right-radius: 6px;
+    }
+}
+
+@mixin admin-input-with-icon() {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    i {
+        position: absolute;
+        left: 0.75rem;
+        color: var(--p-text-muted-color);
+        z-index: 1;
+    }
+
+    :deep(.p-inputtext) {
+        width: 100%;
+        padding-left: 2.25rem;
+    }
+}
+
+@mixin admin-detail-stack($gap: 0.75rem) {
+    display: flex;
+    flex-direction: column;
+    gap: $gap;
+}
+
+@mixin admin-detail-grid($columns: 2, $gap: 1rem) {
+    display: grid;
+    grid-template-columns: repeat($columns, minmax(0, 1fr));
+    gap: $gap;
+}

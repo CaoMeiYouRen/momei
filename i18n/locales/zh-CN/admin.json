@@ -407,6 +407,8 @@
                 },
                 "podcast": {
                     "probe_metadata": "探测音频元数据",
+                    "probe_metadata_success": "音频元数据已更新",
+                    "probe_metadata_failed": "探测音频元数据失败",
                     "duration": "音频时长",
                     "size": "音频大小",
                     "mime_type": "音频类型"

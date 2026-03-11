@@ -228,6 +228,8 @@ const backgroundColorModel = createColorModel('themeBackgroundValue')
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/admin-form" as *;
+
 .theme-preview-section {
     min-width: 0;
     width: 100%;
@@ -262,57 +264,14 @@ const backgroundColorModel = createColorModel('themeBackgroundValue')
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
-
-    label {
-        display: block;
-        font-weight: 600;
-        font-size: 0.875rem;
-        margin-bottom: 0.75rem;
-        color: var(--p-text-color);
-    }
+    @include admin-form-group($hint-selector: null);
 }
 
 .color-input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-
-    :deep(.p-colorpicker) {
-        flex-shrink: 0;
-        width: 32px;
-        height: 32px;
-
-        .p-colorpicker-preview {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            border: 1px solid var(--p-content-border-color);
-        }
-    }
-
-    :deep(.p-inputtext) {
-        flex: 1;
-        min-width: 0;
-    }
+    @include admin-color-input-group;
 }
 
 .input-with-icon {
-    position: relative;
-    display: flex;
-    align-items: center;
-
-    i {
-        position: absolute;
-        left: 0.75rem;
-        color: var(--p-text-muted-color);
-        z-index: 1;
-    }
-
-    :deep(.p-inputtext) {
-        padding-left: 2.25rem;
-        width: 100%;
-    }
+    @include admin-input-with-icon;
 }
 </style>

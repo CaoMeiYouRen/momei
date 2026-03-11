@@ -407,6 +407,8 @@
                 },
                 "podcast": {
                     "probe_metadata": "探測音訊中繼資料",
+                    "probe_metadata_success": "音訊中繼資料已更新",
+                    "probe_metadata_failed": "探測音訊中繼資料失敗",
                     "duration": "音訊時長",
                     "size": "音訊大小",
                     "mime_type": "音訊類型"

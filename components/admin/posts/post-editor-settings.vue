@@ -361,7 +361,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
 import { format as bytes } from 'better-bytes'
 import { secondsToDuration, durationToSeconds } from '@/utils/shared/date'
 import { isValidCustomUrl } from '@/utils/shared/validate'
@@ -393,10 +392,10 @@ const ttsVisible = ref(false)
 const probing = ref(false)
 const showImagePreview = ref(false)
 const showAudioPlayer = ref(false)
-const toast = useToast()
 const confirm = useConfirm()
 const { exporting, exportPost } = usePostExport()
 const { t } = useI18n()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
 const isValidImageUrl = computed(() => {
     return typeof post.value.coverImage === 'string' && isValidCustomUrl(post.value.coverImage)
@@ -473,15 +472,10 @@ const handleTTSCompleted = (url: string) => {
     if (url) {
         audioUrlModel.value = url
         // 建议重新探测元数据或从后端同步
-        probeAudio()
+        void probeAudio()
     }
 
-    toast.add({
-        severity: 'success',
-        summary: $t('common.success'),
-        detail: $t('pages.admin.posts.tts.attach_success'),
-        life: 3000,
-    })
+    showSuccessToast('pages.admin.posts.tts.attach_success')
 }
 
 const handleExport = () => {
@@ -559,20 +553,10 @@ const probeAudio = async () => {
             if (res.data.size) audioSizeModel.value = res.data.size
             if (res.data.mimeType) audioMimeTypeModel.value = res.data.mimeType
             if (res.data.duration) audioDurationModel.value = res.data.duration
-            toast.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Audio metadata updated',
-                life: 3000,
-            })
+            showSuccessToast('pages.admin.posts.podcast.probe_metadata_success')
         }
-    } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: error.data?.statusMessage || 'Failed to probe audio',
-            life: 3000,
-        })
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.posts.podcast.probe_metadata_failed' })
     } finally {
         probing.value = false
     }
@@ -580,6 +564,8 @@ const probeAudio = async () => {
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/admin-form" as *;
+
 .settings-sidebar {
     position: fixed;
     top: 4rem;
@@ -646,29 +632,23 @@ const probeAudio = async () => {
 }
 
 .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
+    @include admin-form-stack(0.375rem);
 }
 
 .audio-metadata-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    @include admin-detail-stack;
 }
 
 .audio-metadata-row {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
+    @include admin-detail-grid;
 }
 
 .form-label {
-    font-weight: 500;
+    @include admin-form-label($weight: 500, $size: null, $margin-bottom: 0);
 }
 
 .form-hint {
-    color: var(--p-surface-500);
+    @include admin-form-hint($color: var(--p-surface-500));
 }
 
 .drawer-footer {
