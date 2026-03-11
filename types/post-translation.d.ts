@@ -65,8 +65,10 @@ export interface PostTranslationProgress {
 export interface PostTranslationCategoryOption {
     id: string
     name: string
+    language?: string
     slug?: string | null
     translationId?: string | null
+    translations?: PostTranslationCategoryOption[] | null
 }
 
 export interface PostTranslationTagOption {

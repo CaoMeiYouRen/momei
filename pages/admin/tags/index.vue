@@ -165,13 +165,15 @@
                             </InputGroup>
                             <small v-if="multiErrors[l.code]?.name" class="p-error">{{ multiErrors[l.code]?.name }}</small>
                         </div>
-                        <div v-if="!editingItem" class="field flex gap-2 items-center">
-                            <Checkbox
-                                v-model="syncToAllLanguages"
-                                :binary="true"
-                                :input-id="'syncAll_' + l.code"
-                            />
-                            <label :for="'syncAll_' + l.code" class="cursor-pointer">{{ $t('pages.admin.tags.sync_to_all_languages') }}</label>
+                        <div v-if="!editingItem" class="taxonomy-dialog__sync-controls">
+                            <div class="taxonomy-dialog__sync-toggle">
+                                <Checkbox
+                                    v-model="syncToAllLanguages"
+                                    :binary="true"
+                                    :input-id="'syncAll_' + l.code"
+                                />
+                                <label :for="'syncAll_' + l.code" class="cursor-pointer">{{ $t('pages.admin.tags.sync_to_all_languages') }}</label>
+                            </div>
                             <Button
                                 v-if="syncToAllLanguages"
                                 v-tooltip="$t('common.ai_translate')"
@@ -179,6 +181,7 @@
                                 severity="secondary"
                                 text
                                 size="small"
+                                class="taxonomy-dialog__sync-ai"
                                 @click="syncAIAllLanguages"
                             />
                         </div>
@@ -581,6 +584,25 @@ onMounted(() => {
     label {
         font-weight: 600;
     }
+}
+
+.taxonomy-dialog__sync-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.taxonomy-dialog__sync-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.taxonomy-dialog__sync-ai {
+    flex-shrink: 0;
 }
 
 .empty-state {

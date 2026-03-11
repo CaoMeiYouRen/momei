@@ -1,7 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { ref } from 'vue'
+import { nextTick, reactive, ref } from 'vue'
 import AdminCategoriesPage from './index.vue'
+
+vi.mock('vue-i18n', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('vue-i18n')>()
+
+    return {
+        ...actual,
+        useI18n: () => ({
+            t: (key: string) => key,
+            locale: ref('en'),
+            locales: ref([
+                { code: 'zh-CN' },
+                { code: 'en-US' },
+            ]),
+        }),
+    }
+})
 
 // Stub components
 const stubs = {
@@ -34,8 +50,22 @@ const stubs = {
     Column: { template: '<div class="column"><slot /></div>', props: ['field', 'header', 'sortable', 'headerStyle', 'bodyClass', 'headerClass', 'vIf'] },
     Tag: { template: '<span class="tag">{{ value }}</span>', props: ['value', 'severity'] },
     Badge: { template: '<span class="badge">{{ value }}</span>', props: ['value', 'severity'] },
-    Dialog: { template: '<div v-if="visible" class="dialog"><slot /></div>', props: ['visible', 'modal', 'header', 'style'] },
+    Dialog: { template: '<div v-if="visible" class="dialog"><slot /><slot name="footer" /></div>', props: ['visible', 'modal', 'header', 'style'] },
+    Tabs: { template: '<div class="tabs"><slot /></div>' },
+    TabList: { template: '<div class="tab-list"><slot /></div>' },
+    Tab: { template: '<button class="tab"><slot /></button>', props: ['value'] },
+    TabPanels: { template: '<div class="tab-panels"><slot /></div>' },
+    TabPanel: { template: '<div class="tab-panel"><slot /></div>', props: ['value'] },
+    Checkbox: { template: '<input class="checkbox" type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />', props: ['modelValue', 'binary', 'inputId'], emits: ['update:modelValue'] },
+    InputGroup: { template: '<div class="input-group"><slot /></div>' },
+    Textarea: { template: '<textarea class="textarea" />', props: ['modelValue', 'rows', 'cols'] },
+    Select: { template: '<select class="select" />', props: ['modelValue', 'options', 'optionLabel', 'optionValue'] },
+    TabsPanel: { template: '<div><slot /></div>' },
+    ConfirmDeleteDialog: { template: '<div class="confirm-delete-dialog" />', props: ['visible', 'title', 'message'] },
 }
+
+const loadData = vi.fn()
+const addToast = vi.fn()
 
 // Mock Nuxt auto-imports
 vi.mock('#imports', async (importOriginal) => {
@@ -45,6 +75,10 @@ vi.mock('#imports', async (importOriginal) => {
         useI18n: () => ({
             t: (key: string) => key,
             locale: ref('en'),
+            locales: ref([
+                { code: 'zh-CN' },
+                { code: 'en-US' },
+            ]),
         }),
         useLocalePath: () => (path: string) => path,
         useHead: vi.fn(),
@@ -54,9 +88,33 @@ vi.mock('#imports', async (importOriginal) => {
 vi.stubGlobal('useI18n', () => ({
     t: (key: string) => key,
     locale: ref('en'),
+    locales: ref([
+        { code: 'zh-CN' },
+        { code: 'en-US' },
+    ]),
 }))
 vi.stubGlobal('useLocalePath', () => (path: string) => path)
 vi.stubGlobal('useHead', vi.fn())
+vi.stubGlobal('definePageMeta', vi.fn())
+vi.stubGlobal('useToast', () => ({ add: addToast }))
+vi.stubGlobal('useAdminI18n', () => ({ contentLanguage: ref('zh-CN') }))
+vi.stubGlobal('useAdminAI', () => ({
+    aiLoading: reactive({ 'zh-CN': { name: false, slug: false }, 'en-US': { name: false, slug: false } }),
+    translateName: vi.fn(),
+    generateSlug: vi.fn(),
+    syncAIAllLanguages: vi.fn(),
+}))
+vi.stubGlobal('useAdminList', () => ({
+    items: ref([]),
+    loading: ref(false),
+    pagination: reactive({ total: 0, limit: 10 }),
+    filters: reactive({ search: '', aggregate: true }),
+    onPage: vi.fn(),
+    onSort: vi.fn(),
+    onFilterChange: vi.fn(),
+    refresh: loadData,
+}))
+vi.stubGlobal('$fetch', vi.fn(() => Promise.resolve({ data: { items: [] } })))
 
 describe('AdminCategoriesPage', () => {
     beforeEach(() => {
@@ -125,5 +183,19 @@ describe('AdminCategoriesPage', () => {
         })
 
         expect(wrapper.find('.admin-page-container').exists()).toBe(true)
+    })
+
+    it('shows aligned sync controls when opening the create dialog', async () => {
+        const wrapper = await mountSuspended(AdminCategoriesPage, {
+            global: {
+                stubs,
+            },
+        })
+
+        await wrapper.find('button.pi-plus').trigger('click')
+        await nextTick()
+
+        expect(wrapper.find('.taxonomy-dialog__sync-controls').exists()).toBe(true)
+        expect(wrapper.find('.taxonomy-dialog__sync-toggle').exists()).toBe(true)
     })
 })

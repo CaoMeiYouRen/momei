@@ -136,6 +136,7 @@ import { usePostTranslationAI } from '@/composables/use-post-translation-ai'
 import { usePostEditorIO } from '@/composables/use-post-editor-io'
 import { usePostEditorAutoSave } from '@/composables/use-post-editor-auto-save'
 import { formatMarkdown } from '@/utils/shared/markdown'
+import { buildPreferredTaxonomyOptions } from '@/utils/shared/taxonomy-options'
 import { hasSharedTranslationCluster, resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
 
 definePageMeta({
@@ -1153,11 +1154,14 @@ const loadCategories = async (language = post.value.language) => {
         const response = await $fetch<ApiResponse<{ items: PostTranslationCategoryOption[] }>>(
             '/api/categories',
             {
-                query: { limit: 100, language },
+                query: { limit: 100, language, aggregate: true },
             },
         )
         if (response.data) {
-            categories.value = response.data.items
+            categories.value = buildPreferredTaxonomyOptions(response.data.items, {
+                contentLanguage: language,
+                uiLanguage: locale.value,
+            })
         }
     } catch (error) {
         console.error('Failed to load categories', error)
@@ -1183,6 +1187,13 @@ watch(
     () => {
         loadCategories()
         loadTags()
+    },
+)
+
+watch(
+    () => locale.value,
+    () => {
+        loadCategories()
     },
 )
 
