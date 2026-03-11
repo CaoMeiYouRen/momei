@@ -68,8 +68,15 @@
 - **`WEBHOOK_SECRET`**: 推荐单独配置，用于 HMAC 模式验签。
 - **`TASK_CRON_EXPRESSION`**: 仅自部署环境有效，用于覆盖内置 Cron 频率。
 - **`DISABLE_CRON_JOB=true`**: 用于显式关闭自部署环境内置 Cron。
+- **`FRIEND_LINKS_CHECK_INTERVAL_MINUTES`**: 友链巡检的最小生效间隔。后台可调整，但最终不会低于 60 分钟。
+- **`FRIEND_LINKS_CHECK_BATCH_SIZE`**: 单轮友链巡检批量，默认 `20`。
+- **`FRIEND_LINKS_CHECK_TIMEOUT_MS`**: 单站点探测超时，默认 `8000` 毫秒。
+- **`FRIEND_LINKS_FAILURE_BACKOFF_MAX_MINUTES`**: 连续失败站点的最大冷却窗口，默认 `10080` 分钟（7 天）。
+- **`FRIEND_LINKS_AUTO_DISABLE_FAILURE_THRESHOLD`**: 连续失败达到阈值后自动转为 `inactive`，默认关闭。
 
 说明：`WEBHOOK_TIMESTAMP_TOLERANCE` 这个变量名当前仍保留在示例文件中，但现版本实现尚未读取它；Webhook 校验默认固定为 5 分钟容差。
+
+友链巡检说明：即使 Cloudflare / Vercel 的统一定时入口触发更频繁，友链服务也只会对已达到最小间隔且不处于失败冷却期的记录发起探测。
 
 ## 3. 体验增强 (Level 3: Optional)
 

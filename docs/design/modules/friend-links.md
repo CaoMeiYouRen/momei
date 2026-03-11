@@ -74,6 +74,7 @@ flowchart TD
 - `status`: `draft | active | inactive`，用于管理员控制是否上架。
 - `healthStatus`: `unknown | healthy | checking | unreachable`，用于记录巡检结果，不直接决定上架状态。
 - `consecutiveFailures`: 连续失败次数，用于阈值化自动处理策略。
+- `healthCheckCooldownUntil`: 下次允许参与巡检的时间点，用于最小巡检间隔与失败退避冷却。
 - `source`: `manual | application`，标识来源。
 - `isPinned`: 是否置顶。
 - `isFeatured`: 是否在底栏精选展示。
@@ -119,7 +120,7 @@ flowchart TD
 - `friend_links_application_guidelines`: 申请说明与准入条件。
 - `friend_links_footer_enabled`: 是否在底栏显示精选友链。
 - `friend_links_footer_limit`: 底栏最多展示数量。
-- `friend_links_check_interval_minutes`: 巡检最小间隔提示值，首轮主要用于展示与后续扩展。
+- `friend_links_check_interval_minutes`: 巡检实际生效的最小间隔，默认 1440 分钟，且不会低于 60 分钟。
 - `travellings_enabled`: 是否启用“开往”全站集成。
 - `travellings_header_enabled`: 是否在页眉与移动端抽屉中显示“开往”入口。
 - `travellings_footer_enabled`: 是否在页脚导航中显示“开往”入口。
@@ -195,9 +196,12 @@ flowchart TD
 巡检任务依附现有定时任务体系，不新增独立调度器。
 
 - 默认仅扫描 `active` 状态的正式友链。
-- 使用 `HEAD` 优先，失败时可回退 `GET`。
+- 使用 `HEAD` 优先，返回 `403 / 405` 时回退到 `GET`。
+- 单轮默认批量 20 条，单站探测超时默认 8 秒，可通过环境变量覆盖。
 - 记录 HTTP 状态码、错误摘要和最近巡检时间。
-- 巡检结果仅写入 `healthStatus` 与连续失败计数，不直接修改 `status`。
+- 巡检结果会写入 `healthStatus`、连续失败计数与 `healthCheckCooldownUntil`，优先通过“下次可巡检时间”收敛高频触发。
+- 连续失败站点按失败次数进入指数退避冷却，退避窗口从 6 小时地板开始递增，最长不超过 7 天。
+- 即使 Serverless 或统一调度入口触发频率更高，友链巡检仍只会对已到期的候选站点发起探测。
 - 默认不自动下架；可通过环境变量配置“连续失败阈值”后再自动转为 `inactive`。
 
 ## 9. 安全与风控 (Security)

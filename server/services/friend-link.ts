@@ -19,6 +19,53 @@ import { SettingKey } from '@/types/setting'
 
 const DEFAULT_FOOTER_LIMIT = 6
 const DEFAULT_CHECK_INTERVAL_MINUTES = 1440
+const MIN_CHECK_INTERVAL_MINUTES = 60
+const DEFAULT_HEALTH_CHECK_BATCH_SIZE = 20
+const DEFAULT_HEALTH_CHECK_TIMEOUT_MS = 8000
+const DEFAULT_FAILURE_BACKOFF_FLOOR_MINUTES = 360
+const DEFAULT_FAILURE_BACKOFF_MAX_MINUTES = 7 * 24 * 60
+
+function parsePositiveInteger(value: string | number | null | undefined, fallback: number, min = 1, max?: number) {
+    const normalized = typeof value === 'string' ? Number(value) : value
+
+    if (!Number.isFinite(normalized) || normalized === undefined || normalized === null) {
+        return fallback
+    }
+
+    const nextValue = Math.max(min, Math.floor(normalized))
+
+    if (max !== undefined) {
+        return Math.min(nextValue, max)
+    }
+
+    return nextValue
+}
+
+function addMinutes(base: Date, minutes: number) {
+    return new Date(base.getTime() + minutes * 60 * 1000)
+}
+
+function getHealthCheckBatchSize() {
+    return parsePositiveInteger(process.env.FRIEND_LINKS_CHECK_BATCH_SIZE, DEFAULT_HEALTH_CHECK_BATCH_SIZE, 1, 200)
+}
+
+function getHealthCheckTimeoutMs() {
+    return parsePositiveInteger(process.env.FRIEND_LINKS_CHECK_TIMEOUT_MS, DEFAULT_HEALTH_CHECK_TIMEOUT_MS, 1000, 60000)
+}
+
+function getFailureBackoffMaxMinutes() {
+    return parsePositiveInteger(
+        process.env.FRIEND_LINKS_FAILURE_BACKOFF_MAX_MINUTES,
+        DEFAULT_FAILURE_BACKOFF_MAX_MINUTES,
+        DEFAULT_FAILURE_BACKOFF_FLOOR_MINUTES,
+    )
+}
+
+function calculateFailureCooldownMinutes(checkIntervalMinutes: number, failureCount: number) {
+    const cooldownFloor = Math.max(checkIntervalMinutes, DEFAULT_FAILURE_BACKOFF_FLOOR_MINUTES)
+    const multiplier = 2 ** Math.max(0, failureCount - 1)
+    return Math.min(getFailureBackoffMaxMinutes(), cooldownFloor * multiplier)
+}
 
 function getAutoDisableFailureThreshold() {
     const raw = Number(process.env.FRIEND_LINKS_AUTO_DISABLE_FAILURE_THRESHOLD || 0)
@@ -122,8 +169,12 @@ async function resolveFriendLinkMeta(): Promise<FriendLinkMeta> {
         applicationEnabled: String(applicationEnabledRaw) !== 'false',
         applicationGuidelines: String(guidelines || ''),
         footerEnabled: String(footerEnabledRaw) !== 'false',
-        footerLimit: Math.max(1, Number(footerLimitRaw || DEFAULT_FOOTER_LIMIT)),
-        checkIntervalMinutes: Math.max(5, Number(checkIntervalRaw || DEFAULT_CHECK_INTERVAL_MINUTES)),
+        footerLimit: parsePositiveInteger(footerLimitRaw, DEFAULT_FOOTER_LIMIT, 1, 50),
+        checkIntervalMinutes: parsePositiveInteger(
+            checkIntervalRaw,
+            DEFAULT_CHECK_INTERVAL_MINUTES,
+            MIN_CHECK_INTERVAL_MINUTES,
+        ),
     }
 }
 
@@ -183,7 +234,7 @@ async function saveFriendLinkEntity(
 
 async function probeFriendLink(url: string): Promise<FriendLinkHealthCheckResult> {
     const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), 10000)
+    const timer = setTimeout(() => controller.abort(), getHealthCheckTimeoutMs())
 
     try {
         let response = await fetch(url, {
@@ -422,6 +473,7 @@ export const friendLinkService = {
         entity.sortOrder = input.sortOrder ?? 0
         entity.healthStatus = FriendLinkHealthStatus.UNKNOWN
         entity.consecutiveFailures = 0
+        entity.healthCheckCooldownUntil = null
         entity.createdById = operatorId
 
         return await saveFriendLinkEntity(entity, input, operatorId)
@@ -577,6 +629,7 @@ export const friendLinkService = {
                 existingLink.status = input.linkData?.status ?? FriendLinkStatus.ACTIVE
                 existingLink.healthStatus = FriendLinkHealthStatus.UNKNOWN
                 existingLink.consecutiveFailures = 0
+                existingLink.healthCheckCooldownUntil = null
                 existingLink.isPinned = input.linkData?.isPinned ?? existingLink.isPinned
                 existingLink.isFeatured = input.linkData?.isFeatured ?? existingLink.isFeatured
                 existingLink.sortOrder = input.linkData?.sortOrder ?? existingLink.sortOrder
@@ -613,7 +666,7 @@ export const friendLinkService = {
         }
     },
 
-    async runHealthCheck(limit = 20) {
+    async runHealthCheck(limit = getHealthCheckBatchSize()) {
         const meta = await resolveFriendLinkMeta()
 
         if (!meta.enabled) {
@@ -621,29 +674,38 @@ export const friendLinkService = {
         }
 
         const friendLinkRepo = dataSource.getRepository(FriendLink)
-        const cutoff = new Date(Date.now() - meta.checkIntervalMinutes * 60 * 1000)
         const autoDisableFailureThreshold = getAutoDisableFailureThreshold()
+        const now = new Date()
+        const normalizedLimit = parsePositiveInteger(limit, getHealthCheckBatchSize(), 1, 200)
         const candidates = await friendLinkRepo.createQueryBuilder('friendLink')
             .where('friendLink.status = :status', { status: FriendLinkStatus.ACTIVE })
-            .andWhere('(friendLink.lastCheckedAt IS NULL OR friendLink.lastCheckedAt <= :cutoff)', { cutoff })
-            .orderBy('friendLink.lastCheckedAt', 'ASC')
+            .andWhere('(friendLink.healthCheckCooldownUntil IS NULL OR friendLink.healthCheckCooldownUntil <= :now)', { now })
+            .orderBy('friendLink.healthCheckCooldownUntil', 'ASC')
+            .addOrderBy('friendLink.lastCheckedAt', 'ASC')
             .addOrderBy('friendLink.createdAt', 'ASC')
-            .take(limit)
+            .take(normalizedLimit)
             .getMany()
 
         for (const candidate of candidates) {
-            candidate.healthStatus = FriendLinkHealthStatus.CHECKING
             const result = await probeFriendLink(candidate.url)
-            candidate.lastCheckedAt = new Date()
+            const checkedAt = new Date()
+
+            candidate.healthStatus = FriendLinkHealthStatus.CHECKING
+            candidate.lastCheckedAt = checkedAt
             candidate.lastHttpStatus = result.httpStatus
             candidate.lastErrorMessage = result.errorMessage
 
             if (result.ok) {
                 candidate.healthStatus = FriendLinkHealthStatus.HEALTHY
                 candidate.consecutiveFailures = 0
+                candidate.healthCheckCooldownUntil = addMinutes(checkedAt, meta.checkIntervalMinutes)
             } else {
                 candidate.healthStatus = FriendLinkHealthStatus.UNREACHABLE
                 candidate.consecutiveFailures = (candidate.consecutiveFailures || 0) + 1
+                candidate.healthCheckCooldownUntil = addMinutes(
+                    checkedAt,
+                    calculateFailureCooldownMinutes(meta.checkIntervalMinutes, candidate.consecutiveFailures),
+                )
 
                 if (autoDisableFailureThreshold > 0 && candidate.consecutiveFailures >= autoDisableFailureThreshold) {
                     candidate.status = FriendLinkStatus.INACTIVE

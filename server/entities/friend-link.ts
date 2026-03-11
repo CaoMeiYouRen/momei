@@ -52,6 +52,9 @@ export class FriendLink extends BaseEntity {
     consecutiveFailures: number
 
     @CustomColumn({ type: getDateType(), nullable: true })
+    healthCheckCooldownUntil: Date | null
+
+    @CustomColumn({ type: getDateType(), nullable: true })
     lastCheckedAt: Date | null
 
     @CustomColumn({ type: 'text', nullable: true })

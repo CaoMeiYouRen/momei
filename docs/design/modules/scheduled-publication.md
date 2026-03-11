@@ -44,7 +44,7 @@
 补充说明：
 
 - 自部署环境下，友链巡检由 [server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts) 中的独立 Cron 表达式驱动。
-- Serverless 或手动触发入口下，`/api/tasks/run-scheduled` 与 [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts) 会在执行统一调度任务后补充执行一次友链巡检。
+- Serverless 或手动触发入口下，`/api/tasks/run-scheduled` 与 [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts) 会在执行统一调度任务后补充执行一次友链巡检，但实际探测仍会受到最小巡检间隔与失败退避冷却约束。
 
 ## 3. Webhook 安全模型
 
@@ -115,6 +115,8 @@ Vercel Cron 会自动把项目中的 `CRON_SECRET` 作为 `Authorization: Bearer
 - 计划：`*/15 * * * *`
 
 这两种频率不同是部署平台适配策略的一部分，而不是文档误差。
+
+补充说明：高频的统一调度入口并不意味着友链会被高频重复探测。友链服务会基于 `friend_links_check_interval_minutes` 和失败退避窗口筛选“已到期”的候选项，仅对到期记录执行网络请求。
 
 ## 5. 当前边界
 
