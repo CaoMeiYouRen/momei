@@ -113,6 +113,14 @@
                 {{ switchTargetHint }}
             </Message>
 
+            <Message
+                v-if="sameLanguageWarning"
+                severity="warn"
+                :closable="false"
+            >
+                {{ sameLanguageWarning }}
+            </Message>
+
             <div class="translation-workflow__field">
                 <div class="translation-workflow__scope-header">
                     <label class="translation-workflow__label">
@@ -188,7 +196,7 @@ import type {
     TranslationTextField,
 } from '@/types/post-translation'
 
-const DEFAULT_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags']
+const DEFAULT_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags', 'coverImage']
 
 const visible = defineModel<boolean>('visible', { default: false })
 
@@ -205,7 +213,7 @@ const props = withDefaults(defineProps<{
     errorText?: string | null
 }>(), {
     defaultSourcePostId: null,
-    defaultScopes: () => ['title', 'content', 'summary', 'category', 'tags'],
+    defaultScopes: () => ['title', 'content', 'summary', 'category', 'tags', 'coverImage'],
     progress: 0,
     translationStatus: 'idle',
     activeField: null,
@@ -227,6 +235,7 @@ const hasSourceOptions = computed(() => props.sourceOptions.length > 0)
 const isBusy = computed(() => props.translationStatus === 'pending' || props.translationStatus === 'processing')
 const selectedSource = computed(() => props.sourceOptions.find((item) => item.id === sourcePostId.value) || null)
 const selectedTargetStatus = computed(() => props.targetStatuses.find((item) => item.language === targetLanguage.value) || null)
+const sameLanguageSelection = computed(() => Boolean(selectedSource.value && selectedSource.value.language === targetLanguage.value))
 
 const dialogTitle = computed(() => tt('pages.admin.posts.translation_workflow.title'))
 const introText = computed(() => tt('pages.admin.posts.translation_workflow.intro'))
@@ -238,6 +247,9 @@ const targetStatusTitle = computed(() => tt('pages.admin.posts.translation_workf
 const targetActionTitle = computed(() => tt('pages.admin.posts.translation_workflow.action_title'))
 const scopeTitle = computed(() => tt('pages.admin.posts.translation_workflow.scope_title'))
 const scopeHint = computed(() => tt('pages.admin.posts.translation_workflow.scope_hint'))
+const sameLanguageWarning = computed(() => sameLanguageSelection.value
+    ? tt('pages.admin.posts.translation_workflow.same_language_warning')
+    : '')
 
 const getActionLabel = (action: PostTranslationWorkflowAction) => tt(`pages.admin.posts.translation_workflow.actions.${action}`)
 const getTargetStateLabel = (state: PostTranslationTargetState) => tt(`pages.admin.posts.translation_workflow.target_states.${state}`)
@@ -341,6 +353,8 @@ const scopeOptions = computed(() => ([
     { value: 'summary' as const, label: tt('pages.admin.posts.translation_workflow.fields.summary') },
     { value: 'category' as const, label: tt('pages.admin.posts.translation_workflow.fields.category') },
     { value: 'tags' as const, label: tt('pages.admin.posts.translation_workflow.fields.tags') },
+    { value: 'coverImage' as const, label: tt('pages.admin.posts.translation_workflow.fields.coverImage') },
+    { value: 'audio' as const, label: tt('pages.admin.posts.translation_workflow.fields.audio') },
 ]))
 
 const activeFieldLabel = computed(() => {
@@ -376,6 +390,7 @@ const canStart = computed(() => {
         && Boolean(sourcePostId.value)
         && Boolean(targetLanguage.value)
         && selectedScopes.value.length > 0
+        && !sameLanguageSelection.value
         && !isBusy.value
 })
 
@@ -419,7 +434,7 @@ const toggleScope = (scope: TranslationScopeField) => {
 }
 
 const handleStart = () => {
-    if (!selectedSource.value || !canStart.value) {
+    if (!selectedSource.value || !canStart.value || sameLanguageSelection.value) {
         return
     }
 

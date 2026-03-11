@@ -17,6 +17,19 @@ import type {
 import { createPostTagBinding } from '@/utils/shared/post-tag-bindings'
 import { hasSharedTranslationCluster, resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
 
+interface TranslationAudioState {
+    metadataAudio: {
+        url?: string | null
+        duration?: number | null
+        size?: number | null
+        mimeType?: string | null
+    } | null
+    audioUrl: string | null
+    audioDuration: number | null
+    audioSize: number | null
+    audioMimeType: string | null
+}
+
 interface LocaleOption {
     code: string
 }
@@ -85,7 +98,7 @@ interface UsePostEditorTranslationOptions {
     resetTranslationProgress: () => void
 }
 
-const DEFAULT_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags']
+const DEFAULT_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags', 'coverImage']
 
 export function usePostEditorTranslation(options: UsePostEditorTranslationOptions) {
     const translations = ref<PostTranslationSourceOption[]>([])
@@ -97,6 +110,53 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         scopes: [...DEFAULT_TRANSLATION_SCOPES],
     })
     const postsForTranslation = ref<TranslationGroupOption[]>([])
+
+    const getAudioState = (value: Pick<PostTranslationSourceDetail, 'metadata' | 'audioUrl' | 'audioDuration' | 'audioSize' | 'audioMimeType'>): TranslationAudioState => {
+        const metadataAudio = value.metadata?.audio && typeof value.metadata.audio === 'object'
+            ? { ...value.metadata.audio }
+            : null
+        const audioUrl = metadataAudio?.url ?? value.audioUrl ?? null
+        const audioDuration = metadataAudio?.duration ?? value.audioDuration ?? null
+        const audioSize = metadataAudio?.size ?? value.audioSize ?? null
+        const audioMimeType = metadataAudio?.mimeType ?? value.audioMimeType ?? null
+        const hasAudio = Boolean(audioUrl)
+            || audioDuration !== null
+            || audioSize !== null
+            || Boolean(audioMimeType)
+
+        return {
+            metadataAudio: hasAudio
+                ? {
+                    url: audioUrl,
+                    duration: audioDuration,
+                    size: audioSize,
+                    mimeType: audioMimeType,
+                }
+                : null,
+            audioUrl,
+            audioDuration,
+            audioSize,
+            audioMimeType,
+        }
+    }
+
+    const applyAudioState = (state: TranslationAudioState) => {
+        const nextMetadata = options.post.value.metadata && typeof options.post.value.metadata === 'object'
+            ? { ...options.post.value.metadata }
+            : {}
+
+        if (state.metadataAudio) {
+            nextMetadata.audio = { ...state.metadataAudio }
+        } else {
+            delete nextMetadata.audio
+        }
+
+        options.post.value.metadata = Object.keys(nextMetadata).length > 0 ? nextMetadata : null
+        options.post.value.audioUrl = state.audioUrl
+        options.post.value.audioDuration = state.audioDuration
+        options.post.value.audioSize = state.audioSize
+        options.post.value.audioMimeType = state.audioMimeType
+    }
 
     const parseTranslationScopes = (value: string | string[] | undefined) => {
         const rawValue = Array.isArray(value) ? value[0] : value
@@ -371,6 +431,8 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         summary: options.post.value.summary,
         categoryId: options.post.value.categoryId,
         tags: [...options.post.value.tags],
+        coverImage: options.post.value.coverImage ?? null,
+        audio: getAudioState(options.post.value),
         tagBindings: options.getTagBindings().map((binding) => ({ ...binding })),
     })
 
@@ -393,6 +455,20 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
 
         if (scopes.includes('tags')) {
             options.applyTagBindings([])
+        }
+
+        if (scopes.includes('coverImage')) {
+            options.post.value.coverImage = ''
+        }
+
+        if (scopes.includes('audio')) {
+            applyAudioState({
+                metadataAudio: null,
+                audioUrl: null,
+                audioDuration: null,
+                audioSize: null,
+                audioMimeType: null,
+            })
         }
     }
 
@@ -419,6 +495,14 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         if (scopes.includes('tags')) {
             options.applyTagBindings(snapshot.tagBindings)
         }
+
+        if (scopes.includes('coverImage')) {
+            options.post.value.coverImage = snapshot.coverImage
+        }
+
+        if (scopes.includes('audio')) {
+            applyAudioState(snapshot.audio)
+        }
     }
 
     const hasSelectedScopesContent = (scopes: TranslationScopeField[]) => scopes.some((scope) => {
@@ -436,6 +520,14 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
 
         if (scope === 'category') {
             return Boolean(options.post.value.categoryId)
+        }
+
+        if (scope === 'coverImage') {
+            return Boolean(options.post.value.coverImage)
+        }
+
+        if (scope === 'audio') {
+            return Boolean(options.post.value.metadata?.audio?.url || options.post.value.audioUrl)
         }
 
         return (options.post.value.tags?.length || 0) > 0
@@ -521,6 +613,16 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
     }
 
     const handleStartTranslationWorkflow = async (payload: PostTranslationWorkflowRequest) => {
+        if (payload.sourceLanguage === payload.targetLanguage) {
+            options.toast.add({
+                severity: 'warn',
+                summary: options.t('common.warn'),
+                detail: options.t('pages.admin.posts.translation_workflow.same_language_warning'),
+                life: 4000,
+            })
+            return
+        }
+
         if (payload.targetLanguage !== options.post.value.language) {
             translationDialogVisible.value = false
             await handleTranslationClick(payload.targetLanguage, true, {
@@ -570,6 +672,14 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
 
             if (payload.scopes.includes('tags')) {
                 options.applyTagBindings(await resolveTranslatedTagBindings(source.tags || [], source.language, payload.targetLanguage))
+            }
+
+            if (payload.scopes.includes('coverImage')) {
+                options.post.value.coverImage = source.coverImage || ''
+            }
+
+            if (payload.scopes.includes('audio')) {
+                applyAudioState(getAudioState(source))
             }
         } catch (error) {
             console.error('Failed to resolve translated taxonomy bindings', error)

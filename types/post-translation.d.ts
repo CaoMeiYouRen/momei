@@ -1,7 +1,7 @@
-import type { PostStatus, PostVisibility } from './post'
+import type { PostMetadata, PostStatus, PostVisibility } from './post'
 
 
-export type TranslationScopeField = 'title' | 'content' | 'summary' | 'category' | 'tags'
+export type TranslationScopeField = 'title' | 'content' | 'summary' | 'category' | 'tags' | 'coverImage' | 'audio'
 
 export type TranslationTextField = Extract<TranslationScopeField, 'title' | 'content' | 'summary'>
 
@@ -36,6 +36,11 @@ export interface PostTranslationSourceDetail extends PostTranslationSourceOption
     summary?: string | null
     slug?: string
     coverImage?: string | null
+    metadata?: PostMetadata | null
+    audioUrl?: string | null
+    audioDuration?: number | null
+    audioSize?: number | null
+    audioMimeType?: string | null
     copyright?: string | null
     visibility?: PostVisibility
     views?: number

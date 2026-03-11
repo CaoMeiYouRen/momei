@@ -538,7 +538,8 @@
                     "source_language_value": "來源語言：{language}",
                     "target_language_value": "目標語言：{language}",
                     "scope_title": "翻譯範圍",
-                    "scope_hint": "分類與標籤會優先嘗試對應到同一翻譯簇中的目標語言實體。",
+                    "scope_hint": "分類與標籤會優先嘗試對應到同一翻譯簇中的目標語言實體；封面與播客音訊會直接同步來源附件。",
+                    "same_language_warning": "來源語言與目標語言不能相同，請重新選擇。",
                     "target_states": {
                         "missing": "尚未建立版本",
                         "draft": "草稿版本",
@@ -560,7 +561,9 @@
                         "content": "正文",
                         "summary": "摘要",
                         "category": "分類",
-                        "tags": "標籤"
+                        "tags": "標籤",
+                        "coverImage": "封面",
+                        "audio": "播客音訊"
                     },
                     "start": "開始翻譯",
                     "progress_running": "翻譯進行中",

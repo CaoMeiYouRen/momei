@@ -538,7 +538,8 @@
                     "source_language_value": "来源语言：{language}",
                     "target_language_value": "目标语言：{language}",
                     "scope_title": "翻译范围",
-                    "scope_hint": "分类和标签会优先尝试匹配同一翻译簇中的目标语言实体。",
+                    "scope_hint": "分类和标签会优先尝试匹配同一翻译簇中的目标语言实体；封面和播客音频会直接同步来源附件。",
+                    "same_language_warning": "来源语言和目标语言不能相同，请重新选择。",
                     "target_states": {
                         "missing": "未创建版本",
                         "draft": "草稿版本",
@@ -560,7 +561,9 @@
                         "content": "正文",
                         "summary": "摘要",
                         "category": "分类",
-                        "tags": "标签"
+                        "tags": "标签",
+                        "coverImage": "封面",
+                        "audio": "播客音频"
                     },
                     "start": "开始翻译",
                     "progress_running": "翻译进行中",

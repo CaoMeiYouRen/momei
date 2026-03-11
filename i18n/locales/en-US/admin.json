@@ -538,7 +538,8 @@
                     "source_language_value": "Source: {language}",
                     "target_language_value": "Target: {language}",
                     "scope_title": "Translation Scope",
-                    "scope_hint": "Categories and tags will first try to map to entities in the same translation cluster.",
+                    "scope_hint": "Categories and tags will first try to map to entities in the same translation cluster, while cover images and podcast audio are synced directly from the source post.",
+                    "same_language_warning": "Source and target languages must be different. Please choose another target.",
                     "target_states": {
                         "missing": "No saved version",
                         "draft": "Draft version",
@@ -560,7 +561,9 @@
                         "content": "Content",
                         "summary": "Summary",
                         "category": "Category",
-                        "tags": "Tags"
+                        "tags": "Tags",
+                        "coverImage": "Cover Image",
+                        "audio": "Podcast Audio"
                     },
                     "start": "Start Translation",
                     "progress_running": "Translation in progress",

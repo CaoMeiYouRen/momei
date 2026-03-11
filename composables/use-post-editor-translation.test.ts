@@ -27,6 +27,10 @@ function createPostEditorState(language = 'en-US') {
         language,
         translationId: null,
         views: 0,
+        audioUrl: null,
+        audioDuration: null,
+        audioSize: null,
+        audioMimeType: null,
     })
 }
 
@@ -40,6 +44,19 @@ function createSourcePost(): PostTranslationSourceDetail {
         language: 'zh-CN',
         translationId: 'shared-post-cluster',
         status: PostStatus.DRAFT,
+        coverImage: 'https://example.com/source-cover.webp',
+        metadata: {
+            audio: {
+                url: 'https://example.com/source-audio.mp3',
+                duration: 180,
+                size: 2048,
+                mimeType: 'audio/mpeg',
+            },
+        },
+        audioUrl: 'https://example.com/source-audio.mp3',
+        audioDuration: 180,
+        audioSize: 2048,
+        audioMimeType: 'audio/mpeg',
         tags: [{
             id: 'source-tag-id',
             name: '源标签',
@@ -61,15 +78,18 @@ function createWorkflowRequest(): PostTranslationWorkflowRequest {
 }
 
 function createComposable(options?: {
+    language?: string
     tagEntities?: PostTranslationTagOption[]
     translateTaxonomyNames?: (names: string[], targetLanguage: string) => Promise<string[]>
     initialTags?: string[]
     initialTagBindings?: PostTagBindingInput[]
 }) {
-    const post = createPostEditorState()
+    const post = createPostEditorState(options?.language)
     post.value.tags = [...(options?.initialTags || [])]
     const tagBindings = ref<PostTagBindingInput[]>([...(options?.initialTagBindings || [])])
     const translateTaxonomyNames = options?.translateTaxonomyNames || vi.fn(async (names: string[], targetLanguage: string) => names.map((name) => `${name}-${targetLanguage}`))
+    const toastAdd = vi.fn()
+    const translatePostFields = vi.fn(async () => true)
 
     const composable = usePostEditorTranslation({
         post,
@@ -78,7 +98,7 @@ function createComposable(options?: {
         categories: ref([]),
         tagEntities: ref(options?.tagEntities || []),
         toast: {
-            add: vi.fn(),
+            add: toastAdd,
         },
         confirm: {
             require: vi.fn(),
@@ -93,7 +113,7 @@ function createComposable(options?: {
             post.value.tags = bindings.map((binding) => binding.name)
         },
         translateTaxonomyNames,
-        translatePostFields: vi.fn(async () => true),
+        translatePostFields,
         resetTranslationProgress: vi.fn(),
     })
 
@@ -102,7 +122,9 @@ function createComposable(options?: {
     return {
         post,
         tagBindings,
+        toastAdd,
         translateTaxonomyNames,
+        translatePostFields,
         ...composable,
     }
 }
@@ -198,5 +220,60 @@ describe('usePostEditorTranslation', () => {
             sourceTagSlug: 'source-tag',
             sourceTagId: 'source-tag-id',
         }])
+    })
+
+    it('选择封面和播客音频范围时应该同步来源附件', async () => {
+        const { handleStartTranslationWorkflow, post } = createComposable()
+
+        post.value.coverImage = 'https://example.com/old-cover.webp'
+        post.value.metadata = {
+            audio: {
+                url: 'https://example.com/old-audio.mp3',
+                duration: 90,
+                size: 1024,
+                mimeType: 'audio/ogg',
+            },
+        }
+        post.value.audioUrl = 'https://example.com/old-audio.mp3'
+        post.value.audioDuration = 90
+        post.value.audioSize = 1024
+        post.value.audioMimeType = 'audio/ogg'
+
+        await handleStartTranslationWorkflow({
+            ...createWorkflowRequest(),
+            scopes: ['coverImage', 'audio'],
+        })
+
+        expect(post.value.coverImage).toBe('https://example.com/source-cover.webp')
+        expect(post.value.metadata?.audio).toEqual({
+            url: 'https://example.com/source-audio.mp3',
+            duration: 180,
+            size: 2048,
+            mimeType: 'audio/mpeg',
+        })
+        expect(post.value.audioUrl).toBe('https://example.com/source-audio.mp3')
+        expect(post.value.audioDuration).toBe(180)
+        expect(post.value.audioSize).toBe(2048)
+        expect(post.value.audioMimeType).toBe('audio/mpeg')
+    })
+
+    it('来源语言和目标语言一致时应该提醒并拒绝翻译', async () => {
+        const { handleStartTranslationWorkflow, post, toastAdd, translatePostFields } = createComposable({
+            language: 'zh-CN',
+        })
+
+        post.value.title = '原有标题'
+
+        await handleStartTranslationWorkflow({
+            ...createWorkflowRequest(),
+            targetLanguage: 'zh-CN',
+        })
+
+        expect(translatePostFields).not.toHaveBeenCalled()
+        expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'warn',
+            detail: 'pages.admin.posts.translation_workflow.same_language_warning',
+        }))
+        expect(post.value.title).toBe('原有标题')
     })
 })

@@ -276,6 +276,7 @@ export function usePostEditorPage() {
                     if (data) {
                         sourcePostSnapshot.value = data
                         post.value.translationId = resolveTranslationClusterId(data.translationId, data.slug, data.id)
+                        post.value.slug = data.slug || ''
 
                         if (shouldPrefillFromSource) {
                             await Promise.all([
@@ -288,7 +289,6 @@ export function usePostEditorPage() {
                             post.value.content = data.content
                             post.value.coverImage = data.coverImage
                             applyTagBindings(await resolveTranslatedTagBindings(data.tags || [], data.language, post.value.language))
-                            post.value.slug = data.slug || ''
                             post.value.copyright = data.copyright
                             post.value.categoryId = resolveMatchedCategoryId(data.category, data.language)
                         }

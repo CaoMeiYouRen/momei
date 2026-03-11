@@ -26,6 +26,9 @@ const translations: Record<string, string> = {
     'pages.admin.posts.translation_workflow.fields.summary': '摘要',
     'pages.admin.posts.translation_workflow.fields.category': '分类',
     'pages.admin.posts.translation_workflow.fields.tags': '标签',
+    'pages.admin.posts.translation_workflow.fields.coverImage': '封面',
+    'pages.admin.posts.translation_workflow.fields.audio': '播客音频',
+    'pages.admin.posts.translation_workflow.same_language_warning': '来源语言和目标语言不能相同，请重新选择。',
     'pages.admin.posts.translation_workflow.actions.create': '新建翻译',
     'pages.admin.posts.translation_workflow.actions.continue': '继续翻译',
     'pages.admin.posts.translation_workflow.actions.overwrite': '覆盖翻译',
@@ -97,21 +100,21 @@ const defaultProps = {
         },
     ],
     defaultSourcePostId: 'source-1',
-    defaultTargetLanguage: 'zh-CN',
+    defaultTargetLanguage: 'en-US',
     defaultScopes: ['title', 'summary'] as TranslationScopeField[],
     targetStatuses: [
         {
-            language: 'zh-CN',
+            language: 'en-US',
             state: 'draft',
             action: 'continue',
             postId: 'draft-1',
             isCurrentEditor: true,
         },
         {
-            language: 'en-US',
+            language: 'zh-CN',
             state: 'published',
             action: 'overwrite',
-            postId: 'post-en',
+            postId: 'post-zh',
             isCurrentEditor: false,
         },
     ] as PostTranslationTargetStatus[],
@@ -166,6 +169,8 @@ describe('PostTranslationWorkflowDialog', () => {
         expect(wrapper.text()).toContain('目标版本状态')
         expect(wrapper.text()).toContain('草稿版本')
         expect(wrapper.text()).toContain('继续翻译')
+        expect(wrapper.text()).toContain('封面')
+        expect(wrapper.text()).toContain('播客音频')
 
         const startButton = wrapper.find('button[data-label="继续翻译"]')
         expect(startButton.exists()).toBe(true)
@@ -184,7 +189,7 @@ describe('PostTranslationWorkflowDialog', () => {
         expect(wrapper.emitted('start')?.[0]?.[0]).toEqual({
             sourcePostId: 'source-1',
             sourceLanguage: 'zh-CN',
-            targetLanguage: 'zh-CN',
+            targetLanguage: 'en-US',
             scopes: ['title', 'summary'],
             action: 'continue',
             targetState: 'draft',
@@ -196,7 +201,7 @@ describe('PostTranslationWorkflowDialog', () => {
         const wrapper = await mountSuspended(PostTranslationWorkflowDialog, {
             props: {
                 ...defaultProps,
-                defaultTargetLanguage: 'en-US',
+                defaultTargetLanguage: 'zh-CN',
             },
             global: globalOptions,
         })
@@ -209,6 +214,30 @@ describe('PostTranslationWorkflowDialog', () => {
 
         const startButton = wrapper.find('button[data-label="覆盖翻译"]')
         expect(startButton.attributes('data-severity')).toBe('danger')
+    })
+
+    it('shows same-language warning and disables start when source and target languages match', async () => {
+        const wrapper = await mountSuspended(PostTranslationWorkflowDialog, {
+            props: {
+                ...defaultProps,
+                defaultTargetLanguage: 'zh-CN',
+                targetStatuses: [
+                    {
+                        language: 'zh-CN',
+                        state: 'draft',
+                        action: 'continue',
+                        postId: 'draft-zh',
+                        isCurrentEditor: true,
+                    },
+                ],
+            },
+            global: globalOptions,
+        })
+
+        await nextTick()
+
+        expect(wrapper.text()).toContain('来源语言和目标语言不能相同，请重新选择。')
+        expect(wrapper.find('button[data-label="继续翻译"]').attributes('disabled')).toBeDefined()
     })
 
     it('shows no-source warning and disables start when no source is available', async () => {
