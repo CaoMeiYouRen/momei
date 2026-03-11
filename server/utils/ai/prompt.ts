@@ -9,6 +9,8 @@ export const AI_PROMPTS = {
         'Translate the following markdown content to {{to}}. Maintain all markdown formatting, links, and code blocks. IMPORTANT: Provide only the translated content itself: \n\n{{content}}',
     TRANSLATE_NAME:
         'Translate the following term from any language to {{to}}. Output ONLY the translated term, no explanation or punctuation: \n\n{{name}}',
+    TRANSLATE_NAMES:
+        'Translate the following list of terms from any language to {{to}}. Keep the original order. Output ONLY a JSON array of translated strings with exactly the same number of items and no explanation: \n\n{{names}}',
     SUGGEST_SLUG_FROM_NAME:
         'Based on the name "{{name}}", create a concise, lowercase, URL-friendly slug. If it is already a slug, return it. Output ONLY the slug text: \n\n{{name}}',
     GENERATE_SCAFFOLD:

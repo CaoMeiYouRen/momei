@@ -3,6 +3,7 @@ import type { ApiResponse } from '@/types/api'
 import type { PostEditorData } from '@/types/post-editor'
 import { PostStatus } from '@/types/post'
 import type {
+    PostTagBindingInput,
     PostTranslationCategoryOption,
     PostTranslationSourceDetail,
     PostTranslationSourceOption,
@@ -13,6 +14,7 @@ import type {
     PostTranslationWorkflowRequest,
     TranslationScopeField,
 } from '@/types/post-translation'
+import { createPostTagBinding } from '@/utils/shared/post-tag-bindings'
 import { hasSharedTranslationCluster, resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
 
 interface LocaleOption {
@@ -71,6 +73,9 @@ interface UsePostEditorTranslationOptions {
     localePath: (path: string) => string
     loadCategories: (language?: string) => Promise<void>
     loadTags: (language?: string) => Promise<void>
+    getTagBindings: () => PostTagBindingInput[]
+    applyTagBindings: (bindings: PostTagBindingInput[]) => void
+    translateTaxonomyNames: (names: string[], targetLanguage: string) => Promise<string[]>
     translatePostFields: (payload: {
         source: PostTranslationSourceDetail
         sourceLanguage: string
@@ -290,29 +295,74 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         return matchedCategory?.id || null
     }
 
-    const resolveMatchedTagNames = (
+    const resolveTranslatedTagBindings = async (
         sourceTags: PostTranslationSourceDetail['tags'],
         sourceLanguage: string,
+        targetLanguage: string,
     ) => {
         if (!sourceTags?.length) {
             return []
         }
 
         const allowIdFallback = sourceLanguage === options.post.value.language
-        const mappedTags = sourceTags.flatMap((tag) => {
+        const resolvedTags = new Array<PostTagBindingInput | null>(sourceTags.length).fill(null)
+        const pendingTranslations: { index: number, tag: NonNullable<PostTranslationSourceDetail['tags']>[number] }[] = []
+
+        sourceTags.forEach((tag, index) => {
             const matchedTag = options.tagEntities.value.find((targetTag) => hasSharedTranslationCluster(tag, targetTag, {
                 includeSourceId: allowIdFallback,
                 includeTargetId: allowIdFallback,
             }))
 
             if (matchedTag?.name) {
-                return [matchedTag.name]
+                resolvedTags[index] = createPostTagBinding({
+                    name: matchedTag.name,
+                    source: tag,
+                    target: matchedTag,
+                })
+                return
             }
 
-            return allowIdFallback && tag.name ? [tag.name] : []
+            if (allowIdFallback && tag.name) {
+                resolvedTags[index] = createPostTagBinding({
+                    name: tag.name,
+                    source: tag,
+                })
+                return
+            }
+
+            if (!tag.name?.trim()) {
+                return
+            }
+
+            pendingTranslations.push({ index, tag })
         })
 
-        return Array.from(new Set(mappedTags.filter(Boolean)))
+        if (pendingTranslations.length > 0) {
+            const translatedNames = await options.translateTaxonomyNames(
+                pendingTranslations.map(({ tag }) => tag.name),
+                targetLanguage,
+            )
+
+            if (translatedNames.length !== pendingTranslations.length) {
+                throw new Error('Invalid translated tag names count')
+            }
+
+            pendingTranslations.forEach(({ index, tag }, translatedIndex) => {
+                resolvedTags[index] = createPostTagBinding({
+                    name: translatedNames[translatedIndex] || tag.name,
+                    source: tag,
+                })
+            })
+        }
+
+        return Array.from(new Map(resolvedTags
+            .filter((item): item is PostTagBindingInput => Boolean(item))
+            .map((item) => [
+                resolveTranslationClusterId(item.translationId, item.sourceTagSlug, item.sourceTagId)
+                || item.name.toLowerCase(),
+                item,
+            ])).values())
     }
 
     const createTranslationScopeSnapshot = () => ({
@@ -321,6 +371,7 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         summary: options.post.value.summary,
         categoryId: options.post.value.categoryId,
         tags: [...options.post.value.tags],
+        tagBindings: options.getTagBindings().map((binding) => ({ ...binding })),
     })
 
     const clearTranslatedScopes = (scopes: TranslationScopeField[]) => {
@@ -341,7 +392,7 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         }
 
         if (scopes.includes('tags')) {
-            options.post.value.tags = []
+            options.applyTagBindings([])
         }
     }
 
@@ -366,7 +417,7 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         }
 
         if (scopes.includes('tags')) {
-            options.post.value.tags = [...snapshot.tags]
+            options.applyTagBindings(snapshot.tagBindings)
         }
     }
 
@@ -512,12 +563,24 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
             return
         }
 
-        if (payload.scopes.includes('category')) {
-            options.post.value.categoryId = resolveMatchedCategoryId(source.category, source.language)
-        }
+        try {
+            if (payload.scopes.includes('category')) {
+                options.post.value.categoryId = resolveMatchedCategoryId(source.category, source.language)
+            }
 
-        if (payload.scopes.includes('tags')) {
-            options.post.value.tags = resolveMatchedTagNames(source.tags || [], source.language)
+            if (payload.scopes.includes('tags')) {
+                options.applyTagBindings(await resolveTranslatedTagBindings(source.tags || [], source.language, payload.targetLanguage))
+            }
+        } catch (error) {
+            console.error('Failed to resolve translated taxonomy bindings', error)
+            restoreTranslatedScopes(payload.scopes, translationScopeSnapshot)
+            options.toast.add({
+                severity: 'error',
+                summary: options.t('common.error'),
+                detail: options.t('pages.admin.posts.ai_error'),
+                life: 4000,
+            })
+            return
         }
 
         options.post.value.translationId = resolveTranslationClusterId(source.translationId, source.slug, source.id)
@@ -556,6 +619,6 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         fetchTranslations,
         parseTranslationScopes,
         resolveMatchedCategoryId,
-        resolveMatchedTagNames,
+        resolveTranslatedTagBindings,
     }
 }

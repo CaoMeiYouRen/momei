@@ -223,16 +223,36 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         return await waitForTranslationTask(result.taskId, options)
     }
 
-    const translateTitle = async (title: string, targetLanguage: string) => {
+    const translateTaxonomyName = async (name: string, targetLanguage: string) => {
         const response = await $fetch<ApiResponse<string>>('/api/ai/translate-name', {
             method: 'POST',
             body: {
-                name: title,
+                name,
                 targetLanguage,
             },
         })
 
         return response.data
+    }
+
+    const translateTaxonomyNames = async (names: string[], targetLanguage: string) => {
+        if (names.length === 0) {
+            return []
+        }
+
+        const response = await $fetch<ApiResponse<string[]>>('/api/ai/translate-name', {
+            method: 'POST',
+            body: {
+                names,
+                targetLanguage,
+            },
+        })
+
+        return response.data
+    }
+
+    const translateTitle = async (title: string, targetLanguage: string) => {
+        return await translateTaxonomyName(title, targetLanguage)
     }
 
     const translatePostFields = async (options: {
@@ -360,6 +380,8 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         isTextScope,
         isTranslating,
         resetTranslationProgress,
+        translateTaxonomyName,
+        translateTaxonomyNames,
         translatePostFields,
         translationProgress,
     }

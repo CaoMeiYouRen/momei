@@ -6,6 +6,7 @@ import type { ApiResponse } from '@/types/api'
 import { PostStatus, PostVisibility, type PublishIntent } from '@/types/post'
 import type { PostEditorData } from '@/types/post-editor'
 import type {
+    PostTagBindingInput,
     PostTranslationCategoryOption,
     PostTranslationSourceDetail,
     PostTranslationTagOption,
@@ -19,6 +20,7 @@ import { usePostEditorTranslation } from '@/composables/use-post-editor-translat
 import { usePostTranslationAI } from '@/composables/use-post-translation-ai'
 import { useRequestFeedback } from '@/composables/use-request-feedback'
 import { formatMarkdown } from '@/utils/shared/markdown'
+import { syncPostTagBindings } from '@/utils/shared/post-tag-bindings'
 import { buildPreferredTaxonomyOptions } from '@/utils/shared/taxonomy-options'
 import { resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
 import { isFutureDate } from '@/utils/shared/date'
@@ -108,6 +110,7 @@ export function usePostEditorPage() {
     const filteredTags = ref<string[]>([])
     const allTags = ref<string[]>([])
     const tagEntities = ref<PostTranslationTagOption[]>([])
+    const tagBindings = ref<PostTagBindingInput[]>([])
     const categories = ref<PostTranslationCategoryOption[]>([])
     const errors = ref<Record<string, string>>({})
 
@@ -140,9 +143,19 @@ export function usePostEditorPage() {
 
     const {
         resetTranslationProgress,
+        translateTaxonomyNames,
         translatePostFields,
         translationProgress,
     } = usePostTranslationAI(post)
+
+    const applyTagBindings = (bindings: PostTagBindingInput[]) => {
+        tagBindings.value = syncPostTagBindings(
+            bindings.map((binding) => binding.name),
+            bindings,
+            tagEntities.value,
+        )
+        post.value.tags = tagBindings.value.map((binding) => binding.name)
+    }
 
     watch(headerRef, (header) => {
         if (header) {
@@ -216,7 +229,7 @@ export function usePostEditorPage() {
         fetchTranslations,
         parseTranslationScopes,
         resolveMatchedCategoryId,
-        resolveMatchedTagNames,
+        resolveTranslatedTagBindings,
     } = usePostEditorTranslation({
         post,
         isNew,
@@ -229,6 +242,9 @@ export function usePostEditorPage() {
         localePath,
         loadCategories,
         loadTags,
+        getTagBindings: () => tagBindings.value,
+        applyTagBindings,
+        translateTaxonomyNames,
         translatePostFields,
         resetTranslationProgress,
     })
@@ -252,38 +268,30 @@ export function usePostEditorPage() {
     const loadPost = async () => {
         if (isNew.value) {
             const sourceId = route.query.sourceId as string
+            const shouldPrefillFromSource = route.query.autoTranslate !== 'true'
 
             if (sourceId) {
                 try {
                     const { data } = await $fetch<ApiResponse<PostTranslationSourceDetail>>(`/api/posts/${sourceId}`)
                     if (data) {
                         sourcePostSnapshot.value = data
-                        post.value.title = data.title
-                        post.value.summary = data.summary
-                        post.value.content = data.content
-                        post.value.coverImage = data.coverImage
-                        post.value.tags = resolveMatchedTagNames(data.tags || [], data.language)
                         post.value.translationId = resolveTranslationClusterId(data.translationId, data.slug, data.id)
-                        post.value.slug = data.slug || ''
-                        post.value.copyright = data.copyright
-                        post.value.categoryId = resolveMatchedCategoryId(data.category, data.language)
 
-                        const stopTaxonomySync = watch(
-                            [categories, tagEntities],
-                            ([nextCategories, nextTags]) => {
-                                if (nextCategories.length === 0 && nextTags.length === 0) {
-                                    return
-                                }
+                        if (shouldPrefillFromSource) {
+                            await Promise.all([
+                                loadCategories(post.value.language),
+                                loadTags(post.value.language),
+                            ])
 
-                                post.value.categoryId = resolveMatchedCategoryId(data.category, data.language)
-                                post.value.tags = resolveMatchedTagNames(data.tags || [], data.language)
-
-                                if (nextCategories.length > 0 && nextTags.length > 0) {
-                                    stopTaxonomySync()
-                                }
-                            },
-                            { immediate: true },
-                        )
+                            post.value.title = data.title
+                            post.value.summary = data.summary
+                            post.value.content = data.content
+                            post.value.coverImage = data.coverImage
+                            applyTagBindings(await resolveTranslatedTagBindings(data.tags || [], data.language, post.value.language))
+                            post.value.slug = data.slug || ''
+                            post.value.copyright = data.copyright
+                            post.value.categoryId = resolveMatchedCategoryId(data.category, data.language)
+                        }
                     }
                 } catch (error) {
                     console.error('Failed to pre-fill from source post', error)
@@ -326,6 +334,13 @@ export function usePostEditorPage() {
                     language: detailedPost.language || 'zh-CN',
                     translationId: detailedPost.translationId || null,
                 }
+
+                applyTagBindings((detailedPost.tags || []).map((tag) => ({
+                    name: tag.name,
+                    translationId: resolveTranslationClusterId(tag.translationId, tag.slug, tag.id),
+                    sourceTagSlug: tag.slug ?? null,
+                    sourceTagId: tag.id,
+                })))
 
                 if (post.value.translationId) {
                     void fetchTranslations(post.value.translationId)
@@ -463,6 +478,7 @@ export function usePostEditorPage() {
         const payload = { ...post.value } as Record<string, unknown>
         delete payload.category
         delete payload.author
+        payload.tagBindings = tagBindings.value
 
         const currentPublishIntent = getPublishIntent()
         const nextPublishIntent = {
@@ -587,6 +603,22 @@ export function usePostEditorPage() {
             void loadCategories()
             void loadTags()
         },
+    )
+
+    watch(
+        () => post.value.tags,
+        (tagNames) => {
+            tagBindings.value = syncPostTagBindings(tagNames, tagBindings.value, tagEntities.value)
+        },
+        { deep: true },
+    )
+
+    watch(
+        tagEntities,
+        (nextTagEntities) => {
+            tagBindings.value = syncPostTagBindings(post.value.tags, tagBindings.value, nextTagEntities)
+        },
+        { deep: true },
     )
 
     watch(

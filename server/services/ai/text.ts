@@ -613,6 +613,64 @@ export class TextService extends AIBaseService {
         return response.content.trim()
     }
 
+    static async translateNames(names: string[], to: string, userId?: string) {
+        const normalizedNames = names.map((name) => name.trim()).filter(Boolean)
+        if (normalizedNames.length === 0) {
+            return []
+        }
+
+        await this.assertTextQuota({
+            userId,
+            type: 'translate_name_batch',
+            payload: { names: normalizedNames, to },
+        })
+
+        const provider = await getAIProvider('text')
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
+
+        const prompt = formatPrompt(AI_PROMPTS.TRANSLATE_NAMES, {
+            names: JSON.stringify(normalizedNames),
+            to,
+        })
+
+        const response = await provider.chat({
+            messages: [
+                { role: 'system', content: `Translate term list to ${to} and return JSON array only` },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.2,
+        })
+
+        this.logUsage({ task: 'translate-name-batch', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'translate_name_batch',
+            provider: provider.name,
+            model: response.model,
+            payload: { names: normalizedNames, to },
+            response,
+            textLength: normalizedNames.join('').length,
+            settlementSource: 'actual',
+        })
+
+        try {
+            const match = /\[[\s\S]*\]/.exec(response.content)
+            const translatedNames = JSON.parse(match?.[0] || response.content) as unknown
+
+            if (!Array.isArray(translatedNames) || translatedNames.length !== normalizedNames.length) {
+                throw new Error('Invalid translated names result length')
+            }
+
+            return translatedNames.map((item) => String(item).trim())
+        } catch (error) {
+            logger.error('Failed to parse translated names response', error)
+            throw new Error('Invalid translated names response')
+        }
+    }
+
     static async suggestSlugFromName(name: string, userId?: string) {
         await this.assertTextQuota({
             userId,

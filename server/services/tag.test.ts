@@ -240,6 +240,53 @@ describe('tag service', () => {
             expect(tags[0]?.name).toBe('Conflict Test')
             expect(tags[0]?.slug).toMatch(/^conflict-test-[a-zA-Z0-9]{4}$/)
         })
+
+        it('应该按翻译簇复用目标语言标签', async () => {
+            await createTag({
+                name: '源标签',
+                slug: 'source-tag-for-reuse',
+                language: 'zh-CN',
+                translationId: 'shared-tag-cluster-reuse',
+            })
+
+            const targetTag = await createTag({
+                name: 'Existing Target Tag',
+                slug: 'existing-target-tag',
+                language: 'en-US',
+                translationId: 'shared-tag-cluster-reuse',
+            })
+
+            const tags = await ensureTags([{
+                name: 'Generated Target Tag',
+                translationId: 'shared-tag-cluster-reuse',
+                sourceTagSlug: 'source-tag-for-reuse',
+                sourceTagId: 'source-tag-id-reuse',
+            }], 'en-US')
+
+            expect(tags).toHaveLength(1)
+            expect(tags[0]?.id).toBe(targetTag.id)
+            expect(tags[0]?.name).toBe('Existing Target Tag')
+        })
+
+        it('应该在目标语言缺少同簇标签时创建并关联翻译簇', async () => {
+            await createTag({
+                name: '源标签 2',
+                slug: 'source-tag-for-create',
+                language: 'zh-CN',
+                translationId: 'shared-tag-cluster-create',
+            })
+
+            const tags = await ensureTags([{
+                name: 'Generated Target Tag',
+                translationId: 'shared-tag-cluster-create',
+                sourceTagSlug: 'source-tag-for-create',
+                sourceTagId: 'source-tag-id-create',
+            }], 'en-US')
+
+            expect(tags).toHaveLength(1)
+            expect(tags[0]?.name).toBe('Generated Target Tag')
+            expect(tags[0]?.translationId).toBe('shared-tag-cluster-create')
+        })
     })
 })
 

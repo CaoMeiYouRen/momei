@@ -71,6 +71,13 @@ const postMetadataSchema = z.object({
         .optional(),
 })
 
+const postTagBindingSchema = z.object({
+    name: z.string().min(1).max(100),
+    translationId: z.string().max(255).nullable().optional(),
+    sourceTagSlug: z.string().max(100).nullable().optional(),
+    sourceTagId: z.string().max(255).nullable().optional(),
+})
+
 const sharedPostFields = {
     title: z.string().min(1).max(255),
     slug: z.string().min(1).max(255).refine((val) => !val || !isSnowflakeId(val), {
@@ -106,6 +113,7 @@ const sharedPostFields = {
     scaffoldMetadata: z.record(z.string(), z.unknown()).nullable().optional(),
     publishIntent: publishIntentSchema.nullable().optional(),
     tags: z.array(z.string()).optional(),
+    tagBindings: z.array(postTagBindingSchema).optional(),
     status: postStatusEnum,
     visibility: postVisibilityEnum,
     password: z.string().nullable().optional(),

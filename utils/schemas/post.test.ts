@@ -151,6 +151,23 @@ describe('utils/schemas/post', () => {
             expect(result.success).toBe(true)
         })
 
+        it('应该允许标签翻译绑定随文章一起保存', () => {
+            const validData = {
+                title: '标题',
+                content: '内容',
+                tags: ['Translated Tag'],
+                tagBindings: [{
+                    name: 'Translated Tag',
+                    translationId: 'shared-tag-cluster',
+                    sourceTagSlug: 'source-tag',
+                    sourceTagId: 'source-tag-id',
+                }],
+            }
+
+            const result = createPostSchema.safeParse(validData)
+            expect(result.success).toBe(true)
+        })
+
         it('应该拒绝负数的音频时长', () => {
             const invalidData = {
                 title: '标题',
@@ -271,6 +288,19 @@ describe('utils/schemas/post', () => {
                         outline: 'new outline',
                     },
                 },
+            }
+
+            const result = updatePostSchema.safeParse(partialData)
+            expect(result.success).toBe(true)
+        })
+
+        it('应该允许仅更新标签翻译绑定', () => {
+            const partialData = {
+                tags: ['Translated Tag'],
+                tagBindings: [{
+                    name: 'Translated Tag',
+                    translationId: 'shared-tag-cluster',
+                }],
             }
 
             const result = updatePostSchema.safeParse(partialData)

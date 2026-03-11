@@ -73,8 +73,11 @@ async function applyPostChanges(
     }
 
     // 3. 标签处理
-    if (body.tags) {
-        post.tags = await ensureTags(body.tags, body.language || post.language)
+    if (body.tags !== undefined || body.tagBindings !== undefined) {
+        post.tags = await ensureTags(
+            body.tagBindings && body.tagBindings.length > 0 ? body.tagBindings : (body.tags || []),
+            body.language || post.language,
+        )
     }
 
     // 4. 密码处理

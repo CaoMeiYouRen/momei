@@ -16,6 +16,13 @@ export interface PostTranslationTaxonomyItem {
     translationId?: string | null
 }
 
+export interface PostTagBindingInput {
+    name: string
+    translationId?: string | null
+    sourceTagSlug?: string | null
+    sourceTagId?: string | null
+}
+
 export interface PostTranslationSourceOption {
     id: string
     title: string

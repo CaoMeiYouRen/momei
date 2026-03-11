@@ -1,10 +1,11 @@
 import { kebabCase } from 'lodash-es'
 import { Not } from 'typeorm'
+import type { PostTagBindingInput } from '@/types/post-translation'
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
 import { generateRandomString } from '@/utils/shared/random'
 import { assignDefined } from '@/server/utils/object'
-import { resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
+import { hasSharedTranslationCluster, resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
 
 interface TagData {
     name: string
@@ -132,7 +133,7 @@ export async function updateTag(id: string, data: Partial<TagData>): Promise<Tag
  * 获取或创建标签。常用于文章发布时自动处理标签。
  * 如果标签不存在，将根据名称自动生成 slug。
  */
-export async function ensureTags(tagNames: string[], language: string): Promise<Tag[]> {
+export async function ensureTags(tagNames: (string | PostTagBindingInput)[], language: string): Promise<Tag[]> {
     if (!tagNames || tagNames.length === 0) {
         return []
     }
@@ -140,11 +141,73 @@ export async function ensureTags(tagNames: string[], language: string): Promise<
     const tagRepo = dataSource.getRepository(Tag)
     const result: Tag[] = []
 
-    for (const name of tagNames) {
-        let tag = await tagRepo.findOne({ where: { name, language } })
+    const normalizedInputs = Array.from(new Map(
+        tagNames
+            .map((tag) => {
+                if (typeof tag === 'string') {
+                    return {
+                        name: tag.trim(),
+                        translationId: null,
+                        sourceTagSlug: null,
+                        sourceTagId: null,
+                    } satisfies PostTagBindingInput
+                }
+
+                return {
+                    ...tag,
+                    name: tag.name.trim(),
+                }
+            })
+            .filter((tag) => tag.name)
+            .map((tag) => [
+                resolveTranslationClusterId(tag.translationId, tag.sourceTagSlug, tag.sourceTagId)
+                || tag.name.toLowerCase(),
+                tag,
+            ]),
+    ).values())
+
+    for (const input of normalizedInputs) {
+        const clusterId = resolveTranslationClusterId(input.translationId, input.sourceTagSlug, input.sourceTagId)
+
+        let tag = clusterId
+            ? await tagRepo.findOne({ where: { translationId: clusterId, language } })
+            : null
+
+        if (!tag) {
+            const existingTagByName = await tagRepo.findOne({ where: { name: input.name, language } })
+
+            if (existingTagByName) {
+                if (!clusterId || hasSharedTranslationCluster(existingTagByName, {
+                    translationId: clusterId,
+                    slug: input.sourceTagSlug,
+                    id: input.sourceTagId,
+                })) {
+                    tag = existingTagByName
+                } else {
+                    const currentClusterId = resolveTranslationClusterId(
+                        existingTagByName.translationId,
+                        existingTagByName.slug,
+                        existingTagByName.id,
+                    )
+                    const canRelinkExistingTag = currentClusterId === existingTagByName.slug
+                        && await tagRepo.count({ where: { translationId: currentClusterId } }) <= 1
+
+                    if (canRelinkExistingTag) {
+                        existingTagByName.translationId = clusterId
+                        tag = await tagRepo.save(existingTagByName)
+                    } else {
+                        throw createError({
+                            statusCode: 409,
+                            statusMessage: `Tag translation conflict for name "${input.name}" in language "${language}"`,
+                        })
+                    }
+                }
+            }
+        }
+
         if (!tag) {
             // 自动生成 Slug
-            let slug = kebabCase(name)
+            let slug = kebabCase(input.name)
             if (!slug) {
                 slug = generateRandomString(8)
             }
@@ -158,9 +221,10 @@ export async function ensureTags(tagNames: string[], language: string): Promise<
 
             // 调用统一的创建逻辑
             tag = await createTag({
-                name,
+                name: input.name,
                 slug,
                 language,
+                translationId: clusterId,
             })
         }
         result.push(tag)
