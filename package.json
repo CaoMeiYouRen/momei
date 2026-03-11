@@ -153,7 +153,7 @@
     "@intlify/eslint-plugin-vue-i18n": "^4.3.0",
     "@lhci/cli": "^0.15.1",
     "@lint-md/cli": "^2.0.0",
-    "@nuxt/eslint": "^1.15.1",
+    "@nuxt/eslint": "^1.15.2",
     "@nuxt/eslint-config": "^1.15.2",
     "@nuxt/test-utils": "^4.0.0",
     "@nuxtjs/sitemap": "^7.6.0",
