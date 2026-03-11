@@ -3,6 +3,15 @@
         <h2>{{ $t('installation.adminAccount.title') }}</h2>
         <p>{{ $t('installation.adminAccount.description') }}</p>
 
+        <Message
+            v-if="adminError && !Object.keys(fieldErrors).length"
+            severity="error"
+            :closable="false"
+            class="installation-wizard__step-message"
+        >
+            {{ adminError }}
+        </Message>
+
         <div class="installation-wizard__form">
             <div class="form-field">
                 <label for="admin_name">
@@ -15,7 +24,7 @@
                     :invalid="!!fieldErrors.name"
                     fluid
                 />
-                <div v-if="fieldErrors.name" class="mt-1 p-error text-sm">
+                <div v-if="fieldErrors.name" class="installation-wizard__field-error">
                     {{ fieldErrors.name }}
                 </div>
             </div>
@@ -30,7 +39,7 @@
                     :invalid="!!fieldErrors.email"
                     fluid
                 />
-                <div v-if="fieldErrors.email" class="mt-1 p-error text-sm">
+                <div v-if="fieldErrors.email" class="installation-wizard__field-error">
                     {{ fieldErrors.email }}
                 </div>
             </div>
@@ -46,14 +55,10 @@
                     :invalid="!!fieldErrors.password"
                     fluid
                 />
-                <div v-if="fieldErrors.password" class="mt-1 p-error text-sm">
+                <div v-if="fieldErrors.password" class="installation-wizard__field-error">
                     {{ fieldErrors.password }}
                 </div>
             </div>
-        </div>
-
-        <div v-if="adminError" class="mb-4 p-error">
-            {{ adminError }}
         </div>
 
         <div class="installation-wizard__actions">

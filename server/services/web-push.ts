@@ -2,6 +2,7 @@ import { In } from 'typeorm'
 import webpush from 'web-push'
 import { dataSource } from '@/server/database'
 import { WebPushSubscription, type WebPushSubscriptionPayload } from '@/server/entities/web-push-subscription'
+import { User } from '@/server/entities/user'
 import { getSettings } from '@/server/services/setting'
 import logger from '@/server/utils/logger'
 import { SettingKey } from '@/types/setting'
@@ -85,6 +86,17 @@ export async function upsertWebPushSubscription(options: {
 }) {
     if (!dataSource.isInitialized) {
         return null
+    }
+
+    const userRepo = dataSource.getRepository(User)
+    const userExists = await userRepo.exist({ where: { id: options.userId } })
+
+    if (!userExists) {
+        logger.warn(`[WebPush] Ignore subscription upsert for missing user ${options.userId}`)
+        throw createError({
+            statusCode: 401,
+            statusMessage: 'User session is invalid',
+        })
     }
 
     const repo = dataSource.getRepository(WebPushSubscription)

@@ -3,6 +3,15 @@
         <h2>{{ $t('installation.preview.title') }}</h2>
         <p>{{ $t('installation.preview.description') }}</p>
 
+        <Message
+            v-if="extraConfigError && !Object.keys(fieldErrors).length"
+            severity="error"
+            :closable="false"
+            class="installation-wizard__step-message"
+        >
+            {{ extraConfigError }}
+        </Message>
+
         <Accordion multiple>
             <!-- AI 配置 -->
             <AccordionPanel value="0">
@@ -14,8 +23,8 @@
                                 {{ $t('installation.preview.ai.provider') }}
                                 <Tag
                                     v-if="isLocked('ai_provider')"
-                                    severity="info"
-                                    value="ENV"
+                                    severity="warn"
+                                    :value="$t('pages.admin.settings.system.source_badges.env')"
                                     class="ml-2"
                                 />
                             </label>
@@ -27,7 +36,7 @@
                                 :invalid="!!fieldErrors.aiProvider"
                                 fluid
                             />
-                            <div v-if="fieldErrors.aiProvider" class="mt-1 p-error text-sm">
+                            <div v-if="fieldErrors.aiProvider" class="installation-wizard__field-error">
                                 {{ fieldErrors.aiProvider }}
                             </div>
                         </div>
@@ -36,8 +45,8 @@
                                 {{ $t('installation.preview.ai.model') }}
                                 <Tag
                                     v-if="isLocked('ai_model')"
-                                    severity="info"
-                                    value="ENV"
+                                    severity="warn"
+                                    :value="$t('pages.admin.settings.system.source_badges.env')"
                                     class="ml-2"
                                 />
                             </label>
@@ -48,7 +57,7 @@
                                 :invalid="!!fieldErrors.aiModel"
                                 fluid
                             />
-                            <div v-if="fieldErrors.aiModel" class="mt-1 p-error text-sm">
+                            <div v-if="fieldErrors.aiModel" class="installation-wizard__field-error">
                                 {{ fieldErrors.aiModel }}
                             </div>
                         </div>
@@ -57,8 +66,8 @@
                                 {{ $t('installation.preview.ai.apiKey') }}
                                 <Tag
                                     v-if="isLocked('ai_api_key')"
-                                    severity="info"
-                                    value="ENV"
+                                    severity="warn"
+                                    :value="$t('pages.admin.settings.system.source_badges.env')"
                                     class="ml-2"
                                 />
                             </label>
@@ -70,7 +79,7 @@
                                 :invalid="!!fieldErrors.aiApiKey"
                                 fluid
                             />
-                            <div v-if="fieldErrors.aiApiKey" class="mt-1 p-error text-sm">
+                            <div v-if="fieldErrors.aiApiKey" class="installation-wizard__field-error">
                                 {{ fieldErrors.aiApiKey }}
                             </div>
                         </div>
@@ -79,8 +88,8 @@
                                 {{ $t('installation.preview.ai.endpoint') }}
                                 <Tag
                                     v-if="isLocked('ai_endpoint')"
-                                    severity="info"
-                                    value="ENV"
+                                    severity="warn"
+                                    :value="$t('pages.admin.settings.system.source_badges.env')"
                                     class="ml-2"
                                 />
                             </label>
@@ -91,7 +100,7 @@
                                 :invalid="!!fieldErrors.aiEndpoint"
                                 fluid
                             />
-                            <div v-if="fieldErrors.aiEndpoint" class="mt-1 p-error text-sm">
+                            <div v-if="fieldErrors.aiEndpoint" class="installation-wizard__field-error">
                                 {{ fieldErrors.aiEndpoint }}
                             </div>
                         </div>
@@ -109,8 +118,8 @@
                                 {{ $t('installation.preview.email.host') }}
                                 <Tag
                                     v-if="isLocked('email_host')"
-                                    severity="info"
-                                    value="ENV"
+                                    severity="warn"
+                                    :value="$t('pages.admin.settings.system.source_badges.env')"
                                     class="ml-2"
                                 />
                             </label>
@@ -126,8 +135,8 @@
                                 {{ $t('installation.preview.email.port') }}
                                 <Tag
                                     v-if="isLocked('email_port')"
-                                    severity="info"
-                                    value="ENV"
+                                    severity="warn"
+                                    :value="$t('pages.admin.settings.system.source_badges.env')"
                                     class="ml-2"
                                 />
                             </label>
@@ -144,8 +153,8 @@
                                 {{ $t('installation.preview.email.user') }}
                                 <Tag
                                     v-if="isLocked('email_user')"
-                                    severity="info"
-                                    value="ENV"
+                                    severity="warn"
+                                    :value="$t('pages.admin.settings.system.source_badges.env')"
                                     class="ml-2"
                                 />
                             </label>
@@ -161,8 +170,8 @@
                                 {{ $t('installation.preview.email.pass') }}
                                 <Tag
                                     v-if="isLocked('email_pass')"
-                                    severity="info"
-                                    value="ENV"
+                                    severity="warn"
+                                    :value="$t('pages.admin.settings.system.source_badges.env')"
                                     class="ml-2"
                                 />
                             </label>
@@ -179,8 +188,8 @@
                                 {{ $t('installation.preview.email.from') }}
                                 <Tag
                                     v-if="isLocked('email_from')"
-                                    severity="info"
-                                    value="ENV"
+                                    severity="warn"
+                                    :value="$t('pages.admin.settings.system.source_badges.env')"
                                     class="ml-2"
                                 />
                             </label>
@@ -205,8 +214,8 @@
                                 {{ $t('installation.preview.storage.type') }}
                                 <Tag
                                     v-if="isLocked('storage_type')"
-                                    severity="info"
-                                    value="ENV"
+                                    severity="warn"
+                                    :value="$t('pages.admin.settings.system.source_badges.env')"
                                     class="ml-2"
                                 />
                             </label>
@@ -223,8 +232,8 @@
                                 {{ $t('installation.preview.storage.assetPublicBaseUrl') }}
                                 <Tag
                                     v-if="isLocked('asset_public_base_url')"
-                                    severity="info"
-                                    value="ENV"
+                                    severity="warn"
+                                    :value="$t('pages.admin.settings.system.source_badges.env')"
                                     class="ml-2"
                                 />
                             </label>
@@ -240,8 +249,8 @@
                                 {{ $t('installation.preview.storage.assetObjectPrefix') }}
                                 <Tag
                                     v-if="isLocked('asset_object_prefix')"
-                                    severity="info"
-                                    value="ENV"
+                                    severity="warn"
+                                    :value="$t('pages.admin.settings.system.source_badges.env')"
                                     class="ml-2"
                                 />
                             </label>
@@ -258,8 +267,8 @@
                                     {{ $t('installation.preview.storage.localDir') }}
                                     <Tag
                                         v-if="isLocked('local_storage_dir')"
-                                        severity="info"
-                                        value="ENV"
+                                        severity="warn"
+                                        :value="$t('pages.admin.settings.system.source_badges.env')"
                                         class="ml-2"
                                     />
                                 </label>
@@ -275,8 +284,8 @@
                                     {{ $t('installation.preview.storage.localBaseUrl') }}
                                     <Tag
                                         v-if="isLocked('local_storage_base_url')"
-                                        severity="info"
-                                        value="ENV"
+                                        severity="warn"
+                                        :value="$t('pages.admin.settings.system.source_badges.env')"
                                         class="ml-2"
                                     />
                                 </label>
@@ -294,8 +303,8 @@
                                     {{ $t('installation.preview.storage.s3Endpoint') }}
                                     <Tag
                                         v-if="isLocked('s3_endpoint')"
-                                        severity="info"
-                                        value="ENV"
+                                        severity="warn"
+                                        :value="$t('pages.admin.settings.system.source_badges.env')"
                                         class="ml-2"
                                     />
                                 </label>
@@ -311,8 +320,8 @@
                                     {{ $t('installation.preview.storage.s3Bucket') }}
                                     <Tag
                                         v-if="isLocked('s3_bucket')"
-                                        severity="info"
-                                        value="ENV"
+                                        severity="warn"
+                                        :value="$t('pages.admin.settings.system.source_badges.env')"
                                         class="ml-2"
                                     />
                                 </label>
@@ -328,8 +337,8 @@
                                     {{ $t('installation.preview.storage.s3Region') }}
                                     <Tag
                                         v-if="isLocked('s3_region')"
-                                        severity="info"
-                                        value="ENV"
+                                        severity="warn"
+                                        :value="$t('pages.admin.settings.system.source_badges.env')"
                                         class="ml-2"
                                     />
                                 </label>
@@ -345,8 +354,8 @@
                                     {{ $t('installation.preview.storage.s3AccessKey') }}
                                     <Tag
                                         v-if="isLocked('s3_access_key')"
-                                        severity="info"
-                                        value="ENV"
+                                        severity="warn"
+                                        :value="$t('pages.admin.settings.system.source_badges.env')"
                                         class="ml-2"
                                     />
                                 </label>
@@ -363,8 +372,8 @@
                                     {{ $t('installation.preview.storage.s3SecretKey') }}
                                     <Tag
                                         v-if="isLocked('s3_secret_key')"
-                                        severity="info"
-                                        value="ENV"
+                                        severity="warn"
+                                        :value="$t('pages.admin.settings.system.source_badges.env')"
                                         class="ml-2"
                                     />
                                 </label>
@@ -381,8 +390,8 @@
                                     {{ $t('installation.preview.storage.s3BaseUrl') }}
                                     <Tag
                                         v-if="isLocked('s3_base_url')"
-                                        severity="info"
-                                        value="ENV"
+                                        severity="warn"
+                                        :value="$t('pages.admin.settings.system.source_badges.env')"
                                         class="ml-2"
                                     />
                                 </label>
@@ -398,8 +407,8 @@
                                     {{ $t('installation.preview.storage.s3BucketPrefix') }}
                                     <Tag
                                         v-if="isLocked('s3_bucket_prefix')"
-                                        severity="info"
-                                        value="ENV"
+                                        severity="warn"
+                                        :value="$t('pages.admin.settings.system.source_badges.env')"
                                         class="ml-2"
                                     />
                                 </label>
@@ -425,8 +434,8 @@
                                 {{ $t('installation.preview.analytics.baidu') }}
                                 <Tag
                                     v-if="isLocked('baidu_analytics')"
-                                    severity="info"
-                                    value="ENV"
+                                    severity="warn"
+                                    :value="$t('pages.admin.settings.system.source_badges.env')"
                                     class="ml-2"
                                 />
                             </label>
@@ -442,8 +451,8 @@
                                 {{ $t('installation.preview.analytics.google') }}
                                 <Tag
                                     v-if="isLocked('google_analytics')"
-                                    severity="info"
-                                    value="ENV"
+                                    severity="warn"
+                                    :value="$t('pages.admin.settings.system.source_badges.env')"
                                     class="ml-2"
                                 />
                             </label>
@@ -459,8 +468,8 @@
                                 {{ $t('installation.preview.analytics.clarity') }}
                                 <Tag
                                     v-if="isLocked('clarity_analytics')"
-                                    severity="info"
-                                    value="ENV"
+                                    severity="warn"
+                                    :value="$t('pages.admin.settings.system.source_badges.env')"
                                     class="ml-2"
                                 />
                             </label>
@@ -475,10 +484,6 @@
                 </AccordionContent>
             </AccordionPanel>
         </Accordion>
-
-        <div v-if="extraConfigError" class="mt-4 p-error">
-            {{ extraConfigError }}
-        </div>
 
         <div class="installation-wizard__actions">
             <Button

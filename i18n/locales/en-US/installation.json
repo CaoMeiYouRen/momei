@@ -1,106 +1,217 @@
 {
-  "installation": {
-    "title": "Momei Blog Installation Wizard",
-    "subtitle": "Welcome to Momei Blog, let's set up your site",
-    "steps": {
-      "healthCheck": "Health Check",
-      "database": "Database",
-      "siteConfig": "Site Config",
-      "adminAccount": "Admin Account",
-      "preview": "Preview",
-      "complete": "Complete"
-    },
-    "healthCheck": {
-      "title": "Environment Check",
-      "description": "Checking system environment and dependencies...",
-      "database": "Database Connection",
-      "node": "Node.js Version",
-      "dbVersion": "Database Version",
-      "serverless": "Serverless Environment",
-      "os": "Operating System",
-      "language": "Installation Language",
-      "enabled": "Enabled",
-      "disabled": "Disabled",
-      "nodeVersionWarning": "Node.js version is low. It is recommended to use v20 or higher for best stability."
-    },
-    "database": {
-      "title": "Database Initialization",
-      "description": "Initialize database schema and seed data",
-      "initialize": "Initialize Database",
-      "success": "Database initialized successfully",
-      "error": "Failed to initialize database, please check your configuration"
-    },
-    "siteConfig": {
-      "title": "Site Configuration",
-      "description": "Configure your site basic information",
-      "siteTitle": "Site Title",
-      "siteDescription": "Site Description",
-      "siteKeywords": "Site Keywords",
-      "siteUrl": "Site URL",
-      "siteUrlPlaceholder": "e.g.: https://blog.example.com",
-      "siteCopyright": "Copyright",
-      "defaultLanguage": "Default Language",
-      "error": "Failed to save site configuration"
-    },
-    "adminAccount": {
-      "title": "Create Admin Account",
-      "description": "Set up your administrator account",
-      "name": "Name",
-      "email": "Email",
-      "password": "Password",
-      "error": "Failed to create admin account"
-    },
-    "preview": {
-      "title": "Optional Features",
-      "description": "Configure core optional features. These settings can be modified anytime in the admin panel after installation.",
-      "error": "Failed to load preview config",
-      "sections": {
-        "ai": "AI Assistant",
-        "email": "Email Service",
-        "storage": "Attachment Storage",
-        "analytics": "Analytics & SEO"
-      },
-      "ai": {
-        "provider": "AI Provider",
-        "apiKey": "API Key",
-        "model": "Default Model",
-        "endpoint": "API Endpoint (Optional)"
-      },
-      "email": {
-        "host": "SMTP Host",
-        "port": "Port",
-        "user": "Account",
-        "pass": "Password/App Key",
-        "from": "Sender Address"
-      },
-      "storage": {
-        "type": "Storage Type",
-        "localDir": "Storage Path (Relative/Absolute)",
-        "localBaseUrl": "Base Access URL",
-        "s3Endpoint": "S3 Endpoint",
-        "s3Bucket": "Bucket Name",
-        "s3Region": "Region",
-        "s3AccessKey": "Access Key ID",
-        "s3SecretKey": "Secret Access Key",
-        "s3BaseUrl": "Public Domain (Base URL)",
-        "s3BucketPrefix": "Object Prefix",
-        "assetPublicBaseUrl": "Unified Asset Public Base URL",
-        "assetObjectPrefix": "Unified Object Prefix"
-      },
-      "analytics": {
-        "baidu": "Baidu Analytics ID",
-        "google": "Google Tracking ID",
-        "clarity": "Microsoft Clarity ID"
-      }
-    },
-    "complete": {
-      "title": "Installation Complete",
-      "description": "Congratulations! Momei Blog has been successfully installed",
-      "finalize": "Complete Installation",
-      "success": "Installation completed!",
-      "envHint": "To prevent reinstallation, please add the following to your environment variables:",
-      "goToAdmin": "Go to Admin Panel",
-      "error": "Failed to complete installation"
+    "installation": {
+        "title": "Momei Blog Installation Wizard",
+        "subtitle": "Finish the minimum setup first so the site can boot quickly.",
+        "languagePrompt": {
+            "title": "Confirm the installation language first",
+            "description": "If the current copy is hard to read, switch language before continuing with the wizard."
+        },
+        "steps": {
+            "healthCheck": "Health Check",
+            "database": "Database",
+            "siteConfig": "Site Config",
+            "adminAccount": "Admin Account",
+            "preview": "Preview",
+            "complete": "Complete"
+        },
+        "healthCheck": {
+            "title": "Environment Check",
+            "description": "Confirm the environment is ready before continuing.",
+            "database": "Database Connection",
+            "node": "Node.js Version",
+            "dbVersion": "Database Version",
+            "serverless": "Serverless Environment",
+            "os": "Operating System",
+            "language": "Installation Language",
+            "enabled": "Enabled",
+            "disabled": "Disabled",
+            "nodeVersionWarning": "Node.js version is low. It is recommended to use v20 or higher for best stability."
+        },
+        "database": {
+            "title": "Database Initialization",
+            "description": "Create the base tables required for installation.",
+            "initialize": "Initialize Database",
+            "success": "Database initialized successfully",
+            "error": "Failed to initialize database, please check your configuration"
+        },
+        "siteConfig": {
+            "title": "Site Configuration",
+            "description": "Fill in the public-facing basics first.",
+            "siteTitle": "Site Title",
+            "siteDescription": "Site Description",
+            "siteKeywords": "Site Keywords",
+            "siteUrl": "Site URL",
+            "siteUrlPlaceholder": "e.g.: https://blog.example.com",
+            "siteCopyright": "Copyright",
+            "defaultLanguage": "Default Language",
+            "error": "Failed to save site configuration"
+        },
+        "adminAccount": {
+            "title": "Create Admin Account",
+            "description": "Create the first administrator for follow-up settings.",
+            "name": "Name",
+            "email": "Email",
+            "password": "Password",
+            "error": "Failed to create admin account"
+        },
+        "preview": {
+            "title": "Optional Features",
+            "description": "These capabilities can all be completed later in system settings.",
+            "error": "Failed to load preview config",
+            "sections": {
+                "ai": "AI Assistant",
+                "email": "Email Service",
+                "storage": "Attachment Storage",
+                "analytics": "Analytics & SEO"
+            },
+            "ai": {
+                "provider": "AI Provider",
+                "apiKey": "API Key",
+                "model": "Default Model",
+                "endpoint": "API Endpoint (Optional)"
+            },
+            "email": {
+                "host": "SMTP Host",
+                "port": "Port",
+                "user": "Account",
+                "pass": "Password/App Key",
+                "from": "Sender Address"
+            },
+            "storage": {
+                "type": "Storage Type",
+                "localDir": "Storage Path (Relative/Absolute)",
+                "localBaseUrl": "Base Access URL",
+                "s3Endpoint": "S3 Endpoint",
+                "s3Bucket": "Bucket Name",
+                "s3Region": "Region",
+                "s3AccessKey": "Access Key ID",
+                "s3SecretKey": "Secret Access Key",
+                "s3BaseUrl": "Public Domain (Base URL)",
+                "s3BucketPrefix": "Object Prefix",
+                "assetPublicBaseUrl": "Unified Asset Public Base URL",
+                "assetObjectPrefix": "Unified Object Prefix"
+            },
+            "analytics": {
+                "baidu": "Baidu Analytics ID",
+                "google": "Google Tracking ID",
+                "clarity": "Microsoft Clarity ID"
+            }
+        },
+        "setupChecklist": {
+            "title": "Initial Setup Checklist",
+            "summaryTitle": "Focus on these first",
+            "summary": {
+                "production": "Finish the minimum settings that affect site availability first, then continue the rest in system settings.",
+                "demo": "Follow the demo-first path now and leave real deployment settings for the formal environment."
+            },
+            "laterHint": "Storage, AI, and notifications do not need to be finished here in one pass. You can continue them from system settings after installation.",
+            "description": {
+                "production": "The installation wizard only covers the minimum setup needed to boot the site. Authentication, notifications, AI, and storage strategy should be finalized in the admin panel after installation.",
+                "demo": "Demo mode is optimized for a 3-5 minute product tour. Complete real deployment settings after you leave the demo experience."
+            },
+            "mode": {
+                "production": "Production deployment",
+                "demo": "Demo experience"
+            },
+            "groups": {
+                "immediate": {
+                    "title": "Configure Now",
+                    "description": "These items directly affect first-run accessibility, administrator ownership, and public-facing basics."
+                },
+                "later": {
+                    "title": "Configure Later",
+                    "description": "These capabilities are easier to finish in the admin panel once the site is already reachable."
+                }
+            },
+            "contexts": {
+                "wizardSite": "Wizard / Site configuration",
+                "wizardLocale": "Wizard / Default language + After install / Profile timezone",
+                "wizardAdmin": "Wizard / Admin account",
+                "wizardSeo": "Wizard / Site configuration + After install / Analytics",
+                "adminAuth": "After install / Admin settings / Auth",
+                "adminStorage": "After install / Admin settings / Storage",
+                "adminAi": "After install / Admin settings / AI",
+                "adminNotifications": "After install / Admin settings / Notifications",
+                "demoPublic": "Demo / Public site",
+                "demoEditor": "Demo / Creator dashboard",
+                "demoExplore": "Demo / Locale and content discovery",
+                "postDemoGeneral": "After demo / Admin settings / General",
+                "postDemoIntegrations": "After demo / Admin settings / AI and integrations",
+                "postDemoNotifications": "After demo / Admin settings / Notifications"
+            },
+            "items": {
+                "siteIdentity": {
+                    "title": "Site identity",
+                    "description": "Set the site name, public URL, and baseline introduction first so links, branding, and homepage copy are usable from day one."
+                },
+                "localeTimezone": {
+                    "title": "Language and timezone",
+                    "description": "Choose the default locale during installation, then fill in your personal timezone after login to keep UI language and timestamps aligned."
+                },
+                "adminAccess": {
+                    "title": "Admin ownership and access",
+                    "description": "Create the first administrator account and confirm how you will recover access before the site enters real operation."
+                },
+                "seoVisibility": {
+                    "title": "SEO and public visibility",
+                    "description": "Capture the site description, keywords, and canonical URL now, then continue with analytics scripts and verification settings in admin later."
+                },
+                "authExperience": {
+                    "title": "Sign-in and registration policy",
+                    "description": "Finalize OAuth, anonymous access, captcha, and security policies in admin before deciding how the public can enter the site."
+                },
+                "storageDelivery": {
+                    "title": "Object storage and asset delivery",
+                    "description": "Choose local storage, S3, or R2 based on your deployment environment, and normalize asset prefixes before media starts to accumulate."
+                },
+                "aiWorkflow": {
+                    "title": "AI providers and budgets",
+                    "description": "Connect real models, API keys, and default models after installation, then open capabilities gradually based on cost and permission policy."
+                },
+                "notifications": {
+                    "title": "Notification delivery",
+                    "description": "Configure in-app, email, and browser push together in admin after you decide which high-value events are worth delivering."
+                },
+                "demoPublic": {
+                    "title": "Start with the sample content",
+                    "description": "Use the homepage and seeded articles to understand the public information architecture, theming, and multilingual reading flow."
+                },
+                "demoCreator": {
+                    "title": "Open the creator experience",
+                    "description": "Jump straight into the editor with the demo account to try AI-assisted writing, translation, and publishing."
+                },
+                "demoLocale": {
+                    "title": "Switch locales and browse paths",
+                    "description": "Use language switching, search, and the post list to feel locale fallback and content discovery behavior."
+                },
+                "demoProductionIdentity": {
+                    "title": "Complete real site metadata later",
+                    "description": "Demo site settings are sample data only. Before a real deployment, revisit general settings and confirm the brand, URL, and baseline copy."
+                },
+                "demoIntegrations": {
+                    "title": "Connect real integrations after demo",
+                    "description": "Avoid mixing production AI, storage, and email credentials into the demo journey. Finish those integrations after you leave demo mode."
+                },
+                "demoNotifications": {
+                    "title": "Enable notifications in the real environment",
+                    "description": "Set up email and browser push only in a real environment, once domain, VAPID or SMTP, and delivery scope are confirmed."
+                }
+            }
+        },
+        "complete": {
+            "title": "Installation Complete",
+            "description": "Congratulations! Momei Blog has been successfully installed",
+            "finalize": "Complete Installation",
+            "success": "Installation completed!",
+            "envHint": "To prevent reinstallation, please add the following to your environment variables:",
+            "goToAdmin": "Go to Admin Panel",
+            "handoffTitle": "The installation wizard stops here",
+            "handoffDescription": {
+                "production": "The site is now usable. The following items are better completed in admin after installation instead of expanding the wizard further.",
+                "demo": "The demo journey is ready. Use these entry points first, then decide which capabilities should become real deployment settings."
+            },
+            "openTarget": "Open",
+            "error": "Failed to complete installation"
+        }
     }
-  }
 }

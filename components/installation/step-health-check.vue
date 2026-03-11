@@ -2,12 +2,6 @@
     <div class="installation-wizard__step">
         <h2>{{ $t('installation.healthCheck.title') }}</h2>
         <p>{{ $t('installation.healthCheck.description') }}</p>
-
-        <div class="installation-wizard__field">
-            <label>{{ $t('installation.healthCheck.language') }}</label>
-            <LanguageSwitcher class="installation-wizard__lang-switcher" />
-        </div>
-
         <div v-if="installationStatus" class="installation-wizard__checks-grid">
             <div class="check-card">
                 <div class="check-card__header">

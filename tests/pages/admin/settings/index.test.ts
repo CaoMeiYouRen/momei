@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import SettingsPage from '@/pages/admin/settings/index.vue'
 
 const translations: Record<string, string> = {
@@ -39,6 +39,10 @@ vi.mock('vue-i18n', async (importOriginal) => {
 const mockToast = {
     add: vi.fn(),
 }
+
+const mockRoute = reactive({
+    query: {} as Record<string, unknown>,
+})
 
 const mockSettingsResponse = {
     data: {
@@ -120,6 +124,7 @@ vi.mock('#imports', async (importOriginal) => {
             t: translate,
         }),
         useToast: () => mockToast,
+        useRoute: () => mockRoute,
         useAppApi: () => ({
             $appFetch: mockFetch,
         }),
@@ -140,9 +145,12 @@ vi.stubGlobal('useI18n', () => ({
     t: translate,
 }))
 
+vi.stubGlobal('useRoute', () => mockRoute)
+
 describe('Admin Settings Page', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        mockRoute.query = {}
         mockFetch.mockImplementation((url: string, options?: { method?: string, body?: unknown }) => {
             if (url === '/api/admin/settings' && options?.method === 'PUT') {
                 return Promise.resolve({ data: null })
@@ -208,4 +216,5 @@ describe('Admin Settings Page', () => {
             },
         }))
     })
+
 })

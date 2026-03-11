@@ -3,6 +3,15 @@
         <h2>{{ $t('installation.siteConfig.title') }}</h2>
         <p>{{ $t('installation.siteConfig.description') }}</p>
 
+        <Message
+            v-if="siteConfigError && !Object.keys(fieldErrors).length"
+            severity="error"
+            :closable="false"
+            class="installation-wizard__step-message"
+        >
+            {{ siteConfigError }}
+        </Message>
+
         <div class="installation-wizard__form">
             <div class="form-field">
                 <label for="site_title">
@@ -10,8 +19,8 @@
                     <span class="ml-1 text-error">*</span>
                     <Tag
                         v-if="isLocked('site_title')"
-                        severity="info"
-                        value="ENV"
+                        severity="warn"
+                        :value="$t('pages.admin.settings.system.source_badges.env')"
                         class="ml-2"
                     />
                 </label>
@@ -22,98 +31,8 @@
                     :invalid="!!fieldErrors.siteTitle"
                     fluid
                 />
-                <small v-if="fieldErrors.siteTitle" class="p-error">{{ fieldErrors.siteTitle }}</small>
-                <small v-else-if="isLocked('site_title')" class="text-primary">{{ $t('pages.admin.settings.system.hints.env_locked') }}</small>
-            </div>
-            <div class="form-field">
-                <label for="site_url">
-                    {{ $t('installation.siteConfig.siteUrl') }}
-                    <Tag
-                        v-if="isLocked('site_url')"
-                        severity="info"
-                        value="ENV"
-                        class="ml-2"
-                    />
-                </label>
-                <InputText
-                    id="site_url"
-                    v-model="siteConfig.siteUrl"
-                    :placeholder="$t('installation.siteConfig.siteUrlPlaceholder')"
-                    :disabled="isLocked('site_url')"
-                    :invalid="!!fieldErrors.siteUrl"
-                    fluid
-                />
-                <div v-if="fieldErrors.siteUrl" class="mt-1 p-error text-sm">
-                    {{ fieldErrors.siteUrl }}
-                </div>
-                <small v-else-if="isLocked('site_url')" class="text-primary">{{ $t('pages.admin.settings.system.hints.env_locked') }}</small>
-            </div>
-            <div class="form-field">
-                <label for="site_description">
-                    {{ $t('installation.siteConfig.siteDescription') }}
-                    <Tag
-                        v-if="isLocked('site_description')"
-                        severity="info"
-                        value="ENV"
-                        class="ml-2"
-                    />
-                </label>
-                <Textarea
-                    id="site_description"
-                    v-model="siteConfig.siteDescription"
-                    rows="3"
-                    :disabled="isLocked('site_description')"
-                    :invalid="!!fieldErrors.siteDescription"
-                    fluid
-                />
-                <div v-if="fieldErrors.siteDescription" class="mt-1 p-error text-sm">
-                    {{ fieldErrors.siteDescription }}
-                </div>
-                <small v-else-if="isLocked('site_description')" class="text-primary">{{ $t('pages.admin.settings.system.hints.env_locked') }}</small>
-            </div>
-            <div class="form-field">
-                <label for="site_keywords">
-                    {{ $t('installation.siteConfig.siteKeywords') }}
-                    <Tag
-                        v-if="isLocked('site_keywords')"
-                        severity="info"
-                        value="ENV"
-                        class="ml-2"
-                    />
-                </label>
-                <InputText
-                    id="site_keywords"
-                    v-model="siteConfig.siteKeywords"
-                    :disabled="isLocked('site_keywords')"
-                    :invalid="!!fieldErrors.siteKeywords"
-                    fluid
-                />
-                <div v-if="fieldErrors.siteKeywords" class="mt-1 p-error text-sm">
-                    {{ fieldErrors.siteKeywords }}
-                </div>
-                <small v-else-if="isLocked('site_keywords')" class="text-primary">{{ $t('pages.admin.settings.system.hints.env_locked') }}</small>
-            </div>
-            <div class="form-field">
-                <label for="site_copyright">
-                    {{ $t('installation.siteConfig.siteCopyright') }}
-                    <Tag
-                        v-if="isLocked('site_copyright')"
-                        severity="info"
-                        value="ENV"
-                        class="ml-2"
-                    />
-                </label>
-                <InputText
-                    id="site_copyright"
-                    v-model="siteConfig.siteCopyright"
-                    :disabled="isLocked('site_copyright')"
-                    :invalid="!!fieldErrors.siteCopyright"
-                    fluid
-                />
-                <div v-if="fieldErrors.siteCopyright" class="mt-1 p-error text-sm">
-                    {{ fieldErrors.siteCopyright }}
-                </div>
-                <small v-else-if="isLocked('site_copyright')" class="text-primary">{{ $t('pages.admin.settings.system.hints.env_locked') }}</small>
+                <small v-if="fieldErrors.siteTitle" class="installation-wizard__field-error">{{ fieldErrors.siteTitle }}</small>
+                <small v-else-if="isLocked('site_title')" class="installation-wizard__field-lock">{{ $t('pages.admin.settings.system.hints.env_locked') }}</small>
             </div>
             <div class="form-field">
                 <label for="default_language">
@@ -121,8 +40,8 @@
                     <span class="ml-1 text-error">*</span>
                     <Tag
                         v-if="isLocked('default_language')"
-                        severity="info"
-                        value="ENV"
+                        severity="warn"
+                        :value="$t('pages.admin.settings.system.source_badges.env')"
                         class="ml-2"
                     />
                 </label>
@@ -136,15 +55,101 @@
                     :invalid="!!fieldErrors.defaultLanguage"
                     fluid
                 />
-                <div v-if="fieldErrors.defaultLanguage" class="mt-1 p-error text-sm">
+                <div v-if="fieldErrors.defaultLanguage" class="installation-wizard__field-error">
                     {{ fieldErrors.defaultLanguage }}
                 </div>
-                <small v-else-if="isLocked('default_language')" class="text-primary">{{ $t('pages.admin.settings.system.hints.env_locked') }}</small>
+                <small v-else-if="isLocked('default_language')" class="installation-wizard__field-lock">{{ $t('pages.admin.settings.system.hints.env_locked') }}</small>
             </div>
-        </div>
-
-        <div v-if="siteConfigError" class="mb-4 p-error">
-            {{ siteConfigError }}
+            <div class="form-field">
+                <label for="site_url">
+                    {{ $t('installation.siteConfig.siteUrl') }}
+                    <Tag
+                        v-if="isLocked('site_url')"
+                        severity="warn"
+                        :value="$t('pages.admin.settings.system.source_badges.env')"
+                        class="ml-2"
+                    />
+                </label>
+                <InputText
+                    id="site_url"
+                    v-model="siteConfig.siteUrl"
+                    :placeholder="$t('installation.siteConfig.siteUrlPlaceholder')"
+                    :disabled="isLocked('site_url')"
+                    :invalid="!!fieldErrors.siteUrl"
+                    fluid
+                />
+                <div v-if="fieldErrors.siteUrl" class="installation-wizard__field-error">
+                    {{ fieldErrors.siteUrl }}
+                </div>
+                <small v-else-if="isLocked('site_url')" class="installation-wizard__field-lock">{{ $t('pages.admin.settings.system.hints.env_locked') }}</small>
+            </div>
+            <div class="form-field">
+                <label for="site_description">
+                    {{ $t('installation.siteConfig.siteDescription') }}
+                    <Tag
+                        v-if="isLocked('site_description')"
+                        severity="warn"
+                        :value="$t('pages.admin.settings.system.source_badges.env')"
+                        class="ml-2"
+                    />
+                </label>
+                <Textarea
+                    id="site_description"
+                    v-model="siteConfig.siteDescription"
+                    rows="3"
+                    :disabled="isLocked('site_description')"
+                    :invalid="!!fieldErrors.siteDescription"
+                    fluid
+                />
+                <div v-if="fieldErrors.siteDescription" class="installation-wizard__field-error">
+                    {{ fieldErrors.siteDescription }}
+                </div>
+                <small v-else-if="isLocked('site_description')" class="installation-wizard__field-lock">{{ $t('pages.admin.settings.system.hints.env_locked') }}</small>
+            </div>
+            <div class="form-field">
+                <label for="site_keywords">
+                    {{ $t('installation.siteConfig.siteKeywords') }}
+                    <Tag
+                        v-if="isLocked('site_keywords')"
+                        severity="warn"
+                        :value="$t('pages.admin.settings.system.source_badges.env')"
+                        class="ml-2"
+                    />
+                </label>
+                <InputText
+                    id="site_keywords"
+                    v-model="siteConfig.siteKeywords"
+                    :disabled="isLocked('site_keywords')"
+                    :invalid="!!fieldErrors.siteKeywords"
+                    fluid
+                />
+                <div v-if="fieldErrors.siteKeywords" class="installation-wizard__field-error">
+                    {{ fieldErrors.siteKeywords }}
+                </div>
+                <small v-else-if="isLocked('site_keywords')" class="installation-wizard__field-lock">{{ $t('pages.admin.settings.system.hints.env_locked') }}</small>
+            </div>
+            <div class="form-field">
+                <label for="site_copyright">
+                    {{ $t('installation.siteConfig.siteCopyright') }}
+                    <Tag
+                        v-if="isLocked('site_copyright')"
+                        severity="warn"
+                        :value="$t('pages.admin.settings.system.source_badges.env')"
+                        class="ml-2"
+                    />
+                </label>
+                <InputText
+                    id="site_copyright"
+                    v-model="siteConfig.siteCopyright"
+                    :disabled="isLocked('site_copyright')"
+                    :invalid="!!fieldErrors.siteCopyright"
+                    fluid
+                />
+                <div v-if="fieldErrors.siteCopyright" class="installation-wizard__field-error">
+                    {{ fieldErrors.siteCopyright }}
+                </div>
+                <small v-else-if="isLocked('site_copyright')" class="installation-wizard__field-lock">{{ $t('pages.admin.settings.system.hints.env_locked') }}</small>
+            </div>
         </div>
 
         <div class="installation-wizard__actions">

@@ -1,106 +1,217 @@
 {
-  "installation": {
-    "title": "墨梅博客安装向导",
-    "subtitle": "欢迎使用墨梅博客,让我们开始配置您的站点",
-    "steps": {
-      "healthCheck": "环境检查",
-      "database": "数据库初始化",
-      "siteConfig": "站点配置",
-      "adminAccount": "管理员账号",
-      "preview": "功能预览",
-      "complete": "完成安装"
-    },
-    "healthCheck": {
-      "title": "环境检查",
-      "description": "正在检查系统环境和依赖项...",
-      "database": "数据库连接",
-      "node": "Node.js 版本",
-      "dbVersion": "数据库版本",
-      "serverless": "Serverless 环境",
-      "os": "操作系统",
-      "language": "安装语言(Language)",
-      "enabled": "已启用",
-      "disabled": "未启用",
-      "nodeVersionWarning": "Node.js 版本较低，建议使用 v20 或更高版本以获得最佳稳定性。"
-    },
-    "database": {
-      "title": "数据库初始化",
-      "description": "初始化数据库表结构和基础数据",
-      "initialize": "初始化数据库",
-      "success": "数据库初始化成功",
-      "error": "数据库初始化失败,请检查配置"
-    },
-    "siteConfig": {
-      "title": "站点配置",
-      "description": "配置您的站点基本信息",
-      "siteTitle": "站点标题",
-      "siteDescription": "站点描述",
-      "siteKeywords": "站点关键词",
-      "siteUrl": "站点地址",
-      "siteUrlPlaceholder": "例如:https://blog.example.com",
-      "siteCopyright": "版权信息",
-      "defaultLanguage": "默认语言",
-      "error": "保存站点配置失败"
-    },
-    "adminAccount": {
-      "title": "创建管理员账号",
-      "description": "设置您的管理员账号信息",
-      "name": "昵称",
-      "email": "邮箱",
-      "password": "密码",
-      "error": "创建管理员账号失败"
-    },
-    "preview": {
-      "title": "可选功能配置",
-      "description": "您可以选择性地开启并配置以下核心功能。这些设置也可以在安装完成后通过管理后台随时修改。",
-      "error": "预览配置加载失败",
-      "sections": {
-        "ai": "AI 创作助手",
-        "email": "邮件服务",
-        "storage": "文件存储",
-        "analytics": "统计与分析"
-      },
-      "ai": {
-        "provider": "AI 服务商",
-        "apiKey": "API 密钥",
-        "model": "默认模型",
-        "endpoint": "API 代理端点 (可选)"
-      },
-      "email": {
-        "host": "SMTP 地址",
-        "port": "端口",
-        "user": "账号",
-        "pass": "授权码/密码",
-        "from": "发件人地址"
-      },
-      "storage": {
-        "type": "存储类型",
-        "localDir": "存储路径 (相对或绝对)",
-        "localBaseUrl": "访问基础 URL",
-        "s3Endpoint": "S3 端点地址",
-        "s3Bucket": "Bucket 名称",
-        "s3Region": "区域 (Region)",
-        "s3AccessKey": "Access Key ID",
-        "s3SecretKey": "Secret Access Key",
-        "s3BaseUrl": "公开域名 (Base URL)",
-        "s3BucketPrefix": "对象前缀",
-        "assetPublicBaseUrl": "统一静态资源访问前缀",
-        "assetObjectPrefix": "统一对象前缀"
-      },
-      "analytics": {
-        "baidu": "百度统计 ID",
-        "google": "Google 分析 ID",
-        "clarity": "Microsoft Clarity ID"
-      }
-    },
-    "complete": {
-      "title": "安装完成",
-      "description": "恭喜!墨梅博客已成功安装",
-      "finalize": "完成安装",
-      "success": "安装已完成!",
-      "envHint": "为了防止重复安装,请在您的环境变量中添加以下配置:",
-      "goToAdmin": "进入管理后台",
-      "error": "完成安装失败"
+    "installation": {
+        "title": "墨梅博客安装向导",
+        "subtitle": "先完成最小配置,让站点尽快启动。",
+        "languagePrompt": {
+            "title": "先确认安装语言",
+            "description": "如果当前文案不易理解,请先切换语言,再继续后面的步骤。"
+        },
+        "steps": {
+            "healthCheck": "环境检查",
+            "database": "数据库初始化",
+            "siteConfig": "站点配置",
+            "adminAccount": "管理员账号",
+            "preview": "功能预览",
+            "complete": "完成安装"
+        },
+        "healthCheck": {
+            "title": "环境检查",
+            "description": "先确认环境可用,再继续安装。",
+            "database": "数据库连接",
+            "node": "Node.js 版本",
+            "dbVersion": "数据库版本",
+            "serverless": "Serverless 环境",
+            "os": "操作系统",
+            "language": "安装语言(Language)",
+            "enabled": "已启用",
+            "disabled": "未启用",
+            "nodeVersionWarning": "Node.js 版本较低，建议使用 v20 或更高版本以获得最佳稳定性。"
+        },
+        "database": {
+            "title": "数据库初始化",
+            "description": "创建安装所需的基础表结构。",
+            "initialize": "初始化数据库",
+            "success": "数据库初始化成功",
+            "error": "数据库初始化失败,请检查配置"
+        },
+        "siteConfig": {
+            "title": "站点配置",
+            "description": "先补齐对外可见的基础信息。",
+            "siteTitle": "站点标题",
+            "siteDescription": "站点描述",
+            "siteKeywords": "站点关键词",
+            "siteUrl": "站点地址",
+            "siteUrlPlaceholder": "例如:https://blog.example.com",
+            "siteCopyright": "版权信息",
+            "defaultLanguage": "默认语言",
+            "error": "保存站点配置失败"
+        },
+        "adminAccount": {
+            "title": "创建管理员账号",
+            "description": "创建首个管理员,用于后续系统设置。",
+            "name": "昵称",
+            "email": "邮箱",
+            "password": "密码",
+            "error": "创建管理员账号失败"
+        },
+        "preview": {
+            "title": "可选功能配置",
+            "description": "这些能力都可以稍后到系统设置继续补充。",
+            "error": "预览配置加载失败",
+            "sections": {
+                "ai": "AI 创作助手",
+                "email": "邮件服务",
+                "storage": "文件存储",
+                "analytics": "统计与分析"
+            },
+            "ai": {
+                "provider": "AI 服务商",
+                "apiKey": "API 密钥",
+                "model": "默认模型",
+                "endpoint": "API 代理端点 (可选)"
+            },
+            "email": {
+                "host": "SMTP 地址",
+                "port": "端口",
+                "user": "账号",
+                "pass": "授权码/密码",
+                "from": "发件人地址"
+            },
+            "storage": {
+                "type": "存储类型",
+                "localDir": "存储路径 (相对或绝对)",
+                "localBaseUrl": "访问基础 URL",
+                "s3Endpoint": "S3 端点地址",
+                "s3Bucket": "Bucket 名称",
+                "s3Region": "区域 (Region)",
+                "s3AccessKey": "Access Key ID",
+                "s3SecretKey": "Secret Access Key",
+                "s3BaseUrl": "公开域名 (Base URL)",
+                "s3BucketPrefix": "对象前缀",
+                "assetPublicBaseUrl": "统一静态资源访问前缀",
+                "assetObjectPrefix": "统一对象前缀"
+            },
+            "analytics": {
+                "baidu": "百度统计 ID",
+                "google": "Google 分析 ID",
+                "clarity": "Microsoft Clarity ID"
+            }
+        },
+        "setupChecklist": {
+            "title": "首次配置清单",
+            "summaryTitle": "先关注这几项",
+            "summary": {
+                "production": "先完成会影响站点可用性的最小配置,其余能力安装后再去系统设置补齐。",
+                "demo": "先按 Demo 推荐路径快速体验产品,真实部署配置留到正式环境再处理。"
+            },
+            "laterHint": "对象存储、AI、通知等能力先不用在这里一次性配完,安装完成后可直接进入系统设置继续处理。",
+            "description": {
+                "production": "安装向导只负责让站点可启动的最小配置。更细的认证、通知、AI 和存储策略，建议在安装完成后转入后台逐项收口。",
+                "demo": "Demo 环境优先帮助您在 3 - 5 分钟内体验公开阅读、创作后台与多语言能力。真实部署配置建议在退出 Demo 后再补齐。"
+            },
+            "mode": {
+                "production": "生产部署建议",
+                "demo": "Demo 体验建议"
+            },
+            "groups": {
+                "immediate": {
+                    "title": "建议立即配置",
+                    "description": "这些项目会直接影响首启后的可访问性、管理员确权和基础公开体验。"
+                },
+                "later": {
+                    "title": "可稍后配置",
+                    "description": "这些能力更适合在站点可用后，到后台按部署环境和运营策略逐项补齐。"
+                }
+            },
+            "contexts": {
+                "wizardSite": "安装向导 / 站点配置",
+                "wizardLocale": "安装向导 / 默认语言 + 安装后 / 个人资料时区",
+                "wizardAdmin": "安装向导 / 管理员账号",
+                "wizardSeo": "安装向导 / 站点配置 + 安装后 / 统计与分析",
+                "adminAuth": "安装后 / 后台设置 / 认证",
+                "adminStorage": "安装后 / 后台设置 / 存储",
+                "adminAi": "安装后 / 后台设置 / AI",
+                "adminNotifications": "安装后 / 后台设置 / 通知",
+                "demoPublic": "Demo / 公开站点",
+                "demoEditor": "Demo / 创作后台",
+                "demoExplore": "Demo / 多语言与内容发现",
+                "postDemoGeneral": "退出 Demo 后 / 后台设置 / 通用",
+                "postDemoIntegrations": "退出 Demo 后 / 后台设置 / AI 与集成",
+                "postDemoNotifications": "退出 Demo 后 / 后台设置 / 通知"
+            },
+            "items": {
+                "siteIdentity": {
+                    "title": "站点基础信息",
+                    "description": "先确定站点名称、访问地址和基础介绍，保证首页、链接生成和品牌信息可用。"
+                },
+                "localeTimezone": {
+                    "title": "语言与时区",
+                    "description": "安装时先设置默认语言；安装完成后再到个人资料补充时区，避免界面语言与时间展示脱节。"
+                },
+                "adminAccess": {
+                    "title": "认证与管理员确权",
+                    "description": "创建首个管理员账号，并尽快确认登录方式和恢复路径，避免后续运维风险。"
+                },
+                "seoVisibility": {
+                    "title": "SEO 与公开可见性",
+                    "description": "先补齐站点描述、关键词与基础地址，安装后再继续接入统计脚本、站点验证和公开分析。"
+                },
+                "authExperience": {
+                    "title": "登录与注册策略",
+                    "description": "在后台设置中补充 OAuth、匿名访问、验证码与安全策略，再决定站点对外开放方式。"
+                },
+                "storageDelivery": {
+                    "title": "对象存储与静态资源",
+                    "description": "根据部署环境决定使用本地、S3 或 R2，并统一静态资源前缀，避免后续媒体迁移。"
+                },
+                "aiWorkflow": {
+                    "title": "AI 能力与额度",
+                    "description": "安装完成后再接入真实模型、API Key 与默认模型，按成本和权限策略逐项开放。"
+                },
+                "notifications": {
+                    "title": "通知触达",
+                    "description": "站内信、邮件与浏览器推送建议在后台统一配置，先明确高价值提醒场景再启用。"
+                },
+                "demoPublic": {
+                    "title": "先看示例内容",
+                    "description": "从首页和示例文章快速理解公开站点结构、主题和多语言阅读体验。"
+                },
+                "demoCreator": {
+                    "title": "进入创作后台",
+                    "description": "使用 Demo 账号直接打开编辑器，体验 AI 辅助创作、翻译和发布动线。"
+                },
+                "demoLocale": {
+                    "title": "切换语言与浏览路径",
+                    "description": "通过语言切换、搜索和文章列表体验多语言内容发现与 fallback 策略。"
+                },
+                "demoProductionIdentity": {
+                    "title": "真实部署前补齐站点信息",
+                    "description": "Demo 中的站点配置只是样例数据；准备正式部署时，请先回到通用设置确认品牌与基础地址。"
+                },
+                "demoIntegrations": {
+                    "title": "退出 Demo 后再接入真实能力",
+                    "description": "真实的 AI、存储和邮件配置不建议在 Demo 中处理，避免把样例体验和生产配置混在一起。"
+                },
+                "demoNotifications": {
+                    "title": "正式环境再启用通知",
+                    "description": "邮件和浏览器推送请在正式环境中配置，先确认域名、VAPID 或 SMTP 与高价值触达策略。"
+                }
+            }
+        },
+        "complete": {
+            "title": "安装完成",
+            "description": "恭喜!墨梅博客已成功安装",
+            "finalize": "完成安装",
+            "success": "安装已完成!",
+            "envHint": "为了防止重复安装,请在您的环境变量中添加以下配置:",
+            "goToAdmin": "进入管理后台",
+            "handoffTitle": "安装向导到这里结束",
+            "handoffDescription": {
+                "production": "系统已经可用。下面这些事项更适合安装后在后台继续完成，不建议继续塞回安装向导。",
+                "demo": "Demo 体验路径已经准备好。先按这些入口体验产品，再决定哪些能力需要转成真实部署配置。"
+            },
+            "openTarget": "打开入口",
+            "error": "完成安装失败"
+        }
     }
-  }
 }

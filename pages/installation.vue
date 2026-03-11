@@ -17,6 +17,58 @@
             </template>
 
             <template #content>
+                <section class="installation-wizard__quick-start">
+                    <div class="installation-wizard__language-bar">
+                        <div>
+                            <h2 class="installation-wizard__quick-start-title">
+                                {{ $t('installation.languagePrompt.title') }}
+                            </h2>
+                            <p class="installation-wizard__quick-start-description">
+                                {{ $t('installation.languagePrompt.description') }}
+                            </p>
+                        </div>
+
+                        <div class="installation-wizard__field">
+                            <label>{{ $t('installation.healthCheck.language') }}</label>
+                            <LanguageSwitcher class="installation-wizard__lang-switcher" />
+                        </div>
+                    </div>
+
+                    <div class="installation-wizard__setup-summary">
+                        <div class="installation-wizard__setup-summary-intro">
+                            <Tag
+                                severity="contrast"
+                                :value="$t(`installation.setupChecklist.mode.${installationMode}`)"
+                            />
+                            <div>
+                                <h2 class="installation-wizard__setup-summary-title">
+                                    {{ $t('installation.setupChecklist.summaryTitle') }}
+                                </h2>
+                                <p class="installation-wizard__setup-summary-description">
+                                    {{ $t(`installation.setupChecklist.summary.${installationMode}`) }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <ul class="installation-wizard__focus-list">
+                            <li
+                                v-for="item in immediateChecklist"
+                                :key="item.key"
+                                class="installation-wizard__focus-item"
+                            >
+                                <span class="installation-wizard__setup-icon">
+                                    <i :class="item.icon" />
+                                </span>
+                                <strong>{{ $t(item.titleKey) }}</strong>
+                            </li>
+                        </ul>
+
+                        <p class="installation-wizard__focus-later">
+                            {{ $t('installation.setupChecklist.laterHint') }}
+                        </p>
+                    </div>
+                </section>
+
                 <Stepper v-model:value="currentStep" :linear="true">
                     <StepList>
                         <Step value="1">
@@ -99,8 +151,10 @@
                                 :finalize-loading="finalizeLoading"
                                 :finalize-success="finalizeSuccess"
                                 :finalize-error="finalizeError"
+                                :checklist-mode="installationMode"
+                                :follow-up-items="setupChecklist.later"
                                 @finalize="finalizeInstallation()"
-                                @go-to-admin="navigateTo('/admin')"
+                                @go-to-admin="openAdminSettings()"
                             />
                         </StepPanel>
                     </StepPanels>
@@ -117,15 +171,21 @@ import StepSiteConfig from '@/components/installation/step-site-config.vue'
 import StepAdminAccount from '@/components/installation/step-admin-account.vue'
 import StepExtraConfig from '@/components/installation/step-extra-config.vue'
 import StepComplete from '@/components/installation/step-complete.vue'
+import { getInstallationChecklist, type InstallationChecklistMode } from '@/utils/shared/installation-checklist'
 
 definePageMeta({
     layout: 'installation',
 })
 
 const { t } = useI18n()
+const config = useRuntimeConfig()
+const localePath = useLocalePath()
 
 const currentStep = ref('1')
 const installationStatus = ref<any>(null)
+const installationMode = computed<InstallationChecklistMode>(() => config.public.demoMode ? 'demo' : 'production')
+const setupChecklist = computed(() => getInstallationChecklist(installationMode.value))
+const immediateChecklist = computed(() => setupChecklist.value.immediate)
 
 const dbInitLoading = ref(false)
 const dbInitSuccess = ref(false)
@@ -143,10 +203,12 @@ const siteConfigLoading = ref(false)
 const siteConfigError = ref('')
 const siteFieldErrors = ref<Record<string, string>>({})
 
-const languageOptions = [
-    { label: '简体中文', value: 'zh-CN' },
-    { label: 'English', value: 'en-US' },
-]
+const languageOptions = computed(() => [
+    { label: t('common.languages.zh-CN'), value: 'zh-CN' },
+    { label: t('common.languages.en-US'), value: 'en-US' },
+    { label: t('common.languages.zh-TW'), value: 'zh-TW' },
+    { label: t('common.languages.ko-KR'), value: 'ko-KR' },
+])
 
 const adminData = ref({
     name: '',
@@ -359,6 +421,13 @@ async function finalizeInstallation() {
     }
 }
 
+function openAdminSettings() {
+    return navigateTo(localePath({
+        path: '/admin/settings',
+        query: { tab: 'general' },
+    }))
+}
+
 onMounted(() => {
     fetchInstallationStatus()
 })
@@ -390,8 +459,128 @@ onMounted(() => {
         margin: 0;
     }
 
+    &__quick-start {
+        display: grid;
+        gap: 1rem;
+        margin: 0 0 1.5rem;
+    }
+
+    &__language-bar,
+    &__setup-summary {
+        display: grid;
+        gap: 0.875rem;
+        padding: 1rem 1.25rem;
+        border: 1px solid var(--p-content-border-color);
+        border-radius: 1rem;
+        background: color-mix(in srgb, var(--p-primary-50) 32%, var(--p-surface-0) 68%);
+    }
+
+    &__language-bar {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+    }
+
+    &__quick-start-title,
+    &__setup-summary-title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--p-text-color);
+    }
+
+    &__quick-start-description,
+    &__setup-summary-description {
+        margin: 0.25rem 0 0;
+        color: var(--p-text-muted-color);
+        line-height: 1.5;
+    }
+
+    &__setup-summary-intro {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    &__focus-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    &__focus-item {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.75rem 0.875rem;
+        border-radius: 0.875rem;
+        background: color-mix(in srgb, var(--p-surface-0) 86%, var(--p-primary-50) 14%);
+        border: 1px solid color-mix(in srgb, var(--p-content-border-color) 76%, white 24%);
+
+        strong {
+            color: var(--p-text-color);
+            font-size: 0.92rem;
+        }
+    }
+
+    &__focus-later {
+        margin: 0;
+        color: var(--p-text-muted-color);
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    &__setup-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.75rem;
+        background: color-mix(in srgb, var(--p-primary-color) 12%, white 88%);
+        color: var(--p-primary-color);
+    }
+
     .text-error {
         color: var(--p-error-color);
+    }
+
+    :deep(.form-field) {
+        display: grid;
+        gap: 0.45rem;
+        margin-bottom: 1rem;
+
+        label {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+    }
+
+    :deep(.installation-wizard__step-message) {
+        margin-bottom: 1rem;
+    }
+
+    :deep(.installation-wizard__field-error) {
+        display: block;
+        color: var(--p-red-500);
+        font-size: 0.8125rem;
+        line-height: 1.5;
+    }
+
+    :deep(.installation-wizard__field-lock) {
+        display: block;
+        color: var(--p-orange-500);
+        font-size: 0.8125rem;
+        line-height: 1.5;
+    }
+
+    :deep(.p-tag) {
+        font-size: 0.75rem;
     }
 
     .p-error {
@@ -540,6 +729,84 @@ onMounted(() => {
         }
     }
 
+    :deep(.installation-wizard__follow-up) {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        border-radius: 0.875rem;
+        background: color-mix(in srgb, var(--p-primary-50) 42%, var(--p-surface-0) 58%);
+        border: 1px solid var(--p-content-border-color);
+
+        h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--p-text-color);
+        }
+
+        > p {
+            margin: 0.5rem 0 0;
+            color: var(--p-text-muted-color);
+            line-height: 1.6;
+        }
+    }
+
+    :deep(.installation-wizard__follow-up-list) {
+        display: grid;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    :deep(.installation-wizard__follow-up-action) {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 0.75rem;
+        align-items: center;
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--p-content-border-color);
+        border-radius: 0.75rem;
+        background: var(--p-content-background);
+        color: var(--p-text-color);
+        text-align: left;
+        cursor: pointer;
+        transition: border-color 0.2s ease, transform 0.2s ease;
+
+        &:hover {
+            transform: translateY(-1px);
+            border-color: var(--p-primary-color);
+        }
+
+        strong,
+        small,
+        span {
+            display: block;
+        }
+
+        small {
+            margin-top: 0.3rem;
+            color: var(--p-text-muted-color);
+            font-size: 0.8rem;
+        }
+    }
+
+    :deep(.installation-wizard__follow-up-icon) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--p-primary-color) 12%, white 88%);
+        color: var(--p-primary-color);
+    }
+
+    :deep(.installation-wizard__follow-up-cta) {
+        color: var(--p-primary-color);
+        font-size: 0.875rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
     :deep(.installation-wizard__actions) {
         display: flex;
         justify-content: space-between;
@@ -550,10 +817,56 @@ onMounted(() => {
     }
 }
 
+@media (width <= 768px) {
+    .installation-wizard {
+        &__language-bar {
+            grid-template-columns: 1fr;
+        }
+
+        &__setup-summary {
+            padding: 1rem;
+        }
+
+        &__focus-list {
+            grid-template-columns: 1fr;
+        }
+
+        :deep(.installation-wizard__follow-up-action) {
+            grid-template-columns: auto 1fr;
+
+            .installation-wizard__follow-up-cta {
+                grid-column: 2;
+            }
+        }
+    }
+}
+
 :global(.dark) {
     .installation-wizard {
         &__card {
             background: var(--p-surface-900);
+        }
+
+        &__language-bar,
+        &__setup-summary {
+            background: color-mix(in srgb, var(--p-primary-900) 32%, var(--p-surface-900) 68%);
+        }
+
+        &__focus-item {
+            background: color-mix(in srgb, var(--p-surface-900) 82%, var(--p-primary-900) 18%);
+        }
+
+        &__setup-icon,
+        :deep(.installation-wizard__follow-up-icon) {
+            background: color-mix(in srgb, var(--p-primary-color) 20%, var(--p-surface-900) 80%);
+        }
+
+        :deep(.installation-wizard__follow-up) {
+            background: color-mix(in srgb, var(--p-primary-900) 28%, var(--p-surface-900) 72%);
+        }
+
+        :deep(.installation-wizard__follow-up-action) {
+            background: var(--p-surface-800);
         }
     }
 }

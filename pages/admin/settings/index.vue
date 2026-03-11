@@ -147,11 +147,13 @@ import CommercialSettings from '@/components/admin/settings/commercial-settings.
 import SettingAuditLogList from '@/components/admin/settings/setting-audit-log-list.vue'
 import SettingExplanationCard from '@/components/admin/settings/setting-explanation-card.vue'
 import ThirdPartySettings from '@/components/admin/settings/third-party-settings.vue'
+import { resolveAdminSettingsTab, type AdminSettingsTab } from '@/utils/shared/admin-settings-tabs'
 import type { SettingItem, SettingLockReason, SettingSource } from '@/types/setting'
 
 const { t } = useI18n()
 const toast = useToast()
 const { $appFetch } = useAppApi()
+const route = useRoute()
 
 type SettingFormValue = string | number | boolean | null
 
@@ -174,7 +176,7 @@ interface SettingsApiResponse {
 
 const loading = ref(true)
 const saving = ref(false)
-const activeTab = ref('general')
+const activeTab = ref<AdminSettingsTab>('general')
 const isDemoPreview = ref(false)
 const settings = ref<Record<string, SettingFormValue>>({})
 const metadata = ref<Record<string, SettingMetadata>>({})
@@ -305,6 +307,10 @@ const saveSettings = async () => {
 onMounted(() => {
     loadSettings()
 })
+
+watch(() => route.query.tab, (nextTab) => {
+    activeTab.value = resolveAdminSettingsTab(nextTab)
+}, { immediate: true })
 </script>
 
 <style lang="scss" scoped>

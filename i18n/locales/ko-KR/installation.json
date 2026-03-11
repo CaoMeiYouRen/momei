@@ -1,106 +1,217 @@
 {
-  "installation": {
-    "title": "Momei Blog Installation Wizard",
-    "subtitle": "Welcome to Momei Blog, let's set up your site",
-    "steps": {
-      "healthCheck": "Health Check",
-      "database": "Database",
-      "siteConfig": "Site Config",
-      "adminAccount": "Admin Account",
-      "preview": "Preview",
-      "complete": "Complete"
-    },
-    "healthCheck": {
-      "title": "Environment Check",
-      "description": "Checking system environment and dependencies...",
-      "database": "Database Connection",
-      "node": "Node.js Version",
-      "dbVersion": "Database Version",
-      "serverless": "Serverless Environment",
-      "os": "Operating System",
-      "language": "Installation Language",
-      "enabled": "Enabled",
-      "disabled": "Disabled",
-      "nodeVersionWarning": "Node.js version is low. It is recommended to use v20 or higher for best stability."
-    },
-    "database": {
-      "title": "Database Initialization",
-      "description": "Initialize database schema and seed data",
-      "initialize": "Initialize Database",
-      "success": "Database initialized successfully",
-      "error": "Failed to initialize database, please check your configuration"
-    },
-    "siteConfig": {
-      "title": "Site Configuration",
-      "description": "Configure your site basic information",
-      "siteTitle": "Site Title",
-      "siteDescription": "Site Description",
-      "siteKeywords": "Site Keywords",
-      "siteUrl": "Site URL",
-      "siteUrlPlaceholder": "e.g.: https://blog.example.com",
-      "siteCopyright": "Copyright",
-      "defaultLanguage": "Default Language",
-      "error": "Failed to save site configuration"
-    },
-    "adminAccount": {
-      "title": "Create Admin Account",
-      "description": "Set up your administrator account",
-      "name": "Name",
-      "email": "Email",
-      "password": "Password",
-      "error": "Failed to create admin account"
-    },
-    "preview": {
-      "title": "Optional Features",
-      "description": "Configure core optional features. These settings can be modified anytime in the admin panel after installation.",
-      "error": "Failed to load preview config",
-      "sections": {
-        "ai": "AI Assistant",
-        "email": "Email Service",
-        "storage": "Attachment Storage",
-        "analytics": "Analytics & SEO"
-      },
-      "ai": {
-        "provider": "AI Provider",
-        "apiKey": "API Key",
-        "model": "Default Model",
-        "endpoint": "API Endpoint (Optional)"
-      },
-      "email": {
-        "host": "SMTP Host",
-        "port": "Port",
-        "user": "Account",
-        "pass": "Password/App Key",
-        "from": "Sender Address"
-      },
-      "storage": {
-        "type": "Storage Type",
-        "localDir": "Storage Path (Relative/Absolute)",
-        "localBaseUrl": "Base Access URL",
-        "s3Endpoint": "S3 Endpoint",
-        "s3Bucket": "Bucket Name",
-        "s3Region": "Region",
-        "s3AccessKey": "Access Key ID",
-        "s3SecretKey": "Secret Access Key",
-        "s3BaseUrl": "Public Domain (Base URL)",
-        "s3BucketPrefix": "Object Prefix",
-        "assetPublicBaseUrl": "Unified Asset Public Base URL",
-        "assetObjectPrefix": "Unified Object Prefix"
-      },
-      "analytics": {
-        "baidu": "Baidu Analytics ID",
-        "google": "Google Tracking ID",
-        "clarity": "Microsoft Clarity ID"
-      }
-    },
-    "complete": {
-      "title": "Installation Complete",
-      "description": "Congratulations! Momei Blog has been successfully installed",
-      "finalize": "Complete Installation",
-      "success": "Installation completed!",
-      "envHint": "To prevent reinstallation, please add the following to your environment variables:",
-      "goToAdmin": "Go to Admin Panel",
-      "error": "Failed to complete installation"
+    "installation": {
+        "title": "Momei Blog Installation Wizard",
+        "subtitle": "사이트를 빠르게 기동할 수 있도록 최소 설정부터 완료하세요.",
+        "languagePrompt": {
+            "title": "설치 언어를 먼저 확인하세요",
+            "description": "현재 문구가 익숙하지 않다면 먼저 언어를 바꾼 뒤 다음 단계를 진행하세요."
+        },
+        "steps": {
+            "healthCheck": "Health Check",
+            "database": "Database",
+            "siteConfig": "Site Config",
+            "adminAccount": "Admin Account",
+            "preview": "Preview",
+            "complete": "Complete"
+        },
+        "healthCheck": {
+            "title": "Environment Check",
+            "description": "환경이 준비되었는지 먼저 확인하세요.",
+            "database": "Database Connection",
+            "node": "Node.js Version",
+            "dbVersion": "Database Version",
+            "serverless": "Serverless Environment",
+            "os": "Operating System",
+            "language": "Installation Language",
+            "enabled": "Enabled",
+            "disabled": "Disabled",
+            "nodeVersionWarning": "Node.js version is low. It is recommended to use v20 or higher for best stability."
+        },
+        "database": {
+            "title": "Database Initialization",
+            "description": "설치에 필요한 기본 테이블을 생성합니다.",
+            "initialize": "Initialize Database",
+            "success": "Database initialized successfully",
+            "error": "Failed to initialize database, please check your configuration"
+        },
+        "siteConfig": {
+            "title": "Site Configuration",
+            "description": "먼저 공개에 필요한 기본 정보를 입력하세요.",
+            "siteTitle": "Site Title",
+            "siteDescription": "Site Description",
+            "siteKeywords": "Site Keywords",
+            "siteUrl": "Site URL",
+            "siteUrlPlaceholder": "e.g.: https://blog.example.com",
+            "siteCopyright": "Copyright",
+            "defaultLanguage": "Default Language",
+            "error": "Failed to save site configuration"
+        },
+        "adminAccount": {
+            "title": "Create Admin Account",
+            "description": "후속 시스템 설정에 사용할 첫 관리자 계정을 만듭니다.",
+            "name": "Name",
+            "email": "Email",
+            "password": "Password",
+            "error": "Failed to create admin account"
+        },
+        "preview": {
+            "title": "Optional Features",
+            "description": "이 기능들은 설치 후 시스템 설정에서 계속 보완할 수 있습니다.",
+            "error": "Failed to load preview config",
+            "sections": {
+                "ai": "AI Assistant",
+                "email": "Email Service",
+                "storage": "Attachment Storage",
+                "analytics": "Analytics & SEO"
+            },
+            "ai": {
+                "provider": "AI Provider",
+                "apiKey": "API Key",
+                "model": "Default Model",
+                "endpoint": "API Endpoint (Optional)"
+            },
+            "email": {
+                "host": "SMTP Host",
+                "port": "Port",
+                "user": "Account",
+                "pass": "Password/App Key",
+                "from": "Sender Address"
+            },
+            "storage": {
+                "type": "Storage Type",
+                "localDir": "Storage Path (Relative/Absolute)",
+                "localBaseUrl": "Base Access URL",
+                "s3Endpoint": "S3 Endpoint",
+                "s3Bucket": "Bucket Name",
+                "s3Region": "Region",
+                "s3AccessKey": "Access Key ID",
+                "s3SecretKey": "Secret Access Key",
+                "s3BaseUrl": "Public Domain (Base URL)",
+                "s3BucketPrefix": "Object Prefix",
+                "assetPublicBaseUrl": "Unified Asset Public Base URL",
+                "assetObjectPrefix": "Unified Object Prefix"
+            },
+            "analytics": {
+                "baidu": "Baidu Analytics ID",
+                "google": "Google Tracking ID",
+                "clarity": "Microsoft Clarity ID"
+            }
+        },
+        "setupChecklist": {
+            "title": "초기 설정 체크리스트",
+            "summaryTitle": "먼저 이 항목에 집중하세요",
+            "summary": {
+                "production": "사이트 가용성에 직접 영향을 주는 최소 설정부터 끝내고, 나머지는 시스템 설정에서 이어서 정리하세요.",
+                "demo": "지금은 Demo 추천 경로로 빠르게 체험하고, 실제 배포 설정은 정식 환경에서 처리하세요."
+            },
+            "laterHint": "저장소, AI, 알림은 여기서 한 번에 다 끝낼 필요가 없습니다. 설치 후 시스템 설정에서 이어서 처리할 수 있습니다.",
+            "description": {
+                "production": "설치 마법사는 사이트를 기동하는 데 필요한 최소 설정만 담당합니다. 인증, 알림, AI, 저장소 정책은 설치 후 관리자 화면에서 정리하는 편이 좋습니다.",
+                "demo": "Demo 모드는 3 - 5분 안에 공개 읽기, 작성 화면, 다국어 흐름을 체험하도록 구성됩니다. 실제 배포 설정은 Demo 종료 후에 마무리하세요."
+            },
+            "mode": {
+                "production": "프로덕션 배포",
+                "demo": "Demo 체험"
+            },
+            "groups": {
+                "immediate": {
+                    "title": "지금 설정할 항목",
+                    "description": "첫 실행 접근성, 관리자 권한 확정, 기본 공개 경험에 직접 영향을 주는 항목입니다."
+                },
+                "later": {
+                    "title": "나중에 설정할 항목",
+                    "description": "사이트가 동작한 뒤 관리자 화면에서 운영 정책에 맞춰 정리하는 편이 쉬운 항목입니다."
+                }
+            },
+            "contexts": {
+                "wizardSite": "설치 마법사 / 사이트 설정",
+                "wizardLocale": "설치 마법사 / 기본 언어 + 설치 후 / 프로필 시간대",
+                "wizardAdmin": "설치 마법사 / 관리자 계정",
+                "wizardSeo": "설치 마법사 / 사이트 설정 + 설치 후 / 분석",
+                "adminAuth": "설치 후 / 관리자 설정 / 인증",
+                "adminStorage": "설치 후 / 관리자 설정 / 저장소",
+                "adminAi": "설치 후 / 관리자 설정 / AI",
+                "adminNotifications": "설치 후 / 관리자 설정 / 알림",
+                "demoPublic": "Demo / 공개 사이트",
+                "demoEditor": "Demo / 작성 화면",
+                "demoExplore": "Demo / 다국어와 콘텐츠 탐색",
+                "postDemoGeneral": "Demo 이후 / 관리자 설정 / 일반",
+                "postDemoIntegrations": "Demo 이후 / 관리자 설정 / AI 및 연동",
+                "postDemoNotifications": "Demo 이후 / 관리자 설정 / 알림"
+            },
+            "items": {
+                "siteIdentity": {
+                    "title": "사이트 기본 정보",
+                    "description": "사이트 이름, 공개 URL, 기본 소개를 먼저 정해 두면 첫날부터 링크, 브랜딩, 홈 화면 문구가 정상 동작합니다."
+                },
+                "localeTimezone": {
+                    "title": "언어와 시간대",
+                    "description": "설치 중에는 기본 언어를 고르고, 로그인 후에는 프로필에서 시간대를 보완해 UI 언어와 시간 표시를 맞추세요."
+                },
+                "adminAccess": {
+                    "title": "관리자 권한과 접근",
+                    "description": "첫 관리자 계정을 만들고 실제 운영에 들어가기 전 로그인 및 복구 경로를 확인하세요."
+                },
+                "seoVisibility": {
+                    "title": "SEO와 공개 가시성",
+                    "description": "설치 시 사이트 설명, 키워드, 기본 URL을 정리하고 이후 관리자 화면에서 분석 스크립트와 검증 설정을 추가하세요."
+                },
+                "authExperience": {
+                    "title": "로그인과 가입 정책",
+                    "description": "OAuth, 익명 접근, captcha, 보안 정책은 관리자 설정에서 정리한 뒤 공개 진입 정책을 결정하세요."
+                },
+                "storageDelivery": {
+                    "title": "오브젝트 스토리지와 자산 전달",
+                    "description": "배포 환경에 맞춰 local, S3, R2 중 하나를 선택하고 자산 prefix를 일찍 정리해 두세요."
+                },
+                "aiWorkflow": {
+                    "title": "AI 기능과 예산",
+                    "description": "실제 모델, API Key, 기본 모델은 설치 후 연결하고 비용과 권한 정책에 맞춰 단계적으로 공개하세요."
+                },
+                "notifications": {
+                    "title": "알림 전달",
+                    "description": "인앱, 이메일, 브라우저 푸시는 어떤 고가치 이벤트를 보낼지 정한 뒤 관리자 화면에서 함께 구성하세요."
+                },
+                "demoPublic": {
+                    "title": "샘플 콘텐츠부터 보기",
+                    "description": "홈페이지와 시드된 글을 통해 공개 정보 구조, 테마, 다국어 읽기 흐름을 빠르게 확인하세요."
+                },
+                "demoCreator": {
+                    "title": "작성 화면 열기",
+                    "description": "Demo 계정으로 편집기를 바로 열어 AI 작성, 번역, 발행 흐름을 체험하세요."
+                },
+                "demoLocale": {
+                    "title": "언어 전환과 탐색 동선",
+                    "description": "언어 전환, 검색, 글 목록을 통해 locale fallback과 콘텐츠 탐색 흐름을 느껴보세요."
+                },
+                "demoProductionIdentity": {
+                    "title": "실제 배포 전 사이트 정보 보완",
+                    "description": "Demo의 사이트 설정은 예시 데이터입니다. 실제 배포 전에는 일반 설정에서 브랜드와 기본 URL을 다시 확인하세요."
+                },
+                "demoIntegrations": {
+                    "title": "Demo 후 실제 연동 연결",
+                    "description": "실제 AI, 저장소, 이메일 자격 증명은 Demo 체험과 분리하고, Demo 종료 후 연결하는 편이 안전합니다."
+                },
+                "demoNotifications": {
+                    "title": "실제 환경에서 알림 활성화",
+                    "description": "이메일과 브라우저 푸시는 도메인, VAPID 또는 SMTP, 전달 범위가 확정된 실제 환경에서 구성하세요."
+                }
+            }
+        },
+        "complete": {
+            "title": "Installation Complete",
+            "description": "Congratulations! Momei Blog has been successfully installed",
+            "finalize": "Complete Installation",
+            "success": "Installation completed!",
+            "envHint": "To prevent reinstallation, please add the following to your environment variables:",
+            "goToAdmin": "Go to Admin Panel",
+            "handoffTitle": "설치 마법사는 여기서 끝납니다",
+            "handoffDescription": {
+                "production": "이제 사이트는 사용할 수 있습니다. 아래 항목은 설치 마법사를 더 늘리기보다 설치 후 관리자 화면에서 마무리하는 편이 좋습니다.",
+                "demo": "Demo 체험 경로가 준비되었습니다. 먼저 이 경로로 제품을 체험한 뒤 어떤 기능을 실제 배포 설정으로 옮길지 결정하세요."
+            },
+            "openTarget": "열기",
+            "error": "Failed to complete installation"
+        }
     }
-  }
 }
