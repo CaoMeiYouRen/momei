@@ -82,7 +82,7 @@
     "music-metadata": "^11.12.1",
     "mysql2": "^3.19.0",
     "nest-winston": "^1.10.2",
-    "nodemailer": "^8.0.1",
+    "nodemailer": "^8.0.2",
     "normalize.css": "^8.0.1",
     "nuxt": "^4.3.1",
     "p-queue": "^9.1.0",
