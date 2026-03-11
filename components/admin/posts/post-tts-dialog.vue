@@ -21,6 +21,7 @@ import type {
 import type { ApiResponse } from '~/types/api'
 import { cleanTextForTTS } from '~/utils/shared/tts-cleaner'
 import { formatDecimal } from '~/utils/shared/number'
+import { normalizeAICostDisplay } from '~/utils/shared/ai-cost'
 
 const props = defineProps<{
     postId?: string
@@ -38,20 +39,6 @@ interface TTSDialogConfig {
     provider: string
     mode: TTSSynthesisMode
     voice: string
-}
-
-function getErrorDetail(error: unknown, fallback: string) {
-    const candidate = error as {
-        data?: { message?: string, statusMessage?: string }
-        statusMessage?: string
-        message?: string
-    }
-
-    return candidate?.data?.message
-        || candidate?.data?.statusMessage
-        || candidate?.statusMessage
-        || candidate?.message
-        || fallback
 }
 
 const config = ref<TTSDialogConfig>({
@@ -175,13 +162,11 @@ onMounted(() => {
 const currentTaskId = ref<string | null>(null)
 const { status, progress, audioUrl, error, startPolling } = useTTSTask(currentTaskId)
 const hasGeneratedAudio = computed(() => Boolean(audioUrl.value))
+const { resolveErrorMessage } = useRequestFeedback()
 
 const estimatedCost = ref(0)
-const estimatedCostDisplay = ref<AICostDisplay>({
-    currencyCode: 'CNY',
-    currencySymbol: '¥',
-    quotaUnitPrice: 0,
-})
+const estimatedCostDisplay = ref<AICostDisplay>(normalizeAICostDisplay())
+const normalizedEstimatedCostDisplay = computed(() => normalizeAICostDisplay(estimatedCostDisplay.value))
 const formattedEstimatedCost = computed(() => formatDecimal(estimatedCost.value, 2))
 const loadingCost = ref(false)
 
@@ -204,12 +189,8 @@ watchDebounced([() => config.value.provider, () => config.value.voice, () => con
             },
         })
         const data = response.data
-        estimatedCost.value = data.cost
-        estimatedCostDisplay.value = {
-            currencyCode: data.currencyCode || 'CNY',
-            currencySymbol: data.currencySymbol || '¥',
-            quotaUnitPrice: data.quotaUnitPrice || 0,
-        }
+        estimatedCost.value = data.displayCost
+        estimatedCostDisplay.value = normalizeAICostDisplay(data.costDisplay)
     } catch (error) {
         console.error('Failed to fetch estimated cost:', error)
     } finally {
@@ -231,7 +212,9 @@ async function startGenerate() {
         currentTaskId.value = data.taskId
         startPolling()
     } catch (requestError) {
-        error.value = getErrorDetail(requestError, t('pages.admin.posts.tts.failed'))
+        error.value = resolveErrorMessage(requestError, {
+            fallbackKey: 'pages.admin.posts.tts.failed',
+        })
     }
 }
 
@@ -350,8 +333,8 @@ function handleConfirm() {
                             <template v-else>
                                 <span class="tts-cost__amount">{{ formattedEstimatedCost }}</span>
                                 <span class="tts-cost__unit">
-                                    <span class="tts-cost__currency">{{ estimatedCostDisplay.currencySymbol }}</span>
-                                    <span class="tts-cost__code">{{ estimatedCostDisplay.currencyCode }}</span>
+                                    <span class="tts-cost__currency">{{ normalizedEstimatedCostDisplay.currencySymbol }}</span>
+                                    <span class="tts-cost__code">{{ normalizedEstimatedCostDisplay.currencyCode }}</span>
                                 </span>
                             </template>
                         </div>

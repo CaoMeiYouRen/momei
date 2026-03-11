@@ -21,10 +21,12 @@ vi.mock('@/lib/auth-client', () => ({
 vi.mock('@/utils/shared/date', () => ({
     formatDate: vi.fn((date, format, locale, timezone) => `formatted-date-${locale}-${timezone || 'default'}`),
     formatDateTime: vi.fn((date, format, locale, timezone) => `formatted-datetime-${locale}-${timezone || 'default'}`),
+    getRelativeTime: vi.fn(() => 'relative-time'),
+    isFutureDate: vi.fn(() => true),
 }))
 
 import { useI18nDate } from './use-i18n-date'
-import { formatDate as _formatDate, formatDateTime as _formatDateTime } from '@/utils/shared/date'
+import { formatDate as _formatDate, formatDateTime as _formatDateTime, getRelativeTime, isFutureDate } from '@/utils/shared/date'
 
 describe('useI18nDate', () => {
     beforeEach(() => {
@@ -140,8 +142,11 @@ describe('useI18nDate', () => {
 
             const result = relativeTime(oldDate)
 
-            expect(_formatDate).toHaveBeenCalled()
-            expect(result).toContain('formatted-date')
+            expect(getRelativeTime).toHaveBeenCalledWith(oldDate, {
+                locale: 'zh-cn',
+                tz: undefined,
+            })
+            expect(result).toBe('relative-time')
         })
 
         it('should return relative time for recent dates', () => {
@@ -151,17 +156,21 @@ describe('useI18nDate', () => {
             // 5 minutes ago
             const fiveMinutesAgo = new Date('2024-01-15 11:55:00')
             const result1 = relativeTime(fiveMinutesAgo)
-            expect(result1).toBeTruthy()
+            expect(getRelativeTime).toHaveBeenCalledWith(fiveMinutesAgo, {
+                locale: 'en',
+                tz: undefined,
+            })
+            expect(result1).toBe('relative-time')
 
             // 2 hours ago
             const twoHoursAgo = new Date('2024-01-15 10:00:00')
             const result2 = relativeTime(twoHoursAgo)
-            expect(result2).toBeTruthy()
+            expect(result2).toBe('relative-time')
 
             // 5 days ago
             const fiveDaysAgo = new Date('2024-01-10 12:00:00')
             const result3 = relativeTime(fiveDaysAgo)
-            expect(result3).toBeTruthy()
+            expect(result3).toBe('relative-time')
         })
 
         it('should return relative time for future dates', () => {
@@ -171,17 +180,27 @@ describe('useI18nDate', () => {
             // In 5 minutes
             const inFiveMinutes = new Date('2024-01-15 12:05:00')
             const result1 = relativeTime(inFiveMinutes)
-            expect(result1).toBe('in 5 minutes')
+            expect(result1).toBe('relative-time')
 
             // In 2 hours
             const inTwoHours = new Date('2024-01-15 14:00:00')
             const result2 = relativeTime(inTwoHours)
-            expect(result2).toBe('in 2 hours')
+            expect(result2).toBe('relative-time')
 
             // In 5 days
             const inFiveDays = new Date('2024-01-20 12:00:00')
             const result3 = relativeTime(inFiveDays)
-            expect(result3).toBe('in 5 days')
+            expect(result3).toBe('relative-time')
+        })
+    })
+
+    describe('isFuture', () => {
+        it('should delegate to shared date helper', () => {
+            const targetDate = new Date('2024-01-16 12:00:00')
+            const { isFuture } = useI18nDate()
+
+            expect(isFuture(targetDate)).toBe(true)
+            expect(isFutureDate).toHaveBeenCalledWith(targetDate, expect.any(Date), undefined)
         })
     })
 

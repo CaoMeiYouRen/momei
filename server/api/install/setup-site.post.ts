@@ -38,11 +38,12 @@ export default defineEventHandler(async (event) => {
                 success: true,
             },
         }
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to save site configuration'
         logger.error('Failed to save site configuration:', error)
         throw createError({
             statusCode: 500,
-            statusMessage: error.message || 'Failed to save site configuration',
+            statusMessage: message,
         })
     }
 })

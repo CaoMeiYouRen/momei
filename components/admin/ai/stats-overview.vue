@@ -217,7 +217,8 @@
 </template>
 
 <script setup lang="ts">
-import { formatCurrency, formatDecimal } from '@/utils/shared/number'
+import { formatDecimal } from '@/utils/shared/number'
+import { formatAICost } from '@/utils/shared/ai-cost'
 import type {
     AIAdminStatsResponse,
     AICostDisplay,
@@ -232,7 +233,6 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
-const currencySymbol = computed(() => props.costDisplay?.currencySymbol || '$')
 
 const getTotalTasks = () => {
     return props.stats?.overview.totalTasks
@@ -248,7 +248,7 @@ const formatPercent = (value?: number | null) => {
     return `${((value || 0) * 100).toFixed(1)}%`
 }
 
-const formatMoney = (value: unknown) => formatCurrency(value, 2, currencySymbol.value)
+const formatMoney = (value: unknown) => formatAICost(value, props.costDisplay)
 
 const resolveSubjectLabel = (alert: AIUsageAlert) => {
     return alert.subjectName || alert.subjectValue

@@ -60,7 +60,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
 import type {
     AIAdminStatsResponse,
     AIAdminTaskListFilters,
@@ -74,23 +73,10 @@ type AdminAiPageEvent = {
     rows: number
 }
 
-function getErrorDetail(error: unknown, fallback: string) {
-    const candidate = error as {
-        data?: { message?: string, statusMessage?: string }
-        statusMessage?: string
-        message?: string
-    }
-
-    return candidate?.data?.message
-        || candidate?.data?.statusMessage
-        || candidate?.statusMessage
-        || candidate?.message
-        || fallback
-}
-
 const { t } = useI18n()
 const confirm = useConfirm()
-const toast = useToast()
+const { $appFetch } = useAppApi()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
 definePageMeta({
     middleware: 'admin',
@@ -120,11 +106,13 @@ const selectedTask = ref<AIAdminTaskListItem | null>(null)
 const loadStats = async () => {
     loadingStats.value = true
     try {
-        const response = await $fetch<AIAdminStatsResponse>('/api/admin/ai/stats')
+        const response = await $appFetch<AIAdminStatsResponse>('/api/admin/ai/stats')
         stats.value = response
         costDisplay.value = response.costDisplay
     } catch (error: unknown) {
-        toast.add({ severity: 'error', summary: 'Error', detail: getErrorDetail(error, 'Failed to load AI stats') })
+        showErrorToast(error, {
+            fallbackKey: 'pages.admin.ai.feedback.load_stats_failed',
+        })
     } finally {
         loadingStats.value = false
     }
@@ -133,7 +121,7 @@ const loadStats = async () => {
 const loadTasks = async () => {
     loadingTasks.value = true
     try {
-        const response = await $fetch<AIAdminTaskListResponse>('/api/admin/ai/tasks', {
+        const response = await $appFetch<AIAdminTaskListResponse>('/api/admin/ai/tasks', {
             query: {
                 page: page.value,
                 pageSize: pageSize.value,
@@ -146,7 +134,9 @@ const loadTasks = async () => {
         totalTasks.value = response.total
         costDisplay.value = response.costDisplay
     } catch (error: unknown) {
-        toast.add({ severity: 'error', summary: 'Error', detail: getErrorDetail(error, 'Failed to load AI tasks') })
+        showErrorToast(error, {
+            fallbackKey: 'pages.admin.ai.feedback.load_tasks_failed',
+        })
     } finally {
         loadingTasks.value = false
     }
@@ -184,14 +174,16 @@ const confirmDelete = (task: AIAdminTaskListItem) => {
         },
         accept: async () => {
             try {
-                await $fetch('/api/admin/ai/tasks', {
+                await $appFetch('/api/admin/ai/tasks', {
                     method: 'DELETE',
                     query: { ids: task.id },
                 })
-                toast.add({ severity: 'success', summary: t('common.success'), life: 3000 })
+                showSuccessToast('pages.admin.ai.feedback.delete_task_success')
                 await Promise.all([loadTasks(), loadStats()])
             } catch (error: unknown) {
-                toast.add({ severity: 'error', summary: 'Error', detail: getErrorDetail(error, 'Failed to delete AI task') })
+                showErrorToast(error, {
+                    fallbackKey: 'pages.admin.ai.feedback.delete_task_failed',
+                })
             }
         },
     })
@@ -205,15 +197,17 @@ const confirmBulkDelete = () => {
         accept: async () => {
             try {
                 const ids = selectedTasks.value.map((task) => task.id).join(',')
-                await $fetch('/api/admin/ai/tasks', {
+                await $appFetch('/api/admin/ai/tasks', {
                     method: 'DELETE',
                     query: { ids },
                 })
-                toast.add({ severity: 'success', summary: t('common.success'), life: 3000 })
+                showSuccessToast('pages.admin.ai.feedback.delete_tasks_success')
                 selectedTasks.value = []
                 await Promise.all([loadTasks(), loadStats()])
             } catch (error: unknown) {
-                toast.add({ severity: 'error', summary: 'Error', detail: getErrorDetail(error, 'Failed to delete AI tasks') })
+                showErrorToast(error, {
+                    fallbackKey: 'pages.admin.ai.feedback.delete_tasks_failed',
+                })
             }
         },
     })

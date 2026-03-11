@@ -35,15 +35,22 @@
 <script setup lang="ts">
 import { authClient } from '@/lib/auth-client'
 
+type ManagedUserRole = 'admin' | 'author' | 'user'
+
+interface ManagedUser {
+    id: string
+    role: ManagedUserRole
+}
+
 const props = defineProps<{
     visible: boolean
-    user: any
+    user: ManagedUser | null
 }>()
 
 const emit = defineEmits(['update:visible', 'success'])
 
 const { t } = useI18n()
-const toast = useToast()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
 const selectedRole = ref('')
 const loading = ref(false)
@@ -66,14 +73,16 @@ const handleSave = async () => {
     try {
         const { error } = await authClient.admin.setRole({
             userId: props.user.id,
-            role: selectedRole.value as any,
+            role: selectedRole.value as Parameters<typeof authClient.admin.setRole>[0]['role'],
         })
         if (error) throw error
-        toast.add({ severity: 'success', summary: t('common.success'), detail: 'Role updated successfully', life: 3000 })
+        showSuccessToast('pages.admin.users.feedback.update_role_success')
         emit('success')
         emit('update:visible', false)
-    } catch (err: any) {
-        toast.add({ severity: 'error', summary: 'Error', detail: err.message || 'Update failed' })
+    } catch (error) {
+        showErrorToast(error, {
+            fallbackKey: 'pages.admin.users.feedback.update_role_failed',
+        })
     } finally {
         loading.value = false
     }

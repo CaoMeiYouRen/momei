@@ -1,7 +1,7 @@
 import { buildPostUploadPrefix, buildUploadStoredFilename, uploadFromBuffer, UploadType } from '../upload'
 import { getSettings } from '../setting'
 import { AIBaseService } from './base'
-import { estimateAIDisplayCost } from './cost-display'
+import { estimateAICostBreakdown, estimateAIDisplayCost } from './cost-display'
 import { getAIProvider } from '@/server/utils/ai'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
@@ -145,6 +145,47 @@ export class TTSService extends AIBaseService {
         return await estimateFn.call(provider, text, this.resolveVoice(voice))
     }
 
+    static async estimateCostBreakdown(
+        text: string,
+        voice: string = TTS_DEFAULT_VOICE,
+        providerName?: string,
+        options: Pick<TTSOptions, 'mode'> & {
+            quotaUnits?: number
+        } = {},
+    ) {
+        const provider = await getAIProvider('tts', providerName ? { provider: providerName as any } : undefined)
+        const resolvedVoice = this.resolveVoice(voice)
+        const providerCost = await this.estimateProviderCost(text, resolvedVoice, providerName)
+        const category = options.mode === 'podcast' ? 'podcast' : 'tts'
+        const payload = { text, voice: resolvedVoice, mode: options.mode || 'speech' }
+        const quotaUnits = options.quotaUnits || calculateQuotaUnits({
+            category,
+            type: category,
+            payload,
+        })
+        const usageSnapshot = normalizeUsageSnapshot({
+            category,
+            type: category,
+            payload,
+            textLength: text.length,
+        })
+
+        const breakdown = await estimateAICostBreakdown({
+            category,
+            type: category,
+            provider: provider.name,
+            providerCost,
+            quotaUnits,
+            payload,
+            usageSnapshot,
+        })
+
+        return {
+            ...breakdown,
+            quotaUnits,
+        }
+    }
+
     static async estimateCost(
         text: string,
         voice: string = TTS_DEFAULT_VOICE,
@@ -153,26 +194,8 @@ export class TTSService extends AIBaseService {
             quotaUnits?: number
         } = {},
     ): Promise<number> {
-        const provider = await getAIProvider('tts', providerName ? { provider: providerName as any } : undefined)
-        const resolvedVoice = this.resolveVoice(voice)
-        const providerCost = await this.estimateProviderCost(text, resolvedVoice, providerName)
-        const category = options.mode === 'podcast' ? 'podcast' : 'tts'
-        const usageSnapshot = normalizeUsageSnapshot({
-            category,
-            type: category,
-            payload: { text, voice: resolvedVoice, mode: options.mode || 'speech' },
-            textLength: text.length,
-        })
-
-        return await estimateAIDisplayCost({
-            category,
-            type: category,
-            provider: provider.name,
-            providerCost,
-            quotaUnits: options.quotaUnits,
-            payload: { text, voice: resolvedVoice, mode: options.mode || 'speech' },
-            usageSnapshot,
-        })
+        const estimate = await this.estimateCostBreakdown(text, voice, providerName, options)
+        return estimate.displayCost
     }
 
     /**

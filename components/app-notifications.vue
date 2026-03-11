@@ -2,12 +2,12 @@
 import { computed, ref } from 'vue'
 import { authClient } from '@/lib/auth-client'
 import { useNotifications } from '@/composables/use-notifications'
-import type { Notification } from '@/composables/use-notifications'
 import { resolveNotificationLinkTarget } from '@/utils/shared/notification'
 import { isAdmin } from '@/utils/shared/roles'
 
 const { t } = useI18n()
 const { notifications, unreadCount, markAsRead, browserPermission, browserPushReady, enableBrowserPush } = useNotifications()
+const { formatDateTime } = useI18nDate()
 const localePath = useLocalePath()
 const session = authClient.useSession()
 const op = ref()
@@ -26,7 +26,7 @@ const browserPushHint = computed(() => {
     return t('components.notifications.browser_status.default')
 })
 
-const toggle = (event: any) => {
+const toggle = (event: Event) => {
     op.value.toggle(event)
 }
 
@@ -60,8 +60,7 @@ const getNotificationIcon = (type: string) => {
 }
 
 const formatTime = (time: string) => {
-    const date = new Date(time)
-    return date.toLocaleString()
+    return formatDateTime(time)
 }
 
 const resolveNotificationTarget = (link: string | null) => {

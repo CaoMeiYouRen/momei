@@ -1,5 +1,4 @@
 import { TTSService } from '@/server/services/ai'
-import { getAICostDisplayConfig } from '@/server/services/ai/cost-display'
 import { calculateQuotaUnits } from '@/server/utils/ai/cost-governance'
 import { success } from '@/server/utils/response'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
@@ -20,12 +19,13 @@ export default defineEventHandler(async (event) => {
         type: category,
         payload: { text, voice, mode },
     })
-    const cost = await TTSService.estimateCost(text, voice as string, provider as string, { mode, quotaUnits })
-    const costDisplay = await getAICostDisplayConfig()
+    const estimate = await TTSService.estimateCostBreakdown(text, voice as string, provider as string, { mode, quotaUnits })
 
     return success({
-        cost,
+        providerCost: estimate.providerCost,
+        providerCurrency: estimate.providerCurrency,
+        displayCost: estimate.displayCost,
         quotaUnits,
-        ...costDisplay,
+        costDisplay: estimate.costDisplay,
     })
 })

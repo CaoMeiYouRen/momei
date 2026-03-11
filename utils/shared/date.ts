@@ -1,13 +1,17 @@
 import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import duration from 'dayjs/plugin/duration'
 import 'dayjs/locale/zh-cn'
 import 'dayjs/locale/en'
+import 'dayjs/locale/zh-tw'
+import 'dayjs/locale/ko'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(duration)
+dayjs.extend(relativeTime)
 
 /**
  * 格式化日期
@@ -45,6 +49,56 @@ export const formatDateTime = (date: string | Date | number, format: string = 'Y
         d = d.tz(tz)
     }
     return d.format(format)
+}
+
+export const getRelativeTime = (
+    date: string | Date | number,
+    options: {
+        locale?: string
+        tz?: string
+        baseDate?: string | Date | number
+        maxDays?: number
+        fallbackFormat?: string
+    } = {},
+) => {
+    if (!date) {
+        return ''
+    }
+
+    const locale = options.locale || 'zh-cn'
+    let target = dayjs(date).locale(locale)
+    let base = dayjs(options.baseDate || new Date()).locale(locale)
+
+    if (options.tz) {
+        target = target.tz(options.tz)
+        base = base.tz(options.tz)
+    }
+
+    if (Math.abs(target.diff(base, 'day', true)) > (options.maxDays || 30)) {
+        return formatDate(date, options.fallbackFormat || 'YYYY-MM-DD', locale, options.tz)
+    }
+
+    return target.from(base)
+}
+
+export const isFutureDate = (
+    date: string | Date | number,
+    baseDate: string | Date | number = new Date(),
+    tz?: string,
+) => {
+    if (!date) {
+        return false
+    }
+
+    let target = dayjs(date)
+    let base = dayjs(baseDate)
+
+    if (tz) {
+        target = target.tz(tz)
+        base = base.tz(tz)
+    }
+
+    return target.valueOf() > base.valueOf()
 }
 
 /**

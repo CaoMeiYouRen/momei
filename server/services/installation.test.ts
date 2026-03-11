@@ -152,7 +152,8 @@ describe('Installation Service', () => {
                 siteTitle: 'Test Blog',
                 siteDescription: 'A test blog',
                 siteKeywords: 'test, blog',
-                siteCopyright: '© 2024 Test',
+                siteUrl: 'https://example.com',
+                siteCopyright: 'all-rights-reserved' as const,
                 defaultLanguage: 'zh-CN' as const,
             }
 

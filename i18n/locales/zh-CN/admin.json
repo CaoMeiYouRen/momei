@@ -284,6 +284,14 @@
                 "audio_preview": "音频预览",
                 "error": "失败原因",
                 "delete_confirm": "确定要删除选中的 AI 记录吗？此操作无法撤销。",
+                "feedback": {
+                    "load_stats_failed": "加载 AI 统计失败",
+                    "load_tasks_failed": "加载 AI 任务失败",
+                    "delete_task_success": "AI 任务已删除",
+                    "delete_task_failed": "删除 AI 任务失败",
+                    "delete_tasks_success": "AI 任务已批量删除",
+                    "delete_tasks_failed": "批量删除 AI 任务失败"
+                },
                 "task_detail": {
                     "title": "AI 任务详情",
                     "page_title": "AI 任务 {id}",
@@ -651,6 +659,17 @@
                 "confirm_impersonate": "确定要以 \"{name}\" 的身份登录吗？这将会打开一个新的会话。",
                 "confirm_revoke_all": "确定要强制该用户在所有设备上退出登录吗？",
                 "confirm_delete": "确定要永久删除用户 \"{name}\" 吗？此操作不可逆！",
+                "feedback": {
+                    "load_sessions_failed": "加载用户会话失败",
+                    "revoke_session_success": "会话已下线",
+                    "revoke_session_failed": "下线会话失败",
+                    "revoke_all_sessions_success": "已下线该用户的全部会话",
+                    "revoke_all_sessions_failed": "批量下线会话失败",
+                    "update_role_success": "用户角色已更新",
+                    "update_role_failed": "更新用户角色失败",
+                    "ban_user_success": "用户已封禁",
+                    "ban_user_failed": "封禁用户失败"
+                },
                 "roles": {
                     "all": "所有角色",
                     "admin": "管理员",

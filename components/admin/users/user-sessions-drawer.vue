@@ -10,7 +10,7 @@
                 <span class="sessions-header__title">{{ $t('pages.admin.users.sessions') }}</span>
                 <Badge
                     v-if="user"
-                    :value="user.name"
+                    :value="user.name || undefined"
                     severity="info"
                 />
             </div>
@@ -70,19 +70,32 @@
 import { authClient } from '@/lib/auth-client'
 import { useConfirm } from 'primevue/useconfirm'
 
+interface ManagedUser {
+    id: string
+    name?: string | null
+}
+
+interface UserSessionRecord {
+    token: string
+    userAgent?: string | null
+    ipAddress?: string | null
+    updatedAt: string | Date
+    expiresAt: string | Date
+}
+
 const props = defineProps<{
     visible: boolean
-    user: any
+    user: ManagedUser | null
 }>()
 
 const emit = defineEmits(['update:visible'])
 
 const { t } = useI18n()
 const { d } = useI18nDate()
-const toast = useToast()
 const confirm = useConfirm()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
-const sessions = ref<any[]>([])
+const sessions = ref<UserSessionRecord[]>([])
 const loading = ref(false)
 const revokingAll = ref(false)
 
@@ -94,9 +107,14 @@ const fetchSessions = async () => {
             userId: props.user.id,
         })
         if (error) throw error
-        sessions.value = data?.sessions || []
-    } catch (err: any) {
-        toast.add({ severity: 'error', summary: 'Error', detail: err.message || 'Failed to list sessions' })
+        sessions.value = (data?.sessions || []).map((session) => ({
+            ...session,
+            userAgent: session.userAgent || '',
+        }))
+    } catch (error) {
+        showErrorToast(error, {
+            fallbackKey: 'pages.admin.users.feedback.load_sessions_failed',
+        })
     } finally {
         loading.value = false
     }
@@ -112,15 +130,20 @@ const revokeSession = async (token: string) => {
             sessionToken: token,
         })
         if (error) throw error
-        toast.add({ severity: 'info', summary: 'Success', detail: 'Session revoked', life: 3000 })
+        showSuccessToast('pages.admin.users.feedback.revoke_session_success', {
+            severity: 'info',
+        })
         await fetchSessions()
-    } catch (err: any) {
-        toast.add({ severity: 'error', summary: 'Error', detail: err.message || 'Revocation failed' })
+    } catch (error) {
+        showErrorToast(error, {
+            fallbackKey: 'pages.admin.users.feedback.revoke_session_failed',
+        })
     }
 }
 
 const revokeAllUserSessions = async () => {
     if (!props.user) return
+    const currentUserId = props.user.id
     confirm.require({
         message: t('pages.admin.users.confirm_revoke_all'),
         header: t('common.danger'),
@@ -131,14 +154,16 @@ const revokeAllUserSessions = async () => {
             revokingAll.value = true
             try {
                 const { error } = await authClient.admin.revokeUserSessions({
-                    userId: props.user.id,
+                    userId: currentUserId,
                 })
                 if (error) throw error
-                toast.add({ severity: 'success', summary: 'Success', detail: 'All sessions revoked', life: 3000 })
+                showSuccessToast('pages.admin.users.feedback.revoke_all_sessions_success')
                 sessions.value = []
                 emit('update:visible', false)
-            } catch (err: any) {
-                toast.add({ severity: 'error', summary: 'Error', detail: err.message || 'Revocation failed' })
+            } catch (error) {
+                showErrorToast(error, {
+                    fallbackKey: 'pages.admin.users.feedback.revoke_all_sessions_failed',
+                })
             } finally {
                 revokingAll.value = false
             }
@@ -146,7 +171,7 @@ const revokeAllUserSessions = async () => {
     })
 }
 
-const parseUserAgent = (ua: string) => {
+const parseUserAgent = (ua?: string | null) => {
     if (!ua) return 'Unknown'
     if (ua.includes('iPhone')) return 'iPhone'
     if (ua.includes('Android')) return 'Android'
@@ -155,7 +180,7 @@ const parseUserAgent = (ua: string) => {
     return ua.split(' ')[0] || 'Browser'
 }
 
-const getDeviceIcon = (ua: string) => {
+const getDeviceIcon = (ua?: string | null) => {
     if (ua?.includes('iPhone') || ua?.includes('Android')) return 'pi pi-mobile'
     return 'pi pi-desktop'
 }

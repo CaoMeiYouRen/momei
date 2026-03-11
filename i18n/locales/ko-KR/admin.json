@@ -284,6 +284,14 @@
                 "audio_preview": "오디오 미리보기",
                 "error": "실패 원인",
                 "delete_confirm": "선택한 AI 작업 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+                "feedback": {
+                    "load_stats_failed": "AI 통계를 불러오지 못했습니다",
+                    "load_tasks_failed": "AI 작업을 불러오지 못했습니다",
+                    "delete_task_success": "AI 작업을 삭제했습니다",
+                    "delete_task_failed": "AI 작업 삭제에 실패했습니다",
+                    "delete_tasks_success": "AI 작업을 일괄 삭제했습니다",
+                    "delete_tasks_failed": "AI 작업 일괄 삭제에 실패했습니다"
+                },
                 "task_detail": {
                     "title": "AI 작업 상세",
                     "page_title": "AI 작업 {id}",
@@ -651,6 +659,17 @@
                 "confirm_impersonate": "정말로 \"{name}\" 계정으로 대리 로그인하시겠습니까? 새 세션이 열립니다.",
                 "confirm_revoke_all": "이 사용자를 모든 기기에서 강제로 로그아웃시키시겠습니까?",
                 "confirm_delete": "정말로 사용자 \"{name}\"를 영구 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다!",
+                "feedback": {
+                    "load_sessions_failed": "사용자 세션을 불러오지 못했습니다",
+                    "revoke_session_success": "세션을 종료했습니다",
+                    "revoke_session_failed": "세션 종료에 실패했습니다",
+                    "revoke_all_sessions_success": "해당 사용자의 모든 세션을 종료했습니다",
+                    "revoke_all_sessions_failed": "모든 세션 종료에 실패했습니다",
+                    "update_role_success": "사용자 역할을 업데이트했습니다",
+                    "update_role_failed": "사용자 역할 업데이트에 실패했습니다",
+                    "ban_user_success": "사용자를 차단했습니다",
+                    "ban_user_failed": "사용자 차단에 실패했습니다"
+                },
                 "roles": {
                     "all": "모든 역할",
                     "admin": "관리자",

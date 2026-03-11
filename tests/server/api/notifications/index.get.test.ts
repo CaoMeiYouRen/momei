@@ -16,9 +16,7 @@ describe('notifications index.get API handler', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         vi.stubGlobal('eventHandler', vi.fn((fn: unknown) => fn))
-        vi.stubGlobal('getValidatedQuery', vi.fn((event: { query?: unknown }, validate: (query: unknown) => unknown) => {
-            return Promise.resolve(validate(event.query || {}))
-        }))
+        vi.stubGlobal('getValidatedQuery', vi.fn((event: { query?: unknown }, validate: (query: unknown) => unknown) => Promise.resolve(validate(event.query || {}))))
     })
 
     it('should return paginated notification history for current user', async () => {

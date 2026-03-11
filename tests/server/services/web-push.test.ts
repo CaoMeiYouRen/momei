@@ -12,7 +12,7 @@ const {
         save: vi.fn(),
     },
     mockUserRepo: {
-        exist: vi.fn(),
+        exists: vi.fn(),
     },
     mockDataSource: {
         isInitialized: true,
@@ -53,10 +53,10 @@ describe('web push subscription upsert', () => {
         vi.clearAllMocks()
 
         mockDataSource.isInitialized = true
-        mockUserRepo.exist.mockResolvedValue(true)
+        mockUserRepo.exists.mockResolvedValue(true)
         mockWebPushRepo.findOne.mockResolvedValue(null)
         mockWebPushRepo.create.mockImplementation(() => ({}))
-        mockWebPushRepo.save.mockImplementation(async (entity) => entity)
+        mockWebPushRepo.save.mockImplementation((entity) => Promise.resolve(entity))
         mockDataSource.getRepository.mockImplementation((entity: unknown) => {
             if (entity === User) {
                 return mockUserRepo
@@ -71,7 +71,7 @@ describe('web push subscription upsert', () => {
     })
 
     it('rejects stale session users before hitting the foreign key constraint', async () => {
-        mockUserRepo.exist.mockResolvedValue(false)
+        mockUserRepo.exists.mockResolvedValue(false)
 
         await expect(upsertWebPushSubscription({
             userId: 'missing-user',

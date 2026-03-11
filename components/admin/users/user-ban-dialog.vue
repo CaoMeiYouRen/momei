@@ -46,15 +46,19 @@
 <script setup lang="ts">
 import { authClient } from '@/lib/auth-client'
 
+interface ManagedUser {
+    id: string
+}
+
 const props = defineProps<{
     visible: boolean
-    user: any
+    user: ManagedUser | null
 }>()
 
 const emit = defineEmits(['update:visible', 'success'])
 
 const { t } = useI18n()
-const toast = useToast()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
 const reason = ref('')
 const expiry = ref<number | null>(null)
@@ -84,11 +88,13 @@ const handleBan = async () => {
             banExpiresIn: expiry.value || undefined,
         })
         if (error) throw error
-        toast.add({ severity: 'warn', summary: t('common.success'), detail: 'User banned', life: 3000 })
+        showSuccessToast('pages.admin.users.feedback.ban_user_success')
         emit('success')
         emit('update:visible', false)
-    } catch (err: any) {
-        toast.add({ severity: 'error', summary: 'Error', detail: err.message || 'Ban failed' })
+    } catch (error) {
+        showErrorToast(error, {
+            fallbackKey: 'pages.admin.users.feedback.ban_user_failed',
+        })
     } finally {
         loading.value = false
     }

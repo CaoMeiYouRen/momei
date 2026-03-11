@@ -284,6 +284,14 @@
                 "audio_preview": "音訊預覽",
                 "error": "失敗原因",
                 "delete_confirm": "確定要刪除選取的 AI 記錄嗎？此操作無法復原。",
+                "feedback": {
+                    "load_stats_failed": "載入 AI 統計失敗",
+                    "load_tasks_failed": "載入 AI 任務失敗",
+                    "delete_task_success": "AI 任務已刪除",
+                    "delete_task_failed": "刪除 AI 任務失敗",
+                    "delete_tasks_success": "AI 任務已批次刪除",
+                    "delete_tasks_failed": "批次刪除 AI 任務失敗"
+                },
                 "task_detail": {
                     "title": "AI 任務詳情",
                     "page_title": "AI 任務 {id}",
@@ -651,6 +659,17 @@
                 "confirm_impersonate": "確定要以 \"{name}\" 的身分登入嗎？這將開啟新的工作階段。",
                 "confirm_revoke_all": "確定要強制此使用者在所有裝置上登出嗎？",
                 "confirm_delete": "確定要永久刪除使用者 \"{name}\" 嗎？此操作無法復原！",
+                "feedback": {
+                    "load_sessions_failed": "載入使用者工作階段失敗",
+                    "revoke_session_success": "工作階段已下線",
+                    "revoke_session_failed": "下線工作階段失敗",
+                    "revoke_all_sessions_success": "已下線該使用者的全部工作階段",
+                    "revoke_all_sessions_failed": "批次下線工作階段失敗",
+                    "update_role_success": "使用者角色已更新",
+                    "update_role_failed": "更新使用者角色失敗",
+                    "ban_user_success": "使用者已封鎖",
+                    "ban_user_failed": "封鎖使用者失敗"
+                },
                 "roles": {
                     "all": "所有角色",
                     "admin": "管理員",

@@ -3,6 +3,7 @@ import {
     calculateDisplayCost,
     DEFAULT_AI_COST_FACTORS,
     normalizeAICostFactors,
+    resolveProviderCostCurrency,
 } from '@/server/utils/ai/cost-governance'
 import { parseMaybeJson } from '@/utils/shared/coerce'
 import { aiCostFactorsSchema } from '@/utils/schemas/ai'
@@ -31,7 +32,7 @@ export async function getAICostDisplayConfig() {
     }
 }
 
-export async function estimateAIDisplayCost(options: {
+export async function estimateAICostBreakdown(options: {
     category?: string | null
     type?: string | null
     usageSnapshot?: AIUsageSnapshot | null
@@ -42,9 +43,35 @@ export async function estimateAIDisplayCost(options: {
     providerCurrency?: string | null
 }) {
     const factors = await getAICostFactors()
-
-    return calculateDisplayCost({
+    const providerCurrency = options.providerCurrency || resolveProviderCostCurrency(options.provider, factors)
+    const displayCost = calculateDisplayCost({
         ...options,
+        providerCurrency,
         factors,
     })
+
+    return {
+        providerCost: Number(options.providerCost || 0),
+        providerCurrency,
+        displayCost,
+        costDisplay: {
+            currencyCode: factors.currencyCode,
+            currencySymbol: factors.currencySymbol,
+            quotaUnitPrice: factors.quotaUnitPrice,
+        },
+    }
+}
+
+export async function estimateAIDisplayCost(options: {
+    category?: string | null
+    type?: string | null
+    usageSnapshot?: AIUsageSnapshot | null
+    payload?: unknown
+    quotaUnits?: number | null
+    provider?: string | null
+    providerCost?: number | null
+    providerCurrency?: string | null
+}) {
+    const estimate = await estimateAICostBreakdown(options)
+    return estimate.displayCost
 }

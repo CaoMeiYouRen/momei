@@ -105,6 +105,8 @@ export interface SiteConfig extends InstallationSiteConfigModel {
     publicSecurityNumber?: string
 }
 
+type SaveSiteConfigInput = Pick<SiteConfig, 'defaultLanguage' | 'siteCopyright' | 'siteTitle'> & Partial<SiteConfig>
+
 /**
  * 管理员创建接口
  */
@@ -393,25 +395,38 @@ export async function isSystemInstalled(): Promise<boolean> {
 /**
  * 保存站点配置
  */
-export async function saveSiteConfig(config: SiteConfig): Promise<void> {
+export async function saveSiteConfig(config: SaveSiteConfigInput): Promise<void> {
     const settingRepo = dataSource.getRepository(Setting)
+    const normalizedConfig: SiteConfig = {
+        siteTitle: config.siteTitle,
+        siteDescription: config.siteDescription || '',
+        siteKeywords: config.siteKeywords || '',
+        siteUrl: config.siteUrl || '',
+        siteCopyright: config.siteCopyright,
+        defaultLanguage: config.defaultLanguage,
+        siteOperator: config.siteOperator,
+        contactEmail: config.contactEmail,
+        showComplianceInfo: config.showComplianceInfo,
+        icpLicenseNumber: config.icpLicenseNumber,
+        publicSecurityNumber: config.publicSecurityNumber,
+    }
 
     const settings = [
-        { key: SettingKey.SITE_TITLE, value: config.siteTitle, description: '站点标题', level: 0 },
-        { key: SettingKey.SITE_NAME, value: config.siteTitle, description: '站点名称', level: 0 },
-        { key: SettingKey.SITE_URL, value: config.siteUrl || '', description: '站点地址', level: 0 },
-        { key: SettingKey.SITE_DESCRIPTION, value: config.siteDescription ?? '', description: '站点描述', level: 0 },
-        { key: SettingKey.SITE_KEYWORDS, value: config.siteKeywords ?? '', description: '站点关键词', level: 0 },
-        { key: SettingKey.SITE_COPYRIGHT, value: config.siteCopyright || '', description: '默认版权协议', level: 0 },
-        { key: SettingKey.DEFAULT_LANGUAGE, value: config.defaultLanguage, description: '默认语言', level: 0 },
-        { key: SettingKey.SITE_OPERATOR, value: config.siteOperator || '', description: '运营方名称', level: 0 },
-        { key: SettingKey.CONTACT_EMAIL, value: config.contactEmail || '', description: '联系邮箱', level: 0 },
+        { key: SettingKey.SITE_TITLE, value: normalizedConfig.siteTitle, description: '站点标题', level: 0 },
+        { key: SettingKey.SITE_NAME, value: normalizedConfig.siteTitle, description: '站点名称', level: 0 },
+        { key: SettingKey.SITE_URL, value: normalizedConfig.siteUrl, description: '站点地址', level: 0 },
+        { key: SettingKey.SITE_DESCRIPTION, value: normalizedConfig.siteDescription, description: '站点描述', level: 0 },
+        { key: SettingKey.SITE_KEYWORDS, value: normalizedConfig.siteKeywords, description: '站点关键词', level: 0 },
+        { key: SettingKey.SITE_COPYRIGHT, value: normalizedConfig.siteCopyright || '', description: '默认版权协议', level: 0 },
+        { key: SettingKey.DEFAULT_LANGUAGE, value: normalizedConfig.defaultLanguage, description: '默认语言', level: 0 },
+        { key: SettingKey.SITE_OPERATOR, value: normalizedConfig.siteOperator || '', description: '运营方名称', level: 0 },
+        { key: SettingKey.CONTACT_EMAIL, value: normalizedConfig.contactEmail || '', description: '联系邮箱', level: 0 },
         { key: SettingKey.SITE_LOGO, value: '', description: '站点 Logo', level: 0 },
         { key: SettingKey.SITE_FAVICON, value: '', description: '站点图标', level: 0 },
         { key: SettingKey.FOOTER_CODE, value: '', description: '页脚附加代码', level: 0 },
-        { key: SettingKey.SHOW_COMPLIANCE_INFO, value: config.showComplianceInfo ? 'true' : 'false', description: '是否显示备案信息', level: 0 },
-        { key: SettingKey.ICP_LICENSE_NUMBER, value: config.icpLicenseNumber || '', description: 'ICP 备案号', level: 0 },
-        { key: SettingKey.PUBLIC_SECURITY_NUMBER, value: config.publicSecurityNumber || '', description: '公安备案号', level: 0 },
+        { key: SettingKey.SHOW_COMPLIANCE_INFO, value: normalizedConfig.showComplianceInfo ? 'true' : 'false', description: '是否显示备案信息', level: 0 },
+        { key: SettingKey.ICP_LICENSE_NUMBER, value: normalizedConfig.icpLicenseNumber || '', description: 'ICP 备案号', level: 0 },
+        { key: SettingKey.PUBLIC_SECURITY_NUMBER, value: normalizedConfig.publicSecurityNumber || '', description: '公安备案号', level: 0 },
     ]
 
     for (const setting of settings) {

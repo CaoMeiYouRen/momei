@@ -95,9 +95,12 @@ export interface TTSVoiceOption {
     description?: string | null
 }
 
-export interface TTSEstimateResponse extends AICostDisplay {
-    cost: number
+export interface TTSEstimateResponse {
+    providerCost: number
+    providerCurrency: string
+    displayCost: number
     quotaUnits: number
+    costDisplay: AICostDisplay
 }
 
 export interface TTSTaskCreateResponse {

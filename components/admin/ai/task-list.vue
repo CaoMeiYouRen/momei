@@ -209,14 +209,13 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs'
-import { formatCurrency, formatDecimal } from '@/utils/shared/number'
+import { formatDecimal } from '@/utils/shared/number'
+import { formatAICost } from '@/utils/shared/ai-cost'
+import { getAIChargeStatusSeverity, getAITaskStatusSeverity, getAITaskTypeIcon } from '@/utils/shared/ai-admin'
 import type {
     AIAdminTaskListFilters,
     AIAdminTaskListItem,
-    AIAdminTaskType,
     AICostDisplay,
-    AITaskStatus,
 } from '@/types/ai'
 
 type AdminAiPageEvent = {
@@ -245,8 +244,8 @@ defineEmits<{
 }>()
 
 const { t } = useI18n()
-const currencySymbol = computed(() => props.costDisplay?.currencySymbol || '$')
-const formatMoney = (value: unknown) => formatCurrency(value, 2, currencySymbol.value)
+const { formatDateTime } = useI18nDate()
+const formatMoney = (value: unknown) => formatAICost(value, props.costDisplay)
 
 const taskTypes = computed(() => [
     { label: t('pages.admin.ai.types.text_generation'), value: 'text_generation' },
@@ -263,37 +262,9 @@ const taskStatuses = computed(() => [
     { label: t('pages.admin.ai.statuses.failed'), value: 'failed' },
 ])
 
-const getTypeIcon = (type: AIAdminTaskType) => {
-    switch (type) {
-        case 'image_generation': return 'pi pi-image'
-        case 'tts': return 'pi pi-volume-up'
-        case 'podcast': return 'pi pi-microphone'
-        case 'transcription': return 'pi pi-comment'
-        default: return 'pi pi-align-left'
-    }
-}
-
-const getStatusSeverity = (status: AITaskStatus) => {
-    switch (status) {
-        case 'completed': return 'success'
-        case 'processing': return 'info'
-        case 'failed': return 'danger'
-        default: return 'secondary'
-    }
-}
-
-const getChargeStatusSeverity = (status: AIAdminTaskListItem['chargeStatus']) => {
-    switch (status) {
-        case 'actual': return 'success'
-        case 'estimated': return 'warning'
-        case 'waived': return 'secondary'
-        default: return 'contrast'
-    }
-}
-
-const formatDateTime = (date: string | Date | null) => {
-    return date ? dayjs(date).format('YYYY-MM-DD HH:mm') : '-'
-}
+const getTypeIcon = getAITaskTypeIcon
+const getStatusSeverity = getAITaskStatusSeverity
+const getChargeStatusSeverity = getAIChargeStatusSeverity
 </script>
 
 <style lang="scss" scoped>

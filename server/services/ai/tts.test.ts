@@ -39,6 +39,16 @@ vi.mock('@/server/utils/ai/timeout', () => ({
     withAITimeout: vi.fn((promise: Promise<unknown>) => promise),
 }))
 vi.mock('./cost-display', () => ({
+    estimateAICostBreakdown: vi.fn().mockResolvedValue({
+        providerCost: 0,
+        providerCurrency: 'USD',
+        displayCost: 0,
+        costDisplay: {
+            currencyCode: 'CNY',
+            currencySymbol: '¥',
+            quotaUnitPrice: 0,
+        },
+    }),
     estimateAIDisplayCost: vi.fn().mockResolvedValue(0),
 }))
 

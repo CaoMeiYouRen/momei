@@ -209,12 +209,13 @@
 
 <script setup lang="ts">
 import { parseMaybeJson } from '@/utils/shared/coerce'
-import { formatCurrency, formatDecimal } from '@/utils/shared/number'
+import { formatDecimal } from '@/utils/shared/number'
+import { formatAICost } from '@/utils/shared/ai-cost'
+import { formatAIAdminJson, getAIChargeStatusSeverity, getAITaskStatusSeverity } from '@/utils/shared/ai-admin'
 import type {
     AIAdminTaskDataValue,
     AIAdminTaskListItem,
     AICostDisplay,
-    AITaskStatus,
 } from '@/types/ai'
 
 function parseTaskDataValue(value: AIAdminTaskDataValue): Record<string, unknown> | null {
@@ -234,39 +235,12 @@ const props = defineProps<{
     costDisplay?: AICostDisplay | null
 }>()
 
-const toast = useToast()
 const { t } = useI18n()
-const currencySymbol = computed(() => props.costDisplay?.currencySymbol || '$')
-const formatMoney = (value: unknown) => formatCurrency(value, 2, currencySymbol.value)
-
-const getStatusSeverity = (status: AITaskStatus) => {
-    switch (status) {
-        case 'completed': return 'success'
-        case 'processing': return 'info'
-        case 'failed': return 'danger'
-        default: return 'secondary'
-    }
-}
-
-const getChargeStatusSeverity = (status: AIAdminTaskListItem['chargeStatus']) => {
-    switch (status) {
-        case 'actual': return 'success'
-        case 'estimated': return 'warning'
-        case 'waived': return 'secondary'
-        default: return 'contrast'
-    }
-}
-
-const formatJson = (data: AIAdminTaskDataValue) => {
-    if (!data) return ''
-
-    if (typeof data === 'string') {
-        const parsed = parseMaybeJson<unknown>(data, data)
-        return typeof parsed === 'string' ? parsed : JSON.stringify(parsed, null, 2)
-    }
-
-    return JSON.stringify(data, null, 2)
-}
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
+const formatMoney = (value: unknown) => formatAICost(value, props.costDisplay)
+const getStatusSeverity = getAITaskStatusSeverity
+const getChargeStatusSeverity = getAIChargeStatusSeverity
+const formatJson = formatAIAdminJson
 
 const formatSize = (bytes?: number | null) => {
     if (!bytes) return '0 B'
@@ -311,13 +285,15 @@ const getTaskAudio = (task: AIAdminTaskListItem | null) => {
 }
 
 async function copyTaskId() {
-    await navigator.clipboard.writeText(props.task.id)
-    toast.add({
-        severity: 'success',
-        summary: t('common.success'),
-        detail: t('pages.admin.ai.task_detail.copy_task_id_success'),
-        life: 2000,
-    })
+    try {
+        await navigator.clipboard.writeText(props.task.id)
+        showSuccessToast('pages.admin.ai.task_detail.copy_task_id_success', { life: 2000 })
+    } catch (error) {
+        showErrorToast(error, {
+            fallbackKey: 'common.copy_failed',
+            life: 2000,
+        })
+    }
 }
 </script>
 

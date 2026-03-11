@@ -89,7 +89,7 @@ export async function upsertWebPushSubscription(options: {
     }
 
     const userRepo = dataSource.getRepository(User)
-    const userExists = await userRepo.exist({ where: { id: options.userId } })
+    const userExists = await userRepo.exists({ where: { id: options.userId } })
 
     if (!userExists) {
         logger.warn(`[WebPush] Ignore subscription upsert for missing user ${options.userId}`)

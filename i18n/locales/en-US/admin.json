@@ -284,6 +284,14 @@
                 "audio_preview": "Audio Preview",
                 "error": "Error Reason",
                 "delete_confirm": "Are you sure you want to delete selected AI task records? This action cannot be undone.",
+                "feedback": {
+                    "load_stats_failed": "Failed to load AI statistics",
+                    "load_tasks_failed": "Failed to load AI tasks",
+                    "delete_task_success": "AI task deleted",
+                    "delete_task_failed": "Failed to delete AI task",
+                    "delete_tasks_success": "AI tasks deleted",
+                    "delete_tasks_failed": "Failed to delete AI tasks"
+                },
                 "task_detail": {
                     "title": "AI Task Detail",
                     "page_title": "AI Task {id}",
@@ -651,6 +659,17 @@
                 "confirm_impersonate": "Are you sure you want to impersonate \"{name}\"? This will open a new session.",
                 "confirm_revoke_all": "Are you sure you want to force sign out this user from all devices?",
                 "confirm_delete": "Are you sure you want to permanently delete user \"{name}\"? This action cannot be undone!",
+                "feedback": {
+                    "load_sessions_failed": "Failed to load user sessions",
+                    "revoke_session_success": "Session revoked",
+                    "revoke_session_failed": "Failed to revoke session",
+                    "revoke_all_sessions_success": "All user sessions revoked",
+                    "revoke_all_sessions_failed": "Failed to revoke all sessions",
+                    "update_role_success": "User role updated",
+                    "update_role_failed": "Failed to update user role",
+                    "ban_user_success": "User banned",
+                    "ban_user_failed": "Failed to ban user"
+                },
                 "roles": {
                     "all": "All Roles",
                     "admin": "Admin",
