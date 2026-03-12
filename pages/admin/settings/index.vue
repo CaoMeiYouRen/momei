@@ -3,6 +3,13 @@
         <AdminPageHeader :title="$t('pages.admin.settings.system.title')">
             <template #actions>
                 <Button
+                    :label="$t('common.feedback')"
+                    icon="pi pi-life-ring"
+                    severity="secondary"
+                    outlined
+                    @click="openFeedbackPage"
+                />
+                <Button
                     :label="$t('common.save')"
                     icon="pi pi-check"
                     :loading="saving"
@@ -24,6 +31,13 @@
                         <p>{{ $t('pages.admin.settings.system.demo_preview.description') }}</p>
                     </div>
                 </Message>
+
+                <SetupFollowUpCard
+                    v-if="showSetupFollowUp"
+                    @open-tab="openSuggestedTab"
+                    @continue-editor="continueToEditor"
+                    @dismiss="dismissSetupFollowUp"
+                />
 
                 <SettingExplanationCard :stats="smartModeStats" />
 
@@ -146,14 +160,17 @@ import AgreementsSettings from '@/components/admin/settings/agreements-settings.
 import CommercialSettings from '@/components/admin/settings/commercial-settings.vue'
 import SettingAuditLogList from '@/components/admin/settings/setting-audit-log-list.vue'
 import SettingExplanationCard from '@/components/admin/settings/setting-explanation-card.vue'
+import SetupFollowUpCard from '@/components/admin/settings/setup-follow-up-card.vue'
 import ThirdPartySettings from '@/components/admin/settings/third-party-settings.vue'
 import { resolveAdminSettingsTab, type AdminSettingsTab } from '@/utils/shared/admin-settings-tabs'
+import { clearQueuedSetupJourneyStage, getQueuedSetupJourneyStage, queueSetupJourneyStage } from '@/utils/web/setup-journey'
 import type { SettingItem, SettingLockReason, SettingSource } from '@/types/setting'
 
 const { t } = useI18n()
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
 const { $appFetch } = useAppApi()
 const route = useRoute()
+const localePath = useLocalePath()
 
 type SettingFormValue = string | number | boolean | null
 
@@ -180,6 +197,7 @@ const activeTab = ref<AdminSettingsTab>('general')
 const isDemoPreview = ref(false)
 const settings = ref<Record<string, SettingFormValue>>({})
 const metadata = ref<Record<string, SettingMetadata>>({})
+const showSetupFollowUp = ref(false)
 
 const numberSettingFallbacks: Record<string, number> = {
     posts_per_page: 10,
@@ -290,8 +308,31 @@ const saveSettings = async () => {
     }
 }
 
+const openSuggestedTab = (tab: AdminSettingsTab) => {
+    activeTab.value = tab
+}
+
+const dismissSetupFollowUp = () => {
+    clearQueuedSetupJourneyStage()
+    showSetupFollowUp.value = false
+}
+
+const continueToEditor = async () => {
+    queueSetupJourneyStage('editor')
+    showSetupFollowUp.value = false
+    await navigateTo(localePath('/admin/posts/new'))
+}
+
+const openFeedbackPage = async () => {
+    await navigateTo(localePath('/feedback'))
+}
+
 onMounted(() => {
-    loadSettings()
+    void loadSettings()
+
+    if (getQueuedSetupJourneyStage() === 'admin') {
+        showSetupFollowUp.value = true
+    }
 })
 
 watch(() => route.query.tab, (nextTab) => {

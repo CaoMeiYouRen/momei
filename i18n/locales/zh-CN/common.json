@@ -96,6 +96,7 @@
         "copy_success": "已成功复制到剪贴板",
         "copy_failed": "复制失败，请手动选择复制",
         "regenerate": "重新生成",
+        "feedback": "反馈",
         "about": "关于",
         "view_all": "查看全部",
         "error_loading": "加载失败",

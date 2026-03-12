@@ -158,6 +158,7 @@ export enum SettingKey {
     SITE_FAVICON = 'site_favicon',
     SITE_OPERATOR = 'site_operator',
     CONTACT_EMAIL = 'contact_email',
+    FEEDBACK_URL = 'feedback_url',
 
     // Theme
     THEME_ACTIVE_CONFIG_ID = 'theme_active_config_id',
@@ -282,6 +283,7 @@ export interface GeneralSettingsFields {
     site_favicon: string | null
     site_operator: string | null
     contact_email: string | null
+    feedback_url: string | null
     show_compliance_info: boolean
     icp_license_number: string | null
     public_security_number: string | null

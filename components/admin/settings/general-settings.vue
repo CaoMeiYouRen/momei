@@ -160,6 +160,20 @@
             />
         </SettingFormField>
 
+        <SettingFormField
+            field-key="feedback_url"
+            input-id="feedback_url"
+            :metadata="metadata.feedback_url"
+            :description="$t('pages.admin.settings.system.hints.feedback_url')"
+        >
+            <InputText
+                id="feedback_url"
+                v-model="settings.feedback_url"
+                :disabled="metadata.feedback_url?.isLocked"
+                fluid
+            />
+        </SettingFormField>
+
         <Divider align="left">
             <b>{{ $t('pages.admin.settings.system.sections.footer') }}</b>
         </Divider>

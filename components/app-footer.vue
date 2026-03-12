@@ -6,6 +6,9 @@
                 <NuxtLink :to="localePath('/about')" class="footer__link">
                     {{ $t('common.about') }}
                 </NuxtLink>
+                <NuxtLink :to="localePath('/feedback')" class="footer__link">
+                    {{ $t('common.feedback') }}
+                </NuxtLink>
                 <NuxtLink :to="localePath('friend-links')" class="footer__link">
                     {{ $t('common.friend_links') }}
                 </NuxtLink>

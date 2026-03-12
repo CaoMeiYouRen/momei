@@ -28,6 +28,13 @@
             @open-history="historyVisible = true"
         />
 
+        <PostEditorSetupReminder
+            v-if="showSetupReminder"
+            @open-settings="handleOpenSettingsReminder"
+            @open-system-settings="handleOpenSystemSettings"
+            @dismiss="dismissSetupReminder"
+        />
+
         <!-- Editor Area -->
         <div
             class="editor-area"
@@ -107,16 +114,21 @@
 <script setup lang="ts">
 import PostEditorHeader from '@/components/admin/posts/post-editor-header.vue'
 import PostEditorSettings from '@/components/admin/posts/post-editor-settings.vue'
+import PostEditorSetupReminder from '@/components/admin/posts/post-editor-setup-reminder.vue'
 import PostTranslationWorkflowDialog from '@/components/admin/posts/post-translation-workflow-dialog.vue'
 import PublishPushDialog from '@/components/admin/posts/publish-push-dialog.vue'
 import PostHistoryPanel from '@/components/admin/posts/post-history-panel.vue'
 import PostEditorDragMask from '@/components/admin/posts/post-editor-drag-mask.vue'
 import { usePostEditorPage } from '@/composables/use-post-editor-page'
+import { clearQueuedSetupJourneyStage, getQueuedSetupJourneyStage } from '@/utils/web/setup-journey'
 
 definePageMeta({
     middleware: 'author',
     layout: false,
 })
+
+const localePath = useLocalePath()
+const showSetupReminder = ref(false)
 
 const {
     md,
@@ -167,6 +179,30 @@ const {
     getStatusLabel,
     getStatusSeverity,
 } = usePostEditorPage()
+
+const dismissSetupReminder = () => {
+    clearQueuedSetupJourneyStage()
+    showSetupReminder.value = false
+}
+
+const handleOpenSettingsReminder = () => {
+    settingsVisible.value = true
+    dismissSetupReminder()
+}
+
+const handleOpenSystemSettings = async () => {
+    dismissSetupReminder()
+    await navigateTo(localePath({
+        path: '/admin/settings',
+        query: { tab: 'ai' },
+    }))
+}
+
+onMounted(() => {
+    if (getQueuedSetupJourneyStage() === 'editor') {
+        showSetupReminder.value = true
+    }
+})
 </script>
 
 <style lang="scss" scoped>

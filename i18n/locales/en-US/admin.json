@@ -397,6 +397,12 @@
                 "clear_tags_confirm_title": "Confirm clearing tags",
                 "clear_tags_confirm_message": "Are you sure you want to remove all tags from the current post? This action does not auto-save.",
                 "summary_placeholder": "Post summary...",
+                "setup_reminder": {
+                    "title": "One last setup reminder before writing",
+                    "description": "If AI, notifications, or storage policies are not fully configured yet, you can review the settings first or dismiss this and start writing immediately.",
+                    "open_settings": "Open post settings",
+                    "open_system_settings": "Open system settings"
+                },
                 "cover_image": "Cover Image URL",
                 "audio_url": "Audio URL (Podcast)",
                 "media": {
@@ -787,6 +793,30 @@
                         "title": "Demo Preview Data",
                         "description": "This page is showing sanitized sample data so the system settings experience remains demonstrable in Demo mode. Reads are redirected to safe preview content, while save and delete operations are still blocked."
                     },
+                    "setup_follow_up": {
+                        "eyebrow": "Post-install follow-up",
+                        "title": "Recommended admin checklist",
+                        "description": "The installation wizard only covered the minimum bootstrap path. On your first admin visit, finish auth, notification, AI, and storage strategy before continuing into the editor flow.",
+                        "continue_editor": "Continue to the editor",
+                        "sections": {
+                            "auth": {
+                                "title": "Auth",
+                                "description": "Confirm registration policy, captcha, and the first admin recovery path."
+                            },
+                            "notifications": {
+                                "title": "Notifications",
+                                "description": "Wire browser push and admin alerts so important site events are never silent."
+                            },
+                            "ai": {
+                                "title": "AI services",
+                                "description": "Review models, quotas, and cost display before authors start using the tools."
+                            },
+                            "storage": {
+                                "title": "Storage",
+                                "description": "Verify upload paths, object storage, and disk thresholds before production use."
+                            }
+                        }
+                    },
                     "tabs": {
                         "general": "General",
                         "auth": "Authentication",
@@ -934,6 +964,7 @@
                         "site_favicon": "Favicon",
                         "site_operator": "Site Operator",
                         "contact_email": "Contact Email",
+                        "feedback_url": "Feedback URL",
                         "github_client_id": "GitHub Client ID",
                         "github_client_secret": "GitHub Client Secret",
                         "google_client_id": "Google Client ID",
@@ -1055,6 +1086,7 @@
                     "hints": {
                         "env_locked": "Locked by environment variable",
                         "site_name": "Used as the fallback name for SEO, emails, and similar contexts when the site title is empty.",
+                        "feedback_url": "Used by the public feedback page as the “contact this deployment” entry. You can provide a ticket URL, a form URL, or a mailto link. When empty, the contact email is used as the fallback.",
                         "ai_quota_policies_description": "Use the basic editor for global and role rules first. Add user, trust_level, and type:* exceptions in the advanced JSON section when needed.",
                         "ai_quota_policies": "Example:\n[\n  ｛\n    \"subjectType\": \"global\",\n    \"subjectValue\": \"default\",\n    \"scope\": \"all\",\n    \"period\": \"day\",\n    \"maxRequests\": 100,\n    \"maxQuotaUnits\": 200\n  ｝,\n  ｛\n    \"subjectType\": \"role\",\n    \"subjectValue\": \"author\",\n    \"scope\": \"image\",\n    \"period\": \"day\",\n    \"maxConcurrentHeavyTasks\": 2\n  ｝\n]",
                         "ai_alert_thresholds_description": "Configure quota usage, cost usage, and short-window failure burst alert thresholds with a form-based editor.",

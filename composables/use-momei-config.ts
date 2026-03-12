@@ -13,6 +13,7 @@ export interface MomeiPublicConfig {
     siteFavicon: string
     siteOperator: string
     contactEmail: string
+    feedbackUrl: string
     showComplianceInfo: boolean
     icpLicenseNumber: string
     publicSecurityNumber: string
@@ -55,6 +56,7 @@ const createDefaultSiteConfig = (): MomeiPublicConfig => ({
     siteFavicon: '',
     siteOperator: '',
     contactEmail: '',
+    feedbackUrl: '',
     showComplianceInfo: false,
     icpLicenseNumber: '',
     publicSecurityNumber: '',

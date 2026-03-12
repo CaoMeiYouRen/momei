@@ -128,6 +128,8 @@ vi.mock('#imports', async (importOriginal) => {
         useAppApi: () => ({
             $appFetch: mockFetch,
         }),
+        useLocalePath: () => (path: string) => path,
+        navigateTo: vi.fn(),
         definePageMeta: vi.fn(),
         getAppManifest: vi.fn(() => Promise.resolve({
             publicPath: '/',
@@ -180,6 +182,7 @@ describe('Admin Settings Page', () => {
                     AgreementsSettings: { template: '<div>Agreements</div>' },
                     CommercialSettings: { template: '<div>Commercial</div>' },
                     SettingAuditLogList: { template: '<div>Audit Logs</div>' },
+                    SetupFollowUpCard: { template: '<div>Setup Follow Up</div>' },
                     ThirdPartySettings: { template: '<div>Third Party</div>' },
                     Card: { template: '<div><slot name="content" /></div>' },
                     Tabs: { template: '<div><slot /></div>' },

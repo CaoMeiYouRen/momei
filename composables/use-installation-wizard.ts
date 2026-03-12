@@ -19,6 +19,7 @@ import {
     mapValidationIssues,
     resolveRequestErrorMessage,
 } from '@/utils/shared/request-feedback'
+import { queueSetupJourneyStage } from '@/utils/web/setup-journey'
 
 interface InstallationStatusState {
     installed: boolean
@@ -230,6 +231,8 @@ export function useInstallationWizard() {
     }
 
     function openAdminSettings() {
+        queueSetupJourneyStage('admin')
+
         const target = localePath({
             path: '/login',
             query: {

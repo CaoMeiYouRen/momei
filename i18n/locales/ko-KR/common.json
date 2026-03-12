@@ -96,6 +96,7 @@
         "copy_success": "클립보드에 복사되었습니다",
         "copy_failed": "복사에 실패했습니다. 직접 복사해 주세요",
         "regenerate": "다시 생성",
+        "feedback": "피드백",
         "about": "소개",
         "view_all": "전체 보기",
         "error_loading": "불러오기에 실패했습니다",

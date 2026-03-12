@@ -96,6 +96,7 @@
         "copy_success": "Successfully copied to clipboard",
         "copy_failed": "Copy failed, please copy manually",
         "regenerate": "Regenerate",
+        "feedback": "Feedback",
         "about": "About",
         "view_all": "View All",
         "error_loading": "Error loading content",

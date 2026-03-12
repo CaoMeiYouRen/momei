@@ -397,6 +397,12 @@
                 "clear_tags_confirm_title": "태그 비우기 확인",
                 "clear_tags_confirm_message": "현재 게시글의 모든 태그를 제거하시겠습니까? 이 작업은 자동 저장되지 않습니다.",
                 "summary_placeholder": "게시글 요약...",
+                "setup_reminder": {
+                    "title": "작성 전 마지막 설정 안내",
+                    "description": "AI, 알림, 스토리지 정책이 아직 완전히 준비되지 않았다면 먼저 설정을 빠르게 확인할 수 있습니다. 원한다면 바로 글쓰기를 시작해도 됩니다.",
+                    "open_settings": "글 설정 열기",
+                    "open_system_settings": "시스템 설정 열기"
+                },
                 "cover_image": "커버 이미지 URL",
                 "audio_url": "오디오 URL (팟캐스트)",
                 "media": {
@@ -787,6 +793,30 @@
                         "title": "데모 미리보기 데이터",
                         "description": "이 페이지는 데모 모드에서도 시스템 설정 경험을 보여 줄 수 있도록 민감 정보를 제거한 샘플 데이터를 표시합니다. 읽기는 안전한 미리보기 데이터로 전환되며, 저장 및 삭제와 같은 수정 작업은 계속 차단됩니다."
                     },
+                    "setup_follow_up": {
+                        "eyebrow": "설치 후 이어서",
+                        "title": "권장 관리자 체크리스트",
+                        "description": "설치 마법사는 최소 부팅 경로만 다뤘습니다. 첫 관리자 진입 시 인증, 알림, AI, 스토리지 전략을 먼저 마무리한 뒤 편집기 흐름으로 넘어가는 것을 권장합니다.",
+                        "continue_editor": "편집기로 계속",
+                        "sections": {
+                            "auth": {
+                                "title": "인증",
+                                "description": "회원가입 정책, 캡차, 첫 관리자 복구 경로를 확인하세요."
+                            },
+                            "notifications": {
+                                "title": "알림",
+                                "description": "중요한 사이트 이벤트를 놓치지 않도록 브라우저 푸시와 관리자 알림을 연결하세요."
+                            },
+                            "ai": {
+                                "title": "AI 서비스",
+                                "description": "작성자가 도구를 쓰기 전에 모델, 쿼터, 비용 표시를 검토하세요."
+                            },
+                            "storage": {
+                                "title": "스토리지",
+                                "description": "실사용 전에 업로드 경로, 오브젝트 스토리지, 디스크 임계값을 확인하세요."
+                            }
+                        }
+                    },
                     "tabs": {
                         "general": "일반",
                         "auth": "계정 인증",
@@ -934,6 +964,7 @@
                         "site_favicon": "파비콘",
                         "site_operator": "운영 주체",
                         "contact_email": "문의 이메일",
+                        "feedback_url": "피드백 URL",
                         "github_client_id": "GitHub Client ID",
                         "github_client_secret": "GitHub Client Secret",
                         "google_client_id": "Google Client ID",
@@ -1055,6 +1086,7 @@
                     "hints": {
                         "env_locked": "환경 변수에 의해 잠겨 있습니다",
                         "site_name": "사이트 제목이 비어 있을 때 SEO, 이메일 등에서 사용할 기본 이름입니다.",
+                        "feedback_url": "공개 피드백 페이지의 “이 사이트 관리자에게 문의” 경로에 사용됩니다. 티켓 URL, 폼 URL, mailto 링크를 넣을 수 있으며, 비워 두면 문의 이메일로 대체됩니다.",
                         "ai_quota_policies_description": "먼저 기본 편집기로 global 및 role 규칙을 관리하세요. user, trust_level, type:* 같은 예외는 필요할 때 고급 JSON에 추가하면 됩니다.",
                         "ai_quota_policies": "예시:\n[\n  ｛\n    \"subjectType\": \"global\",\n    \"subjectValue\": \"default\",\n    \"scope\": \"all\",\n    \"period\": \"day\",\n    \"maxRequests\": 100,\n    \"maxQuotaUnits\": 200\n  ｝,\n  ｛\n    \"subjectType\": \"role\",\n    \"subjectValue\": \"author\",\n    \"scope\": \"image\",\n    \"period\": \"day\",\n    \"maxConcurrentHeavyTasks\": 2\n  ｝\n]",
                         "ai_alert_thresholds_description": "폼 기반 편집기로 사용량, 비용 사용률, 단시간 실패 급증 알림 기준을 설정합니다.",

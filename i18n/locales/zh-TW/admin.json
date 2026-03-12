@@ -397,6 +397,12 @@
                 "clear_tags_confirm_title": "確認清空標籤",
                 "clear_tags_confirm_message": "確定要清空目前文章的所有標籤嗎？此操作不會自動儲存。",
                 "summary_placeholder": "文章摘要...",
+                "setup_reminder": {
+                    "title": "創作前的最後一步提醒",
+                    "description": "如果您還沒補齊 AI、通知或儲存策略，可以先快速查看設定；若不想被打斷，也能直接開始創作。",
+                    "open_settings": "打開文章設定",
+                    "open_system_settings": "前往系統設定"
+                },
                 "cover_image": "封面圖 URL",
                 "audio_url": "音訊 URL (Podcast)",
                 "media": {
@@ -787,6 +793,30 @@
                         "title": "示範模式樣例資料",
                         "description": "目前頁面展示的是去識別化後的示範樣例，用於說明系統設定能力。讀取已切換為安全預覽資料，儲存、刪除等修改操作仍會被攔截。"
                     },
+                    "setup_follow_up": {
+                        "eyebrow": "首配續接",
+                        "title": "後台首配建議",
+                        "description": "安裝精靈已完成最小啟動配置。首次進入後台時，建議先補齊帳號驗證、站務通知、AI 與儲存策略，再繼續前往編輯器體驗完整創作流程。",
+                        "continue_editor": "繼續前往編輯器",
+                        "sections": {
+                            "auth": {
+                                "title": "帳號驗證",
+                                "description": "確認註冊策略、驗證碼與首位管理員的恢復路徑。"
+                            },
+                            "notifications": {
+                                "title": "站務通知",
+                                "description": "補齊瀏覽器推播與管理員通知，避免關鍵事件悄悄發生。"
+                            },
+                            "ai": {
+                                "title": "AI 服務",
+                                "description": "檢查模型、額度與成本顯示，確保創作體驗一致。"
+                            },
+                            "storage": {
+                                "title": "檔案儲存",
+                                "description": "確認上傳路徑、物件儲存與容量門檻，避免後續寫作受阻。"
+                            }
+                        }
+                    },
                     "tabs": {
                         "general": "常規",
                         "auth": "帳號驗證",
@@ -934,6 +964,7 @@
                         "site_favicon": "站點圖示 (Favicon)",
                         "site_operator": "營運主體",
                         "contact_email": "聯絡信箱",
+                        "feedback_url": "回饋網址",
                         "github_client_id": "GitHub Client ID",
                         "github_client_secret": "GitHub Client Secret",
                         "google_client_id": "Google Client ID",
@@ -1055,6 +1086,7 @@
                     "hints": {
                         "env_locked": "此設定已由環境變數鎖定",
                         "site_name": "當站點標題為空時，此名稱會作為 SEO、郵件等場景的回退值。",
+                        "feedback_url": "用於公開回饋頁中的「聯絡本站管理員」入口。可填寫工單網址、表單網址或 mailto 連結；留空時會回退到聯絡信箱。",
                         "ai_quota_policies_description": "優先使用基礎編輯器維護 global 與 role 策略；user、trust_level 與 type:* 等特殊規則可在進階 JSON 中補充。",
                         "ai_quota_policies": "示例:\n[\n  ｛\n    \"subjectType\": \"global\",\n    \"subjectValue\": \"default\",\n    \"scope\": \"all\",\n    \"period\": \"day\",\n    \"maxRequests\": 100,\n    \"maxQuotaUnits\": 200\n  ｝,\n  ｛\n    \"subjectType\": \"role\",\n    \"subjectValue\": \"author\",\n    \"scope\": \"image\",\n    \"period\": \"day\",\n    \"maxConcurrentHeavyTasks\": 2\n  ｝\n]",
                         "ai_alert_thresholds_description": "透過表單設定額度使用率、成本使用率與短時間失敗暴增的告警閾值。",

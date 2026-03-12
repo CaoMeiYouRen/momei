@@ -40,6 +40,7 @@ describe('useMomeiConfig', () => {
             siteFavicon: '',
             siteOperator: '',
             contactEmail: '',
+            feedbackUrl: '',
             showComplianceInfo: false,
             icpLicenseNumber: '',
             publicSecurityNumber: '',

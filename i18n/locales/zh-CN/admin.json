@@ -397,6 +397,12 @@
                 "clear_tags_confirm_title": "确认清空标签",
                 "clear_tags_confirm_message": "确定要清空当前文章的所有标签吗？此操作不会自动保存。",
                 "summary_placeholder": "文章摘要...",
+                "setup_reminder": {
+                    "title": "创作前的最后一步提醒",
+                    "description": "如果您还没补齐 AI、通知或存储策略，可以先快速查看设置面板；不想被打断也可以直接开始创作。",
+                    "open_settings": "打开文章设置",
+                    "open_system_settings": "前往系统设置"
+                },
                 "cover_image": "封面图 URL",
                 "audio_url": "音频 URL (Podcast)",
                 "media": {
@@ -787,6 +793,30 @@
                         "title": "演示模式样例数据",
                         "description": "当前页面展示的是脱敏后的演示样例，用于说明系统设置能力。读取已切换为安全预览数据，保存、删除等修改操作仍会被拦截。"
                     },
+                    "setup_follow_up": {
+                        "eyebrow": "首配续接",
+                        "title": "后台首配建议",
+                        "description": "安装向导已经完成最小启动配置。首次进入后台时，建议先补齐账户验证、站务通知、AI 和存储策略，再继续进入编辑器体验完整创作链路。",
+                        "continue_editor": "继续前往编辑器",
+                        "sections": {
+                            "auth": {
+                                "title": "账户验证",
+                                "description": "确认注册策略、验证码和首个管理员恢复路径。"
+                            },
+                            "notifications": {
+                                "title": "站务通知",
+                                "description": "补齐浏览器推送和管理员通知，避免关键事件静默发生。"
+                            },
+                            "ai": {
+                                "title": "AI 服务",
+                                "description": "检查模型、额度和成本展示，保证创作体验一致。"
+                            },
+                            "storage": {
+                                "title": "文件存储",
+                                "description": "确认上传目录、对象存储和容量阈值，避免后续写作受阻。"
+                            }
+                        }
+                    },
                     "tabs": {
                         "general": "常规",
                         "auth": "账户验证",
@@ -934,6 +964,7 @@
                         "site_favicon": "站点图标 (Favicon)",
                         "site_operator": "运营主体",
                         "contact_email": "联系邮箱",
+                        "feedback_url": "反馈地址",
                         "github_client_id": "GitHub Client ID",
                         "github_client_secret": "GitHub Client Secret",
                         "google_client_id": "Google Client ID",
@@ -1055,6 +1086,7 @@
                     "hints": {
                         "env_locked": "此配置已由环境变量锁定",
                         "site_name": "当站点标题为空时，此名称会作为 SEO、邮件等场景的回退值。",
+                        "feedback_url": "用于公开反馈页中的“联系站点管理员”入口。可填写工单地址、表单地址或 mailto 链接；留空时会回退到联系邮箱。",
                         "ai_quota_policies_description": "优先用基础编辑器维护 global 和 role 策略；user、trust_level 与 type:* 等特殊规则可在高级 JSON 中补充。",
                         "ai_quota_policies": "示例:\n[\n  ｛\n    \"subjectType\": \"global\",\n    \"subjectValue\": \"default\",\n    \"scope\": \"all\",\n    \"period\": \"day\",\n    \"maxRequests\": 100,\n    \"maxQuotaUnits\": 200\n  ｝,\n  ｛\n    \"subjectType\": \"role\",\n    \"subjectValue\": \"author\",\n    \"scope\": \"image\",\n    \"period\": \"day\",\n    \"maxConcurrentHeavyTasks\": 2\n  ｝\n]",
                         "ai_alert_thresholds_description": "通过表单配置额度使用率、成本使用率与短窗口失败突增告警阈值。",
