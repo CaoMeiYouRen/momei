@@ -29,6 +29,7 @@ import { ExternalLink } from '../entities/external-link'
 import { FriendLinkCategory } from '../entities/friend-link-category'
 import { FriendLink } from '../entities/friend-link'
 import { FriendLinkApplication } from '../entities/friend-link-application'
+import { LinkGovernanceReport } from '../entities/link-governance-report'
 import { SettingAuditLog } from '../entities/setting-audit-log'
 import { NotificationDeliveryLog } from '../entities/notification-delivery-log'
 import { WebPushSubscription } from '../entities/web-push-subscription'
@@ -89,6 +90,7 @@ const entities = [
     FriendLinkCategory,
     FriendLink,
     FriendLinkApplication,
+    LinkGovernanceReport,
     SettingAuditLog,
     NotificationDeliveryLog,
     WebPushSubscription,
