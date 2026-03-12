@@ -1,7 +1,7 @@
 ---
 name: full-stack-master
 description: 全局一体化开发与协作工作流技能，覆盖需求评估、开发、测试、质量、文档、提交、发布等全链路阶段，可集成所有基础原子技能，实现 PDTFC+ 循环自动化及分工合作优化。
-version: 1.1.0
+version: 1.2.0
 author: CaoMeiYouRen & Copilot
 appliesTo: "**/*"
 ---
@@ -29,18 +29,22 @@ appliesTo: "**/*"
 
 1. **P (Plan) - 需求分析与规划**
     1. **读取文档**：确认 `todo.md` 和 `roadmap.md`。
-    2. **意图抽离**：启动采访追问程序同步需求。
-    3. **方案设计**：使用 `technical-planning` 规划改动清单，并使用 `todo-manager` 更新状态。
+    2. **范围核对**：先判断事项是否已经属于当前待办、当前验收标准或当前阶段规划；若只是当前任务收口，不得误判为新增需求。
+    3. **意图抽离**：启动采访追问程序同步需求。
+    4. **插队分流**：若事项不在当前规划内，先按 `planning.md` 判断其是否允许插队；只有阻塞交付、回归修复、安全/合规高风险事项才进入当前阶段，其余一律进入 backlog。
+    5. **方案设计**：仅对允许执行的事项使用 `technical-planning` 规划改动清单，并使用 `todo-manager` 更新状态。
     - **技能**：`requirement-analyst`、`todo-manager`、`technical-planning`
 
 2. **D (Do) - 开发实现**
     1. **核心实现**：遵循 [开发规范](../../../docs/standards/development.md)；若涉及持久化，优先开发 `database-expert` 实体。
-    2. **自检修复**：开发完成通过 `code-quality-auditor` 消除 Lint 和类型报错。
+    2. **拒绝静默膨胀**：开发过程中发现新的想法、优化点或非阻塞缺陷时，必须返回 P 阶段重新分流，不得直接扩写当前任务。
+    3. **自检修复**：开发完成通过 `code-quality-auditor` 消除 Lint 和类型报错。
     - **技能**：`database-expert`、`backend-logic-expert`、`vue-frontend-expert`、`code-quality-auditor`
 
 3. **A (Audit) - 代码审计**
     1. **安全审计**：扫描注入、越权与敏感信息。
     2. **规范审计**：对比 `todo.md` 确认功能点与规划一致。
+    3. **新增事项回流**：审计阶段若发现不属于当前验收范围的新问题，必须先回到 P 阶段决定插队或延期。
     - **技能**：`code-quality-auditor`、`security-guardian`
 
 4. **C1 (Commit) - 功能提交**
@@ -52,6 +56,7 @@ appliesTo: "**/*"
 
 6. **T (Test) - 自动化测试**
     1. **定向测试**：编写并运行 Vitest 用例（测试代码也需过审计）。
+    2. **测试发现分流**：测试中发现的非阻塞优化项或未来需求，不直接并入当前修复，统一回到 P 阶段做准入判断。
     - **技能**：`test-engineer`
 
 7. **C2 (Commit) - 测试提交**
@@ -64,8 +69,8 @@ appliesTo: "**/*"
 4. **质量检测与审查 (Test/Review)**
     - **要求**：执行测试前，**必须读取** [测试规范](../../../docs/standards/testing.md)。
     - **任务**：运行 `pnpm lint`, `pnpm typecheck` 以及**定向/按需测试**。
-    - **策略**: 遵循 [高效测试策略](../../../docs/standards/testing.md#6-高效测试策略-efficient-testing-strategy)，除非必要否则不执行全量测试。
-    - **技能**：`quality-guardian`、`test-engineer`、`code-reviewer`
+    - **策略**: 遵循 [测试规范](../../../docs/standards/testing.md)，除非必要否则不执行全量测试。
+    - **技能**：`code-quality-auditor`、`test-engineer`、`security-guardian`
 
 5. **问题修复 (Fix)**
     - **目标**：消除上阶段发现的所有缺陷。
@@ -74,7 +79,7 @@ appliesTo: "**/*"
 6. **功能提交 (Commit - Phase 1)**
     - **目标**：在通过核心质量检查后提交业务逻辑。
     - **任务**：使用 Conventional Commits 规范（中文）提交。
-    - **要求**: 遵循 [提交规模与原子化改动](../../../docs/standards/development.md#27-提交规模与原子化改动-commit-scale--atomic-changes)，确保一次提交对应一个 Todo，文件数 < 10。
+    - **要求**: 遵循 [开发规范](../../../docs/standards/development.md)，确保一次提交对应一个 Todo，文件数 < 10。
     - **技能**：`conventional-committer`
 
 7. **测试增强 (Enhance)**
@@ -98,9 +103,9 @@ appliesTo: "**/*"
 - [context-analyzer](../context-analyzer/SKILL.md)
 - [nuxt-code-editor](../nuxt-code-editor/SKILL.md)
 - [test-engineer](../test-engineer/SKILL.md)
-- [quality-guardian](../quality-guardian/SKILL.md)
+- [code-quality-auditor](../code-quality-auditor/SKILL.md)
 - [documentation-specialist](../documentation-specialist/SKILL.md)
-- [code-reviewer](../code-reviewer/SKILL.md)
+- [security-guardian](../security-guardian/SKILL.md)
 - [conventional-committer](../conventional-committer/SKILL.md)
 - [ui-validator](../ui-validator/SKILL.md)
 
@@ -121,6 +126,7 @@ appliesTo: "**/*"
 4. **安全检查与通用异常处理**
    - 强行插入 typecheck、lint 等质量关卡，禁止在未检测前进入提交/发布环节。
    - 明确安全等级和数据保护点。
+    - 对迭代中途新增事项强制执行“先规划、后实现”的闸门，禁止边做边扩 scope。
 
 5. **国际化与文档优先**
    - 所有工作流/技能创建应默认兼容 i18n 和标准文档同步动作。
@@ -132,7 +138,7 @@ workflow:
   - step: "需求分析"        # context-analyzer, documentation-specialist
   - step: "功能开发"        # nuxt-code-editor
   - step: "UI 验证"         # ui-validator
-  - step: "质量检测"        # quality-guardian, code-reviewer
+  - step: "质量检测"        # code-quality-auditor, security-guardian
   - step: "功能提交"        # conventional-committer
   - step: "测试补充"        # test-engineer
   - step: "测试提交"        # conventional-committer
