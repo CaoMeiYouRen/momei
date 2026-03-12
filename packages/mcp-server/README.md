@@ -16,12 +16,13 @@
 - `delete_post`：删除文章，默认关闭，需显式启用危险工具开关。
 - `suggest_titles`：基于文章正文生成标题建议。
 - `recommend_tags`：基于文章正文与现有标签生成标签建议。
+- `recommend_categories`：基于文章正文、源分类与目标语言现有 taxonomy 生成分类建议。
 - `translate_post`：创建整篇翻译任务，并返回任务标识。
 - `generate_cover_image`：生成封面图并在任务完成后自动回填文章封面字段。
 - `generate_post_audio`：生成 TTS / 播客音频并在任务完成后自动回填文章音频字段。
 - `get_ai_task`：查询自动化任务状态、进度与结果。
 
-其中标题建议、标签推荐属于同步工具；翻译、封面图、音频属于长任务工具，默认返回 `taskId` 后由客户端按需继续查询。
+其中标题建议、标签推荐、分类推荐属于同步工具；翻译、封面图、音频属于长任务工具，默认返回 `taskId` 后由客户端按需继续查询。
 
 ### 安装与构建
 
@@ -116,6 +117,7 @@ pnpm run stress-test -- -u http://localhost:3000 -k YOUR_API_KEY -n 1000 -c 10
 2. 默认不要开启危险工具，尤其是删除能力。
 3. 对长任务工具配合 `get_ai_task` 与主应用审计日志跟踪回填结果。
 4. 不要把 MCP 工具当作高并发批处理入口；批量自动化优先使用 CLI 或直接调外部 API。
+5. `translate_post` 支持 `confirmationMode=require|confirmed`，可先拿到预览结果，再由上层代理决定是否应用。
 
 ### 开发
 

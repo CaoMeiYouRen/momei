@@ -77,6 +77,13 @@ export class MomeiApi {
         })
     }
 
+    async recommendCategories(payload: { postId: string, targetLanguage: string, sourceLanguage?: string, limit?: number }) {
+        return this.request('/api/external/ai/recommend-categories', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+        })
+    }
+
     async translatePost(payload: {
         sourcePostId: string
         targetLanguage: string
@@ -84,6 +91,12 @@ export class MomeiApi {
         targetPostId?: string | null
         scopes?: string[]
         targetStatus?: 'draft' | 'pending'
+        slugStrategy?: 'source' | 'translate' | 'ai'
+        categoryStrategy?: 'cluster' | 'suggest'
+        confirmationMode?: 'auto' | 'require' | 'confirmed'
+        previewTaskId?: string
+        approvedSlug?: string | null
+        approvedCategoryId?: string | null
     }) {
         return this.request('/api/external/ai/translate-post', {
             method: 'POST',

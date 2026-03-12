@@ -12,7 +12,7 @@
 - ✅ 将 `date` 同步映射为 `createdAt` 和 `publishedAt`，并据此自动推导文章状态
 - ✅ 通过 Open API 批量导入文章到墨梅站点
 - ✅ 生成旧链接 mapping seeds，并调用迁移链接治理接口
-- ✅ 调用外部自动化 API 执行标题建议、标签推荐、整篇翻译、封面图生成、音频生成与任务查询
+- ✅ 调用外部自动化 API 执行标题建议、标签推荐、分类推荐、整篇翻译、封面图生成、音频生成与任务查询
 - ✅ 支持 dry run、并发导入、报告导出与失败重试
 
 ## 安装
@@ -146,6 +146,14 @@ momei ai suggest-titles <post-id> --api-key <your-api-key>
 momei ai recommend-tags <post-id> --api-key <your-api-key>
 ```
 
+### 分类推荐
+
+```bash
+momei ai recommend-categories <post-id> \
+  --target-language en-US \
+  --api-key <your-api-key>
+```
+
 ### 整篇翻译
 
 ```bash
@@ -163,9 +171,35 @@ momei ai translate-post <post-id> \
 | `--target-post-id <id>` | 更新现有目标译文，而不是新建 | - |
 | `--scopes <items>` | 逗号分隔的翻译范围 | `title,content,summary,category,tags,coverImage,audio` |
 | `--target-status <status>` | 目标文章状态，`draft` 或 `pending` | `draft` |
+| `--slug-strategy <strategy>` | slug 策略：`source`、`translate`、`ai` | `source` |
+| `--category-strategy <strategy>` | 分类策略：`cluster` 或 `suggest` | `cluster` |
+| `--preview` | 仅生成可审核预览，不直接写入文章 | `false` |
+| `--confirm-preview-task <id>` | 基于既有预览任务执行最终落库 | - |
+| `--approved-slug <slug>` | 应用预览时覆盖 slug | - |
+| `--approved-category-id <id>` | 应用预览时覆盖分类 | - |
 | `--wait` | 阻塞等待任务完成 | `false` |
-| `--poll-interval <ms>` | 轮询间隔 | `3000` |
-| `--timeout <ms>` | 最长等待时间 | `300000` |
+
+预览确认工作流示例：
+
+```bash
+# 先生成可审核预览
+momei ai translate-post <post-id> \
+  --target-language en-US \
+  --slug-strategy ai \
+  --category-strategy suggest \
+  --preview \
+  --api-key <your-api-key> \
+  --wait
+
+# 再基于预览任务确认写入
+momei ai translate-post <post-id> \
+  --target-language en-US \
+  --confirm-preview-task <preview-task-id> \
+  --approved-slug custom-preview-slug \
+  --approved-category-id <category-id> \
+  --api-key <your-api-key> \
+  --wait
+```
 
 ### 封面图生成
 
@@ -195,6 +229,7 @@ momei ai task <task-id> --api-key <your-api-key>
 
 - 长任务默认立即返回 `taskId`，配合 `momei ai task <task-id>` 查询。
 - 显式传入 `--wait` 时，CLI 会轮询等待并输出最终结果摘要。
+- `translate-post --preview` 会返回 `needsConfirmation` 预览结果；再次传入 `--confirm-preview-task <taskId>` 才会真正落库。
 - 封面图与音频任务完成后会自动回填文章字段，具体结果以任务返回值为准。
 
 ## 命令四：发布文章

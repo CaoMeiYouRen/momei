@@ -17,6 +17,8 @@ export default defineEventHandler(async (event) => {
         data: {
             taskId: task.id,
             status: task.status,
+            estimatedCost: task.estimatedCost,
+            estimatedQuotaUnits: task.estimatedQuotaUnits,
         },
     }
 })

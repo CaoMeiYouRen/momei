@@ -99,6 +99,41 @@ cli
     })
 
 cli
+    .command('ai recommend-categories <postId>', 'Recommend categories for an existing post in a target language')
+    .option('--api-url <url>', 'Momei API URL', { default: 'http://localhost:3000' })
+    .option('--api-key <key>', 'Momei API Key (required)')
+    .option('--target-language <locale>', 'Target locale code (required)')
+    .option('--source-language <locale>', 'Source locale code override')
+    .option('--limit <number>', 'Maximum number of category candidates', { default: 5 })
+    .action(async (postId: string, options: any) => {
+        if (!options.targetLanguage) {
+            console.error(chalk.red('Error: --target-language is required'))
+            process.exit(1)
+        }
+
+        const client = createAutomationClient(options)
+        const response = await client.recommendCategories({
+            postId,
+            targetLanguage: options.targetLanguage,
+            sourceLanguage: options.sourceLanguage,
+            limit: Number.parseInt(String(options.limit), 10),
+        })
+
+        console.log(chalk.blue('\n🗂️ Recommended Categories\n'))
+        if (response.data.candidates.length === 0) {
+            console.log(chalk.yellow('No matching existing categories were found.'))
+        }
+
+        response.data.candidates.forEach((candidate, index) => {
+            console.log(chalk.gray(`${index + 1}. ${candidate.name} (${candidate.id}) [${candidate.reason}]`))
+        })
+
+        if (response.data.proposedCategory) {
+            console.log(chalk.gray(`\nProposed category: ${response.data.proposedCategory.name} (${response.data.proposedCategory.slug})`))
+        }
+    })
+
+cli
     .command('ai translate-post <postId>', 'Translate an existing post into another language and backfill translation bindings')
     .option('--api-url <url>', 'Momei API URL', { default: 'http://localhost:3000' })
     .option('--api-key <key>', 'Momei API Key (required)')
@@ -107,6 +142,12 @@ cli
     .option('--target-post-id <id>', 'Continue or overwrite an existing translated post')
     .option('--scopes <scopes>', 'Comma separated scopes', { default: 'title,content,summary,category,tags,coverImage,audio' })
     .option('--target-status <status>', 'Target post status: draft or pending', { default: 'draft' })
+    .option('--slug-strategy <strategy>', 'Slug strategy: source, translate, or ai', { default: 'source' })
+    .option('--category-strategy <strategy>', 'Category strategy: cluster or suggest', { default: 'cluster' })
+    .option('--preview', 'Create a reviewable preview without writing the translated post', { default: false })
+    .option('--confirm-preview-task <id>', 'Apply a previously generated preview task')
+    .option('--approved-slug <slug>', 'Override slug when applying a preview')
+    .option('--approved-category-id <id>', 'Override category when applying a preview')
     .option('--wait', 'Wait for task completion', { default: false })
     .action(async (postId: string, options: any) => {
         if (!options.targetLanguage) {
@@ -119,9 +160,15 @@ cli
             sourcePostId: postId,
             targetLanguage: options.targetLanguage,
             sourceLanguage: options.sourceLanguage,
-            targetPostId: options.targetPostId,
+            targetPostId: options.confirmPreviewTask ? undefined : options.targetPostId,
             targetStatus: options.targetStatus,
             scopes: parseCsvList(options.scopes) as CliTranslatePostRequest['scopes'],
+            slugStrategy: options.slugStrategy,
+            categoryStrategy: options.categoryStrategy,
+            confirmationMode: options.confirmPreviewTask ? 'confirmed' : (options.preview ? 'require' : 'auto'),
+            previewTaskId: options.confirmPreviewTask,
+            approvedSlug: options.approvedSlug,
+            approvedCategoryId: options.approvedCategoryId,
         }
 
         const response = await client.translatePost(payload)
@@ -360,6 +407,11 @@ function displayTaskCreated(label: string, data: { taskId: string, status: strin
 function displayTaskCompletion(task: CliAutomationTaskStatusResponse) {
     console.log(chalk.blue('\n✅ Task Result\n'))
     console.log(JSON.stringify(task, null, 2))
+
+    const result = task.result && typeof task.result === 'object' ? task.result : null
+    if (result?.needsConfirmation === true) {
+        console.log(chalk.yellow('\nThis task generated a preview. Re-run with --confirm-preview-task <taskId> to apply it.'))
+    }
 }
 
 async function waitForAutomationTask(client: MomeiApiClient, taskId: string, label: string) {

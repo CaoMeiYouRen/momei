@@ -1,4 +1,6 @@
+/* eslint-disable max-lines */
 import { AIBaseService } from './base'
+import { TextService } from './text'
 import { requestTranslation, translateInChunks, type TranslateRequestOptions } from './text-translation'
 import { dataSource } from '@/server/database'
 import { AITask } from '@/server/entities/ai-task'
@@ -15,6 +17,10 @@ const DEFAULT_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content',
 
 type TranslatePostTaskStatus = 'pending' | 'processing' | 'completed' | 'failed'
 
+export type TranslatePostSlugStrategy = 'source' | 'translate' | 'ai'
+export type TranslatePostCategoryStrategy = 'cluster' | 'suggest'
+export type TranslatePostConfirmationMode = 'auto' | 'require' | 'confirmed'
+
 export interface TranslatePostTaskInput {
     sourcePostId: string
     targetLanguage: string
@@ -22,6 +28,61 @@ export interface TranslatePostTaskInput {
     targetPostId?: string | null
     scopes?: TranslationScopeField[]
     targetStatus?: PostStatus.DRAFT | PostStatus.PENDING
+    slugStrategy?: TranslatePostSlugStrategy
+    categoryStrategy?: TranslatePostCategoryStrategy
+    confirmationMode?: TranslatePostConfirmationMode
+    previewTaskId?: string
+    approvedSlug?: string | null
+    approvedCategoryId?: string | null
+}
+
+export interface PostCategorySuggestionCandidate {
+    id: string
+    name: string
+    slug: string
+    language: string
+    reason: 'translation-cluster' | 'translated-name' | 'translated-slug' | 'ai-recommended'
+}
+
+export interface PostCategoryRecommendationResult {
+    sourceCategory: {
+        id: string
+        name: string
+        slug: string
+        language: string
+    } | null
+    matchedCategoryId: string | null
+    candidates: PostCategorySuggestionCandidate[]
+    proposedCategory: {
+        name: string
+        slug: string
+        reason: 'translated-source-name'
+    } | null
+}
+
+interface TranslatePostPreviewSnapshot {
+    sourcePostId: string
+    targetPostId: string | null
+    targetLanguage: string
+    translationId: string | null
+    appliedScopes: TranslationScopeField[]
+    title: string
+    summary: string | null
+    content: string
+    slug: string
+    slugStrategy: TranslatePostSlugStrategy
+    categoryId?: string | null
+    categoryRecommendation?: PostCategoryRecommendationResult | null
+    tags?: string[]
+    tagBindings?: PostTagBindingInput[]
+    coverImage?: string | null
+    metadata?: ReturnType<typeof normalizeMetadataForPostInput>
+    copyright: PostTranslationSourceDetail['copyright']
+    visibility: PostTranslationSourceDetail['visibility']
+    status: PostStatus.DRAFT | PostStatus.PENDING
+    warnings: string[]
+    coverImageCopied: boolean
+    audioCopied: boolean
 }
 
 interface TranslationUsageAggregate {
@@ -49,6 +110,29 @@ function normalizeScopes(scopes?: TranslationScopeField[]) {
     return Array.from(new Set(nextScopes))
 }
 
+function normalizeSlugStrategy(strategy?: TranslatePostSlugStrategy) {
+    return strategy || 'source'
+}
+
+function normalizeCategoryStrategy(strategy?: TranslatePostCategoryStrategy) {
+    return strategy || 'cluster'
+}
+
+function normalizeConfirmationMode(mode?: TranslatePostConfirmationMode) {
+    return mode || 'auto'
+}
+
+function sanitizeSlug(value?: string | null) {
+    const normalized = value
+        ?.trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, '-')
+        .replace(/-{2,}/g, '-')
+        .replace(/^-+|-+$/g, '')
+
+    return normalized || 'translated-post'
+}
+
 function parseTaskPayload(task: Pick<AITask, 'payload'>): TranslatePostTaskInput {
     if (!task.payload) {
         throw new Error('Task payload is required')
@@ -59,6 +143,18 @@ function parseTaskPayload(task: Pick<AITask, 'payload'>): TranslatePostTaskInput
     }
 
     return task.payload as unknown as TranslatePostTaskInput
+}
+
+function parseTaskResult<T>(result: string | null | undefined): T | null {
+    if (!result) {
+        return null
+    }
+
+    if (typeof result === 'string') {
+        return JSON.parse(result) as T
+    }
+
+    return result as T
 }
 
 function mergeAudioMetadata(source: PostTranslationSourceDetail): PostMetadata | null {
@@ -114,6 +210,10 @@ export class PostAutomationService extends AIBaseService {
     static async createTranslatePostTask(input: TranslatePostTaskInput, actor: { userId: string, isAdmin: boolean }) {
         const sourcePost = await this.getAccessiblePost(input.sourcePostId, actor)
         const sourceLanguage = input.sourceLanguage || sourcePost.language
+        const scopes = normalizeScopes(input.scopes)
+        const confirmationMode = normalizeConfirmationMode(input.confirmationMode)
+        const slugStrategy = normalizeSlugStrategy(input.slugStrategy)
+        const categoryStrategy = normalizeCategoryStrategy(input.categoryStrategy)
 
         if (sourceLanguage === input.targetLanguage) {
             throw createError({
@@ -126,11 +226,17 @@ export class PostAutomationService extends AIBaseService {
             await this.getAccessiblePost(input.targetPostId, actor)
         }
 
-        const scopes = normalizeScopes(input.scopes)
         if (!input.targetPostId && (!scopes.includes('title') || !scopes.includes('content'))) {
             throw createError({
                 statusCode: 400,
                 statusMessage: 'Creating a translated post requires title and content scopes',
+            })
+        }
+
+        if (confirmationMode === 'confirmed' && !input.previewTaskId) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: 'Confirming a translated preview requires previewTaskId',
             })
         }
 
@@ -143,6 +249,9 @@ export class PostAutomationService extends AIBaseService {
                 ...input,
                 sourceLanguage,
                 scopes,
+                slugStrategy,
+                categoryStrategy,
+                confirmationMode,
             },
             progress: 0,
             textLength: sourcePost.title.length + sourcePost.content.length + (sourcePost.summary?.length || 0),
@@ -158,6 +267,22 @@ export class PostAutomationService extends AIBaseService {
         })
 
         return task
+    }
+
+    static async recommendCategoriesForPost(
+        input: {
+            postId: string
+            targetLanguage: string
+            sourceLanguage?: string
+            limit?: number
+        },
+        actor: { userId: string, isAdmin: boolean },
+    ) {
+        const sourcePost = await this.getAccessiblePost(input.postId, actor)
+        const sourceLanguage = input.sourceLanguage || sourcePost.language
+        return await this.buildCategoryRecommendation(sourcePost, input.targetLanguage, sourceLanguage, actor, {
+            limit: input.limit,
+        })
     }
 
     private static async getAccessiblePost(postId: string, actor: { userId: string, isAdmin: boolean }) {
@@ -213,21 +338,90 @@ export class PostAutomationService extends AIBaseService {
         return translatedContent
     }
 
-    private static async resolveCategoryId(sourceCategory: PostTranslationSourceDetail['category'], targetLanguage: string) {
+    private static async buildCategoryRecommendation(
+        sourcePost: PostTranslationSourceDetail,
+        targetLanguage: string,
+        sourceLanguage: string,
+        actor: { userId: string, isAdmin: boolean },
+        options: { limit?: number } = {},
+    ): Promise<PostCategoryRecommendationResult> {
+        const sourceCategory = sourcePost.category
+        const limit = options.limit || 5
+        const targetCategories = await dataSource.getRepository(Category).find({
+            where: { language: targetLanguage },
+        })
+
         if (!sourceCategory) {
-            return null
+            return {
+                sourceCategory: null,
+                matchedCategoryId: null,
+                candidates: [],
+                proposedCategory: null,
+            }
+        }
+
+        const candidates: PostCategorySuggestionCandidate[] = []
+        const candidateIds = new Set<string>()
+        const pushCandidate = (category: Category | null | undefined, reason: PostCategorySuggestionCandidate['reason']) => {
+            if (!category || candidateIds.has(category.id)) {
+                return
+            }
+
+            candidateIds.add(category.id)
+            candidates.push({
+                id: category.id,
+                name: category.name,
+                slug: category.slug,
+                language: category.language,
+                reason,
+            })
         }
 
         const clusterId = resolveTranslationClusterId(sourceCategory.translationId, sourceCategory.slug, sourceCategory.id)
-        if (!clusterId) {
-            return null
+        if (clusterId) {
+            pushCandidate(
+                targetCategories.find((category) => category.translationId === clusterId),
+                'translation-cluster',
+            )
         }
 
-        const targetCategory = await dataSource.getRepository(Category).findOne({
-            where: { translationId: clusterId, language: targetLanguage },
+        const translatedSourceName = sourceLanguage === targetLanguage
+            ? sourceCategory.name
+            : await TextService.translateName(sourceCategory.name, targetLanguage, actor.userId)
+        const translatedSourceSlug = sanitizeSlug(await TextService.suggestSlugFromName(translatedSourceName, actor.userId))
+
+        const categoryByName = new Map(targetCategories.map((category) => [category.name.trim().toLowerCase(), category]))
+        const categoryBySlug = new Map(targetCategories.map((category) => [category.slug.trim().toLowerCase(), category]))
+
+        pushCandidate(categoryByName.get(translatedSourceName.trim().toLowerCase()), 'translated-name')
+        pushCandidate(categoryBySlug.get(translatedSourceSlug), 'translated-slug')
+
+        const aiRecommendedNames = await TextService.recommendCategories({
+            title: sourcePost.title,
+            content: sourcePost.content,
+            categories: targetCategories.map((category) => category.name),
+            language: targetLanguage,
+        }, actor.userId)
+
+        aiRecommendedNames.forEach((name) => {
+            pushCandidate(categoryByName.get(name.trim().toLowerCase()), 'ai-recommended')
         })
 
-        return targetCategory?.id || null
+        return {
+            sourceCategory: {
+                id: sourceCategory.id,
+                name: sourceCategory.name,
+                slug: sourceCategory.slug,
+                language: sourceCategory.language,
+            },
+            matchedCategoryId: candidates[0]?.id || null,
+            candidates: candidates.slice(0, limit),
+            proposedCategory: {
+                name: translatedSourceName,
+                slug: translatedSourceSlug,
+                reason: 'translated-source-name',
+            },
+        }
     }
 
     private static async translateTagNamesBatch(
@@ -339,6 +533,179 @@ export class PostAutomationService extends AIBaseService {
         return targetPost as Post & PostTranslationSourceDetail
     }
 
+    private static async resolvePostSlug(options: {
+        sourcePost: PostTranslationSourceDetail
+        translatedTitle: string
+        translatedContent: string
+        strategy: TranslatePostSlugStrategy
+        actorUserId: string
+        approvedSlug?: string | null
+    }) {
+        if (options.approvedSlug) {
+            return sanitizeSlug(options.approvedSlug)
+        }
+
+        if (options.strategy === 'source') {
+            return sanitizeSlug(options.sourcePost.slug || options.translatedTitle)
+        }
+
+        if (options.strategy === 'translate') {
+            return sanitizeSlug(await TextService.suggestSlugFromName(options.translatedTitle, options.actorUserId))
+        }
+
+        return sanitizeSlug(await TextService.suggestSlug(
+            options.translatedTitle,
+            options.translatedContent,
+            options.actorUserId,
+        ))
+    }
+
+    private static async loadPreviewSnapshot(previewTaskId: string, actor: { userId: string, isAdmin: boolean }) {
+        const previewTask = await dataSource.getRepository(AITask).findOneBy({
+            id: previewTaskId,
+            userId: actor.userId,
+        })
+
+        if (previewTask?.type !== 'translate_post' || previewTask.status !== 'completed') {
+            throw createError({
+                statusCode: 404,
+                statusMessage: 'Preview task not found',
+            })
+        }
+
+        const previewResult = parseTaskResult<{
+            needsConfirmation?: boolean
+            preview?: TranslatePostPreviewSnapshot
+        }>(previewTask.result)
+
+        if (!previewResult?.needsConfirmation || !previewResult.preview) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: 'Preview task is not awaiting confirmation',
+            })
+        }
+
+        return previewResult.preview
+    }
+
+    private static async buildTranslatePreview(
+        input: TranslatePostTaskInput,
+        actor: { userId: string, isAdmin: boolean },
+        task: AITask,
+    ) {
+        const scopes = normalizeScopes(input.scopes)
+        const warnings: string[] = []
+        const usageAggregate = createUsageAggregate()
+        const slugStrategy = normalizeSlugStrategy(input.slugStrategy)
+        const categoryStrategy = normalizeCategoryStrategy(input.categoryStrategy)
+        const sourcePost = await this.getAccessiblePost(input.sourcePostId, actor)
+        const sourceLanguage = input.sourceLanguage || sourcePost.language
+        const targetPost = await this.findExistingTargetPost({ ...input, sourceLanguage, scopes }, sourcePost, actor)
+        const translationId = resolveTranslationClusterId(sourcePost.translationId, sourcePost.slug, sourcePost.id)
+
+        let translatedTitle = targetPost?.title || sourcePost.title
+        if (scopes.includes('title')) {
+            translatedTitle = await this.translateFieldContent(sourcePost.title, input.targetLanguage, {
+                sourceLanguage,
+                field: 'title',
+            }, usageAggregate)
+        }
+
+        await this.updateTaskProgress(task, 'processing', 15)
+
+        let translatedSummary = targetPost?.summary ?? sourcePost.summary ?? null
+        if (scopes.includes('summary')) {
+            translatedSummary = sourcePost.summary?.trim()
+                ? await this.translateFieldContent(sourcePost.summary, input.targetLanguage, {
+                    sourceLanguage,
+                    field: 'summary',
+                }, usageAggregate)
+                : null
+        }
+
+        await this.updateTaskProgress(task, 'processing', 25)
+
+        let translatedContent = targetPost?.content || sourcePost.content
+        if (scopes.includes('content')) {
+            const contentResult = await translateInChunks(sourcePost.content, input.targetLanguage, {
+                sourceLanguage,
+                onChunkComplete: async ({ completedChunks, totalChunks }) => {
+                    const progress = 25 + Math.round((completedChunks / totalChunks) * 55)
+                    await this.updateTaskProgress(task, 'processing', Math.min(80, progress))
+                },
+            })
+
+            translatedContent = contentResult.content
+            this.mergeUsage(usageAggregate, {
+                usage: contentResult.usage,
+                inputChars: sourcePost.content.length,
+                outputChars: contentResult.content.length,
+                requestCount: contentResult.usageSnapshot.requestCount || 1,
+            })
+        }
+
+        const slug = await this.resolvePostSlug({
+            sourcePost,
+            translatedTitle,
+            translatedContent,
+            strategy: slugStrategy,
+            actorUserId: actor.userId,
+            approvedSlug: input.approvedSlug,
+        })
+
+        const metadataPatch = scopes.includes('audio') ? mergeAudioMetadata(sourcePost) : undefined
+        const normalizedMetadataPatch = normalizeMetadataForPostInput(metadataPatch)
+        const categoryRecommendation = scopes.includes('category')
+            ? await this.buildCategoryRecommendation(sourcePost, input.targetLanguage, sourceLanguage, actor)
+            : null
+        const categoryId = scopes.includes('category')
+            ? (input.approvedCategoryId ?? (categoryStrategy === 'cluster'
+                ? categoryRecommendation?.candidates.find((item) => item.reason === 'translation-cluster')?.id || null
+                : categoryRecommendation?.matchedCategoryId || null))
+            : undefined
+
+        if (scopes.includes('category') && sourcePost.category && !categoryId) {
+            warnings.push(`Category translation missing for ${sourcePost.category.name}`)
+        }
+
+        const tagBindings = scopes.includes('tags')
+            ? await this.resolveTagBindings(sourcePost.tags, sourceLanguage, input.targetLanguage, usageAggregate)
+            : undefined
+
+        await this.updateTaskProgress(task, 'processing', 90)
+
+        return {
+            preview: {
+                sourcePostId: sourcePost.id,
+                targetPostId: targetPost?.id || input.targetPostId || null,
+                targetLanguage: input.targetLanguage,
+                translationId,
+                appliedScopes: scopes,
+                title: translatedTitle,
+                summary: translatedSummary,
+                content: translatedContent,
+                slug,
+                slugStrategy,
+                categoryId,
+                categoryRecommendation,
+                tags: tagBindings?.map((item) => item.name),
+                tagBindings,
+                coverImage: scopes.includes('coverImage') ? (sourcePost.coverImage || null) : undefined,
+                metadata: normalizedMetadataPatch,
+                copyright: sourcePost.copyright ?? null,
+                visibility: targetPost?.visibility ?? sourcePost.visibility,
+                status: input.targetStatus || targetPost?.status || PostStatus.DRAFT,
+                warnings,
+                coverImageCopied: scopes.includes('coverImage') && Boolean(sourcePost.coverImage),
+                audioCopied: scopes.includes('audio') && Boolean(metadataPatch?.audio?.url),
+            },
+            usageAggregate,
+            sourcePost,
+            sourceLanguage,
+            targetPost,
+        }
+    }
+
     private static async processTranslatePostTask(taskId: string, actor: { userId: string, isAdmin: boolean }) {
         const taskRepo = dataSource.getRepository(AITask)
         const task = await taskRepo.findOneBy({ id: taskId, userId: actor.userId })
@@ -349,87 +716,93 @@ export class PostAutomationService extends AIBaseService {
 
         const input = parseTaskPayload(task)
         const scopes = normalizeScopes(input.scopes)
-        const warnings: string[] = []
-        const usageAggregate = createUsageAggregate()
+        const confirmationMode = normalizeConfirmationMode(input.confirmationMode)
+        const slugStrategy = normalizeSlugStrategy(input.slugStrategy)
+        const categoryStrategy = normalizeCategoryStrategy(input.categoryStrategy)
 
         try {
             await this.updateTaskProgress(task, 'processing', 5)
 
-            const sourcePost = await this.getAccessiblePost(input.sourcePostId, actor)
-            const sourceLanguage = input.sourceLanguage || sourcePost.language
-            const targetPost = await this.findExistingTargetPost({ ...input, sourceLanguage, scopes }, sourcePost, actor)
-            const translationId = resolveTranslationClusterId(sourcePost.translationId, sourcePost.slug, sourcePost.id)
+            const previewContext = input.previewTaskId && confirmationMode === 'confirmed'
+                ? async () => {
+                    const preview = await this.loadPreviewSnapshot(input.previewTaskId!, actor)
+                    const sourcePost = await this.getAccessiblePost(input.sourcePostId, actor)
+                    const sourceLanguage = input.sourceLanguage || sourcePost.language
+                    const targetPost = await this.findExistingTargetPost({
+                        ...input,
+                        targetPostId: preview.targetPostId,
+                    }, sourcePost, actor)
 
-            let translatedTitle = targetPost?.title || sourcePost.title
-            if (scopes.includes('title')) {
-                translatedTitle = await this.translateFieldContent(sourcePost.title, input.targetLanguage, {
-                    sourceLanguage,
-                    field: 'title',
-                }, usageAggregate)
-            }
-
-            await this.updateTaskProgress(task, 'processing', 15)
-
-            let translatedSummary = targetPost?.summary ?? sourcePost.summary ?? null
-            if (scopes.includes('summary')) {
-                translatedSummary = sourcePost.summary?.trim()
-                    ? await this.translateFieldContent(sourcePost.summary, input.targetLanguage, {
+                    return {
+                        preview: {
+                            ...preview,
+                            slug: input.approvedSlug ? sanitizeSlug(input.approvedSlug) : preview.slug,
+                            categoryId: input.approvedCategoryId === undefined ? preview.categoryId : input.approvedCategoryId,
+                        },
+                        usageAggregate: createUsageAggregate(),
+                        sourcePost,
                         sourceLanguage,
-                        field: 'summary',
-                    }, usageAggregate)
-                    : null
-            }
+                        targetPost,
+                    }
+                }
+                : async () => await this.buildTranslatePreview({
+                    ...input,
+                    slugStrategy,
+                    categoryStrategy,
+                }, actor, task)
 
-            await this.updateTaskProgress(task, 'processing', 25)
+            const { preview, usageAggregate, sourcePost, sourceLanguage, targetPost } = await previewContext()
 
-            let translatedContent = targetPost?.content || sourcePost.content
-            if (scopes.includes('content')) {
-                const contentResult = await translateInChunks(sourcePost.content, input.targetLanguage, {
-                    sourceLanguage,
-                    onChunkComplete: async ({ completedChunks, totalChunks }) => {
-                        const progress = 25 + Math.round((completedChunks / totalChunks) * 55)
-                        await this.updateTaskProgress(task, 'processing', Math.min(80, progress))
+            if (confirmationMode === 'require') {
+                await this.recordTask({
+                    id: taskId,
+                    userId: actor.userId,
+                    category: 'text',
+                    type: 'translate_post',
+                    status: 'completed',
+                    payload: {
+                        ...input,
+                        sourceLanguage,
+                        scopes,
+                        slugStrategy,
+                        categoryStrategy,
+                        confirmationMode,
                     },
+                    response: {
+                        needsConfirmation: true,
+                        previewTaskId: taskId,
+                        preview,
+                    },
+                    progress: 100,
+                    textLength: sourcePost.title.length + sourcePost.content.length + (sourcePost.summary?.length || 0),
+                    usageSnapshot: {
+                        promptTokens: usageAggregate.promptTokens || undefined,
+                        completionTokens: usageAggregate.completionTokens || undefined,
+                        totalTokens: usageAggregate.totalTokens || undefined,
+                        requestCount: usageAggregate.requestCount || undefined,
+                        textChars: usageAggregate.textChars || undefined,
+                        outputChars: usageAggregate.outputChars || undefined,
+                    },
+                    settlementSource: 'actual',
                 })
-
-                translatedContent = contentResult.content
-                this.mergeUsage(usageAggregate, {
-                    usage: contentResult.usage,
-                    inputChars: sourcePost.content.length,
-                    outputChars: contentResult.content.length,
-                    requestCount: contentResult.usageSnapshot.requestCount || 1,
-                })
+                return
             }
 
-            const metadataPatch = scopes.includes('audio') ? mergeAudioMetadata(sourcePost) : undefined
-            const categoryId = scopes.includes('category')
-                ? await this.resolveCategoryId(sourcePost.category, input.targetLanguage)
-                : undefined
-            if (scopes.includes('category') && sourcePost.category && !categoryId) {
-                warnings.push(`Category translation missing for ${sourcePost.category.name}`)
-            }
-
-            const tagBindings = scopes.includes('tags')
-                ? await this.resolveTagBindings(sourcePost.tags, sourceLanguage, input.targetLanguage, usageAggregate)
-                : undefined
-
-            await this.updateTaskProgress(task, 'processing', 90)
-
-            const normalizedMetadataPatch = normalizeMetadataForPostInput(metadataPatch)
             const sharedBody = {
                 language: input.targetLanguage,
-                translationId,
-                title: translatedTitle,
-                content: translatedContent,
-                summary: translatedSummary,
-                categoryId,
-                tags: tagBindings?.map((item) => item.name),
-                tagBindings,
-                coverImage: scopes.includes('coverImage') ? (sourcePost.coverImage || null) : undefined,
-                metadata: normalizedMetadataPatch,
-                copyright: sourcePost.copyright ?? null,
-                visibility: targetPost?.visibility ?? sourcePost.visibility,
-                status: input.targetStatus || targetPost?.status || PostStatus.DRAFT,
+                translationId: preview.translationId,
+                title: preview.title,
+                slug: preview.slug,
+                content: preview.content,
+                summary: preview.summary,
+                categoryId: preview.categoryId,
+                tags: preview.tags,
+                tagBindings: preview.tagBindings,
+                coverImage: preview.coverImage,
+                metadata: preview.metadata,
+                copyright: preview.copyright,
+                visibility: preview.visibility,
+                status: preview.status,
             }
 
             const createBody = {
@@ -457,20 +830,27 @@ export class PostAutomationService extends AIBaseService {
                     ...input,
                     sourceLanguage,
                     scopes,
+                    slugStrategy,
+                    categoryStrategy,
+                    confirmationMode,
                 },
                 response: {
                     sourcePostId: sourcePost.id,
                     targetPostId: savedPost.id,
                     created: !targetPost,
                     targetLanguage: input.targetLanguage,
-                    translationId,
+                    translationId: preview.translationId,
                     url: `/posts/${savedPost.slug}`,
-                    appliedScopes: scopes,
-                    warnings,
-                    categoryResolved: Boolean(categoryId),
-                    translatedTagCount: tagBindings?.length || 0,
-                    coverImageCopied: scopes.includes('coverImage') && Boolean(sourcePost.coverImage),
-                    audioCopied: scopes.includes('audio') && Boolean(metadataPatch?.audio?.url),
+                    appliedScopes: preview.appliedScopes,
+                    warnings: preview.warnings,
+                    categoryResolved: Boolean(preview.categoryId),
+                    categoryRecommendation: preview.categoryRecommendation,
+                    slug: preview.slug,
+                    slugStrategy: preview.slugStrategy,
+                    translatedTagCount: preview.tagBindings?.length || 0,
+                    coverImageCopied: preview.coverImageCopied,
+                    audioCopied: preview.audioCopied,
+                    previewTaskId: input.previewTaskId || null,
                 },
                 progress: 100,
                 textLength: sourcePost.title.length + sourcePost.content.length + (sourcePost.summary?.length || 0),
@@ -493,6 +873,9 @@ export class PostAutomationService extends AIBaseService {
                 payload: {
                     ...input,
                     scopes,
+                    slugStrategy,
+                    categoryStrategy,
+                    confirmationMode,
                 },
                 error,
                 progress: task.progress || 0,

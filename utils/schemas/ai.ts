@@ -125,6 +125,13 @@ export const aiRecommendTagsExternalSchema = z.object({
     language: z.string().min(2).max(10).optional().default('zh-CN'),
 })
 
+export const aiRecommendCategoriesExternalSchema = z.object({
+    postId: z.string().min(1),
+    targetLanguage: z.string().min(2).max(10),
+    sourceLanguage: z.string().min(2).max(10).optional(),
+    limit: z.number().int().min(1).max(10).optional().default(5),
+})
+
 export const aiTranslatePostSchema = z.object({
     sourcePostId: z.string().min(1),
     targetLanguage: z.string().min(2).max(10),
@@ -132,6 +139,12 @@ export const aiTranslatePostSchema = z.object({
     targetPostId: z.string().min(1).nullable().optional(),
     scopes: z.array(z.enum(['title', 'content', 'summary', 'category', 'tags', 'coverImage', 'audio'])).min(1).optional(),
     targetStatus: z.enum([PostStatus.DRAFT, PostStatus.PENDING]).optional(),
+    slugStrategy: z.enum(['source', 'translate', 'ai']).optional().default('source'),
+    categoryStrategy: z.enum(['cluster', 'suggest']).optional().default('cluster'),
+    confirmationMode: z.enum(['auto', 'require', 'confirmed']).optional().default('auto'),
+    previewTaskId: z.string().min(1).optional(),
+    approvedSlug: z.string().min(1).nullable().optional(),
+    approvedCategoryId: z.string().min(1).nullable().optional(),
 })
 
 export const aiGenerateImageSchema = z.object({

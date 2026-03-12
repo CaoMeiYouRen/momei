@@ -13,6 +13,7 @@ const {
     mockGetPost,
     mockSuggestTitles,
     mockRecommendTags,
+    mockRecommendCategories,
     mockTranslatePost,
     mockGenerateCoverImage,
     mockCreateTTSTask,
@@ -21,6 +22,7 @@ const {
     mockGetPost: vi.fn(),
     mockSuggestTitles: vi.fn(),
     mockRecommendTags: vi.fn(),
+    mockRecommendCategories: vi.fn(),
     mockTranslatePost: vi.fn(),
     mockGenerateCoverImage: vi.fn(),
     mockCreateTTSTask: vi.fn(),
@@ -33,6 +35,7 @@ vi.mock('../lib/api', () => {
             getPost = mockGetPost
             suggestTitles = mockSuggestTitles
             recommendTags = mockRecommendTags
+            recommendCategories = mockRecommendCategories
             translatePost = mockTranslatePost
             generateCoverImage = mockGenerateCoverImage
             createTTSTask = mockCreateTTSTask
@@ -72,6 +75,7 @@ describe('Automation Tools Registration', () => {
         const registeredTools = registerSpy.mock.calls.map((call) => call[0])
         expect(registeredTools).toContain('suggest_titles')
         expect(registeredTools).toContain('recommend_tags')
+        expect(registeredTools).toContain('recommend_categories')
         expect(registeredTools).toContain('translate_post')
         expect(registeredTools).toContain('generate_cover_image')
         expect(registeredTools).toContain('generate_post_audio')
@@ -135,6 +139,31 @@ describe('Automation Tools Registration', () => {
         expect(result?.content[0]?.text).toContain('automation')
     })
 
+    it('should call recommend_categories handler with target language payload', async () => {
+        const config = { apiUrl: 'http://localhost:3000', apiKey: 'test', enableDangerousTools: false }
+        const registerSpy = vi.spyOn(server, 'registerTool')
+
+        mockRecommendCategories.mockResolvedValue({
+            data: {
+                matchedCategoryId: 'cat_1',
+                candidates: [{ id: 'cat_1', name: 'Engineering', slug: 'engineering', language: 'en-US', reason: 'ai-recommended' }],
+            },
+        })
+
+        registerAutomationTools(server, config)
+
+        const handler = getRegisteredHandler(registerSpy, 'recommend_categories')
+        const result = await handler({ postId: 'post_3', targetLanguage: 'en-US', limit: 3 })
+
+        expect(mockRecommendCategories).toHaveBeenCalledWith({
+            postId: 'post_3',
+            targetLanguage: 'en-US',
+            sourceLanguage: undefined,
+            limit: 3,
+        })
+        expect(result?.content[0]?.text).toContain('Engineering')
+    })
+
     it('should call long-running automation handlers with task payloads', async () => {
         const config = { apiUrl: 'http://localhost:3000', apiKey: 'test', enableDangerousTools: false }
         const registerSpy = vi.spyOn(server, 'registerTool')
@@ -155,6 +184,9 @@ describe('Automation Tools Registration', () => {
             sourcePostId: 'post_1',
             targetLanguage: 'en-US',
             targetStatus: 'draft',
+            slugStrategy: 'ai',
+            categoryStrategy: 'suggest',
+            confirmationMode: 'require',
         })
         const coverResult = await coverHandler({
             postId: 'post_1',
@@ -172,6 +204,9 @@ describe('Automation Tools Registration', () => {
             sourcePostId: 'post_1',
             targetLanguage: 'en-US',
             targetStatus: 'draft',
+            slugStrategy: 'ai',
+            categoryStrategy: 'suggest',
+            confirmationMode: 'require',
         })
         expect(mockGenerateCoverImage).toHaveBeenCalledWith({
             postId: 'post_1',

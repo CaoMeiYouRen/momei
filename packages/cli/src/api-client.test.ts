@@ -60,6 +60,17 @@ describe('MomeiApiClient', () => {
         mockPost
             .mockResolvedValueOnce({ data: { code: 200, data: ['Title A', 'Title B'] } })
             .mockResolvedValueOnce({ data: { code: 200, data: { taskId: 'task_translate_1', status: 'pending', type: 'translate-post' } } })
+            .mockResolvedValueOnce({
+                data: {
+                    code: 200,
+                    data: {
+                        matchedCategoryId: 'cat_en',
+                        candidates: [{ id: 'cat_en', name: 'Engineering', slug: 'engineering', language: 'en-US', reason: 'ai-recommended' }],
+                        proposedCategory: { name: 'Engineering', slug: 'engineering', reason: 'translated-source-name' },
+                        sourceCategory: { id: 'cat_zh', name: '工程实践', slug: 'gong-cheng-shi-jian', language: 'zh-CN' },
+                    },
+                },
+            })
 
         mockGet.mockResolvedValueOnce({
             data: {
@@ -84,6 +95,15 @@ describe('MomeiApiClient', () => {
             sourcePostId: 'post_1',
             targetLanguage: 'en-US',
             scopes: ['title', 'content'],
+            slugStrategy: 'ai',
+            categoryStrategy: 'suggest',
+            confirmationMode: 'require',
+        })
+
+        const categories = await client.recommendCategories({
+            postId: 'post_1',
+            targetLanguage: 'en-US',
+            limit: 3,
         })
 
         const taskStatus = await client.getAITask('task_translate_1')
@@ -96,9 +116,18 @@ describe('MomeiApiClient', () => {
             sourcePostId: 'post_1',
             targetLanguage: 'en-US',
             scopes: ['title', 'content'],
+            slugStrategy: 'ai',
+            categoryStrategy: 'suggest',
+            confirmationMode: 'require',
+        })
+        expect(mockPost).toHaveBeenNthCalledWith(3, '/api/external/ai/recommend-categories', {
+            postId: 'post_1',
+            targetLanguage: 'en-US',
+            limit: 3,
         })
         expect(mockGet).toHaveBeenCalledWith('/api/external/ai/tasks/task_translate_1')
         expect(titles.data).toEqual(['Title A', 'Title B'])
+        expect(categories.data.matchedCategoryId).toBe('cat_en')
         expect(task.data.taskId).toBe('task_translate_1')
         expect(taskStatus.data.status).toBe('completed')
     })

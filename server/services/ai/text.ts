@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { AIBaseService } from './base'
 import {
     requestTranslation,
@@ -38,6 +39,13 @@ export interface ExpandSectionOptions {
 export interface SuggestImagePromptOptions {
     title?: string
     content?: string
+    language?: string
+}
+
+export interface RecommendCategoriesOptions {
+    title: string
+    content: string
+    categories: string[]
     language?: string
 }
 
@@ -762,6 +770,84 @@ export class TextService extends AIBaseService {
         } catch (e) {
             console.error('[RecommendTags Error]', e)
             return []
+        }
+    }
+
+    static async recommendCategories(options: RecommendCategoriesOptions, userId?: string) {
+        const normalizedCategories = Array.from(new Set(options.categories.map((name) => name.trim()).filter(Boolean))).slice(0, 80)
+
+        if (normalizedCategories.length === 0) {
+            return []
+        }
+
+        await this.assertTextQuota({
+            userId,
+            type: 'recommend_categories',
+            payload: {
+                title: options.title.slice(0, 200),
+                content: options.content.slice(0, AI_CHUNK_SIZE),
+                categories: normalizedCategories,
+                language: options.language || 'zh-CN',
+            },
+        })
+
+        const provider = await getAIProvider('text')
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
+
+        const prompt = formatPrompt(AI_PROMPTS.RECOMMEND_CATEGORIES, {
+            title: options.title,
+            content: options.content.slice(0, AI_CHUNK_SIZE),
+            categories: JSON.stringify(normalizedCategories),
+            language: options.language || 'zh-CN',
+        })
+
+        const response = await provider.chat({
+            messages: [
+                { role: 'system', content: `Select relevant blog categories in ${options.language || 'zh-CN'} from the provided list only.` },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.2,
+        })
+
+        this.logUsage({ task: 'recommend-categories', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'recommend_categories',
+            provider: provider.name,
+            model: response.model,
+            payload: {
+                title: options.title.slice(0, 200),
+                content: options.content.slice(0, AI_CHUNK_SIZE),
+                categories: normalizedCategories,
+                language: options.language || 'zh-CN',
+            },
+            response,
+            textLength: options.title.length + options.content.length,
+            settlementSource: 'actual',
+        })
+
+        const categoryLookup = new Map(normalizedCategories.map((name) => [name.trim().toLowerCase(), name]))
+
+        try {
+            const match = /\[[\s\S]*\]/.exec(response.content)
+            const parsed = JSON.parse(match?.[0] || response.content) as unknown
+            if (!Array.isArray(parsed)) {
+                return []
+            }
+
+            return Array.from(new Set(parsed
+                .map((item) => String(item).trim())
+                .map((item) => categoryLookup.get(item.toLowerCase()) || null)
+                .filter((item): item is string => Boolean(item))))
+        } catch {
+            return response.content
+                .split(/[\n,]/)
+                .map((item) => item.trim())
+                .map((item) => categoryLookup.get(item.toLowerCase()) || null)
+                .filter((item): item is string => Boolean(item))
         }
     }
 

@@ -259,6 +259,34 @@ export interface CliAutomationTaskStatusResponse {
     audioUrl?: string | null
 }
 
+export type CliTranslatePostSlugStrategy = 'source' | 'translate' | 'ai'
+export type CliTranslatePostCategoryStrategy = 'cluster' | 'suggest'
+export type CliTranslatePostConfirmationMode = 'auto' | 'require' | 'confirmed'
+
+export interface CliCategoryRecommendationCandidate {
+    id: string
+    name: string
+    slug: string
+    language: string
+    reason: 'translation-cluster' | 'translated-name' | 'translated-slug' | 'ai-recommended'
+}
+
+export interface CliCategoryRecommendationResult {
+    sourceCategory: {
+        id: string
+        name: string
+        slug: string
+        language: string
+    } | null
+    matchedCategoryId: string | null
+    candidates: CliCategoryRecommendationCandidate[]
+    proposedCategory: {
+        name: string
+        slug: string
+        reason: 'translated-source-name'
+    } | null
+}
+
 export interface CliTranslatePostRequest {
     sourcePostId: string
     targetLanguage: string
@@ -266,4 +294,10 @@ export interface CliTranslatePostRequest {
     targetPostId?: string | null
     scopes?: ('title' | 'content' | 'summary' | 'category' | 'tags' | 'coverImage' | 'audio')[]
     targetStatus?: 'draft' | 'pending'
+    slugStrategy?: CliTranslatePostSlugStrategy
+    categoryStrategy?: CliTranslatePostCategoryStrategy
+    confirmationMode?: CliTranslatePostConfirmationMode
+    previewTaskId?: string
+    approvedSlug?: string | null
+    approvedCategoryId?: string | null
 }

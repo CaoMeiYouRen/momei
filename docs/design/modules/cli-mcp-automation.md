@@ -53,6 +53,7 @@
 ```http
 POST /api/external/ai/suggest-titles
 POST /api/external/ai/recommend-tags
+POST /api/external/ai/recommend-categories
 POST /api/external/ai/translate-post
 POST /api/external/ai/image/generate
 POST /api/external/ai/tts/task
@@ -64,6 +65,7 @@ GET  /api/external/ai/tasks/:id
 - 全部使用 API Key 鉴权。
 - 短操作直接返回结果；长操作返回 `taskId`、初始状态与关联文章信息。
 - 任务结果统一通过 `GET /api/external/ai/tasks/:id` 查询，不在 CLI 与 MCP 内复制状态机。
+- 翻译任务支持 `confirmationMode=require` 生成预览，再用 `confirmationMode=confirmed + previewTaskId` 应用同一份预览。
 
 ### 4.2 长任务响应语义
 
@@ -104,8 +106,11 @@ interface AutomationTaskStatusResponse {
 
 - 指定源文章、目标语言，可选显式源语言。
 - 可选翻译范围：`title`、`content`、`summary`、`category`、`tags`、`coverImage`、`audio`。
+- 显式 `slugStrategy`：`source`、`translate`、`ai`。
+- 显式 `categoryStrategy`：`cluster`、`suggest`。
+- 预览确认流：先生成预览，再按需确认落库，避免把批量翻译设计成不可逆黑盒操作。
 - 复用站内 `translationId` 语义，并在目标语言侧创建或更新译文草稿。
-- 分类优先按翻译簇映射，标签按既有绑定或翻译建议进行回填。
+- 分类优先按翻译簇映射，必要时结合现有目标语言 taxonomy + AI 建议生成候选结果；标签按既有绑定或翻译建议进行回填。
 - 保留封面图与音频元数据的跨语言继承语义。
 
 ### 5.3 媒体生成与回填
@@ -144,6 +149,7 @@ CLI 约束：
 
 - `suggest_titles`
 - `recommend_tags`
+- `recommend_categories`
 - `translate_post`
 - `generate_cover_image`
 - `generate_post_audio`
@@ -162,7 +168,8 @@ MCP 约束：
 - 先校验源文章访问性与目标语言合法性。
 - 使用统一 AI 任务实体落盘，并异步执行翻译。
 - 标题、摘要、正文分别按站内既有能力翻译，避免重新发明 prompt 口径。
-- 分类按翻译簇或 slug 回退匹配；标签按 `tagBindings` 与翻译建议收敛。
+- 分类按翻译簇优先匹配，并在缺失时输出可复核候选；标签按 `tagBindings` 与翻译建议收敛。
+- 当调用方要求预览时，只返回完整预览快照与候选分类/slug，不直接写入目标文章。
 - 若提供目标文章，则执行更新；否则创建目标语言译文文章。
 
 ### 7.2 媒体自动化
@@ -178,12 +185,13 @@ MCP 约束：
 - CLI API 包装层定向测试，确认自动化接口路径与返回值映射正确。
 - MCP 工具契约测试，确认工具注册与关键处理器调用路径正确。
 - 关键长任务的状态查询链路测试，确认 `taskId -> 查询 -> 完成/失败` 可追踪。
+- 外部 AI 自动化 API 测试，确认分类推荐、翻译预览与确认字段透传一致。
+- 翻译服务预览/确认单元测试，确认“预览不落库、确认才应用”的闭环成立。
 
 后续增强方向：
 
-- 增加整篇翻译服务的更细粒度单元测试。
-- 增加外部自动化 API 的集成测试与异常路径测试。
-- 增加针对人工确认与失败恢复的端到端验证。
+- 增加更大样本的长任务失败恢复回归验证。
+- 增加针对批量编排场景的端到端验证。
 
 ## 9. 风险与后续迭代 (Risks & Follow-ups)
 

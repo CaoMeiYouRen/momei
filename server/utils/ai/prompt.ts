@@ -72,6 +72,12 @@ export const AI_PROMPTS = {
         + '7. Keep it under 200 words.',
     RECOMMEND_TAGS:
         'Help me recommend 5-10 tags for the following article in {{language}}. Choose tags that are relevant, SEO-friendly, and common in technical blogging. Output ONLY as a JSON array of strings: \n\n{{content}}',
+    RECOMMEND_CATEGORIES:
+        'You are helping classify a blog post in {{language}}. Select up to 5 categories from the provided category list only. '
+        + 'Return ONLY a JSON array of exact category names from the list, ordered by relevance.\n\n'
+        + 'Available categories: {{categories}}\n\n'
+        + 'Title: {{title}}\n\n'
+        + 'Content: {{content}}',
 }
 
 export function formatPrompt(

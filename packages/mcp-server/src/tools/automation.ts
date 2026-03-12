@@ -73,6 +73,34 @@ export function registerAutomationTools(server: McpServer, config: MomeiApiConfi
     )
 
     server.registerTool(
+        'recommend_categories',
+        {
+            description: 'Recommend categories for an existing post in a target language',
+            inputSchema: {
+                postId: z.string(),
+                targetLanguage: z.string(),
+                sourceLanguage: z.string().optional(),
+                limit: z.number().int().min(1).max(10).optional(),
+            },
+        },
+        async ({ postId, targetLanguage, sourceLanguage, limit }) => {
+            try {
+                const result = await api.recommendCategories({
+                    postId,
+                    targetLanguage,
+                    sourceLanguage,
+                    limit,
+                })
+                return {
+                    content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
+                }
+            } catch (error: any) {
+                return { content: [{ type: 'text', text: error.message }], isError: true }
+            }
+        },
+    )
+
+    server.registerTool(
         'translate_post',
         {
             description: 'Translate a post into another language and create or update the translated draft',
@@ -83,6 +111,12 @@ export function registerAutomationTools(server: McpServer, config: MomeiApiConfi
                 targetPostId: z.string().optional(),
                 scopes: z.array(z.enum(['title', 'content', 'summary', 'category', 'tags', 'coverImage', 'audio'])).optional(),
                 targetStatus: z.enum(['draft', 'pending']).optional(),
+                slugStrategy: z.enum(['source', 'translate', 'ai']).optional(),
+                categoryStrategy: z.enum(['cluster', 'suggest']).optional(),
+                confirmationMode: z.enum(['auto', 'require', 'confirmed']).optional(),
+                previewTaskId: z.string().optional(),
+                approvedSlug: z.string().optional(),
+                approvedCategoryId: z.string().optional(),
             },
         },
         async (params) => {

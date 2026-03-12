@@ -2,6 +2,7 @@ import axios, { type AxiosInstance } from 'axios'
 import type {
     CliAutomationTaskStartResponse,
     CliAutomationTaskStatusResponse,
+    CliCategoryRecommendationResult,
     CliLinkGovernanceReportData,
     CliLinkGovernanceRequest,
     CliTranslatePostRequest,
@@ -140,6 +141,11 @@ export class MomeiApiClient {
     async recommendTags(payload: { content: string, existingTags?: string[], language?: string }) {
         const response = await this.client.post('/api/external/ai/recommend-tags', payload)
         return response.data as { code: number, data: string[] }
+    }
+
+    async recommendCategories(payload: { postId: string, targetLanguage: string, sourceLanguage?: string, limit?: number }) {
+        const response = await this.client.post('/api/external/ai/recommend-categories', payload)
+        return response.data as { code: number, data: CliCategoryRecommendationResult }
     }
 
     async translatePost(payload: CliTranslatePostRequest) {
