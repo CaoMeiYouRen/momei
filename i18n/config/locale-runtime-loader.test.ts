@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { ensureLocaleMessageModules, ensureRouteLocaleMessages } from './locale-runtime-loader'
 
 describe('i18n locale runtime loader', () => {
-    it('should progressively load route modules for locale fallback chain', async () => {
+    it('should skip runtime loading for routes backed only by core locale modules', async () => {
         const mergeLocaleMessage = vi.fn()
 
         await ensureRouteLocaleMessages({
@@ -11,28 +11,10 @@ describe('i18n locale runtime loader', () => {
             path: '/en-US/login',
         })
 
-        expect(mergeLocaleMessage).toHaveBeenCalledTimes(2)
-        expect(mergeLocaleMessage).toHaveBeenNthCalledWith(
-            1,
-            'en-US',
-            expect.objectContaining({
-                pages: expect.objectContaining({
-                    login: expect.any(Object),
-                }),
-            }),
-        )
-        expect(mergeLocaleMessage).toHaveBeenNthCalledWith(
-            2,
-            'zh-CN',
-            expect.objectContaining({
-                pages: expect.objectContaining({
-                    login: expect.any(Object),
-                }),
-            }),
-        )
+        expect(mergeLocaleMessage).not.toHaveBeenCalled()
     })
 
-    it('should load explicitly requested locale modules for locale fallback chain', async () => {
+    it('should load explicitly requested optional locale modules for locale fallback chain', async () => {
         const mergeLocaleMessage = vi.fn()
 
         await ensureLocaleMessageModules({
@@ -41,18 +23,9 @@ describe('i18n locale runtime loader', () => {
             modules: ['auth', 'admin'],
         })
 
-        expect(mergeLocaleMessage).toHaveBeenCalledTimes(4)
+        expect(mergeLocaleMessage).toHaveBeenCalledTimes(2)
         expect(mergeLocaleMessage).toHaveBeenNthCalledWith(
             1,
-            'en-US',
-            expect.objectContaining({
-                pages: expect.objectContaining({
-                    login: expect.any(Object),
-                }),
-            }),
-        )
-        expect(mergeLocaleMessage).toHaveBeenNthCalledWith(
-            2,
             'en-US',
             expect.objectContaining({
                 pages: expect.objectContaining({
@@ -61,16 +34,7 @@ describe('i18n locale runtime loader', () => {
             }),
         )
         expect(mergeLocaleMessage).toHaveBeenNthCalledWith(
-            3,
-            'zh-CN',
-            expect.objectContaining({
-                pages: expect.objectContaining({
-                    login: expect.any(Object),
-                }),
-            }),
-        )
-        expect(mergeLocaleMessage).toHaveBeenNthCalledWith(
-            4,
+            2,
             'zh-CN',
             expect.objectContaining({
                 pages: expect.objectContaining({
@@ -114,7 +78,7 @@ describe('i18n locale runtime loader', () => {
             modules: ['auth', 'admin'],
         })
 
-        expect(mergeLocaleMessage).toHaveBeenCalledTimes(4)
+        expect(mergeLocaleMessage).toHaveBeenCalledTimes(2)
         mergeLocaleMessage.mockClear()
 
         await ensureLocaleMessageModules({
