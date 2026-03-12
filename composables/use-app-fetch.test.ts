@@ -90,4 +90,23 @@ describe('useAppApi', () => {
             }),
         }))
     })
+
+    it('should allow callers to override the auto-injected language query', async () => {
+        sharedLocale.value = 'zh-CN'
+
+        const { $appFetch } = useAppApi()
+        await $appFetch('/api/admin/agreements', {
+            query: {
+                type: 'user_agreement',
+                language: undefined,
+            },
+        })
+
+        expect(globalThis.$fetch).toHaveBeenCalledWith('/api/admin/agreements', expect.objectContaining({
+            query: {
+                type: 'user_agreement',
+                language: undefined,
+            },
+        }))
+    })
 })

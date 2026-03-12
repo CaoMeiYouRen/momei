@@ -11,6 +11,11 @@ const translations: Record<string, string> = {
     'pages.admin.settings.system.agreements.privacy_policy': '隐私政策',
     'pages.admin.settings.system.agreements.main_language': '权威语言',
     'pages.admin.settings.system.agreements.active_authoritative': '当前生效版本',
+    'pages.admin.settings.system.agreements.aggregated_view': '聚合查看',
+    'pages.admin.settings.system.agreements.flat_view': '完整列表',
+    'pages.admin.settings.system.agreements.aggregated_view_help': '聚合查看会按权威版本合并展示，并优先显示当前界面语言对应的译本。',
+    'pages.admin.settings.system.agreements.flat_view_help': '完整列表会展开全部语言和版本，便于逐条编辑、切换和排查。',
+    'pages.admin.settings.system.agreements.no_active_version': '尚未设置',
     'pages.admin.settings.system.agreements.language': '语言',
     'pages.admin.settings.system.agreements.version': '版本号',
     'pages.admin.settings.system.agreements.version_description': '版本说明',
@@ -42,8 +47,8 @@ const mockConfirm = {
     require: vi.fn(),
 }
 
-const mockFetch = vi.fn((url: string) => {
-    if (url === '/api/admin/agreements?type=user_agreement') {
+const mockFetch = vi.fn((url: string, options?: { query?: Record<string, unknown> }) => {
+    if (url === '/api/admin/agreements' && options?.query?.type === 'user_agreement') {
         return Promise.resolve({
             data: {
                 mainLanguage: 'zh-CN',
@@ -85,7 +90,7 @@ const mockFetch = vi.fn((url: string) => {
         })
     }
 
-    if (url === '/api/admin/agreements?type=privacy_policy') {
+    if (url === '/api/admin/agreements' && options?.query?.type === 'privacy_policy') {
         return Promise.resolve({
             data: {
                 mainLanguage: 'zh-CN',
@@ -210,8 +215,8 @@ describe('AgreementsSettings', () => {
         expect(wrapper.text()).toContain('用户协议')
         expect(wrapper.text()).toContain('权威语言')
 
-        const addButtons = wrapper.findAll('button')
-        await addButtons[0]?.trigger('click')
+        const addButton = wrapper.findAll('button').find((button) => button.text() === '新增')
+        await addButton?.trigger('click')
         await flushPromises()
 
         expect(wrapper.text()).toContain('权威语言版本可直接生效；其他语言会作为参考翻译展示。')

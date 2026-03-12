@@ -39,6 +39,8 @@
 - **语义拆分**: 协议体系将“主语言”“权威版本”“当前生效版本”“参考译本”拆分为独立概念。`LEGAL_MAIN_LANGUAGE` 决定权威语言；`LEGAL_USER_AGREEMENT_ID` / `LEGAL_PRIVACY_POLICY_ID` 决定当前生效的权威版本；非主语言记录一律视为参考译本，并通过 `sourceAgreementId` 关联到对应权威版本。
 - **模型约束**: `AgreementContent` 新增 `isAuthoritativeVersion`、`sourceAgreementId`、`effectiveAt` 字段。`isMainVersion` 仅作为兼容旧数据的遗留标记，不再承担“当前生效”语义。
 - **后台治理口径**: 管理端列表统一返回 `mainLanguage`、`activeAgreementId`、`authoritativeOptions` 与带限制原因的 `items`。来自环境变量、已被用户同意、或当前生效的权威版本，都会被显式标记为不可编辑/不可删除。
+- **后台展示口径**: 管理端同时支持“聚合视图”和“完整视图”。聚合视图按权威版本聚合同源记录，并优先展示当前界面语言对应的译本；完整视图则保留所有语言版本的独立管理能力。
+- **译本默认绑定**: 新建参考译本时，若管理员未手动指定来源版本，系统默认优先绑定当前生效的权威版本，而不是任意最新草稿版本，避免公开页错误回退到权威语言内容。
 - **公开展示口径**: `/api/agreements/user-agreement` 与 `/api/agreements/privacy-policy` 按请求语言优先返回对应参考译本；若不存在，则回退到当前生效的权威版本，并通过 `fallbackToAuthoritative` 告知前端展示提示。公开页同时展示版本号、生效日期、最近更新日期与权威版本历史。
 - **同意记录口径**: 新用户注册完成后，认证钩子会按用户语言标记其看到的参考译本及对应权威版本为 `hasUserConsent=true`，确保后续编辑/删除限制与前台确认口径一致。
 

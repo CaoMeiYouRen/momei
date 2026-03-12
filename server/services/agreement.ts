@@ -156,13 +156,16 @@ function resolveSourceAgreement(
     type: AgreementType,
     mainLanguage: string,
     records: AgreementEntity[],
+    activeAgreementId: string | null,
     sourceAgreementId?: string | null,
 ) {
     const authoritativeVersions = records.filter((record) => isAuthoritativeAgreement(record, mainLanguage))
 
     const sourceAgreement = sourceAgreementId
         ? authoritativeVersions.find((record) => record.id === sourceAgreementId) || null
-        : authoritativeVersions.sort(compareAgreementSort)[0] || null
+        : authoritativeVersions.find((record) => record.id === activeAgreementId)
+            || authoritativeVersions.sort(compareAgreementSort)[0]
+            || null
 
     if (!sourceAgreement) {
         throw new Error('Reference translations must link to an authoritative agreement version')
@@ -334,12 +337,12 @@ export const createAgreementVersion = async (data: {
     sourceAgreementId?: string | null
 }) => {
     const repo = dataSource.getRepository(AgreementContent)
-    const { mainLanguage } = await getAgreementContext(data.type)
+    const { mainLanguage, activeAgreementId } = await getAgreementContext(data.type)
     const records = await getAgreementRecords(data.type)
     const isAuthoritativeVersion = data.language === mainLanguage
     const sourceAgreement = isAuthoritativeVersion
         ? null
-        : resolveSourceAgreement(data.type, mainLanguage, records, data.sourceAgreementId)
+        : resolveSourceAgreement(data.type, mainLanguage, records, activeAgreementId, data.sourceAgreementId)
 
     const agreement = repo.create({
         id: snowflake.generateId(),
@@ -391,7 +394,13 @@ export const updateAgreementContent = async (
     const records = await getAgreementRecords(agreement.type)
     const sourceAgreement = agreement.language === mainLanguage
         ? null
-        : resolveSourceAgreement(agreement.type, mainLanguage, records, updates.sourceAgreementId ?? agreement.sourceAgreementId)
+        : resolveSourceAgreement(
+            agreement.type,
+            mainLanguage,
+            records,
+            activeAgreementId,
+            updates.sourceAgreementId ?? agreement.sourceAgreementId,
+        )
 
     assignDefined(agreement, updates, [
         'content',

@@ -40,7 +40,10 @@ const mockToast = {
     add: vi.fn(),
 }
 
+const mockNavigateTo = vi.fn()
+
 const mockRoute = reactive({
+    path: '/admin/settings',
     query: {} as Record<string, unknown>,
 })
 
@@ -129,7 +132,7 @@ vi.mock('#imports', async (importOriginal) => {
             $appFetch: mockFetch,
         }),
         useLocalePath: () => (path: string) => path,
-        navigateTo: vi.fn(),
+        navigateTo: mockNavigateTo,
         definePageMeta: vi.fn(),
         getAppManifest: vi.fn(() => Promise.resolve({
             publicPath: '/',
@@ -148,6 +151,7 @@ vi.stubGlobal('useI18n', () => ({
 }))
 
 vi.stubGlobal('useRoute', () => mockRoute)
+vi.stubGlobal('navigateTo', mockNavigateTo)
 
 describe('Admin Settings Page', () => {
     beforeEach(() => {
@@ -185,7 +189,10 @@ describe('Admin Settings Page', () => {
                     SetupFollowUpCard: { template: '<div>Setup Follow Up</div>' },
                     ThirdPartySettings: { template: '<div>Third Party</div>' },
                     Card: { template: '<div><slot name="content" /></div>' },
-                    Tabs: { template: '<div><slot /></div>' },
+                    Tabs: {
+                        template: '<div><button class="tab-switch" @click="$emit(\'update:value\', \'agreements\')">Switch</button><slot /></div>',
+                        emits: ['update:value'],
+                    },
                     TabList: { template: '<div><slot /></div>' },
                     Tab: { template: '<div><slot /></div>' },
                     TabPanels: { template: '<div><slot /></div>' },

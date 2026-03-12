@@ -162,7 +162,7 @@ import SettingAuditLogList from '@/components/admin/settings/setting-audit-log-l
 import SettingExplanationCard from '@/components/admin/settings/setting-explanation-card.vue'
 import SetupFollowUpCard from '@/components/admin/settings/setup-follow-up-card.vue'
 import ThirdPartySettings from '@/components/admin/settings/third-party-settings.vue'
-import { resolveAdminSettingsTab, type AdminSettingsTab } from '@/utils/shared/admin-settings-tabs'
+import { buildAdminSettingsTabLocation, resolveAdminSettingsTab, type AdminSettingsTab } from '@/utils/shared/admin-settings-tabs'
 import { clearQueuedSetupJourneyStage, getQueuedSetupJourneyStage, queueSetupJourneyStage } from '@/utils/web/setup-journey'
 import type { SettingItem, SettingLockReason, SettingSource } from '@/types/setting'
 
@@ -338,6 +338,18 @@ onMounted(() => {
 watch(() => route.query.tab, (nextTab) => {
     activeTab.value = resolveAdminSettingsTab(nextTab)
 }, { immediate: true })
+
+watch(activeTab, async (nextTab) => {
+    if (resolveAdminSettingsTab(route.query.tab) === nextTab) {
+        return
+    }
+
+    await navigateTo({
+        ...buildAdminSettingsTabLocation(route, nextTab),
+    }, {
+        replace: true,
+    })
+})
 </script>
 
 <style lang="scss" scoped>

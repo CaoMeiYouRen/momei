@@ -209,10 +209,22 @@ describe('agreement service', () => {
         })
     })
 
-    it('creates a reference translation linked to the latest authoritative version by default', async () => {
+    it('creates a reference translation linked to the active authoritative version by default', async () => {
         mockAgreementRepo.find.mockResolvedValue([
-            createAgreement({ id: 'ua-v2', version: '2.0.0' }),
+            createAgreement({
+                id: 'ua-v3',
+                version: '3.0.0',
+                effectiveAt: null,
+                updatedAt: new Date('2026-03-01T00:00:00.000Z'),
+            }),
+            createAgreement({
+                id: 'ua-v2',
+                version: '2.0.0',
+                effectiveAt: new Date('2026-02-01T00:00:00.000Z'),
+                updatedAt: new Date('2026-02-02T00:00:00.000Z'),
+            }),
         ])
+        mockSettings('zh-CN', 'ua-v2')
         mockAgreementRepo.create.mockImplementation((payload) => payload)
         mockAgreementRepo.save.mockImplementation((payload) => Promise.resolve(payload))
 

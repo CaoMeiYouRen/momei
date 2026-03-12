@@ -31,23 +31,42 @@
                     </div>
                 </div>
 
-                <div class="agreements-settings__controls">
-                    <Button
-                        icon="pi pi-plus"
-                        :label="$t('common.add')"
-                        @click="showCreateDialog(section.type)"
-                    />
-                    <Button
-                        icon="pi pi-refresh"
-                        :label="$t('common.refresh')"
-                        :loading="isLoading(section.type)"
-                        @click="loadAgreements(section.type)"
-                    />
+                <div class="agreements-settings__toolbar">
+                    <div class="agreements-settings__view-switch">
+                        <Button
+                            :label="translateAgreement('aggregated_view')"
+                            :outlined="viewMode !== 'aggregated'"
+                            @click="viewMode = 'aggregated'"
+                        />
+                        <Button
+                            :label="translateAgreement('flat_view')"
+                            :outlined="viewMode !== 'flat'"
+                            @click="viewMode = 'flat'"
+                        />
+                    </div>
+
+                    <div class="agreements-settings__controls">
+                        <Button
+                            icon="pi pi-plus"
+                            :label="$t('common.add')"
+                            @click="showCreateDialog(section.type)"
+                        />
+                        <Button
+                            icon="pi pi-refresh"
+                            :label="$t('common.refresh')"
+                            :loading="isLoading(section.type)"
+                            @click="loadAgreements(section.type)"
+                        />
+                    </div>
                 </div>
             </div>
 
+            <p class="agreements-settings__view-hint">
+                {{ getViewHint() }}
+            </p>
+
             <DataTable
-                :value="section.payload?.items || []"
+                :value="getDisplayItems(section.payload)"
                 :loading="isLoading(section.type)"
                 responsive-layout="scroll"
                 class="agreements-settings__table"
@@ -283,6 +302,8 @@ interface AgreementFormData {
     sourceAgreementId: string | null
 }
 
+type AgreementViewMode = 'aggregated' | 'flat'
+
 const { t, locale, locales } = useI18n()
 const toast = useToast()
 const confirm = useConfirm()
@@ -301,6 +322,7 @@ const loadingMap = reactive<Record<AgreementType, boolean>>({
 const showDialog = ref(false)
 const saving = ref(false)
 const isEditMode = ref(false)
+const viewMode = ref<AgreementViewMode>('aggregated')
 const currentType = ref<AgreementType>('user_agreement')
 const currentEditId = ref('')
 
@@ -337,7 +359,15 @@ const languageOptions = computed(() => locales.value.map((item: any) => ({
 watch([mainLanguage, () => formData.language], ([currentMainLanguage, currentLanguage]) => {
     if (currentLanguage === currentMainLanguage) {
         formData.sourceAgreementId = null
+        return
     }
+
+    const availableOptionIds = new Set(currentAuthoritativeOptions.value.map((item) => item.id))
+    if (formData.sourceAgreementId && availableOptionIds.has(formData.sourceAgreementId)) {
+        return
+    }
+
+    formData.sourceAgreementId = getDefaultSourceAgreementId(currentType.value)
 })
 
 function isLoading(type: AgreementType) {
@@ -377,6 +407,11 @@ function getActiveLabel(payload: AgreementAdminListPayload | null) {
         return translateAgreement('no_active_version')
     }
 
+    const activeOption = payload.authoritativeOptions.find((item) => item.id === payload.activeAgreementId)
+    if (activeOption) {
+        return `${activeOption.version || translateAgreement('version_fallback')} · ${getLanguageLabel(activeOption.language)}`
+    }
+
     const active = payload.items.find((item) => item.id === payload.activeAgreementId)
     if (!active) {
         return translateAgreement('no_active_version')
@@ -403,10 +438,66 @@ function getRestrictionMessage(reasons: AgreementRestrictionReason[]) {
         .join(' / ')
 }
 
+function getDefaultSourceAgreementId(type: AgreementType) {
+    const payload = payloads[type]
+    return payload?.activeAgreementId || payload?.authoritativeOptions[0]?.id || null
+}
+
+function getDisplayItems(payload: AgreementAdminListPayload | null) {
+    if (!payload) {
+        return []
+    }
+
+    if (viewMode.value === 'flat') {
+        return payload.items
+    }
+
+    const authoritativeItems = payload.items.filter((item) => item.isAuthoritativeVersion)
+    const translationsBySource = new Map<string, AgreementAdminItem[]>()
+
+    payload.items
+        .filter((item) => item.isReferenceTranslation && item.sourceAgreementId)
+        .forEach((item) => {
+            const sourceId = item.sourceAgreementId
+            if (!sourceId) {
+                return
+            }
+
+            const siblings = translationsBySource.get(sourceId) || []
+            siblings.push(item)
+            translationsBySource.set(sourceId, siblings)
+        })
+
+    const rows = authoritativeItems.map((authoritativeItem) => {
+        const localizedTranslation = (translationsBySource.get(authoritativeItem.id) || [])
+            .find((item) => item.language === locale.value)
+
+        return localizedTranslation || authoritativeItem
+    })
+
+    const authoritativeIds = new Set(authoritativeItems.map((item) => item.id))
+    const orphanTranslations = payload.items.filter((item) => item.isReferenceTranslation && (!item.sourceAgreementId || !authoritativeIds.has(item.sourceAgreementId)))
+
+    return [...rows, ...orphanTranslations]
+}
+
+function getViewHint() {
+    return viewMode.value === 'aggregated'
+        ? translateAgreement('aggregated_view_help')
+        : translateAgreement('flat_view_help')
+}
+
 async function loadAgreements(type: AgreementType) {
     loadingMap[type] = true
     try {
-        const response = await $appFetch<ApiResponse<AgreementAdminListPayload>>(`/api/admin/agreements?type=${type}`)
+        const response = await $appFetch<ApiResponse<AgreementAdminListPayload>>('/api/admin/agreements', {
+            query: {
+                type,
+                // Agreements management needs the full dataset; otherwise useAppApi injects
+                // the current UI language and collapses grouped/full-list views into the same result.
+                language: undefined,
+            },
+        })
         payloads[type] = response.data || {
             mainLanguage: 'zh-CN',
             activeAgreementId: null,
@@ -432,7 +523,7 @@ function resetForm(type: AgreementType) {
     formData.version = ''
     formData.versionDescription = ''
     formData.content = ''
-    formData.sourceAgreementId = null
+    formData.sourceAgreementId = getDefaultSourceAgreementId(type)
 }
 
 function showCreateDialog(type: AgreementType) {
@@ -632,6 +723,26 @@ onMounted(async () => {
         font-size: 0.875rem;
     }
 
+    &__toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    &__view-switch {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    &__view-hint {
+        margin: 0 0 1rem;
+        color: var(--p-text-muted-color);
+        font-size: 0.875rem;
+    }
+
     &__controls {
         display: flex;
         gap: 0.5rem;
@@ -722,6 +833,11 @@ onMounted(async () => {
     .agreements-settings {
         &__section-header {
             flex-direction: column;
+        }
+
+        &__toolbar {
+            width: 100%;
+            justify-content: flex-start;
         }
     }
 }
