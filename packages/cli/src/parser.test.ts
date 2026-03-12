@@ -21,6 +21,7 @@ describe('Parser - convertToMomeiPost: Basic Conversion', () => {
         expect(result.category).toBe('category1')
         expect(result.status).toBe('published')
         expect(result.createdAt).toBeDefined()
+        expect(result.publishedAt).toBeDefined()
     })
 
     it('should handle string tags and categories', () => {
@@ -52,6 +53,42 @@ describe('Parser - convertToMomeiPost: Basic Conversion', () => {
         expect(result.visibility).toBe('public')
         expect(result.summary).toBeNull()
     })
+
+    it('should align aliases with current editor import flow', () => {
+        const frontMatter: HexoFrontMatter = {
+            title: 'Alias Post',
+            abbrlink: 'alias-post',
+            description: 'Description summary',
+            image: 'https://example.com/cover.jpg',
+            license: 'CC BY-SA 4.0',
+            language: 'ko-KR',
+            category: ['Tech', 'Ignored'],
+            tags: 'cli',
+            audio: 'https://example.com/audio.mp3',
+            duration: '01:02:03',
+            medialength: '2048',
+            mediatype: 'audio/mpeg',
+            permalink: '/:year/:month/:day/:slug/',
+        }
+
+        const result = convertToMomeiPost(frontMatter, 'Content', 'nested/post-file.md')
+
+        expect(result.slug).toBe('alias-post')
+        expect(result.summary).toBe('Description summary')
+        expect(result.coverImage).toBe('https://example.com/cover.jpg')
+        expect(result.copyright).toBe('CC BY-SA 4.0')
+        expect(result.language).toBe('ko-KR')
+        expect(result.category).toBe('Tech')
+        expect(result.tags).toEqual(['cli'])
+        expect(result.metadata).toEqual({
+            audio: {
+                url: 'https://example.com/audio.mp3',
+                duration: 3723,
+                size: 2048,
+                mimeType: 'audio/mpeg',
+            },
+        })
+    })
 })
 
 describe('Parser - convertToMomeiPost: Slug Generation', () => {
@@ -67,10 +104,10 @@ describe('Parser - convertToMomeiPost: Slug Generation', () => {
         expect(result.slug).toBe('my-awesome-post')
     })
 
-    it('should use permalink as slug when provided', () => {
+    it('should use explicit slug when provided', () => {
         const frontMatter: HexoFrontMatter = {
             title: 'Test Post',
-            permalink: 'custom-slug',
+            slug: 'custom-slug',
         }
         const content = 'Content'
         const filePath = 'test.md'
@@ -80,10 +117,10 @@ describe('Parser - convertToMomeiPost: Slug Generation', () => {
         expect(result.slug).toBe('custom-slug')
     })
 
-    it('should handle permalink with special characters', () => {
+    it('should use abbrlink when provided', () => {
         const frontMatter: HexoFrontMatter = {
             title: 'Test Post',
-            permalink: 'my-custom-slug-2024',
+            abbrlink: 'my-custom-slug-2024',
         }
         const content = 'Content'
         const filePath = 'test.md'
@@ -91,6 +128,17 @@ describe('Parser - convertToMomeiPost: Slug Generation', () => {
         const result = convertToMomeiPost(frontMatter, content, filePath)
 
         expect(result.slug).toBe('my-custom-slug-2024')
+    })
+
+    it('should not use permalink templates as canonical slug', () => {
+        const frontMatter: HexoFrontMatter = {
+            title: 'Test Post',
+            permalink: '/:year/:month/:day/:slug/',
+        }
+
+        const result = convertToMomeiPost(frontMatter, 'Content', 'path/to/post-name.md')
+
+        expect(result.slug).toBe('post-name')
     })
 
     it('should handle complex file paths', () => {
@@ -199,6 +247,19 @@ describe('Parser - convertToMomeiPost: Edge Cases', () => {
 
         expect(result.content).toBe('')
         expect(result.title).toBe('Test Post')
+    })
+
+    it('should support desc and cover aliases', () => {
+        const frontMatter: HexoFrontMatter = {
+            title: 'Test Post',
+            desc: 'Short description',
+            cover: '/uploads/cover.jpg',
+        }
+
+        const result = convertToMomeiPost(frontMatter, 'Content', 'test.md')
+
+        expect(result.summary).toBe('Short description')
+        expect(result.coverImage).toBe('/uploads/cover.jpg')
     })
 })
 

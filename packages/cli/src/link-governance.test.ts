@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildLinkGovernanceRequest, buildLinkGovernanceSeeds } from './link-governance'
+import { buildLinkGovernanceRequest, buildLinkGovernanceSeeds, parseCliLinkGovernanceScopes } from './link-governance'
 import type { ParsedHexoPost } from './types'
 
 function createEntry(overrides: Partial<ParsedHexoPost> = {}): ParsedHexoPost {
@@ -81,5 +81,24 @@ describe('cli link governance helpers', () => {
             skipConfirmation: true,
         })
         expect(request.seeds?.length).toBe(1)
+    })
+
+    it('should reject unsupported scopes from cli input', () => {
+        expect(() => parseCliLinkGovernanceScopes(['post-link', 'invalid-scope'])).toThrow('Unsupported scopes: invalid-scope')
+    })
+
+    it('should read category alias when rendering permalink replacements', () => {
+        const seeds = buildLinkGovernanceSeeds([createEntry({
+            frontMatter: {
+                title: 'Hello World',
+                date: '2024-02-03T00:00:00.000Z',
+                permalink: '/:category/:slug/',
+                category: ['Guides'],
+            },
+        })])
+
+        expect(seeds[0]).toEqual(expect.objectContaining({
+            source: '/guides/hello-world',
+        }))
     })
 })

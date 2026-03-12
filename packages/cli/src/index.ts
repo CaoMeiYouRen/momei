@@ -6,7 +6,7 @@ import chalk from 'chalk'
 import ora from 'ora'
 import { parseHexoFiles } from './parser'
 import { MomeiApiClient } from './api-client'
-import { buildLinkGovernanceRequest } from './link-governance'
+import { buildLinkGovernanceRequest, parseCliLinkGovernanceScopes } from './link-governance'
 import type { CliLinkGovernanceMode, CliLinkGovernanceReportData, ImportStats, ImportResult } from './types'
 
 const cli = cac('momei')
@@ -112,7 +112,7 @@ async function runImport(source: string, options: { apiUrl: string, apiKey: stri
         const progressSpinner = ora('Importing...').start()
 
         const results = await client.importPosts(posts, {
-            concurrency: Number.parseInt(concurrency as any, 10),
+            concurrency: Number.parseInt(String(concurrency), 10),
             onProgress: (current: number, total: number, result: ImportResult) => {
                 progressSpinner.text = `Importing... (${current}/${total})`
 
@@ -199,7 +199,7 @@ async function runGovernLinks(source: string, options: {
     try {
         const entries = await parseHexoFiles(sourceDir, options.verbose)
         const request = buildLinkGovernanceRequest(entries, {
-            scopes: parseCsvList(options.scopes) as any,
+            scopes: parseCliLinkGovernanceScopes(parseCsvList(options.scopes)),
             domains: parseCsvList(options.domains),
             pathPrefixes: parseCsvList(options.pathPrefixes),
             validationMode: options.validationMode,

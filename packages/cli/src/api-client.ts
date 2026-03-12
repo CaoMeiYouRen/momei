@@ -44,7 +44,7 @@ export class MomeiApiClient {
         for (let i = 0; i < posts.length; i += concurrency) {
             const batch = posts.slice(i, i + concurrency)
             const batchResults = await Promise.allSettled(
-                batch.map(async ({ file, post }) => {
+                batch.map(async ({ file, post }, batchIndex) => {
                     try {
                         const response = await this.createPost(post)
                         const result: ImportResult = {
@@ -53,7 +53,7 @@ export class MomeiApiClient {
                             postId: response.data.id,
                         }
                         if (onProgress) {
-                            onProgress(i + batch.indexOf({ file, post }) + 1, total, result)
+                            onProgress(i + batchIndex + 1, total, result)
                         }
                         return result
                     } catch (error: any) {
@@ -63,7 +63,7 @@ export class MomeiApiClient {
                             error: error.response?.data?.message || error.message || 'Unknown error',
                         }
                         if (onProgress) {
-                            onProgress(i + batch.indexOf({ file, post }) + 1, total, result)
+                            onProgress(i + batchIndex + 1, total, result)
                         }
                         return result
                     }

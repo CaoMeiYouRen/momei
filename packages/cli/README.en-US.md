@@ -7,8 +7,9 @@ Command-line toolkit for migrating Hexo content into Momei. It currently provide
 ## Features
 
 - ✅ Recursively scans Markdown files and parses Hexo front matter
-- ✅ Converts `title`, `permalink`, `excerpt`, `lang`, `tags`, and `categories` into the current import payload shape
-- ✅ Converts `date` into `createdAt` and derives post status from it
+- ✅ Supports the same common front-matter aliases used by the in-app importer/exporter, such as `abbrlink`, `description`, `image`, and `audio`
+- ✅ Converts front matter into the current import payload shape, including `metadata.audio`
+- ✅ Converts `date` into both `createdAt` and `publishedAt`, then derives post status from it
 - ✅ Imports posts into Momei through the Open API
 - ✅ Generates mapping seeds and runs migration link governance
 - ✅ Supports dry runs, concurrent import, report export, and failure retry
@@ -133,29 +134,38 @@ momei govern-links ./hexo-blog/source/_posts \
 | Hexo field | Momei field | Notes |
 | --- | --- | --- |
 | `title` | `title` | Post title |
-| `date` | `createdAt` | Converted to an ISO string and also makes `status` become `published` |
+| `date` | `createdAt` + `publishedAt` | Converted to ISO strings and also makes `status` become `published` |
 | `tags` | `tags` | Tags as string or array |
-| `categories` | `category` | Only the first category is kept |
-| `permalink` | `slug` | Post alias; falls back to filename when missing |
-| `excerpt` | `summary` | Post summary |
-| `lang` | `language` | Locale; defaults to `zh-CN` |
+| `categories` / `category` | `category` | Only the first category is kept |
+| `slug` / `abbrlink` | `slug` | Canonical slug; falls back to the filename when missing |
+| `description` / `desc` / `excerpt` | `summary` | Post summary |
+| `image` / `cover` / `thumb` | `coverImage` | Cover image |
+| `copyright` / `license` | `copyright` | Copyright or license notice |
+| `language` / `lang` | `language` | Locale; defaults to `zh-CN` |
+| `audio` / `audio_url` / `media` | `metadata.audio.url` | Audio URL |
+| `audio_duration` / `duration` | `metadata.audio.duration` | Audio duration; supports raw seconds or `HH:mm:ss` |
+| `audio_size` / `medialength` / `mediaLength` | `metadata.audio.size` | Audio size |
+| `audio_mime_type` / `mediatype` / `mediaType` | `metadata.audio.mimeType` | Audio MIME type |
 | body content | `content` | Markdown body content |
+
+In the current CLI, `permalink` is no longer imported as the canonical slug. It is mainly used by `govern-links` to generate legacy link mapping seeds.
 
 The current import command does not map these common fields yet:
 
 - `updated`
 - `disableComment`
-- `PostMetadata`-related structures such as `metadata.audio`, `metadata.tts`, `metadata.scaffold`, `metadata.publish.intent`, and `metadata.integration.memosId`
-- Legacy compatibility fields such as `publishIntent`, `audioUrl`, `audioDuration`, `audioSize`, `audioMimeType`, and `memosId`
+- `metadata.tts`, `metadata.scaffold`, `metadata.publish.intent`, and `metadata.integration.memosId`
+- `publishIntent`, `syncToMemos`, `pushOption`, and `pushCriteria`
+- `views`, `translationId`, and `tagBindings`
 
 ## Import Rules
 
 1. Missing titles fall back to `Untitled`.
-2. `slug` prefers `permalink`; otherwise it is derived from the filename.
-3. If `date` exists, it is written to `createdAt` and `status` becomes `published`; otherwise `status` is `draft`.
+2. `slug` prefers `slug` or `abbrlink`; otherwise it is derived from the filename.
+3. If `date` exists, it is written to both `createdAt` and `publishedAt`, and `status` becomes `published`; otherwise `status` is `draft`.
 4. `visibility` is currently fixed to `public`.
 5. Tags support both string and array input; categories support both too, but only the first category is kept.
-6. The CLI does not currently construct the new `metadata` structure automatically. The README is aligned with the actual code path, not older field design assumptions.
+6. The CLI currently constructs only `metadata.audio`; it does not automatically build `metadata.tts`, `metadata.scaffold`, or `metadata.publish.intent`.
 
 ## API Key
 

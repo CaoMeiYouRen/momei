@@ -2,7 +2,162 @@ import { readFile } from 'node:fs/promises'
 import { resolve, relative } from 'node:path'
 import matter from 'gray-matter'
 import { glob } from 'glob'
-import type { HexoFrontMatter, MomeiPost, ParsedHexoPost } from './types'
+import type { HexoFrontMatter, MomeiPost, MomeiPostAudioMetadata, MomeiPostMetadata, ParsedHexoPost } from './types'
+
+function pickFirstString(...values: unknown[]) {
+    for (const value of values) {
+        if (typeof value !== 'string') {
+            continue
+        }
+
+        const trimmed = value.trim()
+        if (trimmed) {
+            return trimmed
+        }
+    }
+
+    return undefined
+}
+
+function normalizeStringArray(value?: string | string[]) {
+    if (Array.isArray(value)) {
+        return value
+            .map((item) => typeof item === 'string' ? item.trim() : '')
+            .filter(Boolean)
+    }
+
+    if (typeof value === 'string') {
+        const trimmed = value.trim()
+        return trimmed ? [trimmed] : []
+    }
+
+    return undefined
+}
+
+function resolveCategory(frontMatter: HexoFrontMatter) {
+    const rawCategory = frontMatter.categories ?? frontMatter.category
+    if (Array.isArray(rawCategory)) {
+        return pickFirstString(rawCategory[0]) || null
+    }
+
+    return pickFirstString(rawCategory) || null
+}
+
+function resolveSlug(frontMatter: HexoFrontMatter, filePath: string) {
+    const explicitSlug = pickFirstString(frontMatter.slug, frontMatter.abbrlink)
+    if (explicitSlug) {
+        return explicitSlug
+    }
+
+    const fileName = filePath.split(/[/\\]/).pop() || ''
+    return fileName.replace(/\.md$/i, '')
+}
+
+function toIsoDateString(value?: string | Date) {
+    if (!value) {
+        return undefined
+    }
+
+    const date = typeof value === 'string' ? new Date(value) : value
+    if (Number.isNaN(date.getTime())) {
+        return undefined
+    }
+
+    return date.toISOString()
+}
+
+function toInteger(value: unknown) {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+        return Math.trunc(value)
+    }
+
+    if (typeof value !== 'string') {
+        return undefined
+    }
+
+    const trimmed = value.trim()
+    if (!trimmed) {
+        return undefined
+    }
+
+    const parsed = Number.parseInt(trimmed, 10)
+    return Number.isNaN(parsed) ? undefined : parsed
+}
+
+function toDurationSeconds(value: unknown) {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+        return Math.trunc(value)
+    }
+
+    if (typeof value !== 'string') {
+        return undefined
+    }
+
+    const trimmed = value.trim()
+    if (!trimmed) {
+        return undefined
+    }
+
+    if (!trimmed.includes(':')) {
+        return toInteger(trimmed)
+    }
+
+    const segments = trimmed.split(':').map((segment) => Number.parseInt(segment, 10))
+    if (segments.some((segment) => Number.isNaN(segment))) {
+        return undefined
+    }
+
+    if (segments.length === 2) {
+        const [minutes, seconds] = segments
+        return minutes * 60 + seconds
+    }
+
+    if (segments.length === 3) {
+        const [hours, minutes, seconds] = segments
+        return hours * 3600 + minutes * 60 + seconds
+    }
+
+    return undefined
+}
+
+function buildAudioMetadata(frontMatter: HexoFrontMatter): MomeiPostAudioMetadata | undefined {
+    const url = pickFirstString(frontMatter.audio, frontMatter.audio_url, frontMatter.media)
+    const duration = toDurationSeconds(frontMatter.audio_duration ?? frontMatter.duration)
+    const size = toInteger(frontMatter.audio_size ?? frontMatter.medialength ?? frontMatter.mediaLength)
+    const mimeType = pickFirstString(frontMatter.audio_mime_type, frontMatter.mediatype, frontMatter.mediaType)
+
+    if (url === undefined && duration === undefined && size === undefined && mimeType === undefined) {
+        return undefined
+    }
+
+    const audio: MomeiPostAudioMetadata = {}
+
+    if (url !== undefined) {
+        audio.url = url
+    }
+    if (duration !== undefined) {
+        audio.duration = duration
+    }
+    if (size !== undefined) {
+        audio.size = size
+    }
+    if (mimeType !== undefined) {
+        audio.mimeType = mimeType
+    }
+
+    return audio
+}
+
+function buildMetadata(frontMatter: HexoFrontMatter): MomeiPostMetadata | undefined {
+    const audio = buildAudioMetadata(frontMatter)
+    if (!audio) {
+        return undefined
+    }
+
+    return {
+        audio,
+    }
+}
 
 /**
  * 解析 Hexo Markdown 文件
@@ -34,63 +189,32 @@ export async function scanMarkdownFiles(sourceDir: string): Promise<string[]> {
  * 转换 Hexo Front-matter 到 Momei Post 格式
  */
 export function convertToMomeiPost(frontMatter: HexoFrontMatter, content: string, filePath: string): MomeiPost {
-    // 处理标签：支持字符串或数组
-    let tags: string[] | undefined
-    if (Array.isArray(frontMatter.tags)) {
-        tags = frontMatter.tags
-    } else if (typeof frontMatter.tags === 'string') {
-        tags = [frontMatter.tags]
-    }
+    const tags = normalizeStringArray(frontMatter.tags)
+    const category = resolveCategory(frontMatter)
+    const slug = resolveSlug(frontMatter, filePath)
+    const importedAt = toIsoDateString(frontMatter.date)
+    const summary = pickFirstString(frontMatter.description, frontMatter.desc, frontMatter.excerpt) || null
+    const language = pickFirstString(frontMatter.language, frontMatter.lang) || 'zh-CN'
+    const coverImage = pickFirstString(frontMatter.image, frontMatter.cover, frontMatter.thumb) || null
+    const copyright = pickFirstString(frontMatter.copyright, frontMatter.license) || null
+    const metadata = buildMetadata(frontMatter)
+    const status = importedAt ? 'published' : 'draft'
 
-    // 处理分类：Hexo可能有多个分类，但Momei只支持单个分类
-    // 取第一个分类作为主分类
-    let category: string | null = null
-    if (Array.isArray(frontMatter.categories)) {
-        category = frontMatter.categories[0] || null
-    } else if (typeof frontMatter.categories === 'string') {
-        category = frontMatter.categories
-    }
-
-    // 生成 slug：优先使用 permalink，否则从文件名提取
-    let slug = frontMatter.permalink
-    if (!slug) {
-        const fileName = filePath.split(/[/\\]/).pop() || ''
-        slug = fileName.replace(/\.md$/, '')
-    }
-
-    // 处理发布时间
-    let createdAt: string | undefined
-    if (frontMatter.date) {
-        const date = typeof frontMatter.date === 'string' ? new Date(frontMatter.date) : frontMatter.date
-        createdAt = date.toISOString()
-    }
-
-    // 判断文章状态：如果有日期则设为published，否则为draft
-    const status = createdAt ? 'published' : 'draft'
-
-    // 构建 Momei Post 对象（必须与 createPostSchema 保持一致）
     const post: MomeiPost = {
-        // 基本字段
-        title: frontMatter.title || 'Untitled',
+        title: pickFirstString(frontMatter.title) || 'Untitled',
         content,
         slug,
-
-        // 描述性字段
-        summary: frontMatter.excerpt || null,
-
-        // 语言和翻译
-        language: frontMatter.lang || 'zh-CN',
-
-        // 分类和标签
+        summary,
+        coverImage,
+        metadata,
+        language,
         category,
         tags,
-
-        // 状态和可见性
         status,
         visibility: 'public',
-
-        // 其他字段
-        createdAt,
+        copyright,
+        createdAt: importedAt,
+        publishedAt: importedAt,
     }
 
     return post

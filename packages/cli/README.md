@@ -7,8 +7,9 @@
 ## 功能特性
 
 - ✅ 递归扫描目录中的 Markdown 文件并解析 Hexo Front-matter
-- ✅ 将 `title`、`permalink`、`excerpt`、`lang`、`tags`、`categories` 等字段转换为当前导入 API 所需结构
-- ✅ 将 `date` 转换为 `createdAt`，并据此自动推导文章状态
+- ✅ 兼容站内导入/导出的常用 Front-matter 别名，如 `abbrlink`、`description`、`image`、`audio` 等
+- ✅ 将 Front-matter 转换为当前导入 API 所需结构，包括 `metadata.audio`
+- ✅ 将 `date` 同步映射为 `createdAt` 和 `publishedAt`，并据此自动推导文章状态
 - ✅ 通过 Open API 批量导入文章到墨梅站点
 - ✅ 生成旧链接 mapping seeds，并调用迁移链接治理接口
 - ✅ 支持 dry run、并发导入、报告导出与失败重试
@@ -133,29 +134,38 @@ momei govern-links ./hexo-blog/source/_posts \
 | Hexo 字段 | Momei 字段 | 说明 |
 | --- | --- | --- |
 | `title` | `title` | 文章标题 |
-| `date` | `createdAt` | 转为 ISO 时间字符串，并同时让 `status` 变为 `published` |
+| `date` | `createdAt` + `publishedAt` | 转为 ISO 时间字符串，并同时让 `status` 变为 `published` |
 | `tags` | `tags` | 标签，支持字符串或数组 |
-| `categories` | `category` | 仅取第一个分类作为主分类 |
-| `permalink` | `slug` | 文章别名；缺失时回退为文件名 |
-| `excerpt` | `summary` | 文章摘要 |
-| `lang` | `language` | 语言；缺失时默认 `zh-CN` |
+| `categories` / `category` | `category` | 仅取第一个分类作为主分类 |
+| `slug` / `abbrlink` | `slug` | Canonical slug；缺失时回退为文件名 |
+| `description` / `desc` / `excerpt` | `summary` | 文章摘要 |
+| `image` / `cover` / `thumb` | `coverImage` | 文章封面 |
+| `copyright` / `license` | `copyright` | 版权或许可说明 |
+| `language` / `lang` | `language` | 语言；缺失时默认 `zh-CN` |
+| `audio` / `audio_url` / `media` | `metadata.audio.url` | 音频地址 |
+| `audio_duration` / `duration` | `metadata.audio.duration` | 音频时长；支持秒数或 `HH:mm:ss` |
+| `audio_size` / `medialength` / `mediaLength` | `metadata.audio.size` | 音频大小 |
+| `audio_mime_type` / `mediatype` / `mediaType` | `metadata.audio.mimeType` | 音频 MIME 类型 |
 | 正文内容 | `content` | Markdown 正文内容 |
+
+`permalink` 在当前 CLI 中不再作为 canonical slug 导入，而是主要服务于 `govern-links` 命令，用来生成旧链接映射种子。
 
 当前实现中，以下常见字段不会被导入命令映射：
 
 - `updated`
 - `disableComment`
-- `PostMetadata` 相关结构，例如 `metadata.audio`、`metadata.tts`、`metadata.scaffold`、`metadata.publish.intent`、`metadata.integration.memosId`
-- 旧版兼容字段，例如 `publishIntent`、`audioUrl`、`audioDuration`、`audioSize`、`audioMimeType`、`memosId`
+- `metadata.tts`、`metadata.scaffold`、`metadata.publish.intent`、`metadata.integration.memosId`
+- `publishIntent`、`syncToMemos`、`pushOption`、`pushCriteria`
+- `views`、`translationId`、`tagBindings`
 
 ## 导入规则
 
 1. 标题缺失时回退为 `Untitled`。
-2. `slug` 优先使用 `permalink`，否则从文件名推导。
-3. 有 `date` 时写入 `createdAt`，并将 `status` 设为 `published`；没有 `date` 时 `status` 为 `draft`。
+2. `slug` 优先使用 `slug` 或 `abbrlink`，否则从文件名推导。
+3. 有 `date` 时同时写入 `createdAt` 与 `publishedAt`，并将 `status` 设为 `published`；没有 `date` 时 `status` 为 `draft`。
 4. `visibility` 当前固定为 `public`。
 5. 标签支持字符串和数组；分类支持字符串和数组，但最终只保留第一个分类。
-6. CLI 当前不会自动构造新的 `metadata` 结构；README 以实际代码实现为准，而不是以前的字段设计。
+6. CLI 当前只会自动构造 `metadata.audio`，不会自动构造 `metadata.tts`、`metadata.scaffold`、`metadata.publish.intent` 等其他 metadata 子结构。
 
 ## API Key 获取
 

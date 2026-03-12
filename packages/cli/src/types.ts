@@ -2,16 +2,80 @@
  * Hexo Front-matter 数据结构
  */
 export interface HexoFrontMatter {
-    title: string
+    title?: string
     date?: string | Date
     updated?: string | Date
     tags?: string | string[]
     categories?: string | string[]
+    category?: string | string[]
+    slug?: string
+    abbrlink?: string
     permalink?: string
     excerpt?: string
+    description?: string
+    desc?: string
     disableComment?: boolean
+    image?: string
+    cover?: string
+    thumb?: string
+    copyright?: string
+    license?: string
+    language?: string
     lang?: string
-    [key: string]: any
+    audio?: string
+    audio_url?: string
+    audio_duration?: number | string
+    audio_size?: number | string
+    audio_mime_type?: string
+    media?: string
+    mediatype?: string
+    mediaType?: string
+    medialength?: number | string
+    mediaLength?: number | string
+    duration?: number | string
+    [key: string]: unknown
+}
+
+export type MomeiPostStatus = 'draft' | 'pending' | 'published' | 'rejected' | 'hidden' | 'scheduled'
+export type MomeiPostVisibility = 'public' | 'private' | 'password' | 'registered' | 'subscriber'
+
+export interface MomeiPostAudioMetadata {
+    url?: string | null
+    duration?: number | null
+    size?: number | null
+    mimeType?: string | null
+}
+
+export interface MomeiPostTTSMetadata {
+    provider?: string | null
+    voice?: string | null
+    generatedAt?: string | Date | null
+}
+
+export interface MomeiPostScaffoldMetadata {
+    outline?: string | null
+    metadata?: Record<string, unknown> | null
+}
+
+export interface MomeiPublishIntent {
+    syncToMemos?: boolean
+    pushOption?: 'none' | 'draft' | 'now'
+    pushCriteria?: {
+        categoryIds?: string[]
+        tagIds?: string[]
+    }
+}
+
+export interface MomeiPostMetadata {
+    audio?: MomeiPostAudioMetadata
+    tts?: MomeiPostTTSMetadata
+    scaffold?: MomeiPostScaffoldMetadata
+    publish?: {
+        intent?: MomeiPublishIntent | null
+    }
+    integration?: {
+        memosId?: string | null
+    }
 }
 
 /**
@@ -27,10 +91,8 @@ export interface MomeiPost {
     // 描述性字段
     summary?: string | null
     coverImage?: string | null
-    audioUrl?: string | null
-    audioDuration?: number | null
-    audioSize?: number | null
-    audioMimeType?: string | null
+    metadata?: MomeiPostMetadata | null
+    metaVersion?: number
 
     // 语言和翻译
     language?: string
@@ -45,12 +107,16 @@ export interface MomeiPost {
     copyright?: string | null
 
     // 状态和可见性
-    status?: 'draft' | 'pending' | 'published' | 'rejected' | 'hidden'
-    visibility?: 'public' | 'private' | 'password' | 'registered' | 'subscriber'
+    status?: MomeiPostStatus
+    visibility?: MomeiPostVisibility
     password?: string | null
+    pushOption?: 'none' | 'draft' | 'now'
+    syncToMemos?: boolean
+    pushCriteria?: MomeiPublishIntent['pushCriteria']
 
     // 元数据
     createdAt?: string | Date
+    publishedAt?: string | Date
     views?: number
 }
 

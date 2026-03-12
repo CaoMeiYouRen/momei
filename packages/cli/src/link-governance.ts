@@ -7,6 +7,17 @@ import type {
     ParsedHexoPost,
 } from './types'
 
+const DEFAULT_GOVERNANCE_SCOPES: CliLinkGovernanceScope[] = ['asset-url', 'post-link', 'permalink-rule']
+const SUPPORTED_GOVERNANCE_SCOPES = new Set<CliLinkGovernanceScope>([
+    'asset-url',
+    'post-link',
+    'category-link',
+    'tag-link',
+    'archive-link',
+    'page-link',
+    'permalink-rule',
+])
+
 function normalizeLegacySegment(value: string) {
     return value
         .trim()
@@ -40,9 +51,7 @@ function renderLegacyPermalink(entry: ParsedHexoPost) {
     }
     const fileBasename = basename(entry.relativeFile).replace(/\.md$/i, '')
     const slug = entry.post.slug || fileBasename
-    const categoryValue = Array.isArray(entry.frontMatter.categories)
-        ? entry.frontMatter.categories[0]
-        : entry.frontMatter.categories
+    const categoryValue = resolvePrimaryCategory(entry)
     const replacements: Record<string, string> = {
         ':title': slugifyLegacySegment(slug),
         ':slug': slugifyLegacySegment(slug),
@@ -82,6 +91,29 @@ function toSeedSourceKind(source: string): CliLinkGovernanceMappingSeed['sourceK
 
 function joinOriginAndPath(origin: string, path: string) {
     return `${origin.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`
+}
+
+function resolvePrimaryCategory(entry: ParsedHexoPost) {
+    const rawCategory = entry.frontMatter.categories ?? entry.frontMatter.category
+
+    if (Array.isArray(rawCategory)) {
+        return rawCategory[0]
+    }
+
+    return rawCategory
+}
+
+export function parseCliLinkGovernanceScopes(scopes?: string[]): CliLinkGovernanceScope[] {
+    if (!scopes || scopes.length === 0) {
+        return [...DEFAULT_GOVERNANCE_SCOPES]
+    }
+
+    const invalidScopes = scopes.filter((scope) => !SUPPORTED_GOVERNANCE_SCOPES.has(scope as CliLinkGovernanceScope))
+    if (invalidScopes.length > 0) {
+        throw new Error(`Unsupported scopes: ${invalidScopes.join(', ')}`)
+    }
+
+    return scopes as CliLinkGovernanceScope[]
 }
 
 export function buildLinkGovernanceSeeds(entries: ParsedHexoPost[], options: { legacyOrigin?: string } = {}) {
@@ -140,9 +172,9 @@ export function buildLinkGovernanceRequest(entries: ParsedHexoPost[], options: {
     legacyOrigin?: string
     reportFormat?: 'json' | 'markdown'
 } = {}): CliLinkGovernanceRequest {
-    const scopes = options.scopes && options.scopes.length > 0
+    const scopes: CliLinkGovernanceScope[] = options.scopes && options.scopes.length > 0
         ? options.scopes
-        : ['asset-url', 'post-link', 'permalink-rule']
+        : [...DEFAULT_GOVERNANCE_SCOPES]
 
     return {
         scopes,
