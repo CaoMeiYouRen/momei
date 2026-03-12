@@ -109,10 +109,11 @@ import {
 } from '@/composables/use-theme'
 import ArticleCard from '@/components/article-card.vue'
 import { PostStatus, PostVisibility, type Post } from '@/types/post'
+import { useThemeMode } from '@/composables/use-theme-mode'
 
 const { t } = useI18n()
 const { settings, isLocked } = useTheme()
-const isDark = useDark()
+const isDark = useThemeMode()
 
 const previewInner = ref<HTMLElement | null>(null)
 

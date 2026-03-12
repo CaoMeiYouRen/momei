@@ -172,10 +172,11 @@ import {
     type ThemePresetKey,
     type ThemePresetValueKey,
 } from '@/composables/use-theme'
+import { useThemeMode } from '@/composables/use-theme-mode'
 
 const { t } = useI18n()
 const { settings, isLocked } = useTheme()
-const isDark = useDark()
+const isDark = useThemeMode()
 
 type ThemeSelectablePresetKey = ThemePresetKey | 'custom'
 

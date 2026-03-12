@@ -32,6 +32,7 @@ export const LOCALE_CORE_MODULES = [
     'public',
     'settings',
     'legal',
+    'auth',
 ] as const satisfies readonly (typeof LOCALE_MESSAGE_MODULE_ORDER)[number][]
 
 export type LocaleMessageModule = (typeof LOCALE_MESSAGE_MODULE_ORDER)[number]

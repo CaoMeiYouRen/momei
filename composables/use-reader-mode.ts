@@ -1,5 +1,6 @@
-import { useStorage, useDark } from '@vueuse/core'
+import { useStorage } from '@vueuse/core'
 import { watch, onMounted } from 'vue'
+import { useThemeMode } from './use-theme-mode'
 
 export type ReaderTheme = 'default' | 'sepia' | 'eye-care' | 'dark-night'
 
@@ -21,7 +22,7 @@ const settings = useStorage<ReaderSettings>('momei-reader-settings', {
 })
 
 export const useReaderMode = () => {
-    const isDark = useDark()
+    const isDark = useThemeMode()
 
     const toggleReaderMode = (val?: boolean) => {
         settings.value.active = val !== undefined ? val : !settings.value.active

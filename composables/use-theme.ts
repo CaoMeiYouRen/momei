@@ -1,5 +1,5 @@
-import { useDark } from '@vueuse/core'
 import { useAppFetch } from './use-app-fetch'
+import { useThemeMode } from './use-theme-mode'
 
 export type ThemeMode = 'light' | 'dark'
 
@@ -98,12 +98,7 @@ export const PRESETS: Record<ThemePresetKey, ThemePresetDefinition> = {
 export const useTheme = () => {
     // 虽然 isDark 在 CSS 变量生成中不再直接使用（因为我们同时生成了亮暗两套变量），
     // 但 useDark 仍然需要保留以管理 html 端的 class 状态。
-    useDark({
-        selector: 'html',
-        attribute: 'class',
-        valueDark: 'dark',
-        valueLight: '',
-    })
+    useThemeMode()
 
     const settings = useState<ThemeSettings | null>('theme-settings', () => ({
         themePreset: 'default',

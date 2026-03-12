@@ -162,6 +162,7 @@ watch(() => props.content, () => {
 
     p {
         margin-bottom: 1.5em;
+        color: inherit;
     }
 
     ul, ol {
@@ -171,6 +172,7 @@ watch(() => props.content, () => {
 
     li {
         margin-bottom: 0.5em;
+        color: inherit;
     }
 
     a {
@@ -191,7 +193,7 @@ watch(() => props.content, () => {
         background-color: var(--p-surface-50);
         border: 1px solid var(--p-surface-100);
         border-radius: 0 $border-radius-md $border-radius-md 0;
-        color: var(--p-text-muted-color);
+        color: color-mix(in srgb, var(--p-text-color) 78%, var(--p-surface-0) 22%);
 
         p:last-child {
             margin-bottom: 0;
@@ -245,6 +247,7 @@ watch(() => props.content, () => {
         width: 100%;
         border-collapse: collapse;
         margin: 1.5em 0;
+        color: inherit;
 
         th, td {
             border: 1px solid var(--p-surface-200);
@@ -260,12 +263,14 @@ watch(() => props.content, () => {
 
     // Dark mode adjustments
     .dark & {
+        color: color-mix(in srgb, var(--p-text-color) 96%, white 4%);
+
         h2 { border-bottom-color: var(--p-surface-800); }
 
         blockquote {
             background-color: var(--p-surface-50);
             border-color: var(--p-primary-600);
-            color: var(--p-text-muted-color);
+            color: color-mix(in srgb, var(--p-text-color) 82%, white 18%);
         }
 
         code {

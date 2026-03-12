@@ -118,7 +118,7 @@ describe('AppHeader', () => {
         expect(mockEnsureLocaleMessageModules).toHaveBeenCalledWith(
             expect.objectContaining({
                 locale: expect.any(String),
-                modules: ['auth', 'admin'],
+                modules: ['admin'],
             }),
         )
     })
@@ -141,12 +141,7 @@ describe('AppHeader', () => {
         await nextTick()
 
         expect(wrapper.find('#user-menu-btn').exists()).toBe(true)
-        expect(mockEnsureLocaleMessageModules).toHaveBeenCalledWith(
-            expect.objectContaining({
-                locale: expect.any(String),
-                modules: ['auth'],
-            }),
-        )
+        expect(mockEnsureLocaleMessageModules).not.toHaveBeenCalled()
     })
 
     it('calls openSearch when search button is clicked', async () => {

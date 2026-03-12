@@ -265,11 +265,13 @@
 
 // PrimeVue DataTable & Paginator Dark Mode Fixes
 .p-datatable {
-    background-color: transparent;
+    background-color: var(--p-surface-card);
+    border: 1px solid var(--p-surface-border);
+    border-radius: var(--p-content-border-radius);
 
     .p-datatable-header,
     .p-datatable-footer {
-        background-color: transparent;
+        background-color: var(--p-surface-card);
         color: var(--p-text-color);
         border-color: var(--p-surface-border);
     }
@@ -298,7 +300,7 @@
     }
 
     .p-datatable-paginator {
-        background-color: transparent;
+        background-color: var(--p-surface-card);
         border-top: 1px solid var(--p-surface-border);
         padding: 0.75rem;
     }

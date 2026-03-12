@@ -252,8 +252,7 @@ export default defineNuxtConfig({
         ],
     },
     css: [
-        'normalize.css/normalize.css',
-        'primeicons/primeicons.css',
+        '@/styles/vendor.css',
         '@/styles/main.scss',
     ],
     eslint: {

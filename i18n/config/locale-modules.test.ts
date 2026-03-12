@@ -13,6 +13,7 @@ describe('i18n locale modules', () => {
             'zh-CN/public.json',
             'zh-CN/settings.json',
             'zh-CN/legal.json',
+            'zh-CN/auth.json',
         ])
     })
 
@@ -50,6 +51,7 @@ describe('i18n locale modules', () => {
             'public',
             'settings',
             'legal',
+            'auth',
             'home',
             'demo',
         ])
@@ -62,6 +64,7 @@ describe('i18n locale modules', () => {
             'public',
             'settings',
             'legal',
+            'auth',
             'admin',
             'installation',
         ])

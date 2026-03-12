@@ -47,7 +47,7 @@
 
                     <NuxtLink
                         id="nav-friend-link-application"
-                        :to="localePath('friend-links')"
+                        :to="localePath('/friend-links')"
                         class="nav-link"
                     >
                         {{ $t('common.friend_link_application') }}
@@ -60,7 +60,7 @@
                     <ClientOnly>
                         <AppNotifications v-if="user" />
 
-                        <template v-if="user && isAdminOrAuthor(user.role)">
+                        <template v-if="showAdminControls">
                             <Button
                                 id="admin-menu-btn"
                                 v-tooltip.bottom="$t('common.admin')"
@@ -237,7 +237,7 @@
                 </NuxtLink>
                 <NuxtLink
                     id="mobile-nav-friend-link-application"
-                    :to="localePath('friend-links')"
+                    :to="localePath('/friend-links')"
                     class="mobile-nav-link"
                     @click="isMobileMenuOpen = false"
                 >
@@ -267,7 +267,7 @@
                 <Divider />
 
                 <template v-if="user">
-                    <div v-if="isAdminOrAuthor(user.role)" class="mobile-admin-section">
+                    <div v-if="showAdminControls" class="mobile-admin-section">
                         <div class="mobile-admin-section__title">
                             {{ $t('common.admin') }}
                         </div>
@@ -329,8 +329,15 @@ const localePath = useLocalePath()
 const nuxtApp = useNuxtApp()
 
 const isMobileMenuOpen = ref(false)
+const adminLocaleReady = ref(false)
 
 const adminMenu = ref()
+const showAdminControls = computed(() => Boolean(
+    user.value
+    && isAdminOrAuthor(user.value.role)
+    && adminLocaleReady.value,
+))
+
 const adminMenuItems = computed(() => {
     const items: MenuItem[] = [
         {
@@ -472,21 +479,8 @@ const toggleUserMenu = (event: any) => {
     userMenu.value.toggle(event)
 }
 
-const isDark = useDark({
-    selector: 'html',
-    attribute: 'class',
-    valueDark: 'dark',
-    valueLight: '',
-    storageKey: 'theme',
-})
+const isDark = useThemeMode()
 const toggleDark = useToggle(isDark)
-
-const preferredDark = usePreferredDark()
-
-// 同步系统偏好设置的暗色模式状态
-watch(preferredDark, (newVal) => {
-    isDark.value = newVal
-}, { immediate: true })
 
 watch(
     () => ({
@@ -494,20 +488,20 @@ watch(
         role: user.value?.role ?? null,
     }),
     async ({ locale: currentLocale, role }) => {
-        const modulesToLoad = [
-            role ? 'auth' : null,
-            role && isAdminOrAuthor(role) ? 'admin' : null,
-        ].filter((moduleName): moduleName is 'auth' | 'admin' => Boolean(moduleName))
+        const needsAdminMessages = Boolean(role && isAdminOrAuthor(role))
+        adminLocaleReady.value = !needsAdminMessages
 
-        if (modulesToLoad.length === 0) {
+        if (!needsAdminMessages) {
             return
         }
 
         await ensureLocaleMessageModules({
             i18n: nuxtApp.$i18n as object,
             locale: currentLocale,
-            modules: modulesToLoad,
+            modules: ['admin'],
         })
+
+        adminLocaleReady.value = true
     },
     { immediate: true },
 )

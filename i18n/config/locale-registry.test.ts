@@ -54,6 +54,7 @@ describe('i18n locale registry', () => {
             'zh-CN/public.json',
             'zh-CN/settings.json',
             'zh-CN/legal.json',
+            'zh-CN/auth.json',
         ])
     })
 })
