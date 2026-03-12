@@ -82,7 +82,7 @@ export function useAdminAiPage() {
         await Promise.all([loadTasks(), loadStats()])
     }
 
-    const deleteTasks = async (ids: string, successKey: string, fallbackKey: string) => {
+    const deleteTasks = async (ids: string, successKey: string) => {
         await $appFetch('/api/admin/ai/tasks', {
             method: 'DELETE',
             query: { ids },
@@ -121,14 +121,16 @@ export function useAdminAiPage() {
                 label: t('common.delete'),
                 severity: 'danger',
             },
-            accept: async () => {
-                try {
-                    await deleteTasks(task.id, 'pages.admin.ai.feedback.delete_task_success', 'pages.admin.ai.feedback.delete_task_failed')
-                } catch (error: unknown) {
-                    showErrorToast(error, {
-                        fallbackKey: 'pages.admin.ai.feedback.delete_task_failed',
-                    })
-                }
+            accept: () => {
+                void (async () => {
+                    try {
+                        await deleteTasks(task.id, 'pages.admin.ai.feedback.delete_task_success')
+                    } catch (error: unknown) {
+                        showErrorToast(error, {
+                            fallbackKey: 'pages.admin.ai.feedback.delete_task_failed',
+                        })
+                    }
+                })()
             },
         })
     }
@@ -138,16 +140,18 @@ export function useAdminAiPage() {
             message: t('pages.admin.ai.delete_confirm'),
             header: t('common.confirm_delete'),
             icon: 'pi pi-exclamation-triangle',
-            accept: async () => {
-                try {
-                    const ids = selectedTasks.value.map((task) => task.id).join(',')
-                    await deleteTasks(ids, 'pages.admin.ai.feedback.delete_tasks_success', 'pages.admin.ai.feedback.delete_tasks_failed')
-                    selectedTasks.value = []
-                } catch (error: unknown) {
-                    showErrorToast(error, {
-                        fallbackKey: 'pages.admin.ai.feedback.delete_tasks_failed',
-                    })
-                }
+            accept: () => {
+                void (async () => {
+                    try {
+                        const ids = selectedTasks.value.map((task) => task.id).join(',')
+                        await deleteTasks(ids, 'pages.admin.ai.feedback.delete_tasks_success')
+                        selectedTasks.value = []
+                    } catch (error: unknown) {
+                        showErrorToast(error, {
+                            fallbackKey: 'pages.admin.ai.feedback.delete_tasks_failed',
+                        })
+                    }
+                })()
             },
         })
     }

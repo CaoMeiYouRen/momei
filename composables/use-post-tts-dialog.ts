@@ -66,12 +66,10 @@ export function usePostTtsDialog(options: {
         }))
     })
 
-    const providers = computed(() => {
-        return availableProviders.value.map((provider) => ({
-            label: t(`pages.admin.posts.tts.providers.${provider.toLowerCase()}`),
-            value: provider,
-        }))
-    })
+    const providers = computed(() => availableProviders.value.map((provider) => ({
+        label: t(`pages.admin.posts.tts.providers.${provider.toLowerCase()}`),
+        value: provider,
+    })))
 
     const fetchConfig = async () => {
         try {
@@ -89,7 +87,9 @@ export function usePostTtsDialog(options: {
     }
 
     const fetchVoices = async () => {
-        if (!config.value.provider) { return }
+        if (!config.value.provider) {
+            return
+        }
 
         loadingVoices.value = true
         try {
@@ -111,7 +111,9 @@ export function usePostTtsDialog(options: {
     }
 
     const optimizeManuscript = async () => {
-        if (!options.content.value || optimizing.value) { return }
+        if (!options.content.value || optimizing.value) {
+            return
+        }
 
         optimizing.value = true
         try {
