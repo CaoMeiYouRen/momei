@@ -3,8 +3,12 @@ import type { LinkGovernanceReport } from '@/server/entities/link-governance-rep
 
 const postRepo = {
     find: vi.fn(),
-    findByIds: vi.fn(),
+    findBy: vi.fn(),
     save: vi.fn(),
+}
+
+const userRepo = {
+    find: vi.fn(),
 }
 
 const categoryRepo = {
@@ -32,6 +36,8 @@ vi.mock('@/server/database', () => ({
                     return tagRepo
                 case 'LinkGovernanceReport':
                     return reportRepo
+                case 'User':
+                    return userRepo
                 default:
                     throw new Error(`Unexpected repository: ${entity?.name || 'unknown'}`)
             }
@@ -62,7 +68,8 @@ describe('server/services/migration-link-governance', () => {
 
         categoryRepo.find.mockResolvedValue([])
         tagRepo.find.mockResolvedValue([])
-        postRepo.findByIds.mockResolvedValue([])
+        postRepo.findBy.mockResolvedValue([])
+        userRepo.find.mockResolvedValue([])
         postRepo.save.mockImplementation((value: any) => Promise.resolve(value))
         reportRepo.save.mockImplementation((value: Partial<LinkGovernanceReport> & { id?: string }) => Promise.resolve({
             ...value,
@@ -219,5 +226,227 @@ describe('server/services/migration-link-governance', () => {
             userId: 'other-user',
             role: 'user',
         })).rejects.toMatchObject({ statusCode: 403 })
+    })
+
+    it('should rewrite relative links when explicitly allowed', async () => {
+        const post = {
+            id: 'post-1',
+            slug: 'hello-world',
+            language: 'zh-CN',
+            translationId: 'translation-1',
+            content: '[legacy](legacy/hello-world.html)',
+            coverImage: null,
+            metadata: null,
+        }
+
+        postRepo.find.mockImplementation((options?: { select?: string[] }) => {
+            if (options?.select) {
+                return Promise.resolve([{
+                    id: post.id,
+                    slug: post.slug,
+                    language: post.language,
+                    translationId: post.translationId,
+                }])
+            }
+
+            return Promise.resolve([post])
+        })
+
+        const { runLinkGovernanceDryRun } = await import('./migration-link-governance')
+        const result = await runLinkGovernanceDryRun({
+            scopes: ['post-link'],
+            seeds: [{
+                source: 'legacy/hello-world.html',
+                sourceKind: 'relative',
+                matchMode: 'exact',
+                scope: 'post-link',
+                targetType: 'post',
+                targetRef: { id: 'post-1' },
+            }],
+            options: {
+                allowRelativeLinks: true,
+            },
+        }, 'user-1')
+
+        expect(result.items).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                sourceValue: 'legacy/hello-world.html',
+                targetValue: '/posts/hello-world',
+                status: 'rewritten',
+                scope: 'post-link',
+            }),
+        ]))
+    })
+
+    it('should flag duplicate mapping conflicts for manual confirmation', async () => {
+        const posts = [
+            {
+                id: 'post-1',
+                slug: 'hello-world',
+                language: 'zh-CN',
+                translationId: 'translation-1',
+                content: '[legacy](/legacy/conflict)',
+                coverImage: null,
+                metadata: null,
+            },
+            {
+                id: 'post-2',
+                slug: 'another-post',
+                language: 'zh-CN',
+                translationId: 'translation-2',
+                content: 'noop',
+                coverImage: null,
+                metadata: null,
+            },
+        ]
+
+        postRepo.find.mockImplementation((options?: { select?: string[] }) => {
+            if (options?.select) {
+                return Promise.resolve(posts.map((post) => ({
+                    id: post.id,
+                    slug: post.slug,
+                    language: post.language,
+                    translationId: post.translationId,
+                })))
+            }
+
+            return Promise.resolve([posts[0]])
+        })
+
+        const { runLinkGovernanceDryRun } = await import('./migration-link-governance')
+        const result = await runLinkGovernanceDryRun({
+            scopes: ['post-link'],
+            seeds: [
+                {
+                    source: '/legacy/conflict',
+                    sourceKind: 'root-relative',
+                    matchMode: 'exact',
+                    scope: 'post-link',
+                    targetType: 'post',
+                    targetRef: { id: 'post-1' },
+                },
+                {
+                    source: '/legacy/conflict',
+                    sourceKind: 'root-relative',
+                    matchMode: 'exact',
+                    scope: 'post-link',
+                    targetType: 'post',
+                    targetRef: { id: 'post-2' },
+                },
+            ],
+        }, 'user-1')
+
+        expect(result.items).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                sourceValue: '/legacy/conflict',
+                status: 'needs-confirmation',
+                issues: [expect.objectContaining({ code: 'redirect-conflict' })],
+            }),
+        ]))
+        expect(result.summary.needsConfirmation).toBe(1)
+    })
+
+    it('should retry only failed records from a previous report', async () => {
+        const posts = [
+            {
+                id: 'post-1',
+                slug: 'hello-world',
+                language: 'zh-CN',
+                translationId: 'translation-1',
+                content: 'noop',
+                coverImage: null,
+                metadata: null,
+            },
+            {
+                id: 'post-2',
+                slug: 'retry-target',
+                language: 'zh-CN',
+                translationId: 'translation-2',
+                content: '[legacy](/posts/post-2)',
+                coverImage: null,
+                metadata: null,
+            },
+        ]
+
+        reportRepo.findOneBy
+            .mockResolvedValueOnce({
+                id: 'report-retry',
+                items: [
+                    { contentType: 'post', contentId: 'post-2', status: 'failed' },
+                    { contentType: 'post', contentId: 'post-1', status: 'resolved' },
+                ],
+            })
+            .mockResolvedValueOnce(null)
+
+        postRepo.find.mockImplementation((options?: { select?: string[] }) => {
+            if (options?.select) {
+                return Promise.resolve(posts.map((post) => ({
+                    id: post.id,
+                    slug: post.slug,
+                    language: post.language,
+                    translationId: post.translationId,
+                })))
+            }
+
+            return Promise.resolve([])
+        })
+        postRepo.findBy.mockResolvedValue([posts[1]])
+
+        const { runLinkGovernanceDryRun } = await import('./migration-link-governance')
+        const result = await runLinkGovernanceDryRun({
+            scopes: ['post-link'],
+            options: {
+                retryFailuresFromReportId: 'report-retry',
+            },
+        }, 'user-1')
+
+        expect(postRepo.findBy).toHaveBeenCalledTimes(1)
+        expect(result.items.every((item) => item.contentId === 'post-2')).toBe(true)
+    })
+
+    it('should record unreachable external links during online validation', async () => {
+        const post = {
+            id: 'post-1',
+            slug: 'hello-world',
+            language: 'zh-CN',
+            translationId: 'translation-1',
+            content: '[external](https://outside.example.com/hello)',
+            coverImage: null,
+            metadata: null,
+        }
+
+        vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network down')))
+
+        postRepo.find.mockImplementation((options?: { select?: string[] }) => {
+            if (options?.select) {
+                return Promise.resolve([{
+                    id: post.id,
+                    slug: post.slug,
+                    language: post.language,
+                    translationId: post.translationId,
+                }])
+            }
+
+            return Promise.resolve([post])
+        })
+
+        const { runLinkGovernanceDryRun } = await import('./migration-link-governance')
+        const result = await runLinkGovernanceDryRun({
+            scopes: ['post-link'],
+            filters: {
+                domains: ['legacy.example.com'],
+            },
+            options: {
+                validationMode: 'static+online',
+            },
+        }, 'user-1')
+
+        expect(result.items).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                sourceValue: 'https://outside.example.com/hello',
+                status: 'skipped',
+                issues: [expect.objectContaining({ code: 'external-unreachable' })],
+            }),
+        ]))
     })
 })

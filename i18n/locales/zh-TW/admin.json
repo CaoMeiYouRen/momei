@@ -179,6 +179,57 @@
                     "copy_success": "連結已複製到剪貼簿"
                 }
             },
+            "link_governance": {
+                "title": "遷移連結治理",
+                "overview_title": "治理報告記錄",
+                "overview_description": "查看 dry-run 與 apply 產生的連結治理報告，回顧改寫結果、失敗項與 redirect seeds。",
+                "empty": "目前尚無治理報告",
+                "filters": {
+                    "mode": "執行模式",
+                    "status": "報告狀態",
+                    "apply": "套用篩選",
+                    "reset": "重設篩選"
+                },
+                "modes": {
+                    "dry-run": "演練",
+                    "apply": "執行"
+                },
+                "statuses": {
+                    "completed": "已完成",
+                    "failed": "失敗"
+                },
+                "columns": {
+                    "created_at": "建立時間",
+                    "mode": "模式",
+                    "status": "狀態",
+                    "requested_by": "發起人",
+                    "summary": "摘要",
+                    "redirects": "Redirect Seeds"
+                },
+                "summary": {
+                    "total": "總數",
+                    "resolved": "已落盤",
+                    "rewritten": "待改寫",
+                    "failed": "失敗",
+                    "needs_confirmation": "待確認"
+                },
+                "actions": {
+                    "refresh": "重新整理",
+                    "view": "查看詳情"
+                },
+                "detail": {
+                    "title": "報告詳情",
+                    "report_id": "報告 ID",
+                    "requested_by": "發起人 ID",
+                    "items": "差異項預覽",
+                    "empty_items": "目前報告沒有差異項。",
+                    "markdown": "Markdown 報告"
+                },
+                "messages": {
+                    "load_failed": "載入治理報告失敗",
+                    "detail_failed": "載入報告詳情失敗"
+                }
+            },
             "friend_links": {
                 "title": "友站連結管理",
                 "links": "正式友站連結",

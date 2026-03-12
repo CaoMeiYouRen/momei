@@ -173,9 +173,39 @@ export interface LinkGovernanceRequest {
 export interface LinkGovernanceReportData {
     reportId: string
     mode: LinkGovernanceMode
+    status?: LinkGovernanceReportStatus
+    scopes?: LinkGovernanceScope[]
+    filters?: LinkGovernanceRequestFilters | null
+    options?: LinkGovernanceRequestOptions | null
+    requestedByUserId?: string
     summary: LinkGovernanceReportSummary
     statistics: LinkGovernanceReportStatistics
     items: LinkGovernanceDiffItem[]
     redirectSeeds: LinkGovernanceRedirectSeed[]
     markdown?: string | null
+    createdAt?: string | Date
+    updatedAt?: string | Date
+}
+
+export interface LinkGovernanceReportListItem {
+    reportId: string
+    mode: LinkGovernanceMode
+    status: LinkGovernanceReportStatus
+    scopes: LinkGovernanceScope[]
+    requestedByUserId: string
+    requestedByName?: string | null
+    requestedByEmail?: string | null
+    summary: LinkGovernanceReportSummary
+    itemCount: number
+    redirectSeedCount: number
+    createdAt: string | Date
+    updatedAt: string | Date
+}
+
+export interface LinkGovernanceReportListData {
+    items: LinkGovernanceReportListItem[]
+    total: number
+    page: number
+    limit: number
+    totalPages: number
 }

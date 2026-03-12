@@ -411,6 +411,11 @@ const adminMenuItems = computed(() => {
                 command: () => navigateTo(localePath('/admin/external-links')),
             },
             {
+                label: t('pages.admin.link_governance.title'),
+                icon: 'pi pi-directions-alt',
+                command: () => navigateTo(localePath('/admin/migrations/link-governance')),
+            },
+            {
                 label: t('pages.admin.friend_links.title'),
                 icon: 'pi pi-link',
                 command: () => navigateTo(localePath('/admin/friend-links')),

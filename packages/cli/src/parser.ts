@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { resolve, relative } from 'node:path'
 import matter from 'gray-matter'
 import { glob } from 'glob'
-import type { HexoFrontMatter, MomeiPost } from './types'
+import type { HexoFrontMatter, MomeiPost, ParsedHexoPost } from './types'
 
 /**
  * 解析 Hexo Markdown 文件
@@ -99,23 +99,24 @@ export function convertToMomeiPost(frontMatter: HexoFrontMatter, content: string
 /**
  * 批量解析 Hexo 文件
  */
-export async function parseHexoFiles(sourceDir: string, verbose = false): Promise<{ file: string, post: MomeiPost }[]> {
+export async function parseHexoFiles(sourceDir: string, verbose = false): Promise<ParsedHexoPost[]> {
     const files = await scanMarkdownFiles(sourceDir)
 
     if (verbose) {
         console.log(`Found ${files.length} markdown files in ${sourceDir}`)
     }
 
-    const results: { file: string, post: MomeiPost }[] = []
+    const results: ParsedHexoPost[] = []
 
     for (const file of files) {
         try {
             const { frontMatter, content } = await parseHexoMarkdown(file)
-            const post = convertToMomeiPost(frontMatter, content, relative(sourceDir, file))
-            results.push({ file, post })
+            const relativeFile = relative(sourceDir, file)
+            const post = convertToMomeiPost(frontMatter, content, relativeFile)
+            results.push({ file, relativeFile, frontMatter, content, post })
 
             if (verbose) {
-                console.log(`✓ Parsed: ${relative(sourceDir, file)}`)
+                console.log(`✓ Parsed: ${relativeFile}`)
             }
         } catch (error) {
             if (verbose) {

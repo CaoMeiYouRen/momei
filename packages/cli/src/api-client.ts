@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance } from 'axios'
-import type { MomeiPost, ImportResult } from './types'
+import type { CliLinkGovernanceReportData, CliLinkGovernanceRequest, MomeiPost, ImportResult } from './types'
 
 /**
  * Momei API 客户端
@@ -97,5 +97,20 @@ export class MomeiApiClient {
         } catch {
             return false
         }
+    }
+
+    async dryRunLinkGovernance(request: CliLinkGovernanceRequest): Promise<{ code: number, data: CliLinkGovernanceReportData }> {
+        const response = await this.client.post('/api/external/migrations/link-governance/dry-run', request)
+        return response.data
+    }
+
+    async applyLinkGovernance(request: CliLinkGovernanceRequest): Promise<{ code: number, data: CliLinkGovernanceReportData }> {
+        const response = await this.client.post('/api/external/migrations/link-governance/apply', request)
+        return response.data
+    }
+
+    async getLinkGovernanceReport(reportId: string): Promise<{ code: number, data: CliLinkGovernanceReportData }> {
+        const response = await this.client.get(`/api/external/migrations/link-governance/reports/${reportId}`)
+        return response.data
     }
 }

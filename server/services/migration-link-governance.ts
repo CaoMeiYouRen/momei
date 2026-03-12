@@ -6,6 +6,7 @@ import { Category } from '@/server/entities/category'
 import { LinkGovernanceReport } from '@/server/entities/link-governance-report'
 import { Post } from '@/server/entities/post'
 import { Tag } from '@/server/entities/tag'
+import { User } from '@/server/entities/user'
 import { getSettings } from '@/server/services/setting'
 import { getUploadStorageContext, resolveUploadedFileUrl } from '@/server/services/upload'
 import { isAdmin } from '@/utils/shared/roles'
@@ -19,6 +20,8 @@ import {
     type LinkGovernanceIssue,
     type LinkGovernanceMappingSeed,
     type LinkGovernanceMode,
+    type LinkGovernanceReportListData,
+    type LinkGovernanceReportListItem,
     type LinkGovernancePageKey,
     type LinkGovernanceRedirectSeed,
     type LinkGovernanceReportData,
@@ -861,6 +864,44 @@ function createEmptySummary(): LinkGovernanceReportSummary {
     }
 }
 
+function toLinkGovernanceReportData(report: LinkGovernanceReport): LinkGovernanceReportData {
+    return {
+        reportId: report.id,
+        mode: report.mode,
+        status: report.status,
+        scopes: report.scopes,
+        filters: report.filters,
+        options: report.options,
+        requestedByUserId: report.requestedByUserId,
+        summary: report.summary || createEmptySummary(),
+        statistics: report.statistics || buildStatistics(report.items || []),
+        items: report.items || [],
+        redirectSeeds: report.redirectSeeds || [],
+        markdown: report.markdown,
+        createdAt: report.createdAt,
+        updatedAt: report.updatedAt,
+    }
+}
+
+function toLinkGovernanceReportListItem(report: LinkGovernanceReport, userById: Map<string, Pick<User, 'id' | 'name' | 'email'>>): LinkGovernanceReportListItem {
+    const requestedBy = userById.get(report.requestedByUserId)
+
+    return {
+        reportId: report.id,
+        mode: report.mode,
+        status: report.status,
+        scopes: report.scopes,
+        requestedByUserId: report.requestedByUserId,
+        requestedByName: requestedBy?.name || null,
+        requestedByEmail: requestedBy?.email || null,
+        summary: report.summary || createEmptySummary(),
+        itemCount: report.items?.length || 0,
+        redirectSeedCount: report.redirectSeeds?.length || 0,
+        createdAt: report.createdAt,
+        updatedAt: report.updatedAt,
+    }
+}
+
 function buildStatistics(items: LinkGovernanceDiffItem[]): LinkGovernanceReportStatistics {
     const byScope: LinkGovernanceReportStatistics['byScope'] = {}
     const byContentType: LinkGovernanceReportStatistics['byContentType'] = {}
@@ -1042,15 +1083,7 @@ async function executeLinkGovernance(mode: LinkGovernanceMode, request: LinkGove
     saved.markdown = markdown
     await runtime.reportRepo.save(saved)
 
-    return {
-        reportId: saved.id,
-        mode,
-        summary,
-        statistics: buildStatistics(items),
-        items,
-        redirectSeeds,
-        markdown,
-    } satisfies LinkGovernanceReportData
+    return toLinkGovernanceReportData(saved)
 }
 
 export async function runLinkGovernanceDryRun(request: LinkGovernanceRequest, userId: string) {
@@ -1073,15 +1106,47 @@ export async function getLinkGovernanceReportById(reportId: string, actor: { use
         throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 
+    return toLinkGovernanceReportData(report)
+}
+
+export async function listLinkGovernanceReports(query: {
+    page?: number
+    limit?: number
+    mode?: LinkGovernanceMode
+    status?: 'completed' | 'failed'
+}) {
+    const page = Math.max(1, query.page || 1)
+    const limit = Math.min(100, Math.max(1, query.limit || 10))
+    const where = {
+        ...(query.mode ? { mode: query.mode } : {}),
+        ...(query.status ? { status: query.status } : {}),
+    }
+    const reportRepo = dataSource.getRepository(LinkGovernanceReport)
+    const userRepo = dataSource.getRepository(User)
+    const [reports, total] = await reportRepo.findAndCount({
+        where,
+        order: {
+            createdAt: 'DESC',
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+    })
+    const userIds = Array.from(new Set(reports.map((report) => report.requestedByUserId).filter(Boolean)))
+    const users = userIds.length > 0
+        ? await userRepo.find({
+            select: ['id', 'name', 'email'],
+            where: { id: In(userIds) },
+        })
+        : []
+    const userById = new Map(users.map((user) => [user.id, user]))
+
     return {
-        reportId: report.id,
-        mode: report.mode,
-        summary: report.summary || createEmptySummary(),
-        statistics: report.statistics || buildStatistics(report.items || []),
-        items: report.items || [],
-        redirectSeeds: report.redirectSeeds || [],
-        markdown: report.markdown,
-    } satisfies LinkGovernanceReportData
+        items: reports.map((report) => toLinkGovernanceReportListItem(report, userById)),
+        total,
+        page,
+        limit,
+        totalPages: total === 0 ? 0 : Math.ceil(total / limit),
+    } satisfies LinkGovernanceReportListData
 }
 
 export async function buildDefaultLinkGovernanceSeeds() {

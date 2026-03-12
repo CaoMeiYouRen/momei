@@ -179,6 +179,57 @@
                     "copy_success": "URL copied to clipboard"
                 }
             },
+            "link_governance": {
+                "title": "Migration Link Governance",
+                "overview_title": "Governance Reports",
+                "overview_description": "Review dry-run and apply link governance reports, including rewritten items, failures, and redirect seeds.",
+                "empty": "No governance reports found",
+                "filters": {
+                    "mode": "Mode",
+                    "status": "Status",
+                    "apply": "Apply Filters",
+                    "reset": "Reset"
+                },
+                "modes": {
+                    "dry-run": "Dry Run",
+                    "apply": "Apply"
+                },
+                "statuses": {
+                    "completed": "Completed",
+                    "failed": "Failed"
+                },
+                "columns": {
+                    "created_at": "Created At",
+                    "mode": "Mode",
+                    "status": "Status",
+                    "requested_by": "Requested By",
+                    "summary": "Summary",
+                    "redirects": "Redirect Seeds"
+                },
+                "summary": {
+                    "total": "Total",
+                    "resolved": "Resolved",
+                    "rewritten": "Rewritten",
+                    "failed": "Failed",
+                    "needs_confirmation": "Needs Confirmation"
+                },
+                "actions": {
+                    "refresh": "Refresh",
+                    "view": "View Details"
+                },
+                "detail": {
+                    "title": "Report Details",
+                    "report_id": "Report ID",
+                    "requested_by": "Requester ID",
+                    "items": "Diff Preview",
+                    "empty_items": "This report has no diff items.",
+                    "markdown": "Markdown Report"
+                },
+                "messages": {
+                    "load_failed": "Failed to load governance reports",
+                    "detail_failed": "Failed to load report details"
+                }
+            },
             "friend_links": {
                 "title": "Friend Links",
                 "links": "Published Links",

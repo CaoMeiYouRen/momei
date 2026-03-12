@@ -14,6 +14,8 @@ describe('Admin API Security Perimeter', () => {
         { path: '/api/admin/ad/campaigns', method: 'POST' },
         { path: '/api/admin/external-links', method: 'GET' },
         { path: '/api/admin/external-links', method: 'POST' },
+        { path: '/api/admin/migrations/link-governance/reports', method: 'GET' },
+        { path: '/api/admin/migrations/link-governance/reports/report-1', method: 'GET' },
     ]
 
     it('should keep all tracked sensitive endpoints under the admin namespace', () => {

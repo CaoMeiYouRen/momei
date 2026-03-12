@@ -54,6 +54,95 @@ export interface MomeiPost {
     views?: number
 }
 
+export type CliLinkGovernanceScope =
+    | 'asset-url'
+    | 'post-link'
+    | 'category-link'
+    | 'tag-link'
+    | 'archive-link'
+    | 'page-link'
+    | 'permalink-rule'
+
+export type CliLinkGovernanceSourceKind = 'absolute' | 'root-relative' | 'relative' | 'path-rule'
+export type CliLinkGovernanceMatchMode = 'exact' | 'prefix' | 'pattern'
+export type CliLinkGovernanceTargetType = 'asset' | 'post' | 'category' | 'tag' | 'archive' | 'page'
+export type CliLinkGovernanceMode = 'dry-run' | 'apply'
+export type CliLinkGovernanceValidationMode = 'static' | 'static+online'
+
+export interface CliLinkGovernanceMappingSeed {
+    source: string
+    sourceKind: CliLinkGovernanceSourceKind
+    matchMode: CliLinkGovernanceMatchMode
+    scope: CliLinkGovernanceScope
+    targetType: CliLinkGovernanceTargetType
+    targetRef: {
+        id?: string
+        slug?: string
+        translationId?: string
+        locale?: string
+        objectKey?: string
+        pageKey?: 'about' | 'friend-links' | 'feedback' | 'submit' | 'privacy-policy' | 'user-agreement'
+        archiveKey?: { year?: number, month?: number }
+    }
+    redirectMode?: 'rewrite-only' | 'redirect-seed' | 'alias-only'
+    notes?: string
+}
+
+export interface CliLinkGovernanceRequest {
+    scopes: CliLinkGovernanceScope[]
+    filters?: {
+        domains?: string[]
+        pathPrefixes?: string[]
+        contentTypes?: ('post' | 'category' | 'tag' | 'page' | 'asset-record')[]
+    }
+    seeds?: CliLinkGovernanceMappingSeed[]
+    options?: {
+        reportFormat?: 'json' | 'markdown'
+        validationMode?: CliLinkGovernanceValidationMode
+        allowRelativeLinks?: boolean
+        retryFailuresFromReportId?: string
+        skipConfirmation?: boolean
+    }
+}
+
+export interface CliLinkGovernanceReportData {
+    reportId: string
+    mode: CliLinkGovernanceMode
+    summary: {
+        total: number
+        resolved: number
+        rewritten: number
+        unchanged: number
+        skipped: number
+        failed: number
+        needsConfirmation: number
+    }
+    items: {
+        sourceValue: string
+        targetValue: string | null
+        scope: CliLinkGovernanceScope
+        contentType: 'post' | 'category' | 'tag' | 'page' | 'asset-record'
+        contentId: string
+        status: 'resolved' | 'rewritten' | 'unchanged' | 'skipped' | 'failed' | 'needs-confirmation'
+        field?: 'content' | 'coverImage' | 'metadata.audio.url'
+    }[]
+    redirectSeeds: {
+        source: string
+        target: string
+        statusCode: 301 | 302
+        reason: 'legacy-permalink' | 'path-rule' | 'asset-domain-migration'
+    }[]
+    markdown?: string | null
+}
+
+export interface ParsedHexoPost {
+    file: string
+    relativeFile: string
+    frontMatter: HexoFrontMatter
+    content: string
+    post: MomeiPost
+}
+
 /**
  * CLI 配置选项
  */
