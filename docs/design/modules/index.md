@@ -49,6 +49,7 @@
 - **[MCP 服务器 (MCP Server)](./mcp)**: 基于 Model Context Protocol 的 AI 自动化接口，支持 Claude Desktop 集成。
 - **[演示模式 (Demo Mode)](./demo-mode)**: 针对演示环境的权限模拟与交互。
 - **[数据迁移 (Migration)](./migration)**: 支持从其他博客平台（如 Hexo, Hugo）平滑迁移到墨梅。
+- **[迁移链接治理与云端资源重写 (Migration Link Governance)](./migration-link-governance)**: 统一定义旧 URL 映射、资源重写、redirect seeds 与 `dry-run / apply / report` 契约。
 - **[灵感碎片 (Inspiration)](./inspiration)**: 记录瞬间灵感并自动关联知识图谱。
 - **[渲染引擎 (Rendering)](./rendering)**: 基于 Nuxt Server Engine 的高效渲染策略。
 

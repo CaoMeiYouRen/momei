@@ -158,7 +158,15 @@ export interface DirectUploadCapability {
 
 ## 7. 存量资源迁移与重写 (Migration & Rewrite)
 
-（待更新：链接重写工具的具体实现细节）
+资源 URL 已不再作为孤立问题处理。第十一阶段开始，资源域名切换、对象键映射、正文内资源链接修复与旧站内容链接治理统一进入 [迁移链接治理与云端资源重写](./migration-link-governance.md) 这份专项设计。
+
+本模块继续只负责以下事实：
+
+- 资源 canonical 地址如何由 `objectKey`、`asset_public_base_url` 与驱动级 `base_url` 解析得到。
+- 哪些 URL 可被认定为“受系统托管资产”，从而允许进入重写流程。
+- `POST /api/upload/direct-auth`、对象键前缀和 provider profile 的实现边界。
+
+治理层的 `dry-run / apply / report` 契约、redirect seeds 输出和正文链接重写规则不再在本文件重复定义。
             credentials: Record<string, string>
             objectKeyPrefix: string
             expiresIn: number

@@ -53,6 +53,10 @@
     }
     ```
 
+### 3.2 迁移链接治理 (规划中)
+
+第十一阶段已冻结迁移链接治理的最小能力矩阵，但接口尚未落地实现。后续 Open API 将按 `dry-run / apply / report` 三类入口扩展，统一复用 API Key 鉴权，并以 [迁移链接治理与云端资源重写](./migration-link-governance.md) 作为契约事实源。
+
 ## 4. 管理接口 (Management APIs)
 
 API Key 的管理功能（创建/撤销）通常集成在用户个人设置中。

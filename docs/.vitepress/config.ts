@@ -106,6 +106,7 @@ export default defineConfig({
                             { text: '开放接口', link: '/design/modules/open-api' },
                             { text: '开放发布协议', link: '/design/modules/federation-protocols' },
                             { text: 'MCP 服务器', link: '/design/modules/mcp' },
+                            { text: '迁移链接治理', link: '/design/modules/migration-link-governance' },
                         ],
                     },
                     {
