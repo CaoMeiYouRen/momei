@@ -1,5 +1,6 @@
 import { Entity } from 'typeorm'
 import { CustomColumn } from '../decorators/custom-column'
+import { getDateType } from '../database/type'
 import { BaseEntity } from './base-entity'
 /**
  * 协议内容版本表
@@ -29,11 +30,24 @@ export class AgreementContent extends BaseEntity {
     language: string
 
     /**
-     * 是否为主语言版本 (有法律效力)
-     * 每个协议类型的每个语言只能有一个主版本
+     * 兼容旧数据的遗留字段。
+     * 新逻辑不再依赖该字段判断“当前生效版本”，仅保留为主语言权威版本的兼容标识。
      */
     @CustomColumn({ type: 'boolean', default: false })
     isMainVersion: boolean
+
+    /**
+     * 是否为具有法律效力的权威版本。
+     * 仅主语言协议会被标记为 true；参考译本始终为 false。
+     */
+    @CustomColumn({ type: 'boolean', default: false })
+    isAuthoritativeVersion: boolean
+
+    /**
+     * 若当前记录是参考译本，则指向对应的权威版本 ID。
+     */
+    @CustomColumn({ type: 'varchar', length: 36, nullable: true })
+    sourceAgreementId: string | null
 
     /**
      * 协议内容 (HTML/Markdown)
@@ -52,6 +66,13 @@ export class AgreementContent extends BaseEntity {
      */
     @CustomColumn({ type: 'text', nullable: true })
     versionDescription: string | null
+
+    /**
+     * 当前版本生效日期。
+     * 只有被后台显式激活的权威版本会写入该字段。
+     */
+    @CustomColumn({ type: getDateType(), nullable: true })
+    effectiveAt: Date | null
 
     /**
      * 是否来自环境变量 (如 USER_AGREEMENT_CONTENT 等)

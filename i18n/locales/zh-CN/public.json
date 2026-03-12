@@ -58,6 +58,18 @@
         "user_agreement": {
             "title": "用户协议",
             "last_updated": "最后更新日期：2026年1月18日",
+            "version_label": "版本：{version}",
+            "effective_date_label": "生效日期：{date}",
+            "last_updated_label": "最近更新：{date}",
+            "version_fallback": "未标记版本",
+            "date_fallback": "未设置",
+            "reference_translation_tag": "参考翻译",
+            "authoritative_version_tag": "权威版本",
+            "current_active_tag": "当前生效",
+            "reference_translation_notice": "当前语言内容为参考翻译，所对应的权威版本为 {language} / {version}。如有法律解释差异，请以权威版本为准。",
+            "fallback_notice": "当前语言暂无独立版本，正在展示 {language} 的权威版本。",
+            "history_title": "历史版本",
+            "history_no_description": "暂无版本说明",
             "meta": {
                 "description": "查看墨梅博客的用户协议与站点使用条款，了解访问、注册与内容发布相关规则。"
             }
@@ -65,6 +77,18 @@
         "privacy_policy": {
             "title": "隐私政策",
             "last_updated": "最后更新日期：2026年1月18日",
+            "version_label": "版本：{version}",
+            "effective_date_label": "生效日期：{date}",
+            "last_updated_label": "最近更新：{date}",
+            "version_fallback": "未标记版本",
+            "date_fallback": "未设置",
+            "reference_translation_tag": "参考翻译",
+            "authoritative_version_tag": "权威版本",
+            "current_active_tag": "当前生效",
+            "reference_translation_notice": "当前语言内容为参考翻译，所对应的权威版本为 {language} / {version}。如有法律解释差异，请以权威版本为准。",
+            "fallback_notice": "当前语言暂无独立版本，正在展示 {language} 的权威版本。",
+            "history_title": "历史版本",
+            "history_no_description": "暂无版本说明",
             "meta": {
                 "description": "查看墨梅博客关于数据收集、使用、存储与用户权利说明的最新隐私政策。"
             }

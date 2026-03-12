@@ -6,7 +6,7 @@ export const agreementBodySchema = z.object({
     content: z.string().min(1),
     version: z.string().optional().nullable(),
     versionDescription: z.string().optional().nullable(),
-    isMainVersion: z.boolean().optional().default(false),
+    sourceAgreementId: z.string().optional().nullable(),
 })
 
 export const agreementUpdateSchema = agreementBodySchema.partial().omit({ type: true, language: true })

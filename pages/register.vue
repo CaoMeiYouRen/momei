@@ -209,7 +209,7 @@ import { z } from 'zod'
 import { authClient } from '@/lib/auth-client'
 import { registerSchema } from '@/utils/schemas/auth'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
 const { socialProviders } = useRuntimeConfig().public
@@ -270,6 +270,7 @@ const handleRegister = async () => {
             email: form.email,
             password: form.password,
             name: form.name,
+            language: locale.value,
             callbackURL: localePath('/'),
             fetchOptions: {
                 headers: {

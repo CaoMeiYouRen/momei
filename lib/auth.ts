@@ -39,6 +39,7 @@ import {
 import { Subscriber } from '@/server/entities/subscriber'
 import { User } from '@/server/entities/user'
 import logger from '@/server/utils/logger'
+import { markAgreementConsentForLocale } from '@/server/services/agreement'
 import { getTempEmail, getTempName } from '@/server/utils/auth-generators'
 import { emailService } from '@/server/utils/email/service'
 import {
@@ -105,6 +106,15 @@ export const auth = betterAuth({
                             subscriber.userId = user.id
                             await subscriberRepo.save(subscriber)
                         }
+
+                        const preferredLanguage = typeof user === 'object'
+                            && user
+                            && 'language' in user
+                            && typeof user.language === 'string'
+                            ? user.language
+                            : undefined
+
+                        await markAgreementConsentForLocale(preferredLanguage)
                     } catch (error) {
                         console.error(
                             'Failed to link subscriber after user creation:',

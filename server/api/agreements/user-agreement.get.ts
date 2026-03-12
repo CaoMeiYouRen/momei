@@ -1,45 +1,44 @@
 import { getActiveAgreementContent } from '@/server/services/agreement'
+import { success } from '@/server/utils/response'
+import type { AgreementPublicPayload } from '@/types/agreement'
 
 /**
  * GET /api/agreements/user-agreement
  * 获取用户协议内容
  */
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
     try {
-        const agreement = await getActiveAgreementContent('user_agreement')
+        const query = getQuery(event)
+        const language = typeof query.language === 'string' ? query.language : undefined
+        const agreement = await getActiveAgreementContent('user_agreement', language)
 
         if (!agreement) {
-            // 返回示例内容和标记
-            return {
-                code: 200,
-                data: {
-                    id: 'default',
-                    type: 'user_agreement',
-                    language: 'zh-CN',
-                    content: getDefaultUserAgreement(),
-                    isDefault: true,
-                    version: null,
-                },
-            }
+            return success<AgreementPublicPayload>({
+                id: 'default',
+                type: 'user_agreement',
+                language: language || 'zh-CN',
+                content: getDefaultUserAgreement(),
+                version: null,
+                versionDescription: null,
+                effectiveAt: null,
+                updatedAt: null,
+                authoritativeLanguage: 'zh-CN',
+                authoritativeVersion: null,
+                isDefault: true,
+                isReferenceTranslation: false,
+                fallbackToAuthoritative: false,
+                sourceAgreementId: null,
+                sourceAgreementVersion: null,
+                history: [],
+            })
         }
 
-        return {
-            code: 200,
-            data: {
-                id: agreement.id,
-                type: agreement.type,
-                language: agreement.language,
-                content: agreement.content,
-                isDefault: false,
-                version: agreement.version,
-                isMainVersion: agreement.isMainVersion,
-            },
-        }
+        return success(agreement)
     } catch (error: any) {
-        return {
-            code: 500,
-            message: error.message || 'Failed to fetch user agreement',
-        }
+        throw createError({
+            statusCode: 500,
+            statusMessage: error.message || 'Failed to fetch user agreement',
+        })
     }
 })
 

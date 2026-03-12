@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/server/utils/permission'
 import { success, fail } from '@/server/utils/response'
 import { getAgreementVersions } from '@/server/services/agreement'
+import type { AgreementType } from '@/types/agreement'
 
 /**
  * GET /api/admin/agreements
@@ -22,7 +23,7 @@ export default defineEventHandler(async (event) => {
 
     try {
         const versions = await getAgreementVersions(
-            type as 'user_agreement' | 'privacy_policy',
+            type as AgreementType,
             language,
         )
         return success(versions)

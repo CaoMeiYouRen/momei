@@ -58,6 +58,18 @@
         "user_agreement": {
             "title": "使用者協議",
             "last_updated": "最後更新日期：2026年1月18日",
+            "version_label": "版本：{version}",
+            "effective_date_label": "生效日期：{date}",
+            "last_updated_label": "最近更新：{date}",
+            "version_fallback": "未標記版本",
+            "date_fallback": "未設定",
+            "reference_translation_tag": "參考翻譯",
+            "authoritative_version_tag": "權威版本",
+            "current_active_tag": "目前生效",
+            "reference_translation_notice": "目前語言內容為參考翻譯，對應的權威版本為 {language} / {version}。若有法律解釋差異，請以權威版本為準。",
+            "fallback_notice": "目前語言尚無獨立版本，正在顯示 {language} 的權威版本。",
+            "history_title": "歷史版本",
+            "history_no_description": "暫無版本說明",
             "meta": {
                 "description": "查看墨梅部落格的使用者協議與站點使用條款，了解存取、註冊與內容發佈的相關規則。"
             }
@@ -65,6 +77,18 @@
         "privacy_policy": {
             "title": "隱私權政策",
             "last_updated": "最後更新日期：2026年1月18日",
+            "version_label": "版本：{version}",
+            "effective_date_label": "生效日期：{date}",
+            "last_updated_label": "最近更新：{date}",
+            "version_fallback": "未標記版本",
+            "date_fallback": "未設定",
+            "reference_translation_tag": "參考翻譯",
+            "authoritative_version_tag": "權威版本",
+            "current_active_tag": "目前生效",
+            "reference_translation_notice": "目前語言內容為參考翻譯，對應的權威版本為 {language} / {version}。若有法律解釋差異，請以權威版本為準。",
+            "fallback_notice": "目前語言尚無獨立版本，正在顯示 {language} 的權威版本。",
+            "history_title": "歷史版本",
+            "history_no_description": "暫無版本說明",
             "meta": {
                 "description": "查看墨梅部落格關於資料蒐集、使用、儲存與使用者權利說明的最新隱私權政策。"
             }

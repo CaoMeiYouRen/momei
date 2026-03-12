@@ -58,6 +58,18 @@
         "user_agreement": {
             "title": "User Agreement",
             "last_updated": "Last updated: January 18, 2026",
+            "version_label": "Version: {version}",
+            "effective_date_label": "Effective date: {date}",
+            "last_updated_label": "Last updated: {date}",
+            "version_fallback": "Unversioned",
+            "date_fallback": "Not set",
+            "reference_translation_tag": "Reference Translation",
+            "authoritative_version_tag": "Authoritative Version",
+            "current_active_tag": "Current Active",
+            "reference_translation_notice": "This language is presented as a reference translation. The authoritative version is {language} / {version}. In case of legal interpretation differences, the authoritative version prevails.",
+            "fallback_notice": "No localized version is available for this language yet. Showing the authoritative {language} version instead.",
+            "history_title": "Version History",
+            "history_no_description": "No version notes",
             "meta": {
                 "description": "Read the Momei user agreement to understand the terms for access, registration, publishing, and site usage."
             }
@@ -65,6 +77,18 @@
         "privacy_policy": {
             "title": "Privacy Policy",
             "last_updated": "Last updated: January 18, 2026",
+            "version_label": "Version: {version}",
+            "effective_date_label": "Effective date: {date}",
+            "last_updated_label": "Last updated: {date}",
+            "version_fallback": "Unversioned",
+            "date_fallback": "Not set",
+            "reference_translation_tag": "Reference Translation",
+            "authoritative_version_tag": "Authoritative Version",
+            "current_active_tag": "Current Active",
+            "reference_translation_notice": "This language is presented as a reference translation. The authoritative version is {language} / {version}. In case of legal interpretation differences, the authoritative version prevails.",
+            "fallback_notice": "No localized version is available for this language yet. Showing the authoritative {language} version instead.",
+            "history_title": "Version History",
+            "history_no_description": "No version notes",
             "meta": {
                 "description": "Review the latest Momei privacy policy covering data collection, storage, processing, and your rights as a user."
             }

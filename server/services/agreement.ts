@@ -1,10 +1,203 @@
 import { dataSource } from '@/server/database'
 import { AgreementContent } from '@/server/entities/agreement-content'
 import { Setting } from '@/server/entities/setting'
+import type {
+    AgreementAdminItem,
+    AgreementAdminListPayload,
+    AgreementAdminOption,
+    AgreementHistoryItem,
+    AgreementPublicPayload,
+    AgreementRestrictionReason,
+    AgreementType,
+} from '@/types/agreement'
 import { SettingKey } from '@/types/setting'
 import { snowflake } from '@/server/utils/snowflake'
 import { assignDefined } from '@/server/utils/object'
 import logger from '@/server/utils/logger'
+
+const DEFAULT_MAIN_LANGUAGE = 'zh-CN'
+const PUBLIC_HISTORY_LIMIT = 5
+
+type AgreementEntity = AgreementContent & {
+    isAuthoritativeVersion?: boolean
+    sourceAgreementId?: string | null
+    effectiveAt?: Date | null
+}
+
+function getAgreementSettingKey(type: AgreementType) {
+    return type === 'user_agreement'
+        ? SettingKey.LEGAL_USER_AGREEMENT_ID
+        : SettingKey.LEGAL_PRIVACY_POLICY_ID
+}
+
+function asIsoString(value?: Date | string | null) {
+    if (!value) {
+        return null
+    }
+
+    return new Date(value).toISOString()
+}
+
+function compareAgreementSort(a: AgreementEntity, b: AgreementEntity) {
+    const getTime = (value?: Date | string | null) => {
+        if (!value) {
+            return 0
+        }
+        return new Date(value).getTime()
+    }
+
+    return getTime(b.effectiveAt)
+        - getTime(a.effectiveAt)
+        || getTime(b.updatedAt) - getTime(a.updatedAt)
+        || getTime(b.createdAt) - getTime(a.createdAt)
+}
+
+function isAuthoritativeAgreement(agreement: AgreementEntity, mainLanguage: string) {
+    if (agreement.language !== mainLanguage) {
+        return false
+    }
+
+    return Boolean(agreement.isAuthoritativeVersion || agreement.isMainVersion)
+}
+
+function isReferenceTranslation(agreement: AgreementEntity, mainLanguage: string) {
+    return agreement.language !== mainLanguage
+}
+
+async function getAgreementContext(type: AgreementType) {
+    const settingRepo = dataSource.getRepository(Setting)
+    const [mainLanguageSetting, activeSetting] = await Promise.all([
+        settingRepo.findOne({ where: { key: SettingKey.LEGAL_MAIN_LANGUAGE } }),
+        settingRepo.findOne({ where: { key: getAgreementSettingKey(type) } }),
+    ])
+
+    return {
+        mainLanguage: mainLanguageSetting?.value || DEFAULT_MAIN_LANGUAGE,
+        activeAgreementId: activeSetting?.value || null,
+    }
+}
+
+async function getAgreementRecords(type: AgreementType) {
+    const repo = dataSource.getRepository(AgreementContent)
+    const records = await repo.find({ where: { type } })
+    return records as AgreementEntity[]
+}
+
+function buildAuthorityLabel(agreement: AgreementEntity) {
+    return [agreement.version || 'draft', agreement.language].join(' · ')
+}
+
+function buildHistoryItem(agreement: AgreementEntity, activeAgreementId: string | null): AgreementHistoryItem {
+    return {
+        id: agreement.id,
+        version: agreement.version || null,
+        versionDescription: agreement.versionDescription || null,
+        language: agreement.language,
+        effectiveAt: asIsoString(agreement.effectiveAt),
+        updatedAt: asIsoString(agreement.updatedAt),
+        isCurrentActive: agreement.id === activeAgreementId,
+    }
+}
+
+async function resolveAgreementPair(type: AgreementType, preferredLanguage?: string) {
+    const { mainLanguage, activeAgreementId } = await getAgreementContext(type)
+    const records = await getAgreementRecords(type)
+    const byId = new Map(records.map((record) => [record.id, record]))
+
+    const authoritativeVersions = records
+        .filter((record) => isAuthoritativeAgreement(record, mainLanguage))
+        .sort(compareAgreementSort)
+
+    let activeAuthoritative = activeAgreementId
+        ? byId.get(activeAgreementId) || null
+        : null
+
+    if (!activeAuthoritative || !isAuthoritativeAgreement(activeAuthoritative, mainLanguage)) {
+        activeAuthoritative = authoritativeVersions[0] || null
+    }
+
+    if (!activeAuthoritative) {
+        return {
+            mainLanguage,
+            activeAgreementId,
+            authoritativeAgreement: null,
+            displayAgreement: null,
+            isReferenceTranslation: false,
+            fallbackToAuthoritative: false,
+            history: [] as AgreementHistoryItem[],
+            sourceAgreement: null,
+            records,
+        }
+    }
+
+    const normalizedLanguage = preferredLanguage || mainLanguage
+    const translation = normalizedLanguage === mainLanguage
+        ? null
+        : records
+            .filter((record) => record.language === normalizedLanguage && record.sourceAgreementId === activeAuthoritative.id)
+            .sort(compareAgreementSort)[0] || null
+
+    const displayAgreement = translation || activeAuthoritative
+
+    return {
+        mainLanguage,
+        activeAgreementId: activeAuthoritative.id,
+        authoritativeAgreement: activeAuthoritative,
+        displayAgreement,
+        isReferenceTranslation: Boolean(translation),
+        fallbackToAuthoritative: normalizedLanguage !== mainLanguage && !translation,
+        history: authoritativeVersions.slice(0, PUBLIC_HISTORY_LIMIT).map((record) => buildHistoryItem(record, activeAuthoritative.id)),
+        sourceAgreement: translation ? activeAuthoritative : null,
+        records,
+    }
+}
+
+function resolveSourceAgreement(
+    type: AgreementType,
+    mainLanguage: string,
+    records: AgreementEntity[],
+    sourceAgreementId?: string | null,
+) {
+    const authoritativeVersions = records.filter((record) => isAuthoritativeAgreement(record, mainLanguage))
+
+    const sourceAgreement = sourceAgreementId
+        ? authoritativeVersions.find((record) => record.id === sourceAgreementId) || null
+        : authoritativeVersions.sort(compareAgreementSort)[0] || null
+
+    if (!sourceAgreement) {
+        throw new Error('Reference translations must link to an authoritative agreement version')
+    }
+
+    if (!isAuthoritativeAgreement(sourceAgreement, mainLanguage)) {
+        throw new Error('Reference translations can only link to authoritative agreement versions')
+    }
+
+    if (sourceAgreement.type !== type) {
+        throw new Error('Reference translation source type mismatch')
+    }
+
+    return sourceAgreement
+}
+
+function buildRestrictionReasons(
+    agreement: AgreementEntity,
+    activeAgreementId: string | null,
+    mainLanguage: string,
+): AgreementRestrictionReason[] {
+    const reasons: AgreementRestrictionReason[] = []
+
+    if (agreement.isFromEnv) {
+        reasons.push('env_locked')
+    }
+    if (agreement.hasUserConsent) {
+        reasons.push('consented')
+    }
+    if (agreement.id === activeAgreementId && isAuthoritativeAgreement(agreement, mainLanguage)) {
+        reasons.push('active_authoritative')
+    }
+
+    return reasons
+}
 
 /**
  * 获取指定类型和语言的协议内容
@@ -13,35 +206,19 @@ import logger from '@/server/utils/logger'
  * @param preferMainVersion 是否优先返回主语言版本 (默认 true)
  */
 export const getAgreementContent = async (
-    type: 'user_agreement' | 'privacy_policy',
+    type: AgreementType,
     language: string,
     preferMainVersion = true,
 ) => {
-    const repo = dataSource.getRepository(AgreementContent)
+    const { mainLanguage } = await getAgreementContext(type)
+    const records = await getAgreementRecords(type)
+    const localizedRecords = records.filter((record) => record.language === language).sort(compareAgreementSort)
 
-    if (preferMainVersion) {
-        // 优先查询主语言版本
-        let agreement = await repo.findOne({
-            where: { type, language, isMainVersion: true },
-            order: { createdAt: 'DESC' },
-        })
-
-        // 如果主语言版本不存在，则查询该语言的最新版本
-        if (!agreement) {
-            agreement = await repo.findOne({
-                where: { type, language },
-                order: { createdAt: 'DESC' },
-            })
-        }
-
-        return agreement || null
+    if (preferMainVersion && language === mainLanguage) {
+        return localizedRecords.find((record) => isAuthoritativeAgreement(record, mainLanguage)) || localizedRecords[0] || null
     }
 
-    // 返回最新版本
-    return await repo.findOne({
-        where: { type, language },
-        order: { createdAt: 'DESC' },
-    })
+    return localizedRecords[0] || null
 }
 
 /**
@@ -49,26 +226,34 @@ export const getAgreementContent = async (
  * @param type 协议类型
  */
 export const getActiveAgreementContent = async (
-    type: 'user_agreement' | 'privacy_policy',
-) => {
-    const settingRepo = dataSource.getRepository(Setting)
+    type: AgreementType,
+    preferredLanguage?: string,
+): Promise<AgreementPublicPayload | null> => {
+    const resolved = await resolveAgreementPair(type, preferredLanguage)
 
-    // 从配置中获取主语言
-    const mainLanguageSetting = await settingRepo.findOne({
-        where: { key: SettingKey.LEGAL_MAIN_LANGUAGE },
-    })
-
-    const mainLanguage = mainLanguageSetting?.value || 'zh-CN'
-
-    // 获取该语言的主版本协议
-    const agreement = await getAgreementContent(type, mainLanguage, true)
-
-    if (!agreement) {
-        logger.warn(`No active ${type} found for language ${mainLanguage}`)
+    if (!resolved.displayAgreement || !resolved.authoritativeAgreement) {
+        logger.warn(`No active ${type} found for language ${resolved.mainLanguage}`)
         return null
     }
 
-    return agreement
+    return {
+        id: resolved.displayAgreement.id,
+        type: resolved.displayAgreement.type,
+        language: resolved.displayAgreement.language,
+        content: resolved.displayAgreement.content,
+        version: resolved.displayAgreement.version || null,
+        versionDescription: resolved.displayAgreement.versionDescription || null,
+        effectiveAt: asIsoString(resolved.sourceAgreement?.effectiveAt || resolved.displayAgreement.effectiveAt),
+        updatedAt: asIsoString(resolved.displayAgreement.updatedAt),
+        authoritativeLanguage: resolved.mainLanguage,
+        authoritativeVersion: resolved.authoritativeAgreement.version || null,
+        isDefault: false,
+        isReferenceTranslation: resolved.isReferenceTranslation,
+        fallbackToAuthoritative: resolved.fallbackToAuthoritative,
+        sourceAgreementId: resolved.sourceAgreement?.id || null,
+        sourceAgreementVersion: resolved.sourceAgreement?.version || null,
+        history: resolved.history,
+    }
 }
 
 /**
@@ -77,21 +262,63 @@ export const getActiveAgreementContent = async (
  * @param language 语言代码 (可选，不指定则返回所有语言的版本)
  */
 export const getAgreementVersions = async (
-    type: 'user_agreement' | 'privacy_policy',
+    type: AgreementType,
     language?: string,
-) => {
-    const repo = dataSource.getRepository(AgreementContent)
+): Promise<AgreementAdminListPayload> => {
+    const { mainLanguage, activeAgreementId } = await getAgreementContext(type)
+    const records = await getAgreementRecords(type)
+    const byId = new Map(records.map((record) => [record.id, record]))
+    const filteredRecords = (language
+        ? records.filter((record) => record.language === language)
+        : records
+    ).sort(compareAgreementSort)
 
-    const query = repo.createQueryBuilder('agreement')
-        .where('agreement.type = :type', { type })
+    const authoritativeOptions: AgreementAdminOption[] = records
+        .filter((record) => isAuthoritativeAgreement(record, mainLanguage))
+        .sort(compareAgreementSort)
+        .map((record) => ({
+            id: record.id,
+            version: record.version || null,
+            language: record.language,
+            label: buildAuthorityLabel(record),
+        }))
 
-    if (language) {
-        query.andWhere('agreement.language = :language', { language })
+    const items: AgreementAdminItem[] = filteredRecords.map((record) => {
+        const sourceAgreement = record.sourceAgreementId ? byId.get(record.sourceAgreementId) || null : null
+        const restrictionReasons = buildRestrictionReasons(record, activeAgreementId, mainLanguage)
+        const isReference = isReferenceTranslation(record, mainLanguage)
+
+        return {
+            id: record.id,
+            type: record.type,
+            language: record.language,
+            version: record.version || null,
+            versionDescription: record.versionDescription || null,
+            content: record.content,
+            isFromEnv: record.isFromEnv,
+            hasUserConsent: record.hasUserConsent,
+            isAuthoritativeVersion: isAuthoritativeAgreement(record, mainLanguage),
+            isReferenceTranslation: isReference,
+            isCurrentActive: record.id === activeAgreementId,
+            isCurrentReference: Boolean(isReference && record.sourceAgreementId && record.sourceAgreementId === activeAgreementId),
+            sourceAgreementId: record.sourceAgreementId || null,
+            sourceAgreementVersion: sourceAgreement?.version || null,
+            sourceAgreementLanguage: sourceAgreement?.language || null,
+            effectiveAt: asIsoString(record.effectiveAt || sourceAgreement?.effectiveAt),
+            updatedAt: asIsoString(record.updatedAt),
+            createdAt: asIsoString(record.createdAt),
+            canEdit: restrictionReasons.length === 0,
+            canDelete: restrictionReasons.length === 0,
+            restrictionReasons,
+        }
+    })
+
+    return {
+        mainLanguage,
+        activeAgreementId,
+        items,
+        authoritativeOptions,
     }
-
-    return await query
-        .orderBy('agreement.createdAt', 'DESC')
-        .getMany()
 }
 
 /**
@@ -99,22 +326,20 @@ export const getAgreementVersions = async (
  * @param data 协议数据 (包括 type, language, content, version, versionDescription, isMainVersion)
  */
 export const createAgreementVersion = async (data: {
-    type: 'user_agreement' | 'privacy_policy'
+    type: AgreementType
     language: string
     content: string
     version?: string | null
     versionDescription?: string | null
-    isMainVersion?: boolean
+    sourceAgreementId?: string | null
 }) => {
     const repo = dataSource.getRepository(AgreementContent)
-
-    // 如果标记为主版本，则取消其他同类型同语言的主版本标记
-    if (data.isMainVersion) {
-        await repo.update(
-            { type: data.type, language: data.language, isMainVersion: true },
-            { isMainVersion: false },
-        )
-    }
+    const { mainLanguage } = await getAgreementContext(data.type)
+    const records = await getAgreementRecords(data.type)
+    const isAuthoritativeVersion = data.language === mainLanguage
+    const sourceAgreement = isAuthoritativeVersion
+        ? null
+        : resolveSourceAgreement(data.type, mainLanguage, records, data.sourceAgreementId)
 
     const agreement = repo.create({
         id: snowflake.generateId(),
@@ -123,7 +348,10 @@ export const createAgreementVersion = async (data: {
         content: data.content,
         version: data.version || null,
         versionDescription: data.versionDescription || null,
-        isMainVersion: data.isMainVersion || false,
+        isMainVersion: isAuthoritativeVersion,
+        isAuthoritativeVersion,
+        sourceAgreementId: sourceAgreement?.id || null,
+        effectiveAt: null,
         isFromEnv: false,
         hasUserConsent: false,
     })
@@ -152,20 +380,30 @@ export const updateAgreementContent = async (
         throw new Error('Cannot modify agreement content from environment variables')
     }
 
-    // 如果要标记为主版本，则取消其他同类型同语言的主版本标记
-    if (updates.isMainVersion === true && !agreement.isMainVersion) {
-        await repo.update(
-            { type: agreement.type, language: agreement.language, isMainVersion: true },
-            { isMainVersion: false },
-        )
+    const { mainLanguage, activeAgreementId } = await getAgreementContext(agreement.type)
+    if (agreement.hasUserConsent) {
+        throw new Error('Cannot modify agreement version that users have already consented to')
     }
+    if (agreement.id === activeAgreementId && isAuthoritativeAgreement(agreement, mainLanguage)) {
+        throw new Error('Cannot modify the currently active authoritative agreement; create a new version instead')
+    }
+
+    const records = await getAgreementRecords(agreement.type)
+    const sourceAgreement = agreement.language === mainLanguage
+        ? null
+        : resolveSourceAgreement(agreement.type, mainLanguage, records, updates.sourceAgreementId ?? agreement.sourceAgreementId)
 
     assignDefined(agreement, updates, [
         'content',
         'version',
         'versionDescription',
-        'isMainVersion',
+        'sourceAgreementId',
     ])
+
+    agreement.isAuthoritativeVersion = agreement.language === mainLanguage
+    agreement.isMainVersion = agreement.isAuthoritativeVersion
+    agreement.sourceAgreementId = sourceAgreement?.id || null
+
     return await repo.save(agreement)
 }
 
@@ -191,6 +429,11 @@ export const deleteAgreementVersion = async (id: string) => {
         throw new Error('Cannot delete agreement version that users have consented to')
     }
 
+    const { mainLanguage, activeAgreementId } = await getAgreementContext(agreement.type)
+    if (agreement.id === activeAgreementId && isAuthoritativeAgreement(agreement, mainLanguage)) {
+        throw new Error('Cannot delete the currently active authoritative agreement')
+    }
+
     return await repo.remove(agreement)
 }
 
@@ -200,26 +443,26 @@ export const deleteAgreementVersion = async (id: string) => {
  * @param agreementId 协议版本 ID
  */
 export const setActiveAgreement = async (
-    type: 'user_agreement' | 'privacy_policy',
+    type: AgreementType,
     agreementId: string,
 ) => {
     const repo = dataSource.getRepository(AgreementContent)
     const settingRepo = dataSource.getRepository(Setting)
+    const { mainLanguage } = await getAgreementContext(type)
 
-    // 验证协议存在且是主版本
     const agreement = await repo.findOne({ where: { id: agreementId } })
     if (!agreement) {
         throw new Error(`Agreement with ID ${agreementId} not found`)
     }
 
-    if (!agreement.isMainVersion) {
-        throw new Error('Only main version agreements can be set as active')
+    if (!isAuthoritativeAgreement(agreement, mainLanguage)) {
+        throw new Error('Only authoritative-language versions can be set as active')
     }
 
-    // 更新配置
-    const settingKey = type === 'user_agreement'
-        ? SettingKey.LEGAL_USER_AGREEMENT_ID
-        : SettingKey.LEGAL_PRIVACY_POLICY_ID
+    agreement.effectiveAt = new Date()
+    await repo.save(agreement)
+
+    const settingKey = getAgreementSettingKey(type)
 
     let setting = await settingRepo.findOne({ where: { key: settingKey } })
     if (!setting) {
@@ -236,4 +479,23 @@ export const setActiveAgreement = async (
 
     await settingRepo.save(setting)
     return agreement
+}
+
+export const markAgreementConsentForLocale = async (preferredLanguage?: string) => {
+    const repo = dataSource.getRepository(AgreementContent)
+    const ids = new Set<string>()
+
+    for (const type of ['user_agreement', 'privacy_policy'] as AgreementType[]) {
+        const resolved = await resolveAgreementPair(type, preferredLanguage)
+        if (resolved.displayAgreement?.id) {
+            ids.add(resolved.displayAgreement.id)
+        }
+        if (resolved.authoritativeAgreement?.id) {
+            ids.add(resolved.authoritativeAgreement.id)
+        }
+    }
+
+    await Promise.all(Array.from(ids).map(async (id) => {
+        await repo.update({ id }, { hasUserConsent: true })
+    }))
 }

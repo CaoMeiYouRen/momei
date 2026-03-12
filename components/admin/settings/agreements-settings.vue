@@ -9,185 +9,229 @@
             </p>
         </div>
 
-        <!-- User Agreement Tab -->
-        <div class="agreements-settings__section">
-            <h4 class="agreements-settings__subtitle">
-                {{ $t('pages.admin.settings.system.agreements.user_agreement') }}
-            </h4>
+        <section
+            v-for="section in agreementSections"
+            :key="section.type"
+            class="agreements-settings__section"
+        >
+            <div class="agreements-settings__section-header">
+                <div>
+                    <h4 class="agreements-settings__subtitle">
+                        {{ section.title }}
+                    </h4>
+                    <div class="agreements-settings__summary">
+                        <span>
+                            {{ translateAgreement('main_language') }}:
+                            {{ getLanguageLabel(section.payload?.mainLanguage || 'zh-CN') }}
+                        </span>
+                        <span>
+                            {{ translateAgreement('active_authoritative') }}:
+                            {{ getActiveLabel(section.payload) }}
+                        </span>
+                    </div>
+                </div>
 
-            <div class="agreements-settings__controls">
-                <Button
-                    icon="pi pi-plus"
-                    :label="$t('common.add')"
-                    @click="showCreateDialog('user_agreement')"
-                />
-                <Button
-                    icon="pi pi-refresh"
-                    :label="$t('common.refresh')"
-                    :loading="loadingAgreements"
-                    @click="loadAgreements('user_agreement')"
-                />
+                <div class="agreements-settings__controls">
+                    <Button
+                        icon="pi pi-plus"
+                        :label="$t('common.add')"
+                        @click="showCreateDialog(section.type)"
+                    />
+                    <Button
+                        icon="pi pi-refresh"
+                        :label="$t('common.refresh')"
+                        :loading="isLoading(section.type)"
+                        @click="loadAgreements(section.type)"
+                    />
+                </div>
             </div>
 
             <DataTable
-                :value="userAgreements"
-                :loading="loadingAgreements"
+                :value="section.payload?.items || []"
+                :loading="isLoading(section.type)"
                 responsive-layout="scroll"
                 class="agreements-settings__table"
             >
-                <Column field="version" :header="$t('pages.admin.settings.system.agreements.version')" />
-                <Column field="language" :header="$t('pages.admin.settings.system.agreements.language')" />
-                <Column
-                    field="createdAt"
-                    :header="$t('pages.admin.settings.system.agreements.created')"
-                    body-class="text-right"
-                >
+                <template #empty>
+                    {{ translateAgreement('empty') }}
+                </template>
+
+                <Column field="version" :header="$t('pages.admin.settings.system.agreements.version')">
                     <template #body="{data}">
-                        {{ formatDate(data.createdAt) }}
+                        <strong>{{ data.version || translateAgreement('version_fallback') }}</strong>
                     </template>
                 </Column>
-                <Column
-                    field="isMainVersion"
-                    :header="$t('pages.admin.settings.system.agreements.is_main')"
-                    body-class="text-center"
-                >
+
+                <Column field="language" :header="$t('pages.admin.settings.system.agreements.language')">
                     <template #body="{data}">
-                        <Tag :value="data.isMainVersion ? $t('common.yes') : $t('common.no')" :severity="data.isMainVersion ? 'success' : 'info'" />
+                        {{ getLanguageLabel(data.language) }}
                     </template>
                 </Column>
+
+                <Column :header="translateAgreement('role')">
+                    <template #body="{data}">
+                        <div class="agreements-settings__tag-group">
+                            <Tag
+                                :value="data.isAuthoritativeVersion
+                                    ? translateAgreement('authoritative_version')
+                                    : translateAgreement('reference_translation')"
+                                :severity="data.isAuthoritativeVersion ? 'success' : 'info'"
+                            />
+                        </div>
+                    </template>
+                </Column>
+
+                <Column :header="translateAgreement('relation')">
+                    <template #body="{data}">
+                        <span v-if="data.isReferenceTranslation">
+                            {{ getSourceLabel(data) }}
+                        </span>
+                        <span v-else>
+                            {{ translateAgreement('authoritative_version') }}
+                        </span>
+                    </template>
+                </Column>
+
+                <Column :header="translateAgreement('status')">
+                    <template #body="{data}">
+                        <div class="agreements-settings__tag-group">
+                            <Tag
+                                v-if="data.isCurrentActive"
+                                :value="translateAgreement('current_active')"
+                                severity="warn"
+                            />
+                            <Tag
+                                v-if="data.isCurrentReference"
+                                :value="translateAgreement('current_reference')"
+                                severity="secondary"
+                            />
+                            <Tag
+                                v-if="data.isFromEnv"
+                                :value="translateAgreement('env_locked')"
+                                severity="secondary"
+                            />
+                            <Tag
+                                v-if="data.hasUserConsent"
+                                :value="translateAgreement('consented')"
+                                severity="danger"
+                            />
+                        </div>
+                    </template>
+                </Column>
+
+                <Column :header="translateAgreement('effective_date')">
+                    <template #body="{data}">
+                        {{ formatDate(data.effectiveAt) }}
+                    </template>
+                </Column>
+
+                <Column :header="translateAgreement('updated_at')">
+                    <template #body="{data}">
+                        {{ formatDate(data.updatedAt || data.createdAt) }}
+                    </template>
+                </Column>
+
+                <Column :header="$t('pages.admin.settings.system.agreements.version_description')">
+                    <template #body="{data}">
+                        {{ data.versionDescription || translateAgreement('no_description') }}
+                    </template>
+                </Column>
+
                 <Column :header="$t('common.actions')" body-class="text-right">
                     <template #body="{data}">
-                        <Button
-                            icon="pi pi-pencil"
-                            class="p-button-rounded p-button-text"
-                            @click="editAgreement(data, 'user_agreement')"
-                        />
-                        <Button
-                            v-if="!data.isMainVersion"
-                            v-tooltip="$t('pages.admin.settings.system.agreements.set_as_main')"
-                            icon="pi pi-check"
-                            class="p-button-rounded p-button-success p-button-text"
-                            @click="activateAgreement(data, 'user_agreement')"
-                        />
-                        <Button
-                            icon="pi pi-trash"
-                            class="p-button-danger p-button-rounded p-button-text"
-                            @click="confirmDelete(data, 'user_agreement')"
-                        />
+                        <div class="agreements-settings__actions">
+                            <Button
+                                icon="pi pi-pencil"
+                                class="p-button-rounded p-button-text"
+                                :disabled="!data.canEdit"
+                                :title="getRestrictionMessage(data.restrictionReasons)"
+                                @click="editAgreement(data, section.type)"
+                            />
+                            <Button
+                                v-if="data.isAuthoritativeVersion"
+                                icon="pi pi-check"
+                                class="p-button-rounded p-button-success p-button-text"
+                                :disabled="data.isCurrentActive"
+                                :title="data.isCurrentActive ? translateAgreement('already_active') : ''"
+                                @click="activateAgreement(data, section.type)"
+                            />
+                            <Button
+                                icon="pi pi-trash"
+                                class="p-button-danger p-button-rounded p-button-text"
+                                :disabled="!data.canDelete"
+                                :title="getRestrictionMessage(data.restrictionReasons)"
+                                @click="confirmDelete(data, section.type)"
+                            />
+                        </div>
                     </template>
                 </Column>
             </DataTable>
-        </div>
+        </section>
 
-        <!-- Privacy Policy Tab -->
-        <div class="agreements-settings__section">
-            <h4 class="agreements-settings__subtitle">
-                {{ $t('pages.admin.settings.system.agreements.privacy_policy') }}
-            </h4>
-
-            <div class="agreements-settings__controls">
-                <Button
-                    icon="pi pi-plus"
-                    :label="$t('common.add')"
-                    @click="showCreateDialog('privacy_policy')"
-                />
-                <Button
-                    icon="pi pi-refresh"
-                    :label="$t('common.refresh')"
-                    :loading="loadingAgreements"
-                    @click="loadAgreements('privacy_policy')"
-                />
-            </div>
-
-            <DataTable
-                :value="privacyPolicies"
-                :loading="loadingAgreements"
-                responsive-layout="scroll"
-                class="agreements-settings__table"
-            >
-                <Column field="version" :header="$t('pages.admin.settings.system.agreements.version')" />
-                <Column field="language" :header="$t('pages.admin.settings.system.agreements.language')" />
-                <Column
-                    field="createdAt"
-                    :header="$t('pages.admin.settings.system.agreements.created')"
-                    body-class="text-right"
-                >
-                    <template #body="{data}">
-                        {{ formatDate(data.createdAt) }}
-                    </template>
-                </Column>
-                <Column
-                    field="isMainVersion"
-                    :header="$t('pages.admin.settings.system.agreements.is_main')"
-                    body-class="text-center"
-                >
-                    <template #body="{data}">
-                        <Tag :value="data.isMainVersion ? $t('common.yes') : $t('common.no')" :severity="data.isMainVersion ? 'success' : 'info'" />
-                    </template>
-                </Column>
-                <Column :header="$t('common.actions')" body-class="text-right">
-                    <template #body="{data}">
-                        <Button
-                            icon="pi pi-pencil"
-                            class="p-button-rounded p-button-text"
-                            @click="editAgreement(data, 'privacy_policy')"
-                        />
-                        <Button
-                            v-if="!data.isMainVersion"
-                            v-tooltip="$t('pages.admin.settings.system.agreements.set_as_main')"
-                            icon="pi pi-check"
-                            class="p-button-rounded p-button-success p-button-text"
-                            @click="activateAgreement(data, 'privacy_policy')"
-                        />
-                        <Button
-                            icon="pi pi-trash"
-                            class="p-button-danger p-button-rounded p-button-text"
-                            @click="confirmDelete(data, 'privacy_policy')"
-                        />
-                    </template>
-                </Column>
-            </DataTable>
-        </div>
-
-        <!-- Create/Edit Dialog -->
         <Dialog
             v-model:visible="showDialog"
             :header="isEditMode ? $t('pages.admin.settings.system.agreements.edit') : $t('pages.admin.settings.system.agreements.create')"
             modal
             class="agreements-settings__dialog"
         >
-            <div class="field">
+            <div class="agreements-settings__field">
                 <label for="language">{{ $t('pages.admin.settings.system.agreements.language') }}</label>
-                <InputText
+                <Select
                     id="language"
                     v-model="formData.language"
-                    class="w-full"
-                    required
+                    :options="languageOptions"
+                    option-label="label"
+                    option-value="value"
+                    fluid
+                    :disabled="isEditMode"
                 />
+                <small class="agreements-settings__help">
+                    {{ translateAgreement('language_help') }}
+                </small>
             </div>
 
-            <div class="field">
+            <div class="agreements-settings__field">
                 <label for="version">{{ $t('pages.admin.settings.system.agreements.version') }}</label>
                 <InputText
                     id="version"
                     v-model="formData.version"
-                    class="w-full"
-                    placeholder="e.g., 1.0, 2.0"
+                    fluid
+                    placeholder="e.g. 2026.01"
                 />
             </div>
 
-            <div class="field">
+            <div class="agreements-settings__field">
                 <label for="versionDescription">{{ $t('pages.admin.settings.system.agreements.version_description') }}</label>
                 <Textarea
                     id="versionDescription"
                     v-model="formData.versionDescription"
-                    class="w-full"
                     rows="3"
-                    placeholder="e.g., Bug fixes and improvements"
+                    fluid
+                    auto-resize
                 />
             </div>
 
-            <div class="field">
+            <div v-if="isReferenceLanguage" class="agreements-settings__field">
+                <label for="sourceAgreementId">{{ translateAgreement('source_version') }}</label>
+                <Select
+                    id="sourceAgreementId"
+                    v-model="formData.sourceAgreementId"
+                    :options="currentAuthoritativeOptions"
+                    option-label="label"
+                    option-value="id"
+                    fluid
+                    show-clear
+                    :placeholder="translateAgreement('source_version_placeholder')"
+                />
+                <small class="agreements-settings__help">
+                    {{ translateAgreement('source_version_help') }}
+                </small>
+            </div>
+            <div v-else class="agreements-settings__notice">
+                {{ translateAgreement('authoritative_help') }}
+            </div>
+
+            <div class="agreements-settings__field">
                 <label for="content">{{ $t('pages.admin.settings.system.agreements.content') }}</label>
                 <ClientOnly>
                     <AdminMavonEditorClient
@@ -198,19 +242,6 @@
                         :language="locale === 'zh-CN' ? 'zh-CN' : 'en'"
                     />
                 </ClientOnly>
-            </div>
-
-            <div class="field">
-                <div class="align-items-center flex">
-                    <Checkbox
-                        id="isMainVersion"
-                        v-model="formData.isMainVersion"
-                        binary
-                    />
-                    <label for="isMainVersion" class="ml-2">
-                        {{ $t('pages.admin.settings.system.agreements.set_as_main') }}
-                    </label>
-                </div>
             </div>
 
             <template #footer>
@@ -232,62 +263,157 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
-import DOMPurify from 'dompurify'
 import type { ApiResponse } from '@/types/api'
+import type {
+    AgreementAdminItem,
+    AgreementAdminListPayload,
+    AgreementRestrictionReason,
+    AgreementType,
+} from '@/types/agreement'
 
-interface AgreementData {
-    id?: string
-    type?: 'user_agreement' | 'privacy_policy'
+interface AgreementFormData {
     language: string
-    version: string | null
-    versionDescription: string | null
+    version: string
+    versionDescription: string
     content: string
-    isMainVersion: boolean
-    createdAt?: string
+    sourceAgreementId: string | null
 }
 
-const { t, locale } = useI18n()
+const { t, locale, locales } = useI18n()
 const toast = useToast()
 const confirm = useConfirm()
 const { $appFetch } = useAppApi()
 
-const userAgreements = ref<AgreementData[]>([])
-const privacyPolicies = ref<AgreementData[]>([])
-const loadingAgreements = ref(false)
-const saving = ref(false)
-const showDialog = ref(false)
-const isEditMode = ref(false)
-const currentType = ref<'user_agreement' | 'privacy_policy'>('user_agreement')
-const currentEditId = ref<string>('')
+const payloads = reactive<Record<AgreementType, AgreementAdminListPayload | null>>({
+    user_agreement: null,
+    privacy_policy: null,
+})
 
-const formData = reactive<AgreementData>({
+const loadingMap = reactive<Record<AgreementType, boolean>>({
+    user_agreement: false,
+    privacy_policy: false,
+})
+
+const showDialog = ref(false)
+const saving = ref(false)
+const isEditMode = ref(false)
+const currentType = ref<AgreementType>('user_agreement')
+const currentEditId = ref('')
+
+const formData = reactive<AgreementFormData>({
     language: 'zh-CN',
     version: '',
     versionDescription: '',
     content: '',
-    isMainVersion: false,
+    sourceAgreementId: null,
 })
 
-const formatDate = (date: string | undefined) => {
-    if (!date) return ''
-    return new Date(date).toLocaleDateString(t('app.locale'))
+const agreementSections = computed(() => ([
+    {
+        type: 'user_agreement' as AgreementType,
+        title: t('pages.admin.settings.system.agreements.user_agreement'),
+        payload: payloads.user_agreement,
+    },
+    {
+        type: 'privacy_policy' as AgreementType,
+        title: t('pages.admin.settings.system.agreements.privacy_policy'),
+        payload: payloads.privacy_policy,
+    },
+]))
+
+const currentPayload = computed(() => payloads[currentType.value])
+const mainLanguage = computed(() => currentPayload.value?.mainLanguage || 'zh-CN')
+const currentAuthoritativeOptions = computed(() => currentPayload.value?.authoritativeOptions || [])
+const isReferenceLanguage = computed(() => formData.language !== mainLanguage.value)
+const languageOptions = computed(() => locales.value.map((item: any) => ({
+    label: getLanguageLabel(item.code),
+    value: item.code,
+})))
+
+watch([mainLanguage, () => formData.language], ([currentMainLanguage, currentLanguage]) => {
+    if (currentLanguage === currentMainLanguage) {
+        formData.sourceAgreementId = null
+    }
+})
+
+function isLoading(type: AgreementType) {
+    return loadingMap[type]
 }
 
-const loadAgreements = async (type: 'user_agreement' | 'privacy_policy') => {
-    loadingAgreements.value = true
+function translateAgreement(key: string) {
+    return t(`pages.admin.settings.system.agreements.${key}` as never)
+}
+
+function translateRestriction(reason: AgreementRestrictionReason) {
+    return t(`pages.admin.settings.system.agreements.restrictions.${reason}` as never)
+}
+
+function formatDate(date?: string | null) {
+    if (!date) {
+        return translateAgreement('date_fallback')
+    }
+
+    return new Intl.DateTimeFormat(locale.value, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+    }).format(new Date(date))
+}
+
+function getLanguageLabel(value?: string | null) {
+    if (!value) {
+        return translateAgreement('language_unknown')
+    }
+
+    return t(`common.languages.${value}`)
+}
+
+function getActiveLabel(payload: AgreementAdminListPayload | null) {
+    if (!payload?.activeAgreementId) {
+        return translateAgreement('no_active_version')
+    }
+
+    const active = payload.items.find((item) => item.id === payload.activeAgreementId)
+    if (!active) {
+        return translateAgreement('no_active_version')
+    }
+
+    return `${active.version || translateAgreement('version_fallback')} · ${getLanguageLabel(active.language)}`
+}
+
+function getSourceLabel(item: AgreementAdminItem) {
+    if (!item.sourceAgreementId) {
+        return translateAgreement('no_source_version')
+    }
+
+    return `${item.sourceAgreementVersion || translateAgreement('version_fallback')} · ${getLanguageLabel(item.sourceAgreementLanguage)}`
+}
+
+function getRestrictionMessage(reasons: AgreementRestrictionReason[]) {
+    if (!reasons.length) {
+        return ''
+    }
+
+    return reasons
+        .map((reason) => translateRestriction(reason))
+        .join(' / ')
+}
+
+async function loadAgreements(type: AgreementType) {
+    loadingMap[type] = true
     try {
-        const response = await $appFetch<ApiResponse<AgreementData[]>>(`/api/admin/agreements?type=${type}`)
-        const data = response.data
-        if (type === 'user_agreement') {
-            userAgreements.value = data || []
-        } else {
-            privacyPolicies.value = data || []
+        const response = await $appFetch<ApiResponse<AgreementAdminListPayload>>(`/api/admin/agreements?type=${type}`)
+        payloads[type] = response.data || {
+            mainLanguage: 'zh-CN',
+            activeAgreementId: null,
+            items: [],
+            authoritativeOptions: [],
         }
-    } catch (error) {
+    } catch {
         toast.add({
             severity: 'error',
             summary: t('common.error'),
@@ -295,48 +421,52 @@ const loadAgreements = async (type: 'user_agreement' | 'privacy_policy') => {
             life: 3000,
         })
     } finally {
-        loadingAgreements.value = false
+        loadingMap[type] = false
     }
 }
 
-const showCreateDialog = (type: 'user_agreement' | 'privacy_policy') => {
+function resetForm(type: AgreementType) {
     currentType.value = type
-    isEditMode.value = false
     currentEditId.value = ''
-    formData.language = 'zh-CN'
+    formData.language = payloads[type]?.mainLanguage || 'zh-CN'
     formData.version = ''
     formData.versionDescription = ''
     formData.content = ''
-    formData.isMainVersion = false
+    formData.sourceAgreementId = null
+}
+
+function showCreateDialog(type: AgreementType) {
+    isEditMode.value = false
+    resetForm(type)
     showDialog.value = true
 }
 
-const editAgreement = (agreement: AgreementData, type: 'user_agreement' | 'privacy_policy') => {
+function editAgreement(agreement: AgreementAdminItem, type: AgreementType) {
     currentType.value = type
-    currentEditId.value = agreement.id || ''
+    currentEditId.value = agreement.id
     isEditMode.value = true
     formData.language = agreement.language
     formData.version = agreement.version || ''
     formData.versionDescription = agreement.versionDescription || ''
     formData.content = agreement.content
-    formData.isMainVersion = agreement.isMainVersion
+    formData.sourceAgreementId = agreement.sourceAgreementId
     showDialog.value = true
 }
 
-const saveAgreement = async () => {
+async function saveAgreement() {
     saving.value = true
     try {
         if (isEditMode.value && currentEditId.value) {
-            // Update existing agreement
             await $appFetch(`/api/admin/agreements/${currentEditId.value}`, {
                 method: 'PUT',
                 body: {
                     content: formData.content,
                     version: formData.version || null,
                     versionDescription: formData.versionDescription || null,
-                    isMainVersion: formData.isMainVersion,
+                    sourceAgreementId: isReferenceLanguage.value ? formData.sourceAgreementId : null,
                 },
             })
+
             toast.add({
                 severity: 'success',
                 summary: t('common.success'),
@@ -344,7 +474,6 @@ const saveAgreement = async () => {
                 life: 3000,
             })
         } else {
-            // Create new agreement
             await $appFetch('/api/admin/agreements', {
                 method: 'POST',
                 body: {
@@ -353,9 +482,10 @@ const saveAgreement = async () => {
                     content: formData.content,
                     version: formData.version || null,
                     versionDescription: formData.versionDescription || null,
-                    isMainVersion: formData.isMainVersion,
+                    sourceAgreementId: isReferenceLanguage.value ? formData.sourceAgreementId : null,
                 },
             })
+
             toast.add({
                 severity: 'success',
                 summary: t('common.success'),
@@ -363,8 +493,9 @@ const saveAgreement = async () => {
                 life: 3000,
             })
         }
+
         showDialog.value = false
-        loadAgreements(currentType.value)
+        await loadAgreements(currentType.value)
     } catch (error: any) {
         toast.add({
             severity: 'error',
@@ -377,7 +508,7 @@ const saveAgreement = async () => {
     }
 }
 
-const activateAgreement = async (agreement: AgreementData, type: 'user_agreement' | 'privacy_policy') => {
+async function activateAgreement(agreement: AgreementAdminItem, type: AgreementType) {
     saving.value = true
     try {
         await $appFetch(`/api/admin/agreements/${type}/activate`, {
@@ -386,13 +517,15 @@ const activateAgreement = async (agreement: AgreementData, type: 'user_agreement
                 agreementId: agreement.id,
             },
         })
+
         toast.add({
             severity: 'success',
             summary: t('common.success'),
             detail: t('pages.admin.settings.system.agreements.activate_success'),
             life: 3000,
         })
-        loadAgreements(type)
+
+        await loadAgreements(type)
     } catch (error: any) {
         toast.add({
             severity: 'error',
@@ -405,7 +538,7 @@ const activateAgreement = async (agreement: AgreementData, type: 'user_agreement
     }
 }
 
-const confirmDelete = (agreement: AgreementData, type: 'user_agreement' | 'privacy_policy') => {
+function confirmDelete(agreement: AgreementAdminItem, type: AgreementType) {
     confirm.require({
         message: t('pages.admin.settings.system.agreements.delete_confirm'),
         header: t('common.confirm'),
@@ -414,19 +547,21 @@ const confirmDelete = (agreement: AgreementData, type: 'user_agreement' | 'priva
     })
 }
 
-const deleteAgreement = async (agreement: AgreementData, type: 'user_agreement' | 'privacy_policy') => {
+async function deleteAgreement(agreement: AgreementAdminItem, type: AgreementType) {
     saving.value = true
     try {
         await $appFetch(`/api/admin/agreements/${agreement.id}`, {
             method: 'DELETE',
         })
+
         toast.add({
             severity: 'success',
             summary: t('common.success'),
             detail: t('pages.admin.settings.system.agreements.delete_success'),
             life: 3000,
         })
-        loadAgreements(type)
+
+        await loadAgreements(type)
     } catch (error: any) {
         toast.add({
             severity: 'error',
@@ -439,9 +574,11 @@ const deleteAgreement = async (agreement: AgreementData, type: 'user_agreement' 
     }
 }
 
-onMounted(() => {
-    loadAgreements('user_agreement')
-    loadAgreements('privacy_policy')
+onMounted(async () => {
+    await Promise.all([
+        loadAgreements('user_agreement'),
+        loadAgreements('privacy_policy'),
+    ])
 })
 </script>
 
@@ -472,23 +609,51 @@ onMounted(() => {
         }
     }
 
+    &__section-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
     &__subtitle {
         font-size: 1rem;
         font-weight: 600;
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
         color: var(--p-text-color);
+    }
+
+    &__summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        color: var(--p-text-muted-color);
+        font-size: 0.875rem;
     }
 
     &__controls {
         display: flex;
         gap: 0.5rem;
-        margin-bottom: 1rem;
+        flex-wrap: wrap;
     }
 
     &__table {
         :deep(.p-datatable) {
             font-size: 0.875rem;
         }
+    }
+
+    &__tag-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.25rem;
     }
 
     &__dialog {
@@ -498,29 +663,32 @@ onMounted(() => {
         :deep(.p-dialog-content) {
             padding: 1.5rem;
         }
+    }
 
-        .field {
-            margin-bottom: 1.5rem;
+    &__field {
+        margin-bottom: 1.5rem;
 
-            label:not(.ml-2) {
-                display: block;
-                margin-bottom: 0.5rem;
-                font-weight: 500;
-                color: var(--p-text-color);
-            }
-
-            input,
-            textarea,
-            select {
-                width: 100%;
-            }
-
-            .align-items-center {
-                label {
-                    cursor: pointer;
-                }
-            }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--p-text-color);
         }
+    }
+
+    &__help {
+        display: block;
+        margin-top: 0.5rem;
+        color: var(--p-text-muted-color);
+    }
+
+    &__notice {
+        margin-bottom: 1.5rem;
+        padding: 0.875rem 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--p-content-border-color);
+        background: color-mix(in srgb, var(--p-surface-100) 88%, transparent);
+        color: var(--p-text-color);
     }
 
     &__editor {
@@ -538,12 +706,23 @@ onMounted(() => {
 
 :global(.dark) .agreements-settings {
     &__title,
-    &__subtitle {
+    &__subtitle,
+    &__notice {
         color: var(--p-text-color);
     }
 
-    &__description {
+    &__description,
+    &__summary,
+    &__help {
         color: var(--p-text-muted-color);
+    }
+}
+
+@media (width <= 768px) {
+    .agreements-settings {
+        &__section-header {
+            flex-direction: column;
+        }
     }
 }
 </style>
