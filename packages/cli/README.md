@@ -4,15 +4,16 @@
 
 用于将 Hexo 内容迁移到墨梅的命令行工具。当前提供两类能力：批量导入文章，以及基于迁移 API 的旧链接治理。
 
-### 功能特性
+## 功能特性
 
 - ✅ 递归扫描目录中的 Markdown 文件并解析 Hexo Front-matter
-- ✅ 保留发布时间、分类、标签、摘要、语言等元数据
+- ✅ 将 `title`、`permalink`、`excerpt`、`lang`、`tags`、`categories` 等字段转换为当前导入 API 所需结构
+- ✅ 将 `date` 转换为 `createdAt`，并据此自动推导文章状态
 - ✅ 通过 Open API 批量导入文章到墨梅站点
 - ✅ 生成旧链接 mapping seeds，并调用迁移链接治理接口
 - ✅ 支持 dry run、并发导入、报告导出与失败重试
 
-### 安装
+## 安装
 
 从源码构建：
 
@@ -34,7 +35,7 @@ pnpm link --global
 momei --help
 ```
 
-### 命令一：导入文章
+## 命令一：导入文章
 
 基础用法：
 
@@ -71,7 +72,7 @@ momei import ./hexo-blog/source/_posts \
   --verbose
 ```
 
-### 命令二：治理旧链接
+## 命令二：治理旧链接
 
 `govern-links` 会扫描 Hexo 文件、生成 mapping seeds，并调用墨梅迁移链接治理接口执行 `dry-run` 或 `apply`。
 
@@ -127,36 +128,43 @@ momei govern-links ./hexo-blog/source/_posts \
   --report-file ./artifacts/retry-report.json
 ```
 
-### 支持的 Hexo Front-matter
+## 当前字段映射
 
 | Hexo 字段 | Momei 字段 | 说明 |
 | --- | --- | --- |
 | `title` | `title` | 文章标题 |
-| `date` | `publishedAt` | 发布时间 |
-| `updated` | `metadata.updated` | 更新时间 |
+| `date` | `createdAt` | 转为 ISO 时间字符串，并同时让 `status` 变为 `published` |
 | `tags` | `tags` | 标签，支持字符串或数组 |
-| `categories` | `categories` | 分类，支持字符串或数组 |
-| `permalink` | `slug` | 文章别名或迁移 slug |
-| `excerpt` | `excerpt` | 摘要 |
-| `lang` | `lang` | 语言 |
-| `disableComment` | `metadata.disableComment` | 是否禁用评论 |
+| `categories` | `category` | 仅取第一个分类作为主分类 |
+| `permalink` | `slug` | 文章别名；缺失时回退为文件名 |
+| `excerpt` | `summary` | 文章摘要 |
+| `lang` | `language` | 语言；缺失时默认 `zh-CN` |
+| 正文内容 | `content` | Markdown 正文内容 |
 
-### 映射规则
+当前实现中，以下常见字段不会被导入命令映射：
+
+- `updated`
+- `disableComment`
+- `PostMetadata` 相关结构，例如 `metadata.audio`、`metadata.tts`、`metadata.scaffold`、`metadata.publish.intent`、`metadata.integration.memosId`
+- 旧版兼容字段，例如 `publishIntent`、`audioUrl`、`audioDuration`、`audioSize`、`audioMimeType`、`memosId`
+
+## 导入规则
 
 1. 标题缺失时回退为 `Untitled`。
 2. `slug` 优先使用 `permalink`，否则从文件名推导。
-3. 有 `date` 时默认视为已发布，否则视为草稿。
-4. 标签和分类会统一规范为数组。
-5. 原始 Hexo 字段会尽量保留到 `metadata` 中。
+3. 有 `date` 时写入 `createdAt`，并将 `status` 设为 `published`；没有 `date` 时 `status` 为 `draft`。
+4. `visibility` 当前固定为 `public`。
+5. 标签支持字符串和数组；分类支持字符串和数组，但最终只保留第一个分类。
+6. CLI 当前不会自动构造新的 `metadata` 结构；README 以实际代码实现为准，而不是以前的字段设计。
 
-### API Key 获取
+## API Key 获取
 
 1. 登录墨梅博客后台。
 2. 进入“设置” -> “API Keys”。
 3. 创建新的 API Key。
 4. 将生成结果用于 CLI 调用。
 
-### 开发命令
+## 开发命令
 
 ```bash
 pnpm install
@@ -167,7 +175,7 @@ pnpm typecheck
 pnpm lint
 ```
 
-### 故障排除
+## 故障排除
 
 1. `--api-key` 无效：确认 Key 未过期且具备外部 API 权限。
 2. 连接失败：检查 `--api-url` 是否正确，以及主应用是否已启动。
@@ -175,11 +183,11 @@ pnpm lint
 4. 链接治理失败：先运行 `dry-run`，必要时结合 `--report-file` 和 `--retry-report-id` 分析问题。
 5. 文件解析失败：确认 Markdown Front-matter 为合法 YAML。
 
-### 许可证
+## 许可证
 
 MIT
 
-### 相关链接
+## 相关链接
 
 - [墨梅博客](https://github.com/CaoMeiYouRen/momei)
 - [Hexo 官方文档](https://hexo.io/docs/)

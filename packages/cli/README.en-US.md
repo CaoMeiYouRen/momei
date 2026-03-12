@@ -7,7 +7,8 @@ Command-line toolkit for migrating Hexo content into Momei. It currently provide
 ## Features
 
 - ✅ Recursively scans Markdown files and parses Hexo front matter
-- ✅ Preserves publish date, categories, tags, excerpt, locale, and related metadata
+- ✅ Converts `title`, `permalink`, `excerpt`, `lang`, `tags`, and `categories` into the current import payload shape
+- ✅ Converts `date` into `createdAt` and derives post status from it
 - ✅ Imports posts into Momei through the Open API
 - ✅ Generates mapping seeds and runs migration link governance
 - ✅ Supports dry runs, concurrent import, report export, and failure retry
@@ -127,27 +128,34 @@ momei govern-links ./hexo-blog/source/_posts \
   --report-file ./artifacts/retry-report.json
 ```
 
-## Supported Hexo Front Matter
+## Current Field Mapping
 
 | Hexo field | Momei field | Notes |
 | --- | --- | --- |
 | `title` | `title` | Post title |
-| `date` | `publishedAt` | Publish time |
-| `updated` | `metadata.updated` | Update time |
+| `date` | `createdAt` | Converted to an ISO string and also makes `status` become `published` |
 | `tags` | `tags` | Tags as string or array |
-| `categories` | `categories` | Categories as string or array |
-| `permalink` | `slug` | Post alias or migration slug |
-| `excerpt` | `excerpt` | Excerpt |
-| `lang` | `lang` | Locale |
-| `disableComment` | `metadata.disableComment` | Disable comments flag |
+| `categories` | `category` | Only the first category is kept |
+| `permalink` | `slug` | Post alias; falls back to filename when missing |
+| `excerpt` | `summary` | Post summary |
+| `lang` | `language` | Locale; defaults to `zh-CN` |
+| body content | `content` | Markdown body content |
 
-## Mapping Rules
+The current import command does not map these common fields yet:
+
+- `updated`
+- `disableComment`
+- `PostMetadata`-related structures such as `metadata.audio`, `metadata.tts`, `metadata.scaffold`, `metadata.publish.intent`, and `metadata.integration.memosId`
+- Legacy compatibility fields such as `publishIntent`, `audioUrl`, `audioDuration`, `audioSize`, `audioMimeType`, and `memosId`
+
+## Import Rules
 
 1. Missing titles fall back to `Untitled`.
-2. `slug` prefers `permalink`, otherwise it is derived from the filename.
-3. A post with `date` is treated as published; otherwise it is imported as draft.
-4. Tags and categories are normalized into arrays.
-5. Original Hexo fields are preserved in `metadata` when possible.
+2. `slug` prefers `permalink`; otherwise it is derived from the filename.
+3. If `date` exists, it is written to `createdAt` and `status` becomes `published`; otherwise `status` is `draft`.
+4. `visibility` is currently fixed to `public`.
+5. Tags support both string and array input; categories support both too, but only the first category is kept.
+6. The CLI does not currently construct the new `metadata` structure automatically. The README is aligned with the actual code path, not older field design assumptions.
 
 ## API Key
 
