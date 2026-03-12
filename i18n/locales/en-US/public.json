@@ -116,35 +116,35 @@
                 "subtitle": "We look forward to hearing from you"
             }
         },
-            "feedback": {
-                "title": "Feedback and Support",
-                "subtitle": "Please first determine whether the issue belongs to the Momei project itself or to the site currently running this deployment. Each path has a different contact entry.",
-                "meta": {
-                    "description": "Separate core Momei project issues from site-specific deployment issues and reach the right feedback channel quickly."
-                },
-                "project": {
-                    "title": "Report an issue with the Momei project",
-                    "description": "Use the official repository if you hit a product bug, documentation mistake, feature request, or a generic compatibility issue.",
-                    "action": "Open GitHub Issues",
-                    "items": {
-                        "bug": "Product bugs, regressions, and unexpected behavior",
-                        "feature": "Feature requests, roadmap input, and UX suggestions",
-                        "docs": "Documentation, translation, or example configuration mistakes"
-                    }
-                },
-                "deployment": {
-                    "title": "Contact the administrator of {site}",
-                    "description": "If the issue only happens on this site, such as local login policy, moderation rules, theme settings, or self-hosted infrastructure, contact this deployment first.",
-                    "action_link": "Open the site feedback entry",
-                    "action_email": "Send email to {email}",
-                    "no_contact": "This site has not published a feedback URL or contact email yet. Please reach out to the administrator of {site} directly.",
-                    "items": {
-                        "login": "Account, login, registration, or permission issues on this site",
-                        "content": "Site content, friend links, comments, submissions, or moderation issues",
-                        "policy": "Theme, notification, storage, or deployment settings specific to this site"
-                    }
+        "feedback": {
+            "title": "Feedback and Support",
+            "subtitle": "Please first determine whether the issue belongs to the Momei project itself or to the site currently running this deployment. Each path has a different contact entry.",
+            "meta": {
+                "description": "Separate core Momei project issues from site-specific deployment issues and reach the right feedback channel quickly."
+            },
+            "project": {
+                "title": "Report an issue with the Momei project",
+                "description": "Use the official repository if you hit a product bug, documentation mistake, feature request, or a generic compatibility issue.",
+                "action": "Open GitHub Issues",
+                "items": {
+                    "bug": "Product bugs, regressions, and unexpected behavior",
+                    "feature": "Feature requests, roadmap input, and UX suggestions",
+                    "docs": "Documentation, translation, or example configuration mistakes"
                 }
             },
+            "deployment": {
+                "title": "Contact the administrator of {site}",
+                "description": "If the issue only happens on this site, such as local login policy, moderation rules, theme settings, or self-hosted infrastructure, contact this deployment first.",
+                "action_link": "Open the site feedback entry",
+                "action_email": "Send email to {email}",
+                "no_contact": "This site has not published a feedback URL or contact email yet. Please reach out to the administrator of {site} directly.",
+                "items": {
+                    "login": "Account, login, registration, or permission issues on this site",
+                    "content": "Site content, friend links, comments, submissions, or moderation issues",
+                    "policy": "Theme, notification, storage, or deployment settings specific to this site"
+                }
+            }
+        },
         "links": {
             "title": "Friend Links",
             "subtitle": "A curated list of independent sites and creators we genuinely want to keep recommending.",

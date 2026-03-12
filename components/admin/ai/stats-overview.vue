@@ -35,103 +35,15 @@
 
         <!-- Stats Overview Cards -->
         <div class="ai-overview-grid">
-            <Card class="ai-stat-card total">
-                <template #title>
-                    <div class="card-header">
-                        <span class="card-title">{{ $t('pages.admin.ai.tasks') }}</span>
-                        <i class="icon pi pi-list" />
-                    </div>
-                </template>
-                <template #content>
-                    <div class="card-value">
-                        {{ getTotalTasks() }}
-                    </div>
-                </template>
-            </Card>
-
-            <Card class="ai-stat-card completed">
-                <template #title>
-                    <div class="card-header">
-                        <span class="card-title">{{ $t('pages.admin.ai.statuses.completed') }}</span>
-                        <i class="icon pi pi-check-circle" />
-                    </div>
-                </template>
-                <template #content>
-                    <div class="card-value">
-                        {{ getStatusCount('completed') }}
-                    </div>
-                </template>
-            </Card>
-
-            <Card class="ai-stat-card failed">
-                <template #title>
-                    <div class="card-header">
-                        <span class="card-title">{{ $t('pages.admin.ai.statuses.failed') }}</span>
-                        <i class="icon pi pi-times-circle" />
-                    </div>
-                </template>
-                <template #content>
-                    <div class="card-value">
-                        {{ getStatusCount('failed') }}
-                    </div>
-                </template>
-            </Card>
-
-            <Card class="ai-stat-card processing">
-                <template #title>
-                    <div class="card-header">
-                        <span class="card-title">{{ $t('pages.admin.ai.statuses.processing') }}</span>
-                        <i class="icon pi pi-sync" />
-                    </div>
-                </template>
-                <template #content>
-                    <div class="card-value">
-                        {{ getStatusCount('processing') }}
-                    </div>
-                </template>
-            </Card>
-
-            <Card class="ai-stat-card quota">
-                <template #title>
-                    <div class="card-header">
-                        <span class="card-title">{{ $t('pages.admin.ai.quota_units') }}</span>
-                        <i class="icon pi pi-bolt" />
-                    </div>
-                </template>
-                <template #content>
-                    <div class="card-value card-value--compact">
-                        {{ formatDecimal(stats.overview?.quotaUnits) }}
-                    </div>
-                </template>
-            </Card>
-
-            <Card class="ai-stat-card cost">
-                <template #title>
-                    <div class="card-header">
-                        <span class="card-title">{{ $t('pages.admin.ai.actual_cost') }}</span>
-                        <i class="icon pi pi-wallet" />
-                    </div>
-                </template>
-                <template #content>
-                    <div class="card-value card-value--compact">
-                        {{ formatMoney(stats.overview?.actualCost) }}
-                    </div>
-                </template>
-            </Card>
-
-            <Card class="ai-stat-card success-rate">
-                <template #title>
-                    <div class="card-header">
-                        <span class="card-title">{{ $t('pages.admin.ai.success_rate') }}</span>
-                        <i class="icon pi pi-chart-line" />
-                    </div>
-                </template>
-                <template #content>
-                    <div class="card-value card-value--compact">
-                        {{ formatPercent(stats.overview?.successRate) }}
-                    </div>
-                </template>
-            </Card>
+            <AdminAiMetricCard
+                v-for="metric in overviewMetrics"
+                :key="metric.tone"
+                :label="metric.label"
+                :value="metric.value"
+                :icon="metric.icon"
+                :tone="metric.tone"
+                :compact="metric.compact"
+            />
         </div>
 
         <div class="ai-charts-grid">
@@ -249,6 +161,58 @@ const formatPercent = (value?: number | null) => {
 }
 
 const formatMoney = (value: unknown) => formatAICost(value, props.costDisplay)
+
+const overviewMetrics = computed(() => [
+    {
+        label: t('pages.admin.ai.tasks'),
+        value: getTotalTasks(),
+        icon: 'pi pi-list',
+        tone: 'total' as const,
+        compact: false,
+    },
+    {
+        label: t('pages.admin.ai.statuses.completed'),
+        value: getStatusCount('completed'),
+        icon: 'pi pi-check-circle',
+        tone: 'completed' as const,
+        compact: false,
+    },
+    {
+        label: t('pages.admin.ai.statuses.failed'),
+        value: getStatusCount('failed'),
+        icon: 'pi pi-times-circle',
+        tone: 'failed' as const,
+        compact: false,
+    },
+    {
+        label: t('pages.admin.ai.statuses.processing'),
+        value: getStatusCount('processing'),
+        icon: 'pi pi-sync',
+        tone: 'processing' as const,
+        compact: false,
+    },
+    {
+        label: t('pages.admin.ai.quota_units'),
+        value: formatDecimal(props.stats?.overview?.quotaUnits),
+        icon: 'pi pi-bolt',
+        tone: 'quota' as const,
+        compact: true,
+    },
+    {
+        label: t('pages.admin.ai.actual_cost'),
+        value: formatMoney(props.stats?.overview?.actualCost),
+        icon: 'pi pi-wallet',
+        tone: 'cost' as const,
+        compact: true,
+    },
+    {
+        label: t('pages.admin.ai.success_rate'),
+        value: formatPercent(props.stats?.overview?.successRate),
+        icon: 'pi pi-chart-line',
+        tone: 'success-rate' as const,
+        compact: true,
+    },
+])
 
 const resolveSubjectLabel = (alert: AIUsageAlert) => {
     return alert.subjectName || alert.subjectValue
@@ -396,52 +360,6 @@ const formatAlertDetail = (alert: AIUsageAlert) => {
     @media (width >= 1200px) {
         grid-template-columns: repeat(4, 1fr);
     }
-}
-
-.ai-stat-card {
-    border: none;
-    box-shadow: 0 4px 15px rgb(0 0 0 / 0.05);
-    transition: transform 0.2s, box-shadow 0.2s;
-    border-radius: 12px;
-
-    &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgb(0 0 0 / 0.1);
-    }
-
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        .card-title {
-            font-size: 1rem;
-            color: var(--text-color-secondary);
-        }
-
-        .icon {
-            font-size: 1.5rem;
-            opacity: 0.8;
-        }
-    }
-
-    .card-value {
-        font-size: 2.5rem;
-        font-weight: 800;
-        margin-top: 0.5rem;
-    }
-
-    .card-value--compact {
-        font-size: 2rem;
-    }
-
-    &.total .icon { color: var(--primary-color); }
-    &.completed .icon { color: var(--green-500); }
-    &.failed .icon { color: var(--red-500); }
-    &.processing .icon { color: var(--blue-500); }
-    &.quota .icon { color: var(--orange-500); }
-    &.cost .icon { color: var(--teal-500); }
-    &.success-rate .icon { color: var(--cyan-500); }
 }
 
 .ai-charts-grid {

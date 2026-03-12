@@ -61,41 +61,12 @@
         </div>
 
         <div class="governance-metrics grid">
-            <div class="col-12 md:col-3">
-                <div class="detail-item">
-                    <span class="label">{{ $t('pages.admin.ai.estimated_cost') }}:</span>
-                    <span class="value">{{ formatMoney(task.estimatedCost) }}</span>
-                </div>
-            </div>
-            <div class="col-12 md:col-3">
-                <div class="detail-item">
-                    <span class="label">{{ $t('pages.admin.ai.actual_cost') }}:</span>
-                    <span class="value">{{ formatMoney(task.actualCost) }}</span>
-                </div>
-            </div>
-            <div class="col-12 md:col-3">
-                <div class="detail-item">
-                    <span class="label">{{ $t('pages.admin.ai.estimated_quota_units') }}:</span>
-                    <span class="value">{{ formatDecimal(task.estimatedQuotaUnits) }}</span>
-                </div>
-            </div>
-            <div class="col-12 md:col-3">
-                <div class="detail-item">
-                    <span class="label">{{ $t('pages.admin.ai.quota_units') }}:</span>
-                    <span class="value">{{ formatDecimal(task.quotaUnits) }}</span>
-                </div>
-            </div>
-            <div class="col-12 md:col-6">
-                <div class="detail-item">
-                    <span class="label">{{ $t('pages.admin.ai.failure_stage') }}:</span>
-                    <span class="value">{{ task.failureStage ? $t(`pages.admin.ai.failure_stages.${task.failureStage}`) : '-' }}</span>
-                </div>
-            </div>
-            <div class="col-12 md:col-6">
-                <div class="detail-item">
-                    <span class="label">{{ $t('pages.admin.ai.duration_ms') }}:</span>
-                    <span class="value">{{ formatDuration(task.durationMs) }}</span>
-                </div>
+            <div
+                v-for="metric in governanceMetrics"
+                :key="metric.label"
+                :class="metric.columnClass"
+            >
+                <AdminAiDetailMetric :label="metric.label" :value="metric.value" />
             </div>
         </div>
 
@@ -113,29 +84,12 @@
         </div>
 
         <div v-if="task.type === 'transcription' && task.status === 'completed'" class="grid transcription-info">
-            <div class="col-12 md:col-3">
-                <div class="detail-item">
-                    <span class="label">{{ $t('pages.admin.ai.audio_duration') }}:</span>
-                    <span class="value">{{ task.audioDuration || 0 }}s</span>
-                </div>
-            </div>
-            <div class="col-12 md:col-3">
-                <div class="detail-item">
-                    <span class="label">{{ $t('pages.admin.ai.audio_size') }}:</span>
-                    <span class="value">{{ formatSize(task.audioSize) }}</span>
-                </div>
-            </div>
-            <div class="col-12 md:col-3">
-                <div class="detail-item">
-                    <span class="label">{{ $t('pages.admin.ai.text_length') }}:</span>
-                    <span class="value">{{ task.textLength || 0 }}</span>
-                </div>
-            </div>
-            <div class="col-12 md:col-3">
-                <div class="detail-item">
-                    <span class="label">{{ $t('pages.admin.ai.language') }}:</span>
-                    <span class="value">{{ task.language || '-' }}</span>
-                </div>
+            <div
+                v-for="metric in transcriptionMetrics"
+                :key="metric.label"
+                :class="metric.columnClass"
+            >
+                <AdminAiDetailMetric :label="metric.label" :value="metric.value" />
             </div>
         </div>
 
@@ -241,6 +195,62 @@ const formatMoney = (value: unknown) => formatAICost(value, props.costDisplay)
 const getStatusSeverity = getAITaskStatusSeverity
 const getChargeStatusSeverity = getAIChargeStatusSeverity
 const formatJson = formatAIAdminJson
+
+const governanceMetrics = computed(() => [
+    {
+        label: t('pages.admin.ai.estimated_cost'),
+        value: formatMoney(props.task.estimatedCost),
+        columnClass: 'col-12 md:col-3',
+    },
+    {
+        label: t('pages.admin.ai.actual_cost'),
+        value: formatMoney(props.task.actualCost),
+        columnClass: 'col-12 md:col-3',
+    },
+    {
+        label: t('pages.admin.ai.estimated_quota_units'),
+        value: formatDecimal(props.task.estimatedQuotaUnits),
+        columnClass: 'col-12 md:col-3',
+    },
+    {
+        label: t('pages.admin.ai.quota_units'),
+        value: formatDecimal(props.task.quotaUnits),
+        columnClass: 'col-12 md:col-3',
+    },
+    {
+        label: t('pages.admin.ai.failure_stage'),
+        value: props.task.failureStage ? t(`pages.admin.ai.failure_stages.${props.task.failureStage}`) : '-',
+        columnClass: 'col-12 md:col-6',
+    },
+    {
+        label: t('pages.admin.ai.duration_ms'),
+        value: formatDuration(props.task.durationMs),
+        columnClass: 'col-12 md:col-6',
+    },
+])
+
+const transcriptionMetrics = computed(() => [
+    {
+        label: t('pages.admin.ai.audio_duration'),
+        value: `${props.task.audioDuration || 0}s`,
+        columnClass: 'col-12 md:col-3',
+    },
+    {
+        label: t('pages.admin.ai.audio_size'),
+        value: formatSize(props.task.audioSize),
+        columnClass: 'col-12 md:col-3',
+    },
+    {
+        label: t('pages.admin.ai.text_length'),
+        value: props.task.textLength || 0,
+        columnClass: 'col-12 md:col-3',
+    },
+    {
+        label: t('pages.admin.ai.language'),
+        value: props.task.language || '-',
+        columnClass: 'col-12 md:col-3',
+    },
+])
 
 const formatSize = (bytes?: number | null) => {
     if (!bytes) return '0 B'

@@ -30,6 +30,7 @@ describe('AppFooter', () => {
 
         const links = wrapper.findAll('.footer__link')
         expect(links.length).toBeGreaterThan(0)
+        expect(links.some((link) => link.attributes('href')?.includes('/feedback'))).toBe(true)
     })
 
     it('should render copyright text', async () => {

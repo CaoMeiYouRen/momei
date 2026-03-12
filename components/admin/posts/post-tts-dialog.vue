@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import { watchDebounced } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
@@ -9,19 +7,7 @@ import RadioButton from 'primevue/radiobutton'
 import ProgressBar from 'primevue/progressbar'
 import Message from 'primevue/message'
 import Textarea from 'primevue/textarea'
-import { useTTSTask } from '~/composables/use-tts-task'
-import type {
-    AICostDisplay,
-    TTSConfigResponse,
-    TTSEstimateResponse,
-    TTSSynthesisMode,
-    TTSTaskCreateResponse,
-    TTSVoiceOption,
-} from '~/types/ai'
-import type { ApiResponse } from '~/types/api'
-import { cleanTextForTTS } from '~/utils/shared/tts-cleaner'
-import { formatDecimal } from '~/utils/shared/number'
-import { normalizeAICostDisplay } from '~/utils/shared/ai-cost'
+import { usePostTtsDialog } from '@/composables/use-post-tts-dialog'
 
 const props = defineProps<{
     postId?: string
@@ -35,193 +21,31 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const visible = defineModel<boolean>('visible', { default: false })
 
-interface TTSDialogConfig {
-    provider: string
-    mode: TTSSynthesisMode
-    voice: string
-}
-
-const config = ref<TTSDialogConfig>({
-    provider: '',
-    mode: 'speech',
-    voice: '',
-})
-
-const availableProviders = ref<string[]>([])
-const providerModes = ref<Record<string, TTSSynthesisMode[]>>({})
-const showProviderSelect = computed(() => availableProviders.value.length > 1)
-
-const { $appFetch } = useAppApi()
-
-async function fetchConfig() {
-    try {
-        const response = await $appFetch<ApiResponse<TTSConfigResponse>>('/api/ai/tts/config')
-        const data = response.data
-        availableProviders.value = data.availableProviders
-        providerModes.value = data.providerModes || {}
-        if (!config.value.provider) {
-            config.value.provider = data.defaultProvider
-        }
-    } catch (error) {
-        console.error('Failed to fetch TTS config:', error)
-        // Fallback
-        config.value.provider = 'openai'
-    }
-}
-
-const modes = computed(() => {
-    const currentProvider = config.value.provider
-    const enabledModes = providerModes.value[currentProvider] || ['speech']
-
-    return enabledModes.map((mode) => ({
-        label: mode === 'podcast'
-            ? t('pages.admin.posts.tts.mode_podcast')
-            : t('pages.admin.posts.tts.mode_speech'),
-        value: mode,
-    }))
-})
-
-const providers = computed(() => {
-    return availableProviders.value.map((p) => ({
-        label: t(`pages.admin.posts.tts.providers.${p.toLowerCase()}`),
-        value: p,
-    }))
-})
-
-const voices = ref<TTSVoiceOption[]>([])
-const loadingVoices = ref(false)
-
-const script = ref('')
-const optimizing = ref(false)
-
-async function optimizeManuscript() {
-    if (!props.content || optimizing.value) return
-    optimizing.value = true
-    try {
-        const response = await $appFetch<ApiResponse<{ manuscript: string }>>('/api/ai/tts/manuscript', {
-            method: 'POST',
-            body: {
-                content: props.content,
-                mode: config.value.mode,
-            },
-        })
-        script.value = response.data.manuscript
-    } catch (error) {
-        console.error('Failed to optimize manuscript:', error)
-    } finally {
-        optimizing.value = false
-    }
-}
-
-async function fetchVoices() {
-    if (!config.value.provider) return
-    loadingVoices.value = true
-    try {
-        const response = await $appFetch<ApiResponse<TTSVoiceOption[]>>('/api/ai/tts/voices', {
-            query: {
-                provider: config.value.provider,
-                mode: config.value.mode,
-            },
-        })
-        voices.value = response.data
-        // 如果当前音色不在新列表中，重置为空
-        if (!voices.value.find((v) => v.id === config.value.voice)) {
-            config.value.voice = voices.value[0]?.id || ''
-        }
-    } catch (error) {
-        console.error('Failed to fetch voices:', error)
-    } finally {
-        loadingVoices.value = false
-    }
-}
-
-// 监听提供商变化，重新获取音色列表
-watch(() => config.value.provider, () => {
-    const enabledModes = providerModes.value[config.value.provider] || ['speech']
-    if (!enabledModes.includes(config.value.mode)) {
-        config.value.mode = 'speech'
-    }
-    fetchVoices()
-}, { immediate: true })
-
-watch(() => config.value.mode, () => {
-    fetchVoices()
-})
-
-// 监听 visible 变化，初始化文稿
-watch(visible, (val) => {
-    if (val && !script.value) {
-        script.value = cleanTextForTTS(props.content)
-    }
-})
-
-onMounted(() => {
-    fetchConfig()
-})
-
-const currentTaskId = ref<string | null>(null)
-const { status, progress, audioUrl, error, startPolling } = useTTSTask(currentTaskId)
-const hasGeneratedAudio = computed(() => Boolean(audioUrl.value))
-const { resolveErrorMessage } = useRequestFeedback()
-
-const estimatedCost = ref(0)
-const estimatedCostDisplay = ref<AICostDisplay>(normalizeAICostDisplay())
-const normalizedEstimatedCostDisplay = computed(() => normalizeAICostDisplay(estimatedCostDisplay.value))
-const formattedEstimatedCost = computed(() => formatDecimal(estimatedCost.value, 2))
-const loadingCost = ref(false)
-
-// 监听配置变化，重新计算预估成本
-watchDebounced([() => config.value.provider, () => config.value.voice, () => config.value.mode, script], async () => {
-    if (!config.value.voice || !script.value) {
-        estimatedCost.value = 0
-        return
-    }
-
-    loadingCost.value = true
-    try {
-        const response = await $appFetch<ApiResponse<TTSEstimateResponse>>('/api/ai/tts/estimate', {
-            method: 'POST',
-            body: {
-                provider: config.value.provider,
-                voice: config.value.voice,
-                text: script.value,
-                mode: config.value.mode,
-            },
-        })
-        const data = response.data
-        estimatedCost.value = data.displayCost
-        estimatedCostDisplay.value = normalizeAICostDisplay(data.costDisplay)
-    } catch (error) {
-        console.error('Failed to fetch estimated cost:', error)
-    } finally {
-        loadingCost.value = false
-    }
-}, { immediate: true, debounce: 1500 })
-
-async function startGenerate() {
-    try {
-        error.value = null
-        const data = await $appFetch<TTSTaskCreateResponse>('/api/ai/tts/task', {
-            method: 'POST',
-            body: {
-                ...config.value,
-                postId: props.postId,
-                script: script.value,
-            },
-        })
-        currentTaskId.value = data.taskId
-        startPolling()
-    } catch (requestError) {
-        error.value = resolveErrorMessage(requestError, {
-            fallbackKey: 'pages.admin.posts.tts.failed',
-        })
-    }
-}
-
-watch(status, (newStatus) => {
-    if (newStatus === 'completed') {
-        // 完成后不再自动通知，等待用户点击确认
-    }
+const {
+    config,
+    showProviderSelect,
+    modes,
+    providers,
+    voices,
+    loadingVoices,
+    script,
+    optimizing,
+    optimizeManuscript,
+    estimatedCost,
+    formattedEstimatedCost,
+    normalizedEstimatedCostDisplay,
+    loadingCost,
+    status,
+    progress,
+    audioUrl,
+    error,
+    hasGeneratedAudio,
+    isGenerating,
+    startGenerate,
+} = usePostTtsDialog({
+    postId: toRef(props, 'postId'),
+    content: toRef(props, 'content'),
+    visible,
 })
 
 function handleConfirm() {
@@ -388,8 +212,8 @@ function handleConfirm() {
                     severity="contrast"
                     outlined
                     :label="t('pages.admin.posts.tts.regenerate')"
-                    :loading="status === 'processing' || status === 'pending'"
-                    :disabled="!config.voice || optimizing || status === 'processing' || status === 'pending'"
+                    :loading="isGenerating"
+                    :disabled="!config.voice || optimizing || isGenerating"
                     @click="startGenerate"
                 />
 
@@ -398,20 +222,20 @@ function handleConfirm() {
                         :label="t('common.cancel')"
                         severity="secondary"
                         outlined
-                        :disabled="status === 'processing'"
+                        :disabled="isGenerating"
                         @click="visible = false"
                     />
                     <Button
                         v-if="hasGeneratedAudio"
                         :label="t('common.confirm')"
-                        :disabled="status === 'processing' || status === 'pending'"
+                        :disabled="isGenerating"
                         @click="handleConfirm"
                     />
                     <Button
                         v-else
                         :label="t('pages.admin.posts.tts.start_generate')"
-                        :loading="status === 'processing' || status === 'pending'"
-                        :disabled="!config.voice || optimizing || status === 'processing' || status === 'pending'"
+                        :loading="isGenerating"
+                        :disabled="!config.voice || optimizing || isGenerating"
                         @click="startGenerate"
                     />
                 </div>

@@ -44,186 +44,34 @@
                         </TabList>
                         <TabPanels class="px-0">
                             <TabPanel value="0">
-                                <!-- 浅色模式色彩 -->
-                                <div class="form-group mt-3">
-                                    <div class="align-items-center flex gap-2">
-                                        <label>{{ $t('pages.admin.settings.theme.primary_color') }}</label>
-                                        <i
-                                            v-if="isLocked('themePrimaryColor')"
-                                            v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                                            class="pi pi-lock text-muted-color text-xs"
-                                        />
-                                    </div>
-                                    <div class="color-input-group mt-2">
-                                        <ColorPicker
-                                            v-model="primaryPickerModel"
-                                            format="hex"
-                                            :disabled="isLocked('themePrimaryColor')"
-                                        />
-                                        <InputText
-                                            v-model="primaryColorModel"
-                                            :placeholder="getCurrentPresetValue('primary', false)"
-                                            :disabled="isLocked('themePrimaryColor')"
-                                        />
-                                    </div>
-                                </div>
-                                <div class="form-group mt-3">
-                                    <div class="align-items-center flex gap-2">
-                                        <label>{{ $t('pages.admin.settings.theme.accent_color') }}</label>
-                                        <i
-                                            v-if="isLocked('themeAccentColor')"
-                                            v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                                            class="pi pi-lock text-muted-color text-xs"
-                                        />
-                                    </div>
-                                    <div class="color-input-group mt-2">
-                                        <ColorPicker
-                                            v-model="accentPickerModel"
-                                            format="hex"
-                                            :disabled="isLocked('themeAccentColor')"
-                                        />
-                                        <InputText
-                                            v-model="accentColorModel"
-                                            :placeholder="getCurrentPresetValue('accent', false)"
-                                            :disabled="isLocked('themeAccentColor')"
-                                        />
-                                    </div>
-                                </div>
-                                <div class="form-group mt-3">
-                                    <div class="align-items-center flex gap-2">
-                                        <label>{{ $t('pages.admin.settings.theme.surface_color') }}</label>
-                                        <i
-                                            v-if="isLocked('themeSurfaceColor')"
-                                            v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                                            class="pi pi-lock text-muted-color text-xs"
-                                        />
-                                    </div>
-                                    <div class="color-input-group mt-2">
-                                        <ColorPicker
-                                            v-model="surfacePickerModel"
-                                            format="hex"
-                                            :disabled="isLocked('themeSurfaceColor')"
-                                        />
-                                        <InputText
-                                            v-model="surfaceColorModel"
-                                            :placeholder="getCurrentPresetValue('surface', false)"
-                                            :disabled="isLocked('themeSurfaceColor')"
-                                        />
-                                    </div>
-                                </div>
-                                <div class="form-group mt-3">
-                                    <div class="align-items-center flex gap-2">
-                                        <label>{{ $t('pages.admin.settings.theme.text_color') }}</label>
-                                        <i
-                                            v-if="isLocked('themeTextColor')"
-                                            v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                                            class="pi pi-lock text-muted-color text-xs"
-                                        />
-                                    </div>
-                                    <div class="color-input-group mt-2">
-                                        <ColorPicker
-                                            v-model="textPickerModel"
-                                            format="hex"
-                                            :disabled="isLocked('themeTextColor')"
-                                        />
-                                        <InputText
-                                            v-model="textColorModel"
-                                            :placeholder="getCurrentPresetValue('text', false)"
-                                            :disabled="isLocked('themeTextColor')"
-                                        />
-                                    </div>
+                                <div
+                                    v-for="field in lightColorFields"
+                                    :key="field.key"
+                                    class="form-group mt-3"
+                                >
+                                    <AdminSettingsThemeColorField
+                                        v-model:value="field.textModel.value"
+                                        v-model:picker-value="field.pickerModel.value"
+                                        :label="$t(field.labelKey)"
+                                        :placeholder="getCurrentPresetValue(field.presetKey, false)"
+                                        :locked="isLocked(field.key)"
+                                    />
                                 </div>
                             </TabPanel>
 
                             <TabPanel value="1">
-                                <!-- 深色模式色彩 -->
-                                <div class="form-group mt-3">
-                                    <div class="align-items-center flex gap-2">
-                                        <label>{{ $t('pages.admin.settings.theme.dark_primary_color') }}</label>
-                                        <i
-                                            v-if="isLocked('themeDarkPrimaryColor')"
-                                            v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                                            class="pi pi-lock text-muted-color text-xs"
-                                        />
-                                    </div>
-                                    <div class="color-input-group mt-2">
-                                        <ColorPicker
-                                            v-model="darkPrimaryPickerModel"
-                                            format="hex"
-                                            :disabled="isLocked('themeDarkPrimaryColor')"
-                                        />
-                                        <InputText
-                                            v-model="darkPrimaryColorModel"
-                                            :placeholder="getCurrentPresetValue('primary', true)"
-                                            :disabled="isLocked('themeDarkPrimaryColor')"
-                                        />
-                                    </div>
-                                </div>
-                                <div class="form-group mt-3">
-                                    <div class="align-items-center flex gap-2">
-                                        <label>{{ $t('pages.admin.settings.theme.dark_accent_color') }}</label>
-                                        <i
-                                            v-if="isLocked('themeDarkAccentColor')"
-                                            v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                                            class="pi pi-lock text-muted-color text-xs"
-                                        />
-                                    </div>
-                                    <div class="color-input-group mt-2">
-                                        <ColorPicker
-                                            v-model="darkAccentPickerModel"
-                                            format="hex"
-                                            :disabled="isLocked('themeDarkAccentColor')"
-                                        />
-                                        <InputText
-                                            v-model="darkAccentColorModel"
-                                            :placeholder="getCurrentPresetValue('accent', true)"
-                                            :disabled="isLocked('themeDarkAccentColor')"
-                                        />
-                                    </div>
-                                </div>
-                                <div class="form-group mt-3">
-                                    <div class="align-items-center flex gap-2">
-                                        <label>{{ $t('pages.admin.settings.theme.dark_surface_color') }}</label>
-                                        <i
-                                            v-if="isLocked('themeDarkSurfaceColor')"
-                                            v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                                            class="pi pi-lock text-muted-color text-xs"
-                                        />
-                                    </div>
-                                    <div class="color-input-group mt-2">
-                                        <ColorPicker
-                                            v-model="darkSurfacePickerModel"
-                                            format="hex"
-                                            :disabled="isLocked('themeDarkSurfaceColor')"
-                                        />
-                                        <InputText
-                                            v-model="darkSurfaceColorModel"
-                                            :placeholder="getCurrentPresetValue('surface', true)"
-                                            :disabled="isLocked('themeDarkSurfaceColor')"
-                                        />
-                                    </div>
-                                </div>
-                                <div class="form-group mt-3">
-                                    <div class="align-items-center flex gap-2">
-                                        <label>{{ $t('pages.admin.settings.theme.dark_text_color') }}</label>
-                                        <i
-                                            v-if="isLocked('themeDarkTextColor')"
-                                            v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                                            class="pi pi-lock text-muted-color text-xs"
-                                        />
-                                    </div>
-                                    <div class="color-input-group mt-2">
-                                        <ColorPicker
-                                            v-model="darkTextPickerModel"
-                                            format="hex"
-                                            :disabled="isLocked('themeDarkTextColor')"
-                                        />
-                                        <InputText
-                                            v-model="darkTextColorModel"
-                                            :placeholder="getCurrentPresetValue('text', true)"
-                                            :disabled="isLocked('themeDarkTextColor')"
-                                        />
-                                    </div>
+                                <div
+                                    v-for="field in darkColorFields"
+                                    :key="field.key"
+                                    class="form-group mt-3"
+                                >
+                                    <AdminSettingsThemeColorField
+                                        v-model:value="field.textModel.value"
+                                        v-model:picker-value="field.pickerModel.value"
+                                        :label="$t(field.labelKey)"
+                                        :placeholder="getCurrentPresetValue(field.presetKey, true)"
+                                        :locked="isLocked(field.key)"
+                                    />
                                 </div>
                             </TabPanel>
 
@@ -314,6 +162,7 @@
 </template>
 
 <script setup lang="ts">
+import type { WritableComputedRef } from 'vue'
 import {
     useTheme,
     PRESETS,
@@ -446,6 +295,76 @@ const darkPrimaryPickerModel = createColorPickerModel('themeDarkPrimaryColor')
 const darkAccentPickerModel = createColorPickerModel('themeDarkAccentColor')
 const darkSurfacePickerModel = createColorPickerModel('themeDarkSurfaceColor')
 const darkTextPickerModel = createColorPickerModel('themeDarkTextColor')
+
+interface ThemeColorFieldDescriptor {
+    key: ThemeColorSettingKey
+    labelKey: string
+    presetKey: ThemePresetColorKey
+    textModel: WritableComputedRef<string>
+    pickerModel: WritableComputedRef<string>
+}
+
+const lightColorFields: ThemeColorFieldDescriptor[] = [
+    {
+        key: 'themePrimaryColor',
+        labelKey: 'pages.admin.settings.theme.primary_color',
+        presetKey: 'primary',
+        textModel: primaryColorModel,
+        pickerModel: primaryPickerModel,
+    },
+    {
+        key: 'themeAccentColor',
+        labelKey: 'pages.admin.settings.theme.accent_color',
+        presetKey: 'accent',
+        textModel: accentColorModel,
+        pickerModel: accentPickerModel,
+    },
+    {
+        key: 'themeSurfaceColor',
+        labelKey: 'pages.admin.settings.theme.surface_color',
+        presetKey: 'surface',
+        textModel: surfaceColorModel,
+        pickerModel: surfacePickerModel,
+    },
+    {
+        key: 'themeTextColor',
+        labelKey: 'pages.admin.settings.theme.text_color',
+        presetKey: 'text',
+        textModel: textColorModel,
+        pickerModel: textPickerModel,
+    },
+]
+
+const darkColorFields: ThemeColorFieldDescriptor[] = [
+    {
+        key: 'themeDarkPrimaryColor',
+        labelKey: 'pages.admin.settings.theme.dark_primary_color',
+        presetKey: 'primary',
+        textModel: darkPrimaryColorModel,
+        pickerModel: darkPrimaryPickerModel,
+    },
+    {
+        key: 'themeDarkAccentColor',
+        labelKey: 'pages.admin.settings.theme.dark_accent_color',
+        presetKey: 'accent',
+        textModel: darkAccentColorModel,
+        pickerModel: darkAccentPickerModel,
+    },
+    {
+        key: 'themeDarkSurfaceColor',
+        labelKey: 'pages.admin.settings.theme.dark_surface_color',
+        presetKey: 'surface',
+        textModel: darkSurfaceColorModel,
+        pickerModel: darkSurfacePickerModel,
+    },
+    {
+        key: 'themeDarkTextColor',
+        labelKey: 'pages.admin.settings.theme.dark_text_color',
+        presetKey: 'text',
+        textModel: darkTextColorModel,
+        pickerModel: darkTextPickerModel,
+    },
+]
 
 const mourningModeRef = computed({
     get: () => {

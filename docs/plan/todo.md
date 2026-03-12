@@ -66,9 +66,9 @@
 	- 当前拆解:
 		- [x] 工具函数去重：优先抽离 AI 管理页中的状态 Tag severity、成本格式化、日期展示、JSON 序列化等重复函数，并检查 `utils/`、`server/utils/`、`composables/` 内完全相同或高度相似的 helper，统一归并到共享工具层。
 		- [x] 样式复用：以 `components/admin/settings/theme-config-section.vue`、`theme-preview-section.vue`、`components/admin/posts/post-editor-settings.vue` 为首批样本，抽离可复用的 `form-group`、`color-input-group`、输入附加器和 AI 详情块样式，沉淀到共享 SCSS 片段或管理端公共样式层。
-		- [ ] 模板与组件复用：针对主题设置、AI 统计卡片、AI 详情指标块和管理端表单项提炼可复用的展示组件或 slot 模板，减少同类 `<label + 输入 + 锁定提示>`、`<标题 + 指标 + 图标>`、`<label + value>` 结构的重复。
+		- [x] 模板与组件复用：针对主题设置、AI 统计卡片、AI 详情指标块和管理端表单项提炼可复用的展示组件或 slot 模板，减少同类 `<label + 输入 + 锁定提示>`、`<标题 + 指标 + 图标>`、`<label + value>` 结构的重复。
 		- [x] 页面拆分收口：抽离 `use-installation-wizard.ts`、`use-post-editor-page.ts`、`use-post-editor-translation.ts` 与 `use-admin-friend-links-page.ts`，将 `pages/installation.vue`、`pages/admin/posts/[id].vue`、`pages/admin/friend-links/index.vue` 收敛为装配层，清除本轮相关大文件告警。
-		- [ ] 大文件拆分：首轮优先拆分 `components/admin/posts/post-tts-dialog.vue`、`components/admin/settings/theme-config-section.vue`、`components/admin/posts/post-editor-settings.vue`、`pages/admin/ai/index.vue`，按“容器页 / 纯展示组件 / composable / 样式”分层，避免继续向 500+ 行增长。
+		- [x] 大文件拆分：首轮优先拆分 `components/admin/posts/post-tts-dialog.vue`、`components/admin/settings/theme-config-section.vue`、`components/admin/posts/post-editor-settings.vue`、`pages/admin/ai/index.vue`，按“容器页 / 纯展示组件 / composable / 样式”分层，避免继续向 500+ 行增长。
 		- [x] 质量门禁收紧：在首轮重构范围内同步补齐 lint、typecheck、i18n audit 与定向测试清单；新增代码默认要求无新增 `any`、有共享类型边界、并覆盖至少一条对应回归用例。
 	- [x] **日期时间与请求反馈治理**
 	- 验收: 业务逻辑中的日期格式化、比较、排序、区间判断等优先统一使用 `dayjs`；直接 `new Date()` 仅保留在运行时边界、原生 API 入参或极简环境。
@@ -183,13 +183,13 @@
 		- [x] 首轮引导收敛：按 public / login / editor 三段触发，并支持跨路由续接。
 		- [x] 首轮预置内容：补齐覆盖公开阅读、AI 创作与多语言工作流的 Demo 文章。
 		- [x] Demo 安全增强：补齐 `/api/admin/settings`、`/api/auth/admin` 与 `/api/user/api-keys` 等敏感读写拦截，并增加 Guard 回归测试。
-- [x] **初始化引导首配清单重构** (进行中)
+- [x] **初始化引导首配清单重构**
 	- 验收: 重新梳理安装向导与 onboarding 的职责边界，明确首启时哪些配置应被建议优先完成，哪些应延后到后台。
 	- 验收: 初始化引导页给出“建议立即配置 / 可稍后配置”分组，至少覆盖站点基础信息、语言 / 时区、认证 / 管理员、SEO、对象存储 / AI / 通知等关键项。
 	- 验收: Demo 与生产环境采用不同的首配建议清单，避免演示流程与真实部署流程相互干扰。
 	- 当前拆解:
 		- [x] 首配清单盘点：盘点 installation wizard、demo banner、onboarding 与 settings 页面现有字段，按“必须 / 推荐 / 可后置”重排。
-		- [ ] 触发时机收口：重新定义首次进入安装向导、首次进入后台与首次进入编辑器时的提示节奏。
+		- [x] 触发时机收口：重新定义首次进入安装向导、首次进入后台与首次进入编辑器时的提示节奏。
 		- [x] 文案与回归：补齐安装向导 / onboarding 的多语言文案与定向回归。
 
 - [x] **文章管理页媒体预览增强**
@@ -201,7 +201,7 @@
 		- [x] 封面预览：在文章管理列表加入封面缩略图或预览触发器。
 		- [x] 播客快速预览：为播客列补齐音频状态、播放器或外链预览入口。
 		- [x] 定向回归：补齐文章管理页媒体列渲染与预览交互测试。
-- [ ] **反馈入口与闭环**
+- [x] **反馈入口与闭环**
 	- 验收: 提供轻量反馈入口，仅提供反馈地址设置和联系方式录入，默认可复用网站联系邮箱，避免复杂的反馈系统设计与维护。
     - 验收: 应当区分墨梅博客项目本身的问题和第三方自部署站点的使用问题，前者引导用户提交到 GitHub Issues，后者引导用户联系站点管理员。
     - 验收: 反馈入口应在公开侧和管理端均有体现，并且在用户遇到问题时能够方便地找到。
