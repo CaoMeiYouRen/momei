@@ -249,7 +249,7 @@ export const auth = betterAuth({
             enabled: true,
             maxAge: ms('1h') / 1000, // 缓存持续时间（秒）
             strategy: 'compact', // 使用紧凑策略以减少 cookie 大小
-            refreshCache: true, // 启用默认设置的自动刷新（当达到最大年龄的80%时刷新）
+            refreshCache: false,
         },
         storeSessionInDatabase: true, // 当提供辅助存储时，是否在数据库中存储会话
         preserveSessionInDatabase: false, // 当从辅助存储中删除时，是否保留数据库中的会话记录

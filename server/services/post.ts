@@ -4,7 +4,6 @@ import { ensureTags } from './tag'
 import { executePublishEffects } from './post-publish'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
-import { PostVersion } from '@/server/entities/post-version'
 import { Category } from '@/server/entities/category'
 import { generateRandomString } from '@/utils/shared/random'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
@@ -12,9 +11,22 @@ import { PostStatus, POST_STATUS_TRANSITIONS, type PublishIntent } from '@/types
 import { hashPassword } from '@/server/utils/password'
 import { assignDefined } from '@/server/utils/object'
 import { applyPostMetadataPatch } from '@/server/utils/post-metadata'
+import {
+    deletePostVersionService as deletePostVersionServiceImpl,
+    getPostVersionDetailService as getPostVersionDetailServiceImpl,
+    getPostVersionsService as getPostVersionsServiceImpl,
+    recordPostVersionCommit,
+    type PostVersionActor,
+    type PostVersionAuditContext,
+} from '@/server/services/post-version'
 
 type CreatePostInput = z.infer<typeof createPostSchema>
 type UpdatePostInput = z.infer<typeof updatePostSchema>
+
+interface CreatePostOptions {
+    isAdmin: boolean
+    auditContext?: PostVersionAuditContext
+}
 
 /**
  * 内部辅助函数：应用字段变更、处理分类、标签、状态和管理员字段
@@ -154,7 +166,7 @@ async function applyPostChanges(
     }
 }
 
-export const createPostService = async (body: CreatePostInput, authorId: string, options: { isAdmin: boolean }) => {
+export const createPostService = async (body: CreatePostInput, authorId: string, options: CreatePostOptions) => {
     const postRepo = dataSource.getRepository(Post)
 
     // Slug 处理
@@ -179,6 +191,11 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
 
     await applyPostChanges(post, body, options, true)
     await postRepo.save(post)
+
+    await recordPostVersionCommit(post, authorId, {
+        source: 'create',
+        auditContext: options.auditContext,
+    })
 
     // 处理发布后副作用 (Memos 同步, 邮件推送等)
     if (post.status === PostStatus.PUBLISHED) {
@@ -229,6 +246,11 @@ export const updatePostService = async (id: string, body: UpdatePostInput, optio
     await applyPostChanges(post, body, options, false)
     await postRepo.save(post)
 
+    await recordPostVersionCommit(post, options.currentUserId, {
+        source: 'edit',
+        auditContext: options.auditContext,
+    })
+
     // 处理发布后副作用 (仅在文章首次发布时，或者已发布文章修改了同步/推送意图时)
     // 注意：如果是定时发布任务触发的发布，不走此逻辑，而是走任务引擎的 executePublishEffects
     if (currentStatus !== PostStatus.PUBLISHED && post.status === PostStatus.PUBLISHED) {
@@ -240,104 +262,12 @@ export const updatePostService = async (id: string, body: UpdatePostInput, optio
         void executePublishEffects(post, intent)
     }
 
-    // 更新成功后，异步记录版本快照
-    void recordPostVersion(post, options.currentUserId)
-
     return post
 }
 
-/**
- * 记录文章版本快照
- */
-async function recordPostVersion(post: Post, authorId: string) {
-    const versionRepo = dataSource.getRepository(PostVersion)
+export const getPostVersionsService = (postId: string, actor: PostVersionActor) => getPostVersionsServiceImpl(postId, actor)
 
-    // 检查内容是否有变化，如果没有变化则不记录（此处简单对比标题、内容和摘要）
-    const lastVersion = await versionRepo.findOne({
-        where: { postId: post.id },
-        order: { createdAt: 'DESC' },
-    })
+export const getPostVersionDetailService = (postId: string, versionId: string, actor: PostVersionActor) => getPostVersionDetailServiceImpl(postId, versionId, actor)
 
-    if (lastVersion) {
-        if (
-            lastVersion.title === post.title
-            && lastVersion.content === post.content
-            && lastVersion.summary === post.summary
-        ) {
-            return // 内容未发生实质性变化，不创建新版本
-        }
-    }
-
-    const version = new PostVersion()
-    version.postId = post.id
-    version.title = post.title
-    version.content = post.content
-    version.summary = post.summary
-    version.authorId = authorId
-
-    await versionRepo.save(version)
-
-    // 限制版本数量（保留最近 5 个）
-    const count = await versionRepo.count({ where: { postId: post.id } })
-    if (count > 5) {
-        const oldestVersions = await versionRepo.find({
-            where: { postId: post.id },
-            order: { createdAt: 'ASC' },
-            take: count - 5,
-        })
-        if (oldestVersions.length > 0) {
-            await versionRepo.remove(oldestVersions)
-        }
-    }
-}
-
-export const getPostVersionsService = async (postId: string) => {
-    const versionRepo = dataSource.getRepository(PostVersion)
-    return await versionRepo.find({
-        where: { postId },
-        order: { createdAt: 'DESC' },
-        relations: ['author'],
-        select: {
-            id: true,
-            title: true,
-            summary: true,
-            authorId: true,
-            reason: true,
-            createdAt: true,
-            author: {
-                id: true,
-                name: true,
-                image: true,
-            },
-        },
-    })
-}
-
-export const getPostVersionDetailService = async (versionId: string) => {
-    const versionRepo = dataSource.getRepository(PostVersion)
-    const version = await versionRepo.findOne({
-        where: { id: versionId },
-        relations: ['author'],
-    })
-    if (!version) {
-        throw createError({ statusCode: 404, statusMessage: 'Version not found' })
-    }
-    return version
-}
-
-export const deletePostVersionService = async (versionId: string, authorId: string, isAdmin: boolean) => {
-    const versionRepo = dataSource.getRepository(PostVersion)
-    const version = await versionRepo.findOne({ where: { id: versionId } })
-    if (!version) {
-        throw createError({ statusCode: 404, statusMessage: 'Version not found' })
-    }
-
-    // 仅允许管理员或版本创建者删除（实际上通常版本就是作者创建的，但为了安全...）
-    if (version.authorId !== authorId && !isAdmin) {
-        throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-    }
-
-    await versionRepo.remove(version)
-    return { success: true }
-}
+export const deletePostVersionService = (postId: string, actor: PostVersionActor) => deletePostVersionServiceImpl(postId, actor)
 

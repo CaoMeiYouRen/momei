@@ -188,11 +188,20 @@ _(待完善，后续迭代补充)_
 | :---------- | :------- | :--- | :----------------------------- |
 | `id`        | varchar  | Yes  | 主键                           |
 | `postId`    | varchar  | Yes  | 关联的文章 ID                  |
+| `sequence`  | integer  | Yes  | 文章内线性递增版本号           |
+| `parentVersionId` | varchar | No | 上一个版本 ID                 |
+| `restoredFromVersionId` | varchar | No | 恢复来源版本 ID           |
+| `source`    | varchar  | Yes  | 版本来源：create/edit/restore/rollback_recovery |
+| `commitSummary` | varchar | Yes | 提交摘要                     |
+| `changedFields` | json   | Yes  | 变更字段集合                   |
+| `snapshotHash` | varchar | Yes  | 快照哈希，用于幂等保护         |
+| `snapshot`  | json     | Yes  | 结构化文章快照                 |
 | `title`     | varchar  | Yes  | 标题快照                       |
 | `content`   | text     | Yes  | 正文快照                       |
 | `summary`   | text     | No   | 摘要快照                       |
 | `authorId`  | varchar  | Yes  | 本次修改者 ID                  |
-| `reason`    | varchar  | No   | 修改原因                       |
+| `ipAddress` | varchar  | No   | 请求 IP                        |
+| `userAgent` | varchar  | No   | 请求 User-Agent                |
 | `createdAt` | datetime | Yes  | 版本创建时间                   |
 
 #### Category (分类表)

@@ -15,6 +15,10 @@ export default defineEventHandler(async (event) => {
     }, {
         isAdmin: user.role === 'admin',
         currentUserId: user.id,
+        auditContext: {
+            ipAddress: getRequestIP(event, { xForwardedFor: true }) || null,
+            userAgent: getRequestHeader(event, 'user-agent') || null,
+        },
     })
 
     return {

@@ -102,7 +102,6 @@
         <PostHistoryPanel
             v-model:visible="historyVisible"
             :post-id="post.id"
-            :current-content="post.content"
             @restore="handleRestore"
         />
 

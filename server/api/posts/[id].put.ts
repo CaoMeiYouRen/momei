@@ -15,6 +15,10 @@ export default defineEventHandler(async (event) => {
     const post = await updatePostService(id, body, {
         isAdmin: isAdmin(session.user.role),
         currentUserId: session.user.id,
+        auditContext: {
+            ipAddress: getRequestIP(event, { xForwardedFor: true }) || null,
+            userAgent: getRequestHeader(event, 'user-agent') || null,
+        },
     })
 
     return success(post)

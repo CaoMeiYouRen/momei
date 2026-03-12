@@ -34,6 +34,7 @@ import { NotificationDeliveryLog } from '../entities/notification-delivery-log'
 import { WebPushSubscription } from '../entities/web-push-subscription'
 import logger from '../utils/logger'
 import { isServerlessEnvironment } from '../utils/env'
+import { repairLegacyPostVersionRecords } from './post-version-repair'
 import { CustomLogger } from './logger'
 import { SnakeCaseNamingStrategy } from './naming-strategy'
 import { isAdmin } from '@/utils/shared/roles'
@@ -208,6 +209,7 @@ export const initializeDB = async () => {
 
         // 同步管理员角色
         await syncAdminRoles(AppDataSource)
+        await repairLegacyPostVersionRecords(AppDataSource)
 
         // 测试环境时减少日志输出
         if (!isTestEnv) {

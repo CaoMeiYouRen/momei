@@ -14,11 +14,10 @@ export default defineEventHandler(async (event) => {
     // 鉴权
     const session = await requireAdminOrAuthor(event)
 
-    await deletePostVersionService(
-        versionId,
-        session.user.id,
-        isAdmin(session.user.role),
-    )
+    await deletePostVersionService(id, {
+        currentUserId: session.user.id,
+        isAdmin: isAdmin(session.user.role),
+    })
 
     return success({ message: 'Version deleted successfully' })
 })

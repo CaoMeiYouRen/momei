@@ -619,7 +619,40 @@
                 "restore_version": "恢復此版本",
                 "content_preview": "內容預覽",
                 "version_delete_confirm": "確定要永久刪除此版本記錄嗎？",
-                "version_compare": "版本比較"
+                "version_compare": "版本比較",
+                "version_compare_previous": "與上一個版本比較",
+                "version_compare_current": "與目前文章狀態比較",
+                "version_diff_empty": "目前比較結果沒有欄位變化",
+                "version_restore_success": "已恢復該版本並產生新的線性版本紀錄",
+                "version_restore_noop": "目標版本已是最新狀態，未重複產生版本紀錄",
+                "version_restore_failed": "恢復歷史版本失敗",
+                "version_sources": {
+                    "create": "建立",
+                    "edit": "編輯",
+                    "restore": "恢復",
+                    "rollback_recovery": "恢復失敗修復"
+                },
+                "version_fields": {
+                    "title": "標題",
+                    "summary": "摘要",
+                    "content": "正文",
+                    "coverImage": "封面圖",
+                    "categoryId": "分類",
+                    "tagIds": "標籤",
+                    "visibility": "可見性",
+                    "copyright": "版權聲明",
+                    "metadata": "中繼資料"
+                },
+                "version_summaries": {
+                    "create": "初始化版本",
+                    "create_with_fields": "初始化版本：{fields}",
+                    "edit": "更新版本",
+                    "edit_with_fields": "更新欄位：{fields}",
+                    "restore": "恢復版本",
+                    "restore_with_fields": "恢復欄位：{fields}",
+                    "rollback_recovery": "恢復失敗修復版本",
+                    "rollback_recovery_with_fields": "恢復失敗修復：{fields}"
+                }
             },
             "categories": {
                 "title": "分類管理",

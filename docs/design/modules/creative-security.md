@@ -30,24 +30,59 @@
 3.  **任务清除 (Clear)**:
     -   文章成功保存至服务器 (API 返回 200/201) 后，立即清除对应的 LocalStorage 条目。
 
-## 3. 有限版本化管理 (Limited Content Versioning)
+## 3. 线性版本追踪与内容回滚 (Linear Version Tracking)
 
-### 3.1 核心逻辑
+### 3.1 核心模型
 
--   **快照触发**: 每次通过 API 执行保存/更新操作且内容（Title/Content）发生实际变化时，自动创建版本快照。
--   **保留策略**: 每个 `translationId`（或主语言 ID）最多保留 **3-5** 个修改版本。
--   **滚动清理**: 当新版本产生且超出上限时，自动删除该文章下最旧的一个版本。
+-   **单主线提交模型**: `PostVersion` 不再代表“有限快照池”，而是文章级别的不可变线性提交链。每条版本记录都带有 `sequence` 与 `parentVersionId`，只允许沿单主线追加，不引入分支、Cherry-pick 或多头合并语义。
+-   **触发时机**:
+    -   文章首次创建成功后，记录 `create` 版本。
+    -   编辑保存后，只要版本快照实际发生变化，就记录 `edit` 版本。
+    -   从历史版本恢复时，由服务端直接写回文章并同步追加 `restore` 版本，而不是覆盖既有记录。
+-   **幂等保护**: 若重复保存或重复恢复产生的目标快照与最新版本完全一致，则直接返回最新版本，不再重复插入版本记录。
+-   **审计属性**: 版本记录本身即为轻量审计链路，记录操作者、提交摘要、来源类型、恢复来源、请求 IP 与 User-Agent。
 
-### 3.2 数据库 Schema (`PostVersion`)
+### 3.2 快照范围与回滚边界
+
+-   **进入 diff 的字段**: `title`、`summary`、`content`、`coverImage`、`categoryId`、`tagIds`、`visibility`、`copyright`、`metadata`。
+-   **仅做快照展示的字段**: `language`、`translationId`、`metaVersion`。
+-   **不纳入版本恢复的字段**: `slug`、`status`、`publishedAt`、`views`、`authorId`。这些字段继续由当前文章主记录控制，避免恢复历史内容时误伤 SEO 路径、发布状态或统计数据。
+-   **媒体边界**: `metadata` 中的音频/TTS/第三方投递标记进入快照并参与恢复，但恢复操作不会重建已删除的二进制文件，也不会自动补做外部平台回填。
+-   **翻译边界**: `translationId` 与 `language` 作为上下文快照保留，只读展示，不参与恢复写回，避免把文章拉回错误的翻译簇。
+
+### 3.3 数据库 Schema (`PostVersion`)
 
 | 字段名 | 类型 | 必填 | 说明 |
 | :--- | :--- | :--- | :--- |
 | `id` | varchar | Yes | 主键 |
-| `postId` | varchar | Yes | 关联的文章原始 ID |
-| `title` | varchar | Yes | 标题快照 |
-| `content` | text | Yes | 正文快照 |
-| `summary` | text | No | 摘要快照 |
-| `authorId` | varchar | Yes | 执行此次修改的作者 ID |
+| `postId` | varchar | Yes | 关联文章 ID |
+| `sequence` | integer | Yes | 文章内线性递增版本号 |
+| `parentVersionId` | varchar | No | 上一个版本 ID，首个版本为空 |
+| `restoredFromVersionId` | varchar | No | 若为恢复操作，记录恢复来源版本 ID |
+| `source` | varchar | Yes | 版本来源：`create` / `edit` / `restore` / `rollback_recovery` |
+| `commitSummary` | varchar | Yes | 提交摘要 |
+| `changedFields` | json | Yes | 本次变化涉及的字段集合 |
+| `snapshotHash` | varchar | Yes | 版本快照哈希，用于幂等保护 |
+| `snapshot` | json | Yes | 结构化文章快照 |
+| `title` | varchar | Yes | 标题快照冗余字段，便于快速列表展示 |
+| `content` | text | Yes | 正文快照冗余字段，便于快速预览 |
+| `summary` | text | No | 摘要快照冗余字段 |
+| `authorId` | varchar | Yes | 执行本次操作的操作者 ID |
+| `ipAddress` | varchar | No | 请求 IP |
+| `userAgent` | varchar | No | 请求 User-Agent |
+| `createdAt` | datetime | Yes | 版本创建时间 |
+
+### 3.4 交互设计
+
+1.  **历史面板**: 编辑器右侧历史面板展示线性版本列表，至少包含版本号、提交摘要、操作者、时间、来源类型。
+2.  **差异对比**:
+    -   默认支持与相邻父版本对比。
+    -   支持切换为“当前文章状态”或指定历史版本进行比较。
+    -   文字与结构化字段 diff 统一由服务端计算，前端只负责渲染，保证展示口径一致。
+3.  **恢复机制**:
+    -   点击“恢复此版本”后直接调用服务端恢复接口。
+    -   恢复成功后，当前文章内容立刻变为目标版本快照，并自动追加新的 `restore` 版本。
+    -   若最新版本已与目标版本一致，则返回幂等成功提示，不重复生成新版本。
 
 ## 4. 全量文章导出 (Article Export)
 
@@ -61,37 +96,28 @@
 
 ---
 > 关联代码: `composables/use-post-editor-auto-save.ts` | `composables/use-post-export.ts`
-| `reason` | varchar | No | 修改原因/备注 (可选) |
-| `createdAt` | datetime | Yes | 版本生成时间 |
 
-### 3.3 交互设计
-
-1.  **历史面板**: 编辑器侧边栏增加“历史版本”入口。
-2.  **版本对比**:
-    -   支持查看历史版本列表。
-    -   选中某一版本时，展示其内容与当前正文的 **文字差异 (Diff)**。
-3.  **回滚机制**:
-    -   点击“回滚”按钮，将选定版本的内容加载到编辑器。
-    -   **注意**: 回滚操作本身不立即提交数据库，需用户手动点击“保存”以生成新的正文及版本追踪。
-
-## 4. 接口设计 (API Design)
+## 5. 接口设计 (API Design)
 
 ### 4.1 管理端版本接口
 
 -   `GET /api/admin/posts/:id/versions`
-    -   **说明**: 获取指定文章的所有历史版本列表。
+    -   **说明**: 获取指定文章的线性版本历史列表。
 -   `GET /api/admin/posts/:id/versions/:versionId`
-    -   **说明**: 获取特定版本的详细内容。
--   `DELETE /api/admin/posts/:id/versions/:versionId`
-    -   **说明**: 手动删除某个不想要的版本。
+    -   **说明**: 获取特定版本的详细快照。
+-   `GET /api/admin/posts/:id/versions/:versionId/diff`
+    -   **说明**: 获取版本差异；支持与父版本、当前文章状态或指定版本比较。
+-   `POST /api/admin/posts/:id/versions/:versionId/restore`
+    -   **说明**: 将目标版本恢复为当前文章状态，并生成新的线性恢复版本。
 
-## 5. 安全与限制 (Security & Limitations)
+## 6. 安全与限制 (Security & Limitations)
 
--   **配额管理**: 为防止数据库膨胀，强制执行 5 个版本的硬上限。
--   **敏感信息**: 已删除的文章其版本快照应同步执行级联删除或标记清除。
+-   **权限要求**: 仅文章作者本人或管理员可查看历史、对比差异和执行恢复；普通作者不能查看他人的版本历史。
+-   **不可变历史**: 版本记录默认不可手工删除，避免破坏线性审计链。
+-   **敏感信息**: 已删除文章的版本快照按主文章级联删除；版本快照中不额外存储密码字段与其他敏感凭据。
 -   **离线提示**: 自动保存失败（如 Storage 已满）时，应在 UI 给予静默通知，避免阻塞用户输入。
 
-## 6. 后续扩展 (Future Extensions)
+## 7. 后续扩展 (Future Extensions)
 
 -   支持“手动打标”版本，使其不受自动滚动清理影响。
 -   支持导出版本快照为 Markdown 文件。

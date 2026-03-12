@@ -1,7 +1,7 @@
 import { success } from '@/server/utils/response'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
-import { getPostVersionDetailService } from '@/server/services/post'
 import { isAdmin } from '@/utils/shared/roles'
+import { restorePostVersionService } from '@/server/services/post-version'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -11,13 +11,14 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'Post ID and Version ID are required' })
     }
 
-    // 鉴权
     const session = await requireAdminOrAuthor(event)
-
-    const version = await getPostVersionDetailService(id, versionId, {
+    const result = await restorePostVersionService(id, versionId, {
         currentUserId: session.user.id,
         isAdmin: isAdmin(session.user.role),
+    }, {
+        ipAddress: getRequestIP(event, { xForwardedFor: true }) || null,
+        userAgent: getRequestHeader(event, 'user-agent') || null,
     })
 
-    return success(version)
+    return success(result)
 })

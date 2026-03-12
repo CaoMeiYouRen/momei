@@ -259,10 +259,29 @@ export function usePostEditorPage() {
         }
     }
 
-    const handleRestore = (data: { title: string, content: string, summary: string | null }) => {
+    const handleRestore = (data: {
+        title: string
+        content: string
+        summary: string | null
+        coverImage: string | null
+        categoryId: string | null
+        visibility: PostVisibility
+        copyright: string | null
+        metaVersion: number
+        metadata: PostEditorData['metadata']
+        tags: string[]
+    }) => {
         post.value.title = data.title
         post.value.content = data.content
         post.value.summary = data.summary
+        post.value.coverImage = data.coverImage
+        post.value.categoryId = data.categoryId
+        post.value.visibility = data.visibility
+        post.value.copyright = data.copyright
+        post.value.metaVersion = data.metaVersion
+        post.value.metadata = data.metadata
+        post.value.tags = data.tags
+        clearLocalDraft()
     }
 
     const loadPost = async () => {

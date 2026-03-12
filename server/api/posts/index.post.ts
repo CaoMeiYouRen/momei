@@ -10,6 +10,10 @@ export default defineEventHandler(async (event) => {
 
     const post = await createPostService(body, user.id, {
         isAdmin: isAdmin(user.role),
+        auditContext: {
+            ipAddress: getRequestIP(event, { xForwardedFor: true }) || null,
+            userAgent: getRequestHeader(event, 'user-agent') || null,
+        },
     })
 
     return {

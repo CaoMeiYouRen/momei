@@ -619,7 +619,40 @@
                 "restore_version": "Restore this version",
                 "content_preview": "Content Preview",
                 "version_delete_confirm": "Are you sure you want to permanently delete this version?",
-                "version_compare": "Compare Versions"
+                "version_compare": "Compare Versions",
+                "version_compare_previous": "Compare With Previous Version",
+                "version_compare_current": "Compare With Current Post State",
+                "version_diff_empty": "No field changes were found for the current comparison.",
+                "version_restore_success": "The selected version has been restored and a new linear version record was created.",
+                "version_restore_noop": "The selected version already matches the latest state, so no duplicate version was created.",
+                "version_restore_failed": "Failed to restore the selected version.",
+                "version_sources": {
+                    "create": "Created",
+                    "edit": "Edited",
+                    "restore": "Restored",
+                    "rollback_recovery": "Rollback Recovery"
+                },
+                "version_fields": {
+                    "title": "Title",
+                    "summary": "Summary",
+                    "content": "Content",
+                    "coverImage": "Cover Image",
+                    "categoryId": "Category",
+                    "tagIds": "Tags",
+                    "visibility": "Visibility",
+                    "copyright": "Copyright",
+                    "metadata": "Metadata"
+                },
+                "version_summaries": {
+                    "create": "Initial version",
+                    "create_with_fields": "Initial version: {fields}",
+                    "edit": "Updated version",
+                    "edit_with_fields": "Updated fields: {fields}",
+                    "restore": "Restored version",
+                    "restore_with_fields": "Restored fields: {fields}",
+                    "rollback_recovery": "Recovery version",
+                    "rollback_recovery_with_fields": "Recovery fields: {fields}"
+                }
             },
             "categories": {
                 "title": "Categories Management",

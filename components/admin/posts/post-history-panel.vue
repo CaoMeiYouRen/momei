@@ -24,13 +24,18 @@
             >
                 <div class="history-item__main" @click="selectVersion(version)">
                     <div class="history-item__header">
-                        <span class="history-item__time">{{ formatDateTime(version.createdAt) }}</span>
+                        <div class="history-item__meta">
+                            <span class="history-item__sequence">#{{ version.sequence }}</span>
+                            <span class="history-item__time">{{ formatDateTime(version.createdAt) }}</span>
+                        </div>
                         <Tag
-                            v-if="version.reason"
-                            :value="version.reason"
-                            severity="info"
+                            :value="getSourceLabel(version.source)"
+                            :severity="getSourceSeverity(version.source)"
                             size="small"
                         />
+                    </div>
+                    <div class="history-item__summary">
+                        {{ getSummaryLabel(version) }}
                     </div>
                     <div class="history-item__footer">
                         <div class="history-item__author">
@@ -44,16 +49,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="history-item__actions">
-                    <Button
-                        v-tooltip="$t('common.delete')"
-                        icon="pi pi-trash"
-                        text
-                        rounded
-                        severity="danger"
-                        @click="confirmDelete(version)"
-                    />
-                </div>
             </div>
         </div>
 
@@ -62,41 +57,55 @@
                 <div class="history-panel__selected-info">
                     <div class="history-panel__compare-header">
                         <h4 class="history-panel__selected-title">
-                            {{ selectedVersion.title }}
+                            {{ selectedVersion.snapshot.title }}
                         </h4>
                         <div class="history-panel__compare-controls">
                             <span class="history-panel__compare-label">{{ $t('pages.admin.posts.version_compare') }}</span>
-                            <ToggleSwitch v-model="showDiff" class="history-panel__switch" />
+                            <Select
+                                v-model="compareTarget"
+                                :options="compareOptions"
+                                option-label="label"
+                                option-value="value"
+                                class="history-panel__compare-select"
+                            />
                         </div>
                     </div>
 
-                    <div v-if="showDiff" class="history-panel__diff-container">
+                    <div v-if="diffLoading" class="history-panel__loading">
+                        <ProgressSpinner />
+                    </div>
+                    <div v-else-if="!changedDiffItems.length" class="history-panel__empty-diff">
+                        {{ $t('pages.admin.posts.version_diff_empty') }}
+                    </div>
+                    <div v-else class="history-panel__diff-container">
                         <div
-                            v-for="(part, index) in diffs"
-                            :key="index"
-                            class="history-panel__diff-part"
-                            :class="{
-                                'history-panel__diff-part--added': part.added,
-                                'history-panel__diff-part--removed': part.removed
-                            }"
+                            v-for="item in changedDiffItems"
+                            :key="item.field"
+                            class="history-panel__diff-group"
                         >
-                            {{ part.value }}
+                            <div class="history-panel__diff-label">
+                                {{ getFieldLabel(item.field) }}
+                            </div>
+                            <div
+                                v-for="(part, index) in item.parts"
+                                :key="`${item.field}-${index}`"
+                                class="history-panel__diff-part"
+                                :class="{
+                                    'history-panel__diff-part--added': part.added,
+                                    'history-panel__diff-part--removed': part.removed
+                                }"
+                            >
+                                {{ part.value }}
+                            </div>
                         </div>
                     </div>
-                    <template v-else>
-                        <div class="history-panel__preview-label">
-                            {{ $t('pages.admin.posts.content_preview') }}
-                        </div>
-                        <div class="history-panel__preview-box">
-                            {{ selectedVersion.content.substring(0, 500) }}...
-                        </div>
-                    </template>
                 </div>
                 <div class="history-panel__footer-actions">
                     <Button
                         :label="$t('pages.admin.posts.restore_version')"
                         icon="pi pi-replay"
                         class="history-panel__btn-restore"
+                        :loading="restoring"
                         @click="restoreConfirm"
                     />
                     <Button
@@ -113,15 +122,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import { useI18n } from 'vue-i18n'
-import { diffLines } from 'diff'
+import type { ApiResponse } from '@/types/api'
+import {
+    PostVersionDiffField,
+    PostVersionSource,
+    type PostVersionDetail,
+    type PostVersionDiffItem,
+    type PostVersionDiffPayload,
+    type PostVersionListItem,
+    type PostVersionRestoreResult,
+} from '@/types/post-version'
 
 const props = defineProps<{
     postId: string | null | undefined
-    currentContent: string | null | undefined
 }>()
 
 const visible = defineModel<boolean>('visible', { default: false })
@@ -132,24 +149,46 @@ const toast = useToast()
 const confirm = useConfirm()
 const { formatDateTime } = useI18nDate()
 
-const versions = ref<any[]>([])
+const versions = ref<PostVersionListItem[]>([])
 const loading = ref(false)
-const selectedVersion = ref<any>(null)
-const showDiff = ref(true)
+const diffLoading = ref(false)
+const restoring = ref(false)
+const selectedVersion = ref<PostVersionDetail | null>(null)
+const diffPayload = ref<PostVersionDiffPayload | null>(null)
+const compareTarget = ref<string>('parent')
 
-const diffs = computed(() => {
-    if (!selectedVersion.value || props.currentContent === undefined) return []
-    // 注意：diffLines 比较的是 历史版本内容(old) vs 当前编辑器内容(new)
-    // 红色(removed) 表示历史版本独有，绿色(added) 表示当前版本独有
-    return diffLines(selectedVersion.value.content || '', props.currentContent || '')
+const changedDiffItems = computed<PostVersionDiffItem[]>(() => {
+    return (diffPayload.value?.items || []).filter((item) => item.changed)
+})
+
+const compareOptions = computed(() => {
+    const selectedId = selectedVersion.value?.id
+
+    return [
+        {
+            label: t('pages.admin.posts.version_compare_previous'),
+            value: 'parent',
+        },
+        {
+            label: t('pages.admin.posts.version_compare_current'),
+            value: 'current',
+        },
+        ...versions.value
+            .filter((version) => version.id !== selectedId)
+            .map((version) => ({
+                label: `#${version.sequence} ${getSummaryLabel(version)}`,
+                value: version.id,
+            })),
+    ]
 })
 
 const fetchVersions = async () => {
     if (!props.postId) return
+
     loading.value = true
     try {
-        const { data } = await $fetch<any>(`/api/admin/posts/${props.postId}/versions`)
-        versions.value = data
+        const response = await $fetch<ApiResponse<PostVersionListItem[]>>(`/api/admin/posts/${props.postId}/versions`)
+        versions.value = response.data || []
     } catch (error) {
         console.error('Failed to fetch versions', error)
         toast.add({
@@ -163,44 +202,40 @@ const fetchVersions = async () => {
     }
 }
 
-const selectVersion = async (version: any) => {
+const fetchDiff = async () => {
+    if (!props.postId || !selectedVersion.value) return
+
+    diffLoading.value = true
     try {
-        const { data } = await $fetch<any>(`/api/admin/posts/${props.postId}/versions/${version.id}`)
-        selectedVersion.value = data
+        const query = compareTarget.value === 'current'
+            ? { compareToCurrent: 'true' }
+            : compareTarget.value === 'parent'
+                ? undefined
+                : { compareToVersionId: compareTarget.value }
+
+        const response = await $fetch<ApiResponse<PostVersionDiffPayload>>(`/api/admin/posts/${props.postId}/versions/${selectedVersion.value.id}/diff`, {
+            query,
+        })
+        diffPayload.value = response.data || null
     } catch (error) {
-        console.error('Failed to fetch version detail', error)
+        console.error('Failed to fetch version diff', error)
+        diffPayload.value = null
+    } finally {
+        diffLoading.value = false
     }
 }
 
-const confirmDelete = (version: any) => {
-    confirm.require({
-        message: t('pages.admin.posts.version_delete_confirm'),
-        header: t('common.confirm_delete'),
-        icon: 'pi pi-exclamation-triangle',
-        acceptProps: {
-            label: t('common.delete'),
-            severity: 'danger',
-        },
-        accept: async () => {
-            try {
-                await $fetch(`/api/admin/posts/${props.postId}/versions/${version.id}`, {
-                    method: 'DELETE',
-                })
-                versions.value = versions.value.filter((v) => v.id !== version.id)
-                if (selectedVersion.value?.id === version.id) {
-                    selectedVersion.value = null
-                }
-                toast.add({
-                    severity: 'success',
-                    summary: t('common.success'),
-                    detail: t('common.save_success'),
-                    life: 3000,
-                })
-            } catch (error) {
-                console.error('Failed to delete version', error)
-            }
-        },
-    })
+const selectVersion = async (version: PostVersionListItem) => {
+    if (!props.postId) return
+
+    try {
+        const response = await $fetch<ApiResponse<PostVersionDetail>>(`/api/admin/posts/${props.postId}/versions/${version.id}`)
+        selectedVersion.value = response.data || null
+        compareTarget.value = version.parentVersionId ? 'parent' : 'current'
+        await fetchDiff()
+    } catch (error) {
+        console.error('Failed to fetch version detail', error)
+    }
 }
 
 const restoreConfirm = () => {
@@ -208,32 +243,80 @@ const restoreConfirm = () => {
         message: t('pages.admin.posts.version_rollback_confirm'),
         header: t('common.confirmation'),
         icon: 'pi pi-replay',
-        accept: () => {
-            restoreVersion()
-        },
+        accept: () => restoreVersion(),
     })
 }
 
-const restoreVersion = () => {
-    if (!selectedVersion.value) return
-    emit('restore', {
-        title: selectedVersion.value.title,
-        content: selectedVersion.value.content,
-        summary: selectedVersion.value.summary,
-    })
-    visible.value = false
-    toast.add({
-        severity: 'success',
-        summary: t('common.success'),
-        detail: t('pages.admin.posts.version_rollback_success'),
-        life: 3000,
-    })
+const restoreVersion = async () => {
+    if (!props.postId || !selectedVersion.value) return
+
+    restoring.value = true
+    try {
+        const response = await $fetch<ApiResponse<PostVersionRestoreResult>>(`/api/admin/posts/${props.postId}/versions/${selectedVersion.value.id}/restore`, {
+            method: 'POST',
+        })
+
+        if (response.data) {
+            emit('restore', response.data.post)
+            await fetchVersions()
+            visible.value = false
+            toast.add({
+                severity: 'success',
+                summary: t('common.success'),
+                detail: response.data.restored
+                    ? t('pages.admin.posts.version_restore_success')
+                    : t('pages.admin.posts.version_restore_noop'),
+                life: 3000,
+            })
+        }
+    } catch (error) {
+        console.error('Failed to restore version', error)
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: t('pages.admin.posts.version_restore_failed'),
+            life: 3000,
+        })
+    } finally {
+        restoring.value = false
+    }
 }
 
-watch(visible, (newVal) => {
-    if (newVal) {
-        fetchVersions()
+const getSourceLabel = (source: PostVersionSource) => t(`pages.admin.posts.version_sources.${source}`)
+
+const getSourceSeverity = (source: PostVersionSource) => {
+    const severityMap: Record<PostVersionSource, 'success' | 'info' | 'warn' | 'secondary'> = {
+        [PostVersionSource.CREATE]: 'success',
+        [PostVersionSource.EDIT]: 'info',
+        [PostVersionSource.RESTORE]: 'warn',
+        [PostVersionSource.ROLLBACK_RECOVERY]: 'secondary',
+    }
+
+    return severityMap[source]
+}
+
+const getFieldLabel = (field: PostVersionDiffField) => t(`pages.admin.posts.version_fields.${field}`)
+
+const getSummaryLabel = (version: PostVersionListItem | PostVersionDetail) => {
+    if (!version.changedFields?.length) {
+        return t(`pages.admin.posts.version_summaries.${version.source}`)
+    }
+
+    const fields = version.changedFields.map((field) => getFieldLabel(field)).join(' / ')
+    return t(`pages.admin.posts.version_summaries.${version.source}_with_fields`, { fields })
+}
+
+watch(visible, (newValue) => {
+    if (newValue) {
+        void fetchVersions()
         selectedVersion.value = null
+        diffPayload.value = null
+    }
+})
+
+watch(compareTarget, () => {
+    if (selectedVersion.value) {
+        void fetchDiff()
     }
 })
 </script>
@@ -289,13 +372,12 @@ watch(visible, (newVal) => {
     }
 
     &__selected-title {
-        font-weight: 700;
+        max-width: 300px;
         margin: 0;
         font-size: 1.125rem;
+        font-weight: 700;
 
         @include text-ellipsis;
-
-        max-width: 300px;
     }
 
     &__compare-controls {
@@ -310,8 +392,8 @@ watch(visible, (newVal) => {
         color: var(--p-text-color-secondary);
     }
 
-    &__switch {
-        transform: scale(0.9);
+    &__compare-select {
+        min-width: 12rem;
     }
 
     &__diff-container {
@@ -320,12 +402,24 @@ watch(visible, (newVal) => {
         padding: 1rem;
         border-radius: $border-radius-md;
         font-family: var(--p-font-family-monospace);
-        max-height: 40vh; /* 限制对比区域高度，超过则内部滚动 */
+        max-height: 40vh;
         overflow-y: auto;
         border: 1px solid var(--p-surface-200);
         font-size: 0.85rem;
         white-space: pre-wrap;
         word-break: break-all;
+    }
+
+    &__diff-group + &__diff-group {
+        margin-top: 1.25rem;
+        padding-top: 1.25rem;
+        border-top: 1px dashed var(--p-surface-300);
+    }
+
+    &__diff-label {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--p-text-color);
     }
 
     &__diff-part {
@@ -353,25 +447,9 @@ watch(visible, (newVal) => {
         }
     }
 
-    &__preview-label {
-        font-weight: 500;
-        font-size: 0.875rem;
-        color: var(--p-text-color-secondary);
-        margin-bottom: 0.75rem;
-    }
-
-    &__preview-box {
-        background-color: var(--p-surface-ground);
+    &__empty-diff {
         padding: 1rem;
-        border-radius: $border-radius-md;
-        font-family: var(--p-font-family-monospace);
-        font-size: 0.85rem;
-        white-space: pre-wrap;
-        word-break: break-all;
-        max-height: 250px;
-        overflow-y: auto;
         color: var(--p-text-color-secondary);
-        border: 1px solid var(--p-surface-border);
     }
 
     &__footer-actions {
@@ -431,10 +509,7 @@ watch(visible, (newVal) => {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-
-    /* 大幅增加底部内边距，确保底部项目不会被展开的对比面板遮挡 */
     padding-bottom: 350px;
-    transition: padding-bottom 0.3s ease;
 }
 
 .history-item {
@@ -444,8 +519,6 @@ watch(visible, (newVal) => {
     border-radius: var(--p-content-border-radius);
     overflow: hidden;
     transition: all 0.2s ease;
-
-    /* 增加右侧间距，避免在大滚动条环境下删除按钮太靠边 */
     margin-right: 0.75rem;
 
     &:hover {
@@ -470,12 +543,31 @@ watch(visible, (newVal) => {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: 0.75rem;
         margin-bottom: 0.65rem;
+    }
+
+    &__meta {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    &__sequence {
+        font-weight: 700;
+        color: var(--p-primary-color);
     }
 
     &__time {
         font-weight: 600;
         font-size: 0.95rem;
+        color: var(--p-text-color);
+    }
+
+    &__summary {
+        margin-bottom: 0.65rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
         color: var(--p-text-color);
     }
 
@@ -490,14 +582,6 @@ watch(visible, (newVal) => {
         gap: 0.6rem;
         font-size: 0.825rem;
         color: var(--p-text-color-secondary);
-    }
-
-    &__actions {
-        padding: 0.5rem;
-        padding-right: 1.25rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 }
 

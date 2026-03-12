@@ -619,7 +619,40 @@
                 "restore_version": "이 버전 복원",
                 "content_preview": "내용 미리보기",
                 "version_delete_confirm": "이 버전을 영구 삭제하시겠습니까?",
-                "version_compare": "버전 비교"
+                "version_compare": "버전 비교",
+                "version_compare_previous": "이전 버전과 비교",
+                "version_compare_current": "현재 게시글 상태와 비교",
+                "version_diff_empty": "현재 비교에서 변경된 필드가 없습니다.",
+                "version_restore_success": "선택한 버전을 복원했고 새로운 선형 버전 기록을 생성했습니다.",
+                "version_restore_noop": "선택한 버전이 이미 최신 상태와 같아서 중복 버전을 만들지 않았습니다.",
+                "version_restore_failed": "선택한 버전을 복원하지 못했습니다.",
+                "version_sources": {
+                    "create": "생성",
+                    "edit": "편집",
+                    "restore": "복원",
+                    "rollback_recovery": "복원 실패 복구"
+                },
+                "version_fields": {
+                    "title": "제목",
+                    "summary": "요약",
+                    "content": "본문",
+                    "coverImage": "커버 이미지",
+                    "categoryId": "카테고리",
+                    "tagIds": "태그",
+                    "visibility": "공개 범위",
+                    "copyright": "저작권",
+                    "metadata": "메타데이터"
+                },
+                "version_summaries": {
+                    "create": "초기 버전",
+                    "create_with_fields": "초기 버전: {fields}",
+                    "edit": "수정 버전",
+                    "edit_with_fields": "수정된 필드: {fields}",
+                    "restore": "복원 버전",
+                    "restore_with_fields": "복원된 필드: {fields}",
+                    "rollback_recovery": "복구 버전",
+                    "rollback_recovery_with_fields": "복구 필드: {fields}"
+                }
             },
             "categories": {
                 "title": "카테고리 관리",

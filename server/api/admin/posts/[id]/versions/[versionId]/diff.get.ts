@@ -1,7 +1,7 @@
 import { success } from '@/server/utils/response'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
-import { getPostVersionDetailService } from '@/server/services/post'
 import { isAdmin } from '@/utils/shared/roles'
+import { getPostVersionDiffService } from '@/server/services/post-version'
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
@@ -11,13 +11,18 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'Post ID and Version ID are required' })
     }
 
-    // 鉴权
     const session = await requireAdminOrAuthor(event)
+    const query = getQuery(event)
+    const compareToVersionId = typeof query.compareToVersionId === 'string' ? query.compareToVersionId : null
+    const compareToCurrent = query.compareToCurrent === 'true'
 
-    const version = await getPostVersionDetailService(id, versionId, {
+    const diff = await getPostVersionDiffService(id, versionId, {
         currentUserId: session.user.id,
         isAdmin: isAdmin(session.user.role),
+    }, {
+        compareToVersionId,
+        compareToCurrent,
     })
 
-    return success(version)
+    return success(diff)
 })
