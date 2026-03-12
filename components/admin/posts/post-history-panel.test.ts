@@ -220,7 +220,12 @@ describe('PostHistoryPanel', () => {
         await flushPromises()
         expect(mockAppFetch).toHaveBeenCalledWith('/api/admin/posts/post-1/versions/version-1')
 
-        const restoreButton = wrapper.findAll('button')[0]
+        const restoreButton = wrapper.findAll('button').at(0)
+        expect(restoreButton).toBeDefined()
+        if (!restoreButton) {
+            throw new Error('Restore button not found')
+        }
+
         await restoreButton.trigger('click')
         await flushPromises()
 

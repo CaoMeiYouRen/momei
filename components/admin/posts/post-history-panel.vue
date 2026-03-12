@@ -40,7 +40,7 @@
                     <div class="history-item__footer">
                         <div class="history-item__author">
                             <Avatar
-                                :image="version.author?.image"
+                                :image="version.author?.image || undefined"
                                 :label="version.author?.name?.charAt(0)"
                                 size="small"
                                 shape="circle"

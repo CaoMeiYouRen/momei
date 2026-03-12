@@ -108,12 +108,12 @@ function toDurationSeconds(value: unknown) {
     }
 
     if (segments.length === 2) {
-        const [minutes, seconds] = segments
+        const [minutes = 0, seconds = 0] = segments
         return minutes * 60 + seconds
     }
 
     if (segments.length === 3) {
-        const [hours, minutes, seconds] = segments
+        const [hours = 0, minutes = 0, seconds = 0] = segments
         return hours * 3600 + minutes * 60 + seconds
     }
 

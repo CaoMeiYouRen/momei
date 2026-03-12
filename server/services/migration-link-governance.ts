@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+
 import { createHash } from 'node:crypto'
 import { createError } from 'h3'
 import { In } from 'typeorm'
@@ -11,7 +13,6 @@ import { getSettings } from '@/server/services/setting'
 import { getUploadStorageContext, resolveUploadedFileUrl } from '@/server/services/upload'
 import { isAdmin } from '@/utils/shared/roles'
 import { SettingKey } from '@/types/setting'
-import type { PostMetadata } from '@/types/post'
 import {
     LINK_GOVERNANCE_CONTENT_TYPES,
     STATIC_PAGE_ROUTE_MAP,
@@ -229,7 +230,15 @@ function getManagedBaseUrls(storageContext: Awaited<ReturnType<typeof getUploadS
         .map((url) => url.trim())
 }
 
-function deriveObjectKeyFromAssetUrl(value: string, sourceKind: LinkGovernanceSourceKind, runtime: GovernanceRuntimeContext, options: LinkGovernanceRequestOptions | undefined, field: LinkCandidate['field'], filters?: LinkGovernanceRequestFilters) {
+function deriveObjectKeyFromAssetUrl(params: {
+    value: string
+    sourceKind: LinkGovernanceSourceKind
+    runtime: GovernanceRuntimeContext
+    options: LinkGovernanceRequestOptions | undefined
+    field: LinkCandidate['field']
+    filters?: LinkGovernanceRequestFilters
+}) {
+    const { value, sourceKind, runtime, options, field, filters } = params
     const candidatePath = getCandidatePath(value, sourceKind)
     const candidateDomain = getCandidateDomain(value)
     const managedBaseUrls = getManagedBaseUrls(runtime.storageContext)
@@ -615,7 +624,7 @@ function resolveCanonicalRoute(pathname: string, runtime: GovernanceRuntimeConte
         }
     }
 
-    for (const [pageKey, routePath] of Object.entries(STATIC_PAGE_ROUTE_MAP)) {
+    for (const routePath of Object.values(STATIC_PAGE_ROUTE_MAP)) {
         if (trimTrailingSlash(routePath) === normalized) {
             return {
                 targetValue: routePath,
@@ -629,6 +638,10 @@ function resolveCanonicalRoute(pathname: string, runtime: GovernanceRuntimeConte
     const postMatch = /^\/posts\/([^/]+)$/.exec(normalized)
     if (postMatch) {
         const key = postMatch[1]
+        if (!key) {
+            return null
+        }
+
         const post = runtime.entityMaps.postBySlug.get(key) || runtime.entityMaps.postById.get(key)
         if (!post) {
             return null
@@ -646,7 +659,12 @@ function resolveCanonicalRoute(pathname: string, runtime: GovernanceRuntimeConte
 
     const categoryMatch = /^\/categories\/([^/]+)$/.exec(normalized)
     if (categoryMatch) {
-        const category = runtime.entityMaps.categoryBySlug.get(categoryMatch[1])
+        const categorySlug = categoryMatch[1]
+        if (!categorySlug) {
+            return null
+        }
+
+        const category = runtime.entityMaps.categoryBySlug.get(categorySlug)
         if (!category) {
             return null
         }
@@ -661,7 +679,12 @@ function resolveCanonicalRoute(pathname: string, runtime: GovernanceRuntimeConte
 
     const tagMatch = /^\/tags\/([^/]+)$/.exec(normalized)
     if (tagMatch) {
-        const tag = runtime.entityMaps.tagBySlug.get(tagMatch[1])
+        const tagSlug = tagMatch[1]
+        if (!tagSlug) {
+            return null
+        }
+
+        const tag = runtime.entityMaps.tagBySlug.get(tagSlug)
         if (!tag) {
             return null
         }
@@ -743,7 +766,14 @@ async function resolveCandidate(candidate: LinkCandidate, runtime: GovernanceRun
         }
     }
 
-    const objectKey = deriveObjectKeyFromAssetUrl(candidate.value, candidate.sourceKind, runtime, options, candidate.field, request.filters)
+    const objectKey = deriveObjectKeyFromAssetUrl({
+        value: candidate.value,
+        sourceKind: candidate.sourceKind,
+        runtime,
+        options,
+        field: candidate.field,
+        filters: request.filters,
+    })
     if (objectKey && request.scopes.includes('asset-url')) {
         const targetValue = resolveUploadedFileUrl(objectKey, runtime.storageContext)
         const status = targetValue === candidate.value ? 'unchanged' : 'rewritten'
@@ -824,7 +854,7 @@ function collectContentCandidates(content: string): LinkCandidate[] {
     const htmlCandidates = Array.from(content.matchAll(/\b(?:src|href)=['"]([^'"]+)['"]/gi), (match) => match[1])
     const values = Array.from(new Set([...markdownCandidates, ...htmlCandidates].filter(Boolean)))
 
-    return values.map((value) => ({
+    return values.filter((value): value is string => typeof value === 'string').map((value) => ({
         value,
         sourceKind: getSourceKind(value),
         field: 'content' as const,

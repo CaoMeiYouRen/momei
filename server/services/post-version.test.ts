@@ -14,6 +14,18 @@ vi.mock('@/server/database', () => ({
     },
 }))
 
+function getEntityName(entity: unknown) {
+    if (typeof entity === 'function') {
+        return entity.name
+    }
+
+    if (entity && typeof entity === 'object' && 'name' in entity && typeof entity.name === 'string') {
+        return entity.name
+    }
+
+    return undefined
+}
+
 function createSnapshot(overrides: Partial<PostVersionSnapshot> = {}): PostVersionSnapshot {
     return {
         title: 'Old title',
@@ -85,8 +97,10 @@ describe('post-version service', () => {
             }),
         }
 
-        vi.mocked(dataSource.getRepository).mockImplementation((entity: { name?: string }) => {
-            if (entity.name === 'PostVersion') {
+        vi.mocked(dataSource.getRepository).mockImplementation((entity) => {
+            const entityName = getEntityName(entity)
+
+            if (entityName === 'PostVersion') {
                 return versionRepo as never
             }
 
@@ -108,10 +122,17 @@ describe('post-version service', () => {
         expect(firstResult.created).toBe(true)
         expect(secondResult.created).toBe(true)
         expect(versionStore).toHaveLength(2)
-        expect(versionStore[0].sequence).toBe(1)
-        expect(versionStore[1].sequence).toBe(2)
-        expect(versionStore[1].parentVersionId).toBe(versionStore[0].id)
-        expect(versionStore[1].source).toBe(PostVersionSource.EDIT)
+        const [firstVersion, secondVersion] = versionStore
+        expect(firstVersion).toBeDefined()
+        expect(secondVersion).toBeDefined()
+        if (!firstVersion || !secondVersion) {
+            throw new Error('Expected two stored versions')
+        }
+
+        expect(firstVersion.sequence).toBe(1)
+        expect(secondVersion.sequence).toBe(2)
+        expect(secondVersion.parentVersionId).toBe(firstVersion.id)
+        expect(secondVersion.source).toBe(PostVersionSource.EDIT)
         expect(secondResult.version.changedFields).toContain(PostVersionDiffField.CONTENT)
     })
 
@@ -151,12 +172,14 @@ describe('post-version service', () => {
             }),
         }
 
-        vi.mocked(dataSource.getRepository).mockImplementation((entity: { name?: string }) => {
-            if (entity.name === 'Post') {
+        vi.mocked(dataSource.getRepository).mockImplementation((entity) => {
+            const entityName = getEntityName(entity)
+
+            if (entityName === 'Post') {
                 return postRepo as never
             }
 
-            if (entity.name === 'PostVersion') {
+            if (entityName === 'PostVersion') {
                 return versionRepo as never
             }
 
@@ -261,16 +284,18 @@ describe('post-version service', () => {
             findBy: vi.fn().mockResolvedValue([{ id: 'tag-1', name: 'Tag 1' }]),
         }
 
-        vi.mocked(dataSource.getRepository).mockImplementation((entity: { name?: string }) => {
-            if (entity.name === 'Post') {
+        vi.mocked(dataSource.getRepository).mockImplementation((entity) => {
+            const entityName = getEntityName(entity)
+
+            if (entityName === 'Post') {
                 return postRepo as never
             }
 
-            if (entity.name === 'PostVersion') {
+            if (entityName === 'PostVersion') {
                 return versionRepo as never
             }
 
-            if (entity.name === 'Tag') {
+            if (entityName === 'Tag') {
                 return tagRepo as never
             }
 
@@ -290,8 +315,14 @@ describe('post-version service', () => {
         expect(result.post.content).toBe('Old content')
         expect(result.post.tags).toEqual(['Tag 1'])
         expect(versionStore).toHaveLength(3)
-        expect(versionStore[2].source).toBe(PostVersionSource.RESTORE)
-        expect(versionStore[2].restoredFromVersionId).toBe('version-1')
+        const restoreVersion = versionStore[2]
+        expect(restoreVersion).toBeDefined()
+        if (!restoreVersion) {
+            throw new Error('Expected restore version to be saved')
+        }
+
+        expect(restoreVersion.source).toBe(PostVersionSource.RESTORE)
+        expect(restoreVersion.restoredFromVersionId).toBe('version-1')
     })
 
     it('should no-op when restoring the latest snapshot again', async () => {
@@ -330,21 +361,24 @@ describe('post-version service', () => {
                     return Promise.resolve(versionStore.find((item) => item.id === where.id && item.postId === where.postId) || null)
                 }
 
-                return Promise.resolve(versionStore[0])
+                const [latestVersion] = versionStore
+                return Promise.resolve(latestVersion || null)
             }),
             save: vi.fn(),
         }
 
-        vi.mocked(dataSource.getRepository).mockImplementation((entity: { name?: string }) => {
-            if (entity.name === 'Post') {
+        vi.mocked(dataSource.getRepository).mockImplementation((entity) => {
+            const entityName = getEntityName(entity)
+
+            if (entityName === 'Post') {
                 return postRepo as never
             }
 
-            if (entity.name === 'PostVersion') {
+            if (entityName === 'PostVersion') {
                 return versionRepo as never
             }
 
-            if (entity.name === 'Tag') {
+            if (entityName === 'Tag') {
                 return {
                     findBy: vi.fn().mockResolvedValue([]),
                 } as never

@@ -50,6 +50,11 @@ describe('admin link governance reports api', () => {
             status: 'completed',
         })
         expect(result.code).toBe(200)
+        expect(result.data).toBeDefined()
+        if (!result.data) {
+            throw new Error('Expected list result data')
+        }
+
         expect(result.data.page).toBe(2)
     })
 
@@ -88,6 +93,11 @@ describe('admin link governance reports api', () => {
             role: 'admin',
         })
         expect(result.code).toBe(200)
+        expect(result.data).toBeDefined()
+        if (!result.data) {
+            throw new Error('Expected detail result data')
+        }
+
         expect(result.data.reportId).toBe('report-1')
     })
 })

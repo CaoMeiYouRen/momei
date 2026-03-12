@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import type { PostMetadata, PostVisibility } from '@/types/post'
+import { PostVisibility, type PostMetadata } from '@/types/post'
 import { PostVersionDiffField, type PostVersionSnapshot, type PostVersionSource } from '@/types/post-version'
 
 export interface PostVersionSnapshotLike {
@@ -67,7 +67,7 @@ export function buildPostVersionSnapshot(input: PostVersionSnapshotLike): PostVe
         coverImage: input.coverImage ?? null,
         categoryId: input.categoryId ?? null,
         tagIds: normalizeTagIds(input),
-        visibility: input.visibility || 'public',
+        visibility: input.visibility ?? PostVisibility.PUBLIC,
         copyright: input.copyright ?? null,
         metaVersion: input.metaVersion || 1,
         metadata: cloneMetadata(input.metadata),

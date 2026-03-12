@@ -1,5 +1,6 @@
 export * from './base'
 export * from './text'
+export * from './post-automation'
 export * from './image'
 export * from './asr'
 export * from './tts'

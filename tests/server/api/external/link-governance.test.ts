@@ -48,6 +48,11 @@ describe('external link governance api', () => {
         expect(validateApiKeyRequest).toHaveBeenCalled()
         expect(runLinkGovernanceDryRun).toHaveBeenCalledWith(expect.objectContaining({ scopes: ['post-link'] }), 'user-1')
         expect(result.code).toBe(200)
+        expect(result.data).toBeDefined()
+        if (!result.data) {
+            throw new Error('Expected dry-run data')
+        }
+
         expect(result.data.reportId).toBe('report-1')
     })
 
@@ -66,6 +71,11 @@ describe('external link governance api', () => {
 
         expect(runLinkGovernanceApply).toHaveBeenCalledWith(expect.objectContaining({ scopes: ['asset-url'] }), 'user-1')
         expect(result.code).toBe(200)
+        expect(result.data).toBeDefined()
+        if (!result.data) {
+            throw new Error('Expected apply data')
+        }
+
         expect(result.data.reportId).toBe('report-2')
     })
 
@@ -86,6 +96,11 @@ describe('external link governance api', () => {
             role: 'admin',
         })
         expect(result.code).toBe(200)
+        expect(result.data).toBeDefined()
+        if (!result.data) {
+            throw new Error('Expected report detail data')
+        }
+
         expect(result.data.reportId).toBe('report-3')
     })
 })

@@ -37,18 +37,25 @@ describe('post-version-repair', () => {
         })
 
         expect(versions).toHaveLength(2)
-        expect(versions[0].id).toBe('version-1')
-        expect(versions[0].sequence).toBe(1)
-        expect(versions[0].parentVersionId).toBeNull()
-        expect(versions[0].snapshot.title).toBe('Initial title')
-        expect(versions[0].snapshot.tagIds).toEqual(['tag-1'])
-        expect(versions[0].snapshotHash).toBeTruthy()
+        const [firstVersion, secondVersion] = versions
+        expect(firstVersion).toBeDefined()
+        expect(secondVersion).toBeDefined()
+        if (!firstVersion || !secondVersion) {
+            throw new Error('Expected two normalized versions')
+        }
 
-        expect(versions[1].id).toBe('version-2')
-        expect(versions[1].sequence).toBe(2)
-        expect(versions[1].parentVersionId).toBe('version-1')
-        expect(versions[1].changedFields).toContain('title')
-        expect(versions[1].changedFields).toContain('content')
-        expect(versions[1].commitSummary).toContain('edit:')
+        expect(firstVersion.id).toBe('version-1')
+        expect(firstVersion.sequence).toBe(1)
+        expect(firstVersion.parentVersionId).toBeNull()
+        expect(firstVersion.snapshot.title).toBe('Initial title')
+        expect(firstVersion.snapshot.tagIds).toEqual(['tag-1'])
+        expect(firstVersion.snapshotHash).toBeTruthy()
+
+        expect(secondVersion.id).toBe('version-2')
+        expect(secondVersion.sequence).toBe(2)
+        expect(secondVersion.parentVersionId).toBe('version-1')
+        expect(secondVersion.changedFields).toContain('title')
+        expect(secondVersion.changedFields).toContain('content')
+        expect(secondVersion.commitSummary).toContain('edit:')
     })
 })

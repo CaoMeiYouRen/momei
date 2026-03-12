@@ -241,3 +241,29 @@ export interface ImportStats {
     skipped: number
     results: ImportResult[]
 }
+
+export interface CliAutomationTaskStartResponse {
+    taskId: string
+    status: 'pending' | 'processing' | 'completed' | 'failed'
+    estimatedCost?: number
+    estimatedQuotaUnits?: number
+}
+
+export interface CliAutomationTaskStatusResponse {
+    id: string
+    status: 'pending' | 'processing' | 'completed' | 'failed'
+    progress: number
+    error?: string | null
+    updatedAt?: string | Date
+    result?: Record<string, unknown> | string
+    audioUrl?: string | null
+}
+
+export interface CliTranslatePostRequest {
+    sourcePostId: string
+    targetLanguage: string
+    sourceLanguage?: string
+    targetPostId?: string | null
+    scopes?: ('title' | 'content' | 'summary' | 'category' | 'tags' | 'coverImage' | 'audio')[]
+    targetStatus?: 'draft' | 'pending'
+}

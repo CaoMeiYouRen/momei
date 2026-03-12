@@ -32,11 +32,13 @@ function sortVersions(left: PostVersion, right: PostVersion) {
 
 function groupByPostId(versions: PostVersion[]) {
     return versions.reduce<Record<string, PostVersion[]>>((groups, version) => {
-        if (!groups[version.postId]) {
-            groups[version.postId] = []
+        let postVersions = groups[version.postId]
+        if (!postVersions) {
+            postVersions = []
+            groups[version.postId] = postVersions
         }
 
-        groups[version.postId].push(version)
+        postVersions.push(version)
         return groups
     }, {})
 }
@@ -50,9 +52,10 @@ export function normalizePostVersionChain(versions: PostVersion[], postFallback?
             || buildLegacyPostVersionSnapshot(version, postFallback)
         const source = version.source || PostVersionSource.EDIT
         const changedFields = getChangedFields(previousSnapshot, snapshot)
+        const previousVersion = index > 0 ? sortedVersions[index - 1] : null
 
         version.sequence = index + 1
-        version.parentVersionId = index === 0 ? null : sortedVersions[index - 1].id
+        version.parentVersionId = previousVersion?.id || null
         version.source = source
         version.commitSummary = buildCommitSummary(source, changedFields)
         version.changedFields = changedFields

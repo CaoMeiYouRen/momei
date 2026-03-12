@@ -98,6 +98,11 @@ export class ImageService extends AIBaseService {
                 raw: response.raw,
             }
 
+            if (post && persistedImages[0]?.url) {
+                post.coverImage = persistedImages[0].url
+                await dataSource.getRepository(Post).save(post)
+            }
+
             this.logUsage({ task: 'image-generation', response: finalResponse, userId })
             await this.recordTask({
                 id: taskId,

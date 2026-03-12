@@ -1,5 +1,13 @@
 import axios, { type AxiosInstance } from 'axios'
-import type { CliLinkGovernanceReportData, CliLinkGovernanceRequest, MomeiPost, ImportResult } from './types'
+import type {
+    CliAutomationTaskStartResponse,
+    CliAutomationTaskStatusResponse,
+    CliLinkGovernanceReportData,
+    CliLinkGovernanceRequest,
+    CliTranslatePostRequest,
+    MomeiPost,
+    ImportResult,
+} from './types'
 
 /**
  * Momei API 客户端
@@ -112,5 +120,63 @@ export class MomeiApiClient {
     async getLinkGovernanceReport(reportId: string): Promise<{ code: number, data: CliLinkGovernanceReportData }> {
         const response = await this.client.get(`/api/external/migrations/link-governance/reports/${reportId}`)
         return response.data
+    }
+
+    async getPost(postId: string) {
+        const response = await this.client.get(`/api/external/posts/${postId}`)
+        return response.data as { code: number, data: Record<string, unknown> }
+    }
+
+    async publishPost(postId: string) {
+        const response = await this.client.post(`/api/external/posts/${postId}/publish`)
+        return response.data as { code: number, data: Record<string, unknown> }
+    }
+
+    async suggestTitles(payload: { content: string, language?: string }) {
+        const response = await this.client.post('/api/external/ai/suggest-titles', payload)
+        return response.data as { code: number, data: string[] }
+    }
+
+    async recommendTags(payload: { content: string, existingTags?: string[], language?: string }) {
+        const response = await this.client.post('/api/external/ai/recommend-tags', payload)
+        return response.data as { code: number, data: string[] }
+    }
+
+    async translatePost(payload: CliTranslatePostRequest) {
+        const response = await this.client.post('/api/external/ai/translate-post', payload)
+        return response.data as { code: number, data: CliAutomationTaskStartResponse }
+    }
+
+    async generateCoverImage(payload: {
+        prompt: string
+        postId: string
+        model?: string
+        size?: string
+        aspectRatio?: string
+        quality?: 'standard' | 'hd'
+        style?: 'vivid' | 'natural'
+        n?: number
+    }) {
+        const response = await this.client.post('/api/external/ai/image/generate', payload)
+        return response.data as { code: number, data: CliAutomationTaskStartResponse }
+    }
+
+    async createTTSTask(payload: {
+        postId?: string
+        text?: string
+        provider?: string
+        mode?: 'speech' | 'podcast'
+        voice: string
+        model?: string
+        script?: string
+        options?: Record<string, unknown>
+    }) {
+        const response = await this.client.post('/api/external/ai/tts/task', payload)
+        return response.data as { code: number, data: CliAutomationTaskStartResponse }
+    }
+
+    async getAITask(taskId: string) {
+        const response = await this.client.get(`/api/external/ai/tasks/${taskId}`)
+        return response.data as { code: number, data: CliAutomationTaskStatusResponse }
     }
 }

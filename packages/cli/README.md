@@ -2,7 +2,7 @@
 
 [简体中文](./README.md) | [English](./README.en-US.md)
 
-用于将 Hexo 内容迁移到墨梅的命令行工具。当前提供两类能力：批量导入文章，以及基于迁移 API 的旧链接治理。
+用于将 Hexo 内容迁移到墨梅的命令行工具。当前提供三类能力：批量导入文章、基于迁移 API 的旧链接治理，以及基于外部自动化 API 的 AI 内容编排。
 
 ## 功能特性
 
@@ -12,6 +12,7 @@
 - ✅ 将 `date` 同步映射为 `createdAt` 和 `publishedAt`，并据此自动推导文章状态
 - ✅ 通过 Open API 批量导入文章到墨梅站点
 - ✅ 生成旧链接 mapping seeds，并调用迁移链接治理接口
+- ✅ 调用外部自动化 API 执行标题建议、标签推荐、整篇翻译、封面图生成、音频生成与任务查询
 - ✅ 支持 dry run、并发导入、报告导出与失败重试
 
 ## 安装
@@ -129,6 +130,81 @@ momei govern-links ./hexo-blog/source/_posts \
   --report-file ./artifacts/retry-report.json
 ```
 
+## 命令三：AI 自动化
+
+AI 自动化命令通过 API Key 调用主站的外部自动化接口，适合在本地脚本、CI 或批处理流程中复用站内 AI 工作流。
+
+### 标题建议
+
+```bash
+momei ai suggest-titles <post-id> --api-key <your-api-key>
+```
+
+### 标签推荐
+
+```bash
+momei ai recommend-tags <post-id> --api-key <your-api-key>
+```
+
+### 整篇翻译
+
+```bash
+momei ai translate-post <post-id> \
+  --target-language en-US \
+  --api-key <your-api-key>
+```
+
+常用选项：
+
+| 选项 | 说明 | 默认值 |
+| --- | --- | --- |
+| `--source-language <locale>` | 显式指定源语言 | 自动检测 / 使用文章语言 |
+| `--target-language <locale>` | 目标语言 | 必填 |
+| `--target-post-id <id>` | 更新现有目标译文，而不是新建 | - |
+| `--scopes <items>` | 逗号分隔的翻译范围 | `title,content,summary,category,tags,coverImage,audio` |
+| `--target-status <status>` | 目标文章状态，`draft` 或 `pending` | `draft` |
+| `--wait` | 阻塞等待任务完成 | `false` |
+| `--poll-interval <ms>` | 轮询间隔 | `3000` |
+| `--timeout <ms>` | 最长等待时间 | `300000` |
+
+### 封面图生成
+
+```bash
+momei ai generate-cover <post-id> \
+  --prompt "A cinematic plum blossom illustration" \
+  --api-key <your-api-key> \
+  --wait
+```
+
+### 音频生成
+
+```bash
+momei ai generate-audio <post-id> \
+  --voice zh_female_meow \
+  --mode speech \
+  --api-key <your-api-key>
+```
+
+### 查询任务状态
+
+```bash
+momei ai task <task-id> --api-key <your-api-key>
+```
+
+说明：
+
+- 长任务默认立即返回 `taskId`，配合 `momei ai task <task-id>` 查询。
+- 显式传入 `--wait` 时，CLI 会轮询等待并输出最终结果摘要。
+- 封面图与音频任务完成后会自动回填文章字段，具体结果以任务返回值为准。
+
+## 命令四：发布文章
+
+```bash
+momei publish <post-id> --api-key <your-api-key>
+```
+
+该命令用于调用外部发布接口，将草稿或待审核文章发布上线，可与 `translate-post`、`generate-cover`、`generate-audio` 组合成脚本式发布流程。
+
 ## 当前字段映射
 
 | Hexo 字段 | Momei 字段 | 说明 |
@@ -191,7 +267,8 @@ pnpm lint
 2. 连接失败：检查 `--api-url` 是否正确，以及主应用是否已启动。
 3. 导入失败：加上 `--verbose` 以查看具体错误。
 4. 链接治理失败：先运行 `dry-run`，必要时结合 `--report-file` 和 `--retry-report-id` 分析问题。
-5. 文件解析失败：确认 Markdown Front-matter 为合法 YAML。
+5. 自动化任务长时间未完成：使用 `momei ai task <task-id>` 检查任务状态，并确认主站 AI 提供商配置有效。
+6. 文件解析失败：确认 Markdown Front-matter 为合法 YAML。
 
 ## 许可证
 

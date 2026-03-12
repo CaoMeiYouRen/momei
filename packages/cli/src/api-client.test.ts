@@ -55,4 +55,51 @@ describe('MomeiApiClient', () => {
         expect(onProgress.mock.calls.map((call) => call[0])).toEqual([1, 2, 3])
         expect(onProgress.mock.calls.map((call) => call[1])).toEqual([3, 3, 3])
     })
+
+    it('should call automation endpoints with expected payloads', async () => {
+        mockPost
+            .mockResolvedValueOnce({ data: { code: 200, data: ['Title A', 'Title B'] } })
+            .mockResolvedValueOnce({ data: { code: 200, data: { taskId: 'task_translate_1', status: 'pending', type: 'translate-post' } } })
+
+        mockGet.mockResolvedValueOnce({
+            data: {
+                code: 200,
+                data: {
+                    taskId: 'task_translate_1',
+                    status: 'completed',
+                    type: 'translate-post',
+                    result: { targetPostId: 'post_en_1' },
+                },
+            },
+        })
+
+        const client = new MomeiApiClient('http://localhost:3000', 'test-key')
+
+        const titles = await client.suggestTitles({
+            content: 'example content',
+            language: 'zh-CN',
+        })
+
+        const task = await client.translatePost({
+            sourcePostId: 'post_1',
+            targetLanguage: 'en-US',
+            scopes: ['title', 'content'],
+        })
+
+        const taskStatus = await client.getAITask('task_translate_1')
+
+        expect(mockPost).toHaveBeenNthCalledWith(1, '/api/external/ai/suggest-titles', {
+            content: 'example content',
+            language: 'zh-CN',
+        })
+        expect(mockPost).toHaveBeenNthCalledWith(2, '/api/external/ai/translate-post', {
+            sourcePostId: 'post_1',
+            targetLanguage: 'en-US',
+            scopes: ['title', 'content'],
+        })
+        expect(mockGet).toHaveBeenCalledWith('/api/external/ai/tasks/task_translate_1')
+        expect(titles.data).toEqual(['Title A', 'Title B'])
+        expect(task.data.taskId).toBe('task_translate_1')
+        expect(taskStatus.data.status).toBe('completed')
+    })
 })

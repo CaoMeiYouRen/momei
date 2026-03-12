@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { PostStatus } from '@/types/post'
 
 const aiQuotaScopeSchema = z.string().trim().refine((value) => value === 'all'
     || ['text', 'image', 'asr', 'tts', 'podcast'].includes(value)
@@ -116,6 +117,21 @@ export const aiScaffoldExpandSectionSchema = z.object({
 export const aiRecommendTagsSchema = z.object({
     title: z.string().min(1),
     content: z.string().min(1),
+})
+
+export const aiRecommendTagsExternalSchema = z.object({
+    content: z.string().min(1),
+    existingTags: z.array(z.string()).optional().default([]),
+    language: z.string().min(2).max(10).optional().default('zh-CN'),
+})
+
+export const aiTranslatePostSchema = z.object({
+    sourcePostId: z.string().min(1),
+    targetLanguage: z.string().min(2).max(10),
+    sourceLanguage: z.string().min(2).max(10).optional(),
+    targetPostId: z.string().min(1).nullable().optional(),
+    scopes: z.array(z.enum(['title', 'content', 'summary', 'category', 'tags', 'coverImage', 'audio'])).min(1).optional(),
+    targetStatus: z.enum([PostStatus.DRAFT, PostStatus.PENDING]).optional(),
 })
 
 export const aiGenerateImageSchema = z.object({

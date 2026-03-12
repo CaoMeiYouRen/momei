@@ -7,7 +7,14 @@ import ora from 'ora'
 import { parseHexoFiles } from './parser'
 import { MomeiApiClient } from './api-client'
 import { buildLinkGovernanceRequest, parseCliLinkGovernanceScopes } from './link-governance'
-import type { CliLinkGovernanceMode, CliLinkGovernanceReportData, ImportStats, ImportResult } from './types'
+import type {
+    CliAutomationTaskStatusResponse,
+    CliLinkGovernanceMode,
+    CliLinkGovernanceReportData,
+    CliTranslatePostRequest,
+    ImportStats,
+    ImportResult,
+} from './types'
 
 const cli = cac('momei')
 
@@ -54,6 +61,171 @@ cli
             skipConfirmation: options.skipConfirmation,
             verbose: options.verbose,
         })
+    })
+
+cli
+    .command('ai suggest-titles <postId>', 'Suggest post titles from an existing post')
+    .option('--api-url <url>', 'Momei API URL', { default: 'http://localhost:3000' })
+    .option('--api-key <key>', 'Momei API Key (required)')
+    .action(async (postId: string, options: any) => {
+        const client = createAutomationClient(options)
+        const post = await fetchPostForAutomation(client, postId)
+        const response = await client.suggestTitles({
+            content: typeof post.content === 'string' ? post.content : '',
+            language: typeof post.language === 'string' ? post.language : 'zh-CN',
+        })
+
+        console.log(chalk.blue('\n📝 Suggested Titles\n'))
+        response.data.forEach((title, index) => {
+            console.log(chalk.gray(`${index + 1}. ${title}`))
+        })
+    })
+
+cli
+    .command('ai recommend-tags <postId>', 'Recommend tags for an existing post')
+    .option('--api-url <url>', 'Momei API URL', { default: 'http://localhost:3000' })
+    .option('--api-key <key>', 'Momei API Key (required)')
+    .action(async (postId: string, options: any) => {
+        const client = createAutomationClient(options)
+        const post = await fetchPostForAutomation(client, postId)
+        const response = await client.recommendTags({
+            content: typeof post.content === 'string' ? post.content : '',
+            existingTags: extractExistingTagNames(post),
+            language: typeof post.language === 'string' ? post.language : 'zh-CN',
+        })
+
+        console.log(chalk.blue('\n🏷️ Recommended Tags\n'))
+        console.log(response.data.join(', '))
+    })
+
+cli
+    .command('ai translate-post <postId>', 'Translate an existing post into another language and backfill translation bindings')
+    .option('--api-url <url>', 'Momei API URL', { default: 'http://localhost:3000' })
+    .option('--api-key <key>', 'Momei API Key (required)')
+    .option('--target-language <locale>', 'Target locale code (required)')
+    .option('--source-language <locale>', 'Source locale code override')
+    .option('--target-post-id <id>', 'Continue or overwrite an existing translated post')
+    .option('--scopes <scopes>', 'Comma separated scopes', { default: 'title,content,summary,category,tags,coverImage,audio' })
+    .option('--target-status <status>', 'Target post status: draft or pending', { default: 'draft' })
+    .option('--wait', 'Wait for task completion', { default: false })
+    .action(async (postId: string, options: any) => {
+        if (!options.targetLanguage) {
+            console.error(chalk.red('Error: --target-language is required'))
+            process.exit(1)
+        }
+
+        const client = createAutomationClient(options)
+        const payload: CliTranslatePostRequest = {
+            sourcePostId: postId,
+            targetLanguage: options.targetLanguage,
+            sourceLanguage: options.sourceLanguage,
+            targetPostId: options.targetPostId,
+            targetStatus: options.targetStatus,
+            scopes: parseCsvList(options.scopes) as CliTranslatePostRequest['scopes'],
+        }
+
+        const response = await client.translatePost(payload)
+        displayTaskCreated('Translate Post', response.data)
+
+        if (!options.wait) {
+            return
+        }
+
+        const task = await waitForAutomationTask(client, response.data.taskId, 'Translating post')
+        displayTaskCompletion(task)
+    })
+
+cli
+    .command('ai generate-cover <postId>', 'Generate a cover image and auto-attach it to the post')
+    .option('--api-url <url>', 'Momei API URL', { default: 'http://localhost:3000' })
+    .option('--api-key <key>', 'Momei API Key (required)')
+    .option('--prompt <text>', 'Prompt used to generate the image')
+    .option('--model <model>', 'Image model override')
+    .option('--size <size>', 'Output size')
+    .option('--aspect-ratio <ratio>', 'Aspect ratio, for example 16:9')
+    .option('--quality <quality>', 'standard or hd', { default: 'standard' })
+    .option('--style <style>', 'vivid or natural', { default: 'vivid' })
+    .option('--wait', 'Wait for task completion', { default: false })
+    .action(async (postId: string, options: any) => {
+        if (!options.prompt) {
+            console.error(chalk.red('Error: --prompt is required'))
+            process.exit(1)
+        }
+
+        const client = createAutomationClient(options)
+        const response = await client.generateCoverImage({
+            postId,
+            prompt: options.prompt,
+            model: options.model,
+            size: options.size,
+            aspectRatio: options.aspectRatio,
+            quality: options.quality,
+            style: options.style,
+            n: 1,
+        })
+        displayTaskCreated('Generate Cover', response.data)
+
+        if (!options.wait) {
+            return
+        }
+
+        const task = await waitForAutomationTask(client, response.data.taskId, 'Generating cover image')
+        displayTaskCompletion(task)
+    })
+
+cli
+    .command('ai generate-audio <postId>', 'Generate TTS or podcast audio and auto-attach it to the post')
+    .option('--api-url <url>', 'Momei API URL', { default: 'http://localhost:3000' })
+    .option('--api-key <key>', 'Momei API Key (required)')
+    .option('--voice <voice>', 'Voice ID (required)')
+    .option('--provider <provider>', 'TTS provider override')
+    .option('--mode <mode>', 'speech or podcast', { default: 'speech' })
+    .option('--model <model>', 'Model override')
+    .option('--script <text>', 'Override text/script content')
+    .option('--wait', 'Wait for task completion', { default: false })
+    .action(async (postId: string, options: any) => {
+        if (!options.voice) {
+            console.error(chalk.red('Error: --voice is required'))
+            process.exit(1)
+        }
+
+        const client = createAutomationClient(options)
+        const response = await client.createTTSTask({
+            postId,
+            provider: options.provider,
+            mode: options.mode,
+            voice: options.voice,
+            model: options.model,
+            script: options.script,
+        })
+        displayTaskCreated('Generate Audio', response.data)
+
+        if (!options.wait) {
+            return
+        }
+
+        const task = await waitForAutomationTask(client, response.data.taskId, 'Generating audio')
+        displayTaskCompletion(task)
+    })
+
+cli
+    .command('ai task <taskId>', 'Inspect an automation task by ID')
+    .option('--api-url <url>', 'Momei API URL', { default: 'http://localhost:3000' })
+    .option('--api-key <key>', 'Momei API Key (required)')
+    .action(async (taskId: string, options: any) => {
+        const client = createAutomationClient(options)
+        const task = await client.getAITask(taskId)
+        console.log(JSON.stringify(task.data, null, 2))
+    })
+
+cli
+    .command('publish <postId>', 'Publish an existing post through the external API')
+    .option('--api-url <url>', 'Momei API URL', { default: 'http://localhost:3000' })
+    .option('--api-key <key>', 'Momei API Key (required)')
+    .action(async (postId: string, options: any) => {
+        const client = createAutomationClient(options)
+        const response = await client.publishPost(postId)
+        console.log(JSON.stringify(response.data, null, 2))
     })
 
 async function runImport(source: string, options: { apiUrl: string, apiKey: string, dryRun: boolean, verbose: boolean, concurrency: number }) {
@@ -146,6 +318,73 @@ async function runImport(source: string, options: { apiUrl: string, apiKey: stri
 
 function parseCsvList(input?: string) {
     return input?.split(',').map((item) => item.trim()).filter(Boolean) || []
+}
+
+function createAutomationClient(options: { apiUrl?: string, apiKey?: string }) {
+    if (!options.apiKey) {
+        console.error(chalk.red('Error: --api-key is required'))
+        process.exit(1)
+    }
+
+    return new MomeiApiClient(options.apiUrl || 'http://localhost:3000', options.apiKey)
+}
+
+async function fetchPostForAutomation(client: MomeiApiClient, postId: string) {
+    const response = await client.getPost(postId)
+    return response.data
+}
+
+function extractExistingTagNames(post: Record<string, unknown>) {
+    const tags = Array.isArray(post.tags) ? post.tags : []
+    return tags
+        .map((tag) => {
+            if (typeof tag === 'string') {
+                return tag
+            }
+
+            if (tag && typeof tag === 'object' && typeof (tag as { name?: unknown }).name === 'string') {
+                return (tag as { name: string }).name
+            }
+
+            return null
+        })
+        .filter((tag): tag is string => Boolean(tag))
+}
+
+function displayTaskCreated(label: string, data: { taskId: string, status: string }) {
+    console.log(chalk.blue(`\n⚙️ ${label}\n`))
+    console.log(chalk.gray(`Task ID: ${data.taskId}`))
+    console.log(chalk.gray(`Status: ${data.status}\n`))
+}
+
+function displayTaskCompletion(task: CliAutomationTaskStatusResponse) {
+    console.log(chalk.blue('\n✅ Task Result\n'))
+    console.log(JSON.stringify(task, null, 2))
+}
+
+async function waitForAutomationTask(client: MomeiApiClient, taskId: string, label: string) {
+    const spinner = ora(`${label}...`).start()
+
+    while (true) {
+        const response = await client.getAITask(taskId)
+        const task = response.data
+        spinner.text = `${label}... ${task.progress}% (${task.status})`
+
+        if (task.status === 'completed') {
+            spinner.succeed(`${label} completed`)
+            return task
+        }
+
+        if (task.status === 'failed') {
+            spinner.fail(`${label} failed`)
+            if (task.error) {
+                console.error(chalk.red(task.error))
+            }
+            process.exit(1)
+        }
+
+        await new Promise((done) => setTimeout(done, 3000))
+    }
 }
 
 function displayGovernanceSummary(report: CliLinkGovernanceReportData) {

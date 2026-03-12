@@ -134,13 +134,18 @@ async function seedVersionedPost() {
         order: { sequence: 'ASC' },
     })
 
+    const [initialVersion, latestVersion] = versions
+    if (!initialVersion || !latestVersion) {
+        throw new Error('Expected seeded post to have at least two versions')
+    }
+
     return {
         author,
         intruder,
         postId: post.id,
         initialTagId: initialTag.id,
-        initialVersionId: versions[0].id,
-        latestVersionId: versions[1].id,
+        initialVersionId: initialVersion.id,
+        latestVersionId: latestVersion.id,
     }
 }
 
@@ -172,6 +177,11 @@ describe('admin post versions API', () => {
         }))
 
         expect(result.code).toBe(200)
+        expect(result.data).toBeDefined()
+        if (!result.data) {
+            throw new Error('Expected diff response data')
+        }
+
         expect(result.data.compareTarget).toBe('parent')
         expect(result.data.currentVersion.id).toBe(seed.latestVersionId)
         expect(result.data.compareVersion?.id).toBe(seed.initialVersionId)
@@ -189,6 +199,11 @@ describe('admin post versions API', () => {
         }))
 
         expect(result.code).toBe(200)
+        expect(result.data).toBeDefined()
+        if (!result.data) {
+            throw new Error('Expected restore response data')
+        }
+
         expect(result.data.restored).toBe(true)
         expect(result.data.post.title).toBe('Initial title')
         expect(result.data.version.source).toBe(PostVersionSource.RESTORE)
@@ -207,6 +222,11 @@ describe('admin post versions API', () => {
         expect(post.content).toBe('Initial content')
         expect(post.tags.map((tag) => tag.id)).toEqual([seed.initialTagId])
         expect(versions).toHaveLength(3)
+        expect(restoreVersion).toBeDefined()
+        if (!restoreVersion) {
+            throw new Error('Expected restore version record')
+        }
+
         expect(restoreVersion.source).toBe(PostVersionSource.RESTORE)
         expect(restoreVersion.restoredFromVersionId).toBe(seed.initialVersionId)
         expect(restoreVersion.parentVersionId).toBe(seed.latestVersionId)

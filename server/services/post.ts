@@ -8,6 +8,7 @@ import { Category } from '@/server/entities/category'
 import { generateRandomString } from '@/utils/shared/random'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
 import { PostStatus, POST_STATUS_TRANSITIONS, type PublishIntent } from '@/types/post'
+import { PostVersionSource } from '@/types/post-version'
 import { hashPassword } from '@/server/utils/password'
 import { assignDefined } from '@/server/utils/object'
 import { applyPostMetadataPatch } from '@/server/utils/post-metadata'
@@ -25,6 +26,12 @@ type UpdatePostInput = z.infer<typeof updatePostSchema>
 
 interface CreatePostOptions {
     isAdmin: boolean
+    auditContext?: PostVersionAuditContext
+}
+
+interface UpdatePostOptions {
+    isAdmin: boolean
+    currentUserId: string
     auditContext?: PostVersionAuditContext
 }
 
@@ -193,7 +200,7 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
     await postRepo.save(post)
 
     await recordPostVersionCommit(post, authorId, {
-        source: 'create',
+        source: PostVersionSource.CREATE,
         auditContext: options.auditContext,
     })
 
@@ -210,7 +217,7 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
     return post
 }
 
-export const updatePostService = async (id: string, body: UpdatePostInput, options: { isAdmin: boolean, currentUserId: string }) => {
+export const updatePostService = async (id: string, body: UpdatePostInput, options: UpdatePostOptions) => {
     const postRepo = dataSource.getRepository(Post)
     const post = await postRepo.findOne({ where: { id }, relations: ['tags'] })
 
@@ -247,7 +254,7 @@ export const updatePostService = async (id: string, body: UpdatePostInput, optio
     await postRepo.save(post)
 
     await recordPostVersionCommit(post, options.currentUserId, {
-        source: 'edit',
+        source: PostVersionSource.EDIT,
         auditContext: options.auditContext,
     })
 

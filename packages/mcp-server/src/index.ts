@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import { registerAutomationTools } from './tools/automation.js'
 import { registerPostTools } from './tools/posts.js'
 import { loadConfig } from './lib/config.js'
 
@@ -22,6 +23,7 @@ async function main() {
 
     // Register Tools
     registerPostTools(server, config)
+    registerAutomationTools(server, config)
 
     // Use stdio transport
     const transport = new StdioServerTransport()
