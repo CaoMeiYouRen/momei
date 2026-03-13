@@ -110,16 +110,6 @@
                         {{ $t('common.schedule_hint') }}
                     </small>
                 </div>
-
-                <div class="publish-dialog__sync-field">
-                    <ToggleSwitch v-model="syncToMemos" input-id="sync_memos" />
-                    <label for="sync_memos">
-                        {{ $t('pages.admin.posts.sync_to_memos') }}
-                    </label>
-                </div>
-                <small class="publish-dialog__sync-desc">
-                    {{ $t('pages.admin.posts.sync_to_memos_desc') }}
-                </small>
             </div>
         </div>
 
@@ -150,7 +140,6 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: 'confirm', options: {
         pushOption: 'none' | 'draft' | 'now'
-        syncToMemos: boolean
         publishedAt?: Date | null
         pushCriteria?: { categoryIds?: string[], tagIds?: string[] }
     }): void
@@ -158,7 +147,6 @@ const emit = defineEmits<{
 
 const visible = defineModel<boolean>('visible', { default: false })
 const pushOption = ref<'none' | 'draft' | 'now'>('none')
-const syncToMemos = ref(false)
 const publishedAt = ref<Date | null>(null)
 const targetType = ref<'all' | 'criteria'>('criteria')
 const articleCriteria = ref<{ categoryIds?: string[], tagIds?: string[] }>({})
@@ -179,19 +167,16 @@ const parsePublishedAt = (value?: string | Date | null) => {
 const handleConfirm = () => {
     emit('confirm', {
         pushOption: pushOption.value,
-        syncToMemos: syncToMemos.value,
         publishedAt: publishedAt.value,
         pushCriteria: targetType.value === 'all' ? {} : articleCriteria.value,
     })
 }
 
 const open = (options?: {
-    syncToMemos?: boolean
     publishedAt?: string | Date | null
     criteria?: { categoryIds?: string[], tagIds?: string[] }
 }) => {
     pushOption.value = 'none'
-    syncToMemos.value = options?.syncToMemos || false
     publishedAt.value = parsePublishedAt(options?.publishedAt) || new Date()
     targetType.value = 'criteria'
     articleCriteria.value = options?.criteria || {}

@@ -46,7 +46,7 @@ export function applyPostReadModelFromMetadata(post?: unknown) {
         post.publishIntent = publishIntent ?? null
     }
 
-    const memosId = metadata.integration?.memosId
+    const memosId = metadata.integration?.memosId ?? metadata.integration?.distribution?.channels?.memos?.remoteId
     if (memosId !== undefined) {
         post.memosId = memosId ?? null
     }

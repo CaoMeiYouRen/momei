@@ -111,6 +111,7 @@
 </template>
 
 <script setup lang="ts">
+import { nextTick } from 'vue'
 import PostEditorHeader from '@/components/admin/posts/post-editor-header.vue'
 import PostEditorSettings from '@/components/admin/posts/post-editor-settings.vue'
 import PostEditorSetupReminder from '@/components/admin/posts/post-editor-setup-reminder.vue'
@@ -127,6 +128,7 @@ definePageMeta({
 })
 
 const localePath = useLocalePath()
+const route = useRoute()
 const showSetupReminder = ref(false)
 
 const {
@@ -200,6 +202,12 @@ const handleOpenSystemSettings = async () => {
 onMounted(() => {
     if (getQueuedSetupJourneyStage() === 'editor') {
         showSetupReminder.value = true
+    }
+
+    if (route.query.openDistribution === 'true') {
+        nextTick(() => {
+            void headerRef.value?.openDistribution?.()
+        })
     }
 })
 </script>

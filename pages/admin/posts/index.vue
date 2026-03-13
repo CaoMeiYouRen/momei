@@ -193,6 +193,14 @@
                 >
                     <template #body="slotProps">
                         <Button
+                            v-tooltip.top="$t('pages.admin.posts.distribution.tooltip')"
+                            icon="pi pi-sync"
+                            text
+                            rounded
+                            severity="secondary"
+                            @click="openDistribution(slotProps.data.id)"
+                        />
+                        <Button
                             v-if="slotProps.data.status === 'published'"
                             v-tooltip.top="$t('pages.admin.posts.repush')"
                             icon="pi pi-send"
@@ -326,6 +334,15 @@ const statuses = computed(() => [
 
 const editPost = (id: string) => {
     navigateTo(localePath(`/admin/posts/${id}`))
+}
+
+const openDistribution = (id: string) => {
+    navigateTo(localePath({
+        path: `/admin/posts/${id}`,
+        query: {
+            openDistribution: 'true',
+        },
+    }))
 }
 
 const confirmRepush = (post: any) => {

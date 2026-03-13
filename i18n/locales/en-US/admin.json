@@ -504,6 +504,60 @@
                 "repush_confirm_title": "Confirm Repush Post",
                 "repush_confirm_message": "Are you sure you want to push this article to subscribers again? This will generate a new email notification.",
                 "repush_success": "Repush task started",
+                "distribution": {
+                    "tooltip": "Distribution management",
+                    "dialog_title": "Third-party distribution",
+                    "channels": {
+                        "memos": "Memos",
+                        "wechatsync": "WechatSync"
+                    },
+                    "mode_update_existing": "Update existing content",
+                    "mode_republish_new": "Republish as new content",
+                    "first_sync_hint": "The first delivery will create a new remote entry.",
+                    "open_remote": "Open remote content",
+                    "sync_now": "Deliver now",
+                    "retry": "Retry",
+                    "terminate": "Terminate",
+                    "timeline_title": "Delivery timeline",
+                    "no_timeline": "No delivery history yet",
+                    "no_status": "No status available",
+                    "wechatsync_ready": "WechatSync extension detected. Select accounts to start delivery.",
+                    "extension_missing": "WechatSync extension was not detected. Install it and sign in first.",
+                    "install_extension": "Install WechatSync extension",
+                    "start_wechatsync": "Start WechatSync delivery",
+                    "memos_success": "Memos delivery completed",
+                    "wechatsync_success": "WechatSync result synced back",
+                    "terminate_success": "Distribution task terminated",
+                    "dispatch_failed": "Distribution action failed",
+                    "status": {
+                        "idle": "Idle",
+                        "delivering": "Delivering",
+                        "succeeded": "Succeeded",
+                        "failed": "Failed",
+                        "cancelled": "Cancelled"
+                    },
+                    "failure_reason": {
+                        "auth_failed": "Authentication failed",
+                        "rate_limited": "Rate limited",
+                        "network_error": "Network error",
+                        "content_validation_failed": "Content validation failed",
+                        "remote_missing": "Remote content missing",
+                        "manual_terminated": "Terminated manually",
+                        "unknown": "Unknown error"
+                    },
+                    "action": {
+                        "create": "Create",
+                        "update": "Update",
+                        "republish": "Republish",
+                        "retry": "Retry",
+                        "terminate": "Terminate"
+                    },
+                    "wechatsync_task": {
+                        "uploading": "Uploading",
+                        "done": "Completed",
+                        "failed": "Failed"
+                    }
+                },
                 "tts": {
                     "generate_title": "Generate Post Audio",
                     "mode": "Audio Mode",

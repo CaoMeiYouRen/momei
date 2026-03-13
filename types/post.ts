@@ -94,11 +94,74 @@ export interface PostScaffoldMetadata {
     metadata?: Record<string, unknown> | null
 }
 
+export type PostDistributionChannel = 'memos' | 'wechatsync'
+
+export type PostDistributionAction = 'create' | 'update' | 'republish' | 'retry' | 'terminate'
+
+export type PostDistributionMode = 'update-existing' | 'republish-new'
+
+export type PostDistributionStatus = 'idle' | 'delivering' | 'succeeded' | 'failed' | 'cancelled'
+
+export type PostDistributionFailureReason =
+    | 'auth_failed'
+    | 'rate_limited'
+    | 'network_error'
+    | 'content_validation_failed'
+    | 'remote_missing'
+    | 'manual_terminated'
+    | 'unknown'
+
+export interface PostDistributionChannelState {
+    status?: PostDistributionStatus | null
+    remoteId?: string | null
+    remoteUrl?: string | null
+    lastMode?: PostDistributionMode | null
+    lastAction?: PostDistributionAction | null
+    lastAttemptId?: string | null
+    activeAttemptId?: string | null
+    lastAttemptAt?: string | Date | null
+    activeSince?: string | Date | null
+    lastSuccessAt?: string | Date | null
+    lastFailureAt?: string | Date | null
+    lastFinishedAt?: string | Date | null
+    lastFailureReason?: PostDistributionFailureReason | null
+    lastMessage?: string | null
+    lastOperatorId?: string | null
+    retryCount?: number | null
+}
+
+export interface PostDistributionTimelineEntry {
+    id: string
+    channel: PostDistributionChannel
+    action: PostDistributionAction
+    mode?: PostDistributionMode | null
+    status: PostDistributionStatus
+    triggeredBy?: 'manual' | 'retry' | 'system' | null
+    operatorId?: string | null
+    startedAt: string | Date
+    finishedAt?: string | Date | null
+    retryOfAttemptId?: string | null
+    remoteId?: string | null
+    remoteUrl?: string | null
+    failureReason?: PostDistributionFailureReason | null
+    message?: string | null
+    details?: Record<string, unknown> | null
+}
+
+export interface PostDistributionMetadata {
+    channels?: {
+        memos?: PostDistributionChannelState | null
+        wechatsync?: PostDistributionChannelState | null
+    }
+    timeline?: PostDistributionTimelineEntry[] | null
+}
+
 /**
  * 集成元数据
  */
 export interface PostIntegrationMetadata {
     memosId?: string | null
+    distribution?: PostDistributionMetadata | null
 }
 
 /**

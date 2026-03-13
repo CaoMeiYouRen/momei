@@ -177,7 +177,7 @@
             <span v-if="saving" class="saving-text">{{
                 $t("common.saving")
             }}</span>
-            <AdminPostsWechatsyncButton :post="post" :is-new="isNew" />
+            <AdminPostsPostDistributionButton ref="distributionButtonRef" :post="post" />
             <Button
                 v-if="!isNew || post.id"
                 :label="$t('common.preview')"
@@ -272,6 +272,7 @@ const localePath = useLocalePath()
 const titleOp = ref<any>(null)
 const translateOp = ref<any>(null)
 const voiceOp = ref<any>(null)
+const distributionButtonRef = ref<{ openDialog?: () => Promise<void> } | null>(null)
 
 const refiningVoice = ref(false)
 const {
@@ -384,6 +385,9 @@ const getLangIcon = (code: string) => {
 
 defineExpose({
     titleOp,
+    openDistribution: async () => {
+        await distributionButtonRef.value?.openDialog?.()
+    },
 })
 </script>
 

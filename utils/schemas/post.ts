@@ -31,6 +31,57 @@ const publishIntentSchema = z.object({
         .optional(),
 })
 
+const distributionStatusSchema = z.enum(['idle', 'delivering', 'succeeded', 'failed', 'cancelled'])
+const distributionChannelSchema = z.enum(['memos', 'wechatsync'])
+const distributionActionSchema = z.enum(['create', 'update', 'republish', 'retry', 'terminate'])
+const distributionModeSchema = z.enum(['update-existing', 'republish-new'])
+const distributionFailureReasonSchema = z.enum([
+    'auth_failed',
+    'rate_limited',
+    'network_error',
+    'content_validation_failed',
+    'remote_missing',
+    'manual_terminated',
+    'unknown',
+])
+
+const distributionChannelStateSchema = z.object({
+    status: distributionStatusSchema.nullable().optional(),
+    remoteId: z.string().max(255).nullable().optional(),
+    remoteUrl: z.string().max(2048).nullable().optional(),
+    lastMode: distributionModeSchema.nullable().optional(),
+    lastAction: distributionActionSchema.nullable().optional(),
+    lastAttemptId: z.string().max(255).nullable().optional(),
+    activeAttemptId: z.string().max(255).nullable().optional(),
+    lastAttemptAt: z.coerce.date().nullable().optional(),
+    activeSince: z.coerce.date().nullable().optional(),
+    lastSuccessAt: z.coerce.date().nullable().optional(),
+    lastFailureAt: z.coerce.date().nullable().optional(),
+    lastFinishedAt: z.coerce.date().nullable().optional(),
+    lastFailureReason: distributionFailureReasonSchema.nullable().optional(),
+    lastMessage: z.string().max(2000).nullable().optional(),
+    lastOperatorId: z.string().max(255).nullable().optional(),
+    retryCount: z.coerce.number().int().min(0).nullable().optional(),
+})
+
+const distributionTimelineEntrySchema = z.object({
+    id: z.string().min(1).max(255),
+    channel: distributionChannelSchema,
+    action: distributionActionSchema,
+    mode: distributionModeSchema.nullable().optional(),
+    status: distributionStatusSchema,
+    triggeredBy: z.enum(['manual', 'retry', 'system']).nullable().optional(),
+    operatorId: z.string().max(255).nullable().optional(),
+    startedAt: z.coerce.date(),
+    finishedAt: z.coerce.date().nullable().optional(),
+    retryOfAttemptId: z.string().max(255).nullable().optional(),
+    remoteId: z.string().max(255).nullable().optional(),
+    remoteUrl: z.string().max(2048).nullable().optional(),
+    failureReason: distributionFailureReasonSchema.nullable().optional(),
+    message: z.string().max(2000).nullable().optional(),
+    details: z.record(z.string(), z.unknown()).nullable().optional(),
+})
+
 const postMetadataSchema = z.object({
     audio: z
         .object({
@@ -67,6 +118,18 @@ const postMetadataSchema = z.object({
     integration: z
         .object({
             memosId: z.string().max(255).nullable().optional(),
+            distribution: z
+                .object({
+                    channels: z
+                        .object({
+                            memos: distributionChannelStateSchema.nullable().optional(),
+                            wechatsync: distributionChannelStateSchema.nullable().optional(),
+                        })
+                        .optional(),
+                    timeline: z.array(distributionTimelineEntrySchema).nullable().optional(),
+                })
+                .nullable()
+                .optional(),
         })
         .optional(),
 })

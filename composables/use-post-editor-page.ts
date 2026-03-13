@@ -31,12 +31,12 @@ interface LocaleOption {
 
 interface HeaderExpose {
     titleOp?: unknown
+    openDistribution?: () => Promise<void>
 }
 
 interface PublishPushDialogExpose {
     visible?: boolean
     open?: (options: {
-        syncToMemos: boolean
         publishedAt?: string | Date | null
         criteria?: { categoryIds?: string[], tagIds?: string[] }
     }) => void
@@ -428,7 +428,6 @@ export function usePostEditorPage() {
 
     const handlePublishConfirm = async (options: {
         pushOption: 'none' | 'draft' | 'now'
-        syncToMemos: boolean
         publishedAt?: Date | null
         pushCriteria?: { categoryIds?: string[], tagIds?: string[] }
     }) => {
@@ -437,7 +436,7 @@ export function usePostEditorPage() {
         }
 
         post.value.publishedAt = options.publishedAt ? options.publishedAt.toISOString() : null
-        await executeSave(true, options.pushOption, options.syncToMemos, options.pushCriteria)
+        await executeSave(true, options.pushOption, options.pushCriteria)
     }
 
     const getPublishIntent = () => {
@@ -465,7 +464,6 @@ export function usePostEditorPage() {
         if (publish && post.value.status !== PostStatus.PUBLISHED) {
             const publishIntent = getPublishIntent()
             publishPushDialog.value?.open?.({
-                syncToMemos: Boolean(publishIntent.syncToMemos),
                 publishedAt: post.value.publishedAt,
                 criteria: {
                     categoryIds: post.value.categoryId ? [post.value.categoryId] : [],
@@ -481,7 +479,6 @@ export function usePostEditorPage() {
     const executeSave = async (
         publish = false,
         pushOption: 'none' | 'draft' | 'now' = 'none',
-        syncToMemos = false,
         pushCriteria?: { categoryIds?: string[], tagIds?: string[] },
     ) => {
         errors.value = {}
@@ -503,7 +500,6 @@ export function usePostEditorPage() {
         const nextPublishIntent = {
             ...currentPublishIntent,
             pushOption,
-            syncToMemos: syncToMemos || Boolean(currentPublishIntent.syncToMemos),
             pushCriteria,
         }
         setPublishIntent(nextPublishIntent)

@@ -504,6 +504,60 @@
                 "repush_confirm_title": "確認重新推送文章",
                 "repush_confirm_message": "確定要再次將這篇文章推送給訂閱者嗎？這將產生一封新的郵件通知。",
                 "repush_success": "推送任務已啟動",
+                "distribution": {
+                    "tooltip": "分發管理",
+                    "dialog_title": "第三方分發管理",
+                    "channels": {
+                        "memos": "Memos",
+                        "wechatsync": "WechatSync"
+                    },
+                    "mode_update_existing": "更新既有內容",
+                    "mode_republish_new": "重新投遞為新內容",
+                    "first_sync_hint": "首次投遞將建立新的遠端內容。",
+                    "open_remote": "開啟遠端內容",
+                    "sync_now": "立即投遞",
+                    "retry": "重試",
+                    "terminate": "終止",
+                    "timeline_title": "投遞時間線",
+                    "no_timeline": "尚無投遞紀錄",
+                    "no_status": "暫無狀態",
+                    "wechatsync_ready": "已偵測到 WechatSync 外掛，可選擇帳號後開始投遞。",
+                    "extension_missing": "未偵測到 WechatSync 外掛，請先安裝並登入。",
+                    "install_extension": "安裝 WechatSync 外掛",
+                    "start_wechatsync": "開始 WechatSync 投遞",
+                    "memos_success": "Memos 投遞已完成",
+                    "wechatsync_success": "WechatSync 結果已回寫",
+                    "terminate_success": "分發任務已終止",
+                    "dispatch_failed": "分發操作失敗",
+                    "status": {
+                        "idle": "未投遞",
+                        "delivering": "投遞中",
+                        "succeeded": "已成功",
+                        "failed": "已失敗",
+                        "cancelled": "已終止"
+                    },
+                    "failure_reason": {
+                        "auth_failed": "驗證失敗",
+                        "rate_limited": "觸發限流",
+                        "network_error": "網路異常",
+                        "content_validation_failed": "內容驗證失敗",
+                        "remote_missing": "遠端內容不存在",
+                        "manual_terminated": "已手動終止",
+                        "unknown": "未知錯誤"
+                    },
+                    "action": {
+                        "create": "首次建立",
+                        "update": "更新內容",
+                        "republish": "重新投遞",
+                        "retry": "重試投遞",
+                        "terminate": "終止投遞"
+                    },
+                    "wechatsync_task": {
+                        "uploading": "上傳中",
+                        "done": "已完成",
+                        "failed": "已失敗"
+                    }
+                },
                 "tts": {
                     "generate_title": "產生文章音訊",
                     "mode": "音訊模式",
