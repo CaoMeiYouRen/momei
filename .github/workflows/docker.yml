@@ -129,7 +129,7 @@ jobs:
           description: "墨梅博客-AI驱动、原生国际化的开发者博客平台"
       # - name: Deploy to Jenkins
       #   if: ${{ github.repository == 'CaoMeiYouRen/momei' }}
-      #   run: curl -X GET -L --user ${{ secrets.JENKINS_TOKEN }} "${{ secrets.JENKINS_URL }}/buildWithParameters?token=${{ secrets.JENKINS_JOB_TOKEN }}&DOCKER_IMAGE=registry.cn-hangzhou.aliyuncs.com/${{ env.REPO }}:${{ env.TAG }}"
+      #   run: curl -X GET -L --user ${{ secrets.JENKINS_TOKEN }} "${{ secrets.JENKINS_URL }}/job/momei/buildWithParameters?token=${{ secrets.JENKINS_JOB_TOKEN }}&DOCKER_IMAGE=registry.cn-hangzhou.aliyuncs.com/${{ env.REPO }}:${{ env.TAG }}"
       - name: Deploy Demo to Jenkins
         if: ${{ github.repository == 'CaoMeiYouRen/momei' }}
-        run: curl -X GET -L --user ${{ secrets.JENKINS_DEMO_TOKEN }} "${{ secrets.JENKINS_DEMO_URL }}/buildWithParameters?token=${{ secrets.JENKINS_DEMO_JOB_TOKEN }}&DOCKER_IMAGE=${{ env.REPO }}:${{ env.TAG }}"
+        run: curl -X GET -L --user ${{ secrets.JENKINS_DEMO_TOKEN }} "${{ secrets.JENKINS_DEMO_URL }}/job/momei-demo/buildWithParameters?token=${{ secrets.JENKINS_DEMO_JOB_TOKEN }}&DOCKER_IMAGE=${{ env.REPO }}:${{ env.TAG }}"
