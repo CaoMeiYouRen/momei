@@ -155,6 +155,13 @@ cli
             process.exit(1)
         }
 
+        let confirmationMode: CliTranslatePostRequest['confirmationMode'] = 'auto'
+        if (options.confirmPreviewTask) {
+            confirmationMode = 'confirmed'
+        } else if (options.preview) {
+            confirmationMode = 'require'
+        }
+
         const client = createAutomationClient(options)
         const payload: CliTranslatePostRequest = {
             sourcePostId: postId,
@@ -165,7 +172,7 @@ cli
             scopes: parseCsvList(options.scopes) as CliTranslatePostRequest['scopes'],
             slugStrategy: options.slugStrategy,
             categoryStrategy: options.categoryStrategy,
-            confirmationMode: options.confirmPreviewTask ? 'confirmed' : (options.preview ? 'require' : 'auto'),
+            confirmationMode,
             previewTaskId: options.confirmPreviewTask,
             approvedSlug: options.approvedSlug,
             approvedCategoryId: options.approvedCategoryId,
