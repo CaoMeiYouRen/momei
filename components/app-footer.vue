@@ -94,7 +94,9 @@
                 </div>
             </div>
             <p class="footer__copyright">
-                {{ $t('components.footer.copyright') }}
+                <span>{{ footerCopyrightText }}</span>
+                <span class="footer__copyright-separator"> · </span>
+                <span>{{ footerPoweredByText }}</span>
             </p>
             <!-- 备案信息组件 -->
             <ComplianceInfo />
@@ -104,6 +106,8 @@
 
 <script setup lang="ts">
 const localePath = useLocalePath()
+const { t } = useI18n()
+const { currentTitle, siteConfig } = useMomeiConfig()
 
 const { data: footerFriendLinkData } = await useAsyncData('footer-friend-links', async () => {
     try {
@@ -119,6 +123,33 @@ const { data: footerFriendLinkData } = await useAsyncData('footer-friend-links',
 })
 
 const footerFriendLinks = computed(() => footerFriendLinkData.value?.items || [])
+
+const footerCopyrightOwner = computed(() => {
+    return siteConfig.value.footerCopyrightOwner?.trim()
+        || siteConfig.value.siteOperator?.trim()
+        || currentTitle.value
+})
+
+const footerCopyrightYears = computed(() => {
+    const currentYear = new Date().getFullYear()
+    const rawStartYear = siteConfig.value.footerCopyrightStartYear?.trim()
+
+    if (!rawStartYear) {
+        return String(currentYear)
+    }
+
+    const parsedStartYear = Number.parseInt(rawStartYear, 10)
+    if (!Number.isInteger(parsedStartYear) || parsedStartYear < 1000 || parsedStartYear > currentYear) {
+        return String(currentYear)
+    }
+
+    return parsedStartYear === currentYear
+        ? String(currentYear)
+        : `${parsedStartYear}-${currentYear}`
+})
+
+const footerCopyrightText = computed(() => `© ${footerCopyrightYears.value} ${footerCopyrightOwner.value}`)
+const footerPoweredByText = computed(() => t('components.footer.powered_by', { name: t('app.name') }))
 </script>
 
 <style lang="scss" scoped>
@@ -186,6 +217,10 @@ const footerFriendLinks = computed(() => footerFriendLinkData.value?.items || []
     color: var(--p-text-muted-color);
     margin-bottom: $spacing-sm;
   }
+
+    &__copyright-separator {
+        opacity: 0.7;
+    }
 
     &__friend-links {
         width: 100%;

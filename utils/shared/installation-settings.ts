@@ -7,6 +7,8 @@ export interface InstallationSiteConfigModel {
     siteKeywords: string
     siteUrl: string
     siteCopyright: CopyrightType | ''
+    footerCopyrightOwner: string
+    footerCopyrightStartYear: string
     defaultLanguage: AdminLanguageCode
 }
 
@@ -46,6 +48,8 @@ export const INSTALLATION_SITE_SETTING_KEYS = {
     siteKeywords: SettingKey.SITE_KEYWORDS,
     siteUrl: SettingKey.SITE_URL,
     siteCopyright: SettingKey.SITE_COPYRIGHT,
+    footerCopyrightOwner: SettingKey.FOOTER_COPYRIGHT_OWNER,
+    footerCopyrightStartYear: SettingKey.FOOTER_COPYRIGHT_START_YEAR,
     defaultLanguage: SettingKey.DEFAULT_LANGUAGE,
 } as const
 
@@ -82,6 +86,8 @@ export const INSTALLATION_SITE_ENV_BACKFILL_MAP = {
     [SettingKey.SITE_KEYWORDS]: 'siteKeywords',
     [SettingKey.SITE_URL]: 'siteUrl',
     [SettingKey.SITE_COPYRIGHT]: 'siteCopyright',
+    [SettingKey.FOOTER_COPYRIGHT_OWNER]: 'footerCopyrightOwner',
+    [SettingKey.FOOTER_COPYRIGHT_START_YEAR]: 'footerCopyrightStartYear',
     [SettingKey.DEFAULT_LANGUAGE]: 'defaultLanguage',
 } as const satisfies Record<string, keyof InstallationSiteConfigModel>
 
@@ -91,6 +97,8 @@ export const DEFAULT_INSTALLATION_SITE_CONFIG: InstallationSiteConfigModel = {
     siteKeywords: '',
     siteUrl: '',
     siteCopyright: 'all-rights-reserved',
+    footerCopyrightOwner: '',
+    footerCopyrightStartYear: '',
     defaultLanguage: 'zh-CN',
 }
 

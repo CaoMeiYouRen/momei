@@ -58,6 +58,7 @@
             field-key="site_copyright"
             input-id="site_copyright"
             :metadata="metadata.site_copyright"
+            :description="$t('pages.admin.settings.system.hints.site_copyright')"
         >
             <Select
                 id="site_copyright"
@@ -66,6 +67,34 @@
                 option-label="label"
                 option-value="value"
                 :disabled="metadata.site_copyright?.isLocked"
+                fluid
+            />
+        </SettingFormField>
+
+        <SettingFormField
+            field-key="footer_copyright_owner"
+            input-id="footer_copyright_owner"
+            :metadata="metadata.footer_copyright_owner"
+            :description="$t('pages.admin.settings.system.hints.footer_copyright_owner')"
+        >
+            <InputText
+                id="footer_copyright_owner"
+                v-model="settings.footer_copyright_owner"
+                :disabled="metadata.footer_copyright_owner?.isLocked"
+                fluid
+            />
+        </SettingFormField>
+
+        <SettingFormField
+            field-key="footer_copyright_start_year"
+            input-id="footer_copyright_start_year"
+            :metadata="metadata.footer_copyright_start_year"
+            :description="$t('pages.admin.settings.system.hints.footer_copyright_start_year')"
+        >
+            <InputText
+                id="footer_copyright_start_year"
+                v-model="settings.footer_copyright_start_year"
+                :disabled="metadata.footer_copyright_start_year?.isLocked"
                 fluid
             />
         </SettingFormField>

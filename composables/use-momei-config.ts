@@ -4,6 +4,8 @@ export interface MomeiPublicConfig {
     siteDescription: string
     siteKeywords: string
     siteCopyright: string
+    footerCopyrightOwner: string
+    footerCopyrightStartYear: string
     defaultLanguage: string
     baiduAnalytics: string
     googleAnalytics: string
@@ -47,6 +49,8 @@ const createDefaultSiteConfig = (): MomeiPublicConfig => ({
     siteDescription: '',
     siteKeywords: '',
     siteCopyright: '',
+    footerCopyrightOwner: '',
+    footerCopyrightStartYear: '',
     defaultLanguage: 'zh-CN',
     baiduAnalytics: '',
     googleAnalytics: '',

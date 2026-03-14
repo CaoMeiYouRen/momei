@@ -17,6 +17,7 @@
     "footer": {
       "docs": "문서",
       "copyright": "© 2026 모메이 블로그 - AI와 함께, 전 세계를 향한 창작",
+      "powered_by": "Powered by {name}",
       "compliance": {
         "icp": "ICP 등록",
         "police": "공안 보안 등록"

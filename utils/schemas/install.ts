@@ -8,6 +8,8 @@ export const siteConfigSchema = z.object({
     siteKeywords: z.string().max(200).optional().or(z.literal('')),
     siteUrl: z.string().max(500).optional().or(z.literal('')),
     siteCopyright: z.string().refine((value) => value === '' || isCopyrightType(value), '请选择有效的版权协议'),
+    footerCopyrightOwner: z.string().max(100, '版权所有者不能超过 100 个字符').optional().or(z.literal('')),
+    footerCopyrightStartYear: z.string().regex(/^$|^\d{4}$/, '版权起始年份必须为四位年份').optional().or(z.literal('')),
     defaultLanguage: z.string().refine(isAppLocale, '请选择有效的默认语言'),
 })
 

@@ -42,7 +42,9 @@
             "siteKeywords": "站点关键词",
             "siteUrl": "站点地址",
             "siteUrlPlaceholder": "例如:https://blog.example.com",
-            "siteCopyright": "版权信息",
+            "siteCopyright": "預設文章版權協議",
+            "footerCopyrightOwner": "頁腳版權持有人",
+            "footerCopyrightStartYear": "頁腳版權起始年份",
             "defaultLanguage": "默认语言",
             "error": "保存站点配置失败"
         },

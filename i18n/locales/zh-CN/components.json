@@ -17,6 +17,7 @@
     "footer": {
       "docs": "文档",
       "copyright": "© 2026 墨梅博客 - AI 赋能，全球创作",
+      "powered_by": "Powered by {name}",
       "compliance": {
         "icp": "ICP备案",
         "police": "公安网安备"

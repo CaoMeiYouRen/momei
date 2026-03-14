@@ -87,6 +87,8 @@ These settings round out observability, branding, visual effects, and monetizati
 	- `NUXT_PUBLIC_SITE_KEYWORDS`
 	- `NUXT_PUBLIC_CONTACT_EMAIL`
 	- `NUXT_PUBLIC_DEFAULT_COPYRIGHT`
+	- `NUXT_PUBLIC_FOOTER_COPYRIGHT_OWNER`
+	- `NUXT_PUBLIC_FOOTER_COPYRIGHT_START_YEAR`
 - **Analytics and monitoring**:
 	- `NUXT_PUBLIC_BAIDU_ANALYTICS_ID`
 	- `NUXT_PUBLIC_GOOGLE_ANALYTICS_ID`

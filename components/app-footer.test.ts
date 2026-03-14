@@ -1,8 +1,36 @@
-import { describe, expect, it } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { computed, ref } from 'vue'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import AppFooter from './app-footer.vue'
 
+const mockFetch = vi.fn()
+const mockSiteConfig = ref({
+    siteOperator: '',
+    footerCopyrightOwner: '',
+    footerCopyrightStartYear: '',
+})
+const mockCurrentTitle = ref('Momei Blog')
+
+vi.stubGlobal('$fetch', mockFetch)
+
+mockNuxtImport('useMomeiConfig', () => () => ({
+    currentTitle: computed(() => mockCurrentTitle.value),
+    siteLogo: computed(() => ''),
+    siteConfig: mockSiteConfig,
+}))
+
 describe('AppFooter', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        mockFetch.mockResolvedValue({ data: { items: [] } })
+        mockCurrentTitle.value = 'Momei Blog'
+        mockSiteConfig.value = {
+            siteOperator: '',
+            footerCopyrightOwner: '',
+            footerCopyrightStartYear: '',
+        }
+    })
+
     it('should render footer with logo and title', async () => {
         const wrapper = await mountSuspended(AppFooter, {
             global: {
@@ -34,6 +62,14 @@ describe('AppFooter', () => {
     })
 
     it('should render copyright text', async () => {
+        const currentYear = new Date().getFullYear()
+        mockCurrentTitle.value = 'My Blog'
+        mockSiteConfig.value = {
+            siteOperator: 'My Studio',
+            footerCopyrightOwner: 'My Studio',
+            footerCopyrightStartYear: String(currentYear - 2),
+        }
+
         const wrapper = await mountSuspended(AppFooter, {
             global: {
                 stubs: {
@@ -43,7 +79,24 @@ describe('AppFooter', () => {
             },
         })
 
-        expect(wrapper.find('.footer__copyright').exists()).toBe(true)
+        expect(wrapper.find('.footer__copyright').text()).toContain(`© ${currentYear - 2}-${currentYear} My Studio`)
+        expect(wrapper.find('.footer__copyright').text()).toContain('Powered by Momei Blog')
+    })
+
+    it('should fall back to site title when footer owner is empty', async () => {
+        const currentYear = new Date().getFullYear()
+        mockCurrentTitle.value = 'Fallback Site'
+
+        const wrapper = await mountSuspended(AppFooter, {
+            global: {
+                stubs: {
+                    ComplianceInfo: true,
+                    TravellingsLink: true,
+                },
+            },
+        })
+
+        expect(wrapper.find('.footer__copyright').text()).toContain(`© ${currentYear} Fallback Site`)
     })
 
     it('should render ComplianceInfo component', async () => {

@@ -17,6 +17,7 @@
     "footer": {
       "docs": "Docs",
       "copyright": "© 2026 Momei Blog - AI-powered, Global Creation",
+      "powered_by": "Powered by {name}",
       "compliance": {
         "icp": "ICP License",
         "police": "Public Security Filing"

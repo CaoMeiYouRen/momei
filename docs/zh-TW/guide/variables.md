@@ -45,8 +45,10 @@ last_sync: 2026-03-10
 | `NUXT_PUBLIC_SITE_URL` | - | 0 | SEO、Sitemap、RSS 與公開連結的基礎 URL |
 | `AUTH_SECRET` | - | 3 | Better Auth 核心密鑰，僅允許透過 ENV 配置 |
 | `NUXT_PUBLIC_AUTH_BASE_URL` | `site_url` | 0 | Better Auth 回呼地址 |
-| `NUXT_PUBLIC_DEFAULT_COPYRIGHT` | `site_copyright` | 0 | 預設版權聲明 |
+| `NUXT_PUBLIC_DEFAULT_COPYRIGHT` | `site_copyright` | 0 | 預設文章版權協議 |
 | `NUXT_PUBLIC_CONTACT_EMAIL` | `contact_email` | 0 | 公開聯絡郵箱 |
+| `NUXT_PUBLIC_FOOTER_COPYRIGHT_OWNER` | `footer_copyright_owner` | 0 | 頁腳版權顯示的權利人 |
+| `NUXT_PUBLIC_FOOTER_COPYRIGHT_START_YEAR` | `footer_copyright_start_year` | 0 | 頁腳版權年份區間的起始年份 |
 
 ### 2.2 AI 與多模態配置
 

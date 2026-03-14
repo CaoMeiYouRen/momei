@@ -154,16 +154,24 @@ describe('Installation Service', () => {
                 siteKeywords: 'test, blog',
                 siteUrl: 'https://example.com',
                 siteCopyright: 'all-rights-reserved' as const,
+                footerCopyrightOwner: 'Test Studio',
+                footerCopyrightStartYear: '2024',
                 defaultLanguage: 'zh-CN' as const,
             }
 
             await saveSiteConfig(config)
 
-            expect(mockSave).toHaveBeenCalledTimes(15)
+            expect(mockSave).toHaveBeenCalledTimes(17)
             expect(mockSave).toHaveBeenCalledWith(
                 expect.objectContaining({
                     key: SettingKey.SITE_TITLE,
                     value: 'Test Blog',
+                }),
+            )
+            expect(mockSave).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    key: SettingKey.FOOTER_COPYRIGHT_OWNER,
+                    value: 'Test Studio',
                 }),
             )
         })

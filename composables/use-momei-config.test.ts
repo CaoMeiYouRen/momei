@@ -31,6 +31,8 @@ describe('useMomeiConfig', () => {
             siteDescription: '',
             siteKeywords: '',
             siteCopyright: '',
+            footerCopyrightOwner: '',
+            footerCopyrightStartYear: '',
             defaultLanguage: 'zh-CN',
             baiduAnalytics: '',
             googleAnalytics: '',
@@ -78,6 +80,8 @@ describe('useMomeiConfig', () => {
             siteDescription: '',
             siteKeywords: '',
             siteCopyright: '',
+            footerCopyrightOwner: '',
+            footerCopyrightStartYear: '',
             defaultLanguage: 'zh-CN',
         })
     })
@@ -88,6 +92,8 @@ describe('useMomeiConfig', () => {
             siteDescription: 'My awesome blog',
             siteKeywords: 'blog, tech',
             siteCopyright: '© 2024',
+            footerCopyrightOwner: 'My Studio',
+            footerCopyrightStartYear: '2024',
             defaultLanguage: 'en-US',
             travellingsEnabled: false,
             webPushEnabled: true,
