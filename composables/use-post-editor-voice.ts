@@ -13,6 +13,8 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
 
     const isListening = ref(false)
     const isSupported = ref(false)
+    const hasSpeechRecognitionSupport = ref(false)
+    const hasRecordingSupport = ref(false)
     const interimTranscript = ref('')
     const committedTranscript = ref('') // 之前识别完成的内容
     const currentSessionFinal = ref('') // 当前正在进行的会话中已确认的内容
@@ -49,6 +51,12 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
 
     // 初始化时从 localStorage 读取模式，并检查云端配置
     if (import.meta.client) {
+        hasRecordingSupport.value = Boolean(
+            navigator.mediaDevices
+            && typeof navigator.mediaDevices.getUserMedia === 'function'
+            && typeof MediaRecorder !== 'undefined',
+        )
+
         const savedMode = localStorage.getItem('momei_voice_mode') as VoiceTranscriptionMode
         const validModes: VoiceTranscriptionMode[] = ['web-speech', 'cloud-batch', 'cloud-stream']
         if (savedMode && validModes.includes(savedMode)) {
@@ -228,6 +236,7 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
     if (import.meta.client) {
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
         if (SpeechRecognition) {
+            hasSpeechRecognitionSupport.value = true
             isSupported.value = true
             recognition = new SpeechRecognition()
             recognition.continuous = true
@@ -272,6 +281,32 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
                 isListening.value = false
             }
         }
+
+        if (!isSupported.value && hasRecordingSupport.value) {
+            isSupported.value = true
+        }
+    }
+
+    if (asrDirectStream) {
+        watch(() => asrDirectStream.interimTranscript.value, (value) => {
+            if (mode.value === 'cloud-stream') {
+                interimTranscript.value = value
+            }
+        })
+
+        watch(() => asrDirectStream.finalTranscript.value, (value) => {
+            if (mode.value === 'cloud-stream' && value) {
+                currentSessionFinal.value += value
+                asrDirectStream.reset()
+            }
+        })
+
+        watch(() => asrDirectStream.error.value, (value) => {
+            if (mode.value === 'cloud-stream' && value) {
+                error.value = value
+                isListening.value = false
+            }
+        })
     }
 
     // 处理音频录制
@@ -310,27 +345,6 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
 
                         // 设置音频处理管道
                         await setupAudioPipeline()
-
-                        // 监听直连转录结果
-                        watch(() => asrDirectStream.interimTranscript.value, (val) => {
-                            if (mode.value === 'cloud-stream') {
-                                interimTranscript.value = val
-                            }
-                        })
-
-                        watch(() => asrDirectStream.finalTranscript.value, (val) => {
-                            if (mode.value === 'cloud-stream' && val) {
-                                currentSessionFinal.value += val
-                                asrDirectStream.reset()
-                            }
-                        })
-
-                        watch(() => asrDirectStream.error.value, (val) => {
-                            if (mode.value === 'cloud-stream' && val) {
-                                error.value = val
-                                isListening.value = false
-                            }
-                        })
                     } catch (err: any) {
                         console.error('Direct stream connection failed, falling back to proxy', err)
                         // 回退到代理模式
@@ -566,6 +580,11 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
 
         if (mode.value === 'web-speech') {
             if (!recognition) {
+                if (hasRecordingSupport.value && cloudConfig.value.enabled) {
+                    mode.value = cloudConfig.value.volcengine ? 'cloud-stream' : 'cloud-batch'
+                    void startRecording()
+                    return
+                }
                 error.value = 'not_supported'
                 return
             }

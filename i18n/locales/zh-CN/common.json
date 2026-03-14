@@ -141,7 +141,28 @@
         "visit_site": "访问站点",
         "custom": "自定义平台",
         "created_at": "创建时间",
-        "back_to_home": "返回首页"
+        "back_to_home": "返回首页",
+        "voice": {
+            "input": "语音输入",
+            "listening": "正在倾听...",
+            "permission_hint": "开始录音后，浏览器会请求麦克风权限。",
+            "model_loading": "正在准备语音输入...",
+            "start_record": "开始录音",
+            "stop": "停止录音",
+            "insert": "插入文本",
+            "refine_insert": "AI 润色后插入",
+            "scaffold_insert": "AI 整理大纲后插入",
+            "unsupported": "当前浏览器不支持语音输入，请尝试使用 Chrome 或 Edge。",
+            "error": "语音识别出错",
+            "permission_denied": "未获得麦克风权限",
+            "retry": "重试",
+            "mode_basic": "基础 (Web)",
+            "mode_cloud_batch": "精进 (Cloud Batch)",
+            "mode_cloud_stream": "极速 (Cloud Stream)",
+            "model_ready": "云端语音模式已就绪",
+            "aria_button_start": "开始语音输入",
+            "aria_button_stop": "停止语音输入"
+        }
     },
     "error": {
         "unauthorized": "未授权，请先登录",

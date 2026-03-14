@@ -52,6 +52,14 @@
             </main>
 
             <footer class="capture-footer">
+                <AppVoiceInputTrigger
+                    v-model="content"
+                    :target-ref="textareaRef"
+                    insert-strategy="cursor"
+                    :show-refine-action="true"
+                    button-rounded
+                    button-class="capture-voice-trigger"
+                />
                 <Button
                     icon="pi pi-image"
                     text
@@ -286,6 +294,10 @@ definePageMeta({
         padding-top: 0.5rem;
         padding-bottom: env(safe-area-inset-bottom, 0.5rem);
         border-top: 1px solid var(--surface-200);
+
+        .capture-voice-trigger {
+            flex-shrink: 0;
+        }
     }
 
     .source-info {

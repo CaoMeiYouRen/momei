@@ -141,7 +141,28 @@
         "visit_site": "造訪網站",
         "custom": "自訂平台",
         "created_at": "建立時間",
-        "back_to_home": "返回首頁"
+        "back_to_home": "返回首頁",
+        "voice": {
+            "input": "語音輸入",
+            "listening": "正在傾聽...",
+            "permission_hint": "開始錄音後，瀏覽器會請求麥克風權限。",
+            "model_loading": "正在準備語音輸入...",
+            "start_record": "開始錄音",
+            "stop": "停止錄音",
+            "insert": "插入文字",
+            "refine_insert": "AI 潤飾後插入",
+            "scaffold_insert": "AI 整理大綱後插入",
+            "unsupported": "目前瀏覽器不支援語音輸入，請嘗試使用 Chrome 或 Edge。",
+            "error": "語音辨識出錯",
+            "permission_denied": "未取得麥克風權限",
+            "retry": "重試",
+            "mode_basic": "基礎 (Web)",
+            "mode_cloud_batch": "精進 (Cloud Batch)",
+            "mode_cloud_stream": "極速 (Cloud Stream)",
+            "model_ready": "雲端語音模式已就緒",
+            "aria_button_start": "開始語音輸入",
+            "aria_button_stop": "停止語音輸入"
+        }
     },
     "error": {
         "unauthorized": "未授權，請先登入",

@@ -41,41 +41,14 @@
                     outlined
                     @click="handleFormatMarkdown"
                 />
-                <ClientOnly>
-                    <Button
-                        v-if="isVoiceSupported"
-                        id="ai-voice-btn"
-                        v-tooltip="isListening ? $t('pages.admin.posts.ai.voice_stop') : $t('pages.admin.posts.ai.voice_input')"
-                        :icon="isListening ? 'pi pi-stop-circle' : 'pi pi-microphone'"
-                        text
-                        outlined
-                        :severity="isListening ? 'danger' : 'secondary'"
-                        :class="{'pulse-animation': isListening}"
-                        @click="handleVoiceClick($event)"
-                    />
-                </ClientOnly>
+                <AppVoiceInputTrigger
+                    id="ai-voice-btn"
+                    v-model="post.content"
+                    :language="post.language"
+                    :show-refine-action="true"
+                    button-class="top-bar__voice-trigger"
+                />
             </ButtonGroup>
-            <AdminPostsPostEditorVoiceOverlay
-                ref="voiceOp"
-                v-model:mode="voiceMode"
-                :is-listening="isListening"
-                :interim-transcript="interimTranscript"
-                :final-transcript="finalTranscript"
-                :error="voiceError"
-                :refining="refiningVoice"
-                :is-loading-model="isLoadingModel"
-                :model-progress="modelProgress"
-                :is-model-ready="isModelReady"
-                :cloud-config="cloudConfig"
-                @start="startListening(post.language)"
-                @stop="stopListening()"
-                @retry="resetVoice(); startListening(post.language)"
-                @insert="handleVoiceInsert"
-                @refine="handleVoiceRefine"
-                @scaffold="handleVoiceScaffold"
-                @load-model="loadModel"
-                @hide="stopListening()"
-            />
             <Popover ref="translateOp" class="translate-menu">
                 <div class="translate-menu__content">
                     <div
@@ -227,7 +200,6 @@
 
 <script setup lang="ts">
 import { formatMarkdown } from '@/utils/shared/markdown'
-import { usePostEditorVoice } from '@/composables/use-post-editor-voice'
 
 const post = defineModel<any>('post', { required: true })
 
@@ -271,87 +243,7 @@ const localePath = useLocalePath()
 
 const titleOp = ref<any>(null)
 const translateOp = ref<any>(null)
-const voiceOp = ref<any>(null)
 const distributionButtonRef = ref<{ openDialog?: () => Promise<void> } | null>(null)
-
-const refiningVoice = ref(false)
-const {
-    isListening,
-    isSupported: isVoiceSupported,
-    interimTranscript,
-    finalTranscript,
-    error: voiceError,
-    mode: voiceMode,
-    isLoadingModel,
-    modelProgress,
-    isModelReady,
-    cloudConfig,
-    loadModel,
-    startListening,
-    stopListening,
-    reset: resetVoice,
-} = usePostEditorVoice({
-    directMode: true,
-})
-
-const handleVoiceClick = (event: any) => {
-    if (isListening.value) {
-        stopListening()
-    } else {
-        voiceOp.value?.show(event)
-    }
-}
-
-const handleVoiceInsert = (text: string) => {
-    if (!text) return
-    const content = post.value.content || ''
-    post.value.content = content + (content.length > 0 && !content.endsWith('\n') ? '\n\n' : content.length > 0 && content.endsWith('\n') && !content.endsWith('\n\n') ? '\n' : '') + text
-    voiceOp.value?.hide()
-    resetVoice()
-}
-
-const handleVoiceRefine = async (text: string) => {
-    if (!text) return
-    refiningVoice.value = true
-    try {
-        const { data } = await $fetch('/api/ai/refine-voice', {
-            method: 'POST',
-            body: {
-                content: text,
-                language: post.value.language,
-            },
-        })
-        handleVoiceInsert(data as string)
-    } catch (e) {
-        console.error('Refine voice error:', e)
-        // Fallback to direct insert if AI fails
-        handleVoiceInsert(text)
-    } finally {
-        refiningVoice.value = false
-    }
-}
-
-const handleVoiceScaffold = async (text: string) => {
-    if (!text) return
-    refiningVoice.value = true
-    try {
-        const result = await $fetch<any>('/api/ai/scaffold/generate', {
-            method: 'POST',
-            body: {
-                snippets: [text],
-                topic: post.value.title,
-                language: post.value.language,
-            },
-        })
-        const data = result?.data?.scaffold || result?.data || result
-        handleVoiceInsert(data as string)
-    } catch (e) {
-        console.error('Scaffold voice error:', e)
-        handleVoiceInsert(text)
-    } finally {
-        refiningVoice.value = false
-    }
-}
 
 const handleTranslateSelection = (langCode: string | null) => {
     translateOp.value?.hide()
@@ -415,6 +307,10 @@ defineExpose({
         display: flex;
         align-items: center;
         gap: 0.5rem;
+    }
+
+    &__voice-trigger {
+        min-width: auto;
     }
 }
 

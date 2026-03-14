@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { nextTick } from 'vue'
+import { defineComponent, nextTick } from 'vue'
+import { mountSuspended } from '@nuxt/test-utils/runtime'
 
 // Mock Worker
 class MockWorker {
@@ -18,8 +19,17 @@ class MockSpeechRecognition {
     stop = vi.fn()
 }
 
+class MockMediaRecorder {
+    ondataavailable: ((event: { data: Blob }) => void) | null = null
+    start = vi.fn()
+    stop = vi.fn(() => {
+        this.ondataavailable?.({ data: new Blob(['audio']) })
+    })
+}
+
+global.Worker = MockWorker as unknown as typeof Worker
 // @ts-expect-error global mock
-global.Worker = MockWorker
+global.MediaRecorder = MockMediaRecorder
 global.AudioContext = vi.fn().mockImplementation(() => ({
     state: 'running',
     resume: vi.fn(),
@@ -37,10 +47,39 @@ global.AudioContext = vi.fn().mockImplementation(() => ({
     sampleRate: 16000,
     close: vi.fn(),
 }))
-global.SpeechRecognition = MockSpeechRecognition
+global.SpeechRecognition = MockSpeechRecognition as never
+
+Object.defineProperty(window, 'SpeechRecognition', {
+    value: MockSpeechRecognition,
+    writable: true,
+})
+
+Object.defineProperty(window, 'webkitSpeechRecognition', {
+    value: MockSpeechRecognition,
+    writable: true,
+})
+
+Object.defineProperty(global.navigator, 'mediaDevices', {
+    value: {
+        getUserMedia: vi.fn().mockResolvedValue({
+            getTracks: () => [{ stop: vi.fn() }],
+        }),
+    },
+    configurable: true,
+})
+
+const mockFetch = vi.fn().mockResolvedValue({
+    enabled: true,
+    siliconflow: true,
+    volcengine: true,
+})
+
+vi.stubGlobal('$fetch', mockFetch)
 
 vi.mock('#app', () => ({
     defineNuxtPlugin: (plugin: any) => plugin,
+    useCookie: () => ({ value: undefined }),
+    useNuxtApp: () => ({}),
     useRuntimeConfig: () => ({
         public: {
             hfProxy: 'https://huggingface.co',
@@ -48,22 +87,42 @@ vi.mock('#app', () => ({
     }),
 }))
 
-import { usePostEditorVoice } from './use-post-editor-voice'
+import { useVoiceInput } from './use-voice-input'
 
-describe('usePostEditorVoice', () => {
-    beforeEach(() => {
-        vi.clearAllMocks()
+async function mountVoiceInput(): Promise<ReturnType<typeof useVoiceInput>> {
+    let voiceInput: ReturnType<typeof useVoiceInput> | null = null
+
+    const TestComponent = defineComponent({
+        setup() {
+            voiceInput = useVoiceInput()
+            return () => null
+        },
     })
 
-    it('should initialize with default values', () => {
-        const { isListening, mode, isSupported } = usePostEditorVoice()
+    await mountSuspended(TestComponent)
+
+    if (!voiceInput) {
+        throw new Error('voice input composable was not initialized')
+    }
+
+    return voiceInput as ReturnType<typeof useVoiceInput>
+}
+
+describe('useVoiceInput', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        localStorage.clear()
+    })
+
+    it('should initialize with default values', async () => {
+        const { isListening, mode, isSupported } = await mountVoiceInput()
         expect(isListening.value).toBe(false)
         expect(mode.value).toBe('web-speech')
         expect(isSupported.value).toBe(true)
     })
 
     it('should switch mode correctly', async () => {
-        const { mode } = usePostEditorVoice()
+        const { mode } = await mountVoiceInput()
 
         mode.value = 'cloud-batch'
         await nextTick()
@@ -71,8 +130,8 @@ describe('usePostEditorVoice', () => {
         expect(mode.value).toBe('cloud-batch')
     })
 
-    it('should reset transcripts correctly', () => {
-        const { interimTranscript, finalTranscript, reset } = usePostEditorVoice()
+    it('should reset transcripts correctly', async () => {
+        const { interimTranscript, finalTranscript, reset } = await mountVoiceInput()
 
         // Simulating some content
         // Note: interimTranscript is a ref, finalTranscript is a computed
@@ -82,5 +141,17 @@ describe('usePostEditorVoice', () => {
 
         expect(interimTranscript.value).toBe('')
         expect(finalTranscript.value).toBe('')
+    })
+
+    it('should start cloud batch recording when switching to cloud mode', async () => {
+        const { mode, startListening, isListening } = await mountVoiceInput()
+
+        mode.value = 'cloud-batch'
+        await nextTick()
+        startListening('zh-CN')
+        await Promise.resolve()
+
+        expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalled()
+        expect(isListening.value).toBe(true)
     })
 })

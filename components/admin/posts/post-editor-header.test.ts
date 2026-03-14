@@ -3,6 +3,12 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import PostEditorHeader from './post-editor-header.vue'
 import { PostStatus } from '@/types/post'
 
+const stubs = {
+    AppVoiceInputTrigger: {
+        template: '<button class="voice-trigger-stub" />',
+    },
+}
+
 describe('PostEditorHeader', () => {
     const mockPost = {
         title: 'Test Post',
@@ -30,6 +36,9 @@ describe('PostEditorHeader', () => {
     it('renders title input correctly', async () => {
         const wrapper = await mountSuspended(PostEditorHeader, {
             props: defaultProps,
+            global: {
+                stubs,
+            },
         })
 
         const input = wrapper.find('.title-input')
@@ -40,11 +49,14 @@ describe('PostEditorHeader', () => {
     it('groups AI tools in ButtonGroup', async () => {
         const wrapper = await mountSuspended(PostEditorHeader, {
             props: defaultProps,
+            global: {
+                stubs,
+            },
         })
 
         const aiGroup = wrapper.find('.ai-tools-group')
         expect(aiGroup.exists()).toBe(true)
-        expect(aiGroup.findAll('button').length).toBe(3) // Suggest, Translate, Format
+        expect(aiGroup.findAll('button').length).toBe(4) // Suggest, Translate, Format, Voice
     })
 
     it('renders status tag and translation badges in right bar', async () => {
@@ -52,6 +64,9 @@ describe('PostEditorHeader', () => {
             props: {
                 ...defaultProps,
                 post: { ...mockPost, status: PostStatus.PUBLISHED },
+            },
+            global: {
+                stubs,
             },
         })
 

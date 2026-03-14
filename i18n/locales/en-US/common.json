@@ -141,7 +141,28 @@
         "visit_site": "Visit Site",
         "custom": "Custom Platform",
         "created_at": "Created At",
-        "back_to_home": "Back to Home"
+        "back_to_home": "Back to Home",
+        "voice": {
+            "input": "Voice Input",
+            "listening": "Listening...",
+            "permission_hint": "Your browser will ask for microphone permission when recording starts.",
+            "model_loading": "Preparing voice input...",
+            "start_record": "Start Recording",
+            "stop": "Stop Recording",
+            "insert": "Insert Text",
+            "refine_insert": "Refine with AI then Insert",
+            "scaffold_insert": "Organize as Outline then Insert",
+            "unsupported": "Voice input is not supported in this browser. Please try Chrome or Edge.",
+            "error": "Voice recognition error",
+            "permission_denied": "Microphone permission denied",
+            "retry": "Retry",
+            "mode_basic": "Basic (Web)",
+            "mode_cloud_batch": "Precision (Cloud Batch)",
+            "mode_cloud_stream": "Instant (Cloud Stream)",
+            "model_ready": "Cloud voice mode is ready",
+            "aria_button_start": "Start voice input",
+            "aria_button_stop": "Stop voice input"
+        }
     },
     "error": {
         "unauthorized": "Unauthorized, please login first",

@@ -141,7 +141,28 @@
         "visit_site": "사이트 방문",
         "custom": "사용자 지정 플랫폼",
         "created_at": "생성일",
-        "back_to_home": "홈으로 돌아가기"
+        "back_to_home": "홈으로 돌아가기",
+        "voice": {
+            "input": "음성 입력",
+            "listening": "듣는 중...",
+            "permission_hint": "녹음을 시작하면 브라우저가 마이크 권한을 요청합니다.",
+            "model_loading": "음성 입력을 준비하는 중...",
+            "start_record": "녹음 시작",
+            "stop": "녹음 중지",
+            "insert": "텍스트 삽입",
+            "refine_insert": "AI로 다듬은 뒤 삽입",
+            "scaffold_insert": "개요로 정리한 뒤 삽입",
+            "unsupported": "현재 브라우저는 음성 입력을 지원하지 않습니다. Chrome 또는 Edge를 사용해 주세요.",
+            "error": "음성 인식 오류",
+            "permission_denied": "마이크 권한이 거부되었습니다",
+            "retry": "다시 시도",
+            "mode_basic": "기본 (Web)",
+            "mode_cloud_batch": "정밀 (Cloud Batch)",
+            "mode_cloud_stream": "실시간 (Cloud Stream)",
+            "model_ready": "클라우드 음성 모드 준비 완료",
+            "aria_button_start": "음성 입력 시작",
+            "aria_button_stop": "음성 입력 중지"
+        }
     },
     "error": {
         "unauthorized": "인증되지 않았습니다. 먼저 로그인해 주세요",

@@ -8,6 +8,7 @@
                         <span class="quick-capture-title">{{ t('pages.admin.snippets.quick_capture_title') }}</span>
                     </div>
                     <Textarea
+                        ref="contentInputRef"
                         v-model="newSnippet"
                         rows="2"
                         :placeholder="t('pages.admin.snippets.quick_capture_placeholder')"
@@ -42,6 +43,14 @@
                     <Divider class="quick-capture-divider" />
                     <div class="quick-capture-footer">
                         <div class="footer-left">
+                            <AppVoiceInputTrigger
+                                v-model="newSnippet"
+                                :target-ref="contentInputRef"
+                                insert-strategy="cursor"
+                                :show-refine-action="true"
+                                button-rounded
+                                button-class="quick-capture-voice-btn"
+                            />
                             <Button
                                 v-tooltip.bottom="t('pages.admin.snippets.upload_image')"
                                 :loading="imageUploading"
@@ -93,6 +102,7 @@ const newSnippet = ref('')
 const pendingMedia = ref<string[]>([])
 const saving = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
+const contentInputRef = ref<HTMLTextAreaElement | null>(null)
 
 const triggerUpload = () => {
     fileInput.value?.click()

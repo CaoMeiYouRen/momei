@@ -11,9 +11,21 @@
     >
         <div class="edit-form">
             <div class="edit-field">
-                <label for="content" class="field-label">{{ t('pages.admin.snippets.content') }}</label>
+                <div class="edit-field__header">
+                    <label for="content" class="field-label">{{ t('pages.admin.snippets.content') }}</label>
+                    <AppVoiceInputTrigger
+                        v-model="form.content"
+                        :target-ref="contentInputRef"
+                        :language="snippetLanguage"
+                        insert-strategy="cursor"
+                        :show-refine-action="true"
+                        button-size="small"
+                        button-class="edit-field__voice-trigger"
+                    />
+                </div>
                 <Textarea
                     id="content"
+                    ref="contentInputRef"
                     v-model="form.content"
                     rows="12"
                     auto-resize
@@ -132,6 +144,8 @@ const form = ref({
 
 const saving = ref(false)
 const editFileInput = ref<HTMLInputElement | null>(null)
+const contentInputRef = ref<HTMLTextAreaElement | null>(null)
+const snippetLanguage = computed(() => 'zh-CN')
 
 watch(() => props.snippet, (newVal) => {
     if (newVal) {
@@ -207,6 +221,13 @@ const updateSnippet = async () => {
             font-weight: 700;
             margin-bottom: 0.5rem;
             color: var(--p-text-color);
+        }
+
+        .edit-field__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
         }
 
         .field-desc {
