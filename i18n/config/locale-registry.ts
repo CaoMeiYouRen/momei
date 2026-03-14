@@ -6,6 +6,7 @@ export type AppLocaleCode = 'zh-CN' | 'en-US' | 'zh-TW' | 'ko-KR'
 export interface LocaleRegistryItem {
     code: AppLocaleCode
     languageTag: string
+    creativeCommonsDeedSuffix: string | null
     name: string
     nativeName: string
     isoName: string
@@ -30,6 +31,7 @@ export const APP_LOCALE_REGISTRY = [
     {
         code: 'zh-CN',
         languageTag: 'zh-CN',
+        creativeCommonsDeedSuffix: 'deed.zh-hans',
         name: '简体中文',
         nativeName: '简体中文',
         isoName: 'Chinese (Simplified)',
@@ -49,6 +51,7 @@ export const APP_LOCALE_REGISTRY = [
     {
         code: 'zh-TW',
         languageTag: 'zh-TW',
+        creativeCommonsDeedSuffix: 'deed.zh-hant',
         name: '繁體中文',
         nativeName: '繁體中文',
         isoName: 'Chinese (Traditional)',
@@ -68,6 +71,7 @@ export const APP_LOCALE_REGISTRY = [
     {
         code: 'en-US',
         languageTag: 'en-US',
+        creativeCommonsDeedSuffix: 'deed.en',
         name: 'English',
         nativeName: 'English',
         isoName: 'English (United States)',
@@ -87,6 +91,7 @@ export const APP_LOCALE_REGISTRY = [
     {
         code: 'ko-KR',
         languageTag: 'ko-KR',
+        creativeCommonsDeedSuffix: 'deed.ko',
         name: 'Korean',
         nativeName: '한국어',
         isoName: 'Korean (South Korea)',
@@ -155,6 +160,10 @@ export function getLocaleRegistryItem(locale?: string | null): LocaleRegistryIte
 
 export function getLocaleRoutePrefix(locale?: string | null): string {
     return getLocaleRegistryItem(locale).routePrefix
+}
+
+export function getCreativeCommonsDeedSuffix(locale?: string | null): string | null {
+    return getLocaleRegistryItem(locale).creativeCommonsDeedSuffix
 }
 
 export function isSeoReadyLocale(locale?: string | null): boolean {

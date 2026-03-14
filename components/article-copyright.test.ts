@@ -40,7 +40,7 @@ describe('ArticleCopyright', () => {
                 }
                 try {
                     const url = new URL(href)
-                    return url.host === 'creativecommons.org'
+                    return url.host === 'creativecommons.org' && url.pathname.endsWith('/deed.zh-hans')
                 } catch {
                     return false
                 }

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
     APP_DEFAULT_LOCALE,
     APP_LOCALE_CODES,
+    getCreativeCommonsDeedSuffix,
     getLocaleRegistryItem,
     getLocaleRoutePrefix,
     isAppLocale,
@@ -45,6 +46,14 @@ describe('i18n locale registry', () => {
         expect(getLocaleRegistryItem('en-US').ogLocale).toBe('en_US')
         expect(getLocaleRegistryItem('zh-TW').nativeName).toBe('繁體中文')
         expect(getLocaleRegistryItem('ko-KR').nativeName).toBe('한국어')
+    })
+
+    it('should expose Creative Commons deed suffixes from locale registry', () => {
+        expect(getCreativeCommonsDeedSuffix('zh-CN')).toBe('deed.zh-hans')
+        expect(getCreativeCommonsDeedSuffix('zh-TW')).toBe('deed.zh-hant')
+        expect(getCreativeCommonsDeedSuffix('en-US')).toBe('deed.en')
+        expect(getCreativeCommonsDeedSuffix('ko-KR')).toBe('deed.ko')
+        expect(getCreativeCommonsDeedSuffix('fr-FR')).toBe('deed.zh-hans')
     })
 
     it('should build module file paths for enabled locales', () => {

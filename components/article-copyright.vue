@@ -44,6 +44,7 @@
 </template>
 
 <script setup lang="ts">
+import { getCreativeCommonsDeedSuffix } from '@/i18n/config/locale-registry'
 import { COPYRIGHT_LICENSES, type CopyrightType } from '@/types/copyright'
 
 const props = defineProps<{
@@ -69,11 +70,7 @@ const licenseUrl = computed(() => {
 
     // For CC licenses, append language if available
     if (licenseKey.value.startsWith('cc-')) {
-        const langMap: Record<string, string> = {
-            'zh-CN': 'deed.zh-hans',
-            'en-US': 'deed.en',
-        }
-        const suffix = langMap[locale.value] || ''
+        const suffix = getCreativeCommonsDeedSuffix(locale.value) || ''
         return suffix ? `${meta.url}${suffix}` : meta.url
     }
     return meta.url
