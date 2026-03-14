@@ -474,6 +474,8 @@
                 "copyright_hint": "留空則使用全域預設聲明",
                 "visibility": "可見性",
                 "visibility_hint": "設定文章的存取權限",
+                "pinned": "置頂",
+                "pinned_hint": "置頂文章會在公開文章列表中優先顯示，並優先進入首頁最新區。",
                 "visibility_options": {
                     "public": "公開",
                     "private": "私密 (僅自己)",

@@ -63,6 +63,9 @@ export class Post extends BaseEntity {
     @CustomColumn({ type: 'integer', default: 0, index: true })
     views: number
 
+    @CustomColumn({ type: 'boolean', default: false, index: true })
+    isPinned: boolean
+
     @CustomColumn({ type: 'text', nullable: true })
     copyright: string | null
 

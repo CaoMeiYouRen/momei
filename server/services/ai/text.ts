@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import { AIBaseService } from './base'
 import {
     requestTranslation,

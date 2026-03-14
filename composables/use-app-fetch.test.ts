@@ -62,6 +62,14 @@ describe('useAppFetch', () => {
         expect(result.options.query.value.page).toBe(1)
     })
 
+    it('should preserve array query parameters', () => {
+        const excludeIds = ref(['post-1', 'post-2'])
+        const result = useAppFetch('/api/posts', { query: { excludeIds } }) as any
+
+        expect(mockUseFetch).toHaveBeenCalled()
+        expect(result.options.query.value.excludeIds).toEqual(['post-1', 'post-2'])
+    })
+
     it('should work with function URL', () => {
         sharedLocale.value = 'en-US'
 

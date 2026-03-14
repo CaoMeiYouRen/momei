@@ -474,6 +474,8 @@
                 "copyright_hint": "留空则使用全局默认声明",
                 "visibility": "可见性",
                 "visibility_hint": "设置文章的访问权限",
+                "pinned": "置顶",
+                "pinned_hint": "置顶文章会在公开文章列表中优先展示，并优先进入首页最新区。",
                 "visibility_options": {
                     "public": "公开",
                     "private": "私密 (仅自己)",

@@ -207,6 +207,7 @@ export interface Post {
     }[] | null
     // 统计与时间
     views: number
+    isPinned?: boolean
     publishedAt?: string | Date | null
     createdAt?: string | Date | null
     updatedAt?: string | Date | null

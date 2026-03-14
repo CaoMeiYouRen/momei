@@ -1,5 +1,3 @@
-/* eslint-disable max-lines */
-
 import { createHash } from 'node:crypto'
 import { createError } from 'h3'
 import { In } from 'typeorm'

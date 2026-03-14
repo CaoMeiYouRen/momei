@@ -99,6 +99,7 @@ export function usePostEditorPage() {
         categoryId: null,
         copyright: null,
         tags: [],
+        isPinned: false,
         language:
             (route.query.language as string)
             || contentLanguage.value
@@ -529,6 +530,7 @@ export function usePostEditorPage() {
                 'categoryId',
                 'category',
                 'tags',
+                'isPinned',
                 'copyright',
                 'publishedAt',
                 'summary',

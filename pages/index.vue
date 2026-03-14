@@ -34,9 +34,9 @@
                     </NuxtLink>
                 </div>
 
-                <div v-if="pending" class="posts-grid">
+                <div v-if="latestPending" class="posts-grid">
                     <div
-                        v-for="i in 3"
+                        v-for="i in 4"
                         :key="i"
                         class="post-card-skeleton"
                     >
@@ -50,13 +50,54 @@
                     </div>
                 </div>
 
-                <div v-else-if="error" class="error-state">
+                <div v-else-if="latestError" class="error-state">
                     <p>{{ $t('common.error_loading') }}</p>
                 </div>
 
                 <div v-else class="posts-grid">
                     <ArticleCard
-                        v-for="post in posts"
+                        v-for="post in latestPosts"
+                        :key="post.id"
+                        :post="post"
+                    />
+                </div>
+            </div>
+        </section>
+
+        <section v-if="popularPending || popularError || popularPosts.length > 0" class="popular-posts section">
+            <div class="container">
+                <div class="section__header">
+                    <h2 class="section__title">
+                        {{ $t('home.popular_posts.title') }}
+                    </h2>
+                    <NuxtLink :to="localePath('/posts')" class="link-more">
+                        {{ $t('common.view_all') }} &rarr;
+                    </NuxtLink>
+                </div>
+
+                <div v-if="popularPending" class="posts-grid">
+                    <div
+                        v-for="i in 3"
+                        :key="`popular-${i}`"
+                        class="post-card-skeleton"
+                    >
+                        <Skeleton height="200px" class="mb-4" />
+                        <Skeleton
+                            width="60%"
+                            height="1.5rem"
+                            class="mb-2"
+                        />
+                        <Skeleton width="40%" height="1rem" />
+                    </div>
+                </div>
+
+                <div v-else-if="popularError" class="error-state">
+                    <p>{{ $t('common.error_loading') }}</p>
+                </div>
+
+                <div v-else class="posts-grid">
+                    <ArticleCard
+                        v-for="post in popularPosts"
                         :key="post.id"
                         :post="post"
                     />
@@ -111,15 +152,33 @@ usePageSeo({
     description: () => t('home.meta.description'),
 })
 
-// Fetch latest 3 posts
-const { data, pending, error } = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {
+const { data: latestData, pending: latestPending, error: latestError } = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {
     query: {
-        limit: 3,
+        limit: 4,
         status: 'published',
+        orderBy: 'publishedAt',
+        order: 'DESC',
     },
 })
 
-const posts = computed(() => data.value?.data?.items || [])
+const latestPosts = computed(() => latestData.value?.data?.items || [])
+const latestPostIds = computed(() => latestPosts.value.map((post) => String(post.id)))
+
+const { data: popularData, pending: popularPending, error: popularError } = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {
+    query: {
+        limit: 3,
+        status: 'published',
+        orderBy: 'views',
+        order: 'DESC',
+        excludeIds: latestPostIds,
+    },
+    watch: [latestPostIds],
+})
+
+const popularPosts = computed(() => {
+    const latestIds = new Set(latestPostIds.value)
+    return (popularData.value?.data?.items || []).filter((post) => !latestIds.has(String(post.id)))
+})
 </script>
 
 <style lang="scss" scoped>

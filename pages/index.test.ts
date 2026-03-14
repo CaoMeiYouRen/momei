@@ -9,7 +9,7 @@ vi.mock('@/composables/use-app-fetch', () => ({
     useAppFetch: vi.fn(),
 }))
 
-const mockPostsData = {
+const mockLatestPostsData = {
     data: {
         items: [
             { id: 1, title: 'Post 1', slug: 'post-1', summary: 'Summary 1', createdAt: '2024-01-01', updatedAt: '2024-01-01', status: 'published' },
@@ -18,17 +18,33 @@ const mockPostsData = {
     },
 }
 
+const mockPopularPostsData = {
+    data: {
+        items: [
+            { id: 1, title: 'Post 1', slug: 'post-1', summary: 'Summary 1', createdAt: '2024-01-01', updatedAt: '2024-01-01', status: 'published' },
+            { id: 3, title: 'Post 3', slug: 'post-3', summary: 'Summary 3', createdAt: '2024-01-03', updatedAt: '2024-01-03', status: 'published' },
+        ],
+    },
+}
+
 describe('IndexPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.mocked(useAppFetch).mockReturnValue({
-            data: ref(mockPostsData),
-            pending: ref(false),
-            error: ref(null),
-        } as any)
+        vi.mocked(useAppFetch).mockReset()
+        vi.mocked(useAppFetch)
+            .mockReturnValueOnce({
+                data: ref(mockLatestPostsData),
+                pending: ref(false),
+                error: ref(null),
+            } as any)
+            .mockReturnValueOnce({
+                data: ref(mockPopularPostsData),
+                pending: ref(false),
+                error: ref(null),
+            } as any)
     })
 
-    it('renders the latest posts', async () => {
+    it('renders latest and popular posts without duplicates', async () => {
         const wrapper = await mountSuspended(IndexPage, {
             global: {
                 stubs: {
@@ -39,17 +55,25 @@ describe('IndexPage', () => {
             },
         })
 
-        expect(wrapper.findAll('.article-card').length).toBe(2)
+        expect(wrapper.findAll('.article-card').length).toBe(3)
         expect(wrapper.text()).toContain('Post 1')
         expect(wrapper.text()).toContain('Post 2')
+        expect(wrapper.text()).toContain('Post 3')
     })
 
     it('shows loading state', async () => {
-        vi.mocked(useAppFetch).mockReturnValue({
-            data: ref(null),
-            pending: ref(true),
-            error: ref(null),
-        } as any)
+        vi.mocked(useAppFetch).mockReset()
+        vi.mocked(useAppFetch)
+            .mockReturnValueOnce({
+                data: ref(null),
+                pending: ref(true),
+                error: ref(null),
+            } as any)
+            .mockReturnValueOnce({
+                data: ref(null),
+                pending: ref(true),
+                error: ref(null),
+            } as any)
 
         const wrapper = await mountSuspended(IndexPage, {
             global: {
@@ -62,11 +86,18 @@ describe('IndexPage', () => {
     })
 
     it('shows error state', async () => {
-        vi.mocked(useAppFetch).mockReturnValue({
-            data: ref(null),
-            pending: ref(false),
-            error: ref(new Error('Failed')),
-        } as any)
+        vi.mocked(useAppFetch).mockReset()
+        vi.mocked(useAppFetch)
+            .mockReturnValueOnce({
+                data: ref(null),
+                pending: ref(false),
+                error: ref(new Error('Failed')),
+            } as any)
+            .mockReturnValueOnce({
+                data: ref(null),
+                pending: ref(false),
+                error: ref(null),
+            } as any)
 
         const wrapper = await mountSuspended(IndexPage)
         const text = wrapper.text()

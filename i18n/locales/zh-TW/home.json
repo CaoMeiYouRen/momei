@@ -12,6 +12,9 @@
     "latest_posts": {
       "title": "最新文章"
     },
+    "popular_posts": {
+      "title": "熱門文章"
+    },
     "about": {
       "description": "墨梅部落格致力於透過 AI 輔助與深度國際化支援，協助開發者更高效地創作優質內容，並觸及全球讀者。"
     }

@@ -48,10 +48,10 @@ describe('Archive API', () => {
         const date2024_01 = new Date('2024-01-10T12:00:00Z')
 
         const posts = [
-            { title: 'Post 1', created: date2023_01 },
-            { title: 'Post 2', created: date2023_01 }, // Two in Jan 2023
-            { title: 'Post 3', created: date2023_02 }, // One in Feb 2023
-            { title: 'Post 4', created: date2024_01 }, // One in Jan 2024
+            { title: 'Post 1', created: date2023_01, isPinned: false },
+            { title: 'Post 2', created: date2023_01, isPinned: true }, // Two in Jan 2023
+            { title: 'Post 3', created: date2023_02, isPinned: false }, // One in Feb 2023
+            { title: 'Post 4', created: date2024_01, isPinned: false }, // One in Jan 2024
         ]
 
         for (const p of posts) {
@@ -61,6 +61,7 @@ describe('Archive API', () => {
             post.content = 'Content'
             post.status = PostStatus.PUBLISHED
             post.author = author
+            post.isPinned = p.isPinned
             post.publishedAt = p.created
             post.createdAt = p.created // Force createdAt if API uses it.
             await postRepo.save(post)
@@ -125,5 +126,29 @@ describe('Archive API', () => {
         expect(data.total).toBeGreaterThanOrEqual(1)
         const doc = data.items[0]
         expect(doc.title).toBe('Post 4')
+    })
+
+    it('should prioritize pinned posts within the same archive month', async () => {
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                includePosts: true,
+                year: 2023,
+                month: 1,
+                page: 1,
+                limit: 10,
+            },
+        } as any
+
+        const result = await archiveHandler(event)
+        const data = result.data as { items: Post[] }
+
+        expect(result.code).toBe(200)
+        expect(data.items[0]?.title).toBe('Post 2')
     })
 })

@@ -474,6 +474,8 @@
                 "copyright_hint": "Leave empty for global default",
                 "visibility": "Visibility",
                 "visibility_hint": "Set post access permissions",
+                "pinned": "Pinned",
+                "pinned_hint": "Pinned posts are prioritized in public lists and are considered first for the homepage latest section.",
                 "visibility_options": {
                     "public": "Public",
                     "private": "Private (Only Me)",

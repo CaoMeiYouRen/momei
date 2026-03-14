@@ -4,7 +4,7 @@ import { Post } from '@/server/entities/post'
 import { User } from '@/server/entities/user'
 import { Category } from '@/server/entities/category'
 import { Tag } from '@/server/entities/tag'
-import { PostStatus } from '@/types/post'
+import { PostStatus, type Post as PostRecord } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
 import postsHandler from '@/server/api/posts/index.get'
 
@@ -21,6 +21,8 @@ describe('/api/posts', () => {
     let author: User
     let category: Category
     let tag: Tag
+    let pinnedPostId = ''
+    let popularPostId = ''
     const translationClusterId = generateRandomString(12)
     const mediaTranslationClusterId = generateRandomString(12)
 
@@ -53,9 +55,9 @@ describe('/api/posts', () => {
 
         const postRepo = dataSource.getRepository(Post)
         const posts = [
-            { title: 'Published Post 1', status: PostStatus.PUBLISHED, category, tag: true },
-            { title: 'Published Post 2', status: PostStatus.PUBLISHED, category, tag: true },
-            { title: 'Draft Post', status: PostStatus.DRAFT, category, tag: false },
+            { title: 'Published Post 1', status: PostStatus.PUBLISHED, category, tag: true, isPinned: true, views: 50 },
+            { title: 'Published Post 2', status: PostStatus.PUBLISHED, category, tag: true, isPinned: false, views: 200 },
+            { title: 'Draft Post', status: PostStatus.DRAFT, category, tag: false, isPinned: false, views: 0 },
         ]
 
         for (const p of posts) {
@@ -70,8 +72,18 @@ describe('/api/posts', () => {
             if (p.tag) {
                 post.tags = [tag]
             }
+            post.isPinned = p.isPinned
+            post.views = p.views
             post.publishedAt = new Date()
             await postRepo.save(post)
+
+            if (p.title === 'Published Post 1') {
+                pinnedPostId = post.id
+            }
+
+            if (p.title === 'Published Post 2') {
+                popularPostId = post.id
+            }
         }
 
         const translatedZhPost = new Post()
@@ -323,6 +335,48 @@ describe('/api/posts', () => {
         const result = await postsHandler(event)
 
         expect(result.code).toBe(200)
+    })
+
+    it('should prioritize pinned posts in public ordering', async () => {
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                orderBy: 'publishedAt',
+                order: 'DESC',
+            },
+        } as any
+
+        const result = await postsHandler(event)
+
+        expect(result.code).toBe(200)
+        expect(result.data!.items[0]?.id).toBe(pinnedPostId)
+    })
+
+    it('should support excluding posts for homepage popular section', async () => {
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                orderBy: 'views',
+                order: 'DESC',
+                excludeIds: [pinnedPostId],
+            },
+        } as any
+
+        const result = await postsHandler(event)
+
+        expect(result.code).toBe(200)
+        expect(result.data!.items.some((item: PostRecord) => item.id === pinnedPostId)).toBe(false)
+        expect(result.data!.items.some((item: PostRecord) => item.id === popularPostId)).toBe(true)
     })
 
     it('should return empty array when no posts found', async () => {

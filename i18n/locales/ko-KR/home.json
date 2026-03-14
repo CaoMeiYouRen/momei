@@ -12,6 +12,9 @@
     "latest_posts": {
       "title": "최신 글"
     },
+    "popular_posts": {
+      "title": "인기 글"
+    },
     "about": {
       "description": "Momei Blog는 AI 보조와 깊은 국제화 지원을 통해 개발자가 더 효율적으로 좋은 콘텐츠를 만들고, 전 세계 독자에게 도달하도록 돕습니다."
     }

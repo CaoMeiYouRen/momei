@@ -82,6 +82,37 @@ const distributionTimelineEntrySchema = z.object({
     details: z.record(z.string(), z.unknown()).nullable().optional(),
 })
 
+const booleanQueryValueSchema = z.preprocess((val) => {
+    if (val === '' || val === undefined || val === null) {
+        return undefined
+    }
+
+    if (typeof val === 'string') {
+        if (val === 'true') {
+            return true
+        }
+
+        if (val === 'false') {
+            return false
+        }
+    }
+
+    return val
+}, z.boolean().optional())
+
+const stringArrayQuerySchema = z.preprocess((val) => {
+    if (val === '' || val === undefined || val === null) {
+        return undefined
+    }
+
+    const values = Array.isArray(val) ? val : [val]
+
+    return values
+        .flatMap((item) => typeof item === 'string' ? item.split(',') : [])
+        .map((item) => item.trim())
+        .filter(Boolean)
+}, z.array(z.string()).optional())
+
 const postMetadataSchema = z.object({
     audio: z
         .object({
@@ -177,6 +208,7 @@ const sharedPostFields = {
     publishIntent: publishIntentSchema.nullable().optional(),
     tags: z.array(z.string()).optional(),
     tagBindings: z.array(postTagBindingSchema).optional(),
+    isPinned: z.boolean().optional(),
     status: postStatusEnum,
     visibility: postVisibilityEnum,
     password: z.string().nullable().optional(),
@@ -215,7 +247,9 @@ export const postQuerySchema = paginationSchema.extend({
     translationId: z.string().optional(),
     search: z.string().optional(),
     aggregate: z.preprocess((val) => val === 'true' || val === true, z.boolean().default(false)),
-    orderBy: z.enum(['createdAt', 'updatedAt', 'views', 'publishedAt', 'title', 'status']).default('publishedAt'),
+    isPinned: booleanQueryValueSchema,
+    excludeIds: stringArrayQuerySchema,
+    orderBy: z.enum(['createdAt', 'updatedAt', 'views', 'publishedAt', 'title', 'status', 'isPinned']).default('publishedAt'),
     order: z.enum(['ASC', 'DESC']).default('DESC'),
 })
 

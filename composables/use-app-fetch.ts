@@ -6,7 +6,9 @@ type MaybeReactive<T> = T | Ref<T> | ComputedRef<T>
 
 type AppQueryScalar = string | number | boolean | null | undefined
 
-type AppQueryValue = AppQueryScalar | MaybeReactive<AppQueryScalar>
+type AppQueryResolvedValue = AppQueryScalar | AppQueryScalar[]
+
+type AppQueryValue = AppQueryResolvedValue | MaybeReactive<AppQueryResolvedValue>
 
 type AppQueryRecord = Record<string, AppQueryValue>
 
@@ -22,10 +24,10 @@ type AppApiFetchOptions = Omit<NonNullable<Parameters<typeof $fetch>[1]>, 'query
 
 function resolveQueryRecord(query?: MaybeReactive<AppQueryRecord | undefined>) {
     const baseQuery = unref(query) || {}
-    const params: Record<string, AppQueryScalar> = {}
+    const params: Record<string, AppQueryResolvedValue> = {}
 
     for (const [key, value] of Object.entries(baseQuery)) {
-        params[key] = unref(value as MaybeReactive<AppQueryScalar>)
+        params[key] = unref(value as MaybeReactive<AppQueryResolvedValue>)
     }
 
     return params

@@ -49,7 +49,7 @@ async function applyPostChanges(
     // 1.基础字段赋值
     assignDefined(post, body, [
         'title', 'content', 'summary', 'coverImage',
-        'language', 'translationId', 'copyright', 'visibility',
+        'language', 'translationId', 'copyright', 'visibility', 'isPinned',
         'metaVersion',
     ])
 

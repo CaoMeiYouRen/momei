@@ -9,6 +9,7 @@ import { processAuthorsPrivacy } from '@/server/utils/author'
 import { isAdmin } from '@/utils/shared/roles'
 import { applyPostVisibilityFilter } from '@/server/utils/post-access'
 import { applyPostsReadModelFromMetadata } from '@/server/utils/post-metadata'
+import { applyPostOrdering } from '@/server/utils/post-ordering'
 import { SettingKey } from '@/types/setting'
 
 export default defineEventHandler(async (event) => {
@@ -150,7 +151,12 @@ export default defineEventHandler(async (event) => {
         postsQb.andWhere('YEAR(post.published_at) = :y AND MONTH(post.published_at) = :m', { y: query.year, m: query.month })
     }
 
-    postsQb.orderBy('post.publishedAt', 'DESC')
+    applyPostOrdering(postsQb, {
+        alias: 'post',
+        orderBy: 'publishedAt',
+        order: 'DESC',
+        prioritizePinned: true,
+    })
     postsQb.skip((query.page - 1) * query.limit)
     postsQb.take(query.limit)
 

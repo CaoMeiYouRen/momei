@@ -90,6 +90,22 @@
                     </template>
                 </Column>
                 <Column
+                    field="isPinned"
+                    :header="$t('pages.admin.posts.pinned')"
+                    sortable
+                    class="hidden md:table-cell"
+                    header-style="min-width: 6rem"
+                    header-class="text-center"
+                    body-class="text-center"
+                >
+                    <template #body="slotProps">
+                        <Tag
+                            :value="slotProps.data.isPinned ? $t('common.yes') : $t('common.no')"
+                            :severity="slotProps.data.isPinned ? 'info' : 'secondary'"
+                        />
+                    </template>
+                </Column>
+                <Column
                     field="coverImage"
                     :header="$t('pages.admin.posts.cover_column')"
                     header-class="text-center"

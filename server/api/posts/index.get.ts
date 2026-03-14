@@ -11,6 +11,7 @@ import { processAuthorsPrivacy } from '@/server/utils/author'
 import { applyPostVisibilityFilter } from '@/server/utils/post-access'
 import { applyTranslationAggregation, attachTranslations } from '@/server/utils/translation'
 import { applyPostsReadModelFromMetadata } from '@/server/utils/post-metadata'
+import { applyPostOrdering } from '@/server/utils/post-ordering'
 import { SettingKey } from '@/types/setting'
 import { getLocaleRegistryItem } from '@/i18n/config/locale-registry'
 
@@ -143,6 +144,14 @@ export default defineEventHandler(async (event) => {
         qb.andWhere('post.translationId = :translationId', { translationId: query.translationId })
     }
 
+    if (query.isPinned !== undefined) {
+        qb.andWhere('post.isPinned = :isPinned', { isPinned: query.isPinned })
+    }
+
+    if (query.excludeIds && query.excludeIds.length > 0) {
+        qb.andWhere('post.id NOT IN (:...excludeIds)', { excludeIds: query.excludeIds })
+    }
+
     if (query.tagId) {
         qb.innerJoin('post.tags', 'tag', 'tag.id = :tagId', { tagId: query.tagId })
     } else if (query.tag) {
@@ -160,7 +169,12 @@ export default defineEventHandler(async (event) => {
     }
 
     // Sorting
-    qb.orderBy(`post.${query.orderBy}`, query.order)
+    applyPostOrdering(qb, {
+        alias: 'post',
+        orderBy: query.orderBy,
+        order: query.order,
+        prioritizePinned: true,
+    })
 
     // Pagination
     applyPagination(qb, query)

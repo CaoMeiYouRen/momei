@@ -474,6 +474,8 @@
                 "copyright_hint": "비워 두면 전역 기본값을 사용합니다",
                 "visibility": "공개 범위",
                 "visibility_hint": "게시글 접근 권한을 설정합니다",
+                "pinned": "고정",
+                "pinned_hint": "고정된 게시글은 공개 목록에서 우선 노출되며, 홈페이지 최신 글 영역에서도 먼저 고려됩니다.",
                 "visibility_options": {
                     "public": "공개",
                     "private": "비공개 (나만 보기)",

@@ -43,6 +43,20 @@ describe('utils/schemas/post', () => {
             }
         })
 
+        it('应该允许设置置顶字段', () => {
+            const validData = {
+                title: '置顶文章',
+                content: '内容',
+                isPinned: true,
+            }
+
+            const result = createPostSchema.safeParse(validData)
+            expect(result.success).toBe(true)
+            if (result.success) {
+                expect(result.data.isPinned).toBe(true)
+            }
+        })
+
         it('应该拒绝空标题', () => {
             const invalidData = {
                 title: '',
@@ -399,7 +413,7 @@ describe('utils/schemas/post', () => {
         })
 
         it('应该验证排序字段', () => {
-            const orderByFields = ['createdAt', 'updatedAt', 'views', 'publishedAt', 'title', 'status']
+            const orderByFields = ['createdAt', 'updatedAt', 'views', 'publishedAt', 'title', 'status', 'isPinned']
 
             orderByFields.forEach((orderBy) => {
                 const result = postQuerySchema.safeParse({ orderBy })
@@ -446,6 +460,19 @@ describe('utils/schemas/post', () => {
             expect(boolResult.success).toBe(true)
             if (boolResult.success) {
                 expect(boolResult.data.aggregate).toBe(true)
+            }
+        })
+
+        it('应该解析置顶筛选与排除 ID 列表', () => {
+            const result = postQuerySchema.safeParse({
+                isPinned: 'true',
+                excludeIds: 'post-1,post-2',
+            })
+
+            expect(result.success).toBe(true)
+            if (result.success) {
+                expect(result.data.isPinned).toBe(true)
+                expect(result.data.excludeIds).toEqual(['post-1', 'post-2'])
             }
         })
     })

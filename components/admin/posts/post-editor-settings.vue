@@ -157,6 +157,19 @@
                 <small class="form-hint">{{ $t('pages.admin.posts.visibility_hint') }}</small>
             </div>
 
+            <div class="form-group">
+                <div class="settings-sidebar__toggle-row">
+                    <div>
+                        <label for="isPinned" class="form-label">{{ $t('pages.admin.posts.pinned') }}</label>
+                        <small class="form-hint">{{ $t('pages.admin.posts.pinned_hint') }}</small>
+                    </div>
+                    <ToggleSwitch
+                        v-model="post.isPinned"
+                        input-id="isPinned"
+                    />
+                </div>
+            </div>
+
             <div v-if="post.visibility === 'password'" class="form-group">
                 <label for="password" class="form-label">{{ $t('pages.admin.posts.password') }}</label>
                 <InputText
@@ -322,6 +335,13 @@ const confirmClearTags = () => {
         display: flex;
         align-items: center;
         gap: 0.25rem;
+    }
+
+    &__toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
     }
 
     &__title {

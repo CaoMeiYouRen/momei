@@ -12,6 +12,9 @@
     "latest_posts": {
       "title": "Latest Posts"
     },
+    "popular_posts": {
+      "title": "Popular Posts"
+    },
     "about": {
       "description": "Momei Blog is dedicated to empowering creators through AI and deep internationalization, enabling content to be born global."
     }
