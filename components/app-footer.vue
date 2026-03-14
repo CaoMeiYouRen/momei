@@ -3,6 +3,9 @@
         <div class="footer__container">
             <AppLogo :size="24" class="footer__logo-centered" />
             <nav class="footer__nav">
+                <NuxtLink :to="localePath('/')" class="footer__link">
+                    {{ $t('common.home') }}
+                </NuxtLink>
                 <NuxtLink :to="localePath('/about')" class="footer__link">
                     {{ $t('common.about') }}
                 </NuxtLink>

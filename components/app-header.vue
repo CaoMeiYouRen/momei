@@ -6,6 +6,14 @@
             <div class="app-header__actions">
                 <nav class="app-header__nav desktop-only">
                     <NuxtLink
+                        id="nav-home"
+                        :to="localePath('/')"
+                        class="nav-link"
+                    >
+                        {{ $t('common.home') }}
+                    </NuxtLink>
+
+                    <NuxtLink
                         id="nav-posts"
                         :to="localePath('/posts')"
                         class="nav-link"
@@ -195,6 +203,14 @@
                     <i class="pi pi-search" />
                     {{ $t('components.search.placeholder') }}
                 </div>
+                <NuxtLink
+                    :to="localePath('/')"
+                    class="mobile-nav-link"
+                    @click="isMobileMenuOpen = false"
+                >
+                    <i class="pi pi-home" />
+                    {{ $t('common.home') }}
+                </NuxtLink>
                 <NuxtLink
                     :to="localePath('/posts')"
                     class="mobile-nav-link"
