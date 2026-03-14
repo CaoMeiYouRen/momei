@@ -199,6 +199,7 @@ const latestPostIds = computed(() => latestPosts.value.map((post) => String(post
 const { data: popularData, pending: popularPending, error: popularError } = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {
     query: {
         limit: 3,
+        isPinned: false,
         status: 'published',
         orderBy: 'views',
         order: 'DESC',

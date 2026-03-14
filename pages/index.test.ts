@@ -29,8 +29,8 @@ const mockRegularLatestPostsData = {
 const mockPopularPostsData = {
     data: {
         items: [
-            { id: 1, title: 'Pinned Post', slug: 'pinned-post', summary: 'Pinned summary', createdAt: '2024-01-01', updatedAt: '2024-01-01', status: 'published' },
             { id: 4, title: 'Post 4', slug: 'post-4', summary: 'Summary 4', createdAt: '2024-01-04', updatedAt: '2024-01-04', status: 'published' },
+            { id: 5, title: 'Post 5', slug: 'post-5', summary: 'Summary 5', createdAt: '2024-01-05', updatedAt: '2024-01-05', status: 'published' },
         ],
     },
 }
@@ -57,7 +57,7 @@ describe('IndexPage', () => {
             } as any)
     })
 
-    it('renders latest section with one pinned post and fills the remaining slots with non-pinned latest posts', async () => {
+    it('renders latest section with one pinned post and keeps popular posts free of pinned content', async () => {
         const wrapper = await mountSuspended(IndexPage, {
             global: {
                 stubs: {
@@ -69,11 +69,21 @@ describe('IndexPage', () => {
         })
 
         expect(vi.mocked(useAppFetch)).toHaveBeenCalledTimes(3)
-        expect(wrapper.findAll('.article-card').length).toBe(4)
+        expect(wrapper.findAll('.article-card').length).toBe(5)
         expect(wrapper.text()).toContain('Pinned Post')
         expect(wrapper.text()).toContain('Post 2')
         expect(wrapper.text()).toContain('Post 3')
         expect(wrapper.text()).toContain('Post 4')
+        expect(wrapper.text()).toContain('Post 5')
+
+        const popularCall = vi.mocked(useAppFetch).mock.calls[2]
+        expect(popularCall?.[1]).toMatchObject({
+            query: expect.objectContaining({
+                isPinned: false,
+                orderBy: 'views',
+                order: 'DESC',
+            }),
+        })
     })
 
     it('shows loading state', async () => {
