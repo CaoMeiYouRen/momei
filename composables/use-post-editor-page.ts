@@ -463,7 +463,6 @@ export function usePostEditorPage() {
 
     const savePost = async (publish = false) => {
         if (publish && post.value.status !== PostStatus.PUBLISHED) {
-            const publishIntent = getPublishIntent()
             publishPushDialog.value?.open?.({
                 publishedAt: post.value.publishedAt,
                 criteria: {

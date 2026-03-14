@@ -58,18 +58,20 @@ describe('post-distribution service', () => {
 
     beforeEach(async () => {
         vi.clearAllMocks()
-        vi.mocked(getSetting).mockImplementation(async (key: string) => {
-            switch (key) {
+        vi.mocked(getSetting).mockImplementation((...args: Parameters<typeof getSetting>) => {
+            const [key] = args
+
+            switch (key as SettingKey) {
                 case SettingKey.MEMOS_ENABLED:
-                    return 'true'
+                    return Promise.resolve('true')
                 case SettingKey.MEMOS_INSTANCE_URL:
-                    return 'https://memos.example.com'
+                    return Promise.resolve('https://memos.example.com')
                 case SettingKey.SITE_URL:
-                    return 'https://momei.app'
+                    return Promise.resolve('https://momei.app')
                 case SettingKey.SITE_COPYRIGHT:
-                    return 'all-rights-reserved'
+                    return Promise.resolve('all-rights-reserved')
                 default:
-                    return null
+                    return Promise.resolve(null)
             }
         })
 

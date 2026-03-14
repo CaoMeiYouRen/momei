@@ -110,7 +110,12 @@ describe('PostAutomationService', () => {
         })
 
         vi.mocked(requestTranslation).mockImplementation((content: string) => Promise.resolve({
-            response: { usage: { promptTokens: 10, completionTokens: 10, totalTokens: 20 } },
+            provider: {} as never,
+            response: {
+                content: `${content}-translated`,
+                model: 'mock-translate-model',
+                usage: { promptTokens: 10, completionTokens: 10, totalTokens: 20 },
+            },
             translatedContent: `${content}-translated`,
         }))
         vi.mocked(translateInChunks).mockResolvedValue({

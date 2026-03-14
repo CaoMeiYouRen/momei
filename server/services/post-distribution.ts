@@ -326,16 +326,22 @@ function finalizeAttempt(
 }
 
 function classifyDistributionError(error: unknown): { reason: PostDistributionFailureReason, message: string } {
-    const statusCode = typeof error === 'object' && error && 'statusCode' in error && typeof error.statusCode === 'number'
-        ? error.statusCode
-        : typeof error === 'object' && error && 'status' in error && typeof error.status === 'number'
-            ? error.status
-            : null
-    const statusMessage = typeof error === 'object' && error && 'statusMessage' in error && typeof error.statusMessage === 'string'
-        ? error.statusMessage
-        : typeof error === 'object' && error && 'message' in error && typeof error.message === 'string'
-            ? error.message
-            : 'Unknown distribution error'
+    let statusCode: number | null = null
+    let statusMessage = 'Unknown distribution error'
+
+    if (typeof error === 'object' && error) {
+        if ('statusCode' in error && typeof error.statusCode === 'number') {
+            statusCode = error.statusCode
+        } else if ('status' in error && typeof error.status === 'number') {
+            statusCode = error.status
+        }
+
+        if ('statusMessage' in error && typeof error.statusMessage === 'string') {
+            statusMessage = error.statusMessage
+        } else if ('message' in error && typeof error.message === 'string') {
+            statusMessage = error.message
+        }
+    }
 
     if (statusCode === 401 || statusCode === 403) {
         return { reason: 'auth_failed', message: statusMessage }

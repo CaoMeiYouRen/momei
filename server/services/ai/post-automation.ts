@@ -10,7 +10,7 @@ import { createPostService, updatePostService } from '@/server/services/post'
 import { createPostTagBinding } from '@/utils/shared/post-tag-bindings'
 import { resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
 import type { PostTagBindingInput, PostTranslationSourceDetail, TranslationScopeField } from '@/types/post-translation'
-import { PostStatus, type PostMetadata } from '@/types/post'
+import { PostStatus, PostVisibility, type PostMetadata } from '@/types/post'
 
 const DEFAULT_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags', 'coverImage', 'audio']
 
@@ -92,6 +92,19 @@ interface TranslationUsageAggregate {
     textChars: number
     outputChars: number
 }
+
+type CreatePostMetadataInput = Parameters<typeof createPostService>[0]['metadata']
+type CreatePostBodyInput = Parameters<typeof createPostService>[0]
+type UpdatePostBodyInput = Parameters<typeof updatePostService>[1]
+type SourcePostIntegrationMetadata = NonNullable<PostMetadata['integration']>
+type SourcePostDistributionMetadata = NonNullable<SourcePostIntegrationMetadata['distribution']>
+type SourcePostDistributionChannelState = NonNullable<NonNullable<SourcePostDistributionMetadata['channels']>['memos']>
+type SourcePostDistributionTimelineEntry = NonNullable<SourcePostDistributionMetadata['timeline']>[number]
+type NormalizedPostMetadata = NonNullable<CreatePostMetadataInput>
+type NormalizedPostIntegrationMetadata = NonNullable<NormalizedPostMetadata['integration']>
+type NormalizedPostDistributionMetadata = NonNullable<NormalizedPostIntegrationMetadata['distribution']>
+type NormalizedPostDistributionChannelState = NonNullable<NonNullable<NormalizedPostDistributionMetadata['channels']>['memos']>
+type NormalizedPostDistributionTimelineEntry = NonNullable<NormalizedPostDistributionMetadata['timeline']>[number]
 
 function createUsageAggregate(): TranslationUsageAggregate {
     return {
@@ -183,13 +196,84 @@ function mergeAudioMetadata(source: PostTranslationSourceDetail): PostMetadata |
     return Object.keys(metadata).length > 0 ? metadata : null
 }
 
-function normalizeMetadataForPostInput(metadata: PostMetadata | null | undefined) {
+function normalizeMetadataForPostInput(metadata: PostMetadata | null | undefined): CreatePostMetadataInput {
     if (!metadata) {
         return metadata
     }
 
+    const normalizeMetadataDateField = (value: string | Date | null | undefined) => {
+        if (typeof value === 'string') {
+            return new Date(value)
+        }
+
+        return value
+    }
+
+    const normalizeDistributionChannelState = (
+        state: SourcePostDistributionChannelState | null | undefined,
+    ): NormalizedPostDistributionChannelState | null | undefined => {
+        if (!state) {
+            return state
+        }
+
+        return {
+            status: state.status,
+            remoteId: state.remoteId,
+            remoteUrl: state.remoteUrl,
+            lastMode: state.lastMode,
+            lastAction: state.lastAction,
+            lastAttemptId: state.lastAttemptId,
+            activeAttemptId: state.activeAttemptId,
+            lastAttemptAt: normalizeMetadataDateField(state.lastAttemptAt),
+            activeSince: normalizeMetadataDateField(state.activeSince),
+            lastSuccessAt: normalizeMetadataDateField(state.lastSuccessAt),
+            lastFailureAt: normalizeMetadataDateField(state.lastFailureAt),
+            lastFinishedAt: normalizeMetadataDateField(state.lastFinishedAt),
+            lastFailureReason: state.lastFailureReason,
+            lastMessage: state.lastMessage,
+            lastOperatorId: state.lastOperatorId,
+            retryCount: state.retryCount,
+        }
+    }
+
+    const normalizeDistributionTimelineEntry = (
+        entry: SourcePostDistributionTimelineEntry,
+    ): NormalizedPostDistributionTimelineEntry => ({
+        id: entry.id,
+        channel: entry.channel,
+        action: entry.action,
+        mode: entry.mode,
+        status: entry.status,
+        triggeredBy: entry.triggeredBy,
+        operatorId: entry.operatorId,
+        startedAt: normalizeMetadataDateField(entry.startedAt) ?? new Date(),
+        finishedAt: normalizeMetadataDateField(entry.finishedAt),
+        retryOfAttemptId: entry.retryOfAttemptId,
+        remoteId: entry.remoteId,
+        remoteUrl: entry.remoteUrl,
+        failureReason: entry.failureReason,
+        message: entry.message,
+        details: entry.details,
+    })
+
+    const distribution = metadata.integration?.distribution
+    let normalizedDistribution: NormalizedPostIntegrationMetadata['distribution'] | undefined
+
+    if (distribution) {
+        normalizedDistribution = {
+            channels: distribution.channels
+                ? {
+                    memos: normalizeDistributionChannelState(distribution.channels.memos),
+                    wechatsync: normalizeDistributionChannelState(distribution.channels.wechatsync),
+                }
+                : undefined,
+            timeline: distribution.timeline?.map((entry) => normalizeDistributionTimelineEntry(entry)),
+        }
+    } else if (metadata.integration?.distribution === null) {
+        normalizedDistribution = null
+    }
+
     return {
-        ...metadata,
         audio: metadata.audio ? { ...metadata.audio } : undefined,
         tts: metadata.tts
             ? {
@@ -201,7 +285,12 @@ function normalizeMetadataForPostInput(metadata: PostMetadata | null | undefined
             : undefined,
         scaffold: metadata.scaffold ? { ...metadata.scaffold } : undefined,
         publish: metadata.publish ? { ...metadata.publish } : undefined,
-        integration: metadata.integration ? { ...metadata.integration } : undefined,
+        integration: metadata.integration
+            ? {
+                memosId: metadata.integration.memosId,
+                distribution: normalizedDistribution,
+            }
+            : undefined,
     }
 }
 
@@ -387,7 +476,8 @@ export class PostAutomationService extends AIBaseService {
         const translatedSourceName = sourceLanguage === targetLanguage
             ? sourceCategory.name
             : await TextService.translateName(sourceCategory.name, targetLanguage, actor.userId)
-        const translatedSourceSlug = sanitizeSlug(await TextService.suggestSlugFromName(translatedSourceName, actor.userId))
+        const translatedSourceSlug: string = sanitizeSlug(await TextService.suggestSlugFromName(translatedSourceName, actor.userId))
+        const sourceCategorySlug: string = sourceCategory.slug || sanitizeSlug(sourceCategory.name)
 
         const categoryByName = new Map(targetCategories.map((category) => [category.name.trim().toLowerCase(), category]))
         const categoryBySlug = new Map(targetCategories.map((category) => [category.slug.trim().toLowerCase(), category]))
@@ -410,8 +500,8 @@ export class PostAutomationService extends AIBaseService {
             sourceCategory: {
                 id: sourceCategory.id,
                 name: sourceCategory.name,
-                slug: sourceCategory.slug,
-                language: sourceCategory.language,
+                slug: sourceCategorySlug,
+                language: sourceLanguage,
             },
             matchedCategoryId: candidates[0]?.id || null,
             candidates: candidates.slice(0, limit),
@@ -798,14 +888,27 @@ export class PostAutomationService extends AIBaseService {
                 tags: preview.tags,
                 tagBindings: preview.tagBindings,
                 coverImage: preview.coverImage,
-                metadata: preview.metadata,
+                metadata: normalizeMetadataForPostInput(preview.metadata),
                 copyright: preview.copyright,
-                visibility: preview.visibility,
+                visibility: preview.visibility || PostVisibility.PUBLIC,
                 status: preview.status,
-            }
+            } satisfies UpdatePostBodyInput
 
-            const createBody = {
-                ...sharedBody,
+            const createBody: CreatePostBodyInput = {
+                language: sharedBody.language,
+                translationId: sharedBody.translationId,
+                title: sharedBody.title,
+                slug: sharedBody.slug,
+                content: sharedBody.content,
+                summary: sharedBody.summary,
+                categoryId: sharedBody.categoryId,
+                tags: sharedBody.tags,
+                tagBindings: sharedBody.tagBindings,
+                coverImage: sharedBody.coverImage,
+                metadata: sharedBody.metadata,
+                copyright: sharedBody.copyright,
+                visibility: sharedBody.visibility,
+                status: sharedBody.status,
                 pushOption: 'none' as const,
                 syncToMemos: false,
             }

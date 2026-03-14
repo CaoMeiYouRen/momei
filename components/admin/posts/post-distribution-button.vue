@@ -303,6 +303,7 @@ interface PostDistributionSummary {
         }
         wechatsync: {
             status?: PostDistributionStatus | null
+            remoteId?: string | null
             remoteUrl?: string | null
             lastMode?: PostDistributionMode | null
             activeAttemptId?: string | null
