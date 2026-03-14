@@ -6,7 +6,7 @@ MCP (Model Context Protocol) server for Momei. It enables MCP-compatible AI clie
 
 ## Features
 
-The server currently exposes post-management tools:
+The server currently exposes post-management and automation tools:
 
 - `list_posts`: paginate posts with status, locale, and search filters.
 - `get_post`: fetch full metadata and content for a post by ID.
@@ -14,6 +14,15 @@ The server currently exposes post-management tools:
 - `update_post`: update title, content, or tags for an existing post.
 - `publish_post`: publish a draft or pending post.
 - `delete_post`: remove a post; disabled by default and gated behind the dangerous-tools flag.
+- `suggest_titles`: generate title suggestions from the post body.
+- `recommend_tags`: recommend tags based on post content and current tags.
+- `recommend_categories`: recommend categories using the post body, source category context, and target-language taxonomy.
+- `translate_post`: create a full-post translation task and return the task identifier.
+- `generate_cover_image`: generate a cover image and backfill the post cover field when the task finishes.
+- `generate_post_audio`: generate TTS or podcast audio and backfill the post audio field when the task finishes.
+- `get_ai_task`: inspect automation task status, progress, and final result.
+
+Title suggestions, tag recommendations, and category recommendations are synchronous tools. Translation, cover generation, and audio generation are long-running tools that return a `taskId` by default so the client can continue polling on demand.
 
 ## Install and Build
 
@@ -106,7 +115,9 @@ Parameters:
 
 1. Grant the API key only the permissions you need.
 2. Keep dangerous tools disabled unless you explicitly trust the client workflow.
-3. Monitor the main application's audit logs for external API usage.
+3. Monitor the main application's audit logs for external API usage and long-task backfill results.
+4. Do not treat MCP tools as a high-concurrency batch-processing surface; use the CLI or the external API directly for bulk automation.
+5. `translate_post` supports `confirmationMode=require|confirmed`, so an upper-layer agent can request a preview first and apply it only after review.
 
 ## Development
 

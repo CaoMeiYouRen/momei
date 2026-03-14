@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-09
+last_sync: 2026-03-14
 ---
 
 # Momei - Project Roadmap
@@ -237,22 +237,53 @@ This document outlines the development blueprint for the project. For specific t
     - **Asset Prefixes**: Unified CDN and storage path prefixes.
 
 
-### Stage 10: Notification Closure & Global Experience Enhancement (In Progress)
+### Stage 10: Notification Closure & Global Experience Enhancement (Audited & Archived)
 
 **Timeline**: ~1 - 1.5 months
 **Goal**: Close the loop on notifications, language reach, and onboarding experience.
 
+**Audit Conclusion**: Stage 10 has been fully closed in both code and documentation. Browser push delivery, engineering hardening, language expansion, and onboarding improvements are all live, and no stage-specific leftovers remain outside the backlog.
+
 1. **Browser Push Reinforcement (P0)**:
-    - **Full Loop**: Web Push integration for admin events and AI task completion.
-    - **Gradual Delivery**: Service Worker fallback logic (SSE first when online).
+    - **Full Loop**: Web Push now complements SSE for admin events and high-value async task completion.
+    - **History & Audit**: Notification history, delivery logs, and channel-level tracking are now available in the app and admin UI.
 2. **Code Quality & Engineering (P0)**:
-   - **Type Sanitization**: Elimination of `any` in critical notification/config paths.
-   - **Decoupling**: Extraction of shared composables for admin CRUD.
+   - **Type Sanitization**: Critical notification, settings, editor, and AI paths have been tightened with shared types and fewer implicit `any` boundaries.
+   - **Decoupling**: Reused admin composables, utilities, and style fragments now back major CRUD and editor flows.
 3. **I18n & L10n Enhancements (P1)**:
-    - **Extensions**: Adding Traditional Chinese and Korean support via readiness tiers.
+    - **Extensions**: Traditional Chinese and Korean have been integrated through readiness tiers, locale fallback rules, and translation governance.
+    - **Regression Coverage**: Route, SEO, email, and key UI fallback paths were covered by targeted validation.
 4. **User Experience Optimization (P1)**:
-    - **Demo Enhancement**: Richer preset content and guided scripts.
-    - **Feedback Loop**: Lightweight feedback entry for product suggestions.
+    - **Demo Enhancement**: Demo content, onboarding flow, and preview paths now better reflect real-world usage.
+    - **Feedback Loop**: Lightweight public/admin feedback entry points and issue-routing guidance are now in place.
+
+### Stage 11: Migration Governance & Automation Delivery Deepening (Audited & Archived)
+
+**Timeline**: ~1.5 - 2 months
+**Goal**: Strengthen migration controllability, version traceability, agreement governance, decoupled third-party distribution, and CLI / MCP automation so Momei can move from “feature complete inside the app” to “portable, auditable, and automation-friendly across tools.”
+
+**Audit Conclusion**: Stage 11 has been fully delivered in code, admin workflows, and external tooling. The only remaining mismatch was documentation drift: the distribution-governance item had already shipped but was still unchecked in the plan docs. No Stage 11-specific leftovers remain outside the backlog.
+
+1. **Linear Version Tracking & Rollback (P0)**:
+    - **Git-style Linear History**: Posts now have a single-line version model with readable commit summaries, operator context, and recovery source metadata.
+    - **History & Diff Review**: Admin users can inspect version history and compare adjacent or selected revisions through a consistent diff contract.
+    - **Rollback Safety**: Recovery creates a new version instead of overwriting history, with explicit rollback boundaries and idempotent guards.
+2. **Migration Link Governance & Cloud Asset Rewrite (P0)**:
+    - **Asset URL Rewrite**: Historical asset URLs now support dry runs, domain filtering, bulk rewrite, and governance reporting.
+    - **Legacy Link Mapping**: The migration stack now supports old-to-new mapping seeds across posts, taxonomy, archives, and static pages.
+    - **Validation & Retry**: Static validation, optional online checks, retry handling, and admin-side report review are all part of the closure.
+3. **Content Distribution Decoupling (P1)**:
+    - **Manual Dispatch Control**: Publishing is no longer tightly coupled with Memos or WechatSync distribution, and admin users can dispatch manually from a dedicated panel.
+    - **Clear Delivery Modes**: Update-existing, republish-new, retry, and terminate flows now share one state model with explicit user choice.
+    - **Auditability**: Distribution timelines, failure reasons, retry state, and result write-back are now tracked consistently.
+4. **CLI / MCP Automation Surface Expansion (P1)**:
+    - **Translation Workflow**: CLI and MCP now support full-post translation with source-language overrides, preview confirmation, target-post updates, and translation-cluster backfill.
+    - **Media Backfill**: Cover image generation and TTS / podcast audio generation can be triggered externally and auto-attach results back to posts.
+    - **Automation Contract**: Task lookup, category/tag suggestions, and publish orchestration now share a stable external automation surface.
+5. **Agreement Governance & Compliance Delivery (P1)**:
+    - **Effective-Version Semantics**: Agreement governance now distinguishes authoritative language, effective version, and reference translations with one consistent runtime contract.
+    - **Admin Constraints**: Environment-locked, user-accepted, and already-effective agreements now have clear edit restrictions and operator guidance.
+    - **Public Presentation**: Public agreement pages now expose version number, effective date, updated date, and translation disclaimers consistently.
 
 ## 3. Backlog & Long-term Roadmap
 

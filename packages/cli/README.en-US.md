@@ -2,7 +2,7 @@
 
 [简体中文](./README.md) | [English](./README.en-US.md)
 
-Command-line toolkit for migrating Hexo content into Momei. It currently provides two workflows: bulk post import and migration link governance backed by the Momei migration API.
+Command-line toolkit for migrating Hexo content into Momei. It currently provides three capabilities: bulk post import, migration link governance backed by the Momei migration API, and AI automation powered by the external automation API.
 
 ## Features
 
@@ -12,7 +12,8 @@ Command-line toolkit for migrating Hexo content into Momei. It currently provide
 - ✅ Converts `date` into both `createdAt` and `publishedAt`, then derives post status from it
 - ✅ Imports posts into Momei through the Open API
 - ✅ Generates mapping seeds and runs migration link governance
-- ✅ Supports dry runs, concurrent import, report export, and failure retry
+- ✅ Calls the external automation API for title suggestions, tag recommendations, category recommendations, full-post translation, cover generation, audio generation, and task lookup
+- ✅ Supports dry runs, concurrent import, report export, failure retry, and task polling
 
 ## Installation
 
@@ -129,6 +130,116 @@ momei govern-links ./hexo-blog/source/_posts \
   --report-file ./artifacts/retry-report.json
 ```
 
+## Command 3: AI Automation
+
+AI automation commands call Momei's external automation API through an API key, making it possible to reuse in-app AI workflows inside local scripts, CI jobs, or batch-processing pipelines.
+
+### Suggest Titles
+
+```bash
+momei ai suggest-titles <post-id> --api-key <your-api-key>
+```
+
+### Recommend Tags
+
+```bash
+momei ai recommend-tags <post-id> --api-key <your-api-key>
+```
+
+### Recommend Categories
+
+```bash
+momei ai recommend-categories <post-id> \
+  --target-language en-US \
+  --api-key <your-api-key>
+```
+
+### Translate a Full Post
+
+```bash
+momei ai translate-post <post-id> \
+  --target-language en-US \
+  --api-key <your-api-key>
+```
+
+Common options:
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `--source-language <locale>` | Explicitly override the source locale | auto-detect / current post locale |
+| `--target-language <locale>` | Target locale | required |
+| `--target-post-id <id>` | Update an existing translated post instead of creating a new one | - |
+| `--scopes <items>` | Comma-separated translation scopes | `title,content,summary,category,tags,coverImage,audio` |
+| `--target-status <status>` | Target post status, `draft` or `pending` | `draft` |
+| `--slug-strategy <strategy>` | Slug strategy: `source`, `translate`, or `ai` | `source` |
+| `--category-strategy <strategy>` | Category strategy: `cluster` or `suggest` | `cluster` |
+| `--preview` | Generate a reviewable preview without writing the translated post | `false` |
+| `--confirm-preview-task <id>` | Apply a previously generated preview task | - |
+| `--approved-slug <slug>` | Override slug when applying a preview | - |
+| `--approved-category-id <id>` | Override category when applying a preview | - |
+| `--wait` | Block until the task finishes | `false` |
+
+Preview-confirmation workflow example:
+
+```bash
+# Generate a reviewable preview first
+momei ai translate-post <post-id> \
+  --target-language en-US \
+  --slug-strategy ai \
+  --category-strategy suggest \
+  --preview \
+  --api-key <your-api-key> \
+  --wait
+
+# Confirm and write back from the preview task
+momei ai translate-post <post-id> \
+  --target-language en-US \
+  --confirm-preview-task <preview-task-id> \
+  --approved-slug custom-preview-slug \
+  --approved-category-id <category-id> \
+  --api-key <your-api-key> \
+  --wait
+```
+
+### Generate a Cover Image
+
+```bash
+momei ai generate-cover <post-id> \
+  --prompt "A cinematic plum blossom illustration" \
+  --api-key <your-api-key> \
+  --wait
+```
+
+### Generate Audio
+
+```bash
+momei ai generate-audio <post-id> \
+  --voice zh_female_meow \
+  --mode speech \
+  --api-key <your-api-key>
+```
+
+### Inspect Task Status
+
+```bash
+momei ai task <task-id> --api-key <your-api-key>
+```
+
+Notes:
+
+- Long-running tasks return a `taskId` immediately by default; use `momei ai task <task-id>` to inspect progress later.
+- When `--wait` is provided, the CLI polls and prints a completion summary.
+- `translate-post --preview` returns a `needsConfirmation` preview result; only a follow-up `--confirm-preview-task <taskId>` call writes data back.
+- Cover and audio tasks automatically backfill post fields when the remote task succeeds.
+
+## Command 4: Publish a Post
+
+```bash
+momei publish <post-id> --api-key <your-api-key>
+```
+
+This command calls the external publish API to publish a draft or pending post. It can be chained with `translate-post`, `generate-cover`, and `generate-audio` in script-based delivery flows.
+
 ## Current Field Mapping
 
 | Hexo field | Momei field | Notes |
@@ -191,7 +302,8 @@ pnpm lint
 2. Connection failure: confirm `--api-url` and make sure the main Momei app is running.
 3. Import failure: rerun with `--verbose` to inspect detailed errors.
 4. Governance failure: start with `dry-run`, then inspect `--report-file` output or retry with `--retry-report-id`.
-5. Parsing failure: confirm the Markdown front matter is valid YAML.
+5. Long-running automation not finishing: inspect the task via `momei ai task <task-id>` and verify the main app has valid AI provider credentials.
+6. Parsing failure: confirm the Markdown front matter is valid YAML.
 
 ## License
 
