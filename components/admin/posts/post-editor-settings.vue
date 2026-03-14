@@ -159,14 +159,16 @@
 
             <div class="form-group">
                 <div class="settings-sidebar__toggle-row">
-                    <div>
+                    <div class="settings-sidebar__toggle-copy">
                         <label for="isPinned" class="form-label">{{ $t('pages.admin.posts.pinned') }}</label>
                         <small class="form-hint">{{ $t('pages.admin.posts.pinned_hint') }}</small>
                     </div>
-                    <ToggleSwitch
-                        v-model="post.isPinned"
-                        input-id="isPinned"
-                    />
+                    <div class="settings-sidebar__toggle-control">
+                        <ToggleSwitch
+                            v-model="post.isPinned"
+                            input-id="isPinned"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -338,10 +340,22 @@ const confirmClearTags = () => {
     }
 
     &__toggle-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 1rem;
+    }
+
+    &__toggle-copy {
+        min-width: 0;
+    }
+
+    &__toggle-control {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.75rem;
+        align-items: flex-start;
+        justify-content: flex-end;
+        flex-shrink: 0;
+        padding-top: 0.125rem;
     }
 
     &__title {
@@ -366,6 +380,16 @@ const confirmClearTags = () => {
         padding: 1rem 0.75rem;
         gap: 1rem;
     }
+
+    .settings-sidebar--compact .settings-sidebar__toggle-row {
+        grid-template-columns: 1fr;
+        gap: 0.625rem;
+    }
+
+    .settings-sidebar--compact .settings-sidebar__toggle-control {
+        justify-content: flex-start;
+        padding-top: 0;
+    }
 }
 
 .form-group {
@@ -378,6 +402,8 @@ const confirmClearTags = () => {
 
 .form-hint {
     @include admin-form-hint($color: var(--p-surface-500));
+
+    display: block;
 }
 
 .drawer-footer {

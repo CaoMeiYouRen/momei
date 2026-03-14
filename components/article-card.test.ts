@@ -107,4 +107,17 @@ describe('ArticleCard', () => {
         expect(wrapper.find('.article-card__main-link').exists()).toBe(true)
         expect(wrapper.find('.article-card__read-more').exists()).toBe(true)
     })
+
+    it('renders pinned badge when post is pinned', async () => {
+        const wrapper = await mountSuspended(ArticleCard, {
+            props: {
+                post: {
+                    ...mockPost,
+                    isPinned: true,
+                },
+            },
+        })
+
+        expect(wrapper.find('.article-card__badge').exists()).toBe(true)
+    })
 })

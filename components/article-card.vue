@@ -20,6 +20,13 @@
         </NuxtLink>
         <div class="article-card__content">
             <NuxtLink :to="postPath" class="article-card__main-link">
+                <div v-if="post.isPinned" class="article-card__status-row">
+                    <span class="article-card__badge">
+                        <i class="pi pi-thumbtack" />
+                        {{ $t('common.pinned') }}
+                    </span>
+                </div>
+
                 <h2 class="article-card__title">
                     {{ post.title }}
                 </h2>
@@ -158,6 +165,32 @@ const postPath = computed(() => localePath(`/posts/${props.post.slug || props.po
         transition: color $transition-fast;
 
         @include text-ellipsis-multiline(2);
+    }
+
+    &__status-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: $spacing-sm;
+    }
+
+    &__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.25rem 0.625rem;
+        border-radius: 999px;
+        background: var(--p-primary-50);
+        border: 1px solid var(--p-primary-200);
+        color: var(--p-primary-700);
+        font-size: 0.75rem;
+        font-weight: 700;
+        line-height: 1;
+
+        :global(.dark) & {
+            background: color-mix(in srgb, var(--p-primary-500) 16%, transparent);
+            border-color: color-mix(in srgb, var(--p-primary-300) 30%, transparent);
+            color: var(--p-primary-100);
+        }
     }
 
     &__meta {
