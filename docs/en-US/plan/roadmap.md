@@ -285,6 +285,20 @@ This document outlines the development blueprint for the project. For specific t
     - **Admin Constraints**: Environment-locked, user-accepted, and already-effective agreements now have clear edit restrictions and operator guidance.
     - **Public Presentation**: Public agreement pages now expose version number, effective date, updated date, and translation disclaimers consistently.
 
+### Stage 12: Content Orchestration & Authoring Input Consolidation
+
+**Timeline**: ~1 - 1.5 months
+**Goal**: Close the next usability gap around homepage orchestration, reusable voice input, editor stability, and footer branding semantics so the product can evolve without duplicating logic across multiple entry points.
+
+1. **Homepage Orchestration & Post Pinning (P0)**:
+    - Deduplicate “latest” and “popular” homepage slots, add post pinning semantics, and keep list/archive/admin sorting consistent.
+2. **Reusable Textarea Voice Input (P1)**:
+    - Generalize the existing post-editor voice pipeline for snippet capture and other multi-line text areas.
+3. **Editor Compatibility Hardening & Incremental Replacement Plan (P1)**:
+    - Audit the current editor integration first, then only consider replacement behind a no-regression validation gate.
+4. **Footer Branding & Copyright Configuration (P1)**:
+    - Decouple footer copyright display from fixed i18n text and align it with explicit site-branding settings.
+
 ## 3. Backlog & Long-term Roadmap
 
 This section records features with long-term value but not prioritized for the current iteration.
