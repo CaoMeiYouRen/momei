@@ -36,6 +36,7 @@ describe('settingService', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         process.env = { ...originalEnv }
+        mockSettingRepo.find.mockResolvedValue([])
         ;(dataSource.getRepository as any).mockImplementation((entity: any) => {
             if (entity.name === 'Setting') {
                 return mockSettingRepo
@@ -54,42 +55,42 @@ describe('settingService', () => {
 
     describe('getSetting', () => {
         it('should return setting value if found', async () => {
-            mockSettingRepo.findOne.mockResolvedValue({ key: SettingKey.SITE_TITLE, value: 'Momei' })
+            mockSettingRepo.find.mockResolvedValue([{ key: SettingKey.SITE_TITLE, value: 'Momei' }])
             const result = await settingService.getSetting(SettingKey.SITE_TITLE)
             expect(result).toBe('Momei')
-            expect(mockSettingRepo.findOne).toHaveBeenCalledWith({ where: { key: SettingKey.SITE_TITLE } })
+            expect(mockSettingRepo.find).toHaveBeenCalledTimes(1)
         })
 
         it('should return default value if not found in ENV or DB', async () => {
-            mockSettingRepo.findOne.mockResolvedValue(null)
+            mockSettingRepo.find.mockResolvedValue([])
             const result = await settingService.getSetting('unknown', 'Default')
             expect(result).toBe('Default')
         })
 
         it('should return null if not found and no default provided', async () => {
-            mockSettingRepo.findOne.mockResolvedValue(null)
+            mockSettingRepo.find.mockResolvedValue([])
             const result = await settingService.getSetting('unknown')
             expect(result).toBeNull()
         })
 
         it('should prioritize environment variable over database', async () => {
             process.env.NUXT_PUBLIC_APP_NAME = 'EnvTitle'
-            mockSettingRepo.findOne.mockResolvedValue({ key: SettingKey.SITE_NAME, value: 'DbTitle' })
+            mockSettingRepo.find.mockResolvedValue([{ key: SettingKey.SITE_NAME, value: 'DbTitle' }])
 
             const result = await settingService.getSetting(SettingKey.SITE_NAME)
             expect(result).toBe('EnvTitle')
             // Should not even query DB if ENV exists and is in the map
-            expect(mockSettingRepo.findOne).not.toHaveBeenCalled()
+            expect(mockSettingRepo.find).not.toHaveBeenCalled()
         })
 
         it('should keep site title independent from app name env override', async () => {
             process.env.NUXT_PUBLIC_APP_NAME = 'EnvAppName'
-            mockSettingRepo.findOne.mockResolvedValue({ key: SettingKey.SITE_TITLE, value: 'DbTitle' })
+            mockSettingRepo.find.mockResolvedValue([{ key: SettingKey.SITE_TITLE, value: 'DbTitle' }])
 
             const result = await settingService.getSetting(SettingKey.SITE_TITLE)
 
             expect(result).toBe('DbTitle')
-            expect(mockSettingRepo.findOne).toHaveBeenCalledWith({ where: { key: SettingKey.SITE_TITLE } })
+            expect(mockSettingRepo.find).toHaveBeenCalledTimes(1)
         })
 
         it('should read site url from NUXT_PUBLIC_SITE_URL', async () => {
@@ -98,19 +99,19 @@ describe('settingService', () => {
             const result = await settingService.getSetting(SettingKey.SITE_URL)
 
             expect(result).toBe('https://example.com')
-            expect(mockSettingRepo.findOne).not.toHaveBeenCalled()
+            expect(mockSettingRepo.find).not.toHaveBeenCalled()
         })
 
         it('should ignore database fallback for internal-only settings', async () => {
-            mockSettingRepo.findOne.mockResolvedValue({
+            mockSettingRepo.find.mockResolvedValue([{
                 key: SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY,
                 value: 'db-private-key',
-            })
+            }])
 
             const result = await settingService.getSetting(SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY)
 
             expect(result).toBeNull()
-            expect(mockSettingRepo.findOne).not.toHaveBeenCalled()
+            expect(mockSettingRepo.find).not.toHaveBeenCalled()
         })
 
         it('should read internal-only settings from env only', async () => {
@@ -119,7 +120,7 @@ describe('settingService', () => {
             const result = await settingService.getSetting(SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY)
 
             expect(result).toBe('env-private-key')
-            expect(mockSettingRepo.findOne).not.toHaveBeenCalled()
+            expect(mockSettingRepo.find).not.toHaveBeenCalled()
         })
     })
 
@@ -172,13 +173,13 @@ describe('settingService', () => {
         })
 
         it('should keep actual source as db for forced lock keys without env override', async () => {
-            mockSettingRepo.findOne.mockResolvedValue({
+            mockSettingRepo.find.mockResolvedValue([{
                 key: SettingKey.GITHUB_CLIENT_ID,
                 value: 'db-client-id',
                 level: 2,
                 description: 'GitHub client id',
                 maskType: 'none',
-            })
+            }])
 
             const result = await settingService.resolveSetting(SettingKey.GITHUB_CLIENT_ID)
 
@@ -198,7 +199,7 @@ describe('settingService', () => {
     describe('setSetting', () => {
         it('should update existing setting', async () => {
             const existing = { id: '1', key: 'title', value: 'Old', maskType: 'none' }
-            mockSettingRepo.findOne.mockResolvedValue(existing)
+            mockSettingRepo.find.mockResolvedValue([existing])
 
             await settingService.setSetting('title', 'New', { description: 'New Desc' })
 
@@ -208,7 +209,7 @@ describe('settingService', () => {
         })
 
         it('should create new setting if not exists', async () => {
-            mockSettingRepo.findOne.mockResolvedValue(null)
+            mockSettingRepo.find.mockResolvedValue([])
             const newSetting = { id: '2', key: 'new_key', value: 'val', maskType: 'none' }
             mockSettingRepo.create.mockReturnValue(newSetting)
 
@@ -233,7 +234,7 @@ describe('settingService', () => {
                 level: 3,
                 maskType: 'key',
             }
-            mockSettingRepo.findOne.mockResolvedValue(existing)
+            mockSettingRepo.find.mockResolvedValue([existing])
 
             await settingService.setSetting(SettingKey.AI_API_KEY, 'sk-new-secret', undefined, {
                 operatorId: 'admin-1',
@@ -257,7 +258,7 @@ describe('settingService', () => {
 
     describe('setSettings', () => {
         it('should update multiple settings', async () => {
-            mockSettingRepo.findOne.mockResolvedValue(null)
+            mockSettingRepo.find.mockResolvedValue([])
             mockSettingRepo.create.mockImplementation((data) => data)
 
             await settingService.setSettings({
@@ -273,7 +274,7 @@ describe('settingService', () => {
                 [SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY]: 'private-key',
             })
 
-            expect(mockSettingRepo.findOne).not.toHaveBeenCalled()
+            expect(mockSettingRepo.find).not.toHaveBeenCalled()
             expect(mockSettingRepo.save).not.toHaveBeenCalled()
         })
     })

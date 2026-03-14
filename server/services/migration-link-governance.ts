@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { randomUUID } from 'node:crypto'
 import { createError } from 'h3'
 import { In } from 'typeorm'
 import { dataSource } from '@/server/database'
@@ -1103,7 +1103,7 @@ async function executeLinkGovernance(mode: LinkGovernanceMode, request: LinkGove
     report.statistics = buildStatistics(items)
     report.items = items
     report.redirectSeeds = redirectSeeds
-    report.markdown = buildMarkdownReport(report.id || createHash('sha1').update(`${userId}-${Date.now()}`).digest('hex').slice(0, 12), mode, summary, items, redirectSeeds)
+    report.markdown = buildMarkdownReport(report.id || randomUUID().replace(/-/g, '').slice(0, 12), mode, summary, items, redirectSeeds)
     report.error = null
 
     const saved = await runtime.reportRepo.save(report)

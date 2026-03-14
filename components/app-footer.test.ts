@@ -80,7 +80,7 @@ describe('AppFooter', () => {
         })
 
         expect(wrapper.find('.footer__copyright').text()).toContain(`© ${currentYear - 2}-${currentYear} My Studio`)
-        expect(wrapper.find('.footer__copyright').text()).toContain('Powered by')
+        expect(wrapper.find('.footer__copyright a').attributes('href')).toBe('https://momei.app/')
     })
 
     it('should fall back to site title when footer owner is empty', async () => {
