@@ -49,10 +49,10 @@ These values are usually locked at startup and should normally be managed throug
 | `NUXT_PUBLIC_SITE_URL` | - | 0 | none | Public site URL used for SEO, sitemap, RSS, and absolute links |
 | `AUTH_SECRET` | - | 3 | password | Core secret, ENV-only |
 | `NUXT_PUBLIC_AUTH_BASE_URL` | `site_url` | 0 | none | Better Auth callback base URL; the settings UI lock state is mainly based on this variable |
-| `NUXT_PUBLIC_DEFAULT_COPYRIGHT` | `site_copyright` | 0 | none | Default post copyright license |
+| `NUXT_PUBLIC_POST_COPYRIGHT` | `post_copyright` | 0 | none | Default post copyright license (legacy alias: `NUXT_PUBLIC_DEFAULT_COPYRIGHT`) |
 | `NUXT_PUBLIC_CONTACT_EMAIL` | `contact_email` | 0 | email | Public contact email |
-| `NUXT_PUBLIC_FOOTER_COPYRIGHT_OWNER` | `footer_copyright_owner` | 0 | none | Footer copyright owner |
-| `NUXT_PUBLIC_FOOTER_COPYRIGHT_START_YEAR` | `footer_copyright_start_year` | 0 | none | Footer copyright year range start |
+| `NUXT_PUBLIC_SITE_COPYRIGHT_OWNER` | `site_copyright_owner` | 0 | none | Site copyright owner (legacy alias: `NUXT_PUBLIC_FOOTER_COPYRIGHT_OWNER`) |
+| `NUXT_PUBLIC_SITE_COPYRIGHT_START_YEAR` | `site_copyright_start_year` | 0 | none | Site copyright year range start (legacy alias: `NUXT_PUBLIC_FOOTER_COPYRIGHT_START_YEAR`) |
 | `MACHINE_ID` | - | 3 | none | Distributed ID machine code (0-1023) |
 
 ### 2.2 AI Integration

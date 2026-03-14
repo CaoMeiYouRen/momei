@@ -3,9 +3,9 @@ export interface MomeiPublicConfig {
     siteTitle: string
     siteDescription: string
     siteKeywords: string
-    siteCopyright: string
-    footerCopyrightOwner: string
-    footerCopyrightStartYear: string
+    postCopyright: string
+    siteCopyrightOwner: string
+    siteCopyrightStartYear: string
     defaultLanguage: string
     baiduAnalytics: string
     googleAnalytics: string
@@ -48,9 +48,9 @@ const createDefaultSiteConfig = (): MomeiPublicConfig => ({
     siteTitle: '',
     siteDescription: '',
     siteKeywords: '',
-    siteCopyright: '',
-    footerCopyrightOwner: '',
-    footerCopyrightStartYear: '',
+    postCopyright: '',
+    siteCopyrightOwner: '',
+    siteCopyrightStartYear: '',
     defaultLanguage: 'zh-CN',
     baiduAnalytics: '',
     googleAnalytics: '',
@@ -110,7 +110,7 @@ export const useMomeiConfig = () => {
     const currentTitle = computed(() => siteConfig.value.siteTitle || siteConfig.value.siteName || t('app.name'))
     const currentDescription = computed(() => siteConfig.value.siteDescription || t('app.description'))
     const currentKeywords = computed(() => siteConfig.value.siteKeywords || t('app.keywords'))
-    const currentCopyright = computed(() => siteConfig.value.siteCopyright || '')
+    const currentPostCopyright = computed(() => siteConfig.value.postCopyright || '')
     const googleAdsenseAccount = computed(() => siteConfig.value.googleAdsenseAccount || '')
     const siteLogo = computed(() => siteConfig.value.siteLogo || '')
     const siteFavicon = computed(() => siteConfig.value.siteFavicon || '')
@@ -121,7 +121,8 @@ export const useMomeiConfig = () => {
         currentTitle,
         currentDescription,
         currentKeywords,
-        currentCopyright,
+        currentPostCopyright,
+        currentCopyright: currentPostCopyright,
         googleAdsenseAccount,
         siteLogo,
         siteFavicon,

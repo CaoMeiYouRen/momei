@@ -30,9 +30,9 @@ describe('useMomeiConfig', () => {
             siteTitle: '',
             siteDescription: '',
             siteKeywords: '',
-            siteCopyright: '',
-            footerCopyrightOwner: '',
-            footerCopyrightStartYear: '',
+            postCopyright: '',
+            siteCopyrightOwner: '',
+            siteCopyrightStartYear: '',
             defaultLanguage: 'zh-CN',
             baiduAnalytics: '',
             googleAnalytics: '',
@@ -79,9 +79,9 @@ describe('useMomeiConfig', () => {
             siteTitle: '',
             siteDescription: '',
             siteKeywords: '',
-            siteCopyright: '',
-            footerCopyrightOwner: '',
-            footerCopyrightStartYear: '',
+            postCopyright: '',
+            siteCopyrightOwner: '',
+            siteCopyrightStartYear: '',
             defaultLanguage: 'zh-CN',
         })
     })
@@ -91,9 +91,9 @@ describe('useMomeiConfig', () => {
             siteTitle: 'My Blog',
             siteDescription: 'My awesome blog',
             siteKeywords: 'blog, tech',
-            siteCopyright: '© 2024',
-            footerCopyrightOwner: 'My Studio',
-            footerCopyrightStartYear: '2024',
+            postCopyright: 'all-rights-reserved',
+            siteCopyrightOwner: 'My Studio',
+            siteCopyrightStartYear: '2024',
             defaultLanguage: 'en-US',
             travellingsEnabled: false,
             webPushEnabled: true,
@@ -179,15 +179,15 @@ describe('useMomeiConfig', () => {
         expect(currentKeywords.value).toBe('custom, keywords')
     })
 
-    it('should compute currentCopyright', () => {
-        const { currentCopyright, siteConfig } = useMomeiConfig()
+    it('should compute currentPostCopyright', () => {
+        const { currentPostCopyright, siteConfig } = useMomeiConfig()
 
         // Should be empty by default
-        expect(currentCopyright.value).toBe('')
+        expect(currentPostCopyright.value).toBe('')
 
         // Should use config value when set
-        siteConfig.value.siteCopyright = '© 2024 My Blog'
-        expect(currentCopyright.value).toBe('© 2024 My Blog')
+        siteConfig.value.postCopyright = 'all-rights-reserved'
+        expect(currentPostCopyright.value).toBe('all-rights-reserved')
     })
 
     it('should compute googleAdsenseAccount', () => {

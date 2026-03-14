@@ -42,9 +42,9 @@
             "siteKeywords": "Site Keywords",
             "siteUrl": "Site URL",
             "siteUrlPlaceholder": "e.g.: https://blog.example.com",
-            "siteCopyright": "Default Post Copyright License",
-            "footerCopyrightOwner": "Footer Copyright Owner",
-            "footerCopyrightStartYear": "Footer Copyright Start Year",
+            "postCopyright": "Default Post Copyright License",
+            "siteCopyrightOwner": "Site Copyright Owner",
+            "siteCopyrightStartYear": "Site Copyright Start Year",
             "defaultLanguage": "Default Language",
             "error": "Failed to save site configuration"
         },

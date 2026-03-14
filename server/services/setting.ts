@@ -1,3 +1,4 @@
+import { In } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Setting } from '@/server/entities/setting'
 import { recordSettingAuditLogs, type SettingAuditChange, type SettingAuditContext } from '@/server/services/setting-audit'
@@ -18,9 +19,9 @@ export const SETTING_ENV_MAP: Record<string, string> = {
     [SettingKey.SITE_NAME]: 'NUXT_PUBLIC_APP_NAME',
     [SettingKey.SITE_DESCRIPTION]: 'NUXT_PUBLIC_SITE_DESCRIPTION',
     [SettingKey.SITE_KEYWORDS]: 'NUXT_PUBLIC_SITE_KEYWORDS',
-    [SettingKey.SITE_COPYRIGHT]: 'NUXT_PUBLIC_DEFAULT_COPYRIGHT',
-    [SettingKey.FOOTER_COPYRIGHT_OWNER]: 'NUXT_PUBLIC_FOOTER_COPYRIGHT_OWNER',
-    [SettingKey.FOOTER_COPYRIGHT_START_YEAR]: 'NUXT_PUBLIC_FOOTER_COPYRIGHT_START_YEAR',
+    [SettingKey.POST_COPYRIGHT]: 'NUXT_PUBLIC_POST_COPYRIGHT',
+    [SettingKey.SITE_COPYRIGHT_OWNER]: 'NUXT_PUBLIC_SITE_COPYRIGHT_OWNER',
+    [SettingKey.SITE_COPYRIGHT_START_YEAR]: 'NUXT_PUBLIC_SITE_COPYRIGHT_START_YEAR',
     [SettingKey.SITE_URL]: 'NUXT_PUBLIC_SITE_URL',
     [SettingKey.DEFAULT_LANGUAGE]: 'NUXT_PUBLIC_DEFAULT_LANGUAGE',
     // AI
@@ -182,6 +183,20 @@ export const SETTING_ENV_MAP: Record<string, string> = {
     [SettingKey.MEMOS_DEFAULT_VISIBILITY]: 'MEMOS_DEFAULT_VISIBILITY',
 }
 
+const LEGACY_SETTING_KEY_ALIASES: Partial<Record<string, string[]>> = {
+    [SettingKey.POST_COPYRIGHT]: ['site_copyright'],
+    [SettingKey.SITE_COPYRIGHT_OWNER]: ['footer_copyright_owner'],
+    [SettingKey.SITE_COPYRIGHT_START_YEAR]: ['footer_copyright_start_year'],
+}
+
+const LEGACY_SETTING_ENV_ALIASES: Partial<Record<string, string[]>> = {
+    [SettingKey.POST_COPYRIGHT]: ['NUXT_PUBLIC_DEFAULT_COPYRIGHT'],
+    [SettingKey.SITE_COPYRIGHT_OWNER]: ['NUXT_PUBLIC_FOOTER_COPYRIGHT_OWNER'],
+    [SettingKey.SITE_COPYRIGHT_START_YEAR]: ['NUXT_PUBLIC_FOOTER_COPYRIGHT_START_YEAR'],
+}
+
+const LEGACY_SETTING_KEY_SET = new Set<string>(Object.values(LEGACY_SETTING_KEY_ALIASES).flatMap((keys) => keys ?? []))
+
 /**
  * 强制被环境变量锁定的键名 (无法从后台修改，仅能通过 ENV 修改)
  * 主要是因为目前部分底层库(如 Better-Auth)直接读取了 process.env 而非通过 Service 加载
@@ -251,15 +266,67 @@ const SETTING_DEFAULT_MAP: Partial<Record<string, string>> = {
 
 const RESTART_REQUIRED_KEYS = new Set<string>(FORCED_ENV_LOCKED_KEYS)
 
+function uniqValues(values: (string | undefined | null)[]) {
+    return [...new Set(values.filter((value): value is string => Boolean(value)))]
+}
+
+export function getSettingLookupKeys(key: string) {
+    return uniqValues([key, ...(LEGACY_SETTING_KEY_ALIASES[key] ?? [])])
+}
+
+function getSettingEnvKeys(key: string) {
+    return uniqValues([SETTING_ENV_MAP[key], ...(LEGACY_SETTING_ENV_ALIASES[key] ?? [])])
+}
+
+export function resolveSettingEnvEntry(key: string) {
+    const envKeys = getSettingEnvKeys(key)
+
+    for (const envKey of envKeys) {
+        if (process.env[envKey] !== undefined) {
+            return {
+                envKey,
+                value: process.env[envKey],
+            }
+        }
+    }
+
+    return {
+        envKey: envKeys[0] ?? null,
+        value: undefined,
+    }
+}
+
+function resolveSettingRecordFromMap(settingsMap: Map<string, Setting>, key: string) {
+    for (const lookupKey of getSettingLookupKeys(key)) {
+        const setting = settingsMap.get(lookupKey)
+        if (setting) {
+            return setting
+        }
+    }
+
+    return null
+}
+
+async function findSettingRecord(key: string) {
+    const settingRepo = dataSource.getRepository(Setting)
+    const records = await settingRepo.find({ where: { key: In(getSettingLookupKeys(key)) } })
+    const settingsMap = new Map<string, Setting>(records.map((setting) => [setting.key, setting]))
+    return resolveSettingRecordFromMap(settingsMap, key)
+}
+
 export function isInternalOnlySettingKey(key: string) {
     return INTERNAL_ONLY_SETTING_KEY_SET.has(key)
 }
 
+function isLegacyOnlySettingKey(key: string) {
+    return LEGACY_SETTING_KEY_SET.has(key)
+}
+
 export function isSettingEnvLocked(key: string) {
-    const envKey = SETTING_ENV_MAP[key]
+    const { value } = resolveSettingEnvEntry(key)
     return Boolean(
         isInternalOnlySettingKey(key)
-        || (envKey && process.env[envKey] !== undefined)
+        || value !== undefined
         || FORCED_ENV_LOCKED_KEYS.includes(key),
     )
 }
@@ -269,8 +336,7 @@ export function getSettingEffectiveSource(key: string): SettingEffectiveSource {
         return 'env'
     }
 
-    const envKey = SETTING_ENV_MAP[key]
-    return envKey && process.env[envKey] !== undefined ? 'env' : 'db'
+    return resolveSettingEnvEntry(key).value !== undefined ? 'env' : 'db'
 }
 
 export function getSettingDefaultValue(key: string) {
@@ -278,9 +344,7 @@ export function getSettingDefaultValue(key: string) {
 }
 
 export function getSettingLockReason(key: string): SettingLockReason | null {
-    const envKey = SETTING_ENV_MAP[key]
-
-    if (envKey && process.env[envKey] !== undefined) {
+    if (resolveSettingEnvEntry(key).value !== undefined) {
         return 'env_override'
     }
 
@@ -325,8 +389,7 @@ function createResolvedSettingItem(
     explicitDefaultValue?: unknown,
 ): SettingResolvedItem {
     const effectiveDbSetting = isInternalOnlySettingKey(key) ? null : dbSetting
-    const envKey = SETTING_ENV_MAP[key] ?? null
-    const envValue = envKey ? process.env[envKey] : undefined
+    const { envKey, value: envValue } = resolveSettingEnvEntry(key)
     const defaultValue = normalizeSettingValue(explicitDefaultValue) ?? getSettingDefaultValue(key)
 
     let value = defaultValue ?? ''
@@ -365,8 +428,7 @@ export async function resolveSetting(key: SettingKey | string, defaultValue: unk
     }
 
     try {
-        const settingRepo = dataSource.getRepository(Setting)
-        const setting = await settingRepo.findOne({ where: { key } })
+        const setting = await findSettingRecord(key)
         return createResolvedSettingItem(key, setting, defaultValue)
     } catch (error) {
         logger.error(`Failed to resolve setting ${key} from database:`, error)
@@ -390,7 +452,7 @@ export const resolveSettings = async (keys: (SettingKey | string)[]) => {
         const settingsMap = new Map<string, Setting>(settings.map((setting) => [setting.key, setting]))
 
         keys.forEach((key) => {
-            result.push(createResolvedSettingItem(key, settingsMap.get(key) ?? null))
+            result.push(createResolvedSettingItem(key, resolveSettingRecordFromMap(settingsMap, key)))
         })
     } catch (error) {
         logger.error('Failed to resolve settings from database:', error)
@@ -412,9 +474,9 @@ export const resolveSettings = async (keys: (SettingKey | string)[]) => {
  */
 export async function getSetting<T = string>(key: SettingKey | string, defaultValue: T | null = null): Promise<string | T | null> {
     // 优先从环境变量获取
-    const envKey = SETTING_ENV_MAP[key]
-    if (envKey && process.env[envKey] !== undefined) {
-        return process.env[envKey]
+    const { value: envValue } = resolveSettingEnvEntry(key)
+    if (envValue !== undefined) {
+        return envValue
     }
 
     if (isInternalOnlySettingKey(key)) {
@@ -427,8 +489,7 @@ export async function getSetting<T = string>(key: SettingKey | string, defaultVa
     }
 
     try {
-        const settingRepo = dataSource.getRepository(Setting)
-        const setting = await settingRepo.findOne({ where: { key } })
+        const setting = await findSettingRecord(key)
         return setting?.value ?? (defaultValue as any)
     } catch (error) {
         logger.error(`Failed to get setting ${key} from database:`, error)
@@ -448,9 +509,9 @@ export const getSettings = async (keys: (SettingKey | string)[]): Promise<Record
 
     // 初始化默认值，优先从环境变量获取
     keys.forEach((key) => {
-        const envKey = SETTING_ENV_MAP[key]
-        if (envKey && process.env[envKey] !== undefined) {
-            result[key] = process.env[envKey]!
+        const { value } = resolveSettingEnvEntry(key)
+        if (value !== undefined) {
+            result[key] = value
         } else {
             result[key] = null
         }
@@ -464,13 +525,12 @@ export const getSettings = async (keys: (SettingKey | string)[]): Promise<Record
     try {
         const settingRepo = dataSource.getRepository(Setting)
         const settings = await settingRepo.find()
+        const settingsMap = new Map<string, Setting>(settings.map((setting) => [setting.key, setting]))
 
-        settings.forEach((s: Setting) => {
-            if (keys.includes(s.key)) {
-                // 如果环境变量没配，才用数据库的
-                if (result[s.key] === null && !isInternalOnlySettingKey(s.key)) {
-                    result[s.key] = s.value
-                }
+        keys.forEach((key) => {
+            const setting = resolveSettingRecordFromMap(settingsMap, key)
+            if (result[key] === null && setting && !isInternalOnlySettingKey(setting.key)) {
+                result[key] = setting.value
             }
         })
     } catch (error) {
@@ -528,12 +588,16 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
 
     const result: Omit<SettingResolvedItem, 'defaultValue'>[] = []
     for (const key of allKeys) {
+        if (isLegacyOnlySettingKey(key)) {
+            continue
+        }
+
         // 如果是极端敏感的内部键，则完全跳过，不在 UI 展示
         if (isInternalOnlySettingKey(key)) {
             continue
         }
 
-        const dbSetting = dbSettingsMap.get(key)
+        const dbSetting = resolveSettingRecordFromMap(dbSettingsMap, key)
 
         // 如果配置在数据库中存在且级别过高，则根据选项过滤
         if (dbSetting && !options?.includeSecrets && Number(dbSetting.level) >= 3) {
@@ -580,8 +644,8 @@ export const setSettings = async (settings: Record<string, any>, auditContext?: 
             continue // 跳过锁定的配置项
         }
 
-        const existingSetting = await settingRepo.findOne({ where: { key } })
-        let setting = existingSetting
+        const existingSetting = await findSettingRecord(key)
+        let setting = existingSetting?.key === key ? existingSetting : null
 
         const value = typeof val === 'object' && val !== null ? val.value : val
         const extra = typeof val === 'object' && val !== null ? val : {}
@@ -622,6 +686,11 @@ export const setSettings = async (settings: Record<string, any>, auditContext?: 
             })
         }
         await settingRepo.save(setting)
+
+        const legacyKeys = getSettingLookupKeys(key).filter((lookupKey) => lookupKey !== key)
+        if (legacyKeys.length > 0) {
+            await settingRepo.delete({ key: In(legacyKeys) })
+        }
 
         if (!existingSetting || previousValue !== nextValue || previousMaskType !== nextMaskType) {
             auditChanges.push({

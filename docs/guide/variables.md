@@ -36,10 +36,10 @@
 | `NUXT_PUBLIC_SITE_URL` | - | 0 | none | 运行时公开站点 URL，用于 SEO、Sitemap、RSS 和公开链接生成 |
 | `AUTH_SECRET` | - | 3 | password | **核心密钥**，不进入数据库，仅限 ENV |
 | `NUXT_PUBLIC_AUTH_BASE_URL` | `site_url` | 0 | none | Better Auth 回调地址，系统设置锁定态主要基于此变量 |
-| `NUXT_PUBLIC_DEFAULT_COPYRIGHT` | `site_copyright` | 0 | none | 默认文章版权协议类型 |
+| `NUXT_PUBLIC_POST_COPYRIGHT` | `post_copyright` | 0 | none | 默认文章版权协议类型（兼容旧变量 `NUXT_PUBLIC_DEFAULT_COPYRIGHT`） |
 | `NUXT_PUBLIC_CONTACT_EMAIL` | `contact_email` | 0 | email | 站点公开联系邮箱 |
-| `NUXT_PUBLIC_FOOTER_COPYRIGHT_OWNER` | `footer_copyright_owner` | 0 | none | 页脚版权展示的版权所有者 |
-| `NUXT_PUBLIC_FOOTER_COPYRIGHT_START_YEAR` | `footer_copyright_start_year` | 0 | none | 页脚版权年份区间的起始年份 |
+| `NUXT_PUBLIC_SITE_COPYRIGHT_OWNER` | `site_copyright_owner` | 0 | none | 站点版权展示的版权所有者（兼容旧变量 `NUXT_PUBLIC_FOOTER_COPYRIGHT_OWNER`） |
+| `NUXT_PUBLIC_SITE_COPYRIGHT_START_YEAR` | `site_copyright_start_year` | 0 | none | 站点版权年份区间的起始年份（兼容旧变量 `NUXT_PUBLIC_FOOTER_COPYRIGHT_START_YEAR`） |
 | `MACHINE_ID` | - | 3 | none | 分布式 ID 机器码 (0-1023) |
 
 ### 2.2 AI 引擎 (AI Integration)

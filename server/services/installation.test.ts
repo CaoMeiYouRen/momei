@@ -142,8 +142,11 @@ describe('Installation Service', () => {
         it('should save site configuration to database', async () => {
             const mockSave = vi.fn()
             const mockCreate = vi.fn((item) => item)
+            const mockFind = vi.fn().mockResolvedValue([])
             vi.mocked(dataSource.getRepository).mockReturnValue({
                 findOne: vi.fn().mockResolvedValue(null),
+                find: mockFind,
+                delete: vi.fn().mockResolvedValue(undefined),
                 create: mockCreate,
                 save: mockSave,
             } as any)
@@ -153,9 +156,9 @@ describe('Installation Service', () => {
                 siteDescription: 'A test blog',
                 siteKeywords: 'test, blog',
                 siteUrl: 'https://example.com',
-                siteCopyright: 'all-rights-reserved' as const,
-                footerCopyrightOwner: 'Test Studio',
-                footerCopyrightStartYear: '2024',
+                postCopyright: 'all-rights-reserved' as const,
+                siteCopyrightOwner: 'Test Studio',
+                siteCopyrightStartYear: '2024',
                 defaultLanguage: 'zh-CN' as const,
             }
 
@@ -170,10 +173,11 @@ describe('Installation Service', () => {
             )
             expect(mockSave).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    key: SettingKey.FOOTER_COPYRIGHT_OWNER,
+                    key: SettingKey.SITE_COPYRIGHT_OWNER,
                     value: 'Test Studio',
                 }),
             )
+            expect(mockFind).toHaveBeenCalled()
         })
     })
 

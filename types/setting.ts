@@ -9,9 +9,9 @@ export enum SettingKey {
     SITE_URL = 'site_url',
     SITE_DESCRIPTION = 'site_description',
     SITE_KEYWORDS = 'site_keywords',
-    SITE_COPYRIGHT = 'site_copyright',
-    FOOTER_COPYRIGHT_OWNER = 'footer_copyright_owner',
-    FOOTER_COPYRIGHT_START_YEAR = 'footer_copyright_start_year',
+    POST_COPYRIGHT = 'post_copyright',
+    SITE_COPYRIGHT_OWNER = 'site_copyright_owner',
+    SITE_COPYRIGHT_START_YEAR = 'site_copyright_start_year',
     DEFAULT_LANGUAGE = 'default_language',
 
     // AI
@@ -279,9 +279,9 @@ export interface GeneralSettingsFields {
     site_name: string | null
     site_description: string | null
     site_keywords: string | null
-    site_copyright: string | null
-    footer_copyright_owner: string | null
-    footer_copyright_start_year: string | null
+    post_copyright: string | null
+    site_copyright_owner: string | null
+    site_copyright_start_year: string | null
     default_language: AdminLanguageCode | null
     site_logo: string | null
     site_favicon: string | null

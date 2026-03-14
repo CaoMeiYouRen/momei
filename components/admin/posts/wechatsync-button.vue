@@ -271,7 +271,7 @@ const doSubmit = () => {
         authorName: props.post.author?.name || null,
         url: postUrl,
         license: props.post.copyright,
-        defaultLicense: runtimeConfig.public.defaultCopyright || 'all-rights-reserved',
+        defaultLicense: runtimeConfig.public.postCopyright || runtimeConfig.public.defaultCopyright || 'all-rights-reserved',
         locale: props.post.language,
     }, 'markdown')
 

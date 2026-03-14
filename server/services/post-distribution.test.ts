@@ -68,7 +68,7 @@ describe('post-distribution service', () => {
                     return Promise.resolve('https://memos.example.com')
                 case SettingKey.SITE_URL:
                     return Promise.resolve('https://momei.app')
-                case SettingKey.SITE_COPYRIGHT:
+                case SettingKey.POST_COPYRIGHT:
                     return Promise.resolve('all-rights-reserved')
                 default:
                     return Promise.resolve(null)

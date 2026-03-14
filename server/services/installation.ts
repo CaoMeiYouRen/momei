@@ -1,11 +1,12 @@
 import os from 'os'
 import path from 'path'
 import fs from 'fs-extra'
+import { In } from 'typeorm'
 import { dataSource } from '../database'
 import { User } from '../entities/user'
 import { Setting } from '../entities/setting'
 import logger from '../utils/logger'
-import { isInternalOnlySettingKey, SETTING_ENV_MAP } from './setting'
+import { getSettingLookupKeys, isInternalOnlySettingKey, isSettingEnvLocked, resolveSettingEnvEntry, SETTING_ENV_MAP } from './setting'
 import { TEST_MODE } from '@/utils/shared/env'
 import type { InstallationEnvSetting } from '@/utils/shared/installation-env-setting'
 import type { InstallationSiteConfigModel } from '@/utils/shared/installation-settings'
@@ -105,7 +106,7 @@ export interface SiteConfig extends InstallationSiteConfigModel {
     publicSecurityNumber?: string
 }
 
-type SaveSiteConfigInput = Pick<SiteConfig, 'defaultLanguage' | 'siteCopyright' | 'siteTitle'> & Partial<SiteConfig>
+type SaveSiteConfigInput = Pick<SiteConfig, 'defaultLanguage' | 'postCopyright' | 'siteTitle'> & Partial<SiteConfig>
 
 /**
  * 管理员创建接口
@@ -361,13 +362,13 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
  */
 function getEnvSettingsDetails(): Record<string, EnvSetting> {
     const envSettings: Record<string, EnvSetting> = {}
-    Object.entries(SETTING_ENV_MAP).forEach(([key, envKey]) => {
+    Object.keys(SETTING_ENV_MAP).forEach((key) => {
         if (isInternalOnlySettingKey(key)) {
             return
         }
 
-        const envValue = process.env[envKey]
-        if (envValue !== undefined && envValue !== '') {
+        const { envKey, value: envValue } = resolveSettingEnvEntry(key)
+        if (envKey && envValue !== undefined && envValue !== '') {
             // 推断脱敏类型
             const maskType = inferSettingMaskType(key, envValue)
 
@@ -402,9 +403,9 @@ export async function saveSiteConfig(config: SaveSiteConfigInput): Promise<void>
         siteDescription: config.siteDescription || '',
         siteKeywords: config.siteKeywords || '',
         siteUrl: config.siteUrl || '',
-        siteCopyright: config.siteCopyright,
-        footerCopyrightOwner: config.footerCopyrightOwner || '',
-        footerCopyrightStartYear: config.footerCopyrightStartYear || '',
+        postCopyright: config.postCopyright,
+        siteCopyrightOwner: config.siteCopyrightOwner || '',
+        siteCopyrightStartYear: config.siteCopyrightStartYear || '',
         defaultLanguage: config.defaultLanguage,
         siteOperator: config.siteOperator,
         contactEmail: config.contactEmail,
@@ -419,9 +420,9 @@ export async function saveSiteConfig(config: SaveSiteConfigInput): Promise<void>
         { key: SettingKey.SITE_URL, value: normalizedConfig.siteUrl, description: '站点地址', level: 0 },
         { key: SettingKey.SITE_DESCRIPTION, value: normalizedConfig.siteDescription, description: '站点描述', level: 0 },
         { key: SettingKey.SITE_KEYWORDS, value: normalizedConfig.siteKeywords, description: '站点关键词', level: 0 },
-        { key: SettingKey.SITE_COPYRIGHT, value: normalizedConfig.siteCopyright || '', description: '默认版权协议', level: 0 },
-        { key: SettingKey.FOOTER_COPYRIGHT_OWNER, value: normalizedConfig.footerCopyrightOwner || '', description: '页脚版权所有者', level: 0 },
-        { key: SettingKey.FOOTER_COPYRIGHT_START_YEAR, value: normalizedConfig.footerCopyrightStartYear || '', description: '页脚版权起始年份', level: 0 },
+        { key: SettingKey.POST_COPYRIGHT, value: normalizedConfig.postCopyright || '', description: '默认文章版权协议', level: 0 },
+        { key: SettingKey.SITE_COPYRIGHT_OWNER, value: normalizedConfig.siteCopyrightOwner || '', description: '站点版权所有者', level: 0 },
+        { key: SettingKey.SITE_COPYRIGHT_START_YEAR, value: normalizedConfig.siteCopyrightStartYear || '', description: '站点版权起始年份', level: 0 },
         { key: SettingKey.DEFAULT_LANGUAGE, value: normalizedConfig.defaultLanguage, description: '默认语言', level: 0 },
         { key: SettingKey.SITE_OPERATOR, value: normalizedConfig.siteOperator || '', description: '运营方名称', level: 0 },
         { key: SettingKey.CONTACT_EMAIL, value: normalizedConfig.contactEmail || '', description: '联系邮箱', level: 0 },
@@ -434,12 +435,12 @@ export async function saveSiteConfig(config: SaveSiteConfigInput): Promise<void>
     ]
 
     for (const setting of settings) {
-        const existing = await settingRepo.findOne({ where: { key: setting.key } })
+        const lookupKeys = getSettingLookupKeys(setting.key)
+        const existingCandidates = await settingRepo.find({ where: { key: In(lookupKeys) } })
+        const existing = existingCandidates.find((item) => item.key === setting.key) ?? existingCandidates[0] ?? null
 
         // 检查是否受环境变量锁定
-        const envKey = SETTING_ENV_MAP[setting.key]
-        const envValue = envKey ? process.env[envKey] : undefined
-        const isLocked = envValue !== undefined && envValue !== ''
+        const isLocked = isSettingEnvLocked(setting.key)
 
         // 如果提交的值是脱敏占位符，且当前受环境变量锁定或数据库已有值，则跳过更新该字段
         if (isMaskedSettingPlaceholder(setting.value, 'none')) {
@@ -451,13 +452,17 @@ export async function saveSiteConfig(config: SaveSiteConfigInput): Promise<void>
             continue
         }
 
-        if (existing) {
+        if (existing?.key === setting.key) {
             existing.value = setting.value
             existing.description = setting.description
             existing.level = setting.level
             await settingRepo.save(existing)
         } else {
             await settingRepo.save(settingRepo.create(setting))
+            const legacyKeys = lookupKeys.filter((key) => key !== setting.key)
+            if (legacyKeys.length > 0) {
+                await settingRepo.delete({ key: In(legacyKeys) })
+            }
         }
     }
 
@@ -522,9 +527,7 @@ export async function saveExtraConfig(config: ExtraConfig): Promise<void> {
         const existing = await settingRepo.findOne({ where: { key: setting.key } })
 
         // 检查是否受环境变量锁定
-        const envKey = SETTING_ENV_MAP[setting.key]
-        const envValue = envKey ? process.env[envKey] : undefined
-        const isLocked = envValue !== undefined && envValue !== ''
+        const isLocked = isSettingEnvLocked(setting.key)
 
         // 如果提交的值是脱敏占位符，且当前受环境变量锁定或数据库已有值，则跳过更新该字段
         if (isMaskedSettingPlaceholder(setting.value, setting.maskType || 'none')) {
@@ -596,17 +599,17 @@ export function validateAdminPassword(password: string): { valid: boolean, messa
  */
 export async function syncSettingsFromEnv(): Promise<void> {
     const settingRepo = dataSource.getRepository(Setting)
-    const entries = Object.entries(SETTING_ENV_MAP)
+    const keys = Object.keys(SETTING_ENV_MAP)
 
     logger.info('Starting to sync settings from environment variables...')
 
-    for (const [key, envKey] of entries) {
+    for (const key of keys) {
         if (isInternalOnlySettingKey(key)) {
             continue
         }
 
-        const envValue = process.env[envKey]
-        if (envValue !== undefined && envValue !== '') {
+        const { envKey, value: envValue } = resolveSettingEnvEntry(key)
+        if (envKey && envValue !== undefined && envValue !== '') {
             let setting = await settingRepo.findOne({ where: { key } })
             if (setting) {
                 // 如果已存在，且当前值为空，则从 ENV 载入

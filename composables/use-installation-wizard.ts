@@ -62,7 +62,7 @@ export function useInstallationWizard() {
     const siteConfig = ref<InstallationSiteConfigModel>({
         ...DEFAULT_INSTALLATION_SITE_CONFIG,
         siteUrl: import.meta.client ? window.location.origin : '',
-        siteCopyright: resolveDefaultCopyrightLicense(config.public.defaultCopyright as string | undefined),
+        postCopyright: resolveDefaultCopyrightLicense((config.public.postCopyright || config.public.defaultCopyright) as string | undefined),
     })
     const siteConfigLoading = ref(false)
     const siteConfigError = ref('')
@@ -103,10 +103,10 @@ export function useInstallationWizard() {
                 return
             }
 
-            if (configKey === 'siteCopyright') {
-                siteConfig.value.siteCopyright = isCopyrightType(envValue)
+            if (configKey === 'postCopyright') {
+                siteConfig.value.postCopyright = isCopyrightType(envValue)
                     ? envValue
-                    : siteConfig.value.siteCopyright
+                    : siteConfig.value.postCopyright
                 return
             }
 

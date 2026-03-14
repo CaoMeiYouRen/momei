@@ -22,9 +22,9 @@ describe('GET /api/settings/public', () => {
             [SettingKey.SITE_TITLE]: 'Momei Blog',
             [SettingKey.SITE_DESCRIPTION]: 'AI-powered developer blog',
             [SettingKey.SITE_KEYWORDS]: 'ai,blog',
-            [SettingKey.SITE_COPYRIGHT]: 'all-rights-reserved',
-            [SettingKey.FOOTER_COPYRIGHT_OWNER]: 'Momei Team',
-            [SettingKey.FOOTER_COPYRIGHT_START_YEAR]: '2024',
+            [SettingKey.POST_COPYRIGHT]: 'all-rights-reserved',
+            [SettingKey.SITE_COPYRIGHT_OWNER]: 'Momei Team',
+            [SettingKey.SITE_COPYRIGHT_START_YEAR]: '2024',
             [SettingKey.DEFAULT_LANGUAGE]: 'zh-CN',
             [SettingKey.BAIDU_ANALYTICS]: null,
             [SettingKey.GOOGLE_ANALYTICS]: null,
@@ -67,12 +67,12 @@ describe('GET /api/settings/public', () => {
     })
 
     it('should expose footer copyright settings separately from the default post copyright license', async () => {
-        const result = await publicSettingsHandler()
+        const result = await publicSettingsHandler({} as any)
 
         expect(result.code).toBe(200)
-        expect(result.data.siteCopyright).toBe('all-rights-reserved')
-        expect(result.data.footerCopyrightOwner).toBe('Momei Team')
-        expect(result.data.footerCopyrightStartYear).toBe('2024')
+        expect(result.data.postCopyright).toBe('all-rights-reserved')
+        expect(result.data.siteCopyrightOwner).toBe('Momei Team')
+        expect(result.data.siteCopyrightStartYear).toBe('2024')
         expect(result.data.siteTitle).toBe('Momei Blog')
     })
 })

@@ -131,9 +131,23 @@ export default defineNuxtConfig({
                 process.env.NUXT_PUBLIC_SITE_OPERATOR || '[Example Operator]',
             contactEmail:
                 process.env.NUXT_PUBLIC_CONTACT_EMAIL || 'admin@example.com',
-            defaultCopyright:
-                process.env.NUXT_PUBLIC_DEFAULT_COPYRIGHT
+            postCopyright:
+                process.env.NUXT_PUBLIC_POST_COPYRIGHT
+                || process.env.NUXT_PUBLIC_DEFAULT_COPYRIGHT
                 || 'all-rights-reserved',
+            defaultCopyright:
+                process.env.NUXT_PUBLIC_POST_COPYRIGHT
+                || process.env.NUXT_PUBLIC_DEFAULT_COPYRIGHT
+                || 'all-rights-reserved',
+            siteCopyrightOwner:
+                process.env.NUXT_PUBLIC_SITE_COPYRIGHT_OWNER
+                || process.env.NUXT_PUBLIC_FOOTER_COPYRIGHT_OWNER
+                || process.env.NUXT_PUBLIC_SITE_OPERATOR
+                || '[Example Operator]',
+            siteCopyrightStartYear:
+                process.env.NUXT_PUBLIC_SITE_COPYRIGHT_START_YEAR
+                || process.env.NUXT_PUBLIC_FOOTER_COPYRIGHT_START_YEAR
+                || '',
             // 备案信息配置
             showComplianceInfo:
                 process.env.NUXT_PUBLIC_SHOW_COMPLIANCE_INFO === 'true' || false,

@@ -6,9 +6,9 @@ export interface InstallationSiteConfigModel {
     siteDescription: string
     siteKeywords: string
     siteUrl: string
-    siteCopyright: CopyrightType | ''
-    footerCopyrightOwner: string
-    footerCopyrightStartYear: string
+    postCopyright: CopyrightType | ''
+    siteCopyrightOwner: string
+    siteCopyrightStartYear: string
     defaultLanguage: AdminLanguageCode
 }
 
@@ -47,9 +47,9 @@ export const INSTALLATION_SITE_SETTING_KEYS = {
     siteDescription: SettingKey.SITE_DESCRIPTION,
     siteKeywords: SettingKey.SITE_KEYWORDS,
     siteUrl: SettingKey.SITE_URL,
-    siteCopyright: SettingKey.SITE_COPYRIGHT,
-    footerCopyrightOwner: SettingKey.FOOTER_COPYRIGHT_OWNER,
-    footerCopyrightStartYear: SettingKey.FOOTER_COPYRIGHT_START_YEAR,
+    postCopyright: SettingKey.POST_COPYRIGHT,
+    siteCopyrightOwner: SettingKey.SITE_COPYRIGHT_OWNER,
+    siteCopyrightStartYear: SettingKey.SITE_COPYRIGHT_START_YEAR,
     defaultLanguage: SettingKey.DEFAULT_LANGUAGE,
 } as const
 
@@ -85,9 +85,9 @@ export const INSTALLATION_SITE_ENV_BACKFILL_MAP = {
     [SettingKey.SITE_DESCRIPTION]: 'siteDescription',
     [SettingKey.SITE_KEYWORDS]: 'siteKeywords',
     [SettingKey.SITE_URL]: 'siteUrl',
-    [SettingKey.SITE_COPYRIGHT]: 'siteCopyright',
-    [SettingKey.FOOTER_COPYRIGHT_OWNER]: 'footerCopyrightOwner',
-    [SettingKey.FOOTER_COPYRIGHT_START_YEAR]: 'footerCopyrightStartYear',
+    [SettingKey.POST_COPYRIGHT]: 'postCopyright',
+    [SettingKey.SITE_COPYRIGHT_OWNER]: 'siteCopyrightOwner',
+    [SettingKey.SITE_COPYRIGHT_START_YEAR]: 'siteCopyrightStartYear',
     [SettingKey.DEFAULT_LANGUAGE]: 'defaultLanguage',
 } as const satisfies Record<string, keyof InstallationSiteConfigModel>
 
@@ -96,9 +96,9 @@ export const DEFAULT_INSTALLATION_SITE_CONFIG: InstallationSiteConfigModel = {
     siteDescription: '',
     siteKeywords: '',
     siteUrl: '',
-    siteCopyright: 'all-rights-reserved',
-    footerCopyrightOwner: '',
-    footerCopyrightStartYear: '',
+    postCopyright: 'all-rights-reserved',
+    siteCopyrightOwner: '',
+    siteCopyrightStartYear: '',
     defaultLanguage: 'zh-CN',
 }
 

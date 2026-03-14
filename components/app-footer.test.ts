@@ -6,8 +6,8 @@ import AppFooter from './app-footer.vue'
 const mockFetch = vi.fn()
 const mockSiteConfig = ref({
     siteOperator: '',
-    footerCopyrightOwner: '',
-    footerCopyrightStartYear: '',
+    siteCopyrightOwner: '',
+    siteCopyrightStartYear: '',
 })
 const mockCurrentTitle = ref('Momei Blog')
 
@@ -26,8 +26,8 @@ describe('AppFooter', () => {
         mockCurrentTitle.value = 'Momei Blog'
         mockSiteConfig.value = {
             siteOperator: '',
-            footerCopyrightOwner: '',
-            footerCopyrightStartYear: '',
+            siteCopyrightOwner: '',
+            siteCopyrightStartYear: '',
         }
     })
 
@@ -66,8 +66,8 @@ describe('AppFooter', () => {
         mockCurrentTitle.value = 'My Blog'
         mockSiteConfig.value = {
             siteOperator: 'My Studio',
-            footerCopyrightOwner: 'My Studio',
-            footerCopyrightStartYear: String(currentYear - 2),
+            siteCopyrightOwner: 'My Studio',
+            siteCopyrightStartYear: String(currentYear - 2),
         }
 
         const wrapper = await mountSuspended(AppFooter, {
@@ -80,7 +80,7 @@ describe('AppFooter', () => {
         })
 
         expect(wrapper.find('.footer__copyright').text()).toContain(`© ${currentYear - 2}-${currentYear} My Studio`)
-        expect(wrapper.find('.footer__copyright').text()).toContain('Powered by Momei Blog')
+        expect(wrapper.find('.footer__copyright').text()).toContain('Powered by')
     })
 
     it('should fall back to site title when footer owner is empty', async () => {

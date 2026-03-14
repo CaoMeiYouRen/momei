@@ -6,17 +6,17 @@ describe('siteConfigSchema', () => {
         expect(siteConfigSchema.safeParse({
             siteTitle: 'Momei',
             defaultLanguage: 'zh-TW',
-            siteCopyright: 'cc-by',
-            footerCopyrightOwner: 'Momei Team',
-            footerCopyrightStartYear: '2024',
+            postCopyright: 'cc-by',
+            siteCopyrightOwner: 'Momei Team',
+            siteCopyrightStartYear: '2024',
         }).success).toBe(true)
 
         expect(siteConfigSchema.safeParse({
             siteTitle: 'Momei',
             defaultLanguage: 'ko-KR',
-            siteCopyright: 'all-rights-reserved',
-            footerCopyrightOwner: '',
-            footerCopyrightStartYear: '',
+            postCopyright: 'all-rights-reserved',
+            siteCopyrightOwner: '',
+            siteCopyrightStartYear: '',
         }).success).toBe(true)
     })
 
@@ -24,9 +24,9 @@ describe('siteConfigSchema', () => {
         const result = siteConfigSchema.safeParse({
             siteTitle: 'Momei',
             defaultLanguage: 'zh-CN',
-            siteCopyright: 'custom-copyright-text',
-            footerCopyrightOwner: 'Momei Team',
-            footerCopyrightStartYear: '2024',
+            postCopyright: 'custom-copyright-text',
+            siteCopyrightOwner: 'Momei Team',
+            siteCopyrightStartYear: '2024',
         })
 
         expect(result.success).toBe(false)
@@ -36,9 +36,9 @@ describe('siteConfigSchema', () => {
         const result = siteConfigSchema.safeParse({
             siteTitle: 'Momei',
             defaultLanguage: 'zh-CN',
-            siteCopyright: 'all-rights-reserved',
-            footerCopyrightOwner: 'Momei Team',
-            footerCopyrightStartYear: '24',
+            postCopyright: 'all-rights-reserved',
+            siteCopyrightOwner: 'Momei Team',
+            siteCopyrightStartYear: '24',
         })
 
         expect(result.success).toBe(false)

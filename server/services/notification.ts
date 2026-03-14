@@ -121,7 +121,7 @@ export async function createCampaignFromPost(
 
     const config = useRuntimeConfig()
     const siteUrl = config.public.siteUrl || 'https://momei.app'
-    const defaultLicense = config.public.defaultCopyright || 'all-rights-reserved'
+    const defaultLicense = config.public.postCopyright || config.public.defaultCopyright || 'all-rights-reserved'
 
     // 构造文章链接
     const langPrefix = post.language === 'zh-CN' ? '' : `/${post.language}`

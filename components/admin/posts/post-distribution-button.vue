@@ -589,7 +589,7 @@ async function buildWechatSyncPost() {
         authorName: sourcePost.author?.name || null,
         url: postUrl,
         license: sourcePost.copyright,
-        defaultLicense: runtimeConfig.public.defaultCopyright || 'all-rights-reserved',
+        defaultLicense: runtimeConfig.public.postCopyright || runtimeConfig.public.defaultCopyright || 'all-rights-reserved',
         locale: sourcePost.language,
     }, 'markdown')
 

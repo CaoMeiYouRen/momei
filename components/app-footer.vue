@@ -96,7 +96,16 @@
             <p class="footer__copyright">
                 <span>{{ footerCopyrightText }}</span>
                 <span class="footer__copyright-separator"> · </span>
-                <span>{{ footerPoweredByText }}</span>
+
+                <a
+                    href="https://momei.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="footer__link footer__link--external"
+                >
+                    <span>{{ footerPoweredByText }}</span>
+                    <i class="footer__link-icon pi pi-external-link" aria-hidden="true" />
+                </a>
             </p>
             <!-- 备案信息组件 -->
             <ComplianceInfo />
@@ -125,14 +134,14 @@ const { data: footerFriendLinkData } = await useAsyncData('footer-friend-links',
 const footerFriendLinks = computed(() => footerFriendLinkData.value?.items || [])
 
 const footerCopyrightOwner = computed(() => {
-    return siteConfig.value.footerCopyrightOwner?.trim()
+    return siteConfig.value.siteCopyrightOwner?.trim()
         || siteConfig.value.siteOperator?.trim()
         || currentTitle.value
 })
 
 const footerCopyrightYears = computed(() => {
     const currentYear = new Date().getFullYear()
-    const rawStartYear = siteConfig.value.footerCopyrightStartYear?.trim()
+    const rawStartYear = siteConfig.value.siteCopyrightStartYear?.trim()
 
     if (!rawStartYear) {
         return String(currentYear)

@@ -82,7 +82,7 @@ export function usePostEditorPage() {
     ])
 
     const defaultLicenseLabel = computed(() => {
-        const key = config.public.defaultCopyright || 'all-rights-reserved'
+        const key = config.public.postCopyright || config.public.defaultCopyright || 'all-rights-reserved'
         return t(`components.post.copyright.licenses.${key}`)
     })
 

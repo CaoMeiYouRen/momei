@@ -124,70 +124,70 @@
                 <small v-else-if="isLocked(settingKeys.siteKeywords)" class="installation-wizard__field-lock">{{ getLockMessage(settingKeys.siteKeywords) }}</small>
             </div>
             <div class="form-field">
-                <label for="site_copyright">
-                    {{ $t('installation.siteConfig.siteCopyright') }}
+                <label for="post_copyright">
+                    {{ $t('installation.siteConfig.postCopyright') }}
                     <InstallationFieldStatus
-                        v-if="isLocked(settingKeys.siteCopyright)"
-                        :field-key="settingKeys.siteCopyright"
-                        :env-setting="envSettings[settingKeys.siteCopyright]"
+                        v-if="isLocked(settingKeys.postCopyright)"
+                        :field-key="settingKeys.postCopyright"
+                        :env-setting="envSettings[settingKeys.postCopyright]"
                     />
                 </label>
                 <Select
-                    id="site_copyright"
-                    v-model="siteConfig.siteCopyright"
+                    id="post_copyright"
+                    v-model="siteConfig.postCopyright"
                     :options="licenseOptions"
                     option-label="label"
                     option-value="value"
-                    :disabled="isLocked(settingKeys.siteCopyright)"
-                    :invalid="!!fieldErrors.siteCopyright"
+                    :disabled="isLocked(settingKeys.postCopyright)"
+                    :invalid="!!fieldErrors.postCopyright"
                     fluid
                 />
-                <div v-if="fieldErrors.siteCopyright" class="installation-wizard__field-error">
-                    {{ fieldErrors.siteCopyright }}
+                <div v-if="fieldErrors.postCopyright" class="installation-wizard__field-error">
+                    {{ fieldErrors.postCopyright }}
                 </div>
-                <small v-else-if="isLocked(settingKeys.siteCopyright)" class="installation-wizard__field-lock">{{ getLockMessage(settingKeys.siteCopyright) }}</small>
+                <small v-else-if="isLocked(settingKeys.postCopyright)" class="installation-wizard__field-lock">{{ getLockMessage(settingKeys.postCopyright) }}</small>
             </div>
             <div class="form-field">
-                <label for="footer_copyright_owner">
-                    {{ $t('installation.siteConfig.footerCopyrightOwner') }}
+                <label for="site_copyright_owner">
+                    {{ $t('installation.siteConfig.siteCopyrightOwner') }}
                     <InstallationFieldStatus
-                        v-if="isLocked(settingKeys.footerCopyrightOwner)"
-                        :field-key="settingKeys.footerCopyrightOwner"
-                        :env-setting="envSettings[settingKeys.footerCopyrightOwner]"
+                        v-if="isLocked(settingKeys.siteCopyrightOwner)"
+                        :field-key="settingKeys.siteCopyrightOwner"
+                        :env-setting="envSettings[settingKeys.siteCopyrightOwner]"
                     />
                 </label>
                 <InputText
-                    id="footer_copyright_owner"
-                    v-model="siteConfig.footerCopyrightOwner"
-                    :disabled="isLocked(settingKeys.footerCopyrightOwner)"
-                    :invalid="!!fieldErrors.footerCopyrightOwner"
+                    id="site_copyright_owner"
+                    v-model="siteConfig.siteCopyrightOwner"
+                    :disabled="isLocked(settingKeys.siteCopyrightOwner)"
+                    :invalid="!!fieldErrors.siteCopyrightOwner"
                     fluid
                 />
-                <div v-if="fieldErrors.footerCopyrightOwner" class="installation-wizard__field-error">
-                    {{ fieldErrors.footerCopyrightOwner }}
+                <div v-if="fieldErrors.siteCopyrightOwner" class="installation-wizard__field-error">
+                    {{ fieldErrors.siteCopyrightOwner }}
                 </div>
-                <small v-else-if="isLocked(settingKeys.footerCopyrightOwner)" class="installation-wizard__field-lock">{{ getLockMessage(settingKeys.footerCopyrightOwner) }}</small>
+                <small v-else-if="isLocked(settingKeys.siteCopyrightOwner)" class="installation-wizard__field-lock">{{ getLockMessage(settingKeys.siteCopyrightOwner) }}</small>
             </div>
             <div class="form-field">
-                <label for="footer_copyright_start_year">
-                    {{ $t('installation.siteConfig.footerCopyrightStartYear') }}
+                <label for="site_copyright_start_year">
+                    {{ $t('installation.siteConfig.siteCopyrightStartYear') }}
                     <InstallationFieldStatus
-                        v-if="isLocked(settingKeys.footerCopyrightStartYear)"
-                        :field-key="settingKeys.footerCopyrightStartYear"
-                        :env-setting="envSettings[settingKeys.footerCopyrightStartYear]"
+                        v-if="isLocked(settingKeys.siteCopyrightStartYear)"
+                        :field-key="settingKeys.siteCopyrightStartYear"
+                        :env-setting="envSettings[settingKeys.siteCopyrightStartYear]"
                     />
                 </label>
                 <InputText
-                    id="footer_copyright_start_year"
-                    v-model="siteConfig.footerCopyrightStartYear"
-                    :disabled="isLocked(settingKeys.footerCopyrightStartYear)"
-                    :invalid="!!fieldErrors.footerCopyrightStartYear"
+                    id="site_copyright_start_year"
+                    v-model="siteConfig.siteCopyrightStartYear"
+                    :disabled="isLocked(settingKeys.siteCopyrightStartYear)"
+                    :invalid="!!fieldErrors.siteCopyrightStartYear"
                     fluid
                 />
-                <div v-if="fieldErrors.footerCopyrightStartYear" class="installation-wizard__field-error">
-                    {{ fieldErrors.footerCopyrightStartYear }}
+                <div v-if="fieldErrors.siteCopyrightStartYear" class="installation-wizard__field-error">
+                    {{ fieldErrors.siteCopyrightStartYear }}
                 </div>
-                <small v-else-if="isLocked(settingKeys.footerCopyrightStartYear)" class="installation-wizard__field-lock">{{ getLockMessage(settingKeys.footerCopyrightStartYear) }}</small>
+                <small v-else-if="isLocked(settingKeys.siteCopyrightStartYear)" class="installation-wizard__field-lock">{{ getLockMessage(settingKeys.siteCopyrightStartYear) }}</small>
             </div>
         </div>
 

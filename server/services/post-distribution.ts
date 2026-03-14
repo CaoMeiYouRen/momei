@@ -405,7 +405,7 @@ async function buildMemoContent(post: Post) {
     const langPrefix = post.language === 'zh-CN' ? '' : `/${post.language}`
     const postUrl = buildAbsoluteUrl(siteUrl, `${langPrefix}/posts/${post.slug || post.id}`)
     const excerpt = buildPostExcerpt(post)
-    const defaultLicense = await getSetting(SettingKey.SITE_COPYRIGHT)
+    const defaultLicense = await getSetting(SettingKey.POST_COPYRIGHT)
 
     const parts = [`# ${post.title}`]
     if (excerpt) {
