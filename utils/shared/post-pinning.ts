@@ -1,0 +1,3 @@
+export const MAX_PINNED_POSTS = 3
+export const HOMEPAGE_PINNED_POST_LIMIT = 1
+export const HOMEPAGE_LATEST_POST_LIMIT = 3

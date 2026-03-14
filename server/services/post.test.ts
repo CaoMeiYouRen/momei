@@ -3,6 +3,7 @@ import { createPostService, updatePostService } from './post'
 import { dataSource } from '@/server/database'
 import { PostStatus, PostVisibility } from '@/types/post'
 import { MarketingCampaignStatus } from '@/utils/shared/notification'
+import { MAX_PINNED_POSTS } from '@/utils/shared/post-pinning'
 
 vi.mock('@/server/database', () => ({
     dataSource: {
@@ -397,6 +398,32 @@ describe('post service', () => {
 
             expect(createCampaignFromPost).toHaveBeenCalledWith('post1', 'author1', MarketingCampaignStatus.DRAFT, undefined)
         })
+
+        it('应该在置顶文章达到上限时拒绝创建新的置顶文章', async () => {
+            const mockPostRepo = {
+                findOne: vi.fn().mockResolvedValue(null),
+                count: vi.fn().mockResolvedValue(MAX_PINNED_POSTS),
+                save: vi.fn().mockImplementation((post) => Promise.resolve(post)),
+            }
+
+            vi.mocked(dataSource.getRepository).mockImplementation((entity: any) => {
+                if (entity.name === 'Post') {
+                    return mockPostRepo as any
+                }
+                if (entity.name === 'Category') {
+                    return { findOne: vi.fn().mockResolvedValue(null) } as any
+                }
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)) } as any
+            })
+
+            await expect(
+                createPostService(
+                    createTestPostData({ isPinned: true }),
+                    'author1',
+                    { isAdmin: true },
+                ),
+            ).rejects.toThrow(`Pinned posts limit reached. Up to ${MAX_PINNED_POSTS} posts can be pinned.`)
+        })
     })
 
     describe('updatePostService', () => {
@@ -718,5 +745,41 @@ describe('post service', () => {
 
             expect(result.publishedAt).toBeInstanceOf(Date)
         })
+    })
+
+    it('应该在置顶文章达到上限时拒绝把普通文章更新为置顶', async () => {
+        const existingPost = {
+            id: 'post1',
+            slug: 'test-post',
+            authorId: 'author1',
+            status: PostStatus.DRAFT,
+            language: 'zh-CN',
+            tags: [],
+            isPinned: false,
+        }
+
+        const mockPostRepo = {
+            findOne: vi.fn().mockResolvedValue(existingPost),
+            count: vi.fn().mockResolvedValue(MAX_PINNED_POSTS),
+            save: vi.fn().mockImplementation((post) => Promise.resolve(post)),
+        }
+
+        vi.mocked(dataSource.getRepository).mockImplementation((entity: any) => {
+            if (entity.name === 'Post') {
+                return mockPostRepo as any
+            }
+            if (entity.name === 'Category') {
+                return { findOne: vi.fn().mockResolvedValue(null) } as any
+            }
+            return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)) } as any
+        })
+
+        await expect(
+            updatePostService(
+                'post1',
+                { isPinned: true },
+                { isAdmin: true, currentUserId: 'author1' },
+            ),
+        ).rejects.toThrow(`Pinned posts limit reached. Up to ${MAX_PINNED_POSTS} posts can be pinned.`)
     })
 })

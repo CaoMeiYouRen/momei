@@ -36,7 +36,7 @@
 
                 <div v-if="latestPending" class="posts-grid">
                     <div
-                        v-for="i in 4"
+                        v-for="i in 3"
                         :key="i"
                         class="post-card-skeleton"
                     >
@@ -134,6 +134,10 @@
 <script setup lang="ts">
 import type { ApiResponse } from '@/types/api'
 import type { Post } from '@/types/post'
+import {
+    HOMEPAGE_LATEST_POST_LIMIT,
+    HOMEPAGE_PINNED_POST_LIMIT,
+} from '@/utils/shared/post-pinning'
 
 interface PublicPostListData {
     items: Post[]
@@ -152,16 +156,44 @@ usePageSeo({
     description: () => t('home.meta.description'),
 })
 
-const { data: latestData, pending: latestPending, error: latestError } = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {
+const {
+    data: pinnedLatestData,
+    pending: pinnedLatestPending,
+    error: pinnedLatestError,
+} = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {
     query: {
-        limit: 4,
+        limit: HOMEPAGE_PINNED_POST_LIMIT,
+        isPinned: true,
         status: 'published',
         orderBy: 'publishedAt',
         order: 'DESC',
     },
 })
 
-const latestPosts = computed(() => latestData.value?.data?.items || [])
+const {
+    data: regularLatestData,
+    pending: regularLatestPending,
+    error: regularLatestError,
+} = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {
+    query: {
+        limit: HOMEPAGE_LATEST_POST_LIMIT,
+        isPinned: false,
+        status: 'published',
+        orderBy: 'publishedAt',
+        order: 'DESC',
+    },
+})
+
+const latestPending = computed(() => pinnedLatestPending.value || regularLatestPending.value)
+const latestError = computed(() => pinnedLatestError.value || regularLatestError.value)
+
+const latestPosts = computed(() => {
+    const pinnedPosts = pinnedLatestData.value?.data?.items || []
+    const regularPosts = regularLatestData.value?.data?.items || []
+
+    return [...pinnedPosts, ...regularPosts].slice(0, HOMEPAGE_LATEST_POST_LIMIT)
+})
+
 const latestPostIds = computed(() => latestPosts.value.map((post) => String(post.id)))
 
 const { data: popularData, pending: popularPending, error: popularError } = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {

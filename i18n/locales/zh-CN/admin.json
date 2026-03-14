@@ -475,7 +475,7 @@
                 "visibility": "可见性",
                 "visibility_hint": "设置文章的访问权限",
                 "pinned": "置顶",
-                "pinned_hint": "置顶文章会在公开文章列表中优先展示，并优先进入首页最新区。",
+                "pinned_hint": "最多可置顶 3 篇文章。公开文章列表会优先展示所有置顶文章，首页最新区只保留最近 1 篇置顶，其余位置由最新文章补齐。",
                 "visibility_options": {
                     "public": "公开",
                     "private": "私密 (仅自己)",

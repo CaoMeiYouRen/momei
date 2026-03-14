@@ -475,7 +475,7 @@
                 "visibility": "Visibility",
                 "visibility_hint": "Set post access permissions",
                 "pinned": "Pinned",
-                "pinned_hint": "Pinned posts are prioritized in public lists and are considered first for the homepage latest section.",
+                "pinned_hint": "Up to 3 posts can be pinned. Public lists prioritize all pinned posts, while the homepage latest section keeps only the most recent pinned post and fills the remaining slots with recent posts.",
                 "visibility_options": {
                     "public": "Public",
                     "private": "Private (Only Me)",

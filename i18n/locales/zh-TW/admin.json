@@ -475,7 +475,7 @@
                 "visibility": "可見性",
                 "visibility_hint": "設定文章的存取權限",
                 "pinned": "置頂",
-                "pinned_hint": "置頂文章會在公開文章列表中優先顯示，並優先進入首頁最新區。",
+                "pinned_hint": "最多可置頂 3 篇文章。公開文章列表會優先顯示所有置頂文章，首頁最新區只保留最近 1 篇置頂，其餘位置由最新文章補齊。",
                 "visibility_options": {
                     "public": "公開",
                     "private": "私密 (僅自己)",

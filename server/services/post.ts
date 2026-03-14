@@ -6,6 +6,7 @@ import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { Category } from '@/server/entities/category'
 import { generateRandomString } from '@/utils/shared/random'
+import { MAX_PINNED_POSTS } from '@/utils/shared/post-pinning'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
 import { PostStatus, POST_STATUS_TRANSITIONS, type PublishIntent } from '@/types/post'
 import { PostVersionSource } from '@/types/post-version'
@@ -33,6 +34,25 @@ interface UpdatePostOptions {
     isAdmin: boolean
     currentUserId: string
     auditContext?: PostVersionAuditContext
+}
+
+async function ensurePinnedPostLimit(
+    postRepo: ReturnType<typeof dataSource.getRepository<Post>>,
+    body: CreatePostInput | UpdatePostInput,
+    currentPost?: Pick<Post, 'isPinned'> | null,
+) {
+    if (body.isPinned !== true || currentPost?.isPinned) {
+        return
+    }
+
+    const pinnedCount = await postRepo.count({ where: { isPinned: true } })
+
+    if (pinnedCount >= MAX_PINNED_POSTS) {
+        throw createError({
+            statusCode: 400,
+            statusMessage: `Pinned posts limit reached. Up to ${MAX_PINNED_POSTS} posts can be pinned.`,
+        })
+    }
 }
 
 /**
@@ -196,6 +216,7 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
     post.authorId = authorId
     post.slug = slug
 
+    await ensurePinnedPostLimit(postRepo, body)
     await applyPostChanges(post, body, options, true)
     await postRepo.save(post)
 
@@ -250,6 +271,7 @@ export const updatePostService = async (id: string, body: UpdatePostInput, optio
         }
     }
 
+    await ensurePinnedPostLimit(postRepo, body, post)
     await applyPostChanges(post, body, options, false)
     await postRepo.save(post)
 
