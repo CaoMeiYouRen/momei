@@ -402,6 +402,7 @@
                     "expand_section": "Expand Section",
                     "translate": "Translate",
                     "translate_name": "Translate Name",
+                    "translate_name_batch": "Batch Translate Names",
                     "async_transcription": "Async Transcription",
                     "recommend_tags": "Recommend Tags"
                 },

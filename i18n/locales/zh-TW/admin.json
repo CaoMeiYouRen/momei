@@ -402,6 +402,7 @@
                     "expand_section": "擴寫章節",
                     "translate": "翻譯",
                     "translate_name": "翻譯名稱",
+                    "translate_name_batch": "批量翻譯名稱",
                     "async_transcription": "異步語音識別",
                     "recommend_tags": "推薦標籤"
                 },

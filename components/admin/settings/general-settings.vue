@@ -642,6 +642,7 @@
 
 <script setup lang="ts">
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
+import { APP_ENABLED_LOCALES } from '@/i18n/config/locale-registry'
 import { getCopyrightLicenseOptions } from '@/utils/shared/copyright-options'
 import type { AdminLanguageCode, GeneralSettingsMetadata, GeneralSettingsModel } from '@/types/setting'
 
@@ -653,10 +654,12 @@ defineProps<{
 
 const { t } = useI18n()
 
-const languageOptions: Array<{ label: string, value: AdminLanguageCode }> = [
-    { label: '简体中文', value: 'zh-CN' },
-    { label: 'English', value: 'en-US' },
-]
+const languageOptions = computed<Array<{ label: string, value: AdminLanguageCode }>>(() => {
+    return APP_ENABLED_LOCALES.map((locale) => ({
+        label: locale.nativeName,
+        value: locale.code,
+    }))
+})
 
 const copyrightOptions = computed(() => getCopyrightLicenseOptions(t))
 </script>

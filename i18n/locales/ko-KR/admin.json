@@ -402,6 +402,7 @@
                     "expand_section": "섹션 확장",
                     "translate": "번역",
                     "translate_name": "이름 번역",
+                    "translate_name_batch": "이름 일괄 번역",
                     "async_transcription": "비동기 전사",
                     "recommend_tags": "태그 추천"
                 },

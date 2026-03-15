@@ -375,6 +375,37 @@ function resolveMemosId(memo: MemosCreateResponse) {
     return memoId || memo.name
 }
 
+function normalizeMemosPublicBaseUrl(instanceUrl?: string | null) {
+    if (!instanceUrl) {
+        return null
+    }
+
+    return instanceUrl
+        .replace(/\/+$/u, '')
+        .replace(/\/api\/v1$/iu, '')
+}
+
+function buildMemosPublicPermalink(instanceUrl: string | null, memo: MemosCreateResponse, memosId: string | null) {
+    if (memo.name && /^https?:\/\//iu.test(memo.name)) {
+        return memo.name
+    }
+
+    const publicBaseUrl = normalizeMemosPublicBaseUrl(instanceUrl)
+    if (!publicBaseUrl) {
+        return null
+    }
+
+    const resourceName = (memo.name || (memosId ? `memos/${memosId}` : null))
+        ?.replace(/^\/+/, '')
+        .replace(/^api\/v1\//iu, '')
+
+    if (!resourceName) {
+        return null
+    }
+
+    return `${publicBaseUrl}/${resourceName}`
+}
+
 async function resolveSiteUrl() {
     const siteUrl = await getSetting(SettingKey.SITE_URL)
     if (siteUrl) {
@@ -484,9 +515,7 @@ async function runMemosDistribution(
 
         const memosId = resolveMemosId(memo)
         const instanceUrl = await getSetting(SettingKey.MEMOS_INSTANCE_URL)
-        const baseUrl = instanceUrl ? instanceUrl.replace(/\/$/, '') : null
-        const resourceName = memo.name || (memosId ? `memos/${memosId}` : null)
-        const remoteUrl = baseUrl && resourceName ? `${baseUrl}/${resourceName}` : null
+        const remoteUrl = buildMemosPublicPermalink(instanceUrl, memo, memosId)
 
         const metadata = finalizeAttempt(post, 'memos', attempt.attemptId, {
             status: 'succeeded',

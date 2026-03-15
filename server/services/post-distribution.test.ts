@@ -111,6 +111,36 @@ describe('post-distribution service', () => {
         expect(persistedPost.metadata?.integration?.distribution?.channels?.memos?.remoteId).toBe('42')
     })
 
+    it('should normalize memos public permalink when the configured instance URL includes api path', async () => {
+        const post = await createPublishedPost()
+        vi.mocked(getSetting).mockImplementation((...args: Parameters<typeof getSetting>) => {
+            const [key] = args
+
+            switch (key as SettingKey) {
+                case SettingKey.MEMOS_ENABLED:
+                    return Promise.resolve('true')
+                case SettingKey.MEMOS_INSTANCE_URL:
+                    return Promise.resolve('https://memos.example.com/api/v1')
+                case SettingKey.SITE_URL:
+                    return Promise.resolve('https://momei.app')
+                case SettingKey.POST_COPYRIGHT:
+                    return Promise.resolve('all-rights-reserved')
+                default:
+                    return Promise.resolve(null)
+            }
+        })
+        vi.mocked(createMemo).mockResolvedValue({ name: 'api/v1/memos/normalized-42' })
+
+        const result = await dispatchPostDistributionService(post.id, {
+            channel: 'memos',
+            operation: 'sync',
+        }, actor)
+
+        expect(result.summary.channels.memos.remoteId).toBe('normalized-42')
+        expect(result.summary.channels.memos.remoteUrl).toBe('https://memos.example.com/memos/normalized-42')
+        expect(result.summary.timeline[0]?.remoteUrl).toBe('https://memos.example.com/memos/normalized-42')
+    })
+
     it('should update existing memos content on retry when a remote id exists', async () => {
         const post = await createPublishedPost()
         post.metadata = {

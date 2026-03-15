@@ -402,6 +402,7 @@
                     "expand_section": "扩写章节",
                     "translate": "翻译",
                     "translate_name": "翻译名称",
+                    "translate_name_batch": "批量翻译名称",
                     "async_transcription": "异步语音识别",
                     "recommend_tags": "推荐标签"
                 },
