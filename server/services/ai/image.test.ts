@@ -75,8 +75,8 @@ describe('ImageService', () => {
 
             vi.mocked(aiUtils.getAIImageProvider).mockResolvedValue(mockProvider as any)
             vi.mocked(uploadService.uploadFromUrl).mockResolvedValue({
-                url: '/uploads/posts/post-123/image/ai/task-123.png',
-                path: '/uploads/posts/post-123/image/ai/task-123.png',
+                url: '/uploads/posts/post-123/image/ai/generated.png',
+                path: '/uploads/posts/post-123/image/ai/generated.png',
                 size: 1024,
                 mimeType: 'image/png',
             } as any)
@@ -92,7 +92,6 @@ describe('ImageService', () => {
                 'https://example.com/image.png',
                 'posts/post-123/image/ai/',
                 'user-1',
-                'task-123',
             )
             expect(postRepo.findOneBy).toHaveBeenCalledWith({ id: 'post-123' })
             expect(mockRepo.save).toHaveBeenCalledWith(
