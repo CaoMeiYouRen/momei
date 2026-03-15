@@ -75,12 +75,12 @@ export class ImageService extends AIBaseService {
             const persistedImages = await withAITimeout(
                 Promise.all(
                     response.images.map(async (img, index) => {
-                        const filename = response.images.length > 1 ? `${taskId}_${index}` : taskId
+                        // const filename = response.images.length > 1 ? `${taskId}_${index}` : taskId
                         const uploadedImage = await uploadFromUrl(
                             img.url,
                             post ? `posts/${post.id}/image/ai/` : 'image/ai/',
                             userId,
-                            filename,
+                            // filename, // 自定义前缀
                         )
                         return {
                             ...img,
