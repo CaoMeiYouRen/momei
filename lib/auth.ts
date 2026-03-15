@@ -175,12 +175,12 @@ export const auth = betterAuth({
             '/send-verification-email': { window: 60, max: 3 },
             '/change-email': { window: 60, max: 3 },
             '/delete-user': { window: 60, max: 2 },
-            '/get-session': { window: 60, max: 10 },
+            '/get-session': { window: 60, max: 20 },
             '/admin/*': { window: 60, max: 10 },
             '/two-factor/*': { window: 60, max: 3 },
             '/oauth2/*': { window: 60, max: 3 },
             // '/*': (req) => { // 基础限流
-            //     return { window: 60, max: 10 }
+            //     return { window: 60, max: 30 }
             // },
         },
     },
