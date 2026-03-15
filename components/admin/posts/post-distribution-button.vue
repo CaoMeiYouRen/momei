@@ -136,15 +136,15 @@
                         <div v-if="extensionInstalled && allAccounts.length > 0" class="post-distribution-dialog__account-list">
                             <div
                                 v-for="account in allAccounts"
-                                :key="account.id"
+                                :key="resolveWechatSyncAccountKey(account)"
                                 class="post-distribution-dialog__account-item"
                             >
                                 <Checkbox
                                     v-model="account.checked"
-                                    :input-id="`distribution-account-${account.id}`"
+                                    :input-id="`distribution-account-${resolveWechatSyncAccountKey(account)}`"
                                     binary
                                 />
-                                <label :for="`distribution-account-${account.id}`">
+                                <label :for="`distribution-account-${resolveWechatSyncAccountKey(account)}`">
                                     <img
                                         v-if="account.icon"
                                         :src="account.icon"
@@ -192,14 +192,14 @@
                         <div v-if="localWechatTaskStatus?.accounts?.length" class="post-distribution-dialog__task-list">
                             <div
                                 v-for="account in localWechatTaskStatus.accounts"
-                                :key="account.title"
+                                :key="resolveWechatSyncAccountKey(account)"
                                 class="post-distribution-dialog__task-item"
                             >
                                 <div class="post-distribution-dialog__task-name">
                                     {{ account.title }}
                                 </div>
                                 <div class="post-distribution-dialog__task-meta">
-                                    <span>{{ renderWechatTaskLabel(account.status) }}</span>
+                                    <span :title="account.error || account.msg">{{ renderWechatTaskLabel(account.status) }}</span>
                                     <a
                                         v-if="account.editResp?.draftLink"
                                         :href="account.editResp.draftLink"
@@ -287,6 +287,16 @@ import type { ApiResponse } from '@/types/api'
 import { appendPostCopyrightNotice } from '@/utils/shared/post-copyright'
 import { createMarkdownRenderer } from '@/utils/shared/markdown'
 import { buildAbsoluteUrl } from '@/utils/shared/seo'
+import {
+    buildWechatSyncFailureResults,
+    mapWechatSyncTaskAccountsForCompletion,
+    normalizeWechatSyncAccounts,
+    resolveWechatSyncAccountKey,
+    type WechatSyncAccount,
+    type WechatSyncRawAccount,
+    type WechatSyncTaskAccount,
+    type WechatSyncTaskStatus,
+} from '@/utils/shared/wechatsync'
 import { useI18nDate } from '@/composables/use-i18n-date'
 
 interface PostDistributionSummary {
@@ -315,29 +325,8 @@ interface PostDistributionSummary {
     timeline: PostDistributionTimelineEntry[]
 }
 
-interface WechatSyncAccount {
-    id: string
-    title: string
-    icon?: string
-    checked: boolean
-}
-
-interface WechatSyncTaskAccount {
-    title: string
-    status: 'uploading' | 'done' | 'failed'
-    msg?: string
-    error?: string
-    editResp?: {
-        draftLink?: string
-    }
-}
-
-interface WechatSyncTaskStatus {
-    accounts?: WechatSyncTaskAccount[]
-}
-
 interface WechatSyncWindow {
-    getAccounts: (callback: (accounts: Array<{ id: string | number, title: string, icon?: string }>) => void) => void
+    getAccounts: (callback: (accounts: WechatSyncRawAccount[]) => void) => void
     addTask: (
         payload: {
             post: {
@@ -347,7 +336,7 @@ interface WechatSyncWindow {
                 desc: string
                 thumb: string
             }
-            accounts: Array<{ id: string, title: string, icon?: string, checked: boolean }>
+            accounts: WechatSyncAccount[]
         },
         onStatus: (status: WechatSyncTaskStatus) => void,
         onReady: () => void,
@@ -370,7 +359,7 @@ const props = withDefaults(defineProps<{
 const runtimeConfig = useRuntimeConfig()
 const { t } = useI18n()
 const { formatDateTime } = useI18nDate()
-const { showErrorToast, showSuccessToast } = useRequestFeedback()
+const { resolveErrorMessage, showErrorToast, showSuccessToast } = useRequestFeedback()
 
 const dialogVisible = ref(false)
 const loading = ref(false)
@@ -428,7 +417,8 @@ function renderActionLabel(action: PostDistributionAction, mode?: PostDistributi
 }
 
 function renderWechatTaskLabel(status: WechatSyncTaskAccount['status']) {
-    return t(`pages.admin.posts.distribution.wechatsync_task.${status}`)
+    const normalizedStatus = status === 'pending' ? 'uploading' : status
+    return t(`pages.admin.posts.distribution.wechatsync_task.${normalizedStatus}`)
 }
 
 function renderChannelMessage(channel: PostDistributionChannel) {
@@ -475,12 +465,7 @@ async function loadAccounts() {
     }
 
     syncer.getAccounts((accounts) => {
-        allAccounts.value = accounts.map((account) => ({
-            id: String(account.id),
-            title: account.title,
-            icon: account.icon,
-            checked: false,
-        }))
+        allAccounts.value = normalizeWechatSyncAccounts(accounts, allAccounts.value)
     })
 }
 
@@ -547,14 +532,7 @@ async function finalizeWechatSync(accounts: WechatSyncTaskAccount[]) {
             method: 'POST',
             body: {
                 attemptId: activeWechatAttemptId.value,
-                accounts: accounts.map((account, index) => ({
-                    id: String(index + 1),
-                    title: account.title,
-                    status: account.status,
-                    msg: account.msg,
-                    error: account.error,
-                    draftLink: account.editResp?.draftLink,
-                })),
+                accounts: mapWechatSyncTaskAccountsForCompletion(accounts, selectedWechatAccounts.value),
             },
         })
         await loadSummary()
@@ -564,6 +542,33 @@ async function finalizeWechatSync(accounts: WechatSyncTaskAccount[]) {
     } finally {
         activeWechatAttemptId.value = null
         finalizingWechatSync.value = false
+    }
+}
+
+async function finalizeWechatSyncStartupFailure(error: unknown) {
+    if (!postId.value || !activeWechatAttemptId.value || !selectedWechatAccounts.value.length) {
+        return
+    }
+
+    try {
+        await $fetch(`/api/admin/posts/${postId.value}/distribution/wechatsync-complete`, {
+            method: 'POST',
+            body: {
+                attemptId: activeWechatAttemptId.value,
+                accounts: buildWechatSyncFailureResults(
+                    selectedWechatAccounts.value,
+                    resolveErrorMessage(error, {
+                        fallbackKey: 'pages.admin.posts.distribution.dispatch_failed',
+                    }),
+                ),
+            },
+        })
+        await loadSummary()
+    } catch (completionError) {
+        console.error('[PostDistribution] Failed to finalize WechatSync startup failure', completionError)
+    } finally {
+        activeWechatAttemptId.value = null
+        localWechatTaskStatus.value = null
     }
 }
 
@@ -646,6 +651,7 @@ async function dispatchWechatSync(operation: 'sync' | 'retry') {
             },
         )
     } catch (error) {
+        await finalizeWechatSyncStartupFailure(error)
         showErrorToast(error, { fallbackKey: 'pages.admin.posts.distribution.dispatch_failed' })
     } finally {
         wechatSyncSubmitting.value = false

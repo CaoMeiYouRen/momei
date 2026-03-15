@@ -64,15 +64,15 @@
                         <div v-if="allAccounts.length > 0" class="wechatsync-dialog__account-list">
                             <div
                                 v-for="account in allAccounts"
-                                :key="account.id"
+                                :key="resolveWechatSyncAccountKey(account)"
                                 class="wechatsync-dialog__account-item"
                             >
                                 <Checkbox
                                     v-model="account.checked"
-                                    :input-id="'ac-' + account.id"
+                                    :input-id="'ac-' + resolveWechatSyncAccountKey(account)"
                                     binary
                                 />
-                                <label :for="'ac-' + account.id" class="wechatsync-dialog__account-label">
+                                <label :for="'ac-' + resolveWechatSyncAccountKey(account)" class="wechatsync-dialog__account-label">
                                     <img
                                         v-if="account.icon"
                                         :src="account.icon"
@@ -96,7 +96,7 @@
                         <div class="wechatsync-dialog__task-list">
                             <div
                                 v-for="account in taskStatus.accounts"
-                                :key="account.title"
+                                :key="resolveWechatSyncAccountKey(account)"
                                 class="wechatsync-dialog__task-item"
                             >
                                 <div class="wechatsync-dialog__task-account">
@@ -108,7 +108,7 @@
                                     <span class="wechatsync-dialog__task-name">{{ account.title }}</span>
                                 </div>
                                 <div class="wechatsync-dialog__task-result">
-                                    <template v-if="account.status === 'uploading'">
+                                    <template v-if="account.status === 'pending' || account.status === 'uploading'">
                                         <i class="pi pi-spin pi-spinner wechatsync-dialog__status-icon" />
                                         <span class="wechatsync-dialog__status-text wechatsync-dialog__status-text--uploading">
                                             {{ account.msg || $t("pages.admin.posts.wechatsync.syncing") }}
@@ -178,6 +178,38 @@ import type { Post } from '@/types/post'
 import { appendPostCopyrightNotice } from '@/utils/shared/post-copyright'
 import { createMarkdownRenderer } from '@/utils/shared/markdown'
 import { buildAbsoluteUrl } from '@/utils/shared/seo'
+import {
+    buildWechatSyncFailureResults,
+    normalizeWechatSyncAccounts,
+    resolveWechatSyncAccountKey,
+    type WechatSyncAccount,
+    type WechatSyncRawAccount,
+    type WechatSyncTaskStatus,
+} from '@/utils/shared/wechatsync'
+
+interface WechatSyncWindow {
+    getAccounts: (callback: (accounts: WechatSyncRawAccount[]) => void) => void
+    addTask: (
+        payload: {
+            post: {
+                title: string
+                markdown: string
+                content: string
+                desc: string
+                thumb: string
+            }
+            accounts: WechatSyncAccount[]
+        },
+        onStatus: (status: WechatSyncTaskStatus) => void,
+        onReady: () => void,
+    ) => void
+}
+
+declare global {
+    interface Window {
+        $syncer?: WechatSyncWindow
+    }
+}
 
 const props = defineProps<{
     post: Post
@@ -192,11 +224,10 @@ const dialogVisible = ref(false)
 const submitting = ref(false)
 const extensionInstalled = ref(false)
 const checkCount = ref(0)
-const allAccounts = ref<any[]>([])
-const taskStatus = ref<any>({})
+const allAccounts = ref<WechatSyncAccount[]>([])
+const taskStatus = ref<WechatSyncTaskStatus>({})
 
 const { pause, resume } = useIntervalFn(() => {
-    // @ts-ignore
     const syncer = window.$syncer
     extensionInstalled.value = typeof syncer !== 'undefined'
     checkCount.value++
@@ -231,13 +262,10 @@ const openSyncDialog = () => {
 }
 
 const loadAccounts = () => {
-    // @ts-ignore
     if (window.$syncer && window.$syncer.getAccounts) {
-        // @ts-ignore
-        window.$syncer.getAccounts((resp: any[]) => {
+        window.$syncer.getAccounts((resp) => {
             console.info('[WechatSync] accounts loaded', resp)
-            // Initialize checked status
-            allAccounts.value = resp.map((a) => ({ ...a, checked: false }))
+            allAccounts.value = normalizeWechatSyncAccounts(resp, allAccounts.value)
         })
     }
 }
@@ -286,21 +314,39 @@ const doSubmit = () => {
         thumb: props.post.coverImage || '',
     }
 
-    // @ts-ignore
     if (window.$syncer && window.$syncer.addTask) {
-        // @ts-ignore
-        window.$syncer.addTask(
-            {
-                post: postToSync,
-                accounts: selectedAc,
-            },
-            (status: any) => {
-                taskStatus.value = status
-            },
-            () => {
-                console.info('[WechatSync] task triggered')
-            },
-        )
+        try {
+            window.$syncer.addTask(
+                {
+                    post: postToSync,
+                    accounts: selectedAc,
+                },
+                (status) => {
+                    taskStatus.value = status
+                },
+                () => {
+                    console.info('[WechatSync] task triggered')
+                },
+            )
+        } catch (error) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : t('pages.admin.posts.wechatsync.failed')
+
+            taskStatus.value = {
+                accounts: buildWechatSyncFailureResults(selectedAc, errorMessage).map((account) => ({
+                    ...account,
+                    editResp: undefined,
+                })),
+            }
+            submitting.value = false
+            toast.add({
+                severity: 'error',
+                summary: t('pages.admin.posts.wechatsync.failed'),
+                detail: errorMessage,
+                life: 5000,
+            })
+        }
     }
 }
 
@@ -365,6 +411,7 @@ const closeDialog = () => {
         color: var(--p-text-muted-color);
         margin: 0;
         display: -webkit-box;
+        line-clamp: 2;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
