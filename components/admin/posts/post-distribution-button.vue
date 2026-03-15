@@ -345,7 +345,7 @@ interface WechatSyncWindow {
                 markdown: string
                 content: string
                 desc: string
-                cover: string
+                thumb: string
             }
             accounts: Array<{ id: string, title: string, icon?: string, checked: boolean }>
         },
@@ -598,7 +598,7 @@ async function buildWechatSyncPost() {
         markdown: markdownWithCopyright,
         content: md.render(markdownWithCopyright),
         desc: sourcePost.summary || (sourcePost.content || '').substring(0, 100).replace(/[#*`]/g, ''),
-        cover: sourcePost.coverImage || '',
+        thumb: sourcePost.coverImage || '',
     }
 }
 

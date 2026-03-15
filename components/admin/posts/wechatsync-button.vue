@@ -283,7 +283,7 @@ const doSubmit = () => {
         content: renderedContent, // HTML 格式，供部分平台使用
         // desc for some platforms
         desc: props.post.summary || props.post.content.substring(0, 100).replace(/[#*`]/g, ''),
-        cover: props.post.coverImage || '',
+        thumb: props.post.coverImage || '',
     }
 
     // @ts-ignore

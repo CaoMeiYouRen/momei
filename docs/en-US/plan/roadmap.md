@@ -290,6 +290,8 @@ This document outlines the development blueprint for the project. For specific t
 **Timeline**: ~1 - 1.5 months
 **Goal**: Close the next usability gap around homepage orchestration, reusable voice input, editor stability, and footer branding semantics so the product can evolve without duplicating logic across multiple entry points.
 
+**Triage Note**: Newly reported admin translation gaps and distribution regressions were triaged against the in-iteration intake gate. The shipped-feature regressions are allowed into Stage 12 as a Hotfix; the remaining unplanned capability expansions are moved back into the backlog rather than being pre-allocated to a new stage.
+
 1. **Homepage Orchestration & Post Pinning (P0)**:
     - Deduplicate “latest” and “popular” homepage slots, add post pinning semantics, and keep list/archive/admin sorting consistent.
 2. **Reusable Textarea Voice Input (P1)**:
@@ -298,30 +300,38 @@ This document outlines the development blueprint for the project. For specific t
     - Audit the current editor integration first, then only consider replacement behind a no-regression validation gate.
 4. **Footer Branding & Copyright Configuration (P1)**:
     - Decouple footer copyright display from fixed i18n text and align it with explicit site-branding settings.
+5. **Multilingual Authoring & Distribution Hotfix (Hotfix)**:
+    - Fill the missing `pages.admin.ai.types.translate_name_batch` translation field so admin AI flows no longer surface raw keys or blank labels.
+    - Normalize Memos link write-back to the real public permalink instead of an internal or API-style path.
+    - Restore the WechatSync delivery flow with clearer failure classification, operator feedback, and targeted regression coverage.
+    - Sync the settings-page `default_language` options with the current Locale Registry so supported languages are not missing from the admin selector.
 
 ## 3. Backlog & Long-term Roadmap
 
 This section records features with long-term value but not prioritized for the current iteration.
 
-### 1. Desktop Application
+### 1. Multilingual Creative Assets & Channel Distribution Expansion
+-   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+
+### 2. Desktop Application
 - **Tauri Cross-platform App**:
     - Desktop skeleton with multi-site management.
     - Offline Markdown editing with cloud sync.
     - Native system menus and integration.
 
-### 2. Geek Tech Extras
+### 3. Geek Tech Extras
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
-### 3. Theme Ecosystem
+### 4. Theme Ecosystem
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
-### 4. Monetization & Membership
+### 5. Monetization & Membership
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
-### 5. Advanced Creator Tools
+### 6. Advanced Creator Tools
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
-### 6. Podcast & Multimedia Expansion
+### 7. Podcast & Multimedia Expansion
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
 
