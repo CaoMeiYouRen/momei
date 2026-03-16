@@ -263,6 +263,49 @@
                                 />
                             </NuxtLink>
                         </div>
+                        <nav
+                            v-if="!post.locked && (post.previousPost || post.nextPost)"
+                            class="post-detail__navigation"
+                            :aria-label="$t('pages.posts.article_navigation.aria_label')"
+                        >
+                            <NuxtLink
+                                v-if="post.previousPost"
+                                :to="localePath(`/posts/${post.previousPost.slug}`)"
+                                class="post-detail__nav-card post-detail__nav-card--previous"
+                            >
+                                <span class="post-detail__nav-label">
+                                    <i class="pi pi-arrow-left" />
+                                    {{ $t('pages.posts.article_navigation.previous') }}
+                                </span>
+                                <span class="post-detail__nav-title">{{ post.previousPost.title }}</span>
+                                <span v-if="post.previousPost.summary" class="post-detail__nav-summary">
+                                    {{ post.previousPost.summary }}
+                                </span>
+                                <span v-if="post.previousPost.publishedAt" class="post-detail__nav-meta">
+                                    <i class="pi pi-calendar" />
+                                    {{ formatDateTime(post.previousPost.publishedAt) }}
+                                </span>
+                            </NuxtLink>
+
+                            <NuxtLink
+                                v-if="post.nextPost"
+                                :to="localePath(`/posts/${post.nextPost.slug}`)"
+                                class="post-detail__nav-card post-detail__nav-card--next"
+                            >
+                                <span class="post-detail__nav-label">
+                                    {{ $t('pages.posts.article_navigation.next') }}
+                                    <i class="pi pi-arrow-right" />
+                                </span>
+                                <span class="post-detail__nav-title">{{ post.nextPost.title }}</span>
+                                <span v-if="post.nextPost.summary" class="post-detail__nav-summary">
+                                    {{ post.nextPost.summary }}
+                                </span>
+                                <span v-if="post.nextPost.publishedAt" class="post-detail__nav-meta">
+                                    <i class="pi pi-calendar" />
+                                    {{ formatDateTime(post.nextPost.publishedAt) }}
+                                </span>
+                            </NuxtLink>
+                        </nav>
                         <hr class="post-detail__divider">
                         <SubscriberForm v-if="!post.locked" />
 
@@ -297,6 +340,7 @@ const localePath = useLocalePath()
 const { t } = useI18n()
 const setI18nParams = useSetI18nParams()
 const { formatDateTime } = useI18nDate()
+const { currentDescription } = useMomeiConfig()
 
 const idOrSlug = route.params.id as string
 
@@ -313,6 +357,15 @@ const endpoint = isId ? `/api/posts/${idOrSlug}` : `/api/posts/slug/${idOrSlug}`
 const { data, pending, error, refresh } = await useAppFetch<any>(() => endpoint)
 
 const post = computed(() => data.value?.data)
+
+const articleSeoDescription = computed(() => {
+    const summary = typeof post.value?.summary === 'string' ? post.value.summary.trim() : ''
+    const siteDescription = typeof currentDescription.value === 'string'
+        ? currentDescription.value.trim()
+        : t('app.description')
+
+    return [summary, siteDescription].filter(Boolean).join(' ')
+})
 
 const lightboxVisible = ref(false)
 const lightboxImage = ref('')
@@ -359,7 +412,7 @@ watch(post, (newPost) => {
 usePageSeo({
     type: 'article',
     title: () => post.value?.title || t('pages.posts.title'),
-    description: () => post.value?.summary || t('app.description'),
+    description: () => articleSeoDescription.value,
     image: () => post.value?.coverImage || null,
     publishedAt: () => post.value?.publishedAt || post.value?.createdAt || null,
     updatedAt: () => post.value?.updatedAt || post.value?.publishedAt || null,
@@ -757,6 +810,68 @@ onMounted(async () => {
         flex-wrap: wrap;
         gap: 0.75rem;
         margin-bottom: 2rem;
+    }
+
+    &__navigation {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    &__nav-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1.25rem;
+        border-radius: 1rem;
+        border: 1px solid var(--p-surface-border);
+        background: color-mix(in srgb, var(--p-surface-card) 92%, var(--p-primary-color) 8%);
+        text-decoration: none;
+        transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+
+        &:hover {
+            transform: translateY(-2px);
+            border-color: color-mix(in srgb, var(--p-primary-color) 35%, var(--p-surface-border));
+            box-shadow: 0 12px 24px -18px color-mix(in srgb, var(--p-primary-color) 70%, transparent 30%);
+        }
+
+        &--next {
+            text-align: right;
+            align-items: flex-end;
+        }
+    }
+
+    &__nav-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--p-text-muted-color);
+    }
+
+    &__nav-title {
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.5;
+        color: var(--p-text-color);
+    }
+
+    &__nav-summary {
+        color: var(--p-text-muted-color);
+        line-height: 1.6;
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    &__nav-meta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.8125rem;
+        color: var(--p-text-muted-color);
     }
 
     &__tag-link {

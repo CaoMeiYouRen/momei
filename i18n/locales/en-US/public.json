@@ -37,6 +37,11 @@
             "total_tags": "{count} tags so far",
             "password_placeholder": "Enter access password",
             "login_to_read": "Login to continue reading",
+            "article_navigation": {
+                "aria_label": "Article navigation",
+                "previous": "Previous article",
+                "next": "Next article"
+            },
             "locked": {
                 "password_required": "Content Restricted",
                 "password_required_desc": "This article is password protected. Please enter the correct password to access the full content.",

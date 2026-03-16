@@ -37,6 +37,11 @@
             "total_tags": "현재 태그 {count}개",
             "password_placeholder": "접근 비밀번호를 입력해 주세요",
             "login_to_read": "로그인 후 계속 읽기",
+            "article_navigation": {
+                "aria_label": "게시글 탐색",
+                "previous": "이전 글",
+                "next": "다음 글"
+            },
             "locked": {
                 "password_required": "콘텐츠가 제한되어 있습니다",
                 "password_required_desc": "이 글은 비밀번호로 보호됩니다. 전체 내용을 보려면 올바른 비밀번호를 입력해 주세요.",

@@ -1,7 +1,51 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import PostDetailPage from './[id].vue'
+
+const { mockUsePageSeo } = vi.hoisted(() => ({
+    mockUsePageSeo: vi.fn(),
+}))
+const mockFetchData = ref({
+    data: {
+        id: '123456789012345',
+        title: 'Test Post',
+        slug: 'test-post',
+        summary: 'Test summary',
+        content: 'Test content',
+        status: 'published',
+        author: {
+            id: '1',
+            name: 'Test Author',
+            email: 'test@example.com',
+            emailHash: 'abc123',
+        },
+        category: {
+            id: '1',
+            name: 'Test Category',
+            slug: 'test-category',
+        },
+        tags: [
+            { id: '1', name: 'test', slug: 'test' },
+        ],
+        previousPost: {
+            id: '123456789012344',
+            title: 'Newer Post',
+            slug: 'newer-post',
+            summary: 'Newer summary',
+            publishedAt: '2024-01-02T00:00:00Z',
+        },
+        nextPost: {
+            id: '123456789012346',
+            title: 'Older Post',
+            slug: 'older-post',
+            summary: 'Older summary',
+            publishedAt: '2023-12-31T00:00:00Z',
+        },
+        publishedAt: '2024-01-01T00:00:00Z',
+        views: 100,
+    },
+})
 
 // Mock utilities
 vi.mock('@/utils/shared/validate', () => ({
@@ -16,32 +60,7 @@ vi.mock('@/utils/shared/post-stats', () => ({
 // Mock useAppFetch to return mock data
 vi.mock('@/composables/use-app-fetch', () => ({
     useAppFetch: vi.fn(() => ({
-        data: ref({
-            data: {
-                id: '123456789012345',
-                title: 'Test Post',
-                slug: 'test-post',
-                summary: 'Test summary',
-                content: 'Test content',
-                status: 'published',
-                author: {
-                    id: '1',
-                    name: 'Test Author',
-                    email: 'test@example.com',
-                    emailHash: 'abc123',
-                },
-                category: {
-                    id: '1',
-                    name: 'Test Category',
-                    slug: 'test-category',
-                },
-                tags: [
-                    { id: '1', name: 'test', slug: 'test' },
-                ],
-                publishedAt: '2024-01-01T00:00:00Z',
-                views: 100,
-            },
-        }),
+        data: mockFetchData,
         pending: ref(false),
         error: ref(null),
         refresh: vi.fn(),
@@ -53,6 +72,12 @@ const mockRoute = {
     params: { id: '123456789012345' },
     query: {},
 }
+
+mockNuxtImport('useMomeiConfig', () => () => ({
+    currentDescription: ref('AI 驱动、原生国际化的开发者博客平台。'),
+}))
+
+mockNuxtImport('usePageSeo', () => mockUsePageSeo)
 
 // Stub components
 const stubs = {
@@ -70,6 +95,7 @@ const stubs = {
     },
     NuxtLink: { template: '<a :href="to"><slot /></a>', props: ['to'] },
     TableOfContents: { template: '<div class="toc">Table of Contents</div>' },
+    AdPlacement: { template: '<div class="ad">Ad</div>', props: ['location', 'context'] },
     ArticleContent: { template: '<div class="content">Content</div>', props: ['content'] },
     ArticleCopyright: { template: '<div class="copyright">Copyright</div>', props: ['authorName', 'url', 'license'] },
     ArticleSponsor: { template: '<div class="sponsor">Sponsor</div>', props: ['socialLinks', 'donationLinks'] },
@@ -78,6 +104,7 @@ const stubs = {
     AppAvatar: { template: '<div class="avatar"><slot /></div>', props: ['image', 'emailHash', 'name', 'shape'] },
     Tag: { template: '<span class="tag">{{ value }}</span>', props: ['value', 'severity', 'rounded'] },
     Dialog: { template: '<div class="dialog"><slot /></div>', props: ['visible', 'modal', 'showHeader', 'contentClass'] },
+    TravellingsLink: { template: '<div class="travellings">Travellings</div>', props: ['placement'] },
     ReaderControls: { template: '<div class="reader-controls">Reader Controls</div>' },
 }
 
@@ -106,6 +133,10 @@ vi.mock('#imports', async (importOriginal) => {
         useI18nDate: () => ({
             formatDateTime: () => '2024-01-01',
         }),
+        useMomeiConfig: () => ({
+            currentDescription: ref('AI 驱动、原生国际化的开发者博客平台。'),
+        }),
+        usePageSeo: mockUsePageSeo,
         useHead: vi.fn(),
         useRequestURL: () => ({ href: 'http://localhost:3000/posts/test' }),
         onMounted: (fn: () => void) => fn(),
@@ -129,14 +160,59 @@ vi.stubGlobal('useSetI18nParams', () => vi.fn())
 vi.stubGlobal('useI18nDate', () => ({
     formatDateTime: () => '2024-01-01',
 }))
+vi.stubGlobal('useMomeiConfig', () => ({
+    currentDescription: ref('AI 驱动、原生国际化的开发者博客平台。'),
+}))
+vi.stubGlobal('usePageSeo', mockUsePageSeo)
 vi.stubGlobal('useHead', vi.fn())
 vi.stubGlobal('useRequestURL', () => ({ href: 'http://localhost:3000/posts/test' }))
 vi.stubGlobal('onMounted', (fn: () => void) => fn())
+vi.stubGlobal('$fetch', vi.fn(async () => ({ code: 200, data: { views: 101 } })))
 
 describe('PostDetailPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         mockRoute.params.id = '123456789012345'
+        mockFetchData.value = {
+            data: {
+                id: '123456789012345',
+                title: 'Test Post',
+                slug: 'test-post',
+                summary: 'Test summary',
+                content: 'Test content',
+                status: 'published',
+                author: {
+                    id: '1',
+                    name: 'Test Author',
+                    email: 'test@example.com',
+                    emailHash: 'abc123',
+                },
+                category: {
+                    id: '1',
+                    name: 'Test Category',
+                    slug: 'test-category',
+                },
+                tags: [
+                    { id: '1', name: 'test', slug: 'test' },
+                ],
+                previousPost: {
+                    id: '123456789012344',
+                    title: 'Newer Post',
+                    slug: 'newer-post',
+                    summary: 'Newer summary',
+                    publishedAt: '2024-01-02T00:00:00Z',
+                },
+                nextPost: {
+                    id: '123456789012346',
+                    title: 'Older Post',
+                    slug: 'older-post',
+                    summary: 'Older summary',
+                    publishedAt: '2023-12-31T00:00:00Z',
+                },
+                publishedAt: '2024-01-01T00:00:00Z',
+                views: 100,
+            },
+        }
     })
 
     it('renders loading skeleton when pending', async () => {
@@ -216,5 +292,31 @@ describe('PostDetailPage', () => {
         // Dialog component should be in template
         const html = wrapper.html()
         expect(html.length).toBeGreaterThan(0)
+    })
+
+    it('renders previous and next post navigation cards', async () => {
+        const wrapper = await mountSuspended(PostDetailPage, {
+            global: {
+                stubs,
+            },
+        })
+
+        expect(wrapper.find('.post-detail__navigation').exists()).toBe(true)
+        expect(wrapper.text()).toContain('Newer Post')
+        expect(wrapper.text()).toContain('Older Post')
+    })
+
+    it('passes article summary and site description into page seo', async () => {
+        await mountSuspended(PostDetailPage, {
+            global: {
+                stubs,
+            },
+        })
+
+        const seoOptions = mockUsePageSeo.mock.calls[0]?.[0]
+
+        expect(seoOptions).toBeTruthy()
+        expect(seoOptions.title()).toBe('Test Post')
+        expect(seoOptions.description()).toBe('Test summary AI 驱动、原生国际化的开发者博客平台。')
     })
 })

@@ -6,6 +6,7 @@ import { isAdmin } from '@/utils/shared/roles'
 import { getRequiredRouterParam } from '@/server/utils/router'
 import { success, ensureFound } from '@/server/utils/response'
 import { applyPostReadModelFromMetadata } from '@/server/utils/post-metadata'
+import { getAdjacentPublicPosts, getPostTranslations } from '@/server/utils/post-detail'
 
 export default defineEventHandler(async (event) => {
     const id = getRequiredRouterParam(event, 'id')
@@ -23,7 +24,7 @@ export default defineEventHandler(async (event) => {
     qb.where('post.id = :id', { id })
 
     const post = ensureFound(await qb.getOne(), 'Post')
-    applyPostReadModelFromMetadata()
+    applyPostReadModelFromMetadata(post)
 
     // 处理作者哈希并保护隐私
     await processAuthorPrivacy(post.author, !!isUserAdmin)
@@ -36,16 +37,26 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 404, statusMessage: 'Post not found' })
     }
 
+    const translations = await getPostTranslations(postRepo, post)
+
     if (!access.allowed) {
         return success({
             ...(access.data || {}),
+            translations,
+            previousPost: null,
+            nextPost: null,
             locked: true,
             reason: access.reason,
         })
     }
 
+    const { previousPost, nextPost } = await getAdjacentPublicPosts(postRepo, post)
+
     return success({
         ...post,
+        translations,
+        previousPost,
+        nextPost,
         locked: false,
     })
 })

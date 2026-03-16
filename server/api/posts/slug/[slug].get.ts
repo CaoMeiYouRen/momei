@@ -5,6 +5,8 @@ import { processAuthorPrivacy } from '@/server/utils/author'
 import { checkPostAccess } from '@/server/utils/post-access'
 import { isAdmin } from '@/utils/shared/roles'
 import { applyPostReadModelFromMetadata } from '@/server/utils/post-metadata'
+import { success } from '@/server/utils/response'
+import { getAdjacentPublicPosts, getPostTranslations } from '@/server/utils/post-detail'
 
 export default defineEventHandler(async (event) => {
     const slug = getRouterParam(event, 'slug')
@@ -37,7 +39,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 404, statusMessage: 'Post not found' })
     }
 
-    applyPostReadModelFromMetadata()
+    applyPostReadModelFromMetadata(post)
 
     // 处理作者哈希并保护隐私
     await processAuthorPrivacy(post.author, !!isUserAdmin)
@@ -50,36 +52,26 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 404, statusMessage: 'Post not found' })
     }
 
-    // Fetch translations
-    let translations: any[] = []
-    if (post.translationId) {
-        translations = await postRepo.find({
-            where: {
-                translationId: post.translationId,
-                status: PostStatus.PUBLISHED,
-            },
-            select: ['language', 'slug'],
+    const translations = await getPostTranslations(postRepo, post)
+
+    if (!access.allowed) {
+        return success({
+            ...(access.data || {}),
+            translations,
+            previousPost: null,
+            nextPost: null,
+            locked: true,
+            reason: access.reason,
         })
     }
 
-    if (!access.allowed) {
-        return {
-            code: 200,
-            data: {
-                ...(access.data || {}),
-                translations,
-                locked: true,
-                reason: access.reason,
-            },
-        }
-    }
+    const { previousPost, nextPost } = await getAdjacentPublicPosts(postRepo, post)
 
-    return {
-        code: 200,
-        data: {
-            ...post,
-            translations,
-            locked: false,
-        },
-    }
+    return success({
+        ...post,
+        translations,
+        previousPost,
+        nextPost,
+        locked: false,
+    })
 })
