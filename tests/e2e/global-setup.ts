@@ -24,9 +24,9 @@ async function globalSetup(config: FullConfig) {
 
     try {
         // 等待服务器就绪
-        console.log('[Global Setup] Waiting for server to be ready...')
+        console.info('[Global Setup] Waiting for server to be ready...')
         await page.goto('/', { timeout: 60000 })
-        console.log('[Global Setup] Server is ready')
+        console.info('[Global Setup] Server is ready')
 
         // 测试模式下会通过 seed-test 插件异步预置数据，这里给其预留就绪时间
         const maxInstallCheckAttempts = 20
@@ -35,19 +35,19 @@ async function globalSetup(config: FullConfig) {
             const installStatus = await installStatusResponse.json()
 
             if (installStatus.data?.installed) {
-                console.log('[Global Setup] System already installed')
+                console.info('[Global Setup] System already installed')
                 break
             }
 
             if (i === 0) {
-                console.log('[Global Setup] System not installed yet, waiting for test seed...')
+                console.info('[Global Setup] System not installed yet, waiting for test seed...')
             }
 
             await page.waitForTimeout(500)
         }
 
         // 保存登录状态以供后续测试使用
-        console.log('[Global Setup] Logging in to save authentication state...')
+        console.info('[Global Setup] Logging in to save authentication state...')
 
         const maxLoginAttempts = 20
         let loggedIn = false
@@ -68,20 +68,20 @@ async function globalSetup(config: FullConfig) {
                     fs.mkdirSync(authDir, { recursive: true })
                 }
                 await context.storageState({ path: authFile })
-                console.log('[Global Setup] Authentication state saved')
+                console.info('[Global Setup] Authentication state saved')
                 loggedIn = true
                 break
             }
 
             const errorText = await loginResponse.text()
             if (i === maxLoginAttempts - 1) {
-                console.log('[Global Setup] Login failed:', loginResponse.status(), errorText)
+                console.info('[Global Setup] Login failed:', loginResponse.status(), errorText)
             }
             await page.waitForTimeout(500)
         }
 
         if (!loggedIn) {
-            console.log('[Global Setup] Admin auth state not available, related tests may be skipped')
+            console.info('[Global Setup] Admin auth state not available, related tests may be skipped')
         }
 
     } catch (error) {

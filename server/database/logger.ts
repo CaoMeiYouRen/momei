@@ -121,6 +121,7 @@ export class CustomLogger implements Logger {
     }
 
     logQuery(query: string, parameters?: any[], _queryRunner?: QueryRunner): any {
+        void _queryRunner
         const queryType = getQueryType(query)
         const isSensitive = containsSensitiveData(query)
         const now = Date.now()
@@ -160,6 +161,8 @@ export class CustomLogger implements Logger {
     }
 
     logQueryError(error: string | Error, query: string, _parameters?: any[], _queryRunner?: QueryRunner): any {
+        void _parameters
+        void _queryRunner
         this.queryStats.errors++
 
         const queryType = getQueryType(query)
@@ -181,6 +184,7 @@ export class CustomLogger implements Logger {
     }
 
     logQuerySlow(time: number, query: string, parameters?: any[], _queryRunner?: QueryRunner): any {
+        void _queryRunner
         this.queryStats.slow++
 
         const queryType = getQueryType(query)
