@@ -318,7 +318,7 @@ This document outlines the development blueprint for the project. For specific t
 **Timeline**: ~1 - 1.5 months
 **Goal**: Build on the Stage 12 authoring/distribution baseline and close the next gap between localized content, localized assets, and multi-channel delivery.
 
-**ROI Review**: Locale-specific cover/audio assets 1.80; channel-specific export templates and hashtag normalization 1.67; listmonk/newsletter external delivery 1.60; channel-aware preview baseline 1.57. All four items meet the next-stage entry threshold.
+**ROI Review**: Locale-specific cover/audio assets 1.80; channel-specific export templates and hashtag normalization 1.67; listmonk/newsletter external delivery 1.60; channel-aware preview baseline 1.57; progressive long-text translation write-back 1.75. All five items meet the next-stage entry threshold.
 
 1. **Locale-specific Cover & Audio Assets (P0)**:
     - Generate cover prompts from the target-language title/summary instead of reusing the source-language asset blindly.
@@ -336,6 +336,10 @@ This document outlines the development blueprint for the project. For specific t
     - Add channel-oriented preview or conversion modes for WeChat-style layout and newsletter output.
     - Prioritize adapter layers over direct editor replacement.
     - Define a regression matrix covering headings, images, hashtags, copyright notices, and external-link styling.
+5. **Progressive Long-text Translation Write-back (P1)**:
+    - Reuse the existing `/api/ai/translate.stream` capability in the post editor, and auto-switch between field-level live streaming and chunk-by-chunk write-back based on content length.
+    - Expose field-level progress, partial translated content, and cancel/retry controls so long translations do not lose all intermediate output on failure.
+    - Add regression coverage for SSE parsing, chunk merging, failure recovery, and threshold-based mode switching.
 
 ## 3. Backlog & Long-term Roadmap
 
@@ -344,25 +348,31 @@ This section records features with long-term value but not prioritized for the c
 ### 1. Multilingual Creative Assets & Channel Distribution Expansion
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
-### 2. Desktop Application
+### 2. Post Detail Reading Flow & SEO Branding
+-   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+
+### 3. Docs I18n Directory Refactor
+-   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+
+### 4. Desktop Application
 - **Tauri Cross-platform App**:
     - Desktop skeleton with multi-site management.
     - Offline Markdown editing with cloud sync.
     - Native system menus and integration.
 
-### 3. Geek Tech Extras
+### 5. Geek Tech Extras
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
-### 4. Theme Ecosystem
+### 6. Theme Ecosystem
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
-### 5. Monetization & Membership
+### 7. Monetization & Membership
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
-### 6. Advanced Creator Tools
+### 8. Advanced Creator Tools
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
-### 7. Podcast & Multimedia Expansion
+### 9. Podcast & Multimedia Expansion
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
 
