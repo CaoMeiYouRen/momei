@@ -14,7 +14,7 @@
 ## 2. 数据库设计
 
 ### 2.1 Post 实体音频字段
-在 `Post` 实体中包含以下可选字段：
+在 `Post` 实体中保留以下兼容字段，主要用于 RSS / 前台读取与历史数据兼容：
 
 | 字段名 | 类型 | 说明 |
 | :--- | :--- | :--- |
@@ -23,6 +23,26 @@
 | `audioSize` | number | 音频文件大小 (字节) |
 | `audioMimeType` | string | 音频 MIME 类型 (如 `audio/mpeg`) |
 | `audioProvider` | string | 生成提供者 (openai, azure, manual) |
+
+### 2.2 Post 元数据绑定
+
+多语言音频资产的事实源以 `metadata.audio` 和 `metadata.tts` 为主，至少包含以下绑定字段：
+
+| 字段名 | 说明 |
+| :--- | :--- |
+| `metadata.audio.url` | 当前语言版本实际绑定的音频地址 |
+| `metadata.audio.language` | 资产所属文章语言 |
+| `metadata.audio.translationId` | 资产所属翻译簇 |
+| `metadata.audio.postId` | 资产所属文章 |
+| `metadata.audio.mode` | `speech` 或 `podcast` |
+| `metadata.tts.provider` / `voice` | 最近一次 TTS / Podcast 生成配置 |
+| `metadata.tts.language` / `translationId` / `postId` | 最近一次 AI 音频生成的绑定边界 |
+
+约束如下：
+
+- 翻译流程不再默认复制源语言音频；目标语言缺失音频时，只返回“需要重新生成”的 warning。
+- 已有目标语言音频默认保留，只有用户显式重新生成时才覆盖现有绑定。
+- 编辑器手动替换或清空音频时，必须同步解绑 `metadata.audio` / `metadata.tts`，避免残留旧的 AI 绑定。
 
 ### 2.2 AI 任务表 (`AITask`)
 记录耗时的 TTS 生成任务：
@@ -53,6 +73,8 @@
 ### 3.3 前端交互
 - **上传管理**: 通过 `use-upload.ts` 组件支持大文件音频上传（最高 100MB）。
 - **任务追踪**: 通过 `use-tts-task.ts` 轮询后端生成的异步任务状态。
+- **覆盖策略**: 打开 TTS / Podcast 对话框不会自动覆盖已有音频；只有用户点击生成时才会发起新的目标语言任务。
+- **解绑策略**: 编辑器清空音频 URL 或改绑其他音频时，会同时清空旧的 TTS 绑定元数据与兼容字段。
 
 ### 3.4 实时语音识别 (Real-time ASR)
 - **传输架构**: 前端通过 WebSocket 连接 `/api/ai/asr/stream`，服务端再桥接 Volcengine 流式 ASR WebSocket。

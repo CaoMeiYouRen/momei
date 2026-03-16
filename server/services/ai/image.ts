@@ -12,6 +12,10 @@ import { NotificationType, buildAITaskDetailPath } from '@/utils/shared/notifica
 import type { AIFailureStage, AIImageOptions, AIImageResponse } from '@/types/ai'
 
 function shouldApplyGeneratedCover(post: Post, options: AIImageOptions) {
+    if (options.applyToPost === false) {
+        return false
+    }
+
     if (options.overwriteExistingCover === false && post.coverImage) {
         return false
     }
@@ -91,7 +95,7 @@ export class ImageService extends AIBaseService {
 
             const persistedImages = await withAITimeout(
                 Promise.all(
-                    response.images.map(async (img, index) => {
+                    response.images.map(async (img) => {
                         // const filename = response.images.length > 1 ? `${taskId}_${index}` : taskId
                         const uploadedImage = await uploadFromUrl(
                             img.url,

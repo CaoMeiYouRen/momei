@@ -34,6 +34,7 @@ describe('POST /api/ai/image/generate', () => {
         const mockBody = {
             prompt: 'A beautiful sunset over mountains',
             model: 'doubao',
+            applyToPost: false,
             quality: 'standard',
             style: 'vivid',
         }
@@ -57,6 +58,7 @@ describe('POST /api/ai/image/generate', () => {
             {
                 ...mockBody,
                 n: 1,
+                overwriteExistingCover: true,
             },
             'user-1',
         )

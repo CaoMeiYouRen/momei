@@ -181,6 +181,102 @@ const ensureMetadata = () => {
     return post.value.metadata
 }
 
+const clearCoverAsset = () => {
+    if (!post.value.metadata || typeof post.value.metadata !== 'object') {
+        return
+    }
+
+    delete post.value.metadata.cover
+}
+
+const syncCoverMetadata = (url: string | null | undefined, options: {
+    source: 'ai' | 'manual'
+    prompt?: string | null
+    generatedAt?: Date | null
+} = { source: 'manual' }) => {
+    if (!url) {
+        clearCoverAsset()
+        return
+    }
+
+    const metadata = ensureMetadata()
+    const existingCover = metadata.cover
+
+    metadata.cover = {
+        url,
+        source: options.source,
+        prompt: options.source === 'ai' ? (options.prompt ?? existingCover?.prompt ?? null) : null,
+        language: post.value.language,
+        translationId: post.value.translationId ?? null,
+        postId: post.value.id ?? null,
+        generatedAt: options.source === 'ai' ? (options.generatedAt ?? new Date()) : null,
+    }
+}
+
+const clearAudioAsset = () => {
+    if (post.value.metadata && typeof post.value.metadata === 'object') {
+        delete post.value.metadata.audio
+        delete post.value.metadata.tts
+    }
+
+    post.value.audioUrl = null
+    post.value.audioDuration = null
+    post.value.audioSize = null
+    post.value.audioMimeType = null
+}
+
+const syncAudioAsset = (url: string | null | undefined, options: {
+    clearTtsBinding?: boolean
+    mode?: 'speech' | 'podcast' | null
+    provider?: string | null
+    voice?: string | null
+    generatedAt?: Date | null
+} = {}) => {
+    if (!url) {
+        clearAudioAsset()
+        return
+    }
+
+    const previousUrl = audioUrlValue.value
+    const isSameUrl = previousUrl === url
+    const metadata = ensureMetadata()
+    const nextMode = options.mode === undefined
+        ? metadata.audio?.mode ?? null
+        : options.mode
+
+    metadata.audio = {
+        ...metadata.audio,
+        url,
+        duration: isSameUrl ? (metadata.audio?.duration ?? post.value.audioDuration ?? null) : null,
+        size: isSameUrl ? (metadata.audio?.size ?? post.value.audioSize ?? null) : null,
+        mimeType: isSameUrl ? (metadata.audio?.mimeType ?? post.value.audioMimeType ?? null) : null,
+        language: post.value.language,
+        translationId: post.value.translationId ?? null,
+        postId: post.value.id ?? null,
+        mode: nextMode,
+    }
+
+    if (options.clearTtsBinding) {
+        delete metadata.tts
+    } else if (options.provider || options.voice || nextMode || metadata.tts) {
+        metadata.tts = {
+            ...metadata.tts,
+            provider: options.provider ?? metadata.tts?.provider ?? null,
+            voice: options.voice ?? metadata.tts?.voice ?? null,
+            generatedAt: options.generatedAt ?? metadata.tts?.generatedAt ?? new Date(),
+            language: post.value.language,
+            translationId: post.value.translationId ?? null,
+            postId: post.value.id ?? null,
+            mode: nextMode,
+        }
+    }
+
+    post.value.audioUrl = url
+    post.value.audioDuration = metadata.audio.duration ?? null
+    post.value.audioSize = metadata.audio.size ?? null
+    post.value.audioMimeType = metadata.audio.mimeType ?? null
+}
+
 const audioUrlValue = computed<string | null>(() => post.value.metadata?.audio?.url ?? post.value.audioUrl ?? null)
 
 const isValidAudioUrl = computed(() => {
@@ -190,15 +286,12 @@ const isValidAudioUrl = computed(() => {
 const audioUrlModel = computed<string | null>({
     get: () => audioUrlValue.value,
     set: (value: string | null | undefined) => {
-        const metadata = ensureMetadata()
-        metadata.audio = {
-            ...metadata.audio,
-            url: value || null,
-            language: post.value.language,
-            translationId: post.value.translationId ?? null,
-            postId: post.value.id ?? null,
-        }
-        post.value.audioUrl = value || null
+        syncAudioAsset(value, {
+            clearTtsBinding: value ? value !== audioUrlValue.value : true,
+            mode: value && value === audioUrlValue.value
+                ? (post.value.metadata?.audio?.mode ?? null)
+                : null,
+        })
     },
 })
 
@@ -244,26 +337,23 @@ const handleCoverGenerated = (url: string) => {
     }
 
     post.value.coverImage = url
-
-    if (!post.value.metadata || typeof post.value.metadata !== 'object') {
-        post.value.metadata = {}
-    }
-
-    post.value.metadata.cover = {
-        ...post.value.metadata.cover,
-        url,
-        source: 'ai',
-        language: post.value.language,
-        translationId: post.value.translationId ?? null,
-        postId: post.value.id ?? null,
-        generatedAt: new Date(),
-    }
+    syncCoverMetadata(url, { source: 'ai', generatedAt: new Date() })
 }
 
-const handleTTSCompleted = (url: string) => {
-    if (url) {
-        audioUrlModel.value = url
-        void probeAudio()
+const handleTTSCompleted = (payload: {
+    audioUrl: string
+    provider: string
+    voice: string
+    mode: 'speech' | 'podcast'
+}) => {
+    if (payload.audioUrl) {
+        syncAudioAsset(payload.audioUrl, {
+            mode: payload.mode,
+            provider: payload.provider,
+            voice: payload.voice,
+            generatedAt: new Date(),
+        })
+        void probeAudio(payload.audioUrl)
     }
 
     showSuccessToast('pages.admin.posts.tts.attach_success')
@@ -277,8 +367,23 @@ const toggleAudio = () => {
     showAudioPlayer.value = !showAudioPlayer.value
 }
 
-watch(() => post.value.coverImage, () => {
+watch(() => post.value.coverImage, (nextValue, previousValue) => {
     showImagePreview.value = false
+
+    if (nextValue === previousValue) {
+        return
+    }
+
+    if (!nextValue) {
+        clearCoverAsset()
+        return
+    }
+
+    if (post.value.metadata?.cover?.url === nextValue) {
+        return
+    }
+
+    syncCoverMetadata(nextValue, { source: 'manual' })
 })
 
 watch(audioUrlValue, () => {
@@ -297,13 +402,15 @@ const displayDuration = computed({
     },
 })
 
-const probeAudio = async () => {
-    if (!audioUrlValue.value) return
+const probeAudio = async (input?: string | Event | null) => {
+    const targetUrl = typeof input === 'string' ? input : audioUrlValue.value
+
+    if (!targetUrl) return
 
     probing.value = true
     try {
         const res = await $fetch<any>('/api/admin/audio/probe', {
-            query: { url: audioUrlValue.value },
+            query: { url: targetUrl },
         })
 
         if (res.code === 200 && res.data) {

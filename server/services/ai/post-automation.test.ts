@@ -336,4 +336,64 @@ describe('PostAutomationService', () => {
         expect(result.coverImageCopied).toBe(false)
         expect(result.audioCopied).toBe(false)
     })
+
+    it('should warn that target locale cover and audio must be regenerated when assets are missing', async () => {
+        const task = {
+            id: 'task-asset-preview',
+            userId: 'user-1',
+            payload: JSON.stringify({
+                sourcePostId: 'post-1',
+                targetLanguage: 'en-US',
+                scopes: ['title', 'coverImage', 'audio'],
+                confirmationMode: 'require',
+                slugStrategy: 'ai',
+                categoryStrategy: 'cluster',
+            }),
+            progress: 0,
+            status: 'pending',
+            error: null,
+            result: null,
+        }
+
+        postRepo.findOne.mockImplementation((options: { where?: Record<string, string> }) => {
+            if (options.where?.id === 'post-1') {
+                return Promise.resolve({
+                    ...sourcePost,
+                    coverImage: '/covers/source-cover.png',
+                    metadata: {
+                        audio: {
+                            url: '/audio/source.mp3',
+                            duration: 42,
+                        },
+                    },
+                })
+            }
+
+            return Promise.resolve(null)
+        })
+
+        taskRepo.findOneBy.mockResolvedValue(task)
+
+        await (PostAutomationService as never as { processTranslatePostTask: (taskId: string, actorValue: typeof actor) => Promise<void> }).processTranslatePostTask('task-asset-preview', actor)
+
+        const completedTask = taskRepo.save.mock.calls
+            .map((call) => call[0])
+            .find((savedTask) => savedTask.status === 'completed' && typeof savedTask.result === 'string')
+
+        expect(completedTask).toBeDefined()
+        const result = JSON.parse(String(completedTask?.result)) as {
+            needsConfirmation: boolean
+            preview: {
+                coverImage: string | null
+                metadata: Record<string, unknown> | null
+                warnings: string[]
+            }
+        }
+
+        expect(result.needsConfirmation).toBe(true)
+        expect(result.preview.coverImage).toBeNull()
+        expect(result.preview.metadata).toBeNull()
+        expect(result.preview.warnings).toContain('Cover image must be regenerated for en-US')
+        expect(result.preview.warnings).toContain('Audio asset must be regenerated for en-US')
+    })
 })

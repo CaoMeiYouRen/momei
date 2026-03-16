@@ -152,6 +152,7 @@ export const aiGenerateImageSchema = z.object({
     postId: z.string().min(1).max(64).optional(),
     targetLanguage: z.string().min(1).max(10).optional(),
     translationId: z.string().min(1).max(255).nullable().optional(),
+    applyToPost: z.boolean().optional().default(true),
     overwriteExistingCover: z.boolean().optional().default(true),
     model: z.string().optional(),
     size: z.string().optional(),

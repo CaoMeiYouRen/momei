@@ -742,9 +742,10 @@ export class PostAutomationService extends AIBaseService {
             approvedSlug: input.approvedSlug,
         })
 
-        const metadataPatch = scopes.includes('audio')
-            ? (targetPost ? mergeAudioMetadata(targetPost) : null)
-            : undefined
+        let metadataPatch: ReturnType<typeof mergeAudioMetadata> | null | undefined
+        if (scopes.includes('audio')) {
+            metadataPatch = targetPost ? mergeAudioMetadata(targetPost) : null
+        }
         const normalizedMetadataPatch = normalizeMetadataForPostInput(metadataPatch)
         const translatedCoverImage = scopes.includes('coverImage')
             ? (targetPost?.coverImage ?? null)
@@ -752,11 +753,16 @@ export class PostAutomationService extends AIBaseService {
         const categoryRecommendation = scopes.includes('category')
             ? await this.buildCategoryRecommendation(sourcePost, input.targetLanguage, sourceLanguage, actor)
             : null
-        const categoryId = scopes.includes('category')
-            ? (input.approvedCategoryId ?? (categoryStrategy === 'cluster'
-                ? categoryRecommendation?.candidates.find((item) => item.reason === 'translation-cluster')?.id || null
-                : categoryRecommendation?.matchedCategoryId || null))
-            : undefined
+        let categoryId: string | null | undefined
+        if (scopes.includes('category')) {
+            if (input.approvedCategoryId !== undefined) {
+                categoryId = input.approvedCategoryId
+            } else if (categoryStrategy === 'cluster') {
+                categoryId = categoryRecommendation?.candidates.find((item) => item.reason === 'translation-cluster')?.id || null
+            } else {
+                categoryId = categoryRecommendation?.matchedCategoryId || null
+            }
+        }
 
         if (scopes.includes('category') && sourcePost.category && !categoryId) {
             warnings.push(`Category translation missing for ${sourcePost.category.name}`)

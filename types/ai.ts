@@ -286,6 +286,7 @@ export interface AIImageOptions {
     postId?: string
     targetLanguage?: string
     translationId?: string | null
+    applyToPost?: boolean
     overwriteExistingCover?: boolean
     model?: string
     size?: string // e.g., '1024x1024'

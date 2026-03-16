@@ -183,6 +183,68 @@ describe('ImageService', () => {
             expect(post.coverImage).toBe('/covers/existing.png')
         })
 
+        it('should not backfill post cover before editor confirmation when applyToPost is false', async () => {
+            const post = {
+                id: 'post-123',
+                language: 'en-US',
+                translationId: 'cluster-1',
+                coverImage: '/covers/existing.png',
+                metadata: {
+                    cover: {
+                        url: '/covers/existing.png',
+                        source: 'manual',
+                    },
+                },
+            }
+            const postRepo = {
+                findOneBy: vi.fn().mockResolvedValue(post),
+                save: vi.fn().mockResolvedValue(post),
+            }
+
+            vi.mocked(dataSource.getRepository).mockImplementation((entity) => {
+                if (entity === Post) {
+                    return postRepo as any
+                }
+
+                return mockRepo
+            })
+
+            const mockProvider = {
+                name: 'openai',
+                generateImage: vi.fn().mockResolvedValue({
+                    images: [{ url: 'https://example.com/image.png' }],
+                    usage: {},
+                    model: 'dall-e-3',
+                }),
+            }
+
+            vi.mocked(aiUtils.getAIImageProvider).mockResolvedValue(mockProvider as any)
+            vi.mocked(uploadService.uploadFromUrl).mockResolvedValue({
+                url: '/uploads/posts/post-123/image/ai/generated.png',
+                path: '/uploads/posts/post-123/image/ai/generated.png',
+                size: 1024,
+                mimeType: 'image/png',
+            } as any)
+
+            await ImageService.generateImage({
+                prompt: 'Test',
+                postId: 'post-123',
+                targetLanguage: 'en-US',
+                translationId: 'cluster-1',
+                applyToPost: false,
+            }, 'user-1')
+
+            await new Promise((resolve) => setTimeout(resolve, 100))
+
+            expect(uploadService.uploadFromUrl).toHaveBeenCalled()
+            expect(postRepo.save).not.toHaveBeenCalled()
+            expect(post.coverImage).toBe('/covers/existing.png')
+            expect(post.metadata.cover).toEqual({
+                url: '/covers/existing.png',
+                source: 'manual',
+            })
+        })
+
         it('should handle image generation failure', async () => {
             const mockTask = {
                 id: 'task-123',

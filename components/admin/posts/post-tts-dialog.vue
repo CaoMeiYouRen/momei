@@ -17,7 +17,12 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'completed', audioUrl: string): void
+    (e: 'completed', payload: {
+        audioUrl: string
+        provider: string
+        voice: string
+        mode: 'speech' | 'podcast'
+    }): void
 }>()
 
 const { t } = useI18n()
@@ -54,7 +59,12 @@ const {
 
 function handleConfirm() {
     if (audioUrl.value) {
-        emit('completed', audioUrl.value)
+        emit('completed', {
+            audioUrl: audioUrl.value,
+            provider: config.value.provider,
+            voice: config.value.voice,
+            mode: config.value.mode,
+        })
         visible.value = false
     }
 }

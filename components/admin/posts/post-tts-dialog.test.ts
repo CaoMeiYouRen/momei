@@ -111,8 +111,8 @@ describe('PostTTSDialog', () => {
 
         expect(mockAppFetch).toHaveBeenCalledWith('/api/ai/tts/estimate', expect.objectContaining({
             method: 'POST',
-            query: expect.objectContaining({
-                language: 'zh-CN',
+            body: expect.objectContaining({
+                mode: 'speech',
             }),
         }))
         expect(wrapper.text()).toContain('12.35')

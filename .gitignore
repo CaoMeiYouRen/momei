@@ -57,3 +57,5 @@ test-results
 tests/e2e/.auth
 
 *.png
+
+/artifacts

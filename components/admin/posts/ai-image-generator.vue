@@ -302,6 +302,7 @@ const generateImage = async () => {
                 postId: props.postId,
                 targetLanguage: props.language || locale.value,
                 translationId: props.translationId || null,
+                applyToPost: false,
                 overwriteExistingCover: true,
                 aspectRatio: '16:9', // 宽高比
                 size: resolution.value,

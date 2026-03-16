@@ -21,10 +21,18 @@ export default defineEventHandler(async (event) => {
 
     const finalPostId = postId
     let contentToConvert = text || script
-    let resolvedLanguage = typeof language === 'string' && language ? language : (typeof options.language === 'string' && options.language ? options.language : undefined)
-    let resolvedTranslationId = typeof translationId === 'string' && translationId
-        ? translationId
-        : null
+    let resolvedLanguage: string | undefined
+    let resolvedTranslationId: string | null = null
+
+    if (typeof language === 'string' && language) {
+        resolvedLanguage = language
+    } else if (typeof options.language === 'string' && options.language) {
+        resolvedLanguage = options.language
+    }
+
+    if (typeof translationId === 'string' && translationId) {
+        resolvedTranslationId = translationId
+    }
 
     if (finalPostId) {
         const postRepo = dataSource.getRepository(Post)
