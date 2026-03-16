@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-14
+last_sync: 2026-03-16
 ---
 
 # Momei - Project Roadmap
@@ -285,26 +285,57 @@ This document outlines the development blueprint for the project. For specific t
     - **Admin Constraints**: Environment-locked, user-accepted, and already-effective agreements now have clear edit restrictions and operator guidance.
     - **Public Presentation**: Public agreement pages now expose version number, effective date, updated date, and translation disclaimers consistently.
 
-### Stage 12: Content Orchestration & Authoring Input Consolidation
+### Stage 12: Content Orchestration & Authoring Input Consolidation (Audited & Archived)
 
 **Timeline**: ~1 - 1.5 months
-**Goal**: Close the next usability gap around homepage orchestration, reusable voice input, editor stability, and footer branding semantics so the product can evolve without duplicating logic across multiple entry points.
+**Goal**: Close the usability gap around homepage orchestration, reusable voice input, editor stability, and footer-branding semantics so the product can evolve without duplicating logic across multiple entry points.
 
-**Triage Note**: Newly reported admin translation gaps and distribution regressions were triaged against the in-iteration intake gate. The shipped-feature regressions are allowed into Stage 12 as a Hotfix; the remaining unplanned capability expansions are moved back into the backlog rather than being pre-allocated to a new stage.
+**Audit Conclusion**: Stage 12 is complete in code, tests, and configuration flow. The homepage now ships with deduplicated latest/popular sections and pinning semantics, reusable voice input has been extracted into shared composables/components, footer copyright now consumes explicit site settings, and the admin-translation/Memos permalink/WechatSync/default-language regressions have all been fixed. The editor decision is also closed for this stage: keep the current `mavon-editor` async wrapper, and only revisit replacement work behind a no-regression gate.
 
 1. **Homepage Orchestration & Post Pinning (P0)**:
-    - Deduplicate “latest” and “popular” homepage slots, add post pinning semantics, and keep list/archive/admin sorting consistent.
+    - Latest and popular homepage slots now run as separate sections with cross-slot deduplication and refill behavior.
+    - `isPinned` is now part of the post model, admin editing flow, public queries, and card rendering.
+    - Homepage and post-list ordering regressions are covered by targeted page/API tests.
 2. **Reusable Textarea Voice Input (P1)**:
-    - Generalize the existing post-editor voice pipeline for snippet capture and other multi-line text areas.
+    - The shared `useVoiceInput`, trigger, and overlay layers now unify Web Speech and cloud ASR entry points.
+    - Multi-line text areas no longer need page-specific voice-state duplication.
+    - Composable tests cover mode switching, transcript reset, and baseline recording flow.
 3. **Editor Compatibility Hardening & Incremental Replacement Plan (P1)**:
-    - Audit the current editor integration first, then only consider replacement behind a no-regression validation gate.
+    - The current Markdown editor remains wrapped behind an async client-only adapter to avoid Nuxt 4 SSR/style-injection breakage.
+    - Existing upload, preview, and fullscreen behavior stays in place.
+    - Replacement work remains gated behind an explicit no-regression compatibility matrix.
 4. **Footer Branding & Copyright Configuration (P1)**:
-    - Decouple footer copyright display from fixed i18n text and align it with explicit site-branding settings.
+    - Footer copyright owner/year now flow through installation, admin settings, public settings, and frontend rendering.
+    - Legacy keys and ENV aliases stay readable for upgrade compatibility.
+    - Public-settings tests now verify the separation between footer copyright text and post default license.
 5. **Multilingual Authoring & Distribution Hotfix (Hotfix)**:
-    - Fill the missing `pages.admin.ai.types.translate_name_batch` translation field so admin AI flows no longer surface raw keys or blank labels.
-    - Normalize Memos link write-back to the real public permalink instead of an internal or API-style path.
-    - Restore the WechatSync delivery flow with clearer failure classification, operator feedback, and targeted regression coverage.
-    - Sync the settings-page `default_language` options with the current Locale Registry so supported languages are not missing from the admin selector.
+    - The missing `translate_name_batch` i18n key is now present across admin locales.
+    - Memos link write-back now normalizes instance URLs to public permalinks.
+    - WechatSync completion, failure classification, operator feedback, and default-language option syncing are all back under test.
+
+### Stage 13: Multilingual Creative Asset & Channel Distribution Deepening
+
+**Timeline**: ~1 - 1.5 months
+**Goal**: Build on the Stage 12 authoring/distribution baseline and close the next gap between localized content, localized assets, and multi-channel delivery.
+
+**ROI Review**: Locale-specific cover/audio assets 1.80; channel-specific export templates and hashtag normalization 1.67; listmonk/newsletter external delivery 1.60; channel-aware preview baseline 1.57. All four items meet the next-stage entry threshold.
+
+1. **Locale-specific Cover & Audio Assets (P0)**:
+    - Generate cover prompts from the target-language title/summary instead of reusing the source-language asset blindly.
+    - Bind TTS/podcast assets per locale with explicit `translationId` and language-aware backfill rules.
+    - Add fallback and regression coverage for missing or mismatched media assets.
+2. **Channel-specific Export Templates & Hashtag Adaptation (P0)**:
+    - Split body, excerpt, cover, hashtags, and copyright footer rendering by channel instead of relying on one shared Markdown/HTML output.
+    - Normalize hashtag cleanup, deduplication, length caps, and invalid-character stripping.
+    - Provide a minimal preview/debug contract for the main distribution channels.
+3. **External Newsletter Delivery Expansion (P1)**:
+    - Add listmonk-oriented article/campaign delivery with audience mapping, idempotent updates, and failure write-back.
+    - Sync the settings/ENV/docs contract so the integration is operable, not just coded.
+    - Preserve auditability and regression coverage across the expanded delivery surface.
+4. **Channel-aware Editor & Preview Baseline (P1)**:
+    - Add channel-oriented preview or conversion modes for WeChat-style layout and newsletter output.
+    - Prioritize adapter layers over direct editor replacement.
+    - Define a regression matrix covering headings, images, hashtags, copyright notices, and external-link styling.
 
 ## 3. Backlog & Long-term Roadmap
 
