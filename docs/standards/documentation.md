@@ -13,7 +13,12 @@
 -   `docs/guide/`: 用户手册、快速开始、部署指南、开发入门及 AI 协同指南。
 -   `docs/plan/`: 项目路线图 (`roadmap.md`)、待办事项 (`todo.md`) 及其归档。
 -   `docs/standards/`: 各类专项开发规范、安全规范、测试规范及本文档。
--   `docs/en-US/`: (预留) 国际化文档存放目录。
+-   `docs/en-US/`、`docs/zh-TW/`、`docs/ko-KR/`: 当前已启用的翻译文档目录。
+
+补充说明：
+
+- 当前仓库仍使用 `docs/<locale>/` 作为翻译文档根目录。
+- 将翻译文档统一迁移到 `docs/i18n/<locale>/` 目前仍属于路线图积压项；在该规划正式立项前，不应在规范和仓库结构中提前混用两套目录。
 
 ## 3. 编写标准 (Writing Standards)
 
@@ -57,7 +62,22 @@
 3.  **时效性声明**: 所有翻译文档必须在顶部包含“翻译版本声明”，明确指向中文原文（Source of Truth）。
 4.  **人工+AI 协同**: 允许使用大模型进行首轮翻译，但必须经过人工或专项 Agent (`documentation-specialist`) 审核术语一致性。
 
-### 4.2 范围评估 (Scope Assessment)
+### 4.2 当前支持的翻译语言 (Supported Translation Locales)
+
+当前文档体系已支持以下翻译语言：
+
+| Locale | 状态 | 目录 | 说明 |
+| :-- | :-- | :-- | :-- |
+| `en-US` | 已支持 | `docs/en-US/` | 英文为默认对外翻译语言，README 与 Guide 类文档优先保证同步。 |
+| `zh-TW` | 已支持 | `docs/zh-TW/` | 以繁体中文阅读体验为主，采用渐进式同步策略。 |
+| `ko-KR` | 已支持 | `docs/ko-KR/` | 以关键指南与路线图摘要同步为主。 |
+
+说明：
+
+- 中文原文 (`docs/`) 仍然是唯一事实源。
+- 日语文档支持目前尚未落地，仅允许作为 roadmap 规划项存在；在正式启用前，不应提前创建 `docs/ja-JP/` 目录或假定其为受支持语言。
+
+### 4.3 范围评估 (Scope Assessment)
 
 | 目录/文件 | 翻译要求 | 策略说明 |
 | :-- | :-- | :-- |
@@ -71,7 +91,7 @@
 
 对于 `packages/` 目录下子包的 README 文件，原则上只提供中文和英文版本，且必须保持内容一致。其他语言版本（如韩语、繁体中文）可根据社区需求决定是否提供。
 
-### 4.3 翻译件规范 (Standard for Translated Docs)
+### 4.4 翻译件规范 (Standard for Translated Docs)
 
 1.  **顶部提示旗标 (Header Notice)**:
     使用 VitePress 的 `::: warning` 容器：
@@ -90,7 +110,7 @@
     ---
     ```
 
-### 4.4 路线图翻译特殊逻辑 (Roadmap Sync)
+### 4.5 路线图翻译特殊逻辑 (Roadmap Sync)
 
 针对 `roadmap.md`，执行 **渐进式翻译策略 (Progressive Translation)**：
 1.  **已完成章节**: 必须提供完整、高质量的对等翻译。
@@ -100,6 +120,18 @@
     -   避免因路线图频繁微调而产生大量陈旧的英文描述。
 
 ## 5. 特殊文件维护 (Special File Maintenance)
+
+### 5.0 模块设计文档治理 (Module Design Doc Governance)
+
+`docs/design/modules/` 中的文档必须区分“模块总设计”与“专项治理 / 阶段复盘”两类角色，避免多个文件同时充当同一主题的完整说明书。
+
+约束如下：
+
+1.  **每个主题只保留一个总设计文档**: 例如 `system.md`、`i18n.md`、`migration.md` 应承担高层总览职责。
+2.  **专项文档只记录增量结论**: 如 `*-governance.md`、`*-unification.md`、`*-optimization.md`、`*-report.md` 只应记录阶段性收敛、治理契约、迁移方案或审计复盘，不重复整份模块概述。
+3.  **专项文档必须回链主文档**: 所有专项文档都应显式说明对应主文档或唯一事实源，避免读者误把专项文档当作全量设计入口。
+4.  **设计文档不得承接 Todo 职责**: `docs/design/modules/` 中不应再保留直接指向 `todo.md` 的“待办清单”式内容；尚未实施的后续工作应写为“后续增强方向”或回到 `docs/plan/roadmap.md`。
+5.  **阶段报告与设计文档分层**: 阶段复盘类文档应只保留结论、偏差与索引，不重复展开已收敛到主文档中的实现细节。
 
 ### 5.1 根目录 README.en-US.md
 

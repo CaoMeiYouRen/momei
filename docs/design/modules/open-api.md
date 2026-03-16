@@ -23,7 +23,7 @@
 
 ### 3.1 外部发布文章 (Publish Post)
 
-> 参见 [TODO List](../../plan/todo.md) 中的 "外部发布 API" 章节。
+当前已落地的最小能力是 `POST /api/external/posts`。若后续需要继续扩展迁移治理、批量导入或自动化链路，请以 [项目计划](../../plan/roadmap.md) 和 [迁移链接治理与云端资源重写](./migration-link-governance.md) 为准。
 
 专门用于第三方工具（如 Obsidian, VSCode 插件, CI/CD 脚本）发布文章。
 

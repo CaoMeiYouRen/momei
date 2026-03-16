@@ -354,25 +354,28 @@ This section records features with long-term value but not prioritized for the c
 ### 3. Docs I18n Directory Refactor
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
-### 4. Desktop Application
+### 4. Japanese UI & Docs Support
+-   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+
+### 5. Desktop Application
 - **Tauri Cross-platform App**:
     - Desktop skeleton with multi-site management.
     - Offline Markdown editing with cloud sync.
     - Native system menus and integration.
 
-### 5. Geek Tech Extras
+### 6. Geek Tech Extras
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
-### 6. Theme Ecosystem
+### 7. Theme Ecosystem
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
-### 7. Monetization & Membership
+### 8. Monetization & Membership
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
-### 8. Advanced Creator Tools
+### 9. Advanced Creator Tools
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
-### 9. Podcast & Multimedia Expansion
+### 10. Podcast & Multimedia Expansion
 -   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
 
 

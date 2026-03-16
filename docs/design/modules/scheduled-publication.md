@@ -131,4 +131,4 @@ Vercel Cron 会自动把项目中的 `CRON_SECRET` 作为 `Authorization: Bearer
 ## 6. 相关文档
 
 - [系统能力与设置](./system.md)
-- [部署优化模块设计](./deployment-optimization.md)
+- [模块索引](./index.md)
