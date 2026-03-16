@@ -5,7 +5,7 @@ export type TranslationScopeField = 'title' | 'content' | 'summary' | 'category'
 
 export type TranslationTextField = Extract<TranslationScopeField, 'title' | 'content' | 'summary'>
 
-export type PostTranslationMode = 'stream' | 'chunk'
+export type PostTranslationMode = 'direct' | 'stream' | 'chunk'
 
 export type PostTranslationFieldStatus = 'idle' | 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled'
 

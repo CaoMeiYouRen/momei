@@ -688,6 +688,7 @@
                         "cancelled": "취소됨"
                     },
                     "modes": {
+                        "direct": "직접 채우기",
                         "stream": "스트리밍 채우기",
                         "chunk": "분할 채우기"
                     },

@@ -239,6 +239,22 @@ describe('usePostEditorTranslation', () => {
             size: 2048,
             mimeType: 'audio/mpeg',
         })
+        expect(Reflect.get(post.value, 'audioUrl')).toBe('https://example.com/source-audio.mp3')
+        expect(Reflect.get(post.value, 'audioDuration')).toBe(180)
+        expect(Reflect.get(post.value, 'audioSize')).toBe(2048)
+        expect(Reflect.get(post.value, 'audioMimeType')).toBe('audio/mpeg')
+    })
+
+    it('应该保留 coverImage 和 audio 的范围序列化结果', () => {
+        const { serializeTranslationScopes } = createComposable()
+
+        expect(serializeTranslationScopes(['title', 'coverImage', 'audio'])).toBe('title,coverImage,audio')
+    })
+
+    it('未传入范围时应该默认勾选封面但不默认勾选音频', () => {
+        const { parseTranslationScopes } = createComposable()
+
+        expect(parseTranslationScopes(undefined)).toEqual(['title', 'content', 'summary', 'category', 'tags', 'coverImage'])
     })
 
     it('来源语言和目标语言一致时应该提醒并拒绝翻译', async () => {

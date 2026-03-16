@@ -40,7 +40,7 @@
 
 约束如下：
 
-- 翻译流程不再默认复制源语言音频；目标语言缺失音频时，只返回“需要重新生成”的 warning。
+- 翻译工作流默认勾选封面同步，但不默认勾选播客音频；只有用户显式勾选音频时，才同步来源 `metadata.audio` 与兼容影子字段 `audioUrl` / `audioDuration` / `audioSize` / `audioMimeType`。
 - 已有目标语言音频默认保留，只有用户显式重新生成时才覆盖现有绑定。
 - 编辑器手动替换或清空音频时，必须同步解绑 `metadata.audio` / `metadata.tts`，避免残留旧的 AI 绑定。
 

@@ -1,5 +1,5 @@
 import { normalizeAspectRatio, getSemanticScale, calculateDimension } from './image-utils'
-import type { AIConfig, AIChatOptions, AIChatResponse, AIProvider, AIImageOptions, AIImageResponse } from '@/types/ai'
+import type { AIConfig, AIChatOptions, AIChatResponse, AIChatStreamChunk, AIProvider, AIImageOptions, AIImageResponse } from '@/types/ai'
 
 export class OpenAIProvider implements AIProvider {
     name = 'openai'
@@ -52,6 +52,148 @@ export class OpenAIProvider implements AIProvider {
                 statusCode: status,
                 message: `OpenAI Error: ${message}`,
             })
+        }
+    }
+
+    async* chatStream(options: AIChatOptions): AsyncGenerator<AIChatStreamChunk, void, void> {
+        const endpoint = this.config.endpoint || 'https://api.openai.com/v1'
+        const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
+
+        const response = await fetch(`${baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${this.config.apiKey}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: options.model || this.config.model,
+                messages: options.messages,
+                temperature: options.temperature ?? this.config.temperature,
+                max_tokens: options.maxTokens ?? this.config.maxTokens,
+                stream: true,
+            }),
+        })
+
+        if (!response.ok) {
+            const rawError = await response.text().catch(() => '')
+
+            try {
+                const parsedError = JSON.parse(rawError) as { error?: { message?: string } }
+                throw createError({
+                    statusCode: response.status,
+                    message: `OpenAI Error: ${parsedError.error?.message || response.statusText}`,
+                })
+            } catch {
+                throw createError({
+                    statusCode: response.status,
+                    message: `OpenAI Error: ${rawError || response.statusText}`,
+                })
+            }
+        }
+
+        if (!response.body) {
+            throw createError({
+                statusCode: 500,
+                message: 'OpenAI Error: Empty streaming response body',
+            })
+        }
+
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let buffer = ''
+        let accumulatedContent = ''
+        let resolvedModel = options.model || this.config.model
+
+        const parseBlock = (block: string) => {
+            const dataLines = block
+                .split(/\r?\n/)
+                .map((line) => line.trim())
+                .filter((line) => line.startsWith('data:'))
+                .map((line) => line.slice(5).trim())
+
+            if (dataLines.length === 0) {
+                return {
+                    shouldStop: false,
+                    chunks: [] as AIChatStreamChunk[],
+                }
+            }
+
+            const rawPayload = dataLines.join('\n')
+            if (!rawPayload || rawPayload === '[DONE]') {
+                return {
+                    shouldStop: true,
+                    chunks: [] as AIChatStreamChunk[],
+                }
+            }
+
+            const payload = JSON.parse(rawPayload) as {
+                model?: string
+                choices?: {
+                    delta?: { content?: string }
+                    finish_reason?: string | null
+                }[]
+                usage?: {
+                    prompt_tokens?: number
+                    completion_tokens?: number
+                    total_tokens?: number
+                }
+            }
+
+            resolvedModel = payload.model || resolvedModel
+
+            const delta = payload.choices?.[0]?.delta?.content || ''
+            const chunks: AIChatStreamChunk[] = []
+            if (delta) {
+                accumulatedContent += delta
+                chunks.push({
+                    delta,
+                    content: accumulatedContent,
+                    model: resolvedModel,
+                    usage: payload.usage
+                        ? {
+                            promptTokens: payload.usage.prompt_tokens || 0,
+                            completionTokens: payload.usage.completion_tokens || 0,
+                            totalTokens: payload.usage.total_tokens || 0,
+                        }
+                        : undefined,
+                    raw: payload,
+                })
+            }
+
+            return {
+                shouldStop: Boolean(payload.choices?.[0]?.finish_reason),
+                chunks,
+            }
+        }
+
+        while (true) {
+            const { value, done } = await reader.read()
+            buffer += decoder.decode(value || new Uint8Array(), { stream: !done })
+
+            const blocks = buffer.split(/\r?\n\r?\n/)
+            buffer = blocks.pop() || ''
+
+            for (const block of blocks) {
+                const result = parseBlock(block)
+                for (const chunk of result.chunks) {
+                    yield chunk
+                }
+
+                if (result.shouldStop) {
+                    return
+                }
+            }
+
+            if (done) {
+                break
+            }
+        }
+
+        if (buffer.trim()) {
+            const result = parseBlock(buffer)
+            for (const chunk of result.chunks) {
+                yield chunk
+            }
         }
     }
 

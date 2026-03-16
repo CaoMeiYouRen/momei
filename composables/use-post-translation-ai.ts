@@ -12,10 +12,12 @@ import type {
     TranslationTextField,
 } from '@/types/post-translation'
 import { ContentProcessor } from '@/utils/shared/content-processor'
+import { AI_TEXT_DIRECT_RETURN_MAX_CHARS } from '@/utils/shared/env'
 
 const TEXT_TRANSLATION_SCOPE_ORDER: TranslationTextField[] = ['title', 'summary', 'content']
 const STREAM_MODE_MAX_CHARS = 4000
 const MIN_CHUNK_SIZE = 200
+const DIRECT_MODE_FIELDS: TranslationTextField[] = ['title', 'summary']
 
 interface TranslationRunContext {
     source: PostTranslationSourceDetail
@@ -36,8 +38,15 @@ interface TranslationFieldRuntime {
 interface TranslationStreamChunk {
     content?: string
     chunk?: string
+    delta?: string
     chunkIndex?: number
     totalChunks?: number
+    isChunkComplete?: boolean
+}
+
+interface TranslateDirectResponseData {
+    mode: 'direct' | 'task'
+    content?: string
 }
 
 interface TranslateFieldOptions {
@@ -132,8 +141,6 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         post.value.content = value
     }
 
-    const resolveMode = (sourceValue: string, sourceChunks: string[]): PostTranslationMode => sourceValue.length > STREAM_MODE_MAX_CHARS && sourceChunks.length > 1 ? 'chunk' : 'stream'
-
     const resolveSourceChunks = (sourceValue: string) => {
         const chunks = ContentProcessor.splitMarkdown(sourceValue, {
             chunkSize: STREAM_MODE_MAX_CHARS,
@@ -141,6 +148,14 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         })
 
         return chunks.length > 0 ? chunks : [sourceValue]
+    }
+
+    const resolvePreferredMode = (field: TranslationTextField, sourceValue: string): PostTranslationMode => {
+        if (DIRECT_MODE_FIELDS.includes(field) && sourceValue.length <= AI_TEXT_DIRECT_RETURN_MAX_CHARS) {
+            return 'direct'
+        }
+
+        return 'stream'
     }
 
     const getFieldRuntime = (field: TranslationTextField, sourceValue: string) => {
@@ -155,7 +170,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
             sourceChunks,
             translatedChunks: [],
             nextChunkIndex: 0,
-            preferredMode: resolveMode(sourceValue, sourceChunks),
+            preferredMode: resolvePreferredMode(field, sourceValue),
             fallbackUsed: false,
         }
 
@@ -219,9 +234,14 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         updateOverallProgress()
     }
 
-    const syncFieldContent = (field: TranslationTextField, runtime: TranslationFieldRuntime, overrides: Partial<PostTranslationFieldProgress> = {}) => {
+    const syncFieldContent = (
+        field: TranslationTextField,
+        runtime: TranslationFieldRuntime,
+        overrides: Partial<PostTranslationFieldProgress> = {},
+        visibleChunkCount = runtime.nextChunkIndex,
+    ) => {
         const content = runtime.translatedChunks
-            .slice(0, runtime.nextChunkIndex)
+            .slice(0, Math.max(visibleChunkCount, runtime.nextChunkIndex))
             .filter(Boolean)
             .join('\n\n')
 
@@ -285,6 +305,22 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         }
 
         return {}
+    }
+
+    const resolveChunkContent = (currentContent: string, chunk: TranslationStreamChunk) => {
+        if (typeof chunk.content === 'string' && chunk.content.length > 0) {
+            return chunk.content
+        }
+
+        if (typeof chunk.chunk === 'string' && chunk.chunk.length > 0) {
+            return chunk.chunk
+        }
+
+        if (typeof chunk.delta === 'string' && chunk.delta.length > 0) {
+            return `${currentContent}${chunk.delta}`
+        }
+
+        return currentContent
     }
 
     const parseSSEBlock = async (
@@ -413,10 +449,44 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
             field: options.field,
         }, signal, (chunk) => {
             const nextIndex = typeof chunk.chunkIndex === 'number' ? chunk.chunkIndex : translatedChunks.length
-            translatedChunks[nextIndex] = chunk.content || chunk.chunk || ''
+            translatedChunks[nextIndex] = resolveChunkContent(translatedChunks[nextIndex] || '', chunk)
         })
 
         return translatedChunks.filter(Boolean).join('\n\n')
+    }
+
+    const executeDirectMode = async (
+        field: TranslationTextField,
+        runtime: TranslationFieldRuntime,
+        options: TranslateFieldOptions,
+    ) => {
+        const response = await $fetch<ApiResponse<TranslateDirectResponseData>>('/api/ai/translate', {
+            method: 'POST',
+            body: {
+                content: runtime.sourceValue,
+                targetLanguage: runContext.value?.targetLanguage || '',
+                sourceLanguage: options.sourceLanguage,
+                field,
+            },
+        })
+
+        if (response.data.mode !== 'direct' || typeof response.data.content !== 'string') {
+            throw new Error(t('pages.admin.posts.ai_error'))
+        }
+
+        runtime.translatedChunks = [response.data.content]
+        runtime.nextChunkIndex = runtime.sourceChunks.length
+
+        syncFieldContent(field, runtime, {
+            status: 'processing',
+            mode: 'direct',
+            totalChunks: 1,
+            completedChunks: 1,
+            progress: 100,
+            error: null,
+            canCancel: false,
+            canRetry: false,
+        }, 1)
     }
 
     const executeChunkMode = async (
@@ -465,17 +535,31 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
                 field,
             }, controller.signal, (chunk) => {
                 const nextIndex = typeof chunk.chunkIndex === 'number' ? chunk.chunkIndex : runtime.nextChunkIndex
-                runtime.translatedChunks[nextIndex] = chunk.content || chunk.chunk || ''
-                runtime.nextChunkIndex = Math.max(runtime.nextChunkIndex, nextIndex + 1)
+                const nextContent = resolveChunkContent(runtime.translatedChunks[nextIndex] || '', chunk)
+                const totalChunks = chunk.totalChunks || runtime.sourceChunks.length || 1
+                const sourceChunk = runtime.sourceChunks[nextIndex] || runtime.sourceValue
+                const isChunkComplete = chunk.isChunkComplete === true
+                const chunkCompletionRatio = isChunkComplete
+                    ? 1
+                    : Math.min(nextContent.length / Math.max(sourceChunk.length, 1), 0.99)
+                const committedChunks = isChunkComplete
+                    ? Math.max(runtime.nextChunkIndex, nextIndex + 1)
+                    : runtime.nextChunkIndex
+                const visibleChunks = Math.max(committedChunks, nextIndex + 1)
+
+                runtime.translatedChunks[nextIndex] = nextContent
+                runtime.nextChunkIndex = committedChunks
 
                 syncFieldContent(field, runtime, {
                     status: 'processing',
-                    mode: 'stream',
-                    totalChunks: chunk.totalChunks || runtime.sourceChunks.length,
+                    mode: totalChunks > 1 ? 'chunk' : 'stream',
+                    totalChunks,
+                    completedChunks: committedChunks,
+                    progress: Math.round(((nextIndex + chunkCompletionRatio) / totalChunks) * 100),
                     error: null,
                     canCancel: true,
                     canRetry: false,
-                })
+                }, visibleChunks)
             })
         } finally {
             resetActiveController()
@@ -511,7 +595,9 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         }
 
         const runtime = getFieldRuntime(field, sourceValue)
-        const preferredMode = runtime.nextChunkIndex > 0 ? 'chunk' : runtime.preferredMode
+        const preferredMode = runtime.nextChunkIndex > 0 && runtime.preferredMode !== 'direct'
+            ? 'chunk'
+            : runtime.preferredMode
 
         if (runtime.nextChunkIndex === 0) {
             runtime.translatedChunks = []
@@ -534,7 +620,9 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         const completedBeforeExecution = runtime.nextChunkIndex
 
         try {
-            if (preferredMode === 'stream') {
+            if (preferredMode === 'direct') {
+                await executeDirectMode(field, runtime, options)
+            } else if (preferredMode === 'stream') {
                 try {
                     await executeStreamMode(field, runtime, options)
                 } catch (error) {

@@ -101,7 +101,8 @@ interface UsePostEditorTranslationOptions {
     resetTranslationProgress: () => void
 }
 
-const DEFAULT_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags']
+const DEFAULT_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags', 'coverImage']
+const AVAILABLE_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags', 'coverImage', 'audio']
 
 export function usePostEditorTranslation(options: UsePostEditorTranslationOptions) {
     const translations = ref<PostTranslationSourceOption[]>([])
@@ -176,14 +177,14 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         const scopes = rawValue
             .split(',')
             .map((item) => item.trim())
-            .filter((item): item is TranslationScopeField => DEFAULT_TRANSLATION_SCOPES.includes(item as TranslationScopeField))
+            .filter((item): item is TranslationScopeField => AVAILABLE_TRANSLATION_SCOPES.includes(item as TranslationScopeField))
 
         return scopes.length > 0 ? Array.from(new Set(scopes)) : [...DEFAULT_TRANSLATION_SCOPES]
     }
 
     const serializeTranslationScopes = (scopes: TranslationScopeField[]) => {
         const normalizedScopes = Array.from(new Set(
-            scopes.filter((scope) => DEFAULT_TRANSLATION_SCOPES.includes(scope)),
+            scopes.filter((scope) => AVAILABLE_TRANSLATION_SCOPES.includes(scope)),
         ))
 
         return normalizedScopes.length > 0 ? normalizedScopes.join(',') : undefined
@@ -652,6 +653,7 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         handleStartTranslationWorkflow,
         fetchTranslations,
         parseTranslationScopes,
+        serializeTranslationScopes,
         resolveMatchedCategoryId,
         resolveTranslatedTagBindings,
     }

@@ -1,22 +1,19 @@
-import type { AIChatOptions, AIChatResponse, AIProvider, AIImageOptions, AIImageResponse } from '@/types/ai'
+import type { AIChatOptions, AIChatResponse, AIChatStreamChunk, AIProvider, AIImageOptions, AIImageResponse } from '@/types/ai'
 
 export class MockAIProvider implements AIProvider {
     name = 'mock'
     model = 'mock-model'
 
-    async chat(options: AIChatOptions): Promise<AIChatResponse> {
+    private resolveMockContent(options: AIChatOptions) {
         const lastMessage = options.messages[options.messages.length - 1]?.content
         if (!lastMessage) {
             throw new Error('Messages cannot be empty')
         }
+
         const systemMessage = options.messages.find((m) => m.role === 'system')?.content || ''
 
         let content = 'This is a mock AI response for Demo mode.'
 
-        // Simulate thinking time to show loading state
-        await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 1500))
-
-        // Task Detection
         if (systemMessage.includes('titles') || lastMessage.includes('titles')) {
             const list = [
                 '如何在 Nuxt 4 中构建高性能国际化博客',
@@ -40,6 +37,15 @@ export class MockAIProvider implements AIProvider {
             }
         }
 
+        return content
+    }
+
+    async chat(options: AIChatOptions): Promise<AIChatResponse> {
+        const content = this.resolveMockContent(options)
+
+        // Simulate thinking time to show loading state
+        await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 1500))
+
         return {
             content,
             model: 'mock-demo-v1',
@@ -48,6 +54,23 @@ export class MockAIProvider implements AIProvider {
                 completionTokens: 250,
                 totalTokens: 370,
             },
+        }
+    }
+
+    async* chatStream(options: AIChatOptions): AsyncGenerator<AIChatStreamChunk, void, void> {
+        const content = this.resolveMockContent(options)
+        const segments = content.match(/.{1,24}/g) || [content]
+        let accumulatedContent = ''
+
+        for (const segment of segments) {
+            await new Promise((resolve) => setTimeout(resolve, 80))
+            accumulatedContent += segment
+
+            yield {
+                delta: segment,
+                content: accumulatedContent,
+                model: 'mock-demo-v1',
+            }
         }
     }
 

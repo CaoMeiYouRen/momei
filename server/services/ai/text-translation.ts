@@ -34,6 +34,15 @@ export interface ChunkedTranslateResult {
     usageSnapshot: AIUsageSnapshot
 }
 
+export interface TranslationStreamResponseChunk {
+    providerName: string
+    model: string
+    content: string
+    delta?: string
+    usage?: AIChatResponse['usage']
+    raw?: unknown
+}
+
 function mergeChatUsage(
     current: AIChatResponse['usage'] | undefined,
     next: AIChatResponse['usage'] | undefined,
@@ -79,6 +88,78 @@ export async function requestTranslation(
         provider,
         response,
         translatedContent: response.content.trim(),
+    }
+}
+
+export async function* requestTranslationStream(
+    content: string,
+    to: string,
+    providerArg?: Awaited<ReturnType<typeof getAIProvider>>,
+    options: TranslateRequestOptions = {},
+): AsyncGenerator<TranslationStreamResponseChunk, void, void> {
+    const provider = providerArg || await getAIProvider('text')
+
+    if (!provider.chat) {
+        throw new Error('Provider does not support chat')
+    }
+
+    const prompt = formatPrompt(AI_PROMPTS.TRANSLATE, { content, to })
+    const systemPrompt = [
+        `Translate ${options.field || 'content'} to ${to}.`,
+        options.sourceLanguage ? `Source language is ${options.sourceLanguage}.` : 'Auto-detect the source language.',
+        'Preserve markdown structure, links, and code blocks when present.',
+    ].join(' ')
+    const requestOptions = {
+        messages: [
+            { role: 'system' as const, content: systemPrompt },
+            { role: 'user' as const, content: prompt },
+        ],
+        temperature: 0.3,
+        stream: true,
+    }
+
+    if (provider.chatStream) {
+        let emittedChunk = false
+        let accumulatedContent = ''
+        let resolvedModel = ''
+
+        for await (const chunk of provider.chatStream(requestOptions)) {
+            const nextContent = chunk.content ?? `${accumulatedContent}${chunk.delta || ''}`
+            const delta = chunk.delta ?? (nextContent.startsWith(accumulatedContent)
+                ? nextContent.slice(accumulatedContent.length)
+                : nextContent)
+
+            accumulatedContent = nextContent
+            resolvedModel = chunk.model || resolvedModel
+
+            if (!delta && !nextContent) {
+                continue
+            }
+
+            emittedChunk = true
+            yield {
+                providerName: provider.name,
+                model: resolvedModel || 'unknown',
+                content: accumulatedContent,
+                delta,
+                usage: chunk.usage,
+                raw: chunk.raw,
+            }
+        }
+
+        if (emittedChunk) {
+            return
+        }
+    }
+
+    const { response, translatedContent } = await requestTranslation(content, to, provider, options)
+    yield {
+        providerName: provider.name,
+        model: response.model,
+        content: translatedContent,
+        delta: translatedContent,
+        usage: response.usage,
+        raw: response.raw,
     }
 }
 

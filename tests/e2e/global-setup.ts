@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import fs from 'fs'
 import path from 'path'
 import { chromium, type FullConfig } from '@playwright/test'

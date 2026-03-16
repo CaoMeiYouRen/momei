@@ -688,6 +688,7 @@
                         "cancelled": "Cancelled"
                     },
                     "modes": {
+                        "direct": "Direct Refill",
                         "stream": "Streaming Refill",
                         "chunk": "Chunked Refill"
                     },

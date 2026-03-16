@@ -1,6 +1,7 @@
 import { AIBaseService } from './base'
 import {
     requestTranslation,
+    requestTranslationStream,
     shouldUseAsyncTranslateTask,
     translateInChunks,
     type ChunkedTranslateOptions,
@@ -859,20 +860,75 @@ export class TextService extends AIBaseService {
         }
 
         const chunks = ContentProcessor.splitMarkdown(content, { chunkSize: AI_CHUNK_SIZE })
+        const provider = await getAIProvider('text')
+
         for (let i = 0; i < chunks.length; i++) {
             const chunk = chunks[i]
             if (!chunk) {
                 continue
             }
-            const translated = await this.translate(chunk, to, userId, {
-                sourceLanguage: options?.sourceLanguage,
-                field: options?.field || 'content',
+
+            const field = options?.field || 'content'
+            await this.assertTextQuota({
+                userId,
+                type: 'translate',
+                payload: {
+                    content: chunk.slice(0, AI_CHUNK_SIZE),
+                    to,
+                    sourceLanguage: options?.sourceLanguage,
+                    field,
+                },
             })
+
+            let translated = ''
+            let model = 'unknown'
+            let usage: { promptTokens: number, completionTokens: number, totalTokens: number } | undefined
+
+            for await (const streamedChunk of requestTranslationStream(chunk, to, provider, {
+                sourceLanguage: options?.sourceLanguage,
+                field,
+            })) {
+                translated = streamedChunk.content
+                model = streamedChunk.model || model
+                usage = streamedChunk.usage || usage
+
+                yield {
+                    delta: streamedChunk.delta,
+                    chunkIndex: i,
+                    totalChunks: chunks.length,
+                    isChunkComplete: false,
+                }
+            }
+
             yield {
-                content: translated,
                 chunkIndex: i,
                 totalChunks: chunks.length,
+                isChunkComplete: true,
             }
+
+            const response = {
+                content: translated,
+                model,
+                usage,
+            }
+
+            this.logUsage({ task: 'translate-stream', response, userId })
+            await this.recordTask({
+                userId,
+                category: 'text',
+                type: 'translate',
+                provider: provider.name,
+                model,
+                payload: {
+                    content: chunk.slice(0, AI_CHUNK_SIZE),
+                    to,
+                    sourceLanguage: options?.sourceLanguage,
+                    field,
+                },
+                response,
+                textLength: chunk.length,
+                settlementSource: 'actual',
+            })
         }
     }
 }

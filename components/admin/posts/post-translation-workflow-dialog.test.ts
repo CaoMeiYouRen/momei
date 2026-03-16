@@ -197,6 +197,23 @@ describe('PostTranslationWorkflowDialog', () => {
         })
     })
 
+    it('uses default scopes with cover image enabled and audio disabled', async () => {
+        const wrapper = await mountSuspended(PostTranslationWorkflowDialog, {
+            props: {
+                ...defaultProps,
+                defaultScopes: undefined,
+            },
+            global: globalOptions,
+        })
+
+        await nextTick()
+        await wrapper.find('button[data-label="继续翻译"]').trigger('click')
+
+        expect(wrapper.emitted('start')?.[0]?.[0]).toEqual(expect.objectContaining({
+            scopes: ['title', 'content', 'summary', 'category', 'tags', 'coverImage'],
+        }))
+    })
+
     it('shows switch hint and danger action for published target in another editor', async () => {
         const wrapper = await mountSuspended(PostTranslationWorkflowDialog, {
             props: {

@@ -167,7 +167,7 @@ vi.stubGlobal('usePageSeo', mockUsePageSeo)
 vi.stubGlobal('useHead', vi.fn())
 vi.stubGlobal('useRequestURL', () => ({ href: 'http://localhost:3000/posts/test' }))
 vi.stubGlobal('onMounted', (fn: () => void) => fn())
-vi.stubGlobal('$fetch', vi.fn(async () => ({ code: 200, data: { views: 101 } })))
+vi.stubGlobal('$fetch', vi.fn(() => Promise.resolve({ code: 200, data: { views: 101 } })))
 
 describe('PostDetailPage', () => {
     beforeEach(() => {

@@ -326,35 +326,95 @@ describe('TextService', () => {
     })
 
     describe('translateStream', () => {
-        it('should stream translation chunks for long content', async () => {
+        it('should stream incremental content when provider supports chat streaming', async () => {
             const mockProvider = {
                 name: 'openai',
-                chat: vi.fn()
-                    .mockResolvedValueOnce({
+                chat: vi.fn(),
+                chatStream: vi.fn().mockImplementation(async function* () {
+                    await Promise.resolve()
+                    yield {
+                        delta: 'Translated ',
+                        content: 'Translated ',
+                        model: 'gpt-4',
+                    }
+                    yield {
+                        delta: 'chunk 1',
                         content: 'Translated chunk 1',
                         model: 'gpt-4',
-                        usage: {},
-                    })
-                    .mockResolvedValueOnce({
-                        content: 'Translated chunk 2',
-                        model: 'gpt-4',
-                        usage: {},
-                    }),
+                    }
+                }),
             }
 
             vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
 
-            const longContent = 'a'.repeat(6000)
+            const longContent = 'a'.repeat(2000)
             const chunks: any[] = []
 
             for await (const chunk of TextService.translateStream(longContent, 'en', 'user-1')) {
                 chunks.push(chunk)
             }
 
-            expect(chunks.length).toBeGreaterThan(0)
-            expect(chunks[0]).toHaveProperty('chunkIndex')
-            expect(chunks[0]).toHaveProperty('totalChunks')
-            expect(chunks[0]).toHaveProperty('content')
+            expect(chunks).toEqual([
+                expect.objectContaining({
+                    delta: 'Translated ',
+                    chunkIndex: 0,
+                    totalChunks: 1,
+                    isChunkComplete: false,
+                }),
+                expect.objectContaining({
+                    delta: 'chunk 1',
+                    chunkIndex: 0,
+                    totalChunks: 1,
+                    isChunkComplete: false,
+                }),
+                expect.objectContaining({
+                    chunkIndex: 0,
+                    totalChunks: 1,
+                    isChunkComplete: true,
+                }),
+            ])
+            expect(mockProvider.chatStream).toHaveBeenCalledTimes(1)
+        })
+
+        it('should keep a single SSE stream while server-side chunking long content', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn(),
+                chatStream: vi.fn()
+                    .mockImplementationOnce(async function* () {
+                        await Promise.resolve()
+                        yield {
+                            delta: 'Chunk 1',
+                            content: 'Chunk 1',
+                            model: 'gpt-4',
+                        }
+                    })
+                    .mockImplementationOnce(async function* () {
+                        await Promise.resolve()
+                        yield {
+                            delta: 'Chunk 2',
+                            content: 'Chunk 2',
+                            model: 'gpt-4',
+                        }
+                    }),
+            }
+
+            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
+
+            const longContent = `${'a'.repeat(2500)}\n\n${'b'.repeat(2500)}`
+            const chunks: any[] = []
+
+            for await (const chunk of TextService.translateStream(longContent, 'en', 'user-1')) {
+                chunks.push(chunk)
+            }
+
+            expect(chunks.map((chunk) => `${chunk.chunkIndex}:${chunk.delta ?? ''}:${chunk.isChunkComplete}`)).toEqual([
+                '0:Chunk 1:false',
+                '0::true',
+                '1:Chunk 2:false',
+                '1::true',
+            ])
+            expect(mockProvider.chatStream).toHaveBeenCalledTimes(2)
         })
 
         it('should reject content exceeding max length', async () => {

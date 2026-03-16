@@ -688,6 +688,7 @@
                         "cancelled": "已取消"
                     },
                     "modes": {
+                        "direct": "直返回填",
                         "stream": "串流回填",
                         "chunk": "分段回填"
                     },

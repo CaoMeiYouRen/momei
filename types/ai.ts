@@ -269,6 +269,14 @@ export interface AIChatOptions {
     stream?: boolean
 }
 
+export interface AIChatStreamChunk {
+    delta?: string
+    content?: string
+    model?: string
+    usage?: AIChatResponse['usage']
+    raw?: unknown
+}
+
 export interface AIChatResponse {
     content: string
     model: string
@@ -362,6 +370,7 @@ export interface AIProvider {
     name: string
     // Text
     chat?(options: AIChatOptions): Promise<AIChatResponse>
+    chatStream?(options: AIChatOptions): AsyncGenerator<AIChatStreamChunk, void, void>
     // Image
     generateImage?(options: AIImageOptions): Promise<AIImageResponse>
     // TTS
