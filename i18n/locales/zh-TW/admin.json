@@ -642,7 +642,7 @@
                 },
                 "translation_workflow": {
                     "title": "全文翻譯工作流",
-                    "intro": "選擇翻譯來源、目標語言與需要覆蓋的欄位。長文本會自動復用 AI 非同步任務並顯示進度。",
+                    "intro": "選擇翻譯來源、目標語言與需要覆蓋的欄位。系統會依文字長度自動在串流回填與分段回填之間切換，並保留已成功寫入的內容邊界。",
                     "no_sources": "目前沒有可用的來源文章，請先儲存來源文章或載入同一翻譯簇中的其他版本。",
                     "source_post": "來源文章",
                     "select_source": "選擇一個來源版本",
@@ -679,11 +679,30 @@
                         "coverImage": "封面",
                         "audio": "播客音訊"
                     },
+                    "field_statuses": {
+                        "idle": "未開始",
+                        "pending": "等待中",
+                        "processing": "翻譯中",
+                        "completed": "已完成",
+                        "failed": "失敗",
+                        "cancelled": "已取消"
+                    },
+                    "modes": {
+                        "stream": "串流回填",
+                        "chunk": "分段回填"
+                    },
                     "start": "開始翻譯",
                     "progress_running": "翻譯進行中",
                     "progress_completed": "翻譯已完成",
                     "progress_failed": "翻譯失敗",
+                    "progress_detail": "已完成 {completed}/{total} 塊",
                     "current_field": "目前欄位：{field}",
+                    "applied_content": "已回填內容",
+                    "applied_content_empty": "目前還沒有已回填內容",
+                    "retry_field": "重試欄位",
+                    "cancel_field": "取消欄位",
+                    "cancelled": "翻譯已取消",
+                    "stream_fallback": "串流回填失敗，已自動切換為分段回填。",
                     "continue_title": "確認繼續翻譯目前草稿",
                     "overwrite_title": "確認覆蓋目前翻譯",
                     "continue_draft": "目前目標草稿已包含內容。繼續後，所選欄位會以新的翻譯結果更新。",

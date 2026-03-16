@@ -434,82 +434,6 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
             ])).values())
     }
 
-    const createTranslationScopeSnapshot = () => ({
-        title: options.post.value.title,
-        content: options.post.value.content,
-        summary: options.post.value.summary,
-        categoryId: options.post.value.categoryId,
-        tags: [...options.post.value.tags],
-        coverImage: options.post.value.coverImage ?? null,
-        audio: getAudioState(options.post.value),
-        tagBindings: options.getTagBindings().map((binding) => ({ ...binding })),
-    })
-
-    const clearTranslatedScopes = (scopes: TranslationScopeField[]) => {
-        if (scopes.includes('title')) {
-            options.post.value.title = ''
-        }
-
-        if (scopes.includes('content')) {
-            options.post.value.content = ''
-        }
-
-        if (scopes.includes('summary')) {
-            options.post.value.summary = ''
-        }
-
-        if (scopes.includes('category')) {
-            options.post.value.categoryId = null
-        }
-
-        if (scopes.includes('tags')) {
-            options.applyTagBindings([])
-        }
-
-        if (scopes.includes('coverImage')) {
-            options.post.value.coverImage = ''
-        }
-
-        if (scopes.includes('audio')) {
-            applyAudioState({
-                metadataAudio: null,
-            })
-        }
-    }
-
-    const restoreTranslatedScopes = (
-        scopes: TranslationScopeField[],
-        snapshot: ReturnType<typeof createTranslationScopeSnapshot>,
-    ) => {
-        if (scopes.includes('title')) {
-            options.post.value.title = snapshot.title
-        }
-
-        if (scopes.includes('content')) {
-            options.post.value.content = snapshot.content
-        }
-
-        if (scopes.includes('summary')) {
-            options.post.value.summary = snapshot.summary
-        }
-
-        if (scopes.includes('category')) {
-            options.post.value.categoryId = snapshot.categoryId
-        }
-
-        if (scopes.includes('tags')) {
-            options.applyTagBindings(snapshot.tagBindings)
-        }
-
-        if (scopes.includes('coverImage')) {
-            options.post.value.coverImage = snapshot.coverImage
-        }
-
-        if (scopes.includes('audio')) {
-            applyAudioState(snapshot.audio)
-        }
-    }
-
     const hasSelectedScopesContent = (scopes: TranslationScopeField[]) => scopes.some((scope) => {
         if (scope === 'title') {
             return Boolean(options.post.value.title?.trim())
@@ -655,9 +579,6 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
             ])
         }
 
-        const translationScopeSnapshot = createTranslationScopeSnapshot()
-        clearTranslatedScopes(payload.scopes)
-
         const translated = await options.translatePostFields({
             source,
             sourceLanguage: payload.sourceLanguage,
@@ -666,7 +587,6 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         })
 
         if (!translated) {
-            restoreTranslatedScopes(payload.scopes, translationScopeSnapshot)
             return
         }
 
@@ -688,7 +608,6 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
             }
         } catch (error) {
             console.error('Failed to resolve translated taxonomy bindings', error)
-            restoreTranslatedScopes(payload.scopes, translationScopeSnapshot)
             options.toast.add({
                 severity: 'error',
                 summary: options.t('common.error'),

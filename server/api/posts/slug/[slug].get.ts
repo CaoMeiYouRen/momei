@@ -1,6 +1,5 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
-import { PostStatus } from '@/types/post'
 import { processAuthorPrivacy } from '@/server/utils/author'
 import { checkPostAccess } from '@/server/utils/post-access'
 import { isAdmin } from '@/utils/shared/roles'

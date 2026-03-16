@@ -642,7 +642,7 @@
                 },
                 "translation_workflow": {
                     "title": "전문 번역 워크플로",
-                    "intro": "번역 원본, 대상 언어, 덮어쓸 필드를 선택하세요. 긴 본문은 AI 비동기 작업을 재사용하며 진행률을 표시합니다.",
+                    "intro": "번역 원본, 대상 언어, 덮어쓸 필드를 선택하세요. 편집기는 텍스트 길이에 따라 스트리밍 채우기와 분할 채우기를 자동 전환하고, 이미 채워진 경계를 유지합니다.",
                     "no_sources": "사용 가능한 원본 게시글이 없습니다. 먼저 원본 게시글을 저장하거나 같은 번역 묶음의 다른 버전을 불러오세요.",
                     "source_post": "원본 게시글",
                     "select_source": "원본 버전 선택",
@@ -679,11 +679,30 @@
                         "coverImage": "커버 이미지",
                         "audio": "팟캐스트 오디오"
                     },
+                    "field_statuses": {
+                        "idle": "대기",
+                        "pending": "준비됨",
+                        "processing": "번역 중",
+                        "completed": "완료",
+                        "failed": "실패",
+                        "cancelled": "취소됨"
+                    },
+                    "modes": {
+                        "stream": "스트리밍 채우기",
+                        "chunk": "분할 채우기"
+                    },
                     "start": "번역 시작",
                     "progress_running": "번역 진행 중",
                     "progress_completed": "번역 완료",
                     "progress_failed": "번역 실패",
+                    "progress_detail": "{completed}/{total}개 청크 완료",
                     "current_field": "현재 필드: {field}",
+                    "applied_content": "적용된 내용",
+                    "applied_content_empty": "아직 적용된 번역 내용이 없습니다",
+                    "retry_field": "필드 다시 시도",
+                    "cancel_field": "필드 취소",
+                    "cancelled": "번역이 취소되었습니다",
+                    "stream_fallback": "스트리밍 채우기에 실패하여 분할 채우기로 자동 전환했습니다.",
                     "continue_title": "현재 초안 번역을 계속할지 확인",
                     "overwrite_title": "덮어쓰기 확인",
                     "continue_draft": "대상 초안에 이미 내용이 있습니다. 계속하면 선택한 필드가 새 번역 결과로 갱신됩니다.",

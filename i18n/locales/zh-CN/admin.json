@@ -642,7 +642,7 @@
                 },
                 "translation_workflow": {
                     "title": "全文翻译工作流",
-                    "intro": "选择翻译来源、目标语言和需要覆盖的字段。长文本会自动复用 AI 异步任务并显示进度。",
+                    "intro": "选择翻译来源、目标语言和需要覆盖的字段。系统会按文本长度在流式回填与分段回填之间自动切换，并保留已成功写入的内容边界。",
                     "no_sources": "当前没有可用的来源文章，请先保存源文章或加载同一翻译簇中的其他版本。",
                     "source_post": "来源文章",
                     "select_source": "选择一个来源版本",
@@ -679,11 +679,30 @@
                         "coverImage": "封面",
                         "audio": "播客音频"
                     },
+                    "field_statuses": {
+                        "idle": "未开始",
+                        "pending": "等待中",
+                        "processing": "翻译中",
+                        "completed": "已完成",
+                        "failed": "失败",
+                        "cancelled": "已取消"
+                    },
+                    "modes": {
+                        "stream": "流式回填",
+                        "chunk": "分段回填"
+                    },
                     "start": "开始翻译",
                     "progress_running": "翻译进行中",
                     "progress_completed": "翻译已完成",
                     "progress_failed": "翻译失败",
+                    "progress_detail": "已完成 {completed}/{total} 块",
                     "current_field": "当前字段：{field}",
+                    "applied_content": "已回填内容",
+                    "applied_content_empty": "当前还没有已回填内容",
+                    "retry_field": "重试字段",
+                    "cancel_field": "取消字段",
+                    "cancelled": "翻译已取消",
+                    "stream_fallback": "流式回填失败，已自动切换到分段回填。",
                     "continue_title": "确认继续翻译当前草稿",
                     "overwrite_title": "确认覆盖当前翻译",
                     "continue_draft": "当前目标草稿已经包含内容。继续后，所选字段会被新的翻译结果更新。",

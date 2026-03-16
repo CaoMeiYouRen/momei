@@ -143,7 +143,9 @@ export function usePostEditorPage() {
     )
 
     const {
+        cancelFieldTranslation,
         resetTranslationProgress,
+        retryFieldTranslation,
         translateTaxonomyNames,
         translatePostFields,
         translationProgress,
@@ -677,6 +679,8 @@ export function usePostEditorPage() {
         suggestSlug,
         suggestSummary,
         recommendTags,
+        cancelFieldTranslation,
+        retryFieldTranslation,
         translationProgress,
         categories,
         errors,

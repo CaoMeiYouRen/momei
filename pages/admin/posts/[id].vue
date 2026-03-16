@@ -90,7 +90,10 @@
             :translation-status="translationProgress.status"
             :active-field="translationProgress.activeField"
             :error-text="translationProgress.error"
+            :field-progress-map="translationProgress.fields"
             @start="handleStartTranslationWorkflow"
+            @cancel-field="cancelFieldTranslation"
+            @retry-field="retryFieldTranslation"
         />
 
         <PublishPushDialog
@@ -155,6 +158,8 @@ const {
     suggestSlug,
     suggestSummary,
     recommendTags,
+    cancelFieldTranslation,
+    retryFieldTranslation,
     translationProgress,
     categories,
     errors,

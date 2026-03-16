@@ -642,7 +642,7 @@
                 },
                 "translation_workflow": {
                     "title": "Full Translation Workflow",
-                    "intro": "Choose the source post, target language, and fields to overwrite. Long content reuses AI async tasks and shows progress here.",
+                    "intro": "Choose the source post, target language, and fields to overwrite. The editor will switch between streaming refill and chunked refill by text length while preserving already written boundaries.",
                     "no_sources": "No translation source is available yet. Save the source post first or load another version from the same translation cluster.",
                     "source_post": "Source Post",
                     "select_source": "Select a source version",
@@ -679,11 +679,30 @@
                         "coverImage": "Cover Image",
                         "audio": "Podcast Audio"
                     },
+                    "field_statuses": {
+                        "idle": "Idle",
+                        "pending": "Queued",
+                        "processing": "Translating",
+                        "completed": "Completed",
+                        "failed": "Failed",
+                        "cancelled": "Cancelled"
+                    },
+                    "modes": {
+                        "stream": "Streaming Refill",
+                        "chunk": "Chunked Refill"
+                    },
                     "start": "Start Translation",
                     "progress_running": "Translation in progress",
                     "progress_completed": "Translation completed",
                     "progress_failed": "Translation failed",
+                    "progress_detail": "Completed {completed}/{total} chunks",
                     "current_field": "Current field: {field}",
+                    "applied_content": "Applied content",
+                    "applied_content_empty": "No translated content has been applied yet",
+                    "retry_field": "Retry Field",
+                    "cancel_field": "Cancel Field",
+                    "cancelled": "Translation cancelled",
+                    "stream_fallback": "Streaming refill failed, switched to chunked refill automatically.",
                     "continue_title": "Confirm Continue Translation",
                     "overwrite_title": "Confirm Overwrite",
                     "continue_draft": "The target draft already contains content. Continuing will refresh the selected fields with new translation output.",

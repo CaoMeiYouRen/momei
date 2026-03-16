@@ -5,6 +5,10 @@ export type TranslationScopeField = 'title' | 'content' | 'summary' | 'category'
 
 export type TranslationTextField = Extract<TranslationScopeField, 'title' | 'content' | 'summary'>
 
+export type PostTranslationMode = 'stream' | 'chunk'
+
+export type PostTranslationFieldStatus = 'idle' | 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled'
+
 export type PostTranslationTargetState = 'missing' | 'draft' | 'published'
 
 export type PostTranslationWorkflowAction = 'create' | 'continue' | 'overwrite'
@@ -66,12 +70,25 @@ export interface PostTranslationWorkflowRequest {
     targetPostId?: string | null
 }
 
+export interface PostTranslationFieldProgress {
+    status: PostTranslationFieldStatus
+    progress: number
+    mode: PostTranslationMode | null
+    content: string
+    completedChunks: number
+    totalChunks: number
+    error: string | null
+    canRetry: boolean
+    canCancel: boolean
+}
+
 export interface PostTranslationProgress {
-    status: 'idle' | 'pending' | 'processing' | 'completed' | 'failed'
+    status: 'idle' | 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled'
     progress: number
     activeField: TranslationTextField | null
     taskId: string | null
     error: string | null
+    fields: Record<TranslationTextField, PostTranslationFieldProgress>
 }
 
 export interface PostTranslationCategoryOption {

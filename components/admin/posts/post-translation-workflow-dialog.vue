@@ -148,7 +148,7 @@
             </div>
 
             <div
-                v-if="isBusy || translationStatus === 'completed' || translationStatus === 'failed'"
+                v-if="isBusy || translationStatus === 'completed' || translationStatus === 'failed' || translationStatus === 'cancelled'"
                 class="translation-workflow__progress"
             >
                 <div class="translation-workflow__progress-header">
@@ -159,9 +159,61 @@
                 <small v-if="activeField" class="translation-workflow__hint">
                     {{ currentFieldText }}
                 </small>
-                <small v-if="translationStatus === 'failed' && errorText" class="p-error">
+                <small v-if="(translationStatus === 'failed' || translationStatus === 'cancelled') && errorText" class="p-error">
                     {{ errorText }}
                 </small>
+            </div>
+
+            <div v-if="selectedTextFieldStates.length > 0" class="translation-workflow__field-progress-list">
+                <div
+                    v-for="item in selectedTextFieldStates"
+                    :key="item.field"
+                    class="translation-workflow__field-progress-card"
+                >
+                    <div class="translation-workflow__field-progress-header">
+                        <div class="translation-workflow__field-progress-title-group">
+                            <strong>{{ item.label }}</strong>
+                            <small class="translation-workflow__hint">{{ item.progressText }}</small>
+                        </div>
+                        <div class="translation-workflow__field-progress-tags">
+                            <Tag :value="item.statusLabel" :severity="item.statusSeverity" />
+                            <Tag
+                                v-if="item.modeLabel"
+                                :value="item.modeLabel"
+                                severity="secondary"
+                            />
+                        </div>
+                    </div>
+
+                    <ProgressBar :value="item.progress" class="translation-workflow__progress-bar" />
+
+                    <div class="translation-workflow__field-progress-body">
+                        <small class="translation-workflow__field-progress-caption">
+                            {{ appliedContentLabel }}
+                        </small>
+                        <div class="translation-workflow__field-progress-preview">
+                            {{ item.previewText || appliedContentEmptyLabel }}
+                        </div>
+                    </div>
+
+                    <div class="translation-workflow__field-progress-actions">
+                        <Button
+                            v-if="item.canCancel"
+                            :label="cancelFieldLabel"
+                            severity="secondary"
+                            outlined
+                            size="small"
+                            @click="emit('cancel-field', item.field)"
+                        />
+                        <Button
+                            v-if="item.canRetry"
+                            :label="retryFieldLabel"
+                            severity="warn"
+                            size="small"
+                            @click="emit('retry-field', item.field)"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -187,6 +239,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import type {
+    PostTranslationFieldProgress,
     PostTranslationSourceOption,
     PostTranslationTargetState,
     PostTranslationTargetStatus,
@@ -208,9 +261,10 @@ const props = withDefaults(defineProps<{
     defaultTargetLanguage: string
     defaultScopes?: TranslationScopeField[]
     progress?: number
-    translationStatus?: 'idle' | 'pending' | 'processing' | 'completed' | 'failed'
+    translationStatus?: 'idle' | 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled'
     activeField?: TranslationTextField | null
     errorText?: string | null
+    fieldProgressMap?: Record<TranslationTextField, PostTranslationFieldProgress>
 }>(), {
     defaultSourcePostId: null,
     defaultScopes: () => ['title', 'content', 'summary', 'category', 'tags'],
@@ -218,10 +272,47 @@ const props = withDefaults(defineProps<{
     translationStatus: 'idle',
     activeField: null,
     errorText: null,
+    fieldProgressMap: () => ({
+        title: {
+            status: 'idle',
+            progress: 0,
+            mode: null,
+            content: '',
+            completedChunks: 0,
+            totalChunks: 0,
+            error: null,
+            canRetry: false,
+            canCancel: false,
+        },
+        summary: {
+            status: 'idle',
+            progress: 0,
+            mode: null,
+            content: '',
+            completedChunks: 0,
+            totalChunks: 0,
+            error: null,
+            canRetry: false,
+            canCancel: false,
+        },
+        content: {
+            status: 'idle',
+            progress: 0,
+            mode: null,
+            content: '',
+            completedChunks: 0,
+            totalChunks: 0,
+            error: null,
+            canRetry: false,
+            canCancel: false,
+        },
+    }),
 })
 
 const emit = defineEmits<{
     (e: 'start', payload: PostTranslationWorkflowRequest): void
+    (e: 'cancel-field', field: TranslationTextField): void
+    (e: 'retry-field', field: TranslationTextField): void
 }>()
 
 const { t } = useI18n()
@@ -250,9 +341,15 @@ const scopeHint = computed(() => tt('pages.admin.posts.translation_workflow.scop
 const sameLanguageWarning = computed(() => sameLanguageSelection.value
     ? tt('pages.admin.posts.translation_workflow.same_language_warning')
     : '')
+const appliedContentLabel = computed(() => tt('pages.admin.posts.translation_workflow.applied_content'))
+const appliedContentEmptyLabel = computed(() => tt('pages.admin.posts.translation_workflow.applied_content_empty'))
+const retryFieldLabel = computed(() => tt('pages.admin.posts.translation_workflow.retry_field'))
+const cancelFieldLabel = computed(() => tt('pages.admin.posts.translation_workflow.cancel_field'))
 
 const getActionLabel = (action: PostTranslationWorkflowAction) => tt(`pages.admin.posts.translation_workflow.actions.${action}`)
 const getTargetStateLabel = (state: PostTranslationTargetState) => tt(`pages.admin.posts.translation_workflow.target_states.${state}`)
+const getFieldStatusLabel = (status: PostTranslationFieldProgress['status']) => tt(`pages.admin.posts.translation_workflow.field_statuses.${status}`)
+const getFieldModeLabel = (mode: NonNullable<PostTranslationFieldProgress['mode']>) => tt(`pages.admin.posts.translation_workflow.modes.${mode}`)
 
 const startLabel = computed(() => {
     if (!selectedTargetStatus.value) {
@@ -382,8 +479,48 @@ const progressLabel = computed(() => {
         return tt('pages.admin.posts.translation_workflow.progress_failed')
     }
 
+    if (props.translationStatus === 'cancelled') {
+        return tt('pages.admin.posts.translation_workflow.field_statuses.cancelled')
+    }
+
     return tt('pages.admin.posts.translation_workflow.progress_running')
 })
+
+const selectedTextFieldStates = computed(() => selectedScopes.value
+    .filter((scope): scope is TranslationTextField => ['title', 'summary', 'content'].includes(scope))
+    .map((field) => {
+        const state = props.fieldProgressMap[field]
+        const previewText = state.content.trim()
+        const progressText = state.totalChunks > 0
+            ? tt('pages.admin.posts.translation_workflow.progress_detail', {
+                    completed: String(state.completedChunks),
+                    total: String(state.totalChunks),
+                })
+            : `${Math.round(state.progress)}%`
+
+        const statusSeverity = state.status === 'completed'
+            ? 'success'
+            : state.status === 'failed'
+                ? 'danger'
+                : state.status === 'cancelled'
+                    ? 'warn'
+                    : state.status === 'processing'
+                        ? 'info'
+                        : 'secondary'
+
+        return {
+            field,
+            label: tt(`pages.admin.posts.translation_workflow.fields.${field}`),
+            statusLabel: getFieldStatusLabel(state.status),
+            statusSeverity,
+            modeLabel: state.mode ? getFieldModeLabel(state.mode) : '',
+            progress: state.progress,
+            progressText,
+            previewText,
+            canCancel: state.canCancel,
+            canRetry: state.canRetry,
+        }
+    }))
 
 const canStart = computed(() => {
     return hasSourceOptions.value
@@ -562,6 +699,66 @@ const handleStart = () => {
         font-weight: 600;
     }
 
+    &__field-progress-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    &__field-progress-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1rem;
+        border: 1px solid var(--p-surface-border);
+        border-radius: $border-radius-md;
+        background: var(--p-content-background);
+    }
+
+    &__field-progress-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+
+    &__field-progress-title-group,
+    &__field-progress-body,
+    &__field-progress-actions,
+    &__field-progress-tags {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    &__field-progress-title-group,
+    &__field-progress-body {
+        flex-direction: column;
+    }
+
+    &__field-progress-actions,
+    &__field-progress-tags {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    &__field-progress-caption {
+        color: var(--p-text-muted-color);
+        font-weight: 600;
+    }
+
+    &__field-progress-preview {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        line-height: 1.6;
+        min-height: 4.5rem;
+        max-height: 10rem;
+        overflow: auto;
+        padding: 0.75rem;
+        border-radius: $border-radius-sm;
+        background: color-mix(in srgb, var(--p-surface-200) 50%, transparent);
+        color: var(--p-text-color);
+    }
+
     &__option {
         display: flex;
         flex-direction: column;
@@ -584,6 +781,15 @@ const handleStart = () => {
         &__scope-header {
             align-items: flex-start;
             flex-direction: column;
+        }
+
+        &__field-progress-header {
+            flex-direction: column;
+        }
+
+        &__field-progress-actions,
+        &__field-progress-tags {
+            justify-content: flex-start;
         }
     }
 }
