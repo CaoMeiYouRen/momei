@@ -23,9 +23,11 @@ interface TTSDialogConfig {
 export function usePostTtsDialog(options: {
     postId: Ref<string | undefined>
     content: Ref<string>
+    language: Ref<string | undefined>
+    translationId: Ref<string | null | undefined>
     visible: Ref<boolean>
 }) {
-    const { t } = useI18n()
+    const { t, locale } = useI18n()
     const { $appFetch } = useAppApi()
     const { resolveErrorMessage } = useRequestFeedback()
 
@@ -122,6 +124,7 @@ export function usePostTtsDialog(options: {
                 body: {
                     content: options.content.value,
                     mode: config.value.mode,
+                    language: options.language.value || locale.value,
                 },
             })
             script.value = response.data.manuscript
@@ -140,6 +143,8 @@ export function usePostTtsDialog(options: {
                 body: {
                     ...config.value,
                     postId: options.postId.value,
+                    language: options.language.value || locale.value,
+                    translationId: options.translationId.value || null,
                     script: script.value,
                 },
             })

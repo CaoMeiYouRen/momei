@@ -158,8 +158,11 @@ import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
     articleTitle?: string
+    articleSummary?: string
     articleContent?: string
+    language?: string
     postId?: string
+    translationId?: string | null
 }>()
 
 const visible = defineModel<boolean>('visible', { default: false })
@@ -215,8 +218,9 @@ const generateMagicPrompt = async () => {
             method: 'POST',
             body: {
                 title: props.articleTitle || '',
+                summary: props.articleSummary || '',
                 content: props.articleContent || '',
-                language: locale.value,
+                language: props.language || locale.value,
             },
         })
         prompt.value = data
@@ -296,6 +300,9 @@ const generateImage = async () => {
             body: {
                 prompt: prompt.value,
                 postId: props.postId,
+                targetLanguage: props.language || locale.value,
+                translationId: props.translationId || null,
+                overwriteExistingCover: true,
                 aspectRatio: '16:9', // 宽高比
                 size: resolution.value,
                 n: imageCount.value,

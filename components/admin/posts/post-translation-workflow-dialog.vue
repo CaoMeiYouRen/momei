@@ -196,7 +196,7 @@ import type {
     TranslationTextField,
 } from '@/types/post-translation'
 
-const DEFAULT_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags', 'coverImage']
+const DEFAULT_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags']
 
 const visible = defineModel<boolean>('visible', { default: false })
 
@@ -213,7 +213,7 @@ const props = withDefaults(defineProps<{
     errorText?: string | null
 }>(), {
     defaultSourcePostId: null,
-    defaultScopes: () => ['title', 'content', 'summary', 'category', 'tags', 'coverImage'],
+    defaultScopes: () => ['title', 'content', 'summary', 'category', 'tags'],
     progress: 0,
     translationStatus: 'idle',
     activeField: null,

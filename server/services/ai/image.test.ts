@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import * as uploadService from '../upload'
 import { ImageService } from './image'
 import { dataSource } from '@/server/database'
+import { Post } from '@/server/entities/post'
 import * as aiUtils from '@/server/utils/ai'
 
 vi.mock('@/server/database')
@@ -13,6 +14,13 @@ vi.mock('@/server/services/ai/quota-governance', () => ({
 vi.mock('@/server/utils/ai')
 vi.mock('../upload')
 vi.mock('@/server/utils/logger')
+vi.mock('@/server/utils/post-metadata', () => ({
+    applyPostMetadataPatch: vi.fn((post, input: { metadata?: Record<string, unknown> | null }) => {
+        if (input.metadata !== undefined) {
+            post.metadata = input.metadata
+        }
+    }),
+}))
 
 describe('ImageService', () => {
     let mockRepo: any
@@ -55,14 +63,25 @@ describe('ImageService', () => {
         })
 
         it('should process image generation in background', async () => {
+            const post = {
+                id: 'post-123',
+                language: 'en-US',
+                translationId: 'cluster-1',
+                coverImage: null,
+                metadata: null,
+            }
             const postRepo = {
-                findOneBy: vi.fn().mockResolvedValue({ id: 'post-123' }),
+                findOneBy: vi.fn().mockResolvedValue(post),
+                save: vi.fn().mockResolvedValue(post),
             }
 
-            vi.mocked(dataSource.getRepository)
-                .mockReturnValueOnce(mockRepo)
-                .mockReturnValueOnce(postRepo as any)
-                .mockReturnValue(mockRepo)
+            vi.mocked(dataSource.getRepository).mockImplementation((entity) => {
+                if (entity === Post) {
+                    return postRepo as any
+                }
+
+                return mockRepo
+            })
 
             const mockProvider = {
                 name: 'openai',
@@ -81,7 +100,7 @@ describe('ImageService', () => {
                 mimeType: 'image/png',
             } as any)
 
-            const options = { prompt: 'Test', postId: 'post-123' }
+            const options = { prompt: 'Test', postId: 'post-123', targetLanguage: 'en-US', translationId: 'cluster-1' }
             await ImageService.generateImage(options, 'user-1')
 
             // Wait for background processing
@@ -94,11 +113,74 @@ describe('ImageService', () => {
                 'user-1',
             )
             expect(postRepo.findOneBy).toHaveBeenCalledWith({ id: 'post-123' })
+            expect(postRepo.save).toHaveBeenCalledWith(expect.objectContaining({
+                coverImage: '/uploads/posts/post-123/image/ai/generated.png',
+                metadata: expect.objectContaining({
+                    cover: expect.objectContaining({
+                        url: '/uploads/posts/post-123/image/ai/generated.png',
+                        language: 'en-US',
+                        translationId: 'cluster-1',
+                        postId: 'post-123',
+                    }),
+                }),
+            }))
             expect(mockRepo.save).toHaveBeenCalledWith(
                 expect.objectContaining({
                     status: 'completed',
                 }),
             )
+        })
+
+        it('should keep existing cover when overwriteExistingCover is false', async () => {
+            const post = {
+                id: 'post-123',
+                language: 'en-US',
+                translationId: 'cluster-1',
+                coverImage: '/covers/existing.png',
+                metadata: null,
+            }
+            const postRepo = {
+                findOneBy: vi.fn().mockResolvedValue(post),
+                save: vi.fn().mockResolvedValue(post),
+            }
+
+            vi.mocked(dataSource.getRepository).mockImplementation((entity) => {
+                if (entity === Post) {
+                    return postRepo as any
+                }
+
+                return mockRepo
+            })
+
+            const mockProvider = {
+                name: 'openai',
+                generateImage: vi.fn().mockResolvedValue({
+                    images: [{ url: 'https://example.com/image.png' }],
+                    usage: {},
+                    model: 'dall-e-3',
+                }),
+            }
+
+            vi.mocked(aiUtils.getAIImageProvider).mockResolvedValue(mockProvider as any)
+            vi.mocked(uploadService.uploadFromUrl).mockResolvedValue({
+                url: '/uploads/posts/post-123/image/ai/generated.png',
+                path: '/uploads/posts/post-123/image/ai/generated.png',
+                size: 1024,
+                mimeType: 'image/png',
+            } as any)
+
+            await ImageService.generateImage({
+                prompt: 'Test',
+                postId: 'post-123',
+                targetLanguage: 'en-US',
+                translationId: 'cluster-1',
+                overwriteExistingCover: false,
+            }, 'user-1')
+
+            await new Promise((resolve) => setTimeout(resolve, 100))
+
+            expect(postRepo.save).not.toHaveBeenCalled()
+            expect(post.coverImage).toBe('/covers/existing.png')
         })
 
         it('should handle image generation failure', async () => {

@@ -114,6 +114,23 @@ const stringArrayQuerySchema = z.preprocess((val) => {
 }, z.array(z.string()).optional())
 
 const postMetadataSchema = z.object({
+    cover: z
+        .object({
+            url: z
+                .string()
+                .nullable()
+                .optional()
+                .refine((url) => isValidCustomUrl(url), {
+                    message: 'Cover image URL must be from a whitelisted domain or local path',
+                }),
+            source: z.enum(['ai', 'upload', 'manual']).nullable().optional(),
+            prompt: z.string().max(2000).nullable().optional(),
+            language: z.string().max(10).nullable().optional(),
+            translationId: z.string().max(255).nullable().optional(),
+            postId: z.string().max(255).nullable().optional(),
+            generatedAt: z.coerce.date().nullable().optional(),
+        })
+        .optional(),
     audio: z
         .object({
             url: z
@@ -126,6 +143,10 @@ const postMetadataSchema = z.object({
             duration: z.coerce.number().int().min(0).nullable().optional(),
             size: z.coerce.number().int().min(0).nullable().optional(),
             mimeType: z.string().max(100).nullable().optional(),
+            language: z.string().max(10).nullable().optional(),
+            translationId: z.string().max(255).nullable().optional(),
+            postId: z.string().max(255).nullable().optional(),
+            mode: z.enum(['speech', 'podcast']).nullable().optional(),
         })
         .optional(),
     tts: z
@@ -133,6 +154,10 @@ const postMetadataSchema = z.object({
             provider: z.string().max(50).nullable().optional(),
             voice: z.string().max(150).nullable().optional(),
             generatedAt: z.coerce.date().nullable().optional(),
+            language: z.string().max(10).nullable().optional(),
+            translationId: z.string().max(255).nullable().optional(),
+            postId: z.string().max(255).nullable().optional(),
+            mode: z.enum(['speech', 'podcast']).nullable().optional(),
         })
         .optional(),
     scaffold: z

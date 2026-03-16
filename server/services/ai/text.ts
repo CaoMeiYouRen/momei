@@ -37,6 +37,7 @@ export interface ExpandSectionOptions {
 
 export interface SuggestImagePromptOptions {
     title?: string
+    summary?: string
     content?: string
     language?: string
 }
@@ -64,9 +65,10 @@ export class TextService extends AIBaseService {
     }
 
     static async suggestImagePrompt(options: SuggestImagePromptOptions, userId?: string) {
-        const { title = '', content = '', language = 'zh-CN' } = options
+        const { title = '', summary = '', content = '', language = 'zh-CN' } = options
+        const promptContent = summary.trim() || content
 
-        if (!title && !content) {
+        if (!title && !promptContent) {
             throw createError({
                 statusCode: 400,
                 message: 'Title or content is required',
@@ -76,7 +78,7 @@ export class TextService extends AIBaseService {
         await this.assertTextQuota({
             userId,
             type: 'suggest_image_prompt',
-            payload: { title, content: content.slice(0, 500), language },
+            payload: { title, summary: summary.slice(0, 300), content: promptContent.slice(0, 500), language },
         })
 
         const provider = await getAIProvider('text')
@@ -89,7 +91,7 @@ export class TextService extends AIBaseService {
 
         const prompt = formatPrompt(AI_PROMPTS.SUGGEST_IMAGE_PROMPT, {
             title: title || 'N/A',
-            contentSummary: content.slice(0, 500) || 'N/A',
+            contentSummary: promptContent.slice(0, 500) || 'N/A',
             language,
         })
 
@@ -108,7 +110,8 @@ export class TextService extends AIBaseService {
             model: response.model,
             payload: {
                 title,
-                content: content.slice(0, 500),
+                summary: summary.slice(0, 300),
+                content: promptContent.slice(0, 500),
                 language,
             },
             response: { content: response.content },

@@ -47,15 +47,20 @@
         <AdminPostsAiImageGenerator
             v-model:visible="aiImageVisible"
             :article-title="post.title"
+            :article-summary="post.summary ?? ''"
             :article-content="post.content"
+            :language="post.language"
             :post-id="post.id"
-            @generated="(url) => post.coverImage = url"
+            :translation-id="post.translationId"
+            @generated="handleCoverGenerated"
         />
 
         <AdminPostsPostTtsDialog
             v-model:visible="ttsVisible"
             :post-id="post.id"
             :content="post.content"
+            :language="post.language"
+            :translation-id="post.translationId"
             @completed="handleTTSCompleted"
         />
 
@@ -189,6 +194,9 @@ const audioUrlModel = computed<string | null>({
         metadata.audio = {
             ...metadata.audio,
             url: value || null,
+            language: post.value.language,
+            translationId: post.value.translationId ?? null,
+            postId: post.value.id ?? null,
         }
         post.value.audioUrl = value || null
     },
@@ -229,6 +237,28 @@ const audioMimeTypeModel = computed<string | null>({
         post.value.audioMimeType = value || null
     },
 })
+
+const handleCoverGenerated = (url: string) => {
+    if (!url) {
+        return
+    }
+
+    post.value.coverImage = url
+
+    if (!post.value.metadata || typeof post.value.metadata !== 'object') {
+        post.value.metadata = {}
+    }
+
+    post.value.metadata.cover = {
+        ...post.value.metadata.cover,
+        url,
+        source: 'ai',
+        language: post.value.language,
+        translationId: post.value.translationId ?? null,
+        postId: post.value.id ?? null,
+        generatedAt: new Date(),
+    }
+}
 
 const handleTTSCompleted = (url: string) => {
     if (url) {

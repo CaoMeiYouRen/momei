@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { buildPostUploadPrefix, buildUploadStoredFilename, uploadFromBuffer } from '../upload'
 import { TTSService } from './tts'
+import { dataSource } from '@/server/database'
 import { getAIProvider } from '@/server/utils/ai'
+import { applyPostMetadataPatch } from '@/server/utils/post-metadata'
 
 vi.mock('../upload', () => ({
     buildPostUploadPrefix: vi.fn(),
@@ -34,6 +37,9 @@ vi.mock('@/server/utils/logger', () => ({
 }))
 vi.mock('@/server/utils/post-metadata', () => ({
     applyPostMetadataPatch: vi.fn(),
+}))
+vi.mock('@/server/services/notification', () => ({
+    sendInAppNotification: vi.fn().mockResolvedValue(undefined),
 }))
 vi.mock('@/server/utils/ai/timeout', () => ({
     withAITimeout: vi.fn((promise: Promise<unknown>) => promise),
@@ -87,5 +93,94 @@ describe('TTSService estimateProviderCost', () => {
 
         expect(estimateTTSCost).toHaveBeenNthCalledWith(1, 'hello', 'alloy')
         expect(estimateTTSCost).toHaveBeenNthCalledWith(2, 'hello', 'alloy')
+    })
+
+    it('should bind locale and translation metadata when processing a post task', async () => {
+        const taskRepo = {
+            findOneBy: vi.fn().mockResolvedValue({
+                id: 'task-1',
+                userId: 'user-1',
+                provider: 'openai',
+                model: 'tts-model',
+                category: 'podcast',
+                type: 'podcast',
+                mode: 'podcast',
+                voice: 'alloy',
+                payload: JSON.stringify({
+                    postId: 'post-1',
+                    text: 'Hello from Momei',
+                    voice: 'alloy',
+                    mode: 'podcast',
+                    language: 'en-US',
+                    translationId: 'cluster-1',
+                    options: {},
+                }),
+                status: 'pending',
+                progress: 0,
+                startedAt: new Date('2026-03-16T00:00:00.000Z'),
+            }),
+            save: vi.fn((value) => Promise.resolve(value)),
+        }
+        const post = {
+            id: 'post-1',
+            language: 'en-US',
+            translationId: 'cluster-1',
+            content: 'Hello from Momei',
+            metadata: null,
+        }
+        const postRepo = {
+            findOneBy: vi.fn().mockResolvedValue(post),
+            save: vi.fn((value) => Promise.resolve(value)),
+        }
+
+        vi.mocked(dataSource.getRepository).mockImplementation((entity) => {
+            if ((entity as { name?: string })?.name === 'Post') {
+                return postRepo as any
+            }
+
+            return taskRepo as any
+        })
+
+        vi.mocked(getAIProvider).mockResolvedValue({
+            name: 'openai',
+            generateSpeech: vi.fn().mockResolvedValue(new ReadableStream<Uint8Array>({
+                start(controller) {
+                    controller.enqueue(new Uint8Array([1, 2, 3, 4]))
+                    controller.close()
+                },
+            })),
+        } as any)
+        vi.mocked(buildPostUploadPrefix).mockReturnValue('posts/post-1/audio/tts/')
+        vi.mocked(buildUploadStoredFilename).mockReturnValue('generated.mp3')
+        vi.mocked(uploadFromBuffer).mockResolvedValue({
+            url: '/uploads/audio/generated.mp3',
+            filename: 'generated.mp3',
+        } as any)
+
+        await TTSService.processTask('task-1')
+
+        expect(applyPostMetadataPatch).toHaveBeenCalledWith(post, expect.objectContaining({
+            metadata: expect.objectContaining({
+                audio: expect.objectContaining({
+                    url: '/uploads/audio/generated.mp3',
+                    language: 'en-US',
+                    translationId: 'cluster-1',
+                    postId: 'post-1',
+                    mode: 'podcast',
+                }),
+                tts: expect.objectContaining({
+                    provider: 'openai',
+                    voice: 'alloy',
+                    language: 'en-US',
+                    translationId: 'cluster-1',
+                    postId: 'post-1',
+                    mode: 'podcast',
+                }),
+            }),
+        }))
+        expect(postRepo.save).toHaveBeenCalledWith(post)
+        expect(taskRepo.save).toHaveBeenCalledWith(expect.objectContaining({
+            status: 'completed',
+        }))
     })
 })

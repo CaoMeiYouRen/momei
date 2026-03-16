@@ -101,7 +101,7 @@ interface UsePostEditorTranslationOptions {
     resetTranslationProgress: () => void
 }
 
-const DEFAULT_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags', 'coverImage']
+const DEFAULT_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags']
 
 export function usePostEditorTranslation(options: UsePostEditorTranslationOptions) {
     const translations = ref<PostTranslationSourceOption[]>([])

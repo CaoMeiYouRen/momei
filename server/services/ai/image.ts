@@ -3,12 +3,29 @@ import { AIBaseService } from './base'
 import { getAIImageProvider } from '@/server/utils/ai'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
+import { applyPostMetadataPatch } from '@/server/utils/post-metadata'
 import { deriveChargeStatus, inferFailureStage } from '@/server/utils/ai/cost-governance'
 import { withAITimeout } from '@/server/utils/ai/timeout'
 import logger from '@/server/utils/logger'
 import { sendInAppNotification } from '@/server/services/notification'
 import { NotificationType, buildAITaskDetailPath } from '@/utils/shared/notification'
 import type { AIFailureStage, AIImageOptions, AIImageResponse } from '@/types/ai'
+
+function shouldApplyGeneratedCover(post: Post, options: AIImageOptions) {
+    if (options.overwriteExistingCover === false && post.coverImage) {
+        return false
+    }
+
+    if (options.targetLanguage && options.targetLanguage !== post.language) {
+        return false
+    }
+
+    if (options.translationId && post.translationId && options.translationId !== post.translationId) {
+        return false
+    }
+
+    return true
+}
 
 export class ImageService extends AIBaseService {
     /**
@@ -98,8 +115,23 @@ export class ImageService extends AIBaseService {
                 raw: response.raw,
             }
 
-            if (post && persistedImages[0]?.url) {
+            if (post && persistedImages[0]?.url && shouldApplyGeneratedCover(post, options)) {
                 post.coverImage = persistedImages[0].url
+                applyPostMetadataPatch(post, {
+                    metadata: {
+                        ...post.metadata,
+                        cover: {
+                            ...post.metadata?.cover,
+                            url: persistedImages[0].url,
+                            source: 'ai',
+                            prompt: options.prompt,
+                            language: options.targetLanguage || post.language,
+                            translationId: options.translationId ?? post.translationId ?? null,
+                            postId: post.id,
+                            generatedAt: new Date(),
+                        },
+                    },
+                })
                 await dataSource.getRepository(Post).save(post)
             }
 

@@ -75,6 +75,20 @@ export interface PostAudioMetadata {
     duration?: number | null
     size?: number | null
     mimeType?: string | null
+    language?: string | null
+    translationId?: string | null
+    postId?: string | null
+    mode?: 'speech' | 'podcast' | null
+}
+
+export interface PostCoverMetadata {
+    url?: string | null
+    source?: 'ai' | 'upload' | 'manual' | null
+    prompt?: string | null
+    language?: string | null
+    translationId?: string | null
+    postId?: string | null
+    generatedAt?: string | Date | null
 }
 
 /**
@@ -84,6 +98,10 @@ export interface PostTTSMetadata {
     provider?: string | null
     voice?: string | null
     generatedAt?: string | Date | null
+    language?: string | null
+    translationId?: string | null
+    postId?: string | null
+    mode?: 'speech' | 'podcast' | null
 }
 
 /**
@@ -168,6 +186,7 @@ export interface PostIntegrationMetadata {
  * 文章统一元数据结构
  */
 export interface PostMetadata {
+    cover?: PostCoverMetadata
     audio?: PostAudioMetadata
     tts?: PostTTSMetadata
     scaffold?: PostScaffoldMetadata

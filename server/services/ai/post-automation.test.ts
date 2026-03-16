@@ -276,4 +276,64 @@ describe('PostAutomationService', () => {
         expect(result.previewTaskId).toBe('preview-1')
         expect(result.slug).toBe('custom-preview-slug')
     })
+
+    it('should not copy source cover and audio assets into a new translated post', async () => {
+        const task = {
+            id: 'task-assets',
+            userId: 'user-1',
+            payload: JSON.stringify({
+                sourcePostId: 'post-1',
+                targetLanguage: 'en-US',
+                scopes: ['title', 'content', 'summary', 'coverImage', 'audio'],
+                confirmationMode: 'auto',
+                slugStrategy: 'ai',
+                categoryStrategy: 'cluster',
+            }),
+            progress: 0,
+            status: 'pending',
+            error: null,
+            result: null,
+        }
+
+        postRepo.findOne.mockImplementation((options: { where?: Record<string, string> }) => {
+            if (options.where?.id === 'post-1') {
+                return Promise.resolve({
+                    ...sourcePost,
+                    coverImage: '/covers/source-cover.png',
+                    metadata: {
+                        audio: {
+                            url: '/audio/source.mp3',
+                            duration: 42,
+                        },
+                        tts: {
+                            provider: 'openai',
+                            voice: 'alloy',
+                        },
+                    },
+                })
+            }
+
+            return Promise.resolve(null)
+        })
+
+        taskRepo.findOneBy.mockResolvedValue(task)
+
+        await (PostAutomationService as never as { processTranslatePostTask: (taskId: string, actorValue: typeof actor) => Promise<void> }).processTranslatePostTask('task-assets', actor)
+
+        expect(createPostService).toHaveBeenCalledWith(expect.objectContaining({
+            coverImage: null,
+            metadata: null,
+        }), 'user-1', {
+            isAdmin: true,
+        })
+
+        const completedTask = taskRepo.save.mock.calls
+            .map((call) => call[0])
+            .find((savedTask) => savedTask.status === 'completed' && typeof savedTask.result === 'string')
+
+        expect(completedTask).toBeDefined()
+        const result = JSON.parse(String(completedTask?.result)) as { coverImageCopied: boolean, audioCopied: boolean }
+        expect(result.coverImageCopied).toBe(false)
+        expect(result.audioCopied).toBe(false)
+    })
 })

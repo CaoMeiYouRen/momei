@@ -284,6 +284,9 @@ export interface AIChatResponse {
 export interface AIImageOptions {
     prompt: string
     postId?: string
+    targetLanguage?: string
+    translationId?: string | null
+    overwriteExistingCover?: boolean
     model?: string
     size?: string // e.g., '1024x1024'
     aspectRatio?: string // e.g., '1:1', '16:9', '9:16'

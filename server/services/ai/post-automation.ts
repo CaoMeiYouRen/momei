@@ -742,8 +742,13 @@ export class PostAutomationService extends AIBaseService {
             approvedSlug: input.approvedSlug,
         })
 
-        const metadataPatch = scopes.includes('audio') ? mergeAudioMetadata(sourcePost) : undefined
+        const metadataPatch = scopes.includes('audio')
+            ? (targetPost ? mergeAudioMetadata(targetPost) : null)
+            : undefined
         const normalizedMetadataPatch = normalizeMetadataForPostInput(metadataPatch)
+        const translatedCoverImage = scopes.includes('coverImage')
+            ? (targetPost?.coverImage ?? null)
+            : undefined
         const categoryRecommendation = scopes.includes('category')
             ? await this.buildCategoryRecommendation(sourcePost, input.targetLanguage, sourceLanguage, actor)
             : null
@@ -755,6 +760,14 @@ export class PostAutomationService extends AIBaseService {
 
         if (scopes.includes('category') && sourcePost.category && !categoryId) {
             warnings.push(`Category translation missing for ${sourcePost.category.name}`)
+        }
+
+        if (scopes.includes('coverImage') && sourcePost.coverImage && !translatedCoverImage) {
+            warnings.push(`Cover image must be regenerated for ${input.targetLanguage}`)
+        }
+
+        if (scopes.includes('audio') && (sourcePost.metadata?.audio?.url || sourcePost.audioUrl) && !metadataPatch?.audio?.url) {
+            warnings.push(`Audio asset must be regenerated for ${input.targetLanguage}`)
         }
 
         const tagBindings = scopes.includes('tags')
@@ -779,14 +792,14 @@ export class PostAutomationService extends AIBaseService {
                 categoryRecommendation,
                 tags: tagBindings?.map((item) => item.name),
                 tagBindings,
-                coverImage: scopes.includes('coverImage') ? (sourcePost.coverImage || null) : undefined,
+                coverImage: translatedCoverImage,
                 metadata: normalizedMetadataPatch,
                 copyright: sourcePost.copyright ?? null,
                 visibility: targetPost?.visibility ?? sourcePost.visibility,
                 status: input.targetStatus || targetPost?.status || PostStatus.DRAFT,
                 warnings,
-                coverImageCopied: scopes.includes('coverImage') && Boolean(sourcePost.coverImage),
-                audioCopied: scopes.includes('audio') && Boolean(metadataPatch?.audio?.url),
+                coverImageCopied: false,
+                audioCopied: false,
             },
             usageAggregate,
             sourcePost,

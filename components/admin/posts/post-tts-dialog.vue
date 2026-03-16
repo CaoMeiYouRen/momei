@@ -12,6 +12,8 @@ import { usePostTtsDialog } from '@/composables/use-post-tts-dialog'
 const props = defineProps<{
     postId?: string
     content: string
+    language?: string
+    translationId?: string | null
 }>()
 
 const emit = defineEmits<{
@@ -45,6 +47,8 @@ const {
 } = usePostTtsDialog({
     postId: toRef(props, 'postId'),
     content: toRef(props, 'content'),
+    language: toRef(props, 'language'),
+    translationId: toRef(props, 'translationId'),
     visible,
 })
 

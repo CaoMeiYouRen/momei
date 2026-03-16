@@ -270,6 +270,13 @@ export class TTSService extends AIBaseService {
                 mode: payload.mode || task.mode || payload.options?.mode || 'speech',
             }
             const voice = this.resolveVoice(payload.voice)
+            const effectiveLanguage = post?.language || payload.language || options.language || null
+            const effectiveTranslationId = post?.translationId ?? payload.translationId ?? null
+
+            if (effectiveLanguage && !options.language) {
+                options.language = effectiveLanguage
+            }
+
             const contentToUse = payload.text || payload.script || (post ? post.content : '')
 
             if (!contentToUse) {
@@ -417,12 +424,20 @@ export class TTSService extends AIBaseService {
                             url: uploadedFile.url,
                             size: buffer.length,
                             mimeType: mimetype,
+                            language: effectiveLanguage,
+                            translationId: effectiveTranslationId,
+                            postId: post.id,
+                            mode: options.mode,
                         },
                         tts: {
                             ...post.metadata?.tts,
                             provider: task.provider || null,
                             voice,
                             generatedAt: new Date(),
+                            language: effectiveLanguage,
+                            translationId: effectiveTranslationId,
+                            postId: post.id,
+                            mode: options.mode,
                         },
                     },
                 })

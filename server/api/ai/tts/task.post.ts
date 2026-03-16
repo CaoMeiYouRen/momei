@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     const user = session.user
 
     const body = await readBody(event)
-    const { postId, text, provider, mode = 'speech', voice, model, script, options = {} } = body
+    const { postId, text, provider, mode = 'speech', voice, model, script, language, translationId, options = {} } = body
 
     if (!voice) {
         throw createError({ statusCode: 400, statusMessage: 'Voice is required' })
@@ -21,6 +21,10 @@ export default defineEventHandler(async (event) => {
 
     const finalPostId = postId
     let contentToConvert = text || script
+    let resolvedLanguage = typeof language === 'string' && language ? language : (typeof options.language === 'string' && options.language ? options.language : undefined)
+    let resolvedTranslationId = typeof translationId === 'string' && translationId
+        ? translationId
+        : null
 
     if (finalPostId) {
         const postRepo = dataSource.getRepository(Post)
@@ -37,20 +41,28 @@ export default defineEventHandler(async (event) => {
         if (!contentToConvert) {
             contentToConvert = post.content
         }
+
+        resolvedLanguage = post.language
+        resolvedTranslationId = post.translationId ?? resolvedTranslationId
     }
 
     if (!contentToConvert) {
         throw createError({ statusCode: 400, statusMessage: 'Text or postId is required' })
     }
 
+    const normalizedOptions = {
+        ...options,
+        language: resolvedLanguage || options.language,
+    }
+
     const estimatedQuotaUnits = calculateQuotaUnits({
         category: mode === 'podcast' ? 'podcast' : 'tts',
         type: mode === 'podcast' ? 'podcast' : 'tts',
-        payload: { text: contentToConvert, voice, mode, options },
+        payload: { text: contentToConvert, voice, mode, options: normalizedOptions },
         usageSnapshot: normalizeUsageSnapshot({
             category: mode === 'podcast' ? 'podcast' : 'tts',
             type: mode === 'podcast' ? 'podcast' : 'tts',
-            payload: { text: contentToConvert, voice, mode, options },
+            payload: { text: contentToConvert, voice, mode, options: normalizedOptions },
             textLength: contentToConvert.length,
         }),
     })
@@ -64,7 +76,7 @@ export default defineEventHandler(async (event) => {
         userRole: user.role,
         category: mode === 'podcast' ? 'podcast' : 'tts',
         type: mode === 'podcast' ? 'podcast' : 'tts',
-        payload: { text: contentToConvert, voice, mode, options },
+        payload: { text: contentToConvert, voice, mode, options: normalizedOptions },
         estimatedQuotaUnits,
         estimatedCost,
     })
@@ -92,7 +104,9 @@ export default defineEventHandler(async (event) => {
             text: contentToConvert,
             voice,
             mode,
-            options,
+            language: resolvedLanguage || null,
+            translationId: resolvedTranslationId,
+            options: normalizedOptions,
         }),
         status: 'pending',
         progress: 0,
