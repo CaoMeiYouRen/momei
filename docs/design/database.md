@@ -1,362 +1,202 @@
 # 墨梅 (Momei) 数据库设计文档
 
-## 1. 概述 (Overview)
+## 1. 概述
 
-本文档详细描述了墨梅博客的数据库架构。项目使用 **TypeORM** 作为 ORM 框架，支持多数据库适配。
+本文档说明墨梅当前数据库模型、初始化脚本边界以及与 TypeORM 实体之间的同步约束。
 
-## 2. 实体关系图 (ER Diagram)
+- ORM 事实源：server/entities 下的实体定义。
+- 初始化脚本：database/sqlite/init.sql、database/mysql/init.sql、database/postgres/init.sql。
+- 物理表命名：初始化脚本统一使用 momei_ 前缀，如 momei_post；实体内部仍使用无前缀逻辑表名，如 post。
+- 适用场景：init.sql 用于新实例首轮初始化，不承担在线迁移职责。
+
+## 2. 事实源与同步边界
+
+### 2.1 唯一事实源
+
+数据库结构以 server/entities 下的实体为准，文档和 init.sql 都属于派生物，必须跟随实体同步。
+
+当前约束如下：
+
+- 新增、删除或重命名实体字段后，必须同步更新三套 init.sql。
+- 影响部署或排障理解的结构变更，必须同步更新本文档。
+- 不允许在 init.sql 中长期保留实体已删除的遗留字段，除非文档明确标注为兼容保留列。
+
+### 2.2 初始化脚本适用边界
+
+三套 init.sql 只覆盖“当前新实例应直接创建出的结构”。
+
+- SQLite：开发、轻量部署或本地演示。
+- MySQL：兼容 MySQL / MariaDB 的生产部署。
+- PostgreSQL：推荐生产环境使用，时间字段统一使用 timestamptz(6)。
+
+### 2.3 类型约定
+
+- 布尔：SQLite 使用 boolean + 0/1 默认值；MySQL 使用 tinyint(1)；PostgreSQL 使用 boolean。
+- 时间：SQLite 使用 datetime；MySQL 使用 datetime(6)；PostgreSQL 使用 timestamptz(6)。
+- simple-json：初始化脚本统一落为 text；json：MySQL / PostgreSQL 使用 json，SQLite 使用 text。
+
+## 3. 当前结构总览
 
 ```mermaid
 erDiagram
-    User ||--o{ Account : "has"
-    User ||--o{ Session : "has"
-    User ||--o| TwoFactor : "has"
-    User ||--o{ Post : "authors"
-    User ||--o{ Comment : "writes"
-    User ||--o{ ApiKey : "has"
-    User ||--o{ Subscriber : "is associated with"
-    Post }o--|| Category : "belongs to"
-    Post }o--o{ Tag : "has"
-    Post ||--o{ Comment : "has"
-    Comment }o--o| User : "written by (optional)"
-    Comment }o--o| Comment : "reply to"
-    Category }o--o| Category : "has parent"
-    User ||--o{ ThemeConfig : "manages"
-    User ||--o{ AITask : "triggers"
-    Post ||--o{ PostVersion : "has"
-    MarketingCampaign ||--o{ Subscriber : "targets"
-    Subscriber }o--o{ Category : "subscribed to"
-    Subscriber }o--o{ Tag : "subscribed to"
-
-    User {
-        string id PK
-        string name
-        string email
-        boolean emailVerified
-        string image
-        string username
-        string role
-        boolean banned
-        string language
-        string timezone
-        datetime createdAt
-        datetime updatedAt
-    }
-
-    Account {
-        string id PK
-        string userId FK
-        string providerId
-        string accountId
-    }
-
-    Session {
-        string id PK
-        string userId FK
-        string token
-        datetime expiresAt
-        string ipAddress
-        string userAgent
-    }
+    User ||--o{ Account : owns
+    User ||--o{ Session : owns
+    User ||--o| TwoFactor : enables
+    User ||--o{ ApiKey : owns
+    User ||--o| FedKey : signs
+    User ||--o{ Post : authors
+    User ||--o{ Comment : writes
+    User ||--o{ NotificationSettings : configures
+    User ||--o{ WebPushSubscription : registers
+    User ||--o{ SettingAuditLog : operates
+    User ||--o{ FriendLinkApplication : applies
+    Post }o--|| Category : belongs_to
+    Post }o--o{ Tag : tagged_with
+    Post ||--o{ Comment : has
+    Post ||--o{ PostVersion : snapshots
+    FriendLinkCategory ||--o{ FriendLink : groups
+    AdCampaign ||--o{ AdPlacement : contains
 ```
 
-## 3. 表结构定义 (Table Definitions)
+### 3.1 模块与表覆盖
 
-### 3.1 用户系统 (User System)
-
-基于 `better-auth` 的标准结构进行扩展。
-
-#### User (用户表)
-
-| 字段名          | 类型     | 必填 | 唯一 | 默认值      | 说明                               |
-| :-------------- | :------- | :--- | :--- | :---------- | :--------------------------------- |
-| `id`            | varchar  | Yes  | Yes  | (Snowflake) | 主键                               |
-| `name`          | text     | Yes  | No   | -           | 显示名称                           |
-| `email`         | varchar  | Yes  | Yes  | -           | 邮箱地址                           |
-| `emailVerified` | boolean  | Yes  | No   | false       | 邮箱是否验证                       |
-| `image`         | text     | No   | No   | -           | 头像 URL                           |
-| `username`      | varchar  | No   | Yes  | -           | 用户名 (唯一标识)                  |
-| `isAnonymous`   | boolean  | No   | No   | false       | 是否为匿名用户                     |
-| `role`          | varchar  | No   | No   | 'user'      | 角色: admin, author, user          |
-| `banned`        | boolean  | No   | No   | false       | 是否被封禁                         |
-| `language`      | varchar  | No   | No   | -           | 用户语言偏好                       |
-| `timezone`      | varchar  | No   | No   | -           | 用户时区设置                       |
-| `createdAt`     | datetime | Yes  | No   | now()       | 创建时间                           |
-| `updatedAt`     | datetime | Yes  | No   | now()       | 更新时间                           |
-
-#### Account (第三方账户表)
-
-用于存储 OAuth 登录信息 (如 GitHub)。
-
-| 字段名         | 类型     | 必填 | 说明                    |
-| :------------- | :------- | :--- | :---------------------- |
-| `id`           | varchar  | Yes  | 主键                    |
-| `userId`       | varchar  | Yes  | 关联 User ID            |
-| `accountId`    | text     | Yes  | 第三方平台的用户 ID     |
-| `providerId`   | text     | Yes  | 提供商 ID (如 'github') |
-| `accessToken`  | text     | No   | 访问令牌                |
-| `refreshToken` | text     | No   | 刷新令牌                |
-| `expiresAt`    | datetime | No   | 令牌过期时间            |
-| `password`     | text     | No   | 密码 (仅用于凭证账号)   |
-
-#### Session (会话表)
-
-| 字段名      | 类型     | 必填 | 说明                              |
-| :---------- | :------- | :--- | :-------------------------------- |
-| `id`        | varchar  | Yes  | 主键                              |
-| `userId`    | varchar  | Yes  | 关联 User ID                      |
-| `token`     | text     | Yes  | Session Token (Cookie 中存储的值) |
-| `expiresAt` | datetime | Yes  | 过期时间                          |
-| `ipAddress` | text     | No   | IP 地址                           |
-| `userAgent` | text     | No   | 用户代理字符串                    |
-
-#### Verification (验证码表)
-
-用于邮箱验证、密码重置等。
-
-| 字段名       | 类型     | 必填 | 说明                 |
-| :----------- | :------- | :--- | :------------------- |
-| `id`         | varchar  | Yes  | 主键                 |
-| `identifier` | text     | Yes  | 标识符 (邮箱/手机号) |
-| `value`      | text     | Yes  | 验证码的值           |
-| `expiresAt`  | datetime | Yes  | 过期时间             |
-
-#### ApiKey (API 密钥表)
-
-用于外部系统发布的授权凭证。
-
-| 字段名 | 类型 | 必填 | 说明 |
+| 模块 | 逻辑表 | 初始化物理表 | 说明 |
 | :--- | :--- | :--- | :--- |
-| `id` | varchar | Yes | 主键 |
-| `userId` | varchar | Yes | 关联 User ID |
-| `name` | varchar | Yes | 密钥名称 (如 "Obsidian Plugin") |
-| `key` | varchar | Yes | 密钥 Hash (或加密存储) |
-| `prefix` | varchar | Yes | 密钥前缀 (用于展示和索引) |
-| `lastUsedAt` | datetime | No | 最后使用时间 |
-| `createdAt` | datetime | Yes | 创建时间 |
-| `expiresAt` | datetime | No | 过期时间 (可选) |
+| 认证与用户 | user, account, session, verification, two_factor, api_key, jwks, fed_keys | momei_user 等 | 账号、会话、2FA、API Key、联邦签名密钥 |
+| 内容与多语言 | post, post_version, category, tag, comment, snippet, submission | momei_post 等 | 文章正文、翻译簇、版本快照、评论、灵感片段、投稿 |
+| 订阅与通知 | subscriber, marketing_campaign, admin_notification_settings, notification_settings, in_app_notification, notification_delivery_logs, web_push_subscriptions | momei_subscriber 等 | 订阅者、营销活动、通知偏好、投递审计、Web Push |
+| 系统配置 | setting, setting_audit_logs, agreement_content, ai_tasks, theme_config | momei_setting 等 | 设置中心、设置审计、协议版本、AI 异步任务、主题方案 |
+| 站外连接治理 | external_links, friend_link_categories, friend_links, friend_link_applications, link_governance_report | momei_external_links 等 | 短链跳转、友链管理、友链申请、链接治理报告 |
+| 商业化 | ad_campaigns, ad_placements | momei_ad_campaigns, momei_ad_placements | 广告活动与广告位配置 |
 
-#### Verification (验证码表)
+## 4. 核心表设计
 
-用于邮箱验证、密码重置等。
+### 4.1 User
 
-| 字段名 | 类型 | 必填 | 说明 |
+| 字段 | 类型 | 约束/默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
-| `id` | varchar | Yes | 主键 |
-| `identifier` | text | Yes | 标识符 (邮箱/手机号) |
-| `value` | text | Yes | 验证码的值 |
-| `expiresAt` | datetime | Yes | 过期时间 |
+| id | varchar(36) | PK | Snowflake 主键 |
+| email | varchar(255) | unique, not null | 用户邮箱 |
+| username | varchar(128) | unique, nullable | 规范化用户名 |
+| displayUsername | varchar(128) | nullable | 原始展示用户名 |
+| phoneNumber | varchar(64) | unique, nullable | 手机号 |
+| socialLinks | text | nullable | simple-json 社交链接 |
+| donationLinks | text | nullable | simple-json 打赏链接 |
+| twoFactorEnabled | boolean | default false | 两步验证开关 |
 
-### 3.2 内容系统 (Content System)
+说明：当前 init.sql 已与实体同步，包含 display_username、phone_number、social_links、donation_links、two_factor_enabled 等字段。
 
-_(待完善，后续迭代补充)_
+### 4.2 Post
 
-#### Post (文章表)
-
-| 字段名          | 类型     | 必填 | 说明                            |
-| :-------------- | :------- | :--- | :------------------------------ |
-| `id`            | varchar  | Yes  | 主键                            |
-| `title`         | varchar  | Yes  | 标题                            |
-| `slug`          | varchar  | Yes  | URL 别名 (唯一)                 |
-| `content`       | text     | Yes  | Markdown 内容                   |
-| `summary`       | text     | No   | 摘要/SEO 描述                   |
-| `coverImage`    | text     | No   | 封面图片 URL                    |
-| `language`      | varchar  | Yes  | 语言代码 (默认 'zh-CN')         |
-| `translationId` | varchar  | No   | 翻译组 ID (用于关联多语言版本)  |
-| `authorId`      | varchar  | Yes  | 作者 ID                         |
-| `categoryId`    | varchar  | No   | 分类 ID                         |
-| `status`        | varchar  | Yes  | 状态: published, draft, pending, rejected, hidden, scheduled |
-| `visibility`    | varchar  | Yes  | 可见性: public, private, password, registered, subscriber |
-| `password`      | varchar  | No   | 访问密码 (当 visibility 为 password 时) |
-| `copyright`     | text     | No   | 版权声明                        |
-| `views`         | integer  | No   | 阅读量 (默认 0)                 |
-| `audioUrl`      | text     | No   | 音频文件地址                    |
-| `audioDuration` | integer  | No   | 音频时长 (秒)                   |
-| `audioSize`     | integer  | No   | 音频文件大小 (字节)             |
-| `audioMimeType` | varchar  | No   | 音频 MIME 类型                  |
-| `scaffoldOutline`| text    | No   | AI 生成的大纲原文               |
-| `scaffoldMetadata`| text   | No   | 大纲生成的元数据 (JSON)         |
-| `publishIntent` | text     | No   | 发布意图 (JSON，用于定时发布)   |
-| `memosId`       | varchar  | No   | 关联的 Memos ID                 |
-| `publishedAt`   | datetime | No   | 发布时间                        |
-| `createdAt`     | datetime | Yes  | 创建时间                        |
-| `updatedAt`     | datetime | Yes  | 更新时间                        |
-
-#### PostVersion (文章版本表)
-
-| 字段名      | 类型     | 必填 | 说明                           |
-| :---------- | :------- | :--- | :----------------------------- |
-| `id`        | varchar  | Yes  | 主键                           |
-| `postId`    | varchar  | Yes  | 关联的文章 ID                  |
-| `sequence`  | integer  | Yes  | 文章内线性递增版本号           |
-| `parentVersionId` | varchar | No | 上一个版本 ID                 |
-| `restoredFromVersionId` | varchar | No | 恢复来源版本 ID           |
-| `source`    | varchar  | Yes  | 版本来源：create/edit/restore/rollback_recovery |
-| `commitSummary` | varchar | Yes | 提交摘要                     |
-| `changedFields` | json   | Yes  | 变更字段集合                   |
-| `snapshotHash` | varchar | Yes  | 快照哈希，用于幂等保护         |
-| `snapshot`  | json     | Yes  | 结构化文章快照                 |
-| `title`     | varchar  | Yes  | 标题快照                       |
-| `content`   | text     | Yes  | 正文快照                       |
-| `summary`   | text     | No   | 摘要快照                       |
-| `authorId`  | varchar  | Yes  | 本次修改者 ID                  |
-| `ipAddress` | varchar  | No   | 请求 IP                        |
-| `userAgent` | varchar  | No   | 请求 User-Agent                |
-| `createdAt` | datetime | Yes  | 版本创建时间                   |
-
-#### Category (分类表)
-
-| 字段名          | 类型     | 必填 | 唯一 | 说明                           |
-| :-------------- | :------- | :--- | :--- | :----------------------------- |
-| `id`            | varchar  | Yes  | Yes  | 主键                           |
-| `name`          | varchar  | Yes  | No   | 分类名称                       |
-| `slug`          | varchar  | Yes  | Yes  | URL 别名                       |
-| `description`   | text     | No   | No   | 描述                           |
-| `parentId`      | varchar  | No   | No   | 父分类 ID (层级关系)           |
-| `language`      | varchar  | Yes  | No   | 语言代码 (默认 'zh-CN')        |
-| `translationId` | varchar  | No   | No   | 翻译组 ID (用于关联多语言版本) |
-| `createdAt`     | datetime | Yes  | No   | 创建时间                       |
-| `updatedAt`     | datetime | Yes  | No   | 更新时间                       |
-
-#### Tag (标签表)
-
-| 字段名          | 类型     | 必填 | 唯一 | 说明                           |
-| :-------------- | :------- | :--- | :--- | :----------------------------- |
-| `id`            | varchar  | Yes  | Yes  | 主键                           |
-| `name`          | varchar  | Yes  | Yes  | 标签名称                       |
-| `slug`          | varchar  | Yes  | Yes  | URL 别名                       |
-| `language`      | varchar  | Yes  | No   | 语言代码 (默认 'zh-CN')        |
-| `translationId` | varchar  | No   | No   | 翻译组 ID (用于关联多语言版本) |
-| `createdAt`     | datetime | Yes  | No   | 创建时间                       |
-| `updatedAt`     | datetime | Yes  | No   | 更新时间                       |
-#### Comment (评论表)
-
-| 字段名 | 类型 | 必填 | 默认值 | 说明 |
-| :--- | :--- | :--- | :--- | :--- |
-| `id` | varchar | Yes | (Snowflake) | 主键 |
-| `postId` | varchar | Yes | - | 关联文章 ID |
-| `authorId` | varchar | No | - | 关联用户 ID (注册用户) |
-| `parentId` | varchar | No | - | 父评论 ID (用于嵌套) |
-| `content` | text | Yes | - | 评论正文 |
-| `authorName` | varchar | Yes | - | 评论者昵称 |
-| `authorEmail` | varchar | Yes | - | 评论者邮箱 |
-| `authorUrl` | varchar | No | - | 个人主页 URL |
-| `status` | varchar | Yes | 'published' | 状态: pending, published, spam |
-| `ip` | varchar | No | - | 评论者 IP |
-| `userAgent` | text | No | - | 设备 UserAgent |
-| `isSticked` | boolean | Yes | false | 是否置顶 |
-| `likes` | integer | Yes | 0 | 点赞数 |
-| `createdAt` | datetime | Yes | now() | 创建时间 |
-| `updatedAt` | datetime | Yes | now() | 更新时间 |
-
-#### Subscriber (订阅者表)
-
-| 字段名                  | 类型     | 必填 | 默认值      | 说明                             |
-| :---------------------- | :------- | :--- | :---------- | :------------------------------- |
-| `id`                    | varchar  | Yes  | (Snowflake) | 主键                             |
-| `email`                 | varchar  | Yes  | -           | 订阅邮箱 (唯一)                  |
-| `verifyToken`           | varchar  | No   | -           | 邮箱验证 Token                   |
-| `isVerified`            | boolean  | Yes  | false       | 邮箱是否经过验证                 |
-| `subscribedCategoryIds` | text     | No   | -           | 订阅的分类 ID 列表 (JSON 数组)   |
-| `subscribedTagIds`      | text     | No   | -           | 订阅的标签 ID 列表 (JSON 数组)   |
-| `isActive`              | boolean  | Yes  | true        | 是否激活                         |
-| `language`              | varchar  | Yes  | 'zh-CN'     | 语言偏好                         |
-| `userId`                | varchar  | No   | -           | 关联用户 ID                      |
-| `createdAt`             | datetime | Yes  | now()       | 注册时间                         |
-
-#### MarketingCampaign (营销活动表)
-
-用于追踪邮件推送等营销任务。
-
-| 字段名         | 类型     | 必填 | 说明                                    |
-| :------------- | :------- | :--- | :-------------------------------------- |
-| `id`           | varchar  | Yes  | 主键                                    |
-| `type`         | varchar  | Yes  | 类型: push-post, newsletter, custom     |
-| `status`       | varchar  | Yes  | 状态: pending, processing, sent, failed |
-| `target`       | text     | No   | 目标群体说明 (如 "All", "Category:1")   |
-| `title`        | varchar  | Yes  | 推送标题/邮件主题                       |
-| `content`      | mediumtext| Yes | 消息内容                                |
-| `sentCount`    | integer  | Yes  | 已发送数量                              |
-| `successCount` | integer  | Yes  | 成功发送数量                            |
-| `metadata`     | text     | No   | JSON 元数据 (如关联 Post ID)            |
-| `scheduledAt`  | datetime | No   | 计划执行时间                            |
-| `sentAt`       | datetime | No   | 实际完成时间                            |
-| `createdAt`    | datetime | Yes  | 创建时间                                |
-
-### 3.3 系统与 AI 任务 (System & AI Tasks)
-
-#### AITask (AI 任务异步表)
-
-用于存储语音转文字、绘图等耗时任务。
-
-| 字段名         | 类型     | 必填 | 说明                                    |
-| :------------- | :------- | :--- | :-------------------------------------- |
-| `id`           | varchar  | Yes  | 主键                                    |
-| `type`         | varchar  | Yes  | 任务类型: aiaudio-to-text, aiimage-gen, aipaint, aipost-scaffold |
-| `status`       | varchar  | Yes  | 状态: pending, processing, success, fail|
-| `payload`      | text     | No   | 输入参数 (JSON 字符串)                  |
-| `result`       | text     | No   | 任务结果 (JSON 字符串 / URL 地址)       |
-| `errorMessage` | text     | No   | 错误分析信息                            |
-| `userId`       | varchar  | Yes  | 关联用户 ID                             |
-| `startedAt`    | datetime | No   | 任务开始执行时间                        |
-| `completedAt`  | datetime | No   | 任务完成/失败时间                        |
-| `createdAt`    | datetime | Yes  | 创建时间                                |
-| `updatedAt`    | datetime | Yes  | 更新时间                                |
-
-#### Setting (设置表)
-
-| 字段名 | 类型 | 必填 | 说明 |
+| 字段 | 类型 | 约束/默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
-| `key` | varchar | Yes | 键 (主键) |
-| `value` | text | No | 值 |
-| `description` | varchar | No | 描述 |
-| `updatedAt` | datetime | Yes | 最后更新时间 |
+| id | varchar(36) | PK | 文章主键 |
+| slug | varchar(255) | unique with language | 同语言唯一别名 |
+| language | varchar(10) | default zh-CN | 语言代码 |
+| translationId | varchar(255) | indexed, nullable | 翻译簇标识 |
+| authorId | varchar(36) | FK, indexed | 作者 |
+| categoryId | varchar(36) | FK, indexed, nullable | 分类 |
+| status | varchar(20) | default draft | 发布状态 |
+| visibility | varchar(20) | default public | 可见性 |
+| views | integer | default 0 | 阅读量 |
+| isPinned | boolean | default false | 置顶标记 |
+| metaVersion | integer | default 1 | 元数据版本 |
+| metadata | json/text | nullable | 统一元数据容器 |
+| publishedAt | datetime/timestamptz | indexed, nullable | 发布时间 |
 
-#### ThemeConfig (主题方案表)
+说明：
 
-用于主题画廊系统，保存多套自定义主题方案。
+- post 已改为以 metadata 作为统一扩展容器。
+- init.sql 不再额外创建旧式 audio_url、audio_duration、tts_*、publish_intent、memos_id 等遗留列。
+- 文章标签关联表为 momei_post_tags_tag_posts。
 
-| 字段名 | 类型 | 必填 | 说明 |
+### 4.3 PostVersion
+
+| 字段 | 类型 | 约束/默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
-| `id` | varchar | Yes | 主键 (UUID) |
-| `name` | varchar | Yes | 方案名称 |
-| `description` | text | No | 方案描述 |
-| `configData` | text | Yes | 配置 JSON (primaryColor, borderRadius 等) |
-| `previewImage` | mediumtext | No | 前端截取的预览图 (Base64) |
-| `isSystem` | boolean | Yes | 是否为系统预设 (不可删除) |
-| `createdAt` | datetime | Yes | 创建时间 |
-| `updatedAt` | datetime | Yes | 更新时间 |
+| postId | varchar(36) | FK, indexed | 对应文章 |
+| sequence | integer | unique with postId, nullable | 文章内线性版本号 |
+| parentVersionId | varchar(36) | indexed, nullable | 前序版本 |
+| restoredFromVersionId | varchar(36) | indexed, nullable | 恢复来源版本 |
+| source | varchar(32) | default edit | 版本来源 |
+| commitSummary | varchar(255) | nullable | 变更摘要 |
+| changedFields | json/text | nullable | 本次变更字段 |
+| snapshotHash | varchar(64) | indexed, nullable | 快照哈希 |
+| snapshot | json/text | nullable | 结构化版本快照 |
+| ipAddress | varchar(64) | nullable | 请求 IP |
+| userAgent | varchar(512) | nullable | 请求 User-Agent |
 
-## 4. 索引策略 (Indexing Strategy)
+说明：三套 init.sql 已从旧版 reason 模型升级到当前版本快照模型，并补齐复合索引 (post_id, sequence) 与 (post_id, created_at)。
 
--   **User**: `email` (Unique), `username` (Unique)
--   **Session**: `token` (Unique), `userId`
--   **Post**: `(slug, language)` (Unique), `authorId`, `createdAt` (用于排序)
--   **Category**: `(slug, language)` (Unique), `parentId`
--   **Tag**: `(slug, language)` (Unique), `name`
--   **Comment**: `postId`, `parentId`, `status`
--   **Subscriber**: `email` (Unique)
+### 4.4 Setting 与 SettingAuditLog
 
-## 5. 设计说明 (Design Notes)
+Setting 使用 key-value 模型保存运行时配置，SettingAuditLog 记录后台修改审计。
 
-### 5.1 国际化实现 (Internationalization)
+| 表 | 关键字段 | 说明 |
+| :--- | :--- | :--- |
+| setting | key, value, description, mask_type, level, updated_at | 配置值、脱敏策略与可见级别 |
+| setting_audit_logs | setting_key, action, old_value, new_value, mask_type, effective_source, is_overridden_by_env, source, operator_id | 记录配置修改来源、脱敏值和操作者 |
 
--   **translationId**: 用于关联同一内容的不同语言版本。
-    -   所有共享同一个 `translationId` 的记录（文章、分类或标签）被视为同一个内容的变体。
-    -   当用户请求的语言版本不存在时，系统可以根据 `translationId` 查找其他可用语言版本（通常是默认语言，如中文或英文）。
-    -   **优化建议 (Future Improvement)**: 目前系统使用 Snowflake ID 作为 `translationId`。后续可考虑优化为复用具有语义的“别名 (Slug)”。例如，以原始版本的 Slug 作为关联键，这能显著提高数据库记录的人类可读性，并简化某些手动维护场景下的关联操作。
-    -   **优势**: 解耦、灵活、独立性（每个语言版本的 `slug`、`title`、`content` 都是独立的，有利于 SEO）。
-    -   **独立字段**:
-        -   **views**: 独立计数。不同语言版本的受众不同，合并计数会混淆数据。
-        -   **status**: 独立状态。翻译进度可能不同步（如中文已发布，英文仍在草稿中）。
-        -   **publishedAt**: 独立时间。翻译版本通常晚于原版发布。
-        -   **coverImage**: 独立设置。允许针对不同语言使用包含不同文字的图片。
+### 4.5 NotificationDeliveryLog 与 WebPushSubscription
 
-### 5.2 阅读量统计 (View Count)
+| 表 | 关键字段 | 说明 |
+| :--- | :--- | :--- |
+| notification_delivery_logs | channel, status, notification_type, recipient, sent_at | 统一记录邮件、浏览器推送、第三方通道的投递结果 |
+| web_push_subscriptions | user_id, endpoint, subscription, permission, locale | 浏览器订阅端点与 payload，(user_id, endpoint) 唯一 |
 
--   **PV (Page View)**: 采用 PV 模式统计阅读量。
-    -   **原因**: 博客文章是内容消费型产品，每一次阅读都代表了内容的价值被消费了一次。PV 能直观反映内容的热度和被访问频率。
-    -   **实现**: 在文章加载时执行 `UPDATE post SET views = views + 1 WHERE id = ?`。
-    -   **防刷**:
-        -   应用层做轻量级的防刷处理（如：同一 IP 在 10 分钟内只计 1 次）。
-        -   **限制**: 仅在用户已登录 (拥有有效 Session) 且请求来自浏览器 (检查 User-Agent) 时才增加阅读量。
+### 4.6 Friend Links 与 External Links
+
+| 表 | 关键字段 | 说明 |
+| :--- | :--- | :--- |
+| friend_link_categories | slug, is_enabled, sort_order | 友情链接分类 |
+| friend_links | url, category_id, status, is_pinned, is_featured, health_status | 友情链接主体与健康检查状态 |
+| friend_link_applications | url, status, applicant_id, reviewed_by_id, friend_link_id | 友情链接申请流程 |
+| external_links | original_url, short_code, status, created_by_id | 外链短链与跳转治理 |
+| link_governance_report | mode, status, requested_by_user_id, summary, statistics | 链接治理审计结果 |
+
+### 4.7 AdCampaign 与 AdPlacement
+
+| 表 | 关键字段 | 说明 |
+| :--- | :--- | :--- |
+| ad_campaigns | name, status, start_date, end_date, targeting, impressions, clicks, revenue | 广告活动 |
+| ad_placements | format, location, adapter_id, enabled, targeting, priority, campaign_id | 广告位与投放配置 |
+
+## 5. 关键约束与索引
+
+当前应重点保证以下约束存在且与实体一致：
+
+- user.email、user.username、user.phone_number 唯一。
+- post.slug + post.language 唯一。
+- category.slug + language、category.name + language、category.translation_id + language 唯一。
+- tag.slug + language、tag.name + language、tag.translation_id + language 唯一。
+- notification_settings.user_id + type + channel 唯一。
+- web_push_subscriptions.user_id + endpoint 唯一。
+- post_version.post_id + sequence 唯一。
+
+关键索引包括但不限于：
+
+- post：title、language、translation_id、author_id、category_id、status、visibility、views、is_pinned、published_at。
+- post_version：post_id、sequence、parent_version_id、restored_from_version_id、snapshot_hash、author_id，以及 (post_id, created_at)。
+- friend_links：category_id、status、is_pinned、is_featured、health_status、application_id、created_by_id、updated_by_id。
+- notification_delivery_logs：notification_type、channel、status、sent_at、recipient。
+- setting_audit_logs：setting_key、operator_id。
+- ad_placements：location、adapter_id、enabled，以及 (location, enabled)。
+
+## 6. 初始化脚本同步约束
+
+后续数据库变更必须遵守以下规则：
+
+1. 先改实体，再同步三套 init.sql，再更新本文档。
+2. 新增 simple-json 或 json 字段时，必须明确三种数据库的落盘类型。
+3. 若实体新增 index: true、@Index 或 @Unique，init.sql 必须同步新增索引或唯一约束。
+4. 若实体删除字段，init.sql 与文档不得继续把它当作当前事实结构描述。
+5. 若存在历史兼容列，必须在文档中显式标注“兼容保留”，不能与当前实体字段混写。
+
+## 7. 本次同步结论
+
+本轮已完成以下基线收敛：
+
+- 三套 init.sql 补齐 ad_campaigns、ad_placements、external_links、fed_keys、friend_link_categories、friend_links、friend_link_applications、link_governance_report、notification_delivery_logs、setting_audit_logs、web_push_subscriptions。
+- post 表删除旧遗留列定义，改为与当前 Post 实体一致的 metadata 模型，并补齐 is_pinned。
+- post_version 表从旧版简化结构升级到当前快照型版本模型。
+- 本文档改为明确“实体为事实源、init.sql 为初始化派生物”的同步约束，避免再次漂移。

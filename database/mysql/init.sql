@@ -88,21 +88,11 @@ CREATE TABLE `momei_post` (
   `visibility` varchar(20) NOT NULL DEFAULT 'public',
   `password` varchar(255) DEFAULT NULL,
   `views` int NOT NULL DEFAULT 0,
+  `is_pinned` tinyint(1) NOT NULL DEFAULT 0,
   `copyright` text DEFAULT NULL,
   `meta_version` int NOT NULL DEFAULT 1,
   `metadata` json DEFAULT NULL,
-  `audio_url` text DEFAULT NULL,
-  `audio_duration` int DEFAULT NULL,
-  `audio_size` int DEFAULT NULL,
-  `audio_mime_type` varchar(100) DEFAULT NULL,
-  `tts_provider` varchar(50) DEFAULT NULL,
-  `tts_voice` varchar(255) DEFAULT NULL,
-  `tts_generated_at` datetime(6) DEFAULT NULL,
-  `scaffold_outline` text DEFAULT NULL,
-  `scaffold_metadata` json DEFAULT NULL,
-  `publish_intent` json DEFAULT NULL,
   `published_at` datetime(6) DEFAULT NULL,
-  `memos_id` varchar(255) DEFAULT NULL,
   `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   PRIMARY KEY (`id`),
@@ -115,8 +105,8 @@ CREATE TABLE `momei_post` (
   KEY `IDX_post_status` (`status`),
   KEY `IDX_post_visibility` (`visibility`),
   KEY `IDX_post_views` (`views`),
+  KEY `IDX_post_is_pinned` (`is_pinned`),
   KEY `IDX_post_published_at` (`published_at`),
-  KEY `IDX_post_memos_id` (`memos_id`),
   CONSTRAINT `FK_post_author` FOREIGN KEY (`author_id`) REFERENCES `momei_user` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_post_category` FOREIGN KEY (`category_id`) REFERENCES `momei_category` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -432,16 +422,31 @@ CREATE TABLE `momei_submission` (
 CREATE TABLE `momei_post_version` (
   `id` varchar(36) NOT NULL,
   `post_id` varchar(36) NOT NULL,
+  `sequence` int DEFAULT NULL,
+  `parent_version_id` varchar(36) DEFAULT NULL,
+  `restored_from_version_id` varchar(36) DEFAULT NULL,
+  `source` varchar(32) NOT NULL DEFAULT 'edit',
+  `commit_summary` varchar(255) DEFAULT NULL,
+  `changed_fields` json DEFAULT NULL,
+  `snapshot_hash` varchar(64) DEFAULT NULL,
+  `snapshot` json DEFAULT NULL,
   `title` varchar(255) NOT NULL,
   `content` text NOT NULL,
   `summary` text DEFAULT NULL,
   `author_id` varchar(36) NOT NULL,
-  `reason` varchar(255) DEFAULT NULL,
+  `ip_address` varchar(64) DEFAULT NULL,
+  `user_agent` varchar(512) DEFAULT NULL,
   `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   PRIMARY KEY (`id`),
   KEY `IDX_post_version_post_id` (`post_id`),
+  KEY `IDX_post_version_sequence` (`sequence`),
+  KEY `IDX_post_version_parent_version_id` (`parent_version_id`),
+  KEY `IDX_post_version_restored_from_version_id` (`restored_from_version_id`),
+  KEY `IDX_post_version_snapshot_hash` (`snapshot_hash`),
   KEY `IDX_post_version_author_id` (`author_id`),
+  UNIQUE KEY `IDX_post_version_post_sequence` (`post_id`, `sequence`),
+  KEY `IDX_post_version_post_created_at` (`post_id`, `created_at`),
   CONSTRAINT `FK_post_version_post` FOREIGN KEY (`post_id`) REFERENCES `momei_post` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_post_version_author` FOREIGN KEY (`author_id`) REFERENCES `momei_user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -457,4 +462,251 @@ CREATE TABLE `momei_theme_config` (
   `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 26. 广告活动表
+CREATE TABLE `momei_ad_campaigns` (
+  `id` varchar(36) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `status` varchar(50) NOT NULL DEFAULT 'draft',
+  `start_date` datetime(6) DEFAULT NULL,
+  `end_date` datetime(6) DEFAULT NULL,
+  `targeting` text DEFAULT NULL,
+  `impressions` int NOT NULL DEFAULT 0,
+  `clicks` int NOT NULL DEFAULT 0,
+  `revenue` decimal(10,2) NOT NULL DEFAULT 0,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  KEY `IDX_ad_campaigns_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 27. 广告位表
+CREATE TABLE `momei_ad_placements` (
+  `id` varchar(36) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `format` varchar(50) NOT NULL,
+  `location` varchar(50) NOT NULL,
+  `adapter_id` varchar(50) NOT NULL,
+  `metadata` text DEFAULT NULL,
+  `enabled` tinyint(1) NOT NULL DEFAULT 1,
+  `targeting` text DEFAULT NULL,
+  `priority` int NOT NULL DEFAULT 0,
+  `custom_css` text DEFAULT NULL,
+  `campaign_id` varchar(36) DEFAULT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  KEY `IDX_ad_placements_location` (`location`),
+  KEY `IDX_ad_placements_adapter_id` (`adapter_id`),
+  KEY `IDX_ad_placements_enabled` (`enabled`),
+  KEY `IDX_ad_placements_location_enabled` (`location`, `enabled`),
+  CONSTRAINT `FK_ad_placements_campaign` FOREIGN KEY (`campaign_id`) REFERENCES `momei_ad_campaigns` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 28. 外链表
+CREATE TABLE `momei_external_links` (
+  `id` varchar(36) NOT NULL,
+  `original_url` text NOT NULL,
+  `short_code` varchar(50) NOT NULL,
+  `status` varchar(50) NOT NULL DEFAULT 'active',
+  `no_follow` tinyint(1) NOT NULL DEFAULT 0,
+  `show_redirect_page` tinyint(1) NOT NULL DEFAULT 1,
+  `click_count` int NOT NULL DEFAULT 0,
+  `metadata` text DEFAULT NULL,
+  `created_by_id` varchar(36) NOT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UQ_external_links_short_code` (`short_code`),
+  KEY `IDX_external_links_status` (`status`),
+  CONSTRAINT `FK_external_links_created_by` FOREIGN KEY (`created_by_id`) REFERENCES `momei_user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 29. 联邦密钥表
+CREATE TABLE `momei_fed_keys` (
+  `id` varchar(36) NOT NULL,
+  `user_id` varchar(36) NOT NULL,
+  `public_key` text NOT NULL,
+  `private_key` text NOT NULL,
+  `expires_at` datetime(6) DEFAULT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UQ_fed_keys_user_id` (`user_id`),
+  CONSTRAINT `FK_fed_keys_user` FOREIGN KEY (`user_id`) REFERENCES `momei_user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 30. 友情链接分类表
+CREATE TABLE `momei_friend_link_categories` (
+  `id` varchar(36) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `slug` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `sort_order` int NOT NULL DEFAULT 0,
+  `is_enabled` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UQ_friend_link_categories_slug` (`slug`),
+  KEY `IDX_friend_link_categories_is_enabled` (`is_enabled`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 31. 友情链接表
+CREATE TABLE `momei_friend_links` (
+  `id` varchar(36) NOT NULL,
+  `name` varchar(120) NOT NULL,
+  `url` varchar(500) NOT NULL,
+  `logo` varchar(500) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `rss_url` varchar(500) DEFAULT NULL,
+  `contact_email` varchar(255) DEFAULT NULL,
+  `category_id` varchar(36) DEFAULT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'draft',
+  `source` varchar(20) NOT NULL DEFAULT 'manual',
+  `is_pinned` tinyint(1) NOT NULL DEFAULT 0,
+  `is_featured` tinyint(1) NOT NULL DEFAULT 0,
+  `sort_order` int NOT NULL DEFAULT 0,
+  `health_status` varchar(20) NOT NULL DEFAULT 'unknown',
+  `consecutive_failures` int NOT NULL DEFAULT 0,
+  `health_check_cooldown_until` datetime(6) DEFAULT NULL,
+  `last_checked_at` datetime(6) DEFAULT NULL,
+  `last_error_message` text DEFAULT NULL,
+  `last_http_status` int DEFAULT NULL,
+  `application_id` varchar(36) DEFAULT NULL,
+  `created_by_id` varchar(36) DEFAULT NULL,
+  `updated_by_id` varchar(36) DEFAULT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UQ_friend_links_url` (`url`),
+  KEY `IDX_friend_links_category_id` (`category_id`),
+  KEY `IDX_friend_links_status` (`status`),
+  KEY `IDX_friend_links_is_pinned` (`is_pinned`),
+  KEY `IDX_friend_links_is_featured` (`is_featured`),
+  KEY `IDX_friend_links_health_status` (`health_status`),
+  KEY `IDX_friend_links_application_id` (`application_id`),
+  KEY `IDX_friend_links_created_by_id` (`created_by_id`),
+  KEY `IDX_friend_links_updated_by_id` (`updated_by_id`),
+  CONSTRAINT `FK_friend_links_category` FOREIGN KEY (`category_id`) REFERENCES `momei_friend_link_categories` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 32. 友情链接申请表
+CREATE TABLE `momei_friend_link_applications` (
+  `id` varchar(36) NOT NULL,
+  `name` varchar(120) NOT NULL,
+  `url` varchar(500) NOT NULL,
+  `logo` varchar(500) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `category_id` varchar(36) DEFAULT NULL,
+  `category_suggestion` varchar(100) DEFAULT NULL,
+  `contact_name` varchar(100) DEFAULT NULL,
+  `contact_email` varchar(255) NOT NULL,
+  `rss_url` varchar(500) DEFAULT NULL,
+  `reciprocal_url` varchar(500) DEFAULT NULL,
+  `message` text DEFAULT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'pending',
+  `applicant_id` varchar(36) DEFAULT NULL,
+  `review_note` text DEFAULT NULL,
+  `submitted_ip` varchar(45) DEFAULT NULL,
+  `submitted_user_agent` text DEFAULT NULL,
+  `reviewed_by_id` varchar(36) DEFAULT NULL,
+  `reviewed_at` datetime(6) DEFAULT NULL,
+  `friend_link_id` varchar(36) DEFAULT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  KEY `IDX_friend_link_applications_url` (`url`),
+  KEY `IDX_friend_link_applications_category_id` (`category_id`),
+  KEY `IDX_friend_link_applications_status` (`status`),
+  KEY `IDX_friend_link_applications_applicant_id` (`applicant_id`),
+  KEY `IDX_friend_link_applications_reviewed_by_id` (`reviewed_by_id`),
+  KEY `IDX_friend_link_applications_friend_link_id` (`friend_link_id`),
+  CONSTRAINT `FK_friend_link_applications_applicant` FOREIGN KEY (`applicant_id`) REFERENCES `momei_user` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 33. 链接治理报告表
+CREATE TABLE `momei_link_governance_report` (
+  `id` varchar(36) NOT NULL,
+  `mode` varchar(20) NOT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'completed',
+  `requested_by_user_id` varchar(36) NOT NULL,
+  `scopes` text NOT NULL,
+  `filters` text DEFAULT NULL,
+  `options` text DEFAULT NULL,
+  `summary` text DEFAULT NULL,
+  `statistics` text DEFAULT NULL,
+  `items` text DEFAULT NULL,
+  `redirect_seeds` text DEFAULT NULL,
+  `markdown` text DEFAULT NULL,
+  `error` text DEFAULT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  KEY `IDX_link_governance_report_mode` (`mode`),
+  KEY `IDX_link_governance_report_status` (`status`),
+  KEY `IDX_link_governance_report_requested_by_user_id` (`requested_by_user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 34. 通知投递审计表
+CREATE TABLE `momei_notification_delivery_logs` (
+  `id` varchar(36) NOT NULL,
+  `notification_id` varchar(36) DEFAULT NULL,
+  `user_id` varchar(36) DEFAULT NULL,
+  `channel` varchar(32) NOT NULL,
+  `status` varchar(32) NOT NULL,
+  `notification_type` varchar(32) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `recipient` varchar(255) DEFAULT NULL,
+  `target_url` varchar(255) DEFAULT NULL,
+  `error_message` varchar(512) DEFAULT NULL,
+  `sent_at` datetime(6) NOT NULL,
+  `metadata` text DEFAULT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  KEY `IDX_notification_delivery_logs_notification_type` (`notification_type`),
+  KEY `IDX_notification_delivery_logs_channel` (`channel`),
+  KEY `IDX_notification_delivery_logs_status` (`status`),
+  KEY `IDX_notification_delivery_logs_sent_at` (`sent_at`),
+  KEY `IDX_notification_delivery_logs_recipient` (`recipient`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 35. 设置审计日志表
+CREATE TABLE `momei_setting_audit_logs` (
+  `id` varchar(36) NOT NULL,
+  `setting_key` varchar(128) NOT NULL,
+  `action` varchar(32) NOT NULL,
+  `old_value` text DEFAULT NULL,
+  `new_value` text DEFAULT NULL,
+  `mask_type` varchar(32) NOT NULL DEFAULT 'none',
+  `effective_source` varchar(32) NOT NULL DEFAULT 'db',
+  `is_overridden_by_env` tinyint(1) NOT NULL DEFAULT 0,
+  `source` varchar(64) NOT NULL DEFAULT 'admin_ui',
+  `reason` varchar(255) DEFAULT NULL,
+  `ip_address` varchar(64) DEFAULT NULL,
+  `user_agent` varchar(512) DEFAULT NULL,
+  `operator_id` varchar(36) DEFAULT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  KEY `IDX_setting_audit_logs_setting_key` (`setting_key`),
+  KEY `IDX_setting_audit_logs_operator_id` (`operator_id`),
+  CONSTRAINT `FK_setting_audit_logs_operator` FOREIGN KEY (`operator_id`) REFERENCES `momei_user` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 36. Web Push 订阅表
+CREATE TABLE `momei_web_push_subscriptions` (
+  `id` varchar(36) NOT NULL,
+  `user_id` varchar(36) NOT NULL,
+  `endpoint` varchar(2048) NOT NULL,
+  `subscription` text NOT NULL,
+  `permission` varchar(20) DEFAULT NULL,
+  `user_agent` varchar(512) DEFAULT NULL,
+  `locale` varchar(20) DEFAULT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UQ_web_push_subscriptions_user_endpoint` (`user_id`, `endpoint`(255)),
+  CONSTRAINT `FK_web_push_subscriptions_user` FOREIGN KEY (`user_id`) REFERENCES `momei_user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

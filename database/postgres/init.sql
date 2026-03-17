@@ -78,21 +78,11 @@ CREATE TABLE "momei_post" (
   "visibility" varchar(20) NOT NULL DEFAULT 'public',
   "password" varchar(255),
   "views" integer NOT NULL DEFAULT 0,
+  "is_pinned" boolean NOT NULL DEFAULT false,
   "copyright" text,
   "meta_version" integer NOT NULL DEFAULT 1,
   "metadata" json,
-  "audio_url" text,
-  "audio_duration" integer,
-  "audio_size" integer,
-  "audio_mime_type" varchar(100),
-  "tts_provider" varchar(50),
-  "tts_voice" varchar(255),
-  "tts_generated_at" timestamptz(6),
-  "scaffold_outline" text,
-  "scaffold_metadata" json,
-  "publish_intent" json,
   "published_at" timestamptz(6),
-  "memos_id" varchar(255),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   CONSTRAINT "UQ_post_slug_language" UNIQUE ("slug", "language"),
@@ -388,11 +378,20 @@ CREATE TABLE "momei_submission" (
 CREATE TABLE "momei_post_version" (
   "id" varchar(36) NOT NULL,
   "post_id" varchar(36) NOT NULL,
+  "sequence" integer,
+  "parent_version_id" varchar(36),
+  "restored_from_version_id" varchar(36),
+  "source" varchar(32) NOT NULL DEFAULT 'edit',
+  "commit_summary" varchar(255),
+  "changed_fields" json,
+  "snapshot_hash" varchar(64),
+  "snapshot" json,
   "title" varchar(255) NOT NULL,
   "content" text NOT NULL,
   "summary" text,
   "author_id" varchar(36) NOT NULL,
-  "reason" varchar(255),
+  "ip_address" varchar(64),
+  "user_agent" varchar(512),
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
   CONSTRAINT "FK_post_version_post" FOREIGN KEY ("post_id") REFERENCES "momei_post" ("id") ON DELETE CASCADE,
@@ -410,6 +409,222 @@ CREATE TABLE "momei_theme_config" (
   "is_system" boolean NOT NULL DEFAULT false,
   "created_at" timestamptz(6) NOT NULL DEFAULT now(),
   "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  PRIMARY KEY ("id")
+);
+
+-- 26. 广告活动表
+CREATE TABLE "momei_ad_campaigns" (
+  "id" varchar(36) NOT NULL,
+  "name" varchar(255) NOT NULL,
+  "status" varchar(50) NOT NULL DEFAULT 'draft',
+  "start_date" timestamptz(6),
+  "end_date" timestamptz(6),
+  "targeting" text,
+  "impressions" integer NOT NULL DEFAULT 0,
+  "clicks" integer NOT NULL DEFAULT 0,
+  "revenue" numeric(10,2) NOT NULL DEFAULT 0,
+  "created_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  PRIMARY KEY ("id")
+);
+
+-- 27. 广告位表
+CREATE TABLE "momei_ad_placements" (
+  "id" varchar(36) NOT NULL,
+  "name" varchar(255) NOT NULL,
+  "format" varchar(50) NOT NULL,
+  "location" varchar(50) NOT NULL,
+  "adapter_id" varchar(50) NOT NULL,
+  "metadata" text,
+  "enabled" boolean NOT NULL DEFAULT true,
+  "targeting" text,
+  "priority" integer NOT NULL DEFAULT 0,
+  "custom_css" text,
+  "campaign_id" varchar(36),
+  "created_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  CONSTRAINT "FK_ad_placements_campaign" FOREIGN KEY ("campaign_id") REFERENCES "momei_ad_campaigns" ("id") ON DELETE SET NULL,
+  PRIMARY KEY ("id")
+);
+
+-- 28. 外链表
+CREATE TABLE "momei_external_links" (
+  "id" varchar(36) NOT NULL,
+  "original_url" text NOT NULL,
+  "short_code" varchar(50) NOT NULL,
+  "status" varchar(50) NOT NULL DEFAULT 'active',
+  "no_follow" boolean NOT NULL DEFAULT false,
+  "show_redirect_page" boolean NOT NULL DEFAULT true,
+  "click_count" integer NOT NULL DEFAULT 0,
+  "metadata" text,
+  "created_by_id" varchar(36) NOT NULL,
+  "created_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  CONSTRAINT "UQ_external_links_short_code" UNIQUE ("short_code"),
+  CONSTRAINT "FK_external_links_created_by" FOREIGN KEY ("created_by_id") REFERENCES "momei_user" ("id") ON DELETE CASCADE,
+  PRIMARY KEY ("id")
+);
+
+-- 29. 联邦密钥表
+CREATE TABLE "momei_fed_keys" (
+  "id" varchar(36) NOT NULL,
+  "user_id" varchar(36) NOT NULL,
+  "public_key" text NOT NULL,
+  "private_key" text NOT NULL,
+  "expires_at" timestamptz(6),
+  "created_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  CONSTRAINT "UQ_fed_keys_user_id" UNIQUE ("user_id"),
+  CONSTRAINT "FK_fed_keys_user" FOREIGN KEY ("user_id") REFERENCES "momei_user" ("id") ON DELETE CASCADE,
+  PRIMARY KEY ("id")
+);
+
+-- 30. 友情链接分类表
+CREATE TABLE "momei_friend_link_categories" (
+  "id" varchar(36) NOT NULL,
+  "name" varchar(100) NOT NULL,
+  "slug" varchar(100) NOT NULL,
+  "description" text,
+  "sort_order" integer NOT NULL DEFAULT 0,
+  "is_enabled" boolean NOT NULL DEFAULT true,
+  "created_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  CONSTRAINT "UQ_friend_link_categories_slug" UNIQUE ("slug"),
+  PRIMARY KEY ("id")
+);
+
+-- 31. 友情链接表
+CREATE TABLE "momei_friend_links" (
+  "id" varchar(36) NOT NULL,
+  "name" varchar(120) NOT NULL,
+  "url" varchar(500) NOT NULL,
+  "logo" varchar(500),
+  "description" text,
+  "rss_url" varchar(500),
+  "contact_email" varchar(255),
+  "category_id" varchar(36),
+  "status" varchar(20) NOT NULL DEFAULT 'draft',
+  "source" varchar(20) NOT NULL DEFAULT 'manual',
+  "is_pinned" boolean NOT NULL DEFAULT false,
+  "is_featured" boolean NOT NULL DEFAULT false,
+  "sort_order" integer NOT NULL DEFAULT 0,
+  "health_status" varchar(20) NOT NULL DEFAULT 'unknown',
+  "consecutive_failures" integer NOT NULL DEFAULT 0,
+  "health_check_cooldown_until" timestamptz(6),
+  "last_checked_at" timestamptz(6),
+  "last_error_message" text,
+  "last_http_status" integer,
+  "application_id" varchar(36),
+  "created_by_id" varchar(36),
+  "updated_by_id" varchar(36),
+  "created_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  CONSTRAINT "UQ_friend_links_url" UNIQUE ("url"),
+  CONSTRAINT "FK_friend_links_category" FOREIGN KEY ("category_id") REFERENCES "momei_friend_link_categories" ("id") ON DELETE SET NULL,
+  PRIMARY KEY ("id")
+);
+
+-- 32. 友情链接申请表
+CREATE TABLE "momei_friend_link_applications" (
+  "id" varchar(36) NOT NULL,
+  "name" varchar(120) NOT NULL,
+  "url" varchar(500) NOT NULL,
+  "logo" varchar(500),
+  "description" text,
+  "category_id" varchar(36),
+  "category_suggestion" varchar(100),
+  "contact_name" varchar(100),
+  "contact_email" varchar(255) NOT NULL,
+  "rss_url" varchar(500),
+  "reciprocal_url" varchar(500),
+  "message" text,
+  "status" varchar(20) NOT NULL DEFAULT 'pending',
+  "applicant_id" varchar(36),
+  "review_note" text,
+  "submitted_ip" varchar(45),
+  "submitted_user_agent" text,
+  "reviewed_by_id" varchar(36),
+  "reviewed_at" timestamptz(6),
+  "friend_link_id" varchar(36),
+  "created_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  CONSTRAINT "FK_friend_link_applications_applicant" FOREIGN KEY ("applicant_id") REFERENCES "momei_user" ("id") ON DELETE SET NULL,
+  PRIMARY KEY ("id")
+);
+
+-- 33. 链接治理报告表
+CREATE TABLE "momei_link_governance_report" (
+  "id" varchar(36) NOT NULL,
+  "mode" varchar(20) NOT NULL,
+  "status" varchar(20) NOT NULL DEFAULT 'completed',
+  "requested_by_user_id" varchar(36) NOT NULL,
+  "scopes" text NOT NULL,
+  "filters" text,
+  "options" text,
+  "summary" text,
+  "statistics" text,
+  "items" text,
+  "redirect_seeds" text,
+  "markdown" text,
+  "error" text,
+  "created_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  PRIMARY KEY ("id")
+);
+
+-- 34. 通知投递审计表
+CREATE TABLE "momei_notification_delivery_logs" (
+  "id" varchar(36) NOT NULL,
+  "notification_id" varchar(36),
+  "user_id" varchar(36),
+  "channel" varchar(32) NOT NULL,
+  "status" varchar(32) NOT NULL,
+  "notification_type" varchar(32) NOT NULL,
+  "title" varchar(255) NOT NULL,
+  "recipient" varchar(255),
+  "target_url" varchar(255),
+  "error_message" varchar(512),
+  "sent_at" timestamptz(6) NOT NULL,
+  "metadata" text,
+  "created_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  PRIMARY KEY ("id")
+);
+
+-- 35. 设置审计日志表
+CREATE TABLE "momei_setting_audit_logs" (
+  "id" varchar(36) NOT NULL,
+  "setting_key" varchar(128) NOT NULL,
+  "action" varchar(32) NOT NULL,
+  "old_value" text,
+  "new_value" text,
+  "mask_type" varchar(32) NOT NULL DEFAULT 'none',
+  "effective_source" varchar(32) NOT NULL DEFAULT 'db',
+  "is_overridden_by_env" boolean NOT NULL DEFAULT false,
+  "source" varchar(64) NOT NULL DEFAULT 'admin_ui',
+  "reason" varchar(255),
+  "ip_address" varchar(64),
+  "user_agent" varchar(512),
+  "operator_id" varchar(36),
+  "created_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  CONSTRAINT "FK_setting_audit_logs_operator" FOREIGN KEY ("operator_id") REFERENCES "momei_user" ("id") ON DELETE SET NULL,
+  PRIMARY KEY ("id")
+);
+
+-- 36. Web Push 订阅表
+CREATE TABLE "momei_web_push_subscriptions" (
+  "id" varchar(36) NOT NULL,
+  "user_id" varchar(36) NOT NULL,
+  "endpoint" varchar(2048) NOT NULL,
+  "subscription" text NOT NULL,
+  "permission" varchar(20),
+  "user_agent" varchar(512),
+  "locale" varchar(20),
+  "created_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  CONSTRAINT "UQ_web_push_subscriptions_user_endpoint" UNIQUE ("user_id", "endpoint"),
+  CONSTRAINT "FK_web_push_subscriptions_user" FOREIGN KEY ("user_id") REFERENCES "momei_user" ("id") ON DELETE CASCADE,
   PRIMARY KEY ("id")
 );
 
@@ -435,8 +650,8 @@ CREATE INDEX "IDX_post_category_id" ON "momei_post" ("category_id");
 CREATE INDEX "IDX_post_status" ON "momei_post" ("status");
 CREATE INDEX "IDX_post_visibility" ON "momei_post" ("visibility");
 CREATE INDEX "IDX_post_views" ON "momei_post" ("views");
+CREATE INDEX "IDX_post_is_pinned" ON "momei_post" ("is_pinned");
 CREATE INDEX "IDX_post_published_at" ON "momei_post" ("published_at");
-CREATE INDEX "IDX_post_memos_id" ON "momei_post" ("memos_id");
 
 CREATE INDEX "IDX_comment_post_id" ON "momei_comment" ("post_id");
 CREATE INDEX "IDX_comment_author_id" ON "momei_comment" ("author_id");
@@ -467,4 +682,50 @@ CREATE INDEX "IDX_submission_status" ON "momei_submission" ("status");
 CREATE INDEX "IDX_submission_author_id" ON "momei_submission" ("author_id");
 
 CREATE INDEX "IDX_post_version_post_id" ON "momei_post_version" ("post_id");
+CREATE INDEX "IDX_post_version_sequence" ON "momei_post_version" ("sequence");
+CREATE INDEX "IDX_post_version_parent_version_id" ON "momei_post_version" ("parent_version_id");
+CREATE INDEX "IDX_post_version_restored_from_version_id" ON "momei_post_version" ("restored_from_version_id");
+CREATE INDEX "IDX_post_version_snapshot_hash" ON "momei_post_version" ("snapshot_hash");
 CREATE INDEX "IDX_post_version_author_id" ON "momei_post_version" ("author_id");
+CREATE UNIQUE INDEX "IDX_post_version_post_sequence" ON "momei_post_version" ("post_id", "sequence");
+CREATE INDEX "IDX_post_version_post_created_at" ON "momei_post_version" ("post_id", "created_at");
+
+CREATE INDEX "IDX_ad_campaigns_status" ON "momei_ad_campaigns" ("status");
+
+CREATE INDEX "IDX_ad_placements_location" ON "momei_ad_placements" ("location");
+CREATE INDEX "IDX_ad_placements_adapter_id" ON "momei_ad_placements" ("adapter_id");
+CREATE INDEX "IDX_ad_placements_enabled" ON "momei_ad_placements" ("enabled");
+CREATE INDEX "IDX_ad_placements_location_enabled" ON "momei_ad_placements" ("location", "enabled");
+
+CREATE INDEX "IDX_external_links_status" ON "momei_external_links" ("status");
+
+CREATE INDEX "IDX_friend_link_categories_is_enabled" ON "momei_friend_link_categories" ("is_enabled");
+
+CREATE INDEX "IDX_friend_links_category_id" ON "momei_friend_links" ("category_id");
+CREATE INDEX "IDX_friend_links_status" ON "momei_friend_links" ("status");
+CREATE INDEX "IDX_friend_links_is_pinned" ON "momei_friend_links" ("is_pinned");
+CREATE INDEX "IDX_friend_links_is_featured" ON "momei_friend_links" ("is_featured");
+CREATE INDEX "IDX_friend_links_health_status" ON "momei_friend_links" ("health_status");
+CREATE INDEX "IDX_friend_links_application_id" ON "momei_friend_links" ("application_id");
+CREATE INDEX "IDX_friend_links_created_by_id" ON "momei_friend_links" ("created_by_id");
+CREATE INDEX "IDX_friend_links_updated_by_id" ON "momei_friend_links" ("updated_by_id");
+
+CREATE INDEX "IDX_friend_link_applications_url" ON "momei_friend_link_applications" ("url");
+CREATE INDEX "IDX_friend_link_applications_category_id" ON "momei_friend_link_applications" ("category_id");
+CREATE INDEX "IDX_friend_link_applications_status" ON "momei_friend_link_applications" ("status");
+CREATE INDEX "IDX_friend_link_applications_applicant_id" ON "momei_friend_link_applications" ("applicant_id");
+CREATE INDEX "IDX_friend_link_applications_reviewed_by_id" ON "momei_friend_link_applications" ("reviewed_by_id");
+CREATE INDEX "IDX_friend_link_applications_friend_link_id" ON "momei_friend_link_applications" ("friend_link_id");
+
+CREATE INDEX "IDX_link_governance_report_mode" ON "momei_link_governance_report" ("mode");
+CREATE INDEX "IDX_link_governance_report_status" ON "momei_link_governance_report" ("status");
+CREATE INDEX "IDX_link_governance_report_requested_by_user_id" ON "momei_link_governance_report" ("requested_by_user_id");
+
+CREATE INDEX "IDX_notification_delivery_logs_notification_type" ON "momei_notification_delivery_logs" ("notification_type");
+CREATE INDEX "IDX_notification_delivery_logs_channel" ON "momei_notification_delivery_logs" ("channel");
+CREATE INDEX "IDX_notification_delivery_logs_status" ON "momei_notification_delivery_logs" ("status");
+CREATE INDEX "IDX_notification_delivery_logs_sent_at" ON "momei_notification_delivery_logs" ("sent_at");
+CREATE INDEX "IDX_notification_delivery_logs_recipient" ON "momei_notification_delivery_logs" ("recipient");
+
+CREATE INDEX "IDX_setting_audit_logs_setting_key" ON "momei_setting_audit_logs" ("setting_key");
+CREATE INDEX "IDX_setting_audit_logs_operator_id" ON "momei_setting_audit_logs" ("operator_id");

@@ -112,7 +112,8 @@
 	- 验收: 修复第三方启用开关对字符串 `"true"`、布尔值与兼容输入的解析逻辑，统一 `LISTMONK_ENABLED`、`MEMOS_ENABLED` 等相关开关的识别口径。
 	- 验收: 不得因修复启用态判断而破坏既有设置来源优先级、后台开关展示与手动同步 / 审计链路。
 	- 验收: 补齐定向测试，至少覆盖 ENV 为字符串 `"true"`、数据库设置为 `"true"`、显式关闭为 `"false"` 3 类场景。
-- [ ] **多数据库 init.sql 与数据库设计文档同步**
+- [x] **多数据库 init.sql 与数据库设计文档同步**
+	- 进展: 已同步 SQLite、MySQL、PostgreSQL 三套 init.sql，补齐广告、友链、外链、Web Push、设置审计、通知投递审计、链接治理等缺失表；同时将 post / post_version 结构升级到当前实体口径，并重写 `docs/design/database.md`，明确“实体为事实源、init.sql 为初始化派生物”的同步约束。
 	- 插队原因: 当前 `database/sqlite/init.sql`、`database/mysql/init.sql`、`database/postgres/init.sql` 与 `docs/design/database.md` 已出现明显 Schema / 文档漂移，会影响新实例初始化、部署排障与数据库设计理解，属于当前交付无法绕开的基础基线缺陷。
 	- 验收: 同步更新 SQLite、MySQL、PostgreSQL 的初始化 SQL，使字段、索引、默认值与当前实体定义保持一致。
 	- 验收: 更新 `docs/design/database.md`，明确核心实体、初始化脚本适用边界以及与实体事实源的同步约束。
