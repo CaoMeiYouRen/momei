@@ -158,8 +158,12 @@ describe('settings utils', () => {
             expect(resolveSettingLevel(SettingKey.CONTACT_EMAIL, 2)).toBe(0)
         })
 
-        it('should keep explicit non-public levels when provided', () => {
+        it('should keep explicit admin-visible levels when provided', () => {
             expect(resolveSettingLevel(SettingKey.MEMOS_ACCESS_TOKEN, 2)).toBe(2)
+        })
+
+        it('should downgrade legacy non-internal level 3 values to admin-visible level 2', () => {
+            expect(resolveSettingLevel(SettingKey.MEMOS_ACCESS_TOKEN, 3)).toBe(2)
         })
 
         it('should default admin-visible settings to level 2', () => {

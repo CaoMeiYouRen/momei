@@ -589,13 +589,8 @@ export const setSetting = async (
  */
 export const getAllSettings = async (options?: { includeSecrets?: boolean, shouldMask?: boolean }) => {
     const settingRepo = dataSource.getRepository(Setting)
-    let query = settingRepo.createQueryBuilder('setting')
-
-    if (!options?.includeSecrets) {
-        query = query.where('setting.level < :level', { level: 3 })
-    }
-
-    const dbSettings: Setting[] = await query.getMany()
+    // 先读取全部数据库记录，再按归一化后的 level 过滤，避免旧数据在查询阶段被提前排除。
+    const dbSettings: Setting[] = await settingRepo.createQueryBuilder('setting').getMany()
     const dbSettingsMap = new Map<string, Setting>(dbSettings.map((s: Setting) => [s.key, s]))
 
     // 确保所有在 SETTING_ENV_MAP 中定义的键都能出现在列表中，即使数据库中不存在

@@ -105,7 +105,7 @@ export function resolveSettingLevel(key: string, explicitLevel?: unknown) {
     }
 
     const parsedLevel = Number(explicitLevel)
-    if (Number.isInteger(parsedLevel) && parsedLevel >= 0) {
+    if (Number.isInteger(parsedLevel) && parsedLevel >= 0 && parsedLevel <= 2) {
         return parsedLevel
     }
 
