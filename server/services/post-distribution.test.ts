@@ -133,6 +133,65 @@ describe('post-distribution service', () => {
         expect(persistedPost.metadata?.integration?.distribution?.channels?.memos?.remoteId).toBe('42')
     })
 
+    it('should allow memos distribution when enabled is stored as quoted true', async () => {
+        const post = await createPublishedPost()
+        vi.mocked(getSetting).mockImplementation((...args: Parameters<typeof getSetting>) => {
+            const [key] = args
+
+            switch (key as SettingKey) {
+                case SettingKey.MEMOS_ENABLED:
+                    return Promise.resolve('"true"')
+                case SettingKey.MEMOS_INSTANCE_URL:
+                    return Promise.resolve('https://memos.example.com')
+                case SettingKey.SITE_URL:
+                    return Promise.resolve('https://momei.app')
+                case SettingKey.POST_COPYRIGHT:
+                    return Promise.resolve('all-rights-reserved')
+                default:
+                    return Promise.resolve(null)
+            }
+        })
+        vi.mocked(createMemo).mockResolvedValue({ name: 'memos/quoted-true' })
+
+        const result = await dispatchPostDistributionService(post.id, {
+            channel: 'memos',
+            operation: 'sync',
+        }, actor)
+
+        expect(createMemo).toHaveBeenCalledTimes(1)
+        expect(result.summary.channels.memos.status).toBe('succeeded')
+        expect(result.summary.channels.memos.remoteId).toBe('quoted-true')
+    })
+
+    it('should reject memos distribution when explicitly disabled', async () => {
+        const post = await createPublishedPost()
+        vi.mocked(getSetting).mockImplementation((...args: Parameters<typeof getSetting>) => {
+            const [key] = args
+
+            switch (key as SettingKey) {
+                case SettingKey.MEMOS_ENABLED:
+                    return Promise.resolve('false')
+                case SettingKey.MEMOS_INSTANCE_URL:
+                    return Promise.resolve('https://memos.example.com')
+                case SettingKey.SITE_URL:
+                    return Promise.resolve('https://momei.app')
+                case SettingKey.POST_COPYRIGHT:
+                    return Promise.resolve('all-rights-reserved')
+                default:
+                    return Promise.resolve(null)
+            }
+        })
+
+        await expect(dispatchPostDistributionService(post.id, {
+            channel: 'memos',
+            operation: 'sync',
+        }, actor)).rejects.toMatchObject({
+            statusCode: 400,
+            statusMessage: 'Memos integration is disabled',
+        })
+        expect(createMemo).not.toHaveBeenCalled()
+    })
+
     it('should normalize memos public permalink when the configured instance URL includes api path', async () => {
         const post = await createPublishedPost()
         vi.mocked(getSetting).mockImplementation((...args: Parameters<typeof getSetting>) => {

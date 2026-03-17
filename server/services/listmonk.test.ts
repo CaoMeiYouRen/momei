@@ -180,4 +180,40 @@ describe('listmonk service', () => {
             templateId: 5,
         })
     })
+
+    it('should treat quoted true as enabled for listmonk delivery', async () => {
+        vi.mocked(getSettings).mockResolvedValue({
+            [SettingKey.LISTMONK_ENABLED]: '"true"',
+            [SettingKey.LISTMONK_INSTANCE_URL]: 'https://listmonk.example.com',
+            [SettingKey.LISTMONK_USERNAME]: 'admin',
+            [SettingKey.LISTMONK_ACCESS_TOKEN]: 'token',
+            [SettingKey.LISTMONK_DEFAULT_LIST_IDS]: '1,2',
+            [SettingKey.LISTMONK_CATEGORY_LIST_MAP]: '',
+            [SettingKey.LISTMONK_TAG_LIST_MAP]: '',
+            [SettingKey.LISTMONK_TEMPLATE_ID]: '',
+        })
+
+        const config = await getListmonkDispatchConfig()
+
+        expect(config.enabled).toBe(true)
+        expect(config.missingFields).toEqual([])
+    })
+
+    it('should keep listmonk disabled when explicitly configured as false', async () => {
+        vi.mocked(getSettings).mockResolvedValue({
+            [SettingKey.LISTMONK_ENABLED]: 'false',
+            [SettingKey.LISTMONK_INSTANCE_URL]: 'https://listmonk.example.com',
+            [SettingKey.LISTMONK_USERNAME]: 'admin',
+            [SettingKey.LISTMONK_ACCESS_TOKEN]: 'token',
+            [SettingKey.LISTMONK_DEFAULT_LIST_IDS]: '1,2',
+            [SettingKey.LISTMONK_CATEGORY_LIST_MAP]: '',
+            [SettingKey.LISTMONK_TAG_LIST_MAP]: '',
+            [SettingKey.LISTMONK_TEMPLATE_ID]: '',
+        })
+
+        const config = await getListmonkDispatchConfig()
+
+        expect(config.enabled).toBe(false)
+        expect(config.missingFields).toEqual([])
+    })
 })

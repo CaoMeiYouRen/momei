@@ -1,5 +1,6 @@
 import { SettingKey } from '@/types/setting'
 import { getSetting } from '@/server/services/setting'
+import { toBoolean } from '@/utils/shared/coerce'
 
 export interface MemosCreatePayload {
     content: string
@@ -19,7 +20,7 @@ interface MemosConfig {
 
 async function resolveMemosConfig(): Promise<MemosConfig | null> {
     const isEnabled = await getSetting(SettingKey.MEMOS_ENABLED)
-    if (isEnabled !== 'true') {
+    if (!toBoolean(isEnabled)) {
         return null
     }
 

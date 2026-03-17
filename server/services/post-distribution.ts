@@ -17,6 +17,7 @@ import {
     type PostDistributionTimelineEntry,
 } from '@/types/post'
 import { SettingKey } from '@/types/setting'
+import { toBoolean } from '@/utils/shared/coerce'
 import { generateRandomString } from '@/utils/shared/random'
 
 const DISTRIBUTION_TIMELINE_LIMIT = 20
@@ -405,7 +406,7 @@ function buildMemosPublicPermalink(instanceUrl: string | null, memo: MemosCreate
 
 async function ensureMemosEnabled() {
     const isEnabled = await getSetting(SettingKey.MEMOS_ENABLED)
-    if (isEnabled !== 'true') {
+    if (!toBoolean(isEnabled)) {
         throw createError({ statusCode: 400, statusMessage: 'Memos integration is disabled' })
     }
 }

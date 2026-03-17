@@ -2,9 +2,29 @@ export const toBoolean = (value: unknown, fallback = false): boolean => {
     if (typeof value === 'boolean') {
         return value
     }
-    if (typeof value === 'string') {
-        return value === 'true'
+
+    if (typeof value === 'number') {
+        if (value === 1) {
+            return true
+        }
+
+        if (value === 0) {
+            return false
+        }
     }
+
+    if (typeof value === 'string') {
+        const normalized = value.trim().replace(/^['"]|['"]$/g, '').toLowerCase()
+
+        if (['true', '1', 'yes', 'on'].includes(normalized)) {
+            return true
+        }
+
+        if (['false', '0', 'no', 'off'].includes(normalized)) {
+            return false
+        }
+    }
+
     return fallback
 }
 

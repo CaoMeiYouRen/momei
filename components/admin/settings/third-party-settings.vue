@@ -13,14 +13,12 @@
             >
                 <ToggleSwitch
                     id="memos_enabled"
-                    v-model="settings.memos_enabled"
-                    :true-value="'true'"
-                    :false-value="'false'"
+                    v-model="memosEnabled"
                     :disabled="metadata.memos_enabled?.isLocked"
                 />
             </SettingFormField>
 
-            <div v-if="settings.memos_enabled === 'true'" class="third-party-settings__sub-fields">
+            <div v-if="memosEnabled" class="third-party-settings__sub-fields">
                 <SettingFormField
                     field-key="memos_instance_url"
                     input-id="memos_instance_url"
@@ -81,14 +79,12 @@
             >
                 <ToggleSwitch
                     id="listmonk_enabled"
-                    v-model="settings.listmonk_enabled"
-                    :true-value="'true'"
-                    :false-value="'false'"
+                    v-model="listmonkEnabled"
                     :disabled="metadata.listmonk_enabled?.isLocked"
                 />
             </SettingFormField>
 
-            <div v-if="settings.listmonk_enabled === 'true'" class="third-party-settings__sub-fields">
+            <div v-if="listmonkEnabled" class="third-party-settings__sub-fields">
                 <SettingFormField
                     field-key="listmonk_instance_url"
                     input-id="listmonk_instance_url"
@@ -198,11 +194,26 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
+import { toBoolean } from '@/utils/shared/coerce'
 
 const { t } = useI18n()
 
 const settings = defineModel<any>('settings', { required: true })
 defineProps<{ metadata: any }>()
+
+function createToggleModel(key: 'memos_enabled' | 'listmonk_enabled') {
+    return computed({
+        get: () => toBoolean(settings.value?.[key]),
+        set: (value: boolean) => {
+            if (settings.value) {
+                settings.value[key] = value
+            }
+        },
+    })
+}
+
+const memosEnabled = createToggleModel('memos_enabled')
+const listmonkEnabled = createToggleModel('listmonk_enabled')
 
 const visibilityOptions = computed(() => [
     { label: t('pages.admin.settings.system.memos.visibility.PUBLIC'), value: 'PUBLIC' },

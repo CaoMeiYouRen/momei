@@ -4,6 +4,7 @@ import { emailTemplateEngine } from '@/server/utils/email/templates'
 import { getSettings } from '@/server/services/setting'
 import type { MarketingCampaign } from '@/server/entities/marketing-campaign'
 import { SettingKey } from '@/types/setting'
+import { toBoolean } from '@/utils/shared/coerce'
 
 type ListmonkDispatchAction = 'created' | 'updated'
 
@@ -52,10 +53,6 @@ export class ListmonkDispatchError extends Error {
         this.listIds = options.listIds ?? []
         this.action = options.action ?? null
     }
-}
-
-function parseBoolean(value: string | null | undefined) {
-    return value === 'true'
 }
 
 function parseNumberList(value: string | null | undefined) {
@@ -199,7 +196,7 @@ export async function getListmonkDispatchConfig(): Promise<ListmonkDispatchConfi
         SettingKey.LISTMONK_TEMPLATE_ID,
     ])
 
-    const enabled = parseBoolean(settings[SettingKey.LISTMONK_ENABLED])
+    const enabled = toBoolean(settings[SettingKey.LISTMONK_ENABLED])
     const baseUrl = (settings[SettingKey.LISTMONK_INSTANCE_URL] || '').trim().replace(/\/$/, '')
     const username = (settings[SettingKey.LISTMONK_USERNAME] || '').trim()
     const accessToken = (settings[SettingKey.LISTMONK_ACCESS_TOKEN] || '').trim()
