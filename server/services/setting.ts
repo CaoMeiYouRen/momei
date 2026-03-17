@@ -3,7 +3,7 @@ import { dataSource } from '@/server/database'
 import { Setting } from '@/server/entities/setting'
 import { recordSettingAuditLogs, type SettingAuditChange, type SettingAuditContext } from '@/server/services/setting-audit'
 import logger from '@/server/utils/logger'
-import { inferSettingMaskType, isMaskedSettingPlaceholder, maskSettingValue } from '@/server/utils/settings'
+import { isMaskedSettingPlaceholder, maskSettingValue, resolveSettingLevel, resolveSettingMaskType } from '@/server/utils/settings'
 import {
     SettingKey,
     type SettingEffectiveSource,
@@ -204,7 +204,6 @@ const LEGACY_SETTING_ENV_ALIASES: Partial<Record<string, string[]>> = {
 }
 
 const LEGACY_SETTING_KEY_SET = new Set<string>(Object.values(LEGACY_SETTING_KEY_ALIASES).flatMap((keys) => keys ?? []))
-
 /**
  * 强制被环境变量锁定的键名 (无法从后台修改，仅能通过 ENV 修改)
  * 主要是因为目前部分底层库(如 Better-Auth)直接读取了 process.env 而非通过 Service 加载
@@ -391,6 +390,14 @@ function normalizeSettingValue(value: unknown): string | null {
     }
 }
 
+function inferSettingLevel(key: string, explicitLevel?: unknown) {
+    if (isInternalOnlySettingKey(key)) {
+        return 3
+    }
+
+    return resolveSettingLevel(key, explicitLevel)
+}
+
 function createResolvedSettingItem(
     key: string,
     dbSetting?: Setting | null,
@@ -411,8 +418,8 @@ function createResolvedSettingItem(
         source = 'db'
     }
 
-    const maskType = (effectiveDbSetting?.maskType ?? inferSettingMaskType(key, value)) as SettingResolvedItem['maskType']
-    const level = Number(effectiveDbSetting?.level ?? (key.includes('api_key') || key.includes('secret') || key.includes('pass') ? 3 : 2))
+    const maskType = resolveSettingMaskType(key, value, effectiveDbSetting?.maskType)
+    const level = inferSettingLevel(key, effectiveDbSetting?.level)
 
     return {
         key,
@@ -607,12 +614,11 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
 
         const dbSetting = resolveSettingRecordFromMap(dbSettingsMap, key)
 
-        // 如果配置在数据库中存在且级别过高，则根据选项过滤
-        if (dbSetting && !options?.includeSecrets && Number(dbSetting.level) >= 3) {
+        const resolved = createResolvedSettingItem(key, dbSetting)
+
+        if (!options?.includeSecrets && resolved.level >= 3) {
             continue
         }
-
-        const resolved = createResolvedSettingItem(key, dbSetting)
 
         result.push({
             key,
@@ -658,38 +664,42 @@ export const setSettings = async (settings: Record<string, any>, auditContext?: 
         const value = typeof val === 'object' && val !== null ? val.value : val
         const extra = typeof val === 'object' && val !== null ? val : {}
         const previousValue = existingSetting?.value ?? null
-        const previousMaskType = String(existingSetting?.maskType ?? extra.maskType ?? inferSettingMaskType(key, previousValue ?? '')) as 'none' | 'password' | 'key' | 'email'
+        const previousMaskType = resolveSettingMaskType(key, previousValue ?? '', existingSetting?.maskType ?? extra.maskType)
         const normalizedIncomingValue = normalizeSettingValue(value)
+        const currentMaskType = resolveSettingMaskType(key, previousValue ?? '', existingSetting?.maskType)
         const isExistingMaskedPlaceholder = normalizedIncomingValue !== null
             && existingSetting !== null
             && existingSetting !== undefined
-            && isMaskedSettingPlaceholder(normalizedIncomingValue, existingSetting.maskType)
+            && (
+                isMaskedSettingPlaceholder(normalizedIncomingValue, existingSetting.maskType)
+                || isMaskedSettingPlaceholder(normalizedIncomingValue, currentMaskType)
+            )
         const nextValue = isExistingMaskedPlaceholder
             ? existingSetting.value
             : normalizedIncomingValue
-        const nextMaskType = String(extra.maskType ?? existingSetting?.maskType ?? inferSettingMaskType(key, nextValue ?? '')) as 'none' | 'password' | 'key' | 'email'
+        const nextMaskType = resolveSettingMaskType(key, nextValue ?? '', extra.maskType ?? existingSetting?.maskType)
+        const nextLevel = inferSettingLevel(key, extra.level ?? existingSetting?.level)
 
         if (setting) {
             // 如果是脱敏过的值且没有变化（即用户提交的是脱敏后的占位符），则跳过值更新
-            if (!(normalizedIncomingValue !== null && isMaskedSettingPlaceholder(normalizedIncomingValue, setting.maskType))) {
+            if (!(normalizedIncomingValue !== null && (
+                isMaskedSettingPlaceholder(normalizedIncomingValue, setting.maskType)
+                || isMaskedSettingPlaceholder(normalizedIncomingValue, nextMaskType)
+            ))) {
                 setting.value = nextValue
             }
 
             if (extra.description !== undefined) {
                 setting.description = String(extra.description)
             }
-            if (extra.level !== undefined) {
-                setting.level = Number(extra.level)
-            }
-            if (extra.maskType !== undefined) {
-                setting.maskType = nextMaskType
-            }
+            setting.level = nextLevel
+            setting.maskType = nextMaskType
         } else {
             setting = settingRepo.create({
                 key,
                 value: nextValue,
                 description: String(extra.description ?? ''),
-                level: Number(extra.level ?? 2),
+                level: nextLevel,
                 maskType: nextMaskType,
             })
         }

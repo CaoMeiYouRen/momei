@@ -1,6 +1,6 @@
 import { getSetting, getSettings } from '~/server/services/setting'
 import { resolveGoogleAdSenseAccount } from '~/server/utils/ad-network-config'
-import { SettingKey } from '~/types/setting'
+import { PUBLIC_SETTING_KEYS, SettingKey } from '~/types/setting'
 
 /**
  * 获取公开站点配置
@@ -9,55 +9,7 @@ import { SettingKey } from '~/types/setting'
 export default defineEventHandler(async () => {
     try {
         const commercialRaw = await getSetting<string>(SettingKey.COMMERCIAL_SPONSORSHIP, null)
-        const publicKeys = [
-            SettingKey.SITE_NAME,
-            SettingKey.SITE_TITLE,
-            SettingKey.SITE_DESCRIPTION,
-            SettingKey.SITE_KEYWORDS,
-            SettingKey.POST_COPYRIGHT,
-            SettingKey.SITE_COPYRIGHT_OWNER,
-            SettingKey.SITE_COPYRIGHT_START_YEAR,
-            SettingKey.DEFAULT_LANGUAGE,
-            SettingKey.BAIDU_ANALYTICS,
-            SettingKey.GOOGLE_ANALYTICS,
-            SettingKey.CLARITY_ANALYTICS,
-            SettingKey.SITE_LOGO,
-            SettingKey.SITE_FAVICON,
-            SettingKey.SITE_OPERATOR,
-            SettingKey.CONTACT_EMAIL,
-            SettingKey.FEEDBACK_URL,
-            SettingKey.SHOW_COMPLIANCE_INFO,
-            SettingKey.ICP_LICENSE_NUMBER,
-            SettingKey.PUBLIC_SECURITY_NUMBER,
-            SettingKey.FOOTER_CODE,
-            SettingKey.TRAVELLINGS_ENABLED,
-            SettingKey.TRAVELLINGS_HEADER_ENABLED,
-            SettingKey.TRAVELLINGS_FOOTER_ENABLED,
-            SettingKey.TRAVELLINGS_SIDEBAR_ENABLED,
-            SettingKey.LIVE2D_ENABLED,
-            SettingKey.LIVE2D_SCRIPT_URL,
-            SettingKey.LIVE2D_MODEL_URL,
-            SettingKey.LIVE2D_OPTIONS_JSON,
-            SettingKey.LIVE2D_MOBILE_ENABLED,
-            SettingKey.LIVE2D_MIN_WIDTH,
-            SettingKey.LIVE2D_DATA_SAVER_BLOCK,
-            SettingKey.CANVAS_NEST_ENABLED,
-            SettingKey.CANVAS_NEST_OPTIONS_JSON,
-            SettingKey.CANVAS_NEST_MOBILE_ENABLED,
-            SettingKey.CANVAS_NEST_MIN_WIDTH,
-            SettingKey.CANVAS_NEST_DATA_SAVER_BLOCK,
-            SettingKey.EFFECTS_MOBILE_ENABLED,
-            SettingKey.EFFECTS_MIN_WIDTH,
-            SettingKey.EFFECTS_DATA_SAVER_BLOCK,
-            SettingKey.AI_ENABLED,
-            SettingKey.ASR_ENABLED,
-            SettingKey.TTS_ENABLED,
-            SettingKey.VOLCENGINE_APP_ID,
-            SettingKey.VOLCENGINE_ACCESS_KEY,
-            SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY,
-        ]
-
-        const settings = await getSettings(publicKeys)
+        const settings = await getSettings([...PUBLIC_SETTING_KEYS])
 
         return {
             code: 200,

@@ -5,7 +5,7 @@ import {
     doesSettingRequireRestart,
     getSettingDefaultValue,
 } from '@/server/services/setting'
-import { inferSettingMaskType } from '@/server/utils/settings'
+import { resolveSettingLevel, resolveSettingMaskType } from '@/server/utils/settings'
 import type { NotificationDeliveryLogItem } from '@/types/notification'
 import { SettingKey, type SettingAuditItem, type SettingItem, type SettingLockReason, type SettingSource } from '@/types/setting'
 import { type DonationLink, type SocialLink } from '@/utils/shared/commercial'
@@ -218,8 +218,8 @@ export function getDemoSettingsPreview(): SettingItem[] {
                 key,
                 value,
                 description: '',
-                level: 2,
-                maskType: inferSettingMaskType(key, value) as SettingItem['maskType'],
+                level: resolveSettingLevel(key),
+                maskType: resolveSettingMaskType(key, value),
                 source,
                 isLocked,
                 envKey: isLocked ? (SETTING_ENV_MAP[key] ?? null) : null,

@@ -39,6 +39,7 @@ export interface HexoFrontMatter {
     duration?: number | string
     metadata?: {
         audio?: Record<string, unknown>
+        [key: string]: unknown
     }
     [key: string]: unknown
 }

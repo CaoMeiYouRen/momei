@@ -1,4 +1,26 @@
+import { PUBLIC_SETTING_KEYS, type SettingMaskType } from '@/types/setting'
 import { maskEmail as baseMaskEmail, maskString as baseMaskString } from '@/utils/shared/privacy'
+
+const PUBLIC_SETTING_KEY_SET = new Set<string>(PUBLIC_SETTING_KEYS)
+
+const MASK_TYPE_PRIORITY: Record<SettingMaskType, number> = {
+    none: 0,
+    email: 1,
+    key: 2,
+    password: 3,
+}
+
+function normalizeMaskType(maskType: string | null | undefined): SettingMaskType | null {
+    if (maskType === 'none' || maskType === 'password' || maskType === 'key' || maskType === 'email') {
+        return maskType
+    }
+
+    return null
+}
+
+export function isPublicSettingKey(key: string) {
+    return PUBLIC_SETTING_KEY_SET.has(key)
+}
 
 /**
  * 值的脱敏处理 (专门用于系统设置 UI)
@@ -58,4 +80,34 @@ export const inferSettingMaskType = (key: string, value: string = ''): string =>
         }
     }
     return 'none'
+}
+
+export function resolveSettingMaskType(key: string, value: string = '', explicitMaskType?: string | null): SettingMaskType {
+    if (isPublicSettingKey(key)) {
+        return 'none'
+    }
+
+    const inferredMaskType = normalizeMaskType(inferSettingMaskType(key, value)) ?? 'none'
+    const normalizedExplicitMaskType = normalizeMaskType(explicitMaskType)
+
+    if (!normalizedExplicitMaskType) {
+        return inferredMaskType
+    }
+
+    return MASK_TYPE_PRIORITY[normalizedExplicitMaskType] >= MASK_TYPE_PRIORITY[inferredMaskType]
+        ? normalizedExplicitMaskType
+        : inferredMaskType
+}
+
+export function resolveSettingLevel(key: string, explicitLevel?: unknown) {
+    if (isPublicSettingKey(key)) {
+        return 0
+    }
+
+    const parsedLevel = Number(explicitLevel)
+    if (Number.isInteger(parsedLevel) && parsedLevel >= 0) {
+        return parsedLevel
+    }
+
+    return 2
 }

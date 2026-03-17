@@ -194,6 +194,34 @@ describe('settingService', () => {
                 requiresRestart: true,
             })
         })
+
+        it('should treat access token settings as admin-visible password fields', async () => {
+            process.env.LISTMONK_ACCESS_TOKEN = 'listmonk-token-value'
+
+            const result = await settingService.resolveSetting(SettingKey.LISTMONK_ACCESS_TOKEN)
+
+            expect(result).toMatchObject({
+                key: SettingKey.LISTMONK_ACCESS_TOKEN,
+                value: 'listmonk-token-value',
+                source: 'env',
+                level: 2,
+                maskType: 'password',
+            })
+        })
+
+        it('should keep publicly exposed settings unmasked and level 0', async () => {
+            process.env.NUXT_PUBLIC_CONTACT_EMAIL = 'public@example.com'
+
+            const result = await settingService.resolveSetting(SettingKey.CONTACT_EMAIL)
+
+            expect(result).toMatchObject({
+                key: SettingKey.CONTACT_EMAIL,
+                value: 'public@example.com',
+                source: 'env',
+                level: 0,
+                maskType: 'none',
+            })
+        })
     })
 
     describe('setSetting', () => {
@@ -351,6 +379,50 @@ describe('settingService', () => {
             const result = await settingService.getAllSettings({ includeSecrets: true })
 
             expect(result.find((item) => item.key === String(SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY))).toBeUndefined()
+        })
+
+        it('should normalize legacy access token metadata in admin listing', async () => {
+            mockQueryBuilder.getMany.mockResolvedValue([
+                {
+                    key: SettingKey.MEMOS_ACCESS_TOKEN,
+                    value: 'legacy-token-value',
+                    level: 3,
+                    description: 'legacy memos token',
+                    maskType: 'key',
+                },
+            ])
+
+            const result = await settingService.getAllSettings({ shouldMask: true })
+            const memosAccessTokenSetting = result.find((item) => item.key === String(SettingKey.MEMOS_ACCESS_TOKEN))
+
+            expect(memosAccessTokenSetting).toMatchObject({
+                key: SettingKey.MEMOS_ACCESS_TOKEN,
+                value: '********',
+                level: 2,
+                maskType: 'password',
+            })
+        })
+
+        it('should keep public settings unmasked in admin listing even if legacy mask exists', async () => {
+            mockQueryBuilder.getMany.mockResolvedValue([
+                {
+                    key: SettingKey.CONTACT_EMAIL,
+                    value: 'public@example.com',
+                    level: 2,
+                    description: 'contact email',
+                    maskType: 'email',
+                },
+            ])
+
+            const result = await settingService.getAllSettings({ shouldMask: true })
+            const contactEmailSetting = result.find((item) => item.key === String(SettingKey.CONTACT_EMAIL))
+
+            expect(contactEmailSetting).toMatchObject({
+                key: SettingKey.CONTACT_EMAIL,
+                value: 'public@example.com',
+                level: 0,
+                maskType: 'none',
+            })
         })
     })
 })

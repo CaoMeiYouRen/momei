@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { maskSettingValue, isMaskedSettingPlaceholder, inferSettingMaskType } from './settings'
+import { inferSettingMaskType, isMaskedSettingPlaceholder, maskSettingValue, resolveSettingLevel, resolveSettingMaskType } from './settings'
+import { SettingKey } from '@/types/setting'
 
 // Mock dependencies
 vi.mock('@/utils/shared/privacy', () => ({
@@ -98,6 +99,7 @@ describe('settings utils', () => {
         it('should infer password type from key containing "secret"', () => {
             expect(inferSettingMaskType('API_SECRET')).toBe('password')
             expect(inferSettingMaskType('client_secret')).toBe('password')
+            expect(inferSettingMaskType('MEMOS_ACCESS_TOKEN')).toBe('password')
         })
 
         it('should infer key type from key containing "key"', () => {
@@ -136,6 +138,32 @@ describe('settings utils', () => {
         it('should handle empty value parameter', () => {
             expect(inferSettingMaskType('SOME_KEY')).toBe('key')
             expect(inferSettingMaskType('SOME_EMAIL')).toBe('none')
+        })
+    })
+
+    describe('resolveSettingMaskType', () => {
+        it('should upgrade legacy token fields to password masking', () => {
+            expect(resolveSettingMaskType(SettingKey.MEMOS_ACCESS_TOKEN, 'token-value', 'key')).toBe('password')
+            expect(resolveSettingMaskType(SettingKey.LISTMONK_ACCESS_TOKEN, 'token-value', 'key')).toBe('password')
+        })
+
+        it('should keep publicly exposed settings unmasked in admin', () => {
+            expect(resolveSettingMaskType(SettingKey.CONTACT_EMAIL, 'public@example.com', 'email')).toBe('none')
+            expect(resolveSettingMaskType(SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY, 'public-key-value', 'key')).toBe('none')
+        })
+    })
+
+    describe('resolveSettingLevel', () => {
+        it('should keep public settings at level 0', () => {
+            expect(resolveSettingLevel(SettingKey.CONTACT_EMAIL, 2)).toBe(0)
+        })
+
+        it('should keep explicit non-public levels when provided', () => {
+            expect(resolveSettingLevel(SettingKey.MEMOS_ACCESS_TOKEN, 2)).toBe(2)
+        })
+
+        it('should default admin-visible settings to level 2', () => {
+            expect(resolveSettingLevel(SettingKey.MEMOS_ACCESS_TOKEN)).toBe(2)
         })
     })
 })

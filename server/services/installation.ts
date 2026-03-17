@@ -11,7 +11,7 @@ import { TEST_MODE } from '@/utils/shared/env'
 import type { InstallationEnvSetting } from '@/utils/shared/installation-env-setting'
 import type { InstallationSiteConfigModel } from '@/utils/shared/installation-settings'
 import { SettingKey } from '@/types/setting'
-import { inferSettingMaskType, isMaskedSettingPlaceholder, maskSettingValue } from '@/server/utils/settings'
+import { isMaskedSettingPlaceholder, maskSettingValue, resolveSettingLevel, resolveSettingMaskType } from '@/server/utils/settings'
 
 /**
  * 安装状态检测服务
@@ -370,7 +370,7 @@ function getEnvSettingsDetails(): Record<string, EnvSetting> {
         const { envKey, value: envValue } = resolveSettingEnvEntry(key)
         if (envKey && envValue !== undefined && envValue !== '') {
             // 推断脱敏类型
-            const maskType = inferSettingMaskType(key, envValue)
+            const maskType = resolveSettingMaskType(key, envValue)
 
             envSettings[key] = {
                 value: maskSettingValue(envValue, maskType) || '',
@@ -619,12 +619,12 @@ export async function syncSettingsFromEnv(): Promise<void> {
                 }
             } else {
                 // 如果不存在，创建带默认元数据的记录
-                const maskType = inferSettingMaskType(key, envValue)
+                const maskType = resolveSettingMaskType(key, envValue)
                 setting = settingRepo.create({
                     key,
                     value: envValue,
                     description: `Initial sync from ${envKey}`,
-                    level: 2, // 默认管理员级别
+                    level: resolveSettingLevel(key),
                     maskType,
                 })
 

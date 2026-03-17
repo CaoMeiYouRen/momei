@@ -12,6 +12,7 @@ describe('distribution-template', () => {
         language: 'zh-CN',
         copyright: 'all-rights-reserved',
         author: {
+            id: 'author-1',
             name: 'Momei Author',
         },
         tags: [

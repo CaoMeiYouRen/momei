@@ -37,7 +37,7 @@
 | `AUTH_SECRET` | - | 3 | password | **核心密钥**，不进入数据库，仅限 ENV |
 | `NUXT_PUBLIC_AUTH_BASE_URL` | `site_url` | 0 | none | Better Auth 回调地址，系统设置锁定态主要基于此变量 |
 | `NUXT_PUBLIC_POST_COPYRIGHT` | `post_copyright` | 0 | none | 默认文章版权协议类型（兼容旧变量 `NUXT_PUBLIC_DEFAULT_COPYRIGHT`） |
-| `NUXT_PUBLIC_CONTACT_EMAIL` | `contact_email` | 0 | email | 站点公开联系邮箱 |
+| `NUXT_PUBLIC_CONTACT_EMAIL` | `contact_email` | 0 | none | 站点公开联系邮箱；因已通过 `/api/settings/public` 公开返回，后台设置页不再额外脱敏 |
 | `NUXT_PUBLIC_SITE_COPYRIGHT_OWNER` | `site_copyright_owner` | 0 | none | 站点版权展示的版权所有者（兼容旧变量 `NUXT_PUBLIC_FOOTER_COPYRIGHT_OWNER`） |
 | `NUXT_PUBLIC_SITE_COPYRIGHT_START_YEAR` | `site_copyright_start_year` | 0 | none | 站点版权年份区间的起始年份（兼容旧变量 `NUXT_PUBLIC_FOOTER_COPYRIGHT_START_YEAR`） |
 | `MACHINE_ID` | - | 3 | none | 分布式 ID 机器码 (0-1023) |
@@ -144,12 +144,12 @@
 | :--- | :--- | :--- | :--- | :--- |
 | `MEMOS_ENABLED` | `memos_enabled` | 2 | none | 是否启用 Memos 发布同步 |
 | `MEMOS_INSTANCE_URL` | `memos_instance_url` | 2 | none | Memos 实例地址 |
-| `MEMOS_ACCESS_TOKEN` | `memos_access_token` | 2 | key | Memos API Token |
+| `MEMOS_ACCESS_TOKEN` | `memos_access_token` | 2 | password | Memos API Token |
 | `MEMOS_DEFAULT_VISIBILITY` | `memos_default_visibility` | 2 | none | Memos 默认可见性 |
 | `LISTMONK_ENABLED` | `listmonk_enabled` | 2 | none | 是否启用 listmonk Newsletter 外部分发 |
 | `LISTMONK_INSTANCE_URL` | `listmonk_instance_url` | 2 | none | listmonk 后台实例地址 |
 | `LISTMONK_USERNAME` | `listmonk_username` | 2 | none | listmonk 管理员用户名 |
-| `LISTMONK_ACCESS_TOKEN` | `listmonk_access_token` | 2 | key | listmonk API Access Token |
+| `LISTMONK_ACCESS_TOKEN` | `listmonk_access_token` | 2 | password | listmonk API Access Token |
 | `LISTMONK_DEFAULT_LIST_IDS` | `listmonk_default_list_ids` | 2 | none | 默认接收列表 ID，逗号分隔 |
 | `LISTMONK_CATEGORY_LIST_MAP` | `listmonk_category_list_map` | 2 | none | 分类到 listmonk 列表的 JSON 映射 |
 | `LISTMONK_TAG_LIST_MAP` | `listmonk_tag_list_map` | 2 | none | 标签到 listmonk 列表的 JSON 映射 |
@@ -172,3 +172,6 @@
 
 4. **调度相关补充**:
    `WEBHOOK_TIMESTAMP_TOLERANCE` 这个变量名目前仍保留在示例文件中，但当前实现尚未真正读取；Webhook 时间戳容差默认固定为 5 分钟。
+
+5. **公开字段不重复脱敏**:
+   若某个设置键已经通过 `/api/settings/public` 以原值公开返回，则系统设置页会优先按公开字段处理，不再额外做 `email` / `key` 类脱敏展示，以免出现“公开接口能看到原值，后台反而只看到掩码”的无效遮罩。
