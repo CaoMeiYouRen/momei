@@ -8,7 +8,7 @@
 
 - Memos 内容目前由 `server/services/post-distribution.ts` 内部的 `buildMemoContent()` 直接拼接，结构只有标题、纯文本摘要、阅读全文链接与版权尾注，尚未把封面和标签纳入模板层。
 - WechatSync 内容目前由 `components/admin/posts/post-distribution-button.vue` 内部的 `buildWechatSyncPost()` 在前端生成，输出 `markdown`、`content`、`desc`、`thumb` 四段通用字段，但没有渠道级模板分层，也没有标签格式差异化处理。
-- WechatSync 插件的 `addTask()` 当前接收的是“单份文章内容 + 多个账户”，这意味着如果 B 站、微博和小红书同时勾选，现状无法给不同平台发送不同标签格式。
+- WechatSync 插件的 `addTask()` 当前接收的是“单份文章内容 + 多个账户”，这意味着如果 B 站、微博和小红书同时勾选，现状无法给不同平台发送不同标签策略。
 - 现有分发状态机、时间线、失败分类和回写端点已经在 [content-distribution-governance.md](./content-distribution-governance.md) 中收敛完成，本轮方案不能破坏 `attemptId`、手动重试、人工终止和审计时间线。
 - 标签翻译簇当前已明确要求按 `translationId -> slug -> id` 收口，见 [taxonomy.md](./taxonomy.md) 第 6 节；因此分发场景不能再按“标签显示名字符串”直接导出，否则会把同簇标签重复输出到渠道正文中。
 
@@ -174,7 +174,8 @@ WechatSync 并不是一个单一渠道，而是一组账号平台的投递入口
 
 | 平台类型 | 标签格式 | 说明 |
 | :-- | :-- | :-- |
-| `bilibili`  / `weibo` | `#标签#` | 双井号包裹 |
+| `bilibili` | `#标签#` | 双井号包裹 |
+| `weibo` | 不追加标签 | 微博专栏当前会报 `CODE:004`，因此禁用标签尾注 |
 | `xiaohongshu` / `twitter` | `#标签` | 单前缀 |
 | 其他平台 | 不追加标签 | 当前阶段暂不考虑 |
 
@@ -303,14 +304,14 @@ translationId || slug || id
 
 ### 9.3 WechatSync 分组测试
 
-- 同时选择 B 站和微博时，只发送一个 `wrapped` 批次。
+- 同时选择 B 站和微博时，需要拆成 `wrapped` 与 `none` 两个批次。
 - 同时选择 B 站和小红书时，自动拆成两个批次。
 - 多批次结果最终仍能回写到同一个 `attemptId`。
 - 旧版仅返回 `type` 的账户对象仍能被正确识别和回写。
 
 ## 10. 风险与边界
 
-- 本轮不新增新的第三方直连渠道，B 站、微博、小红书、Twitter 仍然只是 WechatSync 账户 profile，不升级为站内一等渠道。
+- 本轮不新增新的第三方直连渠道，B 站、微博、小红书、Twitter 仍然只是 WechatSync 账户 profile，不升级为站内一等渠道。微博仅保留正文与版权同步，不再追加标签尾注。
 - 其他未知平台默认不追加标签，避免误伤内容格式。
 - 如果后续 WechatSync 插件升级为“支持每个账户单独 post payload”，可以复用本方案的 profile 与模板层，只需删掉前端分组聚合这一层。
 

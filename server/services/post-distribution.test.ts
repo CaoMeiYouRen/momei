@@ -6,6 +6,7 @@ import {
 } from './post-distribution'
 import { dataSource, initializeDB } from '@/server/database'
 import { Post } from '@/server/entities/post'
+import { Tag } from '@/server/entities/tag'
 import { User } from '@/server/entities/user'
 import { PostStatus, PostVisibility } from '@/types/post'
 import { SettingKey } from '@/types/setting'
@@ -76,6 +77,7 @@ describe('post-distribution service', () => {
         })
 
         await dataSource.getRepository(Post).clear()
+        await dataSource.getRepository(Tag).clear()
         await dataSource.getRepository(User).clear()
     })
 
@@ -91,6 +93,17 @@ describe('post-distribution service', () => {
 
     it('should create a memos delivery record and persist remote state', async () => {
         const post = await createPublishedPost()
+        const tag = new Tag()
+        tag.name = 'Nuxt'
+        tag.slug = `nuxt-${Math.random().toString(36).slice(2, 8)}`
+        tag.language = 'zh-CN'
+        tag.translationId = 'cluster-nuxt'
+        await dataSource.getRepository(Tag).save(tag)
+
+        post.coverImage = 'https://static.example.com/cover.png'
+        post.tags = [tag]
+        await dataSource.getRepository(Post).save(post)
+
         vi.mocked(createMemo).mockResolvedValue({ name: 'memos/42' })
 
         const result = await dispatchPostDistributionService(post.id, {
@@ -99,6 +112,15 @@ describe('post-distribution service', () => {
         }, actor)
 
         expect(createMemo).toHaveBeenCalledTimes(1)
+        expect(createMemo).toHaveBeenCalledWith(expect.objectContaining({
+            content: expect.stringContaining('![](https://static.example.com/cover.png)'),
+        }))
+        expect(createMemo).toHaveBeenCalledWith(expect.objectContaining({
+            content: expect.stringContaining('#Nuxt'),
+        }))
+        expect(createMemo).toHaveBeenCalledWith(expect.objectContaining({
+            content: expect.stringContaining('版权声明'),
+        }))
         expect(updateMemo).not.toHaveBeenCalled()
         expect(result.summary.channels.memos.status).toBe('succeeded')
         expect(result.summary.channels.memos.remoteId).toBe('42')

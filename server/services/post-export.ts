@@ -6,6 +6,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
     return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
 }
 
+function isNonEmptyString(value: unknown): value is string {
+    return typeof value === 'string' && value.length > 0
+}
+
 function sanitizeYamlValue<T>(value: T): T | undefined {
     if (value === undefined || value === null) {
         return undefined
@@ -72,6 +76,15 @@ export function formatPostToMarkdown(post: Post): string {
         if (typeof audioMetadata.language === 'string' && audioMetadata.language) {
             frontMatter.audio_language = audioMetadata.language
         }
+        if (isNonEmptyString(audioMetadata.translationId)) {
+            frontMatter.audio_translation_id = audioMetadata.translationId
+        }
+        if (isNonEmptyString(audioMetadata.postId)) {
+            frontMatter.audio_post_id = audioMetadata.postId
+        }
+        if (isNonEmptyString(audioMetadata.mode)) {
+            frontMatter.audio_mode = audioMetadata.mode
+        }
     }
 
     const ttsMetadata = sanitizeYamlValue(post.metadata?.tts)
@@ -84,6 +97,18 @@ export function formatPostToMarkdown(post: Post): string {
         }
         if (typeof ttsMetadata.language === 'string' && ttsMetadata.language) {
             frontMatter.tts_language = ttsMetadata.language
+        }
+        if (isNonEmptyString(ttsMetadata.generatedAt)) {
+            frontMatter.tts_generated_at = ttsMetadata.generatedAt
+        }
+        if (isNonEmptyString(ttsMetadata.translationId)) {
+            frontMatter.tts_translation_id = ttsMetadata.translationId
+        }
+        if (isNonEmptyString(ttsMetadata.postId)) {
+            frontMatter.tts_post_id = ttsMetadata.postId
+        }
+        if (isNonEmptyString(ttsMetadata.mode)) {
+            frontMatter.tts_mode = ttsMetadata.mode
         }
     }
 

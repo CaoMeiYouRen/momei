@@ -91,7 +91,7 @@ describe('Post Export Service', () => {
         expect(markdown).toContain('audio_mode: podcast')
         expect(markdown).toContain('tts_provider: openai')
         expect(markdown).toContain('tts_voice: alloy')
-        expect(markdown).toContain('tts_generated_at: 2026-03-17T08:00:00.000Z')
+        expect(markdown).toContain('tts_generated_at: \'2026-03-17T08:00:00.000Z\'')
         expect(markdown).toContain('tts_language: en-US')
         expect(markdown).toContain('tts_translation_id: translation-cluster-1')
         expect(markdown).toContain('tts_post_id: post-en-1')

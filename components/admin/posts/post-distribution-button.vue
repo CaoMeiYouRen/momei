@@ -284,19 +284,30 @@ import type {
     PostDistributionTimelineEntry,
 } from '@/types/post'
 import type { ApiResponse } from '@/types/api'
-import { appendPostCopyrightNotice } from '@/utils/shared/post-copyright'
-import { createMarkdownRenderer } from '@/utils/shared/markdown'
-import { buildAbsoluteUrl } from '@/utils/shared/seo'
+import {
+    buildDistributionMaterialBundle,
+    buildWechatSyncPostFromMaterialBundle,
+    type DistributionMaterialBundle,
+} from '@/utils/shared/distribution-template'
+import { groupWechatSyncAccountsByTagRenderMode } from '@/utils/shared/distribution-tags'
 import {
     buildWechatSyncFailureResults,
     mapWechatSyncTaskAccountsForCompletion,
     normalizeWechatSyncAccounts,
     resolveWechatSyncAccountKey,
     type WechatSyncAccount,
+    type WechatSyncCompletionAccount,
     type WechatSyncRawAccount,
     type WechatSyncTaskAccount,
     type WechatSyncTaskStatus,
 } from '@/utils/shared/wechatsync'
+import {
+    mapCompletionAccountsToTaskAccounts,
+    mergeWechatSyncCompletionAccounts,
+    mergeWechatSyncTaskAccounts,
+    resolveWechatSyncCompletionAccountKey,
+    shouldFinalizeWechatSyncStatus,
+} from '@/utils/shared/post-distribution-wechatsync'
 import { useI18nDate } from '@/composables/use-i18n-date'
 
 interface PostDistributionSummary {
@@ -521,7 +532,66 @@ async function dispatchMemos(operation: 'sync' | 'retry') {
     }
 }
 
-async function finalizeWechatSync(accounts: WechatSyncTaskAccount[]) {
+function syncLocalWechatTaskAccounts(accounts: readonly WechatSyncTaskAccount[]) {
+    localWechatTaskStatus.value = {
+        accounts: mergeWechatSyncTaskAccounts(localWechatTaskStatus.value?.accounts || [], accounts),
+    }
+}
+
+async function buildWechatSyncMaterialBundle() {
+    await ensurePostDetail()
+    const sourcePost = fetchedPost.value || (props.post as Post)
+    return buildDistributionMaterialBundle(sourcePost, {
+        siteUrl: runtimeConfig.public.siteUrl || window.location.origin,
+        defaultLicense: runtimeConfig.public.postCopyright || runtimeConfig.public.defaultCopyright || 'all-rights-reserved',
+    })
+}
+
+async function runWechatSyncBatch(
+    syncer: WechatSyncWindow,
+    materialBundle: DistributionMaterialBundle,
+    batch: {
+        renderMode: 'leading' | 'wrapped' | 'none'
+        accounts: WechatSyncAccount[]
+    },
+) {
+    return await new Promise<WechatSyncCompletionAccount[]>((resolve) => {
+        const postToSync = buildWechatSyncPostFromMaterialBundle(materialBundle, batch.renderMode)
+
+        try {
+            syncer.addTask(
+                {
+                    post: postToSync,
+                    accounts: batch.accounts,
+                },
+                (status) => {
+                    const taskAccounts = status.accounts || []
+                    if (taskAccounts.length) {
+                        syncLocalWechatTaskAccounts(taskAccounts)
+                    }
+
+                    if (shouldFinalizeWechatSyncStatus({ accounts: taskAccounts })) {
+                        resolve(mapWechatSyncTaskAccountsForCompletion(taskAccounts, batch.accounts))
+                    }
+                },
+                () => {
+                    void loadSummary()
+                },
+            )
+        } catch (error) {
+            const failureResults = buildWechatSyncFailureResults(
+                batch.accounts,
+                resolveErrorMessage(error, {
+                    fallbackKey: 'pages.admin.posts.distribution.dispatch_failed',
+                }),
+            )
+            syncLocalWechatTaskAccounts(mapCompletionAccountsToTaskAccounts(failureResults))
+            resolve(failureResults)
+        }
+    })
+}
+
+async function finalizeWechatSync(accounts: WechatSyncCompletionAccount[]) {
     if (!postId.value || !activeWechatAttemptId.value || finalizingWechatSync.value) {
         return
     }
@@ -532,7 +602,7 @@ async function finalizeWechatSync(accounts: WechatSyncTaskAccount[]) {
             method: 'POST',
             body: {
                 attemptId: activeWechatAttemptId.value,
-                accounts: mapWechatSyncTaskAccountsForCompletion(accounts, selectedWechatAccounts.value),
+                accounts,
             },
         })
         await loadSummary()
@@ -542,68 +612,6 @@ async function finalizeWechatSync(accounts: WechatSyncTaskAccount[]) {
     } finally {
         activeWechatAttemptId.value = null
         finalizingWechatSync.value = false
-    }
-}
-
-async function finalizeWechatSyncStartupFailure(error: unknown) {
-    if (!postId.value || !activeWechatAttemptId.value || !selectedWechatAccounts.value.length) {
-        return
-    }
-
-    try {
-        await $fetch(`/api/admin/posts/${postId.value}/distribution/wechatsync-complete`, {
-            method: 'POST',
-            body: {
-                attemptId: activeWechatAttemptId.value,
-                accounts: buildWechatSyncFailureResults(
-                    selectedWechatAccounts.value,
-                    resolveErrorMessage(error, {
-                        fallbackKey: 'pages.admin.posts.distribution.dispatch_failed',
-                    }),
-                ),
-            },
-        })
-        await loadSummary()
-    } catch (completionError) {
-        console.error('[PostDistribution] Failed to finalize WechatSync startup failure', completionError)
-    } finally {
-        activeWechatAttemptId.value = null
-        localWechatTaskStatus.value = null
-    }
-}
-
-function shouldFinalizeWechatSync(status: WechatSyncTaskStatus) {
-    return Boolean(status.accounts?.length)
-        && status.accounts!.every((account) => account.status === 'done' || account.status === 'failed')
-}
-
-async function buildWechatSyncPost() {
-    await ensurePostDetail()
-    const sourcePost = fetchedPost.value || (props.post as Post)
-    const md = createMarkdownRenderer({
-        html: true,
-        withAnchor: true,
-    })
-
-    const langPrefix = sourcePost.language === 'zh-CN' ? '' : `/${sourcePost.language}`
-    const postUrl = buildAbsoluteUrl(
-        runtimeConfig.public.siteUrl || window.location.origin,
-        `${langPrefix}/posts/${sourcePost.slug || sourcePost.id}`,
-    )
-    const markdownWithCopyright = appendPostCopyrightNotice(sourcePost.content || '', {
-        authorName: sourcePost.author?.name || null,
-        url: postUrl,
-        license: sourcePost.copyright,
-        defaultLicense: runtimeConfig.public.postCopyright || runtimeConfig.public.defaultCopyright || 'all-rights-reserved',
-        locale: sourcePost.language,
-    }, 'markdown')
-
-    return {
-        title: sourcePost.title || '',
-        markdown: markdownWithCopyright,
-        content: md.render(markdownWithCopyright),
-        desc: sourcePost.summary || (sourcePost.content || '').substring(0, 100).replace(/[#*`]/g, ''),
-        thumb: sourcePost.coverImage || '',
     }
 }
 
@@ -621,6 +629,9 @@ async function dispatchWechatSync(operation: 'sync' | 'retry') {
     }
 
     wechatSyncSubmitting.value = true
+    const selectedAccountsSnapshot = selectedWechatAccounts.value.map((account) => ({ ...account }))
+    let completionAccounts: WechatSyncCompletionAccount[] = []
+
     try {
         const response = await $fetch<ApiResponse<{ attemptId?: string | null }>>(`/api/admin/posts/${postId.value}/distribution`, {
             method: 'POST',
@@ -632,27 +643,34 @@ async function dispatchWechatSync(operation: 'sync' | 'retry') {
         })
 
         activeWechatAttemptId.value = response.data?.attemptId || null
-        const postToSync = await buildWechatSyncPost()
         localWechatTaskStatus.value = { accounts: [] }
 
-        syncer.addTask(
-            {
-                post: postToSync,
-                accounts: selectedWechatAccounts.value,
-            },
-            (status) => {
-                localWechatTaskStatus.value = status
-                if (shouldFinalizeWechatSync(status) && status.accounts) {
-                    void finalizeWechatSync(status.accounts)
-                }
-            },
-            () => {
-                void loadSummary()
-            },
-        )
+        const materialBundle = await buildWechatSyncMaterialBundle()
+        const groupedAccounts = groupWechatSyncAccountsByTagRenderMode(selectedAccountsSnapshot)
+
+        for (const group of groupedAccounts) {
+            const batchCompletionAccounts = await runWechatSyncBatch(syncer, materialBundle, group)
+            completionAccounts = mergeWechatSyncCompletionAccounts(completionAccounts, batchCompletionAccounts)
+        }
+
+        await finalizeWechatSync(completionAccounts)
     } catch (error) {
-        await finalizeWechatSyncStartupFailure(error)
-        showErrorToast(error, { fallbackKey: 'pages.admin.posts.distribution.dispatch_failed' })
+        const completedAccountKeys = new Set(completionAccounts.map((account) => resolveWechatSyncCompletionAccountKey(account)))
+        const remainingAccounts = selectedAccountsSnapshot.filter((account) => !completedAccountKeys.has(account.id || account.type || account.title))
+
+        if (remainingAccounts.length && activeWechatAttemptId.value) {
+            const failureResults = buildWechatSyncFailureResults(
+                remainingAccounts,
+                resolveErrorMessage(error, {
+                    fallbackKey: 'pages.admin.posts.distribution.dispatch_failed',
+                }),
+            )
+            completionAccounts = mergeWechatSyncCompletionAccounts(completionAccounts, failureResults)
+            syncLocalWechatTaskAccounts(mapCompletionAccountsToTaskAccounts(failureResults))
+            await finalizeWechatSync(completionAccounts)
+        } else {
+            showErrorToast(error, { fallbackKey: 'pages.admin.posts.distribution.dispatch_failed' })
+        }
     } finally {
         wechatSyncSubmitting.value = false
     }
@@ -719,13 +737,13 @@ defineExpose({
     }
 
     &__channel-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.875rem;
         padding: 1rem;
         border: 1px solid var(--p-surface-border);
         border-radius: var(--p-border-radius-md);
         background: var(--p-content-background);
-        display: flex;
-        flex-direction: column;
-        gap: 0.875rem;
     }
 
     &__channel-header {
@@ -738,13 +756,14 @@ defineExpose({
         }
 
         small {
-            color: var(--p-text-muted-color);
             display: block;
+            color: var(--p-text-muted-color);
             line-height: 1.5;
         }
     }
 
-    &__hint {
+    &__hint,
+    &__empty {
         color: var(--p-text-muted-color);
     }
 
@@ -755,10 +774,17 @@ defineExpose({
     }
 
     &__mode-item,
-    &__account-item {
+    &__account-item,
+    &__task-name,
+    &__timeline-main {
         display: flex;
         align-items: center;
         gap: 0.5rem;
+    }
+
+    &__task-name,
+    &__timeline-main {
+        flex-wrap: wrap;
     }
 
     &__account-list {
@@ -800,24 +826,16 @@ defineExpose({
 
     &__task-item:last-child,
     &__timeline-item:last-child {
-        border-bottom: none;
         padding-bottom: 0;
-    }
-
-    &__task-name,
-    &__timeline-main {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
+        border-bottom: none;
     }
 
     &__task-meta,
     &__timeline-time {
-        color: var(--p-text-muted-color);
         display: flex;
         gap: 0.5rem;
         margin-top: 0.25rem;
+        color: var(--p-text-muted-color);
     }
 
     &__timeline-header {
@@ -839,18 +857,11 @@ defineExpose({
             color: var(--p-red-500);
         }
     }
-
-    &__empty {
-        color: var(--p-text-muted-color);
-    }
 }
 
 @media (width <= 960px) {
     .post-distribution-dialog {
-        &__channels {
-            grid-template-columns: 1fr;
-        }
-
+        &__channels,
         &__account-list {
             grid-template-columns: 1fr;
         }

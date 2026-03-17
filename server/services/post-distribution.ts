@@ -1,7 +1,7 @@
 import { dataSource } from '@/server/database'
 import { Post as PostEntity } from '@/server/entities/post'
 import { getSetting } from '@/server/services/setting'
-import { htmlToPlainText } from '@/server/utils/html'
+import { buildPostDistributionMaterialBundle } from '@/server/services/post-distribution-template'
 import logger from '@/server/utils/logger'
 import { createMemo, type MemosCreateResponse, updateMemo } from '@/server/utils/memos'
 import {
@@ -17,12 +17,9 @@ import {
     type PostDistributionTimelineEntry,
 } from '@/types/post'
 import { SettingKey } from '@/types/setting'
-import { appendPostCopyrightNotice } from '@/utils/shared/post-copyright'
 import { generateRandomString } from '@/utils/shared/random'
-import { buildAbsoluteUrl } from '@/utils/shared/seo'
 
 const DISTRIBUTION_TIMELINE_LIMIT = 20
-const MEMO_SUMMARY_MAX_LENGTH = 280
 
 export interface PostDistributionActor {
     currentUserId: string
@@ -149,7 +146,7 @@ async function loadManagedPost(postId: string) {
     const postRepo = dataSource.getRepository(PostEntity)
     const post = await postRepo.findOne({
         where: { id: postId },
-        relations: ['author'],
+        relations: ['author', 'tags'],
     })
 
     if (!post) {
@@ -406,53 +403,6 @@ function buildMemosPublicPermalink(instanceUrl: string | null, memo: MemosCreate
     return `${publicBaseUrl}/${resourceName}`
 }
 
-async function resolveSiteUrl() {
-    const siteUrl = await getSetting(SettingKey.SITE_URL)
-    if (siteUrl) {
-        return siteUrl
-    }
-
-    const runtimeConfig = useRuntimeConfig()
-    return runtimeConfig.public.siteUrl || 'https://momei.app'
-}
-
-function buildPostExcerpt(post: Post) {
-    const rawExcerpt = post.summary || htmlToPlainText(post.content)
-    const normalizedExcerpt = rawExcerpt.replace(/\s+/gu, ' ').trim()
-
-    if (!normalizedExcerpt) {
-        return ''
-    }
-
-    if (normalizedExcerpt.length <= MEMO_SUMMARY_MAX_LENGTH) {
-        return normalizedExcerpt
-    }
-
-    return `${normalizedExcerpt.slice(0, MEMO_SUMMARY_MAX_LENGTH).trimEnd()}...`
-}
-
-async function buildMemoContent(post: Post) {
-    const siteUrl = await resolveSiteUrl()
-    const langPrefix = post.language === 'zh-CN' ? '' : `/${post.language}`
-    const postUrl = buildAbsoluteUrl(siteUrl, `${langPrefix}/posts/${post.slug || post.id}`)
-    const excerpt = buildPostExcerpt(post)
-    const defaultLicense = await getSetting(SettingKey.POST_COPYRIGHT)
-
-    const parts = [`# ${post.title}`]
-    if (excerpt) {
-        parts.push(excerpt)
-    }
-    parts.push(`[阅读全文](${postUrl})`)
-
-    return appendPostCopyrightNotice(parts.join('\n\n'), {
-        authorName: post.author?.name || null,
-        url: postUrl,
-        license: post.copyright,
-        defaultLicense,
-        locale: post.language,
-    }, 'markdown')
-}
-
 async function ensureMemosEnabled() {
     const isEnabled = await getSetting(SettingKey.MEMOS_ENABLED)
     if (isEnabled !== 'true') {
@@ -504,7 +454,8 @@ async function runMemosDistribution(
     }
 
     try {
-        const content = await buildMemoContent(post)
+        const materialBundle = await buildPostDistributionMaterialBundle(post)
+        const content = materialBundle.channels.memos.content
         const memo = action === 'update' || (action === 'retry' && mode === 'update-existing' && attempt.channelState.remoteId)
             ? await updateMemo(attempt.channelState.remoteId!, { content })
             : await createMemo({ content })
