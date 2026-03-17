@@ -78,6 +78,7 @@ export default defineConfig({
                         items: [
                             { text: '模块概览', link: '/design/modules/index' },
                             { text: '博客内容', link: '/design/modules/blog' },
+                            { text: '内容分发模板与标签', link: '/design/modules/content-distribution-template-tag-adaptation' },
                             { text: '创作安全', link: '/design/modules/creative-security' },
                             { text: '认证系统', link: '/design/modules/auth' },
                             { text: 'AI 辅助', link: '/design/modules/ai' },
