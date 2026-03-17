@@ -39,8 +39,8 @@ jobs:
       - run: pnpm run lint:css
       - run: pnpm run typecheck
 
-  unit-coverage:
-    name: Unit & Coverage
+  unit:
+    name: Unit
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -56,13 +56,29 @@ jobs:
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - run: pnpm run test
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "latest"
+      - name: Setup Node.js@lts environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: pnpm i --frozen-lockfile
       - run: pnpm run test:coverage
       # 上传代码覆盖率报告到 Codecov
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-
   e2e:
     name: E2E Test
     runs-on: ubuntu-latest
