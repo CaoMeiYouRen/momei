@@ -1,6 +1,5 @@
 import { requireAdmin } from '@/server/utils/permission'
-import { createCampaignFromPost, sendMarketingCampaign } from '@/server/services/notification'
-import { MarketingCampaignStatus } from '@/utils/shared/notification'
+import { createCampaignFromPost, startMarketingCampaignDispatch } from '@/server/services/notification'
 
 export default defineEventHandler(async (event) => {
     const session = await requireAdmin(event)
@@ -13,12 +12,9 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // Manual repush always creates a new campaign and starts sending immediately (as per current design)
-    // or we could make it configurable. For now, immediate send is simpler.
-    const campaign = await createCampaignFromPost(id, session.user.id, MarketingCampaignStatus.SENDING)
+    const campaign = await createCampaignFromPost(id, session.user.id)
 
-    // Background send
-    sendMarketingCampaign(campaign.id).catch((err) => {
+    void startMarketingCampaignDispatch(campaign.id).catch((err) => {
         console.error('Failed to send repushed marketing campaign:', err)
     })
 

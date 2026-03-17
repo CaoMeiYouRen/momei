@@ -1042,7 +1042,8 @@
                         "live2d": "Live2D 위젯",
                         "canvas_nest": "CanvasNest 파티클 효과",
                         "effects_performance": "시각 효과 성능 전략",
-                        "memos": "Memos 동기화"
+                        "memos": "Memos 동기화",
+                        "listmonk": "listmonk 뉴스레터 배포"
                     },
                     "notifications": {
                         "title": "운영 알림 설정",
@@ -1091,6 +1092,7 @@
                                 "in_app": "인앱 알림",
                                 "sse": "SSE 실시간 전달",
                                 "email": "이메일",
+                                "listmonk": "listmonk",
                                 "web_push": "웹 푸시"
                             },
                             "statuses": {
@@ -1244,7 +1246,15 @@
                         "memos_enabled": "Memos 동기화 활성화",
                         "memos_instance_url": "Memos 인스턴스 URL",
                         "memos_access_token": "액세스 토큰",
-                        "memos_default_visibility": "기본 공개 범위"
+                        "memos_default_visibility": "기본 공개 범위",
+                        "listmonk_enabled": "listmonk 배포 활성화",
+                        "listmonk_instance_url": "listmonk 인스턴스 URL",
+                        "listmonk_username": "관리자 사용자 이름",
+                        "listmonk_access_token": "액세스 토큰",
+                        "listmonk_default_list_ids": "기본 리스트 ID",
+                        "listmonk_category_list_map": "카테고리-리스트 매핑",
+                        "listmonk_tag_list_map": "태그-리스트 매핑",
+                        "listmonk_template_id": "템플릿 ID(선택 사항)"
                     },
                     "hints": {
                         "env_locked": "환경 변수에 의해 잠겨 있습니다",
@@ -1284,7 +1294,14 @@
                         "live2d_options_json": "예: {'{'}\n  \"modelId\": 0,\n  \"cdnPath\": \"https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/\",\n  \"tools\": [\"hitokoto\", \"switch-model\", \"switch-texture\", \"photo\", \"info\", \"quit\"],\n  \"drag\": false,\n  \"logLevel\": \"warn\"\n{'}'}",
                         "canvas_nest_options_json": "예: {'{'}\n  \"color\": \"0,0,0\",\n  \"pointColor\": \"0,0,0\",\n  \"opacity\": 0.7,\n  \"count\": 88,\n  \"zIndex\": -1\n{'}'}",
                         "memos_instance_url": "예: https://memos.example.com",
-                        "memos_access_token": "Memos 설정 -> 계정 -> 액세스 토큰에서 생성하세요"
+                        "memos_access_token": "Memos 설정 -> 계정 -> 액세스 토큰에서 생성하세요",
+                        "listmonk_instance_url": "예: https://listmonk.example.com",
+                        "listmonk_username": "예: admin 과 같은 listmonk 관리자 계정을 입력하세요",
+                        "listmonk_access_token": "listmonk 관리자 화면에서 생성한 API Access Token",
+                        "listmonk_default_list_ids": "예: 1,2,5. 카테고리/태그 매핑이 없을 때 사용됩니다",
+                        "listmonk_category_list_map": "JSON 예시: ｛\"category-id\":[1,2]｝",
+                        "listmonk_tag_list_map": "JSON 예시: ｛\"tag-id\":[3]｝",
+                        "listmonk_template_id": "선택 사항인 listmonk 템플릿 ID. 비워두면 생성된 Campaign 본문을 사용합니다"
                     },
                     "ai_editor": {
                         "basic_quota_title": "기본 쿼터 정책",

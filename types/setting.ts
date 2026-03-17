@@ -191,6 +191,14 @@ export enum SettingKey {
     MEMOS_INSTANCE_URL = 'memos_instance_url',
     MEMOS_ACCESS_TOKEN = 'memos_access_token',
     MEMOS_DEFAULT_VISIBILITY = 'memos_default_visibility',
+    LISTMONK_ENABLED = 'listmonk_enabled',
+    LISTMONK_INSTANCE_URL = 'listmonk_instance_url',
+    LISTMONK_USERNAME = 'listmonk_username',
+    LISTMONK_ACCESS_TOKEN = 'listmonk_access_token',
+    LISTMONK_DEFAULT_LIST_IDS = 'listmonk_default_list_ids',
+    LISTMONK_CATEGORY_LIST_MAP = 'listmonk_category_list_map',
+    LISTMONK_TAG_LIST_MAP = 'listmonk_tag_list_map',
+    LISTMONK_TEMPLATE_ID = 'listmonk_template_id',
 }
 
 export type SettingMaskType = 'none' | 'password' | 'key' | 'email'

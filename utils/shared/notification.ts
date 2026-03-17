@@ -34,6 +34,8 @@ export enum NotificationDeliveryChannel {
     SSE = 'SSE',
     /** 邮件 */
     EMAIL = 'EMAIL',
+    /** listmonk */
+    LISTMONK = 'LISTMONK',
     /** 浏览器推送 */
     WEB_PUSH = 'WEB_PUSH',
 }

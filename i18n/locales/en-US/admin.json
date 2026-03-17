@@ -1042,7 +1042,8 @@
                         "live2d": "Live2D Widget",
                         "canvas_nest": "CanvasNest Particle Effect",
                         "effects_performance": "Visual Effects Performance",
-                        "memos": "Memos Sync"
+                        "memos": "Memos Sync",
+                        "listmonk": "listmonk Newsletter Delivery"
                     },
                     "notifications": {
                         "title": "Admin Notification Preferences",
@@ -1091,6 +1092,7 @@
                                 "in_app": "In-app",
                                 "sse": "SSE",
                                 "email": "Email",
+                                "listmonk": "listmonk",
                                 "web_push": "Web Push"
                             },
                             "statuses": {
@@ -1244,7 +1246,15 @@
                         "memos_enabled": "Enable Memos Sync",
                         "memos_instance_url": "Memos Instance URL",
                         "memos_access_token": "Access Token",
-                        "memos_default_visibility": "Default Visibility"
+                        "memos_default_visibility": "Default Visibility",
+                        "listmonk_enabled": "Enable listmonk delivery",
+                        "listmonk_instance_url": "listmonk instance URL",
+                        "listmonk_username": "Admin username",
+                        "listmonk_access_token": "Access Token",
+                        "listmonk_default_list_ids": "Default list IDs",
+                        "listmonk_category_list_map": "Category-to-list mapping",
+                        "listmonk_tag_list_map": "Tag-to-list mapping",
+                        "listmonk_template_id": "Template ID (optional)"
                     },
                     "hints": {
                         "env_locked": "Locked by environment variable",
@@ -1284,7 +1294,14 @@
                         "live2d_options_json": "e.g., {'{'}\n  \"modelId\": 0,\n  \"cdnPath\": \"https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/\",\n  \"tools\": [\"hitokoto\", \"switch-model\", \"switch-texture\", \"photo\", \"info\", \"quit\"],\n  \"drag\": false,\n  \"logLevel\": \"warn\"\n{'}'}",
                         "canvas_nest_options_json": "e.g., {'{'}\n  \"color\": \"0,0,0\",\n  \"pointColor\": \"0,0,0\",\n  \"opacity\": 0.7,\n  \"count\": 88,\n  \"zIndex\": -1\n{'}'}",
                         "memos_instance_url": "e.g., https://memos.example.com",
-                        "memos_access_token": "Generate in Memos Settings -> Account -> Access Tokens"
+                        "memos_access_token": "Generate in Memos Settings -> Account -> Access Tokens",
+                        "listmonk_instance_url": "e.g., https://listmonk.example.com",
+                        "listmonk_username": "Enter the listmonk admin username, for example admin",
+                        "listmonk_access_token": "API Access Token generated in the listmonk admin console",
+                        "listmonk_default_list_ids": "e.g., 1,2,5. Used when category/tag mappings do not match",
+                        "listmonk_category_list_map": "JSON, for example: ｛\"category-id\":[1,2]｝",
+                        "listmonk_tag_list_map": "JSON, for example: ｛\"tag-id\":[3]｝",
+                        "listmonk_template_id": "Optional listmonk template ID. Leave empty to use the generated campaign body"
                     },
                     "ai_editor": {
                         "basic_quota_title": "Basic Quota Policies",

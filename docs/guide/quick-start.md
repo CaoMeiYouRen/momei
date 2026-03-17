@@ -80,7 +80,7 @@ pnpm dev
 - 自动生成开发用的 `AUTH_SECRET`。
 - 无需配置 `.env` 即可直接运行。
 
-如需启用完整功能，建议基于 `.env.full.example` 配置，并以设置服务映射为准，重点关注 `AI_QUOTA_ENABLED`、`AI_QUOTA_POLICIES`、`ASSET_PUBLIC_BASE_URL`、`MEMOS_INSTANCE_URL`、`MEMOS_ACCESS_TOKEN` 等变量。
+如需启用完整功能，建议基于 `.env.full.example` 配置，并以设置服务映射为准，重点关注 `AI_QUOTA_ENABLED`、`AI_QUOTA_POLICIES`、`ASSET_PUBLIC_BASE_URL`、`MEMOS_INSTANCE_URL`、`MEMOS_ACCESS_TOKEN`、`LISTMONK_INSTANCE_URL`、`LISTMONK_ACCESS_TOKEN` 等变量。
 
 浏览器访问 `http://localhost:3000` 即可查看效果。
 
@@ -89,7 +89,15 @@ pnpm dev
 -   **进入后台**: 访问 `/admin` 登录管理端。如果是全新安装，请参考控制台日志中的初始化账号信息。
 -   **开启 AI 助手**: 在 `.env` 中配置 `AI_API_KEY` 以启用智能标题生成和一键翻译功能。
 -   **启用 Memos 同步**: 配置 `MEMOS_ENABLED=true`、`MEMOS_INSTANCE_URL`、`MEMOS_ACCESS_TOKEN`。
+-   **启用 listmonk Newsletter 分发**: 在系统设置 -> 第三方集成中启用 `listmonk`，填写实例地址、管理员用户名、Access Token，并设置默认列表 ID 或分类 / 标签映射。
 -   **体验 Demo 模式**: 设置 `NUXT_PUBLIC_DEMO_MODE=true` 即可在内存中快速体验管理后台的所有功能（不保存数据）。
+
+如果你要验证 Newsletter 外部分发的最小链路，推荐按下面顺序操作：
+
+1. 在后台配置 `LISTMONK_*` 对应设置，至少补齐实例地址、用户名、Access Token 和默认列表 ID。
+2. 通过文章重推或营销 Campaign 发送入口触发一次发送。
+3. 再次触发同一 Campaign 时，系统会优先复用已回写的远端 Campaign ID 进行更新，而不是重复创建。
+4. 打开“通知投递审计”，按 `listmonk` 渠道查看最后一次投递结果、失败原因与人工处理建议。
 
 ---
 

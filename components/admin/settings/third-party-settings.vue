@@ -67,6 +67,130 @@
                 </SettingFormField>
             </div>
         </div>
+
+        <div class="third-party-settings__section">
+            <h3 class="third-party-settings__section-title">
+                {{ $t('pages.admin.settings.system.sections.listmonk') }}
+            </h3>
+
+            <SettingFormField
+                field-key="listmonk_enabled"
+                input-id="listmonk_enabled"
+                :metadata="metadata.listmonk_enabled"
+                inline
+            >
+                <ToggleSwitch
+                    id="listmonk_enabled"
+                    v-model="settings.listmonk_enabled"
+                    :true-value="'true'"
+                    :false-value="'false'"
+                    :disabled="metadata.listmonk_enabled?.isLocked"
+                />
+            </SettingFormField>
+
+            <div v-if="settings.listmonk_enabled === 'true'" class="third-party-settings__sub-fields">
+                <SettingFormField
+                    field-key="listmonk_instance_url"
+                    input-id="listmonk_instance_url"
+                    :metadata="metadata.listmonk_instance_url"
+                >
+                    <InputText
+                        id="listmonk_instance_url"
+                        v-model="settings.listmonk_instance_url"
+                        :placeholder="$t('pages.admin.settings.system.hints.listmonk_instance_url')"
+                        :disabled="metadata.listmonk_instance_url?.isLocked"
+                        fluid
+                    />
+                </SettingFormField>
+
+                <SettingFormField
+                    field-key="listmonk_username"
+                    input-id="listmonk_username"
+                    :metadata="metadata.listmonk_username"
+                >
+                    <InputText
+                        id="listmonk_username"
+                        v-model="settings.listmonk_username"
+                        :placeholder="$t('pages.admin.settings.system.hints.listmonk_username')"
+                        :disabled="metadata.listmonk_username?.isLocked"
+                        fluid
+                    />
+                </SettingFormField>
+
+                <SettingFormField
+                    field-key="listmonk_access_token"
+                    input-id="listmonk_access_token"
+                    :metadata="metadata.listmonk_access_token"
+                >
+                    <Password
+                        id="listmonk_access_token"
+                        v-model="settings.listmonk_access_token"
+                        :placeholder="$t('pages.admin.settings.system.hints.listmonk_access_token')"
+                        :disabled="metadata.listmonk_access_token?.isLocked"
+                        :toggle-mask="true"
+                        fluid
+                    />
+                </SettingFormField>
+
+                <SettingFormField
+                    field-key="listmonk_default_list_ids"
+                    input-id="listmonk_default_list_ids"
+                    :metadata="metadata.listmonk_default_list_ids"
+                >
+                    <InputText
+                        id="listmonk_default_list_ids"
+                        v-model="settings.listmonk_default_list_ids"
+                        :placeholder="$t('pages.admin.settings.system.hints.listmonk_default_list_ids')"
+                        :disabled="metadata.listmonk_default_list_ids?.isLocked"
+                        fluid
+                    />
+                </SettingFormField>
+
+                <SettingFormField
+                    field-key="listmonk_category_list_map"
+                    input-id="listmonk_category_list_map"
+                    :metadata="metadata.listmonk_category_list_map"
+                >
+                    <Textarea
+                        id="listmonk_category_list_map"
+                        v-model="settings.listmonk_category_list_map"
+                        :placeholder="$t('pages.admin.settings.system.hints.listmonk_category_list_map')"
+                        :disabled="metadata.listmonk_category_list_map?.isLocked"
+                        rows="4"
+                        fluid
+                    />
+                </SettingFormField>
+
+                <SettingFormField
+                    field-key="listmonk_tag_list_map"
+                    input-id="listmonk_tag_list_map"
+                    :metadata="metadata.listmonk_tag_list_map"
+                >
+                    <Textarea
+                        id="listmonk_tag_list_map"
+                        v-model="settings.listmonk_tag_list_map"
+                        :placeholder="$t('pages.admin.settings.system.hints.listmonk_tag_list_map')"
+                        :disabled="metadata.listmonk_tag_list_map?.isLocked"
+                        rows="4"
+                        fluid
+                    />
+                </SettingFormField>
+
+                <SettingFormField
+                    field-key="listmonk_template_id"
+                    input-id="listmonk_template_id"
+                    :metadata="metadata.listmonk_template_id"
+                >
+                    <InputText
+                        id="listmonk_template_id"
+                        v-model="settings.listmonk_template_id"
+                        :placeholder="$t('pages.admin.settings.system.hints.listmonk_template_id')"
+                        :disabled="metadata.listmonk_template_id?.isLocked"
+                        fluid
+                    />
+                </SettingFormField>
+            </div>
+        </div>
     </div>
 </template>
 

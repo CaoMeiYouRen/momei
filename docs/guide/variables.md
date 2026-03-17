@@ -146,6 +146,16 @@
 | `MEMOS_INSTANCE_URL` | `memos_instance_url` | 2 | none | Memos 实例地址 |
 | `MEMOS_ACCESS_TOKEN` | `memos_access_token` | 2 | key | Memos API Token |
 | `MEMOS_DEFAULT_VISIBILITY` | `memos_default_visibility` | 2 | none | Memos 默认可见性 |
+| `LISTMONK_ENABLED` | `listmonk_enabled` | 2 | none | 是否启用 listmonk Newsletter 外部分发 |
+| `LISTMONK_INSTANCE_URL` | `listmonk_instance_url` | 2 | none | listmonk 后台实例地址 |
+| `LISTMONK_USERNAME` | `listmonk_username` | 2 | none | listmonk 管理员用户名 |
+| `LISTMONK_ACCESS_TOKEN` | `listmonk_access_token` | 2 | key | listmonk API Access Token |
+| `LISTMONK_DEFAULT_LIST_IDS` | `listmonk_default_list_ids` | 2 | none | 默认接收列表 ID，逗号分隔 |
+| `LISTMONK_CATEGORY_LIST_MAP` | `listmonk_category_list_map` | 2 | none | 分类到 listmonk 列表的 JSON 映射 |
+| `LISTMONK_TAG_LIST_MAP` | `listmonk_tag_list_map` | 2 | none | 标签到 listmonk 列表的 JSON 映射 |
+| `LISTMONK_TEMPLATE_ID` | `listmonk_template_id` | 2 | none | 可选的 listmonk 模板 ID |
+
+说明：当 `LISTMONK_ENABLED=true` 时，营销 Campaign 发送会优先切换到 listmonk。若本地 Campaign 已记录远端 `remoteCampaignId`，后续重发会走更新而不是重新创建；若远端请求失败，系统会把失败原因、人工处理建议与远端 ID 一并回写到投递审计与 Campaign 元数据中。
 
 ---
 

@@ -1042,7 +1042,8 @@
                         "live2d": "看板娘 (Live2D)",
                         "canvas_nest": "粒子背景特效 (CanvasNest)",
                         "effects_performance": "视觉特效性能策略",
-                        "memos": "Memos 同步"
+                        "memos": "Memos 同步",
+                        "listmonk": "listmonk Newsletter 分发"
                     },
                     "notifications": {
                         "title": "站务通知配置",
@@ -1091,6 +1092,7 @@
                                 "in_app": "站内信",
                                 "sse": "SSE 在线推送",
                                 "email": "邮件",
+                                "listmonk": "listmonk",
                                 "web_push": "浏览器推送"
                             },
                             "statuses": {
@@ -1244,7 +1246,15 @@
                         "memos_enabled": "启用 Memos 同步",
                         "memos_instance_url": "Memos 实例地址",
                         "memos_access_token": "Access Token",
-                        "memos_default_visibility": "默认可见性"
+                        "memos_default_visibility": "默认可见性",
+                        "listmonk_enabled": "启用 listmonk 分发",
+                        "listmonk_instance_url": "listmonk 实例地址",
+                        "listmonk_username": "管理员用户名",
+                        "listmonk_access_token": "Access Token",
+                        "listmonk_default_list_ids": "默认列表 ID",
+                        "listmonk_category_list_map": "分类到列表映射",
+                        "listmonk_tag_list_map": "标签到列表映射",
+                        "listmonk_template_id": "模板 ID（可选）"
                     },
                     "hints": {
                         "env_locked": "此配置已由环境变量锁定",
@@ -1284,7 +1294,14 @@
                         "live2d_options_json": "例如: {'{'}\n  \"modelId\": 0,\n  \"cdnPath\": \"https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/\",\n  \"tools\": [\"hitokoto\", \"switch-model\", \"switch-texture\", \"photo\", \"info\", \"quit\"],\n  \"drag\": false,\n  \"logLevel\": \"warn\"\n{'}'}",
                         "canvas_nest_options_json": "例如: {'{'}\n  \"color\": \"0,0,0\",\n  \"pointColor\": \"0,0,0\",\n  \"opacity\": 0.7,\n  \"count\": 88,\n  \"zIndex\": -1\n{'}'}",
                         "memos_instance_url": "例如: https://memos.example.com",
-                        "memos_access_token": "在 Memos 设置 -> 账户 -> 访问令牌中生成"
+                        "memos_access_token": "在 Memos 设置 -> 账户 -> 访问令牌中生成",
+                        "listmonk_instance_url": "例如: https://listmonk.example.com",
+                        "listmonk_username": "填写 listmonk 管理员用户名，例如 admin",
+                        "listmonk_access_token": "在 listmonk 管理后台生成的 API Access Token",
+                        "listmonk_default_list_ids": "例如: 1,2,5；未命中映射时将投递到这些列表",
+                        "listmonk_category_list_map": "JSON，例如: ｛\"category-id\":[1,2]｝",
+                        "listmonk_tag_list_map": "JSON，例如: ｛\"tag-id\":[3]｝",
+                        "listmonk_template_id": "可选，填写 listmonk 模板 ID；留空则使用 Campaign 自带内容"
                     },
                     "ai_editor": {
                         "basic_quota_title": "基础额度策略",

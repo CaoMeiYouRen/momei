@@ -15,6 +15,130 @@ import { htmlToPlainText } from '@/server/utils/html'
 import { appendPostCopyrightNotice } from '@/utils/shared/post-copyright'
 import { sendWebPushToUser } from '@/server/services/web-push'
 import { recordNotificationDeliveryLog } from '@/server/services/notification-delivery'
+import { dispatchListmonkCampaign, getListmonkDispatchConfig, ListmonkDispatchError, type ListmonkDispatchConfig } from '@/server/services/listmonk'
+
+type MarketingDispatchMode = 'email' | 'listmonk'
+
+type MarketingDispatchState = 'started' | 'not_found' | 'already_completed' | 'already_sending'
+
+interface MarketingDispatchStartResult {
+    state: MarketingDispatchState
+    mode: MarketingDispatchMode
+}
+
+function getCampaignDeliveryMode(config: ListmonkDispatchConfig): MarketingDispatchMode {
+    return config.enabled ? 'listmonk' : 'email'
+}
+
+function buildMarketingCampaignPayload(campaign: MarketingCampaign) {
+    return {
+        title: campaign.title,
+        summary: campaign.content,
+        articleTitle: campaign.targetCriteria?.articleTitle || campaign.title,
+        authorName: campaign.targetCriteria?.authorName || 'Admin',
+        categoryName: campaign.targetCriteria?.categoryName || 'General',
+        publishDate: campaign.targetCriteria?.publishDate || '',
+        actionUrl: campaign.targetCriteria?.articleLink || '/',
+    }
+}
+
+function updateCampaignExternalDistribution(campaign: MarketingCampaign, payload: Record<string, unknown>) {
+    campaign.targetCriteria = {
+        ...(campaign.targetCriteria || {}),
+        externalDistribution: {
+            ...(campaign.targetCriteria?.externalDistribution || {}),
+            listmonk: {
+                ...(campaign.targetCriteria?.externalDistribution?.listmonk || {}),
+                ...payload,
+            },
+        },
+    }
+}
+
+async function recordMarketingSummaryLog(data: {
+    campaign: MarketingCampaign
+    channel: NotificationDeliveryChannel
+    status: NotificationDeliveryStatus
+    recipient: string
+    errorMessage?: string | null
+    metadata?: Record<string, unknown>
+}) {
+    await recordNotificationDeliveryLog({
+        recipient: data.recipient,
+        channel: data.channel,
+        status: data.status,
+        notificationType: NotificationType.MARKETING,
+        title: data.campaign.title,
+        targetUrl: data.campaign.targetCriteria?.articleLink || null,
+        errorMessage: data.errorMessage || null,
+        metadata: {
+            campaignId: data.campaign.id,
+            ...data.metadata,
+        },
+    })
+}
+
+async function sendCampaignByEmail(campaign: MarketingCampaign) {
+    const subscribers = await getTargetSubscribers(campaign.targetCriteria || {})
+    const payload = buildMarketingCampaignPayload(campaign)
+
+    logger.info(`Starting to send campaign "${campaign.title}" to ${subscribers.length} subscribers`)
+
+    let successCount = 0
+    let failCount = 0
+
+    for (const subscriber of subscribers) {
+        try {
+            await emailService.sendMarketingEmail(
+                subscriber.email,
+                payload,
+                subscriber.language || 'zh-CN',
+            )
+            successCount++
+        } catch (err) {
+            logger.error(`Failed to send campaign to ${subscriber.email}:`, err)
+            failCount++
+        }
+    }
+
+    await recordMarketingSummaryLog({
+        campaign,
+        channel: NotificationDeliveryChannel.EMAIL,
+        status: NotificationDeliveryStatus.SUCCESS,
+        recipient: `${subscribers.length} subscribers`,
+        metadata: {
+            successCount,
+            failCount,
+        },
+    })
+
+    logger.info(`Campaign "${campaign.title}" finished. Success: ${successCount}, Fail: ${failCount}`)
+}
+
+async function sendCampaignByListmonk(campaign: MarketingCampaign, config: ListmonkDispatchConfig) {
+    const result = await dispatchListmonkCampaign(campaign, config)
+
+    updateCampaignExternalDistribution(campaign, {
+        provider: 'listmonk',
+        remoteCampaignId: result.remoteCampaignId,
+        action: result.action,
+        listIds: result.listIds,
+        lastAttemptAt: new Date().toISOString(),
+        lastSuccessfulAt: new Date().toISOString(),
+        lastError: null,
+    })
+
+    await recordMarketingSummaryLog({
+        campaign,
+        channel: NotificationDeliveryChannel.LISTMONK,
+        status: NotificationDeliveryStatus.SUCCESS,
+        recipient: `listmonk:${result.remoteCampaignId}`,
+        metadata: {
+            action: result.action,
+            listIds: result.listIds,
+        },
+    })
+}
 
 async function isWebPushEnabledForUser(userId: string, type: NotificationType) {
     const notificationSettingsRepo = dataSource.getRepository(NotificationSettings)
@@ -161,6 +285,7 @@ export async function createCampaignFromPost(
             categoryIds: post.categoryId ? [post.categoryId] : [],
             tagIds: post.tags?.map((t) => t.id) || [],
         }),
+        articleLocale: post.language,
         articleId: post.id,
         articleTitle: post.title,
         authorName,
@@ -218,7 +343,14 @@ export async function sendMarketingCampaign(campaignId: string) {
     const campaignRepo = dataSource.getRepository(MarketingCampaign)
     const campaign = await campaignRepo.findOne({ where: { id: campaignId } })
 
-    if (!campaign || campaign.status === MarketingCampaignStatus.SENDING || campaign.status === MarketingCampaignStatus.COMPLETED) {
+    if (!campaign || campaign.status === MarketingCampaignStatus.SENDING) {
+        return
+    }
+
+    const listmonkConfig = await getListmonkDispatchConfig()
+    const deliveryMode = getCampaignDeliveryMode(listmonkConfig)
+
+    if (campaign.status === MarketingCampaignStatus.COMPLETED && deliveryMode === 'email') {
         return
     }
 
@@ -226,44 +358,91 @@ export async function sendMarketingCampaign(campaignId: string) {
     await campaignRepo.save(campaign)
 
     try {
-        const subscribers = await getTargetSubscribers(campaign.targetCriteria || {})
-
-        logger.info(`Starting to send campaign "${campaign.title}" to ${subscribers.length} subscribers`)
-
-        let successCount = 0
-        let failCount = 0
-
-        for (const subscriber of subscribers) {
-            try {
-                await emailService.sendMarketingEmail(
-                    subscriber.email,
-                    {
-                        title: campaign.title,
-                        summary: campaign.content,
-                        articleTitle: campaign.targetCriteria?.articleTitle || campaign.title,
-                        authorName: campaign.targetCriteria?.authorName || 'Admin',
-                        categoryName: campaign.targetCriteria?.categoryName || 'General',
-                        publishDate: campaign.targetCriteria?.publishDate || '',
-                        actionUrl: campaign.targetCriteria?.articleLink || '/',
-                    },
-                    subscriber.language || 'zh-CN',
-                )
-                successCount++
-            } catch (err) {
-                logger.error(`Failed to send campaign to ${subscriber.email}:`, err)
-                failCount++
-            }
+        if (deliveryMode === 'listmonk') {
+            await sendCampaignByListmonk(campaign, listmonkConfig)
+        } else {
+            await sendCampaignByEmail(campaign)
         }
 
         campaign.status = MarketingCampaignStatus.COMPLETED
         campaign.sentAt = new Date()
         await campaignRepo.save(campaign)
-
-        logger.info(`Campaign "${campaign.title}" finished. Success: ${successCount}, Fail: ${failCount}`)
     } catch (error) {
         logger.error(`Failed to execute campaign "${campaign.title}":`, error)
+
+        if (error instanceof ListmonkDispatchError) {
+            updateCampaignExternalDistribution(campaign, {
+                provider: 'listmonk',
+                remoteCampaignId: error.remoteCampaignId,
+                action: error.action,
+                listIds: error.listIds,
+                lastAttemptAt: new Date().toISOString(),
+                lastError: error.message,
+                manualAction: error.manualAction,
+                failureCode: error.code,
+            })
+
+            await recordMarketingSummaryLog({
+                campaign,
+                channel: NotificationDeliveryChannel.LISTMONK,
+                status: NotificationDeliveryStatus.FAILED,
+                recipient: error.remoteCampaignId ? `listmonk:${error.remoteCampaignId}` : 'listmonk',
+                errorMessage: error.manualAction ? `${error.message} ${error.manualAction}` : error.message,
+                metadata: {
+                    failureCode: error.code,
+                    listIds: error.listIds,
+                    action: error.action,
+                },
+            })
+        } else {
+            await recordMarketingSummaryLog({
+                campaign,
+                channel: NotificationDeliveryChannel.EMAIL,
+                status: NotificationDeliveryStatus.FAILED,
+                recipient: 'marketing-email',
+                errorMessage: error instanceof Error ? error.message : String(error),
+            })
+        }
+
         campaign.status = MarketingCampaignStatus.FAILED
         await campaignRepo.save(campaign)
+    }
+}
+
+export async function startMarketingCampaignDispatch(campaignId: string): Promise<MarketingDispatchStartResult> {
+    const campaignRepo = dataSource.getRepository(MarketingCampaign)
+    const campaign = await campaignRepo.findOne({ where: { id: campaignId } })
+    const listmonkConfig = await getListmonkDispatchConfig()
+    const mode = getCampaignDeliveryMode(listmonkConfig)
+
+    if (!campaign) {
+        return {
+            state: 'not_found',
+            mode,
+        }
+    }
+
+    if (campaign.status === MarketingCampaignStatus.SENDING) {
+        return {
+            state: 'already_sending',
+            mode,
+        }
+    }
+
+    if (campaign.status === MarketingCampaignStatus.COMPLETED && mode === 'email') {
+        return {
+            state: 'already_completed',
+            mode,
+        }
+    }
+
+    void sendMarketingCampaign(campaignId).catch((error) => {
+        logger.error(`Failed to start campaign dispatch for ${campaignId}:`, error)
+    })
+
+    return {
+        state: 'started',
+        mode,
     }
 }
 

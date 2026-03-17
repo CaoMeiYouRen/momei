@@ -6,6 +6,8 @@ import { sendEmail } from '@/server/utils/email'
 import { emailService } from '@/server/utils/email/service'
 import logger from '@/server/utils/logger'
 import { sendWebPushToUser } from '@/server/services/web-push'
+import { recordNotificationDeliveryLog } from '@/server/services/notification-delivery'
+import { getListmonkDispatchConfig } from '@/server/services/listmonk'
 
 vi.mock('@/server/database', () => ({
     dataSource: {
@@ -39,9 +41,56 @@ vi.mock('@/server/services/web-push', () => ({
     }),
 }))
 
+vi.mock('@/server/services/notification-delivery', () => ({
+    recordNotificationDeliveryLog: vi.fn().mockResolvedValue(undefined),
+}))
+
+vi.mock('@/server/services/listmonk', () => ({
+    getListmonkDispatchConfig: vi.fn().mockResolvedValue({
+        enabled: false,
+        baseUrl: '',
+        username: '',
+        accessToken: '',
+        defaultListIds: [],
+        categoryListMap: {},
+        tagListMap: {},
+        templateId: null,
+        missingFields: [],
+    }),
+    dispatchListmonkCampaign: vi.fn(),
+    ListmonkDispatchError: class ListmonkDispatchError extends Error {
+        code: string
+        manualAction: string | null
+        remoteCampaignId: number | null
+        listIds: number[]
+        action: 'created' | 'updated' | null
+
+        constructor(message: string) {
+            super(message)
+            this.name = 'ListmonkDispatchError'
+            this.code = 'REMOTE_REQUEST_FAILED'
+            this.manualAction = null
+            this.remoteCampaignId = null
+            this.listIds = []
+            this.action = null
+        }
+    },
+}))
+
 describe('notification service', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        vi.mocked(getListmonkDispatchConfig).mockResolvedValue({
+            enabled: false,
+            baseUrl: '',
+            username: '',
+            accessToken: '',
+            defaultListIds: [],
+            categoryListMap: {},
+            tagListMap: {},
+            templateId: null,
+            missingFields: [],
+        })
     })
 
     describe('notifyAdmins', () => {
@@ -483,6 +532,7 @@ describe('notification service', () => {
                 }),
             )
             expect(emailService.sendMarketingEmail).toHaveBeenCalledTimes(2)
+            expect(recordNotificationDeliveryLog).toHaveBeenCalled()
             expect(logger.info).toHaveBeenCalledWith(
                 expect.stringContaining('Success: 2, Fail: 0'),
             )

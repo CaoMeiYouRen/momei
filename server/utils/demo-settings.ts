@@ -148,6 +148,14 @@ const demoSettingValues: Partial<Record<string, string>> = {
     [SettingKey.MEMOS_INSTANCE_URL]: 'https://memos.demo.example',
     [SettingKey.MEMOS_ACCESS_TOKEN]: 'demo-memos-token',
     [SettingKey.MEMOS_DEFAULT_VISIBILITY]: 'PUBLIC',
+    [SettingKey.LISTMONK_ENABLED]: 'true',
+    [SettingKey.LISTMONK_INSTANCE_URL]: 'https://listmonk.demo.example',
+    [SettingKey.LISTMONK_USERNAME]: 'demo-admin',
+    [SettingKey.LISTMONK_ACCESS_TOKEN]: 'demo-listmonk-token',
+    [SettingKey.LISTMONK_DEFAULT_LIST_IDS]: '1,2',
+    [SettingKey.LISTMONK_CATEGORY_LIST_MAP]: '{"demo-category":[3]}',
+    [SettingKey.LISTMONK_TAG_LIST_MAP]: '{"demo-tag":[4]}',
+    [SettingKey.LISTMONK_TEMPLATE_ID]: '9',
 }
 
 const demoLockedKeys = new Set<string>([
@@ -399,6 +407,20 @@ const demoNotificationDeliveryLogSeed: NotificationDeliveryLogItem[] = [
         errorMessage: 'web_push_unavailable',
         sentAt: '2025-02-17T14:20:00.000Z',
         createdAt: '2025-02-17T14:20:00.000Z',
+    },
+    {
+        id: 'demo-notification-log-4',
+        notificationId: null,
+        userId: null,
+        channel: NotificationDeliveryChannel.LISTMONK,
+        status: NotificationDeliveryStatus.SUCCESS,
+        notificationType: NotificationType.MARKETING,
+        title: '周刊第 12 期',
+        recipient: 'listmonk:128',
+        targetUrl: '/admin/marketing',
+        errorMessage: null,
+        sentAt: '2025-02-19T07:15:00.000Z',
+        createdAt: '2025-02-19T07:15:00.000Z',
     },
 ]
 
