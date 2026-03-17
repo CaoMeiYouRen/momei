@@ -90,7 +90,8 @@
 
 ### 插队热修复：创作资产导入导出保真 (Hotfix)
 
-- [ ] **音频元数据在导入导出时保留**
+- [x] **音频元数据在导入导出时保留**
+	- 进展: 已补齐 Markdown / ZIP 导出的 `metadata.audio`、`metadata.tts` 与音频兼容别名字段写出；CLI 导入同步支持从嵌套 metadata 与旧别名恢复 URL、时长、MIME、provider、locale、translationId、postId、mode 等核心字段。
 	- 插队原因: 当前导入 / 导出链路若丢弃音频元数据，会削弱既有 TTS / Podcast 资产的事实源，与第十三阶段“多语言 TTS / Podcast 资产绑定”的一致性目标相冲突，属于已交付能力的资产回退风险。
 	- 验收: 单篇 / 批量导出 Markdown 或 ZIP 时，保留 `metadata.audio`、`metadata.tts` 等已落盘的音频元数据，并与既有 Front-matter 映射规则兼容。
 	- 验收: CLI / API 导入文章时可恢复音频 URL、时长、MIME、来源 provider、locale / translationId 关联等核心字段，不因兼容层缺失而静默丢弃。

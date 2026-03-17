@@ -62,12 +62,24 @@ describe('Parser - convertToMomeiPost: Basic Conversion', () => {
             image: 'https://example.com/cover.jpg',
             license: 'CC BY-SA 4.0',
             language: 'ko-KR',
+            translationId: 'cluster-ko',
             category: ['Tech', 'Ignored'],
             tags: 'cli',
             audio: 'https://example.com/audio.mp3',
             duration: '01:02:03',
             medialength: '2048',
             mediatype: 'audio/mpeg',
+            audio_language: 'ko-KR',
+            audio_translation_id: 'cluster-ko',
+            audio_post_id: 'post-ko-1',
+            audio_mode: 'podcast',
+            tts_provider: 'openai',
+            tts_voice: 'alloy',
+            tts_generated_at: '2026-03-17T08:00:00.000Z',
+            tts_language: 'ko-KR',
+            tts_translation_id: 'cluster-ko',
+            tts_post_id: 'post-ko-1',
+            tts_mode: 'podcast',
             permalink: '/:year/:month/:day/:slug/',
         }
 
@@ -78,6 +90,7 @@ describe('Parser - convertToMomeiPost: Basic Conversion', () => {
         expect(result.coverImage).toBe('https://example.com/cover.jpg')
         expect(result.copyright).toBe('CC BY-SA 4.0')
         expect(result.language).toBe('ko-KR')
+        expect(result.translationId).toBe('cluster-ko')
         expect(result.category).toBe('Tech')
         expect(result.tags).toEqual(['cli'])
         expect(result.metadata).toEqual({
@@ -86,6 +99,74 @@ describe('Parser - convertToMomeiPost: Basic Conversion', () => {
                 duration: 3723,
                 size: 2048,
                 mimeType: 'audio/mpeg',
+                language: 'ko-KR',
+                translationId: 'cluster-ko',
+                postId: 'post-ko-1',
+                mode: 'podcast',
+            },
+            tts: {
+                provider: 'openai',
+                voice: 'alloy',
+                generatedAt: '2026-03-17T08:00:00.000Z',
+                language: 'ko-KR',
+                translationId: 'cluster-ko',
+                postId: 'post-ko-1',
+                mode: 'podcast',
+            },
+        })
+    })
+
+    it('should prefer nested metadata for audio and tts round-trip fields', () => {
+        const frontMatter: HexoFrontMatter = {
+            title: 'Round Trip Post',
+            language: 'en-US',
+            translation_id: 'cluster-en',
+            metadata: {
+                audio: {
+                    url: 'https://example.com/roundtrip.mp3',
+                    duration: 95,
+                    size: 5120,
+                    mimeType: 'audio/ogg',
+                    language: 'en-US',
+                    translationId: 'cluster-en',
+                    postId: 'post-en-1',
+                    mode: 'speech',
+                },
+                tts: {
+                    provider: 'azure',
+                    voice: 'JennyNeural',
+                    generatedAt: '2026-03-17T09:10:11.000Z',
+                    language: 'en-US',
+                    translationId: 'cluster-en',
+                    postId: 'post-en-1',
+                    mode: 'speech',
+                },
+            },
+        }
+
+        const result = convertToMomeiPost(frontMatter, 'Content', 'round-trip.md')
+
+        expect(result.language).toBe('en-US')
+        expect(result.translationId).toBe('cluster-en')
+        expect(result.metadata).toEqual({
+            audio: {
+                url: 'https://example.com/roundtrip.mp3',
+                duration: 95,
+                size: 5120,
+                mimeType: 'audio/ogg',
+                language: 'en-US',
+                translationId: 'cluster-en',
+                postId: 'post-en-1',
+                mode: 'speech',
+            },
+            tts: {
+                provider: 'azure',
+                voice: 'JennyNeural',
+                generatedAt: '2026-03-17T09:10:11.000Z',
+                language: 'en-US',
+                translationId: 'cluster-en',
+                postId: 'post-en-1',
+                mode: 'speech',
             },
         })
     })

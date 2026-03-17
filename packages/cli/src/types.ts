@@ -22,17 +22,42 @@ export interface HexoFrontMatter {
     license?: string
     language?: string
     lang?: string
-    audio?: string
+    translationId?: string
+    translation_id?: string
+    audio?: string | Record<string, unknown>
     audio_url?: string
     audio_duration?: number | string
     audio_size?: number | string
     audio_mime_type?: string
+    audio_language?: string
+    audio_locale?: string
+    audio_translation_id?: string
+    audioTranslationId?: string
+    audio_post_id?: string
+    audioPostId?: string
+    audio_mode?: 'speech' | 'podcast' | string
     media?: string
     mediatype?: string
     mediaType?: string
     medialength?: number | string
     mediaLength?: number | string
     duration?: number | string
+    tts?: Record<string, unknown>
+    tts_provider?: string
+    tts_voice?: string
+    tts_generated_at?: string | Date
+    ttsGeneratedAt?: string | Date
+    tts_language?: string
+    tts_locale?: string
+    tts_translation_id?: string
+    ttsTranslationId?: string
+    tts_post_id?: string
+    ttsPostId?: string
+    tts_mode?: 'speech' | 'podcast' | string
+    metadata?: {
+        audio?: Record<string, unknown>
+        tts?: Record<string, unknown>
+    }
     [key: string]: unknown
 }
 
@@ -44,12 +69,20 @@ export interface MomeiPostAudioMetadata {
     duration?: number | null
     size?: number | null
     mimeType?: string | null
+    language?: string | null
+    translationId?: string | null
+    postId?: string | null
+    mode?: 'speech' | 'podcast' | null
 }
 
 export interface MomeiPostTTSMetadata {
     provider?: string | null
     voice?: string | null
     generatedAt?: string | Date | null
+    language?: string | null
+    translationId?: string | null
+    postId?: string | null
+    mode?: 'speech' | 'podcast' | null
 }
 
 export interface MomeiPostScaffoldMetadata {

@@ -53,14 +53,53 @@ describe('Post Export Service', () => {
         post.title = 'Audio Metadata Post'
         post.content = 'Audio Content'
         post.slug = 'audio-metadata'
+        post.language = 'en-US'
+        post.translationId = 'translation-cluster-1'
         post.metadata = {
             audio: {
                 url: 'https://example.com/metadata-audio.mp3',
+                duration: 321,
+                size: 4096,
+                mimeType: 'audio/mpeg',
+                language: 'en-US',
+                translationId: 'translation-cluster-1',
+                postId: 'post-en-1',
+                mode: 'podcast',
+            },
+            tts: {
+                provider: 'openai',
+                voice: 'alloy',
+                generatedAt: new Date('2026-03-17T08:00:00Z'),
+                language: 'en-US',
+                translationId: 'translation-cluster-1',
+                postId: 'post-en-1',
+                mode: 'podcast',
             },
         }
 
         const markdown = formatPostToMarkdown(post)
 
+        expect(markdown).toContain('language: en-US')
+        expect(markdown).toContain('translationId: translation-cluster-1')
         expect(markdown).toContain('audio: https://example.com/metadata-audio.mp3')
+        expect(markdown).toContain('audio_duration: 321')
+        expect(markdown).toContain('audio_size: 4096')
+        expect(markdown).toContain('audio_mime_type: audio/mpeg')
+        expect(markdown).toContain('audio_language: en-US')
+        expect(markdown).toContain('audio_translation_id: translation-cluster-1')
+        expect(markdown).toContain('audio_post_id: post-en-1')
+        expect(markdown).toContain('audio_mode: podcast')
+        expect(markdown).toContain('tts_provider: openai')
+        expect(markdown).toContain('tts_voice: alloy')
+        expect(markdown).toContain('tts_generated_at: 2026-03-17T08:00:00.000Z')
+        expect(markdown).toContain('tts_language: en-US')
+        expect(markdown).toContain('tts_translation_id: translation-cluster-1')
+        expect(markdown).toContain('tts_post_id: post-en-1')
+        expect(markdown).toContain('tts_mode: podcast')
+        expect(markdown).toContain('metadata:')
+        expect(markdown).toContain('  audio:')
+        expect(markdown).toContain('    url: https://example.com/metadata-audio.mp3')
+        expect(markdown).toContain('  tts:')
+        expect(markdown).toContain('    provider: openai')
     })
 })

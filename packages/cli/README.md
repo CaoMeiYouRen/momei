@@ -253,10 +253,21 @@ momei publish <post-id> --api-key <your-api-key>
 | `image` / `cover` / `thumb` | `coverImage` | 文章封面 |
 | `copyright` / `license` | `copyright` | 版权或许可说明 |
 | `language` / `lang` | `language` | 语言；缺失时默认 `zh-CN` |
+| `translationId` / `translation_id` | `translationId` | 翻译簇 ID |
 | `audio` / `audio_url` / `media` | `metadata.audio.url` | 音频地址 |
 | `audio_duration` / `duration` | `metadata.audio.duration` | 音频时长；支持秒数或 `HH:mm:ss` |
 | `audio_size` / `medialength` / `mediaLength` | `metadata.audio.size` | 音频大小 |
 | `audio_mime_type` / `mediatype` / `mediaType` | `metadata.audio.mimeType` | 音频 MIME 类型 |
+| `audio_language` / `audio_locale` | `metadata.audio.language` | 音频 locale |
+| `audio_translation_id` / `audioTranslationId` | `metadata.audio.translationId` | 音频所属翻译簇 |
+| `audio_post_id` / `audioPostId` | `metadata.audio.postId` | 音频所属文章 ID |
+| `audio_mode` | `metadata.audio.mode` | 音频模式：`speech` / `podcast` |
+| `tts_provider` / `tts_voice` / `tts_generated_at` | `metadata.tts.*` | TTS 来源、音色与生成时间 |
+| `tts_language` / `tts_locale` | `metadata.tts.language` | TTS locale |
+| `tts_translation_id` / `ttsTranslationId` | `metadata.tts.translationId` | TTS 所属翻译簇 |
+| `tts_post_id` / `ttsPostId` | `metadata.tts.postId` | TTS 所属文章 ID |
+| `tts_mode` | `metadata.tts.mode` | TTS 模式：`speech` / `podcast` |
+| `metadata.audio` / `metadata.tts` | `metadata.audio` / `metadata.tts` | 站内导出时的完整元数据事实源 |
 | 正文内容 | `content` | Markdown 正文内容 |
 
 `permalink` 在当前 CLI 中不再作为 canonical slug 导入，而是主要服务于 `govern-links` 命令，用来生成旧链接映射种子。
@@ -265,9 +276,9 @@ momei publish <post-id> --api-key <your-api-key>
 
 - `updated`
 - `disableComment`
-- `metadata.tts`、`metadata.scaffold`、`metadata.publish.intent`、`metadata.integration.memosId`
+- `metadata.scaffold`、`metadata.publish.intent`、`metadata.integration.memosId`
 - `publishIntent`、`syncToMemos`、`pushOption`、`pushCriteria`
-- `views`、`translationId`、`tagBindings`
+- `views`、`tagBindings`
 
 ## 导入规则
 
@@ -276,7 +287,7 @@ momei publish <post-id> --api-key <your-api-key>
 3. 有 `date` 时同时写入 `createdAt` 与 `publishedAt`，并将 `status` 设为 `published`；没有 `date` 时 `status` 为 `draft`。
 4. `visibility` 当前固定为 `public`。
 5. 标签支持字符串和数组；分类支持字符串和数组，但最终只保留第一个分类。
-6. CLI 当前只会自动构造 `metadata.audio`，不会自动构造 `metadata.tts`、`metadata.scaffold`、`metadata.publish.intent` 等其他 metadata 子结构。
+6. CLI 会优先读取导出文件中的 `metadata.audio` / `metadata.tts`，同时兼容旧别名字段；但仍不会自动构造 `metadata.scaffold`、`metadata.publish.intent` 等其他 metadata 子结构。
 
 ## API Key 获取
 

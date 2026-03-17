@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { resolve, relative } from 'node:path'
 import matter from 'gray-matter'
 import { glob } from 'glob'
-import type { HexoFrontMatter, MomeiPost, MomeiPostAudioMetadata, MomeiPostMetadata, ParsedHexoPost } from './types'
+import type { HexoFrontMatter, MomeiPost, MomeiPostAudioMetadata, MomeiPostMetadata, MomeiPostTTSMetadata, ParsedHexoPost } from './types'
 
 function pickFirstString(...values: unknown[]) {
     for (const value of values) {
@@ -34,6 +34,12 @@ function normalizeStringArray(value?: string | string[]) {
     return undefined
 }
 
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+    return value && typeof value === 'object' && !Array.isArray(value)
+        ? value as Record<string, unknown>
+        : undefined
+}
+
 function resolveCategory(frontMatter: HexoFrontMatter) {
     const rawCategory = frontMatter.categories ?? frontMatter.category
     if (Array.isArray(rawCategory)) {
@@ -53,8 +59,12 @@ function resolveSlug(frontMatter: HexoFrontMatter, filePath: string) {
     return fileName.replace(/\.md$/i, '')
 }
 
-function toIsoDateString(value?: string | Date) {
+function toIsoDateString(value: unknown) {
     if (!value) {
+        return undefined
+    }
+
+    if (typeof value !== 'string' && !(value instanceof Date)) {
         return undefined
     }
 
@@ -120,13 +130,38 @@ function toDurationSeconds(value: unknown) {
     return undefined
 }
 
-function buildAudioMetadata(frontMatter: HexoFrontMatter): MomeiPostAudioMetadata | undefined {
-    const url = pickFirstString(frontMatter.audio, frontMatter.audio_url, frontMatter.media)
-    const duration = toDurationSeconds(frontMatter.audio_duration ?? frontMatter.duration)
-    const size = toInteger(frontMatter.audio_size ?? frontMatter.medialength ?? frontMatter.mediaLength)
-    const mimeType = pickFirstString(frontMatter.audio_mime_type, frontMatter.mediatype, frontMatter.mediaType)
+function toMetadataMode(value: unknown): 'speech' | 'podcast' | undefined {
+    const mode = pickFirstString(value)
+    return mode === 'speech' || mode === 'podcast' ? mode : undefined
+}
 
-    if (url === undefined && duration === undefined && size === undefined && mimeType === undefined) {
+function buildAudioMetadata(frontMatter: HexoFrontMatter): MomeiPostAudioMetadata | undefined {
+    const metadataAudio = frontMatter.metadata?.audio ?? asRecord(frontMatter.audio)
+    const url = pickFirstString(metadataAudio?.url, frontMatter.audio, frontMatter.audio_url, frontMatter.media)
+    const duration = toDurationSeconds(metadataAudio?.duration ?? frontMatter.audio_duration ?? frontMatter.duration)
+    const size = toInteger(metadataAudio?.size ?? frontMatter.audio_size ?? frontMatter.medialength ?? frontMatter.mediaLength)
+    const mimeType = pickFirstString(metadataAudio?.mimeType, frontMatter.audio_mime_type, frontMatter.mediatype, frontMatter.mediaType)
+    const language = pickFirstString(metadataAudio?.language, frontMatter.audio_language, frontMatter.audio_locale, frontMatter.language, frontMatter.lang)
+    const translationId = pickFirstString(
+        metadataAudio?.translationId,
+        frontMatter.audio_translation_id,
+        frontMatter.audioTranslationId,
+        frontMatter.translationId,
+        frontMatter.translation_id,
+    )
+    const postId = pickFirstString(metadataAudio?.postId, frontMatter.audio_post_id, frontMatter.audioPostId)
+    const mode = toMetadataMode(metadataAudio?.mode ?? frontMatter.audio_mode)
+
+    if (
+        url === undefined
+        && duration === undefined
+        && size === undefined
+        && mimeType === undefined
+        && language === undefined
+        && translationId === undefined
+        && postId === undefined
+        && mode === undefined
+    ) {
         return undefined
     }
 
@@ -144,19 +179,93 @@ function buildAudioMetadata(frontMatter: HexoFrontMatter): MomeiPostAudioMetadat
     if (mimeType !== undefined) {
         audio.mimeType = mimeType
     }
+    if (language !== undefined) {
+        audio.language = language
+    }
+    if (translationId !== undefined) {
+        audio.translationId = translationId
+    }
+    if (postId !== undefined) {
+        audio.postId = postId
+    }
+    if (mode !== undefined) {
+        audio.mode = mode
+    }
 
     return audio
 }
 
-function buildMetadata(frontMatter: HexoFrontMatter): MomeiPostMetadata | undefined {
-    const audio = buildAudioMetadata(frontMatter)
-    if (!audio) {
+function buildTtsMetadata(frontMatter: HexoFrontMatter): MomeiPostTTSMetadata | undefined {
+    const metadataTts = frontMatter.metadata?.tts ?? frontMatter.tts
+    const provider = pickFirstString(metadataTts?.provider, frontMatter.tts_provider)
+    const voice = pickFirstString(metadataTts?.voice, frontMatter.tts_voice)
+    const generatedAt = toIsoDateString(metadataTts?.generatedAt ?? frontMatter.tts_generated_at ?? frontMatter.ttsGeneratedAt)
+    const language = pickFirstString(metadataTts?.language, frontMatter.tts_language, frontMatter.tts_locale, frontMatter.language, frontMatter.lang)
+    const translationId = pickFirstString(
+        metadataTts?.translationId,
+        frontMatter.tts_translation_id,
+        frontMatter.ttsTranslationId,
+        frontMatter.translationId,
+        frontMatter.translation_id,
+    )
+    const postId = pickFirstString(metadataTts?.postId, frontMatter.tts_post_id, frontMatter.ttsPostId)
+    const mode = toMetadataMode(metadataTts?.mode ?? frontMatter.tts_mode)
+
+    if (
+        provider === undefined
+        && voice === undefined
+        && generatedAt === undefined
+        && language === undefined
+        && translationId === undefined
+        && postId === undefined
+        && mode === undefined
+    ) {
         return undefined
     }
 
-    return {
-        audio,
+    const tts: MomeiPostTTSMetadata = {}
+
+    if (provider !== undefined) {
+        tts.provider = provider
     }
+    if (voice !== undefined) {
+        tts.voice = voice
+    }
+    if (generatedAt !== undefined) {
+        tts.generatedAt = generatedAt
+    }
+    if (language !== undefined) {
+        tts.language = language
+    }
+    if (translationId !== undefined) {
+        tts.translationId = translationId
+    }
+    if (postId !== undefined) {
+        tts.postId = postId
+    }
+    if (mode !== undefined) {
+        tts.mode = mode
+    }
+
+    return tts
+}
+
+function buildMetadata(frontMatter: HexoFrontMatter): MomeiPostMetadata | undefined {
+    const audio = buildAudioMetadata(frontMatter)
+    const tts = buildTtsMetadata(frontMatter)
+    if (!audio && !tts) {
+        return undefined
+    }
+
+    const metadata: MomeiPostMetadata = {}
+    if (audio) {
+        metadata.audio = audio
+    }
+    if (tts) {
+        metadata.tts = tts
+    }
+
+    return metadata
 }
 
 /**
@@ -195,6 +304,7 @@ export function convertToMomeiPost(frontMatter: HexoFrontMatter, content: string
     const importedAt = toIsoDateString(frontMatter.date)
     const summary = pickFirstString(frontMatter.description, frontMatter.desc, frontMatter.excerpt) || null
     const language = pickFirstString(frontMatter.language, frontMatter.lang) || 'zh-CN'
+    const translationId = pickFirstString(frontMatter.translationId, frontMatter.translation_id) || null
     const coverImage = pickFirstString(frontMatter.image, frontMatter.cover, frontMatter.thumb) || null
     const copyright = pickFirstString(frontMatter.copyright, frontMatter.license) || null
     const metadata = buildMetadata(frontMatter)
@@ -208,6 +318,7 @@ export function convertToMomeiPost(frontMatter: HexoFrontMatter, content: string
         coverImage,
         metadata,
         language,
+        translationId,
         category,
         tags,
         status,
