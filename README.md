@@ -1,7 +1,7 @@
 <h1 align="center">
-  <img src="./public/logo.png" alt="墨梅 (Momei)" width="128" />
+  <img src="./public/logo.png" alt="墨梅博客" width="128" />
   <br />
-  墨梅 (Momei)
+  墨梅博客
 </h1>
 <p align="center">
   <img alt="Version" src="https://img.shields.io/github/package-json/v/CaoMeiYouRen/momei.svg" />
@@ -47,7 +47,7 @@
 
 ## 📖 简介
 
-墨梅 (Momei) 是一个基于 **Nuxt** 构建的现代化博客平台。它旨在通过 AI 和深度的国际化支持，为技术开发者和跨境内容创作者提供高效、智能的创作体验。无论是智能翻译、自动化摘要，还是多语言路由管理，墨梅都能帮您轻松连接全球读者。
+墨梅博客 是一个基于 **Nuxt** 构建的现代化博客平台。它旨在通过 AI 和深度的国际化支持，为技术开发者和跨境内容创作者提供高效、智能的创作体验。无论是智能翻译、自动化摘要，还是多语言路由管理，墨梅都能帮您轻松连接全球读者。
 
 ## ✨ 核心特性
 
