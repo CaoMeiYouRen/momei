@@ -104,6 +104,19 @@
 	- 验收: CLI / API 导入文章时可恢复音频 URL、时长、MIME、来源 provider、locale / translationId 关联等核心字段，不因兼容层缺失而静默丢弃。
 	- 验收: 补齐导入与导出双向测试，至少覆盖仅 URL 音频、带完整元数据音频、多语言译文音频 3 类场景。
 
+### 插队热修复：第三方分发启用开关与数据库初始化基线 (Hotfix)
+
+- [ ] **布尔型第三方启用开关识别修复**
+	- 插队原因: `LISTMONK_ENABLED`、`MEMOS_ENABLED` 等现有能力的启用态若在 ENV / 设置层以字符串 `"true"` 提供仍可能被误判为未启用，会直接阻塞当前已交付的 listmonk / Memos 分发链路，属于明确功能回归。
+	- 验收: 修复第三方启用开关对字符串 `"true"`、布尔值与兼容输入的解析逻辑，统一 `LISTMONK_ENABLED`、`MEMOS_ENABLED` 等相关开关的识别口径。
+	- 验收: 不得因修复启用态判断而破坏既有设置来源优先级、后台开关展示与手动同步 / 审计链路。
+	- 验收: 补齐定向测试，至少覆盖 ENV 为字符串 `"true"`、数据库设置为 `"true"`、显式关闭为 `"false"` 3 类场景。
+- [ ] **多数据库 init.sql 与数据库设计文档同步**
+	- 插队原因: 当前 `database/sqlite/init.sql`、`database/mysql/init.sql`、`database/postgres/init.sql` 与 `docs/design/database.md` 已出现明显 Schema / 文档漂移，会影响新实例初始化、部署排障与数据库设计理解，属于当前交付无法绕开的基础基线缺陷。
+	- 验收: 同步更新 SQLite、MySQL、PostgreSQL 的初始化 SQL，使字段、索引、默认值与当前实体定义保持一致。
+	- 验收: 更新 `docs/design/database.md`，明确核心实体、初始化脚本适用边界以及与实体事实源的同步约束。
+	- 验收: 补齐最小回归验证，至少确认三套初始化脚本与当前实体结构不存在显著缺字段或关键索引漂移。
+
 ## 相关文档
 
 - [AI 代理配置](../../AGENTS.md)
