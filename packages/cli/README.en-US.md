@@ -259,15 +259,7 @@ This command calls the external publish API to publish a draft or pending post. 
 | `audio_size` / `medialength` / `mediaLength` | `metadata.audio.size` | Audio size |
 | `audio_mime_type` / `mediatype` / `mediaType` | `metadata.audio.mimeType` | Audio MIME type |
 | `audio_language` / `audio_locale` | `metadata.audio.language` | Audio locale |
-| `audio_translation_id` / `audioTranslationId` | `metadata.audio.translationId` | Translation cluster bound to the audio asset |
-| `audio_post_id` / `audioPostId` | `metadata.audio.postId` | Source post ID for the audio asset |
-| `audio_mode` | `metadata.audio.mode` | Audio mode: `speech` / `podcast` |
-| `tts_provider` / `tts_voice` / `tts_generated_at` | `metadata.tts.*` | TTS provider, voice, and generation time |
-| `tts_language` / `tts_locale` | `metadata.tts.language` | TTS locale |
-| `tts_translation_id` / `ttsTranslationId` | `metadata.tts.translationId` | Translation cluster bound to TTS |
-| `tts_post_id` / `ttsPostId` | `metadata.tts.postId` | Source post ID for TTS |
-| `tts_mode` | `metadata.tts.mode` | TTS mode: `speech` / `podcast` |
-| `metadata.audio` / `metadata.tts` | `metadata.audio` / `metadata.tts` | Full metadata fact source exported by the app |
+| `metadata.audio` | `metadata.audio` | Nested audio metadata supported for compatibility |
 | body content | `content` | Markdown body content |
 
 In the current CLI, `permalink` is no longer imported as the canonical slug. It is mainly used by `govern-links` to generate legacy link mapping seeds.
@@ -276,6 +268,9 @@ The current import command does not map these common fields yet:
 
 - `updated`
 - `disableComment`
+- `audio_translation_id`, `audioTranslationId`, `audio_post_id`, `audioPostId`, and `audio_mode`
+- `tts_provider`, `tts_voice`, `tts_generated_at`, `ttsGeneratedAt`, `tts_language`, `tts_locale`, `tts_translation_id`, `ttsTranslationId`, `tts_post_id`, `ttsPostId`, and `tts_mode`
+- `metadata.tts`
 - `metadata.scaffold`, `metadata.publish.intent`, and `metadata.integration.memosId`
 - `publishIntent`, `syncToMemos`, `pushOption`, and `pushCriteria`
 - `views` and `tagBindings`
@@ -287,7 +282,7 @@ The current import command does not map these common fields yet:
 3. If `date` exists, it is written to both `createdAt` and `publishedAt`, and `status` becomes `published`; otherwise `status` is `draft`.
 4. `visibility` is currently fixed to `public`.
 5. Tags support both string and array input; categories support both too, but only the first category is kept.
-6. The CLI now prefers `metadata.audio` / `metadata.tts` from exported files and still supports the legacy alias fields, but it does not automatically build `metadata.scaffold` or `metadata.publish.intent`.
+6. The CLI supports both `metadata.audio` and the basic audio alias fields, but it ignores TTS data and does not automatically build `metadata.scaffold` or `metadata.publish.intent`.
 
 ## API Key
 

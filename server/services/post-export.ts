@@ -6,38 +6,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
     return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
 }
 
-function isNonEmptyString(value: unknown): value is string {
-    return typeof value === 'string' && value.length > 0
-}
-
-function sanitizeYamlValue<T>(value: T): T | undefined {
-    if (value === undefined || value === null) {
-        return undefined
-    }
-
-    if (value instanceof Date) {
-        return value.toISOString() as T
-    }
-
-    if (Array.isArray(value)) {
-        return value.map((item) => sanitizeYamlValue(item) ?? item) as T
-    }
-
-    if (!isRecord(value)) {
-        return value
-    }
-
-    const entries = Object.entries(value)
-        .map(([key, item]) => [key, sanitizeYamlValue(item)] as const)
-        .filter(([, item]) => item !== undefined)
-
-    if (entries.length === 0) {
-        return undefined
-    }
-
-    return Object.fromEntries(entries) as T
-}
-
 /**
  * 将 Post 实体转换为带 Front-matter 的 Markdown 字符串 (Hexo 兼容)
  */
@@ -57,12 +25,12 @@ export function formatPostToMarkdown(post: Post): string {
         frontMatter.image = post.coverImage
     }
 
-    const audioMetadata = sanitizeYamlValue(post.metadata?.audio)
+    const audioMetadata = post.metadata?.audio
     if (audioMetadata && isRecord(audioMetadata)) {
         const audioUrl = typeof audioMetadata.url === 'string' ? audioMetadata.url : undefined
 
         if (audioUrl) {
-            frontMatter.audio = audioUrl
+            frontMatter.audio_url = audioUrl
         }
         if (typeof audioMetadata.duration === 'number') {
             frontMatter.audio_duration = audioMetadata.duration
@@ -76,48 +44,6 @@ export function formatPostToMarkdown(post: Post): string {
         if (typeof audioMetadata.language === 'string' && audioMetadata.language) {
             frontMatter.audio_language = audioMetadata.language
         }
-        if (isNonEmptyString(audioMetadata.translationId)) {
-            frontMatter.audio_translation_id = audioMetadata.translationId
-        }
-        if (isNonEmptyString(audioMetadata.postId)) {
-            frontMatter.audio_post_id = audioMetadata.postId
-        }
-        if (isNonEmptyString(audioMetadata.mode)) {
-            frontMatter.audio_mode = audioMetadata.mode
-        }
-    }
-
-    const ttsMetadata = sanitizeYamlValue(post.metadata?.tts)
-    if (ttsMetadata && isRecord(ttsMetadata)) {
-        if (typeof ttsMetadata.provider === 'string' && ttsMetadata.provider) {
-            frontMatter.tts_provider = ttsMetadata.provider
-        }
-        if (typeof ttsMetadata.voice === 'string' && ttsMetadata.voice) {
-            frontMatter.tts_voice = ttsMetadata.voice
-        }
-        if (typeof ttsMetadata.language === 'string' && ttsMetadata.language) {
-            frontMatter.tts_language = ttsMetadata.language
-        }
-        if (isNonEmptyString(ttsMetadata.generatedAt)) {
-            frontMatter.tts_generated_at = ttsMetadata.generatedAt
-        }
-        if (isNonEmptyString(ttsMetadata.translationId)) {
-            frontMatter.tts_translation_id = ttsMetadata.translationId
-        }
-        if (isNonEmptyString(ttsMetadata.postId)) {
-            frontMatter.tts_post_id = ttsMetadata.postId
-        }
-        if (isNonEmptyString(ttsMetadata.mode)) {
-            frontMatter.tts_mode = ttsMetadata.mode
-        }
-    }
-
-    const metadata = sanitizeYamlValue({
-        audio: post.metadata?.audio,
-        tts: post.metadata?.tts,
-    })
-    if (metadata && isRecord(metadata)) {
-        frontMatter.metadata = metadata
     }
 
     // 可以在这里根据需要添加更多字段映射

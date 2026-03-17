@@ -100,23 +100,11 @@ describe('Parser - convertToMomeiPost: Basic Conversion', () => {
                 size: 2048,
                 mimeType: 'audio/mpeg',
                 language: 'ko-KR',
-                translationId: 'cluster-ko',
-                postId: 'post-ko-1',
-                mode: 'podcast',
-            },
-            tts: {
-                provider: 'openai',
-                voice: 'alloy',
-                generatedAt: '2026-03-17T08:00:00.000Z',
-                language: 'ko-KR',
-                translationId: 'cluster-ko',
-                postId: 'post-ko-1',
-                mode: 'podcast',
             },
         })
     })
 
-    it('should prefer nested metadata for audio and tts round-trip fields', () => {
+    it('should ignore audio binding metadata and all tts fields during import', () => {
         const frontMatter: HexoFrontMatter = {
             title: 'Round Trip Post',
             language: 'en-US',
@@ -155,18 +143,6 @@ describe('Parser - convertToMomeiPost: Basic Conversion', () => {
                 size: 5120,
                 mimeType: 'audio/ogg',
                 language: 'en-US',
-                translationId: 'cluster-en',
-                postId: 'post-en-1',
-                mode: 'speech',
-            },
-            tts: {
-                provider: 'azure',
-                voice: 'JennyNeural',
-                generatedAt: '2026-03-17T09:10:11.000Z',
-                language: 'en-US',
-                translationId: 'cluster-en',
-                postId: 'post-en-1',
-                mode: 'speech',
             },
         })
     })
