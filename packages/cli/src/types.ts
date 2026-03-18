@@ -122,6 +122,36 @@ export interface MomeiPost {
     views?: number
 }
 
+export interface CliImportPostRequest extends MomeiPost {
+    abbrlink?: string
+    permalink?: string
+    sourceFile?: string
+    confirmPathAliases?: boolean
+}
+
+export type CliImportPathAliasField = 'slug' | 'abbrlink' | 'permalink' | 'canonical'
+export type CliImportPathAliasStatus = 'accepted' | 'fallback' | 'repaired' | 'invalid' | 'conflict' | 'needs-confirmation' | 'skipped'
+
+export interface CliImportPathAliasReportItem {
+    field: CliImportPathAliasField
+    status: CliImportPathAliasStatus
+    originalValue: string | null
+    resolvedValue: string | null
+    reason: string
+    message: string
+}
+
+export interface CliImportPathAliasReport {
+    language: string
+    canonicalSlug: string | null
+    canonicalSource: 'slug' | 'abbrlink' | 'source-file' | 'title' | 'repair' | 'fallback' | null
+    canImport: boolean
+    requiresConfirmation: boolean
+    hasBlockingIssues: boolean
+    summary: Record<CliImportPathAliasStatus, number>
+    items: CliImportPathAliasReportItem[]
+}
+
 export type CliLinkGovernanceScope =
     | 'asset-url'
     | 'post-link'
@@ -229,7 +259,7 @@ export interface CliOptions {
 export interface ImportResult {
     success: boolean
     file: string
-    postId?: number
+    postId?: number | string
     error?: string
 }
 

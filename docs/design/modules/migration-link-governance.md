@@ -4,7 +4,7 @@
 
 第十一阶段的“迁移链接治理与云端资源重写”不再只处理对象存储域名切换，也不再把旧站链接修复拆成多个彼此独立的小工具。当前仓库已经具备以下基础能力：
 
-- `packages/cli` 可以批量导入 Markdown，并把 `permalink` 作为 `slug` 导入。
+- `packages/cli` 可以批量导入 Markdown，并在导入前对 `slug`、`abbrlink`、`permalink` 执行统一校验；其中 `permalink` 只作为历史路径别名输入参与审计与治理，不再直接充当 canonical slug。
 - `docs/design/modules/storage.md` 已定义 `asset_public_base_url`、对象键前缀和 `POST /api/upload/direct-auth` 的资产访问治理基线。
 - 站内公开内容已经具备明确的 canonical 路径模型：文章 `/posts/{slug}`、分类 `/categories/{slug}`、标签 `/tags/{slug}`、归档 `/archives` 以及独立页面路由。
 

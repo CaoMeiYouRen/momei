@@ -23,6 +23,10 @@ const mockGetValidatedQuery = vi.fn(async (event: any, validate: any) => await v
 const mockReadValidatedBody = vi.fn(async (event: any, validate: any) => await validate(event.body || {}))
 const mockReadBody = vi.fn((event: any) => Promise.resolve(event.body || {}))
 const mockGetRouterParam = vi.fn((event: any, key: string) => event.params?.[key])
+const mockGetRequestIP = vi.fn(() => null)
+const mockGetRequestHeader = vi.fn(() => undefined)
+const mockGetRequestHost = vi.fn(() => 'example.com')
+const mockGetRequestProtocol = vi.fn(() => 'https')
 
 const mockCreateError = (err: any) => {
     const error = new Error(err.statusMessage || 'Error')
@@ -36,6 +40,10 @@ vi.stubGlobal('getValidatedQuery', mockGetValidatedQuery)
 vi.stubGlobal('readValidatedBody', mockReadValidatedBody)
 vi.stubGlobal('readBody', mockReadBody)
 vi.stubGlobal('getRouterParam', mockGetRouterParam)
+vi.stubGlobal('getRequestIP', mockGetRequestIP)
+vi.stubGlobal('getRequestHeader', mockGetRequestHeader)
+vi.stubGlobal('getRequestHost', mockGetRequestHost)
+vi.stubGlobal('getRequestProtocol', mockGetRequestProtocol)
 vi.stubGlobal('createError', mockCreateError)
 vi.stubGlobal('getAppManifest', vi.fn(() => Promise.resolve({
     publicPath: '/',

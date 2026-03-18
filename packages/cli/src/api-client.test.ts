@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { MomeiPost } from './types'
+import type { CliImportPostRequest } from './types'
 
 const { mockCreate, mockGet, mockPost } = vi.hoisted(() => ({
     mockCreate: vi.fn(),
@@ -15,7 +15,7 @@ vi.mock('axios', () => ({
 
 import { MomeiApiClient } from './api-client'
 
-function createPostPayload(title: string): MomeiPost {
+function createPostPayload(title: string): CliImportPostRequest {
     return {
         title,
         content: `${title} content`,
@@ -130,5 +130,45 @@ describe('MomeiApiClient', () => {
         expect(categories.data.matchedCategoryId).toBe('cat_en')
         expect(task.data.taskId).toBe('task_translate_1')
         expect(taskStatus.data.status).toBe('completed')
+    })
+
+    it('should call the import validation endpoint before import execution when requested', async () => {
+        mockPost.mockResolvedValueOnce({
+            data: {
+                code: 200,
+                data: {
+                    language: 'zh-CN',
+                    canonicalSlug: 'validated-post',
+                    canonicalSource: 'slug',
+                    canImport: true,
+                    requiresConfirmation: false,
+                    hasBlockingIssues: false,
+                    summary: {
+                        accepted: 2,
+                        fallback: 0,
+                        repaired: 0,
+                        invalid: 0,
+                        conflict: 0,
+                        'needs-confirmation': 0,
+                        skipped: 0,
+                    },
+                    items: [],
+                },
+            },
+        })
+
+        const client = new MomeiApiClient('http://localhost:3000', 'test-key')
+        const response = await client.validateImportPost({
+            title: 'Validated Post',
+            content: 'Validated Post content',
+            sourceFile: 'validated-post.md',
+        })
+
+        expect(mockPost).toHaveBeenCalledWith('/api/external/posts/validate', {
+            title: 'Validated Post',
+            content: 'Validated Post content',
+            sourceFile: 'validated-post.md',
+        })
+        expect(response.data.canonicalSlug).toBe('validated-post')
     })
 })

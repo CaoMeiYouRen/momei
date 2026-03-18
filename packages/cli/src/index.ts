@@ -4,11 +4,13 @@ import { resolve } from 'node:path'
 import { cac } from 'cac'
 import chalk from 'chalk'
 import ora from 'ora'
+import { buildImportExecutionPlan, type CliImportValidationCandidate } from './import-validation'
 import { parseHexoFiles } from './parser'
 import { MomeiApiClient } from './api-client'
 import { buildLinkGovernanceRequest, parseCliLinkGovernanceScopes } from './link-governance'
 import type {
     CliAutomationTaskStatusResponse,
+    CliImportPostRequest,
     CliLinkGovernanceMode,
     CliLinkGovernanceReportData,
     CliTranslatePostRequest,
@@ -23,11 +25,13 @@ cli
     .option('--api-url <url>', 'Momei API URL', { default: 'http://localhost:3000' })
     .option('--api-key <key>', 'Momei API Key (required)')
     .option('--dry-run', 'Dry run mode (parse files without importing)', { default: false })
+    .option('--report-file <file>', 'Save the validation/import report to a file')
+    .option('--confirm-path-aliases', 'Approve fallback or repaired path aliases returned by validation', { default: false })
     .option('--verbose', 'Verbose output', { default: false })
     .option('--concurrency <num>', 'Number of concurrent imports', { default: 3 })
     .action(async (source: string, options: any) => {
-        const { apiUrl, apiKey, dryRun, verbose, concurrency } = options
-        await runImport(source, { apiUrl, apiKey, dryRun, verbose, concurrency })
+        const { apiUrl, apiKey, dryRun, verbose, concurrency, reportFile, confirmPathAliases } = options
+        await runImport(source, { apiUrl, apiKey, dryRun, verbose, concurrency, reportFile, confirmPathAliases })
     })
 
 cli
@@ -282,8 +286,76 @@ cli
         console.log(JSON.stringify(response.data, null, 2))
     })
 
-async function runImport(source: string, options: { apiUrl: string, apiKey: string, dryRun: boolean, verbose: boolean, concurrency: number }) {
-    const { apiUrl, apiKey, dryRun, verbose, concurrency } = options
+function buildImportRequest(entry: Awaited<ReturnType<typeof parseHexoFiles>>[number]): CliImportPostRequest {
+    return {
+        ...entry.post,
+        slug: typeof entry.frontMatter.slug === 'string' ? entry.frontMatter.slug : undefined,
+        abbrlink: typeof entry.frontMatter.abbrlink === 'string' ? entry.frontMatter.abbrlink : undefined,
+        permalink: typeof entry.frontMatter.permalink === 'string' ? entry.frontMatter.permalink : undefined,
+        sourceFile: entry.relativeFile,
+    }
+}
+
+async function validateImportCandidates(
+    client: MomeiApiClient,
+    entries: Awaited<ReturnType<typeof parseHexoFiles>>,
+    concurrency: number,
+): Promise<CliImportValidationCandidate[]> {
+    const candidates: CliImportValidationCandidate[] = []
+
+    for (let index = 0; index < entries.length; index += concurrency) {
+        const batch = entries.slice(index, index + concurrency)
+        const batchResults = await Promise.all(batch.map(async (entry) => {
+            const request = buildImportRequest(entry)
+            const response = await client.validateImportPost(request)
+            return {
+                file: entry.file,
+                relativeFile: entry.relativeFile,
+                request,
+                report: response.data,
+            } satisfies CliImportValidationCandidate
+        }))
+
+        candidates.push(...batchResults)
+    }
+
+    return candidates
+}
+
+async function maybeWriteImportReport(report: unknown, reportFile?: string) {
+    if (!reportFile) {
+        return
+    }
+
+    const outputPath = resolve(process.cwd(), reportFile)
+    await writeFile(outputPath, JSON.stringify(report, null, 2), 'utf-8')
+    console.log(chalk.gray(`Saved report to ${outputPath}`))
+}
+
+function displayImportValidationSummary(plan: ReturnType<typeof buildImportExecutionPlan>) {
+    console.log(chalk.blue('\n🧪 Import Validation Summary\n'))
+    console.log(chalk.green(`  Ready: ${plan.summary.ready}`))
+    console.log(chalk.yellow(`  Confirmation Required: ${plan.summary.requiresConfirmation}`))
+    console.log(chalk.red(`  Blocking Issues: ${plan.summary.blockingIssues}`))
+    console.log(chalk.gray(`  Skipped: ${plan.summary.skipped}`))
+    console.log(chalk.gray(`  Accepted: ${plan.summary.accepted}`))
+    console.log(chalk.yellow(`  Fallback: ${plan.summary.fallback}`))
+    console.log(chalk.yellow(`  Repaired: ${plan.summary.repaired}`))
+    console.log(chalk.red(`  Invalid: ${plan.summary.invalid}`))
+    console.log(chalk.red(`  Conflict: ${plan.summary.conflict}`))
+    console.log(chalk.magenta(`  Needs Confirmation: ${plan.summary.needsConfirmation}\n`))
+}
+
+async function runImport(source: string, options: {
+    apiUrl: string
+    apiKey: string
+    dryRun: boolean
+    verbose: boolean
+    concurrency: number
+    reportFile?: string
+    confirmPathAliases: boolean
+}) {
+    const { apiUrl, apiKey, dryRun, verbose, concurrency, reportFile, confirmPathAliases } = options
 
     // 验证必需参数
     if (!apiKey && !dryRun) {
@@ -317,7 +389,30 @@ async function runImport(source: string, options: { apiUrl: string, apiKey: stri
             })
         }
 
-        // Dry run 模式：只解析不导入
+        if (!apiKey && dryRun) {
+            console.log(chalk.yellow('\n⚠️  Dry run completed with local parsing only. Provide --api-key for alias validation and conflict checks.'))
+            process.exit(0)
+        }
+
+        const client = new MomeiApiClient(apiUrl, apiKey)
+        const validationSpinner = ora('Validating import path aliases...').start()
+        const candidates = await validateImportCandidates(client, posts, Number.parseInt(String(concurrency), 10))
+        validationSpinner.succeed(chalk.green(`Validated ${candidates.length} posts`))
+
+        const executionPlan = buildImportExecutionPlan(candidates, { confirmPathAliases })
+        displayImportValidationSummary(executionPlan)
+        await maybeWriteImportReport({
+            generatedAt: new Date().toISOString(),
+            dryRun,
+            summary: executionPlan.summary,
+            items: executionPlan.items.map((item) => ({
+                file: item.relativeFile,
+                action: item.action,
+                actionReason: item.actionReason,
+                report: item.report,
+            })),
+        }, reportFile)
+
         if (dryRun) {
             console.log(chalk.yellow('\n✓ Dry run completed. No posts were imported.'))
             process.exit(0)
@@ -325,19 +420,33 @@ async function runImport(source: string, options: { apiUrl: string, apiKey: stri
 
         // 导入文章
         console.log(chalk.blue('\n📤 Importing posts to Momei...\n'))
-        const client = new MomeiApiClient(apiUrl, apiKey)
+
+        const importablePosts = executionPlan.items
+            .filter((item) => item.action === 'import')
+            .map((item) => ({
+                file: item.file,
+                post: {
+                    ...item.request,
+                    confirmPathAliases,
+                },
+            }))
+
+        if (importablePosts.length === 0) {
+            console.log(chalk.yellow('No posts passed validation. Nothing was imported.'))
+            process.exit(0)
+        }
 
         const stats: ImportStats = {
-            total: posts.length,
+            total: importablePosts.length,
             success: 0,
             failed: 0,
-            skipped: 0,
+            skipped: executionPlan.summary.skipped,
             results: [],
         }
 
         const progressSpinner = ora('Importing...').start()
 
-        const results = await client.importPosts(posts, {
+        const results = await client.importPosts(importablePosts, {
             concurrency: Number.parseInt(String(concurrency), 10),
             onProgress: (current: number, total: number, result: ImportResult) => {
                 progressSpinner.text = `Importing... (${current}/${total})`
@@ -538,6 +647,7 @@ function displaySummary(stats: ImportStats) {
     console.log(chalk.blue('\n📊 Import Summary:\n'))
     console.log(chalk.green(`  ✓ Success: ${stats.success}`))
     console.log(chalk.red(`  ✗ Failed: ${stats.failed}`))
+    console.log(chalk.gray(`  ↷ Skipped: ${stats.skipped}`))
     console.log(chalk.gray(`  Total: ${stats.total}\n`))
 
     // 显示失败的文件

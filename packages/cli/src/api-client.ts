@@ -3,10 +3,11 @@ import type {
     CliAutomationTaskStartResponse,
     CliAutomationTaskStatusResponse,
     CliCategoryRecommendationResult,
+    CliImportPathAliasReport,
+    CliImportPostRequest,
     CliLinkGovernanceReportData,
     CliLinkGovernanceRequest,
     CliTranslatePostRequest,
-    MomeiPost,
     ImportResult,
 } from './types'
 
@@ -30,8 +31,13 @@ export class MomeiApiClient {
     /**
    * 创建文章
    */
-    async createPost(post: MomeiPost): Promise<{ code: number, data: { id: number } }> {
+    async createPost(post: CliImportPostRequest): Promise<{ code: number, data: { id: string | number } }> {
         const response = await this.client.post('/api/external/posts', post)
+        return response.data
+    }
+
+    async validateImportPost(post: CliImportPostRequest): Promise<{ code: number, data: CliImportPathAliasReport }> {
+        const response = await this.client.post('/api/external/posts/validate', post)
         return response.data
     }
 
@@ -39,7 +45,7 @@ export class MomeiApiClient {
    * 批量导入文章
    */
     async importPosts(
-        posts: { file: string, post: MomeiPost }[],
+        posts: { file: string, post: CliImportPostRequest }[],
         options: {
             concurrency?: number
             onProgress?: (current: number, total: number, result: ImportResult) => void

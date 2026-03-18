@@ -50,8 +50,10 @@ momei import <source-directory> --api-key <your-api-key>
 | 选项 | 说明 | 默认值 |
 | --- | --- | --- |
 | `--api-url <url>` | 墨梅 API 地址 | `http://localhost:3000` |
-| `--api-key <key>` | 墨梅 API Key；非 dry run 必填 | - |
+| `--api-key <key>` | 墨梅 API Key；非 dry run 必填；提供后 dry run 会额外执行远端别名校验 | - |
 | `--dry-run` | 仅解析文件，不实际导入 | `false` |
+| `--report-file <file>` | 保存导入校验 / 导入结果报告（JSON） | - |
+| `--confirm-path-aliases` | 接受 fallback / repaired 的路径别名决策 | `false` |
 | `--verbose` | 输出详细日志 | `false` |
 | `--concurrency <num>` | 并发导入数量 | `3` |
 
@@ -73,6 +75,8 @@ momei import ./hexo-blog/source/_posts \
   --concurrency 5 \
   --verbose
 ```
+
+如果同时提供 `--api-key`，`dry-run` 会调用 `POST /api/external/posts/validate`，输出结构化的路径别名校验报告，而不仅仅是本地解析结果。
 
 ## 命令二：治理旧链接
 
@@ -248,7 +252,7 @@ momei publish <post-id> --api-key <your-api-key>
 | `date` | `createdAt` + `publishedAt` | 转为 ISO 时间字符串，并同时让 `status` 变为 `published` |
 | `tags` | `tags` | 标签，支持字符串或数组 |
 | `categories` / `category` | `category` | 仅取第一个分类作为主分类 |
-| `slug` / `abbrlink` | `slug` | Canonical slug；缺失时回退为文件名 |
+| `slug` / `abbrlink` | `slug` | 参与 canonical slug 选择；冲突或非法时会先进入导入前校验 |
 | `description` / `desc` / `excerpt` | `summary` | 文章摘要 |
 | `image` / `cover` / `thumb` | `coverImage` | 文章封面 |
 | `copyright` / `license` | `copyright` | 版权或许可说明 |
@@ -262,7 +266,10 @@ momei publish <post-id> --api-key <your-api-key>
 | `metadata.audio` | `metadata.audio` | 兼容读取嵌套音频元数据 |
 | 正文内容 | `content` | Markdown 正文内容 |
 
-`permalink` 在当前 CLI 中不再作为 canonical slug 导入，而是主要服务于 `govern-links` 命令，用来生成旧链接映射种子。
+`permalink` 在当前 CLI 中不再作为 canonical slug 导入，而是主要用于两件事：
+
+1. 导入前通过 `POST /api/external/posts/validate` 执行历史路径别名审计。
+2. 在 `govern-links` 命令中生成旧链接映射种子。
 
 当前实现中，以下常见字段不会被导入命令映射：
 
@@ -278,7 +285,7 @@ momei publish <post-id> --api-key <your-api-key>
 ## 导入规则
 
 1. 标题缺失时回退为 `Untitled`。
-2. `slug` 优先使用 `slug` 或 `abbrlink`，否则从文件名推导。
+2. `slug` 优先使用 `slug` 或 `abbrlink`；若显式别名不可用，会在校验报告中给出 fallback / repair / skip 决策，而不是静默改写。
 3. 有 `date` 时同时写入 `createdAt` 与 `publishedAt`，并将 `status` 设为 `published`；没有 `date` 时 `status` 为 `draft`。
 4. `visibility` 当前固定为 `public`。
 5. 标签支持字符串和数组；分类支持字符串和数组，但最终只保留第一个分类。
@@ -306,7 +313,7 @@ pnpm lint
 
 1. `--api-key` 无效：确认 Key 未过期且具备外部 API 权限。
 2. 连接失败：检查 `--api-url` 是否正确，以及主应用是否已启动。
-3. 导入失败：加上 `--verbose` 以查看具体错误。
+3. 导入失败：加上 `--verbose`，必要时结合 `--report-file` 查看校验报告、冲突项和跳过原因。
 4. 链接治理失败：先运行 `dry-run`，必要时结合 `--report-file` 和 `--retry-report-id` 分析问题。
 5. 自动化任务长时间未完成：使用 `momei ai task <task-id>` 检查任务状态，并确认主站 AI 提供商配置有效。
 6. 文件解析失败：确认 Markdown Front-matter 为合法 YAML。

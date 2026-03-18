@@ -35,6 +35,10 @@
         "title": "文章标题",
         "content": "Markdown 内容",
         "slug": "custom-slug", // (可选)
+        "abbrlink": "legacy-short-slug", // (可选) 仅导入场景使用
+        "permalink": "/2024/03/custom-slug/", // (可选) 仅导入场景使用
+        "sourceFile": "posts/custom-slug.md", // (可选) 仅导入场景使用
+        "confirmPathAliases": false, // (可选) 是否确认 fallback / repair 结果
         "tags": ["Tag1", "Tag2"], // (可选) 自动创建不存在的标签
         "categoryId": "cid_...", // (可选)
         "language": "zh-CN", // (可选) 默认 zh-CN
@@ -52,6 +56,40 @@
         }
     }
     ```
+
+#### `POST /api/external/posts/validate`
+
+-   **用途**: 在真正创建文章前，对 `slug`、`abbrlink`、`permalink` 执行格式、保留字、语言内冲突和 fallback / repair 审计。
+-   **典型场景**: CLI 批量迁移、第三方导入器 dry-run、需要人工确认路径别名修复的自动化脚本。
+-   **响应 (Response)**:
+    ```json
+    {
+        "code": 200,
+        "data": {
+            "language": "zh-CN",
+            "canonicalSlug": "custom-slug",
+            "canonicalSource": "slug",
+            "canImport": true,
+            "requiresConfirmation": false,
+            "hasBlockingIssues": false,
+            "summary": {
+                "accepted": 2,
+                "fallback": 0,
+                "repaired": 0,
+                "invalid": 0,
+                "conflict": 0,
+                "needs-confirmation": 0,
+                "skipped": 0
+            },
+            "items": []
+        }
+    }
+    ```
+
+补充说明：
+
+-   `POST /api/external/posts` 现在会复用同一套校验逻辑；若存在 fallback / repair / 保留路径冲突但未显式确认，将返回 `409`，避免静默导入不可用路径。
+-   `permalink` 不再作为 canonical slug 直接写入文章，而是作为历史路径别名输入参与导入前审计与后续链接治理。
 
 ### 3.2 迁移链接治理 (规划中)
 
