@@ -45,17 +45,19 @@ vi.mock('../lib/api', () => {
 })
 
 function getRegisteredHandler(registerSpy: ReturnType<typeof vi.spyOn>, toolName: string): ToolHandler {
-    let toolRegistration: (typeof registerSpy.mock.calls)[number] | undefined
+    let toolRegistration: [string, unknown, ToolHandler] | undefined
 
     for (const registeredCall of registerSpy.mock.calls) {
         if (registeredCall[0] === toolName) {
-            toolRegistration = registeredCall
+            toolRegistration = registeredCall as [string, unknown, ToolHandler]
             break
         }
     }
 
-    expect(toolRegistration?.[2]).toBeTypeOf('function')
-    return toolRegistration?.[2] as ToolHandler
+    const handler = toolRegistration?.[2]
+
+    expect(handler).toBeTypeOf('function')
+    return handler!
 }
 
 describe('Automation Tools Registration', () => {

@@ -1,17 +1,11 @@
 <template>
     <div class="settings-form">
-        <SettingFormField
+        <LocalizedSettingEditor
+            v-model="settings.site_title"
             field-key="site_title"
             input-id="site_title"
             :metadata="metadata.site_title"
-        >
-            <InputText
-                id="site_title"
-                v-model="settings.site_title"
-                :disabled="metadata.site_title?.isLocked"
-                fluid
-            />
-        </SettingFormField>
+        />
 
         <SettingFormField
             field-key="site_name"
@@ -27,32 +21,23 @@
             />
         </SettingFormField>
 
-        <SettingFormField
+        <LocalizedSettingEditor
+            v-model="settings.site_description"
             field-key="site_description"
             input-id="site_description"
             :metadata="metadata.site_description"
-        >
-            <Textarea
-                id="site_description"
-                v-model="settings.site_description"
-                :disabled="metadata.site_description?.isLocked"
-                rows="3"
-                fluid
-            />
-        </SettingFormField>
+            multiline
+            :rows="3"
+        />
 
-        <SettingFormField
+        <LocalizedSettingEditor
+            v-model="settings.site_keywords"
             field-key="site_keywords"
             input-id="site_keywords"
             :metadata="metadata.site_keywords"
-        >
-            <InputText
-                id="site_keywords"
-                v-model="settings.site_keywords"
-                :disabled="metadata.site_keywords?.isLocked"
-                fluid
-            />
-        </SettingFormField>
+            string-list
+            :description="$t('pages.admin.settings.system.localized.keywords_description')"
+        />
 
         <SettingFormField
             field-key="post_copyright"
@@ -71,19 +56,13 @@
             />
         </SettingFormField>
 
-        <SettingFormField
+        <LocalizedSettingEditor
+            v-model="settings.site_copyright_owner"
             field-key="site_copyright_owner"
             input-id="site_copyright_owner"
             :metadata="metadata.site_copyright_owner"
             :description="$t('pages.admin.settings.system.hints.site_copyright_owner')"
-        >
-            <InputText
-                id="site_copyright_owner"
-                v-model="settings.site_copyright_owner"
-                :disabled="metadata.site_copyright_owner?.isLocked"
-                fluid
-            />
-        </SettingFormField>
+        />
 
         <SettingFormField
             field-key="site_copyright_start_year"
@@ -163,18 +142,12 @@
             </SettingFormField>
         </div>
 
-        <SettingFormField
+        <LocalizedSettingEditor
+            v-model="settings.site_operator"
             field-key="site_operator"
             input-id="site_operator"
             :metadata="metadata.site_operator"
-        >
-            <InputText
-                id="site_operator"
-                v-model="settings.site_operator"
-                :disabled="metadata.site_operator?.isLocked"
-                fluid
-            />
-        </SettingFormField>
+        />
 
         <SettingFormField
             field-key="contact_email"
@@ -335,20 +308,15 @@
                 />
             </SettingFormField>
 
-            <SettingFormField
+            <LocalizedSettingEditor
+                v-model="settings.friend_links_application_guidelines"
                 field-key="friend_links_application_guidelines"
                 input-id="friend_links_application_guidelines"
                 :metadata="metadata.friend_links_application_guidelines"
                 :description="$t('pages.admin.settings.system.hints.friend_links_application_guidelines')"
-            >
-                <Textarea
-                    id="friend_links_application_guidelines"
-                    v-model="settings.friend_links_application_guidelines"
-                    :disabled="metadata.friend_links_application_guidelines?.isLocked"
-                    rows="5"
-                    fluid
-                />
-            </SettingFormField>
+                multiline
+                :rows="5"
+            />
         </template>
 
         <Divider align="left">
@@ -641,6 +609,7 @@
 </template>
 
 <script setup lang="ts">
+import LocalizedSettingEditor from '@/components/admin/settings/localized-setting-editor.vue'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import { APP_ENABLED_LOCALES } from '@/i18n/config/locale-registry'
 import { getCopyrightLicenseOptions } from '@/utils/shared/copyright-options'

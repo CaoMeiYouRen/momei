@@ -1,3 +1,4 @@
+<!-- eslint-disable max-lines -->
 <template>
     <div class="agreements-settings">
         <div class="agreements-settings__header">

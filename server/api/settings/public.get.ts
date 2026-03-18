@@ -1,25 +1,78 @@
-import { getSetting, getSettings } from '~/server/services/setting'
+import { getLocalizedSettings, getSetting, getSettings } from '~/server/services/setting'
+import { resolveAppLocaleCode } from '~/i18n/config/locale-registry'
 import { resolveGoogleAdSenseAccount } from '~/server/utils/ad-network-config'
-import { PUBLIC_SETTING_KEYS, SettingKey } from '~/types/setting'
+import { detectRequestAuthLocale, mapAuthLocaleToAppLocale } from '~/server/utils/locale'
+import { getLocalizedFallbackChain, serializeLocalizedStringList } from '~/utils/shared/localized-settings'
+import { PUBLIC_SETTING_KEYS, SettingKey, type ResolvedLocalizedSetting } from '~/types/setting'
 
 /**
  * 获取公开站点配置
  * GET /api/settings/public
  */
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
     try {
+        const requestedLocale = resolveAppLocaleCode(mapAuthLocaleToAppLocale(detectRequestAuthLocale(event)))
+        const fallbackChain = getLocalizedFallbackChain(requestedLocale)
         const commercialRaw = await getSetting<string>(SettingKey.COMMERCIAL_SPONSORSHIP, null)
-        const settings = await getSettings([...PUBLIC_SETTING_KEYS])
+        const [settings, localizedSettings] = await Promise.all([
+            getSettings([...PUBLIC_SETTING_KEYS]),
+            getLocalizedSettings([
+                SettingKey.SITE_TITLE,
+                SettingKey.SITE_DESCRIPTION,
+                SettingKey.SITE_KEYWORDS,
+                SettingKey.SITE_OPERATOR,
+                SettingKey.SITE_COPYRIGHT_OWNER,
+            ], requestedLocale),
+        ])
+
+        const createEmptyLocalizedResolved = (key: SettingKey): ResolvedLocalizedSetting => ({
+            key,
+            value: null,
+            requestedLocale,
+            resolvedLocale: null,
+            fallbackChain,
+            usedFallback: false,
+            usedLegacyValue: false,
+        })
+
+        const localizedTitle: ResolvedLocalizedSetting = localizedSettings[SettingKey.SITE_TITLE] ?? createEmptyLocalizedResolved(SettingKey.SITE_TITLE)
+        const localizedDescription: ResolvedLocalizedSetting = localizedSettings[SettingKey.SITE_DESCRIPTION] ?? createEmptyLocalizedResolved(SettingKey.SITE_DESCRIPTION)
+        const localizedKeywords: ResolvedLocalizedSetting = localizedSettings[SettingKey.SITE_KEYWORDS] ?? createEmptyLocalizedResolved(SettingKey.SITE_KEYWORDS)
+        const localizedOperator: ResolvedLocalizedSetting = localizedSettings[SettingKey.SITE_OPERATOR] ?? createEmptyLocalizedResolved(SettingKey.SITE_OPERATOR)
+        const localizedCopyrightOwner: ResolvedLocalizedSetting = localizedSettings[SettingKey.SITE_COPYRIGHT_OWNER] ?? createEmptyLocalizedResolved(SettingKey.SITE_COPYRIGHT_OWNER)
+
+        const siteName = settings[SettingKey.SITE_NAME] || ''
+        const siteTitle = typeof localizedTitle?.value === 'string' ? localizedTitle.value : ''
+        const siteDescription = typeof localizedDescription?.value === 'string' ? localizedDescription.value : ''
+        let siteKeywords = ''
+        if (Array.isArray(localizedKeywords?.value)) {
+            siteKeywords = serializeLocalizedStringList(localizedKeywords.value)
+        } else if (typeof localizedKeywords?.value === 'string') {
+            siteKeywords = localizedKeywords.value
+        }
+        const siteOperator = typeof localizedOperator?.value === 'string' ? localizedOperator.value : ''
+        const localizedCopyrightText = typeof localizedCopyrightOwner?.value === 'string'
+            ? localizedCopyrightOwner.value
+            : ''
+        const resolvedSiteTitle = siteTitle || siteName
+        const resolvedCopyrightOwner = localizedCopyrightText || siteOperator || resolvedSiteTitle
+        let resolvedCopyrightOwnerLocale = localizedTitle.resolvedLocale
+
+        if (localizedCopyrightText) {
+            resolvedCopyrightOwnerLocale = localizedCopyrightOwner.resolvedLocale
+        } else if (siteOperator) {
+            resolvedCopyrightOwnerLocale = localizedOperator.resolvedLocale
+        }
 
         return {
             code: 200,
             data: {
-                siteName: settings[SettingKey.SITE_NAME] || settings[SettingKey.SITE_TITLE],
-                siteTitle: settings[SettingKey.SITE_TITLE] || settings[SettingKey.SITE_NAME],
-                siteDescription: settings[SettingKey.SITE_DESCRIPTION],
-                siteKeywords: settings[SettingKey.SITE_KEYWORDS],
+                siteName: siteName || resolvedSiteTitle,
+                siteTitle: resolvedSiteTitle,
+                siteDescription,
+                siteKeywords,
                 postCopyright: settings[SettingKey.POST_COPYRIGHT],
-                siteCopyrightOwner: settings[SettingKey.SITE_COPYRIGHT_OWNER],
+                siteCopyrightOwner: resolvedCopyrightOwner,
                 siteCopyrightStartYear: settings[SettingKey.SITE_COPYRIGHT_START_YEAR],
                 defaultLanguage: settings[SettingKey.DEFAULT_LANGUAGE],
                 baiduAnalytics: settings[SettingKey.BAIDU_ANALYTICS],
@@ -27,7 +80,7 @@ export default defineEventHandler(async () => {
                 clarityAnalytics: settings[SettingKey.CLARITY_ANALYTICS],
                 siteLogo: settings[SettingKey.SITE_LOGO],
                 siteFavicon: settings[SettingKey.SITE_FAVICON],
-                siteOperator: settings[SettingKey.SITE_OPERATOR],
+                siteOperator,
                 contactEmail: settings[SettingKey.CONTACT_EMAIL],
                 feedbackUrl: settings[SettingKey.FEEDBACK_URL],
                 googleAdsenseAccount: resolveGoogleAdSenseAccount(typeof commercialRaw === 'string' ? commercialRaw : null),
@@ -62,6 +115,17 @@ export default defineEventHandler(async () => {
                 ttsEnabled: String(settings[SettingKey.TTS_ENABLED]) === 'true' || (!!process.env.TTS_API_KEY && settings[SettingKey.TTS_ENABLED] !== 'false'),
                 webPushEnabled: Boolean(settings[SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY]),
                 webPushPublicKey: settings[SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY] || '',
+                i18n: {
+                    locale: localizedTitle.requestedLocale,
+                    fallbackChain,
+                    resolvedLocales: {
+                        siteTitle: localizedTitle.resolvedLocale,
+                        siteDescription: localizedDescription.resolvedLocale,
+                        siteKeywords: localizedKeywords.resolvedLocale,
+                        siteOperator: localizedOperator.resolvedLocale,
+                        siteCopyrightOwner: resolvedCopyrightOwnerLocale,
+                    },
+                },
             },
         }
     } catch {

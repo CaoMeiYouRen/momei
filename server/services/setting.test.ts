@@ -222,6 +222,114 @@ describe('settingService', () => {
                 maskType: 'none',
             })
         })
+
+        it('should expose localized metadata for structured values', async () => {
+            mockSettingRepo.find.mockResolvedValue([{
+                key: SettingKey.SITE_TITLE,
+                value: JSON.stringify({
+                    version: 1,
+                    type: 'localized-text',
+                    locales: {
+                        'zh-CN': '墨梅博客',
+                        'en-US': 'Momei Blog',
+                    },
+                }),
+                level: 0,
+                description: 'site title',
+                maskType: 'none',
+            }])
+
+            const result = await settingService.resolveSetting(SettingKey.SITE_TITLE)
+
+            expect(result.localized).toMatchObject({
+                valueType: 'localized-text',
+                structured: true,
+                legacyFormat: false,
+                availableLocales: ['zh-CN', 'en-US'],
+            })
+        })
+    })
+
+    describe('getLocalizedSetting', () => {
+        it('should treat plain env overrides as legacy localized fallbacks', async () => {
+            process.env.NUXT_PUBLIC_SITE_DESCRIPTION = 'Env description'
+
+            const result = await settingService.getLocalizedSetting(SettingKey.SITE_DESCRIPTION, 'ko-KR')
+
+            expect(result).toMatchObject({
+                key: SettingKey.SITE_DESCRIPTION,
+                value: 'Env description',
+                requestedLocale: 'ko-KR',
+                resolvedLocale: 'legacy',
+                usedFallback: true,
+                usedLegacyValue: true,
+            })
+            expect(mockSettingRepo.find).not.toHaveBeenCalled()
+        })
+
+        it('should parse structured env overrides for localized settings', async () => {
+            process.env.NUXT_PUBLIC_SITE_DESCRIPTION = JSON.stringify({
+                version: 1,
+                type: 'localized-text',
+                locales: {
+                    'zh-CN': '中文描述',
+                    'en-US': 'English description',
+                },
+            })
+
+            const result = await settingService.getLocalizedSetting(SettingKey.SITE_DESCRIPTION, 'ko-KR')
+
+            expect(result).toMatchObject({
+                key: SettingKey.SITE_DESCRIPTION,
+                value: 'English description',
+                requestedLocale: 'ko-KR',
+                resolvedLocale: 'en-US',
+                usedFallback: true,
+                usedLegacyValue: false,
+            })
+            expect(mockSettingRepo.find).not.toHaveBeenCalled()
+        })
+
+        it('should fall back to legacy single value for localized settings', async () => {
+            mockSettingRepo.find.mockResolvedValue([{ key: SettingKey.SITE_TITLE, value: '旧站点标题' }])
+
+            const result = await settingService.getLocalizedSetting(SettingKey.SITE_TITLE, 'zh-TW')
+
+            expect(result).toMatchObject({
+                key: SettingKey.SITE_TITLE,
+                value: '旧站点标题',
+                requestedLocale: 'zh-TW',
+                resolvedLocale: 'legacy',
+                usedFallback: true,
+                usedLegacyValue: true,
+            })
+            expect(result.fallbackChain).toEqual(['zh-TW', 'zh-CN', 'en-US'])
+        })
+
+        it('should resolve localized values through locale fallback chain', async () => {
+            mockSettingRepo.find.mockResolvedValue([{
+                key: SettingKey.SITE_TITLE,
+                value: JSON.stringify({
+                    version: 1,
+                    type: 'localized-text',
+                    locales: {
+                        'zh-CN': '墨梅博客',
+                        'en-US': 'Momei Blog',
+                    },
+                }),
+            }])
+
+            const result = await settingService.getLocalizedSetting(SettingKey.SITE_TITLE, 'zh-TW')
+
+            expect(result).toMatchObject({
+                key: SettingKey.SITE_TITLE,
+                value: '墨梅博客',
+                requestedLocale: 'zh-TW',
+                resolvedLocale: 'zh-CN',
+                usedFallback: true,
+                usedLegacyValue: false,
+            })
+        })
     })
 
     describe('setSetting', () => {
@@ -304,6 +412,36 @@ describe('settingService', () => {
 
             expect(mockSettingRepo.find).not.toHaveBeenCalled()
             expect(mockSettingRepo.save).not.toHaveBeenCalled()
+        })
+
+        it('should persist localized setting objects as JSON instead of treating them as envelopes', async () => {
+            mockSettingRepo.find.mockResolvedValue([])
+            mockSettingRepo.create.mockImplementation((data) => data)
+
+            await settingService.setSettings({
+                [SettingKey.SITE_TITLE]: {
+                    version: 1,
+                    type: 'localized-text',
+                    locales: {
+                        'zh-CN': '墨梅博客',
+                        'en-US': 'Momei Blog',
+                    },
+                    legacyValue: '',
+                },
+            })
+
+            expect(mockSettingRepo.create).toHaveBeenCalledWith(expect.objectContaining({
+                key: SettingKey.SITE_TITLE,
+                value: JSON.stringify({
+                    version: 1,
+                    type: 'localized-text',
+                    locales: {
+                        'zh-CN': '墨梅博客',
+                        'en-US': 'Momei Blog',
+                    },
+                    legacyValue: '',
+                }),
+            }))
         })
     })
 

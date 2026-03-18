@@ -1,3 +1,4 @@
+<!-- eslint-disable max-lines -->
 <template>
     <div class="post-distribution-button">
         <Button

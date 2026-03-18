@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildImportExecutionPlan } from './import-validation'
-import type { CliImportValidationCandidate } from './import-validation'
+import { buildImportExecutionPlan, type CliImportValidationCandidate } from './import-validation'
 
 function createCandidate(overrides: Partial<CliImportValidationCandidate> = {}): CliImportValidationCandidate {
     return {

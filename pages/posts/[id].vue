@@ -1,3 +1,4 @@
+<!-- eslint-disable max-lines -->
 <template>
     <div class="post-detail">
         <div v-if="pending" class="post-detail__loading">

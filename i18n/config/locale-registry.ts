@@ -92,7 +92,7 @@ export const APP_LOCALE_REGISTRY = [
         code: 'ko-KR',
         languageTag: 'ko-KR',
         creativeCommonsDeedSuffix: 'deed.ko',
-        name: 'Korean',
+        name: '한국어',
         nativeName: '한국어',
         isoName: 'Korean (South Korea)',
         dir: 'ltr',

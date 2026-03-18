@@ -2,7 +2,7 @@ import { dataSource } from '@/server/database'
 import { FriendLinkApplication } from '@/server/entities/friend-link-application'
 import { FriendLinkCategory } from '@/server/entities/friend-link-category'
 import { FriendLink } from '@/server/entities/friend-link'
-import { getSetting } from '@/server/services/setting'
+import { getLocalizedSetting, getSetting } from '@/server/services/setting'
 import { getUploadStorageContext } from '@/server/services/upload'
 import logger from '@/server/utils/logger'
 import { assignDefined } from '@/server/utils/object'
@@ -154,11 +154,11 @@ async function ensureAllowedLogoUrl(url?: string | null, allowUploadedAsset = fa
     })
 }
 
-async function resolveFriendLinkMeta(): Promise<FriendLinkMeta> {
+async function resolveFriendLinkMeta(locale?: string | null): Promise<FriendLinkMeta> {
     const [enabledRaw, applicationEnabledRaw, guidelines, footerEnabledRaw, footerLimitRaw, checkIntervalRaw] = await Promise.all([
         getSetting(SettingKey.FRIEND_LINKS_ENABLED, 'true'),
         getSetting(SettingKey.FRIEND_LINKS_APPLICATION_ENABLED, 'true'),
-        getSetting(SettingKey.FRIEND_LINKS_APPLICATION_GUIDELINES, ''),
+        getLocalizedSetting<string>(SettingKey.FRIEND_LINKS_APPLICATION_GUIDELINES, locale),
         getSetting(SettingKey.FRIEND_LINKS_FOOTER_ENABLED, 'true'),
         getSetting(SettingKey.FRIEND_LINKS_FOOTER_LIMIT, String(DEFAULT_FOOTER_LIMIT)),
         getSetting(SettingKey.FRIEND_LINKS_CHECK_INTERVAL_MINUTES, String(DEFAULT_CHECK_INTERVAL_MINUTES)),
@@ -167,7 +167,7 @@ async function resolveFriendLinkMeta(): Promise<FriendLinkMeta> {
     return {
         enabled: String(enabledRaw) !== 'false',
         applicationEnabled: String(applicationEnabledRaw) !== 'false',
-        applicationGuidelines: String(guidelines || ''),
+        applicationGuidelines: typeof guidelines.value === 'string' ? guidelines.value : '',
         footerEnabled: String(footerEnabledRaw) !== 'false',
         footerLimit: parsePositiveInteger(footerLimitRaw, DEFAULT_FOOTER_LIMIT, 1, 50),
         checkIntervalMinutes: parsePositiveInteger(
@@ -268,8 +268,8 @@ async function probeFriendLink(url: string): Promise<FriendLinkHealthCheckResult
 }
 
 export const friendLinkService = {
-    async getMeta() {
-        return await resolveFriendLinkMeta()
+    async getMeta(locale?: string | null) {
+        return await resolveFriendLinkMeta(locale)
     },
 
     async getCategories(options: { enabledOnly?: boolean } = {}) {

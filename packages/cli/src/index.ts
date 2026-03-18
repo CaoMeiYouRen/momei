@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable max-lines */
 import { writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { cac } from 'cac'

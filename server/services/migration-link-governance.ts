@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { randomUUID } from 'node:crypto'
 import { createError } from 'h3'
 import { In } from 'typeorm'

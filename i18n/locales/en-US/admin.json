@@ -1261,6 +1261,20 @@
                         "listmonk_tag_list_map": "Tag-to-list mapping",
                         "listmonk_template_id": "Template ID (optional)"
                     },
+                    "localized": {
+                        "badge": "Localized",
+                        "helper": "Edit each locale separately. Public pages resolve through one shared fallback chain.",
+                        "legacy_title": "This field is still using the legacy single-value format",
+                        "legacy_description": "This setting previously stored one site-wide value only. The first locale-aware save will migrate it to structured multilingual storage, while the old value remains as a compatibility fallback.",
+                        "env_override_legacy_title": "This field is locked by an environment override and still uses the legacy single-value format",
+                        "env_override_legacy_description": "{envKey} currently provides a plain string value, so every locale will share the same effective content. To enable real multilingual behavior, remove the environment override and manage it in admin settings, or rewrite it as structured localized JSON.",
+                        "env_override_structured_title": "This field is locked by an environment override",
+                        "env_override_structured_description": "{envKey} currently provides structured localized JSON. The admin editor is read-only in this state; update that environment variable directly to change locale-specific values.",
+                        "missing_translation": "{locale} is currently empty. The runtime will fall back through {fallbackChain}, and only then try the legacy single-value fallback.",
+                        "text_hint": "Leaving the current locale empty does not copy another locale. The final text is resolved by the shared fallback chain.",
+                        "string_list_hint": "Separate keywords with commas. They will be saved as a structured list for the current locale.",
+                        "keywords_description": "Maintain SEO keywords per locale. The public API still returns a comma-separated string, while storage uses a list structure."
+                    },
                     "hints": {
                         "env_locked": "Locked by environment variable",
                         "site_name": "Used as the fallback name for SEO, emails, and similar contexts when the site title is empty.",

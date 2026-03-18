@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { computed, ref, type Ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'

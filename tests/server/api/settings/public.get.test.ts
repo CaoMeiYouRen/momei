@@ -2,16 +2,22 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import publicSettingsHandler from '@/server/api/settings/public.get'
 import { SettingKey } from '@/types/setting'
 
-vi.mock('@/server/services/setting', () => ({
+vi.mock('~/server/services/setting', () => ({
     getSetting: vi.fn(),
     getSettings: vi.fn(),
+    getLocalizedSettings: vi.fn(),
 }))
 
-vi.mock('@/server/utils/ad-network-config', () => ({
+vi.mock('~/server/utils/locale', () => ({
+    detectRequestAuthLocale: vi.fn(() => 'zh-Hans'),
+    mapAuthLocaleToAppLocale: vi.fn(() => 'zh-CN'),
+}))
+
+vi.mock('~/server/utils/ad-network-config', () => ({
     resolveGoogleAdSenseAccount: vi.fn(() => 'ca-pub-1234567890123456'),
 }))
 
-import { getSetting, getSettings } from '@/server/services/setting'
+import { getLocalizedSettings, getSetting, getSettings } from '~/server/services/setting'
 
 describe('GET /api/settings/public', () => {
     beforeEach(() => {
@@ -19,11 +25,11 @@ describe('GET /api/settings/public', () => {
         vi.mocked(getSetting).mockResolvedValue(null)
         vi.mocked(getSettings).mockResolvedValue({
             [SettingKey.SITE_NAME]: 'Momei',
-            [SettingKey.SITE_TITLE]: 'Momei Blog',
-            [SettingKey.SITE_DESCRIPTION]: 'AI-powered developer blog',
-            [SettingKey.SITE_KEYWORDS]: 'ai,blog',
+            [SettingKey.SITE_TITLE]: null,
+            [SettingKey.SITE_DESCRIPTION]: null,
+            [SettingKey.SITE_KEYWORDS]: null,
             [SettingKey.POST_COPYRIGHT]: 'all-rights-reserved',
-            [SettingKey.SITE_COPYRIGHT_OWNER]: 'Momei Team',
+            [SettingKey.SITE_COPYRIGHT_OWNER]: null,
             [SettingKey.SITE_COPYRIGHT_START_YEAR]: '2024',
             [SettingKey.DEFAULT_LANGUAGE]: 'zh-CN',
             [SettingKey.BAIDU_ANALYTICS]: null,
@@ -31,7 +37,7 @@ describe('GET /api/settings/public', () => {
             [SettingKey.CLARITY_ANALYTICS]: null,
             [SettingKey.SITE_LOGO]: '',
             [SettingKey.SITE_FAVICON]: '',
-            [SettingKey.SITE_OPERATOR]: 'Momei Team',
+            [SettingKey.SITE_OPERATOR]: null,
             [SettingKey.CONTACT_EMAIL]: 'admin@example.com',
             [SettingKey.FEEDBACK_URL]: '',
             [SettingKey.SHOW_COMPLIANCE_INFO]: 'false',
@@ -64,6 +70,53 @@ describe('GET /api/settings/public', () => {
             [SettingKey.VOLCENGINE_ACCESS_KEY]: null,
             [SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY]: '',
         })
+        vi.mocked(getLocalizedSettings).mockResolvedValue({
+            [SettingKey.SITE_TITLE]: {
+                key: SettingKey.SITE_TITLE,
+                value: '墨梅博客',
+                requestedLocale: 'zh-CN',
+                resolvedLocale: 'zh-CN',
+                fallbackChain: ['zh-CN'],
+                usedFallback: false,
+                usedLegacyValue: false,
+            },
+            [SettingKey.SITE_DESCRIPTION]: {
+                key: SettingKey.SITE_DESCRIPTION,
+                value: 'AI 驱动开发者博客',
+                requestedLocale: 'zh-CN',
+                resolvedLocale: 'zh-CN',
+                fallbackChain: ['zh-CN'],
+                usedFallback: false,
+                usedLegacyValue: false,
+            },
+            [SettingKey.SITE_KEYWORDS]: {
+                key: SettingKey.SITE_KEYWORDS,
+                value: ['AI', '博客'],
+                requestedLocale: 'zh-CN',
+                resolvedLocale: 'zh-CN',
+                fallbackChain: ['zh-CN'],
+                usedFallback: false,
+                usedLegacyValue: false,
+            },
+            [SettingKey.SITE_OPERATOR]: {
+                key: SettingKey.SITE_OPERATOR,
+                value: '墨梅团队',
+                requestedLocale: 'zh-CN',
+                resolvedLocale: 'zh-CN',
+                fallbackChain: ['zh-CN'],
+                usedFallback: false,
+                usedLegacyValue: false,
+            },
+            [SettingKey.SITE_COPYRIGHT_OWNER]: {
+                key: SettingKey.SITE_COPYRIGHT_OWNER,
+                value: null,
+                requestedLocale: 'zh-CN',
+                resolvedLocale: null,
+                fallbackChain: ['zh-CN'],
+                usedFallback: false,
+                usedLegacyValue: false,
+            },
+        })
     })
 
     it('should expose footer copyright settings separately from the default post copyright license', async () => {
@@ -71,8 +124,21 @@ describe('GET /api/settings/public', () => {
 
         expect(result.code).toBe(200)
         expect(result.data.postCopyright).toBe('all-rights-reserved')
-        expect(result.data.siteCopyrightOwner).toBe('Momei Team')
+        expect(result.data.siteCopyrightOwner).toBe('墨梅团队')
         expect(result.data.siteCopyrightStartYear).toBe('2024')
-        expect(result.data.siteTitle).toBe('Momei Blog')
+        expect(result.data.siteTitle).toBe('墨梅博客')
+        expect(result.data.siteDescription).toBe('AI 驱动开发者博客')
+        expect(result.data.siteKeywords).toBe('AI, 博客')
+        expect(result.data.i18n).toEqual({
+            locale: 'zh-CN',
+            fallbackChain: ['zh-CN'],
+            resolvedLocales: {
+                siteTitle: 'zh-CN',
+                siteDescription: 'zh-CN',
+                siteKeywords: 'zh-CN',
+                siteOperator: 'zh-CN',
+                siteCopyrightOwner: 'zh-CN',
+            },
+        })
     })
 })

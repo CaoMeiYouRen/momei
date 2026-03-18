@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { In } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Setting } from '@/server/entities/setting'
@@ -5,10 +6,24 @@ import { recordSettingAuditLogs, type SettingAuditChange, type SettingAuditConte
 import logger from '@/server/utils/logger'
 import { isMaskedSettingPlaceholder, maskSettingValue, resolveSettingLevel, resolveSettingMaskType } from '@/server/utils/settings'
 import {
+    getLocalizedFallbackChain,
+    hasMeaningfulLocalizedValue,
+    isLocalizedSettingValue,
+    normalizeLocalizedLegacyValue,
+    readLocalizedLocaleValue,
+    resolveRequestedAppLocale,
+} from '@/utils/shared/localized-settings'
+import {
     SettingKey,
+    type LocalizedSettingDefinition,
+    type LocalizedSettingMetadata,
+    type LocalizedSettingScalar,
+    type LocalizedSettingValueV1,
+    type ResolvedLocalizedSetting,
     type SettingEffectiveSource,
     type SettingLockReason,
     type SettingResolvedItem,
+    type SettingValue,
 } from '@/types/setting'
 
 /**
@@ -273,8 +288,166 @@ const SETTING_DEFAULT_MAP: Partial<Record<string, string>> = {
 
 const RESTART_REQUIRED_KEYS = new Set<string>(FORCED_ENV_LOCKED_KEYS)
 
+export const LOCALIZED_SETTING_DEFINITIONS: Partial<Record<string, LocalizedSettingDefinition>> = {
+    [SettingKey.SITE_TITLE]: {
+        key: SettingKey.SITE_TITLE,
+        valueType: 'localized-text',
+        publicReadable: true,
+        adminEditable: true,
+        fallbackMode: 'locale-registry',
+        legacyCompatibility: true,
+    },
+    [SettingKey.SITE_DESCRIPTION]: {
+        key: SettingKey.SITE_DESCRIPTION,
+        valueType: 'localized-text',
+        publicReadable: true,
+        adminEditable: true,
+        fallbackMode: 'locale-registry',
+        legacyCompatibility: true,
+    },
+    [SettingKey.SITE_KEYWORDS]: {
+        key: SettingKey.SITE_KEYWORDS,
+        valueType: 'localized-string-list',
+        publicReadable: true,
+        adminEditable: true,
+        fallbackMode: 'locale-registry',
+        legacyCompatibility: true,
+    },
+    [SettingKey.SITE_OPERATOR]: {
+        key: SettingKey.SITE_OPERATOR,
+        valueType: 'localized-text',
+        publicReadable: true,
+        adminEditable: true,
+        fallbackMode: 'locale-registry',
+        legacyCompatibility: true,
+    },
+    [SettingKey.SITE_COPYRIGHT_OWNER]: {
+        key: SettingKey.SITE_COPYRIGHT_OWNER,
+        valueType: 'localized-text',
+        publicReadable: true,
+        adminEditable: true,
+        fallbackMode: 'locale-registry',
+        legacyCompatibility: true,
+    },
+    [SettingKey.FRIEND_LINKS_APPLICATION_GUIDELINES]: {
+        key: SettingKey.FRIEND_LINKS_APPLICATION_GUIDELINES,
+        valueType: 'localized-text',
+        publicReadable: true,
+        adminEditable: true,
+        fallbackMode: 'locale-registry',
+        legacyCompatibility: true,
+    },
+}
+
+interface ParsedLocalizedSettingState {
+    payload: LocalizedSettingValueV1 | null
+    legacyValue: LocalizedSettingScalar | null
+    structured: boolean
+    legacyFormat: boolean
+    availableLocales: string[]
+}
+
 function uniqValues(values: (string | undefined | null)[]) {
     return [...new Set(values.filter((value): value is string => Boolean(value)))]
+}
+
+function isSettingWriteEnvelope(value: unknown): value is {
+    value?: unknown
+    description?: string | null
+    level?: number | null
+    maskType?: string | null
+} {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        return false
+    }
+
+    return 'value' in value
+        || 'description' in value
+        || 'level' in value
+        || 'maskType' in value
+}
+
+export function getLocalizedSettingDefinition(key: string): LocalizedSettingDefinition | null {
+    return LOCALIZED_SETTING_DEFINITIONS[key as SettingKey] ?? null
+}
+
+export function isLocalizedSettingKey(key: string) {
+    return getLocalizedSettingDefinition(key) !== null
+}
+
+function parseStoredLocalizedSettingValue(key: string, rawValue: string | null | undefined): ParsedLocalizedSettingState | null {
+    const definition = getLocalizedSettingDefinition(key)
+
+    if (!definition) {
+        return null
+    }
+
+    if (!rawValue || rawValue.trim().length === 0) {
+        return {
+            payload: null,
+            legacyValue: null,
+            structured: false,
+            legacyFormat: false,
+            availableLocales: [],
+        }
+    }
+
+    try {
+        const parsedValue = JSON.parse(rawValue) as unknown
+        if (isLocalizedSettingValue(parsedValue, definition.valueType)) {
+            return {
+                payload: parsedValue,
+                legacyValue: parsedValue.legacyValue ?? null,
+                structured: true,
+                legacyFormat: false,
+                availableLocales: Object.keys(parsedValue.locales),
+            }
+        }
+    } catch {
+        // Fall through to legacy single-value compatibility.
+    }
+
+    return {
+        payload: null,
+        legacyValue: normalizeLocalizedLegacyValue(rawValue, definition.valueType),
+        structured: false,
+        legacyFormat: true,
+        availableLocales: [],
+    }
+}
+
+function getLocalizedSettingMetadata(key: string, rawValue: string | null | undefined): LocalizedSettingMetadata | null {
+    const definition = getLocalizedSettingDefinition(key)
+    const parsedState = parseStoredLocalizedSettingValue(key, rawValue)
+
+    if (!definition || !parsedState) {
+        return null
+    }
+
+    return {
+        valueType: definition.valueType,
+        structured: parsedState.structured,
+        legacyFormat: parsedState.legacyFormat,
+        legacyValuePresent: hasMeaningfulLocalizedValue(parsedState.legacyValue),
+        availableLocales: parsedState.availableLocales.map((locale) => resolveRequestedAppLocale(locale)),
+    }
+}
+
+function normalizeResolvedSettingValue(key: string, rawValue: unknown): SettingValue {
+    const definition = getLocalizedSettingDefinition(key)
+
+    if (definition && typeof rawValue === 'string') {
+        const parsedState = parseStoredLocalizedSettingValue(key, rawValue)
+        if (parsedState?.structured && parsedState.payload) {
+            return parsedState.payload
+        }
+    }
+
+    if (isLocalizedSettingValue(rawValue, definition?.valueType)) {
+        return rawValue
+    }
+
+    return normalizeSettingValue(rawValue)
 }
 
 export function getSettingLookupKeys(key: string) {
@@ -405,20 +578,29 @@ function createResolvedSettingItem(
 ): SettingResolvedItem {
     const effectiveDbSetting = isInternalOnlySettingKey(key) ? null : dbSetting
     const { envKey, value: envValue } = resolveSettingEnvEntry(key)
-    const defaultValue = normalizeSettingValue(explicitDefaultValue) ?? getSettingDefaultValue(key)
+    const defaultValue = normalizeResolvedSettingValue(key, explicitDefaultValue) ?? normalizeResolvedSettingValue(key, getSettingDefaultValue(key))
 
-    let value = defaultValue ?? ''
+    let rawValue: unknown = defaultValue
     let source: SettingResolvedItem['source'] = 'default'
 
     if (envValue !== undefined) {
-        value = envValue
+        rawValue = envValue
         source = 'env'
     } else if (effectiveDbSetting?.value !== null && effectiveDbSetting?.value !== undefined) {
-        value = effectiveDbSetting.value
+        rawValue = effectiveDbSetting.value
         source = 'db'
     }
 
-    const maskType = resolveSettingMaskType(key, value, effectiveDbSetting?.maskType)
+    const value = normalizeResolvedSettingValue(key, rawValue) ?? ''
+    let rawStringValue: string | null = null
+
+    if (typeof rawValue === 'string') {
+        rawStringValue = rawValue
+    } else if (typeof value === 'string') {
+        rawStringValue = value
+    }
+
+    const maskType = resolveSettingMaskType(key, rawStringValue ?? '', effectiveDbSetting?.maskType)
     const level = inferSettingLevel(key, effectiveDbSetting?.level)
 
     return {
@@ -434,6 +616,7 @@ function createResolvedSettingItem(
         defaultUsed: source === 'default',
         lockReason: getSettingLockReason(key),
         requiresRestart: doesSettingRequireRestart(key),
+        localized: getLocalizedSettingMetadata(key, rawStringValue),
     }
 }
 
@@ -555,6 +738,89 @@ export const getSettings = async (keys: (SettingKey | string)[]): Promise<Record
     return result
 }
 
+export async function getLocalizedSetting<T extends LocalizedSettingScalar = string>(
+    key: SettingKey | string,
+    locale?: string | null,
+): Promise<ResolvedLocalizedSetting<T>> {
+    const definition = getLocalizedSettingDefinition(key)
+    const requestedLocale = resolveRequestedAppLocale(locale)
+    const fallbackChain = getLocalizedFallbackChain(requestedLocale)
+    const rawValue = await getSetting<string>(key, null)
+
+    if (!definition || typeof rawValue !== 'string' || rawValue.trim().length === 0) {
+        return {
+            key,
+            value: null,
+            requestedLocale,
+            resolvedLocale: null,
+            fallbackChain,
+            usedFallback: false,
+            usedLegacyValue: false,
+        }
+    }
+
+    const parsedState = parseStoredLocalizedSettingValue(key, rawValue)
+
+    if (!parsedState) {
+        return {
+            key,
+            value: null,
+            requestedLocale,
+            resolvedLocale: null,
+            fallbackChain,
+            usedFallback: false,
+            usedLegacyValue: false,
+        }
+    }
+
+    if (parsedState.payload) {
+        for (const candidateLocale of fallbackChain) {
+            const localeValue = readLocalizedLocaleValue(parsedState.payload, candidateLocale)
+            if (hasMeaningfulLocalizedValue(localeValue)) {
+                return {
+                    key,
+                    value: localeValue as T,
+                    requestedLocale,
+                    resolvedLocale: candidateLocale,
+                    fallbackChain,
+                    usedFallback: candidateLocale !== requestedLocale,
+                    usedLegacyValue: false,
+                }
+            }
+        }
+    }
+
+    if (hasMeaningfulLocalizedValue(parsedState.legacyValue)) {
+        return {
+            key,
+            value: parsedState.legacyValue as T,
+            requestedLocale,
+            resolvedLocale: 'legacy',
+            fallbackChain,
+            usedFallback: true,
+            usedLegacyValue: true,
+        }
+    }
+
+    return {
+        key,
+        value: null,
+        requestedLocale,
+        resolvedLocale: null,
+        fallbackChain,
+        usedFallback: false,
+        usedLegacyValue: false,
+    }
+}
+
+export async function getLocalizedSettings(
+    keys: (SettingKey | string)[],
+    locale?: string | null,
+): Promise<Record<string, ResolvedLocalizedSetting>> {
+    const entries = await Promise.all(keys.map(async (key) => [key, await getLocalizedSetting(key, locale)] as const))
+    return Object.fromEntries(entries)
+}
+
 /**
  * 设置或更新配置项
  *
@@ -615,9 +881,13 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
             continue
         }
 
+        const maskedValue = options?.shouldMask && typeof resolved.value === 'string'
+            ? maskSettingValue(resolved.value ?? '', resolved.maskType)
+            : resolved.value
+
         result.push({
             key,
-            value: options?.shouldMask ? maskSettingValue(resolved.value ?? '', resolved.maskType) : resolved.value,
+            value: maskedValue,
             description: resolved.description,
             level: resolved.level,
             maskType: resolved.maskType,
@@ -627,6 +897,7 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
             defaultUsed: resolved.defaultUsed,
             lockReason: resolved.lockReason,
             requiresRestart: resolved.requiresRestart,
+            localized: resolved.localized ?? null,
         })
     }
 
@@ -656,10 +927,12 @@ export const setSettings = async (settings: Record<string, any>, auditContext?: 
         const existingSetting = await findSettingRecord(key)
         let setting = existingSetting?.key === key ? existingSetting : null
 
-        const value = typeof val === 'object' && val !== null ? val.value : val
-        const extra = typeof val === 'object' && val !== null ? val : {}
+        const value = isSettingWriteEnvelope(val) ? val.value : val
         const previousValue = existingSetting?.value ?? null
-        const previousMaskType = resolveSettingMaskType(key, previousValue ?? '', existingSetting?.maskType ?? extra.maskType)
+        const extraMaskType = isSettingWriteEnvelope(val) && typeof val.maskType === 'string' ? val.maskType : undefined
+        const extraDescription = isSettingWriteEnvelope(val) ? val.description : undefined
+        const extraLevel = isSettingWriteEnvelope(val) ? val.level : undefined
+        const previousMaskType = resolveSettingMaskType(key, previousValue ?? '', existingSetting?.maskType ?? extraMaskType)
         const normalizedIncomingValue = normalizeSettingValue(value)
         const currentMaskType = resolveSettingMaskType(key, previousValue ?? '', existingSetting?.maskType)
         const isExistingMaskedPlaceholder = normalizedIncomingValue !== null
@@ -669,11 +942,11 @@ export const setSettings = async (settings: Record<string, any>, auditContext?: 
                 isMaskedSettingPlaceholder(normalizedIncomingValue, existingSetting.maskType)
                 || isMaskedSettingPlaceholder(normalizedIncomingValue, currentMaskType)
             )
-        const nextValue = isExistingMaskedPlaceholder
+        const nextValue: string | null = isExistingMaskedPlaceholder
             ? existingSetting.value
             : normalizedIncomingValue
-        const nextMaskType = resolveSettingMaskType(key, nextValue ?? '', extra.maskType ?? existingSetting?.maskType)
-        const nextLevel = inferSettingLevel(key, extra.level ?? existingSetting?.level)
+        const nextMaskType = resolveSettingMaskType(key, nextValue ?? '', extraMaskType ?? existingSetting?.maskType)
+        const nextLevel = inferSettingLevel(key, extraLevel ?? existingSetting?.level)
 
         if (setting) {
             // 如果是脱敏过的值且没有变化（即用户提交的是脱敏后的占位符），则跳过值更新
@@ -684,8 +957,8 @@ export const setSettings = async (settings: Record<string, any>, auditContext?: 
                 setting.value = nextValue
             }
 
-            if (extra.description !== undefined) {
-                setting.description = String(extra.description)
+            if (extraDescription !== undefined) {
+                setting.description = String(extraDescription)
             }
             setting.level = nextLevel
             setting.maskType = nextMaskType
@@ -693,7 +966,7 @@ export const setSettings = async (settings: Record<string, any>, auditContext?: 
             setting = settingRepo.create({
                 key,
                 value: nextValue,
-                description: String(extra.description ?? ''),
+                description: String(extraDescription ?? ''),
                 level: nextLevel,
                 maskType: nextMaskType,
             })

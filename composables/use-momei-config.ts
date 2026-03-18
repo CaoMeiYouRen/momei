@@ -1,3 +1,11 @@
+import type { AppLocaleCode } from '@/i18n/config/locale-registry'
+
+export interface MomeiPublicConfigI18nMeta {
+    locale: AppLocaleCode
+    fallbackChain: AppLocaleCode[]
+    resolvedLocales: Record<string, AppLocaleCode | 'legacy' | null>
+}
+
 export interface MomeiPublicConfig {
     siteName: string
     siteTitle: string
@@ -41,6 +49,7 @@ export interface MomeiPublicConfig {
     effectsDataSaverBlock: boolean | null
     webPushEnabled: boolean
     webPushPublicKey: string
+    i18n?: MomeiPublicConfigI18nMeta
 }
 
 const createDefaultSiteConfig = (): MomeiPublicConfig => ({
@@ -86,6 +95,7 @@ const createDefaultSiteConfig = (): MomeiPublicConfig => ({
     effectsDataSaverBlock: null,
     webPushEnabled: false,
     webPushPublicKey: '',
+    i18n: undefined,
 })
 
 export const useMomeiConfig = () => {

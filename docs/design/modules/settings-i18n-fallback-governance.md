@@ -178,6 +178,24 @@ async function getLocalizedSetting<T>(key: string, locale?: string | null): Prom
 - 不允许在业务层绕开解析器，直接写出“当前值为空就回退中文”之类的分散逻辑。
 - 若 `resolvedLocale !== requestedLocale`，公开链路应能决定是否展示“当前为回退语言内容”的提示。
 
+### 5.4 环境变量锁定与多语言冲突
+
+本专题不改变系统设置的总优先级，仍然严格遵守：
+
+```text
+ENV -> DB -> Default
+```
+
+但对“可翻译配置 + ENV 锁定”必须补充统一语义：
+
+1. 若 ENV 值是普通字符串，则它被视为该配置的最高优先级旧单值覆盖。
+2. 在这种模式下，所有 locale 最终都会共享这份 ENV 内容，只是解析结果会标记为 `legacy`。
+3. 若 ENV 值本身是合法的 `LocalizedSettingValueV1` JSON，则运行时必须把它当作真正的多语言事实源，并继续按 locale registry 回退链解析。
+4. 后台设置页在 ENV 锁定时只能只读展示，不得让管理员误以为保存到数据库后能够覆盖 ENV。
+5. 后台必须明确提示两种解法：移除 ENV override 改由数据库维护，或直接把 ENV 改成结构化多语言 JSON。
+
+这套规则的目标，是避免“后台多语言输入存在，但线上始终被单字符串 ENV 覆盖”造成的错觉。
+
 ## 6. 公开接口与消费链路
 
 ### 6.1 公开设置接口
@@ -298,6 +316,7 @@ interface PublicSettingsResponse {
 1. locale 切换编辑与未保存提醒。
 2. 旧值迁移提示显示。
 3. 缺失翻译状态提示，而不是偷偷展示其他语言文本。
+4. ENV 锁定时，必须明确区分“单字符串 override”和“结构化多语言 override”，并展示只读的当前生效值。
 
 ## 10. 分阶段落地建议
 

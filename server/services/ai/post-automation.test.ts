@@ -102,13 +102,13 @@ describe('PostAutomationService', () => {
 
         postRepo.findOne.mockImplementation((options: { where?: Record<string, string> }) => {
             if (options.where?.id === 'post-1') {
-                return Promise.resolve(sourcePost)
+                return sourcePost as never
             }
 
-            return Promise.resolve(null)
+            return null as never
         })
 
-        vi.mocked(requestTranslation).mockImplementation((content: string) => Promise.resolve({
+        vi.mocked(requestTranslation).mockImplementation((content: string) => ({
             provider: {} as never,
             response: {
                 content: `${content}-translated`,
@@ -116,7 +116,7 @@ describe('PostAutomationService', () => {
                 usage: { promptTokens: 10, completionTokens: 10, totalTokens: 20 },
             },
             translatedContent: `${content}-translated`,
-        }))
+        }) as never)
         vi.mocked(translateInChunks).mockResolvedValue({
             content: 'translated-content',
             usage: { promptTokens: 50, completionTokens: 20, totalTokens: 70 },
@@ -166,10 +166,10 @@ describe('PostAutomationService', () => {
 
         taskRepo.findOneBy.mockImplementation((where: { id: string }) => {
             if (where.id === 'task-preview') {
-                return Promise.resolve(task)
+                return task as never
             }
 
-            return Promise.resolve(task)
+            return task as never
         })
         categoryRepo.find.mockResolvedValue([
             { id: 'cat-en-1', name: 'Engineering Practice', slug: 'engineering-practice', language: 'en-US', translationId: 'engineering-practice' },
@@ -245,14 +245,14 @@ describe('PostAutomationService', () => {
 
         taskRepo.findOneBy.mockImplementation((where: { id: string }) => {
             if (where.id === 'preview-1') {
-                return Promise.resolve(previewTask)
+                return previewTask as never
             }
 
             if (where.id === 'task-confirm') {
-                return Promise.resolve(confirmTask)
+                return confirmTask as never
             }
 
-            return Promise.resolve(confirmTask)
+            return confirmTask as never
         })
 
         await (PostAutomationService as never as { processTranslatePostTask: (taskId: string, actorValue: typeof actor) => Promise<void> }).processTranslatePostTask('task-confirm', actor)
@@ -296,7 +296,7 @@ describe('PostAutomationService', () => {
 
         postRepo.findOne.mockImplementation((options: { where?: Record<string, string> }) => {
             if (options.where?.id === 'post-1') {
-                return Promise.resolve({
+                return {
                     ...sourcePost,
                     coverImage: '/covers/source-cover.png',
                     metadata: {
@@ -309,10 +309,10 @@ describe('PostAutomationService', () => {
                             voice: 'alloy',
                         },
                     },
-                })
+                } as never
             }
 
-            return Promise.resolve(null)
+            return null as never
         })
 
         taskRepo.findOneBy.mockResolvedValue(task)
@@ -356,7 +356,7 @@ describe('PostAutomationService', () => {
 
         postRepo.findOne.mockImplementation((options: { where?: Record<string, string> }) => {
             if (options.where?.id === 'post-1') {
-                return Promise.resolve({
+                return {
                     ...sourcePost,
                     coverImage: '/covers/source-cover.png',
                     metadata: {
@@ -365,10 +365,10 @@ describe('PostAutomationService', () => {
                             duration: 42,
                         },
                     },
-                })
+                } as never
             }
 
-            return Promise.resolve(null)
+            return null as never
         })
 
         taskRepo.findOneBy.mockResolvedValue(task)

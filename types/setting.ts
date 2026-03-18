@@ -1,3 +1,5 @@
+import type { AppLocaleCode } from '@/i18n/config/locale-registry'
+
 /**
  * 系统设置键名定义
  * 建议所有的设置键名都在此处定义，以实现类型安全
@@ -261,9 +263,55 @@ export type SettingAuditAction = 'create' | 'update'
 
 export type SettingAuditSourceType = 'admin_ui' | 'theme_settings' | 'commercial_settings' | 'api'
 
+export type LocalizedSettingType = 'localized-text' | 'localized-string-list'
+
+export type LocalizedSettingScalar = string | string[]
+
+export interface LocalizedSettingValueV1<T extends LocalizedSettingScalar = LocalizedSettingScalar> {
+    version: 1
+    type: LocalizedSettingType
+    locales: Partial<Record<AppLocaleCode, T>>
+    legacyValue?: T | null
+}
+
+export interface LocalizedSettingDefinition {
+    key: SettingKey
+    valueType: LocalizedSettingType
+    publicReadable: boolean
+    adminEditable: boolean
+    fallbackMode: 'locale-registry'
+    legacyCompatibility: true
+}
+
+export interface ResolvedLocalizedSetting<T extends LocalizedSettingScalar = LocalizedSettingScalar> {
+    key: string
+    value: T | null
+    requestedLocale: AppLocaleCode
+    resolvedLocale: AppLocaleCode | 'legacy' | null
+    fallbackChain: AppLocaleCode[]
+    usedFallback: boolean
+    usedLegacyValue: boolean
+}
+
+export interface LocalizedSettingMetadata {
+    valueType: LocalizedSettingType
+    structured: boolean
+    legacyFormat: boolean
+    legacyValuePresent: boolean
+    availableLocales: AppLocaleCode[]
+}
+
+export type LocalizedTextSettingFormValue = string | LocalizedSettingValueV1<string> | null
+
+export type LocalizedStringListSettingFormValue = string | LocalizedSettingValueV1<string[]> | null
+
+export type LocalizedSettingFormValue = LocalizedTextSettingFormValue | LocalizedStringListSettingFormValue
+
+export type SettingValue = string | LocalizedSettingValueV1 | null
+
 export interface SettingItem {
     key: string
-    value: string | null
+    value: SettingValue
     description: string
     level: number
     maskType: SettingMaskType
@@ -273,11 +321,12 @@ export interface SettingItem {
     defaultUsed?: boolean
     lockReason?: SettingLockReason | null
     requiresRestart?: boolean
+    localized?: LocalizedSettingMetadata | null
 }
 
 export interface SettingResolvedItem extends SettingItem {
     envKey: string | null
-    defaultValue: string | null
+    defaultValue: SettingValue
     defaultUsed: boolean
     lockReason: SettingLockReason | null
     requiresRestart: boolean
@@ -306,7 +355,7 @@ export interface SettingAuditItem {
     operator: SettingAuditActor | null
 }
 
-export type SettingFormValue = string | number | boolean | null
+export type SettingFormValue = string | number | boolean | LocalizedSettingValueV1 | null
 
 export interface SettingFieldMetadata {
     isLocked?: boolean
@@ -316,6 +365,7 @@ export interface SettingFieldMetadata {
     defaultUsed?: boolean
     lockReason?: SettingLockReason | null
     requiresRestart?: boolean
+    localized?: LocalizedSettingMetadata | null
 }
 
 export type SettingMetadataMap<Key extends string = string> = Partial<Record<Key, SettingFieldMetadata>>
@@ -331,17 +381,17 @@ export type AdminASRProvider = 'siliconflow' | 'volcengine' | (string & {})
 export type AdminTTSProvider = 'openai' | 'siliconflow' | 'volcengine' | (string & {})
 
 export interface GeneralSettingsFields {
-    site_title: string | null
+    site_title: LocalizedTextSettingFormValue
     site_name: string | null
-    site_description: string | null
-    site_keywords: string | null
+    site_description: LocalizedTextSettingFormValue
+    site_keywords: LocalizedStringListSettingFormValue
     post_copyright: string | null
-    site_copyright_owner: string | null
+    site_copyright_owner: LocalizedTextSettingFormValue
     site_copyright_start_year: string | null
     default_language: AdminLanguageCode | null
     site_logo: string | null
     site_favicon: string | null
-    site_operator: string | null
+    site_operator: LocalizedTextSettingFormValue
     contact_email: string | null
     feedback_url: string | null
     show_compliance_info: boolean
@@ -353,7 +403,7 @@ export interface GeneralSettingsFields {
     friend_links_footer_enabled: boolean
     friend_links_footer_limit: number | null
     friend_links_check_interval_minutes: number | null
-    friend_links_application_guidelines: string | null
+    friend_links_application_guidelines: LocalizedTextSettingFormValue
     travellings_enabled: boolean
     travellings_header_enabled: boolean
     travellings_footer_enabled: boolean

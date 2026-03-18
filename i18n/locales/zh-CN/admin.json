@@ -1261,6 +1261,20 @@
                         "listmonk_tag_list_map": "标签到列表映射",
                         "listmonk_template_id": "模板 ID（可选）"
                     },
+                    "localized": {
+                        "badge": "多语言配置",
+                        "helper": "按语种分别维护，公开页会走统一回退链。",
+                        "legacy_title": "当前仍在使用旧单值格式",
+                        "legacy_description": "这个字段之前只保存了一份整站共用文案。首次按语种保存后，会迁移为结构化多语言格式，旧值仅作为兼容回退。",
+                        "env_override_legacy_title": "当前由环境变量接管且仍是旧单值格式",
+                        "env_override_legacy_description": "{envKey} 目前提供的是单字符串值，因此所有语言都会共享这份内容。若要启用真正的多语言，请移除该环境变量改由后台保存，或把它改成结构化多语言 JSON。",
+                        "env_override_structured_title": "当前由环境变量接管",
+                        "env_override_structured_description": "{envKey} 当前提供的是结构化多语言 JSON。后台编辑器仅作只读预览，若要修改各语言内容，请直接更新该环境变量。",
+                        "missing_translation": "{locale} 尚未填写，将按回退链使用 {fallbackChain} 中的可用文案；若整条链都缺失，则继续尝试旧单值兼容。",
+                        "text_hint": "当前语种留空时，不会自动复制其他语言内容，而是交由统一回退链解析。",
+                        "string_list_hint": "使用逗号分隔关键词；保存后会按列表结构写入当前语种。",
+                        "keywords_description": "按语种维护 SEO 关键词。公开接口仍会输出逗号分隔字符串，内部按列表结构存储。"
+                    },
                     "hints": {
                         "env_locked": "此配置已由环境变量锁定",
                         "site_name": "当站点标题为空时，此名称会作为 SEO、邮件等场景的回退值。",

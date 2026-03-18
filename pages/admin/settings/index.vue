@@ -165,7 +165,7 @@ import { useUnsavedChangesGuard } from '@/composables/use-unsaved-changes-guard'
 import { buildAdminSettingsTabLocation, resolveAdminSettingsTab, type AdminSettingsTab } from '@/utils/shared/admin-settings-tabs'
 import { stableSerialize } from '@/utils/shared/stable-serialize'
 import { clearQueuedSetupJourneyStage, getQueuedSetupJourneyStage, queueSetupJourneyStage } from '@/utils/web/setup-journey'
-import type { SettingItem, SettingLockReason, SettingSource } from '@/types/setting'
+import type { LocalizedSettingMetadata, SettingFormValue, SettingItem, SettingLockReason, SettingSource } from '@/types/setting'
 
 const { t } = useI18n()
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
@@ -173,8 +173,6 @@ const { $appFetch } = useAppApi()
 const route = useRoute()
 const localePath = useLocalePath()
 const { openFeedbackEntry, shouldShowFeedbackEntry } = useFeedbackEntry({ includeAdmin: true })
-
-type SettingFormValue = string | number | boolean | null
 
 interface SettingMetadata {
     isLocked: boolean
@@ -184,6 +182,7 @@ interface SettingMetadata {
     defaultUsed: boolean
     lockReason: SettingLockReason | null
     requiresRestart: boolean
+    localized?: LocalizedSettingMetadata | null
 }
 
 interface SettingsApiResponse {
@@ -233,6 +232,10 @@ const numberSettingFallbacks: Record<string, number> = {
 }
 
 function normalizeFormValue(setting: SettingItem): SettingFormValue {
+    if (typeof setting.value === 'object' && setting.value !== null) {
+        return setting.value as SettingFormValue
+    }
+
     if (setting.value === 'true') {
         return true
     }
@@ -251,10 +254,20 @@ function normalizeFormValue(setting: SettingItem): SettingFormValue {
 }
 
 function buildSettingsPayload() {
-    const payload: Record<string, string> = {}
+    const payload: Record<string, unknown> = {}
 
     Object.entries(settings.value).forEach(([key, value]) => {
         if (metadata.value[key]?.isLocked) {
+            return
+        }
+
+        if (typeof value === 'object' && value !== null) {
+            payload[key] = value
+            return
+        }
+
+        if (value === null || value === undefined) {
+            payload[key] = ''
             return
         }
 
@@ -315,6 +328,7 @@ const loadSettings = async () => {
                 defaultUsed: setting.defaultUsed ?? false,
                 lockReason: setting.lockReason ?? null,
                 requiresRestart: setting.requiresRestart ?? false,
+                localized: setting.localized ?? null,
             }
         })
         settings.value = obj

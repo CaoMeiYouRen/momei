@@ -204,14 +204,22 @@ function resolveAttemptAction(
     }
 }
 
-function startAttempt(
-    post: Post,
-    channel: PostDistributionChannel,
-    action: PostDistributionAction,
-    mode: PostDistributionMode | null,
-    actor: PostDistributionActor,
-    triggeredBy: PostDistributionTimelineEntry['triggeredBy'],
-) {
+function startAttempt(params: {
+    post: Post
+    channel: PostDistributionChannel
+    action: PostDistributionAction
+    mode: PostDistributionMode | null
+    actor: PostDistributionActor
+    triggeredBy: PostDistributionTimelineEntry['triggeredBy']
+}) {
+    const {
+        post,
+        channel,
+        action,
+        mode,
+        actor,
+        triggeredBy,
+    } = params
     const now = new Date().toISOString()
     const attemptId = generateRandomString(18)
     const { metadata, distribution } = ensureDistributionMetadata(post)
@@ -442,7 +450,14 @@ async function runMemosDistribution(
         }
     }
 
-    const attempt = startAttempt(post, 'memos', action, mode, actor, command.operation === 'retry' ? 'retry' : 'manual')
+    const attempt = startAttempt({
+        post,
+        channel: 'memos',
+        action,
+        mode,
+        actor,
+        triggeredBy: command.operation === 'retry' ? 'retry' : 'manual',
+    })
     if (!attempt.reused) {
         await persistDistributionMetadata(post, attempt.metadata)
     }
@@ -526,7 +541,14 @@ async function startWechatSyncDistribution(
         }
     }
 
-    const attempt = startAttempt(post, 'wechatsync', action, mode, actor, command.operation === 'retry' ? 'retry' : 'manual')
+    const attempt = startAttempt({
+        post,
+        channel: 'wechatsync',
+        action,
+        mode,
+        actor,
+        triggeredBy: command.operation === 'retry' ? 'retry' : 'manual',
+    })
     if (!attempt.reused) {
         await persistDistributionMetadata(post, attempt.metadata)
     }

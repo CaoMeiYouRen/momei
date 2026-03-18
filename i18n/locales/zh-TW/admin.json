@@ -1261,6 +1261,20 @@
                         "listmonk_tag_list_map": "標籤到列表映射",
                         "listmonk_template_id": "模板 ID（可選）"
                     },
+                    "localized": {
+                        "badge": "多語言設定",
+                        "helper": "依語種分別維護，公開頁會走同一條回退鏈。",
+                        "legacy_title": "此欄位目前仍使用舊單值格式",
+                        "legacy_description": "這個設定先前只保存一份整站共用文案。首次按語種儲存後，會遷移為結構化多語言格式，舊值只保留作為相容回退。",
+                        "env_override_legacy_title": "目前由環境變數接管且仍是舊單值格式",
+                        "env_override_legacy_description": "{envKey} 目前提供的是單一字串值，因此所有語言都會共用這份內容。若要啟用真正的多語言，請移除該環境變數改由後台儲存，或把它改成結構化多語言 JSON。",
+                        "env_override_structured_title": "目前由環境變數接管",
+                        "env_override_structured_description": "{envKey} 目前提供的是結構化多語言 JSON。後台編輯器在這種狀態下僅作唯讀預覽；若要修改各語言內容，請直接更新該環境變數。",
+                        "missing_translation": "{locale} 尚未填寫，執行時會依序回退到 {fallbackChain} 中可用的文案；若整條鏈都缺失，才會再嘗試舊單值相容回退。",
+                        "text_hint": "目前語種留空時，不會自動複製其他語言內容，而是交由統一回退鏈解析。",
+                        "string_list_hint": "請用逗號分隔關鍵字；儲存後會以列表結構寫入目前語種。",
+                        "keywords_description": "依語種維護 SEO 關鍵字。公開 API 仍會輸出逗號分隔字串，內部則以列表結構儲存。"
+                    },
                     "hints": {
                         "env_locked": "此設定已由環境變數鎖定",
                         "site_name": "當站點標題為空時，此名稱會作為 SEO、郵件等場景的回退值。",

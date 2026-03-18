@@ -437,7 +437,7 @@ export async function saveSiteConfig(config: SaveSiteConfigInput): Promise<void>
     for (const setting of settings) {
         const lookupKeys = getSettingLookupKeys(setting.key)
         const existingCandidates = await settingRepo.find({ where: { key: In(lookupKeys) } })
-        const existing = existingCandidates.find((item) => item.key === setting.key) ?? existingCandidates[0] ?? null
+        const existing = existingCandidates.find((item) => String(item.key) === String(setting.key)) ?? existingCandidates[0] ?? null
 
         // 检查是否受环境变量锁定
         const isLocked = isSettingEnvLocked(setting.key)
@@ -452,14 +452,14 @@ export async function saveSiteConfig(config: SaveSiteConfigInput): Promise<void>
             continue
         }
 
-        if (existing?.key === setting.key) {
+        if (existing && String(existing.key) === String(setting.key)) {
             existing.value = setting.value
             existing.description = setting.description
             existing.level = setting.level
             await settingRepo.save(existing)
         } else {
             await settingRepo.save(settingRepo.create(setting))
-            const legacyKeys = lookupKeys.filter((key) => key !== setting.key)
+            const legacyKeys = lookupKeys.filter((key) => String(key) !== String(setting.key))
             if (legacyKeys.length > 0) {
                 await settingRepo.delete({ key: In(legacyKeys) })
             }

@@ -31,7 +31,7 @@ const availableLocales = computed(() => {
 })
 
 const localeMenuItems = computed(() => {
-    return availableLocales.value.map((l: any) => ({
+    return availableLocales.value.map((l) => ({
         label: l.name,
         class: locale.value === l.code ? 'is-active-locale' : '',
         command: () => {
