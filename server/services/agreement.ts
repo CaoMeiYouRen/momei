@@ -7,6 +7,7 @@ import type {
     AgreementAdminOption,
     AgreementHistoryItem,
     AgreementPublicPayload,
+    AgreementReviewStatus,
     AgreementRestrictionReason,
     AgreementType,
 } from '@/types/agreement'
@@ -22,6 +23,15 @@ type AgreementEntity = AgreementContent & {
     isAuthoritativeVersion?: boolean
     sourceAgreementId?: string | null
     effectiveAt?: Date | null
+    reviewStatus?: AgreementReviewStatus | null
+}
+
+function getAgreementReviewStatus(agreement: AgreementEntity): AgreementReviewStatus {
+    return agreement.reviewStatus || 'approved'
+}
+
+function isApprovedAgreement(agreement: AgreementEntity) {
+    return getAgreementReviewStatus(agreement) === 'approved'
 }
 
 function getAgreementSettingKey(type: AgreementType) {
@@ -107,13 +117,14 @@ async function resolveAgreementPair(type: AgreementType, preferredLanguage?: str
     const authoritativeVersions = records
         .filter((record) => isAuthoritativeAgreement(record, mainLanguage))
         .sort(compareAgreementSort)
+    const approvedAuthoritativeVersions = authoritativeVersions.filter((record) => isApprovedAgreement(record))
 
     let activeAuthoritative = activeAgreementId
         ? byId.get(activeAgreementId) || null
         : null
 
-    if (!activeAuthoritative || !isAuthoritativeAgreement(activeAuthoritative, mainLanguage)) {
-        activeAuthoritative = authoritativeVersions[0] || null
+    if (!activeAuthoritative || !isAuthoritativeAgreement(activeAuthoritative, mainLanguage) || !isApprovedAgreement(activeAuthoritative)) {
+        activeAuthoritative = approvedAuthoritativeVersions[0] || null
     }
 
     if (!activeAuthoritative) {
@@ -134,7 +145,9 @@ async function resolveAgreementPair(type: AgreementType, preferredLanguage?: str
     const translation = normalizedLanguage === mainLanguage
         ? null
         : records
-            .filter((record) => record.language === normalizedLanguage && record.sourceAgreementId === activeAuthoritative.id)
+            .filter((record) => record.language === normalizedLanguage
+                && record.sourceAgreementId === activeAuthoritative.id
+                && isApprovedAgreement(record))
             .sort(compareAgreementSort)[0] || null
 
     const displayAgreement = translation || activeAuthoritative
@@ -146,7 +159,7 @@ async function resolveAgreementPair(type: AgreementType, preferredLanguage?: str
         displayAgreement,
         isReferenceTranslation: Boolean(translation),
         fallbackToAuthoritative: normalizedLanguage !== mainLanguage && !translation,
-        history: authoritativeVersions.slice(0, PUBLIC_HISTORY_LIMIT).map((record) => buildHistoryItem(record, activeAuthoritative.id)),
+        history: approvedAuthoritativeVersions.slice(0, PUBLIC_HISTORY_LIMIT).map((record) => buildHistoryItem(record, activeAuthoritative.id)),
         sourceAgreement: translation ? activeAuthoritative : null,
         records,
     }
@@ -298,6 +311,7 @@ export const getAgreementVersions = async (
             version: record.version || null,
             versionDescription: record.versionDescription || null,
             content: record.content,
+            reviewStatus: getAgreementReviewStatus(record),
             isFromEnv: record.isFromEnv,
             hasUserConsent: record.hasUserConsent,
             isAuthoritativeVersion: isAuthoritativeAgreement(record, mainLanguage),
@@ -312,6 +326,7 @@ export const getAgreementVersions = async (
             createdAt: asIsoString(record.createdAt),
             canEdit: restrictionReasons.length === 0,
             canDelete: restrictionReasons.length === 0,
+            canActivate: restrictionReasons.length === 0 && isAuthoritativeAgreement(record, mainLanguage) && isApprovedAgreement(record),
             restrictionReasons,
         }
     })
@@ -335,6 +350,7 @@ export const createAgreementVersion = async (data: {
     version?: string | null
     versionDescription?: string | null
     sourceAgreementId?: string | null
+    reviewStatus?: AgreementReviewStatus
 }) => {
     const repo = dataSource.getRepository(AgreementContent)
     const { mainLanguage, activeAgreementId } = await getAgreementContext(data.type)
@@ -351,6 +367,7 @@ export const createAgreementVersion = async (data: {
         content: data.content,
         version: data.version || null,
         versionDescription: data.versionDescription || null,
+        reviewStatus: data.reviewStatus || 'draft',
         isMainVersion: isAuthoritativeVersion,
         isAuthoritativeVersion,
         sourceAgreementId: sourceAgreement?.id || null,
@@ -408,6 +425,15 @@ export const updateAgreementContent = async (
         'versionDescription',
         'sourceAgreementId',
     ])
+
+    if (
+        Object.hasOwn(updates, 'content')
+        || Object.hasOwn(updates, 'version')
+        || Object.hasOwn(updates, 'versionDescription')
+        || Object.hasOwn(updates, 'sourceAgreementId')
+    ) {
+        agreement.reviewStatus = 'draft'
+    }
 
     agreement.isAuthoritativeVersion = agreement.language === mainLanguage
     agreement.isMainVersion = agreement.isAuthoritativeVersion
@@ -468,6 +494,10 @@ export const setActiveAgreement = async (
         throw new Error('Only authoritative-language versions can be set as active')
     }
 
+    if (!isApprovedAgreement(agreement)) {
+        throw new Error('Only approved agreements can be activated')
+    }
+
     agreement.effectiveAt = new Date()
     await repo.save(agreement)
 
@@ -488,6 +518,47 @@ export const setActiveAgreement = async (
 
     await settingRepo.save(setting)
     return agreement
+}
+
+export const setAgreementReviewStatus = async (
+    id: string,
+    nextStatus: AgreementReviewStatus,
+) => {
+    const repo = dataSource.getRepository(AgreementContent)
+    const agreement = await repo.findOne({ where: { id } })
+
+    if (!agreement) {
+        throw new Error(`Agreement with ID ${id} not found`)
+    }
+
+    if (agreement.isFromEnv) {
+        throw new Error('Cannot modify agreement content from environment variables')
+    }
+
+    if (agreement.hasUserConsent) {
+        throw new Error('Cannot modify agreement version that users have already consented to')
+    }
+
+    const { mainLanguage, activeAgreementId } = await getAgreementContext(agreement.type)
+    if (agreement.id === activeAgreementId && isAuthoritativeAgreement(agreement, mainLanguage)) {
+        throw new Error('Cannot change the review status of the currently active authoritative agreement')
+    }
+
+    const currentStatus = getAgreementReviewStatus(agreement)
+    if (currentStatus === nextStatus) {
+        return agreement
+    }
+
+    if (nextStatus === 'pending_review' && currentStatus !== 'draft') {
+        throw new Error('Only draft agreements can be submitted for review')
+    }
+
+    if (nextStatus === 'approved' && !['draft', 'pending_review'].includes(currentStatus)) {
+        throw new Error('Only draft or pending-review agreements can be approved')
+    }
+
+    agreement.reviewStatus = nextStatus
+    return await repo.save(agreement)
 }
 
 export const markAgreementConsentForLocale = async (preferredLanguage?: string) => {

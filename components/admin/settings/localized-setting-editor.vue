@@ -12,14 +12,28 @@
                     <span class="localized-setting-editor__helper">{{ localizedHelperLabel }}</span>
                 </div>
 
-                <Select
-                    v-model="activeLocale"
-                    :options="localeOptions"
-                    option-label="label"
-                    option-value="value"
-                    :disabled="metadata?.isLocked"
-                    class="localized-setting-editor__locale-select"
-                />
+                <div class="localized-setting-editor__toolbar-actions">
+                    <Select
+                        v-model="activeLocale"
+                        :options="localeOptions"
+                        option-label="label"
+                        option-value="value"
+                        :disabled="metadata?.isLocked"
+                        class="localized-setting-editor__locale-select"
+                    />
+
+                    <Button
+                        v-tooltip.top="aiDraftButtonLabel"
+                        icon="pi pi-sparkles"
+                        size="small"
+                        text
+                        rounded
+                        :aria-label="aiDraftButtonLabel"
+                        :disabled="metadata?.isLocked || !hasDraftSource || generatingDraft"
+                        :loading="generatingDraft"
+                        @click="generateLocalizedDraft"
+                    />
+                </div>
             </div>
 
             <Message
@@ -114,9 +128,12 @@ const props = withDefaults(defineProps<{
 })
 
 const { t } = useI18n()
+const toast = useToast()
+const { $appFetch } = useAppApi()
 const tt = (key: string, params?: Record<string, string>) => t(key as never, params as never)
 
 const activeLocale = ref<AppLocaleCode>(APP_ENABLED_LOCALES[0]?.code ?? 'zh-CN')
+const generatingDraft = ref(false)
 
 const localeOptions = computed(() => APP_ENABLED_LOCALES.map((locale) => ({
     label: locale.nativeName,
@@ -150,6 +167,7 @@ const normalizedValue = computed<LocalizedStructuredValue>({
 
 const localizedBadgeLabel = computed(() => tt('pages.admin.settings.system.localized.badge'))
 const localizedHelperLabel = computed(() => tt('pages.admin.settings.system.localized.helper'))
+const aiDraftButtonLabel = computed(() => tt('pages.admin.settings.system.localized.ai_generate'))
 const legacyNoticeTitle = computed(() => tt('pages.admin.settings.system.localized.legacy_title'))
 const legacyNoticeDescription = computed(() => tt('pages.admin.settings.system.localized.legacy_description'))
 const isEnvOverrideLocked = computed(() => props.metadata?.isLocked === true && props.metadata?.source === 'env')
@@ -180,6 +198,21 @@ const showLegacyNotice = computed(() => localizedMetadata.value?.legacyFormat ==
 const showMissingTranslationNotice = computed(() => {
     const localeValue = normalizedValue.value.locales[activeLocale.value]
     return !hasMeaningfulLocalizedValue(localeValue)
+})
+const hasDraftSource = computed(() => {
+    const fallbackLocales = getLocalizedFallbackChain(activeLocale.value)
+
+    for (const locale of fallbackLocales) {
+        if (locale === activeLocale.value) {
+            continue
+        }
+
+        if (hasMeaningfulLocalizedValue(normalizedValue.value.locales[locale])) {
+            return true
+        }
+    }
+
+    return hasMeaningfulLocalizedValue(normalizedValue.value.legacyValue)
 })
 
 const missingTranslationNotice = computed(() => tt('pages.admin.settings.system.localized.missing_translation', {
@@ -270,6 +303,42 @@ function handleInputUpdate(nextValue?: string) {
 
     normalizedValue.value = nextLocalizedValue
 }
+
+async function generateLocalizedDraft() {
+    if (props.metadata?.isLocked || !hasDraftSource.value) {
+        return
+    }
+
+    generatingDraft.value = true
+    try {
+        const response = await $appFetch<{ data: { value: LocalizedStructuredValue } }>('/api/admin/settings/ai-localized-draft', {
+            method: 'POST',
+            body: {
+                key: props.fieldKey,
+                targetLocale: activeLocale.value,
+                value: normalizedValue.value,
+            },
+        })
+
+        normalizedValue.value = response.data.value
+        toast.add({
+            severity: 'success',
+            summary: tt('common.success'),
+            detail: tt('pages.admin.settings.system.localized.ai_generate_success'),
+            life: 2500,
+        })
+    } catch (error) {
+        const detail = error instanceof Error ? error.message : tt('pages.admin.settings.system.localized.ai_generate_failed')
+        toast.add({
+            severity: 'error',
+            summary: tt('common.error'),
+            detail,
+            life: 3000,
+        })
+    } finally {
+        generatingDraft.value = false
+    }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -287,6 +356,13 @@ function handleInputUpdate(nextValue?: string) {
     }
 
     &__toolbar-copy {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    &__toolbar-actions {
         display: flex;
         gap: 0.5rem;
         align-items: center;

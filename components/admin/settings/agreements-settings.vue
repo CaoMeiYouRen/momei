@@ -53,6 +53,11 @@
                             @click="showCreateDialog(section.type)"
                         />
                         <Button
+                            icon="pi pi-sparkles"
+                            :label="translateAgreement('create_ai_draft')"
+                            @click="showAIDraftDialog(section.type)"
+                        />
+                        <Button
                             icon="pi pi-refresh"
                             :label="$t('common.refresh')"
                             :loading="isLoading(section.type)"
@@ -116,6 +121,10 @@
                     <template #body="{data}">
                         <div class="agreements-settings__tag-group">
                             <Tag
+                                :value="getReviewStatusLabel(data.reviewStatus)"
+                                :severity="getReviewStatusSeverity(data.reviewStatus)"
+                            />
+                            <Tag
                                 v-if="data.isCurrentActive"
                                 :value="translateAgreement('current_active')"
                                 severity="warn"
@@ -161,6 +170,20 @@
                     <template #body="{data}">
                         <div class="agreements-settings__actions">
                             <Button
+                                v-if="data.reviewStatus === 'draft'"
+                                icon="pi pi-send"
+                                class="p-button-rounded p-button-text"
+                                :title="translateAgreement('submit_review')"
+                                @click="updateReviewStatus(data, section.type, 'pending_review')"
+                            />
+                            <Button
+                                v-if="data.reviewStatus === 'pending_review'"
+                                icon="pi pi-verified"
+                                class="p-button-rounded p-button-text"
+                                :title="translateAgreement('approve_review')"
+                                @click="updateReviewStatus(data, section.type, 'approved')"
+                            />
+                            <Button
                                 icon="pi pi-pencil"
                                 class="p-button-rounded p-button-text"
                                 :disabled="!data.canEdit"
@@ -171,8 +194,8 @@
                                 v-if="data.isAuthoritativeVersion"
                                 icon="pi pi-check"
                                 class="p-button-rounded p-button-success p-button-text"
-                                :disabled="data.isCurrentActive"
-                                :title="data.isCurrentActive ? translateAgreement('already_active') : ''"
+                                :disabled="!data.canActivate || data.isCurrentActive"
+                                :title="getActivateMessage(data)"
                                 @click="activateAgreement(data, section.type)"
                             />
                             <Button
@@ -266,6 +289,15 @@
 
             <template #footer>
                 <Button
+                    v-if="!isEditMode && isReferenceLanguage"
+                    :label="translateAgreement('generate_ai_draft')"
+                    icon="pi pi-sparkles"
+                    class="p-button-text"
+                    :loading="generatingAIDraft"
+                    :disabled="!formData.sourceAgreementId"
+                    @click="generateAgreementDraft"
+                />
+                <Button
                     :label="$t('common.cancel')"
                     icon="pi pi-times"
                     class="p-button-text"
@@ -291,6 +323,7 @@ import type { ApiResponse } from '@/types/api'
 import type {
     AgreementAdminItem,
     AgreementAdminListPayload,
+    AgreementReviewStatus,
     AgreementRestrictionReason,
     AgreementType,
 } from '@/types/agreement'
@@ -322,6 +355,7 @@ const loadingMap = reactive<Record<AgreementType, boolean>>({
 
 const showDialog = ref(false)
 const saving = ref(false)
+const generatingAIDraft = ref(false)
 const isEditMode = ref(false)
 const viewMode = ref<AgreementViewMode>('aggregated')
 const currentType = ref<AgreementType>('user_agreement')
@@ -439,6 +473,33 @@ function getRestrictionMessage(reasons: AgreementRestrictionReason[]) {
         .join(' / ')
 }
 
+function getReviewStatusLabel(status: AgreementReviewStatus) {
+    return translateAgreement(`review_statuses.${status}`)
+}
+
+function getReviewStatusSeverity(status: AgreementReviewStatus) {
+    switch (status) {
+        case 'approved':
+            return 'success'
+        case 'pending_review':
+            return 'warn'
+        default:
+            return 'secondary'
+    }
+}
+
+function getActivateMessage(item: AgreementAdminItem) {
+    if (item.isCurrentActive) {
+        return translateAgreement('already_active')
+    }
+
+    if (!item.canActivate) {
+        return translateAgreement('activate_requires_approval')
+    }
+
+    return ''
+}
+
 function getDefaultSourceAgreementId(type: AgreementType) {
     const payload = payloads[type]
     return payload?.activeAgreementId || payload?.authoritativeOptions[0]?.id || null
@@ -533,6 +594,18 @@ function showCreateDialog(type: AgreementType) {
     showDialog.value = true
 }
 
+function showAIDraftDialog(type: AgreementType) {
+    isEditMode.value = false
+    resetForm(type)
+    const payload = payloads[type]
+    const defaultTranslationLanguage = languageOptions.value.find((item) => item.value !== (payload?.mainLanguage || 'zh-CN'))
+    if (defaultTranslationLanguage) {
+        formData.language = defaultTranslationLanguage.value
+        formData.sourceAgreementId = getDefaultSourceAgreementId(type)
+    }
+    showDialog.value = true
+}
+
 function editAgreement(agreement: AgreementAdminItem, type: AgreementType) {
     currentType.value = type
     currentEditId.value = agreement.id
@@ -593,6 +666,84 @@ async function saveAgreement() {
             severity: 'error',
             summary: t('common.error'),
             detail: error.message || t('pages.admin.settings.system.agreements.save_failed'),
+            life: 3000,
+        })
+    } finally {
+        saving.value = false
+    }
+}
+
+async function generateAgreementDraft() {
+    if (!formData.sourceAgreementId) {
+        return
+    }
+
+    generatingAIDraft.value = true
+    try {
+        const response = await $appFetch<ApiResponse<{ id: string }>>('/api/admin/agreements/ai-draft', {
+            method: 'POST',
+            body: {
+                type: currentType.value,
+                sourceAgreementId: formData.sourceAgreementId,
+                targetLanguage: formData.language,
+                version: formData.version || null,
+                versionDescription: formData.versionDescription || null,
+            },
+        })
+
+        showDialog.value = false
+        await loadAgreements(currentType.value)
+
+        const createdItem = payloads[currentType.value]?.items.find((item) => item.id === response.data?.id)
+        if (createdItem) {
+            editAgreement(createdItem, currentType.value)
+        }
+
+        toast.add({
+            severity: 'success',
+            summary: t('common.success'),
+            detail: translateAgreement('ai_draft_success'),
+            life: 3000,
+        })
+    } catch (error: any) {
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: error.message || translateAgreement('ai_draft_failed'),
+            life: 3000,
+        })
+    } finally {
+        generatingAIDraft.value = false
+    }
+}
+
+async function updateReviewStatus(
+    agreement: AgreementAdminItem,
+    type: AgreementType,
+    reviewStatus: AgreementReviewStatus,
+) {
+    saving.value = true
+    try {
+        await $appFetch(`/api/admin/agreements/${agreement.id}/review-status`, {
+            method: 'POST',
+            body: { reviewStatus },
+        })
+
+        toast.add({
+            severity: 'success',
+            summary: t('common.success'),
+            detail: reviewStatus === 'approved'
+                ? translateAgreement('approve_success')
+                : translateAgreement('submit_review_success'),
+            life: 3000,
+        })
+
+        await loadAgreements(type)
+    } catch (error: any) {
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: error.message || translateAgreement('review_status_failed'),
             life: 3000,
         })
     } finally {

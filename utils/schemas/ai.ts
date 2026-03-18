@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { PostStatus } from '@/types/post'
+import { SettingKey } from '@/types/setting'
 
 const aiQuotaScopeSchema = z.string().trim().refine((value) => value === 'all'
     || ['text', 'image', 'asr', 'tts', 'podcast'].includes(value)
@@ -145,6 +146,21 @@ export const aiTranslatePostSchema = z.object({
     previewTaskId: z.string().min(1).optional(),
     approvedSlug: z.string().min(1).nullable().optional(),
     approvedCategoryId: z.string().min(1).nullable().optional(),
+})
+
+export const aiLocalizedSettingDraftSchema = z.object({
+    key: z.nativeEnum(SettingKey),
+    targetLocale: z.string().min(2).max(10),
+    sourceLocale: z.string().min(2).max(10).nullable().optional(),
+    value: z.any().optional(),
+})
+
+export const aiAgreementDraftSchema = z.object({
+    type: z.enum(['user_agreement', 'privacy_policy']),
+    sourceAgreementId: z.string().min(1),
+    targetLanguage: z.string().min(2).max(10),
+    version: z.string().max(32).nullable().optional(),
+    versionDescription: z.string().max(500).nullable().optional(),
 })
 
 export const aiGenerateImageSchema = z.object({

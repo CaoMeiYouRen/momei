@@ -2,6 +2,7 @@ import { Entity } from 'typeorm'
 import { CustomColumn } from '../decorators/custom-column'
 import { getDateType } from '../database/type'
 import { BaseEntity } from './base-entity'
+import type { AgreementReviewStatus } from '@/types/agreement'
 /**
  * 协议内容版本表
  * 用于存储用户协议和隐私政策的版本历史
@@ -66,6 +67,15 @@ export class AgreementContent extends BaseEntity {
      */
     @CustomColumn({ type: 'text', nullable: true })
     versionDescription: string | null
+
+    /**
+     * 审校状态。
+     * draft: 草案
+     * pending_review: 待审校
+     * approved: 已审校，可进入激活流程
+     */
+    @CustomColumn({ type: 'varchar', length: 32, default: 'approved' })
+    reviewStatus: AgreementReviewStatus
 
     /**
      * 当前版本生效日期。

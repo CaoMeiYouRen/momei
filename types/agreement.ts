@@ -1,4 +1,5 @@
 export type AgreementType = 'user_agreement' | 'privacy_policy'
+export type AgreementReviewStatus = 'draft' | 'pending_review' | 'approved'
 
 export type AgreementRestrictionReason = 'env_locked' | 'consented' | 'active_authoritative'
 
@@ -26,6 +27,7 @@ export interface AgreementAdminItem {
     version: string | null
     versionDescription: string | null
     content: string
+    reviewStatus: AgreementReviewStatus
     isFromEnv: boolean
     hasUserConsent: boolean
     isAuthoritativeVersion: boolean
@@ -40,6 +42,7 @@ export interface AgreementAdminItem {
     createdAt: string | null
     canEdit: boolean
     canDelete: boolean
+    canActivate: boolean
     restrictionReasons: AgreementRestrictionReason[]
 }
 

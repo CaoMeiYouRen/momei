@@ -2,9 +2,14 @@ import { describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import LocalizedSettingEditor from './localized-setting-editor.vue'
 
+const mockToast = {
+    add: vi.fn(),
+}
+
 const translations: Record<string, string> = {
     'pages.admin.settings.system.localized.badge': '多语言配置',
     'pages.admin.settings.system.localized.helper': '按语种分别维护，公开页会走统一回退链。',
+    'pages.admin.settings.system.localized.ai_generate': 'AI 生成当前语种',
     'pages.admin.settings.system.localized.legacy_title': '当前仍在使用旧单值格式',
     'pages.admin.settings.system.localized.legacy_description': '首次按语种保存后会切换到结构化多语言格式。',
     'pages.admin.settings.system.localized.env_override_legacy_title': '当前由环境变量接管且仍是旧单值格式',
@@ -41,6 +46,9 @@ vi.mock('#imports', async (importOriginal) => {
 
     return {
         ...actual,
+        useAppApi: () => ({
+            $appFetch: vi.fn(),
+        }),
         useI18n: () => ({
             t: translate,
         }),
@@ -50,8 +58,39 @@ vi.mock('#imports', async (importOriginal) => {
 vi.stubGlobal('useI18n', () => ({
     t: translate,
 }))
+vi.stubGlobal('useAppApi', () => ({
+    $appFetch: vi.fn(),
+}))
+vi.stubGlobal('useToast', () => mockToast)
 
 describe('LocalizedSettingEditor', () => {
+    const global = {
+        stubs: {
+            SettingFormField: {
+                template: '<div><slot /></div>',
+            },
+            Message: {
+                template: '<div class="message"><slot /></div>',
+            },
+            Select: {
+                props: ['modelValue'],
+                template: '<div class="select-stub">{{ modelValue }}</div>',
+            },
+            Button: {
+                props: ['label', 'disabled', 'loading'],
+                template: '<button class="button-stub" :disabled="disabled" @click="$emit(\'click\')">{{ label ?? "" }}</button>',
+            },
+            InputText: {
+                props: ['modelValue', 'disabled'],
+                template: '<input class="input-stub" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+            },
+            Textarea: {
+                props: ['modelValue', 'disabled'],
+                template: '<textarea class="textarea-stub" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+            },
+        },
+    }
+
     it('converts legacy single values into structured localized payloads on edit', async () => {
         const updateSpy = vi.fn()
 
@@ -72,28 +111,7 @@ describe('LocalizedSettingEditor', () => {
                     },
                 },
             },
-            global: {
-                stubs: {
-                    SettingFormField: {
-                        template: '<div><slot /></div>',
-                    },
-                    Message: {
-                        template: '<div class="message"><slot /></div>',
-                    },
-                    Select: {
-                        props: ['modelValue'],
-                        template: '<div class="select-stub">{{ modelValue }}</div>',
-                    },
-                    InputText: {
-                        props: ['modelValue'],
-                        template: '<input class="input-stub" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
-                    },
-                    Textarea: {
-                        props: ['modelValue'],
-                        template: '<textarea class="textarea-stub" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
-                    },
-                },
-            },
+            global,
         })
 
         await wrapper.find('.input-stub').setValue('简体标题')
@@ -128,33 +146,45 @@ describe('LocalizedSettingEditor', () => {
                     },
                 },
             },
-            global: {
-                stubs: {
-                    SettingFormField: {
-                        template: '<div><slot /></div>',
-                    },
-                    Message: {
-                        template: '<div class="message"><slot /></div>',
-                    },
-                    Select: {
-                        props: ['modelValue'],
-                        template: '<div class="select-stub">{{ modelValue }}</div>',
-                    },
-                    InputText: {
-                        props: ['modelValue', 'disabled'],
-                        template: '<input class="input-stub" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />',
-                    },
-                    Textarea: {
-                        props: ['modelValue', 'disabled'],
-                        template: '<textarea class="textarea-stub" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />',
-                    },
-                },
-            },
+            global,
         })
 
         expect((wrapper.find('.input-stub').element as HTMLInputElement).value).toBe('全站旧值')
         expect(wrapper.text()).toContain('当前由环境变量接管且仍是旧单值格式')
         expect(wrapper.text()).toContain('NUXT_PUBLIC_SITE_DESCRIPTION')
         expect(wrapper.text()).not.toContain('当前仍在使用旧单值格式')
+    })
+
+    it('renders the AI draft action as an icon-only button when localized content has a reusable source', async () => {
+        const wrapper = await mountSuspended(LocalizedSettingEditor, {
+            props: {
+                modelValue: {
+                    version: 1,
+                    type: 'localized-text',
+                    locales: {
+                        'zh-CN': '中文标题',
+                    },
+                    legacyValue: '旧标题',
+                },
+                fieldKey: 'site_title',
+                inputId: 'site_title',
+                metadata: {
+                    isLocked: false,
+                    localized: {
+                        valueType: 'localized-text',
+                        structured: true,
+                        legacyFormat: false,
+                        legacyValuePresent: true,
+                        availableLocales: ['zh-CN'],
+                    },
+                },
+            },
+            global,
+        })
+
+        const actionButton = wrapper.find('.button-stub')
+        expect(actionButton.exists()).toBe(true)
+        expect(actionButton.text()).toBe('')
+        expect(actionButton.attributes('disabled')).toBeUndefined()
     })
 })

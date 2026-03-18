@@ -6,6 +6,7 @@ import {
     getAgreementContent,
     getAgreementVersions,
     markAgreementConsentForLocale,
+    setAgreementReviewStatus,
     setActiveAgreement,
     updateAgreementContent,
 } from './agreement'
@@ -55,6 +56,7 @@ function createAgreement(overrides: Partial<AgreementRecord> = {}): AgreementRec
         isAuthoritativeVersion: true,
         sourceAgreementId: null,
         effectiveAt: new Date('2026-01-18T00:00:00.000Z'),
+        reviewStatus: 'approved',
         isFromEnv: false,
         hasUserConsent: false,
         createdAt: new Date('2026-01-10T00:00:00.000Z'),
@@ -196,9 +198,11 @@ describe('agreement service', () => {
         expect(result.mainLanguage).toBe('zh-CN')
         expect(result.authoritativeOptions).toHaveLength(2)
         expect(result.items.find((item) => item.id === 'ua-v2')).toMatchObject({
+            reviewStatus: 'approved',
             isCurrentActive: true,
             canEdit: false,
             canDelete: false,
+            canActivate: false,
             restrictionReasons: ['consented', 'active_authoritative'],
         })
         expect(result.items.find((item) => item.id === 'ua-v2-en')).toMatchObject({
@@ -238,10 +242,29 @@ describe('agreement service', () => {
         expect(result).toMatchObject({
             id: 'generated-id',
             language: 'en-US',
+            reviewStatus: 'draft',
             isAuthoritativeVersion: false,
             isMainVersion: false,
             sourceAgreementId: 'ua-v2',
         })
+    })
+
+    it('moves a draft agreement into pending review and then approved', async () => {
+        const draftAgreement = createAgreement({
+            id: 'draft-1',
+            version: '3.0.0',
+            effectiveAt: null,
+            reviewStatus: 'draft',
+        })
+        mockAgreementRepo.findOne.mockResolvedValue(draftAgreement)
+        mockAgreementRepo.save.mockImplementation((payload) => Promise.resolve(payload))
+
+        const pendingReview = await setAgreementReviewStatus('draft-1', 'pending_review')
+        expect(pendingReview).toMatchObject({ reviewStatus: 'pending_review' })
+
+        mockAgreementRepo.findOne.mockResolvedValue({ ...draftAgreement, reviewStatus: 'pending_review' })
+        const approved = await setAgreementReviewStatus('draft-1', 'approved')
+        expect(approved).toMatchObject({ reviewStatus: 'approved' })
     })
 
     it('blocks updating the active authoritative version', async () => {
@@ -293,7 +316,7 @@ describe('agreement service', () => {
     })
 
     it('sets an authoritative version as active and persists the setting', async () => {
-        const authoritative = createAgreement({ id: 'ua-v3', version: '3.0.0', effectiveAt: null })
+        const authoritative = createAgreement({ id: 'ua-v3', version: '3.0.0', effectiveAt: null, reviewStatus: 'approved' })
         mockAgreementRepo.findOne.mockResolvedValue(authoritative)
         mockAgreementRepo.save.mockImplementation((payload) => Promise.resolve(payload))
         mockSettingRepo.findOne.mockImplementation(({ where }: any) => {
@@ -315,6 +338,17 @@ describe('agreement service', () => {
             key: SettingKey.LEGAL_USER_AGREEMENT_ID,
             value: 'ua-v3',
         }))
+    })
+
+    it('blocks activating draft agreements before approval', async () => {
+        mockAgreementRepo.findOne.mockResolvedValue(createAgreement({
+            id: 'ua-v4',
+            version: '4.0.0',
+            effectiveAt: null,
+            reviewStatus: 'draft',
+        }))
+
+        await expect(setActiveAgreement('user_agreement', 'ua-v4')).rejects.toThrow('Only approved agreements can be activated')
     })
 
     it('marks both displayed translations and authoritative versions as consented for the locale', async () => {
