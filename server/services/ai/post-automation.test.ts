@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { requestTranslation, translateInChunks } from './text-translation'
 import { TextService } from './text'

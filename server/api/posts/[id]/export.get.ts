@@ -17,16 +17,14 @@ export default defineEventHandler(async (event) => {
     await requireAdminOrAuthor(event)
 
     const postRepo = dataSource.getRepository(Post)
-    const post = await postRepo.findOne({
+    const post = ensureFound(await postRepo.findOne({
         where: { id },
         relations: ['category', 'tags', 'author'],
-    })
-
-    ensureFound(post, 'Post')
+    }), 'Post')
 
     if (exportAllTranslations) {
         // 导出全组翻译
-        const tid = post!.translationId || post!.id
+        const tid = post.translationId || post.id
         const posts = await postRepo.find({
             where: [
                 { translationId: tid },
@@ -37,7 +35,7 @@ export default defineEventHandler(async (event) => {
 
         if (posts.length > 1) {
             const zipBuffer = await createPostsZip(posts)
-            const filename = `momei-translations-${post!.slug || post!.id}.zip`
+            const filename = `momei-translations-${post.slug || post.id}.zip`
             setHeaders(event, {
                 'Content-Type': 'application/zip',
                 'Content-Disposition': `attachment; filename="${encodeURIComponent(filename)}"`,
@@ -47,8 +45,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // 单篇导出
-    const markdown = formatPostToMarkdown(post!)
-    const filename = `${post!.slug || post!.id}.${post!.language}.md`
+    const markdown = formatPostToMarkdown(post)
+    const filename = `${post.slug || post.id}.${post.language}.md`
 
     // 设置响应头触发下载
     setHeaders(event, {

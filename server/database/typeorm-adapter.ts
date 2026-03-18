@@ -149,7 +149,7 @@ export const typeormAdapter =
                     if (typeof r.target === 'string') {
                         targetName = r.target
                     } else if (typeof r.target === 'function') {
-                        targetName = (r.target as any).name
+                        targetName = (r.target).name
                     }
 
                     // 2. 直接匹配名称 (忽略大小写)
