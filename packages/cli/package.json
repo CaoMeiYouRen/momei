@@ -43,7 +43,7 @@
     "ora": "^9.3.0"
   },
   "devDependencies": {
-    "@types/node": "^25.4.0",
+    "@types/node": "^25.5.0",
     "eslint": "^9.39.2",
     "eslint-config-cmyr": "2.1.4",
     "tsdown": "^0.21.1",
