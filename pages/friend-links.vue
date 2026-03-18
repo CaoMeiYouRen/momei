@@ -279,7 +279,7 @@ import { authClient } from '@/lib/auth-client'
 import { UploadType } from '@/composables/use-upload'
 import { friendLinkApplicationSchema } from '@/utils/schemas/friend-link'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const toast = useToast()
 const config = useRuntimeConfig()
 const tt = (key: string) => t(key as never)
@@ -297,7 +297,11 @@ const isCaptchaEnabled = computed(() => !!(config.public.authCaptcha?.provider &
 
 const { data: metaData, refresh: refreshMeta } = await useAsyncData('friend-links-meta', async () => {
     try {
-        const response = await $fetch<any>('/api/friend-links/meta')
+        const response = await $fetch<any>('/api/friend-links/meta', {
+            query: {
+                locale: locale.value,
+            },
+        })
         return response.data
     } catch {
         return {
@@ -307,6 +311,8 @@ const { data: metaData, refresh: refreshMeta } = await useAsyncData('friend-link
             categories: [],
         }
     }
+}, {
+    watch: [locale],
 })
 
 const { data: linksData, refresh: refreshLinks } = await useAsyncData('friend-links-page', async () => {

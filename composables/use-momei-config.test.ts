@@ -1,5 +1,8 @@
+import { ref } from 'vue'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+
+const mockLocale = ref('zh-CN')
 
 const mockT = vi.fn((key: string) => {
     const translations: Record<string, string> = {
@@ -12,6 +15,7 @@ const mockT = vi.fn((key: string) => {
 
 mockNuxtImport('useI18n', () => () => ({
     t: mockT,
+    locale: mockLocale,
 }))
 
 // Mock $fetch
@@ -23,6 +27,7 @@ import { useMomeiConfig } from './use-momei-config'
 describe('useMomeiConfig', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        mockLocale.value = 'zh-CN'
         // Reset the shared state by getting a fresh instance
         const { siteConfig } = useMomeiConfig()
         siteConfig.value = {
@@ -105,8 +110,26 @@ describe('useMomeiConfig', () => {
         const { fetchSiteConfig, siteConfig } = useMomeiConfig()
         await fetchSiteConfig()
 
-        expect(mockFetch).toHaveBeenCalledWith('/api/settings/public')
+        expect(mockFetch).toHaveBeenCalledWith('/api/settings/public', {
+            query: {
+                locale: 'zh-CN',
+            },
+        })
         expect(siteConfig.value).toMatchObject(mockData)
+    })
+
+    it('should fetch site config for the active locale', async () => {
+        mockLocale.value = 'en-US'
+        mockFetch.mockResolvedValueOnce({ data: { siteTitle: 'English Title' } })
+
+        const { fetchSiteConfig } = useMomeiConfig()
+        await fetchSiteConfig()
+
+        expect(mockFetch).toHaveBeenCalledWith('/api/settings/public', {
+            query: {
+                locale: 'en-US',
+            },
+        })
     })
 
     it('should keep travellings flags reactive', () => {

@@ -101,11 +101,15 @@ const createDefaultSiteConfig = (): MomeiPublicConfig => ({
 export const useMomeiConfig = () => {
     const siteConfig = useState<MomeiPublicConfig>('siteConfig', createDefaultSiteConfig)
 
-    const { t } = useI18n()
+    const { t, locale } = useI18n()
 
     const fetchSiteConfig = async () => {
         try {
-            const { data } = await $fetch<{ data: Partial<MomeiPublicConfig> }>('/api/settings/public')
+            const { data } = await $fetch<{ data: Partial<MomeiPublicConfig> }>('/api/settings/public', {
+                query: {
+                    locale: locale.value,
+                },
+            })
             if (data) {
                 siteConfig.value = {
                     ...createDefaultSiteConfig(),

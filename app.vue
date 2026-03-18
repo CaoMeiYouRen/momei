@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { authClient } from '@/lib/auth-client'
 
-const { t, setLocale } = useI18n()
+const { t, setLocale, locale } = useI18n()
 const route = useRoute()
 const config = useRuntimeConfig()
 const session = authClient.useSession()
@@ -82,6 +82,14 @@ watch(() => route.fullPath, async () => {
 
     await nextTick()
     maybeAutoStartTour()
+})
+
+watch(() => locale.value, async () => {
+    if (!import.meta.client || isInstallationPage.value) {
+        return
+    }
+
+    await fetchSiteConfig()
 })
 
 const head = useLocaleHead({
