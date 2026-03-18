@@ -43,12 +43,16 @@ export default defineEventHandler(async (event) => {
     }
 
     const {
-        abbrlink: _abbrlink,
-        permalink: _permalink,
-        sourceFile: _sourceFile,
-        confirmPathAliases: _confirmPathAliases,
+        abbrlink,
+        permalink,
+        sourceFile,
+        confirmPathAliases,
         ...createInput
     } = body
+    void abbrlink
+    void permalink
+    void sourceFile
+    void confirmPathAliases
 
     const post = await createPostService({
         ...createInput,

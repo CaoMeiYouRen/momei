@@ -46,9 +46,7 @@ describe('import path alias validation service', () => {
     })
 
     it('rejects same-language slug conflicts when no fallback is available', async () => {
-        findOne.mockImplementation(async ({ where }: { where: { slug: string } }) => {
-            return where.slug === 'taken-post' ? { id: 'post-1' } : null
-        })
+        findOne.mockImplementation(({ where }: { where: { slug: string } }) => where.slug === 'taken-post' ? { id: 'post-1' } : null)
 
         const report = await validateImportPathAliases({
             title: 'Taken Post',

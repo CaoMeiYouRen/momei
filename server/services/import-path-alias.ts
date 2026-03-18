@@ -171,7 +171,9 @@ function extractPermalinkValue(value: string) {
 }
 
 function collectPermalinkTokens(permalink: string) {
-    return [...permalink.matchAll(/:([a-zA-Z_]+)/gu)].map((match) => match[1]).filter(Boolean)
+    return [...permalink.matchAll(/:([a-zA-Z_]+)/gu)]
+        .map((match) => match[1])
+        .filter((token): token is string => Boolean(token))
 }
 
 function buildPermalinkTokenContext(input: ImportPathAliasValidationInput, canonicalSlug: string | null) {
@@ -517,18 +519,6 @@ export async function validateImportPathAliases(input: ImportPathAliasValidation
             resolvedValue: canonicalSlug,
             reason: 'normalized-slug',
             message: 'source slug 需要规范化后才能作为 canonical slug。',
-        })
-    } else if (abbrlinkCandidate?.usableValue) {
-        canonicalSlug = abbrlinkCandidate.usableValue
-        canonicalSource = 'repair'
-        requiresConfirmation = true
-        items.push({
-            field: 'canonical',
-            status: 'repaired',
-            originalValue: abbrlinkCandidate.item.originalValue,
-            resolvedValue: canonicalSlug,
-            reason: 'normalized-slug',
-            message: 'abbrlink 需要规范化后才能作为 canonical slug。',
         })
     } else if (derivedCandidate) {
         const derivedConflict = await checkSlugConflict(derivedCandidate.value, language)
