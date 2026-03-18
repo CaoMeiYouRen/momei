@@ -90,6 +90,7 @@ export default defineConfig({
                             { text: '音频播客', link: '/design/modules/audio' },
                             { text: '国际化系统', link: '/design/modules/i18n' },
                             { text: '国际化扩展与多语言 SEO', link: '/design/modules/i18n-seo-unification' },
+                            { text: '配置项多语言回退治理', link: '/design/modules/settings-i18n-fallback-governance' },
                             { text: '邮件系统', link: '/design/modules/email' },
                             { text: '通知中心', link: '/design/modules/notifications' },
                             { text: '阅读模式', link: '/design/modules/reader-mode' },
