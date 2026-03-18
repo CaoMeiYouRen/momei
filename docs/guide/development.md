@@ -69,7 +69,7 @@
 | `pnpm test` | 运行单测 |
 | `pnpm test:e2e` | 运行 Playwright 端到端测试 |
 | `pnpm typecheck`| 运行类型检查 |
-| `pnpm deploy:wrangler` | 构建后部署到 Cloudflare |
+| `pnpm deploy:wrangler` | 调试 wrangler 侧适配（不代表支持整站部署到 Cloudflare） |
 
 ## 5. 参与贡献
 

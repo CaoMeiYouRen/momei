@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-10
+last_sync: 2026-03-18
 ---
 
 # 배포 가이드
@@ -54,7 +54,7 @@ last_sync: 2026-03-10
 
 - **Vercel**: Serverless 배포에 적합하며 `CRON_SECRET` 설정을 권장합니다.
 - **Docker / 자가 호스팅**: 로컬 디스크와 자체 cron 제어가 필요한 경우 적합합니다.
-- **Cloudflare**: R2와 함께 사용할 때 장점이 큽니다. CLI 배포 명령은 `pnpm deploy:wrangler`입니다.
+- **Cloudflare(외곽 기능 연계)**: 현재 버전은 TypeORM 및 Node 런타임 의존성 때문에 애플리케이션 본체를 Cloudflare Pages / Workers에 완전 배포할 수 없습니다. 다만 Cloudflare R2는 계속 객체 스토리지로 사용할 수 있으며, Scheduled Events 관련 트리거 적응과 `wrangler.toml`은 외곽 기능 설계 / 실험 진입점으로만 유지됩니다. `pnpm deploy:wrangler` 역시 wrangler 측 적응 디버깅 용도일 뿐, 운영 환경의 전체 사이트 배포 명령으로 보면 안 됩니다.
 
 ## 4. 자주 겪는 문제
 
@@ -62,6 +62,7 @@ last_sync: 2026-03-10
 - 작업 API 401: 현재 사용 중인 인증 방식이 `CRON_SECRET`, `TASKS_TOKEN`, `WEBHOOK_SECRET` 중 무엇인지 확인합니다.
 - ASR / AI 호환 API 오류: endpoint에 `/v1`가 필요한지 확인합니다.
 - 직업로드가 프록시 업로드로 떨어짐: `STORAGE_TYPE`과 버킷 자격 증명을 점검합니다.
+- Cloudflare Pages / Workers에서 TypeORM 또는 Node 호환성 오류가 발생함: 배포 절차 누락이 아니라 현재 플랫폼 경계입니다. 메인 앱은 Vercel, Docker, 또는 자체 호스팅 Node 환경에 두고, Cloudflare는 R2나 Scheduled Events 관련 실험 같은 외곽 기능으로만 사용하세요.
 
 ## 5. 함께 읽기
 

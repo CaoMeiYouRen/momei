@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-10
+last_sync: 2026-03-18
 ---
 
 # 빠른 시작
@@ -57,16 +57,17 @@ services:
 docker-compose up -d
 ```
 
-## 3. Cloudflare 배포
+## 3. Cloudflare 외곽 기능 연계만 지원
 
-가벼운 엣지 런타임 기반 Serverless 경험을 원한다면 다음 경로를 사용할 수 있습니다.
+현재 버전은 애플리케이션 본체를 Cloudflare Pages / Workers에 완전 배포하는 것을 지원하지 않습니다. 프로젝트가 아직 TypeORM과 Node 런타임 기능에 의존하고 있어 유지 가능한 Cloudflare 적응 계층이 없기 때문입니다.
 
-```bash
-pnpm build
-pnpm deploy:wrangler
-```
+Cloudflare가 필요하다면 현재는 다음과 같은 외곽 기능에만 한정하는 것을 권장합니다.
 
-Cloudflare 환경에서의 스토리지 조합과 스케줄드 트리거 관련 내용은 [배포 가이드](./deploy.md)를 함께 확인하세요.
+- Cloudflare R2를 객체 스토리지로 사용
+- Cloudflare Scheduled Events 관련 트리거 적응 설계를 통해 통합 작업 진입점을 평가
+- CDN, WAF, DNS처럼 메인 앱 런타임과 분리된 엣지 기능 활용
+
+애플리케이션 본체는 Vercel, Docker, 또는 자체 호스팅 Node 환경에 두고, 추가 Cloudflare 활용 여부는 [배포 가이드](./deploy.md)에서 판단하세요.
 
 ## 4. 로컬 개발 시작
 

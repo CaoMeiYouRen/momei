@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-10
+last_sync: 2026-03-18
 ---
 
 # 快速開始
@@ -63,16 +63,17 @@ docker-compose up -d
 
 若未來要改用 MySQL、PostgreSQL 或外部物件儲存，也可以在 Compose 中逐步補齊對應的環境變數，而不需要重寫整體部署方式。
 
-## 3. 部署到 Cloudflare
+## 3. Cloudflare 外圍能力接入（非整站部署）
 
-如果你偏好更輕量、邊緣節點友善的 Serverless 體驗，可以採用 Cloudflare Pages / Workers 路線：
+目前版本暫不支援將應用主體完整部署到 Cloudflare Pages / Workers。原因是專案目前仍依賴 TypeORM 與 Node 執行時能力，尚未形成可維護的 Cloudflare 適配層。
 
-```bash
-pnpm build
-pnpm deploy:wrangler
-```
+如果你需要使用 Cloudflare，當前建議僅接入以下外圍能力：
 
-更完整的 Cloudflare 相關注意事項，包括儲存搭配、排程觸發與部署模式差異，請參考 [部署指南](./deploy.md#5-部署到主流平台)。
+- Cloudflare R2 作為物件儲存。
+- Cloudflare Scheduled Events 相關觸發適配設計，用於統一任務入口的外圍整合評估。
+- CDN、WAF、DNS 等與應用主體執行時解耦的邊緣能力。
+
+應用主體請優先部署在 Vercel、Docker 或自託管 Node 環境，再結合 [部署指南](./deploy.md) 評估 Cloudflare 側補充能力。
 
 ## 4. 本機開發（零設定啟動）
 

@@ -1,7 +1,7 @@
 ---
 layout: home
 source_branch: master
-last_sync: 2026-03-10
+last_sync: 2026-03-18
 
 hero:
     name: "墨梅部落格"
@@ -26,7 +26,7 @@ features:
       details: 了解墨梅與 WordPress、Hugo、Hexo 等主流方案的差異與定位。
       link: /zh-TW/guide/comparison
     - title: 部署指南
-      details: 涵蓋 Vercel、Docker、自託管與 Cloudflare 等多種部署通道。
+      details: 涵蓋 Vercel、Docker、自託管，以及 Cloudflare 外圍能力接入邊界。
       link: /zh-TW/guide/deploy
     - title: 專案路線圖
       details: 了解已完成階段、當前重點與後續積壓項的整體藍圖。

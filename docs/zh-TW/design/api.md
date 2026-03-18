@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-10
+last_sync: 2026-03-18
 ---
 
 # API 設計
@@ -19,6 +19,7 @@ last_sync: 2026-03-10
 - **資料庫**：支援 PostgreSQL、MySQL、SQLite
 - **參數校驗**：Zod
 - **郵件服務**：Nodemailer
+- **部署邊界**：建議以 Node.js、Docker、Vercel 為應用主體部署目標；Cloudflare 目前僅保留 R2 與 Scheduled Events 等外圍能力接入，不應視為已支援 Cloudflare Pages / Workers 的完整部署。
 
 後端設計的核心目標是：安全、易擴展、適配多部署環境，並且與前端的國際化、通知與內容工作流保持一致。
 

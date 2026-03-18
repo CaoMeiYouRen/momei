@@ -143,7 +143,7 @@
 
 ### 支持情况
 
-建议使用 Vercel、Netlify、Cloudflare 或 Docker 进行部署。
+建议使用 Vercel、Netlify、Docker 或自托管 Node 环境进行部署。若你需要接入 Cloudflare，当前仅建议用于 R2 对象存储与 Scheduled Events 等外围能力。受 TypeORM 与 Node 运行时依赖限制，当前版本暂不支持将应用主体完整部署到 Cloudflare Pages / Workers。
 
 当前版本的部署配置以环境变量为主，推荐优先阅读 [部署指南](https://docs.momei.app/guide/deploy) 和 [环境与系统设置](https://docs.momei.app/guide/variables)，先完成核心变量，再按需启用 AI、对象存储、ASR、Webhook 定时任务等增强能力。
 
@@ -157,7 +157,7 @@
 
 -   **SQLite**: 默认选项，无需配置服务器，适合个人博客。推荐设置 `DATABASE_URL=sqlite://database/momei.sqlite`。
 -   **MySQL / PostgreSQL**: 适合有更高数据管理需求的用户，通过 `DATABASE_URL` 协议头自动推断。
--   **Cloudflare D1**: 计划中。建议使用外部数据库如 Neon 或 TiDB Cloud 作为 Cloudflare 部署的后端。
+-   **Cloudflare D1**: 计划中。该规划不代表当前版本已支持 Cloudflare 运行时整站部署；现阶段仍建议使用外部数据库，并将应用主体部署在 Vercel、Docker 或自托管 Node 环境。
 
 详情请参考 [部署指南](https://docs.momei.app/guide/deploy)。
 

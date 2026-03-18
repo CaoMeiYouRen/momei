@@ -119,13 +119,13 @@
 
 ## ☁️ 部署說明
 
-建議使用 Vercel、Netlify、Cloudflare 或 Docker 進行部署。當前版本的部署方式以環境變數為主，建議先閱讀 [部署指南](https://docs.momei.app/zh-TW/guide/deploy) 與 [環境變數映射](https://docs.momei.app/zh-TW/guide/variables)，先補齊核心變數，再按需啟用 AI、物件儲存、ASR、Webhook 定時任務等能力。
+建議使用 Vercel、Netlify、Docker 或自託管 Node 環境進行部署。若你需要接入 Cloudflare，當前僅建議用於 R2 物件儲存與 Scheduled Events 等外圍能力。受 TypeORM 與 Node 執行時依賴限制，現版本暫不支援將應用主體完整部署到 Cloudflare Pages / Workers。當前版本的部署方式以環境變數為主，建議先閱讀 [部署指南](https://docs.momei.app/zh-TW/guide/deploy) 與 [環境變數映射](https://docs.momei.app/zh-TW/guide/variables)，先補齊核心變數，再按需啟用 AI、物件儲存、ASR、Webhook 定時任務等能力。
 
 ### 資料庫支持
 
 - **SQLite**：預設選項，適合個人部落格。
 - **MySQL / PostgreSQL**：適合更高資料管理需求。
-- **Cloudflare D1**：仍在規劃中，建議暫配合外部資料庫使用。
+- **Cloudflare D1**：仍在規劃中。這不代表目前已支援 Cloudflare 執行時整站部署；現階段仍建議使用外部資料庫，並將應用主體部署在 Vercel、Docker 或自託管 Node 環境。
 
 ## 🔄 Hexo 遷移工具
 

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-07
+last_sync: 2026-03-18
 ---
 
 # Quick Start
@@ -57,16 +57,17 @@ Then run:
 docker-compose up -d
 ```
 
-## 3. Deployment to Cloudflare
+## 3. Cloudflare Peripheral Integrations Only
 
-If you prefer a seamless Serverless experience at the edge:
+The current version does not support deploying the application itself to Cloudflare Pages / Workers. The main reason is that the project still depends on TypeORM and Node runtime capabilities, and there is no maintainable Cloudflare runtime adaptation layer yet.
 
-```bash
-pnpm build
-pnpm deploy:wrangler
-```
+If you need Cloudflare, limit it to peripheral capabilities for now:
 
-See [Deployment Guide - Cloudflare](./deploy.md) for more details.
+- Cloudflare R2 as object storage.
+- Scheduled Events-related trigger adaptation kept for evaluating unified task-entry integration.
+- Edge capabilities such as CDN, WAF, and DNS that remain decoupled from the main app runtime.
+
+Keep the main app on Vercel, Docker, or a self-hosted Node environment, then use the [Deployment Guide](./deploy.md) to evaluate any Cloudflare-side additions.
 
 ## 4. Local Development (Zero-Config)
 

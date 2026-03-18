@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-07
+last_sync: 2026-03-18
 ---
 
 # Development Guide
@@ -78,7 +78,7 @@ For deeper insights into code standards, directory structure, and security requi
 | `pnpm test` | Run unit tests |
 | `pnpm test:e2e` | Run Playwright end-to-end tests |
 | `pnpm typecheck`| Run type checking |
-| `pnpm deploy:wrangler` | Deploy to Cloudflare after build |
+| `pnpm deploy:wrangler` | Debug wrangler-side integration; not a supported full-site Cloudflare deployment path |
 
 ## 5. Contributing
 

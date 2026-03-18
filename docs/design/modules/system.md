@@ -55,7 +55,8 @@
 
 - **Serverless 友好**: 自动禁用文件系统日志，优先使用远程数据库。
 - **Docker 支持**: 完善的 Compose 模板，支持挂载外部配置文件。
-- **一键部署**: 适配 Vercel, Netlify, Cloudflare Workers。
+- **推荐部署路径**: 优先适配 Vercel、Netlify、Docker 与自托管 Node 环境。
+- **Cloudflare 边界**: 当前仅保留 R2 与 Scheduled Events 等外围能力接入，应用主体暂不支持完整部署到 Cloudflare Pages / Workers。
 
 ## 5. 配置清单 (Configuration Catalog)
 

@@ -1,7 +1,7 @@
 ---
 layout: home
 source_branch: master
-last_sync: 2026-03-10
+last_sync: 2026-03-18
 
 hero:
     name: "모메이 블로그"
@@ -26,7 +26,7 @@ features:
       details: WordPress, Hugo, Hexo와 비교했을 때 모메이의 위치와 장점을 정리합니다.
       link: /ko-KR/guide/comparison
     - title: 배포 가이드
-      details: Vercel, Docker, 자체 호스팅, Cloudflare까지 다양한 배포 채널을 다룹니다.
+      details: Vercel, Docker, 자체 호스팅과 Cloudflare 외곽 기능 연계 경계를 정리합니다.
       link: /ko-KR/guide/deploy
     - title: 로드맵
       details: 완료된 단계, 현재 초점, 장기 backlog를 통해 프로젝트 청사진을 파악합니다.

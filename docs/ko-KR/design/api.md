@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-10
+last_sync: 2026-03-18
 ---
 
 # API 설계
@@ -18,6 +18,7 @@ last_sync: 2026-03-10
 - TypeORM
 - Zod
 - Nodemailer
+- 애플리케이션 본체 배포는 현재 Node.js, Docker, Vercel을 우선 기준으로 봐야 하며, Cloudflare는 R2 및 Scheduled Events 같은 외곽 기능 연계만 유지됩니다. 따라서 Cloudflare Pages / Workers 전체 배포가 이미 지원된다고 해석하면 안 됩니다.
 
 ## 2. 권한 모델
 

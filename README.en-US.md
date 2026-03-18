@@ -139,7 +139,7 @@ Main Sections:
 
 ### Support
 
-Recommended deployment options include Vercel, Netlify, Cloudflare, or Docker.
+Recommended deployment targets are Vercel, Netlify, Docker, or a self-hosted Node environment. If you need Cloudflare integration, treat it as peripheral only for now, such as R2 object storage or Scheduled Events-related trigger design. Due to current TypeORM and Node runtime dependencies, the app itself is not yet supported on Cloudflare Pages / Workers.
 
 The current deployment model is environment-variable first. Start with the [Deploy Guide](https://docs.momei.app/en-US/guide/deploy) and [Variables & Settings](https://docs.momei.app/en-US/guide/variables), then enable AI, object storage, ASR, and webhook-based scheduled tasks module by module.
 
@@ -153,7 +153,7 @@ Momei natively supports:
 
 -   **SQLite**: Default option, no server needed, ideal for personal blogs. Recommended: `DATABASE_URL=sqlite://database/momei.sqlite`.
 -   **MySQL / PostgreSQL**: Ideal for higher data management needs, auto-inferred via `DATABASE_URL`.
--   **Cloudflare D1**: Planned. Suggested to use external DBs like Neon or TiDB Cloud for Cloudflare deployments.
+-   **Cloudflare D1**: Planned. This does not mean full Cloudflare runtime support is available today; for now, keep the main app on Vercel, Docker, or a self-hosted Node environment and use an external database if needed.
 
 See [Deploy Guide](https://docs.momei.app/en-US/guide/deploy) for details.
 

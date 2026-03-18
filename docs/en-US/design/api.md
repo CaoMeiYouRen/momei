@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-02-11
+last_sync: 2026-03-18
 ---
 
 # API Design
@@ -21,7 +21,8 @@ This document describes the backend architecture and API design for the Momei bl
 -   **Databases**: PostgreSQL (Recommended), MySQL, SQLite (Dev/Lite)
 -   **Validation**: [Zod](https://zod.dev/)
 -   **Email**: [Nodemailer](https://nodemailer.com/)
--   **Deployment**: Node.js, Docker, Vercel, Cloudflare Workers
+-   **Deployment**: Node.js, Docker, Vercel
+-   **Cloudflare boundary**: Only peripheral integrations such as R2 and Scheduled Events-related trigger design are kept for now. Because the project still depends on TypeORM and Node runtime capabilities, the main app is not yet supported on Cloudflare Pages / Workers.
 
 ## 2. Authentication & Authorization
 

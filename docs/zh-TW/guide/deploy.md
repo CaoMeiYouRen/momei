@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-10
+last_sync: 2026-03-18
 ---
 
 # 部署指南
@@ -159,10 +159,11 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **Docker / 自託管主機**：適合需要本機磁碟、排程控制與較高可控性的場景。
 	- 建議掛載 `database/` 與上傳目錄。
 	- 若需內建 Cron，可使用 `TASK_CRON_EXPRESSION` 自訂頻率。
-- **Cloudflare Pages / Workers**：
-	- 建議搭配 R2 或 S3 相容儲存。
-	- 定時任務通常由平台 Scheduled Events 觸發，而非本機 Cron 程序。
-	- CLI 部署命令為 `pnpm deploy:wrangler`。
+- **Cloudflare（外圍能力接入）**：
+	- 目前版本暫不支援將應用主體完整部署到 Cloudflare Pages / Workers，根因是專案仍依賴 TypeORM 與 Node 執行時能力。
+	- Cloudflare R2 可繼續作為物件儲存接入。
+	- Scheduled Events 相關觸發適配與 [wrangler.toml](../../wrangler.toml) 配置目前保留為外圍能力設計 / 實驗入口，不應被解讀為整站 Cloudflare 執行時已受支援。
+	- `pnpm deploy:wrangler` 目前僅用於 wrangler 側適配調試，不應作為生產環境整站部署指令。
 
 ## 6. 排障指引
 
@@ -172,6 +173,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **AI 相容接口報錯**：確認 `AI_API_ENDPOINT` 是否需要帶 `/v1`。
 - **直傳仍走代理上傳**：確認 `STORAGE_TYPE` 是否為 `s3` 或 `r2`，並檢查 Bucket、憑據與公開地址是否完整。
 - **本機資源 404**：檢查 `LOCAL_STORAGE_DIR` 是否存在，以及 `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL` 是否與實際靜態路徑一致。
+- **Cloudflare Pages / Workers 出現 TypeORM / Node 相容錯誤**：這是目前已知的平台邊界，不是部署步驟遺漏。請改用 Vercel、Docker 或自託管 Node 環境作為應用主體；若需要 Cloudflare，當前僅保留 R2 / Scheduled Events 等外圍能力接入。
 
 ## 7. 延伸閱讀
 

@@ -12,7 +12,8 @@
 -   **数据库支持**: PostgreSQL (推荐), MySQL, SQLite (开发/轻量级)
 -   **参数校验**: [Zod](https://zod.dev/)
 -   **邮件服务**: [Nodemailer](https://nodemailer.com/)
--   **部署目标**: Node.js, Docker, Vercel, Cloudflare Workers (需注意数据库连接适配)
+-   **部署目标**: Node.js, Docker, Vercel
+-   **Cloudflare 边界**: 当前仅保留 R2 / Scheduled Events 等外围能力接入设计；受 TypeORM 与 Node 运行时依赖限制，应用主体暂不支持完整部署到 Cloudflare Pages / Workers。
 
 ## 2. 认证与权限设计 (Authentication & Authorization Design)
 

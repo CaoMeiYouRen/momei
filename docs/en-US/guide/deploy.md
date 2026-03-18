@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-07
+last_sync: 2026-03-18
 ---
 
 # Deployment Guide
@@ -164,10 +164,11 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **Docker / Self-hosted server**: Best when you need local disk, built-in cron, and tighter operational control.
 	- Mount `database/` and upload directories.
 	- Use `TASK_CRON_EXPRESSION` if you want to customize the built-in cron schedule.
-- **Cloudflare Pages / Workers**:
-	- Prefer R2 or another S3-compatible store.
-	- Scheduled tasks should come from platform scheduled events, not a local cron process.
-	- CLI deployment can use `pnpm deploy:wrangler`.
+- **Cloudflare (Peripheral integrations only)**:
+	- The current version does not support deploying the main application to Cloudflare Pages / Workers because it still depends on TypeORM and Node runtime capabilities.
+	- Cloudflare R2 can still be used as object storage.
+	- Scheduled Events-related trigger adaptation and [wrangler.toml](../../wrangler.toml) are kept as peripheral-integration design / experimentation entry points and should not be read as full Cloudflare runtime support.
+	- `pnpm deploy:wrangler` is currently only for wrangler-side integration debugging and should not be treated as a production full-site deployment command.
 
 ## 6. Troubleshooting
 
@@ -180,6 +181,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **OpenAI-compatible endpoint errors**: Confirm whether `AI_API_ENDPOINT` needs a `/v1` suffix.
 - **Direct upload still falls back to proxy mode**: Make sure `STORAGE_TYPE` is `s3` or `r2` and that bucket credentials, bucket name, and public base URL are configured.
 - **Local uploads return 404**: Verify that `LOCAL_STORAGE_DIR` exists and that `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL` matches the exposed static path.
+- **Cloudflare Pages / Workers shows TypeORM or Node-compatibility errors**: This is a known platform boundary, not a missed deployment step. Keep the main app on Vercel, Docker, or a self-hosted Node environment; if you need Cloudflare, use it only for peripheral integrations such as R2 or Scheduled Events-related experiments.
 
 ## 7. References
 

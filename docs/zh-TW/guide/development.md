@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-10
+last_sync: 2026-03-18
 ---
 
 # 開發指南
@@ -89,7 +89,7 @@ last_sync: 2026-03-10
 | `pnpm test` | 執行單元測試 |
 | `pnpm test:e2e` | 執行 Playwright 端對端測試 |
 | `pnpm typecheck` | 執行 TypeScript 型別檢查 |
-| `pnpm deploy:wrangler` | 建置後部署到 Cloudflare |
+| `pnpm deploy:wrangler` | 調試 wrangler 側適配（不代表支援整站部署到 Cloudflare） |
 
 ## 5. 參與貢獻
 

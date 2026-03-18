@@ -115,13 +115,13 @@ Momei는 **Nuxt** 기반의 현대적인 블로그 플랫폼입니다. AI와 깊
 
 ## ☁️ 배포
 
-Vercel, Cloudflare, Docker 기반 배포를 권장합니다. 먼저 [배포 가이드](https://docs.momei.app/ko-KR/guide/deploy)와 [변수 및 설정 매핑](https://docs.momei.app/ko-KR/guide/variables)을 읽고 핵심 환경 변수를 맞춘 뒤, AI / 스토리지 / 작업 기능을 단계적으로 켜는 것이 좋습니다.
+Vercel, Docker, 또는 자체 호스팅 Node 환경을 기본 배포 경로로 권장합니다. Cloudflare는 현재 R2 객체 스토리지나 Scheduled Events 같은 외곽 기능 연계 용도로만 보는 것이 안전하며, TypeORM 및 Node 런타임 의존성 때문에 애플리케이션 본체를 Cloudflare Pages / Workers에 완전 배포하는 것은 아직 지원되지 않습니다. 먼저 [배포 가이드](https://docs.momei.app/ko-KR/guide/deploy)와 [변수 및 설정 매핑](https://docs.momei.app/ko-KR/guide/variables)을 읽고 핵심 환경 변수를 맞춘 뒤, AI / 스토리지 / 작업 기능을 단계적으로 켜는 것이 좋습니다.
 
 ### 데이터베이스 지원
 
 - SQLite
 - MySQL / PostgreSQL
-- Cloudflare D1은 계획 단계
+- Cloudflare D1은 계획 단계이며, 이것이 현재 Cloudflare 런타임 전체 지원을 의미하지는 않습니다.
 
 ## 🔄 Hexo 마이그레이션 CLI
 

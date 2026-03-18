@@ -48,16 +48,17 @@ services:
 docker-compose up -d
 ```
 
-## 3. 部署到 Cloudflare
+## 3. Cloudflare 外围能力接入（非整站部署）
 
-如果你更倾向于极速平滑的 Serverless 体验：
+当前版本暂不支持将应用主体完整部署到 Cloudflare Pages / Workers。原因是项目当前仍依赖 TypeORM 与 Node 运行时能力，尚未形成可维护的 Cloudflare 适配层。
 
-```bash
-pnpm build
-pnpm deploy:wrangler
-```
+如果你需要使用 Cloudflare，当前建议仅接入以下外围能力：
 
-详见 [部署指南 - Cloudflare 章节](./deploy.md#_4-3-cloudflare-pages-workers-部署)。
+- Cloudflare R2 作为对象存储。
+- Cloudflare Scheduled Events 相关触发适配设计，用于统一任务入口的外围集成评估。
+- CDN、WAF、DNS 等与应用主体运行时解耦的边缘能力。
+
+应用主体请优先部署在 Vercel、Docker 或自托管 Node 环境，再结合 [部署指南](./deploy.md) 评估 Cloudflare 侧补充能力。
 
 ## 4. 本地开发 (零配置启动)
 
