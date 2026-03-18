@@ -954,6 +954,11 @@
                         "title": "Demo Preview Data",
                         "description": "This page is showing sanitized sample data so the system settings experience remains demonstrable in Demo mode. Reads are redirected to safe preview content, while save and delete operations are still blocked."
                     },
+                    "floating_actions": {
+                        "saved": "All changes are saved",
+                        "unsaved": "You have unsaved changes",
+                        "leave_confirm": "You still have unsaved changes on this page. Leave anyway?"
+                    },
                     "setup_follow_up": {
                         "eyebrow": "Post-install follow-up",
                         "title": "Recommended admin checklist",

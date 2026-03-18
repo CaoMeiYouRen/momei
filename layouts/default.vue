@@ -5,6 +5,7 @@
             <slot />
         </main>
         <AppFooter />
+        <FeedbackEntryButton />
         <LazyAppSearch />
         <ClientOnly>
             <LazyCanvasNestEffect />

@@ -1,22 +1,6 @@
 <template>
     <div v-if="settings" class="admin-system-settings">
-        <AdminPageHeader :title="$t('pages.admin.settings.system.title')">
-            <template #actions>
-                <Button
-                    :label="$t('common.feedback')"
-                    icon="pi pi-life-ring"
-                    severity="secondary"
-                    outlined
-                    @click="openFeedbackPage"
-                />
-                <Button
-                    :label="$t('common.save')"
-                    icon="pi pi-check"
-                    :loading="saving"
-                    @click="saveSettings"
-                />
-            </template>
-        </AdminPageHeader>
+        <AdminPageHeader :title="$t('pages.admin.settings.system.title')" />
 
         <Card>
             <template #content>
@@ -42,6 +26,20 @@
                 <SettingExplanationCard :stats="smartModeStats" />
 
                 <Tabs v-model:value="activeTab">
+                    <AdminFloatingActions
+                        v-if="showPageActionsBar"
+                        :primary-label="showPagePrimaryAction ? $t('common.save') : ''"
+                        primary-icon="pi pi-check"
+                        :primary-loading="saving"
+                        :primary-disabled="pagePrimaryDisabled"
+                        :secondary-label="shouldShowFeedbackEntry ? $t('common.feedback') : ''"
+                        secondary-icon="pi pi-question-circle"
+                        :status-label="pageActionStatusLabel"
+                        :status-tone="pageActionStatusTone"
+                        @primary-click="saveSettings"
+                        @secondary-click="openFeedbackEntry"
+                    />
+
                     <TabList>
                         <Tab value="general">
                             {{ $t('pages.admin.settings.system.tabs.general') }}
@@ -162,7 +160,10 @@ import SettingAuditLogList from '@/components/admin/settings/setting-audit-log-l
 import SettingExplanationCard from '@/components/admin/settings/setting-explanation-card.vue'
 import SetupFollowUpCard from '@/components/admin/settings/setup-follow-up-card.vue'
 import ThirdPartySettings from '@/components/admin/settings/third-party-settings.vue'
+import { useFeedbackEntry } from '@/composables/use-feedback-entry'
+import { useUnsavedChangesGuard } from '@/composables/use-unsaved-changes-guard'
 import { buildAdminSettingsTabLocation, resolveAdminSettingsTab, type AdminSettingsTab } from '@/utils/shared/admin-settings-tabs'
+import { stableSerialize } from '@/utils/shared/stable-serialize'
 import { clearQueuedSetupJourneyStage, getQueuedSetupJourneyStage, queueSetupJourneyStage } from '@/utils/web/setup-journey'
 import type { SettingItem, SettingLockReason, SettingSource } from '@/types/setting'
 
@@ -171,6 +172,7 @@ const { showErrorToast, showSuccessToast } = useRequestFeedback()
 const { $appFetch } = useAppApi()
 const route = useRoute()
 const localePath = useLocalePath()
+const { openFeedbackEntry, shouldShowFeedbackEntry } = useFeedbackEntry({ includeAdmin: true })
 
 type SettingFormValue = string | number | boolean | null
 
@@ -198,6 +200,19 @@ const isDemoPreview = ref(false)
 const settings = ref<Record<string, SettingFormValue>>({})
 const metadata = ref<Record<string, SettingMetadata>>({})
 const showSetupFollowUp = ref(false)
+const initialPayloadSnapshot = ref(stableSerialize({}))
+
+const genericSaveTabs = new Set<AdminSettingsTab>([
+    'general',
+    'ai',
+    'email',
+    'storage',
+    'analytics',
+    'auth',
+    'security',
+    'limits',
+    'third_party',
+])
 
 const numberSettingFallbacks: Record<string, number> = {
     posts_per_page: 10,
@@ -234,6 +249,37 @@ function normalizeFormValue(setting: SettingItem): SettingFormValue {
 
     return setting.value
 }
+
+function buildSettingsPayload() {
+    const payload: Record<string, string> = {}
+
+    Object.entries(settings.value).forEach(([key, value]) => {
+        if (metadata.value[key]?.isLocked) {
+            return
+        }
+
+        payload[key] = String(value)
+    })
+
+    return payload
+}
+
+function syncInitialPayloadSnapshot() {
+    initialPayloadSnapshot.value = stableSerialize(buildSettingsPayload())
+}
+
+const isDirty = computed(() => stableSerialize(buildSettingsPayload()) !== initialPayloadSnapshot.value)
+const showPageActionsBar = computed(() => activeTab.value !== 'commercial' && activeTab.value !== 'notifications')
+const showPagePrimaryAction = computed(() => isDirty.value || genericSaveTabs.has(activeTab.value))
+const pagePrimaryDisabled = computed(() => !showPagePrimaryAction.value || saving.value || !isDirty.value)
+const pageActionStatusLabel = computed(() => {
+    if (isDirty.value) {
+        return t('pages.admin.settings.system.floating_actions.unsaved')
+    }
+
+    return t('pages.admin.settings.system.floating_actions.saved')
+})
+const pageActionStatusTone = computed<'warn' | 'success'>(() => isDirty.value ? 'warn' : 'success')
 
 const smartModeStats = computed(() => {
     const items = Object.values(metadata.value)
@@ -273,6 +319,7 @@ const loadSettings = async () => {
         })
         settings.value = obj
         metadata.value = meta
+        syncInitialPayloadSnapshot()
     } catch (error) {
         showErrorToast(error, { fallbackKey: 'common.error_loading' })
     } finally {
@@ -281,20 +328,16 @@ const loadSettings = async () => {
 }
 
 const saveSettings = async () => {
+    if (!isDirty.value) {
+        return
+    }
+
     saving.value = true
     try {
-        const payload: Record<string, string> = {}
-        Object.entries(settings.value).forEach(([key, val]) => {
-            if (metadata.value[key]?.isLocked) {
-                return
-            }
-            payload[key] = String(val)
-        })
-
         await $appFetch('/api/admin/settings', {
             method: 'PUT',
             body: {
-                settings: payload,
+                settings: buildSettingsPayload(),
                 reason: 'system_settings_update',
                 source: 'admin_ui',
             },
@@ -323,9 +366,10 @@ const continueToEditor = async () => {
     await navigateTo(localePath('/admin/posts/new'))
 }
 
-const openFeedbackPage = async () => {
-    await navigateTo(localePath('/feedback'))
-}
+useUnsavedChangesGuard({
+    isDirty,
+    message: computed(() => t('pages.admin.settings.system.floating_actions.leave_confirm')),
+})
 
 onMounted(() => {
     void loadSettings()
@@ -356,6 +400,7 @@ watch(activeTab, async (nextTab) => {
 .admin-system-settings {
     max-width: 1000px;
     margin: 0 auto;
+    padding-bottom: 7rem;
 
     &__demo-notice {
         margin-bottom: 1rem;

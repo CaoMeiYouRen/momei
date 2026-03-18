@@ -174,6 +174,10 @@ describe('Admin Settings Page', () => {
                 },
                 stubs: {
                     AdminPageHeader: { template: '<div><slot name="actions" /></div>' },
+                    AdminFloatingActions: {
+                        props: ['primaryDisabled', 'primaryLabel', 'secondaryLabel', 'statusLabel'],
+                        template: '<div class="floating-actions" :data-primary-disabled="String(primaryDisabled)" :data-primary-label="primaryLabel" :data-secondary-label="secondaryLabel" :data-status-label="statusLabel" />',
+                    },
                     GeneralSettings: { template: '<div>General</div>' },
                     AISettings: { template: '<div>AI</div>' },
                     EmailSettings: { template: '<div>Email</div>' },
@@ -208,6 +212,18 @@ describe('Admin Settings Page', () => {
 
         expect(wrapper.text()).toContain('智能混合模式说明')
         expect(wrapper.text()).toContain('演示模式样例数据')
+        expect(wrapper.find('.floating-actions').attributes('data-primary-disabled')).toBe('true')
+
+        await wrapper.find('.tab-switch').trigger('click')
+        await flushPromises()
+
+        expect(wrapper.find('.floating-actions').exists()).toBe(true)
+
+        // @ts-expect-error access exposed script setup binding for test
+        wrapper.vm.settings.site_title = 'Updated Momei'
+        await flushPromises()
+
+        expect(wrapper.find('.floating-actions').attributes('data-primary-disabled')).toBe('false')
 
         // @ts-expect-error access exposed script setup binding for test
         await wrapper.vm.saveSettings()
@@ -217,7 +233,7 @@ describe('Admin Settings Page', () => {
         expect(putCall?.[1]).toEqual(expect.objectContaining({
             body: {
                 settings: {
-                    site_title: 'Momei',
+                    site_title: 'Updated Momei',
                     max_upload_size: '4.5MiB',
                     upload_limit_window: '86400',
                 },

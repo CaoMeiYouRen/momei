@@ -31,37 +31,63 @@
                 v-model:donation-links="donationLinks"
                 is-admin
             />
-
-            <!-- 吸底保存栏 -->
-            <div class="commercial-settings__sticky-footer">
-                <div class="commercial-settings__footer-content">
-                    <Button
-                        :label="$t('common.save')"
-                        icon="pi pi-check"
-                        :loading="saving"
-                        raised
-                        @click="saveSettings"
-                    />
-                </div>
-            </div>
         </div>
+
+        <AdminFloatingActions
+            :primary-label="$t('common.save')"
+            primary-icon="pi pi-check"
+            :primary-loading="saving"
+            :primary-disabled="saving || !isDirty"
+            :secondary-label="shouldShowFeedbackEntry ? $t('common.feedback') : ''"
+            secondary-icon="pi pi-question-circle"
+            :status-label="actionStatusLabel"
+            :status-tone="actionStatusTone"
+            @primary-click="saveSettings"
+            @secondary-click="openFeedbackEntry"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
+import AdminFloatingActions from '@/components/admin/admin-floating-actions.vue'
 import CommercialLinkManager from '@/components/commercial-link-manager.vue'
+import { useFeedbackEntry } from '@/composables/use-feedback-entry'
+import { useUnsavedChangesGuard } from '@/composables/use-unsaved-changes-guard'
+import { stableSerialize } from '@/utils/shared/stable-serialize'
 import { type SocialLink, type DonationLink } from '@/utils/shared/commercial'
 import { useToast } from 'primevue/usetoast'
 
 const { t } = useI18n()
 const toast = useToast()
 const { $appFetch } = useAppApi()
+const { openFeedbackEntry, shouldShowFeedbackEntry } = useFeedbackEntry({ includeAdmin: true })
 
 const enabled = ref(false)
 const socialLinks = ref<SocialLink[]>([])
 const donationLinks = ref<DonationLink[]>([])
 const demoPreview = ref(false)
 const saving = ref(false)
+const initialCommercialSnapshot = ref(stableSerialize({
+    enabled: false,
+    socialLinks: [],
+    donationLinks: [],
+}))
+
+const buildCommercialComparableState = () => ({
+    enabled: enabled.value,
+    socialLinks: socialLinks.value,
+    donationLinks: donationLinks.value,
+})
+
+const syncInitialCommercialSnapshot = () => {
+    initialCommercialSnapshot.value = stableSerialize(buildCommercialComparableState())
+}
+
+const isDirty = computed(() => stableSerialize(buildCommercialComparableState()) !== initialCommercialSnapshot.value)
+const actionStatusLabel = computed(() => isDirty.value
+    ? t('pages.admin.settings.system.floating_actions.unsaved')
+    : t('pages.admin.settings.system.floating_actions.saved'))
+const actionStatusTone = computed<'warn' | 'success'>(() => isDirty.value ? 'warn' : 'success')
 
 function getErrorDetail(error: unknown, fallback: string) {
     const candidate = error as {
@@ -86,6 +112,7 @@ const loadSettings = async () => {
             enabled.value = res.data.enabled !== false
             socialLinks.value = [...(res.data.socialLinks || [])]
             donationLinks.value = [...(res.data.donationLinks || [])]
+            syncInitialCommercialSnapshot()
         }
     } catch (error) {
         toast.add({ severity: 'error', summary: t('common.error'), detail: getErrorDetail(error, t('common.error_loading')), life: 3000 })
@@ -93,6 +120,10 @@ const loadSettings = async () => {
 }
 
 const saveSettings = async () => {
+    if (!isDirty.value) {
+        return
+    }
+
     saving.value = true
     try {
         const res = await $appFetch<any>('/api/admin/settings/commercial', {
@@ -104,6 +135,7 @@ const saveSettings = async () => {
             },
         })
         if (res.code === 200) {
+            syncInitialCommercialSnapshot()
             toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.commercial.success'), life: 3000 })
         }
     } catch (error) {
@@ -116,12 +148,19 @@ const saveSettings = async () => {
 onMounted(() => {
     loadSettings()
 })
+
+useUnsavedChangesGuard({
+    isDirty,
+    message: computed(() => t('pages.admin.settings.system.floating_actions.leave_confirm')),
+})
 </script>
 
 <style lang="scss" scoped>
 @use "@/styles/variables" as *;
 
 .commercial-settings {
+    padding-bottom: 7rem;
+
     &__demo-notice {
         margin-bottom: $spacing-lg;
     }
@@ -171,29 +210,5 @@ onMounted(() => {
         color: var(--p-surface-500);
     }
 
-    &__sticky-footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: var(--p-surface-0);
-        backdrop-filter: blur(8px);
-        border-top: 1px solid var(--p-surface-200);
-        padding: $spacing-md;
-        z-index: 100;
-
-        .dark & {
-            background-color: var(--p-surface-900);
-            border-color: var(--p-surface-700);
-        }
-    }
-
-    &__footer-content {
-        max-width: 1200px;
-        margin: 0 auto;
-        display: flex;
-        justify-content: flex-end;
-        padding-right: $spacing-xl;
-    }
 }
 </style>

@@ -116,19 +116,27 @@
             </Column>
         </DataTable>
 
-        <div class="flex justify-content-end mt-4">
-            <Button
-                :label="$t('common.save')"
-                icon="pi pi-check"
-                :loading="saving"
-                @click="save"
-            />
-        </div>
+        <AdminFloatingActions
+            :primary-label="$t('common.save')"
+            primary-icon="pi pi-check"
+            :primary-loading="saving"
+            :primary-disabled="saving || !isDirty"
+            :secondary-label="shouldShowFeedbackEntry ? $t('common.feedback') : ''"
+            secondary-icon="pi pi-question-circle"
+            :status-label="actionStatusLabel"
+            :status-tone="actionStatusTone"
+            @primary-click="save"
+            @secondary-click="openFeedbackEntry"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import AdminFloatingActions from '@/components/admin/admin-floating-actions.vue'
+import { useFeedbackEntry } from '@/composables/use-feedback-entry'
+import { useUnsavedChangesGuard } from '@/composables/use-unsaved-changes-guard'
+import { stableSerialize } from '@/utils/shared/stable-serialize'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
@@ -168,6 +176,7 @@ interface AdminNotificationResponse {
 const { t } = useI18n()
 const toast = useToast()
 const { $appFetch } = useAppApi()
+const { openFeedbackEntry, shouldShowFeedbackEntry } = useFeedbackEntry({ includeAdmin: true })
 
 const settings = ref<AdminNotificationSettingItem[]>([])
 const loading = ref(false)
@@ -197,6 +206,31 @@ const defaultWebPushState: AdminNotificationWebPushState = {
 }
 
 const webPush = ref<AdminNotificationWebPushState>(defaultWebPushState)
+const initialNotificationSnapshot = ref(stableSerialize({
+    items: [],
+    webPush: {
+        subject: '',
+        publicKey: '',
+    },
+}))
+
+const buildNotificationComparableState = () => ({
+    items: settings.value,
+    webPush: {
+        subject: webPush.value.subject.value,
+        publicKey: webPush.value.publicKey.value,
+    },
+})
+
+const syncInitialNotificationSnapshot = () => {
+    initialNotificationSnapshot.value = stableSerialize(buildNotificationComparableState())
+}
+
+const isDirty = computed(() => stableSerialize(buildNotificationComparableState()) !== initialNotificationSnapshot.value)
+const actionStatusLabel = computed(() => isDirty.value
+    ? t('pages.admin.settings.system.floating_actions.unsaved')
+    : t('pages.admin.settings.system.floating_actions.saved'))
+const actionStatusTone = computed<'warn' | 'success'>(() => isDirty.value ? 'warn' : 'success')
 
 function getFieldDescription(field: AdminNotificationWebPushField, unlockedHint: string) {
     if (field.isLocked) {
@@ -227,6 +261,7 @@ const load = async () => {
         settings.value = response.data.items || []
         demoPreview.value = Boolean(response.data.demoPreview)
         webPush.value = response.data.webPush || defaultWebPushState
+        syncInitialNotificationSnapshot()
     } catch (error) {
         toast.add({
             severity: 'error',
@@ -240,6 +275,10 @@ const load = async () => {
 }
 
 const save = async () => {
+    if (!isDirty.value) {
+        return
+    }
+
     saving.value = true
     try {
         await $appFetch('/api/admin/settings/notifications/admin', {
@@ -253,6 +292,7 @@ const save = async () => {
             },
         })
         await load()
+        syncInitialNotificationSnapshot()
         toast.add({
             severity: 'success',
             summary: t('common.success'),
@@ -272,6 +312,11 @@ const save = async () => {
 }
 
 onMounted(load)
+
+useUnsavedChangesGuard({
+    isDirty,
+    message: computed(() => t('pages.admin.settings.system.floating_actions.leave_confirm')),
+})
 </script>
 
 <style lang="scss" scoped>
@@ -279,6 +324,7 @@ onMounted(load)
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    padding-bottom: 7rem;
 
     &__web-push {
         display: flex;

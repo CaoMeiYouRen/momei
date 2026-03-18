@@ -1,30 +1,6 @@
 <template>
     <div v-if="settings" class="admin-theme-settings">
-        <AdminPageHeader :title="$t('pages.admin.settings.theme.title')">
-            <template #actions>
-                <Button
-                    v-tooltip.bottom="$t('pages.admin.settings.theme.gallery_title')"
-                    icon="pi pi-images"
-                    text
-                    @click="showGallery = true"
-                />
-                <Button
-                    :label="$t('pages.admin.settings.theme.save_as_new')"
-                    icon="pi pi-plus"
-                    severity="secondary"
-                    variant="outlined"
-                    class="ml-2"
-                    @click="showSaveDialog = true"
-                />
-                <Button
-                    :label="$t('common.save')"
-                    icon="pi pi-check"
-                    :loading="loading"
-                    class="ml-2"
-                    @click="saveTheme"
-                />
-            </template>
-        </AdminPageHeader>
+        <AdminPageHeader :title="$t('pages.admin.settings.theme.title')" />
 
         <!-- 预览状态提示 -->
         <Message
@@ -63,16 +39,52 @@
             :settings="settings"
             :preview-inner="previewSection?.previewInner"
         />
+
+        <AdminFloatingActions
+            :primary-label="$t('common.save')"
+            primary-icon="pi pi-check"
+            :primary-loading="loading"
+            :primary-disabled="loading || !isDirty"
+            :secondary-label="shouldShowFeedbackEntry ? $t('common.feedback') : ''"
+            secondary-icon="pi pi-question-circle"
+            :status-label="themeActionStatusLabel"
+            :status-tone="themeActionStatusTone"
+            @primary-click="saveTheme"
+            @secondary-click="openFeedbackEntry"
+        >
+            <template #before-actions>
+                <Button
+                    v-tooltip.bottom="$t('pages.admin.settings.theme.gallery_title')"
+                    icon="pi pi-images"
+                    severity="secondary"
+                    outlined
+                    rounded
+                    @click="showGallery = true"
+                />
+                <Button
+                    :label="$t('pages.admin.settings.theme.save_as_new')"
+                    icon="pi pi-plus"
+                    severity="secondary"
+                    outlined
+                    rounded
+                    @click="showSaveDialog = true"
+                />
+            </template>
+        </AdminFloatingActions>
     </div>
 </template>
 
 <script setup lang="ts">
+import AdminFloatingActions from '@/components/admin/admin-floating-actions.vue'
 import { useTheme } from '@/composables/use-theme'
+import { useFeedbackEntry } from '@/composables/use-feedback-entry'
+import { useUnsavedChangesGuard } from '@/composables/use-unsaved-changes-guard'
 import AdminPageHeader from '@/components/admin-page-header.vue'
 import ThemeGalleryDialog from '@/components/admin/settings/theme-gallery-dialog.vue'
 import ThemeSaveDialog from '@/components/admin/settings/theme-save-dialog.vue'
 import ThemePreviewSection from '@/components/admin/settings/theme-preview-section.vue'
 import ThemeConfigSection from '@/components/admin/settings/theme-config-section.vue'
+import { stableSerialize } from '@/utils/shared/stable-serialize'
 
 definePageMeta({
     middleware: 'admin',
@@ -82,14 +94,26 @@ definePageMeta({
 const { t } = useI18n()
 const toast = useToast()
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
-const { settings, previewSettings, applyTheme } = useTheme()
+const { settings, previewSettings, applyTheme, fetchTheme } = useTheme()
+const { openFeedbackEntry, shouldShowFeedbackEntry } = useFeedbackEntry({ includeAdmin: true })
 const loading = ref(false)
+const initialThemeSnapshot = ref('null')
 
 const previewSection = ref<InstanceType<typeof ThemePreviewSection> | null>(null)
 
 // 弹窗控制
 const showGallery = ref(false)
 const showSaveDialog = ref(false)
+
+const syncInitialThemeSnapshot = () => {
+    initialThemeSnapshot.value = stableSerialize(settings.value)
+}
+
+const isDirty = computed(() => stableSerialize(settings.value) !== initialThemeSnapshot.value)
+const themeActionStatusLabel = computed(() => isDirty.value
+    ? t('pages.admin.settings.system.floating_actions.unsaved')
+    : t('pages.admin.settings.system.floating_actions.saved'))
+const themeActionStatusTone = computed<'warn' | 'success'>(() => isDirty.value ? 'warn' : 'success')
 
 // 监听设置变化以进行实时预览
 watch(settings, () => {
@@ -118,7 +142,7 @@ const cancelPreview = () => {
 }
 
 const saveTheme = async () => {
-    if (!settings.value) {
+    if (!settings.value || !isDirty.value) {
         return
     }
     loading.value = true
@@ -127,6 +151,7 @@ const saveTheme = async () => {
             method: 'PUT',
             body: settings.value,
         })
+        syncInitialThemeSnapshot()
         showSuccessToast('pages.admin.settings.theme.save_success')
     } catch (error) {
         showErrorToast(error, { fallbackKey: 'common.error_saving' })
@@ -134,11 +159,26 @@ const saveTheme = async () => {
         loading.value = false
     }
 }
+
+useUnsavedChangesGuard({
+    isDirty,
+    message: computed(() => t('pages.admin.settings.system.floating_actions.leave_confirm')),
+})
+
+onMounted(async () => {
+    try {
+        await fetchTheme()
+        syncInitialThemeSnapshot()
+        applyTheme()
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'common.error_loading' })
+    }
+})
 </script>
 
 <style lang="scss" scoped>
 .admin-theme-settings {
-    padding-bottom: 3rem;
+    padding-bottom: 7rem;
 }
 
 .theme-grid {

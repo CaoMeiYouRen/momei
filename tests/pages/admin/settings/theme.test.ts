@@ -12,6 +12,9 @@ const { mockToast, mockShowErrorToast, mockShowSuccessToast } = vi.hoisted(() =>
     mockShowSuccessToast: vi.fn(),
 }))
 
+const mockOpenFeedbackEntry = vi.fn()
+const mockFetchTheme = vi.fn().mockResolvedValue(undefined)
+
 // Mock PrimeVue components and others
 vi.mock('@/components/admin-page-header.vue', () => ({
     default: {
@@ -31,6 +34,13 @@ vi.mock('@/composables/use-request-feedback', () => ({
     useRequestFeedback: () => ({
         showErrorToast: mockShowErrorToast,
         showSuccessToast: mockShowSuccessToast,
+    }),
+}))
+
+vi.mock('@/composables/use-feedback-entry', () => ({
+    useFeedbackEntry: () => ({
+        openFeedbackEntry: mockOpenFeedbackEntry,
+        shouldShowFeedbackEntry: ref(true),
     }),
 }))
 
@@ -109,6 +119,7 @@ vi.spyOn(useThemeComposable, 'useTheme').mockReturnValue({
     previewSettings: mockPreviewSettings,
     applyTheme: mockApplyTheme,
     isLocked: mockIsLocked,
+    fetchTheme: mockFetchTheme,
     // Add other properties if needed by useTheme return type
 } as any)
 
@@ -127,15 +138,30 @@ vi.stubGlobal('$fetch', mockFetch)
 describe('Admin Theme Settings Page', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        mockSettings.value = {
+            themePreset: 'default',
+            themePrimaryColor: '#ff0000',
+            themeAccentColor: '#00ff00',
+            themeBorderRadius: '8px',
+            themeLogoUrl: '',
+            themeFaviconUrl: '',
+            themeMourningMode: false,
+            themeBackgroundType: 'none',
+            themeBackgroundValue: null,
+        }
     })
 
     it('loads settings on mount', async () => {
         const wrapper = await mountSuspended(ThemePage, {
             global: {
-                stubs,
+                stubs: {
+                    ...stubs,
+                    AdminFloatingActions: { template: '<div class="floating-actions" />' },
+                },
             },
         })
         expect(wrapper.exists()).toBe(true)
+        expect(mockFetchTheme).toHaveBeenCalledTimes(1)
     })
 
     it('updates preset and resets specific colors', async () => {
@@ -153,9 +179,20 @@ describe('Admin Theme Settings Page', () => {
         mockFetch.mockResolvedValue({ success: true })
         const wrapper = await mountSuspended(ThemePage, {
             global: {
-                stubs,
+                stubs: {
+                    ...stubs,
+                    AdminFloatingActions: {
+                        props: ['primaryDisabled'],
+                        template: '<div class="floating-actions" :data-primary-disabled="String(primaryDisabled)" />',
+                    },
+                },
             },
         })
+
+        mockSettings.value.themeAccentColor = '#0000ff'
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.find('.floating-actions').attributes('data-primary-disabled')).toBe('false')
 
         // @ts-expect-error - call internal method for testing
         await wrapper.vm.saveTheme()
@@ -172,9 +209,15 @@ describe('Admin Theme Settings Page', () => {
         mockFetch.mockRejectedValue(new Error(errorMsg))
         const wrapper = await mountSuspended(ThemePage, {
             global: {
-                stubs,
+                stubs: {
+                    ...stubs,
+                    AdminFloatingActions: { template: '<div class="floating-actions" />' },
+                },
             },
         })
+
+        mockSettings.value.themeAccentColor = '#ff00ff'
+        await wrapper.vm.$nextTick()
 
         // @ts-expect-error - call internal method for testing
         await wrapper.vm.saveTheme()
