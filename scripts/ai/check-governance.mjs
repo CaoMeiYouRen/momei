@@ -17,7 +17,18 @@ const governanceDocs = [
     path.join(projectRoot, 'AGENTS.md'),
     path.join(projectRoot, 'CLAUDE.md'),
     path.join(projectRoot, 'docs', 'guide', 'ai-development.md'),
+    path.join(projectRoot, 'docs', 'standards', 'development.md'),
 ]
+
+const scriptRoot = path.join(projectRoot, 'scripts')
+const scriptSearchRoots = [
+    path.join(projectRoot, 'package.json'),
+    path.join(projectRoot, 'AGENTS.md'),
+    path.join(projectRoot, 'CLAUDE.md'),
+    path.join(projectRoot, 'docs'),
+    path.join(projectRoot, '.github', 'workflows'),
+]
+const scriptTempDirNames = new Set(['temp', 'tmp', '_temp', '_tmp'])
 
 const supportedSkillFrontmatterKeys = new Set([
     'argument-hint',
@@ -66,6 +77,15 @@ async function listFilesRecursive(baseDir, matcher, currentDir = '') {
 
 async function readUtf8(filePath) {
     return readFile(filePath, 'utf8')
+}
+
+function isScriptFile(fileName) {
+    return ['.mjs', '.js', '.cjs', '.ts'].includes(path.extname(fileName))
+}
+
+function isTemporaryScript(relativeFile) {
+    const segments = relativeFile.split('/')
+    return segments.some((segment) => scriptTempDirNames.has(segment))
 }
 
 function parseFrontmatter(content) {
@@ -282,6 +302,75 @@ async function collectReferenceWarnings(skillFiles, agentFiles) {
     return warnings
 }
 
+async function collectSearchableFiles(targetPath) {
+    if (!(await pathExists(targetPath))) {
+        return []
+    }
+
+    const statLikeFiles = []
+
+    try {
+        const entries = await readdir(targetPath, { withFileTypes: true })
+
+        for (const entry of entries) {
+            const absolutePath = path.join(targetPath, entry.name)
+
+            if (entry.isDirectory()) {
+                statLikeFiles.push(...await collectSearchableFiles(absolutePath))
+                continue
+            }
+
+            if (entry.isFile() && ['.md', '.json', '.yml', '.yaml'].includes(path.extname(entry.name))) {
+                statLikeFiles.push(absolutePath)
+            }
+        }
+
+        return statLikeFiles
+    } catch {
+        return [targetPath]
+    }
+}
+
+async function collectScriptReferenceWarnings(scriptFiles) {
+    const searchableFiles = []
+
+    for (const root of scriptSearchRoots) {
+        searchableFiles.push(...await collectSearchableFiles(root))
+    }
+
+    const uniqueSearchableFiles = unique(searchableFiles)
+    const searchableContents = new Map()
+
+    for (const filePath of uniqueSearchableFiles) {
+        searchableContents.set(filePath, await readUtf8(filePath))
+    }
+
+    const warnings = []
+
+    for (const scriptPath of scriptFiles) {
+        const relativePath = toPosixPath(scriptPath)
+
+        if (isTemporaryScript(relativePath.replace(/^scripts\//u, ''))) {
+            continue
+        }
+
+        let referenced = false
+
+        for (const content of searchableContents.values()) {
+            if (content.includes(relativePath)) {
+                referenced = true
+                break
+            }
+        }
+
+        if (!referenced) {
+            warnings.push(buildIssue('unreferenced-script', relativePath, '未在 package.json、工作流或规范文档中发现稳定入口，建议确认是否仍应作为长期脚本保留。', 'warning'))
+        }
+    }
+
+    return warnings
+}
+
 function printSection(title, lines) {
     console.info(`${title}:`)
 
@@ -320,6 +409,8 @@ async function main() {
 
     const githubSkillFiles = githubSkillRelFiles.map((relativeFile) => path.join(governanceRoots.githubSkills, relativeFile))
     const githubAgentFiles = githubAgentRelFiles.map((relativeFile) => path.join(governanceRoots.githubAgents, relativeFile))
+    const projectScriptRelFiles = await listFilesRecursive(scriptRoot, isScriptFile)
+    const projectScriptFiles = projectScriptRelFiles.map((relativeFile) => path.join(scriptRoot, relativeFile))
 
     await compareMirrorTrees(governanceRoots.githubSkills, governanceRoots.claudeSkills, githubSkillRelFiles, issues, 'skill')
     await compareMirrorTrees(governanceRoots.githubAgents, governanceRoots.claudeAgents, githubAgentRelFiles, issues, 'agent')
@@ -336,7 +427,10 @@ async function main() {
         await validateAgentOrDocLinks(docFile, issues)
     }
 
-    const deferredIssues = await collectReferenceWarnings(githubSkillFiles, githubAgentFiles)
+    const deferredIssues = [
+        ...await collectReferenceWarnings(githubSkillFiles, githubAgentFiles),
+        ...await collectScriptReferenceWarnings(projectScriptFiles),
+    ]
 
     const blockingIssues = issues.filter((issue) => issue.severity === 'error')
     const impactPaths = unique([...blockingIssues, ...deferredIssues].map((issue) => issue.filePath))
@@ -352,6 +446,9 @@ async function main() {
             : null,
         blockingIssues.some((issue) => issue.type === 'mirror-drift' || issue.type === 'missing-mirror-file')
             ? '以 .github 作为主定义，并将 .claude 镜像同步到逐文件一致。'
+            : null,
+        deferredIssues.some((issue) => issue.type === 'unreferenced-script')
+            ? '为长期脚本补充 package.json、工作流或规范文档入口；若仅服务于单次任务，则改为短期脚本并在收口前删除。'
             : null,
         deferredIssues.length > 0
             ? '为未被引用的 agent / skill 补充入口引用，或确认后归档删除。'
