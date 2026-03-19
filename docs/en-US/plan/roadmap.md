@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-16
+last_sync: 2026-03-19
 ---
 
 # Momei - Project Roadmap
@@ -9,7 +9,7 @@ last_sync: 2026-03-16
 This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../plan/roadmap.md) shall prevail.
 :::
 
-This document outlines the development blueprint for the project. For specific task execution status, please refer to the [Todo List](../../plan/todo.md) (Chinese Only).
+This document outlines the development blueprint for the project. For specific task execution status, please refer to the [Todo List](../../plan/todo.md) (Chinese Only). The long-term backlog now lives in the Chinese-only [backlog document](../../plan/backlog.md).
 
 ## 1. Project Overview
 
@@ -343,33 +343,7 @@ This document outlines the development blueprint for the project. For specific t
 
 ## 3. Backlog & Long-term Roadmap
 
-This section records features with long-term value but not prioritized for the current iteration.
-
-### 1. Docs I18n Directory Refactor
--   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
-
-### 2. Japanese UI & Docs Support
--   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
-
-### 3. Desktop Application
-- **Tauri Cross-platform App**:
-    - Desktop skeleton with multi-site management.
-    - Offline Markdown editing with cloud sync.
-    - Native system menus and integration.
-
-### 4. Geek Tech Extras
--   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
-
-### 5. Theme Ecosystem
--   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
-
-### 6. Monetization & Membership
--   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
-
-### 7. Advanced Creator Tools
--   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
-
-### 8. Podcast & Multimedia Expansion
--   > [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](../../plan/roadmap.md).
+> [!NOTE]
+> Long-term backlog items are now maintained separately in the Chinese-only [backlog document](../../plan/backlog.md). For the latest backlog priorities, promoted items, and deferred governance work, please follow that file together with the [Chinese roadmap](../../plan/roadmap.md).
 
 

@@ -11,14 +11,14 @@
 -   `docs/design/`: 技术架构、UI/UX 设计、API 设计及各功能模块的深度解析。
     -  `docs/design/modules/`: 各核心模块（如认证、文章管理、评论系统）的设计文档。
 -   `docs/guide/`: 用户手册、快速开始、部署指南、开发入门及 AI 协同指南。
--   `docs/plan/`: 项目路线图 (`roadmap.md`)、待办事项 (`todo.md`) 及其归档。
+-   `docs/plan/`: 项目路线图 (`roadmap.md`)、长期积压 (`backlog.md`)、待办事项 (`todo.md`) 及其归档。
 -   `docs/standards/`: 各类专项开发规范、安全规范、测试规范及本文档。
 -   `docs/en-US/`、`docs/zh-TW/`、`docs/ko-KR/`: 当前已启用的翻译文档目录。
 
 补充说明：
 
 - 当前仓库仍使用 `docs/<locale>/` 作为翻译文档根目录。
-- 将翻译文档统一迁移到 `docs/i18n/<locale>/` 目前仍属于路线图积压项；在该规划正式立项前，不应在规范和仓库结构中提前混用两套目录。
+- 将翻译文档统一迁移到 `docs/i18n/<locale>/` 已进入第十五阶段规划；在正式迁移落地前，仓库仍以 `docs/<locale>/` 为现行结构，不应在规范和目录中提前混用两套路径。
 
 ## 3. 编写标准 (Writing Standards)
 
@@ -86,7 +86,7 @@
 | `docs/standards/` | **高度推荐** | 开发规范相对稳定，应提供翻译以指导全球参与者。 |
 | `docs/design/` | **高层翻译** | 仅翻译全局设计（UI、数据库、API），不深入模块。 |
 | `docs/design/modules/` | **暂不翻译** | 模块设计变动频繁，保持中文原文。 |
-| `docs/plan/` | **部分翻译** | 仅翻译 `roadmap.md` 已完成的阶段；未来规划免翻。 |
+| `docs/plan/` | **部分翻译** | 仅翻译 `roadmap.md` 已完成的阶段；`backlog.md` 与 `todo.md` 默认保持中文。 |
 | `docs/plan/todo.md` | **不翻译** | 任务管理文件，仅保留中文。 |
 
 对于 `packages/` 目录下子包的 README 文件，原则上只提供中文和英文版本，且必须保持内容一致。其他语言版本（如韩语、繁体中文）可根据社区需求决定是否提供。
@@ -144,7 +144,7 @@
 
 ### 5.2 项目规划文档 (Plan Docs)
 
--   `roadmap.md` 与 `todo.md` 的维护必须严格遵循 [项目规划规范](./planning.md)。
+-   `roadmap.md`、`backlog.md` 与 `todo.md` 的维护必须严格遵循 [项目规划规范](./planning.md)。
 -   任何阶段性的功能完成，必须在 `todo.md` 中标记并在 `roadmap.md` 中体现进度。
 
 ## 6. 文档站点配置 (Site Configuration)
