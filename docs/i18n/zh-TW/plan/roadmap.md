@@ -6,10 +6,10 @@ last_sync: 2026-03-19
 # 墨梅專案路線圖
 
 ::: warning 翻譯說明
-本頁對應 [中文原文](../../plan/roadmap.md)。規劃內容更新頻繁，若有差異請以中文原文為準。
+本頁對應 [中文原文](../../../plan/roadmap.md)。規劃內容更新頻繁，若有差異請以中文原文為準。
 :::
 
-本文檔展示墨梅的發展藍圖。更細的當前執行項請參考 [待辦事項](../../plan/todo.md) 與 [待辦歸檔](../../plan/todo-archive.md)；長期 backlog 已獨立維護於中文 [backlog 文件](../../plan/backlog.md)。
+本文檔展示墨梅的發展藍圖。更細的當前執行項請參考 [待辦事項](../../../plan/todo.md) 與 [待辦歸檔](../../../plan/todo-archive.md)；長期 backlog 已獨立維護於中文 [backlog 文件](../../../plan/backlog.md)。
 
 ## 1. 專案概況
 
@@ -51,9 +51,9 @@ last_sync: 2026-03-19
 ## 4. 長期積壓方向
 
 > [!NOTE]
-> 長期 backlog 已改由中文 [backlog 文件](../../plan/backlog.md) 獨立維護；本頁不再重複展開清單，以避免翻譯摘要與實際優先級漂移。
+> 長期 backlog 已改由中文 [backlog 文件](../../../plan/backlog.md) 獨立維護；本頁不再重複展開清單，以避免翻譯摘要與實際優先級漂移。
 
 ## 5. 閱讀與使用建議
 
-- 若你要了解最完整規劃，請直接閱讀 [中文原文](../../plan/roadmap.md)。
+- 若你要了解最完整規劃，請直接閱讀 [中文原文](../../../plan/roadmap.md)。
 - 若你準備參與當前階段工作，建議搭配 [規劃規範](../standards/planning.md) 與 [翻譯治理流程](../guide/translation-governance.md) 一起閱讀。

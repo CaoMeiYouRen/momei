@@ -6,10 +6,10 @@ last_sync: 2026-03-19
 # Momei 프로젝트 로드맵
 
 ::: warning 번역 안내
-이 페이지는 [중국어 원문](../../plan/roadmap.md)을 기준으로 정리했습니다. 계획 문서는 자주 변경되므로 차이가 있을 경우 원문을 우선합니다.
+이 페이지는 [중국어 원문](../../../plan/roadmap.md)을 기준으로 정리했습니다. 계획 문서는 자주 변경되므로 차이가 있을 경우 원문을 우선합니다.
 :::
 
-이 문서는 모메이의 중장기 방향을 요약합니다. 현재 단계의 실제 작업 항목은 [todo](../../plan/todo.md)와 [todo archive](../../plan/todo-archive.md)를 함께 보아야 하며, 장기 backlog 는 중국어 [backlog 문서](../../plan/backlog.md)에서 별도로 관리합니다.
+이 문서는 모메이의 중장기 방향을 요약합니다. 현재 단계의 실제 작업 항목은 [todo](../../../plan/todo.md)와 [todo archive](../../../plan/todo-archive.md)를 함께 보아야 하며, 장기 backlog 는 중국어 [backlog 문서](../../../plan/backlog.md)에서 별도로 관리합니다.
 
 ## 1. 프로젝트 개요
 
@@ -37,10 +37,10 @@ last_sync: 2026-03-19
 ## 4. 장기 backlog
 
 > [!NOTE]
-> 장기 backlog 는 이제 중국어 [backlog 문서](../../plan/backlog.md)에서 별도로 유지됩니다. 실제 우선순위와 상향된 항목은 해당 문서와 [중국어 원문 로드맵](../../plan/roadmap.md)을 함께 확인해 주세요.
+> 장기 backlog 는 이제 중국어 [backlog 문서](../../../plan/backlog.md)에서 별도로 유지됩니다. 실제 우선순위와 상향된 항목은 해당 문서와 [중국어 원문 로드맵](../../../plan/roadmap.md)을 함께 확인해 주세요.
 
 ## 5. 함께 읽기
 
 - [계획 표준](../standards/planning.md)
 - [번역 거버넌스](../guide/translation-governance.md)
-- 최신 상세 정보는 [중국어 원문 로드맵](../../plan/roadmap.md)
+- 최신 상세 정보는 [중국어 원문 로드맵](../../../plan/roadmap.md)

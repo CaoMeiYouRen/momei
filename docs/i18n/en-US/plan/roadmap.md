@@ -6,10 +6,10 @@ last_sync: 2026-03-19
 # Momei - Project Roadmap
 
 ::: warning Translation Notice
-This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../plan/roadmap.md) shall prevail.
+This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../../plan/roadmap.md) shall prevail.
 :::
 
-This document outlines the development blueprint for the project. For specific task execution status, please refer to the [Todo List](../../plan/todo.md) (Chinese Only). The long-term backlog now lives in the Chinese-only [backlog document](../../plan/backlog.md).
+This document outlines the development blueprint for the project. For specific task execution status, please refer to the [Todo List](../../../plan/todo.md) (Chinese Only). The long-term backlog now lives in the Chinese-only [backlog document](../../../plan/backlog.md).
 
 ## 1. Project Overview
 
@@ -344,6 +344,6 @@ This document outlines the development blueprint for the project. For specific t
 ## 3. Backlog & Long-term Roadmap
 
 > [!NOTE]
-> Long-term backlog items are now maintained separately in the Chinese-only [backlog document](../../plan/backlog.md). For the latest backlog priorities, promoted items, and deferred governance work, please follow that file together with the [Chinese roadmap](../../plan/roadmap.md).
+> Long-term backlog items are now maintained separately in the Chinese-only [backlog document](../../../plan/backlog.md). For the latest backlog priorities, promoted items, and deferred governance work, please follow that file together with the [Chinese roadmap](../../../plan/roadmap.md).
 
 

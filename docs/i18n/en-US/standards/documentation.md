@@ -26,7 +26,7 @@ All documentation must live under `docs/` and follow these buckets:
 Additional rules:
 
 - Public site URLs must remain `/<locale>/...`; the physical `i18n/` segment must never leak into public routes.
-- During the staged migration, legacy `docs/<locale>/` paths may temporarily coexist with `docs/i18n/<locale>/`, but a single public route may only have one real source file.
+- After the migration, legacy `docs/<locale>/` directories must stay removed and must not be recreated; create or update translated pages only under `docs/i18n/<locale>/`.
 
 ## 3. Writing Rules
 
@@ -40,7 +40,7 @@ Additional rules:
 - Every translated page must include `source_branch` and `last_sync`.
 - Every translated page must keep a translation notice that points back to the Chinese source of truth.
 - Translated docs should mirror the structure and filenames of the Chinese source under `docs/i18n/<locale>/`.
-- When a translated page is migrated from `docs/<locale>/` to `docs/i18n/<locale>/`, remove the legacy duplicate in the same change and keep VitePress rewrites plus edit links aligned.
+- If a straggler translated page is still found under `docs/<locale>/`, move it to `docs/i18n/<locale>/` and delete the legacy copy in the same change. Do not recreate legacy locale directories.
 
 ## 5. Site Maintenance
 

@@ -65,7 +65,7 @@ Every language rollout should verify these five gates:
 1. Prioritize high-frequency flows first.
 2. When adding docs, start with the home page, quick start, and translation governance page.
 3. Store translated docs physically under `docs/i18n/<locale>/` while keeping public site URLs at `/<locale>/...`.
-4. When moving a page from `docs/<locale>/` to `docs/i18n/<locale>/`, delete the legacy duplicate in the same change and keep rewrites plus edit-link mapping aligned.
+4. The directory migration is now complete, so do not keep or recreate `docs/<locale>/`; if a straggler page is found there, move it into `docs/i18n/<locale>/` in the same change and keep rewrites plus edit-link mapping aligned.
 5. If a module is intentionally untranslated, link to the source language instead of leaving placeholders.
 
 ### 5.3 Before Merging
