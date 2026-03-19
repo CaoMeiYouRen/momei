@@ -16,6 +16,8 @@ const governanceRoots = {
 const governanceDocs = [
     path.join(projectRoot, 'AGENTS.md'),
     path.join(projectRoot, 'CLAUDE.md'),
+    path.join(projectRoot, '.github', 'copilot-instructions.md'),
+    path.join(projectRoot, '.cursor', 'rules', 'momei-governance.mdc'),
     path.join(projectRoot, 'docs', 'guide', 'ai-development.md'),
     path.join(projectRoot, 'docs', 'standards', 'development.md'),
 ]

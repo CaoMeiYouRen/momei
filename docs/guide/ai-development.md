@@ -40,6 +40,7 @@
 | :--- | :--- | :--- | :--- |
 | **需求澄清 / 规划** | `@product-manager` | 目标、限制、是否已有 Todo/验收标准 | 范围判定、验收标准、后续交接对象 |
 | **默认开发路径：功能 / 修复 / 治理** | `@full-stack-master` | 已确认目标、受影响模块、优先级 | 统一方案、全栈代码改动、收口计划 |
+| **基础设施 / 部署 / CI 配置** | `@full-stack-master` | 受影响的部署面、平台约束、风险边界 | 统一方案、配置改动、回归与收口计划 |
 | **前端局部专项** | `@frontend-developer` | 页面/组件范围、设计约束、交互要求 | 前端代码、自检记录、待验证页面 |
 | **后端局部专项** | `@backend-developer` | 接口/数据模型范围、权限要求 | 后端代码、契约说明、待补测试点 |
 | **代码审查** | `@code-auditor` | 变更范围、Todo 验收点、验证结果 | 审计结论、风险清单、放行/退回建议 |
@@ -51,10 +52,11 @@
 
 1.  需求不够清楚时，先找 `@product-manager`，不要直接要求开发角色“边做边想”。
 2.  在本项目里，开发默认交给 `@full-stack-master` 统一考虑、设计和实现，不把前后端默认拆成两条平行主线。
-3.  只有在任务边界已经稳定切清时，才交 `@frontend-developer` 或 `@backend-developer` 处理局部专项。
-4.  任何代码改动收尾都要交 `@code-auditor`，不能跳过 Review Gate。
-5.  有界面改动时，再交 `@ui-validator`；有测试缺口时，交 `@test-engineer`。
-6.  当实现或规划发生变化后，再交 `@documentation-specialist` 做文档沉淀。
+3.  Docker、CI/CD、部署配置和环境治理也默认归 `@full-stack-master` 统一编排，按需复用 `devops-specialist` skill，而不是额外创建并行主责角色。
+4.  只有在任务边界已经稳定切清时，才交 `@frontend-developer` 或 `@backend-developer` 处理局部专项。
+5.  任何代码改动收尾都要交 `@code-auditor`，不能跳过 Review Gate。
+6.  有界面改动时，再交 `@ui-validator`；有测试缺口时，交 `@test-engineer`。
+7.  当实现或规划发生变化后，再交 `@documentation-specialist` 做文档沉淀。
 
 ### 避免重复派单
 
@@ -81,10 +83,18 @@
 
 虽然本项目以 **GitHub Copilot** 开发为主，但以下工具同样适用：
 
--   **GitHub Copilot**: 从 `AGENTS.md` 起步，再按需要读取技能、规范和工作区说明。
--   **Claude Code**: 先读取 `AGENTS.md`，再读取 `CLAUDE.md` 获得 Claude 专属的目录发现和回退说明。
--   **Cursor / Codex / Rules-only 工具**: Rules 入口应保持轻量，只引用或摘要 `AGENTS.md` 与必要规范，不在 Rules 层重写项目规则。
--   **Windsurf**: 可将 PDTFC+ 作为执行流程，但项目级规则仍以 `AGENTS.md` 为准。
+| 平台 / 工具 | 最小入口 | 作用边界 |
+| :--- | :--- | :--- |
+| **GitHub Copilot / Copilot Workspace** | `.github/copilot-instructions.md` | 仅补充 Copilot 的加载入口与最小执行门禁；项目规则仍以 `AGENTS.md` 为准。 |
+| **Claude Code** | `CLAUDE.md` | 仅补充 Claude 的目录发现顺序、镜像回退与能力差异。 |
+| **Cursor** | `.cursor/rules/momei-governance.mdc` | 作为 Rules-only 轻量入口，只引用 `AGENTS.md` 和必要规范，不重复维护整套项目规则。 |
+| **Codex** | `AGENTS.md` | Codex 直接复用权威事实源，不再额外创建一份 Codex 专用规则副本，避免双份说明漂移。 |
+| **Windsurf 等同类工具** | `AGENTS.md` + 对应平台轻量规则 | 可以沿用 PDTFC+，但平台层只能补充工具差异，不能覆盖项目级规则。 |
+
+补充约束：
+
+1.  Rules / Instructions 文件只能承载“工具差异、触发顺序、最小门禁”，不得把 `AGENTS.md`、开发规范、安全规范整段拷贝进去。
+2.  若平台需要额外入口文件，应优先引用 `AGENTS.md`、`docs/standards/development.md`、`docs/standards/security.md`、`docs/standards/testing.md`，而不是再造一份项目级总规范。
 
 ---
 

@@ -1,0 +1,15 @@
+---
+description: Momei 项目的 Cursor 轻量治理入口。始终先读取 AGENTS.md，只在本文件中保留 Cursor 平台差异与最小执行门禁。
+alwaysApply: true
+---
+
+# Cursor Rule Entry
+
+1.  先读取 [AGENTS.md](../../AGENTS.md)。项目级 AI 规则、角色矩阵、安全红线与冲突顺序均以该文件为准。
+2.  本规则只负责 Cursor 平台适配，不重复维护第二套项目规范。
+3.  进入写操作前，按任务类型补读：
+    -   规划： [docs/plan/todo.md](../../docs/plan/todo.md)、[docs/plan/roadmap.md](../../docs/plan/roadmap.md)、[docs/standards/planning.md](../../docs/standards/planning.md)
+    -   开发： [docs/standards/development.md](../../docs/standards/development.md)、[docs/standards/security.md](../../docs/standards/security.md)、[docs/standards/testing.md](../../docs/standards/testing.md)
+    -   文档： [docs/standards/documentation.md](../../docs/standards/documentation.md)
+4.  默认开发路径：由 `@full-stack-master` 统一负责实现；前后端角色只处理边界已切清的局部专项；部署、CI/CD、Docker 与环境配置变更也默认沿用该路径，并按需复用 `.github/skills/devops-specialist/SKILL.md`。
+5.  目录治理：`.github/agents/` 与 `.github/skills/` 为主定义；`.claude/` 仅为兼容镜像。不要只修改镜像而跳过主定义。
