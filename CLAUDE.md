@@ -82,28 +82,21 @@
 - **配置**: `vitest.config.ts` 和 `tests/testSetup.ts`
 - **覆盖率**: Istanbul 覆盖率报告
 
-## 智能体和技能集成
+## Claude 专属适配边界
 
-本项目定义了完整的 AI 智能体体系，支持 Claude Code 与 GitHub Copilot 跨工具复用。
+本文件只负责 Claude Code 的平台适配说明，不再承担项目级规则定义职责。
 
-**关键指令：**
-- **必须优先读取 [AGENTS.md](./AGENTS.md)**：该文件包含了所有智能体的核心规范、PDTFC+ 循环细节以及安全红线。
-- **自动发现与回退机制**：Claude Code 应优先通过 `.claude/agents/` 和 `.claude/skills/` 路径访问定义（如适用）。若不存在，请立即回退至 `.github/agents/` 和 `.github/skills/` 读取对应的 `.md` 文档。
+**适配原则：**
+- **唯一事实源**：必须优先读取 [AGENTS.md](./AGENTS.md)。项目级角色定义、工作流、安全红线与职责边界均以该文件为准。
+- **冲突处理**：若本文件、目录镜像或其他平台说明与 `AGENTS.md` 存在冲突，一律以 `AGENTS.md` 为准。
+- **允许补充的内容**：仅限 Claude Code 的目录发现顺序、工具能力差异、加载回退与降级策略。
+- **不再在此重复维护清单**：智能体与技能清单以 `AGENTS.md` 和实际目录内容为准，不把本文件当作库存权威来源。
 
-### 核心智能体清单 (Agent List)
-- **核心编排**：[@full-stack-master](.claude/agents/full-stack-master.agent.md)
-- **规划设计**：[@product-manager](.claude/agents/product-manager.agent.md), [@system-architect](.claude/agents/system-architect.agent.md)
-- **业务开发**：[@frontend-developer](.claude/agents/frontend-developer.agent.md), [@backend-developer](.claude/agents/backend-developer.agent.md)
-- **质量验证**：[@quality-guardian](.claude/agents/quality-guardian.agent.md), [@ui-validator](.claude/agents/ui-validator.agent.md), [@test-engineer](.claude/agents/test-engineer.agent.md), [@code-reviewer](.claude/agents/code-reviewer.agent.md)
-- **交付与辅助**：[@release-manager](.claude/agents/release-manager.agent.md), [@documentation-specialist](.claude/agents/documentation-specialist.agent.md), [@qa-assistant](.claude/agents/qa-assistant.agent.md)
+### Claude 目录发现与回退
 
-### 核心技能清单 (Skill List)
-- **工作流**：[full-stack-master](.claude/skills/full-stack-master/SKILL.md), [context-analyzer](.claude/skills/context-analyzer/SKILL.md)
-- **规划分析**：[requirement-analyst](.claude/skills/requirement-analyst/SKILL.md), [technical-architect](.claude/skills/technical-architect/SKILL.md)
-- **代码实现**：[vue-frontend-expert](.claude/skills/vue-frontend-expert/SKILL.md), [nitro-backend-expert](.claude/skills/nitro-backend-expert/SKILL.md), [nuxt-code-editor](.claude/skills/nuxt-code-editor/SKILL.md)
-- **质量与安全**：[quality-guardian](.claude/skills/quality-guardian/SKILL.md), [test-engineer](.claude/skills/test-engineer/SKILL.md), [code-reviewer](.claude/skills/code-reviewer/SKILL.md), [security-guardian](.claude/skills/security-guardian/SKILL.md)
-- **UI 验证**：[ui-validator](.claude/skills/ui-validator/SKILL.md)
-- **交付维护**：[git-flow-manager](.claude/skills/git-flow-manager/SKILL.md), [conventional-committer](.claude/skills/conventional-committer/SKILL.md), [documentation-specialist](.claude/skills/documentation-specialist/SKILL.md), [devops-specialist](.claude/skills/devops-specialist/SKILL.md)
+- **优先目录**：Claude Code 应优先读取 `.claude/agents/` 与 `.claude/skills/`。
+- **回退目录**：若对应定义不存在，再回退读取 `.github/agents/` 与 `.github/skills/`。
+- **能力受限处理**：当 Claude Code 无法完整执行某项项目规则时，应显式说明能力缺口和回退做法，而不是改写项目规则本身。
 
 ## 关键模式和约定
 
@@ -143,53 +136,11 @@ tests/          # 测试文件
 - 国际化集成使用 `$t()` 函数
 - PrimeVue 组件使用
 
-## 强制参考文档 (Mandatory Reading for AI Agents)
+## Claude 执行前检查
 
-在执行任务时，AI 智能体**必须**在特定阶段主动读取以下文档以确保符合项目标准：
-
-### 任务开始前必须阅读
-- [项目计划](./docs/plan/roadmap.md) - 了解整体发展蓝图和目标
-- [待办事项](./docs/plan/todo.md) - 明确当前任务、目标及优先级
-- [待办事项归档](./docs/plan/todo-archive.md) - 了解已归档的历史任务
-- [项目规划规范](./docs/standards/planning.md) - 任务规划与评估标准
-
-### 进入开发 (Do) 阶段前必须阅读
-- [开发规范](./docs/standards/development.md) - 代码风格、目录结构和安全要求
-- [API 规范](./docs/standards/api.md) - API 设计、响应格式和权限控制
-- [数据库设计](./docs/design/database.md) - 数据库实体关系和数据模型
-
-### 涉及安全性或权限时必须阅读
-- [安全规范](./docs/standards/security.md) - 安全最佳实践和漏洞防范
-- [API 设计](./docs/design/api.md) - 后端架构和认证系统设计
-
-### 执行测试 (Test) 或补齐测试 (Enhance) 前必须阅读
-- [测试规范](./docs/standards/testing.md) - 测试策略和覆盖率要求
-
-### 涉及 UI 变动时必须阅读
-- [UI 设计](./docs/design/ui.md) - 整体界面设计风格和组件规范
-- [主题系统设计](./docs/design/modules/theme-system.md) - 主题切换和自定义机制
-
-### 涉及特定模块功能时必须阅读
-- **博客模块**: [博客模块设计](./docs/design/modules/blog.md)
-- **AI 模块**: [AI 模块设计](./docs/design/modules/ai.md) 和 [AI 开发指南](./docs/guide/ai-development.md)
-- **认证模块**: [认证模块设计](./docs/design/modules/auth.md)
-- **管理模块**: [管理模块设计](./docs/design/modules/admin.md)
-- **灵感采集**: [灵感引擎设计](./docs/design/modules/inspiration.md)
-- **播客模块**: [播客模块设计](./docs/design/modules/podcast.md)
-- **用户模块**: [用户模块设计](./docs/design/modules/user.md)
-- **分类标签**: [分类标签模块设计](./docs/design/modules/taxonomy.md)
-- **搜索模块**: [搜索模块设计](./docs/design/modules/search.md)
-- **存储模块**: [存储模块设计](./docs/design/modules/storage.md)
-- **交互模块**: [交互模块设计](./docs/design/modules/interactions.md)
-- **渲染模块**: [渲染模块设计](./docs/design/modules/rendering.md)
-- **演示模式**: [演示模式模块设计](./docs/design/modules/demo-mode.md)
-- **部署优化**: [部署优化模块设计](./docs/design/modules/deployment-optimization.md)
-- **开放 API**: [开放 API 模块设计](./docs/design/modules/open-api.md)
-- **系统模块**: [系统模块设计](./docs/design/modules/system.md)
-
-### AI 协作规范
-- [AI 协作规范](./docs/standards/ai-collaboration.md) - AI 智能体工作流程和规范
-- [智能体配置](./AGENTS.md) - 所有智能体的职责和交互规范
+- 在进入任何写操作前，先按 [AGENTS.md](./AGENTS.md) 中的要求读取对应阶段必须参考的项目文档。
+- 涉及模块级实现时，再从 `docs/design/`、`docs/guide/`、`docs/standards/` 中补读对应文档；本文件不再重复维护完整必读清单。
+- 若 `.claude/` 目录中缺少某个 agent 或 skill 定义，按上文回退到 `.github/`，不要在本文件中手动补写镜像规则。
 
 ## 文档分类概览
 
@@ -198,35 +149,10 @@ tests/          # 测试文件
 - `design/` - 架构和模块设计文档
 - `plan/` - 项目计划和待办事项
 
-### AI 智能体文档
-- `.claude/agents/` - 各智能体的详细配置文档
-  - [全栈大师](.claude/agents/full-stack-master.agent.md)
-  - [产品经理](.claude/agents/product-manager.agent.md)
-  - [系统架构师](.claude/agents/system-architect.agent.md)
-  - [前端开发者](.claude/agents/frontend-developer.agent.md)
-  - [后端开发者](.claude/agents/backend-developer.agent.md)
-  - [质量守卫](.claude/agents/quality-guardian.agent.md)
-  - [UI 验证器](.claude/agents/ui-validator.agent.md)
-  - [测试工程师](.claude/agents/test-engineer.agent.md)
-  - [代码审查者](.claude/agents/code-reviewer.agent.md)
-  - [发布管理员](.claude/agents/release-manager.agent.md)
-  - [文档专家](.claude/agents/documentation-specialist.agent.md)
-  - [问答助手](.claude/agents/qa-assistant.agent.md)
-- `.claude/skills/` - 各智能体技能的实现文档
-  - [全栈大师技能](.claude/skills/full-stack-master/SKILL.md)
-  - [需求分析技能](.claude/skills/requirement-analyst/SKILL.md)
-  - [技术架构技能](.claude/skills/technical-architect/SKILL.md)
-  - [Vue 前端技能](.claude/skills/vue-frontend-expert/SKILL.md)
-  - [Nitro 后端技能](.claude/skills/nitro-backend-expert/SKILL.md)
-  - [上下文分析技能](.claude/skills/context-analyzer/SKILL.md)
-  - [测试工程技能](.claude/skills/test-engineer/SKILL.md)
-  - [质量守卫技能](.claude/skills/quality-guardian/SKILL.md)
-  - [安全守护技能](.claude/skills/security-guardian/SKILL.md)
-  - [UI 验证技能](.claude/skills/ui-validator/SKILL.md)
-  - [Git 流管理](.claude/skills/git-flow-manager/SKILL.md)
-  - [规范提交技能](.claude/skills/conventional-committer/SKILL.md)
-  - [文档专家技能](.claude/skills/documentation-specialist/SKILL.md)
-  - [DevOps 技能](.claude/skills/devops-specialist/SKILL.md)
+### AI 适配目录
+- `.claude/agents/`、`.claude/skills/` - Claude Code 优先读取的本地镜像目录。
+- `.github/agents/`、`.github/skills/` - 当 `.claude/` 下不存在对应定义时使用的回退目录。
+- 具体 agent / skill 清单以目录实际内容和 [AGENTS.md](./AGENTS.md) 的角色矩阵为准，不在本文件重复维护副本。
 
 ### 其他重要文件
 - `.github/PULL_REQUEST_TEMPLATE.md` - 代码合并请求模板

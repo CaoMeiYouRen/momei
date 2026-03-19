@@ -117,7 +117,8 @@
   - 🚀 **[现代 AI 开发指南](./docs/guide/ai-development.md)** - 了解如何指挥 AI 智能体完成 80% 的重复性任务。
   - 🛠️ **[环境搭建 (传统方式)](./docs/guide/development.md)** - 详细的本地环境配置与手动开发说明。
 - **如果你是 AI 代理 (AI Agent / LLM)**:
-  - 📜 **[AGENTS.md](./AGENTS.md)** - 你的核心行为准则与身份定义。
+  - 📜 **[AGENTS.md](./AGENTS.md)** - 唯一的项目级 AI 事实源，先读它，再执行其他入口说明。
+  - 🧭 若当前平台存在专属适配文件或 Rules，请只把它们当作工具差异补充；若与 `AGENTS.md` 冲突，一律以 `AGENTS.md` 为准。
   - 🗺️ **[项目地图](./docs/index.md)** - 快速建立项目上下文。
   - 遵循项目内置的 **PDTFC+ 循环** 执行任务。
 
