@@ -25,21 +25,41 @@
 2.  平台适配文件只允许补充工具差异，不得覆盖项目级规则。
 3.  开发入口说明只负责导览，不重复定义项目规则。
 
+补充约束：
+
+-   治理上以 `.github/agents/` 与 `.github/skills/` 作为主定义目录；`.claude/` 目录只承担 Claude 兼容镜像职责。
+-   若 agent 或 skill 需要调整职责边界，应优先更新主定义与权威文档，再同步镜像，不要只修补某一个平台入口。
+
 ## 3. 智能体体系 (Agent System)
 
 项目内置了一套基于 GitHub Copilot (及其他主流 AI) 的智能体角色，详情请参阅 [AGENTS.md](../../AGENTS.md)。
 
 ### 如何选择智能体？
 
-| 任务类型 | 推荐智能体 | 常用指令示例 |
-| :--- | :--- | :--- |
-| **新增功能** | `@full-stack-master` | "按照 `todo.md` 中的要求，实现文章评论功能。" |
-| **需求澄清 / 规划** | `@product-manager` | "先帮我确认这个需求是否属于当前阶段，再拆成可执行子项。" |
-| **修复 Bug** | `@full-stack-master` / 对应开发角色 | "分析并修复文章详情页在移动端布局破碎的问题。" |
-| **编写/优化测试** | `@test-engineer` | "为 `auth.ts` 补充边界情况的单元测试。" |
-| **文档同步** | `@documentation-specialist` | "同步更新这次功能涉及的设计文档和开发指南。" |
-| **理解项目/提问** | `@qa-assistant` | "这个项目的权限系统是如何与 `better-auth` 集成的？" |
-| **代码审查** | `@code-auditor` | "审查我最近的改动，聚焦风险、缺陷与测试缺口。" |
+| 任务类型 | 推荐智能体 | 你需要提供什么 | 预期产出 |
+| :--- | :--- | :--- | :--- |
+| **需求澄清 / 规划** | `@product-manager` | 目标、限制、是否已有 Todo/验收标准 | 范围判定、验收标准、后续交接对象 |
+| **跨栈功能 / 复杂修复** | `@full-stack-master` | 已确认目标、受影响模块、优先级 | 阶段拆解、代码改动、收口计划 |
+| **纯前端实现** | `@frontend-developer` | 页面/组件范围、设计约束、交互要求 | 前端代码、自检记录、待验证页面 |
+| **纯后端实现** | `@backend-developer` | 接口/数据模型范围、权限要求 | 后端代码、契约说明、待补测试点 |
+| **代码审查** | `@code-auditor` | 变更范围、Todo 验收点、验证结果 | 审计结论、风险清单、放行/退回建议 |
+| **编写/优化测试** | `@test-engineer` | 改动模块、行为预期、预算约束 | 定向测试、运行结果、剩余缺口 |
+| **文档同步** | `@documentation-specialist` | 已确认实现或规划结论、需同步文档范围 | 文档更新、原文回链、同步说明 |
+| **理解项目/提问** | `@qa-assistant` | 你想理解的模块、关键词或文件范围 | 只读分析、证据化回答、推荐阅读路径 |
+
+### 默认推荐路径
+
+1.  需求不够清楚时，先找 `@product-manager`，不要直接要求开发角色“边做边想”。
+2.  代码实现阶段只保留一个主责执行者：跨栈默认 `@full-stack-master`，纯前端交 `@frontend-developer`，纯后端交 `@backend-developer`。
+3.  任何代码改动收尾都要交 `@code-auditor`，不能跳过 Review Gate。
+4.  有界面改动时，再交 `@ui-validator`；有测试缺口时，交 `@test-engineer`。
+5.  当实现或规划发生变化后，再交 `@documentation-specialist` 做文档沉淀。
+
+### 避免重复派单
+
+-   不要同时让 `@full-stack-master`、`@frontend-developer`、`@backend-developer` 在同一阶段重做同一项实现。
+-   不要让 `@code-auditor` 代替 `@test-engineer` 写完整测试，也不要让 `@test-engineer` 代替 `@ui-validator` 做浏览器视觉审计。
+-   `@qa-assistant` 是纯只读角色，适合先理解问题，不适合直接开工修改。
 
 ## 4. 如何使用 PDTFC+
 

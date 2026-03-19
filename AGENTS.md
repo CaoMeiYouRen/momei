@@ -44,14 +44,44 @@ AI 在生成或修改代码时，必须优先参考 [开发规范文档 - 代码
 
 ## 6. AI 智能体体系 (AI Agents Matrix)
 
-项目通过多智能体协同模式驱动开发，每个智能体拥有特定的角色定义与职责边界：
+项目通过多智能体协同模式驱动开发，但每个阶段必须有明确唯一的主责角色，避免多个智能体在同一阶段重复承担同类职责。
 
--   **核心编排**: `@full-stack-master` (全栈大师) - 负责全局任务分配与 PDTFC+ 2.0 流程控制。
--   **规划决策**: `@product-manager` (需求拆解、TODO 管理与文档维护)。
--   **业务执行**: `@frontend-developer` (Vue/SCSS/UI), `@backend-developer` (API/数据库/逻辑)。
--   **安全质量**: `@code-auditor` (代码审计、安全扫描与质量门禁)。
--   **质量保障**: `@test-engineer` (测试补全), `@ui-validator` (样式验证)。
--   **辅助工具**: `@qa-assistant` (只读问答), `@documentation-specialist` (文档维护)。
+| 智能体 | 适用场景 | 典型输入 | 主要输出 | 必经交接点 | 不应承担 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `@full-stack-master` | 跨阶段、跨前后端或需要统一编排的任务 | 用户目标、`todo.md` / `roadmap.md`、受影响文件范围 | 准入结论、阶段拆解、交接计划、收口说明 | 需求不清时先交 `@product-manager`；代码落地后交 `@code-auditor`，按需继续交 `@ui-validator` / `@test-engineer` / `@documentation-specialist` | 不应绕过专项审计、测试和文档收口直接宣布完成 |
+| `@product-manager` | 需求澄清、插队分流、验收标准定义、Todo/Roadmap 维护 | 用户原始需求、`todo.md`、`roadmap.md`、`todo-archive.md` | 范围判定、验收标准、任务拆解、规划更新 | 需求明确后交 `@full-stack-master` 或对应开发角色 | 不应承担代码实现、最终审计或测试编写 |
+| `@frontend-developer` | 页面、组件、样式、i18n UI、前端交互实现 | 已批准方案、UI 设计、受影响页面/组件清单 | 前端代码、自检记录、UI 风险提示 | 代码改动必须交 `@code-auditor`；涉及界面时继续交 `@ui-validator` | 不应承担需求分流、后端权限逻辑或最终 Review Gate |
+| `@backend-developer` | API、数据库、权限、服务端业务逻辑实现 | 已批准方案、API / 数据模型约束、受影响接口清单 | 后端代码、数据结构调整、自检记录 | 代码改动必须交 `@code-auditor`；测试补强交 `@test-engineer` | 不应承担产品规划、视觉验收或替代测试收口 |
+| `@code-auditor` | 所有代码改动完成后的 Review Gate | 代码 diff、Todo 验收点、Lint/Typecheck/Test 结果 | 审计结论、问题分级、放行或退回建议 | Pass 后才能进入提交或后续验证；Reject 时退回对应开发者 | 不应承担需求定义、功能开发主责或测试增强主责 |
+| `@ui-validator` | 页面可视化变更后的浏览器验证、响应式/主题验证 | 已实现界面、运行入口、受影响页面列表 | 验证记录、截图/结论、回退问题清单 | UI 通过后交 `@test-engineer` 或回到开发者修复 | 不应承担业务逻辑实现、产品规划或替代自动化测试 |
+| `@test-engineer` | 测试补强、回归验证、覆盖率提升 | 已批准行为、改动模块、覆盖率缺口、预算约束 | 新增/修正测试、运行结果、剩余风险说明 | 测试代码变更仍需交 `@code-auditor` 审看 | 不应承担需求规划、视觉验收或无限制全量测试 |
+| `@documentation-specialist` | 设计文档、规范文档、README/Guide/Plan 同步 | 已确认的实现结论、规划变化、需同步的文档范围 | 文档更新、原文回链、同步说明 | 规划类文档与 `@product-manager` 对齐；代码相关文档与对应开发/审计结果对齐 | 不应虚构未实现能力或替代产品验收 |
+| `@qa-assistant` | 只读问答、代码/文档检索、架构解释 | 用户问题、目标模块、搜索范围 | 证据化回答、定位结果、推荐阅读路径 | 如需修改代码或文档，应转交对应执行角色 | 严禁修改代码、配置或规划文档 |
+
+### 6.1 默认推荐路径
+
+1.  需求不清、验收标准缺失或怀疑插队时，优先交给 `@product-manager` 做范围判断。
+2.  代码实现阶段只保留一个主责执行者：跨栈任务默认 `@full-stack-master`，纯前端交 `@frontend-developer`，纯后端交 `@backend-developer`。
+3.  任何代码改动收尾都必须进入 `@code-auditor` Review Gate，不能用“已本地验证”替代审计结论。
+4.  涉及实际页面或交互渲染的改动，再交 `@ui-validator` 做浏览器验证。
+5.  测试补强、覆盖率治理与回归验证由 `@test-engineer` 主责承担。
+6.  设计、规范、README、Guide 与 Plan 文档同步由 `@documentation-specialist` 承担，但规划类条目仍需与 `@product-manager` 对齐。
+
+### 6.2 阶段去重规则
+
+-   **P (Plan)**：由 `@product-manager` 主责，其他角色只提供上下文，不替代准入判断。
+-   **D (Do)**：同一事项在同一时点只能有一个代码实现主责角色，避免 `@full-stack-master`、`@frontend-developer`、`@backend-developer` 并行重做同一段实现。
+-   **A (Audit)**：`@code-auditor` 是唯一 Review Gate 负责人，开发者自检不等于审计通过。
+-   **V (Validate)**：`@ui-validator` 主责浏览器验证；`@test-engineer` 不替代 UI 可视审计。
+-   **T (Test)**：`@test-engineer` 主责测试补强；`@code-auditor` 只审计测试质量，不替代测试设计。
+-   **F (Finish)**：`@documentation-specialist` 与 `@product-manager` 负责文档和待办闭环，但不回写未确认的产品结论。
+
+### 6.3 主定义、镜像与 Skills 复用治理
+
+-   `.github/agents/` 与 `.github/skills/` 是项目内 agent / skill 的主定义目录，负责维护角色名、职责边界、引用关系与推荐路径。
+-   `.claude/agents/` 与 `.claude/skills/` 是 Claude 发现入口的兼容镜像，必须与 `.github/` 保持同名、同库存、同职责边界，不得独立发明另一套角色体系。
+-   Agent 文件应优先引用既有 skills 与项目规范文档，只保留角色定位、输入输出、交接点和禁区；PDTFC+ 全流程、Lint/Typecheck/Test 门禁及专项规则应沉淀在 `AGENTS.md`、专项 skills 与规范文档中，不再在多个 agent 文件里重复抄写。
+-   任何 agent / skill 库存变更，都应同步更新 `AGENTS.md`、平台适配入口文档，以及受影响的 `.github/` / `.claude/` 镜像文件，避免角色名、路径和 fallback 约定漂移。
 
 ## 7. 安全与行为红线
 

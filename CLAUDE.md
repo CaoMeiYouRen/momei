@@ -94,8 +94,10 @@
 
 ### Claude 目录发现与回退
 
+- **主定义目录**：治理上以 `.github/agents/` 与 `.github/skills/` 为主定义；`.claude/` 仅作为 Claude Code 的发现入口镜像。
 - **优先目录**：Claude Code 应优先读取 `.claude/agents/` 与 `.claude/skills/`。
 - **回退目录**：若对应定义不存在，再回退读取 `.github/agents/` 与 `.github/skills/`。
+- **镜像约束**：`.claude/` 中的文件名、职责边界和推荐路径必须与 `.github/` 主定义保持一致，不得单独重命名或扩展出第二套角色矩阵。
 - **能力受限处理**：当 Claude Code 无法完整执行某项项目规则时，应显式说明能力缺口和回退做法，而不是改写项目规则本身。
 
 ## 关键模式和约定
@@ -152,6 +154,7 @@ tests/          # 测试文件
 ### AI 适配目录
 - `.claude/agents/`、`.claude/skills/` - Claude Code 优先读取的本地镜像目录。
 - `.github/agents/`、`.github/skills/` - 当 `.claude/` 下不存在对应定义时使用的回退目录。
+- 目录治理上以 `.github/` 为主定义，`.claude/` 只承担发现与兼容镜像职责。
 - 具体 agent / skill 清单以目录实际内容和 [AGENTS.md](./AGENTS.md) 的角色矩阵为准，不在本文件重复维护副本。
 
 ### 其他重要文件
