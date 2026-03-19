@@ -245,13 +245,24 @@ pnpm build
 
     - 确保无 TypeScript 类型错误。
 
-3.  **单元测试**:
+3.  **测试检查**:
+
+    - 默认执行与当前改动直接相关的定向测试。
+    - 命中 [测试规范](./testing.md#6-高效测试策略-efficient-testing-strategy) 中的全量测试准入条件时，再执行 `pnpm run test`。
+    - 命中跨模块流程、发布前收口、高风险或跨模块 Hotfix，或需要 E2E 证据链的场景时，升级执行 `pnpm run verify`。
 
     ```bash
+    # 默认：定向测试
+    pnpm test app-header
+
+    # 命中全量测试准入条件时
     pnpm run test
+
+    # 命中完整收口条件时
+    pnpm run verify
     ```
 
-    - 确保所有现有测试用例通过。
+    - 确保本次改动所需的最低验证要求全部通过。
 
 **注意**: 任何未通过上述检查的提交将被视为不合规，CI 流水线将会拦截此类合并请求。
 
