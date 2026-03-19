@@ -3,13 +3,10 @@ import { AgreementContent } from '@/server/entities/agreement-content'
 import { createAgreementVersion } from '@/server/services/agreement'
 import { getLocalizedSettingDefinition } from '@/server/services/setting'
 import { TextService } from '@/server/services/ai/text'
+import { APP_LOCALE_CODES, type AppLocaleCode } from '@/i18n/config/locale-registry'
 import type { AgreementType } from '@/types/agreement'
-import { type AppLocaleCode } from '@/i18n/config/locale-registry'
-import {
-    LocalizedSettingScalar,
-    LocalizedSettingValueV1,
-    SettingKey,
-} from '@/types/setting'
+import { SettingKey } from '@/types/setting'
+import type { LocalizedSettingScalar, LocalizedSettingValueV1 } from '@/types/setting'
 import {
     cloneLocalizedSettingValue,
     createEmptyLocalizedSettingValue,
@@ -17,6 +14,7 @@ import {
     hasMeaningfulLocalizedValue,
     isLocalizedSettingValue,
     normalizeLocalizedLegacyValue,
+    readLocalizedLocaleValue,
     resolveRequestedAppLocale,
 } from '@/utils/shared/localized-settings'
 
@@ -58,8 +56,8 @@ function resolveLocalizedSettingSource(
     const explicitSourceLocale = sourceLocale ? resolveRequestedAppLocale(sourceLocale) : null
 
     if (explicitSourceLocale) {
-        const explicitSourceValue = value.locales[explicitSourceLocale]
-        if (hasMeaningfulLocalizedValue(explicitSourceValue)) {
+        const explicitSourceValue = readLocalizedLocaleValue(value, explicitSourceLocale)
+        if (explicitSourceValue !== null) {
             return {
                 locale: explicitSourceLocale,
                 value: explicitSourceValue,
@@ -67,9 +65,9 @@ function resolveLocalizedSettingSource(
         }
     }
 
-    const candidateLocales = Array.from(new Set([
+    const candidateLocales = Array.from(new Set<AppLocaleCode>([
         ...getLocalizedFallbackChain(requestedTargetLocale),
-        ...Object.keys(value.locales),
+        ...Object.keys(value.locales).filter((locale): locale is AppLocaleCode => APP_LOCALE_CODES.includes(locale as AppLocaleCode)),
     ]))
 
     for (const candidateLocale of candidateLocales) {
@@ -77,8 +75,8 @@ function resolveLocalizedSettingSource(
             continue
         }
 
-        const candidateValue = value.locales[candidateLocale as keyof typeof value.locales]
-        if (hasMeaningfulLocalizedValue(candidateValue)) {
+        const candidateValue = readLocalizedLocaleValue(value, candidateLocale)
+        if (candidateValue !== null) {
             return {
                 locale: candidateLocale,
                 value: candidateValue,
@@ -86,10 +84,11 @@ function resolveLocalizedSettingSource(
         }
     }
 
-    if (hasMeaningfulLocalizedValue(value.legacyValue)) {
+    const legacyValue = value.legacyValue
+    if (legacyValue !== null && legacyValue !== undefined && hasMeaningfulLocalizedValue(legacyValue)) {
         return {
             locale: 'legacy',
-            value: value.legacyValue,
+            value: legacyValue,
         }
     }
 

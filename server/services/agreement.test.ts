@@ -13,6 +13,7 @@ import {
 import { dataSource } from '@/server/database'
 import { AgreementContent } from '@/server/entities/agreement-content'
 import { Setting } from '@/server/entities/setting'
+import type { AgreementReviewStatus } from '@/types/agreement'
 import { SettingKey } from '@/types/setting'
 
 vi.mock('@/server/database')
@@ -38,6 +39,7 @@ interface AgreementRecord {
     isAuthoritativeVersion: boolean
     sourceAgreementId: string | null
     effectiveAt: Date | null
+    reviewStatus: AgreementReviewStatus
     isFromEnv: boolean
     hasUserConsent: boolean
     createdAt: Date
