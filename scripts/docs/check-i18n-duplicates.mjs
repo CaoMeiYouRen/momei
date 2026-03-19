@@ -87,7 +87,7 @@ async function main() {
     }
 
     if (duplicates.length === 0) {
-        console.log('docs i18n duplicate check passed: no legacy/i18n duplicate translated pages found.')
+        console.info('docs i18n duplicate check passed: no legacy/i18n duplicate translated pages found.')
         return
     }
 

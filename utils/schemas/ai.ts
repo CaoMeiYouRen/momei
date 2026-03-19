@@ -149,7 +149,7 @@ export const aiTranslatePostSchema = z.object({
 })
 
 export const aiLocalizedSettingDraftSchema = z.object({
-    key: z.nativeEnum(SettingKey),
+    key: z.enum(SettingKey),
     targetLocale: z.string().min(2).max(10),
     sourceLocale: z.string().min(2).max(10).nullable().optional(),
     value: z.any().optional(),

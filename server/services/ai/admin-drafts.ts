@@ -4,7 +4,8 @@ import { createAgreementVersion } from '@/server/services/agreement'
 import { getLocalizedSettingDefinition } from '@/server/services/setting'
 import { TextService } from '@/server/services/ai/text'
 import type { AgreementType } from '@/types/agreement'
-import type {
+import { type AppLocaleCode } from '@/i18n/config/locale-registry'
+import {
     LocalizedSettingScalar,
     LocalizedSettingValueV1,
     SettingKey,
@@ -20,7 +21,7 @@ import {
 } from '@/utils/shared/localized-settings'
 
 interface LocalizedSettingSource {
-    locale: string | 'legacy'
+    locale: AppLocaleCode | 'legacy'
     value: LocalizedSettingScalar
 }
 
@@ -145,7 +146,7 @@ export async function generateLocalizedSettingDraft(options: {
 
         generatedValue = await TextService.translate(sourceText, targetLocale, options.userId, {
             sourceLanguage: source.locale === 'legacy' ? undefined : source.locale,
-            field: options.key === 'site_title' ? 'title' : 'summary',
+            field: options.key === SettingKey.SITE_TITLE ? 'title' : 'summary',
         })
     }
 
