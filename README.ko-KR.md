@@ -91,7 +91,7 @@ Momei는 **Nuxt** 기반의 현대적인 블로그 플랫폼입니다. AI와 깊
 
 ## 🤖 AI 협업 개발
 
-- 사람 개발자라면 [AI 협업 개발 가이드](./docs/ko-KR/guide/ai-development.md)와 [개발 가이드](./docs/ko-KR/guide/development.md)를 먼저 읽는 것이 좋습니다.
+- 사람 개발자라면 [AI 협업 개발 가이드](./docs/i18n/ko-KR/guide/ai-development.md)와 [개발 가이드](./docs/i18n/ko-KR/guide/development.md)를 먼저 읽는 것이 좋습니다.
 - AI 에이전트라면 [AGENTS.md](./AGENTS.md)와 프로젝트 문서를 먼저 읽고 PDTFC+ 흐름을 따라야 합니다.
 
 ## 📚 문서

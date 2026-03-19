@@ -1,11 +1,19 @@
 import { defineConfig } from 'vitepress'
 
+const translatedDocSourcePattern = /^i18n\/(en-US|zh-TW|ko-KR)\//
+
+const buildEditLink = ({ filePath }: { filePath: string }) =>
+    `https://github.com/CaoMeiYouRen/momei/edit/master/docs/${filePath}`
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     // Shared settings
     lastUpdated: true,
     cleanUrls: true,
     ignoreDeadLinks: true,
+    rewrites(id) {
+        return id.replace(translatedDocSourcePattern, '$1/')
+    },
     sitemap: {
         hostname: 'https://docs.momei.app',
     },
@@ -130,7 +138,7 @@ export default defineConfig({
                     label: '页面导航',
                 },
                 editLink: {
-                    pattern: 'https://github.com/CaoMeiYouRen/momei/edit/master/docs/:path',
+                    pattern: buildEditLink,
                     text: '在 GitHub 上编辑此页',
                 },
             },
@@ -200,7 +208,7 @@ export default defineConfig({
                     label: '頁面導覽',
                 },
                 editLink: {
-                    pattern: 'https://github.com/CaoMeiYouRen/momei/edit/master/docs/:path',
+                    pattern: buildEditLink,
                     text: '在 GitHub 上編輯此頁',
                 },
             },
@@ -268,7 +276,7 @@ export default defineConfig({
                     label: 'On this page',
                 },
                 editLink: {
-                    pattern: 'https://github.com/CaoMeiYouRen/momei/edit/master/docs/:path',
+                    pattern: buildEditLink,
                     text: 'Edit this page on GitHub',
                 },
             },
@@ -338,7 +346,7 @@ export default defineConfig({
                     label: '이 페이지에서',
                 },
                 editLink: {
-                    pattern: 'https://github.com/CaoMeiYouRen/momei/edit/master/docs/:path',
+                    pattern: buildEditLink,
                     text: 'GitHub에서 이 페이지 편집',
                 },
             },
