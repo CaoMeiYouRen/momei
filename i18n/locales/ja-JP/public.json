@@ -1,0 +1,250 @@
+{
+    "pages": {
+        "submit": {
+            "title": "ゲスト投稿",
+            "meta": {
+                "description": "オリジナル記事や技術アイデアを Momei に投稿し、グローバルな開発者出版コミュニティに参加しましょう。"
+            },
+            "subtitle": "あなたの知見や物語をぜひ共有してください",
+            "form": {
+                "title": "記事タイトル",
+                "title_placeholder": "記事タイトルを入力してください",
+                "content": "本文 (Markdown)",
+                "content_placeholder": "Markdown 形式で執筆してください...",
+                "name": "お名前",
+                "name_placeholder": "ニックネーム可",
+                "email": "メールアドレス",
+                "email_placeholder": "レビュー結果の連絡用",
+                "url": "個人サイト",
+                "url_placeholder": "任意",
+                "submit": "投稿する",
+                "submitting": "送信中...",
+                "success": "投稿が完了しました。管理者の審査をお待ちください。結果はメールでお知らせします。",
+                "error": "投稿に失敗しました。後でもう一度お試しください。",
+                "captcha_required": "CAPTCHA 認証を完了してください"
+            }
+        },
+        "posts": {
+            "title": "記事一覧",
+            "meta": {
+                "description": "Momei Blog に公開された最新の技術記事、エッセイ、更新情報を言語やトピック横断で閲覧できます。"
+            },
+            "empty": "記事が見つかりません",
+            "status_warning": "この記事は現在 {status} 状態で、正式公開されていません。閲覧権限を持つユーザーにのみ表示されます。",
+            "article_count": "{count} 件の記事",
+            "total_count": "全 {count} 件の記事",
+            "total_categories": "現在 {count} 件のカテゴリ",
+            "total_tags": "現在 {count} 件のタグ",
+            "password_placeholder": "アクセスパスワードを入力してください",
+            "login_to_read": "続きを読むにはログインしてください",
+            "article_navigation": {
+                "aria_label": "記事ナビゲーション",
+                "previous": "前の記事",
+                "next": "次の記事"
+            },
+            "locked": {
+                "password_required": "制限付きコンテンツ",
+                "password_required_desc": "この記事はパスワード保護されています。正しいパスワードを入力して全文を表示してください。",
+                "auth_required": "ログインが必要です",
+                "auth_required_desc": "この記事は登録ユーザー限定です。続きを読むにはログインしてください。",
+                "subscription_required": "購読者限定",
+                "subscription_required_desc": "この記事はメール購読者限定です。続きを読むには購読してください。",
+                "private": "非公開コンテンツ",
+                "private_desc": "この非公開記事にアクセスする権限がありません。"
+            }
+        },
+        "error": {
+            "title": "エラーが発生しました",
+            "404_title": "ページが見つかりません",
+            "404_desc": "お探しのページは存在しないか、移動された可能性があります。別の内容を検索するか、ホームへ戻ってください。",
+            "back_home": "ホームへ戻る",
+            "retry": "再試行"
+        },
+        "user_agreement": {
+            "title": "利用規約",
+            "last_updated": "最終更新: 2026年1月18日",
+            "version_label": "バージョン: {version}",
+            "effective_date_label": "施行日: {date}",
+            "last_updated_label": "最終更新日: {date}",
+            "version_fallback": "バージョン未設定",
+            "date_fallback": "未設定",
+            "reference_translation_tag": "参考訳",
+            "authoritative_version_tag": "正文版",
+            "current_active_tag": "現在有効",
+            "reference_translation_notice": "この言語版は参考訳です。正式な正文は {language} / {version} です。法的解釈に差異がある場合は正文を優先します。",
+            "fallback_notice": "この言語のローカライズ版はまだありません。正文である {language} 版を表示しています。",
+            "history_title": "バージョン履歴",
+            "history_no_description": "更新メモはありません",
+            "meta": {
+                "description": "Momei の利用規約を確認し、アクセス、登録、投稿、サイト利用に関する条件を理解してください。"
+            }
+        },
+        "privacy_policy": {
+            "title": "プライバシーポリシー",
+            "last_updated": "最終更新: 2026年1月18日",
+            "version_label": "バージョン: {version}",
+            "effective_date_label": "施行日: {date}",
+            "last_updated_label": "最終更新日: {date}",
+            "version_fallback": "バージョン未設定",
+            "date_fallback": "未設定",
+            "reference_translation_tag": "参考訳",
+            "authoritative_version_tag": "正文版",
+            "current_active_tag": "現在有効",
+            "reference_translation_notice": "この言語版は参考訳です。正式な正文は {language} / {version} です。法的解釈に差異がある場合は正文を優先します。",
+            "fallback_notice": "この言語のローカライズ版はまだありません。正文である {language} 版を表示しています。",
+            "history_title": "バージョン履歴",
+            "history_no_description": "更新メモはありません",
+            "meta": {
+                "description": "データ収集、保存、処理、および利用者の権利に関する最新の Momei プライバシーポリシーを確認できます。"
+            }
+        },
+        "about": {
+            "meta": {
+                "description": "Momei が AI を活用して、開発者向けのフルスタック国際化をどのように支援しているかを紹介します。"
+            },
+            "hero": {
+                "title": "Momei",
+                "subtitle": "AI Powered, Global Creation. 開発者向けに設計されたインテリジェントなブログシステム。",
+                "cta": "詳しく見る"
+            },
+            "meaning": {
+                "title": "名前の由来と意味",
+                "text_1": "Momei（墨梅）という名前は、元代の王冕による詩「墨梅」に着想を得ています。",
+                "poem": "我家洗硯池頭樹、\n朵朵花開淡墨痕。\n不要人誇好顏色、\n只留清氣滿乾坤。",
+                "text_2": "「墨」は書くことと研鑽を象徴し、ブログコンテンツの本質を映します。「梅」は粘り強い創作精神と独自の個性を表します。",
+                "intro": "Momei はクリエイターに次の価値を提供します。",
+                "features": [
+                    "AI 駆動のスマートなコンテンツ制作体験",
+                    "ネイティブな国際化コンテンツ管理と配信",
+                    "ブログ移行と SEO 保全のためのシームレスなツール",
+                    "AI によって言語の壁を越え、世界へ届ける創作基盤"
+                ]
+            },
+            "features": {
+                "title": "主な強み",
+                "items": [
+                    {
+                        "title": "AI アシスタント",
+                        "desc": "自動翻訳、タイトル提案、概要生成などを深く統合し、制作効率を高めます。"
+                    },
+                    {
+                        "title": "パス管理",
+                        "desc": "URL スラッグを完全にカスタマイズでき、他プラットフォームからの移行時も SEO を守れます。"
+                    },
+                    {
+                        "title": "ネイティブ i18n",
+                        "desc": "UI 翻訳に留まらず、翻訳クラスター管理とスマートな言語ルーティングまで対応します。"
+                    }
+                ]
+            },
+            "contact": {
+                "title": "お問い合わせ",
+                "email": "メール",
+                "blog": "ブログ",
+                "message": "Momei について質問や提案がありますか？",
+                "subtitle": "ぜひご意見をお聞かせください"
+            }
+        },
+        "feedback": {
+            "title": "フィードバックとサポート",
+            "subtitle": "問題が Momei 本体に属するのか、このデプロイ先サイト固有のものかを先に切り分けてください。連絡先が異なります。",
+            "meta": {
+                "description": "Momei 本体の課題と、個別サイト固有の課題を分けて、適切な窓口へすばやく連絡できるようにします。"
+            },
+            "project": {
+                "title": "Momei プロジェクトの課題を報告する",
+                "description": "製品バグ、ドキュメント誤り、機能提案、一般的な互換性問題であれば、公式リポジトリをご利用ください。",
+                "action": "GitHub Issues を開く",
+                "items": {
+                    "bug": "製品バグ、回帰、不正な挙動",
+                    "feature": "機能提案、ロードマップへの意見、UX 改善案",
+                    "docs": "ドキュメント、翻訳、設定例の誤り"
+                }
+            },
+            "deployment": {
+                "title": "{site} の管理者に連絡する",
+                "description": "このサイトだけで発生する問題、たとえばローカルのログインポリシー、審査ルール、テーマ設定、自前インフラの問題などは、まずこのデプロイ先へ連絡してください。",
+                "action_link": "サイトのフィードバック窓口を開く",
+                "action_email": "{email} にメールを送る",
+                "no_contact": "このサイトではフィードバック URL または連絡先メールがまだ公開されていません。{site} の管理者へ直接ご連絡ください。",
+                "items": {
+                    "login": "このサイトでのアカウント、ログイン、登録、権限に関する問題",
+                    "content": "サイトコンテンツ、リンク集、コメント、投稿、審査に関する問題",
+                    "policy": "テーマ、通知、ストレージ、デプロイ設定などこのサイト固有の問題"
+                }
+            }
+        },
+        "links": {
+            "title": "リンク集",
+            "subtitle": "本当に紹介し続けたいと考える独立系サイトやクリエイターを集めた一覧です。",
+            "meta": {
+                "description": "Momei のリンク集ページを閲覧し、自分のサイトの掲載申請も行えます。"
+            },
+            "guidelines_title": "申請ガイドライン",
+            "application_title": "リンク掲載を申請する",
+            "application_subtitle": "送信後は審査キューに入ります。承認されると公開ページやフッターの注目枠に掲載される場合があります。",
+            "uncategorized": "未分類",
+            "empty": "公開中のリンクはまだありません。",
+            "disabled": "このサイトでは現在リンク集機能を有効にしていません。",
+            "health_reference_notice": "ヘルスチェック結果は参考情報です。実際の到達可否を基準にしてください。",
+            "last_checked_at": "最終確認",
+            "health_statuses": {
+                "unknown": "未確認",
+                "healthy": "到達可能",
+                "checking": "確認中",
+                "unreachable": "到達不可"
+            },
+            "form": {
+                "url": "サイト URL",
+                "logo": "ロゴ画像",
+                "logo_placeholder": "アップロード済みアセットまたはホワイトリスト済み画像 URL のみ利用できます",
+                "logo_hint": "ロゴには、サイト内アセットまたはセキュリティホワイトリストに含まれる画像 URL のみ使えます。",
+                "logo_upload_placeholder": "ロゴ画像をアップロードするか、ホワイトリスト済み URL を入力してください",
+                "logo_upload_hint": "ログイン済みユーザーはロゴ画像を直接アップロードできます。手動入力する場合でも、サイト内アセットまたはホワイトリスト済み URL に限られます。",
+                "rss_url": "RSS URL",
+                "contact_name": "連絡先名",
+                "contact_email": "連絡先メール",
+                "category_placeholder": "任意: 最も近いカテゴリを選択",
+                "category_suggestion": "カテゴリ候補",
+                "reciprocal_url": "相互リンク掲載ページ",
+                "message": "補足メッセージ",
+                "submit": "申請を送信",
+                "submitting": "送信中...",
+                "success": "申請を送信しました。管理者の審査待ちです。",
+                "error": "申請に失敗しました。後でもう一度お試しください。",
+                "captcha_required": "先に CAPTCHA 認証を完了してください"
+            }
+        },
+        "categories_index": {
+            "meta": {
+                "description": "Momei Blog のすべてのカテゴリを閲覧し、トピック別にまとめられた記事群をすばやく見つけられます。"
+            }
+        },
+        "tags_index": {
+            "meta": {
+                "description": "Momei のタグクラウドから、技術トピックごとの関連記事やコンテンツ群を探せます。"
+            }
+        },
+        "archives": {
+            "meta": {
+                "description": "Momei Blog の過去記事アーカイブを年・月別にたどり、以前の更新やエッセイを振り返れます。"
+            },
+            "title": "アーカイブ",
+            "count": "{count} 件の記事",
+            "months": {
+                "1": "1月",
+                "2": "2月",
+                "3": "3月",
+                "4": "4月",
+                "5": "5月",
+                "6": "6月",
+                "7": "7月",
+                "8": "8月",
+                "9": "9月",
+                "10": "10月",
+                "11": "11月",
+                "12": "12月"
+            }
+        }
+    }
+}

@@ -1,7 +1,7 @@
 import { getNuxtLocaleMessageFilePaths } from './locale-modules'
 
 export type LocaleReadiness = 'draft' | 'ui-ready' | 'seo-ready'
-export type AppLocaleCode = 'zh-CN' | 'en-US' | 'zh-TW' | 'ko-KR'
+export type AppLocaleCode = 'zh-CN' | 'en-US' | 'zh-TW' | 'ko-KR' | 'ja-JP'
 
 export interface LocaleRegistryItem {
     code: AppLocaleCode
@@ -108,6 +108,26 @@ export const APP_LOCALE_REGISTRY = [
         ogLocale: 'ko_KR',
         ogAlternateLocales: ['en_US', 'zh_CN'],
     },
+    {
+        code: 'ja-JP',
+        languageTag: 'ja-JP',
+        creativeCommonsDeedSuffix: 'deed.ja',
+        name: '日本語',
+        nativeName: '日本語',
+        isoName: 'Japanese (Japan)',
+        dir: 'ltr',
+        enabled: true,
+        default: false,
+        fallbackChain: ['ja-JP', 'en-US', 'zh-CN'],
+        routePrefix: '/ja-JP',
+        readiness: 'ui-ready',
+        switchable: true,
+        indexable: false,
+        sitemapEnabled: false,
+        feedEnabled: false,
+        ogLocale: 'ja_JP',
+        ogAlternateLocales: ['en_US', 'zh_CN'],
+    },
 ] as const satisfies readonly LocaleRegistryItem[]
 
 export const APP_ENABLED_LOCALES = APP_LOCALE_REGISTRY.filter((locale) => locale.enabled)
@@ -123,6 +143,8 @@ const APP_LOCALE_ALIAS_MAP: Record<string, AppLocaleCode> = {
     'zh-mo': 'zh-TW',
     en: 'en-US',
     'en-us': 'en-US',
+    ja: 'ja-JP',
+    'ja-jp': 'ja-JP',
     ko: 'ko-KR',
     'ko-kr': 'ko-KR',
     default: APP_DEFAULT_LOCALE,

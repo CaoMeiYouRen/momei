@@ -11,6 +11,7 @@ const dateLocaleMap: Record<string, string> = {
     'en-US': 'en',
     'zh-TW': 'zh-tw',
     'ko-KR': 'ko',
+    'ja-JP': 'ja',
 }
 
 export function useI18nDate() {

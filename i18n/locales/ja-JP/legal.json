@@ -1,0 +1,10 @@
+{
+    "legal": {
+        "user_agreement": "利用規約",
+        "privacy_policy": "プライバシーポリシー",
+        "agreement_checkbox": "{agreement} と {privacy} を読み、同意します",
+        "login_notice": "ログインすることで、{agreement} と {privacy} に同意したものとみなされます",
+        "notice": "注意: 本規約およびポリシーはサンプルです。プロジェクト開発者は各デプロイ環境に対して法的責任を負いません。実際の法的関係は利用者と当該サイト運営者の間で成立し、責任はサイト管理者が負います。",
+        "agreement_required": "利用規約とプライバシーポリシーに同意してください"
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "home": {
+        "meta": {
+            "title": "ホーム - Momei Blog",
+            "description": "Momei Blog: AI 駆動・ネイティブ国際化対応の開発者向けブログプラットフォーム。AI Powered, Global Creation."
+        },
+        "hero": {
+            "title": "AI 駆動、ネイティブ i18n",
+            "subtitle": "Momei Blog は、開発者のために設計されたスマートな創作プラットフォームです。あなたの技術を世界へ届けます。",
+            "cta": "読み始める"
+        },
+        "latest_posts": {
+            "title": "最新記事"
+        },
+        "popular_posts": {
+            "title": "人気記事"
+        },
+        "about": {
+            "description": "Momei Blog は AI と深い国際化によってクリエイターを支援し、コンテンツを最初からグローバルに届けることを目指しています。"
+        }
+    }
+}

@@ -71,7 +71,8 @@
             "zh-CN": "简体中文",
             "en-US": "English",
             "zh-TW": "繁體中文",
-            "ko-KR": "한국어"
+            "ko-KR": "한국어",
+            "ja-JP": "日本語"
         },
         "translation_id": "關聯識別",
         "translation_id_hint": "用於手動關聯不同語言版本的同一實體。建議使用英文唯一識別（例如 URL Slug）。",

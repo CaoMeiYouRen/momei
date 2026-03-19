@@ -388,6 +388,7 @@
 
 <script setup lang="ts">
 import { SOCIAL_PLATFORMS, DONATION_PLATFORMS, type SocialLink, type DonationLink } from '@/utils/shared/commercial'
+import { APP_ENABLED_LOCALES } from '@/i18n/config/locale-registry'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 
@@ -404,10 +405,10 @@ const { t } = useI18n()
 const confirm = useConfirm()
 const toast = useToast()
 
-const localeOptions = [
-    { label: t('common.languages.zh-CN'), value: 'zh-CN' },
-    { label: t('common.languages.en-US'), value: 'en-US' },
-]
+const localeOptions = computed(() => APP_ENABLED_LOCALES.map((locale) => ({
+    label: t(`common.languages.${locale.code}`),
+    value: locale.code,
+})))
 
 // 逻辑处理
 const dialogVisible = ref(false)

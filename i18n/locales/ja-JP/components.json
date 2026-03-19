@@ -1,0 +1,122 @@
+{
+    "components": {
+        "search": {
+            "title": "サイト内検索",
+            "placeholder": "記事、カテゴリ、タグを検索...",
+            "no_results": "検索結果がありません",
+            "help_hint": "キーワードを入力して検索...",
+            "loading": "検索中...",
+            "ctrl_k": "検索"
+        },
+        "header": {
+            "language": "言語",
+            "title": "Momei",
+            "dark_mode": "ダークモード",
+            "light_mode": "ライトモード"
+        },
+        "footer": {
+            "docs": "ドキュメント",
+            "copyright": "© 2026 Momei Blog - AI Powered, Global Creation",
+            "powered_by": "Powered by {name}",
+            "compliance": {
+                "icp": "ICP 登録番号",
+                "police": "公安届出"
+            }
+        },
+        "toc": {
+            "title": "目次"
+        },
+        "notifications": {
+            "title": "通知",
+            "empty": "通知はありません",
+            "mark_all_read": "すべて既読にする",
+            "view_all": "すべての設定を見る",
+            "browser_enable": "ブラウザ通知を有効化",
+            "browser_status": {
+                "default": "オフライン中も重要な通知を受け取れるように、ブラウザ通知を有効にしてください。",
+                "denied": "ブラウザ通知がブロックされています。ブラウザ設定で再度有効にしてください。"
+            }
+        },
+        "reader": {
+            "mode_enter": "閲覧モード",
+            "mode_exit": "閲覧モードを終了",
+            "settings_title": "読書設定",
+            "font_size": "文字サイズ",
+            "line_height": "行間",
+            "page_width": "ページ幅",
+            "theme": "テーマ"
+        },
+        "subscriber_form": {
+            "title": "ニュースレター",
+            "description": "最新記事や技術共有をメールで受け取る",
+            "placeholder": "メールアドレスを入力してください",
+            "submit": "購読する",
+            "success": "購読が完了しました。フォローありがとうございます。",
+            "submitting": "処理中..."
+        },
+        "post": {
+            "copyright": {
+                "title": "著作権表示",
+                "author": "著者",
+                "link": "リンク",
+                "license_title": "著作権表示",
+                "license_pre": "特記のない限り、このブログの記事は ",
+                "license_post": " の下で提供されています。転載時は出典を明記してください。",
+                "default_license": "all-rights-reserved",
+                "licenses": {
+                    "all-rights-reserved": "All Rights Reserved（転載禁止）",
+                    "cc-by": "CC BY 4.0（表示）",
+                    "cc-by-sa": "CC BY-SA 4.0（表示-継承）",
+                    "cc-by-nd": "CC BY-ND 4.0（表示-改変禁止）",
+                    "cc-by-nc": "CC BY-NC 4.0（表示-非営利）",
+                    "cc-by-nc-sa": "CC BY-NC-SA 4.0（表示-非営利-継承）",
+                    "cc-by-nc-nd": "CC BY-NC-ND 4.0（表示-非営利-改変禁止）",
+                    "cc-zero": "CC0 1.0（パブリックドメイン）"
+                }
+            },
+            "sponsor": {
+                "title": "サポート",
+                "social_title": "フォローする",
+                "donation_title": "著者を支援する",
+                "qr_scan_follow_tip": "モバイルアプリで読み取ってフォロー",
+                "qr_scan_pay_tip": "モバイルアプリで読み取って支援",
+                "platforms": {
+                    "wechat_mp": "WeChat 公式アカウント",
+                    "bilibili": "Bilibili",
+                    "weibo": "Weibo",
+                    "zhihu": "Zhihu",
+                    "x": "X (Twitter)",
+                    "youtube": "YouTube",
+                    "facebook": "Facebook",
+                    "github": "GitHub",
+                    "wechat_pay": "WeChat Pay",
+                    "alipay": "Alipay",
+                    "afdian": "Afdian",
+                    "github_sponsors": "GitHub Sponsors",
+                    "opencollective": "Open Collective",
+                    "patreon": "Patreon",
+                    "buymeacoffee": "Buy Me a Coffee",
+                    "paypal": "PayPal"
+                }
+            }
+        }
+    },
+    "comments": {
+        "title": "コメント",
+        "reply": "返信",
+        "submit": "コメントを投稿",
+        "nickname": "ニックネーム",
+        "nickname_placeholder": "呼び名を入力してください",
+        "email": "メールアドレス",
+        "email_placeholder": "アバターと通知用（公開されません）",
+        "website": "ウェブサイト",
+        "website_placeholder": "https://...",
+        "content_placeholder_guest": "コメントを書く...（承認が必要です）",
+        "content_placeholder_logged_in": "感想を共有しましょう...",
+        "guest_tip": "ゲストとして投稿しています",
+        "replying_to": "返信先",
+        "no_comments": "まだコメントはありません。最初の感想を投稿しましょう。",
+        "pending_audit": "コメントを送信しました。現在、審査待ちです。",
+        "sticked": "固定済み"
+    }
+}

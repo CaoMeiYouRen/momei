@@ -5,6 +5,7 @@ import { emailLocalesZhCN } from './zh-CN'
 import { emailLocalesZhTW } from './zh-TW'
 import { emailLocalesEnUS } from './en-US'
 import { emailLocalesKoKR } from './ko-KR'
+import { emailLocalesJaJP } from './ja-JP'
 
 export type EmailLocaleType = keyof typeof emailLocalesZhCN
 
@@ -13,6 +14,7 @@ export const EMAIL_SUPPORTED_LOCALES = {
     'zh-TW': emailLocalesZhTW,
     'en-US': emailLocalesEnUS,
     'ko-KR': emailLocalesKoKR,
+    'ja-JP': emailLocalesJaJP,
 } as const
 
 export const DEFAULT_EMAIL_LOCALE = 'zh-CN'

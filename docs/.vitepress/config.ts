@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitepress'
 
-const translatedDocSourcePattern = /^i18n\/(en-US|zh-TW|ko-KR)\//
+const translatedDocSourcePattern = /^i18n\/(en-US|zh-TW|ko-KR|ja-JP)\//
 
 const buildEditLink = ({ filePath }: { filePath: string }) =>
     `https://github.com/CaoMeiYouRen/momei/edit/master/docs/${filePath}`
@@ -349,6 +349,58 @@ export default defineConfig({
                 editLink: {
                     pattern: buildEditLink,
                     text: 'GitHub에서 이 페이지 편집',
+                },
+            },
+        },
+        'ja-JP': {
+            label: '日本語',
+            lang: 'ja-JP',
+            link: '/ja-JP/',
+            title: 'Momei Blog',
+            description: 'AI 駆動・ネイティブ国際化対応の開発者向けブログプラットフォーム',
+            themeConfig: {
+                nav: [
+                    { text: 'ホーム', link: '/ja-JP/' },
+                    { text: 'クイックスタート', link: '/ja-JP/guide/quick-start' },
+                    { text: 'デプロイガイド', link: '/ja-JP/guide/deploy' },
+                    { text: '翻訳ガバナンス', link: '/ja-JP/guide/translation-governance' },
+                    { text: 'ロードマップ要約', link: '/ja-JP/plan/roadmap' },
+                ],
+                sidebar: [
+                    {
+                        text: 'ガイド',
+                        items: [
+                            { text: 'クイックスタート', link: '/ja-JP/guide/quick-start' },
+                            { text: 'デプロイガイド', link: '/ja-JP/guide/deploy' },
+                            { text: '翻訳ガバナンスと貢献方針', link: '/ja-JP/guide/translation-governance' },
+                        ],
+                    },
+                    {
+                        text: '計画',
+                        items: [
+                            { text: 'ロードマップ要約', link: '/ja-JP/plan/roadmap' },
+                            { text: '中国語 Todo', link: '/plan/todo' },
+                        ],
+                    },
+                    {
+                        text: '参加',
+                        items: [
+                            { text: 'README (日本語)', link: 'https://github.com/CaoMeiYouRen/momei/blob/master/README.ja-JP.md' },
+                            { text: 'Contributing', link: 'https://github.com/CaoMeiYouRen/momei/blob/master/CONTRIBUTING.md' },
+                        ],
+                    },
+                ],
+                lastUpdatedText: '最終更新',
+                docFooter: {
+                    prev: '前へ',
+                    next: '次へ',
+                },
+                outline: {
+                    label: 'このページの内容',
+                },
+                editLink: {
+                    pattern: buildEditLink,
+                    text: 'GitHub でこのページを編集',
                 },
             },
         },

@@ -12,7 +12,7 @@ describe('邮件国际化系统', () => {
         })
 
         it('应该在语言不支持时降级到默认语言', () => {
-            const text = emailI18n.getText('verification', 'ja-JP')
+            const text = emailI18n.getText('verification', 'fr-FR')
             expect(text).toBeDefined()
             // 应该返回中文版本
             expect(text?.title).toContain('邮箱地址')
@@ -27,7 +27,8 @@ describe('邮件国际化系统', () => {
         it('应该检查语言是否被支持', () => {
             expect(emailI18n.isLocaleSupported('zh-CN')).toBe(true)
             expect(emailI18n.isLocaleSupported('en-US')).toBe(true)
-            expect(emailI18n.isLocaleSupported('ja-JP')).toBe(false)
+            expect(emailI18n.isLocaleSupported('ja-JP')).toBe(true)
+            expect(emailI18n.isLocaleSupported('fr-FR')).toBe(false)
         })
 
         it('应该正确替换文本中的参数', () => {

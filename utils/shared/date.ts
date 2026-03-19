@@ -7,6 +7,7 @@ import 'dayjs/locale/zh-cn'
 import 'dayjs/locale/en'
 import 'dayjs/locale/zh-tw'
 import 'dayjs/locale/ko'
+import 'dayjs/locale/ja'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)

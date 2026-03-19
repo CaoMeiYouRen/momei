@@ -11,6 +11,7 @@ describe('translation utils', () => {
         it('should resolve locale fallback chain from locale registry', () => {
             expect(resolveTranslationFallbackChain('zh-TW')).toEqual(['zh-TW', 'zh-CN', 'en-US'])
             expect(resolveTranslationFallbackChain('ko-KR')).toEqual(['ko-KR', 'en-US', 'zh-CN'])
+            expect(resolveTranslationFallbackChain('ja-JP')).toEqual(['ja-JP', 'en-US', 'zh-CN'])
         })
 
         it('should apply translation aggregation with default language', () => {

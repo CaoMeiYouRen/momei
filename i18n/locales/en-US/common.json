@@ -71,7 +71,8 @@
             "zh-CN": "Chinese (Simplified)",
             "en-US": "English",
             "zh-TW": "Chinese (Traditional)",
-            "ko-KR": "Korean"
+            "ko-KR": "Korean",
+            "ja-JP": "Japanese"
         },
         "translation_id": "Translation ID",
         "translation_id_hint": "Used to manually link the same entity across different languages. Recommended to use a unique English identifier (like URL Slug).",

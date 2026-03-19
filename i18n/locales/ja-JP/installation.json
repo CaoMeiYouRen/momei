@@ -1,0 +1,219 @@
+{
+    "installation": {
+        "title": "Momei Blog インストールウィザード",
+        "subtitle": "まず最小限の設定を終えて、サイトをすばやく起動できる状態にしましょう。",
+        "languagePrompt": {
+            "title": "最初にインストール言語を確認してください",
+            "description": "現在の表示が読みにくい場合は、ウィザードを続ける前に言語を切り替えてください。"
+        },
+        "steps": {
+            "healthCheck": "環境チェック",
+            "database": "データベース",
+            "siteConfig": "サイト設定",
+            "adminAccount": "管理者アカウント",
+            "preview": "プレビュー",
+            "complete": "完了"
+        },
+        "healthCheck": {
+            "title": "環境チェック",
+            "description": "続行する前に、実行環境の準備ができているか確認します。",
+            "database": "データベース接続",
+            "node": "Node.js バージョン",
+            "dbVersion": "データベースバージョン",
+            "serverless": "Serverless 環境",
+            "os": "オペレーティングシステム",
+            "language": "インストール言語",
+            "enabled": "有効",
+            "disabled": "無効",
+            "nodeVersionWarning": "Node.js のバージョンが低めです。安定性のため v20 以上を推奨します。"
+        },
+        "database": {
+            "title": "データベース初期化",
+            "description": "インストールに必要な基本テーブルを作成します。",
+            "initialize": "データベースを初期化",
+            "success": "データベースの初期化が完了しました",
+            "error": "データベースの初期化に失敗しました。設定を確認してください"
+        },
+        "siteConfig": {
+            "title": "サイト設定",
+            "description": "まず公開向けの基本情報を入力します。",
+            "siteTitle": "サイトタイトル",
+            "siteDescription": "サイト説明",
+            "siteKeywords": "サイトキーワード",
+            "siteUrl": "サイト URL",
+            "siteUrlPlaceholder": "例: https://blog.example.com",
+            "postCopyright": "記事のデフォルト著作権ライセンス",
+            "siteCopyrightOwner": "サイト著作権者",
+            "siteCopyrightStartYear": "サイト著作権開始年",
+            "defaultLanguage": "デフォルト言語",
+            "error": "サイト設定の保存に失敗しました"
+        },
+        "adminAccount": {
+            "title": "管理者アカウント作成",
+            "description": "続きの設定に使う最初の管理者を作成します。",
+            "name": "名前",
+            "email": "メールアドレス",
+            "password": "パスワード",
+            "error": "管理者アカウントの作成に失敗しました"
+        },
+        "preview": {
+            "title": "任意機能",
+            "description": "これらの機能は後からシステム設定でいつでも構成できます。",
+            "error": "プレビュー設定の読み込みに失敗しました",
+            "sections": {
+                "ai": "AI アシスタント",
+                "email": "メールサービス",
+                "storage": "添付ファイルストレージ",
+                "analytics": "分析と SEO"
+            },
+            "ai": {
+                "provider": "AI プロバイダー",
+                "apiKey": "API キー",
+                "model": "デフォルトモデル",
+                "endpoint": "API エンドポイント（任意）"
+            },
+            "email": {
+                "host": "SMTP ホスト",
+                "port": "ポート",
+                "user": "アカウント",
+                "pass": "パスワード / アプリキー",
+                "from": "送信元アドレス"
+            },
+            "storage": {
+                "type": "ストレージ種別",
+                "localDir": "保存パス（相対 / 絶対）",
+                "localBaseUrl": "公開ベース URL",
+                "s3Endpoint": "S3 エンドポイント",
+                "s3Bucket": "バケット名",
+                "s3Region": "リージョン",
+                "s3AccessKey": "Access Key ID",
+                "s3SecretKey": "Secret Access Key",
+                "s3BaseUrl": "公開ドメイン（ベース URL）",
+                "s3BucketPrefix": "オブジェクト接頭辞",
+                "assetPublicBaseUrl": "共通アセット公開ベース URL",
+                "assetObjectPrefix": "共通オブジェクト接頭辞"
+            },
+            "analytics": {
+                "baidu": "Baidu Analytics ID",
+                "google": "Google Tracking ID",
+                "clarity": "Microsoft Clarity ID"
+            }
+        },
+        "setupChecklist": {
+            "title": "初期セットアップチェックリスト",
+            "summaryTitle": "まず優先する項目",
+            "summary": {
+                "production": "まずサイト公開に直結する最小設定を済ませ、その後の細かい設定は管理画面で続けてください。",
+                "demo": "今はデモ優先の導線を進め、実運用設定は正式環境で行ってください。"
+            },
+            "laterHint": "ストレージ、AI、通知はここで一度に完了させる必要はありません。インストール後にシステム設定から続けられます。",
+            "description": {
+                "production": "インストールウィザードでは、サイト起動に必要な最小設定のみを扱います。認証、通知、AI、ストレージ戦略はインストール後に管理画面で固めてください。",
+                "demo": "デモモードは 3〜5 分の製品体験向けに最適化されています。実運用設定はデモ体験の後に行ってください。"
+            },
+            "mode": {
+                "production": "本番デプロイ",
+                "demo": "デモ体験"
+            },
+            "groups": {
+                "immediate": {
+                    "title": "今すぐ設定",
+                    "description": "初回アクセス性、管理者の所有権、公開向け基本情報に直結する項目です。"
+                },
+                "later": {
+                    "title": "あとで設定",
+                    "description": "サイトが到達可能になった後、管理画面で仕上げる方が楽な機能です。"
+                }
+            },
+            "contexts": {
+                "wizardSite": "ウィザード / サイト設定",
+                "wizardLocale": "ウィザード / デフォルト言語 + インストール後 / プロフィールのタイムゾーン",
+                "wizardAdmin": "ウィザード / 管理者アカウント",
+                "wizardSeo": "ウィザード / サイト設定 + インストール後 / 分析",
+                "adminAuth": "インストール後 / 管理設定 / 認証",
+                "adminStorage": "インストール後 / 管理設定 / ストレージ",
+                "adminAi": "インストール後 / 管理設定 / AI",
+                "adminNotifications": "インストール後 / 管理設定 / 通知",
+                "demoPublic": "デモ / 公開サイト",
+                "demoEditor": "デモ / クリエイターダッシュボード",
+                "demoExplore": "デモ / 言語とコンテンツ探索",
+                "postDemoGeneral": "デモ後 / 管理設定 / 一般",
+                "postDemoIntegrations": "デモ後 / 管理設定 / AI と連携",
+                "postDemoNotifications": "デモ後 / 管理設定 / 通知"
+            },
+            "items": {
+                "siteIdentity": {
+                    "title": "サイトアイデンティティ",
+                    "description": "サイト名、公開 URL、基本紹介文を最初に設定し、リンク・ブランド・トップページ文言をすぐ使える状態にします。"
+                },
+                "localeTimezone": {
+                    "title": "言語とタイムゾーン",
+                    "description": "インストール時にデフォルト言語を選び、ログイン後に自分のタイムゾーンを設定して UI 言語と時刻表示を揃えます。"
+                },
+                "adminAccess": {
+                    "title": "管理権限とアクセス",
+                    "description": "最初の管理者アカウントを作成し、実運用前に復旧方法も確認しておきます。"
+                },
+                "seoVisibility": {
+                    "title": "SEO と公開可視性",
+                    "description": "サイト説明、キーワード、canonical URL を先に押さえ、分析スクリプトや検証設定は後で管理画面から進めます。"
+                },
+                "authExperience": {
+                    "title": "サインインと登録ポリシー",
+                    "description": "OAuth、匿名アクセス、CAPTCHA、セキュリティポリシーを管理画面で固めてから、公開サイトの導線を決めましょう。"
+                },
+                "storageDelivery": {
+                    "title": "オブジェクトストレージとアセット配信",
+                    "description": "環境に応じてローカル、S3、R2 を選び、メディアが増える前にアセット接頭辞を統一します。"
+                },
+                "aiWorkflow": {
+                    "title": "AI プロバイダーと予算",
+                    "description": "インストール後に実際のモデル、API キー、デフォルトモデルを接続し、コストと権限方針に合わせて段階的に開放します。"
+                },
+                "notifications": {
+                    "title": "通知配信",
+                    "description": "どの高価値イベントを配信するか決めたあと、管理画面でアプリ内通知、メール、ブラウザ通知をまとめて設定します。"
+                },
+                "demoPublic": {
+                    "title": "サンプルコンテンツから始める",
+                    "description": "トップページと初期記事を使って、公開情報設計、テーマ、多言語閲覧フローを確認します。"
+                },
+                "demoCreator": {
+                    "title": "クリエイター体験を開く",
+                    "description": "デモアカウントでそのままエディタに入り、AI 支援執筆・翻訳・公開の流れを試してください。"
+                },
+                "demoLocale": {
+                    "title": "言語切替と導線を確認する",
+                    "description": "言語切替、検索、記事一覧を通じて locale fallback とコンテンツ探索挙動を体験します。"
+                },
+                "demoProductionIdentity": {
+                    "title": "本番用サイト情報は後で確定",
+                    "description": "デモサイト設定はサンプルデータです。実運用前に一般設定へ戻り、ブランド、URL、基本文言を確定してください。"
+                },
+                "demoIntegrations": {
+                    "title": "実連携はデモ後に接続",
+                    "description": "本番 AI、ストレージ、メール資格情報はデモ導線に混ぜず、デモ終了後にまとめて設定してください。"
+                },
+                "demoNotifications": {
+                    "title": "通知は実環境で有効化",
+                    "description": "メールやブラウザ通知は、ドメイン、VAPID / SMTP、配信対象を確定した実環境で設定してください。"
+                }
+            }
+        },
+        "complete": {
+            "title": "インストール完了",
+            "description": "おめでとうございます。Momei Blog のインストールが完了しました。",
+            "finalize": "インストールを完了する",
+            "success": "インストールが完了しました。",
+            "envHint": "再インストールを防ぐため、以下を環境変数に追加してください。",
+            "goToAdmin": "管理画面へ移動",
+            "handoffTitle": "ウィザードはここで終了です",
+            "handoffDescription": {
+                "production": "サイトは利用可能になりました。以下の項目はウィザードを膨らませるより、インストール後に管理画面で仕上げる方が適しています。",
+                "demo": "デモ導線の準備ができました。まずはこちらの入口から触り、その後どの機能を本番設定にするか決めてください。"
+            },
+            "openTarget": "開く",
+            "error": "インストールの完了処理に失敗しました"
+        }
+    }
+}

@@ -8,6 +8,7 @@ import { zh_CN } from 'primelocale/js/zh_CN.js'
 import { zh_TW } from 'primelocale/js/zh_TW.js'
 import { en } from 'primelocale/js/en.js'
 import { ko } from 'primelocale/js/ko.js'
+import { ja } from 'primelocale/js/ja.js'
 import { APP_DEFAULT_LOCALE, resolveAppLocaleCode } from '@/i18n/config/locale-registry'
 
 export default defineNuxtPlugin((nuxtApp) => {
@@ -27,6 +28,7 @@ export default defineNuxtPlugin((nuxtApp) => {
             'en-US': en,
             'zh-TW': zh_TW,
             'ko-KR': ko,
+            'ja-JP': ja,
         }
 
         /**

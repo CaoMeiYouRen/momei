@@ -30,7 +30,7 @@
 </p>
 
 <p align="center">
-  <a href="./README.md">简体中文</a> | <a href="./README.zh-TW.md">繁體中文</a> | <a href="./README.en-US.md">English</a> | <a href="./README.ko-KR.md">한국어</a>
+  <a href="./README.md">简体中文</a> | <a href="./README.zh-TW.md">繁體中文</a> | <a href="./README.en-US.md">English</a> | <a href="./README.ko-KR.md">한국어</a> | <a href="./README.ja-JP.md">日本語</a>
 </p>
 
 <p align="center">

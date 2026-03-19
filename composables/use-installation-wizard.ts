@@ -1,6 +1,7 @@
 import { computed, onMounted, ref } from 'vue'
 import type { ApiResponse } from '@/server/utils/response'
 import type { InstallationEnvSetting } from '@/utils/shared/installation-env-setting'
+import { APP_ENABLED_LOCALES } from '@/i18n/config/locale-registry'
 import { isCopyrightType } from '@/types/copyright'
 import { getCopyrightLicenseOptions, resolveDefaultCopyrightLicense } from '@/utils/shared/copyright-options'
 import { getInstallationChecklist, type InstallationChecklistMode } from '@/utils/shared/installation-checklist'
@@ -68,12 +69,10 @@ export function useInstallationWizard() {
     const siteConfigError = ref('')
     const siteFieldErrors = ref<InstallationSiteFieldErrors>({})
 
-    const languageOptions = computed(() => [
-        { label: t('common.languages.zh-CN'), value: 'zh-CN' },
-        { label: t('common.languages.en-US'), value: 'en-US' },
-        { label: t('common.languages.zh-TW'), value: 'zh-TW' },
-        { label: t('common.languages.ko-KR'), value: 'ko-KR' },
-    ])
+    const languageOptions = computed(() => APP_ENABLED_LOCALES.map((locale) => ({
+        label: t(`common.languages.${locale.code}`),
+        value: locale.code,
+    })))
     const licenseOptions = computed(() => getCopyrightLicenseOptions(t))
 
     const adminData = ref<AdminCreationForm>({

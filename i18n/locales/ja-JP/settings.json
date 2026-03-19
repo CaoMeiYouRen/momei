@@ -1,0 +1,162 @@
+{
+    "pages": {
+        "settings": {
+            "title": "ユーザーセンター",
+            "profile": {
+                "title": "公開プロフィール",
+                "avatar": "アバター",
+                "upload": "アバターをアップロード",
+                "upload_success": "アバターを更新しました",
+                "upload_failed": "アバターのアップロードに失敗しました",
+                "name": "表示名",
+                "language": "UI 言語",
+                "timezone": "タイムゾーン",
+                "save": "変更を保存",
+                "success": "プロフィールを更新しました"
+            },
+            "security": {
+                "title": "セキュリティ",
+                "change_password": "パスワード変更",
+                "set_password_hint": "まだパスワードを設定していない場合（OAuth でログインした場合など）や、現在のパスワードを忘れた場合は、",
+                "current_password": "現在のパスワード",
+                "new_password": "新しいパスワード",
+                "confirm_password": "新しいパスワードの確認",
+                "update_password": "パスワードを更新",
+                "password_updated": "パスワードを更新しました",
+                "linked_accounts": "連携済みアカウント",
+                "link_github": "GitHub を連携",
+                "link_google": "Google を連携",
+                "unlink_account": "連携解除",
+                "unlink_success": "連携を解除しました",
+                "unlink_error": "連携解除に失敗しました",
+                "link_error": "連携開始に失敗しました"
+            },
+            "api_keys": {
+                "title": "API キー",
+                "description": "API キーを使うと、外部アプリケーションからコンテンツを投稿できます。",
+                "create_btn": "新しいキーを作成",
+                "new_key_title": "新しい API キー",
+                "new_key_hint": "セキュリティ上の理由から、API キーはこの画面で必ず保存してください。後から再表示できません。",
+                "name": "名称",
+                "prefix": "接頭辞",
+                "expires_at": "有効期限",
+                "never_expires": "無期限",
+                "expired_at_options": {
+                    "never": "無期限",
+                    "7d": "7日",
+                    "30d": "30日",
+                    "365d": "365日"
+                },
+                "last_used_at": "最終使用日",
+                "create_success": "API キーを作成しました",
+                "delete_success": "API キーを失効しました"
+            },
+            "notifications": {
+                "title": "購読と通知",
+                "subscription_management_desc": "記事購読設定を管理します。興味のあるカテゴリやタグを選び、更新をできるだけ早く受け取りましょう。",
+                "categories": "カテゴリ購読",
+                "tags": "タグ購読",
+                "notification_methods": "配信チャネル",
+                "notification_methods_desc": "メールとブラウザ通知を横断して、高価値な通知を管理します。セキュリティ通知は常に有効で、コメント返信やシステム通知はチャネルごとに調整できます。",
+                "notification_types": {
+                    "comment_reply": "コメント返信",
+                    "system": "システム通知",
+                    "security": "セキュリティ通知"
+                },
+                "security_fixed_hint": "セキュリティ通知は重要度が高いため、常に有効のまま保持されます。",
+                "email": {
+                    "title": "メール通知",
+                    "description": "重要な更新をアカウントに紐付くメールアドレスへ送り、複数デバイスで確実に受け取れるようにします。"
+                },
+                "email_type_desc": {
+                    "comment_reply": "自分のコメントに返信が付いたときにメールで通知します。",
+                    "system": "完了した非同期タスクなど、重要なシステム通知をメールで届けます。",
+                    "security": "ログインセキュリティなど、高優先度のセキュリティ通知をメールで届けます。"
+                },
+                "browser": {
+                    "title": "ブラウザ通知",
+                    "description": "ブラウザ配信設定は既定で有効です。まだ権限を付与していなくても、先にポリシーだけ保存して後で許可できます。"
+                },
+                "web_push": "ブラウザ通知",
+                "web_push_desc": "オフライン時のブラウザ通知配信方法を設定します。有効化すると、コメント返信、システム通知、セキュリティ通知をブラウザで受け取れます。",
+                "browser_status": "ブラウザ通知ステータス",
+                "browser_status_site_disabled": "このサイトでは Web Push 設定がまだ完了していません。後でもう一度試すか、管理者へお問い合わせください。",
+                "browser_status_unsupported": "現在のブラウザまたは端末は Web Push に対応していません。",
+                "browser_status_granted": "ブラウザ通知は有効です。オフライン時も重要な通知を受け取れます。",
+                "browser_status_denied": "ブラウザ通知が拒否されています。ブラウザ設定で再度有効にしてください。",
+                "browser_status_default": "まだブラウザ通知の権限が付与されていません。先に許可してから配信設定を保存できます。",
+                "enable_browser_push": "ブラウザ通知を有効にする",
+                "browser_type_desc": {
+                    "comment_reply": "コメントに返信が付いたときにブラウザ通知を送ります。",
+                    "system": "完了した非同期タスクや重要なシステムメッセージをブラウザ通知で届けます。",
+                    "security": "ログインセキュリティなど高優先度イベントをブラウザ通知で届けます。",
+                    "marketing": "マーケティング通知は現在 Web Push チャネルには入りません。"
+                },
+                "marketing": "マーケティングと機能更新",
+                "marketing_desc": "Momei チームからの機能更新、活動提案、その他の案内メールを受け取ります。",
+                "marketing_enable": "マーケティングメール通知を有効にする",
+                "save_success": "購読設定を更新しました",
+                "save_failed": "購読設定の更新に失敗しました",
+                "active_status": "購読ステータス",
+                "active": "購読中",
+                "inactive": "購読停止中",
+                "pause_subscription": "すべての購読を一時停止",
+                "resume_subscription": "購読を再開",
+                "history": {
+                    "title": "通知履歴",
+                    "description": "受信済みの通知を確認し、既読状態をここで同期できます。",
+                    "refresh": "更新",
+                    "mark_all_read": "すべて既読にする",
+                    "mark_read": "既読にする",
+                    "view_target": "対象を開く",
+                    "empty": "通知履歴はまだありません",
+                    "status": {
+                        "read": "既読",
+                        "unread": "未読"
+                    },
+                    "columns": {
+                        "time": "時刻",
+                        "type": "種別",
+                        "content": "内容",
+                        "status": "状態",
+                        "target": "対象",
+                        "actions": "操作"
+                    }
+                }
+            },
+            "commercial": {
+                "title": "マネタイズ",
+                "subtitle": "個人のソーシャルリンクや支援情報を設定します。記事末尾の著者カードに表示されます。",
+                "social_links": "ソーシャルリンク",
+                "social_desc": "SNS、個人サイト、その他の外部リンクを追加できます。",
+                "donation_links": "支援・寄付",
+                "donation_desc": "寄付 / スポンサーリンクや QR コードを設定し、読者が支援しやすくします。",
+                "add_social": "ソーシャルプラットフォームを追加",
+                "add_donation": "寄付プラットフォームを追加",
+                "platform": "プラットフォーム",
+                "url": "URL",
+                "image": "QR コード画像",
+                "label": "カスタム表示名",
+                "locales": "表示言語",
+                "locales_hint": "空欄にするとすべての言語で表示されます",
+                "success": "マネタイズ設定を更新しました",
+                "empty_social": "ソーシャルリンクはまだ設定されていません",
+                "empty_donation": "寄付リンクはまだ設定されていません",
+                "delete_confirm": "このリンクを削除してもよろしいですか？",
+                "edit_social": "ソーシャルリンクを編集",
+                "edit_donation": "寄付リンクを編集",
+                "social_platforms": {
+                    "wechat_mp": "WeChat MP",
+                    "bilibili": "Bilibili",
+                    "weibo": "Weibo",
+                    "zhihu": "Zhihu",
+                    "x": "X (Twitter)",
+                    "youtube": "YouTube",
+                    "facebook": "Facebook",
+                    "github": "GitHub",
+                    "discord": "Discord"
+                }
+            }
+        }
+    }
+}

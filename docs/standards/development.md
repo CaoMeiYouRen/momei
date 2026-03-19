@@ -79,7 +79,7 @@ AI 在生成代码时应严格遵守以下约定：
 
 为了避免 `better-auth-localization` 与 `primelocale` / `Nuxt i18n` 两套标识并存带来的歧义，项目当前采用以下统一口径：
 
-- **项目内部规范**: 一律以 `i18n/config/locale-registry.ts` 中定义的 `AppLocaleCode` 为准，即 `zh-CN`、`en-US`、`zh-TW`、`ko-KR`。
+- **项目内部规范**: 一律以 `i18n/config/locale-registry.ts` 中定义的 `AppLocaleCode` 为准，即 `zh-CN`、`en-US`、`zh-TW`、`ko-KR`、`ja-JP`。
 - **适用范围**: 路由 locale、`i18n/locales/<locale>/` 目录名、前端语言切换、页面渲染、SEO、sitemap、feed、数据库中的业务语言字段，均使用 `AppLocaleCode`。
 - **认证边界例外**: `better-auth-localization` 仍使用其内置标识（如 `zh-Hans`、`zh-Hant`、`default`），但这些值**只允许存在于认证插件适配层与输入归一化过程**，不能作为项目内部事实源继续扩散。
 - **输入归一化**: 外部请求头、Cookie、查询参数或第三方库返回的 locale，可先经过 `server/utils/locale.ts` 与 `i18n/config/locale-registry.ts` 映射后再进入业务逻辑。
@@ -88,7 +88,7 @@ AI 在生成代码时应严格遵守以下约定：
 迁移策略说明：
 
 - 当前不主动把全站切换到 `better-auth-localization` 的标识体系。
-- 维持现有 `zh-CN` / `en-US` / `zh-TW` / `ko-KR` 方案，可最大限度降低 i18n 目录、路由、SEO 与 PrimeVue locale 的迁移成本。
+- 维持现有 `zh-CN` / `en-US` / `zh-TW` / `ko-KR` / `ja-JP` 方案，可最大限度降低 i18n 目录、路由、SEO 与 PrimeVue locale 的迁移成本。
 - 若未来要统一到另一套标识，必须先完成完整的 route、locale 资源、SEO 与存量数据迁移设计，不得局部替换。
 
 ### 2.6 Git 工作流与 Worktree 规范 (Git Workflow & Worktree)
