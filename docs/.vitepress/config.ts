@@ -12,6 +12,7 @@ export default defineConfig({
     cleanUrls: true,
     ignoreDeadLinks: true,
     rewrites(id) {
+        // 将 i18n 目录下的文件链接重写为根路径，以适配 docs 文档结构变化
         return id.replace(translatedDocSourcePattern, '$1/')
     },
     sitemap: {

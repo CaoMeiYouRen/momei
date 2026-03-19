@@ -6,7 +6,7 @@ last_sync: 2026-03-16
 # Features
 
 ::: warning Translation Notice
-This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../guide/features.md) shall prevail.
+This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../../guide/features.md) shall prevail.
 :::
 
 Momei is an **AI-driven, Native i18n** modern blogging platform. It integrates deep AI creative assistance and a ground-up internationalization design to achieve "AI-Empowered Global Creation," helping technical creators connect seamlessly with readers worldwide.

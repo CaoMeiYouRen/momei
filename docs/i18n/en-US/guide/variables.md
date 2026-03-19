@@ -6,7 +6,7 @@ last_sync: 2026-03-07
 # Variables & Settings Mapping
 
 ::: warning Translation Notice
-This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../guide/variables.md) shall prevail.
+This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../../guide/variables.md) shall prevail.
 :::
 
 This page lists the environment variables used by Momei and their corresponding internal settings keys (`SettingKey`), visibility levels, and masking rules.

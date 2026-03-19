@@ -1,12 +1,12 @@
 ---
 source_branch: master
-last_sync: 2026-03-10
+last_sync: 2026-03-19
 ---
 
 # 翻譯治理與貢獻流程
 
 ::: warning 翻譯說明
-本頁翻譯自 [中文原文](../../guide/translation-governance.md)。若有差異，請以原文為準。
+本頁翻譯自 [中文原文](../../../guide/translation-governance.md)。若有差異，請以原文為準。
 :::
 
 本文定義墨梅多語言文案與文件的協作規則，目標是避免出現「頁面已翻譯，但系統鏈路、郵件、SEO 或回歸驗證尚未補齊」的半完成語言狀態。
@@ -18,6 +18,7 @@ last_sync: 2026-03-10
 - 應用前端詞條與模組文案
 - 郵件模板文案
 - 文件站公開頁面
+- 文件倉庫路徑與公共 URL 映射
 - 與語言發佈相關的 SEO、站點地圖與回退策略
 
 治理的核心不是只把文字換成另一種語言，而是確保新增語言可以在產品、通知、文件與搜尋入口中形成閉環。
@@ -67,13 +68,15 @@ last_sync: 2026-03-10
 
 1. 明確目標語言與階段目標，是補齊 `ui-ready` 還是推進到 `seo-ready`。
 2. 檢查對應模組是否已有 locale 檔案、郵件 locale 與文件目錄。
-3. 更新 [todo.md](../plan/todo.md) 中的當前階段狀態，避免重複勞動。
+3. 更新 [todo.md](../../../plan/todo.md) 中的當前階段狀態，避免重複勞動。
 
 ### 5.2 翻譯中
 
 1. 優先補高頻路徑，例如首頁、認證、設定、法律頁與後台關鍵鏈路。
 2. 新增文件頁時，優先同步首頁、快速開始與翻譯治理頁。
-3. 若某模組暫不翻譯，應保留原文來源說明，而不是留空或放英文占位。
+3. 翻譯文件的物理路徑統一放在 `docs/i18n/<locale>/`，對外文件站 URL 維持 `/<locale>/...`。
+4. 單頁從 `docs/<locale>/` 遷移到 `docs/i18n/<locale>/` 時，必須同步刪除舊副本，並保持 rewrites / editLink 映射正確。
+5. 若某模組暫不翻譯，應保留原文來源說明，而不是留空或放英文占位。
 
 ### 5.3 提交前
 
@@ -81,6 +84,7 @@ last_sync: 2026-03-10
 
 ```bash
 node scripts/i18n/audit-locale-keys.mjs --fail-on-missing
+pnpm docs:check:i18n
 pnpm lint
 pnpm typecheck
 ```

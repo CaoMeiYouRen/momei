@@ -19,7 +19,6 @@
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
 - [ ] 第十五阶段 / AI Agent / Skills 治理、Rules 边界与复用收敛：先恢复完整治理子议题，收敛权威文件、职责矩阵、Rules 边界与复用治理，再进入自动化验证矩阵实现。
-- [ ] 第十五阶段 / 文档国际化目录重构：继续迁移剩余 guide 翻译页（`comparison`、`features`、`translation-governance`、`variables`），并保持重复页检查常驻。
 
 
 ## 第十五阶段：AI 协作治理与国际化文档收敛
@@ -70,13 +69,13 @@
 
 ### 3. 文档国际化目录重构 (P1)
 
-- [ ] **翻译文档目录与 URL 约束收敛**
-	- 进展: 已完成首页、文档规范页、guide 首批（`quick-start`、`deploy`、`development`、`ai-development`）以及其余 `standards/`、`design/` 翻译页迁移；旧副本已同步清理，剩余 guide 翻译页为 `comparison`、`features`、`translation-governance`、`variables`。
+- [x] **翻译文档目录与 URL 约束收敛**
+	- 进展: 已完成首页、文档规范页、guide 全量、`standards/` 全量与 `design/` 全量翻译页迁移；旧副本已同步清理，活动文档与 README 已不再引用旧物理目录，当前仅保留 `todo-archive.md` 中的历史阶段描述作为归档记录。
 	- 验收: 形成 `docs/i18n/<locale>/` 的目录迁移方案，同时保持外部文档站继续使用 `/<locale>/...` 路由，不将仓库路径结构直接暴露为公共 URL。
 	- 验收: 明确过渡期兼容映射与分批迁移策略，避免一次性硬切导致死链与编辑入口失效。
 	- 验收: 补齐迁移审计，至少覆盖历史引用、构建产物与相对路径 3 类场景。
-- [ ] **文档站配置与规范同步**
-	- 进展: VitePress rewrites / `editLink` 已切到真实源文件路径，文档规范与翻译治理已同步到 `docs/i18n/<locale>/`，并新增重复页阻塞检查脚本防止 `docs/<locale>/` 与 `docs/i18n/<locale>/` 双写漂移。
+- [x] **文档站配置与规范同步**
+	- 进展: VitePress rewrites / `editLink` 已切到真实源文件路径，文档规范与翻译治理已同步到 `docs/i18n/<locale>/`，并新增重复页阻塞检查脚本防止 `docs/<locale>/` 与 `docs/i18n/<locale>/` 双写漂移；剩余 guide 翻译页的相对回链与翻译治理规则也已补齐。
 	- 验收: 同步更新 VitePress locale 配置、导航/侧边栏、编辑链接映射、Translation Notice 与文档规范中的路径说明。
 	- 验收: 明确新增翻译页的 Frontmatter、原文回链与相对路径生成约束，不再允许新旧目录混用。
 	- 验收: 补齐文档构建与死链检查，至少覆盖英文、繁体中文、韩语 3 类现有翻译目录。

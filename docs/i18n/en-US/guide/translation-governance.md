@@ -1,12 +1,12 @@
 ---
 source_branch: master
-last_sync: 2026-03-10
+last_sync: 2026-03-19
 ---
 
 # Translation Governance and Contribution Flow
 
 ::: warning Translation Notice
-This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../guide/translation-governance.md) shall prevail.
+This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../../guide/translation-governance.md) shall prevail.
 :::
 
 ## 1. Goal and Scope
@@ -18,6 +18,7 @@ It applies to:
 - App UI locale files
 - Email locale packs
 - Public documentation pages
+- Documentation repository paths and public URL mapping
 - SEO, sitemap, and fallback rules related to language publishing
 
 ## 2. Release Levels
@@ -57,13 +58,15 @@ Every language rollout should verify these five gates:
 
 1. Define the target language and whether the work is for `ui-ready` or `seo-ready`.
 2. Check whether app locales, email locales, and docs directories already exist.
-3. Update the active phase status in [todo.md](../../plan/todo.md).
+3. Update the active phase status in [todo.md](../../../plan/todo.md).
 
 ### 5.2 During Translation
 
 1. Prioritize high-frequency flows first.
 2. When adding docs, start with the home page, quick start, and translation governance page.
-3. If a module is intentionally untranslated, link to the source language instead of leaving placeholders.
+3. Store translated docs physically under `docs/i18n/<locale>/` while keeping public site URLs at `/<locale>/...`.
+4. When moving a page from `docs/<locale>/` to `docs/i18n/<locale>/`, delete the legacy duplicate in the same change and keep rewrites plus edit-link mapping aligned.
+5. If a module is intentionally untranslated, link to the source language instead of leaving placeholders.
 
 ### 5.3 Before Merging
 
@@ -71,6 +74,7 @@ Run at least:
 
 ```bash
 node scripts/i18n/audit-locale-keys.mjs --fail-on-missing
+pnpm docs:check:i18n
 pnpm lint
 pnpm typecheck
 ```
