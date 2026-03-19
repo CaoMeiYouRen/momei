@@ -33,12 +33,12 @@
 	- 验收: 明确冲突处理顺序：`AGENTS.md` 优先于平台专属说明；若平台能力受限，仅允许补充“工具差异”，不允许覆盖项目级行为准则。
 	- 验收: 补齐文档与入口审计，至少覆盖权威文件、平台适配文件与开发入口说明 3 类场景。
 - [x] **工作流细化与推荐矩阵**
-	- 进展: 已在 `AGENTS.md` 中补齐核心智能体的适用场景、输入输出、必经交接点与不应承担职责，并新增默认推荐路径、阶段去重规则与主定义/镜像治理约束；`docs/guide/ai-development.md` 已同步面向开发者的推荐路径与避免重复派单说明。
+	- 进展: 已在 `AGENTS.md` 中补齐核心智能体的适用场景、输入输出、必经交接点与不应承担职责，并新增默认推荐路径、阶段去重规则与主定义/镜像治理约束；同时将本项目开发默认路径收敛为由 `@full-stack-master` 统一考虑、设计和实现，`docs/guide/ai-development.md` 已同步面向开发者的推荐路径与避免重复派单说明。
 	- 验收: 为 `@full-stack-master`、`@product-manager`、`@test-engineer`、`@code-auditor`、`@documentation-specialist` 等核心智能体明确适用场景、输入输出、必经交接点与不应承担的职责边界。
 	- 验收: 明确默认推荐路径：需求澄清优先交给产品经理，代码实现由全栈 / 前后端开发者承担，代码改动收尾必须进入 `code-auditor` Review，测试补强交由 `test-engineer`，文档沉淀交由 `documentation-specialist`。
 	- 验收: 禁止多个智能体在同一阶段重复承担同类职责，并补齐最小示例或矩阵说明。
 - [ ] **库存对齐、Skills 复用与冗余裁剪**
-	- 进展: 已确认 `.github/agents|skills` 与 `.claude/agents|skills` 当前库存同名同量，并明确以 `.github/` 为主定义、`.claude/` 为兼容镜像；已同步收敛 `full-stack-master`、`product-manager`、`code-auditor`、`test-engineer`、`documentation-specialist` 5 个核心 agent 的内容形态，改为“角色定位 + skills / 规范引用 + 输入输出 / 交接点 / 禁区”，减少重复抄写的工作流与门禁说明。
+	- 进展: 已确认 `.github/agents|skills` 与 `.claude/agents|skills` 当前库存同名同量，并明确以 `.github/` 为主定义、`.claude/` 为兼容镜像；已同步收敛 `full-stack-master`、`product-manager`、`code-auditor`、`test-engineer`、`documentation-specialist`、`frontend-developer`、`backend-developer`、`ui-validator`、`qa-assistant` 共 9 个 agent 的内容形态，统一为“角色定位 + skills / 规范引用 + 输入输出 / 交接点 / 禁区”，并把本项目默认开发路径收敛为由 `@full-stack-master` 统一考虑、设计和实现，前后端角色只承担边界已切清的局部专项。
 	- 验收: 对齐 `AGENTS.md`、`CLAUDE.md`、`docs/guide/ai-development.md`、`.github/agents/`、`.github/skills/` 与 `.claude/agents/`、`.claude/skills/` 的实际清单，消除角色名、路径、fallback 约定与推荐用法漂移。
 	- 验收: 清理未使用、重复、失效或职责高度重叠的 agent / skill，优先收敛为“一套主定义 + 平台适配镜像”的结构，避免双份说明长期分叉。
 	- 验收: 要求 agent 优先复用既有 skills 与规范文档，不再把相同的执行门禁、质量要求与流程说明复制到多个 agent 文件中；优先通过 `references` 或等效引用机制声明依赖，实现 skills / 规范按需加载，避免每次初始化一次性吞入整套规则上下文。

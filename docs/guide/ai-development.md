@@ -39,9 +39,9 @@
 | 任务类型 | 推荐智能体 | 你需要提供什么 | 预期产出 |
 | :--- | :--- | :--- | :--- |
 | **需求澄清 / 规划** | `@product-manager` | 目标、限制、是否已有 Todo/验收标准 | 范围判定、验收标准、后续交接对象 |
-| **跨栈功能 / 复杂修复** | `@full-stack-master` | 已确认目标、受影响模块、优先级 | 阶段拆解、代码改动、收口计划 |
-| **纯前端实现** | `@frontend-developer` | 页面/组件范围、设计约束、交互要求 | 前端代码、自检记录、待验证页面 |
-| **纯后端实现** | `@backend-developer` | 接口/数据模型范围、权限要求 | 后端代码、契约说明、待补测试点 |
+| **默认开发路径：功能 / 修复 / 治理** | `@full-stack-master` | 已确认目标、受影响模块、优先级 | 统一方案、全栈代码改动、收口计划 |
+| **前端局部专项** | `@frontend-developer` | 页面/组件范围、设计约束、交互要求 | 前端代码、自检记录、待验证页面 |
+| **后端局部专项** | `@backend-developer` | 接口/数据模型范围、权限要求 | 后端代码、契约说明、待补测试点 |
 | **代码审查** | `@code-auditor` | 变更范围、Todo 验收点、验证结果 | 审计结论、风险清单、放行/退回建议 |
 | **编写/优化测试** | `@test-engineer` | 改动模块、行为预期、预算约束 | 定向测试、运行结果、剩余缺口 |
 | **文档同步** | `@documentation-specialist` | 已确认实现或规划结论、需同步文档范围 | 文档更新、原文回链、同步说明 |
@@ -50,14 +50,15 @@
 ### 默认推荐路径
 
 1.  需求不够清楚时，先找 `@product-manager`，不要直接要求开发角色“边做边想”。
-2.  代码实现阶段只保留一个主责执行者：跨栈默认 `@full-stack-master`，纯前端交 `@frontend-developer`，纯后端交 `@backend-developer`。
-3.  任何代码改动收尾都要交 `@code-auditor`，不能跳过 Review Gate。
-4.  有界面改动时，再交 `@ui-validator`；有测试缺口时，交 `@test-engineer`。
-5.  当实现或规划发生变化后，再交 `@documentation-specialist` 做文档沉淀。
+2.  在本项目里，开发默认交给 `@full-stack-master` 统一考虑、设计和实现，不把前后端默认拆成两条平行主线。
+3.  只有在任务边界已经稳定切清时，才交 `@frontend-developer` 或 `@backend-developer` 处理局部专项。
+4.  任何代码改动收尾都要交 `@code-auditor`，不能跳过 Review Gate。
+5.  有界面改动时，再交 `@ui-validator`；有测试缺口时，交 `@test-engineer`。
+6.  当实现或规划发生变化后，再交 `@documentation-specialist` 做文档沉淀。
 
 ### 避免重复派单
 
--   不要同时让 `@full-stack-master`、`@frontend-developer`、`@backend-developer` 在同一阶段重做同一项实现。
+-   不要把 `@full-stack-master` 与前后端专项角色同时作为同一事项的并行主责；如果已经交给全栈角色，就不要再平行拆一份前端/后端实现。
 -   不要让 `@code-auditor` 代替 `@test-engineer` 写完整测试，也不要让 `@test-engineer` 代替 `@ui-validator` 做浏览器视觉审计。
 -   `@qa-assistant` 是纯只读角色，适合先理解问题，不适合直接开工修改。
 

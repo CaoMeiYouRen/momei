@@ -48,10 +48,10 @@ AI 在生成或修改代码时，必须优先参考 [开发规范文档 - 代码
 
 | 智能体 | 适用场景 | 典型输入 | 主要输出 | 必经交接点 | 不应承担 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `@full-stack-master` | 跨阶段、跨前后端或需要统一编排的任务 | 用户目标、`todo.md` / `roadmap.md`、受影响文件范围 | 准入结论、阶段拆解、交接计划、收口说明 | 需求不清时先交 `@product-manager`；代码落地后交 `@code-auditor`，按需继续交 `@ui-validator` / `@test-engineer` / `@documentation-specialist` | 不应绕过专项审计、测试和文档收口直接宣布完成 |
+| `@full-stack-master` | 本项目默认的开发主责角色；负责统一考虑需求、方案、前后端实现与收口，或编排复杂跨阶段任务 | 用户目标、`todo.md` / `roadmap.md`、受影响文件范围 | 准入结论、阶段拆解、全栈代码改动、交接计划、收口说明 | 需求不清时先交 `@product-manager`；代码落地后交 `@code-auditor`，按需继续交 `@ui-validator` / `@test-engineer` / `@documentation-specialist` | 不应绕过专项审计、测试和文档收口直接宣布完成 |
 | `@product-manager` | 需求澄清、插队分流、验收标准定义、Todo/Roadmap 维护 | 用户原始需求、`todo.md`、`roadmap.md`、`todo-archive.md` | 范围判定、验收标准、任务拆解、规划更新 | 需求明确后交 `@full-stack-master` 或对应开发角色 | 不应承担代码实现、最终审计或测试编写 |
-| `@frontend-developer` | 页面、组件、样式、i18n UI、前端交互实现 | 已批准方案、UI 设计、受影响页面/组件清单 | 前端代码、自检记录、UI 风险提示 | 代码改动必须交 `@code-auditor`；涉及界面时继续交 `@ui-validator` | 不应承担需求分流、后端权限逻辑或最终 Review Gate |
-| `@backend-developer` | API、数据库、权限、服务端业务逻辑实现 | 已批准方案、API / 数据模型约束、受影响接口清单 | 后端代码、数据结构调整、自检记录 | 代码改动必须交 `@code-auditor`；测试补强交 `@test-engineer` | 不应承担产品规划、视觉验收或替代测试收口 |
+| `@frontend-developer` | 已被明确切分的前端局部实现、样式修补、UI 细节专项 | 已批准方案、UI 设计、受影响页面/组件清单 | 前端代码、自检记录、UI 风险提示 | 代码改动必须交 `@code-auditor`；涉及界面时继续交 `@ui-validator` | 不应承担跨栈统一方案设计、需求分流、后端权限逻辑或最终 Review Gate |
+| `@backend-developer` | 已被明确切分的后端局部实现、接口/数据库专项修补 | 已批准方案、API / 数据模型约束、受影响接口清单 | 后端代码、数据结构调整、自检记录 | 代码改动必须交 `@code-auditor`；测试补强交 `@test-engineer` | 不应承担跨栈统一方案设计、产品规划、视觉验收或替代测试收口 |
 | `@code-auditor` | 所有代码改动完成后的 Review Gate | 代码 diff、Todo 验收点、Lint/Typecheck/Test 结果 | 审计结论、问题分级、放行或退回建议 | Pass 后才能进入提交或后续验证；Reject 时退回对应开发者 | 不应承担需求定义、功能开发主责或测试增强主责 |
 | `@ui-validator` | 页面可视化变更后的浏览器验证、响应式/主题验证 | 已实现界面、运行入口、受影响页面列表 | 验证记录、截图/结论、回退问题清单 | UI 通过后交 `@test-engineer` 或回到开发者修复 | 不应承担业务逻辑实现、产品规划或替代自动化测试 |
 | `@test-engineer` | 测试补强、回归验证、覆盖率提升 | 已批准行为、改动模块、覆盖率缺口、预算约束 | 新增/修正测试、运行结果、剩余风险说明 | 测试代码变更仍需交 `@code-auditor` 审看 | 不应承担需求规划、视觉验收或无限制全量测试 |
@@ -61,7 +61,7 @@ AI 在生成或修改代码时，必须优先参考 [开发规范文档 - 代码
 ### 6.1 默认推荐路径
 
 1.  需求不清、验收标准缺失或怀疑插队时，优先交给 `@product-manager` 做范围判断。
-2.  代码实现阶段只保留一个主责执行者：跨栈任务默认 `@full-stack-master`，纯前端交 `@frontend-developer`，纯后端交 `@backend-developer`。
+2.  代码实现阶段默认由 `@full-stack-master` 统一负责需求理解、方案设计与前后端落地；仅当任务边界已经被明确切分时，才交 `@frontend-developer` 或 `@backend-developer` 处理局部专项。
 3.  任何代码改动收尾都必须进入 `@code-auditor` Review Gate，不能用“已本地验证”替代审计结论。
 4.  涉及实际页面或交互渲染的改动，再交 `@ui-validator` 做浏览器验证。
 5.  测试补强、覆盖率治理与回归验证由 `@test-engineer` 主责承担。
@@ -70,7 +70,7 @@ AI 在生成或修改代码时，必须优先参考 [开发规范文档 - 代码
 ### 6.2 阶段去重规则
 
 -   **P (Plan)**：由 `@product-manager` 主责，其他角色只提供上下文，不替代准入判断。
--   **D (Do)**：同一事项在同一时点只能有一个代码实现主责角色，避免 `@full-stack-master`、`@frontend-developer`、`@backend-developer` 并行重做同一段实现。
+-   **D (Do)**：同一事项在同一时点只能有一个代码实现主责角色；本项目默认由 `@full-stack-master` 统筹实现，只有在边界已经稳定切分时才拆给前后端专项角色。
 -   **A (Audit)**：`@code-auditor` 是唯一 Review Gate 负责人，开发者自检不等于审计通过。
 -   **V (Validate)**：`@ui-validator` 主责浏览器验证；`@test-engineer` 不替代 UI 可视审计。
 -   **T (Test)**：`@test-engineer` 主责测试补强；`@code-auditor` 只审计测试质量，不替代测试设计。
