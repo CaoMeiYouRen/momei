@@ -25,8 +25,9 @@
     "test:perf:budget": "node scripts/perf/check-bundle-budget.mjs --mode=warn --output=.lighthouseci/bundle-budget-report.json --baseline=.github/perf/bundle-baseline.json",
     "test:perf:budget:strict": "node scripts/perf/check-bundle-budget.mjs --mode=error --output=.lighthouseci/bundle-budget-report.json --baseline=.github/perf/bundle-baseline.json",
     "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:e2e",
-    "docs:dev": "vitepress dev docs --open",
-    "docs:build": "vitepress build docs",
+    "docs:check:i18n": "node scripts/docs/check-i18n-duplicates.mjs",
+    "docs:dev": "pnpm docs:check:i18n && vitepress dev docs --open",
+    "docs:build": "pnpm docs:check:i18n && vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "deploy:wrangler": "wrangler deploy"
   },

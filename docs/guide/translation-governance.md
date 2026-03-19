@@ -65,6 +65,7 @@
 2. 新增文档页时，优先同步首页、快速开始和翻译治理页。
 3. 翻译文档的物理路径统一落在 `docs/i18n/<locale>/`，对外文档站 URL 继续保持 `/<locale>/...`。
 4. 单页从旧的 `docs/<locale>/` 迁移到 `docs/i18n/<locale>/` 时，必须同步删除旧位置副本，并更新 VitePress rewrites / editLink 配置。
+5. 迁移完成后必须通过 `pnpm docs:check:i18n`，若同一翻译页同时存在于旧目录与 `docs/i18n/<locale>/`，视为阻塞问题，禁止继续提交。
 5. 若某模块暂不翻译，需保留原文来源说明，而不是留空或放英文占位。
 
 ### 5.3 提交前
@@ -73,6 +74,7 @@
 
 ```bash
 node scripts/i18n/audit-locale-keys.mjs --fail-on-missing
+pnpm docs:check:i18n
 pnpm lint
 pnpm typecheck
 ```

@@ -156,6 +156,7 @@
 -   **搜索与 SEO**: 确保新页面的标题足够清晰，以便本地搜索能够准确命中。
 -   **目录重写 (Rewrites)**: 翻译页迁移到 `docs/i18n/<locale>/` 后，必须同步维护 rewrites，使外部 URL 仍保持 `/<locale>/...`。
 -   **编辑链接 (Edit Link)**: `editLink` 必须指向真实源文件路径，确保迁移后“编辑此页”不会落回旧目录。
+-   **重复页阻塞检查**: 迁移批次必须执行 `pnpm docs:check:i18n`；若同一路由同时存在 `docs/<locale>/` 与 `docs/i18n/<locale>/` 两份翻译源文件，必须先清理旧副本再继续构建。
 
 ## 7. AI 协同准则 (AI Synergy)
 
