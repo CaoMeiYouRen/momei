@@ -1,9 +1,6 @@
 ---
 name: vue-frontend-expert
 description: 专注于 Vue 3 (Nuxt 4)、SCSS (BEM) 和 I18n 前端实现。
-version: 1.0.0
-author: GitHub Copilot
-applyTo: "**/*.{vue,ts,scss}"
 ---
 
 # Vue Frontend Expert Skill (Vue 前端专家技能)

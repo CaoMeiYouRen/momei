@@ -1,8 +1,6 @@
 ---
 name: todo-manager
 description: 专门负责管理项目路线图 (roadmap.md) 和待办事项 (todo.md)。
-version: 1.1.0
-author: GitHub Copilot
 ---
 
 # Todo Manager Skill (待办事项管理技能)

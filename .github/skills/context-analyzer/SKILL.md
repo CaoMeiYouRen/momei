@@ -1,9 +1,6 @@
 ---
 name: context-analyzer
 description: 分析项目上下文、Nuxt 结构和依赖项，用于规划和调试。
-version: 1.0.0
-author: GitHub Copilot
-applyTo: "**/*.{ts,vue,json,md}"
 ---
 
 # Context Analyzer Skill (上下文分析技能)

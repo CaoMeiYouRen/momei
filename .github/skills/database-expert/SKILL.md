@@ -1,8 +1,6 @@
 ---
 name: database-expert
 description: 专注于数据库建模、TypeORM 实体定义、迁移管理与 SQL 优化。
-version: 1.0.0
-author: GitHub Copilot
 ---
 
 # Database Expert Skill (数据库专家技能)

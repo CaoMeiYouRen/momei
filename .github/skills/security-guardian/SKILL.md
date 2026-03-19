@@ -1,9 +1,6 @@
 ---
 name: security-guardian
 description: 专注于代码安全性审计、漏洞识别与权限合规检查。
-version: 1.0.0
-author: GitHub Copilot
-applyTo: "**/*"
 ---
 
 # Security Guardian Skill (安全守护技能)

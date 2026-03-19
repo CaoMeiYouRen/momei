@@ -1,8 +1,6 @@
 ---
 name: technical-planning
 description: 进行技术方案设计、受影响文件寻找与改动风险分析。
-version: 1.1.0
-author: GitHub Copilot
 ---
 
 # Technical Planning Skill (技术规划技能)

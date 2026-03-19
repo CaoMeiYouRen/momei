@@ -1,9 +1,6 @@
 ---
 name: git-flow-manager
 description: 专注于 Git 暂存、规范化提交与变更记录管理。
-version: 1.0.0
-author: GitHub Copilot
-applyTo: "**/*"
 ---
 
 # Git Flow Manager Skill (Git 工作流管理技能)

@@ -1,8 +1,6 @@
 ---
 name: code-quality-auditor
 description: 融合 Lint、类型检查、规范审查与安全审计的综合质量门禁。
-version: 1.0.0
-author: GitHub Copilot
 ---
 
 # Code Quality Auditor Skill (代码质量审计技能)

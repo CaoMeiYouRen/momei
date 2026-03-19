@@ -1,14 +1,8 @@
 ---
 name: conventional-committer
 description: 暂存更改并生成符合 Conventional Commits 规范的提交消息。
-version: 1.0.0
-author: GitHub Copilot
-tools: ["terminal"]
 ---
-
 # Conventional Committer Skill (规范提交技能)
-
-## 能力 (Capabilities)
 
 -   **暂存 (Staging)**: 将修改后的文件添加到 git 暂存区。
 -   **消息生成**: 创建遵循 `type(scope): description` 格式的提交消息 (例如: `feat(auth): add login page`)。
@@ -17,7 +11,7 @@ tools: ["terminal"]
 ## 指令 (Instructions)
 
 0.  **Worktree 感知**: 提交前确认当前所在目录（如 `../momei-dev`），确保提交是在正确的分支和上下文中进行的。
-1.  **规范对齐**: 在提交前必须确认遵循 [开发规范 - 提交规模与原子化改动](../../../docs/standards/development.md#27-提交规模与原子化改动-commit-scale--atomic-changes)。
+1.  **规范对齐**: 在提交前必须确认遵循 [开发规范](../../../docs/standards/development.md)。
 2.  **规模校验**: 强制检查本次改动的文件数量。原则上文件数 **不要超过 10 个**；对应的功能点必须单一。
 3.  **任务关联**: 每次提交应且仅应关联 [待办事项 (Todo)](../../../docs/plan/todo.md) 中的一个原子条目。
 4.  **提交前检查**: 在执行任何 git 提交操作前，确认 `@code-auditor` 已经通过了 `pnpm typecheck`, `pnpm lint` 和必要的**定向测试**。

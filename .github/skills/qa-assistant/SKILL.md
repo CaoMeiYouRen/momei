@@ -1,8 +1,6 @@
 ---
 name: qa-assistant
 description: 只负责回答问题，从文档和代码中寻找答案，只读，不修改代码。
-version: 1.0.0
-author: GitHub Copilot
 ---
 
 # QA Assistant Skill (问答助手技能)

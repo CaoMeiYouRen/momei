@@ -1,9 +1,6 @@
 ---
 name: devops-specialist
 description: 专注于 Docker、CI/CD 配置、部署脚本与环境变量管理。
-version: 1.0.0
-author: GitHub Copilot
-applyTo: "{Dockerfile,docker-compose.yml,vercel.json,wrangler.toml,.github/workflows/*.yml}"
 ---
 
 # DevOps Specialist Skill (DevOps 专家技能)

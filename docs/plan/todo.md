@@ -38,7 +38,7 @@
 	- 验收: 明确默认推荐路径：需求澄清优先交给产品经理，代码实现由全栈 / 前后端开发者承担，代码改动收尾必须进入 `code-auditor` Review，测试补强交由 `test-engineer`，文档沉淀交由 `documentation-specialist`。
 	- 验收: 禁止多个智能体在同一阶段重复承担同类职责，并补齐最小示例或矩阵说明。
 - [ ] **库存对齐、Skills 复用与冗余裁剪**
-	- 进展: 已确认 `.github/agents|skills` 与 `.claude/agents|skills` 当前库存同名同量，并明确以 `.github/` 为主定义、`.claude/` 为兼容镜像；已同步收敛 `full-stack-master`、`product-manager`、`code-auditor`、`test-engineer`、`documentation-specialist`、`frontend-developer`、`backend-developer`、`ui-validator`、`qa-assistant` 共 9 个 agent 的内容形态，统一为“角色定位 + skills / 规范引用 + 输入输出 / 交接点 / 禁区”，并把本项目默认开发路径收敛为由 `@full-stack-master` 统一考虑、设计和实现，前后端角色只承担边界已切清的局部专项。
+	- 进展: 已确认 `.github/agents|skills` 与 `.claude/agents|skills` 当前库存同名同量，并明确以 `.github/` 为主定义、`.claude/` 为兼容镜像；已同步收敛 `full-stack-master`、`product-manager`、`code-auditor`、`test-engineer`、`documentation-specialist`、`frontend-developer`、`backend-developer`、`ui-validator`、`qa-assistant` 共 9 个 agent 的内容形态，统一为“角色定位 + skills / 规范引用 + 输入输出 / 交接点 / 禁区”，并把本项目默认开发路径收敛为由 `@full-stack-master` 统一考虑、设计和实现，前后端角色只承担边界已切清的局部专项；同时已补上主定义/镜像一致性校验，当前仅剩 `devops-specialist` 与 `git-flow-manager` 两个未在其他治理文件中显式引用的 skill 待决定补引用还是归档删除。
 	- 验收: 对齐 `AGENTS.md`、`CLAUDE.md`、`docs/guide/ai-development.md`、`.github/agents/`、`.github/skills/` 与 `.claude/agents/`、`.claude/skills/` 的实际清单，消除角色名、路径、fallback 约定与推荐用法漂移。
 	- 验收: 清理未使用、重复、失效或职责高度重叠的 agent / skill，优先收敛为“一套主定义 + 平台适配镜像”的结构，避免双份说明长期分叉。
 	- 验收: 要求 agent 优先复用既有 skills 与规范文档，不再把相同的执行门禁、质量要求与流程说明复制到多个 agent 文件中；优先通过 `references` 或等效引用机制声明依赖，实现 skills / 规范按需加载，避免每次初始化一次性吞入整套规则上下文。
@@ -46,7 +46,8 @@
 	- 验收: 为 Cursor / Codex / Copilot Workspace 等工具补齐轻量 `Rules` / `Instructions` 入口，但内容必须复用 `AGENTS.md`、规划规范、开发规范与安全规范，优先引用或摘要，而不是重复维护大段文本。
 	- 验收: 建立 Rules 作用边界：仅补充工具差异、触发顺序与最小执行门禁，不在 Rules 层重新发明业务规范、项目流程或安全红线。
 	- 验收: 补齐平台差异清单，至少覆盖 GitHub Copilot、Claude 系工具与一类 Rules-only 工具 3 种入口。
-- [ ] **配置体检与最小验证闭环**
+- [x] **配置体检与最小验证闭环**
+	- 进展: 已清理 `.github/skills/` 与 `.claude/skills/` 中会导致解析失败的无效 Frontmatter 字段（`version`、`author`、`applyTo`、`appliesTo`、`tools`），修复 `documentation-specialist`、`test-engineer`、`conventional-committer`、`nuxt-code-editor` 中的失效相对链接 / skill 锚点链接，并新增 `scripts/ai/check-governance.mjs` 与 `pnpm ai:check` 用于体检主定义/镜像库存、镜像内容漂移、skill frontmatter 合法性、治理文档相对链接以及未引用定义提示；当前脚本运行通过，输出已固定为“问题清单 / 影响范围 / 修复建议 / 可延后事项”四段结构。
 	- 验收: 清理无效 Frontmatter、失效链接与不再存在的技能引用，补齐最小校验流程，避免 agent / skill 因解析错误而失效。
 	- 验收: 为 agent / skill 治理补充最小自动化检查，确保目录变动后能发现孤儿文件、无引用定义与文档漂移。
 	- 验收: 补齐输出格式，至少包含问题清单、影响范围、修复建议与可延后事项 4 类字段。
