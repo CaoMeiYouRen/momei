@@ -101,10 +101,10 @@
         - 已确认 MySQL `momei_web_push_subscriptions` 先前只对 `endpoint` 前 255 字符做唯一约束，和实体 / 设计文档要求的全值唯一语义存在漂移；已改为基于 `sha2(endpoint, 256)` 生成列的唯一约束实现。
         - 当前未验证出 `web_push_subscriptions`、`post_version`、`setting_audit_logs` 等关键表在三套 `init.sql` 中存在缺表或关键约束缺失；此前只读审计中的相关结论判定为误报，不纳入正式问题清单。
         - 继续扩面核对 `server/entities/**` 与三套 `database/*/init.sql` 后，本轮未再发现新的真实数据库基线漂移；先前候选项中的表名前缀差异、`theme_config.preview_image` 方言类型差异不纳入正式问题清单。
-        - `tests/server/services/web-push.test.ts` 当前因测试环境无法解析 `server/services/web-push.ts` 对 `web-push` 包的导入而提前失败，属于现有测试环境问题；本轮将其记录为相邻风险，不作为数据库唯一约束修复失败的证据。
+        - `tests/server/services/web-push.test.ts` 已在本轮补跑中通过，先前“无法解析 `web-push` 导入”的现象未再复现；当前不再将其视为活动阻塞问题。
         - `tests/server/database/post.entity.test.ts` 已通过 2 个测试，确认 `post` 实体当前仍保持“同 slug + 不同语言允许、同 slug + 同语言拒绝”的唯一约束行为基线。
     - 测试结果（按需）:
-        - `tests/server/services/web-push.test.ts`: 1 file failed / 0 tests executed；失败原因为 `Failed to resolve import "web-push" from "server/services/web-push.ts"`。
+        - `tests/server/services/web-push.test.ts`: 1 file passed / 2 tests passed。
         - `tests/server/database/post.entity.test.ts`: 1 file passed / 2 tests passed。
     - Review Gate 结论:
         - 结论: In Progress
@@ -112,14 +112,13 @@
         - 主要问题:
             - 日文 README 仍需继续按 `ui-ready` 实际范围压缩未翻译页面入口，目前已先修到不再指向不存在的日文 docs 页面。
             - 数据库基线尚未完成“实体事实源 -> init.sql -> 设计文档”三方全量校对，目前已完成高风险表抽查并修复 1 处已确认的 MySQL 唯一约束漂移。
-            - Web Push 定向测试当前被既有测试环境依赖解析问题阻断，后续若要把 Web Push 纳入正式数据库回归证据，需先解决 `web-push` 包在该测试路径下的可解析性。
     - 未覆盖边界:
         - 尚未完成 5 类根 README 的逐段能力边界复核，目前已完成中文、英文、繁中、韩文、日文主要入口与 AI 协同入口核对。
         - 尚未对 `docs/i18n/**` 下除 AI 开发指南外的全部翻译文档做同等粒度回归。
         - 尚未执行数据库初始化演练；当前数据库最小验证仅覆盖 1 组实体唯一约束测试，尚未形成跨三套 `init.sql` 的初始化级证据。
     - 后续补跑计划:
         - 继续抽查其余实体与三套 init.sql 的收敛情况，并把剩余真实漂移按“代码事实源 / 初始化派生物 / 设计文档”分层记录。
-        - 在修复 `web-push` 依赖解析问题后，重新运行 Web Push 相关定向测试，确认本轮唯一约束修复没有影响既有逻辑说明与最小行为基线。
+        - 在后续数据库初始化演练或 Web Push 逻辑调整时，继续补跑 Web Push 相关定向测试，确认本轮唯一约束修复没有影响既有逻辑说明与最小行为基线。
 
 ## 首次回归基线记录（2026-03-20）
 
