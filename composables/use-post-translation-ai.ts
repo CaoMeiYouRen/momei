@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n'
 import {
     readTranslationStream,
     resolveTranslationChunkContent,
-    type TranslationStreamChunk,
 } from './use-post-translation-ai.stream'
 import type { ApiResponse } from '@/types/api'
 import type { PostEditorData } from '@/types/post-editor'

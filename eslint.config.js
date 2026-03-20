@@ -81,7 +81,13 @@ export default withNuxt(
     {
         rules: {
             'max-lines': [1, { max: 800 }], // 强制文件的最大行数
-            'max-lines-per-function': [0, { max: 150 }], // 强制函数最大行数
+            'max-lines-per-function': [1, { max: 500 }], // 强制函数最大行数
+        },
+    },
+    {
+        files: ['**/**/*.test.*', '**/**/*.spec.*'],
+        rules: {
+            'max-lines-per-function': [1, { max: 600 }], // 测试文件的函数行数限制放宽一些
         },
     },
     {

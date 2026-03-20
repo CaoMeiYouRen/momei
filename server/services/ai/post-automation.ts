@@ -15,7 +15,6 @@ import {
     resolveTagBindings,
     sanitizeSlug,
     type PostCategoryRecommendationResult,
-    type PostCategorySuggestionCandidate,
     type TranslatePostTaskPayload,
     type TranslationUsageAggregate,
 } from './post-automation-helpers'
@@ -26,7 +25,7 @@ import { Post } from '@/server/entities/post'
 import { createPostService, updatePostService } from '@/server/services/post'
 import { resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
 import type { PostTagBindingInput, PostTranslationSourceDetail, TranslationScopeField } from '@/types/post-translation'
-import { PostStatus, PostVisibility, type PostMetadata } from '@/types/post'
+import { PostStatus, PostVisibility } from '@/types/post'
 
 type TranslatePostTaskStatus = 'pending' | 'processing' | 'completed' | 'failed'
 
@@ -68,7 +67,6 @@ interface TranslatePostPreviewSnapshot {
     audioCopied: boolean
 }
 
-type CreatePostMetadataInput = Parameters<typeof createPostService>[0]['metadata']
 type CreatePostBodyInput = Parameters<typeof createPostService>[0]
 type UpdatePostBodyInput = Parameters<typeof updatePostService>[1]
 
