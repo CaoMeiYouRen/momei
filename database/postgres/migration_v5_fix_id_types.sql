@@ -1,4 +1,4 @@
--- 墨梅 (Momei) 数据库修复脚本 v5
+-- 墨梅博客 数据库修复脚本 v5
 -- 目标：修复 Postgres 中由于 ID 字段被错误识别为 numeric 类型导致的溢出问题
 -- 场景：用户使用雪花 ID (十六进制字符串) 时，Postgres 报 value overflows numeric format
 

@@ -1,4 +1,4 @@
-# 墨梅 (Momei) UI 设计文档
+# 墨梅博客 UI 设计文档
 
 ## 1. 设计理念 (Design Philosophy)
 

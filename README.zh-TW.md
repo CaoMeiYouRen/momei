@@ -1,7 +1,7 @@
 <h1 align="center">
-  <img src="./public/logo.png" alt="墨梅 (Momei)" width="128" />
+  <img src="./public/logo.png" alt="墨梅博客" width="128" />
   <br />
-  墨梅 (Momei)
+  墨梅博客
 </h1>
 <p align="center">
   <img alt="Version" src="https://img.shields.io/github/package-json/v/CaoMeiYouRen/momei.svg" />

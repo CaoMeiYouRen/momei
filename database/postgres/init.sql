@@ -1,4 +1,4 @@
--- 墨梅 (Momei) PostgreSQL 初始化脚本（基于当前 server/entities）
+-- 墨梅博客 PostgreSQL 初始化脚本（基于当前 server/entities）
 
 -- 1. 用户表
 CREATE TABLE "momei_user" (

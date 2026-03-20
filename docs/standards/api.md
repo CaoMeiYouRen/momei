@@ -1,4 +1,4 @@
-# 墨梅 (Momei) API 规范文档
+# 墨梅博客 API 规范文档
 
 ## 1. 概述 (Overview)
 

@@ -1,4 +1,4 @@
-# 墨梅 (Momei) 项目规划与评估规范 (Planning & Evaluation Standards)
+# 墨梅博客 项目规划与评估规范 (Planning & Evaluation Standards)
 
 ## 1. 概述 (Overview)
 

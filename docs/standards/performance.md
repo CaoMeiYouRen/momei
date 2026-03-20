@@ -1,4 +1,4 @@
-# 墨梅 (Momei) 性能基准与优化规范 (Performance Baseline & Optimization Standards)
+# 墨梅博客 性能基准与优化规范 (Performance Baseline & Optimization Standards)
 
 ## 1. 概述 (Overview)
 
