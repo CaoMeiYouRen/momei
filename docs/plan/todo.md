@@ -18,7 +18,7 @@
 ## 当前待办
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
-- [ ] 第十五阶段 / 自动化验证分级、周期性回归与 Review Gate：统一验证矩阵、回归模板与 timeout budget 主体已落地；当前补充依赖安全回归口径与 AI 多代理编排约束，待按新口径继续收口并阶段归档。
+- [ ] 第十五阶段 / 自动化验证分级、周期性回归与 Review Gate：统一验证矩阵、回归模板、依赖安全回归口径与 AI 多代理编排约束已落地，并已完成首次回归基线；当前保留为进行中，仅用于继续收口 warning 级残余风险并完成阶段归档。
 
 
 ## 第十五阶段：AI 协作治理与国际化文档收敛
@@ -55,24 +55,81 @@
 
 ### 2. 自动化验证分级、周期性回归与 Review Gate (P0)
 
-- [ ] **验证矩阵与 Review Gate 收敛**
-	- 进展: 已在 `docs/standards/ai-collaboration.md` 中补齐 `V0` 到 `V4` + `RG` 的统一验证分级矩阵，明确文档 / 配置 / 脚本 / 逻辑 / API / UI / 跨模块流程 / 性能治理 / Hotfix 的最低验证要求，并落下功能改动、修复型 Hotfix、文档 / 配置变更三类 Review Gate 证据链模板主体，收敛“没有 Review 结论只能视为进行中”的放行规则；剩余工作转入按新口径执行与阶段收口。
+- [x] **验证矩阵与 Review Gate 收敛**
+	- 进展: 已在 `docs/standards/ai-collaboration.md` 中补齐 `V0` 到 `V4` + `RG` 的统一验证分级矩阵，明确文档 / 配置 / 脚本 / 逻辑 / API / UI / 跨模块流程 / 性能治理 / Hotfix 的最低验证要求，并落下功能改动、修复型 Hotfix、文档 / 配置变更三类 Review Gate 证据链模板主体；2026-03-20 已按新口径执行首次回归基线，并由 `@code-auditor` 给出 `Pass` / `warning` 的 Review Gate 结论。
 	- 验收: 建立逻辑、接口、跨模块流程、UI 浏览器验证、Lighthouse / Bundle 预算与 Review Gate 的统一分级矩阵，并明确不同改动类型的最低验证要求。
 	- 验收: 任何代码、配置、脚本与文档改动完成后都需保留对应的检查清单与 Review 结论，不再以“已验证”替代证据链。
 	- 验收: 补齐规范与模板，至少覆盖功能改动、修复型 Hotfix、文档/配置变更 3 类场景。
-- [ ] **周期性回归清单与漂移治理**
-	- 进展: 已在 `docs/standards/planning.md` 中扩展周期性回归事项清单，覆盖代码优化与复用收敛、ESLint warning / 类型债治理、`database/*/init.sql` 与实体 / 设计文档同步、README / 部署 / 翻译文档同步、i18n 初始化字段完整性、测试与覆盖率治理、性能基线、依赖安全审计、脚本目录残留治理，以及 `max-lines` 超限文件与临时豁免清理；同时新增包含回归范围、触发条件、执行频率、timeout budget 与输出格式的统一回归任务模板，并补充 Dependabot / `pnpm audit --registry=https://registry.npmjs.org/` 数据来源、可修复项优先验证、不可修复 `high+` 记录与延期/计划修复判定规则，明确这类事项默认以独立治理任务执行。
+- [x] **周期性回归清单与漂移治理**
+	- 进展: 已在 `docs/standards/planning.md` 中扩展周期性回归事项清单，覆盖代码优化与复用收敛、ESLint warning / 类型债治理、`database/*/init.sql` 与实体 / 设计文档同步、README / 部署 / 翻译文档同步、i18n 初始化字段完整性、测试与覆盖率治理、性能基线、依赖安全审计、脚本目录残留治理，以及 `max-lines` 超限文件与临时豁免清理；同时新增包含回归范围、触发条件、执行频率、timeout budget 与输出格式的统一回归任务模板，并补充 Dependabot / `pnpm audit --registry=https://registry.npmjs.org/` 数据来源、可修复项优先验证、不可修复 `high+` 记录与延期/计划修复判定规则。2026-03-20 已按该模板执行首次回归基线，作为后续回归的比较基准。
 	- 验收: 整理需要定期回归的事项，至少覆盖代码优化与复用收敛、ESLint warning / 类型债治理、`database/*/init.sql` 与实体/设计文档同步、README / 部署 / 翻译文档同步、i18n 翻译大文件拆分后的初始化字段完整性、测试用例补齐、性能基线漂移、依赖安全审计，以及 `scripts/**` 中未使用长期脚本、失效入口引用、临时脚本残留与无效脚本的定期清理。
 	- 验收: 明确这些事项默认属于独立治理任务，不自动膨胀进普通功能需求；仅在阻塞交付或构成功能回归时允许插队。
 	- 验收: 补齐回归任务模板，至少覆盖回归范围、触发条件、执行频率与输出格式 4 个字段，并将 `max-lines` 超限文件与 `/* eslint-disable max-lines */` 等临时豁免纳入周期性清理清单，优先通过合理拆分收敛大文件而不是长期保留注释。
-- [ ] **AI 多代理编排约束补齐**
-	- 进展: 待在 `docs/standards/ai-collaboration.md` 与 `docs/guide/ai-development.md` 中补齐规则：在不改变单一主责角色的前提下，若工具支持 sub-agent / agent team，应优先用于大范围检索、只读审计、文档对照与证据收集等高负载任务，以降低单 agent 上下文过载风险。
+- [x] **AI 多代理编排约束补齐**
+	- 进展: 已在 `docs/standards/ai-collaboration.md` 与 `docs/guide/ai-development.md` 中补齐规则：在不改变单一主责角色的前提下，若工具支持 sub-agent / agent team，应优先用于大范围检索、只读审计、文档对照与证据收集等高负载任务，以降低单 agent 上下文过载风险；本次首次回归基线也已按该口径优先使用只读子代理完成范围审计与 Review Gate 判定。
 	- 验收: 明确多代理能力的适用范围、单一主责收口原则、共享写入面的串行落盘约束，以及工具不支持时的回退路径说明。
-- [ ] **覆盖率门槛与全量测试 timeout budget**
-	- 进展: 已在 `docs/standards/testing.md` 中固化回归任务的覆盖率下限与“基线不回退”要求，补齐定向测试、全量 `pnpm test`、`pnpm test:coverage` 与 `pnpm verify` 四类命令的默认 timeout budget、适用场景和升级条件，并明确同级测试命中不稳定时回退到 `pnpm exec vitest run <relative-path>` 的执行约定。
+- [x] **覆盖率门槛与全量测试 timeout budget**
+	- 进展: 已在 `docs/standards/testing.md` 中固化回归任务的覆盖率下限与“基线不回退”要求，补齐定向测试、全量 `pnpm test`、`pnpm test:coverage` 与 `pnpm verify` 四类命令的默认 timeout budget、适用场景和升级条件，并明确同级测试命中不稳定时回退到 `pnpm exec vitest run <relative-path>` 的执行约定；2026-03-20 的首次回归基线已按“定向 smoke 10 分钟、非必要不升级到全量测试”的预算口径完成首轮采证。
 	- 验收: 回归任务必须补充或修正测试用例，维持全项目覆盖率不低于现行门槛，且不得让核心模块覆盖率基线继续下滑。
 	- 验收: 回归任务允许执行全量 `pnpm test`、`pnpm test:coverage` 与 `pnpm verify`，但必须声明显式 timeout budget，不得使用无限等待。
 	- 验收: 补齐最小执行约定，至少覆盖定向测试、全量测试、coverage 与 verify 4 类命令的预算或升级条件。
+
+#### 首次回归基线记录（2026-03-20）
+
+```md
+## 回归任务记录
+- 回归范围: 第十五阶段“自动化验证分级、周期性回归与 Review Gate”收尾；覆盖 AI 治理体检、文档重复页体检、Markdown 文档规范、依赖安全审计、冻结安装验证、类型检查与定向 smoke tests；并记录当前未提交依赖覆盖项（fast-xml-parser 5.5.7、flatted 3.4.2、kysely 0.28.13、@nuxt/test-utils>h3-next -> h3 2.0.1-rc.17）的可运行性。
+- 触发条件: 第十五阶段治理任务首次收口前，需要按新定义的验证矩阵与周期性回归模板建立第一条可复用基线。
+- 执行频率: 首次基线；后续按“每次发版前 + 每周一次依赖安全与治理回归”复用同一模板更新。
+- timeout budget:
+	- 文档 / 治理脚本: 2 分钟内完成。
+	- 定向 smoke tests: 按测试规范的 10 分钟预算执行；本次未升级到全量 `pnpm test`、`pnpm test:coverage` 或 `pnpm verify`。
+- 已执行命令:
+	- `pnpm ai:check`
+	- `pnpm docs:check:i18n`
+	- `pnpm lint:md`
+	- `pnpm audit --registry=https://registry.npmjs.org/ --json`
+	- `pnpm install --frozen-lockfile`
+	- `pnpm typecheck`
+	- `pnpm exec vitest run app.test.ts components/app-logo.test.ts server/api/tasks/tts/[id].get.test.ts`
+	- `pnpm exec vitest run pages/login.test.ts`
+- 输出摘要:
+	- 已执行验证:
+		- V1 / 治理层: `pnpm ai:check`、`pnpm docs:check:i18n`、`pnpm lint:md` 全部通过。
+		- V1 / 静态层: `pnpm typecheck` 通过；`pnpm install --frozen-lockfile` 通过，确认当前 lockfile 可正常安装。
+		- V2 / 逻辑运行层: 核心 smoke tests 共 3 个测试文件 10 个测试全部通过；登录页 smoke test 共 1 个测试文件 12 个测试全部通过。
+	- 结果摘要:
+		- 首次回归基线成立，可作为后续周期性回归的比较起点。
+		- 当前工作区中的依赖覆盖项在冻结安装、类型检查与定向 smoke tests 下未见显式运行回归。
+	- 测试结果（按需）:
+		- `app.test.ts`、`components/app-logo.test.ts`、`server/api/tasks/tts/[id].get.test.ts`：3 files passed / 10 tests passed。
+		- `pages/login.test.ts`：1 file passed / 12 tests passed。
+	- 浏览器验证（按需）:
+		- 本次未执行 V3 浏览器级验证，保留到后续关键链路回归。
+	- 性能结果（按需）:
+		- 本次未执行 V4 Lighthouse / Bundle 基线，保留到发版前或专项性能回归。
+	- 依赖安全结果（按需）:
+		- 数据来源: `pnpm audit --registry=https://registry.npmjs.org/ --json`；当前工具链未直接从 GitHub Dependabot 页面取数时，采用 npm 官方 registry 审计回退路径。
+		- 可修复项与验证结果: 当前工作区已纳入 fast-xml-parser、flatted、kysely 与 `@nuxt/test-utils>h3-next` 的覆盖版本；安装、类型检查与定向 smoke tests 均通过。
+		- 未修复的 high+ 风险: 仅剩 `html-minifier@4.0.0`（经 `mjml-cli` 引入）的 `high` 风险，GitHub Advisory 为 `GHSA-pfq8-rq6v-vf5m`，当前无官方补丁版本。
+		- 延期或计划修复判断: 该 high 风险暂按 warning 记录并允许当前基线放行，理由是暂无上游补丁且本轮验证未见由此引发的运行回归；后续在上游发布修复、发版前安全复核或计划替换 MJML 链路时优先重新评估。`mjml` 的 `moderate` 与 `quill` 的 `low` 依照现行规则不纳入本次治理记录主体。
+	- Review Gate 结论:
+		- 结论: Pass
+		- 问题分级: warning
+		- 主要问题:
+			- 不可修复的 `html-minifier` high 风险仍存在，但已记录影响与延期判断。
+			- `pages/login.test.ts` 运行时存在 Sentry DSN 缺失的初始化错误日志，当前不影响测试通过，但会污染后续基线信号。
+			- `app.test.ts` 安装页分支存在 `/api/install/status` 未 mock 的 FetchError 噪音；`server/api/tasks/tts/[id].get.test.ts` 存在 Better Auth social provider 配置 warning；均暂列非阻塞噪音。
+	- 未覆盖边界:
+		- 本次未执行全量 `pnpm lint`，避免在带 `--fix` 的脚本下污染当前工作区；Lint 证据需在隔离 worktree 或后续 CI 采集。
+		- 本次未执行全量 `pnpm test`、`pnpm test:coverage`、`pnpm verify`、V3 浏览器级验证或 V4 性能验证。
+		- 安装页的 `/api/install/status` 分支与登录页的 Sentry 初始化路径尚未形成“零异常日志”的干净基线。
+		- Better Auth 社交登录真实配置路径与 Kysely / Better-Auth 深层数据库适配路径尚未在本次回归中被专门命中。
+	- 后续补跑计划:
+		- 为安装页补齐 `/api/install/status` mock，为登录页补齐 Sentry DSN 防御式 mock 或可选分支保护后，重跑当前 smoke 组合，形成更干净的第二版基线。
+		- 在阶段归档前补一轮 coverage 回归，并按 timeout budget 记录预算与结果。
+		- 发版前重新执行依赖安全审计，确认 `html-minifier` high 风险是否仍无补丁，并同步复核是否需要将 MJML 链路纳入计划替换。
+```
 
 ### 3. 文档国际化目录重构 (P1)
 
