@@ -142,7 +142,7 @@ Setting 使用 key-value 模型保存运行时配置，SettingAuditLog 记录后
 | 表 | 关键字段 | 说明 |
 | :--- | :--- | :--- |
 | notification_delivery_logs | channel, status, notification_type, recipient, sent_at | 统一记录邮件、浏览器推送、第三方通道的投递结果 |
-| web_push_subscriptions | user_id, endpoint, subscription, permission, locale | 浏览器订阅端点与 payload，(user_id, endpoint) 唯一 |
+| web_push_subscriptions | user_id, endpoint, subscription, permission, locale | 浏览器订阅端点与 payload，目标语义为 `(user_id, endpoint)` 唯一；MySQL 初始化脚本使用 `endpoint_sha256` 生成列避免长 URL 唯一索引被前缀截断 |
 
 ### 4.6 Friend Links 与 External Links
 
@@ -171,6 +171,7 @@ Setting 使用 key-value 模型保存运行时配置，SettingAuditLog 记录后
 - tag.slug + language、tag.name + language、tag.translation_id + language 唯一。
 - notification_settings.user_id + type + channel 唯一。
 - web_push_subscriptions.user_id + endpoint 唯一。
+    - MySQL init.sql 通过 `endpoint_sha256 = sha2(endpoint, 256)` 生成列实现等价唯一约束，避免 `endpoint(255)` 前缀唯一带来的语义漂移。
 - post_version.post_id + sequence 唯一。
 
 关键索引包括但不限于：

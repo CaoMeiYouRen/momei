@@ -95,7 +95,7 @@
 
 ## 🤖 AI 協同開發
 
-- **對人類開發者**：可參考 [AI 協同開發指南](./docs/i18n/zh-TW/guide/ai-development.md) 與 [開發指南](./docs/i18n/zh-TW/guide/development.md)。
+- **對人類開發者**：可參考 [AI 協同開發指南](https://docs.momei.app/zh-TW/guide/ai-development) 與 [開發指南](https://docs.momei.app/zh-TW/guide/development)。
 - **對 AI 代理**：請先閱讀 [AGENTS.md](./AGENTS.md) 與專案文檔，並遵循 PDTFC+ 工作流。
 
 ## 📚 文檔

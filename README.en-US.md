@@ -124,7 +124,7 @@ Visit the [**Momei Documentation Site**](https://docs.momei.app/en-US/) for deta
 Main Sections:
 
 -   [**Quick Start**](https://docs.momei.app/en-US/guide/quick-start) - One-click deployment
--   [**Comparison**](https://docs.momei.app/en-US/plan/comparison) - Why choose Momei?
+-   [**Comparison**](https://docs.momei.app/en-US/guide/comparison) - Why choose Momei?
 -   [**Deploy Guide**](https://docs.momei.app/en-US/guide/deploy) - Vercel/Docker/Self-host
 -   [**Variables & Settings**](https://docs.momei.app/en-US/guide/variables) - Environment variables, settings mapping, and locking rules
 -   [**Dev Guide**](https://docs.momei.app/en-US/guide/development) - Setup and contribution
