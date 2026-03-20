@@ -5,8 +5,7 @@ import { getLocalizedSettingDefinition } from '@/server/services/setting'
 import { TextService } from '@/server/services/ai/text'
 import { APP_LOCALE_CODES, type AppLocaleCode } from '@/i18n/config/locale-registry'
 import type { AgreementType } from '@/types/agreement'
-import { SettingKey } from '@/types/setting'
-import type { LocalizedSettingScalar, LocalizedSettingValueV1 } from '@/types/setting'
+import { SettingKey, type LocalizedSettingScalar, type LocalizedSettingValueV1 } from '@/types/setting'
 import {
     cloneLocalizedSettingValue,
     createEmptyLocalizedSettingValue,

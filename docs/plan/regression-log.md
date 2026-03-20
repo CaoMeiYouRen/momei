@@ -8,6 +8,68 @@
 - 同一次回归的正文只保留在本文件；其他规划文档只保留摘要、状态与链接。
 - 每条记录至少包含回归范围、触发条件、执行频率、timeout budget、已执行命令、输出摘要、Review Gate 结论、未覆盖边界与后续补跑计划。
 
+## 专项回归记录（2026-03-21）
+
+### 回归任务记录
+
+- 回归范围: 第十六阶段 P0“代码质量与结构收敛”首轮收敛；覆盖实时 ESLint 基线重采样、活动 lint blocker 清理、`scripts/**` 目录入口与保留策略梳理、`max-lines` 豁免与类型债显式标记盘点。
+- 触发条件: 第十五阶段归档后进入第十六阶段，旧 `artifacts/eslint-current.txt` 已不能代表当前真实状态，需要建立 2026-03-21 的专项回归基线并先清理活动阻塞项。
+- 执行频率: 本阶段专项回归首轮；后续按“每次结构治理合并前 + 本阶段收口前”继续补写同一主题记录。
+- timeout budget:
+    - ESLint 基线与定向修复验证: 5 分钟内完成。
+    - 治理脚本与 Markdown 文档验证: 3 分钟内完成。
+    - 本轮不升级到全量 `pnpm lint` 或全量 `pnpm test`，避免在当前工作区触发与本次回归无关的改写或长时任务。
+- 已执行命令:
+    - `pnpm exec eslint . --max-warnings 999 --format json --output-file artifacts/regression-eslint-2026-03-21-full.json`
+    - `pnpm exec eslint scripts/docs/check-source-of-truth.mjs --fix`
+    - `pnpm exec eslint scripts/docs/check-source-of-truth.mjs server/services/ai/admin-drafts.ts`
+    - `pnpm ai:check`
+    - `pnpm lint:md`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 静态层: 重新生成 `artifacts/regression-eslint-2026-03-21-full.json` 作为本轮真实 ESLint 基线，并用定向 ESLint 验证回归文件。
+        - V1 / 治理层: `pnpm ai:check` 最终通过，`pnpm lint:md` 通过。
+        - 编辑器诊断: `scripts/docs/check-source-of-truth.mjs` 与 `server/services/ai/admin-drafts.ts` 均无残余报错。
+    - 结果摘要:
+        - 旧 `artifacts/eslint-current.txt` 已确认失真，不再作为本阶段判断依据；2026-03-21 JSON 基线成为新的专项回归输入。
+        - 本轮真实活动 blocker 已清零：`scripts/docs/check-source-of-truth.mjs` 的可修复 lint 问题已清理，`server/services/ai/admin-drafts.ts` 的重复 import 已修复。
+        - `scripts/**` 目录已补充入口索引与治理结论，新增 `scripts/README.md`，并将 `scripts/docs/check-source-of-truth.mjs` 接入 `package.json` 的稳定入口 `docs:check:source-of-truth`。
+    - 分层清单:
+        - blocker（本轮已关闭）:
+            - `scripts/docs/check-source-of-truth.mjs`: 修复 `curly`、`prefer-template`、缩进与单行多语句等活动问题，并保留为长期治理脚本。
+            - `server/services/ai/admin-drafts.ts`: 合并重复 `@/types/setting` 导入，清理 `no-duplicate-imports` error。
+        - warning（当前不阻塞、已纳入治理记录）:
+            - `scripts/setup/setup-ai.ps1`、`scripts/hooks/pre-tool.ps1`、`scripts/hooks/post-tool.ps1`、`scripts/hooks/session-end.ps1`: 保留为本地手工脚本，不纳入团队常规入口。
+            - 生产代码显式 suppression 仍存在少量治理债，例如 `server/decorators/apply-decorators.ts` 的 `@typescript-eslint/no-unsafe-function-type` 与 `utils/shared/validate.ts` 的 `no-control-regex`。
+        - 可延期（结构债，不作为当前活动 blocker）:
+            - `server/services/migration-link-governance.ts`
+            - `server/services/setting.ts`
+            - `server/services/ai/text.ts`
+            - `server/services/ai/post-automation.ts`
+            - `composables/use-post-translation-ai.ts`
+            - `components/admin/posts/post-distribution-button.vue`
+            - `components/admin/settings/agreements-settings.vue`
+            - `pages/posts/[id].vue`
+            - `packages/cli/src/index.ts`
+          以上文件当前以 `eslint-disable max-lines` 或配置 override 维持通过，属于下一轮拆分与职责下沉的优先候选。
+        - 类型债说明:
+            - 当前盘点到的大多数 `@ts-expect-error` 位于测试代码，用于 mock、非法输入或暴露内部绑定验证；本轮不视为生产阻塞。
+            - 生产代码中仍有零星显式忽略，如 `pages/admin/submissions/index.vue` 的 `@ts-ignore`，需在后续专项中补做来源确认与收敛。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - 活动 lint blocker 已关闭，但超长文件拆分与少量生产代码 suppression 仍未完成。
+            - 本轮仅完成结构收敛首批落盘，不代表第十六阶段全部质量债已出清。
+    - 未覆盖边界:
+        - 本轮未执行全量 `pnpm lint`，避免触发仓库范围 `--fix` 带来的额外工作区噪音。
+        - 本轮未执行全量 `pnpm typecheck`、`pnpm test`、`pnpm test:coverage` 或浏览器级验证；因此“类型债”以显式忽略标记盘点为主，不等同于全仓静态证明。
+        - `max-lines` 豁免文件尚未进入逐文件拆分实施阶段，当前仅完成优先级梳理与延期归类。
+    - 后续补跑计划:
+        - 以本条记录为基线，下一轮优先拆分 `server/services/migration-link-governance.ts`、`server/services/setting.ts`、`server/services/ai/text.ts` 三个服务层超长文件。
+        - 对 `pages/admin/submissions/index.vue` 的 `@ts-ignore` 与生产代码中的剩余 suppression 做逐项归因，区分“必要例外”与“应消除债务”。
+        - 如后续涉及脚本流转或团队入口调整，继续同步更新 `scripts/README.md`、`package.json` 与本回归日志，保持入口事实源单点收敛。
+
 ## 首次回归基线记录（2026-03-20）
 
 ### 回归任务记录
