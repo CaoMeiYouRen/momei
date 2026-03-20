@@ -1,5 +1,28 @@
 # 安全开发规范 (Security Development Standards)
 
+## 0. 事实源与边界 (Source & Scope)
+
+### 0.1 唯一事实源
+本文档是安全开发的详细实施规范，定义具体的安全控制措施和技术要求。
+
+本文档与 `AGENTS.md` 第 7 节"安全与行为红线"的关系是**引用而非重复**：
+- `AGENTS.md` 第 7 节定义项目级安全红线和禁止行为
+- 本文档作为 `AGENTS.md` 第 7.2 节"终端操作安全"的详细实施规范，提供具体的技术要求和操作准则
+
+### 0.2 非目标内容
+以下内容不属于本规范范围：
+- **Web 应用防火墙 (WAF) 配置**: 属于基础设施层面，请参考部署文档
+- **数据库加密方案**: 属于运维安全范畴
+- **CDN 安全配置**: 属于部署架构文档
+- **API 响应时间**: 属于性能规范范围，参考 [性能基准与优化规范](./performance.md)
+
+### 0.3 权限实现权威源
+权限校验的技术实现以 `server/utils/permission.ts` 中的函数为准：
+- `requireAuth(event)`: 校验用户是否已登录
+- `requireAdmin(event)`: 校验用户是否为管理员
+- `requireAdminOrAuthor(event)`: 校验用户是否为管理员或作者
+- `requireRole(event, roles)`: 校验用户是否具有指定角色
+
 ## 1. 身份验证与授权 (Authentication & Authorization)
 
 -   **严格鉴权**: 所有涉及用户数据的 API 必须通过 `auth.global.ts` 或具体的路由中间件校验 `session`。
