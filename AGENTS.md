@@ -22,6 +22,23 @@
 -   **包管理器**: PNPM
 -   **开发约束**: ESLint + Stylelint + Conventional Commits + PDTFC 循环
 
+### 3.1 常用命令
+
+| 分类 | 命令 | 说明 |
+|------|------|------|
+| 开发 | `pnpm dev` | 启动开发服务器并自动打开浏览器 |
+| 开发 | `pnpm build` | 构建生产版本 |
+| 开发 | `pnpm generate` | 生成静态站点 |
+| 开发 | `pnpm preview` | 预览构建后的应用 |
+| 测试 | `pnpm test` | 运行所有测试 |
+| 测试 | `pnpm test:coverage` | 运行测试并生成覆盖率报告 |
+| 质量 | `pnpm lint` | 运行 ESLint 并自动修复 |
+| 质量 | `pnpm lint:css` | 运行 Stylelint 并自动修复 |
+| 质量 | `pnpm typecheck` | 运行 TypeScript 类型检查 |
+| 文档 | `pnpm docs:dev` | 启动文档开发服务器 |
+| 文档 | `pnpm docs:build` | 构建文档 |
+| 文档 | `pnpm docs:preview` | 预览构建后的文档 |
+
 ## 4. AI 编程配置与指导
 
 ### 4.1 核心编程准则
@@ -82,6 +99,13 @@ AI 在生成或修改代码时，必须优先参考 [开发规范文档 - 代码
 -   `.claude/agents/` 与 `.claude/skills/` 是 Claude 发现入口的兼容镜像，必须与 `.github/` 保持同名、同库存、同职责边界，不得独立发明另一套角色体系。
 -   Agent 文件应优先引用既有 skills 与项目规范文档，只保留角色定位、输入输出、交接点和禁区；PDTFC+ 全流程、Lint/Typecheck/Test 门禁及专项规则应沉淀在 `AGENTS.md`、专项 skills 与规范文档中，不再在多个 agent 文件里重复抄写。
 -   任何 agent / skill 库存变更，都应同步更新 `AGENTS.md`、平台适配入口文档，以及受影响的 `.github/` / `.claude/` 镜像文件，避免角色名、路径和 fallback 约定漂移。
+
+### 6.4 CLAUDE.md 维护约定
+
+-   `CLAUDE.md` 由 `@documentation-specialist` 负责维护
+-   每次 `AGENTS.md` 重大变更后，应同步检查 `CLAUDE.md` 是否需要精简
+-   `CLAUDE.md` 只保留平台适配内容（目录发现顺序、工具差异、回退策略），不重复项目级规则
+-   `CLAUDE.md` 不得定义层级（L0/L1/L2/L3）或包含 PDTFC+ 工作流详情，应引用 `AGENTS.md` 或对应规范文档
 
 ## 7. 安全与行为红线
 
