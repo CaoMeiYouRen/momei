@@ -305,24 +305,19 @@ pnpm build
 
 ## 10. 代码示例 (Code Examples)
 
-### 10.1 Vue 组件模板 (结合 SCSS 和 i18n)
+### 10.1 Vue 组件模板 (SCSS + i18n + BEM)
 
 ```vue
 <template>
     <div class="article-card">
-        <h2 class="article-card__title">
-            {{ $t("components.title") }}
-        </h2>
+        <h2 class="article-card__title">{{ $t("components.title") }}</h2>
         <slot />
     </div>
 </template>
 
 <script setup lang="ts">
 const { t } = useI18n();
-
-defineProps<{
-    title?: string;
-}>();
+defineProps<{ title?: string }>();
 </script>
 
 <style lang="scss" scoped>
@@ -330,7 +325,6 @@ defineProps<{
     padding: 1rem;
     border-radius: 0.5rem;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    background-color: #fff;
 
     &__title {
         font-size: 1.25rem;
@@ -339,13 +333,9 @@ defineProps<{
     }
 }
 
-// Dark mode example
 :global(.dark) .article-card {
     background-color: #1f2937;
-
-    &__title {
-        color: #fff;
-    }
+    &__title { color: #fff; }
 }
 </style>
 ```
@@ -355,21 +345,7 @@ defineProps<{
 ```typescript
 // server/api/posts.get.ts
 export default defineEventHandler(async (event) => {
-    try {
-        // 示例：获取查询参数
-        const query = getQuery(event);
-
-        // 业务逻辑...
-
-        return {
-            code: 200,
-            data: [],
-        };
-    } catch (error) {
-        throw createError({
-            statusCode: 500,
-            statusMessage: "Internal Server Error",
-        });
-    }
+    const query = getQuery(event);
+    return { code: 200, data: [] };
 });
 ```

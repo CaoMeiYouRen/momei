@@ -161,39 +161,12 @@ pnpm run test:coverage
 
 ## 8. 提交前检查 (Pre-commit Checks)
 
-在提交代码 (Git Commit) 之前，开发者**必须**确保本地环境通过以下所有检查。建议配置 `husky` 的 `pre-commit` 钩子自动执行。
+在提交代码 (Git Commit) 之前，开发者**必须**确保本地环境通过质量校验。详细流程请参阅 [开发规范 - 提交前检查](./development.md#6-提交前检查-pre-commit-checks)。
 
-1.  **代码风格检查**:
-
-    ```bash
-    pnpm run lint
-    ```
-
-    -   确保无 ESLint/Stylelint 报错。
-
-2.  **类型检查**:
-
-    ```bash
-    pnpm run typecheck
-    ```
-
-    -   确保无 TypeScript 类型错误。
-
-3.  **测试检查**:
-    -   默认执行与当前改动直接相关的**定向测试**。
-    -   仅当命中“6. 高效测试策略”中的全量测试准入条件时，才要求执行全量 `pnpm run test`。
-    -   若当前改动属于跨模块流程、发布前收口、高风险或跨模块 Hotfix，或需要 E2E 证据链的场景，则升级执行 `pnpm run verify`。
-    ```bash
-    # 默认：定向测试
-    pnpm test app-header
-
-    # 命中全量测试准入条件时
-    pnpm run test
-
-    # 命中完整收口条件时
-    pnpm run verify
-    ```
-    -   确保本次改动所需的最低验证要求全部通过，而不是机械地一律执行全量测试。
+测试相关的检查策略：
+- 默认执行与当前改动直接相关的**定向测试**。
+- 仅当命中”6. 高效测试策略”中的全量测试准入条件时，才要求执行全量 `pnpm run test`。
+- 若当前改动属于跨模块流程、发布前收口、高风险或跨模块 Hotfix，或需要 E2E 证据链的场景，则升级执行 `pnpm run verify`。
 
 **注意**: 任何未通过上述检查的提交将被视为不合规，CI 流水线将会拦截此类合并请求。
 

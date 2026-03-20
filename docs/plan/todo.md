@@ -27,11 +27,11 @@
 
 ### 1. 规范文档事实源收敛与过时内容纠偏 (P0)
 
-- [ ] **规范去重、Git 回链与示例最小化**
+- [x] **规范去重、Git 回链与示例最小化**
 	- 验收: 收敛 `development`、`testing`、`documentation`、`ai-collaboration`、`AGENTS.md` 中重复的门禁、流程与检查项，优先改为“唯一事实源 + 链接引用”。
 	- 验收: `AGENTS.md` 中与 Git、Worktree、提交流程相关的细则进一步回链到 `docs/standards/git.md`，不再长期双写。
 	- 验收: 清理规范文档中没有必要的样板代码示例，仅保留项目特有、易错且无法仅靠文字精确描述的最小示例。
-- [ ] **API / 安全 / 性能规范重写与边界收敛**
+- [x] **API / 安全 / 性能规范重写与边界收敛**
 	- 验收: `docs/standards/api.md`、`docs/standards/security.md`、`docs/standards/performance.md` 与当前请求层、权限边界、依赖治理和性能预算保持一致。
 	- 验收: 邮件模板、变量与投递实现细节从总规范中下沉到对应模块设计文档，避免总规范再次膨胀。
 	- 验收: 补齐规范回链与最小审计记录，明确每份文档的唯一事实源和非目标内容边界。

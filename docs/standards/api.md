@@ -85,11 +85,15 @@ const createPostSchema = z.object({
 
 ## 5. 邮件服务规范 (Email Service Standards)
 
+> **边界说明**: 本节仅定义通用准则。邮件模板设计、多语言字符串、占位符格式等详细实现请参考 [邮件模块设计文档](../design/modules/email.md)。
+
 -   **服务提供商**: 使用 **Nodemailer** 作为统一的邮件发送接口。
 -   **配置**: 优先通过系统设置（数据库）配置 SMTP 服务商，或利用环境变量进行强制锁定。严禁在代码中硬编码凭据。
 -   **模板**: 必须使用 HTML 邮件模板，确保跨客户端兼容性。
 
 ### 5.1 邮件国际化标准 (Email Internationalization)
+
+> **边界说明**: 邮件多语言字符串的存储位置、模板引擎细节等请参考 [邮件模块设计文档](../design/modules/email.md)。
 
 -   **国际化范围**: 所有系统邮件（验证、通知、订阅等）必须支持多语言。
 -   **语言获取**:
@@ -104,6 +108,8 @@ const createPostSchema = z.object({
 
 ## 6. 定时任务与自动化 (Task & Automation Standards)
 
+> **边界说明**: 本节仅定义通用准则。定时任务的业务规则、具体参数格式等详细实现请参考 [定时发布模块设计文档](../design/modules/scheduled-publication.md)。
+
 -   **安全性**: 所有可由外部触发的任务接口（如 `/api/tasks/*`）必须包含鉴权校验；Vercel Cron 场景优先使用 `CRON_SECRET`（`Authorization: Bearer <secret>`），其他 Webhook 场景使用 `WEBHOOK_SECRET` 或 `TASKS_TOKEN`。
 -   **异步性**: 长耗时任务（如 AI 生成、数据重构）必须设计为异步任务系统。
     -   API 返回任务 ID。
@@ -114,7 +120,7 @@ const createPostSchema = z.object({
     邮件模板中使用 `{paramName}` 格式的占位符，支持的参数包括：`{appName}`, `{baseUrl}`, `{contactEmail}`, `{verificationCode}`, `{expiresIn}`, `{currentYear}` 等。
     参数值必须来自系统设置（`getSettings()`）或方法参数，严禁硬编码。
 
-## 6. 文档与维护 (Documentation & Maintenance)
+## 7. 文档与维护 (Documentation & Maintenance)
 
 -   **定义位置**: 具体的 API 定义（路由、参数、响应结构）必须记载在 `docs/design/modules/*.md` 对应的模块设计文档中。
 - **全局规范**: 本文档 (`standards/api.md`)仅定义通用的响应格式、错误码和开发准则，不包含具体业务接口定义。
@@ -123,7 +129,27 @@ const createPostSchema = z.object({
     2. **复杂字段**: 涉及哈希（Password）、文件上传、状态机转换、或需要查询数据库的关联关系（Category, Tags）时，应显式编写逻辑处理。
 -   **同步更新**: 代码变更时，必须同步更新对应的模块设计文档。
 
-## 7. 相关文档
+## 8. 事实源与边界 (Source & Scope)
+
+### 8.1 唯一事实源
+本文档的唯一事实源位置是本文档自身。作为通用规范，它定义 API 的响应格式、状态码、认证机制和参数校验规则。
+
+具体的 API 接口定义（路由、参数、响应结构）必须记载在 `docs/design/modules/*.md` 对应的模块设计文档中。
+
+### 8.2 非目标内容
+以下内容不属于本规范范围：
+- **邮件模板细节**: 邮件 HTML 模板设计、多语言字符串存储位置、占位符格式规范等详细实现，请参考 [邮件模块设计文档](../design/modules/email.md)
+- **定时任务参数格式**: 定时任务的文本参数具体格式、业务规则和参数来源，请参考对应模块设计文档或 [定时发布模块设计文档](../design/modules/scheduled-publication.md)
+- **具体业务接口**: 各业务线（文章、用户、评论等）的具体 API 定义不属于本通用规范范围
+
+### 8.3 引用关系
+本文档与 [AGENTS.md](../../AGENTS.md) 第 7 节"安全与行为红线"为引用关系：
+- AGENTS.md 引用本文档作为终端操作安全的详细规范来源
+- 本文档第 3 节"认证与权限规范"中定义的 `requireAuth`、`requireAdmin` 等函数是权限校验的权威实现
+
+## 9. 相关文档
 
 -   [API 设计](../design/api.md)
+-   [邮件模块设计](../design/modules/email.md)
+-   [定时发布模块设计](../design/modules/scheduled-publication.md)
 -   [开发规范](./development.md)
