@@ -700,6 +700,7 @@ CREATE TABLE `momei_web_push_subscriptions` (
   `id` varchar(36) NOT NULL,
   `user_id` varchar(36) NOT NULL,
   `endpoint` varchar(2048) NOT NULL,
+  `endpoint_sha256` char(64) GENERATED ALWAYS AS (sha2(`endpoint`, 256)) STORED,
   `subscription` text NOT NULL,
   `permission` varchar(20) DEFAULT NULL,
   `user_agent` varchar(512) DEFAULT NULL,
@@ -707,6 +708,6 @@ CREATE TABLE `momei_web_push_subscriptions` (
   `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UQ_web_push_subscriptions_user_endpoint` (`user_id`, `endpoint`(255)),
+  UNIQUE KEY `UQ_web_push_subscriptions_user_endpoint` (`user_id`, `endpoint_sha256`),
   CONSTRAINT `FK_web_push_subscriptions_user` FOREIGN KEY (`user_id`) REFERENCES `momei_user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

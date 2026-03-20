@@ -70,6 +70,57 @@
         - 对 `pages/admin/submissions/index.vue` 的 `@ts-ignore` 与生产代码中的剩余 suppression 做逐项归因，区分“必要例外”与“应消除债务”。
         - 如后续涉及脚本流转或团队入口调整，继续同步更新 `scripts/README.md`、`package.json` 与本回归日志，保持入口事实源单点收敛。
 
+## 文档、配置与数据库基线同步回归（2026-03-21，进行中）
+
+### 回归任务记录
+
+- 回归范围: 第十六阶段“README / 部署 / 翻译文档 / 配置说明同步回归”与“database/*/init.sql、实体与设计文档同步回归”的首轮事实核对；本轮优先检查根目录多语 README、部署与变量说明、文档站路径入口，以及 `docs/design/database.md`、`server/entities/**` 与三套 `database/*/init.sql` 的关键表结构。
+- 触发条件: 第十六阶段“专项回归：文档、配置与数据库基线同步”启动，需要先建立一份可继续增量更新的回归记录，并区分已确认漂移与尚待验证项。
+- 执行频率: 本阶段专项治理首轮基线；后续在本条记录上持续补充命令结果、修复结论与补跑情况，直至对应 Todo 验收完成。
+- timeout budget:
+    - 文档 / 结构核对: 15 分钟内完成首轮静态审计。
+    - 文档校验命令: `pnpm lint:md` 按 10 分钟预算执行。
+    - 数据库验证: 暂未升级到全量测试或初始化演练；本轮先补定向实体测试与 Web Push 相关最小验证证据。
+- 已执行命令:
+    - `pnpm lint:md`
+    - `pnpm exec vitest run tests/server/services/web-push.test.ts`
+    - `pnpm exec vitest run tests/server/database/post.entity.test.ts`
+- 输出摘要:
+    - 已执行验证:
+        - 已核对 `README.md`、`README.en-US.md`、`README.zh-TW.md`、`README.ko-KR.md`、`README.ja-JP.md` 的主要文档入口。
+        - 已核对 `docs/guide/deploy.md`、`docs/guide/variables.md`、`docs/guide/translation-governance.md`、`docs/.vitepress/config.ts`、`package.json` 与 `.env.full.example` 的主要配置口径。
+        - 已抽查 `user`、`post`、`post_version`、`setting_audit_logs`、`web_push_subscriptions`、`friend_links`、`ad_campaigns`、`ad_placements` 的实体定义与三套 `init.sql`。
+        - 已执行 Markdown 校验与两组数据库相关定向测试，其中一组用于确认实体唯一约束行为，一组用于补充 Web Push 相关最小验证。
+    - 结果摘要:
+        - 已确认根 README 中文、英文、日文版本中的“方案对比 / Comparison”入口存在过时路径，实际应指向 `guide/comparison`。
+        - 日文 README 的 Cloudflare D1 说明缺少与中文、英文一致的运行时边界提示，容易误读为当前已支持 Cloudflare 运行时整站部署。
+        - 已确认繁中、韩文根 README 仍混用仓库内 `docs/i18n/**` 本地路径作为人类入口；现已统一改回对应文档站入口。
+        - 已确认英文文档首页 `docs/i18n/en-US/index.md` 中仍有 2 处特性入口漏写 `/en-US/` 前缀，点击后会回跳中文路由；现已补齐。
+        - 已确认中文根 README 的 Human 入口此前仍直链仓库内 `docs/guide/**` 源文件；现已统一改回文档站入口，和其他语言 README 保持一致。
+        - 已确认英文、繁中、韩文 AI 开发指南仍使用过时角色名 `@code-reviewer`，并存在旧的执行口径；现已按当前 `@code-auditor` 与 Review Gate 流程修正。
+        - 已确认 MySQL `momei_web_push_subscriptions` 先前只对 `endpoint` 前 255 字符做唯一约束，和实体 / 设计文档要求的全值唯一语义存在漂移；已改为基于 `sha2(endpoint, 256)` 生成列的唯一约束实现。
+        - 当前未验证出 `web_push_subscriptions`、`post_version`、`setting_audit_logs` 等关键表在三套 `init.sql` 中存在缺表或关键约束缺失；此前只读审计中的相关结论判定为误报，不纳入正式问题清单。
+        - 继续扩面核对 `server/entities/**` 与三套 `database/*/init.sql` 后，本轮未再发现新的真实数据库基线漂移；先前候选项中的表名前缀差异、`theme_config.preview_image` 方言类型差异不纳入正式问题清单。
+        - `tests/server/services/web-push.test.ts` 当前因测试环境无法解析 `server/services/web-push.ts` 对 `web-push` 包的导入而提前失败，属于现有测试环境问题；本轮将其记录为相邻风险，不作为数据库唯一约束修复失败的证据。
+        - `tests/server/database/post.entity.test.ts` 已通过 2 个测试，确认 `post` 实体当前仍保持“同 slug + 不同语言允许、同 slug + 同语言拒绝”的唯一约束行为基线。
+    - 测试结果（按需）:
+        - `tests/server/services/web-push.test.ts`: 1 file failed / 0 tests executed；失败原因为 `Failed to resolve import "web-push" from "server/services/web-push.ts"`。
+        - `tests/server/database/post.entity.test.ts`: 1 file passed / 2 tests passed。
+    - Review Gate 结论:
+        - 结论: In Progress
+        - 问题分级: warning
+        - 主要问题:
+            - 日文 README 仍需继续按 `ui-ready` 实际范围压缩未翻译页面入口，目前已先修到不再指向不存在的日文 docs 页面。
+            - 数据库基线尚未完成“实体事实源 -> init.sql -> 设计文档”三方全量校对，目前已完成高风险表抽查并修复 1 处已确认的 MySQL 唯一约束漂移。
+            - Web Push 定向测试当前被既有测试环境依赖解析问题阻断，后续若要把 Web Push 纳入正式数据库回归证据，需先解决 `web-push` 包在该测试路径下的可解析性。
+    - 未覆盖边界:
+        - 尚未完成 5 类根 README 的逐段能力边界复核，目前已完成中文、英文、繁中、韩文、日文主要入口与 AI 协同入口核对。
+        - 尚未对 `docs/i18n/**` 下除 AI 开发指南外的全部翻译文档做同等粒度回归。
+        - 尚未执行数据库初始化演练；当前数据库最小验证仅覆盖 1 组实体唯一约束测试，尚未形成跨三套 `init.sql` 的初始化级证据。
+    - 后续补跑计划:
+        - 继续抽查其余实体与三套 init.sql 的收敛情况，并把剩余真实漂移按“代码事实源 / 初始化派生物 / 设计文档”分层记录。
+        - 在修复 `web-push` 依赖解析问题后，重新运行 Web Push 相关定向测试，确认本轮唯一约束修复没有影响既有逻辑说明与最小行为基线。
+
 ## 首次回归基线记录（2026-03-20）
 
 ### 回归任务记录

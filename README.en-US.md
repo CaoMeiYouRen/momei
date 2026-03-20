@@ -1,7 +1,7 @@
 <h1 align="center">
-  <img src="./public/logo.png" alt="Momei" width="128" />
+  <img src="./public/logo.png" alt="Momei Blog" width="128" />
   <br />
-  Momei
+  Momei Blog
 </h1>
 <p align="center">
   <img alt="Version" src="https://img.shields.io/github/package-json/v/CaoMeiYouRen/momei.svg" />
@@ -42,35 +42,39 @@
   <a href="https://docs.momei.app/en-US/"><strong>📚 Docs</strong></a>
 </p>
 
-> **Momei - AI-driven, native i18n developer blog platform.**
+> **Momei Blog - An AI-driven, native i18n blog platform for developers.**
 >
 > **AI Powered, Global Creation.**
 
 ## 📖 Introduction
 
-Momei is a modern blog platform built on **Nuxt**. It aims to provide an efficient and intelligent creative experience for technical developers and cross-border content creators through AI and deep internationalization support. Whether it's smart translation, automated summaries, or multi-language routing management, Momei helps you easily connect with global readers.
+Momei Blog is a modern blog platform built on **Nuxt**. It is designed to provide efficient and intelligent creation workflows for technical developers and cross-border content creators through AI and deep internationalization support. From smart translation and automated summaries to multilingual route management, Momei helps you connect with readers around the world.
 
-## ✨ Key Features
+## ✨ Core Features
 
--   **AI Driven**: Deeply integrated AI assistant, supporting automated translation, smart titles, summary generation, etc., significantly improving creative efficiency.
--   **Multimodal Content Workflow**: Already supports AI image generation, ASR, reusable voice input, manual Memos / WechatSync distribution, and scheduled-task automation across the full path from idea capture to publishing.
--   **Native i18n**: Built-in multi-language support, from UI to content management, helping you easily reach global readers.
--   **Modern Tech Stack**: Built on Nuxt (Vue 3 + TypeScript), supporting SSG/SSR mixed rendering with excellent performance.
--   **Smooth Migration**: Supports custom URL Slugs (path aliases), ensuring zero SEO loss when migrating from legacy blogs.
--   **Markdown Creation**: Concise and efficient Markdown editor with real-time preview and drag-and-drop image upload.
--   **Homepage Orchestration & Branding Semantics**: The homepage now ships with latest/popular sections plus post pinning, and footer copyright flows through explicit site-branding settings.
--   **Multi-layer Subscription**: Global, category, and tag multi-dimensional RSS feeds with multi-language detection.
--   **Configurable System Governance**: The settings center, ENV locking, audit logs, and deployment guidance now align for both self-hosted and serverless operations.
--   **Cloud Asset Delivery**: Supports S3 / R2 direct-upload authorization, unified public asset URL governance, and business-scoped object key strategies for users and posts.
+-   **AI Driven**: Deeply integrates AI assistants and supports fully automated translation, smart titles, summary generation, and more to significantly improve writing efficiency.
+-   **Multimodal Content Workflow**: Already supports AI-generated illustrations, ASR, reusable voice input, manual Memos / WechatSync distribution, and scheduled-task automation, covering the full path from idea capture to publishing.
+-   **Native Internationalization (i18n)**: Built-in multilingual support with deep integration from UI to content management, helping you reach global audiences with ease.
+-   **Modern Tech Stack**: Built on Nuxt (Vue 3 + TypeScript), with hybrid SSG / SSR rendering and strong runtime performance.
+-   **Smooth Migration**: Supports custom URL slugs (path aliases), ensuring near-zero SEO loss when migrating from legacy blogs.
+-   **Markdown Authoring**: A concise and efficient Markdown editor with real-time preview and drag-and-drop image upload.
+-   **Content Orchestration and Brand Semantics**: The homepage now includes “latest posts + popular posts” dual sections, post pinning, and a fully connected footer copyright configuration flow for operations and branding.
+-   **Multi-level Subscription**: Multi-dimensional RSS subscriptions across global, category, and tag scopes, with multilingual detection support.
+-   **Configurable System Governance**: The settings center, environment variable locking, configuration audit logs, and deployment guidance have been aligned for both self-hosted and serverless scenarios.
+-   **Cloud Asset Delivery**: Supports S3 / R2 direct-upload authorization, public asset URL governance, and object key strategies scoped by user and post ownership, making it easier to switch CDN and storage backends.
 
-## 🏠 Live Demo
+## 🏠 Online Experience
 
 -   **Demo Site**: [https://demo.momei.app/](https://demo.momei.app/)
-    -   Login with email `admin@example.com`, password `momei123456`.
+
+    -   You can sign in with the demo admin account using email `admin@example.com` and password `momei123456`.
+
 -   **Official Site**: [https://momei.app/](https://momei.app/)
-    -   Register your own account to view from a user perspective.
--   **Documentation**: [https://docs.momei.app/en-US/](https://docs.momei.app/en-US/)
--   **Feedback & Community**:
+
+    -   You can register your own account to experience the product from a regular user perspective.
+
+-   **Docs Site**: [https://docs.momei.app/en-US/](https://docs.momei.app/en-US/)
+-   **Feedback and Community**:
     -   QQ Group: [807530287](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=K3QRQlxv_y7KqLhdEZmfouxKv9WHLN_v&authKey=pfdJX4EkvKGQXQrtM5BR968EbtFc9WnVvz8AtLiSUTGZRgw3P1wBWESSDcEjoCZB&noverify=0&group_code=807530287)
     -   Discord: [CaoMeiYouRen's Community](https://discord.gg/6bfPevfyr6)
 
@@ -84,52 +88,53 @@ Momei is a modern blog platform built on **Nuxt**. It aims to provide an efficie
 
 ## 🛠️ Tech Stack
 
--   **Framework**: [Nuxt](https://nuxt.com/)
--   **UI Library**: [Vue 3](https://vuejs.org/)
--   **Language**: [TypeScript](https://www.typescriptlang.org/)
--   **Style**: [SCSS](https://sass-lang.com/)
+-   **Core Framework**: [Nuxt](https://nuxt.com/)
+-   **UI Framework**: [Vue 3](https://vuejs.org/)
+-   **Programming Language**: [TypeScript](https://www.typescriptlang.org/)
+-   **Style Preprocessor**: [SCSS](https://sass-lang.com/)
 -   **Package Manager**: [PNPM](https://pnpm.io/)
--   **Linting**: ESLint + Stylelint + Conventional Commits
+-   **Code Standards**: ESLint + Stylelint + Conventional Commits
 
 ## 📂 Project Structure
 
 -   `components/`: Reusable Vue components
--   `pages/`: File-based routing
+-   `pages/`: File-based page routes
 -   `layouts/`: Page layout templates
--   `server/`: Nitro server API and entities
+-   `server/`: Nitro server APIs and entities
 -   `database/`: Database initialization scripts and resources
--   `i18n/`: Internationalization language files
+-   `i18n/`: Internationalization language configuration files
 -   `utils/`: Shared utilities and common logic
--   `styles/`: Global SCSS definitions
--   `types/`: TypeScript interfaces and definitions
--   `docs/`: Detailed project documentation and standards
--   `packages/cli/`: Hexo migration tool CLI (independent project)
+-   `styles/`: Global SCSS style definitions
+-   `types/`: TypeScript interfaces and type definitions
+-   `docs/`: Detailed project docs and standards
+-   `packages/cli/`: Hexo migration CLI (independent project)
 
 ## 🤖 AI Synergy
 
 This project deeply integrates AI-assisted development workflows. Whether you are a human developer or an AI agent, you can find the most efficient way to collaborate here.
 
-- **For Developers (Human)**:
-  - 🚀 **[Modern AI Dev Guide](https://docs.momei.app/en-US/guide/ai-development)** - Learn how to lead AI agents to complete 80% of repetitive tasks.
-  - 🛠️ **[Environment Setup](https://docs.momei.app/en-US/guide/development)** - Detailed guide for local setup and manual development.
-- **For AI Agents (AI Agent / LLM)**:
-  - 📜 **[AGENTS.md](./AGENTS.md)** - Your core behavior guidelines and identity definition.
-  - 🗺️ **[Project Map](https://docs.momei.app/en-US/index)** - Quickly establish project context.
-  - Follow the built-in **PDTFC+ cycle** to execute tasks.
+- **If you are a developer (Human)**:
+  - 🚀 **[Modern AI Development Guide](https://docs.momei.app/en-US/guide/ai-development)** - Learn how to lead AI agents to complete 80% of repetitive work.
+  - 🛠️ **[Environment Setup (Traditional)](https://docs.momei.app/en-US/guide/development)** - Detailed local setup instructions and manual development guidance.
+- **If you are an AI agent (AI Agent / LLM)**:
+  - 📜 **[AGENTS.md](./AGENTS.md)** - The only project-level AI source of truth. Read it first, then follow any other entry instructions.
+  - 🧭 If the current platform provides dedicated adapter files or Rules, treat them only as tool-difference supplements. If anything conflicts with `AGENTS.md`, `AGENTS.md` always wins.
+  - 🗺️ **[Project Map](./docs/index.md)** - Quickly establish project context.
+  - Follow the built-in **PDTFC+ cycle** when executing tasks.
 
 ## 📚 Documentation
 
-Visit the [**Momei Documentation Site**](https://docs.momei.app/en-US/) for detailed design and guides.
+Visit the [**Momei Blog Documentation Site**](https://docs.momei.app/en-US/) for detailed development and design docs.
 
 Main Sections:
 
--   [**Quick Start**](https://docs.momei.app/en-US/guide/quick-start) - One-click deployment
--   [**Comparison**](https://docs.momei.app/en-US/plan/comparison) - Why choose Momei?
--   [**Deploy Guide**](https://docs.momei.app/en-US/guide/deploy) - Vercel/Docker/Self-host
--   [**Variables & Settings**](https://docs.momei.app/en-US/guide/variables) - Environment variables, settings mapping, and locking rules
--   [**Dev Guide**](https://docs.momei.app/en-US/guide/development) - Setup and contribution
--   [**API Design**](https://docs.momei.app/en-US/design/api) - Interface standards
--   [**Database Design**](https://docs.momei.app/en-US/design/database) - Schema and relations
+-   [**Quick Start**](https://docs.momei.app/en-US/guide/quick-start) - One-click deployment and startup
+-   [**Comparison**](https://docs.momei.app/en-US/guide/comparison) - Why choose Momei?
+-   [**Deploy Guide**](https://docs.momei.app/en-US/guide/deploy) - Vercel / Docker / private server
+-   [**Variables and System Settings**](https://docs.momei.app/en-US/guide/variables) - Environment variables, settings mapping, and locking strategy
+-   [**Development Guide**](https://docs.momei.app/en-US/guide/development) - Environment setup and contribution
+-   [**API Design**](https://docs.momei.app/en-US/design/api) - Interface standards and definitions
+-   [**Database Design**](https://docs.momei.app/en-US/design/database) - Table structures and relations
 
 ## 📦 Requirements
 
@@ -138,63 +143,63 @@ Main Sections:
 
 ## ☁️ Deployment
 
-### Support
+### Support Status
 
-Recommended deployment targets are Vercel, Netlify, Docker, or a self-hosted Node environment. If you need Cloudflare integration, treat it as peripheral only for now, such as R2 object storage or Scheduled Events-related trigger design. Due to current TypeORM and Node runtime dependencies, the app itself is not yet supported on Cloudflare Pages / Workers.
+It is recommended to deploy on Vercel, Netlify, Docker, or a self-hosted Node environment. If you need Cloudflare integration, it is currently recommended only for peripheral capabilities such as R2 object storage and Scheduled Events. Due to TypeORM and Node runtime dependencies, the current version does not support deploying the full application runtime to Cloudflare Pages / Workers.
 
-The current deployment model is environment-variable first. Start with the [Deploy Guide](https://docs.momei.app/en-US/guide/deploy) and [Variables & Settings](https://docs.momei.app/en-US/guide/variables), then enable AI, object storage, ASR, and webhook-based scheduled tasks module by module.
+The current deployment model is environment-variable first. It is recommended to read the [Deploy Guide](https://docs.momei.app/en-US/guide/deploy) and [Variables and System Settings](https://docs.momei.app/en-US/guide/variables) first, complete the core variables, and then enable AI, object storage, ASR, webhook scheduled tasks, and other enhanced capabilities as needed.
 
-Click the button below for one-click deployment to Vercel.
+Click the button below to deploy to Vercel with one click.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCaoMeiYouRen%2Fmomei)
 
 ### Database Support
 
-Momei natively supports:
+Momei natively supports the following databases:
 
--   **SQLite**: Default option, no server needed, ideal for personal blogs. Recommended: `DATABASE_URL=sqlite://database/momei.sqlite`.
--   **MySQL / PostgreSQL**: Ideal for higher data management needs, auto-inferred via `DATABASE_URL`.
--   **Cloudflare D1**: Planned. This does not mean full Cloudflare runtime support is available today; for now, keep the main app on Vercel, Docker, or a self-hosted Node environment and use an external database if needed.
+-   **SQLite**: The default option. No server setup is required, and it is suitable for personal blogs. Recommended setting: `DATABASE_URL=sqlite://database/momei.sqlite`.
+-   **MySQL / PostgreSQL**: Suitable for users with higher data-management requirements. The database type is inferred automatically from the `DATABASE_URL` protocol.
+-   **Cloudflare D1**: Planned. This plan does not mean the current version already supports full-site deployment on the Cloudflare runtime. At this stage, it is still recommended to use an external database and deploy the main app on Vercel, Docker, or a self-hosted Node environment.
 
-See [Deploy Guide](https://docs.momei.app/en-US/guide/deploy) for details.
+For details, see the [Deploy Guide](https://docs.momei.app/en-US/guide/deploy).
 
 ## 🔄 Hexo Migration Tool
 
-Momei provides an independent CLI tool to help you migrate articles from Hexo.
+Momei provides an independent CLI tool to help you quickly migrate articles from a Hexo blog.
 
 ### Features
 
-- ✅ Recursively scan Markdown files
-- ✅ Parse Hexo Front-matter (YAML)
-- ✅ Preserves metadata (date, categories, tags)
+- ✅ Recursively scan all Markdown files in a directory
+- ✅ Precisely parse Hexo Front-matter (YAML format)
+- ✅ Preserve metadata such as publish time, categories, and tags
 - ✅ Support batch import via API Key
-- ✅ Concurrent import for efficiency
-- ✅ Dry Run mode
+- ✅ Support concurrent imports for better efficiency
+- ✅ Support Dry Run preview mode
 
-### Quick Start
+### Quick Usage
 
 ```bash
-# Go to CLI directory
+# Enter the CLI directory
 cd packages/cli
 
 # Install dependencies
 pnpm install
 
-# Build tool
+# Build the tool
 pnpm build
 
-# Preview import (Dry Run)
+# Preview import (without actually importing)
 pnpm start import ./hexo-blog/source/_posts --dry-run --verbose
 
-# Actual import
+# Run the actual import
 pnpm start import ./hexo-blog/source/_posts \
   --api-url https://your-blog.com \
   --api-key your-api-key-here
 ```
 
-See [packages/cli/README.md](./packages/cli/README.md) for full instructions.
+For detailed usage instructions, see [packages/cli/README.md](./packages/cli/README.md).
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Install Dependencies
 
@@ -202,13 +207,13 @@ See [packages/cli/README.md](./packages/cli/README.md) for full instructions.
 pnpm install
 ```
 
-### Start Dev Server
+### Start the Development Server
 
 ```bash
 pnpm dev
 ```
 
-### Build for Production
+### Build the Production Version
 
 ```bash
 pnpm build
@@ -220,7 +225,7 @@ pnpm build
 pnpm test
 ```
 
-### Linting
+### Code Check
 
 ```bash
 pnpm lint
@@ -235,13 +240,13 @@ pnpm lint
 
 ## 🤝 Contributing
 
-Contributions, issues and feature requests are welcome!
-Check the [Issues](https://github.com/CaoMeiYouRen/momei/issues).
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for guide.
+Contributions, questions, and new feature proposals are welcome.
+If you have any questions, please check the [Issues](https://github.com/CaoMeiYouRen/momei/issues).
+For contribution details, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## 💰 Support
 
-Give a ⭐️ if this project helped you!
+If you find this project useful, please give it a ⭐️. Thank you.
 
 <a href="https://afdian.com/@CaoMeiYouRen">
   <img src="https://oss.cmyr.dev/images/202306192324870.png" width="312px" height="78px" alt="Support me on Afdian">
@@ -256,10 +261,10 @@ Give a ⭐️ if this project helped you!
 Copyright © 2025 [CaoMeiYouRen](https://github.com/CaoMeiYouRen).
 
 This project is dual-licensed:
-- Code: Under [MIT](./LICENSE) license.
-- Documentation: Under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) license.
+- Code: Licensed under [MIT](./LICENSE).
+- Documentation: Licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
 
-**The Logo of this project is NOT under the licenses above. Copyright of images is reserved by the project owner [CaoMeiYouRen](https://github.com/CaoMeiYouRen). For commercial use, the Logo must be replaced. Non-commercial use is allowed as long as it does not affect owner's rights.**
+**The project logo is not covered by the licenses above. The copyright of the logo is retained by the project owner [CaoMeiYouRen](https://github.com/CaoMeiYouRen). If you plan to use this project commercially, you must replace the logo. Non-commercial use is allowed as long as it does not affect the rights of the project owner.**
 
 ---
 

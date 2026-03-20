@@ -114,8 +114,8 @@
 本项目深度集成了 AI 辅助开发流，无论你是人类开发者还是 AI 代理，都能在这里找到最高效的协作方式。
 
 - **如果你是开发者 (Human)**:
-  - 🚀 **[现代 AI 开发指南](./docs/guide/ai-development.md)** - 了解如何指挥 AI 智能体完成 80% 的重复性任务。
-  - 🛠️ **[环境搭建 (传统方式)](./docs/guide/development.md)** - 详细的本地环境配置与手动开发说明。
+  - 🚀 **[现代 AI 开发指南](https://docs.momei.app/guide/ai-development)** - 了解如何指挥 AI 智能体完成 80% 的重复性任务。
+  - 🛠️ **[环境搭建 (传统方式)](https://docs.momei.app/guide/development)** - 详细的本地环境配置与手动开发说明。
 - **如果你是 AI 代理 (AI Agent / LLM)**:
   - 📜 **[AGENTS.md](./AGENTS.md)** - 唯一的项目级 AI 事实源，先读它，再执行其他入口说明。
   - 🧭 若当前平台存在专属适配文件或 Rules，请只把它们当作工具差异补充；若与 `AGENTS.md` 冲突，一律以 `AGENTS.md` 为准。
@@ -129,7 +129,7 @@
 主要章节：
 
 -   [**快速开始**](https://docs.momei.app/guide/quick-start) - 一键部署与启动
--   [**方案对比**](https://docs.momei.app/plan/comparison) - 为什么选择墨梅?
+-   [**方案对比**](https://docs.momei.app/guide/comparison) - 为什么选择墨梅?
 -   [**部署指南**](https://docs.momei.app/guide/deploy) - Vercel/Docker/私有服务器
 -   [**环境与系统设置**](https://docs.momei.app/guide/variables) - 环境变量、设置中心映射与锁定策略
 -   [**开发指南**](https://docs.momei.app/guide/development) - 环境搭建与贡献

@@ -23,22 +23,19 @@ The project features a suite of integrated AI Agent roles (optimized for GitHub 
 | Task Type | Recommended Agent | Example Prompt |
 | :--- | :--- | :--- |
 | **New Features** | `@full-stack-master` | "Implement comment functionality as specified in `todo.md`." |
-| **Bug Fixes** | `@full-stack-developer` | "Analyze and fix the layout breaking on mobile in the post detail page." |
+| **Bug Fixes** | `@full-stack-master` / corresponding developer role | "Analyze and fix the layout breaking on mobile in the post detail page." |
 | **Testing** | `@test-engineer` | "Add edge-case unit tests for `auth.ts`." |
 | **Learning/Q&A** | `@qa-assistant` | "How does the permission system integrate with `better-auth`?" |
-| **Code Review** | `@code-reviewer` | "Review my recent changes against the development standards." |
+| **Code Review** | `@code-auditor` | "Review my recent changes against the development standards." |
 
 ## 3. Standard AI Workflow (PDTFC+ Cycle)
 
-All AI agents strictly follow the PDTFC+ cycle. You should supervise AI through this lens:
+All AI agents follow the PDTFC+ workflow, but developers should evaluate it using the current review gates rather than the old “generate then commit twice” mental model:
 
-1.  **Plan**: AI analyzes requirements and proposes a plan. **You must review strictly at this stage.**
-2.  **Do**: AI automatically modifies code.
-3.  **Test**: AI runs Lint and Vitest.
-4.  **Fix**: AI self-corrects based on test failures.
-5.  **Commit 1**: Submits business logic code.
-6.  **Enhance**: AI completes test cases for the new feature.
-7.  **Commit 2**: Submits test code.
+1.  **Plan**: Check whether the request already belongs to the current `todo.md` scope and clarify acceptance criteria first.
+2.  **Do / Audit**: Keep changes bounded, then hand the result to `@code-auditor` instead of treating self-checks as final review.
+3.  **Validate / Test**: Run lint, typecheck, targeted tests, or docs validation according to the change type.
+4.  **Finish**: Sync docs, tests, and todo state before calling the task complete.
 
 ## 4. Best Practices for Developers
 

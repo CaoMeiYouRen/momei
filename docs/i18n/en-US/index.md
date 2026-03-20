@@ -35,7 +35,7 @@ features:
       link: /en-US/plan/roadmap
     - title: Current Todo
       details: "Track the current phase goals, active development focus, and acceptance checkpoints from the Chinese planning source."
-      link: /plan/todo
+      link: /en-US/plan/todo
     - title: Planning Standard
       details: "Understand the evaluation method and planning constraints that keep implementation focused on core value."
       link: /en-US/standards/planning
@@ -56,7 +56,7 @@ features:
       link: /en-US/design/ui
     - title: Functional Modules
       details: "Explore module-level documentation for blog content, authentication, AI, email, theme, and other domain areas in the Chinese source docs."
-      link: /design/modules/index
+      link: /en-US/design/modules/index
     - title: Standards
       details: "Development, safety, and testing standards for global contributors."
       link: /en-US/standards/development

@@ -24,7 +24,7 @@ last_sync: 2026-03-10
 - 기능 구현: `@full-stack-master`
 - 테스트 강화: `@test-engineer`
 - 질의 응답: `@qa-assistant`
-- 코드 리뷰: `@code-reviewer`
+- 코드 리뷰: `@code-auditor`
 
 역할에 따라 읽을 문서와 허용된 작업이 다르므로, 먼저 [AGENTS.md](../../../../AGENTS.md)를 확인하는 것이 좋습니다.
 

@@ -27,10 +27,10 @@ last_sync: 2026-03-10
 | 任務類型 | 建議智能體 | 常見用途 |
 | :--- | :--- | :--- |
 | 新增功能 | `@full-stack-master` | 規劃、修改程式碼、補文件、跑驗證 |
-| 修復 Bug | `@full-stack-developer` / 對應開發角色 | 定位問題、最小修復、補回歸測試 |
+| 修復 Bug | `@full-stack-master` / 對應開發角色 | 定位問題、最小修復、補回歸測試 |
 | 測試增強 | `@test-engineer` | 撰寫 Vitest / E2E 測試 |
 | 專案問答 | `@qa-assistant` | 只讀分析文檔與現有實作 |
-| 代碼審查 | `@code-reviewer` | 聚焦缺陷、風險與測試缺口 |
+| 代碼審查 | `@code-auditor` | 聚焦缺陷、風險與測試缺口 |
 
 ## 3. 標準工作流：PDTFC+
 
