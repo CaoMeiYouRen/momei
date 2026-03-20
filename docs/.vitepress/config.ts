@@ -74,6 +74,7 @@ export default defineConfig({
                         items: [
                             { text: '项目规划规范', link: '/standards/planning' },
                             { text: '通用开发规范', link: '/standards/development' },
+                            { text: 'AI 资产治理规范', link: '/standards/ai-governance' },
                             { text: 'AI 协作规范', link: '/standards/ai-collaboration' },
                             { text: 'API 规范', link: '/standards/api' },
                             { text: '测试规范', link: '/standards/testing' },
