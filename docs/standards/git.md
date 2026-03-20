@@ -56,6 +56,8 @@ git worktree add ../momei-feature-search feature/search-improvements
 
 ## 3. 合并与集成 (Integration)
 
+- **提交前 Review 前置**：任何改动在进入 commit 之前，都必须先经过至少一轮 review；代码、配置、脚本、规划与文档改动均不例外。
+- **未闭环不得提交**：若 review 已指出问题但尚未形成明确的修复结论、通过条件或关闭记录，则不得继续 commit 或发起合并。
 - **合并方向**：所有特性开发完成后，应基于当前协作策略向 `master` 或当前启用的集成分支发起合并请求（Pull Request / Merge Request）。
 - **同步原则**：当 `master` 或当前集成分支发生重大更新后，其他活跃分支或工作树应及时同步、合并或重定位 (Rebase) 到最新基准点。
 

@@ -229,7 +229,12 @@ pnpm build
 
 在提交代码 (Git Commit) 之前，开发者**必须**确保本地环境通过以下所有检查。建议配置 `husky` 的 `pre-commit` 钩子自动执行。
 
-1.  **代码风格检查**:
+1.  **Review Gate 检查**:
+
+    - 任何改动在提交前都必须至少经过一轮 review；代码、配置、脚本、规划文档、规范文档与其他 Markdown 文档均不例外。
+    - review 结论必须明确记录“通过条件 / 阻塞原因 / 问题列表”之一；若问题列表尚未闭环，不得继续提交。
+
+2.  **代码风格检查**:
 
     ```bash
     pnpm run lint
@@ -237,7 +242,7 @@ pnpm build
 
     - 确保无 ESLint/Stylelint 报错。
 
-2.  **类型检查**:
+3.  **类型检查**:
 
     ```bash
     pnpm run typecheck
@@ -245,7 +250,12 @@ pnpm build
 
     - 确保无 TypeScript 类型错误。
 
-3.  **测试检查**:
+4.  **按改动类型补充验证**:
+
+    - 若改动涉及 Vue / SCSS、全局样式或样式治理，需额外执行 `pnpm run lint:css`。
+    - 若改动涉及 Markdown、规划、规范、README 或其他文档，需额外执行 `pnpm run lint:md`。
+
+5.  **测试检查**:
 
     - 默认执行与当前改动直接相关的定向测试。
     - 命中 [测试规范](./testing.md#6-高效测试策略-efficient-testing-strategy) 中的全量测试准入条件时，再执行 `pnpm run test`。

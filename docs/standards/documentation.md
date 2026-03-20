@@ -11,7 +11,7 @@
 -   `docs/design/`: 技术架构、UI/UX 设计、API 设计及各功能模块的深度解析。
     -  `docs/design/modules/`: 各核心模块（如认证、文章管理、评论系统）的设计文档。
 -   `docs/guide/`: 用户手册、快速开始、部署指南、开发入门及 AI 协同指南。
--   `docs/plan/`: 项目路线图 (`roadmap.md`)、长期积压 (`backlog.md`)、待办事项 (`todo.md`) 及其归档。
+-   `docs/plan/`: 项目路线图 (`roadmap.md`)、长期积压 (`backlog.md`)、待办事项 (`todo.md`)、回归记录 (`regression-log.md`) 及其归档。
 -   `docs/standards/`: 各类专项开发规范、安全规范、测试规范及本文档。
 -   `docs/i18n/<locale>/`: 翻译文档的物理存储目录，例如 `docs/i18n/en-US/`、`docs/i18n/zh-TW/`、`docs/i18n/ko-KR/`。
 
@@ -146,6 +146,8 @@
 ### 5.2 项目规划文档 (Plan Docs)
 
 -   `roadmap.md`、`backlog.md` 与 `todo.md` 的维护必须严格遵循 [项目规划规范](./planning.md)。
+-   `regression-log.md` 用于集中沉淀周期性回归、阶段基线与补跑记录；规划文档仅保留与当前阶段直接相关的摘要和入口链接。
+-   规划文档、规范文档与其他 Markdown 文档在提交前同样必须经过至少一轮 review，不能因为“只改文档”而跳过审查。
 -   任何阶段性的功能完成，必须在 `todo.md` 中标记并在 `roadmap.md` 中体现进度。
 
 ## 6. 文档站点配置 (Site Configuration)
@@ -165,8 +167,9 @@ AI 智能体在处理文档时应遵守以下规则：
 
 1.  **自动同步**: 在实现功能 (Do) 后，必须检查是否有对应的设计或指南需要更新。
 2.  **路径感知**: 操作文档前先确认所在目录，确保链接路径正确。
-3.  **归档意识**: 定期将已标记为完成的 `todo.md` 条目移动到 `todo-archive.md`。
-4.  **禁止修改 CHANGELOG**: 除非明确指令，严禁手动修改由流水线自动维护的 `CHANGELOG.md`。
+3.  **Review 意识**: 文档改动、规划改动和归档整理同样要经过 review，并保留明确的审查结论或问题清单。
+4.  **归档意识**: 定期将已标记为完成的 `todo.md` 条目移动到 `todo-archive.md`。
+5.  **禁止修改 CHANGELOG**: 除非明确指令，严禁手动修改由流水线自动维护的 `CHANGELOG.md`。
 
 ## 8. 相关文档
 
