@@ -202,8 +202,7 @@
 <script setup lang="ts">
 import { SubmissionStatus } from '@/types/submission'
 import { useAdminList } from '@/composables/use-admin-list'
-// @ts-ignore
-import { marked } from 'marked'
+import { createMarkdownRenderer } from '@/utils/shared/markdown'
 
 definePageMeta({
     middleware: 'author',
@@ -213,6 +212,7 @@ definePageMeta({
 const { t, locales } = useI18n()
 const { formatDateTime } = useI18nDate()
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
+const markdownRenderer = createMarkdownRenderer({ html: false })
 
 const filters = reactive({
     keyword: '',
@@ -268,7 +268,7 @@ const fetchCategories = async () => {
 
 const previewContent = computed(() => {
     if (!selectedSubmission.value) return ''
-    return marked.parse(selectedSubmission.value.content)
+    return markdownRenderer.render(selectedSubmission.value.content || '')
 })
 
 const openReview = (submission: any) => {

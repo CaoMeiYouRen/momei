@@ -20,7 +20,7 @@
 
 - 第十六阶段 P0 专项回归：代码质量与结构收敛
 	- 范围：ESLint warning / 类型债 / `max-lines` 豁免盘点，`scripts/**` 目录残留与入口索引回归。
-	- 当前执行：以 2026-03-21 实时基线为准清理活动 lint 阻塞，补 `scripts/README.md`，同步回归记录。
+	- 当前执行：继续拆分 `server/services/migration-link-governance.ts` 与 `server/services/setting.ts`，清理生产代码显式 suppression，并补跑定向 ESLint / Vitest；全量 `pnpm typecheck` 需继续复核非收敛退出码。
 
 
 ## 第十六阶段：规范事实源收敛与专项回归治理
