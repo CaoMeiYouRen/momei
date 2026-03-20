@@ -245,6 +245,23 @@ function findMissingRelativeFiles(mainFiles, mirrorFiles) {
     return mainFiles.filter((file) => !mirrorSet.has(file))
 }
 
+function findExtraRelativeFiles(mainFiles, mirrorFiles) {
+    const mainSet = new Set(mainFiles)
+    return mirrorFiles.filter((file) => !mainSet.has(file))
+}
+
+async function listImmediateDirectories(baseDir) {
+    if (!(await pathExists(baseDir))) {
+        return []
+    }
+
+    const entries = await readdir(baseDir, { withFileTypes: true })
+    return entries
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .sort()
+}
+
 async function collectReferenceWarnings(skillFiles, agentFiles) {
     const searchableFiles = [
         ...governanceDocs,
@@ -397,9 +414,14 @@ async function main() {
     const claudeSkillRelFiles = await listFilesRecursive(governanceRoots.claudeSkills, (name) => name === 'SKILL.md')
     const githubAgentRelFiles = await listFilesRecursive(governanceRoots.githubAgents, (name) => name.endsWith('.agent.md'))
     const claudeAgentRelFiles = await listFilesRecursive(governanceRoots.claudeAgents, (name) => name.endsWith('.agent.md'))
+    const githubSkillDirs = await listImmediateDirectories(governanceRoots.githubSkills)
+    const claudeSkillDirs = await listImmediateDirectories(governanceRoots.claudeSkills)
 
     const missingSkillMirrors = findMissingRelativeFiles(githubSkillRelFiles, claudeSkillRelFiles)
     const missingAgentMirrors = findMissingRelativeFiles(githubAgentRelFiles, claudeAgentRelFiles)
+    const extraSkillMirrors = findExtraRelativeFiles(githubSkillRelFiles, claudeSkillRelFiles)
+    const extraAgentMirrors = findExtraRelativeFiles(githubAgentRelFiles, claudeAgentRelFiles)
+    const extraSkillDirs = findExtraRelativeFiles(githubSkillDirs, claudeSkillDirs)
 
     for (const relativeFile of missingSkillMirrors) {
         issues.push(buildIssue('missing-mirror-file', `.github/skills/${relativeFile}`, `缺少 .claude skill 镜像: .claude/skills/${relativeFile}`))
@@ -407,6 +429,18 @@ async function main() {
 
     for (const relativeFile of missingAgentMirrors) {
         issues.push(buildIssue('missing-mirror-file', `.github/agents/${relativeFile}`, `缺少 .claude agent 镜像: .claude/agents/${relativeFile}`))
+    }
+
+    for (const relativeFile of extraSkillMirrors) {
+        issues.push(buildIssue('extra-mirror-file', `.claude/skills/${relativeFile}`, `发现多余的 .claude skill 镜像定义: .claude/skills/${relativeFile}`))
+    }
+
+    for (const relativeFile of extraAgentMirrors) {
+        issues.push(buildIssue('extra-mirror-file', `.claude/agents/${relativeFile}`, `发现多余的 .claude agent 镜像定义: .claude/agents/${relativeFile}`))
+    }
+
+    for (const directoryName of extraSkillDirs) {
+        issues.push(buildIssue('extra-mirror-directory', `.claude/skills/${directoryName}`, `发现未在 .github/skills 中定义的残留镜像目录: .claude/skills/${directoryName}`))
     }
 
     const githubSkillFiles = githubSkillRelFiles.map((relativeFile) => path.join(governanceRoots.githubSkills, relativeFile))

@@ -341,6 +341,22 @@ This document outlines the development blueprint for the project. For specific t
     - Keep related-post recommendations as an optional enhancement so they do not block the first delivery of previous/next navigation.
     - Unify the default post-detail SEO template around the “Momei Blog” branding and AI-blog messaging while preserving custom `siteTitle` overrides.
 
+### Stages 14-15: Configuration Governance & AI Collaboration Hardening (Audited & Archived)
+
+- **Stage 14** closed multilingual settings governance, legal-text review flow, import-path guards, Cloudflare deployment wording, and admin settings UX alignment.
+- **Stage 15** closed AI governance authority order, validation matrices, periodic regression templates, docs i18n directory migration, and the first `ja-JP` `ui-ready` rollout.
+- During the Stage 15 audit, the repository also removed a stale `.claude/skills/git-flow-manager` mirror directory and extended `pnpm ai:check` to detect extra mirror files or directories.
+
+### Stage 16: Governance Fact-Source Consolidation & Focused Regression Hardening (Planned)
+
+> [!NOTE]
+> This stage is summarized only. The Chinese roadmap remains the authoritative planning source.
+
+1. Consolidate standards into clear fact sources, trim repeated gates, and correct stale API/security/performance specs.
+2. Strengthen Review Gate outputs, multi-round review closure, and command selection rules by change type.
+3. Formalize internal vs external skills governance, lifecycle management, and fix `full-stack-master` PDTFC+ ambiguities.
+4. Run three dedicated regression tracks: code-quality / large-file cleanup, docs-config-database sync, and clean smoke-performance-security baselines.
+
 ## 3. Backlog & Long-term Roadmap
 
 > [!NOTE]

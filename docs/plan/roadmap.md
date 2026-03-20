@@ -449,23 +449,26 @@
 
 
 
-### 第十五阶段：AI 协作治理与国际化文档收敛 (AI Collaboration Governance & Documentation Internationalization Convergence)
+### 第十五阶段：AI 协作治理与国际化文档收敛 (AI Collaboration Governance & Documentation Internationalization Convergence) (已审计归档)
 
 **时间表**: 约 1 - 1.5 个月
 **目标**: 围绕 AI Agent / Skills 治理、自动化验证分级与周期性回归、文档国际化目录重构及日语支持，补齐“协作规则漂移、验证尺度不一、翻译文档目录分散、日语尚未准入”的治理缺口，让系统从“功能完整”走向“协作可审计、验证可分级、文档多语可扩展”。
 
 **ROI 评估**: AI Agent / Skills 治理、Rules 边界与复用收敛 1.80；自动化验证分级、周期性回归与 Review Gate 2.00；文档国际化目录重构 1.60；日语界面与文档支持 1.55。四项核心任务均满足下一阶段准入条件。
 
+**审计结论**: 第十五阶段的核心治理目标已在代码、规范、计划文档与翻译目录中完成收口。阶段审计期间额外清理了 `.claude/skills/git-flow-manager` 残留空目录，并扩展 `scripts/ai/check-governance.mjs` 以检测镜像侧多余文件 / 目录，避免“镜像目录漂移但脚本漏检”的残余问题。首次回归基线继续保留在 [regression-log.md](./regression-log.md) 作为后续专项回归的比较起点；第十五阶段不再保留专属未完成项。
+
 1. **AI Agent / Skills 治理、Rules 边界与复用收敛 (P0)**:
     - **权威文件收敛**: 明确以 `AGENTS.md` 作为平台无关的唯一权威事实源；`CLAUDE.md`、`docs/guide/ai-development.md` 与其他平台适配文档仅承担适配与补充说明，不再与 `AGENTS.md` 并列定义核心规则。
     - **工作流细化与推荐矩阵**: 为 `@full-stack-master`、`@product-manager`、`@test-engineer`、`@code-auditor`、`@documentation-specialist` 等核心智能体明确适用场景、输入输出、必经交接点与职责边界，并收敛默认推荐路径。
-    - **库存对齐、Skills 复用与冗余裁剪**: 对齐 `AGENTS.md`、`CLAUDE.md`、`docs/guide/ai-development.md`、`.github/agents/`、`.github/skills/` 与 `.claude/agents/`、`.claude/skills/` 的实际清单，优先收敛为“一套主定义 + 平台适配镜像”的结构。
+    - **库存对齐、Skills 复用与冗余裁剪**: 对齐 `AGENTS.md`、`CLAUDE.md`、`docs/guide/ai-development.md`、`.github/agents/`、`.github/skills/` 与 `.claude/agents/`、`.claude/skills/` 的实际清单，补齐镜像漂移检测并清理冗余残留目录，收敛为“一套主定义 + 平台适配镜像”的结构。
     - **Rules 层最小化与平台适配**: 为 Cursor / Codex / Copilot Workspace 等工具补齐轻量 Rules / Instructions 入口，但只保留工具差异与最小执行门禁，不在 Rules 层重写项目规范。
-    - **AI 初始化、工程复用治理与配置体验检**: 评估 AI 初始化 / 问答助手可行范围，并把公共 utils、业务逻辑、组件模板、SCSS 片段、大文件拆解等复用治理与最小校验流程纳入同一治理闭环。
+    - **配置体检与最小验证闭环**: 落地 `pnpm ai:check`、镜像一致性体检、治理文档链接检查与未引用定义提示，形成最小治理校验闭环。
 2. **自动化验证分级、周期性回归与 Review Gate (P0)**:
     - **分级验证矩阵**: 建立逻辑、接口、跨模块流程、UI 浏览器验证、Lighthouse / Bundle 预算与 Review Gate 的统一分级矩阵，明确不同改动类型的最低验证要求。
     - **周期性回归清单**: 整理并固化常态回归项，至少覆盖代码优化与复用收敛、ESLint warning / 类型债治理、`database/*/init.sql` 与实体/设计文档同步、README / 部署 / 翻译文档同步、测试用例补齐与性能基线漂移。
     - **覆盖率与超时预算**: 回归任务默认要求补充或修正测试用例，维持覆盖率不低于现行门槛；允许执行全量 `pnpm test`、`pnpm test:coverage` 与 `pnpm verify`，但必须声明显式 timeout budget，并沉淀“测试结果 + 浏览器验证 + 性能结果 + Review 结论 + 未覆盖边界”的证据链。
+    - **回归记录独立归档**: 首次回归基线已迁移到 [regression-log.md](./regression-log.md)，`todo.md` 与规范文档只保留入口与摘要，不再重复堆叠长篇正文。
 3. **文档国际化目录重构 (P1)**:
     - **翻译目录收敛**: 规划将英文、繁体中文、韩语等翻译文档统一收敛到 `docs/i18n/<locale>/`，同时保持对外站点 URL 继续使用 `/<locale>/...`。
     - **站点配置与规范同步**: 同步更新 VitePress locale 配置、导航侧边栏、编辑链接映射、Translation Notice 与文档规范中的路径约束。
@@ -476,6 +479,38 @@
     - **质量门禁**: 正式对外前必须通过 locale key parity、关键页面回归、文档死链检查与术语一致性审校；在门禁完成前，日语只作为规划中语言，不宣称已支持。
 
 > 长期规划与未进入当前阶段的事项已独立维护在 [backlog.md](./backlog.md)。
+
+### 第十六阶段：规范事实源收敛与专项回归治理 (Governance Fact-Source Consolidation & Focused Regression Hardening)
+
+**时间表**: 约 1 - 1.5 个月
+**目标**: 围绕规范事实源去重、Review Gate 审查闭环、Skills / Agents 分层治理与三类专项回归任务，补齐“规则重复、审查结论松散、镜像治理靠人工、首次回归覆盖面偏窄”的剩余治理缺口，让系统从“规则已写下”走向“规则可执行、回归可复用、质量基线可持续维护”。
+
+**ROI 评估**: 规范事实源收敛与过时内容纠偏 1.86；Review Gate 审查闭环与证据自动化 2.00；Skills / Agents 分层治理与流程修正 1.75；代码质量与结构收敛回归 2.00；文档 / 配置 / 数据库基线同步回归 1.88；测试 / 性能 / 依赖安全干净基线回归 1.83。六项核心任务均满足下一阶段准入条件。
+
+1. **规范文档事实源收敛与过时内容纠偏 (P0)**:
+    - **规范去重与回链收敛**: 收敛 `development`、`testing`、`documentation`、`ai-collaboration`、`AGENTS.md` 中重复的门禁、流程与检查项，优先改为“唯一事实源 + 链接引用”。
+    - **示例最小化与 Git 回链**: 清理不必要的样板示例，并把 `AGENTS.md` 中与 Git / Worktree / 提交流程相关的细则继续回链到 `docs/standards/git.md`。
+    - **API / 安全 / 性能规范纠偏**: 重写过时的 API、安全、性能规范，确保其与当前请求层、权限边界、依赖治理与预算机制一致。
+2. **Review Gate 审查闭环与证据自动化 (P0)**:
+    - **审查输出结构化**: 强化 `code-auditor` 与相关审查技能，要求结论必须包含失败原因、通过条件、检查点列表、阻塞级别与复查基线。
+    - **多轮 Review 固化**: 建立问题清单对账和非 Git 临时审查记录机制，并把“提交前至少一轮 review”固化为代码、文档、配置、脚本、规划通用流程。
+    - **验证命令口径统一**: 将按改动类型执行 `lint` / `typecheck` / `lint:css` / `lint:md` / 测试升级的规则同步到规范、skills 与 agents。
+3. **Skills / Agents 分层治理与工作流镜像修正 (P0)**:
+    - **内部 / 外部技能分层**: 明确项目内部维护的 skills / agents 与外部同步技能的边界、来源、维护责任和弃用流程。
+    - **库存与生命周期治理**: 为 skills / agents 的命名、库存、引用、镜像、生命周期、审查与清理建立正式管理规范。
+    - **Full Stack Master 流程纠偏**: 修正 `full-stack-master` 中 PDTFC+ 工作流的错误或歧义，并同步 `.github/` 与 `.claude/` 镜像。
+4. **专项回归：代码质量与结构收敛 (P0)**:
+    - **ESLint warning / 类型债 / 大文件治理**: 专门处理 ESLint warning、类型债、`max-lines` 豁免与超长文件拆分，不再仅在依赖升级时被动顺带处理。
+    - **复用与脚本治理**: 梳理公共 utils、组件模板、SCSS 片段与 `scripts/**` 中的重复逻辑、失效入口和临时残留，补齐脚本目录 README 与入口索引。
+    - **记录模板复用**: 严格按周期性回归模板记录回归范围、触发条件、timeout budget、验证结果与 Review Gate 结论。
+5. **专项回归：文档、配置与数据库基线同步 (P0)**:
+    - **README / 部署 / 翻译文档同步**: 复核根目录多语 README、部署指南、翻译治理、环境变量与系统设置说明，确保与当前功能、路径和平台能力边界一致。
+    - **`database/*/init.sql` 与设计文档同步**: 复核初始化脚本、实体定义与数据库设计文档之间的关键字段、索引与约束，记录漂移并补齐修复。
+    - **配置事实源收口**: 同步公开配置、后台设置、安装向导与文档中的字段语义，避免多处说明互相漂移。
+6. **专项回归：测试、性能与依赖安全干净基线 (P0)**:
+    - **零异常日志 smoke 基线**: 先针对首次回归中遗留的 Sentry、安装状态接口与 Better Auth warning 噪音做专项收口，再形成更干净的 smoke 基线。
+    - **覆盖率 / 浏览器 / 性能回归**: 按显式 timeout budget 执行 coverage、关键链路 V3 验证与按需 V4 性能验证，不再只停留在定向 smoke。
+    - **依赖安全复核**: 持续复核 `html-minifier` high 风险与其他高危依赖告警，输出“继续延期 / 计划替换 / 可放行”的明确判断。
 
 ## 3. 技术架构与质量保证
 
