@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { friendLinkService } from './friend-link'
 import { dataSource } from '@/server/database'
 import { FriendLink } from '@/server/entities/friend-link'
-import { getSetting } from '@/server/services/setting'
+import { getLocalizedSetting, getSetting } from '@/server/services/setting'
 import { FriendLinkHealthStatus, FriendLinkStatus } from '@/types/friend-link'
 import { SettingKey } from '@/types/setting'
 
@@ -13,6 +13,7 @@ vi.mock('@/server/database', () => ({
 }))
 
 vi.mock('@/server/services/setting', () => ({
+    getLocalizedSetting: vi.fn(),
     getSetting: vi.fn(),
 }))
 
@@ -77,6 +78,30 @@ describe('friendLinkService.runHealthCheck', () => {
             }
 
             return Promise.resolve(typeof defaultValue === 'string' ? defaultValue : '')
+        })
+
+        vi.mocked(getLocalizedSetting).mockImplementation((key: string) => {
+            if (String(key) === String(SettingKey.FRIEND_LINKS_APPLICATION_GUIDELINES)) {
+                return Promise.resolve({
+                    key,
+                    value: '',
+                    requestedLocale: 'zh-CN',
+                    resolvedLocale: 'zh-CN',
+                    fallbackChain: ['zh-CN', 'en-US'],
+                    usedFallback: false,
+                    usedLegacyValue: false,
+                })
+            }
+
+            return Promise.resolve({
+                key,
+                value: null,
+                requestedLocale: 'zh-CN',
+                resolvedLocale: null,
+                fallbackChain: ['zh-CN', 'en-US'],
+                usedFallback: false,
+                usedLegacyValue: false,
+            })
         })
 
         vi.mocked(dataSource.getRepository).mockImplementation((entity: unknown) => {

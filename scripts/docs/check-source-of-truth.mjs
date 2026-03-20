@@ -171,7 +171,7 @@ function checkTranslatedDocs() {
 }
 
 // 主检查流程
-console.log('🔍 开始文档事实源一致性检查...\n')
+console.info('🔍 开始文档事实源一致性检查...\n')
 
 let hasErrors = false
 
@@ -179,32 +179,32 @@ let hasErrors = false
 for (const rule of RULES) {
     const result = checkFile(rule.file, rule)
     const status = result.pass ? '✅' : '❌'
-    console.log(`${status} ${rule.file}`)
+    console.info(`${status} ${rule.file}`)
     if (!result.pass) {
-        console.log(`   └─ ${result.reason}`)
+        console.error(`   └─ ${result.reason}`)
         hasErrors = true
     }
 }
 
 // 检查翻译文档
-console.log('\n📚 翻译文档时效性检查:')
+console.info('\n📚 翻译文档时效性检查:')
 const translationResults = checkTranslatedDocs()
 if (translationResults.length === 0) {
-    console.log('✅ 所有翻译文档均在时效范围内')
+    console.info('✅ 所有翻译文档均在时效范围内')
 } else {
     hasErrors = true
     for (const result of translationResults) {
-        console.log(`❌ ${result.file}`)
-        console.log(`   └─ ${result.reason}`)
+        console.error(`❌ ${result.file}`)
+        console.error(`   └─ ${result.reason}`)
     }
 }
 
 // 总结
-console.log(`\n${'='.repeat(50)}`)
+console.info(`\n${'='.repeat(50)}`)
 if (hasErrors) {
-    console.log('❌ 检查未通过：发现事实源一致性问题')
+    console.error('❌ 检查未通过：发现事实源一致性问题')
     process.exit(1)
 } else {
-    console.log('✅ 所有检查通过：文档事实源层级正确')
+    console.info('✅ 所有检查通过：文档事实源层级正确')
     process.exit(0)
 }

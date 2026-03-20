@@ -3,7 +3,6 @@ import { dataSource } from '@/server/database'
 import { Setting } from '@/server/entities/setting'
 import { recordSettingAuditLogs, type SettingAuditChange, type SettingAuditContext } from '@/server/services/setting-audit'
 import {
-    FORCED_ENV_LOCKED_KEYS,
     SETTING_ENV_MAP,
     doesSettingRequireRestart,
     getLocalizedSettingDefinition,
@@ -28,13 +27,10 @@ import {
 } from '@/utils/shared/localized-settings'
 import {
     SettingKey,
-    type LocalizedSettingDefinition,
     type LocalizedSettingMetadata,
     type LocalizedSettingScalar,
     type LocalizedSettingValueV1,
     type ResolvedLocalizedSetting,
-    type SettingEffectiveSource,
-    type SettingLockReason,
     type SettingResolvedItem,
     type SettingValue,
 } from '@/types/setting'
@@ -65,10 +61,6 @@ interface ParsedLocalizedSettingState {
     structured: boolean
     legacyFormat: boolean
     availableLocales: string[]
-}
-
-function uniqValues(values: (string | undefined | null)[]) {
-    return [...new Set(values.filter((value): value is string => Boolean(value)))]
 }
 
 function isSettingWriteEnvelope(value: unknown): value is {
