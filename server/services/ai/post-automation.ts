@@ -13,6 +13,7 @@ import {
     parseTaskResult,
     resolvePostSlug,
     resolveTagBindings,
+    sanitizeSlug,
     type PostCategoryRecommendationResult,
     type PostCategorySuggestionCandidate,
     type TranslatePostTaskPayload,

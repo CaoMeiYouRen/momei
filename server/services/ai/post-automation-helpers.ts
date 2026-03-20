@@ -7,8 +7,8 @@ import { createPostService, updatePostService } from '@/server/services/post'
 import { TextService } from '@/server/services/ai/text'
 import { createPostTagBinding } from '@/utils/shared/post-tag-bindings'
 import { resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
-import type { PostTagBindingInput, PostTranslationSourceDetail, TranslationScopeField } from '@/types/post-translation'
-import { type PostMetadata } from '@/types/post'
+import type { PostTagBindingInput, PostTranslationSourceDetail, TranslationScopeField, TranslationTextField } from '@/types/post-translation'
+import { PostStatus, type PostMetadata } from '@/types/post'
 
 const DEFAULT_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags', 'coverImage', 'audio']
 
@@ -27,7 +27,7 @@ export interface TranslatePostTaskPayload {
     sourceLanguage?: string
     targetPostId?: string | null
     scopes?: TranslationScopeField[]
-    targetStatus?: 'draft' | 'pending'
+    targetStatus?: PostStatus.DRAFT | PostStatus.PENDING
     slugStrategy?: 'source' | 'translate' | 'ai'
     categoryStrategy?: 'cluster' | 'suggest'
     confirmationMode?: 'auto' | 'require' | 'confirmed'
@@ -351,7 +351,7 @@ export async function resolveTagBindings(
     sourceLanguage: string,
     targetLanguage: string,
     aggregate: TranslationUsageAggregate,
-    translateFieldContent: (content: string, targetLanguage: string, options: { sourceLanguage?: string, field?: string }, aggregate: TranslationUsageAggregate) => Promise<string>,
+    translateFieldContent: (content: string, targetLanguage: string, options: { sourceLanguage?: string, field?: TranslationTextField }, aggregate: TranslationUsageAggregate) => Promise<string>,
 ) {
     if (!sourceTags?.length) {
         return []
