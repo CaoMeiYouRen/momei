@@ -1,0 +1,118 @@
+.agreements-settings {
+    &__header {
+        margin-bottom: 2rem;
+    }
+
+    &__title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--p-text-color);
+    }
+
+    &__description {
+        color: var(--p-text-muted-color);
+        margin: 0;
+    }
+
+    &__section {
+        margin-bottom: 2rem;
+
+        &:not(:last-child) {
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--p-content-border-color);
+        }
+    }
+
+    &__section-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    &__subtitle {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--p-text-color);
+    }
+
+    &__summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        color: var(--p-text-muted-color);
+        font-size: 0.875rem;
+    }
+
+    &__toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    &__view-switch {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    &__view-hint {
+        margin: 0 0 1rem;
+        color: var(--p-text-muted-color);
+        font-size: 0.875rem;
+    }
+
+    &__controls {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    &__table {
+        :deep(.p-datatable) {
+            font-size: 0.875rem;
+        }
+    }
+
+    &__tag-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.25rem;
+    }
+}
+
+:global(.dark) .agreements-settings {
+    &__title,
+    &__subtitle {
+        color: var(--p-text-color);
+    }
+
+    &__description,
+    &__summary {
+        color: var(--p-text-muted-color);
+    }
+}
+
+@media (width <= 768px) {
+    .agreements-settings {
+        &__section-header {
+            flex-direction: column;
+        }
+
+        &__toolbar {
+            width: 100%;
+            justify-content: flex-start;
+        }
+    }
+}

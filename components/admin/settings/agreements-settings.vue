@@ -1,4 +1,3 @@
-<!-- eslint-disable max-lines -->
 <template>
     <div class="agreements-settings">
         <div class="agreements-settings__header">
@@ -211,106 +210,20 @@
             </DataTable>
         </section>
 
-        <Dialog
+        <AgreementEditDialog
             v-model:visible="showDialog"
-            :header="isEditMode ? $t('pages.admin.settings.system.agreements.edit') : $t('pages.admin.settings.system.agreements.create')"
-            modal
-            class="agreements-settings__dialog"
-        >
-            <div class="agreements-settings__field">
-                <label for="language">{{ $t('pages.admin.settings.system.agreements.language') }}</label>
-                <Select
-                    id="language"
-                    v-model="formData.language"
-                    :options="languageOptions"
-                    option-label="label"
-                    option-value="value"
-                    fluid
-                    :disabled="isEditMode"
-                />
-                <small class="agreements-settings__help">
-                    {{ translateAgreement('language_help') }}
-                </small>
-            </div>
-
-            <div class="agreements-settings__field">
-                <label for="version">{{ $t('pages.admin.settings.system.agreements.version') }}</label>
-                <InputText
-                    id="version"
-                    v-model="formData.version"
-                    fluid
-                    placeholder="e.g. 2026.01"
-                />
-            </div>
-
-            <div class="agreements-settings__field">
-                <label for="versionDescription">{{ $t('pages.admin.settings.system.agreements.version_description') }}</label>
-                <Textarea
-                    id="versionDescription"
-                    v-model="formData.versionDescription"
-                    rows="3"
-                    fluid
-                    auto-resize
-                />
-            </div>
-
-            <div v-if="isReferenceLanguage" class="agreements-settings__field">
-                <label for="sourceAgreementId">{{ translateAgreement('source_version') }}</label>
-                <Select
-                    id="sourceAgreementId"
-                    v-model="formData.sourceAgreementId"
-                    :options="currentAuthoritativeOptions"
-                    option-label="label"
-                    option-value="id"
-                    fluid
-                    show-clear
-                    :placeholder="translateAgreement('source_version_placeholder')"
-                />
-                <small class="agreements-settings__help">
-                    {{ translateAgreement('source_version_help') }}
-                </small>
-            </div>
-            <div v-else class="agreements-settings__notice">
-                {{ translateAgreement('authoritative_help') }}
-            </div>
-
-            <div class="agreements-settings__field">
-                <label for="content">{{ $t('pages.admin.settings.system.agreements.content') }}</label>
-                <ClientOnly>
-                    <AdminMavonEditorClient
-                        id="content"
-                        v-model="formData.content"
-                        class="agreements-settings__editor"
-                        :subfield="false"
-                        :language="locale === 'zh-CN' ? 'zh-CN' : 'en'"
-                    />
-                </ClientOnly>
-            </div>
-
-            <template #footer>
-                <Button
-                    v-if="!isEditMode && isReferenceLanguage"
-                    :label="translateAgreement('generate_ai_draft')"
-                    icon="pi pi-sparkles"
-                    class="p-button-text"
-                    :loading="generatingAIDraft"
-                    :disabled="!formData.sourceAgreementId"
-                    @click="generateAgreementDraft"
-                />
-                <Button
-                    :label="$t('common.cancel')"
-                    icon="pi pi-times"
-                    class="p-button-text"
-                    @click="showDialog = false"
-                />
-                <Button
-                    :label="$t('common.save')"
-                    icon="pi pi-check"
-                    :loading="saving"
-                    @click="saveAgreement"
-                />
-            </template>
-        </Dialog>
+            :is-edit-mode="isEditMode"
+            :form-data="formData"
+            :language-options="languageOptions"
+            :current-authoritative-options="currentAuthoritativeOptions"
+            :is-reference-language="isReferenceLanguage"
+            :generating-a-i-draft="generatingAIDraft"
+            :saving="saving"
+            :locale-code="locale"
+            @update:form-data="Object.assign(formData, $event)"
+            @generate-ai-draft="generateAgreementDraft"
+            @save="saveAgreement"
+        />
     </div>
 </template>
 
@@ -319,6 +232,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
+import AgreementEditDialog from './agreement-edit-dialog.vue'
 import type { ApiResponse } from '@/types/api'
 import type {
     AgreementAdminItem,
@@ -825,172 +739,4 @@ onMounted(async () => {
 })
 </script>
 
-<style lang="scss" scoped>
-.agreements-settings {
-    &__header {
-        margin-bottom: 2rem;
-    }
-
-    &__title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: var(--p-text-color);
-    }
-
-    &__description {
-        color: var(--p-text-muted-color);
-        margin: 0;
-    }
-
-    &__section {
-        margin-bottom: 2rem;
-
-        &:not(:last-child) {
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--p-content-border-color);
-        }
-    }
-
-    &__section-header {
-        display: flex;
-        justify-content: space-between;
-        gap: 1rem;
-        align-items: flex-start;
-        margin-bottom: 1rem;
-    }
-
-    &__subtitle {
-        font-size: 1rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: var(--p-text-color);
-    }
-
-    &__summary {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        color: var(--p-text-muted-color);
-        font-size: 0.875rem;
-    }
-
-    &__toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        align-items: center;
-        justify-content: flex-end;
-    }
-
-    &__view-switch {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-
-    &__view-hint {
-        margin: 0 0 1rem;
-        color: var(--p-text-muted-color);
-        font-size: 0.875rem;
-    }
-
-    &__controls {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    &__table {
-        :deep(.p-datatable) {
-            font-size: 0.875rem;
-        }
-    }
-
-    &__tag-group {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.35rem;
-    }
-
-    &__actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.25rem;
-    }
-
-    &__dialog {
-        width: 90vw;
-        max-width: 900px;
-
-        :deep(.p-dialog-content) {
-            padding: 1.5rem;
-        }
-    }
-
-    &__field {
-        margin-bottom: 1.5rem;
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--p-text-color);
-        }
-    }
-
-    &__help {
-        display: block;
-        margin-top: 0.5rem;
-        color: var(--p-text-muted-color);
-    }
-
-    &__notice {
-        margin-bottom: 1.5rem;
-        padding: 0.875rem 1rem;
-        border-radius: 0.5rem;
-        border: 1px solid var(--p-content-border-color);
-        background: color-mix(in srgb, var(--p-surface-100) 88%, transparent);
-        color: var(--p-text-color);
-    }
-
-    &__editor {
-        min-height: 400px;
-        z-index: 1;
-        border: 1px solid var(--p-content-border-color);
-        border-radius: var(--p-border-radius-md);
-
-        :deep(.v-note-wrapper) {
-            border: none;
-            min-height: 400px;
-        }
-    }
-}
-
-:global(.dark) .agreements-settings {
-    &__title,
-    &__subtitle,
-    &__notice {
-        color: var(--p-text-color);
-    }
-
-    &__description,
-    &__summary,
-    &__help {
-        color: var(--p-text-muted-color);
-    }
-}
-
-@media (width <= 768px) {
-    .agreements-settings {
-        &__section-header {
-            flex-direction: column;
-        }
-
-        &__toolbar {
-            width: 100%;
-            justify-content: flex-start;
-        }
-    }
-}
-</style>
+<style lang="scss" scoped src="./agreements-settings.scss"></style>

@@ -97,14 +97,4 @@ export default withNuxt(
             'max-lines': 'off',
         },
     },
-    {
-        files: [
-            '**/components/admin/posts/post-distribution-button.vue',
-            '**/components/admin/settings/agreements-settings.vue',
-            '**/pages/posts/[[]id[]].vue',
-        ],
-        rules: {
-            'max-lines': 'off',
-        },
-    },
 )

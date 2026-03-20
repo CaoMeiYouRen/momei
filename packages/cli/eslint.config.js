@@ -22,9 +22,9 @@ export default [
             // 允许 any 类型（在 error 处理中常用）
             '@typescript-eslint/no-explicit-any': 'off',
             // 文件行数限制
-            'max-lines': ['warn', { max: 600 }],
+            'max-lines': ['warn', { max: 800 }],
             // 函数行数限制
-            'max-lines-per-function': ['warn', { max: 150 }],
+            'max-lines-per-function': ['warn', { max: 200 }],
         },
     },
 ]

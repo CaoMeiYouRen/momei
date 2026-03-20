@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import { AIBaseService } from './base'
 import {
     requestTranslation,
@@ -10,6 +9,13 @@ import {
     type TranslateRequestOptions,
 } from './text-translation'
 import { TextTranslationTaskService } from './text-translation-task'
+import {
+    recommendCategoriesContent,
+    recommendTagsContent,
+    suggestSlugFromNameContent,
+    summarizeTextContent,
+    translateNamesContent,
+} from './text-operations'
 import { getAIProvider } from '@/server/utils/ai'
 import { AI_PROMPTS, formatPrompt } from '@/server/utils/ai/prompt'
 import logger from '@/server/utils/logger'
@@ -232,13 +238,6 @@ export class TextService extends AIBaseService {
         language: string = 'zh-CN',
         userId?: string,
     ) {
-        if (content.length > AI_MAX_CONTENT_LENGTH) {
-            throw createError({
-                statusCode: 413,
-                message: 'Content too long for AI analysis',
-            })
-        }
-
         await this.assertTextQuota({
             userId,
             type: 'summarize',
@@ -249,84 +248,7 @@ export class TextService extends AIBaseService {
             },
         })
 
-        const provider = await getAIProvider('text')
-        if (!provider.chat) {
-            throw new Error('Provider does not support chat')
-        }
-
-        if (content.length > AI_CHUNK_SIZE) {
-            const chunks = ContentProcessor.splitMarkdown(content, {
-                chunkSize: AI_CHUNK_SIZE,
-            })
-            const chunkSummaries: string[] = []
-
-            for (const chunk of chunks) {
-                const prompt = formatPrompt(AI_PROMPTS.SUMMARIZE, {
-                    content: chunk,
-                    maxLength: Math.round(maxLength / chunks.length) + 100,
-                    language,
-                })
-
-                const response = await provider.chat({
-                    messages: [
-                        { role: 'system', content: `Summarize section in ${language}` },
-                        { role: 'user', content: prompt },
-                    ],
-                    temperature: 0.5,
-                })
-                this.logUsage({ task: 'summarize-chunk', response, userId })
-                chunkSummaries.push(response.content.trim())
-            }
-
-            const combinedSummaries = chunkSummaries.join('\n\n')
-            const finalPrompt = formatPrompt(AI_PROMPTS.SUMMARIZE, {
-                content: combinedSummaries,
-                maxLength,
-                language,
-            })
-
-            const finalResponse = await provider.chat({
-                messages: [
-                    { role: 'system', content: `Final summary in ${language}` },
-                    { role: 'user', content: finalPrompt },
-                ],
-                temperature: 0.5,
-            })
-            this.logUsage({ task: 'summarize-final', response: finalResponse, userId })
-            const aggregatedUsage = chunkSummaries.reduce((acc, _chunk, index) => {
-                const chunkResponse = (provider.chat as any).mock?.results?.[index]?.value
-                void chunkResponse
-                return acc
-            }, null as any)
-            void aggregatedUsage
-            await this.recordTask({
-                userId,
-                category: 'text',
-                type: 'summarize',
-                provider: provider.name,
-                model: finalResponse.model,
-                payload: { content: content.slice(0, AI_MAX_CONTENT_LENGTH), maxLength, language },
-                response: finalResponse,
-                textLength: content.length,
-                settlementSource: 'actual',
-            })
-            return finalResponse.content.trim()
-        }
-
-        const prompt = formatPrompt(AI_PROMPTS.SUMMARIZE, {
-            content,
-            maxLength,
-            language,
-        })
-
-        const response = await provider.chat({
-            messages: [
-                { role: 'system', content: `Summarize article in ${language}` },
-                { role: 'user', content: prompt },
-            ],
-            temperature: 0.5,
-        })
-
+        const { provider, response, summary } = await summarizeTextContent(content, maxLength, language)
         this.logUsage({ task: 'summarize', response, userId })
         await this.recordTask({
             userId,
@@ -339,7 +261,7 @@ export class TextService extends AIBaseService {
             textLength: content.length,
             settlementSource: 'actual',
         })
-        return response.content.trim()
+        return summary
     }
 
     static async refineVoice(content: string, language: string = 'zh-CN', userId?: string) {
@@ -637,50 +559,21 @@ export class TextService extends AIBaseService {
             payload: { names: normalizedNames, to },
         })
 
-        const provider = await getAIProvider('text')
-        if (!provider.chat) {
-            throw new Error('Provider does not support chat')
-        }
-
-        const prompt = formatPrompt(AI_PROMPTS.TRANSLATE_NAMES, {
-            names: JSON.stringify(normalizedNames),
-            to,
-        })
-
-        const response = await provider.chat({
-            messages: [
-                { role: 'system', content: `Translate term list to ${to} and return JSON array only` },
-                { role: 'user', content: prompt },
-            ],
-            temperature: 0.2,
-        })
-
-        this.logUsage({ task: 'translate-name-batch', response, userId })
+        const { provider, response, translatedNames } = await translateNamesContent(normalizedNames, to)
+        this.logUsage({ task: 'translate-name-batch', response: response!, userId })
         await this.recordTask({
             userId,
             category: 'text',
             type: 'translate_name_batch',
-            provider: provider.name,
-            model: response.model,
+            provider: provider!.name,
+            model: response!.model,
             payload: { names: normalizedNames, to },
             response,
             textLength: normalizedNames.join('').length,
             settlementSource: 'actual',
         })
 
-        try {
-            const match = /\[[\s\S]*\]/.exec(response.content)
-            const translatedNames = JSON.parse(match?.[0] || response.content) as unknown
-
-            if (!Array.isArray(translatedNames) || translatedNames.length !== normalizedNames.length) {
-                throw new Error('Invalid translated names result length')
-            }
-
-            return translatedNames.map((item) => String(item).trim())
-        } catch (error) {
-            logger.error('Failed to parse translated names response', error)
-            throw new Error('Invalid translated names response')
-        }
+        return translatedNames
     }
 
     static async suggestSlugFromName(name: string, userId?: string) {
@@ -690,20 +583,7 @@ export class TextService extends AIBaseService {
             payload: { name },
         })
 
-        const provider = await getAIProvider('text')
-        if (!provider.chat) {
-            throw new Error('Provider does not support chat')
-        }
-        const prompt = formatPrompt(AI_PROMPTS.SUGGEST_SLUG_FROM_NAME, { name })
-
-        const response = await provider.chat({
-            messages: [
-                { role: 'system', content: 'Suggest slug from name' },
-                { role: 'user', content: prompt },
-            ],
-            temperature: 0.3,
-        })
-
+        const { provider, response, slug } = await suggestSlugFromNameContent(name)
         this.logUsage({ task: 'suggest-slug', response, userId })
         await this.recordTask({
             userId,
@@ -716,7 +596,7 @@ export class TextService extends AIBaseService {
             textLength: name.length,
             settlementSource: 'actual',
         })
-        return response.content.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-')
+        return slug
     }
 
     static async recommendTags(content: string, existingTags: string[] = [], language: string = 'zh-CN', userId?: string) {
@@ -730,24 +610,7 @@ export class TextService extends AIBaseService {
             },
         })
 
-        const provider = await getAIProvider('text')
-        if (!provider.chat) {
-            throw new Error('Provider does not support chat')
-        }
-        const prompt = formatPrompt(AI_PROMPTS.RECOMMEND_TAGS, {
-            content: content.slice(0, AI_CHUNK_SIZE),
-            existingTags: existingTags.join(', '),
-            language,
-        })
-
-        const response = await provider.chat({
-            messages: [
-                { role: 'system', content: `Recommend relevant tags in ${language}` },
-                { role: 'user', content: prompt },
-            ],
-            temperature: 0.4,
-        })
-
+        const { provider, response, tags } = await recommendTagsContent(content, existingTags, language)
         this.logUsage({ task: 'recommend-tags', response, userId })
         await this.recordTask({
             userId,
@@ -765,21 +628,11 @@ export class TextService extends AIBaseService {
             settlementSource: 'actual',
         })
 
-        try {
-            const match = /\[.*\]/s.exec(response.content)
-            if (match) {
-                return JSON.parse(match[0]) as string[]
-            }
-            return response.content.split(/[,\s，、]+/).filter((t) => t.trim()).slice(0, 10)
-        } catch (e) {
-            console.error('[RecommendTags Error]', e)
-            return []
-        }
+        return tags
     }
 
     static async recommendCategories(options: RecommendCategoriesOptions, userId?: string) {
         const normalizedCategories = Array.from(new Set(options.categories.map((name) => name.trim()).filter(Boolean))).slice(0, 80)
-
         if (normalizedCategories.length === 0) {
             return []
         }
@@ -795,33 +648,17 @@ export class TextService extends AIBaseService {
             },
         })
 
-        const provider = await getAIProvider('text')
-        if (!provider.chat) {
-            throw new Error('Provider does not support chat')
-        }
-
-        const prompt = formatPrompt(AI_PROMPTS.RECOMMEND_CATEGORIES, {
-            title: options.title,
-            content: options.content.slice(0, AI_CHUNK_SIZE),
-            categories: JSON.stringify(normalizedCategories),
-            language: options.language || 'zh-CN',
+        const { provider, response, categories } = await recommendCategoriesContent({
+            ...options,
+            categories: normalizedCategories,
         })
-
-        const response = await provider.chat({
-            messages: [
-                { role: 'system', content: `Select relevant blog categories in ${options.language || 'zh-CN'} from the provided list only.` },
-                { role: 'user', content: prompt },
-            ],
-            temperature: 0.2,
-        })
-
-        this.logUsage({ task: 'recommend-categories', response, userId })
+        this.logUsage({ task: 'recommend-categories', response: response!, userId })
         await this.recordTask({
             userId,
             category: 'text',
             type: 'recommend_categories',
-            provider: provider.name,
-            model: response.model,
+            provider: provider!.name,
+            model: response!.model,
             payload: {
                 title: options.title.slice(0, 200),
                 content: options.content.slice(0, AI_CHUNK_SIZE),
@@ -833,26 +670,7 @@ export class TextService extends AIBaseService {
             settlementSource: 'actual',
         })
 
-        const categoryLookup = new Map(normalizedCategories.map((name) => [name.trim().toLowerCase(), name]))
-
-        try {
-            const match = /\[[\s\S]*\]/.exec(response.content)
-            const parsed = JSON.parse(match?.[0] || response.content) as unknown
-            if (!Array.isArray(parsed)) {
-                return []
-            }
-
-            return Array.from(new Set(parsed
-                .map((item) => String(item).trim())
-                .map((item) => categoryLookup.get(item.toLowerCase()) || null)
-                .filter((item): item is string => Boolean(item))))
-        } catch {
-            return response.content
-                .split(/[\n,]/)
-                .map((item) => item.trim())
-                .map((item) => categoryLookup.get(item.toLowerCase()) || null)
-                .filter((item): item is string => Boolean(item))
-        }
+        return categories
     }
 
     static async* translateStream(content: string, to: string, userId?: string, options?: TranslateRequestOptions) {
