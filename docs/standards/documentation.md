@@ -146,8 +146,15 @@
 
 -   `roadmap.md`、`backlog.md` 与 `todo.md` 的维护必须严格遵循 [项目规划规范](./planning.md)。
 -   `regression-log.md` 用于集中沉淀周期性回归、阶段基线与补跑记录；规划文档仅保留与当前阶段直接相关的摘要和入口链接。
+ -   `regression-log.md` 作为活动回归日志，默认只保留最近 1 - 2 个阶段或最近 6 - 8 条完整记录；更早的历史记录应按滚动归档规则迁移到 `regression-log-archive.md`。
 -   规划文档、规范文档与其他 Markdown 文档在提交前同样必须经过至少一轮 review，不能因为“只改文档”而跳过审查。
 -   任何阶段性的功能完成，必须在 `todo.md` 中标记并在 `roadmap.md` 中体现进度。
+
+补充约束：
+
+1. `regression-log.md` 不采用“阶段完成即整份搬空”的归档方式，而采用滚动归档，确保最近基线比较和发版判断仍可直接在主日志中完成。
+2. 同一条回归记录迁移到归档文件时必须整体迁移，不得将执行命令、Review Gate 结论与后续补跑计划拆散到多个位置。
+3. 若 `regression-log-archive.md` 继续膨胀，应再按年份或半年分拆，而不是重新把历史记录塞回主日志。
 
 ## 6. 事实源收敛机制 (Source of Truth Convergence)
 

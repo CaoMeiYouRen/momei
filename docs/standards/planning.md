@@ -85,6 +85,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 ### 4.2 待办事项 (Todo) 维护
 -   `docs/plan/todo.md` 是实时操作手册，仅包含**当前阶段的具体实施任务**。
 -   `docs/plan/regression-log.md` 用于集中维护周期性回归、阶段基线与补跑记录；`todo.md` 仅保留当前阶段上下文、摘要与链接，不再堆叠长篇回归正文。
+ -   `docs/plan/regression-log.md` 作为活动回归日志，默认只保留最近 1 - 2 个阶段或最近 6 - 8 条完整回归记录；更早的历史记录应按滚动归档规则迁移到 `docs/plan/regression-log-archive.md` 或其后续分拆文件。
 -   任务状态必须清晰标记：`[ ]` (待办), `[x]` (已完成), `[-]` (已取消)。
 -   任务描述应包含具体的 "验收标准 (Acceptance Criteria)"。
 -   **查重原则**: 在规划或添加任何新功能前，**必须**同步查阅 `docs/plan/todo.md`、`docs/plan/roadmap.md` 以及 `docs/plan/todo-archive.md`。严禁重复设计或规划已被归档、已在当前待办中或已在路线图中的任务。
@@ -100,6 +101,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 -   **周期性回归任务**: 代码优化与复用收敛、ESLint warning / 类型债治理、`database/*/init.sql` 与实体 / 设计文档同步、README / 部署 / 翻译文档同步、i18n 翻译大文件拆分后的初始化字段完整性、测试补齐与覆盖率治理、性能基线审计、依赖安全审计（Dependabot / `pnpm audit --registry=https://registry.npmjs.org/`）、`scripts/**` 中未使用长期脚本 / 失效入口引用 / 临时脚本残留 / 无效脚本清理，以及 `max-lines` 超限文件与 `/* eslint-disable max-lines */` 等临时豁免收敛等易漂移事项，应以独立治理任务或阶段形式规划。此类任务允许执行全量测试与 coverage，但必须显式声明 timeout budget，并记录结果与未覆盖边界。
 -   **回归任务隔离原则**: 上述周期性事项默认属于独立治理任务，不自动膨胀进普通功能需求；只有在阻塞当前交付、造成明确功能回归或构成高风险问题时，才允许插队进入当前阶段。
 -   **回归记录落点**: 周期性回归、阶段基线、补跑记录与 Review Gate 证据链正文默认写入 `docs/plan/regression-log.md`；`todo.md` 和 `roadmap.md` 只保留任务状态、阶段摘要与文档入口，避免规划文档反复复制同一份长记录。
+ -   **回归日志滚动归档**: 当 `docs/plan/regression-log.md` 超过 300 - 400 行、或累计超过 6 - 8 条完整记录且已影响当前阶段阅读效率时，应将较早且不再服务最近基线比较的记录整体迁移到 `docs/plan/regression-log-archive.md`；主日志必须继续保留足够支撑最近阶段对比与发版判断的近线记录。
 
 #### 依赖安全回归补充规则
 
