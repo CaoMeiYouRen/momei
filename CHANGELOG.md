@@ -1,5 +1,69 @@
 # momei
 
+# [1.10.0](https://github.com/CaoMeiYouRen/momei/compare/v1.9.0...v1.10.0) (2026-03-21)
+
+
+### ✨ 新功能
+
+* **admin:** 添加浮动操作按钮以增强用户体验 ([4a842f5](https://github.com/CaoMeiYouRen/momei/commit/4a842f5))
+* **agreement:** 添加 AI 草稿生成和审校状态管理功能 ([68fbdc1](https://github.com/CaoMeiYouRen/momei/commit/68fbdc1))
+* **ai:** 增加多语言封面与音频资产一致性支持 ([23e2f1b](https://github.com/CaoMeiYouRen/momei/commit/23e2f1b))
+* **ai:** 增加音频与封面生成的多语言支持 ([d97a9c4](https://github.com/CaoMeiYouRen/momei/commit/d97a9c4))
+* **auth:** 优化认证会话管理与测试用例 ([ce1dc63](https://github.com/CaoMeiYouRen/momei/commit/ce1dc63))
+* **auth:** 增强身份验证会话管理 ([ba1dd27](https://github.com/CaoMeiYouRen/momei/commit/ba1dd27))
+* **cli:** 增加导入路径别名验证功能 ([868bd12](https://github.com/CaoMeiYouRen/momei/commit/868bd12))
+* **distribution:** 增强内容分发模板与标签适配功能 ([e791d64](https://github.com/CaoMeiYouRen/momei/commit/e791d64))
+* **docs:** 添加中文文档翻译与开发规范 ([03b85b1](https://github.com/CaoMeiYouRen/momei/commit/03b85b1))
+* **email-templates:** 添加多语言支持的邮件模板功能 ([5cab5ac](https://github.com/CaoMeiYouRen/momei/commit/5cab5ac))
+* **email:** 重构邮件模板处理逻辑 ([83e2bc0](https://github.com/CaoMeiYouRen/momei/commit/83e2bc0))
+* **i18n:** 添加批量翻译名称字段 ([3edd80f](https://github.com/CaoMeiYouRen/momei/commit/3edd80f))
+* **i18n:** 添加日语支持及相关翻译文件 ([9f50e30](https://github.com/CaoMeiYouRen/momei/commit/9f50e30))
+* **installation:** 支持本地化站点配置的保存与合并 ([dfc7016](https://github.com/CaoMeiYouRen/momei/commit/dfc7016))
+* **metadata:** 增强音频和 TTS 元数据支持 ([fcfbb46](https://github.com/CaoMeiYouRen/momei/commit/fcfbb46))
+* **notification:** 添加对 Listmonk 的支持 ([02b7511](https://github.com/CaoMeiYouRen/momei/commit/02b7511))
+* **post-translation:** 增加音频翻译支持与直接返回模式 ([cde8c2a](https://github.com/CaoMeiYouRen/momei/commit/cde8c2a))
+* **posts:** 增加文章详情页的上一篇/下一篇导航功能 ([4752f49](https://github.com/CaoMeiYouRen/momei/commit/4752f49))
+* **settings:** 增强公共设置接口的本地化功能 ([741a019](https://github.com/CaoMeiYouRen/momei/commit/741a019))
+* **settings:** 增强设置管理与公开字段处理逻辑 ([1910168](https://github.com/CaoMeiYouRen/momei/commit/1910168))
+* **setting:** 提取设置常量到独立文件 ([098ff23](https://github.com/CaoMeiYouRen/momei/commit/098ff23))
+* **translation:** 完善翻译工作流功能 ([69b2b9b](https://github.com/CaoMeiYouRen/momei/commit/69b2b9b))
+* 新增治理与指令文档入口 ([3bb9773](https://github.com/CaoMeiYouRen/momei/commit/3bb9773))
+
+
+### 🐛 Bug 修复
+
+* **database:** 添加广告相关表和字段 ([9aac98a](https://github.com/CaoMeiYouRen/momei/commit/9aac98a))
+* **docs:** 修复国际化重复检查日志输出 ([819f529](https://github.com/CaoMeiYouRen/momei/commit/819f529))
+* **i18n:** 增强多语言支持功能 ([72bee71](https://github.com/CaoMeiYouRen/momei/commit/72bee71))
+* **package:** 更新依赖项以修复潜在问题 ([0c27e4c](https://github.com/CaoMeiYouRen/momei/commit/0c27e4c))
+* **posts:** 优化导入路径别名处理逻辑 ([dfb3f8d](https://github.com/CaoMeiYouRen/momei/commit/dfb3f8d))
+* **posts:** 修改封面字段为缩略图字段 ([722c0ad](https://github.com/CaoMeiYouRen/momei/commit/722c0ad))
+* **sentry:** 修复 Sentry 配置访问方式 ([01566a8](https://github.com/CaoMeiYouRen/momei/commit/01566a8))
+* **settings:** 修复设置级别解析逻辑 ([ee274ad](https://github.com/CaoMeiYouRen/momei/commit/ee274ad))
+* **settings:** 统一第三方启用开关的布尔值解析逻辑 ([b75892f](https://github.com/CaoMeiYouRen/momei/commit/b75892f))
+* **test:** 修复协议记录接口的审核状态类型引用 ([2cc5668](https://github.com/CaoMeiYouRen/momei/commit/2cc5668))
+* **todos:** 更新待办事项描述与状态 ([758539d](https://github.com/CaoMeiYouRen/momei/commit/758539d))
+* **translation:** 添加翻译功能的辅助方法和重构逻辑 ([d614ebc](https://github.com/CaoMeiYouRen/momei/commit/d614ebc))
+* **wechatsync:** 修复文章同步功能支持 ([4a2b556](https://github.com/CaoMeiYouRen/momei/commit/4a2b556))
+* 清理无效 Frontmatter ([3708548](https://github.com/CaoMeiYouRen/momei/commit/3708548))
+
+
+### 📦 代码重构
+
+* **agents:** 优化各角色职责与交接规则 ([8fa941d](https://github.com/CaoMeiYouRen/momei/commit/8fa941d))
+* **agents:** 优化智能体角色与职责边界定义 ([679d594](https://github.com/CaoMeiYouRen/momei/commit/679d594))
+* **ai:** 优化图像上传逻辑 ([40eb7d2](https://github.com/CaoMeiYouRen/momei/commit/40eb7d2))
+* **ai:** 更新翻译任务相关类型以增强可读性 ([9eb4712](https://github.com/CaoMeiYouRen/momei/commit/9eb4712))
+* **ai:** 重构文本处理服务以提高可维护性和可读性 ([3fd7d77](https://github.com/CaoMeiYouRen/momei/commit/3fd7d77))
+* **auth:** 调整限流配置 ([1841f80](https://github.com/CaoMeiYouRen/momei/commit/1841f80))
+* **cli:** 精简音频和 TTS 元数据处理逻辑 ([e5c0b06](https://github.com/CaoMeiYouRen/momei/commit/e5c0b06))
+* **docs:** 更新文档一致性检查输出方式 ([34a09e9](https://github.com/CaoMeiYouRen/momei/commit/34a09e9))
+* **docs:** 更新文档规范与规划流程 ([d002b90](https://github.com/CaoMeiYouRen/momei/commit/d002b90))
+* **eslint:** 调整函数最大行数限制 ([e75863e](https://github.com/CaoMeiYouRen/momei/commit/e75863e))
+* **logger:** 优化日志记录中的输出方式 ([0244ad5](https://github.com/CaoMeiYouRen/momei/commit/0244ad5))
+* **scripts:** 增强脚本治理与引用检查机制 ([c3e60bb](https://github.com/CaoMeiYouRen/momei/commit/c3e60bb))
+* **todos:** 更新待办事项与治理规范 ([91b3f75](https://github.com/CaoMeiYouRen/momei/commit/91b3f75))
+
 # [1.9.0](https://github.com/CaoMeiYouRen/momei/compare/v1.8.0...v1.9.0) (2026-03-14)
 
 
