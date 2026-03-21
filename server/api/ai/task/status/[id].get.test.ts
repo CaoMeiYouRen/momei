@@ -5,6 +5,7 @@ vi.mock('h3', async () => {
     return {
         ...actual,
         getRouterParam: (event: any, key: string) => event.params?.[key],
+        getQuery: (event: any) => event.query || {},
     }
 })
 
@@ -40,6 +41,7 @@ describe('GET /api/ai/task/status/[id]', () => {
         expect(TextService.getTaskStatus).toHaveBeenCalledWith('task-1', 'user-1', {
             isAdmin: false,
             includeRaw: false,
+            resumeFailed: false,
         })
         expect(result).toEqual({
             code: 200,
@@ -77,6 +79,7 @@ describe('GET /api/ai/task/status/[id]', () => {
         expect(TextService.getTaskStatus).toHaveBeenCalledWith('task-1', 'admin-1', {
             isAdmin: true,
             includeRaw: true,
+            resumeFailed: false,
         })
         expect(result).toEqual({
             code: 200,
@@ -91,6 +94,31 @@ describe('GET /api/ai/task/status/[id]', () => {
                 error: null,
                 updatedAt: '2026-03-09T00:00:00.000Z',
             },
+        })
+    })
+
+    it('should allow callers to explicitly resume failed tasks', async () => {
+        vi.mocked(requireAdminOrAuthor).mockResolvedValue({
+            user: { id: 'user-1', role: 'author' },
+        } as any)
+        vi.mocked(TextService.getTaskStatus).mockResolvedValue({
+            id: 'task-1',
+            status: 'processing',
+            progress: 50,
+            error: null,
+            updatedAt: '2026-03-09T00:00:00.000Z',
+        } as any)
+
+        await handler({
+            context: {},
+            params: { id: 'task-1' },
+            query: { resumeFailed: 'true' },
+        } as any)
+
+        expect(TextService.getTaskStatus).toHaveBeenCalledWith('task-1', 'user-1', {
+            isAdmin: false,
+            includeRaw: false,
+            resumeFailed: true,
         })
     })
 })

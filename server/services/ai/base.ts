@@ -44,6 +44,39 @@ function resolveTaskAudioUrl(taskResult: unknown): string | null {
     return typeof audioUrl === 'string' ? audioUrl : null
 }
 
+function normalizeTaskResultForResponse(
+    task: Pick<AITask, 'type' | 'status'>,
+    taskResult: unknown,
+    options: {
+        includeRaw?: boolean
+    } = {},
+) {
+    if (!taskResult) {
+        return undefined
+    }
+
+    if (typeof taskResult !== 'object' || Array.isArray(taskResult)) {
+        return options.includeRaw ? taskResult : taskResult
+    }
+
+    if (task.type !== 'translate') {
+        return options.includeRaw ? taskResult : stripRawFromTaskResult(taskResult)
+    }
+
+    if (options.includeRaw) {
+        return taskResult
+    }
+
+    const resultRecord = taskResult as Record<string, unknown>
+    return {
+        mode: resultRecord.mode,
+        content: typeof resultRecord.content === 'string' ? resultRecord.content : '',
+        completedChunks: typeof resultRecord.completedChunks === 'number' ? resultRecord.completedChunks : 0,
+        totalChunks: typeof resultRecord.totalChunks === 'number' ? resultRecord.totalChunks : 0,
+        lastError: typeof resultRecord.lastError === 'string' ? resultRecord.lastError : null,
+    }
+}
+
 /**
  * 序列化 payload
  */
@@ -74,7 +107,7 @@ export abstract class AIBaseService {
      * 获取任务状态
      */
     static serializeTaskStatus(
-        task: Pick<AITask, 'id' | 'status' | 'progress' | 'result' | 'error' | 'updatedAt'>,
+        task: Pick<AITask, 'id' | 'type' | 'status' | 'progress' | 'result' | 'error' | 'updatedAt'>,
         options: {
             includeRaw?: boolean
         } = {},
@@ -87,12 +120,12 @@ export abstract class AIBaseService {
             updatedAt: task.updatedAt,
         }
 
-        if (task.status !== 'completed') {
+        const parsedResult = parseTaskResult(task.result)
+        const result = normalizeTaskResultForResponse(task, parsedResult, options)
+
+        if (task.status !== 'completed' && typeof result === 'undefined') {
             return response
         }
-
-        const parsedResult = parseTaskResult(task.result)
-        const result = options.includeRaw ? parsedResult : stripRawFromTaskResult(parsedResult)
 
         return {
             ...response,

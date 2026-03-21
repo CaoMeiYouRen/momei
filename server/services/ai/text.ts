@@ -471,6 +471,23 @@ export class TextService extends AIBaseService {
         return await TextTranslationTaskService.createTranslateTask(content, to, userId, options)
     }
 
+    static override async getTaskStatus(
+        taskId: string,
+        userId: string,
+        options: {
+            isAdmin?: boolean
+            includeRaw?: boolean
+            resumeFailed?: boolean
+        } = {},
+    ) {
+        await TextTranslationTaskService.continueTranslateTask(taskId, userId, {
+            isAdmin: options.isAdmin,
+            allowFailedResume: options.resumeFailed,
+        })
+
+        return await super.getTaskStatus(taskId, userId, options)
+    }
+
     static async translate(content: string, to: string, userId?: string, options?: TranslateRequestOptions) {
         await this.assertTextQuota({
             userId,

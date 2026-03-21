@@ -690,7 +690,8 @@
                     "modes": {
                         "direct": "Direct Refill",
                         "stream": "Streaming Refill",
-                        "chunk": "Chunked Refill"
+                        "chunk": "Chunked Refill",
+                        "task": "Task Polling"
                     },
                     "start": "Start Translation",
                     "progress_running": "Translation in progress",

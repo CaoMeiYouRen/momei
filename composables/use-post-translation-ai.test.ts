@@ -96,48 +96,6 @@ function createStreamResponse(blocks: string[]) {
     })
 }
 
-function createAbortableStreamResponse(blocks: string[], signal?: AbortSignal) {
-    const encoder = new TextEncoder()
-
-    return new Response(new ReadableStream({
-        start(controller) {
-            blocks.forEach((block) => {
-                controller.enqueue(encoder.encode(block))
-            })
-
-            signal?.addEventListener('abort', () => {
-                controller.error(new DOMException('Aborted', 'AbortError'))
-            }, { once: true })
-        },
-    }), {
-        status: 200,
-        headers: {
-            'Content-Type': 'text/event-stream',
-        },
-    })
-}
-
-function createErroringStreamResponse(blocks: string[], error: Error) {
-    const encoder = new TextEncoder()
-
-    return new Response(new ReadableStream({
-        start(controller) {
-            blocks.forEach((block) => {
-                controller.enqueue(encoder.encode(block))
-            })
-
-            setTimeout(() => {
-                controller.error(error)
-            }, 10)
-        },
-    }), {
-        status: 200,
-        headers: {
-            'Content-Type': 'text/event-stream',
-        },
-    })
-}
-
 function createDataEvent(payload: Record<string, unknown>) {
     return `data: ${JSON.stringify(payload)}\n\n`
 }
@@ -152,18 +110,6 @@ function createChunkEvent(content: string, chunkIndex = 0, totalChunks = 1, isCh
 
 function createDeltaEvent(delta: string, chunkIndex = 0, totalChunks = 1, isChunkComplete = false) {
     return createDataEvent({ delta, chunkIndex, totalChunks, isChunkComplete })
-}
-
-function createDeferred() {
-    let resolve!: () => void
-    const promise = new Promise<void>((innerResolve) => {
-        resolve = innerResolve
-    })
-
-    return {
-        promise,
-        resolve,
-    }
 }
 
 describe('usePostTranslationAI', () => {
@@ -209,15 +155,36 @@ describe('usePostTranslationAI', () => {
         expect(translationProgress.value.fields.title.completedChunks).toBe(1)
     })
 
-    it('对长正文切换为分段回填并按块写入', async () => {
-        fetchMock
-            .mockResolvedValueOnce(createStreamResponse([
-                createDeltaEvent('Chunk 1', 0, 2),
-                createDataEvent({ chunkIndex: 0, totalChunks: 2, isChunkComplete: true }),
-                createDeltaEvent('Chunk 2', 1, 2),
-                createDataEvent({ chunkIndex: 1, totalChunks: 2, isChunkComplete: true }),
-                createEndEvent(),
-            ]))
+    it('对长正文切换为任务轮询并按进度回填', async () => {
+        apiFetchMock
+            .mockResolvedValueOnce({
+                data: {
+                    mode: 'task',
+                    taskId: 'task-1',
+                },
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    status: 'processing',
+                    progress: 50,
+                    result: {
+                        content: 'Chunk 1',
+                        completedChunks: 1,
+                        totalChunks: 2,
+                    },
+                },
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    status: 'completed',
+                    progress: 100,
+                    result: {
+                        content: 'Chunk 1\n\nChunk 2',
+                        completedChunks: 2,
+                        totalChunks: 2,
+                    },
+                },
+            })
 
         const post = createPostState()
         const { translatePostFields, translationProgress } = usePostTranslationAI(post)
@@ -232,16 +199,21 @@ describe('usePostTranslationAI', () => {
         })
 
         expect(translated).toBe(true)
-        expect(fetchMock).toHaveBeenCalledTimes(1)
+        expect(fetchMock).not.toHaveBeenCalled()
+        expect(apiFetchMock).toHaveBeenCalledTimes(3)
         expect(post.value.content).toBe('Chunk 1\n\nChunk 2')
-        expect(translationProgress.value.fields.content.mode).toBe('chunk')
+        expect(translationProgress.value.fields.content.mode).toBe('task')
         expect(translationProgress.value.fields.content.completedChunks).toBe(2)
     })
 
-    it('流式模式初始化失败时会自动降级到分段回填', async () => {
-        fetchMock
-            .mockResolvedValueOnce(new Response(null, { status: 200 }))
-            .mockResolvedValueOnce(createStreamResponse([createChunkEvent('Fallback body'), createEndEvent()]))
+    it('流式模式初始化失败时会自动降级到直返回填', async () => {
+        fetchMock.mockResolvedValueOnce(new Response(null, { status: 200 }))
+        apiFetchMock.mockResolvedValueOnce({
+            data: {
+                mode: 'direct',
+                content: 'Fallback body',
+            },
+        })
 
         const post = createPostState()
         const { translatePostFields, translationProgress } = usePostTranslationAI(post)
@@ -255,55 +227,67 @@ describe('usePostTranslationAI', () => {
 
         expect(translated).toBe(true)
         expect(post.value.content).toBe('Fallback body')
-        expect(translationProgress.value.fields.content.mode).toBe('chunk')
+        expect(translationProgress.value.fields.content.mode).toBe('direct')
         expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
             severity: 'warn',
             detail: 'stream_fallback',
         }))
     })
 
-    it('取消分段翻译时应保留已成功回填的边界', async () => {
-        const streamStarted = createDeferred()
-
-        fetchMock.mockImplementationOnce((_input: RequestInfo | URL, init?: RequestInit) => {
-            streamStarted.resolve()
-            const signal: AbortSignal | undefined = init?.signal || undefined
-
-            return createAbortableStreamResponse([
-                createChunkEvent('Chunk 1', 0, 2),
-            ], signal)
-        })
-
-        const post = createPostState()
-        const { cancelFieldTranslation, translatePostFields, translationProgress } = usePostTranslationAI(post)
-
-        const translating = translatePostFields({
-            source: createSource({
-                content: `${'a'.repeat(2500)}\n\n${'b'.repeat(2500)}`,
-            }),
-            sourceLanguage: 'zh-CN',
-            targetLanguage: 'en-US',
-            scopes: ['content'],
-        })
-
-        await streamStarted.promise
-        await Promise.resolve()
-        expect(post.value.content).toBe('Chunk 1')
-
-        expect(cancelFieldTranslation('content')).toBe(true)
-
-        const translated = await translating
-        expect(translated).toBe(false)
-        expect(post.value.content).toBe('Chunk 1')
-        expect(translationProgress.value.fields.content.status).toBe('cancelled')
-        expect(translationProgress.value.fields.content.canRetry).toBe(true)
-        expect(translationProgress.value.fields.content.completedChunks).toBe(1)
-    })
-
-    it('分段失败后允许仅重试失败字段并续传剩余块', async () => {
-        fetchMock.mockImplementationOnce(() => createErroringStreamResponse([
-            createChunkEvent('Chunk 1', 0, 2),
-        ], new Error('chunk failed')))
+    it('任务轮询失败后保留已完成块，并在重试时复用原 taskId 续跑', async () => {
+        apiFetchMock
+            .mockResolvedValueOnce({
+                data: {
+                    mode: 'task',
+                    taskId: 'task-1',
+                },
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    status: 'processing',
+                    progress: 50,
+                    result: {
+                        content: 'Chunk 1',
+                        completedChunks: 1,
+                        totalChunks: 2,
+                    },
+                },
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    status: 'failed',
+                    progress: 50,
+                    error: 'chunk failed',
+                    result: {
+                        content: 'Chunk 1',
+                        completedChunks: 1,
+                        totalChunks: 2,
+                        lastError: 'chunk failed',
+                    },
+                },
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    status: 'processing',
+                    progress: 100,
+                    result: {
+                        content: 'Chunk 1\n\nChunk 2',
+                        completedChunks: 2,
+                        totalChunks: 2,
+                    },
+                },
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    status: 'completed',
+                    progress: 100,
+                    result: {
+                        content: 'Chunk 1\n\nChunk 2',
+                        completedChunks: 2,
+                        totalChunks: 2,
+                    },
+                },
+            })
 
         const post = createPostState()
         const { retryFieldTranslation, translatePostFields, translationProgress } = usePostTranslationAI(post)
@@ -323,12 +307,12 @@ describe('usePostTranslationAI', () => {
         expect(translationProgress.value.fields.content.canRetry).toBe(true)
         expect(translationProgress.value.fields.content.completedChunks).toBe(1)
 
-        fetchMock.mockResolvedValueOnce(createStreamResponse([createChunkEvent('Chunk 2'), createEndEvent()]))
-
         const retried = await retryFieldTranslation('content')
+
         expect(retried).toBe(true)
         expect(post.value.content).toBe('Chunk 1\n\nChunk 2')
         expect(translationProgress.value.fields.content.status).toBe('completed')
         expect(translationProgress.value.fields.content.completedChunks).toBe(2)
+        expect(apiFetchMock).toHaveBeenCalledTimes(5)
     })
 })

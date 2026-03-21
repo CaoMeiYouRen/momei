@@ -5,14 +5,12 @@ import {
     createFieldProgressRecord,
     cancelActiveTranslation,
     canRetryTranslationField,
-    executeChunkTranslation,
     executeDirectTranslation,
     executeStreamingTranslation,
     finalizeTranslationField,
     initializeTranslationRun,
     isTextScope,
     markPendingTranslationFields,
-    translateChunkViaStreamHelper,
     type TranslateFieldOptions,
     type TranslationFieldRuntime,
     type TranslationRunContext,
@@ -33,6 +31,7 @@ import { AI_TEXT_DIRECT_RETURN_MAX_CHARS } from '@/utils/shared/env'
 const STREAM_MODE_MAX_CHARS = 4000
 const MIN_CHUNK_SIZE = 200
 const DIRECT_MODE_FIELDS: TranslationTextField[] = ['title', 'summary']
+const TRANSLATION_TASK_POLL_INTERVAL_MS = 1500
 
 export function usePostTranslationAI(post: Ref<PostEditorData>) {
     const toast = useToast()
@@ -102,7 +101,11 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
     }
 
     const resolvePreferredMode = (field: TranslationTextField, sourceValue: string): PostTranslationMode => {
-        if (DIRECT_MODE_FIELDS.includes(field) && sourceValue.length <= AI_TEXT_DIRECT_RETURN_MAX_CHARS) {
+        if (sourceValue.length >= AI_TEXT_DIRECT_RETURN_MAX_CHARS) {
+            return 'task'
+        }
+
+        if (DIRECT_MODE_FIELDS.includes(field)) {
             return 'direct'
         }
 
@@ -121,6 +124,8 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
             sourceChunks,
             translatedChunks: [],
             nextChunkIndex: 0,
+            resumeTaskId: null,
+            resumeFailedTask: false,
             preferredMode: resolvePreferredMode(field, sourceValue),
             fallbackUsed: false,
         }
@@ -217,6 +222,96 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         return activeAbortController
     }
 
+    const delayWithAbort = async (timeoutMs: number, signal: AbortSignal) => await new Promise<void>((resolve, reject) => {
+        const onAbort = () => {
+            clearTimeout(timeoutId)
+            reject(new DOMException('Aborted', 'AbortError'))
+        }
+
+        const timeoutId = setTimeout(() => {
+            signal.removeEventListener('abort', onAbort)
+            resolve()
+        }, timeoutMs)
+
+        if (signal.aborted) {
+            onAbort()
+            return
+        }
+
+        signal.addEventListener('abort', onAbort, { once: true })
+    })
+
+    const pollTranslationTask = async (
+        field: TranslationTextField,
+        runtime: TranslationFieldRuntime,
+        taskId: string,
+        signal: AbortSignal,
+        options: {
+            resumeFailed?: boolean
+        } = {},
+    ) => {
+        while (true) {
+            const response = await $fetch<ApiResponse<{
+                status: 'pending' | 'processing' | 'completed' | 'failed'
+                progress: number
+                error?: string | null
+                result?: {
+                    mode?: string
+                    content?: string
+                    completedChunks?: number
+                    totalChunks?: number
+                    lastError?: string | null
+                }
+            }>>(`/api/ai/task/status/${taskId}`, {
+                query: options.resumeFailed
+                    ? { resumeFailed: 'true' }
+                    : undefined,
+                signal,
+            })
+
+            const task = response.data
+            const taskResult = task.result
+            const content = typeof taskResult?.content === 'string' ? taskResult.content : ''
+            const completedChunks = typeof taskResult?.completedChunks === 'number'
+                ? taskResult.completedChunks
+                : runtime.nextChunkIndex
+            const totalChunks = typeof taskResult?.totalChunks === 'number'
+                ? taskResult.totalChunks
+                : runtime.sourceChunks.length || 1
+
+            runtime.nextChunkIndex = Math.min(completedChunks, totalChunks)
+
+            setFieldTargetValue(field, content)
+            setFieldProgress(field, {
+                status: 'processing',
+                mode: 'task',
+                content,
+                progress: task.progress,
+                completedChunks,
+                totalChunks,
+                error: task.error || taskResult?.lastError || null,
+                canRetry: false,
+                canCancel: false,
+            })
+
+            if (task.status === 'completed') {
+                runtime.resumeTaskId = null
+                runtime.resumeFailedTask = false
+                translationProgress.value = {
+                    ...translationProgress.value,
+                    taskId: null,
+                }
+                return content
+            }
+
+            if (task.status === 'failed') {
+                throw new Error(task.error || taskResult?.lastError || t('pages.admin.posts.ai_error'))
+            }
+
+            await delayWithAbort(TRANSLATION_TASK_POLL_INTERVAL_MS, signal)
+        }
+    }
+
     const translateField = async (field: TranslationTextField, options: TranslateFieldOptions) => {
         const context = runContext.value
         if (!context) {
@@ -236,9 +331,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         }
 
         const runtime = getFieldRuntime(field, sourceValue)
-        const preferredMode = runtime.nextChunkIndex > 0 && runtime.preferredMode !== 'direct'
-            ? 'chunk'
-            : runtime.preferredMode
+        const preferredMode = runtime.preferredMode
 
         if (runtime.nextChunkIndex === 0) {
             runtime.translatedChunks = []
@@ -270,6 +363,66 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
                     t,
                     syncFieldContent,
                 })
+            } else if (preferredMode === 'task') {
+                const controller = createActiveController()
+                const existingTaskId = translationProgress.value.taskId
+                const existingFieldState = translationProgress.value.fields[field]
+                const resumableTaskId = runtime.resumeTaskId
+                    || (existingTaskId && existingFieldState.mode === 'task' ? existingTaskId : null)
+                const resumeFailedTask = runtime.resumeFailedTask
+
+                try {
+                    if (resumableTaskId) {
+                        runtime.resumeTaskId = resumableTaskId
+                        runtime.resumeFailedTask = false
+                        await pollTranslationTask(field, runtime, resumableTaskId, controller.signal, {
+                            resumeFailed: resumeFailedTask,
+                        })
+                    } else {
+                        const response = await $fetch<ApiResponse<{
+                            mode: 'direct' | 'task'
+                            content?: string
+                            taskId?: string
+                        }>>('/api/ai/translate', {
+                            method: 'POST',
+                            body: {
+                                content: runtime.sourceValue,
+                                targetLanguage: runContext.value?.targetLanguage || '',
+                                sourceLanguage: options.sourceLanguage,
+                                field,
+                            },
+                            signal: controller.signal,
+                        })
+
+                        if (response.data.mode === 'direct' && typeof response.data.content === 'string') {
+                            runtime.resumeTaskId = null
+                            runtime.resumeFailedTask = false
+                            runtime.translatedChunks = [response.data.content]
+                            runtime.nextChunkIndex = runtime.sourceChunks.length
+                            syncFieldContent(field, runtime, {
+                                status: 'processing',
+                                mode: 'direct',
+                                totalChunks: 1,
+                                completedChunks: 1,
+                                progress: 100,
+                                error: null,
+                                canCancel: false,
+                                canRetry: false,
+                            }, 1)
+                        } else if (response.data.mode === 'task' && response.data.taskId) {
+                            translationProgress.value = {
+                                ...translationProgress.value,
+                                taskId: response.data.taskId,
+                            }
+                            runtime.resumeTaskId = response.data.taskId
+                            await pollTranslationTask(field, runtime, response.data.taskId, controller.signal)
+                        } else {
+                            throw new Error(t('pages.admin.posts.ai_error'))
+                        }
+                    }
+                } finally {
+                    resetActiveController()
+                }
             } else if (preferredMode === 'stream') {
                 try {
                     await executeStreamingTranslation({
@@ -293,35 +446,18 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
                             detail: t('pages.admin.posts.translation_workflow.stream_fallback'),
                             life: 3000,
                         })
-                        await executeChunkTranslation({
+                        await executeDirectTranslation({
                             field,
                             runtime,
                             translateOptions: options,
-                            createActiveController,
-                            resetActiveController,
-                            syncFieldContent,
-                            translateChunkViaStream: translateChunkViaStreamHelper,
                             targetLanguage: runContext.value?.targetLanguage || '',
                             t,
-                            toErrorMessage,
+                            syncFieldContent,
                         })
                     } else {
                         throw error
                     }
                 }
-            } else {
-                await executeChunkTranslation({
-                    field,
-                    runtime,
-                    translateOptions: options,
-                    createActiveController,
-                    resetActiveController,
-                    syncFieldContent,
-                    translateChunkViaStream: translateChunkViaStreamHelper,
-                    targetLanguage: runContext.value?.targetLanguage || '',
-                    t,
-                    toErrorMessage,
-                })
             }
 
             finalizeTranslationField({
@@ -488,6 +624,13 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         })
         if (fieldIndex === null || !runContext.value) {
             return false
+        }
+
+        const runtime = fieldRuntimes.get(field)
+        const fieldState = translationProgress.value.fields[field]
+        if (runtime && fieldState.mode === 'task' && translationProgress.value.taskId) {
+            runtime.resumeTaskId = translationProgress.value.taskId
+            runtime.resumeFailedTask = true
         }
 
         markPendingTranslationFields({

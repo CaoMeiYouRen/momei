@@ -690,7 +690,8 @@
                     "modes": {
                         "direct": "직접 채우기",
                         "stream": "스트리밍 채우기",
-                        "chunk": "분할 채우기"
+                        "chunk": "분할 채우기",
+                        "task": "작업 폴링"
                     },
                     "start": "번역 시작",
                     "progress_running": "번역 진행 중",

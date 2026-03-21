@@ -1,3 +1,4 @@
+import { getQuery } from 'h3'
 import { TextService } from '@/server/services/ai'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { isAdmin } from '@/utils/shared/roles'
@@ -5,6 +6,7 @@ import { isAdmin } from '@/utils/shared/roles'
 export default defineEventHandler(async (event) => {
     const session = await requireAdminOrAuthor(event)
     const taskId = getRouterParam(event, 'id')
+    const query = getQuery(event)
 
     if (!taskId) {
         throw createError({
@@ -18,6 +20,7 @@ export default defineEventHandler(async (event) => {
         const task = await TextService.getTaskStatus(taskId, session.user.id, {
             isAdmin: currentUserIsAdmin,
             includeRaw: currentUserIsAdmin,
+            resumeFailed: query.resumeFailed === 'true',
         })
         return {
             code: 200,

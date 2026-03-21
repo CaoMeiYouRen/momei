@@ -29,6 +29,8 @@ export interface TranslationFieldRuntime {
     sourceChunks: string[]
     translatedChunks: string[]
     nextChunkIndex: number
+    resumeTaskId: string | null
+    resumeFailedTask: boolean
     preferredMode: PostTranslationMode
     fallbackUsed: boolean
 }

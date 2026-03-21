@@ -690,7 +690,8 @@
                     "modes": {
                         "direct": "直返回填",
                         "stream": "串流回填",
-                        "chunk": "分段回填"
+                        "chunk": "分段回填",
+                        "task": "任務輪詢"
                     },
                     "start": "開始翻譯",
                     "progress_running": "翻譯進行中",
