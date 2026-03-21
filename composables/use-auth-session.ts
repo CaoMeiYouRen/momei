@@ -5,10 +5,14 @@ const SESSION_VISIBILITY_REFRESH_WINDOW_MS = 60_000
 const ROUTE_SESSION_FETCH_KEY = 'auth-route-session'
 
 type AuthSession = typeof authClient.$Infer.Session | null
+type RouteSessionState = ReturnType<typeof createRouteSessionState>
+type AuthSessionValidationState = ReturnType<typeof createAuthSessionValidationState>
 
 let clientRouteSessionPromise: Promise<AuthSession> | null = null
+let clientRouteSessionState: RouteSessionState | null = null
+let clientAuthSessionValidationState: AuthSessionValidationState | null = null
 
-function useRouteSessionState() {
+function createRouteSessionState() {
     const data = useState<AuthSession>('auth:route-session:data', () => null)
     const resolved = useState<boolean>('auth:route-session:resolved', () => false)
     const timestamp = useState<number>('auth:route-session:timestamp', () => 0)
@@ -22,13 +26,39 @@ function useRouteSessionState() {
     }
 }
 
-function useAuthSessionValidationState() {
+function createAuthSessionValidationState() {
     return useState<number>('auth:session:last-validated-at', () => 0)
 }
 
-function setRouteSessionState(session: AuthSession) {
-    const state = useRouteSessionState()
-    const lastValidatedAt = useAuthSessionValidationState()
+function useRouteSessionState() {
+    if (import.meta.client && clientRouteSessionState) {
+        return clientRouteSessionState
+    }
+
+    const state = createRouteSessionState()
+
+    if (import.meta.client) {
+        clientRouteSessionState = state
+    }
+
+    return state
+}
+
+function useAuthSessionValidationState() {
+    if (import.meta.client && clientAuthSessionValidationState) {
+        return clientAuthSessionValidationState
+    }
+
+    const state = createAuthSessionValidationState()
+
+    if (import.meta.client) {
+        clientAuthSessionValidationState = state
+    }
+
+    return state
+}
+
+function setRouteSessionState(session: AuthSession, state = useRouteSessionState(), lastValidatedAt = useAuthSessionValidationState()) {
     const nextTimestamp = Date.now()
 
     state.data.value = session
@@ -73,6 +103,24 @@ function seedSessionAtom(session: AuthSession) {
 }
 
 async function fetchRouteSession() {
+    const routeSessionState = useRouteSessionState()
+    const authSessionValidationState = useAuthSessionValidationState()
+
+    if (import.meta.server) {
+        try {
+            const requestFetch = useRequestFetch()
+            const session = await requestFetch<AuthSession>('/api/auth/get-session', {
+                headers: {
+                    ...useRequestHeaders(['cookie']),
+                },
+            })
+
+            return setRouteSessionState(session ?? null, routeSessionState, authSessionValidationState)
+        } catch {
+            return setRouteSessionState(null, routeSessionState, authSessionValidationState)
+        }
+    }
+
     const { data, error } = await authClient.useSession((url, options) => useFetch(url, {
         ...options,
         key: ROUTE_SESSION_FETCH_KEY,
@@ -84,10 +132,10 @@ async function fetchRouteSession() {
     }))
 
     if (error.value) {
-        return setRouteSessionState(null)
+        return setRouteSessionState(null, routeSessionState, authSessionValidationState)
     }
 
-    return setRouteSessionState(data.value ?? null)
+    return setRouteSessionState(data.value ?? null, routeSessionState, authSessionValidationState)
 }
 
 export function useAuthSession() {

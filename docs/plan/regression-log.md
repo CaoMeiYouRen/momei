@@ -25,6 +25,54 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## 认证会话获取频率治理回归（2026-03-21）
+
+### 回归任务记录
+
+- 回归范围: 第十七阶段 P0“认证会话获取频率治理”收口；覆盖 `/api/auth/get-session` 请求收敛、统一 route middleware 读取层、登录 / 注册 / 登出 / 资料更新 / 头像上传后的会话失效与刷新闭环，以及浏览器侧的多标签、刷新、登出同步、会话过期跳转验证。
+- 触发条件: 第十七阶段主线条目进入收口，需要把已实施的会话治理逻辑与浏览器级回归证据集中沉淀，并将 `todo.md` 中的对应主线从进行中切换为已完成。
+- 执行频率: 本阶段专项回归首轮；后续仅在认证链路、路由守卫、Better Auth 集成或会话失效策略再变更时补写增量记录。
+- timeout budget:
+    - 定向 Vitest 回归: 15 分钟。
+    - 定向 Playwright Chromium 浏览器验证: 20 分钟。
+    - 静态检查与编辑器诊断复核: 15 分钟。
+- 已执行命令:
+    - `pnpm exec vitest run pages/register.test.ts pages/login.test.ts composables/use-auth-session.test.ts components/settings/settings-profile.test.ts app.test.ts components/app-header.test.ts`
+    - `pnpm exec playwright test tests/e2e/auth-session-governance.e2e.test.ts --project=chromium`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 静态层: 受影响文件编辑器诊断复核通过；`composables/use-auth-session.ts`、`lib/auth-client.ts`、`pages/login.vue`、`pages/register.vue`、`components/app-header.vue`、`components/settings/settings-profile.vue` 与对应测试文件未见错误。
+        - V2 / 逻辑层: 定向 Vitest 共 6 个文件 42 个测试通过，覆盖 route cache 版本失效、当前标签页失效、登录 / 注册失败恢复、登出依赖联动、资料更新与头像上传刷新闭环。
+        - V3 / 浏览器层: 新增 `tests/e2e/auth-session-governance.e2e.test.ts`，在 Chromium 下完成 4 条浏览器用例，覆盖刷新稳定性、多标签登出同步、当前标签页登出回访保护、清空会话 cookie 后的过期跳转。
+    - 结果摘要:
+        - `lib/auth-client.ts` 已建立 `/api/auth/get-session` 短时缓存、并发合并、当前标签页失效和多标签广播同步机制。
+        - `composables/use-auth-session.ts` 已成为统一会话读取层，route middleware 通过共享 route cache 与显式回源策略处理认证，不再信任 stale live atom 的短路结果。
+        - `app.vue` 已在启动阶段接入 `initializeAuthSessionSync()`、hydration prime 与受控生命周期刷新，避免重复请求与缓存层失配。
+        - 登录、注册、登出、资料更新与头像上传链路均已接入统一的失效与刷新策略，并为失败分支补齐当前标签页会话恢复。
+        - 浏览器侧新增的 4 条 Playwright 用例确认：
+            - 已登录设置页刷新后仍保持登录态，且浏览器可见的 `/api/auth/get-session` 请求数受控在 2 次以内。
+            - 一个标签页登出后，另一标签页再次访问受保护后台页面会被重定向到登录页。
+            - 当前标签页登出后立即回访后台受保护页面会被阻止。
+            - 已存在客户端登录态时，若会话 cookie 被清除，下一次访问后台受保护页面仍会跳转到登录页，说明 stale client state 不会被守卫错误信任。
+    - 测试结果（按需）:
+        - `pnpm exec vitest run pages/register.test.ts pages/login.test.ts composables/use-auth-session.test.ts components/settings/settings-profile.test.ts app.test.ts components/app-header.test.ts`: 6 files passed / 42 tests passed。
+    - 浏览器验证（按需）:
+        - `pnpm exec playwright test tests/e2e/auth-session-governance.e2e.test.ts --project=chromium`: 4 passed。
+        - 用例文件: [tests/e2e/auth-session-governance.e2e.test.ts](../../tests/e2e/auth-session-governance.e2e.test.ts)
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - 浏览器验证当前只覆盖 Chromium；Firefox / WebKit 与移动端场景仍未补跑。
+            - 当前 E2E 以受保护页面访问与头部交互为主，未扩展到更多后台子页面的长链路回归。
+    - 未覆盖边界:
+        - 未补跑 Firefox / WebKit，因此多标签广播与 PrimeVue 菜单交互尚未在多引擎下复核。
+        - 未做生产构建后的 E2E，仅覆盖 `TEST_MODE=true` 的开发服务环境。
+        - 未增加“窗口重新聚焦后触发可见性刷新”的专门浏览器用例；当前主要通过逻辑层测试与刷新稳定性间接覆盖。
+    - 后续补跑计划:
+        - 在下次认证链路或 Better Auth 升级时，优先补跑 `tests/e2e/auth-session-governance.e2e.test.ts` 的 Firefox / WebKit 项目。
+        - 若后续新增更多受保护入口，扩展当前用例组以覆盖作者页、更多后台设置页和匿名访问回退路径。
+
 ## 测试、性能与依赖安全干净基线回归（2026-03-21，V2）
 
 ### 回归任务记录

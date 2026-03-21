@@ -280,7 +280,7 @@ describe('RegisterPage', () => {
         await wrapper.find('input#email').setValue('tester@momei.dev')
         await wrapper.find('input#password').setValue('secure-pass')
         await wrapper.find('input#confirmPassword').setValue('secure-pass')
-        await wrapper.find('input[type="checkbox"]').setChecked(true)
+        await wrapper.find('input[type="checkbox"]').setValue(true)
         await wrapper.find('form').trigger('submit.prevent')
 
         await vi.waitFor(() => {
