@@ -15,6 +15,7 @@ const translations: Record<string, string> = {
     'pages.admin.posts.translate_success': 'translate_success',
     'pages.admin.posts.translation_workflow.cancelled': 'cancelled',
     'pages.admin.posts.translation_workflow.stream_fallback': 'stream_fallback',
+    'pages.admin.posts.translation_workflow.task_fallback': 'task_fallback',
 }
 
 vi.mock('primevue/usetoast', async (importOriginal) => {
@@ -108,10 +109,6 @@ function createChunkEvent(content: string, chunkIndex = 0, totalChunks = 1, isCh
     return createDataEvent({ content, chunkIndex, totalChunks, isChunkComplete })
 }
 
-function createDeltaEvent(delta: string, chunkIndex = 0, totalChunks = 1, isChunkComplete = false) {
-    return createDataEvent({ delta, chunkIndex, totalChunks, isChunkComplete })
-}
-
 describe('usePostTranslationAI', () => {
     const fetchMock = vi.fn()
     const apiFetchMock = vi.fn()
@@ -155,7 +152,45 @@ describe('usePostTranslationAI', () => {
         expect(translationProgress.value.fields.title.completedChunks).toBe(1)
     })
 
-    it('对长正文切换为任务轮询并按进度回填', async () => {
+    it('对多块长正文保持流式回填', async () => {
+        fetchMock.mockResolvedValueOnce(createStreamResponse([
+            createChunkEvent('Chunk 1', 0, 2, true),
+            createChunkEvent('Chunk 2', 1, 2, true),
+            createEndEvent(),
+        ]))
+
+        const post = createPostState()
+        const { translatePostFields, translationProgress } = usePostTranslationAI(post)
+
+        const translated = await translatePostFields({
+            source: createSource({
+                content: `${'a'.repeat(2500)}\n\n${'b'.repeat(2500)}`,
+            }),
+            sourceLanguage: 'zh-CN',
+            targetLanguage: 'en-US',
+            scopes: ['content'],
+        })
+
+        expect(translated).toBe(true)
+        expect(fetchMock).toHaveBeenCalledTimes(1)
+        expect(apiFetchMock).not.toHaveBeenCalled()
+        expect(post.value.content).toBe('Chunk 1\n\nChunk 2')
+        expect(translationProgress.value.fields.content.mode).toBe('chunk')
+        expect(translationProgress.value.fields.content.completedChunks).toBe(2)
+    })
+
+    it('在 serverless 长文本场景自动回退为任务轮询并按进度回填', async () => {
+        fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
+            statusMessage: 'Long text streaming is unavailable in serverless deployment',
+            data: {
+                fallbackMode: 'task',
+            },
+        }), {
+            status: 409,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }))
         apiFetchMock
             .mockResolvedValueOnce({
                 data: {
@@ -199,11 +234,15 @@ describe('usePostTranslationAI', () => {
         })
 
         expect(translated).toBe(true)
-        expect(fetchMock).not.toHaveBeenCalled()
+        expect(fetchMock).toHaveBeenCalledTimes(1)
         expect(apiFetchMock).toHaveBeenCalledTimes(3)
         expect(post.value.content).toBe('Chunk 1\n\nChunk 2')
         expect(translationProgress.value.fields.content.mode).toBe('task')
         expect(translationProgress.value.fields.content.completedChunks).toBe(2)
+        expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'warn',
+            detail: 'task_fallback',
+        }))
     })
 
     it('流式模式初始化失败时会自动降级到直返回填', async () => {
@@ -235,6 +274,17 @@ describe('usePostTranslationAI', () => {
     })
 
     it('任务轮询失败后保留已完成块，并在重试时复用原 taskId 续跑', async () => {
+        fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
+            statusMessage: 'Long text streaming is unavailable in serverless deployment',
+            data: {
+                fallbackMode: 'task',
+            },
+        }), {
+            status: 409,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }))
         apiFetchMock
             .mockResolvedValueOnce({
                 data: {
@@ -314,5 +364,6 @@ describe('usePostTranslationAI', () => {
         expect(translationProgress.value.fields.content.status).toBe('completed')
         expect(translationProgress.value.fields.content.completedChunks).toBe(2)
         expect(apiFetchMock).toHaveBeenCalledTimes(5)
+        expect(fetchMock).toHaveBeenCalledTimes(1)
     })
 })

@@ -705,6 +705,7 @@
                     "cancel_field": "Cancel Field",
                     "cancelled": "Translation cancelled",
                     "stream_fallback": "Streaming refill failed, switched to chunked refill automatically.",
+                    "task_fallback": "This deployment does not support long-text streaming translation. Switched to task polling automatically.",
                     "continue_title": "Confirm Continue Translation",
                     "overwrite_title": "Confirm Overwrite",
                     "continue_draft": "The target draft already contains content. Continuing will refresh the selected fields with new translation output.",

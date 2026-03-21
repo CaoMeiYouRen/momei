@@ -1,3 +1,5 @@
+export type TranslationStreamFallbackMode = 'direct' | 'task'
+
 export interface TranslationStreamChunk {
     content?: string
     chunk?: string
@@ -7,17 +9,53 @@ export interface TranslationStreamChunk {
     isChunkComplete?: boolean
 }
 
-export async function extractTranslationStreamError(response: Response, fallbackMessage: string) {
+interface TranslationStreamErrorPayload {
+    message?: string
+    statusMessage?: string
+    data?: {
+        fallbackMode?: TranslationStreamFallbackMode
+    }
+}
+
+interface TranslationStreamFailure {
+    message: string
+    fallbackMode: TranslationStreamFallbackMode | null
+}
+
+export class TranslationStreamFallbackError extends Error {
+    fallbackMode: TranslationStreamFallbackMode
+
+    constructor(message: string, fallbackMode: TranslationStreamFallbackMode) {
+        super(message)
+        this.name = 'TranslationStreamFallbackError'
+        this.fallbackMode = fallbackMode
+    }
+}
+
+export function isTranslationStreamFallbackError(error: unknown): error is TranslationStreamFallbackError {
+    return error instanceof TranslationStreamFallbackError
+}
+
+export async function extractTranslationStreamFailure(response: Response, fallbackMessage: string): Promise<TranslationStreamFailure> {
     const responseText = await response.text().catch(() => '')
     if (!responseText) {
-        return fallbackMessage
+        return {
+            message: fallbackMessage,
+            fallbackMode: null,
+        }
     }
 
     try {
-        const parsed = JSON.parse(responseText) as { message?: string, statusMessage?: string }
-        return parsed.message || parsed.statusMessage || responseText
+        const parsed = JSON.parse(responseText) as TranslationStreamErrorPayload
+        return {
+            message: parsed.message || parsed.statusMessage || responseText,
+            fallbackMode: parsed.data?.fallbackMode || null,
+        }
     } catch {
-        return responseText
+        return {
+            message: responseText,
+            fallbackMode: null,
+        }
     }
 }
 
@@ -131,7 +169,12 @@ export async function readTranslationStream(
     })
 
     if (!response.ok) {
-        throw new Error(await extractTranslationStreamError(response, options.fallbackMessage))
+        const failure = await extractTranslationStreamFailure(response, options.fallbackMessage)
+        if (failure.fallbackMode) {
+            throw new TranslationStreamFallbackError(failure.message, failure.fallbackMode)
+        }
+
+        throw new Error(failure.message)
     }
 
     if (!response.body) {

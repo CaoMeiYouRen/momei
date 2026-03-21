@@ -705,6 +705,7 @@
                     "cancel_field": "取消欄位",
                     "cancelled": "翻譯已取消",
                     "stream_fallback": "串流回填失敗，已自動切換為分段回填。",
+                    "task_fallback": "目前部署環境不支援長文本串流翻譯，已自動切換為任務輪詢。",
                     "continue_title": "確認繼續翻譯目前草稿",
                     "overwrite_title": "確認覆蓋目前翻譯",
                     "continue_draft": "目前目標草稿已包含內容。繼續後，所選欄位會以新的翻譯結果更新。",

@@ -1,9 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import handler from './translate.stream.post'
 import { TextService } from '@/server/services/ai'
+import { isServerlessEnvironment } from '@/server/utils/env'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 
 vi.mock('@/server/services/ai')
+vi.mock('@/server/utils/env', () => ({
+    isServerlessEnvironment: vi.fn(() => false),
+}))
 vi.mock('@/server/utils/permission')
 
 const { readBody } = global as unknown as {
@@ -16,6 +20,7 @@ vi.stubGlobal('setResponseHeader', setResponseHeaderMock)
 describe('POST /api/ai/translate.stream', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        vi.mocked(isServerlessEnvironment).mockReturnValue(false)
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: { id: 'user-1', role: 'author' },
         } as any)
@@ -88,5 +93,25 @@ describe('POST /api/ai/translate.stream', () => {
 
         expect(write).toHaveBeenCalledWith(`event: error\ndata: ${JSON.stringify({ statusCode: 500, message: 'stream failed' })}\n\n`)
         expect(end).toHaveBeenCalledTimes(1)
+    })
+
+    it('should reject long text streaming in serverless deployment and expose task fallback metadata', async () => {
+        vi.mocked(isServerlessEnvironment).mockReturnValue(true)
+        vi.mocked(readBody).mockResolvedValue({
+            content: 'a'.repeat(1200),
+            targetLanguage: 'en-US',
+        })
+
+        await expect(handler({ context: {} } as any)).rejects.toMatchObject({
+            statusCode: 409,
+            statusMessage: 'Long text streaming is unavailable in serverless deployment',
+            data: expect.objectContaining({
+                code: 'TRANSLATION_STREAM_TASK_FALLBACK',
+                fallbackMode: 'task',
+                directReturnMaxChars: 1000,
+            }),
+        })
+
+        expect(TextService.translateStream).not.toHaveBeenCalled()
     })
 })

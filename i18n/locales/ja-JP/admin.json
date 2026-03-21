@@ -1,5 +1,11 @@
 {
     "pages": {
-        "admin": {}
+        "admin": {
+            "posts": {
+                "translation_workflow": {
+                    "task_fallback": "現在のデプロイ環境では長文のストリーミング翻訳をサポートしていないため、タスクポーリングへ自動的に切り替えました。"
+                }
+            }
+        }
     }
 }

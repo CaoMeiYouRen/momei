@@ -1,6 +1,8 @@
 import { z } from 'zod'
 import { TextService } from '@/server/services/ai'
+import { isServerlessEnvironment } from '@/server/utils/env'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
+import { AI_TEXT_DIRECT_RETURN_MAX_CHARS } from '@/utils/shared/env'
 import { aiTranslateSchema } from '@/utils/schemas/ai'
 
 export default defineEventHandler(async (event) => {
@@ -21,6 +23,18 @@ export default defineEventHandler(async (event) => {
     const translationOptions = sourceLanguage || field
         ? { sourceLanguage, field }
         : undefined
+
+    if (isServerlessEnvironment() && content.length >= AI_TEXT_DIRECT_RETURN_MAX_CHARS) {
+        throw createError({
+            statusCode: 409,
+            statusMessage: 'Long text streaming is unavailable in serverless deployment',
+            data: {
+                code: 'TRANSLATION_STREAM_TASK_FALLBACK',
+                fallbackMode: 'task',
+                directReturnMaxChars: AI_TEXT_DIRECT_RETURN_MAX_CHARS,
+            },
+        })
+    }
 
     // 设置响应头以支持 SSE
     setResponseHeader(event, 'Content-Type', 'text/event-stream')

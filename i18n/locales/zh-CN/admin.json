@@ -705,6 +705,7 @@
                     "cancel_field": "取消字段",
                     "cancelled": "翻译已取消",
                     "stream_fallback": "流式回填失败，已自动切换到分段回填。",
+                    "task_fallback": "当前部署环境不支持长文本流式翻译，已自动切换到任务轮询。",
                     "continue_title": "确认继续翻译当前草稿",
                     "overwrite_title": "确认覆盖当前翻译",
                     "continue_draft": "当前目标草稿已经包含内容。继续后，所选字段会被新的翻译结果更新。",
