@@ -480,7 +480,9 @@
 
 > 长期规划与未进入当前阶段的事项已独立维护在 [backlog.md](./backlog.md)。
 
-### 第十六阶段：规范事实源收敛与专项回归治理 (Governance Fact-Source Consolidation & Focused Regression Hardening)
+### 第十六阶段：规范事实源收敛与专项回归治理 (Governance Fact-Source Consolidation & Focused Regression Hardening) (已审计归档)
+
+**审计结论**: 第十六阶段围绕规范事实源收敛、Review Gate 审查闭环、Skills / Agents 镜像治理，以及三类专项回归任务的核心目标已在代码、测试、规划文档与回归记录中完成闭环。阶段收口期间补齐了 `server/services/migration-link-governance.ts`、`server/services/setting.ts` 与 AI 文本服务的结构收敛，完成根 README 多语入口与数据库初始化脚本关键约束纠偏，并以 [regression-log.md](./regression-log.md) 沉淀了代码质量、文档 / 配置 / 数据库、测试 / 性能 / 依赖安全三条专项回归证据链。本阶段不再保留专属未完成项，后续新增需求统一先进入 [backlog.md](./backlog.md)。
 
 **时间表**: 约 1 - 1.5 个月
 **目标**: 围绕规范事实源去重、Review Gate 审查闭环、Skills / Agents 分层治理与三类专项回归任务，补齐“规则重复、审查结论松散、镜像治理靠人工、首次回归覆盖面偏窄”的剩余治理缺口，让系统从“规则已写下”走向“规则可执行、回归可复用、质量基线可持续维护”。
