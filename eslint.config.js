@@ -23,21 +23,14 @@ export default withNuxt(
         'packages',
         'playwright-report',
         'test-results',
+        'pnpm-lock.yaml',
     ]),
     {
         plugins: {
             vue: pluginVue,
-            // '@typescript-eslint': tseslint,
-            // tseslint,
         },
     },
     ...vueI18n.configs.recommended,
-    {
-        files: ['**/*.json'],
-        rules: {
-            '@intlify/vue-i18n/no-unused-keys': 'off',
-        },
-    },
     {
         rules: {
             '@intlify/vue-i18n/no-raw-text': 'off',
@@ -93,14 +86,9 @@ export default withNuxt(
     {
         files: ['i18n/locales/*.json', 'i18n/locales/**/*.json'],
         rules: {
+            'max-lines': [1, { max: 800 }], // 强制文件的最大行数
             '@intlify/vue-i18n/no-unused-keys': 'off',
-            'max-lines': 'off',
-        },
-    },
-    {
-        files: ['pnpm-lock.yaml'],
-        rules: {
-            'max-lines': 'off',
+            '@intlify/vue-i18n/no-html-messages': 'off', // 允许在 JSON 文件中使用 HTML 标签
         },
     },
 )
