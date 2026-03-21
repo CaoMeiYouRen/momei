@@ -1,0 +1,182 @@
+{
+    "pages": {
+        "admin": {
+            "settings": {
+                "system": {
+                    "email_templates": {
+                        "title": "メールテンプレート",
+                        "description": "各種システムメールの件名と本文を必要に応じてカスタマイズできます。カスタムを無効にすると、実行時は組み込みテンプレートに戻ります。",
+                        "selector_label": "テンプレート種別",
+                        "selector_hint": "最初にテンプレートを選択し、その後で各言語の文面を編集してください。",
+                        "preview_locale_label": "プレビュー言語",
+                        "preview_locale_hint": "プレビューは現在の言語のフォールバックチェーンに沿って文面を解決します。",
+                        "custom_enabled": "カスタム文面を有効化",
+                        "custom_enabled_hint": "無効時はシステム既定テンプレートを使用し、有効時は入力済みの項目だけが既定値を上書きします。",
+                        "variables_title": "利用可能な変数",
+                        "no_variables": "このテンプレートには追加の変数がありません。",
+                        "preview_action": "プレビューを生成",
+                        "preview_subject": "メール件名",
+                        "preview_text": "プレーンテキスト版を表示",
+                        "fields": {
+                            "title": "件名",
+                            "preheader": "プレビュー文",
+                            "message": "本文メインコピー",
+                            "buttonText": "ボタン文言",
+                            "reminderContent": "補足案内",
+                            "securityTip": "セキュリティ案内",
+                            "authorLabel": "著者ラベル",
+                            "categoryLabel": "カテゴリラベル",
+                            "dateLabel": "日付ラベル"
+                        },
+                        "field_hints": {
+                            "title": "{appName} のような変数置換に対応しています。",
+                            "preheader": "多くのメールクライアントの受信トレイで要約として表示されるため、短く保つのが望ましいです。",
+                            "message": "本文ブロックで使う HTML 断片と変数置換に対応しています。",
+                            "buttonText": "アクション型テンプレートでは、この文言が主要 CTA ボタンに表示されます。",
+                            "reminderContent": "有効期限、代替リンク、追加案内をここに記載します。",
+                            "securityTip": "セキュリティ関連の補足説明です。",
+                            "authorLabel": "マーケティングメール内の著者情報の前に表示するラベルです。",
+                            "categoryLabel": "マーケティングメール内のカテゴリ情報の前に表示するラベルです。",
+                            "dateLabel": "マーケティングメール内の公開日時の前に表示するラベルです。"
+                        },
+                        "variables": {
+                            "appName": "サイトまたはアプリケーション名です。",
+                            "expiresIn": "コードまたはリンクの有効期限（分）です。",
+                            "contactEmail": "サイトの連絡先メールアドレスです。",
+                            "title": "マーケティングメールで使用する記事またはキャンペーンのタイトルです。",
+                            "summary": "マーケティングメールで使用する要約本文です。"
+                        },
+                        "catalog": {
+                            "verification": {
+                                "label": "メール確認リンク",
+                                "description": "サインアップ後にメールアドレス確認のため送信します。",
+                                "defaults": {
+                                    "title": "{appName} のメールアドレスを確認してください",
+                                    "preheader": "{appName} へようこそ。登録を完了するにはメールアドレスの確認が必要です。",
+                                    "headerIcon": "🔐",
+                                    "message": "<strong>{appName}</strong> へのご登録ありがとうございます。アカウント保護のため、以下のボタンからメールアドレスを確認してください。",
+                                    "buttonText": "メールアドレスを確認",
+                                    "reminderContent": "• この確認リンクは <strong>24 時間</strong>で失効します<br/>• {appName} でアカウント登録を行っていない場合は、このメールを無視してください<br/>• アカウント保護のため、このリンクを他人と共有しないでください",
+                                    "securityTip": "{appName} がメールでパスワード、認証コード、その他の機密情報を求めることはありません。"
+                                }
+                            },
+                            "passwordReset": {
+                                "label": "パスワード再設定リンク",
+                                "description": "パスワード再設定フローで使用するメールです。",
+                                "defaults": {
+                                    "title": "{appName} のパスワードをリセット",
+                                    "preheader": "パスワード再設定のリクエストを受け付けました。ご本人の場合はリンクをクリックしてください。",
+                                    "headerIcon": "🔑",
+                                    "message": "<strong>{appName}</strong> アカウントのパスワード再設定リクエストを受け付けました。ご本人の場合は、以下のボタンから再設定してください。",
+                                    "buttonText": "パスワードをリセット",
+                                    "reminderContent": "• この再設定リンクは <strong>1 時間</strong>で失効します<br/>• 心当たりがない場合は、すぐにアカウントの安全性を確認してください<br/>• パスワードの変更と二要素認証の有効化を推奨します",
+                                    "securityTip": "パスワード再設定を依頼していない場合は、このメールを無視し、アカウントの安全性をご確認ください。"
+                                }
+                            },
+                            "loginOTP": {
+                                "label": "ログイン OTP",
+                                "description": "メールログイン用のワンタイムコードを送信します。",
+                                "defaults": {
+                                    "title": "{appName} のログイン認証コード",
+                                    "preheader": "ワンタイムのログイン認証コードです",
+                                    "headerIcon": "🔓",
+                                    "message": "<strong>{appName}</strong> にログインしようとしています。以下の認証コードを入力してログインを完了してください。",
+                                    "reminderContent": "• この認証コードは <strong>{expiresIn} 分</strong>で失効します<br/>• このコードは今回のログインにのみ有効です<br/>• このコードを他人と共有しないでください",
+                                    "securityTip": "心当たりがない場合は、このメールを無視し、アカウントの安全性をご確認ください。"
+                                }
+                            },
+                            "emailVerificationOTP": {
+                                "label": "メール確認 OTP",
+                                "description": "メールアドレスの確認または紐付け時に使用するコードです。",
+                                "defaults": {
+                                    "title": "{appName} のメールアドレス確認",
+                                    "preheader": "メール確認コードを送信しました",
+                                    "headerIcon": "📧",
+                                    "message": "<strong>{appName}</strong> アカウントに紐付けるメールアドレスを確認しています。以下の認証コードを入力して確認を完了してください。",
+                                    "reminderContent": "• この認証コードは <strong>{expiresIn} 分</strong>で失効します<br/>• メール確認を依頼していない場合は、このメールを無視してください<br/>• 認証コードを他人と共有しないでください",
+                                    "securityTip": "{appName} がメールで認証コードの提示を先に求めることはありません。"
+                                }
+                            },
+                            "passwordResetOTP": {
+                                "label": "パスワード再設定 OTP",
+                                "description": "パスワード再設定確認に使用するコードです。",
+                                "defaults": {
+                                    "title": "{appName} のパスワードをリセット",
+                                    "preheader": "パスワード再設定用の認証コードを送信しました",
+                                    "headerIcon": "🔐",
+                                    "message": "<strong>{appName}</strong> アカウントのパスワードを再設定しています。以下の認証コードを入力して処理を完了してください。",
+                                    "reminderContent": "• この認証コードは <strong>{expiresIn} 分</strong>で失効します<br/>• 心当たりがない場合は、すぐにアカウントの安全性を確認してください<br/>• このコードを他人と共有しないでください",
+                                    "securityTip": "パスワード再設定を依頼していない場合は、このメールを無視し、アカウントの安全性をご確認ください。"
+                                }
+                            },
+                            "magicLink": {
+                                "label": "マジックリンク",
+                                "description": "パスワードレスログイン用リンクメールです。",
+                                "defaults": {
+                                    "title": "{appName} のパスワードレスログインリンク",
+                                    "preheader": "リンクをクリックしてすぐにログインできます",
+                                    "headerIcon": "🔗",
+                                    "message": "パスワードレスログインをリクエストしました。以下のリンクから <strong>{appName}</strong> アカウントへログインしてください。",
+                                    "buttonText": "アカウントにログイン",
+                                    "reminderContent": "• このログインリンクは <strong>30 分</strong>で失効します<br/>• このリンクはご本人専用です<br/>• ログインを依頼していない場合は、このメールを無視してください",
+                                    "securityTip": "心当たりがない場合は、このメールを無視し、アカウントの安全性をご確認ください。"
+                                }
+                            },
+                            "emailChangeVerification": {
+                                "label": "メールアドレス変更確認",
+                                "description": "新しいメールアドレスを確認するときに使用します。",
+                                "defaults": {
+                                    "title": "新しいメールアドレスを確認してください",
+                                    "preheader": "メールアドレス変更を完了するには、新しいメールアドレスの確認が必要です",
+                                    "headerIcon": "✉️",
+                                    "message": "<strong>{appName}</strong> アカウントのメールアドレスをこの宛先へ変更しようとしています。以下のボタンから確認してください。",
+                                    "buttonText": "新しいメールアドレスを確認",
+                                    "reminderContent": "• この確認リンクは <strong>24 時間</strong>で失効します<br/>• 確認が完了するまでメールアドレスは変更されません<br/>• 変更を依頼していない場合は、このメールを無視してください",
+                                    "securityTip": "{appName} がメールでパスワードやその他の機密情報を求めることはありません。"
+                                }
+                            },
+                            "securityNotification": {
+                                "label": "セキュリティ通知",
+                                "description": "ログインや機微な操作の後に送信される警告メールです。",
+                                "defaults": {
+                                    "title": "{appName} セキュリティ通知",
+                                    "preheader": "アカウントで新しいログインアクティビティが検出されました",
+                                    "headerIcon": "🛡️",
+                                    "message": "<strong>{appName}</strong> アカウントで新しいログインアクティビティが検出されました。",
+                                    "reminderContent": "• ご本人による操作なら、このメールは無視して構いません<br/>• 身に覚えがない場合は、直ちにパスワードを変更してください<br/>• アカウント保護のため、二要素認証の有効化を推奨します",
+                                    "securityTip": "アカウントの安全性に不安がある場合は、すぐにお問い合わせください: {contactEmail}"
+                                }
+                            },
+                            "subscriptionConfirmation": {
+                                "label": "購読確認",
+                                "description": "購読成功後に送信するウェルカムメールです。",
+                                "defaults": {
+                                    "title": "購読が完了しました - {appName}",
+                                    "preheader": "{appName} の購読が正常に完了しました",
+                                    "headerIcon": "🔔",
+                                    "message": "<strong>{appName}</strong> の購読ありがとうございます。メールニュースレターの登録が完了しました。",
+                                    "reminderContent": "• 最新記事や更新情報を定期的にお届けします<br/>• メール下部の「購読解除」リンクからいつでも解除できます<br/>• 設定を変更したい場合は、アカウント設定ページをご利用ください",
+                                    "securityTip": "このメールアドレスは現在の購読設定に紐付いています。このメールを第三者に転送しないでください。"
+                                }
+                            },
+                            "marketingCampaign": {
+                                "label": "マーケティング / 配信",
+                                "description": "記事配信とマーケティングキャンペーンに使用します。",
+                                "defaults": {
+                                    "title": "{title} - {appName}",
+                                    "preheader": "{summary}",
+                                    "headerIcon": "✨",
+                                    "message": "購読者の皆さまへ",
+                                    "buttonText": "全文を読む",
+                                    "authorLabel": "著者: ",
+                                    "categoryLabel": "カテゴリ: ",
+                                    "dateLabel": "公開日: "
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

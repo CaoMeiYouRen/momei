@@ -1,0 +1,182 @@
+{
+    "pages": {
+        "admin": {
+            "settings": {
+                "system": {
+                    "email_templates": {
+                        "title": "郵件模板",
+                        "description": "為各類系統郵件維護可選的自訂主旨與正文。停用自訂時，執行期會回退到系統預設模板。",
+                        "selector_label": "模板類型",
+                        "selector_hint": "先選擇要管理的模板，再分別編輯各語言內容。",
+                        "preview_locale_label": "預覽語言",
+                        "preview_locale_hint": "預覽會依目前語言的回退鏈解析模板內容。",
+                        "custom_enabled": "啟用自訂文案",
+                        "custom_enabled_hint": "停用後會繼續使用系統預設模板；啟用後只會覆蓋已填寫的欄位。",
+                        "variables_title": "可用變數",
+                        "no_variables": "目前模板沒有額外變數可用。",
+                        "preview_action": "產生預覽",
+                        "preview_subject": "郵件主旨",
+                        "preview_text": "查看純文字版本",
+                        "fields": {
+                            "title": "主旨",
+                            "preheader": "預覽摘要",
+                            "message": "正文主文案",
+                            "buttonText": "按鈕文案",
+                            "reminderContent": "提醒說明",
+                            "securityTip": "安全提示",
+                            "authorLabel": "作者標籤",
+                            "categoryLabel": "分類標籤",
+                            "dateLabel": "日期標籤"
+                        },
+                        "field_hints": {
+                            "title": "支援使用變數佔位，例如 {appName}。",
+                            "preheader": "會顯示在多數郵件客戶端的收件匣摘要中，建議保持精簡。",
+                            "message": "支援 HTML 片段與變數佔位，用於主內容區塊。",
+                            "buttonText": "動作型模板會把這段文字渲染到主要 CTA 按鈕上。",
+                            "reminderContent": "可用於補充到期時間、替代連結與其他提醒。",
+                            "securityTip": "用於安全相關的附加說明。",
+                            "authorLabel": "行銷郵件中作者資訊前的標籤。",
+                            "categoryLabel": "行銷郵件中分類資訊前的標籤。",
+                            "dateLabel": "行銷郵件中發布時間前的標籤。"
+                        },
+                        "variables": {
+                            "appName": "站點或應用程式名稱。",
+                            "expiresIn": "驗證碼或連結的有效分鐘數。",
+                            "contactEmail": "站點聯絡信箱。",
+                            "title": "行銷郵件使用的文章或活動標題。",
+                            "summary": "行銷郵件摘要內容。"
+                        },
+                        "catalog": {
+                            "verification": {
+                                "label": "電子郵件驗證連結",
+                                "description": "用於註冊後寄送驗證連結。",
+                                "defaults": {
+                                    "title": "驗證您的 {appName} 電子郵件地址",
+                                    "preheader": "歡迎註冊 {appName}！請驗證您的電子郵件地址以完成註冊。",
+                                    "headerIcon": "🔐",
+                                    "message": "感謝您註冊 <strong>{appName}</strong>！為了確保帳號安全，請點擊下方按鈕驗證您的電子郵件地址。",
+                                    "buttonText": "驗證電子郵件地址",
+                                    "reminderContent": "• 此驗證連結將於 <strong>24 小時</strong>後失效<br/>• 如果您沒有註冊 {appName} 帳號，請忽略此郵件<br/>• 請勿將此連結分享給他人，以保護您的帳號安全",
+                                    "securityTip": "{appName} 絕不會透過郵件要求您提供密碼、驗證碼或其他敏感資訊。"
+                                }
+                            },
+                            "passwordReset": {
+                                "label": "密碼重設連結",
+                                "description": "用於密碼重設流程的跳轉郵件。",
+                                "defaults": {
+                                    "title": "重設您的 {appName} 密碼",
+                                    "preheader": "有人請求重設您的密碼，如果是您本人操作請點擊連結。",
+                                    "headerIcon": "🔑",
+                                    "message": "有人請求重設您的 <strong>{appName}</strong> 帳號密碼。如果是您本人操作，請點擊下方按鈕重設密碼：",
+                                    "buttonText": "重設密碼",
+                                    "reminderContent": "• 此重設連結將於 <strong>1 小時</strong>後失效<br/>• 如果不是您本人操作，請立即檢查帳號安全<br/>• 建議變更密碼並啟用兩步驟驗證",
+                                    "securityTip": "如果您沒有請求重設密碼，請忽略此郵件並檢查您的帳號安全。"
+                                }
+                            },
+                            "loginOTP": {
+                                "label": "登入驗證碼",
+                                "description": "用於電子郵件登入的一次性驗證碼。",
+                                "defaults": {
+                                    "title": "您的 {appName} 登入驗證碼",
+                                    "preheader": "這是您的一次性登入驗證碼",
+                                    "headerIcon": "🔓",
+                                    "message": "您正在嘗試登入 <strong>{appName}</strong>。請使用以下驗證碼完成登入：",
+                                    "reminderContent": "• 此驗證碼將於 <strong>{expiresIn} 分鐘</strong>後失效<br/>• 驗證碼僅適用於本次登入<br/>• 請勿將驗證碼分享給他人",
+                                    "securityTip": "如果不是您本人操作，請忽略此郵件並檢查您的帳號安全。"
+                                }
+                            },
+                            "emailVerificationOTP": {
+                                "label": "電子郵件驗證碼",
+                                "description": "用於綁定或驗證電子郵件地址的驗證碼。",
+                                "defaults": {
+                                    "title": "驗證您的 {appName} 電子郵件地址",
+                                    "preheader": "您的電子郵件驗證碼已寄出",
+                                    "headerIcon": "📧",
+                                    "message": "您正在驗證要綁定到 <strong>{appName}</strong> 帳號的電子郵件地址。請使用以下驗證碼完成驗證：",
+                                    "reminderContent": "• 此驗證碼將於 <strong>{expiresIn} 分鐘</strong>後失效<br/>• 如果您沒有請求驗證電子郵件，請忽略此郵件<br/>• 請勿將驗證碼分享給他人",
+                                    "securityTip": "{appName} 絕不會透過郵件主動向您索取驗證碼。"
+                                }
+                            },
+                            "passwordResetOTP": {
+                                "label": "密碼重設驗證碼",
+                                "description": "用於密碼重設驗證流程。",
+                                "defaults": {
+                                    "title": "重設您的 {appName} 密碼",
+                                    "preheader": "您的密碼重設驗證碼已寄出",
+                                    "headerIcon": "🔐",
+                                    "message": "您正在重設 <strong>{appName}</strong> 帳號密碼。請使用以下驗證碼完成重設：",
+                                    "reminderContent": "• 此驗證碼將於 <strong>{expiresIn} 分鐘</strong>後失效<br/>• 如果不是您本人操作，請立即檢查帳號安全<br/>• 請勿將驗證碼分享給他人",
+                                    "securityTip": "如果您沒有請求重設密碼，請忽略此郵件並檢查您的帳號安全。"
+                                }
+                            },
+                            "magicLink": {
+                                "label": "免密登入連結",
+                                "description": "用於 Magic Link 免密登入流程。",
+                                "defaults": {
+                                    "title": "您的 {appName} 免密碼登入連結",
+                                    "preheader": "點擊連結即可快速登入",
+                                    "headerIcon": "🔗",
+                                    "message": "您已請求免密碼登入。請點擊下方連結登入您的 <strong>{appName}</strong> 帳號：",
+                                    "buttonText": "登入我的帳號",
+                                    "reminderContent": "• 此登入連結將於 <strong>30 分鐘</strong>後失效<br/>• 此連結僅限您本人使用<br/>• 如果您沒有請求登入，請忽略此郵件",
+                                    "securityTip": "如果不是您本人操作，請忽略此郵件並檢查您的帳號安全。"
+                                }
+                            },
+                            "emailChangeVerification": {
+                                "label": "電子郵件變更確認",
+                                "description": "用於確認新的電子郵件地址。",
+                                "defaults": {
+                                    "title": "確認您的新電子郵件地址",
+                                    "preheader": "確認新電子郵件地址以完成信箱變更",
+                                    "headerIcon": "✉️",
+                                    "message": "您正在將 <strong>{appName}</strong> 帳號的電子郵件地址變更為此信箱。請點擊下方按鈕確認：",
+                                    "buttonText": "確認新信箱",
+                                    "reminderContent": "• 此確認連結將於 <strong>24 小時</strong>後失效<br/>• 完成確認後才會正式變更電子郵件地址<br/>• 如果您沒有請求變更電子郵件，請忽略此郵件",
+                                    "securityTip": "{appName} 絕不會透過郵件要求您提供密碼或其他敏感資訊。"
+                                }
+                            },
+                            "securityNotification": {
+                                "label": "安全通知",
+                                "description": "用於登入或敏感操作後的安全提醒。",
+                                "defaults": {
+                                    "title": "{appName} 安全通知",
+                                    "preheader": "您的帳號偵測到新的登入活動",
+                                    "headerIcon": "🛡️",
+                                    "message": "我們偵測到您的 <strong>{appName}</strong> 帳號有新的登入活動：",
+                                    "reminderContent": "• 如果這是您本人操作，您可以忽略此郵件<br/>• 如果您未授權此操作，請立即變更密碼<br/>• 為了保護您的帳號，建議啟用兩步驟驗證",
+                                    "securityTip": "如果您對帳號安全有任何疑慮，請立即聯絡我們：{contactEmail}"
+                                }
+                            },
+                            "subscriptionConfirmation": {
+                                "label": "訂閱確認",
+                                "description": "用於訂閱成功後的歡迎郵件。",
+                                "defaults": {
+                                    "title": "訂閱確認 - {appName}",
+                                    "preheader": "您已成功訂閱 {appName}",
+                                    "headerIcon": "🔔",
+                                    "message": "感謝您訂閱 <strong>{appName}</strong>！您已成功加入我們的電子報。",
+                                    "reminderContent": "• 您將定期收到最新文章與更新<br/>• 您可以隨時使用郵件底部的「取消訂閱」連結退訂<br/>• 如需調整訂閱設定，請前往您的帳號偏好設定",
+                                    "securityTip": "此電子郵件地址與您的訂閱綁定。請勿將此郵件轉寄給他人。"
+                                }
+                            },
+                            "marketingCampaign": {
+                                "label": "行銷 / 文章分發",
+                                "description": "用於文章分發與行銷活動郵件。",
+                                "defaults": {
+                                    "title": "{title} - {appName}",
+                                    "preheader": "{summary}",
+                                    "headerIcon": "✨",
+                                    "message": "親愛的訂閱者：",
+                                    "buttonText": "閱讀全文",
+                                    "authorLabel": "作者：",
+                                    "categoryLabel": "分類：",
+                                    "dateLabel": "發佈時間："
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

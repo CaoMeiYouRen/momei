@@ -127,4 +127,29 @@ describe('i18n locale runtime loader', () => {
             path: '/admin',
         })).resolves.toBeUndefined()
     })
+
+    it('should load the dedicated admin email template locale module on admin routes', async () => {
+        const mergeLocaleMessage = vi.fn()
+
+        await ensureRouteLocaleMessages({
+            i18n: { mergeLocaleMessage },
+            locale: 'en-US',
+            path: '/admin/settings',
+        })
+
+        expect(mergeLocaleMessage).toHaveBeenCalledWith(
+            'en-US',
+            expect.objectContaining({
+                pages: expect.objectContaining({
+                    admin: expect.objectContaining({
+                        settings: expect.objectContaining({
+                            system: expect.objectContaining({
+                                email_templates: expect.any(Object),
+                            }),
+                        }),
+                    }),
+                }),
+            }),
+        )
+    })
 })

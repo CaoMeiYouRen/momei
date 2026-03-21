@@ -26,6 +26,7 @@ describe('i18n locale modules', () => {
             'zh-CN/legal.json',
             'zh-CN/auth.json',
             'zh-CN/admin.json',
+            'zh-CN/admin-email-templates.json',
             'zh-CN/home.json',
             'zh-CN/demo.json',
             'zh-CN/installation.json',
@@ -67,6 +68,19 @@ describe('i18n locale modules', () => {
             'auth',
             'admin',
             'installation',
+        ])
+    })
+
+    it('should resolve admin routes with the dedicated email template locale module', () => {
+        expect(resolveLocaleMessageModulesForRoute('/admin/settings')).toEqual([
+            'common',
+            'components',
+            'public',
+            'settings',
+            'legal',
+            'auth',
+            'admin',
+            'admin-email-templates',
         ])
     })
 })

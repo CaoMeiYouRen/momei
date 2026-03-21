@@ -6,6 +6,7 @@ export const LOCALE_MESSAGE_MODULE_GROUPS = {
     legal: ['legal'],
     auth: ['pages.login', 'pages.register', 'pages.forgot_password', 'pages.reset_password'],
     admin: ['pages.admin'],
+    'admin-email-templates': ['pages.admin.settings.system.email_templates'],
     home: ['home'],
     demo: ['demo'],
     installation: ['installation'],
@@ -20,6 +21,7 @@ export const LOCALE_MESSAGE_MODULE_ORDER = [
     'legal',
     'auth',
     'admin',
+    'admin-email-templates',
     'home',
     'demo',
     'installation',
@@ -37,7 +39,7 @@ export const LOCALE_CORE_MODULES = [
 
 export type LocaleMessageModule = (typeof LOCALE_MESSAGE_MODULE_ORDER)[number]
 
-const OPTIONAL_ROUTE_MODULES = new Set<LocaleMessageModule>(['auth', 'admin', 'home', 'demo', 'installation'])
+const OPTIONAL_ROUTE_MODULES = new Set<LocaleMessageModule>(['auth', 'admin', 'admin-email-templates', 'home', 'demo', 'installation'])
 
 function normalizeLocaleRoutePath(path: string): string {
     const pathname = path.split('?')[0]?.split('#')[0] || '/'
@@ -61,6 +63,7 @@ export function resolveLocaleMessageModulesForRoute(path: string, options?: { de
 
     if (/^\/admin(?:\/|$)/u.test(normalizedPath)) {
         modules.add('admin')
+        modules.add('admin-email-templates')
     }
 
     if (/^\/installation(?:\/|$)/u.test(normalizedPath)) {
