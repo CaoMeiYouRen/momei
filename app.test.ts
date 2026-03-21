@@ -11,6 +11,22 @@ describe('app.vue', () => {
                 defaultLanguage: 'zh-CN',
             },
         }))
+        registerEndpoint('/api/install/status', () => ({
+            data: {
+                installed: false,
+                databaseConnected: false,
+                hasUsers: false,
+                hasInstallationFlag: false,
+                envInstallationFlag: false,
+                nodeVersion: '20.0.0',
+                os: 'linux',
+                databaseType: 'sqlite',
+                databaseVersion: '3.0.0',
+                isServerless: false,
+                isNodeVersionSafe: true,
+                envSettings: {},
+            },
+        }))
     })
 
     it('should render the app layout with main components', async () => {

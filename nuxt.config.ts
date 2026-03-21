@@ -176,8 +176,14 @@ export default defineNuxtConfig({
                 siteKey: process.env.NUXT_PUBLIC_AUTH_CAPTCHA_SITE_KEY,
             },
             socialProviders: {
-                github: !!(process.env.NUXT_PUBLIC_GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID),
-                google: !!(process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID),
+                github: !!(
+                    (process.env.NUXT_PUBLIC_GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID)
+                    && process.env.GITHUB_CLIENT_SECRET
+                ),
+                google: !!(
+                    (process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID)
+                    && process.env.GOOGLE_CLIENT_SECRET
+                ),
             },
             // 安全配置
             securityUrlWhitelist: process.env.NUXT_PUBLIC_SECURITY_URL_WHITELIST || '',

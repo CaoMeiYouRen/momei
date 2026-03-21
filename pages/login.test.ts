@@ -8,6 +8,14 @@ const { mockEmailSignIn, mockSocialSignIn, mockNavigateTo, mockRoute, mockRuntim
     mockEnsureLocaleMessageModules: vi.fn(),
     mockRoute: {
         query: {} as Record<string, unknown>,
+        path: '/login',
+        fullPath: '/login',
+        name: 'login___zh-CN___default',
+        params: {},
+        matched: [],
+        meta: {},
+        hash: '',
+        redirectedFrom: undefined,
     },
     mockRuntimeConfig: {
         app: {
@@ -96,11 +104,13 @@ mockNuxtImport('useRouter', () => () => ({
     afterEach: vi.fn(),
     beforeEach: vi.fn(),
     beforeResolve: vi.fn(),
+    currentRoute: { value: mockRoute },
     onError: vi.fn(),
     replace: vi.fn().mockResolvedValue(undefined),
 }))
 mockNuxtImport('useRoute', () => () => mockRoute)
 mockNuxtImport('useLocalePath', () => () => (path: string) => path)
+mockNuxtImport('useSwitchLocalePath', () => () => () => mockRoute.path)
 mockNuxtImport('useRuntimeConfig', () => () => mockRuntimeConfig)
 mockNuxtImport('useHead', () => vi.fn())
 mockNuxtImport('navigateTo', () => mockNavigateTo)
@@ -120,6 +130,13 @@ describe('LoginPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         mockRoute.query = {}
+        mockRoute.path = '/login'
+        mockRoute.fullPath = '/login'
+        mockRoute.params = {}
+        mockRoute.matched = []
+        mockRoute.meta = {}
+        mockRoute.hash = ''
+        mockRoute.redirectedFrom = undefined
         mockEnsureLocaleMessageModules.mockResolvedValue(undefined)
     })
 

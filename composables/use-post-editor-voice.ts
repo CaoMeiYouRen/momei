@@ -1,4 +1,4 @@
-import { ref, onUnmounted, computed, watch } from 'vue'
+import { ref, onUnmounted, computed, watch, type Ref } from 'vue'
 import { useASRDirect } from './use-asr-direct'
 
 export type VoiceTranscriptionMode = 'web-speech' | 'cloud-batch' | 'cloud-stream'
@@ -102,8 +102,8 @@ async function setupVoiceAudioPipeline(context: {
 }
 
 async function startProxyVoiceStream(context: {
-    mode: typeof ref<VoiceTranscriptionMode>
-    isListening: typeof ref<boolean>
+    mode: Ref<VoiceTranscriptionMode>
+    isListening: Ref<boolean>
     onFinalTranscript: (value: string) => void
     onInterimTranscript: (value: string) => void
     clearStartRetry: () => void
@@ -187,10 +187,10 @@ async function startProxyVoiceStream(context: {
 async function transcribeVoiceBatch(context: {
     asrDirectBatch: ReturnType<typeof useASRDirect> | null
     currentLang: string
-    isLoadingModel: typeof ref<boolean>
-    error: typeof ref<string>
-    committedTranscript: typeof ref<string>
-    currentSessionFinal: typeof ref<string>
+    isLoadingModel: Ref<boolean>
+    error: Ref<string>
+    committedTranscript: Ref<string>
+    currentSessionFinal: Ref<string>
 }, blob: Blob) {
     context.isLoadingModel.value = true
     try {

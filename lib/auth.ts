@@ -63,6 +63,24 @@ const resolvedAuthBaseUrl = AUTH_BASE_URL || SITE_URL || (TEST_MODE ? 'http://lo
 const trustedOrigins = [AUTH_BASE_URL, SITE_URL, ...(TEST_MODE ? defaultLocalOrigins : [])]
     .filter(Boolean)
     .filter((value, index, array) => array.indexOf(value) === index)
+const socialProviders = {
+    ...(GITHUB_CLIENT_ID && GITHUB_CLIENT_SECRET
+        ? {
+            github: {
+                clientId: GITHUB_CLIENT_ID,
+                clientSecret: GITHUB_CLIENT_SECRET,
+            },
+        }
+        : {}),
+    ...(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET
+        ? {
+            google: {
+                clientId: GOOGLE_CLIENT_ID,
+                clientSecret: GOOGLE_CLIENT_SECRET,
+            },
+        }
+        : {}),
+}
 
 export const auth = betterAuth({
     appName: APP_NAME, // 应用名称。它将被用作发行者。
@@ -238,18 +256,7 @@ export const auth = betterAuth({
             allowDifferentEmails: true, // 允许用户绑定不同邮箱地址的账号；允许不返回邮箱地址的第三方登录（微博、抖音等）
         },
     },
-    socialProviders: {
-        github: {
-            // 支持 GitHub 登录
-            clientId: GITHUB_CLIENT_ID!,
-            clientSecret: GITHUB_CLIENT_SECRET!,
-        },
-        google: {
-            // 支持 Google 登录
-            clientId: GOOGLE_CLIENT_ID!,
-            clientSecret: GOOGLE_CLIENT_SECRET!,
-        },
-    },
+    socialProviders,
     session: {
         expiresIn: ms('30d') / 1000, // 30 天
         updateAge: ms('1d') / 1000, // 1 天（每 1 天更新会话过期时间）

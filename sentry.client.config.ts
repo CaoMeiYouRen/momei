@@ -1,11 +1,12 @@
 import * as Sentry from '@sentry/nuxt'
 
 const config = useRuntimeConfig()
+const sentryConfig = config.public.sentry
 
-if (config.public.sentry.dsn) {
+if (sentryConfig?.dsn) {
     Sentry.init({
-        dsn: config.public.sentry.dsn,
-        environment: config.public.sentry.environment,
+        dsn: sentryConfig.dsn,
+        environment: sentryConfig.environment,
         integrations: [
             Sentry.browserTracingIntegration({ router: useRouter() }),
             Sentry.replayIntegration(),

@@ -1,6 +1,7 @@
 <template>
     <Button
         v-tooltip.bottom="$t('components.header.language')"
+        v-bind="attrs"
         type="button"
         icon="pi pi-globe"
         text
@@ -19,10 +20,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, useAttrs } from 'vue'
+
+defineOptions({
+    inheritAttrs: false,
+})
 
 const { locale, locales, setLocale } = useI18n()
 const switchLocalePath = useSwitchLocalePath()
+const attrs = useAttrs()
 
 const menu = ref()
 

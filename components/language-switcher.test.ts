@@ -86,4 +86,20 @@ describe('LanguageSwitcher', () => {
 
         expect(setLocaleSpy).toHaveBeenCalledWith('en-US')
     })
+
+    it('应将外部 class 透传给按钮根节点', async () => {
+        const wrapper = await mountSuspended(LanguageSwitcher, {
+            attrs: {
+                class: 'language-switcher-host',
+            },
+            global: {
+                stubs,
+                mocks: {
+                    $t: (key: string) => key,
+                },
+            },
+        })
+
+        expect(wrapper.find('.lang-btn').classes()).toContain('language-switcher-host')
+    })
 })

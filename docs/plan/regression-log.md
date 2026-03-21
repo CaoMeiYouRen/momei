@@ -8,6 +8,79 @@
 - 同一次回归的正文只保留在本文件；其他规划文档只保留摘要、状态与链接。
 - 每条记录至少包含回归范围、触发条件、执行频率、timeout budget、已执行命令、输出摘要、Review Gate 结论、未覆盖边界与后续补跑计划。
 
+## 测试、性能与依赖安全干净基线回归（2026-03-21，V2）
+
+### 回归任务记录
+
+- 回归范围: 第十六阶段 P0“测试、性能与依赖安全干净基线”首轮收口；覆盖安装页 / 登录页 / TTS smoke 噪音收敛、Kysely 安全版本升级复核、全量 coverage、最小 Chromium 浏览器验证、构建与 bundle budget，以及发版前依赖安全复核。
+- 触发条件: 首次回归基线记录中已明确存在 `pages/login.test.ts` 的 Sentry 初始化噪音、`app.test.ts` 的 `/api/install/status` 未 mock 噪音、TTS 测试链路的 Better Auth warning，且当时未完成 coverage、浏览器验证与性能证据补齐。
+- 执行频率: 本阶段专项回归 V2；后续按“发版前 + 阶段收口前”至少再补跑一次依赖审计与性能预算，并在核心认证 / i18n 测试基建调整后重跑零异常日志 smoke。
+- timeout budget:
+    - 静态门禁（`pnpm lint` / `pnpm typecheck`）: 30 分钟。
+    - 定向 smoke / 噪音收敛验证: 10 分钟。
+    - 依赖安全审计: 10 分钟。
+    - 生产构建: 20 分钟。
+    - 全量 `pnpm test:coverage`: 30 分钟。
+    - 最小 Chromium 浏览器验证: 20 分钟。
+    - Bundle budget: 10 分钟。
+- 已执行命令:
+    - `pnpm lint`
+    - `pnpm typecheck`
+    - `pnpm exec vitest run app.test.ts pages/login.test.ts components/language-switcher.test.ts server/api/tasks/tts/[id].get.test.ts`
+    - `pnpm audit --registry=https://registry.npmjs.org/ --json`
+    - `pnpm build`
+    - `pnpm test:coverage`
+    - `pnpm exec playwright test tests/e2e/auth.e2e.test.ts --project=chromium --grep "should show login page correctly|should redirect unauthenticated users from admin pages"`
+    - `pnpm test:perf:budget`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 静态层: `pnpm lint` 通过；`pnpm typecheck` 首次补跑暴露 `composables/use-post-editor-voice.ts` 中错误的 `typeof ref<T>` 类型标注，修复为 `Ref<T>` 后再次通过。
+        - V2 / smoke 层: `app.test.ts`、`pages/login.test.ts`、`components/language-switcher.test.ts`、`server/api/tasks/tts/[id].get.test.ts` 共 4 个文件 22 个测试通过。
+        - V2 / 依赖安全层: npm 官方 registry 审计完成，Kysely high 风险已消失。
+        - V3 / 浏览器层: Chromium 下认证链路最小验证 2 个用例通过。
+        - V4 / 性能层: 生产构建通过，bundle budget 以 warn 模式完成一次预算比对。
+        - Coverage: 全量 `pnpm test:coverage` 通过，235 个测试文件中 234 个通过、1 个跳过。
+    - 结果摘要:
+        - `nuxt.config.ts` 中前端 `socialProviders` 的显隐条件已与 `lib/auth.ts` 对齐，避免“仅配置 clientId、未配置 secret”时前端仍显示社交登录按钮但服务端未注册 provider 的不一致状态。
+        - V1 中记录的三条 smoke 噪音已收敛：登录页 Sentry DSN 缺失不再产生日志，安装页 `/api/install/status` 分支已补 mock，TTS handler 导入链路不再输出 Better Auth social provider warning。
+        - `components/language-switcher.vue` 通过显式透传 attrs 消除了安装页测试里的 fragment extraneous attrs warning，并以新增组件测试锁定行为。
+        - `lib/auth.ts` 仅在 GitHub / Google 社交登录密钥完整时注册 provider，避免测试环境与未配置环境出现无意义 warning。
+        - `sentry.client.config.ts` 改为容忍缺失 `public.sentry` 配置，确保测试环境和最小配置环境不会因空配置触发初始化噪音。
+        - `composables/use-post-editor-voice.ts` 中遗留的 `Ref` 类型定义错误已在本轮修复，`pnpm typecheck` 不再因该文件非收敛退出。
+        - `package.json` 与 `pnpm-lock.yaml` 中的 Kysely 已升级到 `0.28.14`，本轮审计未再出现此前的 2 条 Kysely high。
+        - 全量 coverage 达到项目门槛：Statements `60.06%`、Branches `47.64%`、Functions `53.63%`、Lines `60.02%`。
+        - 最小 Chromium 浏览器回归确认登录页可见性与后台未登录重定向链路正常。
+        - Bundle budget 当前仍有 1 条超预算 warning：`maxAsyncChunkJs` 为 `477.72KB`，高于 `120KB` 预算；本轮以证据采集为主，未升级为性能治理任务。
+    - 测试结果（按需）:
+        - `app.test.ts`、`pages/login.test.ts`、`components/language-switcher.test.ts`、`server/api/tasks/tts/[id].get.test.ts`: 4 files passed / 22 tests passed。
+        - `pnpm test:coverage`: 234 files passed / 1 file skipped / 1851 tests passed / 1 skipped。
+    - 浏览器验证（按需）:
+        - `tests/e2e/auth.e2e.test.ts`（Chromium / grep 2 cases）: 2 passed。
+        - 验证点: 登录页基础可见性、未登录访问 `/admin/posts` 的跳转保护。
+    - 性能结果（按需）:
+        - `pnpm build`: 通过，可生成性能预算检查所需产物。
+        - `pnpm test:perf:budget`: 完成 warn 模式预算检查；`coreEntryJs` 和 `keyCss` 未超预算，但 `maxAsyncChunkJs` 超预算，当前基线文件缺少 `prIncrementJs` 对比值。
+    - 依赖安全结果（按需）:
+        - 数据来源: `pnpm audit --registry=https://registry.npmjs.org/ --json`。
+        - 可修复项与验证结果: Kysely high 风险已通过升级到 `0.28.14` 关闭；相关 smoke、构建与 coverage 未见显式回归。
+        - 未修复的 high+ 风险: 仅剩 `html-minifier@4.0.0`（`mjml -> mjml-cli -> html-minifier`）的 `high` 风险 `GHSA-pfq8-rq6v-vf5m`，当前仍无官方补丁版本。
+        - 延期或计划修复判断: `html-minifier` 继续按 warning 延期，理由是上游仍无补丁且本轮功能回归验证未见由该依赖引发的运行异常；后续在上游发布补丁、MJML 链路重构或发版前安全复核时优先重新评估。审计中同时出现的 `h3` moderate 与 `quill` low 不纳入本次 high+ 治理主体。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - 全量 coverage 过程中仍有多组与本轮 smoke 范围无关的历史 stderr / warning，集中在 i18n mock、测试基建与个别翻译键缺失，不阻塞本轮基线放行，但会继续污染全量回归信号。
+            - Bundle budget 仍存在超预算 warning，说明前端异步大包问题尚未治理，不适合作为“性能已达标”的证据。
+            - `html-minifier` high 风险仍无补丁，需继续作为发版前安全复核项保留。
+    - 未覆盖边界:
+        - 浏览器验证只覆盖 Chromium 的 2 条认证基础链路，未扩展到 Firefox / WebKit、移动端、安装向导或主题切换场景。
+        - 性能验证仅执行 bundle budget warn 模式，未升级到 Lighthouse / `pnpm test:perf` 真机指标采集。
+        - 全量 coverage 暴露的 `pages/posts/index.test.ts`、`composables/use-admin-i18n.test.ts`、`composables/use-post-export.test.ts`、`composables/use-post-editor-voice.test.ts` 等旧噪音未在本轮继续扩 scope 修复。
+    - 后续补跑计划:
+        - 发版前重新执行 `pnpm audit --registry=https://registry.npmjs.org/ --json`，确认 `html-minifier` high 风险是否仍无补丁，并复核是否需要把 MJML 链路替换上收为新治理任务。
+        - 将 coverage 全量运行中暴露的 i18n / mock 历史噪音单独规划为后续测试基建治理，不在当前 smoke 收敛任务中继续扩写。
+        - 若本阶段后续涉及首页、认证或大型前端异步模块，再补跑更高粒度的 V3 浏览器验证与一轮 V4 Lighthouse / 严格预算检查。
+
 ## 专项回归记录（2026-03-21）
 
 ### 回归任务记录

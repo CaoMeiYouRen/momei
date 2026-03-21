@@ -20,7 +20,7 @@
 
 - 第十六阶段 P0 专项回归：代码质量与结构收敛
 	- 范围：ESLint warning / 类型债 / `max-lines` 豁免盘点，`scripts/**` 目录残留与入口索引回归。
-	- 当前执行：继续拆分 `server/services/migration-link-governance.ts` 与 `server/services/setting.ts`，清理生产代码显式 suppression，并补跑定向 ESLint / Vitest；全量 `pnpm typecheck` 需继续复核非收敛退出码。
+	- 当前执行：继续拆分 `server/services/migration-link-governance.ts` 与 `server/services/setting.ts`，清理生产代码显式 suppression，并补跑定向 ESLint / Vitest；全量 `pnpm typecheck` 已恢复通过，后续继续按文件归因剩余结构债。
 - 第十六阶段 / 专项回归：文档、配置与数据库基线同步（进行中，先收敛 README / 部署入口与数据库事实校对结论）。
 
 
@@ -85,11 +85,11 @@
 
 ### 6. 专项回归：测试、性能与依赖安全干净基线 (P0)
 
-- [ ] **零异常日志 smoke 基线回归**
+- [x] **零异常日志 smoke 基线回归**
 	- 验收: 清理 `pages/login.test.ts` 的 Sentry DSN 初始化噪音、`app.test.ts` 中 `/api/install/status` 未 mock 的 FetchError 噪音，以及相关 Better Auth warning，形成更干净的第二版 smoke 基线。
 	- 验收: 至少按首次回归基线中的 smoke 组合重跑一轮，记录 V1 / V2 结果、问题分级与残余风险。
 	- 验收: 若仍存在非阻塞噪音，必须明确其影响范围、延期理由与后续补跑触发条件。
-- [ ] **覆盖率、浏览器验证、性能预算与依赖安全回归**
+- [x] **覆盖率、浏览器验证、性能预算与依赖安全回归**
 	- 验收: 基于周期性回归模板安排 coverage、V3 浏览器级验证与按需 V4 性能验证，并声明显式 timeout budget。
 	- 验收: 发版前或阶段收口前重新执行依赖安全审计，复核 `html-minifier` high 风险是否仍无补丁，并给出继续延期或计划替换的明确判断。
 	- 验收: 在 `docs/plan/regression-log.md` 中输出已执行验证、结果摘要、Review Gate 结论、未覆盖边界与后续补跑计划，不得只写“已回归”。
