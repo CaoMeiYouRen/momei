@@ -6,10 +6,22 @@
         class="ai-generator-dialog"
     >
         <div class="ai-generator__container">
+            <div v-if="showUsageSelector" class="ai-generator__section">
+                <label class="ai-generator__label">{{ $t('pages.admin.posts.ai.cover_generator.usage_label') }}</label>
+                <SelectButton
+                    v-model="currentAssetUsage"
+                    :options="usageOptions"
+                    option-label="label"
+                    option-value="value"
+                    :disabled="generating"
+                />
+                <small class="ai-generator__section-hint">{{ $t('pages.admin.posts.ai.cover_generator.usage_hint') }}</small>
+            </div>
+
             <div class="ai-generator__section">
                 <div class="ai-generator__label-row">
-                    <label for="prompt" class="ai-generator__label">
-                        {{ $t('pages.admin.posts.ai.cover_generator.prompt_label') }}
+                    <label class="ai-generator__label">
+                        {{ $t('pages.admin.posts.ai.cover_generator.dimension_title') }}
                     </label>
                     <Button
                         v-tooltip="$t('pages.admin.posts.ai.cover_generator.magic_hint')"
@@ -21,15 +33,39 @@
                         @click="generateMagicPrompt"
                     />
                 </div>
+                <div class="ai-generator__dimension-grid">
+                    <div
+                        v-for="field in dimensionFields"
+                        :key="field.key"
+                        class="ai-generator__dimension-field"
+                    >
+                        <label :for="`dimension-${field.key}`" class="ai-generator__dimension-label">
+                            {{ field.label }}
+                        </label>
+                        <InputText
+                            :id="`dimension-${field.key}`"
+                            v-model="promptDimensions[field.key]"
+                            :placeholder="field.placeholder"
+                            fluid
+                            :disabled="generating"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-generator__section">
+                <label for="prompt-preview" class="ai-generator__label">
+                    {{ $t('pages.admin.posts.ai.cover_generator.prompt_preview') }}
+                </label>
                 <Textarea
-                    id="prompt"
-                    v-model="prompt"
-                    rows="5"
-                    :placeholder="$t('pages.admin.posts.ai.cover_generator.prompt_placeholder')"
+                    id="prompt-preview"
+                    :model-value="composedPrompt"
+                    rows="7"
                     fluid
                     class="ai-generator__textarea"
-                    :disabled="generating"
+                    readonly
                 />
+                <small class="ai-generator__section-hint">{{ $t('pages.admin.posts.ai.cover_generator.confirm_candidate_notice') }}</small>
             </div>
 
             <div class="ai-generator__options">
@@ -141,7 +177,7 @@
                         icon="pi pi-wand-lines"
                         class="ai-generator__btn-generate"
                         :loading="generating"
-                        :disabled="!prompt"
+                        :disabled="!composedPrompt"
                         @click="generateImage"
                     />
                 </div>
@@ -155,6 +191,18 @@ import { ref, computed, watch } from 'vue'
 import { useIntervalFn } from '@vueuse/core'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
+import {
+    composeVisualPrompt,
+    extractVisualPromptDimensions,
+    getVisualAssetPreset,
+    resolveVisualPromptDimensions,
+} from '@/utils/shared/ai-visual-asset'
+import type {
+    AIVisualAssetApplyMode,
+    AIVisualAssetUsage,
+    AIVisualPromptDimensions,
+    AIVisualPromptSuggestion,
+} from '@/types/ai'
 
 const props = defineProps<{
     articleTitle?: string
@@ -163,17 +211,26 @@ const props = defineProps<{
     language?: string
     postId?: string
     translationId?: string | null
+    assetUsage?: AIVisualAssetUsage
+    applyMode?: AIVisualAssetApplyMode
+    allowUsageSelection?: boolean
+    allowedUsages?: AIVisualAssetUsage[]
 }>()
 
 const visible = defineModel<boolean>('visible', { default: false })
 const emit = defineEmits<{
-    (e: 'generated', url: string): void
+    (e: 'generated', payload: {
+        url: string
+        prompt: string
+        promptDimensions: AIVisualPromptDimensions
+        assetUsage: AIVisualAssetUsage
+        applyMode: AIVisualAssetApplyMode
+    }): void
 }>()
 
 const { t, locale } = useI18n()
 const toast = useToast()
 
-const prompt = ref('')
 const generating = ref(false)
 const magicLoading = ref(false)
 const pollCount = ref(0)
@@ -181,6 +238,19 @@ const statusText = ref('')
 const generatedImages = ref<{ url: string }[]>([])
 const selectedImageIndex = ref(0)
 const currentTaskId = ref<string | null>(null)
+const currentAssetUsage = ref<AIVisualAssetUsage>(props.assetUsage || 'post-cover')
+const currentApplyMode = ref<AIVisualAssetApplyMode>(props.applyMode || getVisualAssetPreset(currentAssetUsage.value).applyMode)
+
+type PromptDimensionKey = keyof AIVisualPromptDimensions
+
+const promptDimensions = ref<AIVisualPromptDimensions>(extractVisualPromptDimensions(
+    resolveVisualPromptDimensions(currentAssetUsage.value, {
+        title: props.articleTitle,
+        summary: props.articleSummary,
+        content: props.articleContent,
+        language: props.language || locale.value,
+    }),
+))
 
 const imageCount = ref(1)
 const imageCountOptions = [
@@ -205,6 +275,47 @@ const statusMessages = computed(() => [
     t('pages.admin.posts.ai.cover_generator.status_finishing'),
 ])
 
+const usageCandidates = computed<AIVisualAssetUsage[]>(() => {
+    if (props.allowedUsages && props.allowedUsages.length > 0) {
+        return props.allowedUsages
+    }
+
+    return ['post-cover', 'post-illustration', 'topic-hero', 'event-poster']
+})
+
+const showUsageSelector = computed(() => props.allowUsageSelection === true && usageCandidates.value.length > 1)
+
+const usageOptions = computed(() => usageCandidates.value.map((usage) => ({
+    value: usage,
+    label: t(`pages.admin.posts.ai.cover_generator.usage_options.${usage}`),
+})))
+
+const dimensionFields = computed<Array<{ key: PromptDimensionKey, label: string, placeholder: string }>>(() => [
+    { key: 'type', label: t('pages.admin.posts.ai.cover_generator.dimensions.type'), placeholder: t('pages.admin.posts.ai.cover_generator.placeholders.type') },
+    { key: 'palette', label: t('pages.admin.posts.ai.cover_generator.dimensions.palette'), placeholder: t('pages.admin.posts.ai.cover_generator.placeholders.palette') },
+    { key: 'rendering', label: t('pages.admin.posts.ai.cover_generator.dimensions.rendering'), placeholder: t('pages.admin.posts.ai.cover_generator.placeholders.rendering') },
+    { key: 'text', label: t('pages.admin.posts.ai.cover_generator.dimensions.text'), placeholder: t('pages.admin.posts.ai.cover_generator.placeholders.text') },
+    { key: 'mood', label: t('pages.admin.posts.ai.cover_generator.dimensions.mood'), placeholder: t('pages.admin.posts.ai.cover_generator.placeholders.mood') },
+])
+
+const composedPrompt = computed(() => composeVisualPrompt(currentAssetUsage.value, {
+    title: props.articleTitle,
+    summary: props.articleSummary,
+    content: props.articleContent,
+    language: props.language || locale.value,
+}, promptDimensions.value))
+
+const resetPromptDimensions = (usage: AIVisualAssetUsage) => {
+    promptDimensions.value = extractVisualPromptDimensions(resolveVisualPromptDimensions(usage, {
+        title: props.articleTitle,
+        summary: props.articleSummary,
+        content: props.articleContent,
+        language: props.language || locale.value,
+    }))
+    resolution.value = getVisualAssetPreset(usage).size
+    currentApplyMode.value = props.applyMode || getVisualAssetPreset(usage).applyMode
+}
+
 // 智能联想 Prompt
 const generateMagicPrompt = async () => {
     if (!props.articleTitle && !props.articleContent) {
@@ -221,9 +332,15 @@ const generateMagicPrompt = async () => {
                 summary: props.articleSummary || '',
                 content: props.articleContent || '',
                 language: props.language || locale.value,
+                assetUsage: currentAssetUsage.value,
+                applyMode: currentApplyMode.value,
             },
         })
-        prompt.value = data
+
+        const suggestion = data as AIVisualPromptSuggestion
+        if (suggestion?.dimensions) {
+            promptDimensions.value = { ...suggestion.dimensions }
+        }
     } catch (error: any) {
         console.error('Magic prompt error:', error)
         toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
@@ -244,7 +361,13 @@ const resetGenerator = () => {
 const applyImage = () => {
     const selectedImage = generatedImages.value[selectedImageIndex.value]
     if (selectedImage?.url) {
-        emit('generated', selectedImage.url)
+        emit('generated', {
+            url: selectedImage.url,
+            prompt: composedPrompt.value,
+            promptDimensions: { ...promptDimensions.value },
+            assetUsage: currentAssetUsage.value,
+            applyMode: currentApplyMode.value,
+        })
         visible.value = false
         resetGenerator()
     }
@@ -298,13 +421,16 @@ const generateImage = async () => {
         const { data: task } = await $fetch<any>('/api/ai/image/generate', {
             method: 'POST',
             body: {
-                prompt: prompt.value,
+                prompt: composedPrompt.value,
+                promptDimensions: promptDimensions.value,
                 postId: props.postId,
                 targetLanguage: props.language || locale.value,
                 translationId: props.translationId || null,
-                applyToPost: false,
-                overwriteExistingCover: true,
-                aspectRatio: '16:9', // 宽高比
+                applyToPost: currentApplyMode.value === 'auto-apply',
+                overwriteExistingCover: currentAssetUsage.value === 'post-cover',
+                assetUsage: currentAssetUsage.value,
+                applyMode: currentApplyMode.value,
+                aspectRatio: getVisualAssetPreset(currentAssetUsage.value).aspectRatio,
                 size: resolution.value,
                 n: imageCount.value,
             },
@@ -326,7 +452,20 @@ const generateImage = async () => {
 watch(visible, (val) => {
     if (!val && !generating.value) {
         resetGenerator()
-        prompt.value = ''
+        resetPromptDimensions(currentAssetUsage.value)
+    }
+})
+
+watch(() => props.assetUsage, (nextUsage) => {
+    if (nextUsage) {
+        currentAssetUsage.value = nextUsage
+        resetPromptDimensions(nextUsage)
+    }
+}, { immediate: true })
+
+watch(currentAssetUsage, (usage, previousUsage) => {
+    if (usage !== previousUsage) {
+        resetPromptDimensions(usage)
     }
 })
 </script>
@@ -353,6 +492,11 @@ watch(visible, (val) => {
         gap: 0.75rem;
     }
 
+    &__section-hint {
+        color: var(--p-surface-500);
+        font-size: 0.75rem;
+    }
+
     &__label-row {
         display: flex;
         align-items: center;
@@ -369,10 +513,34 @@ watch(visible, (val) => {
         border-radius: $border-radius-md;
     }
 
+    &__dimension-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    &__dimension-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    &__dimension-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--p-text-color);
+    }
+
     &__options {
         display: flex;
         flex-direction: column;
         gap: 1rem;
+    }
+
+    @media (width <= 768px) {
+        &__dimension-grid {
+            grid-template-columns: 1fr;
+        }
     }
 
     &__option-item {

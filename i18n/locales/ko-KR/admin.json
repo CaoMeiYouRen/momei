@@ -621,12 +621,18 @@
                     "voice_mode_cloud_stream": "실시간 (Cloud Stream)",
                     "voice_model_ready": "AI 모델 준비 완료",
                     "generate_cover": "AI 표지 이미지 생성",
+                    "generate_illustration": "AI 본문 삽화 생성",
+                    "article_illustration_hint": "본문 삽화는 확인 후에만 본문에 삽입되며 시각 자산 메타데이터에도 기록됩니다.",
+                    "visual_asset_inserted": "시각 자산을 본문에 삽입하고 메타데이터에 기록했습니다.",
                     "cover_generator": {
                         "title": "AI 이미지 생성기",
-                        "prompt_label": "이미지 프롬프트",
-                        "prompt_placeholder": "생성하고 싶은 이미지를 설명해 주세요...",
+                        "usage_label": "시각 용도",
+                        "usage_hint": "표지, 본문 삽화, 토픽 히어로, 이벤트 포스터가 동일한 5차원 프롬프트 모델을 공유합니다.",
+                        "dimension_title": "5차원 프롬프트 모델",
                         "magic_btn": "프롬프트 추천",
-                        "magic_hint": "게시글 내용을 바탕으로 보기 좋은 프롬프트를 자동 생성합니다",
+                        "magic_hint": "게시글 내용을 바탕으로 5차원 프롬프트 제안을 생성합니다",
+                        "prompt_preview": "최종 Prompt 미리보기",
+                        "confirm_candidate_notice": "현재 편집기에서는 후보 이미지만 생성하며, 선택을 확인해야 실제로 적용됩니다.",
                         "generate_btn": "지금 생성",
                         "generating": "구상하는 중...",
                         "status_preparing": "색감을 준비하는 중...",
@@ -634,10 +640,30 @@
                         "status_polishing": "세부를 다듬는 중...",
                         "status_finishing": "마지막 손질 중...",
                         "polling": "{step}번째 렌더링 중입니다 (창을 닫지 마세요)...",
-                        "success": "표지가 생성되어 미디어 라이브러리에 저장되었습니다",
+                        "success": "시각 자산이 생성되어 미디어 라이브러리에 저장되었습니다",
                         "error": "이미지 생성에 실패했습니다. 다시 시도해 주세요",
                         "images_count": "생성 수",
-                        "resolution": "해상도"
+                        "resolution": "해상도",
+                        "dimensions": {
+                            "type": "유형",
+                            "palette": "색상",
+                            "rendering": "렌더링",
+                            "text": "텍스트",
+                            "mood": "분위기"
+                        },
+                        "placeholders": {
+                            "type": "주제, 구도, 시선 집중점",
+                            "palette": "주조색, 포인트색, 명암 대비",
+                            "rendering": "재질, 기법, 시각 스타일",
+                            "text": "제목 처리, 위계, 안전 여백",
+                            "mood": "분위기, 에너지, 감정 톤"
+                        },
+                        "usage_options": {
+                            "post-cover": "게시물 표지",
+                            "post-illustration": "본문 삽화",
+                            "topic-hero": "토픽 히어로",
+                            "event-poster": "이벤트 포스터"
+                        }
                     }
                 },
                 "translation_workflow": {

@@ -289,6 +289,25 @@ export interface AIChatResponse {
 }
 
 // --- Image ---
+export type AIVisualAssetUsage = 'post-cover' | 'post-illustration' | 'topic-hero' | 'event-poster'
+
+export type AIVisualAssetApplyMode = 'auto-apply' | 'manual-confirm'
+
+export interface AIVisualPromptDimensions {
+    type: string
+    palette: string
+    rendering: string
+    text: string
+    mood: string
+}
+
+export interface AIVisualPromptSuggestion {
+    assetUsage: AIVisualAssetUsage
+    applyMode: AIVisualAssetApplyMode
+    dimensions: AIVisualPromptDimensions
+    prompt: string
+}
+
 export interface AIImageOptions {
     prompt: string
     postId?: string
@@ -296,6 +315,9 @@ export interface AIImageOptions {
     translationId?: string | null
     applyToPost?: boolean
     overwriteExistingCover?: boolean
+    assetUsage?: AIVisualAssetUsage
+    applyMode?: AIVisualAssetApplyMode
+    promptDimensions?: AIVisualPromptDimensions
     model?: string
     size?: string // e.g., '1024x1024'
     aspectRatio?: string // e.g., '1:1', '16:9', '9:16'

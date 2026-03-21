@@ -621,12 +621,18 @@
                     "voice_mode_cloud_stream": "極速 (Cloud Stream)",
                     "voice_model_ready": "AI 模型已就緒",
                     "generate_cover": "AI 產生封面圖",
+                    "generate_illustration": "AI 產生文章配圖",
+                    "article_illustration_hint": "文章配圖會在確認後插入正文，並同步記錄到視覺資產中繼資料。",
+                    "visual_asset_inserted": "已將視覺資產插入正文並記錄到中繼資料。",
                     "cover_generator": {
-                        "title": "AI 封面產生器",
-                        "prompt_label": "畫面描述 (Prompt)",
-                        "prompt_placeholder": "描述您想產生的畫面內容...",
+                        "title": "AI 視覺資產生成器",
+                        "usage_label": "視覺場景",
+                        "usage_hint": "封面、配圖、專題頭圖與活動圖共用同一套五維提示詞模型。",
+                        "dimension_title": "五維提示詞模型",
                         "magic_btn": "智慧聯想",
-                        "magic_hint": "根據文章內容自動產生高質感 Prompt",
+                        "magic_hint": "根據文章內容自動生成五維提示詞建議",
+                        "prompt_preview": "最終 Prompt 預覽",
+                        "confirm_candidate_notice": "目前編輯器預設只生成候選圖，確認後才會回填封面或插入正文。",
                         "generate_btn": "立即產生",
                         "generating": "正在構思中...",
                         "status_preparing": "調色盤準備中...",
@@ -634,10 +640,30 @@
                         "status_polishing": "細節打磨中...",
                         "status_finishing": "最後潤飾...",
                         "polling": "正在繪製第 {step} 輪 (請勿關閉面板)...",
-                        "success": "封面已產生並儲存到媒體庫",
+                        "success": "視覺資產已產生並儲存到媒體庫",
                         "error": "產生失敗，請重試",
                         "images_count": "產生數量",
-                        "resolution": "解析度"
+                        "resolution": "解析度",
+                        "dimensions": {
+                            "type": "類型",
+                            "palette": "配色",
+                            "rendering": "渲染",
+                            "text": "文字",
+                            "mood": "氛圍"
+                        },
+                        "placeholders": {
+                            "type": "主體、構圖與畫面重心",
+                            "palette": "主色、輔色與明暗傾向",
+                            "rendering": "材質、風格與表現方式",
+                            "text": "標題、字重、留白與文案處理",
+                            "mood": "情緒、氣候與整體氣場"
+                        },
+                        "usage_options": {
+                            "post-cover": "文章封面",
+                            "post-illustration": "文章配圖",
+                            "topic-hero": "專題頭圖",
+                            "event-poster": "活動圖"
+                        }
                     }
                 },
                 "translation_workflow": {

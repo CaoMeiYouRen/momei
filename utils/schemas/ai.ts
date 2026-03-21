@@ -163,6 +163,16 @@ export const aiAgreementDraftSchema = z.object({
     versionDescription: z.string().max(500).nullable().optional(),
 })
 
+const aiVisualAssetUsageSchema = z.enum(['post-cover', 'post-illustration', 'topic-hero', 'event-poster'])
+const aiVisualAssetApplyModeSchema = z.enum(['auto-apply', 'manual-confirm'])
+const aiVisualPromptDimensionsSchema = z.object({
+    type: z.string().min(1).max(240),
+    palette: z.string().min(1).max(240),
+    rendering: z.string().min(1).max(240),
+    text: z.string().min(1).max(240),
+    mood: z.string().min(1).max(240),
+})
+
 export const aiGenerateImageSchema = z.object({
     prompt: z.string().min(1).max(1000),
     postId: z.string().min(1).max(64).optional(),
@@ -170,6 +180,9 @@ export const aiGenerateImageSchema = z.object({
     translationId: z.string().min(1).max(255).nullable().optional(),
     applyToPost: z.boolean().optional().default(true),
     overwriteExistingCover: z.boolean().optional().default(true),
+    assetUsage: aiVisualAssetUsageSchema.optional().default('post-cover'),
+    applyMode: aiVisualAssetApplyModeSchema.optional().default('auto-apply'),
+    promptDimensions: aiVisualPromptDimensionsSchema.optional(),
     model: z.string().optional(),
     size: z.string().optional(),
     aspectRatio: z.string().optional(),

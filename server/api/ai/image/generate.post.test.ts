@@ -57,6 +57,8 @@ describe('POST /api/ai/image/generate', () => {
         expect(ImageService.generateImage).toHaveBeenCalledWith(
             {
                 ...mockBody,
+                assetUsage: 'post-cover',
+                applyMode: 'auto-apply',
                 n: 1,
                 overwriteExistingCover: true,
             },

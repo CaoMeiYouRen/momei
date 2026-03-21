@@ -59,13 +59,14 @@ describe('AI prompt utils', () => {
             expect(AI_PROMPTS.EXPAND_SECTION).toContain('{{language}}')
         })
 
-        it('should have SUGGEST_IMAGE_PROMPT with centered title guidance', () => {
+        it('should have SUGGEST_IMAGE_PROMPT with five-dimension json guidance', () => {
             expect(AI_PROMPTS.SUGGEST_IMAGE_PROMPT).toBeDefined()
             expect(AI_PROMPTS.SUGGEST_IMAGE_PROMPT).toContain('{{title}}')
             expect(AI_PROMPTS.SUGGEST_IMAGE_PROMPT).toContain('{{contentSummary}}')
             expect(AI_PROMPTS.SUGGEST_IMAGE_PROMPT).toContain('{{language}}')
-            expect(AI_PROMPTS.SUGGEST_IMAGE_PROMPT).toContain('exact center of the image')
-            expect(AI_PROMPTS.SUGGEST_IMAGE_PROMPT).toContain('thumbnail or responsive cropping')
+            expect(AI_PROMPTS.SUGGEST_IMAGE_PROMPT).toContain('{{assetUsage}}')
+            expect(AI_PROMPTS.SUGGEST_IMAGE_PROMPT).toContain('type, palette, rendering, text, mood')
+            expect(AI_PROMPTS.SUGGEST_IMAGE_PROMPT).toContain('{{typeFallback}}')
         })
     })
 

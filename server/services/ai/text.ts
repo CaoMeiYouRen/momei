@@ -24,6 +24,19 @@ import {
     AI_MAX_CONTENT_LENGTH,
     AI_CHUNK_SIZE,
 } from '@/utils/shared/env'
+import {
+    composeVisualPrompt,
+    extractVisualPromptDimensions,
+    getVisualAssetPreset,
+    resolveVisualPromptDimensions,
+    type AIVisualPromptContext,
+} from '@/utils/shared/ai-visual-asset'
+import type {
+    AIVisualAssetApplyMode,
+    AIVisualAssetUsage,
+    AIVisualPromptDimensions,
+    AIVisualPromptSuggestion,
+} from '@/types/ai'
 
 export interface ScaffoldOptions {
     topic?: string
@@ -48,6 +61,8 @@ export interface SuggestImagePromptOptions {
     summary?: string
     content?: string
     language?: string
+    assetUsage?: AIVisualAssetUsage
+    applyMode?: AIVisualAssetApplyMode
 }
 
 export interface RecommendCategoriesOptions {
@@ -55,6 +70,56 @@ export interface RecommendCategoriesOptions {
     content: string
     categories: string[]
     language?: string
+}
+
+function extractJSONObject(content: string): Record<string, unknown> | null {
+    const startIndex = content.indexOf('{')
+    const endIndex = content.lastIndexOf('}')
+
+    if (startIndex === -1 || endIndex === -1 || endIndex <= startIndex) {
+        return null
+    }
+
+    try {
+        return JSON.parse(content.slice(startIndex, endIndex + 1)) as Record<string, unknown>
+    } catch {
+        return null
+    }
+}
+
+function sanitizePromptDimension(value: unknown): string | undefined {
+    if (typeof value !== 'string') {
+        return undefined
+    }
+
+    const normalized = value.replace(/\s+/g, ' ').trim()
+    return normalized ? normalized.slice(0, 240) : undefined
+}
+
+function parseVisualPromptSuggestion(
+    content: string,
+    assetUsage: AIVisualAssetUsage,
+    applyMode: AIVisualAssetApplyMode,
+    context: AIVisualPromptContext,
+): AIVisualPromptSuggestion {
+    const parsed = extractJSONObject(content)
+    const overrides: Partial<AIVisualPromptDimensions> = {
+        type: sanitizePromptDimension(parsed?.type),
+        palette: sanitizePromptDimension(parsed?.palette),
+        rendering: sanitizePromptDimension(parsed?.rendering),
+        text: sanitizePromptDimension(parsed?.text),
+        mood: sanitizePromptDimension(parsed?.mood),
+    }
+
+    const resolution = resolveVisualPromptDimensions(assetUsage, context, overrides, 'ai')
+    const dimensions = extractVisualPromptDimensions(resolution)
+
+    return {
+        assetUsage,
+        applyMode,
+        dimensions,
+        prompt: composeVisualPrompt(assetUsage, context, dimensions),
+    }
 }
 
 export class TextService extends AIBaseService {
@@ -73,7 +138,14 @@ export class TextService extends AIBaseService {
     }
 
     static async suggestImagePrompt(options: SuggestImagePromptOptions, userId?: string) {
-        const { title = '', summary = '', content = '', language = 'zh-CN' } = options
+        const {
+            title = '',
+            summary = '',
+            content = '',
+            language = 'zh-CN',
+            assetUsage = 'post-cover',
+            applyMode = getVisualAssetPreset(assetUsage).applyMode,
+        } = options
         const promptContent = summary.trim() || content
 
         if (!title && !promptContent) {
@@ -83,10 +155,25 @@ export class TextService extends AIBaseService {
             })
         }
 
+        const promptContext: AIVisualPromptContext = {
+            title,
+            summary,
+            content: promptContent,
+            language,
+        }
+        const defaults = resolveVisualPromptDimensions(assetUsage, promptContext)
+
         await this.assertTextQuota({
             userId,
             type: 'suggest_image_prompt',
-            payload: { title, summary: summary.slice(0, 300), content: promptContent.slice(0, 500), language },
+            payload: {
+                title,
+                summary: summary.slice(0, 300),
+                content: promptContent.slice(0, 500),
+                language,
+                assetUsage,
+                applyMode,
+            },
         })
 
         const provider = await getAIProvider('text')
@@ -98,9 +185,15 @@ export class TextService extends AIBaseService {
         }
 
         const prompt = formatPrompt(AI_PROMPTS.SUGGEST_IMAGE_PROMPT, {
+            assetUsage,
             title: title || 'N/A',
             contentSummary: promptContent.slice(0, 500) || 'N/A',
             language,
+            typeFallback: defaults.type.fallback,
+            paletteFallback: defaults.palette.fallback,
+            renderingFallback: defaults.rendering.fallback,
+            textFallback: defaults.text.fallback,
+            moodFallback: defaults.mood.fallback,
         })
 
         const response = await provider.chat({
@@ -108,6 +201,8 @@ export class TextService extends AIBaseService {
                 { role: 'user', content: prompt },
             ],
         })
+
+        const suggestion = parseVisualPromptSuggestion(response.content, assetUsage, applyMode, promptContext)
 
         this.logUsage({ task: 'suggest-image-prompt', response, userId })
         await this.recordTask({
@@ -121,11 +216,13 @@ export class TextService extends AIBaseService {
                 summary: summary.slice(0, 300),
                 content: promptContent.slice(0, 500),
                 language,
+                assetUsage,
+                applyMode,
             },
-            response: { content: response.content },
+            response: suggestion,
         })
 
-        return response.content.trim().replace(/^"(.*)"$/, '$1')
+        return suggestion
     }
 
     static async suggestTitles(

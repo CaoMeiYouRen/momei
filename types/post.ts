@@ -1,3 +1,9 @@
+import type {
+    AIVisualAssetApplyMode,
+    AIVisualAssetUsage,
+    AIVisualPromptDimensions,
+} from './ai'
+
 /**
  * 文章状态枚举
  */
@@ -85,6 +91,22 @@ export interface PostCoverMetadata {
     url?: string | null
     source?: 'ai' | 'upload' | 'manual' | null
     prompt?: string | null
+    promptModel?: AIVisualPromptDimensions | null
+    assetUsage?: AIVisualAssetUsage | null
+    applyMode?: AIVisualAssetApplyMode | null
+    language?: string | null
+    translationId?: string | null
+    postId?: string | null
+    generatedAt?: string | Date | null
+}
+
+export interface PostVisualAssetMetadata {
+    usage: AIVisualAssetUsage
+    url?: string | null
+    source?: 'ai' | 'upload' | 'manual' | null
+    prompt?: string | null
+    promptModel?: AIVisualPromptDimensions | null
+    applyMode?: AIVisualAssetApplyMode | null
     language?: string | null
     translationId?: string | null
     postId?: string | null
@@ -187,6 +209,7 @@ export interface PostIntegrationMetadata {
  */
 export interface PostMetadata {
     cover?: PostCoverMetadata
+    visualAssets?: PostVisualAssetMetadata[] | null
     audio?: PostAudioMetadata
     tts?: PostTTSMetadata
     scaffold?: PostScaffoldMetadata

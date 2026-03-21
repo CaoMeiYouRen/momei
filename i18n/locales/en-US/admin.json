@@ -621,12 +621,18 @@
                     "voice_mode_cloud_stream": "Instant (Cloud Stream)",
                     "voice_model_ready": "AI model is ready",
                     "generate_cover": "AI Generate Cover Image",
+                    "generate_illustration": "AI Generate Article Illustration",
+                    "article_illustration_hint": "Article illustrations are inserted into the markdown only after confirmation and then recorded in visual asset metadata.",
+                    "visual_asset_inserted": "The visual asset was inserted into the article and recorded in metadata.",
                     "cover_generator": {
                         "title": "AI Image Generator",
-                        "prompt_label": "Image Prompt",
-                        "prompt_placeholder": "Describe the image you want to generate...",
+                        "usage_label": "Visual Usage",
+                        "usage_hint": "Covers, inline illustrations, topic heroes, and event posters now share the same five-dimension prompt model.",
+                        "dimension_title": "Five-Dimension Prompt Model",
                         "magic_btn": "Magic Prompt",
-                        "magic_hint": "Auto-generate beautiful prompts based on article content",
+                        "magic_hint": "Generate structured five-dimension suggestions from the article context",
+                        "prompt_preview": "Composed Prompt Preview",
+                        "confirm_candidate_notice": "The editor currently generates candidates only. Nothing is applied until you confirm the selected asset.",
                         "generate_btn": "Generate Now",
                         "generating": "Imagining...",
                         "status_preparing": "Preparing the palette...",
@@ -634,10 +640,30 @@
                         "status_polishing": "Polishing details...",
                         "status_finishing": "Final touch...",
                         "polling": "Drawing round {step} (Keep this open)...",
-                        "success": "Cover generated and saved to media library",
+                        "success": "Visual asset generated and saved to the media library",
                         "error": "Failed to generate image, please try again",
                         "images_count": "Count",
-                        "resolution": "Resolution"
+                        "resolution": "Resolution",
+                        "dimensions": {
+                            "type": "Type",
+                            "palette": "Palette",
+                            "rendering": "Rendering",
+                            "text": "Text",
+                            "mood": "Mood"
+                        },
+                        "placeholders": {
+                            "type": "Subject, composition, and focal point",
+                            "palette": "Primary colors, accent colors, and contrast",
+                            "rendering": "Material, technique, and visual style",
+                            "text": "Headline treatment, hierarchy, and safe area",
+                            "mood": "Atmosphere, energy, and emotional tone"
+                        },
+                        "usage_options": {
+                            "post-cover": "Post Cover",
+                            "post-illustration": "Article Illustration",
+                            "topic-hero": "Topic Hero",
+                            "event-poster": "Event Poster"
+                        }
                     }
                 },
                 "translation_workflow": {

@@ -25,6 +25,56 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## AI 视觉资产收敛回归（2026-03-22）
+
+### 回归任务记录
+
+- 回归范围: 第十七阶段 P1“AI 视觉资产收敛”首轮落地；覆盖五维提示词模型、视觉场景扩展、文章编辑器内封面 / 配图双入口、自动回填边界与 Post metadata 事实源扩展。
+- 触发条件: 当前阶段扩展事项“合并封面五维提示词与图片生成扩面治理”进入收口，需要为新的视觉资产模型、服务端契约与编辑器行为沉淀回归证据。
+- 执行频率: 本阶段专项回归首轮；后续仅在新增专题头图 / 活动图专属编辑器、调整图片自动回填策略或扩展视觉资产消费链路时补写增量记录。
+- timeout budget:
+    - 定向 Vitest: 15 分钟。
+    - 编辑器诊断与 JSON 校验: 10 分钟。
+    - 单文件组件补跑: 10 分钟。
+- 已执行命令:
+    - `pnpm exec vitest run components/admin/posts/post-editor-media-settings.test.ts`
+    - `pnpm exec vitest run server/services/ai/image.test.ts`
+    - `pnpm exec vitest run server/api/ai/image/generate.post.test.ts`
+    - `pnpm exec vitest run server/utils/ai/prompt.test.ts`
+    - `pnpm exec vitest run utils/shared/ai-visual-asset.test.ts`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 静态层: 新增与修改的 Vue、TypeScript、Schema 与 locale 文件均通过编辑器诊断；未发现 JSON、类型或模板错误。
+        - V2 / 逻辑层: `server/services/ai/image.test.ts` 11 个测试通过，补充验证了 `post-illustration + manual-confirm` 不会误触发封面自动回填。
+        - V2 / API 层: `server/api/ai/image/generate.post.test.ts` 6 个测试通过，确认新的 `assetUsage` / `applyMode` 默认值纳入请求校验与下游调用。
+        - V2 / 共享模型层: `utils/shared/ai-visual-asset.test.ts` 3 个测试通过，确认五维模型的默认推导、手动覆盖与 Prompt 合成逻辑稳定。
+        - V2 / 编辑器层: `components/admin/posts/post-editor-media-settings.test.ts` 4 个测试通过，确认封面场景 props 透传不回退、文章配图可以插入 Markdown 正文并同步记录 `metadata.visualAssets`。
+        - V2 / Prompt 模板层: `server/utils/ai/prompt.test.ts` 22 个测试通过，确认图片提示词模板已改为五维 JSON 输出约束。
+    - 结果摘要:
+        - `AIImageOptions` 已扩展 `assetUsage`、`applyMode` 与 `promptDimensions`，图片生成链路不再默认为封面专用契约。
+        - `utils/shared/ai-visual-asset.ts` 已成为五维提示词的唯一共享事实源，统一管理场景 preset、输入来源、默认回退与最终 Prompt 组合逻辑。
+        - 编辑器内 `AdminPostsAiImageGenerator` 已从单段 prompt 输入升级为五维模型编辑器，并显示最终组合 Prompt 预览。
+        - `components/admin/posts/post-editor-media-settings.vue` 已新增文章配图入口；确认后会把生成图插入 Markdown 正文，并记录到 `metadata.visualAssets`，而不是覆盖 `coverImage`。
+        - `Post.metadata` 已新增 `visualAssets[]`，同时保留 `metadata.cover` 作为现有封面消费链路的兼容事实源。
+    - 测试结果（按需）:
+        - `components/admin/posts/post-editor-media-settings.test.ts`: 4 tests passed。
+        - `server/services/ai/image.test.ts`: 11 tests passed。
+        - `server/api/ai/image/generate.post.test.ts`: 6 tests passed。
+        - `server/utils/ai/prompt.test.ts`: 22 tests passed。
+        - `utils/shared/ai-visual-asset.test.ts`: 3 tests passed。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - 当前 UI 实际只接入了文章封面与文章配图；专题头图与活动图仍处于“契约已统一、专属编辑器待接入”状态。
+            - 组件测试运行时仍会输出少量历史 i18n 缺键 warning，但不影响本轮视觉资产逻辑验证结论。
+    - 未覆盖边界:
+        - 未补跑浏览器级 UI 自动化，本轮主要依赖组件测试与静态诊断确认编辑器行为。
+        - 未为专题头图 / 活动图新增独立 UI 页面，因此这两类场景目前只在类型、Schema、提示词和服务端契约层完成收敛。
+    - 后续补跑计划:
+        - 在专题页或活动页编辑器落地时，直接复用当前 `assetUsage` / `applyMode` 契约，并补一轮浏览器级验证。
+        - 若未来允许某些后台视觉场景启用 `auto-apply`，需补充一轮服务端自动写回与权限边界回归。
+
 ## 认证会话获取频率治理回归（2026-03-21）
 
 ### 回归任务记录

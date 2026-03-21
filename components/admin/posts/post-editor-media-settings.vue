@@ -12,7 +12,7 @@
                     size="small"
                     text
                     rounded
-                    @click="aiImageVisible = true"
+                    @click="openVisualAssetGenerator('post-cover')"
                 />
             </div>
             <AppUploader
@@ -42,6 +42,18 @@
                     class="h-auto max-w-full rounded shadow-sm"
                 />
             </div>
+            <div class="post-editor-media-settings__visual-actions">
+                <Button
+                    id="ai-illustration-btn"
+                    v-tooltip="$t('pages.admin.posts.ai.generate_illustration')"
+                    icon="pi pi-images"
+                    size="small"
+                    text
+                    rounded
+                    @click="openVisualAssetGenerator('post-illustration')"
+                />
+                <small class="form-hint">{{ $t('pages.admin.posts.ai.article_illustration_hint') }}</small>
+            </div>
         </div>
 
         <AdminPostsAiImageGenerator
@@ -52,7 +64,9 @@
             :language="post.language"
             :post-id="post.id"
             :translation-id="post.translationId"
-            @generated="handleCoverGenerated"
+            :asset-usage="generatorUsage"
+            :apply-mode="generatorApplyMode"
+            @generated="handleVisualAssetGenerated"
         />
 
         <AdminPostsPostTtsDialog
@@ -154,6 +168,12 @@ import { secondsToDuration, durationToSeconds } from '@/utils/shared/date'
 import { isValidCustomUrl } from '@/utils/shared/validate'
 import { UploadType } from '@/composables/use-upload'
 import type { PostEditorData } from '@/types/post-editor'
+import type {
+    AIVisualAssetApplyMode,
+    AIVisualAssetUsage,
+    AIVisualPromptDimensions,
+} from '@/types/ai'
+import type { PostVisualAssetMetadata } from '@/types/post'
 
 const post = defineModel<PostEditorData>('post', { required: true })
 
@@ -162,6 +182,8 @@ const ttsVisible = ref(false)
 const probing = ref(false)
 const showImagePreview = ref(false)
 const showAudioPlayer = ref(false)
+const generatorUsage = ref<AIVisualAssetUsage>('post-cover')
+const generatorApplyMode = ref<AIVisualAssetApplyMode>('manual-confirm')
 
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
@@ -181,17 +203,53 @@ const ensureMetadata = () => {
     return post.value.metadata
 }
 
+const ensureVisualAssets = () => {
+    const metadata = ensureMetadata()
+    if (!Array.isArray(metadata.visualAssets)) {
+        metadata.visualAssets = []
+    }
+
+    return metadata.visualAssets
+}
+
+const removeVisualAssetsByUsage = (usage: AIVisualAssetUsage) => {
+    if (!post.value.metadata || typeof post.value.metadata !== 'object' || !Array.isArray(post.value.metadata.visualAssets)) {
+        return
+    }
+
+    post.value.metadata.visualAssets = post.value.metadata.visualAssets.filter((asset) => asset?.usage !== usage)
+}
+
+const upsertVisualAsset = (asset: PostVisualAssetMetadata, options: { replaceExisting?: boolean } = {}) => {
+    const visualAssets = ensureVisualAssets()
+
+    if (options.replaceExisting !== false) {
+        const nextAssets = visualAssets.filter((item) => item?.usage !== asset.usage)
+        nextAssets.push(asset)
+        post.value.metadata!.visualAssets = nextAssets
+        return
+    }
+
+    const hasSameAsset = visualAssets.some((item) => item?.usage === asset.usage && item?.url === asset.url)
+    if (!hasSameAsset) {
+        visualAssets.push(asset)
+    }
+}
+
 const clearCoverAsset = () => {
     if (!post.value.metadata || typeof post.value.metadata !== 'object') {
         return
     }
 
     delete post.value.metadata.cover
+    removeVisualAssetsByUsage('post-cover')
 }
 
 const syncCoverMetadata = (url: string | null | undefined, options: {
     source: 'ai' | 'manual'
     prompt?: string | null
+    promptModel?: AIVisualPromptDimensions | null
+    applyMode?: AIVisualAssetApplyMode
     generatedAt?: Date | null
 } = { source: 'manual' }) => {
     if (!url) {
@@ -206,11 +264,27 @@ const syncCoverMetadata = (url: string | null | undefined, options: {
         url,
         source: options.source,
         prompt: options.source === 'ai' ? (options.prompt ?? existingCover?.prompt ?? null) : null,
+        promptModel: options.source === 'ai' ? (options.promptModel ?? existingCover?.promptModel ?? null) : null,
+        assetUsage: 'post-cover',
+        applyMode: options.applyMode ?? (options.source === 'ai' ? 'manual-confirm' : null),
         language: post.value.language,
         translationId: post.value.translationId ?? null,
         postId: post.value.id ?? null,
         generatedAt: options.source === 'ai' ? (options.generatedAt ?? new Date()) : null,
     }
+
+    upsertVisualAsset({
+        usage: 'post-cover',
+        url,
+        source: options.source,
+        prompt: metadata.cover.prompt ?? null,
+        promptModel: metadata.cover.promptModel ?? null,
+        applyMode: metadata.cover.applyMode ?? null,
+        language: post.value.language,
+        translationId: post.value.translationId ?? null,
+        postId: post.value.id ?? null,
+        generatedAt: metadata.cover.generatedAt ?? null,
+    })
 }
 
 const clearAudioAsset = () => {
@@ -331,13 +405,55 @@ const audioMimeTypeModel = computed<string | null>({
     },
 })
 
-const handleCoverGenerated = (url: string) => {
-    if (!url) {
+const insertIllustrationIntoContent = (url: string) => {
+    const altText = post.value.title?.trim() || 'Illustration'
+    const markdown = `\n\n![${altText}](${url})\n`
+    post.value.content = `${post.value.content.trimEnd()}${markdown}`
+}
+
+const openVisualAssetGenerator = (usage: AIVisualAssetUsage) => {
+    generatorUsage.value = usage
+    generatorApplyMode.value = 'manual-confirm'
+    aiImageVisible.value = true
+}
+
+const handleVisualAssetGenerated = (payload: {
+    url: string
+    prompt: string
+    promptDimensions: AIVisualPromptDimensions
+    assetUsage: AIVisualAssetUsage
+    applyMode: AIVisualAssetApplyMode
+}) => {
+    if (!payload.url) {
         return
     }
 
-    post.value.coverImage = url
-    syncCoverMetadata(url, { source: 'ai', generatedAt: new Date() })
+    if (payload.assetUsage === 'post-illustration') {
+        insertIllustrationIntoContent(payload.url)
+        upsertVisualAsset({
+            usage: 'post-illustration',
+            url: payload.url,
+            source: 'ai',
+            prompt: payload.prompt,
+            promptModel: payload.promptDimensions,
+            applyMode: payload.applyMode,
+            language: post.value.language,
+            translationId: post.value.translationId ?? null,
+            postId: post.value.id ?? null,
+            generatedAt: new Date(),
+        }, { replaceExisting: false })
+        showSuccessToast('pages.admin.posts.ai.visual_asset_inserted')
+        return
+    }
+
+    post.value.coverImage = payload.url
+    syncCoverMetadata(payload.url, {
+        source: 'ai',
+        prompt: payload.prompt,
+        promptModel: payload.promptDimensions,
+        applyMode: payload.applyMode,
+        generatedAt: new Date(),
+    })
 }
 
 const handleTTSCompleted = (payload: {
@@ -436,6 +552,13 @@ const probeAudio = async (input?: string | Event | null) => {
 
 .audio-metadata-group {
     @include admin-detail-stack;
+}
+
+.post-editor-media-settings__visual-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
 }
 
 .audio-metadata-row {

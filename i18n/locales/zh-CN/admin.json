@@ -621,12 +621,18 @@
                     "voice_mode_cloud_stream": "极速 (Cloud Stream)",
                     "voice_model_ready": "AI 模型已就绪",
                     "generate_cover": "AI 生成封面图",
+                    "generate_illustration": "AI 生成文章配图",
+                    "article_illustration_hint": "文章配图会在确认后插入正文，并同步记录到视觉资产元数据。",
+                    "visual_asset_inserted": "已将视觉资产插入正文并记录到元数据。",
                     "cover_generator": {
-                        "title": "AI 封面生成器",
-                        "prompt_label": "画面描述 (Prompt)",
-                        "prompt_placeholder": "描述你想要生成的画面内容...",
+                        "title": "AI 视觉资产生成器",
+                        "usage_label": "视觉场景",
+                        "usage_hint": "封面、配图、专题头图和活动图共用同一套五维提示词模型。",
+                        "dimension_title": "五维提示词模型",
                         "magic_btn": "智能联想",
-                        "magic_hint": "根据文章内容自动生成高颜值 Prompt",
+                        "magic_hint": "根据文章内容自动生成五维提示词建议",
+                        "prompt_preview": "最终 Prompt 预览",
+                        "confirm_candidate_notice": "当前编辑器默认只生成候选图，确认后才会写回封面或插入正文。",
                         "generate_btn": "立即生成",
                         "generating": "正在构思中...",
                         "status_preparing": "调色盘准备中...",
@@ -634,10 +640,30 @@
                         "status_polishing": "细节打磨中...",
                         "status_finishing": "最后润色...",
                         "polling": "正在绘制第 {step} 轮 (请勿关闭面板)...",
-                        "success": "封面已生成并保存到媒体库",
+                        "success": "视觉资产已生成并保存到媒体库",
                         "error": "生成失败，请重试",
                         "images_count": "生成数量",
-                        "resolution": "分辨率"
+                        "resolution": "分辨率",
+                        "dimensions": {
+                            "type": "类型",
+                            "palette": "配色",
+                            "rendering": "渲染",
+                            "text": "文本",
+                            "mood": "氛围"
+                        },
+                        "placeholders": {
+                            "type": "主体、构图与画面重心",
+                            "palette": "主色、辅色与明暗倾向",
+                            "rendering": "材质、风格与表现方式",
+                            "text": "标题、字重、留白与文案处理",
+                            "mood": "情绪、气候与整体气场"
+                        },
+                        "usage_options": {
+                            "post-cover": "文章封面",
+                            "post-illustration": "文章配图",
+                            "topic-hero": "专题头图",
+                            "event-poster": "活动图"
+                        }
                     }
                 },
                 "translation_workflow": {

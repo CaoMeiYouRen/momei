@@ -12,6 +12,14 @@ import { NotificationType, buildAITaskDetailPath } from '@/utils/shared/notifica
 import type { AIFailureStage, AIImageOptions, AIImageResponse } from '@/types/ai'
 
 function shouldApplyGeneratedCover(post: Post, options: AIImageOptions) {
+    if (options.assetUsage && options.assetUsage !== 'post-cover') {
+        return false
+    }
+
+    if (options.applyMode === 'manual-confirm') {
+        return false
+    }
+
     if (options.applyToPost === false) {
         return false
     }
@@ -120,6 +128,22 @@ export class ImageService extends AIBaseService {
             }
 
             if (post && persistedImages[0]?.url && shouldApplyGeneratedCover(post, options)) {
+                const nextCoverAsset = {
+                    usage: 'post-cover' as const,
+                    url: persistedImages[0].url,
+                    source: 'ai' as const,
+                    prompt: options.prompt,
+                    promptModel: options.promptDimensions,
+                    applyMode: options.applyMode || 'auto-apply',
+                    language: options.targetLanguage || post.language,
+                    translationId: options.translationId ?? post.translationId ?? null,
+                    postId: post.id,
+                    generatedAt: new Date(),
+                }
+                const visualAssets = Array.isArray(post.metadata?.visualAssets)
+                    ? post.metadata.visualAssets.filter((asset) => asset?.usage !== 'post-cover')
+                    : []
+
                 post.coverImage = persistedImages[0].url
                 applyPostMetadataPatch(post, {
                     metadata: {
@@ -129,11 +153,15 @@ export class ImageService extends AIBaseService {
                             url: persistedImages[0].url,
                             source: 'ai',
                             prompt: options.prompt,
+                            promptModel: options.promptDimensions,
+                            assetUsage: options.assetUsage || 'post-cover',
+                            applyMode: options.applyMode || 'auto-apply',
                             language: options.targetLanguage || post.language,
                             translationId: options.translationId ?? post.translationId ?? null,
                             postId: post.id,
                             generatedAt: new Date(),
                         },
+                        visualAssets: [...visualAssets, nextCoverAsset],
                     },
                 })
                 await dataSource.getRepository(Post).save(post)

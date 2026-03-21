@@ -125,12 +125,45 @@ const postMetadataSchema = z.object({
                 }),
             source: z.enum(['ai', 'upload', 'manual']).nullable().optional(),
             prompt: z.string().max(2000).nullable().optional(),
+            promptModel: z.object({
+                type: z.string().max(240),
+                palette: z.string().max(240),
+                rendering: z.string().max(240),
+                text: z.string().max(240),
+                mood: z.string().max(240),
+            }).nullable().optional(),
+            assetUsage: z.enum(['post-cover', 'post-illustration', 'topic-hero', 'event-poster']).nullable().optional(),
+            applyMode: z.enum(['auto-apply', 'manual-confirm']).nullable().optional(),
             language: z.string().max(10).nullable().optional(),
             translationId: z.string().max(255).nullable().optional(),
             postId: z.string().max(255).nullable().optional(),
             generatedAt: z.coerce.date().nullable().optional(),
         })
         .optional(),
+    visualAssets: z.array(z.object({
+        usage: z.enum(['post-cover', 'post-illustration', 'topic-hero', 'event-poster']),
+        url: z
+            .string()
+            .nullable()
+            .optional()
+            .refine((url) => isValidCustomUrl(url), {
+                message: 'Visual asset URL must be from a whitelisted domain or local path',
+            }),
+        source: z.enum(['ai', 'upload', 'manual']).nullable().optional(),
+        prompt: z.string().max(2000).nullable().optional(),
+        promptModel: z.object({
+            type: z.string().max(240),
+            palette: z.string().max(240),
+            rendering: z.string().max(240),
+            text: z.string().max(240),
+            mood: z.string().max(240),
+        }).nullable().optional(),
+        applyMode: z.enum(['auto-apply', 'manual-confirm']).nullable().optional(),
+        language: z.string().max(10).nullable().optional(),
+        translationId: z.string().max(255).nullable().optional(),
+        postId: z.string().max(255).nullable().optional(),
+        generatedAt: z.coerce.date().nullable().optional(),
+    })).nullable().optional(),
     audio: z
         .object({
             url: z

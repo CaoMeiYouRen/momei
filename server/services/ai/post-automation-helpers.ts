@@ -239,6 +239,20 @@ export function normalizeMetadataForPostInput(metadata: PostMetadata | null | un
     }
 
     return {
+        cover: metadata.cover
+            ? {
+                ...metadata.cover,
+                generatedAt: typeof metadata.cover.generatedAt === 'string'
+                    ? new Date(metadata.cover.generatedAt)
+                    : metadata.cover.generatedAt,
+            }
+            : undefined,
+        visualAssets: metadata.visualAssets?.map((asset) => ({
+            ...asset,
+            generatedAt: typeof asset.generatedAt === 'string'
+                ? new Date(asset.generatedAt)
+                : asset.generatedAt,
+        })),
         audio: metadata.audio ? { ...metadata.audio } : undefined,
         tts: metadata.tts
             ? {

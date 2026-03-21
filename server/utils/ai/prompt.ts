@@ -55,21 +55,24 @@ export const AI_PROMPTS = {
         + '- Keep the core message but optimize for listening experience.\n'
         + 'Output ONLY the polished dual-speaker script: \n\n{{content}}',
     SUGGEST_IMAGE_PROMPT:
-        'You are a professional blog cover artist.\n'
-        + 'Your task is to create a high-quality, artistic, and visually striking image prompt for AI image generators (DALL-E, Stable Diffusion, etc).\n'
-        + 'The image should represent the core theme of the following blog post.\n\n'
-        + 'Title: {{title}}\n'
-        + 'Content Summary: {{contentSummary}}\n\n'
-        + 'Rules for the prompt:\n'
-        + '1. Describe a scene or abstract concept that is professional and high-end.\n'
-        + '2. Include visible cover title text extracted from the article title/summary, and place the text in the exact center of the image.\n'
-        + '3. Keep enough blank space around the centered title (top, bottom, left, right) so the title remains readable after thumbnail or responsive cropping.\n'
-        + '4. The cover title text language must match the article language: {{language}}.\n'
-        + '5. Mention artistic style (e.g., "minimalist digital art", "vivid oil painting", "isometric 3D render", "clean modern photography").\n'
-        + '6. Mention lighting and color palette (e.g., "warm cinematic lighting", "soft pastel colors", "dark mode neon style").\n'
-        + '5. Response ONLY with the final prompt content, no other text.\n'
-        + '6. Provide the prompt in the following language: {{language}}.\n'
-        + '7. Keep it under 200 words.',
+        'You are a professional visual director for an AI-native multilingual blog.\n'
+        + 'Your task is to suggest a five-dimension prompt model for the requested visual asset usage: {{assetUsage}}.\n\n'
+        + 'Article Title: {{title}}\n'
+        + 'Content Summary: {{contentSummary}}\n'
+        + 'Target Language: {{language}}\n\n'
+        + 'Return ONLY one JSON object with exactly these keys: type, palette, rendering, text, mood.\n'
+        + 'Every value must be a short phrase, not a paragraph.\n'
+        + 'If context is missing, use these fallbacks:\n'
+        + '- type: {{typeFallback}}\n'
+        + '- palette: {{paletteFallback}}\n'
+        + '- rendering: {{renderingFallback}}\n'
+        + '- text: {{textFallback}}\n'
+        + '- mood: {{moodFallback}}\n\n'
+        + 'Rules:\n'
+        + '1. Match the visual asset usage and keep the composition professional, premium, and practical for UI placement.\n'
+        + '2. If visible text is appropriate, ensure it matches the article language {{language}}.\n'
+        + '3. Keep the answer machine-readable. No markdown fences, no explanations, no extra keys.\n'
+        + '4. Preserve safe areas and hierarchy suitable for the usage.\n',
     RECOMMEND_TAGS:
         'Help me recommend 5-10 tags for the following article in {{language}}. Choose tags that are relevant, SEO-friendly, and common in technical blogging. Output ONLY as a JSON array of strings: \n\n{{content}}',
     RECOMMEND_CATEGORIES:

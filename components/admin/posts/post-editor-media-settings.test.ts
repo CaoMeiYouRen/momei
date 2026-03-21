@@ -53,6 +53,14 @@ const AiImageGeneratorStub = defineComponent({
             type: String,
             default: null,
         },
+        assetUsage: {
+            type: String,
+            default: 'post-cover',
+        },
+        applyMode: {
+            type: String,
+            default: 'manual-confirm',
+        },
     },
     emits: ['generated'],
     template: '<div class="ai-image-generator-stub"></div>',
@@ -156,6 +164,8 @@ describe('PostEditorMediaSettings', () => {
             language: 'en-US',
             postId: 'post-1',
             translationId: 'cluster-1',
+            assetUsage: 'post-cover',
+            applyMode: 'manual-confirm',
         })
         expect(ttsDialog.props()).toMatchObject({
             postId: 'post-1',
@@ -322,5 +332,60 @@ describe('PostEditorMediaSettings', () => {
         expect(post.metadata?.audio).toBeUndefined()
         expect(post.metadata?.tts).toBeUndefined()
         expect(post.metadata?.cover).toBeUndefined()
+    })
+
+    it('inserts generated illustration into markdown and records visual asset metadata', async () => {
+        const post = reactive(createPost({
+            content: 'Body content',
+            metadata: {},
+        })) as PostEditorData
+        const wrapper = await mountSuspended(PostEditorMediaSettings, {
+            props: {
+                post,
+            },
+            global: {
+                directives: {
+                    tooltip: () => undefined,
+                },
+                mocks: {
+                    $t: (key: string) => key,
+                },
+                stubs: {
+                    Divider: true,
+                    Button: true,
+                    Image: true,
+                    InputText: true,
+                    InputNumber: true,
+                    AppUploader: AppUploaderStub,
+                    AdminPostsAiImageGenerator: AiImageGeneratorStub,
+                    AdminPostsPostTtsDialog: PostTtsDialogStub,
+                },
+            },
+        })
+
+        wrapper.findComponent(AiImageGeneratorStub).vm.$emit('generated', {
+            url: '/assets/illustration.png',
+            prompt: 'illustration prompt',
+            promptDimensions: {
+                type: 'diagrammatic explanation',
+                palette: 'graphite and coral',
+                rendering: 'clean editorial illustration',
+                text: 'no text',
+                mood: 'clear and focused',
+            },
+            assetUsage: 'post-illustration',
+            applyMode: 'manual-confirm',
+        })
+        await flushPromises()
+
+        expect(post.content).toContain('![Target Title](/assets/illustration.png)')
+        expect(post.metadata?.visualAssets).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                usage: 'post-illustration',
+                url: '/assets/illustration.png',
+                prompt: 'illustration prompt',
+                applyMode: 'manual-confirm',
+            }),
+        ]))
     })
 })
