@@ -6,19 +6,17 @@ vi.mock('@/server/services/setting', () => ({
     getSettings: vi.fn(),
 }))
 
-vi.mock('@/server/utils/email/i18n', () => ({
-    emailI18n: {
-        getText: vi.fn().mockReturnValue({
-            headerIcon: 'pi pi-send',
-            author: '作者',
-            category: '分类',
-            publishedAt: '发布时间',
-            buttonText: '立即查看',
-            title: '{title}',
-            preheader: '{title}',
-        }),
-        replaceParameters: vi.fn((text: string, params: Record<string, string>) => text.replace('{title}', params.title || '')),
-    },
+vi.mock('@/server/services/email-template', () => ({
+    resolveEmailTemplateRuntimeContent: vi.fn().mockResolvedValue({
+        title: '{title}',
+        preheader: '{title}',
+        headerIcon: 'pi pi-send',
+        message: 'newsletter',
+        buttonText: '立即查看',
+        authorLabel: '作者',
+        categoryLabel: '分类',
+        dateLabel: '发布时间',
+    }),
 }))
 
 vi.mock('@/server/utils/email/templates', () => ({

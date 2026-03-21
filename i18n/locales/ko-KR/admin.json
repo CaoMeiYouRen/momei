@@ -1390,6 +1390,92 @@
                             "PRIVATE": "나만 보기 (Private)"
                         }
                     },
+                    "email_templates": {
+                        "title": "이메일 템플릿",
+                        "description": "시스템 이메일의 제목과 본문을 필요할 때만 사용자 정의합니다. 사용자 정의를 끄면 런타임은 기본 템플릿으로 되돌아갑니다.",
+                        "selector_label": "템플릿",
+                        "selector_hint": "먼저 템플릿을 선택한 뒤 언어별 문구를 수정하세요.",
+                        "preview_locale_label": "미리보기 언어",
+                        "preview_locale_hint": "미리보기는 현재 언어의 fallback 체인을 따라 문구를 해석합니다.",
+                        "custom_enabled": "사용자 정의 문구 사용",
+                        "custom_enabled_hint": "끄면 시스템 기본 템플릿을 유지하고, 켜면 입력한 필드만 기본값을 덮어씁니다.",
+                        "variables_title": "사용 가능한 변수",
+                        "no_variables": "이 템플릿에는 추가 변수가 없습니다.",
+                        "preview_action": "미리보기 생성",
+                        "preview_subject": "메일 제목",
+                        "preview_text": "텍스트 버전 보기",
+                        "fields": {
+                            "title": "제목",
+                            "preheader": "프리헤더",
+                            "message": "본문 주요 문구",
+                            "buttonText": "버튼 문구",
+                            "reminderContent": "안내 문구",
+                            "securityTip": "보안 안내",
+                            "authorLabel": "작성자 라벨",
+                            "categoryLabel": "카테고리 라벨",
+                            "dateLabel": "날짜 라벨"
+                        },
+                        "field_hints": {
+                            "title": "{appName} 같은 변수 치환을 지원합니다.",
+                            "preheader": "대부분의 메일 클라이언트 받은편지함 미리보기에 표시되므로 짧게 유지하세요.",
+                            "message": "본문 블록에 사용할 HTML 조각과 변수 치환을 지원합니다.",
+                            "buttonText": "액션형 템플릿에서는 이 문구가 기본 CTA 버튼에 표시됩니다.",
+                            "reminderContent": "만료 시간, 대체 링크, 추가 안내를 여기에 적습니다.",
+                            "securityTip": "보안 관련 추가 안내 문구입니다.",
+                            "authorLabel": "마케팅 메일의 작성자 정보 앞에 붙는 라벨입니다.",
+                            "categoryLabel": "마케팅 메일의 카테고리 정보 앞에 붙는 라벨입니다.",
+                            "dateLabel": "마케팅 메일의 게시 일시 앞에 붙는 라벨입니다."
+                        },
+                        "variables": {
+                            "appName": "사이트 또는 애플리케이션 이름입니다.",
+                            "expiresIn": "코드 또는 링크의 유효 시간(분)입니다.",
+                            "contactEmail": "사이트 문의용 이메일 주소입니다.",
+                            "title": "마케팅 메일에서 사용하는 글 또는 캠페인 제목입니다.",
+                            "summary": "마케팅 메일에 사용하는 요약 본문입니다."
+                        },
+                        "catalog": {
+                            "verification": {
+                                "label": "이메일 인증 링크",
+                                "description": "회원가입 후 이메일 주소를 인증할 때 발송합니다."
+                            },
+                            "passwordReset": {
+                                "label": "비밀번호 재설정 링크",
+                                "description": "비밀번호 재설정 흐름에서 사용하는 메일입니다."
+                            },
+                            "loginOTP": {
+                                "label": "로그인 OTP",
+                                "description": "이메일 로그인용 일회성 코드를 보냅니다."
+                            },
+                            "emailVerificationOTP": {
+                                "label": "이메일 인증 OTP",
+                                "description": "이메일 주소를 인증하거나 연결할 때 사용하는 코드입니다."
+                            },
+                            "passwordResetOTP": {
+                                "label": "비밀번호 재설정 OTP",
+                                "description": "비밀번호 재설정 검증에 사용하는 코드입니다."
+                            },
+                            "magicLink": {
+                                "label": "매직 링크",
+                                "description": "비밀번호 없는 로그인 링크 메일입니다."
+                            },
+                            "emailChangeVerification": {
+                                "label": "이메일 변경 확인",
+                                "description": "새 이메일 주소를 확인할 때 사용합니다."
+                            },
+                            "securityNotification": {
+                                "label": "보안 알림",
+                                "description": "로그인 또는 민감한 작업 후 발송되는 경고 메일입니다."
+                            },
+                            "subscriptionConfirmation": {
+                                "label": "구독 확인",
+                                "description": "구독 성공 후 발송되는 환영 메일입니다."
+                            },
+                            "marketingCampaign": {
+                                "label": "마케팅 / 배포",
+                                "description": "글 배포 및 마케팅 캠페인에 사용합니다."
+                            }
+                        }
+                    },
                     "agreements": {
                         "title": "약관 관리",
                         "description": "이용 약관과 개인정보 처리방침의 권위본, 적용본, 참고 번역본을 함께 관리합니다.",

@@ -117,10 +117,13 @@
                 fluid
             />
         </SettingFormField>
+
+        <EmailTemplateSettingsPanel v-model="settings.email_template_configs" />
     </div>
 </template>
 
 <script setup lang="ts">
+import EmailTemplateSettingsPanel from '@/components/admin/settings/email-template-settings-panel.vue'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 
 const settings = defineModel<any>('settings', { required: true })

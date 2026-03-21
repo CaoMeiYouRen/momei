@@ -1,6 +1,7 @@
 <template>
     <SettingFormField
         :field-key="fieldKey"
+        :label="label"
         :input-id="inputId"
         :metadata="metadata"
         :description="description"
@@ -113,6 +114,7 @@ const model = defineModel<LocalizedEditorModelValue>()
 
 const props = withDefaults(defineProps<{
     fieldKey: string
+    label?: string
     inputId: string
     metadata?: SettingFieldMetadata | null
     description?: string
@@ -121,6 +123,7 @@ const props = withDefaults(defineProps<{
     stringList?: boolean
 }>(), {
     metadata: null,
+    label: '',
     description: '',
     multiline: false,
     rows: 4,

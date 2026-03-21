@@ -1390,6 +1390,92 @@
                             "PRIVATE": "Only Me (Private)"
                         }
                     },
+                    "email_templates": {
+                        "title": "Email Templates",
+                        "description": "Maintain optional custom subjects and copy for system emails. When disabled, the runtime falls back to the built-in template.",
+                        "selector_label": "Template",
+                        "selector_hint": "Pick a template first, then edit the copy for each locale.",
+                        "preview_locale_label": "Preview Locale",
+                        "preview_locale_hint": "Preview resolves the copy through the locale fallback chain.",
+                        "custom_enabled": "Enable Custom Copy",
+                        "custom_enabled_hint": "When disabled, the system default stays active. When enabled, only the filled fields override the default.",
+                        "variables_title": "Available Variables",
+                        "no_variables": "This template does not expose extra variables.",
+                        "preview_action": "Generate Preview",
+                        "preview_subject": "Subject",
+                        "preview_text": "Show plain-text version",
+                        "fields": {
+                            "title": "Subject",
+                            "preheader": "Preheader",
+                            "message": "Primary body copy",
+                            "buttonText": "Button label",
+                            "reminderContent": "Reminder copy",
+                            "securityTip": "Security note",
+                            "authorLabel": "Author label",
+                            "categoryLabel": "Category label",
+                            "dateLabel": "Date label"
+                        },
+                        "field_hints": {
+                            "title": "Variables such as {appName} are supported.",
+                            "preheader": "Shown in the inbox preview on most email clients. Keep it concise.",
+                            "message": "Supports HTML snippets and template variables for the main content block.",
+                            "buttonText": "Action-oriented templates render this string on the primary CTA button.",
+                            "reminderContent": "Use this area for fallback links, expiry notes and extra reminders.",
+                            "securityTip": "Additional security-oriented reminder copy.",
+                            "authorLabel": "Prefix label for author info in marketing emails.",
+                            "categoryLabel": "Prefix label for category info in marketing emails.",
+                            "dateLabel": "Prefix label for publish date in marketing emails."
+                        },
+                        "variables": {
+                            "appName": "The site or application name.",
+                            "expiresIn": "Validity window in minutes for codes or links.",
+                            "contactEmail": "The site contact mailbox.",
+                            "title": "Article or campaign title used by marketing emails.",
+                            "summary": "Summary body used by marketing emails."
+                        },
+                        "catalog": {
+                            "verification": {
+                                "label": "Verification Link",
+                                "description": "Sent after signup to verify the email address."
+                            },
+                            "passwordReset": {
+                                "label": "Password Reset Link",
+                                "description": "Used by the password reset flow."
+                            },
+                            "loginOTP": {
+                                "label": "Login OTP",
+                                "description": "One-time code sent for email sign-in."
+                            },
+                            "emailVerificationOTP": {
+                                "label": "Email Verification OTP",
+                                "description": "Code used when verifying or binding an email address."
+                            },
+                            "passwordResetOTP": {
+                                "label": "Password Reset OTP",
+                                "description": "Code used by password reset verification."
+                            },
+                            "magicLink": {
+                                "label": "Magic Link",
+                                "description": "Passwordless sign-in link email."
+                            },
+                            "emailChangeVerification": {
+                                "label": "Email Change Confirmation",
+                                "description": "Confirms the new email address."
+                            },
+                            "securityNotification": {
+                                "label": "Security Notification",
+                                "description": "Alert sent after sign-in or other sensitive actions."
+                            },
+                            "subscriptionConfirmation": {
+                                "label": "Subscription Confirmation",
+                                "description": "Welcome email sent after a successful subscription."
+                            },
+                            "marketingCampaign": {
+                                "label": "Marketing / Distribution",
+                                "description": "Used by article distribution and marketing campaigns."
+                            }
+                        }
+                    },
                     "agreements": {
                         "title": "Agreements Management",
                         "description": "Manage user agreements and privacy policies with authoritative, active, and reference-translation governance.",

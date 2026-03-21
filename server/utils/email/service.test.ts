@@ -27,8 +27,95 @@ vi.mock('./templates', () => ({
     },
 }))
 
+vi.mock('@/server/services/email-template', () => ({
+    resolveEmailTemplateRuntimeContent: vi.fn(({ templateId, params }: { templateId: string, params?: Record<string, string | number> }) => {
+        const expiresIn = params?.expiresIn ?? 5
+
+        const templates: Record<string, Record<string, string>> = {
+            verification: {
+                title: '验证邮件',
+                preheader: '验证邮件',
+                message: '请验证您的邮箱',
+                buttonText: '立即验证',
+                reminderContent: '如果无法点击，请复制链接到浏览器中打开。',
+                securityTip: '请勿将链接分享给他人。',
+            },
+            passwordReset: {
+                title: '重置密码',
+                preheader: '重置密码',
+                message: '请重置您的密码',
+                buttonText: '立即重置',
+                reminderContent: '如果无法点击，请复制链接到浏览器中打开。',
+                securityTip: '请勿将链接分享给他人。',
+            },
+            loginOTP: {
+                title: '登录验证码',
+                preheader: '登录验证码',
+                message: `您的验证码为，${expiresIn} 分钟内有效。`,
+                securityTip: '请勿泄露验证码。',
+            },
+            emailVerificationOTP: {
+                title: '邮箱验证验证码',
+                preheader: '邮箱验证验证码',
+                message: `您的验证码为，${expiresIn} 分钟内有效。`,
+                securityTip: '请勿泄露验证码。',
+            },
+            passwordResetOTP: {
+                title: '密码重置验证码',
+                preheader: '密码重置验证码',
+                message: `您的验证码为，${expiresIn} 分钟内有效。`,
+                securityTip: '请勿泄露验证码。',
+            },
+            magicLink: {
+                title: '登录链接',
+                preheader: '登录链接',
+                message: '点击按钮完成登录',
+                buttonText: '立即登录',
+                reminderContent: '如果无法点击，请复制链接到浏览器中打开。',
+                securityTip: '请勿将链接分享给他人。',
+            },
+            emailChangeVerification: {
+                title: '确认您的新邮箱地址',
+                preheader: '确认您的新邮箱地址',
+                message: '请确认您的新邮箱地址',
+                buttonText: '确认变更',
+                reminderContent: '如果无法点击，请复制链接到浏览器中打开。',
+                securityTip: '请确认本次操作由您本人发起。',
+            },
+            securityNotification: {
+                title: '安全通知',
+                preheader: '安全通知',
+                message: '我们检测到一条新的安全事件。',
+            },
+            subscriptionConfirmation: {
+                title: '订阅确认',
+                preheader: '订阅确认',
+                message: '感谢订阅，欢迎继续阅读。',
+                buttonText: '查看最新内容',
+                reminderContent: '如果无法点击，请复制链接到浏览器中打开。',
+                securityTip: '如非本人操作，请忽略。',
+            },
+            marketingCampaign: {
+                title: '测试营销邮件',
+                preheader: '测试营销邮件',
+                message: '这是摘要',
+                buttonText: '阅读全文',
+                authorLabel: '作者',
+                categoryLabel: '分类',
+                dateLabel: '发布时间',
+            },
+        }
+
+        return Promise.resolve({
+            headerIcon: 'pi pi-envelope',
+            ...templates[templateId],
+        })
+    }),
+}))
+
 vi.mock('../logger', () => ({
     default: {
+        info: vi.fn(),
         email: {
             sent: vi.fn(),
             failed: vi.fn(),

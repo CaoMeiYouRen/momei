@@ -1,8 +1,8 @@
 import logger from '../logger'
 import { plainTextToHtml } from '../html'
 import { emailTemplateEngine } from './templates'
-import { emailI18n } from './i18n'
 import { sendEmail } from './index'
+import { resolveEmailTemplateRuntimeContent } from '@/server/services/email-template'
 import { APP_NAME } from '@/utils/shared/env'
 
 /**
@@ -20,33 +20,33 @@ export const emailService = {
         locale?: string,
     ): Promise<void> {
         try {
-            const i18n = emailI18n.getText('verification', locale)
-            if (!i18n) {
-                throw new Error('Failed to load verification email template')
-            }
-
             const params = {
                 appName: APP_NAME,
             }
+            const template = await resolveEmailTemplateRuntimeContent({
+                templateId: 'verification',
+                locale,
+                params,
+            })
 
             const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
                 {
-                    headerIcon: i18n.headerIcon,
-                    message: emailI18n.replaceParameters(i18n.message, params),
-                    buttonText: i18n.buttonText,
+                    headerIcon: template.headerIcon,
+                    message: template.message,
+                    buttonText: template.buttonText ?? '',
                     actionUrl: verificationUrl,
-                    reminderContent: emailI18n.replaceParameters(i18n.reminderContent, params),
-                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
+                    reminderContent: template.reminderContent ?? '',
+                    securityTip: template.securityTip ?? '',
                 },
                 {
-                    title: emailI18n.replaceParameters(i18n.title, params),
-                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
+                    title: template.title,
+                    preheader: template.preheader,
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: emailI18n.replaceParameters(i18n.title, params),
+                subject: template.title,
                 html,
                 text,
             })
@@ -71,33 +71,33 @@ export const emailService = {
         locale?: string,
     ): Promise<void> {
         try {
-            const i18n = emailI18n.getText('passwordReset', locale)
-            if (!i18n) {
-                throw new Error('Failed to load password reset email template')
-            }
-
             const params = {
                 appName: APP_NAME,
             }
+            const template = await resolveEmailTemplateRuntimeContent({
+                templateId: 'passwordReset',
+                locale,
+                params,
+            })
 
             const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
                 {
-                    headerIcon: i18n.headerIcon,
-                    message: emailI18n.replaceParameters(i18n.message, params),
-                    buttonText: i18n.buttonText,
+                    headerIcon: template.headerIcon,
+                    message: template.message,
+                    buttonText: template.buttonText ?? '',
                     actionUrl: resetUrl,
-                    reminderContent: emailI18n.replaceParameters(i18n.reminderContent, params),
-                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
+                    reminderContent: template.reminderContent ?? '',
+                    securityTip: template.securityTip ?? '',
                 },
                 {
-                    title: emailI18n.replaceParameters(i18n.title, params),
-                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
+                    title: template.title,
+                    preheader: template.preheader,
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: emailI18n.replaceParameters(i18n.title, params),
+                subject: template.title,
                 html,
                 text,
             })
@@ -123,33 +123,33 @@ export const emailService = {
         locale?: string,
     ): Promise<void> {
         try {
-            const i18n = emailI18n.getText('loginOTP', locale)
-            if (!i18n) {
-                throw new Error('Failed to load login OTP email template')
-            }
-
             const params = {
                 appName: APP_NAME,
                 expiresIn: expiresInMinutes,
             }
+            const template = await resolveEmailTemplateRuntimeContent({
+                templateId: 'loginOTP',
+                locale,
+                params,
+            })
 
             const { html, text } = await emailTemplateEngine.generateCodeEmailTemplate(
                 {
-                    headerIcon: i18n.headerIcon,
-                    message: emailI18n.replaceParameters(i18n.message, params),
+                    headerIcon: template.headerIcon,
+                    message: template.message,
                     verificationCode: otp,
                     expiresIn: expiresInMinutes,
-                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
+                    securityTip: template.securityTip ?? '',
                 },
                 {
-                    title: emailI18n.replaceParameters(i18n.title, params),
-                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
+                    title: template.title,
+                    preheader: template.preheader,
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: emailI18n.replaceParameters(i18n.title, params),
+                subject: template.title,
                 html,
                 text,
             })
@@ -175,33 +175,33 @@ export const emailService = {
         locale?: string,
     ): Promise<void> {
         try {
-            const i18n = emailI18n.getText('emailVerificationOTP', locale)
-            if (!i18n) {
-                throw new Error('Failed to load email verification OTP template')
-            }
-
             const params = {
                 appName: APP_NAME,
                 expiresIn: expiresInMinutes,
             }
+            const template = await resolveEmailTemplateRuntimeContent({
+                templateId: 'emailVerificationOTP',
+                locale,
+                params,
+            })
 
             const { html, text } = await emailTemplateEngine.generateCodeEmailTemplate(
                 {
-                    headerIcon: i18n.headerIcon,
-                    message: emailI18n.replaceParameters(i18n.message, params),
+                    headerIcon: template.headerIcon,
+                    message: template.message,
                     verificationCode: otp,
                     expiresIn: expiresInMinutes,
-                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
+                    securityTip: template.securityTip ?? '',
                 },
                 {
-                    title: emailI18n.replaceParameters(i18n.title, params),
-                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
+                    title: template.title,
+                    preheader: template.preheader,
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: emailI18n.replaceParameters(i18n.title, params),
+                subject: template.title,
                 html,
                 text,
             })
@@ -227,33 +227,33 @@ export const emailService = {
         locale?: string,
     ): Promise<void> {
         try {
-            const i18n = emailI18n.getText('passwordResetOTP', locale)
-            if (!i18n) {
-                throw new Error('Failed to load password reset OTP template')
-            }
-
             const params = {
                 appName: APP_NAME,
                 expiresIn: expiresInMinutes,
             }
+            const template = await resolveEmailTemplateRuntimeContent({
+                templateId: 'passwordResetOTP',
+                locale,
+                params,
+            })
 
             const { html, text } = await emailTemplateEngine.generateCodeEmailTemplate(
                 {
-                    headerIcon: i18n.headerIcon,
-                    message: emailI18n.replaceParameters(i18n.message, params),
+                    headerIcon: template.headerIcon,
+                    message: template.message,
                     verificationCode: otp,
                     expiresIn: expiresInMinutes,
-                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
+                    securityTip: template.securityTip ?? '',
                 },
                 {
-                    title: emailI18n.replaceParameters(i18n.title, params),
-                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
+                    title: template.title,
+                    preheader: template.preheader,
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: emailI18n.replaceParameters(i18n.title, params),
+                subject: template.title,
                 html,
                 text,
             })
@@ -274,33 +274,33 @@ export const emailService = {
      */
     async sendMagicLink(email: string, magicUrl: string, locale?: string): Promise<void> {
         try {
-            const i18n = emailI18n.getText('magicLink', locale)
-            if (!i18n) {
-                throw new Error('Failed to load magic link email template')
-            }
-
             const params = {
                 appName: APP_NAME,
             }
+            const template = await resolveEmailTemplateRuntimeContent({
+                templateId: 'magicLink',
+                locale,
+                params,
+            })
 
             const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
                 {
-                    headerIcon: i18n.headerIcon,
-                    message: emailI18n.replaceParameters(i18n.message, params),
-                    buttonText: i18n.buttonText,
+                    headerIcon: template.headerIcon,
+                    message: template.message,
+                    buttonText: template.buttonText ?? '',
                     actionUrl: magicUrl,
-                    reminderContent: emailI18n.replaceParameters(i18n.reminderContent, params),
-                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
+                    reminderContent: template.reminderContent ?? '',
+                    securityTip: template.securityTip ?? '',
                 },
                 {
-                    title: emailI18n.replaceParameters(i18n.title, params),
-                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
+                    title: template.title,
+                    preheader: template.preheader,
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: emailI18n.replaceParameters(i18n.title, params),
+                subject: template.title,
                 html,
                 text,
             })
@@ -326,33 +326,33 @@ export const emailService = {
         locale?: string,
     ): Promise<void> {
         try {
-            const i18n = emailI18n.getText('emailChangeVerification', locale)
-            if (!i18n) {
-                throw new Error('Failed to load email change verification template')
-            }
-
             const params = {
                 appName: APP_NAME,
             }
+            const template = await resolveEmailTemplateRuntimeContent({
+                templateId: 'emailChangeVerification',
+                locale,
+                params,
+            })
 
             const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
                 {
-                    headerIcon: i18n.headerIcon,
-                    message: emailI18n.replaceParameters(i18n.message, params),
-                    buttonText: i18n.buttonText,
+                    headerIcon: template.headerIcon,
+                    message: template.message,
+                    buttonText: template.buttonText ?? '',
                     actionUrl: changeUrl,
-                    reminderContent: emailI18n.replaceParameters(i18n.reminderContent, params),
-                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
+                    reminderContent: template.reminderContent ?? '',
+                    securityTip: template.securityTip ?? '',
                 },
                 {
-                    title: emailI18n.replaceParameters(i18n.title, params),
-                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
+                    title: template.title,
+                    preheader: template.preheader,
                 },
             )
 
             await sendEmail({
                 to: currentEmail,
-                subject: emailI18n.replaceParameters(i18n.title, params),
+                subject: template.title,
                 html,
                 text,
             })
@@ -378,30 +378,30 @@ export const emailService = {
         locale?: string,
     ): Promise<void> {
         try {
-            const i18n = emailI18n.getText('securityNotification', locale)
-            if (!i18n) {
-                throw new Error('Failed to load security notification template')
-            }
-
             const params = {
                 appName: APP_NAME,
             }
+            const template = await resolveEmailTemplateRuntimeContent({
+                templateId: 'securityNotification',
+                locale,
+                params,
+            })
 
             const { html, text } = await emailTemplateEngine.generateSimpleMessageTemplate(
                 {
-                    headerIcon: i18n.headerIcon,
-                    message: `${emailI18n.replaceParameters(i18n.message, params)}<br/><br/><strong>${action}</strong>`,
+                    headerIcon: template.headerIcon,
+                    message: `${template.message}<br/><br/><strong>${action}</strong>`,
                     extraInfo: details,
                 },
                 {
-                    title: emailI18n.replaceParameters(i18n.title, params),
-                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
+                    title: template.title,
+                    preheader: template.preheader,
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: emailI18n.replaceParameters(i18n.title, params),
+                subject: template.title,
                 html,
                 text,
             })
@@ -422,35 +422,33 @@ export const emailService = {
      */
     async sendSubscriptionConfirmation(email: string, locale?: string): Promise<void> {
         try {
-            const i18n = emailI18n.getText('subscriptionConfirmation', locale)
-            if (!i18n) {
-                throw new Error('Failed to load subscription confirmation template')
-            }
-
             const params = {
                 appName: APP_NAME,
             }
-
-            const buttonText = 'buttonText' in i18n ? (i18n.buttonText as string) : '访问博客'
+            const template = await resolveEmailTemplateRuntimeContent({
+                templateId: 'subscriptionConfirmation',
+                locale,
+                params,
+            })
 
             const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
                 {
-                    headerIcon: i18n.headerIcon,
-                    message: emailI18n.replaceParameters(i18n.message, params),
-                    buttonText,
+                    headerIcon: template.headerIcon,
+                    message: template.message,
+                    buttonText: template.buttonText ?? '访问博客',
                     actionUrl: '/',
-                    reminderContent: emailI18n.replaceParameters(i18n.reminderContent, params),
-                    securityTip: emailI18n.replaceParameters(i18n.securityTip, params),
+                    reminderContent: template.reminderContent ?? '',
+                    securityTip: template.securityTip ?? '',
                 },
                 {
-                    title: emailI18n.replaceParameters(i18n.title, params),
-                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
+                    title: template.title,
+                    preheader: template.preheader,
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: emailI18n.replaceParameters(i18n.title, params),
+                subject: template.title,
                 html,
                 text,
             })
@@ -483,39 +481,39 @@ export const emailService = {
         locale?: string,
     ): Promise<void> {
         try {
-            const i18n = emailI18n.getText('marketingCampaign', locale)
-            if (!i18n) {
-                return
-            }
-
             const params = {
                 appName: APP_NAME,
                 ...campaignData,
             }
+            const template = await resolveEmailTemplateRuntimeContent({
+                templateId: 'marketingCampaign',
+                locale,
+                params,
+            })
 
             const { html, text } = await emailTemplateEngine.generateMarketingEmailTemplate(
                 {
-                    headerIcon: i18n.headerIcon,
+                    headerIcon: template.headerIcon,
                     message: plainTextToHtml(campaignData.summary),
                     articleTitle: campaignData.articleTitle,
-                    authorLabel: i18n.author,
+                    authorLabel: template.authorLabel ?? '',
                     authorName: campaignData.authorName,
-                    categoryLabel: i18n.category,
+                    categoryLabel: template.categoryLabel ?? '',
                     categoryName: campaignData.categoryName,
-                    dateLabel: i18n.publishedAt,
+                    dateLabel: template.dateLabel ?? '',
                     publishDate: campaignData.publishDate,
-                    buttonText: i18n.buttonText,
+                    buttonText: template.buttonText ?? '',
                     actionUrl: campaignData.actionUrl,
                 },
                 {
-                    title: emailI18n.replaceParameters(i18n.title, params),
-                    preheader: emailI18n.replaceParameters(i18n.preheader, params),
+                    title: template.title,
+                    preheader: template.preheader,
                 },
             )
 
             await sendEmail({
                 to: email,
-                subject: emailI18n.replaceParameters(i18n.title, params),
+                subject: template.title,
                 html,
                 text,
             })

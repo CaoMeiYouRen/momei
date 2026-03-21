@@ -1390,6 +1390,92 @@
                             "PRIVATE": "仅自己可见 (Private)"
                         }
                     },
+                    "email_templates": {
+                        "title": "邮件模板",
+                        "description": "为各类系统邮件维护可选的自定义主题和正文。关闭自定义时会回退到系统默认模板。",
+                        "selector_label": "模板类型",
+                        "selector_hint": "先选定要管理的模板，再分别编辑各语种文案。",
+                        "preview_locale_label": "预览语种",
+                        "preview_locale_hint": "预览会按当前语种的回退链解析模板内容。",
+                        "custom_enabled": "启用自定义文案",
+                        "custom_enabled_hint": "关闭后继续使用系统默认模板；开启后仅覆盖当前已填写的字段。",
+                        "variables_title": "可用变量",
+                        "no_variables": "当前模板没有额外变量说明。",
+                        "preview_action": "生成预览",
+                        "preview_subject": "邮件主题",
+                        "preview_text": "查看纯文本版本",
+                        "fields": {
+                            "title": "主题",
+                            "preheader": "预览摘要",
+                            "message": "正文主文案",
+                            "buttonText": "按钮文案",
+                            "reminderContent": "提醒说明",
+                            "securityTip": "安全提示",
+                            "authorLabel": "作者标签",
+                            "categoryLabel": "分类标签",
+                            "dateLabel": "日期标签"
+                        },
+                        "field_hints": {
+                            "title": "支持使用变量占位符，例如 {appName}。",
+                            "preheader": "显示在大多数邮件客户端列表摘要中，建议保持简短。",
+                            "message": "支持 HTML 片段与变量占位符，用于主内容区域。",
+                            "buttonText": "动作型模板会把这里的文案渲染到主按钮上。",
+                            "reminderContent": "用于补充过期时间、兜底链接和额外提醒。",
+                            "securityTip": "用于安全相关的附加说明。",
+                            "authorLabel": "营销邮件中作者信息前的标签。",
+                            "categoryLabel": "营销邮件中分类信息前的标签。",
+                            "dateLabel": "营销邮件中发布时间前的标签。"
+                        },
+                        "variables": {
+                            "appName": "站点或应用名称。",
+                            "expiresIn": "验证码或链接的有效分钟数。",
+                            "contactEmail": "站点联系邮箱。",
+                            "title": "营销邮件对应的文章或活动标题。",
+                            "summary": "营销邮件摘要文案。"
+                        },
+                        "catalog": {
+                            "verification": {
+                                "label": "邮箱验证链接",
+                                "description": "用于注册后发送邮箱验证链接。"
+                            },
+                            "passwordReset": {
+                                "label": "密码重置链接",
+                                "description": "用于密码重置流程的跳转邮件。"
+                            },
+                            "loginOTP": {
+                                "label": "登录验证码",
+                                "description": "用于邮箱登录验证码邮件。"
+                            },
+                            "emailVerificationOTP": {
+                                "label": "邮箱验证验证码",
+                                "description": "用于绑定或验证邮箱地址的验证码邮件。"
+                            },
+                            "passwordResetOTP": {
+                                "label": "密码重置验证码",
+                                "description": "用于密码重置验证码邮件。"
+                            },
+                            "magicLink": {
+                                "label": "无密码登录链接",
+                                "description": "用于 Magic Link 无密码登录流程。"
+                            },
+                            "emailChangeVerification": {
+                                "label": "邮箱变更确认",
+                                "description": "用于确认新的邮箱地址。"
+                            },
+                            "securityNotification": {
+                                "label": "安全通知",
+                                "description": "用于登录或敏感操作后的安全提醒。"
+                            },
+                            "subscriptionConfirmation": {
+                                "label": "订阅确认",
+                                "description": "用于订阅成功后的欢迎邮件。"
+                            },
+                            "marketingCampaign": {
+                                "label": "营销/文章分发",
+                                "description": "用于文章分发和营销活动邮件。"
+                            }
+                        }
+                    },
                     "agreements": {
                         "title": "协议管理",
                         "description": "管理用户协议和隐私政策，支持权威版本、生效版本与参考翻译治理。",

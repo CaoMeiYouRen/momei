@@ -1,6 +1,6 @@
 import { plainTextToHtml } from '@/server/utils/html'
-import { emailI18n } from '@/server/utils/email/i18n'
 import { emailTemplateEngine } from '@/server/utils/email/templates'
+import { resolveEmailTemplateRuntimeContent } from '@/server/services/email-template'
 import { getSettings } from '@/server/services/setting'
 import type { MarketingCampaign } from '@/server/entities/marketing-campaign'
 import { SettingKey } from '@/types/setting'
@@ -110,34 +110,35 @@ function buildAuthHeader(username: string, accessToken: string) {
 
 async function buildCampaignBody(campaign: MarketingCampaign) {
     const locale = campaign.targetCriteria?.articleLocale || 'zh-CN'
-    const i18n = emailI18n.getText('marketingCampaign', locale) || emailI18n.getText('marketingCampaign', 'zh-CN')
-
-    if (!i18n) {
-        throw new Error('Failed to load marketing campaign locale for listmonk')
-    }
 
     const params = {
         appName: 'Momei',
         title: campaign.title,
+        summary: campaign.content,
     }
+    const template = await resolveEmailTemplateRuntimeContent({
+        templateId: 'marketingCampaign',
+        locale,
+        params,
+    })
 
     const result = await emailTemplateEngine.generateMarketingEmailTemplate(
         {
-            headerIcon: i18n.headerIcon,
+            headerIcon: template.headerIcon,
             message: plainTextToHtml(campaign.content),
             articleTitle: campaign.targetCriteria?.articleTitle || campaign.title,
-            authorLabel: i18n.author,
+            authorLabel: template.authorLabel ?? '',
             authorName: campaign.targetCriteria?.authorName || 'Admin',
-            categoryLabel: i18n.category,
+            categoryLabel: template.categoryLabel ?? '',
             categoryName: campaign.targetCriteria?.categoryName || 'General',
-            dateLabel: i18n.publishedAt,
+            dateLabel: template.dateLabel ?? '',
             publishDate: campaign.targetCriteria?.publishDate || '',
-            buttonText: i18n.buttonText,
+            buttonText: template.buttonText ?? '',
             actionUrl: campaign.targetCriteria?.articleLink || '/',
         },
         {
-            title: emailI18n.replaceParameters(i18n.title, params),
-            preheader: emailI18n.replaceParameters(i18n.preheader, params),
+            title: template.title,
+            preheader: template.preheader,
         },
     )
 

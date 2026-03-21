@@ -70,6 +70,7 @@ export enum SettingKey {
     EMAIL_DAILY_LIMIT = 'email_daily_limit',
     EMAIL_SINGLE_USER_DAILY_LIMIT = 'email_single_user_daily_limit',
     EMAIL_LIMIT_WINDOW = 'email_limit_window',
+    EMAIL_TEMPLATE_CONFIGS = 'email_template_configs',
 
     // Storage
     STORAGE_TYPE = 'storage_type',
@@ -355,7 +356,7 @@ export interface SettingAuditItem {
     operator: SettingAuditActor | null
 }
 
-export type SettingFormValue = string | number | boolean | LocalizedSettingValueV1 | null
+export type SettingFormValue = string | number | boolean | LocalizedSettingValueV1 | Record<string, unknown> | null
 
 export interface SettingFieldMetadata {
     isLocked?: boolean
