@@ -87,7 +87,7 @@ export default withNuxt(
     {
         files: ['**/**/*.test.*', '**/**/*.spec.*'],
         rules: {
-            'max-lines-per-function': [1, { max: 600 }], // 测试文件的函数行数限制放宽一些
+            'max-lines-per-function': [1, { max: 700 }], // 测试文件的函数行数限制放宽一些
         },
     },
     {

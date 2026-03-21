@@ -77,22 +77,7 @@ vi.mock('@/server/services/listmonk', () => ({
     },
 }))
 
-describe('notification service', () => {
-    beforeEach(() => {
-        vi.clearAllMocks()
-        vi.mocked(getListmonkDispatchConfig).mockResolvedValue({
-            enabled: false,
-            baseUrl: '',
-            username: '',
-            accessToken: '',
-            defaultListIds: [],
-            categoryListMap: {},
-            tagListMap: {},
-            templateId: null,
-            missingFields: [],
-        })
-    })
-
+function registerNotifyAdminsSuite() {
     describe('notifyAdmins', () => {
         it('应该发送邮件给所有管理员（默认配置）', async () => {
             const mockSettingsRepo = {
@@ -234,7 +219,9 @@ describe('notification service', () => {
             expect(logger.error).toHaveBeenCalled()
         })
     })
+}
 
+function registerCreateCampaignFromPostSuite() {
     describe('createCampaignFromPost', () => {
         it('应该从文章创建营销推送', async () => {
             const mockPost = {
@@ -338,7 +325,9 @@ describe('notification service', () => {
             await expect(createCampaignFromPost('nonexistent', 'sender1')).rejects.toThrow('Post not found')
         })
     })
+}
 
+function registerGetTargetSubscribersSuite() {
     describe('getTargetSubscribers', () => {
         it('应该获取所有活跃且启用营销的订阅者', async () => {
             const mockSubscribers = [
@@ -483,7 +472,9 @@ describe('notification service', () => {
             expect(result[0]!.id).toBe('sub1')
         })
     })
+}
 
+function registerSendMarketingCampaignSuite() {
     describe('sendMarketingCampaign', () => {
         it('应该成功发送营销推送', async () => {
             const mockCampaign = {
@@ -662,7 +653,9 @@ describe('notification service', () => {
             expect(logger.error).toHaveBeenCalled()
         })
     })
+}
 
+function registerInAppNotificationSuite() {
     describe('In-App Notification broadcast', () => {
         it('应该保存并推送实时通知给用户', async () => {
             const mockNotificationRepo = {
@@ -744,4 +737,27 @@ describe('notification service', () => {
             }))
         })
     })
+}
+
+describe('notification service', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        vi.mocked(getListmonkDispatchConfig).mockResolvedValue({
+            enabled: false,
+            baseUrl: '',
+            username: '',
+            accessToken: '',
+            defaultListIds: [],
+            categoryListMap: {},
+            tagListMap: {},
+            templateId: null,
+            missingFields: [],
+        })
+    })
+
+    registerNotifyAdminsSuite()
+    registerCreateCampaignFromPostSuite()
+    registerGetTargetSubscribersSuite()
+    registerSendMarketingCampaignSuite()
+    registerInAppNotificationSuite()
 })

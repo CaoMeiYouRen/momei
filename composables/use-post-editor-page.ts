@@ -8,7 +8,6 @@ import type { PostEditorData } from '@/types/post-editor'
 import type {
     PostTagBindingInput,
     PostTranslationCategoryOption,
-    PostTranslationSourceDetail,
     PostTranslationTagOption,
 } from '@/types/post-translation'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
@@ -16,14 +15,24 @@ import { COPYRIGHT_LICENSES } from '@/types/copyright'
 import { usePostEditorAI } from '@/composables/use-post-editor-ai'
 import { usePostEditorAutoSave } from '@/composables/use-post-editor-auto-save'
 import { usePostEditorIO } from '@/composables/use-post-editor-io'
+import {
+    buildSavePayload,
+    getPostStatusLabel,
+    getPostStatusSeverity,
+    handlePreviewOpen,
+    loadExistingPostDetail,
+    persistPost,
+    preloadSourcePost,
+    restorePostFromHistory,
+    searchTagOptions,
+    type PublishPushDialogExpose,
+} from '@/composables/use-post-editor-page.helpers'
 import { usePostEditorTranslation } from '@/composables/use-post-editor-translation'
 import { usePostTranslationAI } from '@/composables/use-post-translation-ai'
 import { useRequestFeedback } from '@/composables/use-request-feedback'
 import { formatMarkdown } from '@/utils/shared/markdown'
 import { syncPostTagBindings } from '@/utils/shared/post-tag-bindings'
 import { buildPreferredTaxonomyOptions } from '@/utils/shared/taxonomy-options'
-import { resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
-import { isFutureDate } from '@/utils/shared/date'
 
 interface LocaleOption {
     code: string
@@ -32,14 +41,6 @@ interface LocaleOption {
 interface HeaderExpose {
     titleOp?: unknown
     openDistribution?: () => Promise<void>
-}
-
-interface PublishPushDialogExpose {
-    visible?: boolean
-    open?: (options: {
-        publishedAt?: string | Date | null
-        criteria?: { categoryIds?: string[], tagIds?: string[] }
-    }) => void
 }
 
 interface MarkdownEditorExpose {
@@ -253,13 +254,7 @@ export function usePostEditorPage() {
     })
 
     const handlePreview = () => {
-        if (isNew.value && !post.value.id) {
-            return
-        }
-
-        if (import.meta.client) {
-            window.open(localePath(`/posts/${post.value.slug || post.value.id}`), '_blank')
-        }
+        handlePreviewOpen(isNew.value, post, localePath)
     }
 
     const handleRestore = (data: {
@@ -274,159 +269,41 @@ export function usePostEditorPage() {
         metadata: PostEditorData['metadata']
         tags: string[]
     }) => {
-        post.value.title = data.title
-        post.value.content = data.content
-        post.value.summary = data.summary
-        post.value.coverImage = data.coverImage
-        post.value.categoryId = data.categoryId
-        post.value.visibility = data.visibility
-        post.value.copyright = data.copyright
-        post.value.metaVersion = data.metaVersion
-        post.value.metadata = data.metadata
-        post.value.tags = data.tags
-        clearLocalDraft()
+        restorePostFromHistory(post, clearLocalDraft, data)
     }
 
     const loadPost = async () => {
+        const loadOptions = {
+            route,
+            post,
+            sourcePostSnapshot,
+            translationWorkflowDefaults,
+            translationDialogVisible,
+            loadCategories,
+            loadTags,
+            fetchTranslations,
+            parseTranslationScopes,
+            resolveTranslatedTagBindings,
+            resolveMatchedCategoryId,
+            applyTagBindings,
+            hasRecoverableDraft,
+            recoverDraft,
+            clearLocalDraft,
+            confirm,
+            t,
+            showSuccessToast,
+        }
+
         if (isNew.value) {
-            const sourceId = route.query.sourceId as string
-            const shouldPrefillFromSource = route.query.autoTranslate !== 'true'
-
-            if (sourceId) {
-                try {
-                    const { data } = await $fetch<ApiResponse<PostTranslationSourceDetail>>(`/api/posts/${sourceId}`)
-                    if (data) {
-                        sourcePostSnapshot.value = data
-                        post.value.translationId = resolveTranslationClusterId(data.translationId, data.slug, data.id)
-                        post.value.slug = data.slug || ''
-
-                        if (shouldPrefillFromSource) {
-                            await Promise.all([
-                                loadCategories(post.value.language),
-                                loadTags(post.value.language),
-                            ])
-
-                            post.value.title = data.title
-                            post.value.summary = data.summary
-                            post.value.content = data.content
-                            post.value.coverImage = data.coverImage
-                            applyTagBindings(await resolveTranslatedTagBindings(data.tags || [], data.language, post.value.language))
-                            post.value.copyright = data.copyright
-                            post.value.categoryId = resolveMatchedCategoryId(data.category, data.language)
-                        }
-                    }
-                } catch (error) {
-                    console.error('Failed to pre-fill from source post', error)
-                }
-            }
-
-            if (route.query.translationId) {
-                void fetchTranslations(route.query.translationId as string)
-            }
-
-            if (route.query.autoTranslate === 'true') {
-                translationWorkflowDefaults.value = {
-                    sourcePostId: sourceId || sourcePostSnapshot.value?.id || null,
-                    targetLanguage: post.value.language,
-                    scopes: parseTranslationScopes(route.query.translationScopes as string | string[] | undefined),
-                }
-                translationDialogVisible.value = true
-            }
-
+            await preloadSourcePost(loadOptions)
             return
         }
 
-        try {
-            const { data } = await $fetch<ApiResponse<PostTranslationSourceDetail>>(`/api/posts/${route.params.id}`)
-            if (data) {
-                const detailedPost = data as PostTranslationSourceDetail & {
-                    visibility?: PostVisibility
-                    views?: number
-                }
-
-                post.value = {
-                    ...post.value,
-                    ...detailedPost,
-                    slug: detailedPost.slug || '',
-                    status: (detailedPost.status as PostStatus) || PostStatus.DRAFT,
-                    visibility: detailedPost.visibility || PostVisibility.PUBLIC,
-                    views: detailedPost.views || 0,
-                    categoryId: detailedPost.category?.id || null,
-                    tags: detailedPost.tags?.map((tag) => tag.name) || [],
-                    language: detailedPost.language || 'zh-CN',
-                    translationId: detailedPost.translationId || null,
-                }
-
-                applyTagBindings((detailedPost.tags || []).map((tag) => ({
-                    name: tag.name,
-                    translationId: resolveTranslationClusterId(tag.translationId, tag.slug, tag.id),
-                    sourceTagSlug: tag.slug ?? null,
-                    sourceTagId: tag.id,
-                })))
-
-                if (post.value.translationId) {
-                    void fetchTranslations(post.value.translationId)
-                }
-
-                const requestedSourceId = route.query.sourceId as string | undefined
-                if (requestedSourceId && requestedSourceId !== detailedPost.id) {
-                    try {
-                        sourcePostSnapshot.value = await $fetch<ApiResponse<PostTranslationSourceDetail>>(`/api/posts/${requestedSourceId}`)
-                            .then((response) => response.data)
-                    } catch (sourceError) {
-                        console.error('Failed to load translation source snapshot', sourceError)
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('Failed to load post', error)
-        }
-
-        if (route.query.autoTranslate === 'true') {
-            translationWorkflowDefaults.value = {
-                sourcePostId: (route.query.sourceId as string) || sourcePostSnapshot.value?.id || null,
-                targetLanguage: post.value.language,
-                scopes: parseTranslationScopes(route.query.translationScopes as string | string[] | undefined),
-            }
-            translationDialogVisible.value = true
-        }
-
-        if (hasRecoverableDraft()) {
-            confirm.require({
-                message: t('pages.admin.posts.recover_draft_confirm'),
-                header: t('common.confirmation'),
-                icon: 'pi pi-exclamation-triangle',
-                acceptProps: {
-                    label: t('common.confirm'),
-                    severity: 'warn',
-                },
-                rejectProps: {
-                    label: t('common.cancel'),
-                    severity: 'secondary',
-                    outlined: true,
-                },
-                accept: () => {
-                    recoverDraft()
-                    showSuccessToast('pages.admin.posts.draft_recovered')
-                },
-                reject: () => {
-                    clearLocalDraft()
-                    showSuccessToast('pages.admin.posts.draft_discarded', {
-                        severity: 'info',
-                        summaryKey: 'common.info',
-                    })
-                },
-            })
-        }
+        await loadExistingPostDetail(loadOptions)
     }
 
     const searchTags = (event: { query: string }) => {
-        if (!event.query.trim().length) {
-            filteredTags.value = [...allTags.value]
-            return
-        }
-
-        filteredTags.value = allTags.value.filter((tag) => tag.toLowerCase().startsWith(event.query.toLowerCase()))
+        searchTagOptions(allTags, filteredTags, event)
     }
 
     const handlePublishConfirm = async (options: {
@@ -440,27 +317,6 @@ export function usePostEditorPage() {
 
         post.value.publishedAt = options.publishedAt ? options.publishedAt.toISOString() : null
         await executeSave(true, options.pushOption, options.pushCriteria)
-    }
-
-    const getPublishIntent = () => {
-        const publish = post.value.metadata?.publish
-
-        if (publish && typeof publish === 'object' && 'intent' in publish) {
-            return (publish.intent || {}) as PublishIntent
-        }
-
-        return {} as PublishIntent
-    }
-
-    const setPublishIntent = (intent: PublishIntent) => {
-        if (!post.value.metadata || typeof post.value.metadata !== 'object') {
-            post.value.metadata = {}
-        }
-
-        post.value.metadata.publish = {
-            ...(post.value.metadata.publish || {}),
-            intent,
-        }
     }
 
     const savePost = async (publish = false) => {
@@ -489,32 +345,19 @@ export function usePostEditorPage() {
             post.value.content = await formatMarkdown(post.value.content)
         }
 
-        const publishedAt = post.value.publishedAt
-        const isFuture = typeof publishedAt === 'string' || publishedAt instanceof Date
-            ? isFutureDate(publishedAt)
-            : false
-        const payload = { ...post.value } as Record<string, unknown>
-        delete payload.category
-        delete payload.author
-        payload.tagBindings = tagBindings.value
-
-        const currentPublishIntent = getPublishIntent()
-        const nextPublishIntent = {
-            ...currentPublishIntent,
+        const { isFuture, payload, publishIntent } = buildSavePayload({
+            post: post.value,
+            tagBindings: tagBindings.value,
+            publish,
             pushOption,
             pushCriteria,
-        }
-        setPublishIntent(nextPublishIntent)
-        payload.metadata = {
-            ...(payload.metadata as Record<string, unknown> || {}),
+        })
+        post.value.metadata = {
+            ...(post.value.metadata || {}),
             publish: {
-                ...((payload.metadata as { publish?: Record<string, unknown> } | undefined)?.publish || {}),
-                intent: nextPublishIntent,
+                ...(post.value.metadata?.publish || {}),
+                intent: publishIntent as PublishIntent,
             },
-        }
-
-        if (publish) {
-            payload.status = isFuture ? 'scheduled' : 'published'
         }
 
         const schema = isNew.value ? createPostSchema : updatePostSchema
@@ -553,34 +396,14 @@ export function usePostEditorPage() {
 
         saving.value = true
         try {
-            if (isNew.value) {
-                const response = await $fetch<{ code: number, data: { id?: string, status?: PostStatus } }>('/api/posts', {
-                    method: 'POST',
-                    body: payload,
-                })
-
-                if (response.code === 200 && response.data?.id) {
-                    post.value.id = response.data.id
-                    post.value.status = response.data.status || PostStatus.DRAFT
-                    clearLocalDraft()
-                    showSuccessToast('common.save_success')
-                    await navigateTo(localePath(`/admin/posts/${response.data.id}`), { replace: true })
-                }
-
-                return
-            }
-
-            await $fetch(`/api/posts/${route.params.id}`, {
-                method: 'PUT',
-                body: payload,
-            })
-
-            if (publish) {
-                post.value.status = isFuture ? PostStatus.SCHEDULED : PostStatus.PUBLISHED
-            }
-
-            clearLocalDraft()
-            showSuccessToast('common.save_success')
+            await persistPost({
+                post,
+                isNew: isNew.value,
+                route,
+                localePath,
+                clearLocalDraft,
+                showSuccessToast,
+            }, publish, payload, isFuture)
         } catch (error) {
             console.error('Failed to save post', error)
             showErrorToast(error, {
@@ -591,29 +414,9 @@ export function usePostEditorPage() {
         }
     }
 
-    const getStatusLabel = (status: string) => {
-        const map: Record<string, string> = {
-            published: t('common.status.published'),
-            scheduled: t('common.status.scheduled'),
-            draft: t('common.status.draft'),
-            pending: t('common.status.pending'),
-            rejected: t('common.status.rejected'),
-            hidden: t('common.status.hidden'),
-        }
-        return map[status] || status
-    }
+    const getStatusLabel = (status: string) => getPostStatusLabel(t, status)
 
-    const getStatusSeverity = (status: string) => {
-        const map: Record<string, string | undefined> = {
-            published: 'success',
-            scheduled: 'info',
-            draft: 'secondary',
-            pending: 'warn',
-            rejected: 'danger',
-            hidden: 'info',
-        }
-        return map[status] || 'info'
-    }
+    const getStatusSeverity = (status: string) => getPostStatusSeverity(status)
 
     watch(
         () => post.value.language,

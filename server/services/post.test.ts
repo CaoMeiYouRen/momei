@@ -38,11 +38,7 @@ function createTestPostData(overrides: any = {}) {
     }
 }
 
-describe('post service', () => {
-    beforeEach(() => {
-        vi.clearAllMocks()
-    })
-
+function registerCreatePostServiceSuite() {
     describe('createPostService', () => {
         it('应该创建新文章并自动生成 slug', async () => {
             const mockPost = {
@@ -425,7 +421,9 @@ describe('post service', () => {
             ).rejects.toThrow(`Pinned posts limit reached. Up to ${MAX_PINNED_POSTS} posts can be pinned.`)
         })
     })
+}
 
+function registerUpdatePostServiceSuite() {
     describe('updatePostService', () => {
         it('应该更新现有文章', async () => {
             const existingPost = {
@@ -746,7 +744,9 @@ describe('post service', () => {
             expect(result.publishedAt).toBeInstanceOf(Date)
         })
     })
+}
 
+function registerPinnedPostUpdateSuite() {
     it('应该在置顶文章达到上限时拒绝把普通文章更新为置顶', async () => {
         const existingPost = {
             id: 'post1',
@@ -782,4 +782,14 @@ describe('post service', () => {
             ),
         ).rejects.toThrow(`Pinned posts limit reached. Up to ${MAX_PINNED_POSTS} posts can be pinned.`)
     })
+}
+
+describe('post service', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
+
+    registerCreatePostServiceSuite()
+    registerUpdatePostServiceSuite()
+    registerPinnedPostUpdateSuite()
 })

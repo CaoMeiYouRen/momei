@@ -101,8 +101,114 @@ interface UsePostEditorTranslationOptions {
     resetTranslationProgress: () => void
 }
 
+interface TranslationActionContext {
+    options: UsePostEditorTranslationOptions
+    translations: Ref<PostTranslationSourceOption[]>
+    sourcePostSnapshot: Ref<PostTranslationSourceDetail | null>
+    postsForTranslation: Ref<TranslationGroupOption[]>
+    hasTranslation: (langCode: string) => PostEditorData | PostTranslationSourceOption | null
+}
+
 const DEFAULT_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags', 'coverImage']
 const AVAILABLE_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags', 'coverImage', 'audio']
+
+async function navigateToTranslationTarget(
+    context: TranslationActionContext,
+    langCode: string,
+    autoTranslate = false,
+    overrideOptions?: {
+        sourceId?: string | null
+        scopes?: TranslationScopeField[]
+    },
+) {
+    const targetTranslation = context.hasTranslation(langCode)
+    const sourceId = overrideOptions?.sourceId || context.options.post.value.id || context.sourcePostSnapshot.value?.id || null
+
+    if (!targetTranslation && context.options.isNew.value && !context.options.post.value.id) {
+        context.options.toast.add({
+            severity: 'warn',
+            summary: context.options.t('common.warn'),
+            detail: context.options.t('pages.admin.posts.save_current_first'),
+            life: 3000,
+        })
+        return
+    }
+
+    const autoTranslateQuery = autoTranslate
+        ? {
+            autoTranslate: 'true',
+            sourceId: sourceId || undefined,
+            translationScopes: serializeTranslationScopes(overrideOptions?.scopes || DEFAULT_TRANSLATION_SCOPES),
+        }
+        : undefined
+
+    if (targetTranslation?.id) {
+        await navigateTo({
+            path: context.options.localePath(`/admin/posts/${targetTranslation.id}`),
+            query: autoTranslateQuery,
+        })
+        return
+    }
+
+    await navigateTo({
+        path: context.options.localePath('/admin/posts/new'),
+        query: {
+            language: langCode,
+            sourceId: sourceId || undefined,
+            translationId: context.options.post.value.translationId || context.sourcePostSnapshot.value?.translationId || sourceId || undefined,
+            ...autoTranslateQuery,
+        },
+    })
+}
+
+async function searchTranslationPosts(context: TranslationActionContext, event: { query: string }) {
+    if (!event.query.trim()) {
+        return
+    }
+
+    try {
+        const { data } = await $fetch<ApiResponse<{ items: TranslationSearchItem[] }>>('/api/posts', {
+            query: {
+                search: event.query,
+                limit: 10,
+                scope: 'manage',
+            },
+        })
+
+        context.postsForTranslation.value = data.items
+            .filter((item) => item.id !== context.options.post.value.id)
+            .map((item) => ({
+                label: `[${item.language}] ${item.title}`,
+                value: item.translationId || item.id,
+            }))
+    } catch (error) {
+        console.error('Failed to search posts', error)
+    }
+}
+
+async function syncTranslations(context: TranslationActionContext, translationId: string) {
+    if (!translationId?.trim()) {
+        context.translations.value = []
+        return
+    }
+
+    try {
+        const { data } = await $fetch<ApiResponse<{ items: PostTranslationSourceOption[] }>>('/api/posts', {
+            query: { translationId, limit: 10, scope: 'manage' },
+        })
+        context.translations.value = data.items.filter((item) => item.id !== context.options.post.value.id)
+    } catch (error) {
+        console.error('Failed to fetch translations', error)
+    }
+}
+
+function serializeTranslationScopes(scopes: TranslationScopeField[]) {
+    const normalizedScopes = Array.from(new Set(
+        scopes.filter((scope) => AVAILABLE_TRANSLATION_SCOPES.includes(scope)),
+    ))
+
+    return normalizedScopes.length > 0 ? normalizedScopes.join(',') : undefined
+}
 
 export function usePostEditorTranslation(options: UsePostEditorTranslationOptions) {
     const translations = ref<PostTranslationSourceOption[]>([])
@@ -182,14 +288,6 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         return scopes.length > 0 ? Array.from(new Set(scopes)) : [...DEFAULT_TRANSLATION_SCOPES]
     }
 
-    const serializeTranslationScopes = (scopes: TranslationScopeField[]) => {
-        const normalizedScopes = Array.from(new Set(
-            scopes.filter((scope) => AVAILABLE_TRANSLATION_SCOPES.includes(scope)),
-        ))
-
-        return normalizedScopes.length > 0 ? normalizedScopes.join(',') : undefined
-    }
-
     const hasTranslation = (langCode: string) => {
         if (options.post.value.language === langCode && !options.isNew.value) {
             return options.post.value
@@ -247,6 +345,14 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         options.localeItems.value.map((item) => resolveTranslationTargetStatus(item.code)),
     )
 
+    const actionContext: TranslationActionContext = {
+        options,
+        translations,
+        sourcePostSnapshot,
+        postsForTranslation,
+        hasTranslation,
+    }
+
     const handleTranslationClick = async (
         langCode: string,
         autoTranslate = false,
@@ -255,69 +361,11 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
             scopes?: TranslationScopeField[]
         },
     ) => {
-        const targetTranslation = hasTranslation(langCode)
-        const sourceId = overrideOptions?.sourceId || options.post.value.id || sourcePostSnapshot.value?.id || null
-
-        if (!targetTranslation && options.isNew.value && !options.post.value.id) {
-            options.toast.add({
-                severity: 'warn',
-                summary: options.t('common.warn'),
-                detail: options.t('pages.admin.posts.save_current_first'),
-                life: 3000,
-            })
-            return
-        }
-
-        const autoTranslateQuery = autoTranslate
-            ? {
-                autoTranslate: 'true',
-                sourceId: sourceId || undefined,
-                translationScopes: serializeTranslationScopes(overrideOptions?.scopes || DEFAULT_TRANSLATION_SCOPES),
-            }
-            : undefined
-
-        if (targetTranslation?.id) {
-            await navigateTo({
-                path: options.localePath(`/admin/posts/${targetTranslation.id}`),
-                query: autoTranslateQuery,
-            })
-            return
-        }
-
-        await navigateTo({
-            path: options.localePath('/admin/posts/new'),
-            query: {
-                language: langCode,
-                sourceId: sourceId || undefined,
-                translationId: options.post.value.translationId || sourcePostSnapshot.value?.translationId || sourceId || undefined,
-                ...autoTranslateQuery,
-            },
-        })
+        await navigateToTranslationTarget(actionContext, langCode, autoTranslate, overrideOptions)
     }
 
     const searchPosts = async (event: { query: string }) => {
-        if (!event.query.trim()) {
-            return
-        }
-
-        try {
-            const { data } = await $fetch<ApiResponse<{ items: TranslationSearchItem[] }>>('/api/posts', {
-                query: {
-                    search: event.query,
-                    limit: 10,
-                    scope: 'manage',
-                },
-            })
-
-            postsForTranslation.value = data.items
-                .filter((item) => item.id !== options.post.value.id)
-                .map((item) => ({
-                    label: `[${item.language}] ${item.title}`,
-                    value: item.translationId || item.id,
-                }))
-        } catch (error) {
-            console.error('Failed to search posts', error)
-        }
+        await searchTranslationPosts(actionContext, event)
     }
 
     const translationSourceOptions = computed<PostTranslationSourceOption[]>(() => {
@@ -623,19 +671,7 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
     }
 
     const fetchTranslations = async (translationId: string) => {
-        if (!translationId?.trim()) {
-            translations.value = []
-            return
-        }
-
-        try {
-            const { data } = await $fetch<ApiResponse<{ items: PostTranslationSourceOption[] }>>('/api/posts', {
-                query: { translationId, limit: 10, scope: 'manage' },
-            })
-            translations.value = data.items.filter((item) => item.id !== options.post.value.id)
-        } catch (error) {
-            console.error('Failed to fetch translations', error)
-        }
+        await syncTranslations(actionContext, translationId)
     }
 
     return {

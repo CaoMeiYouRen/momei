@@ -2,9 +2,21 @@ import { computed, ref, type Ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import {
-    readTranslationStream,
-    resolveTranslationChunkContent,
-} from './use-post-translation-ai.stream'
+    createFieldProgressRecord,
+    cancelActiveTranslation,
+    canRetryTranslationField,
+    executeChunkTranslation,
+    executeDirectTranslation,
+    executeStreamingTranslation,
+    finalizeTranslationField,
+    initializeTranslationRun,
+    isTextScope,
+    markPendingTranslationFields,
+    translateChunkViaStreamHelper,
+    type TranslateFieldOptions,
+    type TranslationFieldRuntime,
+    type TranslationRunContext,
+} from './use-post-translation-ai.helpers'
 import type { ApiResponse } from '@/types/api'
 import type { PostEditorData } from '@/types/post-editor'
 import type {
@@ -18,67 +30,13 @@ import type {
 import { ContentProcessor } from '@/utils/shared/content-processor'
 import { AI_TEXT_DIRECT_RETURN_MAX_CHARS } from '@/utils/shared/env'
 
-const TEXT_TRANSLATION_SCOPE_ORDER: TranslationTextField[] = ['title', 'summary', 'content']
 const STREAM_MODE_MAX_CHARS = 4000
 const MIN_CHUNK_SIZE = 200
 const DIRECT_MODE_FIELDS: TranslationTextField[] = ['title', 'summary']
 
-interface TranslationRunContext {
-    source: PostTranslationSourceDetail
-    sourceLanguage: string
-    targetLanguage: string
-    fields: TranslationTextField[]
-}
-
-interface TranslationFieldRuntime {
-    sourceValue: string
-    sourceChunks: string[]
-    translatedChunks: string[]
-    nextChunkIndex: number
-    preferredMode: PostTranslationMode
-    fallbackUsed: boolean
-}
-
-interface TranslateDirectResponseData {
-    mode: 'direct' | 'task'
-    content?: string
-}
-
-interface TranslateFieldOptions {
-    sourceLanguage: string
-    field: TranslationTextField
-}
-
-function createFieldProgress(): PostTranslationFieldProgress {
-    return {
-        status: 'idle',
-        progress: 0,
-        mode: null,
-        content: '',
-        completedChunks: 0,
-        totalChunks: 0,
-        error: null,
-        canRetry: false,
-        canCancel: false,
-    }
-}
-
-function createFieldProgressRecord(): Record<TranslationTextField, PostTranslationFieldProgress> {
-    return {
-        title: createFieldProgress(),
-        summary: createFieldProgress(),
-        content: createFieldProgress(),
-    }
-}
-
-function isTextScope(field: TranslationScopeField): field is TranslationTextField {
-    return TEXT_TRANSLATION_SCOPE_ORDER.includes(field as TranslationTextField)
-}
-
 export function usePostTranslationAI(post: Ref<PostEditorData>) {
     const toast = useToast()
     const { t } = useI18n()
-
     const fieldRuntimes = new Map<TranslationTextField, TranslationFieldRuntime>()
     const runContext = ref<TranslationRunContext | null>(null)
     let activeAbortController: AbortController | null = null
@@ -92,12 +50,10 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         error: null,
         fields: createFieldProgressRecord(),
     })
-
     const isTranslating = computed(() =>
         translationProgress.value.status === 'pending'
         || translationProgress.value.status === 'processing',
     )
-
     const toErrorMessage = (error: unknown) => {
         if ((error as { name?: string } | null)?.name === 'AbortError') {
             return t('pages.admin.posts.translation_workflow.cancelled')
@@ -252,21 +208,6 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         })
     }
 
-    const markPendingFields = (fields: TranslationTextField[], startIndex = 0) => {
-        fields.slice(startIndex).forEach((field) => {
-            const current = translationProgress.value.fields[field]
-            if (current.status !== 'completed') {
-                setFieldProgress(field, {
-                    status: 'pending',
-                    error: null,
-                    canRetry: false,
-                    canCancel: false,
-                    mode: current.mode,
-                })
-            }
-        })
-    }
-
     const resetActiveController = () => {
         activeAbortController = null
     }
@@ -274,153 +215,6 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
     const createActiveController = () => {
         activeAbortController = new AbortController()
         return activeAbortController
-    }
-
-    const translateChunkViaStream = async (
-        content: string,
-        options: TranslateFieldOptions,
-        signal: AbortSignal,
-    ) => {
-        const translatedChunks: string[] = []
-
-        await readTranslationStream({
-            content,
-            targetLanguage: runContext.value?.targetLanguage || '',
-            sourceLanguage: options.sourceLanguage,
-            field: options.field,
-        }, signal, (chunk) => {
-            const nextIndex = typeof chunk.chunkIndex === 'number' ? chunk.chunkIndex : translatedChunks.length
-            translatedChunks[nextIndex] = resolveTranslationChunkContent(translatedChunks[nextIndex] || '', chunk)
-        }, {
-            fallbackMessage: t('pages.admin.posts.ai_error'),
-            toErrorMessage,
-        })
-
-        return translatedChunks.filter(Boolean).join('\n\n')
-    }
-
-    const executeDirectMode = async (
-        field: TranslationTextField,
-        runtime: TranslationFieldRuntime,
-        options: TranslateFieldOptions,
-    ) => {
-        const response = await $fetch<ApiResponse<TranslateDirectResponseData>>('/api/ai/translate', {
-            method: 'POST',
-            body: {
-                content: runtime.sourceValue,
-                targetLanguage: runContext.value?.targetLanguage || '',
-                sourceLanguage: options.sourceLanguage,
-                field,
-            },
-        })
-
-        if (response.data.mode !== 'direct' || typeof response.data.content !== 'string') {
-            throw new Error(t('pages.admin.posts.ai_error'))
-        }
-
-        runtime.translatedChunks = [response.data.content]
-        runtime.nextChunkIndex = runtime.sourceChunks.length
-
-        syncFieldContent(field, runtime, {
-            status: 'processing',
-            mode: 'direct',
-            totalChunks: 1,
-            completedChunks: 1,
-            progress: 100,
-            error: null,
-            canCancel: false,
-            canRetry: false,
-        }, 1)
-    }
-
-    const executeChunkMode = async (
-        field: TranslationTextField,
-        runtime: TranslationFieldRuntime,
-        options: TranslateFieldOptions,
-    ) => {
-        const controller = createActiveController()
-
-        try {
-            for (let index = runtime.nextChunkIndex; index < runtime.sourceChunks.length; index += 1) {
-                const sourceChunk = runtime.sourceChunks[index]
-                if (!sourceChunk) {
-                    continue
-                }
-
-                const translatedChunk = await translateChunkViaStream(sourceChunk, options, controller.signal)
-                runtime.translatedChunks[index] = translatedChunk
-                runtime.nextChunkIndex = index + 1
-
-                syncFieldContent(field, runtime, {
-                    status: 'processing',
-                    mode: 'chunk',
-                    error: null,
-                    canCancel: true,
-                    canRetry: false,
-                })
-            }
-        } finally {
-            resetActiveController()
-        }
-    }
-
-    const executeStreamMode = async (
-        field: TranslationTextField,
-        runtime: TranslationFieldRuntime,
-        options: TranslateFieldOptions,
-    ) => {
-        const controller = createActiveController()
-
-        try {
-            await readTranslationStream({
-                content: runtime.sourceValue,
-                targetLanguage: runContext.value?.targetLanguage || '',
-                sourceLanguage: options.sourceLanguage,
-                field,
-            }, controller.signal, (chunk) => {
-                const nextIndex = typeof chunk.chunkIndex === 'number' ? chunk.chunkIndex : runtime.nextChunkIndex
-                const nextContent = resolveTranslationChunkContent(runtime.translatedChunks[nextIndex] || '', chunk)
-                const totalChunks = chunk.totalChunks || runtime.sourceChunks.length || 1
-                const sourceChunk = runtime.sourceChunks[nextIndex] || runtime.sourceValue
-                const isChunkComplete = chunk.isChunkComplete === true
-                const chunkCompletionRatio = isChunkComplete
-                    ? 1
-                    : Math.min(nextContent.length / Math.max(sourceChunk.length, 1), 0.99)
-                const committedChunks = isChunkComplete
-                    ? Math.max(runtime.nextChunkIndex, nextIndex + 1)
-                    : runtime.nextChunkIndex
-                const visibleChunks = Math.max(committedChunks, nextIndex + 1)
-
-                runtime.translatedChunks[nextIndex] = nextContent
-                runtime.nextChunkIndex = committedChunks
-
-                syncFieldContent(field, runtime, {
-                    status: 'processing',
-                    mode: totalChunks > 1 ? 'chunk' : 'stream',
-                    totalChunks,
-                    completedChunks: committedChunks,
-                    progress: Math.round(((nextIndex + chunkCompletionRatio) / totalChunks) * 100),
-                    error: null,
-                    canCancel: true,
-                    canRetry: false,
-                }, visibleChunks)
-            }, {
-                fallbackMessage: t('pages.admin.posts.ai_error'),
-                toErrorMessage,
-            })
-        } finally {
-            resetActiveController()
-        }
-    }
-
-    const finalizeField = (field: TranslationTextField, status: 'completed' | 'failed' | 'cancelled', error: string | null = null) => {
-        setFieldProgress(field, {
-            status,
-            error,
-            canRetry: status === 'failed' || status === 'cancelled',
-            canCancel: false,
-            progress: status === 'completed' ? 100 : translationProgress.value.fields[field].progress,
-        })
     }
 
     const translateField = async (field: TranslationTextField, options: TranslateFieldOptions) => {
@@ -468,10 +262,27 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
 
         try {
             if (preferredMode === 'direct') {
-                await executeDirectMode(field, runtime, options)
+                await executeDirectTranslation({
+                    field,
+                    runtime,
+                    translateOptions: options,
+                    targetLanguage: runContext.value?.targetLanguage || '',
+                    t,
+                    syncFieldContent,
+                })
             } else if (preferredMode === 'stream') {
                 try {
-                    await executeStreamMode(field, runtime, options)
+                    await executeStreamingTranslation({
+                        field,
+                        runtime,
+                        translateOptions: options,
+                        targetLanguage: runContext.value?.targetLanguage || '',
+                        t,
+                        toErrorMessage,
+                        createActiveController,
+                        resetActiveController,
+                        syncFieldContent,
+                    })
                 } catch (error) {
                     const hasNoAppliedChunk = runtime.nextChunkIndex === completedBeforeExecution
                     if ((error as { name?: string } | null)?.name !== 'AbortError' && hasNoAppliedChunk && !runtime.fallbackUsed) {
@@ -482,23 +293,61 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
                             detail: t('pages.admin.posts.translation_workflow.stream_fallback'),
                             life: 3000,
                         })
-                        await executeChunkMode(field, runtime, options)
+                        await executeChunkTranslation({
+                            field,
+                            runtime,
+                            translateOptions: options,
+                            createActiveController,
+                            resetActiveController,
+                            syncFieldContent,
+                            translateChunkViaStream: translateChunkViaStreamHelper,
+                            targetLanguage: runContext.value?.targetLanguage || '',
+                            t,
+                            toErrorMessage,
+                        })
                     } else {
                         throw error
                     }
                 }
             } else {
-                await executeChunkMode(field, runtime, options)
+                await executeChunkTranslation({
+                    field,
+                    runtime,
+                    translateOptions: options,
+                    createActiveController,
+                    resetActiveController,
+                    syncFieldContent,
+                    translateChunkViaStream: translateChunkViaStreamHelper,
+                    targetLanguage: runContext.value?.targetLanguage || '',
+                    t,
+                    toErrorMessage,
+                })
             }
 
-            finalizeField(field, 'completed')
+            finalizeTranslationField({
+                field,
+                status: 'completed',
+                translationProgress,
+                setFieldProgress,
+            })
         } catch (error) {
             if ((error as { name?: string } | null)?.name === 'AbortError') {
-                finalizeField(field, 'cancelled')
+                finalizeTranslationField({
+                    field,
+                    status: 'cancelled',
+                    translationProgress,
+                    setFieldProgress,
+                })
                 throw error
             }
 
-            finalizeField(field, 'failed', toErrorMessage(error))
+            finalizeTranslationField({
+                field,
+                status: 'failed',
+                error: toErrorMessage(error),
+                translationProgress,
+                setFieldProgress,
+            })
             throw error
         }
     }
@@ -512,7 +361,12 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
 
         activeRunId += 1
         const runId = activeRunId
-        markPendingFields(context.fields, startIndex)
+        markPendingTranslationFields({
+            fields: context.fields,
+            startIndex,
+            translationProgress,
+            setFieldProgress,
+        })
         updateOverallProgress()
 
         try {
@@ -619,29 +473,29 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         return response.data || []
     }
 
-    const cancelFieldTranslation = (field?: TranslationTextField) => {
-        const activeField = translationProgress.value.activeField
-        if (!activeField || (field && field !== activeField) || !activeAbortController) {
-            return false
-        }
-
-        activeAbortController.abort()
-        return true
-    }
+    const cancelFieldTranslation = (field?: TranslationTextField) => cancelActiveTranslation({
+        field,
+        activeField: translationProgress.value.activeField,
+        activeAbortController,
+    })
 
     const retryFieldTranslation = async (field: TranslationTextField) => {
-        const context = runContext.value
-        if (!context || isTranslating.value) {
+        const fieldIndex = canRetryTranslationField({
+            field,
+            isTranslating: isTranslating.value,
+            runContext,
+            translationProgress,
+        })
+        if (fieldIndex === null || !runContext.value) {
             return false
         }
 
-        const fieldIndex = context.fields.indexOf(field)
-        const fieldState = translationProgress.value.fields[field]
-        if (fieldIndex < 0 || (fieldState.status !== 'failed' && fieldState.status !== 'cancelled')) {
-            return false
-        }
-
-        markPendingFields(context.fields, fieldIndex)
+        markPendingTranslationFields({
+            fields: runContext.value.fields,
+            startIndex: fieldIndex,
+            translationProgress,
+            setFieldProgress,
+        })
         return await runPipelineFrom(fieldIndex)
     }
 
@@ -651,50 +505,17 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         targetLanguage: string
         scopes: TranslationScopeField[]
     }) => {
-        const textScopes = TEXT_TRANSLATION_SCOPE_ORDER.filter((scope) => options.scopes.includes(scope))
-
-        if (textScopes.length === 0) {
-            resetTranslationProgress()
+        const initialized = initializeTranslationRun({
+            runOptions: options,
+            post,
+            runContext,
+            translationProgress,
+            setFieldProgress,
+            resetTranslationProgress,
+        })
+        if (!initialized) {
             return true
         }
-
-        runContext.value = {
-            source: options.source,
-            sourceLanguage: options.sourceLanguage,
-            targetLanguage: options.targetLanguage,
-            fields: textScopes,
-        }
-
-        translationProgress.value = {
-            status: 'pending',
-            progress: 0,
-            activeField: null,
-            taskId: null,
-            error: null,
-            fields: createFieldProgressRecord(),
-        }
-
-        textScopes.forEach((field) => {
-            let currentValue = post.value.content
-
-            if (field === 'title') {
-                currentValue = post.value.title
-            } else if (field === 'summary') {
-                currentValue = post.value.summary || ''
-            }
-
-            setFieldProgress(field, {
-                status: 'pending',
-                content: currentValue,
-                progress: 0,
-                mode: null,
-                completedChunks: 0,
-                totalChunks: 0,
-                error: null,
-                canRetry: false,
-                canCancel: false,
-            })
-        })
 
         return await runPipelineFrom(0)
     }

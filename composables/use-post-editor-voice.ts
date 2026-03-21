@@ -8,6 +8,228 @@ export interface UsePostEditorVoiceOptions {
     directMode?: boolean
 }
 
+interface LegacyAudioProcessEvent {
+    inputBuffer: {
+        getChannelData: (channel: number) => Float32Array
+    }
+}
+
+interface LegacyScriptProcessorNode {
+    connect: (destinationNode: AudioNode) => void
+    disconnect: () => void
+    onaudioprocess: ((event: LegacyAudioProcessEvent) => void) | null
+}
+
+interface LegacyScriptProcessorFactory {
+    createScriptProcessor?: (bufferSize: number, numberOfInputChannels: number, numberOfOutputChannels: number) => LegacyScriptProcessorNode
+}
+
+function getLegacyScriptProcessor(ctx: AudioContext): LegacyScriptProcessorNode | null {
+    const legacyFactory = ctx as unknown as LegacyScriptProcessorFactory
+    if (!legacyFactory.createScriptProcessor) {
+        return null
+    }
+
+    return legacyFactory.createScriptProcessor(4096, 1, 1)
+}
+
+async function setupVoiceAudioPipeline(context: {
+    audioContext: AudioContext | null
+    sourceNode: MediaStreamAudioSourceNode | null
+    muteGainNode: GainNode | null
+    asrDirectStream: ReturnType<typeof useASRDirect> | null
+    getWs: () => WebSocket | null
+    getStreamStarted: () => boolean
+    setWorkletNode: (value: AudioWorkletNode | null) => void
+    setProcessorNode: (value: LegacyScriptProcessorNode | null) => void
+    getLegacyScriptProcessor: (ctx: AudioContext) => LegacyScriptProcessorNode | null
+    encodePcmToBase64: (float32Samples: Float32Array) => string
+}) {
+    if (!context.audioContext || !context.sourceNode || !context.muteGainNode) {
+        return
+    }
+
+    const canUseAudioWorklet = Boolean(
+        context.audioContext.audioWorklet
+        && typeof AudioWorkletNode !== 'undefined',
+    )
+
+    if (canUseAudioWorklet) {
+        await context.audioContext.audioWorklet.addModule('/worklets/pcm-capture-processor.js')
+        const workletNode = new AudioWorkletNode(context.audioContext, 'pcm-capture-processor', {
+            numberOfInputs: 1,
+            numberOfOutputs: 1,
+            outputChannelCount: [1],
+            channelCount: 1,
+        })
+
+        workletNode.port.onmessage = (event: MessageEvent<Float32Array>) => {
+            const data = event.data
+            if (context.asrDirectStream?.isConnected.value) {
+                context.asrDirectStream.sendAudio(data)
+            } else if (context.getWs()?.readyState === WebSocket.OPEN && context.getStreamStarted()) {
+                const payload = context.encodePcmToBase64(data)
+                context.getWs()?.send(JSON.stringify({ type: 'audio', payload }))
+            }
+        }
+
+        context.setWorkletNode(workletNode)
+        context.sourceNode.connect(workletNode)
+        workletNode.connect(context.muteGainNode)
+        context.muteGainNode.connect(context.audioContext.destination)
+        return
+    }
+
+    const legacyNode = context.getLegacyScriptProcessor(context.audioContext)
+    if (!legacyNode) {
+        throw new Error('audio_processor_not_supported')
+    }
+
+    legacyNode.onaudioprocess = (event) => {
+        const input = event.inputBuffer.getChannelData(0)
+        if (context.asrDirectStream?.isConnected.value) {
+            context.asrDirectStream.sendAudio(input)
+        } else if (context.getWs()?.readyState === WebSocket.OPEN && context.getStreamStarted()) {
+            const payload = context.encodePcmToBase64(input)
+            context.getWs()?.send(JSON.stringify({ type: 'audio', payload }))
+        }
+    }
+
+    context.setProcessorNode(legacyNode)
+    context.sourceNode.connect(legacyNode as unknown as AudioNode)
+    legacyNode.connect(context.muteGainNode)
+    context.muteGainNode.connect(context.audioContext.destination)
+}
+
+async function startProxyVoiceStream(context: {
+    mode: typeof ref<VoiceTranscriptionMode>
+    isListening: typeof ref<boolean>
+    onFinalTranscript: (value: string) => void
+    onInterimTranscript: (value: string) => void
+    clearStartRetry: () => void
+    sendStartMessage: () => void
+    abortCloudStreamSession: (messageKey: string) => void
+    clearCloudAudioPipeline: () => Promise<void>
+    stopMediaInput: () => void
+    setupAudioPipeline: () => Promise<void>
+    setWs: (value: WebSocket | null) => void
+    getWs: () => WebSocket | null
+    setStreamStarted: (value: boolean) => void
+    getStreamStarted: () => boolean
+    setStartRetryTimer: (value: ReturnType<typeof setInterval> | null) => void
+    getStartRetryTimer: () => ReturnType<typeof setInterval> | null
+    setStartRetryCount: (value: number) => void
+    getStartRetryCount: () => number
+}) {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const host = window.location.host
+    const nextWs = new WebSocket(`${protocol}//${host}/api/ai/asr/stream`)
+    context.setWs(nextWs)
+
+    nextWs.onopen = () => {
+        context.setStreamStarted(false)
+        context.clearStartRetry()
+        context.sendStartMessage()
+        context.setStartRetryTimer(setInterval(() => {
+            if (context.getStreamStarted() || context.getWs()?.readyState !== WebSocket.OPEN) {
+                context.clearStartRetry()
+                return
+            }
+
+            const nextCount = context.getStartRetryCount() + 1
+            context.setStartRetryCount(nextCount)
+            if (nextCount > 20) {
+                context.abortCloudStreamSession('cloud_stream_start_timeout')
+                return
+            }
+
+            context.sendStartMessage()
+        }, 300))
+    }
+
+    nextWs.onmessage = (event) => {
+        const msg = JSON.parse(event.data)
+        if (msg.type === 'transcript') {
+            if (msg.isFinal) {
+                context.onFinalTranscript(msg.text)
+                context.onInterimTranscript('')
+            } else {
+                context.onInterimTranscript(msg.text)
+            }
+        } else if (msg.type === 'started') {
+            context.setStreamStarted(true)
+            context.clearStartRetry()
+            context.isListening.value = true
+        } else if (msg.type === 'error') {
+            context.abortCloudStreamSession(msg.message || 'cloud_transcription_failed')
+        }
+    }
+
+    nextWs.onerror = () => {
+        context.abortCloudStreamSession('cloud_transcription_failed')
+    }
+
+    nextWs.onclose = () => {
+        context.setStreamStarted(false)
+        context.clearStartRetry()
+        if (context.mode.value === 'cloud-stream') {
+            context.isListening.value = false
+        }
+
+        void context.clearCloudAudioPipeline()
+        context.stopMediaInput()
+        context.setWs(null)
+    }
+
+    await context.setupAudioPipeline()
+}
+
+async function transcribeVoiceBatch(context: {
+    asrDirectBatch: ReturnType<typeof useASRDirect> | null
+    currentLang: string
+    isLoadingModel: typeof ref<boolean>
+    error: typeof ref<string>
+    committedTranscript: typeof ref<string>
+    currentSessionFinal: typeof ref<string>
+}, blob: Blob) {
+    context.isLoadingModel.value = true
+    try {
+        let text = ''
+        let shouldUseProxy = !context.asrDirectBatch
+
+        if (context.asrDirectBatch) {
+            try {
+                text = await context.asrDirectBatch.transcribeBatch(blob)
+            } catch (err) {
+                console.warn('Direct batch transcription failed, fallback to proxy mode', err)
+                shouldUseProxy = true
+                text = ''
+            }
+        }
+
+        if (shouldUseProxy) {
+            const formData = new FormData()
+            formData.append('audioFile', blob, 'recording.webm')
+            formData.append('language', context.currentLang)
+
+            const result = await $fetch<{ text: string }>('/api/ai/asr/transcribe', {
+                method: 'POST',
+                body: formData,
+            })
+            text = result.text
+        }
+
+        context.currentSessionFinal.value = text
+        context.committedTranscript.value += text
+        context.currentSessionFinal.value = ''
+    } catch (err: any) {
+        console.error('Cloud batch transcription failed', err)
+        context.error.value = err.data?.message || err.message || 'cloud_transcription_failed'
+    } finally {
+        context.isLoadingModel.value = false
+    }
+}
+
 export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
     const { directMode = false } = options
 
@@ -106,31 +328,6 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
     let workletNode: AudioWorkletNode | null = null
     let processorNode: LegacyScriptProcessorNode | null = null
     let muteGainNode: GainNode | null = null
-
-    interface LegacyAudioProcessEvent {
-        inputBuffer: {
-            getChannelData: (channel: number) => Float32Array
-        }
-    }
-
-    interface LegacyScriptProcessorNode {
-        connect: (destinationNode: AudioNode) => void
-        disconnect: () => void
-        onaudioprocess: ((event: LegacyAudioProcessEvent) => void) | null
-    }
-
-    interface LegacyScriptProcessorFactory {
-        createScriptProcessor?: (bufferSize: number, numberOfInputChannels: number, numberOfOutputChannels: number) => LegacyScriptProcessorNode
-    }
-
-    const getLegacyScriptProcessor = (ctx: AudioContext): LegacyScriptProcessorNode | null => {
-        const legacyFactory = ctx as unknown as LegacyScriptProcessorFactory
-        if (!legacyFactory.createScriptProcessor) {
-            return null
-        }
-
-        return legacyFactory.createScriptProcessor(4096, 1, 1)
-    }
 
     const stopMediaInput = () => {
         if (mediaStream) {
@@ -364,125 +561,44 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
      * 启动代理流式模式 (回退方案)
      */
     const startProxyStream = async () => {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-        const host = window.location.host
-        ws = new WebSocket(`${protocol}//${host}/api/ai/asr/stream`)
-
-        ws.onopen = () => {
-            streamStarted = false
-            clearStartRetry()
-            sendStartMessage()
-            startRetryTimer = setInterval(() => {
-                if (streamStarted || ws?.readyState !== WebSocket.OPEN) {
-                    clearStartRetry()
-                    return
-                }
-
-                startRetryCount += 1
-                if (startRetryCount > 20) {
-                    abortCloudStreamSession('cloud_stream_start_timeout')
-                    return
-                }
-
-                sendStartMessage()
-            }, 300)
-        }
-
-        ws.onmessage = (event) => {
-            const msg = JSON.parse(event.data)
-            if (msg.type === 'transcript') {
-                if (msg.isFinal) {
-                    currentSessionFinal.value += msg.text
-                    interimTranscript.value = ''
-                } else {
-                    interimTranscript.value = msg.text
-                }
-            } else if (msg.type === 'started') {
-                streamStarted = true
-                clearStartRetry()
-                isListening.value = true
-            } else if (msg.type === 'error') {
-                abortCloudStreamSession(msg.message || 'cloud_transcription_failed')
-            }
-        }
-
-        ws.onerror = () => {
-            abortCloudStreamSession('cloud_transcription_failed')
-        }
-
-        ws.onclose = () => {
-            streamStarted = false
-            clearStartRetry()
-            if (mode.value === 'cloud-stream') {
-                isListening.value = false
-            }
-
-            void clearCloudAudioPipeline()
-            stopMediaInput()
-            ws = null
-        }
-
-        await setupAudioPipeline()
+        await startProxyVoiceStream({
+            mode,
+            isListening,
+            onFinalTranscript: (value) => { currentSessionFinal.value += value },
+            onInterimTranscript: (value) => { interimTranscript.value = value },
+            clearStartRetry,
+            sendStartMessage,
+            abortCloudStreamSession,
+            clearCloudAudioPipeline,
+            stopMediaInput,
+            setupAudioPipeline,
+            setWs: (value) => { ws = value },
+            getWs: () => ws,
+            setStreamStarted: (value) => { streamStarted = value },
+            getStreamStarted: () => streamStarted,
+            setStartRetryTimer: (value) => { startRetryTimer = value },
+            getStartRetryTimer: () => startRetryTimer,
+            setStartRetryCount: (value) => { startRetryCount = value },
+            getStartRetryCount: () => startRetryCount,
+        })
     }
 
     /**
      * 设置音频处理管道 (用于流式模式)
      */
     const setupAudioPipeline = async () => {
-        if (!audioContext || !sourceNode || !muteGainNode) {
-            return
-        }
-
-        const canUseAudioWorklet = Boolean(
-            audioContext.audioWorklet
-            && typeof AudioWorkletNode !== 'undefined',
-        )
-
-        if (canUseAudioWorklet) {
-            await audioContext.audioWorklet.addModule('/worklets/pcm-capture-processor.js')
-            workletNode = new AudioWorkletNode(audioContext, 'pcm-capture-processor', {
-                numberOfInputs: 1,
-                numberOfOutputs: 1,
-                outputChannelCount: [1],
-                channelCount: 1,
-            })
-
-            workletNode.port.onmessage = (event: MessageEvent<Float32Array>) => {
-                const data = event.data
-                // 优先发送到直连
-                if (asrDirectStream?.isConnected.value) {
-                    asrDirectStream.sendAudio(data)
-                } else if (ws?.readyState === WebSocket.OPEN && streamStarted) {
-                    const payload = encodePcmToBase64(data)
-                    ws.send(JSON.stringify({ type: 'audio', payload }))
-                }
-            }
-
-            sourceNode.connect(workletNode)
-            workletNode.connect(muteGainNode)
-            muteGainNode.connect(audioContext.destination)
-        } else {
-            const legacyNode = getLegacyScriptProcessor(audioContext)
-            if (!legacyNode) {
-                throw new Error('audio_processor_not_supported')
-            }
-
-            processorNode = legacyNode
-            legacyNode.onaudioprocess = (event) => {
-                const input = event.inputBuffer.getChannelData(0)
-                // 优先发送到直连
-                if (asrDirectStream?.isConnected.value) {
-                    asrDirectStream.sendAudio(input)
-                } else if (ws?.readyState === WebSocket.OPEN && streamStarted) {
-                    const payload = encodePcmToBase64(input)
-                    ws.send(JSON.stringify({ type: 'audio', payload }))
-                }
-            }
-
-            sourceNode.connect(processorNode as unknown as AudioNode)
-            processorNode.connect(muteGainNode)
-            muteGainNode.connect(audioContext.destination)
-        }
+        await setupVoiceAudioPipeline({
+            audioContext,
+            sourceNode,
+            muteGainNode,
+            asrDirectStream,
+            getWs: () => ws,
+            getStreamStarted: () => streamStarted,
+            setWorkletNode: (value) => { workletNode = value },
+            setProcessorNode: (value) => { processorNode = value },
+            getLegacyScriptProcessor,
+            encodePcmToBase64,
+        })
     }
 
     const stopRecording = async () => {
@@ -492,7 +608,14 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
             // Wait for last chunks
             await new Promise((resolve) => setTimeout(resolve, 100))
             const blob = new Blob(audioChunks, { type: 'audio/webm' })
-            await transcribeCloudBatch(blob)
+            await transcribeVoiceBatch({
+                asrDirectBatch,
+                currentLang,
+                isLoadingModel,
+                error,
+                committedTranscript,
+                currentSessionFinal,
+            }, blob)
         } else if (mode.value === 'cloud-stream') {
             // 停止直连模式
             if (asrDirectStream?.isConnected.value) {
@@ -518,46 +641,6 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
         }
 
         stopMediaInput()
-    }
-
-    const transcribeCloudBatch = async (blob: Blob) => {
-        isLoadingModel.value = true // Reuse loading state for UI
-        try {
-            let text = ''
-            let shouldUseProxy = !asrDirectBatch
-
-            // 优先使用直连模式
-            if (asrDirectBatch) {
-                try {
-                    text = await asrDirectBatch.transcribeBatch(blob)
-                } catch (err) {
-                    console.warn('Direct batch transcription failed, fallback to proxy mode', err)
-                    shouldUseProxy = true
-                    text = ''
-                }
-            }
-
-            if (shouldUseProxy) {
-                const formData = new FormData()
-                formData.append('audioFile', blob, 'recording.webm')
-                formData.append('language', currentLang)
-
-                const result = await $fetch<{ text: string }>('/api/ai/asr/transcribe', {
-                    method: 'POST',
-                    body: formData,
-                })
-                text = result.text
-            }
-
-            currentSessionFinal.value = text
-            committedTranscript.value += text
-            currentSessionFinal.value = ''
-        } catch (err: any) {
-            console.error('Cloud batch transcription failed', err)
-            error.value = err.data?.message || err.message || 'cloud_transcription_failed'
-        } finally {
-            isLoadingModel.value = false
-        }
     }
 
     const startListening = (lang: string = 'zh-CN') => {
