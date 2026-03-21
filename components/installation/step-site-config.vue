@@ -25,10 +25,11 @@
                 </label>
                 <InputText
                     id="site_title"
-                    v-model="siteConfig.siteTitle"
+                    :model-value="localizedFieldValues.siteTitle"
                     :disabled="isLocked(settingKeys.siteTitle)"
                     :invalid="!!fieldErrors.siteTitle"
                     fluid
+                    @update:model-value="updateLocalizedField('siteTitle', $event)"
                 />
                 <small v-if="fieldErrors.siteTitle" class="installation-wizard__field-error">{{ fieldErrors.siteTitle }}</small>
                 <small v-else-if="isLocked(settingKeys.siteTitle)" class="installation-wizard__field-lock">{{ getLockMessage(settingKeys.siteTitle) }}</small>
@@ -91,11 +92,12 @@
                 </label>
                 <Textarea
                     id="site_description"
-                    v-model="siteConfig.siteDescription"
+                    :model-value="localizedFieldValues.siteDescription"
                     rows="3"
                     :disabled="isLocked(settingKeys.siteDescription)"
                     :invalid="!!fieldErrors.siteDescription"
                     fluid
+                    @update:model-value="updateLocalizedField('siteDescription', $event)"
                 />
                 <div v-if="fieldErrors.siteDescription" class="installation-wizard__field-error">
                     {{ fieldErrors.siteDescription }}
@@ -113,10 +115,11 @@
                 </label>
                 <InputText
                     id="site_keywords"
-                    v-model="siteConfig.siteKeywords"
+                    :model-value="localizedFieldValues.siteKeywords"
                     :disabled="isLocked(settingKeys.siteKeywords)"
                     :invalid="!!fieldErrors.siteKeywords"
                     fluid
+                    @update:model-value="updateLocalizedField('siteKeywords', $event)"
                 />
                 <div v-if="fieldErrors.siteKeywords" class="installation-wizard__field-error">
                     {{ fieldErrors.siteKeywords }}
@@ -158,10 +161,11 @@
                 </label>
                 <InputText
                     id="site_copyright_owner"
-                    v-model="siteConfig.siteCopyrightOwner"
+                    :model-value="localizedFieldValues.siteCopyrightOwner"
                     :disabled="isLocked(settingKeys.siteCopyrightOwner)"
                     :invalid="!!fieldErrors.siteCopyrightOwner"
                     fluid
+                    @update:model-value="updateLocalizedField('siteCopyrightOwner', $event)"
                 />
                 <div v-if="fieldErrors.siteCopyrightOwner" class="installation-wizard__field-error">
                     {{ fieldErrors.siteCopyrightOwner }}
@@ -211,7 +215,14 @@
 
 <script setup lang="ts">
 import { resolveInstallationEnvLockMessage, type InstallationEnvSetting } from '@/utils/shared/installation-env-setting'
-import { INSTALLATION_SITE_SETTING_KEYS, type InstallationSiteConfigModel, type InstallationSiteFieldErrors } from '@/utils/shared/installation-settings'
+import {
+    INSTALLATION_SITE_SETTING_KEYS,
+    resolveInstallationLocalizedSiteFieldInputValue,
+    updateInstallationLocalizedSiteFieldValue,
+    type InstallationLocalizedSiteFieldKey,
+    type InstallationSiteConfigModel,
+    type InstallationSiteFieldErrors,
+} from '@/utils/shared/installation-settings'
 import type { CopyrightLicenseOption } from '@/utils/shared/copyright-options'
 
 const siteConfig = defineModel<InstallationSiteConfigModel>('siteConfig', { required: true })
@@ -225,9 +236,35 @@ const props = defineProps<{
 }>()
 defineEmits(['prev', 'next'])
 
-const { t } = useI18n()
+const { locale, t } = useI18n()
 const settingKeys = INSTALLATION_SITE_SETTING_KEYS
+
+const localizedFieldValues = computed<Record<InstallationLocalizedSiteFieldKey, string>>(() => ({
+    siteTitle: resolveInstallationLocalizedSiteFieldInputValue('siteTitle', siteConfig.value.siteTitle, locale.value),
+    siteDescription: resolveInstallationLocalizedSiteFieldInputValue('siteDescription', siteConfig.value.siteDescription, locale.value),
+    siteKeywords: resolveInstallationLocalizedSiteFieldInputValue('siteKeywords', siteConfig.value.siteKeywords, locale.value),
+    siteCopyrightOwner: resolveInstallationLocalizedSiteFieldInputValue('siteCopyrightOwner', siteConfig.value.siteCopyrightOwner, locale.value),
+}))
 
 const isLocked = (key: string) => !!props.envSettings[key]
 const getLockMessage = (key: string) => resolveInstallationEnvLockMessage(t, key, props.envSettings[key])
+
+function updateLocalizedField(fieldKey: InstallationLocalizedSiteFieldKey, value?: string) {
+    switch (fieldKey) {
+        case 'siteTitle':
+            siteConfig.value.siteTitle = updateInstallationLocalizedSiteFieldValue('siteTitle', siteConfig.value.siteTitle, locale.value, value ?? '')
+            return
+        case 'siteDescription':
+            siteConfig.value.siteDescription = updateInstallationLocalizedSiteFieldValue('siteDescription', siteConfig.value.siteDescription, locale.value, value ?? '')
+            return
+        case 'siteKeywords':
+            siteConfig.value.siteKeywords = updateInstallationLocalizedSiteFieldValue('siteKeywords', siteConfig.value.siteKeywords, locale.value, value ?? '')
+            return
+        case 'siteCopyrightOwner':
+            siteConfig.value.siteCopyrightOwner = updateInstallationLocalizedSiteFieldValue('siteCopyrightOwner', siteConfig.value.siteCopyrightOwner, locale.value, value ?? '')
+            return
+        default:
+            return
+    }
+}
 </script>

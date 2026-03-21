@@ -1,15 +1,18 @@
 import os from 'os'
 import path from 'path'
 import fs from 'fs-extra'
-import { In } from 'typeorm'
 import { dataSource } from '../database'
 import { User } from '../entities/user'
 import { Setting } from '../entities/setting'
 import logger from '../utils/logger'
-import { getSettingLookupKeys, isInternalOnlySettingKey, isSettingEnvLocked, resolveSettingEnvEntry, SETTING_ENV_MAP } from './setting'
+import { isInternalOnlySettingKey, isSettingEnvLocked, resolveSetting, resolveSettingEnvEntry, setSettings, SETTING_ENV_MAP } from './setting'
 import { TEST_MODE } from '@/utils/shared/env'
 import type { InstallationEnvSetting } from '@/utils/shared/installation-env-setting'
-import type { InstallationSiteConfigModel } from '@/utils/shared/installation-settings'
+import {
+    mergeInstallationLocalizedSiteFieldValue,
+    resolveInstallationLocalizedSiteFieldInputValue,
+    type InstallationSiteConfigModel,
+} from '@/utils/shared/installation-settings'
 import { SettingKey } from '@/types/setting'
 import { isMaskedSettingPlaceholder, maskSettingValue, resolveSettingLevel, resolveSettingMaskType } from '@/server/utils/settings'
 
@@ -106,7 +109,8 @@ export interface SiteConfig extends InstallationSiteConfigModel {
     publicSecurityNumber?: string
 }
 
-type SaveSiteConfigInput = Pick<SiteConfig, 'defaultLanguage' | 'postCopyright' | 'siteTitle'> & Partial<SiteConfig>
+type SaveSiteConfigExtras = Pick<SiteConfig, 'siteOperator' | 'contactEmail' | 'showComplianceInfo' | 'icpLicenseNumber' | 'publicSecurityNumber'>
+type SaveSiteConfigInput = InstallationSiteConfigModel & Partial<SaveSiteConfigExtras>
 
 /**
  * 管理员创建接口
@@ -397,14 +401,13 @@ export async function isSystemInstalled(): Promise<boolean> {
  * 保存站点配置
  */
 export async function saveSiteConfig(config: SaveSiteConfigInput): Promise<void> {
-    const settingRepo = dataSource.getRepository(Setting)
     const normalizedConfig: SiteConfig = {
         siteTitle: config.siteTitle,
-        siteDescription: config.siteDescription || '',
-        siteKeywords: config.siteKeywords || '',
+        siteDescription: config.siteDescription,
+        siteKeywords: config.siteKeywords,
         siteUrl: config.siteUrl || '',
         postCopyright: config.postCopyright,
-        siteCopyrightOwner: config.siteCopyrightOwner || '',
+        siteCopyrightOwner: config.siteCopyrightOwner,
         siteCopyrightStartYear: config.siteCopyrightStartYear || '',
         defaultLanguage: config.defaultLanguage,
         siteOperator: config.siteOperator,
@@ -414,57 +417,39 @@ export async function saveSiteConfig(config: SaveSiteConfigInput): Promise<void>
         publicSecurityNumber: config.publicSecurityNumber,
     }
 
-    const settings = [
-        { key: SettingKey.SITE_TITLE, value: normalizedConfig.siteTitle, description: '站点标题', level: 0 },
-        { key: SettingKey.SITE_NAME, value: normalizedConfig.siteTitle, description: '站点名称', level: 0 },
-        { key: SettingKey.SITE_URL, value: normalizedConfig.siteUrl, description: '站点地址', level: 0 },
-        { key: SettingKey.SITE_DESCRIPTION, value: normalizedConfig.siteDescription, description: '站点描述', level: 0 },
-        { key: SettingKey.SITE_KEYWORDS, value: normalizedConfig.siteKeywords, description: '站点关键词', level: 0 },
-        { key: SettingKey.POST_COPYRIGHT, value: normalizedConfig.postCopyright || '', description: '默认文章版权协议', level: 0 },
-        { key: SettingKey.SITE_COPYRIGHT_OWNER, value: normalizedConfig.siteCopyrightOwner || '', description: '站点版权所有者', level: 0 },
-        { key: SettingKey.SITE_COPYRIGHT_START_YEAR, value: normalizedConfig.siteCopyrightStartYear || '', description: '站点版权起始年份', level: 0 },
-        { key: SettingKey.DEFAULT_LANGUAGE, value: normalizedConfig.defaultLanguage, description: '默认语言', level: 0 },
-        { key: SettingKey.SITE_OPERATOR, value: normalizedConfig.siteOperator || '', description: '运营方名称', level: 0 },
-        { key: SettingKey.CONTACT_EMAIL, value: normalizedConfig.contactEmail || '', description: '联系邮箱', level: 0 },
-        { key: SettingKey.SITE_LOGO, value: '', description: '站点 Logo', level: 0 },
-        { key: SettingKey.SITE_FAVICON, value: '', description: '站点图标', level: 0 },
-        { key: SettingKey.FOOTER_CODE, value: '', description: '页脚附加代码', level: 0 },
-        { key: SettingKey.SHOW_COMPLIANCE_INFO, value: normalizedConfig.showComplianceInfo ? 'true' : 'false', description: '是否显示备案信息', level: 0 },
-        { key: SettingKey.ICP_LICENSE_NUMBER, value: normalizedConfig.icpLicenseNumber || '', description: 'ICP 备案号', level: 0 },
-        { key: SettingKey.PUBLIC_SECURITY_NUMBER, value: normalizedConfig.publicSecurityNumber || '', description: '公安备案号', level: 0 },
-    ]
+    const [existingSiteTitle, existingSiteDescription, existingSiteKeywords, existingSiteCopyrightOwner] = await Promise.all([
+        resolveSetting(SettingKey.SITE_TITLE),
+        resolveSetting(SettingKey.SITE_DESCRIPTION),
+        resolveSetting(SettingKey.SITE_KEYWORDS),
+        resolveSetting(SettingKey.SITE_COPYRIGHT_OWNER),
+    ])
 
-    for (const setting of settings) {
-        const lookupKeys = getSettingLookupKeys(setting.key)
-        const existingCandidates = await settingRepo.find({ where: { key: In(lookupKeys) } })
-        const existing = existingCandidates.find((item) => String(item.key) === String(setting.key)) ?? existingCandidates[0] ?? null
+    const localizedTitle = mergeInstallationLocalizedSiteFieldValue('siteTitle', existingSiteTitle.value, normalizedConfig.siteTitle)
+    const localizedDescription = mergeInstallationLocalizedSiteFieldValue('siteDescription', existingSiteDescription.value, normalizedConfig.siteDescription)
+    const localizedKeywords = mergeInstallationLocalizedSiteFieldValue('siteKeywords', existingSiteKeywords.value, normalizedConfig.siteKeywords)
+    const localizedCopyrightOwner = mergeInstallationLocalizedSiteFieldValue('siteCopyrightOwner', existingSiteCopyrightOwner.value, normalizedConfig.siteCopyrightOwner)
 
-        // 检查是否受环境变量锁定
-        const isLocked = isSettingEnvLocked(setting.key)
+    const fallbackSiteName = resolveInstallationLocalizedSiteFieldInputValue('siteTitle', localizedTitle, normalizedConfig.defaultLanguage)
 
-        // 如果提交的值是脱敏占位符，且当前受环境变量锁定或数据库已有值，则跳过更新该字段
-        if (isMaskedSettingPlaceholder(setting.value, 'none')) {
-            continue
-        }
-
-        // 如果已由环境变量提供，且前端传值为空，则跳过以防止覆盖
-        if (isLocked && !setting.value) {
-            continue
-        }
-
-        if (existing && String(existing.key) === String(setting.key)) {
-            existing.value = setting.value
-            existing.description = setting.description
-            existing.level = setting.level
-            await settingRepo.save(existing)
-        } else {
-            await settingRepo.save(settingRepo.create(setting))
-            const legacyKeys = lookupKeys.filter((key) => String(key) !== String(setting.key))
-            if (legacyKeys.length > 0) {
-                await settingRepo.delete({ key: In(legacyKeys) })
-            }
-        }
-    }
+    await setSettings({
+        [SettingKey.SITE_TITLE]: { value: localizedTitle, description: '站点标题', level: 0 },
+        [SettingKey.SITE_NAME]: { value: fallbackSiteName, description: '站点名称', level: 0 },
+        [SettingKey.SITE_URL]: { value: normalizedConfig.siteUrl, description: '站点地址', level: 0 },
+        [SettingKey.SITE_DESCRIPTION]: { value: localizedDescription, description: '站点描述', level: 0 },
+        [SettingKey.SITE_KEYWORDS]: { value: localizedKeywords, description: '站点关键词', level: 0 },
+        [SettingKey.POST_COPYRIGHT]: { value: normalizedConfig.postCopyright || '', description: '默认文章版权协议', level: 0 },
+        [SettingKey.SITE_COPYRIGHT_OWNER]: { value: localizedCopyrightOwner, description: '站点版权所有者', level: 0 },
+        [SettingKey.SITE_COPYRIGHT_START_YEAR]: { value: normalizedConfig.siteCopyrightStartYear || '', description: '站点版权起始年份', level: 0 },
+        [SettingKey.DEFAULT_LANGUAGE]: { value: normalizedConfig.defaultLanguage, description: '默认语言', level: 0 },
+        [SettingKey.SITE_OPERATOR]: { value: normalizedConfig.siteOperator || '', description: '运营方名称', level: 0 },
+        [SettingKey.CONTACT_EMAIL]: { value: normalizedConfig.contactEmail || '', description: '联系邮箱', level: 0 },
+        [SettingKey.SITE_LOGO]: { value: '', description: '站点 Logo', level: 0 },
+        [SettingKey.SITE_FAVICON]: { value: '', description: '站点图标', level: 0 },
+        [SettingKey.FOOTER_CODE]: { value: '', description: '页脚附加代码', level: 0 },
+        [SettingKey.SHOW_COMPLIANCE_INFO]: { value: normalizedConfig.showComplianceInfo ? 'true' : 'false', description: '是否显示备案信息', level: 0 },
+        [SettingKey.ICP_LICENSE_NUMBER]: { value: normalizedConfig.icpLicenseNumber || '', description: 'ICP 备案号', level: 0 },
+        [SettingKey.PUBLIC_SECURITY_NUMBER]: { value: normalizedConfig.publicSecurityNumber || '', description: '公安备案号', level: 0 },
+    })
 
     logger.info('Site configuration saved successfully')
 }

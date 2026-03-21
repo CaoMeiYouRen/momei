@@ -6,6 +6,7 @@ import { isCopyrightType } from '@/types/copyright'
 import { getCopyrightLicenseOptions, resolveDefaultCopyrightLicense } from '@/utils/shared/copyright-options'
 import { getInstallationChecklist, type InstallationChecklistMode } from '@/utils/shared/installation-checklist'
 import {
+    coerceInstallationLocalizedSiteFieldValue,
     DEFAULT_INSTALLATION_EXTRA_CONFIG,
     DEFAULT_INSTALLATION_SITE_CONFIG,
     INSTALLATION_EXTRA_ENV_BACKFILL_MAP,
@@ -99,6 +100,26 @@ export function useInstallationWizard() {
         Object.entries(INSTALLATION_SITE_ENV_BACKFILL_MAP).forEach(([settingKey, configKey]) => {
             const envValue = envSettings[settingKey]?.value
             if (!envValue) {
+                return
+            }
+
+            if (configKey === 'siteTitle') {
+                siteConfig.value.siteTitle = coerceInstallationLocalizedSiteFieldValue('siteTitle', envValue)
+                return
+            }
+
+            if (configKey === 'siteDescription') {
+                siteConfig.value.siteDescription = coerceInstallationLocalizedSiteFieldValue('siteDescription', envValue)
+                return
+            }
+
+            if (configKey === 'siteKeywords') {
+                siteConfig.value.siteKeywords = coerceInstallationLocalizedSiteFieldValue('siteKeywords', envValue)
+                return
+            }
+
+            if (configKey === 'siteCopyrightOwner') {
+                siteConfig.value.siteCopyrightOwner = coerceInstallationLocalizedSiteFieldValue('siteCopyrightOwner', envValue)
                 return
             }
 

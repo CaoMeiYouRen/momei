@@ -157,13 +157,13 @@ describe('Admin Settings Page', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         mockRoute.query = {}
-        mockFetch.mockImplementation((url: string, options?: { method?: string, body?: unknown }) => {
+        mockFetch.mockImplementation(((url: string, options?: { method?: string, body?: unknown }) => {
             if (url === '/api/admin/settings' && options?.method === 'PUT') {
                 return Promise.resolve({ data: null })
             }
 
             return Promise.resolve(mockSettingsResponse)
-        })
+        }) as any)
     })
 
     it('renders smart mode summary and saves wrapped payload', async () => {
@@ -236,6 +236,122 @@ describe('Admin Settings Page', () => {
                     site_title: 'Updated Momei',
                     max_upload_size: '4.5MiB',
                     upload_limit_window: '86400',
+                },
+                reason: 'system_settings_update',
+                source: 'admin_ui',
+            },
+        }))
+    })
+
+    it('preserves structured localized setting payloads on save', async () => {
+        mockFetch.mockImplementation(((url: string, options?: { method?: string, body?: unknown }) => {
+            if (url === '/api/admin/settings' && options?.method === 'PUT') {
+                return Promise.resolve({ data: null })
+            }
+
+            return Promise.resolve({
+                data: {
+                    items: [
+                        {
+                            key: 'site_title',
+                            value: {
+                                version: 1,
+                                type: 'localized-text',
+                                locales: {
+                                    'zh-CN': '墨梅博客',
+                                    'en-US': 'Momei Blog',
+                                },
+                                legacyValue: '旧标题',
+                            },
+                            description: 'site title',
+                            level: 2,
+                            maskType: 'none',
+                            source: 'db',
+                            isLocked: false,
+                            envKey: 'NUXT_PUBLIC_APP_NAME',
+                            defaultUsed: false,
+                            lockReason: null,
+                            requiresRestart: false,
+                            localized: {
+                                valueType: 'localized-text',
+                                structured: true,
+                                legacyFormat: false,
+                                legacyValuePresent: true,
+                                availableLocales: ['zh-CN', 'en-US'],
+                            },
+                        },
+                    ],
+                    demoPreview: false,
+                },
+            })
+        }) as any)
+
+        const wrapper = await mountSuspended(SettingsPage, {
+            global: {
+                mocks: {
+                    $t: translate,
+                },
+                stubs: {
+                    AdminPageHeader: { template: '<div><slot name="actions" /></div>' },
+                    AdminFloatingActions: { template: '<div />' },
+                    GeneralSettings: { template: '<div>General</div>' },
+                    AISettings: { template: '<div>AI</div>' },
+                    EmailSettings: { template: '<div>Email</div>' },
+                    StorageSettings: { template: '<div>Storage</div>' },
+                    AnalyticsSettings: { template: '<div>Analytics</div>' },
+                    AuthSettings: { template: '<div>Auth</div>' },
+                    SecuritySettings: { template: '<div>Security</div>' },
+                    AdminNotificationSettings: { template: '<div>Notifications</div>' },
+                    LimitsSettings: { template: '<div>Limits</div>' },
+                    AgreementsSettings: { template: '<div>Agreements</div>' },
+                    CommercialSettings: { template: '<div>Commercial</div>' },
+                    SettingAuditLogList: { template: '<div>Audit Logs</div>' },
+                    SetupFollowUpCard: { template: '<div>Setup Follow Up</div>' },
+                    ThirdPartySettings: { template: '<div>Third Party</div>' },
+                    Card: { template: '<div><slot name="content" /></div>' },
+                    Tabs: { template: '<div><slot /></div>' },
+                    TabList: { template: '<div><slot /></div>' },
+                    Tab: { template: '<div><slot /></div>' },
+                    TabPanels: { template: '<div><slot /></div>' },
+                    TabPanel: { template: '<div><slot /></div>' },
+                    Button: { template: '<button @click="$emit(\'click\')"><slot /></button>' },
+                    Message: { template: '<div><slot /></div>' },
+                    Tag: { props: ['value'], template: '<span>{{ value }}</span>' },
+                },
+            },
+        })
+
+        await flushPromises()
+
+        // @ts-expect-error access exposed script setup binding for test
+        wrapper.vm.settings.site_title = {
+            version: 1,
+            type: 'localized-text',
+            locales: {
+                'zh-CN': '墨梅博客',
+                'en-US': 'Momei Blog',
+                'ja-JP': '墨梅ブログ',
+            },
+            legacyValue: '旧标题',
+        }
+
+        // @ts-expect-error access exposed script setup binding for test
+        await wrapper.vm.saveSettings()
+
+        const putCall = mockFetch.mock.calls.find(([, options]) => options?.method === 'PUT')
+        expect(putCall?.[1]).toEqual(expect.objectContaining({
+            body: {
+                settings: {
+                    site_title: {
+                        version: 1,
+                        type: 'localized-text',
+                        locales: {
+                            'zh-CN': '墨梅博客',
+                            'en-US': 'Momei Blog',
+                            'ja-JP': '墨梅ブログ',
+                        },
+                        legacyValue: '旧标题',
+                    },
                 },
                 reason: 'system_settings_update',
                 source: 'admin_ui',

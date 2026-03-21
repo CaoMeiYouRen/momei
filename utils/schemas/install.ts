@@ -2,14 +2,34 @@ import { z } from 'zod'
 import { isAppLocale } from '@/i18n/config/locale-registry'
 import { isCopyrightType } from '@/types/copyright'
 
+const localizedTextValueSchema = z.object({
+    version: z.literal(1),
+    type: z.literal('localized-text'),
+    locales: z.record(z.string(), z.string()).refine((value) => Object.keys(value).every(isAppLocale), {
+        message: '包含了无效的语言标识',
+    }),
+    legacyValue: z.string().nullable().optional(),
+})
+
+const localizedStringListValueSchema = z.object({
+    version: z.literal(1),
+    type: z.literal('localized-string-list'),
+    locales: z.record(z.string(), z.array(z.string())).refine((value) => Object.keys(value).every(isAppLocale), {
+        message: '包含了无效的语言标识',
+    }),
+    legacyValue: z.array(z.string()).nullable().optional(),
+})
+
 export const siteConfigSchema = z.object({
-    siteTitle: z.string().min(1, '站点标题不能为空').max(100),
-    siteDescription: z.string().max(500).optional().or(z.literal('')),
-    siteKeywords: z.string().max(200).optional().or(z.literal('')),
-    siteUrl: z.string().max(500).optional().or(z.literal('')),
+    siteTitle: localizedTextValueSchema.refine((value) => Object.values(value.locales).some((item) => item.trim().length > 0) || Boolean(value.legacyValue?.trim().length), {
+        message: '站点标题不能为空',
+    }),
+    siteDescription: localizedTextValueSchema,
+    siteKeywords: localizedStringListValueSchema,
+    siteUrl: z.string().max(500),
     postCopyright: z.string().refine((value) => value === '' || isCopyrightType(value), '请选择有效的版权协议'),
-    siteCopyrightOwner: z.string().max(100, '版权所有者不能超过 100 个字符').optional().or(z.literal('')),
-    siteCopyrightStartYear: z.string().regex(/^$|^\d{4}$/, '版权起始年份必须为四位年份').optional().or(z.literal('')),
+    siteCopyrightOwner: localizedTextValueSchema,
+    siteCopyrightStartYear: z.string().regex(/^$|^\d{4}$/, '版权起始年份必须为四位年份'),
     defaultLanguage: z.string().refine(isAppLocale, '请选择有效的默认语言'),
 })
 

@@ -1,13 +1,31 @@
 import type { CopyrightType } from '@/types/copyright'
-import { SettingKey, type AdminLanguageCode } from '@/types/setting'
+import {
+    SettingKey,
+    type AdminLanguageCode,
+    type LocalizedSettingScalar,
+    type LocalizedSettingType,
+    type LocalizedSettingValueV1,
+} from '@/types/setting'
+import {
+    cloneLocalizedSettingValue,
+    createEmptyLocalizedSettingValue,
+    getLocalizedFallbackChain,
+    hasMeaningfulLocalizedValue,
+    isLocalizedSettingValue,
+    normalizeLocalizedLegacyValue,
+    normalizeLocalizedStringList,
+    readLocalizedLocaleValue,
+    resolveRequestedAppLocale,
+    serializeLocalizedStringList,
+} from '@/utils/shared/localized-settings'
 
 export interface InstallationSiteConfigModel {
-    siteTitle: string
-    siteDescription: string
-    siteKeywords: string
+    siteTitle: LocalizedSettingValueV1<string>
+    siteDescription: LocalizedSettingValueV1<string>
+    siteKeywords: LocalizedSettingValueV1<string[]>
     siteUrl: string
     postCopyright: CopyrightType | ''
-    siteCopyrightOwner: string
+    siteCopyrightOwner: LocalizedSettingValueV1<string>
     siteCopyrightStartYear: string
     defaultLanguage: AdminLanguageCode
 }
@@ -41,6 +59,33 @@ export interface InstallationExtraConfigModel {
 
 export type InstallationSiteFieldErrors = Partial<Record<keyof InstallationSiteConfigModel, string>>
 export type InstallationExtraFieldErrors = Partial<Record<keyof InstallationExtraConfigModel, string>>
+
+export const INSTALLATION_SITE_LOCALIZED_FIELD_META = {
+    siteTitle: {
+        settingKey: SettingKey.SITE_TITLE,
+        valueType: 'localized-text',
+    },
+    siteDescription: {
+        settingKey: SettingKey.SITE_DESCRIPTION,
+        valueType: 'localized-text',
+    },
+    siteKeywords: {
+        settingKey: SettingKey.SITE_KEYWORDS,
+        valueType: 'localized-string-list',
+    },
+    siteCopyrightOwner: {
+        settingKey: SettingKey.SITE_COPYRIGHT_OWNER,
+        valueType: 'localized-text',
+    },
+} as const satisfies Record<string, { settingKey: SettingKey, valueType: LocalizedSettingType }>
+
+export type InstallationLocalizedSiteFieldKey = keyof typeof INSTALLATION_SITE_LOCALIZED_FIELD_META
+export interface InstallationLocalizedSiteFieldValueMap {
+    siteTitle: LocalizedSettingValueV1<string>
+    siteDescription: LocalizedSettingValueV1<string>
+    siteKeywords: LocalizedSettingValueV1<string[]>
+    siteCopyrightOwner: LocalizedSettingValueV1<string>
+}
 
 export const INSTALLATION_SITE_SETTING_KEYS = {
     siteTitle: SettingKey.SITE_TITLE,
@@ -92,12 +137,12 @@ export const INSTALLATION_SITE_ENV_BACKFILL_MAP = {
 } as const satisfies Record<string, keyof InstallationSiteConfigModel>
 
 export const DEFAULT_INSTALLATION_SITE_CONFIG: InstallationSiteConfigModel = {
-    siteTitle: '',
-    siteDescription: '',
-    siteKeywords: '',
+    siteTitle: createEmptyLocalizedSettingValue('localized-text') as LocalizedSettingValueV1<string>,
+    siteDescription: createEmptyLocalizedSettingValue('localized-text') as LocalizedSettingValueV1<string>,
+    siteKeywords: createEmptyLocalizedSettingValue('localized-string-list') as LocalizedSettingValueV1<string[]>,
     siteUrl: '',
     postCopyright: 'all-rights-reserved',
-    siteCopyrightOwner: '',
+    siteCopyrightOwner: createEmptyLocalizedSettingValue('localized-text') as LocalizedSettingValueV1<string>,
     siteCopyrightStartYear: '',
     defaultLanguage: 'zh-CN',
 }
@@ -127,4 +172,166 @@ export const DEFAULT_INSTALLATION_EXTRA_CONFIG: InstallationExtraConfigModel = {
     baiduAnalytics: '',
     googleAnalytics: '',
     clarityAnalytics: '',
+}
+
+function resolveInstallationLocalizedSiteFieldMeta(fieldKey: InstallationLocalizedSiteFieldKey) {
+    return INSTALLATION_SITE_LOCALIZED_FIELD_META[fieldKey]
+}
+
+function isInstallationStringListField(fieldKey: InstallationLocalizedSiteFieldKey): fieldKey is 'siteKeywords' {
+    return resolveInstallationLocalizedSiteFieldMeta(fieldKey).valueType === 'localized-string-list'
+}
+
+function parseInstallationLocalizedFieldValue<K extends InstallationLocalizedSiteFieldKey>(
+    fieldKey: K,
+    value: unknown,
+): NonNullable<InstallationLocalizedSiteFieldValueMap[K]> {
+    const { valueType } = resolveInstallationLocalizedSiteFieldMeta(fieldKey)
+
+    if (isLocalizedSettingValue(value, valueType)) {
+        return cloneLocalizedSettingValue(value) as NonNullable<InstallationLocalizedSiteFieldValueMap[K]>
+    }
+
+    if (typeof value === 'string' && value.trim().length > 0) {
+        try {
+            const parsedValue = JSON.parse(value) as unknown
+            if (isLocalizedSettingValue(parsedValue, valueType)) {
+                return cloneLocalizedSettingValue(parsedValue) as NonNullable<InstallationLocalizedSiteFieldValueMap[K]>
+            }
+        } catch {
+            // Fall through to legacy compatibility below.
+        }
+    }
+
+    return createEmptyLocalizedSettingValue(
+        valueType,
+        typeof value === 'string'
+            ? normalizeLocalizedLegacyValue(value, valueType)
+            : null,
+    ) as NonNullable<InstallationLocalizedSiteFieldValueMap[K]>
+}
+
+function formatInstallationLocalizedFieldValue(
+    fieldKey: InstallationLocalizedSiteFieldKey,
+    value: LocalizedSettingScalar | null | undefined,
+): string {
+    if (!hasMeaningfulLocalizedValue(value)) {
+        return ''
+    }
+
+    if (resolveInstallationLocalizedSiteFieldMeta(fieldKey).valueType === 'localized-string-list') {
+        return serializeLocalizedStringList(Array.isArray(value) ? value : normalizeLocalizedStringList(String(value ?? '')))
+    }
+
+    return typeof value === 'string' ? value : ''
+}
+
+export function coerceInstallationLocalizedSiteFieldValue<K extends InstallationLocalizedSiteFieldKey>(
+    fieldKey: K,
+    value: unknown,
+): InstallationLocalizedSiteFieldValueMap[K] {
+    return parseInstallationLocalizedFieldValue(fieldKey, value)
+}
+
+export function resolveInstallationLocalizedSiteFieldInputValue(
+    fieldKey: InstallationLocalizedSiteFieldKey,
+    value: unknown,
+    locale?: string | null,
+): string {
+    const normalizedValue = parseInstallationLocalizedFieldValue(fieldKey, value)
+    const fallbackChain = getLocalizedFallbackChain(locale)
+
+    if (isInstallationStringListField(fieldKey)) {
+        const typedValue = normalizedValue as LocalizedSettingValueV1<string[]>
+
+        for (const candidateLocale of fallbackChain) {
+            const localeValue = readLocalizedLocaleValue(typedValue, candidateLocale)
+            if (hasMeaningfulLocalizedValue(localeValue)) {
+                return formatInstallationLocalizedFieldValue(fieldKey, localeValue)
+            }
+        }
+
+        return formatInstallationLocalizedFieldValue(fieldKey, typedValue.legacyValue)
+    }
+
+    const typedValue = normalizedValue as LocalizedSettingValueV1<string>
+
+    for (const candidateLocale of fallbackChain) {
+        const localeValue = readLocalizedLocaleValue(typedValue, candidateLocale)
+        if (hasMeaningfulLocalizedValue(localeValue)) {
+            return formatInstallationLocalizedFieldValue(fieldKey, localeValue)
+        }
+    }
+
+    return formatInstallationLocalizedFieldValue(fieldKey, typedValue.legacyValue)
+}
+
+export function updateInstallationLocalizedSiteFieldValue<K extends InstallationLocalizedSiteFieldKey>(
+    fieldKey: K,
+    currentValue: unknown,
+    locale: string | null | undefined,
+    nextInputValue: string,
+): InstallationLocalizedSiteFieldValueMap[K] {
+    const normalizedValue = parseInstallationLocalizedFieldValue(fieldKey, currentValue)
+    const targetLocale = resolveRequestedAppLocale(locale)
+
+    if (isInstallationStringListField(fieldKey)) {
+        const nextValue = cloneLocalizedSettingValue(normalizedValue as LocalizedSettingValueV1<string[]>)
+        const normalizedList = normalizeLocalizedStringList(nextInputValue)
+        if (normalizedList.length > 0) {
+            nextValue.locales[targetLocale] = normalizedList
+        } else {
+            delete nextValue.locales[targetLocale]
+        }
+
+        return nextValue as InstallationLocalizedSiteFieldValueMap[K]
+    }
+
+    const nextValue = cloneLocalizedSettingValue(normalizedValue as LocalizedSettingValueV1<string>)
+
+    if (nextInputValue.trim().length > 0) {
+        nextValue.locales[targetLocale] = nextInputValue
+    } else {
+        delete nextValue.locales[targetLocale]
+    }
+
+    return nextValue as InstallationLocalizedSiteFieldValueMap[K]
+}
+
+export function mergeInstallationLocalizedSiteFieldValue<K extends InstallationLocalizedSiteFieldKey>(
+    fieldKey: K,
+    existingValue: unknown,
+    incomingValue: unknown,
+): InstallationLocalizedSiteFieldValueMap[K] {
+    const nextValue = parseInstallationLocalizedFieldValue(fieldKey, incomingValue)
+
+    if (isInstallationStringListField(fieldKey)) {
+        const mergedValue = cloneLocalizedSettingValue(parseInstallationLocalizedFieldValue(fieldKey, existingValue) as LocalizedSettingValueV1<string[]>)
+        const typedNextValue = nextValue as LocalizedSettingValueV1<string[]>
+
+        mergedValue.locales = {
+            ...mergedValue.locales,
+            ...typedNextValue.locales,
+        }
+
+        if (hasMeaningfulLocalizedValue(typedNextValue.legacyValue)) {
+            mergedValue.legacyValue = typedNextValue.legacyValue
+        }
+
+        return mergedValue as InstallationLocalizedSiteFieldValueMap[K]
+    }
+
+    const mergedValue = cloneLocalizedSettingValue(parseInstallationLocalizedFieldValue(fieldKey, existingValue) as LocalizedSettingValueV1<string>)
+    const typedNextValue = nextValue as LocalizedSettingValueV1<string>
+
+    mergedValue.locales = {
+        ...mergedValue.locales,
+        ...typedNextValue.locales,
+    }
+
+    if (hasMeaningfulLocalizedValue(typedNextValue.legacyValue)) {
+        mergedValue.legacyValue = typedNextValue.legacyValue
+    }
+
+    return mergedValue as InstallationLocalizedSiteFieldValueMap[K]
 }

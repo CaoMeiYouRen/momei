@@ -10,6 +10,10 @@ import {
 import { dataSource } from '../database'
 import { SettingKey } from '@/types/setting'
 
+vi.mock('@/server/services/setting-audit', () => ({
+    recordSettingAuditLogs: vi.fn(),
+}))
+
 // Mock 数据库
 vi.mock('../database', () => ({
     dataSource: {
@@ -139,7 +143,7 @@ describe('Installation Service', () => {
     })
 
     describe('saveSiteConfig', () => {
-        it('should save site configuration to database', async () => {
+        it('should save site configuration to database with localized setting payloads', async () => {
             const mockSave = vi.fn()
             const mockCreate = vi.fn((item) => item)
             const mockFind = vi.fn().mockResolvedValue([])
@@ -152,32 +156,156 @@ describe('Installation Service', () => {
             } as any)
 
             const config = {
-                siteTitle: 'Test Blog',
-                siteDescription: 'A test blog',
-                siteKeywords: 'test, blog',
+                siteTitle: {
+                    version: 1 as const,
+                    type: 'localized-text' as const,
+                    locales: {
+                        'zh-CN': 'Test Blog',
+                    },
+                    legacyValue: '旧站点标题',
+                },
+                siteDescription: {
+                    version: 1 as const,
+                    type: 'localized-text' as const,
+                    locales: {
+                        'zh-CN': 'A test blog',
+                    },
+                    legacyValue: '旧站点描述',
+                },
+                siteKeywords: {
+                    version: 1 as const,
+                    type: 'localized-string-list' as const,
+                    locales: {
+                        'zh-CN': ['test', 'blog'],
+                    },
+                    legacyValue: ['旧关键词'],
+                },
                 siteUrl: 'https://example.com',
                 postCopyright: 'all-rights-reserved' as const,
-                siteCopyrightOwner: 'Test Studio',
+                siteCopyrightOwner: {
+                    version: 1 as const,
+                    type: 'localized-text' as const,
+                    locales: {
+                        'zh-CN': 'Test Studio',
+                    },
+                    legacyValue: '旧版权方',
+                },
                 siteCopyrightStartYear: '2024',
                 defaultLanguage: 'zh-CN' as const,
             }
 
             await saveSiteConfig(config)
 
-            expect(mockSave).toHaveBeenCalledTimes(17)
-            expect(mockSave).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    key: SettingKey.SITE_TITLE,
-                    value: 'Test Blog',
-                }),
-            )
-            expect(mockSave).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    key: SettingKey.SITE_COPYRIGHT_OWNER,
-                    value: 'Test Studio',
-                }),
-            )
+            const savedSiteTitle = mockSave.mock.calls
+                .map(([value]) => value)
+                .find((value) => value.key === SettingKey.SITE_TITLE)
+            const savedSiteName = mockSave.mock.calls
+                .map(([value]) => value)
+                .find((value) => value.key === SettingKey.SITE_NAME)
+            const savedCopyrightOwner = mockSave.mock.calls
+                .map(([value]) => value)
+                .find((value) => value.key === SettingKey.SITE_COPYRIGHT_OWNER)
+
+            expect(savedSiteTitle).toBeDefined()
+            expect(savedSiteName).toBeDefined()
+            expect(savedCopyrightOwner).toBeDefined()
+            expect(JSON.parse(savedSiteTitle.value)).toEqual({
+                version: 1,
+                type: 'localized-text',
+                locales: {
+                    'zh-CN': 'Test Blog',
+                },
+                legacyValue: '旧站点标题',
+            })
+            expect(savedSiteName.value).toBe('Test Blog')
+            expect(JSON.parse(savedCopyrightOwner.value)).toEqual({
+                version: 1,
+                type: 'localized-text',
+                locales: {
+                    'zh-CN': 'Test Studio',
+                },
+                legacyValue: '旧版权方',
+            })
             expect(mockFind).toHaveBeenCalled()
+        })
+
+        it('should preserve existing locales when installation saves a new locale payload', async () => {
+            const mockSave = vi.fn()
+            const mockCreate = vi.fn((item) => item)
+            const mockFind = vi.fn(({ where }) => {
+                const keys = where?.key?._value ?? where?.key ?? []
+
+                if (Array.isArray(keys) && keys.includes(SettingKey.SITE_TITLE)) {
+                    return Promise.resolve([{
+                        key: SettingKey.SITE_TITLE,
+                        value: JSON.stringify({
+                            version: 1,
+                            type: 'localized-text',
+                            locales: {
+                                'zh-CN': '墨梅博客',
+                            },
+                            legacyValue: '旧标题',
+                        }),
+                    }])
+                }
+
+                return Promise.resolve([])
+            })
+
+            vi.mocked(dataSource.getRepository).mockReturnValue({
+                findOne: vi.fn().mockResolvedValue(null),
+                find: mockFind,
+                delete: vi.fn().mockResolvedValue(undefined),
+                create: mockCreate,
+                save: mockSave,
+            } as any)
+
+            await saveSiteConfig({
+                siteTitle: {
+                    version: 1 as const,
+                    type: 'localized-text',
+                    locales: {
+                        'en-US': 'Momei Blog',
+                    },
+                    legacyValue: null,
+                },
+                siteDescription: {
+                    version: 1 as const,
+                    type: 'localized-text',
+                    locales: {},
+                    legacyValue: null,
+                },
+                siteKeywords: {
+                    version: 1 as const,
+                    type: 'localized-string-list',
+                    locales: {},
+                    legacyValue: null,
+                },
+                siteUrl: 'https://example.com',
+                postCopyright: 'all-rights-reserved',
+                siteCopyrightOwner: {
+                    version: 1 as const,
+                    type: 'localized-text',
+                    locales: {},
+                    legacyValue: null,
+                },
+                siteCopyrightStartYear: '2024',
+                defaultLanguage: 'zh-CN',
+            })
+
+            const savedSiteTitle = mockSave.mock.calls
+                .map(([value]) => value)
+                .find((value) => value.key === SettingKey.SITE_TITLE)
+
+            expect(JSON.parse(savedSiteTitle.value)).toEqual({
+                version: 1,
+                type: 'localized-text',
+                locales: {
+                    'zh-CN': '墨梅博客',
+                    'en-US': 'Momei Blog',
+                },
+                legacyValue: '旧标题',
+            })
         })
     })
 
