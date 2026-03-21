@@ -206,6 +206,7 @@
 
 <script setup lang="ts">
 import { z } from 'zod'
+import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/use-auth-session'
 import { authClient } from '@/lib/auth-client'
 import { registerSchema } from '@/utils/schemas/auth'
 
@@ -266,6 +267,8 @@ const handleRegister = async () => {
 
     loading.value = true
     try {
+        invalidateAuthSessionState()
+
         const { error } = await authClient.signUp.email({
             email: form.email,
             password: form.password,
@@ -280,6 +283,7 @@ const handleRegister = async () => {
         })
 
         if (error) {
+            await refreshAuthSession()
             toast.add({
                 severity: 'error',
                 summary: t('common.error'),
@@ -297,6 +301,7 @@ const handleRegister = async () => {
             navigateTo(localePath('/'))
         }
     } catch (e) {
+        await refreshAuthSession()
         console.error(e)
         toast.add({
             severity: 'error',

@@ -1,4 +1,4 @@
-import { authClient } from '@/lib/auth-client'
+import { resolveRouteAuthSession } from '@/composables/use-auth-session'
 
 /**
  * 身份验证中间件 (需要登录)
@@ -6,15 +6,9 @@ import { authClient } from '@/lib/auth-client'
 export default defineNuxtRouteMiddleware(async (to) => {
     const localePath = useLocalePath()
 
-    const { data: session } = await authClient.useSession((url, options) => useFetch(url, {
-        ...options,
-        headers: {
-            ...options?.headers,
-            ...useRequestHeaders(['cookie']),
-        },
-    }))
+    const session = await resolveRouteAuthSession()
 
-    if (!session.value) {
+    if (!session) {
         return navigateTo({
             path: localePath('/login'),
             query: {

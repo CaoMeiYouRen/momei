@@ -77,6 +77,7 @@
 
 <script setup lang="ts">
 import { z } from 'zod'
+import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/use-auth-session'
 import { authClient } from '@/lib/auth-client'
 
 const { t, locales, setLocale } = useI18n()
@@ -145,7 +146,8 @@ const handleAvatarUpload = async (event: any) => {
         if (response.data?.url) {
             profileForm.image = response.data.url
             toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.profile.upload_success'), life: 3000 })
-            await authClient.getSession()
+            invalidateAuthSessionState()
+            await refreshAuthSession()
         }
     } catch (error) {
         console.error('Avatar upload failed', error)
@@ -165,22 +167,30 @@ const handleUpdateProfile = async () => {
 
     loading.value = true
     try {
+        invalidateAuthSessionState()
+
         const { error } = await authClient.updateUser({
             name: profileForm.name,
             image: profileForm.image,
             language: profileForm.language || undefined,
             timezone: profileForm.timezone || undefined,
-        } as any)
+        } as any, {
+            disableSignal: true,
+        })
 
         if (error) {
+            await refreshAuthSession()
             toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || error.statusText, life: 3000 })
         } else {
+            await refreshAuthSession()
+
             if (profileForm.language) {
                 await setLocale(profileForm.language as any)
             }
             toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.profile.success'), life: 3000 })
         }
     } catch (e) {
+        await refreshAuthSession()
         console.error(e)
         toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
     } finally {

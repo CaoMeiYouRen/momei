@@ -10,12 +10,19 @@
 </template>
 
 <script setup lang="ts">
-import { authClient } from '@/lib/auth-client'
+import { initializeAuthSessionSync } from '@/lib/auth-client'
+import { primeHydratedAuthSession, setupAuthSessionLifecycle, useAuthSession } from '@/composables/use-auth-session'
 
 const { t, setLocale, locale } = useI18n()
 const route = useRoute()
 const config = useRuntimeConfig()
-const session = authClient.useSession()
+
+initializeAuthSessionSync()
+
+primeHydratedAuthSession()
+
+const session = useAuthSession()
+setupAuthSessionLifecycle(session)
 const { startTour, maybeAutoStartTour } = useOnboarding()
 const { fetchTheme, applyTheme } = useTheme()
 const {

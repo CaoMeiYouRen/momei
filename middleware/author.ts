@@ -1,4 +1,4 @@
-import { authClient } from '@/lib/auth-client'
+import { resolveRouteAuthSession } from '@/composables/use-auth-session'
 import { isAdminOrAuthor } from '@/utils/shared/roles'
 
 /**
@@ -7,15 +7,9 @@ import { isAdminOrAuthor } from '@/utils/shared/roles'
 export default defineNuxtRouteMiddleware(async (to) => {
     const localePath = useLocalePath()
 
-    const { data: session } = await authClient.useSession((url, options) => useFetch(url, {
-        ...options,
-        headers: {
-            ...options?.headers,
-            ...useRequestHeaders(['cookie']),
-        },
-    }))
+    const session = await resolveRouteAuthSession()
 
-    if (!session.value) {
+    if (!session) {
         return navigateTo({
             path: localePath('/login'),
             query: {
@@ -24,7 +18,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
         })
     }
 
-    if (!isAdminOrAuthor(session.value.user.role)) {
+    if (!isAdminOrAuthor(session.user.role)) {
         return navigateTo(localePath('/'))
     }
 })

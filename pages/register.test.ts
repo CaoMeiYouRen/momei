@@ -2,11 +2,22 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import RegisterPage from './register.vue'
 
+const { mockInvalidateAuthSessionState, mockRefreshAuthSession, mockRegisterEmail } = vi.hoisted(() => ({
+    mockInvalidateAuthSessionState: vi.fn(),
+    mockRefreshAuthSession: vi.fn(),
+    mockRegisterEmail: vi.fn(),
+}))
+
+vi.mock('@/composables/use-auth-session', () => ({
+    invalidateAuthSessionState: mockInvalidateAuthSessionState,
+    refreshAuthSession: mockRefreshAuthSession,
+}))
+
 // Mock auth-client
 vi.mock('@/lib/auth-client', () => ({
     authClient: {
         signUp: {
-            email: vi.fn(),
+            email: mockRegisterEmail,
         },
         signIn: {
             social: vi.fn(),
@@ -75,7 +86,12 @@ const stubs = {
     Divider: { template: '<hr /><div class="divider-text"><slot /></div>' },
     Message: { template: '<div v-if="severity" class="message"><slot /></div>', props: ['severity', 'size', 'variant'] },
     Toast: { template: '<div />' },
-    'app-captcha': { template: '<div />' },
+    'app-captcha': {
+        template: '<div />',
+        methods: {
+            reset: vi.fn(),
+        },
+    },
     NuxtLink: { template: '<a :href="to"><slot /></a>', props: ['to', 'target'] },
     i18nT: { template: '<span><slot name="agreement" /><slot name="privacy" /></span>', props: ['keypath'] },
 }
@@ -244,5 +260,32 @@ describe('RegisterPage', () => {
 
         // Legal links should exist
         expect(wrapper.html().length).toBeGreaterThan(0)
+    })
+
+    it('restores session state when registration fails', async () => {
+        mockRegisterEmail.mockResolvedValue({
+            error: {
+                message: 'Register failed',
+                statusText: 'Bad Request',
+            },
+        })
+
+        const wrapper = await mountSuspended(RegisterPage, {
+            global: {
+                stubs,
+            },
+        })
+
+        await wrapper.find('input#name').setValue('Tester')
+        await wrapper.find('input#email').setValue('tester@momei.dev')
+        await wrapper.find('input#password').setValue('secure-pass')
+        await wrapper.find('input#confirmPassword').setValue('secure-pass')
+        await wrapper.find('input[type="checkbox"]').setChecked(true)
+        await wrapper.find('form').trigger('submit.prevent')
+
+        await vi.waitFor(() => {
+            expect(mockInvalidateAuthSessionState).toHaveBeenCalledTimes(1)
+            expect(mockRefreshAuthSession).toHaveBeenCalledTimes(1)
+        })
     })
 })

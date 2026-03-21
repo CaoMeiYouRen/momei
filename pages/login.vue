@@ -161,6 +161,7 @@
 
 <script setup lang="ts">
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
+import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/use-auth-session'
 import { authClient } from '@/lib/auth-client'
 import { loginSchema } from '@/utils/schemas/auth'
 
@@ -266,6 +267,8 @@ const handleEmailLogin = async () => {
 
     loading.value = true
     try {
+        invalidateAuthSessionState()
+
         const { error } = await authClient.signIn.email({
             email: form.email,
             password: form.password,
@@ -279,6 +282,7 @@ const handleEmailLogin = async () => {
         })
 
         if (error) {
+            await refreshAuthSession()
             toast.add({
                 severity: 'error',
                 summary: t('common.error'),
@@ -290,6 +294,7 @@ const handleEmailLogin = async () => {
             navigateTo(redirectTarget.value)
         }
     } catch (e) {
+        await refreshAuthSession()
         console.error(e)
         toast.add({
             severity: 'error',

@@ -8,6 +8,16 @@ const { mockEnsureLocaleMessageModules } = vi.hoisted(() => ({
     mockEnsureLocaleMessageModules: vi.fn(),
 }))
 
+const { mockInvalidateAuthSessionState, mockRefreshAuthSession } = vi.hoisted(() => ({
+    mockInvalidateAuthSessionState: vi.fn(),
+    mockRefreshAuthSession: vi.fn(),
+}))
+
+vi.mock('@/composables/use-auth-session', () => ({
+    invalidateAuthSessionState: mockInvalidateAuthSessionState,
+    refreshAuthSession: mockRefreshAuthSession,
+}))
+
 vi.mock('@/i18n/config/locale-runtime-loader', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@/i18n/config/locale-runtime-loader')>()
 

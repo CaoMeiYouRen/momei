@@ -35,6 +35,16 @@ const { mockEmailSignIn, mockSocialSignIn, mockNavigateTo, mockRoute, mockRuntim
     },
 }))
 
+const { mockInvalidateAuthSessionState, mockRefreshAuthSession } = vi.hoisted(() => ({
+    mockInvalidateAuthSessionState: vi.fn(),
+    mockRefreshAuthSession: vi.fn(),
+}))
+
+vi.mock('@/composables/use-auth-session', () => ({
+    invalidateAuthSessionState: mockInvalidateAuthSessionState,
+    refreshAuthSession: mockRefreshAuthSession,
+}))
+
 vi.mock('@/i18n/config/locale-runtime-loader', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@/i18n/config/locale-runtime-loader')>()
 
@@ -85,7 +95,12 @@ const stubs = {
     Divider: { template: '<hr />' },
     Message: { template: '<div v-if="severity"><slot /></div>', props: ['severity', 'size', 'variant'] },
     Toast: { template: '<div />' },
-    'app-captcha': { template: '<div />' },
+    'app-captcha': {
+        template: '<div />',
+        methods: {
+            reset: vi.fn(),
+        },
+    },
     NuxtLink: { template: '<a :href="to"><slot /></a>', props: ['to', 'target'] },
     i18nT: { template: '<span><slot name="agreement" /><slot name="privacy" /></span>', props: ['keypath'] },
 }
@@ -256,5 +271,26 @@ describe('LoginPage', () => {
             password: 'secure-pass',
         }))
         expect(mockNavigateTo).toHaveBeenCalledWith('/admin/posts/new')
+    })
+
+    it('restores session state when email sign in fails', async () => {
+        mockEmailSignIn.mockResolvedValue({
+            error: {
+                message: 'Login failed',
+                statusText: 'Unauthorized',
+            },
+        })
+
+        const wrapper = await mountLoginPage()
+
+        await wrapper.find('input#email').setValue('writer@momei.dev')
+        await wrapper.find('input#password').setValue('wrong-pass')
+        await wrapper.find('form').trigger('submit.prevent')
+
+        expect(mockInvalidateAuthSessionState).toHaveBeenCalledTimes(1)
+        expect(mockRefreshAuthSession).toHaveBeenCalledTimes(1)
+        expect(mockToast.add).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'error',
+        }))
     })
 })

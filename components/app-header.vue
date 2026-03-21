@@ -332,6 +332,7 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import type { MenuItem } from 'primevue/menuitem'
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
+import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/use-auth-session'
 import { authClient } from '@/lib/auth-client'
 import { isAdminOrAuthor, isAdmin } from '@/utils/shared/roles'
 
@@ -470,13 +471,23 @@ const adminMenuItems = computed(() => {
 
 const userMenu = ref()
 const handleLogout = async () => {
-    await authClient.signOut({
-        fetchOptions: {
-            onSuccess: () => {
-                navigateTo(localePath('/login'))
+    invalidateAuthSessionState()
+
+    try {
+        const result = await authClient.signOut({
+            fetchOptions: {
+                onSuccess: () => {
+                    navigateTo(localePath('/login'))
+                },
             },
-        },
-    })
+        })
+
+        if (result?.error) {
+            await refreshAuthSession()
+        }
+    } catch {
+        await refreshAuthSession()
+    }
 }
 
 const userMenuItems = computed(() => [
