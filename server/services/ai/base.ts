@@ -55,6 +55,10 @@ function normalizeTaskResultForResponse(
         return undefined
     }
 
+    if (task.type !== 'translate' && task.status !== 'completed') {
+        return undefined
+    }
+
     if (typeof taskResult !== 'object' || Array.isArray(taskResult)) {
         return options.includeRaw ? taskResult : taskResult
     }
