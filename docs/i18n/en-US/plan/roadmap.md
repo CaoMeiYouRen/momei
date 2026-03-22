@@ -401,6 +401,17 @@ This document outlines the development blueprint for the project. For specific t
     - Release now runs a reproducible dependency-risk gate with an allowlist-based temporary exception baseline for known unresolved high risks.
     - The admin post editor now allows switching an untouched blank new draft to another language while still protecting drafts that already contain real input.
 
+### Stage 18: Validation Baseline Deepening & I18n Maintenance Consolidation (Planned)
+
+> [!NOTE]
+> This stage is newly planned. The Chinese roadmap remains the authoritative source for detailed scope and acceptance criteria.
+
+1. Deepen browser and performance baselines by extending key admin and authoring flows from Chromium-only coverage to Firefox / WebKit and minimum mobile viewport validation, while closing the current async chunk budget overrun.
+2. Reduce release-time dependency risk by replacing or otherwise verifiably containing the `mjml` / `mjml-cli` -> `html-minifier` high-risk chain instead of relying on a long-lived allowlist alone.
+3. Split oversized `admin.json` locale resources into stable domain modules and converge the admin locale loading registry on one shared fact source.
+4. Promote `ja-JP` from the earlier `ui-ready` tier to the same maintenance standard as `en-US`, `zh-TW`, and `ko-KR` across locale parity, docs, and audit gates.
+5. Use remaining phase capacity for a first governance pass on repeated pure functions and shared type fragments, with at least one reusable extraction landing behind tests and focused verification.
+
 ## 3. Backlog & Long-term Roadmap
 
 > [!NOTE]
