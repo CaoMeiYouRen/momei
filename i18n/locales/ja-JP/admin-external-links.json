@@ -2,7 +2,35 @@
     "pages": {
         "admin": {
             "external_links": {
-                "title": "外部リンク管理"
+                "clicks": "クリック数",
+                "empty": "外部リンクはまだありません",
+                "messages": {
+                    "copy_success": "リンクをクリップボードにコピーしました",
+                    "create_success": "外部リンクを作成しました",
+                    "delete_confirm": "この外部リンクを削除してもよろしいですか？",
+                    "delete_failed": "外部リンクの削除に失敗しました",
+                    "delete_success": "外部リンクを削除しました",
+                    "load_failed": "外部リンクの読み込みに失敗しました",
+                    "save_failed": "外部リンクの保存に失敗しました",
+                    "stats_failed": "統計情報の読み込みに失敗しました",
+                    "update_success": "外部リンクを更新しました",
+                    "url_required": "リンク URL は必須です"
+                },
+                "no_follow": "nofollow",
+                "original_url": "元のリンク",
+                "short_code": "短縮コード",
+                "show_redirect": "リダイレクトページ",
+                "show_redirect_page": "リダイレクトページを表示",
+                "stats": "統計情報",
+                "status": "状態",
+                "statuses": {
+                    "active": "有効",
+                    "blocked": "ブロック済み",
+                    "expired": "期限切れ"
+                },
+                "title": "外部リンク管理",
+                "title_placeholder": "任意のリンクタイトル",
+                "url_placeholder": "例: https://example.com"
             }
         }
     }

@@ -3,9 +3,73 @@
         "admin": {
             "ad": {
                 "campaigns": {
+                    "clicks": "クリック数",
+                    "empty": "広告キャンペーンはまだありません",
+                    "end_date": "終了日",
+                    "impressions": "表示回数",
+                    "messages": {
+                        "create_success": "広告キャンペーンを作成しました",
+                        "delete_confirm": "この広告キャンペーンを削除してもよろしいですか？",
+                        "delete_failed": "広告キャンペーンの削除に失敗しました",
+                        "delete_success": "広告キャンペーンを削除しました",
+                        "load_failed": "広告キャンペーンの読み込みに失敗しました",
+                        "name_required": "名称は必須です",
+                        "save_failed": "広告キャンペーンの保存に失敗しました",
+                        "update_success": "広告キャンペーンを更新しました"
+                    },
+                    "revenue": "収益",
+                    "start_date": "開始日",
+                    "status": "状態",
+                    "statuses": {
+                        "active": "進行中",
+                        "draft": "下書き",
+                        "ended": "終了",
+                        "paused": "一時停止"
+                    },
                     "title": "広告キャンペーン"
                 },
                 "placements": {
+                    "adapter": "アダプター",
+                    "disabled": "無効",
+                    "empty": "広告枠はまだありません",
+                    "enabled": "有効",
+                    "format": "形式",
+                    "formats": {
+                        "display": "ディスプレイ",
+                        "native": "ネイティブ",
+                        "responsive": "レスポンシブ",
+                        "video": "動画"
+                    },
+                    "location": "配置位置",
+                    "locations": {
+                        "content_bottom": "本文下部",
+                        "content_middle": "本文中部",
+                        "content_top": "本文上部",
+                        "footer": "フッター",
+                        "header": "ヘッダー",
+                        "sidebar": "サイドバー"
+                    },
+                    "messages": {
+                        "adapter_required": "アダプターは必須です",
+                        "create_success": "広告枠を作成しました",
+                        "delete_confirm": "この広告枠を削除してもよろしいですか？",
+                        "delete_failed": "広告枠の削除に失敗しました",
+                        "delete_success": "広告枠を削除しました",
+                        "disable_success": "広告枠を無効化しました",
+                        "enable_success": "広告枠を有効化しました",
+                        "format_required": "形式は必須です",
+                        "load_failed": "広告枠の読み込みに失敗しました",
+                        "location_required": "配置位置は必須です",
+                        "name_required": "名称は必須です",
+                        "save_failed": "広告枠の保存に失敗しました",
+                        "update_failed": "広告枠の更新に失敗しました",
+                        "update_success": "広告枠を更新しました"
+                    },
+                    "priority": "優先度",
+                    "slot_id": "広告枠 ID",
+                    "slot_id_hint": "広告プラットフォームの広告枠 ID を入力してください",
+                    "slot_id_placeholder": "例: ca-pub-1234567890/1234567890",
+                    "status": "状態",
                     "title": "広告枠管理"
                 },
                 "title": "収益化管理"
