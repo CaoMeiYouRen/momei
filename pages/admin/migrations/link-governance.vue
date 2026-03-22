@@ -23,6 +23,155 @@
 
         <Card class="admin-link-governance__card">
             <template #content>
+                <div class="admin-link-governance__section-header">
+                    <div>
+                        <h3 class="admin-link-governance__section-title">
+                            {{ $t('pages.admin.link_governance.execution.title') }}
+                        </h3>
+                        <p class="admin-link-governance__section-description">
+                            {{ $t('pages.admin.link_governance.execution.description') }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="admin-link-governance__execution-grid">
+                    <div class="admin-link-governance__field">
+                        <label class="admin-link-governance__label" for="link-governance-scopes">
+                            {{ $t('pages.admin.link_governance.execution.scopes') }}
+                        </label>
+                        <MultiSelect
+                            id="link-governance-scopes"
+                            v-model="executionForm.scopes"
+                            :options="scopeOptions"
+                            option-label="label"
+                            option-value="value"
+                            display="chip"
+                            class="admin-link-governance__input"
+                        />
+                    </div>
+
+                    <div class="admin-link-governance__field">
+                        <label class="admin-link-governance__label" for="link-governance-content-types">
+                            {{ $t('pages.admin.link_governance.execution.content_types') }}
+                        </label>
+                        <MultiSelect
+                            id="link-governance-content-types"
+                            v-model="executionForm.contentTypes"
+                            :options="contentTypeOptions"
+                            option-label="label"
+                            option-value="value"
+                            display="chip"
+                            class="admin-link-governance__input"
+                        />
+                    </div>
+
+                    <div class="admin-link-governance__field">
+                        <label class="admin-link-governance__label" for="link-governance-domains">
+                            {{ $t('pages.admin.link_governance.execution.domains') }}
+                        </label>
+                        <InputText
+                            id="link-governance-domains"
+                            v-model="executionForm.domainsText"
+                            :placeholder="$t('pages.admin.link_governance.execution.domains_placeholder')"
+                            class="admin-link-governance__input"
+                        />
+                    </div>
+
+                    <div class="admin-link-governance__field">
+                        <label class="admin-link-governance__label" for="link-governance-path-prefixes">
+                            {{ $t('pages.admin.link_governance.execution.path_prefixes') }}
+                        </label>
+                        <InputText
+                            id="link-governance-path-prefixes"
+                            v-model="executionForm.pathPrefixesText"
+                            :placeholder="$t('pages.admin.link_governance.execution.path_prefixes_placeholder')"
+                            class="admin-link-governance__input"
+                        />
+                    </div>
+
+                    <div class="admin-link-governance__field">
+                        <label class="admin-link-governance__label" for="link-governance-validation-mode">
+                            {{ $t('pages.admin.link_governance.execution.validation_mode') }}
+                        </label>
+                        <Select
+                            id="link-governance-validation-mode"
+                            v-model="executionForm.validationMode"
+                            :options="validationModeOptions"
+                            option-label="label"
+                            option-value="value"
+                            class="admin-link-governance__input"
+                        />
+                    </div>
+
+                    <div class="admin-link-governance__field">
+                        <label class="admin-link-governance__label" for="link-governance-report-format">
+                            {{ $t('pages.admin.link_governance.execution.report_format') }}
+                        </label>
+                        <Select
+                            id="link-governance-report-format"
+                            v-model="executionForm.reportFormat"
+                            :options="reportFormatOptions"
+                            option-label="label"
+                            option-value="value"
+                            class="admin-link-governance__input"
+                        />
+                    </div>
+                </div>
+
+                <div class="admin-link-governance__execution-options">
+                    <div class="admin-link-governance__checkbox-field">
+                        <Checkbox
+                            id="link-governance-relative-links"
+                            v-model="executionForm.allowRelativeLinks"
+                            binary
+                        />
+                        <label for="link-governance-relative-links">
+                            {{ $t('pages.admin.link_governance.execution.allow_relative_links') }}
+                        </label>
+                    </div>
+
+                    <div class="admin-link-governance__checkbox-field">
+                        <Checkbox
+                            id="link-governance-apply-confirmed"
+                            v-model="executionForm.applyConfirmed"
+                            binary
+                        />
+                        <label for="link-governance-apply-confirmed">
+                            {{ $t('pages.admin.link_governance.execution.confirm_apply') }}
+                        </label>
+                    </div>
+                </div>
+
+                <div class="admin-link-governance__execution-actions">
+                    <Button
+                        :label="$t('pages.admin.link_governance.actions.dry_run')"
+                        icon="pi pi-search"
+                        :loading="runMode === 'dry-run'"
+                        :disabled="runMode !== null"
+                        @click="executeGovernance('dry-run')"
+                    />
+                    <Button
+                        :label="$t('pages.admin.link_governance.actions.apply_now')"
+                        icon="pi pi-play"
+                        severity="warn"
+                        :loading="runMode === 'apply'"
+                        :disabled="runMode !== null || !executionForm.applyConfirmed || !reviewedDryRunReportId"
+                        @click="executeGovernance('apply')"
+                    />
+                </div>
+            </template>
+        </Card>
+
+        <Card class="admin-link-governance__card">
+            <template #content>
+                <div class="admin-link-governance__section-header">
+                    <div>
+                        <h3 class="admin-link-governance__section-title">
+                            {{ $t('pages.admin.link_governance.report_list.title') }}
+                        </h3>
+                    </div>
+                </div>
+
                 <div class="admin-link-governance__filters">
                     <Select
                         v-model="filters.mode"
@@ -226,9 +375,48 @@
                     <h3>{{ $t('pages.admin.link_governance.detail.markdown') }}</h3>
                     <pre class="admin-link-governance__markdown">{{ selectedReport.markdown }}</pre>
                 </div>
+
+                <div class="admin-link-governance__detail-section">
+                    <h3>{{ $t('pages.admin.link_governance.detail.redirect_seeds') }}</h3>
+                    <div v-if="selectedReport.redirectSeeds.length === 0" class="admin-link-governance__detail-empty">
+                        {{ $t('pages.admin.link_governance.detail.empty_redirect_seeds') }}
+                    </div>
+                    <div v-else class="admin-link-governance__redirect-list">
+                        <article
+                            v-for="seed in selectedReport.redirectSeeds.slice(0, 20)"
+                            :key="`${seed.source}-${seed.target}`"
+                            class="admin-link-governance__redirect-item"
+                        >
+                            <div class="admin-link-governance__diff-item-header">
+                                <Tag :value="String(seed.statusCode)" severity="info" />
+                                <Tag :value="seed.reason" severity="secondary" />
+                            </div>
+                            <p class="admin-link-governance__diff-source">
+                                {{ seed.source }}
+                            </p>
+                            <p class="admin-link-governance__diff-target">
+                                {{ seed.target }}
+                            </p>
+                        </article>
+                    </div>
+                </div>
             </div>
 
             <template #footer>
+                <Button
+                    v-if="selectedReport"
+                    :label="$t('pages.admin.link_governance.actions.export_json')"
+                    severity="secondary"
+                    variant="outlined"
+                    @click="downloadReport('json')"
+                />
+                <Button
+                    v-if="selectedReport?.markdown"
+                    :label="$t('pages.admin.link_governance.actions.export_markdown')"
+                    severity="secondary"
+                    variant="outlined"
+                    @click="downloadReport('markdown')"
+                />
                 <Button
                     :label="$t('common.close')"
                     severity="secondary"
@@ -242,11 +430,20 @@
 <script setup lang="ts">
 import type { ApiResponse } from '@/types/api'
 import type {
+    LinkGovernanceContentType,
     LinkGovernanceMode,
+    LinkGovernanceRequest,
     LinkGovernanceReportData,
     LinkGovernanceReportListData,
     LinkGovernanceReportListItem,
     LinkGovernanceReportStatus,
+    LinkGovernanceScope,
+    LinkGovernanceValidationMode,
+} from '@/types/migration-link-governance'
+import {
+    LINK_GOVERNANCE_CONTENT_TYPES,
+    LINK_GOVERNANCE_SCOPES,
+    LINK_GOVERNANCE_VALIDATION_MODES,
 } from '@/types/migration-link-governance'
 
 definePageMeta({
@@ -256,16 +453,38 @@ definePageMeta({
 const { $appFetch } = useAppApi()
 const { t } = useI18n()
 const { formatDateTime } = useI18nDate()
-const { showErrorToast } = useRequestFeedback()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
 const reports = ref<LinkGovernanceReportListItem[]>([])
 const total = ref(0)
 const page = ref(1)
 const limit = ref(10)
 const loading = ref(false)
+const runMode = ref<LinkGovernanceMode | null>(null)
 const detailVisible = ref(false)
 const detailLoading = ref(false)
 const selectedReport = ref<LinkGovernanceReportData | null>(null)
+const reviewedDryRunReportId = ref<string | null>(null)
+
+const executionForm = reactive<{
+    scopes: LinkGovernanceScope[]
+    contentTypes: LinkGovernanceContentType[]
+    domainsText: string
+    pathPrefixesText: string
+    validationMode: LinkGovernanceValidationMode
+    reportFormat: 'json' | 'markdown'
+    allowRelativeLinks: boolean
+    applyConfirmed: boolean
+}>({
+    scopes: ['asset-url'],
+    contentTypes: ['post'],
+    domainsText: '',
+    pathPrefixesText: '',
+    validationMode: 'static',
+    reportFormat: 'markdown',
+    allowRelativeLinks: false,
+    applyConfirmed: false,
+})
 
 const filters = reactive<{
     mode: LinkGovernanceMode | null
@@ -283,6 +502,32 @@ const modeOptions = computed(() => [
 const statusOptions = computed(() => [
     { label: translateStatus('completed'), value: 'completed' },
     { label: translateStatus('failed'), value: 'failed' },
+])
+
+const scopeOptions = computed(() => LINK_GOVERNANCE_SCOPES.map((value) => ({
+    label: t(`pages.admin.link_governance.scopes.${value}`),
+    value,
+})))
+
+const contentTypeOptions = computed(() => LINK_GOVERNANCE_CONTENT_TYPES.map((value) => ({
+    label: t(`pages.admin.link_governance.content_types.${value}`),
+    value,
+})))
+
+const validationModeOptions = computed(() => LINK_GOVERNANCE_VALIDATION_MODES.map((value) => ({
+    label: t(`pages.admin.link_governance.validation_modes.${value}`),
+    value,
+})))
+
+const reportFormatOptions = computed(() => [
+    {
+        label: t('pages.admin.link_governance.report_formats.json'),
+        value: 'json',
+    },
+    {
+        label: t('pages.admin.link_governance.report_formats.markdown'),
+        value: 'markdown',
+    },
 ])
 
 function translateMode(mode: LinkGovernanceMode) {
@@ -319,6 +564,32 @@ function getItemStatusSeverity(status: LinkGovernanceReportData['items'][number]
 
 function getRequesterLabel(item: LinkGovernanceReportListItem) {
     return item.requestedByName || item.requestedByEmail || item.requestedByUserId
+}
+
+function parseTextList(value: string) {
+    return Array.from(new Set(value.split(/[\n,]/).map((item) => item.trim()).filter(Boolean)))
+}
+
+function buildExecutionRequest(mode: LinkGovernanceMode): LinkGovernanceRequest {
+    const domains = parseTextList(executionForm.domainsText)
+    const pathPrefixes = parseTextList(executionForm.pathPrefixesText)
+
+    return {
+        scopes: executionForm.scopes,
+        filters: {
+            contentTypes: executionForm.contentTypes,
+            ...(domains.length > 0 ? { domains } : {}),
+            ...(pathPrefixes.length > 0 ? { pathPrefixes } : {}),
+        },
+        options: {
+            reportFormat: executionForm.reportFormat,
+            validationMode: executionForm.validationMode,
+            allowRelativeLinks: executionForm.allowRelativeLinks,
+            ...(mode === 'apply' && reviewedDryRunReportId.value
+                ? { reviewedDryRunReportId: reviewedDryRunReportId.value }
+                : {}),
+        },
+    }
 }
 
 async function loadReports() {
@@ -362,6 +633,55 @@ async function openReportDetail(reportId: string) {
     }
 }
 
+async function executeGovernance(mode: LinkGovernanceMode) {
+    runMode.value = mode
+
+    try {
+        const response = await $appFetch<ApiResponse<LinkGovernanceReportData>>(`/api/admin/migrations/link-governance/${mode}`, {
+            method: 'POST',
+            body: buildExecutionRequest(mode),
+        })
+
+        selectedReport.value = response.data || null
+        detailVisible.value = Boolean(selectedReport.value)
+        if (mode === 'dry-run') {
+            reviewedDryRunReportId.value = response.data?.reportId || null
+        } else {
+            reviewedDryRunReportId.value = null
+        }
+        showSuccessToast(mode === 'dry-run'
+            ? 'pages.admin.link_governance.messages.dry_run_success'
+            : 'pages.admin.link_governance.messages.apply_success')
+        await loadReports()
+    } catch (error: unknown) {
+        showErrorToast(error, {
+            fallbackKey: 'pages.admin.link_governance.messages.run_failed',
+        })
+    } finally {
+        runMode.value = null
+    }
+}
+
+function downloadReport(format: 'json' | 'markdown') {
+    if (!import.meta.client || !selectedReport.value) {
+        return
+    }
+
+    const fileBaseName = `link-governance-${selectedReport.value.reportId}`
+    const payload = format === 'markdown'
+        ? selectedReport.value.markdown || ''
+        : JSON.stringify(selectedReport.value, null, 2)
+    const blob = new Blob([payload], {
+        type: format === 'markdown' ? 'text/markdown;charset=utf-8' : 'application/json;charset=utf-8',
+    })
+    const href = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = href
+    anchor.download = `${fileBaseName}.${format === 'markdown' ? 'md' : 'json'}`
+    anchor.click()
+    URL.revokeObjectURL(href)
+}
+
 function applyFilters() {
     page.value = 1
     void loadReports()
@@ -379,6 +699,17 @@ function onPage(event: { page: number, rows: number }) {
     limit.value = event.rows
     void loadReports()
 }
+
+watch(() => JSON.stringify({
+    scopes: executionForm.scopes,
+    contentTypes: executionForm.contentTypes,
+    domainsText: executionForm.domainsText,
+    pathPrefixesText: executionForm.pathPrefixesText,
+    validationMode: executionForm.validationMode,
+    allowRelativeLinks: executionForm.allowRelativeLinks,
+}), () => {
+    reviewedDryRunReportId.value = null
+})
 
 onMounted(() => {
     void loadReports()
@@ -412,6 +743,68 @@ onMounted(() => {
         :deep(.p-card-body) {
             padding: $spacing-lg;
         }
+    }
+
+    &__section-header {
+        display: flex;
+        justify-content: space-between;
+        gap: $spacing-md;
+        align-items: flex-start;
+        margin-bottom: $spacing-lg;
+    }
+
+    &__section-title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    &__section-description {
+        margin: $spacing-xs 0 0;
+        color: var(--p-text-muted-color);
+        line-height: 1.6;
+    }
+
+    &__execution-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: $spacing-md;
+    }
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+    }
+
+    &__label {
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    &__input {
+        width: 100%;
+    }
+
+    &__execution-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-md;
+        margin-top: $spacing-lg;
+    }
+
+    &__checkbox-field {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-xs;
+        color: var(--p-text-muted-color);
+    }
+
+    &__execution-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-sm;
+        margin-top: $spacing-lg;
     }
 
     &__filters {
@@ -500,10 +893,22 @@ onMounted(() => {
         gap: $spacing-sm;
     }
 
+    &__redirect-list {
+        display: grid;
+        gap: $spacing-sm;
+    }
+
     &__diff-item-header {
         display: flex;
         gap: $spacing-sm;
         margin-bottom: $spacing-sm;
+    }
+
+    &__redirect-item {
+        border: 1px solid var(--p-content-border-color);
+        border-radius: 1rem;
+        padding: $spacing-md;
+        background: var(--p-surface-0);
     }
 
     &__diff-source,
@@ -525,6 +930,7 @@ onMounted(() => {
 
 @media (width <= 960px) {
     .admin-link-governance {
+        &__execution-grid,
         &__filters,
         &__detail-grid,
         &__summary-grid {

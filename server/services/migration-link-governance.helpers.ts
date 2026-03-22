@@ -236,6 +236,10 @@ export function deriveObjectKeyFromAssetUrl(params: {
                 const base = new URL(baseUrl)
                 const target = new URL(value)
                 if (base.hostname === target.hostname && trimTrailingSlash(target.pathname).startsWith(trimTrailingSlash(base.pathname))) {
+                    if (!pathPrefixMatches(target.pathname, filters)) {
+                        continue
+                    }
+
                     const objectKey = target.pathname.slice(trimTrailingSlash(base.pathname).length).replace(/^\/+/, '')
                     if (objectKey) {
                         return objectKey
@@ -249,13 +253,17 @@ export function deriveObjectKeyFromAssetUrl(params: {
 
     if (field !== 'content' || sourceKind !== 'relative' || options?.allowRelativeLinks) {
         if (sourceKind === 'root-relative' || sourceKind === 'relative') {
-            if (looksLikeManagedAssetPath(candidatePath)) {
+            if (looksLikeManagedAssetPath(candidatePath) && pathPrefixMatches(candidatePath, filters)) {
                 return stripAssetPrefix(candidatePath, filters?.pathPrefixes)
             }
         }
     }
 
-    if (sourceKind === 'absolute' && candidateDomain && domainMatches(candidateDomain, filters, runtime.managedDomains) && looksLikeManagedAssetPath(candidatePath)) {
+    if (sourceKind === 'absolute'
+        && candidateDomain
+        && domainMatches(candidateDomain, filters, runtime.managedDomains)
+        && looksLikeManagedAssetPath(candidatePath)
+        && pathPrefixMatches(candidatePath, filters)) {
         return stripAssetPrefix(candidatePath, filters?.pathPrefixes)
     }
 

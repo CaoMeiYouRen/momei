@@ -52,6 +52,107 @@
                 "translation_workflow": {
                     "task_fallback": "現在のデプロイ環境では長文のストリーミング翻訳をサポートしていないため、タスクポーリングへ自動的に切り替えました。"
                 }
+            },
+            "link_governance": {
+                "title": "移行リンクガバナンス",
+                "overview_title": "ガバナンスレポート",
+                "overview_description": "dry-run と apply が生成したリンクガバナンスレポートを確認し、差分、失敗項目、redirect seeds を追跡します。",
+                "empty": "ガバナンスレポートはまだありません",
+                "filters": {
+                    "mode": "実行モード",
+                    "status": "レポート状態",
+                    "apply": "フィルターを適用",
+                    "reset": "リセット"
+                },
+                "modes": {
+                    "dry-run": "ドライラン",
+                    "apply": "適用"
+                },
+                "statuses": {
+                    "completed": "完了",
+                    "failed": "失敗"
+                },
+                "columns": {
+                    "created_at": "作成日時",
+                    "mode": "モード",
+                    "status": "状態",
+                    "requested_by": "実行者",
+                    "summary": "概要",
+                    "redirects": "Redirect Seeds"
+                },
+                "summary": {
+                    "total": "総数",
+                    "resolved": "適用済み",
+                    "rewritten": "書き換え候補",
+                    "failed": "失敗",
+                    "needs_confirmation": "確認待ち"
+                },
+                "execution": {
+                    "title": "ガバナンスを実行",
+                    "description": "スコープ、ドメイン、パス接頭辞で dry-run または apply を実行し、既存のアセット URL 解決と権限チェーンを再利用します。",
+                    "scopes": "対象スコープ",
+                    "content_types": "コンテンツ種別",
+                    "domains": "ドメインフィルター",
+                    "domains_placeholder": "例: legacy.example.com, old-cdn.example.com",
+                    "path_prefixes": "パス接頭辞フィルター",
+                    "path_prefixes_placeholder": "例: /assets, /uploads/legacy",
+                    "validation_mode": "検証モード",
+                    "report_format": "レポート形式",
+                    "allow_relative_links": "本文内の相対リンクも対象にする",
+                    "confirm_apply": "apply が実データを書き換えることを理解しました"
+                },
+                "report_list": {
+                    "title": "ガバナンスレポート"
+                },
+                "scopes": {
+                    "asset-url": "アセット URL",
+                    "post-link": "記事リンク",
+                    "category-link": "カテゴリリンク",
+                    "tag-link": "タグリンク",
+                    "archive-link": "アーカイブリンク",
+                    "page-link": "固定ページリンク",
+                    "permalink-rule": "旧 permalink ルール"
+                },
+                "content_types": {
+                    "post": "記事",
+                    "category": "カテゴリ",
+                    "tag": "タグ",
+                    "page": "固定ページ",
+                    "asset-record": "アセット記録"
+                },
+                "validation_modes": {
+                    "static": "静的検証",
+                    "static+online": "静的 + オンライン確認"
+                },
+                "report_formats": {
+                    "json": "JSON",
+                    "markdown": "Markdown"
+                },
+                "actions": {
+                    "refresh": "更新",
+                    "view": "詳細を見る",
+                    "dry_run": "ドライラン開始",
+                    "apply_now": "書き換えを適用",
+                    "export_json": "JSON を出力",
+                    "export_markdown": "Markdown を出力"
+                },
+                "detail": {
+                    "title": "レポート詳細",
+                    "report_id": "レポート ID",
+                    "requested_by": "実行者 ID",
+                    "items": "差分プレビュー",
+                    "empty_items": "このレポートに差分項目はありません。",
+                    "markdown": "Markdown レポート",
+                    "redirect_seeds": "Redirect Seeds",
+                    "empty_redirect_seeds": "このレポートに redirect seeds はありません。"
+                },
+                "messages": {
+                    "load_failed": "ガバナンスレポートの読み込みに失敗しました",
+                    "detail_failed": "レポート詳細の読み込みに失敗しました",
+                    "run_failed": "リンクガバナンスの実行に失敗しました",
+                    "dry_run_success": "ドライランが完了しました",
+                    "apply_success": "書き換えの適用が完了しました"
+                }
             }
         }
     }

@@ -97,7 +97,7 @@ async function resolveCandidate(candidate: LinkCandidate, runtime: GovernanceRun
 
     const shouldApplyPathPrefixFilter = request.scopes.includes('asset-url') && looksLikeManagedAssetPath(path)
 
-    if (shouldApplyPathPrefixFilter && !pathPrefixMatches(path, request.filters) && candidate.sourceKind !== 'absolute') {
+    if (shouldApplyPathPrefixFilter && !pathPrefixMatches(path, request.filters)) {
         return {
             targetValue: null,
             scope: 'page-link',
@@ -288,6 +288,55 @@ function buildMarkdownReport(reportId: string, mode: LinkGovernanceMode, summary
     return lines.join('\n')
 }
 
+async function validateReviewedDryRunReport(request: LinkGovernanceRequest) {
+    const reviewedDryRunReportId = request.options?.reviewedDryRunReportId
+
+    if (!reviewedDryRunReportId) {
+        throw createError({
+            statusCode: 400,
+            statusMessage: 'Apply mode requires a reviewed dry-run report id',
+        })
+    }
+
+    const reportRepo = dataSource.getRepository(LinkGovernanceReport)
+    const reviewedReport = await reportRepo.findOneBy({ id: reviewedDryRunReportId })
+
+    if (reviewedReport?.mode !== 'dry-run') {
+        throw createError({
+            statusCode: 400,
+            statusMessage: 'Reviewed dry-run report not found',
+        })
+    }
+
+    if (reviewedReport.status !== 'completed') {
+        throw createError({
+            statusCode: 409,
+            statusMessage: 'Reviewed dry-run report is not ready for apply',
+        })
+    }
+
+    return reviewedReport
+}
+
+function buildRequestReviewSnapshot(params: {
+    scopes?: LinkGovernanceRequest['scopes'] | null
+    filters?: LinkGovernanceRequest['filters'] | null
+    options?: Pick<NonNullable<LinkGovernanceRequest['options']>, 'allowRelativeLinks' | 'validationMode'> | null
+}) {
+    return JSON.stringify({
+        scopes: [...(params.scopes || [])].sort(),
+        filters: {
+            domains: [...(params.filters?.domains || [])].sort(),
+            pathPrefixes: [...(params.filters?.pathPrefixes || [])].sort(),
+            contentTypes: [...(params.filters?.contentTypes || [])].sort(),
+        },
+        options: {
+            allowRelativeLinks: Boolean(params.options?.allowRelativeLinks),
+            validationMode: params.options?.validationMode || 'static',
+        },
+    })
+}
+
 async function loadPostsForGovernance(contentTypes: LinkGovernanceContentType[], retryFailuresFromReportId?: string) {
     const postRepo = dataSource.getRepository(Post)
 
@@ -429,6 +478,38 @@ export async function runLinkGovernanceDryRun(request: LinkGovernanceRequest, us
 }
 
 export async function runLinkGovernanceApply(request: LinkGovernanceRequest, userId: string) {
+    const reviewedReport = await validateReviewedDryRunReport(request)
+    if (reviewedReport.requestedByUserId !== userId) {
+        throw createError({
+            statusCode: 403,
+            statusMessage: 'Reviewed dry-run report does not belong to current user',
+        })
+    }
+
+    const reviewedSnapshot = buildRequestReviewSnapshot({
+        scopes: reviewedReport.scopes,
+        filters: reviewedReport.filters,
+        options: {
+            allowRelativeLinks: reviewedReport.options?.allowRelativeLinks,
+            validationMode: reviewedReport.options?.validationMode,
+        },
+    })
+    const applySnapshot = buildRequestReviewSnapshot({
+        scopes: request.scopes,
+        filters: request.filters,
+        options: {
+            allowRelativeLinks: request.options?.allowRelativeLinks,
+            validationMode: request.options?.validationMode,
+        },
+    })
+
+    if (reviewedSnapshot !== applySnapshot) {
+        throw createError({
+            statusCode: 409,
+            statusMessage: 'Apply request does not match reviewed dry-run scope',
+        })
+    }
+
     return executeLinkGovernance('apply', request, userId)
 }
 

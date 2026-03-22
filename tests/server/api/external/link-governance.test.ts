@@ -65,11 +65,17 @@ describe('external link governance api', () => {
                 scopes: ['asset-url'],
                 options: {
                     skipConfirmation: true,
+                    reviewedDryRunReportId: 'report-dry-run-1',
                 },
             },
         } as any)
 
-        expect(runLinkGovernanceApply).toHaveBeenCalledWith(expect.objectContaining({ scopes: ['asset-url'] }), 'user-1')
+        expect(runLinkGovernanceApply).toHaveBeenCalledWith(expect.objectContaining({
+            scopes: ['asset-url'],
+            options: expect.objectContaining({
+                reviewedDryRunReportId: 'report-dry-run-1',
+            }),
+        }), 'user-1')
         expect(result.code).toBe(200)
         expect(result.data).toBeDefined()
         if (!result.data) {

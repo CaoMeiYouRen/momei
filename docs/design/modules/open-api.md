@@ -91,9 +91,69 @@
 -   `POST /api/external/posts` 现在会复用同一套校验逻辑；若存在 fallback / repair / 保留路径冲突但未显式确认，将返回 `409`，避免静默导入不可用路径。
 -   `permalink` 不再作为 canonical slug 直接写入文章，而是作为历史路径别名输入参与导入前审计与后续链接治理。
 
-### 3.2 迁移链接治理 (规划中)
+### 3.2 迁移链接治理 (Migration Link Governance)
 
-第十一阶段已冻结迁移链接治理的最小能力矩阵，但接口尚未落地实现。后续 Open API 将按 `dry-run / apply / report` 三类入口扩展，统一复用 API Key 鉴权，并以 [迁移链接治理与云端资源重写](./migration-link-governance.md) 作为契约事实源。
+迁移链接治理的最小 Open API 已落地，统一复用 API Key 鉴权，并以 [迁移链接治理与云端资源重写](./migration-link-governance.md) 作为契约事实源。
+
+#### `POST /api/external/migrations/link-governance/dry-run`
+
+- **用途**: 仅预览存量资源链接与历史内链的重写结果，不会落盘。
+- **请求体 (Body)**:
+    ```json
+    {
+        "scopes": ["asset-url", "post-link"],
+        "filters": {
+            "domains": ["legacy.example.com"],
+            "pathPrefixes": ["/assets"],
+            "contentTypes": ["post"]
+        },
+        "options": {
+            "reportFormat": "markdown",
+            "validationMode": "static"
+        }
+    }
+    ```
+
+#### `POST /api/external/migrations/link-governance/apply`
+
+- **用途**: 对站内受控内容执行实际改写，并生成 redirect seeds 与治理报告。
+- **说明**: 必须先执行一次 `dry-run` 并将返回的 `reportId` 作为 `options.reviewedDryRunReportId` 回传，服务端会拒绝没有已审阅 dry-run 报告的 apply 请求。
+- **请求体补充**:
+    ```json
+    {
+        "scopes": ["asset-url"],
+        "options": {
+            "reviewedDryRunReportId": "report_...",
+            "reportFormat": "markdown"
+        }
+    }
+    ```
+
+#### `GET /api/external/migrations/link-governance/reports/:reportId`
+
+- **用途**: 查询指定 dry-run 或 apply 任务的完整报告，可用于导出 JSON / Markdown 结果。
+- **响应摘要**:
+    ```json
+    {
+        "code": 200,
+        "data": {
+            "reportId": "report_...",
+            "mode": "dry-run",
+            "summary": {
+                "total": 3,
+                "resolved": 0,
+                "rewritten": 2,
+                "unchanged": 0,
+                "skipped": 1,
+                "failed": 0,
+                "needsConfirmation": 0
+            },
+            "items": [],
+            "redirectSeeds": [],
+            "markdown": "# report"
+        }
+    }
+    ```
 
 ## 4. 管理接口 (Management APIs)
 

@@ -213,9 +213,54 @@
                     "failed": "失敗",
                     "needs_confirmation": "待確認"
                 },
+                "execution": {
+                    "title": "執行治理",
+                    "description": "可依範圍、網域與路徑前綴發起 dry-run 或 apply，並持續沿用既有資源 URL 解析與權限鏈路。",
+                    "scopes": "治理範圍",
+                    "content_types": "內容類型",
+                    "domains": "網域過濾",
+                    "domains_placeholder": "例如 legacy.example.com, old-cdn.example.com",
+                    "path_prefixes": "路徑前綴過濾",
+                    "path_prefixes_placeholder": "例如 /assets, /uploads/legacy",
+                    "validation_mode": "校驗模式",
+                    "report_format": "報告格式",
+                    "allow_relative_links": "允許治理正文中的相對連結",
+                    "confirm_apply": "我已確認 apply 會實際寫入符合條件的內容"
+                },
+                "report_list": {
+                    "title": "治理報告"
+                },
+                "scopes": {
+                    "asset-url": "資源連結",
+                    "post-link": "文章連結",
+                    "category-link": "分類連結",
+                    "tag-link": "標籤連結",
+                    "archive-link": "歸檔連結",
+                    "page-link": "頁面連結",
+                    "permalink-rule": "歷史 permalink 規則"
+                },
+                "content_types": {
+                    "post": "文章",
+                    "category": "分類",
+                    "tag": "標籤",
+                    "page": "頁面",
+                    "asset-record": "資源紀錄"
+                },
+                "validation_modes": {
+                    "static": "靜態校驗",
+                    "static+online": "靜態 + 線上探測"
+                },
+                "report_formats": {
+                    "json": "JSON",
+                    "markdown": "Markdown"
+                },
                 "actions": {
                     "refresh": "重新整理",
-                    "view": "查看詳情"
+                    "view": "查看詳情",
+                    "dry_run": "開始演練",
+                    "apply_now": "執行改寫",
+                    "export_json": "匯出 JSON",
+                    "export_markdown": "匯出 Markdown"
                 },
                 "detail": {
                     "title": "報告詳情",
@@ -223,11 +268,16 @@
                     "requested_by": "發起人 ID",
                     "items": "差異項預覽",
                     "empty_items": "目前報告沒有差異項。",
-                    "markdown": "Markdown 報告"
+                    "markdown": "Markdown 報告",
+                    "redirect_seeds": "Redirect Seeds",
+                    "empty_redirect_seeds": "目前報告沒有 redirect seeds。"
                 },
                 "messages": {
                     "load_failed": "載入治理報告失敗",
-                    "detail_failed": "載入報告詳情失敗"
+                    "detail_failed": "載入報告詳情失敗",
+                    "run_failed": "執行連結治理失敗",
+                    "dry_run_success": "演練任務已完成",
+                    "apply_success": "改寫任務已完成"
                 }
             },
             "friend_links": {

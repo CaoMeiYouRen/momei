@@ -213,9 +213,54 @@
                     "failed": "失败",
                     "needs_confirmation": "待确认"
                 },
+                "execution": {
+                    "title": "执行治理",
+                    "description": "按范围、域名和路径前缀发起 dry-run 或 apply，统一复用现有资源 URL 解析与权限链路。",
+                    "scopes": "治理范围",
+                    "content_types": "内容类型",
+                    "domains": "域名过滤",
+                    "domains_placeholder": "例如 legacy.example.com, old-cdn.example.com",
+                    "path_prefixes": "路径前缀过滤",
+                    "path_prefixes_placeholder": "例如 /assets, /uploads/legacy",
+                    "validation_mode": "校验模式",
+                    "report_format": "报告格式",
+                    "allow_relative_links": "允许治理正文中的相对链接",
+                    "confirm_apply": "我已确认 apply 会实际写入匹配内容"
+                },
+                "report_list": {
+                    "title": "治理报告"
+                },
+                "scopes": {
+                    "asset-url": "资源链接",
+                    "post-link": "文章链接",
+                    "category-link": "分类链接",
+                    "tag-link": "标签链接",
+                    "archive-link": "归档链接",
+                    "page-link": "页面链接",
+                    "permalink-rule": "历史 permalink 规则"
+                },
+                "content_types": {
+                    "post": "文章",
+                    "category": "分类",
+                    "tag": "标签",
+                    "page": "页面",
+                    "asset-record": "资源记录"
+                },
+                "validation_modes": {
+                    "static": "静态校验",
+                    "static+online": "静态 + 在线探测"
+                },
+                "report_formats": {
+                    "json": "JSON",
+                    "markdown": "Markdown"
+                },
                 "actions": {
                     "refresh": "刷新",
-                    "view": "查看详情"
+                    "view": "查看详情",
+                    "dry_run": "开始干跑",
+                    "apply_now": "执行改写",
+                    "export_json": "导出 JSON",
+                    "export_markdown": "导出 Markdown"
                 },
                 "detail": {
                     "title": "报告详情",
@@ -223,11 +268,16 @@
                     "requested_by": "发起人 ID",
                     "items": "差异项预览",
                     "empty_items": "当前报告没有差异项。",
-                    "markdown": "Markdown 报告"
+                    "markdown": "Markdown 报告",
+                    "redirect_seeds": "Redirect Seeds",
+                    "empty_redirect_seeds": "当前报告没有 redirect seeds。"
                 },
                 "messages": {
                     "load_failed": "加载治理报告失败",
-                    "detail_failed": "加载报告详情失败"
+                    "detail_failed": "加载报告详情失败",
+                    "run_failed": "执行链接治理失败",
+                    "dry_run_success": "干跑任务已完成",
+                    "apply_success": "改写任务已完成"
                 }
             },
             "friend_links": {

@@ -168,6 +168,22 @@ describe('server/services/migration-link-governance', () => {
 
             return Promise.resolve([post])
         })
+        reportRepo.findOneBy.mockResolvedValueOnce({
+            id: 'report-dry-run-1',
+            mode: 'dry-run',
+            status: 'completed',
+            requestedByUserId: 'user-1',
+            scopes: ['asset-url', 'post-link'],
+            filters: {
+                domains: ['legacy.example.com'],
+                pathPrefixes: ['/assets'],
+                contentTypes: ['post'],
+            },
+            options: {
+                validationMode: 'static',
+                allowRelativeLinks: false,
+            },
+        })
 
         const { runLinkGovernanceApply } = await import('./migration-link-governance')
         const result = await runLinkGovernanceApply({
@@ -176,6 +192,9 @@ describe('server/services/migration-link-governance', () => {
                 domains: ['legacy.example.com'],
                 pathPrefixes: ['/assets'],
                 contentTypes: ['post'],
+            },
+            options: {
+                reviewedDryRunReportId: 'report-dry-run-1',
             },
         }, 'user-1')
 
@@ -189,6 +208,117 @@ describe('server/services/migration-link-governance', () => {
                 },
             },
         }))
+    })
+
+    it('should require a reviewed dry-run report before apply', async () => {
+        const { runLinkGovernanceApply } = await import('./migration-link-governance')
+
+        await expect(runLinkGovernanceApply({
+            scopes: ['asset-url'],
+        }, 'user-1')).rejects.toMatchObject({
+            statusCode: 400,
+        })
+    })
+
+    it('should reject apply when reviewed dry-run belongs to another user', async () => {
+        reportRepo.findOneBy.mockResolvedValueOnce({
+            id: 'report-dry-run-1',
+            mode: 'dry-run',
+            status: 'completed',
+            requestedByUserId: 'other-user',
+            scopes: ['asset-url'],
+            filters: null,
+            options: null,
+        })
+
+        const { runLinkGovernanceApply } = await import('./migration-link-governance')
+
+        await expect(runLinkGovernanceApply({
+            scopes: ['asset-url'],
+            options: {
+                reviewedDryRunReportId: 'report-dry-run-1',
+            },
+        }, 'user-1')).rejects.toMatchObject({
+            statusCode: 403,
+        })
+    })
+
+    it('should reject apply when request does not match reviewed dry-run scope', async () => {
+        reportRepo.findOneBy.mockResolvedValueOnce({
+            id: 'report-dry-run-1',
+            mode: 'dry-run',
+            status: 'completed',
+            requestedByUserId: 'user-1',
+            scopes: ['asset-url'],
+            filters: {
+                domains: ['legacy.example.com'],
+                pathPrefixes: ['/assets'],
+                contentTypes: ['post'],
+            },
+            options: {
+                validationMode: 'static',
+                allowRelativeLinks: false,
+            },
+        })
+
+        const { runLinkGovernanceApply } = await import('./migration-link-governance')
+
+        await expect(runLinkGovernanceApply({
+            scopes: ['asset-url'],
+            filters: {
+                domains: ['legacy.example.com'],
+                pathPrefixes: ['/uploads'],
+                contentTypes: ['post'],
+            },
+            options: {
+                reviewedDryRunReportId: 'report-dry-run-1',
+            },
+        }, 'user-1')).rejects.toMatchObject({
+            statusCode: 409,
+        })
+    })
+
+    it('should skip absolute asset urls outside configured path prefixes', async () => {
+        const post = {
+            id: 'post-1',
+            slug: 'hello-world',
+            language: 'zh-CN',
+            translationId: 'translation-1',
+            content: '![legacy](https://legacy.example.com/uploads/legacy/cover.png)',
+            coverImage: null,
+            metadata: null,
+        }
+
+        postRepo.find.mockImplementation((options?: { select?: string[] }) => {
+            if (options?.select) {
+                return Promise.resolve([{
+                    id: post.id,
+                    slug: post.slug,
+                    language: post.language,
+                    translationId: post.translationId,
+                }])
+            }
+
+            return Promise.resolve([post])
+        })
+
+        const { runLinkGovernanceDryRun } = await import('./migration-link-governance')
+        const result = await runLinkGovernanceDryRun({
+            scopes: ['asset-url'],
+            filters: {
+                domains: ['legacy.example.com'],
+                pathPrefixes: ['/assets'],
+                contentTypes: ['post'],
+            },
+        }, 'user-1')
+
+        expect(result.items).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                sourceValue: 'https://legacy.example.com/uploads/legacy/cover.png',
+                targetValue: null,
+                status: 'skipped',
+            }),
+        ]))
     })
 
     it('should return report only to owner or admin', async () => {

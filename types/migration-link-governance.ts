@@ -160,6 +160,7 @@ export interface LinkGovernanceRequestOptions {
     validationMode?: LinkGovernanceValidationMode
     allowRelativeLinks?: boolean
     retryFailuresFromReportId?: string
+    reviewedDryRunReportId?: string
     skipConfirmation?: boolean
 }
 

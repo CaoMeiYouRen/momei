@@ -18,7 +18,7 @@
 ## 当前待办
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
-当前无进行中事项。第十七阶段当前条目已收口，待下一项启动时再补写执行项。
+当前进行中事项：
 
 ## 第十七阶段：配置事实源复用与创作 / 分发效率收敛
 
@@ -65,10 +65,12 @@
 
 ### 6. 扩展：存量资源链接重写与迁移工具 (P1)
 
-- [ ] **建立存量资源链接重写、预览与回退最小闭环**
+- [x] **建立存量资源链接重写、预览与回退最小闭环**
 	- 验收: 支持对存量资源链接执行批量重写、域名过滤、dry-run 预览与差异报告导出。
 	- 验收: 与当前存储配置、路径前缀、公共 Base URL 与权限模型保持一致，不绕开既有上传与访问控制链路。
 	- 验收: 至少覆盖仅预览、部分命中、全量重写与失败回退 4 类场景的最小验证。
+	- 实施记录: 已补齐后台管理端 dry-run / apply 执行面板、差异预览弹窗、JSON / Markdown 导出、admin 侧执行接口，以及 apply 必须绑定已审阅 dry-run 报告的最小防误写约束。
+	- 验证记录: 已通过 `server/services/migration-link-governance.test.ts`、`tests/server/api/admin/link-governance-run.test.ts`、`tests/server/api/external/link-governance.test.ts` 与 `tests/pages/admin/migrations/link-governance.test.ts` 定向回归，覆盖仅预览、apply 执行、前缀过滤跳过与后台页面入口。
 
 ## 相关文档
 

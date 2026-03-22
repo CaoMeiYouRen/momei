@@ -44,6 +44,7 @@ export const linkGovernanceRequestSchema = z.object({
         validationMode: z.enum(LINK_GOVERNANCE_VALIDATION_MODES).optional().default('static'),
         allowRelativeLinks: z.boolean().optional().default(false),
         retryFailuresFromReportId: z.string().optional(),
+        reviewedDryRunReportId: z.string().optional(),
         skipConfirmation: z.boolean().optional().default(false),
     }).optional(),
 })

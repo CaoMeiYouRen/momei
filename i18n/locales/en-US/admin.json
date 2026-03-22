@@ -213,9 +213,54 @@
                     "failed": "Failed",
                     "needs_confirmation": "Needs Confirmation"
                 },
+                "execution": {
+                    "title": "Run Governance",
+                    "description": "Start dry-run or apply with scope, domain, and path prefix filters while reusing the existing asset URL and permission pipeline.",
+                    "scopes": "Scopes",
+                    "content_types": "Content Types",
+                    "domains": "Domain Filters",
+                    "domains_placeholder": "For example legacy.example.com, old-cdn.example.com",
+                    "path_prefixes": "Path Prefix Filters",
+                    "path_prefixes_placeholder": "For example /assets, /uploads/legacy",
+                    "validation_mode": "Validation Mode",
+                    "report_format": "Report Format",
+                    "allow_relative_links": "Allow relative links inside post content",
+                    "confirm_apply": "I understand apply will write matching content"
+                },
+                "report_list": {
+                    "title": "Governance Reports"
+                },
+                "scopes": {
+                    "asset-url": "Asset URLs",
+                    "post-link": "Post Links",
+                    "category-link": "Category Links",
+                    "tag-link": "Tag Links",
+                    "archive-link": "Archive Links",
+                    "page-link": "Page Links",
+                    "permalink-rule": "Legacy Permalink Rules"
+                },
+                "content_types": {
+                    "post": "Posts",
+                    "category": "Categories",
+                    "tag": "Tags",
+                    "page": "Pages",
+                    "asset-record": "Asset Records"
+                },
+                "validation_modes": {
+                    "static": "Static",
+                    "static+online": "Static + Online Probe"
+                },
+                "report_formats": {
+                    "json": "JSON",
+                    "markdown": "Markdown"
+                },
                 "actions": {
                     "refresh": "Refresh",
-                    "view": "View Details"
+                    "view": "View Details",
+                    "dry_run": "Start Dry Run",
+                    "apply_now": "Apply Rewrite",
+                    "export_json": "Export JSON",
+                    "export_markdown": "Export Markdown"
                 },
                 "detail": {
                     "title": "Report Details",
@@ -223,11 +268,16 @@
                     "requested_by": "Requester ID",
                     "items": "Diff Preview",
                     "empty_items": "This report has no diff items.",
-                    "markdown": "Markdown Report"
+                    "markdown": "Markdown Report",
+                    "redirect_seeds": "Redirect Seeds",
+                    "empty_redirect_seeds": "This report has no redirect seeds."
                 },
                 "messages": {
                     "load_failed": "Failed to load governance reports",
-                    "detail_failed": "Failed to load report details"
+                    "detail_failed": "Failed to load report details",
+                    "run_failed": "Failed to execute link governance",
+                    "dry_run_success": "Dry run completed",
+                    "apply_success": "Rewrite apply completed"
                 }
             },
             "friend_links": {
