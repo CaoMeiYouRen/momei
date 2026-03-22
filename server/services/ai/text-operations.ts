@@ -19,7 +19,7 @@ function assertChatProvider(provider: Awaited<ReturnType<typeof getAIProvider>>)
         throw new Error('Provider does not support chat')
     }
 
-    return provider.chat
+    return provider.chat.bind(provider)
 }
 
 export async function summarizeTextContent(content: string, maxLength: number, language: string) {

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { TextService } from './text'
+import { OpenAIProvider } from '@/server/utils/ai/openai-provider'
 import { dataSource } from '@/server/database'
 import * as aiUtils from '@/server/utils/ai'
 
@@ -288,6 +289,43 @@ describe('TextService', () => {
             )
 
             expect(result).toEqual(['技术', 'AI', '开发'])
+        })
+
+        it('should preserve provider context when using class-based chat providers', async () => {
+            const mockFetch = vi.fn().mockResolvedValue({
+                choices: [{ message: { content: '["技术","AI","开发"]' } }],
+                model: 'gpt-4o',
+                usage: { prompt_tokens: 8, completion_tokens: 6, total_tokens: 14 },
+            })
+
+            vi.stubGlobal('$fetch', mockFetch)
+
+            const provider = new OpenAIProvider({
+                enabled: true,
+                provider: 'openai',
+                apiKey: 'test-key',
+                model: 'gpt-4o',
+                endpoint: 'https://api.openai.com/v1',
+                maxTokens: 2048,
+                temperature: 0.7,
+            })
+
+            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(provider as any)
+
+            const result = await TextService.recommendTags(
+                '关于 AI 技术的文章',
+                ['技术'],
+                'zh-CN',
+                'user-1',
+            )
+
+            expect(result).toEqual(['技术', 'AI', '开发'])
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.openai.com/v1/chat/completions',
+                expect.objectContaining({
+                    method: 'POST',
+                }),
+            )
         })
 
         it('should handle non-JSON tag response', async () => {
