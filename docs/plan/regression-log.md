@@ -25,6 +25,47 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## release 依赖包风险门禁回归（2026-03-22）
+
+### 回归任务记录
+
+- 回归范围: 第十七阶段 P0 收口修复“为 release 增加依赖包风险门禁脚本”；覆盖 `pnpm audit` 官方审计来源接入、high+ 阈值门禁、已知风险白名单、release 工作流接线与脚本级定向测试。
+- 触发条件: 当前阶段收口要求为 release 增加可复现的依赖风险审计门禁，并为已知但暂不可修复的风险建立可审计的临时放行基线。
+- 执行频率: 每次 release 前强制执行；本条为首次落地回归记录，后续仅在白名单、阈值或数据来源策略调整时补写增量记录。
+- timeout budget:
+    - 定向 Vitest: 10 分钟。
+    - 依赖风险门禁脚本: 10 分钟。
+- 已执行命令:
+    - `pnpm exec vitest run tests/scripts/check-dependency-risk.test.ts`
+    - `pnpm run security:audit-deps`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 静态层: `scripts/security/check-dependency-risk.mjs`、`tests/scripts/check-dependency-risk.test.ts`、`package.json`、`.github/workflows/release.yml` 与 `scripts/README.md` 编辑器诊断通过。
+        - V2 / 脚本层: `tests/scripts/check-dependency-risk.test.ts` 6 个测试通过，覆盖 legacy `pnpm audit` advisory 解析、modern vulnerability 解析、“allowlist 放行 + 新 high/critical 阻断”、同 advisory 新依赖路径阻断、helper 层异常 audit 载荷 fail-closed，以及 CLI `--input` 边界的 fail-closed 行为。
+        - V2 / 审计层: `pnpm run security:audit-deps` 实际执行通过，当前 high+ 风险仅命中 `html-minifier` 的已知 allowlist 条目，不存在新的阻断型风险。
+    - 结果摘要:
+        - 已新增长期脚本 `scripts/security/check-dependency-risk.mjs`，默认使用 `pnpm audit --json --registry=https://registry.npmjs.org/` 作为官方审计来源，并以 `high` 作为 release 默认阻断阈值。
+        - 已新增 `.github/security/dependency-risk-allowlist.json` 作为临时放行基线，当前仅记录 `html-minifier` 的 `GHSA-pfq8-rq6v-vf5m`，并绑定已批准依赖路径；日志会输出包名、风险级别、原因、来源与临时放行依据。
+        - `package.json` 已新增稳定入口 `pnpm security:audit-deps`，`release` 命令会先过依赖风险门禁，再进入 `release:semantic`。
+        - `.github/workflows/release.yml` 已显式增加 `Audit dependency risk gate` 步骤，确保 CI release 作业在 semantic-release 前先执行门禁。
+    - 依赖安全结果（按需）:
+        - 数据来源: `pnpm audit --json --registry=https://registry.npmjs.org/`。
+        - 可修复项与验证结果: 本轮以门禁落地为主，未扩写为整仓库依赖升级；当前 release 阈值聚焦 `high+`，避免被 moderate / low 噪音阻塞。
+        - 未修复的 high+ 风险: `html-minifier@4.0.0`（`mjml -> mjml-cli -> html-minifier`）`GHSA-pfq8-rq6v-vf5m`，当前仍无上游补丁版本，因此通过 allowlist 记录其原因与暂时放行依据。
+        - 延期或计划修复判断: 保持临时放行，待 MJML 或其 CLI 链路提供补丁后优先移除白名单并重新执行 release 审计。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - 当前门禁直接消费 `pnpm audit` 官方结果，尚未接入 GitHub Dependabot API 作为第一来源；但已满足“官方可复现来源”与 release 阻断要求。
+            - 默认阈值为 `high`，moderate / low 风险不会阻断 release；后续若安全策略收紧，需要同步调整白名单基线与门禁文档。
+    - 未覆盖边界:
+        - 未补充 GitHub Security / Dependabot 告警 API 的在线拉取逻辑。
+        - 未在本轮任务内顺手升级 `mjml` 链路或替换 `html-minifier`，避免把收口修复扩写为依赖升级工程。
+    - 后续补跑计划:
+        - 每次发版前继续执行 `pnpm run security:audit-deps`，若出现新的 high+ 风险则直接阻断 release。
+        - 上游补丁可用时优先移除 `.github/security/dependency-risk-allowlist.json` 中的 `html-minifier` 临时放行条目，并补一轮门禁回归。
+
 ## AI 视觉资产收敛回归（2026-03-22）
 
 ### 回归任务记录

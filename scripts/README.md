@@ -7,6 +7,7 @@
 | 目录 | 主要脚本 | 调用入口 | 副作用范围 | 当前结论 |
 | :--- | :--- | :--- | :--- | :--- |
 | `scripts/ai/` | `check-governance.mjs` | `pnpm ai:check` | 只读体检 `.github/`、`.claude/`、skills / agents 镜像与治理状态 | 保留 |
+| `scripts/security/` | `check-dependency-risk.mjs` | `pnpm security:audit-deps`、`.github/workflows/release.yml` | 读取 `pnpm audit` 官方审计结果并按白名单执行 high+ 发版门禁 | 保留 |
 | `scripts/docs/` | `check-i18n-duplicates.mjs`、`check-source-of-truth.mjs` | `pnpm docs:check:i18n`、`pnpm docs:check:source-of-truth` | 只读检查文档重复、翻译同步与事实源一致性 | 保留 |
 | `scripts/i18n/` | `audit-locale-keys.mjs`、`split-locale-files.mjs` | `pnpm i18n:audit`；设计 / 翻译治理文档中的手工命令 | 审计 locale key、拆分翻译文件 | 保留 |
 | `scripts/perf/` | `check-bundle-budget.mjs` | `pnpm test:perf:budget`、`pnpm test:perf:budget:strict`、`.github/workflows/test.yml` | 读取 Lighthouse / bundle 输出并给出预算结论 | 保留 |
@@ -21,6 +22,7 @@
 
 ```bash
 pnpm ai:check
+pnpm security:audit-deps
 pnpm docs:check:i18n
 pnpm docs:check:source-of-truth
 pnpm i18n:audit
@@ -32,6 +34,7 @@ pnpm test:perf:budget:strict
 ### 工作流入口
 
 - `.github/workflows/test.yml` 会调用 `scripts/perf/check-bundle-budget.mjs`。
+- `.github/workflows/release.yml` 会调用 `scripts/security/check-dependency-risk.mjs` 对 high+ 依赖风险执行发版门禁。
 - 翻译治理和设计文档会引用 `scripts/i18n/audit-locale-keys.mjs` 与 `scripts/i18n/split-locale-files.mjs`。
 
 ### 本地手工脚本
@@ -52,6 +55,7 @@ pnpm test:perf:budget:strict
 ## 回归结论（2026-03-21）
 
 - 保留：所有 `.mjs` 长期脚本均已有 `package.json`、工作流或治理文档引用。
+- 保留：`scripts/security/check-dependency-risk.mjs` 作为 release 前依赖风险门禁入口，配套白名单基线位于 `.github/security/dependency-risk-allowlist.json`。
 - 保留：`scripts/setup/setup-ai.ps1` 作为 worktree 辅助工具，但明确降级为本地手工脚本。
 - 保留：`scripts/hooks/*.ps1` 作为本地 Hook 实验脚本；当前不并入团队正式流程。
 - 合并：本轮未发现需要立即合并的重复长期脚本。

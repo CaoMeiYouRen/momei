@@ -82,9 +82,11 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
+      - name: Audit dependency risk gate
+        run: pnpm run security:audit-deps
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm run release
+        run: pnpm run release:semantic
       # 发布到 docker
       - name: Get git tag
         id: git_tag
