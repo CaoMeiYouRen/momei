@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
-import { usePostEditorTranslation } from './use-post-editor-translation'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { hasUnsavedNewDraftContent, usePostEditorTranslation } from './use-post-editor-translation'
 import type { PostEditorData } from '@/types/post-editor'
 import type {
     PostTagBindingInput,
@@ -9,6 +10,12 @@ import type {
     PostTranslationWorkflowRequest,
 } from '@/types/post-translation'
 import { PostStatus, PostVisibility } from '@/types/post'
+
+const { mockNavigateTo } = vi.hoisted(() => ({
+    mockNavigateTo: vi.fn(),
+}))
+
+mockNuxtImport('navigateTo', () => mockNavigateTo)
 
 function createPostEditorState(language = 'en-US') {
     return ref<PostEditorData>({
@@ -75,6 +82,8 @@ function createComposable(options?: {
     translateTaxonomyNames?: (names: string[], targetLanguage: string) => Promise<string[]>
     initialTags?: string[]
     initialTagBindings?: PostTagBindingInput[]
+    isNew?: boolean
+    sourcePostSnapshot?: PostTranslationSourceDetail | null
 }) {
     const post = createPostEditorState(options?.language)
     post.value.tags = [...(options?.initialTags || [])]
@@ -85,8 +94,11 @@ function createComposable(options?: {
 
     const composable = usePostEditorTranslation({
         post,
-        isNew: computed(() => true),
-        localeItems: computed(() => []),
+        isNew: computed(() => options?.isNew ?? true),
+        localeItems: computed(() => [
+            { code: 'zh-CN' },
+            { code: 'en-US' },
+        ]),
         categories: ref([]),
         tagEntities: ref(options?.tagEntities || []),
         toast: {
@@ -109,7 +121,9 @@ function createComposable(options?: {
         resetTranslationProgress: vi.fn(),
     })
 
-    composable.sourcePostSnapshot.value = createSourcePost()
+    composable.sourcePostSnapshot.value = options?.sourcePostSnapshot === undefined
+        ? createSourcePost()
+        : options.sourcePostSnapshot
 
     return {
         post,
@@ -122,6 +136,75 @@ function createComposable(options?: {
 }
 
 describe('usePostEditorTranslation', () => {
+    it('空白新建草稿切换语言时应直接跳转到目标语言新建页', async () => {
+        mockNavigateTo.mockReset()
+
+        const { handleTranslationClick, toastAdd } = createComposable({
+            language: 'zh-CN',
+            sourcePostSnapshot: null,
+        })
+
+        await handleTranslationClick('en-US')
+
+        expect(toastAdd).not.toHaveBeenCalled()
+        expect(mockNavigateTo).toHaveBeenCalledWith({
+            path: '/admin/posts/new',
+            query: {
+                language: 'en-US',
+                sourceId: undefined,
+                translationId: undefined,
+            },
+        })
+    })
+
+    it('带来源快照的空白新建草稿切换语言时应保留翻译上下文参数', async () => {
+        mockNavigateTo.mockReset()
+
+        const { handleTranslationClick, toastAdd } = createComposable({
+            language: 'zh-CN',
+            sourcePostSnapshot: createSourcePost(),
+        })
+
+        await handleTranslationClick('en-US')
+
+        expect(toastAdd).not.toHaveBeenCalled()
+        expect(mockNavigateTo).toHaveBeenCalledWith({
+            path: '/admin/posts/new',
+            query: {
+                language: 'en-US',
+                sourceId: 'source-post-id',
+                translationId: 'shared-post-cluster',
+            },
+        })
+    })
+
+    it('已录入内容的新建草稿切换语言时仍应提示先保存', async () => {
+        mockNavigateTo.mockReset()
+
+        const { handleTranslationClick, post, toastAdd } = createComposable({
+            language: 'zh-CN',
+        })
+
+        post.value.title = '未保存标题'
+
+        await handleTranslationClick('en-US')
+
+        expect(mockNavigateTo).not.toHaveBeenCalled()
+        expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'warn',
+            detail: 'pages.admin.posts.save_current_first',
+        }))
+    })
+
+    it('仅修改默认值字段时不应将新建草稿视为非空', () => {
+        const draft = createPostEditorState('zh-CN')
+
+        expect(hasUnsavedNewDraftContent(draft.value)).toBe(false)
+
+        draft.value.visibility = PostVisibility.PRIVATE
+        expect(hasUnsavedNewDraftContent(draft.value)).toBe(true)
+    })
+
     it('应该在目标语言已有同簇标签时复用现有标签', async () => {
         const { handleStartTranslationWorkflow, post, tagBindings, translateTaxonomyNames } = createComposable({
             tagEntities: [{

@@ -27,7 +27,7 @@ import {
     searchTagOptions,
     type PublishPushDialogExpose,
 } from '@/composables/use-post-editor-page.helpers'
-import { usePostEditorTranslation } from '@/composables/use-post-editor-translation'
+import { hasUnsavedNewDraftContent, usePostEditorTranslation } from '@/composables/use-post-editor-translation'
 import { usePostTranslationAI } from '@/composables/use-post-translation-ai'
 import { useRequestFeedback } from '@/composables/use-request-feedback'
 import { formatMarkdown } from '@/utils/shared/markdown'
@@ -45,6 +45,44 @@ interface HeaderExpose {
 
 interface MarkdownEditorExpose {
     $img2Url?: (position: number, url: string) => void
+}
+
+function areRouteQueryValuesEqual(current: string | string[] | undefined, previous: string | string[] | undefined) {
+    if (Array.isArray(current) || Array.isArray(previous)) {
+        if (!Array.isArray(current) || !Array.isArray(previous) || current.length !== previous.length) {
+            return false
+        }
+
+        return current.every((item, index) => item === previous[index])
+    }
+
+    return current === previous
+}
+
+function createInitialPostState(options: {
+    routeLanguage: string | undefined
+    routeTranslationId: string | undefined
+    contentLanguage: string | null | undefined
+    locale: string
+}): PostEditorData {
+    return {
+        title: '',
+        content: '',
+        slug: '',
+        status: PostStatus.DRAFT,
+        visibility: PostVisibility.PUBLIC,
+        password: null,
+        summary: '',
+        coverImage: '',
+        metadata: null,
+        categoryId: null,
+        copyright: null,
+        tags: [],
+        isPinned: false,
+        language: options.routeLanguage || options.contentLanguage || options.locale,
+        translationId: options.routeTranslationId || null,
+        views: 0,
+    }
 }
 
 export function usePostEditorPage() {
@@ -87,27 +125,12 @@ export function usePostEditorPage() {
         return t(`components.post.copyright.licenses.${key}`)
     })
 
-    const post = ref<PostEditorData>({
-        title: '',
-        content: '',
-        slug: '',
-        status: PostStatus.DRAFT,
-        visibility: PostVisibility.PUBLIC,
-        password: null,
-        summary: '',
-        coverImage: '',
-        metadata: null,
-        categoryId: null,
-        copyright: null,
-        tags: [],
-        isPinned: false,
-        language:
-            (route.query.language as string)
-            || contentLanguage.value
-            || locale.value,
-        translationId: (route.query.translationId as string) || null,
-        views: 0,
-    })
+    const post = ref<PostEditorData>(createInitialPostState({
+        routeLanguage: route.query.language as string | undefined,
+        routeTranslationId: route.query.translationId as string | undefined,
+        contentLanguage: contentLanguage.value,
+        locale: locale.value,
+    }))
 
     const filteredTags = ref<string[]>([])
     const allTags = ref<string[]>([])
@@ -446,6 +469,53 @@ export function usePostEditorPage() {
         () => locale.value,
         () => {
             void loadCategories()
+        },
+    )
+
+    watch(
+        () => ({
+            language: route.query.language as string | string[] | undefined,
+            sourceId: route.query.sourceId as string | string[] | undefined,
+            translationId: route.query.translationId as string | string[] | undefined,
+            autoTranslate: route.query.autoTranslate as string | string[] | undefined,
+            translationScopes: route.query.translationScopes as string | string[] | undefined,
+        }),
+        async (nextQuery, previousQuery) => {
+            if (!isNew.value || post.value.id) {
+                return
+            }
+
+            if (
+                previousQuery
+                && areRouteQueryValuesEqual(nextQuery.language, previousQuery.language)
+                && areRouteQueryValuesEqual(nextQuery.sourceId, previousQuery.sourceId)
+                && areRouteQueryValuesEqual(nextQuery.translationId, previousQuery.translationId)
+                && areRouteQueryValuesEqual(nextQuery.autoTranslate, previousQuery.autoTranslate)
+                && areRouteQueryValuesEqual(nextQuery.translationScopes, previousQuery.translationScopes)
+            ) {
+                return
+            }
+
+            if (hasUnsavedNewDraftContent(post.value)) {
+                return
+            }
+
+            post.value = createInitialPostState({
+                routeLanguage: route.query.language as string | undefined,
+                routeTranslationId: route.query.translationId as string | undefined,
+                contentLanguage: contentLanguage.value,
+                locale: locale.value,
+            })
+            applyTagBindings([])
+            translations.value = []
+            sourcePostSnapshot.value = null
+            translationDialogVisible.value = false
+
+            await loadPost()
+            await Promise.all([
+                loadCategories(post.value.language),
+                loadTags(post.value.language),
+            ])
         },
     )
 

@@ -1,7 +1,7 @@
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
 import type { ApiResponse } from '@/types/api'
 import type { PostEditorData } from '@/types/post-editor'
-import { PostStatus } from '@/types/post'
+import { PostStatus, PostVisibility } from '@/types/post'
 import type {
     PostTagBindingInput,
     PostTranslationCategoryOption,
@@ -112,6 +112,52 @@ interface TranslationActionContext {
 const DEFAULT_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags', 'coverImage']
 const AVAILABLE_TRANSLATION_SCOPES: TranslationScopeField[] = ['title', 'content', 'summary', 'category', 'tags', 'coverImage', 'audio']
 
+function hasNestedDraftValue(value: unknown): boolean {
+    if (value === null || value === undefined) {
+        return false
+    }
+
+    if (typeof value === 'string') {
+        return value.trim().length > 0
+    }
+
+    if (Array.isArray(value)) {
+        return value.some((item) => hasNestedDraftValue(item))
+    }
+
+    if (typeof value === 'object') {
+        return Object.values(value).some((item) => hasNestedDraftValue(item))
+    }
+
+    if (typeof value === 'boolean') {
+        return value
+    }
+
+    if (typeof value === 'number') {
+        return !Number.isNaN(value)
+    }
+
+    return false
+}
+
+export function hasUnsavedNewDraftContent(post: PostEditorData): boolean {
+    return [
+        post.title,
+        post.content,
+        post.summary,
+        post.slug,
+        post.coverImage,
+        post.password,
+        post.copyright,
+        post.categoryId,
+        post.publishedAt,
+        post.isPinned,
+        post.visibility !== undefined && post.visibility !== PostVisibility.PUBLIC,
+        post.tags,
+        post.metadata,
+    ].some((item) => hasNestedDraftValue(item))
+}
+
 async function navigateToTranslationTarget(
     context: TranslationActionContext,
     langCode: string,
@@ -123,8 +169,9 @@ async function navigateToTranslationTarget(
 ) {
     const targetTranslation = context.hasTranslation(langCode)
     const sourceId = overrideOptions?.sourceId || context.options.post.value.id || context.sourcePostSnapshot.value?.id || null
+    const isUnsavedNewDraft = context.options.isNew.value && !context.options.post.value.id
 
-    if (!targetTranslation && context.options.isNew.value && !context.options.post.value.id) {
+    if (isUnsavedNewDraft && hasUnsavedNewDraftContent(context.options.post.value)) {
         context.options.toast.add({
             severity: 'warn',
             summary: context.options.t('common.warn'),
