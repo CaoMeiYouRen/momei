@@ -267,6 +267,7 @@ export interface AIChatOptions {
     temperature?: number
     maxTokens?: number
     stream?: boolean
+    signal?: AbortSignal
 }
 
 export interface AIChatStreamChunk {

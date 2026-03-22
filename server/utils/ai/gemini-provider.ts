@@ -63,6 +63,7 @@ export class GeminiProvider implements AIProvider {
                     // 如果有额外的 API Token，添加到 Authorization
                     ...(apiToken ? { Authorization: `Bearer ${apiToken}` } : {}),
                 },
+                signal: options.signal,
                 body: {
                     ...(systemInstruction ? { systemInstruction } : {}),
                     contents,

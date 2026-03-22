@@ -93,7 +93,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
     }
 
     const resolveSourceChunks = (sourceValue: string) => {
-        const chunks = ContentProcessor.splitMarkdown(sourceValue, {
+        const chunks = ContentProcessor.splitMarkdownLossless(sourceValue, {
             chunkSize: STREAM_MODE_MAX_CHARS,
             minChunkSize: MIN_CHUNK_SIZE,
         })
@@ -196,7 +196,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         const content = runtime.translatedChunks
             .slice(0, Math.max(visibleChunkCount, runtime.nextChunkIndex))
             .filter(Boolean)
-            .join('\n\n')
+            .join('')
 
         setFieldTargetValue(field, content)
         setFieldProgress(field, {

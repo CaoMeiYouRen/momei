@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { TextTranslationTaskService } from './text-translation-task'
 import { requestTranslation } from './text-translation'
 import { dataSource } from '@/server/database'
@@ -29,7 +29,7 @@ vi.mock('@/server/utils/env', () => ({
 }))
 
 vi.mock('./text-translation', () => ({
-    requestTranslation: vi.fn((content: string) => Promise.resolve({
+    requestTranslation: vi.fn((content: string, to: string, providerArg: any, options: any) => Promise.resolve({
         provider: { name: 'openai' },
         response: {
             model: 'gpt-4o',
@@ -57,6 +57,10 @@ describe('TextTranslationTaskService', () => {
             findOneBy,
             create,
         } as never)
+    })
+
+    afterEach(() => {
+        vi.useRealTimers()
     })
 
     it('should persist partial translate progress and keep task processing on serverless', async () => {
@@ -114,9 +118,9 @@ describe('TextTranslationTaskService', () => {
         }
 
         expect(result.status).toBe('processing')
-        expect(result.progress).toBe(50)
+        expect(result.progress).toBe(25)
         expect(persisted.completedChunks).toBe(1)
-        expect(persisted.totalChunks).toBe(2)
+        expect(persisted.totalChunks).toBe(4)
         expect(persisted.content).toContain('translated:')
     })
 
@@ -179,6 +183,74 @@ describe('TextTranslationTaskService', () => {
         expect(persisted.completedChunks).toBe(1)
         expect(persisted.failureCount).toBe(1)
         expect(persisted.lastError).toBe('chunk failed')
+    })
+
+    it('should abort a slow serverless chunk before the platform timeout window', async () => {
+        vi.useFakeTimers()
+
+        const task = {
+            id: 'task-1',
+            userId: 'user-1',
+            type: 'translate',
+            status: 'pending',
+            payload: JSON.stringify({
+                content: 'body',
+                to: 'en-US',
+                chunkSize: 1000,
+                concurrency: 1,
+                sourceLanguage: 'zh-CN',
+                field: 'content',
+            }),
+            result: JSON.stringify({
+                mode: 'task',
+                content: '',
+                translatedChunks: [''],
+                completedChunks: 0,
+                totalChunks: 1,
+                nextChunkIndex: 0,
+                activeChunkIndex: null,
+                leaseExpiresAt: null,
+                chunkSize: 1000,
+                concurrency: 1,
+                targetLanguage: 'en-US',
+                sourceLanguage: 'zh-CN',
+                field: 'content',
+                lastError: null,
+                failureCount: 0,
+            }),
+            provider: null,
+            model: null,
+            error: null,
+            progress: 0,
+            startedAt: null,
+            completedAt: null,
+        }
+
+        findOneBy.mockResolvedValue(task)
+        vi.mocked(requestTranslation).mockImplementationOnce((_, __, ___, options) => new Promise((resolvePromise, reject) => {
+            void resolvePromise
+            options?.signal?.addEventListener('abort', () => {
+                reject(new DOMException('Aborted', 'AbortError'))
+            }, { once: true })
+        }))
+
+        const pendingResult = TextTranslationTaskService.continueTranslateTask('task-1', 'user-1') as Promise<{
+            status: string
+            error: string
+            result: string
+        }>
+
+        await vi.advanceTimersByTimeAsync(45_000)
+        const result = await pendingResult
+        const persisted = JSON.parse(result.result) as {
+            failureCount: number
+            lastError: string | null
+        }
+
+        expect(result.status).toBe('processing')
+        expect(result.error).toContain('Translation chunk timeout')
+        expect(persisted.failureCount).toBe(1)
+        expect(persisted.lastError).toContain('Translation chunk timeout')
     })
 
     it('should not resume a failed task unless explicitly requested', async () => {

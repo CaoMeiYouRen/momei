@@ -10,6 +10,65 @@ export interface SplitOptions {
     minChunkSize?: number
 }
 
+function splitOversizedSegment(segment: string, chunkSize: number, minChunkSize: number) {
+    if (segment.length <= chunkSize) {
+        return [segment]
+    }
+
+    const pieces: string[] = []
+    let remaining = segment
+
+    while (remaining.length > chunkSize) {
+        const candidate = remaining.slice(0, chunkSize + 1)
+        const preferredSplitIndex = Math.max(
+            candidate.lastIndexOf('\n'),
+            candidate.lastIndexOf('。'),
+            candidate.lastIndexOf('！'),
+            candidate.lastIndexOf('？'),
+            candidate.lastIndexOf('.'),
+            candidate.lastIndexOf('!'),
+            candidate.lastIndexOf('?'),
+            candidate.lastIndexOf('；'),
+            candidate.lastIndexOf(';'),
+            candidate.lastIndexOf('，'),
+            candidate.lastIndexOf(','),
+            candidate.lastIndexOf('、'),
+            candidate.lastIndexOf(' '),
+        )
+
+        const splitIndex = preferredSplitIndex >= minChunkSize
+            ? preferredSplitIndex + 1
+            : chunkSize
+
+        pieces.push(remaining.slice(0, splitIndex))
+        remaining = remaining.slice(splitIndex)
+    }
+
+    if (remaining) {
+        pieces.push(remaining)
+    }
+
+    return pieces
+}
+
+export function preserveMarkdownChunkBoundary(sourceChunk: string, translatedChunk: string) {
+    const trailingBoundary = (/(\n\n|\n)$/.exec(sourceChunk))?.[0] || ''
+    const leadingBoundary = (/^(\n\n|\n)/.exec(sourceChunk))?.[0] || ''
+    let normalizedChunk = translatedChunk
+
+    if (leadingBoundary) {
+        normalizedChunk = normalizedChunk.replace(/^(\n\n|\n)/, '')
+        normalizedChunk = `${leadingBoundary}${normalizedChunk}`
+    }
+
+    if (trailingBoundary) {
+        normalizedChunk = normalizedChunk.replace(/(\n\n|\n)$/, '')
+        normalizedChunk = `${normalizedChunk}${trailingBoundary}`
+    }
+
+    return normalizedChunk
+}
+
 export class ContentProcessor {
     /**
      * 将 Markdown 内容拆分为多个块
@@ -59,16 +118,32 @@ export class ContentProcessor {
                 }
 
                 // 切分长段落（按句子或行）
-                const subSegments = processedSegment.match(/.*?[。！？.?!\n]+|.+/g) || [processedSegment]
+                const segmentPattern = /.*?[。！？.?!\n]+|.+/g
+                const subSegments: string[] = []
+                let segmentMatch = segmentPattern.exec(processedSegment)
+
+                while (segmentMatch) {
+                    subSegments.push(segmentMatch[0])
+                    segmentMatch = segmentPattern.exec(processedSegment)
+                }
+
+                if (subSegments.length === 0) {
+                    subSegments.push(processedSegment)
+                }
                 for (const sub of subSegments) {
-                    if (currentChunk.length + sub.length > chunkSize && currentChunk.length >= minChunkSize) {
-                        const trimmed = currentChunk.trim()
-                        if (trimmed) {
-                            chunks.push(trimmed)
+                    const boundedSubSegments = splitOversizedSegment(sub, chunkSize, minChunkSize)
+
+                    for (const boundedSubSegment of boundedSubSegments) {
+                        if (currentChunk.length + boundedSubSegment.length > chunkSize && currentChunk.length >= minChunkSize) {
+                            const trimmed = currentChunk.trim()
+                            if (trimmed) {
+                                chunks.push(trimmed)
+                            }
+                            currentChunk = ''
                         }
-                        currentChunk = ''
+
+                        currentChunk += boundedSubSegment
                     }
-                    currentChunk += sub
                 }
                 continue
             }
@@ -78,6 +153,64 @@ export class ContentProcessor {
 
         if (currentChunk.trim()) {
             chunks.push(currentChunk.trim())
+        }
+
+        return chunks
+    }
+
+    /**
+     * 将 Markdown 内容拆分为多个块，同时保证 chunks 直接拼接后可恢复原始内容。
+     */
+    static splitMarkdownLossless(
+        content: string,
+        options: SplitOptions = {},
+    ): string[] {
+        const { chunkSize = 4000, minChunkSize = 200 } = options
+
+        if (!content?.trim()) {
+            return []
+        }
+
+        const chunks: string[] = []
+        let currentChunk = ''
+        const rawSegments = content.split(/(\n\n|\n(?=#+ ))/g)
+
+        for (const segment of rawSegments) {
+            if (!segment) {
+                continue
+            }
+
+            if (currentChunk.length + segment.length > chunkSize) {
+                if (currentChunk.length >= minChunkSize) {
+                    chunks.push(currentChunk)
+                    currentChunk = ''
+                }
+            }
+
+            if (segment.length > chunkSize) {
+                if (currentChunk) {
+                    chunks.push(currentChunk)
+                    currentChunk = ''
+                }
+
+                const boundedSegments = splitOversizedSegment(segment, chunkSize, minChunkSize)
+                for (const boundedSegment of boundedSegments) {
+                    if (currentChunk.length + boundedSegment.length > chunkSize && currentChunk.length >= minChunkSize) {
+                        chunks.push(currentChunk)
+                        currentChunk = ''
+                    }
+
+                    currentChunk += boundedSegment
+                }
+
+                continue
+            }
+
+            currentChunk += segment
+        }
+
+        if (currentChunk) {
+            chunks.push(currentChunk)
         }
 
         return chunks

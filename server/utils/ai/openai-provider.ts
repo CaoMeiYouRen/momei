@@ -23,6 +23,7 @@ export class OpenAIProvider implements AIProvider {
                     Authorization: `Bearer ${this.config.apiKey}`,
                     'Content-Type': 'application/json',
                 },
+                signal: options.signal,
                 body: {
                     model: options.model || this.config.model,
                     messages: options.messages,
@@ -65,6 +66,7 @@ export class OpenAIProvider implements AIProvider {
                 Authorization: `Bearer ${this.config.apiKey}`,
                 'Content-Type': 'application/json',
             },
+            signal: options.signal,
             body: JSON.stringify({
                 model: options.model || this.config.model,
                 messages: options.messages,

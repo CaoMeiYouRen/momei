@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { ContentProcessor } from './content-processor'
+import { ContentProcessor, preserveMarkdownChunkBoundary } from './content-processor'
 
 describe('ContentProcessor', () => {
     describe('splitMarkdown', () => {
@@ -40,6 +40,32 @@ describe('ContentProcessor', () => {
             expect(combined).toContain('This is one sentence.')
             expect(combined).toContain('This is two.')
             expect(combined).toContain('This is three sentences.')
+        })
+
+        it('should hard-split oversized segments without punctuation to keep each chunk bounded', () => {
+            const content = 'a'.repeat(81)
+            const result = ContentProcessor.splitMarkdown(content, { chunkSize: 25, minChunkSize: 5 })
+
+            expect(result.length).toBeGreaterThan(1)
+            expect(result.every((chunk) => chunk.length <= 25)).toBe(true)
+            expect(result.join('')).toBe(content)
+        })
+
+        it('should preserve exact content boundaries for lossless markdown splitting', () => {
+            const content = `Paragraph 1\n\nParagraph 2\n\nhttps://example.com/${'a'.repeat(60)}`
+            const result = ContentProcessor.splitMarkdownLossless(content, { chunkSize: 25, minChunkSize: 5 })
+
+            expect(result.length).toBeGreaterThan(1)
+            expect(result.every((chunk) => chunk.length <= 25)).toBe(true)
+            expect(result.join('')).toBe(content)
+        })
+
+        it('should restore trailing markdown boundaries when translated chunk omits them', () => {
+            expect(preserveMarkdownChunkBoundary('Paragraph 1\n\n', 'Chunk 1')).toBe('Chunk 1\n\n')
+            expect(preserveMarkdownChunkBoundary('Paragraph 1', 'Chunk 1')).toBe('Chunk 1')
+            expect(preserveMarkdownChunkBoundary('\n# Heading', 'Chunk 1')).toBe('\nChunk 1')
+            expect(preserveMarkdownChunkBoundary('Paragraph 1\n\n', 'Chunk 1\n')).toBe('Chunk 1\n\n')
+            expect(preserveMarkdownChunkBoundary('\n# Heading', '\n\nChunk 1')).toBe('\nChunk 1')
         })
 
         it('should handle multi-level markdown headings correctly', () => {

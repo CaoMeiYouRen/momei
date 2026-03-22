@@ -792,7 +792,7 @@ export class TextService extends AIBaseService {
             throw createError({ statusCode: 413, message: 'Content too long' })
         }
 
-        const chunks = ContentProcessor.splitMarkdown(content, { chunkSize: AI_CHUNK_SIZE })
+        const chunks = ContentProcessor.splitMarkdownLossless(content, { chunkSize: AI_CHUNK_SIZE })
         const provider = await getAIProvider('text')
 
         for (let i = 0; i < chunks.length; i++) {

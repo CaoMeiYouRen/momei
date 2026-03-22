@@ -10,6 +10,7 @@ import type {
     TranslationScopeField,
     TranslationTextField,
 } from '@/types/post-translation'
+import { preserveMarkdownChunkBoundary } from '@/utils/shared/content-processor'
 import {
     readTranslationStream,
     resolveTranslationChunkContent,
@@ -136,7 +137,7 @@ export async function translateChunkViaStreamHelper(options: {
         toErrorMessage: options.toErrorMessage,
     })
 
-    return translatedChunks.filter(Boolean).join('\n\n')
+    return preserveMarkdownChunkBoundary(options.content, translatedChunks.filter(Boolean).join(''))
 }
 
 export async function executeChunkTranslation(options: {
@@ -222,10 +223,13 @@ export async function executeStreamingTranslation(options: {
             field: options.field,
         }, controller.signal, (chunk) => {
             const nextIndex = typeof chunk.chunkIndex === 'number' ? chunk.chunkIndex : options.runtime.nextChunkIndex
-            const nextContent = resolveTranslationChunkContent(options.runtime.translatedChunks[nextIndex] || '', chunk)
             const totalChunks = chunk.totalChunks || options.runtime.sourceChunks.length || 1
             const sourceChunk = options.runtime.sourceChunks[nextIndex] || options.runtime.sourceValue
             const isChunkComplete = chunk.isChunkComplete === true
+            const resolvedContent = resolveTranslationChunkContent(options.runtime.translatedChunks[nextIndex] || '', chunk)
+            const nextContent = isChunkComplete
+                ? preserveMarkdownChunkBoundary(sourceChunk, resolvedContent)
+                : resolvedContent
             const chunkCompletionRatio = isChunkComplete
                 ? 1
                 : Math.min(nextContent.length / Math.max(sourceChunk.length, 1), 0.99)

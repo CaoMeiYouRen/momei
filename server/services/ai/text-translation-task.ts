@@ -5,18 +5,20 @@ import { AITask } from '@/server/entities/ai-task'
 import { calculateQuotaUnits, deriveChargeStatus, inferFailureStage } from '@/server/utils/ai/cost-governance'
 import { isServerlessEnvironment } from '@/server/utils/env'
 import logger from '@/server/utils/logger'
-import { ContentProcessor } from '@/utils/shared/content-processor'
+import { ContentProcessor, preserveMarkdownChunkBoundary } from '@/utils/shared/content-processor'
 import {
     AI_MAX_CONTENT_LENGTH,
+    AI_TEXT_DIRECT_RETURN_MAX_CHARS,
     AI_TEXT_TASK_CHUNK_SIZE,
     AI_TEXT_TASK_CONCURRENCY,
 } from '@/utils/shared/env'
 import type { AIUsageSnapshot } from '@/types/ai'
 
-const SERVERLESS_TRANSLATION_TASK_CHUNK_SIZE = 2000
+const SERVERLESS_TRANSLATION_TASK_CHUNK_SIZE = 1000
 const SERVERLESS_TRANSLATION_TASK_STEP_CHUNKS = 1
+const SERVERLESS_TRANSLATION_TASK_REQUEST_TIMEOUT_MS = 45_000
 const MAX_TRANSLATION_TASK_FAILURES = 3
-const TRANSLATION_TASK_CHUNK_LEASE_MS = 30_000
+const TRANSLATION_TASK_CHUNK_LEASE_MS = 60_000
 
 interface TranslateTaskPayload {
     content: string
@@ -60,10 +62,59 @@ function parseJSON<T>(value: string | null | undefined, fallback: T): T {
 
 function resolveTranslateTaskChunkSize() {
     if (isServerlessEnvironment()) {
-        return Math.min(AI_TEXT_TASK_CHUNK_SIZE, SERVERLESS_TRANSLATION_TASK_CHUNK_SIZE)
+        return Math.min(
+            AI_TEXT_TASK_CHUNK_SIZE,
+            Math.max(AI_TEXT_DIRECT_RETURN_MAX_CHARS, SERVERLESS_TRANSLATION_TASK_CHUNK_SIZE),
+        )
     }
 
     return AI_TEXT_TASK_CHUNK_SIZE
+}
+
+async function requestTranslateTaskChunk(
+    chunk: string,
+    payload: TranslateTaskPayload,
+) {
+    if (!isServerlessEnvironment()) {
+        return await requestTranslation(
+            chunk,
+            payload.to,
+            undefined,
+            {
+                sourceLanguage: payload.sourceLanguage,
+                field: payload.field,
+            },
+        )
+    }
+
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => {
+        controller.abort()
+    }, SERVERLESS_TRANSLATION_TASK_REQUEST_TIMEOUT_MS)
+
+    try {
+        return await requestTranslation(
+            chunk,
+            payload.to,
+            undefined,
+            {
+                sourceLanguage: payload.sourceLanguage,
+                field: payload.field,
+                signal: controller.signal,
+            },
+        )
+    } catch (error) {
+        if (controller.signal.aborted) {
+            throw createError({
+                statusCode: 504,
+                message: `Translation chunk timeout (${SERVERLESS_TRANSLATION_TASK_REQUEST_TIMEOUT_MS}ms)`,
+            })
+        }
+
+        throw error
+    } finally {
+        clearTimeout(timeoutId)
+    }
 }
 
 function mergeUsageSnapshot(
@@ -104,7 +155,7 @@ function serializeTranslateTaskState(state: TranslateTaskState) {
 }
 
 function buildTranslateTaskState(payload: TranslateTaskPayload, persisted?: Partial<TranslateTaskState>) {
-    const chunks = ContentProcessor.splitMarkdown(payload.content, {
+    const chunks = ContentProcessor.splitMarkdownLossless(payload.content, {
         chunkSize: Math.max(200, payload.chunkSize),
         minChunkSize: Math.min(200, Math.max(200, payload.chunkSize)),
     })
@@ -120,7 +171,7 @@ function buildTranslateTaskState(payload: TranslateTaskPayload, persisted?: Part
         chunks: normalizedChunks,
         state: {
             mode: 'task' as const,
-            content: translatedChunks.filter(Boolean).join('\n\n'),
+            content: translatedChunks.filter(Boolean).join(''),
             translatedChunks,
             completedChunks,
             totalChunks: normalizedChunks.length,
@@ -332,24 +383,19 @@ export class TextTranslationTaskService extends AIBaseService {
                     continue
                 }
 
-                const { provider, response, translatedContent } = await requestTranslation(
+                const { provider, response, translatedContent } = await requestTranslateTaskChunk(
                     currentChunk,
-                    payload.to,
-                    undefined,
-                    {
-                        sourceLanguage: payload.sourceLanguage,
-                        field: payload.field,
-                    },
+                    payload,
                 )
 
                 lastProvider = provider.name
                 lastModel = response.model
-                state.translatedChunks[currentIndex] = translatedContent
+                state.translatedChunks[currentIndex] = preserveMarkdownChunkBoundary(currentChunk, translatedContent)
                 state.nextChunkIndex = currentIndex + 1
                 state.activeChunkIndex = null
                 state.leaseExpiresAt = null
                 state.completedChunks = state.translatedChunks.filter(Boolean).length
-                state.content = state.translatedChunks.filter(Boolean).join('\n\n')
+                state.content = state.translatedChunks.filter(Boolean).join('')
                 state.lastError = null
                 state.failureCount = 0
                 state.usageSnapshot = mergeUsageSnapshot(

@@ -1,6 +1,6 @@
 import { getAIProvider } from '@/server/utils/ai'
 import { AI_PROMPTS, formatPrompt } from '@/server/utils/ai/prompt'
-import { ContentProcessor } from '@/utils/shared/content-processor'
+import { ContentProcessor, preserveMarkdownChunkBoundary } from '@/utils/shared/content-processor'
 import {
     AI_MAX_CONTENT_LENGTH,
     AI_TEXT_DIRECT_RETURN_MAX_CHARS,
@@ -13,6 +13,7 @@ import type { TranslationTextField } from '@/types/post-translation'
 export interface TranslateRequestOptions {
     sourceLanguage?: string
     field?: TranslationTextField
+    signal?: AbortSignal
 }
 
 export interface ChunkedTranslateOptions {
@@ -82,12 +83,15 @@ export async function requestTranslation(
             { role: 'user', content: prompt },
         ],
         temperature: 0.3,
+        signal: options.signal,
     })
 
     return {
         provider,
         response,
-        translatedContent: response.content.trim(),
+        translatedContent: options.field === 'title' || options.field === 'summary'
+            ? response.content.trim()
+            : response.content,
     }
 }
 
@@ -181,7 +185,7 @@ export async function translateInChunks(
 
     const chunkSize = Math.max(200, options.chunkSize || AI_TEXT_TASK_CHUNK_SIZE)
     const concurrency = Math.max(1, options.concurrency || AI_TEXT_TASK_CONCURRENCY)
-    const chunks = ContentProcessor.splitMarkdown(content, {
+    const chunks = ContentProcessor.splitMarkdownLossless(content, {
         chunkSize,
         minChunkSize: Math.min(200, chunkSize),
     })
@@ -220,7 +224,7 @@ export async function translateInChunks(
 
             resolvedModel = resolvedModel || response.model
             aggregatedUsage = mergeChatUsage(aggregatedUsage, response.usage)
-            translatedChunks[currentIndex] = translatedContent
+            translatedChunks[currentIndex] = preserveMarkdownChunkBoundary(chunk, translatedContent)
             completedChunks += 1
 
             await options.onChunkComplete?.({
@@ -232,7 +236,7 @@ export async function translateInChunks(
 
     await Promise.all(Array.from({ length: workerCount }, () => runWorker()))
 
-    const translatedContent = translatedChunks.filter(Boolean).join('\n\n')
+    const translatedContent = translatedChunks.filter(Boolean).join('')
     return {
         content: translatedContent,
         chunkCount: chunks.length,

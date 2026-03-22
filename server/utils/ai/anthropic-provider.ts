@@ -23,6 +23,7 @@ export class AnthropicProvider implements AIProvider {
                     'anthropic-version': '2023-06-01',
                     'Content-Type': 'application/json',
                 },
+                signal: options.signal,
                 body: {
                     model: options.model || this.config.model,
                     messages: options.messages.filter((m) => m.role !== 'system'),
