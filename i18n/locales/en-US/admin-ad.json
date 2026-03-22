@@ -1,0 +1,15 @@
+{
+    "pages": {
+        "admin": {
+            "ad": {
+                "campaigns": {
+                    "title": "Ad Campaigns"
+                },
+                "placements": {
+                    "title": "Ad Placements"
+                },
+                "title": "Ad Monetization"
+            }
+        }
+    }
+}

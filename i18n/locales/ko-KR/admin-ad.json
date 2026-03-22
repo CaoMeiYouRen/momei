@@ -1,0 +1,79 @@
+{
+    "pages": {
+        "admin": {
+            "ad": {
+                "campaigns": {
+                    "clicks": "클릭 수",
+                    "empty": "등록된 광고 캠페인이 없습니다",
+                    "end_date": "종료일",
+                    "impressions": "노출 수",
+                    "messages": {
+                        "create_success": "광고 캠페인이 생성되었습니다",
+                        "delete_confirm": "이 광고 캠페인을 삭제하시겠습니까?",
+                        "delete_failed": "광고 캠페인 삭제에 실패했습니다",
+                        "delete_success": "광고 캠페인이 삭제되었습니다",
+                        "load_failed": "광고 캠페인을 불러오지 못했습니다",
+                        "name_required": "이름은 필수입니다",
+                        "save_failed": "광고 캠페인 저장에 실패했습니다",
+                        "update_success": "광고 캠페인이 업데이트되었습니다"
+                    },
+                    "revenue": "수익",
+                    "start_date": "시작일",
+                    "status": "상태",
+                    "statuses": {
+                        "active": "진행 중",
+                        "draft": "초안",
+                        "ended": "종료됨",
+                        "paused": "일시 중지"
+                    },
+                    "title": "광고 캠페인"
+                },
+                "placements": {
+                    "adapter": "어댑터",
+                    "disabled": "비활성",
+                    "empty": "등록된 광고 지면이 없습니다",
+                    "enabled": "활성",
+                    "format": "형식",
+                    "formats": {
+                        "display": "디스플레이",
+                        "native": "네이티브",
+                        "responsive": "반응형",
+                        "video": "비디오"
+                    },
+                    "location": "위치",
+                    "locations": {
+                        "content_bottom": "본문 하단",
+                        "content_middle": "본문 중간",
+                        "content_top": "본문 상단",
+                        "footer": "푸터",
+                        "header": "헤더",
+                        "sidebar": "사이드바"
+                    },
+                    "messages": {
+                        "adapter_required": "어댑터는 필수입니다",
+                        "create_success": "광고 지면이 생성되었습니다",
+                        "delete_confirm": "이 광고 지면을 삭제하시겠습니까?",
+                        "delete_failed": "광고 지면 삭제에 실패했습니다",
+                        "delete_success": "광고 지면이 삭제되었습니다",
+                        "disable_success": "광고 지면이 비활성화되었습니다",
+                        "enable_success": "광고 지면이 활성화되었습니다",
+                        "format_required": "형식은 필수입니다",
+                        "load_failed": "광고 지면을 불러오지 못했습니다",
+                        "location_required": "위치는 필수입니다",
+                        "name_required": "이름은 필수입니다",
+                        "save_failed": "광고 지면 저장에 실패했습니다",
+                        "update_failed": "광고 지면 업데이트에 실패했습니다",
+                        "update_success": "광고 지면이 업데이트되었습니다"
+                    },
+                    "priority": "우선순위",
+                    "slot_id": "광고 슬롯 ID",
+                    "slot_id_hint": "광고 플랫폼의 슬롯 ID를 입력하세요",
+                    "slot_id_placeholder": "예: ca-pub-1234567890/1234567890",
+                    "status": "상태",
+                    "title": "광고 지면 관리"
+                },
+                "title": "광고 수익화 관리"
+            }
+        }
+    }
+}

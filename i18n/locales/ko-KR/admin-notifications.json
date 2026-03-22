@@ -1,0 +1,12 @@
+{
+    "pages": {
+        "admin": {
+            "notifications": {
+                "description": "인앱 알림, SSE, 웹 푸시, 이메일 알림의 전달 결과를 한곳에서 확인하여 어떤 알림이 실제로 전달되었고 실패했거나 건너뛰었는지 추적합니다.",
+                "go_to_marketing": "마케팅 센터로 이동",
+                "overview_title": "알림 전달 감사",
+                "title": "알림 관리"
+            }
+        }
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "pages": {
+        "admin": {
+            "settings": {
+                "system": {
+                    "title": "System Settings"
+                },
+                "theme": {
+                    "title": "Theme Customization"
+                }
+            }
+        }
+    }
+}

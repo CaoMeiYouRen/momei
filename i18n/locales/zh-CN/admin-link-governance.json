@@ -1,0 +1,107 @@
+{
+    "pages": {
+        "admin": {
+            "link_governance": {
+                "actions": {
+                    "apply_now": "执行改写",
+                    "dry_run": "开始干跑",
+                    "export_json": "导出 JSON",
+                    "export_markdown": "导出 Markdown",
+                    "refresh": "刷新",
+                    "view": "查看详情"
+                },
+                "columns": {
+                    "created_at": "创建时间",
+                    "mode": "模式",
+                    "redirects": "Redirect Seeds",
+                    "requested_by": "发起人",
+                    "status": "状态",
+                    "summary": "摘要"
+                },
+                "content_types": {
+                    "asset-record": "资源记录",
+                    "category": "分类",
+                    "page": "页面",
+                    "post": "文章",
+                    "tag": "标签"
+                },
+                "detail": {
+                    "empty_items": "当前报告没有差异项。",
+                    "empty_redirect_seeds": "当前报告没有 redirect seeds。",
+                    "items": "差异项预览",
+                    "markdown": "Markdown 报告",
+                    "redirect_seeds": "Redirect Seeds",
+                    "report_id": "报告 ID",
+                    "requested_by": "发起人 ID",
+                    "title": "报告详情"
+                },
+                "empty": "暂无治理报告",
+                "execution": {
+                    "allow_relative_links": "允许治理正文中的相对链接",
+                    "confirm_apply": "我已确认 apply 会实际写入匹配内容",
+                    "content_types": "内容类型",
+                    "description": "按范围、域名和路径前缀发起 dry-run 或 apply，统一复用现有资源 URL 解析与权限链路。",
+                    "domains": "域名过滤",
+                    "domains_placeholder": "例如 legacy.example.com, old-cdn.example.com",
+                    "path_prefixes": "路径前缀过滤",
+                    "path_prefixes_placeholder": "例如 /assets, /uploads/legacy",
+                    "report_format": "报告格式",
+                    "scopes": "治理范围",
+                    "title": "执行治理",
+                    "validation_mode": "校验模式"
+                },
+                "filters": {
+                    "apply": "应用筛选",
+                    "mode": "执行模式",
+                    "reset": "重置筛选",
+                    "status": "报告状态"
+                },
+                "messages": {
+                    "apply_success": "改写任务已完成",
+                    "detail_failed": "加载报告详情失败",
+                    "dry_run_success": "干跑任务已完成",
+                    "load_failed": "加载治理报告失败",
+                    "run_failed": "执行链接治理失败"
+                },
+                "modes": {
+                    "apply": "执行",
+                    "dry-run": "干跑"
+                },
+                "overview_description": "查看 dry-run 与 apply 生成的链接治理报告，复盘改写结果、失败项与 redirect seeds。",
+                "overview_title": "治理报告记录",
+                "report_formats": {
+                    "json": "JSON",
+                    "markdown": "Markdown"
+                },
+                "report_list": {
+                    "title": "治理报告"
+                },
+                "scopes": {
+                    "archive-link": "归档链接",
+                    "asset-url": "资源链接",
+                    "category-link": "分类链接",
+                    "page-link": "页面链接",
+                    "permalink-rule": "历史 permalink 规则",
+                    "post-link": "文章链接",
+                    "tag-link": "标签链接"
+                },
+                "statuses": {
+                    "completed": "已完成",
+                    "failed": "失败"
+                },
+                "summary": {
+                    "failed": "失败",
+                    "needs_confirmation": "待确认",
+                    "resolved": "已落盘",
+                    "rewritten": "待改写",
+                    "total": "总数"
+                },
+                "title": "迁移链接治理",
+                "validation_modes": {
+                    "static": "静态校验",
+                    "static+online": "静态 + 在线探测"
+                }
+            }
+        }
+    }
+}

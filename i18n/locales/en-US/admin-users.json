@@ -1,0 +1,9 @@
+{
+    "pages": {
+        "admin": {
+            "users": {
+                "title": "User Management"
+            }
+        }
+    }
+}

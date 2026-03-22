@@ -1,0 +1,29 @@
+{
+    "pages": {
+        "admin": {
+            "submissions": {
+                "accept": "采纳",
+                "admin_note": "审核备注",
+                "admin_note_placeholder": "仅内部可见的审核说明",
+                "article_title": "文章标题",
+                "category": "所属分类",
+                "contributor": "贡献者",
+                "created_at": "提交时间",
+                "delete_failed": "删除稿件失败",
+                "delete_success": "稿件删除成功",
+                "language": "发布语言",
+                "publish_immediately": "立即发布文章",
+                "reject": "拒绝",
+                "review": "审核",
+                "review_failed": "审核稿件失败",
+                "review_success": "操作成功",
+                "search_placeholder": "搜索标题或内容...",
+                "status": "稿件状态",
+                "status_accepted": "已采纳",
+                "status_pending": "待审核",
+                "status_rejected": "已拒绝",
+                "title": "稿件审核"
+            }
+        }
+    }
+}

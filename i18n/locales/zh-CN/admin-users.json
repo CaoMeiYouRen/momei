@@ -1,0 +1,72 @@
+{
+    "pages": {
+        "admin": {
+            "users": {
+                "actions": "操作",
+                "active": "正常",
+                "ban": "执行封禁",
+                "ban_expiry": "过期时间",
+                "ban_reason": "封禁原因",
+                "ban_reason_placeholder": "请输入违规原因",
+                "ban_user": "封禁用户",
+                "banned": "已封禁",
+                "confirm_delete": "确定要永久删除用户 \"{name}\" 吗？此操作不可逆！",
+                "confirm_impersonate": "确定要以 \"{name}\" 的身份登录吗？这将会打开一个新的会话。",
+                "confirm_revoke_all": "确定要强制该用户在所有设备上退出登录吗？",
+                "created_at": "注册时间",
+                "delete_user": "删除用户",
+                "edit_role": "修改角色",
+                "expires_at": "过期时间",
+                "expiry": {
+                    "never": "永不过期",
+                    "one_day": "1天",
+                    "one_month": "1个月",
+                    "one_week": "1周"
+                },
+                "feedback": {
+                    "ban_user_failed": "封禁用户失败",
+                    "ban_user_success": "用户已封禁",
+                    "delete_user_failed": "删除用户失败",
+                    "delete_user_success": "用户删除成功",
+                    "impersonate_user_failed": "模拟登录失败",
+                    "load_sessions_failed": "加载用户会话失败",
+                    "revoke_all_sessions_failed": "批量下线会话失败",
+                    "revoke_all_sessions_success": "已下线该用户的全部会话",
+                    "revoke_session_failed": "下线会话失败",
+                    "revoke_session_success": "会话已下线",
+                    "unban_user_failed": "解封用户失败",
+                    "unban_user_success": "用户已解封",
+                    "update_role_failed": "更新用户角色失败",
+                    "update_role_success": "用户角色已更新"
+                },
+                "filter_role": "所有角色",
+                "filter_status": "所有状态",
+                "impersonate": "模拟登录",
+                "last_active": "最后活跃",
+                "no_active_sessions": "暂无活跃会话",
+                "refresh": "刷新",
+                "revoke_all": "一键下线所有会话",
+                "role": "角色",
+                "roles": {
+                    "admin": "管理员",
+                    "all": "所有角色",
+                    "author": "作者",
+                    "user": "普通用户"
+                },
+                "search_placeholder": "搜索姓名或邮箱...",
+                "select_role": "选择新角色",
+                "sessions": "活跃会话",
+                "status": "状态",
+                "status_options": {
+                    "active": "正常",
+                    "all": "所有状态",
+                    "banned": "已封禁"
+                },
+                "title": "用户管理",
+                "unban_user": "解封用户",
+                "user": "用户",
+                "view_sessions": "查看会话"
+            }
+        }
+    }
+}

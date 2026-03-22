@@ -1,0 +1,18 @@
+{
+    "pages": {
+        "admin": {
+            "categories": {
+                "title": "Categories Management"
+            },
+            "comments": {
+                "title": "Comments"
+            },
+            "subscribers": {
+                "title": "Subscribers"
+            },
+            "tags": {
+                "title": "Tags"
+            }
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "pages": {
+        "admin": {
+            "notifications": {
+                "description": "集中查看站内通知、SSE、浏览器推送和邮件通知的投递结果，确认哪些通知已经送达、失败或被跳过。",
+                "go_to_marketing": "前往营销中心",
+                "overview_title": "通知投递审计",
+                "title": "通知管理"
+            }
+        }
+    }
+}

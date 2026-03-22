@@ -1,0 +1,53 @@
+{
+    "pages": {
+        "admin": {
+            "categories": {
+                "create": "新建分类",
+                "delete_confirm": "确定要删除这个分类吗？",
+                "delete_confirm_title": "确认删除分类",
+                "delete_success": "分类删除成功",
+                "save_success": "分类保存成功",
+                "search_placeholder": "搜索分类...",
+                "sync_to_all_languages": "同步创建对应的其他语言版本",
+                "title": "分类管理"
+            },
+            "comments": {
+                "approve": "通过审核",
+                "author": "作者",
+                "content": "内容",
+                "created_at": "发布时间",
+                "delete_confirm": "确定要彻底删除这条评论吗？",
+                "post": "文章",
+                "reject": "设为垃圾",
+                "search_placeholder": "搜索评论内容、作者...",
+                "status": "状态",
+                "status_pending": "待审核",
+                "status_published": "已发布",
+                "status_spam": "垃圾评论",
+                "title": "评论管理"
+            },
+            "subscribers": {
+                "active": "已激活",
+                "active_status": "活跃状态",
+                "delete_confirm": "确定要删除这个订阅者吗？",
+                "export": "导出 CSV",
+                "inactive": "未激活",
+                "join_date": "加入日期",
+                "not_associated": "未关联",
+                "search_placeholder": "搜索邮箱...",
+                "title": "订阅管理",
+                "user_associated": "关联用户"
+            },
+            "tags": {
+                "create": "新建标签",
+                "delete_confirm": "确定要删除这个标签吗？",
+                "delete_confirm_title": "确认删除标签",
+                "delete_success": "标签删除成功",
+                "save_success": "标签保存成功",
+                "search_placeholder": "搜索标签...",
+                "sync_to_all_languages": "同步创建对应的其他语言版本",
+                "title": "标签管理"
+            }
+        }
+    }
+}

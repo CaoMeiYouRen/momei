@@ -1,0 +1,9 @@
+{
+    "pages": {
+        "admin": {
+            "friend_links": {
+                "title": "Friend Links"
+            }
+        }
+    }
+}

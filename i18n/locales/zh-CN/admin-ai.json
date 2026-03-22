@@ -1,0 +1,121 @@
+{
+    "pages": {
+        "admin": {
+            "ai": {
+                "actual_cost": "实际成本",
+                "alerts": {
+                    "details": {
+                        "cost_usage": "已用 {used} / 上限 {limit}",
+                        "failure_burst": "窗口阈值 {limit}，统计范围 {window} 分钟",
+                        "quota_usage": "已用 {used} / 上限 {limit}"
+                    },
+                    "messages": {
+                        "cost_usage": "{name} 已达到 {period}{scope}成本上限的 {percent}",
+                        "failure_burst": "{name} 在最近 {window} 分钟内出现 {count} 次失败任务",
+                        "quota_usage": "{name} 已达到 {period}{scope}额度上限的 {percent}"
+                    },
+                    "periods": {
+                        "day": "日",
+                        "month": "月",
+                        "rolling": "滚动窗口"
+                    },
+                    "severity": {
+                        "critical": "严重",
+                        "info": "提示",
+                        "warning": "预警"
+                    },
+                    "title": "治理告警"
+                },
+                "all_scope": "全部能力",
+                "audio_duration": "音频时长",
+                "audio_preview": "音频预览",
+                "audio_size": "音频大小",
+                "category": "任务分类",
+                "charge_status": "扣额状态",
+                "charge_statuses": {
+                    "actual": "按实际计额",
+                    "estimated": "按估算计额",
+                    "none": "未计额",
+                    "waived": "已豁免"
+                },
+                "chart_category": "类别额度分布",
+                "chart_charge_status": "扣额状态分布",
+                "chart_failure_stage": "失败阶段分布",
+                "chart_status": "任务状态分布",
+                "delete_confirm": "确定要删除选中的 AI 记录吗？此操作无法撤销。",
+                "duration_ms": "执行耗时",
+                "error": "失败原因",
+                "estimated_cost": "预估成本",
+                "estimated_quota_units": "预估额度",
+                "failure_stage": "失败阶段",
+                "failure_stages": {
+                    "post_process": "后处理失败",
+                    "preflight": "前置校验失败",
+                    "provider_processing": "厂商处理中失败",
+                    "provider_rejected": "厂商拒绝"
+                },
+                "feedback": {
+                    "delete_task_failed": "删除 AI 任务失败",
+                    "delete_task_success": "AI 任务已删除",
+                    "delete_tasks_failed": "批量删除 AI 任务失败",
+                    "delete_tasks_success": "AI 任务已批量删除",
+                    "load_stats_failed": "加载 AI 统计失败",
+                    "load_tasks_failed": "加载 AI 任务失败"
+                },
+                "images": "图像",
+                "language": "识别语言",
+                "model": "模型",
+                "no_stats": "暂无统计数据",
+                "prompt": "参数/提示词",
+                "provider": "服务商",
+                "quota_units": "额度单位",
+                "result": "结果数据",
+                "stats": "使用统计",
+                "status": "状态",
+                "statuses": {
+                    "completed": "已完成",
+                    "failed": "已失败",
+                    "pending": "排队中",
+                    "processing": "处理中"
+                },
+                "success_rate": "成功率",
+                "task_detail": {
+                    "back_to_previous": "返回上一页",
+                    "copy_task_id": "复制任务 ID",
+                    "copy_task_id_success": "任务 ID 已复制",
+                    "page_title": "AI 任务 {id}",
+                    "task_id": "任务 ID",
+                    "title": "AI 任务详情"
+                },
+                "tasks": "任务记录",
+                "text_length": "文本长度",
+                "title": "AI 任务与统计",
+                "type": "任务类型",
+                "types": {
+                    "asr": "语音识别",
+                    "async_transcription": "异步语音识别",
+                    "expand_section": "扩写章节",
+                    "generate_scaffold": "生成写作脚手架",
+                    "image": "图像生成",
+                    "image_generation": "图像生成",
+                    "optimize_manuscript": "优化讲稿",
+                    "podcast": "AI 播客",
+                    "recommend_tags": "推荐标签",
+                    "refine_voice": "润色语音稿",
+                    "suggest_image_prompt": "生成绘图提示词",
+                    "suggest_slug": "生成别名",
+                    "suggest_titles": "生成标题",
+                    "summarize": "生成摘要",
+                    "text": "文本生成",
+                    "text_generation": "文本生成",
+                    "transcription": "语音识别",
+                    "translate": "翻译",
+                    "translate_name": "翻译名称",
+                    "translate_name_batch": "批量翻译名称",
+                    "tts": "语音合成"
+                },
+                "usage_snapshot": "用量快照"
+            }
+        }
+    }
+}

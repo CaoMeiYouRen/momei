@@ -1,0 +1,107 @@
+{
+    "pages": {
+        "admin": {
+            "link_governance": {
+                "actions": {
+                    "apply_now": "書き換えを適用",
+                    "dry_run": "ドライラン開始",
+                    "export_json": "JSON を出力",
+                    "export_markdown": "Markdown を出力",
+                    "refresh": "更新",
+                    "view": "詳細を見る"
+                },
+                "columns": {
+                    "created_at": "作成日時",
+                    "mode": "モード",
+                    "redirects": "Redirect Seeds",
+                    "requested_by": "実行者",
+                    "status": "状態",
+                    "summary": "概要"
+                },
+                "content_types": {
+                    "asset-record": "アセット記録",
+                    "category": "カテゴリ",
+                    "page": "固定ページ",
+                    "post": "記事",
+                    "tag": "タグ"
+                },
+                "detail": {
+                    "empty_items": "このレポートに差分項目はありません。",
+                    "empty_redirect_seeds": "このレポートに redirect seeds はありません。",
+                    "items": "差分プレビュー",
+                    "markdown": "Markdown レポート",
+                    "redirect_seeds": "Redirect Seeds",
+                    "report_id": "レポート ID",
+                    "requested_by": "実行者 ID",
+                    "title": "レポート詳細"
+                },
+                "empty": "ガバナンスレポートはまだありません",
+                "execution": {
+                    "allow_relative_links": "本文内の相対リンクも対象にする",
+                    "confirm_apply": "apply が実データを書き換えることを理解しました",
+                    "content_types": "コンテンツ種別",
+                    "description": "スコープ、ドメイン、パス接頭辞で dry-run または apply を実行し、既存のアセット URL 解決と権限チェーンを再利用します。",
+                    "domains": "ドメインフィルター",
+                    "domains_placeholder": "例: legacy.example.com, old-cdn.example.com",
+                    "path_prefixes": "パス接頭辞フィルター",
+                    "path_prefixes_placeholder": "例: /assets, /uploads/legacy",
+                    "report_format": "レポート形式",
+                    "scopes": "対象スコープ",
+                    "title": "ガバナンスを実行",
+                    "validation_mode": "検証モード"
+                },
+                "filters": {
+                    "apply": "フィルターを適用",
+                    "mode": "実行モード",
+                    "reset": "リセット",
+                    "status": "レポート状態"
+                },
+                "messages": {
+                    "apply_success": "書き換えの適用が完了しました",
+                    "detail_failed": "レポート詳細の読み込みに失敗しました",
+                    "dry_run_success": "ドライランが完了しました",
+                    "load_failed": "ガバナンスレポートの読み込みに失敗しました",
+                    "run_failed": "リンクガバナンスの実行に失敗しました"
+                },
+                "modes": {
+                    "apply": "適用",
+                    "dry-run": "ドライラン"
+                },
+                "overview_description": "dry-run と apply が生成したリンクガバナンスレポートを確認し、差分、失敗項目、redirect seeds を追跡します。",
+                "overview_title": "ガバナンスレポート",
+                "report_formats": {
+                    "json": "JSON",
+                    "markdown": "Markdown"
+                },
+                "report_list": {
+                    "title": "ガバナンスレポート"
+                },
+                "scopes": {
+                    "archive-link": "アーカイブリンク",
+                    "asset-url": "アセット URL",
+                    "category-link": "カテゴリリンク",
+                    "page-link": "固定ページリンク",
+                    "permalink-rule": "旧 permalink ルール",
+                    "post-link": "記事リンク",
+                    "tag-link": "タグリンク"
+                },
+                "statuses": {
+                    "completed": "完了",
+                    "failed": "失敗"
+                },
+                "summary": {
+                    "failed": "失敗",
+                    "needs_confirmation": "確認待ち",
+                    "resolved": "適用済み",
+                    "rewritten": "書き換え候補",
+                    "total": "総数"
+                },
+                "title": "移行リンクガバナンス",
+                "validation_modes": {
+                    "static": "静的検証",
+                    "static+online": "静的 + オンライン確認"
+                }
+            }
+        }
+    }
+}

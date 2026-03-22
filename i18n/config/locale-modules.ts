@@ -6,7 +6,20 @@ export const LOCALE_MESSAGE_MODULE_GROUPS = {
     legal: ['legal'],
     auth: ['pages.login', 'pages.register', 'pages.forgot_password', 'pages.reset_password'],
     admin: ['pages.admin'],
+    'admin-posts': ['pages.admin.posts'],
+    'admin-taxonomy': ['pages.admin.categories', 'pages.admin.tags', 'pages.admin.comments', 'pages.admin.subscribers'],
+    'admin-submissions': ['pages.admin.submissions'],
+    'admin-ai': ['pages.admin.ai'],
+    'admin-users': ['pages.admin.users'],
+    'admin-ad': ['pages.admin.ad'],
+    'admin-external-links': ['pages.admin.external_links'],
+    'admin-link-governance': ['pages.admin.link_governance'],
+    'admin-friend-links': ['pages.admin.friend_links'],
+    'admin-marketing': ['pages.admin.marketing'],
+    'admin-notifications': ['pages.admin.notifications'],
+    'admin-settings': ['pages.admin.settings'],
     'admin-email-templates': ['pages.admin.settings.system.email_templates'],
+    'admin-snippets': ['pages.admin.snippets'],
     home: ['home'],
     demo: ['demo'],
     installation: ['installation'],
@@ -21,7 +34,20 @@ export const LOCALE_MESSAGE_MODULE_ORDER = [
     'legal',
     'auth',
     'admin',
+    'admin-posts',
+    'admin-taxonomy',
+    'admin-submissions',
+    'admin-ai',
+    'admin-users',
+    'admin-ad',
+    'admin-external-links',
+    'admin-link-governance',
+    'admin-friend-links',
+    'admin-marketing',
+    'admin-notifications',
+    'admin-settings',
     'admin-email-templates',
+    'admin-snippets',
     'home',
     'demo',
     'installation',
@@ -39,7 +65,85 @@ export const LOCALE_CORE_MODULES = [
 
 export type LocaleMessageModule = (typeof LOCALE_MESSAGE_MODULE_ORDER)[number]
 
-const OPTIONAL_ROUTE_MODULES = new Set<LocaleMessageModule>(['auth', 'admin', 'admin-email-templates', 'home', 'demo', 'installation'])
+const OPTIONAL_ROUTE_MODULES = new Set<LocaleMessageModule>([
+    'auth',
+    'admin',
+    'admin-posts',
+    'admin-taxonomy',
+    'admin-submissions',
+    'admin-ai',
+    'admin-users',
+    'admin-ad',
+    'admin-external-links',
+    'admin-link-governance',
+    'admin-friend-links',
+    'admin-marketing',
+    'admin-notifications',
+    'admin-settings',
+    'admin-email-templates',
+    'admin-snippets',
+    'home',
+    'demo',
+    'installation',
+])
+
+const ADMIN_ROUTE_MODULE_RULES: {
+    pattern: RegExp
+    modules: LocaleMessageModule[]
+}[] = [
+    {
+        pattern: /^\/admin\/posts(?:\/|$)/u,
+        modules: ['admin-posts'],
+    },
+    {
+        pattern: /^\/admin\/(?:categories|tags|comments|subscribers)(?:\/|$)/u,
+        modules: ['admin-taxonomy'],
+    },
+    {
+        pattern: /^\/admin\/submissions(?:\/|$)/u,
+        modules: ['admin-submissions'],
+    },
+    {
+        pattern: /^\/admin\/ai(?:\/|$)/u,
+        modules: ['admin-ai'],
+    },
+    {
+        pattern: /^\/admin\/users(?:\/|$)/u,
+        modules: ['admin-users'],
+    },
+    {
+        pattern: /^\/admin\/ad(?:\/|$)/u,
+        modules: ['admin-ad'],
+    },
+    {
+        pattern: /^\/admin\/external-links(?:\/|$)/u,
+        modules: ['admin-external-links'],
+    },
+    {
+        pattern: /^\/admin\/migrations\/link-governance(?:\/|$)/u,
+        modules: ['admin-link-governance'],
+    },
+    {
+        pattern: /^\/admin\/friend-links(?:\/|$)/u,
+        modules: ['admin-friend-links'],
+    },
+    {
+        pattern: /^\/admin\/marketing(?:\/|$)/u,
+        modules: ['admin-marketing'],
+    },
+    {
+        pattern: /^\/admin\/notifications(?:\/|$)/u,
+        modules: ['admin-notifications'],
+    },
+    {
+        pattern: /^\/admin\/settings(?:\/|$)/u,
+        modules: ['admin-settings', 'admin-email-templates'],
+    },
+    {
+        pattern: /^\/admin\/snippets(?:\/|$)/u,
+        modules: ['admin-snippets'],
+    },
+]
 
 function normalizeLocaleRoutePath(path: string): string {
     const pathname = path.split('?')[0]?.split('#')[0] || '/'
@@ -63,12 +167,22 @@ export function resolveLocaleMessageModulesForRoute(path: string, options?: { de
 
     if (/^\/admin(?:\/|$)/u.test(normalizedPath)) {
         modules.add('admin')
-        modules.add('admin-email-templates')
+
+        for (const rule of ADMIN_ROUTE_MODULE_RULES) {
+            if (!rule.pattern.test(normalizedPath)) {
+                continue
+            }
+
+            for (const moduleName of rule.modules) {
+                modules.add(moduleName)
+            }
+        }
     }
 
     if (/^\/installation(?:\/|$)/u.test(normalizedPath)) {
         modules.add('installation')
         modules.add('admin')
+        modules.add('admin-settings')
     }
 
     if (options?.demoMode) {

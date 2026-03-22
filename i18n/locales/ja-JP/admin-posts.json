@@ -1,0 +1,58 @@
+{
+    "pages": {
+        "admin": {
+            "posts": {
+                "ai": {
+                    "article_illustration_hint": "記事挿絵は確認後に本文へ挿入され、視覚アセットのメタデータにも記録されます。",
+                    "cover_generator": {
+                        "confirm_candidate_notice": "現在のエディターでは候補画像のみを生成し、選択を確定するまで本文やカバーには反映しません。",
+                        "dimension_title": "5次元プロンプトモデル",
+                        "dimensions": {
+                            "mood": "雰囲気",
+                            "palette": "配色",
+                            "rendering": "レンダリング",
+                            "text": "テキスト",
+                            "type": "タイプ"
+                        },
+                        "error": "画像生成に失敗しました。もう一度お試しください",
+                        "generate_btn": "今すぐ生成",
+                        "generating": "構想中...",
+                        "images_count": "生成数",
+                        "magic_btn": "自動提案",
+                        "magic_hint": "記事内容から5次元のプロンプト候補を自動生成します",
+                        "placeholders": {
+                            "mood": "空気感、エネルギー、感情トーン",
+                            "palette": "主色、差し色、コントラスト",
+                            "rendering": "素材感、表現手法、画風",
+                            "text": "見出し処理、階層、セーフエリア",
+                            "type": "主題、構図、視線の重心"
+                        },
+                        "polling": "第 {step} ラウンドを描画中 (パネルを閉じないでください)...",
+                        "prompt_preview": "最終 Prompt プレビュー",
+                        "resolution": "解像度",
+                        "status_finishing": "仕上げ中...",
+                        "status_lighting": "光と影を調整中...",
+                        "status_polishing": "ディテールを磨いています...",
+                        "status_preparing": "カラーパレット準備中...",
+                        "success": "視覚アセットを生成してメディアライブラリに保存しました",
+                        "title": "AI 視覚アセットジェネレーター",
+                        "usage_hint": "カバー、本文挿絵、特集ヒーロー、イベントポスターは同じ5次元プロンプトモデルを共有します。",
+                        "usage_label": "ビジュアル用途",
+                        "usage_options": {
+                            "event-poster": "イベントポスター",
+                            "post-cover": "記事カバー",
+                            "post-illustration": "記事挿絵",
+                            "topic-hero": "特集ヒーロー"
+                        }
+                    },
+                    "generate_cover": "AIでカバー画像を生成",
+                    "generate_illustration": "AIで記事挿絵を生成",
+                    "visual_asset_inserted": "視覚アセットを本文へ挿入し、メタデータに記録しました。"
+                },
+                "translation_workflow": {
+                    "task_fallback": "現在のデプロイ環境では長文のストリーミング翻訳をサポートしていないため、タスクポーリングへ自動的に切り替えました。"
+                }
+            }
+        }
+    }
+}

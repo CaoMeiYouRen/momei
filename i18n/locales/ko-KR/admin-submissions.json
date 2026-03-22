@@ -1,0 +1,29 @@
+{
+    "pages": {
+        "admin": {
+            "submissions": {
+                "accept": "채택",
+                "admin_note": "관리자 메모",
+                "admin_note_placeholder": "내부에서만 보이는 검토 메모",
+                "article_title": "글 제목",
+                "category": "카테고리",
+                "contributor": "기여자",
+                "created_at": "제출 시각",
+                "delete_failed": "원고 삭제에 실패했습니다",
+                "delete_success": "원고를 삭제했습니다",
+                "language": "게시 언어",
+                "publish_immediately": "즉시 게시",
+                "reject": "거절",
+                "review": "검토",
+                "review_failed": "원고 검토에 실패했습니다",
+                "review_success": "작업이 완료되었습니다",
+                "search_placeholder": "제목 또는 내용을 검색하세요...",
+                "status": "원고 상태",
+                "status_accepted": "채택됨",
+                "status_pending": "검토 대기",
+                "status_rejected": "거절됨",
+                "title": "원고 심사"
+            }
+        }
+    }
+}

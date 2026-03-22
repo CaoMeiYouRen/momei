@@ -1,0 +1,72 @@
+{
+    "pages": {
+        "admin": {
+            "users": {
+                "actions": "작업",
+                "active": "정상",
+                "ban": "차단 실행",
+                "ban_expiry": "만료 시간",
+                "ban_reason": "차단 사유",
+                "ban_reason_placeholder": "차단 사유를 입력하세요",
+                "ban_user": "사용자 차단",
+                "banned": "차단됨",
+                "confirm_delete": "정말로 사용자 \"{name}\"를 영구 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다!",
+                "confirm_impersonate": "정말로 \"{name}\" 계정으로 대리 로그인하시겠습니까? 새 세션이 열립니다.",
+                "confirm_revoke_all": "이 사용자를 모든 기기에서 강제로 로그아웃시키시겠습니까?",
+                "created_at": "가입일",
+                "delete_user": "사용자 삭제",
+                "edit_role": "역할 수정",
+                "expires_at": "만료 시각",
+                "expiry": {
+                    "never": "만료 없음",
+                    "one_day": "1일",
+                    "one_month": "1개월",
+                    "one_week": "1주"
+                },
+                "feedback": {
+                    "ban_user_failed": "사용자 차단에 실패했습니다",
+                    "ban_user_success": "사용자를 차단했습니다",
+                    "delete_user_failed": "사용자 삭제에 실패했습니다",
+                    "delete_user_success": "사용자를 삭제했습니다",
+                    "impersonate_user_failed": "사용자 대리 로그인에 실패했습니다",
+                    "load_sessions_failed": "사용자 세션을 불러오지 못했습니다",
+                    "revoke_all_sessions_failed": "모든 세션 종료에 실패했습니다",
+                    "revoke_all_sessions_success": "해당 사용자의 모든 세션을 종료했습니다",
+                    "revoke_session_failed": "세션 종료에 실패했습니다",
+                    "revoke_session_success": "세션을 종료했습니다",
+                    "unban_user_failed": "사용자 차단 해제에 실패했습니다",
+                    "unban_user_success": "사용자 차단을 해제했습니다",
+                    "update_role_failed": "사용자 역할 업데이트에 실패했습니다",
+                    "update_role_success": "사용자 역할을 업데이트했습니다"
+                },
+                "filter_role": "모든 역할",
+                "filter_status": "모든 상태",
+                "impersonate": "대리 로그인",
+                "last_active": "마지막 활동",
+                "no_active_sessions": "활성 세션이 없습니다",
+                "refresh": "새로고침",
+                "revoke_all": "모든 세션 종료",
+                "role": "역할",
+                "roles": {
+                    "admin": "관리자",
+                    "all": "모든 역할",
+                    "author": "작성자",
+                    "user": "사용자"
+                },
+                "search_placeholder": "이름 또는 이메일 검색...",
+                "select_role": "새 역할 선택",
+                "sessions": "활성 세션",
+                "status": "상태",
+                "status_options": {
+                    "active": "정상",
+                    "all": "모든 상태",
+                    "banned": "차단됨"
+                },
+                "title": "사용자 관리",
+                "unban_user": "차단 해제",
+                "user": "사용자",
+                "view_sessions": "세션 보기"
+            }
+        }
+    }
+}

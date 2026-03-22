@@ -1,0 +1,86 @@
+{
+    "pages": {
+        "admin": {
+            "friend_links": {
+                "applicant_account": "申请账号",
+                "application_status": "申请状态",
+                "application_statuses": {
+                    "approved": "已通过",
+                    "archived": "已归档",
+                    "pending": "待审核",
+                    "rejected": "已拒绝"
+                },
+                "applications": "申请审核",
+                "approve": "通过并上线",
+                "categories": "友链分类",
+                "category_status": "分类状态",
+                "contact_email": "联系邮箱",
+                "create_category": "新增分类",
+                "create_link": "新增友链",
+                "disable_now": "直接下架",
+                "disabled": "停用",
+                "edit_category": "编辑分类",
+                "edit_link": "编辑友链",
+                "empty_applications": "暂无待处理申请",
+                "empty_categories": "暂无友链分类",
+                "empty_links": "暂无正式友链",
+                "enabled": "启用",
+                "featured": "精选",
+                "health_status": "巡检状态",
+                "health_statuses": {
+                    "checking": "巡检中",
+                    "healthy": "可访问",
+                    "unknown": "未巡检",
+                    "unreachable": "访问异常"
+                },
+                "is_featured": "加入页脚精选",
+                "is_pinned": "置顶显示",
+                "last_checked_at": "最近巡检",
+                "link_status": "友链状态",
+                "links": "正式友链",
+                "logo": "Logo 图片",
+                "logo_placeholder": "上传站点 Logo 图片",
+                "messages": {
+                    "create_category_success": "分类创建成功",
+                    "create_success": "友链创建成功",
+                    "delete_category_confirm": "确定要删除这个分类吗？",
+                    "delete_category_failed": "删除分类失败",
+                    "delete_category_success": "分类删除成功",
+                    "delete_link_confirm": "确定要删除这条友链吗？",
+                    "delete_link_failed": "删除友链失败",
+                    "delete_link_success": "友链删除成功",
+                    "disable_link_failed": "下架友链失败",
+                    "disable_link_success": "友链已下架",
+                    "load_applications_failed": "加载友链申请失败",
+                    "load_categories_failed": "加载友链分类失败",
+                    "load_links_failed": "加载友链列表失败",
+                    "review_failed": "申请审核失败",
+                    "review_or_disable_confirm": "该友链最近巡检异常。建议先手动访问站点进行复检；如果确认需要撤下，可直接将其下架。",
+                    "review_success": "申请审核成功",
+                    "save_category_failed": "保存分类失败",
+                    "save_failed": "保存友链失败",
+                    "update_category_success": "分类更新成功",
+                    "update_success": "友链更新成功"
+                },
+                "open_site_recheck": "打开站点复检",
+                "pinned": "置顶",
+                "reciprocal_url": "互链页地址",
+                "reject": "拒绝申请",
+                "review_application": "审核申请",
+                "review_note": "审核备注",
+                "review_or_disable_title": "巡检异常提醒",
+                "rss_url": "RSS 地址",
+                "site_url": "站点地址",
+                "sort_order": "排序值",
+                "statuses": {
+                    "active": "启用",
+                    "draft": "草稿",
+                    "inactive": "停用"
+                },
+                "submitted_ip": "来源 IP",
+                "suggest_review_or_disable": "建议复检/下架",
+                "title": "友链管理"
+            }
+        }
+    }
+}

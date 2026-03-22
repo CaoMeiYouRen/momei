@@ -1,0 +1,86 @@
+{
+    "pages": {
+        "admin": {
+            "friend_links": {
+                "applicant_account": "申請帳號",
+                "application_status": "申請狀態",
+                "application_statuses": {
+                    "approved": "已通過",
+                    "archived": "已歸檔",
+                    "pending": "待審核",
+                    "rejected": "已拒絕"
+                },
+                "applications": "申請審核",
+                "approve": "通過並上線",
+                "categories": "友站連結分類",
+                "category_status": "分類狀態",
+                "contact_email": "聯絡信箱",
+                "create_category": "新增分類",
+                "create_link": "新增友站連結",
+                "disable_now": "直接下架",
+                "disabled": "停用",
+                "edit_category": "編輯分類",
+                "edit_link": "編輯友站連結",
+                "empty_applications": "目前尚無待處理申請",
+                "empty_categories": "目前尚無友站連結分類",
+                "empty_links": "目前尚無正式友站連結",
+                "enabled": "啟用",
+                "featured": "精選",
+                "health_status": "巡檢狀態",
+                "health_statuses": {
+                    "checking": "巡检中",
+                    "healthy": "可存取",
+                    "unknown": "未巡检",
+                    "unreachable": "存取異常"
+                },
+                "is_featured": "加入頁腳精選",
+                "is_pinned": "置頂顯示",
+                "last_checked_at": "最近巡檢",
+                "link_status": "友站連結狀態",
+                "links": "正式友站連結",
+                "logo": "Logo 圖片",
+                "logo_placeholder": "上傳站點 Logo 圖片",
+                "messages": {
+                    "create_category_success": "分類建立成功",
+                    "create_success": "友站連結建立成功",
+                    "delete_category_confirm": "確定要刪除此分類嗎？",
+                    "delete_category_failed": "刪除分類失敗",
+                    "delete_category_success": "分類刪除成功",
+                    "delete_link_confirm": "確定要刪除此友站連結嗎？",
+                    "delete_link_failed": "刪除友站連結失敗",
+                    "delete_link_success": "友站連結刪除成功",
+                    "disable_link_failed": "下架友站連結失敗",
+                    "disable_link_success": "友站連結已下架",
+                    "load_applications_failed": "載入友站連結申請失敗",
+                    "load_categories_failed": "載入友站連結分類失敗",
+                    "load_links_failed": "載入友站連結列表失敗",
+                    "review_failed": "申請審核失敗",
+                    "review_or_disable_confirm": "該友站連結最近巡檢異常。建議先手動開啟站點進行複檢；若確認需要撤下，可直接下架。",
+                    "review_success": "申請審核成功",
+                    "save_category_failed": "儲存分類失敗",
+                    "save_failed": "儲存友站連結失敗",
+                    "update_category_success": "分類更新成功",
+                    "update_success": "友站連結更新成功"
+                },
+                "open_site_recheck": "開啟站點複檢",
+                "pinned": "置頂",
+                "reciprocal_url": "互鏈頁位址",
+                "reject": "拒絕申請",
+                "review_application": "審核申請",
+                "review_note": "審核備註",
+                "review_or_disable_title": "巡檢異常提醒",
+                "rss_url": "RSS 位址",
+                "site_url": "站點地址",
+                "sort_order": "排序值",
+                "statuses": {
+                    "active": "啟用",
+                    "draft": "草稿",
+                    "inactive": "停用"
+                },
+                "submitted_ip": "來源 IP",
+                "suggest_review_or_disable": "建議複檢／下架",
+                "title": "友站連結管理"
+            }
+        }
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "pages": {
+        "admin": {
+            "external_links": {
+                "clicks": "클릭 수",
+                "empty": "등록된 외부 링크가 없습니다",
+                "messages": {
+                    "copy_success": "URL이 클립보드에 복사되었습니다",
+                    "create_success": "외부 링크가 생성되었습니다",
+                    "delete_confirm": "이 외부 링크를 삭제하시겠습니까?",
+                    "delete_failed": "외부 링크 삭제에 실패했습니다",
+                    "delete_success": "외부 링크가 삭제되었습니다",
+                    "load_failed": "외부 링크를 불러오지 못했습니다",
+                    "save_failed": "외부 링크 저장에 실패했습니다",
+                    "stats_failed": "통계를 불러오지 못했습니다",
+                    "update_success": "외부 링크가 업데이트되었습니다",
+                    "url_required": "URL은 필수입니다"
+                },
+                "no_follow": "nofollow",
+                "original_url": "원본 URL",
+                "short_code": "짧은 코드",
+                "show_redirect": "리디렉션 페이지",
+                "show_redirect_page": "리디렉션 페이지 표시",
+                "stats": "통계",
+                "status": "상태",
+                "statuses": {
+                    "active": "활성",
+                    "blocked": "차단됨",
+                    "expired": "만료됨"
+                },
+                "title": "외부 링크 관리",
+                "title_placeholder": "선택 사항 링크 제목",
+                "url_placeholder": "예: https://example.com"
+            }
+        }
+    }
+}

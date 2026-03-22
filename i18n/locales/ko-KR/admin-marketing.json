@@ -1,0 +1,57 @@
+{
+    "pages": {
+        "admin": {
+            "marketing": {
+                "actions": {
+                    "send_failed": "캠페인 시작에 실패했습니다",
+                    "send_now": "지금 발송",
+                    "send_success": "캠페인 작업이 시작되었습니다"
+                },
+                "campaign_list": "발송 이력",
+                "create_btn": "캠페인 생성",
+                "create_campaign": "마케팅 캠페인 생성",
+                "edit_campaign": "마케팅 캠페인 편집",
+                "form": {
+                    "categories": "선택한 카테고리",
+                    "content": "캠페인 내용",
+                    "placeholder_content": "Markdown/HTML 콘텐츠를 지원합니다...",
+                    "placeholder_title": "이메일 제목을 입력하세요",
+                    "scheduled_at": "예약 발송 시각",
+                    "scheduled_at_help": "예약 시각을 설정하면 해당 시각에 캠페인이 자동으로 시작됩니다. 비워두면 초안으로 저장되거나 수동 발송됩니다.",
+                    "scheduled_at_placeholder": "예약 시각을 선택하세요",
+                    "send_test": "테스트 이메일 발송",
+                    "send_test_success": "테스트 이메일이 받은 편지함으로 발송되었습니다",
+                    "tags": "선택한 태그",
+                    "target_all": "전체 구독자",
+                    "target_criteria": "조건별 발송 (카테고리/태그)",
+                    "targets": "대상 선택기",
+                    "title": "캠페인 제목",
+                    "type": "캠페인 유형",
+                    "type_placeholder": "캠페인 유형을 선택하세요"
+                },
+                "stats": {
+                    "delivered": "전달 수",
+                    "marketing_enabled": "마케팅 수신 가능 인원",
+                    "total_campaigns": "누적 캠페인 수",
+                    "total_subscribers": "전체 구독자 수"
+                },
+                "status": {
+                    "completed": "완료",
+                    "draft": "초안",
+                    "failed": "실패",
+                    "scheduled": "예약됨",
+                    "sending": "발송 중"
+                },
+                "title": "마케팅 센터",
+                "type": {
+                    "blog_post": "블로그 발행",
+                    "feature": "기능 추천",
+                    "maintenance": "점검 안내",
+                    "promotion": "이벤트 홍보",
+                    "service": "서비스 변경",
+                    "update": "버전 업데이트"
+                }
+            }
+        }
+    }
+}

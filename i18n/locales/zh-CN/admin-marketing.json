@@ -1,0 +1,57 @@
+{
+    "pages": {
+        "admin": {
+            "marketing": {
+                "actions": {
+                    "send_failed": "启动推送失败",
+                    "send_now": "立即发送",
+                    "send_success": "推送任务已启动"
+                },
+                "campaign_list": "推送历史",
+                "create_btn": "创建推送",
+                "create_campaign": "创建营销推送",
+                "edit_campaign": "编辑营销推送",
+                "form": {
+                    "categories": "指定分类",
+                    "content": "推送内容",
+                    "placeholder_content": "支持 Markdown/HTML 内容...",
+                    "placeholder_title": "请输入邮件标题",
+                    "scheduled_at": "计划发送时间",
+                    "scheduled_at_help": "如果设置了计划时间，推送将在到达该时间后自动开启。留空则存为草稿或手动发送。",
+                    "scheduled_at_placeholder": "选择定时发送时间",
+                    "send_test": "发送测试邮件",
+                    "send_test_success": "测试邮件已发送至您的邮箱",
+                    "tags": "指定标签",
+                    "target_all": "全部订阅者",
+                    "target_criteria": "定向推送 (分类/标签)",
+                    "targets": "目标选择器",
+                    "title": "推送标题",
+                    "type": "推送类型",
+                    "type_placeholder": "请选择推送类型"
+                },
+                "stats": {
+                    "delivered": "送达数",
+                    "marketing_enabled": "可营销人数",
+                    "total_campaigns": "累计推送",
+                    "total_subscribers": "总订阅人数"
+                },
+                "status": {
+                    "completed": "已完成",
+                    "draft": "草稿",
+                    "failed": "发送失败",
+                    "scheduled": "计划中",
+                    "sending": "发送中"
+                },
+                "title": "营销中心",
+                "type": {
+                    "blog_post": "博客发布",
+                    "feature": "功能推荐",
+                    "maintenance": "停机维护",
+                    "promotion": "活动推广",
+                    "service": "服务变动",
+                    "update": "版本更新"
+                }
+            }
+        }
+    }
+}

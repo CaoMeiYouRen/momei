@@ -1,0 +1,121 @@
+{
+    "pages": {
+        "admin": {
+            "ai": {
+                "actual_cost": "實際成本",
+                "alerts": {
+                    "details": {
+                        "cost_usage": "已用 {used} / 上限 {limit}",
+                        "failure_burst": "視窗閾值 {limit}，統計範圍 {window} 分鐘",
+                        "quota_usage": "已用 {used} / 上限 {limit}"
+                    },
+                    "messages": {
+                        "cost_usage": "{name} 已達到 {period}{scope}成本上限的 {percent}",
+                        "failure_burst": "{name} 在最近 {window} 分鐘內出現 {count} 次失敗任務",
+                        "quota_usage": "{name} 已達到 {period}{scope}額度上限的 {percent}"
+                    },
+                    "periods": {
+                        "day": "日",
+                        "month": "月",
+                        "rolling": "滾動視窗"
+                    },
+                    "severity": {
+                        "critical": "嚴重",
+                        "info": "提示",
+                        "warning": "預警"
+                    },
+                    "title": "治理警示"
+                },
+                "all_scope": "全部能力",
+                "audio_duration": "音訊時長",
+                "audio_preview": "音訊預覽",
+                "audio_size": "音訊大小",
+                "category": "任務分類",
+                "charge_status": "扣額狀態",
+                "charge_statuses": {
+                    "actual": "按實際計額",
+                    "estimated": "按估算計額",
+                    "none": "未計額",
+                    "waived": "已豁免"
+                },
+                "chart_category": "類別額度分布",
+                "chart_charge_status": "扣額狀態分布",
+                "chart_failure_stage": "失敗階段分布",
+                "chart_status": "任務狀態分布",
+                "delete_confirm": "確定要刪除選取的 AI 記錄嗎？此操作無法復原。",
+                "duration_ms": "執行耗時",
+                "error": "失敗原因",
+                "estimated_cost": "預估成本",
+                "estimated_quota_units": "預估額度",
+                "failure_stage": "失敗階段",
+                "failure_stages": {
+                    "post_process": "後處理失敗",
+                    "preflight": "前置校驗失敗",
+                    "provider_processing": "供應商處理中失敗",
+                    "provider_rejected": "供應商拒絕"
+                },
+                "feedback": {
+                    "delete_task_failed": "刪除 AI 任務失敗",
+                    "delete_task_success": "AI 任務已刪除",
+                    "delete_tasks_failed": "批次刪除 AI 任務失敗",
+                    "delete_tasks_success": "AI 任務已批次刪除",
+                    "load_stats_failed": "載入 AI 統計失敗",
+                    "load_tasks_failed": "載入 AI 任務失敗"
+                },
+                "images": "圖像",
+                "language": "識別語言",
+                "model": "模型",
+                "no_stats": "目前尚無統計資料",
+                "prompt": "參數／提示詞",
+                "provider": "服務商",
+                "quota_units": "額度單位",
+                "result": "結果資料",
+                "stats": "使用統計",
+                "status": "狀態",
+                "statuses": {
+                    "completed": "已完成",
+                    "failed": "已失败",
+                    "pending": "排队中",
+                    "processing": "处理中"
+                },
+                "success_rate": "成功率",
+                "task_detail": {
+                    "back_to_previous": "返回上一頁",
+                    "copy_task_id": "複製任務 ID",
+                    "copy_task_id_success": "任務 ID 已複製",
+                    "page_title": "AI 任務 {id}",
+                    "task_id": "任務 ID",
+                    "title": "AI 任務詳情"
+                },
+                "tasks": "任務記錄",
+                "text_length": "文字長度",
+                "title": "AI 任務與統計",
+                "type": "任務類型",
+                "types": {
+                    "asr": "語音識別",
+                    "async_transcription": "異步語音識別",
+                    "expand_section": "擴寫章節",
+                    "generate_scaffold": "生成寫作腳手架",
+                    "image": "圖像生成",
+                    "image_generation": "圖像生成",
+                    "optimize_manuscript": "優化講稿",
+                    "podcast": "AI 播客",
+                    "recommend_tags": "推薦標籤",
+                    "refine_voice": "潤飾語音稿",
+                    "suggest_image_prompt": "生成繪圖提示詞",
+                    "suggest_slug": "生成別名",
+                    "suggest_titles": "生成標題",
+                    "summarize": "生成摘要",
+                    "text": "文字生成",
+                    "text_generation": "文字生成",
+                    "transcription": "語音識別",
+                    "translate": "翻譯",
+                    "translate_name": "翻譯名稱",
+                    "translate_name_batch": "批量翻譯名稱",
+                    "tts": "語音合成"
+                },
+                "usage_snapshot": "用量快照"
+            }
+        }
+    }
+}

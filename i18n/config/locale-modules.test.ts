@@ -26,7 +26,20 @@ describe('i18n locale modules', () => {
             'zh-CN/legal.json',
             'zh-CN/auth.json',
             'zh-CN/admin.json',
+            'zh-CN/admin-posts.json',
+            'zh-CN/admin-taxonomy.json',
+            'zh-CN/admin-submissions.json',
+            'zh-CN/admin-ai.json',
+            'zh-CN/admin-users.json',
+            'zh-CN/admin-ad.json',
+            'zh-CN/admin-external-links.json',
+            'zh-CN/admin-link-governance.json',
+            'zh-CN/admin-friend-links.json',
+            'zh-CN/admin-marketing.json',
+            'zh-CN/admin-notifications.json',
+            'zh-CN/admin-settings.json',
             'zh-CN/admin-email-templates.json',
+            'zh-CN/admin-snippets.json',
             'zh-CN/home.json',
             'zh-CN/demo.json',
             'zh-CN/installation.json',
@@ -67,6 +80,7 @@ describe('i18n locale modules', () => {
             'legal',
             'auth',
             'admin',
+            'admin-settings',
             'installation',
         ])
     })
@@ -80,7 +94,34 @@ describe('i18n locale modules', () => {
             'legal',
             'auth',
             'admin',
+            'admin-settings',
             'admin-email-templates',
+        ])
+    })
+
+    it('should resolve admin post routes with the posts locale module', () => {
+        expect(resolveLocaleMessageModulesForRoute('/admin/posts/123')).toEqual([
+            'common',
+            'components',
+            'public',
+            'settings',
+            'legal',
+            'auth',
+            'admin',
+            'admin-posts',
+        ])
+    })
+
+    it('should resolve admin taxonomy routes with the shared taxonomy locale module', () => {
+        expect(resolveLocaleMessageModulesForRoute('/admin/categories')).toEqual([
+            'common',
+            'components',
+            'public',
+            'settings',
+            'legal',
+            'auth',
+            'admin',
+            'admin-taxonomy',
         ])
     })
 })

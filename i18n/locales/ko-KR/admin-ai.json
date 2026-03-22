@@ -1,0 +1,121 @@
+{
+    "pages": {
+        "admin": {
+            "ai": {
+                "actual_cost": "실제 비용",
+                "alerts": {
+                    "details": {
+                        "cost_usage": "사용량 {used} / 상한 {limit}",
+                        "failure_burst": "{window}분 창에서 임계값 {limit}",
+                        "quota_usage": "사용량 {used} / 상한 {limit}"
+                    },
+                    "messages": {
+                        "cost_usage": "{name} 항목이 {period} {scope} 비용 상한의 {percent}에 도달했습니다",
+                        "failure_burst": "{name} 항목에서 최근 {window}분 내 실패 작업 {count}건이 발생했습니다",
+                        "quota_usage": "{name} 항목이 {period} {scope} 쿼터 상한의 {percent}에 도달했습니다"
+                    },
+                    "periods": {
+                        "day": "일간",
+                        "month": "월간",
+                        "rolling": "롤링 윈도우"
+                    },
+                    "severity": {
+                        "critical": "치명적",
+                        "info": "안내",
+                        "warning": "경고"
+                    },
+                    "title": "거버넌스 알림"
+                },
+                "all_scope": "전체 기능",
+                "audio_duration": "오디오 길이",
+                "audio_preview": "오디오 미리보기",
+                "audio_size": "오디오 크기",
+                "category": "작업 분류",
+                "charge_status": "차감 상태",
+                "charge_statuses": {
+                    "actual": "실제 차감",
+                    "estimated": "예상 차감",
+                    "none": "차감 없음",
+                    "waived": "면제됨"
+                },
+                "chart_category": "분류별 쿼터 분포",
+                "chart_charge_status": "차감 상태 분포",
+                "chart_failure_stage": "실패 단계 분포",
+                "chart_status": "작업 상태 분포",
+                "delete_confirm": "선택한 AI 작업 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+                "duration_ms": "소요 시간",
+                "error": "실패 원인",
+                "estimated_cost": "예상 비용",
+                "estimated_quota_units": "예상 쿼터",
+                "failure_stage": "실패 단계",
+                "failure_stages": {
+                    "post_process": "후처리 실패",
+                    "preflight": "사전 점검 실패",
+                    "provider_processing": "공급자 처리 실패",
+                    "provider_rejected": "공급자 거절"
+                },
+                "feedback": {
+                    "delete_task_failed": "AI 작업 삭제에 실패했습니다",
+                    "delete_task_success": "AI 작업을 삭제했습니다",
+                    "delete_tasks_failed": "AI 작업 일괄 삭제에 실패했습니다",
+                    "delete_tasks_success": "AI 작업을 일괄 삭제했습니다",
+                    "load_stats_failed": "AI 통계를 불러오지 못했습니다",
+                    "load_tasks_failed": "AI 작업을 불러오지 못했습니다"
+                },
+                "images": "이미지 수",
+                "language": "인식 언어",
+                "model": "모델",
+                "no_stats": "사용 가능한 통계가 없습니다",
+                "prompt": "파라미터 / 프롬프트",
+                "provider": "서비스 제공자",
+                "quota_units": "쿼터 단위",
+                "result": "결과 데이터",
+                "stats": "사용 통계",
+                "status": "상태",
+                "statuses": {
+                    "completed": "완료",
+                    "failed": "실패",
+                    "pending": "대기 중",
+                    "processing": "처리 중"
+                },
+                "success_rate": "성공률",
+                "task_detail": {
+                    "back_to_previous": "뒤로 가기",
+                    "copy_task_id": "작업 ID 복사",
+                    "copy_task_id_success": "작업 ID가 복사되었습니다",
+                    "page_title": "AI 작업 {id}",
+                    "task_id": "작업 ID",
+                    "title": "AI 작업 상세"
+                },
+                "tasks": "작업 기록",
+                "text_length": "텍스트 길이",
+                "title": "AI 작업 및 통계",
+                "type": "작업 유형",
+                "types": {
+                    "asr": "전사",
+                    "async_transcription": "비동기 전사",
+                    "expand_section": "섹션 확장",
+                    "generate_scaffold": "개요 생성",
+                    "image": "이미지 생성",
+                    "image_generation": "이미지 생성",
+                    "optimize_manuscript": "원고 최적화",
+                    "podcast": "AI Podcast",
+                    "recommend_tags": "태그 추천",
+                    "refine_voice": "음성 원고 다듬기",
+                    "suggest_image_prompt": "이미지 프롬프트 제안",
+                    "suggest_slug": "슬러그 제안",
+                    "suggest_titles": "제목 제안",
+                    "summarize": "요약 생성",
+                    "text": "텍스트 생성",
+                    "text_generation": "텍스트 생성",
+                    "transcription": "전사",
+                    "translate": "번역",
+                    "translate_name": "이름 번역",
+                    "translate_name_batch": "이름 일괄 번역",
+                    "tts": "음성 합성"
+                },
+                "usage_snapshot": "사용량 스냅샷"
+            }
+        }
+    }
+}

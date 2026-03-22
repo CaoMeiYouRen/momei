@@ -1,0 +1,9 @@
+{
+    "pages": {
+        "admin": {
+            "notifications": {
+                "title": "Notification Management"
+            }
+        }
+    }
+}

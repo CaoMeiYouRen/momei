@@ -1,0 +1,37 @@
+{
+    "pages": {
+        "admin": {
+            "external_links": {
+                "clicks": "點擊次數",
+                "empty": "目前尚無外部連結",
+                "messages": {
+                    "copy_success": "連結已複製到剪貼簿",
+                    "create_success": "外部連結建立成功",
+                    "delete_confirm": "確定要刪除此外部連結嗎？",
+                    "delete_failed": "刪除外部連結失敗",
+                    "delete_success": "外部連結刪除成功",
+                    "load_failed": "載入外部連結失敗",
+                    "save_failed": "儲存外部連結失敗",
+                    "stats_failed": "載入統計資訊失敗",
+                    "update_success": "外部連結更新成功",
+                    "url_required": "連結位址不得為空"
+                },
+                "no_follow": "不跟隨",
+                "original_url": "原始連結",
+                "short_code": "短碼",
+                "show_redirect": "跳轉頁",
+                "show_redirect_page": "顯示跳轉頁",
+                "stats": "統計資訊",
+                "status": "狀態",
+                "statuses": {
+                    "active": "啟用",
+                    "blocked": "已封鎖",
+                    "expired": "已過期"
+                },
+                "title": "外部連結管理",
+                "title_placeholder": "可選連結標題",
+                "url_placeholder": "例如：https://example.com"
+            }
+        }
+    }
+}

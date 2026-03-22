@@ -41,10 +41,12 @@
 
 ### 3. 主线：后台 admin locale 大文件拆分与加载注册表治理 (P0)
 
-- [ ] **拆分 `i18n/locales/*/admin.json` 并收敛后台 locale 模块注册**
+- [x] **拆分 `i18n/locales/*/admin.json` 并收敛后台 locale 模块注册**
 	- 验收: 将后台大文件按稳定域拆分为多个 locale module 文件，例如设置、用户、文章、AI、邮件模板等域，避免继续维持单一超大事实源。
 	- 验收: locale 加载层、消息合并策略与注册表同步适配新的 admin 模块结构，不破坏现有 `t()` key 路径与后台页面读取方式。
 	- 验收: 至少补齐一次 i18n audit、后台相关定向测试或等价验证，确认拆分后无 key 丢失、覆盖顺序错误或 locale 漏载。
+	- 结果: `admin.json` 已收敛为后台壳层模块，并新增 `admin-posts`、`admin-settings`、`admin-users`、`admin-ai`、`admin-email-templates` 等稳定子模块；`i18n/config/locale-modules.ts` 已按后台路由接入按需加载注册。
+	- 验证: `CI=1 pnpm exec vitest --run --reporter=verbose i18n/config/locale-modules.test.ts` 通过；`CI=1 pnpm exec vitest --run --reporter=verbose i18n/config/locale-runtime-loader.test.ts` 通过；`pnpm i18n:audit` 通过。
 
 ### 4. 主线：`ja-JP` 正式对齐治理 (P1)
 

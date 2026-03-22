@@ -1,0 +1,79 @@
+{
+    "pages": {
+        "admin": {
+            "ad": {
+                "campaigns": {
+                    "clicks": "點擊次數",
+                    "empty": "目前尚無廣告活動",
+                    "end_date": "結束日期",
+                    "impressions": "展示次數",
+                    "messages": {
+                        "create_success": "廣告活動建立成功",
+                        "delete_confirm": "確定要刪除此廣告活動嗎？",
+                        "delete_failed": "刪除廣告活動失敗",
+                        "delete_success": "廣告活動刪除成功",
+                        "load_failed": "載入廣告活動失敗",
+                        "name_required": "名稱不得為空",
+                        "save_failed": "儲存廣告活動失敗",
+                        "update_success": "廣告活動更新成功"
+                    },
+                    "revenue": "收益",
+                    "start_date": "開始日期",
+                    "status": "狀態",
+                    "statuses": {
+                        "active": "進行中",
+                        "draft": "草稿",
+                        "ended": "已結束",
+                        "paused": "已暫停"
+                    },
+                    "title": "廣告活動"
+                },
+                "placements": {
+                    "adapter": "適配器",
+                    "disabled": "未啟用",
+                    "empty": "目前尚無廣告版位",
+                    "enabled": "已啟用",
+                    "format": "格式",
+                    "formats": {
+                        "display": "展示型",
+                        "native": "原生",
+                        "responsive": "響應式",
+                        "video": "影片"
+                    },
+                    "location": "位置",
+                    "locations": {
+                        "content_bottom": "內容下方",
+                        "content_middle": "內容中部",
+                        "content_top": "內容上方",
+                        "footer": "底部",
+                        "header": "頂部",
+                        "sidebar": "側邊欄"
+                    },
+                    "messages": {
+                        "adapter_required": "適配器不得為空",
+                        "create_success": "廣告版位建立成功",
+                        "delete_confirm": "確定要刪除此廣告版位嗎？",
+                        "delete_failed": "刪除廣告版位失敗",
+                        "delete_success": "廣告版位刪除成功",
+                        "disable_success": "廣告版位已停用",
+                        "enable_success": "廣告版位已啟用",
+                        "format_required": "格式不得為空",
+                        "load_failed": "載入廣告版位失敗",
+                        "location_required": "位置不得為空",
+                        "name_required": "名稱不得為空",
+                        "save_failed": "儲存廣告版位失敗",
+                        "update_failed": "更新廣告版位失敗",
+                        "update_success": "廣告版位更新成功"
+                    },
+                    "priority": "優先級",
+                    "slot_id": "廣告版位 ID",
+                    "slot_id_hint": "請輸入您的廣告平台版位 ID",
+                    "slot_id_placeholder": "例如: ca-pub-1234567890/1234567890",
+                    "status": "狀態",
+                    "title": "廣告版位管理"
+                },
+                "title": "商業化管理"
+            }
+        }
+    }
+}

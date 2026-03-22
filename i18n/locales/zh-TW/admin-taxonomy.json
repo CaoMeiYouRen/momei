@@ -1,0 +1,53 @@
+{
+    "pages": {
+        "admin": {
+            "categories": {
+                "create": "新增分類",
+                "delete_confirm": "確定要刪除此分類嗎？",
+                "delete_confirm_title": "確認刪除分類",
+                "delete_success": "分類刪除成功",
+                "save_success": "分類儲存成功",
+                "search_placeholder": "搜尋分類...",
+                "sync_to_all_languages": "同步建立其他語言版本",
+                "title": "分類管理"
+            },
+            "comments": {
+                "approve": "通過審核",
+                "author": "作者",
+                "content": "內容",
+                "created_at": "發佈時間",
+                "delete_confirm": "確定要永久刪除此評論嗎？",
+                "post": "文章",
+                "reject": "標記為垃圾",
+                "search_placeholder": "搜尋評論內容、作者...",
+                "status": "狀態",
+                "status_pending": "待審核",
+                "status_published": "已發佈",
+                "status_spam": "垃圾評論",
+                "title": "評論管理"
+            },
+            "subscribers": {
+                "active": "已啟用",
+                "active_status": "啟用狀態",
+                "delete_confirm": "確定要刪除此訂閱者嗎？",
+                "export": "匯出 CSV",
+                "inactive": "未啟用",
+                "join_date": "加入日期",
+                "not_associated": "未關聯",
+                "search_placeholder": "搜尋電子郵件...",
+                "title": "訂閱管理",
+                "user_associated": "已關聯使用者"
+            },
+            "tags": {
+                "create": "新增標籤",
+                "delete_confirm": "確定要刪除此標籤嗎？",
+                "delete_confirm_title": "確認刪除標籤",
+                "delete_success": "標籤刪除成功",
+                "save_success": "標籤儲存成功",
+                "search_placeholder": "搜尋標籤...",
+                "sync_to_all_languages": "同步建立其他語言版本",
+                "title": "標籤管理"
+            }
+        }
+    }
+}

@@ -1,0 +1,53 @@
+{
+    "pages": {
+        "admin": {
+            "categories": {
+                "create": "카테고리 추가",
+                "delete_confirm": "이 카테고리를 삭제하시겠습니까?",
+                "delete_confirm_title": "카테고리 삭제 확인",
+                "delete_success": "카테고리를 삭제했습니다",
+                "save_success": "카테고리를 저장했습니다",
+                "search_placeholder": "카테고리 검색...",
+                "sync_to_all_languages": "모든 언어 버전을 함께 생성",
+                "title": "카테고리 관리"
+            },
+            "comments": {
+                "approve": "승인",
+                "author": "작성자",
+                "content": "내용",
+                "created_at": "작성 시각",
+                "delete_confirm": "이 댓글을 영구적으로 삭제하시겠습니까?",
+                "post": "게시글",
+                "reject": "스팸으로 표시",
+                "search_placeholder": "댓글 내용, 작성자 검색...",
+                "status": "상태",
+                "status_pending": "검토 대기",
+                "status_published": "게시됨",
+                "status_spam": "스팸",
+                "title": "댓글 관리"
+            },
+            "subscribers": {
+                "active": "활성",
+                "active_status": "활성 상태",
+                "delete_confirm": "이 구독자를 삭제하시겠습니까?",
+                "export": "CSV 내보내기",
+                "inactive": "비활성",
+                "join_date": "가입일",
+                "not_associated": "연결되지 않음",
+                "search_placeholder": "이메일 검색...",
+                "title": "구독자 관리",
+                "user_associated": "연결된 사용자"
+            },
+            "tags": {
+                "create": "태그 추가",
+                "delete_confirm": "이 태그를 삭제하시겠습니까?",
+                "delete_confirm_title": "태그 삭제 확인",
+                "delete_success": "태그를 삭제했습니다",
+                "save_success": "태그를 저장했습니다",
+                "search_placeholder": "태그 검색...",
+                "sync_to_all_languages": "모든 언어 버전을 함께 생성",
+                "title": "태그 관리"
+            }
+        }
+    }
+}

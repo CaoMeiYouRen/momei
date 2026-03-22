@@ -101,7 +101,7 @@ describe('i18n locale runtime loader', () => {
             path: '/installation',
         })
 
-        expect(mergeLocaleMessage).toHaveBeenCalledTimes(2)
+        expect(mergeLocaleMessage).toHaveBeenCalledTimes(3)
         expect(mergeLocaleMessage).toHaveBeenNthCalledWith(
             1,
             'zh-CN',
@@ -113,6 +113,17 @@ describe('i18n locale runtime loader', () => {
         )
         expect(mergeLocaleMessage).toHaveBeenNthCalledWith(
             2,
+            'zh-CN',
+            expect.objectContaining({
+                pages: expect.objectContaining({
+                    admin: expect.objectContaining({
+                        settings: expect.any(Object),
+                    }),
+                }),
+            }),
+        )
+        expect(mergeLocaleMessage).toHaveBeenNthCalledWith(
+            3,
             'zh-CN',
             expect.objectContaining({
                 installation: expect.any(Object),
@@ -147,6 +158,27 @@ describe('i18n locale runtime loader', () => {
                                 email_templates: expect.any(Object),
                             }),
                         }),
+                    }),
+                }),
+            }),
+        )
+    })
+
+    it('should load the split admin post locale module on admin post routes', async () => {
+        const mergeLocaleMessage = vi.fn()
+
+        await ensureRouteLocaleMessages({
+            i18n: { mergeLocaleMessage },
+            locale: 'en-US',
+            path: '/admin/posts',
+        })
+
+        expect(mergeLocaleMessage).toHaveBeenCalledWith(
+            'en-US',
+            expect.objectContaining({
+                pages: expect.objectContaining({
+                    admin: expect.objectContaining({
+                        posts: expect.any(Object),
                     }),
                 }),
             }),

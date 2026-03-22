@@ -1,0 +1,12 @@
+{
+    "pages": {
+        "admin": {
+            "notifications": {
+                "description": "集中查看站內通知、SSE、瀏覽器推播與電子郵件通知的投遞結果，確認哪些通知已送達、失敗或被略過。",
+                "go_to_marketing": "前往行銷中心",
+                "overview_title": "通知投遞稽核",
+                "title": "通知管理"
+            }
+        }
+    }
+}

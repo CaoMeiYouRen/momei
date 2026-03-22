@@ -1,0 +1,29 @@
+{
+    "pages": {
+        "admin": {
+            "submissions": {
+                "accept": "採納",
+                "admin_note": "審核備註",
+                "admin_note_placeholder": "僅供內部查看的審核說明",
+                "article_title": "文章標題",
+                "category": "所屬分類",
+                "contributor": "投稿者",
+                "created_at": "提交時間",
+                "delete_failed": "刪除稿件失敗",
+                "delete_success": "稿件刪除成功",
+                "language": "發佈語言",
+                "publish_immediately": "立即發佈文章",
+                "reject": "拒絕",
+                "review": "審核",
+                "review_failed": "審核稿件失敗",
+                "review_success": "操作成功",
+                "search_placeholder": "搜尋標題或內容...",
+                "status": "稿件狀態",
+                "status_accepted": "已採納",
+                "status_pending": "待審核",
+                "status_rejected": "已拒絕",
+                "title": "稿件審核"
+            }
+        }
+    }
+}

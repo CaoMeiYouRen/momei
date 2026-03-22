@@ -1,0 +1,9 @@
+{
+    "pages": {
+        "admin": {
+            "posts": {
+                "title": "Post Management"
+            }
+        }
+    }
+}
