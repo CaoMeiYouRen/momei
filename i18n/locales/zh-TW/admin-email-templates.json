@@ -17,6 +17,9 @@
                         "preview_action": "產生預覽",
                         "preview_subject": "郵件主旨",
                         "preview_text": "查看純文字版本",
+                        "preview_app_name": "站點名稱變數",
+                        "preview_source_fallback": "回退自 {locale}",
+                        "preview_source_legacy": "回退自 legacy 值",
                         "fields": {
                             "title": "主旨",
                             "preheader": "預覽摘要",

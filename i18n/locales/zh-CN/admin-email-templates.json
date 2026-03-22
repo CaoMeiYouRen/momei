@@ -17,6 +17,9 @@
                         "preview_action": "生成预览",
                         "preview_subject": "邮件主题",
                         "preview_text": "查看纯文本版本",
+                        "preview_app_name": "站点名称变量",
+                        "preview_source_fallback": "回退自 {locale}",
+                        "preview_source_legacy": "回退自 legacy 值",
                         "fields": {
                             "title": "主题",
                             "preheader": "预览摘要",

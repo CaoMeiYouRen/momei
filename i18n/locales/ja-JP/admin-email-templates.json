@@ -17,6 +17,9 @@
                         "preview_action": "プレビューを生成",
                         "preview_subject": "メール件名",
                         "preview_text": "プレーンテキスト版を表示",
+                        "preview_app_name": "アプリ名変数",
+                        "preview_source_fallback": "{locale} からフォールバック",
+                        "preview_source_legacy": "legacy 値からフォールバック",
                         "fields": {
                             "title": "件名",
                             "preheader": "プレビュー文",

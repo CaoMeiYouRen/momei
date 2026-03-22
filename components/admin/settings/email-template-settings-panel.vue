@@ -107,6 +107,49 @@
                 <strong>{{ preview.subject }}</strong>
             </div>
 
+            <div class="email-template-settings-panel__preview-context">
+                <div class="email-template-settings-panel__preview-context-item">
+                    <span class="email-template-settings-panel__preview-label">
+                        {{ t('pages.admin.settings.system.email_templates.preview_locale_label') }}
+                    </span>
+                    <strong>{{ localeLabel(preview.meta.locale) }}</strong>
+                </div>
+
+                <div class="email-template-settings-panel__preview-context-item">
+                    <span class="email-template-settings-panel__preview-label">
+                        {{ t('pages.admin.settings.system.email_templates.preview_app_name') }}
+                    </span>
+
+                    <div class="email-template-settings-panel__preview-context-value">
+                        <strong>{{ preview.meta.appName.value }}</strong>
+                        <Tag
+                            :severity="sourceSeverity[preview.meta.appName.source]"
+                            :value="t(`pages.admin.settings.system.source_badges.${preview.meta.appName.source}`)"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <ul class="email-template-settings-panel__preview-sources">
+                <li
+                    v-for="fieldId in selectedTemplateDefinition.editableFields"
+                    :key="`preview-source-${fieldId}`"
+                    class="email-template-settings-panel__preview-source-item"
+                >
+                    <div class="email-template-settings-panel__preview-source-copy">
+                        <span>{{ fieldLabel(fieldId) }}</span>
+                        <small v-if="getPreviewFieldSourceNote(fieldId)" class="email-template-settings-panel__preview-source-note">
+                            {{ getPreviewFieldSourceNote(fieldId) }}
+                        </small>
+                    </div>
+
+                    <Tag
+                        :severity="sourceSeverity[getPreviewFieldSource(fieldId)]"
+                        :value="t(`pages.admin.settings.system.source_badges.${getPreviewFieldSource(fieldId)}`)"
+                    />
+                </li>
+            </ul>
+
             <!-- eslint-disable-next-line vue/no-v-html -->
             <div class="email-template-settings-panel__preview-frame" v-html="preview.html" />
 
@@ -131,15 +174,28 @@ import {
     type EmailTemplateSettingsFormValue,
     getEmailTemplateCustomConfig,
     parseEmailTemplateSettingsConfig,
+    resolveEmailTemplateLocalizedField,
     updateEmailTemplateCustomConfig,
 } from '@/utils/shared/email-template-config'
 import { createEmptyLocalizedSettingValue, isLocalizedSettingValue } from '@/utils/shared/localized-settings'
-import type { LocalizedSettingValueV1 } from '@/types/setting'
+import type { LocalizedSettingValueV1, SettingSource } from '@/types/setting'
 
 interface EmailTemplatePreviewPayload {
     subject: string
     html: string
     text: string
+    meta: {
+        locale: AppLocaleCode
+        appName: {
+            value: string
+            source: SettingSource
+        }
+        fieldSources: Partial<Record<EmailTemplateFieldId, {
+            source: 'default' | 'db'
+            resolvedLocale: AppLocaleCode | 'legacy' | null
+            usedFallback: boolean
+        }>>
+    }
 }
 
 interface EmailTemplatePreviewResponse {
@@ -156,6 +212,12 @@ const selectedTemplateId = ref<EmailTemplateId>(EMAIL_TEMPLATE_IDS[0])
 const previewLocale = ref<AppLocaleCode>(APP_ENABLED_LOCALES[0]?.code ?? 'zh-CN')
 const previewLoading = ref(false)
 const preview = ref<EmailTemplatePreviewPayload | null>(null)
+
+const sourceSeverity: Record<SettingSource, 'warn' | 'success' | 'info'> = {
+    env: 'warn',
+    db: 'success',
+    default: 'info',
+}
 
 const localeOptions = computed(() => APP_ENABLED_LOCALES.map((locale) => ({
     label: locale.nativeName,
@@ -184,6 +246,10 @@ const selectedTemplateEnabled = computed({
     },
 })
 
+watch([selectedTemplateId, previewLocale], () => {
+    preview.value = null
+})
+
 function isMultilineField(fieldId: EmailTemplateFieldId) {
     return fieldId === 'message' || fieldId === 'preheader' || fieldId === 'reminderContent' || fieldId === 'securityTip'
 }
@@ -200,6 +266,10 @@ function variableDescription(variable: string) {
     return t(`pages.admin.settings.system.email_templates.variables.${variable}`)
 }
 
+function localeLabel(locale: AppLocaleCode) {
+    return localeOptions.value.find((item) => item.value === locale)?.label ?? locale
+}
+
 function getFieldValue(fieldId: EmailTemplateFieldId): LocalizedSettingValueV1<string> {
     const fieldValue = selectedTemplateConfig.value.fields?.[fieldId]
     if (isLocalizedSettingValue<string>(fieldValue, 'localized-text')) {
@@ -207,6 +277,30 @@ function getFieldValue(fieldId: EmailTemplateFieldId): LocalizedSettingValueV1<s
     }
 
     return createEmptyLocalizedSettingValue('localized-text', null) as LocalizedSettingValueV1<string>
+}
+
+function getPreviewFieldSource(fieldId: EmailTemplateFieldId): SettingSource {
+    return preview.value?.meta.fieldSources[fieldId]?.source ?? 'default'
+}
+
+function getPreviewFieldSourceNote(fieldId: EmailTemplateFieldId) {
+    const sourceMeta = preview.value?.meta.fieldSources[fieldId]
+
+    if (!sourceMeta || sourceMeta.source !== 'db' || !sourceMeta.usedFallback) {
+        return ''
+    }
+
+    if (sourceMeta.resolvedLocale === 'legacy') {
+        return t('pages.admin.settings.system.email_templates.preview_source_legacy')
+    }
+
+    if (sourceMeta.resolvedLocale) {
+        return t('pages.admin.settings.system.email_templates.preview_source_fallback', {
+            locale: localeLabel(sourceMeta.resolvedLocale),
+        })
+    }
+
+    return ''
 }
 
 function setFieldValue(fieldId: EmailTemplateFieldId, nextValue?: unknown) {
@@ -320,6 +414,59 @@ async function loadPreview() {
         gap: 0.25rem;
     }
 
+    &__preview-context {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    &__preview-context-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        background: color-mix(in srgb, var(--p-primary-color) 6%, var(--p-content-background));
+    }
+
+    &__preview-context-value {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    &__preview-sources {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    &__preview-source-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        border: 1px solid var(--p-content-border-color);
+        border-radius: 0.75rem;
+        background: color-mix(in srgb, var(--p-content-background) 90%, white);
+    }
+
+    &__preview-source-copy {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    &__preview-source-note {
+        color: var(--p-text-muted-color);
+        line-height: 1.4;
+    }
+
     &__preview-label {
         font-size: 0.875rem;
         color: var(--p-text-muted-color);
@@ -343,6 +490,11 @@ async function loadPreview() {
 @media (width <= 768px) {
     .email-template-settings-panel {
         &__selectors {
+            grid-template-columns: 1fr;
+        }
+
+        &__preview-context,
+        &__preview-sources {
             grid-template-columns: 1fr;
         }
     }

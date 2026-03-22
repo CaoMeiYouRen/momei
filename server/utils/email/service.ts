@@ -41,6 +41,7 @@ export const emailService = {
                 {
                     title: template.title,
                     preheader: template.preheader,
+                    locale,
                 },
             )
 
@@ -92,6 +93,7 @@ export const emailService = {
                 {
                     title: template.title,
                     preheader: template.preheader,
+                    locale,
                 },
             )
 
@@ -144,6 +146,7 @@ export const emailService = {
                 {
                     title: template.title,
                     preheader: template.preheader,
+                    locale,
                 },
             )
 
@@ -196,6 +199,7 @@ export const emailService = {
                 {
                     title: template.title,
                     preheader: template.preheader,
+                    locale,
                 },
             )
 
@@ -248,6 +252,7 @@ export const emailService = {
                 {
                     title: template.title,
                     preheader: template.preheader,
+                    locale,
                 },
             )
 
@@ -295,6 +300,7 @@ export const emailService = {
                 {
                     title: template.title,
                     preheader: template.preheader,
+                    locale,
                 },
             )
 
@@ -347,6 +353,7 @@ export const emailService = {
                 {
                     title: template.title,
                     preheader: template.preheader,
+                    locale,
                 },
             )
 
@@ -396,6 +403,7 @@ export const emailService = {
                 {
                     title: template.title,
                     preheader: template.preheader,
+                    locale,
                 },
             )
 
@@ -443,6 +451,7 @@ export const emailService = {
                 {
                     title: template.title,
                     preheader: template.preheader,
+                    locale,
                 },
             )
 
@@ -508,6 +517,7 @@ export const emailService = {
                 {
                     title: template.title,
                     preheader: template.preheader,
+                    locale,
                 },
             )
 

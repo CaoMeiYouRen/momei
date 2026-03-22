@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 
 import logger from '../logger'
 import { getFallbackFragment, getFallbackMjmlTemplate, generateFallbackHtml } from './templates-fallback'
-import { getSettings } from '@/server/services/setting'
+import { getLocalizedSetting, resolveSetting } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
 import { htmlToPlainText } from '@/server/utils/html'
 
@@ -48,6 +48,7 @@ interface MarketingTemplateConfig extends BaseTemplateConfig {
 interface TemplateOptions {
     title: string
     preheader?: string
+    locale?: string | null
 }
 
 interface EmailResult {
@@ -164,16 +165,28 @@ export class EmailTemplateEngine {
      * 构建基础模板数据
      */
     private async buildBaseTemplateData(config: BaseTemplateConfig, options: TemplateOptions, footerNote?: string): Promise<EmailTemplateData> {
-        const settings = await getSettings([
-            SettingKey.SITE_NAME,
-            SettingKey.SITE_TITLE,
-            SettingKey.SITE_URL,
-            SettingKey.CONTACT_EMAIL,
+        const templateOptions: Pick<TemplateOptions, 'title' | 'preheader'> = {
+            title: options.title,
+            preheader: options.preheader,
+        }
+        const [localizedSiteTitle, resolvedSiteName, resolvedSiteUrl, resolvedContactEmail] = await Promise.all([
+            getLocalizedSetting<string>(SettingKey.SITE_TITLE, options.locale),
+            resolveSetting(SettingKey.SITE_NAME),
+            resolveSetting(SettingKey.SITE_URL),
+            resolveSetting(SettingKey.CONTACT_EMAIL),
         ])
 
-        const appName = String(settings[SettingKey.SITE_TITLE] || settings[SettingKey.SITE_NAME] || '墨梅博客')
-        const baseUrl = String(settings[SettingKey.SITE_URL] || '')
-        const contactEmail = String(settings[SettingKey.CONTACT_EMAIL] || 'admin@example.com')
+        const localizedSiteTitleValue = typeof localizedSiteTitle.value === 'string'
+            ? localizedSiteTitle.value.trim()
+            : ''
+        const siteNameValue = typeof resolvedSiteName.value === 'string'
+            ? resolvedSiteName.value.trim()
+            : ''
+        const appName = localizedSiteTitleValue || siteNameValue || '墨梅博客'
+        const baseUrl = typeof resolvedSiteUrl.value === 'string' ? resolvedSiteUrl.value : ''
+        const contactEmail = typeof resolvedContactEmail.value === 'string' && resolvedContactEmail.value.trim().length > 0
+            ? resolvedContactEmail.value.trim()
+            : 'contact@momei.app'
 
         return {
             appName,
@@ -188,7 +201,7 @@ export class EmailTemplateEngine {
             primaryColor: '#1e293b',
             message: config.message,
             securityTip: config.securityTip || '• 验证码仅供本次操作使用，请勿泄露给他人\n• 如果您没有进行此操作，请忽略此邮件\n• 请在规定时间内完成验证，过期需重新获取',
-            ...options,
+            ...templateOptions,
         }
     }
 

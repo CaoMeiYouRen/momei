@@ -17,6 +17,9 @@
                         "preview_action": "Generate Preview",
                         "preview_subject": "Subject",
                         "preview_text": "Show plain-text version",
+                        "preview_app_name": "App Name Variable",
+                        "preview_source_fallback": "Fallback from {locale}",
+                        "preview_source_legacy": "Fallback from legacy value",
                         "fields": {
                             "title": "Subject",
                             "preheader": "Preheader",

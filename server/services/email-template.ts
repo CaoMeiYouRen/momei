@@ -2,11 +2,12 @@ import { loadLocaleMessages } from '@/server/utils/i18n'
 import { emailI18n } from '@/server/utils/email/i18n'
 import { emailTemplateEngine } from '@/server/utils/email/templates'
 import { plainTextToHtml } from '@/server/utils/html'
-import { getSetting } from '@/server/services/setting'
-import { SettingKey } from '@/types/setting'
+import { getLocalizedSetting, getSetting, resolveSetting } from '@/server/services/setting'
+import { SettingKey, type SettingSource } from '@/types/setting'
 import {
     EMAIL_TEMPLATE_DEFINITIONS,
     EMAIL_TEMPLATE_IDS,
+    type EmailTemplateFieldId,
     type EmailTemplateId,
     type EmailTemplateSettingsFormValue,
     parseEmailTemplateSettingsConfig,
@@ -34,6 +35,26 @@ export interface EmailTemplatePreviewPayload {
     html: string
     text: string
     subject: string
+    meta: EmailTemplatePreviewMeta
+}
+
+export interface EmailTemplatePreviewVariableMeta {
+    value: string
+    source: SettingSource
+    settingKey: SettingKey
+    resolvedLocale: AppLocaleCode | 'legacy' | null
+}
+
+export interface EmailTemplatePreviewFieldSourceMeta {
+    source: 'default' | 'db'
+    resolvedLocale: AppLocaleCode | 'legacy' | null
+    usedFallback: boolean
+}
+
+export interface EmailTemplatePreviewMeta {
+    locale: AppLocaleCode
+    appName: EmailTemplatePreviewVariableMeta
+    fieldSources: Partial<Record<EmailTemplateFieldId, EmailTemplatePreviewFieldSourceMeta>>
 }
 
 function getNestedValue<T = unknown>(obj: Record<string, any>, path: string): T | null {
@@ -100,9 +121,51 @@ async function loadDefaultRuntimeContent(templateId: EmailTemplateId, locale?: s
     }
 }
 
-function getPreviewVariables(locale: AppLocaleCode) {
+async function resolveTemplateVariableContext(locale?: string | null) {
+    const requestedLocale = resolveRequestedAppLocale(locale)
+    const [localizedSiteTitle, resolvedSiteTitle, resolvedSiteName, resolvedContactEmail] = await Promise.all([
+        getLocalizedSetting<string>(SettingKey.SITE_TITLE, requestedLocale),
+        resolveSetting(SettingKey.SITE_TITLE),
+        resolveSetting(SettingKey.SITE_NAME),
+        resolveSetting(SettingKey.CONTACT_EMAIL),
+    ])
+
+    const localizedSiteTitleValue = typeof localizedSiteTitle.value === 'string'
+        ? localizedSiteTitle.value.trim()
+        : ''
+    const siteNameValue = typeof resolvedSiteName.value === 'string'
+        ? resolvedSiteName.value.trim()
+        : ''
+    const contactEmailValue = typeof resolvedContactEmail.value === 'string'
+        ? resolvedContactEmail.value.trim()
+        : ''
+
+    const appName = localizedSiteTitleValue || siteNameValue || 'Momei'
+    const appNameSource: SettingSource = localizedSiteTitleValue
+        ? resolvedSiteTitle.source
+        : siteNameValue
+            ? resolvedSiteName.source
+            : 'default'
+
     return {
-        appName: 'Momei',
+        locale: requestedLocale,
+        appName: {
+            value: appName,
+            source: appNameSource,
+            settingKey: localizedSiteTitleValue ? SettingKey.SITE_TITLE : SettingKey.SITE_NAME,
+            resolvedLocale: localizedSiteTitleValue ? localizedSiteTitle.resolvedLocale : null,
+        } satisfies EmailTemplatePreviewVariableMeta,
+        contactEmail: {
+            value: contactEmailValue || 'contact@momei.app',
+            source: contactEmailValue ? resolvedContactEmail.source : 'default',
+            settingKey: SettingKey.CONTACT_EMAIL,
+            resolvedLocale: null,
+        },
+    }
+}
+
+function getStaticPreviewVariables(locale: AppLocaleCode) {
+    return {
         expiresIn: 10,
         title: 'Momei 版本更新',
         summary: locale === 'en-US'
@@ -117,6 +180,29 @@ function getPreviewVariables(locale: AppLocaleCode) {
         categoryName: locale === 'en-US' ? 'Engineering' : '工程实践',
         publishDate: '2026-03-21 10:24',
     }
+}
+
+function resolveTemplateFieldSources(
+    templateId: EmailTemplateId,
+    config: EmailTemplateSettingsFormValue,
+    locale?: string | null,
+): Partial<Record<EmailTemplateFieldId, EmailTemplatePreviewFieldSourceMeta>> {
+    const normalizedConfig = parseEmailTemplateSettingsConfig(config)
+    const templateConfig = normalizedConfig.templates[templateId]
+    const fieldSources: Partial<Record<EmailTemplateFieldId, EmailTemplatePreviewFieldSourceMeta>> = {}
+
+    for (const fieldId of EMAIL_TEMPLATE_DEFINITIONS[templateId].editableFields) {
+        const resolvedField = resolveEmailTemplateLocalizedField(templateConfig?.fields?.[fieldId], locale)
+        const usesDbValue = templateConfig?.enabled === true && Boolean(resolvedField.value)
+
+        fieldSources[fieldId] = {
+            source: usesDbValue ? 'db' : 'default',
+            resolvedLocale: usesDbValue ? resolvedField.resolvedLocale : null,
+            usedFallback: usesDbValue ? resolvedField.usedFallback : false,
+        }
+    }
+
+    return fieldSources
 }
 
 function applyOverrides(
@@ -158,7 +244,12 @@ export async function resolveEmailTemplateRuntimeContent(options: {
     const defaults = await loadDefaultRuntimeContent(options.templateId, options.locale)
     const storedConfig = options.config ?? await getStoredEmailTemplateConfig()
     const overridden = applyOverrides(defaults, options.templateId, storedConfig, options.locale)
-    const params = options.params ?? {}
+    const variableContext = await resolveTemplateVariableContext(options.locale)
+    const params = {
+        ...(options.params ?? {}),
+        appName: variableContext.appName.value,
+        contactEmail: variableContext.contactEmail.value,
+    }
 
     return {
         ...overridden,
@@ -180,13 +271,24 @@ export async function previewEmailTemplate(options: {
     config?: EmailTemplateSettingsFormValue
 }): Promise<EmailTemplatePreviewPayload> {
     const locale = resolveRequestedAppLocale(options.locale)
-    const params = getPreviewVariables(locale)
+    const variableContext = await resolveTemplateVariableContext(locale)
+    const params = {
+        ...getStaticPreviewVariables(locale),
+        appName: variableContext.appName.value,
+        contactEmail: variableContext.contactEmail.value,
+    }
+    const storedConfig = options.config ?? await getStoredEmailTemplateConfig()
     const content = await resolveEmailTemplateRuntimeContent({
         templateId: options.templateId,
         locale,
-        config: options.config,
+        config: storedConfig,
         params,
     })
+    const meta: EmailTemplatePreviewMeta = {
+        locale,
+        appName: variableContext.appName,
+        fieldSources: resolveTemplateFieldSources(options.templateId, storedConfig, locale),
+    }
 
     switch (EMAIL_TEMPLATE_DEFINITIONS[options.templateId].kind) {
         case 'action': {
@@ -200,11 +302,13 @@ export async function previewEmailTemplate(options: {
             }, {
                 title: content.title,
                 preheader: content.preheader,
+                locale,
             })
 
             return {
                 ...result,
                 subject: content.title,
+                meta,
             }
         }
         case 'code': {
@@ -217,11 +321,13 @@ export async function previewEmailTemplate(options: {
             }, {
                 title: content.title,
                 preheader: content.preheader,
+                locale,
             })
 
             return {
                 ...result,
                 subject: content.title,
+                meta,
             }
         }
         case 'simple': {
@@ -232,11 +338,13 @@ export async function previewEmailTemplate(options: {
             }, {
                 title: content.title,
                 preheader: content.preheader,
+                locale,
             })
 
             return {
                 ...result,
                 subject: content.title,
+                meta,
             }
         }
         case 'marketing': {
@@ -255,11 +363,13 @@ export async function previewEmailTemplate(options: {
             }, {
                 title: content.title,
                 preheader: content.preheader,
+                locale,
             })
 
             return {
                 ...result,
                 subject: content.title,
+                meta,
             }
         }
     }

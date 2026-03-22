@@ -19,6 +19,9 @@ const translations: Record<string, string> = {
     'pages.admin.settings.system.email_templates.preview_action': '生成预览',
     'pages.admin.settings.system.email_templates.preview_subject': '邮件主题',
     'pages.admin.settings.system.email_templates.preview_text': '查看纯文本版本',
+    'pages.admin.settings.system.email_templates.preview_app_name': '站点名称变量',
+    'pages.admin.settings.system.email_templates.preview_source_fallback': '回退自 {locale}',
+    'pages.admin.settings.system.email_templates.preview_source_legacy': '回退自 legacy 值',
     'pages.admin.settings.system.email_templates.fields.title': '主题',
     'pages.admin.settings.system.email_templates.fields.preheader': '预览摘要',
     'pages.admin.settings.system.email_templates.fields.message': '正文主文案',
@@ -53,6 +56,9 @@ const translations: Record<string, string> = {
     'pages.admin.settings.system.email_templates.catalog.subscriptionConfirmation.description': '订阅确认',
     'pages.admin.settings.system.email_templates.catalog.marketingCampaign.label': '营销/文章分发',
     'pages.admin.settings.system.email_templates.catalog.marketingCampaign.description': '营销/文章分发',
+    'pages.admin.settings.system.source_badges.db': '数据库生效',
+    'pages.admin.settings.system.source_badges.default': '默认值生效',
+    'pages.admin.settings.system.source_badges.env': '环境变量生效',
 }
 
 function translate(key: string) {
@@ -64,6 +70,21 @@ const mockFetch = vi.fn().mockResolvedValue({
         subject: '预览主题',
         html: '<section>preview html</section>',
         text: 'preview text',
+        meta: {
+            locale: 'zh-CN',
+            appName: {
+                value: '墨梅博客',
+                source: 'db',
+            },
+            fieldSources: {
+                title: { source: 'db', resolvedLocale: 'en-US', usedFallback: true },
+                preheader: { source: 'default', resolvedLocale: null, usedFallback: false },
+                message: { source: 'default', resolvedLocale: null, usedFallback: false },
+                buttonText: { source: 'default', resolvedLocale: null, usedFallback: false },
+                reminderContent: { source: 'default', resolvedLocale: null, usedFallback: false },
+                securityTip: { source: 'default', resolvedLocale: null, usedFallback: false },
+            },
+        },
     },
 })
 
@@ -168,6 +189,10 @@ describe('EmailTemplateSettingsPanel', () => {
                         props: ['label', 'icon', 'loading'],
                         emits: ['click'],
                     },
+                    Tag: {
+                        template: '<span class="tag">{{ value }}</span>',
+                        props: ['severity', 'value'],
+                    },
                 },
             },
         })
@@ -181,7 +206,6 @@ describe('EmailTemplateSettingsPanel', () => {
         await flushPromises()
 
         const latestModelValue = (updates.at(-1) ?? null) as EmailTemplateSettingsFormValue
-
         await wrapper.setProps({
             modelValue: latestModelValue,
         })
@@ -209,8 +233,12 @@ describe('EmailTemplateSettingsPanel', () => {
             method: 'POST',
             body: expect.objectContaining({
                 templateId: 'verification',
+                locale: 'zh-CN',
             }),
         }))
         expect(wrapper.text()).toContain('预览主题')
+        expect(wrapper.text()).toContain('站点名称变量')
+        expect(wrapper.text()).toContain('墨梅博客')
+        expect(wrapper.text()).toContain('回退自 en-US')
     })
 })

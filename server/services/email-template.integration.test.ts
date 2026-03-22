@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/server/services/setting', () => ({
     getSetting: vi.fn(),
+    getLocalizedSetting: vi.fn(),
+    resolveSetting: vi.fn(),
 }))
 
 vi.mock('@/server/utils/email/i18n', () => ({
@@ -11,13 +13,37 @@ vi.mock('@/server/utils/email/i18n', () => ({
 }))
 
 import { resolveEmailTemplateRuntimeContent } from './email-template'
-import { getSetting } from '@/server/services/setting'
+import { getLocalizedSetting, getSetting, resolveSetting } from '@/server/services/setting'
 import { emailI18n } from '@/server/utils/email/i18n'
 
 describe('email template service locale integration', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         vi.mocked(getSetting).mockResolvedValue(null)
+        vi.mocked(getLocalizedSetting).mockResolvedValue({
+            key: 'site_title',
+            value: null,
+            requestedLocale: 'zh-CN',
+            resolvedLocale: null,
+            fallbackChain: ['zh-CN', 'en-US'],
+            usedFallback: false,
+            usedLegacyValue: false,
+        })
+        vi.mocked(resolveSetting).mockImplementation(async (key: string) => ({
+            key,
+            value: key === 'site_name' ? 'Momei' : null,
+            description: '',
+            level: 0,
+            maskType: key === 'contact_email' ? 'email' : 'none',
+            source: key === 'site_name' ? 'default' : 'default',
+            isLocked: false,
+            envKey: null,
+            defaultValue: key === 'site_name' ? 'Momei' : null,
+            defaultUsed: true,
+            lockReason: null,
+            requiresRestart: false,
+            localized: null,
+        }))
     })
 
     it.each([

@@ -42,6 +42,7 @@ import logger from '@/server/utils/logger'
 import { markAgreementConsentForLocale } from '@/server/services/agreement'
 import { getTempEmail, getTempName } from '@/server/utils/auth-generators'
 import { emailService } from '@/server/utils/email/service'
+import { resolveEmailLocale } from '@/server/utils/email/locale'
 import {
     AUTH_PLUGIN_DEFAULT_LOCALE,
     AUTH_PLUGIN_FALLBACK_LOCALE,
@@ -208,7 +209,11 @@ export const auth = betterAuth({
         maxPasswordLength: 64,
         requireEmailVerification: EMAIL_REQUIRE_VERIFICATION, // 是否要求邮箱验证。若启用，则用户必须在登录前验证他们的邮箱。仅在使用邮箱密码登录时生效。
         sendResetPassword: async ({ user, url }) => {
-            await emailService.sendPasswordResetEmail(user.email, url)
+            const locale = await resolveEmailLocale({
+                email: user.email,
+                language: user.language,
+            })
+            await emailService.sendPasswordResetEmail(user.email, url, locale)
         },
     },
     emailVerification: {
@@ -216,7 +221,11 @@ export const auth = betterAuth({
         autoSignInAfterVerification: true, // 验证后自动登录
         // 发送验证邮件
         sendVerificationEmail: async ({ user, url }) => {
-            await emailService.sendVerificationEmail(user.email, url)
+            const locale = await resolveEmailLocale({
+                email: user.email,
+                language: user.language,
+            })
+            await emailService.sendVerificationEmail(user.email, url, locale)
         },
     },
     user: {
@@ -242,10 +251,15 @@ export const auth = betterAuth({
             enabled: true, // 启用更改邮箱功能
             // 发送更改邮箱验证邮件
             sendChangeEmailVerification: async ({ user, newEmail, url }) => {
+                const locale = await resolveEmailLocale({
+                    email: user.email,
+                    language: user.language,
+                })
                 await emailService.sendEmailChangeVerification(
                     user.email,
                     newEmail,
                     url,
+                    locale,
                 )
             },
         },
@@ -298,7 +312,8 @@ export const auth = betterAuth({
             disableSignUp: false, // 当用户未注册时是否阻止自动注册
             // 支持一次性链接登录
             sendMagicLink: async ({ email, url }) => {
-                await emailService.sendMagicLink(email, url)
+                const locale = await resolveEmailLocale({ email })
+                await emailService.sendMagicLink(email, url, locale)
             },
         }),
         emailOTP({
@@ -310,6 +325,7 @@ export const auth = betterAuth({
             // 支持电子邮件 OTP 登录
             async sendVerificationOTP({ email, otp, type }) {
                 const expiresInMinutes = Math.floor(EMAIL_EXPIRES_IN / 60)
+                const locale = await resolveEmailLocale({ email })
 
                 if (type === 'sign-in') {
                     // 发送登录用的OTP
@@ -317,6 +333,7 @@ export const auth = betterAuth({
                         email,
                         otp,
                         expiresInMinutes,
+                        locale,
                     )
                     return
                 }
@@ -326,6 +343,7 @@ export const auth = betterAuth({
                         email,
                         otp,
                         expiresInMinutes,
+                        locale,
                     )
                     return
                 }
@@ -335,11 +353,12 @@ export const auth = betterAuth({
                         email,
                         otp,
                         expiresInMinutes,
+                        locale,
                     )
                     return
                 }
                 // 默认情况使用登录OTP
-                await emailService.sendLoginOTP(email, otp, expiresInMinutes)
+                await emailService.sendLoginOTP(email, otp, expiresInMinutes, locale)
             },
         }),
         $phoneNumber({

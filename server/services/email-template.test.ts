@@ -43,6 +43,8 @@ vi.mock('@/server/utils/i18n', () => ({
 
 vi.mock('@/server/services/setting', () => ({
     getSetting: vi.fn(),
+    getLocalizedSetting: vi.fn(),
+    resolveSetting: vi.fn(),
 }))
 
 vi.mock('@/server/utils/email/i18n', () => ({
@@ -77,6 +79,68 @@ describe('email template service', () => {
         vi.clearAllMocks()
         const settingModule = await import('@/server/services/setting')
         vi.mocked(settingModule.getSetting).mockResolvedValue(null)
+        vi.mocked(settingModule.getLocalizedSetting).mockResolvedValue({
+            key: 'site_title',
+            value: null,
+            requestedLocale: 'zh-CN',
+            resolvedLocale: null,
+            fallbackChain: ['zh-CN', 'en-US'],
+            usedFallback: false,
+            usedLegacyValue: false,
+        })
+        vi.mocked(settingModule.resolveSetting).mockImplementation(async (key: string) => {
+            if (key === 'site_name') {
+                return {
+                    key,
+                    value: 'Momei',
+                    description: '',
+                    level: 0,
+                    maskType: 'none',
+                    source: 'default',
+                    isLocked: false,
+                    envKey: null,
+                    defaultValue: 'Momei',
+                    defaultUsed: true,
+                    lockReason: null,
+                    requiresRestart: false,
+                    localized: null,
+                }
+            }
+
+            if (key === 'contact_email') {
+                return {
+                    key,
+                    value: 'contact@momei.app',
+                    description: '',
+                    level: 0,
+                    maskType: 'email',
+                    source: 'default',
+                    isLocked: false,
+                    envKey: null,
+                    defaultValue: 'contact@momei.app',
+                    defaultUsed: true,
+                    lockReason: null,
+                    requiresRestart: false,
+                    localized: null,
+                }
+            }
+
+            return {
+                key,
+                value: null,
+                description: '',
+                level: 0,
+                maskType: 'none',
+                source: 'default',
+                isLocked: false,
+                envKey: null,
+                defaultValue: null,
+                defaultUsed: true,
+                lockReason: null,
+                requiresRestart: false,
+                localized: null,
+            }
+        })
     })
 
     it('applies localized overrides and replaces variables', async () => {
@@ -145,5 +209,88 @@ describe('email template service', () => {
         expect(preview.subject).toContain('Momei')
         expect(preview.html).toContain('marketing')
         expect(preview.text).toContain('marketing')
+        expect(preview.meta.appName.value).toBe('Momei')
+        expect(preview.meta.fieldSources.buttonText?.source).toBe('db')
+    })
+
+    it('prefers localized site title for appName preview variables', async () => {
+        const settingModule = await import('@/server/services/setting')
+
+        vi.mocked(settingModule.getLocalizedSetting).mockResolvedValue({
+            key: 'site_title',
+            value: '墨梅博客',
+            requestedLocale: 'zh-CN',
+            resolvedLocale: 'zh-CN',
+            fallbackChain: ['zh-CN', 'en-US'],
+            usedFallback: false,
+            usedLegacyValue: false,
+        })
+        vi.mocked(settingModule.resolveSetting).mockImplementation(async (key: string) => {
+            if (key === 'site_title') {
+                return {
+                    key,
+                    value: JSON.stringify({
+                        version: 1,
+                        type: 'localized-text',
+                        locales: { 'zh-CN': '墨梅博客' },
+                        legacyValue: null,
+                    }),
+                    description: '',
+                    level: 0,
+                    maskType: 'none',
+                    source: 'db',
+                    isLocked: false,
+                    envKey: null,
+                    defaultValue: null,
+                    defaultUsed: false,
+                    lockReason: null,
+                    requiresRestart: false,
+                    localized: null,
+                }
+            }
+
+            if (key === 'site_name') {
+                return {
+                    key,
+                    value: 'Momei',
+                    description: '',
+                    level: 0,
+                    maskType: 'none',
+                    source: 'default',
+                    isLocked: false,
+                    envKey: null,
+                    defaultValue: 'Momei',
+                    defaultUsed: true,
+                    lockReason: null,
+                    requiresRestart: false,
+                    localized: null,
+                }
+            }
+
+            return {
+                key,
+                value: 'contact@momei.app',
+                description: '',
+                level: 0,
+                maskType: 'email',
+                source: 'default',
+                isLocked: false,
+                envKey: null,
+                defaultValue: 'contact@momei.app',
+                defaultUsed: true,
+                lockReason: null,
+                requiresRestart: false,
+                localized: null,
+            }
+        })
+
+        const preview = await previewEmailTemplate({
+            templateId: 'verification',
+            locale: 'zh-CN',
+        })
+
+        expect(preview.subject).toContain('墨梅博客')
+        expect(preview.meta.appName.value).toBe('墨梅博客')
+        expect(preview.meta.appName.source).toBe('db')
     })
 })

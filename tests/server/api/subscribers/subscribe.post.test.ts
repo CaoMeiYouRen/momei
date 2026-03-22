@@ -47,7 +47,7 @@ describe('Subscribe API', () => {
         expect(subscriber?.email).toBe(email)
         expect(subscriber?.language).toBe(language)
         expect(subscriber?.isActive).toBe(true)
-        expect(emailService.sendSubscriptionConfirmation).toHaveBeenCalledWith(email)
+        expect(emailService.sendSubscriptionConfirmation).toHaveBeenCalledWith(email, language)
     })
 
     it('should link new subscriber to existing user', async () => {

@@ -17,6 +17,9 @@
                         "preview_action": "미리보기 생성",
                         "preview_subject": "메일 제목",
                         "preview_text": "텍스트 버전 보기",
+                        "preview_app_name": "앱 이름 변수",
+                        "preview_source_fallback": "{locale}에서 fallback",
+                        "preview_source_legacy": "legacy 값에서 fallback",
                         "fields": {
                             "title": "제목",
                             "preheader": "프리헤더",

@@ -64,7 +64,7 @@ export default defineEventHandler(async (event) => {
 
     // 发送订阅确认邮件
     try {
-        await emailService.sendSubscriptionConfirmation(email)
+        await emailService.sendSubscriptionConfirmation(email, language || user?.language || undefined)
     } catch (error) {
         // 邮件发送失败不影响订阅状态，但记录日志
         logger.email.failed({

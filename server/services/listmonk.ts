@@ -139,6 +139,7 @@ async function buildCampaignBody(campaign: MarketingCampaign) {
         {
             title: template.title,
             preheader: template.preheader,
+            locale,
         },
     )
 
