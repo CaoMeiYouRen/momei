@@ -2,7 +2,70 @@
     "pages": {
         "admin": {
             "users": {
-                "title": "ユーザー管理"
+                "actions": "操作",
+                "active": "正常",
+                "ban": "BAN を実行",
+                "ban_expiry": "期限",
+                "ban_reason": "BAN 理由",
+                "ban_reason_placeholder": "違反理由を入力してください",
+                "ban_user": "ユーザーを BAN",
+                "banned": "BAN 済み",
+                "confirm_delete": "ユーザー \"{name}\" を完全に削除してもよろしいですか？この操作は元に戻せません。",
+                "confirm_impersonate": "\"{name}\" としてログインしてもよろしいですか？新しいセッションが開かれます。",
+                "confirm_revoke_all": "このユーザーをすべてのデバイスから強制ログアウトしてもよろしいですか？",
+                "created_at": "登録日時",
+                "delete_user": "ユーザーを削除",
+                "edit_role": "ロールを変更",
+                "expires_at": "期限",
+                "expiry": {
+                    "never": "無期限",
+                    "one_day": "1 日",
+                    "one_month": "1 か月",
+                    "one_week": "1 週間"
+                },
+                "feedback": {
+                    "ban_user_failed": "ユーザーの BAN に失敗しました",
+                    "ban_user_success": "ユーザーを BAN しました",
+                    "delete_user_failed": "ユーザー削除に失敗しました",
+                    "delete_user_success": "ユーザーを削除しました",
+                    "impersonate_user_failed": "代理ログインに失敗しました",
+                    "load_sessions_failed": "ユーザーセッションの読み込みに失敗しました",
+                    "revoke_all_sessions_failed": "全セッション一括無効化に失敗しました",
+                    "revoke_all_sessions_success": "このユーザーの全セッションを無効化しました",
+                    "revoke_session_failed": "セッション無効化に失敗しました",
+                    "revoke_session_success": "セッションを無効化しました",
+                    "unban_user_failed": "BAN 解除に失敗しました",
+                    "unban_user_success": "BAN を解除しました",
+                    "update_role_failed": "ユーザーロールの更新に失敗しました",
+                    "update_role_success": "ユーザーロールを更新しました"
+                },
+                "filter_role": "すべてのロール",
+                "filter_status": "すべての状態",
+                "impersonate": "代理ログイン",
+                "last_active": "最終アクティブ",
+                "no_active_sessions": "アクティブなセッションはありません",
+                "refresh": "更新",
+                "revoke_all": "全セッションを一括無効化",
+                "role": "ロール",
+                "roles": {
+                    "admin": "管理者",
+                    "all": "すべてのロール",
+                    "author": "作者",
+                    "user": "一般ユーザー"
+                },
+                "search_placeholder": "名前またはメールを検索...",
+                "select_role": "新しいロールを選択",
+                "sessions": "アクティブセッション",
+                "status": "状態",
+                "status_options": {
+                    "active": "正常",
+                    "all": "すべての状態",
+                    "banned": "BAN 済み"
+                },
+                "title": "ユーザー管理",
+                "unban_user": "BAN を解除",
+                "user": "ユーザー",
+                "view_sessions": "セッションを表示"
             }
         }
     }

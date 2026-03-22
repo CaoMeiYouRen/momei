@@ -105,7 +105,7 @@ node scripts/i18n/audit-locale-keys.mjs --fail-on-missing
 pnpm i18n:check-sync -- --locale=<target-locale>
 ```
 
-当前 `ja-JP` 仍处于正式对齐补齐阶段，`pnpm i18n:check-sync -- --locale=ja-JP` 主要用于收敛剩余缺口；在全量 parity 收口前，不将 `--fail-on-diff` 作为通用提交门禁。
+当前 `ja-JP` 已完成与 `zh-CN` 的全量 locale parity，`pnpm i18n:check-sync -- --locale=ja-JP` 不再只是缺口追踪工具，也可作为 `ja-JP` 相关变更的定向对齐校验。若要继续把 `Locale Registry` 从 `ui-ready` 升格到 `seo-ready`，仍需额外补齐邮件、SEO、站点地图与专项回归链路验证；仅有内容 parity 还不足以直接升格。
 
 如本轮涉及邮件或关键业务链路，建议额外执行对应定向测试。
 

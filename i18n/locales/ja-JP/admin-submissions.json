@@ -2,6 +2,26 @@
     "pages": {
         "admin": {
             "submissions": {
+                "accept": "採用",
+                "admin_note": "審査メモ",
+                "admin_note_placeholder": "内部のみ閲覧可能な審査メモ",
+                "article_title": "記事タイトル",
+                "category": "カテゴリ",
+                "contributor": "投稿者",
+                "created_at": "投稿日時",
+                "delete_failed": "原稿の削除に失敗しました",
+                "delete_success": "原稿を削除しました",
+                "language": "公開言語",
+                "publish_immediately": "すぐに記事を公開",
+                "reject": "却下",
+                "review": "審査",
+                "review_failed": "原稿の審査に失敗しました",
+                "review_success": "操作に成功しました",
+                "search_placeholder": "タイトルまたは内容を検索...",
+                "status": "原稿状態",
+                "status_accepted": "採用済み",
+                "status_pending": "審査待ち",
+                "status_rejected": "却下済み",
                 "title": "投稿審査"
             }
         }

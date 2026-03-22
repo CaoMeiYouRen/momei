@@ -19,7 +19,7 @@
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
 当前进行中事项：
-- `ja-JP` 正式对齐治理：已建立 zh-CN 基准 parity 校验脚本，完成后台壳层、`admin-external-links` / `admin-ad` / `admin-friend-links` / `admin-ai` / `admin-marketing` / `admin-settings` / `admin-posts` 对齐，以及 ja-JP deploy / README / roadmap 文档口径同步；当前剩余 `admin-snippets`、`admin-submissions`、`admin-taxonomy`、`admin-users`、`demo`、`feed` 6 个模块共 221 个缺口。
+- `ja-JP` 正式对齐治理：已完成 `zh-CN` 基准全量 parity 收口，后台剩余 `admin-snippets` / `admin-users` / `admin-submissions` / `admin-taxonomy` 与 `demo` / `feed` 已补齐；当前转入 locale registry readiness 评估，暂不直接从 `ui-ready` 升格，因为 `seo-ready` 所需的邮件、SEO、站点地图与专项回归链路尚未单独验证。
 
 ## 第十八阶段：验证基线深化与国际化维护能力收敛
 
@@ -50,11 +50,11 @@
 
 ### 4. 主线：`ja-JP` 正式对齐治理 (P1)
 
-- [ ] **将 `ja-JP` 从 `ui-ready` 升格为正式对齐维护语种**
+- [ ] **完成 `ja-JP` 正式对齐，并评估从 `ui-ready` 升格的条件**
 	- 验收: 补齐 `ja-JP` 与 `en-US` / `zh-TW` / `ko-KR` 在核心 i18n 字段、后台 locale 模块、邮件模板文案与初始化字段审计上的 parity 对齐。
 	- 验收: 文档侧至少同步 README 镜像、`docs/i18n/ja-JP/**`、翻译治理说明与文档规范中的语言阶段描述，不再沿用“仅首轮覆盖”的历史口径。
 	- 验收: 若实施过程中需要提升 locale registry、文档导航或审计脚本门禁，应同步补齐必要验证与说明，避免其他语种继续沿用旧分级假设。
-	- 进展: 已新增 `scripts/i18n/check-locale-parity.mjs` 与 `pnpm i18n:check-sync`，统一以 `zh-CN` 为基准输出各 locale / module 的缺失字段与多余字段；已完成 `ja-JP` 后台壳层、设置来源徽标与 admin 高频标题首轮补齐，完成 `admin-external-links`、`admin-ad`、`admin-friend-links`、`admin-ai`、`admin-marketing`、`admin-settings`、`admin-posts` 等高价值后台模块，以及 `docs/i18n/ja-JP/guide/deploy.md`、`docs/i18n/ja-JP/plan/roadmap.md`、`README.ja-JP.md` 的日文同步。目前完整 parity 报告收敛到剩余 6 个模块、221 个缺口。
+	- 进展: 已新增 `scripts/i18n/check-locale-parity.mjs` 与 `pnpm i18n:check-sync`，统一以 `zh-CN` 为基准输出各 locale / module 的缺失字段与多余字段；本轮继续补齐 `admin-snippets`、`admin-users`、`admin-submissions`、`admin-taxonomy` 以及 `demo`、`feed`，当前 `pnpm i18n:check-sync -- --locale=ja-JP` 已返回 `ja-JP: parity with zh-CN`。基于现有治理规则，`ja-JP` 内容层已达到全量 parity，但 locale registry 若要从 `ui-ready` 升格，仍需单独补齐邮件、SEO、站点地图与相应回归链路验证，因此本轮只完成评估、不直接改 registry。
 
 ### 5. 插队修复：WechatSync 微博同步兼容与同步前预检收口 (P1)
 

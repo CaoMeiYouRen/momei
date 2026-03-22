@@ -2,15 +2,50 @@
     "pages": {
         "admin": {
             "categories": {
+                "create": "カテゴリを新規作成",
+                "delete_confirm": "このカテゴリを削除してもよろしいですか？",
+                "delete_confirm_title": "カテゴリ削除の確認",
+                "delete_success": "カテゴリを削除しました",
+                "save_success": "カテゴリを保存しました",
+                "search_placeholder": "カテゴリを検索...",
+                "sync_to_all_languages": "他言語版も同時に作成する",
                 "title": "カテゴリ管理"
             },
             "comments": {
+                "approve": "承認する",
+                "author": "作者",
+                "content": "内容",
+                "created_at": "投稿日",
+                "delete_confirm": "このコメントを完全に削除してもよろしいですか？",
+                "post": "記事",
+                "reject": "スパムにする",
+                "search_placeholder": "コメント内容や作者を検索...",
+                "status": "状態",
+                "status_pending": "審査待ち",
+                "status_published": "公開済み",
+                "status_spam": "スパムコメント",
                 "title": "コメント管理"
             },
             "subscribers": {
-                "title": "購読者管理"
+                "active": "有効",
+                "active_status": "アクティブ状態",
+                "delete_confirm": "この購読者を削除してもよろしいですか？",
+                "export": "CSV をエクスポート",
+                "inactive": "未有効化",
+                "join_date": "登録日",
+                "not_associated": "未関連付け",
+                "search_placeholder": "メールアドレスを検索...",
+                "title": "購読者管理",
+                "user_associated": "関連ユーザーあり"
             },
             "tags": {
+                "create": "タグを新規作成",
+                "delete_confirm": "このタグを削除してもよろしいですか？",
+                "delete_confirm_title": "タグ削除の確認",
+                "delete_success": "タグを削除しました",
+                "save_success": "タグを保存しました",
+                "search_placeholder": "タグを検索...",
+                "sync_to_all_languages": "他言語版も同時に作成する",
                 "title": "タグ管理"
             }
         }

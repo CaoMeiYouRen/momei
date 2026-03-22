@@ -13,7 +13,7 @@ last_sync: 2026-03-22
 
 ## 1. 初回の公開範囲
 
-ja-JP は現在 `ui-ready` 段階で、正式 parity に向けた段階的補完を進めています。現時点では次の範囲を優先公開します。
+ja-JP は現在 `ui-ready` 段階です。`zh-CN` を基準にした locale parity 自体はすでに収束しましたが、`seo-ready` へ進むにはメール、SEO、サイトマップ、および専用の回帰検証がまだ必要です。現時点では次の範囲を優先公開します。
 
 - README
 - ドキュメントホーム
@@ -52,4 +52,4 @@ node scripts/i18n/audit-locale-keys.mjs --fail-on-missing
 pnpm i18n:check-sync -- --locale=ja-JP
 ```
 
-現在の `ja-JP` はまだ補完中のため、`--fail-on-diff` は全量 parity を解消するまで常設の提出ゲートにはしません。必要に応じて関連する定向テストも追加してください。
+現在の `ja-JP` は `zh-CN` との全量 parity を達成しているため、`pnpm i18n:check-sync -- --locale=ja-JP` は不足キーの追跡だけでなく、ja-JP 関連変更の定向ガードとしても使えます。ただし `Locale Registry` を `seo-ready` へ昇格させるには、別途メール、SEO、サイトマップ、および回帰検証を完了する必要があります。
