@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-19
+last_sync: 2026-03-22
 ---
 
 # Momei - Project Roadmap
@@ -347,15 +347,59 @@ This document outlines the development blueprint for the project. For specific t
 - **Stage 15** closed AI governance authority order, validation matrices, periodic regression templates, docs i18n directory migration, and the first `ja-JP` `ui-ready` rollout.
 - During the Stage 15 audit, the repository also removed a stale `.claude/skills/git-flow-manager` mirror directory and extended `pnpm ai:check` to detect extra mirror files or directories.
 
-### Stage 16: Governance Fact-Source Consolidation & Focused Regression Hardening (Planned)
+### Stage 16: Governance Fact-Source Consolidation & Focused Regression Hardening (Audited & Archived)
 
-> [!NOTE]
-> This stage is summarized only. The Chinese roadmap remains the authoritative planning source.
+**Timeline**: ~1 - 1.5 months
+**Goal**: Close the remaining governance gaps around duplicated standards, loose Review Gate evidence, manual mirror maintenance, and narrow first-round regression coverage so the project can move from “rules written down” to “rules executable and reusable.”
 
-1. Consolidate standards into clear fact sources, trim repeated gates, and correct stale API/security/performance specs.
-2. Strengthen Review Gate outputs, multi-round review closure, and command selection rules by change type.
-3. Formalize internal vs external skills governance, lifecycle management, and fix `full-stack-master` PDTFC+ ambiguities.
-4. Run three dedicated regression tracks: code-quality / large-file cleanup, docs-config-database sync, and clean smoke-performance-security baselines.
+**Audit Conclusion**: Stage 16 fully closed standards fact-source convergence, Review Gate evidence hardening, skills / agents mirror governance, and three dedicated regression tracks across code quality, docs-config-database sync, and clean smoke-performance-security baselines. No Stage 16-specific leftovers remain outside the backlog.
+
+1. **Standards Fact-Source Convergence (P0)**:
+    - Reduced duplicated gates across standards and linked back to one authoritative source wherever possible.
+    - Rewrote stale API, security, and performance guidance to match the current request layer, auth boundaries, dependency governance, and performance-budget contracts.
+2. **Review Gate Closure & Evidence Automation (P0)**:
+    - Standardized review outputs around explicit failure reasons, pass conditions, severity levels, and recheck baselines.
+    - Unified command-selection rules for code, styles, Markdown, scripts, and governance changes.
+3. **Skills / Agents Governance (P0)**:
+    - Clarified internal vs external skill ownership, lifecycle, mirroring, and cleanup rules.
+    - Fixed `full-stack-master` PDTFC+ workflow ambiguities and kept `.github/` and `.claude/` mirrors aligned.
+4. **Code Quality & Structure Regression (P0)**:
+    - Ran a dedicated ESLint / type-debt / `max-lines` regression track instead of folding those issues into unrelated work.
+    - Cleaned script entry drift and documented long-lived script responsibilities.
+5. **Docs / Config / Database Baseline Sync (P0)**:
+    - Re-synced README, deployment docs, translation governance, environment-variable semantics, and database initialization contracts.
+    - Captured structured drift records between code, init scripts, and design docs.
+6. **Testing / Performance / Dependency-Security Baseline (P0)**:
+    - Rebuilt a cleaner smoke baseline, reran targeted coverage / browser / performance checks, and documented the remaining dependency-security boundary.
+
+### Stage 17: Configuration Fact-Source Reuse & Creative/Distribution Efficiency Consolidation (Audited & Archived)
+
+**Timeline**: ~1 - 1.5 months
+**Goal**: Reuse configuration fact sources across installation and admin settings, reduce auth-session request churn, close the admin email-template loop, harden long-text translation on Serverless platforms, and finish two expansion tracks around AI visual assets and historical asset-link migration.
+
+**Audit Conclusion**: Stage 17 fully closed configuration fact-source reuse, auth-session governance, admin email-template configuration, Serverless long-text translation continuation, and the two expansion tracks for AI visual assets and asset-link migration. Two late stage-closure fixes were also completed and documented: the release dependency-risk gate and the admin new-post blank-draft language-switch regression. No Stage 17-specific leftovers remain outside the backlog.
+
+1. **Installation / Admin Settings Locale-aware Convergence (P0)**:
+    - The installation wizard and admin settings now share one locale-aware settings model, fallback resolver, and metadata contract.
+    - Installation edits only the current locale while multilingual expansion continues in admin settings.
+2. **Auth Session Request Governance (P0)**:
+    - `/api/auth/get-session` call paths were audited across SSR, hydration, navigation, refocus, and remount scenarios.
+    - Short-lived caching, request coalescing, and invalidation/broadcast rules now reduce duplicate reads without weakening auth semantics.
+3. **Admin Email Template Configuration (P1)**:
+    - Admin now has a minimum viable email-template management loop with template selection, variable guidance, enable/disable controls, and preview.
+    - Template subject/body text stays inside the existing i18n system instead of spawning a second locale fact source.
+4. **Serverless Long-text Translation Continuation (P1)**:
+    - Long translations now converge on one rule: SSE in non-cloud-function environments, background task + polling in cloud-function environments.
+    - Partial chunk completion survives timeout/interruption and can continue without restarting from the beginning.
+5. **AI Visual Asset Convergence (P1)**:
+    - Cover prompting now converges on a five-dimension model: type, palette, rendering, text, and atmosphere.
+    - AI image generation expanded from covers to article illustrations and related visual scenarios under one shared contract.
+6. **Historical Asset-link Rewrite & Migration (P1)**:
+    - Historical resource links now support batch rewrite, domain filtering, dry-run previews, diff export, and guarded apply flow.
+    - The migration tool stays aligned with the existing storage, base-URL, prefix, and permission model.
+7. **Stage-closure Fixes (P0)**:
+    - Release now runs a reproducible dependency-risk gate with an allowlist-based temporary exception baseline for known unresolved high risks.
+    - The admin post editor now allows switching an untouched blank new draft to another language while still protecting drafts that already contain real input.
 
 ## 3. Backlog & Long-term Roadmap
 
