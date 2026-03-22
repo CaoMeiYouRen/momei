@@ -1,8 +1,64 @@
 {
     "pages": {
         "admin": {
+            "ad": {
+                "campaigns": {
+                    "title": "広告キャンペーン"
+                },
+                "placements": {
+                    "title": "広告枠管理"
+                },
+                "title": "収益化管理"
+            },
+            "ai": {
+                "title": "AI タスクと統計"
+            },
+            "categories": {
+                "title": "カテゴリ管理"
+            },
+            "comments": {
+                "title": "コメント管理"
+            },
+            "external_links": {
+                "title": "外部リンク管理"
+            },
+            "friend_links": {
+                "title": "相互リンク管理"
+            },
             "link_governance": {
                 "title": "移行リンクガバナンス"
+            },
+            "marketing": {
+                "title": "マーケティングセンター"
+            },
+            "notifications": {
+                "title": "通知管理"
+            },
+            "posts": {
+                "title": "記事管理"
+            },
+            "settings": {
+                "system": {
+                    "title": "システム設定"
+                },
+                "theme": {
+                    "title": "テーマカスタマイズ"
+                }
+            },
+            "snippets": {
+                "title": "着想インボックス"
+            },
+            "submissions": {
+                "title": "投稿審査"
+            },
+            "subscribers": {
+                "title": "購読者管理"
+            },
+            "tags": {
+                "title": "タグ管理"
+            },
+            "users": {
+                "title": "ユーザー管理"
             }
         }
     }

@@ -1,5 +1,9 @@
 {
     "pages": {
-        "admin": {}
+        "admin": {
+            "external_links": {
+                "title": "外部リンク管理"
+            }
+        }
     }
 }

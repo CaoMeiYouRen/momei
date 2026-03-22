@@ -1,5 +1,9 @@
 {
     "pages": {
-        "admin": {}
+        "admin": {
+            "ai": {
+                "title": "AI タスクと統計"
+            }
+        }
     }
 }

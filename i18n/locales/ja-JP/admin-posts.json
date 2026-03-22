@@ -2,6 +2,7 @@
     "pages": {
         "admin": {
             "posts": {
+                "title": "記事管理",
                 "ai": {
                     "article_illustration_hint": "記事挿絵は確認後に本文へ挿入され、視覚アセットのメタデータにも記録されます。",
                     "cover_generator": {

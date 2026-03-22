@@ -1,5 +1,18 @@
 {
     "pages": {
-        "admin": {}
+        "admin": {
+            "categories": {
+                "title": "カテゴリ管理"
+            },
+            "comments": {
+                "title": "コメント管理"
+            },
+            "subscribers": {
+                "title": "購読者管理"
+            },
+            "tags": {
+                "title": "タグ管理"
+            }
+        }
     }
 }

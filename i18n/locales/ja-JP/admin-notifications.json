@@ -1,5 +1,12 @@
 {
     "pages": {
-        "admin": {}
+        "admin": {
+            "notifications": {
+                "description": "サイト内通知、SSE、ブラウザプッシュ、メール通知の配信結果をまとめて確認し、どの通知が配信済み・失敗・スキップになったかを追跡します。",
+                "go_to_marketing": "マーケティングセンターへ",
+                "overview_title": "通知配信監査",
+                "title": "通知管理"
+            }
+        }
     }
 }

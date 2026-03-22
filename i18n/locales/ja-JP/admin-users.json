@@ -1,5 +1,9 @@
 {
     "pages": {
-        "admin": {}
+        "admin": {
+            "users": {
+                "title": "ユーザー管理"
+            }
+        }
     }
 }

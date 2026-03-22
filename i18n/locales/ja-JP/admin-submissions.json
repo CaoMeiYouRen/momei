@@ -1,5 +1,9 @@
 {
     "pages": {
-        "admin": {}
+        "admin": {
+            "submissions": {
+                "title": "投稿審査"
+            }
+        }
     }
 }

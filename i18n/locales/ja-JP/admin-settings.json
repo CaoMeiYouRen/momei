@@ -1,5 +1,19 @@
 {
     "pages": {
-        "admin": {}
+        "admin": {
+            "settings": {
+                "system": {
+                    "source_badges": {
+                        "db": "DB",
+                        "default": "DEFAULT",
+                        "env": "ENV"
+                    },
+                    "title": "システム設定"
+                },
+                "theme": {
+                    "title": "テーマカスタマイズ"
+                }
+            }
+        }
     }
 }

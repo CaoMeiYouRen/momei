@@ -1,5 +1,9 @@
 {
     "pages": {
-        "admin": {}
+        "admin": {
+            "friend_links": {
+                "title": "相互リンク管理"
+            }
+        }
     }
 }

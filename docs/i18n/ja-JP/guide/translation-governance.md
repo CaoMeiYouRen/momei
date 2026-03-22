@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-19
+last_sync: 2026-03-22
 ---
 
 # 翻訳ガバナンスと貢献方針
@@ -44,4 +44,11 @@ pnpm lint
 pnpm typecheck
 ```
 
-必要に応じて i18n 監査や定向测试を追加してください。
+`ja-JP` の正式 parity を進める変更では、追加で以下を実行して不足キーを追跡します。
+
+```bash
+node scripts/i18n/audit-locale-keys.mjs --fail-on-missing
+pnpm i18n:check-sync -- --locale=ja-JP
+```
+
+現在の `ja-JP` はまだ補完中のため、`--fail-on-diff` は全量 parity を解消するまで常設の提出ゲートにはしません。必要に応じて関連する定向テストも追加してください。

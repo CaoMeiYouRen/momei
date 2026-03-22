@@ -1,5 +1,15 @@
 {
     "pages": {
-        "admin": {}
+        "admin": {
+            "ad": {
+                "campaigns": {
+                    "title": "広告キャンペーン"
+                },
+                "placements": {
+                    "title": "広告枠管理"
+                },
+                "title": "収益化管理"
+            }
+        }
     }
 }

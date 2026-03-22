@@ -1,5 +1,9 @@
 {
     "pages": {
-        "admin": {}
+        "admin": {
+            "marketing": {
+                "title": "マーケティングセンター"
+            }
+        }
     }
 }

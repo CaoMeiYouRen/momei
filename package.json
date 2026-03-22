@@ -13,6 +13,7 @@
     "web-push:generate-vapid": "node scripts/setup/generate-web-push-vapid.mjs",
     "ai:check": "node scripts/ai/check-governance.mjs",
     "i18n:audit": "node scripts/i18n/audit-locale-keys.mjs",
+    "i18n:check-sync": "node scripts/i18n/check-locale-parity.mjs",
     "lint": "cross-env NODE_ENV=production eslint . --fix --max-warnings 10 && pnpm -r --filter \"./packages/*\" lint",
     "lint:css": "stylelint ./**/*.{html,css,scss,sass,vue} --fix",
     "lint:md": "lint-md *.md docs/**/*.md .github/**/*.md --fix",

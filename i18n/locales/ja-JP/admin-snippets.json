@@ -1,5 +1,9 @@
 {
     "pages": {
-        "admin": {}
+        "admin": {
+            "snippets": {
+                "title": "着想インボックス"
+            }
+        }
     }
 }
