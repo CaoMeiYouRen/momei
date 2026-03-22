@@ -11,14 +11,17 @@ describe('server/utils/sitemap', () => {
             'https://momei.app',
         )
 
-        expect(entries).toHaveLength(4)
+        expect(entries).toHaveLength(6)
         expect(entries[0]?.loc).toBe('https://momei.app/')
         expect(entries[1]?.loc).toBe('https://momei.app/en-US/')
-        expect(entries[2]?.loc).toBe('https://momei.app/archives')
-        expect(entries[3]?.loc).toBe('https://momei.app/en-US/archives')
+        expect(entries[2]?.loc).toBe('https://momei.app/ja-JP/')
+        expect(entries[3]?.loc).toBe('https://momei.app/archives')
+        expect(entries[4]?.loc).toBe('https://momei.app/en-US/archives')
+        expect(entries[5]?.loc).toBe('https://momei.app/ja-JP/archives')
         expect(entries[0]?.alternatives).toEqual([
             { hreflang: 'zh-CN', href: 'https://momei.app/' },
             { hreflang: 'en-US', href: 'https://momei.app/en-US/' },
+            { hreflang: 'ja-JP', href: 'https://momei.app/ja-JP/' },
         ])
     })
 
@@ -41,22 +44,31 @@ describe('server/utils/sitemap', () => {
                 },
                 {
                     id: '3',
+                    slug: 'nuxt-seo',
+                    language: 'ja-JP',
+                    translationId: 'post-1',
+                    updatedAt: new Date('2026-03-10T00:00:00.000Z'),
+                },
+                {
+                    id: '4',
                     slug: 'seo-fr',
                     language: 'fr-FR',
                     translationId: 'post-1',
-                    updatedAt: new Date('2026-03-10T00:00:00.000Z'),
+                    updatedAt: new Date('2026-03-11T00:00:00.000Z'),
                 },
             ],
             'https://momei.app',
             (item) => `/posts/${item.slug}`,
         )
 
-        expect(entries).toHaveLength(2)
+        expect(entries).toHaveLength(3)
         expect(entries[0]?.loc).toBe('https://momei.app/posts/nuxt-seo')
         expect(entries[1]?.loc).toBe('https://momei.app/en-US/posts/nuxt-seo')
+        expect(entries[2]?.loc).toBe('https://momei.app/ja-JP/posts/nuxt-seo')
         expect(entries[0]?.alternatives).toEqual([
             { hreflang: 'zh-CN', href: 'https://momei.app/posts/nuxt-seo' },
             { hreflang: 'en-US', href: 'https://momei.app/en-US/posts/nuxt-seo' },
+            { hreflang: 'ja-JP', href: 'https://momei.app/ja-JP/posts/nuxt-seo' },
         ])
     })
 

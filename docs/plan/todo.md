@@ -19,7 +19,7 @@
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
 当前进行中事项：
-- `ja-JP` 正式对齐治理：已完成 `zh-CN` 基准全量 parity 收口，后台剩余 `admin-snippets` / `admin-users` / `admin-submissions` / `admin-taxonomy` 与 `demo` / `feed` 已补齐；当前转入 locale registry readiness 评估，暂不直接从 `ui-ready` 升格，因为 `seo-ready` 所需的邮件、SEO、站点地图与专项回归链路尚未单独验证。
+- Firefox / WebKit / 移动端关键链路验证与性能预算基线深化。
 
 ## 第十八阶段：验证基线深化与国际化维护能力收敛
 
@@ -50,11 +50,12 @@
 
 ### 4. 主线：`ja-JP` 正式对齐治理 (P1)
 
-- [ ] **完成 `ja-JP` 正式对齐，并评估从 `ui-ready` 升格的条件**
+- [x] **完成 `ja-JP` 正式对齐，并评估从 `ui-ready` 升格的条件**
 	- 验收: 补齐 `ja-JP` 与 `en-US` / `zh-TW` / `ko-KR` 在核心 i18n 字段、后台 locale 模块、邮件模板文案与初始化字段审计上的 parity 对齐。
 	- 验收: 文档侧至少同步 README 镜像、`docs/i18n/ja-JP/**`、翻译治理说明与文档规范中的语言阶段描述，不再沿用“仅首轮覆盖”的历史口径。
 	- 验收: 若实施过程中需要提升 locale registry、文档导航或审计脚本门禁，应同步补齐必要验证与说明，避免其他语种继续沿用旧分级假设。
-	- 进展: 已新增 `scripts/i18n/check-locale-parity.mjs` 与 `pnpm i18n:check-sync`，统一以 `zh-CN` 为基准输出各 locale / module 的缺失字段与多余字段；本轮继续补齐 `admin-snippets`、`admin-users`、`admin-submissions`、`admin-taxonomy` 以及 `demo`、`feed`，当前 `pnpm i18n:check-sync -- --locale=ja-JP` 已返回 `ja-JP: parity with zh-CN`。基于现有治理规则，`ja-JP` 内容层已达到全量 parity，但 locale registry 若要从 `ui-ready` 升格，仍需单独补齐邮件、SEO、站点地图与相应回归链路验证，因此本轮只完成评估、不直接改 registry。
+	- 结果: 已新增 `scripts/i18n/check-locale-parity.mjs` 与 `pnpm i18n:check-sync`，统一以 `zh-CN` 为基准输出各 locale / module 的缺失字段与多余字段；本轮补齐 `admin-snippets`、`admin-users`、`admin-submissions`、`admin-taxonomy` 以及 `demo`、`feed` 后，`pnpm i18n:check-sync -- --locale=ja-JP` 已返回 `ja-JP: parity with zh-CN`。
+	- 验证: locale registry 已将 `ja-JP` 升格为 `seo-ready`，并同步开启 `indexable`、`sitemapEnabled` 与 `feedEnabled`；`pnpm vitest run i18n/config/locale-registry.test.ts server/utils/sitemap.test.ts server/services/email-template.integration.test.ts server/utils/email/locale.test.ts` 通过，覆盖了 registry、sitemap 与邮件模板运行时 locale 链路；`tests/e2e/seo-regression.e2e.test.ts` 已补入 `ja-JP` 首页与静态页断言，作为后续浏览器回归入口。
 
 ### 5. 插队修复：WechatSync 微博同步兼容与同步前预检收口 (P1)
 

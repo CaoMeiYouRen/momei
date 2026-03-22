@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 
-async function setLocaleCookie(page: Page, locale: 'zh-CN' | 'en-US') {
+async function setLocaleCookie(page: Page, locale: 'zh-CN' | 'en-US' | 'ja-JP') {
     await page.context().addCookies([
         {
             name: 'i18n_redirected',
@@ -60,6 +60,12 @@ async function expectLocaleMeta(page: Page, locale: string, ogLocale: string) {
     await expect.poll(async () => page.locator('meta[name="description"]').getAttribute('content')).not.toBeNull()
 }
 
+async function expectOgAlternateLocales(page: Page, expectedLocales: string[]) {
+    await expect.poll(async () => page.locator('meta[property="og:locale:alternate"]').evaluateAll((nodes) => nodes
+        .map((node) => node.getAttribute('content') || '')
+        .filter(Boolean))).toEqual(expectedLocales)
+}
+
 test.describe('SEO Regression', () => {
     test('should render multilingual head tags for homepage', async ({ page }) => {
         await setLocaleCookie(page, 'zh-CN')
@@ -69,7 +75,9 @@ test.describe('SEO Regression', () => {
         await expectCanonicalPath(page, '/')
         await expectAlternatePath(page, 'zh-CN', '/')
         await expectAlternatePath(page, 'en-US', '/en-US')
+        await expectAlternatePath(page, 'ja-JP', '/ja-JP')
         await expectLocaleMeta(page, 'zh-CN', 'zh_CN')
+        await expectOgAlternateLocales(page, ['en_US', 'ja_JP'])
         await expectStructuredLanguage(page, 'zh-CN')
     })
 
@@ -81,7 +89,22 @@ test.describe('SEO Regression', () => {
         await expectCanonicalPath(page, '/en-US/about')
         await expectAlternatePath(page, 'zh-CN', '/about')
         await expectAlternatePath(page, 'en-US', '/en-US/about')
+        await expectAlternatePath(page, 'ja-JP', '/ja-JP/about')
         await expectLocaleMeta(page, 'en-US', 'en_US')
+        await expectOgAlternateLocales(page, ['zh_CN', 'ja_JP'])
+    })
+
+    test('should render multilingual head tags for japanese static pages', async ({ page }) => {
+        await setLocaleCookie(page, 'ja-JP')
+        await page.goto('/ja-JP/about')
+        await page.waitForLoadState('domcontentloaded')
+
+        await expectCanonicalPath(page, '/ja-JP/about')
+        await expectAlternatePath(page, 'zh-CN', '/about')
+        await expectAlternatePath(page, 'en-US', '/en-US/about')
+        await expectAlternatePath(page, 'ja-JP', '/ja-JP/about')
+        await expectLocaleMeta(page, 'ja-JP', 'ja_JP')
+        await expectOgAlternateLocales(page, ['en_US', 'zh_CN'])
     })
 
     test('should render article seo metadata on post detail pages', async ({ page }) => {

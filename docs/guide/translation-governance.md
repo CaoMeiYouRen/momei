@@ -106,6 +106,7 @@ pnpm i18n:check-sync -- --locale=<target-locale>
 ```
 
 当前 `ja-JP` 已完成与 `zh-CN` 的全量 locale parity，`pnpm i18n:check-sync -- --locale=ja-JP` 不再只是缺口追踪工具，也可作为 `ja-JP` 相关变更的定向对齐校验。若要继续把 `Locale Registry` 从 `ui-ready` 升格到 `seo-ready`，仍需额外补齐邮件、SEO、站点地图与专项回归链路验证；仅有内容 parity 还不足以直接升格。
+本轮专项已为 `ja-JP` 补齐上述验证链路，并完成 locale registry 升格；后续对 `ja-JP` 的变更仍需维持邮件、SEO、站点地图与专项回归的一致性，不得回退为“只有 parity、没有发布证据”的状态。
 
 如本轮涉及邮件或关键业务链路，建议额外执行对应定向测试。
 

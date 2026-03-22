@@ -40,13 +40,16 @@ describe('i18n locale registry', () => {
         expect(isSeoReadyLocale('en-US')).toBe(true)
         expect(isSeoReadyLocale('zh-TW')).toBe(false)
         expect(isSeoReadyLocale('ko-KR')).toBe(false)
-        expect(isSeoReadyLocale('ja-JP')).toBe(false)
+        expect(isSeoReadyLocale('ja-JP')).toBe(true)
         expect(isSeoReadyLocale('fr-FR')).toBe(false)
     })
 
     it('should expose locale metadata', () => {
         expect(isAppLocale('zh-CN')).toBe(true)
         expect(getLocaleRegistryItem('en-US').ogLocale).toBe('en_US')
+        expect(getLocaleRegistryItem('zh-CN').ogAlternateLocales).toEqual(['en_US', 'ja_JP'])
+        expect(getLocaleRegistryItem('en-US').ogAlternateLocales).toEqual(['zh_CN', 'ja_JP'])
+        expect(getLocaleRegistryItem('ja-JP').ogAlternateLocales).toEqual(['en_US', 'zh_CN'])
         expect(getLocaleRegistryItem('zh-TW').nativeName).toBe('繁體中文')
         expect(getLocaleRegistryItem('ko-KR').nativeName).toBe('한국어')
         expect(getLocaleRegistryItem('ja-JP').nativeName).toBe('日本語')
