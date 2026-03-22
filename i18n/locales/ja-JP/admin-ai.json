@@ -2,7 +2,119 @@
     "pages": {
         "admin": {
             "ai": {
-                "title": "AI タスクと統計"
+                "actual_cost": "実際コスト",
+                "alerts": {
+                    "details": {
+                        "cost_usage": "使用済み {used} / 上限 {limit}",
+                        "failure_burst": "ウィンドウ閾値 {limit}、集計範囲 {window} 分",
+                        "quota_usage": "使用済み {used} / 上限 {limit}"
+                    },
+                    "messages": {
+                        "cost_usage": "{name} は {period}{scope}コスト上限の {percent} に到達しました",
+                        "failure_burst": "{name} は直近 {window} 分で {count} 件の失敗タスクが発生しました",
+                        "quota_usage": "{name} は {period}{scope}クォータ上限の {percent} に到達しました"
+                    },
+                    "periods": {
+                        "day": "日",
+                        "month": "月",
+                        "rolling": "ローリングウィンドウ"
+                    },
+                    "severity": {
+                        "critical": "重大",
+                        "info": "情報",
+                        "warning": "警告"
+                    },
+                    "title": "ガバナンス警告"
+                },
+                "all_scope": "全機能",
+                "audio_duration": "音声長",
+                "audio_preview": "音声プレビュー",
+                "audio_size": "音声サイズ",
+                "category": "タスク分類",
+                "charge_status": "課金状態",
+                "charge_statuses": {
+                    "actual": "実測で課金",
+                    "estimated": "見積で課金",
+                    "none": "未課金",
+                    "waived": "免除済み"
+                },
+                "chart_category": "カテゴリ別クォータ分布",
+                "chart_charge_status": "課金状態分布",
+                "chart_failure_stage": "失敗段階分布",
+                "chart_status": "タスク状態分布",
+                "delete_confirm": "選択した AI 記録を削除してもよろしいですか？この操作は元に戻せません。",
+                "duration_ms": "実行時間",
+                "error": "失敗理由",
+                "estimated_cost": "見積コスト",
+                "estimated_quota_units": "見積クォータ",
+                "failure_stage": "失敗段階",
+                "failure_stages": {
+                    "post_process": "後処理失敗",
+                    "preflight": "事前検証失敗",
+                    "provider_processing": "プロバイダー処理中に失敗",
+                    "provider_rejected": "プロバイダー拒否"
+                },
+                "feedback": {
+                    "delete_task_failed": "AI タスクの削除に失敗しました",
+                    "delete_task_success": "AI タスクを削除しました",
+                    "delete_tasks_failed": "AI タスクの一括削除に失敗しました",
+                    "delete_tasks_success": "AI タスクを一括削除しました",
+                    "load_stats_failed": "AI 統計の読み込みに失敗しました",
+                    "load_tasks_failed": "AI タスクの読み込みに失敗しました"
+                },
+                "images": "画像",
+                "language": "認識言語",
+                "model": "モデル",
+                "no_stats": "統計データはまだありません",
+                "prompt": "パラメータ / プロンプト",
+                "provider": "プロバイダー",
+                "quota_units": "クォータ単位",
+                "result": "結果データ",
+                "stats": "利用統計",
+                "status": "状態",
+                "statuses": {
+                    "completed": "完了",
+                    "failed": "失敗",
+                    "pending": "待機中",
+                    "processing": "処理中"
+                },
+                "success_rate": "成功率",
+                "task_detail": {
+                    "back_to_previous": "前のページへ戻る",
+                    "copy_task_id": "タスク ID をコピー",
+                    "copy_task_id_success": "タスク ID をコピーしました",
+                    "page_title": "AI タスク {id}",
+                    "task_id": "タスク ID",
+                    "title": "AI タスク詳細"
+                },
+                "tasks": "タスク記録",
+                "text_length": "テキスト長",
+                "title": "AI タスクと統計",
+                "type": "タスク種別",
+                "types": {
+                    "asr": "音声認識",
+                    "async_transcription": "非同期音声認識",
+                    "expand_section": "章を拡張",
+                    "generate_scaffold": "執筆スキャフォールド生成",
+                    "image": "画像生成",
+                    "image_generation": "画像生成",
+                    "optimize_manuscript": "原稿最適化",
+                    "podcast": "AI ポッドキャスト",
+                    "recommend_tags": "タグ推薦",
+                    "refine_voice": "音声原稿の整形",
+                    "suggest_image_prompt": "画像プロンプト生成",
+                    "suggest_slug": "エイリアス生成",
+                    "suggest_titles": "タイトル生成",
+                    "summarize": "要約生成",
+                    "text": "テキスト生成",
+                    "text_generation": "テキスト生成",
+                    "transcription": "音声認識",
+                    "translate": "翻訳",
+                    "translate_name": "名称翻訳",
+                    "translate_name_batch": "名称一括翻訳",
+                    "tts": "音声合成"
+                },
+                "usage_snapshot": "利用量スナップショット"
             }
         }
     }

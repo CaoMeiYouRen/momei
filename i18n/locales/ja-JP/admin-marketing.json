@@ -2,7 +2,55 @@
     "pages": {
         "admin": {
             "marketing": {
-                "title": "マーケティングセンター"
+                "actions": {
+                    "send_failed": "配信開始に失敗しました",
+                    "send_now": "今すぐ送信",
+                    "send_success": "配信タスクを開始しました"
+                },
+                "campaign_list": "配信履歴",
+                "create_btn": "配信を作成",
+                "create_campaign": "マーケティング配信を作成",
+                "edit_campaign": "マーケティング配信を編集",
+                "form": {
+                    "categories": "対象カテゴリ",
+                    "content": "配信内容",
+                    "placeholder_content": "Markdown / HTML コンテンツを入力...",
+                    "placeholder_title": "メールタイトルを入力してください",
+                    "scheduled_at": "送信予定時刻",
+                    "scheduled_at_help": "送信予定時刻を設定すると、その時刻に達した後で自動送信されます。空欄の場合は下書き保存または手動送信になります。",
+                    "scheduled_at_placeholder": "定時送信時刻を選択",
+                    "send_test": "テストメールを送信",
+                    "send_test_success": "テストメールをあなたのメールアドレスへ送信しました",
+                    "tags": "対象タグ",
+                    "target_all": "全購読者",
+                    "target_criteria": "条件指定配信 (カテゴリ / タグ)",
+                    "targets": "対象セレクター",
+                    "title": "配信タイトル",
+                    "type": "配信種別",
+                    "type_placeholder": "配信種別を選択してください"
+                },
+                "stats": {
+                    "delivered": "到達数",
+                    "marketing_enabled": "マーケティング配信可能人数",
+                    "total_campaigns": "累計配信数",
+                    "total_subscribers": "総購読者数"
+                },
+                "status": {
+                    "completed": "完了",
+                    "draft": "下書き",
+                    "failed": "送信失敗",
+                    "scheduled": "予定済み",
+                    "sending": "送信中"
+                },
+                "title": "マーケティングセンター",
+                "type": {
+                    "blog_post": "ブログ公開",
+                    "feature": "機能紹介",
+                    "maintenance": "メンテナンス",
+                    "promotion": "キャンペーン告知",
+                    "service": "サービス変更",
+                    "update": "バージョン更新"
+                }
             }
         }
     }

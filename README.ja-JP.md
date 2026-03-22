@@ -126,13 +126,15 @@
 
 詳細な開発・設計文書は [**墨梅ブログドキュメントサイト**](https://docs.momei.app/ja-JP/) を参照してください。
 
+現在の `ja-JP` ドキュメントは段階的同期を採用しており、README、クイックスタート、デプロイ、翻訳ガバナンス、ロードマップ要約を優先公開しています。未同期ページや詳細設計は中国語原文を優先してください。
+
 主なセクション:
 
 -   [**クイックスタート**](https://docs.momei.app/ja-JP/guide/quick-start) - ワンクリック展開と起動
+-   [**デプロイガイド**](https://docs.momei.app/ja-JP/guide/deploy) - コア変数、推奨デプロイ先、Cloudflare 周辺能力の境界
 -   [**翻訳ガバナンス**](https://docs.momei.app/ja-JP/guide/translation-governance) - ja-JP の公開範囲と未翻訳ページの扱い
 -   [**ロードマップ要約**](https://docs.momei.app/ja-JP/plan/roadmap) - 日本語で公開中の進捗サマリー
 -   [**比較ガイド（中国語原文）**](https://docs.momei.app/guide/comparison) - なぜ墨梅を選ぶのか？
--   [**デプロイガイド（日本語）**](https://docs.momei.app/ja-JP/guide/deploy) - Vercel / Docker / プライベートサーバー
 -   [**環境とシステム設定（中国語原文）**](https://docs.momei.app/guide/variables) - 環境変数、設定センターマッピング、ロック戦略
 -   [**開発ガイド（中国語原文）**](https://docs.momei.app/guide/development) - 環境構築と貢献
 -   [**API 設計（中国語原文）**](https://docs.momei.app/design/api) - インターフェース規範と定義
@@ -149,7 +151,7 @@
 
 Vercel、Netlify、Docker、または自己ホスト Node 環境へのデプロイを推奨します。Cloudflare 連携が必要な場合、現時点では R2 オブジェクトストレージや Scheduled Events などの周辺機能に限定して使うのが安全です。TypeORM と Node ランタイム依存のため、現在のバージョンはアプリ本体を Cloudflare Pages / Workers に完全配置することをサポートしていません。
 
-現在のバージョンのデプロイ設定は環境変数が中心です。まず [デプロイガイド](https://docs.momei.app/ja-JP/guide/deploy) と [環境とシステム設定（中国語原文）](https://docs.momei.app/guide/variables) を読み、コア変数を整えたうえで、必要に応じて AI、オブジェクトストレージ、ASR、Webhook 定期タスクなどの拡張機能を有効化してください。
+現在のバージョンのデプロイ設定は環境変数が中心です。まず [デプロイガイド](https://docs.momei.app/ja-JP/guide/deploy) と [環境とシステム設定（中国語原文）](https://docs.momei.app/guide/variables) を読み、`AUTH_SECRET`、公開 URL、`DATABASE_URL` などのコア変数を整えたうえで、必要に応じて AI、オブジェクトストレージ、ASR、Webhook 定期タスクなどの拡張機能を有効化してください。
 
 下のボタンから Vercel にワンクリックでデプロイできます。
 
