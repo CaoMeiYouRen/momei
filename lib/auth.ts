@@ -42,7 +42,7 @@ import logger from '@/server/utils/logger'
 import { markAgreementConsentForLocale } from '@/server/services/agreement'
 import { getTempEmail, getTempName } from '@/server/utils/auth-generators'
 import { emailService } from '@/server/utils/email/service'
-import { resolveEmailLocale } from '@/server/utils/email/locale'
+import { resolvePreferredEmailLocale } from '@/server/utils/email/locale'
 import {
     AUTH_PLUGIN_DEFAULT_LOCALE,
     AUTH_PLUGIN_FALLBACK_LOCALE,
@@ -50,6 +50,19 @@ import {
     type BetterAuthPluginLocale,
     getAuthLocaleFromRequest,
 } from '@/server/utils/locale'
+
+function getAuthUserLanguage(user: unknown): string | undefined {
+    const language = (user as { language?: unknown } | null)?.language
+    return typeof language === 'string' && language.trim().length > 0 ? language : undefined
+}
+
+function getLocaleFromEndpointContext(ctx?: { request?: Request | undefined }): string | undefined {
+    try {
+        return ctx?.request ? getAuthLocaleFromRequest(ctx.request) : undefined
+    } catch {
+        return undefined
+    }
+}
 
 function toBetterAuthPluginLocale(locale?: AuthBoundaryLocale): BetterAuthPluginLocale {
     if (!locale || locale === 'en-US') {
@@ -209,9 +222,9 @@ export const auth = betterAuth({
         maxPasswordLength: 64,
         requireEmailVerification: EMAIL_REQUIRE_VERIFICATION, // 是否要求邮箱验证。若启用，则用户必须在登录前验证他们的邮箱。仅在使用邮箱密码登录时生效。
         sendResetPassword: async ({ user, url }) => {
-            const locale = await resolveEmailLocale({
+            const locale = await resolvePreferredEmailLocale({
                 email: user.email,
-                language: user.language,
+                language: getAuthUserLanguage(user),
             })
             await emailService.sendPasswordResetEmail(user.email, url, locale)
         },
@@ -221,9 +234,9 @@ export const auth = betterAuth({
         autoSignInAfterVerification: true, // 验证后自动登录
         // 发送验证邮件
         sendVerificationEmail: async ({ user, url }) => {
-            const locale = await resolveEmailLocale({
+            const locale = await resolvePreferredEmailLocale({
                 email: user.email,
-                language: user.language,
+                language: getAuthUserLanguage(user),
             })
             await emailService.sendVerificationEmail(user.email, url, locale)
         },
@@ -251,9 +264,9 @@ export const auth = betterAuth({
             enabled: true, // 启用更改邮箱功能
             // 发送更改邮箱验证邮件
             sendChangeEmailVerification: async ({ user, newEmail, url }) => {
-                const locale = await resolveEmailLocale({
+                const locale = await resolvePreferredEmailLocale({
                     email: user.email,
-                    language: user.language,
+                    language: getAuthUserLanguage(user),
                 })
                 await emailService.sendEmailChangeVerification(
                     user.email,
@@ -311,8 +324,11 @@ export const auth = betterAuth({
             expiresIn: EMAIL_EXPIRES_IN, // 链接有效期（秒）
             disableSignUp: false, // 当用户未注册时是否阻止自动注册
             // 支持一次性链接登录
-            sendMagicLink: async ({ email, url }) => {
-                const locale = await resolveEmailLocale({ email })
+            sendMagicLink: async ({ email, url }, ctx) => {
+                const locale = await resolvePreferredEmailLocale({
+                    email,
+                    language: getLocaleFromEndpointContext(ctx),
+                })
                 await emailService.sendMagicLink(email, url, locale)
             },
         }),
@@ -323,9 +339,12 @@ export const auth = betterAuth({
             allowedAttempts: 3, // 允许的 OTP 验证尝试次数
             sendVerificationOnSignUp: false, // 用户注册时是否发送 OTP。因为已经发送验证邮件，所以不需要再发送 OTP。
             // 支持电子邮件 OTP 登录
-            async sendVerificationOTP({ email, otp, type }) {
+            async sendVerificationOTP({ email, otp, type }, ctx) {
                 const expiresInMinutes = Math.floor(EMAIL_EXPIRES_IN / 60)
-                const locale = await resolveEmailLocale({ email })
+                const locale = await resolvePreferredEmailLocale({
+                    email,
+                    language: getLocaleFromEndpointContext(ctx),
+                })
 
                 if (type === 'sign-in') {
                     // 发送登录用的OTP

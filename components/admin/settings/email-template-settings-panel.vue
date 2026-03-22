@@ -21,19 +21,6 @@
                     fluid
                 />
             </SettingFormField>
-
-            <SettingFormField
-                :label="t('pages.admin.settings.system.email_templates.preview_locale_label')"
-                :description="t('pages.admin.settings.system.email_templates.preview_locale_hint')"
-            >
-                <Select
-                    v-model="previewLocale"
-                    :options="localeOptions"
-                    option-label="label"
-                    option-value="value"
-                    fluid
-                />
-            </SettingFormField>
         </div>
 
         <Message
@@ -91,6 +78,22 @@
         </div>
 
         <div class="email-template-settings-panel__preview-actions">
+            <div class="email-template-settings-panel__preview-locale">
+                <span class="email-template-settings-panel__preview-locale-label">
+                    {{ t('pages.admin.settings.system.email_templates.preview_locale_label') }}
+                </span>
+                <Select
+                    v-model="previewLocale"
+                    :options="localeOptions"
+                    option-label="label"
+                    option-value="value"
+                    fluid
+                />
+                <small class="email-template-settings-panel__preview-locale-hint">
+                    {{ t('pages.admin.settings.system.email_templates.preview_locale_hint') }}
+                </small>
+            </div>
+
             <Button
                 icon="pi pi-eye"
                 :label="t('pages.admin.settings.system.email_templates.preview_action')"
@@ -350,7 +353,7 @@ async function loadPreview() {
 
     &__selectors {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: minmax(0, 1fr);
         gap: 1rem;
     }
 
@@ -394,8 +397,27 @@ async function loadPreview() {
 
     &__preview-actions {
         display: flex;
-        justify-content: flex-start;
+        align-items: flex-end;
+        gap: 1rem;
+        flex-wrap: wrap;
         margin-bottom: 1rem;
+    }
+
+    &__preview-locale {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        min-width: min(100%, 18rem);
+        flex: 0 1 20rem;
+    }
+
+    &__preview-locale-label {
+        font-weight: 600;
+    }
+
+    &__preview-locale-hint {
+        color: var(--p-text-muted-color);
+        line-height: 1.4;
     }
 
     &__preview {
@@ -489,13 +511,14 @@ async function loadPreview() {
 
 @media (width <= 768px) {
     .email-template-settings-panel {
-        &__selectors {
-            grid-template-columns: 1fr;
-        }
-
         &__preview-context,
         &__preview-sources {
             grid-template-columns: 1fr;
+        }
+
+        &__preview-locale {
+            min-width: 100%;
+            flex-basis: 100%;
         }
     }
 }

@@ -57,6 +57,15 @@ export interface EmailTemplatePreviewMeta {
     fieldSources: Partial<Record<EmailTemplateFieldId, EmailTemplatePreviewFieldSourceMeta>>
 }
 
+interface EmailTemplatePreviewSamples {
+    title: string
+    summary: string
+    action: string
+    details: string
+    authorName: string
+    categoryName: string
+}
+
 function getNestedValue<T = unknown>(obj: Record<string, any>, path: string): T | null {
     return path.split('.').reduce<any>((current, key) => current?.[key], obj) ?? null
 }
@@ -141,11 +150,12 @@ async function resolveTemplateVariableContext(locale?: string | null) {
         : ''
 
     const appName = localizedSiteTitleValue || siteNameValue || 'Momei'
-    const appNameSource: SettingSource = localizedSiteTitleValue
-        ? resolvedSiteTitle.source
-        : siteNameValue
-            ? resolvedSiteName.source
-            : 'default'
+    let appNameSource: SettingSource = 'default'
+    if (localizedSiteTitleValue) {
+        appNameSource = resolvedSiteTitle.source
+    } else if (siteNameValue) {
+        appNameSource = resolvedSiteName.source
+    }
 
     return {
         locale: requestedLocale,
@@ -164,20 +174,33 @@ async function resolveTemplateVariableContext(locale?: string | null) {
     }
 }
 
-function getStaticPreviewVariables(locale: AppLocaleCode) {
+async function loadPreviewSamples(locale: AppLocaleCode): Promise<EmailTemplatePreviewSamples> {
+    const messages = await loadEmailTemplateMessages(locale)
+    const samplePath = 'pages.admin.settings.system.email_templates.preview_samples'
+    const samples = getNestedValue<Partial<EmailTemplatePreviewSamples>>(messages, samplePath)
+
+    return {
+        title: samples?.title ?? 'Momei 版本更新',
+        summary: samples?.summary ?? '最新版本摘要、精选文章与升级建议。',
+        action: samples?.action ?? 'Chrome 浏览器登录',
+        details: samples?.details ?? 'IP: 192.168.1.10\n地区: 东京\n时间: 2026-03-21 10:24',
+        authorName: samples?.authorName ?? '草梅友仁',
+        categoryName: samples?.categoryName ?? '工程实践',
+    }
+}
+
+async function getStaticPreviewVariables(locale: AppLocaleCode) {
+    const samples = await loadPreviewSamples(locale)
+
     return {
         expiresIn: 10,
-        title: 'Momei 版本更新',
-        summary: locale === 'en-US'
-            ? 'Latest issue roundup, release notes and recommended articles.'
-            : '最新版本摘要、精选文章与升级建议。',
-        action: locale === 'en-US' ? 'Sign-in from Chrome' : 'Chrome 浏览器登录',
-        details: locale === 'en-US'
-            ? 'IP: 192.168.1.10\nLocation: Tokyo\nTime: 2026-03-21 10:24'
-            : 'IP: 192.168.1.10\n地区: 东京\n时间: 2026-03-21 10:24',
+        title: samples.title,
+        summary: samples.summary,
+        action: samples.action,
+        details: samples.details,
         actionUrl: 'https://momei.app/preview/email-template',
-        authorName: locale === 'en-US' ? 'Caomei Youren' : '草梅友仁',
-        categoryName: locale === 'en-US' ? 'Engineering' : '工程实践',
+        authorName: samples.authorName,
+        categoryName: samples.categoryName,
         publishDate: '2026-03-21 10:24',
     }
 }
@@ -272,8 +295,9 @@ export async function previewEmailTemplate(options: {
 }): Promise<EmailTemplatePreviewPayload> {
     const locale = resolveRequestedAppLocale(options.locale)
     const variableContext = await resolveTemplateVariableContext(locale)
+    const previewVariables = await getStaticPreviewVariables(locale)
     const params = {
-        ...getStaticPreviewVariables(locale),
+        ...previewVariables,
         appName: variableContext.appName.value,
         contactEmail: variableContext.contactEmail.value,
     }

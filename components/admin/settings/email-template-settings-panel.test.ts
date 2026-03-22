@@ -61,8 +61,14 @@ const translations: Record<string, string> = {
     'pages.admin.settings.system.source_badges.env': '环境变量生效',
 }
 
-function translate(key: string) {
-    return translations[key] || key
+function translate(key: string, params?: Record<string, string>) {
+    const template = translations[key] || key
+
+    if (!params) {
+        return template
+    }
+
+    return Object.entries(params).reduce((result, [paramKey, value]) => result.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), value), template)
 }
 
 const mockFetch = vi.fn().mockResolvedValue({
@@ -239,6 +245,7 @@ describe('EmailTemplateSettingsPanel', () => {
         expect(wrapper.text()).toContain('预览主题')
         expect(wrapper.text()).toContain('站点名称变量')
         expect(wrapper.text()).toContain('墨梅博客')
-        expect(wrapper.text()).toContain('回退自 en-US')
+        expect(wrapper.text()).toContain('回退自 English')
+        expect(wrapper.find('.email-template-settings-panel__preview-actions select').exists()).toBe(true)
     })
 })

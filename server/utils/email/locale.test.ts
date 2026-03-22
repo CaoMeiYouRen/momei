@@ -10,22 +10,48 @@ vi.mock('@/server/database', () => ({
 vi.mock('@/server/utils/logger', () => ({
     default: {
         warn: vi.fn(),
+        info: vi.fn(),
+        error: vi.fn(),
     },
 }))
 
+vi.mock('@/server/utils/i18n', () => ({
+    loadLocaleMessages: vi.fn().mockResolvedValue({
+        pages: {
+            admin: {
+                settings: {
+                    system: {
+                        email_templates: {
+                            runtime: {
+                                greeting: 'Hello,',
+                                help_text: 'Need help? Contact our support team',
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    }),
+}))
+
+import { loadEmailShellMessages, resolvePreferredEmailLocale } from './locale'
 import { dataSource } from '@/server/database'
-import { resolveEmailLocale } from './locale'
 
 describe('email locale utils', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        Object.defineProperty(dataSource, 'isInitialized', {
+            configurable: true,
+            value: true,
+            writable: true,
+        })
         vi.mocked(dataSource.getRepository).mockReturnValue({
             findOne: vi.fn().mockResolvedValue(null),
         } as never)
     })
 
     it('prefers explicit language input', async () => {
-        const locale = await resolveEmailLocale({
+        const locale = await resolvePreferredEmailLocale({
             email: 'test@example.com',
             language: 'ja-JP',
         })
@@ -41,7 +67,7 @@ describe('email locale utils', () => {
         })
         vi.mocked(dataSource.getRepository).mockReturnValue({ findOne } as never)
 
-        const locale = await resolveEmailLocale({
+        const locale = await resolvePreferredEmailLocale({
             email: 'test@example.com',
         })
 
@@ -52,12 +78,24 @@ describe('email locale utils', () => {
     })
 
     it('returns undefined when datasource is unavailable', async () => {
-        vi.mocked(dataSource).isInitialized = false
+        Object.defineProperty(dataSource, 'isInitialized', {
+            configurable: true,
+            value: false,
+            writable: true,
+        })
 
-        const locale = await resolveEmailLocale({
+        const locale = await resolvePreferredEmailLocale({
             email: 'test@example.com',
         })
 
         expect(locale).toBeUndefined()
+    })
+
+    it('loads localized shell messages for the selected locale', async () => {
+        const shell = await loadEmailShellMessages('en-US')
+
+        expect(shell.locale).toBe('en-US')
+        expect(shell.greeting).toBe('Hello,')
+        expect(shell.helpText).toBe('Need help? Contact our support team')
     })
 })

@@ -20,6 +20,32 @@
                         "preview_app_name": "앱 이름 변수",
                         "preview_source_fallback": "{locale}에서 fallback",
                         "preview_source_legacy": "legacy 값에서 fallback",
+                        "runtime": {
+                            "header_subtitle": "전문성 · 고성능 · 국제화 블로그 플랫폼",
+                            "greeting": "안녕하세요.",
+                            "help_text": "도움이 필요하신가요? 지원팀에 문의해 주세요",
+                            "contact_link_label": "문의하기",
+                            "privacy_policy_label": "개인정보 처리방침",
+                            "terms_label": "서비스 약관",
+                            "all_rights_reserved": "판권 소유.",
+                            "auto_footer_note": "이 메일은 시스템에서 자동 발송되었습니다. 직접 회신하지 마세요.",
+                            "code_footer_note": "이 메일은 인증 코드 발송을 위해 자동으로 전송되었습니다. 직접 회신하지 마세요.",
+                            "marketing_footer_note": "업데이트 구독 설정에 따라 이 메일을 받으셨습니다.",
+                            "verification_code_title": "인증 코드",
+                            "verification_code_expiry": "이 인증 코드는 {expiresIn}분 이내에 사용해 주세요",
+                            "cannot_click_button_title": "버튼을 클릭할 수 없나요?",
+                            "cannot_click_button_hint": "아래 링크를 브라우저 주소창에 붙여 넣어 주세요:",
+                            "important_reminder_title": "⚠️ 중요 안내:",
+                            "security_tip_title": "🛡️ 보안 안내"
+                        },
+                        "preview_samples": {
+                            "title": "Momei 릴리스 노트",
+                            "summary": "최신 릴리스 요약, 추천 글, 업그레이드 안내를 확인하세요.",
+                            "action": "Chrome 로그인 감지",
+                            "details": "IP: 192.168.1.10\n위치: 도쿄\n시간: 2026-03-21 10:24",
+                            "authorName": "초메이 유렌",
+                            "categoryName": "엔지니어링"
+                        },
                         "fields": {
                             "title": "제목",
                             "preheader": "프리헤더",

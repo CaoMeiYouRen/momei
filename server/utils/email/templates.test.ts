@@ -25,7 +25,7 @@ describe('email template engine', () => {
             getItem: vi.fn().mockResolvedValue(null),
         }))
 
-        vi.mocked(getLocalizedSetting).mockImplementation(async (_key: string, locale?: string | null) => ({
+        vi.mocked(getLocalizedSetting).mockImplementation((_key: string, locale?: string | null) => Promise.resolve({
             key: 'site_title',
             value: locale === 'en-US' ? 'Momei Blog' : '墨梅博客',
             requestedLocale: locale === 'en-US' ? 'en-US' : 'zh-CN',
@@ -35,25 +35,30 @@ describe('email template engine', () => {
             usedLegacyValue: false,
         }))
 
-        vi.mocked(resolveSetting).mockImplementation(async (key: string) => ({
-            key,
-            value: key === 'site_url'
-                ? 'https://momei.app'
-                : key === 'contact_email'
-                    ? 'contact@momei.app'
-                    : 'Momei',
-            description: '',
-            level: 0,
-            maskType: key === 'contact_email' ? 'email' : 'none',
-            source: 'db',
-            isLocked: false,
-            envKey: null,
-            defaultValue: null,
-            defaultUsed: false,
-            lockReason: null,
-            requiresRestart: false,
-            localized: null,
-        }))
+        vi.mocked(resolveSetting).mockImplementation((key: string) => {
+            let value = 'Momei'
+            if (key === 'site_url') {
+                value = 'https://momei.app'
+            } else if (key === 'contact_email') {
+                value = 'contact@momei.app'
+            }
+
+            return Promise.resolve({
+                key,
+                value,
+                description: '',
+                level: 0,
+                maskType: key === 'contact_email' ? 'email' : 'none',
+                source: 'db',
+                isLocked: false,
+                envKey: null,
+                defaultValue: null,
+                defaultUsed: false,
+                lockReason: null,
+                requiresRestart: false,
+                localized: null,
+            })
+        })
     })
 
     it('renders localized site title into HTML and plain text instead of serialized localized JSON', async () => {
@@ -84,5 +89,8 @@ describe('email template engine', () => {
 
         expect(result.html).toContain('Momei Blog')
         expect(result.text).toContain('Momei Blog')
+        expect(result.html).toContain('Need help? Contact our support team')
+        expect(result.html).toContain('Privacy Policy')
+        expect(result.text).toContain('All rights reserved.')
     })
 })

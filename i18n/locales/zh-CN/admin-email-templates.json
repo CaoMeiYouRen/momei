@@ -20,6 +20,32 @@
                         "preview_app_name": "站点名称变量",
                         "preview_source_fallback": "回退自 {locale}",
                         "preview_source_legacy": "回退自 legacy 值",
+                        "runtime": {
+                            "header_subtitle": "专业 · 高性能 · 国际化博客平台",
+                            "greeting": "您好！",
+                            "help_text": "需要帮助？联系我们的客服团队",
+                            "contact_link_label": "联系方式",
+                            "privacy_policy_label": "隐私政策",
+                            "terms_label": "服务条款",
+                            "all_rights_reserved": "保留所有权利。",
+                            "auto_footer_note": "这是一封系统自动发送的邮件，请勿直接回复。",
+                            "code_footer_note": "这是一封系统自动发送的验证码邮件，请勿直接回复。",
+                            "marketing_footer_note": "你收到此邮件是因为你订阅了我们的更新。",
+                            "verification_code_title": "您的验证码",
+                            "verification_code_expiry": "请在 {expiresIn} 分钟内使用此验证码",
+                            "cannot_click_button_title": "无法点击按钮？",
+                            "cannot_click_button_hint": "请复制以下链接到浏览器地址栏：",
+                            "important_reminder_title": "⚠️ 重要提醒：",
+                            "security_tip_title": "🛡️ 安全提示"
+                        },
+                        "preview_samples": {
+                            "title": "Momei 版本更新",
+                            "summary": "最新版本摘要、精选文章与升级建议。",
+                            "action": "Chrome 浏览器登录",
+                            "details": "IP: 192.168.1.10\n地区: 东京\n时间: 2026-03-21 10:24",
+                            "authorName": "草梅友仁",
+                            "categoryName": "工程实践"
+                        },
                         "fields": {
                             "title": "主题",
                             "preheader": "预览摘要",

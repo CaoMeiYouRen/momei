@@ -20,6 +20,32 @@
                         "preview_app_name": "アプリ名変数",
                         "preview_source_fallback": "{locale} からフォールバック",
                         "preview_source_legacy": "legacy 値からフォールバック",
+                        "runtime": {
+                            "header_subtitle": "プロフェッショナル・高性能・多言語ブログプラットフォーム",
+                            "greeting": "こんにちは。",
+                            "help_text": "お困りですか？サポートチームまでご連絡ください",
+                            "contact_link_label": "お問い合わせ",
+                            "privacy_policy_label": "プライバシーポリシー",
+                            "terms_label": "利用規約",
+                            "all_rights_reserved": "無断転載を禁じます。",
+                            "auto_footer_note": "このメールはシステムから自動送信されています。返信しないでください。",
+                            "code_footer_note": "このメールは認証コード送信用に自動送信されています。返信しないでください。",
+                            "marketing_footer_note": "このメールは更新通知の購読に基づいて送信されています。",
+                            "verification_code_title": "認証コード",
+                            "verification_code_expiry": "この認証コードは {expiresIn} 分以内にご利用ください",
+                            "cannot_click_button_title": "ボタンをクリックできませんか？",
+                            "cannot_click_button_hint": "次のリンクをブラウザーのアドレスバーに貼り付けてください。",
+                            "important_reminder_title": "⚠️ 重要なお知らせ：",
+                            "security_tip_title": "🛡️ セキュリティのヒント"
+                        },
+                        "preview_samples": {
+                            "title": "Momei リリースノート",
+                            "summary": "最新の更新内容、リリースノート、おすすめ記事をまとめました。",
+                            "action": "Chrome からのサインイン",
+                            "details": "IP: 192.168.1.10\n地域: 東京\n時刻: 2026-03-21 10:24",
+                            "authorName": "草梅友仁",
+                            "categoryName": "エンジニアリング"
+                        },
                         "fields": {
                             "title": "件名",
                             "preheader": "プレビュー文",

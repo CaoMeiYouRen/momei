@@ -14,14 +14,14 @@ describe('email templates-fallback utils', () => {
         it('should return verification-code fragment', () => {
             const fragment = getFallbackFragment('verification-code')
             expect(fragment).toContain('{{verificationCode}}')
-            expect(fragment).toContain('{{expiresIn}}')
+            expect(fragment).toContain('{{verificationCodeExpiryText}}')
             expect(fragment).toContain('mj-section')
         })
 
         it('should return security-tip fragment', () => {
             const fragment = getFallbackFragment('security-tip')
             expect(fragment).toContain('{{securityTip}}')
-            expect(fragment).toContain('安全提示')
+            expect(fragment).toContain('{{securityTipTitle}}')
         })
 
         it('should return action-message fragment', () => {
@@ -86,7 +86,7 @@ describe('email templates-fallback utils', () => {
 
         it('should include alternative link section', () => {
             const template = getEmailVerificationFallback()
-            expect(template).toContain('无法点击按钮？')
+            expect(template).toContain('{{cannotClickButtonTitle}}')
         })
     })
 
@@ -94,14 +94,14 @@ describe('email templates-fallback utils', () => {
         it('should return code email template', () => {
             const template = getCodeEmailFallback()
             expect(template).toContain('{{verificationCode}}')
-            expect(template).toContain('{{expiresIn}}')
+            expect(template).toContain('{{verificationCodeExpiryText}}')
             expect(template).toContain('{{securityTip}}')
             expect(template).toContain('<mjml>')
         })
 
         it('should include security tips section', () => {
             const template = getCodeEmailFallback()
-            expect(template).toContain('🛡️ 安全提示')
+            expect(template).toContain('{{securityTipTitle}}')
         })
 
         it('should include code highlight styling', () => {
@@ -176,6 +176,7 @@ describe('email templates-fallback utils', () => {
                 message: 'Test message',
                 verificationCode: '123456',
                 expiresIn: '10',
+                verificationCodeExpiryText: 'Use this code within {expiresIn} minutes',
                 currentYear: '2024',
                 contactEmail: 'test@example.com',
                 baseUrl: 'https://example.com',
@@ -183,7 +184,7 @@ describe('email templates-fallback utils', () => {
             })
 
             expect(html).toContain('123456')
-            expect(html).toContain('请在 10 分钟内使用此验证码')
+            expect(html).toContain('Use this code within 10 minutes')
         })
 
         it('should include action button when actionUrl provided', () => {
@@ -192,6 +193,8 @@ describe('email templates-fallback utils', () => {
                 message: 'Test message',
                 actionUrl: 'https://example.com/verify',
                 buttonText: 'Verify',
+                cannotClickButtonTitle: 'Cannot click the button?',
+                cannotClickButtonHint: 'Copy this URL into your browser:',
                 currentYear: '2024',
                 contactEmail: 'test@example.com',
                 baseUrl: 'https://example.com',
@@ -200,7 +203,7 @@ describe('email templates-fallback utils', () => {
 
             expect(html).toContain('https://example.com/verify')
             expect(html).toContain('Verify')
-            expect(html).toContain('无法点击按钮？')
+            expect(html).toContain('Cannot click the button?')
         })
 
         it('should include security tip when provided', () => {
@@ -208,13 +211,14 @@ describe('email templates-fallback utils', () => {
                 appName: 'Test App',
                 message: 'Test message',
                 securityTip: 'Do not share this code',
+                securityTipTitle: 'Security Tip',
                 currentYear: '2024',
                 contactEmail: 'test@example.com',
                 baseUrl: 'https://example.com',
                 footerNote: 'Test note',
             })
 
-            expect(html).toContain('🛡️ 安全提示')
+            expect(html).toContain('Security Tip')
             expect(html).toContain('Do not share this code')
         })
 
@@ -238,12 +242,15 @@ describe('email templates-fallback utils', () => {
                 currentYear: '2024',
                 contactEmail: 'test@example.com',
                 baseUrl: 'https://example.com',
+                contactLinkLabel: 'Contact',
+                privacyPolicyLabel: 'Privacy Policy',
+                termsLabel: 'Terms of Service',
                 footerNote: 'Test note',
             })
 
-            expect(html).toContain('联系方式')
-            expect(html).toContain('隐私政策')
-            expect(html).toContain('服务条款')
+            expect(html).toContain('Contact')
+            expect(html).toContain('Privacy Policy')
+            expect(html).toContain('Terms of Service')
             expect(html).toContain('https://example.com/privacy')
             expect(html).toContain('https://example.com/terms')
         })
@@ -255,10 +262,11 @@ describe('email templates-fallback utils', () => {
                 currentYear: '2024',
                 contactEmail: 'test@example.com',
                 baseUrl: 'https://example.com',
+                allRightsReserved: 'All rights reserved.',
                 footerNote: 'Custom footer note',
             })
 
-            expect(html).toContain('© 2024 Test App. 保留所有权利。')
+            expect(html).toContain('© 2024 Test App. All rights reserved.')
             expect(html).toContain('Custom footer note')
         })
     })

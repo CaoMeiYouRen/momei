@@ -6,6 +6,7 @@ import dayjs from 'dayjs'
 
 import logger from '../logger'
 import { getFallbackFragment, getFallbackMjmlTemplate, generateFallbackHtml } from './templates-fallback'
+import { loadEmailShellMessages } from './locale'
 import { getLocalizedSetting, resolveSetting } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
 import { htmlToPlainText } from '@/server/utils/html'
@@ -50,6 +51,8 @@ interface TemplateOptions {
     preheader?: string
     locale?: string | null
 }
+
+type FooterNoteKind = 'default' | 'code' | 'marketing'
 
 interface EmailResult {
     html: string
@@ -164,16 +167,21 @@ export class EmailTemplateEngine {
     /**
      * 构建基础模板数据
      */
-    private async buildBaseTemplateData(config: BaseTemplateConfig, options: TemplateOptions, footerNote?: string): Promise<EmailTemplateData> {
+    private async buildBaseTemplateData(
+        config: BaseTemplateConfig,
+        options: TemplateOptions,
+        footerNoteKind: FooterNoteKind = 'default',
+    ): Promise<EmailTemplateData> {
         const templateOptions: Pick<TemplateOptions, 'title' | 'preheader'> = {
             title: options.title,
             preheader: options.preheader,
         }
-        const [localizedSiteTitle, resolvedSiteName, resolvedSiteUrl, resolvedContactEmail] = await Promise.all([
+        const [localizedSiteTitle, resolvedSiteName, resolvedSiteUrl, resolvedContactEmail, shellMessages] = await Promise.all([
             getLocalizedSetting<string>(SettingKey.SITE_TITLE, options.locale),
             resolveSetting(SettingKey.SITE_NAME),
             resolveSetting(SettingKey.SITE_URL),
             resolveSetting(SettingKey.CONTACT_EMAIL),
+            loadEmailShellMessages(options.locale),
         ])
 
         const localizedSiteTitleValue = typeof localizedSiteTitle.value === 'string'
@@ -187,6 +195,12 @@ export class EmailTemplateEngine {
         const contactEmail = typeof resolvedContactEmail.value === 'string' && resolvedContactEmail.value.trim().length > 0
             ? resolvedContactEmail.value.trim()
             : 'contact@momei.app'
+        let footerNote = shellMessages.autoFooterNote
+        if (footerNoteKind === 'code') {
+            footerNote = shellMessages.codeFooterNote
+        } else if (footerNoteKind === 'marketing') {
+            footerNote = shellMessages.marketingFooterNote
+        }
 
         return {
             appName,
@@ -194,10 +208,20 @@ export class EmailTemplateEngine {
             contactEmail: `mailto:${contactEmail}`,
             currentYear: dayjs().year(),
             headerIcon: config.headerIcon,
-            headerSubtitle: '专业 · 高性能 · 国际化博客平台',
-            greeting: '您好！',
-            helpText: '需要帮助？联系我们的客服团队',
-            footerNote: footerNote || '这是一封系统自动发送的邮件，请勿直接回复。',
+            headerSubtitle: shellMessages.headerSubtitle,
+            greeting: shellMessages.greeting,
+            helpText: shellMessages.helpText,
+            contactLinkLabel: shellMessages.contactLinkLabel,
+            privacyPolicyLabel: shellMessages.privacyPolicyLabel,
+            termsLabel: shellMessages.termsLabel,
+            allRightsReserved: shellMessages.allRightsReserved,
+            footerNote,
+            verificationCodeTitle: shellMessages.verificationCodeTitle,
+            verificationCodeExpiryText: shellMessages.verificationCodeExpiry,
+            cannotClickButtonTitle: shellMessages.cannotClickButtonTitle,
+            cannotClickButtonHint: shellMessages.cannotClickButtonHint,
+            importantReminderTitle: shellMessages.importantReminderTitle,
+            securityTipTitle: shellMessages.securityTipTitle,
             primaryColor: '#1e293b',
             message: config.message,
             securityTip: config.securityTip || '• 验证码仅供本次操作使用，请勿泄露给他人\n• 如果您没有进行此操作，请忽略此邮件\n• 请在规定时间内完成验证，过期需重新获取',
@@ -274,7 +298,7 @@ export class EmailTemplateEngine {
         templateConfig: ActionTemplateConfig,
         options: TemplateOptions,
     ): Promise<EmailResult> {
-        const templateData = await this.buildBaseTemplateData(templateConfig, options)
+        const templateData = await this.buildBaseTemplateData(templateConfig, options, 'default')
         const fragments = ['action-message', 'important-reminder', 'security-tip']
 
         return await this.generateTemplate('action-email', fragments, { ...templateData, ...templateConfig }, options)
@@ -287,7 +311,7 @@ export class EmailTemplateEngine {
         templateConfig: CodeTemplateConfig,
         options: TemplateOptions,
     ): Promise<EmailResult> {
-        const templateData = await this.buildBaseTemplateData(templateConfig, options, '这是一封系统自动发送的验证码邮件，请勿直接回复。')
+        const templateData = await this.buildBaseTemplateData(templateConfig, options, 'code')
         const fragments = ['verification-code', 'security-tip']
 
         return await this.generateTemplate('code-email', fragments, { ...templateData, ...templateConfig }, options)
@@ -300,7 +324,7 @@ export class EmailTemplateEngine {
         templateConfig: MarketingTemplateConfig,
         options: TemplateOptions,
     ): Promise<EmailResult> {
-        const templateData = await this.buildBaseTemplateData(templateConfig, options, '你收到此邮件是因为你订阅了我们的更新。')
+        const templateData = await this.buildBaseTemplateData(templateConfig, options, 'marketing')
         const fragments = ['marketing-campaign']
 
         return await this.generateTemplate('marketing-email', fragments, { ...templateData, ...templateConfig }, options)
@@ -313,7 +337,7 @@ export class EmailTemplateEngine {
         templateConfig: SimpleMessageConfig,
         options: TemplateOptions,
     ): Promise<EmailResult> {
-        const templateData = await this.buildBaseTemplateData(templateConfig, options)
+        const templateData = await this.buildBaseTemplateData(templateConfig, options, 'default')
         const fragments = ['simple-message']
 
         return await this.generateTemplate('simple-message', fragments, { ...templateData, ...templateConfig }, options)
@@ -350,6 +374,19 @@ export class EmailTemplateEngine {
             securityTip: data.securityTip || '',
             currentYear: data.currentYear || new Date().getFullYear(),
             footerNote: data.footerNote || '这是一封系统自动发送的邮件，请勿直接回复。',
+            headerSubtitle: data.headerSubtitle || '专业 · 高性能 · 国际化博客平台',
+            greeting: data.greeting || '您好！',
+            helpText: data.helpText || '需要帮助？联系我们的客服团队',
+            contactLinkLabel: data.contactLinkLabel || '联系方式',
+            privacyPolicyLabel: data.privacyPolicyLabel || '隐私政策',
+            termsLabel: data.termsLabel || '服务条款',
+            allRightsReserved: data.allRightsReserved || '保留所有权利。',
+            verificationCodeTitle: data.verificationCodeTitle || '您的验证码',
+            verificationCodeExpiryText: data.verificationCodeExpiryText || '请在 {{expiresIn}} 分钟内使用此验证码',
+            cannotClickButtonTitle: data.cannotClickButtonTitle || '无法点击按钮？',
+            cannotClickButtonHint: data.cannotClickButtonHint || '请复制以下链接到浏览器地址栏：',
+            importantReminderTitle: data.importantReminderTitle || '⚠️ 重要提醒：',
+            securityTipTitle: data.securityTipTitle || '🛡️ 安全提示',
             expiresIn: data.expiresIn || 10,
         }
 
