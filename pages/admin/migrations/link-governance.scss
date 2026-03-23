@@ -1,0 +1,221 @@
+@use '@/styles/variables' as *;
+
+.admin-link-governance {
+    padding: $spacing-md;
+
+    &__intro {
+        margin-bottom: $spacing-lg;
+    }
+
+    &__intro-title {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--p-text-color);
+    }
+
+    &__intro-description {
+        margin: $spacing-xs 0 0;
+        color: var(--p-text-muted-color);
+        line-height: 1.7;
+    }
+
+    &__card {
+        :deep(.p-card-body) {
+            padding: $spacing-lg;
+        }
+    }
+
+    &__section-header {
+        display: flex;
+        justify-content: space-between;
+        gap: $spacing-md;
+        align-items: flex-start;
+        margin-bottom: $spacing-lg;
+    }
+
+    &__section-title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    &__section-description {
+        margin: $spacing-xs 0 0;
+        color: var(--p-text-muted-color);
+        line-height: 1.6;
+    }
+
+    &__execution-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: $spacing-md;
+    }
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+    }
+
+    &__label {
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    &__input {
+        width: 100%;
+    }
+
+    &__execution-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-md;
+        margin-top: $spacing-lg;
+    }
+
+    &__checkbox-field {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-xs;
+        color: var(--p-text-muted-color);
+    }
+
+    &__execution-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-sm;
+        margin-top: $spacing-lg;
+    }
+
+    &__filters {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: $spacing-md;
+        margin-bottom: $spacing-lg;
+    }
+
+    &__filter,
+    &__filter-actions {
+        min-width: 0;
+    }
+
+    &__filter-actions {
+        display: flex;
+        gap: $spacing-sm;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    &__requester {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+    }
+
+    &__requester-email,
+    &__diff-target {
+        color: var(--p-text-muted-color);
+    }
+
+    &__summary-cell {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+        font-size: 0.875rem;
+    }
+
+    &__empty,
+    &__detail-empty,
+    &__detail-loading {
+        padding: $spacing-xl;
+        text-align: center;
+        color: var(--p-text-muted-color);
+    }
+
+    &__detail-grid,
+    &__summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: $spacing-md;
+    }
+
+    &__scope-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-sm;
+        margin: $spacing-lg 0;
+    }
+
+    &__summary-grid {
+        margin-bottom: $spacing-lg;
+    }
+
+    &__summary-item,
+    &__diff-item {
+        border: 1px solid var(--p-content-border-color);
+        border-radius: 1rem;
+        padding: $spacing-md;
+        background: var(--p-surface-0);
+    }
+
+    &__summary-item {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+    }
+
+    &__detail-section + &__detail-section {
+        margin-top: $spacing-lg;
+    }
+
+    &__diff-list,
+    &__redirect-list {
+        display: grid;
+        gap: $spacing-sm;
+    }
+
+    &__diff-item-header {
+        display: flex;
+        gap: $spacing-sm;
+        margin-bottom: $spacing-sm;
+    }
+
+    &__redirect-item {
+        border: 1px solid var(--p-content-border-color);
+        border-radius: 1rem;
+        padding: $spacing-md;
+        background: var(--p-surface-0);
+    }
+
+    &__diff-source,
+    &__diff-target,
+    &__markdown {
+        margin: 0;
+        word-break: break-all;
+    }
+
+    &__markdown {
+        padding: $spacing-md;
+        border-radius: 1rem;
+        background: var(--p-surface-100);
+        max-height: 24rem;
+        overflow: auto;
+        white-space: pre-wrap;
+    }
+}
+
+@media (width <= 960px) {
+    .admin-link-governance {
+        &__execution-grid,
+        &__filters,
+        &__detail-grid,
+        &__summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        &__filter-actions {
+            justify-content: flex-start;
+        }
+    }
+}

@@ -272,6 +272,59 @@ function serializeTranslationScopes(scopes: TranslationScopeField[]) {
     return normalizedScopes.length > 0 ? normalizedScopes.join(',') : undefined
 }
 
+function getLegacyAudioState(value: LegacyAudioCompat) {
+    const audioUrl = value.audioUrl ?? null
+    const audioDuration = value.audioDuration ?? null
+    const audioSize = value.audioSize ?? null
+    const audioMimeType = value.audioMimeType ?? null
+    const hasAudio = Boolean(audioUrl)
+        || audioDuration !== null
+        || audioSize !== null
+        || Boolean(audioMimeType)
+
+    return hasAudio
+        ? {
+            url: audioUrl,
+            duration: audioDuration,
+            size: audioSize,
+            mimeType: audioMimeType,
+        }
+        : null
+}
+
+function getAudioState(value: Pick<PostTranslationSourceDetail, 'metadata'> & LegacyAudioCompat): TranslationAudioState {
+    const metadataAudio = value.metadata?.audio && typeof value.metadata.audio === 'object'
+        ? { ...value.metadata.audio }
+        : null
+    const resolvedAudio = metadataAudio || getLegacyAudioState(value)
+
+    return {
+        metadataAudio: resolvedAudio ? { ...resolvedAudio } : null,
+    }
+}
+
+function syncLegacyAudioState(target: LegacyAudioCompat, audio: TranslationAudioState['metadataAudio']) {
+    target.audioUrl = audio?.url ?? null
+    target.audioDuration = audio?.duration ?? null
+    target.audioSize = audio?.size ?? null
+    target.audioMimeType = audio?.mimeType ?? null
+}
+
+function applyAudioState(post: Ref<PostEditorData>, state: TranslationAudioState) {
+    const nextMetadata = post.value.metadata && typeof post.value.metadata === 'object'
+        ? { ...post.value.metadata }
+        : {}
+
+    if (state.metadataAudio) {
+        nextMetadata.audio = { ...state.metadataAudio }
+    } else {
+        delete nextMetadata.audio
+    }
+
+    post.value.metadata = Object.keys(nextMetadata).length > 0 ? nextMetadata : null
+    syncLegacyAudioState(post.value as PostEditorData & LegacyAudioCompat, state.metadataAudio)
+}
+
 export function usePostEditorTranslation(options: UsePostEditorTranslationOptions) {
     const translations = ref<PostTranslationSourceOption[]>([])
     const sourcePostSnapshot = ref<PostTranslationSourceDetail | null>(null)
@@ -282,59 +335,6 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
         scopes: [...DEFAULT_TRANSLATION_SCOPES],
     })
     const postsForTranslation = ref<TranslationGroupOption[]>([])
-
-    const getLegacyAudioState = (value: LegacyAudioCompat) => {
-        const audioUrl = value.audioUrl ?? null
-        const audioDuration = value.audioDuration ?? null
-        const audioSize = value.audioSize ?? null
-        const audioMimeType = value.audioMimeType ?? null
-        const hasAudio = Boolean(audioUrl)
-            || audioDuration !== null
-            || audioSize !== null
-            || Boolean(audioMimeType)
-
-        return hasAudio
-            ? {
-                url: audioUrl,
-                duration: audioDuration,
-                size: audioSize,
-                mimeType: audioMimeType,
-            }
-            : null
-    }
-
-    const getAudioState = (value: Pick<PostTranslationSourceDetail, 'metadata'> & LegacyAudioCompat): TranslationAudioState => {
-        const metadataAudio = value.metadata?.audio && typeof value.metadata.audio === 'object'
-            ? { ...value.metadata.audio }
-            : null
-        const resolvedAudio = metadataAudio || getLegacyAudioState(value)
-
-        return {
-            metadataAudio: resolvedAudio ? { ...resolvedAudio } : null,
-        }
-    }
-
-    const syncLegacyAudioState = (target: LegacyAudioCompat, audio: TranslationAudioState['metadataAudio']) => {
-        target.audioUrl = audio?.url ?? null
-        target.audioDuration = audio?.duration ?? null
-        target.audioSize = audio?.size ?? null
-        target.audioMimeType = audio?.mimeType ?? null
-    }
-
-    const applyAudioState = (state: TranslationAudioState) => {
-        const nextMetadata = options.post.value.metadata && typeof options.post.value.metadata === 'object'
-            ? { ...options.post.value.metadata }
-            : {}
-
-        if (state.metadataAudio) {
-            nextMetadata.audio = { ...state.metadataAudio }
-        } else {
-            delete nextMetadata.audio
-        }
-
-        options.post.value.metadata = Object.keys(nextMetadata).length > 0 ? nextMetadata : null
-        syncLegacyAudioState(options.post.value as PostEditorData & LegacyAudioCompat, state.metadataAudio)
-    }
 
     const parseTranslationScopes = (value: string | string[] | undefined) => {
         const rawValue = Array.isArray(value) ? value[0] : value
@@ -727,7 +727,7 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
             }
 
             if (payload.scopes.includes('audio')) {
-                applyAudioState(getAudioState(source))
+                applyAudioState(options.post, getAudioState(source))
             }
         } catch (error) {
             console.error('Failed to resolve translated taxonomy bindings', error)

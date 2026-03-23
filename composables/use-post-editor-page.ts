@@ -85,6 +85,33 @@ function createInitialPostState(options: {
     }
 }
 
+function restoreEditorPostState(
+    post: Ref<PostEditorData>,
+    clearLocalDraft: () => void,
+    data: {
+        title: string
+        content: string
+        summary: string | null
+        coverImage: string | null
+        categoryId: string | null
+        visibility: PostVisibility
+        copyright: string | null
+        metaVersion: number
+        metadata: PostEditorData['metadata']
+        tags: string[]
+    },
+) {
+    restorePostFromHistory(post, clearLocalDraft, data)
+}
+
+function openPostPreview(
+    isNew: boolean,
+    post: Ref<PostEditorData>,
+    localePath: ReturnType<typeof useLocalePath>,
+) {
+    handlePreviewOpen(isNew, post, localePath)
+}
+
 export function usePostEditorPage() {
     const { t, locale, locales } = useI18n()
     const localePath = useLocalePath()
@@ -282,9 +309,7 @@ export function usePostEditorPage() {
         resetTranslationProgress,
     })
 
-    const handlePreview = () => {
-        handlePreviewOpen(isNew.value, post, localePath)
-    }
+    const handlePreview = () => openPostPreview(isNew.value, post, localePath)
 
     const handleRestore = (data: {
         title: string
@@ -297,9 +322,7 @@ export function usePostEditorPage() {
         metaVersion: number
         metadata: PostEditorData['metadata']
         tags: string[]
-    }) => {
-        restorePostFromHistory(post, clearLocalDraft, data)
-    }
+    }) => restoreEditorPostState(post, clearLocalDraft, data)
 
     const loadPost = async () => {
         const loadOptions = {
