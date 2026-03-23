@@ -1,16 +1,4 @@
 {
     "version": 1,
-    "entries": [
-        {
-            "advisoryId": "GHSA-pfq8-rq6v-vf5m",
-            "packageName": "html-minifier",
-            "severity": "high",
-            "reason": "mjml-cli 仍经由 html-minifier@4.0.0 提供邮件模板构建链路，上游当前没有已发布补丁可用。",
-            "approvedPaths": [
-                ".>mjml>mjml-cli>html-minifier"
-            ],
-            "source": "https://github.com/advisories/GHSA-pfq8-rq6v-vf5m",
-            "temporaryException": "阶段十七收口允许临时放行，待 MJML 或其 CLI 链路提供补丁后优先移除白名单并重新审计。"
-        }
-    ]
+    "entries": []
 }

@@ -37,10 +37,13 @@
 
 ### 2. 主线：MJML 依赖链高风险替换与 release 安全基线收敛 (P0)
 
-- [ ] **处理 `html-minifier` high 风险的上游链路替换或可验证缓解**
+- [x] **处理 `html-minifier` high 风险的上游链路替换或可验证缓解**
 	- 验收: 明确 `mjml` / `mjml-cli` -> `html-minifier` 风险的替换方案、影响范围、回退策略与阶段边界，不再长期仅依赖 allowlist 放行。
 	- 验收: 若可在本阶段完成升级或替换，需补齐 release 门禁、邮件模板渲染、构建与定向测试验证；若仍需延期，必须形成更严格的处置结论、缓解口径与触发条件。
 	- 验收: 不将该事项扩写为整仓库依赖大升级工程，范围仅围绕当前 release 阻塞链路与其直接影响面。
+	- 结果: 已通过 `package.json` 中的 direct alias + `pnpm.overrides` 将 `html-minifier` 统一替换为 `html-minifier-terser@^7.2.0`，并恢复 Nitro `externals.inline` 以确保 `mjml` / `mjml-core` / `html-minifier` 相关模块在服务端构建链路中稳定解析；`.github/security/dependency-risk-allowlist.json` 已清空，不再依赖长期 allowlist 放行该 high 风险。
+	- 验证: `pnpm install --lockfile-only` 与 `pnpm install --frozen-lockfile` 完成依赖图刷新和实际安装；随后 `pnpm security:audit-deps` 输出 `relevant risks: 0` 并通过；`pnpm exec vitest run server/services/email-template.test.ts server/services/email-template.integration.test.ts tests/scripts/check-dependency-risk.test.ts` 通过，合计 3 个测试文件、15 个用例；补跑 `pnpm test` 全量 Vitest 通过（31 个测试文件）；`pnpm build` 通过；补跑 `pnpm test:e2e` 时全量 Playwright 结果为 `69 passed / 51 skipped / 3 flaky / 128 failed`，失败主因是测试过程中 `localhost:3001` 服务中途失联，后续大量用例统一报 `Connection refused`。
+	- 边界: 本轮未扩写为 `mjml` 主版本升级或整仓库依赖升级工程，仅替换 release 阻塞链路中的 `html-minifier` 实现；全量 Vitest 已通过，但全量 E2E 当前暴露的是现有浏览器基线 / 测试服务稳定性问题，而非已定位到 MJML 替换本身的断言回归。若后续 MJML 上游发布官方修复版本，可优先回收 alias / override 并重新评估 Nitro 内联名单是否仍有必要。
 
 ### 3. 主线：后台 admin locale 大文件拆分与加载注册表治理 (P0)
 

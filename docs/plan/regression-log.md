@@ -25,6 +25,69 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## MJML 依赖链 high 风险替换回归（2026-03-23）
+
+### 回归任务记录
+
+- 回归范围: 第十八阶段 P0“MJML 依赖链高风险替换与 release 安全基线收敛”；覆盖 `mjml` / `mjml-cli` -> `html-minifier` 高风险链的替换实现、release 门禁去 allowlist 化、邮件模板运行时回归与生产构建稳定性。
+- 触发条件: 当前阶段将 `html-minifier` high 风险列为 release 阻塞项，要求不再长期仅依赖 allowlist 放行，必须形成可验证的替换或严格缓解结论。
+- 执行频率: 本阶段专项回归首轮；后续仅在 MJML 上游版本策略、Nitro 构建链路或依赖风险门禁规则再次调整时补写增量记录。
+- timeout budget:
+    - 锁文件刷新: 20 分钟。
+    - 定向 Vitest: 10 分钟。
+    - release 依赖安全门禁: 10 分钟。
+    - 生产构建: 20 分钟。
+- 已执行命令:
+    - `pnpm install --lockfile-only`
+    - `pnpm install --frozen-lockfile`
+    - `pnpm security:audit-deps`
+    - `pnpm exec vitest run server/services/email-template.test.ts server/services/email-template.integration.test.ts tests/scripts/check-dependency-risk.test.ts`
+    - `pnpm test`
+    - `pnpm build`
+    - `pnpm test:e2e`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 配置层: `package.json` 已新增 direct alias `html-minifier -> npm:html-minifier-terser@^7.2.0`，并通过 `pnpm.overrides` 将依赖图中的 `html-minifier` 统一重定向到 `html-minifier-terser`；`pnpm-lock.yaml` 已同步落盘，`mjml-cli` 与 `mjml-core` 快照不再指向 `html-minifier@4.0.0`。
+        - V1 / 构建层: `nuxt.config.ts` 已恢复 Nitro `externals.inline`，覆盖 `mjml`、`mjml-core`、`html-minifier`、`html-minifier-terser`、`lodash` 与 `lodash-es`，避免服务端构建再次回到此前回滚前遇到的模块解析边界。
+        - V1 / 门禁层: `.github/security/dependency-risk-allowlist.json` 已清空，仅保留空白基线文件，不再为 `html-minifier` 保留 release 例外。
+        - V2 / 安装层: `pnpm install --frozen-lockfile` 在更新后的锁文件基础上完成实际依赖树重建，确保后续审计、测试与构建均基于新的 `node_modules` 解析结果。
+        - V2 / 审计层: `pnpm security:audit-deps` 在实际安装后的依赖树上执行通过，输出 `relevant risks: 0`，说明当前 `high+` 依赖风险已不再命中原有 `html-minifier` 链路。
+        - V2 / 运行时层: `server/services/email-template.test.ts`、`server/services/email-template.integration.test.ts` 与 `tests/scripts/check-dependency-risk.test.ts` 在实际安装后的依赖树上共 15 个用例通过，覆盖邮件模板默认文案解析、locale 回退、预览渲染与依赖风险门禁脚本行为。
+        - V2 / 全量单测层: `pnpm test` 全量 Vitest 通过，摘要为 `31 passed / 0 failed`。
+        - V2 / 构建层: `pnpm build` 在实际安装后的依赖树上通过，成功生成 `.output` 产物，未再出现 MJML / html-minifier 相关的 Nitro 构建阻断。
+        - V2 / 浏览器层: 按用户要求补跑 `pnpm test:e2e` 全量 Playwright。结果为 `69 passed / 51 skipped / 3 flaky / 128 failed`，失败主因是测试进行过程中本地测试服务 `http://localhost:3001` 中途失联，后续大量用例统一报 `page.goto: Could not connect to localhost: Connection refused`；失败分布集中在 `tests/e2e/user-workflow.e2e.test.ts` 的 WebKit 项目、`tests/e2e/mobile-critical.e2e.test.ts` 两个移动项目，以及少量 Chromium 的 `admin.e2e` / `auth-session-governance.e2e`。
+        - V2 / 根因排查: 单独启动 `TEST_MODE=true pnpm exec nuxt dev --port 3001` 后，`tests/e2e/user-workflow.e2e.test.ts --project=webkit --workers=1` 可稳定通过；但将 `admin`、`auth-session-governance`、`user-workflow` 与 `mobile-critical` 组合并发运行时可稳定复现服务退出。Nuxt 日志显示退出前反复出现 `/api/settings/public?locale=zh-CN` 的 `429 Server Error`，并伴随开发期错误格式化链路中的 `source-map` / Sentry `ERROR unreachable`，说明当前更接近“并发 E2E 下公开配置接口命中通用 GET 限流，随后 dev 错误处理链异常放大并拖垮服务”的浏览器基线问题，而不是 MJML 替换本身的断言回归。
+    - 结果摘要:
+        - 本轮采用“包名兼容替换”而非 `mjml` 主版本升级：保留现有邮件模板服务和 MJML 调用方式，仅把风险实现从 `html-minifier@4.0.0` 切换到兼容的 `html-minifier-terser@7.2.0`，避免把当前任务扩写成整仓库依赖升级工程。
+        - release 门禁已从“allowlist 放行已知 high 风险”提升为“依赖图内不再存在该 high 风险”，满足当前阶段对可验证缓解的准入要求。
+        - 历史上曾引入后又回滚的 Nitro externals 兼容项已按最小范围恢复，用于兜住 Server 端构建链路；当前验证未再复现此前的解析问题。
+        - 追加排查表明，E2E 服务中途退出与 `app.vue`、`layouts/default.vue` 等入口在高并发浏览器场景下重复请求 `/api/settings/public` 叠加通用 60 req/min GET 限流有关；服务退出时的直接日志信号是该接口 429 后触发开发期错误格式化链路的 `unreachable`，应作为独立浏览器基线治理项处理。
+    - 测试结果（按需）:
+        - `pnpm exec vitest run server/services/email-template.test.ts server/services/email-template.integration.test.ts tests/scripts/check-dependency-risk.test.ts`: 3 files passed / 15 tests passed。
+        - `pnpm test`: 31 passed / 0 failed。
+        - `pnpm test:e2e`: 69 passed / 51 skipped / 3 flaky / 128 failed。
+    - 依赖安全结果（按需）:
+        - 数据来源: `pnpm audit --json --registry=https://registry.npmjs.org/`，由 `pnpm security:audit-deps` 调用。
+        - 可修复项与验证结果: `html-minifier` 风险链已被 alias + override 替换为 `html-minifier-terser@7.2.0`，release 门禁和定向测试均已通过。
+        - 未修复的 high+ 风险: 本轮命令结果为 0，当前未发现新的 `high+` 阻断项。
+        - 延期或计划修复判断: 不再保留 `html-minifier` 的 release allowlist；后续如 MJML 上游提供官方修复版本，可评估回收兼容 alias / override，避免长期维护兼容映射。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - `pnpm install --lockfile-only` 过程中仍存在与本任务无关的历史 peer dependency / deprecated warning，但不影响本轮 high 风险替换结论。
+            - 用户要求的全量 E2E 已补跑，但当前 Playwright 基线在测试服务中途失联后出现大面积 `Connection refused`，因此这轮浏览器结果不能作为“全量 E2E 已放行”的证据。
+            - 本轮验证仍未扩展到真实邮件发送全流程。
+            - 已定位到浏览器基线失败更接近 `/api/settings/public` 的并发限流与 dev 错误处理链问题，但本次提交未继续扩 scope 修改公开配置获取策略或 Playwright 启动模式。
+    - 未覆盖边界:
+        - 未补跑真实 SMTP / 第三方邮件供应商投递链路，本轮仅验证邮件模板编译、预览与服务端构建。
+        - 未在本轮同时处理 `moderate` / `low` 依赖告警，继续遵循当前阶段仅治理 `high+` release 阻断项的边界。
+        - 全量 E2E 当前暴露的是测试服务稳定性 / 浏览器基线问题；根因已初步收敛到 `/api/settings/public` 并发限流与 dev 错误格式化链，但尚未在本轮任务中继续扩 scope 修复。
+    - 后续补跑计划:
+        - 后续发版前继续执行 `pnpm security:audit-deps`，确认依赖图未重新引入新的 `high+` 风险。
+        - 若后续升级 MJML 或 Nitro / Nuxt 版本，优先补一轮邮件模板构建回归，确认 `externals.inline` 名单仍然必要且稳定。
+        - 将本次 `pnpm test:e2e` 暴露的测试服务中途失联问题单独作为浏览器基线治理项处理，优先评估是否对 `/api/settings/public` 在 `TEST_MODE` / E2E 环境下做限流豁免、抬高阈值，或收敛 `useMomeiConfig` 在 `app.vue` 与 `layouts/default.vue` 的重复获取行为，并同时确认 Playwright 是否应继续使用 `nuxt dev --port 3001` 作为 webServer。
+
 ## 文章新建页多语言切换回归（2026-03-22）
 
 ### 回归任务记录
