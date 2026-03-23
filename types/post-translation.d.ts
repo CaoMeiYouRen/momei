@@ -5,6 +5,8 @@ export type TranslationScopeField = 'title' | 'content' | 'summary' | 'category'
 
 export type TranslationTextField = Extract<TranslationScopeField, 'title' | 'content' | 'summary'>
 
+export type TranslationProgressField = TranslationTextField | 'tags'
+
 export type PostTranslationMode = 'direct' | 'stream' | 'chunk' | 'task'
 
 export type PostTranslationFieldStatus = 'idle' | 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled'
@@ -85,10 +87,10 @@ export interface PostTranslationFieldProgress {
 export interface PostTranslationProgress {
     status: 'idle' | 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled'
     progress: number
-    activeField: TranslationTextField | null
+    activeField: TranslationProgressField | null
     taskId: string | null
     error: string | null
-    fields: Record<TranslationTextField, PostTranslationFieldProgress>
+    fields: Record<TranslationProgressField, PostTranslationFieldProgress>
 }
 
 export interface PostTranslationCategoryOption {

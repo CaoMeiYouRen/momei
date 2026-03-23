@@ -91,6 +91,9 @@ function createComposable(options?: {
     const translateTaxonomyNames = options?.translateTaxonomyNames || vi.fn((names: string[], targetLanguage: string) => Promise.resolve(names.map((name) => `${name}-${targetLanguage}`)))
     const toastAdd = vi.fn()
     const translatePostFields = vi.fn(() => Promise.resolve(true))
+    const beginAuxiliaryFieldProgress = vi.fn()
+    const completeAuxiliaryFieldProgress = vi.fn()
+    const failAuxiliaryFieldProgress = vi.fn()
 
     const composable = usePostEditorTranslation({
         post,
@@ -116,6 +119,9 @@ function createComposable(options?: {
             tagBindings.value = bindings
             post.value.tags = bindings.map((binding) => binding.name)
         },
+        beginAuxiliaryFieldProgress,
+        completeAuxiliaryFieldProgress,
+        failAuxiliaryFieldProgress,
         translateTaxonomyNames,
         translatePostFields,
         resetTranslationProgress: vi.fn(),
@@ -131,6 +137,9 @@ function createComposable(options?: {
         toastAdd,
         translateTaxonomyNames,
         translatePostFields,
+        beginAuxiliaryFieldProgress,
+        completeAuxiliaryFieldProgress,
+        failAuxiliaryFieldProgress,
         ...composable,
     }
 }
@@ -275,7 +284,13 @@ describe('usePostEditorTranslation', () => {
 
     it('选择 tags 范围时应该替换目标文章原有标签', async () => {
         const translateTaxonomyNames = vi.fn(() => Promise.resolve(['Generated Target Tag']))
-        const { handleStartTranslationWorkflow, post, tagBindings } = createComposable({
+        const {
+            handleStartTranslationWorkflow,
+            post,
+            tagBindings,
+            beginAuxiliaryFieldProgress,
+            completeAuxiliaryFieldProgress,
+        } = createComposable({
             translateTaxonomyNames,
             initialTags: ['Existing Draft Tag'],
             initialTagBindings: [{
@@ -295,6 +310,15 @@ describe('usePostEditorTranslation', () => {
             sourceTagSlug: 'source-tag',
             sourceTagId: 'source-tag-id',
         }])
+        expect(beginAuxiliaryFieldProgress).toHaveBeenCalledWith('tags', {
+            content: 'Existing Draft Tag',
+            totalChunks: 1,
+        })
+        expect(completeAuxiliaryFieldProgress).toHaveBeenCalledWith('tags', {
+            content: 'Generated Target Tag',
+            totalChunks: 1,
+            completedChunks: 1,
+        })
     })
 
     it('选择封面和播客音频范围时应该同步来源附件', async () => {

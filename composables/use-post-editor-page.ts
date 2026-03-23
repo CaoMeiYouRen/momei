@@ -167,7 +167,10 @@ export function usePostEditorPage() {
     )
 
     const {
+        beginAuxiliaryFieldProgress,
         cancelFieldTranslation,
+        completeAuxiliaryFieldProgress,
+        failAuxiliaryFieldProgress,
         resetTranslationProgress,
         retryFieldTranslation,
         translateTaxonomyNames,
@@ -271,6 +274,9 @@ export function usePostEditorPage() {
         loadTags,
         getTagBindings: () => tagBindings.value,
         applyTagBindings,
+        beginAuxiliaryFieldProgress,
+        completeAuxiliaryFieldProgress,
+        failAuxiliaryFieldProgress,
         translateTaxonomyNames,
         translatePostFields,
         resetTranslationProgress,

@@ -164,9 +164,9 @@
                 </small>
             </div>
 
-            <div v-if="selectedTextFieldStates.length > 0" class="translation-workflow__field-progress-list">
+            <div v-if="selectedProgressFieldStates.length > 0" class="translation-workflow__field-progress-list">
                 <div
-                    v-for="item in selectedTextFieldStates"
+                    v-for="item in selectedProgressFieldStates"
                     :key="item.field"
                     class="translation-workflow__field-progress-card"
                 >
@@ -203,14 +203,14 @@
                             severity="secondary"
                             outlined
                             size="small"
-                            @click="emit('cancel-field', item.field)"
+                            @click="handleCancelField(item.textField)"
                         />
                         <Button
                             v-if="item.canRetry"
                             :label="retryFieldLabel"
                             severity="warn"
                             size="small"
-                            @click="emit('retry-field', item.field)"
+                            @click="handleRetryField(item.textField)"
                         />
                     </div>
                 </div>
@@ -245,6 +245,7 @@ import type {
     PostTranslationTargetStatus,
     PostTranslationWorkflowRequest,
     PostTranslationWorkflowAction,
+    TranslationProgressField,
     TranslationScopeField,
     TranslationTextField,
 } from '@/types/post-translation'
@@ -262,9 +263,9 @@ const props = withDefaults(defineProps<{
     defaultScopes?: TranslationScopeField[]
     progress?: number
     translationStatus?: 'idle' | 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled'
-    activeField?: TranslationTextField | null
+    activeField?: TranslationProgressField | null
     errorText?: string | null
-    fieldProgressMap?: Record<TranslationTextField, PostTranslationFieldProgress>
+    fieldProgressMap?: Record<TranslationProgressField, PostTranslationFieldProgress>
 }>(), {
     defaultSourcePostId: null,
     defaultScopes: () => ['title', 'content', 'summary', 'category', 'tags', 'coverImage'],
@@ -296,6 +297,17 @@ const props = withDefaults(defineProps<{
             canCancel: false,
         },
         content: {
+            status: 'idle',
+            progress: 0,
+            mode: null,
+            content: '',
+            completedChunks: 0,
+            totalChunks: 0,
+            error: null,
+            canRetry: false,
+            canCancel: false,
+        },
+        tags: {
             status: 'idle',
             progress: 0,
             mode: null,
@@ -350,6 +362,7 @@ const getActionLabel = (action: PostTranslationWorkflowAction) => tt(`pages.admi
 const getTargetStateLabel = (state: PostTranslationTargetState) => tt(`pages.admin.posts.translation_workflow.target_states.${state}`)
 const getFieldStatusLabel = (status: PostTranslationFieldProgress['status']) => tt(`pages.admin.posts.translation_workflow.field_statuses.${status}`)
 const getFieldModeLabel = (mode: NonNullable<PostTranslationFieldProgress['mode']>) => tt(`pages.admin.posts.translation_workflow.modes.${mode}`)
+const isRetryableTextField = (field: TranslationProgressField): field is TranslationTextField => ['title', 'summary', 'content'].includes(field)
 
 const startLabel = computed(() => {
     if (!selectedTargetStatus.value) {
@@ -486,8 +499,8 @@ const progressLabel = computed(() => {
     return tt('pages.admin.posts.translation_workflow.progress_running')
 })
 
-const selectedTextFieldStates = computed(() => selectedScopes.value
-    .filter((scope): scope is TranslationTextField => ['title', 'summary', 'content'].includes(scope))
+const selectedProgressFieldStates = computed(() => selectedScopes.value
+    .filter((scope): scope is TranslationProgressField => ['title', 'summary', 'content', 'tags'].includes(scope))
     .map((field) => {
         const state = props.fieldProgressMap[field]
         const previewText = state.content.trim()
@@ -510,6 +523,7 @@ const selectedTextFieldStates = computed(() => selectedScopes.value
 
         return {
             field,
+            textField: isRetryableTextField(field) ? field : null,
             label: tt(`pages.admin.posts.translation_workflow.fields.${field}`),
             statusLabel: getFieldStatusLabel(state.status),
             statusSeverity,
@@ -517,8 +531,8 @@ const selectedTextFieldStates = computed(() => selectedScopes.value
             progress: state.progress,
             progressText,
             previewText,
-            canCancel: state.canCancel,
-            canRetry: state.canRetry,
+            canCancel: state.canCancel && isRetryableTextField(field),
+            canRetry: state.canRetry && isRetryableTextField(field),
         }
     }))
 
@@ -568,6 +582,22 @@ const toggleScope = (scope: TranslationScopeField) => {
     }
 
     selectedScopes.value = [...selectedScopes.value, scope]
+}
+
+const handleCancelField = (field: TranslationTextField | null) => {
+    if (!field) {
+        return
+    }
+
+    emit('cancel-field', field)
+}
+
+const handleRetryField = (field: TranslationTextField | null) => {
+    if (!field) {
+        return
+    }
+
+    emit('retry-field', field)
 }
 
 const handleStart = () => {

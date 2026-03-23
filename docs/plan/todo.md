@@ -70,10 +70,13 @@
 
 ### 6. 扩展：后台翻译工作流标签进度展示补齐 (P1)
 
-- [ ] **将标签翻译纳入后台翻译工作流进度条展示**
+- [x] **将标签翻译纳入后台翻译工作流进度条展示**
 	- 验收: 后台翻译工作流在勾选 `tags` 范围时，进度条与字段状态展示必须体现标签翻译，而不再只覆盖标题、摘要与正文。
 	- 验收: 标签翻译进度的计算、完成态与失败态需与现有翻译工作流保持一致，不破坏既有文本字段的流式或任务式翻译行为。
 	- 验收: 补齐对应的定向测试、交互验证或等价检查，确认标签翻译进度展示与实际翻译结果一致。
+	- 结果: `PostTranslationProgress` 已扩展为包含 `tags` 的独立进度字段；`use-post-translation-ai` 新增辅助字段进度状态机，`use-post-editor-translation` 已在标签绑定解析前后驱动 `processing / completed / failed` 状态；后台翻译工作流对话框现在会在勾选 `tags` 时渲染标签进度卡片，并保持标签字段不可误触发文本字段的取消 / 重试入口。
+	- 验证: `pnpm typecheck` 通过；`pnpm exec vitest run composables/use-post-translation-ai.test.ts composables/use-post-editor-translation.test.ts components/admin/posts/post-translation-workflow-dialog.test.ts` 通过，合计 3 个测试文件、26 个用例，覆盖了 tags 进度汇总、工作流回填与对话框展示。
+	- 边界: 本轮以类型检查 + 定向 Vitest 作为等价验证，尚未补真实浏览器下从后台编辑页触发翻译工作流到标签进度卡片刷新的 E2E 证据；若后续阶段补后台翻译工作流交互回归，可将该场景并入浏览器验证基线。
 
 ## 相关文档
 

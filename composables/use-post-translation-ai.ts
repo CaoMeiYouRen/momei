@@ -23,6 +23,7 @@ import type {
     PostTranslationMode,
     PostTranslationProgress,
     PostTranslationSourceDetail,
+    TranslationProgressField,
     TranslationScopeField,
     TranslationTextField,
 } from '@/types/post-translation'
@@ -50,6 +51,14 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         error: null,
         fields: createFieldProgressRecord(),
     })
+    const notifyTranslationSuccess = () => {
+        toast.add({
+            severity: 'success',
+            summary: t('common.success'),
+            detail: t('pages.admin.posts.translate_success'),
+            life: 3000,
+        })
+    }
     const isTranslating = computed(() =>
         translationProgress.value.status === 'pending'
         || translationProgress.value.status === 'processing',
@@ -132,7 +141,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
     }
 
     const updateOverallProgress = () => {
-        const fields = runContext.value?.fields || []
+        const fields = runContext.value?.progressFields || []
 
         if (fields.length === 0) {
             translationProgress.value = {
@@ -185,6 +194,82 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         }
 
         updateOverallProgress()
+    }
+
+    const setProgressField = (field: TranslationProgressField, patch: Partial<PostTranslationFieldProgress>) => {
+        translationProgress.value = {
+            ...translationProgress.value,
+            fields: {
+                ...translationProgress.value.fields,
+                [field]: {
+                    ...translationProgress.value.fields[field],
+                    ...patch,
+                },
+            },
+        }
+
+        updateOverallProgress()
+    }
+
+    const beginAuxiliaryFieldProgress = (field: Exclude<TranslationProgressField, TranslationTextField>, options: {
+        content?: string
+        totalChunks?: number
+        mode?: PostTranslationMode | null
+    } = {}) => {
+        setProgressField(field, {
+            status: 'processing',
+            progress: 0,
+            mode: options.mode ?? 'direct',
+            content: options.content ?? translationProgress.value.fields[field].content,
+            completedChunks: 0,
+            totalChunks: options.totalChunks ?? 0,
+            error: null,
+            canRetry: false,
+            canCancel: false,
+        })
+    }
+
+    const completeAuxiliaryFieldProgress = (field: Exclude<TranslationProgressField, TranslationTextField>, options: {
+        content?: string
+        totalChunks?: number
+        completedChunks?: number
+        mode?: PostTranslationMode | null
+    } = {}) => {
+        setProgressField(field, {
+            status: 'completed',
+            progress: 100,
+            mode: options.mode ?? translationProgress.value.fields[field].mode,
+            content: options.content ?? translationProgress.value.fields[field].content,
+            completedChunks: options.completedChunks ?? options.totalChunks ?? translationProgress.value.fields[field].completedChunks,
+            totalChunks: options.totalChunks ?? translationProgress.value.fields[field].totalChunks,
+            error: null,
+            canRetry: false,
+            canCancel: false,
+        })
+
+        if (translationProgress.value.status === 'completed') {
+            notifyTranslationSuccess()
+        }
+    }
+
+    const failAuxiliaryFieldProgress = (field: Exclude<TranslationProgressField, TranslationTextField>, options: {
+        error: string
+        content?: string
+        totalChunks?: number
+        completedChunks?: number
+        mode?: PostTranslationMode | null
+    }) => {
+        setProgressField(field, {
+            status: 'failed',
+            progress: translationProgress.value.fields[field].progress,
+            mode: options.mode ?? translationProgress.value.fields[field].mode,
+            content: options.content ?? translationProgress.value.fields[field].content,
+            completedChunks: options.completedChunks ?? translationProgress.value.fields[field].completedChunks,
+            totalChunks: options.totalChunks ?? translationProgress.value.fields[field].totalChunks,
+            error: options.error,
+            canRetry: false,
+            canCancel: false,
+        })
     }
 
     const syncFieldContent = (
@@ -547,20 +632,11 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
                 })
             }
 
-            translationProgress.value = {
-                ...translationProgress.value,
-                status: 'completed',
-                progress: 100,
-                activeField: null,
-                error: null,
-            }
+            updateOverallProgress()
 
-            toast.add({
-                severity: 'success',
-                summary: t('common.success'),
-                detail: t('pages.admin.posts.translate_success'),
-                life: 3000,
-            })
+            if (translationProgress.value.status === 'completed') {
+                notifyTranslationSuccess()
+            }
 
             return true
         } catch (error) {
@@ -678,7 +754,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
             post,
             runContext,
             translationProgress,
-            setFieldProgress,
+            setFieldProgress: setProgressField,
             resetTranslationProgress,
         })
         if (!initialized) {
@@ -689,7 +765,10 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
     }
 
     return {
+        beginAuxiliaryFieldProgress,
         cancelFieldTranslation,
+        completeAuxiliaryFieldProgress,
+        failAuxiliaryFieldProgress,
         isTextScope,
         isTranslating,
         resetTranslationProgress,

@@ -44,6 +44,21 @@ const translations: Record<string, string> = {
     'pages.admin.posts.translation_workflow.progress_completed': '翻译已完成',
     'pages.admin.posts.translation_workflow.progress_failed': '翻译失败',
     'pages.admin.posts.translation_workflow.current_field': '当前字段：{field}',
+    'pages.admin.posts.translation_workflow.applied_content': '已回填内容',
+    'pages.admin.posts.translation_workflow.applied_content_empty': '当前还没有已回填内容',
+    'pages.admin.posts.translation_workflow.progress_detail': '已完成 {completed}/{total} 块',
+    'pages.admin.posts.translation_workflow.retry_field': '重试字段',
+    'pages.admin.posts.translation_workflow.cancel_field': '取消字段',
+    'pages.admin.posts.translation_workflow.field_statuses.idle': '未开始',
+    'pages.admin.posts.translation_workflow.field_statuses.pending': '等待中',
+    'pages.admin.posts.translation_workflow.field_statuses.processing': '翻译中',
+    'pages.admin.posts.translation_workflow.field_statuses.completed': '已完成',
+    'pages.admin.posts.translation_workflow.field_statuses.failed': '失败',
+    'pages.admin.posts.translation_workflow.field_statuses.cancelled': '已取消',
+    'pages.admin.posts.translation_workflow.modes.direct': '直返回填',
+    'pages.admin.posts.translation_workflow.modes.chunk': '分段回填',
+    'pages.admin.posts.translation_workflow.modes.stream': '流式回填',
+    'pages.admin.posts.translation_workflow.modes.task': '任务轮询',
 }
 
 function translate(key: string, params?: Record<string, string>) {
@@ -292,5 +307,71 @@ describe('PostTranslationWorkflowDialog', () => {
         expect(wrapper.text()).toContain('当前字段：正文')
         expect(wrapper.text()).toContain('network error')
         expect(wrapper.text()).toContain('66')
+    })
+
+    it('shows tags progress card when tags scope is selected', async () => {
+        const wrapper = await mountSuspended(PostTranslationWorkflowDialog, {
+            props: {
+                ...defaultProps,
+                defaultScopes: ['tags'],
+                progress: 100,
+                translationStatus: 'completed',
+                activeField: 'tags',
+                fieldProgressMap: {
+                    title: {
+                        status: 'idle',
+                        progress: 0,
+                        mode: null,
+                        content: '',
+                        completedChunks: 0,
+                        totalChunks: 0,
+                        error: null,
+                        canRetry: false,
+                        canCancel: false,
+                    },
+                    summary: {
+                        status: 'idle',
+                        progress: 0,
+                        mode: null,
+                        content: '',
+                        completedChunks: 0,
+                        totalChunks: 0,
+                        error: null,
+                        canRetry: false,
+                        canCancel: false,
+                    },
+                    content: {
+                        status: 'idle',
+                        progress: 0,
+                        mode: null,
+                        content: '',
+                        completedChunks: 0,
+                        totalChunks: 0,
+                        error: null,
+                        canRetry: false,
+                        canCancel: false,
+                    },
+                    tags: {
+                        status: 'completed',
+                        progress: 100,
+                        mode: 'direct',
+                        content: 'Translated Tag',
+                        completedChunks: 1,
+                        totalChunks: 1,
+                        error: null,
+                        canRetry: false,
+                        canCancel: false,
+                    },
+                },
+            },
+            global: globalOptions,
+        })
+
+        await nextTick()
+
+        expect(wrapper.text()).toContain('当前字段：标签')
+        expect(wrapper.text()).toContain('已完成 1/1 块')
+        expect(wrapper.text()).toContain('Translated Tag')
+        expect(wrapper.text()).toContain('直返回填')
     })
 })

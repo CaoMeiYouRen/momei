@@ -7,6 +7,7 @@ import type {
     PostTranslationMode,
     PostTranslationProgress,
     PostTranslationSourceDetail,
+    TranslationProgressField,
     TranslationScopeField,
     TranslationTextField,
 } from '@/types/post-translation'
@@ -23,6 +24,7 @@ export interface TranslationRunContext {
     sourceLanguage: string
     targetLanguage: string
     fields: TranslationTextField[]
+    progressFields: TranslationProgressField[]
 }
 
 export interface TranslationFieldRuntime {
@@ -60,11 +62,12 @@ export function createFieldProgress(): PostTranslationFieldProgress {
     }
 }
 
-export function createFieldProgressRecord(): Record<TranslationTextField, PostTranslationFieldProgress> {
+export function createFieldProgressRecord(): Record<TranslationProgressField, PostTranslationFieldProgress> {
     return {
         title: createFieldProgress(),
         summary: createFieldProgress(),
         content: createFieldProgress(),
+        tags: createFieldProgress(),
     }
 }
 
@@ -298,7 +301,7 @@ export function markPendingTranslationFields(options: {
 
 export function cancelActiveTranslation(options: {
     field?: TranslationTextField
-    activeField: TranslationTextField | null
+    activeField: TranslationProgressField | null
     activeAbortController: AbortController | null
 }) {
     if (!options.activeField || (options.field && options.field !== options.activeField) || !options.activeAbortController) {
@@ -339,12 +342,13 @@ export function initializeTranslationRun(options: {
     post: Ref<PostEditorData>
     runContext: Ref<TranslationRunContext | null>
     translationProgress: Ref<PostTranslationProgress>
-    setFieldProgress: (field: TranslationTextField, patch: Partial<PostTranslationFieldProgress>) => void
+    setFieldProgress: (field: TranslationProgressField, patch: Partial<PostTranslationFieldProgress>) => void
     resetTranslationProgress: () => void
 }) {
     const textScopes = TEXT_TRANSLATION_SCOPE_ORDER.filter((scope) => options.runOptions.scopes.includes(scope))
+    const progressScopes = options.runOptions.scopes.filter((scope): scope is TranslationProgressField => isTextScope(scope) || scope === 'tags')
 
-    if (textScopes.length === 0) {
+    if (progressScopes.length === 0) {
         options.resetTranslationProgress()
         return false
     }
@@ -354,6 +358,7 @@ export function initializeTranslationRun(options: {
         sourceLanguage: options.runOptions.sourceLanguage,
         targetLanguage: options.runOptions.targetLanguage,
         fields: textScopes,
+        progressFields: progressScopes,
     }
 
     options.translationProgress.value = {
@@ -365,13 +370,15 @@ export function initializeTranslationRun(options: {
         fields: createFieldProgressRecord(),
     }
 
-    textScopes.forEach((field) => {
+    progressScopes.forEach((field) => {
         let currentValue = options.post.value.content
 
         if (field === 'title') {
             currentValue = options.post.value.title
         } else if (field === 'summary') {
             currentValue = options.post.value.summary || ''
+        } else if (field === 'tags') {
+            currentValue = options.post.value.tags.join(', ')
         }
 
         options.setFieldProgress(field, {

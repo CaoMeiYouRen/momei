@@ -91,6 +91,21 @@ interface UsePostEditorTranslationOptions {
     loadTags: (language?: string) => Promise<void>
     getTagBindings: () => PostTagBindingInput[]
     applyTagBindings: (bindings: PostTagBindingInput[]) => void
+    beginAuxiliaryFieldProgress: (field: 'tags', options?: {
+        content?: string
+        totalChunks?: number
+    }) => void
+    completeAuxiliaryFieldProgress: (field: 'tags', options?: {
+        content?: string
+        totalChunks?: number
+        completedChunks?: number
+    }) => void
+    failAuxiliaryFieldProgress: (field: 'tags', options: {
+        error: string
+        content?: string
+        totalChunks?: number
+        completedChunks?: number
+    }) => void
     translateTaxonomyNames: (names: string[], targetLanguage: string) => Promise<string[]>
     translatePostFields: (payload: {
         source: PostTranslationSourceDetail
@@ -692,7 +707,19 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
             }
 
             if (payload.scopes.includes('tags')) {
-                options.applyTagBindings(await resolveTranslatedTagBindings(source.tags || [], source.language, payload.targetLanguage))
+                const sourceTags = source.tags || []
+                options.beginAuxiliaryFieldProgress('tags', {
+                    content: options.post.value.tags.join(', '),
+                    totalChunks: sourceTags.length,
+                })
+
+                const translatedTagBindings = await resolveTranslatedTagBindings(sourceTags, source.language, payload.targetLanguage)
+                options.applyTagBindings(translatedTagBindings)
+                options.completeAuxiliaryFieldProgress('tags', {
+                    content: translatedTagBindings.map((binding) => binding.name).join(', '),
+                    totalChunks: sourceTags.length,
+                    completedChunks: sourceTags.length,
+                })
             }
 
             if (payload.scopes.includes('coverImage')) {
@@ -704,6 +731,14 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
             }
         } catch (error) {
             console.error('Failed to resolve translated taxonomy bindings', error)
+            if (payload.scopes.includes('tags')) {
+                options.failAuxiliaryFieldProgress('tags', {
+                    error: error instanceof Error ? error.message : options.t('pages.admin.posts.ai_error'),
+                    content: options.post.value.tags.join(', '),
+                    totalChunks: source.tags?.length || 0,
+                    completedChunks: 0,
+                })
+            }
             options.toast.add({
                 severity: 'error',
                 summary: options.t('common.error'),

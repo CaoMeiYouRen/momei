@@ -366,4 +366,59 @@ describe('usePostTranslationAI', () => {
         expect(apiFetchMock).toHaveBeenCalledTimes(5)
         expect(fetchMock).toHaveBeenCalledTimes(1)
     })
+
+    it('选择 tags 范围时应将标签进度纳入整体状态并支持手动完成', async () => {
+        apiFetchMock.mockResolvedValueOnce({
+            data: {
+                mode: 'direct',
+                content: 'Translated title',
+            },
+        })
+
+        const post = createPostState()
+        const {
+            beginAuxiliaryFieldProgress,
+            completeAuxiliaryFieldProgress,
+            translatePostFields,
+            translationProgress,
+        } = usePostTranslationAI(post)
+
+        const translated = await translatePostFields({
+            source: createSource({
+                title: '短标题',
+                tags: [{
+                    id: 'tag-1',
+                    name: '源标签',
+                    slug: 'source-tag',
+                    translationId: 'shared-tag-cluster',
+                }],
+            }),
+            sourceLanguage: 'zh-CN',
+            targetLanguage: 'en-US',
+            scopes: ['title', 'tags'],
+        })
+
+        expect(translated).toBe(true)
+        expect(translationProgress.value.status).toBe('pending')
+        expect(translationProgress.value.progress).toBe(50)
+        expect(translationProgress.value.fields.tags.status).toBe('pending')
+
+        beginAuxiliaryFieldProgress('tags', {
+            content: '',
+            totalChunks: 1,
+        })
+
+        expect(translationProgress.value.activeField).toBe('tags')
+        expect(translationProgress.value.status).toBe('processing')
+
+        completeAuxiliaryFieldProgress('tags', {
+            content: 'Translated Tag',
+            totalChunks: 1,
+            completedChunks: 1,
+        })
+
+        expect(translationProgress.value.status).toBe('completed')
+        expect(translationProgress.value.progress).toBe(100)
+        expect(translationProgress.value.fields.tags.content).toBe('Translated Tag')
+    })
 })
