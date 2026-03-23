@@ -29,7 +29,7 @@ vi.mock('@/server/utils/env', () => ({
 }))
 
 vi.mock('./text-translation', () => ({
-    requestTranslation: vi.fn((content: string, to: string, providerArg: any, options: any) => Promise.resolve({
+    requestTranslation: vi.fn((content: string) => Promise.resolve({
         provider: { name: 'openai' },
         response: {
             model: 'gpt-4o',

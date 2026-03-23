@@ -126,7 +126,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
             await secondaryTab.goto('/admin/posts')
             await expect(secondaryTab).toHaveURL(/\/login(?:\?|$)/, { timeout: 20000 })
         } finally {
-            await context.close().catch(() => {})
+            await context.close()
         }
     })
 

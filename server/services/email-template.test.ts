@@ -88,9 +88,9 @@ describe('email template service', () => {
             usedFallback: false,
             usedLegacyValue: false,
         })
-        vi.mocked(settingModule.resolveSetting).mockImplementation(async (key: string) => {
+        vi.mocked(settingModule.resolveSetting).mockImplementation((key: string) => {
             if (key === 'site_name') {
-                return {
+                return Promise.resolve({
                     key,
                     value: 'Momei',
                     description: '',
@@ -104,11 +104,11 @@ describe('email template service', () => {
                     lockReason: null,
                     requiresRestart: false,
                     localized: null,
-                }
+                })
             }
 
             if (key === 'contact_email') {
-                return {
+                return Promise.resolve({
                     key,
                     value: 'contact@momei.app',
                     description: '',
@@ -122,10 +122,10 @@ describe('email template service', () => {
                     lockReason: null,
                     requiresRestart: false,
                     localized: null,
-                }
+                })
             }
 
-            return {
+            return Promise.resolve({
                 key,
                 value: null,
                 description: '',
@@ -139,7 +139,7 @@ describe('email template service', () => {
                 lockReason: null,
                 requiresRestart: false,
                 localized: null,
-            }
+            })
         })
     })
 
@@ -225,9 +225,9 @@ describe('email template service', () => {
             usedFallback: false,
             usedLegacyValue: false,
         })
-        vi.mocked(settingModule.resolveSetting).mockImplementation(async (key: string) => {
+        vi.mocked(settingModule.resolveSetting).mockImplementation((key: string) => {
             if (key === 'site_title') {
-                return {
+                return Promise.resolve({
                     key,
                     value: JSON.stringify({
                         version: 1,
@@ -246,11 +246,11 @@ describe('email template service', () => {
                     lockReason: null,
                     requiresRestart: false,
                     localized: null,
-                }
+                })
             }
 
             if (key === 'site_name') {
-                return {
+                return Promise.resolve({
                     key,
                     value: 'Momei',
                     description: '',
@@ -264,10 +264,10 @@ describe('email template service', () => {
                     lockReason: null,
                     requiresRestart: false,
                     localized: null,
-                }
+                })
             }
 
-            return {
+            return Promise.resolve({
                 key,
                 value: 'contact@momei.app',
                 description: '',
@@ -281,7 +281,7 @@ describe('email template service', () => {
                 lockReason: null,
                 requiresRestart: false,
                 localized: null,
-            }
+            })
         })
 
         const preview = await previewEmailTemplate({

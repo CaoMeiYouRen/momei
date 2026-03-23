@@ -29,7 +29,7 @@ describe('email template service locale integration', () => {
             usedFallback: false,
             usedLegacyValue: false,
         })
-        vi.mocked(resolveSetting).mockImplementation(async (key: string) => ({
+        vi.mocked(resolveSetting).mockImplementation((key: string) => Promise.resolve({
             key,
             value: key === 'site_name' ? 'Momei' : null,
             description: '',
