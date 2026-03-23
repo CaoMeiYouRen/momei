@@ -30,7 +30,7 @@ import {
 import { hasUnsavedNewDraftContent, usePostEditorTranslation } from '@/composables/use-post-editor-translation'
 import { usePostTranslationAI } from '@/composables/use-post-translation-ai'
 import { useRequestFeedback } from '@/composables/use-request-feedback'
-import { formatMarkdown } from '@/utils/shared/markdown'
+import { formatMarkdown } from '@/utils/shared/markdown-formatter'
 import { syncPostTagBindings } from '@/utils/shared/post-tag-bindings'
 import { buildPreferredTaxonomyOptions } from '@/utils/shared/taxonomy-options'
 

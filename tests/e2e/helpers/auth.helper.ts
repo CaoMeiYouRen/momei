@@ -17,6 +17,36 @@ export class AuthHelper {
         this.page = page
     }
 
+    private async expectAuthenticatedShell() {
+        await this.page.waitForLoadState('networkidle')
+
+        await expect(this.page).not.toHaveURL(/\/login(?:\?|$)/, { timeout: 20000 })
+
+        const loginButton = this.page.locator('#login-btn')
+        await expect(loginButton).toHaveCount(0, { timeout: 20000 })
+
+        const authEntrypoints = [
+            this.page.locator('#user-menu-btn'),
+            this.page.locator('#admin-menu-btn'),
+            this.page.locator('.mobile-user-button'),
+            this.page.locator('.mobile-only .pi-bars').locator('..'),
+        ]
+
+        await expect(async () => {
+            const visibleStates = await Promise.all(
+                authEntrypoints.map(async (locator) => {
+                    try {
+                        return await locator.first().isVisible()
+                    } catch {
+                        return false
+                    }
+                }),
+            )
+
+            expect(visibleStates.some(Boolean)).toBe(true)
+        }).toPass({ timeout: 20000 })
+    }
+
     /**
      * 以管理员身份登录
      */
@@ -42,10 +72,7 @@ export class AuthHelper {
         // 增加超时时间以应对慢速环境下的重定向
         await this.page.waitForURL(/\//, { timeout: 20000 })
 
-        // 验证登录状态：用户菜单按钮应该可见
-        // 如果页面是通过 ClientOnly 渲染的，可能需要一点时间
-        const userMenuBtn = this.page.locator('#user-menu-btn')
-        await expect(userMenuBtn).toBeVisible({ timeout: 20000 })
+        await this.expectAuthenticatedShell()
     }
 
     /**

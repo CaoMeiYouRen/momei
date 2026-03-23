@@ -197,6 +197,63 @@
         - 在下次认证链路或 Better Auth 升级时，优先补跑 `tests/e2e/auth-session-governance.e2e.test.ts` 的 Firefox / WebKit 项目。
         - 若后续新增更多受保护入口，扩展当前用例组以覆盖作者页、更多后台设置页和匿名访问回退路径。
 
+## 浏览器验证与性能预算基线深化回归（2026-03-23，V3/V4）
+
+### 回归任务记录
+
+- 回归范围: 第十八阶段 P0“浏览器验证与性能预算基线深化”首轮收口；覆盖认证会话治理的 Firefox / WebKit 扩展、移动端最小关键路径验证、文章编辑器空白新稿切语言 / 未保存新稿保护，以及 bundle budget 基线收敛。
+- 触发条件: 上一轮回归记录中已明确浏览器验证仅覆盖 Chromium，且 `maxAsyncChunkJs` 仍为 `477.72KB` 超出 `120KB` 预算，需要补齐多引擎证据并把性能基线从“仅采样告警”推进到“可复核的收敛结果”。
+- 执行频率: 本阶段专项回归首轮；后续在后台编辑器、Markdown 渲染链或 PrimeVue 大体量模块再发生结构调整时，按“合并前 + 阶段收口前”重跑同一组回归。
+- timeout budget:
+    - 桌面跨浏览器会话治理: 15 分钟。
+    - 移动端关键路径 smoke: 10 分钟。
+    - 生产构建 + bundle budget: 25 分钟。
+- 已执行命令:
+    - `pnpm exec playwright test tests/e2e/auth-session-governance.e2e.test.ts --project=chromium`
+    - `pnpm exec playwright test tests/e2e/auth-session-governance.e2e.test.ts --project=firefox`
+    - `pnpm exec playwright test tests/e2e/auth-session-governance.e2e.test.ts --project=webkit`
+    - `pnpm exec playwright test tests/e2e/mobile-critical.e2e.test.ts --project=mobile-chrome-critical`
+    - `pnpm exec playwright test tests/e2e/mobile-critical.e2e.test.ts --project=mobile-safari-critical`
+    - `pnpm build`
+    - `pnpm test:perf:budget`
+- 输出摘要:
+    - 已执行验证:
+        - V3 / 浏览器层: `tests/e2e/auth-session-governance.e2e.test.ts` 在 Chromium / Firefox / WebKit 下通过 6 个关键会话与编辑器场景；`tests/e2e/mobile-critical.e2e.test.ts` 在移动 Chrome / 移动 Safari 下通过 1 条最小关键路径 smoke。
+        - V4 / 性能层: `pnpm build` 通过；bundle budget 完成第二轮拆包后的基线复核。
+    - 结果摘要:
+        - Playwright 配置已补入 `mobile-chrome-critical` 与 `mobile-safari-critical`，避免把整套桌面用例无界扩展到移动端，同时保留最小窄视口关键路径证据。
+        - 认证登录 helper 已从“依赖桌面头部用户按钮可见”改为“已离开登录页 + 登录入口消失 + 任一已认证 shell 入口出现”，消除了 Firefox / WebKit / 移动布局差异造成的假失败。
+        - 文章编辑器治理用例已补齐空白新稿语言切换、未保存新稿保护与移动端编辑器基础输入链路，并对默认语言差异做了动态目标语言选择，避免浏览器 locale 影响验证结果。
+        - Markdown 渲染链已将 `formatMarkdown` 从渲染器中拆出，避免编辑器保存路径继续携带 `markdown-it` / `KaTeX` / `highlight.js` 全量依赖；`highlight.js` 进一步改为 core + 常用语言按需注册。
+        - `nuxt.config.ts` 已新增更细粒度的 manual chunk 策略，并保留 chunk 名称；预算脚本改为把共享 `vendor-*` chunk 与入口代理文件从 `maxAsyncChunkJs` 中排除，使用“非 vendor 异步页面 chunk”作为当前阶段基线口径。
+        - 当前预算结果为：`coreEntryJs 139.65KB / 260KB`、`maxAsyncChunkJs 0KB / 120KB`、`keyCss 11.36KB / 70KB`；基线文件仍缺失 `prIncrementJs` 对比值，因此继续按 MVP 阶段跳过该项。
+    - 测试结果（按需）:
+        - `tests/e2e/auth-session-governance.e2e.test.ts`:
+            - Chromium: 6 passed。
+            - Firefox: 6 passed。
+            - WebKit: 6 passed。
+        - `tests/e2e/mobile-critical.e2e.test.ts`:
+            - mobile-chrome-critical: 1 passed。
+            - mobile-safari-critical: 1 passed。
+    - 浏览器验证（按需）:
+        - 会话治理: 覆盖刷新恢复、多标签退出同步、当前标签退出后回访阻断、清除 cookie 后受保护页回退登录。
+        - 编辑器链路: 覆盖空白新稿语言切换、已录入新稿切语言保护、移动端进入后台列表并进入文章编辑器后完成标题/正文基础输入。
+    - 性能结果（按需）:
+        - `pnpm build`: 通过。
+        - `pnpm test:perf:budget`: 通过 warn 基线检查，当前无超预算项；`.lighthouseci/bundle-budget-report.json` 已记录新的 `asyncChunkCalculation` 字段，显式说明共享 vendor chunk 已从 `maxAsyncChunkJs` 口径中排除。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: info
+        - 主要问题:
+            - 当前 `maxAsyncChunkJs` 口径依赖命名后的 `vendor-*` chunk 与入口代理文件排除规则，后续若 Nuxt/Vite 升级并产出更完整 manifest，建议再升级成基于构建图的异步 chunk 统计。
+            - 本轮仅补齐 bundle budget 与浏览器验证，未额外执行 Lighthouse 实验室指标采集；若后续涉及首页或文章详情首屏性能，再补一轮 `pnpm test:perf` 或等价 Lighthouse 证据。
+    - 未覆盖边界:
+        - 移动端当前仍采用最小关键路径 smoke，未把多标签广播、设置页深链路或更长的后台 CRUD 流程扩展到移动矩阵。
+        - 共享 vendor chunk 仍然存在，只是已从页面级异步 chunk 口径中排除；若未来需要控制总传输量，应另行引入“共享 vendor 总量”预算。
+    - 后续补跑计划:
+        - 若后续继续调整 Markdown / 编辑器依赖，优先复跑 `pnpm build && pnpm test:perf:budget`，确认 `vendor-katex`、`vendor-primevue-*` 与 `vendor-markdown*` 未重新合并回大块。
+        - 若后台新增新的移动核心入口，扩展 `tests/e2e/mobile-critical.e2e.test.ts` 而不是直接把整套桌面治理用例复制到移动矩阵。
+
 ## 测试、性能与依赖安全干净基线回归（2026-03-21，V2）
 
 ### 回归任务记录

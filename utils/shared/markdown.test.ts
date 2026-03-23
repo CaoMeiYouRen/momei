@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { createMarkdownRenderer, formatMarkdown } from './markdown'
+import { formatMarkdown } from './markdown-formatter'
+import { createMarkdownRenderer } from './markdown'
 
 describe('createMarkdownRenderer', () => {
     const md = createMarkdownRenderer({ html: true })

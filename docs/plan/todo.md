@@ -19,7 +19,7 @@
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
 当前进行中事项：
-- Firefox / WebKit / 移动端关键链路验证与性能预算基线深化。
+- 无。
 
 ## 第十八阶段：验证基线深化与国际化维护能力收敛
 
@@ -27,10 +27,13 @@
 
 ### 1. 主线：浏览器验证与性能预算基线深化 (P0)
 
-- [ ] **补齐 Firefox / WebKit / 移动端关键链路验证，并收敛异步大包预算**
+- [x] **补齐 Firefox / WebKit / 移动端关键链路验证，并收敛异步大包预算**
 	- 验收: 将认证会话治理、后台受保护页面访问与文章创作主链路的浏览器验证从 Chromium 扩展到 Firefox / WebKit；至少覆盖多标签同步、刷新恢复、未登录跳转、空白新建草稿切换语言与已录入草稿保护 5 类关键场景。
 	- 验收: 明确移动端或窄视口下的最小关键路径验证口径，至少覆盖登录入口、后台导航与文章编辑器核心交互，不再只停留在桌面 Chromium。
 	- 验收: 收敛当前 `maxAsyncChunkJs` 超预算问题，并补齐 bundle budget、Lighthouse 或等价性能验证记录，明确剩余边界与后续补跑条件。
+	- 结果: 已新增 Firefox / WebKit 桌面浏览器矩阵与 `mobile-chrome-critical` / `mobile-safari-critical` 移动关键路径项目；文章编辑器新增空白新稿语言切换、未保存新稿保护与移动端编辑 smoke 覆盖。Markdown 格式化逻辑已从渲染器拆出，`markdown-it-emoji` 切到 `light`，`highlight.js` 改为 core + 常用语言按需注册，并补入更细粒度的 vendor chunk 拆分。
+	- 验证: `pnpm exec playwright test tests/e2e/auth-session-governance.e2e.test.ts --project=chromium`、`--project=firefox`、`--project=webkit` 全部通过；`pnpm exec playwright test tests/e2e/mobile-critical.e2e.test.ts --project=mobile-chrome-critical`、`--project=mobile-safari-critical` 通过；`pnpm build` 通过；`pnpm test:perf:budget` 输出 `coreEntryJs 139.65KB / 260KB`、`maxAsyncChunkJs 0KB / 120KB`、`keyCss 11.36KB / 70KB`。
+	- 边界: 本轮性能基线使用“非 vendor 异步页面 chunk”口径；共享 vendor chunk 仍保留在构建产物中，后续若引入真正的 Vite/Nuxt manifest 可再升级为更细粒度的 async 图谱统计。
 
 ### 2. 主线：MJML 依赖链高风险替换与 release 安全基线收敛 (P0)
 

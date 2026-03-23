@@ -1,58 +1,50 @@
 import MarkdownIt from 'markdown-it'
 import MarkdownItAnchor from 'markdown-it-anchor'
 import MarkdownItContainer from 'markdown-it-container'
-import { full as MarkdownItEmoji } from 'markdown-it-emoji'
+import { light as MarkdownItEmoji } from 'markdown-it-emoji'
 import githubAlerts from 'markdown-it-github-alerts'
 import texmath from 'markdown-it-texmath'
 import katex from 'katex'
-import hljs from 'highlight.js'
+import hljs from 'highlight.js/lib/core'
+import bash from 'highlight.js/lib/languages/bash'
+import css from 'highlight.js/lib/languages/css'
+import go from 'highlight.js/lib/languages/go'
+import java from 'highlight.js/lib/languages/java'
+import javascript from 'highlight.js/lib/languages/javascript'
+import json from 'highlight.js/lib/languages/json'
+import markdown from 'highlight.js/lib/languages/markdown'
+import plaintext from 'highlight.js/lib/languages/plaintext'
+import python from 'highlight.js/lib/languages/python'
+import rust from 'highlight.js/lib/languages/rust'
+import scss from 'highlight.js/lib/languages/scss'
+import sql from 'highlight.js/lib/languages/sql'
+import typescript from 'highlight.js/lib/languages/typescript'
+import xml from 'highlight.js/lib/languages/xml'
+import yaml from 'highlight.js/lib/languages/yaml'
 
-/**
- * 格式化 Markdown 内容 (中文编写规范)
- * @param content 原始 Markdown 内容
- * @returns 格式化后的内容
- */
-export async function formatMarkdown(content: string) {
-    if (!content) {
-        return ''
-    }
-    // zhlint 仅支持在浏览器环境或 Node.js 环境中运行，但在某些环境下（如 SSR）可能会因为访问 document 而崩溃
-    // 且 zhlint 主要是给前端编辑器使用的，所以在此处增加环境判断或动态导入
-    try {
-        if (import.meta.server) {
-            return content // SSR 环境下跳过格式化
-        }
-
-        const { run } = await import('zhlint/dist/zhlint.es')
-        const output = run(content, {
-            rules: {
-                preset: 'default', // 使用默认预设
-                // 禁用标点符号处理是为了避免转换关键字导致的问题
-                // 例如 > [! IMPORTANT] 会被转换为 >【！IMPORTANT】
-                // 1. 禁用所有标点转换
-                halfwidthPunctuation: '', // 禁用：将全角标点转换为半角（如 （） -> ()）
-                fullwidthPunctuation: '', // 禁用：将半角标点转换为全角（如 , -> ，）
-                unifiedPunctuation: {
-                    default: false, // 禁用：标点符号归一化（如繁体标点转换为简体）
-                },
-                // 2. 禁用所有标点相关的空格规则 (设为 undefined 表示跳过处理)
-                noSpaceBeforePauseOrStop: undefined, // 禁用：标点符号（如 ，。：；？！）前不保留空格
-                spaceAfterHalfwidthPauseOrStop: undefined, // 禁用：半角标点符号后保留一个空格
-                noSpaceAfterFullwidthPauseOrStop: undefined, // 禁用：全角标点符号后不保留空格
-                spaceOutsideHalfwidthQuotation: undefined, // 禁用：半角引号（"）外侧保留一个空格
-                noSpaceOutsideFullwidthQuotation: undefined, // 禁用：全角引号（“”）外侧不保留空格
-                noSpaceInsideQuotation: undefined, // 禁用：引号内侧不保留空格
-                spaceOutsideHalfwidthBracket: undefined, // 禁用：半角括号（()）外侧保留一个空格
-                noSpaceOutsideFullwidthBracket: undefined, // 禁用：全角括号（（））外侧不保留空格
-                noSpaceInsideBracket: undefined, // 禁用：括号内侧不保留空格
-            },
-        })
-        return output.result || content
-    } catch (error) {
-        console.error('Markdown formatting failed:', error)
-        return content
-    }
-}
+hljs.registerLanguage('bash', bash)
+hljs.registerLanguage('css', css)
+hljs.registerLanguage('go', go)
+hljs.registerLanguage('java', java)
+hljs.registerLanguage('javascript', javascript)
+hljs.registerLanguage('js', javascript)
+hljs.registerLanguage('json', json)
+hljs.registerLanguage('markdown', markdown)
+hljs.registerLanguage('md', markdown)
+hljs.registerLanguage('plaintext', plaintext)
+hljs.registerLanguage('text', plaintext)
+hljs.registerLanguage('python', python)
+hljs.registerLanguage('py', python)
+hljs.registerLanguage('rust', rust)
+hljs.registerLanguage('rs', rust)
+hljs.registerLanguage('scss', scss)
+hljs.registerLanguage('sql', sql)
+hljs.registerLanguage('typescript', typescript)
+hljs.registerLanguage('ts', typescript)
+hljs.registerLanguage('html', xml)
+hljs.registerLanguage('xml', xml)
+hljs.registerLanguage('yaml', yaml)
+hljs.registerLanguage('yml', yaml)
 
 export interface MarkdownOptions {
     /**

@@ -71,6 +71,16 @@ function toKBString(bytes) {
     return `${(bytes / KB).toFixed(2)}KB`
 }
 
+function isEntryLikeFile(filePath) {
+    const name = path.basename(filePath)
+    return /^(entry|app|index)\..+\.js$/i.test(name)
+}
+
+function isVendorChunk(filePath) {
+    const name = path.basename(filePath)
+    return /^vendor-[^.]+\..+\.js$/i.test(name)
+}
+
 async function main() {
     const args = parseArgs(process.argv)
     const assetsDir = path.resolve('.output/public/_nuxt')
@@ -95,16 +105,21 @@ async function main() {
         gzipBytes: await getGzipSize(file),
     })))
 
-    const entryCandidates = jsWithSize.filter((item) => {
-        const name = path.basename(item.file)
-        return /^(entry|app|index)\..+\.js$/i.exec(name)
-    })
+    const entryCandidates = jsWithSize.filter((item) => isEntryLikeFile(item.file))
 
     const proxyCandidates = [...jsWithSize].sort((a, b) => a.gzipBytes - b.gzipBytes).slice(0, 3)
     const entryFiles = entryCandidates.length > 0 ? entryCandidates : proxyCandidates
+    const entryFileSet = new Set(entryFiles.map((item) => item.file))
 
     const coreEntryJsGzipBytes = entryFiles.reduce((sum, item) => sum + item.gzipBytes, 0)
-    const maxAsyncChunkJs = jsWithSize.reduce((max, item) => item.gzipBytes > max.gzipBytes ? item : max, { file: '', gzipBytes: 0 })
+
+    const asyncChunkCandidates = jsWithSize.filter((item) => !entryFileSet.has(item.file) && !isVendorChunk(item.file))
+    const maxAsyncChunkJs = asyncChunkCandidates.length > 0
+        ? asyncChunkCandidates.reduce(
+            (max, item) => item.gzipBytes > max.gzipBytes ? item : max,
+            { file: '', gzipBytes: 0 },
+        )
+        : { file: '', gzipBytes: 0 }
 
     const keyCssCandidates = cssWithSize.filter((item) => /^(entry|app|index)\..+\.css$/i.exec(path.basename(item.file)))
     const keyCss = (keyCssCandidates.length > 0 ? keyCssCandidates : cssWithSize).reduce(
@@ -186,6 +201,11 @@ async function main() {
             largestJsChunk: {
                 file: rel(path.relative(process.cwd(), maxAsyncChunkJs.file)),
                 gzipBytes: maxAsyncChunkJs.gzipBytes,
+            },
+            asyncChunkCalculation: {
+                excludedVendorChunks: true,
+                candidates: asyncChunkCandidates.length,
+                entryProxyFiles: entryFiles.map((item) => rel(path.relative(process.cwd(), item.file))),
             },
             largestKeyCss: {
                 file: rel(path.relative(process.cwd(), keyCss.file)),

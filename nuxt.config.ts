@@ -320,6 +320,89 @@ export default defineNuxtConfig({
         build: {
             rollupOptions: {
                 external: ['quill'],
+                output: {
+                    chunkFileNames: '[name].[hash].js',
+                    manualChunks(id) {
+                        if (!id.includes('node_modules')) {
+                            return undefined
+                        }
+
+                        if (id.includes('better-auth')) {
+                            return 'vendor-auth'
+                        }
+
+                        if (id.includes('primevue/') || id.includes('@primevue/') || id.includes('@primeuix/') || id.includes('primeicons') || id.includes('primelocale')) {
+                            if (
+                                id.includes('/datatable')
+                                || id.includes('/column')
+                                || id.includes('/treetable')
+                                || id.includes('/paginator')
+                                || id.includes('/virtualscroller')
+                            ) {
+                                return 'vendor-primevue-data'
+                            }
+
+                            if (
+                                id.includes('/dialog')
+                                || id.includes('/drawer')
+                                || id.includes('/dynamicdialog')
+                                || id.includes('/popover')
+                                || id.includes('/menu')
+                                || id.includes('/confirmdialog')
+                                || id.includes('/toast')
+                                || id.includes('/tooltip')
+                                || id.includes('/overlay')
+                            ) {
+                                return 'vendor-primevue-overlay'
+                            }
+
+                            if (
+                                id.includes('/inputtext')
+                                || id.includes('/password')
+                                || id.includes('/select')
+                                || id.includes('/autocomplete')
+                                || id.includes('/datepicker')
+                                || id.includes('/textarea')
+                                || id.includes('/checkbox')
+                                || id.includes('/radiobutton')
+                                || id.includes('/toggleswitch')
+                                || id.includes('/multiselect')
+                            ) {
+                                return 'vendor-primevue-form'
+                            }
+
+                            return 'vendor-primevue-core'
+                        }
+
+                        if (id.includes('katex')) {
+                            return 'vendor-katex'
+                        }
+
+                        if (id.includes('highlight.js')) {
+                            return 'vendor-highlightjs'
+                        }
+
+                        if (
+                            id.includes('markdown-it')
+                            || id.includes('markdown-it-anchor')
+                            || id.includes('markdown-it-container')
+                            || id.includes('markdown-it-emoji')
+                            || id.includes('markdown-it-github-alerts')
+                        ) {
+                            return 'vendor-markdown'
+                        }
+
+                        if (id.includes('markdown-it-texmath')) {
+                            return 'vendor-markdown-math'
+                        }
+
+                        if (id.includes('mavon-editor')) {
+                            return 'vendor-mavon-editor'
+                        }
+
+                        return undefined
+                    },
+                },
             },
         },
     },
