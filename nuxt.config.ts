@@ -103,6 +103,8 @@ export default defineNuxtConfig({
         },
         workbox: {
             navigateFallback: '/',
+            // SSR 站点部署后不会长期保留旧 hash 资源，禁止导航兜底继续回放过期 app shell。
+            navigateFallbackDenylist: [/^\/.*$/],
             globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
         },
         devOptions: {
