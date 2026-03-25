@@ -124,6 +124,13 @@
                     "no_timeline": "暂无投递记录",
                     "open_remote": "打开远端内容",
                     "retry": "重试",
+                    "precheck": {
+                        "blocking_toast": "所选 WechatSync 账号存在未处理的兼容性问题，请先调整内容或取消这些账号。",
+                        "weibo_adjusted_title": "微博账号将使用兼容内容",
+                        "weibo_adjusted_detail": "检测到引用块、代码样式、标题锚点或图片容器时，系统会在同步前自动降级为微博兼容格式。账号：{accounts}",
+                        "weibo_blocking_title": "微博账号包含仍不兼容的组件",
+                        "weibo_blocking_detail": "当前内容仍含有微博不支持的组件：{components}。请先删除相关结构或取消这些账号后再同步。账号：{accounts}"
+                    },
                     "start_wechatsync": "开始 WechatSync 投递",
                     "status": {
                         "cancelled": "已终止",

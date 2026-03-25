@@ -154,6 +154,17 @@
                                 </label>
                             </div>
                         </div>
+                        <div v-if="wechatSyncPrecheckNotices.length" class="post-distribution-dialog__precheck-list">
+                            <div
+                                v-for="notice in wechatSyncPrecheckNotices"
+                                :key="notice.key"
+                                class="post-distribution-dialog__precheck"
+                                :class="`post-distribution-dialog__precheck--${notice.severity}`"
+                            >
+                                <strong>{{ notice.summary }}</strong>
+                                <p>{{ notice.detail }}</p>
+                            </div>
+                        </div>
                         <a
                             v-else-if="!extensionInstalled"
                             href="https://www.wechatsync.com/?utm_source=momei"
@@ -167,7 +178,7 @@
                             <Button
                                 :label="$t('pages.admin.posts.distribution.start_wechatsync')"
                                 severity="contrast"
-                                :disabled="!extensionInstalled || !selectedWechatAccounts.length"
+                                :disabled="!extensionInstalled || !selectedWechatAccounts.length || hasBlockingWechatSyncPrecheck"
                                 :loading="wechatSyncSubmitting"
                                 @click="dispatchWechatSync('sync')"
                             />
@@ -175,7 +186,7 @@
                                 v-if="canRetry('wechatsync')"
                                 :label="$t('pages.admin.posts.distribution.retry')"
                                 text
-                                :disabled="!extensionInstalled || !selectedWechatAccounts.length"
+                                :disabled="!extensionInstalled || !selectedWechatAccounts.length || hasBlockingWechatSyncPrecheck"
                                 :loading="wechatSyncSubmitting"
                                 @click="dispatchWechatSync('retry')"
                             />
@@ -289,7 +300,13 @@ import {
     buildWechatSyncPostFromMaterialBundle,
     type DistributionMaterialBundle,
 } from '@/utils/shared/distribution-template'
-import { groupWechatSyncAccountsByTagRenderMode } from '@/utils/shared/distribution-tags'
+import {
+    groupWechatSyncAccountsByTagRenderMode,
+} from '@/utils/shared/distribution-tags'
+import {
+    buildWechatSyncPrecheckNotices,
+    type WechatSyncPrecheckNotice,
+} from '@/utils/shared/post-distribution-precheck'
 import {
     buildWechatSyncFailureResults,
     mapWechatSyncTaskAccountsForCompletion,
@@ -388,10 +405,33 @@ const fetchedPost = ref<Post | null>(null)
 
 const postId = computed(() => props.post.id || '')
 const selectedWechatAccounts = computed(() => allAccounts.value.filter((account) => account.checked))
+const distributionMaterialBundle = computed<DistributionMaterialBundle | null>(() => {
+    const sourcePost = fetchedPost.value || (props.post as Post)
+    if (!sourcePost?.id || typeof sourcePost.content !== 'string') {
+        return null
+    }
+
+    const siteUrl = runtimeConfig.public.siteUrl || (import.meta.client ? window.location.origin : '')
+    if (!siteUrl) {
+        return null
+    }
+
+    return buildDistributionMaterialBundle(sourcePost, {
+        siteUrl,
+        defaultLicense: runtimeConfig.public.postCopyright || runtimeConfig.public.defaultCopyright || 'all-rights-reserved',
+    })
+})
 
 function resolveSyncer() {
     return import.meta.client ? window.$syncer : undefined
 }
+
+const wechatSyncPrecheckNotices = computed(() => buildWechatSyncPrecheckNotices(
+    distributionMaterialBundle.value,
+    selectedWechatAccounts.value,
+    t,
+))
+const hasBlockingWechatSyncPrecheck = computed(() => wechatSyncPrecheckNotices.value.some((notice) => notice.severity === 'danger'))
 
 function renderStatusSeverity(status?: PostDistributionStatus | null) {
     const severityMap: Record<string, string> = {
@@ -505,7 +545,7 @@ async function loadSummary() {
 
 async function openDialog() {
     dialogVisible.value = true
-    await Promise.all([loadSummary(), loadAccounts()])
+    await Promise.all([loadSummary(), loadAccounts(), ensurePostDetail()])
 }
 
 async function dispatchMemos(operation: 'sync' | 'retry') {
@@ -540,6 +580,10 @@ function syncLocalWechatTaskAccounts(accounts: readonly WechatSyncTaskAccount[])
 
 async function buildWechatSyncMaterialBundle() {
     await ensurePostDetail()
+    if (distributionMaterialBundle.value) {
+        return distributionMaterialBundle.value
+    }
+
     const sourcePost = fetchedPost.value || (props.post as Post)
     return buildDistributionMaterialBundle(sourcePost, {
         siteUrl: runtimeConfig.public.siteUrl || window.location.origin,
@@ -552,11 +596,15 @@ async function runWechatSyncBatch(
     materialBundle: DistributionMaterialBundle,
     batch: {
         renderMode: 'leading' | 'wrapped' | 'none'
+        contentProfile: 'default' | 'weibo'
         accounts: WechatSyncAccount[]
     },
 ) {
     return await new Promise<WechatSyncCompletionAccount[]>((resolve) => {
-        const postToSync = buildWechatSyncPostFromMaterialBundle(materialBundle, batch.renderMode)
+        const postToSync = buildWechatSyncPostFromMaterialBundle(materialBundle, {
+            renderMode: batch.renderMode,
+            contentProfile: batch.contentProfile,
+        })
 
         try {
             syncer.addTask(
@@ -633,6 +681,17 @@ async function dispatchWechatSync(operation: 'sync' | 'retry') {
     let completionAccounts: WechatSyncCompletionAccount[] = []
 
     try {
+        const materialBundle = await buildWechatSyncMaterialBundle()
+        const blockingNotice = buildWechatSyncPrecheckNotices(materialBundle, selectedAccountsSnapshot, t)
+            .find((notice) => notice.severity === 'danger')
+
+        if (blockingNotice) {
+            showErrorToast(new Error(t('pages.admin.posts.distribution.precheck.blocking_toast')), {
+                fallbackKey: 'pages.admin.posts.distribution.precheck.blocking_toast',
+            })
+            return
+        }
+
         const response = await $fetch<ApiResponse<{ attemptId?: string | null }>>(`/api/admin/posts/${postId.value}/distribution`, {
             method: 'POST',
             body: {
@@ -645,7 +704,6 @@ async function dispatchWechatSync(operation: 'sync' | 'retry') {
         activeWechatAttemptId.value = response.data?.attemptId || null
         localWechatTaskStatus.value = { accounts: [] }
 
-        const materialBundle = await buildWechatSyncMaterialBundle()
         const groupedAccounts = groupWechatSyncAccountsByTagRenderMode(selectedAccountsSnapshot)
 
         for (const group of groupedAccounts) {

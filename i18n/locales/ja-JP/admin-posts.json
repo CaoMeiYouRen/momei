@@ -124,6 +124,13 @@
                     "no_timeline": "配信記録はまだありません",
                     "open_remote": "リモート内容を開く",
                     "retry": "再試行",
+                    "precheck": {
+                        "blocking_toast": "選択した WechatSync アカウントに未解決の互換性問題があります。内容を調整するか、これらのアカウントを外してください。",
+                        "weibo_adjusted_title": "Weibo アカウントには互換コンテンツを使用します",
+                        "weibo_adjusted_detail": "引用ブロック、コード装飾、見出しアンカー、画像コンテナが検出された場合、同期前に Weibo 互換形式へ自動的に降格します。アカウント: {accounts}",
+                        "weibo_blocking_title": "Weibo アカウントに未対応コンポーネントがあります",
+                        "weibo_blocking_detail": "現在の内容には Weibo がまだサポートしていないコンポーネントが含まれています: {components}。該当構造を削除するか、これらのアカウントを外してから再同期してください。アカウント: {accounts}"
+                    },
                     "start_wechatsync": "WechatSync 配信を開始",
                     "status": {
                         "cancelled": "終了済み",

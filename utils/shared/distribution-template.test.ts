@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { buildDistributionMaterialBundle, buildWechatSyncPostFromMaterialBundle } from './distribution-template'
+import {
+    buildDistributionMaterialBundle,
+    buildWechatSyncPostFromMaterialBundle,
+    inspectWechatSyncMaterialCompatibility,
+} from './distribution-template'
 
 describe('distribution-template', () => {
     const post = {
@@ -42,8 +46,12 @@ describe('distribution-template', () => {
             defaultLicense: 'all-rights-reserved',
         })
 
-        const wrappedWechatPost = buildWechatSyncPostFromMaterialBundle(materialBundle, 'wrapped')
-        const leadingWechatPost = buildWechatSyncPostFromMaterialBundle(materialBundle, 'leading')
+        const wrappedWechatPost = buildWechatSyncPostFromMaterialBundle(materialBundle, {
+            renderMode: 'wrapped',
+        })
+        const leadingWechatPost = buildWechatSyncPostFromMaterialBundle(materialBundle, {
+            renderMode: 'leading',
+        })
 
         expect(wrappedWechatPost.markdown).toContain('## Heading')
         expect(wrappedWechatPost.markdown).toContain('#Nuxt# #Vue#')
@@ -52,5 +60,43 @@ describe('distribution-template', () => {
         expect(wrappedWechatPost.thumb).toBe('https://static.example.com/cover.png')
 
         expect(leadingWechatPost.markdown).toContain('#Nuxt #Vue')
+    })
+
+    it('downgrades weibo content into a compatible payload', () => {
+        const materialBundle = buildDistributionMaterialBundle({
+            ...post,
+            content: '## 标题\n\n> 引用内容\n\n这里有 `inline-code`。\n\n<figure class="image"><img src="https://static.example.com/figure.png" /></figure>',
+        }, {
+            siteUrl: 'https://momei.app',
+            defaultLicense: 'all-rights-reserved',
+        })
+
+        const compatibility = inspectWechatSyncMaterialCompatibility(materialBundle, 'weibo')
+        const weiboPost = buildWechatSyncPostFromMaterialBundle(materialBundle, {
+            renderMode: 'none',
+            contentProfile: 'weibo',
+        })
+
+        expect(compatibility.adjustments).toEqual(expect.arrayContaining(['blockquote', 'code', 'figure', 'heading-anchor']))
+        expect(compatibility.blockers).toEqual([])
+        expect(weiboPost.markdown).not.toContain('<figure')
+        expect(weiboPost.markdown).not.toContain('`inline-code`')
+        expect(weiboPost.content).not.toContain('<blockquote')
+        expect(weiboPost.content).not.toContain('header-anchor')
+        expect(weiboPost.content).toContain('<img')
+    })
+
+    it('flags weibo-only blockers that still require manual cleanup', () => {
+        const materialBundle = buildDistributionMaterialBundle({
+            ...post,
+            content: '::: tip\n受支持平台提示\n:::\n\n<iframe src="https://example.com/embed"></iframe>',
+        }, {
+            siteUrl: 'https://momei.app',
+            defaultLicense: 'all-rights-reserved',
+        })
+
+        expect(inspectWechatSyncMaterialCompatibility(materialBundle, 'weibo').blockers).toEqual(
+            expect.arrayContaining(['custom-block', 'embedded-media']),
+        )
     })
 })

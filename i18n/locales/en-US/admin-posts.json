@@ -2,7 +2,16 @@
     "pages": {
         "admin": {
             "posts": {
-                "title": "Post Management"
+                "title": "Post Management",
+                "distribution": {
+                    "precheck": {
+                        "blocking_toast": "The selected WechatSync accounts still have unresolved compatibility issues. Adjust the content or deselect those accounts first.",
+                        "weibo_adjusted_title": "Weibo accounts will use compatible content",
+                        "weibo_adjusted_detail": "When blockquotes, code styling, heading anchors, or image containers are detected, the payload will be downgraded to a Weibo-compatible format before sync. Accounts: {accounts}",
+                        "weibo_blocking_title": "Weibo accounts still contain unsupported components",
+                        "weibo_blocking_detail": "The current content still contains components that Weibo does not support yet: {components}. Remove those structures or deselect these accounts before syncing again. Accounts: {accounts}"
+                    }
+                }
             }
         }
     }

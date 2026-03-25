@@ -15,6 +15,11 @@ export interface NormalizedDistributionTag {
 }
 
 export type DistributionTagRenderMode = 'leading' | 'wrapped' | 'none'
+export type WechatSyncContentProfile = 'default' | 'weibo'
+
+type WechatSyncPlatformSource = string | null | undefined
+
+type WechatSyncAccountPlatformSource = Pick<WechatSyncAccount, 'id' | 'type' | 'title' | 'displayName' | 'supportTypes'>
 
 const DEFAULT_MAX_TAG_COUNT = 5
 const DEFAULT_MAX_TAG_LENGTH = 24
@@ -115,8 +120,61 @@ function normalizePlatformType(value: string | null | undefined) {
     return value?.trim().toLowerCase().replace(/[\s-]+/gu, '_') || ''
 }
 
+function matchesWechatSyncPlatform(value: string, platform: 'weibo' | 'bilibili' | 'xiaohongshu' | 'twitter' | 'memos') {
+    switch (platform) {
+        case 'weibo':
+            return /weibo|微博/iu.test(value)
+        case 'bilibili':
+            return /bilibili|哔哩|b站/iu.test(value)
+        case 'xiaohongshu':
+            return /xiaohongshu|小红书/iu.test(value)
+        case 'twitter':
+            return /twitter|(?:^|[_\s-])x(?:$|[_\s-])/iu.test(value)
+        case 'memos':
+            return /memos/iu.test(value)
+    }
+}
+
+function resolveWechatSyncPlatformCandidates(source: WechatSyncPlatformSource | WechatSyncAccountPlatformSource) {
+    if (typeof source === 'string' || source === null || source === undefined) {
+        return source ? [source] : []
+    }
+
+    return [
+        source.type,
+        source.id,
+        ...(source.supportTypes || []),
+        source.title,
+        source.displayName,
+    ].filter((value): value is string => Boolean(value?.trim()))
+}
+
+function resolveWechatSyncPlatformFamily(source: WechatSyncPlatformSource | WechatSyncAccountPlatformSource) {
+    const candidates = resolveWechatSyncPlatformCandidates(source)
+
+    for (const candidate of candidates) {
+        if (matchesWechatSyncPlatform(candidate, 'weibo')) {
+            return 'weibo'
+        }
+        if (matchesWechatSyncPlatform(candidate, 'bilibili')) {
+            return 'bilibili'
+        }
+        if (matchesWechatSyncPlatform(candidate, 'xiaohongshu')) {
+            return 'xiaohongshu'
+        }
+        if (matchesWechatSyncPlatform(candidate, 'twitter')) {
+            return 'twitter'
+        }
+        if (matchesWechatSyncPlatform(candidate, 'memos')) {
+            return 'memos'
+        }
+    }
+
+    return normalizePlatformType(candidates[0])
+}
+
 export function resolveWechatSyncTagRenderMode(platformType: string | null | undefined): DistributionTagRenderMode {
-    const normalizedType = normalizePlatformType(platformType)
+    const normalizedType = resolveWechatSyncPlatformFamily(platformType)
 
     if (!normalizedType) {
         return 'none'
@@ -137,21 +195,46 @@ export function resolveWechatSyncTagRenderMode(platformType: string | null | und
     return 'none'
 }
 
+export function resolveWechatSyncContentProfile(platformType: string | null | undefined): WechatSyncContentProfile {
+    const normalizedType = resolveWechatSyncPlatformFamily(platformType)
+
+    if (normalizedType.includes('weibo')) {
+        return 'weibo'
+    }
+
+    return 'default'
+}
+
+export function resolveWechatSyncAccountTagRenderMode(account: WechatSyncAccountPlatformSource) {
+    return resolveWechatSyncTagRenderMode(resolveWechatSyncPlatformFamily(account))
+}
+
+export function resolveWechatSyncAccountContentProfile(account: WechatSyncAccountPlatformSource) {
+    return resolveWechatSyncContentProfile(resolveWechatSyncPlatformFamily(account))
+}
+
 export function groupWechatSyncAccountsByTagRenderMode(accounts: readonly WechatSyncAccount[]) {
-    const groupedAccounts = new Map<DistributionTagRenderMode, WechatSyncAccount[]>()
+    const groupedAccounts = new Map<string, {
+        renderMode: DistributionTagRenderMode
+        contentProfile: WechatSyncContentProfile
+        accounts: WechatSyncAccount[]
+    }>()
 
     for (const account of accounts) {
-        const renderMode = resolveWechatSyncTagRenderMode(account.type || account.id)
-        const currentGroup = groupedAccounts.get(renderMode)
+        const renderMode = resolveWechatSyncAccountTagRenderMode(account)
+        const contentProfile = resolveWechatSyncAccountContentProfile(account)
+        const groupKey = `${renderMode}:${contentProfile}`
+        const currentGroup = groupedAccounts.get(groupKey)
         if (currentGroup) {
-            currentGroup.push(account)
+            currentGroup.accounts.push(account)
         } else {
-            groupedAccounts.set(renderMode, [account])
+            groupedAccounts.set(groupKey, {
+                renderMode,
+                contentProfile,
+                accounts: [account],
+            })
         }
     }
 
-    return Array.from(groupedAccounts.entries()).map(([renderMode, groupedWechatSyncAccounts]) => ({
-        renderMode,
-        accounts: groupedWechatSyncAccounts,
-    }))
+    return Array.from(groupedAccounts.values())
 }

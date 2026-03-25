@@ -63,13 +63,13 @@
 	- 结果: 已新增 `scripts/i18n/check-locale-parity.mjs` 与 `pnpm i18n:check-sync`，统一以 `zh-CN` 为基准输出各 locale / module 的缺失字段与多余字段；本轮补齐 `admin-snippets`、`admin-users`、`admin-submissions`、`admin-taxonomy` 以及 `demo`、`feed` 后，`pnpm i18n:check-sync -- --locale=ja-JP` 已返回 `ja-JP: parity with zh-CN`。
 	- 验证: locale registry 已将 `ja-JP` 升格为 `seo-ready`，并同步开启 `indexable`、`sitemapEnabled` 与 `feedEnabled`；`pnpm vitest run i18n/config/locale-registry.test.ts server/utils/sitemap.test.ts server/services/email-template.integration.test.ts server/utils/email/locale.test.ts` 通过，覆盖了 registry、sitemap 与邮件模板运行时 locale 链路；`tests/e2e/seo-regression.e2e.test.ts` 已补入 `ja-JP` 首页与静态页断言，作为后续浏览器回归入口。
 
-### 5. 插队修复：WechatSync 微博同步兼容与同步前预检收口 (P1)
+### 5. 插队修复：WechatSync 微博同步兼容与同步前检查/预览收口 (P1)
 
-- [ ] **修复 WechatSync 微博平台同步错误，并补齐同步前内容预检**
+- [ ] **修复 WechatSync 微博平台同步错误，并补齐同步前内容检查/预览**
 	- 插队原因: WechatSync 已属于当前已交付的多平台分发链路；微博平台同步错误会直接造成既有能力不可用，属于明确回归修复。
 	- 验收: 明确微博平台当前报错的根因、影响范围与回退口径，修复已知的同步失败问题，不再仅停留在“已知限制”说明。
-	- 验收: 在同步前补齐最小内容预检，至少覆盖账号选择、目标平台内容兼容性或已知限制提示，避免用户提交后才发现不可同步。
-	- 验收: 补齐 WechatSync 相关定向验证或测试，确认微博修复与预检逻辑不会破坏其他平台的现有同步链路。
+	- 验收: 在同步前补齐最小内容检查与预览，至少覆盖账号选择、目标平台内容兼容性检查，以及最终投递标题、摘要、正文、标签/版权尾注等核心素材的只读预览或等价结构化预览，避免用户提交后才发现不可同步或投递内容与预期不符。
+	- 验收: 补齐 WechatSync 相关定向验证或测试，确认微博修复与同步前检查/预览逻辑不会破坏其他平台的现有同步链路。
 
 ### 6. 扩展：后台翻译工作流标签进度展示补齐 (P1)
 

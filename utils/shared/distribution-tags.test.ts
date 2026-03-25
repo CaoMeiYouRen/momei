@@ -3,6 +3,8 @@ import {
     groupWechatSyncAccountsByTagRenderMode,
     normalizeDistributionTags,
     renderDistributionTags,
+    resolveWechatSyncAccountContentProfile,
+    resolveWechatSyncContentProfile,
     resolveWechatSyncTagRenderMode,
     sanitizeDistributionTagName,
 } from './distribution-tags'
@@ -57,9 +59,24 @@ describe('distribution-tags', () => {
         expect(resolveWechatSyncTagRenderMode('unknown-platform')).toBe('none')
     })
 
+    it('maps platforms to the correct content profile', () => {
+        expect(resolveWechatSyncContentProfile('weibo')).toBe('weibo')
+        expect(resolveWechatSyncContentProfile('weibo_article')).toBe('weibo')
+        expect(resolveWechatSyncContentProfile('xiaohongshu')).toBe('default')
+    })
+
+    it('detects weibo accounts from support types and localized titles', () => {
+        expect(resolveWechatSyncAccountContentProfile({
+            id: 'wechat',
+            type: 'official_account',
+            title: '微博专栏',
+            supportTypes: ['html', 'weibo_article'],
+        })).toBe('weibo')
+    })
+
     it('groups selected accounts by tag render mode', () => {
         const groups = groupWechatSyncAccountsByTagRenderMode([
-            { id: 'a', type: 'weibo', title: '微博', checked: true },
+            { id: 'a', type: 'official_account', title: '微博', supportTypes: ['weibo_article'], checked: true },
             { id: 'b', type: 'bilibili_article', title: 'B 站', checked: true },
             { id: 'c', type: 'xiaohongshu', title: '小红书', checked: true },
             { id: 'd', type: 'unknown', title: '未知', checked: true },
@@ -68,21 +85,30 @@ describe('distribution-tags', () => {
         expect(groups).toEqual([
             {
                 renderMode: 'none',
+                contentProfile: 'weibo',
                 accounts: [
-                    { id: 'a', type: 'weibo', title: '微博', checked: true },
-                    { id: 'd', type: 'unknown', title: '未知', checked: true },
+                    { id: 'a', type: 'official_account', title: '微博', supportTypes: ['weibo_article'], checked: true },
                 ],
             },
             {
                 renderMode: 'wrapped',
+                contentProfile: 'default',
                 accounts: [
                     { id: 'b', type: 'bilibili_article', title: 'B 站', checked: true },
                 ],
             },
             {
                 renderMode: 'leading',
+                contentProfile: 'default',
                 accounts: [
                     { id: 'c', type: 'xiaohongshu', title: '小红书', checked: true },
+                ],
+            },
+            {
+                renderMode: 'none',
+                contentProfile: 'default',
+                accounts: [
+                    { id: 'd', type: 'unknown', title: '未知', checked: true },
                 ],
             },
         ])
