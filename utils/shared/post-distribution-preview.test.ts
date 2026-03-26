@@ -65,8 +65,9 @@ describe('post-distribution-preview', () => {
         expect(weiboPreview?.accountsLabel).toBe('微博专栏')
         expect(weiboPreview?.tagLine).toBe('')
         expect(weiboPreview?.finalMarkdown).not.toContain('#Nuxt')
+        expect(weiboPreview?.finalMarkdown).not.toContain('----------')
         expect(weiboPreview?.compatibility.adjustments).toEqual(
-            expect.arrayContaining(['blockquote', 'figure', 'heading-anchor']),
+            expect.arrayContaining(['blockquote', 'figure', 'heading-anchor', 'divider']),
         )
     })
 })

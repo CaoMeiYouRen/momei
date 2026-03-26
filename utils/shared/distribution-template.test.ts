@@ -78,10 +78,11 @@ describe('distribution-template', () => {
             contentProfile: 'weibo',
         })
 
-        expect(compatibility.adjustments).toEqual(expect.arrayContaining(['blockquote', 'code', 'figure', 'heading-anchor']))
+        expect(compatibility.adjustments).toEqual(expect.arrayContaining(['blockquote', 'code', 'figure', 'heading-anchor', 'divider']))
         expect(compatibility.blockers).toEqual([])
         expect(weiboPost.markdown).not.toContain('<figure')
         expect(weiboPost.markdown).not.toContain('`inline-code`')
+        expect(weiboPost.markdown).not.toContain('----------')
         expect(weiboPost.content).not.toContain('<blockquote')
         expect(weiboPost.content).not.toContain('header-anchor')
         expect(weiboPost.content).toContain('<img')
@@ -106,6 +107,7 @@ describe('distribution-template', () => {
         })
 
         expect(weiboDispatchPost.markdown).toBeUndefined()
+        expect(weiboDispatchPost.content).not.toContain('----------')
         expect(weiboDispatchPost.content).toContain('<h2')
         expect(defaultDispatchPost.markdown).toContain('#')
     })

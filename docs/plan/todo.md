@@ -65,11 +65,14 @@
 
 ### 5. 插队修复：WechatSync 微博同步兼容与同步前检查/预览收口 (P1)
 
-- [ ] **修复 WechatSync 微博平台同步错误，并补齐同步前内容检查/预览**
+- [x] **修复 WechatSync 微博平台同步错误，并补齐同步前内容检查/预览**
 	- 插队原因: WechatSync 已属于当前已交付的多平台分发链路；微博平台同步错误会直接造成既有能力不可用，属于明确回归修复。
 	- 验收: 明确微博平台当前报错的根因、影响范围与回退口径，修复已知的同步失败问题，不再仅停留在“已知限制”说明。
 	- 验收: 在同步前补齐最小内容检查与预览，至少覆盖账号选择、目标平台内容兼容性检查，以及最终投递标题、摘要、正文、标签/版权尾注等核心素材的只读预览或等价结构化预览，避免用户提交后才发现不可同步或投递内容与预期不符。
 	- 验收: 补齐 WechatSync 相关定向验证或测试，确认微博修复与同步前检查/预览逻辑不会破坏其他平台的现有同步链路。
+	- 结果: 已确认微博 `CODE:004` 的当前根因之一是微博兼容 payload 仍保留版权尾注分隔线 `----------`，会被 WechatSync 识别为不支持的组件格式；共享分发模板现已在微博 profile 下移除分隔线，并继续保留对引用块、代码样式、标题锚点、图片容器等结构的自动降级。同步前预览与真实发送继续复用同一套共享构造，微博批次会省略显式 `markdown` 字段，改为仅投递兼容后的 HTML 内容。
+	- 验证: `pnpm exec vitest run utils/shared/distribution-template.test.ts utils/shared/post-distribution-preview.test.ts utils/shared/post-distribution-precheck.test.ts` 通过，合计 9 个用例，覆盖微博兼容模板、同步前预览和 blocker/warn 预检；`pnpm exec nuxt typecheck` 通过；`pnpm exec lint-md docs/plan/todo.md --fix` 通过。
+	- 边界: 本轮已完成活跃 WechatSync 分发链路的共享模板、预检与预览收口，但尚未补真实 WechatSync 插件联调或浏览器级 E2E 证据；另外，遗留 `components/admin/posts/wechatsync-button.vue` 仍未接入新分发面板的 attempt 建档、完成回写与完整预检/预览 UI，后续若继续保留该组件，建议进一步收口或直接移除。
 
 ### 6. 扩展：后台翻译工作流标签进度展示补齐 (P1)
 

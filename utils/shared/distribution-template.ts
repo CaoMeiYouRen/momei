@@ -65,6 +65,7 @@ const WEIBO_MARKDOWN_ADJUSTMENT_RULES: [RegExp, string][] = [
     [/<figure\b/iu, 'figure'],
     [/```[\s\S]*?```/u, 'code'],
     [/`[^`\n]+`/u, 'code'],
+    [/^\s*[-*_]{3,}\s*$/mu, 'divider'],
 ]
 const WEIBO_HTML_ADJUSTMENT_RULES: [RegExp, string][] = [
     [/header-anchor/iu, 'heading-anchor'],
@@ -142,6 +143,7 @@ function sanitizeWechatSyncMarkdownForWeibo(markdown: string) {
         .replace(/```([\s\S]*?)```/gu, '$1')
         .replace(/`([^`\n]+)`/gu, '$1')
         .replace(/^>\s?/gmu, '')
+        .replace(/^\s*[-*_]{3,}\s*$/gmu, '')
         .replace(/<a\b[^>]*class=(['"])[^'"]*header-anchor[^'"]*\1[^>]*>[\s\S]*?<\/a>/giu, '')
         .replace(/<figure\b[^>]*>[\s\S]*?<img\b[^>]*src=(['"])(.*?)\1[^>]*>[\s\S]*?<\/figure>/giu, '\n\n![]($2)\n\n')
         .replace(/<img\b[^>]*src=(['"])(.*?)\1[^>]*\/?>/giu, '![]($2)')
@@ -263,10 +265,13 @@ export function buildWechatSyncPostFromMaterialBundle(
 ) {
     const tagLine = renderDistributionTags(materialBundle.canonical.tags, options.renderMode)
     const contentProfile = options.contentProfile || 'default'
+    const copyrightMarkdown = contentProfile === 'weibo'
+        ? materialBundle.canonical.copyrightMarkdown.replace(/^\s*[-*_]{3,}\s*\n?/u, '').trim()
+        : materialBundle.canonical.copyrightMarkdown
     const rawMarkdown = joinSections([
         materialBundle.channels.wechatsync.basePost.markdown,
         tagLine,
-        materialBundle.canonical.copyrightMarkdown,
+        copyrightMarkdown,
     ])
     const markdown = contentProfile === 'weibo'
         ? sanitizeWechatSyncMarkdownForWeibo(rawMarkdown)

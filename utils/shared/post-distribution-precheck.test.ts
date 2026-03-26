@@ -75,10 +75,14 @@ describe('post-distribution-precheck', () => {
 
         expect(notices).toEqual([
             expect.objectContaining({
+                key: 'weibo-adjustments',
+                severity: 'warn',
+            }),
+            expect.objectContaining({
                 key: 'weibo-blockers',
                 severity: 'danger',
             }),
         ])
-        expect(notices[0]?.detail).toContain('components=embedded-media, custom-block')
+        expect(notices[1]?.detail).toContain('components=embedded-media, custom-block')
     })
 })

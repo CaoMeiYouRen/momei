@@ -193,22 +193,16 @@ interface WechatSyncWindow {
         payload: {
             post: {
                 title: string
-                markdown: string
                 content: string
                 desc: string
                 thumb: string
+                markdown?: string
             }
             accounts: WechatSyncAccount[]
         },
         onStatus: (status: WechatSyncTaskStatus) => void,
         onReady: () => void,
     ) => void
-}
-
-declare global {
-    interface Window {
-        $syncer?: WechatSyncWindow
-    }
 }
 
 const props = defineProps<{
@@ -227,8 +221,12 @@ const checkCount = ref(0)
 const allAccounts = ref<WechatSyncAccount[]>([])
 const taskStatus = ref<WechatSyncTaskStatus>({})
 
+function resolveSyncer() {
+    return (window as Window & { $syncer?: WechatSyncWindow }).$syncer
+}
+
 const { pause, resume } = useIntervalFn(() => {
-    const syncer = window.$syncer
+    const syncer = resolveSyncer()
     extensionInstalled.value = typeof syncer !== 'undefined'
     checkCount.value++
 
@@ -262,8 +260,9 @@ const openSyncDialog = () => {
 }
 
 const loadAccounts = () => {
-    if (window.$syncer && window.$syncer.getAccounts) {
-        window.$syncer.getAccounts((resp) => {
+    const syncer = resolveSyncer()
+    if (syncer?.getAccounts) {
+        syncer.getAccounts((resp) => {
             console.info('[WechatSync] accounts loaded', resp)
             allAccounts.value = normalizeWechatSyncAccounts(resp, allAccounts.value)
         })
@@ -307,46 +306,44 @@ const doSubmit = () => {
 
     const postToSync = {
         title: props.post.title,
-        markdown: markdownWithCopyright, // markdown 格式
-        content: renderedContent, // HTML 格式，供部分平台使用
-        // desc for some platforms
+        markdown: markdownWithCopyright,
+        content: renderedContent,
         desc: props.post.summary || props.post.content.substring(0, 100).replace(/[#*`]/g, ''),
         thumb: props.post.coverImage || '',
     }
 
-    if (window.$syncer && window.$syncer.addTask) {
-        try {
-            window.$syncer.addTask(
-                {
-                    post: postToSync,
-                    accounts: selectedAc,
-                },
-                (status) => {
-                    taskStatus.value = status
-                },
-                () => {
-                    console.info('[WechatSync] task triggered')
-                },
-            )
-        } catch (error) {
-            const errorMessage = error instanceof Error
-                ? error.message
-                : t('pages.admin.posts.wechatsync.failed')
+    const syncer = resolveSyncer()
+    try {
+        syncer?.addTask(
+            {
+                post: postToSync,
+                accounts: selectedAc,
+            },
+            (status) => {
+                taskStatus.value = status
+            },
+            () => {
+                console.info('[WechatSync] task triggered')
+            },
+        )
+    } catch (error) {
+        const errorMessage = error instanceof Error
+            ? error.message
+            : t('pages.admin.posts.wechatsync.failed')
 
-            taskStatus.value = {
-                accounts: buildWechatSyncFailureResults(selectedAc, errorMessage).map((account) => ({
-                    ...account,
-                    editResp: undefined,
-                })),
-            }
-            submitting.value = false
-            toast.add({
-                severity: 'error',
-                summary: t('pages.admin.posts.wechatsync.failed'),
-                detail: errorMessage,
-                life: 5000,
-            })
+        taskStatus.value = {
+            accounts: buildWechatSyncFailureResults(selectedAc, errorMessage).map((account) => ({
+                ...account,
+                editResp: undefined,
+            })),
         }
+        submitting.value = false
+        toast.add({
+            severity: 'error',
+            summary: t('pages.admin.posts.wechatsync.failed'),
+            detail: errorMessage,
+            life: 5000,
+        })
     }
 }
 
