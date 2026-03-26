@@ -4,6 +4,25 @@
             "posts": {
                 "title": "Post Management",
                 "distribution": {
+                    "preview": {
+                        "accounts": "Accounts",
+                        "article_title": "Title",
+                        "body": "Body",
+                        "copyright": "Copyright tail",
+                        "cover": "Cover",
+                        "empty": "None",
+                        "final_markdown": "Final payload",
+                        "memos_title": "Memos preview",
+                        "no_account_selected": "Select WechatSync accounts to inspect the exact payload each platform will receive before syncing.",
+                        "payload": {
+                            "standard": "Standard payload",
+                            "weibo_compatible": "Weibo-compatible payload"
+                        },
+                        "summary": "Summary",
+                        "tags": "Tag tail",
+                        "title": "Pre-sync content check",
+                        "wechatsync_title": "WechatSync preview"
+                    },
                     "precheck": {
                         "blocking_toast": "The selected WechatSync accounts still have unresolved compatibility issues. Adjust the content or deselect those accounts first.",
                         "weibo_adjusted_title": "Weibo accounts will use compatible content",

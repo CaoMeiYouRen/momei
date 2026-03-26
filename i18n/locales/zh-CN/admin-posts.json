@@ -131,6 +131,25 @@
                         "weibo_blocking_title": "微博账号包含仍不兼容的组件",
                         "weibo_blocking_detail": "当前内容仍含有微博不支持的组件：{components}。请先删除相关结构或取消这些账号后再同步。账号：{accounts}"
                     },
+                    "preview": {
+                        "accounts": "投递账号",
+                        "article_title": "标题",
+                        "body": "正文",
+                        "copyright": "版权尾注",
+                        "cover": "封面",
+                        "empty": "无",
+                        "final_markdown": "最终投递内容",
+                        "memos_title": "Memos 投递预览",
+                        "no_account_selected": "选择 WechatSync 账号后，可在这里先检查各平台将收到的内容。",
+                        "payload": {
+                            "standard": "标准内容",
+                            "weibo_compatible": "微博兼容内容"
+                        },
+                        "summary": "摘要",
+                        "tags": "标签尾注",
+                        "title": "同步前内容检查",
+                        "wechatsync_title": "WechatSync 投递预览"
+                    },
                     "start_wechatsync": "开始 WechatSync 投递",
                     "status": {
                         "cancelled": "已终止",

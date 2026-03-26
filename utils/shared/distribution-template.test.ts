@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
     buildDistributionMaterialBundle,
+    buildWechatSyncDispatchPostFromMaterialBundle,
     buildWechatSyncPostFromMaterialBundle,
     inspectWechatSyncMaterialCompatibility,
 } from './distribution-template'
@@ -84,6 +85,29 @@ describe('distribution-template', () => {
         expect(weiboPost.content).not.toContain('<blockquote')
         expect(weiboPost.content).not.toContain('header-anchor')
         expect(weiboPost.content).toContain('<img')
+    })
+
+    it('omits explicit markdown when dispatching weibo-compatible payloads', () => {
+        const materialBundle = buildDistributionMaterialBundle({
+            ...post,
+            content: '## 标题\n\n> 引用内容\n\n![cover](https://static.example.com/cover.png)',
+        }, {
+            siteUrl: 'https://momei.app',
+            defaultLicense: 'all-rights-reserved',
+        })
+
+        const weiboDispatchPost = buildWechatSyncDispatchPostFromMaterialBundle(materialBundle, {
+            renderMode: 'none',
+            contentProfile: 'weibo',
+        })
+        const defaultDispatchPost = buildWechatSyncDispatchPostFromMaterialBundle(materialBundle, {
+            renderMode: 'wrapped',
+            contentProfile: 'default',
+        })
+
+        expect(weiboDispatchPost.markdown).toBeUndefined()
+        expect(weiboDispatchPost.content).toContain('<h2')
+        expect(defaultDispatchPost.markdown).toContain('#')
     })
 
     it('flags weibo-only blockers that still require manual cleanup', () => {

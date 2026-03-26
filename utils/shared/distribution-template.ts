@@ -50,6 +50,14 @@ export interface DistributionMaterialBuildOptions {
     memosSummaryMaxLength?: number
 }
 
+export interface WechatSyncDispatchPost {
+    title: string
+    content: string
+    desc: string
+    thumb: string
+    markdown?: string
+}
+
 const DEFAULT_MEMOS_SUMMARY_MAX_LENGTH = 280
 const WEIBO_MARKDOWN_ADJUSTMENT_RULES: [RegExp, string][] = [
     [/<blockquote\b/iu, 'blockquote'],
@@ -275,4 +283,25 @@ export function buildWechatSyncPostFromMaterialBundle(
         desc: materialBundle.channels.wechatsync.basePost.desc,
         thumb: materialBundle.channels.wechatsync.basePost.thumb,
     }
+}
+
+export function buildWechatSyncDispatchPostFromMaterialBundle(
+    materialBundle: DistributionMaterialBundle,
+    options: {
+        renderMode: DistributionTagRenderMode
+        contentProfile?: WechatSyncContentProfile
+    },
+): WechatSyncDispatchPost {
+    const payload = buildWechatSyncPostFromMaterialBundle(materialBundle, options)
+
+    if (options.contentProfile === 'weibo') {
+        return {
+            title: payload.title,
+            content: payload.content,
+            desc: payload.desc,
+            thumb: payload.thumb,
+        }
+    }
+
+    return payload
 }

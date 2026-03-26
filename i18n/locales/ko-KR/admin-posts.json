@@ -131,6 +131,25 @@
                         "weibo_blocking_title": "Weibo 계정에 아직 지원되지 않는 컴포넌트가 있습니다",
                         "weibo_blocking_detail": "현재 콘텐츠에는 Weibo가 아직 지원하지 않는 컴포넌트가 포함되어 있습니다: {components}. 관련 구조를 삭제하거나 해당 계정을 제외한 뒤 다시 동기화해 주세요. 계정: {accounts}"
                     },
+                    "preview": {
+                        "accounts": "배포 계정",
+                        "article_title": "제목",
+                        "body": "본문",
+                        "copyright": "저작권 꼬리말",
+                        "cover": "커버",
+                        "empty": "없음",
+                        "final_markdown": "최종 배포 내용",
+                        "memos_title": "Memos 배포 미리보기",
+                        "no_account_selected": "WechatSync 계정을 선택하면 각 플랫폼으로 전달될 내용을 여기서 먼저 확인할 수 있습니다.",
+                        "payload": {
+                            "standard": "표준 콘텐츠",
+                            "weibo_compatible": "Weibo 호환 콘텐츠"
+                        },
+                        "summary": "요약",
+                        "tags": "태그 꼬리말",
+                        "title": "동기화 전 콘텐츠 확인",
+                        "wechatsync_title": "WechatSync 배포 미리보기"
+                    },
                     "start_wechatsync": "WechatSync 배포 시작",
                     "status": {
                         "cancelled": "중단됨",

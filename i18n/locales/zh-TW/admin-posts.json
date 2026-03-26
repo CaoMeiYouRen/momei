@@ -131,6 +131,25 @@
                         "weibo_blocking_title": "微博帳號仍包含不相容元件",
                         "weibo_blocking_detail": "目前內容仍含有微博不支援的元件：{components}。請先刪除相關結構或取消這些帳號後再同步。帳號：{accounts}"
                     },
+                    "preview": {
+                        "accounts": "投遞帳號",
+                        "article_title": "標題",
+                        "body": "正文",
+                        "copyright": "版權尾註",
+                        "cover": "封面",
+                        "empty": "無",
+                        "final_markdown": "最終投遞內容",
+                        "memos_title": "Memos 投遞預覽",
+                        "no_account_selected": "選擇 WechatSync 帳號後，可先在這裡檢查各平台將收到的內容。",
+                        "payload": {
+                            "standard": "標準內容",
+                            "weibo_compatible": "微博相容內容"
+                        },
+                        "summary": "摘要",
+                        "tags": "標籤尾註",
+                        "title": "同步前內容檢查",
+                        "wechatsync_title": "WechatSync 投遞預覽"
+                    },
                     "start_wechatsync": "開始 WechatSync 投遞",
                     "status": {
                         "cancelled": "已終止",

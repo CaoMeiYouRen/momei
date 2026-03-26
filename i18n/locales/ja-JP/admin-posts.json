@@ -131,6 +131,25 @@
                         "weibo_blocking_title": "Weibo アカウントに未対応コンポーネントがあります",
                         "weibo_blocking_detail": "現在の内容には Weibo がまだサポートしていないコンポーネントが含まれています: {components}。該当構造を削除するか、これらのアカウントを外してから再同期してください。アカウント: {accounts}"
                     },
+                    "preview": {
+                        "accounts": "配信アカウント",
+                        "article_title": "タイトル",
+                        "body": "本文",
+                        "copyright": "著作権追記",
+                        "cover": "カバー",
+                        "empty": "なし",
+                        "final_markdown": "最終配信内容",
+                        "memos_title": "Memos 配信プレビュー",
+                        "no_account_selected": "WechatSync アカウントを選択すると、各プラットフォームへ送信される内容をここで事前確認できます。",
+                        "payload": {
+                            "standard": "標準コンテンツ",
+                            "weibo_compatible": "Weibo 互換コンテンツ"
+                        },
+                        "summary": "概要",
+                        "tags": "タグ追記",
+                        "title": "同期前コンテンツ確認",
+                        "wechatsync_title": "WechatSync 配信プレビュー"
+                    },
                     "start_wechatsync": "WechatSync 配信を開始",
                     "status": {
                         "cancelled": "終了済み",

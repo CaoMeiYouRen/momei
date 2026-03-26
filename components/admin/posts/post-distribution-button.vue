@@ -70,6 +70,55 @@
                             {{ $t('pages.admin.posts.distribution.open_remote') }}
                         </a>
 
+                        <div v-if="memosPreview" class="post-distribution-dialog__preview-card">
+                            <div class="post-distribution-dialog__preview-header">
+                                <h5>{{ $t('pages.admin.posts.distribution.preview.memos_title') }}</h5>
+                                <Tag value="Memos" severity="info" />
+                            </div>
+                            <div class="post-distribution-dialog__preview-grid">
+                                <div class="post-distribution-dialog__preview-field">
+                                    <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.article_title') }}</span>
+                                    <p class="post-distribution-dialog__preview-value">
+                                        {{ renderPreviewValue(memosPreview.title) }}
+                                    </p>
+                                </div>
+                                <div class="post-distribution-dialog__preview-field">
+                                    <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.cover') }}</span>
+                                    <a
+                                        v-if="memosPreview.coverUrl"
+                                        :href="memosPreview.coverUrl"
+                                        target="_blank"
+                                        class="post-distribution-dialog__remote-link"
+                                    >
+                                        {{ memosPreview.coverUrl }}
+                                    </a>
+                                    <p v-else class="post-distribution-dialog__preview-value">
+                                        {{ renderPreviewValue('') }}
+                                    </p>
+                                </div>
+                                <div class="post-distribution-dialog__preview-field">
+                                    <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.summary') }}</span>
+                                    <p class="post-distribution-dialog__preview-value">
+                                        {{ renderPreviewValue(memosPreview.summary) }}
+                                    </p>
+                                </div>
+                                <div class="post-distribution-dialog__preview-field">
+                                    <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.tags') }}</span>
+                                    <p class="post-distribution-dialog__preview-value">
+                                        {{ renderPreviewValue(memosPreview.tagLine) }}
+                                    </p>
+                                </div>
+                                <div class="post-distribution-dialog__preview-field post-distribution-dialog__preview-field--full">
+                                    <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.copyright') }}</span>
+                                    <pre class="post-distribution-dialog__preview-code">{{ renderPreviewValue(memosPreview.copyrightMarkdown) }}</pre>
+                                </div>
+                                <div class="post-distribution-dialog__preview-field post-distribution-dialog__preview-field--full">
+                                    <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.final_markdown') }}</span>
+                                    <pre class="post-distribution-dialog__preview-code">{{ renderPreviewValue(memosPreview.content) }}</pre>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="post-distribution-dialog__actions">
                             <Button
                                 :label="$t('pages.admin.posts.distribution.sync_now')"
@@ -164,6 +213,76 @@
                                 <strong>{{ notice.summary }}</strong>
                                 <p>{{ notice.detail }}</p>
                             </div>
+                        </div>
+                        <div v-if="wechatSyncPreviewGroups.length" class="post-distribution-dialog__preview-list">
+                            <div
+                                v-for="group in wechatSyncPreviewGroups"
+                                :key="group.key"
+                                class="post-distribution-dialog__preview-card"
+                            >
+                                <div class="post-distribution-dialog__preview-header">
+                                    <h5>{{ $t('pages.admin.posts.distribution.preview.wechatsync_title') }}</h5>
+                                    <Tag
+                                        :value="renderWechatSyncPreviewProfile(group)"
+                                        :severity="renderWechatSyncPreviewSeverity(group)"
+                                    />
+                                </div>
+                                <div class="post-distribution-dialog__preview-grid">
+                                    <div class="post-distribution-dialog__preview-field">
+                                        <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.accounts') }}</span>
+                                        <p class="post-distribution-dialog__preview-value">
+                                            {{ renderPreviewValue(group.accountsLabel) }}
+                                        </p>
+                                    </div>
+                                    <div class="post-distribution-dialog__preview-field">
+                                        <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.cover') }}</span>
+                                        <a
+                                            v-if="group.coverUrl"
+                                            :href="group.coverUrl"
+                                            target="_blank"
+                                            class="post-distribution-dialog__remote-link"
+                                        >
+                                            {{ group.coverUrl }}
+                                        </a>
+                                        <p v-else class="post-distribution-dialog__preview-value">
+                                            {{ renderPreviewValue('') }}
+                                        </p>
+                                    </div>
+                                    <div class="post-distribution-dialog__preview-field">
+                                        <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.article_title') }}</span>
+                                        <p class="post-distribution-dialog__preview-value">
+                                            {{ renderPreviewValue(group.title) }}
+                                        </p>
+                                    </div>
+                                    <div class="post-distribution-dialog__preview-field">
+                                        <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.summary') }}</span>
+                                        <p class="post-distribution-dialog__preview-value">
+                                            {{ renderPreviewValue(group.summary) }}
+                                        </p>
+                                    </div>
+                                    <div class="post-distribution-dialog__preview-field post-distribution-dialog__preview-field--full">
+                                        <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.body') }}</span>
+                                        <pre class="post-distribution-dialog__preview-code">{{ renderPreviewValue(group.bodyMarkdown) }}</pre>
+                                    </div>
+                                    <div class="post-distribution-dialog__preview-field">
+                                        <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.tags') }}</span>
+                                        <p class="post-distribution-dialog__preview-value">
+                                            {{ renderPreviewValue(group.tagLine) }}
+                                        </p>
+                                    </div>
+                                    <div class="post-distribution-dialog__preview-field">
+                                        <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.copyright') }}</span>
+                                        <pre class="post-distribution-dialog__preview-code">{{ renderPreviewValue(group.copyrightMarkdown) }}</pre>
+                                    </div>
+                                    <div class="post-distribution-dialog__preview-field post-distribution-dialog__preview-field--full">
+                                        <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.final_markdown') }}</span>
+                                        <pre class="post-distribution-dialog__preview-code">{{ renderPreviewValue(group.finalMarkdown) }}</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else-if="extensionInstalled" class="post-distribution-dialog__empty">
+                            {{ $t('pages.admin.posts.distribution.preview.no_account_selected') }}
                         </div>
                         <a
                             v-else-if="!extensionInstalled"
@@ -297,9 +416,15 @@ import type {
 import type { ApiResponse } from '@/types/api'
 import {
     buildDistributionMaterialBundle,
+    buildWechatSyncDispatchPostFromMaterialBundle,
     buildWechatSyncPostFromMaterialBundle,
     type DistributionMaterialBundle,
 } from '@/utils/shared/distribution-template'
+import {
+    buildMemosDistributionPreview,
+    buildWechatSyncDistributionPreviewGroups,
+    type WechatSyncDistributionPreviewGroup,
+} from '@/utils/shared/post-distribution-preview'
 import {
     groupWechatSyncAccountsByTagRenderMode,
 } from '@/utils/shared/distribution-tags'
@@ -359,10 +484,10 @@ interface WechatSyncWindow {
         payload: {
             post: {
                 title: string
-                markdown: string
                 content: string
                 desc: string
                 thumb: string
+                markdown?: string
             }
             accounts: WechatSyncAccount[]
         },
@@ -431,7 +556,35 @@ const wechatSyncPrecheckNotices = computed(() => buildWechatSyncPrecheckNotices(
     selectedWechatAccounts.value,
     t,
 ))
+const memosPreview = computed(() => distributionMaterialBundle.value
+    ? buildMemosDistributionPreview(distributionMaterialBundle.value)
+    : null)
+const wechatSyncPreviewGroups = computed(() => distributionMaterialBundle.value
+    ? buildWechatSyncDistributionPreviewGroups(distributionMaterialBundle.value, selectedWechatAccounts.value)
+    : [])
 const hasBlockingWechatSyncPrecheck = computed(() => wechatSyncPrecheckNotices.value.some((notice) => notice.severity === 'danger'))
+
+function renderPreviewValue(value?: string | null) {
+    return value?.trim() || t('pages.admin.posts.distribution.preview.empty')
+}
+
+function renderWechatSyncPreviewSeverity(group: WechatSyncDistributionPreviewGroup) {
+    if (group.compatibility.blockers.length) {
+        return 'danger'
+    }
+
+    if (group.contentProfile === 'weibo' || group.compatibility.adjustments.length) {
+        return 'warn'
+    }
+
+    return 'info'
+}
+
+function renderWechatSyncPreviewProfile(group: WechatSyncDistributionPreviewGroup) {
+    return group.contentProfile === 'weibo'
+        ? t('pages.admin.posts.distribution.preview.payload.weibo_compatible')
+        : t('pages.admin.posts.distribution.preview.payload.standard')
+}
 
 function renderStatusSeverity(status?: PostDistributionStatus | null) {
     const severityMap: Record<string, string> = {
@@ -601,7 +754,7 @@ async function runWechatSyncBatch(
     },
 ) {
     return await new Promise<WechatSyncCompletionAccount[]>((resolve) => {
-        const postToSync = buildWechatSyncPostFromMaterialBundle(materialBundle, {
+        const postToSync = buildWechatSyncDispatchPostFromMaterialBundle(materialBundle, {
             renderMode: batch.renderMode,
             contentProfile: batch.contentProfile,
         })
