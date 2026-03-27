@@ -196,6 +196,48 @@
         font-family: Consolas, 'Courier New', monospace;
     }
 
+    &__preview-rich {
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+
+        :deep(*:first-child) {
+            margin-top: 0;
+        }
+
+        :deep(*:last-child) {
+            margin-bottom: 0;
+        }
+
+        :deep(p),
+        :deep(ul),
+        :deep(ol),
+        :deep(blockquote),
+        :deep(pre) {
+            margin: 0 0 0.75rem;
+        }
+
+        :deep(a) {
+            color: var(--p-primary-500);
+            text-decoration: none;
+        }
+
+        :deep(a:hover) {
+            text-decoration: underline;
+        }
+
+        :deep(pre) {
+            padding: 0.75rem;
+            overflow: auto;
+            border: 1px solid var(--p-surface-border);
+            border-radius: var(--p-border-radius-sm);
+            background: color-mix(in srgb, var(--p-content-background) 92%, var(--p-surface-100) 8%);
+        }
+
+        :deep(code) {
+            font-family: Consolas, 'Courier New', monospace;
+        }
+    }
+
     &__task-list,
     &__timeline {
         padding: 1rem;

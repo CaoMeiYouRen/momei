@@ -101,6 +101,15 @@ function resolveAuthorName(authorName: string | null | undefined, locale: Suppor
     return locale === 'en-US' ? 'Unknown Author' : '佚名'
 }
 
+function renderMarkdownLink(label: string, url: string | null | undefined) {
+    const normalizedUrl = url?.trim()
+    if (!normalizedUrl) {
+        return label
+    }
+
+    return `[${label}](${normalizedUrl})`
+}
+
 export function buildPostCopyrightNotice(options: PostCopyrightNoticeOptions): PostCopyrightNotice {
     const locale = resolveLocale(options.locale)
     const messages = COPYRIGHT_MESSAGES[locale]
@@ -119,8 +128,17 @@ export function buildPostCopyrightNotice(options: PostCopyrightNoticeOptions): P
         `${messages.link}: ${articleUrl}`,
         `${messages.license_title}: ${licenseStatement}`,
     ]
+    const markdownLicenseStatement = licenseKey === 'all-rights-reserved'
+        ? licenseName
+        : `${messages.license_pre}${renderMarkdownLink(licenseName, licenseUrl)}${messages.license_post}`
+    const markdownLines = [
+        `${messages.author}: ${authorName}`,
+        `${messages.link}: ${renderMarkdownLink(articleUrl, articleUrl)}`,
+        `${messages.license_title}: ${markdownLicenseStatement}`,
+    ]
 
     const text = `${separator}\n${lines.join('\n')}`
+    const markdown = `${separator}\n${markdownLines.join('\n')}`
 
     return {
         locale,
@@ -129,7 +147,7 @@ export function buildPostCopyrightNotice(options: PostCopyrightNoticeOptions): P
         licenseUrl,
         licenseStatement,
         text,
-        markdown: text,
+        markdown,
     }
 }
 

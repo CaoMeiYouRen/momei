@@ -110,11 +110,21 @@
                                 </div>
                                 <div class="post-distribution-dialog__preview-field post-distribution-dialog__preview-field--full">
                                     <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.copyright') }}</span>
-                                    <pre class="post-distribution-dialog__preview-code">{{ renderPreviewValue(memosPreview.copyrightMarkdown) }}</pre>
+                                    <!-- eslint-disable vue/no-v-html -->
+                                    <div
+                                        class="post-distribution-dialog__preview-rich"
+                                        v-html="renderPreviewMarkdownHtml(memosPreview.copyrightMarkdown)"
+                                    />
+                                    <!-- eslint-enable vue/no-v-html -->
                                 </div>
                                 <div class="post-distribution-dialog__preview-field post-distribution-dialog__preview-field--full">
                                     <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.final_markdown') }}</span>
-                                    <pre class="post-distribution-dialog__preview-code">{{ renderPreviewValue(memosPreview.content) }}</pre>
+                                    <!-- eslint-disable vue/no-v-html -->
+                                    <div
+                                        class="post-distribution-dialog__preview-rich"
+                                        v-html="renderPreviewMarkdownHtml(memosPreview.content)"
+                                    />
+                                    <!-- eslint-enable vue/no-v-html -->
                                 </div>
                             </div>
                         </div>
@@ -272,11 +282,21 @@
                                     </div>
                                     <div class="post-distribution-dialog__preview-field">
                                         <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.copyright') }}</span>
-                                        <pre class="post-distribution-dialog__preview-code">{{ renderPreviewValue(group.copyrightMarkdown) }}</pre>
+                                        <!-- eslint-disable vue/no-v-html -->
+                                        <div
+                                            class="post-distribution-dialog__preview-rich"
+                                            v-html="renderPreviewMarkdownHtml(group.copyrightMarkdown)"
+                                        />
+                                        <!-- eslint-enable vue/no-v-html -->
                                     </div>
                                     <div class="post-distribution-dialog__preview-field post-distribution-dialog__preview-field--full">
                                         <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.preview.final_markdown') }}</span>
-                                        <pre class="post-distribution-dialog__preview-code">{{ renderPreviewValue(group.finalMarkdown) }}</pre>
+                                        <!-- eslint-disable vue/no-v-html -->
+                                        <div
+                                            class="post-distribution-dialog__preview-rich"
+                                            v-html="renderPreviewMarkdownHtml(group.finalMarkdown)"
+                                        />
+                                        <!-- eslint-enable vue/no-v-html -->
                                     </div>
                                 </div>
                             </div>
@@ -450,6 +470,7 @@ import {
     resolveWechatSyncCompletionAccountKey,
     shouldFinalizeWechatSyncStatus,
 } from '@/utils/shared/post-distribution-wechatsync'
+import { renderDistributionPreviewHtml } from '@/utils/shared/post-distribution-preview-renderer'
 import { useI18nDate } from '@/composables/use-i18n-date'
 
 interface PostDistributionSummary {
@@ -566,6 +587,10 @@ const hasBlockingWechatSyncPrecheck = computed(() => wechatSyncPrecheckNotices.v
 
 function renderPreviewValue(value?: string | null) {
     return value?.trim() || t('pages.admin.posts.distribution.preview.empty')
+}
+
+function renderPreviewMarkdownHtml(value?: string | null) {
+    return renderDistributionPreviewHtml(value, t('pages.admin.posts.distribution.preview.empty'))
 }
 
 function renderWechatSyncPreviewSeverity(group: WechatSyncDistributionPreviewGroup) {
