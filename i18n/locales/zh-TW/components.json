@@ -58,6 +58,7 @@
             "copyright": {
                 "title": "版權聲明",
                 "author": "本文作者",
+                "unknown_author": "佚名",
                 "link": "本文連結",
                 "license_title": "版權聲明",
                 "license_pre": "本部落格所有文章除特別聲明外，均採用 ",

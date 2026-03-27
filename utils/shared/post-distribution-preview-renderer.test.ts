@@ -14,6 +14,16 @@ describe('post-distribution-preview-renderer', () => {
         expect(html).toContain('rel="noopener noreferrer"')
     })
 
+    it('preserves markdown hard line breaks in copyright tailnotes', () => {
+        const html = renderDistributionPreviewHtml(
+            '本文作者: 草梅友仁  \n本文链接: [https://momei.app/posts/test](https://momei.app/posts/test)  \n版权声明: 本博客所有文章除特别声明外，均采用 [CC BY-NC-SA 4.0（署名-非商业性使用-相同方式共享）](https://creativecommons.org/licenses/by-nc-sa/4.0/) 许可协议。转载请注明出处！',
+            'empty',
+        )
+
+        expect(html).toContain('<br')
+        expect(html).toContain('href="https://momei.app/posts/test"')
+    })
+
     it('sanitizes unsafe html and disallowed schemes in preview content', () => {
         const html = renderDistributionPreviewHtml(
             '<script>alert(1)</script><a href="javascript:alert(1)" onclick="alert(1)">bad</a><img src="https://momei.app/cover.png" onerror="alert(1)" />',

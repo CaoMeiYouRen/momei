@@ -58,6 +58,7 @@
       "copyright": {
         "title": "Copyright Notice",
         "author": "Author",
+        "unknown_author": "Unknown Author",
         "link": "Link",
         "license_title": "Copyright Notice",
         "license_pre": "Except where otherwise noted, all articles in this blog are licensed under ",

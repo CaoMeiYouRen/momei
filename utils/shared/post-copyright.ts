@@ -1,16 +1,26 @@
+import { resolveAppLocaleCode, type AppLocaleCode } from '../../i18n/config/locale-registry'
 import { COPYRIGHT_LICENSES, type CopyrightType } from '@/types/copyright'
 
-type SupportedLocale = 'zh-CN' | 'en-US'
+type SupportedLocale = AppLocaleCode
 type NoticeFormat = 'text' | 'markdown'
 
 interface CopyrightMessages {
     author: string
+    unknown_author: string
     link: string
     license_title: string
     license_pre: string
     license_post: string
     default_license: string
     licenses: Record<CopyrightType, string>
+}
+
+interface ComponentsLocaleSchema {
+    components: {
+        post: {
+            copyright: unknown
+        }
+    }
 }
 
 export interface PostCopyrightNoticeOptions {
@@ -35,47 +45,75 @@ export interface PostCopyrightNotice {
 const FALLBACK_LOCALE: SupportedLocale = 'zh-CN'
 const DEFAULT_SEPARATOR = '----------'
 
+const localeComponentRawModules = import.meta.glob('../../i18n/locales/*/components.json', {
+    eager: true,
+    query: '?raw',
+    import: 'default',
+})
+
+
+function unwrapLocaleObject(value: unknown): Record<string, unknown> {
+    if (typeof value === 'object' && value !== null) {
+        if ('default' in value) {
+            return unwrapLocaleObject((value as { default: unknown }).default)
+        }
+
+        return value as Record<string, unknown>
+    }
+
+    return {}
+}
+
+function unwrapLocaleString(value: unknown): string {
+    if (typeof value === 'string') {
+        return value
+    }
+
+    if (typeof value === 'object' && value !== null && 'default' in value) {
+        return unwrapLocaleString((value as { default: unknown }).default)
+    }
+
+    return String(value)
+}
+
+function resolveCopyrightMessages(localeMessages: ComponentsLocaleSchema): CopyrightMessages {
+    const rawMessages = unwrapLocaleObject(localeMessages.components.post.copyright)
+    const rawLicenses = unwrapLocaleObject(rawMessages.licenses)
+
+    return {
+        author: unwrapLocaleString(rawMessages.author),
+        unknown_author: unwrapLocaleString(rawMessages.unknown_author),
+        link: unwrapLocaleString(rawMessages.link),
+        license_title: unwrapLocaleString(rawMessages.license_title),
+        license_pre: unwrapLocaleString(rawMessages.license_pre),
+        license_post: unwrapLocaleString(rawMessages.license_post),
+        default_license: unwrapLocaleString(rawMessages.default_license),
+        licenses: Object.fromEntries(
+            Object.entries(rawLicenses).map(([key, value]) => [key, unwrapLocaleString(value)]),
+        ) as Record<CopyrightType, string>,
+    }
+}
+
+function parseLocaleComponents(locale: SupportedLocale): ComponentsLocaleSchema {
+    const rawSource = localeComponentRawModules[`../../i18n/locales/${locale}/components.json`]
+
+    if (typeof rawSource !== 'string' || !rawSource) {
+        throw new Error(`Missing locale components source for ${locale}`)
+    }
+
+    return JSON.parse(rawSource) as ComponentsLocaleSchema
+}
+
 const COPYRIGHT_MESSAGES: Record<SupportedLocale, CopyrightMessages> = {
-    'zh-CN': {
-        author: '本文作者',
-        link: '本文链接',
-        license_title: '版权声明',
-        license_pre: '本博客所有文章除特别声明外，均采用 ',
-        license_post: ' 许可协议。转载请注明出处！',
-        default_license: 'all-rights-reserved',
-        licenses: {
-            'all-rights-reserved': '所有权利保留（禁止转载）',
-            'cc-by': 'CC BY 4.0（署名）',
-            'cc-by-sa': 'CC BY-SA 4.0（署名-相同方式共享）',
-            'cc-by-nd': 'CC BY-ND 4.0（署名-禁止演绎）',
-            'cc-by-nc': 'CC BY-NC 4.0（署名-非商业性使用）',
-            'cc-by-nc-sa': 'CC BY-NC-SA 4.0（署名-非商业性使用-相同方式共享）',
-            'cc-by-nc-nd': 'CC BY-NC-ND 4.0（署名-非商业性使用-禁止演绎）',
-            'cc-zero': 'CC0 1.0（取消版权 / 进入公共领域）',
-        },
-    },
-    'en-US': {
-        author: 'Author',
-        link: 'Link',
-        license_title: 'Copyright Notice',
-        license_pre: 'Except where otherwise noted, all articles in this blog are licensed under ',
-        license_post: '. Please credit the source when reposting!',
-        default_license: 'all-rights-reserved',
-        licenses: {
-            'all-rights-reserved': 'All Rights Reserved (No Reposting)',
-            'cc-by': 'CC BY 4.0 (Attribution)',
-            'cc-by-sa': 'CC BY-SA 4.0 (Attribution-ShareAlike)',
-            'cc-by-nd': 'CC BY-ND 4.0 (Attribution-NoDerivs)',
-            'cc-by-nc': 'CC BY-NC 4.0 (Attribution-NonCommercial)',
-            'cc-by-nc-sa': 'CC BY-NC-SA 4.0 (Attribution-NonCommercial-ShareAlike)',
-            'cc-by-nc-nd': 'CC BY-NC-ND 4.0 (Attribution-NonCommercial-NoDerivs)',
-            'cc-zero': 'CC0 1.0 (Public Domain)',
-        },
-    },
+    'zh-CN': resolveCopyrightMessages(parseLocaleComponents('zh-CN')),
+    'en-US': resolveCopyrightMessages(parseLocaleComponents('en-US')),
+    'zh-TW': resolveCopyrightMessages(parseLocaleComponents('zh-TW')),
+    'ko-KR': resolveCopyrightMessages(parseLocaleComponents('ko-KR')),
+    'ja-JP': resolveCopyrightMessages(parseLocaleComponents('ja-JP')),
 }
 
 function resolveLocale(locale?: string | null): SupportedLocale {
-    return locale === 'en-US' ? 'en-US' : FALLBACK_LOCALE
+    return resolveAppLocaleCode(locale)
 }
 
 function resolveLicenseKey(
@@ -98,7 +136,7 @@ function resolveAuthorName(authorName: string | null | undefined, locale: Suppor
         return normalized
     }
 
-    return locale === 'en-US' ? 'Unknown Author' : '佚名'
+    return COPYRIGHT_MESSAGES[locale].unknown_author
 }
 
 function renderMarkdownLink(label: string, url: string | null | undefined) {
@@ -108,6 +146,10 @@ function renderMarkdownLink(label: string, url: string | null | undefined) {
     }
 
     return `[${label}](${normalizedUrl})`
+}
+
+function joinMarkdownLines(lines: string[]) {
+    return lines.join('  \n')
 }
 
 export function buildPostCopyrightNotice(options: PostCopyrightNoticeOptions): PostCopyrightNotice {
@@ -138,7 +180,7 @@ export function buildPostCopyrightNotice(options: PostCopyrightNoticeOptions): P
     ]
 
     const text = `${separator}\n${lines.join('\n')}`
-    const markdown = `${separator}\n${markdownLines.join('\n')}`
+    const markdown = `${separator}\n${joinMarkdownLines(markdownLines)}`
 
     return {
         locale,

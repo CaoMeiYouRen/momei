@@ -58,6 +58,7 @@
             "copyright": {
                 "title": "著作権表示",
                 "author": "著者",
+                "unknown_author": "不明な著者",
                 "link": "リンク",
                 "license_title": "著作権表示",
                 "license_pre": "特記のない限り、このブログの記事は ",

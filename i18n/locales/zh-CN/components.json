@@ -58,6 +58,7 @@
             "copyright": {
                 "title": "版权声明",
                 "author": "本文作者",
+                "unknown_author": "佚名",
                 "link": "本文链接",
                 "license_title": "版权声明",
                 "license_pre": "本博客所有文章除特别声明外，均采用 ",
