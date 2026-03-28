@@ -1,6 +1,11 @@
 import { rateLimit } from '@/server/utils/rate-limit'
+import { TEST_MODE } from '@/utils/shared/env'
 
 export default defineEventHandler(async (event) => {
+    if (TEST_MODE) {
+        return
+    }
+
     // 限制 API 请求频率
     if (event.path.startsWith('/api')) {
         if (event.path.startsWith('/api/auth')) {
