@@ -229,6 +229,7 @@ pnpm test
 
 ```bash
 pnpm lint
+pnpm lint:i18n
 ```
 
 ## 👤 作者

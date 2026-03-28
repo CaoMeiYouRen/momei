@@ -169,6 +169,9 @@ pnpm dev
 # 代码风格检查
 pnpm lint
 
+# 单独运行 i18n 慢规则校验
+pnpm lint:i18n
+
 # 样式检查
 pnpm lint:css
 
@@ -241,6 +244,7 @@ pnpm build
     ```
 
     - 确保无 ESLint/Stylelint 报错。
+    - `pnpm run lint` 默认只承担常规 TS / Vue / JS 检查；若改动涉及 `i18n/locales/**`、locale 模块注册、翻译 key 治理，需额外执行 `pnpm run lint:i18n`。
 
 3.  **类型检查**:
 

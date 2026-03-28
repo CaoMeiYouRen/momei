@@ -73,6 +73,7 @@ For deeper insights into code standards, directory structure, and security requi
 | `pnpm dev` | Start development server |
 | `pnpm build` | Build for production |
 | `pnpm lint` | Run TS/Vue linting |
+| `pnpm lint:i18n` | Run `@intlify/vue-i18n` slow rules separately |
 | `pnpm lint:css` | Run style linting |
 | `pnpm i18n:audit` | Audit i18n keys and module split status |
 | `pnpm test` | Run unit tests |

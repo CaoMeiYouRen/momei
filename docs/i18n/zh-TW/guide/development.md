@@ -84,6 +84,7 @@ last_sync: 2026-03-18
 | `pnpm dev` | 啟動開發伺服器 |
 | `pnpm build` | 建置生產版本 |
 | `pnpm lint` | 執行 TypeScript / Vue 代碼檢查 |
+| `pnpm lint:i18n` | 單獨執行 `@intlify/vue-i18n` 慢規則檢查 |
 | `pnpm lint:css` | 執行樣式檢查 |
 | `pnpm i18n:audit` | 稽核 i18n 模組與鍵集完整度 |
 | `pnpm test` | 執行單元測試 |

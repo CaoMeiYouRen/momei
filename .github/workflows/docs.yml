@@ -37,6 +37,8 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Install dependencies
         run: pnpm i --frozen-lockfile
+      - name: Lint Markdown files
+        run: pnpm run lint:md
       - name: Build with VitePress
         run: pnpm run docs:build
       - name: Upload artifact

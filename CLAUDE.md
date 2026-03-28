@@ -28,6 +28,7 @@
 | 测试 | `pnpm test` | 运行所有测试 |
 | 测试 | `pnpm vitest run <path>` | 运行单个测试文件 |
 | 质量 | `pnpm lint` | ESLint 检查与修复 |
+| 质量 | `pnpm lint:i18n` | 单独执行 `@intlify/vue-i18n` 慢规则检查 |
 | 质量 | `pnpm typecheck` | TypeScript 类型检查 |
 | 文档 | `pnpm docs:dev` | 启动文档开发服务器 |
 

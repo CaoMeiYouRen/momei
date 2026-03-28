@@ -64,6 +64,7 @@
 | `pnpm dev` | 启动开发服务器 |
 | `pnpm build` | 构建生产版本 |
 | `pnpm lint` | 运行 TS/Vue 代码检查 |
+| `pnpm lint:i18n` | 单独运行 `@intlify/vue-i18n` 慢规则校验 |
 | `pnpm lint:css` | 运行样式检查 |
 | `pnpm i18n:audit` | 审计 i18n 词条与模块拆分状态 |
 | `pnpm test` | 运行单测 |

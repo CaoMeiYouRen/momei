@@ -33,6 +33,7 @@
 | 测试 | `pnpm test` | 运行所有测试 |
 | 测试 | `pnpm test:coverage` | 运行测试并生成覆盖率报告 |
 | 质量 | `pnpm lint` | 运行 ESLint 并自动修复 |
+| 质量 | `pnpm lint:i18n` | 单独运行 `@intlify/vue-i18n` 相关慢规则校验 |
 | 质量 | `pnpm lint:css` | 运行 Stylelint 并自动修复 |
 | 质量 | `pnpm typecheck` | 运行 TypeScript 类型检查 |
 | 文档 | `pnpm docs:dev` | 启动文档开发服务器 |

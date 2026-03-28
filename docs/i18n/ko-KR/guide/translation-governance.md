@@ -52,5 +52,6 @@ last_sync: 2026-03-19
 node scripts/i18n/audit-locale-keys.mjs --fail-on-missing
 pnpm docs:check:i18n
 pnpm lint
+pnpm lint:i18n
 pnpm typecheck
 ```

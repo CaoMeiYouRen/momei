@@ -95,6 +95,7 @@
 ```bash
 pnpm docs:check:i18n
 pnpm lint
+pnpm lint:i18n
 pnpm typecheck
 ```
 
