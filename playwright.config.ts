@@ -3,13 +3,17 @@ import { defineConfig, devices } from '@playwright/test'
 const e2eHost = '127.0.0.1'
 const e2ePort = 3001
 const e2eBaseURL = `http://${e2eHost}:${e2ePort}`
+const e2eAuthSecret = 'lhci-test-secret-0123456789abcdef'
 const e2eServerEnv = [
     'DEMO_MODE=true',
     'NUXT_PUBLIC_DEMO_MODE=true',
     'TEST_MODE=true',
     'NUXT_PUBLIC_TEST_MODE=true',
     'MOMEI_INSTALLED=true',
+    `HOST=${e2eHost}`,
     `PORT=${e2ePort}`,
+    `AUTH_SECRET=${e2eAuthSecret}`,
+    `BETTER_AUTH_SECRET=${e2eAuthSecret}`,
     `NUXT_PUBLIC_SITE_URL=${e2eBaseURL}`,
     `NUXT_PUBLIC_AUTH_BASE_URL=${e2eBaseURL}`,
 ].join(' ')
