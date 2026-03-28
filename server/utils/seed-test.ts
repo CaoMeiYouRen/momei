@@ -32,7 +32,7 @@ export async function seedTestData(ds: DataSource) {
         const baseSettings = [
             { key: 'site_title', value: 'Momei Test Blog' },
             { key: 'site_name', value: 'Momei Test' },
-            { key: 'site_url', value: 'http://localhost:3001' },
+            { key: 'site_url', value: 'http://127.0.0.1:3001' },
             { key: 'default_language', value: 'zh-CN' },
         ]
 

@@ -1,8 +1,8 @@
 {
     "ci": {
         "collect": {
-            "startServerCommand": "pnpm exec cross-env DEMO_MODE=true NUXT_PUBLIC_DEMO_MODE=true TEST_MODE=true NUXT_PUBLIC_TEST_MODE=true MOMEI_INSTALLED=true PORT=3000 NUXT_PUBLIC_SITE_URL=http://127.0.0.1:3000 NUXT_PUBLIC_AUTH_BASE_URL=http://127.0.0.1:3000 node .output/server/index.mjs",
-            "startServerReadyPattern": "System started on port|Listening|listen|ready|Local|Network",
+            "startServerCommand": "pnpm exec cross-env DEMO_MODE=true NUXT_PUBLIC_DEMO_MODE=true TEST_MODE=true NUXT_PUBLIC_TEST_MODE=true MOMEI_INSTALLED=true AUTH_SECRET=lhci-test-secret BETTER_AUTH_SECRET=lhci-test-secret PORT=3000 NUXT_PUBLIC_SITE_URL=http://127.0.0.1:3000 NUXT_PUBLIC_AUTH_BASE_URL=http://127.0.0.1:3000 sh -c 'node .output/server/index.mjs & server_pid=$!; until curl -fsS http://127.0.0.1:3000/ >/dev/null; do sleep 1; done; echo LHCI_SERVER_READY; wait $server_pid'",
+            "startServerReadyPattern": "LHCI_SERVER_READY",
             "startServerReadyTimeout": 120000,
             "url": [
                 "http://127.0.0.1:3000/",

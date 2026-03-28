@@ -13,7 +13,7 @@ const e2eServerEnv = [
     `NUXT_PUBLIC_SITE_URL=${e2eBaseURL}`,
     `NUXT_PUBLIC_AUTH_BASE_URL=${e2eBaseURL}`,
 ].join(' ')
-const e2eServerCommand = `pnpm run build && pnpm exec cross-env ${e2eServerEnv} node .output/server/index.mjs`
+const e2eServerCommand = `pnpm exec cross-env ${e2eServerEnv} node .output/server/index.mjs`
 
 /**
  * Read environment variables from file.

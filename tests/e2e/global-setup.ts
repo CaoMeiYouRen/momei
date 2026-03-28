@@ -8,7 +8,7 @@ import { TEST_ADMIN } from './helpers/auth.helper'
  * 在所有测试运行前创建测试管理员账户
  */
 async function globalSetup(config: FullConfig) {
-    const baseURL = config.projects[0]?.use?.baseURL ?? 'http://localhost:3001'
+    const baseURL = config.projects[0]?.use?.baseURL ?? 'http://127.0.0.1:3001'
     const authFile = path.resolve(process.cwd(), 'tests/e2e/.auth/admin.json')
     const browser = await chromium.launch()
     const context = await browser.newContext({
