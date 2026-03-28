@@ -364,6 +364,28 @@ function printAllowlistedRisk(item) {
     console.info(`  temporary exception: ${item.allowlistEntry.temporaryException}`)
 }
 
+function resolvePnpmCommand() {
+    return 'pnpm'
+}
+
+function createPnpmAuditProcess(args) {
+    const auditArgs = ['audit', '--json', `--registry=${args.registry}`]
+
+    if (process.platform === 'win32') {
+        return spawn(process.env.comspec || 'cmd.exe', ['/d', '/s', '/c', `${resolvePnpmCommand()} ${auditArgs.join(' ')}`], {
+            cwd: process.cwd(),
+            env: process.env,
+            stdio: ['ignore', 'pipe', 'pipe'],
+        })
+    }
+
+    return spawn(resolvePnpmCommand(), auditArgs, {
+        cwd: process.cwd(),
+        env: process.env,
+        stdio: ['ignore', 'pipe', 'pipe'],
+    })
+}
+
 async function loadAuditReport(args) {
     if (args.input) {
         const content = await readFile(path.resolve(args.input), 'utf8')
@@ -373,11 +395,7 @@ async function loadAuditReport(args) {
     }
 
     return new Promise((resolve, reject) => {
-        const child = spawn('pnpm', ['audit', '--json', `--registry=${args.registry}`], {
-            cwd: process.cwd(),
-            env: process.env,
-            stdio: ['ignore', 'pipe', 'pipe'],
-        })
+        const child = createPnpmAuditProcess(args)
 
         let stdout = ''
         let stderr = ''
