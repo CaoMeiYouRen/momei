@@ -1,5 +1,20 @@
 import { defineConfig, devices } from '@playwright/test'
 
+const e2eHost = '127.0.0.1'
+const e2ePort = 3001
+const e2eBaseURL = `http://${e2eHost}:${e2ePort}`
+const e2eServerEnv = [
+    'DEMO_MODE=true',
+    'NUXT_PUBLIC_DEMO_MODE=true',
+    'TEST_MODE=true',
+    'NUXT_PUBLIC_TEST_MODE=true',
+    'MOMEI_INSTALLED=true',
+    `PORT=${e2ePort}`,
+    `NUXT_PUBLIC_SITE_URL=${e2eBaseURL}`,
+    `NUXT_PUBLIC_AUTH_BASE_URL=${e2eBaseURL}`,
+].join(' ')
+const e2eServerCommand = `pnpm run build && pnpm exec cross-env ${e2eServerEnv} node .output/server/index.mjs`
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -27,7 +42,7 @@ export default defineConfig({
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions */
     use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-        baseURL: 'http://localhost:3001',
+        baseURL: e2eBaseURL,
 
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
@@ -76,9 +91,9 @@ export default defineConfig({
 
     /* Run your local dev server before starting the tests */
     webServer: {
-        command: 'pnpm exec cross-env TEST_MODE=true pnpm exec nuxt dev --port 3001',
-        url: 'http://localhost:3001',
+        command: e2eServerCommand,
+        url: e2eBaseURL,
         reuseExistingServer: !process.env.CI,
-        timeout: 180000,
+        timeout: 600000,
     },
 })

@@ -1,17 +1,17 @@
 {
     "ci": {
         "collect": {
-            "startServerCommand": "pnpm run preview",
-            "startServerReadyPattern": "Listening|listen|ready|Local|Network",
+            "startServerCommand": "pnpm exec cross-env DEMO_MODE=true NUXT_PUBLIC_DEMO_MODE=true TEST_MODE=true NUXT_PUBLIC_TEST_MODE=true MOMEI_INSTALLED=true PORT=3000 NUXT_PUBLIC_SITE_URL=http://127.0.0.1:3000 NUXT_PUBLIC_AUTH_BASE_URL=http://127.0.0.1:3000 node .output/server/index.mjs",
+            "startServerReadyPattern": "System started on port|Listening|listen|ready|Local|Network",
             "startServerReadyTimeout": 120000,
             "url": [
-                "http://localhost:3000/",
-                "http://localhost:3000/about",
-                "http://localhost:3000/archives",
-                "http://localhost:3000/posts",
-                "http://localhost:3000/tags",
-                "http://localhost:3000/categories",
-                "http://localhost:3000/posts/welcome-to-momei-demo"
+                "http://127.0.0.1:3000/",
+                "http://127.0.0.1:3000/about",
+                "http://127.0.0.1:3000/archives",
+                "http://127.0.0.1:3000/posts",
+                "http://127.0.0.1:3000/tags",
+                "http://127.0.0.1:3000/categories",
+                "http://127.0.0.1:3000/posts/welcome-to-momei-demo"
             ],
             "numberOfRuns": 3
         },
