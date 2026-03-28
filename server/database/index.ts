@@ -59,6 +59,13 @@ const SUPPORTED_DATABASE_TYPES = ['sqlite', 'mysql', 'postgres']
 // 连接状态
 let isInitialized = false
 let AppDataSource: DataSource | null = null
+let initializationPromise: Promise<DataSource> | null = null
+let dataSourceContext: {
+    dataSource: DataSource
+    actualDbType: string
+    isMemoryDB: boolean
+    isTestEnv: boolean
+} | null = null
 
 const entities = [
     Account,
@@ -96,6 +103,93 @@ const entities = [
     WebPushSubscription,
 ]
 
+function getDataSourceContext() {
+    if (dataSourceContext) {
+        return dataSourceContext
+    }
+
+    // 从环境变量获取数据库类型
+    const dbType = DATABASE_TYPE
+
+    // Demo 模式强制使用内存 SQLite 数据库
+    const actualDbType = dbType
+    const isMemoryDB = DEMO_MODE
+
+    // 检查数据库类型是否支持
+    if (!SUPPORTED_DATABASE_TYPES.includes(actualDbType)) {
+        throw new Error(`Unsupported database type: ${actualDbType}. Please use one of: ${SUPPORTED_DATABASE_TYPES.join(', ')}`)
+    }
+
+    // 数据库配置
+    let options: DataSourceOptions
+
+    // 环境检查：如果在 Serverless 环境或生产环境中使用 SQLite，给出警告
+    if (actualDbType === 'sqlite' && !DEMO_MODE && (isServerlessEnvironment() || process.env.NODE_ENV === 'production')) {
+        logger.warn('⚠️ Detection: Using SQLite in production or Serverless environment. Data will not persist across deployments or restarts!')
+    }
+
+    // 配置数据库连接
+    switch (actualDbType) {
+        case 'sqlite':
+            options = {
+                type: 'better-sqlite3',
+                database: DATABASE_PATH,
+            }
+            break
+        case 'mysql':
+            options = {
+                type: actualDbType,
+                url: DATABASE_URL,
+                supportBigNumbers: true,
+                bigNumberStrings: false,
+                ssl: DATABASE_SSL ? { rejectUnauthorized: false } : false,
+                connectTimeout: ms('60 s'),
+                charset: DATABASE_CHARSET,
+                timezone: DATABASE_TIMEZONE,
+            }
+            break
+        case 'postgres':
+            options = {
+                type: actualDbType,
+                url: DATABASE_URL,
+                parseInt8: true,
+                ssl: DATABASE_SSL ? { rejectUnauthorized: false } : false,
+                extra: {
+                    max: 20,
+                    connectionTimeoutMillis: ms('60s'),
+                },
+            }
+            break
+        default:
+            throw new Error(`Unsupported database type: ${actualDbType}. Please use one of: ${SUPPORTED_DATABASE_TYPES.join(', ')}`)
+    }
+
+    const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true'
+    const isDevEnv = process.env.NODE_ENV === 'development'
+
+    const dataSource = new DataSource({
+        ...options,
+        entities,
+        synchronize: DATABASE_SYNCHRONIZE || DEMO_MODE || isTestEnv || isDevEnv,
+        logging: isTestEnv ? false : process.env.NODE_ENV === 'development',
+        logger: isTestEnv ? undefined : new CustomLogger(),
+        entityPrefix: DATABASE_ENTITY_PREFIX,
+        namingStrategy: new SnakeCaseNamingStrategy(),
+        cache: false,
+        maxQueryExecutionTime: isTestEnv ? 10000 : 3000,
+    })
+
+    dataSourceContext = {
+        dataSource,
+        actualDbType,
+        isMemoryDB,
+        isTestEnv,
+    }
+    AppDataSource = dataSource
+
+    return dataSourceContext
+}
+
 /**
  * 同步环境变量中的管理员角色到数据库
  */
@@ -129,123 +223,55 @@ export const initializeDB = async () => {
         return AppDataSource
     }
 
-    // 从环境变量获取数据库类型
-    const dbType = DATABASE_TYPE
-
-    // Demo 模式强制使用内存 SQLite 数据库
-    const actualDbType = dbType
-    const isMemoryDB = DEMO_MODE
-
-    // 检查数据库类型是否支持
-    if (!SUPPORTED_DATABASE_TYPES.includes(actualDbType)) {
-        throw new Error(`Unsupported database type: ${actualDbType}. Please use one of: ${SUPPORTED_DATABASE_TYPES.join(', ')}`)
+    if (initializationPromise) {
+        return initializationPromise
     }
 
-    // 数据库配置
-    let options: DataSourceOptions
+    initializationPromise = (async () => {
+        const { dataSource, actualDbType, isMemoryDB, isTestEnv } = getDataSourceContext()
+        AppDataSource = dataSource
 
-    // 环境检查：如果在 Serverless 环境或生产环境中使用 SQLite，给出警告
-    if (actualDbType === 'sqlite' && !DEMO_MODE && (isServerlessEnvironment() || process.env.NODE_ENV === 'production')) {
-        logger.warn('⚠️ Detection: Using SQLite in production or Serverless environment. Data will not persist across deployments or restarts!')
-    }
-
-    // 配置数据库连接
-    switch (actualDbType) {
-        case 'sqlite':
-            options = {
-                type: 'better-sqlite3',
-                database: DATABASE_PATH, // Demo 模式使用内存数据库
+        try {
+            if (!AppDataSource.isInitialized) {
+                await AppDataSource.initialize()
             }
-            break
-        case 'mysql':
-            options = {
-                type: actualDbType,
-                url: DATABASE_URL,
-                supportBigNumbers: true, // 处理数据库中的大数字
-                bigNumberStrings: false, // 仅当它们无法用 JavaScript Number 对象准确表示时才会返回大数字作为 String 对象
-                ssl: DATABASE_SSL ? { rejectUnauthorized: false } : false, // 是否启用 SSL
-                connectTimeout: ms('60 s'), // 连接超时设置为 60 秒
-                charset: DATABASE_CHARSET, // 连接的字符集
-                timezone: DATABASE_TIMEZONE, // 连接的时区
+            isInitialized = true
+
+            await syncAdminRoles(AppDataSource)
+            await repairLegacyPostVersionRecords(AppDataSource)
+
+            if (!isTestEnv) {
+                logger.system.startup({
+                    dbType: actualDbType,
+                    env: process.env.NODE_ENV,
+                    port: Number(process.env.PORT || process.env.NITRO_PORT || 3000),
+                })
+                logger.info(`Database initialized successfully with type: ${actualDbType}${isMemoryDB ? ' (memory)' : ''}${DEMO_MODE ? ' [DEMO MODE]' : ''}`)
             }
-            break
-        case 'postgres':
-            options = {
-                type: actualDbType,
-                url: DATABASE_URL,
-                parseInt8: true, // 解析 bigint 为 number。将 64 位整数（int8）解析为 JavaScript 整数
-                ssl: DATABASE_SSL ? { rejectUnauthorized: false } : false, // 是否启用 SSL
-                extra: {
-                    max: 20,
-                    connectionTimeoutMillis: ms('60s'), // 连接超时设置为 60 秒
-                },
+
+            return AppDataSource
+        } catch (error: any) {
+            if (isTestEnv) {
+                logger.error(`Database initialization failed: ${error.message}`)
+            } else {
+                logger.database.error({
+                    error: error.message,
+                    stack: error.stack,
+                    query: `database_initialization (${actualDbType})`,
+                })
+                logger.error('Database connection failed during startup. The application will continue but features requiring a database will be disabled until corrected.')
             }
-            break
-        default:
-            throw new Error(`Unsupported database type: ${actualDbType}. Please use one of: ${SUPPORTED_DATABASE_TYPES.join(', ')}`)
-    }
 
-    // 检查环境状态
-    const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true'
-    const isDevEnv = process.env.NODE_ENV === 'development'
-
-    // 创建数据源
-    AppDataSource = new DataSource({
-        ...options,
-        entities,
-        // 开发模式、测试模式或 Demo 模式默认开启同步，生产环境只能通过 DATABASE_SYNCHRONIZE 显式开启
-        synchronize: DATABASE_SYNCHRONIZE || DEMO_MODE || isTestEnv || isDevEnv,
-        logging: isTestEnv ? false : process.env.NODE_ENV === 'development', // 测试时禁用日志
-        logger: isTestEnv ? undefined : new CustomLogger(), // 测试时不使用自定义日志器
-        entityPrefix: DATABASE_ENTITY_PREFIX, // 所有表（或集合）加的前缀
-        namingStrategy: new SnakeCaseNamingStrategy(), // 表、字段命名策略，改为 snake_case
-        cache: false, // 是否启用实体结果缓存
-        maxQueryExecutionTime: isTestEnv ? 10000 : 3000, // 测试时允许更长的查询时间
-    })
-
-    try {
-        // 初始化连接
-        await AppDataSource.initialize()
-        // 更新连接状态
-        isInitialized = true
-
-        // 同步管理员角色
-        await syncAdminRoles(AppDataSource)
-        await repairLegacyPostVersionRecords(AppDataSource)
-
-        // 测试环境时减少日志输出
-        if (!isTestEnv) {
-            logger.system.startup({
-                dbType: actualDbType,
-                env: process.env.NODE_ENV,
-                port: Number(process.env.PORT || process.env.NITRO_PORT || 3000),
-            })
-            logger.info(`Database initialized successfully with type: ${actualDbType}${isMemoryDB ? ' (memory)' : ''}${DEMO_MODE ? ' [DEMO MODE]' : ''}`)
+            return AppDataSource
+        } finally {
+            initializationPromise = null
         }
+    })()
 
-        isInitialized = true
-        return AppDataSource
-    } catch (error: any) {
-        // 重要修复：对于安装向导，我们不希望数据库初始化失败导致整个应用崩溃
-        // 记录错误但不重新抛出，让 AppDataSource 保持未初始化状态
-        if (isTestEnv) {
-            logger.error(`Database initialization failed: ${error.message}`)
-        } else {
-            // 使用专门的数据库错误日志记录详细信息
-            logger.database.error({
-                error: error.message,
-                stack: error.stack,
-                query: `database_initialization (${actualDbType})`,
-            })
-            logger.error('Database connection failed during startup. The application will continue but features requiring a database will be disabled until corrected.')
-        }
-
-        // 返回一个至少通过 type 校验的基础 DataSource，但不抛出错误
-        return AppDataSource
-    }
-
+    return initializationPromise
 }
 
-// 顶级 await - 数据库在模块导入时自动初始化
-// 使用非空断言，因为数据库应该在应用启动时初始化
-export const dataSource: DataSource = (await initializeDB())
+export const dataSource: DataSource = getDataSourceContext().dataSource
+
+// 避免在模块求值阶段阻塞 Nitro 监听；初始化改为后台启动。
+void initializeDB()

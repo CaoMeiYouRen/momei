@@ -54,6 +54,7 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
+      - run: pnpm run build
       - name: Install Playwright Browsers
         run: pnpx playwright install --with-deps
       - run: pnpm run test:e2e

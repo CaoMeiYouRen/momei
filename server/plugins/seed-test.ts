@@ -1,6 +1,4 @@
 import { defineNitroPlugin } from 'nitropack/runtime'
-import { dataSource } from '../database'
-import { seedTestData } from '../utils/seed-test'
 import { TEST_MODE } from '@/utils/shared/env'
 
 export default defineNitroPlugin(() => {
@@ -8,10 +6,11 @@ export default defineNitroPlugin(() => {
     if (TEST_MODE) {
         void (async () => {
             try {
-                // 确保数据库已初始化
-                if (!dataSource.isInitialized) {
-                    await dataSource.initialize()
-                }
+                const [{ dataSource, initializeDB }, { seedTestData }] = await Promise.all([
+                    import('../database'),
+                    import('../utils/seed-test'),
+                ])
+                await initializeDB()
                 await seedTestData(dataSource)
             } catch (error) {
                 console.error('[Test Seed Plugin] Failed to seed test data:', error)

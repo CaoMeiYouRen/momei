@@ -1,10 +1,26 @@
 import { CronJob } from 'cron'
-import { processScheduledTasks } from '../services/task'
-import { friendLinkService } from '../services/friend-link'
 import { isServerlessEnvironment } from '../utils/env'
 import logger from '@/server/utils/logger'
 
 const DEFAULT_TASK_CRON_EXPRESSION = '*/5 * * * *'
+
+async function runScheduledTaskScan() {
+    const [{ initializeDB }, { processScheduledTasks }] = await Promise.all([
+        import('../database'),
+        import('../services/task'),
+    ])
+    await initializeDB()
+    await processScheduledTasks()
+}
+
+async function runFriendLinkHealthCheck() {
+    const [{ initializeDB }, { friendLinkService }] = await Promise.all([
+        import('../database'),
+        import('../services/friend-link'),
+    ])
+    await initializeDB()
+    await friendLinkService.runHealthCheck()
+}
 
 /**
  * 自部署环境下的定时任务调度器插件
@@ -27,7 +43,7 @@ export default defineNitroPlugin((nitroApp) => {
             cronExpression,
             async () => {
                 logger.info(`[TaskScheduler] Running scheduled task scan: ${new Date().toISOString()}`)
-                await processScheduledTasks()
+                await runScheduledTaskScan()
             },
             null,
             true, // 立即启动
@@ -43,7 +59,7 @@ export default defineNitroPlugin((nitroApp) => {
             async () => {
                 try {
                     logger.info(`[TaskScheduler] Running friend link health check: ${new Date().toISOString()}`)
-                    await friendLinkService.runHealthCheck()
+                    await runFriendLinkHealthCheck()
                 } catch (error) {
                     logger.error('[TaskScheduler] Friend link health check failed:', error)
                 }
@@ -53,7 +69,7 @@ export default defineNitroPlugin((nitroApp) => {
             'UTC',
         )
 
-        void friendLinkService.runHealthCheck()
+        void runFriendLinkHealthCheck()
             .catch((error) => {
                 logger.error('[TaskScheduler] Initial friend link health check failed:', error)
             })

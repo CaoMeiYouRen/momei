@@ -10,6 +10,7 @@ const e2eServerEnv = [
     'TEST_MODE=true',
     'NUXT_PUBLIC_TEST_MODE=true',
     'MOMEI_INSTALLED=true',
+    'DISABLE_CRON_JOB=true',
     `HOST=${e2eHost}`,
     `PORT=${e2ePort}`,
     `AUTH_SECRET=${e2eAuthSecret}`,

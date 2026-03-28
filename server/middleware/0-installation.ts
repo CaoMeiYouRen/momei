@@ -1,4 +1,3 @@
-import { getInstallationStatus } from '~/server/services/installation'
 import logger from '~/server/utils/logger'
 
 /**
@@ -25,6 +24,11 @@ export default defineEventHandler(async (event) => {
     const isInstallationApi = pathname.startsWith('/api/install')
 
     try {
+        const { dataSource, initializeDB } = await import('~/server/database')
+        if (!dataSource.isInitialized) {
+            await initializeDB()
+        }
+        const { getInstallationStatus } = await import('~/server/services/installation')
         // 检查系统安装状态
         const status = await getInstallationStatus()
         const installed = status.installed

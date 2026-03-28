@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth'
+import logger from '@/server/utils/logger'
 
 /**
  * 身份验证中间件
@@ -7,6 +7,11 @@ import { auth } from '@/lib/auth'
  */
 export default defineEventHandler(async (event) => {
     try {
+        const { dataSource, initializeDB } = await import('@/server/database')
+        if (!dataSource.isInitialized) {
+            await initializeDB()
+        }
+        const { auth } = await import('@/lib/auth')
         const session = await auth.api.getSession({
             headers: event.headers,
         })
