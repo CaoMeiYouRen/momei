@@ -1,5 +1,21 @@
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import { test, expect, type Page } from '@playwright/test'
 import { AuthHelper } from './helpers/auth.helper'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+const authFile = path.join(__dirname, '.auth', 'admin.json')
+
+function hasStoredAuth(): boolean {
+    try {
+        return fs.existsSync(authFile)
+    } catch {
+        return false
+    }
+}
 
 async function openUserMenu(page: Page) {
     const userMenuButton = page.locator('#user-menu-btn')
@@ -87,6 +103,7 @@ async function pickDifferentLanguage(page: Page) {
 
 test.describe('Auth Session Governance E2E Tests', () => {
     test.describe.configure({ timeout: 90_000 })
+    test.use({ storageState: hasStoredAuth() ? authFile : undefined })
 
     test('should keep authenticated settings page stable after refresh with bounded session fetches', async ({ page }) => {
         let sessionRequestCount = 0
@@ -96,7 +113,10 @@ test.describe('Auth Session Governance E2E Tests', () => {
             }
         })
 
-        await new AuthHelper(page).loginAsAdmin()
+        if (!hasStoredAuth()) {
+            await new AuthHelper(page).loginAsAdmin()
+        }
+
         await ensureAuthenticatedSettings(page)
 
         sessionRequestCount = 0
@@ -111,13 +131,17 @@ test.describe('Auth Session Governance E2E Tests', () => {
     test('should sync logout across tabs and deny protected navigation in the other tab', async ({ browser, baseURL }) => {
         const context = await browser.newContext({
             baseURL,
+            ...(hasStoredAuth() ? { storageState: authFile } : {}),
         })
 
         const primaryTab = await context.newPage()
         const secondaryTab = await context.newPage()
 
         try {
-            await new AuthHelper(primaryTab).loginAsAdmin()
+            if (!hasStoredAuth()) {
+                await new AuthHelper(primaryTab).loginAsAdmin()
+            }
+
             await ensureAuthenticatedSettings(primaryTab)
             await ensureAuthenticatedAdmin(secondaryTab)
 
@@ -131,7 +155,10 @@ test.describe('Auth Session Governance E2E Tests', () => {
     })
 
     test('should redirect to login after session expiry invalidates stale client state', async ({ page }) => {
-        await new AuthHelper(page).loginAsAdmin()
+        if (!hasStoredAuth()) {
+            await new AuthHelper(page).loginAsAdmin()
+        }
+
         await ensureAuthenticatedSettings(page)
 
         await page.context().clearCookies()
@@ -141,7 +168,10 @@ test.describe('Auth Session Governance E2E Tests', () => {
     })
 
     test('should block immediate protected revisit after logout in the current tab', async ({ page }) => {
-        await new AuthHelper(page).loginAsAdmin()
+        if (!hasStoredAuth()) {
+            await new AuthHelper(page).loginAsAdmin()
+        }
+
         await ensureAuthenticatedSettings(page)
 
         await logoutFromHeader(page)
@@ -151,7 +181,10 @@ test.describe('Auth Session Governance E2E Tests', () => {
     })
 
     test('should switch language on a blank new draft without requiring save first', async ({ page }) => {
-        await new AuthHelper(page).loginAsAdmin()
+        if (!hasStoredAuth()) {
+            await new AuthHelper(page).loginAsAdmin()
+        }
+
         await openNewDraftEditor(page)
 
         const { currentLanguage, targetLanguage } = await pickDifferentLanguage(page)
@@ -164,7 +197,10 @@ test.describe('Auth Session Governance E2E Tests', () => {
     })
 
     test('should protect entered new draft from language switch before saving', async ({ page }) => {
-        await new AuthHelper(page).loginAsAdmin()
+        if (!hasStoredAuth()) {
+            await new AuthHelper(page).loginAsAdmin()
+        }
+
         await openNewDraftEditor(page)
 
         await page.locator('.title-input').fill('Playwright unsaved draft')
