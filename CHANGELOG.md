@@ -1,5 +1,53 @@
 # momei
 
+# [1.11.0](https://github.com/CaoMeiYouRen/momei/compare/v1.10.0...v1.11.0) (2026-03-29)
+
+
+### ✨ 新功能
+
+* **admin-settings:** 添加系统设置和主题自定义功能 ([3fb528e](https://github.com/CaoMeiYouRen/momei/commit/3fb528e))
+* **dependency:** 替换高风险依赖并清空白名单 ([c9928fe](https://github.com/CaoMeiYouRen/momei/commit/c9928fe))
+* **email-templates:** 增强邮件模板预览功能 ([c8e29b1](https://github.com/CaoMeiYouRen/momei/commit/c8e29b1))
+* **email:** 更新邮件模板和本地化消息 ([5bfc13c](https://github.com/CaoMeiYouRen/momei/commit/5bfc13c))
+* **i18n:** 增强日语本地化支持与同步检查功能 ([8345ee7](https://github.com/CaoMeiYouRen/momei/commit/8345ee7))
+* **i18n:** 完成日语本地化与内容对齐 ([95a41e1](https://github.com/CaoMeiYouRen/momei/commit/95a41e1))
+* **i18n:** 完成日语本地化的正式发布准备 ([73fc0ef](https://github.com/CaoMeiYouRen/momei/commit/73fc0ef))
+* **i18n:** 更新日文本地化文件与快速开始文档 ([1cb007e](https://github.com/CaoMeiYouRen/momei/commit/1cb007e))
+* **markdown:** 独立 Markdown 格式化功能 ([0ef5f21](https://github.com/CaoMeiYouRen/momei/commit/0ef5f21))
+* **migration-link-governance:** 添加链接治理的干跑和应用功能 ([7fd36c4](https://github.com/CaoMeiYouRen/momei/commit/7fd36c4))
+* **post-translation:** 添加任务轮询翻译模式 ([a14f454](https://github.com/CaoMeiYouRen/momei/commit/a14f454))
+* **posts:** 添加 WechatSync 兼容性检查功能 ([6aa2bdd](https://github.com/CaoMeiYouRen/momei/commit/6aa2bdd))
+* **posts:** 添加内容预览功能和 Markdown 渲染支持 ([27ef167](https://github.com/CaoMeiYouRen/momei/commit/27ef167))
+* **posts:** 添加内容预览对话框和 Markdown 渲染支持 ([df9fef2](https://github.com/CaoMeiYouRen/momei/commit/df9fef2))
+* **posts:** 添加投递内容预览功能 ([4434123](https://github.com/CaoMeiYouRen/momei/commit/4434123))
+* **security:** 增加依赖风险审计门禁功能 ([e84c1c3](https://github.com/CaoMeiYouRen/momei/commit/e84c1c3))
+* **translation:** 增强翻译任务处理和内容分割功能 ([27aae77](https://github.com/CaoMeiYouRen/momei/commit/27aae77))
+* **translation:** 增强翻译编辑器功能 ([3a20120](https://github.com/CaoMeiYouRen/momei/commit/3a20120))
+* **translation:** 扩展翻译工作流以支持标签进度展示 ([3b2508a](https://github.com/CaoMeiYouRen/momei/commit/3b2508a))
+* **translation:** 添加长文本翻译任务轮询支持 ([e7c3522](https://github.com/CaoMeiYouRen/momei/commit/e7c3522))
+* **wechatsync:** 优化微信同步功能和兼容性检查 ([362405d](https://github.com/CaoMeiYouRen/momei/commit/362405d))
+* 后台 admin locale 大文件拆分与加载注册表治理 ([f3f18af](https://github.com/CaoMeiYouRen/momei/commit/f3f18af))
+* 完成 AI 视觉资产收敛 ([7e4a6af](https://github.com/CaoMeiYouRen/momei/commit/7e4a6af))
+
+
+### 🐛 Bug 修复
+
+* **ai:** 修复任务结果解析逻辑 ([67533fb](https://github.com/CaoMeiYouRen/momei/commit/67533fb))
+* **auth:** 添加测试模式支持以跳过认证端点速率限制 ([3ce5eb1](https://github.com/CaoMeiYouRen/momei/commit/3ce5eb1))
+* **distribution:** 更新依赖并增强微信同步功能的 Markdown 处理 ([22727d0](https://github.com/CaoMeiYouRen/momei/commit/22727d0))
+* **middleware:** 添加测试模式支持以跳过请求限制 ([ac83e0e](https://github.com/CaoMeiYouRen/momei/commit/ac83e0e))
+* **nuxt.config:** 添加导航兜底禁止列表配置 ([5b798a3](https://github.com/CaoMeiYouRen/momei/commit/5b798a3))
+* **onboarding:** 添加测试模式支持和优化导航测试用例 ([3322022](https://github.com/CaoMeiYouRen/momei/commit/3322022))
+* **post-distribution:** 添加微信同步和备份分发功能 ([8fa5477](https://github.com/CaoMeiYouRen/momei/commit/8fa5477))
+* **security:** 添加 pnpm 审计命令支持 ([d74cb33](https://github.com/CaoMeiYouRen/momei/commit/d74cb33))
+* **test:** 优化测试用例中的异步实现 ([8de5983](https://github.com/CaoMeiYouRen/momei/commit/8de5983))
+
+
+### 📦 代码重构
+
+* **ai:** 绑定聊天提供者上下文 ([a3cf6d7](https://github.com/CaoMeiYouRen/momei/commit/a3cf6d7))
+* **composables:** 重构翻译 AI 逻辑并提取运行时模块 ([33575e6](https://github.com/CaoMeiYouRen/momei/commit/33575e6))
+
 # [1.10.0](https://github.com/CaoMeiYouRen/momei/compare/v1.9.0...v1.10.0) (2026-03-21)
 
 
