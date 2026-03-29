@@ -1,3 +1,5 @@
+import sanitizeHtml from 'sanitize-html'
+
 import { buildPostCopyrightNotice } from './post-copyright'
 import { createMarkdownRenderer } from './markdown'
 import { buildAbsoluteUrl } from './seo'
@@ -126,20 +128,29 @@ function uniqueIssues(issues: string[]) {
     return Array.from(new Set(issues))
 }
 
+const plainTextSanitizeOptions: sanitizeHtml.IOptions = {
+    allowedTags: [],
+    allowedAttributes: {},
+    disallowedTagsMode: 'discard',
+}
+
+function stripResidualHtml(value: string) {
+    return sanitizeHtml(value, plainTextSanitizeOptions)
+}
+
 function stripHtmlToPlainText(html: string) {
-    return html
+    return stripResidualHtml(html
         .replace(/<br\s*\/?>/giu, '\n')
         .replace(/<\/p>/giu, '\n\n')
         .replace(/<p\b[^>]*>/giu, '')
         .replace(/<a\b[^>]*href=(['"])(.*?)\1[^>]*>(.*?)<\/a>/giu, '$3 ($2)')
         .replace(/<code\b[^>]*>(.*?)<\/code>/giu, '$1')
-        .replace(/<[^>]+>/gu, ' ')
-        .replace(/\n{3,}/gu, '\n\n')
+        .replace(/\n{3,}/gu, '\n\n'))
         .trim()
 }
 
 function sanitizeWechatSyncMarkdownForWeibo(markdown: string) {
-    return markdown
+    return stripResidualHtml(markdown
         .replace(/```([\s\S]*?)```/gu, '$1')
         .replace(/`([^`\n]+)`/gu, '$1')
         .replace(/^>\s?/gmu, '')
@@ -150,8 +161,7 @@ function sanitizeWechatSyncMarkdownForWeibo(markdown: string) {
         .replace(/<blockquote\b[^>]*>([\s\S]*?)<\/blockquote>/giu, (_match, inner) => `\n\n${stripHtmlToPlainText(inner)}\n\n`)
         .replace(/<br\s*\/?>/giu, '\n')
         .replace(/<\/?(?:p|div|section|article|span|strong|em|b|i|u|code)\b[^>]*>/giu, '\n')
-        .replace(/<[^>]+>/gu, '')
-        .replace(/\n{3,}/gu, '\n\n')
+        .replace(/\n{3,}/gu, '\n\n'))
         .trim()
 }
 

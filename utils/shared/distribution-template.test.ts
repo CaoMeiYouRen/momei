@@ -125,4 +125,42 @@ describe('distribution-template', () => {
             expect.arrayContaining(['custom-block', 'embedded-media']),
         )
     })
+
+    it('strips re-formed script delimiters from weibo markdown sanitization', () => {
+        const materialBundle = buildDistributionMaterialBundle({
+            ...post,
+            content: '<scrip<script>alert(1)</script>t>safe text</script>',
+        }, {
+            siteUrl: 'https://momei.app',
+            defaultLicense: 'all-rights-reserved',
+        })
+
+        const weiboPost = buildWechatSyncPostFromMaterialBundle(materialBundle, {
+            renderMode: 'none',
+            contentProfile: 'weibo',
+        })
+
+        expect(weiboPost.markdown).not.toContain('<')
+        expect(weiboPost.markdown).not.toContain('>')
+    })
+
+    it('keeps blockquote inner text while removing nested html tags', () => {
+        const materialBundle = buildDistributionMaterialBundle({
+            ...post,
+            content: '<blockquote><strong>重点</strong><a href="https://example.com">链接</a></blockquote>',
+        }, {
+            siteUrl: 'https://momei.app',
+            defaultLicense: 'all-rights-reserved',
+        })
+
+        const weiboPost = buildWechatSyncPostFromMaterialBundle(materialBundle, {
+            renderMode: 'none',
+            contentProfile: 'weibo',
+        })
+
+        expect(weiboPost.markdown).toContain('重点')
+        expect(weiboPost.markdown).toContain('链接 (https://example.com)')
+        expect(weiboPost.markdown).not.toContain('<strong')
+        expect(weiboPost.markdown).not.toContain('<a ')
+    })
 })
