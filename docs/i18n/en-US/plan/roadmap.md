@@ -412,6 +412,16 @@ This document outlines the development blueprint for the project. For specific t
 4. `ja-JP` was promoted from the earlier `ui-ready` tier to `seo-ready`, with locale parity, mail, SEO, sitemap, and audit gates aligned to the same maintenance standard as the other public locales.
 5. Additional stage-closure work completed WechatSync Weibo compatibility plus preflight/preview checks and tag-progress visibility in the admin translation workflow; the deferred repeated pure-function / shared-type governance item remains in the Chinese-only [backlog](../../../plan/backlog.md) for a later intake review.
 
+### Stage 19: Governance Observability & Reuse Baseline Establishment (Planned)
+
+> [!NOTE]
+> This stage is newly planned. The Chinese roadmap remains the authoritative source for detailed scope and acceptance criteria.
+
+1. Introduce a clearer internal-vs-external skill visibility model, plus a governed intake list for external skills and their provenance.
+2. Build a practical indexing and comparison path across active and archived regression logs so recent baselines remain easy to retrieve.
+3. Start a first bounded pass on repeated pure functions and shared type fragments, with at least one reusable extraction landing behind focused verification.
+4. Analyze PostgreSQL traffic consumption with an explicit observation baseline before deciding whether any hotspot requires optimization in-scope.
+
 ## 3. Backlog & Long-term Roadmap
 
 > [!NOTE]
