@@ -193,24 +193,27 @@ export const auth = betterAuth({
         window: 60, // time window in seconds
         max: 60, // max requests in the window
         storage: secondaryStorage ? 'secondary-storage' : 'memory', // 如果配置了 Redis，则使用二级存储；否则使用内存存储
+        // 测试模式下跳过严格的认证端点速率限制，避免 E2E 测试中因频繁登录触发 429 导致超时阻塞
         customRules: {
-            '/sign-in/*': { window: 60, max: 3 },
-            '/email-otp/*': { window: 60, max: 3 },
-            '/phone-number/*': { window: 60, max: 3 },
-            '/sign-up/*': { window: 60, max: 3 },
-            '/sign-out': { window: 60, max: 3 },
-            '/magic-link': { window: 60, max: 3 },
-            '/forget-password': { window: 60, max: 3 },
-            '/forget-password/*': { window: 60, max: 3 },
-            '/request-password-reset': { window: 60, max: 3 },
-            '/reset-password': { window: 60, max: 3 },
-            '/send-verification-email': { window: 60, max: 3 },
-            '/change-email': { window: 60, max: 3 },
-            '/delete-user': { window: 60, max: 2 },
-            '/get-session': { window: 60, max: 20 },
-            '/admin/*': { window: 60, max: 10 },
-            '/two-factor/*': { window: 60, max: 3 },
-            '/oauth2/*': { window: 60, max: 3 },
+            ...(!TEST_MODE && {
+                '/sign-in/*': { window: 60, max: 3 },
+                '/email-otp/*': { window: 60, max: 3 },
+                '/phone-number/*': { window: 60, max: 3 },
+                '/sign-up/*': { window: 60, max: 3 },
+                '/sign-out': { window: 60, max: 3 },
+                '/magic-link': { window: 60, max: 3 },
+                '/forget-password': { window: 60, max: 3 },
+                '/forget-password/*': { window: 60, max: 3 },
+                '/request-password-reset': { window: 60, max: 3 },
+                '/reset-password': { window: 60, max: 3 },
+                '/send-verification-email': { window: 60, max: 3 },
+                '/change-email': { window: 60, max: 3 },
+                '/delete-user': { window: 60, max: 2 },
+                '/admin/*': { window: 60, max: 10 },
+                '/two-factor/*': { window: 60, max: 3 },
+                '/oauth2/*': { window: 60, max: 3 },
+                '/get-session': { window: 60, max: 20 },
+            }),
             // '/*': (req) => { // 基础限流
             //     return { window: 60, max: 30 }
             // },
