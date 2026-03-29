@@ -21,68 +21,7 @@
 当前进行中事项：
 - 无。
 
-## 第十八阶段：验证基线深化与国际化维护能力收敛
-
-> 执行原则: 先补齐会阻塞放行的浏览器 / 性能 / 依赖安全基线，再推进后台国际化资源治理与 `ja-JP` 正式对齐，最后在阶段容量允许下处理重复代码与共享类型复用治理。
-
-### 1. 主线：浏览器验证与性能预算基线深化 (P0)
-
-- [x] **补齐 Firefox / WebKit / 移动端关键链路验证，并收敛异步大包预算**
-	- 验收: 将认证会话治理、后台受保护页面访问与文章创作主链路的浏览器验证从 Chromium 扩展到 Firefox / WebKit；至少覆盖多标签同步、刷新恢复、未登录跳转、空白新建草稿切换语言与已录入草稿保护 5 类关键场景。
-	- 验收: 明确移动端或窄视口下的最小关键路径验证口径，至少覆盖登录入口、后台导航与文章编辑器核心交互，不再只停留在桌面 Chromium。
-	- 验收: 收敛当前 `maxAsyncChunkJs` 超预算问题，并补齐 bundle budget、Lighthouse 或等价性能验证记录，明确剩余边界与后续补跑条件。
-	- 结果: 已新增 Firefox / WebKit 桌面浏览器矩阵与 `mobile-chrome-critical` / `mobile-safari-critical` 移动关键路径项目；文章编辑器新增空白新稿语言切换、未保存新稿保护与移动端编辑 smoke 覆盖。Markdown 格式化逻辑已从渲染器拆出，`markdown-it-emoji` 切到 `light`，`highlight.js` 改为 core + 常用语言按需注册，并补入更细粒度的 vendor chunk 拆分。
-	- 验证: `pnpm exec playwright test tests/e2e/auth-session-governance.e2e.test.ts --project=chromium`、`--project=firefox`、`--project=webkit` 全部通过；`pnpm exec playwright test tests/e2e/mobile-critical.e2e.test.ts --project=mobile-chrome-critical`、`--project=mobile-safari-critical` 通过；`pnpm build` 通过；`pnpm test:perf:budget` 输出 `coreEntryJs 139.65KB / 260KB`、`maxAsyncChunkJs 0KB / 120KB`、`keyCss 11.36KB / 70KB`。
-	- 边界: 本轮性能基线使用“非 vendor 异步页面 chunk”口径；共享 vendor chunk 仍保留在构建产物中，后续若引入真正的 Vite/Nuxt manifest 可再升级为更细粒度的 async 图谱统计。
-
-### 2. 主线：MJML 依赖链高风险替换与 release 安全基线收敛 (P0)
-
-- [x] **处理 `html-minifier` high 风险的上游链路替换或可验证缓解**
-	- 验收: 明确 `mjml` / `mjml-cli` -> `html-minifier` 风险的替换方案、影响范围、回退策略与阶段边界，不再长期仅依赖 allowlist 放行。
-	- 验收: 若可在本阶段完成升级或替换，需补齐 release 门禁、邮件模板渲染、构建与定向测试验证；若仍需延期，必须形成更严格的处置结论、缓解口径与触发条件。
-	- 验收: 不将该事项扩写为整仓库依赖大升级工程，范围仅围绕当前 release 阻塞链路与其直接影响面。
-	- 结果: 已通过 `package.json` 中的 direct alias + `pnpm.overrides` 将 `html-minifier` 统一替换为 `html-minifier-terser@^7.2.0`，并恢复 Nitro `externals.inline` 以确保 `mjml` / `mjml-core` / `html-minifier` 相关模块在服务端构建链路中稳定解析；`.github/security/dependency-risk-allowlist.json` 已清空，不再依赖长期 allowlist 放行该 high 风险。
-	- 验证: `pnpm install --lockfile-only` 与 `pnpm install --frozen-lockfile` 完成依赖图刷新和实际安装；随后 `pnpm security:audit-deps` 输出 `relevant risks: 0` 并通过；`pnpm exec vitest run server/services/email-template.test.ts server/services/email-template.integration.test.ts tests/scripts/check-dependency-risk.test.ts` 通过，合计 3 个测试文件、15 个用例；补跑 `pnpm test` 全量 Vitest 通过（31 个测试文件）；`pnpm build` 通过；补跑 `pnpm test:e2e` 时全量 Playwright 结果为 `69 passed / 51 skipped / 3 flaky / 128 failed`，失败主因是测试过程中 `localhost:3001` 服务中途失联，后续大量用例统一报 `Connection refused`。
-	- 边界: 本轮未扩写为 `mjml` 主版本升级或整仓库依赖升级工程，仅替换 release 阻塞链路中的 `html-minifier` 实现；全量 Vitest 已通过，但全量 E2E 当前暴露的是现有浏览器基线 / 测试服务稳定性问题，而非已定位到 MJML 替换本身的断言回归。若后续 MJML 上游发布官方修复版本，可优先回收 alias / override 并重新评估 Nitro 内联名单是否仍有必要。
-
-### 3. 主线：后台 admin locale 大文件拆分与加载注册表治理 (P0)
-
-- [x] **拆分 `i18n/locales/*/admin.json` 并收敛后台 locale 模块注册**
-	- 验收: 将后台大文件按稳定域拆分为多个 locale module 文件，例如设置、用户、文章、AI、邮件模板等域，避免继续维持单一超大事实源。
-	- 验收: locale 加载层、消息合并策略与注册表同步适配新的 admin 模块结构，不破坏现有 `t()` key 路径与后台页面读取方式。
-	- 验收: 至少补齐一次 i18n audit、后台相关定向测试或等价验证，确认拆分后无 key 丢失、覆盖顺序错误或 locale 漏载。
-	- 结果: `admin.json` 已收敛为后台壳层模块，并新增 `admin-posts`、`admin-settings`、`admin-users`、`admin-ai`、`admin-email-templates` 等稳定子模块；`i18n/config/locale-modules.ts` 已按后台路由接入按需加载注册。
-	- 验证: `CI=1 pnpm exec vitest --run --reporter=verbose i18n/config/locale-modules.test.ts` 通过；`CI=1 pnpm exec vitest --run --reporter=verbose i18n/config/locale-runtime-loader.test.ts` 通过；`pnpm i18n:audit` 通过。
-
-### 4. 主线：`ja-JP` 正式对齐治理 (P1)
-
-- [x] **完成 `ja-JP` 正式对齐，并评估从 `ui-ready` 升格的条件**
-	- 验收: 补齐 `ja-JP` 与 `en-US` / `zh-TW` / `ko-KR` 在核心 i18n 字段、后台 locale 模块、邮件模板文案与初始化字段审计上的 parity 对齐。
-	- 验收: 文档侧至少同步 README 镜像、`docs/i18n/ja-JP/**`、翻译治理说明与文档规范中的语言阶段描述，不再沿用“仅首轮覆盖”的历史口径。
-	- 验收: 若实施过程中需要提升 locale registry、文档导航或审计脚本门禁，应同步补齐必要验证与说明，避免其他语种继续沿用旧分级假设。
-	- 结果: 已新增 `scripts/i18n/check-locale-parity.mjs` 与 `pnpm i18n:check-sync`，统一以 `zh-CN` 为基准输出各 locale / module 的缺失字段与多余字段；本轮补齐 `admin-snippets`、`admin-users`、`admin-submissions`、`admin-taxonomy` 以及 `demo`、`feed` 后，`pnpm i18n:check-sync -- --locale=ja-JP` 已返回 `ja-JP: parity with zh-CN`。
-	- 验证: locale registry 已将 `ja-JP` 升格为 `seo-ready`，并同步开启 `indexable`、`sitemapEnabled` 与 `feedEnabled`；`pnpm vitest run i18n/config/locale-registry.test.ts server/utils/sitemap.test.ts server/services/email-template.integration.test.ts server/utils/email/locale.test.ts` 通过，覆盖了 registry、sitemap 与邮件模板运行时 locale 链路；`tests/e2e/seo-regression.e2e.test.ts` 已补入 `ja-JP` 首页与静态页断言，作为后续浏览器回归入口。
-
-### 5. 插队修复：WechatSync 微博同步兼容与同步前检查/预览收口 (P1)
-
-- [x] **修复 WechatSync 微博平台同步错误，并补齐同步前内容检查/预览**
-	- 插队原因: WechatSync 已属于当前已交付的多平台分发链路；微博平台同步错误会直接造成既有能力不可用，属于明确回归修复。
-	- 验收: 明确微博平台当前报错的根因、影响范围与回退口径，修复已知的同步失败问题，不再仅停留在“已知限制”说明。
-	- 验收: 在同步前补齐最小内容检查与预览，至少覆盖账号选择、目标平台内容兼容性检查，以及最终投递标题、摘要、正文、标签/版权尾注等核心素材的只读预览或等价结构化预览，避免用户提交后才发现不可同步或投递内容与预期不符。
-	- 验收: 补齐 WechatSync 相关定向验证或测试，确认微博修复与同步前检查/预览逻辑不会破坏其他平台的现有同步链路。
-	- 结果: 已确认微博 `CODE:004` 的当前根因之一是微博兼容 payload 仍保留版权尾注分隔线 `----------`，会被 WechatSync 识别为不支持的组件格式；共享分发模板现已在微博 profile 下移除分隔线，并继续保留对引用块、代码样式、标题锚点、图片容器等结构的自动降级。同步前预览与真实发送继续复用同一套共享构造，微博批次会省略显式 `markdown` 字段，改为仅投递兼容后的 HTML 内容。
-	- 验证: `pnpm exec vitest run utils/shared/distribution-template.test.ts utils/shared/post-distribution-preview.test.ts utils/shared/post-distribution-precheck.test.ts` 通过，合计 9 个用例，覆盖微博兼容模板、同步前预览和 blocker/warn 预检；`pnpm exec nuxt typecheck` 通过；`pnpm exec lint-md docs/plan/todo.md --fix` 通过。
-	- 边界: 本轮已完成活跃 WechatSync 分发链路的共享模板、预检与预览收口，但尚未补真实 WechatSync 插件联调或浏览器级 E2E 证据；另外，遗留 `components/admin/posts/wechatsync-button.vue` 仍未接入新分发面板的 attempt 建档、完成回写与完整预检/预览 UI，后续若继续保留该组件，建议进一步收口或直接移除。
-
-### 6. 扩展：后台翻译工作流标签进度展示补齐 (P1)
-
-- [x] **将标签翻译纳入后台翻译工作流进度条展示**
-	- 验收: 后台翻译工作流在勾选 `tags` 范围时，进度条与字段状态展示必须体现标签翻译，而不再只覆盖标题、摘要与正文。
-	- 验收: 标签翻译进度的计算、完成态与失败态需与现有翻译工作流保持一致，不破坏既有文本字段的流式或任务式翻译行为。
-	- 验收: 补齐对应的定向测试、交互验证或等价检查，确认标签翻译进度展示与实际翻译结果一致。
-	- 结果: `PostTranslationProgress` 已扩展为包含 `tags` 的独立进度字段；`use-post-translation-ai` 新增辅助字段进度状态机，`use-post-editor-translation` 已在标签绑定解析前后驱动 `processing / completed / failed` 状态；后台翻译工作流对话框现在会在勾选 `tags` 时渲染标签进度卡片，并保持标签字段不可误触发文本字段的取消 / 重试入口。
-	- 验证: `pnpm typecheck` 通过；`pnpm exec vitest run composables/use-post-translation-ai.test.ts composables/use-post-editor-translation.test.ts components/admin/posts/post-translation-workflow-dialog.test.ts` 通过，合计 3 个测试文件、26 个用例，覆盖了 tags 进度汇总、工作流回填与对话框展示。
-	- 边界: 本轮以类型检查 + 定向 Vitest 作为等价验证，尚未补真实浏览器下从后台编辑页触发翻译工作流到标签进度卡片刷新的 E2E 证据；若后续阶段补后台翻译工作流交互回归，可将该场景并入浏览器验证基线。
+> 第十八阶段已归档至 [待办事项归档](./todo-archive.md)。下一阶段仍在评估与准入分析中，待范围明确后再回写本文件。
 
 ## 相关文档
 
