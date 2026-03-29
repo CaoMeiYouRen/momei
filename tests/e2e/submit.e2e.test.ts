@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test'
-import type { Page } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 
 test.describe('Submit Page E2E Tests', () => {
     async function submitForm(page: Page) {

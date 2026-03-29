@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test'
-import type { Page } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 
 async function setLocaleCookie(page: Page, baseURL: string | undefined, locale: string) {
     await page.context().addCookies([

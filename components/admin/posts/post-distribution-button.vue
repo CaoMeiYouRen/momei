@@ -8,7 +8,6 @@
             rounded
             @click="openDialog"
         />
-
         <Dialog
             v-model:visible="expandedPreviewVisible"
             modal
@@ -21,7 +20,7 @@
                 <div class="post-distribution-preview-dialog__meta-grid">
                     <div class="post-distribution-preview-dialog__meta-card post-distribution-preview-dialog__meta-card--accent">
                         <div class="post-distribution-preview-dialog__meta-topline">
-                            <span class="post-distribution-preview-dialog__meta-label">{{ renderChannelLabel(expandedPreview.channel) }}</span>
+                            <span class="post-distribution-preview-dialog__meta-label">{{ renderChannelLabel(expandedPreview.channel, t) }}</span>
                             <Tag :value="expandedPreview.badge" :severity="expandedPreview.badgeSeverity" />
                         </div>
                         <h3>{{ renderPreviewValue(expandedPreview.articleTitle) }}</h3>
@@ -57,7 +56,6 @@
                         </p>
                     </div>
                 </div>
-
                 <div class="post-distribution-preview-dialog__panel-grid">
                     <section class="post-distribution-preview-dialog__panel post-distribution-preview-dialog__panel--wide">
                         <div class="post-distribution-preview-dialog__panel-header">
@@ -71,7 +69,6 @@
                         />
                         <!-- eslint-enable vue/no-v-html -->
                     </section>
-
                     <section class="post-distribution-preview-dialog__panel">
                         <div class="post-distribution-preview-dialog__panel-header">
                             <h4>{{ $t('pages.admin.posts.distribution.preview.final_markdown') }}</h4>
@@ -79,19 +76,17 @@
                         </div>
                         <pre class="post-distribution-dialog__preview-code post-distribution-preview-dialog__code-surface">{{ renderPreviewValue(expandedPreview.finalMarkdown) }}</pre>
                     </section>
-
                     <section v-if="expandedPreview.bodyMarkdown" class="post-distribution-preview-dialog__panel">
                         <div class="post-distribution-preview-dialog__panel-header">
                             <h4>{{ $t('pages.admin.posts.distribution.preview.body') }}</h4>
-                            <span>{{ renderChannelLabel(expandedPreview.channel) }}</span>
+                            <span>{{ renderChannelLabel(expandedPreview.channel, t) }}</span>
                         </div>
                         <pre class="post-distribution-dialog__preview-code post-distribution-preview-dialog__code-surface">{{ renderPreviewValue(expandedPreview.bodyMarkdown) }}</pre>
                     </section>
-
                     <section v-if="expandedPreview.copyrightMarkdown" class="post-distribution-preview-dialog__panel">
                         <div class="post-distribution-preview-dialog__panel-header">
                             <h4>{{ $t('pages.admin.posts.distribution.preview.copyright') }}</h4>
-                            <span>{{ renderChannelLabel(expandedPreview.channel) }}</span>
+                            <span>{{ renderChannelLabel(expandedPreview.channel, t) }}</span>
                         </div>
                         <!-- eslint-disable vue/no-v-html -->
                         <div
@@ -102,7 +97,6 @@
                     </section>
                 </div>
             </div>
-
             <template #footer>
                 <Button
                     :label="$t('common.close')"
@@ -112,7 +106,6 @@
                 />
             </template>
         </Dialog>
-
         <Dialog
             v-model:visible="dialogVisible"
             modal
@@ -120,24 +113,22 @@
             :header="$t('pages.admin.posts.distribution.dialog_title')"
             :style="{width: '58rem'}"
         >
-            <div v-if="loading" class="post-distribution-dialog__loading">
-                <ProgressSpinner style="width: 2rem; height: 2rem" stroke-width="4" />
-            </div>
+            <div v-if="loading" class="post-distribution-dialog__loading" />
             <div v-else-if="summary" class="post-distribution-dialog__content">
                 <div class="post-distribution-dialog__channels">
                     <section class="post-distribution-dialog__channel-card">
                         <div class="post-distribution-dialog__channel-header">
                             <div>
                                 <h4>{{ $t('pages.admin.posts.distribution.channels.memos') }}</h4>
-                                <small>{{ renderChannelMessage('memos') }}</small>
+                                <small>{{ renderChannelMessage(summary.channels.memos, t) }}</small>
                             </div>
                             <Tag
-                                :value="renderStatusLabel(summary.channels.memos.status)"
+                                :value="renderStatusLabel(summary.channels.memos.status, t)"
                                 :severity="renderStatusSeverity(summary.channels.memos.status)"
                             />
                         </div>
 
-                        <div v-if="showModeSelector('memos')" class="post-distribution-dialog__mode-group">
+                        <div v-if="showModeSelector(summary.channels.memos)" class="post-distribution-dialog__mode-group">
                             <div class="post-distribution-dialog__mode-item">
                                 <RadioButton
                                     v-model="memosMode"
@@ -192,7 +183,6 @@
                                 />
                             </div>
                         </div>
-
                         <div class="post-distribution-dialog__actions">
                             <Button
                                 :label="$t('pages.admin.posts.distribution.sync_now')"
@@ -201,7 +191,7 @@
                                 @click="dispatchMemos('sync')"
                             />
                             <Button
-                                v-if="canRetry('memos')"
+                                v-if="canRetry(summary.channels.memos)"
                                 :label="$t('pages.admin.posts.distribution.retry')"
                                 text
                                 :loading="memosSubmitting"
@@ -209,15 +199,14 @@
                             />
                         </div>
                     </section>
-
                     <section class="post-distribution-dialog__channel-card">
                         <div class="post-distribution-dialog__channel-header">
                             <div>
                                 <h4>{{ $t('pages.admin.posts.distribution.channels.wechatsync') }}</h4>
-                                <small>{{ renderChannelMessage('wechatsync') }}</small>
+                                <small>{{ renderChannelMessage(summary.channels.wechatsync, t) }}</small>
                             </div>
                             <Tag
-                                :value="renderStatusLabel(summary.channels.wechatsync.status)"
+                                :value="renderStatusLabel(summary.channels.wechatsync.status, t)"
                                 :severity="renderStatusSeverity(summary.channels.wechatsync.status)"
                             />
                         </div>
@@ -227,8 +216,7 @@
                                 ? $t('pages.admin.posts.distribution.wechatsync_ready')
                                 : $t('pages.admin.posts.distribution.extension_missing') }}
                         </small>
-
-                        <div v-if="showModeSelector('wechatsync')" class="post-distribution-dialog__mode-group">
+                        <div v-if="showModeSelector(summary.channels.wechatsync)" class="post-distribution-dialog__mode-group">
                             <div class="post-distribution-dialog__mode-item">
                                 <RadioButton
                                     v-model="wechatSyncMode"
@@ -302,7 +290,7 @@
                                 </div>
                                 <div class="post-distribution-dialog__preview-actions">
                                     <Tag
-                                        :value="renderWechatSyncPreviewProfile(group)"
+                                        :value="renderWechatSyncPreviewProfile(group, t)"
                                         :severity="renderWechatSyncPreviewSeverity(group)"
                                     />
                                     <Button
@@ -336,7 +324,7 @@
                                 @click="dispatchWechatSync('sync')"
                             />
                             <Button
-                                v-if="canRetry('wechatsync')"
+                                v-if="canRetry(summary.channels.wechatsync)"
                                 :label="$t('pages.admin.posts.distribution.retry')"
                                 text
                                 :disabled="!extensionInstalled || !selectedWechatAccounts.length || hasBlockingWechatSyncPrecheck"
@@ -363,7 +351,7 @@
                                     {{ account.title }}
                                 </div>
                                 <div class="post-distribution-dialog__task-meta">
-                                    <span :title="account.error || account.msg">{{ renderWechatTaskLabel(account.status) }}</span>
+                                    <span :title="account.error || account.msg">{{ renderWechatTaskLabel(account.status, t) }}</span>
                                     <a
                                         v-if="account.editResp?.draftLink"
                                         :href="account.editResp.draftLink"
@@ -387,11 +375,9 @@
                             @click="loadSummary"
                         />
                     </div>
-
                     <div v-if="summary.timeline.length === 0" class="post-distribution-dialog__empty">
                         {{ $t('pages.admin.posts.distribution.no_timeline') }}
                     </div>
-
                     <div v-else class="post-distribution-dialog__timeline-list">
                         <article
                             v-for="item in summary.timeline"
@@ -399,10 +385,10 @@
                             class="post-distribution-dialog__timeline-item"
                         >
                             <div class="post-distribution-dialog__timeline-main">
-                                <strong>{{ renderChannelLabel(item.channel) }}</strong>
-                                <span>{{ renderActionLabel(item.action, item.mode) }}</span>
+                                <strong>{{ renderChannelLabel(item.channel, t) }}</strong>
+                                <span>{{ renderActionLabel(item.action, item.mode, t) }}</span>
                                 <Tag
-                                    :value="renderStatusLabel(item.status)"
+                                    :value="renderStatusLabel(item.status, t)"
                                     :severity="renderStatusSeverity(item.status)"
                                 />
                             </div>
@@ -416,13 +402,12 @@
                                 v-if="item.failureReason"
                                 class="post-distribution-dialog__timeline-message post-distribution-dialog__timeline-message--error"
                             >
-                                {{ renderFailureReason(item.failureReason) }}
+                                {{ renderFailureReason(item.failureReason, t) }}
                             </p>
                         </article>
                     </div>
                 </div>
             </div>
-
             <template #footer>
                 <Button
                     :label="$t('common.close')"
@@ -440,17 +425,11 @@ import { computed, ref, watch } from 'vue'
 import { useTimeoutFn } from '@vueuse/core'
 import type {
     Post,
-    PostDistributionAction,
-    PostDistributionChannel,
-    PostDistributionFailureReason,
     PostDistributionMode,
-    PostDistributionStatus,
-    PostDistributionTimelineEntry,
 } from '@/types/post'
 import type { ApiResponse } from '@/types/api'
 import {
     buildDistributionMaterialBundle,
-    buildWechatSyncDispatchPostFromMaterialBundle,
     buildWechatSyncPostFromMaterialBundle,
     type DistributionMaterialBundle,
 } from '@/utils/shared/distribution-template'
@@ -460,6 +439,25 @@ import {
     type WechatSyncDistributionPreviewGroup,
 } from '@/utils/shared/post-distribution-preview'
 import {
+    canRetry,
+    createMemosExpandedPreview,
+    createWechatSyncExpandedPreview,
+    renderActionLabel,
+    renderChannelLabel,
+    renderChannelMessage,
+    renderFailureReason,
+    renderStatusLabel,
+    renderStatusSeverity,
+    renderWechatTaskLabel,
+    renderWechatSyncPreviewProfile,
+    renderWechatSyncPreviewSeverity,
+    resolveSyncer,
+    showModeSelector,
+    type ExpandedDistributionPreview,
+    type PostDistributionSummary,
+    type WechatSyncWindow,
+} from '@/utils/web/post-distribution-dialog'
+import {
     groupWechatSyncAccountsByTagRenderMode,
 } from '@/utils/shared/distribution-tags'
 import {
@@ -468,89 +466,25 @@ import {
 } from '@/utils/shared/post-distribution-precheck'
 import {
     buildWechatSyncFailureResults,
-    mapWechatSyncTaskAccountsForCompletion,
-    normalizeWechatSyncAccounts,
     resolveWechatSyncAccountKey,
     type WechatSyncAccount,
     type WechatSyncCompletionAccount,
-    type WechatSyncRawAccount,
     type WechatSyncTaskAccount,
     type WechatSyncTaskStatus,
 } from '@/utils/shared/wechatsync'
 import {
     mapCompletionAccountsToTaskAccounts,
     mergeWechatSyncCompletionAccounts,
-    mergeWechatSyncTaskAccounts,
     resolveWechatSyncCompletionAccountKey,
-    shouldFinalizeWechatSyncStatus,
 } from '@/utils/shared/post-distribution-wechatsync'
+import {
+    buildFallbackDistributionMaterialBundle,
+    loadWechatSyncAccounts,
+    mergeLocalWechatTaskAccounts,
+    runWechatSyncBatch,
+} from '@/utils/web/post-distribution-wechatsync'
 import { renderDistributionPreviewHtml } from '@/utils/shared/post-distribution-preview-renderer'
 import { useI18nDate } from '@/composables/use-i18n-date'
-
-interface PostDistributionSummary {
-    channels: {
-        memos: {
-            status?: PostDistributionStatus | null
-            remoteId?: string | null
-            remoteUrl?: string | null
-            lastMode?: PostDistributionMode | null
-            activeAttemptId?: string | null
-            lastFailureReason?: PostDistributionFailureReason | null
-            lastMessage?: string | null
-            lastSuccessAt?: string | Date | null
-        }
-        wechatsync: {
-            status?: PostDistributionStatus | null
-            remoteId?: string | null
-            remoteUrl?: string | null
-            lastMode?: PostDistributionMode | null
-            activeAttemptId?: string | null
-            lastFailureReason?: PostDistributionFailureReason | null
-            lastMessage?: string | null
-            lastSuccessAt?: string | Date | null
-        }
-    }
-    timeline: PostDistributionTimelineEntry[]
-}
-
-interface WechatSyncWindow {
-    getAccounts: (callback: (accounts: WechatSyncRawAccount[]) => void) => void
-    addTask: (
-        payload: {
-            post: {
-                title: string
-                content: string
-                desc: string
-                thumb: string
-                markdown?: string
-            }
-            accounts: WechatSyncAccount[]
-        },
-        onStatus: (status: WechatSyncTaskStatus) => void,
-        onReady: () => void,
-    ) => void
-}
-
-interface ExpandedDistributionPreview {
-    channel: PostDistributionChannel
-    title: string
-    badge: string
-    badgeSeverity: string
-    accountsLabel?: string | null
-    articleTitle?: string | null
-    coverUrl?: string | null
-    summary?: string | null
-    bodyMarkdown?: string | null
-    tagLine?: string | null
-    copyrightMarkdown?: string | null
-    finalMarkdown?: string | null
-}
-
-declare global {
-    interface Window {
-        $syncer?: WechatSyncWindow
-    }
-}
 
 const props = withDefaults(defineProps<{
     post: Partial<Post>
@@ -563,7 +497,6 @@ const runtimeConfig = useRuntimeConfig()
 const { t } = useI18n()
 const { formatDateTime } = useI18nDate()
 const { resolveErrorMessage, showErrorToast, showSuccessToast } = useRequestFeedback()
-
 const dialogVisible = ref(false)
 const expandedPreviewVisible = ref(false)
 const loading = ref(false)
@@ -587,22 +520,15 @@ const distributionMaterialBundle = computed<DistributionMaterialBundle | null>((
     if (!sourcePost?.id || typeof sourcePost.content !== 'string') {
         return null
     }
-
     const siteUrl = runtimeConfig.public.siteUrl || (import.meta.client ? window.location.origin : '')
     if (!siteUrl) {
         return null
     }
-
     return buildDistributionMaterialBundle(sourcePost, {
         siteUrl,
         defaultLicense: runtimeConfig.public.postCopyright || runtimeConfig.public.defaultCopyright || 'all-rights-reserved',
     })
 })
-
-function resolveSyncer() {
-    return import.meta.client ? window.$syncer : undefined
-}
-
 const wechatSyncPrecheckNotices = computed(() => buildWechatSyncPrecheckNotices(
     distributionMaterialBundle.value,
     selectedWechatAccounts.value,
@@ -625,24 +551,6 @@ function renderPreviewMarkdownHtml(value?: string | null) {
     return renderDistributionPreviewHtml(value, t('pages.admin.posts.distribution.preview.empty'))
 }
 
-function renderWechatSyncPreviewSeverity(group: WechatSyncDistributionPreviewGroup) {
-    if (group.compatibility.blockers.length) {
-        return 'danger'
-    }
-
-    if (group.contentProfile === 'weibo' || group.compatibility.adjustments.length) {
-        return 'warn'
-    }
-
-    return 'info'
-}
-
-function renderWechatSyncPreviewProfile(group: WechatSyncDistributionPreviewGroup) {
-    return group.contentProfile === 'weibo'
-        ? t('pages.admin.posts.distribution.preview.payload.weibo_compatible')
-        : t('pages.admin.posts.distribution.preview.payload.standard')
-}
-
 function openExpandedPreview(preview: ExpandedDistributionPreview) {
     expandedPreview.value = preview
     expandedPreviewVisible.value = true
@@ -653,112 +561,16 @@ function closeExpandedPreview() {
 }
 
 function openMemosPreviewDialog() {
-    if (!memosPreview.value) {
-        return
-    }
-
-    openExpandedPreview({
-        channel: 'memos',
-        title: `${t('common.preview')} · ${t('pages.admin.posts.distribution.channels.memos')}`,
-        badge: 'Memos',
-        badgeSeverity: 'info',
-        accountsLabel: 'Memos',
-        articleTitle: memosPreview.value.title,
-        coverUrl: memosPreview.value.coverUrl,
-        summary: memosPreview.value.summary,
-        tagLine: memosPreview.value.tagLine,
-        copyrightMarkdown: memosPreview.value.copyrightMarkdown,
-        finalMarkdown: memosPreview.value.content,
-    })
+    if (!memosPreview.value) return
+    openExpandedPreview(createMemosExpandedPreview(memosPreview.value, t))
 }
 
 function openWechatSyncPreviewDialog(group: WechatSyncDistributionPreviewGroup) {
-    openExpandedPreview({
-        channel: 'wechatsync',
-        title: `${t('common.preview')} · ${t('pages.admin.posts.distribution.channels.wechatsync')}`,
-        badge: renderWechatSyncPreviewProfile(group),
-        badgeSeverity: renderWechatSyncPreviewSeverity(group),
-        accountsLabel: group.accountsLabel,
-        articleTitle: group.title,
-        coverUrl: group.coverUrl,
-        summary: group.summary,
-        bodyMarkdown: group.bodyMarkdown,
-        tagLine: group.tagLine,
-        copyrightMarkdown: group.copyrightMarkdown,
-        finalMarkdown: group.finalMarkdown,
-    })
-}
-
-function renderStatusSeverity(status?: PostDistributionStatus | null) {
-    const severityMap: Record<string, string> = {
-        idle: 'secondary',
-        delivering: 'info',
-        succeeded: 'success',
-        failed: 'danger',
-        cancelled: 'warn',
-    }
-
-    return severityMap[status || 'idle'] || 'secondary'
-}
-
-function renderStatusLabel(status?: PostDistributionStatus | null) {
-    return t(`pages.admin.posts.distribution.status.${status || 'idle'}`)
-}
-
-function renderChannelLabel(channel: PostDistributionChannel) {
-    return t(`pages.admin.posts.distribution.channels.${channel}`)
-}
-
-function renderFailureReason(reason: PostDistributionFailureReason) {
-    return t(`pages.admin.posts.distribution.failure_reason.${reason}`)
-}
-
-function renderActionLabel(action: PostDistributionAction, mode?: PostDistributionMode | null) {
-    if ((action === 'update' || action === 'republish' || action === 'retry') && mode) {
-        return `${t(`pages.admin.posts.distribution.action.${action}`)} · ${mode === 'update-existing'
-            ? t('pages.admin.posts.distribution.mode_update_existing')
-            : t('pages.admin.posts.distribution.mode_republish_new')}`
-    }
-
-    return t(`pages.admin.posts.distribution.action.${action}`)
-}
-
-function renderWechatTaskLabel(status: WechatSyncTaskAccount['status']) {
-    const normalizedStatus = status === 'pending' ? 'uploading' : status
-    return t(`pages.admin.posts.distribution.wechatsync_task.${normalizedStatus}`)
-}
-
-function renderChannelMessage(channel: PostDistributionChannel) {
-    const state = summary.value?.channels[channel]
-    if (!state) {
-        return t('pages.admin.posts.distribution.no_status')
-    }
-
-    if (state.status === 'failed' && state.lastFailureReason) {
-        return `${renderFailureReason(state.lastFailureReason)}${state.lastMessage ? ` · ${state.lastMessage}` : ''}`
-    }
-
-    if (state.lastMessage) {
-        return state.lastMessage
-    }
-
-    return t('pages.admin.posts.distribution.no_status')
-}
-
-function showModeSelector(channel: PostDistributionChannel) {
-    const state = summary.value?.channels[channel]
-    return Boolean(state?.remoteId || state?.lastSuccessAt)
-}
-
-function canRetry(channel: PostDistributionChannel) {
-    return summary.value?.channels[channel].status === 'failed'
+    openExpandedPreview(createWechatSyncExpandedPreview(group, t))
 }
 
 async function ensurePostDetail() {
-    if (fetchedPost.value || !postId.value) {
-        return
-    }
-
+    if (fetchedPost.value || !postId.value) return
     const response = await $fetch<ApiResponse<Post>>(`/api/posts/${postId.value}`)
     fetchedPost.value = response.data || null
 }
@@ -766,21 +578,11 @@ async function ensurePostDetail() {
 async function loadAccounts() {
     const syncer = resolveSyncer()
     extensionInstalled.value = Boolean(syncer)
-    if (!syncer?.getAccounts) {
-        allAccounts.value = []
-        return
-    }
-
-    syncer.getAccounts((accounts) => {
-        allAccounts.value = normalizeWechatSyncAccounts(accounts, allAccounts.value)
-    })
+    allAccounts.value = await loadWechatSyncAccounts(syncer, allAccounts.value)
 }
 
 async function loadSummary() {
-    if (!postId.value) {
-        return
-    }
-
+    if (!postId.value) return
     loading.value = true
     try {
         const response = await $fetch<ApiResponse<PostDistributionSummary>>(`/api/admin/posts/${postId.value}/distribution`)
@@ -805,17 +607,14 @@ async function openDialog() {
 }
 
 async function dispatchMemos(operation: 'sync' | 'retry') {
-    if (!postId.value) {
-        return
-    }
-
+    if (!postId.value) return
     memosSubmitting.value = true
     try {
         await $fetch(`/api/admin/posts/${postId.value}/distribution`, {
             method: 'POST',
             body: {
                 channel: 'memos',
-                mode: showModeSelector('memos') ? memosMode.value : undefined,
+                mode: showModeSelector(summary.value?.channels.memos) ? memosMode.value : undefined,
                 operation,
             },
         })
@@ -830,76 +629,23 @@ async function dispatchMemos(operation: 'sync' | 'retry') {
 
 function syncLocalWechatTaskAccounts(accounts: readonly WechatSyncTaskAccount[]) {
     localWechatTaskStatus.value = {
-        accounts: mergeWechatSyncTaskAccounts(localWechatTaskStatus.value?.accounts || [], accounts),
+        accounts: mergeLocalWechatTaskAccounts(localWechatTaskStatus.value?.accounts || [], accounts),
     }
 }
 
 async function buildWechatSyncMaterialBundle() {
     await ensurePostDetail()
-    if (distributionMaterialBundle.value) {
-        return distributionMaterialBundle.value
-    }
-
+    if (distributionMaterialBundle.value) return distributionMaterialBundle.value
     const sourcePost = fetchedPost.value || (props.post as Post)
-    return buildDistributionMaterialBundle(sourcePost, {
-        siteUrl: runtimeConfig.public.siteUrl || window.location.origin,
-        defaultLicense: runtimeConfig.public.postCopyright || runtimeConfig.public.defaultCopyright || 'all-rights-reserved',
-    })
-}
-
-async function runWechatSyncBatch(
-    syncer: WechatSyncWindow,
-    materialBundle: DistributionMaterialBundle,
-    batch: {
-        renderMode: 'leading' | 'wrapped' | 'none'
-        contentProfile: 'default' | 'weibo'
-        accounts: WechatSyncAccount[]
-    },
-) {
-    return await new Promise<WechatSyncCompletionAccount[]>((resolve) => {
-        const postToSync = buildWechatSyncDispatchPostFromMaterialBundle(materialBundle, {
-            renderMode: batch.renderMode,
-            contentProfile: batch.contentProfile,
-        })
-
-        try {
-            syncer.addTask(
-                {
-                    post: postToSync,
-                    accounts: batch.accounts,
-                },
-                (status) => {
-                    const taskAccounts = status.accounts || []
-                    if (taskAccounts.length) {
-                        syncLocalWechatTaskAccounts(taskAccounts)
-                    }
-
-                    if (shouldFinalizeWechatSyncStatus({ accounts: taskAccounts })) {
-                        resolve(mapWechatSyncTaskAccountsForCompletion(taskAccounts, batch.accounts))
-                    }
-                },
-                () => {
-                    void loadSummary()
-                },
-            )
-        } catch (error) {
-            const failureResults = buildWechatSyncFailureResults(
-                batch.accounts,
-                resolveErrorMessage(error, {
-                    fallbackKey: 'pages.admin.posts.distribution.dispatch_failed',
-                }),
-            )
-            syncLocalWechatTaskAccounts(mapCompletionAccountsToTaskAccounts(failureResults))
-            resolve(failureResults)
-        }
-    })
+    return buildFallbackDistributionMaterialBundle(
+        sourcePost,
+        runtimeConfig.public.siteUrl || window.location.origin,
+        runtimeConfig.public.postCopyright || runtimeConfig.public.defaultCopyright || 'all-rights-reserved',
+    )
 }
 
 async function finalizeWechatSync(accounts: WechatSyncCompletionAccount[]) {
-    if (!postId.value || !activeWechatAttemptId.value || finalizingWechatSync.value) {
-        return
-    }
-
+    if (!postId.value || !activeWechatAttemptId.value || finalizingWechatSync.value) return
     finalizingWechatSync.value = true
     try {
         await $fetch(`/api/admin/posts/${postId.value}/distribution/wechatsync-complete`, {
@@ -920,10 +666,7 @@ async function finalizeWechatSync(accounts: WechatSyncCompletionAccount[]) {
 }
 
 async function dispatchWechatSync(operation: 'sync' | 'retry') {
-    if (!postId.value || !selectedWechatAccounts.value.length) {
-        return
-    }
-
+    if (!postId.value || !selectedWechatAccounts.value.length) return
     const syncer = resolveSyncer()
     if (!syncer?.addTask) {
         showErrorToast(new Error(t('pages.admin.posts.distribution.extension_missing')), {
@@ -952,7 +695,7 @@ async function dispatchWechatSync(operation: 'sync' | 'retry') {
             method: 'POST',
             body: {
                 channel: 'wechatsync',
-                mode: showModeSelector('wechatsync') ? wechatSyncMode.value : undefined,
+                mode: showModeSelector(summary.value?.channels.wechatsync) ? wechatSyncMode.value : undefined,
                 operation,
             },
         })
@@ -963,7 +706,21 @@ async function dispatchWechatSync(operation: 'sync' | 'retry') {
         const groupedAccounts = groupWechatSyncAccountsByTagRenderMode(selectedAccountsSnapshot)
 
         for (const group of groupedAccounts) {
-            const batchCompletionAccounts = await runWechatSyncBatch(syncer, materialBundle, group)
+            const batchCompletionAccounts = await runWechatSyncBatch({
+                syncer,
+                materialBundle,
+                batch: group,
+                onTaskAccounts: syncLocalWechatTaskAccounts,
+                onReady: () => {
+                    void loadSummary()
+                },
+                resolveFailureMessage: (error) => resolveErrorMessage(error, {
+                    fallbackKey: 'pages.admin.posts.distribution.dispatch_failed',
+                }),
+            })
+            if (batchCompletionAccounts.some((account) => account.status === 'failed')) {
+                syncLocalWechatTaskAccounts(mapCompletionAccountsToTaskAccounts(batchCompletionAccounts))
+            }
             completionAccounts = mergeWechatSyncCompletionAccounts(completionAccounts, batchCompletionAccounts)
         }
 
@@ -991,10 +748,7 @@ async function dispatchWechatSync(operation: 'sync' | 'retry') {
 }
 
 async function terminateWechatSync() {
-    if (!postId.value) {
-        return
-    }
-
+    if (!postId.value) return
     wechatSyncSubmitting.value = true
     try {
         await $fetch(`/api/admin/posts/${postId.value}/distribution`, {
