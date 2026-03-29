@@ -1,7 +1,8 @@
 import fs from 'fs'
 import { test, expect } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
-async function setLocaleCookie(page: Parameters<typeof test>[0]['page'], baseURL: string | undefined, locale: string) {
+async function setLocaleCookie(page: Page, baseURL: string | undefined, locale: string) {
     await page.context().addCookies([
         {
             name: 'i18n_redirected',
@@ -19,7 +20,7 @@ function hasAdminAuthState(): boolean {
     }
 }
 
-async function submitForm(page: Parameters<typeof test>[0]['page'], selector: string) {
+async function submitForm(page: Page, selector: string) {
     await page.locator(selector).evaluate((form) => {
         (form as HTMLFormElement).requestSubmit()
     })

@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
 test.describe('Submit Page E2E Tests', () => {
-    async function submitForm(page: Parameters<typeof test>[0]['page']) {
+    async function submitForm(page: Page) {
         await page.locator('.submit-form').evaluate((form) => {
             (form as HTMLFormElement).requestSubmit()
         })

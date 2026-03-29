@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
 async function navigateFromHome(
-    page: Parameters<typeof test>[0]['page'],
+    page: Page,
     linkSelector: string,
     urlPattern: RegExp,
     readySelector: string,

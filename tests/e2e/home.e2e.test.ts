@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
-async function setLocaleCookie(page: Parameters<typeof test>[0]['page'], baseURL: string | undefined, locale: string) {
+async function setLocaleCookie(page: Page, baseURL: string | undefined, locale: string) {
     await page.context().addCookies([
         {
             name: 'i18n_redirected',
@@ -10,7 +11,7 @@ async function setLocaleCookie(page: Parameters<typeof test>[0]['page'], baseURL
     ])
 }
 
-async function switchToDifferentLocale(page: Parameters<typeof test>[0]['page']) {
+async function switchToDifferentLocale(page: Page) {
     const currentLang = await page.getAttribute('html', 'lang')
 
     await page.goto('/en-US')
