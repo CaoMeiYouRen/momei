@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { friendLinkService } from './friend-link'
 import { dataSource } from '@/server/database'
 import { FriendLink } from '@/server/entities/friend-link'
+import { FriendLinkCategory } from '@/server/entities/friend-link-category'
 import { getLocalizedSetting, getSetting } from '@/server/services/setting'
 import { FriendLinkHealthStatus, FriendLinkStatus } from '@/types/friend-link'
 import { SettingKey } from '@/types/setting'
@@ -38,6 +39,11 @@ describe('friendLinkService.runHealthCheck', () => {
     const friendLinkRepo = {
         createQueryBuilder: vi.fn(() => queryBuilder),
         save: vi.fn((entity: FriendLink) => entity),
+    }
+
+    const categoryRepo = {
+        save: vi.fn((entity: FriendLinkCategory) => entity),
+        findOne: vi.fn(),
     }
 
     beforeEach(() => {
@@ -109,8 +115,25 @@ describe('friendLinkService.runHealthCheck', () => {
                 return friendLinkRepo as never
             }
 
+            if (entity === FriendLinkCategory) {
+                return categoryRepo as never
+            }
+
             throw new Error('Unknown repository')
         })
+    })
+
+    it('创建分类时应将空白 slug 归一化后回退为自动生成值，并把空白描述写为 null', async () => {
+        const category = await friendLinkService.createCategory({
+            name: '  Friendly Links  ',
+            slug: '   ',
+            description: '   ',
+        })
+
+        expect(categoryRepo.save).toHaveBeenCalledTimes(1)
+        expect(category.name).toBe('Friendly Links')
+        expect(category.slug).toBe('friendly-links')
+        expect(category.description).toBeNull()
     })
 
     it('将巡检最小间隔钳制到 60 分钟', async () => {

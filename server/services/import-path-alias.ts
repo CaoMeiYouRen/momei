@@ -1,5 +1,6 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
+import { normalizeOptionalString } from '@/utils/shared/coerce'
 import { isSnowflakeId } from '@/utils/shared/validate'
 
 const CANONICAL_ALIAS_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -103,15 +104,6 @@ interface CanonicalCandidateResult {
     item: ImportPathAliasReportItem
     usableValue: string | null
     requiresConfirmation: boolean
-}
-
-function normalizeOptionalString(value: string | null | undefined) {
-    if (typeof value !== 'string') {
-        return null
-    }
-
-    const trimmed = value.trim()
-    return trimmed || null
 }
 
 function slugifyAlias(value: string) {

@@ -1,3 +1,5 @@
+import { normalizeOptionalString } from '@/utils/shared/coerce'
+
 /**
  * 通知类型
  */
@@ -146,9 +148,8 @@ function isAdminPath(link: string) {
 function extractTaskIdFromNotificationLink(link: string) {
     try {
         const parsed = new URL(link, 'https://momei.local')
-        const taskId = parsed.searchParams.get('taskId')
 
-        return taskId?.trim() || null
+        return normalizeOptionalString(parsed.searchParams.get('taskId'))
     } catch {
         return null
     }

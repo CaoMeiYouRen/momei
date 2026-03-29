@@ -8,6 +8,7 @@ import logger from '@/server/utils/logger'
 import { assignDefined } from '@/server/utils/object'
 import { ensureFound, paginate } from '@/server/utils/response'
 import { isValidCustomUrl } from '@/server/utils/security'
+import { normalizeOptionalString } from '@/utils/shared/coerce'
 import {
     FriendLinkHealthStatus,
     FriendLinkApplicationStatus,
@@ -75,11 +76,6 @@ function getAutoDisableFailureThreshold() {
     }
 
     return Math.floor(raw)
-}
-
-function normalizeOptionalString(value?: string | null) {
-    const normalized = value?.trim()
-    return normalized ? normalized : null
 }
 
 function isHttpUrl(value: string) {

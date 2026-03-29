@@ -33,6 +33,15 @@ export const toNumber = (value: unknown, fallback = 0): number => {
     return Number.isFinite(num) ? num : fallback
 }
 
+export const normalizeOptionalString = (value: unknown): string | null => {
+    if (typeof value !== 'string') {
+        return null
+    }
+
+    const normalized = value.trim()
+    return normalized || null
+}
+
 export const parseMaybeJson = <T = Record<string, unknown>>(value: unknown, fallback?: T): T => {
     const normalizedFallback = fallback ?? ({} as T)
 

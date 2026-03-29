@@ -1,6 +1,7 @@
 import { dataSource } from '@/server/database'
 import { SettingAuditLog } from '@/server/entities/setting-audit-log'
 import { maskSettingValue } from '@/server/utils/settings'
+import { normalizeOptionalString } from '@/utils/shared/coerce'
 import type {
     SettingAuditAction,
     SettingAuditItem,
@@ -79,7 +80,7 @@ export async function recordSettingAuditLogs(changes: SettingAuditChange[], cont
         effectiveSource: change.effectiveSource,
         isOverriddenByEnv: change.isOverriddenByEnv,
         source: context.source ?? 'api',
-        reason: context.reason?.trim() || null,
+        reason: normalizeOptionalString(context.reason),
         ipAddress: context.ipAddress || null,
         userAgent: context.userAgent || null,
         operatorId: context.operatorId || null,

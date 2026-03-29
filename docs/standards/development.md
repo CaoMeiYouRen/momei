@@ -64,7 +64,7 @@
     - `web` 可以引用 `shared`，但 **禁止反向依赖**。
     - `server` 可以引用 `shared`，但 **禁止反向依赖**。
     - **入口管理**: 通过 `barrel` 文件（index.ts）暴露统一入口，避免跨层误引用。
-    - **纯函数复用基线**: 新增字符串裁剪、分隔列表解析、去重归一化等无副作用逻辑时，优先收敛到 `utils/shared/` 的窄工具文件（如 `string-list.ts`），禁止在页面、Composable、Service 中重复手写 `split -> trim -> filter -> Set` 流水线。
+    - **纯函数复用基线**: 新增字符串裁剪、空串转 `null`、分隔列表解析、去重归一化等无副作用逻辑时，优先收敛到 `utils/shared/` 的窄工具文件（如 `string-list.ts`、`coerce.ts`），禁止在页面、Composable、Service 中重复手写 `value?.trim() || null`、`split -> trim -> filter -> Set` 等等价流水线。
 
 ### 2.5 代码生成准则 (Code Generation Guidelines)
 
