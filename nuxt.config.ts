@@ -160,6 +160,9 @@ export default defineNuxtConfig({
             demoMode:
                 process.env.NUXT_PUBLIC_DEMO_MODE === 'true'
                 || process.env.DEMO_MODE === 'true',
+            testMode:
+                process.env.NUXT_PUBLIC_TEST_MODE === 'true'
+                || process.env.TEST_MODE === 'true',
             demoUserEmail:
                 process.env.NUXT_PUBLIC_DEMO_USER_EMAIL
                 || process.env.DEMO_USER_EMAIL

@@ -1,41 +1,29 @@
 import { test, expect } from '@playwright/test'
 
+async function navigateFromHome(
+    page: Parameters<typeof test>[0]['page'],
+    linkSelector: string,
+    urlPattern: RegExp,
+    readySelector: string,
+) {
+    await page.goto('/')
+    await expect(page.locator('.app-header')).toBeVisible()
+    await expect(page.locator(linkSelector)).toBeVisible()
+
+    await Promise.all([
+        page.waitForURL(urlPattern),
+        page.locator(linkSelector).click(),
+    ])
+
+    await expect(page.locator(readySelector).first()).toBeVisible()
+}
+
 test.describe('Main Navigation E2E Tests', () => {
     test('should navigate to key pages from header nav', async ({ page }) => {
-        await page.goto('/')
-        await page.waitForLoadState('networkidle')
-
-        await expect(page.locator('#nav-posts')).toBeVisible()
-        await page.locator('#nav-posts').click()
-        await expect(page).toHaveURL(/\/posts/)
-        await expect(page.locator('main').first()).toBeVisible()
-
-        await page.goto('/')
-        await page.waitForLoadState('networkidle')
-        await expect(page.locator('#nav-categories')).toBeVisible()
-        await page.locator('#nav-categories').click()
-        await expect(page).toHaveURL(/\/categories/)
-        await expect(page.locator('main').first()).toBeVisible()
-
-        await page.goto('/')
-        await page.waitForLoadState('networkidle')
-        await expect(page.locator('#nav-tags')).toBeVisible()
-        await page.locator('#nav-tags').click()
-        await expect(page).toHaveURL(/\/tags/)
-        await expect(page.locator('main').first()).toBeVisible()
-
-        await page.goto('/')
-        await page.waitForLoadState('networkidle')
-        await expect(page.locator('#nav-archives')).toBeVisible()
-        await page.locator('#nav-archives').click()
-        await expect(page).toHaveURL(/\/archives/)
-        await expect(page.locator('main').first()).toBeVisible()
-
-        await page.goto('/')
-        await page.waitForLoadState('networkidle')
-        await expect(page.locator('#nav-submit')).toBeVisible()
-        await page.locator('#nav-submit').click()
-        await expect(page).toHaveURL(/\/submit/)
-        await expect(page.locator('.submit-form').first()).toBeVisible()
+        await navigateFromHome(page, '#nav-posts', /\/posts/, 'main')
+        await navigateFromHome(page, '#nav-categories', /\/categories/, 'main')
+        await navigateFromHome(page, '#nav-tags', /\/tags/, 'main')
+        await navigateFromHome(page, '#nav-archives', /\/archives/, 'main')
+        await navigateFromHome(page, '#nav-submit', /\/submit/, '.submit-form')
     })
 })

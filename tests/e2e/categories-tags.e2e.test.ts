@@ -80,7 +80,7 @@ test.describe('Categories and Tags E2E Tests', () => {
                 await expect(tags.first()).toBeVisible()
 
                 // 验证标签有 # 前缀
-                const tagText = await tags.first().textContent()
+                const tagText = (await tags.first().textContent())?.trim()
                 expect(tagText).toMatch(/^#/)
             }
         })

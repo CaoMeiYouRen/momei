@@ -41,6 +41,7 @@ export const useOnboarding = () => {
     const { t } = useI18n()
     const route = useRoute()
     const config = useRuntimeConfig()
+    const isTestMode = computed(() => Boolean(config.public.testMode))
 
     const createDriver = (driverFactory: (options: Record<string, unknown>) => any) => driverFactory({
         showProgress: true,
@@ -233,7 +234,7 @@ export const useOnboarding = () => {
     }
 
     const startTour = async (stage = getCurrentStage()) => {
-        if (!import.meta.client || !config.public.demoMode) {
+        if (!import.meta.client || !config.public.demoMode || isTestMode.value) {
             return false
         }
 
@@ -255,7 +256,7 @@ export const useOnboarding = () => {
     }
 
     const maybeAutoStartTour = () => {
-        if (!import.meta.client || !config.public.demoMode) {
+        if (!import.meta.client || !config.public.demoMode || isTestMode.value) {
             return
         }
 

@@ -1,11 +1,11 @@
 import { test, expect, type Page } from '@playwright/test'
 
-async function setLocaleCookie(page: Page, locale: 'zh-CN' | 'en-US' | 'ja-JP') {
+async function setLocaleCookie(page: Page, baseURL: string | undefined, locale: 'zh-CN' | 'en-US' | 'ja-JP') {
     await page.context().addCookies([
         {
             name: 'i18n_redirected',
             value: locale,
-            url: 'http://localhost:3001',
+            url: baseURL || 'http://127.0.0.1:3001',
         },
     ])
 }
@@ -67,8 +67,8 @@ async function expectOgAlternateLocales(page: Page, expectedLocales: string[]) {
 }
 
 test.describe('SEO Regression', () => {
-    test('should render multilingual head tags for homepage', async ({ page }) => {
-        await setLocaleCookie(page, 'zh-CN')
+    test('should render multilingual head tags for homepage', async ({ page, baseURL }) => {
+        await setLocaleCookie(page, baseURL, 'zh-CN')
         await page.goto('/')
         await page.waitForLoadState('domcontentloaded')
 
@@ -81,8 +81,8 @@ test.describe('SEO Regression', () => {
         await expectStructuredLanguage(page, 'zh-CN')
     })
 
-    test('should render multilingual head tags for english static pages', async ({ page }) => {
-        await setLocaleCookie(page, 'en-US')
+    test('should render multilingual head tags for english static pages', async ({ page, baseURL }) => {
+        await setLocaleCookie(page, baseURL, 'en-US')
         await page.goto('/en-US/about')
         await page.waitForLoadState('domcontentloaded')
 
@@ -94,8 +94,8 @@ test.describe('SEO Regression', () => {
         await expectOgAlternateLocales(page, ['zh_CN', 'ja_JP'])
     })
 
-    test('should render multilingual head tags for japanese static pages', async ({ page }) => {
-        await setLocaleCookie(page, 'ja-JP')
+    test('should render multilingual head tags for japanese static pages', async ({ page, baseURL }) => {
+        await setLocaleCookie(page, baseURL, 'ja-JP')
         await page.goto('/ja-JP/about')
         await page.waitForLoadState('domcontentloaded')
 
@@ -107,9 +107,9 @@ test.describe('SEO Regression', () => {
         await expectOgAlternateLocales(page, ['en_US', 'zh_CN'])
     })
 
-    test('should render article seo metadata on post detail pages', async ({ page }) => {
-        await setLocaleCookie(page, 'zh-CN')
-        const response = await page.request.get('http://localhost:3001/api/posts?page=1&limit=1&status=published')
+    test('should render article seo metadata on post detail pages', async ({ page, baseURL }) => {
+        await setLocaleCookie(page, baseURL, 'zh-CN')
+        const response = await page.request.get(new URL('/api/posts?page=1&limit=1&status=published', baseURL || 'http://127.0.0.1:3001').toString())
         const payload = await response.json()
         const post = payload?.data?.items?.[0]
 
@@ -126,9 +126,9 @@ test.describe('SEO Regression', () => {
         await expectStructuredLanguage(page, 'zh-CN')
     })
 
-    test('should render collection seo metadata on category pages', async ({ page }) => {
-        await setLocaleCookie(page, 'zh-CN')
-        const response = await page.request.get('http://localhost:3001/api/categories?page=1&limit=1')
+    test('should render collection seo metadata on category pages', async ({ page, baseURL }) => {
+        await setLocaleCookie(page, baseURL, 'zh-CN')
+        const response = await page.request.get(new URL('/api/categories?page=1&limit=1', baseURL || 'http://127.0.0.1:3001').toString())
         const payload = await response.json()
         const category = payload?.data?.items?.[0]
 

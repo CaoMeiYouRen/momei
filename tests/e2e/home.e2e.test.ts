@@ -1,7 +1,26 @@
 import { test, expect } from '@playwright/test'
 
+async function setLocaleCookie(page: Parameters<typeof test>[0]['page'], baseURL: string | undefined, locale: string) {
+    await page.context().addCookies([
+        {
+            name: 'i18n_redirected',
+            value: locale,
+            url: baseURL || 'http://127.0.0.1:3001',
+        },
+    ])
+}
+
+async function switchToDifferentLocale(page: Parameters<typeof test>[0]['page']) {
+    const currentLang = await page.getAttribute('html', 'lang')
+
+    await page.goto('/en-US')
+
+    await expect.poll(async () => await page.getAttribute('html', 'lang')).not.toBe(currentLang)
+}
+
 test.describe('Homepage E2E Tests', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, baseURL }) => {
+        await setLocaleCookie(page, baseURL, 'zh-CN')
         await page.goto('/')
     })
 
@@ -23,21 +42,7 @@ test.describe('Homepage E2E Tests', () => {
     })
 
     test('should switch languages correctly', async ({ page }) => {
-    // 寻找语言切换器按钮
-        const langSwitcher = page.locator('.language-switcher, button:has-text("EN"), button:has-text("中文")')
-
-        // 如果存在语言切换器
-        if (await langSwitcher.count() > 0) {
-            const currentLang = await page.getAttribute('html', 'lang')
-
-            await langSwitcher.first().click()
-
-            // 等待语言切换（通常会有 URL 变化或页面重载）
-            await page.waitForTimeout(1000)
-
-            const newLang = await page.getAttribute('html', 'lang')
-            expect(newLang).not.toBe(currentLang)
-        }
+        await switchToDifferentLocale(page)
     })
 
     test('should toggle dark mode', async ({ page }) => {

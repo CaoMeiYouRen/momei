@@ -18,7 +18,7 @@ export class AuthHelper {
     }
 
     private async expectAuthenticatedShell() {
-        await this.page.waitForLoadState('networkidle')
+        await this.page.waitForLoadState('domcontentloaded')
 
         await expect(this.page).not.toHaveURL(/\/login(?:\?|$)/, { timeout: 20000 })
 
@@ -52,7 +52,7 @@ export class AuthHelper {
      */
     async loginAsAdmin() {
         await this.page.goto('/login')
-        await this.page.waitForLoadState('networkidle')
+        await this.page.waitForLoadState('domcontentloaded')
 
         // 填写表单
         // PrimeVue 的 InputText 渲染为 input#email
