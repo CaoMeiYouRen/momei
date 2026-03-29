@@ -25,6 +25,60 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## 重复代码治理与纯函数复用基线回归（2026-03-30）
+
+### 回归任务记录
+
+- 回归范围: 第十九阶段 P1“重复代码治理与纯函数复用基线建设”首轮落地；覆盖字符串列表归一化纯函数抽取、AI 文本分类输入清洗、迁移治理文本列表解析与上传类型白名单解析。
+- 触发条件: 第十九阶段要求先输出重复片段分组清单，并至少合并一组高频纯函数或共享类型，为后续治理建立最小规范与证据链。
+- 执行频率: 本阶段首轮基线；后续仅在继续抽取 slug、URL 校验、分页参数或共享 payload 结构时补写增量记录。
+- timeout budget:
+    - 重复片段盘点与只读聚类: 15 分钟。
+    - 定向单测: 10 分钟。
+    - 定向类型检查: 20 分钟。
+- 已执行命令:
+    - `pnpm exec vitest run utils/shared/string-list.test.ts`
+    - `pnpm exec vitest run server/services/upload.test.ts server/services/ai/text.test.ts`
+    - `pnpm exec vitest run tests/pages/admin/migrations/link-governance.test.ts`
+    - `pnpm exec eslint utils/shared/string-list.ts utils/shared/string-list.test.ts server/services/ai/text-operations.ts server/services/ai/text.ts pages/admin/migrations/link-governance.vue server/services/upload.ts`
+    - `pnpm exec eslint tests/pages/admin/migrations/link-governance.test.ts`
+    - `pnpm exec lint-md docs/plan/regression-log.md docs/standards/development.md`
+    - VS Code `nuxt typecheck targeted` 任务
+- 输出摘要:
+    - 分组清单:
+        - 组 A / 已落地: 字符串列表归一化。重复模式为 `split -> trim -> filter(Boolean) -> Array.from(new Set(...))` 或数组 `map(trim) -> filter(Boolean)`；首批收敛到 `utils/shared/string-list.ts`，已替换 AI 文本分类、迁移治理页与上传白名单解析。
+        - 组 B / 待后续评估: slug 生成与清洗。候选集中在文章、友链与 AI 自动化链路，适合下一轮统一规范字符折叠和回退策略。
+        - 组 C / 待后续评估: URL / optional string 归一化。多处存在 `trim` 后空串转 `null`、HTTP URL 校验与基础 base URL 拼装，宜在确认 schema 边界后收敛。
+        - 组 D / 保持局部实现: 业务特化的候选解析与平台映射，例如分发平台族归一化、迁移链接匹配结果聚类；虽然看似模式相似，但当前仍强依赖上下文语义，不强行抽象。
+    - 已执行验证:
+        - V0 / 盘点层: 已完成仓库级重复片段检索与首轮分组，明确“可提取 / 延后 / 保持局部实现”三类结论。
+        - V1 / 规范层: `docs/standards/development.md` 已补充 `utils/shared/string-list.ts` 的最小复用约束，作为后续纯函数治理入口。
+        - V2 / 逻辑层: 已为共享工具新增同级单测 `utils/shared/string-list.test.ts`，覆盖 trim、去重、大小写归一化、limit 与分隔符解析边界。
+        - V1 / 代码层: 定向 ESLint 已覆盖 helper、本轮替换点与受影响 Vue 页面，确认这组改动无新增 lint 问题。
+        - V3 / 页面层: `tests/pages/admin/migrations/link-governance.test.ts` 已补充页面实例级断言，确认管理员页中的 domains / pathPrefixes 文本输入仍会按既有规则去空、去重并写入 dry-run 请求体。
+        - V1 / 文档层: `lint-md` 已定向通过，确认本轮新增规范与回归记录未引入 Markdown 结构问题。
+        - V1 / 类型层: VS Code `nuxt typecheck targeted` 任务未返回新增诊断；结合编辑器 Problems 与变更文件错误检查，本轮修改未引入可见类型错误。
+        - V2 / 受影响服务层: `server/services/upload.test.ts` 与 `server/services/ai/text.test.ts` 已补跑，确认上传白名单解析与 AI 文本分类相关路径未因 helper 抽取回退。
+    - 结果摘要:
+        - 首轮治理优先选择“字符串列表归一化”而非更激进的跨领域抽象，原因是该模式已跨 server / page / shared 多处重复，且完全属于无副作用纯函数，回归风险最低。
+        - 新增 `utils/shared/string-list.ts` 后，后续若再出现文本列表、白名单、标签候选、scope 列表等场景，可直接复用同一 helper，避免再次散落手写解析管线。
+        - slug、URL 校验和分页参数仍保留为下一轮候选，避免本轮把单一治理任务扩写成跨语义的大规模重构。
+    - 测试结果（按需）:
+        - `pnpm exec vitest run utils/shared/string-list.test.ts`: 1 file passed / 3 tests passed。
+        - `pnpm exec vitest run server/services/upload.test.ts server/services/ai/text.test.ts`: 2 files passed / 53 tests passed。
+        - `pnpm exec vitest run tests/pages/admin/migrations/link-governance.test.ts`: 1 file passed / 3 tests passed。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: none
+        - 主要问题:
+            - 无。
+    - 未覆盖边界:
+        - 本轮尚未触及 slug、URL 校验、分页参数和共享 payload 结构；相关分组仅完成盘点与优先级判定。
+        - 尚未把已有局部 helper 全面替换到所有重复点，本轮只处理首批高频且低风险的 4 处实现。
+    - 后续补跑计划:
+        - 补跑 `utils/shared/string-list.test.ts` 及受影响路径的最小类型检查。
+        - 通过审计后，再决定第二轮是继续处理 slug 纯函数，还是收敛 optional string / URL 校验工具。
+
 ## MJML 依赖链 high 风险替换回归（2026-03-23）
 
 ### 回归任务记录

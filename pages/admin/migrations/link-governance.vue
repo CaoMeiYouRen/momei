@@ -445,6 +445,7 @@ import {
     LINK_GOVERNANCE_SCOPES,
     LINK_GOVERNANCE_VALIDATION_MODES,
 } from '@/types/migration-link-governance'
+import { splitAndNormalizeStringList } from '@/utils/shared/string-list'
 
 definePageMeta({
     middleware: 'admin',
@@ -567,7 +568,10 @@ function getRequesterLabel(item: LinkGovernanceReportListItem) {
 }
 
 function parseTextList(value: string) {
-    return Array.from(new Set(value.split(/[\n,]/).map((item) => item.trim()).filter(Boolean)))
+    return splitAndNormalizeStringList(value, {
+        delimiters: /[\n,]/,
+        dedupe: true,
+    })
 }
 
 function buildExecutionRequest(mode: LinkGovernanceMode): LinkGovernanceRequest {

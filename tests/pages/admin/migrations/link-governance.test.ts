@@ -216,6 +216,21 @@ vi.mock('vue-i18n', async (importOriginal) => {
     }
 })
 
+vi.stubGlobal('useAppApi', () => ({
+    $appFetch: mockFetch,
+}))
+
+vi.stubGlobal('useRequestFeedback', () => ({
+    showErrorToast: vi.fn(),
+    showSuccessToast: mockShowSuccessToast,
+}))
+
+vi.stubGlobal('useI18nDate', () => ({
+    formatDateTime: (value: string) => value,
+}))
+
+vi.stubGlobal('definePageMeta', vi.fn())
+
 describe('admin migration link governance page', () => {
     beforeEach(() => {
         vi.clearAllMocks()
@@ -266,5 +281,44 @@ describe('admin migration link governance page', () => {
         expect(dryRunButton).toBeDefined()
         expect(applyButton).toBeDefined()
         expect(applyButton?.attributes('disabled')).toBeDefined()
+    })
+
+    it('should normalize domains and path prefixes before sending the dry-run payload', async () => {
+        const LinkGovernancePage = (await import('@/pages/admin/migrations/link-governance.vue')).default
+        const wrapper = await mountSuspended(LinkGovernancePage, {
+            global: {
+                mocks: {
+                    $t: translate,
+                },
+                stubs: createGlobalStubs(),
+            },
+        })
+
+        await flushPromises()
+
+        const viewModel = wrapper.vm as unknown as {
+            executionForm: {
+                domainsText: string
+                pathPrefixesText: string
+            }
+            buildExecutionRequest: (mode: 'dry-run' | 'apply') => {
+                filters: {
+                    domains?: string[]
+                    pathPrefixes?: string[]
+                }
+            }
+        }
+
+        viewModel.executionForm.domainsText = ' legacy.example.com,\nlegacy.example.com ,, cdn.example.com '
+        viewModel.executionForm.pathPrefixesText = ' /assets\n/assets, /images '
+
+        const request = viewModel.buildExecutionRequest('dry-run')
+
+        expect(request).toMatchObject({
+            filters: {
+                domains: ['legacy.example.com', 'cdn.example.com'],
+                pathPrefixes: ['/assets', '/images'],
+            },
+        })
     })
 })

@@ -31,6 +31,7 @@ import {
     AI_MAX_CONTENT_LENGTH,
     AI_CHUNK_SIZE,
 } from '@/utils/shared/env'
+import { normalizeStringList } from '@/utils/shared/string-list'
 import {
     getVisualAssetPreset,
     resolveVisualPromptDimensions,
@@ -668,7 +669,10 @@ export class TextService extends AIBaseService {
     }
 
     static async recommendCategories(options: RecommendCategoriesOptions, userId?: string) {
-        const normalizedCategories = Array.from(new Set(options.categories.map((name) => name.trim()).filter(Boolean))).slice(0, 80)
+        const normalizedCategories = normalizeStringList(options.categories, {
+            dedupe: true,
+            limit: 80,
+        })
         if (normalizedCategories.length === 0) {
             return []
         }

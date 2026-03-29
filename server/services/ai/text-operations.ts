@@ -6,6 +6,7 @@ import {
     AI_CHUNK_SIZE,
     AI_MAX_CONTENT_LENGTH,
 } from '@/utils/shared/env'
+import { normalizeStringList, splitAndNormalizeStringList } from '@/utils/shared/string-list'
 
 interface RecommendCategoriesRequestOptions {
     title: string
@@ -99,7 +100,7 @@ export async function summarizeTextContent(content: string, maxLength: number, l
 }
 
 export async function translateNamesContent(names: string[], to: string) {
-    const normalizedNames = names.map((name) => name.trim()).filter(Boolean)
+    const normalizedNames = normalizeStringList(names)
     if (normalizedNames.length === 0) {
         return {
             provider: null,
@@ -183,7 +184,10 @@ export async function recommendTagsContent(content: string, existingTags: string
         const match = /\[.*\]/s.exec(response.content)
         const tags = match
             ? JSON.parse(match[0]) as string[]
-            : response.content.split(/[,\s，、]+/).filter((item) => item.trim()).slice(0, 10)
+            : splitAndNormalizeStringList(response.content, {
+                delimiters: /[,\s，、]+/,
+                limit: 10,
+            })
 
         return { provider, response, tags }
     } catch (error) {
@@ -193,7 +197,10 @@ export async function recommendTagsContent(content: string, existingTags: string
 }
 
 export async function recommendCategoriesContent(options: RecommendCategoriesRequestOptions) {
-    const normalizedCategories = Array.from(new Set(options.categories.map((name) => name.trim()).filter(Boolean))).slice(0, 80)
+    const normalizedCategories = normalizeStringList(options.categories, {
+        dedupe: true,
+        limit: 80,
+    })
     if (normalizedCategories.length === 0) {
         return {
             provider: null,
@@ -241,8 +248,9 @@ export async function recommendCategoriesContent(options: RecommendCategoriesReq
         return {
             provider,
             response,
-            categories: response.content
-                .split(/[\n,]/)
+            categories: splitAndNormalizeStringList(response.content, {
+                delimiters: /[\n,]/,
+            })
                 .map((item) => parseCategory(item))
                 .filter((item): item is string => Boolean(item)),
         }

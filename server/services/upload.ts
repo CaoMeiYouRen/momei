@@ -2,6 +2,7 @@ import path from 'node:path'
 import dayjs from 'dayjs'
 import { type H3Event, readMultipartFormData } from 'h3'
 import { getFileStorage, type FileStorageEnv } from '@/server/utils/storage/factory'
+import { splitAndNormalizeStringList } from '@/utils/shared/string-list'
 import { resolveUploadSizeSetting } from '@/utils/shared/upload-size'
 import { limiterStorage } from '@/server/database/storage'
 import { getSettings } from '~/server/services/setting'
@@ -275,10 +276,10 @@ export function resolveUploadSizeLimit(type: UploadType, settings: UploadSetting
 }
 
 function parseAllowedFileTypes(settings: UploadSettings) {
-    return String(settings[SettingKey.ALLOWED_FILE_TYPES] || '')
-        .split(/[\n,]/)
-        .map((item) => item.trim().toLowerCase())
-        .filter(Boolean)
+    return splitAndNormalizeStringList(String(settings[SettingKey.ALLOWED_FILE_TYPES] || ''), {
+        delimiters: /[\n,]/,
+        lowercase: true,
+    })
 }
 
 function inferUploadTypeFromContentType(contentType?: string) {
