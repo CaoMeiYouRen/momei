@@ -65,6 +65,9 @@ export default defineConfig({
                         text: '项目规划',
                         items: [
                             { text: '路线图', link: '/plan/roadmap' },
+                            { text: '回归日志索引', link: '/plan/regression-log-index' },
+                            { text: '活动回归日志', link: '/plan/regression-log' },
+                            { text: '回归日志归档', link: '/plan/regression-log-archive' },
                             { text: '待办事项', link: '/plan/todo' },
                             { text: '待办归档', link: '/plan/todo-archive' },
                         ],
