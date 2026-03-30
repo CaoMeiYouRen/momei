@@ -412,6 +412,7 @@ This document outlines the development blueprint for the project. For specific t
 4. `ja-JP` was promoted from the earlier `ui-ready` tier to `seo-ready`, with locale parity, mail, SEO, sitemap, and audit gates aligned to the same maintenance standard as the other public locales.
 5. Additional stage-closure work completed WechatSync Weibo compatibility plus preflight/preview checks and tag-progress visibility in the admin translation workflow; the deferred repeated pure-function / shared-type governance item remains in the Chinese-only [backlog](../../../plan/backlog.md) for a later intake review.
 
+
 ### Stage 19: Governance Observability & Reuse Baseline Establishment (Audited & Archived)
 
 > [!NOTE]
@@ -421,6 +422,16 @@ This document outlines the development blueprint for the project. For specific t
 2. Active and archived regression logs now share one indexed lookup path, making recent baselines and older comparison evidence easier to retrieve without full-text hunting.
 3. A first bounded reuse pass landed in shared helpers for normalized string lists, optional string coercion, ASCII slug normalization, and base-URL/path composition, all backed by focused verification.
 4. PostgreSQL traffic analysis was narrowed to result-set size and high-frequency query payloads; the public-settings path and scheduled-task scan were reduced with minimal-scope fixes, while the serverless direct-write fallback remains an observation item rather than a blocking in-scope refactor.
+
+### Stage 20: Quality Gates, Release Automation & Security Governance Closure
+
+> [!NOTE]
+> This stage has now been formally opened in the Chinese planning source. The Chinese roadmap and todo remain the authoritative source for detailed scope, acceptance criteria, and execution status.
+
+1. Browser / E2E stability now becomes the first planning line, with focus on test-service reliability, key protected flows, and minimum multi-engine evidence that can be reused at release time.
+2. Release and Review Gate automation are being promoted from scattered commands to one reusable pre-release validation path, without inventing a second planning or evidence standard.
+3. Dependabot and Code Scanning alerts are being brought into the formal security-closure loop so release decisions no longer depend only on the `pnpm audit` fallback path.
+4. Duplicate-code detection is added as a bounded automation task: land a scriptable/report-based entry, define scan scope and ignore rules, and keep it aligned with the existing shared-helper reuse baseline instead of expanding into a repository-wide cleanup campaign.
 
 ## 3. Backlog & Long-term Roadmap
 

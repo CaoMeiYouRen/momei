@@ -80,7 +80,7 @@
 
 11. **AI 视频生成与增强 (AI Video Generation & Enhancement)**
 - **多模态内容产出**:
-    - 探索集成视频生成模型（如 Seedance 2.0、Sora 2.0 等），支持基于文章内容或脚本生成动态视频素材。
+    - 探索集成视频生成模型（如 Seedance 2.0、~~Sora 2.0~~ 等），支持基于文章内容或脚本生成动态视频素材。
     - 实现“文章转视频”工作流，为技术博文自动生成短视频概览或演示。
 
 12. **文章详情相关文章推荐与内容发现增强 (Related Content Discovery Enhancements)**
