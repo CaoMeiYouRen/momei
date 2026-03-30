@@ -233,15 +233,50 @@ function createEmptyLocalizedResolvedSetting<T extends LocalizedSettingScalar = 
     }
 }
 
-function resolveLocalizedSettingFromRawValue<T extends LocalizedSettingScalar = string>(
+function resolveLocalizedSettingFromValue<T extends LocalizedSettingScalar = string>(
     key: SettingKey | string,
-    rawValue: string | null | undefined,
+    rawValue: SettingValue | undefined,
     requestedLocale: ReturnType<typeof resolveRequestedAppLocale>,
     fallbackChain: ReturnType<typeof getLocalizedFallbackChain>,
 ): ResolvedLocalizedSetting<T> {
     const definition = getLocalizedSettingDefinition(key)
 
-    if (!definition || typeof rawValue !== 'string' || rawValue.trim().length === 0) {
+    if (!definition) {
+        return createEmptyLocalizedResolvedSetting<T>(key, requestedLocale, fallbackChain)
+    }
+
+    if (isLocalizedSettingValue(rawValue, definition.valueType)) {
+        for (const candidateLocale of fallbackChain) {
+            const localeValue = readLocalizedLocaleValue(rawValue, candidateLocale)
+            if (hasMeaningfulLocalizedValue(localeValue)) {
+                return {
+                    key,
+                    value: localeValue as T,
+                    requestedLocale,
+                    resolvedLocale: candidateLocale,
+                    fallbackChain,
+                    usedFallback: candidateLocale !== requestedLocale,
+                    usedLegacyValue: false,
+                }
+            }
+        }
+
+        if (hasMeaningfulLocalizedValue(rawValue.legacyValue)) {
+            return {
+                key,
+                value: rawValue.legacyValue as T,
+                requestedLocale,
+                resolvedLocale: 'legacy',
+                fallbackChain,
+                usedFallback: true,
+                usedLegacyValue: true,
+            }
+        }
+
+        return createEmptyLocalizedResolvedSetting<T>(key, requestedLocale, fallbackChain)
+    }
+
+    if (typeof rawValue !== 'string' || rawValue.trim().length === 0) {
         return createEmptyLocalizedResolvedSetting<T>(key, requestedLocale, fallbackChain)
     }
 
@@ -281,6 +316,21 @@ function resolveLocalizedSettingFromRawValue<T extends LocalizedSettingScalar = 
     }
 
     return createEmptyLocalizedResolvedSetting<T>(key, requestedLocale, fallbackChain)
+}
+
+export function resolveLocalizedSettingsFromValues(
+    values: Record<string, SettingValue>,
+    keys: (SettingKey | string)[],
+    locale?: string | null,
+): Record<string, ResolvedLocalizedSetting> {
+    const requestedLocale = resolveRequestedAppLocale(locale)
+    const fallbackChain = getLocalizedFallbackChain(requestedLocale)
+    const entries = keys.map((key) => [
+        key,
+        resolveLocalizedSettingFromValue(key, values[key], requestedLocale, fallbackChain),
+    ] as const)
+
+    return Object.fromEntries(entries)
 }
 
 function createResolvedSettingItem(
@@ -457,23 +507,17 @@ export async function getLocalizedSetting<T extends LocalizedSettingScalar = str
 ): Promise<ResolvedLocalizedSetting<T>> {
     const requestedLocale = resolveRequestedAppLocale(locale)
     const fallbackChain = getLocalizedFallbackChain(requestedLocale)
-    const rawValue = await getSetting<string>(key, null)
+    const rawValue = await getSetting<SettingValue>(key, null)
 
-    return resolveLocalizedSettingFromRawValue<T>(key, rawValue, requestedLocale, fallbackChain)
+    return resolveLocalizedSettingFromValue<T>(key, rawValue, requestedLocale, fallbackChain)
 }
 
 export async function getLocalizedSettings(
     keys: (SettingKey | string)[],
     locale?: string | null,
 ): Promise<Record<string, ResolvedLocalizedSetting>> {
-    const requestedLocale = resolveRequestedAppLocale(locale)
-    const fallbackChain = getLocalizedFallbackChain(requestedLocale)
     const settings = await getSettings(keys)
-    const entries = keys.map((key) => [
-        key,
-        resolveLocalizedSettingFromRawValue(key, settings[key], requestedLocale, fallbackChain),
-    ] as const)
-    return Object.fromEntries(entries)
+    return resolveLocalizedSettingsFromValues(settings, keys, locale)
 }
 
 /**

@@ -58,32 +58,36 @@
         - `getLocalizedSettings()` 已改为复用单次批量设置读取结果，不再对同一批 key 执行逐键数据库查询。
         - `server/api/settings/public.get.ts` 已将 `commercial_sponsorship` 并入同一批设置读取，减少公开设置接口内的额外单键查询。
         - `layouts/default.vue` 与 `pages/feedback.vue` 已删除重复的 `fetchSiteConfig()` 调用，缩小同请求 / 同页面装配下 `/api/settings/public` 的重复命中面。
+        - 第二轮增量：`server/api/settings/public.get.ts` 已进一步移除“`getSettings()` + `getLocalizedSettings()`”的双批读取，改为基于同一批 settings 结果直接解析 localized 值；`server/services/task.ts` 的定时发布扫描已从整实体 + `tags/category/author` relations 收敛到 `id/title/authorId/metadata` 最小字段集。
     - 已执行验证:
         - V1 / 静态层: 变更后的 `setting.ts`、`public.get.ts`、`default.vue`、`feedback.vue` 与对应测试文件编辑器诊断通过，无新增类型或模板错误。
         - V1 / 代码层: 定向 `eslint` 已覆盖本轮改动涉及的服务、API、布局、页面与测试文件，除 Markdown 文件默认 ignore 提示外无新增代码级 lint 问题；规划文档已通过定向 `lint-md`。
         - V2 / 逻辑层: `server/services/setting.test.ts`、`tests/server/api/settings/public.get.test.ts`、`pages/feedback.test.ts` 与 `app.test.ts` 共 39 个用例通过；新增断言直接覆盖 `getLocalizedSettings()` 的批量 localized 解析路径、反馈页在移除页面级 `fetchSiteConfig()` 后对统一 `siteConfig` 状态的分支渲染，以及 `app.vue` 在 `/feedback` 路由装配时会先初始化共享站点配置再交给页面消费。
         - V2 / 类型层: VS Code `nuxt typecheck targeted` 任务与终端 `pnpm exec nuxt typecheck` 均未返回错误；结合 Problems 面板与变更文件错误检查，本轮修改未引入可见类型错误。
         - V3 / 浏览器层: 本地 `pnpm dev` 环境下直接打开 `http://localhost:3000/feedback` 时，`xhr/fetch` 请求中仅观察到 1 次 `GET /api/settings/public?locale=zh-CN`；从首页 `http://localhost:3000/` 客户端跳转到 `/feedback` 后，保留请求里同样仅出现 1 次 `GET /api/settings/public?locale=zh-CN`，未再看到由 `layouts/default.vue` 或 `pages/feedback.vue` 触发的重复公开设置拉取。
+        - V2 / PostgreSQL 实测层: 使用工作区内临时 PostgreSQL 17 实例（端口 `55432`，`pg_stat_statements` 已开启）与本地 `nuxt dev --port 3004` 做真实请求采样。`/api/settings/public` 在 `pg_stat_statements` 中仅留下 1 条 `momei_setting` 查询（`calls=1`，`rows=6`）；按当前样本数据计算，旧路径会额外重复读取 5 条 localized 设置记录，对应约 `936 bytes` payload。`/api/tasks/run-scheduled` 在 `pg_stat_statements` 中只命中 1 条最小字段 `SELECT momei_post`、1 条 `UPDATE momei_post` 与 1 条友链巡检查询，未再触发 `momei_user` / `momei_category` / `momei_tag` 读取。
+        - V2 / 结果集体量层: 在同一 PostgreSQL 样本上，定时扫描的最小字段集 `id/title/author_id/metadata` 仅约 `98 bytes`；同一篇文章的整行 post 记录约 `256 bytes`，若叠加 author/category/tag 关系记录，旧扫描路径对应的数据面至少约 `459 bytes`。这说明定时任务扫描确实存在值得治理的宽查询负担，而最小字段集改造已经实际压缩了数据库返回体量。
     - 结果摘要:
         - 首轮阻塞点已经从“怀疑 PostgreSQL 流量偏高”收敛为“公开设置高频入口叠加设置服务整表读取与 localized N+1 查询”，这是当前阶段证据最完整、ROI 最高的数据库流量热点。
         - 本轮采用“缩结果集 + 降重复读取”而不是引入新缓存层或大规模改造设置体系，符合当前阶段“最小治理”边界。
-        - 定时任务扫描与 serverless 无 Redis 的直写 fallback 目前仍存在继续优化空间，但在没有生产侧体量证据前，不扩写为整仓数据库重构工程。
+        - 第二轮 PostgreSQL 实测确认：公开设置链路的 localized 双批读取残余点已关闭；定时任务扫描当前确实应保留最小字段集策略，而不是回到整实体 + relations 扫描。
+        - serverless 无 Redis 的直写 fallback 目前仍是剩余观察点，但在尚未形成真实命中证据前，不扩写为整仓数据库重构工程。
     - 测试结果（按需）:
         - `pnpm exec vitest run app.test.ts server/services/setting.test.ts tests/server/api/settings/public.get.test.ts pages/feedback.test.ts`: 4 files passed / 39 tests passed。
+        - `pnpm exec vitest run server/services/setting.test.ts tests/server/api/settings/public.get.test.ts server/services/task.test.ts`: 3 files passed / 35 tests passed。
     - Review Gate 结论:
         - 结论: Pass
-        - 问题分级: suggest
+        - 问题分级: none
         - 当前状态:
-            - 最终审计已确认：公开设置热点已从整表读取与 localized N+1 收敛为按键批量读取，并且反馈页与默认布局的重复公开设置拉取已移除；现有 V1 / V2 / V3 证据足以支撑本轮放行。
-            - 残余建议项是 `server/api/settings/public.get.ts` 仍会并行触发一批公开设置读取与一批 localized 设置读取；当这些 localized key 未被环境变量覆盖时，同一请求内仍存在两次批量读取。这相比本轮修复前已大幅收敛，但仍可作为下一轮进一步压缩 PostgreSQL 流量的直接入口。
-            - 当前观测仍以代码路径证据、定向验证与浏览器请求扇出为主，尚未接入 PostgreSQL 真实结果集字节数或 `pg_stat_statements` 级别的线上统计；这属于后续观测项，不构成本轮阻塞。
+            - 第二轮增量已通过真实 PostgreSQL 采样补齐关键证据：`public.get` 当前仅命中 1 条 `momei_setting` 查询，定时任务扫描当前仅命中 1 条最小字段 `SELECT momei_post` 与 1 条 `UPDATE momei_post`，满足本轮继续放行条件。
+            - 公开设置 localized 双批读取残余点已关闭，不再作为待办阻塞项；定时任务扫描也已完成“是否需要最小字段集”的判定并落地代码收敛。
+            - 当前剩余观察项是继续关注 serverless 无 Redis 的直写 fallback，以及未来在生产 PostgreSQL 环境下补更长期的查询次数 / 结果集体量趋势，而不是继续扩写当前代码改造范围。
     - 未覆盖边界:
         - 未在本轮引入新的 Nitro 缓存或 Redis 公共设置缓存，避免把当前治理扩写为跨部署一致性工程。
-        - 未补跑并发 E2E 或真实 PostgreSQL 实例上的流量统计，只完成代码级热点收敛与定向验证。
+        - 未补跑并发 E2E；真实 PostgreSQL 采样目前仍是本地临时实例的一次性样本，不等同于线上长周期统计。
         - 未处理 `app.vue` 统一入口之外的全部潜在公开设置消费方；若后续新增页面级手动拉取，仍需继续审计。
     - 后续补跑计划:
-        - 后续在真实 PostgreSQL 环境补一次 `pg_stat_statements` 或等价查询统计，确认公开设置链路的查询次数与平均返回行数已下降。
-        - 若定时任务体量继续增长，优先评估 `processScheduledPosts()` 是否可改为“先查最小字段 + 按需补 relations”，而不是默认整对象扫描。
+        - 后续在真实生产或预发 PostgreSQL 环境补一轮更长窗口的 `pg_stat_statements` 或等价统计，确认公开设置链路和定时任务扫描的查询次数与平均返回行数保持下降。
         - 若 E2E 并发场景仍暴露 `/api/settings/public` 压力，再决定是否为公开设置追加短 TTL 缓存或测试环境限流豁免。
 
 ## 重复代码治理与纯函数复用基线回归（2026-03-30）

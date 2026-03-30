@@ -4,7 +4,7 @@ import { SettingKey } from '@/types/setting'
 
 vi.mock('~/server/services/setting', () => ({
     getSettings: vi.fn(),
-    getLocalizedSettings: vi.fn(),
+    resolveLocalizedSettingsFromValues: vi.fn(),
 }))
 
 vi.mock('~/server/utils/locale', () => ({
@@ -16,7 +16,7 @@ vi.mock('~/server/utils/ad-network-config', () => ({
     resolveGoogleAdSenseAccount: vi.fn(() => 'ca-pub-1234567890123456'),
 }))
 
-import { getLocalizedSettings, getSettings } from '~/server/services/setting'
+import { getSettings, resolveLocalizedSettingsFromValues } from '~/server/services/setting'
 
 describe('GET /api/settings/public', () => {
     beforeEach(() => {
@@ -69,7 +69,7 @@ describe('GET /api/settings/public', () => {
             [SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY]: '',
             [SettingKey.COMMERCIAL_SPONSORSHIP]: null,
         })
-        vi.mocked(getLocalizedSettings).mockResolvedValue({
+        vi.mocked(resolveLocalizedSettingsFromValues).mockReturnValue({
             [SettingKey.SITE_TITLE]: {
                 key: SettingKey.SITE_TITLE,
                 value: '墨梅博客',
@@ -122,6 +122,8 @@ describe('GET /api/settings/public', () => {
         const result = await publicSettingsHandler({} as any)
 
         expect(result.code).toBe(200)
+        expect(getSettings).toHaveBeenCalledTimes(1)
+        expect(resolveLocalizedSettingsFromValues).toHaveBeenCalledTimes(1)
         expect(result.data.postCopyright).toBe('all-rights-reserved')
         expect(result.data.siteCopyrightOwner).toBe('墨梅团队')
         expect(result.data.siteCopyrightStartYear).toBe('2024')

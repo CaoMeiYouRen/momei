@@ -64,7 +64,12 @@ export const processScheduledPosts = async (now = new Date()) => {
                 status: PostStatus.SCHEDULED,
                 publishedAt: LessThanOrEqual(now),
             },
-            relations: ['tags', 'category', 'author'],
+            select: {
+                id: true,
+                title: true,
+                authorId: true,
+                metadata: true,
+            },
         })
 
         if (scheduledPosts.length === 0) {
