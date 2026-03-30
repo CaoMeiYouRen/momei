@@ -79,7 +79,6 @@ const projectIssuesUrl = 'https://github.com/CaoMeiYouRen/momei/issues/new/choos
 const { t } = useI18n()
 const {
     siteConfig,
-    fetchSiteConfig,
     currentTitle,
 } = useMomeiConfig()
 
@@ -94,14 +93,6 @@ const deploymentActionLabel = computed(() => {
 
     return t('pages.feedback.deployment.action_email', { email: contactEmail.value })
 })
-
-if (import.meta.server) {
-    await fetchSiteConfig()
-} else {
-    onMounted(() => {
-        void fetchSiteConfig()
-    })
-}
 
 useHead({
     title: () => t('pages.feedback.title'),

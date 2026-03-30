@@ -332,6 +332,86 @@ describe('settingService', () => {
         })
     })
 
+    describe('getLocalizedSettings', () => {
+        it('should resolve multiple localized settings via a single batched lookup', async () => {
+            mockSettingRepo.find.mockResolvedValue([
+                {
+                    key: SettingKey.SITE_TITLE,
+                    value: JSON.stringify({
+                        version: 1,
+                        type: 'localized-text',
+                        locales: {
+                            'zh-CN': '墨梅博客',
+                            'en-US': 'Momei Blog',
+                        },
+                    }),
+                },
+                {
+                    key: SettingKey.SITE_DESCRIPTION,
+                    value: '旧版描述',
+                },
+            ])
+
+            const result = await settingService.getLocalizedSettings([
+                SettingKey.SITE_TITLE,
+                SettingKey.SITE_DESCRIPTION,
+            ], 'zh-TW')
+
+            expect(result[SettingKey.SITE_TITLE]).toMatchObject({
+                key: SettingKey.SITE_TITLE,
+                value: '墨梅博客',
+                requestedLocale: 'zh-TW',
+                resolvedLocale: 'zh-CN',
+                usedFallback: true,
+                usedLegacyValue: false,
+            })
+            expect(result[SettingKey.SITE_DESCRIPTION]).toMatchObject({
+                key: SettingKey.SITE_DESCRIPTION,
+                value: '旧版描述',
+                requestedLocale: 'zh-TW',
+                resolvedLocale: 'legacy',
+                usedFallback: true,
+                usedLegacyValue: true,
+            })
+            expect(mockSettingRepo.find).toHaveBeenCalledTimes(1)
+        })
+
+        it('should prioritize structured env overrides for batched localized settings', async () => {
+            process.env.NUXT_PUBLIC_SITE_DESCRIPTION = JSON.stringify({
+                version: 1,
+                type: 'localized-text',
+                locales: {
+                    'zh-CN': '环境描述',
+                    'en-US': 'Env description',
+                },
+            })
+            process.env.NUXT_PUBLIC_SITE_KEYWORDS = 'env,keywords'
+
+            const result = await settingService.getLocalizedSettings([
+                SettingKey.SITE_DESCRIPTION,
+                SettingKey.SITE_KEYWORDS,
+            ], 'ko-KR')
+
+            expect(result[SettingKey.SITE_DESCRIPTION]).toMatchObject({
+                key: SettingKey.SITE_DESCRIPTION,
+                value: 'Env description',
+                requestedLocale: 'ko-KR',
+                resolvedLocale: 'en-US',
+                usedFallback: true,
+                usedLegacyValue: false,
+            })
+            expect(result[SettingKey.SITE_KEYWORDS]).toMatchObject({
+                key: SettingKey.SITE_KEYWORDS,
+                value: ['env', 'keywords'],
+                requestedLocale: 'ko-KR',
+                resolvedLocale: 'legacy',
+                usedFallback: true,
+                usedLegacyValue: true,
+            })
+            expect(mockSettingRepo.find).not.toHaveBeenCalled()
+        })
+    })
+
     describe('setSetting', () => {
         it('should update existing setting', async () => {
             const existing = { id: '1', key: 'title', value: 'Old', maskType: 'none' }

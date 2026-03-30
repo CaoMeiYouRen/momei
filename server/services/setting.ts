@@ -165,10 +165,27 @@ function resolveSettingRecordFromMap(settingsMap: Map<string, Setting>, key: str
     return null
 }
 
-async function findSettingRecord(key: string) {
+function collectSettingLookupKeys(keys: (SettingKey | string)[]) {
+    return [...new Set(keys.flatMap((key) => getSettingLookupKeys(key)))]
+}
+
+async function fetchSettingsMap(keys: (SettingKey | string)[]) {
+    if (!dataSource.isInitialized || keys.length === 0) {
+        return new Map<string, Setting>()
+    }
+
+    const lookupKeys = collectSettingLookupKeys(keys)
+    if (lookupKeys.length === 0) {
+        return new Map<string, Setting>()
+    }
+
     const settingRepo = dataSource.getRepository(Setting)
-    const records = await settingRepo.find({ where: { key: In(getSettingLookupKeys(key)) } })
-    const settingsMap = new Map<string, Setting>(records.map((setting) => [setting.key, setting]))
+    const settings = await settingRepo.find({ where: { key: In(lookupKeys) } })
+    return new Map<string, Setting>(settings.map((setting) => [setting.key, setting]))
+}
+
+async function findSettingRecord(key: string) {
+    const settingsMap = await fetchSettingsMap([key])
     return resolveSettingRecordFromMap(settingsMap, key)
 }
 
@@ -198,6 +215,72 @@ function inferSettingLevel(key: string, explicitLevel?: unknown) {
     }
 
     return resolveSettingLevel(key, explicitLevel)
+}
+
+function createEmptyLocalizedResolvedSetting<T extends LocalizedSettingScalar = string>(
+    key: SettingKey | string,
+    requestedLocale: ReturnType<typeof resolveRequestedAppLocale>,
+    fallbackChain: ReturnType<typeof getLocalizedFallbackChain>,
+): ResolvedLocalizedSetting<T> {
+    return {
+        key,
+        value: null,
+        requestedLocale,
+        resolvedLocale: null,
+        fallbackChain,
+        usedFallback: false,
+        usedLegacyValue: false,
+    }
+}
+
+function resolveLocalizedSettingFromRawValue<T extends LocalizedSettingScalar = string>(
+    key: SettingKey | string,
+    rawValue: string | null | undefined,
+    requestedLocale: ReturnType<typeof resolveRequestedAppLocale>,
+    fallbackChain: ReturnType<typeof getLocalizedFallbackChain>,
+): ResolvedLocalizedSetting<T> {
+    const definition = getLocalizedSettingDefinition(key)
+
+    if (!definition || typeof rawValue !== 'string' || rawValue.trim().length === 0) {
+        return createEmptyLocalizedResolvedSetting<T>(key, requestedLocale, fallbackChain)
+    }
+
+    const parsedState = parseStoredLocalizedSettingValue(key, rawValue)
+
+    if (!parsedState) {
+        return createEmptyLocalizedResolvedSetting<T>(key, requestedLocale, fallbackChain)
+    }
+
+    if (parsedState.payload) {
+        for (const candidateLocale of fallbackChain) {
+            const localeValue = readLocalizedLocaleValue(parsedState.payload, candidateLocale)
+            if (hasMeaningfulLocalizedValue(localeValue)) {
+                return {
+                    key,
+                    value: localeValue as T,
+                    requestedLocale,
+                    resolvedLocale: candidateLocale,
+                    fallbackChain,
+                    usedFallback: candidateLocale !== requestedLocale,
+                    usedLegacyValue: false,
+                }
+            }
+        }
+    }
+
+    if (hasMeaningfulLocalizedValue(parsedState.legacyValue)) {
+        return {
+            key,
+            value: parsedState.legacyValue as T,
+            requestedLocale,
+            resolvedLocale: 'legacy',
+            fallbackChain,
+            usedFallback: true,
+            usedLegacyValue: true,
+        }
+    }
+
+    return createEmptyLocalizedResolvedSetting<T>(key, requestedLocale, fallbackChain)
 }
 
 function createResolvedSettingItem(
@@ -274,9 +357,7 @@ export const resolveSettings = async (keys: (SettingKey | string)[]) => {
     }
 
     try {
-        const settingRepo = dataSource.getRepository(Setting)
-        const settings = await settingRepo.find()
-        const settingsMap = new Map<string, Setting>(settings.map((setting) => [setting.key, setting]))
+        const settingsMap = await fetchSettingsMap(keys)
 
         keys.forEach((key) => {
             result.push(createResolvedSettingItem(key, resolveSettingRecordFromMap(settingsMap, key)))
@@ -350,9 +431,12 @@ export const getSettings = async (keys: (SettingKey | string)[]): Promise<Record
     }
 
     try {
-        const settingRepo = dataSource.getRepository(Setting)
-        const settings = await settingRepo.find()
-        const settingsMap = new Map<string, Setting>(settings.map((setting) => [setting.key, setting]))
+        const unresolvedKeys = keys.filter((key) => result[key] === null && !isInternalOnlySettingKey(key))
+        if (unresolvedKeys.length === 0) {
+            return result
+        }
+
+        const settingsMap = await fetchSettingsMap(unresolvedKeys)
 
         keys.forEach((key) => {
             const setting = resolveSettingRecordFromMap(settingsMap, key)
@@ -371,82 +455,24 @@ export async function getLocalizedSetting<T extends LocalizedSettingScalar = str
     key: SettingKey | string,
     locale?: string | null,
 ): Promise<ResolvedLocalizedSetting<T>> {
-    const definition = getLocalizedSettingDefinition(key)
     const requestedLocale = resolveRequestedAppLocale(locale)
     const fallbackChain = getLocalizedFallbackChain(requestedLocale)
     const rawValue = await getSetting<string>(key, null)
 
-    if (!definition || typeof rawValue !== 'string' || rawValue.trim().length === 0) {
-        return {
-            key,
-            value: null,
-            requestedLocale,
-            resolvedLocale: null,
-            fallbackChain,
-            usedFallback: false,
-            usedLegacyValue: false,
-        }
-    }
-
-    const parsedState = parseStoredLocalizedSettingValue(key, rawValue)
-
-    if (!parsedState) {
-        return {
-            key,
-            value: null,
-            requestedLocale,
-            resolvedLocale: null,
-            fallbackChain,
-            usedFallback: false,
-            usedLegacyValue: false,
-        }
-    }
-
-    if (parsedState.payload) {
-        for (const candidateLocale of fallbackChain) {
-            const localeValue = readLocalizedLocaleValue(parsedState.payload, candidateLocale)
-            if (hasMeaningfulLocalizedValue(localeValue)) {
-                return {
-                    key,
-                    value: localeValue as T,
-                    requestedLocale,
-                    resolvedLocale: candidateLocale,
-                    fallbackChain,
-                    usedFallback: candidateLocale !== requestedLocale,
-                    usedLegacyValue: false,
-                }
-            }
-        }
-    }
-
-    if (hasMeaningfulLocalizedValue(parsedState.legacyValue)) {
-        return {
-            key,
-            value: parsedState.legacyValue as T,
-            requestedLocale,
-            resolvedLocale: 'legacy',
-            fallbackChain,
-            usedFallback: true,
-            usedLegacyValue: true,
-        }
-    }
-
-    return {
-        key,
-        value: null,
-        requestedLocale,
-        resolvedLocale: null,
-        fallbackChain,
-        usedFallback: false,
-        usedLegacyValue: false,
-    }
+    return resolveLocalizedSettingFromRawValue<T>(key, rawValue, requestedLocale, fallbackChain)
 }
 
 export async function getLocalizedSettings(
     keys: (SettingKey | string)[],
     locale?: string | null,
 ): Promise<Record<string, ResolvedLocalizedSetting>> {
-    const entries = await Promise.all(keys.map(async (key) => [key, await getLocalizedSetting(key, locale)] as const))
+    const requestedLocale = resolveRequestedAppLocale(locale)
+    const fallbackChain = getLocalizedFallbackChain(requestedLocale)
+    const settings = await getSettings(keys)
+    const entries = keys.map((key) => [
+        key,
+        resolveLocalizedSettingFromRawValue(key, settings[key], requestedLocale, fallbackChain),
+    ] as const)
     return Object.fromEntries(entries)
 }
 

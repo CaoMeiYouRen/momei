@@ -3,7 +3,6 @@ import publicSettingsHandler from '@/server/api/settings/public.get'
 import { SettingKey } from '@/types/setting'
 
 vi.mock('~/server/services/setting', () => ({
-    getSetting: vi.fn(),
     getSettings: vi.fn(),
     getLocalizedSettings: vi.fn(),
 }))
@@ -17,12 +16,11 @@ vi.mock('~/server/utils/ad-network-config', () => ({
     resolveGoogleAdSenseAccount: vi.fn(() => 'ca-pub-1234567890123456'),
 }))
 
-import { getLocalizedSettings, getSetting, getSettings } from '~/server/services/setting'
+import { getLocalizedSettings, getSettings } from '~/server/services/setting'
 
 describe('GET /api/settings/public', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.mocked(getSetting).mockResolvedValue(null)
         vi.mocked(getSettings).mockResolvedValue({
             [SettingKey.SITE_NAME]: 'Momei',
             [SettingKey.SITE_TITLE]: null,
@@ -69,6 +67,7 @@ describe('GET /api/settings/public', () => {
             [SettingKey.VOLCENGINE_APP_ID]: null,
             [SettingKey.VOLCENGINE_ACCESS_KEY]: null,
             [SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY]: '',
+            [SettingKey.COMMERCIAL_SPONSORSHIP]: null,
         })
         vi.mocked(getLocalizedSettings).mockResolvedValue({
             [SettingKey.SITE_TITLE]: {

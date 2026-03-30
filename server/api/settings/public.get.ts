@@ -1,4 +1,4 @@
-import { getLocalizedSettings, getSetting, getSettings } from '~/server/services/setting'
+import { getLocalizedSettings, getSettings } from '~/server/services/setting'
 import { resolveAppLocaleCode } from '~/i18n/config/locale-registry'
 import { resolveGoogleAdSenseAccount } from '~/server/utils/ad-network-config'
 import { detectRequestAuthLocale, mapAuthLocaleToAppLocale } from '~/server/utils/locale'
@@ -13,9 +13,8 @@ export default defineEventHandler(async (event) => {
     try {
         const requestedLocale = resolveAppLocaleCode(mapAuthLocaleToAppLocale(detectRequestAuthLocale(event)))
         const fallbackChain = getLocalizedFallbackChain(requestedLocale)
-        const commercialRaw = await getSetting<string>(SettingKey.COMMERCIAL_SPONSORSHIP, null)
         const [settings, localizedSettings] = await Promise.all([
-            getSettings([...PUBLIC_SETTING_KEYS]),
+            getSettings([...PUBLIC_SETTING_KEYS, SettingKey.COMMERCIAL_SPONSORSHIP]),
             getLocalizedSettings([
                 SettingKey.SITE_TITLE,
                 SettingKey.SITE_DESCRIPTION,
@@ -24,6 +23,7 @@ export default defineEventHandler(async (event) => {
                 SettingKey.SITE_COPYRIGHT_OWNER,
             ], requestedLocale),
         ])
+        const commercialRaw = settings[SettingKey.COMMERCIAL_SPONSORSHIP]
 
         const createEmptyLocalizedResolved = (key: SettingKey): ResolvedLocalizedSetting => ({
             key,

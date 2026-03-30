@@ -25,6 +25,67 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## PostgreSQL 数据库流量热点首轮收敛回归（2026-03-30）
+
+### 回归任务记录
+
+- 回归范围: 第十九阶段 P1“PostgreSQL 数据库流量消耗专项分析与治理”首轮；覆盖 TypeORM 查询日志口径、公开设置读取高频查库链路、定时任务扫描链路与 PV 高频写入路径。
+- 触发条件: 当前阶段要求先明确“数据库流量消耗大”具体指向数据库向应用侧返回的数据量与高频查询载荷，而不是笼统地把查询次数、慢查询、日志量或连接数混为一谈；在证据链明确后，只对已证实的热点做最小治理。
+- 执行频率: 本阶段首轮基线；后续仅在公开设置入口、定时任务扫描策略、PV flush / serverless 直写策略或 TypeORM 观测口径再次调整时补写增量记录。
+- timeout budget:
+    - 只读热点盘点与证据归并: 20 分钟。
+    - 定向测试: 10 分钟。
+    - 定向类型检查: 20 分钟。
+- 已执行命令:
+    - `pnpm exec vitest run app.test.ts server/services/setting.test.ts tests/server/api/settings/public.get.test.ts pages/feedback.test.ts`
+    - VS Code `nuxt typecheck targeted` 任务
+    - `pnpm exec nuxt typecheck`
+    - `pnpm exec eslint app.test.ts server/services/setting.ts server/services/setting.test.ts server/api/settings/public.get.ts tests/server/api/settings/public.get.test.ts layouts/default.vue pages/feedback.vue pages/feedback.test.ts`
+    - `pnpm exec lint-md docs/plan/regression-log.md docs/plan/todo.md`
+    - `pnpm dev` 后在 `http://localhost:3000/feedback` 与 `http://localhost:3000/ -> /feedback` 浏览器侧检查 Network 面板中的 `xhr/fetch` 请求
+- 输出摘要:
+    - 观测口径:
+        - 本轮将“PostgreSQL 流量消耗大”定义为数据库返回到应用进程的结果集大小与频率偏高，优先关注“整表扫描 / 宽结果集 / 同请求内重复查库 / 定时扫描过量 relations 拉取”这类会直接放大数据库出网流量的模式。
+        - 查询次数、慢查询、连接数与日志量继续作为辅助信号；只有当它们能映射到真实的结果集放大或高频重复读取时，才纳入本专项的治理面。
+        - TypeORM 现有 `CustomLogger` 已能统计查询总数、慢查询与错误数，并在生产环境默认压低 SELECT 明细输出；因此日志链路不是本轮首个阻塞点，但仍不足以直接给出“单请求结果集大小”指标。
+    - 热点路径与判定:
+        - 热点 A / 已治理: 公开设置链路。`server/api/settings/public.get.ts` 是首页级高频入口，且历史回归已记录其并发命中会放大 `/api/settings/public` 的压力。进一步盘点发现 `server/services/setting.ts` 中 `getSettings()` 与 `resolveSettings()` 之前会对 `setting` 表执行整表 `find()`，`getLocalizedSettings()` 还会退化为逐键读取，导致高频公开配置请求在 PostgreSQL 下放大为“整表读取 + 多次单键查库”。这条链路既是数据库出网量热点，也是已知浏览器基线问题的上游放大器，构成当前阶段的明确阻塞点。
+        - 热点 B / 已缓解但继续观察: 重复公开设置拉取。`app.vue`、`layouts/default.vue` 与 `pages/feedback.vue` 先前都会主动触发 `fetchSiteConfig()`，使同一 locale 下的公开设置接口在 SSR / 页面装配时发生重复命中；该问题与历史 E2E 429/服务失联记录一致。本轮已先移除 `layouts/default.vue` 与 `pages/feedback.vue` 的重复拉取，保留 `app.vue` 作为统一入口。
+        - 热点 C / 暂不作为当前阻塞: 定时任务扫描。`server/services/task.ts` 当前每轮扫描会对到期文章拉取 `tags`、`category`、`author` relations，再交给发布副作用链路处理。该模式在“到期任务数量大”时会放大结果集，但其触发频率受 cron 控制、结果集受“已到期记录数”约束，本轮暂定为需要继续观察的次级热点，而非当前阶段必须立刻重构的阻塞项。
+        - 热点 D / 当前不构成阻塞: 高频写入路径。`server/utils/pv-cache.ts` 已优先走 Redis / 内存缓冲并按批量 flush 回写；只有 serverless 且无 Redis 时才会降级为单次 `increment` 直写数据库。说明 PV 写入主路径已具备最小缓冲，不属于本轮首要数据库出网热点，但 serverless 无缓存部署仍应在后续运维基线中继续监控。
+    - 已落地治理:
+        - `server/services/setting.ts` 已新增按 lookup keys 定向批量取数的 helper，并将 `findSettingRecord()`、`getSettings()`、`resolveSettings()` 从整表读取收敛到精确键集合查询。
+        - `getLocalizedSettings()` 已改为复用单次批量设置读取结果，不再对同一批 key 执行逐键数据库查询。
+        - `server/api/settings/public.get.ts` 已将 `commercial_sponsorship` 并入同一批设置读取，减少公开设置接口内的额外单键查询。
+        - `layouts/default.vue` 与 `pages/feedback.vue` 已删除重复的 `fetchSiteConfig()` 调用，缩小同请求 / 同页面装配下 `/api/settings/public` 的重复命中面。
+    - 已执行验证:
+        - V1 / 静态层: 变更后的 `setting.ts`、`public.get.ts`、`default.vue`、`feedback.vue` 与对应测试文件编辑器诊断通过，无新增类型或模板错误。
+        - V1 / 代码层: 定向 `eslint` 已覆盖本轮改动涉及的服务、API、布局、页面与测试文件，除 Markdown 文件默认 ignore 提示外无新增代码级 lint 问题；规划文档已通过定向 `lint-md`。
+        - V2 / 逻辑层: `server/services/setting.test.ts`、`tests/server/api/settings/public.get.test.ts`、`pages/feedback.test.ts` 与 `app.test.ts` 共 39 个用例通过；新增断言直接覆盖 `getLocalizedSettings()` 的批量 localized 解析路径、反馈页在移除页面级 `fetchSiteConfig()` 后对统一 `siteConfig` 状态的分支渲染，以及 `app.vue` 在 `/feedback` 路由装配时会先初始化共享站点配置再交给页面消费。
+        - V2 / 类型层: VS Code `nuxt typecheck targeted` 任务与终端 `pnpm exec nuxt typecheck` 均未返回错误；结合 Problems 面板与变更文件错误检查，本轮修改未引入可见类型错误。
+        - V3 / 浏览器层: 本地 `pnpm dev` 环境下直接打开 `http://localhost:3000/feedback` 时，`xhr/fetch` 请求中仅观察到 1 次 `GET /api/settings/public?locale=zh-CN`；从首页 `http://localhost:3000/` 客户端跳转到 `/feedback` 后，保留请求里同样仅出现 1 次 `GET /api/settings/public?locale=zh-CN`，未再看到由 `layouts/default.vue` 或 `pages/feedback.vue` 触发的重复公开设置拉取。
+    - 结果摘要:
+        - 首轮阻塞点已经从“怀疑 PostgreSQL 流量偏高”收敛为“公开设置高频入口叠加设置服务整表读取与 localized N+1 查询”，这是当前阶段证据最完整、ROI 最高的数据库流量热点。
+        - 本轮采用“缩结果集 + 降重复读取”而不是引入新缓存层或大规模改造设置体系，符合当前阶段“最小治理”边界。
+        - 定时任务扫描与 serverless 无 Redis 的直写 fallback 目前仍存在继续优化空间，但在没有生产侧体量证据前，不扩写为整仓数据库重构工程。
+    - 测试结果（按需）:
+        - `pnpm exec vitest run app.test.ts server/services/setting.test.ts tests/server/api/settings/public.get.test.ts pages/feedback.test.ts`: 4 files passed / 39 tests passed。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: suggest
+        - 当前状态:
+            - 最终审计已确认：公开设置热点已从整表读取与 localized N+1 收敛为按键批量读取，并且反馈页与默认布局的重复公开设置拉取已移除；现有 V1 / V2 / V3 证据足以支撑本轮放行。
+            - 残余建议项是 `server/api/settings/public.get.ts` 仍会并行触发一批公开设置读取与一批 localized 设置读取；当这些 localized key 未被环境变量覆盖时，同一请求内仍存在两次批量读取。这相比本轮修复前已大幅收敛，但仍可作为下一轮进一步压缩 PostgreSQL 流量的直接入口。
+            - 当前观测仍以代码路径证据、定向验证与浏览器请求扇出为主，尚未接入 PostgreSQL 真实结果集字节数或 `pg_stat_statements` 级别的线上统计；这属于后续观测项，不构成本轮阻塞。
+    - 未覆盖边界:
+        - 未在本轮引入新的 Nitro 缓存或 Redis 公共设置缓存，避免把当前治理扩写为跨部署一致性工程。
+        - 未补跑并发 E2E 或真实 PostgreSQL 实例上的流量统计，只完成代码级热点收敛与定向验证。
+        - 未处理 `app.vue` 统一入口之外的全部潜在公开设置消费方；若后续新增页面级手动拉取，仍需继续审计。
+    - 后续补跑计划:
+        - 后续在真实 PostgreSQL 环境补一次 `pg_stat_statements` 或等价查询统计，确认公开设置链路的查询次数与平均返回行数已下降。
+        - 若定时任务体量继续增长，优先评估 `processScheduledPosts()` 是否可改为“先查最小字段 + 按需补 relations”，而不是默认整对象扫描。
+        - 若 E2E 并发场景仍暴露 `/api/settings/public` 压力，再决定是否为公开设置追加短 TTL 缓存或测试环境限流豁免。
+
 ## 重复代码治理与纯函数复用基线回归（2026-03-30）
 
 ### 回归任务记录
