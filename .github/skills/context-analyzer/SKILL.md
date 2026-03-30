@@ -1,6 +1,8 @@
 ---
 name: context-analyzer
 description: 分析项目上下文、Nuxt 结构和依赖项，用于规划和调试。
+metadata:
+  internal: true
 ---
 
 # Context Analyzer Skill (上下文分析技能)

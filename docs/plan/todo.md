@@ -27,10 +27,13 @@
 
 ### 1. 主线：外部 Skills 引入与内部 Skills 可见性分层治理 (P0)
 
-- [ ] **收敛内部 Skills 可见性并建立外部 Skills 准入清单**
+- [x] **收敛内部 Skills 可见性并建立外部 Skills 准入清单**
 	- 验收: 为项目内部维护的 `.github/skills/**/SKILL.md` 建立统一 frontmatter 约定，默认补齐内部技能标识，避免内部技能与外部来源、平台内置技能混入同一发现面。
 	- 验收: 为首批外部 skills 建立来源清单、同步地址、更新频率、失效处理与转内部化门槛，至少覆盖当前技术栈强相关候选。
 	- 验收: 补齐最小治理校验，至少能发现 frontmatter 结构漂移、`metadata.internal` 不一致、目录名与 `name` 偏差，以及外部 skill 文档说明与事实源不一致的问题。
+	- 实施记录: 已为 `.github/skills/**/SKILL.md` 统一补齐 `metadata.internal: true`，并确认当前 `.claude/skills` 通过符号链接映射到 `.github/skills`，未引入额外镜像漂移。
+	- 实施记录: 已新增 `.github/external-skills-registry.json` 与 `docs/standards/external-skills-intake.md`，首批纳入 `nuxt`、`vue`、`vue-best-practices`、`vitest`、`vitepress`、`pnpm` 六个外部候选。
+	- 验证记录: 已扩展 `scripts/ai/check-governance.mjs`，可校验内部 skill 的 `metadata.internal`、目录名与 `name` 一致性，以及外部 skill 结构化清单与说明文档漂移；`pnpm ai:check`、`pnpm lint:md` 已通过。
 
 ### 2. 主线：回归日志滚动归档后的检索与对比体验治理 (P0)
 

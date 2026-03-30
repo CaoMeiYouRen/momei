@@ -1,6 +1,8 @@
 ---
 name: test-engineer
 description: 编写、运行和优化项目测试用例（Vitest）。
+metadata:
+  internal: true
 ---
 # Test Engineer Skill
 

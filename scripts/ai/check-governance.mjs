@@ -2,6 +2,7 @@ import { access, readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import yaml from 'js-yaml'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(__dirname, '..', '..')
@@ -24,6 +25,8 @@ const governanceDocs = [
 ]
 
 const scriptRoot = path.join(projectRoot, 'scripts')
+const externalSkillRegistryPath = path.join(projectRoot, '.github', 'external-skills-registry.json')
+const externalSkillRegistryDocPath = path.join(projectRoot, 'docs', 'standards', 'external-skills-intake.md')
 const scriptSearchRoots = [
     path.join(projectRoot, 'package.json'),
     path.join(projectRoot, 'AGENTS.md'),
@@ -133,9 +136,18 @@ function parseFrontmatter(content) {
         }
     }
 
+    let data = null
+
+    try {
+        data = yaml.load(raw)
+    } catch {
+        data = null
+    }
+
     return {
         raw,
         keys,
+        data,
     }
 }
 
@@ -185,6 +197,10 @@ async function validateSkillFile(filePath, issues) {
         issues.push(buildIssue('missing-description', relativePath, '缺少 description 字段。'))
     }
 
+    if (!frontmatter.data || typeof frontmatter.data !== 'object') {
+        issues.push(buildIssue('invalid-frontmatter-yaml', relativePath, 'frontmatter 不是合法的 YAML 对象。'))
+    }
+
     for (const key of frontmatter.keys) {
         if (!supportedSkillFrontmatterKeys.has(key)) {
             issues.push(buildIssue('unsupported-skill-frontmatter', relativePath, `包含不受支持的 skill frontmatter 字段: ${key}`))
@@ -193,6 +209,13 @@ async function validateSkillFile(filePath, issues) {
 
     const folderName = path.basename(path.dirname(filePath))
     const declaredName = frontmatter.raw.match(/^name:\s*(.+)$/mu)?.[1]?.trim()
+    const metadata = frontmatter.data && typeof frontmatter.data === 'object'
+        ? frontmatter.data.metadata
+        : null
+
+    if (!metadata || typeof metadata !== 'object' || metadata.internal !== true) {
+        issues.push(buildIssue('skill-internal-mismatch', relativePath, '内部 skill 必须显式声明 metadata.internal: true。'))
+    }
 
     if (declaredName && declaredName !== folderName) {
         issues.push(buildIssue('skill-name-mismatch', relativePath, `frontmatter name 与目录名不一致: ${declaredName} != ${folderName}`))
@@ -217,6 +240,161 @@ async function validateSkillFile(filePath, issues) {
 
         if (!(await pathExists(resolvedPath))) {
             issues.push(buildIssue('missing-link-target', relativePath, `相对链接目标不存在: ${target}`))
+        }
+    }
+}
+
+async function loadExternalSkillRegistry(issues) {
+    const relativePath = toPosixPath(externalSkillRegistryPath)
+
+    if (!(await pathExists(externalSkillRegistryPath))) {
+        issues.push(buildIssue('missing-external-skill-registry', relativePath, '缺少外部 skill 准入清单。'))
+        return []
+    }
+
+    let parsed
+
+    try {
+        parsed = JSON.parse(await readUtf8(externalSkillRegistryPath))
+    } catch {
+        issues.push(buildIssue('invalid-external-skill-registry', relativePath, '外部 skill 准入清单不是合法 JSON。'))
+        return []
+    }
+
+    if (!Array.isArray(parsed)) {
+        issues.push(buildIssue('invalid-external-skill-registry', relativePath, '外部 skill 准入清单必须是数组。'))
+        return []
+    }
+
+    const requiredFields = [
+        'id',
+        'displayName',
+        'sourceType',
+        'sourcePath',
+        'syncAddress',
+        'updateCadence',
+        'failurePolicy',
+        'internalizationThreshold',
+        'adoptedFor',
+    ]
+
+    const seenIds = new Set()
+
+    for (const entry of parsed) {
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+            issues.push(buildIssue('invalid-external-skill-entry', relativePath, '外部 skill 条目必须是对象。'))
+            continue
+        }
+
+        for (const field of requiredFields) {
+            if (typeof entry[field] !== 'string' || entry[field].trim() === '') {
+                issues.push(buildIssue('invalid-external-skill-entry', relativePath, `外部 skill 条目缺少必填字段: ${field}`))
+            }
+        }
+
+        if (typeof entry.id === 'string') {
+            if (seenIds.has(entry.id)) {
+                issues.push(buildIssue('duplicate-external-skill-id', relativePath, `外部 skill 条目重复: ${entry.id}`))
+            }
+
+            seenIds.add(entry.id)
+        }
+
+        const projectLocalPath = typeof entry.sourcePath === 'string'
+            && (entry.sourcePath.startsWith('.github/') || entry.sourcePath.startsWith('.claude/'))
+
+        if (projectLocalPath) {
+            issues.push(buildIssue('invalid-external-skill-source', relativePath, `外部 skill 不应指向项目内部定义路径: ${entry.sourcePath}`))
+        }
+    }
+
+    return parsed
+}
+
+async function validateExternalSkillRegistryDoc(registryEntries, issues) {
+    const relativeDocPath = toPosixPath(externalSkillRegistryDocPath)
+
+    if (!(await pathExists(externalSkillRegistryDocPath))) {
+        issues.push(buildIssue('missing-external-skill-doc', relativeDocPath, '缺少外部 skill 准入说明文档。'))
+        return
+    }
+
+    const content = await readUtf8(externalSkillRegistryDocPath)
+    const tableRows = content
+        .split(/\r?\n/u)
+        .filter((line) => line.startsWith('|'))
+        .slice(2)
+        .map((line) => line
+            .split('|')
+            .slice(1, -1)
+            .map((cell) => cell.trim()))
+
+    const docIds = tableRows
+        .filter((cells) => cells.length >= 1)
+        .map((cells) => cells[0].replaceAll('`', ''))
+
+    const docRowMap = new Map(
+        tableRows
+            .filter((cells) => cells.length >= 7)
+            .map((cells) => [cells[0].replaceAll('`', ''), cells]),
+    )
+
+    const registryIds = new Set(registryEntries.map((entry) => entry.id))
+    const seenDocIds = new Set()
+
+    for (const docId of docIds) {
+        if (seenDocIds.has(docId)) {
+            issues.push(buildIssue('external-skill-doc-drift', relativeDocPath, `文档存在重复外部 skill 条目: ${docId}`))
+            continue
+        }
+
+        seenDocIds.add(docId)
+
+        if (!registryIds.has(docId)) {
+            issues.push(buildIssue('external-skill-doc-drift', relativeDocPath, `文档存在未登记到事实源的外部 skill 条目: ${docId}`))
+        }
+    }
+
+    for (const entry of registryEntries) {
+        const docRow = docRowMap.get(entry.id)
+
+        if (!docRow) {
+            issues.push(buildIssue('external-skill-doc-drift', relativeDocPath, `文档缺少外部 skill 条目: ${entry.id}`))
+            continue
+        }
+
+        const expectedRow = [
+            entry.id,
+            entry.adoptedFor,
+            entry.sourcePath,
+            entry.syncAddress,
+            entry.updateCadence,
+            entry.failurePolicy,
+            entry.internalizationThreshold,
+        ]
+
+        const actualRow = [
+            docRow[0].replaceAll('`', ''),
+            docRow[1],
+            docRow[2].replaceAll('`', ''),
+            docRow[3].replaceAll('`', ''),
+            docRow[4],
+            docRow[5],
+            docRow[6],
+        ]
+
+        const mismatchedFields = [
+            'id',
+            'adoptedFor',
+            'sourcePath',
+            'syncAddress',
+            'updateCadence',
+            'failurePolicy',
+            'internalizationThreshold',
+        ].filter((fieldName, index) => actualRow[index] !== expectedRow[index])
+
+        if (mismatchedFields.length > 0) {
+            issues.push(buildIssue('external-skill-doc-drift', relativeDocPath, `文档与事实源不一致: ${entry.id} -> ${mismatchedFields.join(', ')}`))
         }
     }
 }
@@ -499,6 +677,9 @@ async function main() {
         await validateAgentOrDocLinks(docFile, issues)
     }
 
+    const externalSkillRegistry = await loadExternalSkillRegistry(issues)
+    await validateExternalSkillRegistryDoc(externalSkillRegistry, issues)
+
     const deferredIssues = [
         ...await collectReferenceWarnings(githubSkillFiles, githubAgentFiles),
         ...await collectScriptReferenceWarnings(projectScriptFiles),
@@ -513,8 +694,14 @@ async function main() {
         blockingIssues.some((issue) => issue.type === 'skill-anchor-link')
             ? '移除 skill 相对链接中的锚点，仅保留实际文件路径。'
             : null,
+        blockingIssues.some((issue) => ['skill-internal-mismatch', 'invalid-frontmatter-yaml'].includes(issue.type))
+            ? '为内部 skill 统一补齐合法的 metadata.internal: true，并保持 .github 与 .claude 镜像一致。'
+            : null,
         blockingIssues.some((issue) => issue.type === 'missing-link-target')
             ? '修正治理文档中的相对路径，确保目标文件真实存在。'
+            : null,
+        blockingIssues.some((issue) => ['missing-external-skill-registry', 'invalid-external-skill-registry', 'invalid-external-skill-entry', 'duplicate-external-skill-id', 'invalid-external-skill-source', 'missing-external-skill-doc', 'external-skill-doc-drift'].includes(issue.type))
+            ? '补齐外部 skill 准入清单与说明文档，并确保文档描述与事实源一致。'
             : null,
         blockingIssues.some((issue) => ['mirror-drift', 'missing-mirror-file', 'extra-mirror-file', 'extra-mirror-directory'].includes(issue.type))
             ? '以 .github 作为主定义，并将 .claude 镜像同步到逐文件一致。'

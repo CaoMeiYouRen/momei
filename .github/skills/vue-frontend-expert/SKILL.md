@@ -1,6 +1,8 @@
 ---
 name: vue-frontend-expert
 description: 专注于 Vue 3 (Nuxt 4)、SCSS (BEM) 和 I18n 前端实现。
+metadata:
+  internal: true
 ---
 
 # Vue Frontend Expert Skill (Vue 前端专家技能)

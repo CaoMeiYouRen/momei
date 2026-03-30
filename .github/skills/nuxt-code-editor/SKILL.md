@@ -1,6 +1,8 @@
 ---
 name: nuxt-code-editor
 description: 遵循项目标准生成和修改 Vue 3、TypeScript 和 SCSS 代码。
+metadata:
+    internal: true
 ---
 
 # Nuxt Code Editor Skill (Nuxt 代码编辑技能)

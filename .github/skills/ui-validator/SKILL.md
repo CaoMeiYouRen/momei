@@ -1,6 +1,8 @@
 ---
 name: ui-validator
 description: 负责所有 UI 变更后的浏览器自动化验证，确保实际渲染效果符合预期。
+metadata:
+    internal: true
 ---
 
 # UI Validator Skill (UI 验证专家技能)

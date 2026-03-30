@@ -1,6 +1,8 @@
 ---
 name: conventional-committer
 description: 暂存更改并生成符合 Conventional Commits 规范的提交消息。
+metadata:
+  internal: true
 ---
 # Conventional Committer Skill (规范提交技能)
 

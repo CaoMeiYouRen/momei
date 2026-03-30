@@ -1,6 +1,8 @@
 ---
 name: agent-creator
 description: 创建、重构、审计和治理本项目自定义 agent 时使用。用户提到 create agent、new agent、build agent、write .agent.md、custom agent、agent mode、agent workflow、agent governance、判断应该做成 skill 还是 agent、审计 agent 安全与准入标准时都应触发。它负责先判断该需求应由 skill 还是 agent 承载，再在需要时创建或更新 agent，并审计重叠、规范与安全。
+metadata:
+  internal: true
 ---
 
 # Agent Creator

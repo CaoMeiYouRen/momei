@@ -1,6 +1,8 @@
 ---
 name: requirement-analyst
 description: 专注于需求分析、澄清与意图抽离。
+metadata:
+  internal: true
 ---
 
 # Requirement Analyst Skill (需求分析技能)

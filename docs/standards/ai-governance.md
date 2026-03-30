@@ -27,6 +27,7 @@
 1.  `.github/` 是主定义目录。
 2.  `.claude/` 只承担 Claude 兼容镜像职责，不允许独立扩展另一套角色体系。
 3.  任何内部定义调整都必须先改 `.github/` 主定义，再同步 `.claude/` 镜像。
+4.  项目内部维护的 skill 必须在 frontmatter 中显式声明 `metadata.internal: true`，作为内部可见性边界的唯一机器可读标识。
 
 ### 2.2 外部同步或平台提供资产
 
@@ -41,16 +42,18 @@
 1.  外部资产只允许作为参考来源或调用入口，不得伪装成项目内部定义。
 2.  若需要吸收外部方案，必须按本项目规范重写为内部定义，而不是直接复制成长期镜像。
 3.  外部资产的正确性与生命周期由上游维护；本仓库只对“是否引用、如何引用、何时失效”负责。
+4.  首批允许引用的外部 skills 及其来源、同步地址、更新频率、失效处理与转内部化门槛，以 [外部 Skills 准入清单](./external-skills-intake.md) 与 `.github/external-skills-registry.json` 为准。
 
 ## 3. 目录与命名规范
 
 ### 3.1 Skills
 
 1.  skill 目录名必须使用 `kebab-case`，并与 `SKILL.md` frontmatter 中的 `name` 完全一致。
-2.  skill 根目录只保留该 skill 的主定义与配套资源，不得混入其他 skill 的副本。
-3.  `references/` 只存放清单、模板、示例或说明材料。
-4.  `scripts/` 只存放该 skill 独占且需要随 skill 一起维护的辅助脚本；若脚本已成为仓库公共治理能力，应回收至 `scripts/<domain>/`。
-5.  `assets/` 只存放该 skill 运行必需的静态资源，不得把临时草稿或截图长期堆积在其中。
+2.  内部 skill 的 frontmatter 必须至少包含 `name`、`description`、`metadata.internal` 三项；其中 `metadata.internal` 固定为 `true`。
+3.  skill 根目录只保留该 skill 的主定义与配套资源，不得混入其他 skill 的副本。
+4.  `references/` 只存放清单、模板、示例或说明材料。
+5.  `scripts/` 只存放该 skill 独占且需要随 skill 一起维护的辅助脚本；若脚本已成为仓库公共治理能力，应回收至 `scripts/<domain>/`。
+6.  `assets/` 只存放该 skill 运行必需的静态资源，不得把临时草稿或截图长期堆积在其中。
 
 ### 3.2 Agents
 
@@ -114,6 +117,8 @@
 - 职责高度重叠的重复 skill / agent
 - 外部模板被直接复制进仓库后长期未项目化改造
 - `description`、frontmatter、相对链接或目录结构导致发现 / 编译失败
+- `metadata.internal` 缺失、值漂移或与资产分层结论不一致
+- 外部 skill 文档说明与结构化准入清单不一致
 
 最低审计输出至少包含：
 

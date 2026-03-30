@@ -1,6 +1,8 @@
 ---
 name: skill-creator
 description: 创建、翻译、重构、评审、封装、评测和优化技能时使用。只要用户提到 create skill、build skill、new skill、write SKILL.md、improve skill、refactor skill、package skill、benchmark skill、trigger tuning、description optimization、run skill evals、skill workflow 或要把现有经验沉淀为技能，都应优先使用本技能。它同时负责技能设计流程、长文本拆分策略、评测工具链与触发优化。
+metadata:
+  internal: true
 ---
 
 # Skill Creator

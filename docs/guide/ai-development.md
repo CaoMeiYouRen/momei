@@ -35,6 +35,7 @@
 -   治理上以 `.github/agents/` 与 `.github/skills/` 作为主定义目录；`.claude/` 目录只承担 Claude 兼容镜像职责。
 -   若 agent 或 skill 需要调整职责边界，应优先更新主定义与权威文档，再同步镜像，不要只修补某一个平台入口。
 -   关于 Skills / Agents 的分层、命名、库存、镜像、生命周期、弃用与清理规则，以 [AI 资产治理规范](../standards/ai-governance.md) 为准。
+-   外部参考 skills 的首批准入名单、更新频率和失效处理，以 [外部 Skills 准入清单](../standards/external-skills-intake.md) 为准。
 -   平台或编辑器自带的外部 skill / agent 只作为参考来源或调用入口，不纳入项目内部库存，也不应被镜像到 `.github/` / `.claude/`。
 
 ## 3. 智能体体系 (Agent System)

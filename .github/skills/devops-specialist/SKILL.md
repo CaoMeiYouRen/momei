@@ -1,6 +1,8 @@
 ---
 name: devops-specialist
 description: 专注于 Docker、CI/CD 配置、部署脚本与环境变量管理。
+metadata:
+  internal: true
 ---
 
 # DevOps Specialist Skill (DevOps 专家技能)

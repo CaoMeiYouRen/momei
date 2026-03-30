@@ -1,6 +1,8 @@
 ---
 name: todo-manager
 description: 专门负责管理项目路线图 (roadmap.md) 和待办事项 (todo.md)。
+metadata:
+  internal: true
 ---
 
 # Todo Manager Skill (待办事项管理技能)

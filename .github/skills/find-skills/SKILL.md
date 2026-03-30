@@ -1,6 +1,8 @@
 ---
 name: find-skills
 description: 在用户想扩展能力、查找现成技能、安装第三方 skill、询问“有没有技能能做 X”“find a skill for X”“is there a skill that can...”或表达“我希望助手能帮我处理某类任务”时使用。优先在当前仓库与公开 skills 生态中定位合适技能，再给出筛选依据、安装命令与无结果时的替代方案。
+metadata:
+  internal: true
 ---
 
 # Find Skills

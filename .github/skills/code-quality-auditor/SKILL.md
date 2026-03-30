@@ -1,6 +1,8 @@
 ---
 name: code-quality-auditor
 description: 审查 git 变更、Review Gate、merge ready、发布前审计以及代码、文档、配置、脚本质量门禁时使用。输出结构化 Pass 或 Reject 结论、问题分级、最低验证矩阵、证据链和复查基线；当用户提到 review、code review、审计、review gate、merge ready、blocker、evidence、pass、reject 时触发。
+metadata:
+  internal: true
 ---
 
 # Code Quality Auditor

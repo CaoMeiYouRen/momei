@@ -1,6 +1,8 @@
 ---
 name: technical-planning
 description: 进行技术方案设计、受影响文件寻找与改动风险分析。
+metadata:
+  internal: true
 ---
 
 # Technical Planning Skill (技术规划技能)

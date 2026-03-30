@@ -1,6 +1,8 @@
 ---
 name: documentation-specialist
 description: 专注于查阅、维护和生成项目文档 (位于 docs/ 目录下)。
+metadata:
+  internal: true
 ---
 
 # Documentation Specialist Skill (文档专家技能)

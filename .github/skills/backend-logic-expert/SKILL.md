@@ -1,6 +1,8 @@
 ---
 name: backend-logic-expert
 description: 专注于 Nitro API、业务逻辑封装、Better-Auth 集成与权限校验。
+metadata:
+  internal: true
 ---
 
 # Backend Logic Expert Skill (后端逻辑专家技能)
