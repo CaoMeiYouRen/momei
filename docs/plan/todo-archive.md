@@ -1793,3 +1793,43 @@
     - 结果: `PostTranslationProgress` 已扩展为包含 `tags` 的独立进度字段；`use-post-translation-ai` 新增辅助字段进度状态机，`use-post-editor-translation` 已在标签绑定解析前后驱动 `processing / completed / failed` 状态；后台翻译工作流对话框现在会在勾选 `tags` 时渲染标签进度卡片，并保持标签字段不可误触发文本字段的取消 / 重试入口。
     - 验证: `pnpm typecheck` 通过；`pnpm exec vitest run composables/use-post-translation-ai.test.ts composables/use-post-editor-translation.test.ts components/admin/posts/post-translation-workflow-dialog.test.ts` 通过，合计 3 个测试文件、26 个用例，覆盖了 tags 进度汇总、工作流回填与对话框展示。
     - 边界: 本轮以类型检查 + 定向 Vitest 作为等价验证，尚未补真实浏览器下从后台编辑页触发翻译工作流到标签进度卡片刷新的 E2E 证据；若后续阶段补后台翻译工作流交互回归，可将该场景并入浏览器验证基线。
+
+## 第十九阶段：治理观测与复用基线建设 (已审计归档)
+
+> 审计结论: 第十九阶段围绕 Skills 可见性分层、回归日志滚动归档后的检索与对比体验、重复代码与纯函数复用基线，以及 PostgreSQL 数据库流量热点的观测与最小治理，已在代码、测试、规划文档与回归记录中完成闭环，满足归档条件。当前仅剩“继续观察 serverless 无 Redis 时的数据库直写 fallback 命中情况”这一运行期观察项，但尚未形成新的阶段阻塞证据，不再保留为本阶段待办。
+
+### 1. 主线：外部 Skills 引入与内部 Skills 可见性分层治理 (P0)
+
+- [x] **收敛内部 Skills 可见性并建立外部 Skills 准入清单**
+    - 验收: 为项目内部维护的 `.github/skills/**/SKILL.md` 建立统一 frontmatter 约定，默认补齐内部技能标识，避免内部技能与外部来源、平台内置技能混入同一发现面。
+    - 验收: 为首批外部 skills 建立来源清单、同步地址、更新频率、失效处理与转内部化门槛，至少覆盖当前技术栈强相关候选。
+    - 验收: 补齐最小治理校验，至少能发现 frontmatter 结构漂移、`metadata.internal` 不一致、目录名与 `name` 偏差，以及外部 skill 文档说明与事实源不一致的问题。
+    - 结果: 已为 `.github/skills/**/SKILL.md` 统一补齐 `metadata.internal: true`，并确认 `.claude/skills` 通过符号链接映射到 `.github/skills`，未引入镜像漂移；同时新增 `.github/external-skills-registry.json` 与 `docs/standards/external-skills-intake.md`，首批纳入 `nuxt`、`vue`、`vue-best-practices`、`vitest`、`vitepress`、`pnpm` 六个外部候选。
+    - 验证: `scripts/ai/check-governance.mjs` 已扩展为可校验内部 skill 的 `metadata.internal`、目录名与 `name` 一致性，以及外部 skill 结构化清单与说明文档漂移；`pnpm ai:check`、`pnpm lint:md` 已通过。
+
+### 2. 主线：回归日志滚动归档后的检索与对比体验治理 (P0)
+
+- [x] **建立回归日志索引入口与最近基线对比路径**
+    - 验收: 为 `regression-log.md` 与归档日志建立按阶段、主题或时间的统一索引入口，避免近线与历史记录滚动归档后难以检索。
+    - 验收: 明确活动日志与归档日志在“当前基线 / 历史基线 / 发版对比”中的职责分工，并提供最小可用的对比路径。
+    - 验收: 视复杂度补齐轻量脚本或索引文档，并完成至少一次“主日志 vs 归档日志”的等价对比演示或等价验证。
+    - 结果: 已新增 `docs/plan/regression-log-index.md` 作为统一入口，并在活动日志、归档日志与文档站侧栏补齐导航。
+    - 验证: 已将 2026-03-20 至 2026-03-21 的 5 条历史记录滚动迁移到 `docs/plan/regression-log-archive.md`，并在索引页记录一次“主日志 vs 归档日志”的等价对比演示。
+
+### 3. 主线：重复代码治理与纯函数复用基线建设 (P1)
+
+- [x] **输出重复片段分组清单并落地首轮纯函数 / 共享类型复用**
+    - 验收: 输出重复纯函数、类型守卫、轻量转换器和共享 payload 结构的分组清单，明确“可提取 / 延后 / 保持局部实现”三类结论。
+    - 验收: 至少合并一组高频纯函数或共享类型，补齐最小单元测试或等价验证，并执行定向 `lint`、`typecheck` 与受影响模块回归。
+    - 验收: 为后续治理补齐最小规范、目录约束或脚本入口，避免重复代码治理再次回到纯人工盘点。
+    - 结果: 已形成字符串列表归一化、optional string 归一化、ASCII slug 生成与清洗、URL / base URL 归一化四组首轮收敛结论，并将相关能力沉淀到 `utils/shared/string-list.ts`、`utils/shared/coerce.ts`、`utils/shared/slug.ts` 与 `utils/shared/url.ts`。
+    - 验证: 回归日志已补齐定向 Vitest、ESLint 与 typecheck 证据；`docs/standards/development.md` 已同步加入 shared 纯函数复用约束。
+
+### 4. 主线：PostgreSQL 数据库流量消耗专项分析与治理 (P1)
+
+- [x] **先建立数据库流量观测口径，再对热点路径做最小治理**
+    - 验收: “流量消耗大”指向数据库出网流量大，并形成最小证据链。
+    - 验收: 聚焦 TypeORM 连接与日志、设置读取高频查库、定时任务扫描与高频写入路径，输出热点路径与是否构成当前阶段阻塞的判定。
+    - 验收: 仅对已形成证据链的热点做最小优化或缓解，不将本阶段扩写为整仓数据库重构工程；并补齐受影响路径的最小验证或回归记录。
+    - 结果: 已将公开设置链路的整表读取与 localized 双批读取收敛到按 key 批量取数，移除页面装配期重复 `fetchSiteConfig()`，并将定时任务扫描缩减为最小字段集。
+    - 验证: `docs/plan/regression-log.md` 已记录定向测试、浏览器 Network 检查与本地 PostgreSQL 采样证据，确认 `/api/settings/public` 与定时任务扫描的查询面均已收敛。

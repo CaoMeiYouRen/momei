@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-29
+last_sync: 2026-03-31
 ---
 
 # Momei - Project Roadmap
@@ -412,15 +412,15 @@ This document outlines the development blueprint for the project. For specific t
 4. `ja-JP` was promoted from the earlier `ui-ready` tier to `seo-ready`, with locale parity, mail, SEO, sitemap, and audit gates aligned to the same maintenance standard as the other public locales.
 5. Additional stage-closure work completed WechatSync Weibo compatibility plus preflight/preview checks and tag-progress visibility in the admin translation workflow; the deferred repeated pure-function / shared-type governance item remains in the Chinese-only [backlog](../../../plan/backlog.md) for a later intake review.
 
-### Stage 19: Governance Observability & Reuse Baseline Establishment (Planned)
+### Stage 19: Governance Observability & Reuse Baseline Establishment (Audited & Archived)
 
 > [!NOTE]
-> This stage is newly planned. The Chinese roadmap remains the authoritative source for detailed scope and acceptance criteria.
+> This stage has been completed and archived. The Chinese roadmap remains the authoritative source for detailed scope, acceptance criteria, and backlog triage.
 
-1. Introduce a clearer internal-vs-external skill visibility model, plus a governed intake list for external skills and their provenance.
-2. Build a practical indexing and comparison path across active and archived regression logs so recent baselines remain easy to retrieve.
-3. Start a first bounded pass on repeated pure functions and shared type fragments, with at least one reusable extraction landing behind focused verification.
-4. Analyze PostgreSQL traffic consumption with an explicit observation baseline before deciding whether any hotspot requires optimization in-scope.
+1. Internal-vs-external skill visibility is now governed through explicit `metadata.internal` markers, a structured external-skill intake registry, and automated checks for frontmatter drift plus naming mismatches.
+2. Active and archived regression logs now share one indexed lookup path, making recent baselines and older comparison evidence easier to retrieve without full-text hunting.
+3. A first bounded reuse pass landed in shared helpers for normalized string lists, optional string coercion, ASCII slug normalization, and base-URL/path composition, all backed by focused verification.
+4. PostgreSQL traffic analysis was narrowed to result-set size and high-frequency query payloads; the public-settings path and scheduled-task scan were reduced with minimal-scope fixes, while the serverless direct-write fallback remains an observation item rather than a blocking in-scope refactor.
 
 ## 3. Backlog & Long-term Roadmap
 
