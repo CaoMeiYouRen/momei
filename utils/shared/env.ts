@@ -1,6 +1,7 @@
 import { ms, type StringValue } from 'ms'
 import { parse } from 'better-bytes'
 import { generateRandomString } from './random'
+import { isAbsoluteHttpUrl, joinBaseUrlAndPath } from './url'
 
 /**
  * 基础配置
@@ -258,9 +259,9 @@ const rawLocalStorageBaseUrl =
     || (import.meta.env.NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL as string)
     || '/uploads'
 // 如果是完整的 URL 则直接使用 (支持动静分离)，否则拼接到 SITE_URL 之后
-export const LOCAL_STORAGE_BASE_URL = rawLocalStorageBaseUrl.startsWith('http')
+export const LOCAL_STORAGE_BASE_URL = isAbsoluteHttpUrl(rawLocalStorageBaseUrl)
     ? rawLocalStorageBaseUrl
-    : `${SITE_URL.replace(/\/+$/, '')}/${rawLocalStorageBaseUrl.replace(/^\/+/, '')}`
+    : joinBaseUrlAndPath(SITE_URL, rawLocalStorageBaseUrl)
 // 本地存储最小剩余空间 (字节)，默认 100MiB
 export const LOCAL_STORAGE_MIN_FREE_SPACE = process.env.LOCAL_STORAGE_MIN_FREE_SPACE
     ? Number(parse(process.env.LOCAL_STORAGE_MIN_FREE_SPACE))

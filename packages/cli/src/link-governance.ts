@@ -6,6 +6,7 @@ import type {
     CliLinkGovernanceValidationMode,
     ParsedHexoPost,
 } from './types'
+import { normalizeAsciiSlug } from '@/utils/shared/slug'
 
 const DEFAULT_GOVERNANCE_SCOPES: CliLinkGovernanceScope[] = ['asset-url', 'post-link', 'permalink-rule']
 const SUPPORTED_GOVERNANCE_SCOPES = new Set<CliLinkGovernanceScope>([
@@ -26,11 +27,10 @@ function normalizeLegacySegment(value: string) {
 }
 
 function slugifyLegacySegment(value: string) {
-    return normalizeLegacySegment(value)
-        .toLowerCase()
-        .replace(/[^a-z0-9/_-]+/g, '-')
-        .replace(/-{2,}/g, '-')
-        .replace(/(^-|-$)/g, '')
+    return normalizeAsciiSlug(normalizeLegacySegment(value), {
+        allowSlash: true,
+        allowUnderscore: true,
+    })
 }
 
 function renderLegacyPermalink(entry: ParsedHexoPost) {

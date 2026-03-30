@@ -29,7 +29,7 @@
 
 ### 回归任务记录
 
-- 回归范围: 第十九阶段 P1“重复代码治理与纯函数复用基线建设”首轮与第二组增量落地；覆盖字符串列表归一化纯函数抽取、optional string 归一化纯函数复用、AI 文本分类输入清洗、迁移治理文本列表解析、上传类型白名单解析，以及服务层零散 `trim -> null` 逻辑收敛。
+- 回归范围: 第十九阶段 P1“重复代码治理与纯函数复用基线建设”首轮与后续三组增量落地；覆盖字符串列表归一化、optional string 归一化、ASCII slug 生成与清洗复用、URL / base URL 归一化与路径拼接复用，以及相关服务层与 shared 层重复逻辑收敛。
 - 触发条件: 第十九阶段要求先输出重复片段分组清单，并至少合并一组高频纯函数或共享类型，为后续治理建立最小规范与证据链。
 - 执行频率: 本阶段首轮基线；后续仅在继续抽取 slug、URL 校验、分页参数或共享 payload 结构时补写增量记录。
 - timeout budget:
@@ -39,10 +39,13 @@
 - 已执行命令:
     - `pnpm exec vitest run utils/shared/string-list.test.ts`
     - `pnpm exec vitest run utils/shared/coerce.test.ts`
+    - `pnpm exec vitest run utils/shared/slug.test.ts utils/shared/url.test.ts`
     - `pnpm exec vitest run server/services/upload.test.ts server/services/ai/text.test.ts`
     - `pnpm exec vitest run server/services/import-path-alias.test.ts server/services/friend-link.test.ts`
+    - `pnpm exec vitest run packages/cli/src/link-governance.test.ts utils/shared/seo.test.ts`
     - `pnpm exec vitest run tests/pages/admin/migrations/link-governance.test.ts`
-    - `pnpm exec eslint utils/shared/coerce.ts utils/shared/coerce.test.ts server/services/import-path-alias.ts server/services/friend-link.ts utils/shared/notification.ts server/services/setting-audit.ts server/services/friend-link.test.ts`
+    - `pnpm exec eslint utils/shared/coerce.ts utils/shared/coerce.test.ts utils/shared/slug.ts utils/shared/slug.test.ts utils/shared/url.ts utils/shared/url.test.ts utils/shared/env.ts utils/shared/seo.ts server/services/import-path-alias.ts server/services/friend-link.ts server/services/upload.ts server/utils/storage/local.ts utils/shared/notification.ts server/services/setting-audit.ts server/services/friend-link.test.ts`
+    - `pnpm exec eslint --no-ignore packages/cli/src/link-governance.ts`
     - `pnpm exec eslint utils/shared/string-list.ts utils/shared/string-list.test.ts server/services/ai/text-operations.ts server/services/ai/text.ts pages/admin/migrations/link-governance.vue server/services/upload.ts`
     - `pnpm exec eslint tests/pages/admin/migrations/link-governance.test.ts`
     - `pnpm exec lint-md docs/plan/regression-log.md docs/standards/development.md docs/plan/todo.md`
@@ -51,26 +54,28 @@
     - 分组清单:
         - 组 A / 已落地: 字符串列表归一化。重复模式为 `split -> trim -> filter(Boolean) -> Array.from(new Set(...))` 或数组 `map(trim) -> filter(Boolean)`；首批收敛到 `utils/shared/string-list.ts`，已替换 AI 文本分类、迁移治理页与上传白名单解析。
         - 组 B / 已落地: optional string 归一化。重复模式为 `value?.trim() || null` 或 `trim` 后空串转 `null`；现已收敛到 `utils/shared/coerce.ts` 的 `normalizeOptionalString`，并替换导入路径别名校验、友链服务、通知链接 taskId 提取与设置审计原因归一化。
-        - 组 C / 待后续评估: slug 生成与清洗。候选集中在文章、友链与 AI 自动化链路，适合下一轮统一规范字符折叠和回退策略。
-        - 组 D / 待后续评估: URL 归一化。多处存在 HTTP URL 校验与基础 base URL 拼装，宜在确认 schema 边界后再收敛。
+        - 组 C / 已落地: slug 生成与清洗。当前先统一 ASCII slug 归一化，收敛到 `utils/shared/slug.ts` 的 `normalizeAsciiSlug`，并替换导入路径别名、友链分类 slug 与 CLI legacy permalink 片段生成；Markdown anchor slugify 因语义不同继续保留局部实现。
+        - 组 D / 已落地: URL / base URL 归一化。当前先统一无副作用的 base URL 规范化、绝对 URL 拼接与相对路径拼接，收敛到 `utils/shared/url.ts`，并替换 SEO absolute URL、上传公开地址解析、本地存储 URL 生成与环境侧本地存储基础 URL 拼装。
         - 组 E / 保持局部实现: 业务特化的候选解析与平台映射，例如分发平台族归一化、迁移链接匹配结果聚类；虽然看似模式相似，但当前仍强依赖上下文语义，不强行抽象。
     - 已执行验证:
         - V0 / 盘点层: 已完成仓库级重复片段检索与首轮分组，明确“可提取 / 延后 / 保持局部实现”三类结论。
-        - V1 / 规范层: `docs/standards/development.md` 已补充 `utils/shared/string-list.ts` 与 `utils/shared/coerce.ts` 的最小复用约束，作为后续纯函数治理入口。
-        - V2 / 逻辑层: 已为共享工具新增同级单测 `utils/shared/string-list.test.ts` 与 `utils/shared/coerce.test.ts`，覆盖 trim、空串转 `null`、去重、大小写归一化、limit 与分隔符解析边界。
+        - V1 / 规范层: `docs/standards/development.md` 已补充 shared 纯函数复用约束；本轮继续沿用同一入口，把 slug 与 URL 原子能力收敛到 `utils/shared/slug.ts`、`utils/shared/url.ts`。
+        - V2 / 逻辑层: 已为共享工具新增同级单测 `utils/shared/string-list.test.ts`、`utils/shared/coerce.test.ts`、`utils/shared/slug.test.ts` 与 `utils/shared/url.test.ts`，覆盖 trim、空串转 `null`、ASCII slug 归一化、base URL 规范化、绝对 URL 拼接、去重、大小写归一化、limit 与分隔符解析边界。
         - V1 / 代码层: 定向 ESLint 已覆盖新增 helper、第二组替换点与受影响 Vue 页面，确认这组改动无新增 lint 问题。
         - V3 / 页面层: `tests/pages/admin/migrations/link-governance.test.ts` 已补充页面实例级断言，确认管理员页中的 domains / pathPrefixes 文本输入仍会按既有规则去空、去重并写入 dry-run 请求体。
         - V1 / 文档层: `lint-md` 已定向通过，确认本轮新增规范与回归记录未引入 Markdown 结构问题。
         - V1 / 类型层: VS Code `nuxt typecheck targeted` 任务未返回新增诊断；结合编辑器 Problems 与变更文件错误检查，本轮修改未引入可见类型错误。
-        - V2 / 受影响服务层: `server/services/upload.test.ts`、`server/services/ai/text.test.ts`、`server/services/import-path-alias.test.ts` 与 `server/services/friend-link.test.ts` 已补跑，确认上传白名单解析、AI 文本分类、导入路径别名校验，以及友链分类创建时的 slug / description 归一化路径未因 helper 抽取回退。
+        - V2 / 受影响服务层: `server/services/upload.test.ts`、`server/services/ai/text.test.ts`、`server/services/import-path-alias.test.ts`、`server/services/friend-link.test.ts`、`packages/cli/src/link-governance.test.ts` 与 `utils/shared/seo.test.ts` 已补跑，确认上传公开地址解析、AI 文本分类、导入路径别名校验、友链分类 slug / description 归一化、CLI legacy permalink 渲染，以及 SEO absolute URL 拼接未因 helper 抽取回退。
     - 结果摘要:
         - 首轮治理优先选择“字符串列表归一化”而非更激进的跨领域抽象，原因是该模式已跨 server / page / shared 多处重复，且完全属于无副作用纯函数，回归风险最低。
         - 第二组继续选择“optional string 归一化”，原因是 `value?.trim() || null` 在 server/shared 路径中重复密集且语义稳定，适合并入 `utils/shared/coerce.ts` 作为轻量转换器基线。
         - 新增 `utils/shared/string-list.ts` 与扩展 `utils/shared/coerce.ts` 后，后续若再出现文本列表、白名单、标签候选、scope 列表或空串转 `null` 场景，可直接复用同一组 shared helper，避免再次散落手写解析管线。
-        - slug、URL 校验和分页参数仍保留为下一轮候选，避免当前治理任务扩写成跨语义的大规模重构。
+        - slug 治理当前只统一 ASCII slug 规则，Markdown anchor slugify 与更宽字符集 slug 仍保留局部实现，避免误伤中文锚点与富文本导航语义。
+        - URL 治理当前只统一 base URL 规范化与路径拼接，不触碰各业务自己的协议校验、权限判断和白名单策略，避免当前治理任务扩写成跨语义的大规模重构。
     - 测试结果（按需）:
         - `pnpm exec vitest run utils/shared/string-list.test.ts`: 1 file passed / 3 tests passed。
         - `pnpm exec vitest run utils/shared/coerce.test.ts server/services/import-path-alias.test.ts server/services/friend-link.test.ts`: 3 files passed / 11 tests passed。
+        - `pnpm exec vitest run utils/shared/slug.test.ts utils/shared/url.test.ts packages/cli/src/link-governance.test.ts utils/shared/seo.test.ts server/services/import-path-alias.test.ts server/services/friend-link.test.ts server/services/upload.test.ts`: 7 files passed / 56 tests passed。
         - `pnpm exec vitest run server/services/upload.test.ts server/services/ai/text.test.ts`: 2 files passed / 53 tests passed。
         - `pnpm exec vitest run tests/pages/admin/migrations/link-governance.test.ts`: 1 file passed / 3 tests passed。
     - Review Gate 结论:
@@ -79,10 +84,11 @@
         - 主要问题:
             - 无。
     - 未覆盖边界:
-        - 本轮尚未触及 slug、URL 校验、分页参数和共享 payload 结构；相关分组仅完成盘点与优先级判定。
+        - slug 仍未统一覆盖 markdown anchor、文章内容目录或其他允许非 ASCII 字符的场景。
+        - URL 治理仍未触及认证 baseURL、外部 API baseURL 与更复杂的协议白名单逻辑。
         - optional string 归一化目前只替换首批高频且低风险调用点，零散业务特化字段仍需后续按语义继续筛选。
     - 后续补跑计划:
-        - 通过审计后，再决定下一轮是继续处理 slug 纯函数，还是收敛 URL 校验工具。
+        - 通过审计后，再决定下一轮是继续处理更宽字符集 slug / markdown anchor 收敛，还是继续处理认证与外部服务侧 URL 校验工具。
 
 ## MJML 依赖链 high 风险替换回归（2026-03-23）
 

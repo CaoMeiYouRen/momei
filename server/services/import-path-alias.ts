@@ -1,6 +1,7 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { normalizeOptionalString } from '@/utils/shared/coerce'
+import { normalizeAsciiSlug } from '@/utils/shared/slug'
 import { isSnowflakeId } from '@/utils/shared/validate'
 
 const CANONICAL_ALIAS_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -107,13 +108,7 @@ interface CanonicalCandidateResult {
 }
 
 function slugifyAlias(value: string) {
-    return value
-        .trim()
-        .toLowerCase()
-        .replace(/['"`]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/-{2,}/g, '-')
-        .replace(/^-+|-+$/g, '')
+    return normalizeAsciiSlug(value, { stripQuotes: true })
 }
 
 function getSourceStem(sourceFile?: string | null) {

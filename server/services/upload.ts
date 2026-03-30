@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 import { type H3Event, readMultipartFormData } from 'h3'
 import { getFileStorage, type FileStorageEnv } from '@/server/utils/storage/factory'
 import { splitAndNormalizeStringList } from '@/utils/shared/string-list'
+import { joinBaseUrlAndPath } from '@/utils/shared/url'
 import { resolveUploadSizeSetting } from '@/utils/shared/upload-size'
 import { limiterStorage } from '@/server/database/storage'
 import { getSettings } from '~/server/services/setting'
@@ -137,13 +138,7 @@ export function resolveUploadedFileUrl(objectKey: string, storageContext: Pick<U
         return objectKey
     }
 
-    if (candidateBaseUrl.startsWith('http')) {
-        const normalizedBaseUrl = candidateBaseUrl.endsWith('/') ? candidateBaseUrl : `${candidateBaseUrl}/`
-        return new URL(objectKey, normalizedBaseUrl).toString()
-    }
-
-    const normalizedBaseUrl = candidateBaseUrl.endsWith('/') ? candidateBaseUrl : `${candidateBaseUrl}/`
-    return `${normalizedBaseUrl}${objectKey}`.replace(/\/+/g, '/').replace(':/', '://')
+    return joinBaseUrlAndPath(candidateBaseUrl, objectKey)
 }
 
 function buildS3CompatibleEnv(settings: UploadSettings, rawStorageType: string): FileStorageEnv {

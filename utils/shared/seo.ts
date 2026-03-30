@@ -1,3 +1,5 @@
+import { buildAbsoluteUrl, isAbsoluteHttpUrl } from './url'
+
 export interface WebsiteStructuredDataOptions {
     url: string
     siteUrl: string
@@ -43,18 +45,14 @@ function normalizeDate(value?: string | Date | null): string | undefined {
     return parsed.toISOString()
 }
 
-export function buildAbsoluteUrl(baseUrl: string, path = '/'): string {
-    const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
-    const normalizedPath = path.startsWith('/') ? path.slice(1) : path
-    return new URL(normalizedPath, normalizedBaseUrl).toString()
-}
+export { buildAbsoluteUrl } from './url'
 
 export function resolveSeoImageUrl(baseUrl: string, image?: string | null): string | null {
     if (!image) {
         return null
     }
 
-    if (/^https?:\/\//iu.test(image)) {
+    if (isAbsoluteHttpUrl(image)) {
         return image
     }
 

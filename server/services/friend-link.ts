@@ -9,6 +9,8 @@ import { assignDefined } from '@/server/utils/object'
 import { ensureFound, paginate } from '@/server/utils/response'
 import { isValidCustomUrl } from '@/server/utils/security'
 import { normalizeOptionalString } from '@/utils/shared/coerce'
+import { normalizeAsciiSlug } from '@/utils/shared/slug'
+import { normalizeBaseUrl } from '@/utils/shared/url'
 import {
     FriendLinkHealthStatus,
     FriendLinkApplicationStatus,
@@ -88,22 +90,8 @@ function isHttpUrl(value: string) {
 }
 
 function slugify(value: string) {
-    const slug = value
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
+    const slug = normalizeAsciiSlug(value)
     return slug || `category-${Date.now()}`
-}
-
-function normalizeBaseUrl(value?: string | null) {
-    const normalized = value?.trim()
-
-    if (!normalized) {
-        return null
-    }
-
-    return normalized.endsWith('/') ? normalized : `${normalized}/`
 }
 
 function isUrlWithinBase(url: string, baseUrl: string) {
@@ -111,10 +99,6 @@ function isUrlWithinBase(url: string, baseUrl: string) {
 
     if (!normalizedBaseUrl) {
         return false
-    }
-
-    if (normalizedBaseUrl.startsWith('http://') || normalizedBaseUrl.startsWith('https://')) {
-        return url === normalizedBaseUrl.slice(0, -1) || url.startsWith(normalizedBaseUrl)
     }
 
     return url === normalizedBaseUrl.slice(0, -1) || url.startsWith(normalizedBaseUrl)
