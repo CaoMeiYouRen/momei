@@ -38,12 +38,14 @@
 
 ### 2. 主线：Release 与 Review Gate 自动化整合 (P0)
 
-- [ ] **发布链路统一编排**
+- [x] **发布链路统一编排**
 	- 验收: 在现有 `lint`、`typecheck`、`security:audit-deps`、文档检查与 Review Gate 基础上，补齐统一的发布前校验入口或等价脚本编排。
 	- 验收: 明确发布、阶段归档与高风险改动收口时的最低验证矩阵，避免继续依赖分散的人肉命令顺序。
-- [ ] **Review Gate 证据自动化补强**
+	- 实现: `scripts/release/pre-release-check.mjs` + `pnpm release:check` / `pnpm release:check:full`
+- [x] **Review Gate 证据自动化补强**
 	- 验收: 为常见治理型改动补齐可复用的证据模板、结果落点或脚本辅助，至少覆盖质量门状态、已执行验证、问题分级与未覆盖边界。
 	- 验收: 相关收口流程需与 `regression-log.md`、`planning.md`、`documentation.md` 的现有规范保持一致，不新增第二套口径。
+	- 实现: `scripts/review-gate/generate-evidence.mjs` + `pnpm review-gate:generate` / `pnpm review-gate:generate:check`
 
 ### 3. 主线：Dependabot / Code Scanning 安全告警闭环 (P0)
 
