@@ -69,8 +69,11 @@
 | `pnpm i18n:audit` | 审计 i18n 词条与模块拆分状态 |
 | `pnpm test` | 运行单测 |
 | `pnpm test:e2e` | 运行 Playwright 端到端测试 |
+| `pnpm test:e2e:critical` | 运行认证会话治理 + 移动端编辑器 smoke 的最小浏览器基线 |
 | `pnpm typecheck`| 运行类型检查 |
 | `pnpm deploy:wrangler` | 调试 wrangler 侧适配（不代表支持整站部署到 Cloudflare） |
+
+`pnpm test:e2e` 与 `pnpm test:e2e:critical` 会在执行前检查 `.output/server/index.mjs` 是否落后于当前源文件；若检测到构建产物陈旧，会先自动重建，避免 Playwright 继续复用过期服务。
 
 ## 5. 参与贡献
 

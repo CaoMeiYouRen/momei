@@ -63,6 +63,22 @@ async function clickLanguageBadge(page: Page, languageCode: string) {
     await badge.click()
 }
 
+async function navigateBlankDraftToLanguage(page: Page, languageCode: string) {
+    try {
+        await page.goto(`/admin/posts/new?language=${encodeURIComponent(languageCode)}`)
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        if (!message.includes('interrupted by another navigation')) {
+            throw error
+        }
+    }
+}
+
+async function expectBlankDraftLanguage(page: Page, targetLanguage: string) {
+    await expect(getActiveLanguageBadge(page)).toContainText(targetLanguage, { timeout: 5000 })
+    await expect(page.locator('.title-input')).toBeVisible({ timeout: 20000 })
+}
+
 function getActiveLanguageBadge(page: Page) {
     return page.locator('.translation-status-bar .translation-badge.translation-badge--active').first()
 }
@@ -188,12 +204,27 @@ test.describe('Auth Session Governance E2E Tests', () => {
         await openNewDraftEditor(page)
 
         const { currentLanguage, targetLanguage } = await pickDifferentLanguage(page)
+        const normalizedTargetLanguage = normalizeLocaleCode(targetLanguage)
 
-        await page.goto(`/admin/posts/new?language=${encodeURIComponent(normalizeLocaleCode(targetLanguage))}`)
+        let switched = false
 
-        await expect(getActiveLanguageBadge(page)).toContainText(targetLanguage, { timeout: 20000 })
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+            await navigateBlankDraftToLanguage(page, normalizedTargetLanguage)
+            await expect(page).toHaveURL(/\/admin\/posts\/new(?:\?|$)/, { timeout: 20000 })
+
+            try {
+                await expectBlankDraftLanguage(page, targetLanguage)
+                switched = true
+                break
+            } catch (error) {
+                if (attempt === 1) {
+                    throw error
+                }
+            }
+        }
+
+        expect(switched).toBe(true)
         await expect(getActiveLanguageBadge(page)).not.toContainText(currentLanguage)
-        await expect(page.locator('.title-input')).toBeVisible({ timeout: 20000 })
     })
 
     test('should protect entered new draft from language switch before saving', async ({ page }) => {

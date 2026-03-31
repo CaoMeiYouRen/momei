@@ -59,7 +59,15 @@ components/
     -   真实浏览器环境验证 (Chromium, Firefox, Webkit)
 -   **运行命令**:
     -   `pnpm test:e2e`: 在命令行界面运行所有 E2E 测试。
+    -   `pnpm test:e2e:critical`: 运行当前阶段定义的最小关键路径浏览器基线（认证会话治理 + 移动端编辑器 smoke）。
     -   `pnpm test:e2e:ui`: 启动 Playwright UI 界面，方便调试。
+
+### 3.4 浏览器基线口径 (Browser Baseline)
+
+-   **最小关键路径基线**: 默认使用 `pnpm test:e2e:critical`，覆盖 `tests/e2e/auth-session-governance.e2e.test.ts` 的 Chromium / Firefox / WebKit，以及 `tests/e2e/mobile-critical.e2e.test.ts` 的 `mobile-chrome-critical` / `mobile-safari-critical`。
+-   **适用改动**: 认证会话、后台受保护页访问、文章编辑器基础输入链路、语言切换与移动端后台入口。
+-   **升级条件**: 只有当改动涉及注册/找回密码、后台 CRUD、投稿、导航或公共页面行为时，才从 `test:e2e:critical` 升级到更大范围的 Playwright 定向集或全量 `pnpm test:e2e`。
+-   **执行前置**: `pnpm test:e2e` 与 `pnpm test:e2e:critical` 必须先检查 `.output` 是否陈旧；若源文件晚于构建产物，应先触发重建，避免把旧服务误当成当前结果。
 
 ## 4. 测试内容要求 (Testing Requirements)
 

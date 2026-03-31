@@ -223,7 +223,7 @@ export const auth = betterAuth({
         enabled: true,
         minPasswordLength: 6,
         maxPasswordLength: 64,
-        requireEmailVerification: EMAIL_REQUIRE_VERIFICATION, // 是否要求邮箱验证。若启用，则用户必须在登录前验证他们的邮箱。仅在使用邮箱密码登录时生效。
+        requireEmailVerification: !TEST_MODE && EMAIL_REQUIRE_VERIFICATION, // 测试环境关闭邮箱验证，避免 E2E 依赖外部 SMTP。
         sendResetPassword: async ({ user, url }) => {
             const locale = await resolvePreferredEmailLocale({
                 email: user.email,
@@ -233,10 +233,14 @@ export const auth = betterAuth({
         },
     },
     emailVerification: {
-        sendOnSignUp: true, // 注册时发送验证邮件
+        sendOnSignUp: !TEST_MODE, // 测试环境跳过注册验证邮件，避免后台任务噪音干扰 E2E 基线
         autoSignInAfterVerification: true, // 验证后自动登录
         // 发送验证邮件
         sendVerificationEmail: async ({ user, url }) => {
+            if (TEST_MODE) {
+                return
+            }
+
             const locale = await resolvePreferredEmailLocale({
                 email: user.email,
                 language: getAuthUserLanguage(user),

@@ -32,6 +32,48 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## 浏览器与 E2E 稳定性治理首轮回归（2026-03-31）
+
+### 回归任务记录
+
+- 回归范围: 第二十阶段 P0“浏览器与 E2E 稳定性治理”首轮启动；覆盖 Playwright 构建产物复用风险、认证会话治理最小关键路径、移动端后台编辑器 smoke，以及测试环境邮件后台任务噪音收敛。
+- 触发条件: 当前阶段待办明确要求先收敛 Playwright 运行中的测试服务中途失联、`Connection refused` 与关键链路高并发噪音；此前历史记录已经表明全量 E2E 结果曾被服务层噪音污染，需先固化一条可重复、可解释的最小浏览器基线。
+- 执行频率: 本阶段首轮；后续凡涉及认证会话、后台受保护页访问、文章编辑器基础输入、语言切换或移动端后台入口的改动，默认合并前复跑一次。
+- timeout budget:
+    - Markdown / 文档目录检查: 10 分钟。
+    - 定向 ESLint: 10 分钟。
+    - `pnpm test:e2e:critical`: 40 分钟。
+- 已执行命令:
+    - `pnpm exec lint-md docs/guide/development.md docs/standards/testing.md docs/plan/todo.md docs/plan/regression-log.md`
+    - `pnpm docs:check:i18n`
+    - `pnpm exec eslint scripts/testing/run-e2e.mjs tests/e2e/auth-session-governance.e2e.test.ts lib/auth.ts`
+    - `pnpm test:e2e:critical`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 文档与静态层: 本轮新增的脚本入口、测试用例与计划文档均通过编辑器诊断；Markdown 检查与 `docs:check:i18n` 通过。
+        - V3 / 浏览器层: `pnpm test:e2e:critical` 当前定义为两段式矩阵，覆盖 Chromium / Firefox / WebKit 的 `tests/e2e/auth-session-governance.e2e.test.ts`，以及 `mobile-chrome-critical` / `mobile-safari-critical` 的 `tests/e2e/mobile-critical.e2e.test.ts`。
+    - 结果摘要:
+        - `scripts/testing/run-e2e.mjs` 已从“仅在 `.output` 缺失时构建”调整为“扫描仓库运行时源码是否晚于 `.output/server/index.mjs`”，避免 Playwright 静默复用陈旧构建产物；文档、测试产物与报告目录不计入重建判断。
+        - `scripts/testing/run-e2e-critical.mjs` 与 `package.json` 已将 `pnpm test:e2e:critical` 固化为“桌面认证会话治理三浏览器 + 移动编辑器 smoke 两移动项目”的两段式矩阵，并在开发指南与测试规范中写明适用范围。
+        - `lib/auth.ts` 已在 `TEST_MODE` 下关闭邮箱验证要求与注册验证邮件发送，`test:e2e:critical` 本轮执行过程中未再出现此前持续污染输出的 SMTP `ECONNREFUSED` 背景任务报错。
+        - `tests/e2e/auth-session-governance.e2e.test.ts` 已改为接受编辑器页语言切换时的二次导航接管，并改为验证最终 UI 状态；此前由 WebKit 暴露出来的 flaky 已在 Chromium / Firefox / WebKit 三端收敛。
+    - 测试结果（按需）:
+        - `tests/e2e/auth-session-governance.e2e.test.ts`: Chromium 6 passed、Firefox 6 passed、WebKit 6 passed。
+        - `tests/e2e/mobile-critical.e2e.test.ts`: `mobile-chrome-critical` 1 passed、`mobile-safari-critical` 1 passed。
+        - `pnpm test:e2e:critical`: 合计 20 passed。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: info
+        - 主要问题:
+            - 当前仅固化了最小关键路径浏览器基线，尚未把 `admin.e2e`、`user-workflow.e2e`、`navigation.e2e` 等更大范围用例重新纳入稳定矩阵。
+            - `test:e2e:critical` 仍依赖预置测试管理员与测试模式种子数据；后续若调整安装或认证种子逻辑，需要同步复核 `tests/e2e/global-setup.ts`。
+    - 未覆盖边界:
+        - 本轮未重跑全量 `pnpm test:e2e`，因此“全仓 Playwright 全绿”仍不是当前证据结论。
+        - 公开页面、注册找回链路、后台 CRUD 与投稿流仍需按后续改动范围选择更大的定向 E2E 集合验证。
+    - 后续补跑计划:
+        - 若后续再次出现服务中途失联或 `Connection refused`，先复跑 `pnpm test:e2e:critical` 判断是否为最小基线回退，再决定是否升级到更大范围的 Playwright 定向集或全量 `pnpm test:e2e`。
+        - 在后台 CRUD、注册找回密码或公共导航链路发生结构调整时，补充相应的 Playwright 定向命令，并继续沿用“关键路径基线优先、全量 E2E 作为升级验证”的口径。
+
 ## PostgreSQL 数据库流量热点首轮收敛回归（2026-03-30）
 
 ### 回归任务记录

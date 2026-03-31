@@ -20,6 +20,7 @@
     "lint:md": "lint-md *.md docs/**/*.md .github/**/*.md --fix",
     "test": "vitest run",
     "test:e2e": "node scripts/testing/run-e2e.mjs",
+    "test:e2e:critical": "node scripts/testing/run-e2e-critical.mjs",
     "test:e2e:ui": "node scripts/testing/run-e2e.mjs --ui",
     "typecheck": "nuxt typecheck",
     "commit": "cz",
