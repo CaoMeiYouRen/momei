@@ -169,7 +169,7 @@
 			- `scripts/docs/check-source-of-truth.mjs`: 修复 `curly`、`prefer-template`、缩进与单行多语句等活动问题，并保留为长期治理脚本。
 			- `server/services/ai/admin-drafts.ts`: 合并重复 `@/types/setting` 导入，清理 `no-duplicate-imports` error。
 		- warning（当前不阻塞、已纳入治理记录）:
-			- `scripts/setup/setup-ai.ps1`、`scripts/hooks/pre-tool.ps1`、`scripts/hooks/post-tool.ps1`、`scripts/hooks/session-end.ps1`: 保留为本地手工脚本，不纳入团队常规入口。
+			- `scripts/setup/setup-ai.mjs`、`scripts/hooks/pre-tool.ps1`、`scripts/hooks/post-tool.ps1`、`scripts/hooks/session-end.ps1`: 保留为本地手工脚本，不纳入团队常规入口。
 			- 生产代码显式 suppression 仍存在少量治理债，例如 `server/decorators/apply-decorators.ts` 的 `@typescript-eslint/no-unsafe-function-type` 与 `utils/shared/validate.ts` 的 `no-control-regex`。
 		- 可延期（结构债，不作为当前活动 blocker）:
 			- `server/services/migration-link-governance.ts`

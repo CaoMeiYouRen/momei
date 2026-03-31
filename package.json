@@ -13,6 +13,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "web-push:generate-vapid": "node scripts/setup/generate-web-push-vapid.mjs",
+    "setup:ai": "node scripts/setup/setup-ai.mjs",
     "ai:check": "node scripts/ai/check-governance.mjs",
     "i18n:audit": "node scripts/i18n/audit-locale-keys.mjs",
     "i18n:check-sync": "node scripts/i18n/check-locale-parity.mjs",
