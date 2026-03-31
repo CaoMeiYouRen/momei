@@ -104,6 +104,7 @@ const steps = [
     { label: 'test (Vitest)', run: pnpm('test'), required: true },
     { label: 'docs:check:source-of-truth', run: pnpm('docs:check:source-of-truth'), required: false },
     { label: 'security:audit-deps', run: pnpm('security:audit-deps'), required: true },
+    { label: 'security:alerts', run: pnpm('security:alerts'), required: true },
 ]
 
 if (!skipE2e) {
@@ -186,7 +187,7 @@ const evidenceLines = [
     '',
     '### 最低验证要求',
     '- 目标层级: V0 + V1 + V2 + RG（发布前高风险收口）',
-    `- 需要的命令: lint, lint:i18n, lint:css, lint:md, typecheck, test, security:audit-deps${skipE2e ? '' : ', test:e2e'}`,
+    `- 需要的命令: lint, lint:i18n, lint:css, lint:md, typecheck, test, security:audit-deps, security:alerts${skipE2e ? '' : ', test:e2e'}`,
     '',
     '### 已执行验证',
     '',

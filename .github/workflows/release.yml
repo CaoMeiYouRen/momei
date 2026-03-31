@@ -18,6 +18,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
+      security-events: read
     steps:
       - uses: actions/checkout@v6
       - name: Setup pnpm
@@ -43,6 +44,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
+      security-events: read
     steps:
       - uses: actions/checkout@v6
       - name: Setup pnpm
@@ -70,6 +72,7 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
+      security-events: read
     steps:
       - uses: actions/checkout@v6
         with:
@@ -86,6 +89,10 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - name: Audit dependency risk gate
         run: pnpm run security:audit-deps
+      - name: Audit GitHub security alerts gate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm run security:alerts
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm run release:semantic

@@ -243,6 +243,73 @@
 
 ## MJML 依赖链 high 风险替换回归（2026-03-23）
 
+## GitHub 安全告警数据源接入回归（2026-03-31）
+
+### 回归任务记录
+
+- 回归范围: 第二十阶段 P0“Dependabot / Code Scanning 安全告警闭环”首轮落地；覆盖 GitHub 官方仓库级安全告警读取、权限受限时的 Dependabot 回退口径、告警分类规则、延期基线与 release 门禁接线。
+- 触发条件: 当前阶段要求把安全告警从“只靠 `pnpm audit` 回退”升级为“官方数据源优先 + 明确回退 + 可追溯分类与放行基线”。
+- 执行频率: 每次发版前或每周一次；本条为首轮落地记录，后续仅在权限策略、分类规则、延期基线或 release 入口调整时补写增量记录。
+- timeout budget:
+    - 定向 Vitest: 10 分钟。
+    - 安全告警门禁脚本: 10 分钟。
+- 已执行命令:
+    - `pnpm exec vitest run tests/scripts/check-github-security-alerts.test.ts`
+    - `pnpm run security:alerts`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 脚本层: 已新增 `scripts/security/check-github-security-alerts.mjs`、`.github/security/security-alert-exceptions.json` 与 `pnpm security:alerts`，并接入 `scripts/release/pre-release-check.mjs` 与 `.github/workflows/release.yml`。
+        - V1 / 权限层: `release.yml` 的 `qa`、`e2e`、`release` job 已补充 `security-events: read`；当前 workflow 先把 `GITHUB_TOKEN` 接到安全告警门禁，脚本本身仍兼容后续补充更高权限令牌。
+        - V2 / 测试层: `tests/scripts/check-github-security-alerts.test.ts` 覆盖 Dependabot patched / unpatched 分类、Code Scanning high+ 与 test-only 分类、`pnpm audit` fallback 映射，以及延期基线只允许放行 defer 告警等核心边界。
+        - V2 / 运行层: `pnpm run security:alerts` 实际执行时，当前环境对仓库级 GitHub alerts API 返回 `403 Resource not accessible by integration`；脚本已将 Dependabot 明确回退到 `pnpm audit --json --registry=https://registry.npmjs.org/`，并把 Code Scanning 权限缺口写入证据文件而不是静默跳过。
+        - V2 / 证据层: 本轮输出 `artifacts/review-gate/2026-03-31-security-alerts.json` 与 `artifacts/review-gate/2026-03-31-security-alerts.md`，统一沉淀数据源状态、分类结果、Review Gate 结论与未覆盖边界。
+    - 结果摘要:
+        - 官方数据源优先级已落地到脚本层：优先读取 `repos/{owner}/{repo}/dependabot/alerts` 与 `repos/{owner}/{repo}/code-scanning/alerts`，再根据权限或特性限制决定是否回退。
+        - 当前环境下，仓库级 Dependabot 与 Code Scanning 官方接口都无法直接通过现有集成令牌读取；脚本不会把这一状态误判为“零告警”，而是把 Dependabot 回退到可复现的 `pnpm audit` 官方审计来源，并对 Code Scanning 保留显式权限缺口说明。
+        - 告警分类已固定为三类：可立即修复（open 且有补丁、或高危非 test 的 Code Scanning）、需延期（open 但当前无补丁或需继续业务判断）、仅观察（已关闭 / dismissed / fixed，或 test-only Code Scanning）。
+        - high+ 的 defer 告警若要放行，必须写入 `.github/security/security-alert-exceptions.json`；immediate-fix 告警不会被基线放行，保持 release 阻断属性。
+    - 依赖安全结果（按需）:
+        - 数据来源: GitHub repository alerts API 优先；Dependabot API 权限不足时回退到 `pnpm audit --json --registry=https://registry.npmjs.org/`。
+        - 可修复项与验证结果: 当前回退口径下未发现新的 high+ Dependabot blocker；门禁结果为 Pass。
+        - 未修复的 high+ 风险: 本轮未读到新的 high+ blocker；Code Scanning 官方源仍受权限限制，尚不能据此声明“官方零告警”。
+        - 延期或计划修复判断: 若后续出现 high+ defer 告警，必须先登记 `.github/security/security-alert-exceptions.json` 后才能放行；当前文件保持空基线。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - 当前本地 / 集成令牌对仓库级 GitHub alerts API 返回 `403 Resource not accessible by integration`，Dependabot 只能回退到 `pnpm audit`，Code Scanning 只能保留权限缺口说明。
+            - 由于没有具备 Dependabot alerts read 权限的专用令牌，本轮无法在同一命令里直接固化真实仓库级 Dependabot 明细。
+            - Code Scanning 暂无替代官方回退源；若仓库后续启用或开放读取权限，需要补跑官方取数以完成第二条子任务的真实延期 / 修复闭环。
+    - 未覆盖边界:
+        - 当前证据尚不能替代具备权限的 GitHub 仓库级安全页快照，尤其是 Code Scanning 部分仍依赖后续补权验证。
+        - 本轮未对具体 GitHub 告警做 PATCH dismiss / reopen 等写操作，只完成了读取、分类、延期基线与 release 门禁接线。
+    - 后续补跑计划:
+        - 配置具备 `Dependabot alerts: read` 或等效 `security_events` 范围的专用令牌后，补跑 `pnpm security:alerts`，确认官方 Dependabot 明细可直接读取。
+        - 若后续可读取 Code Scanning 官方源，优先完成一轮真实告警的修复、延期登记或观察结论，并把结果同步到本记录与 Review Gate 证据。
+
+### 收口补充（2026-03-31）
+
+- 回归范围: 审计指出 `pnpm audit` fallback 对无补丁 sentinel 值误判后的修复复跑；覆盖 patched version 归一化、证据产物刷新与 Todo 子任务收口判断。
+- 触发条件: 首轮实现经 Review Gate 复核后，发现 `patchedVersions: <0.0.0` 被误判为“有补丁可立即修复”，需要校正 fallback 语义并重跑证据。
+- 已执行命令:
+    - `pnpm exec vitest run tests/scripts/check-github-security-alerts.test.ts tests/scripts/check-dependency-risk.test.ts`
+    - `pnpm run security:alerts`
+- 输出摘要:
+    - 已执行验证:
+        - V2 / 测试层: `tests/scripts/check-github-security-alerts.test.ts` 已新增 `<0.0.0` sentinel 用例，确认 `mapAuditRiskToDependabotAlert()` 会把无补丁哨兵值归一化为 `patchAvailable: false` 与 `patchedVersion: null`；与 `tests/scripts/check-dependency-risk.test.ts` 合计 14 个用例通过。
+        - V2 / 运行层: `pnpm run security:alerts` 已重新生成 `artifacts/review-gate/2026-03-31-security-alerts.json` 与 `.md`；当前 fallback 来源下的 2 个 open alerts 均被分类为 `defer`，不再误报为 `immediate-fix`。
+        - V2 / 证据层: 最新 JSON 证据显示 `summary.defer=2`、`summary.immediate-fix=0`、`high+ blocking alerts=0`，与脚本分类规则和 Review Gate 口径一致。
+    - 结果摘要:
+        - `pnpm audit` fallback 现在会把 `<0.0.0`、`none`、`unavailable` 等 sentinel patched version 视为“当前无补丁”，避免把“需延期”风险误升级为“可立即修复”。
+        - 当前 open 的 `mjml` 与 `quill` fallback 告警均落入 `defer`，且最低严重级别为 `high` 时不会形成 release blocker；这说明“数据源接入与分类落点”子任务已经满足验收标准。
+        - 第二条子任务“修复与延期治理闭环”仍未完成，因为当前环境只能读取 fallback 结果与 Code Scanning 权限缺口说明，尚未形成一轮真实官方告警的修复或延期登记闭环。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - 官方 Code Scanning 仓库级 alerts 仍受权限限制，当前证据仍不足以宣称“官方零告警”。
+            - 真实官方告警的修复 / 延期登记闭环仍待具备更高权限的令牌后继续推进。
+
 ### 回归任务记录
 
 - 回归范围: 第十八阶段 P0“MJML 依赖链高风险替换与 release 安全基线收敛”；覆盖 `mjml` / `mjml-cli` -> `html-minifier` 高风险链的替换实现、release 门禁去 allowlist 化、邮件模板运行时回归与生产构建稳定性。

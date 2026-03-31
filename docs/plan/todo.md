@@ -18,7 +18,7 @@
 ## 当前待办
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
-当前进行中事项：无
+当前进行中事项：Dependabot / Code Scanning 安全告警闭环建设（修复与延期治理闭环收口）
 
 ---
 
@@ -49,9 +49,10 @@
 
 ### 3. 主线：Dependabot / Code Scanning 安全告警闭环 (P0)
 
-- [ ] **Security 数据源接入与分类落点**
+- [x] **Security 数据源接入与分类落点**
 	- 验收: 评估并优先接入仓库 Dependabot alerts 与 Code Scanning alerts 的官方数据来源；若工具链受限，明确回退路径与证据口径。
 	- 验收: 形成“可立即修复 / 需延期 / 仅观察”的分级规则，并与现有 release 安全门禁保持一致。
+	- 实现: `scripts/security/check-github-security-alerts.mjs` + `pnpm security:alerts` + `.github/security/security-alert-exceptions.json`
 - [ ] **修复与延期治理闭环**
 	- 验收: 至少完成一轮真实告警的修复、验证、延期记录或 allowlist / 例外基线收敛，避免只做读取不做处置判断。
 	- 验收: 将结果同步沉淀到回归记录与 Review Gate 结论中，确保后续发版前可直接复用。
