@@ -74,6 +74,43 @@
         - 若后续再次出现服务中途失联或 `Connection refused`，先复跑 `pnpm test:e2e:critical` 判断是否为最小基线回退，再决定是否升级到更大范围的 Playwright 定向集或全量 `pnpm test:e2e`。
         - 在后台 CRUD、注册找回密码或公共导航链路发生结构调整时，补充相应的 Playwright 定向命令，并继续沿用“关键路径基线优先、全量 E2E 作为升级验证”的口径。
 
+### 收口补充（2026-03-31）
+
+- 回归范围: 首轮治理完成后的最终收口验证；覆盖认证会话治理三浏览器复跑，以及全量 Playwright 套件复跑。
+- 触发条件: 首轮治理后，全量 `pnpm test:e2e` 已从历史服务失联与大面积失败收敛到单个 WebKit 导航型 flaky，需要在关闭 Todo 前确认剩余 flaky 清零。
+- 执行频率: 主线关闭前的一次性收口验证；后续仅在浏览器基线或鉴权导航逻辑再次调整时补写。
+- timeout budget:
+    - 定向 ESLint: 10 分钟。
+    - 认证会话三浏览器矩阵: 40 分钟。
+    - 全量 `pnpm test:e2e`: 70 分钟。
+- 已执行命令:
+    - `pnpm exec eslint tests/e2e/auth-session-governance.e2e.test.ts`
+    - `node scripts/testing/run-e2e.mjs tests/e2e/auth-session-governance.e2e.test.ts --project=chromium --project=firefox --project=webkit`
+    - `pnpm test:e2e`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 静态层: `tests/e2e/auth-session-governance.e2e.test.ts` 新增的受保护路由跳转 helper 已通过 ESLint。
+        - V3 / 浏览器层: 认证会话治理三浏览器矩阵回到稳定态，Chromium / Firefox / WebKit 合计 18 passed。
+        - V4 / 全量层: `pnpm test:e2e` 完成全仓 Playwright 复跑，验证浏览器治理收口后的整体稳定性。
+    - 结果摘要:
+        - `tests/e2e/auth-session-governance.e2e.test.ts` 新增 `expectProtectedRouteRedirectsToLogin` helper，允许受保护页访问时被框架重定向到 `/login?redirect=...` 的二次导航接管，并统一验证最终 URL 落在登录页，消除了 WebKit 下“访问受保护页时 `page.goto()` 被打断”的尾部 flaky。
+        - `tests/e2e/admin.e2e.test.ts` 先前引入的后台路由显式重试与导航中断容错继续保持稳定，本轮全量套件未再出现 categories / tags 页面切换抖动。
+        - 全量 Playwright 未再出现测试服务中途失联、`Connection refused`、`Could not connect` 或 `/api/settings/public` 429 类噪音，说明本主线最初针对的服务稳定性问题已完成收敛。
+    - 测试结果（按需）:
+        - `tests/e2e/auth-session-governance.e2e.test.ts`: Chromium 6 passed、Firefox 6 passed、WebKit 6 passed。
+        - `pnpm test:e2e`: 185 passed、66 skipped。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: info
+        - 主要问题:
+            - 全量套件当前仍保留 66 个 skipped 用例；这属于既有测试编排范围，不构成本主线关闭阻塞，但后续若要继续提升浏览器覆盖率，需要单独治理这些跳过项的前置条件与执行预算。
+    - 未覆盖边界:
+        - 本轮未新增 UI 截图型证据，结论仍以 Playwright 命令结果和日志为主。
+        - `pnpm test:e2e:critical` 之外的更大矩阵仍依赖当前测试模式种子与预置管理员账户，后续若调整安装或认证初始化流程，需要重新复核 `tests/e2e/global-setup.ts`。
+    - 后续补跑计划:
+        - 后续若再次出现鉴权跳转类 WebKit 抖动，优先复跑 `tests/e2e/auth-session-governance.e2e.test.ts` 三浏览器矩阵，再判断是否升级到全量 `pnpm test:e2e`。
+        - 若后续改动扩大到公共导航、后台 CRUD 或注册找回密码链路，继续沿用“`test:e2e:critical` 先行，必要时升级全量 Playwright”的分层验证口径。
+
 ## PostgreSQL 数据库流量热点首轮收敛回归（2026-03-30）
 
 ### 回归任务记录

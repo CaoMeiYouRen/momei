@@ -35,6 +35,19 @@ async function logoutFromHeader(page: Page) {
     await expect(page).toHaveURL(/\/login(?:\?|$)/, { timeout: 20000 })
 }
 
+async function expectProtectedRouteRedirectsToLogin(page: Page, routePath: string) {
+    try {
+        await page.goto(routePath)
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        if (!message.includes('interrupted by another navigation')) {
+            throw error
+        }
+    }
+
+    await expect(page).toHaveURL(/\/login(?:\?|$)/, { timeout: 20000 })
+}
+
 async function ensureAuthenticatedSettings(page: Page) {
     await page.goto('/settings')
     await expect(page.locator('.settings-page')).toBeVisible({ timeout: 20000 })
@@ -163,8 +176,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
 
             await logoutFromHeader(primaryTab)
 
-            await secondaryTab.goto('/admin/posts')
-            await expect(secondaryTab).toHaveURL(/\/login(?:\?|$)/, { timeout: 20000 })
+            await expectProtectedRouteRedirectsToLogin(secondaryTab, '/admin/posts')
         } finally {
             await context.close()
         }
@@ -178,9 +190,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
         await ensureAuthenticatedSettings(page)
 
         await page.context().clearCookies()
-        await page.goto('/admin/posts')
-
-        await expect(page).toHaveURL(/\/login(?:\?|$)/, { timeout: 20000 })
+        await expectProtectedRouteRedirectsToLogin(page, '/admin/posts')
     })
 
     test('should block immediate protected revisit after logout in the current tab', async ({ page }) => {
@@ -191,9 +201,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
         await ensureAuthenticatedSettings(page)
 
         await logoutFromHeader(page)
-        await page.goto('/admin/posts')
-
-        await expect(page).toHaveURL(/\/login(?:\?|$)/, { timeout: 20000 })
+        await expectProtectedRouteRedirectsToLogin(page, '/admin/posts')
     })
 
     test('should switch language on a blank new draft without requiring save first', async ({ page }) => {
