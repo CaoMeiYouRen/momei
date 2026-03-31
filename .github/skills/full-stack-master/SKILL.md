@@ -37,7 +37,8 @@ metadata:
     1. **单一主责**：同一事项在同一时点只保留一个实现主责；默认由 `full-stack-master` 统筹，边界稳定后才委派前后端专项角色。
     2. **核心实现**：遵循 [开发规范](../../../docs/standards/development.md)；若涉及持久化，优先处理数据模型或实体，再落业务逻辑和界面。
     3. **基础设施例外**：涉及 Docker、CI/CD、部署、构建环境或运维脚本时，仍由全栈主责统一编排，并按需复用 `devops-specialist`。
-    4. **范围闸门**：开发过程中若发现新的优化点或非阻塞事项，必须返回 P 阶段重新分流，不得静默扩写当前任务。
+    4. **发布脚本入口**：发布前统一校验优先使用 `scripts/release/pre-release-check.mjs`；涉及 Review Gate 证据时，优先使用 `scripts/review-gate/generate-evidence.mjs` 生成初始记录，再进入人工审计或补充证据。
+    5. **范围闸门**：开发过程中若发现新的优化点或非阻塞事项，必须返回 P 阶段重新分流，不得静默扩写当前任务。
     - **技能**：`database-expert`、`backend-logic-expert`、`vue-frontend-expert`、`nuxt-code-editor`、`devops-specialist`
 
 3. **A (Audit) - 审计放行**
@@ -59,7 +60,7 @@ metadata:
 
 6. **F (Finish) - 文档与收口**
     1. **文档同步**：更新 `todo.md` 状态，并按需同步 README、Guide、Standards、Design、Plan 文档。
-    2. **证据收口**：汇总验证记录、Review Gate 结论、未覆盖边界与后续补跑计划。
+    2. **证据收口**：发布或治理收口时，优先用 `scripts/review-gate/generate-evidence.mjs` 刷新 Review Gate 证据文件，再汇总验证记录、Review Gate 结论、未覆盖边界与后续补跑计划。
     3. **提交说明**：`Commit` 不是本技能默认的独立主阶段；只有在用户明确要求提交，或当前流程被明确委派为提交流程时，才在 F 阶段收口后调用 `conventional-committer`。
     - **技能**：`documentation-specialist`、`todo-manager`、`conventional-committer`
 

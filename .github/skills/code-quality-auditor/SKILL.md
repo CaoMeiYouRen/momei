@@ -42,6 +42,7 @@ metadata:
 ### 3. 收集并延续审查证据
 
 - 默认把临时审查记录写入 git ignore 的 `artifacts/review-gate/`，文件名建议使用 `<date>-<scope>.md`。
+- 首轮证据优先由 `scripts/review-gate/generate-evidence.mjs` 生成，发布前收口则优先复用 `scripts/release/pre-release-check.mjs` 的输出作为最低验证证据。
 - 多轮 review 复用同一份记录，按 `Round 1`、`Round 2` 追加，保留未关闭问题编号与复查结论。
 - 证据记录至少包含：变更范围、已执行验证、结果摘要、问题分级、Gate 结论、未覆盖边界、后续补跑计划。
 
@@ -103,5 +104,6 @@ metadata:
 
 - 是否已经读取相关规范与当前 Todo 验收点。
 - 是否已经识别改动类型并映射到最低验证矩阵。
+- 是否已经为发布前收口或 Review Gate 准备好 `scripts/release/pre-release-check.mjs` / `scripts/review-gate/generate-evidence.mjs` 的证据落点。
 - 是否已经记录证据落点和本轮审查范围。
 - 是否已经把阻塞项和残余风险区分清楚。

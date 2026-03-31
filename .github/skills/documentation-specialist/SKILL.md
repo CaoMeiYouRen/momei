@@ -14,6 +14,7 @@ metadata:
 -   **规范检查**: 确保文档遵循项目的文档结构和风格指南 (如 `AGENTS.md` 和 `docs/standards/documentation.md` 中定义的)。
 -   **计划管理**: 能够读取 `docs/plan/todo.md` 和 `docs/plan/roadmap.md` 以了解当前任务状态，读取 `docs/plan/todo-archive.md` 以了解已归档任务状态。
 -   **门户维护**: 负责更新根目录下的 `README.md`，确保其与项目特性和状态保持同步。
+-   **流程对齐**: 涉及发布或 Review Gate 说明时，优先对齐 `scripts/release/pre-release-check.mjs` 与 `scripts/review-gate/generate-evidence.mjs` 的实际行为，避免文档与脚本口径漂移。
 
 ## 指令 (Instructions)
 
@@ -22,7 +23,8 @@ metadata:
 3.  **标准对齐**: 在编写文档前，必须阅读并遵循 [文档规范](../../../docs/standards/documentation.md)。
 3.  **交叉引用**: 在编写文档时，正确使用相对路径链接到其他文档。
 4.  **保持同步**: 当代码发生重大变更时，主动建议更新相关的 API 文档、设计文档以及根目录的 `README.md`。
-5.  **格式规范**: 使用标准的 Markdown 格式。对于图表，使用 Mermaid 语法。
+5.  **发布与审计同步**: 如果变更影响发布前校验、证据模板或 Review Gate 流程，优先同步 `docs/plan/todo.md`、相关标准文档和脚本行为说明。
+6.  **格式规范**: 使用标准的 Markdown 格式。对于图表，使用 Mermaid 语法。
 6.  **读取优先**: 在回答有关“如何做”的问题时，优先查阅 `docs/standards/` 下的规范文档。
 7.  **站点维护**: 涉及目录结构变更时，应同步考虑更新 `docs/.vitepress/config.ts` 中的导航和侧边栏配置。
 
