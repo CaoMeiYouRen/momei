@@ -1,9 +1,10 @@
 import path from 'node:path'
 import { spawn } from 'node:child_process'
+import { getCliArgs } from '../shared/cli.mjs'
 
 const repoRoot = process.cwd()
 const runE2EScript = path.join(repoRoot, 'scripts', 'testing', 'run-e2e.mjs')
-const extraArgs = process.argv.slice(2)
+const extraArgs = getCliArgs()
 
 function runRunE2E(args) {
     return new Promise((resolve, reject) => {

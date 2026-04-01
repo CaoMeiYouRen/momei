@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import { isDirectExecution } from '../shared/cli.mjs'
+import { getArgValue, getCliArgs, isDirectExecution } from '../shared/cli.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..', '..')
@@ -14,12 +14,12 @@ const DEFAULT_CONFIG_PATH = '.jscpd.json'
 const DEFAULT_BASELINE_PATH = '.github/review-gate/duplicate-code-baseline.json'
 
 function parseArgs(argv = process.argv) {
-    const args = argv.slice(2)
-    const mode = args.find((arg) => arg.startsWith('--mode='))?.slice('--mode='.length) ?? 'warn'
-    const config = args.find((arg) => arg.startsWith('--config='))?.slice('--config='.length) ?? DEFAULT_CONFIG_PATH
-    const baseline = args.find((arg) => arg.startsWith('--baseline='))?.slice('--baseline='.length) ?? DEFAULT_BASELINE_PATH
-    const input = args.find((arg) => arg.startsWith('--input='))?.slice('--input='.length) ?? null
-    const scopeArg = args.find((arg) => arg.startsWith('--scope='))?.slice('--scope='.length) ?? DEFAULT_SCOPE
+    const args = getCliArgs(argv)
+    const mode = getArgValue(args, '--mode') ?? 'warn'
+    const config = getArgValue(args, '--config') ?? DEFAULT_CONFIG_PATH
+    const baseline = getArgValue(args, '--baseline') ?? DEFAULT_BASELINE_PATH
+    const input = getArgValue(args, '--input')
+    const scopeArg = getArgValue(args, '--scope') ?? DEFAULT_SCOPE
     const scope = sanitizeScope(scopeArg) || DEFAULT_SCOPE
 
     if (!['warn', 'error'].includes(mode)) {

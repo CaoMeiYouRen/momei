@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import { isDirectExecution } from '../shared/cli.mjs'
+import { getCliArgs, getArgValue, isDirectExecution } from '../shared/cli.mjs'
 import { loadLocalEnvFile } from './load-local-env.mjs'
 
 const DEFAULTS = {
@@ -46,26 +46,27 @@ function parseArgs(argv) {
         input: null,
     }
 
-    for (let index = 2; index < argv.length; index++) {
-        const item = argv[index]
+    const cliArgs = getCliArgs(argv)
+
+    for (const item of cliArgs) {
         if (item.startsWith('--allowlist=')) {
-            args.allowlist = item.slice('--allowlist='.length)
+            args.allowlist = getArgValue([item], '--allowlist') ?? args.allowlist
             continue
         }
         if (item.startsWith('--input=')) {
-            args.input = item.slice('--input='.length)
+            args.input = getArgValue([item], '--input')
             continue
         }
         if (item.startsWith('--min-severity=')) {
-            args.minSeverity = item.slice('--min-severity='.length)
+            args.minSeverity = getArgValue([item], '--min-severity') ?? args.minSeverity
             continue
         }
         if (item.startsWith('--mode=')) {
-            args.mode = item.slice('--mode='.length)
+            args.mode = getArgValue([item], '--mode') ?? args.mode
             continue
         }
         if (item.startsWith('--registry=')) {
-            args.registry = item.slice('--registry='.length)
+            args.registry = getArgValue([item], '--registry') ?? args.registry
             continue
         }
         throw new Error(`Unsupported argument: ${item}`)

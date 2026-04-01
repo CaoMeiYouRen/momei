@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { spawn } from 'node:child_process'
 import { readdir, stat } from 'node:fs/promises'
-import { isDirectExecution } from '../shared/cli.mjs'
+import { getCliArgs, isDirectExecution } from '../shared/cli.mjs'
 
 const repoRoot = process.cwd()
 const outputEntry = path.join(repoRoot, '.output', 'server', 'index.mjs')
@@ -208,7 +208,7 @@ async function ensureBuildOutput() {
 }
 
 async function main() {
-    const playwrightArgs = process.argv.slice(2)
+    const playwrightArgs = getCliArgs()
 
     await ensureBuildOutput()
     await ensurePlaywrightBrowsers()

@@ -1,6 +1,7 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { gzipSync } from 'node:zlib'
+import { getArgValue, getCliArgs } from '../shared/cli.mjs'
 
 const KB = 1024
 
@@ -12,21 +13,11 @@ const BUDGETS = {
 }
 
 function parseArgs(argv) {
+    const cliArgs = getCliArgs(argv)
     const args = {
-        mode: 'warn',
-        output: '.lighthouseci/bundle-budget-report.json',
-        baseline: '.github/perf/bundle-baseline.json',
-    }
-
-    for (let i = 2; i < argv.length; i++) {
-        const item = argv[i]
-        if (item.startsWith('--mode=')) {
-            args.mode = item.split('=')[1]
-        } else if (item.startsWith('--output=')) {
-            args.output = item.split('=')[1]
-        } else if (item.startsWith('--baseline=')) {
-            args.baseline = item.split('=')[1]
-        }
+        mode: getArgValue(cliArgs, '--mode') ?? 'warn',
+        output: getArgValue(cliArgs, '--output') ?? '.lighthouseci/bundle-budget-report.json',
+        baseline: getArgValue(cliArgs, '--baseline') ?? '.github/perf/bundle-baseline.json',
     }
 
     if (args.mode !== 'warn' && args.mode !== 'error') {

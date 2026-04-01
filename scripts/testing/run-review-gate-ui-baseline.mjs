@@ -3,7 +3,7 @@ import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { spawn, execSync } from 'node:child_process'
-import { isDirectExecution } from '../shared/cli.mjs'
+import { getArgValue, getCliArgs, hasFlag, isDirectExecution } from '../shared/cli.mjs'
 
 const repoRoot = process.cwd()
 const authStatePath = path.join(repoRoot, 'tests', 'e2e', '.auth', 'admin.json')
@@ -14,15 +14,6 @@ const criticalScenarios = [
     'tests/e2e/mobile-critical.e2e.test.ts',
 ]
 const defaultBaseUrl = 'http://127.0.0.1:3001'
-
-export function getArgValue(argv, name) {
-    const prefix = `${name}=`
-    return argv.find((arg) => arg.startsWith(prefix))?.slice(prefix.length) ?? null
-}
-
-export function hasFlag(argv, name) {
-    return argv.includes(name)
-}
 
 export function sanitizeScope(value) {
     return value
@@ -341,7 +332,7 @@ export function buildEvidence({ scope, timestamp, runDir, outputDir, htmlDir, lo
 }
 
 async function main() {
-    const cliArgs = process.argv.slice(2)
+    const cliArgs = getCliArgs()
     const now = new Date()
     const timestamp = formatTimestamp(now)
     const scope = sanitizeScope(getArgValue(cliArgs, '--scope') ?? getCurrentBranch())

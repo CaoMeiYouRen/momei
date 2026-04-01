@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { promisify } from 'node:util'
+import { getCliArgs, getArgValue } from '../shared/cli.mjs'
 import { assertSupportedAuditReport, parseAuditReport } from './check-dependency-risk.mjs'
 
 const execFileAsync = promisify(execFile)
@@ -73,46 +74,47 @@ function normalizePatchedVersionValue(value) {
 function parseArgs(argv) {
     const args = { ...DEFAULTS }
 
-    for (let index = 2; index < argv.length; index++) {
-        const item = argv[index]
+    const cliArgs = getCliArgs(argv)
+
+    for (const item of cliArgs) {
         if (item.startsWith('--exceptions=')) {
-            args.exceptions = item.slice('--exceptions='.length)
+            args.exceptions = getArgValue([item], '--exceptions') ?? args.exceptions
             continue
         }
         if (item.startsWith('--input=')) {
-            args.input = item.slice('--input='.length)
+            args.input = getArgValue([item], '--input')
             continue
         }
         if (item.startsWith('--min-severity=')) {
-            args.minSeverity = item.slice('--min-severity='.length)
+            args.minSeverity = getArgValue([item], '--min-severity') ?? args.minSeverity
             continue
         }
         if (item.startsWith('--mode=')) {
-            args.mode = item.slice('--mode='.length)
+            args.mode = getArgValue([item], '--mode') ?? args.mode
             continue
         }
         if (item.startsWith('--output-json=')) {
-            args.outputJson = item.slice('--output-json='.length)
+            args.outputJson = getArgValue([item], '--output-json')
             continue
         }
         if (item.startsWith('--output-md=')) {
-            args.outputMd = item.slice('--output-md='.length)
+            args.outputMd = getArgValue([item], '--output-md')
             continue
         }
         if (item.startsWith('--owner=')) {
-            args.owner = item.slice('--owner='.length)
+            args.owner = getArgValue([item], '--owner')
             continue
         }
         if (item.startsWith('--per-page=')) {
-            args.perPage = Number(item.slice('--per-page='.length))
+            args.perPage = Number(getArgValue([item], '--per-page'))
             continue
         }
         if (item.startsWith('--registry=')) {
-            args.registry = item.slice('--registry='.length)
+            args.registry = getArgValue([item], '--registry') ?? args.registry
             continue
         }
         if (item.startsWith('--repo=')) {
-            args.repo = item.slice('--repo='.length)
+            args.repo = getArgValue([item], '--repo')
             continue
         }
         throw new Error(`Unsupported argument: ${item}`)

@@ -20,16 +20,17 @@ import path from 'node:path'
 import process from 'node:process'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
+import { getArgValue, getCliArgs, hasFlag } from '../shared/cli.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..', '..')
 
 // ─── CLI 参数解析 ─────────────────────────────────────────────────────────────
 
-const args = process.argv.slice(2)
-const skipTest = args.includes('--skip-test')
-const skipE2e = args.includes('--skip-e2e')
-const mode = args.find((a) => a.startsWith('--mode='))?.slice('--mode='.length) ?? 'error'
+const args = getCliArgs()
+const skipTest = hasFlag(args, '--skip-test')
+const skipE2e = hasFlag(args, '--skip-e2e')
+const mode = getArgValue(args, '--mode') ?? 'error'
 
 if (mode !== 'warn' && mode !== 'error') {
     console.error(`[pre-release-check] 不支持的模式: ${mode}，请使用 warn 或 error`)
