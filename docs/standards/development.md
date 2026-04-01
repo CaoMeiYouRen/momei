@@ -176,6 +176,12 @@ pnpm lint:i18n
 # 样式检查
 pnpm lint:css
 
+# 重复代码检测（warn，生成报告并对比 baseline）
+pnpm duplicate-code:check
+
+# 重复代码检测（strict，超过 baseline 直接失败）
+pnpm duplicate-code:check:strict
+
 # 类型检查
 pnpm typecheck
 

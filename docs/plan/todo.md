@@ -18,7 +18,8 @@
 ## 当前待办
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
-当前进行中事项：Dependabot / Code Scanning 安全告警闭环建设（修复与延期治理闭环收口）
+当前进行中事项：
+- Dependabot / Code Scanning 安全告警闭环建设（修复与延期治理闭环收口）
 
 ---
 
@@ -59,12 +60,14 @@
 
 ### 4. 主线：重复代码检测自动化补强 (P1)
 
-- [ ] **重复代码检测脚本 / 工具落库**
+- [x] **重复代码检测脚本 / 工具落库**
 	- 验收: 为重复代码治理补齐正式脚本入口或等价工具接入，优先支持 stable report 输出，而不是继续停留在纯人工检索。
 	- 验收: 明确扫描范围、忽略目录、报告产物位置与 baseline / warn 策略，避免首轮就把治理扩写成全仓阻断式重构。
-- [ ] **检测结果与 shared 复用治理联动**
+	- 实现: `.jscpd.json` + `scripts/review-gate/check-duplicate-code.mjs` + `pnpm duplicate-code:check` / `pnpm duplicate-code:check:strict` + `.github/review-gate/duplicate-code-baseline.json`
+- [x] **检测结果与 shared 复用治理联动**
 	- 验收: 首轮至少输出一份可追溯的重复片段检测报告，并结合 shared helper / 纯函数治理基线给出“立即处理 / 延后处理 / 保持局部实现”分类。
 	- 验收: 将重复代码检测结果纳入回归记录、Review Gate 或质量门说明，形成持续可复用的治理入口。
+	- 验证记录: 已生成 `artifacts/review-gate/2026-04-01-duplicate-code.json` / `.md`，并将首轮分类、baseline 与 strict 回归结果同步到 `docs/plan/regression-log.md`。
 
 ## 相关文档
 

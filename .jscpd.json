@@ -1,0 +1,54 @@
+{
+    "reporters": [
+        "json"
+    ],
+    "absolute": false,
+    "gitignore": true,
+    "minLines": 6,
+    "minTokens": 80,
+    "path": [
+        "components",
+        "composables",
+        "layouts",
+        "middleware",
+        "pages",
+        "plugins",
+        "server",
+        "utils",
+        "packages/cli/src",
+        "packages/mcp-server/src"
+    ],
+    "files": [
+        "components/**/*.{vue,ts,js}",
+        "composables/**/*.{ts,js}",
+        "layouts/**/*.{vue,ts,js}",
+        "middleware/**/*.{ts,js}",
+        "pages/**/*.{vue,ts,js}",
+        "plugins/**/*.{ts,js}",
+        "server/**/*.{ts,js}",
+        "utils/**/*.{ts,js}",
+        "packages/cli/src/**/*.{ts,js}",
+        "packages/mcp-server/src/**/*.{ts,js}"
+    ],
+    "ignore": [
+        "**/*.d.ts",
+        "**/*.test.*",
+        "**/*.spec.*",
+        "**/__snapshots__/**",
+        "**/node_modules/**",
+        "**/.nuxt/**",
+        "**/.output/**",
+        "**/coverage/**",
+        "**/playwright-report/**",
+        "**/test-results/**",
+        "**/artifacts/**",
+        "**/docs/**",
+        "**/i18n/**",
+        "**/.github/**",
+        "**/.claude/**",
+        "**/.agents/**",
+        "**/public/**",
+        "**/dist/**",
+        "**/build/**"
+    ]
+}

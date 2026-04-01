@@ -310,6 +310,55 @@
             - 官方 Code Scanning 仓库级 alerts 仍受权限限制，当前证据仍不足以宣称“官方零告警”。
             - 真实官方告警的修复 / 延期登记闭环仍待具备更高权限的令牌后继续推进。
 
+## 重复代码检测自动化回归（2026-04-01）
+
+### 回归任务记录
+
+- 回归范围: 第二十阶段 P1“重复代码检测自动化补强”首轮落地；覆盖 jscpd 正式接入、扫描范围与忽略目录收敛、baseline / warn / error 策略、Review Gate artifact 产出，以及首轮重复片段分级。
+- 触发条件: 当前阶段要求把重复代码治理从纯人工检索升级为稳定脚本入口与可追溯报告，并与 shared helper / 纯函数治理基线联动。
+- 执行频率: 每次治理型重构前、阶段收口前或需要判断是否继续抽 shared helper 时执行；本条为首轮 baseline 记录，后续仅在扫描范围、容差策略或 top duplicate 分类发生实质变化时补写增量记录。
+- timeout budget:
+    - 定向 Vitest: 10 分钟。
+    - 定向 ESLint: 10 分钟。
+    - 重复代码扫描: 15 分钟。
+- 已执行命令:
+    - `pnpm exec vitest run tests/scripts/check-duplicate-code.test.ts`
+    - `pnpm exec eslint scripts/review-gate/check-duplicate-code.mjs tests/scripts/check-duplicate-code.test.ts`
+    - VS Code `nuxt typecheck targeted` 任务
+    - `pnpm run duplicate-code:check`
+    - `pnpm run duplicate-code:check:strict`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 脚本层: 已新增 `.jscpd.json`、`scripts/review-gate/check-duplicate-code.mjs`、`.github/review-gate/duplicate-code-baseline.json` 与 `pnpm duplicate-code:check` / `pnpm duplicate-code:check:strict`，形成正式可复用入口。
+        - V1 / 范围层: 扫描范围已明确收敛到 `components`、`composables`、`layouts`、`middleware`、`pages`、`plugins`、`server`、`utils` 与 `packages/*/src`；默认排除 tests、docs、i18n、镜像技能目录与构建产物，避免首轮报告被翻译镜像与样板噪音淹没。
+        - V2 / 测试层: `tests/scripts/check-duplicate-code.test.ts` 6 个用例通过，覆盖 CLI 参数解析、jscpd 报告归一化、baseline 超线判定、无 baseline warn 策略，以及非法 mode fail-close。
+        - V1 / 质量层: 新增脚本与测试已通过定向 ESLint；VS Code `nuxt typecheck targeted` 任务未返回新增诊断。
+        - V2 / 运行层: `pnpm run duplicate-code:check` 与 `pnpm run duplicate-code:check:strict` 均已通过，并稳定生成 `artifacts/review-gate/2026-04-01-duplicate-code.json` 与 `.md`。
+    - 结果摘要:
+        - 首轮基线统计为 `sources=701`、`duplicates=45`、`clones=45`、`duplicatedLines=1320`、`percentage=1.22%`；baseline 已固定为 `1.22% / 45 clones`，并允许 `0.15% / 2 clones` 的轻微容差，后续可用 strict 模式做回归阻断。
+        - “立即处理”优先候选:
+            - `pages/admin/categories/index.vue` <-> `pages/admin/tags/index.vue`：后台 taxonomy 管理页模板、筛选区和表单结构高度同构，适合后续抽公共 taxonomy admin surface。
+            - `server/routes/feed/category/[slug].ts` <-> `server/routes/feed/tag/[slug].ts`：feed 路由结构几乎一致，适合抽参数化 handler / query helper。
+            - `server/api/agreements/privacy-policy.get.ts` <-> `server/api/agreements/user-agreement.get.ts`：对外只差 agreement type，适合抽公共获取入口并保留类型参数。
+        - “延后处理”候选:
+            - `pages/privacy-policy.vue` <-> `pages/user-agreement.vue`：页面壳层高度重复，但受法律版本展示、主语言 / 引用翻译语义影响，建议等 agreement UI / public shell 专项时统一收敛。
+            - `pages/categories/[slug].vue` <-> `pages/tags/[slug].vue`：存在共享 taxonomy page shell 机会，但当前仍耦合 translation cluster / postCount fallback 细节，先作为下一轮候选。
+        - “保持局部实现”候选:
+            - `utils/shared/slug.ts` <-> `packages/cli/src/slug.ts`：CLI 受独立 package 边界约束，当前不能直接依赖应用层 shared helper，保留包内窄实现更稳妥。
+            - `components/app-voice-input-overlay.vue` <-> `components/admin/posts/post-editor-voice-overlay.vue`：已有通用语音输入三层基线，编辑器 overlay 仍承载更强的创作上下文，暂不强行并表。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - 当前只建立了首轮统计基线与人工分类，还没有继续对“立即处理”候选做第二轮抽象落地。
+            - jscpd 控制台仍会输出完整 clone 清单；后续若需要更轻量 CI 日志，可再评估静默模式或精简终端摘要。
+    - 未覆盖边界:
+        - 本轮刻意未把 tests、docs、i18n、镜像技能目录与数据库初始化 SQL 纳入治理口径，避免首轮自动化扫描被文档翻译、样板测试和跨数据库兼容脚本放大噪音。
+        - 当前分类仍是人工基于报告做的第一轮判断，尚未把“立即处理 / 延后处理 / 保持局部实现”固化成自动判定规则。
+    - 后续补跑计划:
+        - 以 `pages/admin/categories/index.vue` / `pages/admin/tags/index.vue` 和 feed taxonomy 路由为第一批候选，做下一轮最小 shared helper / shared surface 收敛。
+        - 若后续新增重复检测噪音，再按 artifact 结果调整 `.jscpd.json` 的 path、ignore、minLines 与 minTokens，而不是直接放宽 baseline。
+
 ### 回归任务记录
 
 - 回归范围: 第十八阶段 P0“MJML 依赖链高风险替换与 release 安全基线收敛”；覆盖 `mjml` / `mjml-cli` -> `html-minifier` 高风险链的替换实现、release 门禁去 allowlist 化、邮件模板运行时回归与生产构建稳定性。

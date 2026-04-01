@@ -1,0 +1,11 @@
+{
+    "tool": "jscpd",
+    "scope": "source-code",
+    "generatedFrom": "artifacts/review-gate/2026-04-01-duplicate-code.json",
+    "totalPercentage": 1.22,
+    "clones": 45,
+    "tolerancePercentage": 0.15,
+    "toleranceClones": 2,
+    "updatedAt": "2026-04-01T01:37:48.762Z",
+    "notes": "首轮 baseline 仅覆盖 components/composables/layouts/middleware/pages/plugins/server/utils/packages/*/src，排除 tests/docs/i18n/镜像技能目录与构建产物。"
+}
