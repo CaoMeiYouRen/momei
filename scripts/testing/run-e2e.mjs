@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { spawn } from 'node:child_process'
 import { readdir, stat } from 'node:fs/promises'
+import { pathToFileURL } from 'node:url'
 
 const repoRoot = process.cwd()
 const outputEntry = path.join(repoRoot, '.output', 'server', 'index.mjs')
@@ -19,6 +20,24 @@ const ignoredEntries = new Set([
     'test-results',
     'tests',
 ])
+const requiredPlaywrightBrowsers = [
+    {
+        marker: '/chromium-',
+        name: 'chromium',
+    },
+    {
+        marker: '/chromium_headless_shell-',
+        name: 'chromium-headless-shell',
+    },
+    {
+        marker: '/firefox-',
+        name: 'firefox',
+    },
+    {
+        marker: '/webkit-',
+        name: 'webkit',
+    },
+]
 
 function quoteWindowsArg(arg) {
     if (/^[a-zA-Z0-9_./:=+-]+$/.test(arg)) {
@@ -51,6 +70,72 @@ function run(command, args, env = process.env) {
             reject(new Error(`Command failed: ${command} ${args.join(' ')} (code: ${code ?? 'null'}, signal: ${signal ?? 'none'})`))
         })
     })
+}
+
+function runAndCapture(command, args, env = process.env) {
+    return new Promise((resolve, reject) => {
+        const spawnCommand = process.platform === 'win32' ? 'cmd.exe' : command
+        const spawnArgs = process.platform === 'win32'
+            ? ['/d', '/s', '/c', [command, ...args].map(quoteWindowsArg).join(' ')]
+            : args
+
+        const child = spawn(spawnCommand, spawnArgs, {
+            cwd: repoRoot,
+            env,
+            stdio: ['ignore', 'pipe', 'pipe'],
+        })
+
+        let stdout = ''
+        let stderr = ''
+
+        child.stdout.on('data', (chunk) => {
+            stdout += chunk.toString()
+        })
+
+        child.stderr.on('data', (chunk) => {
+            stderr += chunk.toString()
+        })
+
+        child.on('error', reject)
+        child.on('exit', (code, signal) => {
+            if (code === 0) {
+                resolve({ stderr, stdout })
+                return
+            }
+
+            reject(new Error(`Command failed: ${command} ${args.join(' ')} (code: ${code ?? 'null'}, signal: ${signal ?? 'none'})\n${stderr || stdout}`))
+        })
+    })
+}
+
+export function getMissingPlaywrightBrowsers(installListOutput) {
+    const normalizedOutput = installListOutput.toLowerCase()
+
+    return requiredPlaywrightBrowsers
+        .filter(({ marker }) => !normalizedOutput.includes(marker))
+        .map(({ name }) => name)
+}
+
+async function ensurePlaywrightBrowsers() {
+    let installListOutput = ''
+
+    try {
+        const { stdout } = await runAndCapture('pnpm', ['exec', 'playwright', 'install', '--list'])
+        installListOutput = stdout
+    } catch (error) {
+        console.warn('[run-e2e] Failed to inspect Playwright browser cache, installing browsers before test run')
+        await run('pnpm', ['exec', 'playwright', 'install'])
+        return
+    }
+
+    const missingBrowsers = getMissingPlaywrightBrowsers(installListOutput)
+    if (missingBrowsers.length === 0) {
+        console.info('[run-e2e] Reusing existing Playwright browsers')
+        return
+    }
+
+    console.info(`[run-e2e] Installing Playwright browsers: missing ${missingBrowsers.join(', ')}`)
+    await run('pnpm', ['exec', 'playwright', 'install'])
 }
 
 async function getLatestMtimeMs(targetPath) {
@@ -126,6 +211,7 @@ async function main() {
     const playwrightArgs = process.argv.slice(2)
 
     await ensureBuildOutput()
+    await ensurePlaywrightBrowsers()
     await run(
         'pnpm',
         ['exec', 'playwright', 'test', ...playwrightArgs],
@@ -136,4 +222,14 @@ async function main() {
     )
 }
 
-await main()
+function shouldRunAsCli() {
+    if (!process.argv[1]) {
+        return false
+    }
+
+    return import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
+}
+
+if (shouldRunAsCli()) {
+    await main()
+}
