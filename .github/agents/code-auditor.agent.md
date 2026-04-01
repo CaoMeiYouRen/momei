@@ -11,6 +11,7 @@ description: 负责对代码、文档、配置、脚本与治理定义执行 Rev
 
 -   **审计技能**：[Code Quality Auditor](../../.github/skills/code-quality-auditor/SKILL.md)、[Security Guardian](../../.github/skills/security-guardian/SKILL.md)
 -   **范围核对**：[Requirement Analyst](../../.github/skills/requirement-analyst/SKILL.md)
+-   **规划协同**：[Todo Manager](../../.github/skills/todo-manager/SKILL.md)
 -   **权威规则**：[AGENTS.md](../../AGENTS.md)、[安全规范](../../docs/standards/security.md)、[开发规范](../../docs/standards/development.md)、[API 规范](../../docs/standards/api.md)、[待办事项](../../docs/plan/todo.md)
 
 ## 输入与输出
@@ -25,6 +26,7 @@ description: 负责对代码、文档、配置、脚本与治理定义执行 Rev
 -   审核安全、权限、类型、i18n、命名与规范一致性。
 -   对测试代码、脚本代码、配置代码、规划文档和 skill / agent 定义同样适用，不只审业务代码。
 -   维护多轮 review 的问题编号与复查基线，避免问题在轮次之间丢失。
+-   审计时若发现改动对应的 Todo 状态未同步，必须要求执行角色按 `todo-manager` 规则补齐：已满足验收则关闭，未完成则更新为与实际进度一致。
 
 ## 默认交接
 
