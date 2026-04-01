@@ -32,6 +32,44 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## UI 真实环境 Review Gate 证据规范补强（2026-04-01）
+
+### 回归任务记录
+
+- 回归范围: 第二十一阶段 P0“UI 真实环境测试流程治理”增量收敛；覆盖 `pnpm test:e2e:review-gate` 的结构化证据产物、运行目录命名、环境准备边界与失败归因分类。
+- 触发条件: 当前阶段要求把“高频 UI 回归场景的脚本入口、证据落点与失败归因模板”继续从文字规范推进到脚本真实产物，确保 Review Gate 可以直接引用而不是依赖口头解释。
+- 执行频率: 作为本阶段治理增量基线；后续仅在 critical 场景矩阵、artifact 命名规则、global setup 认证逻辑或失败分类规则再次调整时补写。
+- timeout budget:
+    - 定向脚本测试: 10 分钟。
+    - 定向 lint / Markdown 检查: 10 分钟。
+- 已执行命令:
+    - `pnpm exec vitest run tests/scripts/run-review-gate-ui-baseline.test.ts`
+    - `pnpm exec eslint tests/scripts/run-review-gate-ui-baseline.test.ts scripts/testing/run-review-gate-ui-baseline.mjs`
+    - `pnpm exec lint-md docs/standards/testing.md docs/guide/development.md docs/plan/regression-log.md docs/plan/todo.md scripts/README.md`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 静态层: `scripts/testing/run-review-gate-ui-baseline.mjs` 现已固定输出 `manifest.json`，并导出失败归因与 evidence 构建函数，供定向脚本测试覆盖；相关文档与计划文件已纳入定向 Markdown 检查。
+        - V2 / 逻辑层: `tests/scripts/run-review-gate-ui-baseline.test.ts` 覆盖 scope 规范化、时间戳格式、失败归因分类，以及 `manifest.json` / `evidence.md` 的关键字段生成。
+    - 结果摘要:
+        - `pnpm test:e2e:review-gate --scope=<change>` 生成的运行目录现在固定包含 `evidence.md`、`manifest.json`、`playwright.log`、`playwright-report/` 与 `test-results/`，不再只有文字型 evidence。
+        - `manifest.json` 会记录 scope、timestamp、命令、artifact 路径、环境准备边界、critical 场景矩阵和失败分类，方便 Review Gate 或回归日志直接引用结构化字段。
+        - 浏览器失败归因已从“只给人工模板”升级为脚本内置分类：先判断服务启动 / 构建产物，再判断认证态 / 种子数据，最后才归到具体场景断言，减少模糊的“Playwright 失败”描述。
+        - 测试数据前置 / 清理边界已收敛为“依赖 TEST_MODE 种子与 global setup，脚本默认只清理过期认证态，不做额外破坏性数据清理”，适合 Review Gate 复跑与证据留存。
+    - 测试结果（按需）:
+        - `pnpm exec vitest run tests/scripts/run-review-gate-ui-baseline.test.ts`: 1 file passed / 7 tests passed。
+        - `pnpm exec eslint tests/scripts/run-review-gate-ui-baseline.test.ts scripts/testing/run-review-gate-ui-baseline.mjs`: passed。
+        - `pnpm exec lint-md docs/standards/testing.md docs/guide/development.md docs/plan/regression-log.md docs/plan/todo.md scripts/README.md`: passed。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: none
+        - 主要问题:
+            - 当前无阻塞项；后续仅需在真实 scope 上补跑一次 `pnpm test:e2e:review-gate --scope=<change>`，确认 manifest 与 evidence 的实盘目录内容符合本轮脚本化定义。
+    - 未覆盖边界:
+        - 本轮未重跑实际 Playwright critical 基线，因此结论聚焦在脚本产物规范与失败分类，不代表重新验证浏览器场景本身。
+        - 当前失败分类仍基于 Playwright 日志特征匹配；若后续 reporter 输出格式调整，需要同步更新分类规则与测试样例。
+    - 后续补跑计划:
+        - 在本轮定向脚本测试通过后，选取一条高频变更 scope 实际执行一次 `pnpm test:e2e:review-gate --scope=<change>`，验证 manifest 与 evidence 的真实落盘结果。
+
 ## 浏览器与 E2E 稳定性治理首轮回归（2026-03-31）
 
 ### 回归任务记录

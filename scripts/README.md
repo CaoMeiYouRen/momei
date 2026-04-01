@@ -41,7 +41,8 @@ pnpm test:perf:budget:strict
 
 - 运行前会删除过期的 `tests/e2e/.auth/admin.json`，再由 `tests/e2e/global-setup.ts` 重新生成当前 run 使用的登录态，避免把陈旧认证态带入基线。
 - 固定执行 `pnpm test:e2e:critical` 覆盖的两段式矩阵，并把每次运行的原始日志、HTML 报告、失败截图 / trace 附件收敛到 `artifacts/testing/ui-regression/<timestamp>-<scope>/`。
-- 同目录下会生成 `evidence.md`，作为浏览器层 V3 证据模板和失败归因清单；需要更大范围验证时，再从该基线升级到定向或全量 `pnpm test:e2e`。
+- 该目录下的规范产物固定为 `evidence.md`、`manifest.json`、`playwright.log`、`playwright-report/` 与 `test-results/`；`manifest.json` 记录本次 run 的环境准备、命令、artifact 路径与失败归因分类，便于 Review Gate 或回归日志直接引用。
+- 失败归因顺序统一为“服务启动 / 构建产物 -> 认证态 / 种子数据 -> 具体场景断言”；需要更大范围验证时，再从该基线升级到定向或全量 `pnpm test:e2e`。
 
 补充说明：本地直接运行 `pnpm security:audit-deps` 或 `pnpm security:alerts` 时，若仓库根目录存在 `.env`，脚本会先尝试装载其中尚未出现在当前进程环境中的变量（例如 `SECURITY_ALERTS_TOKEN`、`GITHUB_TOKEN`、`GH_TOKEN`），但不会覆盖已显式传入的环境变量。
 

@@ -67,7 +67,9 @@ components/
 -   **最小关键路径基线**: 默认使用 `pnpm test:e2e:critical`，覆盖 `tests/e2e/auth-session-governance.e2e.test.ts` 的 Chromium / Firefox / WebKit，以及 `tests/e2e/mobile-critical.e2e.test.ts` 的 `mobile-chrome-critical` / `mobile-safari-critical`。
 -   **Review Gate 正式入口**: 需要把浏览器层结果纳入 Review Gate 时，使用 `pnpm test:e2e:review-gate --scope=<change>`；该命令会复用同一条 critical 基线，并把日志、HTML 报告、失败附件与 `evidence.md` 统一落到 `artifacts/testing/ui-regression/<timestamp>-<scope>/`。
 -   **登录态复用口径**: `pnpm test:e2e:review-gate` 会在运行前清理过期的 `tests/e2e/.auth/admin.json`，随后由 `tests/e2e/global-setup.ts` 基于 `TEST_MODE` 重新生成本次运行使用的管理员认证态，并在同一 run 内供两个 critical 场景共享。
--   **失败命名与归因口径**: 浏览器失败的首要证据路径是本次 run 目录下的 `playwright.log`、`test-results/` 与 `playwright-report/`；归因顺序统一为“服务启动 / 构建产物 -> 认证态 / 种子数据 -> 具体场景断言”，避免只报一个模糊的“Playwright 失败”。
+-   **证据产物命名口径**: 每次 `review-gate` run 的标准产物固定为 `evidence.md`、`manifest.json`、`playwright.log`、`playwright-report/` 与 `test-results/`；目录名统一使用 `<timestamp>-<scope>`，避免不同回归记录复用同一目录。
+-   **失败命名与归因口径**: 浏览器失败的首要证据路径是本次 run 目录下的 `manifest.json`、`playwright.log`、`test-results/` 与 `playwright-report/`；归因顺序统一为“服务启动 / 构建产物 -> 认证态 / 种子数据 -> 具体场景断言”，避免只报一个模糊的“Playwright 失败”。
+-   **环境准备边界**: 测试数据前置依赖 `TEST_MODE=true` 与 `tests/e2e/global-setup.ts` 的安装种子检查；脚本默认只清理过期认证态，不做额外破坏性数据清理，确保 Review Gate 证据可复现且副作用边界明确。
 -   **适用改动**: 认证会话、后台受保护页访问、文章编辑器基础输入链路、语言切换与移动端后台入口。
 -   **升级条件**: 只有当改动涉及注册/找回密码、后台 CRUD、投稿、导航或公共页面行为时，才从 `test:e2e:critical` 升级到更大范围的 Playwright 定向集或全量 `pnpm test:e2e`。
 -   **执行前置**: `pnpm test:e2e` 与 `pnpm test:e2e:critical` 必须先检查 `.output` 是否陈旧；若源文件晚于构建产物，应先触发重建，避免把旧服务误当成当前结果。
@@ -78,6 +80,7 @@ components/
 -   **探索性验证补位**: `ui-validator` 或其他浏览器技能仅用于探索性排查、交互补充确认与视觉比对；它们可以辅助定位问题，但不能替代可重复执行的脚本基线。
 -   **升级策略**: 若 critical 基线不足以覆盖当前改动，先补定向 Playwright 命令；只有在定向集仍无法覆盖风险时，才升级到全量 `pnpm test:e2e`。
 -   **证据落点统一**: 需要 Review Gate 证据时，优先保留 `pnpm test:e2e:review-gate` 生成的运行目录，并在 `docs/plan/regression-log.md` 或专项记录中引用该目录，而不是重复粘贴整段终端输出。
+-   **结构化证据优先**: 回归记录或审计结论优先引用 `manifest.json` 中的状态、artifact 路径和失败分类，再辅以 `evidence.md` 的文字摘要，避免每次手写不同格式的失败说明。
 
 ## 4. 测试内容要求 (Testing Requirements)
 
