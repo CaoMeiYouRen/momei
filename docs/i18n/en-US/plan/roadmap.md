@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-31
+last_sync: 2026-04-01
 ---
 
 # Momei - Project Roadmap
@@ -423,15 +423,25 @@ This document outlines the development blueprint for the project. For specific t
 3. A first bounded reuse pass landed in shared helpers for normalized string lists, optional string coercion, ASCII slug normalization, and base-URL/path composition, all backed by focused verification.
 4. PostgreSQL traffic analysis was narrowed to result-set size and high-frequency query payloads; the public-settings path and scheduled-task scan were reduced with minimal-scope fixes, while the serverless direct-write fallback remains an observation item rather than a blocking in-scope refactor.
 
-### Stage 20: Quality Gates, Release Automation & Security Governance Closure
+### Stage 20: Quality Gates, Release Automation & Security Governance Closure (Audited & Archived)
 
 > [!NOTE]
-> This stage has now been formally opened in the Chinese planning source. The Chinese roadmap and todo remain the authoritative source for detailed scope, acceptance criteria, and execution status.
+> This stage has been completed and archived. The Chinese roadmap remains the authoritative source for detailed scope, acceptance criteria, and backlog triage.
 
-1. Browser / E2E stability now becomes the first planning line, with focus on test-service reliability, key protected flows, and minimum multi-engine evidence that can be reused at release time.
-2. Release and Review Gate automation are being promoted from scattered commands to one reusable pre-release validation path, without inventing a second planning or evidence standard.
-3. Dependabot and Code Scanning alerts are being brought into the formal security-closure loop so release decisions no longer depend only on the `pnpm audit` fallback path.
-4. Duplicate-code detection is added as a bounded automation task: land a scriptable/report-based entry, define scan scope and ignore rules, and keep it aligned with the existing shared-helper reuse baseline instead of expanding into a repository-wide cleanup campaign.
+1. Browser / E2E stability was closed through reusable critical-path scripts, stale-build detection, protected-route navigation hardening, and a stable multi-engine baseline for auth and editor smoke flows.
+2. Release and Review Gate automation were consolidated around reusable pre-release and evidence-generation scripts, so release-time validation no longer depends on scattered human-run command sequences.
+3. Dependabot and Code Scanning alerts were moved into a formal closure loop with official-source preference, local fallback handling, and at least one real high-risk dependency fix fully traced through validation evidence.
+4. Duplicate-code detection now has a bounded scriptable baseline, stable artifact output, and an initial classification of “fix next / defer / keep local,” without expanding into an uncontrolled repository-wide cleanup.
+
+### Stage 21: Validation Entry Points & Authoring Workflow Experience Consolidation
+
+> [!NOTE]
+> This stage is now active in the Chinese planning source. The Chinese roadmap and todo remain the authoritative source for detailed scope, acceptance criteria, and execution status.
+
+1. UI real-environment testing now becomes the first planning line, with emphasis on script-first regression flows, environment setup convergence, and reusable evidence output for Review Gate.
+2. Script governance and entrypoint cleanup are being promoted into an explicit stage objective: document high-frequency scripts, reduce duplicated helpers, and close out dead or overlapping script surfaces.
+3. Tag translation is planned to move earlier in long-form translation workflows so metadata becomes visible sooner, while editor, CLI, and MCP entry points keep one shared orchestration contract.
+4. Default cover generation will focus on shorter copy selection and larger, more readable typography so auto-filled covers stop inheriting overlong raw titles by default.
 
 ## 3. Backlog & Long-term Roadmap
 

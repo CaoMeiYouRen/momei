@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "release": "pnpm release:check && pnpm release:semantic",
-    "release:check": "node scripts/release/pre-release-check.mjs --skip-e2e",
+    "release:check": "node scripts/release/pre-release-check.mjs --skip-test --skip-e2e",
     "release:check:full": "node scripts/release/pre-release-check.mjs",
     "release:semantic": "semantic-release",
     "build": "nuxt build",

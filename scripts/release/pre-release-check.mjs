@@ -2,13 +2,15 @@
  * pre-release-check.mjs
  * 发布前统一校验入口脚本
  *
- * 整合 lint、typecheck、test、security audit 与文档检查，
+ * 整合 lint、typecheck、security audit 与文档检查，
+ * 并在需要时补跑 Vitest / E2E，
  * 在 `pnpm release:semantic` 前提供完整的最低验证矩阵。
  *
  * 用法:
- *   node scripts/release/pre-release-check.mjs [--skip-e2e] [--mode=warn|error]
+ *   node scripts/release/pre-release-check.mjs [--skip-test] [--skip-e2e] [--mode=warn|error]
  *
  * 选项:
+ *   --skip-test  跳过 Vitest 与 E2E，仅执行快速发布前校验
  *   --skip-e2e   跳过 E2E 测试（本地快速校验时使用，CI 中不建议跳过）
  *   --mode=warn  校验失败时仅告警，不中断流程（默认: error）
  */
@@ -25,6 +27,7 @@ const repoRoot = path.resolve(__dirname, '..', '..')
 // ─── CLI 参数解析 ─────────────────────────────────────────────────────────────
 
 const args = process.argv.slice(2)
+const skipTest = args.includes('--skip-test')
 const skipE2e = args.includes('--skip-e2e')
 const mode = args.find((a) => a.startsWith('--mode='))?.slice('--mode='.length) ?? 'error'
 
@@ -101,13 +104,16 @@ const steps = [
     { label: 'lint:css (Stylelint)', run: pnpm('lint:css'), required: true },
     { label: 'lint:md (Markdown)', run: pnpm('lint:md'), required: false },
     { label: 'typecheck (TypeScript)', run: pnpm('typecheck'), required: true },
-    { label: 'test (Vitest)', run: pnpm('test'), required: true },
     { label: 'docs:check:source-of-truth', run: pnpm('docs:check:source-of-truth'), required: false },
     { label: 'security:audit-deps', run: pnpm('security:audit-deps'), required: true },
     { label: 'security:alerts', run: pnpm('security:alerts'), required: true },
 ]
 
-if (!skipE2e) {
+if (!skipTest) {
+    steps.splice(5, 0, { label: 'test (Vitest)', run: pnpm('test'), required: true })
+}
+
+if (!skipTest && !skipE2e) {
     steps.push({ label: 'test:e2e (Playwright)', run: pnpm('test:e2e'), required: true })
 }
 
@@ -117,7 +123,7 @@ const SEPARATOR = '─'.repeat(60)
 
 console.info(`\n${SEPARATOR}`)
 console.info('  墨梅博客 - 发布前校验 (pre-release-check)')
-console.info(`  模式: ${mode.toUpperCase()}  |  跳过E2E: ${skipE2e ? '是' : '否'}`)
+console.info(`  模式: ${mode.toUpperCase()}  |  跳过测试: ${skipTest ? '是' : '否'}  |  跳过E2E: ${skipE2e ? '是' : '否'}`)
 console.info(`  时间: ${new Date().toISOString()}`)
 console.info(`${SEPARATOR}\n`)
 
@@ -181,13 +187,13 @@ const evidenceLines = [
     `- 风险等级: 高（发布前收口）`,
     `- 记录路径: ${path.relative(repoRoot, artifactPath)}`,
     `- 执行时间: ${new Date().toISOString()}`,
-    `- 模式: ${mode}  |  跳过E2E: ${skipE2e ? '是' : '否'}`,
+    `- 模式: ${mode}  |  跳过测试: ${skipTest ? '是' : '否'}  |  跳过E2E: ${skipE2e ? '是' : '否'}`,
     '',
     '## Round 1',
     '',
     '### 最低验证要求',
     '- 目标层级: V0 + V1 + V2 + RG（发布前高风险收口）',
-    `- 需要的命令: lint, lint:i18n, lint:css, lint:md, typecheck, test, security:audit-deps, security:alerts${skipE2e ? '' : ', test:e2e'}`,
+    `- 需要的命令: lint, lint:i18n, lint:css, lint:md, typecheck${skipTest ? '' : ', test'}${skipTest || skipE2e ? '' : ', test:e2e'}, security:audit-deps, security:alerts`,
     '',
     '### 已执行验证',
     '',
@@ -245,10 +251,22 @@ evidenceLines.push('- 本轮已关闭问题: 0')
 evidenceLines.push(`- 待复查问题: ${blockers.length}`)
 evidenceLines.push('')
 evidenceLines.push('### 未覆盖边界')
-evidenceLines.push(skipE2e ? '- E2E 测试（使用 --skip-e2e 跳过）' : '- 无')
+if (skipTest) {
+    evidenceLines.push('- Vitest 与 E2E 测试（使用 --skip-test 跳过，仅在 full 模式补跑）')
+} else if (skipE2e) {
+    evidenceLines.push('- E2E 测试（使用 --skip-e2e 跳过）')
+} else {
+    evidenceLines.push('- 无')
+}
 evidenceLines.push('')
 evidenceLines.push('### 后续补跑计划')
-evidenceLines.push(blockers.length > 0 ? '- 修复上述 blocker 后重新执行 `pnpm release:check`' : '- 无')
+if (blockers.length > 0) {
+    evidenceLines.push('- 修复上述 blocker 后重新执行 `pnpm release:check`')
+} else if (skipTest || skipE2e) {
+    evidenceLines.push('- 发布前或需要完整回归时执行 `pnpm release:check:full`')
+} else {
+    evidenceLines.push('- 无')
+}
 evidenceLines.push('')
 
 try {

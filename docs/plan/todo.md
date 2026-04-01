@@ -19,57 +19,50 @@
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
 当前进行中事项：
-- 无（Phase 20 安全告警闭环已完成，待阶段归档统一收口）
+- 无（Phase 21 已立项，待按优先级启动首个任务）
 
 ---
 
-## 第二十阶段：质量门禁、发布自动化与安全治理闭环建设
+## 第二十一阶段：验证入口与创作工作流体验收敛
 
-> **当前阶段**: Phase 20
-> **核心目标**: 以浏览器 / E2E 稳定性、Release 与 Review Gate 自动化整合、安全告警闭环，以及重复代码检测自动化为主线，先把质量放行链路做实，再考虑新的内容分发与商业化扩展。
+> **当前阶段**: Phase 21
+> **核心目标**: 承接上一阶段的质量门禁与发布自动化基线，继续收敛“真实环境验证怎么跑、脚本入口怎么用、翻译体验怎么更早反馈、默认封面如何更可读”四条执行面，优先提升开发 / 运营可复跑性与创作反馈速度，而不是扩写全新业务域。
 
-### 1. 主线：浏览器与 E2E 稳定性治理 (P0)
+### 1. 主线：UI 真实环境测试流程治理 (P0)
 
-- [x] **测试服务稳定性与关键链路收敛**
-	- 验收: 明确并修复当前 Playwright 运行中测试服务中途失联、`Connection refused`、关键接口高并发触发 429 或等价问题的主要根因。
-	- 验收: 至少为认证会话、后台受保护页访问、文章编辑器核心路径建立可复用的稳定验证口径，而不是依赖一次性人工补跑。
-- [x] **最小关键路径浏览器基线固化**
-	- 验收: 收敛 Chromium / Firefox / WebKit 与最小移动端 smoke 的执行范围、触发条件与失败归因规则。
-	- 验收: 将“哪些改动必须补浏览器证据”写入回归记录或脚本入口说明，避免后续继续凭经验补跑。
+- [ ] **沉淀回归优先脚本与真实环境验证分层**
+	- 验收: 明确“可复跑脚本作为回归基线、技能只用于探索性验证”的执行边界，并同步到 `scripts/README.md`、`docs/standards/testing.md` 或等价入口文档。
+	- 验收: 至少为一条高频 UI 回归场景补齐稳定脚本入口、证据落点与失败归因模板。
+- [ ] **收敛浏览器环境准备与证据产物规范**
+	- 验收: 统一登录态复用、测试数据前置 / 清理、截图 / 日志产物落点与失败命名规范，减少人工验证抖动。
+	- 验收: 对应流程需能直接服务 Review Gate，而不是继续依赖口头说明。
 
-### 2. 主线：Release 与 Review Gate 自动化整合 (P0)
+### 2. 主线：脚本专项优化与执行入口治理 (P0)
 
-- [x] **发布链路统一编排**
-	- 验收: 在现有 `lint`、`typecheck`、`security:audit-deps`、文档检查与 Review Gate 基础上，补齐统一的发布前校验入口或等价脚本编排。
-	- 验收: 明确发布、阶段归档与高风险改动收口时的最低验证矩阵，避免继续依赖分散的人肉命令顺序。
-	- 实现: `scripts/release/pre-release-check.mjs` + `pnpm release:check` / `pnpm release:check:full`
-- [x] **Review Gate 证据自动化补强**
-	- 验收: 为常见治理型改动补齐可复用的证据模板、结果落点或脚本辅助，至少覆盖质量门状态、已执行验证、问题分级与未覆盖边界。
-	- 验收: 相关收口流程需与 `regression-log.md`、`planning.md`、`documentation.md` 的现有规范保持一致，不新增第二套口径。
-	- 实现: `scripts/review-gate/generate-evidence.mjs` + `pnpm review-gate:generate` / `pnpm review-gate:generate:check`
+- [ ] **补齐 `scripts/README.md` 与高频入口索引**
+	- 验收: 说明常用脚本用途、输入输出、风险边界与废弃标记，避免脚本只能靠记忆使用。
+	- 验收: 至少覆盖 release、review-gate、security、testing、docs、i18n 等高频入口。
+- [ ] **收敛重复脚本 helper 与无效入口清理**
+	- 验收: 盘点参数解析、日志输出、文件读写、错误处理等重复模式，落地首轮公共 helper 或删除 / 合并结论。
+	- 验收: 对拟删除脚本给出保留 / 删除 / 合并依据，并补齐最小回归验证。
 
-### 3. 主线：Dependabot / Code Scanning 安全告警闭环 (P0)
+### 3. 主线：标签翻译前置化与正文翻译解耦优化 (P1)
 
-- [x] **Security 数据源接入与分类落点**
-	- 验收: 评估并优先接入仓库 Dependabot alerts 与 Code Scanning alerts 的官方数据来源；若工具链受限，明确回退路径与证据口径。
-	- 验收: 形成“可立即修复 / 需延期 / 仅观察”的分级规则，并与现有 release 安全门禁保持一致。
-	- 实现: `scripts/security/check-github-security-alerts.mjs` + `pnpm security:alerts` + `.github/security/security-alert-exceptions.json`
-- [x] **修复与延期治理闭环**
-	- 验收: 至少完成一轮真实告警的修复、验证、延期记录或 allowlist / 例外基线收敛，避免只做读取不做处置判断。
-	- 验收: 将结果同步沉淀到回归记录与 Review Gate 结论中，确保后续发版前可直接复用。
-	- 实现: `scripts/security/load-local-env.mjs` + `pnpm.overrides[@xmldom/xmldom]` + `pnpm security:audit-deps` / `pnpm security:alerts`
-	- 验证记录: 已通过本地 `.env` 自动装载完成安全门禁补跑，修复 `@xmldom/xmldom` high 告警并生成 `artifacts/review-gate/2026-04-01-security-alerts.json` / `.md`；详见 `docs/plan/regression-log.md` 最新补充记录。
+- [ ] **前置标签翻译并补齐进度 / 失败分叉**
+	- 验收: 标签翻译可以在正文长流程结束前更早完成，并在单篇翻译工作流中可见。
+	- 验收: 覆盖标签先完成、正文处理中、用户取消、标签失败但正文继续等状态分叉，不破坏现有 `translationId` 绑定口径。
+- [ ] **对齐 CLI / MCP / 后台编辑器的翻译编排语义**
+	- 验收: 三类入口的步骤顺序、进度状态与重试 / 取消语义保持一致，不形成双重事实源。
+	- 验收: 为至少一条入口补齐定向测试或等价验证。
 
-### 4. 主线：重复代码检测自动化补强 (P1)
+### 4. 主线：默认封面生成文案压缩与大字号策略优化 (P1)
 
-- [x] **重复代码检测脚本 / 工具落库**
-	- 验收: 为重复代码治理补齐正式脚本入口或等价工具接入，优先支持 stable report 输出，而不是继续停留在纯人工检索。
-	- 验收: 明确扫描范围、忽略目录、报告产物位置与 baseline / warn 策略，避免首轮就把治理扩写成全仓阻断式重构。
-	- 实现: `.jscpd.json` + `scripts/review-gate/check-duplicate-code.mjs` + `pnpm duplicate-code:check` / `pnpm duplicate-code:check:strict` + `.github/review-gate/duplicate-code-baseline.json`
-- [x] **检测结果与 shared 复用治理联动**
-	- 验收: 首轮至少输出一份可追溯的重复片段检测报告，并结合 shared helper / 纯函数治理基线给出“立即处理 / 延后处理 / 保持局部实现”分类。
-	- 验收: 将重复代码检测结果纳入回归记录、Review Gate 或质量门说明，形成持续可复用的治理入口。
-	- 验证记录: 已生成 `artifacts/review-gate/2026-04-01-duplicate-code.json` / `.md`，并将首轮分类、baseline 与 strict 回归结果同步到 `docs/plan/regression-log.md`。
+- [ ] **收敛默认封面文案选择顺序与文本长度策略**
+	- 验收: 建立“封面短句 > 关键词摘要 > 短标题 > 截断原始标题”的稳定优先级，避免把整段标题原样塞入封面。
+	- 验收: 中英文与长词语言下都能得到可预测的换行、字号与截断结果。
+- [ ] **对齐自动回填与候选图工作流的默认视觉表现**
+	- 验收: 自动回填封面与待确认候选图两条链路的默认版式一致，不出现一条链路字号过小、另一条链路仍使用旧策略。
+	- 验收: 补齐最小视觉或脚本化验证，确保默认封面在常见标题长度下可读性提升。
 
 ## 相关文档
 
