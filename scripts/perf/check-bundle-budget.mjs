@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { gzipSync } from 'node:zlib'
-import { getArgValue, getCliArgs } from '../shared/cli.mjs'
+import { parseCliOptions } from '../shared/cli.mjs'
 
 const KB = 1024
 
@@ -13,18 +13,22 @@ const BUDGETS = {
 }
 
 function parseArgs(argv) {
-    const cliArgs = getCliArgs(argv)
-    const args = {
-        mode: getArgValue(cliArgs, '--mode') ?? 'warn',
-        output: getArgValue(cliArgs, '--output') ?? '.lighthouseci/bundle-budget-report.json',
-        baseline: getArgValue(cliArgs, '--baseline') ?? '.github/perf/bundle-baseline.json',
-    }
-
-    if (args.mode !== 'warn' && args.mode !== 'error') {
-        throw new Error(`Unsupported mode: ${args.mode}`)
-    }
-
-    return args
+    return parseCliOptions(argv, {
+        defaults: {
+            baseline: '.github/perf/bundle-baseline.json',
+            mode: 'warn',
+            output: '.lighthouseci/bundle-budget-report.json',
+        },
+        values: {
+            '--baseline': { key: 'baseline' },
+            '--mode': {
+                key: 'mode',
+                allowedValues: ['warn', 'error'],
+                invalidMessage: (value) => `Unsupported mode: ${value}`,
+            },
+            '--output': { key: 'output' },
+        },
+    })
 }
 
 async function collectFiles(dir) {

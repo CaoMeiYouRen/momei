@@ -19,17 +19,27 @@ import path from 'node:path'
 import process from 'node:process'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import { getArgValue, getCliArgs, hasFlag } from '../shared/cli.mjs'
+import { parseCliOptions } from '../shared/cli.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..', '..')
 
 // ─── CLI 参数解析 ─────────────────────────────────────────────────────────────
 
-const cliArgs = getCliArgs()
-const scopeArg = getArgValue(cliArgs, '--scope')
-const runChecks = hasFlag(cliArgs, '--run-checks')
-const stagedOnly = hasFlag(cliArgs, '--staged-only')
+const { runChecks, scope: scopeArg, stagedOnly } = parseCliOptions(process.argv, {
+    defaults: {
+        runChecks: false,
+        scope: null,
+        stagedOnly: false,
+    },
+    flags: {
+        '--run-checks': { key: 'runChecks' },
+        '--staged-only': { key: 'stagedOnly' },
+    },
+    values: {
+        '--scope': { key: 'scope' },
+    },
+})
 
 // ─── Git 工具函数 ─────────────────────────────────────────────────────────────
 

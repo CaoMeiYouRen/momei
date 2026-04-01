@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import { getCliArgs, getArgValue, isDirectExecution } from '../shared/cli.mjs'
+import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
 import { loadLocalEnvFile } from './load-local-env.mjs'
 
 const DEFAULTS = {
@@ -41,40 +41,23 @@ function uniqueStrings(values) {
 }
 
 function parseArgs(argv) {
-    const args = {
-        ...DEFAULTS,
-        input: null,
-    }
-
-    const cliArgs = getCliArgs(argv)
-
-    for (const item of cliArgs) {
-        if (item.startsWith('--allowlist=')) {
-            args.allowlist = getArgValue([item], '--allowlist') ?? args.allowlist
-            continue
-        }
-        if (item.startsWith('--input=')) {
-            args.input = getArgValue([item], '--input')
-            continue
-        }
-        if (item.startsWith('--min-severity=')) {
-            args.minSeverity = getArgValue([item], '--min-severity') ?? args.minSeverity
-            continue
-        }
-        if (item.startsWith('--mode=')) {
-            args.mode = getArgValue([item], '--mode') ?? args.mode
-            continue
-        }
-        if (item.startsWith('--registry=')) {
-            args.registry = getArgValue([item], '--registry') ?? args.registry
-            continue
-        }
-        throw new Error(`Unsupported argument: ${item}`)
-    }
-
-    if (args.mode !== 'warn' && args.mode !== 'error') {
-        throw new Error(`Unsupported mode: ${args.mode}`)
-    }
+    const args = parseCliOptions(argv, {
+        defaults: {
+            ...DEFAULTS,
+            input: null,
+        },
+        values: {
+            '--allowlist': { key: 'allowlist' },
+            '--input': { key: 'input' },
+            '--min-severity': { key: 'minSeverity' },
+            '--mode': {
+                key: 'mode',
+                allowedValues: ['warn', 'error'],
+                invalidMessage: (value) => `Unsupported mode: ${value}`,
+            },
+            '--registry': { key: 'registry' },
+        },
+    })
 
     args.minSeverity = normalizeSeverity(args.minSeverity)
     return args

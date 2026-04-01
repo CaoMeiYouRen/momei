@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { promisify } from 'node:util'
-import { getCliArgs, getArgValue } from '../shared/cli.mjs'
+import { parseCliOptions } from '../shared/cli.mjs'
 import { assertSupportedAuditReport, parseAuditReport } from './check-dependency-risk.mjs'
 
 const execFileAsync = promisify(execFile)
@@ -71,77 +71,13 @@ function normalizePatchedVersionValue(value) {
     return String(value).trim()
 }
 
-function parseArgs(argv) {
-    const args = { ...DEFAULTS }
-
-    const cliArgs = getCliArgs(argv)
-
-    for (const item of cliArgs) {
-        if (item.startsWith('--exceptions=')) {
-            args.exceptions = getArgValue([item], '--exceptions') ?? args.exceptions
-            continue
-        }
-        if (item.startsWith('--input=')) {
-            args.input = getArgValue([item], '--input')
-            continue
-        }
-        if (item.startsWith('--min-severity=')) {
-            args.minSeverity = getArgValue([item], '--min-severity') ?? args.minSeverity
-            continue
-        }
-        if (item.startsWith('--mode=')) {
-            args.mode = getArgValue([item], '--mode') ?? args.mode
-            continue
-        }
-        if (item.startsWith('--output-json=')) {
-            args.outputJson = getArgValue([item], '--output-json')
-            continue
-        }
-        if (item.startsWith('--output-md=')) {
-            args.outputMd = getArgValue([item], '--output-md')
-            continue
-        }
-        if (item.startsWith('--owner=')) {
-            args.owner = getArgValue([item], '--owner')
-            continue
-        }
-        if (item.startsWith('--per-page=')) {
-            args.perPage = Number(getArgValue([item], '--per-page'))
-            continue
-        }
-        if (item.startsWith('--registry=')) {
-            args.registry = getArgValue([item], '--registry') ?? args.registry
-            continue
-        }
-        if (item.startsWith('--repo=')) {
-            args.repo = getArgValue([item], '--repo')
-            continue
-        }
-        throw new Error(`Unsupported argument: ${item}`)
-    }
-
-    if (args.mode !== 'warn' && args.mode !== 'error') {
-        throw new Error(`Unsupported mode: ${args.mode}`)
-    }
-
-    if (!Number.isInteger(args.perPage) || args.perPage <= 0 || args.perPage > 100) {
-        throw new Error(`Unsupported per-page value: ${args.perPage}`)
-    }
-
-    args.minSeverity = normalizeSeverity(args.minSeverity)
-    return args
-}
-
-function normalizeExceptionEntries(raw) {
-    const entries = Array.isArray(raw?.entries) ? raw.entries : []
-
-    return entries.map((entry, index) => {
+function normalizeExceptionEntries(definition) {
+    return toArray(definition?.entries).map((entry, index) => {
         const source = String(entry?.source || '').trim()
         const alertNumber = String(entry?.alertNumber || '').trim()
-        const classification = String(entry?.classification || '').trim()
+        const classification = String(entry?.classification || '').trim().toLowerCase()
         const reason = String(entry?.reason || '').trim()
         const temporaryException = String(entry?.temporaryException || '').trim()
-        const severity = entry?.severity ? normalizeSeverity(entry.severity) : null
 
         if (!source || !alertNumber || classification !== 'defer' || !reason || !temporaryException) {
             throw new Error(`Invalid security alert exception entry at index ${index}`)
@@ -151,7 +87,6 @@ function normalizeExceptionEntries(raw) {
             alertNumber,
             classification,
             reason,
-            severity,
             source,
             temporaryException,
         }
@@ -163,19 +98,33 @@ async function readExceptionEntries(filePath) {
     return normalizeExceptionEntries(JSON.parse(content))
 }
 
-async function resolveGitHubToken(repoRoot) {
-    const envToken = process.env.SECURITY_ALERTS_TOKEN || process.env.GITHUB_TOKEN || process.env.GH_TOKEN
-    if (envToken) {
-        return envToken.trim()
+function parseArgs(argv) {
+    const args = parseCliOptions(argv, {
+        defaults: { ...DEFAULTS },
+        values: {
+            '--exceptions': { key: 'exceptions' },
+            '--input': { key: 'input' },
+            '--min-severity': { key: 'minSeverity' },
+            '--mode': {
+                key: 'mode',
+                allowedValues: ['warn', 'error'],
+                invalidMessage: (value) => `Unsupported mode: ${value}`,
+            },
+            '--output-json': { key: 'outputJson' },
+            '--output-md': { key: 'outputMd' },
+            '--owner': { key: 'owner' },
+            '--per-page': { key: 'perPage', parse: (value) => Number(value) },
+            '--registry': { key: 'registry' },
+            '--repo': { key: 'repo' },
+        },
+    })
+
+    if (!Number.isInteger(args.perPage) || args.perPage <= 0 || args.perPage > 100) {
+        throw new Error(`Unsupported per-page value: ${args.perPage}`)
     }
 
-    try {
-        const { stdout } = await execFileAsync('gh', ['auth', 'token'], { cwd: repoRoot })
-        const token = stdout.trim()
-        return token || null
-    } catch {
-        return null
-    }
+    args.minSeverity = normalizeSeverity(args.minSeverity)
+    return args
 }
 
 async function resolveRepository(args, repoRoot) {

@@ -1,8 +1,19 @@
 import webpush from 'web-push'
+import { parseCliOptions } from '../shared/cli.mjs'
 
-const subjectArg = process.argv.find((argument) => argument.startsWith('--subject='))
-const jsonOutput = process.argv.includes('--json')
-const subject = subjectArg?.slice('--subject='.length) || process.env.WEB_PUSH_VAPID_SUBJECT || 'mailto:admin@example.com'
+const { jsonOutput, subject: subjectArg } = parseCliOptions(process.argv, {
+    defaults: {
+        jsonOutput: false,
+        subject: null,
+    },
+    flags: {
+        '--json': { key: 'jsonOutput' },
+    },
+    values: {
+        '--subject': { key: 'subject' },
+    },
+})
+const subject = subjectArg || process.env.WEB_PUSH_VAPID_SUBJECT || 'mailto:admin@example.com'
 
 const { publicKey, privateKey } = webpush.generateVAPIDKeys()
 

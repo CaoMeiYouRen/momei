@@ -1,5 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises'
 import { extname, join, resolve } from 'node:path'
+import { parseCliOptions } from '../shared/cli.mjs'
 
 const ROOT_DIR = process.cwd()
 const LOCALE_ROOT = resolve(ROOT_DIR, 'i18n', 'locales')
@@ -17,40 +18,40 @@ function parseListArgument(rawValue) {
 }
 
 function parseArguments(argv) {
-    const options = {
-        baseLocale: DEFAULT_BASE_LOCALE,
-        locales: [],
-        modules: [],
-        failOnDiff: false,
-        format: 'text',
-    }
-
-    for (const argument of argv) {
-        if (argument === '--fail-on-diff') {
-            options.failOnDiff = true
-            continue
-        }
-
-        if (argument.startsWith('--base-locale=')) {
-            options.baseLocale = argument.slice('--base-locale='.length).trim() || DEFAULT_BASE_LOCALE
-            continue
-        }
-
-        if (argument.startsWith('--locale=')) {
-            options.locales.push(...parseListArgument(argument.slice('--locale='.length)))
-            continue
-        }
-
-        if (argument.startsWith('--module=')) {
-            options.modules.push(...parseListArgument(argument.slice('--module='.length)))
-            continue
-        }
-
-        if (argument.startsWith('--format=')) {
-            const nextFormat = argument.slice('--format='.length).trim()
-            options.format = nextFormat === 'json' ? 'json' : 'text'
-        }
-    }
+    const options = parseCliOptions(argv, {
+        defaults: {
+            baseLocale: DEFAULT_BASE_LOCALE,
+            failOnDiff: false,
+            format: 'text',
+            locales: [],
+            modules: [],
+        },
+        flags: {
+            '--fail-on-diff': { key: 'failOnDiff' },
+        },
+        values: {
+            '--base-locale': {
+                key: 'baseLocale',
+                parse: (value) => value.trim() || DEFAULT_BASE_LOCALE,
+            },
+            '--format': {
+                key: 'format',
+                allowedValues: ['json', 'text'],
+                invalidMessage: () => 'Unsupported format value',
+                parse: (value) => value.trim() || 'text',
+            },
+            '--locale': {
+                key: 'locales',
+                parse: parseListArgument,
+                collect: (current = [], next = []) => [...current, ...next],
+            },
+            '--module': {
+                key: 'modules',
+                parse: parseListArgument,
+                collect: (current = [], next = []) => [...current, ...next],
+            },
+        },
+    })
 
     options.locales = [...new Set(options.locales)]
     options.modules = [...new Set(options.modules)]

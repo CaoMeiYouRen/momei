@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import { getArgValue, getCliArgs, isDirectExecution } from '../shared/cli.mjs'
+import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..', '..')
@@ -14,17 +14,27 @@ const DEFAULT_CONFIG_PATH = '.jscpd.json'
 const DEFAULT_BASELINE_PATH = '.github/review-gate/duplicate-code-baseline.json'
 
 function parseArgs(argv = process.argv) {
-    const args = getCliArgs(argv)
-    const mode = getArgValue(args, '--mode') ?? 'warn'
-    const config = getArgValue(args, '--config') ?? DEFAULT_CONFIG_PATH
-    const baseline = getArgValue(args, '--baseline') ?? DEFAULT_BASELINE_PATH
-    const input = getArgValue(args, '--input')
-    const scopeArg = getArgValue(args, '--scope') ?? DEFAULT_SCOPE
+    const { baseline, config, input, mode, scope: scopeArg } = parseCliOptions(argv, {
+        defaults: {
+            baseline: DEFAULT_BASELINE_PATH,
+            config: DEFAULT_CONFIG_PATH,
+            input: null,
+            mode: 'warn',
+            scope: DEFAULT_SCOPE,
+        },
+        values: {
+            '--baseline': { key: 'baseline' },
+            '--config': { key: 'config' },
+            '--input': { key: 'input' },
+            '--mode': {
+                key: 'mode',
+                allowedValues: ['warn', 'error'],
+                invalidMessage: (value) => `[duplicate-code-gate] 不支持的模式: ${value}，请使用 warn 或 error`,
+            },
+            '--scope': { key: 'scope' },
+        },
+    })
     const scope = sanitizeScope(scopeArg) || DEFAULT_SCOPE
-
-    if (!['warn', 'error'].includes(mode)) {
-        throw new Error(`[duplicate-code-gate] 不支持的模式: ${mode}，请使用 warn 或 error`)
-    }
 
     return { baseline, config, input, mode, scope }
 }

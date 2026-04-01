@@ -149,7 +149,7 @@ describe('check-dependency-risk', () => {
         await writeFile(inputPath, JSON.stringify({ error: 'registry unavailable' }), 'utf8')
 
         try {
-            await expect(execFileAsync('node', [
+            await expect(execFileAsync('pnpm', ['exec', 'node',
                 resolve(process.cwd(), 'scripts/security/check-dependency-risk.mjs'),
                 `--input=${inputPath}`,
                 '--allowlist=.github/security/dependency-risk-allowlist.json',

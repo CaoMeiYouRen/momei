@@ -166,7 +166,7 @@ describe('check-duplicate-code', () => {
         await writeFile(inputPath, JSON.stringify(sampleReport), 'utf8')
 
         try {
-            await expect(execFileAsync('node', [
+            await expect(execFileAsync('pnpm', ['exec', 'node',
                 resolve(process.cwd(), 'scripts/review-gate/check-duplicate-code.mjs'),
                 `--input=${inputPath}`,
                 '--mode=strict',

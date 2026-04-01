@@ -20,22 +20,33 @@ import path from 'node:path'
 import process from 'node:process'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import { getArgValue, getCliArgs, hasFlag } from '../shared/cli.mjs'
+import { parseCliOptions } from '../shared/cli.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..', '..')
 
 // ─── CLI 参数解析 ─────────────────────────────────────────────────────────────
 
-const args = getCliArgs()
-const skipTest = hasFlag(args, '--skip-test')
-const skipE2e = hasFlag(args, '--skip-e2e')
-const mode = getArgValue(args, '--mode') ?? 'error'
+const { mode, skipE2e, skipTest } = parseCliOptions(process.argv, {
+    defaults: {
+        mode: 'error',
+        skipE2e: false,
+        skipTest: false,
+    },
+    flags: {
+        '--skip-e2e': { key: 'skipE2e' },
+        '--skip-test': { key: 'skipTest' },
+    },
+    values: {
+        '--mode': {
+            key: 'mode',
+            allowedValues: ['warn', 'error'],
+            invalidMessage: (value) => `[pre-release-check] 不支持的模式: ${value}，请使用 warn 或 error`,
+        },
+    },
+})
 
-if (mode !== 'warn' && mode !== 'error') {
-    console.error(`[pre-release-check] 不支持的模式: ${mode}，请使用 warn 或 error`)
-    process.exit(1)
-}
+// parseCliOptions already validates mode values for this script.
 
 // ─── 工具函数 ─────────────────────────────────────────────────────────────────
 

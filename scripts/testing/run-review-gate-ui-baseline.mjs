@@ -3,7 +3,7 @@ import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { spawn, execSync } from 'node:child_process'
-import { getArgValue, getCliArgs, hasFlag, isDirectExecution } from '../shared/cli.mjs'
+import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
 
 const repoRoot = process.cwd()
 const authStatePath = path.join(repoRoot, 'tests', 'e2e', '.auth', 'admin.json')
@@ -332,16 +332,26 @@ export function buildEvidence({ scope, timestamp, runDir, outputDir, htmlDir, lo
 }
 
 async function main() {
-    const cliArgs = getCliArgs()
+    const { keepAuthState, scope: scopeArg } = parseCliOptions(process.argv, {
+        defaults: {
+            keepAuthState: false,
+            scope: null,
+        },
+        flags: {
+            '--keep-auth-state': { key: 'keepAuthState' },
+        },
+        values: {
+            '--scope': { key: 'scope' },
+        },
+    })
     const now = new Date()
     const timestamp = formatTimestamp(now)
-    const scope = sanitizeScope(getArgValue(cliArgs, '--scope') ?? getCurrentBranch())
+    const scope = sanitizeScope(scopeArg ?? getCurrentBranch())
     const runDir = path.join(repoRoot, 'artifacts', 'testing', 'ui-regression', `${timestamp}-${scope}`)
     const outputDir = path.join(runDir, 'test-results')
     const htmlDir = path.join(runDir, 'playwright-report')
     const evidencePath = path.join(runDir, 'evidence.md')
     const manifestPath = path.join(runDir, 'manifest.json')
-    const keepAuthState = hasFlag(cliArgs, '--keep-auth-state')
     const branch = getCurrentBranch()
 
     await mkdir(runDir, { recursive: true })

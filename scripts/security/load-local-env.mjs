@@ -1,7 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
-import { parse, populate } from 'dotenv'
 
 function isTruthyEnvironmentFlag(value) {
     const normalized = String(value || '').trim().toLowerCase()
@@ -17,8 +16,47 @@ function isLocalExecution() {
     return !isTruthyEnvironmentFlag(process.env.CI) && !isTruthyEnvironmentFlag(process.env.GITHUB_ACTIONS)
 }
 
+function stripWrappingQuotes(value) {
+    if (value.length >= 2 && ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith('\'') && value.endsWith('\'')))) {
+        return value.slice(1, -1)
+    }
+
+    return value
+}
+
+function parseDotEnvLine(line) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('#')) {
+        return null
+    }
+
+    const normalized = trimmed.startsWith('export ') ? trimmed.slice('export '.length).trim() : trimmed
+    const separatorIndex = normalized.indexOf('=')
+    if (separatorIndex === -1) {
+        return null
+    }
+
+    const key = normalized.slice(0, separatorIndex).trim()
+    const rawValue = normalized.slice(separatorIndex + 1).trim()
+    return {
+        key,
+        value: stripWrappingQuotes(rawValue),
+    }
+}
+
 function parseDotEnvFile(content) {
-    return Object.entries(parse(content)).map(([key, value]) => ({ key, value }))
+    return content
+        .split(/\r?\n/)
+        .map(parseDotEnvLine)
+        .filter(Boolean)
+}
+
+function populateProcessEnv(entries) {
+    for (const { key, value } of entries) {
+        if (process.env[key] === undefined) {
+            process.env[key] = value
+        }
+    }
 }
 
 async function loadLocalEnvFile(repoRoot, options = {}) {
@@ -51,7 +89,6 @@ async function loadLocalEnvFile(repoRoot, options = {}) {
     }
 
     const parsedEntries = parseDotEnvFile(content)
-    const parsedEnv = Object.fromEntries(parsedEntries.map(({ key, value }) => [key, value]))
     const skippedKeys = parsedEntries
         .filter(({ key }) => process.env[key] !== undefined)
         .map(({ key }) => key)
@@ -59,7 +96,7 @@ async function loadLocalEnvFile(repoRoot, options = {}) {
         .filter(({ key }) => process.env[key] === undefined)
         .map(({ key }) => key)
 
-    populate(process.env, parsedEnv)
+    populateProcessEnv(parsedEntries)
 
     return {
         envFilePath,
