@@ -65,9 +65,19 @@ components/
 ### 3.4 浏览器基线口径 (Browser Baseline)
 
 -   **最小关键路径基线**: 默认使用 `pnpm test:e2e:critical`，覆盖 `tests/e2e/auth-session-governance.e2e.test.ts` 的 Chromium / Firefox / WebKit，以及 `tests/e2e/mobile-critical.e2e.test.ts` 的 `mobile-chrome-critical` / `mobile-safari-critical`。
+-   **Review Gate 正式入口**: 需要把浏览器层结果纳入 Review Gate 时，使用 `pnpm test:e2e:review-gate --scope=<change>`；该命令会复用同一条 critical 基线，并把日志、HTML 报告、失败附件与 `evidence.md` 统一落到 `artifacts/testing/ui-regression/<timestamp>-<scope>/`。
+-   **登录态复用口径**: `pnpm test:e2e:review-gate` 会在运行前清理过期的 `tests/e2e/.auth/admin.json`，随后由 `tests/e2e/global-setup.ts` 基于 `TEST_MODE` 重新生成本次运行使用的管理员认证态，并在同一 run 内供两个 critical 场景共享。
+-   **失败命名与归因口径**: 浏览器失败的首要证据路径是本次 run 目录下的 `playwright.log`、`test-results/` 与 `playwright-report/`；归因顺序统一为“服务启动 / 构建产物 -> 认证态 / 种子数据 -> 具体场景断言”，避免只报一个模糊的“Playwright 失败”。
 -   **适用改动**: 认证会话、后台受保护页访问、文章编辑器基础输入链路、语言切换与移动端后台入口。
 -   **升级条件**: 只有当改动涉及注册/找回密码、后台 CRUD、投稿、导航或公共页面行为时，才从 `test:e2e:critical` 升级到更大范围的 Playwright 定向集或全量 `pnpm test:e2e`。
 -   **执行前置**: `pnpm test:e2e` 与 `pnpm test:e2e:critical` 必须先检查 `.output` 是否陈旧；若源文件晚于构建产物，应先触发重建，避免把旧服务误当成当前结果。
+
+### 3.5 UI 真实环境验证分层 (UI Real Environment Validation Layers)
+
+-   **回归基线优先**: 面向合并前回归、Review Gate 与阶段收口的浏览器验证，必须优先使用可复跑脚本入口（`pnpm test:e2e:critical`、`pnpm test:e2e:review-gate`），而不是把技能驱动的临时浏览器操作当成唯一证据。
+-   **探索性验证补位**: `ui-validator` 或其他浏览器技能仅用于探索性排查、交互补充确认与视觉比对；它们可以辅助定位问题，但不能替代可重复执行的脚本基线。
+-   **升级策略**: 若 critical 基线不足以覆盖当前改动，先补定向 Playwright 命令；只有在定向集仍无法覆盖风险时，才升级到全量 `pnpm test:e2e`。
+-   **证据落点统一**: 需要 Review Gate 证据时，优先保留 `pnpm test:e2e:review-gate` 生成的运行目录，并在 `docs/plan/regression-log.md` 或专项记录中引用该目录，而不是重复粘贴整段终端输出。
 
 ## 4. 测试内容要求 (Testing Requirements)
 
@@ -112,6 +122,7 @@ pnpm run test:coverage
     -   **理由**: 全量测试极其缓慢，频繁运行会严重阻塞开发流程。
     -   **命令示例**: `pnpm test [filename_keyword]`。
     -   **命中不稳定时的回退**: 若关键字方式无法稳定命中同级 `*.test.ts`，优先使用 `pnpm exec vitest run path/to/file.test.ts`。
+    -   **UI 真实环境回归例外**: 若目标是“给 Review Gate 一条可复跑的浏览器证据”，优先使用 `pnpm test:e2e:review-gate --scope=<change>`，不要用技能式手工点点点替代。
 
 2.  **全量测试准入条件 (Full Test Triggers)**: 
     -   **除非涉及以下情况，否则严禁在普通任务中执行全量测试**:

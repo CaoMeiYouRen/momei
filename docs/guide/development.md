@@ -70,10 +70,13 @@
 | `pnpm test` | 运行单测 |
 | `pnpm test:e2e` | 运行 Playwright 端到端测试 |
 | `pnpm test:e2e:critical` | 运行认证会话治理 + 移动端编辑器 smoke 的最小浏览器基线 |
+| `pnpm test:e2e:review-gate --scope=<change>` | 运行可复跑的 UI Review Gate 基线，并把日志、报告、失败附件写入 `artifacts/testing/ui-regression/` |
 | `pnpm typecheck`| 运行类型检查 |
 | `pnpm deploy:wrangler` | 调试 wrangler 侧适配（不代表支持整站部署到 Cloudflare） |
 
 `pnpm test:e2e` 与 `pnpm test:e2e:critical` 会在执行前检查 `.output/server/index.mjs` 是否落后于当前源文件；若检测到构建产物陈旧，会先自动重建，避免 Playwright 继续复用过期服务。
+
+如果需要把 UI 真实环境验证结果带进 Review Gate，优先执行 `pnpm test:e2e:review-gate --scope=<change>`：它会清理过期认证态、重建本次运行的登录态，并把 HTML 报告、失败截图 / trace 与 `evidence.md` 收敛到同一个运行目录，便于后续回归记录直接引用。
 
 ## 5. 参与贡献
 

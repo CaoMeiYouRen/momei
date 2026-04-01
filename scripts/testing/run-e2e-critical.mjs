@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process'
 
 const repoRoot = process.cwd()
 const runE2EScript = path.join(repoRoot, 'scripts', 'testing', 'run-e2e.mjs')
+const extraArgs = process.argv.slice(2)
 
 function runRunE2E(args) {
     return new Promise((resolve, reject) => {
@@ -29,10 +30,12 @@ await runRunE2E([
     '--project=chromium',
     '--project=firefox',
     '--project=webkit',
+    ...extraArgs,
 ])
 
 await runRunE2E([
     'tests/e2e/mobile-critical.e2e.test.ts',
     '--project=mobile-chrome-critical',
     '--project=mobile-safari-critical',
+    ...extraArgs,
 ])

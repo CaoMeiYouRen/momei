@@ -10,6 +10,7 @@
 | `scripts/security/` | `check-dependency-risk.mjs`、`check-github-security-alerts.mjs` | `pnpm security:audit-deps`、`pnpm security:alerts`、`.github/workflows/release.yml` | 读取 `pnpm audit` 官方审计结果并按白名单执行 high+ 发版门禁；优先接入 GitHub Dependabot / Code Scanning 告警并在权限不足时显式回退 | 保留 |
 | `scripts/docs/` | `check-i18n-duplicates.mjs`、`check-source-of-truth.mjs` | `pnpm docs:check:i18n`、`pnpm docs:check:source-of-truth` | 只读检查文档重复、翻译同步与事实源一致性 | 保留 |
 | `scripts/i18n/` | `audit-locale-keys.mjs`、`split-locale-files.mjs` | `pnpm i18n:audit`；设计 / 翻译治理文档中的手工命令 | 审计 locale key、拆分翻译文件 | 保留 |
+| `scripts/testing/` | `run-e2e.mjs`、`run-e2e-critical.mjs`、`run-review-gate-ui-baseline.mjs` | `pnpm test:e2e`、`pnpm test:e2e:critical`、`pnpm test:e2e:review-gate` | 检查 `.output` 新鲜度、执行 Playwright 最小关键路径基线，并在 Review Gate 场景下沉淀按运行目录隔离的日志 / 报告 / 失败附件 | 保留 |
 | `scripts/perf/` | `check-bundle-budget.mjs` | `pnpm test:perf:budget`、`pnpm test:perf:budget:strict`、`.github/workflows/test.yml` | 读取 Lighthouse / bundle 输出并给出预算结论 | 保留 |
 | `scripts/setup/` | `generate-web-push-vapid.mjs`、`setup-ai.mjs` | `pnpm web-push:generate-vapid`；`pnpm setup:ai` | 生成 VAPID 密钥；批量同步 worktree 内 AI 目录链接 | `generate-web-push-vapid.mjs` 保留；`setup-ai.mjs` 作为跨平台正式入口 |
 | `scripts/hooks/` | `pre-tool.ps1`、`post-tool.ps1`、`session-end.ps1` | 无 `package.json` 或 CI 稳定入口；仅面向本地 Copilot / Claude Hook 实验 | 拦截工具调用、尝试自动 lint、记录会话摘要 | 保留为本地手工脚本，不纳入常规团队入口 |
@@ -27,11 +28,20 @@ pnpm security:alerts
 pnpm docs:check:i18n
 pnpm docs:check:source-of-truth
 pnpm i18n:audit
+pnpm test:e2e
+pnpm test:e2e:critical
+pnpm test:e2e:review-gate --scope=auth-session
 pnpm web-push:generate-vapid
 pnpm setup:ai
 pnpm test:perf:budget
 pnpm test:perf:budget:strict
 ```
+
+其中 `pnpm test:e2e:review-gate` 用于需要提交 Review Gate 证据的高频 UI 真实环境回归：
+
+- 运行前会删除过期的 `tests/e2e/.auth/admin.json`，再由 `tests/e2e/global-setup.ts` 重新生成当前 run 使用的登录态，避免把陈旧认证态带入基线。
+- 固定执行 `pnpm test:e2e:critical` 覆盖的两段式矩阵，并把每次运行的原始日志、HTML 报告、失败截图 / trace 附件收敛到 `artifacts/testing/ui-regression/<timestamp>-<scope>/`。
+- 同目录下会生成 `evidence.md`，作为浏览器层 V3 证据模板和失败归因清单；需要更大范围验证时，再从该基线升级到定向或全量 `pnpm test:e2e`。
 
 补充说明：本地直接运行 `pnpm security:audit-deps` 或 `pnpm security:alerts` 时，若仓库根目录存在 `.env`，脚本会先尝试装载其中尚未出现在当前进程环境中的变量（例如 `SECURITY_ALERTS_TOKEN`、`GITHUB_TOKEN`、`GH_TOKEN`），但不会覆盖已显式传入的环境变量。
 
@@ -60,6 +70,7 @@ pnpm test:perf:budget:strict
 - 保留：所有 `.mjs` 长期脚本均已有 `package.json`、工作流或治理文档引用。
 - 保留：`scripts/security/check-dependency-risk.mjs` 作为 release 前依赖风险门禁入口，配套白名单基线位于 `.github/security/dependency-risk-allowlist.json`。
 - 保留：`scripts/security/check-github-security-alerts.mjs` 作为安全告警闭环入口，配套延期基线位于 `.github/security/security-alert-exceptions.json`。
+- 保留：`scripts/testing/run-review-gate-ui-baseline.mjs` 作为 UI 真实环境回归的 Review Gate 正式入口，按运行目录落盘证据，避免口头描述替代浏览器证据。
 - 保留：`scripts/setup/setup-ai.mjs` 作为 worktree 辅助工具的跨平台正式入口。
 - 保留：`scripts/hooks/*.ps1` 作为本地 Hook 实验脚本；当前不并入团队正式流程。
 - 合并：本轮未发现需要立即合并的重复长期脚本。
