@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { spawn } from 'node:child_process'
 import { readdir, stat } from 'node:fs/promises'
-import { pathToFileURL } from 'node:url'
+import { isDirectExecution } from '../shared/cli.mjs'
 
 const repoRoot = process.cwd()
 const outputEntry = path.join(repoRoot, '.output', 'server', 'index.mjs')
@@ -222,14 +222,6 @@ async function main() {
     )
 }
 
-function shouldRunAsCli() {
-    if (!process.argv[1]) {
-        return false
-    }
-
-    return import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
-}
-
-if (shouldRunAsCli()) {
+if (isDirectExecution(import.meta.url)) {
     await main()
 }

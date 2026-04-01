@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import { isDirectExecution } from '../shared/cli.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..', '..')
@@ -472,11 +473,7 @@ export {
     previewFragment,
 }
 
-const isDirectExecution = process.argv[1]
-    ? path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
-    : false
-
-if (isDirectExecution) {
+if (isDirectExecution(import.meta.url)) {
     main().catch((error) => {
         console.error(error.message)
         process.exitCode = 1

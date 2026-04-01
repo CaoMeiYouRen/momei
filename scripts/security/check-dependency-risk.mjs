@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import { isDirectExecution } from '../shared/cli.mjs'
 import { loadLocalEnvFile } from './load-local-env.mjs'
 
 const DEFAULTS = {
@@ -478,11 +479,7 @@ export {
     parseAuditReport,
 }
 
-const isDirectExecution = process.argv[1]
-    ? path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
-    : false
-
-if (isDirectExecution) {
+if (isDirectExecution(import.meta.url)) {
     main().catch((error) => {
         console.error(`[dependency-risk-gate] ${error.message}`)
         process.exitCode = 1

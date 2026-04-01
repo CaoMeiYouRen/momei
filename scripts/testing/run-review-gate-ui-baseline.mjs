@@ -3,7 +3,7 @@ import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { spawn, execSync } from 'node:child_process'
-import { pathToFileURL } from 'node:url'
+import { isDirectExecution } from '../shared/cli.mjs'
 
 const repoRoot = process.cwd()
 const authStatePath = path.join(repoRoot, 'tests', 'e2e', '.auth', 'admin.json')
@@ -340,14 +340,6 @@ export function buildEvidence({ scope, timestamp, runDir, outputDir, htmlDir, lo
     return `${lines.join('\n')}\n`
 }
 
-function shouldRunAsCli() {
-    if (!process.argv[1]) {
-        return false
-    }
-
-    return import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
-}
-
 async function main() {
     const cliArgs = process.argv.slice(2)
     const now = new Date()
@@ -433,6 +425,6 @@ async function main() {
     }
 }
 
-if (shouldRunAsCli()) {
+if (isDirectExecution(import.meta.url)) {
     await main()
 }
