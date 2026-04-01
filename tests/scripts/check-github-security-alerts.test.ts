@@ -1,4 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
+import { describe, expect, it, vi } from 'vitest'
 import {
     classifyAlert,
     evaluateSecurityAlertGate,
@@ -7,6 +10,8 @@ import {
     normalizeDependabotAlert,
     normalizeExceptionEntries,
 } from '@/scripts/security/check-github-security-alerts.mjs'
+import { loadLocalEnvFile, parseDotEnvFile } from '@/scripts/security/load-local-env.mjs'
+import { fetchRepositoryAlerts } from '@/scripts/security/security-alert-gate-shared.mjs'
 
 describe('check-github-security-alerts', () => {
     it('classifies open Dependabot alerts with patches as immediate fixes', () => {
@@ -216,5 +221,145 @@ describe('check-github-security-alerts', () => {
                 },
             ],
         })).toThrow(/Invalid security alert exception entry/)
+    })
+
+    it('parses dotenv entries with quotes and export prefix', () => {
+        expect(parseDotEnvFile([
+            '# comment',
+            'export SECURITY_ALERTS_TOKEN="token-123"',
+            'GH_TOKEN=gh-token',
+            'EMPTY=',
+        ].join('\n'))).toEqual([
+            { key: 'SECURITY_ALERTS_TOKEN', value: 'token-123' },
+            { key: 'GH_TOKEN', value: 'gh-token' },
+            { key: 'EMPTY', value: '' },
+        ])
+    })
+
+    it('loads local env file without overriding existing process env values', async () => {
+        const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'momei-security-env-'))
+        const originalGithubToken = process.env.GITHUB_TOKEN
+        const originalSecurityAlertsToken = process.env.SECURITY_ALERTS_TOKEN
+        const originalGhToken = process.env.GH_TOKEN
+        const originalCi = process.env.CI
+        const originalGithubActions = process.env.GITHUB_ACTIONS
+
+        try {
+            await writeFile(path.join(tempRoot, '.env'), [
+                'SECURITY_ALERTS_TOKEN=from-dotenv',
+                'GH_TOKEN=from-gh-dotenv',
+                'GITHUB_TOKEN=should-not-win',
+            ].join('\n'))
+
+            process.env.CI = 'false'
+            delete process.env.GITHUB_ACTIONS
+            process.env.GITHUB_TOKEN = 'from-process'
+            delete process.env.SECURITY_ALERTS_TOKEN
+            delete process.env.GH_TOKEN
+
+            const result = await loadLocalEnvFile(tempRoot)
+
+            expect(result.loaded).toBe(true)
+            expect(result.injectedKeys).toEqual(['SECURITY_ALERTS_TOKEN', 'GH_TOKEN'])
+            expect(result.skippedKeys).toEqual(['GITHUB_TOKEN'])
+            expect(process.env.SECURITY_ALERTS_TOKEN).toBe('from-dotenv')
+            expect(process.env.GH_TOKEN).toBe('from-gh-dotenv')
+            expect(process.env.GITHUB_TOKEN).toBe('from-process')
+        } finally {
+            if (originalGithubToken === undefined) {
+                delete process.env.GITHUB_TOKEN
+            } else {
+                process.env.GITHUB_TOKEN = originalGithubToken
+            }
+
+            if (originalSecurityAlertsToken === undefined) {
+                delete process.env.SECURITY_ALERTS_TOKEN
+            } else {
+                process.env.SECURITY_ALERTS_TOKEN = originalSecurityAlertsToken
+            }
+
+            if (originalGhToken === undefined) {
+                delete process.env.GH_TOKEN
+            } else {
+                process.env.GH_TOKEN = originalGhToken
+            }
+
+            if (originalCi === undefined) {
+                delete process.env.CI
+            } else {
+                process.env.CI = originalCi
+            }
+
+            if (originalGithubActions === undefined) {
+                delete process.env.GITHUB_ACTIONS
+            } else {
+                process.env.GITHUB_ACTIONS = originalGithubActions
+            }
+
+            await rm(tempRoot, { force: true, recursive: true })
+        }
+    })
+
+    it('skips local env loading when CI-style environment flags are truthy', async () => {
+        const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'momei-security-env-ci-'))
+        const originalCi = process.env.CI
+        const originalSecurityAlertsToken = process.env.SECURITY_ALERTS_TOKEN
+
+        try {
+            await writeFile(path.join(tempRoot, '.env'), 'SECURITY_ALERTS_TOKEN=from-dotenv', 'utf8')
+
+            process.env.CI = '1'
+            delete process.env.SECURITY_ALERTS_TOKEN
+
+            const result = await loadLocalEnvFile(tempRoot)
+
+            expect(result.loaded).toBe(false)
+            expect(result.injectedKeys).toEqual([])
+            expect(process.env.SECURITY_ALERTS_TOKEN).toBeUndefined()
+        } finally {
+            if (originalCi === undefined) {
+                delete process.env.CI
+            } else {
+                process.env.CI = originalCi
+            }
+
+            if (originalSecurityAlertsToken === undefined) {
+                delete process.env.SECURITY_ALERTS_TOKEN
+            } else {
+                process.env.SECURITY_ALERTS_TOKEN = originalSecurityAlertsToken
+            }
+
+            await rm(tempRoot, { force: true, recursive: true })
+        }
+    })
+
+    it('marks GitHub API network failures as unavailable instead of throwing', async () => {
+        const originalFetch = globalThis.fetch
+        const fetchMock = vi.fn(() => Promise.reject(new Error('network down')))
+
+        globalThis.fetch = fetchMock
+
+        try {
+            const result = await fetchRepositoryAlerts({
+                endpoint: 'dependabot/alerts',
+                failureResolver: () => ({ detail: 'should not be used', kind: 'unavailable', sourceName: 'github-api' }),
+                normalizer: (alert) => alert,
+                owner: 'owner',
+                perPage: 100,
+                repo: 'repo',
+                token: 'token',
+            })
+
+            expect(result).toMatchObject({
+                alerts: [],
+                sourceStatus: {
+                    detail: 'network down',
+                    kind: 'unavailable',
+                    sourceName: 'github-api',
+                },
+            })
+        } finally {
+            globalThis.fetch = originalFetch
+        }
     })
 })

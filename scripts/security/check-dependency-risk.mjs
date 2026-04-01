@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import { loadLocalEnvFile } from './load-local-env.mjs'
 
 const DEFAULTS = {
     allowlist: '.github/security/dependency-risk-allowlist.json',
@@ -427,6 +428,8 @@ async function loadAuditReport(args) {
 }
 
 async function main() {
+    await loadLocalEnvFile(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..'))
+
     const args = parseArgs(process.argv)
     const [allowlistEntries, auditReport] = await Promise.all([
         readAllowlist(args.allowlist),

@@ -19,7 +19,7 @@
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
 当前进行中事项：
-- Dependabot / Code Scanning 安全告警闭环建设（修复与延期治理闭环收口）
+- 无（Phase 20 安全告警闭环已完成，待阶段归档统一收口）
 
 ---
 
@@ -54,9 +54,11 @@
 	- 验收: 评估并优先接入仓库 Dependabot alerts 与 Code Scanning alerts 的官方数据来源；若工具链受限，明确回退路径与证据口径。
 	- 验收: 形成“可立即修复 / 需延期 / 仅观察”的分级规则，并与现有 release 安全门禁保持一致。
 	- 实现: `scripts/security/check-github-security-alerts.mjs` + `pnpm security:alerts` + `.github/security/security-alert-exceptions.json`
-- [ ] **修复与延期治理闭环**
+- [x] **修复与延期治理闭环**
 	- 验收: 至少完成一轮真实告警的修复、验证、延期记录或 allowlist / 例外基线收敛，避免只做读取不做处置判断。
 	- 验收: 将结果同步沉淀到回归记录与 Review Gate 结论中，确保后续发版前可直接复用。
+	- 实现: `scripts/security/load-local-env.mjs` + `pnpm.overrides[@xmldom/xmldom]` + `pnpm security:audit-deps` / `pnpm security:alerts`
+	- 验证记录: 已通过本地 `.env` 自动装载完成安全门禁补跑，修复 `@xmldom/xmldom` high 告警并生成 `artifacts/review-gate/2026-04-01-security-alerts.json` / `.md`；详见 `docs/plan/regression-log.md` 最新补充记录。
 
 ### 4. 主线：重复代码检测自动化补强 (P1)
 

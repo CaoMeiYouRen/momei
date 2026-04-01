@@ -310,6 +310,45 @@
             - 官方 Code Scanning 仓库级 alerts 仍受权限限制，当前证据仍不足以宣称“官方零告警”。
             - 真实官方告警的修复 / 延期登记闭环仍待具备更高权限的令牌后继续推进。
 
+### 本地环境变量装载补充（2026-04-01）
+
+- 回归范围: 安全告警闭环脚本的本地执行体验补强；覆盖 `.env` 自动装载、进程环境优先级保护，以及 `security:alerts` / `security:audit-deps` 双入口一致性。
+- 触发条件: 当前第二条子任务需要继续推进真实告警修复 / 延期闭环，而本地补跑常依赖 `.env` 中的 `SECURITY_ALERTS_TOKEN` / `GITHUB_TOKEN` 等令牌；此前脚本不会主动读取仓库根目录 `.env`。
+- 已执行命令:
+    - `pnpm exec vitest run tests/scripts/check-github-security-alerts.test.ts`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 脚本层: 新增 `scripts/security/load-local-env.mjs`，并接入 `scripts/security/check-github-security-alerts.mjs` 与 `scripts/security/check-dependency-risk.mjs` 的直接执行入口。
+        - V2 / 测试层: `tests/scripts/check-github-security-alerts.test.ts` 已覆盖 `.env` 解析、带引号值、`export` 前缀，以及“仅注入缺失变量、不覆盖现有进程环境”的边界。
+    - 结果摘要:
+        - 本地执行 `pnpm security:alerts` 或 `pnpm security:audit-deps` 时，若仓库根目录存在 `.env`，脚本会先装载缺失变量，再继续读取 GitHub alerts API 或 `pnpm audit`。
+        - CI / GitHub Actions 环境不会触发该行为，避免和平台显式注入的 secrets 竞争。
+        - 已存在于 `process.env` 的变量保持最高优先级，避免本地 shell 显式传参被 `.env` 意外覆盖。
+
+### 真实告警修复闭环（2026-04-01）
+
+- 回归范围: 第二十阶段 P0“修复与延期治理闭环”真实修复收口；覆盖本地 `.env` 补跑、`@xmldom/xmldom` 传递依赖升级、锁文件刷新与 Review Gate 证据重生成。
+- 触发条件: 本地补跑 `pnpm security:alerts` 后首次读到真实 high blocker `@xmldom/xmldom`，需要完成至少一轮“发现 -> 修复 -> 验证 -> 证据落盘”的闭环。
+- 已执行命令:
+    - `pnpm exec vitest run tests/scripts/check-github-security-alerts.test.ts`
+    - `pnpm install --lockfile-only`
+    - `pnpm security:audit-deps`
+    - `pnpm security:alerts`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 脚本层: `scripts/security/security-alert-gate-shared.mjs` 现已把 GitHub API 的网络级失败归入“官方源不可用”分支，Dependabot 可继续回退到 `pnpm audit`，避免本地补跑时直接 `fetch failed` 退出。
+        - V1 / 依赖层: 已通过 `package.json` 的 `pnpm.overrides` 将 `@xmldom/xmldom` 收敛到 `^0.8.12`，并用 `pnpm install --lockfile-only` 刷新 `pnpm-lock.yaml`。
+        - V2 / 运行层: `pnpm security:audit-deps` 已回到 `relevant risks: 0`；`pnpm security:alerts` 已重新生成 `artifacts/review-gate/2026-04-01-security-alerts.json` 与 `.md`，当前 `high+ relevant alerts: 0`、`Review Gate: Pass`。
+    - 结果摘要:
+        - 本轮已完成一条真实 high 告警的修复闭环，不再停留在“只做读取与分类”的状态。
+        - 当前 Dependabot 数据源仍因仓库级权限策略走 `pnpm audit` fallback，但 fallback 与官方源受限场景都已具备可复用的本地补跑路径。
+        - `.github/security/security-alert-exceptions.json` 仍保持空基线，说明本轮无需通过延期或 allowlist 放行 high+ 风险。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: info
+        - 主要问题:
+            - 当前记录完成了真实高危修复闭环，但若后续需要覆盖官方仓库级 Dependabot 明细，仍建议提供具备更高权限的专用令牌持续补跑。
+
 ## 重复代码检测自动化回归（2026-04-01）
 
 ### 回归任务记录

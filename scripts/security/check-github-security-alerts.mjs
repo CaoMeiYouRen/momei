@@ -20,11 +20,14 @@ import {
     severityAtLeast,
     writeArtifacts,
 } from './security-alert-gate-shared.mjs'
+import { loadLocalEnvFile } from './load-local-env.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..', '..')
 
 async function main() {
+    await loadLocalEnvFile(repoRoot)
+
     const args = parseArgs(process.argv)
     const artifactPaths = buildArtifactPaths(args, repoRoot)
     const exceptionEntries = await readExceptionEntries(args.exceptions)

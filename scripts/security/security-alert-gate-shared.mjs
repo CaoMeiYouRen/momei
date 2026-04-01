@@ -448,7 +448,12 @@ async function fetchRepositoryAlerts({ owner, perPage, repo, token, endpoint, fa
     let page = 1
 
     while (true) {
-        const result = await fetchGitHubApiPage({ endpoint, owner, page, perPage, repo, token })
+        let result
+        try {
+            result = await fetchGitHubApiPage({ endpoint, owner, page, perPage, repo, token })
+        } catch (error) {
+            return { alerts: [], sourceStatus: normalizeSourceStatus({ detail: String(error?.message || 'GitHub API request failed'), kind: 'unavailable', sourceName: 'github-api' }) }
+        }
         if (!result.ok) {
             return {
                 alerts: [],
@@ -778,6 +783,7 @@ export {
     collectAlerts,
     countByBucket,
     evaluateSecurityAlertGate,
+    fetchRepositoryAlerts,
     loadInputSnapshot,
     mapAuditRiskToDependabotAlert,
     normalizeCodeScanningAlert,

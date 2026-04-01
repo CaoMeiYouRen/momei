@@ -33,6 +33,8 @@ pnpm test:perf:budget
 pnpm test:perf:budget:strict
 ```
 
+补充说明：本地直接运行 `pnpm security:audit-deps` 或 `pnpm security:alerts` 时，若仓库根目录存在 `.env`，脚本会先尝试装载其中尚未出现在当前进程环境中的变量（例如 `SECURITY_ALERTS_TOKEN`、`GITHUB_TOKEN`、`GH_TOKEN`），但不会覆盖已显式传入的环境变量。
+
 ### 工作流入口
 
 - `.github/workflows/test.yml` 会调用 `scripts/perf/check-bundle-budget.mjs`。
