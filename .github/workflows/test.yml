@@ -98,7 +98,7 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - run: pnpm run build
       - name: Install Playwright Browsers
-        run: pnpx playwright install --with-deps
+        run: pnpm exec playwright install --with-deps
       - run: pnpm run test:e2e
 
   build-lighthouse:

@@ -1,4 +1,5 @@
 import { existsSync } from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { spawn } from 'node:child_process'
 import { readdir, stat } from 'node:fs/promises'
@@ -22,22 +23,51 @@ const ignoredEntries = new Set([
 ])
 const requiredPlaywrightBrowsers = [
     {
-        marker: '/chromium-',
+        dirPrefix: 'chromium-',
         name: 'chromium',
     },
     {
-        marker: '/chromium_headless_shell-',
+        dirPrefix: 'chromium_headless_shell-',
         name: 'chromium-headless-shell',
     },
     {
-        marker: '/firefox-',
+        dirPrefix: 'firefox-',
         name: 'firefox',
     },
     {
-        marker: '/webkit-',
+        dirPrefix: 'webkit-',
         name: 'webkit',
     },
 ]
+
+function getPlaywrightCacheDir() {
+    if (process.env.PLAYWRIGHT_BROWSERS_PATH) {
+        return process.env.PLAYWRIGHT_BROWSERS_PATH
+    }
+    const platform = process.platform
+    if (platform === 'win32') {
+        return path.join(os.homedir(), 'AppData', 'Local', 'ms-playwright')
+    }
+    if (platform === 'darwin') {
+        return path.join(os.homedir(), 'Library', 'Caches', 'ms-playwright')
+    }
+    return path.join(os.homedir(), '.cache', 'ms-playwright')
+}
+
+async function getInstalledBrowserDirs() {
+    const cacheDir = getPlaywrightCacheDir()
+    if (!existsSync(cacheDir)) {
+        return []
+    }
+    try {
+        const entries = await readdir(cacheDir, { withFileTypes: true })
+        return entries
+            .filter(e => e.isDirectory())
+            .map(e => e.name)
+    } catch {
+        return []
+    }
+}
 
 function quoteWindowsArg(arg) {
     if (/^[a-zA-Z0-9_./:=+-]+$/.test(arg)) {
@@ -108,34 +138,31 @@ function runAndCapture(command, args, env = process.env) {
     })
 }
 
-export function getMissingPlaywrightBrowsers(installListOutput) {
-    const normalizedOutput = installListOutput.toLowerCase()
-
+export function getMissingPlaywrightBrowsers(installedDirs) {
     return requiredPlaywrightBrowsers
-        .filter(({ marker }) => !normalizedOutput.includes(marker))
+        .filter(({ dirPrefix }) => !installedDirs.some(dir => dir.startsWith(dirPrefix)))
         .map(({ name }) => name)
 }
 
 async function ensurePlaywrightBrowsers() {
-    let installListOutput = ''
+    let installedDirs
 
     try {
-        const { stdout } = await runAndCapture('pnpm', ['exec', 'playwright', 'install', '--list'])
-        installListOutput = stdout
+        installedDirs = await getInstalledBrowserDirs()
     } catch (error) {
         console.warn('[run-e2e] Failed to inspect Playwright browser cache, installing browsers before test run')
-        await run('pnpm', ['exec', 'playwright', 'install'])
+        await run('pnpm', ['exec', 'playwright', 'install', '--with-deps'])
         return
     }
 
-    const missingBrowsers = getMissingPlaywrightBrowsers(installListOutput)
+    const missingBrowsers = getMissingPlaywrightBrowsers(installedDirs)
     if (missingBrowsers.length === 0) {
         console.info('[run-e2e] Reusing existing Playwright browsers')
         return
     }
 
     console.info(`[run-e2e] Installing Playwright browsers: missing ${missingBrowsers.join(', ')}`)
-    await run('pnpm', ['exec', 'playwright', 'install'])
+    await run('pnpm', ['exec', 'playwright', 'install', '--with-deps'])
 }
 
 async function getLatestMtimeMs(targetPath) {
