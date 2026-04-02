@@ -2,6 +2,8 @@ import cmyrConfig from 'eslint-config-cmyr/nuxt'
 import { globalIgnores } from 'eslint/config'
 import pluginVue from 'eslint-plugin-vue'
 import vueI18n from '@intlify/eslint-plugin-vue-i18n'
+import tseslint from 'typescript-eslint'
+import { __WARN__, createLanguageOptions } from 'eslint-config-cmyr/utils'
 import withNuxt from './.nuxt/eslint.config.mjs'
 
 const enableI18nLint = process.env.ESLINT_I18N === 'true'
@@ -123,6 +125,74 @@ export default withNuxt(
         files: ['**/**/*.test.*', '**/**/*.spec.*'],
         rules: {
             'max-lines-per-function': [1, { max: 700 }], // 测试文件的函数行数限制放宽一些
+        },
+    },
+    {
+        files: ['**/*.{ts,tsx,mts,cts}'],
+        extends: [
+            tseslint.configs.recommendedTypeChecked,
+            tseslint.configs.strictTypeChecked,
+            tseslint.configs.stylisticTypeChecked,
+        ],
+        plugins: {
+            tseslint,
+        },
+        languageOptions: createLanguageOptions({}, {
+            projectService: {
+                defaultProject: 'tsconfig.json',
+            },
+            tsconfigRootDir: process.cwd(),
+        }),
+        rules: {
+
+            '@typescript-eslint/no-deprecated': [1], // 禁止使用已废弃的 API
+            '@typescript-eslint/no-floating-promises': [1], // 禁止忽略 Promise 返回值
+            '@typescript-eslint/no-misused-promises': [1], // 禁止将 Promise 误用为条件表达式
+            '@typescript-eslint/await-thenable': [1], // 禁止等待非 Promise 类型的值
+            '@typescript-eslint/no-base-to-string': [1], // 禁止将对象直接转换为字符串
+            '@typescript-eslint/no-unnecessary-type-assertion': [0], // 禁止不必要的类型断言
+            '@typescript-eslint/no-unsafe-enum-comparison': [1], // 禁止将枚举与非枚举类型进行比较
+            '@typescript-eslint/no-redundant-type-constituents': [1], // 禁止联合类型中包含冗余的成员
+            '@typescript-eslint/only-throw-error': [1], // 禁止不做任何处理就再次向上抛出相同的 error
+            '@typescript-eslint/prefer-optional-chain': [1], // 建议使用可选链 (?.) 替代逻辑与 (&&) 来访问深层嵌套的属性
+            '@typescript-eslint/require-await': [1], // 禁止在 async 函数中不使用 await 表达式
+            '@typescript-eslint/non-nullable-type-assertion-style': [0], // 建议使用非空断言 (postfix !) 替代类型断言来消除 null 和 undefined
+            '@typescript-eslint/no-inferrable-types': [0], // 对于初始化为数字、字符串或布尔值的变量或参数，不允许显式类型声明
+            '@typescript-eslint/explicit-function-return-type': [0], // 要求函数和类方法的显式返回类型
+            '@typescript-eslint/prefer-nullish-coalescing': [0], // 建议使用空值合并运算符 (??) 替代逻辑或 (||) 来处理 null 或 undefined
+
+            '@typescript-eslint/no-unnecessary-boolean-literal-compare': [1], // 禁止与 boolean 字面量进行不必要的比较
+            '@typescript-eslint/return-await': [1], // 禁止在返回语句中使用 await，除非在 try/catch 块中
+            '@typescript-eslint/no-invalid-void-type': [1], // 禁止在泛型或返回类型之外使用 void 类型
+            '@typescript-eslint/no-unnecessary-type-parameters': [1], // 禁止在类型参数未被使用时将其添加到泛型函数中
+
+            '@typescript-eslint/no-extraneous-class': [0], // 允许存在没有成员的类，或者只有静态成员的类
+            '@typescript-eslint/no-confusing-void-expression': [0], // 要求类型为 void 的表达式出现在语句位置
+            '@typescript-eslint/use-unknown-in-catch-callback-variable': [0], // 允许在 catch 子句中使用 any 类型的错误变量
+            '@typescript-eslint/restrict-template-expressions': [0], // 允许在模板字符串中使用非字符串类型的表达式
+            '@typescript-eslint/no-non-null-assertion': [0], // 允许使用非空断言操作符 (!)
+            '@typescript-eslint/no-unnecessary-condition': [0], // 允许在条件表达式中包含不必要的条件
+            '@typescript-eslint/restrict-plus-operands': [0], // 允许在加法操作中使用不同类型的操作数
+            '@typescript-eslint/ban-ts-comment': [0], // 禁止 @ts-<directive> 注释或要求指令后必须有描述
+            '@typescript-eslint/no-unnecessary-type-arguments': [0], // 禁止在类型参数可以被推断时显式指定类型参数
+            '@typescript-eslint/prefer-reduce-type-parameter': [0], // 建议使用 Array.prototype.reduce() 的类型参数来代替显式的类型参数
+
+            // TODO eslint 规则更加严格。下方的规则将按批次进行启用，以便逐步改进代码质量，同时避免一次性修复过多问题。
+
+            '@typescript-eslint/explicit-module-boundary-types': [0, {
+                allowArgumentsExplicitlyTypedAsAny: true,
+            }], // 要求导出函数和类的公共类方法的显式返回和参数类型
+            '@typescript-eslint/no-explicit-any': [0], // 不允许使用any类型
+            '@typescript-eslint/no-unsafe-argument': [0], // 不允许传递 any 类型的值作为参数
+            '@typescript-eslint/no-unsafe-assignment': [0], // 不允许将 any 类型的值分配给其他类型
+            '@typescript-eslint/no-unsafe-member-access': [0], // 不允许对 any 类型的值进行成员访问
+            '@typescript-eslint/no-unsafe-return': [0], // 不允许从函数返回 any 类型的值
+            '@typescript-eslint/no-unsafe-call': [0], // 不允许对 any 类型的值进行调用
+            '@typescript-eslint/unbound-method': [0], // 不允许不绑定上下文的类方法引用
+
+            '@typescript-eslint/no-misused-spread': [0], // 禁止在可能引起意外行为时使用展开运算符
+            '@typescript-eslint/no-dynamic-delete': [0], // 允许使用 delete 操作符删除对象的属性，即使该对象的类型不包含索引签名
+            '@typescript-eslint/no-unnecessary-type-conversion': [0], // 禁止在表达式类型或值未发生变化时使用转换惯用法
         },
     },
 )
