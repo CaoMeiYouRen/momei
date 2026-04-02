@@ -19,7 +19,7 @@ export function assertDemoSettingsWriteAllowed(
     method = 'PUT',
     runtimeConfig: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig(),
 ) {
-    if (runtimeConfig.public.demoMode === true) {
+    if (runtimeConfig.public.demoMode) {
         assertDemoModeRequestAllowed('/api/admin/settings', method)
     }
 }

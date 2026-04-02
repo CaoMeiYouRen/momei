@@ -7,7 +7,7 @@ import { getDemoSettingsPreview } from '@/server/utils/demo-settings'
 export function assertDemoSettingsReadAllowed(
     runtimeConfig: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig(),
 ) {
-    if (runtimeConfig.public.demoMode === true) {
+    if (runtimeConfig.public.demoMode) {
         assertDemoModeRequestAllowed('/api/admin/settings', 'GET')
     }
 }
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
 
     await requireAdmin(event)
 
-    if (useRuntimeConfig().public.demoMode === true) {
+    if (useRuntimeConfig().public.demoMode) {
         return success({
             items: getDemoSettingsPreview(),
             demoPreview: true,

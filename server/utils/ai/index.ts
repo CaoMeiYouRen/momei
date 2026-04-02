@@ -104,7 +104,7 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
 
     // Demo 模式且不是 ASR/TTS (ASR/TTS 耗费通常较低或有免费额度，或者 Mock 不好做)
     const runtimeConfig = useRuntimeConfig()
-    if (runtimeConfig.public.demoMode === true && (category === 'text' || category === 'image')) {
+    if (runtimeConfig.public.demoMode && (category === 'text' || category === 'image')) {
         return new MockAIProvider() as any
     }
 

@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
             })
         }
 
-        if (report.requiresConfirmation && body.confirmPathAliases !== true) {
+        if (report.requiresConfirmation && !body.confirmPathAliases) {
             throw createError({
                 statusCode: 409,
                 statusMessage: 'Import path aliases require confirmation',

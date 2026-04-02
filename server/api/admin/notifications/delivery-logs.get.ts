@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     const queryResult = querySchema.safeParse(getQuery(event))
     const query = queryResult.success ? queryResult.data : { page: 1, limit: 10 }
 
-    if (useRuntimeConfig().public.demoMode === true) {
+    if (useRuntimeConfig().public.demoMode) {
         return success(getDemoNotificationDeliveryLogsPreview(query.page, query.limit))
     }
 

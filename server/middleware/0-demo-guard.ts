@@ -8,7 +8,7 @@ export function runDemoGuard(
     const config = runtimeConfig
 
     // 仅在演示模式下运行拦截逻辑
-    if (config.public.demoMode === true) {
+    if (config.public.demoMode) {
         const method = event.method || 'GET'
         const { pathname: path } = getRequestURL(event)
 

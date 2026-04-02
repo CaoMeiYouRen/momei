@@ -22,7 +22,7 @@ function toWebPushSetting(item: Awaited<ReturnType<typeof resolveSetting>>) {
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
 
-    if (useRuntimeConfig().public.demoMode === true) {
+    if (useRuntimeConfig().public.demoMode) {
         return success(getDemoAdminNotificationSettingsPreview())
     }
 

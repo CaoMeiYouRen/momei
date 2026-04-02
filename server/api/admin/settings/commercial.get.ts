@@ -7,7 +7,7 @@ import { getDemoCommercialSettingsPreview } from '@/server/utils/demo-settings'
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
 
-    if (useRuntimeConfig().public.demoMode === true) {
+    if (useRuntimeConfig().public.demoMode) {
         return success(getDemoCommercialSettingsPreview())
     }
 

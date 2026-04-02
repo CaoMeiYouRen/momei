@@ -2,7 +2,7 @@ export default defineNitroPlugin(() => {
     const config = useRuntimeConfig()
 
     // 仅在演示模式下启用自动重启逻辑
-    if (config.public.demoMode === true) {
+    if (config.public.demoMode) {
         // 默认为 1 小时重启一次，防止长时间运行导致内存膨胀，并周期性重置演示数据
         // 如果用户在环境变量中指定了 DEMO_RESET_INTERVAL (分钟)，则使用该值
         const envInterval = process.env.DEMO_RESET_INTERVAL
