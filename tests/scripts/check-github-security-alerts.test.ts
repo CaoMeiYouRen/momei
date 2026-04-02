@@ -9,6 +9,7 @@ import {
     normalizeCodeScanningAlert,
     normalizeDependabotAlert,
     normalizeExceptionEntries,
+    resolveGitHubToken,
 } from '@/scripts/security/check-github-security-alerts.mjs'
 import { loadLocalEnvFile, parseDotEnvFile } from '@/scripts/security/load-local-env.mjs'
 import { fetchRepositoryAlerts } from '@/scripts/security/security-alert-gate-shared.mjs'
@@ -297,6 +298,47 @@ describe('check-github-security-alerts', () => {
             }
 
             await rm(tempRoot, { force: true, recursive: true })
+        }
+    })
+
+    it('prefers security alerts token over other GitHub token env vars', () => {
+        const originalGithubToken = process.env.GITHUB_TOKEN
+        const originalSecurityAlertsToken = process.env.SECURITY_ALERTS_TOKEN
+        const originalGhToken = process.env.GH_TOKEN
+
+        try {
+            process.env.GITHUB_TOKEN = 'from-github-token'
+            process.env.GH_TOKEN = 'from-gh-token'
+            process.env.SECURITY_ALERTS_TOKEN = 'from-security-alerts-token'
+
+            expect(resolveGitHubToken()).toBe('from-security-alerts-token')
+
+            delete process.env.SECURITY_ALERTS_TOKEN
+            expect(resolveGitHubToken()).toBe('from-gh-token')
+
+            delete process.env.GH_TOKEN
+            expect(resolveGitHubToken()).toBe('from-github-token')
+
+            delete process.env.GITHUB_TOKEN
+            expect(resolveGitHubToken()).toBeNull()
+        } finally {
+            if (originalGithubToken === undefined) {
+                delete process.env.GITHUB_TOKEN
+            } else {
+                process.env.GITHUB_TOKEN = originalGithubToken
+            }
+
+            if (originalSecurityAlertsToken === undefined) {
+                delete process.env.SECURITY_ALERTS_TOKEN
+            } else {
+                process.env.SECURITY_ALERTS_TOKEN = originalSecurityAlertsToken
+            }
+
+            if (originalGhToken === undefined) {
+                delete process.env.GH_TOKEN
+            } else {
+                process.env.GH_TOKEN = originalGhToken
+            }
         }
     })
 

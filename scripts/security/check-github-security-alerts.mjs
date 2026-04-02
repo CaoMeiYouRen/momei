@@ -17,6 +17,7 @@ import {
     parseArgs,
     printAlert,
     readExceptionEntries,
+    resolveGitHubToken,
     resolveRepository,
     severityAtLeast,
     writeArtifacts,
@@ -93,6 +94,7 @@ export {
     normalizeExceptionEntries,
     normalizeSeverity,
     parseArgs,
+    resolveGitHubToken,
     severityAtLeast,
 }
 

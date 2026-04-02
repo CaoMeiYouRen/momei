@@ -327,6 +327,16 @@ function normalizeSourceStatus(status) {
     }
 }
 
+function resolveGitHubToken() {
+    const candidates = [
+        process.env.SECURITY_ALERTS_TOKEN,
+        process.env.GH_TOKEN,
+        process.env.GITHUB_TOKEN,
+    ]
+
+    return candidates.find((value) => typeof value === 'string' && value.trim())?.trim() || null
+}
+
 async function fetchGitHubApiPage({ owner, perPage, repo, token, endpoint, page }) {
     const url = new URL(`https://api.github.com/repos/${owner}/${repo}/${endpoint}`)
     url.searchParams.set('state', 'open')
@@ -745,6 +755,7 @@ export {
     printAlert,
     readExceptionEntries,
     resolveRepository,
+    resolveGitHubToken,
     severityAtLeast,
     writeArtifacts,
 }
