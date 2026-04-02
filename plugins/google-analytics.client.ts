@@ -12,7 +12,7 @@ function gtag(...args: unknown[]) {
     }
 }
 
-export default defineNuxtPlugin((): { provide: { googleAnalytics: GoogleAnalyticsMethods } } | void => {
+export default defineNuxtPlugin((): { provide: { googleAnalytics: GoogleAnalyticsMethods } } | undefined => {
     const runtimeConfig = useRuntimeConfig()
     const googleAnalyticsId = runtimeConfig.public.googleAnalyticsId
 

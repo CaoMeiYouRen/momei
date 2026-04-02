@@ -12,7 +12,7 @@ type AppQueryValue = AppQueryResolvedValue | MaybeReactive<AppQueryResolvedValue
 
 type AppQueryRecord = Record<string, AppQueryValue>
 
-type AppFetchResponse<T> = T extends void ? unknown : T
+type AppFetchResponse<T> = [T] extends [undefined] ? unknown : T
 
 type AppFetchOptions<T> = Omit<UseFetchOptions<AppFetchResponse<T>>, 'query'> & {
     query?: MaybeReactive<AppQueryRecord | undefined>

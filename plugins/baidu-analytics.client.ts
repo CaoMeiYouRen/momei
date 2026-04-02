@@ -4,7 +4,7 @@ import type { BaiduAnalyticsMethods } from '@/types/baidu-analytics'
  * 百度统计插件 - 客户端插件
  * 等效实现百度统计的原始 JavaScript 代码
  */
-export default defineNuxtPlugin((): { provide: { baiduAnalytics: BaiduAnalyticsMethods } } | void => {
+export default defineNuxtPlugin((): { provide: { baiduAnalytics: BaiduAnalyticsMethods } } | undefined => {
     const config = useRuntimeConfig()
     const baiduAnalyticsId = config.public.baiduAnalyticsId
 

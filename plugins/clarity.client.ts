@@ -1,7 +1,7 @@
 import Clarity from '@microsoft/clarity'
 import type { ClarityMethods } from '@/types/clarity'
 
-export default defineNuxtPlugin((): { provide: { clarity: ClarityMethods } } | void => {
+export default defineNuxtPlugin((): { provide: { clarity: ClarityMethods } } | undefined => {
     const config = useRuntimeConfig()
     const clarityProjectId = config.public.clarityProjectId
 

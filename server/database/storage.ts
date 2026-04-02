@@ -13,8 +13,8 @@ interface BaseStorage {
      * @param ttl 秒数
      * @returns
      */
-    set: (key: string, value: string, ttl?: number) => Promise<void | null | string> | void
-    delete: (key: string) => Promise<void | null | string> | void
+    set: (key: string, value: string, ttl?: number) => Promise<null | string | undefined> | undefined
+    delete: (key: string) => Promise<null | string | undefined> | undefined
     /**
      *
      * @param key
