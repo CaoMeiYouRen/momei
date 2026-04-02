@@ -5,7 +5,7 @@
 ## 当前窗口与索引
 
 - 统一入口: [回归日志索引与对比指南](./regression-log-index.md)
-- 当前窗口: 活动日志当前保留 2026-03-22 至 2026-03-30 的 7 条近线记录，优先服务第十九阶段收口、近期发版判断与最近基线比较。
+- 当前窗口: 活动日志当前保留 2026-03-22 至 2026-04-02 的 8 条近线记录，优先服务当前阶段收口、近期发版判断与最近基线比较。
 - 历史归档: 2026-03-20 至 2026-03-21 的 5 条旧记录已滚动迁移到 [regression-log-archive.md](./regression-log-archive.md)。
 - 对比建议: 先用本文件确认当前基线，再按主题到归档文件核对更早一期的 clean baseline 或历史专项记录。
 
@@ -31,6 +31,55 @@
     - 活动日志保留最近记录与索引入口。
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
+
+## 测试覆盖率阶段性抬升治理首轮基线（2026-04-02）
+
+### 回归任务记录
+
+- 回归范围: 第二十一阶段 P0“测试覆盖率阶段性抬升治理”首轮启动；覆盖 `utils/shared` 与 `utils/web` 中一组低覆盖纯函数/桥接模块的首轮补测、覆盖率基线建立与阶段治理口径收敛。
+- 触发条件: 当前阶段待办要求先产出覆盖率基线、补齐优先路径，并给出“每阶段约提升 5%”的治理节奏，避免覆盖率任务失控为无限期全仓补测。
+- 执行频率: 本阶段首轮基线；后续按“每轮优先选择 1 组低覆盖模块或核心路径”滚动补写。单组模块稳定达到 80% 后转入守线，仅在相关目录发生改动或基线回退时复跑。
+- timeout budget:
+    - 定向 Vitest: 10 分钟。
+    - 全量 `pnpm test:coverage`: 30 分钟。
+    - 定向 ESLint / Markdown 检查: 10 分钟。
+- 已执行命令:
+    - `pnpm test:coverage`
+    - `pnpm exec vitest run utils/shared/installation-env-setting.test.ts utils/shared/request-feedback.test.ts utils/web/setup-journey.test.ts utils/web/post-distribution-wechatsync.test.ts`
+    - `pnpm test:coverage`
+    - `pnpm exec vitest run utils/web/post-distribution-dialog.test.ts`
+    - `pnpm test:coverage`
+- 输出摘要:
+    - 已执行验证:
+        - V2 / 逻辑层: 新增 `utils/shared/installation-env-setting.test.ts`、`utils/shared/request-feedback.test.ts`、`utils/web/setup-journey.test.ts`、`utils/web/post-distribution-wechatsync.test.ts`、`utils/web/post-distribution-dialog.test.ts`，共补齐 18 条测试。
+        - V4 / Coverage 层: 连续 3 次执行 `pnpm test:coverage`，以 `coverage/coverage-final.json` 汇总全仓、目录组与目标文件基线，并确认补测收益。
+    - 结果摘要:
+        - 上一轮可追溯全仓 clean baseline 为 Statements 60.06%、Branches 47.64%、Functions 53.63%、Lines 60.02%（来源: 归档日志历史基线）。
+        - 本轮最终全仓覆盖率为 Statements 60.95%、Branches 49.53%、Functions 55.66%、Lines 60.92%，在维持全仓守线的同时完成小幅抬升。
+        - `utils/web` 目录从首轮摸底的 Statements 31.76% 提升到 89.41%，Branches 70.65%、Functions 100%、Lines 89.41%，达到“至少对一组低覆盖模块完成首轮补强且相对基线提升约 5%”的阶段验收要求。
+        - `utils/shared` 当前汇总为 Statements 88.90%、Branches 77.55%、Functions 93.28%、Lines 88.73%，本轮新增补测主要集中在 `request-feedback.ts` 与 `installation-env-setting.ts`。
+        - 目标文件覆盖率:
+            - `utils/shared/installation-env-setting.ts`: Statements 100%、Branches 100%、Functions 100%。
+            - `utils/shared/request-feedback.ts`: Statements 93.94%、Branches 94.12%、Functions 100%。
+            - `utils/web/setup-journey.ts`: Statements 75%、Branches 70%、Functions 100%。
+            - `utils/web/post-distribution-wechatsync.ts`: Statements 100%、Branches 62.5%、Functions 100%。
+            - `utils/web/post-distribution-dialog.ts`: Statements 100%、Branches 89.47%、Functions 100%。
+        - 下一阶段优先补齐顺序: 继续按目录或链路分组治理，优先筛选新的低覆盖热点，避免在已达标的 `utils/web` 组内继续堆叠低收益测试。
+    - 测试结果（按需）:
+        - `pnpm exec vitest run utils/shared/installation-env-setting.test.ts utils/shared/request-feedback.test.ts utils/web/setup-journey.test.ts utils/web/post-distribution-wechatsync.test.ts`: 4 files passed / 13 tests passed。
+        - `pnpm exec vitest run utils/web/post-distribution-dialog.test.ts`: 1 file passed / 5 tests passed。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: info
+        - 主要问题:
+            - 本轮重点验证的是一组低覆盖模块，不代表全仓已进入 80% 稳态；当前全仓仍处于“60% 守线 + 分阶段抬升”阶段。
+            - `utils/web/setup-journey.ts` 的部分分支依赖 `import.meta.client` 环境判断，本轮已覆盖主要路径，但仍保留少量环境相关分支缺口。
+    - 未覆盖边界:
+        - 本轮未对新的服务端低覆盖目录或大型页面组件组做补测，因而“全仓阶段性 +5%”尚未作为本轮结论，只对低覆盖模块组达成显著提升。
+        - `runWechatSyncBatch` 等桥接逻辑采用 mock 验证输入输出契约，未在真实第三方同步环境下执行集成覆盖。
+    - 后续补跑计划:
+        - 下一轮优先从新的低覆盖模块组中选择 1 组高收益目标，沿用“先定向补测，再执行一次 `pnpm test:coverage` 写回基线”的节奏。
+        - 若后续改动再次触及 `utils/web` 已达标文件，默认执行对应定向 Vitest 守线；仅在目录基线回退或函数新增分支明显扩大时再补写覆盖率专项记录。
 
 ## UI 真实环境 Review Gate 证据规范补强（2026-04-01）
 
