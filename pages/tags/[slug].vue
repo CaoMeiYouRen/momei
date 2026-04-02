@@ -81,6 +81,18 @@
 </template>
 
 <script setup lang="ts">
+import type { ApiResponse } from '@/types/api'
+import type { Post } from '@/types/post'
+import type { Tag } from '@/types/tag'
+
+interface PublicPostListData {
+    items: Post[]
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+}
+
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
@@ -93,11 +105,11 @@ const limit = ref(10)
 const first = ref((page.value - 1) * limit.value)
 
 // 1. Fetch Tag Info
-const { data: tagData, pending: tagPending, error: tagError } = await useAppFetch<any>(() => `/api/tags/slug/${slug.value}`)
+const { data: tagData, pending: tagPending, error: tagError } = await useAppFetch<ApiResponse<Tag>>(() => `/api/tags/slug/${slug.value}`)
 const tag = computed(() => tagData.value?.data)
 
 // 2. Fetch Posts with this tag
-const { data: postsData, pending: postsPending, error: postsError } = await useAppFetch<any>('/api/posts', {
+const { data: postsData, pending: postsPending, error: postsError } = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {
     query: {
         page,
         limit,

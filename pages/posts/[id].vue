@@ -331,9 +331,38 @@
 </template>
 
 <script setup lang="ts">
+import type { ApiResponse } from '@/types/api'
+import type { Post } from '@/types/post'
+import type { DonationLink, SocialLink } from '@/utils/shared/commercial'
 import { isSnowflakeId } from '@/utils/shared/validate'
 import { countWords, estimateReadingTime } from '@/utils/shared/post-stats'
 import { AdLocation } from '@/types/ad'
+
+interface PostNavigationItem {
+    id: string
+    slug: string
+    title: string
+    summary?: string | null
+    coverImage?: string | null
+    publishedAt?: string | Date | null
+    language: string
+}
+
+interface PostDetailAuthor extends NonNullable<Post['author']> {
+    email?: string | null
+    socialLinks?: SocialLink[]
+    donationLinks?: DonationLink[]
+}
+
+interface PostDetailResponse extends Omit<Post, 'author' | 'translations'> {
+    author?: PostDetailAuthor | null
+    previousPost?: PostNavigationItem | null
+    nextPost?: PostNavigationItem | null
+    translations?: {
+        language: string
+        slug: string
+    }[] | null
+}
 
 const route = useRoute()
 const localePath = useLocalePath()
@@ -354,7 +383,7 @@ const fullUrl = computed(() => {
 const isId = isSnowflakeId(idOrSlug)
 const endpoint = isId ? `/api/posts/${idOrSlug}` : `/api/posts/slug/${idOrSlug}`
 
-const { data, pending, error, refresh } = await useAppFetch<any>(() => endpoint)
+const { data, pending, error, refresh } = await useAppFetch<ApiResponse<PostDetailResponse>>(() => endpoint)
 
 const post = computed(() => data.value?.data)
 
@@ -380,11 +409,11 @@ const unlocking = ref(false)
 const unlockError = ref('')
 
 const unlockPost = async () => {
-    if (!password.value) return
+    if (!password.value || !post.value?.id) return
     unlocking.value = true
     unlockError.value = ''
     try {
-        const res = await $fetch<any>(`/api/posts/${post.value.id}/verify-password`, {
+        const res = await $fetch<ApiResponse<{ verified: boolean }>>(`/api/posts/${post.value.id}/verify-password`, {
             method: 'POST',
             body: { password: password.value },
         })

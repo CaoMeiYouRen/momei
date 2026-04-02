@@ -49,10 +49,18 @@
 </template>
 
 <script setup lang="ts">
+import type { ApiResponse } from '@/types/api'
+import type { Category } from '@/types/category'
+
+interface CategoryListData {
+    items: Category[]
+    total: number
+}
+
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-const { data, pending, error } = await useAppFetch<any>('/api/categories', {
+const { data, pending, error } = await useAppFetch<ApiResponse<CategoryListData>>('/api/categories', {
     query: {
         limit: 100, // Show all
         orderBy: 'postCount',

@@ -13,8 +13,8 @@ interface BaseStorage {
      * @param ttl 秒数
      * @returns
      */
-    set: (key: string, value: string, ttl?: number) => Promise<null | string | undefined> | undefined
-    delete: (key: string) => Promise<null | string | undefined> | undefined
+    set: (key: string, value: string, ttl?: number) => Promise<null | string | undefined>
+    delete: (key: string) => Promise<null | string | undefined>
     /**
      *
      * @param key
@@ -35,13 +35,14 @@ const createBaseStorage = (): BaseStorage => {
             },
             set: async (key: string, value: string, ttl?: number) => {
                 if (ttl) {
-                    await redis.set(key, value, 'EX', ttl)
-                } else {
-                    await redis.set(key, value)
+                    return await redis.set(key, value, 'EX', ttl)
                 }
+                return await redis.set(key, value)
+                
             },
             delete: async (key: string) => {
                 await redis.del(key)
+                return null
             },
             increment: async (key: string, ttl: number) => {
                 const current = await redis.incr(key)
@@ -63,11 +64,11 @@ const createBaseStorage = (): BaseStorage => {
         },
         set: (key: string, value: string, ttl?: number) => {
             memoryStorage.set(key, value, { ttl: ttl ? ttl * 1000 : undefined })
-            return Promise.resolve()
+            return Promise.resolve(null)
         },
         delete: (key: string) => {
             memoryStorage.delete(key)
-            return Promise.resolve()
+            return Promise.resolve(null)
         },
         increment: (key: string, ttl: number) => {
             const currentValue = memoryStorage.get(key)

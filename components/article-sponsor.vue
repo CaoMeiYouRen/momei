@@ -105,7 +105,9 @@
 </template>
 
 <script setup lang="ts">
+import type { ApiResponse } from '@/types/api'
 import { SOCIAL_PLATFORMS, DONATION_PLATFORMS, type SocialLink, type DonationLink } from '@/utils/shared/commercial'
+import type { CommercialConfig } from '@/utils/shared/commercial'
 
 const props = defineProps<{
     socialLinks?: SocialLink[]
@@ -120,7 +122,7 @@ const qrHeader = ref('')
 const qrLabel = ref('')
 
 // Global settings
-const { data: globalData } = await useAppFetch<any>('/api/settings/commercial')
+const { data: globalData } = await useAppFetch<ApiResponse<CommercialConfig>>('/api/settings/commercial')
 const globalSocialLinks = computed<SocialLink[]>(() => globalData.value?.data?.socialLinks || [])
 const globalDonationLinks = computed<DonationLink[]>(() => globalData.value?.data?.donationLinks || [])
 const globalEnabled = computed(() => globalData.value?.data?.enabled !== false)

@@ -46,12 +46,13 @@ function summarizePartition(results, trainQuerySet) {
 }
 
 function openFileInBrowser(filePath) {
+  const normalizedPath = path.resolve(filePath);
   const platform = process.platform;
   const command = platform === 'win32'
-    ? ['cmd', ['/c', 'start', '', filePath]]
+    ? ['explorer.exe', [normalizedPath]]
     : platform === 'darwin'
-      ? ['open', [filePath]]
-      : ['xdg-open', [filePath]];
+      ? ['open', [normalizedPath]]
+      : ['xdg-open', [normalizedPath]];
   const [bin, args] = command;
   const child = spawn(bin, args, { stdio: 'ignore', detached: true });
   child.unref();

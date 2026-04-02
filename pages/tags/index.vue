@@ -43,10 +43,18 @@
 </template>
 
 <script setup lang="ts">
+import type { ApiResponse } from '@/types/api'
+import type { Tag } from '@/types/tag'
+
+interface TagListData {
+    items: Tag[]
+    total: number
+}
+
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-const { data, pending, error } = await useAppFetch<any>('/api/tags', {
+const { data, pending, error } = await useAppFetch<ApiResponse<TagListData>>('/api/tags', {
     query: {
         limit: 200, // Fetch top 200 popular tags
         orderBy: 'postCount',
@@ -62,7 +70,7 @@ const total = computed(() => data.value?.data?.total || 0)
 
 const maxCount = computed(() => {
     if (!tags.value.length) return 1
-    return Math.max(...tags.value.map((t: any) => t.postCount || 0))
+    return Math.max(...tags.value.map((tag) => tag.postCount || 0))
 })
 
 const getTagWeight = (count: number = 0) => {

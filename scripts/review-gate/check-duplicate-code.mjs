@@ -351,16 +351,13 @@ function renderMarkdownReport({ artifactPaths, baseline, baselinePath, config, c
 async function runCommand(command, commandArgs) {
     return await new Promise((resolve) => {
         const start = Date.now()
-        const isWin = process.platform === 'win32'
-        const spawnCommand = isWin ? 'cmd.exe' : command
-        const spawnArgs = isWin
-            ? ['/d', '/s', '/c', [command, ...commandArgs].join(' ')]
-            : commandArgs
+        const spawnCommand = process.platform === 'win32' && command === 'pnpm'
+            ? 'pnpm.cmd'
+            : command
 
         const chunks = []
-        const child = spawn(spawnCommand, spawnArgs, {
+        const child = spawn(spawnCommand, commandArgs, {
             cwd: repoRoot,
-            env: process.env,
             stdio: ['inherit', 'pipe', 'pipe'],
         })
 

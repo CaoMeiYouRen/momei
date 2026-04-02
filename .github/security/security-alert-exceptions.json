@@ -1,3 +1,32 @@
 {
-    "entries": []
+    "entries": [
+        {
+            "source": "dependabot",
+            "alertNumber": "audit:mjml:GHSA-45h5-66jx-r2wf",
+            "classification": "defer",
+            "reason": "mjml 当前开源发布线暂无上游补丁版本，先保留例外并持续关注上游修复发布。",
+            "temporaryException": "有效至 2026-05-15，或上游发布可用补丁版本后立即移除。"
+        },
+        {
+            "source": "dependabot",
+            "alertNumber": "audit:quill:GHSA-v3m3-f69x-jf25",
+            "classification": "defer",
+            "reason": "quill 当前告警没有官方 patched version，暂按低风险依赖例外处理并等待上游修复。",
+            "temporaryException": "有效至 2026-05-15，或上游发布可用补丁版本后立即移除。"
+        },
+        {
+            "source": "code-scanning",
+            "alertNumber": "31",
+            "classification": "defer",
+            "reason": "本地已改为直接调用 pnpm.cmd 或 pnpm 可执行文件并移除显式环境透传，等待 GitHub code scanning 复扫后关闭旧告警。",
+            "temporaryException": "有效至 2026-04-16，或 GitHub code scanning 完成复扫并自动关闭告警后立即移除。"
+        },
+        {
+            "source": "code-scanning",
+            "alertNumber": "30",
+            "classification": "defer",
+            "reason": "本地已改为使用 explorer.exe 或 open/xdg-open 直接打开报告文件，避免 Windows shell start 调用路径注入风险，等待 GitHub code scanning 复扫。",
+            "temporaryException": "有效至 2026-04-16，或 GitHub code scanning 完成复扫并自动关闭告警后立即移除。"
+        }
+    ]
 }
