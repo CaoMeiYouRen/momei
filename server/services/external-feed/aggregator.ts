@@ -18,7 +18,7 @@ function normalizeItemLanguage(language: string | null) {
 }
 
 function shouldIncludeItemForLocale(item: ExternalFeedItem, source: ExternalFeedSourceConfig, locale: AppLocaleCode) {
-    const itemLocale = normalizeItemLanguage(item.language)
+    const itemLocale = source.provider === 'rsshub' ? null : normalizeItemLanguage(item.language)
 
     if (itemLocale) {
         return itemLocale === locale

@@ -25,6 +25,7 @@ import { getExternalFeedRegistryConfig } from '@/server/services/external-feed/r
 import {
     canUseStaleExternalFeedSnapshot,
     getExternalFeedSnapshot,
+    isExternalFeedSnapshotFresh,
     setExternalFeedSnapshot,
 } from '@/server/services/external-feed/cache'
 import { fetchExternalFeedSource } from '@/server/services/external-feed/fetcher'
@@ -229,5 +230,69 @@ describe('getExternalFeedHomePayload', () => {
         expect(result.degraded).toBe(true)
         expect(result.stale).toBe(true)
         expect(result.items[0]?.title).toBe('Cached item')
+    })
+
+    it('ignores RSSHub language metadata when filtering localized results', async () => {
+        vi.mocked(getExternalFeedRegistryConfig).mockResolvedValue({
+            enabled: true,
+            homeEnabled: true,
+            homeLimit: 6,
+            defaultCacheTtlSeconds: 900,
+            defaultStaleWhileErrorSeconds: 86400,
+            sources: [
+                {
+                    id: 'rsshub-bilibili',
+                    enabled: true,
+                    provider: 'rsshub',
+                    title: 'RSSHub Bilibili',
+                    sourceUrl: 'https://example.com/rsshub.xml',
+                    siteUrl: 'https://space.bilibili.com/10822025',
+                    siteName: null,
+                    defaultLocale: 'zh-CN',
+                    localeStrategy: 'all',
+                    includeInHome: true,
+                    badgeLabel: 'bilibili',
+                    priority: 30,
+                    timeoutMs: null,
+                    cacheTtlSeconds: null,
+                    staleWhileErrorSeconds: null,
+                    maxItems: 6,
+                },
+            ],
+        })
+        vi.mocked(getExternalFeedSnapshot).mockResolvedValue({
+            sourceId: 'rsshub-bilibili',
+            localeBucket: 'all',
+            fetchedAt: '2026-04-04T01:00:00.000Z',
+            expiresAt: '2099-04-04T01:10:00.000Z',
+            staleUntil: '2099-04-05T01:10:00.000Z',
+            items: [
+                {
+                    id: '1',
+                    sourceId: 'rsshub-bilibili',
+                    title: 'Bilibili dynamic item',
+                    summary: 'summary',
+                    url: 'https://t.bilibili.com/1186983966847008773',
+                    canonicalUrl: 'https://t.bilibili.com/1186983966847008773',
+                    publishedAt: '2026-04-03T08:24:01.000Z',
+                    authorName: '草梅友仁',
+                    language: 'en',
+                    coverImage: null,
+                    sourceTitle: 'RSSHub Bilibili',
+                    sourceSiteUrl: 'https://space.bilibili.com/10822025',
+                    sourceBadge: 'bilibili',
+                    dedupeKey: 'https://t.bilibili.com/1186983966847008773',
+                    priority: 30,
+                },
+            ],
+        })
+        vi.mocked(isExternalFeedSnapshotFresh).mockReturnValue(true)
+
+        const result = await getExternalFeedHomePayload('zh-CN')
+
+        expect(result.degraded).toBe(false)
+        expect(result.stale).toBe(false)
+        expect(result.items).toHaveLength(1)
+        expect(result.items[0]?.title).toBe('Bilibili dynamic item')
     })
 })
