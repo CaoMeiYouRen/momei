@@ -140,7 +140,7 @@
     ],
     "overrides": {
       "basic-ftp": "^5.2.0",
-      "fast-xml-parser": "^5.5.7",
+      "fast-xml-parser": "^5.5.9",
       "@smithy/types": "^4.13.1",
       "file-type": "^21.3.2",
       "preact": "^10.28.2",
