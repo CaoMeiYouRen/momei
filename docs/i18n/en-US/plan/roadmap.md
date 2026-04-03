@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-04-01
+last_sync: 2026-04-04
 ---
 
 # Momei - Project Roadmap
@@ -10,6 +10,12 @@ This document has been translated from Chinese. In case of any discrepancy, the 
 :::
 
 This document outlines the development blueprint for the project. For specific task execution status, please refer to the [Todo List](../../../plan/todo.md) (Chinese Only). The long-term backlog now lives in the Chinese-only [backlog document](../../../plan/backlog.md).
+
+## Latest Status Snapshot
+
+- **Stage 21 has been audited and archived**: The validation entry workflow, script entry consolidation, taxonomy translation decoupling, and default cover typography cleanup have been fully closed in the Chinese source of truth.
+- **Stage 22 is now officially active**: The current phase includes six controlled tracks: test effectiveness, operationalized periodic regression, batch translation orchestration assessment, phased ESLint tightening, time and date source-of-truth consolidation, and moving the admin post-management entry to the top bar.
+- **Scope note**: Full acceptance criteria and task decomposition remain Chinese-only in the canonical [roadmap](../../../plan/roadmap.md) and [todo](../../../plan/todo.md).
 
 ## 1. Project Overview
 
