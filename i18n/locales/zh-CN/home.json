@@ -15,6 +15,15 @@
     "popular_posts": {
       "title": "热门文章"
     },
+    "external_feed": {
+      "title": "外部动态",
+      "subtitle": "统一聚合来自 RSS 与 RSSHub 的外部更新，外链打开，不伪装为站内文章。",
+      "stale": "缓存回退",
+      "degraded": "降级中",
+      "degraded_notice": "当前展示的是最近一次成功抓取的缓存快照，外部源暂时不可用。",
+      "empty": "当前没有可展示的外部动态。",
+      "open_external": "查看原文"
+    },
     "about": {
       "description": "墨梅博客致力于通过 AI 辅助和深度国际化支持，帮助开发者更高效地创作优质内容，并触达全球读者。"
     }

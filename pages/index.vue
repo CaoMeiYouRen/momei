@@ -105,6 +105,18 @@
             </div>
         </section>
 
+        <section v-if="externalFeedPending || externalFeedError || externalFeedItems.length > 0" class="external-feed section">
+            <div class="container">
+                <ExternalFeedPanel
+                    :items="externalFeedItems"
+                    :pending="externalFeedPending"
+                    :has-error="Boolean(externalFeedError)"
+                    :stale="externalFeedStale"
+                    :degraded="externalFeedDegraded"
+                />
+            </div>
+        </section>
+
         <!-- Newsletter Section -->
         <section class="newsletter section">
             <div class="container flex justify-center">
@@ -133,6 +145,7 @@
 
 <script setup lang="ts">
 import type { ApiResponse } from '@/types/api'
+import type { ExternalFeedHomePayload } from '@/types/external-feed'
 import type { Post } from '@/types/post'
 import {
     HOMEPAGE_LATEST_POST_LIMIT,
@@ -212,6 +225,16 @@ const popularPosts = computed(() => {
     const latestIds = new Set(latestPostIds.value)
     return (popularData.value?.data?.items || []).filter((post) => !latestIds.has(String(post.id)))
 })
+
+const {
+    data: externalFeedData,
+    pending: externalFeedPending,
+    error: externalFeedError,
+} = await useAppFetch<ApiResponse<ExternalFeedHomePayload>>('/api/external-feed/home')
+
+const externalFeedItems = computed(() => externalFeedData.value?.data?.items || [])
+const externalFeedStale = computed(() => Boolean(externalFeedData.value?.data?.stale))
+const externalFeedDegraded = computed(() => Boolean(externalFeedData.value?.data?.degraded))
 </script>
 
 <style lang="scss" scoped>

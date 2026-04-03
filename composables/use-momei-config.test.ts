@@ -71,6 +71,9 @@ describe('useMomeiConfig', () => {
             effectsMobileEnabled: null,
             effectsMinWidth: null,
             effectsDataSaverBlock: null,
+            externalFeedEnabled: false,
+            externalFeedHomeEnabled: false,
+            externalFeedHomeLimit: 6,
             webPushEnabled: false,
             webPushPublicKey: '',
         }

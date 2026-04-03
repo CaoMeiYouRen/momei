@@ -15,6 +15,15 @@
     "popular_posts": {
       "title": "熱門文章"
     },
+    "external_feed": {
+      "title": "外部動態",
+      "subtitle": "統一聚合來自 RSS 與 RSSHub 的外部更新，使用外部連結開啟，不偽裝為站內文章。",
+      "stale": "快取回退",
+      "degraded": "降級中",
+      "degraded_notice": "目前顯示的是最近一次成功抓取的快取快照，外部來源暫時不可用。",
+      "empty": "目前沒有可展示的外部動態。",
+      "open_external": "查看原文"
+    },
     "about": {
       "description": "墨梅部落格致力於透過 AI 輔助與深度國際化支援，協助開發者更高效地創作優質內容，並觸及全球讀者。"
     }

@@ -229,6 +229,9 @@ const numberSettingFallbacks: Record<string, number> = {
     friend_links_footer_limit: 6,
     friend_links_check_interval_minutes: 1440,
     local_storage_min_free_space: 104857600,
+    external_feed_home_limit: 6,
+    external_feed_cache_ttl_seconds: 900,
+    external_feed_stale_while_error_seconds: 86400,
 }
 
 function normalizeFormValue(setting: SettingItem): SettingFormValue {

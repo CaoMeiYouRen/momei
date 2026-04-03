@@ -47,6 +47,9 @@ export interface MomeiPublicConfig {
     effectsMobileEnabled: boolean | null
     effectsMinWidth: number | null
     effectsDataSaverBlock: boolean | null
+    externalFeedEnabled: boolean
+    externalFeedHomeEnabled: boolean
+    externalFeedHomeLimit: number
     webPushEnabled: boolean
     webPushPublicKey: string
     i18n?: MomeiPublicConfigI18nMeta
@@ -93,6 +96,9 @@ const createDefaultSiteConfig = (): MomeiPublicConfig => ({
     effectsMobileEnabled: null,
     effectsMinWidth: null,
     effectsDataSaverBlock: null,
+    externalFeedEnabled: false,
+    externalFeedHomeEnabled: false,
+    externalFeedHomeLimit: 6,
     webPushEnabled: false,
     webPushPublicKey: '',
     i18n: undefined,

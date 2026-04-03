@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { requireAdmin } from '@/server/utils/permission'
 import { aiAlertThresholdsSchema, aiCostFactorsSchema, aiQuotaPoliciesSchema } from '@/utils/schemas/ai'
+import { externalFeedSourcesSchema } from '@/utils/schemas/external-feed'
 import { parseMaybeJson } from '@/utils/shared/coerce'
 import { success } from '@/server/utils/response'
 import { setSettings } from '@/server/services/setting'
@@ -87,6 +88,24 @@ export default defineEventHandler(async (event) => {
         }
 
         settingsPayload[SettingKey.AI_COST_FACTORS] = JSON.stringify(validation.data, null, 2)
+    }
+
+    if (Object.hasOwn(settingsPayload, SettingKey.EXTERNAL_FEED_SOURCES)) {
+        const rawSources = settingsPayload[SettingKey.EXTERNAL_FEED_SOURCES]
+        const parsedSources = Array.isArray(rawSources)
+            ? rawSources
+            : parseMaybeJson<unknown[] | null>(String(rawSources ?? ''), null)
+        const validation = externalFeedSourcesSchema.safeParse(parsedSources)
+
+        if (!validation.success) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: 'Invalid external feed sources JSON',
+                data: z.treeifyError(validation.error),
+            })
+        }
+
+        settingsPayload[SettingKey.EXTERNAL_FEED_SOURCES] = JSON.stringify(validation.data, null, 2)
     }
 
     await setSettings(settingsPayload, {

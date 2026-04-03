@@ -15,6 +15,15 @@
     "popular_posts": {
       "title": "인기 글"
     },
+    "external_feed": {
+      "title": "외부 업데이트",
+      "subtitle": "RSS 와 RSSHub 소스를 하나로 모아 보여 주며, 내부 글처럼 위장하지 않고 외부 링크로 엽니다.",
+      "stale": "캐시 사용 중",
+      "degraded": "축소 모드",
+      "degraded_notice": "외부 소스를 일시적으로 가져올 수 없어 최근 성공한 캐시 스냅샷을 표시하고 있습니다.",
+      "empty": "표시할 외부 업데이트가 없습니다.",
+      "open_external": "원문 열기"
+    },
     "about": {
       "description": "Momei Blog는 AI 보조와 깊은 국제화 지원을 통해 개발자가 더 효율적으로 좋은 콘텐츠를 만들고, 전 세계 독자에게 도달하도록 돕습니다."
     }

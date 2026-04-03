@@ -187,6 +187,103 @@
                 </SettingFormField>
             </div>
         </div>
+
+        <div class="third-party-settings__section">
+            <h3 class="third-party-settings__section-title">
+                {{ $t('pages.admin.settings.system.sections.external_feeds') }}
+            </h3>
+
+            <SettingFormField
+                field-key="external_feed_enabled"
+                input-id="external_feed_enabled"
+                :metadata="metadata.external_feed_enabled"
+                inline
+            >
+                <ToggleSwitch
+                    id="external_feed_enabled"
+                    v-model="externalFeedEnabled"
+                    :disabled="metadata.external_feed_enabled?.isLocked"
+                />
+            </SettingFormField>
+
+            <div v-if="externalFeedEnabled" class="third-party-settings__sub-fields">
+                <SettingFormField
+                    field-key="external_feed_home_enabled"
+                    input-id="external_feed_home_enabled"
+                    :metadata="metadata.external_feed_home_enabled"
+                    inline
+                >
+                    <ToggleSwitch
+                        id="external_feed_home_enabled"
+                        v-model="externalFeedHomeEnabled"
+                        :disabled="metadata.external_feed_home_enabled?.isLocked"
+                    />
+                </SettingFormField>
+
+                <SettingFormField
+                    field-key="external_feed_home_limit"
+                    input-id="external_feed_home_limit"
+                    :metadata="metadata.external_feed_home_limit"
+                    :description="$t('pages.admin.settings.system.hints.external_feed_home_limit')"
+                >
+                    <InputNumber
+                        id="external_feed_home_limit"
+                        v-model="settings.external_feed_home_limit"
+                        :disabled="metadata.external_feed_home_limit?.isLocked"
+                        :min="1"
+                        :max="12"
+                        fluid
+                    />
+                </SettingFormField>
+
+                <SettingFormField
+                    field-key="external_feed_cache_ttl_seconds"
+                    input-id="external_feed_cache_ttl_seconds"
+                    :metadata="metadata.external_feed_cache_ttl_seconds"
+                    :description="$t('pages.admin.settings.system.hints.external_feed_cache_ttl_seconds')"
+                >
+                    <InputNumber
+                        id="external_feed_cache_ttl_seconds"
+                        v-model="settings.external_feed_cache_ttl_seconds"
+                        :disabled="metadata.external_feed_cache_ttl_seconds?.isLocked"
+                        :min="60"
+                        :max="86400"
+                        fluid
+                    />
+                </SettingFormField>
+
+                <SettingFormField
+                    field-key="external_feed_stale_while_error_seconds"
+                    input-id="external_feed_stale_while_error_seconds"
+                    :metadata="metadata.external_feed_stale_while_error_seconds"
+                    :description="$t('pages.admin.settings.system.hints.external_feed_stale_while_error_seconds')"
+                >
+                    <InputNumber
+                        id="external_feed_stale_while_error_seconds"
+                        v-model="settings.external_feed_stale_while_error_seconds"
+                        :disabled="metadata.external_feed_stale_while_error_seconds?.isLocked"
+                        :min="60"
+                        :max="604800"
+                        fluid
+                    />
+                </SettingFormField>
+
+                <SettingFormField
+                    field-key="external_feed_sources"
+                    input-id="external_feed_sources"
+                    :metadata="metadata.external_feed_sources"
+                    :description="$t('pages.admin.settings.system.hints.external_feed_sources')"
+                >
+                    <Textarea
+                        id="external_feed_sources"
+                        v-model="settings.external_feed_sources"
+                        :disabled="metadata.external_feed_sources?.isLocked"
+                        rows="10"
+                        fluid
+                    />
+                </SettingFormField>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -201,7 +298,7 @@ const { t } = useI18n()
 const settings = defineModel<any>('settings', { required: true })
 defineProps<{ metadata: any }>()
 
-function createToggleModel(key: 'memos_enabled' | 'listmonk_enabled') {
+function createToggleModel(key: 'memos_enabled' | 'listmonk_enabled' | 'external_feed_enabled' | 'external_feed_home_enabled') {
     return computed({
         get: () => toBoolean(settings.value?.[key]),
         set: (value: boolean) => {
@@ -214,6 +311,8 @@ function createToggleModel(key: 'memos_enabled' | 'listmonk_enabled') {
 
 const memosEnabled = createToggleModel('memos_enabled')
 const listmonkEnabled = createToggleModel('listmonk_enabled')
+const externalFeedEnabled = createToggleModel('external_feed_enabled')
+const externalFeedHomeEnabled = createToggleModel('external_feed_home_enabled')
 
 const visibilityOptions = computed(() => [
     { label: t('pages.admin.settings.system.memos.visibility.PUBLIC'), value: 'PUBLIC' },

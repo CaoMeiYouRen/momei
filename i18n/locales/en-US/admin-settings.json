@@ -3,6 +3,23 @@
         "admin": {
             "settings": {
                 "system": {
+                    "fields": {
+                        "external_feed_cache_ttl_seconds": "External feed cache TTL (seconds)",
+                        "external_feed_enabled": "Enable external feed aggregation",
+                        "external_feed_home_enabled": "Show external updates on the homepage",
+                        "external_feed_home_limit": "Homepage external update count",
+                        "external_feed_sources": "External feed source JSON",
+                        "external_feed_stale_while_error_seconds": "External feed stale fallback window (seconds)"
+                    },
+                    "hints": {
+                        "external_feed_cache_ttl_seconds": "Controls how long a successful external source fetch can be reused from cache, in seconds.",
+                        "external_feed_home_limit": "Controls how many aggregated external updates can appear in the homepage module.",
+                        "external_feed_sources": "Provide a JSON array of external sources. Each item must include at least id, provider, title, and sourceUrl, and can optionally define includeInHome, defaultLocale, localeStrategy, priority, cacheTtlSeconds, staleWhileErrorSeconds, and maxItems.",
+                        "external_feed_stale_while_error_seconds": "Controls how long the latest successful snapshot may continue to be used when refreshing an external source fails, in seconds."
+                    },
+                    "sections": {
+                        "external_feeds": "External RSS / RSSHub aggregation"
+                    },
                     "title": "System Settings"
                 },
                 "theme": {

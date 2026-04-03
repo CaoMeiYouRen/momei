@@ -111,6 +111,9 @@ export default defineEventHandler(async (event) => {
                     || !!settings[SettingKey.VOLCENGINE_APP_ID]
                 ) && settings[SettingKey.ASR_ENABLED] !== 'false'),
                 ttsEnabled: String(settings[SettingKey.TTS_ENABLED]) === 'true' || (!!process.env.TTS_API_KEY && settings[SettingKey.TTS_ENABLED] !== 'false'),
+                externalFeedEnabled: String(settings[SettingKey.EXTERNAL_FEED_ENABLED]) === 'true',
+                externalFeedHomeEnabled: String(settings[SettingKey.EXTERNAL_FEED_HOME_ENABLED]) === 'true',
+                externalFeedHomeLimit: Number(settings[SettingKey.EXTERNAL_FEED_HOME_LIMIT] || 6),
                 webPushEnabled: Boolean(settings[SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY]),
                 webPushPublicKey: settings[SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY] || '',
                 i18n: {

@@ -202,6 +202,14 @@ export enum SettingKey {
     LISTMONK_CATEGORY_LIST_MAP = 'listmonk_category_list_map',
     LISTMONK_TAG_LIST_MAP = 'listmonk_tag_list_map',
     LISTMONK_TEMPLATE_ID = 'listmonk_template_id',
+
+    // External Feeds
+    EXTERNAL_FEED_ENABLED = 'external_feed_enabled',
+    EXTERNAL_FEED_SOURCES = 'external_feed_sources',
+    EXTERNAL_FEED_HOME_ENABLED = 'external_feed_home_enabled',
+    EXTERNAL_FEED_HOME_LIMIT = 'external_feed_home_limit',
+    EXTERNAL_FEED_CACHE_TTL_SECONDS = 'external_feed_cache_ttl_seconds',
+    EXTERNAL_FEED_STALE_WHILE_ERROR_SECONDS = 'external_feed_stale_while_error_seconds',
 }
 
 export const PUBLIC_SETTING_KEYS: readonly SettingKey[] = [
@@ -247,6 +255,9 @@ export const PUBLIC_SETTING_KEYS: readonly SettingKey[] = [
     SettingKey.AI_ENABLED,
     SettingKey.ASR_ENABLED,
     SettingKey.TTS_ENABLED,
+    SettingKey.EXTERNAL_FEED_ENABLED,
+    SettingKey.EXTERNAL_FEED_HOME_ENABLED,
+    SettingKey.EXTERNAL_FEED_HOME_LIMIT,
     SettingKey.VOLCENGINE_APP_ID,
     SettingKey.VOLCENGINE_ACCESS_KEY,
     SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY,
