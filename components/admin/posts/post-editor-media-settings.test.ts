@@ -388,4 +388,68 @@ describe('PostEditorMediaSettings', () => {
             }),
         ]))
     })
+
+    it('records generated cover metadata when a candidate image is confirmed', async () => {
+        const post = reactive(createPost({
+            coverImage: null,
+            metadata: {},
+        })) as PostEditorData
+        const wrapper = await mountSuspended(PostEditorMediaSettings, {
+            props: {
+                post,
+            },
+            global: {
+                directives: {
+                    tooltip: () => undefined,
+                },
+                mocks: {
+                    $t: (key: string) => key,
+                },
+                stubs: {
+                    Divider: true,
+                    Button: true,
+                    Image: true,
+                    InputText: true,
+                    InputNumber: true,
+                    AppUploader: AppUploaderStub,
+                    AdminPostsAiImageGenerator: AiImageGeneratorStub,
+                    AdminPostsPostTtsDialog: PostTtsDialogStub,
+                },
+            },
+        })
+
+        wrapper.findComponent(AiImageGeneratorStub).vm.$emit('generated', {
+            url: '/assets/cover.png',
+            prompt: 'cover prompt',
+            promptDimensions: {
+                type: 'editorial focal subject',
+                palette: 'ink and ivory',
+                rendering: 'clean editorial illustration',
+                text: 'visible cover headline: "Predictable Covers"; typography: extra-large display type; max 1 lines',
+                mood: 'calm and focused',
+            },
+            assetUsage: 'post-cover',
+            applyMode: 'manual-confirm',
+        })
+        await flushPromises()
+
+        expect(post.coverImage).toBe('/assets/cover.png')
+        expect(post.metadata?.cover).toMatchObject({
+            url: '/assets/cover.png',
+            source: 'ai',
+            prompt: 'cover prompt',
+            applyMode: 'manual-confirm',
+            language: 'en-US',
+            translationId: 'cluster-1',
+            postId: 'post-1',
+        })
+        expect(post.metadata?.visualAssets).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                usage: 'post-cover',
+                url: '/assets/cover.png',
+                source: 'ai',
+                applyMode: 'manual-confirm',
+            }),
+        ]))
+    })
 })

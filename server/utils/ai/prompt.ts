@@ -72,7 +72,7 @@ export const AI_PROMPTS = {
         + '1. Match the visual asset usage and keep the composition professional, premium, and practical for UI placement.\n'
         + '2. If visible text is appropriate, ensure it matches the article language {{language}}.\n'
         + '3. Keep the answer machine-readable. No markdown fences, no explanations, no extra keys.\n'
-        + '4. Preserve safe areas and hierarchy suitable for the usage.\n',
+        + '4. Preserve safe areas and hierarchy suitable for the usage. For post-cover, prefer a short headline lockup with larger typography instead of shrinking long paragraph-length copy.\n',
     RECOMMEND_TAGS:
         'Help me recommend 5-10 tags for the following article in {{language}}. Choose tags that are relevant, SEO-friendly, and common in technical blogging. Output ONLY as a JSON array of strings: \n\n{{content}}',
     RECOMMEND_CATEGORIES:
