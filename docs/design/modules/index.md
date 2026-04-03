@@ -65,6 +65,7 @@
 - **[迁移链接治理与云端资源重写](./migration-link-governance)**: `migration.md` 的专项治理补充，聚焦链接治理和 `dry-run / apply / report` 契约。
 - **[CLI / MCP 自动化能力扩展设计](./cli-mcp-automation)**: 自动化工具链专项文档，聚焦 CLI、MCP 与脚本化协作边界。
 - **[E2E 测试增强设计文档](./e2e-testing-enhancement)**: 跨模块质量设计，聚焦关键路径验证与自动化测试增强。
+- **[外部 RSS / RSSHub 聚合挂载设计](./subscription-external-feed-aggregation)**: `subscription.md` 的专项增量文档，聚焦外部源统一接入、缓存降级与首页挂载模型。
 
 ## 阶段复盘与审计记录 (Phase Review & Audit Docs)
 

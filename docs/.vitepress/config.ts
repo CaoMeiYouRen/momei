@@ -102,6 +102,8 @@ export default defineConfig({
                             { text: '语音识别 (ASR)', link: '/design/modules/asr' },
                             { text: 'ASR 性能优化', link: '/design/modules/asr-performance-optimization' },
                             { text: '音频播客', link: '/design/modules/audio' },
+                            { text: '内容订阅', link: '/design/modules/subscription' },
+                            { text: '外部 Feed 聚合挂载', link: '/design/modules/subscription-external-feed-aggregation' },
                             { text: '国际化系统', link: '/design/modules/i18n' },
                             { text: '国际化扩展与多语言 SEO', link: '/design/modules/i18n-seo-unification' },
                             { text: '配置项多语言回退治理', link: '/design/modules/settings-i18n-fallback-governance' },

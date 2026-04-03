@@ -20,7 +20,7 @@
 
 当前进行中事项
 
-- 暂无
+- RSS 资源挂载与外部动态聚合展示：正在收敛统一接入层、缓存降级边界与首页挂载方案，设计文档见 [外部 RSS / RSSHub 聚合挂载设计](../design/modules/subscription-external-feed-aggregation.md)
 ---
 
 ## 第二十一阶段：验证入口与创作工作流体验收敛

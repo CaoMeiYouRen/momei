@@ -22,6 +22,11 @@
 - **库**: 使用 `feed` 库生成标准化的 XML/JSON。
 - **关联路径**: `server/utils/feed.ts` (核心转换逻辑) | `server/routes/feed.*.ts` (路由入口)。
 
+### 2.4 外部内容聚合边界
+- 当前文档只描述站内内容的 Feed 输出能力。
+- 外部 RSS / RSSHub 资源的统一接入、缓存降级与首页挂载，已单独收敛到 [外部 RSS / RSSHub 聚合挂载设计](./subscription-external-feed-aggregation.md)。
+- 该专项文档是本模块的增量治理说明，不改变现有 `server/utils/feed.ts` 的站内 Feed 事实源定位。
+
 ## 3. 邮件订阅 (Email Subscriptions)
 
 ### 3.1 核心流程 (Core Flow)
