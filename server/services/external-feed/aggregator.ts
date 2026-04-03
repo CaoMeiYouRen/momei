@@ -3,8 +3,15 @@ import { fetchExternalFeedSource } from './fetcher'
 import { parseExternalFeedXml } from './parser'
 import { getExternalFeedRegistryConfig, resolveExternalFeedLocaleBucket } from './registry'
 import type { ExternalFeedHomePayload, ExternalFeedItem, ExternalFeedSnapshot, ExternalFeedSourceConfig } from '@/types/external-feed'
-import { resolveAppLocaleCode, type AppLocaleCode } from '@/i18n/config/locale-registry'
+import { APP_LOCALE_CODES, resolveAppLocaleCode, type AppLocaleCode } from '@/i18n/config/locale-registry'
 import logger from '@/server/utils/logger'
+
+export interface ExternalFeedRefreshSummary {
+    refreshedAt: string
+    sourceCount: number
+    snapshotCount: number
+    failureCount: number
+}
 
 function normalizeItemLanguage(language: string | null) {
     return language ? resolveAppLocaleCode(language) : null
@@ -188,5 +195,59 @@ export async function getExternalFeedHomePayload(locale?: string | null): Promis
         stale: sourceResults.some((result) => result.stale),
         fetchedAt: fetchedTimestamps.sort().at(-1) ?? null,
         sourceCount: homeSources.length,
+    }
+}
+
+export async function refreshExternalFeedCaches(locales: AppLocaleCode[] = APP_LOCALE_CODES): Promise<ExternalFeedRefreshSummary> {
+    const registry = await getExternalFeedRegistryConfig()
+
+    if (!registry.enabled || registry.sources.length === 0) {
+        return {
+            refreshedAt: new Date().toISOString(),
+            sourceCount: registry.sources.length,
+            snapshotCount: 0,
+            failureCount: 0,
+        }
+    }
+
+    const targets = new Map<string, { source: ExternalFeedSourceConfig, localeBucket: string }>()
+
+    for (const source of registry.sources) {
+        for (const locale of locales) {
+            const localeBucket = resolveExternalFeedLocaleBucket(source, locale)
+            targets.set(`${source.id}:${localeBucket}`, {
+                source,
+                localeBucket,
+            })
+        }
+    }
+
+    let snapshotCount = 0
+    let failureCount = 0
+
+    for (const target of targets.values()) {
+        try {
+            await refreshExternalFeedSnapshot(
+                target.source,
+                target.localeBucket,
+                target.source.cacheTtlSeconds ?? registry.defaultCacheTtlSeconds,
+                target.source.staleWhileErrorSeconds ?? registry.defaultStaleWhileErrorSeconds,
+            )
+            snapshotCount += 1
+        } catch (error) {
+            failureCount += 1
+            logger.warn('[external-feed] manual refresh failed', {
+                sourceId: target.source.id,
+                localeBucket: target.localeBucket,
+                message: error instanceof Error ? error.message : 'Unknown refresh error',
+            })
+        }
+    }
+
+    return {
+        refreshedAt: new Date().toISOString(),
+        sourceCount: registry.sources.length,
+        snapshotCount,
+        failureCount,
     }
 }

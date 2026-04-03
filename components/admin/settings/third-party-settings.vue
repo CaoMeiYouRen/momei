@@ -207,6 +207,21 @@
             </SettingFormField>
 
             <div v-if="externalFeedEnabled" class="third-party-settings__sub-fields">
+                <div class="third-party-settings__toolbar">
+                    <p class="third-party-settings__toolbar-hint">
+                        {{ $t('pages.admin.settings.system.external_feeds.refresh_cache_hint') }}
+                    </p>
+
+                    <Button
+                        class="third-party-settings__refresh-button"
+                        icon="pi pi-refresh"
+                        severity="secondary"
+                        :label="$t('pages.admin.settings.system.external_feeds.refresh_cache')"
+                        :loading="refreshingExternalFeeds"
+                        @click="refreshExternalFeedCache"
+                    />
+                </div>
+
                 <SettingFormField
                     field-key="external_feed_home_enabled"
                     input-id="external_feed_home_enabled"
@@ -288,15 +303,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import { toBoolean } from '@/utils/shared/coerce'
 
 const { t } = useI18n()
+const { $appFetch } = useAppApi()
+const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
 const settings = defineModel<any>('settings', { required: true })
 defineProps<{ metadata: any }>()
+
+interface ExternalFeedRefreshResponse {
+    data: {
+        refreshedAt: string
+        sourceCount: number
+        snapshotCount: number
+        failureCount: number
+    }
+}
 
 function createToggleModel(key: 'memos_enabled' | 'listmonk_enabled' | 'external_feed_enabled' | 'external_feed_home_enabled') {
     return computed({
@@ -313,6 +339,24 @@ const memosEnabled = createToggleModel('memos_enabled')
 const listmonkEnabled = createToggleModel('listmonk_enabled')
 const externalFeedEnabled = createToggleModel('external_feed_enabled')
 const externalFeedHomeEnabled = createToggleModel('external_feed_home_enabled')
+const refreshingExternalFeeds = ref(false)
+
+async function refreshExternalFeedCache() {
+    refreshingExternalFeeds.value = true
+
+    try {
+        await $appFetch<ExternalFeedRefreshResponse>('/api/admin/external-feed/refresh', {
+            method: 'POST',
+        })
+        showSuccessToast('pages.admin.settings.system.external_feeds.refresh_cache_success')
+    } catch (error) {
+        showErrorToast(error, {
+            fallbackKey: 'pages.admin.settings.system.external_feeds.refresh_cache_failed',
+        })
+    } finally {
+        refreshingExternalFeeds.value = false
+    }
+}
 
 const visibilityOptions = computed(() => [
     { label: t('pages.admin.settings.system.memos.visibility.PUBLIC'), value: 'PUBLIC' },
@@ -340,12 +384,33 @@ const visibilityOptions = computed(() => [
         padding-left: 1rem;
         border-left: 2px solid var(--p-primary-50);
     }
+
+    &__toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    &__toolbar-hint {
+        margin: 0;
+        color: var(--p-text-muted-color);
+    }
+
+    &__refresh-button {
+        flex-shrink: 0;
+    }
 }
 
 :global(.dark) {
     .third-party-settings {
         &__sub-fields {
             border-left-color: var(--p-primary-900-opacity-20);
+        }
+
+        &__toolbar-hint {
+            color: var(--p-surface-400);
         }
     }
 }

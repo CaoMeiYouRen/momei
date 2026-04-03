@@ -495,6 +495,12 @@
                         "memos": "Memos 同期",
                         "travellings": "Travellings 連携"
                     },
+                    "external_feeds": {
+                        "refresh_cache": "キャッシュを手動更新",
+                        "refresh_cache_hint": "ソース設定を変更した後、最新の RSS / RSSHub スナップショットをすぐに再取得できます。",
+                        "refresh_cache_success": "外部アップデートのキャッシュを更新しました。",
+                        "refresh_cache_failed": "外部アップデートのキャッシュ更新に失敗しました。"
+                    },
                     "setup_follow_up": {
                         "continue_editor": "エディターへ進む",
                         "description": "インストールウィザードで最小起動設定は完了しています。初めて管理画面へ入った後は、アカウント検証、運営通知、AI、ストレージ戦略を補完してから完全な執筆フローへ進むことをおすすめします。",

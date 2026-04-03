@@ -20,6 +20,12 @@
                     "sections": {
                         "external_feeds": "External RSS / RSSHub aggregation"
                     },
+                    "external_feeds": {
+                        "refresh_cache": "Refresh cache now",
+                        "refresh_cache_hint": "After updating source settings, you can pull the latest RSS / RSSHub snapshots immediately.",
+                        "refresh_cache_success": "External feed cache refreshed.",
+                        "refresh_cache_failed": "Failed to refresh external feed cache."
+                    },
                     "title": "System Settings"
                 },
                 "theme": {

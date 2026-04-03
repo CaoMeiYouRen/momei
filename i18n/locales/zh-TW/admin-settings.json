@@ -495,6 +495,12 @@
                         "memos": "Memos 同步",
                         "travellings": "開往整合"
                     },
+                    "external_feeds": {
+                        "refresh_cache": "手動刷新快取",
+                        "refresh_cache_hint": "調整來源設定後，可立即拉取最新 RSS / RSSHub 快照。",
+                        "refresh_cache_success": "外部動態快取已刷新。",
+                        "refresh_cache_failed": "刷新外部動態快取失敗。"
+                    },
                     "setup_follow_up": {
                         "continue_editor": "繼續前往編輯器",
                         "description": "安裝精靈已完成最小啟動配置。首次進入後台時，建議先補齊帳號驗證、站務通知、AI 與儲存策略，再繼續前往編輯器體驗完整創作流程。",

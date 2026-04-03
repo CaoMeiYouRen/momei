@@ -495,6 +495,12 @@
                         "memos": "Memos 同步",
                         "travellings": "开往集成"
                     },
+                    "external_feeds": {
+                        "refresh_cache": "手动刷新缓存",
+                        "refresh_cache_hint": "修改来源配置后，可立即拉取最新 RSS / RSSHub 快照。",
+                        "refresh_cache_success": "外部动态缓存已刷新。",
+                        "refresh_cache_failed": "刷新外部动态缓存失败。"
+                    },
                     "setup_follow_up": {
                         "continue_editor": "继续前往编辑器",
                         "description": "安装向导已经完成最小启动配置。首次进入后台时，建议先补齐账户验证、站务通知、AI 和存储策略，再继续进入编辑器体验完整创作链路。",
