@@ -146,7 +146,7 @@ function normalizeRssItems(channel: Record<string, unknown>, source: ExternalFee
 
 function normalizeAtomItems(feed: Record<string, unknown>, source: ExternalFeedSourceConfig): ExternalFeedItem[] {
     const entries = ensureArray(feed.entry as unknown)
-    const feedLanguage = normalizeOptionalString(String(feed['@_xml:lang'] ?? ''))
+    const feedLanguage = resolveTextValue(feed['@_xml:lang'])
     const baseUrl = source.siteUrl ?? source.sourceUrl
 
     return entries.map((entry, index) => {
@@ -169,7 +169,7 @@ function normalizeAtomItems(feed: Record<string, unknown>, source: ExternalFeedS
             canonicalUrl,
             publishedAt,
             authorName: author,
-            language: normalizeOptionalString(String(item['@_xml:lang'] ?? '')) ?? feedLanguage,
+            language: resolveTextValue(item['@_xml:lang']) ?? feedLanguage,
             coverImage: resolveCoverImage(item),
             sourceTitle: source.title,
             sourceSiteUrl: source.siteUrl,

@@ -6,17 +6,18 @@
  * @param decorators one or more decorators
  *
  */
+type DecoratorClassTarget = abstract new (...args: never[]) => unknown
+
 export function applyDecorators(
     ...decorators: (ClassDecorator | MethodDecorator | PropertyDecorator)[]
 ) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-    return <TFunction extends Function, Y>(
-        target: TFunction | object,
+    return <Y>(
+        target: DecoratorClassTarget | object,
         propertyKey?: string | symbol,
         descriptor?: TypedPropertyDescriptor<Y>,
     ) => {
         for (const decorator of decorators) {
-            if (target instanceof Function && !descriptor) {
+            if (typeof target === 'function' && !descriptor) {
                 (decorator as ClassDecorator)(target)
                 continue
             }

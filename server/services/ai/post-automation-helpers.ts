@@ -122,16 +122,16 @@ export function parseTaskPayload(task: Pick<AITask, 'payload'>): TranslatePostTa
     return task.payload as unknown as TranslatePostTaskPayload
 }
 
-export function parseTaskResult<T>(result: string | null | undefined): T | null {
+export function parseTaskResult(result: string | null | undefined): unknown {
     if (!result) {
         return null
     }
 
     if (typeof result === 'string') {
-        return JSON.parse(result) as T
+        return JSON.parse(result) as unknown
     }
 
-    return result as T
+    return result
 }
 
 export function mergeAudioMetadata(source: PostTranslationSourceDetail): PostMetadata | null {

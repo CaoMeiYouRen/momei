@@ -66,7 +66,7 @@ interface EmailTemplatePreviewSamples {
     categoryName: string
 }
 
-function getNestedValue<T = unknown>(obj: Record<string, any>, path: string): T | null {
+function getNestedValue(obj: Record<string, any>, path: string): unknown {
     return path.split('.').reduce<any>((current, key) => current?.[key], obj) ?? null
 }
 
@@ -113,7 +113,7 @@ async function loadDefaultRuntimeContent(templateId: EmailTemplateId, locale?: s
     const messages = await loadEmailTemplateMessages(locale)
     const basePath = `pages.admin.settings.system.email_templates.catalog.${templateId}.defaults`
 
-    const i18nContent = getNestedValue<Partial<EmailTemplateRuntimeContent>>(messages, basePath)
+    const i18nContent = getNestedValue(messages, basePath) as Partial<EmailTemplateRuntimeContent> | null
     const legacyContent = resolveLegacyRuntimeContent(templateId, locale)
 
     return {
@@ -177,7 +177,7 @@ async function resolveTemplateVariableContext(locale?: string | null) {
 async function loadPreviewSamples(locale: AppLocaleCode): Promise<EmailTemplatePreviewSamples> {
     const messages = await loadEmailTemplateMessages(locale)
     const samplePath = 'pages.admin.settings.system.email_templates.preview_samples'
-    const samples = getNestedValue<Partial<EmailTemplatePreviewSamples>>(messages, samplePath)
+    const samples = getNestedValue(messages, samplePath) as Partial<EmailTemplatePreviewSamples> | null
 
     return {
         title: samples?.title ?? 'Momei 版本更新',

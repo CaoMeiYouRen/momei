@@ -25,17 +25,17 @@ export interface EmailShellMessages {
     securityTipTitle: string
 }
 
-function getNestedValue<T = unknown>(obj: Record<string, any>, path: string): T | null {
+function getNestedValue(obj: Record<string, any>, path: string): unknown {
     return path.split('.').reduce<any>((current, key) => current?.[key], obj) ?? null
 }
 
 export async function loadEmailShellMessages(locale?: string | null): Promise<EmailShellMessages> {
     const resolvedLocale = resolveRequestedAppLocale(locale)
     const messages = await loadLocaleMessages(resolvedLocale)
-    const runtime = getNestedValue<Partial<Record<string, string>>>(
+    const runtime = getNestedValue(
         messages,
         'pages.admin.settings.system.email_templates.runtime',
-    ) ?? {}
+    ) as Partial<Record<string, string>> | null ?? {}
 
     return {
         locale: resolvedLocale,

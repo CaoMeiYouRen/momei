@@ -249,10 +249,10 @@ export class PostAutomationService extends AIBaseService {
             })
         }
 
-        const previewResult = parseTaskResult<{
+        const previewResult = parseTaskResult(previewTask.result) as {
             needsConfirmation?: boolean
             preview?: TranslatePostPreviewSnapshot
-        }>(previewTask.result)
+        } | null
 
         if (!previewResult?.needsConfirmation || !previewResult.preview) {
             throw createError({
