@@ -433,10 +433,10 @@ This document outlines the development blueprint for the project. For specific t
 3. Dependabot and Code Scanning alerts were moved into a formal closure loop with official-source preference, local fallback handling, and at least one real high-risk dependency fix fully traced through validation evidence.
 4. Duplicate-code detection now has a bounded scriptable baseline, stable artifact output, and an initial classification of “fix next / defer / keep local,” without expanding into an uncontrolled repository-wide cleanup.
 
-### Stage 21: Validation Entry Points & Authoring Workflow Experience Consolidation
+### Stage 21: Validation Entry Points & Authoring Workflow Experience Consolidation (Audited & Archived)
 
 > [!NOTE]
-> This stage is now active in the Chinese planning source. The Chinese roadmap and todo remain the authoritative source for detailed scope, acceptance criteria, and execution status.
+> This stage has been completed and archived in the Chinese planning source. The next stage remains in candidate-analysis mode only and has not been promoted into the formal roadmap or todo yet.
 
 1. UI real-environment testing now becomes the first planning line, with emphasis on script-first regression flows, environment setup convergence, and reusable evidence output for Review Gate.
 2. Script governance and entrypoint cleanup are being promoted into an explicit stage objective: document high-frequency scripts, reduce duplicated helpers, and close out dead or overlapping script surfaces.
