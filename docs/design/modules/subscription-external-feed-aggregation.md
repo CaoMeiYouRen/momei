@@ -6,6 +6,8 @@
 
 当前项目已经具备完整的站内 Feed 输出链路：`server/utils/feed.ts` 负责将站内文章渲染为 RSS / Atom / JSON Feed，`server/routes/feed*.ts` 及分类、标签子路由负责公开分发。但 Phase 21 的目标不是继续扩写自有 Feed，而是补上“外部内容如何稳定挂载”的统一模型。
 
+截至 2026-04-03，本专项最小交付面已经落地：服务端统一接入层、首页消费 API、后台设置项、首页正式展示模块，以及对应的定向测试已完成收口。本文档现同时承担“设计约束 + 当前实现契约”的双重说明。
+
 本轮设计聚焦以下问题：
 
 - 站点目前没有统一的外部源注册与拉取层，页面不能直接安全复用第三方 RSS / RSSHub。
@@ -213,9 +215,73 @@ interface ExternalFeedItem {
 
 源注册表明细保留在服务端，避免把第三方源配置原样下发到浏览器。
 
+### 8.1 当前默认值
+
+当前实现中的默认值如下：
+
+- `external_feed_enabled`: `false`
+- `external_feed_sources`: `[]`
+- `external_feed_home_enabled`: `false`
+- `external_feed_home_limit`: `6`
+- `external_feed_cache_ttl_seconds`: `900`
+- `external_feed_stale_while_error_seconds`: `86400`
+
+这些默认值定义在 `server/services/setting.constants.ts`，含义是“默认关闭、后台按需启用、首页最多展示 6 条、默认缓存 15 分钟、失败时最多回退 24 小时”。
+
+### 8.2 后台可用的默认示例
+
+以下示例可直接作为 `external_feed_sources` 的后台 JSON 初始值使用：
+
+```json
+[
+  {
+    "id": "nuxt-blog",
+    "enabled": true,
+    "provider": "rss",
+    "title": "Nuxt Blog",
+    "sourceUrl": "https://nuxt.com/blog/rss.xml",
+    "siteUrl": "https://nuxt.com/blog",
+    "siteName": "Nuxt",
+    "defaultLocale": "en-US",
+    "localeStrategy": "all",
+    "includeInHome": true,
+    "badgeLabel": "RSS",
+    "priority": 20,
+    "timeoutMs": 5000,
+    "cacheTtlSeconds": 900,
+    "staleWhileErrorSeconds": 86400,
+    "maxItems": 6
+  },
+  {
+    "id": "rsshub-github-vuejs-core",
+    "enabled": true,
+    "provider": "rsshub",
+    "title": "Vue Core Releases",
+    "sourceUrl": "https://rsshub.app/github/release/vuejs/core",
+    "siteUrl": "https://github.com/vuejs/core/releases",
+    "siteName": "GitHub Releases",
+    "defaultLocale": "en-US",
+    "localeStrategy": "all",
+    "includeInHome": true,
+    "badgeLabel": "RSSHub",
+    "priority": 10,
+    "timeoutMs": 5000,
+    "cacheTtlSeconds": 1800,
+    "staleWhileErrorSeconds": 86400,
+    "maxItems": 4
+  }
+]
+```
+
+使用建议：
+
+- 首次启用时先只保留 1 到 2 个稳定来源，避免把不稳定源一起带入首页。
+- 若来源本身不区分语言，优先使用 `all`；若来源固定某一种语言且不希望跨语种展示，则使用 `fixed` 并设置 `defaultLocale`。
+- `rsshub` 来源应优先选择团队自维护节点或稳定公共节点，避免把临时公共节点当作正式生产依赖。
+
 ## 9. 受影响文件映射
 
-若按本方案进入实现，建议优先落在以下路径：
+本轮实现已落在以下路径：
 
 - `server/services/external-feed/registry.ts`: 解析设置项并生成源注册表。
 - `server/services/external-feed/fetcher.ts`: 统一抓取、超时和错误分类。
@@ -230,15 +296,24 @@ interface ExternalFeedItem {
 - `components/home/external-feed-panel.vue`: 首页模块组件。
 - `pages/index.vue`: 正式挂载入口。
 
+补充：
+
+- `types/external-feed.ts`: 外部源、标准化条目与首页返回模型类型定义。
+- `utils/schemas/external-feed.ts`: 后台 `external_feed_sources` 的 Zod 校验契约。
+- `components/home/external-feed-panel.test.ts`: 首页模块 UI 状态测试。
+- `tests/server/external-feed/cache.test.ts`: 缓存辅助逻辑测试。
+- `tests/server/external-feed/aggregator.test.ts`: 聚合、去重、语言过滤与 stale 回退测试。
+- `tests/server/api/external-feed/home.get.test.ts`: 首页 API 返回模型测试。
+
 ## 10. 验证矩阵
 
-按当前阶段要求，首轮实现至少满足 `V0 + V1 + V2 + V3 + RG`：
+按当前阶段要求，首轮实现至少满足 `V0 + V1 + V2 + V3 + RG`；当前交付状态如下：
 
-- `V0`: 记录源注册表、缓存 TTL、降级顺序和首页挂载策略。
-- `V1`: 定向 lint / typecheck，以及文档检查。
-- `V2`: 服务层测试覆盖注册表解析、缓存回退、去重与语言过滤。
-- `V3`: 首页模块在“有数据 / stale 数据 / 无数据”三种状态下的浏览器验证或组件测试。
-- `RG`: 记录未覆盖边界，例如第三方源突发限流、RSSHub 节点不稳定、跨语言条目误标等。
+- `V0`: 已完成。本文档与设置项契约、缓存口径、首页挂载策略已同步。
+- `V1`: 已完成。已通过定向诊断与 `pnpm exec nuxt typecheck`。
+- `V2`: 已完成。服务层测试已覆盖缓存回退、去重、排序与语言过滤。
+- `V3`: 已完成。首页模块组件测试已覆盖有数据与 degraded/stale 状态；空态由组件逻辑直接覆盖。
+- `RG`: 部分完成。已明确第三方源抖动、RSSHub 节点稳定性与语言误标仍属于运行期观察项。
 
 建议最小测试集合：
 
@@ -247,23 +322,27 @@ interface ExternalFeedItem {
 - `components/home/external-feed-panel.test.ts`
 - 首页定向浏览器验证或等价截图证据
 
+当前已落地的最小测试集合：
+
+- `tests/server/external-feed/cache.test.ts`
+- `tests/server/external-feed/aggregator.test.ts`
+- `tests/server/api/external-feed/home.get.test.ts`
+- `components/home/external-feed-panel.test.ts`
+
 ## 11. 分阶段落地顺序
 
-### 11.1 第一步
+### 11.1 当前落地结果
 
-- 落地本文档。
-- 补齐设置项契约与文件映射。
-- 保持 `todo.md` 为进行中，不提前勾选完成。
+- 已完成服务端统一接入层：注册表、抓取器、解析器、缓存层与聚合器。
+- 已完成首页消费入口：`/api/external-feed/home` 与首页 `ExternalFeedPanel` 模块。
+- 已完成后台设置收口：系统设置键、后台保存校验、多语言文案与首页公开配置字段。
+- 已完成最小验证：定向组件测试、服务层测试与类型检查。
 
-### 11.2 第二步
+### 11.2 后续增强方向
 
-- 实现服务端接入层与首页 API。
-- 先跑定向测试，不升级为全量回归。
-
-### 11.3 第三步
-
-- 落首页正式模块与视觉状态。
-- 记录 Review Gate 证据与未覆盖边界。
+- 若后续需要扩展作者页或独立聚合页，应继续复用当前标准化模型与缓存层，不再新增第二套拉取链路。
+- 若来源数量继续增长，可进一步补充来源健康状态监控、后台示例模板与 Review Gate 证据脚本化沉淀。
+- 若生产运行中出现跨语种误判，可把 `language` 纠偏规则从“来源默认 locale”进一步扩展为“来源级白名单映射”。
 
 ## 12. 相关文档
 
