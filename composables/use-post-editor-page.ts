@@ -306,6 +306,7 @@ export function usePostEditorPage() {
         failAuxiliaryFieldProgress,
         translateTaxonomyNames,
         translatePostFields,
+        translationProgress,
         resetTranslationProgress,
     })
 

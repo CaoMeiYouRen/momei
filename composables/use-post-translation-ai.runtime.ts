@@ -3,6 +3,7 @@ import type { Composer } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import {
     createFieldProgressRecord,
+    isTranslationProgressTextField,
     markPendingTranslationFields,
     type TranslateFieldOptions,
     type TranslationFieldRuntime,
@@ -516,7 +517,7 @@ export async function runTranslationPipelineFromIndex(options: {
     controllerState: TranslationControllerState
     runContext: Ref<TranslationRunContext | null>
     translationProgress: Ref<PostTranslationProgress>
-    translateField: (field: TranslationTextField, translateOptions: TranslateFieldOptions) => Promise<void>
+    executeField: (field: TranslationProgressField, translateOptions: TranslateFieldOptions) => Promise<void>
     t: Composer['t']
     toast: ReturnType<typeof useToast>
 }) {
@@ -546,9 +547,9 @@ export async function runTranslationPipelineFromIndex(options: {
                 continue
             }
 
-            await options.translateField(field, {
+            await options.executeField(field, {
                 sourceLanguage: context.sourceLanguage,
-                field,
+                field: isTranslationProgressTextField(field) ? field : 'title',
             })
         }
 

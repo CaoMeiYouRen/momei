@@ -191,6 +191,158 @@ describe('PostAutomationService', () => {
         expect(result.preview.slug).toBe('translated-title-ai')
     })
 
+    it('should resolve tags before chunked content translation in preview tasks', async () => {
+        const savedProgresses: number[] = []
+        const task = {
+            id: 'task-tags-before-content',
+            userId: 'user-1',
+            payload: JSON.stringify({
+                sourcePostId: 'post-1',
+                targetLanguage: 'en-US',
+                scopes: ['title', 'summary', 'tags', 'content'],
+                confirmationMode: 'require',
+                slugStrategy: 'ai',
+                categoryStrategy: 'cluster',
+            }),
+            progress: 0,
+            status: 'pending',
+            error: null,
+            result: null,
+        }
+
+        taskRepo.findOneBy.mockResolvedValue(task as never)
+        taskRepo.save.mockImplementation((value) => {
+            if (typeof value?.progress === 'number') {
+                savedProgresses.push(value.progress)
+            }
+
+            return { ...value } as never
+        })
+        postRepo.findOne.mockImplementation((options: { where?: Record<string, string> }) => {
+            if (options.where?.id === 'post-1') {
+                return {
+                    ...sourcePost,
+                    tags: [{
+                        id: 'tag-zh-1',
+                        name: '源标签',
+                        slug: 'source-tag',
+                        language: 'zh-CN',
+                        translationId: 'shared-tag-cluster',
+                    }],
+                } as never
+            }
+
+            return null as never
+        })
+
+        vi.mocked(translateInChunks).mockImplementationOnce(() => {
+            expect(savedProgresses).toContain(40)
+
+            return Promise.resolve({
+                content: 'translated-content',
+                usage: { promptTokens: 50, completionTokens: 20, totalTokens: 70 },
+                usageSnapshot: { requestCount: 1 },
+            } as never)
+        })
+
+        await (PostAutomationService as never as { processTranslatePostTask: (taskId: string, actorValue: typeof actor) => Promise<void> }).processTranslatePostTask('task-tags-before-content', actor)
+
+        expect(savedProgresses).toContain(40)
+
+        const completedTask = taskRepo.save.mock.calls
+            .map((call) => call[0])
+            .find((savedTask) => savedTask.status === 'completed' && typeof savedTask.result === 'string')
+
+        expect(completedTask).toBeDefined()
+        const result = JSON.parse(String(completedTask?.result)) as {
+            needsConfirmation: boolean
+            preview: {
+                tags: string[]
+                tagBindings: { name: string, translationId?: string | null }[]
+            }
+        }
+
+        expect(result.needsConfirmation).toBe(true)
+        expect(result.preview.tags).toEqual(['源标签-translated'])
+        expect(result.preview.tagBindings[0]?.translationId).toBe('shared-tag-cluster')
+    })
+
+    it('should keep preview generation running when tag translation fails', async () => {
+        const task = {
+            id: 'task-tags-failed-preview',
+            userId: 'user-1',
+            payload: JSON.stringify({
+                sourcePostId: 'post-1',
+                targetLanguage: 'en-US',
+                scopes: ['title', 'tags', 'content'],
+                confirmationMode: 'require',
+                slugStrategy: 'ai',
+                categoryStrategy: 'cluster',
+            }),
+            progress: 0,
+            status: 'pending',
+            error: null,
+            result: null,
+        }
+
+        taskRepo.findOneBy.mockResolvedValue(task as never)
+        postRepo.findOne.mockImplementation((options: { where?: Record<string, string> }) => {
+            if (options.where?.id === 'post-1') {
+                return {
+                    ...sourcePost,
+                    tags: [{
+                        id: 'tag-zh-1',
+                        name: '源标签',
+                        slug: 'source-tag',
+                        language: 'zh-CN',
+                        translationId: 'shared-tag-cluster',
+                    }],
+                } as never
+            }
+
+            return null as never
+        })
+
+        vi.mocked(requestTranslation).mockImplementation((content: string) => {
+            if (content === '源标签') {
+                throw new Error('tag provider offline')
+            }
+
+            return {
+                provider: {} as never,
+                response: {
+                    content: `${content}-translated`,
+                    model: 'mock-translate-model',
+                    usage: { promptTokens: 10, completionTokens: 10, totalTokens: 20 },
+                },
+                translatedContent: `${content}-translated`,
+            } as never
+        })
+
+        await (PostAutomationService as never as { processTranslatePostTask: (taskId: string, actorValue: typeof actor) => Promise<void> }).processTranslatePostTask('task-tags-failed-preview', actor)
+
+        const completedTask = taskRepo.save.mock.calls
+            .map((call) => call[0])
+            .find((savedTask) => savedTask.status === 'completed' && typeof savedTask.result === 'string')
+
+        expect(completedTask).toBeDefined()
+        const result = JSON.parse(String(completedTask?.result)) as {
+            needsConfirmation: boolean
+            preview: {
+                content: string
+                tags: string[]
+                tagBindings: unknown[]
+                warnings: string[]
+            }
+        }
+
+        expect(result.needsConfirmation).toBe(true)
+        expect(result.preview.content).toBe('translated-content')
+        expect(result.preview.tags).toEqual([])
+        expect(result.preview.tagBindings).toEqual([])
+        expect(result.preview.warnings).toContain('Tag translation failed: tag provider offline')
+    })
+
     it('should apply an approved preview snapshot when confirmation is provided', async () => {
         const confirmTask = {
             id: 'task-confirm',

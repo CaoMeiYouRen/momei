@@ -5,6 +5,7 @@ import { hasUnsavedNewDraftContent, usePostEditorTranslation } from './use-post-
 import type { PostEditorData } from '@/types/post-editor'
 import type {
     PostTagBindingInput,
+    PostTranslationProgress,
     PostTranslationSourceDetail,
     PostTranslationTagOption,
     PostTranslationWorkflowRequest,
@@ -90,10 +91,72 @@ function createComposable(options?: {
     const tagBindings = ref<PostTagBindingInput[]>([...(options?.initialTagBindings || [])])
     const translateTaxonomyNames = options?.translateTaxonomyNames || vi.fn((names: string[], targetLanguage: string) => Promise.resolve(names.map((name) => `${name}-${targetLanguage}`)))
     const toastAdd = vi.fn()
-    const translatePostFields = vi.fn(() => Promise.resolve(true))
+    const translatePostFields = vi.fn(async (payload: {
+        scopes: string[]
+        auxiliaryFieldExecutor?: (field: 'tags') => Promise<void>
+    }) => {
+        if (payload.scopes.includes('tags')) {
+            await payload.auxiliaryFieldExecutor?.('tags')
+        }
+
+        return true
+    })
     const beginAuxiliaryFieldProgress = vi.fn()
     const completeAuxiliaryFieldProgress = vi.fn()
     const failAuxiliaryFieldProgress = vi.fn()
+    const translationProgress = ref<PostTranslationProgress>({
+        status: 'idle',
+        progress: 0,
+        activeField: null,
+        taskId: null,
+        error: null,
+        fields: {
+            title: {
+                status: 'idle',
+                progress: 0,
+                mode: null,
+                content: '',
+                completedChunks: 0,
+                totalChunks: 0,
+                error: null,
+                canRetry: false,
+                canCancel: false,
+            },
+            summary: {
+                status: 'idle',
+                progress: 0,
+                mode: null,
+                content: '',
+                completedChunks: 0,
+                totalChunks: 0,
+                error: null,
+                canRetry: false,
+                canCancel: false,
+            },
+            content: {
+                status: 'idle',
+                progress: 0,
+                mode: null,
+                content: '',
+                completedChunks: 0,
+                totalChunks: 0,
+                error: null,
+                canRetry: false,
+                canCancel: false,
+            },
+            tags: {
+                status: 'idle',
+                progress: 0,
+                mode: null,
+                content: '',
+                completedChunks: 0,
+                totalChunks: 0,
+                error: null,
+                canRetry: false,
+                canCancel: false,
+            },
+        },
+    })
 
     const composable = usePostEditorTranslation({
         post,
@@ -124,6 +187,7 @@ function createComposable(options?: {
         failAuxiliaryFieldProgress,
         translateTaxonomyNames,
         translatePostFields,
+        translationProgress,
         resetTranslationProgress: vi.fn(),
     })
 
@@ -137,6 +201,7 @@ function createComposable(options?: {
         toastAdd,
         translateTaxonomyNames,
         translatePostFields,
+        translationProgress,
         beginAuxiliaryFieldProgress,
         completeAuxiliaryFieldProgress,
         failAuxiliaryFieldProgress,
@@ -319,6 +384,27 @@ describe('usePostEditorTranslation', () => {
             totalChunks: 1,
             completedChunks: 1,
         })
+    })
+
+    it('翻译取消时应保留 translationId 且维持工作流弹窗打开', async () => {
+        const {
+            handleStartTranslationWorkflow,
+            post,
+            translatePostFields,
+            translationDialogVisible,
+            translationProgress,
+        } = createComposable()
+
+        translationDialogVisible.value = true
+        translatePostFields.mockImplementationOnce(() => {
+            translationProgress.value.status = 'cancelled'
+            return Promise.resolve(false)
+        })
+
+        await handleStartTranslationWorkflow(createWorkflowRequest())
+
+        expect(post.value.translationId).toBe('shared-post-cluster')
+        expect(translationDialogVisible.value).toBe(true)
     })
 
     it('选择封面和播客音频范围时应该同步来源附件', async () => {

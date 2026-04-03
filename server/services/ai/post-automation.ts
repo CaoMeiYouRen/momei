@@ -301,13 +301,25 @@ export class PostAutomationService extends AIBaseService {
 
         await this.updateTaskProgress(task, 'processing', 25)
 
+        let tagBindings: Awaited<ReturnType<typeof this.resolveTagBindings>> | undefined
+        if (scopes.includes('tags')) {
+            try {
+                tagBindings = await this.resolveTagBindings(sourcePost.tags, sourceLanguage, input.targetLanguage, usageAggregate)
+            } catch (error) {
+                warnings.push(`Tag translation failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+                tagBindings = []
+            }
+        }
+
+        await this.updateTaskProgress(task, 'processing', 40)
+
         let translatedContent = targetPost?.content || sourcePost.content
         if (scopes.includes('content')) {
             const contentResult = await translateInChunks(sourcePost.content, input.targetLanguage, {
                 sourceLanguage,
                 onChunkComplete: async ({ completedChunks, totalChunks }) => {
-                    const progress = 25 + Math.round((completedChunks / totalChunks) * 55)
-                    await this.updateTaskProgress(task, 'processing', Math.min(80, progress))
+                    const progress = 40 + Math.round((completedChunks / totalChunks) * 45)
+                    await this.updateTaskProgress(task, 'processing', Math.min(85, progress))
                 },
             })
 
@@ -362,10 +374,6 @@ export class PostAutomationService extends AIBaseService {
         if (scopes.includes('audio') && (sourcePost.metadata?.audio?.url || sourcePost.audioUrl) && !metadataPatch?.audio?.url) {
             warnings.push(`Audio asset must be regenerated for ${input.targetLanguage}`)
         }
-
-        const tagBindings = scopes.includes('tags')
-            ? await this.resolveTagBindings(sourcePost.tags, sourceLanguage, input.targetLanguage, usageAggregate)
-            : undefined
 
         await this.updateTaskProgress(task, 'processing', 90)
 

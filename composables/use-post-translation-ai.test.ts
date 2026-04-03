@@ -421,4 +421,53 @@ describe('usePostTranslationAI', () => {
         expect(translationProgress.value.progress).toBe(100)
         expect(translationProgress.value.fields.tags.content).toBe('Translated Tag')
     })
+
+    it('标签翻译失败时应允许正文继续完成并保留失败态', async () => {
+        fetchMock.mockResolvedValueOnce(createStreamResponse([
+            createChunkEvent('Translated body', 0, 1, true),
+            createEndEvent(),
+        ]))
+
+        const post = createPostState()
+        const {
+            beginAuxiliaryFieldProgress,
+            failAuxiliaryFieldProgress,
+            translatePostFields,
+            translationProgress,
+        } = usePostTranslationAI(post)
+
+        const translated = await translatePostFields({
+            source: createSource({
+                content: 'a'.repeat(4500),
+                tags: [{
+                    id: 'tag-1',
+                    name: '源标签',
+                    slug: 'source-tag',
+                    translationId: 'shared-tag-cluster',
+                }],
+            }),
+            sourceLanguage: 'zh-CN',
+            targetLanguage: 'en-US',
+            scopes: ['tags', 'content'],
+            auxiliaryFieldExecutor: async () => {
+                beginAuxiliaryFieldProgress('tags', {
+                    content: '',
+                    totalChunks: 1,
+                })
+                await Promise.resolve()
+                failAuxiliaryFieldProgress('tags', {
+                    error: 'tag failed',
+                    content: '',
+                    totalChunks: 1,
+                    completedChunks: 0,
+                })
+            },
+        })
+
+        expect(translated).toBe(true)
+        expect(post.value.content).toBe('Translated body')
+        expect(translationProgress.value.fields.content.status).toBe('completed')
+        expect(translationProgress.value.fields.tags.status).toBe('failed')
+        expect(translationProgress.value.status).toBe('failed')
+    })
 })

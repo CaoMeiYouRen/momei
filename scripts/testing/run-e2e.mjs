@@ -62,8 +62,8 @@ async function getInstalledBrowserDirs() {
     try {
         const entries = await readdir(cacheDir, { withFileTypes: true })
         return entries
-            .filter(e => e.isDirectory())
-            .map(e => e.name)
+            .filter((e) => e.isDirectory())
+            .map((e) => e.name)
     } catch {
         return []
     }
@@ -140,7 +140,7 @@ function runAndCapture(command, args, env = process.env) {
 
 export function getMissingPlaywrightBrowsers(installedDirs) {
     return requiredPlaywrightBrowsers
-        .filter(({ dirPrefix }) => !installedDirs.some(dir => dir.startsWith(dirPrefix)))
+        .filter(({ dirPrefix }) => !installedDirs.some((dir) => dir.startsWith(dirPrefix)))
         .map(({ name }) => name)
 }
 

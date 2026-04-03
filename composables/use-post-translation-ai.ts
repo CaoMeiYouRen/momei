@@ -11,6 +11,7 @@ import {
     finalizeTranslationField,
     initializeTranslationRun,
     isTextScope,
+    isTranslationProgressTextField,
     markPendingTranslationFields,
     type TranslateFieldOptions,
     type TranslationFieldRuntime,
@@ -24,7 +25,6 @@ import {
     failAuxiliaryProgressState,
     getOrCreateFieldRuntime,
     getTranslationFieldSourceValue,
-    notifyTranslationSuccessToast,
     patchTranslationProgressField,
     requestTranslatedTaxonomyName,
     requestTranslatedTaxonomyNames,
@@ -46,6 +46,8 @@ import type {
     TranslationTextField,
 } from '@/types/post-translation'
 
+type AuxiliaryTranslationField = Exclude<TranslationProgressField, TranslationTextField>
+
 export function usePostTranslationAI(post: Ref<PostEditorData>) {
     const toast = useToast()
     const { t } = useI18n()
@@ -55,6 +57,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         activeAbortController: null,
         activeRunId: 0,
     }
+    const auxiliaryFieldExecutor = ref<((field: AuxiliaryTranslationField) => Promise<void>) | null>(null)
 
     const translationProgress = ref<PostTranslationProgress>({
         status: 'idle',
@@ -79,13 +82,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         totalChunks?: number
         completedChunks?: number
         mode?: PostTranslationMode | null
-    } = {}) => {
-        completeAuxiliaryProgressState(runContext, translationProgress, field, options)
-
-        if (translationProgress.value.status === 'completed') {
-            notifyTranslationSuccessToast(toast, t)
-        }
-    }
+    } = {}) => completeAuxiliaryProgressState(runContext, translationProgress, field, options)
 
     const failAuxiliaryFieldProgress = (field: Exclude<TranslationProgressField, TranslationTextField>, options: {
         error: string
@@ -262,13 +259,21 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
             controllerState,
             runContext,
             translationProgress,
-            translateField,
+            executeField: async (field, options) => {
+                if (isTranslationProgressTextField(field)) {
+                    await translateField(field, options)
+                    return
+                }
+
+                await auxiliaryFieldExecutor.value?.(field)
+            },
             t,
             toast,
         })
     }
 
     const resetTranslationProgress = () => {
+        auxiliaryFieldExecutor.value = null
         resetTranslationProgressState(controllerState, runContext, translationProgress, fieldRuntimes)
     }
 
@@ -314,7 +319,9 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         sourceLanguage: string
         targetLanguage: string
         scopes: TranslationScopeField[]
+        auxiliaryFieldExecutor?: (field: AuxiliaryTranslationField) => Promise<void>
     }) => {
+        auxiliaryFieldExecutor.value = options.auxiliaryFieldExecutor || null
         const initialized = initializeTranslationRun({
             runOptions: options,
             post,

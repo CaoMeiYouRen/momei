@@ -3,6 +3,7 @@ import type { ApiResponse } from '@/types/api'
 import type { PostEditorData } from '@/types/post-editor'
 import { PostStatus, PostVisibility } from '@/types/post'
 import type {
+    PostTranslationProgress,
     PostTagBindingInput,
     PostTranslationCategoryOption,
     PostTranslationSourceDetail,
@@ -112,7 +113,9 @@ interface UsePostEditorTranslationOptions {
         sourceLanguage: string
         targetLanguage: string
         scopes: TranslationScopeField[]
+        auxiliaryFieldExecutor?: (field: 'tags') => Promise<void>
     }) => Promise<boolean>
+    translationProgress: Ref<PostTranslationProgress>
     resetTranslationProgress: () => void
 }
 
@@ -690,11 +693,48 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
             ])
         }
 
+        options.post.value.translationId = resolveTranslationClusterId(source.translationId, source.slug, source.id)
+
         const translated = await options.translatePostFields({
             source,
             sourceLanguage: payload.sourceLanguage,
             targetLanguage: payload.targetLanguage,
             scopes: payload.scopes,
+            auxiliaryFieldExecutor: async (field) => {
+                if (field !== 'tags' || !payload.scopes.includes('tags')) {
+                    return
+                }
+
+                const sourceTags = source.tags || []
+                options.beginAuxiliaryFieldProgress('tags', {
+                    content: options.post.value.tags.join(', '),
+                    totalChunks: sourceTags.length,
+                })
+
+                try {
+                    const translatedTagBindings = await resolveTranslatedTagBindings(sourceTags, source.language, payload.targetLanguage)
+                    options.applyTagBindings(translatedTagBindings)
+                    options.completeAuxiliaryFieldProgress('tags', {
+                        content: translatedTagBindings.map((binding) => binding.name).join(', '),
+                        totalChunks: sourceTags.length,
+                        completedChunks: sourceTags.length,
+                    })
+                } catch (error) {
+                    console.error('Failed to resolve translated taxonomy bindings', error)
+                    options.failAuxiliaryFieldProgress('tags', {
+                        error: error instanceof Error ? error.message : options.t('pages.admin.posts.ai_error'),
+                        content: options.post.value.tags.join(', '),
+                        totalChunks: sourceTags.length,
+                        completedChunks: 0,
+                    })
+                    options.toast.add({
+                        severity: 'error',
+                        summary: options.t('common.error'),
+                        detail: options.t('pages.admin.posts.ai_error'),
+                        life: 4000,
+                    })
+                }
+            },
         })
 
         if (!translated) {
@@ -706,22 +746,6 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
                 options.post.value.categoryId = resolveMatchedCategoryId(source.category, source.language)
             }
 
-            if (payload.scopes.includes('tags')) {
-                const sourceTags = source.tags || []
-                options.beginAuxiliaryFieldProgress('tags', {
-                    content: options.post.value.tags.join(', '),
-                    totalChunks: sourceTags.length,
-                })
-
-                const translatedTagBindings = await resolveTranslatedTagBindings(sourceTags, source.language, payload.targetLanguage)
-                options.applyTagBindings(translatedTagBindings)
-                options.completeAuxiliaryFieldProgress('tags', {
-                    content: translatedTagBindings.map((binding) => binding.name).join(', '),
-                    totalChunks: sourceTags.length,
-                    completedChunks: sourceTags.length,
-                })
-            }
-
             if (payload.scopes.includes('coverImage')) {
                 options.post.value.coverImage = source.coverImage || ''
             }
@@ -731,14 +755,6 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
             }
         } catch (error) {
             console.error('Failed to resolve translated taxonomy bindings', error)
-            if (payload.scopes.includes('tags')) {
-                options.failAuxiliaryFieldProgress('tags', {
-                    error: error instanceof Error ? error.message : options.t('pages.admin.posts.ai_error'),
-                    content: options.post.value.tags.join(', '),
-                    totalChunks: source.tags?.length || 0,
-                    completedChunks: 0,
-                })
-            }
             options.toast.add({
                 severity: 'error',
                 summary: options.t('common.error'),
@@ -748,7 +764,10 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
             return
         }
 
-        options.post.value.translationId = resolveTranslationClusterId(source.translationId, source.slug, source.id)
+        if (options.translationProgress.value.status === 'failed' || options.translationProgress.value.status === 'cancelled') {
+            return
+        }
+
         translationDialogVisible.value = false
     }
 
