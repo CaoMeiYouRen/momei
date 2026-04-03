@@ -1,31 +1,31 @@
 {
-  "home": {
-    "meta": {
-      "title": "Home - Momei Blog",
-      "description": "Momei Blog: An AI-driven, natively internationalized developer blog platform. AI-powered, Global Creation."
-    },
-    "hero": {
-      "title": "AI-Driven, Native I18n",
-      "subtitle": "Momei Blog: A smart creation platform built for developers, helping your tech reach the world.",
-      "cta": "Start Reading"
-    },
-    "latest_posts": {
-      "title": "Latest Posts"
-    },
-    "popular_posts": {
-      "title": "Popular Posts"
-    },
-    "external_feed": {
-      "title": "External Updates",
-      "subtitle": "Unified RSS and RSSHub aggregation, opened as external links instead of disguised local posts.",
-      "stale": "Cached Fallback",
-      "degraded": "Degraded",
-      "degraded_notice": "You are viewing the latest successful cached snapshot because upstream sources are temporarily unavailable.",
-      "empty": "No external updates are available right now.",
-      "open_external": "Open Source"
-    },
-    "about": {
-      "description": "Momei Blog is dedicated to empowering creators through AI and deep internationalization, enabling content to be born global."
+    "home": {
+        "meta": {
+            "title": "Home - Momei Blog",
+            "description": "Momei Blog: An AI-driven, natively internationalized developer blog platform. AI-powered, Global Creation."
+        },
+        "hero": {
+            "title": "AI-Driven, Native I18n",
+            "subtitle": "Momei Blog: A smart creation platform built for developers, helping your tech reach the world.",
+            "cta": "Start Reading"
+        },
+        "latest_posts": {
+            "title": "Latest Posts"
+        },
+        "popular_posts": {
+            "title": "Popular Posts"
+        },
+        "external_feed": {
+            "title": "External Updates",
+            "subtitle": "A handpicked stream of recent updates worth exploring further, with direct links to the original posts.",
+            "stale": "Cached Fallback",
+            "degraded": "Degraded",
+            "degraded_notice": "You are viewing the latest successful cached snapshot because upstream sources are temporarily unavailable.",
+            "empty": "No external updates are available right now.",
+            "open_external": "Open Source"
+        },
+        "about": {
+            "description": "Momei Blog is dedicated to empowering creators through AI and deep internationalization, enabling content to be born global."
+        }
     }
-  }
 }
