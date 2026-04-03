@@ -35,6 +35,34 @@ const mockPopularPostsData = {
     },
 }
 
+const mockExternalFeedData = {
+    data: {
+        items: [
+            {
+                id: 'external-1',
+                sourceId: 'source-1',
+                title: 'External Feed Item',
+                summary: 'External summary',
+                url: 'https://example.com/external-1',
+                canonicalUrl: 'https://example.com/external-1',
+                publishedAt: '2026-04-03T10:00:00.000Z',
+                authorName: 'External Author',
+                language: 'zh-CN',
+                coverImage: null,
+                sourceTitle: 'External Source',
+                sourceSiteUrl: 'https://example.com',
+                sourceBadge: 'RSS',
+                dedupeKey: 'https://example.com/external-1',
+                priority: 10,
+            },
+        ],
+        degraded: false,
+        stale: false,
+        fetchedAt: '2026-04-03T10:00:00.000Z',
+        sourceCount: 1,
+    },
+}
+
 describe('IndexPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
@@ -55,6 +83,11 @@ describe('IndexPage', () => {
                 pending: ref(false),
                 error: ref(null),
             } as any)
+            .mockReturnValueOnce({
+                data: ref(mockExternalFeedData),
+                pending: ref(false),
+                error: ref(null),
+            } as any)
     })
 
     it('renders latest section with one pinned post and keeps popular posts free of pinned content', async () => {
@@ -64,17 +97,21 @@ describe('IndexPage', () => {
                     ArticleCard: { template: '<div class="article-card">{{ post.title }}</div>', props: ['post'] },
                     SubscriberForm: { template: '<div />' },
                     Skeleton: { template: '<div />' },
+                    Tag: { template: '<div><slot />{{ value }}</div>', props: ['value'] },
+                    Message: { template: '<div><slot /></div>' },
                 },
             },
         })
 
-        expect(vi.mocked(useAppFetch)).toHaveBeenCalledTimes(3)
+        expect(vi.mocked(useAppFetch)).toHaveBeenCalledTimes(4)
         expect(wrapper.findAll('.article-card').length).toBe(5)
         expect(wrapper.text()).toContain('Pinned Post')
         expect(wrapper.text()).toContain('Post 2')
         expect(wrapper.text()).toContain('Post 3')
         expect(wrapper.text()).toContain('Post 4')
         expect(wrapper.text()).toContain('Post 5')
+        expect(wrapper.text()).toContain('External Feed Item')
+        expect(wrapper.text()).toContain('External Source')
 
         const popularCall = vi.mocked(useAppFetch).mock.calls[2]
         expect(popularCall?.[1]).toMatchObject({
@@ -89,6 +126,11 @@ describe('IndexPage', () => {
     it('shows loading state', async () => {
         vi.mocked(useAppFetch).mockReset()
         vi.mocked(useAppFetch)
+            .mockReturnValueOnce({
+                data: ref(null),
+                pending: ref(true),
+                error: ref(null),
+            } as any)
             .mockReturnValueOnce({
                 data: ref(null),
                 pending: ref(true),
@@ -122,6 +164,11 @@ describe('IndexPage', () => {
                 data: ref(null),
                 pending: ref(false),
                 error: ref(new Error('Failed')),
+            } as any)
+            .mockReturnValueOnce({
+                data: ref(null),
+                pending: ref(false),
+                error: ref(null),
             } as any)
             .mockReturnValueOnce({
                 data: ref(null),

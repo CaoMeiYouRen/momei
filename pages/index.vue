@@ -147,6 +147,7 @@
 import type { ApiResponse } from '@/types/api'
 import type { ExternalFeedHomePayload } from '@/types/external-feed'
 import type { Post } from '@/types/post'
+import ExternalFeedPanel from '@/components/home/external-feed-panel.vue'
 import {
     HOMEPAGE_LATEST_POST_LIMIT,
     HOMEPAGE_PINNED_POST_LIMIT,
