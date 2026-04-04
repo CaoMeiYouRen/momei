@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { durationToSeconds, formatDate, formatDateTime, secondsToDuration } from '@/utils/shared/date'
+import { addSecondsToDate, durationToSeconds, formatDate, formatDateTime, getDateTimestamp, secondsToDuration } from '@/utils/shared/date'
 
 describe('Date Utils', () => {
     describe('formatDate', () => {
@@ -119,6 +119,23 @@ describe('Date Utils', () => {
 
         it('should handle invalid format', () => {
             expect(durationToSeconds('invalid')).toBe(0)
+        })
+    })
+
+    describe('getDateTimestamp', () => {
+        it('returns a timestamp for valid inputs', () => {
+            expect(getDateTimestamp('2024-01-01T00:00:00.000Z')).toBe(new Date('2024-01-01T00:00:00.000Z').getTime())
+        })
+
+        it('returns the fallback for invalid inputs', () => {
+            expect(getDateTimestamp('invalid-date', 123)).toBe(123)
+            expect(getDateTimestamp(null, 456)).toBe(456)
+        })
+    })
+
+    describe('addSecondsToDate', () => {
+        it('adds seconds with dayjs as the date fact source', () => {
+            expect(addSecondsToDate('2024-01-01T00:00:00.000Z', 90).toISOString()).toBe('2024-01-01T00:01:30.000Z')
         })
     })
 })

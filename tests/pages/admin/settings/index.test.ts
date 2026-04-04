@@ -102,6 +102,19 @@ const mockSettingsResponse = {
                 lockReason: null,
                 requiresRestart: false,
             },
+            {
+                key: 'external_feed_cache_ttl_seconds',
+                value: '900',
+                description: 'external feed cache ttl',
+                level: 1,
+                maskType: 'none',
+                source: 'db',
+                isLocked: false,
+                envKey: 'EXTERNAL_FEED_CACHE_TTL_SECONDS',
+                defaultUsed: false,
+                lockReason: null,
+                requiresRestart: false,
+            },
         ],
         demoPreview: true,
     },
@@ -213,6 +226,8 @@ describe('Admin Settings Page', () => {
         expect(wrapper.text()).toContain('智能混合模式说明')
         expect(wrapper.text()).toContain('演示模式样例数据')
         expect(wrapper.find('.floating-actions').attributes('data-primary-disabled')).toBe('true')
+        // @ts-expect-error access exposed script setup binding for test
+        expect(wrapper.vm.settings.external_feed_cache_ttl_seconds).toBe('15m')
 
         await wrapper.find('.tab-switch').trigger('click')
         await flushPromises()
@@ -236,6 +251,7 @@ describe('Admin Settings Page', () => {
                     site_title: 'Updated Momei',
                     max_upload_size: '4.5MiB',
                     upload_limit_window: '86400',
+                    external_feed_cache_ttl_seconds: '15m',
                 },
                 reason: 'system_settings_update',
                 source: 'admin_ui',

@@ -4,6 +4,7 @@ import { getSettingDefaultValue, getSettings } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
 import type { ExternalFeedSourceConfig } from '@/types/external-feed'
 import { toBoolean, toNumber } from '@/utils/shared/coerce'
+import { normalizeDurationSeconds } from '@/utils/shared/duration'
 import { externalFeedSourcesSchema, type ExternalFeedSourceConfigInput } from '@/utils/schemas/external-feed'
 
 export interface ExternalFeedRegistryConfig {
@@ -81,8 +82,16 @@ export async function getExternalFeedRegistryConfig(): Promise<ExternalFeedRegis
     const enabled = toBoolean(readSettingOrDefault(settings, SettingKey.EXTERNAL_FEED_ENABLED), false)
     const homeEnabled = toBoolean(readSettingOrDefault(settings, SettingKey.EXTERNAL_FEED_HOME_ENABLED), false)
     const homeLimit = Math.max(1, Math.min(12, toNumber(readSettingOrDefault(settings, SettingKey.EXTERNAL_FEED_HOME_LIMIT), 6)))
-    const defaultCacheTtlSeconds = Math.max(60, Math.min(86400, toNumber(readSettingOrDefault(settings, SettingKey.EXTERNAL_FEED_CACHE_TTL_SECONDS), 900)))
-    const defaultStaleWhileErrorSeconds = Math.max(60, Math.min(604800, toNumber(readSettingOrDefault(settings, SettingKey.EXTERNAL_FEED_STALE_WHILE_ERROR_SECONDS), 86400)))
+    const defaultCacheTtlSeconds = normalizeDurationSeconds(
+        readSettingOrDefault(settings, SettingKey.EXTERNAL_FEED_CACHE_TTL_SECONDS),
+        900,
+        { min: 60, max: 86400 },
+    )
+    const defaultStaleWhileErrorSeconds = normalizeDurationSeconds(
+        readSettingOrDefault(settings, SettingKey.EXTERNAL_FEED_STALE_WHILE_ERROR_SECONDS),
+        86400,
+        { min: 60, max: 604800 },
+    )
     const sources = parseExternalFeedSources(readSettingOrDefault(settings, SettingKey.EXTERNAL_FEED_SOURCES))
 
     return {

@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 import { type H3Event, readMultipartFormData } from 'h3'
 import { getFileStorage, type FileStorageEnv } from '@/server/utils/storage/factory'
 import { splitAndNormalizeStringList } from '@/utils/shared/string-list'
+import { normalizeDurationSeconds } from '@/utils/shared/duration'
 import { joinBaseUrlAndPath } from '@/utils/shared/url'
 import { resolveUploadSizeSetting } from '@/utils/shared/upload-size'
 import { limiterStorage } from '@/server/database/storage'
@@ -416,7 +417,11 @@ export async function checkUploadLimits(userId: string) {
         SettingKey.UPLOAD_SINGLE_USER_DAILY_LIMIT,
     ])
 
-    const limitWindow = Number(dbSettings[SettingKey.UPLOAD_LIMIT_WINDOW] || 86400)
+    const limitWindow = normalizeDurationSeconds(
+        dbSettings[SettingKey.UPLOAD_LIMIT_WINDOW],
+        86400,
+        { min: 1 },
+    )
     const dailyLimit = Number(dbSettings[SettingKey.UPLOAD_DAILY_LIMIT] || 100)
     const userDailyLimit = Number(dbSettings[SettingKey.UPLOAD_SINGLE_USER_DAILY_LIMIT] || 5)
 

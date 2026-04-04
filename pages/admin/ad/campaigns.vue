@@ -175,6 +175,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { CampaignStatus } from '@/types/ad'
 
 const { t } = useI18n()
+const { formatDateTime } = useI18nDate()
 
 definePageMeta({
     middleware: 'admin',
@@ -331,7 +332,7 @@ function getStatusSeverity(status: CampaignStatus): string {
 
 function formatDate(date: string | null): string {
     if (!date) return '-'
-    return new Date(date).toLocaleString()
+    return formatDateTime(date, 'YYYY-MM-DD HH:mm')
 }
 
 onMounted(() => {

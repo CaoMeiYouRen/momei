@@ -5,6 +5,7 @@ import { getExternalFeedRegistryConfig, resolveExternalFeedLocaleBucket } from '
 import type { ExternalFeedHomePayload, ExternalFeedItem, ExternalFeedSnapshot, ExternalFeedSourceConfig } from '@/types/external-feed'
 import { APP_LOCALE_CODES, resolveAppLocaleCode, type AppLocaleCode } from '@/i18n/config/locale-registry'
 import logger from '@/server/utils/logger'
+import { addSecondsToDate, getDateTimestamp } from '@/utils/shared/date'
 
 export interface ExternalFeedRefreshSummary {
     refreshedAt: string
@@ -45,8 +46,8 @@ function sortAndDedupeExternalFeedItems(items: ExternalFeedItem[]) {
             continue
         }
 
-        const existingTime = existingItem.publishedAt ? new Date(existingItem.publishedAt).getTime() : 0
-        const currentTime = item.publishedAt ? new Date(item.publishedAt).getTime() : 0
+        const existingTime = getDateTimestamp(existingItem.publishedAt)
+        const currentTime = getDateTimestamp(item.publishedAt)
 
         if (currentTime > existingTime || (currentTime === existingTime && item.priority > existingItem.priority)) {
             dedupedItems.set(item.dedupeKey, item)
@@ -54,8 +55,8 @@ function sortAndDedupeExternalFeedItems(items: ExternalFeedItem[]) {
     }
 
     return [...dedupedItems.values()].sort((left, right) => {
-        const leftTime = left.publishedAt ? new Date(left.publishedAt).getTime() : 0
-        const rightTime = right.publishedAt ? new Date(right.publishedAt).getTime() : 0
+        const leftTime = getDateTimestamp(left.publishedAt)
+        const rightTime = getDateTimestamp(right.publishedAt)
 
         if (leftTime !== rightTime) {
             return rightTime - leftTime
@@ -82,8 +83,8 @@ async function refreshExternalFeedSnapshot(
         sourceId: source.id,
         localeBucket,
         fetchedAt: now.toISOString(),
-        expiresAt: new Date(now.getTime() + cacheTtlSeconds * 1000).toISOString(),
-        staleUntil: new Date(now.getTime() + staleWhileErrorSeconds * 1000).toISOString(),
+        expiresAt: addSecondsToDate(now, cacheTtlSeconds).toISOString(),
+        staleUntil: addSecondsToDate(now, staleWhileErrorSeconds).toISOString(),
         items,
     }
 

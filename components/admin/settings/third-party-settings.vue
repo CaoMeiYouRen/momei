@@ -257,12 +257,10 @@
                     :metadata="metadata.external_feed_cache_ttl_seconds"
                     :description="$t('pages.admin.settings.system.hints.external_feed_cache_ttl_seconds')"
                 >
-                    <InputNumber
+                    <InputText
                         id="external_feed_cache_ttl_seconds"
                         v-model="settings.external_feed_cache_ttl_seconds"
                         :disabled="metadata.external_feed_cache_ttl_seconds?.isLocked"
-                        :min="60"
-                        :max="86400"
                         fluid
                     />
                 </SettingFormField>
@@ -273,12 +271,10 @@
                     :metadata="metadata.external_feed_stale_while_error_seconds"
                     :description="$t('pages.admin.settings.system.hints.external_feed_stale_while_error_seconds')"
                 >
-                    <InputNumber
+                    <InputText
                         id="external_feed_stale_while_error_seconds"
                         v-model="settings.external_feed_stale_while_error_seconds"
                         :disabled="metadata.external_feed_stale_while_error_seconds?.isLocked"
-                        :min="60"
-                        :max="604800"
                         fluid
                     />
                 </SettingFormField>

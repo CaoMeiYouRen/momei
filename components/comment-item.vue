@@ -102,7 +102,7 @@ defineEmits<{
     (e: 'reply', comment: Comment): void
 }>()
 
-const { locale } = useI18n()
+const { formatDateTime } = useI18nDate()
 
 // 简单的 Markdown 渲染
 const md = createMarkdownRenderer({
@@ -113,13 +113,7 @@ const renderedContent = computed(() => md.render(props.comment.content || ''))
 
 // 格式化日期
 const formatDate = (date: string) => {
-    return new Date(date).toLocaleString(locale.value, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    })
+    return formatDateTime(date, 'YYYY-MM-DD HH:mm')
 }
 </script>
 

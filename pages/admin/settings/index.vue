@@ -163,6 +163,7 @@ import ThirdPartySettings from '@/components/admin/settings/third-party-settings
 import { useFeedbackEntry } from '@/composables/use-feedback-entry'
 import { useUnsavedChangesGuard } from '@/composables/use-unsaved-changes-guard'
 import { buildAdminSettingsTabLocation, resolveAdminSettingsTab, type AdminSettingsTab } from '@/utils/shared/admin-settings-tabs'
+import { formatDurationSecondsForInput, parseDurationSeconds } from '@/utils/shared/duration'
 import { stableSerialize } from '@/utils/shared/stable-serialize'
 import { clearQueuedSetupJourneyStage, getQueuedSetupJourneyStage, queueSetupJourneyStage } from '@/utils/web/setup-journey'
 import type { LocalizedSettingMetadata, SettingFormValue, SettingItem, SettingLockReason, SettingSource } from '@/types/setting'
@@ -213,6 +214,11 @@ const genericSaveTabs = new Set<AdminSettingsTab>([
     'third_party',
 ])
 
+const durationSettingFallbacks: Record<string, number> = {
+    external_feed_cache_ttl_seconds: 900,
+    external_feed_stale_while_error_seconds: 86400,
+}
+
 const numberSettingFallbacks: Record<string, number> = {
     posts_per_page: 10,
     email_port: 587,
@@ -230,8 +236,6 @@ const numberSettingFallbacks: Record<string, number> = {
     friend_links_check_interval_minutes: 1440,
     local_storage_min_free_space: 104857600,
     external_feed_home_limit: 6,
-    external_feed_cache_ttl_seconds: 900,
-    external_feed_stale_while_error_seconds: 86400,
 }
 
 function normalizeFormValue(setting: SettingItem): SettingFormValue {
@@ -245,6 +249,17 @@ function normalizeFormValue(setting: SettingItem): SettingFormValue {
 
     if (setting.value === 'false') {
         return false
+    }
+
+    if (setting.key in durationSettingFallbacks) {
+        const fallback = durationSettingFallbacks[setting.key] ?? 0
+        const parsedValue = parseDurationSeconds(setting.value)
+
+        if (parsedValue === null) {
+            return setting.value ?? formatDurationSecondsForInput(fallback)
+        }
+
+        return formatDurationSecondsForInput(parsedValue)
     }
 
     if (setting.key in numberSettingFallbacks) {

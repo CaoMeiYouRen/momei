@@ -5,6 +5,7 @@ import { limiterStorage } from '@/server/database/storage'
 import {
     EMAIL_FROM,
 } from '@/utils/shared/env'
+import { normalizeDurationSeconds } from '@/utils/shared/duration'
 import { getSettings } from '~/server/services/setting'
 import { SettingKey } from '~/types/setting'
 
@@ -124,7 +125,11 @@ async function ensureWithinLimit(options: EmailOptions) {
         SettingKey.EMAIL_LIMIT_WINDOW,
     ])
 
-    const limitWindow = Number(dbSettings[SettingKey.EMAIL_LIMIT_WINDOW] || 86400)
+    const limitWindow = normalizeDurationSeconds(
+        dbSettings[SettingKey.EMAIL_LIMIT_WINDOW],
+        86400,
+        { min: 1 },
+    )
     const dailyLimit = Number(dbSettings[SettingKey.EMAIL_DAILY_LIMIT] || 100)
     const userDailyLimit = Number(dbSettings[SettingKey.EMAIL_SINGLE_USER_DAILY_LIMIT] || 5)
 

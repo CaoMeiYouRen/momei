@@ -1,6 +1,7 @@
 import { watch, computed, type Ref } from 'vue'
 import { useLocalStorage, useDebounceFn } from '@vueuse/core'
 import type { PostEditorData } from '@/types/post-editor'
+import { getDateTimestamp } from '@/utils/shared/date'
 
 /**
  * 文章编辑器自动保存 Composable
@@ -78,7 +79,7 @@ export function usePostEditorAutoSave(
 
         const lastSavedAt = localDraft.value.lastSavedAt
         // post.updatedAt 是服务器返回的时间
-        const serverUpdatedAt = post.value.updatedAt ? new Date(post.value.updatedAt).getTime() : 0
+        const serverUpdatedAt = getDateTimestamp(post.value.updatedAt)
 
         // 逻辑：本地草稿比服务器时间更新超过 30 秒（容许小幅时钟误差）
         return lastSavedAt > serverUpdatedAt + 30000

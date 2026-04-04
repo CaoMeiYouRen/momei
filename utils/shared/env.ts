@@ -1,5 +1,6 @@
-import { ms, type StringValue } from 'ms'
 import { parse } from 'better-bytes'
+import { ms, type StringValue } from 'ms'
+import { normalizeDurationSeconds } from './duration'
 import { generateRandomString } from './random'
 import { isAbsoluteHttpUrl, joinBaseUrlAndPath } from './url'
 
@@ -177,7 +178,7 @@ export const EMAIL_SINGLE_USER_DAILY_LIMIT = Number(
 )
 // 限流时间窗口
 export const EMAIL_LIMIT_WINDOW = Number(
-    process.env.EMAIL_LIMIT_WINDOW || ms('1d') / 1000,
+    normalizeDurationSeconds(process.env.EMAIL_LIMIT_WINDOW, 24 * 60 * 60, { min: 1 }),
 )
 // 邮件验证码有效时间（秒）
 export const EMAIL_EXPIRES_IN = Number(process.env.EMAIL_EXPIRES_IN || 300)
@@ -241,7 +242,7 @@ export const MAX_AUDIO_UPLOAD_SIZE_TEXT =
 
 // 上传文件限流时间窗口
 export const UPLOAD_LIMIT_WINDOW = Number(
-    process.env.UPLOAD_LIMIT_WINDOW || ms('1d') / 1000,
+    normalizeDurationSeconds(process.env.UPLOAD_LIMIT_WINDOW, 24 * 60 * 60, { min: 1 }),
 )
 // 文件上传每日限制
 export const UPLOAD_DAILY_LIMIT = Number(process.env.UPLOAD_DAILY_LIMIT || 100)

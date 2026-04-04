@@ -204,9 +204,10 @@ import { formatMarkdown } from '@/utils/shared/markdown-formatter'
 const post = defineModel<any>('post', { required: true })
 
 const { t } = useI18n()
+const { isFuture } = useI18nDate()
 
 const isScheduled = computed(() => {
-    return post.value.publishedAt && new Date(post.value.publishedAt) > new Date()
+    return isFuture(post.value.publishedAt)
 })
 
 const publishButtonLabel = computed(() => {

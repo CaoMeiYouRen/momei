@@ -102,6 +102,28 @@ export const isFutureDate = (
     return target.valueOf() > base.valueOf()
 }
 
+export const getDateTimestamp = (
+    date: string | Date | number | null | undefined,
+    fallback = 0,
+    tz?: string,
+) => {
+    if (!date) {
+        return fallback
+    }
+
+    let parsed = dayjs(date)
+
+    if (tz) {
+        parsed = parsed.tz(tz)
+    }
+
+    return parsed.isValid() ? parsed.valueOf() : fallback
+}
+
+export const addSecondsToDate = (date: string | Date | number, seconds: number) => {
+    return dayjs(date).add(seconds, 'second').toDate()
+}
+
 /**
  * 将秒数转换为 HH:mm:ss 格式
  * @param seconds 秒数
