@@ -6,6 +6,16 @@
             <div class="app-header__actions">
                 <nav class="app-header__nav desktop-only">
                     <NuxtLink
+                        v-if="showAdminControls"
+                        id="desktop-admin-posts-link"
+                        :to="localePath('/admin/posts')"
+                        class="app-header__admin-link nav-link"
+                    >
+                        <i class="app-header__admin-link-icon pi pi-file" />
+                        <span>{{ $t('pages.admin.posts.title') }}</span>
+                    </NuxtLink>
+
+                    <NuxtLink
                         id="nav-home"
                         :to="localePath('/')"
                         class="nav-link"
@@ -75,6 +85,7 @@
                                 icon="pi pi-file"
                                 text
                                 rounded
+                                class="app-header__compact-admin-posts"
                                 :aria-label="$t('pages.admin.posts.title')"
                                 @click="goToAdminPosts"
                             />
@@ -609,6 +620,27 @@ watch(
         display: flex;
         align-items: center;
         gap: $spacing-xs;
+    }
+
+    &__admin-link {
+        display: none;
+        align-items: center;
+        gap: $spacing-xs;
+        white-space: nowrap;
+
+        @media (width >= 1280px) {
+            display: inline-flex;
+        }
+    }
+
+    &__admin-link-icon {
+        font-size: 0.95rem;
+    }
+
+    &__compact-admin-posts {
+        @media (width >= 1280px) {
+            display: none;
+        }
     }
 }
 

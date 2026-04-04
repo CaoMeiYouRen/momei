@@ -124,6 +124,7 @@ describe('AppHeader', () => {
         })
 
         expect(wrapper.find('#user-menu-btn').attributes('icon')).toBe('pi pi-user')
+        expect(wrapper.find('#desktop-admin-posts-link').exists()).toBe(true)
         expect(wrapper.find('#admin-posts-shortcut').exists()).toBe(true)
         expect(wrapper.find('#mobile-admin-posts-btn').exists()).toBe(true)
         expect(wrapper.find('#admin-menu-btn').exists()).toBe(true)
@@ -147,6 +148,7 @@ describe('AppHeader', () => {
             global: { stubs },
         })
 
+        expect(wrapper.find('#desktop-admin-posts-link').exists()).toBe(true)
         expect(wrapper.find('#admin-posts-shortcut').exists()).toBe(true)
         expect(wrapper.find('#mobile-admin-posts-btn').exists()).toBe(true)
         expect(wrapper.find('#admin-menu-btn').exists()).toBe(true)
@@ -164,6 +166,7 @@ describe('AppHeader', () => {
             global: { stubs },
         })
 
+        expect(wrapper.find('#desktop-admin-posts-link').exists()).toBe(false)
         expect(wrapper.find('#admin-posts-shortcut').exists()).toBe(false)
         expect(wrapper.find('#mobile-admin-posts-btn').exists()).toBe(false)
         expect(wrapper.find('#admin-menu-btn').exists()).toBe(false)

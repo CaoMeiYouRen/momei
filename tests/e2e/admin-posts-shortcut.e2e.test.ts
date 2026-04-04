@@ -30,13 +30,34 @@ test.describe('Admin Posts Shortcut E2E Tests', () => {
         storageState: hasStoredAuth() ? authFile : undefined,
     })
 
-    test('shows desktop shortcut and navigates to posts management', async ({ page }) => {
+    test('shows top-level desktop nav entry on wide screens and navigates to posts management', async ({ page }) => {
         await ensureAdminSession(page)
 
         await page.setViewportSize({ width: 1440, height: 900 })
         await page.goto('/')
 
+        const desktopLink = page.locator('#desktop-admin-posts-link')
         const shortcutButton = page.locator('#admin-posts-shortcut')
+
+        await expect(desktopLink).toBeVisible({ timeout: 20000 })
+        await expect(shortcutButton).toHaveCount(0)
+
+        await desktopLink.click()
+
+        await expect(page).toHaveURL(/\/admin\/posts(?:\?|$)/, { timeout: 20000 })
+        await expect(page.locator('.admin-page-container')).toBeVisible({ timeout: 20000 })
+    })
+
+    test('keeps compact desktop shortcut on narrower layouts and navigates to posts management', async ({ page }) => {
+        await ensureAdminSession(page)
+
+        await page.setViewportSize({ width: 1024, height: 900 })
+        await page.goto('/')
+
+        const desktopLink = page.locator('#desktop-admin-posts-link')
+        const shortcutButton = page.locator('#admin-posts-shortcut')
+
+        await expect(desktopLink).toHaveCount(0)
         await expect(shortcutButton).toBeVisible({ timeout: 20000 })
 
         await shortcutButton.click()
@@ -68,6 +89,7 @@ test.describe('Admin Posts Shortcut Anonymous State', () => {
         await page.setViewportSize({ width: 1440, height: 900 })
         await page.goto('/')
 
+        await expect(page.locator('#desktop-admin-posts-link')).toHaveCount(0)
         await expect(page.locator('#admin-posts-shortcut')).toHaveCount(0)
 
         await page.setViewportSize({ width: 390, height: 844 })
