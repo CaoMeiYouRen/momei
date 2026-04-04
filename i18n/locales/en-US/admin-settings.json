@@ -12,10 +12,20 @@
                         "external_feed_stale_while_error_seconds": "External feed stale fallback window"
                     },
                     "hints": {
+                        "comment_interval": "Minimum time between comments. Supports human-readable durations like 30s, 5m, or 1h and still accepts legacy numeric seconds.",
+                        "email_limit_window": "Time window used to count outgoing emails. Supports human-readable durations like 15m or 1d and still accepts legacy numeric seconds.",
                         "external_feed_cache_ttl_seconds": "Controls how long a successful external source fetch can be reused from cache. Supports human-readable durations like 15m or 1d and still accepts legacy numeric seconds.",
                         "external_feed_home_limit": "Controls how many aggregated external updates can appear in the homepage module.",
                         "external_feed_sources": "Provide a JSON array of external sources. Each item must include at least id, provider, title, and sourceUrl, and can optionally define includeInHome, defaultLocale, localeStrategy, priority, cacheTtlSeconds, staleWhileErrorSeconds, and maxItems.",
-                        "external_feed_stale_while_error_seconds": "Controls how long the latest successful snapshot may continue to be used when refreshing an external source fails. Supports human-readable durations like 15m or 1d and still accepts legacy numeric seconds."
+                        "external_feed_stale_while_error_seconds": "Controls how long the latest successful snapshot may continue to be used when refreshing an external source fails. Supports human-readable durations like 15m or 1d and still accepts legacy numeric seconds.",
+                        "friend_links_check_interval_minutes": "Minimum interval between friend link availability checks. Supports human-readable durations like 2h or 1d and still accepts legacy numeric minutes.",
+                        "upload_limit_window": "Time window used to count uploads. Supports human-readable durations like 15m or 1d and still accepts legacy numeric seconds."
+                    },
+                    "keys": {
+                        "comment_interval": "Minimum comment interval",
+                        "email_limit_window": "Email rate-limit window",
+                        "friend_links_check_interval_minutes": "Friend link check interval",
+                        "upload_limit_window": "Upload rate-limit window"
                     },
                     "sections": {
                         "external_feeds": "External RSS / RSSHub aggregation"

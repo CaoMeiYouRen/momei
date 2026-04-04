@@ -72,4 +72,18 @@ describe('import path alias validation service', () => {
         expect(report.requiresConfirmation).toBe(true)
         expect(report.items.find((item) => item.field === 'permalink')?.status).toBe('needs-confirmation')
     })
+
+    it('renders UTC date tokens in permalink templates via shared date helpers', async () => {
+        const report = await validateImportPathAliases({
+            title: 'Dated Post',
+            slug: 'dated-post',
+            permalink: '/:year/:month/:day/:slug/',
+            createdAt: '2026-03-12T23:30:00.000Z',
+            language: 'en-US',
+        })
+
+        expect(report.canImport).toBe(true)
+        expect(report.requiresConfirmation).toBe(false)
+        expect(report.items.find((item) => item.field === 'permalink')?.resolvedValue).toBe('/2026/03/12/dated-post')
+    })
 })

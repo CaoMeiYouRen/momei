@@ -128,6 +128,25 @@ export const addMillisecondsToDate = (date: string | Date | number, milliseconds
     return dayjs(date).add(milliseconds, 'millisecond').toDate()
 }
 
+export const getUtcDateParts = (date: string | Date | number | null | undefined) => {
+    if (!date) {
+        return null
+    }
+
+    const parsed = dayjs(date)
+    if (!parsed.isValid()) {
+        return null
+    }
+
+    const utcDate = parsed.utc()
+
+    return {
+        year: utcDate.format('YYYY'),
+        month: utcDate.format('MM'),
+        day: utcDate.format('DD'),
+    }
+}
+
 /**
  * 将秒数转换为 HH:mm:ss 格式
  * @param seconds 秒数

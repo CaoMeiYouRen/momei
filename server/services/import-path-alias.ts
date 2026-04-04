@@ -1,6 +1,7 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { normalizeOptionalString } from '@/utils/shared/coerce'
+import { getUtcDateParts } from '@/utils/shared/date'
 import { normalizeAsciiSlug } from '@/utils/shared/slug'
 import { isSnowflakeId } from '@/utils/shared/validate'
 
@@ -164,14 +165,14 @@ function collectPermalinkTokens(permalink: string) {
 }
 
 function buildPermalinkTokenContext(input: ImportPathAliasValidationInput, canonicalSlug: string | null) {
-    const normalizedDate = input.createdAt ? new Date(input.createdAt) : null
+    const utcDateParts = getUtcDateParts(input.createdAt)
     const titleAlias = normalizeOptionalString(input.title) ? slugifyAlias(input.title!) : null
     const categoryAlias = normalizeOptionalString(input.category) ? slugifyAlias(input.category!) : null
 
     return {
-        year: normalizedDate && !Number.isNaN(normalizedDate.getTime()) ? String(normalizedDate.getUTCFullYear()) : null,
-        month: normalizedDate && !Number.isNaN(normalizedDate.getTime()) ? String(normalizedDate.getUTCMonth() + 1).padStart(2, '0') : null,
-        day: normalizedDate && !Number.isNaN(normalizedDate.getTime()) ? String(normalizedDate.getUTCDate()).padStart(2, '0') : null,
+        year: utcDateParts?.year || null,
+        month: utcDateParts?.month || null,
+        day: utcDateParts?.day || null,
         slug: canonicalSlug,
         title: titleAlias,
         abbrlink: normalizeOptionalString(input.abbrlink),

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { addMillisecondsToDate, addSecondsToDate, durationToSeconds, formatDate, formatDateTime, getDateTimestamp, secondsToDuration } from '@/utils/shared/date'
+import { addMillisecondsToDate, addSecondsToDate, durationToSeconds, formatDate, formatDateTime, getDateTimestamp, getUtcDateParts, secondsToDuration } from '@/utils/shared/date'
 
 describe('Date Utils', () => {
     describe('formatDate', () => {
@@ -142,6 +142,21 @@ describe('Date Utils', () => {
     describe('addMillisecondsToDate', () => {
         it('adds milliseconds with dayjs as the date fact source', () => {
             expect(addMillisecondsToDate('2024-01-01T00:00:00.000Z', 1500).toISOString()).toBe('2024-01-01T00:00:01.500Z')
+        })
+    })
+
+    describe('getUtcDateParts', () => {
+        it('returns UTC year month day tokens for valid dates', () => {
+            expect(getUtcDateParts('2024-02-03T04:05:06.000Z')).toEqual({
+                year: '2024',
+                month: '02',
+                day: '03',
+            })
+        })
+
+        it('returns null for invalid dates', () => {
+            expect(getUtcDateParts('invalid-date')).toBeNull()
+            expect(getUtcDateParts(null)).toBeNull()
         })
     })
 })
