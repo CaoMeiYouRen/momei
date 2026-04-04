@@ -99,6 +99,19 @@ describe('i18n locale modules', () => {
         ])
     })
 
+    it('should resolve admin notification routes with the notification locale module only', () => {
+        expect(resolveLocaleMessageModulesForRoute('/admin/notifications')).toEqual([
+            'common',
+            'components',
+            'public',
+            'settings',
+            'legal',
+            'auth',
+            'admin',
+            'admin-notifications',
+        ])
+    })
+
     it('should resolve admin post routes with the posts locale module', () => {
         expect(resolveLocaleMessageModulesForRoute('/admin/posts/123')).toEqual([
             'common',

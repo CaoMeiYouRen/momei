@@ -14,10 +14,10 @@
                 <div class="notification-delivery-log-list__header">
                     <div>
                         <h3 class="notification-delivery-log-list__title">
-                            {{ $t('pages.admin.settings.system.notifications.delivery_logs.title') }}
+                            {{ $t('pages.admin.notifications.delivery_logs.title') }}
                         </h3>
                         <p class="notification-delivery-log-list__description">
-                            {{ $t('pages.admin.settings.system.notifications.delivery_logs.description') }}
+                            {{ $t('pages.admin.notifications.delivery_logs.description') }}
                         </p>
                         <p v-if="demoPreview" class="notification-delivery-log-list__demo-note">
                             {{ $t('pages.admin.settings.system.demo_preview.description') }}
@@ -27,7 +27,7 @@
                     <Button
                         icon="pi pi-refresh"
                         variant="text"
-                        :label="$t('pages.admin.settings.system.notifications.delivery_logs.refresh')"
+                        :label="$t('pages.admin.notifications.delivery_logs.refresh')"
                         @click="loadLogs"
                     />
                 </div>
@@ -35,7 +35,7 @@
                 <div class="notification-delivery-log-list__filters">
                     <InputText
                         v-model="filters.recipient"
-                        :placeholder="$t('pages.admin.settings.system.notifications.delivery_logs.filters.recipient')"
+                        :placeholder="$t('pages.admin.notifications.delivery_logs.filters.recipient')"
                     />
 
                     <Select
@@ -43,7 +43,7 @@
                         :options="notificationTypeOptions"
                         option-label="label"
                         option-value="value"
-                        :placeholder="$t('pages.admin.settings.system.notifications.delivery_logs.filters.type')"
+                        :placeholder="$t('pages.admin.notifications.delivery_logs.filters.type')"
                         show-clear
                     />
 
@@ -52,7 +52,7 @@
                         :options="channelOptions"
                         option-label="label"
                         option-value="value"
-                        :placeholder="$t('pages.admin.settings.system.notifications.delivery_logs.filters.channel')"
+                        :placeholder="$t('pages.admin.notifications.delivery_logs.filters.channel')"
                         show-clear
                     />
 
@@ -61,7 +61,7 @@
                         :options="statusOptions"
                         option-label="label"
                         option-value="value"
-                        :placeholder="$t('pages.admin.settings.system.notifications.delivery_logs.filters.status')"
+                        :placeholder="$t('pages.admin.notifications.delivery_logs.filters.status')"
                         show-clear
                     />
 
@@ -70,7 +70,7 @@
                         show-icon
                         icon-display="input"
                         date-format="yy-mm-dd"
-                        :placeholder="$t('pages.admin.settings.system.notifications.delivery_logs.filters.start_date')"
+                        :placeholder="$t('pages.admin.notifications.delivery_logs.filters.start_date')"
                     />
 
                     <DatePicker
@@ -78,17 +78,17 @@
                         show-icon
                         icon-display="input"
                         date-format="yy-mm-dd"
-                        :placeholder="$t('pages.admin.settings.system.notifications.delivery_logs.filters.end_date')"
+                        :placeholder="$t('pages.admin.notifications.delivery_logs.filters.end_date')"
                     />
 
                     <div class="notification-delivery-log-list__filter-actions">
                         <Button
-                            :label="$t('pages.admin.settings.system.notifications.delivery_logs.filters.apply')"
+                            :label="$t('pages.admin.notifications.delivery_logs.filters.apply')"
                             size="small"
                             @click="applyFilters"
                         />
                         <Button
-                            :label="$t('pages.admin.settings.system.notifications.delivery_logs.filters.reset')"
+                            :label="$t('pages.admin.notifications.delivery_logs.filters.reset')"
                             size="small"
                             severity="secondary"
                             variant="outlined"
@@ -98,13 +98,13 @@
                 </div>
             </template>
 
-            <Column :header="$t('pages.admin.settings.system.notifications.delivery_logs.columns.sent_at')" class="notification-delivery-log-list__time-column">
+            <Column :header="$t('pages.admin.notifications.delivery_logs.columns.sent_at')" class="notification-delivery-log-list__time-column">
                 <template #body="slotProps">
                     {{ formatDateTime(slotProps.data.sentAt) }}
                 </template>
             </Column>
 
-            <Column :header="$t('pages.admin.settings.system.notifications.delivery_logs.columns.type')">
+            <Column :header="$t('pages.admin.notifications.delivery_logs.columns.type')">
                 <template #body="slotProps">
                     <Tag :severity="getNotificationTypeSeverity(slotProps.data.notificationType)">
                         {{ translateNotificationType(slotProps.data.notificationType) }}
@@ -112,7 +112,7 @@
                 </template>
             </Column>
 
-            <Column :header="$t('pages.admin.settings.system.notifications.delivery_logs.columns.channel')">
+            <Column :header="$t('pages.admin.notifications.delivery_logs.columns.channel')">
                 <template #body="slotProps">
                     <Tag :severity="getChannelSeverity(slotProps.data.channel)">
                         {{ translateChannel(slotProps.data.channel) }}
@@ -120,7 +120,7 @@
                 </template>
             </Column>
 
-            <Column :header="$t('pages.admin.settings.system.notifications.delivery_logs.columns.status')">
+            <Column :header="$t('pages.admin.notifications.delivery_logs.columns.status')">
                 <template #body="slotProps">
                     <Tag :severity="getStatusSeverity(slotProps.data.status)">
                         {{ translateStatus(slotProps.data.status) }}
@@ -128,7 +128,7 @@
                 </template>
             </Column>
 
-            <Column :header="$t('pages.admin.settings.system.notifications.delivery_logs.columns.recipient')">
+            <Column :header="$t('pages.admin.notifications.delivery_logs.columns.recipient')">
                 <template #body="slotProps">
                     <div class="notification-delivery-log-list__recipient-cell">
                         <strong class="notification-delivery-log-list__recipient-primary">
@@ -144,12 +144,12 @@
                             v-if="slotProps.data.userId"
                             class="notification-delivery-log-list__recipient-id"
                         >
-                            <span>{{ $t('pages.admin.settings.system.notifications.delivery_logs.recipient.user_id') }}: {{ slotProps.data.userId }}</span>
+                            <span>{{ $t('pages.admin.notifications.delivery_logs.recipient.user_id') }}: {{ slotProps.data.userId }}</span>
                             <Button
                                 icon="pi pi-copy"
                                 text
                                 size="small"
-                                :aria-label="$t('pages.admin.settings.system.notifications.delivery_logs.recipient.copy_id')"
+                                :aria-label="$t('pages.admin.notifications.delivery_logs.recipient.copy_id')"
                                 @click="copyUserId(slotProps.data.userId)"
                             />
                         </div>
@@ -157,7 +157,7 @@
                 </template>
             </Column>
 
-            <Column :header="$t('pages.admin.settings.system.notifications.delivery_logs.columns.title')">
+            <Column :header="$t('pages.admin.notifications.delivery_logs.columns.title')">
                 <template #body="slotProps">
                     <div class="notification-delivery-log-list__title-cell">
                         <strong>{{ slotProps.data.title }}</strong>
@@ -172,17 +172,17 @@
                 </template>
             </Column>
 
-            <Column :header="$t('pages.admin.settings.system.notifications.delivery_logs.columns.error')">
+            <Column :header="$t('pages.admin.notifications.delivery_logs.columns.error')">
                 <template #body="slotProps">
                     <span class="notification-delivery-log-list__error">
-                        {{ slotProps.data.errorMessage || $t('pages.admin.settings.system.notifications.delivery_logs.value_states.none') }}
+                        {{ slotProps.data.errorMessage || $t('pages.admin.notifications.delivery_logs.value_states.none') }}
                     </span>
                 </template>
             </Column>
 
             <template #empty>
                 <div class="notification-delivery-log-list__empty">
-                    {{ $t('pages.admin.settings.system.notifications.delivery_logs.empty') }}
+                    {{ $t('pages.admin.notifications.delivery_logs.empty') }}
                 </div>
             </template>
         </DataTable>
@@ -259,13 +259,13 @@ function translateNotificationType(type: string) {
 }
 
 function translateChannel(channel: string) {
-    const key = `pages.admin.settings.system.notifications.delivery_logs.channels.${channel.toLowerCase()}`
+    const key = `pages.admin.notifications.delivery_logs.channels.${channel.toLowerCase()}`
     const translated = t(key)
     return translated === key ? channel : translated
 }
 
 function translateStatus(status: string) {
-    const key = `pages.admin.settings.system.notifications.delivery_logs.statuses.${status.toLowerCase()}`
+    const key = `pages.admin.notifications.delivery_logs.statuses.${status.toLowerCase()}`
     const translated = t(key)
     return translated === key ? status : translated
 }
@@ -285,7 +285,7 @@ function getNotificationTargetLabel(link: string | null) {
 }
 
 function getRecipientPrimary(item: NotificationDeliveryLogItem) {
-    return item.recipientName || item.recipientEmail || item.recipient || t('pages.admin.settings.system.notifications.delivery_logs.value_states.unknown_user')
+    return item.recipientName || item.recipientEmail || item.recipient || t('pages.admin.notifications.delivery_logs.value_states.unknown_user')
 }
 
 function getRecipientSecondary(item: NotificationDeliveryLogItem) {
@@ -306,7 +306,7 @@ async function copyUserId(userId: string) {
         toast.add({
             severity: 'success',
             summary: t('common.success'),
-            detail: t('pages.admin.settings.system.notifications.delivery_logs.recipient.copy_id_success'),
+            detail: t('pages.admin.notifications.delivery_logs.recipient.copy_id_success'),
             life: 2000,
         })
     } catch (error) {

@@ -3,6 +3,52 @@
         "admin": {
             "notifications": {
                 "description": "인앱 알림, SSE, 웹 푸시, 이메일 알림의 전달 결과를 한곳에서 확인하여 어떤 알림이 실제로 전달되었고 실패했거나 건너뛰었는지 추적합니다.",
+                "delivery_logs": {
+                    "channels": {
+                        "email": "이메일",
+                        "in_app": "인앱 알림",
+                        "listmonk": "listmonk",
+                        "sse": "SSE 실시간 푸시",
+                        "web_push": "브라우저 푸시"
+                    },
+                    "columns": {
+                        "channel": "채널",
+                        "error": "실패 또는 건너뜀 사유",
+                        "recipient": "수신자",
+                        "sent_at": "전송 시각",
+                        "status": "결과",
+                        "title": "알림 제목 / 대상",
+                        "type": "알림 유형"
+                    },
+                    "description": "알림 유형, 전달 채널, 결과, 시간 범위별로 전송 현황을 추적하여 전달 성공, 실패, 건너뜀 이력을 감사할 수 있습니다.",
+                    "empty": "알림 전송 기록이 없습니다",
+                    "filters": {
+                        "apply": "필터 적용",
+                        "channel": "전달 채널",
+                        "end_date": "종료 날짜",
+                        "recipient": "수신자 / 이메일 / ID로 필터링",
+                        "reset": "초기화",
+                        "start_date": "시작 날짜",
+                        "status": "전달 결과",
+                        "type": "알림 유형"
+                    },
+                    "recipient": {
+                        "copy_id": "사용자 ID 복사",
+                        "copy_id_success": "사용자 ID를 복사했습니다",
+                        "user_id": "사용자 ID"
+                    },
+                    "refresh": "새로고침",
+                    "statuses": {
+                        "failed": "실패",
+                        "skipped": "건너뜀",
+                        "success": "성공"
+                    },
+                    "title": "알림 전달 감사",
+                    "value_states": {
+                        "none": "없음",
+                        "unknown_user": "연결된 사용자가 없음"
+                    }
+                },
                 "go_to_marketing": "마케팅 센터로 이동",
                 "overview_title": "알림 전달 감사",
                 "title": "알림 관리"

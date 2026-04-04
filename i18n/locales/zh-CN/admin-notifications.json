@@ -3,6 +3,52 @@
         "admin": {
             "notifications": {
                 "description": "集中查看站内通知、SSE、浏览器推送和邮件通知的投递结果，确认哪些通知已经送达、失败或被跳过。",
+                "delivery_logs": {
+                    "channels": {
+                        "email": "邮件",
+                        "in_app": "站内信",
+                        "listmonk": "listmonk",
+                        "sse": "SSE 在线推送",
+                        "web_push": "浏览器推送"
+                    },
+                    "columns": {
+                        "channel": "渠道",
+                        "error": "失败或跳过原因",
+                        "recipient": "接收者",
+                        "sent_at": "投递时间",
+                        "status": "结果",
+                        "title": "通知标题 / 目标",
+                        "type": "通知类型"
+                    },
+                    "description": "按通知类型、投递渠道、结果和时间范围追踪通知送达情况，避免出现用户收到了但后台不可追踪。",
+                    "empty": "暂无通知投递记录",
+                    "filters": {
+                        "apply": "应用筛选",
+                        "channel": "投递渠道",
+                        "end_date": "结束时间",
+                        "recipient": "筛选接收者 / 邮箱 / ID",
+                        "reset": "重置",
+                        "start_date": "开始时间",
+                        "status": "投递结果",
+                        "type": "通知类型"
+                    },
+                    "recipient": {
+                        "copy_id": "复制用户 ID",
+                        "copy_id_success": "用户 ID 已复制",
+                        "user_id": "用户 ID"
+                    },
+                    "refresh": "刷新",
+                    "statuses": {
+                        "failed": "失败",
+                        "skipped": "已跳过",
+                        "success": "成功"
+                    },
+                    "title": "通知投递审计",
+                    "value_states": {
+                        "none": "无",
+                        "unknown_user": "未关联用户"
+                    }
+                },
                 "go_to_marketing": "前往营销中心",
                 "overview_title": "通知投递审计",
                 "title": "通知管理"

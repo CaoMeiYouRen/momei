@@ -2,6 +2,55 @@
     "pages": {
         "admin": {
             "notifications": {
+                "description": "Review in-app, SSE, browser push, and email delivery results in one place so you can confirm which notifications were delivered, failed, or skipped.",
+                "delivery_logs": {
+                    "channels": {
+                        "email": "Email",
+                        "in_app": "In-app",
+                        "listmonk": "listmonk",
+                        "sse": "SSE live push",
+                        "web_push": "Browser push"
+                    },
+                    "columns": {
+                        "channel": "Channel",
+                        "error": "Failure or skip reason",
+                        "recipient": "Recipient",
+                        "sent_at": "Sent at",
+                        "status": "Result",
+                        "title": "Notification title / target",
+                        "type": "Notification type"
+                    },
+                    "description": "Track notification delivery by type, channel, result, and time range so successful, failed, and skipped deliveries stay auditable.",
+                    "empty": "No notification delivery records yet",
+                    "filters": {
+                        "apply": "Apply filters",
+                        "channel": "Delivery channel",
+                        "end_date": "End date",
+                        "recipient": "Filter by recipient / email / ID",
+                        "reset": "Reset",
+                        "start_date": "Start date",
+                        "status": "Delivery result",
+                        "type": "Notification type"
+                    },
+                    "recipient": {
+                        "copy_id": "Copy user ID",
+                        "copy_id_success": "User ID copied",
+                        "user_id": "User ID"
+                    },
+                    "refresh": "Refresh",
+                    "statuses": {
+                        "failed": "Failed",
+                        "skipped": "Skipped",
+                        "success": "Success"
+                    },
+                    "title": "Notification delivery audit",
+                    "value_states": {
+                        "none": "None",
+                        "unknown_user": "Unlinked user"
+                    }
+                },
+                "go_to_marketing": "Go to marketing center",
+                "overview_title": "Notification delivery audit",
                 "title": "Notification Management"
             }
         }

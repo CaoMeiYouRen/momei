@@ -3,6 +3,52 @@
         "admin": {
             "notifications": {
                 "description": "サイト内通知、SSE、ブラウザプッシュ、メール通知の配信結果をまとめて確認し、どの通知が配信済み・失敗・スキップになったかを追跡します。",
+                "delivery_logs": {
+                    "channels": {
+                        "email": "メール",
+                        "in_app": "サイト内通知",
+                        "listmonk": "listmonk",
+                        "sse": "SSE リアルタイム配信",
+                        "web_push": "ブラウザプッシュ"
+                    },
+                    "columns": {
+                        "channel": "チャネル",
+                        "error": "失敗またはスキップ理由",
+                        "recipient": "受信者",
+                        "sent_at": "配信時刻",
+                        "status": "結果",
+                        "title": "通知タイトル / 遷移先",
+                        "type": "通知種別"
+                    },
+                    "description": "通知種別、配信チャネル、結果、期間ごとに配信状況を追跡し、成功・失敗・スキップを監査できるようにします。",
+                    "empty": "通知配信ログはまだありません",
+                    "filters": {
+                        "apply": "絞り込みを適用",
+                        "channel": "配信チャネル",
+                        "end_date": "終了日",
+                        "recipient": "受信者 / メール / ID で絞り込み",
+                        "reset": "リセット",
+                        "start_date": "開始日",
+                        "status": "配信結果",
+                        "type": "通知種別"
+                    },
+                    "recipient": {
+                        "copy_id": "ユーザー ID をコピー",
+                        "copy_id_success": "ユーザー ID をコピーしました",
+                        "user_id": "ユーザー ID"
+                    },
+                    "refresh": "更新",
+                    "statuses": {
+                        "failed": "失敗",
+                        "skipped": "スキップ",
+                        "success": "成功"
+                    },
+                    "title": "通知配信監査",
+                    "value_states": {
+                        "none": "なし",
+                        "unknown_user": "未関連ユーザー"
+                    }
+                },
                 "go_to_marketing": "マーケティングセンターへ",
                 "overview_title": "通知配信監査",
                 "title": "通知管理"

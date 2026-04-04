@@ -80,6 +80,16 @@ test.describe('Admin E2E Tests', () => {
         await expect(page.locator('form, .settings-content, .p-card').first()).toBeVisible({ timeout: 15000 })
     })
 
+    test('should load notification management with translated delivery log copy', async ({ page }) => {
+        await gotoAdminRoute(page, '/admin/notifications')
+
+        await expect(page.getByRole('heading', { name: '通知管理' })).toBeVisible({ timeout: 15000 })
+        await expect(page.getByRole('heading', { name: '通知投递审计' })).toBeVisible({ timeout: 15000 })
+        await expect(page.getByRole('button', { name: '刷新' })).toBeVisible({ timeout: 15000 })
+        await expect(page.locator('body')).not.toContainText('pages.admin.notifications.delivery_logs')
+        await expect(page.locator('body')).not.toContainText('pages.admin.settings.system.notifications.delivery_logs')
+    })
+
     test('should load admin ai page', async ({ page }) => {
         await gotoAdminRoute(page, '/admin/ai')
         // 使用 .first() 解决严格模式违反问题，并应对多卡片渲染
