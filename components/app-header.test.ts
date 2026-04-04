@@ -124,6 +124,8 @@ describe('AppHeader', () => {
         })
 
         expect(wrapper.find('#user-menu-btn').attributes('icon')).toBe('pi pi-user')
+        expect(wrapper.find('#admin-posts-shortcut').exists()).toBe(true)
+        expect(wrapper.find('#mobile-admin-posts-btn').exists()).toBe(true)
         expect(wrapper.find('#admin-menu-btn').exists()).toBe(true)
         expect(mockEnsureLocaleMessageModules).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -131,6 +133,40 @@ describe('AppHeader', () => {
                 modules: ['admin'],
             }),
         )
+    })
+
+    it('shows post shortcuts for author role', async () => {
+        sessionState.value = {
+            data: {
+                user: { id: '3', role: 'author', name: 'Author' },
+            },
+            isPending: false,
+        }
+
+        const wrapper = await mountSuspended(AppHeader, {
+            global: { stubs },
+        })
+
+        expect(wrapper.find('#admin-posts-shortcut').exists()).toBe(true)
+        expect(wrapper.find('#mobile-admin-posts-btn').exists()).toBe(true)
+        expect(wrapper.find('#admin-menu-btn').exists()).toBe(true)
+    })
+
+    it('hides post shortcuts for non-admin roles', async () => {
+        sessionState.value = {
+            data: {
+                user: { id: '4', role: 'user', name: 'User' },
+            },
+            isPending: false,
+        }
+
+        const wrapper = await mountSuspended(AppHeader, {
+            global: { stubs },
+        })
+
+        expect(wrapper.find('#admin-posts-shortcut').exists()).toBe(false)
+        expect(wrapper.find('#mobile-admin-posts-btn').exists()).toBe(false)
+        expect(wrapper.find('#admin-menu-btn').exists()).toBe(false)
     })
 
     it('loads auth locale module when session changes from anonymous to user', async () => {

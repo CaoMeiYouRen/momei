@@ -50,9 +50,7 @@ function asIsoString(value?: Date | string | null) {
 }
 
 function compareAgreementSort(a: AgreementEntity, b: AgreementEntity) {
-    const getTime = (value?: Date | string | null) => {
-        return getDateTimestamp(value)
-    }
+    const getTime = (value?: Date | string | null) => getDateTimestamp(value)
 
     return getTime(b.effectiveAt)
         - getTime(a.effectiveAt)

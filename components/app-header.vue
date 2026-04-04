@@ -70,6 +70,15 @@
 
                         <template v-if="showAdminControls">
                             <Button
+                                id="admin-posts-shortcut"
+                                v-tooltip.bottom="$t('pages.admin.posts.title')"
+                                icon="pi pi-file"
+                                text
+                                rounded
+                                :aria-label="$t('pages.admin.posts.title')"
+                                @click="goToAdminPosts"
+                            />
+                            <Button
                                 id="admin-menu-btn"
                                 v-tooltip.bottom="$t('common.admin')"
                                 icon="pi pi-cog"
@@ -179,6 +188,17 @@
                     </div>
                 </div>
 
+                <Button
+                    v-if="showAdminControls"
+                    id="mobile-admin-posts-btn"
+                    v-tooltip.bottom="$t('pages.admin.posts.title')"
+                    icon="pi pi-file"
+                    text
+                    rounded
+                    class="mobile-only"
+                    :aria-label="$t('pages.admin.posts.title')"
+                    @click="goToAdminPosts"
+                />
                 <Button
                     icon="pi pi-bars"
                     text
@@ -355,12 +375,14 @@ const showAdminControls = computed(() => Boolean(
     && adminLocaleReady.value,
 ))
 
+const goToAdminPosts = () => navigateTo(localePath('/admin/posts'))
+
 const adminMenuItems = computed(() => {
     const items: MenuItem[] = [
         {
             label: t('pages.admin.posts.title'),
             icon: 'pi pi-file',
-            command: () => navigateTo(localePath('/admin/posts')),
+            command: goToAdminPosts,
         },
         {
             label: t('pages.admin.snippets.title'),

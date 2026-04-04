@@ -120,13 +120,9 @@ export const getDateTimestamp = (
     return parsed.isValid() ? parsed.valueOf() : fallback
 }
 
-export const addSecondsToDate = (date: string | Date | number, seconds: number) => {
-    return dayjs(date).add(seconds, 'second').toDate()
-}
+export const addSecondsToDate = (date: string | Date | number, seconds: number) => dayjs(date).add(seconds, 'second').toDate()
 
-export const addMillisecondsToDate = (date: string | Date | number, milliseconds: number) => {
-    return dayjs(date).add(milliseconds, 'millisecond').toDate()
-}
+export const addMillisecondsToDate = (date: string | Date | number, milliseconds: number) => dayjs(date).add(milliseconds, 'millisecond').toDate()
 
 export const getUtcDateParts = (date: string | Date | number | null | undefined) => {
     if (!date) {
