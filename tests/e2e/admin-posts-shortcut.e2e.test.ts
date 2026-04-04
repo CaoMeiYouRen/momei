@@ -40,7 +40,7 @@ test.describe('Admin Posts Shortcut E2E Tests', () => {
         const shortcutButton = page.locator('#admin-posts-shortcut')
 
         await expect(desktopLink).toBeVisible({ timeout: 20000 })
-        await expect(shortcutButton).toHaveCount(0)
+        await expect(shortcutButton).not.toBeVisible()
 
         await desktopLink.click()
 
@@ -57,7 +57,7 @@ test.describe('Admin Posts Shortcut E2E Tests', () => {
         const desktopLink = page.locator('#desktop-admin-posts-link')
         const shortcutButton = page.locator('#admin-posts-shortcut')
 
-        await expect(desktopLink).toHaveCount(0)
+        await expect(desktopLink).not.toBeVisible()
         await expect(shortcutButton).toBeVisible({ timeout: 20000 })
 
         await shortcutButton.click()
