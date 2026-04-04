@@ -9,6 +9,7 @@ import { processAuthorPrivacy } from '@/server/utils/author'
 import { getSettings } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
 import { assignDefined } from '@/server/utils/object'
+import { normalizeDurationSeconds } from '@/utils/shared/duration'
 import { AdminNotificationEvent, NotificationType } from '@/utils/shared/notification'
 
 interface CreateCommentInput {
@@ -24,12 +25,7 @@ interface CreateCommentInput {
 }
 
 function normalizeCommentInterval(value: string | null | undefined) {
-    const parsed = Number(value)
-    if (!Number.isFinite(parsed) || parsed <= 0) {
-        return 0
-    }
-
-    return Math.floor(parsed)
+    return normalizeDurationSeconds(value, 0)
 }
 
 function buildCommentIntervalKey(data: CreateCommentInput) {

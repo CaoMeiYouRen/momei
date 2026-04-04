@@ -65,13 +65,11 @@
             input-id="comment_interval"
             :metadata="metadata.comment_interval"
         >
-            <InputNumber
+            <InputText
                 id="comment_interval"
                 v-model="settings.comment_interval"
                 :disabled="metadata.comment_interval?.isLocked"
                 fluid
-                :min="0"
-                suffix=" s"
             />
         </SettingFormField>
 
@@ -111,13 +109,11 @@
             :metadata="metadata.upload_limit_window"
             :description="$t('pages.admin.settings.system.hints.upload_limit_window')"
         >
-            <InputNumber
+            <InputText
                 id="upload_limit_window"
                 v-model="settings.upload_limit_window"
                 :disabled="metadata.upload_limit_window?.isLocked"
                 fluid
-                :min="1"
-                suffix=" s"
             />
         </SettingFormField>
     </div>
@@ -131,10 +127,10 @@ interface LimitSettingsModel {
     max_upload_size?: string | null
     max_audio_upload_size?: string | null
     allowed_file_types?: string | null
-    comment_interval?: number | null
+    comment_interval?: string | null
     upload_daily_limit?: number | null
     upload_single_user_daily_limit?: number | null
-    upload_limit_window?: number | null
+    upload_limit_window?: string | null
 }
 
 interface LimitSettingMetadata {

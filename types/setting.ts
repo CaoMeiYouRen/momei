@@ -414,7 +414,7 @@ export interface GeneralSettingsFields {
     friend_links_application_enabled: boolean
     friend_links_footer_enabled: boolean
     friend_links_footer_limit: number | null
-    friend_links_check_interval_minutes: number | null
+    friend_links_check_interval_minutes: string | null
     friend_links_application_guidelines: LocalizedTextSettingFormValue
     travellings_enabled: boolean
     travellings_header_enabled: boolean

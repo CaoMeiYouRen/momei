@@ -107,13 +107,10 @@
             :metadata="metadata.email_limit_window"
             :description="$t('pages.admin.settings.system.hints.email_limit_window')"
         >
-            <InputNumber
+            <InputText
                 id="email_limit_window"
                 v-model="settings.email_limit_window"
                 :disabled="metadata.email_limit_window?.isLocked"
-                :use-grouping="false"
-                :min="1"
-                suffix=" s"
                 fluid
             />
         </SettingFormField>

@@ -142,6 +142,38 @@ describe('friendLinkService.runHealthCheck', () => {
         expect(meta.checkIntervalMinutes).toBe(60)
     })
 
+    it('支持使用可读时长作为巡检间隔配置', async () => {
+        vi.mocked(getSetting).mockImplementation((key: string, defaultValue?: unknown) => {
+            const settingKey = String(key)
+
+            if (settingKey === String(SettingKey.FRIEND_LINKS_CHECK_INTERVAL_MINUTES)) {
+                return Promise.resolve('1d')
+            }
+
+            if (settingKey === String(SettingKey.FRIEND_LINKS_ENABLED)) {
+                return Promise.resolve('true')
+            }
+
+            if (settingKey === String(SettingKey.FRIEND_LINKS_APPLICATION_ENABLED)) {
+                return Promise.resolve('true')
+            }
+
+            if (settingKey === String(SettingKey.FRIEND_LINKS_FOOTER_ENABLED)) {
+                return Promise.resolve('true')
+            }
+
+            if (settingKey === String(SettingKey.FRIEND_LINKS_FOOTER_LIMIT)) {
+                return Promise.resolve('6')
+            }
+
+            return Promise.resolve(typeof defaultValue === 'string' ? defaultValue : '')
+        })
+
+        const meta = await friendLinkService.getMeta()
+
+        expect(meta.checkIntervalMinutes).toBe(1440)
+    })
+
     it('健康站点应重置失败计数并按最小间隔写入下次巡检时间', async () => {
         queryBuilder.getMany.mockResolvedValue([
             {

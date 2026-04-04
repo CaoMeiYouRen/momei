@@ -103,6 +103,45 @@ const mockSettingsResponse = {
                 requiresRestart: false,
             },
             {
+                key: 'email_limit_window',
+                value: '86400',
+                description: 'email limit window',
+                level: 1,
+                maskType: 'none',
+                source: 'db',
+                isLocked: false,
+                envKey: 'EMAIL_LIMIT_WINDOW',
+                defaultUsed: false,
+                lockReason: null,
+                requiresRestart: false,
+            },
+            {
+                key: 'comment_interval',
+                value: '30',
+                description: 'comment interval',
+                level: 1,
+                maskType: 'none',
+                source: 'db',
+                isLocked: false,
+                envKey: 'NUXT_PUBLIC_COMMENT_INTERVAL',
+                defaultUsed: false,
+                lockReason: null,
+                requiresRestart: false,
+            },
+            {
+                key: 'friend_links_check_interval_minutes',
+                value: '1440',
+                description: 'friend links check interval minutes',
+                level: 1,
+                maskType: 'none',
+                source: 'db',
+                isLocked: false,
+                envKey: 'FRIEND_LINKS_CHECK_INTERVAL_MINUTES',
+                defaultUsed: false,
+                lockReason: null,
+                requiresRestart: false,
+            },
+            {
                 key: 'external_feed_cache_ttl_seconds',
                 value: '900',
                 description: 'external feed cache ttl',
@@ -227,6 +266,14 @@ describe('Admin Settings Page', () => {
         expect(wrapper.text()).toContain('演示模式样例数据')
         expect(wrapper.find('.floating-actions').attributes('data-primary-disabled')).toBe('true')
         // @ts-expect-error access exposed script setup binding for test
+        expect(wrapper.vm.settings.email_limit_window).toBe('1d')
+        // @ts-expect-error access exposed script setup binding for test
+        expect(wrapper.vm.settings.comment_interval).toBe('30s')
+        // @ts-expect-error access exposed script setup binding for test
+        expect(wrapper.vm.settings.upload_limit_window).toBe('1d')
+        // @ts-expect-error access exposed script setup binding for test
+        expect(wrapper.vm.settings.friend_links_check_interval_minutes).toBe('1d')
+        // @ts-expect-error access exposed script setup binding for test
         expect(wrapper.vm.settings.external_feed_cache_ttl_seconds).toBe('15m')
 
         await wrapper.find('.tab-switch').trigger('click')
@@ -250,7 +297,10 @@ describe('Admin Settings Page', () => {
                 settings: {
                     site_title: 'Updated Momei',
                     max_upload_size: '4.5MiB',
-                    upload_limit_window: '86400',
+                    email_limit_window: '1d',
+                    comment_interval: '30s',
+                    upload_limit_window: '1d',
+                    friend_links_check_interval_minutes: '1d',
                     external_feed_cache_ttl_seconds: '15m',
                 },
                 reason: 'system_settings_update',

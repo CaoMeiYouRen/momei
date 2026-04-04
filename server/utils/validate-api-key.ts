@@ -2,6 +2,7 @@ import { getRequestHeader, createError, type H3Event } from 'h3'
 import { dataSource } from '@/server/database'
 import { ApiKey } from '@/server/entities/api-key'
 import { verifyApiKey } from '@/server/utils/api-key'
+import { getDateTimestamp } from '@/utils/shared/date'
 
 export const validateApiKeyRequest = async (event: H3Event) => {
     const keyHeader = getRequestHeader(event, 'X-API-KEY') || getRequestHeader(event, 'Authorization')
@@ -31,7 +32,7 @@ export const validateApiKeyRequest = async (event: H3Event) => {
         throw createError({ statusCode: 401, statusMessage: 'Invalid API Key' })
     }
 
-    if (matchedKey.expiresAt && new Date(matchedKey.expiresAt) < new Date()) {
+    if (matchedKey.expiresAt && getDateTimestamp(matchedKey.expiresAt) < Date.now()) {
         throw createError({ statusCode: 401, statusMessage: 'API Key Expired' })
     }
 

@@ -6,6 +6,7 @@ import { calculateQuotaUnits, deriveChargeStatus, inferFailureStage } from '@/se
 import { isServerlessEnvironment } from '@/server/utils/env'
 import logger from '@/server/utils/logger'
 import { ContentProcessor, preserveMarkdownChunkBoundary } from '@/utils/shared/content-processor'
+import { addMillisecondsToDate, getDateTimestamp } from '@/utils/shared/date'
 import {
     AI_MAX_CONTENT_LENGTH,
     AI_TEXT_DIRECT_RETURN_MAX_CHARS,
@@ -207,7 +208,7 @@ function hasActiveChunkLease(state: TranslateTaskState) {
         return false
     }
 
-    const leaseExpiresAt = new Date(state.leaseExpiresAt).getTime()
+    const leaseExpiresAt = getDateTimestamp(state.leaseExpiresAt)
     return Number.isFinite(leaseExpiresAt) && leaseExpiresAt > Date.now()
 }
 
@@ -215,7 +216,7 @@ async function claimTranslateTaskChunk(taskRepo: ReturnType<typeof dataSource.ge
     const claimedState: TranslateTaskState = {
         ...state,
         activeChunkIndex: state.activeChunkIndex ?? state.nextChunkIndex,
-        leaseExpiresAt: new Date(Date.now() + TRANSLATION_TASK_CHUNK_LEASE_MS).toISOString(),
+        leaseExpiresAt: addMillisecondsToDate(Date.now(), TRANSLATION_TASK_CHUNK_LEASE_MS).toISOString(),
         lastError: null,
     }
     const previousResult = task.result

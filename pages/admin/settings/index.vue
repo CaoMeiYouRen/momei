@@ -163,7 +163,12 @@ import ThirdPartySettings from '@/components/admin/settings/third-party-settings
 import { useFeedbackEntry } from '@/composables/use-feedback-entry'
 import { useUnsavedChangesGuard } from '@/composables/use-unsaved-changes-guard'
 import { buildAdminSettingsTabLocation, resolveAdminSettingsTab, type AdminSettingsTab } from '@/utils/shared/admin-settings-tabs'
-import { formatDurationSecondsForInput, parseDurationSeconds } from '@/utils/shared/duration'
+import {
+    formatDurationMinutesForInput,
+    formatDurationSecondsForInput,
+    parseDurationMinutes,
+    parseDurationSeconds,
+} from '@/utils/shared/duration'
 import { stableSerialize } from '@/utils/shared/stable-serialize'
 import { clearQueuedSetupJourneyStage, getQueuedSetupJourneyStage, queueSetupJourneyStage } from '@/utils/web/setup-journey'
 import type { LocalizedSettingMetadata, SettingFormValue, SettingItem, SettingLockReason, SettingSource } from '@/types/setting'
@@ -214,9 +219,13 @@ const genericSaveTabs = new Set<AdminSettingsTab>([
     'third_party',
 ])
 
-const durationSettingFallbacks: Record<string, number> = {
-    external_feed_cache_ttl_seconds: 900,
-    external_feed_stale_while_error_seconds: 86400,
+const durationSettingFallbacks: Record<string, { fallback: number, unit: 'seconds' | 'minutes' }> = {
+    email_limit_window: { fallback: 86400, unit: 'seconds' },
+    comment_interval: { fallback: 0, unit: 'seconds' },
+    upload_limit_window: { fallback: 86400, unit: 'seconds' },
+    friend_links_check_interval_minutes: { fallback: 1440, unit: 'minutes' },
+    external_feed_cache_ttl_seconds: { fallback: 900, unit: 'seconds' },
+    external_feed_stale_while_error_seconds: { fallback: 86400, unit: 'seconds' },
 }
 
 const numberSettingFallbacks: Record<string, number> = {
@@ -224,16 +233,12 @@ const numberSettingFallbacks: Record<string, number> = {
     email_port: 587,
     email_daily_limit: 100,
     email_single_user_daily_limit: 5,
-    email_limit_window: 86400,
     live2d_min_width: 1024,
     canvas_nest_min_width: 1024,
     effects_min_width: 1024,
-    comment_interval: 0,
     upload_daily_limit: 100,
     upload_single_user_daily_limit: 5,
-    upload_limit_window: 86400,
     friend_links_footer_limit: 6,
-    friend_links_check_interval_minutes: 1440,
     local_storage_min_free_space: 104857600,
     external_feed_home_limit: 6,
 }
@@ -252,14 +257,25 @@ function normalizeFormValue(setting: SettingItem): SettingFormValue {
     }
 
     if (setting.key in durationSettingFallbacks) {
-        const fallback = durationSettingFallbacks[setting.key] ?? 0
-        const parsedValue = parseDurationSeconds(setting.value)
+        const definition = durationSettingFallbacks[setting.key]
 
-        if (parsedValue === null) {
-            return setting.value ?? formatDurationSecondsForInput(fallback)
+        if (!definition) {
+            return setting.value
         }
 
-        return formatDurationSecondsForInput(parsedValue)
+        const parsedValue = definition.unit === 'minutes'
+            ? parseDurationMinutes(setting.value)
+            : parseDurationSeconds(setting.value)
+
+        if (parsedValue === null) {
+            return setting.value ?? (definition.unit === 'minutes'
+                ? formatDurationMinutesForInput(definition.fallback)
+                : formatDurationSecondsForInput(definition.fallback))
+        }
+
+        return definition.unit === 'minutes'
+            ? formatDurationMinutesForInput(parsedValue)
+            : formatDurationSecondsForInput(parsedValue)
     }
 
     if (setting.key in numberSettingFallbacks) {

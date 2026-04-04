@@ -141,6 +141,27 @@ describe('UploadService', () => {
             })).toBe('https://cdn.example.com/image/test.jpg')
         })
 
+        it('should support human readable upload limit windows', async () => {
+            vi.mocked(getSettings).mockResolvedValueOnce({
+                storage_type: 'local',
+                local_storage_dir: 'public/uploads',
+                local_storage_base_url: '/uploads',
+                local_storage_min_free_space: String(100 * 1024 * 1024),
+                max_upload_size: '10',
+                max_audio_upload_size: '20',
+                upload_limit_window: '1d',
+                upload_daily_limit: '100',
+                upload_single_user_daily_limit: '5',
+            })
+
+            vi.mocked(limiterStorage.increment).mockResolvedValue(1)
+
+            await checkUploadLimits('user-1')
+
+            expect(limiterStorage.increment).toHaveBeenCalledWith('upload_global_limit', 86400)
+            expect(limiterStorage.increment).toHaveBeenCalledWith('user_upload_limit:user-1', 86400)
+        })
+
         it('should return object key directly when both base urls are missing', () => {
             expect(resolveUploadedFileUrl('image/test.jpg', {
                 assetPublicBaseUrl: '',

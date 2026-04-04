@@ -187,6 +187,27 @@ describe('commentService', () => {
             expect(limiterStorage.increment).toHaveBeenCalledWith('comment_interval:email:guest@test.com', 60)
         })
 
+        it('should support human readable comment intervals', async () => {
+            mockPostRepo.findOne.mockResolvedValue({ id: mockPostId })
+            vi.mocked(getSettings).mockResolvedValue({
+                blacklisted_keywords: '',
+                enable_comment_review: 'false',
+                comment_interval: '5m',
+            })
+            vi.mocked(limiterStorage.increment).mockResolvedValue(2)
+
+            const commentData = {
+                postId: mockPostId,
+                content: 'Test content',
+                authorName: 'Guest',
+                authorEmail: 'guest@test.com',
+                authorId: null,
+            }
+
+            await expect(commentService.createComment(commentData)).rejects.toThrow('评论过于频繁')
+            expect(limiterStorage.increment).toHaveBeenCalledWith('comment_interval:email:guest@test.com', 300)
+        })
+
         it('should throw error if post not found', async () => {
             mockPostRepo.findOne.mockResolvedValue(null)
 

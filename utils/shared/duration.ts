@@ -62,6 +62,57 @@ export function normalizeDurationSeconds(
     return nextValue
 }
 
+export function parseDurationMinutes(value: DurationInput): number | null {
+    if (typeof value === 'number') {
+        return Number.isFinite(value) ? Math.floor(value) : null
+    }
+
+    if (typeof value !== 'string') {
+        return null
+    }
+
+    const normalized = value.trim()
+
+    if (!normalized) {
+        return null
+    }
+
+    const numericValue = Number(normalized)
+
+    if (Number.isFinite(numericValue)) {
+        return Math.floor(numericValue)
+    }
+
+    const parsedSeconds = parseDurationSeconds(normalized)
+
+    if (parsedSeconds === null) {
+        return null
+    }
+
+    return Math.ceil(parsedSeconds / 60)
+}
+
+export function normalizeDurationMinutes(
+    value: DurationInput,
+    fallbackMinutes: number,
+    options: NormalizeDurationOptions = {},
+) {
+    const parsedValue = parseDurationMinutes(value)
+    let nextValue = parsedValue ?? fallbackMinutes
+
+    nextValue = Math.floor(nextValue)
+
+    if (options.min !== undefined) {
+        nextValue = Math.max(options.min, nextValue)
+    }
+
+    if (options.max !== undefined) {
+        nextValue = Math.min(options.max, nextValue)
+    }
+
+    return nextValue
+}
+
 export function formatDurationSecondsForInput(value: number | null | undefined, fallback = '0s') {
     if (!Number.isFinite(value) || value === null || value === undefined || value < 0) {
         return fallback
@@ -82,4 +133,12 @@ export function formatDurationSecondsForInput(value: number | null | undefined, 
     }
 
     return `${normalizedValue}s`
+}
+
+export function formatDurationMinutesForInput(value: number | null | undefined, fallback = '0m') {
+    if (!Number.isFinite(value) || value === null || value === undefined || value < 0) {
+        return fallback
+    }
+
+    return formatDurationSecondsForInput(Math.floor(value) * 60, fallback)
 }

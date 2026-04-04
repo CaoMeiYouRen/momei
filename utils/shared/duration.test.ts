@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+    formatDurationMinutesForInput,
     formatDurationSecondsForInput,
+    normalizeDurationMinutes,
     normalizeDurationSeconds,
+    parseDurationMinutes,
     parseDurationSeconds,
 } from '@/utils/shared/duration'
 
@@ -34,11 +37,36 @@ describe('duration utils', () => {
         })
     })
 
+    describe('parseDurationMinutes', () => {
+        it('parses legacy numeric minutes', () => {
+            expect(parseDurationMinutes('1440')).toBe(1440)
+        })
+
+        it('parses human readable durations into minutes', () => {
+            expect(parseDurationMinutes('1d')).toBe(1440)
+            expect(parseDurationMinutes('90m')).toBe(90)
+        })
+    })
+
+    describe('normalizeDurationMinutes', () => {
+        it('falls back and clamps for minute-based settings', () => {
+            expect(normalizeDurationMinutes('bad', 1440)).toBe(1440)
+            expect(normalizeDurationMinutes('30m', 1440, { min: 60 })).toBe(60)
+        })
+    })
+
     describe('formatDurationSecondsForInput', () => {
         it('formats exact unit-aligned durations for admin inputs', () => {
             expect(formatDurationSecondsForInput(900)).toBe('15m')
             expect(formatDurationSecondsForInput(86400)).toBe('1d')
             expect(formatDurationSecondsForInput(30)).toBe('30s')
+        })
+    })
+
+    describe('formatDurationMinutesForInput', () => {
+        it('formats minute-based settings for admin inputs', () => {
+            expect(formatDurationMinutesForInput(1440)).toBe('1d')
+            expect(formatDurationMinutesForInput(90)).toBe('90m')
         })
     })
 })

@@ -124,6 +124,10 @@ export const addSecondsToDate = (date: string | Date | number, seconds: number) 
     return dayjs(date).add(seconds, 'second').toDate()
 }
 
+export const addMillisecondsToDate = (date: string | Date | number, milliseconds: number) => {
+    return dayjs(date).add(milliseconds, 'millisecond').toDate()
+}
+
 /**
  * 将秒数转换为 HH:mm:ss 格式
  * @param seconds 秒数

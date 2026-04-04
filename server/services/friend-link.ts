@@ -8,6 +8,8 @@ import logger from '@/server/utils/logger'
 import { assignDefined } from '@/server/utils/object'
 import { ensureFound, paginate } from '@/server/utils/response'
 import { isValidCustomUrl } from '@/server/utils/security'
+import { addSecondsToDate } from '@/utils/shared/date'
+import { normalizeDurationMinutes } from '@/utils/shared/duration'
 import { normalizeOptionalString } from '@/utils/shared/coerce'
 import { normalizeAsciiSlug } from '@/utils/shared/slug'
 import { normalizeBaseUrl } from '@/utils/shared/url'
@@ -45,7 +47,13 @@ function parsePositiveInteger(value: string | number | null | undefined, fallbac
 }
 
 function addMinutes(base: Date, minutes: number) {
-    return new Date(base.getTime() + minutes * 60 * 1000)
+    return addSecondsToDate(base, minutes * 60)
+}
+
+function normalizeFriendLinkCheckIntervalMinutes(value: string | number | null | undefined) {
+    return normalizeDurationMinutes(value, DEFAULT_CHECK_INTERVAL_MINUTES, {
+        min: MIN_CHECK_INTERVAL_MINUTES,
+    })
 }
 
 function getHealthCheckBatchSize() {
@@ -150,11 +158,7 @@ async function resolveFriendLinkMeta(locale?: string | null): Promise<FriendLink
         applicationGuidelines: typeof guidelines.value === 'string' ? guidelines.value : '',
         footerEnabled: String(footerEnabledRaw) !== 'false',
         footerLimit: parsePositiveInteger(footerLimitRaw, DEFAULT_FOOTER_LIMIT, 1, 50),
-        checkIntervalMinutes: parsePositiveInteger(
-            checkIntervalRaw,
-            DEFAULT_CHECK_INTERVAL_MINUTES,
-            MIN_CHECK_INTERVAL_MINUTES,
-        ),
+        checkIntervalMinutes: normalizeFriendLinkCheckIntervalMinutes(checkIntervalRaw),
     }
 }
 

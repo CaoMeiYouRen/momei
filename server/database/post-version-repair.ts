@@ -9,6 +9,7 @@ import {
     getChangedFields,
     type PostVersionSnapshotLike,
 } from '@/server/utils/post-version-snapshot'
+import { getDateTimestamp } from '@/utils/shared/date'
 import { PostVersionSource, type PostVersionSnapshot } from '@/types/post-version'
 
 type PostVersionWithNullableFields = PostVersion & {
@@ -20,8 +21,8 @@ type PostVersionWithNullableFields = PostVersion & {
 }
 
 function sortVersions(left: PostVersion, right: PostVersion) {
-    const leftTime = new Date(left.createdAt).getTime()
-    const rightTime = new Date(right.createdAt).getTime()
+    const leftTime = getDateTimestamp(left.createdAt)
+    const rightTime = getDateTimestamp(right.createdAt)
 
     if (leftTime !== rightTime) {
         return leftTime - rightTime

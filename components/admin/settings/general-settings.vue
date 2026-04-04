@@ -299,11 +299,10 @@
                 :metadata="metadata.friend_links_check_interval_minutes"
                 :description="$t('pages.admin.settings.system.hints.friend_links_check_interval_minutes')"
             >
-                <InputNumber
+                <InputText
                     id="friend_links_check_interval_minutes"
                     v-model="settings.friend_links_check_interval_minutes"
                     :disabled="metadata.friend_links_check_interval_minutes?.isLocked"
-                    :min="5"
                     fluid
                 />
             </SettingFormField>

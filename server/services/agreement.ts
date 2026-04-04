@@ -15,6 +15,7 @@ import { SettingKey } from '@/types/setting'
 import { snowflake } from '@/server/utils/snowflake'
 import { assignDefined } from '@/server/utils/object'
 import logger from '@/server/utils/logger'
+import { getDateTimestamp } from '@/utils/shared/date'
 
 const DEFAULT_MAIN_LANGUAGE = 'zh-CN'
 const PUBLIC_HISTORY_LIMIT = 5
@@ -50,10 +51,7 @@ function asIsoString(value?: Date | string | null) {
 
 function compareAgreementSort(a: AgreementEntity, b: AgreementEntity) {
     const getTime = (value?: Date | string | null) => {
-        if (!value) {
-            return 0
-        }
-        return new Date(value).getTime()
+        return getDateTimestamp(value)
     }
 
     return getTime(b.effectiveAt)
