@@ -84,7 +84,7 @@ test.describe('Admin E2E Tests', () => {
         await gotoAdminRoute(page, '/admin/notifications')
 
         await expect(page.getByRole('heading', { name: '通知管理' })).toBeVisible({ timeout: 15000 })
-        await expect(page.getByRole('heading', { name: '通知投递审计' })).toBeVisible({ timeout: 15000 })
+        await expect(page.getByRole('heading', { level: 3, name: '通知投递审计' })).toBeVisible({ timeout: 15000 })
         await expect(page.getByRole('button', { name: '刷新' })).toBeVisible({ timeout: 15000 })
         await expect(page.locator('body')).not.toContainText('pages.admin.notifications.delivery_logs')
         await expect(page.locator('body')).not.toContainText('pages.admin.settings.system.notifications.delivery_logs')
