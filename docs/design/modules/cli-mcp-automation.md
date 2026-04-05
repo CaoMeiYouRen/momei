@@ -198,7 +198,7 @@ MCP 约束：
 
 - 整篇翻译工作流仍是本轮最复杂的编排点，后续应优先增加失败恢复与部分范围重试测试。
 - taxonomy 翻译建议当前以“复用现有事实源优先，模型建议兜底”为原则，后续可继续增强批量确认机制。
-- 若后续引入真正的批量编排场景，应单独设计批处理任务模型，而不是继续堆叠单文章长任务。
+- 若进入“多文章 x 多语言”的真正批量编排阶段，应按 [文章批量翻译编排能力评估](./batch-translation-orchestration.md) 引入根任务编排层，而不是继续堆叠单文章长任务。
 
 ---
 > 关联实现: `server/api/external/ai/*`、`server/services/ai/post-automation.ts`、`packages/cli/`、`packages/mcp-server/`
