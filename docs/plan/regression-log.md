@@ -130,6 +130,41 @@
         - 在首批试点稳定后，再单独审查 `no-misused-spread` 的 10 个 production 命中，避免和本轮首批收紧混在一起导致预算失控。
         - 回滚口径: 若后续发现 `server` 范围收紧带来误报或阻塞，可先把 `eslint.config.js` 中新增的 `server` 范围 override 整段移除或把 `@typescript-eslint/unbound-method` 恢复为 `[0]`，不需要回退本轮代码修复本身。
 
+### 收口补充（2026-04-06）
+
+- 回归范围: 首批实装后的扩面评估与第二梯队预分析；覆盖 `@typescript-eslint/unbound-method` 从 `server` 扩展到全量生产 TS 的可行性复查，以及 `@typescript-eslint/no-misused-spread` 10 个 production 命中的逐点归因。
+- 触发条件: 首批 `server` 试点通过后，需要判断该规则是否已经具备扩到其他生产目录的条件，并为第二梯队规则准备“真实缺陷 / 合理例外 / 泛型误报”分层结论。
+- 已执行命令:
+    - `node --input-type=module -`（扫描非 `server` 生产 TS 的 `@typescript-eslint/unbound-method` 命中，输出 `artifacts/review-gate/eslint-phase22-unbound-method-non-server-production.json`）
+    - `node --input-type=module -`（抽取 `@typescript-eslint/no-misused-spread` 的 10 个 production 命中，输出 `artifacts/review-gate/eslint-phase22-no-misused-spread-production.json`）
+    - `pnpm exec eslint . --max-warnings 10`
+- 输出摘要:
+    - 已执行验证:
+        - V0 / 元数据层: `artifacts/review-gate/eslint-phase22-followup-scan-metadata.json` 已记录本轮 follow-up 扫描的 include / exclude 范围、目标规则与输出文件，避免后续复查时只看到结果数组而不知道采样口径。
+        - V1 / 扩面层: `artifacts/review-gate/eslint-phase22-unbound-method-non-server-production.json` 当前为 `0` 命中，说明除 `server` 之外的生产 TS 目录在现有代码状态下没有新增 `unbound-method` 债务。
+        - V2 / 门禁层: 将 `eslint.config.js` 的试点 override 扩展为“全量生产 TS + 继续排除测试与脚本”后，`pnpm exec eslint . --max-warnings 10` 仍通过，说明扩面后 warning 预算没有回退。
+        - V1 / 归因层: `artifacts/review-gate/eslint-phase22-no-misused-spread-production.json` 已把 10 个 production 命中稳定落盘，支撑逐点归因。
+    - 结果摘要:
+        - `@typescript-eslint/unbound-method` 现阶段可以从“仅 `server` 生产 TS”安全扩展到“全量生产 TS，继续排除测试与脚本”。原因是非 `server` 生产 TS 当前为 `0` 命中，扩面后全仓定向 ESLint 仍未突破既有 warning 上限。
+        - 迁移 / 历史遗留生产目录本轮未单独编码豁免，原因不是忽略治理边界，而是 follow-up 扫描下当前为 `0` 命中；因此本轮继续保留“测试、脚本显式豁免，迁移 / 历史遗留目录按实际债务再升级为单独豁免”的口径。
+        - `@typescript-eslint/no-misused-spread` 的 10 个 production 命中可分为两组：
+            - 组 A / 8 个实体实例展开，判定为真实治理对象，而不是合理例外。涉及 [server/api/categories/slug/[slug].get.ts](server/api/categories/slug/[slug].get.ts)、[server/api/external/posts/[id].get.ts](server/api/external/posts/[id].get.ts)、[server/api/posts/slug/[slug].get.ts](server/api/posts/slug/[slug].get.ts)、[server/api/posts/[id].get.ts](server/api/posts/[id].get.ts)、[server/api/snippets/index.post.ts](server/api/snippets/index.post.ts)、[server/api/tags/slug/[slug].get.ts](server/api/tags/slug/[slug].get.ts)、[server/services/comment.ts](server/services/comment.ts)、[server/services/theme-config.ts](server/services/theme-config.ts)。这些位置都在把 TypeORM Entity / 类实例直接 spread 成响应对象或树节点，虽然当前运行时通常可用，但会丢失原型、getter 与非枚举语义，后续应改为显式 DTO / plain object 转换。
+            - 组 B / 2 个泛型字符串 spread，暂定为“需要更窄实现来消除误报”，而不是直接判定为业务缺陷。位置在 [utils/shared/localized-settings.ts](utils/shared/localized-settings.ts#L99) 与 [utils/shared/localized-settings.ts](utils/shared/localized-settings.ts#L102)。这里实际意图是在 `Array.isArray` 保护后复制字符串数组，但由于泛型 `T extends string | string[]` 的收窄不够强，规则仍把它视为潜在的字符串 spread 风险；后续更适合改成显式的数组复制 helper，而不是先把规则提级再靠行内禁用压过去。
+        - 基于当前归因，`no-misused-spread` 仍不适合立即升到 warning：A 组 8 个命中需要先做 API / service 响应模型收敛，B 组 2 个命中需要先做 shared helper 级别的实现调整。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - `unbound-method` 虽已扩面到全量生产 TS，但测试债务仍未纳入本轮治理。
+            - `no-misused-spread` 的 8 个实体实例展开命中已经具备真实治理价值，后续若长期不处理，会继续阻塞该规则进入 warning。
+    - 未覆盖边界:
+        - 本轮没有开始改 `no-misused-spread` 的 10 个命中，只完成分层归因与准入判断。
+        - 本轮继续保留脚本范围豁免，未评估 `scripts/**` 中未来是否需要同样启用 `unbound-method`。
+    - 后续补跑计划:
+        - `unbound-method` 后续如无回归，可维持“全量生产 TS 开启、测试与脚本继续豁免”的状态，不需要再回退到 `server` 限定。
+        - 下一轮优先处理 `no-misused-spread` 的 A 组 8 个实体实例展开命中，统一收敛到 DTO / plain object 转换口径。
+        - B 组 `localized-settings` 命中在进入规则提级前，先改成更明确的数组复制实现，避免把泛型收窄不足误当作业务缺陷。
+
 ## 测试覆盖率阶段性抬升治理首轮基线（2026-04-02）
 
 ### 回归任务记录

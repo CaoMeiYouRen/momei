@@ -196,10 +196,10 @@ export default withNuxt(
         },
     },
     {
-        files: ['server/**/*.{ts,tsx,mts,cts}'],
-        ignores: ['server/**/*.test.*', 'server/**/*.spec.*'],
+        files: ['**/*.{ts,tsx,mts,cts}'],
+        ignores: ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**'],
         rules: {
-            '@typescript-eslint/unbound-method': [1], // 首批仅在服务端生产 TS 范围收紧，测试文件继续豁免
+            '@typescript-eslint/unbound-method': [1], // 首批扩展到全量生产 TS，继续排除测试与脚本范围
         },
     },
 )
