@@ -15,3 +15,10 @@ export function assignDefined<T extends object, S extends object>(
         }
     }
 }
+
+/**
+ * 将类实例的自有可枚举字段收敛为 plain object，便于构造响应 DTO。
+ */
+export function toPlainObject<T extends object>(value: T): { [K in keyof T]: T[K] } {
+    return Object.fromEntries(Object.entries(value)) as { [K in keyof T]: T[K] }
+}

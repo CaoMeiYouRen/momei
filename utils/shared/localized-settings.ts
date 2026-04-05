@@ -17,6 +17,10 @@ function isMeaningfulString(value: unknown): value is string {
     return typeof value === 'string' && value.trim().length > 0
 }
 
+function cloneStringArray(value: readonly string[]): string[] {
+    return value.slice()
+}
+
 export function normalizeLocalizedStringList(value: string | string[] | null | undefined): string[] {
     if (Array.isArray(value)) {
         return value
@@ -96,10 +100,10 @@ export function cloneLocalizedSettingValue<T extends LocalizedSettingScalar>(
         locales: Object.fromEntries(
             Object.entries(value.locales).map(([locale, localeValue]) => [
                 locale,
-                Array.isArray(localeValue) ? [...localeValue] : localeValue,
+                Array.isArray(localeValue) ? cloneStringArray(localeValue) as T : localeValue,
             ]),
         ) as Partial<Record<AppLocaleCode, T>>,
-        legacyValue: Array.isArray(value.legacyValue) ? [...value.legacyValue] as T : value.legacyValue,
+        legacyValue: Array.isArray(value.legacyValue) ? cloneStringArray(value.legacyValue) as T : value.legacyValue,
     }
 }
 

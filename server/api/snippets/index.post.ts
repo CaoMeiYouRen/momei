@@ -2,6 +2,7 @@ import { dataSource } from '@/server/database'
 import { Snippet } from '@/server/entities/snippet'
 import { SnippetStatus } from '@/types/snippet'
 import { requireAuth } from '@/server/utils/permission'
+import { toPlainObject } from '@/server/utils/object'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
 import { snippetBodySchema } from '@/utils/schemas/snippet'
 
@@ -33,9 +34,8 @@ export default defineEventHandler(async (event) => {
     return {
         code: 200,
         message: 'Snippet created successfully',
-        data: {
-            ...snippet,
+        data: Object.assign(toPlainObject(snippet), {
             authorId: user.id, // For backward compatibility in response if needed
-        },
+        }),
     }
 })

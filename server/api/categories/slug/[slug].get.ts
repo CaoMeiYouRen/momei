@@ -1,5 +1,6 @@
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
+import { toPlainObject } from '@/server/utils/object'
 import { success, fail } from '@/server/utils/response'
 
 export default defineEventHandler(async (event) => {
@@ -30,8 +31,5 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    return success({
-        ...category,
-        translations,
-    })
+    return success(Object.assign(toPlainObject(category), { translations }))
 })

@@ -8,7 +8,7 @@ import { CommentStatus } from '@/types/comment'
 import { processAuthorPrivacy } from '@/server/utils/author'
 import { getSettings } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
-import { assignDefined } from '@/server/utils/object'
+import { assignDefined, toPlainObject } from '@/server/utils/object'
 import { normalizeDurationSeconds } from '@/utils/shared/duration'
 import { AdminNotificationEvent, NotificationType } from '@/utils/shared/notification'
 
@@ -238,7 +238,7 @@ export const commentService = {
         const tree: any[] = []
 
         for (const comment of comments) {
-            const item = { ...comment, replies: [] } as any
+            const item = Object.assign(toPlainObject(comment), { replies: [] as any[] }) as any
 
             // 处理作者隐私及哈希 (SHA256)
             await processAuthorPrivacy(item, isAdmin, 'authorEmail', 'authorEmailHash')

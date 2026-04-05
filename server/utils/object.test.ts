@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { assignDefined } from './object'
+import { assignDefined, toPlainObject } from './object'
 
 describe('object utils', () => {
     describe('assignDefined', () => {
@@ -52,6 +52,27 @@ describe('object utils', () => {
 
             expect(target.user).toEqual({ name: 'new' })
             expect(target.count).toBe(20)
+        })
+    })
+
+    describe('toPlainObject', () => {
+        it('should convert class instances to plain objects with own enumerable fields', () => {
+            class Example {
+                public readonly visible = 'value'
+            }
+
+            Object.defineProperty(Example.prototype, 'computed', {
+                get() {
+                    return 'computed'
+                },
+                enumerable: false,
+            })
+
+            const result = toPlainObject(new Example())
+
+            expect(result).toEqual({ visible: 'value' })
+            expect(Object.getPrototypeOf(result)).toBe(Object.prototype)
+            expect('computed' in result).toBe(false)
         })
     })
 })

@@ -2,7 +2,7 @@ import { dataSource } from '@/server/database'
 import { ThemeConfig } from '@/server/entities/theme-config'
 import { Setting } from '@/server/entities/setting'
 import type { ThemeConfigInput, ThemeConfigUpdateInput } from '@/utils/schemas/theme-config'
-import { assignDefined } from '@/server/utils/object'
+import { assignDefined, toPlainObject } from '@/server/utils/object'
 import { SettingKey } from '@/types/setting'
 
 /**
@@ -23,8 +23,7 @@ export const getThemeConfigsService = async () => {
 
     const activeConfigId = activeThemeSetting?.value || null
 
-    return themeConfigs.map((themeConfig) => ({
-        ...themeConfig,
+    return themeConfigs.map((themeConfig) => Object.assign(toPlainObject(themeConfig), {
         isActive: themeConfig.id === activeConfigId,
     }))
 }

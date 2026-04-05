@@ -5,7 +5,7 @@
 ## 当前窗口与索引
 
 - 统一入口: [回归日志索引与对比指南](./regression-log-index.md)
-- 当前窗口: 活动日志当前保留 2026-03-22 至 2026-04-06 的 10 条近线记录，优先服务当前阶段收口、近期发版判断与最近基线比较。
+- 当前窗口: 活动日志当前保留 2026-03-22 至 2026-04-06 的 11 条近线记录，优先服务当前阶段收口、近期发版判断与最近基线比较。
 - 历史归档: 2026-03-20 至 2026-03-21 的 5 条旧记录已滚动迁移到 [regression-log-archive.md](./regression-log-archive.md)。
 - 对比建议: 先用本文件确认当前基线，再按主题到归档文件核对更早一期的 clean baseline 或历史专项记录。
 
@@ -164,6 +164,42 @@
         - `unbound-method` 后续如无回归，可维持“全量生产 TS 开启、测试与脚本继续豁免”的状态，不需要再回退到 `server` 限定。
         - 下一轮优先处理 `no-misused-spread` 的 A 组 8 个实体实例展开命中，统一收敛到 DTO / plain object 转换口径。
         - B 组 `localized-settings` 命中在进入规则提级前，先改成更明确的数组复制实现，避免把泛型收窄不足误当作业务缺陷。
+
+## ESLint 规则分阶段收紧治理第二梯队生产命中收敛（2026-04-06）
+
+### 回归任务记录
+
+- 回归范围: 第二十二阶段 P1“ESLint 规则分阶段收紧治理”第二梯队增量收敛；处理 `@typescript-eslint/no-misused-spread` 的 10 个 production 命中，其中 8 个为 TypeORM / Entity 实例直接展开，2 个为 `utils/shared/localized-settings.ts` 的泛型字符串数组复制。
+- 触发条件: 前一条记录已完成逐点归因，明确 A 组 8 个实体实例展开属于真实治理对象，B 组 2 个泛型数组复制需要更窄实现，因此本轮进入代码收敛，但仍不直接把规则提升到 warning。
+- 已执行命令:
+    - 代码修复与共享工具更新（见 `server/api/**`、`server/services/**`、`server/utils/object.ts`、`utils/shared/localized-settings.ts`）
+    - `pnpm exec eslint 'server/api/categories/slug/[slug].get.ts' 'server/api/external/posts/[id].get.ts' 'server/api/posts/slug/[slug].get.ts' 'server/api/posts/[id].get.ts' 'server/api/snippets/index.post.ts' 'server/api/tags/slug/[slug].get.ts' 'server/services/comment.ts' 'server/services/theme-config.ts' 'server/utils/object.ts' 'server/utils/object.test.ts' 'utils/shared/localized-settings.ts' --rule '@typescript-eslint/no-misused-spread:error'`
+    - VS Code 任务 `nuxt typecheck targeted`
+    - `node --input-type=module -e 'import { ESLint } from "eslint"; import tseslint from "typescript-eslint"; const eslint = new ESLint({ overrideConfig: [{ files: ["**/*.{ts,tsx,mts,cts}"], ignores: ["**/*.test.*", "**/*.spec.*", "tests/**", "scripts/**"], plugins: { "@typescript-eslint": tseslint.plugin }, rules: { "@typescript-eslint/no-misused-spread": "error" } }] }); const results = await eslint.lintFiles(["**/*.{ts,tsx,mts,cts}"]); const hits = results.flatMap((result) => result.messages.filter((message) => message.ruleId === "@typescript-eslint/no-misused-spread").map((message) => result.filePath + ":" + message.line + ":" + message.column)); if (hits.length > 0) { console.log(hits.join("\\n")); process.exit(1); } console.log("no production hits");'`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 实现层: 新增 `toPlainObject()`，统一把实体实例的自有可枚举字段收敛为 plain object，再通过 `Object.assign()` 组装 API 返回值或树节点，覆盖 `Category`、`Tag`、`Post`、`Snippet`、`Comment` 与 `ThemeConfig` 相关 8 个 production 命中。
+        - V1 / Shared 层: `utils/shared/localized-settings.ts` 已把两处 `[...]` 泛型数组复制改成 `cloneStringArray()`，继续保持 shallow copy 语义，但不再触发字符串 spread 风险提示。
+        - V2 / 定向层: 上述 11 个文件在临时启用 `@typescript-eslint/no-misused-spread:error` 的情况下已通过定向 ESLint 检查。
+        - V2 / 类型层: `nuxt typecheck targeted` 通过；中途暴露的无效 `@ts-expect-error` 已同步清理。
+        - V2 / 回归层: `server/utils/object.test.ts` 当前为 `6` 条断言全部通过，新增样例证明 `toPlainObject()` 只保留类实例自有可枚举字段，不把原型 getter 带进响应 DTO。
+        - V1 / 基线层: `artifacts/review-gate/eslint-phase22-no-misused-spread-production-after-fix.json` 已记录当前 production TS 范围 `0` 命中，说明本轮已清空该规则的生产债务。
+    - 结果摘要:
+        - A 组 8 个实体实例展开已统一收敛到“先 plain object，再组合响应字段”的实现口径，避免继续把 TypeORM / Entity 实例直接 spread 到响应模型。
+        - B 组 2 个 `localized-settings` 命中已改为更明确的字符串数组复制，消除了此前泛型收窄不足导致的误报窗口。
+        - 当前 `@typescript-eslint/no-misused-spread` 在 production TS 范围已归零，但测试目录与脚本目录仍未纳入本轮治理，因此本轮仍只完成“生产债务清零”，不直接把规则提升到 warning。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - 规则尚未扩展到测试与脚本目录，历史 test debt 仍需单独评估是否修复、豁免或继续隔离。
+            - `no-misused-spread` 虽然已具备进入下一轮 warning 评估的前置条件，但仍需先确认测试侧 11 个命中的处理策略，避免重复压满 warning 预算。
+    - 未覆盖边界:
+        - 本轮没有重跑全仓 `pnpm lint`，继续避免 `--fix` 对无关文件造成改写；结论以定向 ESLint 与只读 production 扫描为准。
+        - 本轮没有对 `tests/**` 中的 `no-misused-spread` 命中做归因，因此当前结论仅覆盖 production TS。
+    - 后续补跑计划:
+        - 下一轮可基于当前 `0` 个 production 命中，单独评估测试目录 11 个 `no-misused-spread` 命中的真实价值，再决定是否允许把该规则提升到“全量测试继续豁免”或“先 production warning、测试延后”的状态。
+        - 若后续继续推进第二梯队规则，可沿用同样的证据链模式处理 `no-dynamic-delete`，先做 production 命中归因，再决定是否进入 warning。
 
 ## 测试覆盖率阶段性抬升治理首轮基线（2026-04-02）
 

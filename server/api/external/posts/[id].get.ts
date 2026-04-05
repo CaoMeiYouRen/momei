@@ -1,5 +1,6 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
+import { toPlainObject } from '@/server/utils/object'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
 import { isAdmin } from '@/utils/shared/roles'
 import { applyPostReadModelFromMetadata } from '@/server/utils/post-metadata'
@@ -26,8 +27,7 @@ export default defineEventHandler(async (event) => {
     applyPostReadModelFromMetadata()
 
     // 处理敏感信息（如密码等，如果有的话）
-    const safePost = { ...post }
-    // @ts-expect-error - password might not exist on Post but we want to omit it if it does
+    const safePost = toPlainObject(post) as Record<string, unknown>
     delete safePost.password
 
     return {

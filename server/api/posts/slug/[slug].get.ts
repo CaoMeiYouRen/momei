@@ -1,6 +1,7 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { processAuthorPrivacy } from '@/server/utils/author'
+import { toPlainObject } from '@/server/utils/object'
 import { checkPostAccess } from '@/server/utils/post-access'
 import { isAdmin } from '@/utils/shared/roles'
 import { applyPostReadModelFromMetadata } from '@/server/utils/post-metadata'
@@ -66,11 +67,10 @@ export default defineEventHandler(async (event) => {
 
     const { previousPost, nextPost } = await getAdjacentPublicPosts(postRepo, post)
 
-    return success({
-        ...post,
+    return success(Object.assign(toPlainObject(post), {
         translations,
         previousPost,
         nextPost,
         locked: false,
-    })
+    }))
 })
