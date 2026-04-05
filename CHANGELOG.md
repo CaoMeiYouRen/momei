@@ -1,5 +1,55 @@
 # momei
 
+# [1.12.0](https://github.com/CaoMeiYouRen/momei/compare/v1.11.0...v1.12.0) (2026-04-05)
+
+
+### ✨ 新功能
+
+* **api:** 优化公开设置获取逻辑 ([6404b02](https://github.com/CaoMeiYouRen/momei/commit/6404b02))
+* **app-header:** 增加管理员快捷方式按钮及其测试用例 ([29fde04](https://github.com/CaoMeiYouRen/momei/commit/29fde04))
+* **date:** 增加获取 UTC 日期部分的功能 ([40c932b](https://github.com/CaoMeiYouRen/momei/commit/40c932b))
+* **external-feed:** 添加外部动态缓存刷新功能 ([3dc6953](https://github.com/CaoMeiYouRen/momei/commit/3dc6953))
+* **external-feed:** 添加外部源聚合功能 ([d613127](https://github.com/CaoMeiYouRen/momei/commit/d613127))
+* **github:** 添加外部 Skills 准入清单与治理机制 ([a5cf119](https://github.com/CaoMeiYouRen/momei/commit/a5cf119))
+* **i18n:** 支持可读时长格式的设置 ([f56acce](https://github.com/CaoMeiYouRen/momei/commit/f56acce))
+* **review-gate:** 增加重复代码检测自动化支持 ([1892cff](https://github.com/CaoMeiYouRen/momei/commit/1892cff))
+* **security:** 增强本地环境变量加载支持 ([0aa4a14](https://github.com/CaoMeiYouRen/momei/commit/0aa4a14))
+* **security:** 添加 GitHub 安全告警检查脚本及相关功能 ([e0ff322](https://github.com/CaoMeiYouRen/momei/commit/e0ff322))
+* **shared:** 添加字符串列表处理工具函数 ([4316912](https://github.com/CaoMeiYouRen/momei/commit/4316912))
+* **shared:** 添加字符串和 URL 处理工具函数及相关测试 ([8ad552b](https://github.com/CaoMeiYouRen/momei/commit/8ad552b))
+* **shared:** 添加字符串归一化工具函数及相关测试 ([6316176](https://github.com/CaoMeiYouRen/momei/commit/6316176))
+* **translation:** 增强翻译功能与进度管理 ([556cbfa](https://github.com/CaoMeiYouRen/momei/commit/556cbfa))
+* 增加时间配置解析与日期处理功能 ([e1d15ca](https://github.com/CaoMeiYouRen/momei/commit/e1d15ca))
+* 增强封面生成 ([d223f3c](https://github.com/CaoMeiYouRen/momei/commit/d223f3c))
+
+
+### 🐛 Bug 修复
+
+* **app-header:** 增加桌面管理员帖子链接及其样式 ([8766194](https://github.com/CaoMeiYouRen/momei/commit/8766194))
+* **e2e:** add dayjs to nitro inline externals to fix ESM module resolution ([d5cfe8a](https://github.com/CaoMeiYouRen/momei/commit/d5cfe8a))
+* **e2e:** use toHaveCount(1) to guard against missing DOM elements ([95d9b18](https://github.com/CaoMeiYouRen/momei/commit/95d9b18))
+* **e2e:** 修复 admin-posts-shortcut 测试中错误的 DOM 可见性断言 ([ddc86b0](https://github.com/CaoMeiYouRen/momei/commit/ddc86b0))
+* **external-feed:** 忽略 RSSHub 语言元数据以过滤本地化结果 ([382bf3e](https://github.com/CaoMeiYouRen/momei/commit/382bf3e))
+* **external-feed:** 更新外部动态描述信息 ([340385e](https://github.com/CaoMeiYouRen/momei/commit/340385e))
+* **external-feed:** 添加外部源数据模拟及测试用例 ([db6a914](https://github.com/CaoMeiYouRen/momei/commit/db6a914))
+* **i18n:** 更新通知管理界面的标题翻译 ([4e29313](https://github.com/CaoMeiYouRen/momei/commit/4e29313))
+* **notifications:** 修复通知管理功能及其国际化支持 ([9d89c22](https://github.com/CaoMeiYouRen/momei/commit/9d89c22))
+* **release:** 修复 Playwright 浏览器安装命令 ([ed3955a](https://github.com/CaoMeiYouRen/momei/commit/ed3955a))
+* **security:** 更新安全警报例外配置 ([0d91143](https://github.com/CaoMeiYouRen/momei/commit/0d91143))
+* **security:** 添加 GitHub 令牌解析功能 ([50c4ff7](https://github.com/CaoMeiYouRen/momei/commit/50c4ff7))
+* **slug:** 添加 normalizeAsciiSlug 函数以处理 ASCII slug ([01e0d64](https://github.com/CaoMeiYouRen/momei/commit/01e0d64))
+
+
+### 📦 代码重构
+
+* **api:** 优化演示模式判断逻辑 ([cb58b42](https://github.com/CaoMeiYouRen/momei/commit/cb58b42))
+* **cli:** 优化命令行参数解析逻辑 ([00c446d](https://github.com/CaoMeiYouRen/momei/commit/00c446d))
+* **cli:** 重构命令行参数解析逻辑 ([5c04f5e](https://github.com/CaoMeiYouRen/momei/commit/5c04f5e))
+* **scripts:** 重构脚本执行逻辑 ([ca6ac12](https://github.com/CaoMeiYouRen/momei/commit/ca6ac12))
+* **services:** 优化类型定义和函数返回值 ([21b9b8e](https://github.com/CaoMeiYouRen/momei/commit/21b9b8e))
+* **types:** 修改类型定义以提高可读性 ([a9c82d3](https://github.com/CaoMeiYouRen/momei/commit/a9c82d3))
+* 优化数据库流量消耗 ([7559605](https://github.com/CaoMeiYouRen/momei/commit/7559605))
+
 # [1.11.0](https://github.com/CaoMeiYouRen/momei/compare/v1.10.0...v1.11.0) (2026-03-29)
 
 
