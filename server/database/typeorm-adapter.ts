@@ -303,8 +303,7 @@ export const typeormAdapter =
             }
         }
 
-        const { transformInput, transformOutput, convertWhereToFindOptions, getModelName, convertJoinToRelations, getRelationName } =
-            createTransform()
+        const transformHelpers = createTransform()
 
         const createAdapter = (manager: EntityManager): DBTransactionAdapter => ({
             id: 'typeorm',
@@ -315,14 +314,14 @@ export const typeormAdapter =
                 forceAllowId?: boolean
             }): Promise<R> {
                 const { model, data: values, select, forceAllowId } = data
-                const transformed = transformInput(values, model, 'create', forceAllowId)
+                const transformed = transformHelpers.transformInput(values, model, 'create', forceAllowId)
 
-                const repositoryName = getModelName(model)
+                const repositoryName = transformHelpers.getModelName(model)
                 const repository = manager.getRepository(repositoryName)
 
                 try {
                     const result = await repository.save(transformed)
-                    return transformOutput(result, model, select) as R
+                    return transformHelpers.transformOutput(result, model, select) as R
                 } catch (error: unknown) {
                     throw new BetterAuthError(
                         `Failed to create ${model}: ${error instanceof Error ? error.message : String(error)}`,
@@ -337,12 +336,12 @@ export const typeormAdapter =
                 select?: string[]
             }): Promise<T | null> {
                 const { model, where, update, select = [] } = data
-                const repositoryName = getModelName(model)
+                const repositoryName = transformHelpers.getModelName(model)
                 const repository = manager.getRepository(repositoryName)
 
                 try {
-                    const findOptions = convertWhereToFindOptions(model, where)
-                    const transformed = transformInput(update, model, 'update')
+                    const findOptions = transformHelpers.convertWhereToFindOptions(model, where)
+                    const transformed = transformHelpers.transformInput(update, model, 'update')
 
                     if (where.length === 1) {
                         const updatedRecord = await repository.findOne({
@@ -354,7 +353,7 @@ export const typeormAdapter =
                             const result = await repository.findOne({
                                 where: findOptions,
                             })
-                            return transformOutput(result, model, select) as T
+                            return transformHelpers.transformOutput(result, model, select) as T
                         }
                     }
 
@@ -369,11 +368,11 @@ export const typeormAdapter =
 
             async delete(data: { model: string, where: Where[] }): Promise<void> {
                 const { model, where } = data
-                const repositoryName = getModelName(model)
+                const repositoryName = transformHelpers.getModelName(model)
                 const repository = manager.getRepository(repositoryName)
 
                 try {
-                    const findOptions = convertWhereToFindOptions(model, where)
+                    const findOptions = transformHelpers.convertWhereToFindOptions(model, where)
                     await repository.delete(findOptions)
                 } catch (error: unknown) {
                     throw new BetterAuthError(
@@ -389,30 +388,30 @@ export const typeormAdapter =
                 join?: JoinOption
             }): Promise<T | null> {
                 const { model, where, select, join } = data
-                const repositoryName = getModelName(model)
+                const repositoryName = transformHelpers.getModelName(model)
                 const repository = manager.getRepository(repositoryName)
 
                 try {
-                    const findOptions = convertWhereToFindOptions(model, where)
-                    const relations = convertJoinToRelations(model, join)
+                    const findOptions = transformHelpers.convertWhereToFindOptions(model, where)
+                    const relations = transformHelpers.convertJoinToRelations(model, join)
                     const result = await repository.findOne({
                         where: findOptions,
                         select,
                         relations,
                     })
-                    const transformed = transformOutput(result, model, select) as any
+                    const transformed = transformHelpers.transformOutput(result, model, select) as any
                     if (transformed && join) {
                         for (const [joinedModel, joinConfig] of Object.entries(join)) {
                             if (joinConfig === false) {
                                 continue
                             }
-                            const relationName = getRelationName(model, joinedModel)
+                            const relationName = transformHelpers.getRelationName(model, joinedModel)
                             if (relationName && result && relationName in result) {
                                 const relationData = result[relationName]
                                 if (Array.isArray(relationData)) {
-                                    transformed[relationName] = relationData.map((item) => transformOutput(item, joinedModel))
+                                    transformed[relationName] = relationData.map((item) => transformHelpers.transformOutput(item, joinedModel))
                                 } else if (relationData) {
-                                    transformed[relationName] = transformOutput(relationData, joinedModel)
+                                    transformed[relationName] = transformHelpers.transformOutput(relationData, joinedModel)
                                 }
                             }
                         }
@@ -434,12 +433,12 @@ export const typeormAdapter =
                 join?: JoinOption
             }): Promise<T[]> {
                 const { model, where, limit, offset, sortBy, join } = data
-                const repositoryName = getModelName(model)
+                const repositoryName = transformHelpers.getModelName(model)
                 const repository = manager.getRepository(repositoryName)
 
                 try {
-                    const findOptions = convertWhereToFindOptions(model, where)
-                    const relations = convertJoinToRelations(model, join)
+                    const findOptions = transformHelpers.convertWhereToFindOptions(model, where)
+                    const relations = transformHelpers.convertJoinToRelations(model, join)
 
                     const result = await repository.find({
                         where: findOptions,
@@ -454,19 +453,19 @@ export const typeormAdapter =
                     })
 
                     return result.map((r) => {
-                        const transformed = transformOutput(r, model) as any
+                        const transformed = transformHelpers.transformOutput(r, model) as any
                         if (transformed && join) {
                             for (const [joinedModel, joinConfig] of Object.entries(join)) {
                                 if (joinConfig === false) {
                                     continue
                                 }
-                                const relationName = getRelationName(model, joinedModel)
+                                const relationName = transformHelpers.getRelationName(model, joinedModel)
                                 if (relationName && r && relationName in r) {
                                     const relationData = r[relationName]
                                     if (Array.isArray(relationData)) {
-                                        transformed[relationName] = relationData.map((item) => transformOutput(item, joinedModel))
+                                        transformed[relationName] = relationData.map((item) => transformHelpers.transformOutput(item, joinedModel))
                                     } else if (relationData) {
-                                        transformed[relationName] = transformOutput(relationData, joinedModel)
+                                        transformed[relationName] = transformHelpers.transformOutput(relationData, joinedModel)
                                     }
                                 }
                             }
@@ -482,11 +481,11 @@ export const typeormAdapter =
 
             async count(data) {
                 const { model, where } = data
-                const repositoryName = getModelName(model)
+                const repositoryName = transformHelpers.getModelName(model)
                 const repository = manager.getRepository(repositoryName)
 
                 try {
-                    const findOptions = convertWhereToFindOptions(model, where)
+                    const findOptions = transformHelpers.convertWhereToFindOptions(model, where)
                     const result = await repository.count({ where: findOptions })
                     return result
                 } catch (error: unknown) {
@@ -498,12 +497,12 @@ export const typeormAdapter =
 
             async updateMany(data) {
                 const { model, where, update } = data
-                const repositoryName = getModelName(model)
+                const repositoryName = transformHelpers.getModelName(model)
                 const repository = manager.getRepository(repositoryName)
 
                 try {
-                    const findOptions = convertWhereToFindOptions(model, where)
-                    const transformed = transformInput(update, model, 'update')
+                    const findOptions = transformHelpers.convertWhereToFindOptions(model, where)
+                    const transformed = transformHelpers.transformInput(update, model, 'update')
 
                     const result = await repository.update(findOptions, transformed)
                     return result.affected || 0
@@ -516,11 +515,11 @@ export const typeormAdapter =
 
             async deleteMany(data) {
                 const { model, where } = data
-                const repositoryName = getModelName(model)
+                const repositoryName = transformHelpers.getModelName(model)
                 const repository = manager.getRepository(repositoryName)
 
                 try {
-                    const findOptions = convertWhereToFindOptions(model, where)
+                    const findOptions = transformHelpers.convertWhereToFindOptions(model, where)
                     const result = await repository.delete(findOptions)
                     return result.affected || 0
                 } catch (error: unknown) {

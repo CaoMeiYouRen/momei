@@ -14,7 +14,7 @@ const DirectUploadRequestSchema = z.object({
 
 export default defineEventHandler(async (event) => {
     const session = await requireAuth(event)
-    const body = await readValidatedBody(event, DirectUploadRequestSchema.parse)
+    const body = await readValidatedBody(event, (payload) => DirectUploadRequestSchema.parse(payload))
 
     const authorization = await authorizeDirectUpload({
         userId: session.user.id,

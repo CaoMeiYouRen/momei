@@ -137,12 +137,12 @@ export class TTSService extends AIBaseService {
 
     static async estimateProviderCost(text: string, voice: string = TTS_DEFAULT_VOICE, providerName?: string): Promise<number> {
         const provider = await getAIProvider('tts', providerName ? { provider: providerName as any } : undefined)
-        const estimateFn = provider.estimateTTSCost || provider.estimateCost
+        const estimateFn = provider.estimateTTSCost?.bind(provider) || provider.estimateCost?.bind(provider)
         if (!estimateFn) {
             return 0
         }
 
-        return await estimateFn.call(provider, text, this.resolveVoice(voice))
+        return await estimateFn(text, this.resolveVoice(voice))
     }
 
     static async estimateCostBreakdown(

@@ -9,7 +9,7 @@ const bodySchema = z.object({
 
 export default eventHandler(async (event) => {
     const session = await requireAuth(event)
-    const body = await readValidatedBody(event, bodySchema.parse)
+    const body = await readValidatedBody(event, (payload) => bodySchema.parse(payload))
 
     const repo = dataSource.getRepository(InAppNotification)
     const queryBuilder = repo.createQueryBuilder()

@@ -5,7 +5,7 @@
 ## 当前窗口与索引
 
 - 统一入口: [回归日志索引与对比指南](./regression-log-index.md)
-- 当前窗口: 活动日志当前保留 2026-03-22 至 2026-04-05 的 9 条近线记录，优先服务当前阶段收口、近期发版判断与最近基线比较。
+- 当前窗口: 活动日志当前保留 2026-03-22 至 2026-04-06 的 10 条近线记录，优先服务当前阶段收口、近期发版判断与最近基线比较。
 - 历史归档: 2026-03-20 至 2026-03-21 的 5 条旧记录已滚动迁移到 [regression-log-archive.md](./regression-log-archive.md)。
 - 对比建议: 先用本文件确认当前基线，再按主题到归档文件核对更早一期的 clean baseline 或历史专项记录。
 
@@ -84,6 +84,51 @@
         - 下一轮若继续推进本主线，优先只处理 `@typescript-eslint/unbound-method` 的 9 个生产命中，并验证是否可以在不影响测试目录的前提下把该规则提升到 warning。
         - 在 `unbound-method` 稳定后，再对 `no-misused-spread` 的 10 个生产命中做逐点归因，判断其中哪些应改为显式 DTO / plain object 转换，哪些属于可接受例外。
         - `no-dynamic-delete` 暂按“需要先明确允许模式”的规则保留为第二梯队，后续如要收紧，先定义 shared util / 数据清洗场景的豁免口径，再决定是否提级。
+
+## ESLint 规则分阶段收紧治理首批实装（2026-04-06）
+
+### 回归任务记录
+
+- 回归范围: 第二十二阶段 P1“ESLint 规则分阶段收紧治理”首批实装；仅把 `@typescript-eslint/unbound-method` 提升到 `server` 生产 TypeScript 范围的 warning，并修复首轮基线中识别出的 9 个 production 命中。
+- 触发条件: 2026-04-05 首轮基线已证明 11 条候选规则不能整体提级，但 `@typescript-eslint/unbound-method` 在生产代码中仅有 9 个命中，满足“先清零 production 命中、再做 server-only 试点”的准入结论。
+- 执行频率: 本阶段首批收紧实装；后续仅在继续扩展到更多目录，或进入 `no-misused-spread` / `no-dynamic-delete` 第二梯队时补写增量记录。
+- timeout budget:
+    - 定向代码修复与配置更新: 15 分钟。
+    - 定向 ESLint / Typecheck 验证: 20 分钟。
+    - 计划文档与回归记录收口: 10 分钟。
+- 已执行命令:
+    - 代码修复与 ESLint 配置更新（见 `server/api/**`、`server/database/typeorm-adapter.ts`、`server/services/ai/tts.ts` 与 `eslint.config.js`）
+    - `pnpm exec eslint eslint.config.js "server/**/*.{ts,tsx,mts,cts}" --max-warnings 10`
+    - VS Code 任务 `nuxt typecheck targeted`
+    - `pnpm exec lint-md docs/plan/todo.md docs/plan/regression-log.md`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 代码层: 5 个 API 路由已把 `Schema.parse` / `querySchema.parse` 从直接方法引用改成显式箭头回调，避免把 Zod 实例方法脱离上下文传给 `readValidatedBody` / `getValidatedQuery`。
+        - V1 / 服务层: `server/services/ai/tts.ts` 已将 `estimateTTSCost` / `estimateCost` 先显式 `bind(provider)` 再调用，避免 provider 成本估算方法在脱离实例上下文时触发 `unbound-method`。
+        - V1 / 适配层: `server/database/typeorm-adapter.ts` 已把 `createTransform()` 返回的方法改为通过 `transformHelpers.*` 调用，避免在 Better Auth TypeORM 适配器中解构方法后丢失上下文。
+        - V1 / 配置层: `eslint.config.js` 仅在 `server/**/*.{ts,tsx,mts,cts}` 启用 `@typescript-eslint/unbound-method` warning，并继续对 `server/**/*.test.*` 与 `server/**/*.spec.*` 保持豁免，确保本轮不外溢到测试目录。
+        - V2 / 静态层: `pnpm exec eslint eslint.config.js "server/**/*.{ts,tsx,mts,cts}" --max-warnings 10` 通过，说明首批 server 生产命中已清零，且当前 warning 总量未突破既有 10 条门禁。
+        - V2 / 类型层: `nuxt typecheck targeted` 通过，说明本轮服务端与配置改动未引入新的类型错误。
+        - V1 / 文档层: `pnpm exec lint-md docs/plan/todo.md docs/plan/regression-log.md` 通过。
+    - 结果摘要:
+        - 首批收紧范围已正式落地为“仅 `server` 生产 TypeScript + 仅 `@typescript-eslint/unbound-method` 一条规则”，没有把规则提升扩写到测试、脚本或第二梯队规则族。
+        - 首轮基线中的 9 个 production 命中已完成收敛，当前 warning 预算仍维持在既有上限之内。
+        - 本轮采用最小修复策略：优先把直接方法引用改为显式回调或绑定，不顺带重构 API 契约、provider 设计或 Better Auth 适配层架构。
+        - 通过 `server` 范围限定与测试文件 override，本轮保留了“先看生产代码信号、暂不让 156 个测试命中淹没门禁”的分批治理边界。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - 当前仅完成 `server` 生产 TypeScript 范围的首批试点，尚未推广到 `composables`、`utils` 或更多 TypeScript 目录。
+            - `no-misused-spread` 与 `no-dynamic-delete` 仍维持在第二梯队，未纳入本轮实装。
+    - 未覆盖边界:
+        - 本轮未执行全仓 `pnpm lint`，避免触发 `--fix` 带来的无关改写；静态门禁以定向 ESLint 为准。
+        - 本轮未补跑全量测试，仅依赖 `nuxt typecheck targeted` 与定向 ESLint 证明本次规则收紧的最小安全性。
+        - `server/**/*.test.*` 的 `@typescript-eslint/unbound-method` 债务仍保留，后续若要扩大规则作用范围，必须先定义测试侧统一修复或豁免策略。
+    - 后续补跑计划:
+        - 若继续推进本主线，下一步优先决定是否把 `@typescript-eslint/unbound-method` 从 `server` 扩展到其他生产目录，仍需先做目录级债务采样后再提级。
+        - 在首批试点稳定后，再单独审查 `no-misused-spread` 的 10 个 production 命中，避免和本轮首批收紧混在一起导致预算失控。
+        - 回滚口径: 若后续发现 `server` 范围收紧带来误报或阻塞，可先把 `eslint.config.js` 中新增的 `server` 范围 override 整段移除或把 `@typescript-eslint/unbound-method` 恢复为 `[0]`，不需要回退本轮代码修复本身。
 
 ## 测试覆盖率阶段性抬升治理首轮基线（2026-04-02）
 

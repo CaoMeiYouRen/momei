@@ -195,4 +195,11 @@ export default withNuxt(
             '@typescript-eslint/no-unnecessary-type-conversion': [0], // 禁止在表达式类型或值未发生变化时使用转换惯用法
         },
     },
+    {
+        files: ['server/**/*.{ts,tsx,mts,cts}'],
+        ignores: ['server/**/*.test.*', 'server/**/*.spec.*'],
+        rules: {
+            '@typescript-eslint/unbound-method': [1], // 首批仅在服务端生产 TS 范围收紧，测试文件继续豁免
+        },
+    },
 )

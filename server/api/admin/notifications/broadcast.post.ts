@@ -11,7 +11,7 @@ const bodySchema = z.object({
 
 export default eventHandler(async (event) => {
     await requireAdmin(event)
-    const body = await readValidatedBody(event, bodySchema.parse)
+    const body = await readValidatedBody(event, (payload) => bodySchema.parse(payload))
 
     const notification = await sendInAppNotification({
         userId: null, // 全局广播

@@ -12,7 +12,7 @@ const querySchema = z.object({
 
 export default eventHandler(async (event) => {
     const session = await requireAuth(event)
-    const query = await getValidatedQuery(event, querySchema.parse)
+    const query = await getValidatedQuery(event, (payload) => querySchema.parse(payload))
 
     const repo = dataSource.getRepository(InAppNotification)
     const queryBuilder = repo.createQueryBuilder('notification')

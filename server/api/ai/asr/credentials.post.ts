@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     await requireAdminOrAuthor(event)
 
     // 解析请求体
-    const body = await readValidatedBody(event, RequestSchema.parse)
+    const body = await readValidatedBody(event, (payload) => RequestSchema.parse(payload))
 
     // 获取必要的配置
     const settings = await getSettings([
