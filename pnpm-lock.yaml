@@ -24,6 +24,7 @@ overrides:
   undici: ^6.24.0
   diff: ^8.0.4
   devalue: ^5.6.4
+  defu: 6.1.5
   unhead: ^2.1.11
   qs: ^6.14.2
   hono: ^4.12.7
@@ -11282,10 +11283,10 @@ packages:
       }
     engines: { node: ">= 0.4" }
 
-  defu@6.1.4:
+  defu@6.1.5:
     resolution:
       {
-        integrity: sha512-mEQCMmwJu317oSz8CwdIOdwf3xMif1ttiM8LTufzc3g6kR+9Pe236twL8j3IYT1F7GfRgGcW6MWxzZjLIkuHIg==,
+        integrity: sha512-pwdBJxJuJXmqrLO6s0VBmfbRz+G7FUzkjldAsdi9Yrv86mPyzq0ll1o8+8gB4Gsr6GJHbK1Lh3ngllgTInDCjA==,
       }
 
   degenerator@5.0.1:
@@ -25294,7 +25295,7 @@ snapshots:
       confbox: 0.2.4
       consola: 3.4.2
       debug: 4.4.3
-      defu: 6.1.4
+      defu: 6.1.5
       exsolve: 1.0.8
       fuse.js: 7.1.0
       fzf: 0.5.2
@@ -25482,7 +25483,7 @@ snapshots:
       "@nuxt/devtools-kit": 3.2.4(magicast@0.5.2)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.3))
       "@nuxt/kit": 4.4.2(magicast@0.5.2)
       consola: 3.4.2
-      defu: 6.1.4
+      defu: 6.1.5
       fontless: 0.2.1(@vercel/blob@2.3.1)(db0@0.3.4(better-sqlite3@12.8.0)(mysql2@3.20.0(@types/node@25.5.0)))(ioredis@5.10.1)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.3))
       h3: 1.15.10
       magic-regexp: 0.10.0
@@ -25542,7 +25543,7 @@ snapshots:
     dependencies:
       c12: 3.3.3(magicast@0.5.2)
       consola: 3.4.2
-      defu: 6.1.4
+      defu: 6.1.5
       destr: 2.0.5
       errx: 0.1.0
       exsolve: 1.0.8
@@ -25568,7 +25569,7 @@ snapshots:
     dependencies:
       c12: 3.3.3(magicast@0.5.2)
       consola: 3.4.2
-      defu: 6.1.4
+      defu: 6.1.5
       destr: 2.0.5
       errx: 0.1.0
       exsolve: 1.0.8
@@ -25594,7 +25595,7 @@ snapshots:
     dependencies:
       c12: 3.3.3(magicast@0.5.2)
       consola: 3.4.2
-      defu: 6.1.4
+      defu: 6.1.5
       destr: 2.0.5
       errx: 0.1.0
       exsolve: 1.0.8
@@ -25620,7 +25621,7 @@ snapshots:
     dependencies:
       c12: 3.3.3(magicast@0.5.2)
       consola: 3.4.2
-      defu: 6.1.4
+      defu: 6.1.5
       destr: 2.0.5
       errx: 0.1.0
       exsolve: 1.0.8
@@ -25645,7 +25646,7 @@ snapshots:
     dependencies:
       c12: 3.3.3(magicast@0.5.2)
       consola: 3.4.2
-      defu: 6.1.4
+      defu: 6.1.5
       destr: 2.0.5
       errx: 0.1.0
       exsolve: 1.0.8
@@ -25674,7 +25675,7 @@ snapshots:
       "@unhead/vue": 2.1.12(vue@3.5.31(typescript@5.9.3))
       "@vue/shared": 3.5.30
       consola: 3.4.2
-      defu: 6.1.4
+      defu: 6.1.5
       destr: 2.0.5
       devalue: 5.6.4
       errx: 0.1.0
@@ -25738,7 +25739,7 @@ snapshots:
   "@nuxt/schema@4.4.2":
     dependencies:
       "@vue/shared": 3.5.30
-      defu: 6.1.4
+      defu: 6.1.5
       pathe: 2.0.3
       pkg-types: 2.3.0
       std-env: 4.0.0
@@ -25759,7 +25760,7 @@ snapshots:
       "@nuxt/kit": 3.21.1(magicast@0.5.2)
       c12: 3.3.3(magicast@0.5.2)
       consola: 3.4.2
-      defu: 6.1.4
+      defu: 6.1.5
       destr: 2.0.5
       estree-walker: 3.0.3
       exsolve: 1.0.8
@@ -25834,7 +25835,7 @@ snapshots:
       "@vueuse/shared": 14.2.1(vue@3.5.31(typescript@5.9.3))
       colortranslator: 5.0.0
       consola: 3.4.2
-      defu: 6.1.4
+      defu: 6.1.5
       embla-carousel-auto-height: 8.6.0(embla-carousel@8.6.0)
       embla-carousel-auto-scroll: 8.6.0(embla-carousel@8.6.0)
       embla-carousel-autoplay: 8.6.0(embla-carousel@8.6.0)
@@ -25917,7 +25918,7 @@ snapshots:
       autoprefixer: 10.4.27(postcss@8.5.8)
       consola: 3.4.2
       cssnano: 7.1.3(postcss@8.5.8)
-      defu: 6.1.4
+      defu: 6.1.5
       escape-string-regexp: 5.0.0
       exsolve: 1.0.8
       get-port-please: 3.2.0
@@ -25989,7 +25990,7 @@ snapshots:
       "@nuxt/kit": 4.4.2(magicast@0.5.2)
       "@rollup/plugin-yaml": 4.1.2(rollup@4.59.0)
       "@vue/compiler-sfc": 3.5.31
-      defu: 6.1.4
+      defu: 6.1.5
       devalue: 5.6.4
       h3: 1.15.10
       knitwork: 1.3.0
@@ -26045,7 +26046,7 @@ snapshots:
       "@nuxt/devtools-kit": 4.0.0-alpha.3(magicast@0.5.2)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.3))
       "@nuxt/kit": 4.4.2(magicast@0.5.2)
       consola: 3.4.2
-      defu: 6.1.4
+      defu: 6.1.5
       fast-xml-parser: 5.5.9
       nuxt-site-config: 4.0.7(@nuxt/schema@4.4.2)(magicast@0.5.2)(nuxt@4.4.2(@babel/core@7.29.0)(@babel/plugin-syntax-jsx@7.28.6(@babel/core@7.29.0))(@parcel/watcher@2.5.6)(@types/node@25.5.0)(@vercel/blob@2.3.1)(@vue/compiler-sfc@3.5.31)(better-sqlite3@12.8.0)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.8.0)(mysql2@3.20.0(@types/node@25.5.0)))(eslint@9.39.2(jiti@2.6.1))(ioredis@5.10.1)(lightningcss@1.32.0)(magicast@0.5.2)(meow@13.2.0)(mysql2@3.20.0(@types/node@25.5.0))(optionator@0.9.4)(rolldown@1.0.0-rc.9)(rollup-plugin-visualizer@6.0.11(rolldown@1.0.0-rc.9)(rollup@4.59.0))(rollup@4.59.0)(sass@1.98.0)(stylelint@16.26.1(typescript@5.9.3))(terser@5.46.1)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.3))(vue-tsc@3.2.6(typescript@5.9.3))(yaml@2.8.3))(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.3))(vue@3.5.31(typescript@5.9.3))(zod@4.3.6)
       nuxtseo-layer-devtools: 5.1.0(937f36be941161bf8552c49bfe6bb38a)
@@ -29806,7 +29807,7 @@ snapshots:
       "@noble/ciphers": 2.1.1
       "@noble/hashes": 2.0.1
       better-call: 1.1.8(zod@4.3.6)
-      defu: 6.1.4
+      defu: 6.1.5
       jose: 6.1.3
       kysely: 0.28.14
       nanostores: 1.1.0
@@ -29963,7 +29964,7 @@ snapshots:
     dependencies:
       chokidar: 5.0.0
       confbox: 0.2.4
-      defu: 6.1.4
+      defu: 6.1.5
       dotenv: 17.3.1
       exsolve: 1.0.8
       giget: 2.0.0
@@ -30758,7 +30759,7 @@ snapshots:
       has-property-descriptors: 1.0.2
       object-keys: 1.1.1
 
-  defu@6.1.4: {}
+  defu@6.1.5: {}
 
   degenerator@5.0.1:
     dependencies:
@@ -32160,7 +32161,7 @@ snapshots:
     dependencies:
       consola: 3.4.2
       css-tree: 3.2.1
-      defu: 6.1.4
+      defu: 6.1.5
       esbuild: 0.25.12
       fontaine: 0.8.0
       jiti: 2.6.1
@@ -32353,7 +32354,7 @@ snapshots:
     dependencies:
       citty: 0.1.6
       consola: 3.4.2
-      defu: 6.1.4
+      defu: 6.1.5
       node-fetch-native: 1.6.7
       nypm: 0.6.5
       pathe: 2.0.3
@@ -32518,7 +32519,7 @@ snapshots:
     dependencies:
       cookie-es: 1.2.2
       crossws: 0.3.5
-      defu: 6.1.4
+      defu: 6.1.5
       destr: 2.0.5
       iron-webcrypto: 1.2.1
       node-mock-http: 1.0.4
@@ -33520,7 +33521,7 @@ snapshots:
       clipboardy: 4.0.0
       consola: 3.4.2
       crossws: 0.3.5
-      defu: 6.1.4
+      defu: 6.1.5
       get-port-please: 3.2.0
       h3: 1.15.10
       http-shutdown: 1.2.2
@@ -34718,7 +34719,7 @@ snapshots:
       croner: 9.1.0
       crossws: 0.3.5
       db0: 0.3.4(better-sqlite3@12.8.0)(mysql2@3.20.0(@types/node@25.5.0))
-      defu: 6.1.4
+      defu: 6.1.5
       destr: 2.0.5
       dot-prop: 10.1.0
       esbuild: 0.25.12
@@ -34951,7 +34952,7 @@ snapshots:
       compatx: 0.2.0
       consola: 3.4.2
       cookie-es: 2.0.0
-      defu: 6.1.4
+      defu: 6.1.5
       devalue: 5.6.4
       errx: 0.1.0
       escape-string-regexp: 5.0.0
@@ -35139,7 +35140,7 @@ snapshots:
       "@nuxt/schema": 4.4.2
       birpc: 4.0.0
       consola: 3.4.2
-      defu: 6.1.4
+      defu: 6.1.5
       nuxt: 4.4.2(@babel/core@7.29.0)(@babel/plugin-syntax-jsx@7.28.6(@babel/core@7.29.0))(@parcel/watcher@2.5.6)(@types/node@25.5.0)(@vercel/blob@2.3.1)(@vue/compiler-sfc@3.5.31)(better-sqlite3@12.8.0)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.8.0)(mysql2@3.20.0(@types/node@25.5.0)))(eslint@9.39.2(jiti@2.6.1))(ioredis@5.10.1)(lightningcss@1.32.0)(magicast@0.5.2)(meow@13.2.0)(mysql2@3.20.0(@types/node@25.5.0))(optionator@0.9.4)(rolldown@1.0.0-rc.9)(rollup-plugin-visualizer@6.0.11(rolldown@1.0.0-rc.9)(rollup@4.59.0))(rollup@4.59.0)(sass@1.98.0)(stylelint@16.26.1(typescript@5.9.3))(terser@5.46.1)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.3))(vue-tsc@3.2.6(typescript@5.9.3))(yaml@2.8.3)
       ofetch: 1.5.1
       pathe: 2.0.3
@@ -35164,7 +35165,7 @@ snapshots:
       "@nuxt/schema": 4.4.2
       birpc: 4.0.0
       consola: 3.4.2
-      defu: 6.1.4
+      defu: 6.1.5
       nuxt: 4.4.2(@babel/core@7.29.0)(@babel/plugin-syntax-jsx@7.28.6(@babel/core@7.29.0))(@parcel/watcher@2.5.6)(@types/node@25.5.0)(@vercel/blob@2.3.1)(@vue/compiler-sfc@3.5.31)(better-sqlite3@12.8.0)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.8.0)(mysql2@3.20.0(@types/node@25.5.0)))(eslint@9.39.2(jiti@2.6.1))(ioredis@5.10.1)(lightningcss@1.32.0)(magicast@0.5.2)(meow@13.2.0)(mysql2@3.20.0(@types/node@25.5.0))(optionator@0.9.4)(rolldown@1.0.0-rc.9)(rollup-plugin-visualizer@6.0.11(rolldown@1.0.0-rc.9)(rollup@4.59.0))(rollup@4.59.0)(sass@1.98.0)(stylelint@16.26.1(typescript@5.9.3))(terser@5.46.1)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.3))(vue-tsc@3.2.6(typescript@5.9.3))(yaml@2.8.3)
       ofetch: 1.5.1
       pathe: 2.0.3
@@ -36335,12 +36336,12 @@ snapshots:
 
   rc9@2.1.2:
     dependencies:
-      defu: 6.1.4
+      defu: 6.1.5
       destr: 2.0.5
 
   rc9@3.0.0:
     dependencies:
-      defu: 6.1.4
+      defu: 6.1.5
       destr: 2.0.5
 
   rc@1.2.8:
@@ -36515,7 +36516,7 @@ snapshots:
       "@vueuse/core": 14.2.1(vue@3.5.31(typescript@5.9.3))
       "@vueuse/shared": 14.2.1(vue@3.5.31(typescript@5.9.3))
       aria-hidden: 1.2.6
-      defu: 6.1.4
+      defu: 6.1.5
       ohash: 2.0.11
       vue: 3.5.31(typescript@5.9.3)
     transitivePeerDependencies:
@@ -36949,7 +36950,7 @@ snapshots:
 
   serve-placeholder@2.0.2:
     dependencies:
-      defu: 6.1.4
+      defu: 6.1.5
 
   serve-static@1.16.3:
     dependencies:
@@ -37830,7 +37831,7 @@ snapshots:
     dependencies:
       ansis: 4.2.0
       cac: 7.0.0
-      defu: 6.1.4
+      defu: 6.1.5
       empathic: 2.0.0
       hookable: 6.1.0
       import-without-cache: 0.2.5
@@ -38301,7 +38302,7 @@ snapshots:
   untyped@2.0.0:
     dependencies:
       citty: 0.1.6
-      defu: 6.1.4
+      defu: 6.1.5
       jiti: 2.6.1
       knitwork: 1.3.0
       scule: 1.3.0
