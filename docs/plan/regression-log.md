@@ -5,7 +5,7 @@
 ## 当前窗口与索引
 
 - 统一入口: [回归日志索引与对比指南](./regression-log-index.md)
-- 当前窗口: 活动日志当前保留 2026-03-22 至 2026-04-06 的 11 条近线记录，优先服务当前阶段收口、近期发版判断与最近基线比较。
+- 当前窗口: 活动日志当前保留 2026-03-22 至 2026-04-06 的 12 条近线记录，优先服务当前阶段收口、近期发版判断与最近基线比较。
 - 历史归档: 2026-03-20 至 2026-03-21 的 5 条旧记录已滚动迁移到 [regression-log-archive.md](./regression-log-archive.md)。
 - 对比建议: 先用本文件确认当前基线，再按主题到归档文件核对更早一期的 clean baseline 或历史专项记录。
 
@@ -200,6 +200,42 @@
     - 后续补跑计划:
         - 下一轮可基于当前 `0` 个 production 命中，单独评估测试目录 11 个 `no-misused-spread` 命中的真实价值，再决定是否允许把该规则提升到“全量测试继续豁免”或“先 production warning、测试延后”的状态。
         - 若后续继续推进第二梯队规则，可沿用同样的证据链模式处理 `no-dynamic-delete`，先做 production 命中归因，再决定是否进入 warning。
+
+## ESLint 规则分阶段收紧治理测试债清零与扩面（2026-04-06）
+
+### 回归任务记录
+
+- 回归范围: 第二十二阶段 P1“ESLint 规则分阶段收紧治理”对 `@typescript-eslint/no-misused-spread` 的测试侧收口与正式扩面；覆盖历史基线中的 11 个 test 命中、规则作用范围判定，以及 `eslint.config.js` 的 warning 提级。
+- 触发条件: 上一条记录已完成 production 命中清零，但当时仍保留“测试目录 11 个命中待评估”的审慎结论；本轮需决定是继续修、保留 tests 豁免，还是只对 production 先开 warning。
+- 已执行命令:
+    - `pnpm exec eslint 'server/utils/post-access.test.ts' 'tests/server/utils/fed/mapper.test.ts' --rule '@typescript-eslint/no-misused-spread:error'`
+    - `pnpm exec vitest run server/utils/post-access.test.ts tests/server/utils/fed/mapper.test.ts`
+    - `node --input-type=module -e 'import { ESLint } from "eslint"; import tseslint from "typescript-eslint"; const eslint = new ESLint({ overrideConfig: [{ files: ["tests/**/*.{ts,tsx,mts,cts}"], plugins: { "@typescript-eslint": tseslint.plugin }, rules: { "@typescript-eslint/no-misused-spread": "error" } }] }); const results = await eslint.lintFiles(["tests/**/*.{ts,tsx,mts,cts}"]); const hits = results.flatMap((result) => result.messages.filter((message) => message.ruleId === "@typescript-eslint/no-misused-spread").map((message) => ({ file: result.filePath.replace(process.cwd() + "\\", ""), line: message.line, column: message.column, message: message.message }))); console.log(JSON.stringify(hits, null, 2));'`
+    - `node --input-type=module -e 'import { ESLint } from "eslint"; import tseslint from "typescript-eslint"; const eslint = new ESLint({ overrideConfig: [{ files: ["**/*.{ts,tsx,mts,cts}"], ignores: ["scripts/**"], plugins: { "@typescript-eslint": tseslint.plugin }, rules: { "@typescript-eslint/no-misused-spread": "error" } }] }); const results = await eslint.lintFiles(["**/*.{ts,tsx,mts,cts}"]); const hits = results.flatMap((result) => result.messages.filter((message) => message.ruleId === "@typescript-eslint/no-misused-spread").map((message) => ({ file: result.filePath.replace(process.cwd() + "\\", ""), line: message.line, column: message.column, message: message.message }))); console.log(JSON.stringify({ total: hits.length, hits }, null, 2)); if (hits.length > 0) process.exit(1);'`
+    - `pnpm exec eslint eslint.config.js 'server/utils/post-access.test.ts' 'tests/server/utils/fed/mapper.test.ts' --max-warnings 10`
+    - VS Code 任务 `nuxt typecheck targeted`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 归因层: 历史 11 个 test 命中全部可归并为两种同类写法，而非真实业务风险：`server/utils/post-access.test.ts` 中 10 个命中、[server/utils/post-access.test.ts](server/utils/post-access.test.ts#L17) 使用“plain mock 先强转成 `Post`，再在各 case 中 spread”的模式；[tests/server/utils/fed/mapper.test.ts](tests/server/utils/fed/mapper.test.ts#L22) 中 1 个命中是同类的 `createMockPost()` 写法。
+        - V1 / 修复层: 两个文件均已改成“plain baseline + factory”的测试数据构造口径，不再把被强转为实体类型的 mock 对象再次 spread。
+        - V2 / 定向层: 两个命中文件在临时启用 `@typescript-eslint/no-misused-spread:error` 的情况下已通过 ESLint，且对应 Vitest 定向测试 `23` 条全部通过。
+        - V1 / 实扫层: `tests/**/*` 口径复扫只剩 1 个命中时，已证明 `tests/**` 本身并不需要保留批量豁免；修复后再执行“全仓 TS，仅排除 `scripts/**`”扫描，结果为 `0` 命中。
+        - V2 / 配置层: `eslint.config.js` 已把 `@typescript-eslint/no-misused-spread` 提升为 warning，范围为全量 TypeScript，继续排除 `scripts/**`。
+    - 结果摘要:
+        - 对“tests 目录里剩余的 11 个命中”的最终决策是: 继续修，不保留 tests 豁免，也不再维持“只对 production 开 warning”的中间状态。
+        - 原因不是激进提级，而是这些命中都属于轻量测试债，修复成本低、规则信号高，且修复后全仓 TS 已达到 `0` 命中，不再需要对 tests 与 production 采用不同口径。
+        - 当前唯一保留的边界是 `scripts/**`，因为脚本目录尚未进入本轮治理，也未出现在本轮证据链中。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - `scripts/**` 仍未纳入 `no-misused-spread` 的治理范围；若后续要进一步统一全仓规则口径，需要先单独扫描和归因脚本目录。
+    - 未覆盖边界:
+        - 本轮未执行带 `--fix` 的根仓 `pnpm lint`，继续避免对无关文件产生自动改写；规则 readiness 以定向 ESLint、全仓只读扫描与 typecheck 为准。
+        - 本轮未对 packages 子项目单独复扫；当前结论面向根仓 `eslint.config.js` 管辖范围。
+    - 后续补跑计划:
+        - 若下一轮继续收紧 Phase 22 ESLint 规则，优先对 `no-dynamic-delete` 复制同样的“production 归因 -> tests 归因 -> scoped warning”闭环。
+        - 若脚本目录未来也要纳入主仓 TypeScript 规则守线，应先补一轮 `scripts/**` 的只读采样，避免把未评估目录直接卷入 warning 门禁。
 
 ## 测试覆盖率阶段性抬升治理首轮基线（2026-04-02）
 

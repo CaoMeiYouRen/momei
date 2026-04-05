@@ -202,4 +202,11 @@ export default withNuxt(
             '@typescript-eslint/unbound-method': [1], // 首批扩展到全量生产 TS，继续排除测试与脚本范围
         },
     },
+    {
+        files: ['**/*.{ts,tsx,mts,cts}'],
+        ignores: ['scripts/**'],
+        rules: {
+            '@typescript-eslint/no-misused-spread': [1], // production 与 tests 命中已清零，继续排除脚本范围
+        },
+    },
 )

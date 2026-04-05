@@ -16,7 +16,11 @@ vi.mock('@/server/database', () => ({
 }))
 
 describe('post-access utils', () => {
-    const mockPost = {
+    type MockPostOverrides = Partial<Post> & {
+        html?: string
+    }
+
+    const mockPostBase = {
         id: '1',
         title: 'Test Post',
         content: 'Test Content',
@@ -25,7 +29,10 @@ describe('post-access utils', () => {
         visibility: PostVisibility.PUBLIC,
         authorId: 'author-1',
         password: null,
-    } as unknown as Post
+    }
+
+    const createPost = (overrides: MockPostOverrides = {}): Post => Object.assign({}, mockPostBase, overrides) as unknown as Post
+    const mockPost = createPost()
 
     beforeAll(() => {
         // Setup mock repository
@@ -63,54 +70,42 @@ describe('post-access utils', () => {
         })
 
         it('应该拒绝访问未发布的文章并返回 404', async () => {
-            const draftPost = {
-                ...mockPost,
-                status: PostStatus.DRAFT,
-            }
+            const draftPost = createPost({ status: PostStatus.DRAFT })
             const userSession = {
                 user: { id: 'user-1', role: UserRole.USER },
             }
 
-            const result = await checkPostAccess(draftPost as Post, userSession)
+            const result = await checkPostAccess(draftPost, userSession)
 
             expect(result.allowed).toBe(false)
             expect(result.shouldNotFound).toBe(true)
         })
 
         it('应该拒绝访问私有文章并返回 404', async () => {
-            const privatePost = {
-                ...mockPost,
-                visibility: PostVisibility.PRIVATE,
-            }
+            const privatePost = createPost({ visibility: PostVisibility.PRIVATE })
             const userSession = {
                 user: { id: 'user-1', role: UserRole.USER },
             }
 
-            const result = await checkPostAccess(privatePost as Post, userSession)
+            const result = await checkPostAccess(privatePost, userSession)
 
             expect(result.allowed).toBe(false)
             expect(result.shouldNotFound).toBe(true)
         })
 
         it('应该允许访问公开文章', async () => {
-            const publicPost = {
-                ...mockPost,
-                visibility: PostVisibility.PUBLIC,
-            }
+            const publicPost = createPost({ visibility: PostVisibility.PUBLIC })
 
-            const result = await checkPostAccess(publicPost as Post, null)
+            const result = await checkPostAccess(publicPost, null)
 
             expect(result.allowed).toBe(true)
             expect(result.shouldNotFound).toBe(false)
         })
 
         it('应该拒绝未登录用户访问登录可见文章', async () => {
-            const registeredPost = {
-                ...mockPost,
-                visibility: PostVisibility.REGISTERED,
-            }
+            const registeredPost = createPost({ visibility: PostVisibility.REGISTERED })
 
-            const result = await checkPostAccess(registeredPost as Post, null)
+            const result = await checkPostAccess(registeredPost, null)
 
             expect(result.allowed).toBe(false)
             expect(result.shouldNotFound).toBe(false)
@@ -120,28 +115,24 @@ describe('post-access utils', () => {
         })
 
         it('应该允许已登录用户访问登录可见文章', async () => {
-            const registeredPost = {
-                ...mockPost,
-                visibility: PostVisibility.REGISTERED,
-            }
+            const registeredPost = createPost({ visibility: PostVisibility.REGISTERED })
             const userSession = {
                 user: { id: 'user-1', role: UserRole.USER },
             }
 
-            const result = await checkPostAccess(registeredPost as Post, userSession)
+            const result = await checkPostAccess(registeredPost, userSession)
 
             expect(result.allowed).toBe(true)
             expect(result.shouldNotFound).toBe(false)
         })
 
         it('应该拒绝未解锁的密码保护文章', async () => {
-            const passwordPost = {
-                ...mockPost,
+            const passwordPost = createPost({
                 visibility: PostVisibility.PASSWORD,
                 password: 'secret',
-            }
+            })
 
-            const result = await checkPostAccess(passwordPost as Post, null, [])
+            const result = await checkPostAccess(passwordPost, null, [])
 
             expect(result.allowed).toBe(false)
             expect(result.shouldNotFound).toBe(false)
@@ -152,23 +143,19 @@ describe('post-access utils', () => {
         })
 
         it('应该允许访问已解锁的密码保护文章', async () => {
-            const passwordPost = {
-                ...mockPost,
+            const passwordPost = createPost({
                 visibility: PostVisibility.PASSWORD,
                 password: 'secret',
-            }
+            })
 
-            const result = await checkPostAccess(passwordPost as Post, null, ['1'])
+            const result = await checkPostAccess(passwordPost, null, ['1'])
 
             expect(result.allowed).toBe(true)
             expect(result.shouldNotFound).toBe(false)
         })
 
         it('应该拒绝非订阅者访问订阅可见文章', async () => {
-            const subscriberPost = {
-                ...mockPost,
-                visibility: PostVisibility.SUBSCRIBER,
-            }
+            const subscriberPost = createPost({ visibility: PostVisibility.SUBSCRIBER })
             const userSession = {
                 user: { id: 'user-1', role: UserRole.USER },
             }
@@ -177,7 +164,7 @@ describe('post-access utils', () => {
             const mockRepo = dataSource.getRepository(Subscriber)
             vi.mocked(mockRepo.findOne).mockResolvedValue(null)
 
-            const result = await checkPostAccess(subscriberPost as Post, userSession)
+            const result = await checkPostAccess(subscriberPost, userSession)
 
             expect(result.allowed).toBe(false)
             expect(result.shouldNotFound).toBe(false)
@@ -185,10 +172,7 @@ describe('post-access utils', () => {
         })
 
         it('应该允许订阅者访问订阅可见文章', async () => {
-            const subscriberPost = {
-                ...mockPost,
-                visibility: PostVisibility.SUBSCRIBER,
-            }
+            const subscriberPost = createPost({ visibility: PostVisibility.SUBSCRIBER })
             const userSession = {
                 user: { id: 'user-1', role: UserRole.USER },
             }
@@ -200,20 +184,19 @@ describe('post-access utils', () => {
                 isActive: true,
             } as Subscriber)
 
-            const result = await checkPostAccess(subscriberPost as Post, userSession)
+            const result = await checkPostAccess(subscriberPost, userSession)
 
             expect(result.allowed).toBe(true)
             expect(result.shouldNotFound).toBe(false)
         })
 
         it('应该过滤敏感数据当访问被拒绝时', async () => {
-            const passwordPost = {
-                ...mockPost,
+            const passwordPost = createPost({
                 visibility: PostVisibility.PASSWORD,
                 password: 'secret',
                 content: 'Secret Content',
                 html: '<p>Secret Content</p>',
-            } as unknown as Post
+            })
 
             const result = await checkPostAccess(passwordPost, null, [])
 

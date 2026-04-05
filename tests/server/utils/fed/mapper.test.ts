@@ -20,7 +20,7 @@ describe('Fed Mapper Utils', () => {
         createdAt: new Date('2024-01-01'),
     } as User
 
-    const mockPost = {
+    const mockPostBase = {
         id: 'post-123',
         title: 'Test Post Title',
         slug: 'test-post-slug',
@@ -36,9 +36,10 @@ describe('Fed Mapper Utils', () => {
             { id: 'tag-2', name: 'Vue', slug: 'vue' },
         ],
         category: { id: 'cat-1', name: 'Tech', slug: 'tech' },
-    } as Post
+    }
 
-    const createMockPost = (overrides: Partial<Post> = {}): Post => ({ ...mockPost, ...overrides } as unknown as Post)
+    const createMockPost = (overrides: Partial<Post> = {}): Post => Object.assign({}, mockPostBase, overrides) as Post
+    const mockPost = createMockPost()
 
     const siteUrl = 'https://example.com'
 
