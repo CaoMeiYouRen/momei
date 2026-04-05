@@ -5,7 +5,7 @@
 ## 当前窗口与索引
 
 - 统一入口: [回归日志索引与对比指南](./regression-log-index.md)
-- 当前窗口: 活动日志当前保留 2026-03-22 至 2026-04-02 的 8 条近线记录，优先服务当前阶段收口、近期发版判断与最近基线比较。
+- 当前窗口: 活动日志当前保留 2026-03-22 至 2026-04-05 的 9 条近线记录，优先服务当前阶段收口、近期发版判断与最近基线比较。
 - 历史归档: 2026-03-20 至 2026-03-21 的 5 条旧记录已滚动迁移到 [regression-log-archive.md](./regression-log-archive.md)。
 - 对比建议: 先用本文件确认当前基线，再按主题到归档文件核对更早一期的 clean baseline 或历史专项记录。
 
@@ -31,6 +31,59 @@
     - 活动日志保留最近记录与索引入口。
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
+
+## ESLint 规则分阶段收紧治理首轮基线（2026-04-05）
+
+### 回归任务记录
+
+- 回归范围: 第二十二阶段 P1“ESLint 规则分阶段收紧治理”首轮准入评估；仅针对 `@typescript-eslint/explicit-module-boundary-types`、`no-explicit-any`、`no-unsafe-*`、`unbound-method`、`no-misused-spread`、`no-dynamic-delete`、`no-unnecessary-type-conversion` 这 11 条候选规则做 warning 债务采样、目录分布拆分与首批收紧候选判定。
+- 触发条件: 当前阶段要求先建立规则债务基线与首批收紧范围，且本轮明确要求“不调整现有 `pnpm lint` 的 10 条 warning 上限”，因此必须先证明哪些规则即使只升到 warning 也不会立刻冲破门禁。
+- 执行频率: 本阶段首轮基线；后续仅在首批规则真正收紧、影响目录显著收敛，或需要切换到下一批规则族时补写增量记录。
+- timeout budget:
+    - 只读 ESLint 基线扫描与统计拆分: 10 分钟。
+    - 计划文档与回归记录同步: 10 分钟。
+- 已执行命令:
+    - `node --input-type=module -`（调用 ESLint API，临时把 11 条候选规则提升到 warning，输出 `artifacts/review-gate/eslint-phase22-rule-baseline.json` 与 `eslint-phase22-rule-baseline-summary.json`）
+    - `node --input-type=module -`（基于首轮输出拆分 production / test 命中，输出 `artifacts/review-gate/eslint-phase22-rule-bucket-summary.json`）
+    - `node --input-type=module -`（统计当前默认 ESLint 配置 warning / error 数量，输出 `artifacts/review-gate/eslint-phase22-current-budget-summary.json`）
+    - `node --input-type=module -`（提取 `unbound-method`、`no-misused-spread`、`no-dynamic-delete` 的 production / test 具体命中位置，输出 `artifacts/review-gate/eslint-phase22-rule-candidate-locations.json`）
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 基线层: `artifacts/review-gate/eslint-phase22-current-budget-summary.json` 记录当前默认 ESLint 配置为 `0 warning / 0 error`，说明本轮可用 warning 预算仍是完整的 10 条。
+        - V1 / 债务层: 11 条候选规则若整体升为 warning，会新增 `4282` 条 warning，覆盖 `408` 个文件，显著超出当前 `--max-warnings 10` 门禁。
+        - V1 / 分布层: 债务主要集中在 `server`（2959）、`tests`（577）与 `composables`（417）；其中 `server/services/post.test.ts`、`tests/server/notification.test.ts`、`server/services/ai/tts.ts`、`server/utils/ai/gemini-provider.ts` 是当前最密集热点。
+    - 结果摘要:
+        - 明确不建议本轮直接提升为 warning 的规则:
+            - `@typescript-eslint/explicit-module-boundary-types`: `450` 条，其中生产代码 `445` 条；会直接把服务层、composables 与 shared util 全面打成 warning，不适合作为首批收紧。
+            - `@typescript-eslint/no-explicit-any`: `944` 条，其中生产代码 `321` 条、测试代码 `623` 条；当前仍处在类型债治理前置阶段，直接上 warning 只会制造大面积噪音。
+            - `@typescript-eslint/no-unsafe-member-access`: `1002` 条，其中生产代码 `563` 条；属于服务层 typed boundary 尚未收敛前的高噪音规则。
+            - `@typescript-eslint/no-unsafe-assignment`: `787` 条，其中生产代码 `483` 条；同样远超当前可用预算。
+            - `@typescript-eslint/no-unsafe-argument`: `472` 条，其中测试代码 `387` 条；即使剔除测试目录，生产代码仍有 `85` 条，不适合当前阶段直接上升。
+            - `@typescript-eslint/no-unsafe-return`: `227` 条、`@typescript-eslint/no-unsafe-call`: `135` 条、`@typescript-eslint/no-unnecessary-type-conversion`: `67` 条；均明显高于现有 warning 预算。
+        - 首批候选中最接近可落地的规则:
+            - `@typescript-eslint/unbound-method`: 总计 `165` 条，但生产代码仅 `9` 条、测试代码 `156` 条；具体命中位置已落盘到 `artifacts/review-gate/eslint-phase22-rule-candidate-locations.json`，生产代码命中集中在 `server/api/**`、`server/database/typeorm-adapter.ts` 与 `server/services/ai/tts.ts`。这一类问题通常可以通过 `this: void`、箭头函数或显式 `.bind()` 收敛，属于高信号、低数量、适合 production 先行试点的候选。
+            - `@typescript-eslint/no-misused-spread`: 总计 `21` 条，其中生产代码 `10` 条、测试代码 `11` 条；具体命中位置已落盘到 `artifacts/review-gate/eslint-phase22-rule-candidate-locations.json`，生产命中既包含把 TypeORM / Entity 实例直接展开到响应体，也包含 `utils/shared/localized-settings.ts` 的字符串 / 数组 spread。该规则存在真实风险，但生产代码命中量刚好压满 10 条预算，没有缓冲余量，不建议在本轮直接上调。
+            - `@typescript-eslint/no-dynamic-delete`: 总计 `12` 条，其中生产代码 `3` 条、测试代码 `9` 条；具体命中位置已落盘到 `artifacts/review-gate/eslint-phase22-rule-candidate-locations.json`，当前生产命中主要落在 `server/utils/author.ts` 与 `utils/shared/installation-settings.ts` 这类按动态 key 清理对象字段的业务场景。数量虽然低，但这些命中尚未完成“真实缺陷 / 允许例外”的逐点归因，不适合作为首批收紧起点。
+        - 首批收紧范围建议:
+            - 仅把 `@typescript-eslint/unbound-method` 作为下一步候选，并把作用范围先限定在生产 TypeScript 文件，优先影响目录为 `server/api/**`、`server/database/**`、`server/services/**`。
+            - `@typescript-eslint/no-misused-spread` 与 `@typescript-eslint/no-dynamic-delete` 暂列第二梯队，待当前命中点先人工归因为“真实缺陷”还是“允许例外”后再决定是否进入 warning。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - 本轮只完成基线与准入评估，尚未真正修改 ESLint 配置，也尚未给出首批规则的回滚实现。
+            - 债务主要集中在服务层与测试层，说明后续若要继续收紧 `no-unsafe-*` 或 `no-explicit-any`，必须先拆生产 / 测试边界或先做类型面治理，不能直接全局提级。
+        - 复查放行门槛:
+            - 只有在 `@typescript-eslint/unbound-method` 的 `9` 个 production 命中先被收敛或确认例外、根仓 `pnpm lint` 仍保持 `0 - 10` 条 warning、且新配置不外溢到测试目录后，才允许把它作为首批规则提升到 warning。
+            - 在 `no-misused-spread` 与 `no-dynamic-delete` 尚未完成逐点归因前，不得把它们和 `unbound-method` 一起打包上调，避免再次冲破 warning 预算。
+    - 未覆盖边界:
+        - 本轮没有执行 `pnpm lint`，避免触发脚本自带 `--fix` 对当前工作区产生额外改写；结论以 ESLint API 的只读采样为准。
+        - 本轮没有对 `packages/*` 单独做同等粒度扫描；根因是当前目标规则位于主仓 TypeScript 配置段，首轮判断先聚焦根仓。
+        - 本轮未对 `unbound-method` 的 9 个生产命中逐一修复，因此“可作为首批 warning 候选”仍是准入结论，不等同于已经达到可合并状态。
+    - 后续补跑计划:
+        - 下一轮若继续推进本主线，优先只处理 `@typescript-eslint/unbound-method` 的 9 个生产命中，并验证是否可以在不影响测试目录的前提下把该规则提升到 warning。
+        - 在 `unbound-method` 稳定后，再对 `no-misused-spread` 的 10 个生产命中做逐点归因，判断其中哪些应改为显式 DTO / plain object 转换，哪些属于可接受例外。
+        - `no-dynamic-delete` 暂按“需要先明确允许模式”的规则保留为第二梯队，后续如要收紧，先定义 shared util / 数据清洗场景的豁免口径，再决定是否提级。
 
 ## 测试覆盖率阶段性抬升治理首轮基线（2026-04-02）
 
