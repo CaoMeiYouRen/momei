@@ -5,12 +5,14 @@ import logger from '@/server/utils/logger'
 const DEFAULT_TASK_CRON_EXPRESSION = '*/5 * * * *'
 
 async function runScheduledTaskScan() {
-    const [{ initializeDB }, { processScheduledTasks }] = await Promise.all([
+    const [{ initializeDB }, { processScheduledTasks }, { scanAndCompensateTimedOutMediaTasks }] = await Promise.all([
         import('../database'),
         import('../services/task'),
+        import('../services/ai/media-task-monitor'),
     ])
     await initializeDB()
     await processScheduledTasks()
+    await scanAndCompensateTimedOutMediaTasks()
 }
 
 async function runFriendLinkHealthCheck() {
