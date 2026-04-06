@@ -32,6 +32,48 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## 测试有效性增强治理首轮切入（2026-04-06）
+
+### 回归任务记录
+
+- 回归范围: 第二十二阶段 P0“测试有效性增强治理”首轮切入；仅覆盖内容访问控制链路 [server/utils/post-access.ts](server/utils/post-access.ts) 及其同级测试 [server/utils/post-access.test.ts](server/utils/post-access.test.ts)，聚焦 `applyPostVisibilityFilter()` 与 `checkPostAccess()` 的失败路径、异常输入与公共列表过滤分支。
+- 触发条件: 当前阶段要求先圈定一组高回归风险链路，并优先补齐失败路径与回退路径，而不是继续扩大 coverage 面积；`post-access` 同时影响文章列表、归档、搜索、详情访问与 feed 隐私边界，是一条典型的高杠杆权限链路。
+- 执行频率: 本阶段首轮切入；后续仅在继续扩展到密码解锁边界、详情路由级异常映射或 QueryBuilder 组合边界时追加增量记录。
+- timeout budget:
+    - 定向 Vitest: 10 分钟。
+    - 定向 ESLint: 10 分钟。
+    - 规划与回归记录同步: 10 分钟。
+- 已执行命令:
+    - `pnpm exec vitest run server/utils/post-access.test.ts`
+    - `pnpm exec eslint server/utils/post-access.ts server/utils/post-access.test.ts`
+    - `pnpm typecheck`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 静态层: `pnpm exec eslint server/utils/post-access.ts server/utils/post-access.test.ts` 通过。
+        - V1 / 类型层: `pnpm typecheck` 通过。
+        - V2 / 逻辑层: `pnpm exec vitest run server/utils/post-access.test.ts` 通过，当前共 `19` 条断言全部转绿。
+    - 结果摘要:
+        - 首轮治理范围已明确收敛到内容访问控制链路，而不是扩大为全仓补测；选型依据是它对权限一致性、订阅可见内容与公开列表过滤都有直接约束力。
+        - 本轮新增了两类高收益测试，而不是继续机械堆 coverage：
+            - `applyPostVisibilityFilter()` 的管理模式、feed 模式、匿名公共列表、已登录未订阅公共列表、订阅用户公共列表，以及“订阅状态查询失败时不得静默降级”的分支测试。
+            - `checkPostAccess()` 的“订阅状态查询失败时不得伪装成未订阅”失败路径测试。
+        - 本轮同步修正了一个真实缺陷: 订阅状态查询失败此前会被吞掉并降级为 `false`，从而把基础设施故障伪装成权限结果；现在改为抛出显式错误 `Failed to resolve subscriber status`，避免订阅用户被静默误判为未订阅。
+        - 这组测试之所以比继续堆 coverage 更有约束力，是因为它们把“权限链路中的真实异常不能伪装成业务拒绝”固化成了可回归的契约；如果未来有人再次吞掉异常，单测会立即回红。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - 本轮只收敛了订阅状态查询异常与公共列表过滤分支，尚未覆盖密码解锁 token 的时效性、来源可信度与详情路由级错误映射。
+            - `applyPostVisibilityFilter()` 当前对密码文章在公共列表中的呈现策略仍沿用现状，本轮未改动产品口径，只补测试守线。
+    - 未覆盖边界:
+        - 本轮没有新增 API 路由级测试，因此还未验证 [server/api/posts/index.get.ts](server/api/posts/index.get.ts)、[server/api/posts/archive.get.ts](server/api/posts/archive.get.ts)、[server/api/search/index.get.ts](server/api/search/index.get.ts) 在订阅状态查询抛错时的 HTTP 映射是否符合预期。
+        - 本轮没有覆盖密码文章 `unlockedIds` 的过期与伪造边界，也没有补并发状态切换场景。
+        - 本轮没有执行全量测试或 E2E，保持在当前阶段“定向失败路径治理”的最小预算内。
+    - 后续补跑计划:
+        - 下一轮优先决定订阅状态查询异常在详情/列表 API 中应映射为统一的 `500` 还是更窄的业务错误，并补路由级定向测试。
+        - 若继续沿内容访问控制主线推进，下一步补密码解锁凭据的有效期 / 来源边界测试，避免当前仅依赖 `unlockedIds.includes()` 的弱约束长期裸奔。
+        - 若本主线需要扩面，再评估 feed、archive 与 search 对 `applyPostVisibilityFilter()` 的组合调用是否需要补一组 API 集成测试，而不是直接升级到全量回归。
+
 ## ESLint 规则分阶段收紧治理首轮基线（2026-04-05）
 
 ### 回归任务记录

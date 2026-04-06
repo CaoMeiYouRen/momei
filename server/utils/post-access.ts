@@ -5,6 +5,8 @@ import { dataSource } from '@/server/database'
 import { Subscriber } from '@/server/entities/subscriber'
 import { isAdmin } from '@/utils/shared/roles'
 
+const SUBSCRIBER_LOOKUP_ERROR_MESSAGE = 'Failed to resolve subscriber status'
+
 /**
  * 为查询构建器应用文章可见性过滤逻辑
  * @param qb SelectQueryBuilder
@@ -207,17 +209,20 @@ function filterSensitivePostData(post: Post): Partial<Post> {
  * 检查用户是否是活跃订阅者
  */
 async function isUserSubscriber(userId: string): Promise<boolean> {
+    if (!userId) {
+        return false
+    }
+
     try {
-        if (!userId) {
-            return false
-        }
         const subscriberRepo = dataSource.getRepository(Subscriber)
         const subscriber = await subscriberRepo.findOne({
             where: { userId, isActive: true },
         })
         return !!subscriber
     } catch (error) {
-        console.error('Failed to check subscriber status:', error)
-        return false
+        throw new Error(
+            SUBSCRIBER_LOOKUP_ERROR_MESSAGE,
+            error instanceof Error ? { cause: error } : undefined,
+        )
     }
 }
