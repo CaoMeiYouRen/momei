@@ -7,7 +7,7 @@ import { success, paginate } from '@/server/utils/response'
 import { applyDefaultPaginationLimit } from '@/server/utils/pagination'
 import { processAuthorsPrivacy } from '@/server/utils/author'
 import { isAdmin } from '@/utils/shared/roles'
-import { applyPostVisibilityFilter } from '@/server/utils/post-access'
+import { applyPostVisibilityFilter, rethrowPostAccessError } from '@/server/utils/post-access'
 import { applyPostsReadModelFromMetadata } from '@/server/utils/post-metadata'
 import { applyPostOrdering } from '@/server/utils/post-ordering'
 import { SettingKey } from '@/types/setting'
@@ -24,7 +24,11 @@ export default defineEventHandler(async (event) => {
     // Helper to apply common filters including multi-language aggregation
     const applyCommonFilters = async (qb: any) => {
         if (query.scope === 'public') {
-            await applyPostVisibilityFilter(qb, user, 'public')
+            try {
+                await applyPostVisibilityFilter(qb, user, 'public')
+            } catch (error) {
+                rethrowPostAccessError(error)
+            }
         }
 
         const targetLang = query.language || 'zh-CN'

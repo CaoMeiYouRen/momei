@@ -5,6 +5,7 @@ import { PostVisibility } from '@/types/post'
 import { verifyPassword } from '@/server/utils/password'
 import { rateLimit } from '@/server/utils/rate-limit'
 import { isSnowflakeId } from '@/utils/shared/validate'
+import { rememberUnlockedPost } from '@/server/utils/post-unlock'
 
 const postIdParamSchema = z.object({
     id: z.string().trim().refine((value) => isSnowflakeId(value), {
@@ -42,18 +43,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 403, statusMessage: 'Incorrect password' })
     }
 
-    // Add to unlocked posts cookie
-    const unlockedPosts = (getCookie(event, 'momei_unlocked_posts') || '').split(',').filter(Boolean)
-    if (!unlockedPosts.includes(id)) {
-        unlockedPosts.push(id)
-    }
-
-    setCookie(event, 'momei_unlocked_posts', unlockedPosts.join(','), {
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-        httpOnly: true,
-        path: '/',
-        sameSite: 'lax',
-    })
+    rememberUnlockedPost(event, id)
 
     return {
         code: 200,

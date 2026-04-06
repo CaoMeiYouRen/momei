@@ -2,12 +2,13 @@ import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { processAuthorPrivacy } from '@/server/utils/author'
 import { toPlainObject } from '@/server/utils/object'
-import { checkPostAccess } from '@/server/utils/post-access'
+import { checkPostAccess, rethrowPostAccessError } from '@/server/utils/post-access'
 import { isAdmin } from '@/utils/shared/roles'
 import { getRequiredRouterParam } from '@/server/utils/router'
 import { success, ensureFound } from '@/server/utils/response'
 import { applyPostReadModelFromMetadata } from '@/server/utils/post-metadata'
 import { getAdjacentPublicPosts, getPostTranslations } from '@/server/utils/post-detail'
+import { getUnlockedPostIds } from '@/server/utils/post-unlock'
 
 export default defineEventHandler(async (event) => {
     const id = getRequiredRouterParam(event, 'id')
@@ -31,8 +32,13 @@ export default defineEventHandler(async (event) => {
     await processAuthorPrivacy(post.author, !!isUserAdmin)
 
     // Handle Access Control
-    const unlockedIds = (getCookie(event, 'momei_unlocked_posts') || '').split(',')
-    const access = await checkPostAccess(post, session, unlockedIds)
+    const unlockedIds = getUnlockedPostIds(event)
+    let access
+    try {
+        access = await checkPostAccess(post, session, unlockedIds)
+    } catch (error) {
+        rethrowPostAccessError(error)
+    }
 
     if (!access.allowed && access.shouldNotFound) {
         throw createError({ statusCode: 404, statusMessage: 'Post not found' })

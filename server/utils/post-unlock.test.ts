@@ -1,0 +1,83 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+vi.mock('~/utils/shared/env', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('~/utils/shared/env')>()
+    return {
+        ...actual,
+        AUTH_SECRET: 'test-secret-key-for-post-unlock',
+    }
+})
+
+import {
+    getUnlockedPostIds,
+    POST_UNLOCK_COOKIE_NAME,
+    POST_UNLOCK_TTL_SECONDS,
+    rememberUnlockedPost,
+} from './post-unlock'
+import { signCookieValue, verifyCookieValue } from '@/server/utils/security'
+
+describe('post-unlock utils', () => {
+    const now = new Date('2026-04-06T00:00:00.000Z').getTime()
+    const postId = 'abcdef1234567890'
+    const existingPostId = 'bcdef1234567890a'
+
+    beforeEach(() => {
+        vi.clearAllMocks()
+        vi.stubGlobal('getCookie', vi.fn())
+        vi.stubGlobal('setCookie', vi.fn())
+    })
+
+    it('应该只返回签名正确且未过期的解锁文章 ID', () => {
+        vi.mocked(getCookie).mockReturnValue(signCookieValue(JSON.stringify([
+            { id: postId, expiresAt: now + 60_000 },
+            { id: existingPostId, expiresAt: now - 1 },
+        ])))
+
+        const unlockedIds = getUnlockedPostIds({} as any, now)
+
+        expect(unlockedIds).toEqual([postId])
+        expect(getCookie).toHaveBeenCalledWith({}, POST_UNLOCK_COOKIE_NAME)
+    })
+
+    it('应该在 cookie 被伪造时返回空列表', () => {
+        const signed = signCookieValue(JSON.stringify([{ id: postId, expiresAt: now + 60_000 }]))
+        vi.mocked(getCookie).mockReturnValue(`${signed}tampered`)
+
+        expect(getUnlockedPostIds({} as any, now)).toEqual([])
+    })
+
+    it('应该在 payload 非法时返回空列表', () => {
+        vi.mocked(getCookie).mockReturnValue(signCookieValue('{"broken":true}'))
+
+        expect(getUnlockedPostIds({} as any, now)).toEqual([])
+    })
+
+    it('应该写入带签名和过期时间的解锁凭据', () => {
+        vi.mocked(getCookie).mockReturnValue(signCookieValue(JSON.stringify([
+            { id: existingPostId, expiresAt: now + 10_000 },
+        ])))
+
+        rememberUnlockedPost({} as any, postId, now)
+
+        expect(setCookie).toHaveBeenCalledTimes(1)
+
+        const [event, cookieName, cookieValue, options] = vi.mocked(setCookie).mock.calls[0]!
+        expect(event).toEqual({})
+        expect(cookieName).toBe(POST_UNLOCK_COOKIE_NAME)
+        expect(options).toMatchObject({
+            maxAge: POST_UNLOCK_TTL_SECONDS,
+            httpOnly: true,
+            path: '/',
+            sameSite: 'lax',
+        })
+
+        const verifiedValue = verifyCookieValue(cookieValue as string)
+        expect(verifiedValue).not.toBeNull()
+
+        const parsed = JSON.parse(verifiedValue!) as { id: string, expiresAt: number }[]
+        expect(parsed).toEqual([
+            { id: existingPostId, expiresAt: now + 10_000 },
+            { id: postId, expiresAt: now + POST_UNLOCK_TTL_SECONDS * 1000 },
+        ])
+    })
+})

@@ -8,7 +8,7 @@ import { applyDefaultPaginationLimit, applyPagination } from '@/server/utils/pag
 import { isAdmin } from '@/utils/shared/roles'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { processAuthorsPrivacy } from '@/server/utils/author'
-import { applyPostVisibilityFilter } from '@/server/utils/post-access'
+import { applyPostVisibilityFilter, rethrowPostAccessError } from '@/server/utils/post-access'
 import { applyTranslationAggregation, attachTranslations } from '@/server/utils/translation'
 import { applyPostsReadModelFromMetadata } from '@/server/utils/post-metadata'
 import { applyPostOrdering } from '@/server/utils/post-ordering'
@@ -83,7 +83,11 @@ export default defineEventHandler(async (event) => {
         }
     } else {
         // Public Mode: 应用统一的可见性过滤逻辑
-        await applyPostVisibilityFilter(qb, user, 'public')
+        try {
+            await applyPostVisibilityFilter(qb, user, 'public')
+        } catch (error) {
+            rethrowPostAccessError(error)
+        }
 
         if (query.authorId) {
             qb.andWhere('post.authorId = :authorId', { authorId: query.authorId })

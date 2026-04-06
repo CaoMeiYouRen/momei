@@ -74,6 +74,44 @@
         - 若继续沿内容访问控制主线推进，下一步补密码解锁凭据的有效期 / 来源边界测试，避免当前仅依赖 `unlockedIds.includes()` 的弱约束长期裸奔。
         - 若本主线需要扩面，再评估 feed、archive 与 search 对 `applyPostVisibilityFilter()` 的组合调用是否需要补一组 API 集成测试，而不是直接升级到全量回归。
 
+### 收口补充（2026-04-06）
+
+- 回归范围: 在首轮工具层守线基础上，继续补齐内容访问相关 API 的异常映射测试，以及密码解锁凭据的时效性和伪造边界测试；覆盖 [server/api/posts/index.get.ts](server/api/posts/index.get.ts)、[server/api/posts/archive.get.ts](server/api/posts/archive.get.ts)、[server/api/search/index.get.ts](server/api/search/index.get.ts)、[server/api/posts/[id].get.ts](server/api/posts/[id].get.ts)、[server/api/posts/slug/[slug].get.ts](server/api/posts/slug/[slug].get.ts)、[server/api/posts/[id]/verify-password.post.ts](server/api/posts/[id]/verify-password.post.ts) 以及新增的 [server/utils/post-unlock.ts](server/utils/post-unlock.ts)。
+- 触发条件: 首轮记录明确将“路由级异常映射”和“`unlockedIds.includes()` 的弱约束”列为下一轮优先项；本轮继续沿同一条内容访问控制主线收口，不扩写到无关目录。
+- timeout budget:
+    - 新增定向 Vitest: 20 分钟。
+    - 内容访问相关定向回归集: 20 分钟。
+    - 定向 ESLint + 全仓 typecheck: 30 分钟。
+- 已执行命令:
+    - `pnpm exec vitest run server/utils/post-unlock.test.ts tests/server/api/posts/access-error-mapping.test.ts tests/server/api/posts/password-unlock-boundary.test.ts`
+    - `pnpm exec vitest run server/utils/post-access.test.ts server/utils/post-unlock.test.ts tests/server/api/posts/index.get.test.ts tests/server/api/posts/detail.get.test.ts tests/server/api/archive.test.ts tests/server/api/posts/access-error-mapping.test.ts tests/server/api/posts/password-unlock-boundary.test.ts`
+    - `pnpm exec eslint server/utils/post-access.ts server/utils/post-unlock.ts server/utils/post-access.test.ts server/utils/post-unlock.test.ts server/api/posts/index.get.ts server/api/posts/archive.get.ts server/api/search/index.get.ts server/api/posts/[id].get.ts server/api/posts/slug/[slug].get.ts server/api/posts/[id]/verify-password.post.ts tests/server/api/posts/access-error-mapping.test.ts tests/server/api/posts/password-unlock-boundary.test.ts`
+    - `pnpm typecheck`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 静态层: 上述定向 ESLint 通过。
+        - V1 / 类型层: `pnpm typecheck` 通过。
+        - V2 / 逻辑层: 新增 `12` 条定向测试全部通过；内容访问相关定向回归集当前共 `52` 条断言全部通过。
+    - 结果摘要:
+        - 内容访问相关 API 的异常映射已统一：当订阅状态查询失败时，[server/api/posts/index.get.ts](server/api/posts/index.get.ts)、[server/api/posts/archive.get.ts](server/api/posts/archive.get.ts)、[server/api/search/index.get.ts](server/api/search/index.get.ts)、[server/api/posts/[id].get.ts](server/api/posts/[id].get.ts) 与 [server/api/posts/slug/[slug].get.ts](server/api/posts/slug/[slug].get.ts) 现在都会一致抛出 `503 Failed to resolve content access state`，不再由不同入口各自漏出原始异常。
+        - 密码解锁凭据已从裸 `id` 列表 cookie 收敛为签名 JSON 载荷，并在 [server/utils/post-unlock.ts](server/utils/post-unlock.ts) 中统一处理解析、去重与过期过滤；详情页读取不再直接信任明文 `momei_unlocked_posts`。
+        - [server/api/posts/[id]/verify-password.post.ts](server/api/posts/[id]/verify-password.post.ts) 已改为通过统一 helper 写入解锁凭据，成功验证后会落盘“带签名 + 逐项 expiresAt”的 cookie，而不是直接拼接 ID 字符串。
+        - 本轮新增测试不只是证明“能解锁”，而是明确守住两类真实风险：
+            - API 层不能把订阅状态查询异常随意漏成不同的错误语义。
+            - 密码文章的解锁凭据不能仅靠客户端可伪造的 ID 列表长期生效。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - 当前密码解锁凭据仍是“客户端持有、服务端签名验证”的轻量方案，本轮未引入服务端撤销列表或单端失效机制。
+            - feed / federated outbox 仍未补专门的异常映射测试，但当前它们使用 `feed` 模式，不经过订阅者查询分支，因此不构成本轮 blocker。
+    - 未覆盖边界:
+        - 本轮没有实现密码解锁凭据的主动撤销或设备级隔离；若后续对高敏内容提出更强要求，需要再评估服务端态存储。
+        - 本轮没有覆盖 cookie 体积上限和大量历史解锁记录的裁剪策略。
+    - 后续补跑计划:
+        - 若继续沿测试有效性主线扩面，优先评估是否需要给密码解锁凭据增加最大条目数与裁剪策略测试。
+        - 若后续把内容可见性扩展到更多动态策略，再补一组 route-level 集成测试，覆盖更多 visibility 组合与错误映射。
+
 ## ESLint 规则分阶段收紧治理首轮基线（2026-04-05）
 
 ### 回归任务记录

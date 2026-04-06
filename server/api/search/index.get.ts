@@ -6,7 +6,7 @@ import { success, paginate } from '@/server/utils/response'
 import { applyPagination } from '@/server/utils/pagination'
 import { processAuthorsPrivacy } from '@/server/utils/author'
 import { isAdmin } from '@/utils/shared/roles'
-import { applyPostVisibilityFilter } from '@/server/utils/post-access'
+import { applyPostVisibilityFilter, rethrowPostAccessError } from '@/server/utils/post-access'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => searchQuerySchema.parse(q))
@@ -20,7 +20,11 @@ export default defineEventHandler(async (event) => {
         .leftJoinAndSelect('post.tags', 'tags')
 
     // 应用统一的文章可见性过滤逻辑
-    await applyPostVisibilityFilter(qb, user, 'public')
+    try {
+        await applyPostVisibilityFilter(qb, user, 'public')
+    } catch (error) {
+        rethrowPostAccessError(error)
+    }
 
     // 1. Keyword search (Title, Summary)
     // NOTE: Avoid searching 'content' with LIKE %q% on large datasets as it causes full table scans.

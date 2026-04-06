@@ -6,6 +6,7 @@ import { Subscriber } from '@/server/entities/subscriber'
 import { isAdmin } from '@/utils/shared/roles'
 
 const SUBSCRIBER_LOOKUP_ERROR_MESSAGE = 'Failed to resolve subscriber status'
+export const POST_ACCESS_STATE_ERROR_MESSAGE = 'Failed to resolve content access state'
 
 /**
  * 为查询构建器应用文章可见性过滤逻辑
@@ -225,4 +226,20 @@ async function isUserSubscriber(userId: string): Promise<boolean> {
             error instanceof Error ? { cause: error } : undefined,
         )
     }
+}
+
+export function rethrowPostAccessError(error: unknown): never {
+    if (error instanceof Error && error.message === SUBSCRIBER_LOOKUP_ERROR_MESSAGE) {
+        throw createError({
+            statusCode: 503,
+            statusMessage: POST_ACCESS_STATE_ERROR_MESSAGE,
+            data: {
+                code: 503,
+                message: POST_ACCESS_STATE_ERROR_MESSAGE,
+                flag: 'POST_ACCESS_STATE_UNAVAILABLE',
+            },
+        })
+    }
+
+    throw error
 }
