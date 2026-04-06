@@ -15,10 +15,9 @@
                     {{ $t('components.post.sponsor.social_title') }}
                 </div>
                 <div class="article-sponsor__social-list">
-                    <template v-for="link in displaySocialLinks" :key="link.platform + (link.url || link.image)">
-                        <!-- URL Link -->
+                    <template v-for="link in displaySocialLinks" :key="link.platform + (link.url || '') + (link.image || '')">
                         <Button
-                            v-if="!link.image"
+                            v-if="link.url"
                             as="a"
                             :href="link.url"
                             target="_blank"
@@ -30,15 +29,14 @@
                             {{ link.label || getPlatformName(link.platform, 'social') }}
                         </Button>
 
-                        <!-- Image/QR Code -->
                         <Button
-                            v-else
+                            v-if="link.image"
                             severity="secondary"
                             outlined
                             class="article-sponsor__btn"
                             @click="showQR(link, 'social')"
                         >
-                            <i :class="[getPlatformIcon(link.platform, 'social'), 'mr-2']" :style="{color: getPlatformColor(link.platform, 'social')}" />
+                            <i class="mr-2 pi pi-qrcode" :style="{color: getPlatformColor(link.platform, 'social')}" />
                             {{ link.label || getPlatformName(link.platform, 'social') }}
                         </Button>
                     </template>
@@ -51,10 +49,9 @@
                     {{ $t('components.post.sponsor.donation_title') }}
                 </div>
                 <div class="article-sponsor__donation-list">
-                    <template v-for="link in displayDonationLinks" :key="link.platform + (link.url || link.image)">
-                        <!-- URL Type -->
+                    <template v-for="link in displayDonationLinks" :key="link.platform + (link.url || '') + (link.image || '')">
                         <Button
-                            v-if="getPlatformType(link.platform) === 'url' || (getPlatformType(link.platform) === 'both' && link.url)"
+                            v-if="link.url && (getPlatformType(link.platform) === 'url' || getPlatformType(link.platform) === 'both')"
                             as="a"
                             :href="link.url"
                             target="_blank"
@@ -66,18 +63,16 @@
                             {{ link.label || getPlatformName(link.platform, 'donation') }}
                         </Button>
 
-                        <!-- Image Type (or QR button) -->
-                        <template v-else-if="link.image">
-                            <Button
-                                severity="secondary"
-                                outlined
-                                class="article-sponsor__btn"
-                                @click="showQR(link, 'donation')"
-                            >
-                                <i :class="[getPlatformIcon(link.platform, 'donation'), 'mr-2']" :style="{color: getPlatformColor(link.platform, 'donation')}" />
-                                {{ link.label || getPlatformName(link.platform, 'donation') }}
-                            </Button>
-                        </template>
+                        <Button
+                            v-if="link.image && (getPlatformType(link.platform) === 'image' || getPlatformType(link.platform) === 'both')"
+                            severity="secondary"
+                            outlined
+                            class="article-sponsor__btn"
+                            @click="showQR(link, 'donation')"
+                        >
+                            <i class="mr-2 pi pi-qrcode" :style="{color: getPlatformColor(link.platform, 'donation')}" />
+                            {{ link.label || getPlatformName(link.platform, 'donation') }}
+                        </Button>
                     </template>
                 </div>
             </div>
@@ -106,8 +101,15 @@
 
 <script setup lang="ts">
 import type { ApiResponse } from '@/types/api'
-import { SOCIAL_PLATFORMS, DONATION_PLATFORMS, type SocialLink, type DonationLink } from '@/utils/shared/commercial'
-import type { CommercialConfig } from '@/utils/shared/commercial'
+import {
+    filterCommercialLinksByLocale,
+    getCommercialPlatformColor,
+    getCommercialPlatformIcon,
+    getDonationPlatformType,
+    type SocialLink,
+    type DonationLink,
+    type CommercialConfig,
+} from '@/utils/shared/commercial'
 
 const props = defineProps<{
     socialLinks?: SocialLink[]
@@ -127,46 +129,33 @@ const globalSocialLinks = computed<SocialLink[]>(() => globalData.value?.data?.s
 const globalDonationLinks = computed<DonationLink[]>(() => globalData.value?.data?.donationLinks || [])
 const globalEnabled = computed(() => globalData.value?.data?.enabled !== false)
 
-const filterByLocale = (links: any[]) => {
-    if (!Array.isArray(links)) return []
-    return links.filter((link) => !link.locales || link.locales.length === 0 || link.locales.includes(locale.value))
-}
-
 const displaySocialLinks = computed(() => {
     // 1. Author links matching current locale
     const authorLinks = props.socialLinks || []
-    const filteredAuthor = filterByLocale(authorLinks)
+    const filteredAuthor = filterCommercialLinksByLocale(authorLinks, locale.value)
     if (filteredAuthor.length > 0) return filteredAuthor
 
     // 2. Global links matching current locale (if enabled)
     if (!globalEnabled.value) return []
-    return filterByLocale(globalSocialLinks.value)
+    return filterCommercialLinksByLocale(globalSocialLinks.value, locale.value)
 })
 
 const displayDonationLinks = computed(() => {
     // 1. Author links matching current locale
     const donationLinks = props.donationLinks || []
-    const filteredAuthor = filterByLocale(donationLinks)
+    const filteredAuthor = filterCommercialLinksByLocale(donationLinks, locale.value)
     if (filteredAuthor.length > 0) return filteredAuthor
 
     // 2. Global links matching current locale (if enabled)
     if (!globalEnabled.value) return []
-    return filterByLocale(globalDonationLinks.value)
+    return filterCommercialLinksByLocale(globalDonationLinks.value, locale.value)
 })
 
 const hasContent = computed(() => displaySocialLinks.value.length > 0 || displayDonationLinks.value.length > 0)
 
-const getPlatformIcon = (key: string, type: 'social' | 'donation') => {
-    const list = type === 'social' ? SOCIAL_PLATFORMS : DONATION_PLATFORMS
-    const platform = list.find((p) => p.key === key)
-    return platform?.icon || 'pi pi-link'
-}
+const getPlatformIcon = (key: string, type: 'social' | 'donation') => getCommercialPlatformIcon(key, type)
 
-const getPlatformColor = (key: string, type: 'social' | 'donation') => {
-    const list = type === 'social' ? SOCIAL_PLATFORMS : DONATION_PLATFORMS
-    const platform = list.find((p) => p.key === key)
-    return platform?.color || 'inherit'
-}
+const getPlatformColor = (key: string, type: 'social' | 'donation') => getCommercialPlatformColor(key, type)
 
 const getPlatformName = (key: string, type: 'social' | 'donation') => {
     if (key === 'custom') return ''
@@ -174,7 +163,7 @@ const getPlatformName = (key: string, type: 'social' | 'donation') => {
 }
 
 const getPlatformType = (key: string) => {
-    return DONATION_PLATFORMS.find((p) => p.key === key)?.type || 'url'
+    return getDonationPlatformType(key)
 }
 
 const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') => {

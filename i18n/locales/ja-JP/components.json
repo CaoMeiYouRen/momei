@@ -83,11 +83,18 @@
                 "qr_scan_pay_tip": "モバイルアプリで読み取って支援",
                 "platforms": {
                     "wechat_mp": "WeChat 公式アカウント",
+                    "juejin": "Juejin",
+                    "xiaohongshu": "Xiaohongshu",
+                    "douyin": "Douyin",
                     "bilibili": "Bilibili",
                     "weibo": "Weibo",
                     "zhihu": "Zhihu",
+                    "stack_overflow": "Stack Overflow",
                     "x": "X (Twitter)",
                     "youtube": "YouTube",
+                    "instagram": "Instagram",
+                    "linkedin": "LinkedIn",
+                    "twitch": "Twitch",
                     "facebook": "Facebook",
                     "github": "GitHub",
                     "wechat_pay": "WeChat Pay",
@@ -97,6 +104,8 @@
                     "opencollective": "Open Collective",
                     "patreon": "Patreon",
                     "buymeacoffee": "Buy Me a Coffee",
+                    "ko_fi": "Ko-fi",
+                    "liberapay": "Liberapay",
                     "paypal": "PayPal"
                 }
             }

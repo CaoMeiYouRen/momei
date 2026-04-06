@@ -83,11 +83,18 @@
                 "qr_scan_pay_tip": "打开移动端 App 扫码支付",
                 "platforms": {
                     "wechat_mp": "微信公众号",
+                    "juejin": "掘金",
+                    "xiaohongshu": "小红书",
+                    "douyin": "抖音",
                     "bilibili": "Bilibili",
                     "weibo": "微博",
                     "zhihu": "知乎",
+                    "stack_overflow": "Stack Overflow",
                     "x": "X (Twitter)",
                     "youtube": "YouTube",
+                    "instagram": "Instagram",
+                    "linkedin": "LinkedIn",
+                    "twitch": "Twitch",
                     "facebook": "Facebook",
                     "github": "GitHub",
                     "wechat_pay": "微信支付",
@@ -97,6 +104,8 @@
                     "opencollective": "Open Collective",
                     "patreon": "Patreon",
                     "buymeacoffee": "Buy Me a Coffee",
+                    "ko_fi": "Ko-fi",
+                    "liberapay": "Liberapay",
                     "paypal": "PayPal"
                 }
             }

@@ -83,11 +83,18 @@
         "qr_scan_pay_tip": "모바일 앱으로 QR 코드를 스캔해 후원하세요",
         "platforms": {
           "wechat_mp": "WeChat 공식 계정",
+          "juejin": "Juejin",
+          "xiaohongshu": "Xiaohongshu",
+          "douyin": "Douyin",
           "bilibili": "Bilibili",
           "weibo": "Weibo",
           "zhihu": "Zhihu",
+          "stack_overflow": "Stack Overflow",
           "x": "X (Twitter)",
           "youtube": "YouTube",
+          "instagram": "Instagram",
+          "linkedin": "LinkedIn",
+          "twitch": "Twitch",
           "facebook": "Facebook",
           "github": "GitHub",
           "wechat_pay": "WeChat Pay",
@@ -97,6 +104,8 @@
           "opencollective": "Open Collective",
           "patreon": "Patreon",
           "buymeacoffee": "Buy Me a Coffee",
+          "ko_fi": "Ko-fi",
+          "liberapay": "Liberapay",
           "paypal": "PayPal"
         }
       }

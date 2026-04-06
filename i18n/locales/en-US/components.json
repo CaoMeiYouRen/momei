@@ -82,12 +82,19 @@
         "qr_scan_follow_tip": "Open mobile app to scan and follow",
         "qr_scan_pay_tip": "Open mobile app to scan and pay",
         "platforms": {
-          "wechat_mp": "WeChat MP",
+          "wechat_mp": "WeChat Official Account",
+          "juejin": "Juejin",
+          "xiaohongshu": "Xiaohongshu",
+          "douyin": "Douyin",
           "bilibili": "Bilibili",
           "weibo": "Weibo",
           "zhihu": "Zhihu",
+          "stack_overflow": "Stack Overflow",
           "x": "X (Twitter)",
           "youtube": "YouTube",
+          "instagram": "Instagram",
+          "linkedin": "LinkedIn",
+          "twitch": "Twitch",
           "facebook": "Facebook",
           "github": "GitHub",
           "wechat_pay": "WeChat Pay",
@@ -97,6 +104,8 @@
           "opencollective": "Open Collective",
           "patreon": "Patreon",
           "buymeacoffee": "Buy Me a Coffee",
+          "ko_fi": "Ko-fi",
+          "liberapay": "Liberapay",
           "paypal": "PayPal"
         }
       }

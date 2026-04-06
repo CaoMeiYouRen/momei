@@ -147,11 +147,18 @@
                 "edit_donation": "후원 링크 편집",
                 "social_platforms": {
                     "wechat_mp": "WeChat 공식 계정",
+                    "juejin": "Juejin",
+                    "xiaohongshu": "Xiaohongshu",
+                    "douyin": "Douyin",
                     "bilibili": "Bilibili",
                     "weibo": "Weibo",
                     "zhihu": "Zhihu",
+                    "stack_overflow": "Stack Overflow",
                     "x": "X (Twitter)",
                     "youtube": "YouTube",
+                    "instagram": "Instagram",
+                    "linkedin": "LinkedIn",
+                    "twitch": "Twitch",
                     "facebook": "Facebook",
                     "github": "GitHub",
                     "discord": "Discord"

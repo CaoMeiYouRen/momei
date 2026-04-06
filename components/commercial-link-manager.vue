@@ -333,7 +333,7 @@
                     />
                 </div>
 
-                <div v-if="currentSocialLink.platform !== 'wechat_mp'" class="commercial-manager__field">
+                <div v-if="isSocialPlatformType('url') || isSocialPlatformType('both')" class="commercial-manager__field">
                     <label for="social-url">{{ $t('pages.settings.commercial.url') }}</label>
                     <InputText
                         id="social-url"
@@ -343,7 +343,7 @@
                     />
                 </div>
 
-                <div v-if="isSocialPlatformImg()" class="commercial-manager__field">
+                <div v-if="isSocialPlatformType('image') || isSocialPlatformType('both')" class="commercial-manager__field">
                     <label for="social-image">{{ $t('pages.settings.commercial.image') }}</label>
                     <AppUploader
                         v-model="currentSocialLink.image"
@@ -387,7 +387,16 @@
 </template>
 
 <script setup lang="ts">
-import { SOCIAL_PLATFORMS, DONATION_PLATFORMS, type SocialLink, type DonationLink } from '@/utils/shared/commercial'
+import {
+    SOCIAL_PLATFORMS,
+    DONATION_PLATFORMS,
+    getCommercialPlatformColor,
+    getCommercialPlatformIcon,
+    getDonationPlatformType,
+    getSocialPlatformType,
+    type SocialLink,
+    type DonationLink,
+} from '@/utils/shared/commercial'
 import { APP_ENABLED_LOCALES } from '@/i18n/config/locale-registry'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
@@ -467,21 +476,19 @@ const addSocialLink = () => {
 }
 
 const isPlatformType = (type: string) => {
-    const platform = DONATION_PLATFORMS.find((p) => p.key === currentLink.value.platform)
-    if (!platform) return false
-    return platform.type === type
+    return getDonationPlatformType(currentLink.value.platform) === type
 }
 
-const isSocialPlatformImg = () => {
-    return currentSocialLink.value.platform === 'wechat_mp' || currentSocialLink.value.platform === 'custom'
+const isSocialPlatformType = (type: string) => {
+    return getSocialPlatformType(currentSocialLink.value.platform) === type
 }
 
-const getPlatformIcon = (key: string) => DONATION_PLATFORMS.find((p) => p.key === key)?.icon || 'pi pi-link'
-const getPlatformColor = (key: string) => DONATION_PLATFORMS.find((p) => p.key === key)?.color || 'inherit'
+const getPlatformIcon = (key: string) => getCommercialPlatformIcon(key, 'donation')
+const getPlatformColor = (key: string) => getCommercialPlatformColor(key, 'donation')
 const getPlatformName = (key: string) => key === 'custom' ? '' : t(`components.post.sponsor.platforms.${key}`)
 
-const getSocialIcon = (key: string) => SOCIAL_PLATFORMS.find((p) => p.key === key)?.icon || 'pi pi-link'
-const getSocialColor = (key: string) => SOCIAL_PLATFORMS.find((p) => p.key === key)?.color || 'inherit'
+const getSocialIcon = (key: string) => getCommercialPlatformIcon(key, 'social')
+const getSocialColor = (key: string) => getCommercialPlatformColor(key, 'social')
 const getSocialName = (key: string) => key === 'custom' ? '' : t(`pages.settings.commercial.social_platforms.${key}`)
 
 const confirmDelete = (index: number) => {
