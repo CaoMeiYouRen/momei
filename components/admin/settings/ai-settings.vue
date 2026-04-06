@@ -209,6 +209,21 @@
 
         <div v-if="settings.asr_enabled" class="ai-settings__group">
             <SettingFormField
+                field-key="asr_credential_ttl_seconds"
+                input-id="asr_credential_ttl_seconds"
+                :metadata="metadata.asr_credential_ttl_seconds"
+                :description="$t('pages.admin.settings.system.hints.asr_credential_ttl_seconds')"
+            >
+                <InputText
+                    id="asr_credential_ttl_seconds"
+                    v-model="settings.asr_credential_ttl_seconds"
+                    :disabled="metadata.asr_credential_ttl_seconds?.isLocked"
+                    placeholder="10m"
+                    fluid
+                />
+            </SettingFormField>
+
+            <SettingFormField
                 field-key="asr_provider"
                 input-id="asr_provider"
                 :metadata="metadata.asr_provider"

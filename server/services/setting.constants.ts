@@ -132,6 +132,7 @@ export const SETTING_ENV_MAP: Record<string, string> = {
     [SettingKey.ASR_API_KEY]: 'ASR_API_KEY',
     [SettingKey.ASR_MODEL]: 'ASR_MODEL',
     [SettingKey.ASR_ENDPOINT]: 'ASR_ENDPOINT',
+    [SettingKey.ASR_CREDENTIAL_TTL_SECONDS]: 'ASR_CREDENTIAL_TTL_SECONDS',
     [SettingKey.ASR_VOLCENGINE_APP_ID]: 'ASR_VOLCENGINE_APP_ID',
     [SettingKey.ASR_VOLCENGINE_CLUSTER_ID]: 'ASR_VOLCENGINE_CLUSTER_ID',
     [SettingKey.ASR_VOLCENGINE_ACCESS_KEY]: 'ASR_VOLCENGINE_ACCESS_KEY',
@@ -240,6 +241,7 @@ const SETTING_DEFAULT_MAP: Partial<Record<string, string>> = {
     [SettingKey.LIVE2D_MIN_WIDTH]: '1024',
     [SettingKey.CANVAS_NEST_MIN_WIDTH]: '1024',
     [SettingKey.EFFECTS_MIN_WIDTH]: '1024',
+    [SettingKey.ASR_CREDENTIAL_TTL_SECONDS]: '600',
 }
 
 const RESTART_REQUIRED_KEYS = new Set<string>(FORCED_ENV_LOCKED_KEYS)

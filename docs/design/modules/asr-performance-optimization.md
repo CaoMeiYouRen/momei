@@ -13,7 +13,7 @@
 当前前端直连统一通过 [server/api/ai/asr/credentials.post.ts](../../server/api/ai/asr/credentials.post.ts) 获取临时凭证，特点如下：
 
 - 仅允许管理员和作者角色调用
-- 默认有效期 5 分钟
+- 默认有效期 10 分钟，并支持通过 `ASR_CREDENTIAL_TTL_SECONDS` / `asr_credential_ttl_seconds` 调整
 - 根据 `provider` 与 `mode` 返回不同厂商的连接信息
 
 ### 2.2 SiliconFlow 直连
@@ -38,9 +38,11 @@ Volcengine 当前采用 STS JWT + Query 鉴权模式：
 
 [composables/use-asr-direct.ts](../../composables/use-asr-direct.ts) 已经实现：
 
-- 凭证过期重取
+- 凭证提前续期与过期重取
+- 基于 `expiresInMs` + 本地接收时间的时钟偏差缓冲
 - Volcengine WebSocket 建连与首帧初始化
 - 中间结果与最终结果拆分
+- 流式链路在凭证失效或意外断开后的自动重连恢复
 - 流结束时发送 final frame 并主动关闭连接
 
 这意味着当前流式链路的重点已经不是“如何设计协议”，而是围绕真实厂商协议做浏览器端适配。

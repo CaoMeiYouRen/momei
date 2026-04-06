@@ -1,7 +1,11 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+    DEFAULT_ASR_CREDENTIAL_TTL_SECONDS,
     generateASRCredentials,
     getASRConfigStatus,
+    MAX_ASR_CREDENTIAL_TTL_SECONDS,
+    MIN_ASR_CREDENTIAL_TTL_SECONDS,
+    resolveASRCredentialTtlMilliseconds,
 } from '@/server/utils/ai/asr-credentials'
 import { SettingKey } from '@/types/setting'
 
@@ -54,6 +58,8 @@ describe('ASR Credentials Utility', () => {
             expect(credentials.provider).toBe('siliconflow')
             expect(credentials.mode).toBe('batch')
             expect(credentials.authType).toBe('bearer')
+            expect(credentials.issuedAt).toBeGreaterThan(0)
+            expect(credentials.expiresInMs).toBe(5 * 60 * 1000)
             expect(credentials.apiKey).toBe('test-siliconflow-key')
             expect(credentials.model).toBe('FunAudioLLM/SenseVoiceSmall')
             expect(credentials.endpoint).toBe('https://api.siliconflow.cn/v1')
@@ -91,6 +97,8 @@ describe('ASR Credentials Utility', () => {
             expect(credentials.authType).toBe('query')
             expect(credentials.appId).toBe('test-app-id')
             expect(credentials.jwtToken).toBe('temporary-jwt-token')
+            expect(credentials.issuedAt).toBeGreaterThan(0)
+            expect(credentials.expiresInMs).toBe(5 * 60 * 1000)
             expect(credentials.authQuery).toEqual({
                 api_resource_id: 'test-cluster',
                 api_app_key: 'test-app-id',
@@ -122,6 +130,16 @@ describe('ASR Credentials Utility', () => {
             const body = JSON.parse(typeof requestInit.body === 'string' ? requestInit.body : '{}')
 
             expect(body.duration).toBe(300)
+        })
+
+        it('should resolve credential ttl from human readable input', () => {
+            expect(resolveASRCredentialTtlMilliseconds('10m')).toBe(10 * 60 * 1000)
+        })
+
+        it('should clamp credential ttl into supported range', () => {
+            expect(resolveASRCredentialTtlMilliseconds('30s')).toBe(MIN_ASR_CREDENTIAL_TTL_SECONDS * 1000)
+            expect(resolveASRCredentialTtlMilliseconds('5h')).toBe(MAX_ASR_CREDENTIAL_TTL_SECONDS * 1000)
+            expect(resolveASRCredentialTtlMilliseconds(undefined)).toBe(DEFAULT_ASR_CREDENTIAL_TTL_SECONDS * 1000)
         })
 
         it('should throw error when SiliconFlow API key is missing', async () => {

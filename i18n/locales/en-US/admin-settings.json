@@ -12,6 +12,7 @@
                         "external_feed_stale_while_error_seconds": "External feed stale fallback window"
                     },
                     "hints": {
+                        "asr_credential_ttl_seconds": "Controls the default lifetime for direct real-time ASR credentials. Supports values like 600, 10m, or 15m, and is automatically clamped to the provider-safe range.",
                         "comment_interval": "Minimum time between comments. Supports human-readable durations like 30s, 5m, or 1h and still accepts legacy numeric seconds.",
                         "email_limit_window": "Time window used to count outgoing emails. Supports human-readable durations like 15m or 1d and still accepts legacy numeric seconds.",
                         "external_feed_cache_ttl_seconds": "Controls how long a successful external source fetch can be reused from cache. Supports human-readable durations like 15m or 1d and still accepts legacy numeric seconds.",
@@ -22,6 +23,7 @@
                         "upload_limit_window": "Time window used to count uploads. Supports human-readable durations like 15m or 1d and still accepts legacy numeric seconds."
                     },
                     "keys": {
+                        "asr_credential_ttl_seconds": "ASR credential lifetime",
                         "comment_interval": "Minimum comment interval",
                         "email_limit_window": "Email rate-limit window",
                         "friend_links_check_interval_minutes": "Friend link check interval",

@@ -3,6 +3,7 @@ import { createError } from 'h3'
 import { z } from 'zod'
 import type { ASRMode, ASRCredentialsOptions, ASRCredentials } from '~/types/asr'
 import { SettingKey } from '~/types/setting'
+import { normalizeDurationSeconds } from '~/utils/shared/duration'
 
 /**
  * 生成前端直连 AI 厂商的临时凭证
@@ -12,10 +13,20 @@ const VOLCENGINE_MIN_TOKEN_DURATION_SECONDS = 300
 const VOLCENGINE_MAX_TOKEN_DURATION_SECONDS = 43200
 const DEFAULT_VOLCENGINE_DIRECT_ENDPOINT = 'wss://openspeech.bytedance.com/api/v3/sauc/bigmodel'
 const DEFAULT_VOLCENGINE_RESOURCE_ID = 'volc.bigasr.sauc.duration'
+export const DEFAULT_ASR_CREDENTIAL_TTL_SECONDS = 600
+export const MIN_ASR_CREDENTIAL_TTL_SECONDS = VOLCENGINE_MIN_TOKEN_DURATION_SECONDS
+export const MAX_ASR_CREDENTIAL_TTL_SECONDS = 3600
 
 const VolcengineTokenResponseSchema = z.object({
     jwt_token: z.string().min(1),
 })
+
+export function resolveASRCredentialTtlMilliseconds(value: string | number | null | undefined) {
+    return normalizeDurationSeconds(value, DEFAULT_ASR_CREDENTIAL_TTL_SECONDS, {
+        min: MIN_ASR_CREDENTIAL_TTL_SECONDS,
+        max: MAX_ASR_CREDENTIAL_TTL_SECONDS,
+    }) * 1000
+}
 
 export async function generateASRCredentials(options: ASRCredentialsOptions): Promise<ASRCredentials> {
     const {
@@ -27,11 +38,14 @@ export async function generateASRCredentials(options: ASRCredentialsOptions): Pr
     } = options
 
     const now = Date.now()
+    const issuedAt = now
     const expiresAt = now + expiresIn
 
     if (provider === 'siliconflow') {
         return generateSiliconFlowCredentials({
             mode,
+            issuedAt,
+            expiresIn,
             expiresAt,
             connectId,
             settings,
@@ -41,6 +55,7 @@ export async function generateASRCredentials(options: ASRCredentialsOptions): Pr
     if (provider === 'volcengine') {
         return await generateVolcengineCredentials({
             mode,
+            issuedAt,
             expiresAt,
             connectId,
             settings,
@@ -59,11 +74,13 @@ export async function generateASRCredentials(options: ASRCredentialsOptions): Pr
  */
 function generateSiliconFlowCredentials(options: {
     mode: ASRMode
+    issuedAt: number
+    expiresIn: number
     expiresAt: number
     connectId: string
     settings: Record<string, string | undefined>
 }): ASRCredentials {
-    const { mode, expiresAt, connectId, settings } = options
+    const { mode, issuedAt, expiresIn, expiresAt, connectId, settings } = options
 
     const apiKey = settings[SettingKey.ASR_SILICONFLOW_API_KEY]
         || settings[SettingKey.ASR_API_KEY]
@@ -86,6 +103,8 @@ function generateSiliconFlowCredentials(options: {
         provider: 'siliconflow',
         mode,
         authType: 'bearer',
+        issuedAt,
+        expiresInMs: expiresIn,
         expiresAt,
         endpoint,
         connectId,
@@ -99,12 +118,13 @@ function generateSiliconFlowCredentials(options: {
  */
 async function generateVolcengineCredentials(options: {
     mode: ASRMode
+    issuedAt: number
     expiresAt: number
     connectId: string
     settings: Record<string, string | undefined>
     expiresIn: number
 }): Promise<ASRCredentials> {
-    const { mode, expiresAt, connectId, settings, expiresIn } = options
+    const { mode, issuedAt, expiresAt, connectId, settings, expiresIn } = options
 
     // 优先使用 ASR 专用配置，回退到通用配置
     const appId = settings[SettingKey.ASR_VOLCENGINE_APP_ID]
@@ -137,6 +157,8 @@ async function generateVolcengineCredentials(options: {
         provider: 'volcengine',
         mode,
         authType: 'query',
+        issuedAt,
+        expiresInMs: expiresIn,
         expiresAt,
         endpoint,
         connectId,

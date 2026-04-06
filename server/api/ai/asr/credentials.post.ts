@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { getSettings } from '~/server/services/setting'
 import { SettingKey } from '~/types/setting'
 import { requireAdminOrAuthor } from '~/server/utils/permission'
-import { generateASRCredentials } from '~/server/utils/ai/asr-credentials'
+import { generateASRCredentials, resolveASRCredentialTtlMilliseconds } from '~/server/utils/ai/asr-credentials'
 import type { ASRProvider, ASRMode } from '~/types/asr'
 
 const RequestSchema = z.object({
@@ -16,7 +16,7 @@ const RequestSchema = z.object({
  * ASR 凭证颁发 API
  *
  * 为前端直连 AI 厂商生成临时凭证
- * 凭证有效期: 5 分钟
+ * 凭证有效期: 默认 10 分钟，可通过设置覆盖
  */
 export default defineEventHandler(async (event) => {
     // 权限验证
@@ -31,6 +31,7 @@ export default defineEventHandler(async (event) => {
         SettingKey.ASR_API_KEY,
         SettingKey.ASR_ENDPOINT,
         SettingKey.ASR_MODEL,
+        SettingKey.ASR_CREDENTIAL_TTL_SECONDS,
         // SiliconFlow 配置
         SettingKey.ASR_SILICONFLOW_API_KEY,
         SettingKey.ASR_SILICONFLOW_MODEL,
@@ -49,7 +50,7 @@ export default defineEventHandler(async (event) => {
         mode: body.mode as ASRMode,
         connectId: body.connectId || randomUUID(),
         settings: settings as Record<string, string | undefined>,
-        expiresIn: 5 * 60 * 1000, // 5 分钟有效期
+        expiresIn: resolveASRCredentialTtlMilliseconds(settings[SettingKey.ASR_CREDENTIAL_TTL_SECONDS]),
     })
 
     return {

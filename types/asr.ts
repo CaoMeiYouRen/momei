@@ -33,6 +33,10 @@ export interface ASRCredentials {
     mode: ASRMode
     /** 鉴权方式 */
     authType: 'bearer' | 'query'
+    /** 服务端签发时间 (毫秒时间戳) */
+    issuedAt: number
+    /** 服务端返回的有效期 (毫秒) */
+    expiresInMs: number
     /** 过期时间 (毫秒时间戳) */
     expiresAt: number
     /** 连接端点 */

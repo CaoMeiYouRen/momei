@@ -224,6 +224,7 @@ const durationSettingFallbacks: Record<string, { fallback: number, unit: 'second
     comment_interval: { fallback: 0, unit: 'seconds' },
     upload_limit_window: { fallback: 86400, unit: 'seconds' },
     friend_links_check_interval_minutes: { fallback: 1440, unit: 'minutes' },
+    asr_credential_ttl_seconds: { fallback: 600, unit: 'seconds' },
     external_feed_cache_ttl_seconds: { fallback: 900, unit: 'seconds' },
     external_feed_stale_while_error_seconds: { fallback: 86400, unit: 'seconds' },
 }

@@ -41,6 +41,7 @@ export enum SettingKey {
     ASR_API_KEY = 'asr_api_key',
     ASR_MODEL = 'asr_model',
     ASR_ENDPOINT = 'asr_endpoint',
+    ASR_CREDENTIAL_TTL_SECONDS = 'asr_credential_ttl_seconds',
     ASR_VOLCENGINE_APP_ID = 'asr_volcengine_app_id',
     ASR_VOLCENGINE_CLUSTER_ID = 'asr_volcengine_cluster_id',
     ASR_VOLCENGINE_ACCESS_KEY = 'asr_volcengine_access_key',
@@ -462,6 +463,7 @@ export interface AISettingsFields {
     asr_api_key: string | null
     asr_model: string | null
     asr_endpoint: string | null
+    asr_credential_ttl_seconds: string | null
     asr_volcengine_cluster_id: string | null
     volcengine_app_id: string | null
     volcengine_access_key: string | null

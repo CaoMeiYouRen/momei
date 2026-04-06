@@ -49,6 +49,7 @@ ASR 配置已经接入系统设置服务，凭证生成会优先读取专用 ASR
 - `ASR_VOLCENGINE_APP_ID`
 - `ASR_VOLCENGINE_ACCESS_KEY`
 - `ASR_VOLCENGINE_CLUSTER_ID`
+- `ASR_CREDENTIAL_TTL_SECONDS`
 
 若未配置，再回退到通用火山引擎设置项。
 

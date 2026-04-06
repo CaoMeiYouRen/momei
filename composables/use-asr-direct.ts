@@ -1,5 +1,9 @@
 import { computed, onUnmounted, ref } from 'vue'
 import type { ASRCredentials, ASRMode, ASRProvider, CompressionLevel } from '~/types/asr'
+import {
+    hasASRCredentialsExpired,
+    shouldRefreshASRCredentials,
+} from '~/utils/shared/asr-credential-window'
 
 export interface ASRDirectOptions {
     provider: ASRProvider
@@ -61,7 +65,11 @@ export function useASRDirect(options: ASRDirectOptions) {
 
     let ws: WebSocket | null = null
     let credentials: ASRCredentials | null = null
+    let credentialsReceivedAt = 0
     let requestSequence = 1
+    let manualDisconnect = false
+    let reconnectPromise: Promise<void> | null = null
+    let reconnectVersion = 0
 
     // 计算属性
     const isReady = computed(() => isConnected.value && !isProcessing.value)
@@ -82,7 +90,85 @@ export function useASRDirect(options: ASRDirectOptions) {
             },
         })
 
+        credentials = response.data
+        credentialsReceivedAt = Date.now()
+
         return response.data
+    }
+
+    const ensureCredentials = async (behavior: {
+        forceRefresh?: boolean
+        preferFresh?: boolean
+    } = {}): Promise<ASRCredentials> => {
+        const currentCredentials = credentials
+        const currentReceivedAt = credentialsReceivedAt
+
+        if (!currentCredentials || behavior.forceRefresh) {
+            return await fetchCredentials()
+        }
+
+        if (hasASRCredentialsExpired(currentCredentials, currentReceivedAt)) {
+            return await fetchCredentials()
+        }
+
+        if (behavior.preferFresh && shouldRefreshASRCredentials(currentCredentials, currentReceivedAt)) {
+            try {
+                return await fetchCredentials()
+            } catch {
+                return currentCredentials
+            }
+        }
+
+        return currentCredentials
+    }
+
+    const reconnectStreamConnection = async () => {
+        if (options.mode !== 'stream' || options.provider !== 'volcengine' || manualDisconnect) {
+            return
+        }
+
+        if (reconnectPromise) {
+            await reconnectPromise
+            return
+        }
+
+        reconnectPromise = (async () => {
+            if (isConnecting.value) {
+                return
+            }
+
+            const currentReconnectVersion = reconnectVersion
+            isConnecting.value = true
+
+            try {
+                const nextCredentials = await ensureCredentials({ preferFresh: true })
+
+                if (manualDisconnect || currentReconnectVersion !== reconnectVersion) {
+                    return
+                }
+
+                await connectVolcengineWebSocket(nextCredentials)
+
+                if (manualDisconnect || currentReconnectVersion !== reconnectVersion) {
+                    if (ws) {
+                        const activeSocket = ws
+                        ws = null
+                        activeSocket.close()
+                    }
+                    return
+                }
+
+                isConnected.value = true
+                error.value = null
+            } catch (err: unknown) {
+                error.value = toError(err).message || 'connection_failed'
+            } finally {
+                isConnecting.value = false
+                reconnectPromise = null
+            }
+        })()
+
+        await reconnectPromise
     }
 
     /**
@@ -95,17 +181,13 @@ export function useASRDirect(options: ASRDirectOptions) {
 
         isConnecting.value = true
         error.value = null
+        manualDisconnect = false
 
         try {
             // 1. 获取临时凭证
-            credentials = await fetchCredentials()
+            credentials = await ensureCredentials({ preferFresh: true })
 
-            // 2. 检查凭证有效期
-            if (Date.now() > credentials.expiresAt) {
-                throw new Error('Credentials expired')
-            }
-
-            // 3. 根据模式建立连接
+            // 2. 根据模式建立连接
             if (options.mode === 'stream' && options.provider === 'volcengine') {
                 await connectVolcengineWebSocket(credentials)
             }
@@ -129,8 +211,9 @@ export function useASRDirect(options: ASRDirectOptions) {
         }
 
         const socketUrl = buildFullUrl(creds.endpoint, creds.authQuery)
-        ws = new WebSocket(socketUrl)
-        ws.binaryType = 'arraybuffer'
+        const socket = new WebSocket(socketUrl)
+        ws = socket
+        socket.binaryType = 'arraybuffer'
 
         let settled = false
 
@@ -150,7 +233,12 @@ export function useASRDirect(options: ASRDirectOptions) {
             reject(reason)
         }
 
-        ws.onopen = () => {
+        socket.onopen = () => {
+            if (ws !== socket) {
+                socket.close()
+                return
+            }
+
             try {
                 requestSequence = 1
                 const frame = buildVolcengineStartFrame({
@@ -158,27 +246,45 @@ export function useASRDirect(options: ASRDirectOptions) {
                     temporaryUserId: creds.temporaryUserId || createTemporaryUserId(),
                 })
                 requestSequence += 1
-                ws?.send(frame)
+                socket.send(frame)
                 resolveOnce()
             } catch (err: unknown) {
                 rejectOnce(toError(err))
             }
         }
 
-        ws.onmessage = (event) => {
+        socket.onmessage = (event) => {
+            if (ws !== socket) {
+                return
+            }
+
             void handleVolcengineMessage(event.data)
         }
 
-        ws.onerror = () => {
+        socket.onerror = () => {
+            if (ws !== socket) {
+                return
+            }
+
             error.value = 'websocket_error'
             rejectOnce(new Error('WebSocket connection error'))
         }
 
-        ws.onclose = () => {
+        socket.onclose = () => {
+            if (ws !== socket) {
+                return
+            }
+
             isConnected.value = false
+            ws = null
 
             if (!settled) {
                 rejectOnce(new Error('WebSocket closed before initialization'))
+                return
+            }
+
+            if (!manualDisconnect) {
+                void reconnectStreamConnection()
             }
         }
     })
@@ -189,6 +295,11 @@ export function useASRDirect(options: ASRDirectOptions) {
 
             if (packet.type === 'error') {
                 error.value = packet.message || `transcription_error_${packet.code}`
+
+                if (isCredentialFailure(packet.message)) {
+                    void reconnectStreamConnection()
+                }
+
                 return
             }
 
@@ -222,6 +333,7 @@ export function useASRDirect(options: ASRDirectOptions) {
         }
 
         if (ws?.readyState !== WebSocket.OPEN) {
+            void reconnectStreamConnection()
             return
         }
 
@@ -243,42 +355,52 @@ export function useASRDirect(options: ASRDirectOptions) {
      * 批量转录 (直连 SiliconFlow)
      */
     const transcribeBatch = async (audioBlob: Blob): Promise<string> => {
-        if (!credentials) {
-            credentials = await fetchCredentials()
-        }
-
-        // 检查凭证有效期
-        if (Date.now() > credentials.expiresAt) {
-            credentials = await fetchCredentials()
-        }
-
-        isProcessing.value = true
-        error.value = null
-
-        try {
+        const requestTranscription = async (activeCredentials: ASRCredentials) => {
             const formData = new FormData()
             formData.append('file', audioBlob, 'recording.webm')
-            formData.append('model', credentials.model || 'FunAudioLLM/SenseVoiceSmall')
+            formData.append('model', activeCredentials.model || 'FunAudioLLM/SenseVoiceSmall')
 
             if (options.language) {
                 const lang = options.language.split('-')[0]?.toLowerCase() || 'zh'
                 formData.append('language', lang)
             }
 
-            const response = await $fetch<{
+            return await $fetch<{
                 text: string
                 duration?: number
-            }>(`${credentials.endpoint}/audio/transcriptions`, {
+            }>(`${activeCredentials.endpoint}/audio/transcriptions`, {
                 method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${credentials.apiKey}`,
+                    Authorization: `Bearer ${activeCredentials.apiKey}`,
                 },
                 body: formData,
             })
+        }
+
+        let activeCredentials = await ensureCredentials({ preferFresh: true })
+
+        isProcessing.value = true
+        error.value = null
+
+        try {
+            const response = await requestTranscription(activeCredentials)
 
             finalTranscript.value = response.text
             return response.text
         } catch (err: unknown) {
+            if (shouldRetryCredentialRequest(err)) {
+                try {
+                    activeCredentials = await ensureCredentials({ forceRefresh: true })
+                    const retryResponse = await requestTranscription(activeCredentials)
+                    finalTranscript.value = retryResponse.text
+                    return retryResponse.text
+                } catch (retryErr: unknown) {
+                    const fetchError = retryErr as { data?: { error?: { message?: string } } }
+                    error.value = fetchError.data?.error?.message || 'transcription_failed'
+                    throw retryErr
+                }
+            }
+
             const fetchError = err as { data?: { error?: { message?: string } } }
             error.value = fetchError.data?.error?.message || 'transcription_failed'
             throw err
@@ -291,23 +413,37 @@ export function useASRDirect(options: ASRDirectOptions) {
      * 停止识别
      */
     const stop = () => {
-        if (options.mode === 'stream' && options.provider === 'volcengine' && ws?.readyState === WebSocket.OPEN) {
-            try {
-                const frame = buildVolcengineAudioFrame({
-                    sequence: requestSequence,
-                    audioBytes: new Uint8Array(0),
-                    isFinal: true,
-                })
-                requestSequence += 1
-                ws.send(frame)
-            } catch (err: unknown) {
-                error.value = toError(err).message || 'stream_stop_failed'
-            }
+        manualDisconnect = true
+        reconnectVersion += 1
 
-            setTimeout(() => {
-                ws?.close()
-                ws = null
-            }, 800)
+        if (options.mode === 'stream' && options.provider === 'volcengine' && ws) {
+            const activeSocket = ws
+
+            if (activeSocket.readyState === WebSocket.OPEN) {
+                try {
+                    const frame = buildVolcengineAudioFrame({
+                        sequence: requestSequence,
+                        audioBytes: new Uint8Array(0),
+                        isFinal: true,
+                    })
+                    requestSequence += 1
+                    activeSocket.send(frame)
+                } catch (err: unknown) {
+                    error.value = toError(err).message || 'stream_stop_failed'
+                }
+
+                setTimeout(() => {
+                    if (ws === activeSocket) {
+                        ws = null
+                    }
+                    activeSocket.close()
+                }, 800)
+            } else {
+                if (ws === activeSocket) {
+                    ws = null
+                }
+                activeSocket.close()
+            }
         }
 
         isConnected.value = false
@@ -318,8 +454,10 @@ export function useASRDirect(options: ASRDirectOptions) {
      * 断开连接
      */
     const disconnect = () => {
+        manualDisconnect = true
         stop()
         credentials = null
+        credentialsReceivedAt = 0
     }
 
     /**
@@ -381,6 +519,37 @@ function toError(value: unknown): Error {
     }
 
     return new Error(typeof value === 'string' ? value : 'unknown_error')
+}
+
+function isCredentialFailure(message: string | undefined) {
+    if (!message) {
+        return false
+    }
+
+    return /expire|credential|token|auth/i.test(message)
+}
+
+function shouldRetryCredentialRequest(error: unknown) {
+    if (!error || typeof error !== 'object') {
+        return false
+    }
+
+    const maybeError = error as {
+        status?: number
+        statusCode?: number
+        response?: { status?: number }
+        data?: { error?: { message?: string }, message?: string }
+    }
+
+    const status = maybeError.status
+        ?? maybeError.statusCode
+        ?? maybeError.response?.status
+
+    if (status === 401) {
+        return true
+    }
+
+    return isCredentialFailure(maybeError.data?.error?.message || maybeError.data?.message)
 }
 
 function buildVolcengineStartFrame(options: {
