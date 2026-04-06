@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-02-11
+last_sync: 2026-04-07
 ---
 
 # Momei Development Standards
@@ -31,6 +31,14 @@ This document has been translated from Chinese. In case of any discrepancy, the 
 - **Early Return**: End function execution early using `return` to reduce `if/else` nesting and keep code flat.
 - **Complexity Control**: Regularly review Cyclomatic Complexity to avoid over-long functions and deep nesting.
 - **Planning Standards**: Follow [Project Planning Standards](./planning.md) for roadmap and task estimation.
+
+### 2.2.1 Comment Standards
+
+- **Comments should explain the important parts**: Prefer comments that explain why the code exists, what constraints apply, and which edge cases or side effects matter, instead of restating the obvious.
+- **Complex logic requires comments**: Add concise comments around non-trivial branching, state transitions, compatibility fallbacks, protocol contracts, or security/performance tradeoffs when the intent would otherwise be hard to recover.
+- **Function comments are driven by readability**: Add function-level comments when the responsibility, parameter constraints, return semantics, side effects, or cross-layer contract are not obvious from the name alone. Exported functions should usually have a brief purpose comment unless the implementation is trivial and already self-explanatory.
+- **Avoid empty or excessive comments**: Do not comment every line, every variable, or every assignment. Avoid comments that merely repeat the type, function name, or literal code.
+- **Keep comments in sync with implementation**: Whenever logic changes, update or remove stale comments at the same time. Delete or rewrite drifting comments instead of leaving misleading explanations behind.
 
 ### 2.3 Style Standards (CSS/SCSS)
 
@@ -99,6 +107,12 @@ Avoid using `process.env` directly in business logic (except for `DATABASE_URL`)
 
 - **Server**: Use `server/services/setting.ts` via `getSetting(key)`.
 - **Frontend**: Use `useMomeiConfig()` composable.
+
+## 5.1 Review Expectations
+
+- Every change must go through at least one review before commit.
+- For code changes, review must also assess whether comments are sufficient, accurate, and proportionate, with extra attention on complex logic and exported functions.
+- Stale, misleading, line-by-line, or otherwise low-value comments should be treated as review findings instead of being ignored.
 
 ## 6. Code Examples
 

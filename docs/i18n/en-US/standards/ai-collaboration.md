@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-02-11
+last_sync: 2026-04-07
 ---
 
 # AI Collaboration Standards
@@ -34,6 +34,7 @@ All write-operation tasks must follow this sequence. **Crossing quality threshol
 ### A (Audit)
 - **Security Scan**: Check for XSS, SQL injection, auth logic, and credential leaks.
 - **Consistency**: Ensure implementation matches the P-stage design and todo description.
+- **Comment Audit**: Check whether complex logic and key functions, especially exported functions, have comments that are accurate, proportionate, and still aligned with the current implementation. Treat stale, misleading, or line-by-line comments as review issues.
 
 ### C (Commit 1)
 - **Atomic Commit**: Submit only the business logic changes using `conventional-committer`.
