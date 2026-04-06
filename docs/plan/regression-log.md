@@ -94,8 +94,10 @@
         - V2 / 逻辑层: 新增 `12` 条定向测试全部通过；内容访问相关定向回归集当前共 `52` 条断言全部通过。
     - 结果摘要:
         - 内容访问相关 API 的异常映射已统一：当订阅状态查询失败时，[server/api/posts/index.get.ts](server/api/posts/index.get.ts)、[server/api/posts/archive.get.ts](server/api/posts/archive.get.ts)、[server/api/search/index.get.ts](server/api/search/index.get.ts)、[server/api/posts/[id].get.ts](server/api/posts/[id].get.ts) 与 [server/api/posts/slug/[slug].get.ts](server/api/posts/slug/[slug].get.ts) 现在都会一致抛出 `503 Failed to resolve content access state`，不再由不同入口各自漏出原始异常。
+        - 路由级异常映射测试现已同时锁定结构化错误体字段 `data.code=503`、`data.message='Failed to resolve content access state'` 与 `data.flag='POST_ACCESS_STATE_UNAVAILABLE'`，避免后续只保留状态码而丢掉审计友好的错误标识。
         - 密码解锁凭据已从裸 `id` 列表 cookie 收敛为签名 JSON 载荷，并在 [server/utils/post-unlock.ts](server/utils/post-unlock.ts) 中统一处理解析、去重与过期过滤；详情页读取不再直接信任明文 `momei_unlocked_posts`。
         - [server/api/posts/[id]/verify-password.post.ts](server/api/posts/[id]/verify-password.post.ts) 已改为通过统一 helper 写入解锁凭据，成功验证后会落盘“带签名 + 逐项 expiresAt”的 cookie，而不是直接拼接 ID 字符串。
+        - 解锁凭据 helper 现在额外具备最大条目数裁剪策略：当历史解锁记录超过上限时，只保留最近解锁的 `20` 条；同一篇文章重复解锁时会刷新到队尾并更新过期时间，不再无限膨胀 cookie 体积。
         - 本轮新增测试不只是证明“能解锁”，而是明确守住两类真实风险：
             - API 层不能把订阅状态查询异常随意漏成不同的错误语义。
             - 密码文章的解锁凭据不能仅靠客户端可伪造的 ID 列表长期生效。

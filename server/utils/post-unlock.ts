@@ -4,6 +4,7 @@ import { isSnowflakeId } from '@/utils/shared/validate'
 
 export const POST_UNLOCK_COOKIE_NAME = 'momei_unlocked_posts'
 export const POST_UNLOCK_TTL_SECONDS = 60 * 60 * 24 * 7
+export const POST_UNLOCK_MAX_ENTRIES = 20
 
 interface PostUnlockCredential {
     id: string
@@ -62,7 +63,9 @@ export function rememberUnlockedPost(event: H3Event, postId: string, now = Date.
         expiresAt: now + POST_UNLOCK_TTL_SECONDS * 1000,
     })
 
-    setCookie(event, POST_UNLOCK_COOKIE_NAME, signCookieValue(JSON.stringify(nextCredentials)), {
+    const trimmedCredentials = nextCredentials.slice(-POST_UNLOCK_MAX_ENTRIES)
+
+    setCookie(event, POST_UNLOCK_COOKIE_NAME, signCookieValue(JSON.stringify(trimmedCredentials)), {
         maxAge: POST_UNLOCK_TTL_SECONDS,
         httpOnly: true,
         path: '/',

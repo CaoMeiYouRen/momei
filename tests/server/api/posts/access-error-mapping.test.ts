@@ -86,6 +86,11 @@ describe('content access API error mapping', () => {
         return expect(promise).rejects.toMatchObject({
             statusCode: 503,
             statusMessage: POST_ACCESS_STATE_ERROR_MESSAGE,
+            data: {
+                code: 503,
+                message: POST_ACCESS_STATE_ERROR_MESSAGE,
+                flag: 'POST_ACCESS_STATE_UNAVAILABLE',
+            },
         })
     }
 

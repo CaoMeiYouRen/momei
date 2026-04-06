@@ -11,6 +11,7 @@ vi.mock('~/utils/shared/env', async (importOriginal) => {
 import {
     getUnlockedPostIds,
     POST_UNLOCK_COOKIE_NAME,
+    POST_UNLOCK_MAX_ENTRIES,
     POST_UNLOCK_TTL_SECONDS,
     rememberUnlockedPost,
 } from './post-unlock'
@@ -79,5 +80,45 @@ describe('post-unlock utils', () => {
             { id: existingPostId, expiresAt: now + 10_000 },
             { id: postId, expiresAt: now + POST_UNLOCK_TTL_SECONDS * 1000 },
         ])
+    })
+
+    it('应该在超过最大条目数时裁剪为最近解锁的凭据', () => {
+        const credentials = Array.from({ length: POST_UNLOCK_MAX_ENTRIES }, (_, index) => ({
+            id: (index + 1).toString(16).padStart(16, 'a').slice(-16),
+            expiresAt: now + index + 1,
+        }))
+
+        vi.mocked(getCookie).mockReturnValue(signCookieValue(JSON.stringify(credentials)))
+
+        rememberUnlockedPost({} as any, postId, now)
+
+        const [, , cookieValue] = vi.mocked(setCookie).mock.calls[0]!
+        const parsed = JSON.parse(verifyCookieValue(cookieValue as string)!) as { id: string, expiresAt: number }[]
+
+        expect(parsed).toHaveLength(POST_UNLOCK_MAX_ENTRIES)
+        expect(parsed[0]?.id).toBe(credentials[1]?.id)
+        expect(parsed.at(-1)?.id).toBe(postId)
+    })
+
+    it('应该在重新解锁已存在文章时刷新它并保持总数不超上限', () => {
+        const credentials = Array.from({ length: POST_UNLOCK_MAX_ENTRIES }, (_, index) => ({
+            id: `${index.toString(16).padStart(2, 'a')}bcdef123456789`.slice(0, 16),
+            expiresAt: now + index + 1,
+        }))
+
+        const refreshedId = credentials[5]!.id
+        vi.mocked(getCookie).mockReturnValue(signCookieValue(JSON.stringify(credentials)))
+
+        rememberUnlockedPost({} as any, refreshedId, now)
+
+        const [, , cookieValue] = vi.mocked(setCookie).mock.calls[0]!
+        const parsed = JSON.parse(verifyCookieValue(cookieValue as string)!) as { id: string, expiresAt: number }[]
+
+        expect(parsed).toHaveLength(POST_UNLOCK_MAX_ENTRIES)
+        expect(parsed.filter((entry) => entry.id === refreshedId)).toHaveLength(1)
+        expect(parsed.at(-1)).toEqual({
+            id: refreshedId,
+            expiresAt: now + POST_UNLOCK_TTL_SECONDS * 1000,
+        })
     })
 })
