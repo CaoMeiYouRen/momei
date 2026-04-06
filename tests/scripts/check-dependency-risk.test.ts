@@ -13,6 +13,15 @@ import {
 
 const execFileAsync = promisify(execFile)
 
+function getNodeCliExecution() {
+    const scriptPath = resolve(process.cwd(), 'scripts/security/check-dependency-risk.mjs')
+
+    return {
+        command: process.execPath,
+        args: [scriptPath],
+    }
+}
+
 describe('check-dependency-risk', () => {
     it('parses legacy pnpm audit advisories and keeps risk paths', () => {
         const risks = parseAuditReport({
@@ -149,8 +158,9 @@ describe('check-dependency-risk', () => {
         await writeFile(inputPath, JSON.stringify({ error: 'registry unavailable' }), 'utf8')
 
         try {
-            await expect(execFileAsync('pnpm', ['exec', 'node',
-                resolve(process.cwd(), 'scripts/security/check-dependency-risk.mjs'),
+            const execution = getNodeCliExecution()
+            await expect(execFileAsync(execution.command, [
+                ...execution.args,
                 `--input=${inputPath}`,
                 '--allowlist=.github/security/dependency-risk-allowlist.json',
                 '--min-severity=high',

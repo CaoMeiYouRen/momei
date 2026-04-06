@@ -458,9 +458,12 @@ async function main() {
 export {
     assertSupportedAuditReport,
     evaluateDependencyRiskGate,
+    loadAuditReport,
     normalizeAllowlistDefinition,
+    normalizeSeverity,
     parseArgs,
     parseAuditReport,
+    readAllowlist,
 }
 
 if (isDirectExecution(import.meta.url)) {

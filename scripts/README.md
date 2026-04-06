@@ -9,7 +9,7 @@
 | `regression` | `pnpm regression:weekly` / `pnpm regression:pre-release` / `pnpm regression:phase-close` | 固定 cadence profile；可选 `--mode=warn|error`、`--dry-run` | 周级 / 发版前 / 阶段收口前的统一执行摘要；`artifacts/review-gate/` 下的 Markdown + JSON 证据 | `phase-close` 会把回归日志窗口超限升级为 blocker；所有结果仍需回写 `docs/plan/regression-log.md` | 正式入口 |
 | `release` | `pnpm release:check` / `pnpm release:check:full` | 可选 `--skip-test`、`--skip-e2e`、`--mode=warn|error` | 控制台验证摘要；`artifacts/release/` 下的发布前证据 | 默认会跑 lint、typecheck、安全 / 文档检查；`full` 会升级补跑 Vitest 与 E2E，避免在未评估预算时直接使用 | 正式入口 |
 | `review-gate` | `pnpm review-gate:generate` / `pnpm review-gate:generate:check` / `pnpm duplicate-code:check` | 可选 `--run-checks`、`--scope=<change>`、`--mode=warn|error` | Review Gate 证据 Markdown / JSON；重复代码审计产物 | 以证据生成和只读审计为主；`generate:check` 会主动拉起更多校验，适合阶段收口或发版前 | 正式入口 |
-| `security` | `pnpm security:audit-deps` / `pnpm security:alerts` | allowlist / exceptions、最小严重级别、可选快照输入 | High+ 风险结论；JSON / Markdown 证据落盘 | 默认按 high+ 阻断；本地会尝试补装 `.env` 中的 token，但不会覆盖已显式传入变量 | 正式入口 |
+| `security` | `pnpm security:audit-deps` / `pnpm security:audit-deps:daily` / `pnpm security:alerts` | allowlist / exceptions、最小严重级别、可选快照输入 | High+ 风险结论；JSON / Markdown 证据落盘 | `audit-deps` 默认按 high+ 阻断；`audit-deps:daily` 产出每日结构化摘要并供调度入口消费；本地会尝试补装 `.env` 中的 token，但不会覆盖已显式传入变量 | 正式入口 |
 | `testing` | `pnpm test:e2e:critical` / `pnpm test:e2e:review-gate --scope=<change>` / `pnpm test:e2e` | Playwright 额外参数、scope、可选 `--keep-auth-state` | Playwright 控制台结果；Review Gate run 目录下的 `evidence.md`、`manifest.json`、HTML 报告与失败附件 | 先跑 `critical`，只有范围扩大时才升级到全量；`review-gate` 会清理过期登录态并落盘结构化证据 | 正式入口 |
 | `docs` | `pnpm docs:check:i18n` / `pnpm docs:check:source-of-truth` | 无；默认扫描 `docs/` 与翻译目录 | 重复翻译页 / 事实源漂移结论 | 只读检查，不修改文档；适合文档 PR 和阶段归档前的最低门禁 | 正式入口 |
 | `i18n` | `pnpm i18n:audit` / `pnpm i18n:check-sync` | 可选 CLI 参数或手工指定 locale 文件 | locale key 缺口、同步偏差、拆分治理依据 | 审计类入口默认只读；`split-locale-files.mjs` 属于治理型脚本，应按专项文档手工执行，不作为日常入口 | 正式入口 |
@@ -24,7 +24,7 @@
 | `scripts/ai/` | `check-governance.mjs` | `pnpm ai:check` | 只读体检 `.github/`、`.claude/`、skills / agents 镜像与治理状态 | 保留 |
 | `scripts/release/` | `pre-release-check.mjs` | `pnpm release:check`、`pnpm release:check:full` | 汇总 lint、typecheck、安全、文档与按需测试的发布前门禁，并落盘证据 | 保留 |
 | `scripts/review-gate/` | `generate-evidence.mjs`、`check-duplicate-code.mjs` | `pnpm review-gate:generate`、`pnpm review-gate:generate:check`、`pnpm duplicate-code:check` | 生成 Review Gate 证据，或对重复代码输出 JSON / Markdown 审计结果 | 保留 |
-| `scripts/security/` | `check-dependency-risk.mjs`、`check-github-security-alerts.mjs` | `pnpm security:audit-deps`、`pnpm security:alerts`、`.github/workflows/release.yml` | 读取 `pnpm audit` 官方审计结果并按白名单执行 high+ 发版门禁；优先接入 GitHub Dependabot / Code Scanning 告警并在权限不足时显式回退 | 保留 |
+| `scripts/security/` | `check-dependency-risk.mjs`、`run-daily-dependency-audit.mjs`、`check-github-security-alerts.mjs` | `pnpm security:audit-deps`、`pnpm security:audit-deps:daily`、`pnpm security:alerts`、`.github/workflows/release.yml`、`.github/workflows/dependency-risk-daily.yml` | 读取 `pnpm audit` 官方审计结果并按白名单执行 high+ 发版门禁；每日巡检包装脚本会产出三态摘要并供调度入口上传 artifact / 触发告警；优先接入 GitHub Dependabot / Code Scanning 告警并在权限不足时显式回退 | 保留 |
 | `scripts/docs/` | `check-i18n-duplicates.mjs`、`check-source-of-truth.mjs` | `pnpm docs:check:i18n`、`pnpm docs:check:source-of-truth` | 只读检查文档重复、翻译同步与事实源一致性 | 保留 |
 | `scripts/i18n/` | `audit-locale-keys.mjs`、`split-locale-files.mjs` | `pnpm i18n:audit`；设计 / 翻译治理文档中的手工命令 | 审计 locale key、拆分翻译文件 | 保留 |
 | `scripts/testing/` | `run-e2e.mjs`、`run-e2e-critical.mjs`、`run-review-gate-ui-baseline.mjs` | `pnpm test:e2e`、`pnpm test:e2e:critical`、`pnpm test:e2e:review-gate` | 检查 `.output` 新鲜度、执行 Playwright 最小关键路径基线，并在 Review Gate 场景下沉淀按运行目录隔离的日志 / 报告 / 失败附件 | 保留 |
@@ -45,6 +45,7 @@ pnpm regression:weekly
 pnpm regression:pre-release
 pnpm regression:phase-close
 pnpm security:audit-deps
+pnpm security:audit-deps:daily
 pnpm security:alerts
 pnpm docs:check:i18n
 pnpm docs:check:source-of-truth
@@ -65,7 +66,18 @@ pnpm test:perf:budget:strict
 - 该目录下的规范产物固定为 `evidence.md`、`manifest.json`、`playwright.log`、`playwright-report/` 与 `test-results/`；`manifest.json` 记录本次 run 的环境准备、命令、artifact 路径与失败归因分类，便于 Review Gate 或回归日志直接引用。
 - 失败归因顺序统一为“服务启动 / 构建产物 -> 认证态 / 种子数据 -> 具体场景断言”；需要更大范围验证时，再从该基线升级到定向或全量 `pnpm test:e2e`。
 
-补充说明：本地直接运行 `pnpm security:audit-deps` 或 `pnpm security:alerts` 时，若仓库根目录存在 `.env`，脚本会先尝试装载其中尚未出现在当前进程环境中的变量（例如 `SECURITY_ALERTS_TOKEN`、`GITHUB_TOKEN`、`GH_TOKEN`），但不会覆盖已显式传入的环境变量。
+补充说明：本地直接运行 `pnpm security:audit-deps`、`pnpm security:audit-deps:daily` 或 `pnpm security:alerts` 时，若仓库根目录存在 `.env`，脚本会先尝试装载其中尚未出现在当前进程环境中的变量（例如 `SECURITY_ALERTS_TOKEN`、`GITHUB_TOKEN`、`GH_TOKEN`），但不会覆盖已显式传入的环境变量。
+
+`pnpm security:audit-deps:daily` 会输出两份结构化结果：
+
+- JSON 摘要：用于 workflow 解析三类结论（无高危风险 / 发现可修复风险 / 审计执行失败）并决定是否告警。
+- Markdown 摘要：用于写入 GitHub Actions Job Summary，并作为 artifact 一部分保留近线追溯记录。
+
+`.github/workflows/dependency-risk-daily.yml` 则负责每天触发一次该脚本，并执行以下收口动作：
+
+- 上传每日审计 artifact，默认保留 30 天以便追溯。
+- 仅当发现 high+ 风险或审计失败时，才尝试创建 / 更新 GitHub issue 作为最小可用告警入口；同一风险会按风险指纹复用既有 issue，不重复新建，clean 场景也不会触碰 issue，避免无效膨胀。
+- 若 issue 通知不可用，则退回到 failed workflow + artifact 作为降级告警，不静默吞掉异常。
 
 `pnpm regression:weekly`、`pnpm regression:pre-release` 与 `pnpm regression:phase-close` 则负责把既有周期性回归规范上收为三条固定节奏：
 

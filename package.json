@@ -34,6 +34,7 @@
     "test:perf:budget": "node scripts/perf/check-bundle-budget.mjs --mode=warn --output=.lighthouseci/bundle-budget-report.json --baseline=.github/perf/bundle-baseline.json",
     "test:perf:budget:strict": "node scripts/perf/check-bundle-budget.mjs --mode=error --output=.lighthouseci/bundle-budget-report.json --baseline=.github/perf/bundle-baseline.json",
     "security:audit-deps": "node scripts/security/check-dependency-risk.mjs --mode=error --allowlist=.github/security/dependency-risk-allowlist.json --min-severity=high --registry=https://registry.npmjs.org/",
+    "security:audit-deps:daily": "node scripts/security/run-daily-dependency-audit.mjs --mode=warn --allowlist=.github/security/dependency-risk-allowlist.json --min-severity=high --registry=https://registry.npmjs.org/",
     "security:alerts": "node scripts/security/check-github-security-alerts.mjs --mode=error --exceptions=.github/security/security-alert-exceptions.json --min-severity=high --registry=https://registry.npmjs.org/",
     "regression:weekly": "node scripts/regression/run-periodic-regression.mjs --profile=weekly",
     "regression:pre-release": "node scripts/regression/run-periodic-regression.mjs --profile=pre-release",

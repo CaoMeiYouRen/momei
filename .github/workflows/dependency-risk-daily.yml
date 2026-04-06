@@ -1,0 +1,185 @@
+name: Daily Dependency Risk Audit
+
+on:
+  schedule:
+    # 每天 UTC 00:15，即北京时间 08:15
+    - cron: "15 0 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: dependency-risk-daily-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    name: Dependency Risk Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+        with:
+          version: latest
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm i --frozen-lockfile
+
+      - name: Prepare report paths
+        id: paths
+        shell: bash
+        run: |
+          REPORT_DIR="artifacts/security/daily-dependency-audit/${GITHUB_RUN_ID}"
+          mkdir -p "$REPORT_DIR"
+          echo "report_dir=$REPORT_DIR" >> "$GITHUB_OUTPUT"
+          echo "summary_json=$REPORT_DIR/summary.json" >> "$GITHUB_OUTPUT"
+          echo "summary_md=$REPORT_DIR/summary.md" >> "$GITHUB_OUTPUT"
+
+      - name: Run daily dependency audit
+        run: >-
+          pnpm run security:audit-deps:daily --
+          --mode=warn
+          --output-json=${{ steps.paths.outputs.summary_json }}
+          --output-markdown=${{ steps.paths.outputs.summary_md }}
+          --run-url=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Publish workflow summary
+        shell: bash
+        run: cat "${{ steps.paths.outputs.summary_md }}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Capture audit status
+        id: audit_status
+        shell: bash
+        run: |
+          STATUS=$(node -e "const fs=require('fs');const data=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));process.stdout.write(data.status)" "${{ steps.paths.outputs.summary_json }}")
+          CONCLUSION=$(node -e "const fs=require('fs');const data=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));process.stdout.write(data.conclusion)" "${{ steps.paths.outputs.summary_json }}")
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          echo "conclusion=$CONCLUSION" >> "$GITHUB_OUTPUT"
+
+      - name: Upload audit artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: dependency-risk-daily-${{ github.run_id }}
+          path: ${{ steps.paths.outputs.report_dir }}
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upsert alert issue
+        if: steps.audit_status.outputs.status != 'clean'
+        id: notify_issue
+        continue-on-error: true
+        uses: actions/github-script@v8
+        env:
+          SUMMARY_JSON: ${{ steps.paths.outputs.summary_json }}
+        with:
+          script: |
+            const fs = require('fs')
+            const crypto = require('crypto')
+            const summary = JSON.parse(fs.readFileSync(process.env.SUMMARY_JSON, 'utf8'))
+            const title = '依赖风险每日巡检告警'
+            const fingerprintPayload = summary.status === 'audit_failed'
+              ? {
+                  status: summary.status,
+                  error: summary.error || null,
+                }
+              : {
+                  status: summary.status,
+                  blockingRisks: Array.isArray(summary.blockingRisks)
+                    ? summary.blockingRisks.map((risk) => ({
+                        advisoryId: risk.advisoryId,
+                        packageName: risk.packageName,
+                        severity: risk.severity,
+                        patchedVersions: risk.patchedVersions,
+                      }))
+                    : [],
+                }
+            const fingerprint = crypto
+              .createHash('sha256')
+              .update(JSON.stringify(fingerprintPayload))
+              .digest('hex')
+            const fingerprintMarker = `<!-- dependency-risk-fingerprint:${fingerprint} -->`
+            const bodyLines = [
+              '## 最新结论',
+              `- 状态: ${summary.conclusion}`,
+              `- 摘要: ${summary.summary}`,
+              `- 运行链接: ${summary.runUrl || '未提供'}`,
+              `- Relevant 风险数: ${summary.counts.relevant}`,
+              `- Blocking 风险数: ${summary.counts.blocking}`,
+              `- 可修复 Blocking 风险数: ${summary.counts.fixable}`,
+              `- 审计生成时间: ${summary.generatedAt}`,
+              '',
+              '## 说明',
+              '- 每日巡检的完整 JSON / Markdown 结果已随 workflow artifact 上传，保留最近 30 天用于追溯。',
+            ]
+
+            if (Array.isArray(summary.blockingRisks) && summary.blockingRisks.length > 0) {
+              bodyLines.push('', '## Blocking Risks')
+              for (const risk of summary.blockingRisks.slice(0, 10)) {
+                bodyLines.push(`- ${risk.packageName} [${risk.severity}] ${risk.advisoryId} | patched: ${risk.patchedVersions}`)
+              }
+            }
+
+            if (summary.status === 'audit_failed' && summary.error) {
+              bodyLines.push('', '## 执行失败原因', `- ${summary.error}`)
+            }
+
+            bodyLines.push('', fingerprintMarker)
+
+            const { owner, repo } = context.repo
+            const existingIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'all',
+              per_page: 100,
+            })
+            const existingIssue = existingIssues.find((issue) => (
+              issue.title === title
+              && typeof issue.body === 'string'
+              && issue.body.includes(fingerprintMarker)
+            ))
+
+            if (existingIssue) {
+              const updated = await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: existingIssue.number,
+                title,
+                state: 'open',
+                body: bodyLines.join('\n'),
+              })
+              core.setOutput('issue_url', updated.data.html_url)
+            } else {
+              const created = await github.rest.issues.create({
+                owner,
+                repo,
+                title,
+                body: bodyLines.join('\n'),
+              })
+              core.setOutput('issue_url', created.data.html_url)
+            }
+
+      - name: Record notification fallback
+        if: steps.audit_status.outputs.status != 'clean' && steps.notify_issue.outcome == 'failure'
+        shell: bash
+        run: |
+          {
+            echo ''
+            echo '## 通知降级'
+            echo '- GitHub issue 告警未成功创建或更新，已回退到 failed workflow + uploaded artifact 作为最小可用告警。'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail on risky or failed audit
+        if: steps.audit_status.outputs.status != 'clean'
+        run: |
+          echo "Dependency audit requires attention: ${{ steps.audit_status.outputs.conclusion }}"
+          exit 1
