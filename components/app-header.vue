@@ -6,16 +6,6 @@
             <div class="app-header__actions">
                 <nav class="app-header__nav desktop-only">
                     <NuxtLink
-                        v-if="showAdminControls"
-                        id="desktop-admin-posts-link"
-                        :to="localePath('/admin/posts')"
-                        class="app-header__admin-link nav-link"
-                    >
-                        <i class="app-header__admin-link-icon pi pi-file" />
-                        <span>{{ $t('pages.admin.posts.title') }}</span>
-                    </NuxtLink>
-
-                    <NuxtLink
                         id="nav-home"
                         :to="localePath('/')"
                         class="nav-link"
@@ -72,6 +62,16 @@
                     </NuxtLink>
 
                     <TravellingsLink placement="header" class="nav-link" />
+
+                    <NuxtLink
+                        v-if="showAdminControls"
+                        id="desktop-admin-posts-link"
+                        :to="localePath('/admin/posts')"
+                        class="app-header__admin-link nav-link"
+                    >
+                        <i class="app-header__admin-link-icon pi pi-file" />
+                        <span>{{ $t('pages.admin.posts.title') }}</span>
+                    </NuxtLink>
                 </nav>
 
                 <div class="app-header__action-group desktop-only">

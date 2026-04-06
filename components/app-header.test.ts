@@ -31,7 +31,7 @@ vi.mock('@/i18n/config/locale-runtime-loader', async (importOriginal) => {
 const stubs = {
     AppLogo: { template: '<div class="app-logo" />' },
     AppNotifications: { template: '<div class="app-notifications" />' },
-    TravellingsLink: { template: '<div class="travellings-link-stub" />' },
+    TravellingsLink: { template: '<a class="travellings-link-stub">Travellings</a>' },
     NuxtLink: { template: '<a><slot /></a>' },
     Button: { template: '<button @click="$emit(\'click\', $event)"><slot /></button>' },
     Menu: {
@@ -152,6 +152,24 @@ describe('AppHeader', () => {
         expect(wrapper.find('#admin-posts-shortcut').exists()).toBe(true)
         expect(wrapper.find('#mobile-admin-posts-btn').exists()).toBe(true)
         expect(wrapper.find('#admin-menu-btn').exists()).toBe(true)
+    })
+
+    it('renders admin posts link after travellings in desktop nav', async () => {
+        sessionState.value = {
+            data: {
+                user: { id: '5', role: 'admin', name: 'Admin' },
+            },
+            isPending: false,
+        }
+
+        const wrapper = await mountSuspended(AppHeader, {
+            global: { stubs },
+        })
+
+        const navHtml = wrapper.find('.app-header__nav').html()
+
+        expect(navHtml.indexOf('travellings-link-stub')).toBeGreaterThan(-1)
+        expect(navHtml.indexOf('desktop-admin-posts-link')).toBeGreaterThan(navHtml.indexOf('travellings-link-stub'))
     })
 
     it('hides post shortcuts for non-admin roles', async () => {
