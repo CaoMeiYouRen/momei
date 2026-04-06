@@ -5,6 +5,14 @@ import { ImageService } from '@/server/services/ai/image'
 import { TTSService } from '@/server/services/ai/tts'
 import { acquireLock, releaseLock } from '@/server/utils/redis'
 
+const mocks = vi.hoisted(() => ({
+    logger: {
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+    },
+}))
+
 vi.mock('@/server/database', () => ({
     dataSource: {
         getRepository: vi.fn(),
@@ -29,10 +37,7 @@ vi.mock('@/server/utils/redis', () => ({
 }))
 
 vi.mock('@/server/utils/logger', () => ({
-    default: {
-        warn: vi.fn(),
-        error: vi.fn(),
-    },
+    default: mocks.logger,
 }))
 
 describe('media task monitor', () => {
