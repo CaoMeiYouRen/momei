@@ -263,6 +263,84 @@
                                 />
                             </NuxtLink>
                         </div>
+                        <section
+                            v-if="!post.locked && post.relatedPosts && post.relatedPosts.length > 0"
+                            class="post-detail__related"
+                            :aria-labelledby="'related-posts-heading'"
+                        >
+                            <div class="post-detail__section-heading">
+                                <div>
+                                    <p class="post-detail__section-eyebrow">
+                                        {{ $t('pages.posts.related.eyebrow') }}
+                                    </p>
+                                    <h2 id="related-posts-heading" class="post-detail__section-title">
+                                        {{ $t('pages.posts.related.title') }}
+                                    </h2>
+                                </div>
+                                <p class="post-detail__section-desc">
+                                    {{ $t('pages.posts.related.description') }}
+                                </p>
+                            </div>
+
+                            <div class="post-detail__related-grid">
+                                <NuxtLink
+                                    v-for="relatedPost in post.relatedPosts"
+                                    :key="relatedPost.id"
+                                    :to="buildRelatedPostPath(relatedPost)"
+                                    class="post-detail__related-card"
+                                >
+                                    <div
+                                        v-if="relatedPost.coverImage"
+                                        class="post-detail__related-cover"
+                                    >
+                                        <img
+                                            :src="relatedPost.coverImage"
+                                            :alt="relatedPost.title"
+                                            width="480"
+                                            height="270"
+                                            loading="lazy"
+                                            decoding="async"
+                                        >
+                                    </div>
+
+                                    <div class="post-detail__related-body">
+                                        <div class="post-detail__related-meta">
+                                            <span
+                                                v-if="relatedPost.category"
+                                                class="post-detail__related-chip"
+                                            >
+                                                {{ relatedPost.category.name }}
+                                            </span>
+                                            <span v-if="relatedPost.publishedAt" class="post-detail__related-date">
+                                                <i class="pi pi-calendar" />
+                                                {{ formatDateTime(relatedPost.publishedAt) }}
+                                            </span>
+                                        </div>
+
+                                        <h3 class="post-detail__related-title">
+                                            {{ relatedPost.title }}
+                                        </h3>
+
+                                        <p v-if="relatedPost.summary" class="post-detail__related-summary">
+                                            {{ relatedPost.summary }}
+                                        </p>
+
+                                        <div
+                                            v-if="relatedPost.tags && relatedPost.tags.length > 0"
+                                            class="post-detail__related-tags"
+                                        >
+                                            <span
+                                                v-for="tag in relatedPost.tags.slice(0, 2)"
+                                                :key="tag.id"
+                                                class="post-detail__related-tag"
+                                            >
+                                                #{{ tag.name }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </NuxtLink>
+                            </div>
+                        </section>
                         <nav
                             v-if="!post.locked && (post.previousPost || post.nextPost)"
                             class="post-detail__navigation"
@@ -348,6 +426,19 @@ interface PostNavigationItem {
     language: string
 }
 
+interface PostRelatedItem extends PostNavigationItem {
+    category?: {
+        id: string
+        name: string
+        slug: string
+    } | null
+    tags?: {
+        id: string
+        name: string
+        slug: string
+    }[] | null
+}
+
 interface PostDetailAuthor extends NonNullable<Post['author']> {
     email?: string | null
     socialLinks?: SocialLink[]
@@ -358,6 +449,7 @@ interface PostDetailResponse extends Omit<Post, 'author' | 'translations'> {
     author?: PostDetailAuthor | null
     previousPost?: PostNavigationItem | null
     nextPost?: PostNavigationItem | null
+    relatedPosts?: PostRelatedItem[] | null
     translations?: {
         language: string
         slug: string
@@ -381,9 +473,17 @@ const fullUrl = computed(() => {
 })
 
 const isId = isSnowflakeId(idOrSlug)
-const endpoint = isId ? `/api/posts/${idOrSlug}` : `/api/posts/slug/${idOrSlug}`
+const endpoint = computed(() => {
+    if (isId) {
+        return `/api/posts/${idOrSlug}`
+    }
 
-const { data, pending, error, refresh } = await useAppFetch<ApiResponse<PostDetailResponse>>(() => endpoint)
+    const requestedLanguage = typeof route.query.language === 'string' ? route.query.language.trim() : ''
+    const search = requestedLanguage ? `?language=${encodeURIComponent(requestedLanguage)}` : ''
+    return `/api/posts/slug/${idOrSlug}${search}`
+})
+
+const { data, pending, error, refresh } = await useAppFetch<ApiResponse<PostDetailResponse>>(() => endpoint.value)
 
 const post = computed(() => data.value?.data)
 
@@ -403,6 +503,13 @@ const openLightbox = (image: string) => {
     lightboxImage.value = image
     lightboxVisible.value = true
 }
+
+const buildRelatedPostPath = (relatedPost: PostRelatedItem) => localePath({
+    path: `/posts/${relatedPost.slug}`,
+    query: {
+        language: relatedPost.language,
+    },
+})
 
 const password = ref('')
 const unlocking = ref(false)

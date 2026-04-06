@@ -42,6 +42,11 @@
                 "previous": "이전 글",
                 "next": "다음 글"
             },
+            "related": {
+                "eyebrow": "더 읽어보기",
+                "title": "관련 글",
+                "description": "현재 글의 카테고리와 태그를 바탕으로 같은 주제의 읽을거리를 이어서 추천합니다."
+            },
             "locked": {
                 "password_required": "콘텐츠가 제한되어 있습니다",
                 "password_required_desc": "이 글은 비밀번호로 보호됩니다. 전체 내용을 보려면 올바른 비밀번호를 입력해 주세요.",

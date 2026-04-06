@@ -42,6 +42,11 @@
                 "previous": "上一篇",
                 "next": "下一篇"
             },
+            "related": {
+                "eyebrow": "继续发现",
+                "title": "相关文章",
+                "description": "基于当前文章的分类与标签，为你补充同主题的延伸阅读。"
+            },
             "locked": {
                 "password_required": "内容已受限",
                 "password_required_desc": "本文章受密码保护，请输入正确密码以访问完整内容。",

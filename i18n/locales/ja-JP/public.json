@@ -42,6 +42,11 @@
                 "previous": "前の記事",
                 "next": "次の記事"
             },
+            "related": {
+                "eyebrow": "もっと読む",
+                "title": "関連記事",
+                "description": "現在の記事と近いカテゴリやタグのまとまりから、続けて読める記事を紹介します。"
+            },
             "locked": {
                 "password_required": "制限付きコンテンツ",
                 "password_required_desc": "この記事はパスワード保護されています。正しいパスワードを入力して全文を表示してください。",

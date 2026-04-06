@@ -42,6 +42,11 @@
                 "previous": "Previous article",
                 "next": "Next article"
             },
+            "related": {
+                "eyebrow": "Keep exploring",
+                "title": "Related reading",
+                "description": "Discover nearby articles selected from the same category and tag clusters as this post."
+            },
             "locked": {
                 "password_required": "Content Restricted",
                 "password_required_desc": "This article is password protected. Please enter the correct password to access the full content.",

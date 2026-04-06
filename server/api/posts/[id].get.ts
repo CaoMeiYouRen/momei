@@ -7,7 +7,7 @@ import { isAdmin } from '@/utils/shared/roles'
 import { getRequiredRouterParam } from '@/server/utils/router'
 import { success, ensureFound } from '@/server/utils/response'
 import { applyPostReadModelFromMetadata } from '@/server/utils/post-metadata'
-import { getAdjacentPublicPosts, getPostTranslations } from '@/server/utils/post-detail'
+import { getAdjacentPublicPosts, getPostTranslations, getRelatedPublicPosts } from '@/server/utils/post-detail'
 import { getUnlockedPostIds } from '@/server/utils/post-unlock'
 
 export default defineEventHandler(async (event) => {
@@ -52,17 +52,22 @@ export default defineEventHandler(async (event) => {
             translations,
             previousPost: null,
             nextPost: null,
+            relatedPosts: [],
             locked: true,
             reason: access.reason,
         })
     }
 
-    const { previousPost, nextPost } = await getAdjacentPublicPosts(postRepo, post)
+    const [{ previousPost, nextPost }, relatedPosts] = await Promise.all([
+        getAdjacentPublicPosts(postRepo, post),
+        getRelatedPublicPosts(postRepo, post),
+    ])
 
     return success(Object.assign(toPlainObject(post), {
         translations,
         previousPost,
         nextPost,
+        relatedPosts,
         locked: false,
     }))
 })
