@@ -41,7 +41,17 @@ function createEvent(headers: Record<string, string> = {}, query: Record<string,
 describe('scheduled task webhook', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        mocks.runRoutineMaintenanceTasks.mockResolvedValue({ friendLinksChecked: 2 })
+        mocks.runRoutineMaintenanceTasks.mockResolvedValue({
+            friendLinksChecked: 2,
+            aiMediaCompensation: {
+                scanned: 1,
+                completed: 1,
+                failed: 0,
+                resumed: 0,
+                skipped: 0,
+                staleBefore: '2026-04-07T11:55:00.000Z',
+            },
+        })
 
         vi.stubGlobal('readBody', vi.fn((event: { body?: Record<string, unknown> }) => Promise.resolve(event.body || {})))
         vi.stubGlobal('getQuery', vi.fn((event: { query?: Record<string, string> }) => event.query || {}))
@@ -72,6 +82,10 @@ describe('scheduled task webhook', () => {
         expect(mocks.runRoutineMaintenanceTasks).toHaveBeenCalledTimes(1)
         expect(result.code).toBe(200)
         expect(result.data.source).toBe('vercel')
+        expect(result.data.aiMediaCompensation).toEqual(expect.objectContaining({
+            scanned: 1,
+            completed: 1,
+        }))
     })
 
     it('应该拒绝错误的 Vercel CRON_SECRET', async () => {

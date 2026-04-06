@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { LessThanOrEqual } from 'typeorm'
-import { processScheduledPosts } from './task'
+import { processScheduledPosts, runRoutineMaintenanceTasks } from './task'
 import { dataSource } from '@/server/database'
 import { PostStatus } from '@/types/post'
 
@@ -14,6 +14,10 @@ const mocks = vi.hoisted(() => ({
         error: vi.fn(),
     },
     executePublishEffects: vi.fn(),
+    friendLinkService: {
+        runHealthCheck: vi.fn(),
+    },
+    scanAndCompensateTimedOutMediaTasks: vi.fn(),
 }))
 
 vi.mock('@/server/database', () => ({
@@ -30,12 +34,29 @@ vi.mock('./post-publish', () => ({
     executePublishEffects: mocks.executePublishEffects,
 }))
 
+vi.mock('./friend-link', () => ({
+    friendLinkService: mocks.friendLinkService,
+}))
+
+vi.mock('./ai/media-task-monitor', () => ({
+    scanAndCompensateTimedOutMediaTasks: mocks.scanAndCompensateTimedOutMediaTasks,
+}))
+
 describe('task service', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         mocks.postRepo.find.mockResolvedValue([])
         mocks.postRepo.update.mockResolvedValue(undefined)
         mocks.executePublishEffects.mockResolvedValue(undefined)
+        mocks.friendLinkService.runHealthCheck.mockResolvedValue(2)
+        mocks.scanAndCompensateTimedOutMediaTasks.mockResolvedValue({
+            scanned: 1,
+            completed: 1,
+            failed: 0,
+            resumed: 0,
+            skipped: 0,
+            staleBefore: '2026-04-07T11:55:00.000Z',
+        })
     })
 
     it('should scan scheduled posts with a minimal field set', async () => {
@@ -94,5 +115,23 @@ describe('task service', () => {
 
         expect(mocks.postRepo.update).not.toHaveBeenCalled()
         expect(mocks.executePublishEffects).not.toHaveBeenCalled()
+    })
+
+    it('should include media compensation summary in routine maintenance result', async () => {
+        const result = await runRoutineMaintenanceTasks()
+
+        expect(mocks.friendLinkService.runHealthCheck).toHaveBeenCalledTimes(1)
+        expect(mocks.scanAndCompensateTimedOutMediaTasks).toHaveBeenCalledTimes(1)
+        expect(result).toEqual({
+            friendLinksChecked: 2,
+            aiMediaCompensation: {
+                scanned: 1,
+                completed: 1,
+                failed: 0,
+                resumed: 0,
+                skipped: 0,
+                staleBefore: '2026-04-07T11:55:00.000Z',
+            },
+        })
     })
 })

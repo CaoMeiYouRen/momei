@@ -31,6 +31,7 @@ export default defineEventHandler(async (event) => {
             executedAt: new Date().toISOString(),
             source: 'cloudflare',
             friendLinksChecked: result.friendLinksChecked,
+            aiMediaCompensation: result.aiMediaCompensation,
         }
     } catch (err: any) {
         logger.error('[CloudflareScheduled] Execution failed:', err)

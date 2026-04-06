@@ -14,6 +14,9 @@ vi.mock('@/server/services/ai/quota-governance', () => ({
 vi.mock('@/server/utils/ai')
 vi.mock('../upload')
 vi.mock('@/server/utils/logger')
+vi.mock('@/server/services/notification', () => ({
+    sendInAppNotification: vi.fn().mockResolvedValue(undefined),
+}))
 vi.mock('@/server/utils/post-metadata', () => ({
     applyPostMetadataPatch: vi.fn((post, input: { metadata?: Record<string, unknown> | null }) => {
         if (input.metadata !== undefined) {
@@ -315,6 +318,7 @@ describe('ImageService', () => {
         it('should handle image generation failure', async () => {
             const mockTask = {
                 id: 'task-123',
+                userId: 'user-1',
                 status: 'processing',
             }
 
@@ -336,6 +340,47 @@ describe('ImageService', () => {
                 expect.objectContaining({
                     status: 'failed',
                     error: 'API quota exceeded',
+                }),
+            )
+        })
+
+        it('should complete stale image task from provider checkpoint without regenerating', async () => {
+            const mockTask = {
+                id: 'task-123',
+                userId: 'user-1',
+                type: 'image_generation',
+                status: 'processing',
+                progress: 60,
+                payload: JSON.stringify({ prompt: 'Recover me' }),
+                result: JSON.stringify({
+                    phase: 'provider_completed',
+                    providerResponse: {
+                        images: [{ url: 'https://example.com/recover.png' }],
+                        model: 'dall-e-3',
+                    },
+                }),
+            }
+
+            mockRepo.findOneBy.mockResolvedValue(mockTask)
+            vi.mocked(uploadService.uploadFromUrl).mockResolvedValue({
+                url: '/uploads/image/ai/recover.png',
+                path: '/uploads/image/ai/recover.png',
+                size: 1024,
+                mimeType: 'image/png',
+            } as any)
+
+            const outcome = await ImageService.compensateStaleTask('task-123')
+
+            expect(outcome).toBe('completed')
+            expect(aiUtils.getAIImageProvider).not.toHaveBeenCalled()
+            expect(uploadService.uploadFromUrl).toHaveBeenCalledWith(
+                'https://example.com/recover.png',
+                'image/ai/',
+                'user-1',
+            )
+            expect(mockRepo.save).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    status: 'completed',
                 }),
             )
         })

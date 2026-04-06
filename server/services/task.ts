@@ -2,6 +2,7 @@ import { LessThanOrEqual } from 'typeorm'
 import { executePublishEffects } from './post-publish'
 import { sendMarketingCampaign } from './notification'
 import { friendLinkService } from './friend-link'
+import { scanAndCompensateTimedOutMediaTasks } from './ai/media-task-monitor'
 import logger from '@/server/utils/logger'
 import { Post } from '@/server/entities/post'
 import { MarketingCampaign } from '@/server/entities/marketing-campaign'
@@ -45,9 +46,11 @@ export const processScheduledTasks = async () => {
 export const runRoutineMaintenanceTasks = async () => {
     await processScheduledTasks()
     const friendLinksChecked = await friendLinkService.runHealthCheck()
+    const aiMediaCompensation = await scanAndCompensateTimedOutMediaTasks()
 
     return {
         friendLinksChecked,
+        aiMediaCompensation,
     }
 }
 

@@ -159,6 +159,7 @@ async function executeTasks(source: string) {
                 executedAt: new Date().toISOString(),
                 source,
                 friendLinksChecked: result.friendLinksChecked,
+                aiMediaCompensation: result.aiMediaCompensation,
             },
         }
     } catch (err: any) {

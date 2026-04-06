@@ -16,7 +16,178 @@ import { AI_HEAVY_TASK_TIMEOUT_MS, TTS_DEFAULT_VOICE } from '@/utils/shared/env'
 import { NotificationType, buildAITaskDetailPath } from '@/utils/shared/notification'
 import type { TTSOptions, TTSAudioVoice, TTSVoiceQuery } from '@/types/ai'
 
+const MAX_PODCAST_COMPENSATION_ATTEMPTS = 2
+
+type PodcastTaskCheckpointPhase = 'queued' | 'asset_uploaded'
+
+interface PodcastTaskCheckpoint {
+    phase: PodcastTaskCheckpointPhase
+    uploadedAsset?: {
+        url: string
+        filename: string
+        mimeType: string
+        size: number
+    }
+    resumeAttempts?: number
+    lastResumeAt?: string | null
+}
+
+function parsePodcastTaskCheckpoint(taskResult: string | null | undefined) {
+    if (!taskResult) {
+        return null
+    }
+
+    try {
+        const parsed = JSON.parse(taskResult) as Partial<PodcastTaskCheckpoint>
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed) || typeof parsed.phase !== 'string') {
+            return null
+        }
+
+        if (!['queued', 'asset_uploaded'].includes(parsed.phase)) {
+            return null
+        }
+
+        return parsed as PodcastTaskCheckpoint
+    } catch {
+        return null
+    }
+}
+
+function normalizePodcastMode(mode?: string | null): 'podcast' | 'speech' | undefined {
+    if (mode === 'podcast' || mode === 'speech') {
+        return mode
+    }
+
+    return undefined
+}
+
 export class TTSService extends AIBaseService {
+    private static async finalizeUploadedTask(options: {
+        task: AITask
+        post: Post | null
+        payload: Record<string, any>
+        voice: string
+        contentToUse: string
+        uploadedFile: {
+            url: string
+            filename: string
+        }
+        mimeType: string
+        bufferSize: number
+        effectiveLanguage: string | null
+        effectiveTranslationId: string | null
+        mode?: string
+    }) {
+        const {
+            task,
+            post,
+            payload,
+            voice,
+            contentToUse,
+            uploadedFile,
+            mimeType,
+            bufferSize,
+            effectiveLanguage,
+            effectiveTranslationId,
+            mode,
+        } = options
+        const normalizedMode = normalizePodcastMode(mode)
+        const postRepo = dataSource.getRepository(Post)
+        const taskRepo = dataSource.getRepository(AITask)
+
+        if (post) {
+            applyPostMetadataPatch(post, {
+                metadata: {
+                    ...post.metadata,
+                    audio: {
+                        ...post.metadata?.audio,
+                        url: uploadedFile.url,
+                        size: bufferSize,
+                        mimeType,
+                        language: effectiveLanguage,
+                        translationId: effectiveTranslationId,
+                        postId: post.id,
+                        mode: normalizedMode,
+                    },
+                    tts: {
+                        ...post.metadata?.tts,
+                        provider: task.provider || null,
+                        voice,
+                        generatedAt: new Date(),
+                        language: effectiveLanguage,
+                        translationId: effectiveTranslationId,
+                        postId: post.id,
+                        mode: normalizedMode,
+                    },
+                },
+            })
+            await postRepo.save(post)
+        }
+
+        const usageSnapshot = normalizeUsageSnapshot({
+            category: task.category || task.type,
+            type: task.type,
+            payload,
+            response: { audioUrl: uploadedFile.url },
+            audioSize: bufferSize,
+            textLength: contentToUse.length,
+        })
+        task.status = 'completed'
+        task.progress = 100
+        task.textLength = contentToUse.length
+        task.audioSize = bufferSize
+        task.quotaUnits = calculateQuotaUnits({
+            category: task.category || task.type,
+            type: task.type,
+            payload,
+            usageSnapshot,
+        })
+        task.actualCost = await estimateAIDisplayCost({
+            category: task.category || task.type,
+            type: task.type,
+            provider: task.provider || null,
+            quotaUnits: task.quotaUnits,
+            payload,
+            usageSnapshot,
+        })
+        task.chargeStatus = deriveChargeStatus({
+            status: 'completed',
+            quotaUnits: task.quotaUnits,
+            settlementSource: 'estimated',
+        })
+        task.failureStage = null
+        task.usageSnapshot = serializeUsageSnapshot(usageSnapshot)
+        task.completedAt = new Date()
+        task.durationMs = task.startedAt ? task.completedAt.getTime() - task.startedAt.getTime() : task.durationMs
+        task.result = JSON.stringify({
+            url: uploadedFile.url,
+            audioUrl: uploadedFile.url,
+            filename: uploadedFile.filename,
+        })
+        await taskRepo.save(task)
+
+        await sendInAppNotification({
+            userId: task.userId,
+            type: NotificationType.SYSTEM,
+            title: '语音合成完成',
+            content: '您的语音合成任务已完成，可点击查看音频结果。',
+            link: buildAITaskDetailPath(task.id),
+        }).catch((notificationError) => {
+            logger.error('[TTSService] Failed to send completion notification:', notificationError)
+        })
+
+        this.logUsage({
+            task: 'tts',
+            response: {
+                model: task.model || 'unknown',
+                content: `Audio generation for ${contentToUse.length} characters (Task: ${task.id})`,
+            },
+            userId: task.userId,
+        })
+
+        logger.info(`[TTSService] Task ${task.id} completed successfully. URL: ${uploadedFile.url}`)
+    }
+
     private static resolveVoice(voice?: string | null) {
         if (!voice || voice === 'default') {
             return TTS_DEFAULT_VOICE
@@ -246,11 +417,11 @@ export class TTSService extends AIBaseService {
     /**
      * 后台处理文章 TTS 任务
      */
-    static async processTask(taskId: string) {
+    static async processTask(taskId: string, existingTask?: AITask) {
         const taskRepo = dataSource.getRepository(AITask)
         const postRepo = dataSource.getRepository(Post)
 
-        const task = await taskRepo.findOneBy({ id: taskId })
+        const task = existingTask || await taskRepo.findOneBy({ id: taskId })
         if (!task?.userId) {
             return
         }
@@ -272,6 +443,7 @@ export class TTSService extends AIBaseService {
             const voice = this.resolveVoice(payload.voice)
             const effectiveLanguage = post?.language || payload.language || options.language || null
             const effectiveTranslationId = post?.translationId ?? payload.translationId ?? null
+            const checkpoint = task.type === 'podcast' ? parsePodcastTaskCheckpoint(task.result) : null
 
             if (effectiveLanguage && !options.language) {
                 options.language = effectiveLanguage
@@ -281,6 +453,23 @@ export class TTSService extends AIBaseService {
 
             if (!contentToUse) {
                 throw new Error('No content to generate speech from')
+            }
+
+            if (task.type === 'podcast' && checkpoint?.phase === 'asset_uploaded' && checkpoint.uploadedAsset?.url) {
+                await this.finalizeUploadedTask({
+                    task,
+                    post,
+                    payload,
+                    voice,
+                    contentToUse,
+                    uploadedFile: checkpoint.uploadedAsset,
+                    mimeType: checkpoint.uploadedAsset.mimeType,
+                    bufferSize: checkpoint.uploadedAsset.size,
+                    effectiveLanguage,
+                    effectiveTranslationId,
+                    mode: options.mode,
+                })
+                return
             }
 
             // Ensure model from task is passed to options if not present
@@ -414,100 +603,35 @@ export class TTSService extends AIBaseService {
                 task.userId,
             )
 
-            // Update Post if exists
-            if (post) {
-                applyPostMetadataPatch(post, {
-                    metadata: {
-                        ...post.metadata,
-                        audio: {
-                            ...post.metadata?.audio,
-                            url: uploadedFile.url,
-                            size: buffer.length,
-                            mimeType: mimetype,
-                            language: effectiveLanguage,
-                            translationId: effectiveTranslationId,
-                            postId: post.id,
-                            mode: options.mode,
-                        },
-                        tts: {
-                            ...post.metadata?.tts,
-                            provider: task.provider || null,
-                            voice,
-                            generatedAt: new Date(),
-                            language: effectiveLanguage,
-                            translationId: effectiveTranslationId,
-                            postId: post.id,
-                            mode: options.mode,
-                        },
+            if (task.type === 'podcast') {
+                task.result = JSON.stringify({
+                    phase: 'asset_uploaded',
+                    uploadedAsset: {
+                        url: uploadedFile.url,
+                        filename: uploadedFile.filename,
+                        mimeType: mimetype,
+                        size: buffer.length,
                     },
-                })
-                await postRepo.save(post)
+                    resumeAttempts: checkpoint?.resumeAttempts || 0,
+                    lastResumeAt: checkpoint?.lastResumeAt || null,
+                } satisfies PodcastTaskCheckpoint)
+                task.progress = 98
+                await taskRepo.save(task)
             }
 
-            // Mark Task Completed
-            const usageSnapshot = normalizeUsageSnapshot({
-                category: task.category || task.type,
-                type: task.type,
+            await this.finalizeUploadedTask({
+                task,
+                post,
                 payload,
-                response: { audioUrl: uploadedFile.url },
-                audioSize: buffer.length,
-                textLength: contentToUse.length,
+                voice,
+                contentToUse,
+                uploadedFile,
+                mimeType: mimetype,
+                bufferSize: buffer.length,
+                effectiveLanguage,
+                effectiveTranslationId,
+                mode: options.mode,
             })
-            task.status = 'completed'
-            task.progress = 100
-            task.textLength = contentToUse.length
-            task.audioSize = buffer.length
-            task.quotaUnits = calculateQuotaUnits({
-                category: task.category || task.type,
-                type: task.type,
-                payload,
-                usageSnapshot,
-            })
-            task.actualCost = await estimateAIDisplayCost({
-                category: task.category || task.type,
-                type: task.type,
-                provider: task.provider || null,
-                quotaUnits: task.quotaUnits,
-                payload,
-                usageSnapshot,
-            })
-            task.chargeStatus = deriveChargeStatus({
-                status: 'completed',
-                quotaUnits: task.quotaUnits,
-                settlementSource: 'estimated',
-            })
-            task.failureStage = null
-            task.usageSnapshot = serializeUsageSnapshot(usageSnapshot)
-            task.completedAt = new Date()
-            task.durationMs = task.startedAt ? task.completedAt.getTime() - task.startedAt.getTime() : task.durationMs
-            task.result = JSON.stringify({
-                url: uploadedFile.url,
-                audioUrl: uploadedFile.url,
-                filename: uploadedFile.filename,
-            })
-            await taskRepo.save(task)
-
-            await sendInAppNotification({
-                userId: task.userId,
-                type: NotificationType.SYSTEM,
-                title: '语音合成完成',
-                content: '您的语音合成任务已完成，可点击查看音频结果。',
-                link: buildAITaskDetailPath(taskId),
-            }).catch((notificationError) => {
-                logger.error('[TTSService] Failed to send completion notification:', notificationError)
-            })
-
-            // Log usage for analytical purposes
-            this.logUsage({
-                task: 'tts',
-                response: {
-                    model: task.model || 'unknown',
-                    content: `Audio generation for ${contentToUse.length} characters (Task: ${taskId})`,
-                },
-                userId: task.userId,
-            })
-
-            logger.info(`[TTSService] Task ${taskId} completed successfully. URL: ${uploadedFile.url}`)
         } catch (error: any) {
             logger.error(`[TTSService] Task ${taskId} failed:`, error)
             task.status = 'failed'
@@ -535,5 +659,68 @@ export class TTSService extends AIBaseService {
                 logger.error('[TTSService] Failed to send failure notification:', notificationError)
             })
         }
+    }
+
+    static async compensateStaleTask(taskId: string) {
+        const taskRepo = dataSource.getRepository(AITask)
+        const task = await taskRepo.findOneBy({ id: taskId })
+
+        if (task?.type !== 'podcast') {
+            return 'skipped' as const
+        }
+
+        const finalStatus = task.status as AITask['status']
+
+        if (finalStatus === 'completed') {
+            return 'completed' as const
+        }
+
+        if (finalStatus === 'failed') {
+            return 'failed' as const
+        }
+
+        const checkpoint = parsePodcastTaskCheckpoint(task.result)
+        if (checkpoint?.phase !== 'asset_uploaded') {
+            const nextAttempts = (checkpoint?.resumeAttempts || 0) + 1
+            if (nextAttempts > MAX_PODCAST_COMPENSATION_ATTEMPTS) {
+                task.status = 'failed'
+                task.error = 'Podcast generation task timed out and exceeded compensation attempts'
+                task.failureStage = 'provider_processing'
+                task.chargeStatus = deriveChargeStatus({
+                    status: 'failed',
+                    failureStage: 'provider_processing',
+                    quotaUnits: 0,
+                    settlementSource: 'estimated',
+                })
+                task.completedAt = new Date()
+                task.durationMs = task.startedAt ? task.completedAt.getTime() - task.startedAt.getTime() : task.durationMs
+                await taskRepo.save(task)
+                return 'failed' as const
+            }
+
+            task.status = 'processing'
+            task.error = null
+            task.startedAt = task.startedAt || new Date()
+            task.result = JSON.stringify({
+                phase: checkpoint?.phase || 'queued',
+                uploadedAsset: checkpoint?.uploadedAsset,
+                resumeAttempts: nextAttempts,
+                lastResumeAt: new Date().toISOString(),
+            } satisfies PodcastTaskCheckpoint)
+            task.progress = Math.max(task.progress || 0, 10)
+            await taskRepo.save(task)
+        }
+
+        await this.processTask(task.id, task)
+
+        if (task.status === 'completed') {
+            return 'completed' as const
+        }
+
+        if (task.status === 'failed') {
+            return 'failed' as const
+        }
+
+        return 'resumed' as const
     }
 }
