@@ -131,7 +131,8 @@
 | `CRON_SECRET` | - | 3 | password | Vercel Cron Bearer 鉴权密钥 |
 | `TASKS_TOKEN` | - | 3 | password | Webhook 任务鉴权令牌 |
 | `WEBHOOK_SECRET` | - | 3 | password | Webhook HMAC 验签密钥 |
-| `TASK_CRON_EXPRESSION` | - | 3 | none | 自部署环境内置 Cron 表达式，默认每 5 分钟执行一次 |
+| `TASK_CRON_EXPRESSION` | - | 3 | none | 自部署环境主任务 Cron 表达式，默认每 5 分钟执行一次；统一处理文章 / 营销调度与 AI 媒体超时补偿 |
+| `FRIEND_LINKS_CHECK_CRON` | - | 3 | none | 自部署环境独立友链巡检 Cron 表达式，默认每天 UTC 02:00 执行一次 |
 | `DISABLE_CRON_JOB` | - | 3 | none | 显式禁用自部署环境内置 Cron |
 | `NUXT_PUBLIC_BAIDU_ANALYTICS_ID`| `baidu_analytics` | 0 | none | 百度统计 ID |
 | `NUXT_PUBLIC_SENTRY_DSN` | - | 0 | key | Sentry 前后端共享监控 DSN |

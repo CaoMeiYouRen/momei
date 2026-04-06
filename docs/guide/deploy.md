@@ -66,7 +66,8 @@
 - **`CRON_SECRET`**: Vercel Cron 专用 Bearer 鉴权密钥，平台会自动以 `Authorization: Bearer <secret>` 调用任务端点。
 - **`TASKS_TOKEN`**: 定时任务 Webhook 的基础鉴权令牌，主要用于手动触发或兼容旧集成。
 - **`WEBHOOK_SECRET`**: 推荐单独配置，用于 HMAC 模式验签。
-- **`TASK_CRON_EXPRESSION`**: 仅自部署环境有效，用于覆盖内置 Cron 频率。
+- **`TASK_CRON_EXPRESSION`**: 仅自部署环境有效，用于覆盖主任务 Cron 频率。主任务会统一执行文章 / 营销调度与 AI 媒体超时补偿。
+- **`FRIEND_LINKS_CHECK_CRON`**: 仅自部署环境有效，用于覆盖独立友链巡检 Cron，默认每天 UTC 02:00 执行一次。
 - **`DISABLE_CRON_JOB=true`**: 用于显式关闭自部署环境内置 Cron。
 - **`FRIEND_LINKS_CHECK_INTERVAL_MINUTES`**: 友链巡检的最小生效间隔。后台可调整，但最终不会低于 60 分钟。
 - **`FRIEND_LINKS_CHECK_BATCH_SIZE`**: 单轮友链巡检批量，默认 `20`。
@@ -76,7 +77,14 @@
 
 说明：`WEBHOOK_TIMESTAMP_TOLERANCE` 这个变量名当前仍保留在示例文件中，但现版本实现尚未读取它；Webhook 校验默认固定为 5 分钟容差。
 
+调度职责说明：
+
+- Vercel / Cloudflare / 手动 Webhook 入口统一执行文章 / 营销调度、AI 媒体超时补偿和友链巡检。
+- 自部署环境下，主 Cron 负责文章 / 营销调度和 AI 媒体超时补偿；友链巡检继续由独立 Cron 执行，避免默认跟随 5 分钟主任务频率高频触发。
+
 友链巡检说明：即使 Cloudflare / Vercel 的统一定时入口触发更频繁，友链服务也只会对已达到最小间隔且不处于失败冷却期的记录发起探测。
+
+AI 媒体补偿说明：统一定时入口只会扫描超过超时阈值且长期无更新的图片生成 / 播客任务，并根据已持久化 checkpoint 决定补写结果、续跑处理或最终失败落点，不会在每次调度中盲目重生成。
 
 ## 3. 体验增强 (Level 3: Optional)
 
@@ -164,7 +172,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
   - 内置 Cron 由 [vercel.json](../../vercel.json) 触发，默认每天一次。
 - **Docker / 自部署服务器**: 适合需要本地磁盘、定时任务和更强可控性的场景。
   - 建议挂载 `database/` 与上传目录。
-  - 如需内置 Cron，可使用 `TASK_CRON_EXPRESSION` 自定义频率。
+  - 如需内置 Cron，可使用 `TASK_CRON_EXPRESSION` 自定义主任务频率，并用 `FRIEND_LINKS_CHECK_CRON` 单独调整友链巡检节奏。
 - **Cloudflare（外围能力接入）**:
   - 当前版本暂不支持将应用主体完整部署到 Cloudflare Pages / Workers，根因是项目仍依赖 TypeORM 与 Node 运行时能力。
   - Cloudflare R2 可继续作为对象存储接入。

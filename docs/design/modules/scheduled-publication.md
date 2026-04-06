@@ -6,7 +6,8 @@
 
 - 文章定时发布
 - 营销任务定时执行
-- Serverless / 手动触发入口下的友链可用性巡检
+- AI 媒体超时巡检与状态补偿
+- 友链可用性巡检
 
 设计重点不再是“是否可行”，而是不同部署环境如何安全触发同一条任务执行链路。
 
@@ -14,11 +15,15 @@
 
 ### 2.1 统一任务引擎
 
-任务执行逻辑统一收敛在 `processScheduledTasks()`，由不同触发入口复用。
+任务执行逻辑当前分成两层：
+
+- `processScheduledTasks()`：负责文章定时发布与营销任务执行
+- `runRoutineMaintenanceTasks()`：在统一调度任务之后补充执行 AI 媒体超时补偿与友链巡检
 
 相关文件：
 
 - [server/services/task.ts](../../server/services/task.ts)
+- [server/services/ai/media-task-monitor.ts](../../server/services/ai/media-task-monitor.ts)
 - [server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts)
 - [server/api/tasks/run-scheduled.post.ts](../../server/api/tasks/run-scheduled.post.ts)
 - [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts)
@@ -27,10 +32,17 @@
 
 [server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts) 在非 Serverless 环境下注册 CronJob：
 
-- 默认表达式：`*/5 * * * *`
+- 主任务默认表达式：`*/5 * * * *`
 - 时区：`UTC`
+- 主任务会依次执行：文章 / 营销定时任务 + AI 媒体超时补偿
 - 可通过 `TASK_CRON_EXPRESSION` 覆盖
 - 当检测到 Serverless 环境或 `DISABLE_CRON_JOB=true` 时自动禁用
+
+此外，自部署环境还保留一条独立的友链巡检 Cron：
+
+- 默认表达式：`0 2 * * *`
+- 可通过 `FRIEND_LINKS_CHECK_CRON` 覆盖
+- 仍会受到友链服务内部的最小巡检间隔和失败退避窗口约束
 
 ### 2.3 Serverless 触发
 
@@ -43,8 +55,10 @@
 
 补充说明：
 
-- 自部署环境下，友链巡检由 [server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts) 中的独立 Cron 表达式驱动。
-- Serverless 或手动触发入口下，`/api/tasks/run-scheduled` 与 [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts) 会在执行统一调度任务后补充执行一次友链巡检，但实际探测仍会受到最小巡检间隔与失败退避冷却约束。
+- 自部署环境下，主 Cron 会补充执行 AI 媒体超时补偿；友链巡检由 [server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts) 中的独立 Cron 表达式驱动。
+- Serverless 或手动触发入口下，`/api/tasks/run-scheduled` 与 [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts) 会在执行统一调度任务后补充执行一次 AI 媒体超时补偿和友链巡检。
+- AI 媒体巡检会先做分布式锁与数据库级 claim/lease 认领，再尝试补偿 stale 任务，以降低 Vercel / 自部署多实例并发下的重复补偿风险。
+- 友链实际探测仍会受到最小巡检间隔与失败退避冷却约束。
 
 ## 3. Webhook 安全模型
 
@@ -108,6 +122,12 @@ Vercel Cron 会自动把项目中的 `CRON_SECRET` 作为 `Authorization: Bearer
 - 请求方法：`GET`
 - 鉴权头：`Authorization: Bearer ${CRON_SECRET}`
 
+执行结果会返回结构化摘要，至少包含：
+
+- 已执行来源 `source`
+- 友链巡检结果 `friendLinksChecked`
+- AI 媒体补偿摘要 `aiMediaCompensation`
+
 ### 4.2 Cloudflare
 
 [wrangler.toml](../../wrangler.toml) 当前配置为每 15 分钟一次：
@@ -117,6 +137,8 @@ Vercel Cron 会自动把项目中的 `CRON_SECRET` 作为 `Authorization: Bearer
 这两种频率不同是部署平台适配策略的一部分，而不是文档误差。
 
 补充说明：高频的统一调度入口并不意味着友链会被高频重复探测。友链服务会基于 `friend_links_check_interval_minutes` 和失败退避窗口筛选“已到期”的候选项，仅对到期记录执行网络请求。
+
+同理，AI 媒体补偿也不是“每次都重新生成媒体”，而是仅扫描超过超时阈值、长时间无更新的 `pending` / `processing` 任务，并根据 checkpoint 决定补写、续跑或最终失败落点。
 
 ## 5. 当前边界
 
