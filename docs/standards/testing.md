@@ -161,6 +161,14 @@ pnpm run test:coverage
 | Coverage | `pnpm test:coverage` | 30 分钟 | 覆盖率治理、回归任务、核心模块补测 | 若覆盖率下滑或存在核心链路改动，应补充定向 / 全量测试结果一起提交 |
 | Verify | `pnpm verify` | 60 分钟 | 发布前、跨模块流程、Hotfix 收口、需要含 E2E 的完整证据链 | 仅在需要串联 `lint + typecheck + test + e2e` 时使用，不作为普通小改动默认命令 |
 
+周期性回归固定入口补充：
+
+| 回归节奏 | 推荐命令 | 默认 timeout budget | 说明 |
+| :--- | :--- | :--- | :--- |
+| 周级治理 | `pnpm regression:weekly` | 60 分钟以内 | 固定覆盖 coverage、依赖安全、文档事实源 / i18n 检查与重复代码基线 |
+| 发版前 | `pnpm regression:pre-release` | 90 分钟以内 | 固定覆盖 `release:check:full`、文档 i18n 检查、性能预算与重复代码复核 |
+| 阶段收口前 | `pnpm regression:phase-close` | 120 分钟以内 | 在发版前入口基础上补强 coverage、strict 重复代码检查与 Review Gate 证据；日志窗口超限时直接阻断归档 |
+
 补充约束：
 
 1.  周期性回归任务可以执行上述 4 类命令，但必须在任务记录中写明预算、结果和未覆盖边界。

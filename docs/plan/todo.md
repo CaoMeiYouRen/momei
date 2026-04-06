@@ -41,12 +41,14 @@
 
 ### 2. 主线：周期性回归任务实盘化（P0）
 
-- [ ] **把既有周期性回归规范上收为可执行节奏**
+- [x] **把既有周期性回归规范上收为可执行节奏**
 	- 验收: 明确周级、发版前与阶段收口前三类回归的最小执行清单、责任边界与触发条件，不再只停留在规范文本。
 	- 验收: 至少覆盖测试 / coverage、依赖安全、文档同步、脚本入口、性能基线或等价高漂移项中的一组固定组合。
-- [ ] **统一回归产物与调度记录方式**
+	- 结果: 已新增 `scripts/regression/run-periodic-regression.mjs` 与 `pnpm regression:weekly`、`pnpm regression:pre-release`、`pnpm regression:phase-close` 三条固定入口，并将触发条件、责任边界与固定命令组合回写到 `planning.md`、`testing.md`、`development.md` 与 `scripts/README.md`。
+- [x] **统一回归产物与调度记录方式**
 	- 验收: 回归结果继续统一沉淀到 `docs/plan/regression-log.md`，并明确何时滚动归档、何时升级为阻塞项。
 	- 验收: 不再新增第二套周期性回归记录口径或临时散落文档。
+	- 结果: 三条固定入口统一把 Markdown / JSON 证据落到 `artifacts/review-gate/`，正文摘要仍只写入 `docs/plan/regression-log.md`；`phase-close` profile 已把“活动日志超过 400 行或 8 条记录且尚未滚动归档”编码为 blocker，本轮 dry-run 已成功识别当前 `regression-log.md` 超窗状态。
 
 ### 3. 主线：文章批量翻译到其他语言的编排能力评估（P1）
 

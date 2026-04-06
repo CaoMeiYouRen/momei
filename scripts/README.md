@@ -6,6 +6,7 @@
 
 | 领域 | 推荐入口 | 主要输入 | 标准输出 | 风险边界 / 备注 | 状态 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
+| `regression` | `pnpm regression:weekly` / `pnpm regression:pre-release` / `pnpm regression:phase-close` | 固定 cadence profile；可选 `--mode=warn|error`、`--dry-run` | 周级 / 发版前 / 阶段收口前的统一执行摘要；`artifacts/review-gate/` 下的 Markdown + JSON 证据 | `phase-close` 会把回归日志窗口超限升级为 blocker；所有结果仍需回写 `docs/plan/regression-log.md` | 正式入口 |
 | `release` | `pnpm release:check` / `pnpm release:check:full` | 可选 `--skip-test`、`--skip-e2e`、`--mode=warn|error` | 控制台验证摘要；`artifacts/release/` 下的发布前证据 | 默认会跑 lint、typecheck、安全 / 文档检查；`full` 会升级补跑 Vitest 与 E2E，避免在未评估预算时直接使用 | 正式入口 |
 | `review-gate` | `pnpm review-gate:generate` / `pnpm review-gate:generate:check` / `pnpm duplicate-code:check` | 可选 `--run-checks`、`--scope=<change>`、`--mode=warn|error` | Review Gate 证据 Markdown / JSON；重复代码审计产物 | 以证据生成和只读审计为主；`generate:check` 会主动拉起更多校验，适合阶段收口或发版前 | 正式入口 |
 | `security` | `pnpm security:audit-deps` / `pnpm security:alerts` | allowlist / exceptions、最小严重级别、可选快照输入 | High+ 风险结论；JSON / Markdown 证据落盘 | 默认按 high+ 阻断；本地会尝试补装 `.env` 中的 token，但不会覆盖已显式传入变量 | 正式入口 |
@@ -19,6 +20,7 @@
 
 | 目录 | 主要脚本 | 调用入口 | 副作用范围 | 当前结论 |
 | :--- | :--- | :--- | :--- | :--- |
+| `scripts/regression/` | `run-periodic-regression.mjs` | `pnpm regression:weekly`、`pnpm regression:pre-release`、`pnpm regression:phase-close` | 按 profile 编排固定回归组合，读取 `docs/plan/regression-log.md` 窗口健康度，并生成 Review Gate 摘要 | 保留 |
 | `scripts/ai/` | `check-governance.mjs` | `pnpm ai:check` | 只读体检 `.github/`、`.claude/`、skills / agents 镜像与治理状态 | 保留 |
 | `scripts/release/` | `pre-release-check.mjs` | `pnpm release:check`、`pnpm release:check:full` | 汇总 lint、typecheck、安全、文档与按需测试的发布前门禁，并落盘证据 | 保留 |
 | `scripts/review-gate/` | `generate-evidence.mjs`、`check-duplicate-code.mjs` | `pnpm review-gate:generate`、`pnpm review-gate:generate:check`、`pnpm duplicate-code:check` | 生成 Review Gate 证据，或对重复代码输出 JSON / Markdown 审计结果 | 保留 |
@@ -39,6 +41,9 @@
 
 ```bash
 pnpm ai:check
+pnpm regression:weekly
+pnpm regression:pre-release
+pnpm regression:phase-close
 pnpm security:audit-deps
 pnpm security:alerts
 pnpm docs:check:i18n
@@ -61,6 +66,12 @@ pnpm test:perf:budget:strict
 - 失败归因顺序统一为“服务启动 / 构建产物 -> 认证态 / 种子数据 -> 具体场景断言”；需要更大范围验证时，再从该基线升级到定向或全量 `pnpm test:e2e`。
 
 补充说明：本地直接运行 `pnpm security:audit-deps` 或 `pnpm security:alerts` 时，若仓库根目录存在 `.env`，脚本会先尝试装载其中尚未出现在当前进程环境中的变量（例如 `SECURITY_ALERTS_TOKEN`、`GITHUB_TOKEN`、`GH_TOKEN`），但不会覆盖已显式传入的环境变量。
+
+`pnpm regression:weekly`、`pnpm regression:pre-release` 与 `pnpm regression:phase-close` 则负责把既有周期性回归规范上收为三条固定节奏：
+
+- `weekly` 固定覆盖 coverage、依赖安全、文档事实源 / i18n 检查与重复代码基线。
+- `pre-release` 固定覆盖完整发布前校验、文档 i18n 检查、性能预算与重复代码复核。
+- `phase-close` 在 `pre-release` 基础上补强 coverage、严格重复代码检查与 Review Gate 证据生成；若活动回归日志超过 `400` 行或 `8` 条记录，脚本会把“先滚动归档再收口”升级为 blocker。
 
 ### 工作流入口
 

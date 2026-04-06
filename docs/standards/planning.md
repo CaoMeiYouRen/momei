@@ -137,6 +137,22 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 | 覆盖率治理与性能基线审计 | 每周一次或阶段收口前 | 核心模块覆盖率下滑、Lighthouse / Bundle 告警 |
 | 依赖安全审计 | 每次发版前或每周一次 | Dependabot 告警、新增依赖、锁文件集中变更、安全通报出现 |
 
+#### 固定调度入口
+
+为避免同一类周期性回归长期停留在“规范有了但每次靠人工重新拼命令”，当前阶段统一使用以下三条固定入口：
+
+| 节奏 | 正式入口 | 最小固定组合 | 责任边界 | blocker 规则 |
+| :--- | :--- | :--- | :--- | :--- |
+| 周级治理 | `pnpm regression:weekly` | `test:coverage` + `security:audit-deps` + `docs:check:source-of-truth` + `docs:check:i18n` + `duplicate-code:check` | `@full-stack-master` 或当前值班开发者执行；`@code-auditor` 复核 blocker；`@documentation-specialist` 回写 `regression-log.md` | 任一 required 命令失败即 blocker；活动日志窗口超限先记 warning |
+| 发版前 | `pnpm regression:pre-release` | `release:check:full` + `docs:check:i18n` + `test:perf:budget:strict` + `duplicate-code:check` | `@full-stack-master` 执行；`@code-auditor` 决定放行；结果摘要继续沉淀到 `regression-log.md` | 任一 required 命令失败即 blocker |
+| 阶段收口前 | `pnpm regression:phase-close` | `test:coverage` + `release:check:full` + `docs:check:i18n` + `test:perf:budget:strict` + `duplicate-code:check:strict` + `review-gate:generate:check` | `@full-stack-master` 执行并补齐 Review Gate；`@code-auditor` 给出 Pass / Reject；`@todo-manager` / `@documentation-specialist` 仅在通过后推进归档 | 任一 required 命令失败即 blocker；若 `regression-log.md` 超过 `400` 行或 `8` 条记录且尚未滚动归档，也直接视为 blocker |
+
+补充约束：
+
+1. 三条固定入口生成的 artifact 仅作为引用证据，正式结果摘要仍统一沉淀到 `docs/plan/regression-log.md`。
+2. `duplicate-code:check` 在周级 / 发版前入口中默认只作为 warning 基线；进入 `phase-close` 时必须升级到 strict 口径。
+3. `regression-log.md` 触发滚动归档的条件继续保持唯一事实源：超过 `300 - 400` 行、或超过 `6 - 8` 条完整记录且已影响当前阶段阅读效率；`phase-close` 入口将其中的上限口径编码为正式 blocker。
+
 推荐输出模板：
 
 ```md

@@ -5,7 +5,7 @@
 ## 当前窗口与索引
 
 - 统一入口: [回归日志索引与对比指南](./regression-log-index.md)
-- 当前窗口: 活动日志当前保留 2026-03-22 至 2026-04-06 的 12 条近线记录，优先服务当前阶段收口、近期发版判断与最近基线比较。
+- 当前窗口: 活动日志已进入超窗待归档状态；最近一次以 `pnpm regression:phase-close --dry-run` 测得主日志已超过当前 `6 - 8` 条记录 / `300 - 400` 行窗口，阶段收口前必须先完成滚动归档。
 - 历史归档: 2026-03-20 至 2026-03-21 的 5 条旧记录已滚动迁移到 [regression-log-archive.md](./regression-log-archive.md)。
 - 对比建议: 先用本文件确认当前基线，再按主题到归档文件核对更早一期的 clean baseline 或历史专项记录。
 
@@ -31,6 +31,52 @@
     - 活动日志保留最近记录与索引入口。
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
+
+## 周期性回归调度入口落地（2026-04-06）
+
+### 回归任务记录
+
+- 回归范围: 第二十二阶段 P0“周期性回归任务实盘化”首轮落地；覆盖新增的 [scripts/regression/run-periodic-regression.mjs](./../..//scripts/regression/run-periodic-regression.mjs) 统一调度脚本、[package.json](./../..//package.json) 中的三条固定入口、[docs/standards/planning.md](../standards/planning.md)、[docs/standards/testing.md](../standards/testing.md)、[docs/guide/development.md](../guide/development.md) 与 [scripts/README.md](../../scripts/README.md) 的口径同步。
+- 触发条件: 当前阶段要求把既有周期性回归规范从“模板与约束”上收到“可直接执行的固定节奏”，并明确周级、发版前、阶段收口前三类回归的责任边界、固定组合与 blocker 条件。
+- 执行频率: 本阶段首轮落地；后续仅在 cadence 组合、blocking 规则或证据落点发生变化时追加增量记录。
+- timeout budget:
+    - 脚本级定向测试: 10 分钟。
+    - 定向 ESLint: 10 分钟。
+    - Markdown 文档检查: 10 分钟。
+    - `weekly` / `phase-close` dry-run 编排验证: 各 10 分钟。
+- 已执行命令:
+    - `CI=1 pnpm exec vitest run tests/scripts/run-periodic-regression.test.ts --reporter=dot`
+    - `pnpm exec eslint scripts/regression/run-periodic-regression.mjs tests/scripts/run-periodic-regression.test.ts`
+    - `pnpm exec lint-md docs/standards/planning.md docs/standards/testing.md docs/guide/development.md docs/plan/todo.md docs/plan/regression-log.md scripts/README.md`
+    - `node scripts/regression/run-periodic-regression.mjs --profile=weekly --dry-run`
+    - `node scripts/regression/run-periodic-regression.mjs --profile=phase-close --dry-run`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 脚本测试层: `tests/scripts/run-periodic-regression.test.ts` 4 个用例通过，已锁定三条固定 cadence profile、回归日志窗口阈值，以及 `phase-close` 把窗口超限升级为 blocker 的规则。
+        - V1 / 静态层: 新增调度脚本与测试的定向 ESLint 通过。
+        - V1 / 文档层: 周期性回归相关计划 / 规范 / 指南 / 脚本文档的 Markdown 检查通过。
+        - V1 / 编排层: `weekly` dry-run 返回 `Prepared`，确认周级 profile 会按 coverage、依赖安全、文档事实源 / i18n 与重复代码基线固定编排。
+        - V1 / blocker 层: `phase-close` dry-run 返回 `Reject`，正确识别当前活动日志超窗，不允许在未归档状态下直接进入阶段收口。
+    - 结果摘要:
+        - 周期性回归已从规范模板正式收敛为三条固定入口：`pnpm regression:weekly`、`pnpm regression:pre-release`、`pnpm regression:phase-close`。
+        - 三条入口各自固定了最小组合，而不再依赖人工临时拼命令：
+            - `weekly`: coverage + 依赖安全 + 文档事实源 / i18n + 重复代码基线。
+            - `pre-release`: `release:check:full` + 文档 i18n 检查 + 性能预算 + 重复代码复核。
+            - `phase-close`: 在发版前组合上再补 coverage、strict 重复代码检查与 Review Gate 证据生成。
+        - 证据口径已统一：脚本会把结构化摘要写入 `artifacts/review-gate/<date>-<profile>-regression.md|json`，但正式正文仍只允许沉淀在本文件。
+        - `phase-close` 已把“活动日志超过 400 行或 8 条记录且尚未滚动归档”编码为 blocker；本轮 dry-run 实测当前 [regression-log.md](./regression-log.md) 为 `1015` 行、`17` 条记录，已触发 Reject。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - 周期性回归调度入口已落地，但活动日志本身仍处于超窗状态；真正进入阶段收口前，还需先执行一次滚动归档。
+            - 本轮只做了脚本级测试与 dry-run，没有在本次变更中直接补跑完整 `weekly` / `pre-release` / `phase-close` 实盘命令，避免把规范落地任务扩写成全量回归执行任务。
+    - 未覆盖边界:
+        - 本轮未实际执行 `test:coverage`、`release:check:full` 或 `test:perf:budget:strict`，因此没有新增这些命令的最新业务结果，只验证了编排与 blocker 规则。
+        - 本轮未同步清理 [regression-log.md](./regression-log.md) 的超窗历史记录，滚动归档应作为后续阶段收口前置动作单独执行。
+    - 后续补跑计划:
+        - 下一步先滚动归档活动日志，把 [regression-log.md](./regression-log.md) 收敛回最近 `6 - 8` 条记录，再重新执行 `pnpm regression:phase-close`。
+        - 发版前直接使用 `pnpm regression:pre-release` 替代手工拼装同类命令；周级治理则默认改用 `pnpm regression:weekly`。
 
 ## 测试有效性增强治理首轮切入（2026-04-06）
 

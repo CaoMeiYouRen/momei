@@ -11,17 +11,16 @@
 
 ## 2. 当前基线索引
 
-当前活动窗口以“近线可比较”为目标，保留 2026-03-22 至 2026-03-30 的 7 条记录。
+当前活动窗口已因第二十二阶段连续治理扩展为超窗状态；最近一次 `pnpm regression:phase-close --dry-run` 已测得主日志为 `1015` 行、`17` 条记录，并因此直接返回 `Reject`。这意味着下一次阶段收口前，必须先把旧记录滚动迁移到 [regression-log-archive.md](./regression-log-archive.md)。
+
+当前仍应优先关注以下近线主题：
 
 | 时间 | 主题 | 阶段 / 用途 | 入口 |
 | :-- | :-- | :-- | :-- |
-| 2026-03-30 | PostgreSQL 数据库流量热点首轮收敛回归 | 第十九阶段当前基线；用于数据库流量热点与最小治理判断 | [regression-log.md](./regression-log.md) |
-| 2026-03-30 | 重复代码治理与纯函数复用基线回归 | 第十九阶段当前基线；用于 shared helper 复用收敛对比 | [regression-log.md](./regression-log.md) |
-| 2026-03-23 | MJML 依赖链 high 风险替换回归 | 最近一次 release 安全门禁与依赖替换对比基线 | [regression-log.md](./regression-log.md) |
-| 2026-03-23 | 浏览器验证与性能预算基线深化回归 | 最近一次 V3 / V4 浏览器与预算收敛基线 | [regression-log.md](./regression-log.md) |
-| 2026-03-22 | 文章新建页多语言切换回归 | 最近一次后台编辑器交互修复基线 | [regression-log.md](./regression-log.md) |
-| 2026-03-22 | release 依赖包风险门禁回归 | 最近一次 release 依赖审计基线 | [regression-log.md](./regression-log.md) |
-| 2026-03-22 | AI 视觉资产收敛回归 | 最近一次视觉资产与生成契约收敛基线 | [regression-log.md](./regression-log.md) |
+| 2026-04-06 | 周期性回归调度入口落地 | 第二十二阶段主线 2 当前基线；用于周级 / 发版前 / 阶段收口前三条固定 cadence 的执行入口与 blocker 判定 | [regression-log.md](./regression-log.md) |
+| 2026-04-06 | 测试有效性增强治理首轮切入 | 第二十二阶段内容访问控制链路失败路径与异常映射基线 | [regression-log.md](./regression-log.md) |
+| 2026-04-06 | ESLint 规则分阶段收紧治理测试债清零与扩面 | 第二十二阶段规则治理当前基线；用于 production / test 边界与 warning 收紧对比 | [regression-log.md](./regression-log.md) |
+| 2026-04-02 | 测试覆盖率阶段性抬升治理首轮基线 | 第二十二阶段 coverage 主线当前基线 | [regression-log.md](./regression-log.md) |
 
 ## 3. 历史基线索引
 
@@ -53,6 +52,11 @@
   - 近线入口: `浏览器验证与性能预算基线深化回归（2026-03-23，V3/V4）`
   - 历史入口: `认证会话获取频率治理回归（2026-03-21）`
   - 用途: 对比浏览器验证从认证链路专项回归，扩展到多引擎与移动端最小关键路径的范围升级。
+
+补充状态（2026-04-06）:
+
+- 当前主日志已再次超过窗口上限；最新 blocker 结论见 [regression-log.md](./regression-log.md) 中“周期性回归调度入口落地（2026-04-06）”记录。
+- 下次滚动归档应优先迁移已不再服务第二十二阶段当前基线比较的旧记录，再更新本索引页的近线窗口摘要。
 
 ## 6. 维护约定
 
