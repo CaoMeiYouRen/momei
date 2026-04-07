@@ -243,8 +243,8 @@ importers:
         specifier: ^4.5.4
         version: 4.5.4(vue@3.5.31(typescript@5.9.3))
       push-all-in-one:
-        specifier: ^4.5.1
-        version: 4.5.1
+        specifier: ^4.5.2
+        version: 4.5.2
       quill:
         specifier: ^2.0.3
         version: 2.0.3
@@ -11330,8 +11330,8 @@ packages:
     resolution: {integrity: sha512-L7ykMWc3lQf3HS7ME3PSjp7wMIjJeW6+bKfH/RSTz5l6VUDGubnrC2BKj3UvM28Y5PMDFW0xniJOZHBZPpW1dQ==}
     engines: {node: '>=18'}
 
-  push-all-in-one@4.5.1:
-    resolution: {integrity: sha512-g0EME4nVmFMxhnMXAM30SpZIXjj4skUy7G0vDQVjyPTbxsiZn83EtK4V+c8Y5wyq6+grHkVW8Oemw9Q4ikVDYg==}
+  push-all-in-one@4.5.2:
+    resolution: {integrity: sha512-6peEgBiKlYYiP2LSms3dHRriPWLaMz1/pKYwqHRX4b4T3t48U7na4+zCy8GEb3MrdlVLZjl8hWYCRckAj+jxlw==}
     engines: {node: '>=20'}
 
   qified@0.6.0:
@@ -27344,7 +27344,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  push-all-in-one@4.5.1:
+  push-all-in-one@4.5.2:
     dependencies:
       '@colors/colors': 1.6.0
       axios: 1.14.0(debug@4.4.3)
