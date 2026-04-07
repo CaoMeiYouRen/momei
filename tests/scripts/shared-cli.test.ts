@@ -34,6 +34,28 @@ describe('scripts/shared/cli', () => {
         })
     })
 
+    it('ignores the pnpm argument separator while continuing to parse forwarded options', () => {
+        const options = parseCliOptions(['node', 'script.mjs', '--', '--mode=warn', '--scope=ui-regression'], {
+            defaults: {
+                mode: 'error',
+                scope: null,
+            },
+            values: {
+                '--mode': {
+                    key: 'mode',
+                    allowedValues: ['warn', 'error'],
+                    invalidMessage: (value) => `Unsupported mode: ${value}`,
+                },
+                '--scope': { key: 'scope' },
+            },
+        })
+
+        expect(options).toMatchObject({
+            mode: 'warn',
+            scope: 'ui-regression',
+        })
+    })
+
     it('supports collectors for repeated list-style options', () => {
         const options = parseCliOptions(['--locale=zh-CN,en-US', '--locale=ja-JP'], {
             defaults: {
