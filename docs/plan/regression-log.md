@@ -32,6 +32,54 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## 第二十四阶段测试覆盖率与红绿测试有效性深化补跑（2026-04-07）
+
+### 回归任务记录
+
+- 回归范围: 第二十四阶段 P0“测试覆盖率与红绿测试有效性深化”补跑；聚焦高 ROI、低耦合的 AI 服务与语音链路模块，包括 [server/utils/ai/asr-volcengine.ts](../../server/utils/ai/asr-volcengine.ts)、[server/utils/ai/tts-openai.ts](../../server/utils/ai/tts-openai.ts)、[server/utils/ai/tts-siliconflow.ts](../../server/utils/ai/tts-siliconflow.ts)、[server/utils/ai/tts-volcengine.ts](../../server/utils/ai/tts-volcengine.ts)、[server/services/ai/text.ts](../../server/services/ai/text.ts)、[composables/use-post-editor-voice.ts](../../composables/use-post-editor-voice.ts)、[composables/use-post-editor-translation.ts](../../composables/use-post-editor-translation.ts) 与 [server/services/migration-link-governance.helpers.ts](../../server/services/migration-link-governance.helpers.ts)，优先补齐失败路径、边界断言、协议分支与回退逻辑。
+- 触发条件: 上一轮全仓语句覆盖率停留在 `67.60%`，距离本阶段“先达到约 68%”的验收线仍差约 `0.40` 个点；同时待办要求在回归记录中保留失败用例、转绿结果与下一轮优先范围。
+- 执行频率: 本阶段专项补跑；后续仅在覆盖率回退、语音链路扩写或高回归风险模块新增分支时追加。
+- timeout budget:
+    - 定向缺口分析与高 ROI 模块筛选: 15 分钟。
+    - 单模块红绿测试迭代与定向 Vitest: 90 分钟。
+    - 静态门（lint）与全量 `pnpm test:coverage`: 45 分钟。
+    - 回归记录与待办同步: 15 分钟。
+- 已执行命令:
+    - `pnpm exec vitest run composables/use-post-editor-voice.test.ts`
+    - `pnpm exec vitest run composables/use-post-editor-translation.test.ts`
+    - `pnpm exec vitest run server/services/migration-link-governance.helpers.test.ts`
+    - `pnpm exec vitest run server/utils/ai/asr-volcengine.test.ts`
+    - `pnpm exec vitest run server/utils/ai/tts-openai.test.ts server/utils/ai/tts-siliconflow.test.ts`
+    - `pnpm exec vitest run server/services/ai/text.test.ts`
+    - `pnpm exec vitest run server/utils/ai/tts-volcengine.test.ts`
+    - `npm run lint`
+    - `npm run typecheck`
+    - `pnpm test:coverage`
+    - `pnpm exec lint-md docs/plan/regression-log.md docs/plan/todo.md`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 静态层: `npm run lint` 通过，`npm run typecheck` 以 exit code `0` 通过；新增与扩展的测试文件在编辑器错误面检查中均为 `No errors found`。
+        - V2 / 红绿验证层: [server/services/ai/text.test.ts](../../server/services/ai/text.test.ts) 在 `suggestImagePrompt` 补测阶段先出现 `2` 个失败断言，分别暴露“空输入校验使用原始 truthy 判定”与“`dimensions` 返回结构为扁平对象而非嵌套 resolution”两处错误假设；修正断言后转绿。新增的 [server/utils/ai/tts-volcengine.test.ts](../../server/utils/ai/tts-volcengine.test.ts) 首轮出现 `3` 个失败，随后收敛到 `1` 个失败，最终通过放宽 UUID 断言、移除不存在的可选字段断言并按连接结束帧实际协议校验事件码后全部转绿。
+        - V2 / 定向测试层: 关键新增或扩展测试文件最终全部通过，其中 [server/utils/ai/tts-volcengine.test.ts](../../server/utils/ai/tts-volcengine.test.ts) `6` 条、[server/services/ai/text.test.ts](../../server/services/ai/text.test.ts) `24` 条、[server/utils/ai/asr-volcengine.test.ts](../../server/utils/ai/asr-volcengine.test.ts) `8` 条、[server/utils/ai/tts-openai.test.ts](../../server/utils/ai/tts-openai.test.ts) `5` 条、[server/utils/ai/tts-siliconflow.test.ts](../../server/utils/ai/tts-siliconflow.test.ts) `6` 条、[composables/use-post-editor-translation.test.ts](../../composables/use-post-editor-translation.test.ts) `36` 条、[composables/use-post-editor-voice.test.ts](../../composables/use-post-editor-voice.test.ts) `10` 条、[server/services/migration-link-governance.helpers.test.ts](../../server/services/migration-link-governance.helpers.test.ts) `8` 条。
+        - V2 / 全仓 coverage 层: `pnpm test:coverage` 通过，最终全仓 `Statements 68.85% / Branches 55.93% / Functions 63.26% / Lines 68.84%`，语句覆盖率已越过本阶段目标线。
+    - 结果摘要:
+        - 全仓语句覆盖率从本轮补跑前的 `67.60%` 提升到 `68.85%`，净提升 `+1.25` 个点，完成当前阶段“先达到约 68%”的验收目标。
+        - 模块分布方面，本轮提升主要来自语音与 AI 服务链路: [server/utils/ai/tts-volcengine.ts](../../server/utils/ai/tts-volcengine.ts) `75.44% (258/342)`、[server/utils/ai/tts-openai.ts](../../server/utils/ai/tts-openai.ts) `100.00% (22/22)`、[server/utils/ai/tts-siliconflow.ts](../../server/utils/ai/tts-siliconflow.ts) `96.97% (32/33)`、[server/utils/ai/asr-volcengine.ts](../../server/utils/ai/asr-volcengine.ts) `88.52% (108/122)`、[server/services/migration-link-governance.helpers.ts](../../server/services/migration-link-governance.helpers.ts) `88.28% (226/256)`、[composables/use-post-editor-translation.ts](../../composables/use-post-editor-translation.ts) `90.99% (212/233)`、[composables/use-post-editor-voice.ts](../../composables/use-post-editor-voice.ts) `76.01% (282/371)`。
+        - 本轮新增测试不是只堆成功路径，而是显式覆盖了 provider HTTP 失败、缺少凭据、无响应体、podcast WebSocket 错包 / 提前关闭、文本建议接口空输入 / provider 不支持 chat、翻译工作流标签数量不匹配、语音输入的代理 / 直连回退与治理 helper 的多种边界分支。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - 全仓虽然已过 `68%`，但 [server/services/ai/text.ts](../../server/services/ai/text.ts) 仍为 `57.32% (90/157)`，后续如果继续围绕 AI 文本链路扩展，应优先补齐剩余失败路径与 provider fallback 分支。
+            - 组件层仍存在大量极低覆盖区域，例如 [components/app-captcha.vue](../../components/app-captcha.vue)、[components/app-voice-input-trigger.vue](../../components/app-voice-input-trigger.vue)、[components/app-uploader.vue](../../components/app-uploader.vue) 等；这些不阻塞本轮达标，但属于下一轮高缺口候选。
+    - 未覆盖边界:
+        - 本轮没有继续推进大体量 UI 组件的浏览器或组件测试，主要因为语音 / AI 服务层的单位测试收益更高、回滚半径更小。
+        - [server/utils/ai/tts-volcengine.ts](../../server/utils/ai/tts-volcengine.ts) 仍有剩余未覆盖分支，集中在 HTTP 流解析异常与部分 podcast 元事件的非主干路径；当前已覆盖主要成功流、错误包、连接关闭与轮次错误分支。
+        - [server/services/ai/text.ts](../../server/services/ai/text.ts) 仍有较多未覆盖语句，主要位于其他文本生成接口与更细粒度 provider 失败回退上。
+    - 后续补跑计划:
+        - 下一轮优先评估 [server/services/ai/text.ts](../../server/services/ai/text.ts) 的剩余失败路径与 provider fallback，再决定是否继续沿 AI 服务层把语句覆盖率推进到更高基线。
+        - 若转向组件层，优先从 [components/app-voice-input-trigger.vue](../../components/app-voice-input-trigger.vue)、[components/app-voice-input-overlay.vue](../../components/app-voice-input-overlay.vue) 与 [components/app-notifications.vue](../../components/app-notifications.vue) 这类已存在相关 composable 测试上下文的入口切入，降低夹具成本。
+
 ## 第二十四阶段测试覆盖率与红绿测试有效性深化（2026-04-07）
 
 ### 回归任务记录
