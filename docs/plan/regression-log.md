@@ -32,6 +32,57 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## 第二十三阶段归档与文档同步收口（2026-04-07）
+
+### 回归任务记录
+
+- 回归范围: 第二十三阶段归档准入检查、规划文档状态切换、多语 roadmap 摘要同步，以及与当前仓库实装状态的对账；覆盖 [docs/plan/todo.md](./todo.md)、[docs/plan/todo-archive.md](./todo-archive.md)、[docs/plan/roadmap.md](./roadmap.md)、[docs/i18n/en-US/plan/roadmap.md](../i18n/en-US/plan/roadmap.md)、[docs/i18n/ja-JP/plan/roadmap.md](../i18n/ja-JP/plan/roadmap.md)、[docs/i18n/ko-KR/plan/roadmap.md](../i18n/ko-KR/plan/roadmap.md)、[docs/i18n/zh-TW/plan/roadmap.md](../i18n/zh-TW/plan/roadmap.md) 以及第 23 阶段五条主线对应的定向测试入口。
+- 触发条件: 用户要求检查当前阶段待办完成情况、与仓库实际代码改动对账并完成归档，同时核对文档与翻译是否同步；原中文 roadmap 仍停留在“第二十三阶段初步规划”，与 `todo.md` 的已完成状态明显漂移，需执行正式阶段收口。
+- 执行频率: 本阶段收口一次性记录；后续仅在复审第 23 阶段归档结论或补写同阶段证据索引时追加增量记录。
+- timeout budget:
+    - 第 23 阶段五条主线定向 Vitest: 20 分钟。
+    - `pnpm exec nuxt typecheck`: 20 分钟。
+    - `pnpm lint:md` 与 `pnpm docs:check:i18n`: 各 10 分钟。
+    - Review Gate 文档审计: 10 分钟。
+- 已执行命令:
+    - `runTests` 定向执行:
+        - `components/article-sponsor.test.ts`
+        - `tests/server/api/tasks/run-scheduled.test.ts`
+        - `tests/scripts/run-daily-dependency-audit.test.ts`
+        - `tests/server/utils/ai/asr-credentials.test.ts`
+        - `tests/server/api/posts/detail.get.test.ts`
+    - `pnpm exec nuxt typecheck`
+    - `pnpm lint:md`
+    - `pnpm docs:check:i18n`
+    - `get_errors`（目标规划 / 翻译文档）
+    - `Code Auditor` Review Gate 审计（首轮 + 修正后复核）
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 仓库现状对账层: 工作树在归档前为 clean，阶段完成情况按当前仓库实装状态而非未提交 diff 判定；五条主线的核心代码 / 测试落点已在对应路径中核对，包括商业平台 both 模式展示、调度入口 `aiMediaCompensation`、每日依赖风险巡检脚本、ASR TTL 解析与文章详情 `relatedPosts` 推荐链路。
+        - V1 / 定向测试层: 5 个测试文件共 `31` 条测试全部通过、`0` 失败，覆盖第 23 阶段五条主线的最小可追溯验证面。
+        - V1 / 类型层: `pnpm exec nuxt typecheck` 无输出且未发现错误，作为当前仓库类型状态通过的文本证据。
+        - V1 / 文档层: `pnpm lint:md` 两轮均通过，`pnpm docs:check:i18n` 两轮均通过，无 legacy / i18n 重复翻译页。
+        - V1 / 编辑器错误面: `get_errors` 显示本轮涉及的中文 / 多语 roadmap 与 archive 文档均无诊断错误。
+        - RG / 审计层: `Code Auditor` 首轮给出 `Pass`，仅指出 3 处多语摘要范围说明仍停留在“第十八至第二十二阶段”的非阻塞文案漂移；修正后本轮归档无 blocker 残留。
+    - 结果摘要:
+        - 第二十三阶段已从 [todo.md](./todo.md) 的当前执行面移除，并完整归档到 [todo-archive.md](./todo-archive.md)；中文 [roadmap.md](./roadmap.md) 已从“初步规划”切换为“已审计归档”，且明确下一阶段仍仅处于候选分析，不提前上收为正式 Phase 24。
+        - 与“实际代码改动”的对账结论为: 当前仓库状态已具备第 23 阶段五条主线的实装闭环，不存在“todo 已完成但仓库没有对应能力”的反向漂移。五条主线各自对应的最小代码证据分别落在商业平台组件 / helper、统一调度与 AI 媒体补偿、依赖巡检脚本与 workflow、ASR 凭证 TTL 工具与设置项、文章详情推荐服务与 API 测试上。
+        - backlog 已再次核对，未发现第 23 阶段五条主线仍残留在 [backlog.md](./backlog.md) 的重复条目，符合“阶段升格后去重”约束。
+        - 多语 roadmap 摘要现已同步到第 23 阶段归档状态，`en-US`、`ja-JP`、`ko-KR`、`zh-TW` 四个语种均不再保留“Stage 23 尚未正式写入”的陈旧表述。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: suggest
+        - 主要问题:
+            - 首轮审计发现的 3 处多语摘要范围说明漂移已在同轮修正，本轮不再保留 blocker / warning。
+            - 第 23 阶段归档块当前已补回回归日志入口，但后续若继续滚动扩展阶段归档模板，建议统一把“证据入口”固定成归档块标准字段，减少每轮审计的人工补链成本。
+    - 未覆盖边界:
+        - 本轮没有执行 `pnpm regression:phase-close` 或 `release:check:full` 这一类更重的全量回归组合；考虑到本次主要是阶段状态对账与规划文档收口，验证保持在“阶段五主线定向测试 + 类型 + 文档门禁 + Review Gate”的最小充分矩阵。
+        - 本轮没有重新执行浏览器自动化验证；相关文章推荐区与商业平台展示的浏览器证据沿用该阶段既有快照 / 实施记录，不在本次文档收口中重复补跑。
+        - 本轮没有对更广泛的 Guide / Design / README 翻译页做全量一致性复审；当前判定为“受第 23 阶段状态变化直接影响的文档”已同步完成。
+    - 后续补跑计划:
+        - 下一阶段正式准入前，先基于当前已归档状态做候选事项 ROI 分析与测试策略设计，不直接在 `todo.md` / `roadmap.md` 中落盘。
+        - 若后续阶段收口再次触发活动日志窗口超限，按既有规则继续滚动迁移到 [regression-log-archive.md](./regression-log-archive.md)，避免主日志重新膨胀。
+
 ## 周期性回归调度入口落地（2026-04-06）
 
 ### 回归任务记录

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-04-06
+last_sync: 2026-04-07
 ---
 
 # Momei - Project Roadmap
@@ -15,7 +15,8 @@ This document outlines the development blueprint for the project. For specific t
 
 - **Stage 21 has been audited and archived**: The validation entry workflow, script entry consolidation, taxonomy translation decoupling, and default cover typography cleanup have been fully closed in the Chinese source of truth.
 - **Stage 22 has now been audited and archived**: Test effectiveness, operationalized periodic regression, batch translation orchestration assessment, phased ESLint tightening, time and date source-of-truth consolidation, and the top-bar admin post-management entry have all been closed in the Chinese source of truth.
-- **Next-stage note**: The next phase remains at candidate-analysis level only; no formal Stage 23 has been written into the canonical Chinese roadmap or todo yet.
+- **Stage 23 has now been audited and archived**: Multilingual social and sponsorship platform expansion, Vercel-side AI media timeout compensation, daily dependency-risk automation, longer-lived realtime ASR credentials, and related-post discovery on article detail pages have all been closed in the Chinese source of truth.
+- **Next-stage note**: The next phase remains at candidate-analysis level only; no formal Stage 24 has been written into the canonical Chinese roadmap or todo yet.
 - **Scope note**: Full acceptance criteria and task decomposition remain Chinese-only in the canonical [roadmap](../../../plan/roadmap.md) and [todo](../../../plan/todo.md).
 
 ## 1. Project Overview
@@ -443,7 +444,7 @@ This document outlines the development blueprint for the project. For specific t
 ### Stage 21: Validation Entry Points & Authoring Workflow Experience Consolidation (Audited & Archived)
 
 > [!NOTE]
-> This stage has been completed and archived in the Chinese planning source. The next stage remains in candidate-analysis mode only and has not been promoted into the formal roadmap or todo yet.
+> This stage has been completed and archived in the Chinese planning source. Later stages have continued to close in the canonical Chinese roadmap; use the latest status snapshot above for the current archived-stage boundary.
 
 1. UI real-environment testing now becomes the first planning line, with emphasis on script-first regression flows, environment setup convergence, and reusable evidence output for Review Gate.
 2. Script governance and entrypoint cleanup are being promoted into an explicit stage objective: document high-frequency scripts, reduce duplicated helpers, and close out dead or overlapping script surfaces.
