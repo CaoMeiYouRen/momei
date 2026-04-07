@@ -1,45 +1,13 @@
-import { getActiveAgreementContent } from '@/server/services/agreement'
-import { success } from '@/server/utils/response'
-import type { AgreementPublicPayload } from '@/types/agreement'
+import { createAgreementPublicHandler } from '@/server/utils/agreement-public'
 
 /**
  * GET /api/agreements/privacy-policy
  * 获取隐私政策内容
  */
-export default defineEventHandler(async (event) => {
-    try {
-        const query = getQuery(event)
-        const language = typeof query.language === 'string' ? query.language : undefined
-        const agreement = await getActiveAgreementContent('privacy_policy', language)
-
-        if (!agreement) {
-            return success<AgreementPublicPayload>({
-                id: 'default',
-                type: 'privacy_policy',
-                language: language || 'zh-CN',
-                content: getDefaultPrivacyPolicy(),
-                version: null,
-                versionDescription: null,
-                effectiveAt: null,
-                updatedAt: null,
-                authoritativeLanguage: 'zh-CN',
-                authoritativeVersion: null,
-                isDefault: true,
-                isReferenceTranslation: false,
-                fallbackToAuthoritative: false,
-                sourceAgreementId: null,
-                sourceAgreementVersion: null,
-                history: [],
-            })
-        }
-
-        return success(agreement)
-    } catch (error: any) {
-        throw createError({
-            statusCode: 500,
-            statusMessage: error.message || 'Failed to fetch privacy policy',
-        })
-    }
+export default createAgreementPublicHandler({
+    defaultContent: getDefaultPrivacyPolicy,
+    fetchErrorMessage: 'Failed to fetch privacy policy',
+    type: 'privacy_policy',
 })
 
 function getDefaultPrivacyPolicy(): string {

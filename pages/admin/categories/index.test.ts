@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { nextTick, reactive, ref } from 'vue'
+import { computed, defineComponent, h, inject, nextTick, provide, reactive, ref } from 'vue'
 import AdminCategoriesPage from './index.vue'
 
 vi.mock('vue-i18n', async (importOriginal) => {
@@ -20,6 +20,8 @@ vi.mock('vue-i18n', async (importOriginal) => {
 })
 
 // Stub components
+const listItems = ref<any[]>([])
+
 const stubs = {
     AdminPageHeader: {
         template: '<div class="admin-header"><slot name="actions" /></div>',
@@ -42,14 +44,37 @@ const stubs = {
         props: ['modelValue', 'inputId'],
         emits: ['update:modelValue', 'change'],
     },
-    DataTable: {
-        template: '<div class="datatable"><slot /></div>',
+    DataTable: defineComponent({
         props: ['value', 'loading', 'lazy', 'totalRecords', 'rows', 'paginator', 'rowsPerPageOptions', 'tableStyle'],
         emits: ['page', 'sort'],
-    },
-    Column: { template: '<div class="column"><slot /></div>', props: ['field', 'header', 'sortable', 'headerStyle', 'bodyClass', 'headerClass', 'vIf'] },
+        setup(props, { slots }) {
+            provideTableRows(computed(() => props.value || []))
+            return () => h('div', { class: 'datatable' }, slots.default ? slots.default() : [])
+        },
+    }),
+    Column: defineComponent({
+        props: ['field', 'header', 'sortable', 'headerStyle', 'bodyClass', 'headerClass', 'vIf'],
+        setup(_props, { slots }) {
+            const rows = inject<any>('data-table-rows', ref([]))
+            return () => {
+                let children: any[] = []
+
+                if (slots.body) {
+                    children = rows.value.flatMap((row: any) => slots.body?.({ data: row }) || [])
+                } else if (slots.default) {
+                    children = slots.default()
+                }
+
+                return h('div', { class: 'column' }, children)
+            }
+        },
+    }),
     Tag: { template: '<span class="tag">{{ value }}</span>', props: ['value', 'severity'] },
-    Badge: { template: '<span class="badge">{{ value }}</span>', props: ['value', 'severity'] },
+    Badge: {
+        template: '<button class="badge" :data-severity="severity" @click="$emit(\'click\')">{{ value }}</button>',
+        props: ['value', 'severity'],
+        emits: ['click'],
+    },
     Dialog: { template: '<div v-if="visible" class="dialog"><slot /><slot name="footer" /></div>', props: ['visible', 'modal', 'header', 'style'] },
     Tabs: { template: '<div class="tabs"><slot /></div>' },
     TabList: { template: '<div class="tab-list"><slot /></div>' },
@@ -110,7 +135,7 @@ vi.stubGlobal('useAdminAI', () => ({
     syncAIAllLanguages: vi.fn(),
 }))
 vi.stubGlobal('useAdminList', () => ({
-    items: ref([]),
+    items: listItems,
     loading: ref(false),
     pagination: reactive({ total: 0, limit: 10 }),
     filters: reactive({ search: '', aggregate: true }),
@@ -124,6 +149,7 @@ vi.stubGlobal('$fetch', fetchMock)
 describe('AdminCategoriesPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        listItems.value = []
         fetchMock.mockImplementation(() => Promise.resolve({ data: { items: [] } }))
     })
 
@@ -238,4 +264,9 @@ describe('AdminCategoriesPage', () => {
         expect(wrapper.find('.taxonomy-translation-association').exists()).toBe(true)
         expect(wrapper.text()).toContain('Technology')
     })
+
 })
+
+function provideTableRows(rows: any) {
+    provide('data-table-rows', rows)
+}

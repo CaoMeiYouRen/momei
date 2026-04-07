@@ -1,45 +1,13 @@
-import { getActiveAgreementContent } from '@/server/services/agreement'
-import { success } from '@/server/utils/response'
-import type { AgreementPublicPayload } from '@/types/agreement'
+import { createAgreementPublicHandler } from '@/server/utils/agreement-public'
 
 /**
  * GET /api/agreements/user-agreement
  * 获取用户协议内容
  */
-export default defineEventHandler(async (event) => {
-    try {
-        const query = getQuery(event)
-        const language = typeof query.language === 'string' ? query.language : undefined
-        const agreement = await getActiveAgreementContent('user_agreement', language)
-
-        if (!agreement) {
-            return success<AgreementPublicPayload>({
-                id: 'default',
-                type: 'user_agreement',
-                language: language || 'zh-CN',
-                content: getDefaultUserAgreement(),
-                version: null,
-                versionDescription: null,
-                effectiveAt: null,
-                updatedAt: null,
-                authoritativeLanguage: 'zh-CN',
-                authoritativeVersion: null,
-                isDefault: true,
-                isReferenceTranslation: false,
-                fallbackToAuthoritative: false,
-                sourceAgreementId: null,
-                sourceAgreementVersion: null,
-                history: [],
-            })
-        }
-
-        return success(agreement)
-    } catch (error: any) {
-        throw createError({
-            statusCode: 500,
-            statusMessage: error.message || 'Failed to fetch user agreement',
-        })
-    }
+export default createAgreementPublicHandler({
+    defaultContent: getDefaultUserAgreement,
+    fetchErrorMessage: 'Failed to fetch user agreement',
+    type: 'user_agreement',
 })
 
 function getDefaultUserAgreement(): string {
