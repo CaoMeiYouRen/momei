@@ -40,6 +40,42 @@ const requiredPlaywrightBrowsers = [
     },
 ]
 
+export function getPlaywrightInstallAttempts({ env = process.env, platform = process.platform } = {}) {
+    const installDeps = env.PLAYWRIGHT_INSTALL_DEPS
+
+    if (installDeps === 'false') {
+        return [['install']]
+    }
+
+    if (platform !== 'linux') {
+        return [['install']]
+    }
+
+    if (installDeps === 'true') {
+        return [['install', '--with-deps']]
+    }
+
+    return [
+        ['install', '--with-deps'],
+        ['install'],
+    ]
+}
+
+export function isRecoverablePlaywrightDepsInstallError(message) {
+    if (!message) {
+        return false
+    }
+
+    return [
+        'NO_PUBKEY',
+        'The repository',
+        'is not signed',
+        'Failed to install browsers',
+        'apt-get',
+        'apt ',
+    ].some((fragment) => message.includes(fragment))
+}
+
 function getPlaywrightCacheDir() {
     if (process.env.PLAYWRIGHT_BROWSERS_PATH) {
         return process.env.PLAYWRIGHT_BROWSERS_PATH
@@ -162,7 +198,33 @@ async function ensurePlaywrightBrowsers() {
     }
 
     console.info(`[run-e2e] Installing Playwright browsers: missing ${missingBrowsers.join(', ')}`)
-    await run('pnpm', ['exec', 'playwright', 'install', '--with-deps'])
+
+    const attempts = getPlaywrightInstallAttempts()
+    let lastError = null
+
+    for (const installArgs of attempts) {
+        try {
+            console.info(`[run-e2e] playwright ${installArgs.join(' ')}`)
+            await runAndCapture('pnpm', ['exec', 'playwright', ...installArgs])
+            return
+        } catch (error) {
+            lastError = error
+            const shouldRetryWithoutDeps = installArgs.includes('--with-deps')
+                && attempts.length > 1
+                && isRecoverablePlaywrightDepsInstallError(error.message)
+
+            if (shouldRetryWithoutDeps) {
+                console.warn('[run-e2e] playwright install --with-deps failed due to system package setup, retrying without --with-deps')
+                continue
+            }
+
+            throw error
+        }
+    }
+
+    if (lastError) {
+        throw lastError
+    }
 }
 
 async function getLatestMtimeMs(targetPath) {
