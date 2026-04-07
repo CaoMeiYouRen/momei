@@ -242,4 +242,144 @@ describe('useASRDirect', () => {
         })
         expect(fetchMock).toHaveBeenCalledTimes(2)
     })
+
+    it('uses default batch model and normalized language on successful transcription', async () => {
+        fetchMock
+            .mockResolvedValueOnce({
+                code: 200,
+                data: {
+                    ...createBatchCredentials('first', 'key-1'),
+                    model: undefined,
+                },
+            })
+            .mockResolvedValueOnce({
+                text: 'batch-success',
+            })
+
+        const asr = useASRDirect({ provider: 'siliconflow', mode: 'batch', language: 'zh-CN' })
+        const result = await asr.transcribeBatch(new Blob(['audio']))
+
+        expect(result).toBe('batch-success')
+        expect(asr.finalTranscript.value).toBe('batch-success')
+
+        const [, requestOptions] = fetchMock.mock.calls[1] as [string, { body: FormData, headers: Record<string, string> }]
+        expect(requestOptions.headers.Authorization).toBe('Bearer key-1')
+        expect(requestOptions.body.get('model')).toBe('FunAudioLLM/SenseVoiceSmall')
+        expect(requestOptions.body.get('language')).toBe('zh')
+    })
+
+    it('updates interim and final transcripts from volcengine server packets', async () => {
+        fetchMock.mockResolvedValueOnce({
+            code: 200,
+            data: createStreamCredentials('stream-transcript'),
+        })
+
+        const asr = useASRDirect({ provider: 'volcengine', mode: 'stream' })
+        const connectPromise = asr.connect()
+        await flushPromises()
+
+        const socket = MockWebSocket.instances[0]
+        socket!.open()
+        await connectPromise
+
+        socket!.onmessage?.({
+            data: createVolcengineResponsePacket({
+                result: { text: 'partial' },
+            }).buffer,
+        })
+        await flushPromises()
+
+        expect(asr.interimTranscript.value).toBe('partial')
+        expect(asr.finalTranscript.value).toBe('')
+
+        socket!.onmessage?.({
+            data: createVolcengineResponsePacket({
+                result: [{ text: 'done-' }, { text: 'final' }],
+            }, { isFinal: true }).buffer,
+        })
+        await flushPromises()
+
+        expect(asr.interimTranscript.value).toBe('')
+        expect(asr.finalTranscript.value).toBe('done-final')
+    })
+
+    it('reconnects when server reports an expiring credential error', async () => {
+        fetchMock
+            .mockResolvedValueOnce({
+                code: 200,
+                data: createStreamCredentials('first'),
+            })
+
+        const asr = useASRDirect({ provider: 'volcengine', mode: 'stream' })
+        const connectPromise = asr.connect()
+        await flushPromises()
+
+        const firstSocket = MockWebSocket.instances[0]
+        firstSocket!.open()
+        await connectPromise
+
+        firstSocket!.onmessage?.({
+            data: createVolcengineErrorPacket(401, 'token expired').buffer,
+        })
+        await flushPromises()
+
+        expect(fetchMock).toHaveBeenCalledTimes(1)
+        expect(MockWebSocket.instances).toHaveLength(2)
+        expect(asr.error.value).toBe('token expired')
+    })
+
+    it('sends a final frame and closes the socket when stop is called', async () => {
+        fetchMock.mockResolvedValueOnce({
+            code: 200,
+            data: createStreamCredentials('stop-sequence'),
+        })
+
+        try {
+            const asr = useASRDirect({ provider: 'volcengine', mode: 'stream' })
+            const connectPromise = asr.connect()
+            await flushPromises()
+
+            const socket = MockWebSocket.instances[0]
+            socket!.open()
+            await connectPromise
+
+            vi.useFakeTimers()
+            asr.stop()
+
+            expect(socket!.sent).toHaveLength(2)
+            expect(asr.isConnected.value).toBe(false)
+
+            vi.advanceTimersByTime(800)
+            expect(socket!.readyState).toBe(MockWebSocket.CLOSED)
+        } finally {
+            vi.useRealTimers()
+        }
+    })
 })
+
+function createVolcengineResponsePacket(payload: unknown, options?: { isFinal?: boolean }) {
+    const encoded = new TextEncoder().encode(JSON.stringify(payload))
+    const packet = new Uint8Array(12 + encoded.length)
+    const view = new DataView(packet.buffer)
+    packet[0] = 0x11
+    packet[1] = (0b1001 << 4) | (options?.isFinal ? 0b0010 : 0b0001)
+    packet[2] = 0b0001 << 4
+    packet[3] = 0
+    view.setUint32(8, encoded.length, false)
+    packet.set(encoded, 12)
+    return packet
+}
+
+function createVolcengineErrorPacket(code: number, message: string) {
+    const encoded = new TextEncoder().encode(message)
+    const packet = new Uint8Array(12 + encoded.length)
+    const view = new DataView(packet.buffer)
+    packet[0] = 0x11
+    packet[1] = 0b1111 << 4
+    packet[2] = 0
+    packet[3] = 0
+    view.setUint32(4, code, false)
+    view.setUint32(8, encoded.length, false)
+    packet.set(encoded, 12)
+    return packet
+}
