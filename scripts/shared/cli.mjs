@@ -35,6 +35,10 @@ export function parseCliOptions(argv, config = {}) {
     const options = { ...defaults }
 
     for (const arg of cliArgs) {
+        if (arg === '--') {
+            continue
+        }
+
         if (!arg.startsWith('--')) {
             if (allowUnknown) {
                 continue
