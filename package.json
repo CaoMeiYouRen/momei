@@ -81,7 +81,7 @@
     "dompurify": "^3.3.3",
     "dotenv": "^17.4.1",
     "driver.js": "^1.4.0",
-    "fast-xml-parser": "^5.5.9",
+    "fast-xml-parser": "^5.5.10",
     "feed": "^5.2.0",
     "fs-extra": "^11.3.4",
     "google-libphonenumber": "^3.2.44",
@@ -144,7 +144,7 @@
     ],
     "overrides": {
       "basic-ftp": "^5.2.0",
-      "fast-xml-parser": "^5.5.9",
+      "fast-xml-parser": "^5.5.10",
       "@smithy/types": "^4.13.1",
       "file-type": "^21.3.2",
       "preact": "^10.28.2",
