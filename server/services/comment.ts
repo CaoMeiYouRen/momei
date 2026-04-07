@@ -238,10 +238,10 @@ export const commentService = {
         const tree: any[] = []
 
         for (const comment of comments) {
-            const item = Object.assign(toPlainObject(comment), { replies: [] as any[] }) as any
+            let item = Object.assign(toPlainObject(comment), { replies: [] as any[] }) as any
 
             // 处理作者隐私及哈希 (SHA256)
-            await processAuthorPrivacy(item, isAdmin, 'authorEmail', 'authorEmailHash')
+            item = await processAuthorPrivacy(item, isAdmin, 'authorEmail', 'authorEmailHash')
 
             // 隐私保护：非管理员隐藏 IP 和 UserAgent
             if (!isAdmin) {

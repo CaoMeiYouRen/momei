@@ -196,15 +196,18 @@ export default withNuxt(
         },
     },
     {
+        // 仅针对生产环境的 TS 代码启用更严格的规则，测试与脚本范围继续维持部分豁免，以便逐步提升代码质量，同时避免一次性修复过多问题。
         files: ['**/*.{ts,tsx,mts,cts}'],
         ignores: ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**'],
         rules: {
             '@typescript-eslint/unbound-method': [1], // 首批扩展到全量生产 TS，继续排除测试与脚本范围
+            '@typescript-eslint/no-dynamic-delete': [1], // 仅对生产 TS 收紧，测试与脚本维持显式豁免边界
         },
     },
     {
+        // 全量启用的规则，生产、测试与脚本范围均命中，以持续提升整体代码质量。
         files: ['**/*.{ts,tsx,mts,cts}'],
-        ignores: ['scripts/**'],
+        ignores: [],
         rules: {
             '@typescript-eslint/no-misused-spread': [1], // production 与 tests 命中已清零，继续排除脚本范围
         },

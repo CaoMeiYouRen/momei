@@ -1,5 +1,9 @@
 import { sha256 } from '@/utils/shared/hash'
 
+function omitDynamicKey<T extends Record<string, unknown>>(source: T, key: string): T {
+    return Object.fromEntries(Object.entries(source).filter(([entryKey]) => entryKey !== key)) as T
+}
+
 /**
  * 处理作者隐私信息 (计算 Email Hash 并根据权限删除原文)
  * @param author 作者对象 (包含 email, image, name 等)
@@ -14,12 +18,17 @@ export async function processAuthorPrivacy(author: any, isAdmin: boolean, emailF
 
     if (author[emailField]) {
         // 计算 SHA256 哈希用于 Gravatar
-        author[hashField] = await sha256(author[emailField])
+        const nextAuthor = {
+            ...author,
+            [hashField]: await sha256(author[emailField]),
+        }
 
         // 非管理员隐藏 Email 原文
         if (!isAdmin) {
-            delete author[emailField]
+            return omitDynamicKey(nextAuthor, emailField)
         }
+
+        return nextAuthor
     }
 
     return author
@@ -47,7 +56,7 @@ export async function processAuthorsPrivacy(
     for (const item of items) {
         const author = item[authorKey]
         if (author) {
-            await processAuthorPrivacy(author, isAdmin, emailField, hashField)
+            item[authorKey] = await processAuthorPrivacy(author, isAdmin, emailField, hashField)
         }
     }
 

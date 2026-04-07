@@ -48,7 +48,7 @@ export async function readPostDetail(event: H3Event, lookup: PostDetailLookup) {
     const post = ensureFound(await queryBuilder.getOne(), 'Post')
     applyPostReadModelFromMetadata(post)
 
-    await processAuthorPrivacy(post.author, !!isUserAdmin)
+    post.author = await processAuthorPrivacy(post.author, !!isUserAdmin)
 
     const unlockedIds = getUnlockedPostIds(event)
     let access

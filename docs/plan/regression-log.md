@@ -32,6 +32,53 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## 第二十四阶段 ESLint / 类型债分批收紧首轮落地（2026-04-07）
+
+### 回归任务记录
+
+- 回归范围: 第二十四阶段 P1“ESLint / 类型债分批收紧”首轮落地；覆盖 [eslint.config.js](../../eslint.config.js)、[server/utils/author.ts](../../server/utils/author.ts)、[server/utils/post-detail-read.ts](../../server/utils/post-detail-read.ts)、[server/services/comment.ts](../../server/services/comment.ts)、[utils/shared/installation-settings.ts](../../utils/shared/installation-settings.ts)、[server/utils/author.test.ts](../../server/utils/author.test.ts)、[utils/shared/installation-settings.test.ts](../../utils/shared/installation-settings.test.ts) 与 [docs/plan/todo.md](./todo.md)，聚焦 `@typescript-eslint/no-dynamic-delete` 这一组低命中规则，不扩写到 `no-unsafe-*`、`no-explicit-any` 等高噪音类型债。
+- 触发条件: 第二十二阶段已完成候选规则采样并明确 `no-dynamic-delete` 属于第二梯队中“命中低、但需逐点归因后才能上收”的一组；当前阶段要求只上收 1 - 2 组收益高且回滚边界清晰的规则族，因此优先收敛这组 3 个 production 命中。
+- 执行频率: 本阶段首轮落地；后续仅在继续推进 `no-misused-spread` 逐点归因、或把类型债进一步细分到更高成本规则族时追加增量记录。
+- timeout budget:
+    - `no-dynamic-delete` 只读基线扫描: 10 分钟。
+    - 定向 Vitest: 10 分钟。
+    - 定向 ESLint 与全仓 warning 预算检查: 各 10 分钟。
+    - `pnpm exec nuxt typecheck`: 20 分钟。
+    - 规划 / 回归记录同步与 Review Gate 复核: 15 分钟。
+- 已执行命令:
+    - `node --input-type=module -`（调用 ESLint API，只读统计 `@typescript-eslint/no-dynamic-delete` 在当前生产 TS 范围的命中位置）
+    - `pnpm exec vitest run server/utils/author.test.ts utils/shared/installation-settings.test.ts`
+    - `pnpm exec vitest run server/services/comment.test.ts tests/server/api/posts/detail.get.test.ts`
+    - `pnpm exec eslint server/utils/author.ts server/utils/post-detail-read.ts server/services/comment.ts utils/shared/installation-settings.ts utils/shared/installation-settings.test.ts eslint.config.js`
+    - `pnpm exec eslint server/services/comment.test.ts`
+    - `pnpm exec eslint . --max-warnings 10`
+    - `pnpm exec nuxt typecheck`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 基线层: `no-dynamic-delete` 当前命中共 `6` 条，其中生产代码仅 `3` 条，集中在 [server/utils/author.ts](../../server/utils/author.ts) `1` 条与 [utils/shared/installation-settings.ts](../../utils/shared/installation-settings.ts) `2` 条；其余 `3` 条位于同级测试文件，说明继续维持测试 / 脚本豁免边界是合理的。
+        - V1 / 静态层: 定向 ESLint 通过；全仓 `pnpm exec eslint . --max-warnings 10` 通过且无输出，说明本轮提升没有冲破当前 warning 门禁。
+        - V1 / 类型层: `pnpm exec nuxt typecheck` 通过。
+        - V2 / 逻辑层: 首轮定向 Vitest 共 `2` 个测试文件、`16` 条断言通过，覆盖作者隐私字段脱敏、哈希回填，以及安装向导本地化字段在“清空当前语言输入”时只移除活动 locale、不误删其他语言内容的回归路径。
+        - V2 / 回归补跑层: 按 Review Gate 退回意见补跑 `server/services/comment.test.ts` 与 [tests/server/api/posts/detail.get.test.ts](../../tests/server/api/posts/detail.get.test.ts)，共 `2` 个测试文件、`14` 条断言全部通过，确认 `processAuthorPrivacy()` 改为返回处理后对象后，comment tree 构建与文章详情读取链路均已对齐新契约。
+    - 结果摘要:
+        - [eslint.config.js](../../eslint.config.js) 已把 `@typescript-eslint/no-dynamic-delete` 提升为仅作用于生产 TS 的 warning，并继续显式排除 `tests/**`、`scripts/**` 与同级 `*.test.*` / `*.spec.*` 文件，保持豁免边界可审计。
+        - [server/utils/author.ts](../../server/utils/author.ts) 不再通过动态 `delete` 删除作者邮箱，而是改为显式构造脱敏对象；同时 [server/utils/post-detail-read.ts](../../server/utils/post-detail-read.ts)、[server/services/comment.ts](../../server/services/comment.ts) 与批量处理路径已同步改为接收返回值，避免遗漏脱敏结果。
+        - [utils/shared/installation-settings.ts](../../utils/shared/installation-settings.ts) 在清空某个 locale 草稿时，改为通过显式过滤 locale map 来移除目标语言键，不再依赖动态 `delete`；对应回归已固化到 [utils/shared/installation-settings.test.ts](../../utils/shared/installation-settings.test.ts)。
+        - 回滚方式保持清晰: 若后续发现规则噪音超出预期，只需回退 [eslint.config.js](../../eslint.config.js) 中新增的 `no-dynamic-delete` production warning 配置，并恢复上述两个 helper 的显式过滤实现，不会牵连测试、脚本或更大范围的类型债治理。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: none
+        - 主要问题:
+            - 未发现阻塞问题；当前放行基于调用点已全部接收 `processAuthorPrivacy()` 返回值，且 comment / detail 链路补跑通过。
+    - 未覆盖边界:
+        - 本轮没有继续处理 colocated test 中的 `no-dynamic-delete` 命中，测试层仍保留显式豁免，避免把当前小切片扩写成测试夹具重构。
+        - 本轮没有推进 `no-misused-spread` 或 `no-unsafe-*`，因为这些规则当前命中量和影响面仍明显高于当前 warning 预算。
+        - 本轮没有触碰 `components/**` / `pages/**` 中普通属性 `delete` 用法；当前收紧范围仅限 TypeScript 规则实际命中的生产文件。
+        - [server/utils/author.ts](../../server/utils/author.ts) 仍保留 `any` 风格签名；若后续新增调用点但遗漏接收返回值，类型系统仍不会主动拦截，这属于下一轮类型债候选，而不是本轮 blocker。
+    - 后续补跑计划:
+        - 下一轮优先对 `@typescript-eslint/no-misused-spread` 的剩余 production 命中做逐点归因，判断哪些应改为显式 DTO / plain object 转换，哪些继续保留例外。
+        - 若后续要继续推进类型债，应先把 `no-explicit-any` 与 `no-unsafe-*` 按生产 / 测试 / 脚本边界再次拆桶，不直接全局提级。
+
 ## 第二十四阶段重复代码与纯函数复用收敛第二轮切片（2026-04-07）
 
 ### 回归任务记录

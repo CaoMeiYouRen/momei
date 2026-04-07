@@ -266,6 +266,15 @@ export function resolveInstallationLocalizedSiteFieldInputValue(
     return formatInstallationLocalizedFieldValue(fieldKey, typedValue.legacyValue)
 }
 
+function omitLocalizedLocaleValue<T extends LocalizedSettingScalar>(
+    value: LocalizedSettingValueV1<T>,
+    locale: string,
+) {
+    value.locales = Object.fromEntries(
+        Object.entries(value.locales).filter(([localeKey]) => localeKey !== locale),
+    ) as LocalizedSettingValueV1<T>['locales']
+}
+
 export function updateInstallationLocalizedSiteFieldValue<K extends InstallationLocalizedSiteFieldKey>(
     fieldKey: K,
     currentValue: unknown,
@@ -281,7 +290,7 @@ export function updateInstallationLocalizedSiteFieldValue<K extends Installation
         if (normalizedList.length > 0) {
             nextValue.locales[targetLocale] = normalizedList
         } else {
-            delete nextValue.locales[targetLocale]
+            omitLocalizedLocaleValue(nextValue, targetLocale)
         }
 
         return nextValue as InstallationLocalizedSiteFieldValueMap[K]
@@ -292,7 +301,7 @@ export function updateInstallationLocalizedSiteFieldValue<K extends Installation
     if (nextInputValue.trim().length > 0) {
         nextValue.locales[targetLocale] = nextInputValue
     } else {
-        delete nextValue.locales[targetLocale]
+        omitLocalizedLocaleValue(nextValue, targetLocale)
     }
 
     return nextValue as InstallationLocalizedSiteFieldValueMap[K]

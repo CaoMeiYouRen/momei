@@ -62,6 +62,46 @@ describe('installation-settings localized helpers', () => {
         })
     })
 
+    it('should remove only the active locale when localized input is cleared', () => {
+        const nextTitle = updateInstallationLocalizedSiteFieldValue('siteTitle', {
+            version: 1,
+            type: 'localized-text',
+            locales: {
+                'zh-CN': '墨梅博客',
+                'en-US': 'Momei Blog',
+            },
+            legacyValue: '旧标题',
+        }, 'en-US', '   ')
+
+        const nextKeywords = updateInstallationLocalizedSiteFieldValue('siteKeywords', {
+            version: 1,
+            type: 'localized-string-list',
+            locales: {
+                'zh-CN': ['AI', '博客'],
+                'en-US': ['AI', 'Blog'],
+            },
+            legacyValue: ['旧关键词'],
+        }, 'en-US', '   ')
+
+        expect(nextTitle).toEqual({
+            version: 1,
+            type: 'localized-text',
+            locales: {
+                'zh-CN': '墨梅博客',
+            },
+            legacyValue: '旧标题',
+        })
+
+        expect(nextKeywords).toEqual({
+            version: 1,
+            type: 'localized-string-list',
+            locales: {
+                'zh-CN': ['AI', '博客'],
+            },
+            legacyValue: ['旧关键词'],
+        })
+    })
+
     it('should merge installation payloads with existing localized settings without dropping previous locales', () => {
         const merged = mergeInstallationLocalizedSiteFieldValue('siteCopyrightOwner', {
             version: 1,
