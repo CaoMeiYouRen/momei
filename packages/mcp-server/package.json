@@ -32,7 +32,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.5.2",
     "eslint": "^9.19.0",
     "eslint-config-cmyr": "^2.2.2",
     "tsdown": "^0.21.7",
