@@ -52,7 +52,7 @@
     "deploy:wrangler": "wrangler deploy"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1021.0",
+    "@aws-sdk/client-s3": "^3.1026.0",
     "@aws-sdk/s3-request-presigner": "^3.1021.0",
     "@axiomhq/winston": "^1.6.0",
     "@better-auth/sso": "^1.4.10",
