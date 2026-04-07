@@ -33,6 +33,74 @@ describe('TextService', () => {
         vi.restoreAllMocks()
     })
 
+    describe('suggestImagePrompt', () => {
+        it('should reject when neither title nor content summary is provided', async () => {
+            await expect(TextService.suggestImagePrompt({
+                title: '',
+                summary: '',
+                content: '',
+            })).rejects.toMatchObject({
+                statusCode: 400,
+                message: 'Title or content is required',
+            })
+        })
+
+        it('should reject when provider does not support chat', async () => {
+            vi.mocked(aiUtils.getAIProvider).mockResolvedValue({
+                name: 'mock-provider',
+            } as any)
+
+            await expect(TextService.suggestImagePrompt({
+                title: 'AI 封面设计',
+                summary: '一张关于 AI 写作与配图协作的封面图。',
+            }, 'user-1')).rejects.toMatchObject({
+                statusCode: 500,
+                statusMessage: 'AI provider does not support chat',
+            })
+        })
+
+        it('should generate visual prompt suggestion with defaults and parsed overrides', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn().mockResolvedValue({
+                    content: JSON.stringify({
+                        type: 'clean editorial illustration',
+                        palette: 'ink black and warm ivory',
+                        rendering: 'soft cinematic light',
+                        text: 'AI 与写作',
+                        mood: 'calm and thoughtful',
+                    }),
+                    model: 'gpt-4o',
+                    usage: { promptTokens: 12, completionTokens: 18, totalTokens: 30 },
+                }),
+            }
+
+            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
+
+            const result = await TextService.suggestImagePrompt({
+                title: 'AI 写作工作流',
+                summary: '从选题、翻译到配图生成的完整协作链路。',
+                content: '这是一篇介绍如何用 AI 完成内容创作工作流的文章。',
+                language: 'zh-CN',
+                assetUsage: 'post-cover',
+            }, 'user-1')
+
+            expect(mockProvider.chat).toHaveBeenCalledWith({
+                messages: [
+                    expect.objectContaining({
+                        role: 'user',
+                        content: expect.stringContaining('AI 写作工作流'),
+                    }),
+                ],
+            })
+            expect(result.assetUsage).toBe('post-cover')
+            expect(result.applyMode).toBe('manual-confirm')
+            expect(result.dimensions.type).toBe('clean editorial illustration')
+            expect(result.dimensions.palette).toBe('ink black and warm ivory')
+            expect(result.prompt).toContain('AI 写作工作流')
+        })
+    })
+
     describe('suggestTitles', () => {
         it('should generate title suggestions successfully', async () => {
             const mockProvider = {
