@@ -32,6 +32,52 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## 第二十四阶段阶段级回归任务执行与收口证据链复盘（2026-04-07）
+
+### 回归任务记录
+
+- 回归范围: 第二十四阶段 P0“阶段级回归任务执行与收口证据链复盘”；以 `pnpm regression:phase-close` 为正式入口，核对 coverage、release checks、文档一致性、性能预算、重复代码 strict 与 Review Gate 证据链的实际落地情况，并补跑在固定入口中尚未执行到的 `docs:check:i18n`、`test:perf:budget:strict` 与 `duplicate-code:check:strict`。
+- 触发条件: 当前阶段只剩阶段收口与证据链复盘尚未完成，需要执行一次带明确 timeout budget 的阶段级回归，而不是继续停留在规范层面的 dry-run 或命令清单。
+- 执行频率: 本阶段收口前首轮实跑；后续仅在清理本轮 blocker 后进行复跑，并以最新一次 `phase-close` 结果作为是否允许归档的唯一放行依据。
+- timeout budget:
+    - `pnpm regression:phase-close`: 120 分钟。
+    - `pnpm docs:check:source-of-truth` / `pnpm docs:check:i18n`: 各 10 分钟。
+    - `pnpm test:perf:budget:strict`: 10 分钟。
+    - `pnpm duplicate-code:check:strict`: 10 分钟。
+- 已执行命令:
+    - `pnpm regression:phase-close`
+    - `pnpm docs:check:source-of-truth`
+    - `pnpm docs:check:i18n`
+    - `pnpm test:perf:budget:strict`
+    - `pnpm duplicate-code:check:strict`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 静态与发布前校验层: `release:check:full` 内部的 `lint`、`lint:i18n`、`lint:css`、`lint:md`、`typecheck`、`test`、`security:audit-deps` 与 `security:alerts` 均已通过；`docs:check:source-of-truth` 在发布前校验中以 warning 口径失败，原因是多份 `docs/i18n/en-US/**` 翻译页超过 30 天未同步；补跑的 `docs:check:i18n` 通过，确认不存在 legacy / i18n 重复翻译页。
+        - V2 / Coverage 层: `pnpm regression:phase-close` 首步 `test:coverage` 通过；本轮全仓覆盖率为 `Statements 68.83% (16239/23590)`、`Branches 55.93% (9919/17734)`、`Functions 63.24% (3232/5110)`、`Lines 68.82% (15563/22613)`，维持在当前阶段覆盖率守线之上。
+        - V2 / 重复代码层: 补跑 `pnpm duplicate-code:check:strict` 通过；当前 `35 clones / 897 duplicated lines / 0.81%`，低于基线 `1.22%` 及允许上限 `1.37%`，未形成重复代码 blocker。
+        - V4 / 性能预算层: 补跑 `pnpm test:perf:budget:strict` 失败；`maxAsyncChunkJsGzipBytes` 命中 `.output/public/_nuxt/BACaqbb-.js`，实际 `271.17KB`，高于预算 `120KB`，其余 `coreEntryJs` 与 `keyCss` 仍在预算内。
+        - V3 / 浏览器基线层: `release:check:full` 中的 `test:e2e` 未真正进入浏览器用例执行，阻塞点发生在 `pnpm exec playwright install --with-deps`；当前容器内 Yarn apt 源缺少 `NO_PUBKEY 62D54FD4003F6525`，导致浏览器依赖安装失败并提前中断。
+    - 结果摘要:
+        - `pnpm regression:phase-close` 本轮以 exit code `1` 结束，正式 artifact 为 [artifacts/review-gate/2026-04-07-phase-close-regression.md](../../artifacts/review-gate/2026-04-07-phase-close-regression.md) 与 [artifacts/review-gate/2026-04-07-phase-close-regression.json](../../artifacts/review-gate/2026-04-07-phase-close-regression.json)；其 Gate 结论为 `Reject`。
+        - 固定入口中的首个 required blocker 来自 `release:check:full`，而发布前 artifact [artifacts/review-gate/2026-04-07-pre-release.md](../../artifacts/review-gate/2026-04-07-pre-release.md) 进一步确认阻塞项是 `test:e2e (Playwright)`，`docs:check:source-of-truth` 仅为 warning，不单独阻断本轮发布前校验。
+        - `phase-close` 自身还同时命中活动日志窗口 blocker: 当前 [regression-log.md](./regression-log.md) 已膨胀到 `674` 行、`12` 条活动记录，超过 `400` 行 / `8` 条记录的正式阈值；即便修复 E2E，若不先滚动归档，阶段收口仍不能放行。
+        - 本轮为补齐完整证据链额外执行的 `docs:check:i18n` 与 `duplicate-code:check:strict` 已通过，说明文档目录唯一性与重复代码基线当前不是阻塞点；新增暴露出的第二个真实质量 blocker 是 `test:perf:budget:strict` 的异步 chunk 超预算。
+    - Review Gate 结论:
+        - 结论: Reject
+        - 问题分级: blocker
+        - 主要问题:
+            - `test:e2e` 被 Playwright 浏览器安装阶段阻断，根因是容器内 Yarn apt 源缺少公钥，导致 `playwright install --with-deps` 失败。
+            - `test:perf:budget:strict` 失败，`.output/public/_nuxt/BACaqbb-.js` 的 gzip 体积达到 `271.17KB`，超出 `120KB` 异步 chunk 预算。
+            - [regression-log.md](./regression-log.md) 已超出活动窗口，必须先滚动归档到 [regression-log-archive.md](./regression-log-archive.md) 再重新执行 `phase-close`。
+    - 未覆盖边界:
+        - 由于 `release:check:full` 在 `test:e2e` 阶段提前失败，固定入口中的 `test:perf:budget:strict`、`duplicate-code:check:strict` 与 `review-gate:generate:check` 并未由同一次调度串行执行，本轮对应结果来自补跑命令而非原始调度链末端。
+        - 本轮没有修复 `docs:check:source-of-truth` 的英文翻译陈旧问题，只记录其为非阻塞 warning；若后续要求发版前文档 freshness 也必须清零，需要另行补做翻译同步。
+        - 浏览器层没有生成新的 Playwright 场景运行证据，因为失败发生在浏览器依赖安装前；当前只能证明测试环境阻塞，而不能证明 critical 场景本身是否回归。
+    - 后续补跑计划:
+        - 先滚动迁移活动日志中的较早记录到 [regression-log-archive.md](./regression-log-archive.md)，把主日志收敛回 `6 - 8` 条记录以内，再复跑 `pnpm regression:phase-close`。
+        - 修复或绕过当前容器内 `playwright install --with-deps` 的 apt 公钥问题后，重新执行 `pnpm release:check:full` 与浏览器基线，补齐真实的 E2E 运行证据。
+        - 收敛 `.output/public/_nuxt/BACaqbb-.js` 的异步 chunk 体积后，再复跑 `pnpm test:perf:budget:strict`，确认性能预算恢复到可放行范围。
+
 ## 第二十四阶段测试覆盖率与红绿测试有效性深化补跑（2026-04-07）
 
 ### 回归任务记录
