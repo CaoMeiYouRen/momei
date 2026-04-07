@@ -80,7 +80,9 @@ describe('useOnboarding', () => {
         await expect(startTour('public')).resolves.toBe(true)
 
         expect(mockDriverFactory).toHaveBeenCalledTimes(1)
-        const steps = mockDriverApi.setSteps.mock.calls[0][0] as { element: string }[]
+        const setStepsCall = mockDriverApi.setSteps.mock.calls[0]
+        expect(setStepsCall).toBeDefined()
+        const steps = setStepsCall![0] as { element: string }[]
         expect(steps.map((step) => step.element)).toEqual([
             '.demo-banner',
             '.app-header__logo',
@@ -103,7 +105,9 @@ describe('useOnboarding', () => {
         const { startTour } = useOnboarding()
         await expect(startTour('login')).resolves.toBe(true)
 
-        const steps = mockDriverApi.setSteps.mock.calls[0][0] as { onHighlighted?: () => void }[]
+        const setStepsCall = mockDriverApi.setSteps.mock.calls[0]
+        expect(setStepsCall).toBeDefined()
+        const steps = setStepsCall![0] as { onHighlighted?: () => void }[]
         steps[0]?.onHighlighted?.()
 
         expect((document.querySelector('input[type="email"]') as HTMLInputElement).value).toBe('demo@example.com')

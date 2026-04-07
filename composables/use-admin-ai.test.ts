@@ -2,6 +2,13 @@ import { ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
+interface AdminAiFormItem {
+    id: string | null
+    name: string
+    slug: string
+    translationId: string
+}
+
 const mockToast = {
     add: vi.fn(),
 }
@@ -29,7 +36,7 @@ vi.stubGlobal('$fetch', mockFetch)
 import { useAdminAI } from './use-admin-ai'
 
 function createForms() {
-    return ref({
+    return ref<Record<string, AdminAiFormItem>>({
         'zh-CN': { id: null, name: '源名称', slug: '', translationId: '' },
         'en-US': { id: null, name: '', slug: '', translationId: '' },
         'ja-JP': { id: null, name: '', slug: '', translationId: '' },
@@ -45,7 +52,7 @@ describe('useAdminAI', () => {
 
     it('无可用源语言时 translateName 应提示 warning', async () => {
         const multiForm = createForms()
-        multiForm.value['zh-CN'].name = ''
+        multiForm.value['zh-CN']!.name = ''
         const activeTab = ref('zh-CN')
         const { translateName } = useAdminAI(multiForm, activeTab)
 
@@ -77,8 +84,8 @@ describe('useAdminAI', () => {
                 targetLanguage: 'common.languages.en-US',
             },
         })
-        expect(multiForm.value['en-US'].name).toBe('Translated Name')
-        expect(aiLoading.value['en-US'].name).toBe(false)
+        expect(multiForm.value['en-US']!.name).toBe('Translated Name')
+        expect(aiLoading.value['en-US']?.name).toBe(false)
     })
 
     it('generateSlug 失败时应提示 error 并回收 loading', async () => {
@@ -88,7 +95,7 @@ describe('useAdminAI', () => {
         mockFetch.mockRejectedValueOnce(new Error('slug_failed'))
 
         const multiForm = createForms()
-        multiForm.value['en-US'].name = 'Target Name'
+        multiForm.value['en-US']!.name = 'Target Name'
         const activeTab = ref('en-US')
         const { generateSlug, aiLoading } = useAdminAI(multiForm, activeTab)
 
@@ -101,16 +108,16 @@ describe('useAdminAI', () => {
             detail: 'pages.admin.posts.ai_error',
             life: 3000,
         })
-        expect(aiLoading.value['en-US'].slug).toBe(false)
+        expect(aiLoading.value['en-US']?.slug).toBe(false)
     })
 
     it('英文源内容同步时应直接复制名称、slug 和 translationId', async () => {
         mockIsPureEnglish.mockReturnValue(true)
 
         const multiForm = createForms()
-        multiForm.value['zh-CN'].name = 'English Source'
-        multiForm.value['zh-CN'].slug = 'english-source'
-        multiForm.value['ja-JP'].id = 'existing-id'
+        multiForm.value['zh-CN']!.name = 'English Source'
+        multiForm.value['zh-CN']!.slug = 'english-source'
+        multiForm.value['ja-JP']!.id = 'existing-id'
         const activeTab = ref('zh-CN')
         const { syncAIAllLanguages } = useAdminAI(multiForm, activeTab)
 
@@ -144,7 +151,7 @@ describe('useAdminAI', () => {
 
         await syncAIAllLanguages()
 
-        expect(multiForm.value['zh-CN'].translationId).toBe('source-slug')
+        expect(multiForm.value['zh-CN']!.translationId).toBe('source-slug')
         expect(multiForm.value['en-US']).toMatchObject({
             name: 'Translated EN',
             slug: 'translated-en',

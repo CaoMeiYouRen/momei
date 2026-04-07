@@ -43,7 +43,7 @@ async function mountAdminList<T>(options: Parameters<typeof useAdminList<T>>[0])
         throw new Error('useAdminList was not initialized')
     }
 
-    return composable
+    return composable as ReturnType<typeof useAdminList<T>>
 }
 
 describe('useAdminList', () => {

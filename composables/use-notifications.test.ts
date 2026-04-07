@@ -286,9 +286,9 @@ describe('useNotifications', () => {
         }
         const notificationApi = {
             permission: 'default',
-            requestPermission: vi.fn().mockImplementation(async () => {
+            requestPermission: vi.fn().mockImplementation(() => {
                 notificationApi.permission = 'granted'
-                return 'granted'
+                return Promise.resolve<'granted'>('granted')
             }),
         }
         Object.defineProperty(window, 'Notification', {

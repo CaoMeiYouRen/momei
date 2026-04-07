@@ -79,12 +79,16 @@ describe('useUnsavedChangesGuard', () => {
         })
 
         const acceptPromise = guard.confirmIfDirty()
-        const acceptConfig = mockConfirm.require.mock.calls[0][0] as { accept: () => void }
+        const acceptCall = mockConfirm.require.mock.calls[0]
+        expect(acceptCall).toBeDefined()
+        const acceptConfig = acceptCall![0] as { accept: () => void }
         acceptConfig.accept()
         await expect(acceptPromise).resolves.toBe(true)
 
         const rejectPromise = guard.confirmIfDirty()
-        const rejectConfig = mockConfirm.require.mock.calls[1][0] as { reject: () => void }
+        const rejectCall = mockConfirm.require.mock.calls[1]
+        expect(rejectCall).toBeDefined()
+        const rejectConfig = rejectCall![0] as { reject: () => void }
         rejectConfig.reject()
         await expect(rejectPromise).resolves.toBe(false)
     })
@@ -92,7 +96,7 @@ describe('useUnsavedChangesGuard', () => {
     it('应在 mounted / unmount 时注册并移除 beforeunload，并支持路由离开确认', async () => {
         const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
         const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
-        const guard = useUnsavedChangesGuard({
+        useUnsavedChangesGuard({
             isDirty: true,
             message: 'leave page',
         })
@@ -100,7 +104,9 @@ describe('useUnsavedChangesGuard', () => {
         lifecycle.mounted.forEach((callback) => callback())
         expect(addEventListenerSpy).toHaveBeenCalledWith('beforeunload', expect.any(Function))
 
-        const handler = addEventListenerSpy.mock.calls[0][1] as (event: BeforeUnloadEvent) => void
+        const addEventCall = addEventListenerSpy.mock.calls[0]
+        expect(addEventCall).toBeDefined()
+        const handler = addEventCall![1] as (event: BeforeUnloadEvent) => void
         const preventDefault = vi.fn()
         handler({ preventDefault } as unknown as BeforeUnloadEvent)
         expect(preventDefault).toHaveBeenCalledTimes(1)
