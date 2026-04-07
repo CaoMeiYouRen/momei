@@ -32,6 +32,50 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## 第二十四阶段重复代码与纯函数复用收敛首轮切片（2026-04-07）
+
+### 回归任务记录
+
+- 回归范围: 第二十四阶段 P1“重复代码与纯函数复用收敛”首轮落地；仅覆盖 [server/routes/feed/category/[slug].ts](../../server/routes/feed/category/[slug].ts)、[server/routes/feed/tag/[slug].ts](../../server/routes/feed/tag/[slug].ts) 与新增的 [server/utils/feed-taxonomy-route.ts](../../server/utils/feed-taxonomy-route.ts)、[server/utils/feed-taxonomy-route.test.ts](../../server/utils/feed-taxonomy-route.test.ts)，聚焦分类 / 标签 feed 路由中的重复后缀解析、实体查询与 `titleSuffix` 组装逻辑，不扩写到更大范围的页面级重构。
+- 触发条件: 当前阶段要求先从重复度较高且近期仍可能继续维护的模块中，完成一轮“小范围共享 helper / 纯函数抽象治理”；jscpd 基线显示分类 / 标签 feed 路由存在一组 25 行级别的同构流程，且具备明确的纯函数拆分点。
+- 执行频率: 本阶段首轮切片；后续仅在继续推进 post detail、agreements API 或 admin taxonomy 重复治理时追加增量记录。
+- timeout budget:
+    - `pnpm duplicate-code:check`: 10 分钟。
+    - `pnpm exec vitest run server/utils/feed-taxonomy-route.test.ts server/utils/feed.test.ts`: 15 分钟。
+    - 计划文档同步与 Review Gate 复核: 15 分钟。
+- 已执行命令:
+    - `pnpm duplicate-code:check`
+    - `pnpm exec eslint server/utils/feed-taxonomy-route.ts server/utils/feed-taxonomy-route.test.ts server/routes/feed/category/[slug].ts server/routes/feed/tag/[slug].ts`
+    - `pnpm exec vitest run server/utils/feed-taxonomy-route.test.ts server/utils/feed.test.ts`
+    - `pnpm exec nuxt typecheck`
+    - `pnpm exec lint-md docs/plan/todo.md docs/plan/regression-log.md`
+    - `get_errors`（目标代码文件）
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 静态层: [server/utils/feed-taxonomy-route.ts](../../server/utils/feed-taxonomy-route.ts)、[server/utils/feed-taxonomy-route.test.ts](../../server/utils/feed-taxonomy-route.test.ts)、[server/routes/feed/category/[slug].ts](../../server/routes/feed/category/[slug].ts)、[server/routes/feed/tag/[slug].ts](../../server/routes/feed/tag/[slug].ts) 的编辑器诊断均为 `No errors found`。
+        - V1 / 代码质量层: 定向 ESLint、`pnpm exec nuxt typecheck` 与计划文档 `lint-md` 均已通过，本轮最小验证矩阵已补齐静态检查、类型检查与文档格式检查。
+        - V2 / 逻辑层: `server/utils/feed-taxonomy-route.test.ts` 当前 `7` 条定向测试全部通过，连同既有 [server/utils/feed.test.ts](../../server/utils/feed.test.ts) 共 `16` 条断言通过，确认分类 / 标签两条 feed 路由在 `rss2` / `atom1` / `json1` 格式解析、`Content-Type` 设置、`titleSuffix` 拼装以及 404 / 400 失败路径上未发生行为回退。
+        - V2 / 基线层: `pnpm duplicate-code:check` 复跑通过，Review Gate 结论仍为 `Pass`。
+    - 结果摘要:
+        - 本轮把原本分散在分类 / 标签 feed 路由中的三类重复逻辑收敛到了共享 helper：`parseScopedFeedRequest()`、`buildTaxonomyFeedTitle()` 与 `createTaxonomyFeedRoute()`。
+        - 两个路由文件现在仅保留实体与文案配置，避免后续在支持新格式、调整 `Content-Type` 或修改标题前缀时出现双份漂移。
+        - 重复代码基线从 `46 clones / 1340 duplicated lines / 1.20%` 收敛到 `45 clones / 1315 duplicated lines / 1.18%`；在新增 1 个 helper 文件与 1 个测试文件的前提下，净减少 `1` 组重复 clone。
+        - 本轮收益刻意控制在“小范围窄 helper”，没有把同类 taxonomy 页面、API 或组件一起打包重构，符合当前阶段“先收重复度最高且回滚边界清晰的一小组模块”的约束。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - CLI 侧的 [packages/cli/src/slug.ts](../../packages/cli/src/slug.ts) 与 [utils/shared/slug.ts](../../utils/shared/slug.ts) 仍是完整重复，但当前受 [packages/cli/tsconfig.json](../../packages/cli/tsconfig.json) 中 `rootDir=src` 约束，直接跨包复用会把本轮小切片扩成构建边界调整，暂不纳入本次范围。
+            - [server/api/posts/[id].get.ts](../../server/api/posts/[id].get.ts) 与 [server/api/posts/slug/[slug].get.ts](../../server/api/posts/slug/[slug].get.ts)、[server/api/agreements/privacy-policy.get.ts](../../server/api/agreements/privacy-policy.get.ts) 与 [server/api/agreements/user-agreement.get.ts](../../server/api/agreements/user-agreement.get.ts) 仍保留高价值重复块，适合后续继续切片治理。
+    - 未覆盖边界:
+        - 本轮没有推进 [pages/admin/categories/index.vue](../../pages/admin/categories/index.vue) 与 [pages/admin/tags/index.vue](../../pages/admin/tags/index.vue) 的页面级抽象；该组重复收益更高，但会涉及组件拆分、UI 回归与更大的评审半径，不适合与本轮路由 helper 一起打包。
+        - 本轮没有调整 CLI 包构建配置，因此尚未消除 `slug.ts` 的跨目录重复副本。
+        - 本轮已执行 `pnpm exec nuxt typecheck`，但没有升级到全量 API 回归或更高成本的 `verify` / 浏览器验证，验证维持在“定向单测 + 重复代码基线 + typecheck + 编辑器错误面”的最小充分矩阵内。
+    - 后续补跑计划:
+        - 下一轮优先评估 post detail 双入口 API 是否可抽为共享读取 helper，并补对应访问控制 / 邻接文章定向测试。
+        - 若继续沿低风险纯函数方向推进，可单独设计 CLI 与主仓共享 slug helper 的构建边界方案，再决定是否调整 `packages/cli` 的 `rootDir` / 构建入口。
+        - admin taxonomy 页面级重复治理保留为后续独立切片，避免与当前服务端 helper 抽象互相耦合。
+
 ## 第二十三阶段归档与文档同步收口（2026-04-07）
 
 ### 回归任务记录

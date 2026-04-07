@@ -1,55 +1,13 @@
-import { generateFeed, getFeedLanguage } from '@/server/utils/feed'
-import { dataSource } from '@/server/database'
+import { createTaxonomyFeedRoute } from '@/server/utils/feed-taxonomy-route'
 import { Tag } from '@/server/entities/tag'
 
-export default defineEventHandler(async (event) => {
-    let slug = getRouterParam(event, 'slug') || ''
-    let format: 'rss2' | 'atom1' | 'json1' = 'rss2'
-    let contentType = 'application/xml'
-
-    // 根据后缀判断格式并剥离
-    if (slug.endsWith('.xml')) {
-        slug = slug.slice(0, -4)
-        format = 'rss2'
-        contentType = 'application/xml'
-    } else if (slug.endsWith('.atom')) {
-        slug = slug.slice(0, -5)
-        format = 'atom1'
-        contentType = 'application/atom+xml'
-    } else if (slug.endsWith('.json')) {
-        slug = slug.slice(0, -5)
-        format = 'json1'
-        contentType = 'application/feed+json'
-    }
-
-    slug = decodeURIComponent(slug)
-
-    if (!slug) {
-        throw createError({
-            statusCode: 400,
-            statusMessage: 'Tag slug is required',
-        })
-    }
-
-    const language = getFeedLanguage(event)
-    const tagRepo = dataSource.getRepository(Tag)
-    const tag = await tagRepo.findOne({
-        where: { slug, language },
-    })
-
-    if (!tag) {
-        throw createError({
-            statusCode: 404,
-            statusMessage: 'Tag not found',
-        })
-    }
-
-    const feed = await generateFeed(event, {
-        tagId: tag.id,
-        language: tag.language,
-        titleSuffix: tag.language === 'zh-CN' ? `标签: ${tag.name}` : `Tag: ${tag.name}`,
-    })
-
-    appendHeader(event, 'Content-Type', contentType)
-    return feed[format]()
+export default createTaxonomyFeedRoute({
+    entity: Tag,
+    feedFilterKey: 'tagId',
+    labels: {
+        default: 'Tag',
+        zhCN: '标签',
+    },
+    missingSlugMessage: 'Tag slug is required',
+    notFoundMessage: 'Tag not found',
 })
