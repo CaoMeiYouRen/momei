@@ -16,7 +16,7 @@ This document outlines the development blueprint for the project. For specific t
 - **Stage 21 has been audited and archived**: The validation entry workflow, script entry consolidation, taxonomy translation decoupling, and default cover typography cleanup have been fully closed in the Chinese source of truth.
 - **Stage 22 has now been audited and archived**: Test effectiveness, operationalized periodic regression, batch translation orchestration assessment, phased ESLint tightening, time and date source-of-truth consolidation, and the top-bar admin post-management entry have all been closed in the Chinese source of truth.
 - **Stage 23 has now been audited and archived**: Multilingual social and sponsorship platform expansion, Vercel-side AI media timeout compensation, daily dependency-risk automation, longer-lived realtime ASR credentials, and related-post discovery on article detail pages have all been closed in the Chinese source of truth.
-- **Next-stage note**: The next phase remains at candidate-analysis level only; no formal Stage 24 has been written into the canonical Chinese roadmap or todo yet.
+- **Stage 24 has now been formally planned**: The canonical Chinese roadmap and todo now promote four long-running governance tracks into active execution: test coverage and red-green effectiveness, phased ESLint and type-debt tightening, duplicate-code and pure-function convergence, and one real phase-level regression run with evidence capture.
 - **Scope note**: Full acceptance criteria and task decomposition remain Chinese-only in the canonical [roadmap](../../../plan/roadmap.md) and [todo](../../../plan/todo.md).
 
 ## 1. Project Overview
