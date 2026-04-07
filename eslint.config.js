@@ -124,7 +124,8 @@ export default withNuxt(
     {
         files: ['**/**/*.test.*', '**/**/*.spec.*'],
         rules: {
-            'max-lines-per-function': [1, { max: 700 }], // 测试文件的函数行数限制放宽一些
+            'max-lines': [1, { max: 1000 }], // 测试文件的行数限制放宽一些
+            'max-lines-per-function': [1, { max: 800 }], // 测试文件的函数行数限制放宽一些
         },
     },
     {
@@ -156,6 +157,7 @@ export default withNuxt(
             '@typescript-eslint/only-throw-error': [1], // 禁止不做任何处理就再次向上抛出相同的 error
             '@typescript-eslint/prefer-optional-chain': [1], // 建议使用可选链 (?.) 替代逻辑与 (&&) 来访问深层嵌套的属性
             '@typescript-eslint/require-await': [1], // 禁止在 async 函数中不使用 await 表达式
+            '@typescript-eslint/no-empty-function': [__WARN__], // 禁止空函数
             '@typescript-eslint/non-nullable-type-assertion-style': [0], // 建议使用非空断言 (postfix !) 替代类型断言来消除 null 和 undefined
             '@typescript-eslint/no-inferrable-types': [0], // 对于初始化为数字、字符串或布尔值的变量或参数，不允许显式类型声明
             '@typescript-eslint/explicit-function-return-type': [0], // 要求函数和类方法的显式返回类型

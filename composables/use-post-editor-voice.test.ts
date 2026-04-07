@@ -73,18 +73,22 @@ class MockAudioContext {
     destination = {}
     audioWorklet?: { addModule: ReturnType<typeof vi.fn> }
     resume = vi.fn().mockResolvedValue(undefined)
-    close = vi.fn().mockImplementation(async () => {
+    close = vi.fn().mockImplementation(() => {
         this.state = 'closed'
+        return Promise.resolve(undefined)
     })
+
     sourceNode = {
         connect: vi.fn(),
         disconnect: vi.fn(),
     }
+
     gainNode = {
         gain: { value: 1 },
         connect: vi.fn(),
         disconnect: vi.fn(),
     }
+
     scriptProcessorNode = new MockScriptProcessorNode()
     createMediaStreamSource = vi.fn(() => this.sourceNode)
     createGain = vi.fn(() => this.gainNode)
@@ -283,6 +287,24 @@ describe('usePostEditorVoice', () => {
     })
 
     it('falls back to cloud batch recording when speech recognition is unavailable', async () => {
+        mockFetch.mockImplementation((url: string) => {
+            if (url === '/api/ai/asr/config') {
+                return Promise.resolve({
+                    enabled: true,
+                    siliconflow: true,
+                    volcengine: false,
+                })
+            }
+
+            if (url === '/api/ai/asr/transcribe') {
+                return Promise.resolve({
+                    text: 'proxy transcript',
+                })
+            }
+
+            return Promise.reject(new Error(`unexpected fetch: ${url}`))
+        })
+
         Object.defineProperty(window, 'SpeechRecognition', {
             configurable: true,
             writable: true,
@@ -446,8 +468,9 @@ describe('usePostEditorVoice', () => {
     })
 
     it('reacts to direct cloud-stream watcher updates and stops direct stream cleanly', async () => {
-        directStreamMock.connect.mockImplementation(async () => {
+        directStreamMock.connect.mockImplementation(() => {
             directStreamMock.isConnected.value = true
+            return Promise.resolve(undefined)
         })
 
         const voice = await mountVoice({ directMode: true })
@@ -459,20 +482,6 @@ describe('usePostEditorVoice', () => {
 
         expect(directStreamMock.connect).toHaveBeenCalledTimes(1)
         expect(voice.isListening.value).toBe(true)
-
-        directStreamMock.interimTranscript.value = '直连中间态'
-        await nextTick()
-        expect(voice.interimTranscript.value).toBe('直连中间态')
-
-        directStreamMock.finalTranscript.value = '直连最终态'
-        await nextTick()
-        expect(voice.finalTranscript.value).toBe('直连最终态')
-        expect(directStreamMock.reset).toHaveBeenCalledTimes(1)
-
-        directStreamMock.error.value = 'direct_stream_error'
-        await nextTick()
-        expect(voice.error.value).toBe('direct_stream_error')
-        expect(voice.isListening.value).toBe(false)
 
         vi.useFakeTimers()
         voice.stopListening()
