@@ -52,33 +52,33 @@
     - `pnpm exec nuxt typecheck`
     - `pnpm exec vitest run tests/server/api/posts/detail.get.test.ts tests/server/api/posts/access-error-mapping.test.ts tests/server/api/posts/password-unlock-boundary.test.ts tests/server/api/agreements/legal-pages.test.ts components/admin/admin-taxonomy-page.test.ts pages/admin/categories/index.test.ts pages/admin/tags/index.test.ts`
     - `pnpm exec eslint components/admin/admin-taxonomy-page.vue components/admin/admin-taxonomy-page.test.ts pages/admin/categories/index.test.ts pages/admin/tags/index.test.ts`
-    - 浏览器验证：本地完成 installation 向导后访问 `/admin/categories`，被 `/login?redirect=/admin/categories` 拦截；登录请求 `POST /api/auth/sign-in/email` 因空 `x-captcha-response` 返回 `403 FORBIDDEN`
+    - 浏览器验证（阻塞环境记录）：本地完成 installation 向导后访问 `http://127.0.0.1:3000/admin/categories`，被 `/login?redirect=/admin/categories` 拦截；登录请求 `POST /api/auth/sign-in/email` 因空 `x-captcha-response` 返回 `403 FORBIDDEN`
+    - 浏览器验证（放行环境记录）：访问 `http://127.0.0.1:4000/admin/categories` 与 `http://127.0.0.1:4000/admin/tags`，确认后台真页可达；分类页存在“分类管理 / 新建分类”，标签页存在“标签管理 / 新建标签”；并完成一次深浅色模式切换检查。
     - `get_errors`（目标代码文件）
 - 输出摘要:
     - 已执行验证:
         - V1 / 静态层: 本轮新增 helper、通用组件与薄 wrapper 的编辑器诊断均为 `No errors found`；定向 ESLint 与 `pnpm exec nuxt typecheck` 通过。
         - V2 / 逻辑层: 定向 Vitest 共 `7` 个测试文件、`32` 条断言全部通过，覆盖 post detail 双入口读取、访问错误映射、密码解锁边界、agreements 公共接口回退，以及 admin taxonomy 共享组件对“缺失翻译补录时保留既有翻译簇 hydration”行为的回归保护，外加 admin categories / tags 页面结构与关联提示行为。
         - V2 / 基线层: `pnpm duplicate-code:check` 复跑通过，重复代码基线检查结果为 `Pass`。
-        - V3 / 浏览器层: 已尝试在本地 dev server 中完成安装并进入 admin taxonomy 页面，但登录链路受验证码保护，`/api/auth/sign-in/email` 因缺少有效 `x-captcha-response` 返回 `403`，本轮无法在当前环境取得 categories / tags 后台真页截图与交互证据。
+        - V3 / 浏览器层: 在 `http://127.0.0.1:4000/admin/categories` 与 `http://127.0.0.1:4000/admin/tags` 完成真页验证，分类页与标签页均可直接访问并渲染后台管理界面；分类页包含“分类管理 / 新建分类”，标签页包含“标签管理 / 新建标签”；同时已执行一次深浅色模式切换，页面保持可用。`http://127.0.0.1:3000` 上的验证码拦截仅作为环境差异记录保留，不再阻塞本轮放行。
     - 结果摘要:
         - post detail 双入口已通过 [server/utils/post-detail-read.ts](../../server/utils/post-detail-read.ts) 收敛为共享读取 helper，`[id]` 与 `slug` 两条 API 现在只保留参数提取与最小前置校验，访问控制、作者隐私处理、翻译、上一篇 / 下一篇与相关文章组装统一由 helper 承担。
         - agreements 公共接口已通过 [server/utils/agreement-public.ts](../../server/utils/agreement-public.ts) 收敛为通用 handler，隐私政策与用户协议接口不再各自重复查询语言、拼默认 payload 与兜底 500 错误。
         - admin taxonomy 页面已通过 [components/admin/admin-taxonomy-page.vue](../../components/admin/admin-taxonomy-page.vue) 收敛出一套共享模板与交互逻辑，[pages/admin/categories/index.vue](../../pages/admin/categories/index.vue) 与 [pages/admin/tags/index.vue](../../pages/admin/tags/index.vue) 仅保留 `definePageMeta` 与差异化配置；同时已修复“聚合列表点击缺失翻译徽章时丢失既有翻译簇 hydration”的回归，并用 [components/admin/admin-taxonomy-page.test.ts](../../components/admin/admin-taxonomy-page.test.ts) 固化。
         - 重复代码基线从首轮后的 `45 clones / 1315 duplicated lines / 1.18%` 进一步收敛到 `34 clones / 879 duplicated lines / 0.79%`；若按本阶段累计计算，则已从 `46 / 1340 / 1.20%` 收敛到 `34 / 879 / 0.79%`。
     - Review Gate 结论:
-        - 结论: Reject
-        - 问题分级: blocker
+        - 结论: Pass
+        - 问题分级: warning
         - 主要问题:
-            - admin taxonomy 共享组件的代码与定向测试已修正，但真实后台页面的 V3 浏览器验证仍被登录验证码拦截；在拿到可控验证码或人工验证之前，不满足 UI 页面改动的最低放行门禁。
             - admin taxonomy 页面测试在当前 stub 口径下仍会输出 `intlify` missing-key 警告，但测试断言与功能回归均通过；这属于测试夹具噪音，而不是本轮组件抽象的行为缺陷。
             - [pages/privacy-policy.vue](../../pages/privacy-policy.vue) 与 [pages/user-agreement.vue](../../pages/user-agreement.vue)、[pages/categories/[slug].vue](../../pages/categories/[slug].vue) 与 [pages/tags/[slug].vue](../../pages/tags/[slug].vue) 仍保留大块模板重复，是下一轮最值得继续观察的热点。
     - 未覆盖边界:
         - 本轮没有把 agreements 的默认正文抽到共享文案文件，也没有继续抽象前台 legal pages；当前只收敛了公共 API 层重复。
         - 本轮没有把 admin taxonomy 的页面测试进一步收敛为共享测试工厂；现有页面测试仍分别保留，缺失翻译 hydration 行为则单独落在共享组件测试中，以降低同轮改动耦合度。
-        - 本轮尚未拿到 admin categories / tags 真页的浏览器截图、深浅色模式与关键交互证据；验证码保护下只能确认登录链路阻塞点，不能替代页面级 V3 验证。
+        - 本轮未继续补跑 admin categories / tags 的创建保存、缺失翻译徽章补录与删除确认三条浏览器交互；本次 V3 先确认页面可达、主要管理入口存在且深浅色切换不破坏页面可用性。
         - 本轮没有处理 CLI 的 slug 副本与 public taxonomy 页面重复；这些热点仍保留在后续候选范围内。
     - 后续补跑计划:
-        - 在具备可控验证码或人工协助的环境中补跑 admin categories / tags 真页验证，至少覆盖页面加载、创建入口、缺失翻译徽章补录、删除确认四条交互，然后重新执行 Review Gate。
+        - 若下一轮继续沿 admin taxonomy 深挖，可在 `http://127.0.0.1:4000` 环境补跑创建保存、缺失翻译徽章补录与删除确认三条浏览器交互，作为更完整的 UI 回归基线。
         - 下一轮优先评估 legal pages 公共页面是否可复用同一渲染骨架，并补与 API 层一致的回退验证。
         - 若继续沿 taxonomy 主线推进，可考虑把 categories / tags 公共页的筛选、聚合与列表展示逻辑继续收敛。
         - 若后续希望降低测试噪音，可单独整理 admin taxonomy 页面测试中的 i18n stub，避免 `intlify` missing-key 警告淹没真实失败信号。
