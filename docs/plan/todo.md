@@ -19,7 +19,7 @@
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
 当前进行中事项
-- 第二十四阶段：阶段级回归任务执行与收口证据链复盘
+- 第二十四阶段：阶段级回归任务执行与收口证据链复盘（归档准备中，仍待性能预算放行）
 
 ### 第二十四阶段：质量守线与回归执行深化
 
@@ -40,6 +40,7 @@
 	- 验收: 至少覆盖 coverage、lint / typecheck、重复代码、文档一致性与 Review Gate 结论，并统一沉淀到 `regression-log.md`。
 	- 验收: 若发现 blocker，明确回灌当前阶段待办；若未发现 blocker，也要记录未覆盖边界与下一次补跑条件。
 	- 进展: 2026-04-07 首轮 `pnpm regression:phase-close` 已执行并写入 [regression-log.md](./regression-log.md)，当前结论为 `Reject`；blocker 为 `test:e2e` 浏览器依赖安装失败、`test:perf:budget:strict` 超预算，以及活动回归日志超出窗口，需清理后复跑。
+	- 进展: 2026-04-08 已完成活动日志滚动归档，当前窗口收敛为 `365` 行 / `7` 条记录；`release:check:full` 已恢复通过，`test:e2e` 与文档目录检查均已转绿。最新 [2026-04-08-phase-close-regression.md](../../artifacts/review-gate/2026-04-08-phase-close-regression.md) 仍给出 `Reject`，唯一 blocker 为 `test:perf:budget:strict`；在严格性能预算恢复通过前，本阶段只能继续处于归档准备中，不得标记为已归档。
 
 
 ## 相关文档
