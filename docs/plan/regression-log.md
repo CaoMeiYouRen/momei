@@ -32,6 +32,33 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## 第二十四阶段阶段级回归任务执行与收口证据链复盘复跑（2026-04-08）
+
+### 回归任务记录
+
+- 回归范围: 第二十四阶段 P0“阶段级回归任务执行与收口证据链复盘”复跑；以 [2026-04-08-phase-close-regression.md](../../artifacts/review-gate/2026-04-08-phase-close-regression.md) 为正式收口 artifact，确认 `test:coverage`、`release:check:full`、`docs:check:i18n`、`test:perf:budget:strict`、`duplicate-code:check:strict` 与 `review-gate:generate:check` 已形成同一轮可归档证据链。
+- 触发条件: 2026-04-07 首轮 `phase-close` 已清除浏览器依赖安装与活动日志窗口 blocker，但 strict 性能预算仍为唯一剩余 blocker；在归档第二十四阶段前必须完成一次转绿复跑。
+- 执行频率: 第二十四阶段收口复跑；后续仅在下一阶段收口或质量门基线明显漂移时再执行。
+- timeout budget:
+    - `pnpm regression:phase-close`: 120 分钟。
+    - `pnpm test:perf:budget:strict`: 10 分钟。
+    - `pnpm review-gate:generate:check -- --scope=phase-close-regression`: 20 分钟。
+- 已执行命令:
+    - `pnpm regression:phase-close`
+    - `pnpm docs:check:source-of-truth`
+- 输出摘要:
+    - 已执行验证:
+        - `pnpm regression:phase-close` 本轮完成 `test:coverage`、`release:check:full`、`docs:check:i18n`、`test:perf:budget:strict`、`duplicate-code:check:strict` 与 `review-gate:generate:check` 全链路调度，其中 [2026-04-08-phase-close-regression.md](../../artifacts/review-gate/2026-04-08-phase-close-regression.md) 结论为 `Pass`。
+        - 严格性能预算已恢复通过：当前 `coreEntryJs 0.28KB / 260KB`、`maxAsyncChunkJs 52.39KB / 120KB`、`keyCss 61.04KB / 70KB`；Nuxt 4 共享运行时壳、共享依赖与 admin 专属页面链路已从 `maxAsyncChunkJs` 口径中正确排除。
+        - `release:check:full` 本轮以 `PASS` 收口；其中 `docs:check:source-of-truth` 单独补跑后确认仍有多份 `docs/i18n/en-US/**` 翻译文档超过 30 天未同步，但该项当前继续按 pre-release 非阻断 warning 口径处理，不阻塞第二十四阶段归档。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: warning
+        - 主要问题:
+            - `docs:check:source-of-truth` 仍存在英文翻译时效超窗问题，后续若该门禁升级为阻断，需要单独上收文档同步治理。
+    - 后续补跑计划:
+        - 第二十四阶段已满足归档条件；下一轮仅在第二十五阶段准入后，继续沿当前 artifact、活动日志窗口与性能预算口径做对比复核。
+
 ## 第二十四阶段阶段级回归任务执行与收口证据链复盘（2026-04-07）
 
 ### 回归任务记录

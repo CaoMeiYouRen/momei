@@ -76,6 +76,57 @@ function isVendorChunk(filePath) {
     return /^vendor-[^.]+\..+\.js$/i.test(name)
 }
 
+function isRuntimeShellChunk(content) {
+    return [
+        'window.useNuxtApp||=',
+        'builds/meta/${yn().app.buildId}.json',
+        'versions:{get nuxt()',
+    ].some((marker) => content.includes(marker))
+}
+
+function extractImportedJsFiles(content) {
+    const imports = new Set()
+    const patterns = [
+        /from["']\.\/([^"']+\.js)["']/g,
+        /import\(["']\.\/([^"']+\.js)["']/g,
+        /import["']\.\/([^"']+\.js)["']/g,
+    ]
+
+    for (const pattern of patterns) {
+        for (const match of content.matchAll(pattern)) {
+            const importedFile = match[1]
+            if (importedFile) {
+                imports.add(importedFile)
+            }
+        }
+    }
+
+    return imports
+}
+
+function extractRouteChunkUsage(content) {
+    const usage = new Map()
+    const routeChunkPattern = /path:"([^"]+)"[^]*?import\("\.\/([^"]+\.js)"\)/g
+
+    for (const match of content.matchAll(routeChunkPattern)) {
+        const routePath = match[1]
+        const chunkName = match[2]
+        if (!routePath || !chunkName) {
+            continue
+        }
+
+        const existing = usage.get(chunkName) ?? new Set()
+        existing.add(routePath)
+        usage.set(chunkName, existing)
+    }
+
+    return usage
+}
+
+function isAdminRoutePath(routePath) {
+    return /^\/(?:[a-z]{2}-[A-Z]{2}\/)?admin(?:\/|$)/.test(routePath)
+}
+
 async function main() {
     const args = parseArgs(process.argv)
     const assetsDir = path.resolve('.output/public/_nuxt')
@@ -90,10 +141,15 @@ async function main() {
     const jsFiles = files.filter((f) => f.endsWith('.js'))
     const cssFiles = files.filter((f) => f.endsWith('.css'))
 
-    const jsWithSize = await Promise.all(jsFiles.map(async (file) => ({
-        file,
-        gzipBytes: await getGzipSize(file),
-    })))
+    const jsWithSize = await Promise.all(jsFiles.map(async (file) => {
+        const content = await fs.readFile(file, 'utf8')
+
+        return {
+            file,
+            content,
+            gzipBytes: gzipSync(Buffer.from(content), { level: 9 }).byteLength,
+        }
+    }))
 
     const cssWithSize = await Promise.all(cssFiles.map(async (file) => ({
         file,
@@ -106,9 +162,111 @@ async function main() {
     const entryFiles = entryCandidates.length > 0 ? entryCandidates : proxyCandidates
     const entryFileSet = new Set(entryFiles.map((item) => item.file))
 
+    const fileByName = new Map(jsWithSize.map((item) => [path.basename(item.file), item]))
+    const importerMap = new Map(jsWithSize.map((item) => [item.file, new Set()]))
+    const importGraph = new Map(jsWithSize.map((item) => [item.file, new Set()]))
+
+    for (const item of jsWithSize) {
+        for (const importedFileName of extractImportedJsFiles(item.content)) {
+            const imported = fileByName.get(importedFileName)
+            if (!imported) {
+                continue
+            }
+
+            importGraph.get(item.file)?.add(imported.file)
+            importerMap.get(imported.file)?.add(item.file)
+        }
+    }
+
+    const runtimeShellFiles = new Set(jsWithSize
+        .filter((item) => isRuntimeShellChunk(item.content))
+        .map((item) => item.file))
+
+    const routeChunkUsage = new Map()
+    for (const runtimeShellFile of runtimeShellFiles) {
+        const runtimeShell = jsWithSize.find((item) => item.file === runtimeShellFile)
+        if (!runtimeShell) {
+            continue
+        }
+
+        for (const [chunkName, routePaths] of extractRouteChunkUsage(runtimeShell.content)) {
+            const chunk = fileByName.get(chunkName)
+            if (!chunk) {
+                continue
+            }
+
+            const existing = routeChunkUsage.get(chunk.file) ?? new Set()
+            routePaths.forEach((routePath) => existing.add(routePath))
+            routeChunkUsage.set(chunk.file, existing)
+        }
+    }
+
+    const adminOnlyRouteChunks = new Set([...routeChunkUsage.entries()]
+        .filter(([, routePaths]) => routePaths.size > 0 && [...routePaths].every((routePath) => isAdminRoutePath(routePath)))
+        .map(([file]) => file))
+
+    const routeOwners = new Map([...routeChunkUsage.entries()].map(([file, routePaths]) => [file, new Set(routePaths)]))
+    let routeOwnersChanged = true
+    while (routeOwnersChanged) {
+        routeOwnersChanged = false
+
+        for (const [importerFile, importedFiles] of importGraph.entries()) {
+            const importerRoutes = routeOwners.get(importerFile)
+            if (!importerRoutes || importerRoutes.size === 0) {
+                continue
+            }
+
+            for (const importedFile of importedFiles) {
+                const importedRoutes = routeOwners.get(importedFile) ?? new Set()
+                const previousSize = importedRoutes.size
+                importerRoutes.forEach((routePath) => importedRoutes.add(routePath))
+                if (importedRoutes.size !== previousSize) {
+                    routeOwners.set(importedFile, importedRoutes)
+                    routeOwnersChanged = true
+                }
+            }
+        }
+    }
+
+    const adminOnlyRelatedChunks = new Set([...routeOwners.entries()]
+        .filter(([, routePaths]) => routePaths.size > 0 && [...routePaths].every((routePath) => isAdminRoutePath(routePath)))
+        .map(([file]) => file))
+
+    adminOnlyRouteChunks.forEach((file) => adminOnlyRelatedChunks.add(file))
+
+    let adminImportClosureChanged = true
+    while (adminImportClosureChanged) {
+        adminImportClosureChanged = false
+
+        for (const item of jsWithSize) {
+            if (adminOnlyRelatedChunks.has(item.file)) {
+                continue
+            }
+
+            const importers = importerMap.get(item.file)
+            if (!importers || importers.size === 0) {
+                continue
+            }
+
+            if ([...importers].every((importerFile) => adminOnlyRelatedChunks.has(importerFile) || adminOnlyRouteChunks.has(importerFile))) {
+                adminOnlyRelatedChunks.add(item.file)
+                adminImportClosureChanged = true
+            }
+        }
+    }
+
+    const sharedChunkFiles = new Set(jsWithSize
+        .filter((item) => !entryFileSet.has(item.file) && !runtimeShellFiles.has(item.file) && !adminOnlyRelatedChunks.has(item.file) && (importerMap.get(item.file)?.size ?? 0) > 1)
+        .map((item) => item.file))
+
     const coreEntryJsGzipBytes = entryFiles.reduce((sum, item) => sum + item.gzipBytes, 0)
 
-    const asyncChunkCandidates = jsWithSize.filter((item) => !entryFileSet.has(item.file) && !isVendorChunk(item.file))
+    const asyncChunkCandidates = jsWithSize.filter((item) => !entryFileSet.has(item.file)
+        && !isVendorChunk(item.file)
+        && !runtimeShellFiles.has(item.file)
+        && !sharedChunkFiles.has(item.file)
+        && !adminOnlyRouteChunks.has(item.file)
+        && !adminOnlyRelatedChunks.has(item.file))
     const maxAsyncChunkJs = asyncChunkCandidates.length > 0
         ? asyncChunkCandidates.reduce(
             (max, item) => item.gzipBytes > max.gzipBytes ? item : max,
@@ -199,6 +357,12 @@ async function main() {
             },
             asyncChunkCalculation: {
                 excludedVendorChunks: true,
+                excludedRuntimeShellChunks: [...runtimeShellFiles].map((file) => rel(path.relative(process.cwd(), file))),
+                excludedSharedChunks: [...sharedChunkFiles].map((file) => rel(path.relative(process.cwd(), file))),
+                excludedAdminOnlyRouteChunks: [...adminOnlyRouteChunks].map((file) => rel(path.relative(process.cwd(), file))),
+                excludedAdminOnlyRelatedChunks: [...adminOnlyRelatedChunks]
+                    .filter((file) => !adminOnlyRouteChunks.has(file))
+                    .map((file) => rel(path.relative(process.cwd(), file))),
                 candidates: asyncChunkCandidates.length,
                 entryProxyFiles: entryFiles.map((item) => rel(path.relative(process.cwd(), item.file))),
             },
