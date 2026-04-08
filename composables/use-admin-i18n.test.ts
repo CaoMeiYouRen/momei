@@ -16,32 +16,36 @@ vi.mock('#app', async (importOriginal) => {
     }
 })
 
-vi.mock('vue-i18n', () => ({
-    useI18n: () => ({
-        locale: ref('en'),
-        locales: ref([
-            { code: 'en', name: 'English' },
-            { code: 'zh-CN', name: '简体中文' },
-            { code: 'ja', name: '日本語' },
-        ]),
-        t: (key: string) => {
-            if (key === 'common.all_languages') {
-                return 'All Languages'
-            }
-            if (key === 'common.languages.en') {
-                return 'English'
-            }
-            if (key === 'common.languages.zh-CN') {
-                return '简体中文'
-            }
-            if (key === 'common.languages.ja') {
-                return '日本語'
-            }
-            return key
-        },
-    }),
-    createI18n: vi.fn(),
-}))
+vi.mock('vue-i18n', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('vue-i18n')>()
+
+    return {
+        ...actual,
+        useI18n: () => ({
+            locale: ref('en'),
+            locales: ref([
+                { code: 'en', name: 'English' },
+                { code: 'zh-CN', name: '简体中文' },
+                { code: 'ja', name: '日本語' },
+            ]),
+            t: (key: string) => {
+                if (key === 'common.all_languages') {
+                    return 'All Languages'
+                }
+                if (key === 'common.languages.en') {
+                    return 'English'
+                }
+                if (key === 'common.languages.zh-CN') {
+                    return '简体中文'
+                }
+                if (key === 'common.languages.ja') {
+                    return '日本語'
+                }
+                return key
+            },
+        }),
+    }
+})
 
 describe('useAdminI18n', () => {
     beforeEach(() => {

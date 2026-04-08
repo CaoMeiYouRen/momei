@@ -7,15 +7,25 @@ const mockToast = {
 
 const mockT = vi.fn((key: string) => key)
 
-vi.mock('primevue/usetoast', () => ({
-    useToast: () => mockToast,
-}))
+vi.mock('primevue/usetoast', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('primevue/usetoast')>()
 
-vi.mock('vue-i18n', () => ({
-    useI18n: () => ({
-        t: mockT,
-    }),
-}))
+    return {
+        ...actual,
+        useToast: () => mockToast,
+    }
+})
+
+vi.mock('vue-i18n', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('vue-i18n')>()
+
+    return {
+        ...actual,
+        useI18n: () => ({
+            t: mockT,
+        }),
+    }
+})
 
 global.fetch = vi.fn()
 global.URL.createObjectURL = vi.fn(() => 'blob:mock-url')
