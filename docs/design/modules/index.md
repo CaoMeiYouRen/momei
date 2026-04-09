@@ -61,6 +61,7 @@
 - **[ASR 性能与体验优化](./asr-performance-optimization)**: `asr.md` 的专项优化，聚焦临时凭证、压缩与异步追踪。
 - **[第三方分发解耦与投递控制](./content-distribution-governance)**: `third-party.md` 的分发治理补充，聚焦外部分发状态机与投递边界。
 - **[系统配置深度解耦与统一化](./system-config-unification)**: `system.md` 的配置治理补充，聚焦来源解释、锁定和审计。
+- **[Cloudflare 运行时兼容研究与止损结论](./cloudflare-runtime-study)**: `system.md` / `scheduled-publication.md` 的平台边界补充，聚焦 Workers / Pages / D1 的阻塞清单、最小样机边界与止损条件。
 - **[Post 元数据统一化迁移方案](./post-metadata-unification)**: `blog.md` / `system.md` 之间的跨模块专项文档，聚焦 `Post` 元数据模型统一与迁移。
 - **[迁移链接治理与云端资源重写](./migration-link-governance)**: `migration.md` 的专项治理补充，聚焦链接治理和 `dry-run / apply / report` 契约。
 - **[CLI / MCP 自动化能力扩展设计](./cli-mcp-automation)**: 自动化工具链专项文档，聚焦 CLI、MCP 与脚本化协作边界。

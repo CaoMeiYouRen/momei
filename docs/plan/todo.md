@@ -19,7 +19,7 @@
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
 当前进行中事项
- - 无。构建速度与包体性能深化已完成首轮热点收敛与运行期验证，待后续切下一组剩余热点时再补记进行中事项。
+ - 无。Cloudflare 运行时兼容研究与止损结论已完成首轮文档化收口，后续如要重新推进整站适配，必须先满足研究文档中定义的触发条件。
 
 ## 第二十五阶段：部署体验与可持续演进收敛
 
@@ -60,14 +60,16 @@
 
 ### 4. Cloudflare 运行时兼容研究与止损结论 (P1)
 
-- [ ] **Cloudflare 运行时阻塞清单与最小样机研究**
+- [x] **Cloudflare 运行时阻塞清单与最小样机研究**
 	- 验收: 面向 Cloudflare Pages / Workers / D1 路线输出可追溯的阻塞清单，至少覆盖 TypeORM、Node 运行时依赖、数据库契约、文件存储与定时任务差异。
 	- 验收: 若存在最小样机路径，需明确它只代表技术可行性研究，不代表当前项目已支持整站 Cloudflare 部署。
 	- 验收: 研究产物至少能够支撑“继续推进 / 暂停投入 / 仅保留外围能力接入”三选一的方向结论。
-- [ ] **Cloudflare 平台边界说明与止损结论收口**
+	- 验证: 2026-04-09 已新增 [docs/design/modules/cloudflare-runtime-study.md](../design/modules/cloudflare-runtime-study.md)，基于仓库内现有 `TypeORM + better-sqlite3/mysql/postgres`、Node 运行时依赖、R2/本地存储双轨模型、`wrangler.toml` 与 `_scheduled` 实验入口，补齐 Workers / Pages / D1 的阻塞清单；当前唯一推荐的最小样机路径收敛为“Cloudflare 仅做外围能力与任务触发，应用主体继续运行在 Vercel / Docker / 自托管 Node”。
+- [x] **Cloudflare 平台边界说明与止损结论收口**
 	- 验收: 若研究结论仍为短期不适合推进，需进一步收敛对外说明、内部设计约束与后续触发条件，避免未来重复投入同类预研却缺少止损结论。
 	- 验收: 若研究结论允许继续推进，也必须先定义下一阶段的技术闸门与替代成本，不得在本阶段直接扩写为整站适配开发。
 	- 验收: 补齐对应文档或研究说明入口，确保后续规划可直接复用本轮结论。
+	- 验证: 已同步更新 [docs/guide/deploy.md](../guide/deploy.md)、[docs/guide/quick-start.md](../guide/quick-start.md)、[docs/design/modules/scheduled-publication.md](../design/modules/scheduled-publication.md)、[docs/design/modules/index.md](../design/modules/index.md) 与 [docs/.vitepress/config.ts](../.vitepress/config.ts)，将当前阶段面向读者的主要入口统一收敛为“短期暂停整站 Cloudflare 运行时适配，仅保留外围能力接入”；`pnpm lint:md` 与 `pnpm docs:check:i18n` 已通过，并已补充 Review Gate 证据 [artifacts/review-gate/2026-04-09-cloudflare-runtime-study.md](../../artifacts/review-gate/2026-04-09-cloudflare-runtime-study.md)。后续重新评估必须先满足研究文档中的触发条件。
 
 ### 5. AI 初始化 / 配置问答助手评估 (P1)
 

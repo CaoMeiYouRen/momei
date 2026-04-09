@@ -118,6 +118,7 @@ export default defineConfig({
                             { text: '存储管理', link: '/design/modules/storage' },
                             { text: '系统能力', link: '/design/modules/system' },
                             { text: '系统配置统一化', link: '/design/modules/system-config-unification' },
+                            { text: 'Cloudflare 运行时研究', link: '/design/modules/cloudflare-runtime-study' },
                             { text: '定时任务', link: '/design/modules/scheduled-publication' },
                             { text: '后台管理', link: '/design/modules/admin' },
                             { text: '用户空间', link: '/design/modules/user' },

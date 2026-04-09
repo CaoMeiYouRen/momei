@@ -52,6 +52,8 @@ docker-compose up -d
 
 当前版本暂不支持将应用主体完整部署到 Cloudflare Pages / Workers。原因是项目当前仍依赖 TypeORM 与 Node 运行时能力，尚未形成可维护的 Cloudflare 适配层。
 
+详细阻塞清单、最小样机边界与后续触发条件见 [Cloudflare 运行时兼容研究与止损结论](../design/modules/cloudflare-runtime-study.md)。
+
 如果你需要使用 Cloudflare，当前建议仅接入以下外围能力：
 
 - Cloudflare R2 作为对象存储。

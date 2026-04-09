@@ -46,17 +46,17 @@
 
 ### 2.3 Serverless 触发
 
-当前项目已支持两类 Serverless 触发方式：
+当前项目已正式支持一类 Serverless 触发方式，并保留一条 Cloudflare 实验入口：
 
 - Vercel Cron：通过 [vercel.json](../../vercel.json) 调用 `/api/tasks/run-scheduled`
-- Cloudflare Scheduled Events：通过 [wrangler.toml](../../wrangler.toml) 触发 [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts)
+- Cloudflare 实验入口：通过 [wrangler.toml](../../wrangler.toml) 与 [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts) 保留外围能力探索痕迹
 
-其中 Cloudflare 路由要求存在 `cf-scheduled` 请求头，否则直接返回 404。
+其中 Cloudflare 路由要求存在 `cf-scheduled` 请求头，否则直接返回 404；但根据 Cloudflare 官方文档，正式 Cron Trigger 入口应为 `scheduled()` 处理器，因此这一路径当前只能视为实验性适配入口，不构成整站 Cloudflare 运行时支持承诺。完整研究见 [Cloudflare 运行时兼容研究与止损结论](./cloudflare-runtime-study.md)。
 
 补充说明：
 
 - 自部署环境下，主 Cron 会补充执行 AI 媒体超时补偿；友链巡检由 [server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts) 中的独立 Cron 表达式驱动。
-- Serverless 或手动触发入口下，`/api/tasks/run-scheduled` 与 [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts) 会在执行统一调度任务后补充执行一次 AI 媒体超时补偿和友链巡检。
+- Serverless 或手动触发入口下，`/api/tasks/run-scheduled` 与实验性 [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts) 会在执行统一调度任务后补充执行一次 AI 媒体超时补偿和友链巡检。
 - AI 媒体巡检会先做分布式锁与数据库级 claim/lease 认领，再尝试补偿 stale 任务，以降低 Vercel / 自部署多实例并发下的重复补偿风险。
 - 友链实际探测仍会受到最小巡检间隔与失败退避冷却约束。
 
@@ -128,13 +128,19 @@ Vercel Cron 会自动把项目中的 `CRON_SECRET` 作为 `Authorization: Bearer
 - 友链巡检结果 `friendLinksChecked`
 - AI 媒体补偿摘要 `aiMediaCompensation`
 
-### 4.2 Cloudflare
+### 4.2 Cloudflare（实验性外围入口）
 
 [wrangler.toml](../../wrangler.toml) 当前配置为每 15 分钟一次：
 
 - 计划：`*/15 * * * *`
 
 这两种频率不同是部署平台适配策略的一部分，而不是文档误差。
+
+但需要明确：
+
+- 这里记录的是当前仓库保留的探索入口，不代表 Cloudflare Pages / Workers 已成为正式运行环境。
+- 当前更推荐的 Cloudflare 任务接入方式，是让 Cloudflare 作为外围调度器调用 [server/api/tasks/run-scheduled.post.ts](../../server/api/tasks/run-scheduled.post.ts)，而不是把完整任务执行链迁到 Cloudflare 运行时。
+- 是否重新推进 Cloudflare 正式任务模型，应以 [Cloudflare 运行时兼容研究与止损结论](./cloudflare-runtime-study.md) 为准。
 
 补充说明：高频的统一调度入口并不意味着友链会被高频重复探测。友链服务会基于 `friend_links_check_interval_minutes` 和失败退避窗口筛选“已到期”的候选项，仅对到期记录执行网络请求。
 

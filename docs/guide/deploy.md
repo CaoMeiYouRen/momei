@@ -175,6 +175,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
   - 如需内置 Cron，可使用 `TASK_CRON_EXPRESSION` 自定义主任务频率，并用 `FRIEND_LINKS_CHECK_CRON` 单独调整友链巡检节奏。
 - **Cloudflare（外围能力接入）**:
   - 当前版本暂不支持将应用主体完整部署到 Cloudflare Pages / Workers，根因是项目仍依赖 TypeORM 与 Node 运行时能力。
+  - 研究结论与止损条件见 [Cloudflare 运行时兼容研究与止损结论](../design/modules/cloudflare-runtime-study.md)。
   - Cloudflare R2 可继续作为对象存储接入。
   - Scheduled Events 相关触发适配与 [wrangler.toml](../../wrangler.toml) 配置当前保留为外围能力设计 / 实验入口，不应解读为整站 Cloudflare 运行时已受支持。
   - `pnpm deploy:wrangler` 当前仅用于 wrangler 侧适配调试，不应作为生产环境整站部署命令。
@@ -191,6 +192,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **直传仍走代理上传**: 检查 `STORAGE_TYPE` 是否为 `s3` 或 `r2`，并确认对象存储凭据、Bucket 与公开地址已配置完整。
 - **本地上传资源 404**: 检查 `LOCAL_STORAGE_DIR` 是否存在，以及 `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL` 是否与实际静态路径匹配。
 - **Cloudflare Pages / Workers 运行时报 TypeORM / Node 兼容错误**: 这是当前已知边界，不是部署步骤遗漏。请改用 Vercel、Docker 或自托管 Node 环境作为应用主体；如需 Cloudflare，当前仅保留 R2 / Scheduled Events 等外围能力接入。
+- **Cloudflare D1 是否能直接替代当前数据库**: 不能。当前主栈仍围绕 TypeORM 与 `sqlite/mysql/postgres` 三类驱动组织，D1 只应继续保留为后续条件触发型研究项，详见 [Cloudflare 运行时兼容研究与止损结论](../design/modules/cloudflare-runtime-study.md)。
 
 ## 7. 更多参考资源 (References)
 
