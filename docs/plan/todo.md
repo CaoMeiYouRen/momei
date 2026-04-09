@@ -19,7 +19,7 @@
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
 当前进行中事项
- - 构建速度与包体性能深化：首轮热点实现与静态 / 预算验证已完成，当前待补浏览器层烟测或等价运行期证据后再正式收口。
+ - 无。构建速度与包体性能深化已完成首轮热点收敛与运行期验证，待后续切下一组剩余热点时再补记进行中事项。
 
 ## 第二十五阶段：部署体验与可持续演进收敛
 
@@ -52,12 +52,11 @@
 	- 验收: 热点范围需显式限定，例如编辑器 / Markdown 渲染链、后台高频页面或文档站构建链路，不扩写为全仓性能重构。
 	- 验收: 至少输出优化前后对比结果、预算变化与未继续处理的剩余热点。
 	- 验证: 2026-04-09 已完成首轮热点收敛，聚焦 `sentry.client.config.ts` 启动重块与 reader / onboarding 低频样式入口污染；`pnpm build`、`pnpm test:perf:budget`、`pnpm test:perf:budget:strict`、`pnpm typecheck`、`pnpm lint:css`、`pnpm lint:md`、`pnpm exec eslint sentry.client.config.ts components/reader-controls.vue composables/use-onboarding.ts`、`pnpm exec vitest run composables/use-onboarding.test.ts composables/use-reader-mode.test.ts` 通过；`keyCss` 由 `61.04KB` 降至 `59.98KB`，Sentry 配置壳从约 `53.65KB gzip` 拆到约 `0.35KB gzip`，重型 SDK 改为在检测到 DSN 后再继续加载。
-- [ ] **性能守线与验证入口复用**
+- [x] **性能守线与验证入口复用**
 	- 验收: 继续复用 `test:perf:budget`、strict 预算与现有性能报告链路，不另起第二套性能验证体系。
 	- 验收: 若本轮涉及包体切分、依赖替换或构建流程调整，必须补齐对应验证与风险说明，避免“体感优化”缺少证据链。
 	- 验收: 保留本轮优化收益、未覆盖边界与下轮可继续切片的方向。
-	- 验证: 本轮继续复用 `.lighthouseci/bundle-budget-report.json` 与现有构建产物进行预算复核，当前 `maxAsyncChunkJs` 为 `53.09KB / 120KB`、`keyCss` 为 `59.98KB / 70KB`；入口 CSS 已移除 `reader-mode-active` 与 `driver-popover`，对应样式拆分到按需 CSS chunk。剩余热点优先关注运行时壳 `DYc0WSYY.js` 与最大业务 chunk `B653ImUS.js`。
-	- 备注: 当前生产数据集中无可访问文章，默认运行态也未启用 `demoMode`；临时 `demoMode` 验证实例又因系统未安装而跳转安装流，导致 reader / onboarding 两条按需样式链路暂未拿到真实浏览器烟测证据。待补等价运行期验证后再正式勾选本项。
+	- 验证: 本轮继续复用 `.lighthouseci/bundle-budget-report.json` 与现有构建产物进行预算复核，当前 `maxAsyncChunkJs` 为 `53.09KB / 120KB`、`keyCss` 为 `59.98KB / 70KB`；入口 CSS 已移除 `reader-mode-active` 与 `driver-popover`，对应样式拆分到按需 CSS chunk。额外通过临时 Nitro 验证实例补齐运行期证据：`3003` 测试种子环境在 `http://127.0.0.1:3003/posts/hello-momei-test` 上确认 `reader-mode-active` 已生效、侧栏 `display:none`、按需样式 chunk `_id_.CHNsxdI5.css` 已注入，暗色模式下正文主区 `box-shadow:none`；`3004` demo 种子环境在首页确认 `driver.V982e7uw.css` 与 `onboarding-driver.DbGQlKF9.css` 已注入，浮层在亮色模式下为 `rgb(255,255,255) / 8px` 圆角，在暗色模式下为 `rgb(30,41,59)` 背景与 `rgb(241,245,249)` 文本。剩余热点优先关注运行时壳 `DYc0WSYY.js` 与最大业务 chunk `B653ImUS.js`。
 
 ### 4. Cloudflare 运行时兼容研究与止损结论 (P1)
 
