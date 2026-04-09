@@ -1,15 +1,19 @@
-import * as Sentry from '@sentry/nuxt'
+const runtimeConfig = useRuntimeConfig()
+const sentryConfig = runtimeConfig.public.sentry
 
-const config = useRuntimeConfig()
-const sentryConfig = config.public.sentry
+if (import.meta.client && sentryConfig?.dsn) {
+    const {
+        init,
+        browserTracingIntegration,
+        replayIntegration,
+    } = await import('@sentry/nuxt')
 
-if (sentryConfig?.dsn) {
-    Sentry.init({
+    init({
         dsn: sentryConfig.dsn,
         environment: sentryConfig.environment,
         integrations: [
-            Sentry.browserTracingIntegration({ router: useRouter() }),
-            Sentry.replayIntegration(),
+            browserTracingIntegration({ router: useRouter() }),
+            replayIntegration(),
         ],
         // Performance Monitoring
         tracesSampleRate: 1.0, // Capture 100% of the transactions

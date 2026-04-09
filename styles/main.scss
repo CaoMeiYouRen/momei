@@ -3,8 +3,6 @@
 @use "./layout" as *;
 @use "./highlight" as *;
 @use "./rendering" as *;
-@use "./onboarding" as *;
-@use "./reader" as *;
 @layer primevue, momei-base, momei-overrides;
 
 @layer momei-base {

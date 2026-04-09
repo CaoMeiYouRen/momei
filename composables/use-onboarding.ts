@@ -16,6 +16,7 @@ const DEMO_TOUR_SEEN_PREFIX = 'momei_demo_tour_seen:'
 
 let driverModulePromise: Promise<typeof import('driver.js')> | null = null
 let driverStylePromise: Promise<unknown> | null = null
+let onboardingStylePromise: Promise<unknown> | null = null
 
 async function loadDriverAssets() {
     if (!driverModulePromise) {
@@ -24,10 +25,14 @@ async function loadDriverAssets() {
     if (!driverStylePromise) {
         driverStylePromise = import('driver.js/dist/driver.css')
     }
+    if (!onboardingStylePromise) {
+        onboardingStylePromise = import('@/styles/onboarding-driver.scss')
+    }
 
     const [driverModule] = await Promise.all([
         driverModulePromise,
         driverStylePromise,
+        onboardingStylePromise,
     ])
 
     return driverModule

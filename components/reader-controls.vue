@@ -159,3 +159,7 @@ onUnmounted(() => {
     window.removeEventListener('keydown', handleEsc)
 })
 </script>
+
+<style lang="scss">
+@use "@/styles/reader" as *;
+</style>
