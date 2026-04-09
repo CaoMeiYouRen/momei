@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { createMarkdownRenderer } from '@/utils/shared/markdown'
+import { createMarkdownRenderer, sanitizeRenderedMarkdownHtml } from '@/utils/shared/markdown'
 const props = defineProps<{
     content: string
 }>()
@@ -62,7 +62,7 @@ const md = createMarkdownRenderer({
     withAnchor: true,
 })
 
-const renderedContent = computed(() => md.render(props.content || ''))
+const renderedContent = computed(() => sanitizeRenderedMarkdownHtml(md.render(props.content || '')))
 
 /**
  * 初始化代码组 (Code Group) 的交互逻辑

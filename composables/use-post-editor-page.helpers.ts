@@ -25,6 +25,28 @@ export interface PublishPushDialogExpose {
     }) => void
 }
 
+export function buildComparablePostEditorState(post: PostEditorData) {
+    return {
+        title: post.title,
+        content: post.content,
+        slug: post.slug,
+        status: post.status,
+        visibility: post.visibility,
+        password: post.password,
+        summary: post.summary,
+        coverImage: post.coverImage,
+        metadata: post.metadata,
+        categoryId: post.categoryId,
+        copyright: post.copyright,
+        tags: [...(post.tags || [])],
+        isPinned: post.isPinned,
+        language: post.language,
+        translationId: post.translationId,
+        publishedAt: post.publishedAt,
+        metaVersion: post.metaVersion,
+    }
+}
+
 interface ConfirmServiceLike {
     require: (options: Record<string, unknown>) => void
 }

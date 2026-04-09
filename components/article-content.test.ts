@@ -124,4 +124,33 @@ describe('ArticleContent', () => {
         expect(html).toContain('katex')
         expect(html).toContain('math')
     })
+
+    it('sanitizes dangerous raw html while preserving safe rendered nodes', async () => {
+        const content = '<img src="/safe.jpg" onerror="alert(1)"><script>alert(2)</script><div class="safe-block">safe</div>'
+        const wrapper = await mountSuspended(ArticleContent, {
+            props: {
+                content,
+            },
+        })
+
+        const img = wrapper.find('img')
+        expect(img.exists()).toBe(true)
+        expect(img.attributes('src')).toBe('/safe.jpg')
+        expect(img.attributes('onerror')).toBeUndefined()
+        expect(wrapper.html()).not.toContain('<script')
+        expect(wrapper.find('.safe-block').exists()).toBe(true)
+    })
+
+    it('strips dangerous data-uri links from rendered content', async () => {
+        const content = '<a href="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==">danger</a>'
+        const wrapper = await mountSuspended(ArticleContent, {
+            props: {
+                content,
+            },
+        })
+
+        const link = wrapper.find('a')
+        expect(link.exists()).toBe(true)
+        expect(link.attributes('href')).toBeUndefined()
+    })
 })

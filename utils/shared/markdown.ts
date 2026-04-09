@@ -3,6 +3,7 @@ import MarkdownItAnchor from 'markdown-it-anchor'
 import MarkdownItContainer from 'markdown-it-container'
 import { light as MarkdownItEmoji } from 'markdown-it-emoji'
 import githubAlerts from 'markdown-it-github-alerts'
+import sanitizeHtml from 'sanitize-html'
 import texmath from 'markdown-it-texmath'
 import katex from 'katex'
 import hljs from 'highlight.js/lib/core'
@@ -67,6 +68,58 @@ export interface MarkdownOptions {
      * @default false
      */
     withAnchor?: boolean
+}
+
+const defaultAllowedTags = Array.isArray(sanitizeHtml.defaults.allowedTags)
+    ? sanitizeHtml.defaults.allowedTags
+    : []
+
+const defaultAllowedAttributes = sanitizeHtml.defaults.allowedAttributes || {}
+
+function mergeAllowedAttributes(tag: string, attributes: string[]) {
+    const baseAttributes = Array.isArray(defaultAllowedAttributes[tag])
+        ? defaultAllowedAttributes[tag]
+        : []
+
+    return Array.from(new Set([...baseAttributes, ...attributes]))
+}
+
+const markdownSanitizeOptions: sanitizeHtml.IOptions = {
+    allowedTags: Array.from(new Set([
+        ...defaultAllowedTags,
+        'img',
+        'button',
+        'math',
+        'semantics',
+        'annotation',
+        'annotation-xml',
+        'mrow',
+        'mi',
+        'mo',
+        'mn',
+        'msup',
+        'mfrac',
+        'msqrt',
+        'mtext',
+    ])),
+    allowedAttributes: {
+        ...defaultAllowedAttributes,
+        a: mergeAllowedAttributes('a', ['class', 'id', 'rel']),
+        img: mergeAllowedAttributes('img', ['loading', 'decoding']),
+        code: mergeAllowedAttributes('code', ['class']),
+        pre: mergeAllowedAttributes('pre', ['class', 'data-title']),
+        div: mergeAllowedAttributes('div', ['class']),
+        p: mergeAllowedAttributes('p', ['class']),
+        span: mergeAllowedAttributes('span', ['class', 'aria-hidden']),
+        button: mergeAllowedAttributes('button', ['type', 'class', 'title', 'aria-label']),
+        math: mergeAllowedAttributes('math', ['xmlns', 'display']),
+        annotation: mergeAllowedAttributes('annotation', ['encoding']),
+        'annotation-xml': mergeAllowedAttributes('annotation-xml', ['encoding']),
+    },
+    allowedSchemes: ['http', 'https', 'mailto'],
+    allowedSchemesByTag: {
+        img: ['http', 'https', 'data'],
+    },
 }
 
 /**
@@ -184,4 +237,12 @@ export function createMarkdownRenderer(mdOptions: MarkdownOptions = {}) {
     })
 
     return md
+}
+
+export function sanitizeRenderedMarkdownHtml(value: string) {
+    if (!value) {
+        return ''
+    }
+
+    return sanitizeHtml(value, markdownSanitizeOptions)
 }

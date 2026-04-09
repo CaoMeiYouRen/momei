@@ -14,6 +14,7 @@ import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
 import { COPYRIGHT_LICENSES } from '@/types/copyright'
 import { usePostEditorAI } from '@/composables/use-post-editor-ai'
 import { usePostEditorAutoSave } from '@/composables/use-post-editor-auto-save'
+import { usePostEditorDirtyState } from '@/composables/use-post-editor-dirty-state'
 import { usePostEditorIO } from '@/composables/use-post-editor-io'
 import {
     buildSavePayload,
@@ -45,6 +46,19 @@ interface HeaderExpose {
 
 interface MarkdownEditorExpose {
     $img2Url?: (position: number, url: string) => void
+}
+
+interface RestorePostPayload {
+    title: string
+    content: string
+    summary: string | null
+    coverImage: string | null
+    categoryId: string | null
+    visibility: PostVisibility
+    copyright: string | null
+    metaVersion: number
+    metadata: PostEditorData['metadata']
+    tags: string[]
 }
 
 function areRouteQueryValuesEqual(current: string | string[] | undefined, previous: string | string[] | undefined) {
@@ -310,20 +324,15 @@ export function usePostEditorPage() {
         resetTranslationProgress,
     })
 
+    const { syncSavedSnapshot } = usePostEditorDirtyState({
+        post,
+        saving,
+        leaveMessage: computed(() => t('pages.admin.settings.system.floating_actions.leave_confirm')),
+    })
+
     const handlePreview = () => openPostPreview(isNew.value, post, localePath)
 
-    const handleRestore = (data: {
-        title: string
-        content: string
-        summary: string | null
-        coverImage: string | null
-        categoryId: string | null
-        visibility: PostVisibility
-        copyright: string | null
-        metaVersion: number
-        metadata: PostEditorData['metadata']
-        tags: string[]
-    }) => restoreEditorPostState(post, clearLocalDraft, data)
+    const handleRestore = (data: RestorePostPayload) => restoreEditorPostState(post, clearLocalDraft, data)
 
     const loadPost = async () => {
         const loadOptions = {
@@ -353,6 +362,7 @@ export function usePostEditorPage() {
         }
 
         await loadExistingPostDetail(loadOptions)
+        syncSavedSnapshot()
     }
 
     const searchTags = (event: { query: string }) => {
@@ -457,6 +467,7 @@ export function usePostEditorPage() {
                 clearLocalDraft,
                 showSuccessToast,
             }, publish, payload, isFuture)
+            syncSavedSnapshot()
         } catch (error) {
             console.error('Failed to save post', error)
             showErrorToast(error, {
@@ -536,6 +547,7 @@ export function usePostEditorPage() {
                 contentLanguage: contentLanguage.value,
                 locale: locale.value,
             })
+            syncSavedSnapshot()
             applyTagBindings([])
             translations.value = []
             sourcePostSnapshot.value = null
