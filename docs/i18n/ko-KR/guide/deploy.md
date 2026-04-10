@@ -11,6 +11,25 @@ last_sync: 2026-03-18
 
 모메이의 배포 설정은 환경 변수를 중심으로 구성됩니다. 인증, 예약 작업, 객체 스토리지처럼 운영 민감도가 높은 기능은 특히 배포 계층에서 관리하는 것이 좋습니다.
 
+## 0. 배포 전 프리플라이트
+
+첫 배포에서는 모든 설정을 한 번에 채우기보다 다음 순서로 확인하세요.
+
+1. 먼저 배포 경로를 정합니다.
+	- 로컬 개발: zero-config 시작은 가능하지만 개발 확인용입니다.
+	- Vercel: 외부 `DATABASE_URL`로 전환하고 기본 SQLite를 유지하지 마세요.
+	- Docker / 자가 호스팅 Node: SQLite는 계속 사용할 수 있지만 DB와 업로드 디렉터리 영속성을 먼저 확인해야 합니다.
+	- Cloudflare Pages / Workers: 전체 앱 런타임은 아직 미지원이며 R2, Scheduled Events 같은 외곽 통합에만 한정해야 합니다.
+2. 다음으로 핵심 변수를 채웁니다.
+	- 운영 배포는 `AUTH_SECRET`, `NUXT_PUBLIC_SITE_URL`, `NUXT_PUBLIC_AUTH_BASE_URL`을 최우선으로 채워야 합니다.
+	- `NUXT_PUBLIC_SITE_URL`과 `NUXT_PUBLIC_AUTH_BASE_URL`은 보통 같은 origin을 유지해야 합니다.
+3. 마지막으로 조합 충돌을 확인합니다.
+	- Serverless + SQLite: 재배포나 재시작 후 데이터가 사라질 수 있어 운영 경로로 부적절합니다.
+	- Serverless + `STORAGE_TYPE=local`: 사이트는 뜰 수 있어도 업로드와 미디어 처리에 실패합니다.
+	- 데이터베이스 연결 실패: `DATABASE_URL`, SQLite 경로 권한, Docker 마운트, 외부 DB 접근 가능 여부를 먼저 확인합니다.
+
+설치 마법사 1단계에서 blocker가 보이면 DB 초기화나 관리자 생성 전에 먼저 그 blocker를 해소하세요.
+
 ## 1. 필수 설정
 
 다음 값이 없으면 실행 자체가 어렵거나 인증, 공개 URL, 데이터베이스 초기화 과정에서 문제가 발생합니다.
@@ -58,10 +77,13 @@ last_sync: 2026-03-18
 
 ## 4. 자주 겪는 문제
 
+- 설치 마법사 1단계에서 멈춤: 먼저 마법사에 표시된 배포 경로와 blocker 요약을 확인한 뒤, 이 페이지의 프리플라이트와 필수 설정을 대조하세요.
 - 인증 콜백 오류: 공개 URL과 Auth base URL의 프로토콜 / 도메인을 맞춥니다.
 - 작업 API 401: 현재 사용 중인 인증 방식이 `CRON_SECRET`, `TASKS_TOKEN`, `WEBHOOK_SECRET` 중 무엇인지 확인합니다.
 - ASR / AI 호환 API 오류: endpoint에 `/v1`가 필요한지 확인합니다.
 - 직업로드가 프록시 업로드로 떨어짐: `STORAGE_TYPE`과 버킷 자격 증명을 점검합니다.
+- Vercel / Netlify에서 첫 부팅 후 데이터나 관리자 계정이 사라짐: 아직 기본 SQLite를 쓰고 있는지 확인하세요. Serverless 경로는 외부 `DATABASE_URL`로 전환해야 합니다.
+- Vercel / Netlify에서 사이트는 열리지만 업로드가 실패함: 대부분 `STORAGE_TYPE=local`이 남아 있는 경우입니다. `s3`, `r2`, `vercel_blob`로 바꾸세요.
 - Cloudflare Pages / Workers에서 TypeORM 또는 Node 호환성 오류가 발생함: 배포 절차 누락이 아니라 현재 플랫폼 경계입니다. 메인 앱은 Vercel, Docker, 또는 자체 호스팅 Node 환경에 두고, Cloudflare는 R2나 Scheduled Events 관련 실험 같은 외곽 기능으로만 사용하세요.
 
 ## 5. 함께 읽기

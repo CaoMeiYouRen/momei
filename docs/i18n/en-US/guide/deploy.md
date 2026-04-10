@@ -13,6 +13,25 @@ Momei uses an environment-variable-first deployment model that stays aligned wit
 
 To make rollout easier, the configuration is grouped into three layers: **Essential**, **Recommended for production**, and **Optional enhancements**.
 
+## 0. Preflight Before Deployment
+
+For the first deployment, do not fill every option at once. Check them in this order instead:
+
+1. Choose the deployment path first.
+	- Local development: zero-config startup is allowed, but only for development and preview.
+	- Vercel: switch to an external `DATABASE_URL`; do not keep default SQLite.
+	- Docker / self-hosted Node: SQLite is still acceptable, but make sure the database and upload directories persist.
+	- Cloudflare Pages / Workers: the full application runtime is still unsupported; keep Cloudflare limited to peripheral integrations such as R2 or Scheduled Events experiments.
+2. Fill the core variables next.
+	- Production deployment should provide `AUTH_SECRET`, `NUXT_PUBLIC_SITE_URL`, and `NUXT_PUBLIC_AUTH_BASE_URL` first.
+	- `NUXT_PUBLIC_SITE_URL` and `NUXT_PUBLIC_AUTH_BASE_URL` should usually stay on the same origin in production.
+3. Check configuration conflicts last.
+	- Serverless + SQLite: data will be lost after redeploy or restart and is not a valid production path.
+	- Serverless + `STORAGE_TYPE=local`: the site may boot, but uploads and media flows will fail in real use.
+	- Missing database connectivity: verify `DATABASE_URL`, SQLite path permissions, Docker mounts, and external database reachability first.
+
+If the installation wizard already shows blockers on step 1, clear those blockers before proceeding with database initialization and admin creation.
+
 ## 1. Essential
 
 - **`AUTH_SECRET`**: Core secret used by Better Auth and server-side signatures.
@@ -172,6 +191,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 
 ## 6. Troubleshooting
 
+- **The installation wizard is blocked on step 1**: check the deployment path and blocker summary in the wizard first, then compare them against the preflight checklist and essential variables on this page.
 - **Auth callback errors**: Verify that both `NUXT_PUBLIC_SITE_URL` and `NUXT_PUBLIC_AUTH_BASE_URL` use the final public domain and the same protocol.
 - **Scheduled task returns 401**: Check which auth mode your trigger is using.
 	- Vercel Cron mode: `CRON_SECRET`
@@ -181,6 +201,8 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **OpenAI-compatible endpoint errors**: Confirm whether `AI_API_ENDPOINT` needs a `/v1` suffix.
 - **Direct upload still falls back to proxy mode**: Make sure `STORAGE_TYPE` is `s3` or `r2` and that bucket credentials, bucket name, and public base URL are configured.
 - **Local uploads return 404**: Verify that `LOCAL_STORAGE_DIR` exists and that `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL` matches the exposed static path.
+- **Vercel / Netlify resets data or loses the admin account after the first boot**: confirm that you are no longer relying on default SQLite. Serverless paths must switch to an external `DATABASE_URL`.
+- **Vercel / Netlify opens the site but uploads fail**: you are usually still using `STORAGE_TYPE=local`. Switch to `s3`, `r2`, or `vercel_blob`.
 - **Cloudflare Pages / Workers shows TypeORM or Node-compatibility errors**: This is a known platform boundary, not a missed deployment step. Keep the main app on Vercel, Docker, or a self-hosted Node environment; if you need Cloudflare, use it only for peripheral integrations such as R2 or Scheduled Events-related experiments.
 
 ## 7. References

@@ -2,6 +2,23 @@
 
 欢迎使用墨梅博客！本页将引导你通过最快的方式部署并运行你的博客。
 
+## 0. 最小可运行路径
+
+先不要一口气把所有 AI、存储、通知能力都配完。首次部署只需要先跑通一条最小路径：
+
+| 路径 | 什么时候选它 | 首次启动前至少确认 | 暂时可以后置 |
+| :--- | :--- | :--- | :--- |
+| 本地开发 | 想先看效果、改代码、验证功能 | `pnpm install`、`pnpm dev`；开发环境允许自动生成临时 `AUTH_SECRET`，数据库默认回退到本地 SQLite | AI、对象存储、邮件、定时任务 |
+| Vercel | 想最快上线一个可访问站点 | `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL`、外部 `DATABASE_URL` | AI、对象存储、邮件、统计 |
+| Docker / 自托管 Node | 需要更强的可控性、本地磁盘或自定义运维 | `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL`；若用 SQLite，先确认数据库目录 / 挂载卷可持久化 | AI、对象存储、邮件、统计 |
+
+首次启动前的最小体检建议：
+
+1. 核心变量先齐：正式部署至少补齐 `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL`。
+2. 平台路径先对：Vercel / 其他 Serverless 路径不要继续依赖默认 SQLite；Cloudflare Pages / Workers 当前不支持整站主体部署。
+3. 存储策略先收敛：Serverless 路径不要把 `STORAGE_TYPE` 留在 `local`，否则上传和媒体链路会在后续使用时失效。
+4. 看不懂报错时：优先对照 [部署指南](./deploy.md) 的“核心必填”和“排障指引”，再结合 [环境配置与系统设置映射](./variables.md) 定位变量名。
+
 ## 1. 一键部署到 Vercel (推荐)
 
 如果你希望在几分钟内拥有一个在线博客，这是最简单的方式。
@@ -10,7 +27,7 @@
 
 1. 点击上方按钮。
 2. 按照 Vercel 的指引创建或选择你的 GitHub 仓库。
-3. 配置环境变量（可选，详见下方的环境变量说明）。
+3. 至少补齐 `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL` 和外部 `DATABASE_URL`。
 4. 点击 **Deploy**。
 
 ## 2. 使用 Docker 快速部署
@@ -21,6 +38,16 @@
 
 ```bash
 docker run -d -p 3000:3000 caomeiyouren/momei
+```
+
+正式环境至少补齐：
+
+```bash
+docker run -d -p 3000:3000 \
+    -e AUTH_SECRET=your-random-secret \
+    -e NUXT_PUBLIC_SITE_URL=https://blog.example.com \
+    -e NUXT_PUBLIC_AUTH_BASE_URL=https://blog.example.com \
+    caomeiyouren/momei
 ```
 
 ### 2.2 使用 Docker Compose (推荐)
@@ -82,6 +109,8 @@ pnpm dev
 - 自动使用本地 SQLite 数据库。
 - 自动生成开发用的 `AUTH_SECRET`。
 - 无需配置 `.env` 即可直接运行。
+
+注意：这个“零配置”只适用于本地开发，不等同于正式部署。只要准备上线、接入 OAuth 或生成公开链接，就应该回到上面的最小路径，显式补齐核心环境变量。
 
 如需启用完整功能，建议基于 `.env.full.example` 配置，并以设置服务映射为准，重点关注 `AI_QUOTA_ENABLED`、`AI_QUOTA_POLICIES`、`ASSET_PUBLIC_BASE_URL`、`MEMOS_INSTANCE_URL`、`MEMOS_ACCESS_TOKEN`、`LISTMONK_INSTANCE_URL`、`LISTMONK_ACCESS_TOKEN` 等变量。
 

@@ -19,13 +19,78 @@
             "description": "先確認環境可用,再繼續安裝。",
             "database": "数据库连接",
             "node": "Node.js 版本",
+            "runtime": "部署路徑",
             "dbVersion": "数据库版本",
             "serverless": "Serverless 环境",
             "os": "操作系统",
             "language": "安裝語言(Language)",
             "enabled": "已启用",
             "disabled": "未启用",
-            "nodeVersionWarning": "Node.js 版本较低，建议使用 v20 或更高版本以获得最佳稳定性。"
+            "nodeVersionWarning": "Node.js 版本较低，建议使用 v20 或更高版本以获得最佳稳定性。",
+            "serverlessEnabled": "目前執行環境帶有 Serverless 特徵",
+            "serverlessDisabled": "目前執行環境更接近本機 / 容器 / 自託管 Node",
+            "platformUnsupported": "目前平台路徑不在本專案支援的整站執行時範圍內，請先依提示切換部署方案。",
+            "envKeysLabel": "優先檢查變數",
+            "severity": {
+                "blocker": "阻塞項",
+                "warning": "提醒項"
+            },
+            "summary": {
+                "ready": "目前路徑可繼續進入安裝",
+                "blocked": "請先處理下方阻塞項再繼續",
+                "counts": "已識別 {blockers} 個阻塞項，{warnings} 個提醒項。"
+            },
+            "resources": {
+                "quickStart": "查看最小啟動路徑",
+                "deploy": "查看部署指南",
+                "variables": "查看變數映射",
+                "feedback": "打開回饋與求助"
+            },
+            "runtimeLabels": {
+                "local-dev": "本機開發",
+                "docker": "Docker / 容器",
+                "self-hosted-node": "自託管 Node",
+                "vercel": "Vercel",
+                "netlify": "Netlify",
+                "cloudflare": "Cloudflare Pages / Workers",
+                "aws-lambda": "AWS Lambda",
+                "zeabur": "Zeabur",
+                "unknown": "未識別環境"
+            },
+            "issues": {
+                "database_connection_failed": {
+                    "title": "資料庫尚未連通",
+                    "description": "請先確認資料庫連線可用。本機 / Docker 路徑請檢查 SQLite 路徑或掛載目錄；Vercel / 其他 Serverless 路徑請優先改為外部 MySQL / PostgreSQL。"
+                },
+                "missing_auth_secret": {
+                    "title": "缺少 AUTH_SECRET",
+                    "description": "正式部署必須明確設定 AUTH_SECRET。開發環境可暫時自動生成，但線上不能依賴這個兜底。"
+                },
+                "missing_site_url": {
+                    "title": "缺少公開站點地址",
+                    "description": "NUXT_PUBLIC_SITE_URL 用於公開連結、SEO、RSS 與 Sitemap。正式部署不應繼續依賴 localhost 預設值。"
+                },
+                "missing_auth_base_url": {
+                    "title": "缺少認證回呼基址",
+                    "description": "NUXT_PUBLIC_AUTH_BASE_URL 是 Better Auth 的回呼基址。缺失時，登入與回呼鏈路通常會在首次接入時直接報錯。"
+                },
+                "auth_base_url_mismatch": {
+                    "title": "公開地址與認證回呼地址不一致",
+                    "description": "NUXT_PUBLIC_SITE_URL 與 NUXT_PUBLIC_AUTH_BASE_URL 最好保持同源。若它們指向不同協議或網域，認證回呼與公開連結容易漂移。"
+                },
+                "cloudflare_runtime_unsupported": {
+                    "title": "Cloudflare 執行時目前不受支援",
+                    "description": "本專案目前仍依賴 TypeORM 與 Node 執行時能力。Cloudflare Pages / Workers 僅保留周邊能力接入，不支援整站主體直接部署。"
+                },
+                "sqlite_serverless_conflict": {
+                    "title": "Serverless 路徑不能繼續使用 SQLite 預設值",
+                    "description": "在 Vercel、Netlify 等 Serverless 環境下，SQLite 資料不會穩定持久化。請先設定外部 MySQL 或 PostgreSQL，並透過 DATABASE_URL 接入。"
+                },
+                "local_storage_serverless_conflict": {
+                    "title": "Serverless 路徑不應繼續使用本機儲存",
+                    "description": "站點也許能先啟動，但上傳與媒體鏈路會因本機磁碟不可持久化而出問題。建議改為 S3、R2 或 Vercel Blob。"
+                }
+            }
         },
         "database": {
             "title": "数据库初始化",

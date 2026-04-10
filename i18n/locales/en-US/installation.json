@@ -19,13 +19,78 @@
             "description": "Confirm the environment is ready before continuing.",
             "database": "Database Connection",
             "node": "Node.js Version",
+            "runtime": "Deployment Path",
             "dbVersion": "Database Version",
             "serverless": "Serverless Environment",
             "os": "Operating System",
             "language": "Installation Language",
             "enabled": "Enabled",
             "disabled": "Disabled",
-            "nodeVersionWarning": "Node.js version is low. It is recommended to use v20 or higher for best stability."
+            "nodeVersionWarning": "Node.js version is low. It is recommended to use v20 or higher for best stability.",
+            "serverlessEnabled": "This runtime shows serverless characteristics",
+            "serverlessDisabled": "This runtime looks like local, container, or self-hosted Node",
+            "platformUnsupported": "The current platform path is outside the supported full-site runtime boundary. Switch deployment strategy before continuing.",
+            "envKeysLabel": "Check these variables first",
+            "severity": {
+                "blocker": "Blocker",
+                "warning": "Warning"
+            },
+            "summary": {
+                "ready": "This path can continue into installation",
+                "blocked": "Resolve the blockers below before continuing",
+                "counts": "Detected {blockers} blocker(s) and {warnings} warning(s)."
+            },
+            "resources": {
+                "quickStart": "Open minimal startup paths",
+                "deploy": "Open deploy guide",
+                "variables": "Open variables mapping",
+                "feedback": "Open feedback and support"
+            },
+            "runtimeLabels": {
+                "local-dev": "Local development",
+                "docker": "Docker / container",
+                "self-hosted-node": "Self-hosted Node",
+                "vercel": "Vercel",
+                "netlify": "Netlify",
+                "cloudflare": "Cloudflare Pages / Workers",
+                "aws-lambda": "AWS Lambda",
+                "zeabur": "Zeabur",
+                "unknown": "Unknown environment"
+            },
+            "issues": {
+                "database_connection_failed": {
+                    "title": "Database is not reachable yet",
+                    "description": "Confirm the database is reachable before installation. For local or Docker paths, verify the SQLite path or volume mount. For serverless paths, move to external MySQL or PostgreSQL first."
+                },
+                "missing_auth_secret": {
+                    "title": "AUTH_SECRET is missing",
+                    "description": "Production and real deployments must set AUTH_SECRET explicitly. Development can auto-generate a temporary secret, but production cannot rely on that fallback."
+                },
+                "missing_site_url": {
+                    "title": "Public site URL is missing",
+                    "description": "NUXT_PUBLIC_SITE_URL drives public links, SEO, RSS, and sitemap generation. A real deployment should not keep the localhost fallback."
+                },
+                "missing_auth_base_url": {
+                    "title": "Auth callback base URL is missing",
+                    "description": "NUXT_PUBLIC_AUTH_BASE_URL is the Better Auth callback base. If it is missing, sign-in and callback flows usually fail on first use."
+                },
+                "auth_base_url_mismatch": {
+                    "title": "Public URL and auth callback URL drift apart",
+                    "description": "NUXT_PUBLIC_SITE_URL and NUXT_PUBLIC_AUTH_BASE_URL should usually stay on the same origin. Different domains or protocols often cause callback and public-link drift."
+                },
+                "cloudflare_runtime_unsupported": {
+                    "title": "Cloudflare runtime is not supported for the main app",
+                    "description": "The project still depends on TypeORM and Node runtime features. Cloudflare Pages and Workers remain peripheral integration paths rather than a supported full-site runtime."
+                },
+                "sqlite_serverless_conflict": {
+                    "title": "Serverless path cannot keep the SQLite default",
+                    "description": "On Vercel, Netlify, and similar serverless paths, SQLite data will not persist reliably. Switch to external MySQL or PostgreSQL through DATABASE_URL before continuing."
+                },
+                "local_storage_serverless_conflict": {
+                    "title": "Serverless path should not keep local storage",
+                    "description": "The site may boot first, but uploads and media will break because local disk is not durable in serverless runtimes. Move to S3, R2, or Vercel Blob."
+                }
+            }
         },
         "database": {
             "title": "Database Initialization",

@@ -11,13 +11,30 @@ last_sync: 2026-03-22
 
 このガイドでは、Momei を最短で起動して公開する方法をまとめます。
 
+## 0. 最小構成での起動パス
+
+最初のデプロイでは、AI、ストレージ、メール、通知を一度に全部設定しようとしないでください。まずは 1 本の最小パスを通し、その後で段階的に広げる方が安全です。
+
+| パス | 向いているケース | 初回起動前に最低限確認すること | 後回しにできるもの |
+| :--- | :--- | :--- | :--- |
+| ローカル開発 | まず画面を見たい、コードを触りたい、機能確認をしたい | `pnpm install`、`pnpm dev`。開発モードでは一時的な `AUTH_SECRET` とローカル SQLite が自動補完されます | AI、オブジェクトストレージ、メール、定期実行 |
+| Vercel | 最速で公開サイトを立ち上げたい | `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL`、外部 `DATABASE_URL` | AI、オブジェクトストレージ、メール、分析 |
+| Docker / 自己ホスト Node | ディスクや運用制御を持ちたい | `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL`。SQLite を使う場合は DB パスやマウントが永続化されること | AI、オブジェクトストレージ、メール、分析 |
+
+初回起動前の確認ポイント:
+
+1. 本番ではまず `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL` を先に埋めます。
+2. Vercel などの Serverless では既定の SQLite を使い続けないでください。Cloudflare Pages / Workers はアプリ本体の実行先としてまだ未対応です。
+3. Serverless で `STORAGE_TYPE=local` を残すと、後でアップロードやメディア処理が失敗します。
+4. インストールウィザードに blocker が出たら、[デプロイガイド](./deploy.md) と中国語原文の [環境変数と設定の対応表](../../../guide/variables.md) を先に照合してください。
+
 ## 1. Vercel にワンクリックでデプロイ
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCaoMeiYouRen%2Fmomei)
 
 1. 上のボタンをクリックします。
 2. GitHub リポジトリを作成または選択します。
-3. 必要に応じて環境変数を設定します。
+3. 少なくとも `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL`、外部 `DATABASE_URL` を設定します。
 4. `Deploy` を実行します。
 
 ## 2. Docker ですばやく起動する
@@ -26,6 +43,16 @@ last_sync: 2026-03-22
 
 ```bash
 docker run -d -p 3000:3000 caomeiyouren/momei
+```
+
+本番用途では少なくとも次を追加してください。
+
+```bash
+docker run -d -p 3000:3000 \
+    -e AUTH_SECRET=your-random-secret \
+    -e NUXT_PUBLIC_SITE_URL=https://blog.example.com \
+    -e NUXT_PUBLIC_AUTH_BASE_URL=https://blog.example.com \
+    caomeiyouren/momei
 ```
 
 ### 2.2 Docker Compose
@@ -77,6 +104,8 @@ pnpm dev
 - ローカル SQLite を自動利用します
 - 開発用 `AUTH_SECRET` を自動生成します
 - `.env` を用意しなくても起動できます
+
+ただし、この zero-config はローカル開発専用です。公開デプロイ、OAuth コールバック、絶対公開 URL が必要になった時点で、上の最小パスに戻ってコア変数を明示してください。
 
 完全な機能を有効にする場合は `.env.full.example` をベースに設定し、特に `AI_QUOTA_ENABLED`、`AI_QUOTA_POLICIES`、`ASSET_PUBLIC_BASE_URL`、`MEMOS_INSTANCE_URL`、`MEMOS_ACCESS_TOKEN`、`LISTMONK_INSTANCE_URL`、`LISTMONK_ACCESS_TOKEN` などを確認してください。
 

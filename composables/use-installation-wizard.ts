@@ -1,5 +1,6 @@
 import { computed, onMounted, ref } from 'vue'
 import type { ApiResponse } from '@/server/utils/response'
+import type { InstallationDiagnostics, InstallationRuntime } from '@/utils/shared/installation-diagnostics'
 import type { InstallationEnvSetting } from '@/utils/shared/installation-env-setting'
 import { APP_ENABLED_LOCALES } from '@/i18n/config/locale-registry'
 import { isCopyrightType } from '@/types/copyright'
@@ -35,7 +36,9 @@ interface InstallationStatusState {
     databaseVersion: string
     isServerless: boolean
     isNodeVersionSafe: boolean
+    runtime: InstallationRuntime
     envSettings: Record<string, InstallationEnvSetting>
+    deploymentDiagnostics: InstallationDiagnostics
 }
 
 interface AdminCreationForm {

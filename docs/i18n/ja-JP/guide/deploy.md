@@ -11,6 +11,25 @@ last_sync: 2026-03-22
 
 Momei のデプロイ構成は環境変数を中心に設計されており、多くの機能は対応する変数を設定するだけで有効化できます。
 
+## 0. デプロイ前チェック
+
+初回デプロイでは、すべての設定を一度に埋めるのではなく、次の順で確認してください。
+
+1. 先にデプロイ経路を決めます。
+	- ローカル開発: zero-config 起動は可能ですが、開発確認専用です。
+	- Vercel: 外部 `DATABASE_URL` に切り替え、既定 SQLite を使い続けないでください。
+	- Docker / 自己ホスト Node: SQLite は利用可能ですが、DB と upload ディレクトリの永続化を先に確認します。
+	- Cloudflare Pages / Workers: アプリ本体の実行先としては未対応で、R2 や Scheduled Events などの周辺統合に限定すべきです。
+2. 次にコア変数を埋めます。
+	- 本番では `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL` を最優先で設定します。
+	- `NUXT_PUBLIC_SITE_URL` と `NUXT_PUBLIC_AUTH_BASE_URL` は本番では同一オリジンに揃えるのが基本です。
+3. 最後に組み合わせの衝突を確認します。
+	- Serverless + SQLite: 再デプロイや再起動でデータが失われるため、本番経路としては不適切です。
+	- Serverless + `STORAGE_TYPE=local`: 起動してもアップロードやメディア処理が本番で失敗します。
+	- DB 未接続: `DATABASE_URL`、SQLite パス権限、Docker マウント、外部 DB 到達性を最初に確認してください。
+
+インストールウィザードの step 1 に blocker が出ている場合は、DB 初期化や管理者作成より先にそれを解消してください。
+
 ## 1. コア必須設定
 
 次の項目が欠けると、起動失敗や認証・公開 URL 生成の異常につながります。
@@ -55,7 +74,14 @@ TypeORM と Node ランタイム依存のため、Cloudflare Pages / Workers へ
 3. 公開 URL を確定する
 4. 必要であればストレージと AI を段階的に有効化する
 
-## 6. 関連ページ
+## 6. よくある問題
+
+- インストールウィザードの step 1 で止まる場合は、まずこのページのデプロイ前チェックと必須設定を照合してください。
+- Vercel / Netlify で初回起動後にデータや管理者が消える場合は、既定 SQLite を使い続けていないか確認してください。Serverless では外部 `DATABASE_URL` が必要です。
+- Vercel / Netlify でサイトは開くのにアップロードが失敗する場合は、`STORAGE_TYPE=local` が残っている可能性があります。`s3`、`r2`、`vercel_blob` へ切り替えてください。
+- Cloudflare Pages / Workers で TypeORM や Node 互換性エラーが出るのは既知のプラットフォーム境界です。アプリ本体は Vercel、Docker、自己ホスト Node に置いてください。
+
+## 7. 関連ページ
 
 - [クイックスタート](./quick-start.md)
 - [翻訳ガバナンス](./translation-governance.md)

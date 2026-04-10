@@ -11,6 +11,23 @@ last_sync: 2026-03-18
 
 이 문서는 모메이를 가장 빠르게 배포하고 실행하는 방법을 안내합니다. 공개 사이트를 먼저 올리고 싶은 경우와 로컬 개발을 바로 시작하고 싶은 경우 모두를 고려해 경로를 나누었습니다.
 
+## 0. 최소 실행 경로
+
+첫 배포에서 AI, 스토리지, 메일, 알림을 한 번에 모두 맞추려 하지 마세요. 먼저 하나의 최소 경로를 끝까지 통과시키고, 이후에 기능을 확장하는 편이 안전합니다.
+
+| 경로 | 언제 선택할지 | 첫 실행 전에 최소 확인 사항 | 나중에 미뤄도 되는 것 |
+| :--- | :--- | :--- | :--- |
+| 로컬 개발 | 화면을 먼저 보고 싶거나 코드를 수정하고 싶을 때 | `pnpm install`, `pnpm dev`; 개발 모드는 임시 `AUTH_SECRET`와 로컬 SQLite를 자동 보완 | AI, 객체 스토리지, 메일, 예약 작업 |
+| Vercel | 가장 빨리 공개 가능한 사이트를 띄우고 싶을 때 | `AUTH_SECRET`, `NUXT_PUBLIC_SITE_URL`, `NUXT_PUBLIC_AUTH_BASE_URL`, 외부 `DATABASE_URL` | AI, 객체 스토리지, 메일, 분석 |
+| Docker / 자가 호스팅 Node | 디스크 제어와 운영 가시성이 더 필요할 때 | `AUTH_SECRET`, `NUXT_PUBLIC_SITE_URL`, `NUXT_PUBLIC_AUTH_BASE_URL`; SQLite를 유지한다면 DB 경로나 마운트가 영속적인지 확인 | AI, 객체 스토리지, 메일, 분석 |
+
+첫 실행 전 권장 점검 순서:
+
+1. 본배포라면 `AUTH_SECRET`, `NUXT_PUBLIC_SITE_URL`, `NUXT_PUBLIC_AUTH_BASE_URL`부터 먼저 채웁니다.
+2. Vercel 같은 Serverless 경로에서는 기본 SQLite를 계속 쓰지 마세요. Cloudflare Pages / Workers는 전체 앱 런타임 대상이 아직 아닙니다.
+3. Serverless에서 `STORAGE_TYPE=local`을 남겨두면 이후 업로드와 미디어 흐름이 실패합니다.
+4. 설치 마법사에 blocker가 나오면 [배포 가이드](./deploy.md)와 [변수 및 설정 매핑](./variables.md)을 먼저 대조하세요.
+
 ## 1. Vercel 원클릭 배포
 
 가장 빠르게 공개 가능한 사이트를 만들고 싶다면 이 경로가 가장 단순합니다.
@@ -19,7 +36,7 @@ last_sync: 2026-03-18
 
 1. 위 버튼을 클릭합니다.
 2. Vercel 안내에 따라 GitHub 저장소를 선택하거나 생성합니다.
-3. 필요에 따라 환경 변수를 입력합니다.
+3. 최소한 `AUTH_SECRET`, `NUXT_PUBLIC_SITE_URL`, `NUXT_PUBLIC_AUTH_BASE_URL`, 외부 `DATABASE_URL`을 입력합니다.
 4. `Deploy`를 눌러 배포를 완료합니다.
 
 공개 운영을 준비한다면 배포 직후 `AUTH_SECRET`, 사이트 URL, 데이터베이스 연결 값을 우선 보강하는 것이 좋습니다.
@@ -32,6 +49,16 @@ last_sync: 2026-03-18
 
 ```bash
 docker run -d -p 3000:3000 caomeiyouren/momei
+```
+
+운영 환경이라면 최소한 다음을 추가하세요.
+
+```bash
+docker run -d -p 3000:3000 \
+    -e AUTH_SECRET=your-random-secret \
+    -e NUXT_PUBLIC_SITE_URL=https://blog.example.com \
+    -e NUXT_PUBLIC_AUTH_BASE_URL=https://blog.example.com \
+    caomeiyouren/momei
 ```
 
 ### 2.2 Docker Compose 사용
@@ -83,6 +110,8 @@ pnpm dev
 - 로컬 SQLite 데이터베이스 사용
 - 개발용 `AUTH_SECRET` 자동 생성
 - `.env` 없이도 기본 실행 가능
+
+다만 이 zero-config 경험은 로컬 개발 전용입니다. 공개 배포, OAuth 콜백, 절대 공개 URL이 필요해지는 시점에는 위 최소 경로로 돌아가 핵심 변수를 명시적으로 채워야 합니다.
 
 완전한 기능을 시험하려면 `.env.full.example`을 기준으로 설정을 확장하고, 특히 AI, 스토리지, Memos 관련 환경 변수를 함께 맞추는 것이 좋습니다.
 

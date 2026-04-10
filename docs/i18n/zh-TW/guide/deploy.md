@@ -13,6 +13,25 @@ last_sync: 2026-03-18
 
 為了方便落地，本指南把配置分成三層：**核心必填**、**生產建議** 與 **體驗增強**。
 
+## 0. 部署前體檢
+
+第一次部署時，建議依序檢查，而不是一次把所有設定填滿：
+
+1. 先選部署路徑。
+	- 本機開發：允許零設定啟動，但只適用於開發與體驗。
+	- Vercel：必須切換到外部 `DATABASE_URL`，不要繼續使用預設 SQLite。
+	- Docker / 自託管 Node：可以保留 SQLite，但要先確認資料庫與上傳目錄能持久化。
+	- Cloudflare Pages / Workers：目前仍不支援整站主體執行，僅建議保留 R2、Scheduled Events 等外圍能力。
+2. 再補核心變數。
+	- 正式部署至少先補齊 `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL`。
+	- `NUXT_PUBLIC_SITE_URL` 與 `NUXT_PUBLIC_AUTH_BASE_URL` 在生產環境中通常應保持同源。
+3. 最後檢查組合衝突。
+	- Serverless + SQLite：重部署或重啟後會遺失資料，不應作為正式路徑。
+	- Serverless + `STORAGE_TYPE=local`：站點也許能啟動，但上傳與媒體鏈路會在實際使用時失敗。
+	- 資料庫無法連線：優先檢查 `DATABASE_URL`、SQLite 路徑權限、Docker 掛載與外部資料庫可達性。
+
+若安裝精靈第一步已經提示阻塞項，請先解決這些阻塞，再繼續資料庫初始化與管理員建立。
+
 ## 1. 核心必填
 
 缺少以下配置時，系統要嘛無法啟動，要嘛會在登入、資料庫初始化或公開連結生成階段出現明顯錯誤。
@@ -167,12 +186,15 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 
 ## 6. 排障指引
 
+- **安裝精靈卡在第一步**：先查看精靈裡的部署路徑與阻塞摘要，再回到本頁的部署前體檢與核心必填逐項核對。
 - **登入回呼錯誤**：檢查 `NUXT_PUBLIC_SITE_URL` 與 `NUXT_PUBLIC_AUTH_BASE_URL` 是否都指向最終公開域名，且協議一致。
 - **定時任務 401**：確認觸發方式是否與 `CRON_SECRET`、`TASKS_TOKEN` 或 `WEBHOOK_SECRET` 的配置相符。
 - **Volcengine ASR 未生效**：優先檢查 `ASR_VOLCENGINE_APP_ID`、`ASR_VOLCENGINE_ACCESS_KEY`、`ASR_VOLCENGINE_CLUSTER_ID`。
 - **AI 相容接口報錯**：確認 `AI_API_ENDPOINT` 是否需要帶 `/v1`。
 - **直傳仍走代理上傳**：確認 `STORAGE_TYPE` 是否為 `s3` 或 `r2`，並檢查 Bucket、憑據與公開地址是否完整。
 - **本機資源 404**：檢查 `LOCAL_STORAGE_DIR` 是否存在，以及 `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL` 是否與實際靜態路徑一致。
+- **Vercel / Netlify 首次啟動後資料重置或管理員遺失**：請確認是否仍在使用預設 SQLite。Serverless 路徑必須切換到外部 `DATABASE_URL`。
+- **Vercel / Netlify 可以打開站點但上傳失敗**：通常仍在使用 `STORAGE_TYPE=local`。請改成 `s3`、`r2` 或 `vercel_blob`。
 - **Cloudflare Pages / Workers 出現 TypeORM / Node 相容錯誤**：這是目前已知的平台邊界，不是部署步驟遺漏。請改用 Vercel、Docker 或自託管 Node 環境作為應用主體；若需要 Cloudflare，當前僅保留 R2 / Scheduled Events 等外圍能力接入。
 
 ## 7. 延伸閱讀

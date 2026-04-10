@@ -11,6 +11,23 @@ This document has been translated from Chinese. In case of any discrepancy, the 
 
 Welcome to Momei! This guide will walk you through the fastest ways to deploy and run your blog.
 
+## 0. Minimum Viable Startup Paths
+
+Do not try to configure AI, storage, email, and notifications all at once on your first deployment. Start by making one minimal path work end to end.
+
+| Path | When to choose it | Confirm before first startup | Can wait until later |
+| :--- | :--- | :--- | :--- |
+| Local development | You want to preview the app, modify code, or verify features quickly | `pnpm install`, `pnpm dev`; development mode can auto-generate a temporary `AUTH_SECRET` and falls back to local SQLite | AI, object storage, email, scheduled tasks |
+| Vercel | You want the fastest publicly reachable deployment | `AUTH_SECRET`, `NUXT_PUBLIC_SITE_URL`, `NUXT_PUBLIC_AUTH_BASE_URL`, and an external `DATABASE_URL` | AI, object storage, email, analytics |
+| Docker / self-hosted Node | You need stronger control, local disk, or custom ops | `AUTH_SECRET`, `NUXT_PUBLIC_SITE_URL`, `NUXT_PUBLIC_AUTH_BASE_URL`; if you keep SQLite, make sure the database path or mounted volume persists | AI, object storage, email, analytics |
+
+Recommended preflight before the first startup:
+
+1. Fill the core variables first: production deployments should provide `AUTH_SECRET`, `NUXT_PUBLIC_SITE_URL`, and `NUXT_PUBLIC_AUTH_BASE_URL` before anything else.
+2. Match the platform path first: Vercel and other serverless paths should not keep using default SQLite; Cloudflare Pages / Workers are still unsupported for the full app runtime.
+3. Converge on storage early: do not leave `STORAGE_TYPE=local` on serverless paths, or uploads and media flows will fail later.
+4. When the wizard shows a blocker, compare it against the essential and troubleshooting sections in [Deployment Guide](./deploy.md) and the variable names in [Variables & Settings Mapping](./variables.md).
+
 ## 1. One-Click Deploy to Vercel (Recommended)
 
 This is the easiest way to get your blog online in minutes.
@@ -19,7 +36,7 @@ This is the easiest way to get your blog online in minutes.
 
 1. Click the button above.
 2. Follow Vercel's instructions to create or select your GitHub repository.
-3. Configure environment variables if needed.
+3. At minimum, provide `AUTH_SECRET`, `NUXT_PUBLIC_SITE_URL`, `NUXT_PUBLIC_AUTH_BASE_URL`, and an external `DATABASE_URL`.
 4. Click **Deploy**.
 
 ## 2. Fast Deployment with Docker
@@ -30,6 +47,16 @@ We provide an official Docker image for Momei.
 
 ```bash
 docker run -d -p 3000:3000 caomeiyouren/momei
+```
+
+For production, add at least:
+
+```bash
+docker run -d -p 3000:3000 \
+    -e AUTH_SECRET=your-random-secret \
+    -e NUXT_PUBLIC_SITE_URL=https://blog.example.com \
+    -e NUXT_PUBLIC_AUTH_BASE_URL=https://blog.example.com \
+    caomeiyouren/momei
 ```
 
 ### 2.2 Using Docker Compose (Recommended)
@@ -89,6 +116,8 @@ Momei supports **Zero-Config Startup** for development:
 - Automatically uses local SQLite.
 - Generates a development `AUTH_SECRET` automatically.
 - No `.env` configuration required to run.
+
+That zero-config experience is only for local development. Once you are preparing a public deployment, OAuth callback, or absolute public links, go back to the minimal path above and make the core variables explicit.
 
 If you want the full feature set, start from `.env.full.example` and follow the settings mapping used by the settings service, especially for values such as `AI_QUOTA_ENABLED`, `AI_QUOTA_POLICIES`, `ASSET_PUBLIC_BASE_URL`, `MEMOS_INSTANCE_URL`, and `MEMOS_ACCESS_TOKEN`.
 

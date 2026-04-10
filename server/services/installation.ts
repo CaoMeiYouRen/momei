@@ -5,9 +5,16 @@ import { dataSource } from '../database'
 import { User } from '../entities/user'
 import { Setting } from '../entities/setting'
 import logger from '../utils/logger'
+import { isServerlessEnvironment } from '../utils/env'
 import { isInternalOnlySettingKey, isSettingEnvLocked, resolveSetting, resolveSettingEnvEntry, setSettings, SETTING_ENV_MAP } from './setting'
 import { TEST_MODE } from '@/utils/shared/env'
 import type { InstallationEnvSetting } from '@/utils/shared/installation-env-setting'
+import {
+    buildInstallationDiagnostics,
+    isInstallationRuntimeServerless,
+    type InstallationDiagnostics,
+    type InstallationRuntime,
+} from '@/utils/shared/installation-diagnostics'
 import {
     mergeInstallationLocalizedSiteFieldValue,
     resolveInstallationLocalizedSiteFieldInputValue,
@@ -75,9 +82,17 @@ export interface InstallationStatus {
      */
     isNodeVersionSafe: boolean
     /**
+     * 当前部署路径
+     */
+    runtime: InstallationRuntime
+    /**
      * 环境变量设置 (键为 SettingKey, 值为详细配置项)
      */
     envSettings: Record<string, EnvSetting>
+    /**
+     * 部署前体检摘要
+     */
+    deploymentDiagnostics: InstallationDiagnostics
 }
 
 /**
@@ -238,6 +253,47 @@ async function checkInstallationFlag(): Promise<boolean> {
     }
 }
 
+function detectInstallationRuntime(): InstallationRuntime {
+    if (process.env.CF_PAGES || process.env.CLOUDFLARE_ENV) {
+        return 'cloudflare'
+    }
+
+    if (process.env.VERCEL || process.env.VERCEL_ENV) {
+        return 'vercel'
+    }
+
+    if (process.env.NETLIFY || process.env.NETLIFY_DEV) {
+        return 'netlify'
+    }
+
+    if (process.env.AWS_LAMBDA_FUNCTION_NAME) {
+        return 'aws-lambda'
+    }
+
+    if (process.env.ZEABUR) {
+        return 'zeabur'
+    }
+
+    if (process.env.DOCKER === 'true' || fs.existsSync('/.dockerenv')) {
+        return 'docker'
+    }
+
+    if (isServerlessEnvironment()) {
+        return 'unknown'
+    }
+
+    if ((process.env.NODE_ENV || 'development') === 'development') {
+        return 'local-dev'
+    }
+
+    return 'self-hosted-node'
+}
+
+function normalizeInstallationStorageType() {
+    const rawStorageType = (process.env.STORAGE_TYPE || 'local').trim()
+    return rawStorageType === 'vercel-blob' ? 'vercel_blob' : rawStorageType
+}
+
 /**
  * 获取安装状态
  */
@@ -272,6 +328,7 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
     const osInfo = `${os.type()} ${os.release()} (${os.arch()})`
     const databaseType = String(dataSource?.options.type || 'unknown')
     let databaseVersion = 'Unknown'
+    const runtime = detectInstallationRuntime()
 
     if (databaseConnected) {
         try {
@@ -290,17 +347,30 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
         }
     }
 
-    // Serverless 环境检测
-    const isServerless = !!(
-        process.env.VERCEL
-        || process.env.NETLIFY
-        || process.env.CLOUDFLARE_FREE_USAGE
-        || process.env.AWS_LAMBDA_FUNCTION_NAME
-        || process.env.FUNCTIONS_WORKER_RUNTIME
-    )
+    // Serverless 状态直接从 runtime 派生，避免 runtime / isServerless 双事实源
+    const isServerless = runtime === 'unknown'
+        ? true
+        : isInstallationRuntimeServerless(runtime)
 
     // 获取当前环境变量中已设置的项
     const envSettings = getEnvSettingsDetails()
+    const deploymentDiagnostics = buildInstallationDiagnostics({
+        runtime,
+        nodeEnv: process.env.NODE_ENV || 'development',
+        isDemoMode: process.env.NUXT_PUBLIC_DEMO_MODE === 'true' || process.env.DEMO_MODE === 'true',
+        databaseConnected,
+        databaseType,
+        storageType: normalizeInstallationStorageType(),
+        requiredEnv: {
+            authSecret: Boolean(process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET),
+            siteUrl: Boolean(process.env.NUXT_PUBLIC_SITE_URL),
+            authBaseUrl: Boolean(process.env.NUXT_PUBLIC_AUTH_BASE_URL),
+        },
+        publicUrls: {
+            siteUrl: process.env.NUXT_PUBLIC_SITE_URL || '',
+            authBaseUrl: process.env.NUXT_PUBLIC_AUTH_BASE_URL || '',
+        },
+    })
 
     // 如果环境变量已标记安装，直接返回已安装状态
     if (envInstallationFlag) {
@@ -316,7 +386,9 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
             databaseVersion,
             isServerless,
             isNodeVersionSafe,
+            runtime,
             envSettings,
+            deploymentDiagnostics,
         }
     }
 
@@ -334,7 +406,9 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
             databaseVersion: 'N/A',
             isServerless,
             isNodeVersionSafe,
+            runtime,
             envSettings,
+            deploymentDiagnostics,
         }
     }
 
@@ -357,7 +431,9 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
         databaseVersion,
         isServerless,
         isNodeVersionSafe,
+        runtime,
         envSettings,
+        deploymentDiagnostics,
     }
 }
 

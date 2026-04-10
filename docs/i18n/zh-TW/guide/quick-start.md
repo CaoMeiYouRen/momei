@@ -11,6 +11,23 @@ last_sync: 2026-03-18
 
 歡迎使用墨梅。這份指南會帶你用最快的方式部署並執行自己的部落格，無論你想先快速上線，還是準備進入本機開發，都可以從這裡開始。
 
+## 0. 最小可運行路徑
+
+第一次部署時，先不要急著把 AI、儲存、郵件與通知全部配置完成。先跑通一條最小路徑，再逐步補齊即可。
+
+| 路徑 | 適用情境 | 首次啟動前至少確認 | 可暫時後置 |
+| :--- | :--- | :--- | :--- |
+| 本機開發 | 想先看效果、改程式、驗證功能 | `pnpm install`、`pnpm dev`；開發模式可自動產生暫時 `AUTH_SECRET`，並回退到本機 SQLite | AI、物件儲存、郵件、排程 |
+| Vercel | 想最快取得可公開存取的站點 | `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL`、外部 `DATABASE_URL` | AI、物件儲存、郵件、分析 |
+| Docker / 自託管 Node | 需要更高可控性、本機磁碟或自訂運維 | `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL`；若保留 SQLite，請先確認資料庫路徑或掛載卷可持久化 | AI、物件儲存、郵件、分析 |
+
+首次啟動前建議先做以下體檢：
+
+1. 先補齊核心變數：正式部署至少要有 `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL`。
+2. 先對齊平台路徑：Vercel 與其他 Serverless 路徑不要繼續依賴預設 SQLite；Cloudflare Pages / Workers 目前仍不支援整站主體部署。
+3. 先收斂儲存策略：Serverless 路徑不要把 `STORAGE_TYPE` 留在 `local`，否則上傳與媒體鏈路會在實際使用時失效。
+4. 若安裝精靈已提示阻塞項，請優先對照 [部署指南](./deploy.md) 與 [變數與設定映射](./variables.md) 找出對應配置。
+
 ## 1. 一鍵部署到 Vercel（推薦）
 
 如果你希望在幾分鐘內取得一個可公開存取的站點，這是最簡單的入口。
@@ -19,7 +36,7 @@ last_sync: 2026-03-18
 
 1. 點擊上方按鈕。
 2. 依照 Vercel 的引導建立或選擇 GitHub 儲存庫。
-3. 視需求設定環境變數；若只想先驗證基本流程，可先使用最小配置。
+3. 至少補齊 `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL` 與外部 `DATABASE_URL`。
 4. 點擊 `Deploy`，等待建置完成。
 
 若你打算正式上線，建議部署後立刻補齊 `AUTH_SECRET`、站點 URL 與資料庫連線資訊，避免後續登入與公開連結生成出現問題。
@@ -32,6 +49,16 @@ last_sync: 2026-03-18
 
 ```bash
 docker run -d -p 3000:3000 caomeiyouren/momei
+```
+
+若要用於正式環境，至少補齊：
+
+```bash
+docker run -d -p 3000:3000 \
+    -e AUTH_SECRET=your-random-secret \
+    -e NUXT_PUBLIC_SITE_URL=https://blog.example.com \
+    -e NUXT_PUBLIC_AUTH_BASE_URL=https://blog.example.com \
+    caomeiyouren/momei
 ```
 
 這種方式適合先驗證容器是否能正常啟動，但未包含持久化卷與完整生產設定。
@@ -96,6 +123,8 @@ pnpm dev
 - 自動使用本機 SQLite 資料庫。
 - 自動產生開發用 `AUTH_SECRET`。
 - 即使沒有 `.env` 也能直接啟動站點。
+
+請注意，這種零設定體驗只適用於本機開發；只要準備公開部署、接入 OAuth 或生成公開連結，就應回到上方最小路徑，明確補齊核心變數。
 
 如需啟用完整能力，建議以 `.env.full.example` 為基礎，並優先對照設定服務與系統設定頁的鍵名映射，特別注意以下變數：
 

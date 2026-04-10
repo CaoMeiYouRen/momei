@@ -4,6 +4,25 @@
 
 为了方便落地，本指南把配置分为三层：**核心必填**、**生产推荐** 和 **体验增强**。
 
+## 0. 部署前体检 (Preflight)
+
+第一次部署时，请先按下面的顺序排查，而不是直接把所有配置项一次性填满：
+
+1. **先选部署路径**
+  - 本地开发：允许零配置启动，仅用于开发和体验。
+  - Vercel：必须改用外部 `DATABASE_URL`，不要继续依赖默认 SQLite。
+  - Docker / 自托管 Node：可继续使用 SQLite，但要先确认数据库目录和上传目录可持久化。
+  - Cloudflare Pages / Workers：当前不支持整站主体部署，只保留 R2、Scheduled Events 等外围能力接入。
+2. **再补核心变量**
+  - 正式部署至少先补齐 `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL`。
+  - `NUXT_PUBLIC_SITE_URL` 与 `NUXT_PUBLIC_AUTH_BASE_URL` 在生产环境中通常应保持同源。
+3. **最后看配置组合冲突**
+  - Serverless + SQLite：会在重部署或重启后丢失数据，不应继续作为正式路径。
+  - Serverless + `STORAGE_TYPE=local`：站点也许能先启动，但上传和媒体链路会在实际使用时失败。
+  - 缺少数据库连接：优先检查 `DATABASE_URL`、SQLite 路径权限、Docker 挂载和外部数据库可达性。
+
+如果安装向导第一步已经提示阻塞项，请先解决这些问题，再继续数据库初始化和管理员创建。
+
 ---
 
 ## 1. 核心必填 (Level 1: Essential)
@@ -182,6 +201,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 
 ## 6. 排障指引 (Troubleshooting)
 
+- **安装向导卡在第一步**: 先查看向导里的“部署路径”和阻塞项摘要，再回到本页“部署前体检”与“核心必填”逐项比对。
 - **认证回调错误**: 检查 `NUXT_PUBLIC_SITE_URL` 与 `NUXT_PUBLIC_AUTH_BASE_URL` 是否都使用最终公开域名，且协议一致。
 - **定时任务返回 401**: 检查触发方式是否和当前配置一致。
   - Vercel Cron 模式：`CRON_SECRET`
@@ -191,6 +211,8 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **AI 兼容接口报错**: 检查 `AI_API_ENDPOINT` 是否需要带 `/v1` 后缀。
 - **直传仍走代理上传**: 检查 `STORAGE_TYPE` 是否为 `s3` 或 `r2`，并确认对象存储凭据、Bucket 与公开地址已配置完整。
 - **本地上传资源 404**: 检查 `LOCAL_STORAGE_DIR` 是否存在，以及 `NUXT_PUBLIC_LOCAL_STORAGE_BASE_URL` 是否与实际静态路径匹配。
+- **Vercel / Netlify 首启后数据重置或管理员丢失**: 先确认当前是否仍在使用 SQLite 默认值。Serverless 路径必须切换到外部 `DATABASE_URL`。
+- **Vercel / Netlify 能打开站点但上传失败**: 多半仍在使用 `STORAGE_TYPE=local`。这属于已知组合冲突，请改为 `s3`、`r2` 或 `vercel_blob`。
 - **Cloudflare Pages / Workers 运行时报 TypeORM / Node 兼容错误**: 这是当前已知边界，不是部署步骤遗漏。请改用 Vercel、Docker 或自托管 Node 环境作为应用主体；如需 Cloudflare，当前仅保留 R2 / Scheduled Events 等外围能力接入。
 - **Cloudflare D1 是否能直接替代当前数据库**: 不能。当前主栈仍围绕 TypeORM 与 `sqlite/mysql/postgres` 三类驱动组织，D1 只应继续保留为后续条件触发型研究项，详见 [Cloudflare 运行时兼容研究与止损结论](../design/modules/cloudflare-runtime-study.md)。
 

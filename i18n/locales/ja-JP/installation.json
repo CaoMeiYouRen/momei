@@ -19,13 +19,78 @@
             "description": "続行する前に、実行環境の準備ができているか確認します。",
             "database": "データベース接続",
             "node": "Node.js バージョン",
+            "runtime": "デプロイ経路",
             "dbVersion": "データベースバージョン",
             "serverless": "Serverless 環境",
             "os": "オペレーティングシステム",
             "language": "インストール言語",
             "enabled": "有効",
             "disabled": "無効",
-            "nodeVersionWarning": "Node.js のバージョンが低めです。安定性のため v20 以上を推奨します。"
+            "nodeVersionWarning": "Node.js のバージョンが低めです。安定性のため v20 以上を推奨します。",
+            "serverlessEnabled": "この実行環境には Serverless の特徴があります",
+            "serverlessDisabled": "この実行環境はローカル / コンテナ / 自ホスト Node に近い構成です",
+            "platformUnsupported": "現在のプラットフォーム経路は、本プロジェクトがサポートする本体ランタイム範囲外です。先にデプロイ方式を切り替えてください。",
+            "envKeysLabel": "先に確認する環境変数",
+            "severity": {
+                "blocker": "Blocker",
+                "warning": "Warning"
+            },
+            "summary": {
+                "ready": "この経路ならインストールを続けられます",
+                "blocked": "先に下の blocker を解消してください",
+                "counts": "{blockers} 件の blocker と {warnings} 件の warning を検出しました。"
+            },
+            "resources": {
+                "quickStart": "最小起動パスを見る",
+                "deploy": "デプロイガイドを見る",
+                "variables": "変数マッピングを見る",
+                "feedback": "フィードバックとサポートを開く"
+            },
+            "runtimeLabels": {
+                "local-dev": "ローカル開発",
+                "docker": "Docker / コンテナ",
+                "self-hosted-node": "自ホスト Node",
+                "vercel": "Vercel",
+                "netlify": "Netlify",
+                "cloudflare": "Cloudflare Pages / Workers",
+                "aws-lambda": "AWS Lambda",
+                "zeabur": "Zeabur",
+                "unknown": "不明な環境"
+            },
+            "issues": {
+                "database_connection_failed": {
+                    "title": "データベースにまだ接続できません",
+                    "description": "インストール前に DB 接続を確認してください。ローカル / Docker 経路では SQLite パスやボリュームを、Serverless 経路では外部 MySQL / PostgreSQL を優先して確認します。"
+                },
+                "missing_auth_secret": {
+                    "title": "AUTH_SECRET が不足しています",
+                    "description": "本番や正式デプロイでは AUTH_SECRET を明示的に設定する必要があります。開発環境の一時フォールバックには依存できません。"
+                },
+                "missing_site_url": {
+                    "title": "公開サイト URL が不足しています",
+                    "description": "NUXT_PUBLIC_SITE_URL は公開リンク、SEO、RSS、Sitemap に使われます。本番で localhost のままにしないでください。"
+                },
+                "missing_auth_base_url": {
+                    "title": "認証コールバック基底 URL が不足しています",
+                    "description": "NUXT_PUBLIC_AUTH_BASE_URL は Better Auth のコールバック基底 URL です。欠けていると初回のサインインやコールバックが失敗しやすくなります。"
+                },
+                "auth_base_url_mismatch": {
+                    "title": "公開 URL と認証 URL の origin がずれています",
+                    "description": "NUXT_PUBLIC_SITE_URL と NUXT_PUBLIC_AUTH_BASE_URL は通常同一 origin に保つべきです。プロトコルやドメインが異なるとコールバックや公開リンクがずれやすくなります。"
+                },
+                "cloudflare_runtime_unsupported": {
+                    "title": "Cloudflare ランタイムは本体アプリ未対応です",
+                    "description": "このプロジェクトはまだ TypeORM と Node ランタイム機能に依存しています。Cloudflare Pages / Workers は周辺連携経路であり、本体の正式デプロイ先ではありません。"
+                },
+                "sqlite_serverless_conflict": {
+                    "title": "Serverless 経路では SQLite の既定値を使えません",
+                    "description": "Vercel や Netlify などの Serverless 経路では SQLite のデータは安定して永続化されません。先に DATABASE_URL で外部 MySQL / PostgreSQL へ切り替えてください。"
+                },
+                "local_storage_serverless_conflict": {
+                    "title": "Serverless 経路では local storage を維持すべきではありません",
+                    "description": "サイト自体は起動しても、アップロードやメディア保存は永続化されないローカルディスクで破綻します。S3、R2、Vercel Blob へ移してください。"
+                }
+            }
         },
         "database": {
             "title": "データベース初期化",
