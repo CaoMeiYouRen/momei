@@ -20,4 +20,22 @@ describe('TableOfContents', () => {
         expect(links[0]?.attributes('href')).toBe('#hello-world')
         expect(links[1]?.attributes('href')).toBe('#中文-heading-hello-world-')
     })
+
+    it('keeps duplicate heading anchors aligned with rendered markdown ids', async () => {
+        const wrapper = await mountSuspended(TableOfContents, {
+            props: {
+                content: '## Hello World\n\n## Hello World',
+            },
+            global: {
+                mocks: {
+                    $t: (key: string) => key,
+                },
+            },
+        })
+
+        const links = wrapper.findAll('.toc__link')
+        expect(links).toHaveLength(2)
+        expect(links[0]?.attributes('href')).toBe('#hello-world')
+        expect(links[1]?.attributes('href')).toBe('#hello-world-1')
+    })
 })

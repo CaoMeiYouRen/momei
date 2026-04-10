@@ -23,8 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import MarkdownIt from 'markdown-it'
-import { slugifyMarkdownHeading } from '@/utils/shared/markdown-heading'
+import { createMarkdownRenderer } from '@/utils/shared/markdown'
 
 const props = defineProps<{
     content: string
@@ -36,26 +35,43 @@ interface Heading {
     level: number
 }
 
+const headingRenderer = createMarkdownRenderer({
+    withAnchor: true,
+})
+
+function stripHeadingHtml(value: string) {
+    return value
+        .replace(/<[^>]+>/g, '')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, '\'')
+        .trim()
+}
+
 const headings = computed(() => {
     if (!props.content) return []
 
-    const md = new MarkdownIt()
-    const tokens = md.parse(props.content, {})
+    const renderedHtml = headingRenderer.render(props.content)
+    const headingPattern = /<h([23]) id="([^"]+)"[^>]*>(.*?)<\/h\1>/gisu
     const result: Heading[] = []
 
-    tokens.forEach((token, index) => {
-        if (token.type === 'heading_open') {
-            const level = parseInt(token.tag.slice(1))
-            if (level > 1 && level <= 3) { // Skip h1, limit to h2 and h3
-                const inlineToken = tokens[index + 1]
-                if (inlineToken && inlineToken.type === 'inline') {
-                    const text = inlineToken.content
-                    const id = slugifyMarkdownHeading(text)
-                    result.push({ id, text, level: level - 1 })
-                }
-            }
+    for (const match of renderedHtml.matchAll(headingPattern)) {
+        const level = Number.parseInt(match[1] || '0', 10)
+        const id = match[2] || ''
+        const rawHtml = match[3] || ''
+
+        if (!level || !id) {
+            continue
         }
-    })
+
+        result.push({
+            id,
+            text: stripHeadingHtml(rawHtml),
+            level: level - 1,
+        })
+    }
 
     return result
 })

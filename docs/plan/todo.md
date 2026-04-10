@@ -19,7 +19,7 @@
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
 当前进行中事项
- - 编辑器与正文渲染体验第二轮收口：正在核对 `mavon-editor` 异步包装、Markdown 预览 / 前台渲染一致性、多语言翻译回填与未保存保护链路，先收敛最小改动面与定向验证矩阵。
+ - 无。
 
 ## 第二十五阶段：部署体验与可持续演进收敛
 
@@ -36,14 +36,16 @@
 
 ### 2. 编辑器与正文渲染体验第二轮收口 (P0)
 
-- [ ] **编辑器兼容性与核心创作路径稳定性补强**
+- [x] **编辑器兼容性与核心创作路径稳定性补强**
 	- 验收: 在继续沿用 `mavon-editor` 异步包装接入的前提下，补齐编辑器核心创作链路的兼容性、交互稳定性与高频操作体验收口。
 	- 验收: 至少覆盖工具栏、实时预览、图片 / 媒体插入、翻译回填、多语言切换与未保存状态保护等高频路径，不因局部修补引入新的编辑器回退。
 	- 验收: 明确本阶段不直接启动整体替换工程，若发现替换需求，只允许沉淀后续门槛与证据，不扩大当前阶段范围。
-- [ ] **预览 / 渲染一致性与多语言编辑体验收敛**
+	- 验证: 2026-04-10 已继续沿用 `components/admin/mavon-editor-client.client.vue` 异步包装，不新增第二套编辑器接入；本轮补齐 `composables/use-post-editor-dirty-state.ts` 与 `composables/use-post-editor-page.ts` 的未保存保护快照、`components/admin/posts/post-editor-media-settings.test.ts` 的媒体插入链路回归、`composables/use-post-editor-translation.test.ts` 的翻译回填 / 新稿语言切换保护，以及 `tests/e2e/mobile-critical.e2e.test.ts`、`tests/e2e/auth-session-governance.e2e.test.ts` 的 Chromium 浏览器验证。`pnpm exec vitest run components/admin/posts/post-editor-media-settings.test.ts composables/use-post-editor-translation.test.ts components/article-content.test.ts components/table-of-contents.test.ts utils/shared/markdown.test.ts composables/use-post-editor-page.helpers.test.ts composables/use-unsaved-changes-guard.test.ts`、`pnpm exec playwright test tests/e2e/mobile-critical.e2e.test.ts tests/e2e/auth-session-governance.e2e.test.ts --project=chromium --grep "editor interaction|blank new draft|protect entered new draft"`、`pnpm typecheck` 与定向 `eslint` 通过。
+- [x] **预览 / 渲染一致性与多语言编辑体验收敛**
 	- 验收: 收敛 Markdown 预览、正文最终渲染、翻译编辑回填与多语言版本切换之间的一致性，减少“编辑时正常、展示时错位”的体验偏差。
 	- 验收: 至少覆盖代码块、公式、图片、提示容器、长文本翻译回填与目标语言预览 6 类高风险内容。
 	- 验收: 补齐最小定向测试或浏览器验证，记录仍未覆盖的边界与后续观察项。
+	- 验证: 2026-04-10 已在 `utils/shared/markdown.ts` 收敛正文最终渲染清洗策略，并抽离 `utils/shared/markdown-heading.ts` 作为标题 slug 单一事实源；`components/article-content.vue`、`components/table-of-contents.vue`、`utils/shared/markdown.test.ts`、`components/article-content.test.ts` 与 `components/table-of-contents.test.ts` 已补齐代码块、公式、图片、提示容器、危险 HTML / `data:` 链接协议、标题锚点、重复标题去重以及 TOC 一致性验证。浏览器侧在 `/privacy-policy` 页面确认 `.markdown-body` 标题保留 `id` 且标题锚点 `href` 正常输出。受限于当前开发数据缺少公开文章，本轮未补到真实文章详情页的 TOC 点击滚动录证，后续如测试种子恢复可继续补跑；Review Gate 证据见 `artifacts/review-gate/2026-04-10-editor-rendering-round2.md`。
 
 ### 3. 构建速度与包体性能深化 (P1)
 
