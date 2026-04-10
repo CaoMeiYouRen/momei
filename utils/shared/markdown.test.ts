@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { formatMarkdown } from './markdown-formatter'
-import { createMarkdownRenderer } from './markdown'
+import { createMarkdownRenderer, sanitizeRenderedMarkdownHtml } from './markdown'
+import { slugifyMarkdownHeading } from './markdown-heading'
 
 describe('createMarkdownRenderer', () => {
     const md = createMarkdownRenderer({ html: true })
@@ -42,6 +43,18 @@ describe('createMarkdownRenderer', () => {
         const content = '::: tip 提示名称\n内容\n:::'
         const result = md.render(content)
         expect(result).toContain('提示名称')
+    })
+
+    it('should keep heading ids after sanitization when anchor mode is enabled', () => {
+        const anchored = createMarkdownRenderer({ html: true, withAnchor: true })
+        const html = sanitizeRenderedMarkdownHtml(anchored.render('## Hello World'))
+
+        expect(html).toContain('<h2 id="hello-world"')
+        expect(html).toContain('href="#hello-world"')
+    })
+
+    it('should reuse shared heading slug rules', () => {
+        expect(slugifyMarkdownHeading('  中文 Heading: Hello World!  ')).toBe('中文-heading-hello-world-')
     })
 })
 

@@ -24,6 +24,7 @@
 
 <script setup lang="ts">
 import MarkdownIt from 'markdown-it'
+import { slugifyMarkdownHeading } from '@/utils/shared/markdown-heading'
 
 const props = defineProps<{
     content: string
@@ -49,7 +50,7 @@ const headings = computed(() => {
                 const inlineToken = tokens[index + 1]
                 if (inlineToken && inlineToken.type === 'inline') {
                     const text = inlineToken.content
-                    const id = text.trim().toLowerCase().replace(/[^\w\u4e00-\u9fa5]+/g, '-')
+                    const id = slugifyMarkdownHeading(text)
                     result.push({ id, text, level: level - 1 })
                 }
             }

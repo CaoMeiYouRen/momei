@@ -22,6 +22,7 @@ import sql from 'highlight.js/lib/languages/sql'
 import typescript from 'highlight.js/lib/languages/typescript'
 import xml from 'highlight.js/lib/languages/xml'
 import yaml from 'highlight.js/lib/languages/yaml'
+import { slugifyMarkdownHeading } from './markdown-heading'
 
 hljs.registerLanguage('bash', bash)
 hljs.registerLanguage('css', css)
@@ -115,6 +116,12 @@ const markdownSanitizeOptions: sanitizeHtml.IOptions = {
         math: mergeAllowedAttributes('math', ['xmlns', 'display']),
         annotation: mergeAllowedAttributes('annotation', ['encoding']),
         'annotation-xml': mergeAllowedAttributes('annotation-xml', ['encoding']),
+        h1: mergeAllowedAttributes('h1', ['id', 'tabindex']),
+        h2: mergeAllowedAttributes('h2', ['id', 'tabindex']),
+        h3: mergeAllowedAttributes('h3', ['id', 'tabindex']),
+        h4: mergeAllowedAttributes('h4', ['id', 'tabindex']),
+        h5: mergeAllowedAttributes('h5', ['id', 'tabindex']),
+        h6: mergeAllowedAttributes('h6', ['id', 'tabindex']),
     },
     allowedSchemes: ['http', 'https', 'mailto'],
     allowedSchemesByTag: {
@@ -190,7 +197,7 @@ export function createMarkdownRenderer(mdOptions: MarkdownOptions = {}) {
 
     if (mdOptions.withAnchor) {
         md.use(MarkdownItAnchor, {
-            slugify: (s: string) => s.trim().toLowerCase().replace(/[^\w\u4e00-\u9fa5]+/g, '-'),
+            slugify: slugifyMarkdownHeading,
             permalink: MarkdownItAnchor.permalink.headerLink(),
         })
     }
