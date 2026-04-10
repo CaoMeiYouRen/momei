@@ -1,4 +1,5 @@
 import type { InstallationDiagnosticIssue } from './installation-diagnostics'
+import { getLocaleRoutePrefix, resolveAppLocaleCode, type AppLocaleCode } from '@/i18n/config/locale-registry'
 
 type InstallationDocsPage = InstallationDiagnosticIssue['docsPage']
 
@@ -16,14 +17,6 @@ interface BuildInstallationDocResourcesInput {
 
 const DOCS_BASE_URL = 'https://docs.momei.app'
 
-const DOCS_LOCALE_PREFIX_MAP: Record<string, string> = {
-    'zh-CN': '',
-    'zh-TW': '/zh-TW',
-    'en-US': '/en-US',
-    'ja-JP': '/ja-JP',
-    'ko-KR': '/ko-KR',
-}
-
 const DOCS_PAGE_LABEL_KEY_MAP: Record<InstallationDocsPage, string> = {
     'quick-start': 'installation.healthCheck.resources.quickStart',
     deploy: 'installation.healthCheck.resources.deploy',
@@ -32,7 +25,7 @@ const DOCS_PAGE_LABEL_KEY_MAP: Record<InstallationDocsPage, string> = {
 
 const DOCS_PAGE_ORDER: InstallationDocsPage[] = ['quick-start', 'deploy', 'variables']
 
-const SUPPORTED_TRANSLATED_DOCS: Record<string, InstallationDocsPage[]> = {
+const SUPPORTED_TRANSLATED_DOCS: Record<AppLocaleCode, InstallationDocsPage[]> = {
     'zh-CN': ['quick-start', 'deploy', 'variables'],
     'zh-TW': ['quick-start', 'deploy', 'variables'],
     'en-US': ['quick-start', 'deploy', 'variables'],
@@ -40,16 +33,16 @@ const SUPPORTED_TRANSLATED_DOCS: Record<string, InstallationDocsPage[]> = {
     'ko-KR': ['quick-start', 'deploy', 'variables'],
 }
 
-function resolveDocsLocalePrefix(locale: string) {
-    return DOCS_LOCALE_PREFIX_MAP[locale] ?? ''
+function resolveDocsLocale(locale: string): AppLocaleCode {
+    return resolveAppLocaleCode(locale)
 }
 
 function resolveSupportedDocsPages(locale: string): InstallationDocsPage[] {
-    return SUPPORTED_TRANSLATED_DOCS[locale] ?? SUPPORTED_TRANSLATED_DOCS['zh-CN'] ?? []
+    return SUPPORTED_TRANSLATED_DOCS[resolveDocsLocale(locale)] ?? SUPPORTED_TRANSLATED_DOCS['zh-CN']
 }
 
 function resolveDocsHref(locale: string, docsPage: InstallationDocsPage) {
-    return `${DOCS_BASE_URL}${resolveDocsLocalePrefix(locale)}/guide/${docsPage}`
+    return `${DOCS_BASE_URL}${getLocaleRoutePrefix(resolveDocsLocale(locale))}/guide/${docsPage}`
 }
 
 export function buildInstallationDocResources(input: BuildInstallationDocResourcesInput): InstallationDocResource[] {
