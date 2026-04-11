@@ -69,12 +69,13 @@ describe('Archive API', () => {
     })
 
     it('should group posts by year and month', async () => {
+        const setHeader = vi.fn()
         // Simulate H3 event
         const event = {
             context: {},
             node: {
                 req: { headers: {} },
-                res: { setHeader: vi.fn() },
+                res: { setHeader },
             },
             req: { headers: {} },
             query: {}, // Mock query for getValidatedQuery
@@ -98,6 +99,7 @@ describe('Archive API', () => {
         // 2023 has posts in Jan (2) and Feb (1)
         // Note: Raw count might vary due to other tests, so we check existence
         expect(year2023.months.length).toBeGreaterThanOrEqual(2)
+        expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=60')
     })
 
     it('should return posts list when includePosts=true', async () => {
@@ -126,6 +128,7 @@ describe('Archive API', () => {
         expect(data.total).toBeGreaterThanOrEqual(1)
         const doc = data.items[0]
         expect(doc.title).toBe('Post 4')
+        expect(doc.content).toBeUndefined()
     })
 
     it('should prioritize pinned posts within the same archive month', async () => {
@@ -150,5 +153,32 @@ describe('Archive API', () => {
 
         expect(result.code).toBe(200)
         expect(data.items[0]?.title).toBe('Post 2')
+    })
+
+    it('should disable shared caching for manage responses', async () => {
+        const setHeader = vi.fn()
+        const event = {
+            context: {
+                auth: {
+                    user: {
+                        id: author.id,
+                        role: 'author,admin',
+                    },
+                },
+            },
+            node: {
+                req: { headers: {} },
+                res: { setHeader },
+            },
+            req: { headers: {} },
+            query: {
+                scope: 'manage',
+            },
+        } as any
+
+        const result = await archiveHandler(event)
+
+        expect(result.code).toBe(200)
+        expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'private, no-store')
     })
 })

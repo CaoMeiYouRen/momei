@@ -1,26 +1,24 @@
-import { type SelectQueryBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
-import { Post } from '@/server/entities/post'
 import { categoryQuerySchema } from '@/utils/schemas/category'
 import { applyPagination } from '@/server/utils/pagination'
 import { success, paginate } from '@/server/utils/response'
 import { applyTranslationAggregation, attachTranslations } from '@/server/utils/translation'
+import { buildCategoryPostCountSubquery } from '@/server/utils/taxonomy-post-count'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => categoryQuerySchema.parse(q))
 
     const categoryRepo = dataSource.getRepository(Category)
-    const postCountSelect = 'COUNT(DISTINCT COALESCE(p.translationId, p.id))'
+    const publishedStatus = 'published'
+    const postCountQuery = buildCategoryPostCountSubquery(publishedStatus)
 
     const queryBuilder = categoryRepo.createQueryBuilder('category')
-        .leftJoinAndSelect('category.parent', 'parent')
-        .addSelect((subQuery) => subQuery
-            .select(postCountSelect, 'postCount')
-            .from(Post, 'p')
-            .innerJoin(Category, 'postCategory', 'postCategory.id = p.categoryId')
-            .where('COALESCE(postCategory.translationId, postCategory.id) = COALESCE(category.translationId, category.id)')
-            .andWhere('p.status = :publishedStatus', { publishedStatus: 'published' }), 'category_postCount')
+        .leftJoin('category.parent', 'parent')
+        .addSelect(['parent.id', 'parent.name', 'parent.slug'])
+        .leftJoin(`(${postCountQuery.getQuery()})`, 'postCountSummary', 'postCountSummary.taxonomyId = COALESCE(category.translationId, category.id)')
+        .addSelect('COALESCE(postCountSummary.postCount, 0)', 'category_postCount')
+        .setParameters(postCountQuery.getParameters())
 
     // Handle Aggregation
     if (query.aggregate) {
@@ -49,14 +47,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (query.orderBy === 'postCount') {
-        // Use subquery for sorting by relation count
-        queryBuilder.addSelect((subQuery: SelectQueryBuilder<any>) => subQuery
-            .select(postCountSelect, 'pcount')
-            .from(Post, 'p')
-            .innerJoin(Category, 'postCategory', 'postCategory.id = p.categoryId')
-            .where('COALESCE(postCategory.translationId, postCategory.id) = COALESCE(category.translationId, category.id)')
-            .andWhere('p.status = :publishedStatus', { publishedStatus: 'published' }), 'pcount')
-        queryBuilder.orderBy('pcount', query.order || 'DESC')
+        queryBuilder.orderBy('category_postCount', query.order || 'DESC')
     } else {
         queryBuilder.orderBy(`category.${query.orderBy || 'createdAt'}`, query.order || 'DESC')
     }

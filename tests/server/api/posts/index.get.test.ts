@@ -158,6 +158,7 @@ describe('/api/posts', () => {
         expect(result.code).toBe(200)
         expect(result.data).toHaveProperty('items')
         expect(result.data).toHaveProperty('total')
+        expect(result.data!.items[0]?.content).toBeUndefined()
     })
 
     it('should support pagination', async () => {

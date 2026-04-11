@@ -1,25 +1,22 @@
-import { type SelectQueryBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
-import { Post } from '@/server/entities/post'
 import { tagQuerySchema } from '@/utils/schemas/tag'
 import { applyPagination } from '@/server/utils/pagination'
 import { success, paginate } from '@/server/utils/response'
 import { applyTranslationAggregation, attachTranslations } from '@/server/utils/translation'
+import { buildTagPostCountSubquery } from '@/server/utils/taxonomy-post-count'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => tagQuerySchema.parse(q))
 
     const tagRepo = dataSource.getRepository(Tag)
-    const postCountSelect = 'COUNT(DISTINCT COALESCE(p.translationId, p.id))'
+    const publishedStatus = 'published'
+    const postCountQuery = buildTagPostCountSubquery(publishedStatus)
 
     const queryBuilder = tagRepo.createQueryBuilder('tag')
-        .addSelect((subQuery) => subQuery
-            .select(postCountSelect, 'postCount')
-            .from(Post, 'p')
-            .innerJoin('p.tags', 'pt')
-            .where('COALESCE(pt.translationId, pt.id) = COALESCE(tag.translationId, tag.id)')
-            .andWhere('p.status = :publishedStatus', { publishedStatus: 'published' }), 'tag_postCount')
+        .leftJoin(`(${postCountQuery.getQuery()})`, 'postCountSummary', 'postCountSummary.taxonomyId = COALESCE(tag.translationId, tag.id)')
+        .addSelect('COALESCE(postCountSummary.postCount, 0)', 'tag_postCount')
+        .setParameters(postCountQuery.getParameters())
 
     // Handle Aggregation
     if (query.aggregate) {
@@ -44,14 +41,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (query.orderBy === 'postCount') {
-        // Use subquery for sorting by relation count
-        queryBuilder.addSelect((subQuery: SelectQueryBuilder<any>) => subQuery
-            .select(postCountSelect, 'pcount')
-            .from(Post, 'p')
-            .innerJoin('p.tags', 'pt')
-            .where('COALESCE(pt.translationId, pt.id) = COALESCE(tag.translationId, tag.id)')
-            .andWhere('p.status = :publishedStatus', { publishedStatus: 'published' }), 'pcount')
-        queryBuilder.orderBy('pcount', query.order || 'DESC')
+        queryBuilder.orderBy('tag_postCount', query.order || 'DESC')
     } else {
         queryBuilder.orderBy(`tag.${query.orderBy || 'createdAt'}`, query.order || 'DESC')
     }

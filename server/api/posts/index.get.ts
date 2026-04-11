@@ -12,6 +12,7 @@ import { applyPostVisibilityFilter, rethrowPostAccessError } from '@/server/util
 import { applyTranslationAggregation, attachTranslations } from '@/server/utils/translation'
 import { applyPostsReadModelFromMetadata } from '@/server/utils/post-metadata'
 import { applyPostOrdering } from '@/server/utils/post-ordering'
+import { applyPostListSelect } from '@/server/utils/post-list-query'
 import { SettingKey } from '@/types/setting'
 import { getLocaleRegistryItem } from '@/i18n/config/locale-registry'
 
@@ -37,11 +38,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const postRepo = dataSource.getRepository(Post)
-    const qb = postRepo.createQueryBuilder('post')
-        .leftJoin('post.author', 'author')
-        .addSelect(['author.id', 'author.name', 'author.image', 'author.email'])
-        .leftJoinAndSelect('post.category', 'category')
-        .leftJoinAndSelect('post.tags', 'tags')
+    const qb = applyPostListSelect(postRepo.createQueryBuilder('post'))
 
     // Handle Aggregation for Management Mode
     if (query.aggregate && query.scope === 'manage') {

@@ -1,3 +1,4 @@
+import type { H3Event } from 'h3'
 import { Brackets, type SelectQueryBuilder, type WhereExpressionBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
@@ -6,11 +7,16 @@ import { archiveQuerySchema } from '@/utils/schemas/post'
 import { success, paginate } from '@/server/utils/response'
 import { applyDefaultPaginationLimit } from '@/server/utils/pagination'
 import { processAuthorsPrivacy } from '@/server/utils/author'
-import { isAdmin } from '@/utils/shared/roles'
+import { isAdmin, isAdminOrAuthor } from '@/utils/shared/roles'
 import { applyPostVisibilityFilter, rethrowPostAccessError } from '@/server/utils/post-access'
 import { applyPostsReadModelFromMetadata } from '@/server/utils/post-metadata'
 import { applyPostOrdering } from '@/server/utils/post-ordering'
+import { applyPostListSelect } from '@/server/utils/post-list-query'
 import { SettingKey } from '@/types/setting'
+
+function applyArchiveCacheHeader(event: H3Event, isSharedPublicResponse: boolean) {
+    event.node.res.setHeader('Cache-Control', isSharedPublicResponse ? 'public, max-age=60' : 'private, no-store')
+}
 
 export default defineEventHandler(async (event) => {
     const postsPerPage = await getSetting(SettingKey.POSTS_PER_PAGE, '10')
@@ -18,6 +24,7 @@ export default defineEventHandler(async (event) => {
 
     const session = event.context?.auth
     const user = event.context?.user
+    const isSharedPublicResponse = query.scope === 'public' && !session?.user && !user
 
     const postRepo = dataSource.getRepository(Post)
 
@@ -72,7 +79,7 @@ export default defineEventHandler(async (event) => {
         }
         const sessionUser = session.user
         const role = sessionUser.role
-        if (role !== 'admin' && role !== 'author') {
+        if (!isAdminOrAuthor(role)) {
             throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
         }
     }
@@ -127,7 +134,7 @@ export default defineEventHandler(async (event) => {
         const items = Array.from(yearsMap.entries()).map(([year, months]) => ({ year, months }))
 
         // Cache for short period
-        event.node.res.setHeader('Cache-Control', 'public, max-age=60')
+        applyArchiveCacheHeader(event, isSharedPublicResponse)
 
         return success(items)
     }
@@ -138,11 +145,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Fetch posts for specific year/month with pagination
-    const postsQb = postRepo.createQueryBuilder('post')
-        .leftJoin('post.author', 'author')
-        .addSelect(['author.id', 'author.name', 'author.image', 'author.email'])
-        .leftJoinAndSelect('post.category', 'category')
-        .leftJoinAndSelect('post.tags', 'tags')
+    const postsQb = applyPostListSelect(postRepo.createQueryBuilder('post'))
 
     await applyCommonFilters(postsQb)
 
@@ -171,7 +174,7 @@ export default defineEventHandler(async (event) => {
     const isUserAdmin = session?.user && isAdmin(session.user.role)
     await processAuthorsPrivacy(items, !!isUserAdmin)
 
-    event.node.res.setHeader('Cache-Control', 'public, max-age=60')
+    applyArchiveCacheHeader(event, isSharedPublicResponse)
 
     return success(paginate(items, total, query.page, query.limit))
 })
