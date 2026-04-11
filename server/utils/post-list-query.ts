@@ -1,7 +1,24 @@
 import type { SelectQueryBuilder } from 'typeorm'
 import type { Post } from '@/server/entities/post'
 
-export function applyPostListSelect(qb: SelectQueryBuilder<Post>) {
+interface PostListSelectOptions {
+    includeAuthor?: boolean
+    includeAuthorEmail?: boolean
+    includeCategory?: boolean
+    includeTags?: boolean
+}
+
+export function applyPostListSelect(
+    qb: SelectQueryBuilder<Post>,
+    options: PostListSelectOptions = {},
+) {
+    const {
+        includeAuthor = true,
+        includeAuthorEmail = true,
+        includeCategory = true,
+        includeTags = true,
+    } = options
+
     qb.select([
         'post.id',
         'post.title',
@@ -23,12 +40,26 @@ export function applyPostListSelect(qb: SelectQueryBuilder<Post>) {
         'post.updatedAt',
     ])
 
-    qb.leftJoin('post.author', 'author')
-        .addSelect(['author.id', 'author.name', 'author.image', 'author.email'])
-        .leftJoin('post.category', 'category')
-        .addSelect(['category.id', 'category.name', 'category.slug'])
-        .leftJoin('post.tags', 'tags')
-        .addSelect(['tags.id', 'tags.name', 'tags.slug'])
+    if (includeAuthor) {
+        qb.leftJoin('post.author', 'author')
+
+        const authorSelects = ['author.id', 'author.name', 'author.image']
+        if (includeAuthorEmail) {
+            authorSelects.push('author.email')
+        }
+
+        qb.addSelect(authorSelects)
+    }
+
+    if (includeCategory) {
+        qb.leftJoin('post.category', 'category')
+            .addSelect(['category.id', 'category.name', 'category.slug'])
+    }
+
+    if (includeTags) {
+        qb.leftJoin('post.tags', 'tags')
+            .addSelect(['tags.id', 'tags.name', 'tags.slug'])
+    }
 
     return qb
 }

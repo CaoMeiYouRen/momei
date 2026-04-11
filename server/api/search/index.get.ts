@@ -7,17 +7,14 @@ import { applyPagination } from '@/server/utils/pagination'
 import { processAuthorsPrivacy } from '@/server/utils/author'
 import { isAdmin } from '@/utils/shared/roles'
 import { applyPostVisibilityFilter, rethrowPostAccessError } from '@/server/utils/post-access'
+import { applyPostListSelect } from '@/server/utils/post-list-query'
 
 export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => searchQuerySchema.parse(q))
     const user = event.context?.user
 
     const postRepo = dataSource.getRepository(Post)
-    const qb = postRepo.createQueryBuilder('post')
-        .leftJoin('post.author', 'author')
-        .addSelect(['author.id', 'author.name', 'author.image', 'author.email'])
-        .leftJoinAndSelect('post.category', 'category')
-        .leftJoinAndSelect('post.tags', 'tags')
+    const qb = applyPostListSelect(postRepo.createQueryBuilder('post'))
 
     // 应用统一的文章可见性过滤逻辑
     try {
@@ -26,18 +23,14 @@ export default defineEventHandler(async (event) => {
         rethrowPostAccessError(error)
     }
 
-    // 1. Keyword search (Title, Summary)
-    // NOTE: Avoid searching 'content' with LIKE %q% on large datasets as it causes full table scans.
-    // In a blog context, Title and Summary usually cover the most relevant results.
+    // 1. Keyword search (Title, Summary, long-keyword Content fallback)
+    // Keep the documented semantics: content matching is only enabled for longer keywords.
     if (query.q) {
         const q = query.q.trim()
-        // If query is too short (e.g. 1 char for non-CJK), we might want to skip or handle specially.
-        // For simplicity, we trust the database but optimize fields.
         qb.andWhere(new Brackets((sub: WhereExpressionBuilder) => {
             sub.where('post.title LIKE :q', { q: `%${q}%` })
                 .orWhere('post.summary LIKE :q', { q: `%${q}%` })
-            // Only search content if q is long enough to reduce pointless heavy scans
-            if (q.length >= 2) {
+            if (q.length > 3) {
                 sub.orWhere('post.content LIKE :q', { q: `%${q}%` })
             }
         }))

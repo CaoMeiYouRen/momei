@@ -32,6 +32,45 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## PostgreSQL 查询与数据库出网流量治理补充回归（2026-04-12）
+
+### 回归任务记录
+
+- 回归范围: 第二十六阶段 P0“PostgreSQL 查询与数据库出网流量治理”补充回归；覆盖 [server/api/search/index.get.ts](../../server/api/search/index.get.ts)、[server/api/external/posts.get.ts](../../server/api/external/posts.get.ts)、[server/utils/post-list-query.ts](../../server/utils/post-list-query.ts)、既有 `posts / archive / categories / tags` 收敛 helper，以及新增 artifact [artifacts/postgres-hot-read-governance-2026-04-12.md](../../artifacts/postgres-hot-read-governance-2026-04-12.md) / [artifacts/postgres-hot-read-governance-2026-04-12.json](../../artifacts/postgres-hot-read-governance-2026-04-12.json)。
+- 触发条件: 首轮已完成 `posts / archive / categories / tags` 的最小字段集与 taxonomy 聚合收敛，但待办仍要求补齐 `pg_stat_statements` 或等价长窗口样本，并继续审计剩余公开读链路 `search` 与 `external posts` 是否仍保留宽查询模式。
+- 执行频率: 第二十六阶段当前主线补充回归；后续仅在新增公开热点读链路、放宽搜索范围、或重新扩大 list payload 时追加增量记录。
+- timeout budget:
+    - 剩余热点读链路盘点与 settings 批量化评估: 20 分钟。
+    - `search` / `external posts` 收敛与定向测试: 30 分钟。
+    - 定向 ESLint 与 typecheck: 30 分钟。
+    - artifact / regression / todo 同步: 20 分钟。
+- 已执行命令:
+    - `pnpm exec vitest run tests/server/api/search/index.get.test.ts tests/server/api/external/posts-list.get.test.ts`
+    - `pnpm exec eslint server/utils/post-list-query.ts server/api/search/index.get.ts server/api/external/posts.get.ts tests/server/api/search/index.get.test.ts tests/server/api/external/posts-list.get.test.ts`
+    - `pnpm exec nuxt typecheck`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 热点读链路收敛层: [server/api/search/index.get.ts](../../server/api/search/index.get.ts) 已改为复用 [server/utils/post-list-query.ts](../../server/utils/post-list-query.ts)，公共搜索结果不再加载 `post.content`；同时保留既有“长关键词才匹配 `content`”的设计边界。[server/api/external/posts.get.ts](../../server/api/external/posts.get.ts) 则改为最小 post/category/tag 字段集，跳过 author relation，并把 `POSTS_PER_PAGE` 读取对齐到批量 `getSettings`。
+        - V2 / 返回体量契约层: [tests/server/api/search/index.get.test.ts](../../tests/server/api/search/index.get.test.ts) 已锁定搜索结果 `content === undefined`，且正文命中仍只在长关键词场景生效；新增 [tests/server/api/external/posts-list.get.test.ts](../../tests/server/api/external/posts-list.get.test.ts) 锁定 API key 列表结果不再返回 `content`，同时维持作者限权范围不变。
+        - V2 / 候选静态基线层: 新增 [artifacts/postgres-hot-read-governance-2026-04-12.json](../../artifacts/postgres-hot-read-governance-2026-04-12.json) 与 [artifacts/postgres-hot-read-governance-2026-04-12.md](../../artifacts/postgres-hot-read-governance-2026-04-12.md)，把 `posts / archive / categories / tags / search / external posts` 的热点 SQL 指纹、最小字段集、settings 读取结论与现有真实 `pg_stat_statements` 历史锚点统一沉淀为下一轮运行期采样的对照基线。
+        - V1 / 质量门层: 定向 Vitest `2` 个文件、`7` 条用例通过；定向 ESLint 无输出；`pnpm exec nuxt typecheck` 无输出，视为通过。
+    - 结果摘要:
+        - 第二十六阶段 PostgreSQL 主线当前已形成更完整的热点清单，不再局限于 `posts / archive / categories / tags`；本轮额外确认 `search` 与 `external posts` 的 payload 也已对齐最小 list 读模型。
+        - 当前 structured artifact 只能视为“候选静态基线”，不能直接替代同范围运行期 `pg_stat_statements` 或等价 live sample；因此本轮只关闭了部分代码与文档收敛，不宣称主线待办已满足关闭条件。
+        - settings 读取批量化本轮已完成评估: 当前主线中的公开热点读链路不再存在“同一请求链路内多次单键读取 settings”这一残余模式；`posts/index` 与 `posts/archive` 各自仅有 1 次 `POSTS_PER_PAGE` 读取，继续扩写为批量接口不会降低查询次数，因此不再为了形式统一做额外改造。
+    - Review Gate 结论:
+        - 结论: Pass（限本轮代码与文档收敛）
+        - 问题分级: warning
+        - 当前状态:
+            - `search` / `external posts` 与 artifact 同步已经放行，但 PostgreSQL 主线待办仍需新的同范围运行期 `pg_stat_statements` 或等价 live sample，当前不能关闭。
+            - 当前剩余 blocker 已收敛为“补同范围运行期样本”，而不是继续扩写代码改造面。
+    - 未覆盖边界:
+        - 本轮没有新增真实 PostgreSQL 运行实例上的同范围 `pg_stat_statements` 采样，当前 artifact 只能作为下一轮 live sample 的对照基线。
+        - 搜索路径当前仍保留长关键词正文匹配，因此它在“查询谓词压力”维度仍不是完全收敛态；若后续要进一步优化，应该进入全文索引或外部搜索引擎方案，而不是无准入地下调既有搜索能力。
+    - 后续补跑计划:
+        - 下一步优先在预发或生产 PostgreSQL 环境补一份与 `posts / archive / categories / tags / search / external posts` 同范围的 `pg_stat_statements` 或等价 live sample，再决定是否允许关闭 todo 主线。
+        - 若新增公开列表接口，优先复用 [server/utils/post-list-query.ts](../../server/utils/post-list-query.ts) 与 [server/utils/taxonomy-post-count.ts](../../server/utils/taxonomy-post-count.ts)，并在同一份 artifact 中追加新热点，而不是另起分散口径。
+
 ## 第二十四阶段阶段级回归任务执行与收口证据链复盘复跑（2026-04-08）
 
 ### 回归任务记录

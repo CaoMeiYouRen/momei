@@ -1,22 +1,24 @@
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
-import { getSetting } from '@/server/services/setting'
+import { getSettings } from '@/server/services/setting'
 import { postQuerySchema } from '@/utils/schemas/post'
 import { applyDefaultPaginationLimit, applyPagination } from '@/server/utils/pagination'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
 import { isAdmin } from '@/utils/shared/roles'
+import { applyPostListSelect } from '@/server/utils/post-list-query'
 import { SettingKey } from '@/types/setting'
 
 export default defineEventHandler(async (event) => {
     const { user } = await validateApiKeyRequest(event)
 
-    const postsPerPage = await getSetting(SettingKey.POSTS_PER_PAGE, '10')
+    const settings = await getSettings([SettingKey.POSTS_PER_PAGE])
+    const postsPerPage = settings[SettingKey.POSTS_PER_PAGE] ?? '10'
     const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(applyDefaultPaginationLimit(q as Record<string, unknown>, postsPerPage)))
 
     const postRepo = dataSource.getRepository(Post)
-    const qb = postRepo.createQueryBuilder('post')
-        .leftJoinAndSelect('post.category', 'category')
-        .leftJoinAndSelect('post.tags', 'tags')
+    const qb = applyPostListSelect(postRepo.createQueryBuilder('post'), {
+        includeAuthor: false,
+    })
 
     // 默认强制管理模式
     if (isAdmin(user.role)) {

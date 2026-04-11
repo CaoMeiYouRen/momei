@@ -79,6 +79,17 @@ describe('Search API', () => {
         postOnlyEn.tags = [tag]
         postOnlyEn.publishedAt = new Date()
         await postRepo.save(postOnlyEn)
+
+        const bodyOnlyPost = new Post()
+        bodyOnlyPost.title = 'Body Hidden Post'
+        bodyOnlyPost.slug = 'body-hidden-post'
+        bodyOnlyPost.content = 'rare-body-keyword only exists in content'
+        bodyOnlyPost.summary = 'No searchable keyword here'
+        bodyOnlyPost.language = 'en-US'
+        bodyOnlyPost.status = PostStatus.PUBLISHED
+        bodyOnlyPost.author = author
+        bodyOnlyPost.publishedAt = new Date()
+        await postRepo.save(bodyOnlyPost)
     })
 
     it('should search by keyword in title', async () => {
@@ -90,6 +101,7 @@ describe('Search API', () => {
         const result = await searchHandler(event)
         expect(result.code).toBe(200)
         expect(result.data!.items.some((i: any) => i.title === '你好世界')).toBe(true)
+        expect(result.data!.items[0]?.content).toBeUndefined()
     })
 
     it('should search by keyword in summary', async () => {
@@ -122,6 +134,19 @@ describe('Search API', () => {
         const result = await searchHandler(event)
         expect(result.data!.items.length).toBe(1)
         expect((result.data!.items[0] as any).title).toBe('Unique English Post')
+    })
+
+    it('should still match content-only keywords when the keyword is long enough', async () => {
+        const event = {
+            query: { q: 'rare-body-keyword' },
+            context: {},
+        } as any
+
+        const result = await searchHandler(event)
+
+        expect(result.code).toBe(200)
+        expect(result.data!.items.some((i: any) => i.slug === 'body-hidden-post')).toBe(true)
+        expect(result.data!.items.find((i: any) => i.slug === 'body-hidden-post')?.content).toBeUndefined()
     })
 
     it('should handle multi-language deduplication (prefer zh-CN)', async () => {
