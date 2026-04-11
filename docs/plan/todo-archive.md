@@ -2134,3 +2134,82 @@
     - 验收: 至少覆盖 coverage、lint / typecheck、重复代码、文档一致性与 Review Gate 结论，并统一沉淀到 `regression-log.md`。
     - 验收: 若发现 blocker，明确回灌当前阶段待办；若未发现 blocker，也要记录未覆盖边界与下一次补跑条件。
     - 结果: 已完成真实 `phase-close` 执行、活动日志滚动归档、严格性能预算口径修复与收口复跑；[2026-04-08-phase-close-regression.md](./../../artifacts/review-gate/2026-04-08-phase-close-regression.md) 最终给出 `Pass`，正式放行归档。
+
+## 第二十五阶段：部署体验与可持续演进收敛 (已审计归档)
+
+> 审计结论: 第二十五阶段围绕部署体验与初始化收敛、编辑器与正文渲染体验第二轮收口、构建速度与包体性能深化、Cloudflare 运行时兼容研究与止损结论，以及 AI 初始化 / 配置问答助手评估五条主线，已在实现代码、部署 / 设计 / 指南文档、多语言翻译页与专项 Review Gate 证据中形成闭环，满足归档条件。正式放行依据为 [2026-04-11-phase-25-archive.md](./../../artifacts/review-gate/2026-04-11-phase-25-archive.md) 的 `Pass` 结论；其中部署体验收敛、Cloudflare 研究结论、AI 助手评估与编辑器 / 渲染收口分别继续引用 2026-04-09 至 2026-04-10 的专项证据，不再额外起第二套事实源。
+
+> **ROI 评估**: 部署体验与初始化收敛 2.00；编辑器与正文渲染体验第二轮收口 1.80；构建速度与包体性能深化 1.60；AI 初始化 / 配置问答助手评估 1.33；Cloudflare 运行时兼容研究与止损结论 1.14。五项均已按本阶段准入边界完成收口，其中部署体验与编辑器 / 渲染收口为本轮 P0 主线。
+
+### 1. 部署体验与初始化收敛 (P0)
+
+- [x] **最小可运行路径与部署前体检收敛**
+    - 验收: 梳理并收敛“首次部署成功启动”的最小路径，明确核心必填项、可延后增强项与常见错误分层，不再让新部署者主要依赖散落文档自行拼接。
+    - 验收: 为部署前体检、启动期配置缺失提示或等价机制补齐最小可用能力，至少能显式识别关键环境变量缺失、配置组合冲突或当前平台不支持的运行方式。
+    - 验收: 相关实现必须复用现有 README、部署指南、变量映射、安装向导与设置元信息，不新增第二套配置事实源。
+    - 结果: 已在 `server/services/installation.ts`、`utils/shared/installation-diagnostics.ts` 与 `components/installation/step-health-check.vue` 收敛部署运行时识别、阻塞项摘要与安装向导首步体检展示，并通过 `utils/shared/installation-doc-links.ts` 继续复用 locale registry 生成文档入口。
+    - 验证: `pnpm exec vitest run utils/shared/installation-diagnostics.test.ts utils/shared/installation-doc-links.test.ts components/installation/step-health-check.test.ts server/services/installation.test.ts`、`pnpm exec eslint server/services/installation.ts components/installation/step-health-check.vue components/installation/step-health-check.test.ts utils/shared/installation-diagnostics.ts utils/shared/installation-diagnostics.test.ts utils/shared/installation-doc-links.ts utils/shared/installation-doc-links.test.ts`、`pnpm exec nuxt typecheck`、`pnpm lint:md` 与 `pnpm docs:check:i18n` 通过。
+- [x] **初始化反馈与排障入口统一**
+    - 验收: 收敛初始化阶段的提示、失败反馈与排障入口，降低“能看到错误但不知道下一步该做什么”的心智负担。
+    - 验收: 至少覆盖本地开发、Vercel / Docker、自托管 Node 三类高频部署路径；Cloudflare 运行时仍按平台边界单独提示，不混淆为已支持路径。
+    - 验收: 补齐最小验证，至少确认新部署者可根据提示完成核心变量配置、识别不支持的平台路径，并定位初始化失败原因。
+    - 结果: 安装向导首步已输出运行时标签、阻塞 / 警告计数、环境变量提示与统一排障入口；Cloudflare 路径继续按不支持的整站运行时单独提示。
+    - 验证: 定向测试覆盖 `utils/shared/installation-diagnostics.test.ts`、`utils/shared/installation-doc-links.test.ts`、`components/installation/step-health-check.test.ts` 与 `server/services/installation.test.ts`，共 24 项通过；`pnpm exec nuxt typecheck`、定向 `eslint`、`pnpm lint:md` 与 `pnpm docs:check:i18n` 通过。
+
+### 2. 编辑器与正文渲染体验第二轮收口 (P0)
+
+- [x] **编辑器兼容性与核心创作路径稳定性补强**
+    - 验收: 在继续沿用 `mavon-editor` 异步包装接入的前提下，补齐编辑器核心创作链路的兼容性、交互稳定性与高频操作体验收口。
+    - 验收: 至少覆盖工具栏、实时预览、图片 / 媒体插入、翻译回填、多语言切换与未保存状态保护等高频路径，不因局部修补引入新的编辑器回退。
+    - 验收: 明确本阶段不直接启动整体替换工程，若发现替换需求，只允许沉淀后续门槛与证据，不扩大当前阶段范围。
+    - 结果: 已继续沿用 `components/admin/mavon-editor-client.client.vue` 异步包装，并补齐未保存保护快照、媒体插入链路回归、翻译回填 / 新稿语言切换保护，以及移动端编辑器 smoke。
+    - 验证: `pnpm exec vitest run components/admin/posts/post-editor-media-settings.test.ts composables/use-post-editor-translation.test.ts components/article-content.test.ts components/table-of-contents.test.ts utils/shared/markdown.test.ts composables/use-post-editor-page.helpers.test.ts composables/use-unsaved-changes-guard.test.ts`、`pnpm exec playwright test tests/e2e/mobile-critical.e2e.test.ts tests/e2e/auth-session-governance.e2e.test.ts --project=chromium --grep "editor interaction|blank new draft|protect entered new draft"`、`pnpm typecheck` 与定向 `eslint` 通过。
+- [x] **预览 / 渲染一致性与多语言编辑体验收敛**
+    - 验收: 收敛 Markdown 预览、正文最终渲染、翻译编辑回填与多语言版本切换之间的一致性，减少“编辑时正常、展示时错位”的体验偏差。
+    - 验收: 至少覆盖代码块、公式、图片、提示容器、长文本翻译回填与目标语言预览 6 类高风险内容。
+    - 验收: 补齐最小定向测试或浏览器验证，记录仍未覆盖的边界与后续观察项。
+    - 结果: 已在 `utils/shared/markdown.ts` 收敛正文最终渲染清洗策略，并抽离 `utils/shared/markdown-heading.ts` 作为标题 slug 单一事实源。
+    - 验证: `components/article-content.vue`、`components/table-of-contents.vue`、`utils/shared/markdown.test.ts`、`components/article-content.test.ts` 与 `components/table-of-contents.test.ts` 已补齐关键场景验证；专项证据见 [2026-04-10-editor-rendering-round2.md](./../../artifacts/review-gate/2026-04-10-editor-rendering-round2.md)。
+
+### 3. 构建速度与包体性能深化 (P1)
+
+- [x] **高收益热点构建性能收敛**
+    - 验收: 基于现有 bundle budget 与性能预算结果，锁定 1 - 2 组高收益热点继续优化构建耗时、首屏依赖与大块 vendor 负担。
+    - 验收: 热点范围需显式限定，例如编辑器 / Markdown 渲染链、后台高频页面或文档站构建链路，不扩写为全仓性能重构。
+    - 验收: 至少输出优化前后对比结果、预算变化与未继续处理的剩余热点。
+    - 结果: 已完成首轮热点收敛，聚焦 `sentry.client.config.ts` 启动重块与 reader / onboarding 低频样式入口污染。
+    - 验证: `pnpm build`、`pnpm test:perf:budget`、`pnpm test:perf:budget:strict`、`pnpm typecheck`、`pnpm lint:css`、`pnpm lint:md`、`pnpm exec eslint sentry.client.config.ts components/reader-controls.vue composables/use-onboarding.ts`、`pnpm exec vitest run composables/use-onboarding.test.ts composables/use-reader-mode.test.ts` 通过；`keyCss` 由 `61.04KB` 降至 `59.98KB`，Sentry 配置壳从约 `53.65KB gzip` 拆到约 `0.35KB gzip`。
+- [x] **性能守线与验证入口复用**
+    - 验收: 继续复用 `test:perf:budget`、strict 预算与现有性能报告链路，不另起第二套性能验证体系。
+    - 验收: 若本轮涉及包体切分、依赖替换或构建流程调整，必须补齐对应验证与风险说明，避免“体感优化”缺少证据链。
+    - 验收: 保留本轮优化收益、未覆盖边界与下轮可继续切片的方向。
+    - 结果: 已继续复用 `.lighthouseci/bundle-budget-report.json` 与现有构建产物进行预算复核，并通过临时 Nitro 验证实例补齐运行期证据。
+    - 验证: 当前 `maxAsyncChunkJs` 为 `53.09KB / 120KB`、`keyCss` 为 `59.98KB / 70KB`；剩余热点优先关注运行时壳 `DYc0WSYY.js` 与最大业务 chunk `B653ImUS.js`。
+
+### 4. Cloudflare 运行时兼容研究与止损结论 (P1)
+
+- [x] **Cloudflare 运行时阻塞清单与最小样机研究**
+    - 验收: 面向 Cloudflare Pages / Workers / D1 路线输出可追溯的阻塞清单，至少覆盖 TypeORM、Node 运行时依赖、数据库契约、文件存储与定时任务差异。
+    - 验收: 若存在最小样机路径，需明确它只代表技术可行性研究，不代表当前项目已支持整站 Cloudflare 部署。
+    - 验收: 研究产物至少能够支撑“继续推进 / 暂停投入 / 仅保留外围能力接入”三选一的方向结论。
+    - 结果: 已新增 [docs/design/modules/cloudflare-runtime-study.md](../design/modules/cloudflare-runtime-study.md)，并把唯一推荐的最小样机路径收敛为“Cloudflare 仅做外围能力与任务触发，应用主体继续运行在 Vercel / Docker / 自托管 Node”。
+- [x] **Cloudflare 平台边界说明与止损结论收口**
+    - 验收: 若研究结论仍为短期不适合推进，需进一步收敛对外说明、内部设计约束与后续触发条件，避免未来重复投入同类预研却缺少止损结论。
+    - 验收: 若研究结论允许继续推进，也必须先定义下一阶段的技术闸门与替代成本，不得在本阶段直接扩写为整站适配开发。
+    - 验收: 补齐对应文档或研究说明入口，确保后续规划可直接复用本轮结论。
+    - 结果: 已同步更新部署指南、快速开始、设计入口与文档站导航，将当前对外说明统一收敛为“短期暂停整站 Cloudflare 运行时适配，仅保留外围能力接入”。
+    - 验证: `pnpm lint:md` 与 `pnpm docs:check:i18n` 已通过；专项证据见 [2026-04-09-cloudflare-runtime-study.md](./../../artifacts/review-gate/2026-04-09-cloudflare-runtime-study.md)。
+
+### 5. AI 初始化 / 配置问答助手评估 (P1)
+
+- [x] **启用式问答助手范围冻结与事实源复用评估**
+    - 验收: 评估是否提供面向新部署者的 AI 初始化 / 配置问答助手，并先冻结可回答范围、可写配置范围、权限边界与失败回退策略。
+    - 验收: 明确复用现有安装向导、设置元信息、`qa-assistant` 与文档知识源的可行路径，不额外维护第二套知识或配置事实源。
+    - 验收: 若评估结论为不立项，也需保留清晰的拒绝理由与后续触发条件，而不是停留在模糊候选状态。
+    - 结果: 已基于现有安装向导字段模型、`ENV -> DB -> Default` 设置解释层、`qa-assistant` 只读边界与部署文档知识源，冻结“只读解释型助手”的可回答范围、禁止写入面与事实源复用路径。
+    - 验证: `pnpm lint:md` 与 `pnpm docs:check:i18n` 已通过；专项证据见 [2026-04-09-ai-setup-assistant-evaluation.md](./../../artifacts/review-gate/2026-04-09-ai-setup-assistant-evaluation.md)。
+- [x] **安全边界与交互原型评估**
+    - 验收: 至少澄清 ENV 锁定字段、敏感配置写入保护、越权问题、错误回答回退与用户确认链路等关键安全边界。
+    - 验收: 若进入原型阶段，只允许做启用前引导或配置解释类最小交互，不直接承诺全功能站内 AI 助手体验。
+    - 验收: 补齐评估结论、风险分级与是否建议进入下一轮正式实现的产品判断。
+    - 结果: 评估结论已明确当前阶段只建议推进安装页 / 设置页双入口的最小交互原型，默认不开放 AI 侧写配置；高风险项收敛为“敏感配置泄露”“只读解释误扩为可写代理”“平台边界误判”三类。
