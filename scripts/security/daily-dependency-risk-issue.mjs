@@ -98,6 +98,10 @@ export function pickDailyDependencyRiskIssueForTitle(issues, title) {
     return matchingIssues[0] || null
 }
 
+/**
+ * @param {Array<{ title?: string, body?: string, state?: string, number?: number | string }>} issues
+ * @param {number | string | null | undefined} [activeIssueNumber=null]
+ */
 export function collectStaleDailyDependencyRiskIssueNumbers(issues, activeIssueNumber = null) {
     return issues
         .filter((issue) => isDailyDependencyRiskIssue(issue))

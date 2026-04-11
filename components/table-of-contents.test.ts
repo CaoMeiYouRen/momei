@@ -38,4 +38,21 @@ describe('TableOfContents', () => {
         expect(links[0]?.attributes('href')).toBe('#hello-world')
         expect(links[1]?.attributes('href')).toBe('#hello-world-1')
     })
+
+    it('sanitizes heading html through the shared text utility', async () => {
+        const wrapper = await mountSuspended(TableOfContents, {
+            props: {
+                content: '## Safe &amp; Sound &amp;quot; <script>alert(1)</script> <em>Heading</em>',
+            },
+            global: {
+                mocks: {
+                    $t: (key: string) => key,
+                },
+            },
+        })
+
+        const links = wrapper.findAll('.toc__link')
+        expect(links).toHaveLength(1)
+        expect(links[0]?.text()).toBe('Safe & Sound &quot; <script>alert(1)</script> <em>Heading</em>')
+    })
 })

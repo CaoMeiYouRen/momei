@@ -23,6 +23,7 @@
 </template>
 
 <script setup lang="ts">
+import { sanitizeHtmlToText } from '@/utils/shared/html'
 import { createMarkdownRenderer } from '@/utils/shared/markdown'
 
 const props = defineProps<{
@@ -40,14 +41,7 @@ const headingRenderer = createMarkdownRenderer({
 })
 
 function stripHeadingHtml(value: string) {
-    return value
-        .replace(/<[^>]+>/g, '')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, '\'')
-        .trim()
+    return sanitizeHtmlToText(value)
 }
 
 const headings = computed(() => {
