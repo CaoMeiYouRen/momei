@@ -34,6 +34,33 @@
 
 ## PostgreSQL 查询与数据库出网流量治理补充回归（2026-04-12）
 
+### 系统性优化方案（2026-04-12）
+
+- 背景判断:
+    - 本轮用户补充的历史运行期样本表明，当前 PostgreSQL 成本不只来自公开列表查询本身，还叠加了数据库过早初始化、匿名公开请求触发鉴权 / 安装态检查、以及少数详情链路仍偏宽的查询模型。
+    - 当前阶段主目标仍然是“降低数据库出网流量与查询压力”；CPU 使用时机、数据库 start / suspend 频率与活跃时长，只作为辅助判断哪些链路在不必要地拉长数据库工作窗口。
+- 方案总述:
+    - 后续治理拆成两条线并行推进，但优先级不对等：先处理“哪些请求根本不该碰数据库”，再处理“已经必须查库的请求如何进一步缩小返回体量”。
+    - 因此，第二十六阶段 PostgreSQL 主线的下一轮实现不再优先扩写 `posts / archive / categories / tags / search / external posts` 的 list payload 微调，而是优先收紧数据库初始化边界、补公开低频配置链路的短 TTL 缓存，并再评估详情页读模型的字段范围。
+- 轨道 A / 查询与返回体量优化:
+    - 候选 A1: 文章详情链路继续瘦身。[server/utils/post-detail-read.ts](../../server/utils/post-detail-read.ts) 当前公开详情查询仍联带 author 邮箱、社交链接、赞赏链接与完整 category / tags 关系；下一步应区分“公开详情读模型”和“管理 / 编辑读模型”，避免匿名详情页沿用偏宽的后台视角字段集。
+    - 候选 A2: 公开低频配置读接口缓存化。[server/api/settings/public.get.ts](../../server/api/settings/public.get.ts) 与 [server/api/friend-links/index.get.ts](../../server/api/friend-links/index.get.ts) 都属于低频变更、高频读取链路；与其继续逐次直连数据库，更适合上短 TTL 缓存或基于配置变更的失效策略。
+    - 候选 A3: 复用既有快照缓存模式。[server/services/external-feed/aggregator.ts](../../server/services/external-feed/aggregator.ts) 已证明“缓存快照 + stale 回退”在聚合型公开数据上可行；后续公共设置、友链元信息与首页公共装配块优先复用这一模式，而不是再各自造一套缓存协议。
+- 轨道 B / 降低数据库活跃时长与唤醒概率:
+    - 候选 B1: 去掉数据库模块级主动初始化。[server/database/index.ts](../../server/database/index.ts) 当前在模块求值阶段执行 `void initializeDB()`，会放大冷启动后的 metadata / information_schema / pg_catalog 探测成本；后续应改为按需初始化，让真正需要数据库的链路显式承担连接时机。
+    - 候选 B2: 收紧安装状态检查边界。[server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 当前对大多数非静态请求都会检查安装状态，而 [server/services/installation.ts](../../server/services/installation.ts) 内还会顺带探测数据库版本；这类逻辑应尽量限制在安装态页面、安装 API 与真正依赖数据库的请求入口，避免匿名公开流量因为“先判断一次状态”就唤醒数据库。
+    - 候选 B3: 收紧匿名公开请求的鉴权链路。[server/middleware/1-auth.ts](../../server/middleware/1-auth.ts) 当前会在解析 session 前先确保数据库已初始化；后续应优先判断请求是否携带会话上下文、是否属于受保护接口，再决定是否进入需要数据库参与的鉴权流程。
+    - 候选 B4: 保持自部署定时任务为次级观察项。[server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts) 在非 serverless 环境会启动后立刻跑一次友链巡检；这会拉长数据库活跃窗口，但相较匿名公开请求的中间件入口，它仍属于次一级优化项，暂不优先扩写为当前 blocker。
+- 推荐实施顺序:
+    - 第一步: 收紧 [server/database/index.ts](../../server/database/index.ts)、[server/middleware/0-installation.ts](../../server/middleware/0-installation.ts)、[server/middleware/1-auth.ts](../../server/middleware/1-auth.ts) 的数据库初始化边界。
+    - 第二步: 为 [server/api/settings/public.get.ts](../../server/api/settings/public.get.ts) 与 [server/api/friend-links/index.get.ts](../../server/api/friend-links/index.get.ts) 增加短 TTL 或快照式缓存，并明确后台变更后的失效策略。
+    - 第三步: 复查 [server/utils/post-detail-read.ts](../../server/utils/post-detail-read.ts) 的公开详情字段集，只保留前台真正需要的 author / taxonomy 信息。
+    - 第四步: 在上述改动完成后，再回到预发或生产 PostgreSQL 环境补同范围 live sample，确认新增收敛点确实减少了数据库初始化探测、连接波峰与重复读取。
+- 后续验收口径:
+    - 新样本中 `information_schema`、`pg_catalog` 与 TypeORM metadata 探测查询占比应下降，否则说明数据库初始化边界仍偏宽。
+    - 公开设置、友链与首页公共装配请求在命中缓存后，应能证明“不再触发数据库查询”或“显著降低重复读取次数”。
+    - PostgreSQL 主线是否关闭，仍以同范围运行期 `pg_stat_statements` 或等价 live sample 为准；本方案文档只提供下一轮实现顺序与证据判断框架，不替代运行期样本。
+
 ### 回归任务记录
 
 - 回归范围: 第二十六阶段 P0“PostgreSQL 查询与数据库出网流量治理”补充回归；覆盖 [server/api/search/index.get.ts](../../server/api/search/index.get.ts)、[server/api/external/posts.get.ts](../../server/api/external/posts.get.ts)、[server/utils/post-list-query.ts](../../server/utils/post-list-query.ts)、既有 `posts / archive / categories / tags` 收敛 helper，以及新增 artifact [artifacts/postgres-hot-read-governance-2026-04-12.md](../../artifacts/postgres-hot-read-governance-2026-04-12.md) / [artifacts/postgres-hot-read-governance-2026-04-12.json](../../artifacts/postgres-hot-read-governance-2026-04-12.json)。

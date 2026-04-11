@@ -19,7 +19,7 @@
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
 当前进行中事项
- - PostgreSQL 查询与数据库出网流量治理：`search / external posts` 已完成 payload 收敛与热点指纹基线，但仍待补同范围运行期 PostgreSQL 样本后才能关闭主线。
+ - PostgreSQL 查询与数据库出网流量治理：`search / external posts` 已完成 payload 收敛与热点指纹基线，系统性优化方案已写入 [regression-log.md](./regression-log.md)，但仍待补同范围运行期 PostgreSQL 样本后才能关闭主线。
 
 > 阶段状态: 第二十六阶段已于 2026-04-11 正式开启，详见 [roadmap.md](./roadmap.md)。当前执行面围绕测试覆盖率、ESLint 规则收紧、注释治理、重复代码 / 纯函数复用收敛，以及 PostgreSQL 数据库出网流量治理五条主线展开。
 
@@ -57,7 +57,7 @@
 	- 验收: 至少形成一份 `posts / archive / categories / tags` 等公开高频读接口的热点清单，并补齐 `pg_stat_statements` 或等价长窗口样本。
 	- 验收: 至少完成 `1 - 2` 组针对宽查询 / 重复查库 / 短 TTL 缓存 / 最小字段集的收敛证据，明确数据库返回体量或重复读取次数已下降。
 	- 验收: CPU 使用时机仅作为次级观测指标；阶段结论需明确说明哪些优化直接服务于数据库出网流量下降，哪些仍属于后续观察项。
-	- 进展: `posts / archive / categories / tags` 最小字段集与 taxonomy 聚合 helper 已落地，`search / external posts` 的 payload 也已收敛并补齐热点指纹候选基线；下一步只剩补同范围运行期 PostgreSQL 样本，再决定是否关闭主线。详见 [regression-log.md](./regression-log.md) 与 `artifacts/postgres-hot-read-governance-2026-04-12.*`。
+	- 进展: `posts / archive / categories / tags` 最小字段集与 taxonomy 聚合 helper 已落地，`search / external posts` 的 payload 也已收敛并补齐热点指纹候选基线；新增的“系统性优化方案”已写入 [regression-log.md](./regression-log.md)，明确下一轮优先收紧数据库初始化边界、公开低频配置短 TTL 缓存与详情页读模型字段范围。当前仍需补同范围运行期 PostgreSQL 样本，再决定是否关闭主线。详见 [regression-log.md](./regression-log.md) 与 `artifacts/postgres-hot-read-governance-2026-04-12.*`。
 
 
 ## 相关文档
