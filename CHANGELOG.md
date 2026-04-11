@@ -1,5 +1,44 @@
 # momei
 
+# [1.13.0](https://github.com/CaoMeiYouRen/momei/compare/v1.12.0...v1.13.0) (2026-04-11)
+
+
+### ✨ 新功能
+
+* **ai:** 添加媒体任务监控与补偿机制 ([f5c13d7](https://github.com/CaoMeiYouRen/momei/commit/f5c13d7))
+* **article-sponsor:** 扩展社交与赞助平台支持 ([5d7d1c8](https://github.com/CaoMeiYouRen/momei/commit/5d7d1c8))
+* **article:** 增加文章内容安全处理功能 ([c12335e](https://github.com/CaoMeiYouRen/momei/commit/c12335e))
+* **asr:** 优化实时语音识别鉴权有效期管理 ([fec8fef](https://github.com/CaoMeiYouRen/momei/commit/fec8fef))
+* **eslint:** 收紧生产环境 TS 代码的 ESLint 规则 ([4035905](https://github.com/CaoMeiYouRen/momei/commit/4035905))
+* **installation:** 增加安装环境诊断功能 ([e5809f6](https://github.com/CaoMeiYouRen/momei/commit/e5809f6))
+* **post:** 添加相关文章推荐功能 ([4d1f415](https://github.com/CaoMeiYouRen/momei/commit/4d1f415))
+* **routes:** 重构分类与标签路由处理逻辑 ([f899f58](https://github.com/CaoMeiYouRen/momei/commit/f899f58))
+* **tags:** 重构标签管理页面 ([39dc7e4](https://github.com/CaoMeiYouRen/momei/commit/39dc7e4))
+
+
+### 🐛 Bug 修复
+
+* **app-header:** 更新管理员链接显示逻辑 ([c389c55](https://github.com/CaoMeiYouRen/momei/commit/c389c55))
+* **cli:** 忽略 pnpm 参数分隔符并继续解析转发选项 ([ea8f5aa](https://github.com/CaoMeiYouRen/momei/commit/ea8f5aa))
+* **dependency-risk:** 增强依赖风险告警同步功能 ([220d343](https://github.com/CaoMeiYouRen/momei/commit/220d343))
+* **nuxt.config:** 优化客户端手动分块配置 ([528c269](https://github.com/CaoMeiYouRen/momei/commit/528c269))
+* **package:** 更新 unhead 依赖版本至 2.1.13 ([38d13cb](https://github.com/CaoMeiYouRen/momei/commit/38d13cb))
+* **table-of-contents:** 增强目录组件的标题锚点处理 ([f69360e](https://github.com/CaoMeiYouRen/momei/commit/f69360e))
+* **task-scheduler:** 添加媒体任务补偿到定时任务扫描中 ([a0628af](https://github.com/CaoMeiYouRen/momei/commit/a0628af))
+* 添加 onboarding 样式并移除冗余引用 ([23d4c03](https://github.com/CaoMeiYouRen/momei/commit/23d4c03))
+
+
+### 📦 代码重构
+
+* **api:** 优化内容访问异常映射与解锁凭据管理 ([af1fee3](https://github.com/CaoMeiYouRen/momei/commit/af1fee3))
+* **api:** 增强内容访问控制与密码解锁逻辑 ([1772a50](https://github.com/CaoMeiYouRen/momei/commit/1772a50))
+* **api:** 实施 ESLint 规则收紧治理首批实装 ([08322aa](https://github.com/CaoMeiYouRen/momei/commit/08322aa))
+* **api:** 统一返回对象格式为 plain object ([0467486](https://github.com/CaoMeiYouRen/momei/commit/0467486))
+* **eslint:** 扩展规则收紧范围至全量生产 TS ([9a8d528](https://github.com/CaoMeiYouRen/momei/commit/9a8d528))
+* **installation-doc-links:** 重构文档链接构建逻辑 ([c52e8ca](https://github.com/CaoMeiYouRen/momei/commit/c52e8ca))
+* **tests:** 优化测试用例中的 mock 数据构造 ([fb42017](https://github.com/CaoMeiYouRen/momei/commit/fb42017))
+* **utils:** 重构 HTML 处理工具函数 ([c7a406a](https://github.com/CaoMeiYouRen/momei/commit/c7a406a))
+
 # [1.12.0](https://github.com/CaoMeiYouRen/momei/compare/v1.11.0...v1.12.0) (2026-04-05)
 
 
