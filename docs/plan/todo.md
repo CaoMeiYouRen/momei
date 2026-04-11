@@ -19,20 +19,22 @@
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
 当前进行中事项
- - 第二十五阶段 / 部署体验与初始化收敛：正在补齐安装向导部署体检摘要、最小可运行路径与统一排障入口。
+ - 无。
 
 ## 第二十五阶段：部署体验与可持续演进收敛
 
 ### 1. 部署体验与初始化收敛 (P0)
 
-- [ ] **最小可运行路径与部署前体检收敛**
+- [x] **最小可运行路径与部署前体检收敛**
 	- 验收: 梳理并收敛“首次部署成功启动”的最小路径，明确核心必填项、可延后增强项与常见错误分层，不再让新部署者主要依赖散落文档自行拼接。
 	- 验收: 为部署前体检、启动期配置缺失提示或等价机制补齐最小可用能力，至少能显式识别关键环境变量缺失、配置组合冲突或当前平台不支持的运行方式。
 	- 验收: 相关实现必须复用现有 README、部署指南、变量映射、安装向导与设置元信息，不新增第二套配置事实源。
-- [ ] **初始化反馈与排障入口统一**
+	- 验证: 2026-04-11 已在 `server/services/installation.ts`、`utils/shared/installation-diagnostics.ts` 与 `components/installation/step-health-check.vue` 收敛部署运行时识别、阻塞项摘要与安装向导首步体检展示；`utils/shared/installation-doc-links.ts` 继续复用 `i18n/config/locale-registry.ts` 的统一 locale 入口生成文档路由，不新增第二套语言路径常量；`docs/guide/quick-start.md`、`docs/guide/deploy.md` 及 `docs/i18n/en-US|zh-TW|ja-JP|ko-KR/guide/{quick-start,deploy}.md` 已同步最小可运行路径、部署前体检与常见阻塞项说明。`pnpm exec vitest run utils/shared/installation-diagnostics.test.ts utils/shared/installation-doc-links.test.ts components/installation/step-health-check.test.ts server/services/installation.test.ts`、`pnpm exec eslint server/services/installation.ts components/installation/step-health-check.vue components/installation/step-health-check.test.ts utils/shared/installation-diagnostics.ts utils/shared/installation-diagnostics.test.ts utils/shared/installation-doc-links.ts utils/shared/installation-doc-links.test.ts`、`pnpm exec nuxt typecheck`、`pnpm lint:md` 与 `pnpm docs:check:i18n` 通过。
+- [x] **初始化反馈与排障入口统一**
 	- 验收: 收敛初始化阶段的提示、失败反馈与排障入口，降低“能看到错误但不知道下一步该做什么”的心智负担。
 	- 验收: 至少覆盖本地开发、Vercel / Docker、自托管 Node 三类高频部署路径；Cloudflare 运行时仍按平台边界单独提示，不混淆为已支持路径。
 	- 验收: 补齐最小验证，至少确认新部署者可根据提示完成核心变量配置、识别不支持的平台路径，并定位初始化失败原因。
+	- 验证: 2026-04-11 已在安装向导首步输出运行时标签、阻塞 / 警告计数、环境变量提示与统一排障入口；Cloudflare 路径继续按不支持的整站运行时单独提示，Vercel / Docker / 自托管 Node 的关键风险点已在 UI 与文档入口中统一指向对应排障页面。定向测试覆盖 `utils/shared/installation-diagnostics.test.ts`、`utils/shared/installation-doc-links.test.ts`、`components/installation/step-health-check.test.ts` 与 `server/services/installation.test.ts`，共 24 项通过；`pnpm exec nuxt typecheck`、定向 `eslint`、`pnpm lint:md` 与 `pnpm docs:check:i18n` 通过。
 
 ### 2. 编辑器与正文渲染体验第二轮收口 (P0)
 
