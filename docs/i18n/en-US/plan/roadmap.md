@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-04-11
+last_sync: 2026-04-12
 ---
 
 # Momei - Project Roadmap
@@ -18,6 +18,7 @@ This document outlines the development blueprint for the project. For specific t
 - **Stage 23 has now been audited and archived**: Multilingual social and sponsorship platform expansion, Vercel-side AI media timeout compensation, daily dependency-risk automation, longer-lived realtime ASR credentials, and related-post discovery on article detail pages have all been closed in the Chinese source of truth.
 - **Stage 24 has now been audited and archived**: The four governance tracks promoted in the Chinese source of truth have completed their first execution slice and phase-close evidence capture, and the official closure is now recorded in the canonical roadmap and archive docs.
 - **Stage 25 has now been audited and archived**: Deployment and initialization experience consolidation, the second closure pass for the editor and article rendering chain, deeper build and bundle performance work, Cloudflare runtime boundary research, and the AI-assisted initialization / configuration helper evaluation have all been closed in the Chinese source of truth and archive docs.
+- **Stage 26 is now in progress**: The current governance slice has already closed the code and regression updates for ESLint tightening, comment governance, and duplicate-code / pure-function consolidation. The test-coverage track remains open because the latest workspace-wide coverage summary is still about `70.45%`, below the stage target of roughly `72%`. The PostgreSQL traffic track also remains open because a same-scope runtime `pg_stat_statements` or equivalent live sample is still required before the stage can be archived.
 - **Scope note**: Full acceptance criteria and task decomposition remain Chinese-only in the canonical [roadmap](../../../plan/roadmap.md) and [todo](../../../plan/todo.md).
 
 ## 1. Project Overview
