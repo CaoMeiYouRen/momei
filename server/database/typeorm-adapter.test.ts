@@ -544,14 +544,12 @@ describe('typeormAdapter', () => {
         })
 
         const adapter = typeormAdapter(dataSource as never)({})
-        const result = await adapter.transaction(async (trx) => {
-            return trx.create({
-                model: 'user',
-                data: {
-                    email: 'tx@example.com',
-                },
-            })
-        })
+        const result = await adapter.transaction(async (trx) => trx.create({
+            model: 'user',
+            data: {
+                email: 'tx@example.com',
+            },
+        }))
 
         expect(dataSource.transaction).toHaveBeenCalledTimes(1)
         expect(txManager.getRepository).toHaveBeenCalledWith('User')
