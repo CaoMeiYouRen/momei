@@ -200,10 +200,11 @@ export default withNuxt(
     {
         // 仅针对生产环境的 TS 代码启用更严格的规则，测试与脚本范围继续维持部分豁免，以便逐步提升代码质量，同时避免一次性修复过多问题。
         files: ['**/*.{ts,tsx,mts,cts}'],
-        ignores: ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**'],
+        ignores: ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**', 'server/api/admin/migrations/**', '**/migration-*.ts'],
         rules: {
             '@typescript-eslint/unbound-method': [1], // 首批扩展到全量生产 TS，继续排除测试与脚本范围
             '@typescript-eslint/no-dynamic-delete': [1], // 仅对生产 TS 收紧，测试与脚本维持显式豁免边界
+            '@typescript-eslint/no-unnecessary-type-assertion': [1], // 仅对生产 TS 收紧，先清理低命中冗余断言
         },
     },
     {

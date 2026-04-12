@@ -67,8 +67,8 @@ function resolveFeedLink(rawLink: unknown, baseUrl: string) {
 }
 
 function resolveCoverImage(entry: Record<string, unknown>) {
-    const mediaContent = ensureArray(entry['media:content'] as unknown)
-    const mediaThumbnail = ensureArray(entry['media:thumbnail'] as unknown)
+    const mediaContent = ensureArray(entry['media:content'])
+    const mediaThumbnail = ensureArray(entry['media:thumbnail'])
 
     for (const candidate of [...mediaContent, ...mediaThumbnail]) {
         if (candidate && typeof candidate === 'object' && '@_url' in candidate && typeof candidate['@_url'] === 'string') {
@@ -109,7 +109,7 @@ function extractSummary(...candidates: unknown[]) {
 }
 
 function normalizeRssItems(channel: Record<string, unknown>, source: ExternalFeedSourceConfig): ExternalFeedItem[] {
-    const items = ensureArray(channel.item as unknown)
+    const items = ensureArray(channel.item)
     const channelLanguage = resolveTextValue(channel.language)
     const baseUrl = source.siteUrl ?? source.sourceUrl
 
@@ -145,7 +145,7 @@ function normalizeRssItems(channel: Record<string, unknown>, source: ExternalFee
 }
 
 function normalizeAtomItems(feed: Record<string, unknown>, source: ExternalFeedSourceConfig): ExternalFeedItem[] {
-    const entries = ensureArray(feed.entry as unknown)
+    const entries = ensureArray(feed.entry)
     const feedLanguage = resolveTextValue(feed['@_xml:lang'])
     const baseUrl = source.siteUrl ?? source.sourceUrl
 

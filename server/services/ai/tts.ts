@@ -669,7 +669,7 @@ export class TTSService extends AIBaseService {
             return 'skipped' as const
         }
 
-        const finalStatus = task.status as AITask['status']
+        const finalStatus = task.status
 
         if (finalStatus === 'completed') {
             return 'completed' as const

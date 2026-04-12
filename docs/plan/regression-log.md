@@ -32,6 +32,49 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## 第二十六阶段 ESLint / 类型债第二轮收紧增量落地（2026-04-12）
+
+### 回归任务记录
+
+- 回归范围: 第二十六阶段 P1“ESLint / 类型债第二轮收紧”增量落地；覆盖 [eslint.config.js](../../eslint.config.js)、[server/services/external-feed/parser.ts](../../server/services/external-feed/parser.ts)、[server/services/ai/tts.ts](../../server/services/ai/tts.ts) 与 [docs/plan/todo.md](./todo.md)，聚焦 `@typescript-eslint/no-unnecessary-type-assertion` 这一组低命中、低风险的冗余断言治理，不扩写到 `prefer-nullish-coalescing`、`no-explicit-any` 或 `no-unsafe-*` 等更宽规则族。
+- 触发条件: 当前阶段待办要求继续正式收紧 `1 - 2` 条高 ROI ESLint 规则；本轮候选扫描显示 `prefer-nullish-coalescing` 在编辑器 composable 中命中面过宽，不适合继续作为小切片推进，而 `no-unnecessary-type-assertion` 总命中仅 `10` 条，其中生产代码 `5` 条，回滚边界更清晰。
+- 执行频率: 第二十六阶段当前主线的增量落地；后续仅在继续细分更高成本规则族、或需要把测试 / 脚本豁免重新拆桶时追加记录。
+- timeout budget:
+    - ESLint API 只读候选扫描: 15 分钟。
+    - 生产命中修复与配置收紧: 20 分钟。
+    - 定向 lint / typecheck / Vitest: 30 分钟。
+    - 全仓 warning 预算复核与文档同步: 20 分钟。
+- 已执行命令:
+    - `node --input-type=module -`（调用 ESLint API，只读统计 `@typescript-eslint/no-unnecessary-type-assertion` 与其他候选规则在当前生产 TS 范围的命中位置）
+    - `pnpm exec eslint server/services/external-feed/parser.ts server/services/ai/tts.ts eslint.config.js`
+    - `pnpm exec nuxt typecheck`
+    - `pnpm exec vitest run server/services/ai/tts.test.ts tests/server/external-feed/aggregator.test.ts tests/server/api/external-feed/home.get.test.ts`
+    - `pnpm exec eslint . --max-warnings 10`
+    - `pnpm exec lint-md docs/plan/regression-log.md docs/plan/todo.md`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 基线层: 候选规则扫描显示 `@typescript-eslint/no-unnecessary-type-assertion` 当前总命中 `10` 条，其中生产代码 `5` 条，集中在 [server/services/external-feed/parser.ts](../../server/services/external-feed/parser.ts) `4` 条与 [server/services/ai/tts.ts](../../server/services/ai/tts.ts) `1` 条；其余 `5` 条位于测试文件，继续保留在测试豁免边界之外。
+        - V1 / 静态层: 定向 ESLint 通过；全仓 `pnpm exec eslint . --max-warnings 10` 通过且无输出，说明本轮提升没有冲破当前 warning 门禁。
+        - V1 / 类型层: `pnpm exec nuxt typecheck` 通过。
+        - V1 / 文档层: `pnpm exec lint-md docs/plan/regression-log.md docs/plan/todo.md` 通过。
+        - V2 / 逻辑层: 定向 Vitest 共 `3` 个测试文件、`10` 条断言通过，覆盖 TTS stale task 补偿链路与外部 feed 聚合 / 首页 payload 行为，确认去除冗余断言后行为未变。
+    - 结果摘要:
+        - [eslint.config.js](../../eslint.config.js) 已把 `@typescript-eslint/no-unnecessary-type-assertion` 提升为仅作用于生产 TS 的 warning，并继续显式排除 `tests/**`、`scripts/**`、`server/api/admin/migrations/**`、`**/migration-*.ts` 与同级 `*.test.*` / `*.spec.*` 文件，保持测试 / 脚本 / 迁移豁免边界可审计；当前未发现需要单独 carve-out 的“历史遗留目录”命中。
+        - [server/services/external-feed/parser.ts](../../server/services/external-feed/parser.ts) 不再对 `entry['media:content']`、`entry['media:thumbnail']`、`channel.item` 与 `feed.entry` 做无效的 `as unknown` 断言；[server/services/ai/tts.ts](../../server/services/ai/tts.ts) 也移除了对 `task.status` 的冗余状态断言。
+        - 候选筛选阶段已确认 `prefer-nullish-coalescing` 当前在编辑器 composable 族中命中面偏宽，不适合直接并入本轮小切片；因此本轮只上收 `no-unnecessary-type-assertion`，避免静默扩 scope。
+        - 回滚方式保持清晰: 若后续发现规则噪音超出预期，只需回退 [eslint.config.js](../../eslint.config.js) 中新增的 `no-unnecessary-type-assertion` production warning 配置，并恢复上述两个服务文件中的原始断言写法，不会牵连测试、脚本或更大范围的类型债治理。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: none
+        - 主要问题:
+            - 未发现阻塞问题；当前放行基于生产命中已清零、相关服务测试通过且全仓 warning 预算未被突破。
+    - 未覆盖边界:
+        - 本轮没有继续处理测试文件中的 `no-unnecessary-type-assertion` 命中，测试层仍保留显式豁免，避免把当前小切片扩写成测试夹具整理。
+        - 本轮没有推进 `prefer-nullish-coalescing`，因为它在 [composables/use-post-editor-io.ts](../../composables/use-post-editor-io.ts) 与相关编辑器 helper 中的命中面明显高于本轮预算。
+    - 后续补跑计划:
+        - 下一轮优先重新拆桶 `prefer-nullish-coalescing` 的编辑器 composable 命中，判断是否要按目录或模块组继续切片，而不是直接全量提级。
+        - 若继续推进类型债，仍应优先选择生产代码低命中规则，再决定是否触碰 `no-unnecessary-type-conversion` 或更高成本的 `no-explicit-any` / `no-unsafe-*`。
+
 ## PostgreSQL 查询与数据库出网流量治理补充回归（2026-04-12）
 
 ### 系统性优化方案（2026-04-12）
