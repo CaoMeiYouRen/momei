@@ -578,12 +578,18 @@ describe('friendLinkService.createApplication', () => {
         vi.clearAllMocks()
         vi.mocked(getSetting).mockImplementation((key: string, defaultValue?: unknown) => {
             const k = String(key)
-            if (k === String(SettingKey.FRIEND_LINKS_APPLICATION_ENABLED)) { return Promise.resolve('true') }
+            if (k === String(SettingKey.FRIEND_LINKS_APPLICATION_ENABLED)) {
+                return Promise.resolve('true')
+            }
             return Promise.resolve(typeof defaultValue === 'string' ? defaultValue : '')
         })
         vi.mocked(dataSource.getRepository).mockImplementation((entity: unknown) => {
-            if (entity === FriendLinkApplication) { return applicationRepo as never }
-            if (entity === FriendLinkCategory) { return categoryRepo as never }
+            if (entity === FriendLinkApplication) {
+                return applicationRepo as never
+            }
+            if (entity === FriendLinkCategory) {
+                return categoryRepo as never
+            }
             throw new Error('Unexpected entity')
         })
     })
