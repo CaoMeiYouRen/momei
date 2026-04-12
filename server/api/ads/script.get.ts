@@ -5,7 +5,7 @@ import { resolveAdNetworkConfigs } from '@/server/utils/ad-network-config'
 import { SettingKey } from '@/types/setting'
 
 async function resolveAdapterConfigs() {
-    const commercialRaw = await getSetting<string>(SettingKey.COMMERCIAL_SPONSORSHIP, null)
+    const commercialRaw = await getSetting(SettingKey.COMMERCIAL_SPONSORSHIP, null)
 
     return resolveAdNetworkConfigs(typeof commercialRaw === 'string' ? commercialRaw : null)
 }

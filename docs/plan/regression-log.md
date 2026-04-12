@@ -75,6 +75,49 @@
         - 下一轮优先重新拆桶 `prefer-nullish-coalescing` 的编辑器 composable 命中，判断是否要按目录或模块组继续切片，而不是直接全量提级。
         - 若继续推进类型债，仍应优先选择生产代码低命中规则，再决定是否触碰 `no-unnecessary-type-conversion` 或更高成本的 `no-explicit-any` / `no-unsafe-*`。
 
+## 第二十六阶段 ESLint / 类型债第二轮收紧第二批落地（2026-04-12）
+
+### 回归任务记录
+
+- 回归范围: 第二十六阶段 P1“ESLint / 类型债第二轮收紧”第二批落地；覆盖 [eslint.config.js](../../eslint.config.js)、[server/api/ads/script.get.ts](../../server/api/ads/script.get.ts)、[server/services/ai/quota-governance.ts](../../server/services/ai/quota-governance.ts)、[server/services/email-template.ts](../../server/services/email-template.ts)、[server/services/friend-link.ts](../../server/services/friend-link.ts)、[server/services/import-path-alias.ts](../../server/services/import-path-alias.ts)、[server/utils/ai/cost-governance.ts](../../server/utils/ai/cost-governance.ts)、[server/utils/email/templates.ts](../../server/utils/email/templates.ts) 与 [docs/plan/todo.md](./todo.md)，聚焦 `@typescript-eslint/no-unnecessary-type-arguments` 的 server 范围收敛。
+- 触发条件: 第一批已完成 `@typescript-eslint/no-unnecessary-type-assertion` 的 production 收紧，但当前阶段验收允许再正式收紧 `1 - 2` 条高 ROI 规则；候选扫描显示 `@typescript-eslint/no-unnecessary-type-arguments` 全仓总命中 `17` 条，其中 server 目录 `12` 条、测试 `1` 条、其余为 composable 命中。为保持范围可控，本轮只上收 server 目录。
+- 执行频率: 第二十六阶段当前主线的第二批增量落地；后续仅在继续处理 composable 命中、或把更高成本规则再拆桶时追加记录。
+- timeout budget:
+    - ESLint API 只读拆桶扫描: 15 分钟。
+    - server 命中修复与配置收紧: 25 分钟。
+    - 定向 lint / typecheck / Vitest: 35 分钟。
+    - 全仓 warning 预算复核与文档同步: 20 分钟。
+- 已执行命令:
+    - `node --input-type=module -`（调用 ESLint API，只读统计 `@typescript-eslint/no-unnecessary-type-arguments` 的 production / test 命中分布）
+    - `pnpm exec eslint server/api/ads/script.get.ts server/services/ai/quota-governance.ts server/services/email-template.ts server/services/friend-link.ts server/services/import-path-alias.ts server/utils/ai/cost-governance.ts server/utils/email/templates.ts eslint.config.js`
+    - `pnpm exec nuxt typecheck`
+    - `pnpm exec vitest run server/services/ai/quota-governance.test.ts server/services/email-template.test.ts server/services/friend-link.test.ts server/services/import-path-alias.test.ts server/utils/ai/cost-governance.test.ts server/utils/email/templates.test.ts`
+    - `pnpm exec eslint . --max-warnings 10`
+    - `pnpm exec lint-md docs/plan/regression-log.md docs/plan/todo.md`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 基线层: `@typescript-eslint/no-unnecessary-type-arguments` 当前全仓总命中 `17` 条，其中 server 目录 `12` 条、测试 `1` 条、剩余为 composable 命中；本轮仅上收 `server/**`，继续显式排除 tests / scripts / migrations。
+        - V1 / 静态层: 定向 ESLint 通过；全仓 `pnpm exec eslint . --max-warnings 10` 通过且无输出。
+        - V1 / 类型层: `pnpm exec nuxt typecheck` 通过。
+        - V1 / 文档层: `pnpm exec lint-md docs/plan/regression-log.md docs/plan/todo.md` 通过。
+        - V2 / 逻辑层: 定向 Vitest 共 `6` 个测试文件、`27` 条断言通过，覆盖 quota 统计、邮件模板变量解析、友链元信息、导入路径别名总结、AI 成本治理与邮件模板 shell 组装等路径，确认删除冗余类型参数后行为未变。
+    - 结果摘要:
+        - [eslint.config.js](../../eslint.config.js) 已新增一条仅作用于 `server/**/*.{ts,tsx,mts,cts}` 的 `@typescript-eslint/no-unnecessary-type-arguments` warning，并继续显式排除 tests、scripts 与 migrations，确保受影响目录范围可审计。
+        - 本轮共清零 `7` 个 server 文件中的 `12` 条 production 命中，改动仅为移除可由 TS 自动推断或已是默认值的类型参数，不涉及运行时逻辑分支调整。
+        - 经过第二批落地后，第二十六阶段“ESLint / 类型债第二轮收紧”主线已完成两条高 ROI 规则的正式收紧：`@typescript-eslint/no-unnecessary-type-assertion`（生产 TS）与 `@typescript-eslint/no-unnecessary-type-arguments`（server TS）。
+        - 回滚方式保持清晰: 若后续发现 `server/**` 范围的 `no-unnecessary-type-arguments` 噪音超出预期，只需回退 [eslint.config.js](../../eslint.config.js) 中新增的 server override，并恢复上述 7 个文件中的显式类型参数写法。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: none
+        - 主要问题:
+            - 未发现阻塞问题；当前放行基于 server 命中已清零、相关服务测试通过且全仓 warning 预算未被突破。
+    - 未覆盖边界:
+        - 本轮没有继续处理 composable 中的 `no-unnecessary-type-arguments` 命中，避免把当前 server 小切片扩写为跨层返工。
+        - 本轮没有触碰 `no-unnecessary-type-conversion` 与 `prefer-nullish-coalescing`，因为这两组规则当前命中面仍明显高于本轮预算。
+    - 后续补跑计划:
+        - 若下一轮继续推进类型债，优先重新评估 composable 目录的 `no-unnecessary-type-arguments` 与 `prefer-nullish-coalescing` 命中，按目录或业务模块继续拆桶。
+        - 若阶段重点转向覆盖率、注释治理或数据库主线，本条 ESLint 主线可视为已满足当前阶段验收，不再默认扩写新的规则族。
+
 ## PostgreSQL 查询与数据库出网流量治理补充回归（2026-04-12）
 
 ### 系统性优化方案（2026-04-12）

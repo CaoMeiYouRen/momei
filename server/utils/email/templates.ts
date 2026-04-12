@@ -177,7 +177,7 @@ export class EmailTemplateEngine {
             preheader: options.preheader,
         }
         const [localizedSiteTitle, resolvedSiteName, resolvedSiteUrl, resolvedContactEmail, shellMessages] = await Promise.all([
-            getLocalizedSetting<string>(SettingKey.SITE_TITLE, options.locale),
+            getLocalizedSetting(SettingKey.SITE_TITLE, options.locale),
             resolveSetting(SettingKey.SITE_NAME),
             resolveSetting(SettingKey.SITE_URL),
             resolveSetting(SettingKey.CONTACT_EMAIL),

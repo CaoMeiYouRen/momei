@@ -146,7 +146,7 @@ async function resolveFriendLinkMeta(locale?: string | null): Promise<FriendLink
     const [enabledRaw, applicationEnabledRaw, guidelines, footerEnabledRaw, footerLimitRaw, checkIntervalRaw] = await Promise.all([
         getSetting(SettingKey.FRIEND_LINKS_ENABLED, 'true'),
         getSetting(SettingKey.FRIEND_LINKS_APPLICATION_ENABLED, 'true'),
-        getLocalizedSetting<string>(SettingKey.FRIEND_LINKS_APPLICATION_GUIDELINES, locale),
+        getLocalizedSetting(SettingKey.FRIEND_LINKS_APPLICATION_GUIDELINES, locale),
         getSetting(SettingKey.FRIEND_LINKS_FOOTER_ENABLED, 'true'),
         getSetting(SettingKey.FRIEND_LINKS_FOOTER_LIMIT, String(DEFAULT_FOOTER_LIMIT)),
         getSetting(SettingKey.FRIEND_LINKS_CHECK_INTERVAL_MINUTES, String(DEFAULT_CHECK_INTERVAL_MINUTES)),

@@ -133,7 +133,7 @@ async function loadDefaultRuntimeContent(templateId: EmailTemplateId, locale?: s
 async function resolveTemplateVariableContext(locale?: string | null) {
     const requestedLocale = resolveRequestedAppLocale(locale)
     const [localizedSiteTitle, resolvedSiteTitle, resolvedSiteName, resolvedContactEmail] = await Promise.all([
-        getLocalizedSetting<string>(SettingKey.SITE_TITLE, requestedLocale),
+        getLocalizedSetting(SettingKey.SITE_TITLE, requestedLocale),
         resolveSetting(SettingKey.SITE_TITLE),
         resolveSetting(SettingKey.SITE_NAME),
         resolveSetting(SettingKey.CONTACT_EMAIL),
@@ -254,7 +254,7 @@ function applyOverrides(
 }
 
 export async function getStoredEmailTemplateConfig(): Promise<string | null> {
-    const value = await getSetting<string>(SettingKey.EMAIL_TEMPLATE_CONFIGS, null)
+    const value = await getSetting(SettingKey.EMAIL_TEMPLATE_CONFIGS, null)
     return typeof value === 'string' ? value : null
 }
 

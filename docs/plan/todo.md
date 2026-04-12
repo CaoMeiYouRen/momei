@@ -32,11 +32,12 @@
 
 ### 2. 主线：ESLint / 类型债第二轮收紧 (P1)
 
-- [ ] **至少再正式收紧 `1 - 2` 条高 ROI ESLint 规则**
+- [x] **至少再正式收紧 `1 - 2` 条高 ROI ESLint 规则**
 	- 验收: 优先选择命中范围有限、回滚边界清晰、对生产代码收益明确的规则族，不直接扩写到 `no-unsafe-*` 或全仓 `any` 清零工程。
 	- 验收: 每批规则提升都要补齐命中清单、回滚方式与最小验证矩阵，并明确受影响目录范围。
 	- 验收: 测试、脚本、迁移和历史遗留目录继续保持受控豁免，不因为规则收紧造成失控返工。
-	- 进展: 已新增第二十六阶段增量收敛，正式把 `@typescript-eslint/no-unnecessary-type-assertion` 提升为仅作用于生产 TS 的 warning，清零 [server/services/external-feed/parser.ts](../../server/services/external-feed/parser.ts) 与 [server/services/ai/tts.ts](../../server/services/ai/tts.ts) 共 `5` 条 production 命中；测试、脚本与迁移路径继续保持显式豁免，当前未发现需要单独 carve-out 的历史遗留目录命中；`prefer-nullish-coalescing` 候选扫描显示编辑器 composable 命中面仍偏宽，已明确留作下一轮拆桶候选。详见 [regression-log.md](./regression-log.md)。
+	- 完成项: 已完成两条规则的正式收紧并保留最小验证矩阵。第一批把 `@typescript-eslint/no-unnecessary-type-assertion` 提升为仅作用于生产 TS 的 warning，清零 [server/services/external-feed/parser.ts](../../server/services/external-feed/parser.ts) 与 [server/services/ai/tts.ts](../../server/services/ai/tts.ts) 共 `5` 条 production 命中；第二批把 `@typescript-eslint/no-unnecessary-type-arguments` 提升为仅作用于 `server/**` 的 warning，清零 [server/api/ads/script.get.ts](../../server/api/ads/script.get.ts)、[server/services/ai/quota-governance.ts](../../server/services/ai/quota-governance.ts)、[server/services/email-template.ts](../../server/services/email-template.ts)、[server/services/friend-link.ts](../../server/services/friend-link.ts)、[server/services/import-path-alias.ts](../../server/services/import-path-alias.ts)、[server/utils/ai/cost-governance.ts](../../server/utils/ai/cost-governance.ts) 与 [server/utils/email/templates.ts](../../server/utils/email/templates.ts) 共 `12` 条 production 命中。
+	- 验收结果: 两批规则均保留了 tests、scripts、migrations 的显式豁免边界，且已通过定向 ESLint、`pnpm exec nuxt typecheck`、相关 Vitest 用例与全仓 `pnpm exec eslint . --max-warnings 10` 校验。`prefer-nullish-coalescing` 仍因编辑器 composable 命中面过宽而留作下一轮拆桶候选。详见 [regression-log.md](./regression-log.md)。
 
 ### 3. 主线：存量代码注释治理首轮落地 (P1)
 

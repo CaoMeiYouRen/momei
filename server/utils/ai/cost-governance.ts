@@ -153,9 +153,9 @@ export function normalizeTaskCategory(category?: string | null, type?: string | 
 }
 
 export function normalizeUsageSnapshot(options: NormalizeUsageOptions): AIUsageSnapshot {
-    const payload = parseMaybeJson<Record<string, unknown>>(options.payload)
-    const response = parseMaybeJson<Record<string, unknown>>(options.response)
-    const usage = parseMaybeJson<Record<string, unknown>>(response.usage)
+    const payload = parseMaybeJson(options.payload)
+    const response = parseMaybeJson(options.response)
+    const usage = parseMaybeJson(response.usage)
     const normalizedCategory = normalizeTaskCategory(options.category, options.type)
 
     const snapshot: AIUsageSnapshot = {
@@ -245,7 +245,7 @@ export function calculateQuotaUnits(options: {
         type: options.type || undefined,
         payload: options.payload,
     })
-    const payload = parseMaybeJson<Record<string, unknown>>(options.payload)
+    const payload = parseMaybeJson(options.payload)
 
     let baseMeasure = 1
     if (normalizedCategory === 'text') {
@@ -307,7 +307,7 @@ export function calculateDisplayCost(options: {
 }
 
 export function inferFailureStage(error: unknown, fallback: AIFailureStage = 'provider_processing'): AIFailureStage {
-    const rawError = parseMaybeJson<Record<string, unknown>>(error)
+    const rawError = parseMaybeJson(error)
     const primaryStatusCode = toNumber(rawError.statusCode, Number.NaN)
     const secondaryStatusCode = toNumber(rawError.status, Number.NaN)
     const statusCode = Number.isFinite(primaryStatusCode) ? primaryStatusCode : secondaryStatusCode

@@ -235,7 +235,7 @@ export function summarizeAIQuotaUsage(
             && (task.status === 'pending' || task.status === 'processing')
     }).length
 
-    return relevantTasks.reduce<AIUsageSummary>((acc, task) => {
+    return relevantTasks.reduce((acc, task) => {
         acc.requests += 1
         acc.quotaUnits += estimateTaskQuotaUnits(task)
         acc.actualCost += estimateTaskCost(task)

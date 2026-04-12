@@ -183,7 +183,7 @@ function buildPermalinkTokenContext(input: ImportPathAliasValidationInput, canon
 }
 
 function createSummary(items: ImportPathAliasReportItem[]) {
-    return items.reduce<Record<ImportPathAliasStatus, number>>((summary, item) => {
+    return items.reduce((summary, item) => {
         summary[item.status] += 1
         return summary
     }, {

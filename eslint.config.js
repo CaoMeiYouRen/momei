@@ -208,6 +208,14 @@ export default withNuxt(
         },
     },
     {
+        // 第二批仅对 server 目录收紧低风险的冗余类型参数，继续维持 tests / scripts / migrations 豁免。
+        files: ['server/**/*.{ts,tsx,mts,cts}'],
+        ignores: ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**', 'server/api/admin/migrations/**', '**/migration-*.ts'],
+        rules: {
+            '@typescript-eslint/no-unnecessary-type-arguments': [1],
+        },
+    },
+    {
         // 全量启用的规则，生产、测试与脚本范围均命中，以持续提升整体代码质量。
         files: ['**/*.{ts,tsx,mts,cts}'],
         ignores: [],
