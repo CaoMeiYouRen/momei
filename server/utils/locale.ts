@@ -141,7 +141,8 @@ export function normalizeLocale(locale: string): AuthBoundaryLocale {
         return directMatch
     }
 
-    // 尝试映射表匹配
+    // 先尝试原始值，再尝试 cleanLocale：这样既兼容映射表里历史大小写键，
+    // 也兼容调用方传入的非标准大小写写法。
     const mappedLocale = LOCALE_MAPPING[locale] || LOCALE_MAPPING[cleanLocale]
     if (mappedLocale) {
         return mappedLocale
@@ -286,7 +287,8 @@ export function detectRequestAuthLocale(
     event: H3Event,
     options: { includeQuery?: boolean } = { includeQuery: true },
 ): AuthBoundaryLocale {
-    // 0. 从查询参数获取（如果启用）
+    // 查询参数属于“显式覆盖”入口，默认只在需要支持 URL 临时覆写时启用。
+    // 某些内部调用可以传 includeQuery=false，避免被 URL 参数劫持默认语言决策。
     if (options.includeQuery) {
         const queryLocale = getLocaleFromQuery(event)
         if (queryLocale) {
@@ -342,6 +344,8 @@ export function setLocaleCookie(
  */
 export function getAuthLocaleFromRequest(request: Request): AuthBoundaryLocale {
     try {
+        // better-auth 的 request 场景没有 H3Event，因此需要在这里复刻一份
+        // 查询参数 -> Cookie -> Header 的同优先级链路，保持认证边界口径一致。
         // 从 URL 查询参数获取语言
         const url = new URL(request.url)
         const urlLocale = url.searchParams.get('locale')

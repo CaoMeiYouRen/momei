@@ -45,6 +45,8 @@ export interface ResolvedAIQuotaPolicy {
 export type AIUsageTaskSnapshot = Pick<AITask, 'actualCost' | 'category' | 'createdAt' | 'estimatedCost' | 'estimatedQuotaUnits' | 'quotaUnits' | 'status' | 'type'>
 
 function normalizePolicyScope(scope: string): AIQuotaPolicy['scope'] {
+    // scope 只允许 all / type:* / category 三类，其他输入统一收敛到标准 category，
+    // 避免后台配置中的历史别名直接污染匹配逻辑。
     if (scope === 'all' || scope.startsWith('type:')) {
         return scope as AIQuotaPolicy['scope']
     }
@@ -99,6 +101,8 @@ export function getPeriodStart(period: AIQuotaPolicy['period'], now = new Date()
 }
 
 function getPolicyPriority(policy: AIQuotaPolicy, userId: string, userRole: string | null | undefined) {
+    // 同一 scope+period 分组内使用“单一最高优先级”策略，
+    // 防止 global/role/user 三层规则叠加后出现意外放宽。
     if (policy.subjectType === 'user' && policy.subjectValue === userId) {
         return 3
     }
@@ -146,6 +150,7 @@ function mergePolicies(policies: AIQuotaPolicy[]) {
             .filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
 
         if (values.length > 0) {
+            // 数值型上限采用最小值，确保合并后的策略始终是“更严格”而不是“更宽松”。
             const strictestValue = Math.min(...values)
 
             switch (key) {
@@ -295,6 +300,8 @@ export async function resolveAllAIQuotaPolicies(options: Pick<AIQuotaCheckOption
     const effectiveUserRole = await resolveUserRole(options.userId, options.userRole)
     const matchedPolicies = policies.filter((policy) => policy.enabled)
 
+    // 仅在相同 scope+period 内进行优先级裁决和策略合并，
+    // 避免把“每日限额”与“每月限额”混到同一次判断里。
     const groupedPolicies = new Map<string, AIQuotaPolicy[]>()
     matchedPolicies.forEach((policy) => {
         const groupKey = `${policy.scope}:${policy.period}`
@@ -343,6 +350,8 @@ export async function assertAIQuotaAllowance(options: AIQuotaCheckOptions) {
     }
 
     const category = normalizeTaskCategory(options.category, options.type)
+    // 调用前置校验使用 estimated* 值做保守拦截，
+    // 任务结算后再由实际消耗（actual*）进入统计闭环。
     const estimatedQuotaUnits = options.estimatedQuotaUnits ?? calculateQuotaUnits({
         category,
         type: options.type,
@@ -379,6 +388,8 @@ export async function assertAIQuotaAllowance(options: AIQuotaCheckOptions) {
             fail(`AI quota exceeded: ${policy.period} cost limit reached`, 429)
         }
 
+        // 并发上限只作用于重任务类别，文本类请求不参与该阈值，
+        // 以免高频轻请求被“重任务限流”误伤。
         if (HEAVY_TASK_CATEGORIES.has(category) && isFiniteNumber(policy.maxConcurrentHeavyTasks) && usage.concurrentHeavyTasks >= policy.maxConcurrentHeavyTasks) {
             fail('AI quota exceeded: concurrent heavy task limit reached', 429)
         }
