@@ -16,11 +16,13 @@ export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(applyDefaultPaginationLimit(q as Record<string, unknown>, postsPerPage)))
 
     const postRepo = dataSource.getRepository(Post)
+    // 外部列表接口只返回精简列表字段，避免把正文等重字段暴露给批量查询。
     const qb = applyPostListSelect(postRepo.createQueryBuilder('post'), {
         includeAuthor: false,
     })
 
-    // 默认强制管理模式
+    // 管理员可按 authorId 查询；非管理员强制绑定到自身 userId，
+    // 防止 API Key 在外部集成场景越权读取他人文章列表。
     if (isAdmin(user.role)) {
         if (query.authorId) {
             qb.andWhere('post.authorId = :authorId', { authorId: query.authorId })

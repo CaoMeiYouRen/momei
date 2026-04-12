@@ -148,12 +148,14 @@ const ADMIN_ROUTE_MODULE_RULES: {
 function normalizeLocaleRoutePath(path: string): string {
     const pathname = path.split('?')[0]?.split('#')[0] || '/'
     const normalizedPath = pathname.startsWith('/') ? pathname : `/${pathname}`
+    // 先剥离 locale 前缀再匹配业务路由，确保 /en-US/admin 与 /admin 命中同一模块规则。
     const localePrefixedPath = normalizedPath.replace(/^\/(?:[a-z]{2}(?:-[a-z]{2,4})?)(?=\/|$)/iu, '')
 
     return localePrefixedPath || '/'
 }
 
 export function resolveLocaleMessageModulesForRoute(path: string, options?: { demoMode?: boolean }): LocaleMessageModule[] {
+    // 以 core 模块为下限，再根据路由附加可选模块，避免页面渲染依赖的公共文案被误裁剪。
     const modules = new Set<LocaleMessageModule>(LOCALE_CORE_MODULES)
     const normalizedPath = normalizeLocaleRoutePath(path)
 

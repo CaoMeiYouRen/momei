@@ -109,6 +109,7 @@ function getAssetObjectPrefix(settings: UploadSettings) {
 }
 
 export function resolveUploadPublicBaseUrl(settings: UploadSettings, rawStorageType: string, env: FileStorageEnv) {
+    // 全局资产域名优先级最高：允许在不改动 driver 的情况下统一切换外链域名/CDN。
     const globalBaseUrl = getSettingValue(settings, SettingKey.ASSET_PUBLIC_BASE_URL)
     if (globalBaseUrl) {
         return globalBaseUrl
@@ -134,6 +135,8 @@ export function resolveUploadPublicBaseUrl(settings: UploadSettings, rawStorageT
 }
 
 export function resolveUploadedFileUrl(objectKey: string, storageContext: Pick<UploadStorageContext, 'assetPublicBaseUrl' | 'driverBaseUrl'>) {
+    // 先使用资产公共域名，其次回退到驱动域名；两者都缺失时返回 objectKey，
+    // 便于上层在私有部署场景自行拼接访问地址。
     const candidateBaseUrl = storageContext.assetPublicBaseUrl || storageContext.driverBaseUrl
     if (!candidateBaseUrl) {
         return objectKey
@@ -390,6 +393,7 @@ export async function getUploadStorageContext(): Promise<UploadStorageContext> {
         BLOB_READ_WRITE_TOKEN: getSettingValue(settings, SettingKey.VERCEL_BLOB_TOKEN),
     }
 
+    // baseEnv 承载跨存储通用配置，S3/R2 兼容配置再覆盖补齐。
     const env: FileStorageEnv = {
         ...baseEnv,
         ...buildS3CompatibleEnv(settings, rawStorageType),
@@ -425,6 +429,7 @@ export async function checkUploadLimits(userId: string) {
     const dailyLimit = Number(dbSettings[SettingKey.UPLOAD_DAILY_LIMIT] || 100)
     const userDailyLimit = Number(dbSettings[SettingKey.UPLOAD_SINGLE_USER_DAILY_LIMIT] || 5)
 
+    // 采用同一窗口做全局+用户双闸门，优先拦截全站突发流量，再限制单用户滥用。
     const globalCount = await limiterStorage.increment(
         'upload_global_limit',
         limitWindow,

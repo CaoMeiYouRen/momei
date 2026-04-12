@@ -16,6 +16,8 @@ const localeModuleImporters = import.meta.glob('../locales/**/*.json', {
     import: 'default',
 }) as Record<string, () => Promise<LocaleMessages>>
 
+// 以 i18n 实例作为 key 做弱引用缓存：实例销毁后自动释放，
+// 防止路由切换和热更新期间的模块加载状态泄漏到其他实例。
 const loadedModulesRegistry = new WeakMap<object, Map<AppLocaleCode, Set<LocaleMessageModule>>>()
 
 function resolveComposer(i18n: I18nLike | null | undefined): ComposerLike | null {
@@ -47,6 +49,7 @@ function getLoadedModules(i18n: object, locale: AppLocaleCode): Set<LocaleMessag
         return existing
     }
 
+    // core 模块在 Nuxt i18n 初始化阶段已预装，运行时只追踪增量模块。
     const loadedModules = new Set<LocaleMessageModule>(LOCALE_CORE_MODULES)
     localeMap.set(locale, loadedModules)
     return loadedModules
@@ -90,6 +93,8 @@ export async function ensureLocaleMessageModules(options: {
     modules: readonly LocaleMessageModule[]
 }) {
     const locale = resolveAppLocaleCode(options.locale)
+    // 先请求语言，再按 fallbackChain 逐级补齐，确保缺 key 时沿同一条链路降级，
+    // 避免客户端与服务端出现不同的语言回退结果。
     const localesToLoad = getLocaleRegistryItem(locale).fallbackChain
 
     for (const localeCode of localesToLoad) {
@@ -103,6 +108,7 @@ export async function ensureRouteLocaleMessages(options: {
     path: string
     demoMode?: boolean
 }) {
+    // 路由只加载所需模块，避免一次性注入全部 locale 包导致首屏与切路由抖动。
     const modules = resolveLocaleMessageModulesForRoute(options.path, {
         demoMode: options.demoMode,
     })

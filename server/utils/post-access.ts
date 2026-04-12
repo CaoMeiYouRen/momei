@@ -37,6 +37,8 @@ export async function applyPostVisibilityFilter(
     }
 
     // 3. 处理公共列表模式 (Public Mode)
+    // 该函数用于“列表可见性”过滤，而不是“详情页是否可读全文”；
+    // 详情页由 checkPostAccess 再执行一次更细粒度门禁。
     qb.andWhere('post.status = :status', { status: PostStatus.PUBLISHED })
 
     // 管理员在公共模式下也能看到所有已发布的文章
@@ -66,16 +68,8 @@ export async function applyPostVisibilityFilter(
             sub.orWhere('post.visibility = :subscriberVisibility', { subscriberVisibility: PostVisibility.SUBSCRIBER })
         }
 
-        // E. 密码保护的文章：
-        // 通常在列表中可见，点击进入后提示输入密码。
-        // 但如果用户要求“统一管控”且“过滤掉”，则这里不加 orWhere。
-        // 根据反馈：“这几个还有密码加密之类的。你应该在rss的订阅源把它过滤掉。”
-        // 意味着 RSS 过滤，但 API 列表可能需要显示标题？
-        // 考虑到“Stealth Mode”和“统一管控”，我们这里暂且将 PASSWORD 状态也排除在匿名用户的普通列表之外，
-        // 除非他们是作者或管理员。
-        // 修正：依照目前大多数博客习惯，密码文章在列表可见。但既然用户要求“统一管控”，
-        // 我们在 applyPostVisibilityFilter 中可以默认对匿名用户隐藏除了 PUBLIC 之外的所有类型。
-        // 如果想让 PASSWORD 文章在列表可见，可以取消注释下面这行：
+        // E. 密码保护文章在列表中保留可见（用于展示标题与摘要），
+        // 但详情页仍会在 checkPostAccess 中要求解锁后才能读取正文。
         sub.orWhere('post.visibility = :passwordVisibility', { passwordVisibility: PostVisibility.PASSWORD })
     }))
 
@@ -221,6 +215,8 @@ async function isUserSubscriber(userId: string): Promise<boolean> {
         })
         return !!subscriber
     } catch (error) {
+        // 订阅态查询失败不在此处直接转 HTTP 错误，统一交由上层映射为
+        // POST_ACCESS_STATE_UNAVAILABLE，避免调用方得到不一致错误结构。
         throw new Error(
             SUBSCRIBER_LOOKUP_ERROR_MESSAGE,
             error instanceof Error ? { cause: error } : undefined,

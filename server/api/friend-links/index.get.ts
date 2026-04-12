@@ -17,6 +17,8 @@ export default defineEventHandler(async (event) => {
     const cachedResponse = getRuntimeCache(cacheKey) as ReturnType<typeof success> | undefined
 
     if (cachedResponse) {
+        // 命中进程内短缓存时仍下发同口径 Cache-Control，
+        // 保持客户端/CDN 与服务端缓存语义一致。
         event.node?.res?.setHeader('Cache-Control', `public, max-age=${PUBLIC_FRIEND_LINKS_CACHE_TTL_SECONDS}`)
         return cachedResponse
     }

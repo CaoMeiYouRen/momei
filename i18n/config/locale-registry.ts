@@ -24,6 +24,8 @@ export interface LocaleRegistryItem {
     ogAlternateLocales: string[]
 }
 
+// 该 registry 是项目内部唯一的 locale 事实源：路由前缀、SEO 可索引性、feed/sitemap 开关
+// 以及 fallback 链路都以这里为准，避免在页面/服务层各自维护一套配置。
 export const APP_DEFAULT_LOCALE: AppLocaleCode = 'zh-CN'
 export const APP_FALLBACK_LOCALE: AppLocaleCode = APP_DEFAULT_LOCALE
 
@@ -171,6 +173,8 @@ export function resolveAppLocaleCode(locale?: string | null): AppLocaleCode {
         return locale
     }
 
+    // 仅在边界输入做 alias 归一化，业务内部始终使用 AppLocaleCode，
+    // 防止认证边界标识或历史写法继续扩散到核心流程。
     const normalizedLocale = locale.trim().toLowerCase()
     return APP_LOCALE_ALIAS_MAP[normalizedLocale] || APP_FALLBACK_LOCALE
 }
@@ -193,6 +197,8 @@ export function isSeoReadyLocale(locale?: string | null): boolean {
         return false
     }
 
+    // readiness 与 indexable 双开关都满足才视为可索引，
+    // 避免“UI 已可用但 SEO 尚未验收”的语种提前进入收录面。
     const item = getLocaleRegistryItem(locale)
     return item.readiness === 'seo-ready' && item.indexable
 }

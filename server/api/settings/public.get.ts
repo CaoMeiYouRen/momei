@@ -18,11 +18,15 @@ function buildPublicSettingsCacheKey(locale: string) {
  */
 export default defineEventHandler(async (event) => {
     try {
+        // 先把认证边界 locale 映射回 AppLocaleCode，再进入 settings 读取，
+        // 确保前后台 locale 口径一致且可命中同一缓存 key。
         const requestedLocale = resolveAppLocaleCode(mapAuthLocaleToAppLocale(detectRequestAuthLocale(event)))
         const cacheKey = buildPublicSettingsCacheKey(requestedLocale)
         const cachedResponse = getRuntimeCache(cacheKey) as { code: number, data: Record<string, unknown> } | undefined
 
         if (cachedResponse) {
+            // 公共配置属于高频低实时性读场景，60 秒短 TTL 用于削峰，
+            // 配置变更后的短暂陈旧窗口可接受。
             event.node?.res?.setHeader('Cache-Control', `public, max-age=${PUBLIC_SETTINGS_CACHE_TTL_SECONDS}`)
             return cachedResponse
         }
@@ -48,6 +52,7 @@ export default defineEventHandler(async (event) => {
             usedLegacyValue: false,
         })
 
+        // 以下字段统一补“空的 resolved 结构”，避免响应层出现 null/undefined 结构分叉。
         const localizedTitle: ResolvedLocalizedSetting = localizedSettings[SettingKey.SITE_TITLE] ?? createEmptyLocalizedResolved(SettingKey.SITE_TITLE)
         const localizedDescription: ResolvedLocalizedSetting = localizedSettings[SettingKey.SITE_DESCRIPTION] ?? createEmptyLocalizedResolved(SettingKey.SITE_DESCRIPTION)
         const localizedKeywords: ResolvedLocalizedSetting = localizedSettings[SettingKey.SITE_KEYWORDS] ?? createEmptyLocalizedResolved(SettingKey.SITE_KEYWORDS)

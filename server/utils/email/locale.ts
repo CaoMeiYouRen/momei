@@ -37,6 +37,8 @@ export async function loadEmailShellMessages(locale?: string | null): Promise<Em
         'pages.admin.settings.system.email_templates.runtime',
     ) as Partial<Record<string, string>> | null ?? {}
 
+    // 邮件模板字段使用“按 locale 读取 + 字段级默认值兜底”的双层策略：
+    // locale 包缺少单个 key 时不阻断发送，并保持历史模板可继续工作。
     return {
         locale: resolvedLocale,
         headerSubtitle: runtime.header_subtitle ?? '专业 · 高性能 · 国际化博客平台',
@@ -66,6 +68,7 @@ export async function resolvePreferredEmailLocale(options: {
         ? options.language.trim()
         : ''
 
+    // 显式入参 language 视为最高优先级（例如用户手动切换后的立即发送场景）。
     if (normalizedLanguage) {
         return resolveRequestedAppLocale(normalizedLanguage)
     }
@@ -74,6 +77,8 @@ export async function resolvePreferredEmailLocale(options: {
         ? options.email.trim().toLowerCase()
         : ''
 
+    // 无邮箱或数据库未初始化时，返回 undefined 交给上层 fallback，
+    // 避免在安装/降级阶段因为 locale 查询失败而阻断邮件链路。
     if (!normalizedEmail || !dataSource.isInitialized) {
         return undefined
     }
