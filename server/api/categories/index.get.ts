@@ -45,8 +45,8 @@ export default defineEventHandler(async (event) => {
     const publishedStatus = 'published'
     const postCountQuery = buildCategoryPostCountSubquery(publishedStatus)
     const queryBuilder = baseQueryBuilder.clone()
-        .leftJoin(`(${postCountQuery.getQuery()})`, 'postCountSummary', 'postCountSummary.taxonomyId = COALESCE(category.translationId, category.id)')
-        .addSelect('COALESCE(postCountSummary.postCount, 0)', 'category_postCount')
+        .leftJoin(`(${postCountQuery.getQuery()})`, 'post_count_summary', 'post_count_summary.taxonomy_id = COALESCE(category.translationId, category.id)')
+        .addSelect('COALESCE(post_count_summary.post_count, 0)', 'category_postCount')
         .setParameters(postCountQuery.getParameters())
 
     if (query.orderBy === 'postCount') {
