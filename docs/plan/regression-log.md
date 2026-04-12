@@ -32,6 +32,43 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## 第二十六阶段测试覆盖率推进首轮增量补测（2026-04-12）
+
+### 回归任务记录
+
+- 回归范围: 第二十六阶段 P0“测试覆盖率与红绿测试有效性推进”首轮增量补测；聚焦 [server/services/ai/text.ts](../../server/services/ai/text.ts) 与同级测试 [server/services/ai/text.test.ts](../../server/services/ai/text.test.ts)，优先补失败路径、包装器分支与边界判断，不扩写到整组公开 API。
+- 触发条件: 当前阶段待办要求优先补齐 `server/services/ai/text.ts`、公开查询热点 API 与数据库治理相关服务层的失败路径、边界断言与回退逻辑；现有 TextService 测试已覆盖主干 happy path，但 `optimizeManuscript`、`expandSection`、`translateName(s)`、`suggestSlugFromName`、`recommendCategories` 与异步翻译阈值判断仍存在高 ROI 空洞。
+- 执行频率: 第二十六阶段测试主线的首轮服务层增量补测；后续仅在继续扩到公开 API 热点或 AI 文本编排链路时追加记录。
+- timeout budget:
+    - 目标模块缺口盘点与测试设计: 20 分钟。
+    - 定向测试编写: 30 分钟。
+    - 定向 Vitest 转绿: 10 分钟。
+    - 定向 coverage 取证与文档同步: 15 分钟。
+- 已执行命令:
+    - `pnpm exec vitest run server/services/ai/text.test.ts`
+    - `pnpm exec vitest run server/services/ai/text.test.ts --coverage --coverage.reporter=text-summary --coverage.include=server/services/ai/text.ts`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 增量补测层: [server/services/ai/text.test.ts](../../server/services/ai/text.test.ts) 新增 `9` 条用例，覆盖 `optimizeManuscript` 的 `podcast` 分支、`expandSection` 的 trim 行为、`shouldUseAsyncTranslateTask` 阈值边界、`translateName` / `translateNames` 的成功与失败路径、`suggestSlugFromName` 的 ASCII slug 归一化输出，以及 `recommendCategories` 的空输入短路、JSON 解析与非 JSON 回退解析。
+        - V1 / 定向测试层: `pnpm exec vitest run server/services/ai/text.test.ts` 通过，当前 [server/services/ai/text.test.ts](../../server/services/ai/text.test.ts) 共 `33` 条用例全部转绿。
+        - V2 / 定向覆盖率层: `pnpm exec vitest run server/services/ai/text.test.ts --coverage --coverage.reporter=text-summary --coverage.include=server/services/ai/text.ts` 通过；[server/services/ai/text.ts](../../server/services/ai/text.ts) 当前定向覆盖率为 `Statements 85.62% (137/160)`、`Branches 79.54% (70/88)`、`Functions 95.83% (23/24)`、`Lines 85.98% (135/157)`。
+    - 结果摘要:
+        - 本轮优先补的是“最容易遗漏且最容易回归”的服务层包装器与回退分支，而不是继续堆叠已稳定的 happy path；因此新增用例主要围绕异常输入、provider 返回格式漂移、阈值边界和空输入短路。
+        - [server/services/ai/text.ts](../../server/services/ai/text.ts) 已形成更完整的单文件测试基线，后续即使继续重构 `translate*` / `recommend*` 包装器，也有现成的红绿保护网。
+        - 本轮属于守线型增量补测，主要新增的是过去缺失的断言与边界覆盖，而不是先复现既有 failing test 再修实现；对应证据口径应视为“新增补测已转绿”，不是“已有红例转绿”。
+        - 这轮只提升了目标服务层，不足以单独支撑全仓 coverage 从 `68.85%` 向 `72%` 收口；它的价值在于先把 todo 中点名的高优先级 AI 文本服务缺口补齐。
+    - Review Gate 结论:
+        - 结论: Pass（限本轮服务层补测）
+        - 问题分级: none
+        - 主要问题:
+            - 未发现新增 blocker；新增测试均已通过定向执行与定向 coverage 取证。
+    - 未覆盖边界:
+        - 本轮没有补 [server/services/ai/text.ts](../../server/services/ai/text.ts) 的 `getTaskStatus` 包装链路，也没有扩到 `createTranslateTask` 这类薄包装器；若后续需要进一步逼近单文件 90%+，可继续补这组委派分支。
+        - 本轮没有触碰 todo 中同样点名的公开查询热点 API 与数据库治理相关服务层，例如 `search`、`settings/public`、`friend-links` 或 PostgreSQL 读链路缓存边界。
+    - 后续补跑计划:
+        - 下一轮优先切到公开查询热点 API，优先从 `search`、`settings/public`、`friend-links` 或 `external posts` 的失败路径 / 缓存边界中选一组增量补测，避免覆盖率治理长期停留在单个 AI 服务文件。
+        - 若继续深挖 AI 文本链路，则优先补 `getTaskStatus`、任务续跑与 translate task 委派链路，形成 `text.ts` 与 [server/services/ai/text-translation-task.ts](../../server/services/ai/text-translation-task.ts) 的成对基线。
+
 ## 第二十六阶段 ESLint / 类型债第二轮收紧增量落地（2026-04-12）
 
 ### 回归任务记录

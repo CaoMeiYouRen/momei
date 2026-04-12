@@ -336,6 +336,177 @@ describe('TextService', () => {
         })
     })
 
+    describe('optimizeManuscript', () => {
+        it('should optimize podcast manuscript and record podcast quota category', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn().mockResolvedValue({
+                    content: '优化后的播客文稿',
+                    model: 'gpt-4o',
+                    usage: {},
+                }),
+            }
+
+            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
+
+            const result = await TextService.optimizeManuscript(
+                '原始播客口播稿',
+                'zh-CN',
+                'user-1',
+                'podcast',
+            )
+
+            expect(result).toBe('优化后的播客文稿')
+            expect(mockProvider.chat).toHaveBeenCalledWith(expect.objectContaining({
+                temperature: 0.7,
+                messages: expect.arrayContaining([
+                    expect.objectContaining({
+                        role: 'system',
+                        content: 'Optimize podcast manuscript in zh-CN',
+                    }),
+                ]),
+            }))
+            expect(mockRepo.create).toHaveBeenCalledWith(expect.objectContaining({
+                category: 'podcast',
+                type: 'optimize_manuscript',
+            }))
+        })
+    })
+
+    describe('expandSection', () => {
+        it('should expand a section and trim the final content', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn().mockResolvedValue({
+                    content: '  扩写后的段落内容  ',
+                    model: 'gpt-4o',
+                    usage: {},
+                }),
+            }
+
+            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
+
+            const result = await TextService.expandSection({
+                topic: 'AI 写作',
+                sectionTitle: '提示词设计',
+                sectionContent: '原始段落',
+                expandType: 'examples',
+                language: 'zh-CN',
+            }, 'user-1')
+
+            expect(result).toBe('扩写后的段落内容')
+            expect(mockProvider.chat).toHaveBeenCalledWith(expect.objectContaining({
+                temperature: 0.8,
+            }))
+        })
+    })
+
+    describe('translation helpers', () => {
+        it('should expose async translate threshold decisions', () => {
+            expect(TextService.shouldUseAsyncTranslateTask('a'.repeat(999))).toBe(false)
+            expect(TextService.shouldUseAsyncTranslateTask('a'.repeat(1000))).toBe(true)
+        })
+
+        it('should translate a single name and normalize the slug-friendly response', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn()
+                    .mockResolvedValueOnce({
+                        content: '  中文标题  ',
+                        model: 'gpt-4o',
+                        usage: {},
+                    })
+                    .mockResolvedValueOnce({
+                        content: ' Hello World! ',
+                        model: 'gpt-4o',
+                        usage: {},
+                    }),
+            }
+
+            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
+
+            await expect(TextService.translateName('Hello', 'zh-CN', 'user-1')).resolves.toBe('中文标题')
+            await expect(TextService.suggestSlugFromName('Hello World', 'user-1')).resolves.toBe('hello-world')
+        })
+
+        it('should short-circuit empty translated name batches after normalization', async () => {
+            await expect(TextService.translateNames(['   ', ''], 'zh-CN', 'user-1')).resolves.toEqual([])
+            expect(aiUtils.getAIProvider).not.toHaveBeenCalled()
+        })
+
+        it('should reject invalid translated name batch payloads', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn().mockResolvedValue({
+                    content: '["仅一个结果"]',
+                    model: 'gpt-4o',
+                    usage: {},
+                }),
+            }
+
+            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
+
+            await expect(TextService.translateNames(['Alpha', 'Beta'], 'zh-CN', 'user-1')).rejects.toThrow('Invalid translated names response')
+        })
+    })
+
+    describe('recommendCategories', () => {
+        it('should return empty array when categories normalize to empty', async () => {
+            await expect(TextService.recommendCategories({
+                title: 'AI 分类',
+                content: '内容',
+                categories: ['   ', ''],
+                language: 'zh-CN',
+            }, 'user-1')).resolves.toEqual([])
+
+            expect(aiUtils.getAIProvider).not.toHaveBeenCalled()
+        })
+
+        it('should map provider results back to the provided category list and dedupe them', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn().mockResolvedValue({
+                    content: '["tech", "DevOps", "tech", "missing"]',
+                    model: 'gpt-4o',
+                    usage: {},
+                }),
+            }
+
+            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
+
+            const result = await TextService.recommendCategories({
+                title: 'AI 可观测性',
+                content: '围绕日志、链路与告警的治理。',
+                categories: ['Tech', 'DevOps', 'AI'],
+                language: 'zh-CN',
+            }, 'user-1')
+
+            expect(result).toEqual(['Tech', 'DevOps'])
+        })
+
+        it('should fall back to newline parsing when provider response is not JSON', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn().mockResolvedValue({
+                    content: 'AI\nUnknown\nDevOps',
+                    model: 'gpt-4o',
+                    usage: {},
+                }),
+            }
+
+            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider as any)
+
+            const result = await TextService.recommendCategories({
+                title: 'AI 可观测性',
+                content: '围绕日志、链路与告警的治理。',
+                categories: ['Tech', 'DevOps', 'AI'],
+                language: 'zh-CN',
+            }, 'user-1')
+
+            expect(result).toEqual(['AI', 'DevOps'])
+        })
+    })
+
     describe('recommendTags', () => {
         it('should recommend tags based on content', async () => {
             const mockProvider = {

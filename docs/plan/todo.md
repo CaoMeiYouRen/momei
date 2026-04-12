@@ -29,6 +29,7 @@
 	- 验收: 基于当前 coverage 基线继续提升约 `4%`，并在阶段收口时保留新增覆盖率、模块分布与未覆盖边界。
 	- 验收: 优先补齐 `server/services/ai/text.ts`、公开查询热点 API 与数据库治理相关服务层的失败路径、边界断言与回退逻辑，而不是平均铺开式补量。
 	- 验收: 每轮补强都要记录失败用例、转绿结果、剩余风险与下一轮优先顺序，避免只追 coverage 数字。
+	- 进展: 已完成首轮 `TextService` 服务层增量补测，[server/services/ai/text.test.ts](../../server/services/ai/text.test.ts) 新增 `9` 条用例并完成 `33` 条定向测试转绿；[server/services/ai/text.ts](../../server/services/ai/text.ts) 定向 coverage 已达到 `Statements 85.62%` / `Branches 79.54%` / `Functions 95.83%` / `Lines 85.98%`。本轮属于守线型补测，新增断言已全部转绿；记录、剩余边界与下一优先级详见 [regression-log.md](./regression-log.md)。
 
 ### 2. 主线：ESLint / 类型债第二轮收紧 (P1)
 

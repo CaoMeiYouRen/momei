@@ -2,6 +2,7 @@ import { getAIProvider } from '@/server/utils/ai'
 import { AI_PROMPTS, formatPrompt } from '@/server/utils/ai/prompt'
 import logger from '@/server/utils/logger'
 import { ContentProcessor } from '@/utils/shared/content-processor'
+import { normalizeAsciiSlug } from '@/utils/shared/slug'
 import {
     AI_CHUNK_SIZE,
     AI_MAX_CONTENT_LENGTH,
@@ -159,7 +160,7 @@ export async function suggestSlugFromNameContent(name: string) {
     return {
         provider,
         response,
-        slug: response.content.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-'),
+        slug: normalizeAsciiSlug(response.content),
     }
 }
 
