@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
-import { applyPostOrdering } from './post-ordering'
 import type { SelectQueryBuilder } from 'typeorm'
+import { applyPostOrdering } from './post-ordering'
 
 function makeQb() {
     const qb = {
