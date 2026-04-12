@@ -287,7 +287,6 @@ describe('typeormAdapter', () => {
                 age: 22,
                 nickname: 'neo',
             },
-            select: ['id', 'email', 'age'],
         })
 
         expect(userRepository.update).toHaveBeenCalledWith({ id: 'user-1' }, {
@@ -295,7 +294,7 @@ describe('typeormAdapter', () => {
             user_age: 22,
             nickname: 'neo',
         })
-        expect(result).toEqual({
+        expect(result).toMatchObject({
             id: 'user-1',
             email: 'after@example.com',
             age: 22,

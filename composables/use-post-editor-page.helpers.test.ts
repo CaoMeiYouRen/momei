@@ -261,7 +261,8 @@ describe('promptDraftRecovery', () => {
         })
 
         const opts = vi.mocked(confirm.require).mock.calls[0]?.[0] as Record<string, () => void>
-        opts.accept()
+        expect(typeof opts.accept).toBe('function')
+        opts.accept?.()
 
         expect(recoverDraft).toHaveBeenCalledOnce()
         expect(showSuccessToast).toHaveBeenCalledWith('pages.admin.posts.draft_recovered')
@@ -283,7 +284,8 @@ describe('promptDraftRecovery', () => {
         })
 
         const opts = vi.mocked(confirm.require).mock.calls[0]?.[0] as Record<string, () => void>
-        opts.reject()
+        expect(typeof opts.reject).toBe('function')
+        opts.reject?.()
 
         expect(clearLocalDraft).toHaveBeenCalledOnce()
         expect(showSuccessToast).toHaveBeenCalledWith('pages.admin.posts.draft_discarded', {
@@ -450,7 +452,7 @@ describe('buildSavePayload', () => {
             metadata: {
                 publish: {
                     intent: {
-                        channel: 'rss',
+                        syncToMemos: true,
                     },
                 },
             },
@@ -469,7 +471,7 @@ describe('buildSavePayload', () => {
         expect(result.payload.tagBindings).toEqual([{ name: 'tag-a' }])
         expect(result.payload.category).toBeUndefined()
         expect(result.publishIntent).toEqual({
-            channel: 'rss',
+            syncToMemos: true,
             pushOption: 'now',
             pushCriteria: { categoryIds: ['category-1'] },
         })
