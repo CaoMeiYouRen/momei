@@ -286,6 +286,17 @@ export interface Post {
 }
 
 /**
+ * 公开文章列表分页响应数据结构（/api/posts 返回）
+ */
+export interface PostListData {
+    items: Post[]
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+}
+
+/**
  * 发布意图 (副作用控制选项)
  */
 export interface PublishIntent {

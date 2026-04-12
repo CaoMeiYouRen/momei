@@ -46,10 +46,10 @@
 
 ### 4. 主线：重复代码与纯函数复用继续收敛 (P1)
 
-- [ ] **至少完成 `1` 组公共页模板或查询 helper / 纯函数收敛**
-	- 验收: 优先围绕前台 legal pages、categories / tags 公共页、列表型查询 helper、查询参数处理与列表读模型组装等热点重复区域推进。
-	- 验收: 抽象后的共享 helper / 纯函数需同步复核边界稳定性，不引入过度泛化或更高维护成本。
-	- 验收: 阶段收口时保留重复代码基线、抽象收益与仍需观察的剩余热点，便于后续阶段继续切片。
+- [x] **至少完成 `1` 组公共页模板或查询 helper / 纯函数收敛**
+	- 完成项：提取 `useTaxonomyPostPage` composable（`composables/use-taxonomy-post-page.ts`），消除 `pages/categories/[slug].vue` 与 `pages/tags/[slug].vue` 100% 重复的分页/posts 请求/i18nParams watch/onPageChange 逻辑；同步将 `PublicPostListData` 接口（在 `pages/index.vue`、`pages/posts/index.vue`、`pages/categories/[slug].vue`、`pages/tags/[slug].vue` 中各自本地定义）收敛为 `types/post.ts` 导出的 `PostListData`，消除 4 处重复接口声明。
+	- 验收：受影响 6 个文件 typecheck 通过、全部 119 个测试通过、目标文件 eslint 无告警。
+	- 剩余热点：`pages/index.vue` 内部的 `HOMEPAGE_*` 分页逻辑、admin 页面列表模板暂缓，待后续阶段继续切片。
 
 ### 5. 主线：PostgreSQL 查询与数据库出网流量治理 (P0)
 

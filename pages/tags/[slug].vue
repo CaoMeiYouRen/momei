@@ -82,46 +82,24 @@
 
 <script setup lang="ts">
 import type { ApiResponse } from '@/types/api'
-import type { Post } from '@/types/post'
 import type { Tag } from '@/types/tag'
 
-interface PublicPostListData {
-    items: Post[]
-    total: number
-    page: number
-    limit: number
-    totalPages: number
-}
-
 const route = useRoute()
-const router = useRouter()
 const { t } = useI18n()
-const setI18nParams = useSetI18nParams()
 const localePath = useLocalePath()
 
 const slug = computed(() => route.params.slug as string)
-const page = ref(Number(route.query.page) || 1)
-const limit = ref(10)
-const first = ref((page.value - 1) * limit.value)
 
 // 1. Fetch Tag Info
 const { data: tagData, pending: tagPending, error: tagError } = await useAppFetch<ApiResponse<Tag>>(() => `/api/tags/slug/${slug.value}`)
 const tag = computed(() => tagData.value?.data)
 
-// 2. Fetch Posts with this tag
-const { data: postsData, pending: postsPending, error: postsError } = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {
-    query: {
-        page,
-        limit,
-        tag: slug,
-        status: 'published',
-    },
-    watch: [page, slug],
+// 2. Posts list + pagination (shared taxonomy page logic)
+const { page, limit, first, posts, total, totalPages, postsPending, postsError, onPageChange } = await useTaxonomyPostPage({
+    filterKey: 'tag',
+    slug,
+    entityData: tag,
 })
-
-const posts = computed(() => postsData.value?.data?.items || [])
-const total = computed(() => postsData.value?.data?.total || 0)
-const totalPages = computed(() => postsData.value?.data?.totalPages || 0)
 
 usePageSeo({
     type: 'collection',
@@ -141,24 +119,6 @@ useHead(() => ({
             ]
         : [],
 }))
-
-// Handle dynamic route translations for i18n language switcher
-watch(tag, (newTag) => {
-    if (newTag?.translations) {
-        const params: Record<string, any> = {}
-        newTag.translations.forEach((tr: any) => {
-            params[tr.language] = { slug: tr.slug }
-        })
-        setI18nParams(params)
-    }
-}, { immediate: true })
-
-const onPageChange = (event: any) => {
-    page.value = event.page + 1
-    first.value = event.first
-    router.push({ query: { ...route.query, page: page.value } })
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-}
 </script>
 
 <style lang="scss" scoped>

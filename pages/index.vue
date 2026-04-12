@@ -146,20 +146,12 @@
 <script setup lang="ts">
 import type { ApiResponse } from '@/types/api'
 import type { ExternalFeedHomePayload } from '@/types/external-feed'
-import type { Post } from '@/types/post'
+import type { PostListData } from '@/types/post'
 import ExternalFeedPanel from '@/components/home/external-feed-panel.vue'
 import {
     HOMEPAGE_LATEST_POST_LIMIT,
     HOMEPAGE_PINNED_POST_LIMIT,
 } from '@/utils/shared/post-pinning'
-
-interface PublicPostListData {
-    items: Post[]
-    total: number
-    page: number
-    limit: number
-    totalPages: number
-}
 
 const localePath = useLocalePath()
 const { t } = useI18n()
@@ -174,7 +166,7 @@ const {
     data: pinnedLatestData,
     pending: pinnedLatestPending,
     error: pinnedLatestError,
-} = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {
+} = await useAppFetch<ApiResponse<PostListData>>('/api/posts', {
     query: {
         limit: HOMEPAGE_PINNED_POST_LIMIT,
         isPinned: true,
@@ -188,7 +180,7 @@ const {
     data: regularLatestData,
     pending: regularLatestPending,
     error: regularLatestError,
-} = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {
+} = await useAppFetch<ApiResponse<PostListData>>('/api/posts', {
     query: {
         limit: HOMEPAGE_LATEST_POST_LIMIT,
         isPinned: false,
@@ -210,7 +202,7 @@ const latestPosts = computed(() => {
 
 const latestPostIds = computed(() => latestPosts.value.map((post) => String(post.id)))
 
-const { data: popularData, pending: popularPending, error: popularError } = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {
+const { data: popularData, pending: popularPending, error: popularError } = await useAppFetch<ApiResponse<PostListData>>('/api/posts', {
     query: {
         limit: 3,
         isPinned: false,

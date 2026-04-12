@@ -87,45 +87,23 @@
 <script setup lang="ts">
 import type { ApiResponse } from '@/types/api'
 import type { Category } from '@/types/category'
-import type { Post } from '@/types/post'
-
-interface PublicPostListData {
-    items: Post[]
-    total: number
-    page: number
-    limit: number
-    totalPages: number
-}
 
 const route = useRoute()
-const router = useRouter()
 const { t } = useI18n()
-const setI18nParams = useSetI18nParams()
 const localePath = useLocalePath()
 
 const slug = computed(() => route.params.slug as string)
-const page = ref(Number(route.query.page) || 1)
-const limit = ref(10)
-const first = ref((page.value - 1) * limit.value)
 
 // 1. Fetch Category Info
 const { data: categoryData, pending: categoryPending, error: categoryError } = await useAppFetch<ApiResponse<Category>>(() => `/api/categories/slug/${slug.value}`)
 const category = computed(() => categoryData.value?.data)
 
-// 2. Fetch Posts in this category
-const { data: postsData, pending: postsPending, error: postsError } = await useAppFetch<ApiResponse<PublicPostListData>>('/api/posts', {
-    query: {
-        page,
-        limit,
-        category: slug,
-        status: 'published',
-    },
-    watch: [page, slug],
+// 2. Posts list + pagination (shared taxonomy page logic)
+const { page, limit, first, posts, total, totalPages, postsPending, postsError, onPageChange } = await useTaxonomyPostPage({
+    filterKey: 'category',
+    slug,
+    entityData: category,
 })
-
-const posts = computed(() => postsData.value?.data?.items || [])
-const total = computed(() => postsData.value?.data?.total || 0)
-const totalPages = computed(() => postsData.value?.data?.totalPages || 0)
 
 usePageSeo({
     type: 'collection',
@@ -145,24 +123,6 @@ useHead(() => ({
             ]
         : [],
 }))
-
-// Handle dynamic route translations for i18n language switcher
-watch(category, (newCat) => {
-    if (newCat?.translations) {
-        const params: Record<string, any> = {}
-        newCat.translations.forEach((tr: any) => {
-            params[tr.language] = { slug: tr.slug }
-        })
-        setI18nParams(params)
-    }
-}, { immediate: true })
-
-const onPageChange = (event: any) => {
-    page.value = event.page + 1
-    first.value = event.first
-    router.push({ query: { ...route.query, page: page.value } })
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-}
 </script>
 
 <style lang="scss" scoped>
