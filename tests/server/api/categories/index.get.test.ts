@@ -225,6 +225,28 @@ describe('/api/categories', () => {
         expect(techCategory).toBeDefined()
     })
 
+    it('should support aggregate mode without count query alias errors', async () => {
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                aggregate: true,
+                language: 'zh-CN',
+                orderBy: 'createdAt',
+                order: 'DESC',
+            },
+        } as any
+
+        const result = await categoriesHandler(event)
+
+        expect(result.code).toBe(200)
+        expect(Array.isArray(result.data?.items)).toBe(true)
+    })
+
     it('should count translated category posts for zh-TW fallback pages', async () => {
         const event = {
             context: {},

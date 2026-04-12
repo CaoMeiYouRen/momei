@@ -182,6 +182,28 @@ describe('/api/tags', () => {
         expect(jsTag).toBeDefined()
     })
 
+    it('should support aggregate mode without count query alias errors', async () => {
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                aggregate: true,
+                language: 'zh-CN',
+                orderBy: 'createdAt',
+                order: 'DESC',
+            },
+        } as any
+
+        const result = await tagsHandler(event)
+
+        expect(result.code).toBe(200)
+        expect(Array.isArray(result.data?.items)).toBe(true)
+    })
+
     it('should return empty array when no tags found', async () => {
         const event = {
             context: {},
