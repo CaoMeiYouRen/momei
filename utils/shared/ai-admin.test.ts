@@ -40,7 +40,7 @@ describe('ai-admin utils', () => {
         })
 
         it('returns contrast for unknown charge status', () => {
-            expect(getAIChargeStatusSeverity(undefined)).toBe('contrast')
+            expect(getAIChargeStatusSeverity(null)).toBe('contrast')
         })
     })
 

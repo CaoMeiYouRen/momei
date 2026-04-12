@@ -6,7 +6,6 @@ import {
     updateEmailTemplateCustomConfig,
     resolveEmailTemplateLocalizedField,
     EMAIL_TEMPLATE_IDS,
-    EMAIL_TEMPLATE_FIELD_IDS,
     EMAIL_TEMPLATE_DEFINITIONS,
 } from './email-template-config'
 
@@ -70,7 +69,7 @@ describe('parseEmailTemplateSettingsConfig', () => {
 
     it('parses object config directly', () => {
         const config = {
-            version: 1,
+            version: 1 as const,
             templates: {
                 loginOTP: { enabled: false, fields: {} },
             },
@@ -80,19 +79,19 @@ describe('parseEmailTemplateSettingsConfig', () => {
     })
 
     it('skips unknown template ids', () => {
-        const config = {
-            version: 1,
+        const config: unknown = {
+            version: 1 as const,
             templates: {
                 unknownTemplate: { enabled: true },
             },
         }
-        const result = parseEmailTemplateSettingsConfig(config)
+        const result = parseEmailTemplateSettingsConfig(config as Parameters<typeof parseEmailTemplateSettingsConfig>[0])
         expect(Object.keys(result.templates)).toHaveLength(0)
     })
 
     it('parses template with legacy string field', () => {
-        const config = {
-            version: 1,
+        const config: unknown = {
+            version: 1 as const,
             templates: {
                 verification: {
                     enabled: true,
@@ -102,7 +101,7 @@ describe('parseEmailTemplateSettingsConfig', () => {
                 },
             },
         }
-        const result = parseEmailTemplateSettingsConfig(config)
+        const result = parseEmailTemplateSettingsConfig(config as Parameters<typeof parseEmailTemplateSettingsConfig>[0])
         expect(result.templates.verification?.fields?.title).toBeDefined()
     })
 })

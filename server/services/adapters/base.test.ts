@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { AdError, BaseAdAdapter } from './base'
 
 class TestAdapter extends BaseAdAdapter {
-    override async verifyCredentials() {
-        return true
+    override verifyCredentials() {
+        return Promise.resolve(true)
     }
 
     override getScript() {

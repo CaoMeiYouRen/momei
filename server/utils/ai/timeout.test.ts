@@ -13,9 +13,13 @@ describe('withAITimeout', () => {
     it('throws 504 error when operation exceeds timeout', async () => {
         vi.useFakeTimers()
 
-        const pendingOperation = new Promise<string>(() => {})
+        const pendingOperation = new Promise<string>(() => {
+            void 0
+        })
         const promise = withAITimeout(pendingOperation, 'heavy-task', 25)
-        void promise.catch(() => {})
+        void promise.catch(() => {
+            void 0
+        })
 
         await vi.advanceTimersByTimeAsync(25)
 

@@ -1,6 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Post } from '@/types/post'
-import { SettingKey } from '@/types/setting'
 
 const { getSettingMock, buildDistributionMaterialBundleMock } = vi.hoisted(() => ({
     getSettingMock: vi.fn(),
@@ -16,6 +14,8 @@ vi.mock('@/utils/shared/distribution-template', () => ({
 }))
 
 import { buildPostDistributionMaterialBundle } from './post-distribution-template'
+import type { Post } from '@/types/post'
+import { SettingKey } from '@/types/setting'
 
 describe('buildPostDistributionMaterialBundle', () => {
     const post = {
@@ -36,16 +36,16 @@ describe('buildPostDistributionMaterialBundle', () => {
     })
 
     it('uses configured site url from settings when available', async () => {
-        getSettingMock.mockImplementation(async (key: SettingKey) => {
+        getSettingMock.mockImplementation((key: SettingKey) => {
             if (key === SettingKey.SITE_URL) {
-                return 'https://settings.example.com'
+                return Promise.resolve('https://settings.example.com')
             }
 
             if (key === SettingKey.POST_COPYRIGHT) {
-                return 'CC BY-SA 4.0'
+                return Promise.resolve('CC BY-SA 4.0')
             }
 
-            return null
+            return Promise.resolve(null)
         })
         buildDistributionMaterialBundleMock.mockReturnValue({ bundle: true })
 
@@ -61,12 +61,12 @@ describe('buildPostDistributionMaterialBundle', () => {
     })
 
     it('falls back to default site url when setting is missing', async () => {
-        getSettingMock.mockImplementation(async (key: SettingKey) => {
+        getSettingMock.mockImplementation((key: SettingKey) => {
             if (key === SettingKey.POST_COPYRIGHT) {
-                return null
+                return Promise.resolve(null)
             }
 
-            return null
+            return Promise.resolve(null)
         })
         buildDistributionMaterialBundleMock.mockReturnValue({ bundle: 'runtime' })
 

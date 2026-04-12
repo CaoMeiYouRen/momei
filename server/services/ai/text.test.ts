@@ -390,7 +390,7 @@ describe('TextService', () => {
                 topic: 'AI 写作',
                 sectionTitle: '提示词设计',
                 sectionContent: '原始段落',
-                expandType: 'examples',
+                expandType: 'argument',
                 language: 'zh-CN',
             }, 'user-1')
 

@@ -81,6 +81,7 @@ vi.mock('~/server/services/setting', () => ({
 
 vi.stubGlobal('useRuntimeConfig', useRuntimeConfigMock)
 
+// eslint-disable-next-line import/order
 import { getAIProvider } from './index'
 
 function createSettings(overrides: Record<string, string> = {}) {
@@ -132,7 +133,7 @@ describe('getAIProvider', () => {
             [SettingKey.AI_PROVIDER]: 'anthropic',
         }))
 
-        const provider = await getAIProvider('text') as { kind: string, config: { provider: string } }
+        const provider = await getAIProvider('text') as unknown as { kind: string, config: { provider: string } }
 
         expect(provider.kind).toBe('anthropic')
         expect(provider.config.provider).toBe('anthropic')
@@ -147,7 +148,7 @@ describe('getAIProvider', () => {
             [SettingKey.GEMINI_API_TOKEN]: 'gemini-token',
         }))
 
-        const provider = await getAIProvider('image') as { kind: string, config: { apiToken: string, provider: string } }
+        const provider = await getAIProvider('image') as unknown as { kind: string, config: { apiToken: string, provider: string } }
 
         expect(provider.kind).toBe('gemini')
         expect(provider.config.provider).toBe('gemini')
@@ -161,7 +162,7 @@ describe('getAIProvider', () => {
             [SettingKey.AI_IMAGE_API_KEY]: 'sd-key',
         }))
 
-        const provider = await getAIProvider('image') as { kind: string }
+        const provider = await getAIProvider('image') as unknown as { kind: string }
 
         expect(provider.kind).toBe('stable-diffusion')
     })
@@ -175,7 +176,7 @@ describe('getAIProvider', () => {
             [SettingKey.ASR_ENDPOINT]: 'https://asr.example.com',
         }))
 
-        const provider = await getAIProvider('asr') as { kind: string, apiKey: string, endpoint: string, model: string }
+        const provider = await getAIProvider('asr') as unknown as { kind: string, apiKey: string, endpoint: string, model: string }
 
         expect(provider.kind).toBe('asr-siliconflow')
         expect(provider.apiKey).toBe('asr-key')
@@ -194,7 +195,7 @@ describe('getAIProvider', () => {
             [SettingKey.ASR_ENDPOINT]: 'wss://asr.example.com',
         }))
 
-        const provider = await getAIProvider('asr') as { kind: string, config: { resourceId: string, appId: string, token: string } }
+        const provider = await getAIProvider('asr') as unknown as { kind: string, config: { resourceId: string, appId: string, token: string } }
 
         expect(provider.kind).toBe('asr-volcengine')
         expect(provider.config).toMatchObject({
@@ -215,7 +216,7 @@ describe('getAIProvider', () => {
             [SettingKey.VOLCENGINE_SECRET_KEY]: 'secret-key',
         }))
 
-        const provider = await getAIProvider('tts') as { kind: string, config: { appId: string, accessKey: string, secretKey: string } }
+        const provider = await getAIProvider('tts') as unknown as { kind: string, config: { appId: string, accessKey: string, secretKey: string } }
 
         expect(provider.kind).toBe('tts-volcengine')
         expect(provider.config).toMatchObject({

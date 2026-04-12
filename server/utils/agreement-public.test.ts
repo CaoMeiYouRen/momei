@@ -25,24 +25,24 @@ describe('createAgreementPublicHandler', () => {
 
     it('returns active agreement when found', async () => {
         vi.mocked(getQuery).mockReturnValue({ language: 'en-US' })
-        getActiveAgreementContentMock.mockResolvedValue({ id: 'agreement-1', type: 'privacy-policy' })
+        getActiveAgreementContentMock.mockResolvedValue({ id: 'agreement-1', type: 'privacy_policy' })
         const handler = createAgreementPublicHandler({
-            type: 'privacy-policy',
+            type: 'privacy_policy',
             fetchErrorMessage: 'fetch failed',
             defaultContent: () => 'default',
         })
 
         const result = await handler({} as never)
 
-        expect(getActiveAgreementContentMock).toHaveBeenCalledWith('privacy-policy', 'en-US')
-        expect(result).toEqual({ code: 200, data: { id: 'agreement-1', type: 'privacy-policy' } })
+        expect(getActiveAgreementContentMock).toHaveBeenCalledWith('privacy_policy', 'en-US')
+        expect(result).toEqual({ code: 200, data: { id: 'agreement-1', type: 'privacy_policy' } })
     })
 
     it('builds default payload when no agreement exists', async () => {
         vi.mocked(getQuery).mockReturnValue({})
         getActiveAgreementContentMock.mockResolvedValue(null)
         const handler = createAgreementPublicHandler({
-            type: 'user-agreement',
+            type: 'user_agreement',
             fetchErrorMessage: 'fetch failed',
             defaultContent: () => 'default content',
         })
@@ -53,7 +53,7 @@ describe('createAgreementPublicHandler', () => {
             code: 200,
             data: expect.objectContaining({
                 id: 'default',
-                type: 'user-agreement',
+                type: 'user_agreement',
                 language: 'zh-CN',
                 content: 'default content',
                 isDefault: true,
@@ -65,7 +65,7 @@ describe('createAgreementPublicHandler', () => {
         vi.mocked(getQuery).mockReturnValue({ language: 'zh-CN' })
         getActiveAgreementContentMock.mockRejectedValue(new Error('upstream failed'))
         const handler = createAgreementPublicHandler({
-            type: 'privacy-policy',
+            type: 'privacy_policy',
             fetchErrorMessage: 'fetch failed',
             defaultContent: () => 'default content',
         })

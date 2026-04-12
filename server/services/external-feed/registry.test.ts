@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { SettingKey } from '@/types/setting'
 
 const { getSettingsMock, getSettingDefaultValueMock } = vi.hoisted(() => ({
     getSettingsMock: vi.fn(),
@@ -23,6 +22,7 @@ vi.mock('@/server/services/setting', () => ({
 }))
 
 import { getExternalFeedRegistryConfig, resolveExternalFeedLocaleBucket } from './registry'
+import { SettingKey } from '@/types/setting'
 
 describe('resolveExternalFeedLocaleBucket', () => {
     it('returns all when strategy is all', () => {

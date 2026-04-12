@@ -1,7 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ThemeConfig } from '@/server/entities/theme-config'
-import { Setting } from '@/server/entities/setting'
-import { SettingKey } from '@/types/setting'
 
 const { getRepositoryMock, themeRepo, settingRepo } = vi.hoisted(() => ({
     getRepositoryMock: vi.fn(),
@@ -30,6 +27,9 @@ import {
     getThemeConfigsService,
     updateThemeConfigService,
 } from './theme-config'
+import { ThemeConfig } from '@/server/entities/theme-config'
+import { Setting } from '@/server/entities/setting'
+import { SettingKey } from '@/types/setting'
 
 describe('theme-config service', () => {
     beforeEach(() => {
@@ -64,7 +64,7 @@ describe('theme-config service', () => {
     })
 
     it('creates non-system theme config from body', async () => {
-        themeRepo.save.mockImplementation(async (themeConfig: ThemeConfig) => themeConfig)
+        themeRepo.save.mockImplementation((themeConfig: ThemeConfig) => Promise.resolve(themeConfig))
 
         const result = await createThemeConfigService({
             name: 'My Theme',
@@ -101,7 +101,7 @@ describe('theme-config service', () => {
             isSystem: false,
         })
         themeRepo.findOneBy.mockResolvedValue(existing)
-        themeRepo.save.mockImplementation(async (themeConfig: ThemeConfig) => themeConfig)
+        themeRepo.save.mockImplementation((themeConfig: ThemeConfig) => Promise.resolve(themeConfig))
 
         const result = await updateThemeConfigService('theme-1', {
             name: 'New',
@@ -153,18 +153,18 @@ describe('theme-config service', () => {
                 ignored_null: null,
             }),
         })
-        settingRepo.findOneBy.mockImplementation(async ({ key }: { key: string }) => {
+        settingRepo.findOneBy.mockImplementation(({ key }: { key: string }) => {
             if (key === 'theme_primary_color') {
-                return { key, value: '#fff' }
+                return Promise.resolve({ key, value: '#fff' })
             }
 
-            if (key === SettingKey.THEME_ACTIVE_CONFIG_ID) {
-                return null
+            if (key === 'theme_active_config_id') {
+                return Promise.resolve(null)
             }
 
-            return null
+            return Promise.resolve(null)
         })
-        settingRepo.save.mockImplementation(async (setting: Setting) => setting)
+        settingRepo.save.mockImplementation((setting: Setting) => Promise.resolve(setting))
 
         const result = await applyThemeConfigService('theme-1')
 

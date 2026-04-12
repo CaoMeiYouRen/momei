@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { AdLocation, CampaignStatus } from '@/types/ad'
 
 const { getRepositoryMock, adapterGetMock, InMock } = vi.hoisted(() => ({
     getRepositoryMock: vi.fn(),
@@ -44,6 +43,7 @@ import {
     updatePlacement,
     updatePlacementStatus,
 } from './ad'
+import { AdLocation, CampaignStatus } from '@/types/ad'
 
 function makePlacement(overrides: Record<string, unknown> = {}) {
     return {
@@ -74,7 +74,7 @@ describe('ad service repo and filtering helpers', () => {
         find: vi.fn(),
         findOne: vi.fn(),
         create: vi.fn((data) => ({ ...data })),
-        save: vi.fn(async (data) => data),
+        save: vi.fn((data) => data),
         update: vi.fn(),
         delete: vi.fn(),
     }
@@ -83,7 +83,7 @@ describe('ad service repo and filtering helpers', () => {
         find: vi.fn(),
         findOne: vi.fn(),
         create: vi.fn((data) => ({ ...data })),
-        save: vi.fn(async (data) => data),
+        save: vi.fn((data) => data),
         update: vi.fn(),
         delete: vi.fn(),
         increment: vi.fn(),

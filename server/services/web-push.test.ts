@@ -132,7 +132,7 @@ describe('web-push service', () => {
         const subscriptionRepo = {
             findOne: vi.fn().mockResolvedValue(null),
             create: vi.fn(() => entity),
-            save: vi.fn(async (input) => input),
+            save: vi.fn((input) => input),
         }
         getRepositoryMock.mockImplementation((entityType: { name?: string }) => {
             if (entityType?.name === 'User') {

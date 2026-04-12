@@ -7,19 +7,18 @@ const { createAdSenseAdapterMock, createBaiduAdapterMock, createTencentAdapterMo
 }))
 
 function createAdapter(id: string, name: string, supportedLocales: string[]) {
+    let storedConfig: Record<string, unknown> = {}
     return {
         id,
         name,
         supportedLocales,
-        initialize: vi.fn(async function (config: Record<string, unknown>) {
-            this.config = config
+        initialize: vi.fn((config: Record<string, unknown>) => {
+            storedConfig = config
         }),
-        verifyCredentials: vi.fn(async () => true),
+        verifyCredentials: vi.fn(() => true),
         getScript: vi.fn(() => '<script></script>'),
         getPlacementHtml: vi.fn(() => '<div></div>'),
-        getConfig: vi.fn(function () {
-            return this.config || {}
-        }),
+        getConfig: vi.fn(() => storedConfig),
         supportsLocale: vi.fn((locale: string) => supportedLocales.includes('*') || supportedLocales.includes(locale)),
     }
 }
@@ -48,7 +47,7 @@ describe('AdAdapterFactory and registry', () => {
     it('creates initialized adapter instance without sharing state', async () => {
         const { AdAdapterFactory } = await import('./index')
 
-        const adapter = await AdAdapterFactory.create('adsense', { clientId: 'ca-pub-1' }) as { getConfig: () => { clientId: string }, name: string }
+        const adapter = await AdAdapterFactory.create('adsense', { clientId: 'ca-pub-1' }) as unknown as { getConfig: () => { clientId: string }, name: string }
 
         expect(adapter.name).toBe('AdSense')
         expect(adapter.getConfig()).toEqual({ clientId: 'ca-pub-1' })
