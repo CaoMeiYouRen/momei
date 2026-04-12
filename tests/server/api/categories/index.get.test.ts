@@ -6,6 +6,7 @@ import { User } from '@/server/entities/user'
 import { PostStatus } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
 import categoriesHandler from '@/server/api/categories/index.get'
+import { buildCategoryPostCountSubquery } from '@/server/utils/taxonomy-post-count'
 
 // Mock auth
 vi.mock('@/lib/auth', () => ({
@@ -245,6 +246,40 @@ describe('/api/categories', () => {
 
         expect(result.code).toBe(200)
         expect(Array.isArray(result.data?.items)).toBe(true)
+    })
+
+    it('should reproduce aggregate manage query params and keep snake_case post count aliases', async () => {
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                page: 1,
+                offset: 0,
+                limit: 10,
+                orderBy: 'createdAt',
+                order: 'DESC',
+                sortBy: 'createdAt',
+                sortDirection: 'desc',
+                aggregate: true,
+                language: 'zh-CN',
+                scope: 'manage',
+            },
+        } as any
+
+        const result = await categoriesHandler(event)
+
+        expect(result.code).toBe(200)
+        expect(Array.isArray(result.data?.items)).toBe(true)
+        expect(typeof result.data?.total).toBe('number')
+        const postCountSubquerySql = buildCategoryPostCountSubquery('published').getQuery()
+        expect(postCountSubquerySql).toContain('"taxonomy_id"')
+        expect(postCountSubquerySql).toContain('"post_count"')
+        expect(postCountSubquerySql).not.toContain('"taxonomyId"')
+        expect(postCountSubquerySql).not.toContain('"postCount"')
     })
 
     it('should count translated category posts for zh-TW fallback pages', async () => {
