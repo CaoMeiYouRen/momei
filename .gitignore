@@ -27,7 +27,7 @@ logs
 !.nuxt/eslint.config.mjs
 
 /coverage
-
+coverage*
 # VitePress
 docs/.vitepress/dist
 docs/.vitepress/cache
