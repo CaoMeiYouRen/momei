@@ -1,4 +1,21 @@
 import logger from '~/server/utils/logger'
+import { TEST_MODE } from '@/utils/shared/env'
+import { getRuntimeCache, setRuntimeCache } from '@/server/utils/runtime-cache'
+
+const INSTALLATION_STATUS_CACHE_KEY = 'installation:status'
+const INSTALLATION_STATUS_CACHE_TTL_SECONDS = 30
+
+function resolveEnvInstallationFlag() {
+    if (process.env.MOMEI_INSTALLED === 'true') {
+        return true
+    }
+
+    if (process.env.MOMEI_INSTALLED === 'false') {
+        return false
+    }
+
+    return TEST_MODE
+}
 
 /**
  * 安装检查中间件
@@ -22,15 +39,44 @@ export default defineEventHandler(async (event) => {
 
     const isInstallationPage = !!(/^(\/(zh-CN|en-US))?\/installation(\/|$)/.exec(pathname))
     const isInstallationApi = pathname.startsWith('/api/install')
+    const envInstallationFlag = resolveEnvInstallationFlag()
+
+    if (envInstallationFlag) {
+        if (isInstallationPage) {
+            return await sendRedirect(event, '/', 302)
+        }
+
+        if (isInstallationApi && pathname !== '/api/install/status') {
+            throw createError({
+                statusCode: 403,
+                statusMessage: 'System already installed.',
+            })
+        }
+
+        return
+    }
 
     try {
-        const { dataSource, initializeDB } = await import('~/server/database')
-        if (!dataSource.isInitialized) {
-            await initializeDB()
+        let status = getRuntimeCache(INSTALLATION_STATUS_CACHE_KEY) as { installed: boolean, databaseConnected: boolean } | undefined
+
+        if (!status) {
+            const { dataSource, initializeDB } = await import('~/server/database')
+            if (!dataSource.isInitialized) {
+                await initializeDB()
+            }
+
+            const { getInstallationStatus } = await import('~/server/services/installation')
+            const freshStatus = await getInstallationStatus()
+            status = {
+                installed: freshStatus.installed,
+                databaseConnected: freshStatus.databaseConnected,
+            }
+
+            if (status.installed) {
+                setRuntimeCache(INSTALLATION_STATUS_CACHE_KEY, status, INSTALLATION_STATUS_CACHE_TTL_SECONDS)
+            }
         }
-        const { getInstallationStatus } = await import('~/server/services/installation')
-        // 检查系统安装状态
-        const status = await getInstallationStatus()
+
         const installed = status.installed
 
         if (installed) {

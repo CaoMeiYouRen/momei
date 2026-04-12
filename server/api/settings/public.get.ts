@@ -4,6 +4,13 @@ import { resolveGoogleAdSenseAccount } from '~/server/utils/ad-network-config'
 import { detectRequestAuthLocale, mapAuthLocaleToAppLocale } from '~/server/utils/locale'
 import { getLocalizedFallbackChain, serializeLocalizedStringList } from '~/utils/shared/localized-settings'
 import { PUBLIC_SETTING_KEYS, SettingKey, type ResolvedLocalizedSetting } from '~/types/setting'
+import { getRuntimeCache, setRuntimeCache } from '@/server/utils/runtime-cache'
+
+const PUBLIC_SETTINGS_CACHE_TTL_SECONDS = 60
+
+function buildPublicSettingsCacheKey(locale: string) {
+    return `settings:public:${locale}`
+}
 
 /**
  * 获取公开站点配置
@@ -12,6 +19,14 @@ import { PUBLIC_SETTING_KEYS, SettingKey, type ResolvedLocalizedSetting } from '
 export default defineEventHandler(async (event) => {
     try {
         const requestedLocale = resolveAppLocaleCode(mapAuthLocaleToAppLocale(detectRequestAuthLocale(event)))
+        const cacheKey = buildPublicSettingsCacheKey(requestedLocale)
+        const cachedResponse = getRuntimeCache(cacheKey) as { code: number, data: Record<string, unknown> } | undefined
+
+        if (cachedResponse) {
+            event.node?.res?.setHeader('Cache-Control', `public, max-age=${PUBLIC_SETTINGS_CACHE_TTL_SECONDS}`)
+            return cachedResponse
+        }
+
         const fallbackChain = getLocalizedFallbackChain(requestedLocale)
         const settings = await getSettings([...PUBLIC_SETTING_KEYS, SettingKey.COMMERCIAL_SPONSORSHIP])
         const localizedSettings = resolveLocalizedSettingsFromValues(settings, [
@@ -62,7 +77,7 @@ export default defineEventHandler(async (event) => {
             resolvedCopyrightOwnerLocale = localizedOperator.resolvedLocale
         }
 
-        return {
+        const response = {
             code: 200,
             data: {
                 siteName: siteName || resolvedSiteTitle,
@@ -129,6 +144,11 @@ export default defineEventHandler(async (event) => {
                 },
             },
         }
+
+        setRuntimeCache(cacheKey, response, PUBLIC_SETTINGS_CACHE_TTL_SECONDS)
+        event.node?.res?.setHeader('Cache-Control', `public, max-age=${PUBLIC_SETTINGS_CACHE_TTL_SECONDS}`)
+
+        return response
     } catch {
         throw createError({
             statusCode: 500,

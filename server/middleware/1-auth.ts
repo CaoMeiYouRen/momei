@@ -1,5 +1,17 @@
 import logger from '@/server/utils/logger'
 
+function shouldResolveSession(pathname: string, cookieHeader: string | null | undefined) {
+    if (pathname.startsWith('/api/auth')) {
+        return true
+    }
+
+    if (!cookieHeader) {
+        return false
+    }
+
+    return /(better-auth|session)/i.test(cookieHeader)
+}
+
 /**
  * 身份验证中间件
  * 主要职责：解析 Session 并挂载到上下文，供后续处理程序或权限校验工具使用。
@@ -7,6 +19,13 @@ import logger from '@/server/utils/logger'
  */
 export default defineEventHandler(async (event) => {
     try {
+        const pathname = (event.path || '').split('?')[0] ?? ''
+        const cookieHeader = getHeader(event, 'cookie')
+
+        if (!shouldResolveSession(pathname, cookieHeader)) {
+            return
+        }
+
         const { dataSource, initializeDB } = await import('@/server/database')
         if (!dataSource.isInitialized) {
             await initializeDB()

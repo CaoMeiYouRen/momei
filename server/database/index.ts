@@ -272,6 +272,3 @@ export const initializeDB = async () => {
 }
 
 export const dataSource: DataSource = getDataSourceContext().dataSource
-
-// 避免在模块求值阶段阻塞 Nitro 监听；初始化改为后台启动。
-void initializeDB()

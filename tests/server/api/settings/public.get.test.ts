@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import publicSettingsHandler from '@/server/api/settings/public.get'
+import { clearRuntimeCache } from '@/server/utils/runtime-cache'
 import { SettingKey } from '@/types/setting'
 
 vi.mock('~/server/services/setting', () => ({
@@ -21,6 +22,7 @@ import { getSettings, resolveLocalizedSettingsFromValues } from '~/server/servic
 describe('GET /api/settings/public', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        clearRuntimeCache()
         vi.mocked(getSettings).mockResolvedValue({
             [SettingKey.SITE_NAME]: 'Momei',
             [SettingKey.SITE_TITLE]: null,
@@ -141,5 +143,14 @@ describe('GET /api/settings/public', () => {
                 siteCopyrightOwner: 'zh-CN',
             },
         })
+    })
+
+    it('should reuse short ttl cache for repeated locale requests', async () => {
+        const first = await publicSettingsHandler({} as any)
+        const second = await publicSettingsHandler({} as any)
+
+        expect(first).toEqual(second)
+        expect(getSettings).toHaveBeenCalledTimes(1)
+        expect(resolveLocalizedSettingsFromValues).toHaveBeenCalledTimes(1)
     })
 })

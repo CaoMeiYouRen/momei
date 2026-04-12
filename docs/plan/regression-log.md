@@ -61,6 +61,23 @@
     - 公开设置、友链与首页公共装配请求在命中缓存后，应能证明“不再触发数据库查询”或“显著降低重复读取次数”。
     - PostgreSQL 主线是否关闭，仍以同范围运行期 `pg_stat_statements` 或等价 live sample 为准；本方案文档只提供下一轮实现顺序与证据判断框架，不替代运行期样本。
 
+### 增量实现进展（2026-04-12）
+
+- 本轮实现范围:
+    - 数据库初始化边界收紧: 已移除 [server/database/index.ts](../../server/database/index.ts) 的模块级 `initializeDB()` 主动触发，避免仅因为模块加载就预热数据库。
+    - 安装检查链路收敛: [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 新增环境安装标记快速路径与 30 秒短缓存，减少已安装场景下重复安装状态查库。
+    - 匿名请求鉴权链路收敛: [server/middleware/1-auth.ts](../../server/middleware/1-auth.ts) 改为仅在 `api/auth` 路径或请求携带会话线索（cookie 包含 `better-auth` / `session`）时才解析 session，降低公开匿名流量触发数据库初始化概率。
+    - 公开低频配置短 TTL 缓存: [server/api/settings/public.get.ts](../../server/api/settings/public.get.ts) 与 [server/api/friend-links/index.get.ts](../../server/api/friend-links/index.get.ts) 新增 60 秒运行时缓存与 `Cache-Control` 响应头，减少同实例内重复查库。
+    - 新增缓存基础设施: [server/utils/runtime-cache.ts](../../server/utils/runtime-cache.ts) 提供轻量 TTL 缓存能力，供上述链路复用。
+- 本轮验证结果:
+    - 定向测试通过: `pnpm exec vitest run tests/server/api/settings/public.get.test.ts server/services/friend-link.test.ts`（`7` 通过，`0` 失败）。
+    - 新增缓存行为断言: [tests/server/api/settings/public.get.test.ts](../../tests/server/api/settings/public.get.test.ts) 已补“同 locale 重复请求命中短 TTL 缓存”测试，锁定 `getSettings` 只调用一次。
+    - 定向 ESLint 通过: `pnpm exec eslint server/middleware/0-installation.ts server/middleware/1-auth.ts server/api/settings/public.get.ts server/api/friend-links/index.get.ts server/utils/runtime-cache.ts tests/server/api/settings/public.get.test.ts`。
+    - 类型检查通过: `pnpm exec nuxt typecheck` 无输出。
+- 当前结论:
+    - 第二十六阶段 PostgreSQL 主线已完成一轮“减少不必要查库”增量实现，覆盖了初始化边界、匿名鉴权触发面与公开低频接口缓存三条高 ROI 收敛点。
+    - 主线关闭条件不变，仍需补同范围运行期 `pg_stat_statements` 或等价 live sample，验证 metadata 探测查询占比、重复读取次数与连接活跃窗口是否按预期下降。
+
 ### 回归任务记录
 
 - 回归范围: 第二十六阶段 P0“PostgreSQL 查询与数据库出网流量治理”补充回归；覆盖 [server/api/search/index.get.ts](../../server/api/search/index.get.ts)、[server/api/external/posts.get.ts](../../server/api/external/posts.get.ts)、[server/utils/post-list-query.ts](../../server/utils/post-list-query.ts)、既有 `posts / archive / categories / tags` 收敛 helper，以及新增 artifact [artifacts/postgres-hot-read-governance-2026-04-12.md](../../artifacts/postgres-hot-read-governance-2026-04-12.md) / [artifacts/postgres-hot-read-governance-2026-04-12.json](../../artifacts/postgres-hot-read-governance-2026-04-12.json)。
