@@ -182,6 +182,28 @@
     - 探索集成视频生成模型（如 Seedance 2.0、~~Sora 2.0~~ 等），支持基于文章内容或脚本生成动态视频素材。
     - 实现“文章转视频”工作流，为技术博文自动生成短视频概览或演示。
 
+8. **GEO / SEO 可见性与分发链路补强（候选）**
+- **候选背景（2026-04-13 巡检）**:
+    - 公开端点抽样显示：`robots.txt` 与 `sitemap.xml` 可访问，但 `feed.xml` / `feed.atom` / `feed.json` 返回 `500`，且当前页面 head 仍暴露这些订阅链接。
+    - 线上尚未提供 `llms.txt`（`404`），AI 入口导航与站点可引用摘要能力不足。
+    - 结构化数据当前以 `WebSite` / `CollectionPage` / `BlogPosting` 为主，`FAQPage` / `BreadcrumbList` / `SearchAction` 等增强 schema 仍有补齐空间。
+- **候选目标**:
+    - 修复公开分发链路可用性，避免搜索引擎与订阅客户端持续命中 `5xx`。
+    - 补齐 AI 搜索入口与实体信号，提升 ChatGPT / Claude / Perplexity 等系统的可发现性与可引用性。
+    - 在不扩大当前阶段范围的前提下，形成可复用的 GEO/SEO 验证基线（端点可用性 + 元信息 + schema）。
+- **建议切片（由高到低）**:
+    - 切片 A（P0）：`feed` 三协议路由稳定性修复与防回归（`/feed.xml`、`/feed.atom`、`/feed.json`）。
+    - 切片 B（P1）：新增 `llms.txt` 与 AI crawler 口径补充（与 `robots` / sitemap 保持一致）。
+    - 切片 C（P1）：结构化数据增强（`Organization.sameAs`、`WebSite.SearchAction`、`BreadcrumbList`、按页面条件补 `FAQPage`）。
+    - 切片 D（P2）：canonical 与 `og:url` 斜杠策略统一，减少重复 URL 信号分散。
+- **准入与上收门槛**:
+    - 若 `feed` 线上 `500` 被复核为持续性问题，并影响公开订阅或索引抓取，可按 `planning.md` 的 B 类（回归修复）评估是否插队进入当前阶段。
+    - 其余项默认维持 backlog 候选，待当前阶段收口后统一评估上收，不直接扩写为当期大任务。
+- **最低验收口径（上收后执行）**:
+    - 公开端点：`robots` / `sitemap` / `feed` / `llms` 的状态码与内容校验脚本可复用。
+    - 页面元信息：`canonical`、`hreflang`、OG、Twitter、JSON-LD 抽样验证通过。
+    - 回归留痕：将验证命令、结果摘要与剩余风险写入 `docs/plan/regression-log.md` 并在 Review Gate 引用。
+
 ## 相关文档
 
 - [项目计划](./roadmap.md)
