@@ -4,6 +4,9 @@ import { Post } from '@/server/entities/post'
 import { requireAdmin } from '@/server/utils/permission'
 import { getRequiredRouterParam } from '@/server/utils/router'
 import { success, ensureFound } from '@/server/utils/response'
+import { invalidateRuntimeApiCacheNamespace } from '@/server/utils/api-runtime-cache'
+
+const CATEGORY_PUBLIC_LIST_CACHE_NAMESPACE = 'categories:public-list'
 
 export default defineEventHandler(async (event) => {
     const id = getRequiredRouterParam(event, 'id')
@@ -34,6 +37,7 @@ export default defineEventHandler(async (event) => {
     }
 
     await categoryRepo.remove(category)
+    invalidateRuntimeApiCacheNamespace(CATEGORY_PUBLIC_LIST_CACHE_NAMESPACE)
 
     return success(null, 200)
 })

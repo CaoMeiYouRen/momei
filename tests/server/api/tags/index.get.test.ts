@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, vi } from 'vitest'
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest'
 import { dataSource } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
 import { Post } from '@/server/entities/post'
@@ -6,6 +6,8 @@ import { User } from '@/server/entities/user'
 import { PostStatus } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
 import tagsHandler from '@/server/api/tags/index.get'
+import { getRuntimeApiCacheStatsSnapshot, resetRuntimeApiCacheStats } from '@/server/utils/api-runtime-cache'
+import { clearRuntimeCache } from '@/server/utils/runtime-cache'
 
 // Mock auth
 vi.mock('@/lib/auth', () => ({
@@ -19,6 +21,11 @@ vi.mock('@/lib/auth', () => ({
 describe('/api/tags', () => {
     let author: User
     const translatedTagGroup = `tag-group-${generateRandomString(6)}`
+
+    beforeEach(() => {
+        clearRuntimeCache()
+        resetRuntimeApiCacheStats()
+    })
 
     beforeAll(async () => {
         // Initialize DB
@@ -303,5 +310,44 @@ describe('/api/tags', () => {
 
         expect(result.code).toBe(200)
         expect(result.data!.items.map((item: Tag) => item.id)).toEqual(expect.arrayContaining([zhTag.id, enTag.id]))
+    })
+
+    it('should reuse runtime cache for repeated public tag list requests', async () => {
+        const setHeader = vi.fn()
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader },
+            },
+            req: { headers: {} },
+            query: {
+                language: 'en',
+                orderBy: 'createdAt',
+                order: 'DESC',
+            },
+        } as any
+
+        const first = await tagsHandler(event)
+
+        const tagRepo = dataSource.getRepository(Tag)
+        const tag = new Tag()
+        tag.name = 'Cache Probe Tag'
+        tag.slug = `cache-probe-tag-${generateRandomString(6)}`
+        tag.language = 'en'
+        await tagRepo.save(tag)
+
+        const second = await tagsHandler(event)
+
+        expect(first).toEqual(second)
+        expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=60')
+        expect(getRuntimeApiCacheStatsSnapshot('tags:public-list')).toEqual({
+            bypasses: 0,
+            hits: 1,
+            misses: 1,
+            requests: 2,
+            writes: 1,
+            hitRate: 0.5,
+        })
     })
 })

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, vi } from 'vitest'
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest'
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
 import { Post } from '@/server/entities/post'
@@ -7,6 +7,8 @@ import { PostStatus } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
 import categoriesHandler from '@/server/api/categories/index.get'
 import { buildCategoryPostCountSubquery } from '@/server/utils/taxonomy-post-count'
+import { getRuntimeApiCacheStatsSnapshot, resetRuntimeApiCacheStats } from '@/server/utils/api-runtime-cache'
+import { clearRuntimeCache } from '@/server/utils/runtime-cache'
 
 // Mock auth
 vi.mock('@/lib/auth', () => ({
@@ -20,6 +22,11 @@ vi.mock('@/lib/auth', () => ({
 describe('/api/categories', () => {
     let author: User
     const translatedCategoryGroup = `tech-group-${generateRandomString(6)}`
+
+    beforeEach(() => {
+        clearRuntimeCache()
+        resetRuntimeApiCacheStats()
+    })
 
     beforeAll(async () => {
         // Initialize DB
@@ -362,5 +369,45 @@ describe('/api/categories', () => {
 
         expect(result.code).toBe(200)
         expect(result.data!.items.map((item: Category) => item.id)).toEqual(expect.arrayContaining([zhCategory.id, enCategory.id]))
+    })
+
+    it('should reuse runtime cache for repeated public category list requests', async () => {
+        const setHeader = vi.fn()
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader },
+            },
+            req: { headers: {} },
+            query: {
+                language: 'zh',
+                orderBy: 'createdAt',
+                order: 'DESC',
+            },
+        } as any
+
+        const first = await categoriesHandler(event)
+
+        const categoryRepo = dataSource.getRepository(Category)
+        const category = new Category()
+        category.name = '缓存分类探针'
+        category.slug = `cache-probe-category-${generateRandomString(6)}`
+        category.description = 'cache probe'
+        category.language = 'zh'
+        await categoryRepo.save(category)
+
+        const second = await categoriesHandler(event)
+
+        expect(first).toEqual(second)
+        expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=60')
+        expect(getRuntimeApiCacheStatsSnapshot('categories:public-list')).toEqual({
+            bypasses: 0,
+            hits: 1,
+            misses: 1,
+            requests: 2,
+            writes: 1,
+            hitRate: 0.5,
+        })
     })
 })

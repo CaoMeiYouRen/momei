@@ -2,9 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
     applyRuntimeApiCacheControl,
     buildRuntimeApiCacheKey,
+    getRuntimeApiCacheStatsSnapshot,
+    invalidateRuntimeApiCacheNamespace,
+    resetRuntimeApiCacheStats,
     withRuntimeApiCache,
 } from './api-runtime-cache'
-import { clearRuntimeCache } from './runtime-cache'
+import { clearRuntimeCache, getRuntimeCache } from './runtime-cache'
 
 function createEvent() {
     return {
@@ -19,6 +22,7 @@ function createEvent() {
 describe('api-runtime-cache', () => {
     beforeEach(() => {
         clearRuntimeCache()
+        resetRuntimeApiCacheStats()
         vi.clearAllMocks()
     })
 
@@ -46,6 +50,7 @@ describe('api-runtime-cache', () => {
         const first = await withRuntimeApiCache({
             event,
             key: 'cache:test:key',
+            namespace: 'cache:test',
             ttlSeconds: 60,
             isSharedPublicResponse: true,
             loader,
@@ -54,6 +59,7 @@ describe('api-runtime-cache', () => {
         const second = await withRuntimeApiCache({
             event,
             key: 'cache:test:key',
+            namespace: 'cache:test',
             ttlSeconds: 60,
             isSharedPublicResponse: true,
             loader,
@@ -63,6 +69,14 @@ describe('api-runtime-cache', () => {
         expect(second).toEqual({ code: 200 })
         expect(loader).toHaveBeenCalledTimes(1)
         expect(event.node.res.setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=60')
+        expect(getRuntimeApiCacheStatsSnapshot('cache:test')).toEqual({
+            bypasses: 0,
+            hits: 1,
+            misses: 1,
+            requests: 2,
+            writes: 1,
+            hitRate: 0.5,
+        })
     })
 
     it('should bypass runtime cache for private responses', async () => {
@@ -74,6 +88,7 @@ describe('api-runtime-cache', () => {
         const first = await withRuntimeApiCache({
             event,
             key: 'cache:test:private',
+            namespace: 'cache:test:private',
             ttlSeconds: 60,
             isSharedPublicResponse: false,
             loader,
@@ -82,6 +97,7 @@ describe('api-runtime-cache', () => {
         const second = await withRuntimeApiCache({
             event,
             key: 'cache:test:private',
+            namespace: 'cache:test:private',
             ttlSeconds: 60,
             isSharedPublicResponse: false,
             loader,
@@ -91,5 +107,41 @@ describe('api-runtime-cache', () => {
         expect(second).toEqual({ code: 200, n: 2 })
         expect(loader).toHaveBeenCalledTimes(2)
         expect(event.node.res.setHeader).toHaveBeenCalledWith('Cache-Control', 'private, no-store')
+        expect(getRuntimeApiCacheStatsSnapshot('cache:test:private')).toEqual({
+            bypasses: 2,
+            hits: 0,
+            misses: 0,
+            requests: 2,
+            writes: 0,
+            hitRate: 0,
+        })
+    })
+
+    it('should invalidate all remembered keys under the same namespace', async () => {
+        const event = createEvent()
+
+        await withRuntimeApiCache({
+            event,
+            key: 'taxonomy:list:page-1',
+            namespace: 'taxonomy:list',
+            ttlSeconds: 60,
+            isSharedPublicResponse: true,
+            loader: async () => ({ code: 200, page: 1 }),
+        })
+
+        await withRuntimeApiCache({
+            event,
+            key: 'taxonomy:list:page-2',
+            namespace: 'taxonomy:list',
+            ttlSeconds: 60,
+            isSharedPublicResponse: true,
+            loader: async () => ({ code: 200, page: 2 }),
+        })
+
+        expect(getRuntimeCache('taxonomy:list:page-1')).toEqual({ code: 200, page: 1 })
+        expect(getRuntimeCache('taxonomy:list:page-2')).toEqual({ code: 200, page: 2 })
+        expect(invalidateRuntimeApiCacheNamespace('taxonomy:list')).toBe(2)
+        expect(getRuntimeCache('taxonomy:list:page-1')).toBeUndefined()
+        expect(getRuntimeCache('taxonomy:list:page-2')).toBeUndefined()
     })
 })

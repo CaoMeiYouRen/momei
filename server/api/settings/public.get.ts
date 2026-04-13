@@ -7,6 +7,7 @@ import { PUBLIC_SETTING_KEYS, SettingKey, type ResolvedLocalizedSetting } from '
 import { buildRuntimeApiCacheKey, withRuntimeApiCache } from '@/server/utils/api-runtime-cache'
 
 const PUBLIC_SETTINGS_CACHE_TTL_SECONDS = 60
+const PUBLIC_SETTINGS_CACHE_NAMESPACE = 'settings:public'
 
 /**
  * 获取公开站点配置
@@ -17,12 +18,13 @@ export default defineEventHandler(async (event) => {
         // 先把认证边界 locale 映射回 AppLocaleCode，再进入 settings 读取，
         // 确保前后台 locale 口径一致且可命中同一缓存 key。
         const requestedLocale = resolveAppLocaleCode(mapAuthLocaleToAppLocale(detectRequestAuthLocale(event)))
-        const cacheKey = buildRuntimeApiCacheKey('settings:public', requestedLocale)
+        const cacheKey = buildRuntimeApiCacheKey(PUBLIC_SETTINGS_CACHE_NAMESPACE, requestedLocale)
         // 公共配置属于高频低实时性读场景，60 秒短 TTL 用于削峰，
         // 配置变更后的短暂陈旧窗口可接受。
         return await withRuntimeApiCache({
             event,
             key: cacheKey,
+            namespace: PUBLIC_SETTINGS_CACHE_NAMESPACE,
             ttlSeconds: PUBLIC_SETTINGS_CACHE_TTL_SECONDS,
             isSharedPublicResponse: true,
             loader: async () => {

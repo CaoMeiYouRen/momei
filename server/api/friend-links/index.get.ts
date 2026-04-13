@@ -3,9 +3,10 @@ import { success } from '@/server/utils/response'
 import { buildRuntimeApiCacheKey, withRuntimeApiCache } from '@/server/utils/api-runtime-cache'
 
 const PUBLIC_FRIEND_LINKS_CACHE_TTL_SECONDS = 60
+const PUBLIC_FRIEND_LINKS_CACHE_NAMESPACE = 'friend-links:public'
 
 function buildPublicFriendLinksCacheKey(featured: boolean, limit?: number, categoryId?: string) {
-    return buildRuntimeApiCacheKey('friend-links:public', featured, limit ?? 'all', categoryId ?? 'all')
+    return buildRuntimeApiCacheKey(PUBLIC_FRIEND_LINKS_CACHE_NAMESPACE, featured, limit ?? 'all', categoryId ?? 'all')
 }
 
 export default defineEventHandler(async (event) => {
@@ -18,6 +19,7 @@ export default defineEventHandler(async (event) => {
     return await withRuntimeApiCache({
         event,
         key: cacheKey,
+        namespace: PUBLIC_FRIEND_LINKS_CACHE_NAMESPACE,
         ttlSeconds: PUBLIC_FRIEND_LINKS_CACHE_TTL_SECONDS,
         isSharedPublicResponse: true,
         loader: async () => {

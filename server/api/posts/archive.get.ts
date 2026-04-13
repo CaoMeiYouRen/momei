@@ -15,6 +15,7 @@ import { buildRuntimeApiCacheKey, withRuntimeApiCache } from '@/server/utils/api
 import { SettingKey } from '@/types/setting'
 
 const ARCHIVE_CACHE_TTL_SECONDS = 60
+const ARCHIVE_CACHE_NAMESPACE = 'posts:archive'
 
 function buildArchiveCacheKey(query: {
     includePosts?: boolean
@@ -26,7 +27,7 @@ function buildArchiveCacheKey(query: {
     year?: number
 }) {
     return buildRuntimeApiCacheKey(
-        'posts:archive',
+    ARCHIVE_CACHE_NAMESPACE,
         query.scope,
         query.includePosts ? '1' : '0',
         query.language ?? 'default',
@@ -128,6 +129,7 @@ export default defineEventHandler(async (event) => {
         return await withRuntimeApiCache({
             event,
             key: archiveCacheKey,
+            namespace: ARCHIVE_CACHE_NAMESPACE,
             ttlSeconds: ARCHIVE_CACHE_TTL_SECONDS,
             isSharedPublicResponse,
             loader: async () => {
@@ -172,6 +174,7 @@ export default defineEventHandler(async (event) => {
     return await withRuntimeApiCache({
         event,
         key: archiveCacheKey,
+        namespace: ARCHIVE_CACHE_NAMESPACE,
         ttlSeconds: ARCHIVE_CACHE_TTL_SECONDS,
         isSharedPublicResponse,
         loader: async () => {

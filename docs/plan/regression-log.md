@@ -33,6 +33,44 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## 第二十七阶段接口缓存复用与扩面验收（2026-04-13）
+
+### 回归任务记录
+
+- 回归范围: 第二十七阶段 P1“接口缓存逻辑复用与可缓存接口扩面切片”；覆盖 [server/utils/api-runtime-cache.ts](../../server/utils/api-runtime-cache.ts)、[server/api/settings/public.get.ts](../../server/api/settings/public.get.ts)、[server/api/friend-links/index.get.ts](../../server/api/friend-links/index.get.ts)、[server/api/posts/archive.get.ts](../../server/api/posts/archive.get.ts)、[server/api/categories/index.get.ts](../../server/api/categories/index.get.ts)、[server/api/tags/index.get.ts](../../server/api/tags/index.get.ts) 及其定向测试。
+- 触发条件: 当前阶段需要把“缓存复用层 + 高收益公开接口扩面 + 可追踪验收证据”一次性收口，并补齐后续 TTL 调优所需的命中 / 旁路统计口径。
+- 执行频率: 第二十七阶段该主线首轮也是当前收口轮；后续仅在继续扩面或调整 TTL / 失效策略时追加增量记录。
+- timeout budget:
+    - 缓存层扩展（namespace 失效 + 统计埋点）: 25 分钟。
+    - 分类 / 标签公开列表扩面与写链路失效接入: 30 分钟。
+    - 定向测试 / typecheck / 错误面检查: 30 分钟。
+    - 验收文档与规划同步: 20 分钟。
+- 已执行命令:
+    - `pnpm exec vitest run server/utils/api-runtime-cache.test.ts tests/server/api/archive.test.ts tests/server/api/settings/public.get.test.ts tests/server/api/categories/index.get.test.ts tests/server/api/tags/index.get.test.ts`
+    - `pnpm exec nuxt typecheck`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 复用层治理: [server/utils/api-runtime-cache.ts](../../server/utils/api-runtime-cache.ts) 已新增 namespace 级失效与命中 / 未命中 / 旁路 / 写入计数器；[server/utils/api-runtime-cache.test.ts](../../server/utils/api-runtime-cache.test.ts) 已锁定命中率统计与 namespace 失效行为。
+        - V1 / 接口扩面: 分类公开列表与标签公开列表已接入统一缓存层，并在各自新增 / 更新 / 删除接口中补上 namespace 失效，避免只能依赖 TTL 自然过期。
+        - V1 / 定向测试: 上述 5 个测试文件通过，覆盖缓存命中、旁路统计、namespace 失效，以及 archive / settings / categories / tags 的公开接口缓存边界。
+        - V1 / 类型层: `pnpm exec nuxt typecheck` 通过。
+        - V1 / 证据层: 已新增 [cacheable-api-inventory.md](./cacheable-api-inventory.md)，统一记录接口、TTL、共享边界、失效策略与观测 namespace。
+    - 结果摘要:
+        - 当前阶段已接入统一缓存层的接口共 `5` 组：`settings/public`、`friend-links/index`、`posts/archive`、`categories/index`、`tags/index`。
+        - 其中分类 / 标签公开列表已形成“读缓存 + 写失效”的第一组完整落地验证；设置、友链与归档则继续采用短 TTL + 权限边界控制，避免当前阶段扩写为跨部署缓存一致性工程。
+        - 缓存层现在可以提供按 namespace 的命中率与旁路统计，后续如需调大 / 调小某组 TTL，已经有统一的比较口径，而不必再人工分散埋点。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: none
+        - 主要问题:
+            - 未发现 blocker；当前主线验收已满足“缓存复用层抽离 + 高收益接口扩面 + 一轮定向验证 + 证据文档落盘”。
+    - 未覆盖边界:
+        - 当前统计口径仍是进程内计数，不覆盖多实例聚合，也不替代数据库长窗口样本。
+        - `settings/public`、`friend-links/index` 与 `posts/archive` 目前仍以 TTL 自然过期为主，没有补后台写链路主动失效。
+    - 后续补跑计划:
+        - 若下一轮继续扩面，可优先评估搜索、外部文章列表或其他公开列表接口是否值得接入统一 namespace 失效。
+        - 若要做 TTL 调优，应先读取对应 namespace 的命中率 / 旁路统计，再决定是否收紧或放宽 `60s` 基线。
+
 ## 第二十六阶段收口复核（2026-04-13）
 
 ### 回归任务记录
