@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeAll, vi } from 'vitest'
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { User } from '@/server/entities/user'
 import { PostStatus } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
 import archiveHandler from '@/server/api/posts/archive.get'
+import { clearRuntimeCache } from '@/server/utils/runtime-cache'
 
 // Mock auth
 vi.mock('@/lib/auth', () => ({
@@ -17,6 +18,10 @@ vi.mock('@/lib/auth', () => ({
 
 describe('Archive API', () => {
     let author: User
+
+    beforeEach(() => {
+        clearRuntimeCache()
+    })
 
     // Skip actual Nuxt setup since we are unit testing the handler logic with mocked globals
     // But we need DB connection. Nuxt test utils setup handles environment variables often.
@@ -180,5 +185,40 @@ describe('Archive API', () => {
 
         expect(result.code).toBe(200)
         expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'private, no-store')
+    })
+
+    it('should reuse runtime cache for anonymous public archive summary requests', async () => {
+        const setHeader = vi.fn()
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader },
+            },
+            req: { headers: {} },
+            query: {
+                scope: 'public',
+            },
+        } as any
+
+        const first = await archiveHandler(event)
+
+        const postRepo = dataSource.getRepository(Post)
+        const post = new Post()
+        post.title = 'Cache Probe Post'
+        post.slug = generateRandomString(12)
+        post.content = 'content'
+        post.status = PostStatus.PUBLISHED
+        post.author = author
+        post.isPinned = false
+        const created = new Date('2024-03-01T12:00:00Z')
+        post.publishedAt = created
+        post.createdAt = created
+        await postRepo.save(post)
+
+        const second = await archiveHandler(event)
+
+        expect(first).toEqual(second)
+        expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=60')
     })
 })

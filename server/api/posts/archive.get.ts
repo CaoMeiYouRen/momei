@@ -1,4 +1,3 @@
-import type { H3Event } from 'h3'
 import { Brackets, type SelectQueryBuilder, type WhereExpressionBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
@@ -12,10 +11,30 @@ import { applyPostVisibilityFilter, rethrowPostAccessError } from '@/server/util
 import { applyPostsReadModelFromMetadata } from '@/server/utils/post-metadata'
 import { applyPostOrdering } from '@/server/utils/post-ordering'
 import { applyPostListSelect } from '@/server/utils/post-list-query'
+import { buildRuntimeApiCacheKey, withRuntimeApiCache } from '@/server/utils/api-runtime-cache'
 import { SettingKey } from '@/types/setting'
 
-function applyArchiveCacheHeader(event: H3Event, isSharedPublicResponse: boolean) {
-    event.node.res.setHeader('Cache-Control', isSharedPublicResponse ? 'public, max-age=60' : 'private, no-store')
+const ARCHIVE_CACHE_TTL_SECONDS = 60
+
+function buildArchiveCacheKey(query: {
+    includePosts?: boolean
+    language?: null | string
+    limit: number
+    month?: number
+    page: number
+    scope: 'manage' | 'public'
+    year?: number
+}) {
+    return buildRuntimeApiCacheKey(
+        'posts:archive',
+        query.scope,
+        query.includePosts ? '1' : '0',
+        query.language ?? 'default',
+        query.year ?? 'all',
+        query.month ?? 'all',
+        query.page,
+        query.limit,
+    )
 }
 
 export default defineEventHandler(async (event) => {
@@ -25,6 +44,7 @@ export default defineEventHandler(async (event) => {
     const session = event.context?.auth
     const user = event.context?.user
     const isSharedPublicResponse = query.scope === 'public' && !session?.user && !user
+    const archiveCacheKey = buildArchiveCacheKey(query)
 
     const postRepo = dataSource.getRepository(Post)
 
@@ -105,76 +125,87 @@ export default defineEventHandler(async (event) => {
 
     // If includePosts = false, return aggregated tree
     if (!query.includePosts) {
-        const rawQb = postRepo.createQueryBuilder('post')
-            .select([`${yearExpr} as year`, `${monthExpr} as month`, 'COUNT(*) as count'])
+        return await withRuntimeApiCache({
+            event,
+            key: archiveCacheKey,
+            ttlSeconds: ARCHIVE_CACHE_TTL_SECONDS,
+            isSharedPublicResponse,
+            loader: async () => {
+                const rawQb = postRepo.createQueryBuilder('post')
+                    .select([`${yearExpr} as year`, `${monthExpr} as month`, 'COUNT(*) as count'])
 
-        await applyCommonFilters(rawQb)
+                await applyCommonFilters(rawQb)
 
-        rawQb.groupBy('year')
-            .addGroupBy('month')
-            .orderBy('year', 'DESC')
-            .addOrderBy('month', 'DESC')
+                rawQb.groupBy('year')
+                    .addGroupBy('month')
+                    .orderBy('year', 'DESC')
+                    .addOrderBy('month', 'DESC')
 
-        const raw = await rawQb.getRawMany()
-        // ... rest of logic remains same
-        // Normalize raw rows to numbers and group by year
-        const yearsMap = new Map<number, { month: number, count: number }[]>()
+                const raw = await rawQb.getRawMany()
+                // Normalize raw rows to numbers and group by year
+                const yearsMap = new Map<number, { month: number, count: number }[]>()
 
-        for (const r of raw) {
-            const year = Number(r.year)
-            const month = Number(r.month)
-            const count = Number(r.count)
+                for (const r of raw) {
+                    const year = Number(r.year)
+                    const month = Number(r.month)
+                    const count = Number(r.count)
 
-            if (!yearsMap.has(year)) {
-                yearsMap.set(year, [])
-            }
-            yearsMap.get(year)!.push({ month, count })
-        }
+                    if (!yearsMap.has(year)) {
+                        yearsMap.set(year, [])
+                    }
+                    yearsMap.get(year)!.push({ month, count })
+                }
 
-        const items = Array.from(yearsMap.entries()).map(([year, months]) => ({ year, months }))
-
-        // Cache for short period
-        applyArchiveCacheHeader(event, isSharedPublicResponse)
-
-        return success(items)
+                const items = Array.from(yearsMap.entries()).map(([year, months]) => ({ year, months }))
+                return success(items)
+            },
+        })
     }
 
     // includePosts = true -> require year and month to be meaningful
     if (!query.year || !query.month) {
         throw createError({ statusCode: 400, statusMessage: 'year and month required when includePosts=true' })
     }
+    const targetYear = query.year
+    const targetMonth = query.month
 
-    // Fetch posts for specific year/month with pagination
-    const postsQb = applyPostListSelect(postRepo.createQueryBuilder('post'))
+    return await withRuntimeApiCache({
+        event,
+        key: archiveCacheKey,
+        ttlSeconds: ARCHIVE_CACHE_TTL_SECONDS,
+        isSharedPublicResponse,
+        loader: async () => {
+            // Fetch posts for specific year/month with pagination
+            const postsQb = applyPostListSelect(postRepo.createQueryBuilder('post'))
 
-    await applyCommonFilters(postsQb)
+            await applyCommonFilters(postsQb)
 
-    // Add year/month filter depending on DB
-    if (dbType.includes('sqlite')) {
-        postsQb.andWhere('strftime(\'%Y\', post.published_at) = :y AND strftime(\'%m\', post.published_at) = :m', { y: `${query.year}`, m: query.month.toString().padStart(2, '0') })
-    } else if (dbType.includes('postgres')) {
-        postsQb.andWhere('EXTRACT(YEAR FROM post.published_at) = :y AND EXTRACT(MONTH FROM post.published_at) = :m', { y: query.year, m: query.month })
-    } else {
-        postsQb.andWhere('YEAR(post.published_at) = :y AND MONTH(post.published_at) = :m', { y: query.year, m: query.month })
-    }
+            // Add year/month filter depending on DB
+            if (dbType.includes('sqlite')) {
+                postsQb.andWhere('strftime(\'%Y\', post.published_at) = :y AND strftime(\'%m\', post.published_at) = :m', { y: `${targetYear}`, m: targetMonth.toString().padStart(2, '0') })
+            } else if (dbType.includes('postgres')) {
+                postsQb.andWhere('EXTRACT(YEAR FROM post.published_at) = :y AND EXTRACT(MONTH FROM post.published_at) = :m', { y: targetYear, m: targetMonth })
+            } else {
+                postsQb.andWhere('YEAR(post.published_at) = :y AND MONTH(post.published_at) = :m', { y: targetYear, m: targetMonth })
+            }
 
-    applyPostOrdering(postsQb, {
-        alias: 'post',
-        orderBy: 'publishedAt',
-        order: 'DESC',
-        prioritizePinned: true,
+            applyPostOrdering(postsQb, {
+                alias: 'post',
+                orderBy: 'publishedAt',
+                order: 'DESC',
+                prioritizePinned: true,
+            })
+            postsQb.skip((query.page - 1) * query.limit)
+            postsQb.take(query.limit)
+
+            const [items, total] = await postsQb.getManyAndCount()
+            applyPostsReadModelFromMetadata(items)
+
+            // 处理作者哈希并保护隐私
+            const isUserAdmin = session?.user && isAdmin(session.user.role)
+            await processAuthorsPrivacy(items, !!isUserAdmin)
+
+            return success(paginate(items, total, query.page, query.limit))
+        },
     })
-    postsQb.skip((query.page - 1) * query.limit)
-    postsQb.take(query.limit)
-
-    const [items, total] = await postsQb.getManyAndCount()
-    applyPostsReadModelFromMetadata(items)
-
-    // 处理作者哈希并保护隐私
-    const isUserAdmin = session?.user && isAdmin(session.user.role)
-    await processAuthorsPrivacy(items, !!isUserAdmin)
-
-    applyArchiveCacheHeader(event, isSharedPublicResponse)
-
-    return success(paginate(items, total, query.page, query.limit))
 })
