@@ -91,12 +91,13 @@
 import Tag from 'primevue/tag'
 import Button from 'primevue/button'
 import type { Comment } from '@/types/comment'
-import { createMarkdownRenderer } from '@/utils/shared/markdown'
 
 const props = defineProps<{
     comment: Comment
     isReply?: boolean
 }>()
+
+const { createMarkdownRenderer } = await import('@/utils/shared/markdown')
 
 defineEmits<{
     (e: 'reply', comment: Comment): void

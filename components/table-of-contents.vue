@@ -24,11 +24,12 @@
 
 <script setup lang="ts">
 import { sanitizeHtmlToText } from '@/utils/shared/html'
-import { createMarkdownRenderer } from '@/utils/shared/markdown'
 
 const props = defineProps<{
     content: string
 }>()
+
+const { createMarkdownRenderer } = await import('@/utils/shared/markdown')
 
 interface Heading {
     id: string

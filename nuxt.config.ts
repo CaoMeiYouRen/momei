@@ -247,9 +247,6 @@ export default defineNuxtConfig({
             },
             locale: zh_CN,
         },
-        components: {
-            include: '*',
-        },
     },
     i18n: {
         locales: NUXT_I18N_LOCALES,

@@ -22,7 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import { createMarkdownRenderer, sanitizeRenderedMarkdownHtml } from '@/utils/shared/markdown'
 const props = defineProps<{
     content: string
 }>()
@@ -30,6 +29,13 @@ const props = defineProps<{
 const articleRef = ref<HTMLElement | null>(null)
 const lightboxVisible = ref(false)
 const lightboxImage = ref('')
+
+defineExpose({
+    lightboxVisible,
+    lightboxImage,
+})
+
+const { createMarkdownRenderer, sanitizeRenderedMarkdownHtml } = await import('@/utils/shared/markdown')
 
 /**
  * 处理正文区域的点击事件（代理模式）
@@ -118,11 +124,6 @@ const initCodeGroups = () => {
 
 onMounted(() => {
     initCodeGroups()
-})
-
-defineExpose({
-    lightboxVisible,
-    lightboxImage,
 })
 
 watch(() => props.content, () => {

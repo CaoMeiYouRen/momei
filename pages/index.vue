@@ -202,7 +202,7 @@ const latestPosts = computed(() => {
 
 const latestPostIds = computed(() => latestPosts.value.map((post) => String(post.id)))
 
-const { data: popularData, pending: popularPending, error: popularError } = await useAppFetch<ApiResponse<PostListData>>('/api/posts', {
+const { data: popularData, pending: popularPending, error: popularError } = useAppFetch<ApiResponse<PostListData>>('/api/posts', {
     query: {
         limit: 3,
         isPinned: false,
@@ -211,6 +211,8 @@ const { data: popularData, pending: popularPending, error: popularError } = awai
         order: 'DESC',
         excludeIds: latestPostIds,
     },
+    server: false,
+    lazy: true,
     watch: [latestPostIds],
 })
 
@@ -223,7 +225,10 @@ const {
     data: externalFeedData,
     pending: externalFeedPending,
     error: externalFeedError,
-} = await useAppFetch<ApiResponse<ExternalFeedHomePayload>>('/api/external-feed/home')
+} = useAppFetch<ApiResponse<ExternalFeedHomePayload>>('/api/external-feed/home', {
+    server: false,
+    lazy: true,
+})
 
 const externalFeedItems = computed(() => externalFeedData.value?.data?.items || [])
 const externalFeedStale = computed(() => Boolean(externalFeedData.value?.data?.stale))

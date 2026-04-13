@@ -181,7 +181,7 @@
                                             v-model="password"
                                             type="password"
                                             :placeholder="$t('pages.posts.password_placeholder')"
-                                            class="flex-grow"
+                                            class="grow"
                                             @keyup.enter="unlockPost"
                                         />
                                         <Button

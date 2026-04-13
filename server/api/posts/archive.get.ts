@@ -27,7 +27,7 @@ function buildArchiveCacheKey(query: {
     year?: number
 }) {
     return buildRuntimeApiCacheKey(
-    ARCHIVE_CACHE_NAMESPACE,
+        ARCHIVE_CACHE_NAMESPACE,
         query.scope,
         query.includePosts ? '1' : '0',
         query.language ?? 'default',

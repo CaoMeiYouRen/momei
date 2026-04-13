@@ -119,6 +119,8 @@ describe('api-runtime-cache', () => {
 
     it('should invalidate all remembered keys under the same namespace', async () => {
         const event = createEvent()
+        const firstLoader = vi.fn().mockResolvedValue({ code: 200, page: 1 })
+        const secondLoader = vi.fn().mockResolvedValue({ code: 200, page: 2 })
 
         await withRuntimeApiCache({
             event,
@@ -126,7 +128,7 @@ describe('api-runtime-cache', () => {
             namespace: 'taxonomy:list',
             ttlSeconds: 60,
             isSharedPublicResponse: true,
-            loader: async () => ({ code: 200, page: 1 }),
+            loader: firstLoader,
         })
 
         await withRuntimeApiCache({
@@ -135,7 +137,7 @@ describe('api-runtime-cache', () => {
             namespace: 'taxonomy:list',
             ttlSeconds: 60,
             isSharedPublicResponse: true,
-            loader: async () => ({ code: 200, page: 2 }),
+            loader: secondLoader,
         })
 
         expect(getRuntimeCache('taxonomy:list:page-1')).toEqual({ code: 200, page: 1 })
