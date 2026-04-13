@@ -46,18 +46,18 @@ export default defineEventHandler(async (event) => {
     const postCountQuery = buildCategoryPostCountSubquery(publishedStatus)
     const queryBuilder = baseQueryBuilder.clone()
         .leftJoin(`(${postCountQuery.getQuery()})`, 'post_count_summary', 'post_count_summary.taxonomy_id = COALESCE(category.translationId, category.id)')
-        .addSelect('COALESCE(post_count_summary.post_count, 0)', 'category_postCount')
+        .addSelect('COALESCE(post_count_summary.post_count, 0)', 'category_post_count')
         .setParameters(postCountQuery.getParameters())
 
     if (query.orderBy === 'postCount') {
-        queryBuilder.orderBy('category_postCount', query.order || 'DESC')
+        queryBuilder.orderBy('category_post_count', query.order || 'DESC')
     } else {
         queryBuilder.orderBy(`category.${query.orderBy || 'createdAt'}`, query.order || 'DESC')
     }
 
     const { entities, raw } = await applyPagination(queryBuilder, query).getRawAndEntities()
     const items = entities.map((item, index) => Object.assign(item, {
-        postCount: Number(raw[index]?.category_postCount || 0),
+        postCount: Number(raw[index]?.category_post_count || 0),
     }))
 
     // Attach translation information
