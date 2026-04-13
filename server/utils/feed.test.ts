@@ -117,6 +117,8 @@ describe('Feed Generation Utility', () => {
         const feed = await generateFeed(event)
         expect(feed.options.title).toBe('墨梅博客')
         expect(feed.options.language).toBe('zh-CN')
+        expect(feed.options.description).not.toBe('feed.description')
+        expect(feed.options.copyright).not.toContain('feed.copyright')
         // Should only contain the ZH post
         expect(feed.items.length).toBe(1)
         expect(feed.items[0]!.title).toBe('RSS 中文文章')

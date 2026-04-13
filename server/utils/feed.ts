@@ -24,6 +24,12 @@ interface LegacyAudioCarrier {
     audioMimeType?: string | null
 }
 
+const DEFAULT_FEED_DESCRIPTION = 'Momei Blog - AI-driven, natively internationalized developer blog platform.'
+
+function isUnresolvedI18nKey(value: string, key: string) {
+    return value === key || value.trim().length === 0
+}
+
 function getLegacyAudio(post: Post): LegacyAudioCarrier {
     return post as unknown as LegacyAudioCarrier
 }
@@ -39,6 +45,9 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
     const config = useRuntimeConfig()
     const siteUrl = (config.public.siteUrl) || 'https://momei.app'
     const appName = (config.public.appName) || '墨梅博客'
+    const siteDescription = typeof config.public.siteDescription === 'string'
+        ? config.public.siteDescription.trim()
+        : ''
 
     const language = getFeedLanguage(event, options.language)
     const md = new MarkdownIt({
@@ -95,16 +104,25 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
     const title = options.titleSuffix ? `${appName} - ${options.titleSuffix}` : appName
     const path = event.path || '/'
     const basePath = (path.split('?')[0] || '').replace(/\.(xml|atom|json)$/, '')
+    const translatedDescription = await t('feed.description')
+    const feedDescription = isUnresolvedI18nKey(translatedDescription, 'feed.description')
+        ? (siteDescription || DEFAULT_FEED_DESCRIPTION)
+        : translatedDescription
+
+    const translatedCopyright = await t('feed.copyright', { year: new Date().getFullYear(), appName })
+    const feedCopyright = isUnresolvedI18nKey(translatedCopyright, 'feed.copyright')
+        ? `© ${new Date().getFullYear()} ${appName}. All rights reserved.`
+        : translatedCopyright
 
     const feed = new Feed({
         title,
-        description: await t('feed.description'),
+        description: feedDescription,
         id: siteUrl,
         link: siteUrl,
         language,
         image: `${siteUrl}/logo.png`,
         favicon: `${siteUrl}/favicon.ico`,
-        copyright: await t('feed.copyright', { year: new Date().getFullYear(), appName }),
+        copyright: feedCopyright,
         updated: feedPosts[0] ? new Date(feedPosts[0].publishedAt || feedPosts[0].createdAt) : new Date(),
         generator: 'Momei Blog',
         feedLinks: {
