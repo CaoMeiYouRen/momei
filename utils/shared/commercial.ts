@@ -12,13 +12,13 @@ interface CommercialPlatformDefinition {
 }
 
 export const SOCIAL_PLATFORMS: CommercialPlatformDefinition[] = [
-    { key: 'wechat_mp', icon: 'pi pi-comments', color: '#07c160', type: 'both' },
-    { key: 'juejin', icon: 'pi pi-code', color: '#1e80ff', type: 'url' },
-    { key: 'xiaohongshu', icon: 'pi pi-bookmark', color: '#ff2442', type: 'both' },
+    { key: 'wechat_mp', icon: 'iconfont icon-weixingongzhonghao', color: '#07c160', type: 'both' },
+    { key: 'juejin', icon: 'iconfont icon-juejin', color: '#1e80ff', type: 'url' },
+    { key: 'xiaohongshu', icon: 'iconfont icon-xiaohongshu', color: '#ff2442', type: 'both' },
     { key: 'douyin', icon: 'pi pi-tiktok', color: '#111111', type: 'both' },
-    { key: 'bilibili', icon: 'pi pi-play', color: '#00aeec', type: 'url' },
-    { key: 'weibo', icon: 'pi pi-weibo', color: '#e6162d', type: 'url' },
-    { key: 'zhihu', icon: 'pi pi-question-circle', color: '#0084ff', type: 'url' },
+    { key: 'bilibili', icon: 'iconfont icon-bilibili', color: '#00aeec', type: 'url' },
+    { key: 'weibo', icon: 'iconfont icon-weibo', color: '#e6162d', type: 'url' },
+    { key: 'zhihu', icon: 'iconfont icon-zhihu', color: '#0084ff', type: 'url' },
     { key: 'stack_overflow', icon: 'mdi mdi-stack-overflow', color: '#f48024', type: 'url' },
     { key: 'x', icon: 'pi pi-twitter', color: '#000000', type: 'url' },
     { key: 'youtube', icon: 'pi pi-youtube', color: '#ff0000', type: 'url' },
@@ -35,16 +35,16 @@ export const SOCIAL_PLATFORMS: CommercialPlatformDefinition[] = [
  * 打赏平台定义
  */
 export const DONATION_PLATFORMS: CommercialPlatformDefinition[] = [
-    { key: 'wechat_pay', icon: 'pi pi-comments', color: '#07c160', type: 'image' },
-    { key: 'alipay', icon: 'pi pi-wallet', color: '#1677ff', type: 'image' },
-    { key: 'afdian', icon: 'pi pi-heart-fill', color: '#946ce6', type: 'url' },
-    { key: 'github_sponsors', icon: 'pi pi-heart-fill', color: '#ea4aaa', type: 'url' },
-    { key: 'opencollective', icon: 'pi pi-users', color: '#3385ff', type: 'url' },
-    { key: 'patreon', icon: 'mdi mdi-patreon', color: '#ff424d', type: 'url' },
-    { key: 'buymeacoffee', icon: 'pi pi-coffee', color: '#ffdd00', type: 'url' },
-    { key: 'ko_fi', icon: 'pi pi-coffee', color: '#29abe0', type: 'url' },
-    { key: 'liberapay', icon: 'pi pi-wallet', color: '#f6c915', type: 'url' },
+    { key: 'wechat_pay', icon: 'iconfont icon-weixinzhifu', color: '#07c160', type: 'image' },
+    { key: 'alipay', icon: 'iconfont icon-zhifubaozhifu', color: '#1677ff', type: 'image' },
     { key: 'paypal', icon: 'pi pi-paypal', color: '#003087', type: 'url' },
+    { key: 'afdian', icon: 'iconfont icon-aifadian', color: '#946ce6', type: 'url' },
+    { key: 'github_sponsors', icon: 'pi pi-heart-fill', color: '#ea4aaa', type: 'url' },
+    { key: 'opencollective', icon: 'iconfont icon-open-collective', color: '#3385ff', type: 'url' },
+    { key: 'patreon', icon: 'mdi mdi-patreon', color: '#ff424d', type: 'url' },
+    { key: 'buymeacoffee', icon: 'iconfont icon-a-BuyMeACoffee', color: '#ffdd00', type: 'url' },
+    { key: 'ko_fi', icon: 'iconfont icon-ko-fi', color: '#29abe0', type: 'url' },
+    { key: 'liberapay', icon: 'iconfont icon-liberapay', color: '#f6c915', type: 'url' },
     { key: 'custom', icon: 'pi pi-link', color: '#666666', type: 'both' },
 ]
 

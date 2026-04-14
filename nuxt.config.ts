@@ -275,6 +275,7 @@ export default defineNuxtConfig({
     },
     css: [
         '@/styles/vendor.css',
+        '@/styles/iconfont/iconfont.css',
         '@/styles/main.scss',
     ],
     eslint: {

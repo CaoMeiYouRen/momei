@@ -35,6 +35,18 @@ describe('commercial platform registry', () => {
     })
 
     it('resolves icon, color and mode from the shared registry', () => {
+        expect(getCommercialPlatformIcon('juejin', 'social')).toBe('iconfont icon-juejin')
+        expect(getCommercialPlatformIcon('xiaohongshu', 'social')).toBe('iconfont icon-xiaohongshu')
+        expect(getCommercialPlatformIcon('bilibili', 'social')).toBe('iconfont icon-bilibili')
+        expect(getCommercialPlatformIcon('weibo', 'social')).toBe('iconfont icon-weibo')
+        expect(getCommercialPlatformIcon('zhihu', 'social')).toBe('iconfont icon-zhihu')
+        expect(getCommercialPlatformIcon('wechat_pay', 'donation')).toBe('iconfont icon-weixinzhifu')
+        expect(getCommercialPlatformIcon('alipay', 'donation')).toBe('iconfont icon-zhifubaozhifu')
+        expect(getCommercialPlatformIcon('afdian', 'donation')).toBe('iconfont icon-aifadian')
+        expect(getCommercialPlatformIcon('opencollective', 'donation')).toBe('iconfont icon-open-collective')
+        expect(getCommercialPlatformIcon('buymeacoffee', 'donation')).toBe('iconfont icon-a-BuyMeACoffee')
+        expect(getCommercialPlatformIcon('ko_fi', 'donation')).toBe('iconfont icon-ko-fi')
+        expect(getCommercialPlatformIcon('liberapay', 'donation')).toBe('iconfont icon-liberapay')
         expect(getCommercialPlatformIcon('stack_overflow', 'social')).toBe('mdi mdi-stack-overflow')
         expect(getCommercialPlatformColor('github_sponsors', 'donation')).toBe('#ea4aaa')
         expect(getCommercialPlatformIcon('patreon', 'donation')).toBe('mdi mdi-patreon')
