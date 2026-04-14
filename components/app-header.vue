@@ -69,8 +69,8 @@
                         :to="localePath('/admin/posts')"
                         class="app-header__admin-link nav-link"
                     >
-                        <i class="app-header__admin-link-icon pi pi-file" />
                         <span>{{ $t('pages.admin.posts.title') }}</span>
+                        <i class="app-header__admin-link-icon pi pi-file" />
                     </NuxtLink>
                 </nav>
 
