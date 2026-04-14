@@ -201,7 +201,7 @@
     "@nuxt/test-utils": "^4.0.0",
     "@nuxtjs/sitemap": "^8.0.12",
     "@playwright/test": "^1.58.2",
-    "@primevue/nuxt-module": "^4.5.4",
+    "@primevue/nuxt-module": "^4.5.5",
     "@types/debug": "^4.1.13",
     "@types/fs-extra": "^11.0.4",
     "@types/google-libphonenumber": "^7.4.30",
