@@ -1,0 +1,178 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
+import { ref } from 'vue'
+import CategoryPage from '@/pages/categories/[slug].vue'
+import TagPage from '@/pages/tags/[slug].vue'
+
+const hoisted = vi.hoisted(() => ({
+    state: {
+        routeSlug: 'rss-tech',
+        category: {
+            id: 'category-1',
+            name: 'RSS Tech',
+            slug: 'rss-tech',
+            description: 'Category description',
+        },
+        tag: {
+            id: 'tag-1',
+            name: 'FeedTag',
+            slug: 'feed-tag',
+        },
+    },
+    capturedHeadEntries: [] as Record<string, unknown>[],
+    mockUsePageSeo: vi.fn(),
+    mockNavigateTo: vi.fn(),
+    mockOnPageChange: vi.fn(),
+}))
+
+function translate(key: string, params?: Record<string, unknown>) {
+    switch (key) {
+        case 'common.category':
+            return 'Category'
+        case 'common.tag':
+            return 'Tag'
+        case 'common.rss':
+            return 'RSS'
+        case 'pages.posts.title':
+            return 'Posts'
+        case 'pages.posts.empty':
+            return 'Empty'
+        case 'app.description':
+            return 'Site description'
+        case 'pages.posts.total_count':
+            return `${params?.count ?? 0} posts`
+        default:
+            return key
+    }
+}
+
+mockNuxtImport('definePageMeta', () => vi.fn())
+mockNuxtImport('navigateTo', () => hoisted.mockNavigateTo)
+mockNuxtImport('useRoute', () => () => ({ params: { slug: hoisted.state.routeSlug } }))
+mockNuxtImport('useI18n', () => () => ({ t: translate }))
+mockNuxtImport('useLocalePath', () => () => (path: string) => path)
+mockNuxtImport('useAppFetch', () => async (url: string | (() => string)) => {
+    const resolvedUrl = typeof url === 'function' ? url() : url
+
+    if (resolvedUrl.startsWith('/api/categories/slug/')) {
+        return {
+            data: ref({ data: hoisted.state.category }),
+            pending: ref(false),
+            error: ref(null),
+        }
+    }
+
+    if (resolvedUrl.startsWith('/api/tags/slug/')) {
+        return {
+            data: ref({ data: hoisted.state.tag }),
+            pending: ref(false),
+            error: ref(null),
+        }
+    }
+
+    return {
+        data: ref({ data: null }),
+        pending: ref(false),
+        error: ref(null),
+    }
+})
+mockNuxtImport('useTaxonomyPostPage', () => async () => ({
+    page: ref(1),
+    limit: ref(10),
+    first: ref(0),
+    posts: ref([{ id: 'post-1', title: 'Post 1' }]),
+    total: ref(3),
+    totalPages: ref(1),
+    postsPending: ref(false),
+    postsError: ref(null),
+    onPageChange: hoisted.mockOnPageChange,
+}))
+mockNuxtImport('usePageSeo', () => hoisted.mockUsePageSeo)
+mockNuxtImport('useHead', () => (input: Record<string, unknown> | (() => Record<string, unknown>)) => {
+    hoisted.capturedHeadEntries.push(typeof input === 'function' ? input() : input)
+})
+
+const stubs = {
+    ArticleCard: { template: '<article class="article-card">ArticleCard</article>' },
+    Button: { template: '<button><slot /></button>' },
+    Message: { template: '<div><slot /></div>' },
+    Paginator: { template: '<div class="paginator" />' },
+    RssIcon: { template: '<svg class="rss-icon" />' },
+    Skeleton: { template: '<div class="skeleton" />' },
+}
+
+describe('taxonomy RSS discovery', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        hoisted.capturedHeadEntries.length = 0
+        hoisted.state.routeSlug = 'rss-tech'
+        hoisted.state.category = {
+            id: 'category-1',
+            name: 'RSS Tech',
+            slug: 'rss-tech',
+            description: 'Category description',
+        }
+        hoisted.state.tag = {
+            id: 'tag-1',
+            name: 'FeedTag',
+            slug: 'feed-tag',
+        }
+    })
+
+    it('renders category RSS link and injects discovery head link', async () => {
+        const wrapper = await mountSuspended(CategoryPage, {
+            route: '/categories/rss-tech',
+            global: {
+                stubs,
+                mocks: {
+                    $t: translate,
+                },
+            },
+        })
+
+        await flushPromises()
+
+        expect(wrapper.html()).toContain('/feed/category/rss-tech.xml')
+        expect(hoisted.capturedHeadEntries).toContainEqual({
+            link: [
+                {
+                    rel: 'alternate',
+                    type: 'application/rss+xml',
+                    title: 'RSS Tech RSS',
+                    href: '/feed/category/rss-tech.xml',
+                },
+            ],
+        })
+        expect(hoisted.mockUsePageSeo).toHaveBeenCalled()
+    })
+
+    it('renders tag RSS link and injects discovery head link', async () => {
+        hoisted.state.routeSlug = 'feed-tag'
+
+        const wrapper = await mountSuspended(TagPage, {
+            route: '/tags/feed-tag',
+            global: {
+                stubs,
+                mocks: {
+                    $t: translate,
+                },
+            },
+        })
+
+        await flushPromises()
+
+        expect(wrapper.html()).toContain('/feed/tag/feed-tag.xml')
+        expect(hoisted.capturedHeadEntries).toContainEqual({
+            link: [
+                {
+                    rel: 'alternate',
+                    type: 'application/rss+xml',
+                    title: 'FeedTag RSS',
+                    href: '/feed/tag/feed-tag.xml',
+                },
+            ],
+        })
+        expect(hoisted.mockUsePageSeo).toHaveBeenCalled()
+    })
+})

@@ -185,6 +185,94 @@ describe('Feed Generation Utility', () => {
         expect(feed.items[0]!.title).toBe('RSS English Post')
     })
 
+    it('should keep taxonomy feed posts sorted by publishedAt descending', async () => {
+        const postRepo = dataSource.getRepository(Post)
+
+        const newestPost = new Post()
+        newestPost.title = 'RSS Category Newest Post'
+        newestPost.slug = 'rss-category-newest'
+        newestPost.content = 'Newest category content'
+        newestPost.language = 'en-US'
+        newestPost.status = PostStatus.PUBLISHED
+        newestPost.author = author
+        newestPost.category = category
+        newestPost.publishedAt = new Date('2099-01-03T00:00:00.000Z')
+        await postRepo.save(newestPost)
+
+        const recentPost = new Post()
+        recentPost.title = 'RSS Category Recent Post'
+        recentPost.slug = 'rss-category-recent'
+        recentPost.content = 'Recent category content'
+        recentPost.language = 'en-US'
+        recentPost.status = PostStatus.PUBLISHED
+        recentPost.author = author
+        recentPost.category = category
+        recentPost.publishedAt = new Date('2099-01-02T00:00:00.000Z')
+        await postRepo.save(recentPost)
+
+        const event = {
+            path: '/feed/category/rss-tech.xml',
+            node: {
+                req: { headers: {} },
+            },
+        } as any
+
+        const feed = await generateFeed(event, {
+            categoryId: category.id,
+            language: 'en-US',
+        })
+
+        expect(feed.items.slice(0, 3).map((item) => item.title)).toEqual([
+            'RSS Category Newest Post',
+            'RSS Category Recent Post',
+            'RSS English Post',
+        ])
+    })
+
+    it('should keep tag feed posts sorted by publishedAt descending', async () => {
+        const postRepo = dataSource.getRepository(Post)
+
+        const newestTaggedPost = new Post()
+        newestTaggedPost.title = 'RSS Tag Newest Post'
+        newestTaggedPost.slug = 'rss-tag-newest'
+        newestTaggedPost.content = 'Newest tag content'
+        newestTaggedPost.language = 'en-US'
+        newestTaggedPost.status = PostStatus.PUBLISHED
+        newestTaggedPost.author = author
+        newestTaggedPost.tags = [tag]
+        newestTaggedPost.publishedAt = new Date('2099-02-03T00:00:00.000Z')
+        await postRepo.save(newestTaggedPost)
+
+        const recentTaggedPost = new Post()
+        recentTaggedPost.title = 'RSS Tag Recent Post'
+        recentTaggedPost.slug = 'rss-tag-recent'
+        recentTaggedPost.content = 'Recent tag content'
+        recentTaggedPost.language = 'en-US'
+        recentTaggedPost.status = PostStatus.PUBLISHED
+        recentTaggedPost.author = author
+        recentTaggedPost.tags = [tag]
+        recentTaggedPost.publishedAt = new Date('2099-02-02T00:00:00.000Z')
+        await postRepo.save(recentTaggedPost)
+
+        const event = {
+            path: '/feed/tag/feed-tag.xml',
+            node: {
+                req: { headers: {} },
+            },
+        } as any
+
+        const feed = await generateFeed(event, {
+            tagId: tag.id,
+            language: 'en-US',
+        })
+
+        expect(feed.items.slice(0, 3).map((item) => item.title)).toEqual([
+            'RSS Tag Newest Post',
+            'RSS Tag Recent Post',
+            'RSS English Post',
+        ])
+    })
+
     it('should generate podcast feed with audio enclosure and image in content', async () => {
         const postRepo = dataSource.getRepository(Post)
         const postPod = new Post()
@@ -275,5 +363,22 @@ describe('Feed Generation Utility', () => {
         expect(json.version).toBe('https://jsonfeed.org/version/1')
         expect(json.title).toBe('墨梅博客')
         expect(json.feed_url).toBe('https://momei.app/feed.json')
+    })
+
+    it('should build scoped feed links for taxonomy feeds', async () => {
+        const event = {
+            path: '/feed/tag/feed-tag.json',
+            node: { req: { headers: {} } },
+        } as any
+
+        const feed = await generateFeed(event, {
+            tagId: tag.id,
+            language: 'en-US',
+            titleSuffix: 'Tag: FeedTag',
+        })
+        const json = JSON.parse(feed.json1())
+
+        expect(json.feed_url).toBe('https://momei.app/feed/tag/feed-tag.json')
+        expect(json.home_page_url).toBe('https://momei.app')
     })
 })

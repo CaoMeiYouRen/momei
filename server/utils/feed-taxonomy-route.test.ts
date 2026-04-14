@@ -102,6 +102,43 @@ describe('server/utils/feed-taxonomy-route', () => {
         expect(result).toBe('<atom />')
     })
 
+    it('creates a category handler that returns rss xml output by default', async () => {
+        const rssFeed = vi.fn(() => '<rss />')
+        vi.mocked(generateFeed).mockResolvedValue({
+            atom1: vi.fn(),
+            json1: vi.fn(),
+            rss2: rssFeed,
+        } as never)
+        vi.mocked(getFeedLanguage).mockReturnValue('en-US')
+        mockGetRouterParam.mockReturnValue('rss-tech.xml')
+        mockRepository.findOne.mockResolvedValue({
+            id: 'category-1',
+            language: 'en-US',
+            name: 'RSS Tech',
+            slug: 'rss-tech',
+        })
+
+        const handler = createTaxonomyFeedRoute({
+            entity: 'CategoryEntity',
+            feedFilterKey: 'categoryId',
+            labels: { default: 'Category', zhCN: '分类' },
+            missingSlugMessage: 'Category slug is required',
+            notFoundMessage: 'Category not found',
+        })
+
+        const event = {} as H3Event
+        const result = await handler(event)
+
+        expect(generateFeed).toHaveBeenCalledWith(event, {
+            categoryId: 'category-1',
+            language: 'en-US',
+            titleSuffix: 'Category: RSS Tech',
+        })
+        expect(mockAppendHeader).toHaveBeenCalledWith(event, 'Content-Type', 'application/xml')
+        expect(rssFeed).toHaveBeenCalled()
+        expect(result).toBe('<rss />')
+    })
+
     it('creates a tag handler that returns json feed output', async () => {
         const jsonFeed = vi.fn(() => '{"version":"https://jsonfeed.org/version/1.1"}')
         vi.mocked(generateFeed).mockResolvedValue({

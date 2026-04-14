@@ -30,6 +30,8 @@
 	- 验收: WechatSync 在微博 / 小红书链路完成根因收敛与修复，不破坏既有成功平台。
 	- 验收: 已确认修复的 RSS 路由补齐定向测试（taxonomy 排序 / feed 路由 / 发现链路），避免同类问题再次出现。
 	- 验收: 至少保留一轮定向测试与联调证据。
+	- 进展: RSS 防回归补测已补齐并通过定向验证，当前覆盖 taxonomy 排序、feed 路由默认 XML / Atom / JSON 输出，以及分类页 / 标签页的 RSS 发现链路。
+	- 证据: `pnpm exec eslint server/utils/feed.test.ts server/utils/feed-taxonomy-route.test.ts tests/pages/taxonomy-rss-discovery.test.ts` 与 `pnpm exec vitest run server/utils/feed.test.ts server/utils/feed-taxonomy-route.test.ts tests/pages/taxonomy-rss-discovery.test.ts` 均已验证通过；当前剩余收口重点为 WechatSync 微博 / 小红书链路。
 
 2. [x] **文章页一键分享与图标系统修复** (P1)
 	- 验收: 文章页提供统一分享入口，覆盖主流平台并保证移动端可用。
