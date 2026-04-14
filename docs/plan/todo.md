@@ -46,7 +46,7 @@
 	- 验收: 输出一组高收益接口扩面清单并完成至少 1 组落地验证。
 	- 结果: 已统一接入 `settings/public`、`friend-links/index`、`posts/archive`、`categories/index`、`tags/index`，并补齐缓存清单与回归证据，见 [cacheable-api-inventory.md](../design/modules/cacheable-api-inventory.md) 与 [regression-log.md](./regression-log.md)。
 
-4. [ ] **首屏性能阶段一优化（Lighthouse >= 50）** (P0)
+4. [x] **首屏性能阶段一优化（Lighthouse >= 50）** (P0)
 	- 验收: 建立当前瓶颈分解与采样口径，核心页面性能评分稳定达到 >= 50。
 	- 验收: 沉淀“措施 - 收益 - 副作用”记录，作为后续冲刺 >= 90 的基线。
 	- 进展: 已完成一轮现状分析，当前低分并非首页独有，`/posts` 与 `/en-US` 首页同处 40 分区间，说明问题主要集中在公共布局与文章列表共享链路，而不是单一页面的孤立回退。
