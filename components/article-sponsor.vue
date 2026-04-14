@@ -36,7 +36,7 @@
                             class="article-sponsor__btn"
                             @click="showQR(link, 'social')"
                         >
-                            <i class="mr-2 pi pi-qrcode" :style="{color: getPlatformColor(link.platform, 'social')}" />
+                            <i :class="[getQrTriggerIcon(link.platform, 'social'), 'mr-2']" :style="{color: getPlatformColor(link.platform, 'social')}" />
                             {{ link.label || getPlatformName(link.platform, 'social') }}
                         </Button>
                     </template>
@@ -70,7 +70,7 @@
                             class="article-sponsor__btn"
                             @click="showQR(link, 'donation')"
                         >
-                            <i class="mr-2 pi pi-qrcode" :style="{color: getPlatformColor(link.platform, 'donation')}" />
+                            <i :class="[getQrTriggerIcon(link.platform, 'donation'), 'mr-2']" :style="{color: getPlatformColor(link.platform, 'donation')}" />
                             {{ link.label || getPlatformName(link.platform, 'donation') }}
                         </Button>
                     </template>
@@ -91,7 +91,7 @@
                     class="article-sponsor__qr-image"
                     alt="QR Code"
                 >
-                <p v-if="qrLabel" class="mt-4 text-center text-sm text-surface-500">
+                <p v-if="qrLabel" class="article-sponsor__qr-label">
                     {{ qrLabel }}
                 </p>
             </div>
@@ -106,6 +106,7 @@ import {
     getCommercialPlatformColor,
     getCommercialPlatformIcon,
     getDonationPlatformType,
+    getSocialPlatformType,
     type SocialLink,
     type DonationLink,
     type CommercialConfig,
@@ -164,6 +165,18 @@ const getPlatformName = (key: string, type: 'social' | 'donation') => {
 
 const getPlatformType = (key: string) => {
     return getDonationPlatformType(key)
+}
+
+const getQrTriggerIcon = (key: string, type: 'social' | 'donation') => {
+    if (key === 'custom') {
+        return 'pi pi-qrcode'
+    }
+
+    if (type === 'social') {
+        return getSocialPlatformType(key) === 'url' ? 'pi pi-qrcode' : getPlatformIcon(key, type)
+    }
+
+    return getDonationPlatformType(key) === 'url' ? 'pi pi-qrcode' : getPlatformIcon(key, type)
 }
 
 const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') => {
@@ -253,9 +266,18 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
     backface-visibility: hidden;
     will-change: transform;
     transform: translateZ(0);
+    color: var(--p-surface-800);
+    border-color: var(--p-surface-300);
+    background: var(--p-surface-0);
+
+    :global(.p-button-label) {
+      color: inherit;
+      font-weight: 500;
+    }
 
     &:hover {
       transform: translateY(-2px) translateZ(0);
+      background: var(--p-surface-50);
     }
   }
 
@@ -271,6 +293,14 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
     height: auto;
     border-radius: $border-radius-sm;
     border: 1px solid var(--p-surface-200);
+  }
+
+  &__qr-label {
+    margin: $spacing-md 0 0;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--p-surface-700);
+    line-height: 1.5;
   }
 }
 
@@ -288,6 +318,21 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
 
   &__title {
     color: var(--p-surface-100);
+  }
+
+  &__btn {
+    color: var(--p-surface-100);
+    border-color: var(--p-surface-600);
+    background: rgb(15 23 42 / 0.55);
+
+    &:hover {
+      background: rgb(30 41 59 / 0.82);
+    }
+  }
+
+  &__qr-label,
+  &__section-title {
+    color: var(--p-surface-300);
   }
 }
 </style>

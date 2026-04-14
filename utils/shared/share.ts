@@ -1,4 +1,4 @@
-import { getCommercialPlatformIcon } from './commercial'
+import { getCommercialPlatformColor, getCommercialPlatformIcon } from './commercial'
 import { buildAbsoluteUrl } from './url'
 
 export type SharePageKind = 'post' | 'category' | 'tag' | 'list' | 'page'
@@ -20,6 +20,7 @@ export interface SharePlatformDefinition {
     mode: SharePlatformMode
     copyMode?: ShareCopyMode
     icon: string
+    color: string
 }
 
 function sanitizeSharePath(path: string, allowedQueryKeys: readonly string[] = []) {
@@ -73,21 +74,21 @@ export function buildShareCanonicalUrl(options: {
 }
 
 export const DIRECT_SHARE_PLATFORMS: SharePlatformDefinition[] = [
-    { key: 'x', mode: 'direct', icon: getCommercialPlatformIcon('x', 'social') },
-    { key: 'facebook', mode: 'direct', icon: getCommercialPlatformIcon('facebook', 'social') },
-    { key: 'linkedin', mode: 'direct', icon: getCommercialPlatformIcon('linkedin', 'social') },
-    { key: 'telegram', mode: 'direct', icon: 'pi pi-send' },
-    { key: 'whatsapp', mode: 'direct', icon: 'pi pi-comments' },
-    { key: 'email', mode: 'direct', icon: 'pi pi-envelope' },
+    { key: 'x', mode: 'direct', icon: getCommercialPlatformIcon('x', 'social'), color: getCommercialPlatformColor('x', 'social') },
+    { key: 'facebook', mode: 'direct', icon: getCommercialPlatformIcon('facebook', 'social'), color: getCommercialPlatformColor('facebook', 'social') },
+    { key: 'linkedin', mode: 'direct', icon: getCommercialPlatformIcon('linkedin', 'social'), color: getCommercialPlatformColor('linkedin', 'social') },
+    { key: 'telegram', mode: 'direct', icon: 'pi pi-send', color: '#229ed9' },
+    { key: 'whatsapp', mode: 'direct', icon: 'pi pi-comments', color: '#25d366' },
+    { key: 'email', mode: 'direct', icon: 'pi pi-envelope', color: '#6b7280' },
 ]
 
 export const COPY_SHARE_PLATFORMS: SharePlatformDefinition[] = [
-    { key: 'wechat_mp', mode: 'copy', copyMode: 'link', icon: getCommercialPlatformIcon('wechat_mp', 'social') },
-    { key: 'weibo', mode: 'copy', copyMode: 'rich', icon: getCommercialPlatformIcon('weibo', 'social') },
-    { key: 'xiaohongshu', mode: 'copy', copyMode: 'rich', icon: getCommercialPlatformIcon('xiaohongshu', 'social') },
-    { key: 'juejin', mode: 'copy', copyMode: 'link', icon: getCommercialPlatformIcon('juejin', 'social') },
-    { key: 'bilibili', mode: 'copy', copyMode: 'link', icon: getCommercialPlatformIcon('bilibili', 'social') },
-    { key: 'zhihu', mode: 'copy', copyMode: 'link', icon: getCommercialPlatformIcon('zhihu', 'social') },
+    { key: 'wechat_mp', mode: 'copy', copyMode: 'link', icon: getCommercialPlatformIcon('wechat_mp', 'social'), color: getCommercialPlatformColor('wechat_mp', 'social') },
+    { key: 'weibo', mode: 'copy', copyMode: 'rich', icon: getCommercialPlatformIcon('weibo', 'social'), color: getCommercialPlatformColor('weibo', 'social') },
+    { key: 'xiaohongshu', mode: 'copy', copyMode: 'rich', icon: getCommercialPlatformIcon('xiaohongshu', 'social'), color: getCommercialPlatformColor('xiaohongshu', 'social') },
+    { key: 'juejin', mode: 'copy', copyMode: 'link', icon: getCommercialPlatformIcon('juejin', 'social'), color: getCommercialPlatformColor('juejin', 'social') },
+    { key: 'bilibili', mode: 'copy', copyMode: 'link', icon: getCommercialPlatformIcon('bilibili', 'social'), color: getCommercialPlatformColor('bilibili', 'social') },
+    { key: 'zhihu', mode: 'copy', copyMode: 'link', icon: getCommercialPlatformIcon('zhihu', 'social'), color: getCommercialPlatformColor('zhihu', 'social') },
 ]
 
 export function buildShareCopyText(payload: SharePayload, mode: ShareCopyMode = 'rich') {

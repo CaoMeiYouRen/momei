@@ -71,6 +71,7 @@ describe('ArticleSponsor', () => {
 
         expect(wrapper.find('a.article-sponsor__btn[href="https://www.xiaohongshu.com/user/profile/example"]').exists()).toBe(true)
         expect(wrapper.findAll('button.article-sponsor__btn')).toHaveLength(1)
+        expect(wrapper.find('button.article-sponsor__btn i.iconfont.icon-xiaohongshu').exists()).toBe(true)
         expect(getCommercialPlatformIcon('xiaohongshu', 'social')).toBe('iconfont icon-xiaohongshu')
     })
 
@@ -94,6 +95,27 @@ describe('ArticleSponsor', () => {
 
         expect(wrapper.find('a.article-sponsor__btn[href="https://example.com/sponsor"]').exists()).toBe(true)
         expect(wrapper.findAll('button.article-sponsor__btn')).toHaveLength(1)
+        expect(wrapper.find('button.article-sponsor__btn i.pi.pi-qrcode').exists()).toBe(true)
+    })
+
+    it('uses platform icons for known qr donation platforms', async () => {
+        const wrapper = await mountSuspended(ArticleSponsor, {
+            props: {
+                donationLinks: [{
+                    platform: 'wechat_pay',
+                    image: '/uploads/wechat-pay-qr.png',
+                }],
+            },
+            global: {
+                stubs: {
+                    Button: ButtonStub,
+                    Dialog: DialogStub,
+                },
+            },
+        })
+
+        expect(wrapper.find('button.article-sponsor__btn i.iconfont.icon-weixinzhifu').exists()).toBe(true)
+        expect(wrapper.find('button.article-sponsor__btn i.pi.pi-qrcode').exists()).toBe(false)
     })
 
     it('uses iconfont mappings for corrected commercial platforms', () => {

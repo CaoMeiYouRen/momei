@@ -8,9 +8,6 @@
                 <h2 :id="headingId" class="article-share__title">
                     {{ $t('components.post.share.title') }}
                 </h2>
-                <p class="article-share__description">
-                    {{ $t('components.post.share.description') }}
-                </p>
             </div>
 
             <div class="article-share__actions">
@@ -27,7 +24,7 @@
                 <Button
                     severity="secondary"
                     outlined
-                    class="article-share__action-btn"
+                    class="article-share__action-btn article-share__secondary-btn"
                     data-testid="article-share-copy-link"
                     @click="copyShareContent('link')"
                 >
@@ -62,6 +59,7 @@
                             outlined
                             class="article-share__platform-btn"
                             :data-platform="platform.key"
+                            :style="{'--article-share-platform-color': platform.color}"
                             @click="openDirectShare(platform.key)"
                         >
                             <i :class="[platform.icon, 'article-share__platform-icon']" />
@@ -84,7 +82,7 @@
                         <Button
                             severity="secondary"
                             outlined
-                            class="article-share__platform-btn"
+                            class="article-share__platform-btn article-share__secondary-btn"
                             data-testid="article-share-copy-rich"
                             @click="copyShareContent('rich')"
                         >
@@ -101,6 +99,7 @@
                             outlined
                             class="article-share__platform-btn"
                             :data-platform="platform.key"
+                            :style="{'--article-share-platform-color': platform.color}"
                             @click="copyPlatformShare(platform.key)"
                         >
                             <i :class="[platform.icon, 'article-share__platform-icon']" />
@@ -267,12 +266,6 @@ onMounted(() => {
         color: var(--p-text-color);
     }
 
-    &__description {
-        margin: $spacing-sm 0 0;
-        color: var(--p-text-muted-color);
-        line-height: 1.6;
-    }
-
     &__actions {
         display: flex;
         flex-wrap: wrap;
@@ -288,9 +281,52 @@ onMounted(() => {
         gap: $spacing-sm;
     }
 
+    &__action-btn {
+        :global(.p-button-label) {
+            font-weight: 600;
+        }
+    }
+
+    &__platform-btn {
+        --article-share-platform-color: var(--p-primary-color);
+
+        border-color: var(--p-surface-300);
+        color: var(--p-surface-800);
+        background: var(--p-surface-0);
+
+        :global(.p-button-label) {
+            font-weight: 500;
+            color: inherit;
+        }
+
+        &:hover {
+            background: var(--p-surface-50);
+            border-color: color-mix(in srgb, var(--article-share-platform-color) 28%, var(--p-surface-300));
+        }
+    }
+
+    &__secondary-btn {
+        border-color: var(--p-surface-300);
+        color: var(--p-surface-800);
+        background: var(--p-surface-0);
+
+        :global(.p-button-label) {
+            color: inherit;
+        }
+
+        &:hover {
+            background: var(--p-surface-50);
+            border-color: var(--p-surface-400);
+        }
+    }
+
     &__action-icon,
     &__platform-icon {
         font-size: 1rem;
+    }
+
+    &__platform-icon {
+        color: var(--article-share-platform-color);
     }
 
     &__dialog-body {
@@ -315,12 +351,13 @@ onMounted(() => {
         margin: 0;
         font-size: 1rem;
         font-weight: 600;
+        color: var(--p-text-color);
     }
 
     &__section-desc {
         margin: 0;
         font-size: 0.875rem;
-        color: var(--p-text-muted-color);
+        color: var(--p-surface-700);
         line-height: 1.6;
     }
 
@@ -340,6 +377,31 @@ onMounted(() => {
         background:
             radial-gradient(circle at top right, rgb(148 163 184 / 0.12), transparent 34%),
             linear-gradient(180deg, var(--p-surface-800) 0%, var(--p-surface-900) 100%);
+
+        .article-share__section-desc {
+            color: var(--p-surface-300);
+        }
+
+        .article-share__platform-btn {
+            border-color: var(--p-surface-600);
+            color: var(--p-surface-100);
+            background: rgb(15 23 42 / 0.55);
+
+            &:hover {
+                background: rgb(30 41 59 / 0.82);
+            }
+        }
+
+        .article-share__secondary-btn {
+            border-color: var(--p-surface-600);
+            color: var(--p-surface-100);
+            background: rgb(15 23 42 / 0.55);
+
+            &:hover {
+                background: rgb(30 41 59 / 0.82);
+                border-color: var(--p-surface-500);
+            }
+        }
     }
 }
 </style>
