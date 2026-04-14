@@ -481,9 +481,9 @@ const fullUrl = computed(() => {
     return window.location.href
 })
 
-const shareUrl = computed(() => {
+const shareUrl = computed<string>(() => {
     if (!post.value?.id) {
-        return fullUrl.value.split('#')[0]
+        return fullUrl.value.split('#')[0] || fullUrl.value
     }
 
     const siteUrl = import.meta.server ? useRequestURL().origin : window.location.origin

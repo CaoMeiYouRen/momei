@@ -23,7 +23,7 @@ export interface SharePlatformDefinition {
 }
 
 function sanitizeSharePath(path: string, allowedQueryKeys: readonly string[] = []) {
-    const [pathWithoutHash] = path.split('#')
+    const pathWithoutHash = path.split('#')[0] || '/'
 
     try {
         const url = new URL(pathWithoutHash, 'https://momei.app')
@@ -38,7 +38,7 @@ function sanitizeSharePath(path: string, allowedQueryKeys: readonly string[] = [
         const query = search.toString()
         return `${url.pathname}${query ? `?${query}` : ''}`
     } catch {
-        const [pathname] = pathWithoutHash.split('?')
+        const pathname = pathWithoutHash.split('?')[0] || '/'
         return pathname || '/'
     }
 }
