@@ -108,6 +108,36 @@
                     "liberapay": "Liberapay",
                     "paypal": "PayPal"
                 }
+            },
+            "share": {
+                "eyebrow": "文章分享",
+                "title": "分享这篇文章",
+                "description": "将当前文章链接或分享文案发送到常用平台，移动端优先使用原生分享。",
+                "dialog_title": "分享方式",
+                "native_share": "立即分享",
+                "open_panel": "打开分享面板",
+                "copy_link": "复制链接",
+                "copy_rich_text": "复制标题摘要与链接",
+                "copy_text_success": "分享文案已复制到剪贴板",
+                "copy_platform_success": "已复制适用于 {platform} 的分享内容",
+                "direct_title": "直接分享到",
+                "direct_description": "适用于支持网页分享链接的常用平台。",
+                "copy_title": "复制后发布",
+                "copy_description": "适用于需要手动粘贴到客户端或内容平台的场景。",
+                "platforms": {
+                    "x": "X (Twitter)",
+                    "facebook": "Facebook",
+                    "linkedin": "LinkedIn",
+                    "telegram": "Telegram",
+                    "whatsapp": "WhatsApp",
+                    "email": "Email",
+                    "wechat_mp": "微信",
+                    "weibo": "微博",
+                    "xiaohongshu": "小红书",
+                    "juejin": "掘金",
+                    "bilibili": "Bilibili",
+                    "zhihu": "知乎"
+                }
             }
         }
     },

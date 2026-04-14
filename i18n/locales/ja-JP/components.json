@@ -108,6 +108,36 @@
                     "liberapay": "Liberapay",
                     "paypal": "PayPal"
                 }
+            },
+            "share": {
+                "eyebrow": "記事共有",
+                "title": "この記事を共有",
+                "description": "この記事のリンクや共有文面をよく使うプラットフォームへ送れます。モバイルではネイティブ共有を優先します。",
+                "dialog_title": "共有方法",
+                "native_share": "今すぐ共有",
+                "open_panel": "共有パネルを開く",
+                "copy_link": "リンクをコピー",
+                "copy_rich_text": "タイトル・概要・リンクをコピー",
+                "copy_text_success": "共有文面をクリップボードにコピーしました",
+                "copy_platform_success": "{platform} 向けの共有内容をコピーしました",
+                "direct_title": "直接共有する",
+                "direct_description": "Web 共有リンクに対応したプラットフォーム向けです。",
+                "copy_title": "コピーして投稿",
+                "copy_description": "クライアントや投稿画面へ手動で貼り付ける場面に向いています。",
+                "platforms": {
+                    "x": "X (Twitter)",
+                    "facebook": "Facebook",
+                    "linkedin": "LinkedIn",
+                    "telegram": "Telegram",
+                    "whatsapp": "WhatsApp",
+                    "email": "Email",
+                    "wechat_mp": "WeChat",
+                    "weibo": "Weibo",
+                    "xiaohongshu": "Xiaohongshu",
+                    "juejin": "Juejin",
+                    "bilibili": "Bilibili",
+                    "zhihu": "Zhihu"
+                }
             }
         }
     },

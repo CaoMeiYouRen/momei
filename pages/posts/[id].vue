@@ -242,6 +242,14 @@
                         :license="post.copyright"
                     />
 
+                    <ArticleShare
+                        v-if="!post.locked"
+                        :title="post.title"
+                        :text="shareText"
+                        :url="shareUrl"
+                        :image="post.coverImage || null"
+                    />
+
                     <ArticleSponsor
                         v-if="!post.locked"
                         :social-links="post.author?.socialLinks"
@@ -412,6 +420,7 @@
 import type { ApiResponse } from '@/types/api'
 import type { Post } from '@/types/post'
 import type { DonationLink, SocialLink } from '@/utils/shared/commercial'
+import { buildShareCanonicalUrl } from '@/utils/shared/share'
 import { isSnowflakeId } from '@/utils/shared/validate'
 import { countWords, estimateReadingTime } from '@/utils/shared/post-stats'
 import { AdLocation } from '@/types/ad'
@@ -472,6 +481,22 @@ const fullUrl = computed(() => {
     return window.location.href
 })
 
+const shareUrl = computed(() => {
+    if (!post.value?.id) {
+        return fullUrl.value.split('#')[0]
+    }
+
+    const siteUrl = import.meta.server ? useRequestURL().origin : window.location.origin
+
+    return buildShareCanonicalUrl({
+        siteUrl,
+        localePath,
+        pageKind: 'post',
+        slug: post.value.slug || null,
+        id: post.value.id,
+    })
+})
+
 const isId = isSnowflakeId(idOrSlug)
 const endpoint = computed(() => {
     if (isId) {
@@ -494,6 +519,11 @@ const articleSeoDescription = computed(() => {
         : t('app.description')
 
     return [summary, siteDescription].filter(Boolean).join(' ')
+})
+
+const shareText = computed(() => {
+    const summary = typeof post.value?.summary === 'string' ? post.value.summary.trim() : ''
+    return summary || currentDescription.value || t('app.description')
 })
 
 const lightboxVisible = ref(false)

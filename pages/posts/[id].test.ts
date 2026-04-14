@@ -98,6 +98,7 @@ const stubs = {
     AdPlacement: { template: '<div class="ad">Ad</div>', props: ['location', 'context'] },
     ArticleContent: { template: '<div class="content">Content</div>', props: ['content'] },
     ArticleCopyright: { template: '<div class="copyright">Copyright</div>', props: ['authorName', 'url', 'license'] },
+    ArticleShare: { template: '<div class="share">Share</div>', props: ['title', 'text', 'url', 'image'] },
     ArticleSponsor: { template: '<div class="sponsor">Sponsor</div>', props: ['socialLinks', 'donationLinks'] },
     SubscriberForm: { template: '<div class="subscribe">Subscribe</div>' },
     CommentList: { template: '<div class="comments">Comments</div>', props: ['postId'] },
@@ -304,6 +305,16 @@ describe('PostDetailPage', () => {
         expect(wrapper.find('.post-detail__navigation').exists()).toBe(true)
         expect(wrapper.text()).toContain('Newer Post')
         expect(wrapper.text()).toContain('Older Post')
+    })
+
+    it('renders share section for unlocked posts', async () => {
+        const wrapper = await mountSuspended(PostDetailPage, {
+            global: {
+                stubs,
+            },
+        })
+
+        expect(wrapper.find('.share').exists()).toBe(true)
     })
 
     it('passes article summary and site description into page seo', async () => {

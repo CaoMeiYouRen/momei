@@ -108,6 +108,36 @@
           "liberapay": "Liberapay",
           "paypal": "PayPal"
         }
+      },
+      "share": {
+        "eyebrow": "Post Sharing",
+        "title": "Share This Post",
+        "description": "Send this post to your favorite platforms or copy a ready-to-paste sharing snippet.",
+        "dialog_title": "Share Options",
+        "native_share": "Share Now",
+        "open_panel": "Open Share Panel",
+        "copy_link": "Copy Link",
+        "copy_rich_text": "Copy Title, Summary, and Link",
+        "copy_text_success": "Sharing text copied to clipboard",
+        "copy_platform_success": "Copied content ready for {platform}",
+        "direct_title": "Share Directly To",
+        "direct_description": "Use direct web sharing links where the platform supports them.",
+        "copy_title": "Copy and Post",
+        "copy_description": "Best for platforms that expect you to paste the content manually.",
+        "platforms": {
+          "x": "X (Twitter)",
+          "facebook": "Facebook",
+          "linkedin": "LinkedIn",
+          "telegram": "Telegram",
+          "whatsapp": "WhatsApp",
+          "email": "Email",
+          "wechat_mp": "WeChat",
+          "weibo": "Weibo",
+          "xiaohongshu": "Xiaohongshu",
+          "juejin": "Juejin",
+          "bilibili": "Bilibili",
+          "zhihu": "Zhihu"
+        }
       }
     }
   },
