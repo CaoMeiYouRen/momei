@@ -248,7 +248,7 @@
     "vitest": "^4.0.18",
     "vitest-environment-nuxt": "^2.0.0",
     "vue-tsc": "^3.2.6",
-    "wrangler": "^4.81.0"
+    "wrangler": "^4.82.2"
   },
   "author": "CaoMeiYouRen",
   "description": "墨梅博客 - AI 驱动、原生国际化的开发者博客平台。AI 赋能，全球创作。",
