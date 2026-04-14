@@ -13,13 +13,6 @@ const mockLatestPostsData = {
     data: {
         items: [
             { id: 1, title: 'Pinned Post', slug: 'pinned-post', summary: 'Pinned summary', createdAt: '2024-01-01', updatedAt: '2024-01-01', status: 'published', isPinned: true },
-        ],
-    },
-}
-
-const mockRegularLatestPostsData = {
-    data: {
-        items: [
             { id: 2, title: 'Post 2', slug: 'post-2', summary: 'Summary 2', createdAt: '2024-01-02', updatedAt: '2024-01-02', status: 'published' },
             { id: 3, title: 'Post 3', slug: 'post-3', summary: 'Summary 3', createdAt: '2024-01-03', updatedAt: '2024-01-03', status: 'published' },
         ],
@@ -74,11 +67,6 @@ describe('IndexPage', () => {
                 error: ref(null),
             } as any)
             .mockReturnValueOnce({
-                data: ref(mockRegularLatestPostsData),
-                pending: ref(false),
-                error: ref(null),
-            } as any)
-            .mockReturnValueOnce({
                 data: ref(mockPopularPostsData),
                 pending: ref(false),
                 error: ref(null),
@@ -95,7 +83,8 @@ describe('IndexPage', () => {
             global: {
                 stubs: {
                     ArticleCard: { template: '<div class="article-card">{{ post.title }}</div>', props: ['post'] },
-                    SubscriberForm: { template: '<div />' },
+                    LazySubscriberForm: { template: '<div />' },
+                    LazyExternalFeedPanel: { template: '<div>{{ items[0]?.title }} {{ items[0]?.sourceTitle }}</div>', props: ['items'] },
                     Skeleton: { template: '<div />' },
                     Tag: { template: '<div><slot />{{ value }}</div>', props: ['value'] },
                     Message: { template: '<div><slot /></div>' },
@@ -103,7 +92,7 @@ describe('IndexPage', () => {
             },
         })
 
-        expect(vi.mocked(useAppFetch)).toHaveBeenCalledTimes(4)
+        expect(vi.mocked(useAppFetch)).toHaveBeenCalledTimes(3)
         expect(wrapper.findAll('.article-card').length).toBe(5)
         expect(wrapper.text()).toContain('Pinned Post')
         expect(wrapper.text()).toContain('Post 2')
@@ -113,7 +102,10 @@ describe('IndexPage', () => {
         expect(wrapper.text()).toContain('External Feed Item')
         expect(wrapper.text()).toContain('External Source')
 
-        const popularCall = vi.mocked(useAppFetch).mock.calls[2]
+        const latestCall = vi.mocked(useAppFetch).mock.calls[0]
+        expect(latestCall?.[0]).toBe('/api/posts/home')
+
+        const popularCall = vi.mocked(useAppFetch).mock.calls[1]
         expect(popularCall?.[1]).toMatchObject({
             query: expect.objectContaining({
                 isPinned: false,
@@ -141,15 +133,12 @@ describe('IndexPage', () => {
                 pending: ref(true),
                 error: ref(null),
             } as any)
-            .mockReturnValueOnce({
-                data: ref(null),
-                pending: ref(true),
-                error: ref(null),
-            } as any)
 
         const wrapper = await mountSuspended(IndexPage, {
             global: {
                 stubs: {
+                    LazyExternalFeedPanel: { template: '<div />' },
+                    LazySubscriberForm: { template: '<div />' },
                     Skeleton: { template: '<div class="skeleton" />' },
                 },
             },
@@ -175,13 +164,15 @@ describe('IndexPage', () => {
                 pending: ref(false),
                 error: ref(null),
             } as any)
-            .mockReturnValueOnce({
-                data: ref(null),
-                pending: ref(false),
-                error: ref(null),
-            } as any)
 
-        const wrapper = await mountSuspended(IndexPage)
+        const wrapper = await mountSuspended(IndexPage, {
+            global: {
+                stubs: {
+                    LazyExternalFeedPanel: { template: '<div />' },
+                    LazySubscriberForm: { template: '<div />' },
+                },
+            },
+        })
         const text = wrapper.text()
         expect(text.includes('common.error_loading') || text.includes('加载失败')).toBe(true)
     })

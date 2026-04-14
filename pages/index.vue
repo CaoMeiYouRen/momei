@@ -65,7 +65,11 @@
             </div>
         </section>
 
-        <div ref="secondarySectionsTrigger" class="home-page__deferred-trigger" aria-hidden="true" />
+        <div
+            ref="secondarySectionsTrigger"
+            class="home-page__deferred-trigger"
+            aria-hidden="true"
+        />
 
         <section v-if="shouldHydrateSecondarySections && (popularPending || popularError || popularPosts.length > 0)" class="popular-posts section">
             <div class="container">
@@ -111,7 +115,7 @@
 
         <section v-if="shouldHydrateSecondarySections && (externalFeedPending || externalFeedError || externalFeedItems.length > 0)" class="external-feed section">
             <div class="container">
-                <ExternalFeedPanel
+                <LazyExternalFeedPanel
                     :items="externalFeedItems"
                     :pending="externalFeedPending"
                     :has-error="Boolean(externalFeedError)"
@@ -124,11 +128,15 @@
         <!-- Newsletter Section -->
         <section class="newsletter section">
             <div class="container flex justify-center">
-                <SubscriberForm
+                <LazySubscriberForm
                     v-if="shouldHydrateSecondarySections"
                     class="max-w-4xl w-full"
                 />
-                <div v-else class="newsletter__placeholder" aria-hidden="true" />
+                <div
+                    v-else
+                    class="newsletter__placeholder"
+                    aria-hidden="true"
+                />
             </div>
         </section>
 
@@ -155,11 +163,6 @@
 import type { ApiResponse } from '@/types/api'
 import type { ExternalFeedHomePayload } from '@/types/external-feed'
 import type { PostListData } from '@/types/post'
-import ExternalFeedPanel from '@/components/home/external-feed-panel.vue'
-import {
-    HOMEPAGE_LATEST_POST_LIMIT,
-    HOMEPAGE_PINNED_POST_LIMIT,
-} from '@/utils/shared/post-pinning'
 
 const localePath = useLocalePath()
 const { t } = useI18n()
@@ -179,42 +182,12 @@ usePageSeo({
 })
 
 const {
-    data: pinnedLatestData,
-    pending: pinnedLatestPending,
-    error: pinnedLatestError,
-} = await useAppFetch<ApiResponse<PostListData>>('/api/posts', {
-    query: {
-        limit: HOMEPAGE_PINNED_POST_LIMIT,
-        isPinned: true,
-        status: 'published',
-        orderBy: 'publishedAt',
-        order: 'DESC',
-    },
-})
+    data: latestData,
+    pending: latestPending,
+    error: latestError,
+} = await useAppFetch<ApiResponse<Pick<PostListData, 'items'>>>('/api/posts/home')
 
-const {
-    data: regularLatestData,
-    pending: regularLatestPending,
-    error: regularLatestError,
-} = await useAppFetch<ApiResponse<PostListData>>('/api/posts', {
-    query: {
-        limit: HOMEPAGE_LATEST_POST_LIMIT,
-        isPinned: false,
-        status: 'published',
-        orderBy: 'publishedAt',
-        order: 'DESC',
-    },
-})
-
-const latestPending = computed(() => pinnedLatestPending.value || regularLatestPending.value)
-const latestError = computed(() => pinnedLatestError.value || regularLatestError.value)
-
-const latestPosts = computed(() => {
-    const pinnedPosts = pinnedLatestData.value?.data?.items || []
-    const regularPosts = regularLatestData.value?.data?.items || []
-
-    return [...pinnedPosts, ...regularPosts].slice(0, HOMEPAGE_LATEST_POST_LIMIT)
-})
+const latestPosts = computed(() => latestData.value?.data?.items || [])
 
 const latestPostIds = computed(() => latestPosts.value.map((post) => String(post.id)))
 

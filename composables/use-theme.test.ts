@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useTheme, PRESETS } from './use-theme'
+import { useAppFetch } from './use-app-fetch'
 
 // Mock useAppFetch
 vi.mock('./use-app-fetch', () => ({
@@ -13,11 +14,13 @@ vi.mock('@vueuse/core', () => ({
 
 describe('useTheme', () => {
     let sharedSettings: any
+    let sharedSettingsLoaded: any
 
     beforeEach(() => {
         vi.clearAllMocks()
         const theme = useTheme()
         sharedSettings = theme.settings
+        sharedSettingsLoaded = theme.settingsLoaded
         sharedSettings.value = {
             themePreset: 'default',
             themePrimaryColor: null,
@@ -35,6 +38,7 @@ describe('useTheme', () => {
             themeBackgroundType: 'none',
             themeBackgroundValue: null,
         }
+        sharedSettingsLoaded.value = false
     })
 
     it('should initialize with default settings', () => {
@@ -118,5 +122,29 @@ describe('useTheme', () => {
         const styles = customStyles.value
         expect(styles).toContain(`--p-primary-500: ${PRESETS.geek.primary.light}`)
         expect(styles).toContain('--p-surface-ground: #ffffff') // From geek preset logic
+    })
+
+    it('should skip fetching theme after it has already been loaded', async () => {
+        vi.mocked(useAppFetch).mockReturnValue({
+            data: {
+                value: {
+                    data: {
+                        themePreset: 'amber',
+                    },
+                },
+            },
+        } as any)
+
+        const { fetchTheme, settings, settingsLoaded } = useTheme()
+
+        await fetchTheme()
+
+        expect(settingsLoaded.value).toBe(true)
+        expect(settings.value?.themePreset).toBe('amber')
+
+        vi.mocked(useAppFetch).mockClear()
+        await fetchTheme()
+
+        expect(useAppFetch).not.toHaveBeenCalled()
     })
 })

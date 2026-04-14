@@ -120,6 +120,7 @@ export const useTheme = () => {
 
     const previewSettings = useState<ThemeSettings | null>('theme-preview-settings', () => null)
     const locks = useState<Record<string, boolean>>('theme-locks', () => ({}))
+    const settingsLoaded = useState<boolean>('theme-settings-loaded', () => false)
 
     interface ThemeSettingsResponse {
         data: ThemeSettings
@@ -128,7 +129,11 @@ export const useTheme = () => {
 
     const effectiveSettings = computed(() => previewSettings.value || settings.value)
 
-    const fetchTheme = async () => {
+    const fetchTheme = async (options?: { force?: boolean }) => {
+        if (settingsLoaded.value && !options?.force) {
+            return
+        }
+
         const { data } = await useAppFetch<ThemeSettingsResponse>('/api/settings/theme')
         const payload = data.value as ThemeSettingsResponse | null
 
@@ -141,6 +146,7 @@ export const useTheme = () => {
                 })
                 locks.value = newLocks
             }
+            settingsLoaded.value = true
         }
     }
 
@@ -354,6 +360,7 @@ export const useTheme = () => {
         previewSettings,
         effectiveSettings,
         locks,
+        settingsLoaded,
         isLocked,
         fetchTheme,
         applyTheme,

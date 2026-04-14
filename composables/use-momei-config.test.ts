@@ -29,7 +29,7 @@ describe('useMomeiConfig', () => {
         vi.clearAllMocks()
         mockLocale.value = 'zh-CN'
         // Reset the shared state by getting a fresh instance
-        const { siteConfig } = useMomeiConfig()
+        const { siteConfig, loadedLocale } = useMomeiConfig()
         siteConfig.value = {
             siteName: '',
             siteTitle: '',
@@ -77,6 +77,7 @@ describe('useMomeiConfig', () => {
             webPushEnabled: false,
             webPushPublicKey: '',
         }
+        loadedLocale.value = null
     })
 
     it('should initialize with default config', () => {
@@ -133,6 +134,20 @@ describe('useMomeiConfig', () => {
                 locale: 'en-US',
             },
         })
+    })
+
+    it('should skip duplicate fetches for the already loaded locale', async () => {
+        mockFetch.mockResolvedValueOnce({ data: { siteTitle: 'Hydrated Title' } })
+
+        const { fetchSiteConfig, loadedLocale } = useMomeiConfig()
+
+        await fetchSiteConfig()
+        expect(loadedLocale.value).toBe('zh-CN')
+
+        mockFetch.mockClear()
+        await fetchSiteConfig()
+
+        expect(mockFetch).not.toHaveBeenCalled()
     })
 
     it('should keep travellings flags reactive', () => {

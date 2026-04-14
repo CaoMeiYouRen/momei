@@ -106,14 +106,21 @@ const createDefaultSiteConfig = (): MomeiPublicConfig => ({
 
 export const useMomeiConfig = () => {
     const siteConfig = useState<MomeiPublicConfig>('siteConfig', createDefaultSiteConfig)
+    const loadedLocale = useState<string | null>('site-config-loaded-locale', () => null)
 
     const { t, locale } = useI18n()
 
-    const fetchSiteConfig = async () => {
+    const fetchSiteConfig = async (options?: { force?: boolean, locale?: string }) => {
+        const targetLocale = options?.locale || locale.value
+
+        if (!options?.force && loadedLocale.value === targetLocale) {
+            return
+        }
+
         try {
             const { data } = await $fetch<{ data: Partial<MomeiPublicConfig> }>('/api/settings/public', {
                 query: {
-                    locale: locale.value,
+                    locale: targetLocale,
                 },
             })
             if (data) {
@@ -121,6 +128,7 @@ export const useMomeiConfig = () => {
                     ...createDefaultSiteConfig(),
                     ...data,
                 }
+                loadedLocale.value = targetLocale
             }
         } catch (error) {
             console.error('Failed to fetch site config:', error)
@@ -137,6 +145,7 @@ export const useMomeiConfig = () => {
 
     return {
         siteConfig,
+        loadedLocale,
         fetchSiteConfig,
         currentTitle,
         currentDescription,
