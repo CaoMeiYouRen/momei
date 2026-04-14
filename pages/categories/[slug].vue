@@ -65,10 +65,11 @@
 
             <div v-else class="taxonomy-page__list">
                 <ArticleCard
-                    v-for="post in posts"
+                    v-for="(post, index) in posts"
                     :key="post.id"
                     :post="post"
                     layout="horizontal"
+                    :priority="index < 2"
                 />
             </div>
 

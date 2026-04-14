@@ -56,15 +56,18 @@
 
                 <div v-else class="posts-grid">
                     <ArticleCard
-                        v-for="post in latestPosts"
+                        v-for="(post, index) in latestPosts"
                         :key="post.id"
                         :post="post"
+                        :priority="index < 2"
                     />
                 </div>
             </div>
         </section>
 
-        <section v-if="popularPending || popularError || popularPosts.length > 0" class="popular-posts section">
+        <div ref="secondarySectionsTrigger" class="home-page__deferred-trigger" aria-hidden="true" />
+
+        <section v-if="shouldHydrateSecondarySections && (popularPending || popularError || popularPosts.length > 0)" class="popular-posts section">
             <div class="container">
                 <div class="section__header">
                     <h2 class="section__title">
@@ -97,15 +100,16 @@
 
                 <div v-else class="posts-grid">
                     <ArticleCard
-                        v-for="post in popularPosts"
+                        v-for="(post, index) in popularPosts"
                         :key="post.id"
                         :post="post"
+                        :priority="index === 0"
                     />
                 </div>
             </div>
         </section>
 
-        <section v-if="externalFeedPending || externalFeedError || externalFeedItems.length > 0" class="external-feed section">
+        <section v-if="shouldHydrateSecondarySections && (externalFeedPending || externalFeedError || externalFeedItems.length > 0)" class="external-feed section">
             <div class="container">
                 <ExternalFeedPanel
                     :items="externalFeedItems"
@@ -120,7 +124,11 @@
         <!-- Newsletter Section -->
         <section class="newsletter section">
             <div class="container flex justify-center">
-                <SubscriberForm class="max-w-4xl w-full" />
+                <SubscriberForm
+                    v-if="shouldHydrateSecondarySections"
+                    class="max-w-4xl w-full"
+                />
+                <div v-else class="newsletter__placeholder" aria-hidden="true" />
             </div>
         </section>
 
@@ -155,6 +163,14 @@ import {
 
 const localePath = useLocalePath()
 const { t } = useI18n()
+const { runWhenIdle } = useClientEffectGuard()
+const secondarySectionsTrigger = useTemplateRef<HTMLElement>('secondarySectionsTrigger')
+const shouldHydrateSecondarySections = ref(import.meta.test)
+let secondarySectionsObserver: IntersectionObserver | null = null
+
+const revealSecondarySections = () => {
+    shouldHydrateSecondarySections.value = true
+}
 
 usePageSeo({
     type: 'website',
@@ -202,7 +218,12 @@ const latestPosts = computed(() => {
 
 const latestPostIds = computed(() => latestPosts.value.map((post) => String(post.id)))
 
-const { data: popularData, pending: popularPending, error: popularError } = useAppFetch<ApiResponse<PostListData>>('/api/posts', {
+const {
+    data: popularData,
+    pending: popularPending,
+    error: popularError,
+    execute: loadPopularPosts,
+} = useAppFetch<ApiResponse<PostListData>>('/api/posts', {
     query: {
         limit: 3,
         isPinned: false,
@@ -213,6 +234,7 @@ const { data: popularData, pending: popularPending, error: popularError } = useA
     },
     server: false,
     lazy: true,
+    immediate: false,
     watch: [latestPostIds],
 })
 
@@ -225,9 +247,52 @@ const {
     data: externalFeedData,
     pending: externalFeedPending,
     error: externalFeedError,
+    execute: loadExternalFeed,
 } = useAppFetch<ApiResponse<ExternalFeedHomePayload>>('/api/external-feed/home', {
     server: false,
     lazy: true,
+    immediate: false,
+})
+
+watch(shouldHydrateSecondarySections, (ready) => {
+    if (!ready) {
+        return
+    }
+
+    void loadPopularPosts?.()
+    void loadExternalFeed?.()
+}, { immediate: true })
+
+onMounted(() => {
+    if (shouldHydrateSecondarySections.value) {
+        return
+    }
+
+    runWhenIdle(revealSecondarySections, {
+        timeout: 5000,
+        fallbackDelay: 2200,
+    })
+
+    if (!('IntersectionObserver' in window) || !secondarySectionsTrigger.value) {
+        return
+    }
+
+    secondarySectionsObserver = new window.IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+            revealSecondarySections()
+            secondarySectionsObserver?.disconnect()
+            secondarySectionsObserver = null
+        }
+    }, {
+        rootMargin: '240px 0px',
+    })
+
+    secondarySectionsObserver.observe(secondarySectionsTrigger.value)
+})
+
+onBeforeUnmount(() => {
+    secondarySectionsObserver?.disconnect()
+    secondarySectionsObserver = null
 })
 
 const externalFeedItems = computed(() => externalFeedData.value?.data?.items || [])
@@ -244,6 +309,11 @@ const externalFeedDegraded = computed(() => Boolean(externalFeedData.value?.data
   flex-direction: column;
   gap: $spacing-xl;
   padding-bottom: $spacing-xl;
+
+  &__deferred-trigger {
+    height: 1px;
+    margin-top: -1px;
+  }
 }
 
 .hero {
@@ -339,6 +409,16 @@ const externalFeedDegraded = computed(() => Boolean(externalFeedData.value?.data
 
   &:hover {
     text-decoration: underline;
+  }
+}
+
+.newsletter {
+  &__placeholder {
+    width: min(100%, 56rem);
+    min-height: 13rem;
+    border-radius: $border-radius-lg;
+    background: linear-gradient(135deg, var(--p-surface-100) 0%, var(--p-surface-0) 100%);
+    border: 1px dashed var(--p-surface-border);
   }
 }
 

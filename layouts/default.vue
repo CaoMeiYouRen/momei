@@ -6,13 +6,34 @@
         </main>
         <AppFooter />
         <FeedbackEntryButton />
-        <LazyAppSearch />
+        <LazyAppSearch v-if="isSearchReady" />
         <ClientOnly>
-            <LazyCanvasNestEffect />
-            <LazyLive2dWidget />
+            <template v-if="shouldMountEffects">
+                <LazyCanvasNestEffect />
+                <LazyLive2dWidget />
+            </template>
         </ClientOnly>
     </div>
 </template>
+
+<script setup lang="ts">
+const { isSearchReady } = useSearch()
+const { runWhenIdle } = useClientEffectGuard()
+const shouldMountEffects = ref(import.meta.test)
+
+onMounted(() => {
+    if (shouldMountEffects.value) {
+        return
+    }
+
+    runWhenIdle(() => {
+        shouldMountEffects.value = true
+    }, {
+        timeout: 6000,
+        fallbackDelay: 1800,
+    })
+})
+</script>
 
 <style lang="scss" scoped>
 @use "@/styles/variables" as *;

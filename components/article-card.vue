@@ -14,7 +14,8 @@
                 :alt="post.title"
                 width="640"
                 height="360"
-                loading="lazy"
+                :loading="priority ? 'eager' : 'lazy'"
+                :fetchpriority="priority ? 'high' : 'low'"
                 decoding="async"
             >
         </NuxtLink>
@@ -62,10 +63,9 @@
                         :to="localePath(`/categories/${post.category.slug}`)"
                         class="article-card__category"
                     >
-                        <Tag
-                            :value="post.category.name"
-                            severity="secondary"
-                        />
+                        <span class="article-card__category-pill">
+                            {{ post.category.name }}
+                        </span>
                     </NuxtLink>
                     <div v-if="post.tags && post.tags.length > 0" class="article-card__tags">
                         <NuxtLink
@@ -97,8 +97,10 @@ import { formatDate } from '@/utils/shared/date'
 const props = withDefaults(defineProps<{
     post: Post
     layout?: 'vertical' | 'horizontal'
+    priority?: boolean
 }>(), {
     layout: 'vertical',
+    priority: false,
 })
 
 const localePath = useLocalePath()
@@ -238,6 +240,23 @@ const postPath = computed(() => localePath(`/posts/${props.post.slug || props.po
 
         &:hover {
             transform: translateY(-1px);
+        }
+    }
+
+    &__category-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 999px;
+        border: 1px solid var(--p-surface-border);
+        background: var(--p-surface-100);
+        color: var(--p-text-color);
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1.2;
+
+        :global(.dark) & {
+            background: color-mix(in srgb, var(--p-surface-700) 78%, transparent);
         }
     }
 

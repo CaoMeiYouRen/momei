@@ -360,7 +360,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import type { MenuItem } from 'primevue/menuitem'
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
 import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/use-auth-session'
@@ -544,8 +544,31 @@ const toggleUserMenu = (event: any) => {
     userMenu.value.toggle(event)
 }
 
+const handleSearchShortcut = (event: KeyboardEvent) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        openSearch()
+    }
+}
+
 const isDark = useThemeMode()
 const toggleDark = useToggle(isDark)
+
+onMounted(() => {
+    if (!import.meta.client) {
+        return
+    }
+
+    window.addEventListener('keydown', handleSearchShortcut)
+})
+
+onBeforeUnmount(() => {
+    if (!import.meta.client) {
+        return
+    }
+
+    window.removeEventListener('keydown', handleSearchShortcut)
+})
 
 watch(
     () => ({

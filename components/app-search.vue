@@ -83,7 +83,7 @@ import { useDebounceFn } from '@vueuse/core'
 
 const { locale } = useI18n()
 const localePath = useLocalePath()
-const { isSearchOpen: visible, openSearch, closeSearch } = useSearch()
+const { isSearchOpen: visible, closeSearch } = useSearch()
 const { $appFetch } = useAppApi()
 
 const query = ref('')
@@ -133,22 +133,6 @@ const performSearch = () => {
         closeSearch()
     }
 }
-
-// Keyboard shortcut Ctrl+K
-const handleKeyDown = (e: KeyboardEvent) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault()
-        openSearch()
-    }
-}
-
-onMounted(() => {
-    window.addEventListener('keydown', handleKeyDown)
-})
-
-onUnmounted(() => {
-    window.removeEventListener('keydown', handleKeyDown)
-})
 </script>
 
 <style lang="scss">
