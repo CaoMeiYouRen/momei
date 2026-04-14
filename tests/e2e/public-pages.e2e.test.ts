@@ -6,6 +6,8 @@ test.describe('Public Pages Reachability', () => {
         { path: '/categories', title: /分类|Categories/ },
         { path: '/tags', title: /标签|Tags/ },
         { path: '/about', title: /关于|About/ },
+        { path: '/feedback', title: /反馈|Feedback/ },
+        { path: '/friend-links', title: /友链|友情链接|Friend Links/ },
         { path: '/privacy-policy', title: /政策|协议|Policy|Agreement/ },
         { path: '/user-agreement', title: /协议|Agreement/ },
         { path: '/submit', title: /投稿|Submit/ },

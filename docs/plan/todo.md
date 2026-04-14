@@ -20,7 +20,6 @@
 
 当前进行中事项
 - 首屏性能阶段一优化（Lighthouse >= 50）：已完成一轮 Lighthouse 瓶颈复盘，确认问题不只在首页，首页 `/en-US` 为 42 分、`/posts` 为 41 分，当前优先聚焦公共壳与文章卡片链路减重、首页非首屏区块延后 hydration、首页双请求合并与性能预算口径修正，待补齐新的收益记录。
-- E2E 覆盖矩阵第一轮：已完成现有 Playwright 套件、critical 基线与 `skip` 分布盘点，当前进入首轮矩阵落盘与高 ROI 公共交易链路补测阶段，优先补齐注册校验与投稿链路的稳定用例。
 
 > 阶段状态: 第二十六阶段已完成归档，第二十七阶段已进入执行中；本文件从候选分析切换为第二十七阶段执行面。
 
@@ -51,10 +50,11 @@
 	- 下一步: 先收敛公共壳与文章卡片链路，再把首页热门文章、外部 feed、订阅表单改为进入视口后再挂载，随后评估首页 pinned / latest 双请求合并为单接口的收益。
 	- 下一步: 修正现有 bundle budget 的入口统计口径，避免 `coreEntryJs` 指标失真，保证后续性能优化有可比基线。
 
-5. [ ] **E2E 覆盖矩阵第一轮** (P1)
+5. [x] **E2E 覆盖矩阵第一轮** (P1)
 	- 验收: 建立页面与接口覆盖矩阵并明确优先级。
 	- 验收: 完成关键交易路径与高风险接口的首轮稳定用例。
-	- 进展: 已完成现有 `tests/e2e/**`、critical 基线与 `skip` 分布盘点；当前矩阵事实源见 [e2e-coverage-matrix.md](../design/modules/e2e-coverage-matrix.md)，首轮优先落点为注册校验、投稿提交流程与后台 taxonomy / 用户设置等高风险写链路。
+	- 结果: 已补齐注册校验、投稿表单失败 / 成功提交流程、`/feedback` 与 `/friend-links` 等公共页 reachability，以及后台 `users`、`comments`、`submissions`、`subscribers`、`friend-links`、`external-links`、`notifications`、`ai`、taxonomy 搜索 / 聚合开关等首轮稳定用例。
+	- 证据: 定向命令 `pnpm exec playwright test tests/e2e/submit.e2e.test.ts tests/e2e/user-workflow.e2e.test.ts tests/e2e/admin.e2e.test.ts tests/e2e/public-pages.e2e.test.ts --project=chromium` 已验证 `33 passed / 3 skipped`，详见 [e2e-coverage-matrix.md](../design/modules/e2e-coverage-matrix.md) 与 [regression-log.md](./regression-log.md)。
 
 
 ## 相关文档

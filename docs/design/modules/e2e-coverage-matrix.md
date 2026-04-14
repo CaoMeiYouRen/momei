@@ -18,12 +18,12 @@
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | P0 | 认证会话治理 | `/login` -> `/settings` -> `/admin/posts` | stable | `tests/e2e/auth-session-governance.e2e.test.ts`，`pnpm test:e2e:critical` | 继续守线，后续仅在鉴权 / session 逻辑变化时扩断言 |
 | P0 | 移动端后台关键链路 | `/admin/posts` -> `/admin/posts/new` | stable | `tests/e2e/mobile-critical.e2e.test.ts`，`pnpm test:e2e:critical` | 若编辑器结构变化，补移动端保存 / 草稿相关断言 |
-| P1 | 首页与公共导航 | `/`、`/posts`、`/categories`、`/tags`、`/archives`、`/submit` | covered | `tests/e2e/home.e2e.test.ts`、`tests/e2e/navigation.e2e.test.ts`、`tests/e2e/public-pages.e2e.test.ts` | 保持只读守线；若导航或壳层改动，再升级到 Review Gate |
+| P1 | 首页与公共导航 | `/`、`/posts`、`/categories`、`/tags`、`/archives`、`/submit`、`/feedback`、`/friend-links` | covered | `tests/e2e/home.e2e.test.ts`、`tests/e2e/navigation.e2e.test.ts`、`tests/e2e/public-pages.e2e.test.ts` | 保持只读守线；若导航或壳层改动，再升级到 Review Gate |
 | P1 | SEO / 公共展示回归 | 文章、分类、标签、公共静态页 | covered | `tests/e2e/posts.e2e.test.ts`、`tests/e2e/categories-tags.e2e.test.ts`、`tests/e2e/seo-regression.e2e.test.ts` | 与性能主线联动，避免公共页改动无浏览器证据 |
-| P1 | 注册校验链路 | `/register` | partial | `tests/e2e/user-workflow.e2e.test.ts` 中已有表单展示，校验断言此前为 `skip` | 第一轮补齐空字段、密码不一致、协议勾选错误 |
-| P1 | 投稿交易链路 | `/submit` | partial | `tests/e2e/submit.e2e.test.ts` 已有骨架，关键断言此前为 `skip` | 第一轮补齐前端校验与成功提交流程 |
-| P1 | 后台 taxonomy 管理 | `/admin/categories`、`/admin/tags` | partial | `tests/e2e/admin.e2e.test.ts` 仅覆盖页面可达；`tests/e2e/admin-workflow.e2e.test.ts` 大量 `skip` | 第二轮优先补新建 / 搜索 / 聚合翻译切换中的 1 组写链路 |
-| P1 | 用户设置 | `/settings` | partial | `tests/e2e/user-workflow.e2e.test.ts` 仅覆盖页面可达，更新资料仍为 `skip` | 第二轮补齐最小资料保存或错误提示 |
+| P1 | 注册校验链路 | `/register` | covered | `tests/e2e/user-workflow.e2e.test.ts` 已锁定空字段、密码不一致、协议勾选与登录入口跳转 | 第二轮按邮件 / token 种子成熟度再评估“注册成功”闭环 |
+| P1 | 投稿交易链路 | `/submit` | covered | `tests/e2e/submit.e2e.test.ts` 已锁定前端校验、成功提交、请求 payload 与表单重置 | 后续与后台审核链路串联，补投稿审核闭环 |
+| P1 | 后台 taxonomy 管理 | `/admin/categories`、`/admin/tags` | partial | `tests/e2e/admin.e2e.test.ts` 已覆盖页面可达、分类搜索与聚合翻译开关交互；`tests/e2e/admin-workflow.e2e.test.ts` 仍有 `skip` | 第二轮优先补新建 / 更新中的 1 组稳定写链路 |
+| P1 | 用户设置 | `/settings` | covered | `tests/e2e/user-workflow.e2e.test.ts` 已覆盖设置页、`apiKeys` / `notifications` 标签页加载 | 第二轮补齐最小资料保存或头像上传提示 |
 | P2 | 投稿后台审核 | `/admin/submissions` 或等价入口 | planned | 暂无稳定 Playwright 基线 | 等分发 / 投稿主线继续推进时补审核闭环 |
 | P2 | 用户注册成功 / 找回密码成功 | `/register`、`/forgot-password` | partial | 当前仅有展示或静态校验 | 需评估测试模式邮件与 token 种子后再上收 |
 
@@ -32,10 +32,10 @@
 | 风险 | 接口 / 写链路 | 页面触发面 | 当前状态 | 当前证据 | 下一步 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | P0 | `/api/auth/get-session` 与受保护页访问 | 登录后设置页、后台页 | stable | `auth-session-governance.e2e` 已锁定刷新、跨标签页登出与失效会话回退 | 仅在 auth session 实现调整时补新断言 |
-| P1 | `/api/posts/submissions` | 投稿页 | partial | 当前已有 schema 文案与 E2E 骨架 | 第一轮补成功提交流程与表单重置断言 |
-| P1 | 注册表单前端校验 | 注册页本地校验 + 协议勾选 | partial | 当前已有页面和文案事实源 | 第一轮补空字段 / 密码不一致 / 协议错误断言 |
-| P1 | taxonomy 创建 / 更新 | 分类、标签后台 | partial | 页面可达已覆盖，但保存流程未形成稳定 E2E | 第二轮选分类或标签先补 1 组创建写链路 |
-| P1 | 用户设置更新 | 设置页 | planned | 仅页面可达 | 评估种子与接口稳定性后补保存成功或失败提示 |
+| P1 | `/api/posts/submissions` | 投稿页 | covered | `tests/e2e/submit.e2e.test.ts` 已锁定请求拦截、成功提交与表单重置 | 第二轮补后台审核与状态流转证据 |
+| P1 | 注册表单前端校验 | 注册页本地校验 + 协议勾选 | covered | `tests/e2e/user-workflow.e2e.test.ts` 已锁定空字段 / 密码不一致 / 协议错误断言 | 第二轮再补注册成功与找回密码成功闭环 |
+| P1 | taxonomy 创建 / 更新 | 分类、标签后台 | partial | 页面可达与筛选交互已覆盖，但保存流程未形成稳定 E2E | 第二轮选分类或标签先补 1 组创建写链路 |
+| P1 | 用户设置更新 | 设置页 | partial | 已覆盖 profile / apiKeys / notifications 标签页加载 | 评估种子与接口稳定性后补保存成功或失败提示 |
 
 ## 4. 首轮优先级
 

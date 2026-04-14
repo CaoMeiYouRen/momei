@@ -19,10 +19,11 @@ function hasAdminAuthState(): boolean {
     }
 }
 
-async function submitForm(page: Page, selector: string) {
-    await page.locator(selector).evaluate((form) => {
-        (form as HTMLFormElement).requestSubmit()
-    })
+async function submitForm(page: Page, submitButtonSelector: string) {
+    const submitButton = page.locator(submitButtonSelector)
+    await expect(submitButton).toBeVisible()
+    await expect(submitButton).toBeEnabled()
+    await submitButton.click()
 }
 
 async function acceptAgreement(page: Page) {
@@ -45,12 +46,13 @@ test.describe('User Workflow E2E Tests', () => {
             await setLocaleCookie(page, baseURL, 'zh-CN')
             await page.goto('/register')
             await expect(page.locator('.register-page')).toBeVisible()
+            await page.waitForLoadState('networkidle')
 
             const submitButton = page.locator('.register-form__submit-btn')
             await expect(submitButton).toBeVisible()
 
             // 直接点击提交按钮
-            await submitForm(page, '.register-form__fields')
+            await submitForm(page, '.register-form__submit-btn')
 
             await expect(page.locator('body')).toContainText('请输入昵称')
             await expect(page.locator('body')).toContainText('请输入邮箱')
@@ -62,6 +64,7 @@ test.describe('User Workflow E2E Tests', () => {
             await setLocaleCookie(page, baseURL, 'zh-CN')
             await page.goto('/register')
             await expect(page.locator('.register-page')).toBeVisible()
+            await page.waitForLoadState('networkidle')
 
             // 填写表单，密码不匹配
             await page.fill('input#name', '测试用户')
@@ -71,7 +74,7 @@ test.describe('User Workflow E2E Tests', () => {
             await acceptAgreement(page)
 
             // 点击提交
-            await submitForm(page, '.register-form__fields')
+            await submitForm(page, '.register-form__submit-btn')
 
             await expect(page.locator('body')).toContainText('两次输入的密码不一致')
         })
@@ -80,6 +83,7 @@ test.describe('User Workflow E2E Tests', () => {
             await setLocaleCookie(page, baseURL, 'zh-CN')
             await page.goto('/register')
             await expect(page.locator('.register-page')).toBeVisible()
+            await page.waitForLoadState('networkidle')
 
             // 填写表单但不勾选同意复选框
             await page.fill('input#name', '测试用户')
@@ -88,7 +92,7 @@ test.describe('User Workflow E2E Tests', () => {
             await page.fill('input#confirmPassword_input, #confirmPassword input', 'password123')
 
             // 不勾选同意复选框，直接提交
-            await submitForm(page, '.register-form__fields')
+            await submitForm(page, '.register-form__submit-btn')
 
             await expect(page.locator('body')).toContainText('请阅读并同意用户协议和隐私政策')
         })
@@ -160,21 +164,18 @@ test.describe('User Workflow E2E Tests', () => {
             await expect(page.locator('.settings-page')).toBeVisible({ timeout: 10000 })
         })
 
-        test.skip('should update user profile', async ({ page }) => {
-            // 需要先登录
-            await page.goto('/settings')
+        test('should load api keys and notifications tabs', async ({ page }) => {
+            await page.goto('/settings?tab=apiKeys')
 
-            // 等待页面加载
-            await page.waitForSelector('.settings-page', { timeout: 5000 })
+            const currentUrl = page.url()
+            test.skip(currentUrl.includes('/login'), 'Auth state not available for settings page')
 
-            // 修改用户名
-            await page.fill('input[name="name"]', '新用户名')
+            await expect(page.locator('.settings-api-keys')).toBeVisible({ timeout: 10000 })
+            await expect(page.locator('.api-keys-form, .api-keys-table').first()).toBeVisible({ timeout: 10000 })
 
-            // 点击保存
-            await page.click('button:has-text("保存")')
-
-            // 验证保存成功提示
-            await expect(page.locator('.p-toast-message-success')).toBeVisible()
+            await page.goto('/settings?tab=notifications')
+            await expect(page.locator('.subscription-settings').first()).toBeVisible({ timeout: 10000 })
+            await expect(page.locator('body')).not.toContainText('pages.settings.notifications')
         })
 
         test.skip('should change user avatar', async ({ page }) => {

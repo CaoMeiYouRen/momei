@@ -2,14 +2,16 @@ import { test, expect, type Page } from '@playwright/test'
 
 test.describe('Submit Page E2E Tests', () => {
     async function submitForm(page: Page) {
-        await page.locator('.submit-form').evaluate((form) => {
-            (form as HTMLFormElement).requestSubmit()
-        })
+        const submitButton = page.locator('.submit-btn')
+        await expect(submitButton).toBeVisible()
+        await expect(submitButton).toBeEnabled()
+        await submitButton.click()
     }
 
     test('should show validation errors when required fields are empty', async ({ page }) => {
         await page.goto('/submit')
         await expect(page.locator('.submit-page')).toBeVisible()
+        await page.waitForLoadState('networkidle')
 
         const submitButton = page.locator('.submit-btn')
         await expect(submitButton).toBeVisible()
@@ -43,6 +45,7 @@ test.describe('Submit Page E2E Tests', () => {
 
         await page.goto('/submit')
         await expect(page.locator('.submit-page')).toBeVisible()
+        await page.waitForLoadState('networkidle')
 
         await page.fill('#title', 'Playwright Submission Title')
         await page.fill('#content', 'This is a valid markdown content for submission test.')

@@ -80,6 +80,38 @@ test.describe('Admin E2E Tests', () => {
         await expect(page.locator('form, .settings-content, .p-card').first()).toBeVisible({ timeout: 15000 })
     })
 
+    test('should load extended admin management pages', async ({ page }) => {
+        const routeMatrix = [
+            ['/admin/users', '.p-datatable, .admin-page-container'],
+            ['/admin/comments', '.p-datatable, .admin-page-container'],
+            ['/admin/submissions', '.p-datatable, .admin-page-container'],
+            ['/admin/friend-links', '.admin-friend-links, .p-datatable'],
+            ['/admin/subscribers', '.p-datatable, .admin-page-container'],
+            ['/admin/external-links', '.p-datatable, .admin-page-container'],
+        ] as const
+
+        for (const [routePath, readySelector] of routeMatrix) {
+            await gotoAdminRoute(page, routePath)
+            await expect(page.locator(readySelector).first()).toBeVisible({ timeout: 15000 })
+        }
+    })
+
+    test('should support category search and aggregate toggle interactions', async ({ page }) => {
+        await gotoAdminRoute(page, '/admin/categories')
+        await expect(page.locator('.admin-page-container')).toBeVisible({ timeout: 15000 })
+
+        const searchInput = page.getByRole('textbox', { name: '搜索分类...' })
+        await expect(searchInput).toBeVisible({ timeout: 10000 })
+        await searchInput.fill('tech')
+        await expect(searchInput).toHaveValue('tech')
+
+        const aggregateSwitch = page.getByRole('switch', { name: '聚合翻译版本' })
+        await expect(aggregateSwitch).toBeVisible({ timeout: 10000 })
+        await aggregateSwitch.click()
+
+        await expect(page.locator('.p-datatable, .categories-list').first()).toBeVisible({ timeout: 10000 })
+    })
+
     test('should load notification management with translated delivery log copy', async ({ page }) => {
         await gotoAdminRoute(page, '/admin/notifications')
 

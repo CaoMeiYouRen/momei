@@ -33,6 +33,39 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## 第二十七阶段 E2E 覆盖矩阵第一轮补测（2026-04-14）
+
+### 回归任务记录
+
+- 回归范围: 第二十七阶段 P1“E2E 覆盖矩阵第一轮”首轮稳定补测；覆盖 `tests/e2e/submit.e2e.test.ts`、`tests/e2e/user-workflow.e2e.test.ts`、`tests/e2e/admin.e2e.test.ts` 与 `tests/e2e/public-pages.e2e.test.ts`，聚焦注册校验、投稿成功 / 失败、公共页面 reachability 与后台高风险管理页首轮稳定交互。
+- 触发条件: 当前阶段待办要求把现有 Playwright 零散文件收敛为有矩阵、有优先级、有稳定证据的第一轮浏览器基线，并优先补齐公开交易链路与后台高 ROI 管理面。
+- timeout budget:
+    - 缺口盘点与用例增补: 30 分钟。
+    - 定向 Playwright 回归: 30 分钟。
+    - 文档 / Todo / 证据同步: 20 分钟。
+- 已执行命令:
+    - `pnpm exec playwright test tests/e2e/submit.e2e.test.ts tests/e2e/user-workflow.e2e.test.ts tests/e2e/admin.e2e.test.ts tests/e2e/public-pages.e2e.test.ts --project=chromium`
+- 输出摘要:
+    - 已执行验证:
+        - V1 / 公共页: 已补齐 `/feedback`、`/friend-links` 与既有 `/archives`、`/categories`、`/tags`、`/about`、协议页、`/submit` 的 reachability 验证。
+        - V1 / 公开交易链路: 注册页已锁定空字段、密码不一致与协议勾选错误；投稿页已锁定失败校验、成功提交、请求 payload 与表单重置。
+        - V1 / 后台管理面: 已新增 `users`、`comments`、`submissions`、`subscribers`、`friend-links`、`external-links`、`notifications`、`ai` 与 taxonomy 搜索 / 聚合交互的稳定 smoke。
+        - V1 / 浏览器结果: 定向 Chromium 回归结果为 `33 passed / 3 skipped`，无失败。
+    - 结果摘要:
+        - 第一轮矩阵已从“有零散 E2E 文件”推进到“有明确优先级 + 已验证稳定入口”的状态，可作为后续第二轮写链路补测的基线。
+        - 当前保留的 `skip` 主要集中在头像上传、投稿后台审核与部分后台写链路，已明确归入第二轮范围，不再阻塞第一轮收口。
+    - Review Gate 结论:
+        - 结论: Pass
+        - 问题分级: none
+        - 主要问题:
+            - 未发现 blocker；当前结果已满足“矩阵落盘 + 关键交易链路首轮稳定用例”验收口径。
+    - 未覆盖边界:
+        - taxonomy 创建 / 更新、用户资料保存、投稿后台审核仍未形成稳定写链路 E2E。
+        - 当前证据以 Chromium 定向回归为主；若后续触及更高风险鉴权或多端兼容改动，应升级到 `pnpm test:e2e:critical` 或 `pnpm test:e2e:review-gate`。
+    - 后续补跑计划:
+        - 第二轮优先补 taxonomy 写链路、用户资料保存与投稿后台审核闭环。
+        - 若公共壳、认证或移动端后台入口再有改动，默认回到 critical 基线复跑。
+
 ## 第二十七阶段接口缓存复用与扩面验收（2026-04-13）
 
 ### 回归任务记录
