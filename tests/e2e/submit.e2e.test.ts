@@ -7,7 +7,7 @@ test.describe('Submit Page E2E Tests', () => {
         })
     }
 
-    test.skip('should show validation errors when required fields are empty', async ({ page }) => {
+    test('should show validation errors when required fields are empty', async ({ page }) => {
         await page.goto('/submit')
         await expect(page.locator('.submit-page')).toBeVisible()
 
@@ -22,11 +22,13 @@ test.describe('Submit Page E2E Tests', () => {
         await expect(page.locator('body')).toContainText('无效的邮箱地址')
     })
 
-    test.skip('should submit successfully with valid payload', async ({ page }) => {
+    test('should submit successfully with valid payload', async ({ page }) => {
         let submissionReceived = false
+        let capturedPayload: Record<string, unknown> | null = null
 
         await page.route('**/api/posts/submissions', async (route) => {
             submissionReceived = true
+            capturedPayload = route.request().postDataJSON() as Record<string, unknown>
             await route.fulfill({
                 status: 200,
                 contentType: 'application/json',
@@ -51,10 +53,14 @@ test.describe('Submit Page E2E Tests', () => {
         await submitForm(page)
 
         await expect.poll(() => submissionReceived).toBe(true)
+        await expect.poll(() => capturedPayload?.title).toBe('Playwright Submission Title')
+        await expect.poll(() => capturedPayload?.contributorName).toBe('Playwright User')
+        await expect.poll(() => capturedPayload?.contributorEmail).toBe('playwright@example.com')
 
         await expect(page.locator('#title')).toHaveValue('')
         await expect(page.locator('#content')).toHaveValue('')
         await expect(page.locator('#name')).toHaveValue('')
         await expect(page.locator('#email')).toHaveValue('')
+        await expect(page.locator('#url')).toHaveValue('')
     })
 })

@@ -25,6 +25,10 @@ async function submitForm(page: Page, selector: string) {
     })
 }
 
+async function acceptAgreement(page: Page) {
+    await page.locator('label[for="agreed"]').click()
+}
+
 test.describe('User Workflow E2E Tests', () => {
     test.describe('User Registration Flow', () => {
         test('should display registration form', async ({ page }) => {
@@ -37,7 +41,7 @@ test.describe('User Workflow E2E Tests', () => {
             await expect(page.locator('#confirmPassword')).toBeVisible()
         })
 
-        test.skip('should show validation errors for empty fields', async ({ page, baseURL }) => {
+        test('should show validation errors for empty fields', async ({ page, baseURL }) => {
             await setLocaleCookie(page, baseURL, 'zh-CN')
             await page.goto('/register')
             await expect(page.locator('.register-page')).toBeVisible()
@@ -54,7 +58,7 @@ test.describe('User Workflow E2E Tests', () => {
             await expect(page.locator('body')).toContainText('请确认密码')
         })
 
-        test.skip('should show validation error for mismatched passwords', async ({ page, baseURL }) => {
+        test('should show validation error for mismatched passwords', async ({ page, baseURL }) => {
             await setLocaleCookie(page, baseURL, 'zh-CN')
             await page.goto('/register')
             await expect(page.locator('.register-page')).toBeVisible()
@@ -64,6 +68,7 @@ test.describe('User Workflow E2E Tests', () => {
             await page.fill('input#email', 'test@momei.test')
             await page.fill('input#password_input, #password input', 'password123')
             await page.fill('input#confirmPassword_input, #confirmPassword input', 'password456')
+            await acceptAgreement(page)
 
             // 点击提交
             await submitForm(page, '.register-form__fields')
@@ -71,7 +76,7 @@ test.describe('User Workflow E2E Tests', () => {
             await expect(page.locator('body')).toContainText('两次输入的密码不一致')
         })
 
-        test.skip('should require agreement checkbox', async ({ page, baseURL }) => {
+        test('should require agreement checkbox', async ({ page, baseURL }) => {
             await setLocaleCookie(page, baseURL, 'zh-CN')
             await page.goto('/register')
             await expect(page.locator('.register-page')).toBeVisible()
