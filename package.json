@@ -246,7 +246,7 @@
     "vite": "^7.3.2",
     "vitepress": "^1.6.4",
     "vitest": "^4.0.18",
-    "vitest-environment-nuxt": "^1.0.1",
+    "vitest-environment-nuxt": "^2.0.0",
     "vue-tsc": "^3.2.6",
     "wrangler": "^4.81.0"
   },
