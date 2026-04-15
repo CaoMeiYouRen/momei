@@ -33,6 +33,45 @@
     - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
     - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
 
+## 第二十七阶段渠道分发回归加固根因调研（2026-04-16）
+
+### 回归任务记录
+
+- 回归范围: 第二十七阶段 P0“渠道分发回归加固”中的 WechatSync 微博 / 小红书链路；覆盖当前仓库的 [components/admin/posts/post-distribution-button.vue](../../components/admin/posts/post-distribution-button.vue)、[utils/web/post-distribution-wechatsync.ts](../../utils/web/post-distribution-wechatsync.ts)、[utils/shared/distribution-template.ts](../../utils/shared/distribution-template.ts) 以及官方公开仓库中的旧版 compat layer、background sync-service 与 article-syncjs SDK。
+- 触发条件: 真实联调显示“小红书通过官方 SDK 引入可成功，但当前项目会卡在同步中，微博仍不支持”；现有单元测试与 typecheck 已通过，但运行期行为与官方成功路径不一致。
+- 执行频率: 第二十七阶段渠道分发主线的专项根因调研记录；在完成结构性修复或完成单次 addTask 实验前，后续只追加增量验证，不重复重写本条结论。
+- timeout budget:
+    - 项目内调用链与状态机复盘: 25 分钟。
+    - 官方扩展 / SDK 只读对照: 35 分钟。
+    - 文档落盘与风险回写: 20 分钟。
+- 已执行命令:
+    - GitHub 仓库只读对照: `Wechatsync/Wechatsync`，重点检索 `packages/extension/src/content/api.ts`、`packages/extension/src/background/sync-service.ts`、`packages/extension/src/lib/content-processor.ts`、`packages/core/src/adapters/platforms/weibo.ts` 与 `packages/core/src/adapters/platforms/index.ts`。
+    - GitHub 仓库只读对照: `wechatsync/article-syncjs` 与线上 `https://md.cmyr.ltd/lib/article-syncjs/main.js`，确认官方 SDK 对旧版 `$syncer.addTask()` 的实际调用方式。
+    - 项目内入口复盘: [components/admin/posts/post-distribution-button.vue](../../components/admin/posts/post-distribution-button.vue)、[utils/web/post-distribution-wechatsync.ts](../../utils/web/post-distribution-wechatsync.ts)、[utils/shared/post-distribution-wechatsync.ts](../../utils/shared/post-distribution-wechatsync.ts)。
+- 输出摘要:
+    - 已执行验证:
+        - 官方 compat 层 `packages/extension/src/content/api.ts` 证实，旧版 `$syncer.addTask()` 每次调用都会重置全局 `currentSyncId` 与 `currentAccounts`，随后只转发一次 `SYNC_ARTICLE`；旧版页面侧契约更接近“一次人工同步对应一次 addTask”，而不是同一轮操作下的多批次旧 API 任务。
+        - 官方 background `sync-service.ts` 与 `content-processor.ts` 证实，扩展会基于各 adapter 的 `preprocessConfig` 对同一份 `rawHtml` 逐平台生成 `platformContents`；也就是说，官方成功路径依赖“原始文章先进入扩展，再由扩展内部做 per-platform preprocess”，不是让页面侧先做微博 / 小红书专属 sanitize。
+        - 官方 `weibo` adapter 使用预处理后的 `article.html` 直接保存草稿，并以保存响应 `code === 100000` 作为成功判定；因此当前仓库出现的 `CODE:004` 更像是页面侧 payload 结构或内容预处理偏离官方预期后的表层症状，不足以单独解释根因。
+        - 截至本轮公开仓库检索，`packages/core/src/adapters/platforms/index.ts` 中没有公开导出的 `xiaohongshu` adapter；因此当前仓库里的 `xiaohongshu` content profile 只能视为项目侧兼容推断，不能当作官方公开契约继续扩写。
+        - 当前仓库的 [components/admin/posts/post-distribution-button.vue](../../components/admin/posts/post-distribution-button.vue) 会按 `contentProfile` 分组账户，并循环调用 [utils/web/post-distribution-wechatsync.ts](../../utils/web/post-distribution-wechatsync.ts) 中的 `runWechatSyncBatch()`；每一批又会通过 [utils/shared/distribution-template.ts](../../utils/shared/distribution-template.ts) 先构造微博 / 小红书专属 dispatch payload，再调用一次旧版 `addTask()`。这与官方“单次 addTask + 原始 article + 扩展内部 preprocess”路径不等价。
+    - 结果摘要:
+        - 当前最强根因不是某一条微博 / 小红书 sanitize 规则缺失，而是当前仓库采用了“按 profile 分批、多次 addTask + 页面侧先做平台定制 sanitize”的调用模型，已经偏离官方 compat 层的单任务状态模型与预处理契约。
+        - 第一轮补丁里新增的小红书 profile、微博 / 小红书预检与文案补齐，在静态层是闭环的，但它们只能解释“项目侧如何构造 payload”，不能证明这条 payload 路径仍然符合官方扩展的运行期假设。
+        - 在没有回退实验之前，不应继续把“多批次 addTask”视为正确设计基线，也不应继续用追加平台 sanitize 的方式替代结构性修复。
+    - Review Gate 结论:
+        - 结论: Reject（针对第二十七阶段“渠道分发回归加固”主线的当前功能放行）
+        - 问题分级: blocker
+        - 主要问题:
+            - 当前实现仍未恢复“官方 SDK 成功、当前项目同路径也成功”的运行期等价性，不满足“微博 / 小红书链路完成根因收敛与修复”的验收条件。
+    - 未覆盖边界:
+        - 本轮仍未在当前仓库内完成“单次 addTask + 原始内容交付”实验，因此还不能证明回退到官方路径后微博 / 小红书一定恢复。
+        - 公开仓库检索未能拿到小红书的稳定官方 adapter 证据；小红书当前究竟是官方私有适配、运行期动态平台还是纯兼容账号类型，仍需通过真实扩展联调继续确认。
+    - 后续补跑计划:
+        - 下一步优先做一轮最小实验：在 [components/admin/posts/post-distribution-button.vue](../../components/admin/posts/post-distribution-button.vue) 与 [utils/web/post-distribution-wechatsync.ts](../../utils/web/post-distribution-wechatsync.ts) 中验证“单次 addTask + 原始 / default contentProfile payload + 禁用页面侧微博 / 小红书专属 sanitize”的桥接路径。
+        - 若实验仍失败，再补插件回调轨迹观测：记录每次 `addTask` 对应的 `syncId`、`taskUpdate` 账户轨迹、是否收到 `done / failed` 终态，以及服务端 `attemptId` 与前端 local task accounts 的映射差异。
+        - 若公开适配器能力确认不覆盖小红书，则需要把“小红书可用性”从“默认成功平台”降级为“实验性兼容平台”或显式 unsupported，而不是继续以正式支持口径承诺。
+
 ## 第二十七阶段 E2E 覆盖矩阵第一轮补测（2026-04-14）
 
 ### 回归任务记录

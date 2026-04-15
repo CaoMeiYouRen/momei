@@ -2,6 +2,8 @@
 
 > 定位：本文是 [第三方分发解耦与投递控制设计文档](./content-distribution-governance.md) 的第十三阶段增量方案，聚焦 [当前 Todo 中“渠道分发内容模板与标签适配”](../../plan/todo.md) 的实现收口。
 
+> 2026-04-16 调研补充：当前仓库已经落地的“WechatSync 账户按 profile 分批、多次调用 `addTask()`”在真实联调中暴露了兼容风险。官方旧版 compat 层更接近“单次 `addTask()` + 原始 article + 扩展内部 per-platform preprocess”；因此本文中涉及“多批次 `addTask()`”为稳定契约的表述，只代表当前实现现状，不再视为长期正确方案。
+
 ## 1. 调研结论
 
 ### 1.1 当前实现现状
@@ -36,11 +38,11 @@
 
 ### 3.1 方案摘要
 
-采用“服务端生成结构化素材包 + 渠道模板渲染 + WechatSync 账户分组投递”的单一方案。
+采用“服务端生成结构化素材包 + 渠道模板渲染”为核心方案；WechatSync 当前仍保留账户分组投递实现，但 2026-04-16 起不再把该分组模型视为长期稳定契约。
 
 - 服务端负责生成唯一事实源 `DistributionMaterialBundle`。
 - Memos 直接消费服务端渲染后的最终 Markdown 内容。
-- WechatSync 先消费“基础正文模板”，再由前端按账户平台类型套用标签格式，并将不同格式账户拆分成多个批次调用插件。
+- 当前仓库的 WechatSync 实现仍会先消费“基础正文模板”，再由前端按账户平台类型套用标签格式并拆成多个批次调用插件；但这条路径已在 2026-04-16 根因调研中被标记为 compat risk，后续修复优先回到更接近官方的“单次 addTask + 原始内容交给扩展内部 preprocess”模型。
 - 所有批次仍归属于同一个站内 `attemptId`，最终统一回写到账户级结果与时间线。
 
 ### 3.2 流程图
@@ -61,6 +63,8 @@ flowchart TD
     D --> I[Memos 创建或更新]
     H --> J[统一 attemptId 回写]
 ```
+
+  > 兼容性说明（2026-04-16）：上图描述的是当前仓库实现，不是新的长期推荐路径。官方旧版 compat 层不会在页面侧按平台 profile 多次调用 `addTask()`。
 
 ## 4. 分发素材结构层
 
@@ -240,27 +244,31 @@ translationId || slug || id
 - `wrapped`: `#标签#`
 - `none`: 不输出
 
-## 7. WechatSync 多账户投递策略
+## 7. WechatSync 多账户投递现状与兼容风险
 
-### 7.1 为什么必须分组
+### 7.1 为什么曾采用分组
 
-现有 `window.$syncer.addTask()` 的入参结构是“一个 `post` 对象 + 多个账户”。因此，只要不同账户的标签格式不一致，就不能继续把全部账户放进同一个 `addTask()` 调用。
+- 旧版 `window.$syncer.addTask()` 的页面入参仍是“一个 `post` + 多个 `accounts`”。
+- 当时为了给 B 站、微博和小红书输出不同的标签尾注格式，当前仓库先在页面侧引入 `wrapped / leading / none` 三种 profile，并把账户拆成多个批次分别调用 `addTask()`。
+- 这种做法可以解释“为什么当前实现会分组”，但它只说明了项目侧需求，不代表官方扩展把“多次 `addTask()`”视为等价操作。
 
-### 7.2 分组规则
+### 7.2 当前实现规则
 
-前端在点击 WechatSync 投递时，先按平台标签 profile 将选中的账户分组：
+- 前端在点击 WechatSync 投递时，会按平台标签 profile 将选中的账户分成 `wrapped`、`leading` 与 `none` 三组。
+- 每一组使用相同的基础正文模板，但注入不同的标签尾注，然后分别调用一次 `addTask()`。
+- 所有分组批次继续共享同一个站内 `attemptId`，并在前端聚合多个批次的账户状态后，通过一次 `/distribution/wechatsync-complete` 回写统一结果。
 
-- `wrapped` 组
-- `leading` 组
-- `none` 组
+### 7.3 2026-04-16 调研修正
 
-每一组使用相同的基础正文模板，但注入不同的标签尾注，然后分别调用一次 `addTask()`。
+- 官方旧版 compat 层 `packages/extension/src/content/api.ts` 会在每次 `addTask()` 时重置全局 `currentSyncId` 与 `currentAccounts`，然后只转发一次 `SYNC_ARTICLE`；这意味着旧版页面侧的稳定契约更接近“一次人工同步对应一次 `addTask()`”。
+- 官方 background `sync-service.ts` 会把同一份原始 `rawHtml` 交给扩展内部的 per-platform preprocess 流程，由各 adapter 的 `preprocessConfig` 生成 `platformContents`。页面侧先做微博 / 小红书专属 sanitize，再多次调用 `addTask()`，已经改变了官方的预处理责任边界。
+- 因此，“按平台分组、多次 `addTask()`”现在只能被视为当前仓库的临时实现现状，不再是长期推荐方案，也不应继续当作后续功能扩写的稳定前提。
 
-### 7.3 状态与回写保持不变
+### 7.4 当前建议
 
-- 所有分组批次共享同一个站内 `attemptId`。
-- 前端聚合所有批次的账户状态后，仍通过一次 `/distribution/wechatsync-complete` 回写统一结果。
-- 时间线仍按一次人工分发尝试记录，不把多批次拆成多个站内 attempt，避免审计面板失真。
+- 后续根因修复应优先验证“单次 `addTask()` + 原始 / default contentProfile 内容交付 + 扩展内部 preprocess”是否能恢复与官方 SDK 一致的运行期行为。
+- 如果单次 `addTask()` 路径验证成立，前端分组聚合应降级为短期兼容逻辑甚至直接删除，而不是继续增加更多平台专属 sanitize 规则。
+- 在完成上述实验前，任何新增的平台 profile 或平台专属 payload 规则都应先视为风险扩写，而不是默认演进方向。
 
 ## 8. 实施落点
 
@@ -313,7 +321,7 @@ translationId || slug || id
 
 - 本轮不新增新的第三方直连渠道，B 站、微博、小红书、Twitter 仍然只是 WechatSync 账户 profile，不升级为站内一等渠道。微博仅保留正文与版权同步，不再追加标签尾注。
 - 其他未知平台默认不追加标签，避免误伤内容格式。
-- 如果后续 WechatSync 插件升级为“支持每个账户单独 post payload”，可以复用本方案的 profile 与模板层，只需删掉前端分组聚合这一层。
+- 当前更高优先级的不是等待插件支持“每个账户单独 post payload”，而是验证是否应回退为“单次 `addTask()` + 原始内容交付”。如果这条实验路径成立，前端分组聚合将被降级为临时兼容层或直接删除。
 
 ## 11. 结论
 
@@ -321,5 +329,6 @@ translationId || slug || id
 
 - Memos 与 WechatSync 不再各自维护一套字符串拼接逻辑。
 - 标签清洗、翻译簇去重和格式化规则有唯一事实源。
-- WechatSync 能在不破坏现有状态机和回写链路的前提下，为不同平台输出不同标签格式。
 - 模板输出具备明确的可测试边界，能够覆盖标题、图片、摘要、版权尾注与标签差异。
+- 当前仓库已经具备按 profile 组织 WechatSync 内容的能力，但“按平台分组、多次 `addTask()`”已被标记为 compat risk，不再视为长期正确前提。
+- 下一轮修复应优先验证“单次 `addTask()` + 原始内容 + 扩展内部 preprocess”，而不是继续追加项目侧平台 sanitize。
