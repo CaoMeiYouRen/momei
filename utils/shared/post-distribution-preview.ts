@@ -19,7 +19,7 @@ export interface WechatSyncDistributionPreviewGroup {
     key: string
     accounts: WechatSyncAccount[]
     accountsLabel: string
-    contentProfile: 'default' | 'weibo'
+    contentProfile: 'default' | 'weibo' | 'xiaohongshu'
     title: string
     summary: string
     coverUrl: string | null

@@ -85,4 +85,36 @@ describe('post-distribution-precheck', () => {
         ])
         expect(notices[1]?.detail).toContain('components=embedded-media, custom-block')
     })
+
+    it('builds xiaohongshu notices when editor-specific structures still need cleanup', () => {
+        const materialBundle = buildDistributionMaterialBundle({
+            ...basePost,
+            content: '## 标题\n\n::: tip\n提示\n:::\n\n<iframe src="https://example.com/embed"></iframe>',
+        }, {
+            siteUrl: 'https://momei.app',
+            defaultLicense: 'all-rights-reserved',
+        })
+
+        const notices = buildWechatSyncPrecheckNotices(materialBundle, [
+            {
+                id: 'xiaohongshu',
+                type: 'xiaohongshu',
+                title: '小红书',
+                checked: true,
+            },
+        ], translate)
+
+        expect(notices).toEqual([
+            expect.objectContaining({
+                key: 'xiaohongshu-adjustments',
+                severity: 'warn',
+            }),
+            expect.objectContaining({
+                key: 'xiaohongshu-blockers',
+                severity: 'danger',
+            }),
+        ])
+        expect(notices[0]?.detail).toContain('accounts=小红书')
+        expect(notices[1]?.detail).toContain('components=embedded-media')
+    })
 })

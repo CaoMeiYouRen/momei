@@ -126,6 +126,10 @@
                     "retry": "重试",
                     "precheck": {
                         "blocking_toast": "所选 WechatSync 账号存在未处理的兼容性问题，请先调整内容或取消这些账号。",
+                        "xiaohongshu_adjusted_title": "小红书账号将使用兼容内容",
+                        "xiaohongshu_adjusted_detail": "检测到标题锚点、提示块、代码分组或复制按钮等站内增强结构时，系统会在同步前自动清理为更适合小红书编辑器的内容。账号：{accounts}",
+                        "xiaohongshu_blocking_title": "小红书账号包含仍不兼容的组件",
+                        "xiaohongshu_blocking_detail": "当前内容仍含有小红书编辑器不支持的组件：{components}。请先删除相关结构或取消这些账号后再同步。账号：{accounts}",
                         "weibo_adjusted_title": "微博账号将使用兼容内容",
                         "weibo_adjusted_detail": "检测到引用块、代码样式、标题锚点或图片容器时，系统会在同步前自动降级为微博兼容格式。账号：{accounts}",
                         "weibo_blocking_title": "微博账号包含仍不兼容的组件",
@@ -143,6 +147,7 @@
                         "no_account_selected": "选择 WechatSync 账号后，可在这里先检查各平台将收到的内容。",
                         "payload": {
                             "standard": "标准内容",
+                            "xiaohongshu_compatible": "小红书兼容内容",
                             "weibo_compatible": "微博兼容内容"
                         },
                         "summary": "摘要",

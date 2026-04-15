@@ -107,9 +107,15 @@ export function renderWechatSyncPreviewSeverity(group: WechatSyncDistributionPre
 }
 
 export function renderWechatSyncPreviewProfile(group: WechatSyncDistributionPreviewGroup, t: Translate) {
-    return group.contentProfile === 'weibo'
-        ? t('pages.admin.posts.distribution.preview.payload.weibo_compatible')
-        : t('pages.admin.posts.distribution.preview.payload.standard')
+    if (group.contentProfile === 'weibo') {
+        return t('pages.admin.posts.distribution.preview.payload.weibo_compatible')
+    }
+
+    if (group.contentProfile === 'xiaohongshu') {
+        return t('pages.admin.posts.distribution.preview.payload.xiaohongshu_compatible')
+    }
+
+    return t('pages.admin.posts.distribution.preview.payload.standard')
 }
 
 export function createWechatSyncExpandedPreview(group: WechatSyncDistributionPreviewGroup, t: Translate): ExpandedDistributionPreview {

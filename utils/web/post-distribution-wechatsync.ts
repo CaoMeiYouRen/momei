@@ -20,7 +20,7 @@ import type { WechatSyncWindow } from '@/utils/web/post-distribution-dialog'
 
 interface WechatSyncBatch {
     renderMode: 'leading' | 'wrapped' | 'none'
-    contentProfile: 'default' | 'weibo'
+    contentProfile: 'default' | 'weibo' | 'xiaohongshu'
     accounts: WechatSyncAccount[]
 }
 

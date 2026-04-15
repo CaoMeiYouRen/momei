@@ -16,6 +16,7 @@
                         "no_account_selected": "Select WechatSync accounts to inspect the exact payload each platform will receive before syncing.",
                         "payload": {
                             "standard": "Standard payload",
+                            "xiaohongshu_compatible": "Xiaohongshu-compatible payload",
                             "weibo_compatible": "Weibo-compatible payload"
                         },
                         "summary": "Summary",
@@ -25,6 +26,10 @@
                     },
                     "precheck": {
                         "blocking_toast": "The selected WechatSync accounts still have unresolved compatibility issues. Adjust the content or deselect those accounts first.",
+                        "xiaohongshu_adjusted_title": "Xiaohongshu accounts will use compatible content",
+                        "xiaohongshu_adjusted_detail": "When heading anchors, custom notice blocks, code-group wrappers, or copy buttons are detected, the payload will be cleaned into a Xiaohongshu-friendly format before sync. Accounts: {accounts}",
+                        "xiaohongshu_blocking_title": "Xiaohongshu accounts still contain unsupported components",
+                        "xiaohongshu_blocking_detail": "The current content still contains components that the Xiaohongshu editor does not support yet: {components}. Remove those structures or deselect these accounts before syncing again. Accounts: {accounts}",
                         "weibo_adjusted_title": "Weibo accounts will use compatible content",
                         "weibo_adjusted_detail": "When blockquotes, code styling, heading anchors, or image containers are detected, the payload will be downgraded to a Weibo-compatible format before sync. Accounts: {accounts}",
                         "weibo_blocking_title": "Weibo accounts still contain unsupported components",

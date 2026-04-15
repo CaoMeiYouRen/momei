@@ -15,7 +15,7 @@ export interface NormalizedDistributionTag {
 }
 
 export type DistributionTagRenderMode = 'leading' | 'wrapped' | 'none'
-export type WechatSyncContentProfile = 'default' | 'weibo'
+export type WechatSyncContentProfile = 'default' | 'weibo' | 'xiaohongshu'
 
 type WechatSyncPlatformSource = string | null | undefined
 
@@ -200,6 +200,10 @@ export function resolveWechatSyncContentProfile(platformType: string | null | un
 
     if (normalizedType.includes('weibo')) {
         return 'weibo'
+    }
+
+    if (normalizedType.includes('xiaohongshu')) {
+        return 'xiaohongshu'
     }
 
     return 'default'

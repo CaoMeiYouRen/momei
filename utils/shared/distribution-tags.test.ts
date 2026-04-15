@@ -62,7 +62,7 @@ describe('distribution-tags', () => {
     it('maps platforms to the correct content profile', () => {
         expect(resolveWechatSyncContentProfile('weibo')).toBe('weibo')
         expect(resolveWechatSyncContentProfile('weibo_article')).toBe('weibo')
-        expect(resolveWechatSyncContentProfile('xiaohongshu')).toBe('default')
+        expect(resolveWechatSyncContentProfile('xiaohongshu')).toBe('xiaohongshu')
     })
 
     it('detects weibo accounts from support types and localized titles', () => {
@@ -99,7 +99,7 @@ describe('distribution-tags', () => {
             },
             {
                 renderMode: 'leading',
-                contentProfile: 'default',
+                contentProfile: 'xiaohongshu',
                 accounts: [
                     { id: 'c', type: 'xiaohongshu', title: '小红书', checked: true },
                 ],

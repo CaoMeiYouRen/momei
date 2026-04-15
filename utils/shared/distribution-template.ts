@@ -76,6 +76,21 @@ const WEIBO_BLOCKER_RULES: [RegExp, string][] = [
     [/<(?:table|iframe|video|audio)\b/iu, 'embedded-media'],
     [/class=(['"])[^'"]*\b(?:custom-block|code-group)\b[^'"]*\1/iu, 'custom-block'],
 ]
+const XIAOHONGSHU_MARKDOWN_ADJUSTMENT_RULES: [RegExp, string][] = [
+    [/^:::\s*(?:tip|warning|danger|info)\b/mu, 'custom-block'],
+    [/^:::\s*code-group\b/mu, 'code-group'],
+    [/^\s*>\s*\[![A-Z]+\]/mu, 'github-alert'],
+]
+const XIAOHONGSHU_HTML_ADJUSTMENT_RULES: [RegExp, string][] = [
+    [/header-anchor/iu, 'heading-anchor'],
+    [/copy-code-button/iu, 'copy-code-button'],
+    [/class=(['"])[^'"]*\bcustom-block\b[^'"]*\1/iu, 'custom-block'],
+    [/class=(['"])[^'"]*\bcode-group\b[^'"]*\1/iu, 'code-group'],
+    [/class=(['"])[^'"]*\bmarkdown-alert\b[^'"]*\1/iu, 'github-alert'],
+]
+const XIAOHONGSHU_BLOCKER_RULES: [RegExp, string][] = [
+    [/<(?:table|iframe|video|audio)\b/iu, 'embedded-media'],
+]
 
 function collapseWhitespace(text: string) {
     return text.replace(/\s+/gu, ' ').trim()
@@ -134,6 +149,21 @@ const plainTextSanitizeOptions: sanitizeHtml.IOptions = {
     disallowedTagsMode: 'discard',
 }
 
+const xiaohongshuContentSanitizeOptions: sanitizeHtml.IOptions = {
+    allowedTags: Array.from(new Set([
+        ...(Array.isArray(sanitizeHtml.defaults.allowedTags) ? sanitizeHtml.defaults.allowedTags : []),
+        'img',
+    ])),
+    allowedAttributes: {
+        a: ['href', 'target', 'rel'],
+        img: ['src', 'alt', 'loading', 'decoding'],
+    },
+    allowedSchemes: ['http', 'https', 'mailto'],
+    allowedSchemesByTag: {
+        img: ['http', 'https', 'data'],
+    },
+}
+
 function stripResidualHtml(value: string) {
     return sanitizeHtml(value, plainTextSanitizeOptions)
 }
@@ -165,34 +195,72 @@ function sanitizeWechatSyncMarkdownForWeibo(markdown: string) {
         .trim()
 }
 
+function sanitizeWechatSyncMarkdownForXiaohongshu(markdown: string) {
+    return markdown
+        .replace(/^:::\s*code-group\s*$/gmu, '')
+        .replace(/^:::\s*(tip|warning|danger|info)(?:\s+(.+))?\s*$/gmu, (_match, type, title) => title || type.toUpperCase())
+        .replace(/^:::\s*$/gmu, '')
+        .replace(/^\s*>\s*\[!([A-Z]+)\]\s*$/gmu, (_match, title) => `> ${title}`)
+        .replace(/<a\b[^>]*class=(['"])[^'"]*header-anchor[^'"]*\1[^>]*>[\s\S]*?<\/a>/giu, '')
+        .replace(/\n{3,}/gu, '\n\n')
+        .trim()
+}
+
+function sanitizeWechatSyncHtmlForXiaohongshu(html: string) {
+    if (!html) {
+        return ''
+    }
+
+    return sanitizeHtml(html
+        .replace(/<a\b[^>]*class=(['"])[^'"]*header-anchor[^'"]*\1[^>]*>[\s\S]*?<\/a>/giu, '')
+        .replace(/<div\b[^>]*class=(['"])[^'"]*copy-code-wrapper[^'"]*\1[^>]*>[\s\S]*?<\/div>/giu, ''), xiaohongshuContentSanitizeOptions)
+}
+
 export function inspectWechatSyncMaterialCompatibility(
     materialBundle: DistributionMaterialBundle,
     contentProfile: WechatSyncContentProfile,
 ): WechatSyncCompatibilityCheck {
-    if (contentProfile !== 'weibo') {
-        return {
-            adjustments: [],
-            blockers: [],
-        }
-    }
-
     const markdownSource = joinSections([
         materialBundle.canonical.bodyMarkdown,
         materialBundle.canonical.copyrightMarkdown,
     ])
     const htmlSource = materialBundle.canonical.bodyHtml
-    const adjustments = uniqueIssues([
-        ...collectWechatSyncCompatibilityMatches(markdownSource, WEIBO_MARKDOWN_ADJUSTMENT_RULES),
-        ...collectWechatSyncCompatibilityMatches(htmlSource, WEIBO_HTML_ADJUSTMENT_RULES),
-    ])
-    const blockers = uniqueIssues(collectWechatSyncCompatibilityMatches(
-        `${markdownSource}\n\n${htmlSource}`,
-        WEIBO_BLOCKER_RULES,
-    ))
+
+    if (contentProfile === 'weibo') {
+        const adjustments = uniqueIssues([
+            ...collectWechatSyncCompatibilityMatches(markdownSource, WEIBO_MARKDOWN_ADJUSTMENT_RULES),
+            ...collectWechatSyncCompatibilityMatches(htmlSource, WEIBO_HTML_ADJUSTMENT_RULES),
+        ])
+        const blockers = uniqueIssues(collectWechatSyncCompatibilityMatches(
+            `${markdownSource}\n\n${htmlSource}`,
+            WEIBO_BLOCKER_RULES,
+        ))
+
+        return {
+            adjustments,
+            blockers,
+        }
+    }
+
+    if (contentProfile === 'xiaohongshu') {
+        const adjustments = uniqueIssues([
+            ...collectWechatSyncCompatibilityMatches(markdownSource, XIAOHONGSHU_MARKDOWN_ADJUSTMENT_RULES),
+            ...collectWechatSyncCompatibilityMatches(htmlSource, XIAOHONGSHU_HTML_ADJUSTMENT_RULES),
+        ])
+        const blockers = uniqueIssues(collectWechatSyncCompatibilityMatches(
+            `${markdownSource}\n\n${htmlSource}`,
+            XIAOHONGSHU_BLOCKER_RULES,
+        ))
+
+        return {
+            adjustments,
+            blockers,
+        }
+    }
 
     return {
-        adjustments,
-        blockers,
+        adjustments: [],
+        blockers: [],
     }
 }
 
@@ -275,6 +343,8 @@ export function buildWechatSyncPostFromMaterialBundle(
 ) {
     const tagLine = renderDistributionTags(materialBundle.canonical.tags, options.renderMode)
     const contentProfile = options.contentProfile || 'default'
+    const usesWeiboCompatibility = contentProfile === 'weibo'
+    const usesXiaohongshuCompatibility = contentProfile === 'xiaohongshu'
     const copyrightMarkdown = contentProfile === 'weibo'
         ? materialBundle.canonical.copyrightMarkdown.replace(/^\s*[-*_]{3,}\s*\n?/u, '').trim()
         : materialBundle.canonical.copyrightMarkdown
@@ -283,18 +353,21 @@ export function buildWechatSyncPostFromMaterialBundle(
         tagLine,
         copyrightMarkdown,
     ])
-    const markdown = contentProfile === 'weibo'
+    const markdown = usesWeiboCompatibility
         ? sanitizeWechatSyncMarkdownForWeibo(rawMarkdown)
+        : usesXiaohongshuCompatibility
+            ? sanitizeWechatSyncMarkdownForXiaohongshu(rawMarkdown)
         : rawMarkdown
     const renderer = createMarkdownRenderer({
-        html: contentProfile !== 'weibo',
-        withAnchor: contentProfile !== 'weibo',
+        html: !usesWeiboCompatibility,
+        withAnchor: !usesWeiboCompatibility && !usesXiaohongshuCompatibility,
     })
+    const content = renderer.render(markdown)
 
     return {
         title: materialBundle.channels.wechatsync.basePost.title,
         markdown,
-        content: renderer.render(markdown),
+        content: usesXiaohongshuCompatibility ? sanitizeWechatSyncHtmlForXiaohongshu(content) : content,
         desc: materialBundle.channels.wechatsync.basePost.desc,
         thumb: materialBundle.channels.wechatsync.basePost.thumb,
     }

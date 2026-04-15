@@ -130,6 +130,9 @@ describe('post-distribution-dialog', () => {
         }))).toBe('info')
 
         expect(renderWechatSyncPreviewProfile(createPreviewGroup({
+            contentProfile: 'xiaohongshu',
+        }), translate)).toBe('translated:pages.admin.posts.distribution.preview.payload.xiaohongshu_compatible')
+        expect(renderWechatSyncPreviewProfile(createPreviewGroup({
             contentProfile: 'default',
         }), translate)).toBe('translated:pages.admin.posts.distribution.preview.payload.standard')
     })

@@ -112,6 +112,35 @@ describe('distribution-template', () => {
         expect(defaultDispatchPost.markdown).toContain('#')
     })
 
+    it('builds xiaohongshu-compatible payloads without editor chrome', () => {
+        const materialBundle = buildDistributionMaterialBundle({
+            ...post,
+            content: '## 标题\n\n::: tip 提示\n这里是提示内容\n:::\n\n> [!NOTE]\n> 请先检查正文。\n\n```js [index.js]\nconsole.log(1)\n```',
+        }, {
+            siteUrl: 'https://momei.app',
+            defaultLicense: 'all-rights-reserved',
+        })
+
+        const compatibility = inspectWechatSyncMaterialCompatibility(materialBundle, 'xiaohongshu')
+        const xiaohongshuPost = buildWechatSyncPostFromMaterialBundle(materialBundle, {
+            renderMode: 'leading',
+            contentProfile: 'xiaohongshu',
+        })
+        const xiaohongshuDispatchPost = buildWechatSyncDispatchPostFromMaterialBundle(materialBundle, {
+            renderMode: 'leading',
+            contentProfile: 'xiaohongshu',
+        })
+
+        expect(compatibility.adjustments).toEqual(expect.arrayContaining(['heading-anchor', 'custom-block', 'github-alert', 'copy-code-button']))
+        expect(xiaohongshuPost.markdown).not.toContain('::: tip')
+        expect(xiaohongshuPost.markdown).not.toContain('> [!NOTE]')
+        expect(xiaohongshuPost.content).not.toContain('header-anchor')
+        expect(xiaohongshuPost.content).not.toContain('copy-code-button')
+        expect(xiaohongshuPost.content).not.toContain('custom-block')
+        expect(xiaohongshuPost.content).not.toContain('markdown-alert')
+        expect(xiaohongshuDispatchPost.markdown).toContain('#Nuxt #Vue')
+    })
+
     it('flags weibo-only blockers that still require manual cleanup', () => {
         const materialBundle = buildDistributionMaterialBundle({
             ...post,

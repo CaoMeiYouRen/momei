@@ -49,13 +49,15 @@ describe('post-distribution-preview', () => {
         const accounts = normalizeWechatSyncAccounts([
             { type: 'bilibili', title: 'B 站专栏' },
             { type: 'weibo', title: '微博专栏' },
+            { type: 'xiaohongshu', title: '小红书专栏' },
         ])
 
         const groups = buildWechatSyncDistributionPreviewGroups(materialBundle, accounts)
         const bilibiliPreview = groups.find((group) => group.contentProfile === 'default')
         const weiboPreview = groups.find((group) => group.contentProfile === 'weibo')
+        const xiaohongshuPreview = groups.find((group) => group.contentProfile === 'xiaohongshu')
 
-        expect(groups).toHaveLength(2)
+        expect(groups).toHaveLength(3)
         expect(bilibiliPreview).toBeTruthy()
         expect(bilibiliPreview?.accountsLabel).toBe('B 站专栏')
         expect(bilibiliPreview?.tagLine).toBe('#Nuxt# #Vue#')
@@ -68,6 +70,14 @@ describe('post-distribution-preview', () => {
         expect(weiboPreview?.finalMarkdown).not.toContain('----------')
         expect(weiboPreview?.compatibility.adjustments).toEqual(
             expect.arrayContaining(['blockquote', 'figure', 'heading-anchor', 'divider']),
+        )
+
+        expect(xiaohongshuPreview).toBeTruthy()
+        expect(xiaohongshuPreview?.accountsLabel).toBe('小红书专栏')
+        expect(xiaohongshuPreview?.tagLine).toBe('#Nuxt #Vue')
+        expect(xiaohongshuPreview?.finalMarkdown).toContain('#Nuxt #Vue')
+        expect(xiaohongshuPreview?.compatibility.adjustments).toEqual(
+            expect.arrayContaining(['heading-anchor']),
         )
     })
 })

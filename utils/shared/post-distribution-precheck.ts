@@ -32,37 +32,53 @@ export function buildWechatSyncPrecheckNotices(
         return []
     }
 
-    const weiboAccounts = accounts.filter((account) => resolveWechatSyncAccountContentProfile(account) === 'weibo')
-    if (!weiboAccounts.length) {
-        return []
-    }
-
-    const compatibility = inspectWechatSyncMaterialCompatibility(materialBundle, 'weibo')
     const notices: WechatSyncPrecheckNotice[] = []
-    const accountsLabel = formatWechatSyncAccountTitles(weiboAccounts)
+    const appendCompatibilityNotices = (
+        profile: 'weibo' | 'xiaohongshu',
+        profileAccounts: readonly WechatSyncAccount[],
+        titlePrefix: 'weibo' | 'xiaohongshu',
+    ) => {
+        if (!profileAccounts.length) {
+            return
+        }
 
-    if (compatibility.adjustments.length) {
-        notices.push({
-            key: 'weibo-adjustments',
-            severity: 'warn',
-            summary: translate('pages.admin.posts.distribution.precheck.weibo_adjusted_title'),
-            detail: translate('pages.admin.posts.distribution.precheck.weibo_adjusted_detail', {
-                accounts: accountsLabel,
-            }),
-        })
+        const compatibility = inspectWechatSyncMaterialCompatibility(materialBundle, profile)
+        const accountsLabel = formatWechatSyncAccountTitles(profileAccounts)
+
+        if (compatibility.adjustments.length) {
+            notices.push({
+                key: `${titlePrefix}-adjustments`,
+                severity: 'warn',
+                summary: translate(`pages.admin.posts.distribution.precheck.${titlePrefix}_adjusted_title`),
+                detail: translate(`pages.admin.posts.distribution.precheck.${titlePrefix}_adjusted_detail`, {
+                    accounts: accountsLabel,
+                }),
+            })
+        }
+
+        if (compatibility.blockers.length) {
+            notices.push({
+                key: `${titlePrefix}-blockers`,
+                severity: 'danger',
+                summary: translate(`pages.admin.posts.distribution.precheck.${titlePrefix}_blocking_title`),
+                detail: translate(`pages.admin.posts.distribution.precheck.${titlePrefix}_blocking_detail`, {
+                    accounts: accountsLabel,
+                    components: compatibility.blockers.join(', '),
+                }),
+            })
+        }
     }
 
-    if (compatibility.blockers.length) {
-        notices.push({
-            key: 'weibo-blockers',
-            severity: 'danger',
-            summary: translate('pages.admin.posts.distribution.precheck.weibo_blocking_title'),
-            detail: translate('pages.admin.posts.distribution.precheck.weibo_blocking_detail', {
-                accounts: accountsLabel,
-                components: compatibility.blockers.join(', '),
-            }),
-        })
-    }
+    appendCompatibilityNotices(
+        'weibo',
+        accounts.filter((account) => resolveWechatSyncAccountContentProfile(account) === 'weibo'),
+        'weibo',
+    )
+    appendCompatibilityNotices(
+        'xiaohongshu',
+        accounts.filter((account) => resolveWechatSyncAccountContentProfile(account) === 'xiaohongshu'),
+        'xiaohongshu',
+    )
 
     return notices
 }

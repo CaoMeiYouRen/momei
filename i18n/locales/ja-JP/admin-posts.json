@@ -126,6 +126,10 @@
                     "retry": "再試行",
                     "precheck": {
                         "blocking_toast": "選択した WechatSync アカウントに未解決の互換性問題があります。内容を調整するか、これらのアカウントを外してください。",
+                        "xiaohongshu_adjusted_title": "小紅書アカウントには互換コンテンツを使用します",
+                        "xiaohongshu_adjusted_detail": "見出しアンカー、注意ブロック、コードグループ、コピー用ボタンなどのサイト固有構造が検出された場合、同期前に小紅書エディタ向けの形式へ自動整形します。アカウント: {accounts}",
+                        "xiaohongshu_blocking_title": "小紅書アカウントに未対応コンポーネントがあります",
+                        "xiaohongshu_blocking_detail": "現在の内容には小紅書エディタがまだサポートしていないコンポーネントが含まれています: {components}。該当構造を削除するか、これらのアカウントを外してから再同期してください。アカウント: {accounts}",
                         "weibo_adjusted_title": "Weibo アカウントには互換コンテンツを使用します",
                         "weibo_adjusted_detail": "引用ブロック、コード装飾、見出しアンカー、画像コンテナが検出された場合、同期前に Weibo 互換形式へ自動的に降格します。アカウント: {accounts}",
                         "weibo_blocking_title": "Weibo アカウントに未対応コンポーネントがあります",
@@ -143,6 +147,7 @@
                         "no_account_selected": "WechatSync アカウントを選択すると、各プラットフォームへ送信される内容をここで事前確認できます。",
                         "payload": {
                             "standard": "標準コンテンツ",
+                            "xiaohongshu_compatible": "小紅書互換コンテンツ",
                             "weibo_compatible": "Weibo 互換コンテンツ"
                         },
                         "summary": "概要",
