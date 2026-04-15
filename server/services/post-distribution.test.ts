@@ -282,6 +282,28 @@ describe('post-distribution service', () => {
                     error: 'network timeout',
                 },
             ],
+            observation: {
+                strategy: 'single_add_task_default_raw',
+                resolution: 'terminal_status',
+                payload: {
+                    renderMode: 'none',
+                    contentProfile: 'default',
+                    usesRawPost: true,
+                    markdownLength: 128,
+                    contentLength: 256,
+                    descLength: 32,
+                    accountKeys: ['1', '2'],
+                },
+                readyEventCount: 1,
+                statusEventCount: 2,
+                events: [
+                    {
+                        phase: 'dispatch_started',
+                        at: '2026-04-16T10:00:00.000Z',
+                        accountCount: 2,
+                    },
+                ],
+            },
         }, actor)
 
         expect(summary.channels.wechatsync.status).toBe('failed')
@@ -291,6 +313,33 @@ describe('post-distribution service', () => {
         expect(summary.timeline[0]?.details).toMatchObject({
             successCount: 1,
             failureCount: 1,
+            observation: {
+                strategy: 'single_add_task_default_raw',
+                readyEventCount: 1,
+                statusEventCount: 2,
+            },
+        })
+    })
+
+    it('should reject wechatsync completion payloads with non-terminal statuses', async () => {
+        const post = await createPublishedPost()
+        const started = await dispatchPostDistributionService(post.id, {
+            channel: 'wechatsync',
+            operation: 'sync',
+        }, actor)
+
+        await expect(completeWechatSyncDistributionService(post.id, {
+            attemptId: started.attemptId!,
+            accounts: [
+                {
+                    id: '1',
+                    title: '公众号 A',
+                    status: 'uploading' as never,
+                },
+            ],
+        }, actor)).rejects.toMatchObject({
+            statusCode: 400,
+            statusMessage: 'WechatSync completion requires terminal account statuses',
         })
     })
 

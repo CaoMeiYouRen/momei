@@ -1,3 +1,8 @@
+export const MAX_WECHATSYNC_OBSERVATION_EVENTS = 30
+export const MAX_WECHATSYNC_OBSERVATION_ACCOUNT_KEYS = 50
+export const MAX_WECHATSYNC_OBSERVATION_ACCOUNTS = 50
+export const MAX_WECHATSYNC_OBSERVATION_RAW_STATUS_KEYS = 20
+
 export interface WechatSyncRawAccount {
     id?: string | number | null
     type?: string | number | null
@@ -48,6 +53,41 @@ export interface WechatSyncCompletionAccount {
     msg?: string
     error?: string
     draftLink?: string
+}
+
+export interface WechatSyncDispatchObservationAccount {
+    id: string
+    title: string
+    status: WechatSyncTaskAccount['status']
+    msg?: string
+    error?: string
+    draftLink?: string
+}
+
+export interface WechatSyncDispatchObservationEvent {
+    phase: 'dispatch_started' | 'ready' | 'status_received' | 'resolved' | 'start_failed' | 'timeout_resolved'
+    at: string
+    accountCount?: number
+    syncId?: string | null
+    rawStatusKeys?: string[]
+    accounts?: WechatSyncDispatchObservationAccount[]
+}
+
+export interface WechatSyncDispatchObservation {
+    strategy: 'single_add_task_default_raw'
+    resolution?: 'terminal_status' | 'start_error' | 'timeout_incomplete_status' | null
+    payload: {
+        renderMode: 'none'
+        contentProfile: 'default'
+        usesRawPost: boolean
+        markdownLength: number
+        contentLength: number
+        descLength: number
+        accountKeys: string[]
+    }
+    readyEventCount: number
+    statusEventCount: number
+    events: WechatSyncDispatchObservationEvent[]
 }
 
 function normalizeWechatSyncToken(value: unknown) {

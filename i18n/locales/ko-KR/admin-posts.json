@@ -126,14 +126,14 @@
                     "retry": "재시도",
                     "precheck": {
                         "blocking_toast": "선택한 WechatSync 계정에 아직 해결되지 않은 호환성 문제가 있습니다. 내용을 조정하거나 해당 계정을 제외해 주세요.",
-                        "xiaohongshu_adjusted_title": "샤오홍슈 계정에는 호환 콘텐츠를 사용합니다",
-                        "xiaohongshu_adjusted_detail": "제목 앵커, 안내 블록, 코드 그룹, 복사 버튼 같은 사이트 전용 구조가 감지되면 동기화 전에 샤오홍슈 편집기에 더 적합한 형식으로 자동 정리됩니다. 계정: {accounts}",
-                        "xiaohongshu_blocking_title": "샤오홍슈 계정에 아직 지원되지 않는 컴포넌트가 있습니다",
-                        "xiaohongshu_blocking_detail": "현재 콘텐츠에는 샤오홍슈 편집기가 아직 지원하지 않는 컴포넌트가 포함되어 있습니다: {components}. 관련 구조를 삭제하거나 해당 계정을 제외한 뒤 다시 동기화해 주세요. 계정: {accounts}",
-                        "weibo_adjusted_title": "Weibo 계정에는 호환 콘텐츠를 사용합니다",
-                        "weibo_adjusted_detail": "인용 블록, 코드 스타일, 제목 앵커, 이미지 컨테이너가 감지되면 동기화 전에 Weibo 호환 형식으로 자동 완화됩니다. 계정: {accounts}",
-                        "weibo_blocking_title": "Weibo 계정에 아직 지원되지 않는 컴포넌트가 있습니다",
-                        "weibo_blocking_detail": "현재 콘텐츠에는 Weibo가 아직 지원하지 않는 컴포넌트가 포함되어 있습니다: {components}. 관련 구조를 삭제하거나 해당 계정을 제외한 뒤 다시 동기화해 주세요. 계정: {accounts}"
+                        "xiaohongshu_adjusted_title": "샤오홍슈 계정에 호환성 리스크가 있습니다",
+                        "xiaohongshu_adjusted_detail": "제목 앵커, 안내 블록, 코드 그룹, 복사 버튼 같은 구조가 감지되었습니다. 이런 구조는 샤오홍슈 경로에서 확장 프로그램 쪽 호환 처리에 더 크게 의존하므로, 이번 실험에서는 raw/default payload 를 그대로 보내되 해당 계정의 연동 결과를 집중해서 확인해 주세요. 계정: {accounts}",
+                        "xiaohongshu_blocking_title": "샤오홍슈 계정에 고위험 호환성 문제가 있습니다",
+                        "xiaohongshu_blocking_detail": "현재 콘텐츠에는 샤오홍슈 편집기에 대해 고위험 비호환 구조가 포함되어 있습니다: {components}. 이번 실험에서도 raw/default payload 는 계속 전송되지만, 해당 계정은 확장 프로그램 경로에서 실패할 가능성이 더 높습니다. 연동 결과를 우선 확인하거나 잠시 제외해 주세요. 계정: {accounts}",
+                        "weibo_adjusted_title": "Weibo 계정에 호환성 리스크가 있습니다",
+                        "weibo_adjusted_detail": "인용 블록, 코드 스타일, 제목 앵커, 이미지 컨테이너 같은 구조가 감지되었습니다. 이런 구조는 Weibo 경로에서 확장 프로그램 쪽 호환 처리에 더 크게 의존하므로, 이번 실험에서는 raw/default payload 를 그대로 보내되 해당 계정의 연동 결과를 집중해서 확인해 주세요. 계정: {accounts}",
+                        "weibo_blocking_title": "Weibo 계정에 고위험 호환성 문제가 있습니다",
+                        "weibo_blocking_detail": "현재 콘텐츠에는 Weibo 에 대해 고위험 비호환 구조가 포함되어 있습니다: {components}. 이번 실험에서도 raw/default payload 는 계속 전송되지만, 해당 계정은 확장 프로그램 경로에서 실패할 가능성이 더 높습니다. 연동 결과를 우선 확인하거나 잠시 제외해 주세요. 계정: {accounts}"
                     },
                     "preview": {
                         "accounts": "배포 계정",
@@ -146,9 +146,9 @@
                         "memos_title": "Memos 배포 미리보기",
                         "no_account_selected": "WechatSync 계정을 선택하면 각 플랫폼으로 전달될 내용을 여기서 먼저 확인할 수 있습니다.",
                         "payload": {
-                            "standard": "표준 콘텐츠",
-                            "xiaohongshu_compatible": "샤오홍슈 호환 콘텐츠",
-                            "weibo_compatible": "Weibo 호환 콘텐츠"
+                            "standard": "Raw/default payload",
+                            "xiaohongshu_compatible": "샤오홍슈 리스크 분석",
+                            "weibo_compatible": "Weibo 리스크 분석"
                         },
                         "summary": "요약",
                         "tags": "태그 꼬리말",
@@ -170,6 +170,7 @@
                     "tooltip": "배포 관리",
                     "wechatsync_ready": "WechatSync 확장을 감지했습니다. 계정을 선택한 뒤 배포를 시작하세요.",
                     "wechatsync_success": "WechatSync 결과가 반영되었습니다",
+                    "wechatsync_timeout": "확장 프로그램이 완전한 상태를 돌려주기 전에 WechatSync 가 시간 초과되어, 미완료 계정을 실패로 표시했습니다.",
                     "wechatsync_task": {
                         "done": "완료",
                         "failed": "실패",

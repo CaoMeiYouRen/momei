@@ -126,14 +126,14 @@
                     "retry": "重試",
                     "precheck": {
                         "blocking_toast": "所選 WechatSync 帳號仍有未處理的相容性問題，請先調整內容或取消這些帳號。",
-                        "xiaohongshu_adjusted_title": "小紅書帳號將使用相容內容",
-                        "xiaohongshu_adjusted_detail": "當偵測到標題錨點、提示區塊、程式碼分組或複製按鈕等站內增強結構時，系統會在同步前自動清理為更適合小紅書編輯器的內容。帳號：{accounts}",
-                        "xiaohongshu_blocking_title": "小紅書帳號仍包含不相容元件",
-                        "xiaohongshu_blocking_detail": "目前內容仍含有小紅書編輯器不支援的元件：{components}。請先刪除相關結構或取消這些帳號後再同步。帳號：{accounts}",
-                        "weibo_adjusted_title": "微博帳號將使用相容內容",
-                        "weibo_adjusted_detail": "偵測到引用區塊、程式碼樣式、標題錨點或圖片容器時，系統會在同步前自動降級為微博相容格式。帳號：{accounts}",
-                        "weibo_blocking_title": "微博帳號仍包含不相容元件",
-                        "weibo_blocking_detail": "目前內容仍含有微博不支援的元件：{components}。請先刪除相關結構或取消這些帳號後再同步。帳號：{accounts}"
+                        "xiaohongshu_adjusted_title": "小紅書帳號存在相容風險提示",
+                        "xiaohongshu_adjusted_detail": "當偵測到標題錨點、提示區塊、程式碼分組或複製按鈕等站內增強結構時，代表這些內容在小紅書鏈路中更依賴擴充功能側相容處理；本次實驗仍會送出 raw/default payload，請特別關注這些帳號的聯調結果。帳號：{accounts}",
+                        "xiaohongshu_blocking_title": "小紅書帳號存在高風險相容問題",
+                        "xiaohongshu_blocking_detail": "目前內容仍含有小紅書編輯器的高風險不相容結構：{components}。本次實驗仍會繼續送出 raw/default payload，但這些帳號更可能在擴充功能側失敗；建議優先關注聯調結果或暫時取消這些帳號。帳號：{accounts}",
+                        "weibo_adjusted_title": "微博帳號存在相容風險提示",
+                        "weibo_adjusted_detail": "偵測到引用區塊、程式碼樣式、標題錨點或圖片容器等結構。這些內容在微博鏈路中更依賴擴充功能側相容處理；本次實驗仍會送出 raw/default payload，請特別關注這些帳號的聯調結果。帳號：{accounts}",
+                        "weibo_blocking_title": "微博帳號存在高風險相容問題",
+                        "weibo_blocking_detail": "目前內容仍含有微博的高風險不相容結構：{components}。本次實驗仍會繼續送出 raw/default payload，但這些帳號更可能在擴充功能側失敗；建議優先關注聯調結果或暫時取消這些帳號。帳號：{accounts}"
                     },
                     "preview": {
                         "accounts": "投遞帳號",
@@ -146,9 +146,9 @@
                         "memos_title": "Memos 投遞預覽",
                         "no_account_selected": "選擇 WechatSync 帳號後，可先在這裡檢查各平台將收到的內容。",
                         "payload": {
-                            "standard": "標準內容",
-                            "xiaohongshu_compatible": "小紅書相容內容",
-                            "weibo_compatible": "微博相容內容"
+                            "standard": "Raw / default payload",
+                            "xiaohongshu_compatible": "小紅書風險分析",
+                            "weibo_compatible": "微博風險分析"
                         },
                         "summary": "摘要",
                         "tags": "標籤尾註",
@@ -170,6 +170,7 @@
                     "tooltip": "分發管理",
                     "wechatsync_ready": "已偵測到 WechatSync 外掛，可選擇帳號後開始投遞。",
                     "wechatsync_success": "WechatSync 結果已回寫",
+                    "wechatsync_timeout": "WechatSync 在等待擴充功能回傳完整狀態時逾時，已將未完成帳號標記為失敗。",
                     "wechatsync_task": {
                         "done": "已完成",
                         "failed": "已失敗",

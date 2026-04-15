@@ -319,7 +319,7 @@
                             <Button
                                 :label="$t('pages.admin.posts.distribution.start_wechatsync')"
                                 severity="contrast"
-                                :disabled="!extensionInstalled || !selectedWechatAccounts.length || hasBlockingWechatSyncPrecheck"
+                                :disabled="!extensionInstalled || !selectedWechatAccounts.length"
                                 :loading="wechatSyncSubmitting"
                                 @click="dispatchWechatSync('sync')"
                             />
@@ -327,7 +327,7 @@
                                 v-if="canRetry(summary.channels.wechatsync)"
                                 :label="$t('pages.admin.posts.distribution.retry')"
                                 text
-                                :disabled="!extensionInstalled || !selectedWechatAccounts.length || hasBlockingWechatSyncPrecheck"
+                                :disabled="!extensionInstalled || !selectedWechatAccounts.length"
                                 :loading="wechatSyncSubmitting"
                                 @click="dispatchWechatSync('retry')"
                             />
@@ -430,7 +430,6 @@ import type {
 import type { ApiResponse } from '@/types/api'
 import {
     buildDistributionMaterialBundle,
-    buildWechatSyncPostFromMaterialBundle,
     type DistributionMaterialBundle,
 } from '@/utils/shared/distribution-template'
 import {
@@ -455,20 +454,16 @@ import {
     showModeSelector,
     type ExpandedDistributionPreview,
     type PostDistributionSummary,
-    type WechatSyncWindow,
 } from '@/utils/web/post-distribution-dialog'
 import {
-    groupWechatSyncAccountsByTagRenderMode,
-} from '@/utils/shared/distribution-tags'
-import {
     buildWechatSyncPrecheckNotices,
-    type WechatSyncPrecheckNotice,
 } from '@/utils/shared/post-distribution-precheck'
 import {
     buildWechatSyncFailureResults,
     resolveWechatSyncAccountKey,
     type WechatSyncAccount,
     type WechatSyncCompletionAccount,
+    type WechatSyncDispatchObservation,
     type WechatSyncTaskAccount,
     type WechatSyncTaskStatus,
 } from '@/utils/shared/wechatsync'
@@ -479,9 +474,10 @@ import {
 } from '@/utils/shared/post-distribution-wechatsync'
 import {
     buildFallbackDistributionMaterialBundle,
+    buildPendingWechatSyncTaskAccounts,
     loadWechatSyncAccounts,
     mergeLocalWechatTaskAccounts,
-    runWechatSyncBatch,
+    runWechatSyncTask,
 } from '@/utils/web/post-distribution-wechatsync'
 import { renderDistributionPreviewHtml } from '@/utils/shared/post-distribution-preview-renderer'
 import { useI18nDate } from '@/composables/use-i18n-date'
@@ -540,7 +536,6 @@ const memosPreview = computed(() => distributionMaterialBundle.value
 const wechatSyncPreviewGroups = computed(() => distributionMaterialBundle.value
     ? buildWechatSyncDistributionPreviewGroups(distributionMaterialBundle.value, selectedWechatAccounts.value)
     : [])
-const hasBlockingWechatSyncPrecheck = computed(() => wechatSyncPrecheckNotices.value.some((notice) => notice.severity === 'danger'))
 const expandedPreviewTitle = computed(() => expandedPreview.value?.title || t('common.preview'))
 
 function renderPreviewValue(value?: string | null) {
@@ -644,7 +639,26 @@ async function buildWechatSyncMaterialBundle() {
     )
 }
 
-async function finalizeWechatSync(accounts: WechatSyncCompletionAccount[]) {
+function reportWechatSyncObservation(observation: WechatSyncDispatchObservation) {
+    if (!import.meta.client) {
+        return
+    }
+
+    const lastEvent = observation.events[observation.events.length - 1] || null
+
+    console.info('[momei][wechatsync-observation]', {
+        strategy: observation.strategy,
+        resolution: observation.resolution,
+        readyEventCount: observation.readyEventCount,
+        statusEventCount: observation.statusEventCount,
+        lastEvent,
+    })
+}
+
+async function finalizeWechatSync(
+    accounts: WechatSyncCompletionAccount[],
+    observation?: WechatSyncDispatchObservation | null,
+) {
     if (!postId.value || !activeWechatAttemptId.value || finalizingWechatSync.value) return
     finalizingWechatSync.value = true
     try {
@@ -653,6 +667,7 @@ async function finalizeWechatSync(accounts: WechatSyncCompletionAccount[]) {
             body: {
                 attemptId: activeWechatAttemptId.value,
                 accounts,
+                observation: observation || undefined,
             },
         })
         await loadSummary()
@@ -678,18 +693,10 @@ async function dispatchWechatSync(operation: 'sync' | 'retry') {
     wechatSyncSubmitting.value = true
     const selectedAccountsSnapshot = selectedWechatAccounts.value.map((account) => ({ ...account }))
     let completionAccounts: WechatSyncCompletionAccount[] = []
+    let dispatchObservation: WechatSyncDispatchObservation | null = null
 
     try {
         const materialBundle = await buildWechatSyncMaterialBundle()
-        const blockingNotice = buildWechatSyncPrecheckNotices(materialBundle, selectedAccountsSnapshot, t)
-            .find((notice) => notice.severity === 'danger')
-
-        if (blockingNotice) {
-            showErrorToast(new Error(t('pages.admin.posts.distribution.precheck.blocking_toast')), {
-                fallbackKey: 'pages.admin.posts.distribution.precheck.blocking_toast',
-            })
-            return
-        }
 
         const response = await $fetch<ApiResponse<{ attemptId?: string | null }>>(`/api/admin/posts/${postId.value}/distribution`, {
             method: 'POST',
@@ -701,30 +708,35 @@ async function dispatchWechatSync(operation: 'sync' | 'retry') {
         })
 
         activeWechatAttemptId.value = response.data?.attemptId || null
-        localWechatTaskStatus.value = { accounts: [] }
-
-        const groupedAccounts = groupWechatSyncAccountsByTagRenderMode(selectedAccountsSnapshot)
-
-        for (const group of groupedAccounts) {
-            const batchCompletionAccounts = await runWechatSyncBatch({
-                syncer,
-                materialBundle,
-                batch: group,
-                onTaskAccounts: syncLocalWechatTaskAccounts,
-                onReady: () => {
-                    void loadSummary()
-                },
-                resolveFailureMessage: (error) => resolveErrorMessage(error, {
-                    fallbackKey: 'pages.admin.posts.distribution.dispatch_failed',
-                }),
-            })
-            if (batchCompletionAccounts.some((account) => account.status === 'failed')) {
-                syncLocalWechatTaskAccounts(mapCompletionAccountsToTaskAccounts(batchCompletionAccounts))
-            }
-            completionAccounts = mergeWechatSyncCompletionAccounts(completionAccounts, batchCompletionAccounts)
+        localWechatTaskStatus.value = {
+            accounts: buildPendingWechatSyncTaskAccounts(selectedAccountsSnapshot),
         }
 
-        await finalizeWechatSync(completionAccounts)
+        const taskResult = await runWechatSyncTask({
+            syncer,
+            materialBundle,
+            accounts: selectedAccountsSnapshot,
+            onTaskAccounts: syncLocalWechatTaskAccounts,
+            onReady: () => {
+                void loadSummary()
+            },
+            onObservation: (observation) => {
+                dispatchObservation = observation
+                reportWechatSyncObservation(observation)
+            },
+            resolveFailureMessage: (error) => resolveErrorMessage(error, {
+                fallbackKey: 'pages.admin.posts.distribution.dispatch_failed',
+            }),
+            resolveTimeoutMessage: () => t('pages.admin.posts.distribution.wechatsync_timeout'),
+        })
+        completionAccounts = taskResult.completionAccounts
+        dispatchObservation = taskResult.observation
+
+        if (completionAccounts.some((account) => account.status === 'failed')) {
+            syncLocalWechatTaskAccounts(mapCompletionAccountsToTaskAccounts(completionAccounts))
+        }
+
+        await finalizeWechatSync(completionAccounts, dispatchObservation)
     } catch (error) {
         const completedAccountKeys = new Set(completionAccounts.map((account) => resolveWechatSyncCompletionAccountKey(account)))
         const remainingAccounts = selectedAccountsSnapshot.filter((account) => !completedAccountKeys.has(account.id || account.type || account.title))
@@ -738,7 +750,7 @@ async function dispatchWechatSync(operation: 'sync' | 'retry') {
             )
             completionAccounts = mergeWechatSyncCompletionAccounts(completionAccounts, failureResults)
             syncLocalWechatTaskAccounts(mapCompletionAccountsToTaskAccounts(failureResults))
-            await finalizeWechatSync(completionAccounts)
+            await finalizeWechatSync(completionAccounts, dispatchObservation)
         } else {
             showErrorToast(error, { fallbackKey: 'pages.admin.posts.distribution.dispatch_failed' })
         }

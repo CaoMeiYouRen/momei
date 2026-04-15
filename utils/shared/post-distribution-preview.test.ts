@@ -41,7 +41,7 @@ describe('post-distribution-preview', () => {
         expect(preview.content).toContain('[阅读全文](https://momei.app/posts/nuxt-distribution-preview-test)')
     })
 
-    it('builds grouped wechatsync previews for standard and weibo-compatible payloads', () => {
+    it('builds grouped wechatsync risk-analysis previews around the shared raw payload', () => {
         const materialBundle = buildDistributionMaterialBundle(post, {
             siteUrl: 'https://momei.app',
             defaultLicense: 'all-rights-reserved',
@@ -60,22 +60,22 @@ describe('post-distribution-preview', () => {
         expect(groups).toHaveLength(3)
         expect(bilibiliPreview).toBeTruthy()
         expect(bilibiliPreview?.accountsLabel).toBe('B 站专栏')
-        expect(bilibiliPreview?.tagLine).toBe('#Nuxt# #Vue#')
-        expect(bilibiliPreview?.finalMarkdown).toContain('#Nuxt# #Vue#')
+        expect(bilibiliPreview?.tagLine).toBe('')
+        expect(bilibiliPreview?.copyrightMarkdown).toBe('')
+        expect(bilibiliPreview?.finalMarkdown).toBe(post.content)
 
         expect(weiboPreview).toBeTruthy()
         expect(weiboPreview?.accountsLabel).toBe('微博专栏')
         expect(weiboPreview?.tagLine).toBe('')
-        expect(weiboPreview?.finalMarkdown).not.toContain('#Nuxt')
-        expect(weiboPreview?.finalMarkdown).not.toContain('----------')
+        expect(weiboPreview?.finalMarkdown).toBe(post.content)
         expect(weiboPreview?.compatibility.adjustments).toEqual(
             expect.arrayContaining(['blockquote', 'figure', 'heading-anchor', 'divider']),
         )
 
         expect(xiaohongshuPreview).toBeTruthy()
         expect(xiaohongshuPreview?.accountsLabel).toBe('小红书专栏')
-        expect(xiaohongshuPreview?.tagLine).toBe('#Nuxt #Vue')
-        expect(xiaohongshuPreview?.finalMarkdown).toContain('#Nuxt #Vue')
+        expect(xiaohongshuPreview?.tagLine).toBe('')
+        expect(xiaohongshuPreview?.finalMarkdown).toBe(post.content)
         expect(xiaohongshuPreview?.compatibility.adjustments).toEqual(
             expect.arrayContaining(['heading-anchor']),
         )

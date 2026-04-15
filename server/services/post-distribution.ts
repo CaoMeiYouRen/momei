@@ -19,6 +19,7 @@ import {
 import { SettingKey } from '@/types/setting'
 import { toBoolean } from '@/utils/shared/coerce'
 import { generateRandomString } from '@/utils/shared/random'
+import type { WechatSyncDispatchObservation } from '@/utils/shared/wechatsync'
 
 const DISTRIBUTION_TIMELINE_LIMIT = 20
 
@@ -36,7 +37,7 @@ export interface DispatchPostDistributionCommand {
 export interface CompleteWechatSyncAccountResult {
     id: string
     title: string
-    status: 'uploading' | 'done' | 'failed'
+    status: 'done' | 'failed'
     msg?: string
     error?: string
     draftLink?: string
@@ -45,6 +46,7 @@ export interface CompleteWechatSyncAccountResult {
 export interface CompleteWechatSyncDistributionCommand {
     attemptId: string
     accounts: CompleteWechatSyncAccountResult[]
+    observation?: WechatSyncDispatchObservation
 }
 
 export interface PostDistributionSummary {
@@ -619,6 +621,10 @@ export async function completeWechatSyncDistributionService(
         throw createError({ statusCode: 409, statusMessage: 'Another WechatSync attempt is currently active' })
     }
 
+    if (command.accounts.some((account) => !['done', 'failed'].includes(account.status as string))) {
+        throw createError({ statusCode: 400, statusMessage: 'WechatSync completion requires terminal account statuses' })
+    }
+
     const successCount = command.accounts.filter((account) => account.status === 'done').length
     const failureCount = command.accounts.filter((account) => account.status === 'failed').length
     const status: PostDistributionStatus = failureCount > 0 ? 'failed' : 'succeeded'
@@ -636,6 +642,7 @@ export async function completeWechatSyncDistributionService(
             accounts: command.accounts,
             successCount,
             failureCount,
+            observation: command.observation || null,
         },
     })
 

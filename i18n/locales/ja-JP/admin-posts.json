@@ -126,14 +126,14 @@
                     "retry": "再試行",
                     "precheck": {
                         "blocking_toast": "選択した WechatSync アカウントに未解決の互換性問題があります。内容を調整するか、これらのアカウントを外してください。",
-                        "xiaohongshu_adjusted_title": "小紅書アカウントには互換コンテンツを使用します",
-                        "xiaohongshu_adjusted_detail": "見出しアンカー、注意ブロック、コードグループ、コピー用ボタンなどのサイト固有構造が検出された場合、同期前に小紅書エディタ向けの形式へ自動整形します。アカウント: {accounts}",
-                        "xiaohongshu_blocking_title": "小紅書アカウントに未対応コンポーネントがあります",
-                        "xiaohongshu_blocking_detail": "現在の内容には小紅書エディタがまだサポートしていないコンポーネントが含まれています: {components}。該当構造を削除するか、これらのアカウントを外してから再同期してください。アカウント: {accounts}",
-                        "weibo_adjusted_title": "Weibo アカウントには互換コンテンツを使用します",
-                        "weibo_adjusted_detail": "引用ブロック、コード装飾、見出しアンカー、画像コンテナが検出された場合、同期前に Weibo 互換形式へ自動的に降格します。アカウント: {accounts}",
-                        "weibo_blocking_title": "Weibo アカウントに未対応コンポーネントがあります",
-                        "weibo_blocking_detail": "現在の内容には Weibo がまだサポートしていないコンポーネントが含まれています: {components}。該当構造を削除するか、これらのアカウントを外してから再同期してください。アカウント: {accounts}"
+                        "xiaohongshu_adjusted_title": "小紅書アカウントに互換リスクがあります",
+                        "xiaohongshu_adjusted_detail": "見出しアンカー、注意ブロック、コードグループ、コピー用ボタンなどが検出されています。これらは小紅書経路で拡張機能側の互換処理により強く依存するため、今回の実験では raw/default payload をそのまま送信しつつ、該当アカウントの連携結果を重点的に確認してください。アカウント: {accounts}",
+                        "xiaohongshu_blocking_title": "小紅書アカウントに高リスクの互換問題があります",
+                        "xiaohongshu_blocking_detail": "現在の内容には小紅書エディタにとって高リスクな非互換構造が含まれています: {components}。今回の実験でも raw/default payload は送信されますが、これらのアカウントは拡張機能側で失敗しやすくなります。連携結果を優先確認するか、一時的に除外してください。アカウント: {accounts}",
+                        "weibo_adjusted_title": "Weibo アカウントに互換リスクがあります",
+                        "weibo_adjusted_detail": "引用ブロック、コード装飾、見出しアンカー、画像コンテナなどが検出されています。これらは Weibo 経路で拡張機能側の互換処理により強く依存するため、今回の実験では raw/default payload をそのまま送信しつつ、該当アカウントの連携結果を重点的に確認してください。アカウント: {accounts}",
+                        "weibo_blocking_title": "Weibo アカウントに高リスクの互換問題があります",
+                        "weibo_blocking_detail": "現在の内容には Weibo にとって高リスクな非互換構造が含まれています: {components}。今回の実験でも raw/default payload は送信されますが、これらのアカウントは拡張機能側で失敗しやすくなります。連携結果を優先確認するか、一時的に除外してください。アカウント: {accounts}"
                     },
                     "preview": {
                         "accounts": "配信アカウント",
@@ -146,9 +146,9 @@
                         "memos_title": "Memos 配信プレビュー",
                         "no_account_selected": "WechatSync アカウントを選択すると、各プラットフォームへ送信される内容をここで事前確認できます。",
                         "payload": {
-                            "standard": "標準コンテンツ",
-                            "xiaohongshu_compatible": "小紅書互換コンテンツ",
-                            "weibo_compatible": "Weibo 互換コンテンツ"
+                            "standard": "Raw / default payload",
+                            "xiaohongshu_compatible": "小紅書リスク分析",
+                            "weibo_compatible": "Weibo リスク分析"
                         },
                         "summary": "概要",
                         "tags": "タグ追記",
@@ -170,6 +170,7 @@
                     "tooltip": "配信管理",
                     "wechatsync_ready": "WechatSync プラグインを検出しました。アカウントを選択して配信を開始できます。",
                     "wechatsync_success": "WechatSync の結果を書き戻しました",
+                    "wechatsync_timeout": "拡張機能から完全な状態が返る前に WechatSync がタイムアウトしたため、未完了アカウントを失敗として扱いました。",
                     "wechatsync_task": {
                         "done": "完了",
                         "failed": "失敗",

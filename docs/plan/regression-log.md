@@ -55,6 +55,7 @@
         - 官方 `weibo` adapter 使用预处理后的 `article.html` 直接保存草稿，并以保存响应 `code === 100000` 作为成功判定；因此当前仓库出现的 `CODE:004` 更像是页面侧 payload 结构或内容预处理偏离官方预期后的表层症状，不足以单独解释根因。
         - 截至本轮公开仓库检索，`packages/core/src/adapters/platforms/index.ts` 中没有公开导出的 `xiaohongshu` adapter；因此当前仓库里的 `xiaohongshu` content profile 只能视为项目侧兼容推断，不能当作官方公开契约继续扩写。
         - 当前仓库的 [components/admin/posts/post-distribution-button.vue](../../components/admin/posts/post-distribution-button.vue) 会按 `contentProfile` 分组账户，并循环调用 [utils/web/post-distribution-wechatsync.ts](../../utils/web/post-distribution-wechatsync.ts) 中的 `runWechatSyncBatch()`；每一批又会通过 [utils/shared/distribution-template.ts](../../utils/shared/distribution-template.ts) 先构造微博 / 小红书专属 dispatch payload，再调用一次旧版 `addTask()`。这与官方“单次 addTask + 原始 article + 扩展内部 preprocess”路径不等价。
+        - 已按上述根因判断在当前仓库落地最小实验代码：运行时桥接不再循环多次 `addTask()`，而是切换到“单次 `addTask()` + raw/default payload”，并把 `dispatch_started / ready / status_received / resolved / start_failed / timeout_resolved` 观测随 completion 一并回写到站内 timeline；页面侧 preview / precheck 仅保留风险提示，不再阻断实验路径；由于尚未完成真实扩展联调，本条结论仍维持 blocker。
     - 结果摘要:
         - 当前最强根因不是某一条微博 / 小红书 sanitize 规则缺失，而是当前仓库采用了“按 profile 分批、多次 addTask + 页面侧先做平台定制 sanitize”的调用模型，已经偏离官方 compat 层的单任务状态模型与预处理契约。
         - 第一轮补丁里新增的小红书 profile、微博 / 小红书预检与文案补齐，在静态层是闭环的，但它们只能解释“项目侧如何构造 payload”，不能证明这条 payload 路径仍然符合官方扩展的运行期假设。
@@ -68,7 +69,7 @@
         - 本轮仍未在当前仓库内完成“单次 addTask + 原始内容交付”实验，因此还不能证明回退到官方路径后微博 / 小红书一定恢复。
         - 公开仓库检索未能拿到小红书的稳定官方 adapter 证据；小红书当前究竟是官方私有适配、运行期动态平台还是纯兼容账号类型，仍需通过真实扩展联调继续确认。
     - 后续补跑计划:
-        - 下一步优先做一轮最小实验：在 [components/admin/posts/post-distribution-button.vue](../../components/admin/posts/post-distribution-button.vue) 与 [utils/web/post-distribution-wechatsync.ts](../../utils/web/post-distribution-wechatsync.ts) 中验证“单次 addTask + 原始 / default contentProfile payload + 禁用页面侧微博 / 小红书专属 sanitize”的桥接路径。
+        - 下一步优先对已落地的新桥接层做真实扩展联调，验证“单次 addTask + 原始 / default payload + 扩展内部 preprocess”是否恢复与官方 SDK 更接近的运行期行为。
         - 若实验仍失败，再补插件回调轨迹观测：记录每次 `addTask` 对应的 `syncId`、`taskUpdate` 账户轨迹、是否收到 `done / failed` 终态，以及服务端 `attemptId` 与前端 local task accounts 的映射差异。
         - 若公开适配器能力确认不覆盖小红书，则需要把“小红书可用性”从“默认成功平台”降级为“实验性兼容平台”或显式 unsupported，而不是继续以正式支持口径承诺。
 

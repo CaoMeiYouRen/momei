@@ -15,9 +15,9 @@
                         "memos_title": "Memos preview",
                         "no_account_selected": "Select WechatSync accounts to inspect the exact payload each platform will receive before syncing.",
                         "payload": {
-                            "standard": "Standard payload",
-                            "xiaohongshu_compatible": "Xiaohongshu-compatible payload",
-                            "weibo_compatible": "Weibo-compatible payload"
+                            "standard": "Raw/default payload",
+                            "xiaohongshu_compatible": "Xiaohongshu risk analysis",
+                            "weibo_compatible": "Weibo risk analysis"
                         },
                         "summary": "Summary",
                         "tags": "Tag tail",
@@ -26,15 +26,16 @@
                     },
                     "precheck": {
                         "blocking_toast": "The selected WechatSync accounts still have unresolved compatibility issues. Adjust the content or deselect those accounts first.",
-                        "xiaohongshu_adjusted_title": "Xiaohongshu accounts will use compatible content",
-                        "xiaohongshu_adjusted_detail": "When heading anchors, custom notice blocks, code-group wrappers, or copy buttons are detected, the payload will be cleaned into a Xiaohongshu-friendly format before sync. Accounts: {accounts}",
-                        "xiaohongshu_blocking_title": "Xiaohongshu accounts still contain unsupported components",
-                        "xiaohongshu_blocking_detail": "The current content still contains components that the Xiaohongshu editor does not support yet: {components}. Remove those structures or deselect these accounts before syncing again. Accounts: {accounts}",
-                        "weibo_adjusted_title": "Weibo accounts will use compatible content",
-                        "weibo_adjusted_detail": "When blockquotes, code styling, heading anchors, or image containers are detected, the payload will be downgraded to a Weibo-compatible format before sync. Accounts: {accounts}",
-                        "weibo_blocking_title": "Weibo accounts still contain unsupported components",
-                        "weibo_blocking_detail": "The current content still contains components that Weibo does not support yet: {components}. Remove those structures or deselect these accounts before syncing again. Accounts: {accounts}"
-                    }
+                        "xiaohongshu_adjusted_title": "Xiaohongshu accounts have compatibility risks",
+                        "xiaohongshu_adjusted_detail": "Detected heading anchors, notice blocks, code-group wrappers, or copy buttons. These structures rely more on extension-side compatibility handling on the Xiaohongshu path; the current experiment will still send the raw/default payload, so watch these accounts closely during joint validation. Accounts: {accounts}",
+                        "xiaohongshu_blocking_title": "Xiaohongshu accounts have high-risk compatibility issues",
+                        "xiaohongshu_blocking_detail": "The current content still contains structures that are high-risk for the Xiaohongshu editor: {components}. The current experiment will still send the raw/default payload, but these accounts are more likely to fail in the extension path. Watch the joint-validation result closely or temporarily deselect these accounts. Accounts: {accounts}",
+                        "weibo_adjusted_title": "Weibo accounts have compatibility risks",
+                        "weibo_adjusted_detail": "Detected blockquotes, code styling, heading anchors, or image containers. These structures rely more on extension-side compatibility handling on the Weibo path; the current experiment will still send the raw/default payload, so watch these accounts closely during joint validation. Accounts: {accounts}",
+                        "weibo_blocking_title": "Weibo accounts have high-risk compatibility issues",
+                        "weibo_blocking_detail": "The current content still contains structures that are high-risk for Weibo: {components}. The current experiment will still send the raw/default payload, but these accounts are more likely to fail in the extension path. Watch the joint-validation result closely or temporarily deselect these accounts. Accounts: {accounts}"
+                    },
+                    "wechatsync_timeout": "WechatSync timed out while waiting for the extension to report a complete status. Incomplete accounts were marked as failed."
                 }
             }
         }

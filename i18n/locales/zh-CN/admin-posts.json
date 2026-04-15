@@ -126,14 +126,14 @@
                     "retry": "重试",
                     "precheck": {
                         "blocking_toast": "所选 WechatSync 账号存在未处理的兼容性问题，请先调整内容或取消这些账号。",
-                        "xiaohongshu_adjusted_title": "小红书账号将使用兼容内容",
-                        "xiaohongshu_adjusted_detail": "检测到标题锚点、提示块、代码分组或复制按钮等站内增强结构时，系统会在同步前自动清理为更适合小红书编辑器的内容。账号：{accounts}",
-                        "xiaohongshu_blocking_title": "小红书账号包含仍不兼容的组件",
-                        "xiaohongshu_blocking_detail": "当前内容仍含有小红书编辑器不支持的组件：{components}。请先删除相关结构或取消这些账号后再同步。账号：{accounts}",
-                        "weibo_adjusted_title": "微博账号将使用兼容内容",
-                        "weibo_adjusted_detail": "检测到引用块、代码样式、标题锚点或图片容器时，系统会在同步前自动降级为微博兼容格式。账号：{accounts}",
-                        "weibo_blocking_title": "微博账号包含仍不兼容的组件",
-                        "weibo_blocking_detail": "当前内容仍含有微博不支持的组件：{components}。请先删除相关结构或取消这些账号后再同步。账号：{accounts}"
+                        "xiaohongshu_adjusted_title": "小红书账号存在兼容风险提示",
+                        "xiaohongshu_adjusted_detail": "检测到标题锚点、提示块、代码分组或复制按钮等站内增强结构。这些结构在小红书链路中更依赖扩展侧兼容处理；本次实验仍会发送 raw/default payload，请重点关注这些账号的联调结果。账号：{accounts}",
+                        "xiaohongshu_blocking_title": "小红书账号存在高风险兼容问题",
+                        "xiaohongshu_blocking_detail": "当前内容仍含有小红书编辑器高风险不兼容结构：{components}。本次实验仍会继续发送 raw/default payload，但这些账号更可能在扩展侧失败；建议优先关注联调结果或暂时取消这些账号。账号：{accounts}",
+                        "weibo_adjusted_title": "微博账号存在兼容风险提示",
+                        "weibo_adjusted_detail": "检测到引用块、代码样式、标题锚点或图片容器等结构。这些结构在微博链路中更依赖扩展侧兼容处理；本次实验仍会发送 raw/default payload，请重点关注这些账号的联调结果。账号：{accounts}",
+                        "weibo_blocking_title": "微博账号存在高风险兼容问题",
+                        "weibo_blocking_detail": "当前内容仍含有微博高风险不兼容结构：{components}。本次实验仍会继续发送 raw/default payload，但这些账号更可能在扩展侧失败；建议优先关注联调结果或暂时取消这些账号。账号：{accounts}"
                     },
                     "preview": {
                         "accounts": "投递账号",
@@ -146,9 +146,9 @@
                         "memos_title": "Memos 投递预览",
                         "no_account_selected": "选择 WechatSync 账号后，可在这里先检查各平台将收到的内容。",
                         "payload": {
-                            "standard": "标准内容",
-                            "xiaohongshu_compatible": "小红书兼容内容",
-                            "weibo_compatible": "微博兼容内容"
+                            "standard": "Raw / default payload",
+                            "xiaohongshu_compatible": "小红书风险分析",
+                            "weibo_compatible": "微博风险分析"
                         },
                         "summary": "摘要",
                         "tags": "标签尾注",
@@ -170,6 +170,7 @@
                     "tooltip": "分发管理",
                     "wechatsync_ready": "已检测到 WechatSync 插件，可选择账号后开始投递。",
                     "wechatsync_success": "WechatSync 结果已回写",
+                    "wechatsync_timeout": "WechatSync 在等待扩展回传完整状态时超时，已将未完成账号标记为失败。",
                     "wechatsync_task": {
                         "done": "已完成",
                         "failed": "已失败",

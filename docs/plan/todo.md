@@ -31,6 +31,7 @@
 	- 验收: 已确认修复的 RSS 路由补齐定向测试（taxonomy 排序 / feed 路由 / 发现链路），避免同类问题再次出现。
 	- 验收: 至少保留一轮定向测试与联调证据。
 	- 进展: RSS 防回归补测已补齐并通过定向验证，当前覆盖 taxonomy 排序、feed 路由默认 XML / Atom / JSON 输出，以及分类页 / 标签页的 RSS 发现链路。
+	- 进展: WechatSync 运行时桥接的最小实验代码已落地，当前改为“单次 `addTask()` + raw/default payload”，并把 `dispatch_started / ready / status_received / resolved / start_failed / timeout_resolved` 观测通过 completion 回写到站内 timeline；页面侧 preview / precheck 仅保留风险提示，不再阻断实验路径；下一步转为真实扩展联调验证。
 	- 进展: 已完成官方 SDK / 扩展 compat 层与当前仓库调用链的对照，确认当前项目的“WechatSync 账户按 profile 分批、多次 `addTask()` + 页面侧先做微博 / 小红书专属 sanitize”与官方“单次 `addTask()` + 原始 article + 扩展内部 per-platform preprocess”不等价；本轮先将其记录为结构性 blocker，详见 [regression-log.md](./regression-log.md) 与 [content-distribution-template-tag-adaptation.md](../design/modules/content-distribution-template-tag-adaptation.md)。
 	- 证据: `pnpm exec eslint server/utils/feed.test.ts server/utils/feed-taxonomy-route.test.ts tests/pages/taxonomy-rss-discovery.test.ts` 与 `pnpm exec vitest run server/utils/feed.test.ts server/utils/feed-taxonomy-route.test.ts tests/pages/taxonomy-rss-discovery.test.ts` 均已验证通过；当前剩余收口重点为 WechatSync 微博 / 小红书链路。
 

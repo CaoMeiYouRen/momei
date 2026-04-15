@@ -1,5 +1,4 @@
 import {
-    buildWechatSyncPostFromMaterialBundle,
     inspectWechatSyncMaterialCompatibility,
     type DistributionMaterialBundle,
 } from './distribution-template'
@@ -53,23 +52,20 @@ export function buildWechatSyncDistributionPreviewGroups(
     accounts: readonly WechatSyncAccount[],
 ) {
     return groupWechatSyncAccountsByTagRenderMode(accounts).map<WechatSyncDistributionPreviewGroup>((group) => {
-        const payload = buildWechatSyncPostFromMaterialBundle(materialBundle, {
-            renderMode: group.renderMode,
-            contentProfile: group.contentProfile,
-        })
+        const runtimePayload = materialBundle.channels.wechatsync.basePost
 
         return {
             key: `${group.renderMode}:${group.contentProfile}:${group.accounts.map((account) => resolveWechatSyncAccountKey(account)).join('|')}`,
             accounts: group.accounts,
             accountsLabel: formatWechatSyncAccountTitles(group.accounts),
             contentProfile: group.contentProfile,
-            title: payload.title,
-            summary: payload.desc,
-            coverUrl: payload.thumb || null,
-            bodyMarkdown: materialBundle.channels.wechatsync.basePost.markdown,
-            tagLine: renderDistributionTags(materialBundle.canonical.tags, group.renderMode),
-            copyrightMarkdown: materialBundle.canonical.copyrightMarkdown,
-            finalMarkdown: payload.markdown,
+            title: runtimePayload.title,
+            summary: runtimePayload.desc,
+            coverUrl: runtimePayload.thumb || null,
+            bodyMarkdown: runtimePayload.markdown,
+            tagLine: '',
+            copyrightMarkdown: '',
+            finalMarkdown: runtimePayload.markdown,
             compatibility: inspectWechatSyncMaterialCompatibility(materialBundle, group.contentProfile),
         }
     })
