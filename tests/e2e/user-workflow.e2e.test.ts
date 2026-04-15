@@ -164,7 +164,7 @@ test.describe('User Workflow E2E Tests', () => {
             await expect(page.locator('.settings-page')).toBeVisible({ timeout: 10000 })
         })
 
-        test('should load api keys and notifications tabs', async ({ page }) => {
+        test('should load api keys tab via query', async ({ page }) => {
             await page.goto('/settings?tab=apiKeys')
 
             const currentUrl = page.url()
@@ -172,8 +172,14 @@ test.describe('User Workflow E2E Tests', () => {
 
             await expect(page.locator('.settings-api-keys')).toBeVisible({ timeout: 10000 })
             await expect(page.locator('.api-keys-form, .api-keys-table').first()).toBeVisible({ timeout: 10000 })
+        })
 
+        test('should load notifications tab via query', async ({ page }) => {
             await page.goto('/settings?tab=notifications')
+
+            const currentUrl = page.url()
+            test.skip(currentUrl.includes('/login'), 'Auth state not available for settings page')
+
             await expect(page.locator('.subscription-settings').first()).toBeVisible({ timeout: 10000 })
             await expect(page.locator('body')).not.toContainText('pages.settings.notifications')
         })

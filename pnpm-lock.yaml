@@ -8,6 +8,7 @@ overrides:
   axios: ^1.15.0
   basic-ftp: ^5.2.2
   fast-xml-parser: ^5.5.12
+  follow-redirects: ^1.16.0
   '@smithy/types': ^4.13.1
   file-type: ^21.3.2
   preact: ^10.28.2
@@ -78,6 +79,27 @@ importers:
       '@nuxtjs/i18n':
         specifier: ^10.2.4
         version: 10.2.4(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@vercel/blob@2.3.3)(@vue/compiler-dom@3.5.32)(db0@0.3.4(better-sqlite3@12.9.0)(mysql2@3.22.0(@types/node@25.6.0)))(eslint@9.39.2(jiti@2.6.1))(ioredis@5.10.1)(magicast@0.5.2)(rollup@4.60.1)(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3))
+      '@primeuix/styled':
+        specifier: ^0.7.4
+        version: 0.7.4
+      '@primeuix/styles':
+        specifier: ^2.0.3
+        version: 2.0.3
+      '@primeuix/themes':
+        specifier: ^2.0.3
+        version: 2.0.3
+      '@primeuix/utils':
+        specifier: ^0.6.4
+        version: 0.6.4
+      '@primevue/core':
+        specifier: ^4.5.5
+        version: 4.5.5(vue@3.5.32(typescript@5.9.3))
+      '@primevue/forms':
+        specifier: ^4.5.5
+        version: 4.5.5(vue@3.5.32(typescript@5.9.3))
+      '@primevue/icons':
+        specifier: ^4.5.5
+        version: 4.5.5(vue@3.5.32(typescript@5.9.3))
       '@primevue/themes':
         specifier: ^4.5.4
         version: 4.5.4
@@ -7505,8 +7527,8 @@ packages:
   focus-trap@7.8.0:
     resolution: {integrity: sha512-/yNdlIkpWbM0ptxno3ONTuf+2g318kh2ez3KSeZN5dZ8YC6AAmgeWz+GasYYiBJPFaYcSAPeu4GfhUaChzIJXA==}
 
-  follow-redirects@1.15.11:
-    resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
+  follow-redirects@1.16.0:
+    resolution: {integrity: sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -19148,7 +19170,7 @@ snapshots:
 
   axios@1.15.0(debug@4.4.3):
     dependencies:
-      follow-redirects: 1.15.11(debug@4.4.3)
+      follow-redirects: 1.16.0(debug@4.4.3)
       form-data: 4.0.5
       proxy-from-env: 2.1.0
     transitivePeerDependencies:
@@ -21487,7 +21509,7 @@ snapshots:
     dependencies:
       tabbable: 6.4.0
 
-  follow-redirects@1.15.11(debug@4.4.3):
+  follow-redirects@1.16.0(debug@4.4.3):
     optionalDependencies:
       debug: 4.4.3
 
