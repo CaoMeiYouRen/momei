@@ -26,6 +26,16 @@ const hoisted = vi.hoisted(() => ({
     mockOnPageChange: vi.fn(),
 }))
 
+function resolveTotalCount(params?: Record<string, unknown>) {
+    const count = params?.count
+
+    if (typeof count === 'number' || typeof count === 'string') {
+        return count
+    }
+
+    return 0
+}
+
 function translate(key: string, params?: Record<string, unknown>) {
     switch (key) {
         case 'common.category':
@@ -41,7 +51,7 @@ function translate(key: string, params?: Record<string, unknown>) {
         case 'app.description':
             return 'Site description'
         case 'pages.posts.total_count':
-            return `${params?.count ?? 0} posts`
+            return `${resolveTotalCount(params)} posts`
         default:
             return key
     }
@@ -52,32 +62,32 @@ mockNuxtImport('navigateTo', () => hoisted.mockNavigateTo)
 mockNuxtImport('useRoute', () => () => ({ params: { slug: hoisted.state.routeSlug } }))
 mockNuxtImport('useI18n', () => () => ({ t: translate }))
 mockNuxtImport('useLocalePath', () => () => (path: string) => path)
-mockNuxtImport('useAppFetch', () => async (url: string | (() => string)) => {
+mockNuxtImport('useAppFetch', () => (url: string | (() => string)) => {
     const resolvedUrl = typeof url === 'function' ? url() : url
 
     if (resolvedUrl.startsWith('/api/categories/slug/')) {
-        return {
+        return Promise.resolve({
             data: ref({ data: hoisted.state.category }),
             pending: ref(false),
             error: ref(null),
-        }
+        })
     }
 
     if (resolvedUrl.startsWith('/api/tags/slug/')) {
-        return {
+        return Promise.resolve({
             data: ref({ data: hoisted.state.tag }),
             pending: ref(false),
             error: ref(null),
-        }
+        })
     }
 
-    return {
+    return Promise.resolve({
         data: ref({ data: null }),
         pending: ref(false),
         error: ref(null),
-    }
+    })
 })
-mockNuxtImport('useTaxonomyPostPage', () => async () => ({
+mockNuxtImport('useTaxonomyPostPage', () => () => Promise.resolve({
     page: ref(1),
     limit: ref(10),
     first: ref(0),

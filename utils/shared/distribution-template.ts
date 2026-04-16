@@ -353,11 +353,14 @@ export function buildWechatSyncPostFromMaterialBundle(
         tagLine,
         copyrightMarkdown,
     ])
-    const markdown = usesWeiboCompatibility
-        ? sanitizeWechatSyncMarkdownForWeibo(rawMarkdown)
-        : usesXiaohongshuCompatibility
-            ? sanitizeWechatSyncMarkdownForXiaohongshu(rawMarkdown)
-        : rawMarkdown
+    let markdown = rawMarkdown
+
+    if (usesWeiboCompatibility) {
+        markdown = sanitizeWechatSyncMarkdownForWeibo(rawMarkdown)
+    } else if (usesXiaohongshuCompatibility) {
+        markdown = sanitizeWechatSyncMarkdownForXiaohongshu(rawMarkdown)
+    }
+
     const renderer = createMarkdownRenderer({
         html: !usesWeiboCompatibility,
         withAnchor: !usesWeiboCompatibility && !usesXiaohongshuCompatibility,

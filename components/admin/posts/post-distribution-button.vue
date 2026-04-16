@@ -127,7 +127,6 @@
                                 :severity="renderStatusSeverity(summary.channels.memos.status)"
                             />
                         </div>
-
                         <div v-if="showModeSelector(summary.channels.memos)" class="post-distribution-dialog__mode-group">
                             <div class="post-distribution-dialog__mode-item">
                                 <RadioButton
@@ -155,7 +154,6 @@
                         <small v-else class="post-distribution-dialog__hint">
                             {{ $t('pages.admin.posts.distribution.first_sync_hint') }}
                         </small>
-
                         <a
                             v-if="summary.channels.memos.remoteUrl"
                             :href="summary.channels.memos.remoteUrl"
@@ -164,7 +162,6 @@
                         >
                             {{ $t('pages.admin.posts.distribution.open_remote') }}
                         </a>
-
                         <div v-if="memosPreview" class="post-distribution-dialog__preview-launcher">
                             <div class="post-distribution-dialog__preview-launcher-main">
                                 <span class="post-distribution-dialog__preview-label">{{ $t('common.preview') }}</span>
@@ -243,7 +240,6 @@
                         <small v-else class="post-distribution-dialog__hint">
                             {{ $t('pages.admin.posts.distribution.first_sync_hint') }}
                         </small>
-
                         <div v-if="extensionInstalled && allAccounts.length > 0" class="post-distribution-dialog__account-list">
                             <div
                                 v-for="account in allAccounts"
@@ -340,7 +336,6 @@
                                 @click="terminateWechatSync"
                             />
                         </div>
-
                         <div v-if="localWechatTaskStatus?.accounts?.length" class="post-distribution-dialog__task-list">
                             <div
                                 v-for="account in localWechatTaskStatus.accounts"
@@ -364,7 +359,6 @@
                         </div>
                     </section>
                 </div>
-
                 <div class="post-distribution-dialog__timeline">
                     <div class="post-distribution-dialog__timeline-header">
                         <h4>{{ $t('pages.admin.posts.distribution.timeline_title') }}</h4>
