@@ -32,7 +32,7 @@
 	- 验收: 至少保留一轮定向测试与联调证据。
 	- 进展: RSS 防回归补测已补齐并通过定向验证，当前覆盖 taxonomy 排序、feed 路由默认 XML / Atom / JSON 输出，以及分类页 / 标签页的 RSS 发现链路。
 	- 进展: WechatSync 运行时桥接的最小实验代码已落地，当前改为“单次 `addTask()` + raw/default payload”，并把 `dispatch_started / ready / status_received / resolved / start_failed / timeout_resolved` 观测通过 completion 回写到站内 timeline；页面侧 preview / precheck 仅保留风险提示，不再阻断实验路径；下一步转为真实扩展联调验证。
-	- 进展: 已完成官方 SDK / 扩展 compat 层与当前仓库调用链的对照，确认当前项目的“WechatSync 账户按 profile 分批、多次 `addTask()` + 页面侧先做微博 / 小红书专属 sanitize”与官方“单次 `addTask()` + 原始 article + 扩展内部 per-platform preprocess”不等价；本轮先将其记录为结构性 blocker，详见 [regression-log.md](./regression-log.md) 与 [content-distribution-template-tag-adaptation.md](../design/modules/content-distribution-template-tag-adaptation.md)。
+	- 进展: 已完成官方 SDK / 扩展 compat 层与当前仓库调用链的对照，确认当前项目的“WechatSync 账户按 profile 分批、多次 `addTask()` + 页面侧先做微博 / 小红书专属 sanitize”与官方“单次 `addTask()` + 原始 article + 扩展内部 per-platform preprocess”不等价；本轮先将其记录为结构性 blocker，详见 [current.md](../reports/regression/current.md) 与 [content-distribution-template-tag-adaptation.md](../design/modules/content-distribution-template-tag-adaptation.md)。
 	- 证据: `pnpm exec eslint server/utils/feed.test.ts server/utils/feed-taxonomy-route.test.ts tests/pages/taxonomy-rss-discovery.test.ts` 与 `pnpm exec vitest run server/utils/feed.test.ts server/utils/feed-taxonomy-route.test.ts tests/pages/taxonomy-rss-discovery.test.ts` 均已验证通过；当前剩余收口重点为 WechatSync 微博 / 小红书链路。
 
 2. [x] **文章页一键分享与图标系统修复** (P1)
@@ -48,7 +48,7 @@
 3. [x] **接口缓存逻辑复用与可缓存接口扩面切片** (P1)
 	- 验收: 抽离缓存复用层（TTL / 失效 / 键策略 / 权限边界），减少重复实现。
 	- 验收: 输出一组高收益接口扩面清单并完成至少 1 组落地验证。
-	- 结果: 已统一接入 `settings/public`、`friend-links/index`、`posts/archive`、`categories/index`、`tags/index`，并补齐缓存清单与回归证据，见 [cacheable-api-inventory.md](../design/modules/cacheable-api-inventory.md) 与 [regression-log.md](./regression-log.md)。
+	- 结果: 已统一接入 `settings/public`、`friend-links/index`、`posts/archive`、`categories/index`、`tags/index`，并补齐缓存清单与回归证据，见 [cacheable-api-inventory.md](../design/modules/cacheable-api-inventory.md) 与 [current.md](../reports/regression/current.md)。
 
 4. [x] **首屏性能阶段一优化（Lighthouse >= 50）** (P0)
 	- 验收: 建立当前瓶颈分解与采样口径，核心页面性能评分稳定达到 >= 50。
@@ -65,7 +65,7 @@
 	- 验收: 建立页面与接口覆盖矩阵并明确优先级。
 	- 验收: 完成关键交易路径与高风险接口的首轮稳定用例。
 	- 结果: 已补齐注册校验、投稿表单失败 / 成功提交流程、`/feedback` 与 `/friend-links` 等公共页 reachability，以及后台 `users`、`comments`、`submissions`、`subscribers`、`friend-links`、`external-links`、`notifications`、`ai`、taxonomy 搜索 / 聚合开关等首轮稳定用例。
-	- 证据: 定向命令 `pnpm exec playwright test tests/e2e/submit.e2e.test.ts tests/e2e/user-workflow.e2e.test.ts tests/e2e/admin.e2e.test.ts tests/e2e/public-pages.e2e.test.ts --project=chromium` 已验证 `33 passed / 3 skipped`，详见 [e2e-coverage-matrix.md](../design/modules/e2e-coverage-matrix.md) 与 [regression-log.md](./regression-log.md)。
+	- 证据: 定向命令 `pnpm exec playwright test tests/e2e/submit.e2e.test.ts tests/e2e/user-workflow.e2e.test.ts tests/e2e/admin.e2e.test.ts tests/e2e/public-pages.e2e.test.ts --project=chromium` 已验证 `33 passed / 3 skipped`，详见 [e2e-coverage-matrix.md](../design/modules/e2e-coverage-matrix.md) 与 [current.md](../reports/regression/current.md)。
 
 
 ## 相关文档

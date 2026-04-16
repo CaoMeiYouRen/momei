@@ -1,6 +1,6 @@
 # 墨梅博客 回归日志索引与对比指南
 
-本文档为 `regression-log.md` 与 `regression-log-archive.md` 提供统一索引入口，明确活动日志与历史归档在“当前基线 / 历史基线 / 发版对比”中的职责分工，并给出最小可用的对比路径。
+本文档当前作为兼容索引入口保留。新的正式管理入口已迁移到 [docs/reports/regression/index.md](../reports/regression/index.md)；本文件仅继续为旧的 `regression-log.md` 与 `regression-log-archive.md` 提供历史对照路径。
 
 ## 1. 入口职责
 

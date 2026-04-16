@@ -1,6 +1,8 @@
 # 墨梅博客 回归任务记录 (Regression Log)
 
-本文档用于集中维护周期性回归、阶段基线、补跑计划与 Review Gate 证据链正文。规划摘要仍保留在 [待办事项](./todo.md) 与 [项目计划](./roadmap.md) 中，但长篇回归记录应统一沉淀在本文件，避免同一份记录在多个规划文档中重复维护。
+本文档当前作为兼容入口保留。新的正式管理入口已迁移到 [docs/reports/regression/index.md](../reports/regression/index.md)，后续新增回归正文应优先写入 [docs/reports/regression/current.md](../reports/regression/current.md)。
+
+历史内容仍保留在本文件中，便于旧链接与阶段审计继续回看；规划摘要仍保留在 [待办事项](./todo.md) 与 [项目计划](./roadmap.md) 中。
 
 ## 当前窗口与索引
 

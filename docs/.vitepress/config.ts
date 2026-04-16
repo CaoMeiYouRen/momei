@@ -66,11 +66,16 @@ export default defineConfig({
                         items: [
                             { text: '路线图', link: '/plan/roadmap' },
                             { text: '可缓存接口清单', link: '/plan/cacheable-api-inventory' },
-                            { text: '回归日志索引', link: '/plan/regression-log-index' },
-                            { text: '活动回归日志', link: '/plan/regression-log' },
-                            { text: '回归日志归档', link: '/plan/regression-log-archive' },
                             { text: '待办事项', link: '/plan/todo' },
                             { text: '待办归档', link: '/plan/todo-archive' },
+                        ],
+                    },
+                    {
+                        text: '回归记录',
+                        items: [
+                            { text: '管理规划', link: '/reports/regression' },
+                            { text: '当前窗口', link: '/reports/regression/current' },
+                            { text: '历史归档', link: '/reports/regression/archive/' },
                         ],
                     },
                     {

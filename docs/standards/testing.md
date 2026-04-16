@@ -79,7 +79,7 @@ components/
 -   **回归基线优先**: 面向合并前回归、Review Gate 与阶段收口的浏览器验证，必须优先使用可复跑脚本入口（`pnpm test:e2e:critical`、`pnpm test:e2e:review-gate`），而不是把技能驱动的临时浏览器操作当成唯一证据。
 -   **探索性验证补位**: `ui-validator` 或其他浏览器技能仅用于探索性排查、交互补充确认与视觉比对；它们可以辅助定位问题，但不能替代可重复执行的脚本基线。
 -   **升级策略**: 若 critical 基线不足以覆盖当前改动，先补定向 Playwright 命令；只有在定向集仍无法覆盖风险时，才升级到全量 `pnpm test:e2e`。
--   **证据落点统一**: 需要 Review Gate 证据时，优先保留 `pnpm test:e2e:review-gate` 生成的运行目录，并在 `docs/plan/regression-log.md` 或专项记录中引用该目录，而不是重复粘贴整段终端输出。
+-   **证据落点统一**: 需要 Review Gate 证据时，优先保留 `pnpm test:e2e:review-gate` 生成的运行目录，并在 `docs/reports/regression/current.md` 或专项记录中引用该目录，而不是重复粘贴整段终端输出。
 -   **结构化证据优先**: 回归记录或审计结论优先引用 `manifest.json` 中的状态、artifact 路径和失败分类，再辅以 `evidence.md` 的文字摘要，避免每次手写不同格式的失败说明。
 
 ## 4. 测试内容要求 (Testing Requirements)
@@ -115,7 +115,7 @@ components/
 1.  覆盖率治理主线必须先锁定一组核心路径或低覆盖模块，记录当前基线、优先补齐路径与下一阶段继续补齐顺序，不以“无限期全仓补测”代替阶段目标。
 2.  阶段提升目标默认按“相对上一轮基线约 +5%”管理；若全仓提升成本过高，可先以目录或模块组为单位建立子基线，但必须在回归记录中同时说明全仓基线与子基线的关系。
 3.  单个目录或模块组稳定达到 80% 后，后续阶段应转为守线与缺口治理，优先防止新增改动造成回退，而不是继续机械堆高同一组测试。
-4.  覆盖率治理的命令、timeout budget、证据落点、未覆盖边界与下一阶段计划，统一沉淀到 [docs/plan/regression-log.md](../plan/regression-log.md)。
+4.  覆盖率治理的命令、timeout budget、证据落点、未覆盖边界与下一阶段计划，统一沉淀到 [docs/reports/regression/current.md](../reports/regression/current.md)。
 
 运行覆盖率检查:
 

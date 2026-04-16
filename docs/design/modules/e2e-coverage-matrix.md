@@ -1,6 +1,6 @@
 # 墨梅博客 E2E 覆盖矩阵（第一轮）
 
-本文档作为第二十七阶段 P1“E2E 覆盖矩阵第一轮”的事实源，用于统一记录页面 / 接口风险等级、当前 Playwright 覆盖状态、稳定基线入口与下一步补测优先级。运行期结果、命令输出与 Review Gate 结论继续统一沉淀到 [regression-log.md](./regression-log.md)。
+本文档作为第二十七阶段 P1“E2E 覆盖矩阵第一轮”的事实源，用于统一记录页面 / 接口风险等级、当前 Playwright 覆盖状态、稳定基线入口与下一步补测优先级。运行期结果、命令输出与 Review Gate 结论继续统一沉淀到 [current.md](../../reports/regression/current.md)。
 
 ## 1. 使用口径
 

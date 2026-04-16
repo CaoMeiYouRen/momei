@@ -1,6 +1,6 @@
 # 渠道分发模板与标签适配方案
 
-> 定位：本文是 [第三方分发解耦与投递控制设计文档](./content-distribution-governance.md) 的第十三阶段增量方案，聚焦 [当前 Todo 中“渠道分发内容模板与标签适配”](../../plan/todo.md) 的实现收口。
+> 定位：本文是 [第三方分发解耦与投递控制设计文档](./content-distribution-governance.md) 的第十三阶段增量方案，聚焦“渠道分发内容模板与标签适配”的实现收口与回归边界，不再承担当前 Todo 入口职责。
 
 > 2026-04-16 调研补充：当前仓库早先落地的“WechatSync 账户按 profile 分批、多次调用 `addTask()`”在真实联调中暴露了兼容风险。官方旧版 compat 层更接近“单次 `addTask()` + 原始 article + 扩展内部 per-platform preprocess”；因此当前运行时桥接已切换到“单次 `addTask()` + raw/default payload”最小实验路径，页面侧 profile 分析只保留在 preview / precheck，不再作为实际分批投递契约。
 

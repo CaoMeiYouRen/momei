@@ -1,6 +1,6 @@
 # 墨梅博客 回归任务记录归档 (Regression Log Archive)
 
-本文档用于归档从 [regression-log.md](./regression-log.md) 滚动迁出的历史回归记录。活动回归日志仅保留最近 1 - 2 个阶段或最近 6 - 8 条完整记录，以服务当前阶段收口、近期发版判断和最近基线比较。
+本文档当前作为兼容归档入口保留。新的正式归档管理已迁移到 [docs/reports/regression/archive/index.md](../reports/regression/archive/index.md)；历史记录仍可继续在本文件中回看。
 
 ## 归档窗口与索引
 
