@@ -710,7 +710,7 @@ async function buildWechatSyncMaterialBundle() {
     if (distributionMaterialBundle.value) return distributionMaterialBundle.value
     const sourcePost = liveDistributionPost.value || cachedDistributionPost.value
     if (!sourcePost) {
-        throw new Error(t('common.load_failed'))
+        throw new Error(t('pages.admin.posts.distribution.dispatch_failed'))
     }
     return buildFallbackDistributionMaterialBundle(
         sourcePost,
