@@ -114,6 +114,34 @@ describe('completeWechatSyncDistributionSchema', () => {
         }).success).toBe(true)
     })
 
+    it('accepts single-group profile observations for homogeneous account selections', () => {
+        expect(completeWechatSyncDistributionSchema.safeParse({
+            ...valid,
+            observation: {
+                strategy: 'single_add_task_group_profile',
+                resolution: 'terminal_status',
+                payload: {
+                    renderMode: 'none',
+                    contentProfile: 'weibo',
+                    usesRawPost: false,
+                    markdownLength: 80,
+                    contentLength: 120,
+                    descLength: 24,
+                    accountKeys: ['weibo'],
+                },
+                readyEventCount: 1,
+                statusEventCount: 1,
+                events: [
+                    {
+                        phase: 'resolved',
+                        at: '2026-04-16T10:02:00.000Z',
+                        accountCount: 1,
+                    },
+                ],
+            },
+        }).success).toBe(true)
+    })
+
     it('accepts large observation counters when the persisted event payload stays bounded', () => {
         expect(completeWechatSyncDistributionSchema.safeParse({
             ...valid,

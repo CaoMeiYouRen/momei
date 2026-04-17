@@ -133,6 +133,8 @@ definePageMeta({
 const localePath = useLocalePath()
 const route = useRoute()
 const showSetupReminder = ref(false)
+const lastAutoOpenedDistributionPostId = ref<string | null>(null)
+const autoOpeningDistributionPostId = ref<string | null>(null)
 
 const {
     md,
@@ -204,15 +206,56 @@ const handleOpenSystemSettings = async () => {
     }))
 }
 
+watch(
+    () => ({
+        openDistribution: route.query.openDistribution,
+        postId: post.value.id || null,
+    }),
+    ({ openDistribution, postId }) => {
+        if (
+            openDistribution !== 'true'
+            || !postId
+            || lastAutoOpenedDistributionPostId.value === postId
+            || autoOpeningDistributionPostId.value === postId
+        ) {
+            return
+        }
+
+        autoOpeningDistributionPostId.value = postId
+        nextTick(async () => {
+            try {
+                const currentRoutePostId = typeof route.params.id === 'string' ? route.params.id : null
+                if (route.query.openDistribution !== 'true' || currentRoutePostId !== postId || post.value.id !== postId) {
+                    return
+                }
+
+                await headerRef.value?.openDistribution?.()
+                lastAutoOpenedDistributionPostId.value = postId
+
+                if (route.query.openDistribution !== 'true') {
+                    return
+                }
+
+                const { openDistribution: _openDistribution, ...restQuery } = route.query
+                await navigateTo({
+                    path: route.path,
+                    query: restQuery,
+                }, { replace: true })
+            } catch (error) {
+                console.error('Failed to auto open distribution dialog', error)
+            } finally {
+                if (autoOpeningDistributionPostId.value === postId) {
+                    autoOpeningDistributionPostId.value = null
+                }
+            }
+        })
+    },
+    { immediate: true },
+)
+
 onMounted(() => {
     if (getQueuedSetupJourneyStage() === 'editor') {
         showSetupReminder.value = true
-    }
-
-    if (route.query.openDistribution === 'true') {
-        nextTick(() => {
-            void headerRef.value?.openDistribution?.()
-        })
     }
 })
 </script>

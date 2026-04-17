@@ -73,12 +73,16 @@ export interface WechatSyncDispatchObservationEvent {
     accounts?: WechatSyncDispatchObservationAccount[]
 }
 
+export type WechatSyncDispatchStrategy = 'single_add_task_default_raw' | 'single_add_task_group_profile'
+export type WechatSyncDispatchRenderMode = 'leading' | 'wrapped' | 'none'
+export type WechatSyncDispatchContentProfile = 'default' | 'weibo' | 'xiaohongshu'
+
 export interface WechatSyncDispatchObservation {
-    strategy: 'single_add_task_default_raw'
+    strategy: WechatSyncDispatchStrategy
     resolution?: 'terminal_status' | 'start_error' | 'timeout_incomplete_status' | null
     payload: {
-        renderMode: 'none'
-        contentProfile: 'default'
+        renderMode: WechatSyncDispatchRenderMode
+        contentProfile: WechatSyncDispatchContentProfile
         usesRawPost: boolean
         markdownLength: number
         contentLength: number

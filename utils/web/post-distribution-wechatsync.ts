@@ -1,9 +1,14 @@
 import type { Post } from '@/types/post'
 import {
     buildDistributionMaterialBundle,
-    buildWechatSyncPostFromMaterialBundle,
+    buildWechatSyncDispatchPostFromMaterialBundle,
     type DistributionMaterialBundle,
 } from '@/utils/shared/distribution-template'
+import {
+    groupWechatSyncAccountsByTagRenderMode,
+    type DistributionTagRenderMode,
+    type WechatSyncContentProfile,
+} from '@/utils/shared/distribution-tags'
 import {
     buildWechatSyncFailureResults,
     mapWechatSyncTaskAccountsForCompletion,
@@ -33,6 +38,13 @@ const WECHATSYNC_OBSERVATION_PERSISTED_PHASES = new Set<WechatSyncDispatchObserv
     'start_failed',
     'timeout_resolved',
 ])
+
+interface WechatSyncDispatchPayloadProfile {
+    strategy: WechatSyncDispatchObservation['strategy']
+    renderMode: DistributionTagRenderMode
+    contentProfile: WechatSyncContentProfile
+    usesRawPost: boolean
+}
 
 function normalizeWechatSyncObservationToken(value: unknown) {
     if (typeof value !== 'string' && typeof value !== 'number') {
@@ -117,14 +129,15 @@ function buildWechatSyncDispatchObservation(
         desc: string
     },
     accounts: readonly WechatSyncAccount[],
+    payloadProfile: WechatSyncDispatchPayloadProfile,
 ): WechatSyncDispatchObservation {
     return {
-        strategy: 'single_add_task_default_raw',
+        strategy: payloadProfile.strategy,
         resolution: null,
         payload: {
-            renderMode: 'none',
-            contentProfile: 'default',
-            usesRawPost: true,
+            renderMode: payloadProfile.renderMode,
+            contentProfile: payloadProfile.contentProfile,
+            usesRawPost: payloadProfile.usesRawPost,
             markdownLength: postToSync.markdown?.length || 0,
             contentLength: postToSync.content.length,
             descLength: postToSync.desc.length,
@@ -133,6 +146,29 @@ function buildWechatSyncDispatchObservation(
         readyEventCount: 0,
         statusEventCount: 0,
         events: [],
+    }
+}
+
+function resolveWechatSyncDispatchPayloadProfile(accounts: readonly WechatSyncAccount[]): WechatSyncDispatchPayloadProfile {
+    const groupedAccounts = groupWechatSyncAccountsByTagRenderMode(accounts)
+    const group = groupedAccounts[0]
+
+    if (groupedAccounts.length === 1 && group) {
+        const usesRawPost = group.renderMode === 'none' && group.contentProfile === 'default'
+
+        return {
+            strategy: usesRawPost ? 'single_add_task_default_raw' : 'single_add_task_group_profile',
+            renderMode: group.renderMode,
+            contentProfile: group.contentProfile,
+            usesRawPost,
+        }
+    }
+
+    return {
+        strategy: 'single_add_task_default_raw',
+        renderMode: 'none',
+        contentProfile: 'default',
+        usesRawPost: true,
     }
 }
 
@@ -263,11 +299,12 @@ export async function runWechatSyncTask({
         completionAccounts: WechatSyncCompletionAccount[]
         observation: WechatSyncDispatchObservation
     }>((resolve) => {
-        const postToSync = buildWechatSyncPostFromMaterialBundle(materialBundle, {
-            renderMode: 'none',
-            contentProfile: 'default',
+        const payloadProfile = resolveWechatSyncDispatchPayloadProfile(accounts)
+        const postToSync = buildWechatSyncDispatchPostFromMaterialBundle(materialBundle, {
+            renderMode: payloadProfile.renderMode,
+            contentProfile: payloadProfile.contentProfile,
         })
-        const observation = buildWechatSyncDispatchObservation(postToSync, accounts)
+        const observation = buildWechatSyncDispatchObservation(postToSync, accounts, payloadProfile)
         let settled = false
         let latestTaskAccounts: WechatSyncTaskAccount[] = []
         let statusInactivityTimer: ReturnType<typeof setTimeout> | null = null

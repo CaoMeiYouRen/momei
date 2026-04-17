@@ -62,6 +62,7 @@ export interface WechatSyncDispatchPost {
 
 const DEFAULT_MEMOS_SUMMARY_MAX_LENGTH = 280
 const WEIBO_MARKDOWN_ADJUSTMENT_RULES: [RegExp, string][] = [
+    [/^#{1,6}\s+/mu, 'heading'],
     [/<blockquote\b/iu, 'blockquote'],
     [/^>\s?/mu, 'blockquote'],
     [/<figure\b/iu, 'figure'],
@@ -70,6 +71,7 @@ const WEIBO_MARKDOWN_ADJUSTMENT_RULES: [RegExp, string][] = [
     [/^\s*[-*_]{3,}\s*$/mu, 'divider'],
 ]
 const WEIBO_HTML_ADJUSTMENT_RULES: [RegExp, string][] = [
+    [/<h[1-6]\b/iu, 'heading'],
     [/header-anchor/iu, 'heading-anchor'],
 ]
 const WEIBO_BLOCKER_RULES: [RegExp, string][] = [
@@ -179,12 +181,19 @@ function stripHtmlToPlainText(html: string) {
         .trim()
 }
 
+function renderWeiboHeadingMarkdown(value: string) {
+    const headingText = stripHtmlToPlainText(value).trim()
+    return headingText ? `\n\n**${headingText}**\n\n` : '\n\n'
+}
+
 function sanitizeWechatSyncMarkdownForWeibo(markdown: string) {
     return stripResidualHtml(markdown
         .replace(/```([\s\S]*?)```/gu, '$1')
         .replace(/`([^`\n]+)`/gu, '$1')
+        .replace(/^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$/gmu, (_match, text) => renderWeiboHeadingMarkdown(text))
         .replace(/^>\s?/gmu, '')
         .replace(/^\s*[-*_]{3,}\s*$/gmu, '')
+        .replace(/<h[1-6]\b[^>]*>([\s\S]*?)<\/h[1-6]>/giu, (_match, inner) => renderWeiboHeadingMarkdown(inner))
         .replace(/<a\b[^>]*class=(['"])[^'"]*header-anchor[^'"]*\1[^>]*>[\s\S]*?<\/a>/giu, '')
         .replace(/<figure\b[^>]*>[\s\S]*?<img\b[^>]*src=(['"])(.*?)\1[^>]*>[\s\S]*?<\/figure>/giu, '\n\n![]($2)\n\n')
         .replace(/<img\b[^>]*src=(['"])(.*?)\1[^>]*\/?>/giu, '![]($2)')

@@ -19,7 +19,7 @@ import {
 
 const {
     buildDistributionMaterialBundleMock,
-    buildWechatSyncPostFromMaterialBundleMock,
+    buildWechatSyncDispatchPostFromMaterialBundleMock,
     buildWechatSyncFailureResultsMock,
     mapWechatSyncTaskAccountsForCompletionMock,
     mergeWechatSyncCompletionAccountsMock,
@@ -28,7 +28,7 @@ const {
     shouldFinalizeWechatSyncStatusMock,
 } = vi.hoisted(() => ({
     buildDistributionMaterialBundleMock: vi.fn(),
-    buildWechatSyncPostFromMaterialBundleMock: vi.fn(),
+    buildWechatSyncDispatchPostFromMaterialBundleMock: vi.fn(),
     buildWechatSyncFailureResultsMock: vi.fn(),
     mapWechatSyncTaskAccountsForCompletionMock: vi.fn(),
     mergeWechatSyncCompletionAccountsMock: vi.fn(),
@@ -39,7 +39,7 @@ const {
 
 vi.mock('@/utils/shared/distribution-template', () => ({
     buildDistributionMaterialBundle: buildDistributionMaterialBundleMock,
-    buildWechatSyncPostFromMaterialBundle: buildWechatSyncPostFromMaterialBundleMock,
+    buildWechatSyncDispatchPostFromMaterialBundle: buildWechatSyncDispatchPostFromMaterialBundleMock,
 }))
 
 vi.mock('@/utils/shared/wechatsync', () => ({
@@ -67,7 +67,7 @@ describe('post-distribution-wechatsync', () => {
 
     beforeEach(() => {
         vi.clearAllMocks()
-        buildWechatSyncPostFromMaterialBundleMock.mockImplementation((materialBundle: DistributionMaterialBundle) => materialBundle.channels.wechatsync.basePost)
+        buildWechatSyncDispatchPostFromMaterialBundleMock.mockImplementation((materialBundle: DistributionMaterialBundle) => materialBundle.channels.wechatsync.basePost)
         mergeWechatSyncTaskAccountsMock.mockImplementation((currentAccounts: WechatSyncTaskAccount[], nextAccounts: WechatSyncTaskAccount[]) => {
             const mergedAccounts = new Map<string, WechatSyncTaskAccount>()
 
@@ -147,9 +147,9 @@ describe('post-distribution-wechatsync', () => {
 
     it('runs a single raw/default task and records observation after finalized status', async () => {
         const materialBundle = { bundle: true } as unknown as DistributionMaterialBundle
-        const accounts = [{ id: 'weibo', type: 'weibo', title: '微博 B', checked: true }]
-        const taskAccounts: WechatSyncTaskAccount[] = [{ id: 'weibo', title: '微博 B', status: 'done' }]
-        const completionAccounts = [{ id: 'weibo', title: '微博 B', status: 'done' }]
+        const accounts = [{ id: 'wechat', type: 'wechat', title: '公众号 A', checked: true }]
+        const taskAccounts: WechatSyncTaskAccount[] = [{ id: 'wechat', title: '公众号 A', status: 'done' }]
+        const completionAccounts = [{ id: 'wechat', title: '公众号 A', status: 'done' }]
         const onTaskAccounts = vi.fn()
         const onReady = vi.fn()
         const onObservation = vi.fn<(observation: WechatSyncDispatchObservation) => void>()
@@ -205,7 +205,7 @@ describe('post-distribution-wechatsync', () => {
                 renderMode: 'none',
                 contentProfile: 'default',
                 usesRawPost: true,
-                accountKeys: ['weibo'],
+                accountKeys: ['wechat'],
             },
         })
         expect(result.observation.events.map((event) => event.phase)).toEqual([
@@ -215,6 +215,121 @@ describe('post-distribution-wechatsync', () => {
             'resolved',
         ])
         expect(onObservation).toHaveBeenCalled()
+    })
+
+    it('uses a single-group profile payload when all selected accounts share the same compatibility group', async () => {
+        const materialBundle = { bundle: true } as unknown as DistributionMaterialBundle
+        const accounts = [{ id: 'weibo', type: 'weibo', title: '微博 B', checked: true }]
+        const taskAccounts: WechatSyncTaskAccount[] = [{ id: 'weibo', title: '微博 B', status: 'done' }]
+        const completionAccounts = [{ id: 'weibo', title: '微博 B', status: 'done' }]
+        const compatiblePost = {
+            title: 'weibo-post',
+            markdown: '**标题**',
+            content: '<p><strong>标题</strong></p>',
+            desc: 'summary',
+            thumb: '',
+        }
+
+        ;(materialBundle as DistributionMaterialBundle).channels = {
+            memos: { content: '' },
+            wechatsync: {
+                basePost: {
+                    title: 'raw-post',
+                    markdown: '# raw',
+                    content: '<p>raw</p>',
+                    desc: 'summary',
+                    thumb: '',
+                },
+                tagPlacement: 'before-copyright',
+            },
+        }
+
+        buildWechatSyncDispatchPostFromMaterialBundleMock.mockReturnValueOnce(compatiblePost)
+        shouldFinalizeWechatSyncStatusMock.mockReturnValue(true)
+        mapWechatSyncTaskAccountsForCompletionMock.mockReturnValue(completionAccounts)
+
+        const result = await runWechatSyncTask({
+            syncer: createSyncer({
+                addTask(payload, onStatus) {
+                    expect(payload).toEqual({
+                        post: compatiblePost,
+                        accounts,
+                    })
+                    onStatus({ accounts: taskAccounts })
+                },
+            }),
+            materialBundle,
+            accounts,
+            onTaskAccounts: vi.fn(),
+            onReady: vi.fn(),
+            resolveFailureMessage: () => 'unused',
+        })
+
+        expect(buildWechatSyncDispatchPostFromMaterialBundleMock).toHaveBeenCalledWith(materialBundle, {
+            renderMode: 'none',
+            contentProfile: 'weibo',
+        })
+        expect(result.observation).toMatchObject({
+            strategy: 'single_add_task_group_profile',
+            resolution: 'terminal_status',
+            payload: {
+                renderMode: 'none',
+                contentProfile: 'weibo',
+                usesRawPost: false,
+                accountKeys: ['weibo'],
+            },
+        })
+    })
+
+    it('falls back to the shared raw/default payload when selected accounts span multiple groups', async () => {
+        const materialBundle = {
+            channels: {
+                memos: { content: '' },
+                wechatsync: {
+                    basePost: {
+                        title: 'post',
+                        markdown: '# post',
+                        content: '<p>post</p>',
+                        desc: 'desc',
+                        thumb: '',
+                    },
+                    tagPlacement: 'before-copyright',
+                },
+            },
+        } as unknown as DistributionMaterialBundle
+        const accounts = [
+            { id: 'weibo', type: 'weibo', title: '微博 B', checked: true },
+            { id: 'xiaohongshu', type: 'xiaohongshu', title: '小红书 C', checked: true },
+        ]
+
+        shouldFinalizeWechatSyncStatusMock.mockReturnValue(true)
+        mapWechatSyncTaskAccountsForCompletionMock.mockReturnValue([
+            { id: 'weibo', title: '微博 B', status: 'done' },
+            { id: 'xiaohongshu', title: '小红书 C', status: 'done' },
+        ])
+
+        await runWechatSyncTask({
+            syncer: createSyncer({
+                addTask(_payload, onStatus) {
+                    onStatus({
+                        accounts: [
+                            { id: 'weibo', title: '微博 B', status: 'done' },
+                            { id: 'xiaohongshu', title: '小红书 C', status: 'done' },
+                        ],
+                    })
+                },
+            }),
+            materialBundle,
+            accounts,
+            onTaskAccounts: vi.fn(),
+            onReady: vi.fn(),
+            resolveFailureMessage: () => 'unused',
+        })
+
+        expect(buildWechatSyncDispatchPostFromMaterialBundleMock).toHaveBeenCalledWith(materialBundle, {
+            renderMode: 'none',
+            contentProfile: 'default',
+        })
     })
 
     it('waits for every selected account before resolving terminal status', async () => {

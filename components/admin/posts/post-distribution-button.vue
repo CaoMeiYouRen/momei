@@ -484,6 +484,7 @@ const props = withDefaults(defineProps<{
 })
 
 const runtimeConfig = useRuntimeConfig()
+const route = useRoute()
 const { t } = useI18n()
 const { formatDateTime } = useI18nDate()
 const { resolveErrorMessage, showErrorToast, showSuccessToast } = useRequestFeedback()
@@ -492,7 +493,7 @@ const expandedPreviewVisible = ref(false)
 const loading = ref(false)
 const memosSubmitting = ref(false)
 const wechatSyncSubmitting = ref(false)
-const finalizingWechatSync = ref(false)
+const distributionContextVersion = ref(0)
 const extensionInstalled = ref(false)
 const summary = ref<PostDistributionSummary | null>(null)
 const allAccounts = ref<WechatSyncAccount[]>([])
@@ -502,12 +503,70 @@ const memosMode = ref<PostDistributionMode>('update-existing')
 const wechatSyncMode = ref<PostDistributionMode>('update-existing')
 const fetchedPost = ref<Post | null>(null)
 const expandedPreview = ref<ExpandedDistributionPreview | null>(null)
+const finalizingWechatAttemptIds = new Set<string>()
 
-const postId = computed(() => props.post.id || '')
+function resolveRoutePostId() {
+    return typeof route.params.id === 'string' && route.params.id !== 'new'
+        ? route.params.id
+        : ''
+}
+
+function isDistributionSourcePost(post: Partial<Post> | Post | null | undefined): post is Post {
+    if (!post?.id) {
+        return false
+    }
+
+    return typeof post.content === 'string'
+}
+
+function captureDistributionContext() {
+    if (!postId.value) {
+        return null
+    }
+
+    return {
+        postId: postId.value,
+        version: distributionContextVersion.value,
+    }
+}
+
+function isActiveDistributionContext(context: ReturnType<typeof captureDistributionContext>) {
+    if (!context) {
+        return false
+    }
+
+    return context.version === distributionContextVersion.value
+        && context.postId === postId.value
+}
+
+const routePostId = computed(() => resolveRoutePostId())
+const liveDistributionPost = computed<Post | null>(() => {
+    if (!isDistributionSourcePost(props.post)) {
+        return null
+    }
+
+    if (routePostId.value && props.post.id !== routePostId.value) {
+        return null
+    }
+
+    return props.post
+})
+const cachedDistributionPost = computed<Post | null>(() => {
+    if (!fetchedPost.value) {
+        return null
+    }
+
+    if (routePostId.value && fetchedPost.value.id !== routePostId.value) {
+        return null
+    }
+
+    return fetchedPost.value
+})
+const postId = computed(() => routePostId.value || props.post.id || fetchedPost.value?.id || '')
 const selectedWechatAccounts = computed(() => allAccounts.value.filter((account) => account.checked))
 const distributionMaterialBundle = computed<DistributionMaterialBundle | null>(() => {
-    const sourcePost = fetchedPost.value || (props.post as Post)
-    if (!sourcePost?.id || typeof sourcePost.content !== 'string') {
+    const sourcePost = liveDistributionPost.value || cachedDistributionPost.value
+    if (!sourcePost) {
         return null
     }
     const siteUrl = runtimeConfig.public.siteUrl || (import.meta.client ? window.location.origin : '')
@@ -559,8 +618,14 @@ function openWechatSyncPreviewDialog(group: WechatSyncDistributionPreviewGroup) 
 }
 
 async function ensurePostDetail() {
-    if (fetchedPost.value || !postId.value) return
-    const response = await $fetch<ApiResponse<Post>>(`/api/posts/${postId.value}`)
+    const context = captureDistributionContext()
+    if (cachedDistributionPost.value || !context) return
+
+    const response = await $fetch<ApiResponse<Post>>(`/api/posts/${context.postId}`)
+    if (!isActiveDistributionContext(context)) {
+        return
+    }
+
     fetchedPost.value = response.data || null
 }
 
@@ -571,10 +636,16 @@ async function loadAccounts() {
 }
 
 async function loadSummary() {
-    if (!postId.value) return
+    const context = captureDistributionContext()
+    if (!context) return
+
     loading.value = true
     try {
-        const response = await $fetch<ApiResponse<PostDistributionSummary>>(`/api/admin/posts/${postId.value}/distribution`)
+        const response = await $fetch<ApiResponse<PostDistributionSummary>>(`/api/admin/posts/${context.postId}/distribution`)
+        if (!isActiveDistributionContext(context)) {
+            return
+        }
+
         summary.value = response.data || null
 
         if (summary.value?.channels.memos.lastMode) {
@@ -584,9 +655,13 @@ async function loadSummary() {
             wechatSyncMode.value = summary.value.channels.wechatsync.lastMode
         }
     } catch (error) {
-        showErrorToast(error, { fallbackKey: 'common.load_failed' })
+        if (isActiveDistributionContext(context)) {
+            showErrorToast(error, { fallbackKey: 'common.load_failed' })
+        }
     } finally {
-        loading.value = false
+        if (isActiveDistributionContext(context)) {
+            loading.value = false
+        }
     }
 }
 
@@ -596,10 +671,12 @@ async function openDialog() {
 }
 
 async function dispatchMemos(operation: 'sync' | 'retry') {
-    if (!postId.value) return
+    const context = captureDistributionContext()
+    if (!context) return
+
     memosSubmitting.value = true
     try {
-        await $fetch(`/api/admin/posts/${postId.value}/distribution`, {
+        await $fetch(`/api/admin/posts/${context.postId}/distribution`, {
             method: 'POST',
             body: {
                 channel: 'memos',
@@ -608,11 +685,17 @@ async function dispatchMemos(operation: 'sync' | 'retry') {
             },
         })
         await loadSummary()
-        showSuccessToast('pages.admin.posts.distribution.memos_success')
+        if (isActiveDistributionContext(context)) {
+            showSuccessToast('pages.admin.posts.distribution.memos_success')
+        }
     } catch (error) {
-        showErrorToast(error, { fallbackKey: 'pages.admin.posts.distribution.dispatch_failed' })
+        if (isActiveDistributionContext(context)) {
+            showErrorToast(error, { fallbackKey: 'pages.admin.posts.distribution.dispatch_failed' })
+        }
     } finally {
-        memosSubmitting.value = false
+        if (isActiveDistributionContext(context)) {
+            memosSubmitting.value = false
+        }
     }
 }
 
@@ -625,7 +708,10 @@ function syncLocalWechatTaskAccounts(accounts: readonly WechatSyncTaskAccount[])
 async function buildWechatSyncMaterialBundle() {
     await ensurePostDetail()
     if (distributionMaterialBundle.value) return distributionMaterialBundle.value
-    const sourcePost = fetchedPost.value || (props.post as Post)
+    const sourcePost = liveDistributionPost.value || cachedDistributionPost.value
+    if (!sourcePost) {
+        throw new Error(t('common.load_failed'))
+    }
     return buildFallbackDistributionMaterialBundle(
         sourcePost,
         runtimeConfig.public.siteUrl || window.location.origin,
@@ -650,32 +736,45 @@ function reportWechatSyncObservation(observation: WechatSyncDispatchObservation)
 }
 
 async function finalizeWechatSync(
+    target: {
+        postId: string
+        attemptId: string | null
+        context: ReturnType<typeof captureDistributionContext>
+    },
     accounts: WechatSyncCompletionAccount[],
     observation?: WechatSyncDispatchObservation | null,
 ) {
-    if (!postId.value || !activeWechatAttemptId.value || finalizingWechatSync.value) return
-    finalizingWechatSync.value = true
+    if (!target.postId || !target.attemptId || finalizingWechatAttemptIds.has(target.attemptId)) return
+    finalizingWechatAttemptIds.add(target.attemptId)
     try {
-        await $fetch(`/api/admin/posts/${postId.value}/distribution/wechatsync-complete`, {
+        await $fetch(`/api/admin/posts/${target.postId}/distribution/wechatsync-complete`, {
             method: 'POST',
             body: {
-                attemptId: activeWechatAttemptId.value,
+                attemptId: target.attemptId,
                 accounts,
                 observation: observation || undefined,
             },
         })
-        await loadSummary()
-        showSuccessToast('pages.admin.posts.distribution.wechatsync_success')
+        if (isActiveDistributionContext(target.context)) {
+            await loadSummary()
+            showSuccessToast('pages.admin.posts.distribution.wechatsync_success')
+        }
     } catch (error) {
-        showErrorToast(error, { fallbackKey: 'pages.admin.posts.distribution.dispatch_failed' })
+        if (isActiveDistributionContext(target.context)) {
+            showErrorToast(error, { fallbackKey: 'pages.admin.posts.distribution.dispatch_failed' })
+        }
     } finally {
-        activeWechatAttemptId.value = null
-        finalizingWechatSync.value = false
+        if (isActiveDistributionContext(target.context) && activeWechatAttemptId.value === target.attemptId) {
+            activeWechatAttemptId.value = null
+        }
+        finalizingWechatAttemptIds.delete(target.attemptId)
     }
 }
 
 async function dispatchWechatSync(operation: 'sync' | 'retry') {
-    if (!postId.value || !selectedWechatAccounts.value.length) return
+    const context = captureDistributionContext()
+    if (!context || !selectedWechatAccounts.value.length) return
+
     const syncer = resolveSyncer()
     if (!syncer?.addTask) {
         showErrorToast(new Error(t('pages.admin.posts.distribution.extension_missing')), {
@@ -688,11 +787,12 @@ async function dispatchWechatSync(operation: 'sync' | 'retry') {
     const selectedAccountsSnapshot = selectedWechatAccounts.value.map((account) => ({ ...account }))
     let completionAccounts: WechatSyncCompletionAccount[] = []
     let dispatchObservation: WechatSyncDispatchObservation | null = null
+    let dispatchAttemptId: string | null = null
 
     try {
         const materialBundle = await buildWechatSyncMaterialBundle()
 
-        const response = await $fetch<ApiResponse<{ attemptId?: string | null }>>(`/api/admin/posts/${postId.value}/distribution`, {
+        const response = await $fetch<ApiResponse<{ attemptId?: string | null }>>(`/api/admin/posts/${context.postId}/distribution`, {
             method: 'POST',
             body: {
                 channel: 'wechatsync',
@@ -701,22 +801,37 @@ async function dispatchWechatSync(operation: 'sync' | 'retry') {
             },
         })
 
-        activeWechatAttemptId.value = response.data?.attemptId || null
-        localWechatTaskStatus.value = {
-            accounts: buildPendingWechatSyncTaskAccounts(selectedAccountsSnapshot),
+        dispatchAttemptId = response.data?.attemptId || null
+        if (isActiveDistributionContext(context)) {
+            activeWechatAttemptId.value = dispatchAttemptId
+            localWechatTaskStatus.value = {
+                accounts: buildPendingWechatSyncTaskAccounts(selectedAccountsSnapshot),
+            }
         }
 
         const taskResult = await runWechatSyncTask({
             syncer,
             materialBundle,
             accounts: selectedAccountsSnapshot,
-            onTaskAccounts: syncLocalWechatTaskAccounts,
+            onTaskAccounts: (accounts) => {
+                if (!isActiveDistributionContext(context)) {
+                    return
+                }
+
+                syncLocalWechatTaskAccounts(accounts)
+            },
             onReady: () => {
+                if (!isActiveDistributionContext(context)) {
+                    return
+                }
+
                 void loadSummary()
             },
             onObservation: (observation) => {
                 dispatchObservation = observation
-                reportWechatSyncObservation(observation)
+                if (isActiveDistributionContext(context)) {
+                    reportWechatSyncObservation(observation)
+                }
             },
             resolveFailureMessage: (error) => resolveErrorMessage(error, {
                 fallbackKey: 'pages.admin.posts.distribution.dispatch_failed',
@@ -726,16 +841,20 @@ async function dispatchWechatSync(operation: 'sync' | 'retry') {
         completionAccounts = taskResult.completionAccounts
         dispatchObservation = taskResult.observation
 
-        if (completionAccounts.some((account) => account.status === 'failed')) {
+        if (completionAccounts.some((account) => account.status === 'failed') && isActiveDistributionContext(context)) {
             syncLocalWechatTaskAccounts(mapCompletionAccountsToTaskAccounts(completionAccounts))
         }
 
-        await finalizeWechatSync(completionAccounts, dispatchObservation)
+        await finalizeWechatSync({
+            postId: context.postId,
+            attemptId: dispatchAttemptId,
+            context,
+        }, completionAccounts, dispatchObservation)
     } catch (error) {
         const completedAccountKeys = new Set(completionAccounts.map((account) => resolveWechatSyncCompletionAccountKey(account)))
         const remainingAccounts = selectedAccountsSnapshot.filter((account) => !completedAccountKeys.has(account.id || account.type || account.title))
 
-        if (remainingAccounts.length && activeWechatAttemptId.value) {
+        if (remainingAccounts.length && dispatchAttemptId) {
             const failureResults = buildWechatSyncFailureResults(
                 remainingAccounts,
                 resolveErrorMessage(error, {
@@ -743,35 +862,55 @@ async function dispatchWechatSync(operation: 'sync' | 'retry') {
                 }),
             )
             completionAccounts = mergeWechatSyncCompletionAccounts(completionAccounts, failureResults)
-            syncLocalWechatTaskAccounts(mapCompletionAccountsToTaskAccounts(failureResults))
-            await finalizeWechatSync(completionAccounts, dispatchObservation)
+            if (isActiveDistributionContext(context)) {
+                syncLocalWechatTaskAccounts(mapCompletionAccountsToTaskAccounts(failureResults))
+            }
+            await finalizeWechatSync({
+                postId: context.postId,
+                attemptId: dispatchAttemptId,
+                context,
+            }, completionAccounts, dispatchObservation)
         } else {
-            showErrorToast(error, { fallbackKey: 'pages.admin.posts.distribution.dispatch_failed' })
+            if (isActiveDistributionContext(context)) {
+                showErrorToast(error, { fallbackKey: 'pages.admin.posts.distribution.dispatch_failed' })
+            }
         }
     } finally {
-        wechatSyncSubmitting.value = false
+        if (isActiveDistributionContext(context)) {
+            wechatSyncSubmitting.value = false
+        }
     }
 }
 
 async function terminateWechatSync() {
-    if (!postId.value) return
+    const context = captureDistributionContext()
+    if (!context) return
+
     wechatSyncSubmitting.value = true
     try {
-        await $fetch(`/api/admin/posts/${postId.value}/distribution`, {
+        await $fetch(`/api/admin/posts/${context.postId}/distribution`, {
             method: 'POST',
             body: {
                 channel: 'wechatsync',
                 operation: 'terminate',
             },
         })
-        localWechatTaskStatus.value = null
-        activeWechatAttemptId.value = null
+        if (isActiveDistributionContext(context)) {
+            localWechatTaskStatus.value = null
+            activeWechatAttemptId.value = null
+        }
         await loadSummary()
-        showSuccessToast('pages.admin.posts.distribution.terminate_success')
+        if (isActiveDistributionContext(context)) {
+            showSuccessToast('pages.admin.posts.distribution.terminate_success')
+        }
     } catch (error) {
-        showErrorToast(error, { fallbackKey: 'pages.admin.posts.distribution.dispatch_failed' })
+        if (isActiveDistributionContext(context)) {
+            showErrorToast(error, { fallbackKey: 'pages.admin.posts.distribution.dispatch_failed' })
+        }
     } finally {
-        wechatSyncSubmitting.value = false
+        if (isActiveDistributionContext(context)) {
+            wechatSyncSubmitting.value = false
+        }
     }
 }
 
@@ -784,6 +923,23 @@ watch(dialogVisible, (visible) => {
         resetTaskStatus()
         closeExpandedPreview()
     }
+})
+
+watch(routePostId, (nextRoutePostId, previousRoutePostId) => {
+    if (nextRoutePostId === previousRoutePostId) {
+        return
+    }
+
+    distributionContextVersion.value += 1
+    loading.value = false
+    memosSubmitting.value = false
+    wechatSyncSubmitting.value = false
+    fetchedPost.value = null
+    summary.value = null
+    localWechatTaskStatus.value = null
+    activeWechatAttemptId.value = null
+    dialogVisible.value = false
+    closeExpandedPreview()
 })
 
 watch(expandedPreviewVisible, (visible) => {

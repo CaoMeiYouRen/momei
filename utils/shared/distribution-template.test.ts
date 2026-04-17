@@ -95,14 +95,18 @@ describe('distribution-template', () => {
             contentProfile: 'weibo',
         })
 
-        expect(compatibility.adjustments).toEqual(expect.arrayContaining(['blockquote', 'code', 'figure', 'heading-anchor', 'divider']))
+        expect(compatibility.adjustments).toEqual(expect.arrayContaining(['heading', 'blockquote', 'code', 'figure', 'heading-anchor', 'divider']))
         expect(compatibility.blockers).toEqual([])
         expect(weiboPost.markdown).not.toContain('<figure')
+        expect(weiboPost.markdown).toContain('**标题**')
+        expect(weiboPost.markdown).not.toContain('## 标题')
         expect(weiboPost.markdown).not.toContain('`inline-code`')
         expect(weiboPost.markdown).not.toContain('----------')
         expect(weiboPost.content).not.toContain('<blockquote')
+        expect(weiboPost.content).not.toContain('<h2')
         expect(weiboPost.content).not.toContain('header-anchor')
         expect(weiboPost.content).toContain('<img')
+        expect(weiboPost.content).toContain('<strong>标题</strong>')
     })
 
     it('omits explicit markdown when dispatching weibo-compatible payloads', () => {
@@ -125,7 +129,8 @@ describe('distribution-template', () => {
 
         expect(weiboDispatchPost.markdown).toBeUndefined()
         expect(weiboDispatchPost.content).not.toContain('----------')
-        expect(weiboDispatchPost.content).toContain('<h2')
+        expect(weiboDispatchPost.content).not.toContain('<h2')
+        expect(weiboDispatchPost.content).toContain('<strong>标题</strong>')
         expect(defaultDispatchPost.markdown).toContain('#')
     })
 

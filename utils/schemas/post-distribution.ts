@@ -35,11 +35,11 @@ const wechatSyncDispatchObservationEventSchema = z.object({
 })
 
 const wechatSyncDispatchObservationSchema = z.object({
-    strategy: z.literal('single_add_task_default_raw'),
+    strategy: z.enum(['single_add_task_default_raw', 'single_add_task_group_profile']),
     resolution: z.enum(['terminal_status', 'start_error', 'timeout_incomplete_status']).nullable().optional(),
     payload: z.object({
-        renderMode: z.literal('none'),
-        contentProfile: z.literal('default'),
+        renderMode: z.enum(['leading', 'wrapped', 'none']),
+        contentProfile: z.enum(['default', 'weibo', 'xiaohongshu']),
         usesRawPost: z.boolean(),
         markdownLength: z.number().int().min(0).max(5_000_000),
         contentLength: z.number().int().min(0).max(5_000_000),
