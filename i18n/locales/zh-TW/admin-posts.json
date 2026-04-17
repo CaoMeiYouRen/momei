@@ -91,6 +91,11 @@
                 "cover_column": "封面",
                 "cover_image": "封面圖 URL",
                 "create": "建立文章",
+                "floating_actions": {
+                    "leave_confirm": "此頁面仍有尚未儲存的變更，確定要離開嗎？",
+                    "saved": "目前內容已儲存",
+                    "unsaved": "仍有尚未儲存的變更"
+                },
                 "distribution": {
                     "action": {
                         "create": "首次建立",

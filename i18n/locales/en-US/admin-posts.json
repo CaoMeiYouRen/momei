@@ -2,6 +2,11 @@
     "pages": {
         "admin": {
             "posts": {
+                "floating_actions": {
+                    "leave_confirm": "You have unsaved changes on this page. Are you sure you want to leave?",
+                    "saved": "All changes are saved",
+                    "unsaved": "You have unsaved changes"
+                },
                 "title": "Post Management",
                 "distribution": {
                     "preview": {

@@ -91,6 +91,11 @@
                 "cover_column": "커버",
                 "cover_image": "커버 이미지 URL",
                 "create": "새 게시글",
+                "floating_actions": {
+                    "leave_confirm": "이 페이지에 아직 저장되지 않은 변경 사항이 있습니다. 그래도 나가시겠습니까?",
+                    "saved": "현재 변경 사항이 저장되었습니다",
+                    "unsaved": "저장되지 않은 변경 사항이 있습니다"
+                },
                 "distribution": {
                     "action": {
                         "create": "새로 생성",

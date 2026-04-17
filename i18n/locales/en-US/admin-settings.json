@@ -3,6 +3,11 @@
         "admin": {
             "settings": {
                 "system": {
+                    "floating_actions": {
+                        "leave_confirm": "You have unsaved changes on this page. Are you sure you want to leave?",
+                        "saved": "All changes are saved",
+                        "unsaved": "You have unsaved changes"
+                    },
                     "fields": {
                         "external_feed_cache_ttl_seconds": "External feed cache TTL",
                         "external_feed_enabled": "Enable external feed aggregation",

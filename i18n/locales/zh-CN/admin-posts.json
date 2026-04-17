@@ -91,6 +91,11 @@
                 "cover_column": "封面",
                 "cover_image": "封面图 URL",
                 "create": "新建文章",
+                "floating_actions": {
+                    "leave_confirm": "当前页面仍有未保存的更改，确定要离开吗？",
+                    "saved": "当前内容已保存",
+                    "unsaved": "存在未保存的更改"
+                },
                 "distribution": {
                     "action": {
                         "create": "首次创建",

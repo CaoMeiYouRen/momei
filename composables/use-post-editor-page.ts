@@ -327,7 +327,7 @@ export function usePostEditorPage() {
     const { syncSavedSnapshot } = usePostEditorDirtyState({
         post,
         saving,
-        leaveMessage: computed(() => t('pages.admin.settings.system.floating_actions.leave_confirm')),
+        leaveMessage: computed(() => t('pages.admin.posts.floating_actions.leave_confirm')),
     })
 
     const handlePreview = () => openPostPreview(isNew.value, post, localePath)

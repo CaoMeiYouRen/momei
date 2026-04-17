@@ -91,6 +91,11 @@
                 "cover_column": "カバー",
                 "cover_image": "カバー画像 URL",
                 "create": "新規記事",
+                "floating_actions": {
+                    "leave_confirm": "このページには未保存の変更があります。離れてもよろしいですか？",
+                    "saved": "現在の内容は保存済みです",
+                    "unsaved": "未保存の変更があります"
+                },
                 "distribution": {
                     "action": {
                         "create": "初回作成",
