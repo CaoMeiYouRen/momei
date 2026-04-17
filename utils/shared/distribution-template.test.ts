@@ -63,6 +63,23 @@ describe('distribution-template', () => {
         expect(leadingWechatPost.markdown).toContain('#Nuxt #Vue')
     })
 
+    it('builds the shared raw/default wechatsync payload with copyright but without tag tailing', () => {
+        const materialBundle = buildDistributionMaterialBundle(post, {
+            siteUrl: 'https://momei.app',
+            defaultLicense: 'all-rights-reserved',
+        })
+
+        const rawWechatPost = buildWechatSyncPostFromMaterialBundle(materialBundle, {
+            renderMode: 'none',
+            contentProfile: 'default',
+        })
+
+        expect(rawWechatPost.markdown).toContain('## Heading')
+        expect(rawWechatPost.markdown).toContain('版权声明')
+        expect(rawWechatPost.markdown).not.toContain('#Nuxt #Vue')
+        expect(rawWechatPost.content).toContain('版权声明')
+    })
+
     it('downgrades weibo content into a compatible payload', () => {
         const materialBundle = buildDistributionMaterialBundle({
             ...post,

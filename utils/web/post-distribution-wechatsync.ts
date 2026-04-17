@@ -1,6 +1,7 @@
 import type { Post } from '@/types/post'
 import {
     buildDistributionMaterialBundle,
+    buildWechatSyncPostFromMaterialBundle,
     type DistributionMaterialBundle,
 } from '@/utils/shared/distribution-template'
 import {
@@ -110,7 +111,11 @@ function resolveWechatSyncStatusSyncId(status: Record<string, unknown>) {
 }
 
 function buildWechatSyncDispatchObservation(
-    materialBundle: DistributionMaterialBundle,
+    postToSync: {
+        markdown?: string
+        content: string
+        desc: string
+    },
     accounts: readonly WechatSyncAccount[],
 ): WechatSyncDispatchObservation {
     return {
@@ -120,9 +125,9 @@ function buildWechatSyncDispatchObservation(
             renderMode: 'none',
             contentProfile: 'default',
             usesRawPost: true,
-            markdownLength: materialBundle.channels.wechatsync.basePost.markdown?.length || 0,
-            contentLength: materialBundle.channels.wechatsync.basePost.content.length,
-            descLength: materialBundle.channels.wechatsync.basePost.desc.length,
+            markdownLength: postToSync.markdown?.length || 0,
+            contentLength: postToSync.content.length,
+            descLength: postToSync.desc.length,
             accountKeys: accounts.map((account) => resolveWechatSyncObservationAccountKey(account)),
         },
         readyEventCount: 0,
@@ -258,8 +263,11 @@ export async function runWechatSyncTask({
         completionAccounts: WechatSyncCompletionAccount[]
         observation: WechatSyncDispatchObservation
     }>((resolve) => {
-        const postToSync = materialBundle.channels.wechatsync.basePost
-        const observation = buildWechatSyncDispatchObservation(materialBundle, accounts)
+        const postToSync = buildWechatSyncPostFromMaterialBundle(materialBundle, {
+            renderMode: 'none',
+            contentProfile: 'default',
+        })
+        const observation = buildWechatSyncDispatchObservation(postToSync, accounts)
         let settled = false
         let latestTaskAccounts: WechatSyncTaskAccount[] = []
         let statusInactivityTimer: ReturnType<typeof setTimeout> | null = null

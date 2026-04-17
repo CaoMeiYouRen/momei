@@ -61,13 +61,18 @@ describe('post-distribution-preview', () => {
         expect(bilibiliPreview).toBeTruthy()
         expect(bilibiliPreview?.accountsLabel).toBe('B 站专栏')
         expect(bilibiliPreview?.tagLine).toBe('')
-        expect(bilibiliPreview?.copyrightMarkdown).toBe('')
-        expect(bilibiliPreview?.finalMarkdown).toBe(post.content)
+        expect(bilibiliPreview?.bodyMarkdown).toBe(post.content)
+        expect(bilibiliPreview?.copyrightMarkdown).toBe(materialBundle.canonical.copyrightMarkdown)
+        expect(bilibiliPreview?.finalMarkdown).toContain(post.content)
+        expect(bilibiliPreview?.finalMarkdown).toContain(materialBundle.canonical.copyrightMarkdown)
+        expect(bilibiliPreview?.finalMarkdown).not.toContain('#Nuxt #Vue')
 
         expect(weiboPreview).toBeTruthy()
         expect(weiboPreview?.accountsLabel).toBe('微博专栏')
         expect(weiboPreview?.tagLine).toBe('')
-        expect(weiboPreview?.finalMarkdown).toBe(post.content)
+        expect(weiboPreview?.copyrightMarkdown).toBe(materialBundle.canonical.copyrightMarkdown)
+        expect(weiboPreview?.finalMarkdown).toContain(materialBundle.canonical.copyrightMarkdown)
+        expect(weiboPreview?.finalMarkdown).not.toContain('#Nuxt #Vue')
         expect(weiboPreview?.compatibility.adjustments).toEqual(
             expect.arrayContaining(['blockquote', 'figure', 'heading-anchor', 'divider']),
         )
@@ -75,7 +80,9 @@ describe('post-distribution-preview', () => {
         expect(xiaohongshuPreview).toBeTruthy()
         expect(xiaohongshuPreview?.accountsLabel).toBe('小红书专栏')
         expect(xiaohongshuPreview?.tagLine).toBe('')
-        expect(xiaohongshuPreview?.finalMarkdown).toBe(post.content)
+        expect(xiaohongshuPreview?.copyrightMarkdown).toBe(materialBundle.canonical.copyrightMarkdown)
+        expect(xiaohongshuPreview?.finalMarkdown).toContain(materialBundle.canonical.copyrightMarkdown)
+        expect(xiaohongshuPreview?.finalMarkdown).not.toContain('#Nuxt #Vue')
         expect(xiaohongshuPreview?.compatibility.adjustments).toEqual(
             expect.arrayContaining(['heading-anchor']),
         )

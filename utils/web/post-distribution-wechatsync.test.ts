@@ -19,6 +19,7 @@ import {
 
 const {
     buildDistributionMaterialBundleMock,
+    buildWechatSyncPostFromMaterialBundleMock,
     buildWechatSyncFailureResultsMock,
     mapWechatSyncTaskAccountsForCompletionMock,
     mergeWechatSyncCompletionAccountsMock,
@@ -27,6 +28,7 @@ const {
     shouldFinalizeWechatSyncStatusMock,
 } = vi.hoisted(() => ({
     buildDistributionMaterialBundleMock: vi.fn(),
+    buildWechatSyncPostFromMaterialBundleMock: vi.fn(),
     buildWechatSyncFailureResultsMock: vi.fn(),
     mapWechatSyncTaskAccountsForCompletionMock: vi.fn(),
     mergeWechatSyncCompletionAccountsMock: vi.fn(),
@@ -37,6 +39,7 @@ const {
 
 vi.mock('@/utils/shared/distribution-template', () => ({
     buildDistributionMaterialBundle: buildDistributionMaterialBundleMock,
+    buildWechatSyncPostFromMaterialBundle: buildWechatSyncPostFromMaterialBundleMock,
 }))
 
 vi.mock('@/utils/shared/wechatsync', () => ({
@@ -64,6 +67,7 @@ describe('post-distribution-wechatsync', () => {
 
     beforeEach(() => {
         vi.clearAllMocks()
+        buildWechatSyncPostFromMaterialBundleMock.mockImplementation((materialBundle: DistributionMaterialBundle) => materialBundle.channels.wechatsync.basePost)
         mergeWechatSyncTaskAccountsMock.mockImplementation((currentAccounts: WechatSyncTaskAccount[], nextAccounts: WechatSyncTaskAccount[]) => {
             const mergedAccounts = new Map<string, WechatSyncTaskAccount>()
 
