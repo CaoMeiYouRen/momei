@@ -29,20 +29,18 @@ const {
     mockGetAITask: vi.fn(),
 }))
 
-vi.mock('../lib/api', () => {
-    return {
-        MomeiApi: class {
-            getPost = mockGetPost
-            suggestTitles = mockSuggestTitles
-            recommendTags = mockRecommendTags
-            recommendCategories = mockRecommendCategories
-            translatePost = mockTranslatePost
-            generateCoverImage = mockGenerateCoverImage
-            createTTSTask = mockCreateTTSTask
-            getAITask = mockGetAITask
-        },
-    }
-})
+vi.mock('../lib/api', () => ({
+    MomeiApi: class {
+        getPost = mockGetPost
+        suggestTitles = mockSuggestTitles
+        recommendTags = mockRecommendTags
+        recommendCategories = mockRecommendCategories
+        translatePost = mockTranslatePost
+        generateCoverImage = mockGenerateCoverImage
+        createTTSTask = mockCreateTTSTask
+        getAITask = mockGetAITask
+    },
+}))
 
 function getRegisteredHandler(registerSpy: ReturnType<typeof vi.spyOn>, toolName: string): ToolHandler {
     let toolRegistration: [string, unknown, ToolHandler] | undefined

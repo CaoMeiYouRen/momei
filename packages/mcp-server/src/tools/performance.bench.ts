@@ -10,10 +10,10 @@ describe('MomeiApi Performance', () => {
     })
 
     // Mock global fetch for controlled benchmarking
-    globalThis.fetch = ((url: string, options: RequestInit) => {
+    globalThis.fetch = ((url: string, options: RequestInit) =>
         // Simulate a small delay for network-like behavior
         // await new Promise(resolve => setTimeout(resolve, 10));
-        return Promise.resolve({
+        Promise.resolve({
             ok: true,
             status: 200,
             json: () => Promise.resolve({
@@ -28,7 +28,7 @@ describe('MomeiApi Performance', () => {
                 message: 'Success',
             }),
         } as Response)
-    }) as any
+    ) as any
 
     bench('listPosts performance', async () => {
         await api.listPosts({ page: 1, limit: 10 })

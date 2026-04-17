@@ -3,18 +3,16 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { registerPostTools } from './posts'
 
 // Mock MomeiApi
-vi.mock('../lib/api', () => {
-    return {
-        MomeiApi: class {
-            listPosts = vi.fn()
-            getPost = vi.fn()
-            createPost = vi.fn()
-            updatePost = vi.fn()
-            publishPost = vi.fn()
-            deletePost = vi.fn()
-        },
-    }
-})
+vi.mock('../lib/api', () => ({
+    MomeiApi: class {
+        listPosts = vi.fn()
+        getPost = vi.fn()
+        createPost = vi.fn()
+        updatePost = vi.fn()
+        publishPost = vi.fn()
+        deletePost = vi.fn()
+    },
+}))
 
 describe('Post Tools Registration', () => {
     let server: McpServer
