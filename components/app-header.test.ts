@@ -23,7 +23,10 @@ vi.mock('@/i18n/config/locale-runtime-loader', async (importOriginal) => {
 
     return {
         ...actual,
-        ensureLocaleMessageModules: mockEnsureLocaleMessageModules,
+        ensureLocaleMessageModules: vi.fn(async (options) => {
+            mockEnsureLocaleMessageModules(options)
+            return actual.ensureLocaleMessageModules(options)
+        }),
     }
 })
 
@@ -123,6 +126,10 @@ describe('AppHeader', () => {
             global: { stubs },
         })
 
+        await vi.waitFor(() => {
+            expect(wrapper.find('#desktop-admin-posts-link').exists()).toBe(true)
+        })
+
         expect(wrapper.find('#user-menu-btn').attributes('icon')).toBe('pi pi-user')
         expect(wrapper.find('#desktop-admin-posts-link').exists()).toBe(true)
         expect(wrapper.find('#admin-posts-shortcut').exists()).toBe(true)
@@ -134,6 +141,8 @@ describe('AppHeader', () => {
                 modules: ['admin'],
             }),
         )
+        expect(wrapper.text()).toContain('文章管理')
+        expect(wrapper.text()).not.toContain('pages.admin.posts.title')
     })
 
     it('shows post shortcuts for author role', async () => {
@@ -148,10 +157,16 @@ describe('AppHeader', () => {
             global: { stubs },
         })
 
+        await vi.waitFor(() => {
+            expect(wrapper.find('#desktop-admin-posts-link').exists()).toBe(true)
+        })
+
         expect(wrapper.find('#desktop-admin-posts-link').exists()).toBe(true)
         expect(wrapper.find('#admin-posts-shortcut').exists()).toBe(true)
         expect(wrapper.find('#mobile-admin-posts-btn').exists()).toBe(true)
         expect(wrapper.find('#admin-menu-btn').exists()).toBe(true)
+        expect(wrapper.text()).toContain('文章管理')
+        expect(wrapper.text()).not.toContain('pages.admin.posts.title')
     })
 
     it('renders admin posts link after travellings in desktop nav', async () => {
@@ -164,6 +179,10 @@ describe('AppHeader', () => {
 
         const wrapper = await mountSuspended(AppHeader, {
             global: { stubs },
+        })
+
+        await vi.waitFor(() => {
+            expect(wrapper.find('#desktop-admin-posts-link').exists()).toBe(true)
         })
 
         const navHtml = wrapper.find('.app-header__nav').html()

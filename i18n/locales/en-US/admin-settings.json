@@ -2,6 +2,11 @@
     "pages": {
         "admin": {
             "settings": {
+                "commercial": {
+                    "global_donation_desc": "Configure the site-wide default donation links used when an author does not provide their own.",
+                    "global_social_desc": "Configure the site-wide default social links used when an author does not provide their own.",
+                    "global_toggle_desc": "Enable or disable site-wide sponsorship and donation features. When enabled, sponsor buttons follow the author-specific or global configuration."
+                },
                 "system": {
                     "floating_actions": {
                         "leave_confirm": "You have unsaved changes on this page. Are you sure you want to leave?",

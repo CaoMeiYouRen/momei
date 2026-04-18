@@ -12,7 +12,7 @@
 | `security` | `pnpm security:audit-deps` / `pnpm security:audit-deps:daily` / `pnpm security:alerts` | allowlist / exceptions、最小严重级别、可选快照输入 | High+ 风险结论；JSON / Markdown 证据落盘 | `audit-deps` 默认按 high+ 阻断；`audit-deps:daily` 产出每日结构化摘要并供调度入口消费；本地会尝试补装 `.env` 中的 token，但不会覆盖已显式传入变量 | 正式入口 |
 | `testing` | `pnpm test:e2e:critical` / `pnpm test:e2e:review-gate --scope=<change>` / `pnpm test:e2e` | Playwright 额外参数、scope、可选 `--keep-auth-state` | Playwright 控制台结果；Review Gate run 目录下的 `evidence.md`、`manifest.json`、HTML 报告与失败附件 | 先跑 `critical`，只有范围扩大时才升级到全量；`review-gate` 会清理过期登录态并落盘结构化证据 | 正式入口 |
 | `docs` | `pnpm docs:check:i18n` / `pnpm docs:check:source-of-truth` | 无；默认扫描 `docs/` 与翻译目录 | 重复翻译页 / 事实源漂移结论 | 只读检查，不修改文档；适合文档 PR 和阶段归档前的最低门禁 | 正式入口 |
-| `i18n` | `pnpm i18n:audit` / `pnpm i18n:check-sync` | 可选 CLI 参数或手工指定 locale 文件 | locale key 缺口、同步偏差、拆分治理依据 | 审计类入口默认只读；`split-locale-files.mjs` 属于治理型脚本，应按专项文档手工执行，不作为日常入口 | 正式入口 |
+| `i18n` | `pnpm i18n:audit` / `pnpm i18n:check-sync` / `pnpm i18n:audit:duplicates` / `pnpm i18n:verify:runtime` | 可选 CLI 参数、locale / module 过滤器、`--output` | locale key 缺口、同步偏差、跨语言重复文案候选、高频运行时回归 | 审计类入口默认只读；`split-locale-files.mjs` 属于治理型脚本，应按专项文档手工执行，不作为日常入口 | 正式入口 |
 | `setup` | `pnpm setup:ai` / `pnpm web-push:generate-vapid` | worktree / 软链接上下文；可选 `--subject`、`--json` | AI 工作树链接同步结果；VAPID 公私钥 | 会产生本地副作用；执行前确认目标环境与路径 | 正式入口 |
 | `hooks` | `scripts/hooks/*.ps1` | 当前机器的 Hook 宿主、Git / pnpm 环境 | 本地日志、lint 副作用、会话摘要 | 仅限本地手工脚本，不纳入 CI / 团队通用入口；若后续退役应优先清理 | 本地实验 |
 
@@ -26,7 +26,7 @@
 | `scripts/review-gate/` | `generate-evidence.mjs`、`check-duplicate-code.mjs` | `pnpm review-gate:generate`、`pnpm review-gate:generate:check`、`pnpm duplicate-code:check` | 生成 Review Gate 证据，或对重复代码输出 JSON / Markdown 审计结果 | 保留 |
 | `scripts/security/` | `check-dependency-risk.mjs`、`run-daily-dependency-audit.mjs`、`check-github-security-alerts.mjs` | `pnpm security:audit-deps`、`pnpm security:audit-deps:daily`、`pnpm security:alerts`、`.github/workflows/release.yml`、`.github/workflows/dependency-risk-daily.yml` | 读取 `pnpm audit` 官方审计结果并按白名单执行 high+ 发版门禁；每日巡检包装脚本会产出三态摘要并供调度入口上传 artifact / 触发告警；优先接入 GitHub Dependabot / Code Scanning 告警并在权限不足时显式回退 | 保留 |
 | `scripts/docs/` | `check-i18n-duplicates.mjs`、`check-source-of-truth.mjs` | `pnpm docs:check:i18n`、`pnpm docs:check:source-of-truth` | 只读检查文档重复、翻译同步与事实源一致性 | 保留 |
-| `scripts/i18n/` | `audit-locale-keys.mjs`、`split-locale-files.mjs` | `pnpm i18n:audit`；设计 / 翻译治理文档中的手工命令 | 审计 locale key、拆分翻译文件 | 保留 |
+| `scripts/i18n/` | `audit-locale-keys.mjs`、`audit-duplicate-messages.mjs`、`split-locale-files.mjs` | `pnpm i18n:audit`、`pnpm i18n:audit:duplicates`；设计 / 翻译治理文档中的手工命令 | 审计 locale key、跨语言重复文案候选、拆分翻译文件 | 保留 |
 | `scripts/testing/` | `run-e2e.mjs`、`run-e2e-critical.mjs`、`run-review-gate-ui-baseline.mjs` | `pnpm test:e2e`、`pnpm test:e2e:critical`、`pnpm test:e2e:review-gate` | 检查 `.output` 新鲜度、执行 Playwright 最小关键路径基线，并在 Review Gate 场景下沉淀按运行目录隔离的日志 / 报告 / 失败附件 | 保留 |
 | `scripts/perf/` | `check-bundle-budget.mjs` | `pnpm test:perf:budget`、`pnpm test:perf:budget:strict`、`.github/workflows/test.yml` | 读取 Lighthouse / bundle 输出并给出预算结论 | 保留 |
 | `scripts/setup/` | `generate-web-push-vapid.mjs`、`setup-ai.mjs` | `pnpm web-push:generate-vapid`；`pnpm setup:ai` | 生成 VAPID 密钥；批量同步 worktree 内 AI 目录链接 | `generate-web-push-vapid.mjs` 保留；`setup-ai.mjs` 作为跨平台正式入口 |
@@ -50,6 +50,8 @@ pnpm security:alerts
 pnpm docs:check:i18n
 pnpm docs:check:source-of-truth
 pnpm i18n:audit
+pnpm i18n:audit:duplicates
+pnpm i18n:verify:runtime
 pnpm test:e2e
 pnpm test:e2e:critical
 pnpm test:e2e:review-gate --scope=auth-session
