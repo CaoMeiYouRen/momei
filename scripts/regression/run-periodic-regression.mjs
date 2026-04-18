@@ -7,7 +7,7 @@ import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..', '..')
-const regressionLogPath = path.join(repoRoot, 'docs', 'plan', 'regression-log.md')
+const regressionLogPath = path.join(repoRoot, 'docs', 'reports', 'regression', 'current.md')
 const artifactDir = path.join(repoRoot, 'artifacts', 'review-gate')
 
 export const LOG_WINDOW_LIMITS = {
@@ -48,13 +48,14 @@ export const PERIODIC_REGRESSION_PROFILES = {
         responsibilityBoundary: [
             '主责: @full-stack-master 或当前值班开发者执行脚本入口。',
             '审计: @code-auditor 仅对 blocker / warning 结论做 Review Gate 复核，不替代命令执行。',
-            '文档: @documentation-specialist 将结果摘要沉淀到 docs/plan/regression-log.md，不再另建散落记录。',
+            '文档: @documentation-specialist 将结果摘要沉淀到 docs/reports/regression/current.md，不再另建散落记录。',
         ],
         steps: [
             createPnpmStep('test:coverage', 'test:coverage', { timeoutBudget: '30m' }),
             createPnpmStep('security:audit-deps', 'security:audit-deps', { timeoutBudget: '10m' }),
             createPnpmStep('docs:check:source-of-truth', 'docs:check:source-of-truth', { timeoutBudget: '10m' }),
             createPnpmStep('docs:check:i18n', 'docs:check:i18n', { timeoutBudget: '10m' }),
+            createPnpmStep('i18n:audit:missing', 'i18n:audit:missing', { timeoutBudget: '10m' }),
             createPnpmStep('duplicate-code:check', 'duplicate-code:check', { required: false, timeoutBudget: '10m' }),
         ],
     },
@@ -67,7 +68,7 @@ export const PERIODIC_REGRESSION_PROFILES = {
         responsibilityBoundary: [
             '主责: @full-stack-master 负责跑完整发版前回归入口并确认结果。',
             '审计: @code-auditor 对 release blocker 结论做放行或退回判断。',
-            '文档: 结果摘要继续写入 docs/plan/regression-log.md，引用 artifacts/review-gate/ 证据，不复制第二份正文。',
+            '文档: 结果摘要继续写入 docs/reports/regression/current.md，引用 artifacts/review-gate/ 证据，不复制第二份正文。',
         ],
         steps: [
             createPnpmStep('release:check:full', 'release:check:full', { timeoutBudget: '60m' }),
@@ -267,8 +268,8 @@ export function buildEvidence({ artifactJsonPath, artifactMarkdownPath, dryRun =
     lines.push('')
     lines.push('## 记录落点')
     lines.push('')
-    lines.push('- 本轮结果摘要应继续沉淀到 docs/plan/regression-log.md。')
-    lines.push('- 当活动日志超过窗口时，先滚动迁移旧记录到 docs/plan/regression-log-archive.md，再继续推进阶段收口。')
+    lines.push('- 本轮结果摘要应继续沉淀到 docs/reports/regression/current.md。')
+    lines.push('- 当活动日志超过窗口时，先滚动迁移旧记录到 docs/reports/regression/archive/，再继续推进阶段收口。')
     lines.push('- 不新增第二套周期性回归正文文档；artifact 仅作为引用证据。')
     lines.push('')
 

@@ -67,9 +67,10 @@
 | `pnpm lint:i18n` | 单独运行 `@intlify/vue-i18n` 慢规则校验 |
 | `pnpm lint:css` | 运行样式检查 |
 | `pnpm i18n:audit` | 审计 i18n 词条与模块拆分状态 |
+| `pnpm i18n:audit:missing` | 运行缺词 parity 审计，发现缺失字段直接失败 |
 | `pnpm regression:weekly` | 执行周级周期性回归，固定覆盖 coverage、依赖安全、文档事实源 / i18n 检查与重复代码基线 |
-| `pnpm regression:pre-release` | 执行发版前周期性回归，固定覆盖完整发布前校验、文档 i18n 检查与性能预算 |
-| `pnpm regression:phase-close` | 执行阶段收口前周期性回归，并把回归日志窗口超限升级为 blocker |
+| `pnpm regression:pre-release` | 执行发版前周期性回归，固定覆盖完整发布前校验（内含缺词 parity 审计）、文档 i18n 检查与性能预算 |
+| `pnpm regression:phase-close` | 执行阶段收口前周期性回归，并把回归日志窗口超限与 release 内部 i18n 缺词一起升级为 blocker |
 | `pnpm test` | 运行单测 |
 | `pnpm test:e2e` | 运行 Playwright 端到端测试 |
 | `pnpm test:e2e:critical` | 运行认证会话治理 + 移动端编辑器 smoke 的最小浏览器基线 |
@@ -86,8 +87,8 @@
 周期性回归现在统一收敛到三条固定入口，而不是按人手工拼命令：
 
 - 周级治理优先执行 `pnpm regression:weekly`。
-- 发版前统一执行 `pnpm regression:pre-release`。
-- 阶段归档前统一执行 `pnpm regression:phase-close`；若 `docs/plan/regression-log.md` 超过 `400` 行或 `8` 条记录，脚本会直接提示必须先滚动归档到 `docs/plan/regression-log-archive.md`。
+- 发版前统一执行 `pnpm regression:pre-release`；其中 `release:check:full` 会阻断 `i18n:audit:missing`。
+- 阶段归档前统一执行 `pnpm regression:phase-close`；若 `docs/reports/regression/current.md` 超过 `400` 行或 `8` 条记录，脚本会直接提示必须先滚动归档到 `docs/reports/regression/archive/`。
 
 ## 5. 参与贡献
 

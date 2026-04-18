@@ -181,6 +181,9 @@ pnpm lint
 # 单独运行 i18n 慢规则校验
 pnpm lint:i18n
 
+# 缺词 parity 审计（发现缺词直接失败）
+pnpm i18n:audit:missing
+
 # 样式检查
 pnpm lint:css
 
@@ -261,6 +264,7 @@ pnpm build
 
     - 确保无 ESLint/Stylelint 报错。
     - `pnpm run lint` 默认只承担常规 TS / Vue / JS 检查；若改动涉及 `i18n/locales/**`、locale 模块注册、翻译 key 治理，需额外执行 `pnpm run lint:i18n`。
+    - 若改动涉及 `i18n/locales/**`、locale 模块装配、后台页面新增翻译 key 或共享组件命名空间调整，还需执行 `pnpm run i18n:audit:missing`；若是定向补某个语种 / 模块，补充执行 `pnpm run i18n:check-sync -- --locale=<locale> --module=<module> --fail-on-diff`。
 
 3.  **类型检查**:
 

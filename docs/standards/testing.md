@@ -165,9 +165,9 @@ pnpm run test:coverage
 
 | 回归节奏 | 推荐命令 | 默认 timeout budget | 说明 |
 | :--- | :--- | :--- | :--- |
-| 周级治理 | `pnpm regression:weekly` | 60 分钟以内 | 固定覆盖 coverage、依赖安全、文档事实源 / i18n 检查与重复代码基线 |
-| 发版前 | `pnpm regression:pre-release` | 90 分钟以内 | 固定覆盖 `release:check:full`、文档 i18n 检查、性能预算与重复代码复核 |
-| 阶段收口前 | `pnpm regression:phase-close` | 120 分钟以内 | 在发版前入口基础上补强 coverage、strict 重复代码检查与 Review Gate 证据；日志窗口超限时直接阻断归档 |
+| 周级治理 | `pnpm regression:weekly` | 60 分钟以内 | 固定覆盖 coverage、依赖安全、文档事实源 / i18n 检查、缺词 parity 审计与重复代码基线 |
+| 发版前 | `pnpm regression:pre-release` | 90 分钟以内 | 固定覆盖 `release:check:full`（内含 `i18n:audit:missing`）、文档 i18n 检查、性能预算与重复代码复核 |
+| 阶段收口前 | `pnpm regression:phase-close` | 120 分钟以内 | 在发版前入口基础上补强 coverage、strict 重复代码检查与 Review Gate 证据；`release:check:full` 内部继续阻断 i18n 缺词；日志窗口超限时直接阻断归档 |
 
 补充约束：
 

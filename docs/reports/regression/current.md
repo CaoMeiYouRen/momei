@@ -43,3 +43,42 @@
 
 - 继续优先处理 cross-module report 中已经具备单一语义来源的基础按钮文案，例如 `refresh`、`retry`、`back_to_home`。
 - 对 `email`、`language` 等高频词条，需要先确认页面语义是否允许继续合并，避免误把字段标签和动作文案混为同一来源。
+
+## 2026-04-18 admin-posts parity 与缺词门禁上收
+
+### 范围
+
+- 目标：压降后台文章管理英文缺词债，避免 `pages.admin.posts.media.audio_missing` 之类 raw key 继续直接漏到 UI，并把缺词审计上收到更高频的固定质量门。
+- 本轮处理：完整补齐 `i18n/locales/en-US/admin-posts.json`，将 `pnpm i18n:audit:missing` 接入 `release:check` 与 `regression:weekly`，并同步更新开发、测试、规划、指南和 backlog 治理口径。
+- 影响范围：`/admin/posts` 后台编辑链路、发布前校验脚本、周期性回归脚本、i18n 相关开发规范与回归记录事实源。
+
+### 基线对比
+
+- 本轮处理前：定向 parity 审计曾显示 `en-US/admin-posts` 相对 `zh-CN` 缺失 `309` 个 keys。
+- 本轮处理后：`en-US`、`zh-CN`、`zh-TW` 的 `admin-posts` 模块均已通过定向 parity 校验。
+- 仓库级现状：按 `scripts/i18n/audit-locale-keys.mjs` 当前逻辑直接重算后，`missingParity = 4092`，仍存在大规模历史缺词债；当前最高热点集中在 `en-US/admin-settings.json (1996)`、`en-US/admin-ai.json (360)`、`en-US/admin-link-governance.json (280)`、`en-US/admin-friend-links.json (276)`、`en-US/admin-snippets.json (248)`、`en-US/admin-users.json (220)`、`en-US/admin-ad.json (216)`。
+
+### 实施说明
+
+- 直接将 `en-US/admin-posts.json` 补齐到与当前后台文章管理功能一致的完整 parity，优先消除最频繁暴露到英文后台 UI 的缺词。
+- `scripts/release/pre-release-check.mjs` 新增 `i18n:audit:missing` 必经步骤，作为 release blocker 的一部分。
+- `scripts/regression/run-periodic-regression.mjs` 的 weekly profile 新增 `i18n:audit:missing`，并将回归日志事实源统一写到 `docs/reports/regression/current.md`。
+- `docs/standards/development.md`、`docs/standards/testing.md`、`docs/standards/planning.md`、`docs/guide/development.md` 与 `docs/plan/backlog.md` 已同步声明：i18n 变更后必须补跑缺词 parity 审计，且 release / phase-close 入口不得再放过此类低级错误。
+
+### 已执行验证
+
+- `pnpm i18n:check-sync -- --locale=en-US --module=admin-posts --fail-on-diff`
+	- 结果：通过，`en-US: parity with zh-CN`。
+- `pnpm i18n:check-sync -- --locale=zh-CN --module=admin-posts --fail-on-diff`
+	- 结果：通过，`zh-CN: parity with zh-CN`。
+- `pnpm i18n:check-sync -- --locale=zh-TW --module=admin-posts --fail-on-diff`
+	- 结果：通过，`zh-TW: parity with zh-CN`。
+- `pnpm lint:md`
+	- 结果：通过，规范与回归文档改动未引入 Markdown 问题。
+- `pnpm i18n:audit:missing`
+	- 结果：失败，按当前脚本逻辑重算后仓库级 `missingParity = 4092`；说明新的 blocker 已具备实际拦截能力，但全仓历史缺词债仍远未清零。
+
+### 后续候选
+
+- 下一轮优先按热点文件继续清偿 `en-US/admin-settings`、`en-US/admin-ai`、`en-US/admin-link-governance`、`en-US/admin-friend-links` 和 `en-US/admin-snippets` 的缺词债，避免 release blocker 长期处于全局红灯。
+- 审计输出当前还会同时暴露大量 unused candidate keys；后续需要拆清“真正缺词 blocker”和“未引用清理候选”的治理节奏，避免一次性输出过大影响回归阅读效率。

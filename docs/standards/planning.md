@@ -137,7 +137,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 | ESLint warning / 类型债 / `max-lines` 豁免清理 | 每周一次 | 告警持续积压、单文件继续膨胀 |
 | `database/*/init.sql` 与实体 / 设计文档同步 | 每次发版前 | 实体字段、迁移逻辑或初始化数据变更 |
 | README / 部署 / 翻译文档同步 | 每次发版前 | 新增脚本、部署入口、文档目录迁移 |
-| i18n 初始化字段完整性审计 | 每次 locale 大文件拆分后 | locale key 拆分、注册表新增语言、设置项新增多语言字段 |
+| i18n 初始化字段完整性审计 | 每周一次，且每次 locale 大文件拆分后必须补跑 | locale key 拆分、注册表新增语言、设置项新增多语言字段、后台出现 raw key 或某语种模块补词后 |
 | 长期脚本入口与残留清理 | 每两周一次 | 新增长期脚本、临时脚本落盘、入口引用漂移 |
 | 覆盖率治理与性能基线审计 | 每周一次或阶段收口前 | 核心模块覆盖率下滑、Lighthouse / Bundle 告警 |
 | 依赖安全审计 | 每次发版前或每周一次 | Dependabot 告警、新增依赖、锁文件集中变更、安全通报出现 |
@@ -148,9 +148,9 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 
 | 节奏 | 正式入口 | 最小固定组合 | 责任边界 | blocker 规则 |
 | :--- | :--- | :--- | :--- | :--- |
-| 周级治理 | `pnpm regression:weekly` | `test:coverage` + `security:audit-deps` + `docs:check:source-of-truth` + `docs:check:i18n` + `duplicate-code:check` | `@full-stack-master` 或当前值班开发者执行；`@code-auditor` 复核 blocker；`@documentation-specialist` 回写 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker；活动日志窗口超限先记 warning |
-| 发版前 | `pnpm regression:pre-release` | `release:check:full` + `docs:check:i18n` + `test:perf:budget:strict` + `duplicate-code:check` | `@full-stack-master` 执行；`@code-auditor` 决定放行；结果摘要继续沉淀到 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker |
-| 阶段收口前 | `pnpm regression:phase-close` | `test:coverage` + `release:check:full` + `docs:check:i18n` + `test:perf:budget:strict` + `duplicate-code:check:strict` + `review-gate:generate:check` | `@full-stack-master` 执行并补齐 Review Gate；`@code-auditor` 给出 Pass / Reject；`@todo-manager` / `@documentation-specialist` 仅在通过后推进归档 | 任一 required 命令失败即 blocker；若 `docs/reports/regression/current.md` 超过 `400` 行或 `8` 条记录且尚未滚动归档，也直接视为 blocker |
+| 周级治理 | `pnpm regression:weekly` | `test:coverage` + `security:audit-deps` + `docs:check:source-of-truth` + `docs:check:i18n` + `i18n:audit:missing` + `duplicate-code:check` | `@full-stack-master` 或当前值班开发者执行；`@code-auditor` 复核 blocker；`@documentation-specialist` 回写 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker；活动日志窗口超限先记 warning |
+| 发版前 | `pnpm regression:pre-release` | `release:check:full`（内含 `i18n:audit:missing`） + `docs:check:i18n` + `test:perf:budget:strict` + `duplicate-code:check` | `@full-stack-master` 执行；`@code-auditor` 决定放行；结果摘要继续沉淀到 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker |
+| 阶段收口前 | `pnpm regression:phase-close` | `test:coverage` + `release:check:full`（内含 `i18n:audit:missing`） + `docs:check:i18n` + `test:perf:budget:strict` + `duplicate-code:check:strict` + `review-gate:generate:check` | `@full-stack-master` 执行并补齐 Review Gate；`@code-auditor` 给出 Pass / Reject；`@todo-manager` / `@documentation-specialist` 仅在通过后推进归档 | 任一 required 命令失败即 blocker；若 `docs/reports/regression/current.md` 超过 `400` 行或 `8` 条记录且尚未滚动归档，也直接视为 blocker |
 
 补充约束：
 

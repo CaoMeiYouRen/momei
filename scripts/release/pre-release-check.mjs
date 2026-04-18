@@ -113,6 +113,7 @@ function pnpm(...pnpmArgs) {
 const steps = [
     { label: 'lint (ESLint)', run: pnpm('lint'), required: true },
     { label: 'lint:i18n', run: pnpm('lint:i18n'), required: true },
+    { label: 'i18n:audit:missing', run: pnpm('i18n:audit:missing'), required: true },
     { label: 'lint:css (Stylelint)', run: pnpm('lint:css'), required: true },
     { label: 'lint:md (Markdown)', run: pnpm('lint:md'), required: false },
     { label: 'typecheck (TypeScript)', run: pnpm('typecheck'), required: true },
@@ -205,7 +206,7 @@ const evidenceLines = [
     '',
     '### 最低验证要求',
     '- 目标层级: V0 + V1 + V2 + RG（发布前高风险收口）',
-    `- 需要的命令: lint, lint:i18n, lint:css, lint:md, typecheck${skipTest ? '' : ', test'}${skipTest || skipE2e ? '' : ', test:e2e'}, security:audit-deps, security:alerts`,
+    `- 需要的命令: lint, lint:i18n, i18n:audit:missing, lint:css, lint:md, typecheck${skipTest ? '' : ', test'}${skipTest || skipE2e ? '' : ', test:e2e'}, security:audit-deps, security:alerts`,
     '',
     '### 已执行验证',
     '',
