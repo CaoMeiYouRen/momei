@@ -19,6 +19,7 @@ describe('run-periodic-regression', () => {
             'security:audit-deps',
             'docs:check:source-of-truth',
             'docs:check:i18n',
+            'i18n:audit:missing',
             'duplicate-code:check',
         ])
         expect(resolveRegressionProfile('phase-close').steps.at(-1)).toMatchObject({

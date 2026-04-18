@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const initializeDB = vi.fn(() => Promise.resolve(undefined))
-const loggerWarn = vi.fn()
-const dataSourceState = {
-    isInitialized: false,
-}
+const { dataSourceState, initializeDB, loggerWarn } = vi.hoisted(() => ({
+    initializeDB: vi.fn(() => Promise.resolve(undefined)),
+    loggerWarn: vi.fn(),
+    dataSourceState: {
+        isInitialized: false,
+    },
+}))
 
 vi.mock('h3', async () => {
     const actual = await vi.importActual<typeof import('h3')>('h3')

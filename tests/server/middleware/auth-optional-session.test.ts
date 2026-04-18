@@ -1,16 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const getSession = vi.fn().mockResolvedValue({
-    user: {
-        id: 'user-1',
-        role: 'author',
+const { dataSourceState, getSession, initializeDB, loggerError } = vi.hoisted(() => ({
+    getSession: vi.fn().mockResolvedValue({
+        user: {
+            id: 'user-1',
+            role: 'author',
+        },
+    }),
+    initializeDB: vi.fn().mockResolvedValue(undefined),
+    loggerError: vi.fn(),
+    dataSourceState: {
+        isInitialized: false,
     },
-})
-const initializeDB = vi.fn().mockResolvedValue(undefined)
-const loggerError = vi.fn()
-const dataSourceState = {
-    isInitialized: false,
-}
+}))
 
 vi.mock('h3', async () => {
     const actual = await vi.importActual<typeof import('h3')>('h3')
