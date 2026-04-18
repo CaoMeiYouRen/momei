@@ -15,6 +15,23 @@
 
 ## 3. 页面设计 (UI Design) - /admin/
 
+### 3.0 管理首页 (`/admin`)
+
+-   **权限**: `admin` / `author`。
+-   **定位**: 作为后台默认落点，提供第一轮内容运营洞察看板，不扩张为通用 BI 系统。
+-   **筛选项**:
+    -   时间窗口：`7 / 30 / 90` 天。
+    -   内容语言：复用后台内容语言切换器。
+    -   公开范围：`全部内容` / `仅公开内容`。
+-   **指标口径**:
+    -   阅读量、评论量、发文量均按“当前时间窗口 vs 前一等长窗口”对比展示。
+    -   未指定内容语言时，多语言文章按当前 UI 语言 fallback 链选出的代表版本去重，避免同一翻译簇重复计数。
+    -   `全部内容` 口径按 `publishedAt` 优先、缺失时回退 `createdAt`；`仅公开内容` 口径只统计 `status=published && visibility=public`。
+    -   当前第一轮的阅读量 / 评论量属于“窗口内容的当前累计表现”，不代表最近 `N` 天真实新增互动事件；若要升级为事件级趋势，需要补独立的历史指标存储。
+-   **排行**:
+    -   热门文章：按阅读量优先、评论量次级、标题稳定排序。
+    -   热门标签 / 分类：聚合当前时间窗口内代表版本文章的阅读量、评论量与文章数。
+
 ### 3.1 用户管理页 (`/admin/users`)
 
 -   **权限**: `admin` only.
@@ -146,3 +163,10 @@
 
 -   `POST /api/categories`, `PUT /api/categories/:id`, `DELETE ...`
 -   `POST /api/tags`, `PUT /api/tags/:id`, `DELETE ...`
+
+### 5.4 内容洞察 (Content Insights)
+
+-   `GET /api/admin/content-insights`
+    -   **Query**: `range=7|30|90`, `scope=all|public`, `contentLanguage`, `timezone`
+    -   **Auth**: `admin` 查看全量内容，`author` 自动收敛为本人内容。
+    -   **Response**: 返回窗口汇总指标、热门文章 / 标签 / 分类排行，以及实际使用的时区与过滤口径。

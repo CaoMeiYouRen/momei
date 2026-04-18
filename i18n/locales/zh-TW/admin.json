@@ -13,6 +13,40 @@
             "ai": {
                 "title": "AI 任務與統計"
             },
+            "dashboard": {
+                "title": "內容洞察",
+                "subtitle": "依最近時間視窗檢視落窗內容的發文與累計閱讀、留言表現。",
+                "selection_summary": "目前聚合最近 {days} 天內建立 / 發布時間落入視窗的內容，並與前一個視窗比較。",
+                "scope_label": "公開範圍",
+                "scopes": {
+                    "all": "全部內容",
+                    "public": "僅公開內容"
+                },
+                "range_label": "近 {days} 天",
+                "metrics": {
+                    "views": "閱讀量",
+                    "comments": "留言量",
+                    "posts": "發文量"
+                },
+                "rankings": {
+                    "posts": "熱門文章",
+                    "tags": "熱門標籤",
+                    "categories": "熱門分類"
+                },
+                "ranking_post_count": "{count} 篇內容",
+                "previous_window_total": "上一視窗 {total}",
+                "empty": "目前篩選條件下沒有可顯示的資料。",
+                "notes": {
+                    "timezone": "統計視窗以 {timezone} 對齊",
+                    "all_scope": "全部內容口徑會優先使用發布時間，缺失時回退到建立時間。",
+                    "public_scope": "僅公開內容口徑只統計已發布且可見性為公開的內容。",
+                    "cohort_metrics": "閱讀與留言顯示的是視窗內內容的目前累計值，不代表最近 {days} 天新增事件。",
+                    "representative": "未指定內容語言時，多語內容會依目前介面語言的回退鏈代表版本去重。"
+                },
+                "feedback": {
+                    "load_failed": "載入內容洞察失敗"
+                }
+            },
             "categories": {
                 "title": "分類管理"
             },

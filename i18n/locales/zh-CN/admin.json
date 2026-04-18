@@ -13,6 +13,40 @@
             "ai": {
                 "title": "AI 任务与统计"
             },
+            "dashboard": {
+                "title": "内容洞察",
+                "subtitle": "按最近时间窗口查看落窗内容的发文与累计阅读、评论表现。",
+                "selection_summary": "当前聚合最近 {days} 天内创建 / 发布时间落窗的内容，并与上一窗口对比。",
+                "scope_label": "公开状态",
+                "scopes": {
+                    "all": "全部内容",
+                    "public": "仅公开内容"
+                },
+                "range_label": "近 {days} 天",
+                "metrics": {
+                    "views": "阅读量",
+                    "comments": "评论量",
+                    "posts": "发文量"
+                },
+                "rankings": {
+                    "posts": "热门文章",
+                    "tags": "热门标签",
+                    "categories": "热门分类"
+                },
+                "ranking_post_count": "{count} 篇内容",
+                "previous_window_total": "上一窗口 {total}",
+                "empty": "当前筛选范围内暂无可展示的数据。",
+                "notes": {
+                    "timezone": "统计窗口按 {timezone} 对齐",
+                    "all_scope": "全部内容口径按发布时间优先，缺失时回退创建时间。",
+                    "public_scope": "仅公开内容口径只统计已发布且可见性为公开的内容。",
+                    "cohort_metrics": "阅读与评论显示的是窗口内容的当前累计值，不代表最近 {days} 天新增事件。",
+                    "representative": "未指定内容语言时，多语言内容按当前界面语言回退链的代表版本去重。"
+                },
+                "feedback": {
+                    "load_failed": "加载内容洞察失败"
+                }
+            },
             "categories": {
                 "title": "分类管理"
             },

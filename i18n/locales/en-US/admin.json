@@ -13,6 +13,40 @@
             "ai": {
                 "title": "AI Tasks & Stats"
             },
+            "dashboard": {
+                "title": "Content Insights",
+                "subtitle": "Review posting volume plus cumulative views and comments for content that falls into recent windows.",
+                "selection_summary": "Aggregate content whose createdAt or publishedAt falls in the last {days} days and compare it with the preceding window.",
+                "scope_label": "Visibility Scope",
+                "scopes": {
+                    "all": "All content",
+                    "public": "Public only"
+                },
+                "range_label": "Last {days} days",
+                "metrics": {
+                    "views": "Views",
+                    "comments": "Comments",
+                    "posts": "Posts published"
+                },
+                "rankings": {
+                    "posts": "Top Posts",
+                    "tags": "Top Tags",
+                    "categories": "Top Categories"
+                },
+                "ranking_post_count": "{count} posts",
+                "previous_window_total": "Previous window {total}",
+                "empty": "No content matches the current filters.",
+                "notes": {
+                    "timezone": "Windows aligned to {timezone}",
+                    "all_scope": "All-content mode uses publishedAt first and falls back to createdAt when needed.",
+                    "public_scope": "Public-only mode counts only published posts with public visibility.",
+                    "cohort_metrics": "Views and comments are the current cumulative totals of content in the window, not newly generated events from the last {days} days.",
+                    "representative": "Without a content language filter, translation clusters are deduped by the representative version from the current UI locale fallback chain."
+                },
+                "feedback": {
+                    "load_failed": "Failed to load content insights"
+                }
+            },
             "categories": {
                 "title": "Categories Management"
             },

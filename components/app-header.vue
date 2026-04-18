@@ -391,6 +391,11 @@ const goToAdminPosts = () => navigateTo(localePath('/admin/posts'))
 const adminMenuItems = computed(() => {
     const items: MenuItem[] = [
         {
+            label: t('pages.admin.dashboard.title'),
+            icon: 'pi pi-chart-bar',
+            command: () => navigateTo(localePath('/admin')),
+        },
+        {
             label: t('pages.admin.posts.title'),
             icon: 'pi pi-file',
             command: goToAdminPosts,
