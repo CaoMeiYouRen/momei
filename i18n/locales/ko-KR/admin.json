@@ -15,8 +15,8 @@
             },
             "dashboard": {
                 "title": "콘텐츠 인사이트",
-                "subtitle": "최근 시간 창에 들어오는 콘텐츠의 발행량과 누적 조회/댓글 성과를 확인합니다.",
-                "selection_summary": "최근 {days}일 안에 createdAt 또는 publishedAt이 창에 들어오는 콘텐츠를 집계해 이전 구간과 비교합니다.",
+                "subtitle": "최근 시간 창의 실제 조회수, 댓글 추이와 발행 현황을 확인합니다.",
+                "selection_summary": "최근 {days}일 동안 발생한 조회 / 댓글 이벤트와 발행 현황을 집계해 이전 구간과 비교합니다.",
                 "scope_label": "공개 범위",
                 "scopes": {
                     "all": "모든 콘텐츠",
@@ -40,7 +40,7 @@
                     "timezone": "집계 창은 {timezone} 기준으로 정렬됩니다",
                     "all_scope": "전체 콘텐츠 모드는 publishedAt을 우선 사용하고 없으면 createdAt으로 대체합니다.",
                     "public_scope": "공개 콘텐츠 모드는 게시 상태가 published이고 visibility가 public인 글만 집계합니다.",
-                    "cohort_metrics": "조회수와 댓글 수는 창 안에 있는 콘텐츠의 현재 누적값이며 최근 {days}일 동안 새로 발생한 이벤트 수는 아닙니다.",
+                    "cohort_metrics": "조회수와 댓글 수는 최근 {days}일 동안 실제로 발생한 이벤트 수입니다. 발행 수는 publishedAt을 우선 사용하고 없으면 createdAt으로 대체합니다.",
                     "representative": "콘텐츠 언어를 지정하지 않으면 현재 UI 로케일의 fallback 체인 대표 버전으로 번역 클러스터를 중복 제거합니다."
                 },
                 "feedback": {

@@ -242,6 +242,7 @@ const rangeSummaries = computed(() => dashboard.value?.summaries || ADMIN_CONTEN
     },
     currentWindow: { start: '', end: '' },
     previousWindow: { start: '', end: '' },
+    trend: [],
 })))
 
 const metricCards = computed(() => {

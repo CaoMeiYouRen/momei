@@ -3,6 +3,7 @@ import handler from './content-insights.get'
 import { dataSource } from '@/server/database'
 import { Comment } from '@/server/entities/comment'
 import { Post } from '@/server/entities/post'
+import { PostViewHourly } from '@/server/entities/post-view-hourly'
 import {
     buildAdminContentInsights,
     resolveAdminContentInsightsTimeZone,
@@ -28,6 +29,7 @@ function createPostQueryBuilder(posts: any[]) {
     const queryBuilder: Record<string, any> = {
         leftJoinAndSelect: vi.fn(),
         select: vi.fn(),
+        where: vi.fn(),
         andWhere: vi.fn(),
         getMany: vi.fn().mockResolvedValue(posts),
     }
@@ -41,13 +43,13 @@ function createPostQueryBuilder(posts: any[]) {
     return queryBuilder
 }
 
-function createCommentQueryBuilder(rows: { postId: string, count: string }[]) {
+function createRawQueryBuilder(rows: any[]) {
     const queryBuilder: Record<string, any> = {
+        innerJoin: vi.fn(),
         select: vi.fn(),
         addSelect: vi.fn(),
         where: vi.fn(),
         andWhere: vi.fn(),
-        groupBy: vi.fn(),
         getRawMany: vi.fn().mockResolvedValue(rows),
     }
 
@@ -68,8 +70,10 @@ describe('GET /api/admin/content-insights', () => {
 
     it('应为 author 收紧到本人内容，并把 public 范围与 locale 过滤传入聚合器', async () => {
         const posts = [{ id: 'post-1', title: 'First post' }]
+        const publishedPostQueryBuilder = createRawQueryBuilder([{ id: 'post-1' }])
         const postQueryBuilder = createPostQueryBuilder(posts)
-        const commentQueryBuilder = createCommentQueryBuilder([{ postId: 'post-1', count: '3' }])
+        const commentQueryBuilder = createRawQueryBuilder([{ postId: 'post-1', createdAt: '2026-04-18T03:00:00.000Z' }])
+        const viewQueryBuilder = createRawQueryBuilder([{ postId: 'post-1', bucketHourUtc: '2026-04-18T02:00:00.000Z', views: '7' }])
 
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: {
@@ -82,13 +86,21 @@ describe('GET /api/admin/content-insights', () => {
         vi.mocked(dataSource.getRepository).mockImplementation((entity: unknown) => {
             if (entity === Post) {
                 return {
-                    createQueryBuilder: vi.fn(() => postQueryBuilder),
+                    createQueryBuilder: vi.fn()
+                        .mockReturnValueOnce(publishedPostQueryBuilder)
+                        .mockReturnValueOnce(postQueryBuilder),
                 } as never
             }
 
             if (entity === Comment) {
                 return {
                     createQueryBuilder: vi.fn(() => commentQueryBuilder),
+                } as never
+            }
+
+            if (entity === PostViewHourly) {
+                return {
+                    createQueryBuilder: vi.fn(() => viewQueryBuilder),
                 } as never
             }
 
@@ -105,34 +117,52 @@ describe('GET /api/admin/content-insights', () => {
             },
         } as never)
 
-        expect(postQueryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('post.category', 'category')
-        expect(postQueryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('post.tags', 'tag')
-        expect(postQueryBuilder.andWhere).toHaveBeenCalledWith('post.authorId = :authorId', { authorId: 'author-1' })
-        expect(postQueryBuilder.andWhere).toHaveBeenCalledWith('post.language = :contentLanguage', {
+        expect(publishedPostQueryBuilder.andWhere).toHaveBeenCalledWith('post.authorId = :authorId', { authorId: 'author-1' })
+        expect(publishedPostQueryBuilder.andWhere).toHaveBeenCalledWith('post.language = :contentLanguage', {
             contentLanguage: 'en-US',
         })
-        expect(postQueryBuilder.andWhere).toHaveBeenCalledWith('post.status = :publishedStatus', {
+        expect(publishedPostQueryBuilder.andWhere).toHaveBeenCalledWith('post.status = :publishedStatus', {
             publishedStatus: 'published',
         })
-        expect(postQueryBuilder.andWhere).toHaveBeenCalledWith('post.visibility = :publicVisibility', {
+        expect(publishedPostQueryBuilder.andWhere).toHaveBeenCalledWith('post.visibility = :publicVisibility', {
             publicVisibility: 'public',
         })
-        expect(postQueryBuilder.andWhere).toHaveBeenCalledWith(
+        expect(publishedPostQueryBuilder.where).toHaveBeenCalledWith(
             'post.publishedAt BETWEEN :minWindowStart AND :maxWindowEnd',
             expect.objectContaining({
                 minWindowStart: expect.any(Date),
                 maxWindowEnd: expect.any(Date),
             }),
         )
-
-        expect(commentQueryBuilder.where).toHaveBeenCalledWith('comment.postId IN (:...postIds)', {
+        expect(postQueryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('post.category', 'category')
+        expect(postQueryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('post.tags', 'tag')
+        expect(postQueryBuilder.where).toHaveBeenCalledWith('post.id IN (:...postIds)', {
             postIds: ['post-1'],
+        })
+
+        expect(commentQueryBuilder.where).toHaveBeenCalledWith('comment.createdAt BETWEEN :minWindowStart AND :maxWindowEnd', {
+            minWindowStart: expect.any(Date),
+            maxWindowEnd: expect.any(Date),
         })
         expect(commentQueryBuilder.andWhere).toHaveBeenCalledWith('comment.status != :spamStatus', {
             spamStatus: 'spam',
         })
+        expect(commentQueryBuilder.andWhere).toHaveBeenCalledWith('post.authorId = :authorId', { authorId: 'author-1' })
 
-        expect(buildAdminContentInsights).toHaveBeenCalledWith(posts, { 'post-1': 3 }, {
+        expect(viewQueryBuilder.where).toHaveBeenCalledWith('hourly.bucketHourUtc BETWEEN :minWindowStart AND :maxWindowEnd', {
+            minWindowStart: expect.any(Date),
+            maxWindowEnd: expect.any(Date),
+        })
+        expect(viewQueryBuilder.andWhere).toHaveBeenCalledWith('post.authorId = :authorId', { authorId: 'author-1' })
+
+        expect(buildAdminContentInsights).toHaveBeenCalledWith(posts, [{
+            postId: 'post-1',
+            bucketHourUtc: '2026-04-18T02:00:00.000Z',
+            views: 7,
+        }], [{
+            postId: 'post-1',
+            createdAt: '2026-04-18T03:00:00.000Z',
+        }], {
             selectedRange: 7,
             scope: 'public',
             timezone: 'Asia/Tokyo',
@@ -143,9 +173,11 @@ describe('GET /api/admin/content-insights', () => {
     })
 
     it('应对 admin 使用默认 query，并在无帖子时跳过评论聚合', async () => {
-        const postQueryBuilder = createPostQueryBuilder([])
-        const commentRepo = {
-            createQueryBuilder: vi.fn(),
+        const publishedPostQueryBuilder = createRawQueryBuilder([])
+        const commentQueryBuilder = createRawQueryBuilder([])
+        const viewQueryBuilder = createRawQueryBuilder([])
+        const postRepo = {
+            createQueryBuilder: vi.fn().mockReturnValueOnce(publishedPostQueryBuilder),
         }
 
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
@@ -158,13 +190,19 @@ describe('GET /api/admin/content-insights', () => {
         vi.mocked(buildAdminContentInsights).mockReturnValue({ empty: true } as never)
         vi.mocked(dataSource.getRepository).mockImplementation((entity: unknown) => {
             if (entity === Post) {
-                return {
-                    createQueryBuilder: vi.fn(() => postQueryBuilder),
-                } as never
+                return postRepo as never
             }
 
             if (entity === Comment) {
-                return commentRepo as never
+                return {
+                    createQueryBuilder: vi.fn(() => commentQueryBuilder),
+                } as never
+            }
+
+            if (entity === PostViewHourly) {
+                return {
+                    createQueryBuilder: vi.fn(() => viewQueryBuilder),
+                } as never
             }
 
             throw new Error('Unexpected repository request')
@@ -172,16 +210,16 @@ describe('GET /api/admin/content-insights', () => {
 
         const result = await handler({ query: {} } as never)
 
-        expect(postQueryBuilder.andWhere).not.toHaveBeenCalledWith('post.authorId = :authorId', expect.anything())
-        expect(postQueryBuilder.andWhere).toHaveBeenCalledWith(
+        expect(publishedPostQueryBuilder.andWhere).not.toHaveBeenCalledWith('post.authorId = :authorId', expect.anything())
+        expect(publishedPostQueryBuilder.where).toHaveBeenCalledWith(
             'COALESCE(post.publishedAt, post.createdAt) BETWEEN :minWindowStart AND :maxWindowEnd',
             expect.objectContaining({
                 minWindowStart: expect.any(Date),
                 maxWindowEnd: expect.any(Date),
             }),
         )
-        expect(commentRepo.createQueryBuilder).not.toHaveBeenCalled()
-        expect(buildAdminContentInsights).toHaveBeenCalledWith([], {}, {
+        expect(postRepo.createQueryBuilder).toHaveBeenCalledTimes(1)
+        expect(buildAdminContentInsights).toHaveBeenCalledWith([], [], [], {
             selectedRange: 30,
             scope: 'all',
             timezone: 'UTC',

@@ -15,8 +15,8 @@
             },
             "dashboard": {
                 "title": "コンテンツインサイト",
-                "subtitle": "直近ウィンドウに入るコンテンツの投稿数と累積閲覧・コメント実績を確認します。",
-                "selection_summary": "createdAt または publishedAt が直近 {days} 日ウィンドウに入るコンテンツを集計し、前ウィンドウと比較します。",
+                "subtitle": "直近ウィンドウにおける実際の閲覧・コメント推移と投稿状況を確認します。",
+                "selection_summary": "直近 {days} 日に発生した閲覧 / コメントイベントと投稿状況を集計し、前ウィンドウと比較します。",
                 "scope_label": "公開範囲",
                 "scopes": {
                     "all": "すべてのコンテンツ",
@@ -40,7 +40,7 @@
                     "timezone": "集計ウィンドウは {timezone} に合わせて計算されます",
                     "all_scope": "全コンテンツモードでは publishedAt を優先し、なければ createdAt にフォールバックします。",
                     "public_scope": "公開コンテンツモードでは、公開状態が published かつ visibility が public の記事だけを集計します。",
-                    "cohort_metrics": "閲覧数とコメント数はウィンドウ内コンテンツの現在の累積値であり、直近 {days} 日に新規発生したイベント数ではありません。",
+                    "cohort_metrics": "閲覧数とコメント数は直近 {days} 日に実際に発生したイベント数です。投稿数は publishedAt を優先し、未設定時は createdAt を使います。",
                     "representative": "コンテンツ言語を指定しない場合、多言語クラスタは現在の UI ロケールのフォールバックチェーン代表版で重複排除します。"
                 },
                 "feedback": {

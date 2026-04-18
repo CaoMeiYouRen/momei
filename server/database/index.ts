@@ -16,6 +16,7 @@ import { Comment } from '../entities/comment'
 import { Snippet } from '../entities/snippet'
 import { Submission } from '../entities/submission'
 import { ThemeConfig } from '../entities/theme-config'
+import { PostViewHourly } from '../entities/post-view-hourly'
 import { AgreementContent } from '../entities/agreement-content'
 import { NotificationSettings } from '../entities/notification-settings'
 import { MarketingCampaign } from '../entities/marketing-campaign'
@@ -84,6 +85,7 @@ const entities = [
     Snippet,
     Submission,
     ThemeConfig,
+    PostViewHourly,
     AgreementContent,
     NotificationSettings,
     MarketingCampaign,

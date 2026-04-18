@@ -91,6 +91,17 @@ CREATE TABLE "momei_post" (
   PRIMARY KEY ("id")
 );
 
+CREATE TABLE "momei_post_view_hourly" (
+  "id" varchar(36) NOT NULL,
+  "post_id" varchar(36) NOT NULL,
+  "bucket_hour_utc" timestamptz(6) NOT NULL,
+  "views" integer NOT NULL DEFAULT 0,
+  "created_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  CONSTRAINT "FK_post_view_hourly_post" FOREIGN KEY ("post_id") REFERENCES "momei_post" ("id") ON DELETE CASCADE,
+  PRIMARY KEY ("id")
+);
+
 -- 5. 文章-标签中间表
 CREATE TABLE "momei_post_tags_tag_posts" (
   "post_id" varchar(36) NOT NULL,
@@ -652,6 +663,9 @@ CREATE INDEX "IDX_post_visibility" ON "momei_post" ("visibility");
 CREATE INDEX "IDX_post_views" ON "momei_post" ("views");
 CREATE INDEX "IDX_post_is_pinned" ON "momei_post" ("is_pinned");
 CREATE INDEX "IDX_post_published_at" ON "momei_post" ("published_at");
+CREATE INDEX "IDX_post_view_hourly_post_id" ON "momei_post_view_hourly" ("post_id");
+CREATE INDEX "IDX_post_view_hourly_bucket_hour_utc" ON "momei_post_view_hourly" ("bucket_hour_utc");
+CREATE UNIQUE INDEX "IDX_post_view_hourly_post_bucket_hour_utc" ON "momei_post_view_hourly" ("post_id", "bucket_hour_utc");
 
 CREATE INDEX "IDX_comment_post_id" ON "momei_comment" ("post_id");
 CREATE INDEX "IDX_comment_author_id" ON "momei_comment" ("author_id");

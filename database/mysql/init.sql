@@ -111,6 +111,20 @@ CREATE TABLE `momei_post` (
   CONSTRAINT `FK_post_category` FOREIGN KEY (`category_id`) REFERENCES `momei_category` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE TABLE `momei_post_view_hourly` (
+  `id` varchar(36) NOT NULL,
+  `post_id` varchar(36) NOT NULL,
+  `bucket_hour_utc` datetime(6) NOT NULL,
+  `views` int NOT NULL DEFAULT 0,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  KEY `IDX_post_view_hourly_post_id` (`post_id`),
+  KEY `IDX_post_view_hourly_bucket_hour_utc` (`bucket_hour_utc`),
+  UNIQUE KEY `IDX_post_view_hourly_post_bucket_hour_utc` (`post_id`, `bucket_hour_utc`),
+  CONSTRAINT `FK_post_view_hourly_post` FOREIGN KEY (`post_id`) REFERENCES `momei_post` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 -- 5. 文章-标签中间表
 CREATE TABLE `momei_post_tags_tag_posts` (
   `post_id` varchar(36) NOT NULL,

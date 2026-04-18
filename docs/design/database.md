@@ -63,7 +63,7 @@ erDiagram
 | 模块 | 逻辑表 | 初始化物理表 | 说明 |
 | :--- | :--- | :--- | :--- |
 | 认证与用户 | user, account, session, verification, two_factor, api_key, jwks, fed_keys | momei_user 等 | 账号、会话、2FA、API Key、联邦签名密钥 |
-| 内容与多语言 | post, post_version, category, tag, comment, snippet, submission | momei_post 等 | 文章正文、翻译簇、版本快照、评论、灵感片段、投稿 |
+| 内容与多语言 | post, post_view_hourly, post_version, category, tag, comment, snippet, submission | momei_post 等 | 文章正文、阅读历史小时桶、翻译簇、版本快照、评论、灵感片段、投稿 |
 | 订阅与通知 | subscriber, marketing_campaign, admin_notification_settings, notification_settings, in_app_notification, notification_delivery_logs, web_push_subscriptions | momei_subscriber 等 | 订阅者、营销活动、通知偏好、投递审计、Web Push |
 | 系统配置 | setting, setting_audit_logs, agreement_content, ai_tasks, theme_config | momei_setting 等 | 设置中心、设置审计、协议版本、AI 异步任务、主题方案 |
 | 站外连接治理 | external_links, friend_link_categories, friend_links, friend_link_applications, link_governance_report | momei_external_links 等 | 短链跳转、友链管理、友链申请、链接治理报告 |
@@ -109,6 +109,7 @@ erDiagram
 - post 已改为以 metadata 作为统一扩展容器。
 - init.sql 不再额外创建旧式 audio_url、audio_duration、tts_*、publish_intent、memos_id 等遗留列。
 - 文章标签关联表为 momei_post_tags_tag_posts。
+- momei_post_view_hourly 作为后台内容洞察的阅读事件历史表，按 UTC 小时桶稀疏存储真实阅读量。
 
 ### 4.3 PostVersion
 

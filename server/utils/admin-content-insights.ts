@@ -9,6 +9,7 @@ import {
     type AdminContentInsightsScope,
     type AdminContentInsightsSummary,
     type AdminContentInsightsTaxonomyRankingItem,
+    type AdminContentInsightsTrendPoint,
 } from '@/types/admin-content-insights'
 import { PostStatus, PostVisibility } from '@/types/post'
 import { resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
@@ -38,6 +39,17 @@ export interface AdminContentInsightsSourcePost {
     tags?: AdminContentInsightsSourceTaxonomy[] | null
 }
 
+export interface AdminContentInsightsSourceViewEvent {
+    postId: string
+    bucketHourUtc: string | Date
+    views: number
+}
+
+export interface AdminContentInsightsSourceCommentEvent {
+    postId: string
+    createdAt: string | Date
+}
+
 export interface BuildAdminContentInsightsOptions {
     selectedRange: AdminContentInsightsRange
     scope: AdminContentInsightsScope
@@ -50,8 +62,33 @@ export interface BuildAdminContentInsightsOptions {
 interface InsightRepresentative {
     clusterId: string
     post: AdminContentInsightsSourcePost
-    commentCount: number
     anchorDate: Dayjs
+}
+
+interface InsightViewEvent {
+    clusterId: string
+    occurredAt: Dayjs
+    views: number
+}
+
+interface InsightCommentEvent {
+    clusterId: string
+    occurredAt: Dayjs
+}
+
+interface InsightPostRanking {
+    representative: InsightRepresentative
+    views: number
+    commentCount: number
+}
+
+interface BuildTrendPointsParams {
+    days: AdminContentInsightsRange
+    timezone: string
+    baseDate?: string | Date
+    viewEvents: InsightViewEvent[]
+    commentEvents: InsightCommentEvent[]
+    posts: InsightRepresentative[]
 }
 
 interface WindowBoundaries {
@@ -156,27 +193,27 @@ const compareRepresentatives = (
 }
 
 const sortPostRankings = (
-    left: InsightRepresentative,
-    right: InsightRepresentative,
+    left: InsightPostRanking,
+    right: InsightPostRanking,
 ) => {
-    if (left.post.views !== right.post.views) {
-        return right.post.views - left.post.views
+    if (left.views !== right.views) {
+        return right.views - left.views
     }
 
     if (left.commentCount !== right.commentCount) {
         return right.commentCount - left.commentCount
     }
 
-    if (!left.anchorDate.isSame(right.anchorDate)) {
-        return right.anchorDate.valueOf() - left.anchorDate.valueOf()
+    if (!left.representative.anchorDate.isSame(right.representative.anchorDate)) {
+        return right.representative.anchorDate.valueOf() - left.representative.anchorDate.valueOf()
     }
 
-    const titleCompare = left.post.title.localeCompare(right.post.title, 'en')
+    const titleCompare = left.representative.post.title.localeCompare(right.representative.post.title, 'en')
     if (titleCompare !== 0) {
         return titleCompare
     }
 
-    return left.post.id.localeCompare(right.post.id)
+    return left.representative.post.id.localeCompare(right.representative.post.id)
 }
 
 const sortTaxonomyRankings = (
@@ -198,24 +235,24 @@ const sortTaxonomyRankings = (
     return left.name.localeCompare(right.name, 'en')
 }
 
-const mapPostRanking = (item: InsightRepresentative): AdminContentInsightsPostRankingItem => ({
-    id: item.post.id,
-    clusterId: item.clusterId,
-    title: item.post.title,
-    slug: item.post.slug,
-    language: item.post.language,
-    status: item.post.status,
-    visibility: item.post.visibility,
-    views: item.post.views,
+const mapPostRanking = (item: InsightPostRanking): AdminContentInsightsPostRankingItem => ({
+    id: item.representative.post.id,
+    clusterId: item.representative.clusterId,
+    title: item.representative.post.title,
+    slug: item.representative.post.slug,
+    language: item.representative.post.language,
+    status: item.representative.post.status,
+    visibility: item.representative.post.visibility,
+    views: item.views,
     commentCount: item.commentCount,
-    publishedAt: item.post.publishedAt ? toDayjs(item.post.publishedAt).toISOString() : null,
-    createdAt: toDayjs(item.post.createdAt).toISOString(),
-    category: item.post.category
+    publishedAt: item.representative.post.publishedAt ? toDayjs(item.representative.post.publishedAt).toISOString() : null,
+    createdAt: toDayjs(item.representative.post.createdAt).toISOString(),
+    category: item.representative.post.category
         ? {
-            id: item.post.category.id,
-            name: item.post.category.name,
-            slug: item.post.category.slug,
-            language: item.post.category.language,
+            id: item.representative.post.category.id,
+            name: item.representative.post.category.name,
+            slug: item.representative.post.category.slug,
+            language: item.representative.post.category.language,
         }
         : null,
 })
@@ -232,19 +269,20 @@ const mapTaxonomyRanking = (item: TaxonomyAccumulator): AdminContentInsightsTaxo
 })
 
 const buildTaxonomyRankings = (
-    posts: InsightRepresentative[],
+    posts: InsightPostRanking[],
     type: 'tags' | 'categories',
     fallbackChain: AppLocaleCode[],
 ) => {
     const rankingMap = new Map<string, TaxonomyAccumulator>()
 
     for (const item of posts) {
+        const representative = item.representative
         const taxonomies = type === 'tags'
-            ? (item.post.tags || [])
+            ? ([...(representative.post.tags || [])])
             : []
 
-        if (type === 'categories' && item.post.category) {
-            taxonomies.push(item.post.category)
+        if (type === 'categories' && representative.post.category) {
+            taxonomies.push(representative.post.category)
         }
 
         for (const taxonomy of taxonomies) {
@@ -261,14 +299,14 @@ const buildTaxonomyRankings = (
                     language: taxonomy.language,
                     localeRank,
                     postCount: 1,
-                    views: item.post.views,
+                    views: item.views,
                     commentCount: item.commentCount,
                 })
                 continue
             }
 
             existing.postCount += 1
-            existing.views += item.post.views
+            existing.views += item.views
             existing.commentCount += item.commentCount
 
             if (localeRank < existing.localeRank) {
@@ -287,29 +325,168 @@ const buildTaxonomyRankings = (
         .map(mapTaxonomyRanking)
 }
 
-const buildSummaryForRange = (
-    posts: InsightRepresentative[],
-    days: AdminContentInsightsRange,
+const sumViewsInWindow = (
+    events: InsightViewEvent[],
+    start: Dayjs,
+    end: Dayjs,
     timezone: string,
-    baseDate?: string | Date,
-): AdminContentInsightsSummary => {
-    const { currentStart, currentEnd, previousStart, previousEnd } = buildWindowBoundaries(days, timezone, baseDate)
+) => events.reduce((total, item) => {
+    const localizedDate = item.occurredAt.tz(timezone)
+    return isWithinWindow(localizedDate, start, end)
+        ? total + item.views
+        : total
+}, 0)
 
-    const currentPosts = posts.filter((item) => isWithinWindow(item.anchorDate, currentStart, currentEnd))
-    const previousPosts = posts.filter((item) => isWithinWindow(item.anchorDate, previousStart, previousEnd))
+const countCommentsInWindow = (
+    events: InsightCommentEvent[],
+    start: Dayjs,
+    end: Dayjs,
+    timezone: string,
+) => events.reduce((total, item) => {
+    const localizedDate = item.occurredAt.tz(timezone)
+    return isWithinWindow(localizedDate, start, end)
+        ? total + 1
+        : total
+}, 0)
+
+const countPostsInWindow = (
+    posts: InsightRepresentative[],
+    start: Dayjs,
+    end: Dayjs,
+    timezone: string,
+) => posts.reduce((total, item) => {
+    const localizedDate = item.anchorDate.tz(timezone)
+    return isWithinWindow(localizedDate, start, end)
+        ? total + 1
+        : total
+}, 0)
+
+const buildClusterWindowCountMap = (
+    viewEvents: InsightViewEvent[],
+    commentEvents: InsightCommentEvent[],
+    start: Dayjs,
+    end: Dayjs,
+    timezone: string,
+) => {
+    const viewsByCluster = new Map<string, number>()
+    const commentsByCluster = new Map<string, number>()
+
+    for (const item of viewEvents) {
+        const localizedDate = item.occurredAt.tz(timezone)
+        if (!isWithinWindow(localizedDate, start, end)) {
+            continue
+        }
+
+        viewsByCluster.set(item.clusterId, (viewsByCluster.get(item.clusterId) || 0) + item.views)
+    }
+
+    for (const item of commentEvents) {
+        const localizedDate = item.occurredAt.tz(timezone)
+        if (!isWithinWindow(localizedDate, start, end)) {
+            continue
+        }
+
+        commentsByCluster.set(item.clusterId, (commentsByCluster.get(item.clusterId) || 0) + 1)
+    }
+
+    return {
+        viewsByCluster,
+        commentsByCluster,
+    }
+}
+
+const buildTrendPoints = ({
+    days,
+    timezone,
+    baseDate,
+    viewEvents,
+    commentEvents,
+    posts,
+}: BuildTrendPointsParams) => {
+    const { currentStart, currentEnd } = buildWindowBoundaries(days, timezone, baseDate)
+    const trendPoints: AdminContentInsightsTrendPoint[] = []
+    const trendPointMap = new Map<string, AdminContentInsightsTrendPoint>()
+    let cursor = currentStart.startOf('day')
+
+    while (cursor.isBefore(currentEnd) || cursor.isSame(currentEnd, 'day')) {
+        const point: AdminContentInsightsTrendPoint = {
+            date: cursor.format('YYYY-MM-DD'),
+            start: cursor.startOf('day').toISOString(),
+            end: cursor.endOf('day').toISOString(),
+            views: 0,
+            comments: 0,
+            posts: 0,
+        }
+
+        trendPoints.push(point)
+        trendPointMap.set(point.date, point)
+        cursor = cursor.add(1, 'day')
+    }
+
+    for (const item of viewEvents) {
+        const localizedDate = item.occurredAt.tz(timezone)
+        if (!isWithinWindow(localizedDate, currentStart, currentEnd)) {
+            continue
+        }
+
+        const trendPoint = trendPointMap.get(localizedDate.format('YYYY-MM-DD'))
+        if (trendPoint) {
+            trendPoint.views += item.views
+        }
+    }
+
+    for (const item of commentEvents) {
+        const localizedDate = item.occurredAt.tz(timezone)
+        if (!isWithinWindow(localizedDate, currentStart, currentEnd)) {
+            continue
+        }
+
+        const trendPoint = trendPointMap.get(localizedDate.format('YYYY-MM-DD'))
+        if (trendPoint) {
+            trendPoint.comments += 1
+        }
+    }
+
+    for (const item of posts) {
+        const localizedDate = item.anchorDate.tz(timezone)
+        if (!isWithinWindow(localizedDate, currentStart, currentEnd)) {
+            continue
+        }
+
+        const trendPoint = trendPointMap.get(localizedDate.format('YYYY-MM-DD'))
+        if (trendPoint) {
+            trendPoint.posts += 1
+        }
+    }
+
+    return trendPoints
+}
+
+const buildSummaryForRange = ({
+    posts,
+    viewEvents,
+    commentEvents,
+    days,
+    timezone,
+    baseDate,
+}: BuildTrendPointsParams): AdminContentInsightsSummary => {
+    const { currentStart, currentEnd, previousStart, previousEnd } = buildWindowBoundaries(days, timezone, baseDate)
 
     return {
         days,
         metrics: {
             views: buildMetric(
-                currentPosts.reduce((total, item) => total + item.post.views, 0),
-                previousPosts.reduce((total, item) => total + item.post.views, 0),
+                sumViewsInWindow(viewEvents, currentStart, currentEnd, timezone),
+                sumViewsInWindow(viewEvents, previousStart, previousEnd, timezone),
             ),
             comments: buildMetric(
-                currentPosts.reduce((total, item) => total + item.commentCount, 0),
-                previousPosts.reduce((total, item) => total + item.commentCount, 0),
+                countCommentsInWindow(commentEvents, currentStart, currentEnd, timezone),
+                countCommentsInWindow(commentEvents, previousStart, previousEnd, timezone),
             ),
-            posts: buildMetric(currentPosts.length, previousPosts.length),
+            posts: buildMetric(
+                countPostsInWindow(posts, currentStart, currentEnd, timezone),
+                countPostsInWindow(posts, previousStart, previousEnd, timezone),
+            ),
         },
         currentWindow: {
             start: currentStart.toISOString(),
@@ -319,6 +496,14 @@ const buildSummaryForRange = (
             start: previousStart.toISOString(),
             end: previousEnd.toISOString(),
         },
+        trend: buildTrendPoints({
+            days,
+            timezone,
+            baseDate,
+            viewEvents,
+            commentEvents,
+            posts,
+        }),
     }
 }
 
@@ -343,7 +528,8 @@ export function resolveAdminContentInsightsTimeZone(timezone?: string | null) {
 
 export function buildAdminContentInsights(
     posts: AdminContentInsightsSourcePost[],
-    commentCountByPostId: Record<string, number>,
+    viewEvents: AdminContentInsightsSourceViewEvent[],
+    commentEvents: AdminContentInsightsSourceCommentEvent[],
     options: BuildAdminContentInsightsOptions,
 ): AdminContentInsightsResponse {
     const resolvedTimeZone = resolveAdminContentInsightsTimeZone(options.timezone)
@@ -359,15 +545,16 @@ export function buildAdminContentInsights(
         : posts
 
     const groupedPosts = new Map<string, InsightRepresentative[]>()
+    const clusterIdByPostId = new Map<string, string>()
 
     for (const post of filteredPosts) {
         const clusterId = resolveTranslationClusterId(post.translationId, post.slug, post.id) || post.id
         const representative: InsightRepresentative = {
             clusterId,
             post,
-            commentCount: commentCountByPostId[post.id] || 0,
             anchorDate: resolveAnchorDate(post),
         }
+        clusterIdByPostId.set(post.id, clusterId)
 
         const cluster = groupedPosts.get(clusterId)
         if (!cluster) {
@@ -383,16 +570,59 @@ export function buildAdminContentInsights(
         .filter((item): item is InsightRepresentative => Boolean(item))
         .sort((left, right) => compareRepresentatives(left, right, fallbackChain))
 
-    const summaries = ADMIN_CONTENT_INSIGHT_RANGES.map((days) => buildSummaryForRange(
-        representatives,
+    const normalizedViewEvents = viewEvents
+        .map((item) => {
+            const clusterId = clusterIdByPostId.get(item.postId)
+            if (!clusterId) {
+                return null
+            }
+
+            return {
+                clusterId,
+                occurredAt: toDayjs(item.bucketHourUtc),
+                views: item.views,
+            } satisfies InsightViewEvent
+        })
+        .filter((item): item is InsightViewEvent => Boolean(item))
+
+    const normalizedCommentEvents = commentEvents
+        .map((item) => {
+            const clusterId = clusterIdByPostId.get(item.postId)
+            if (!clusterId) {
+                return null
+            }
+
+            return {
+                clusterId,
+                occurredAt: toDayjs(item.createdAt),
+            } satisfies InsightCommentEvent
+        })
+        .filter((item): item is InsightCommentEvent => Boolean(item))
+
+    const summaries = ADMIN_CONTENT_INSIGHT_RANGES.map((days) => buildSummaryForRange({
+        posts: representatives,
+        viewEvents: normalizedViewEvents,
+        commentEvents: normalizedCommentEvents,
         days,
-        resolvedTimeZone,
-        options.baseDate,
-    ))
+        timezone: resolvedTimeZone,
+        baseDate: options.baseDate,
+    }))
 
     const selectedWindow = buildWindowBoundaries(options.selectedRange, resolvedTimeZone, options.baseDate)
+    const selectedWindowCounts = buildClusterWindowCountMap(
+        normalizedViewEvents,
+        normalizedCommentEvents,
+        selectedWindow.currentStart,
+        selectedWindow.currentEnd,
+        resolvedTimeZone,
+    )
     const selectedWindowPosts = representatives
-        .filter((item) => isWithinWindow(item.anchorDate, selectedWindow.currentStart, selectedWindow.currentEnd))
+        .map((item) => ({
+            representative: item,
+            views: selectedWindowCounts.viewsByCluster.get(item.clusterId) || 0,
+            commentCount: selectedWindowCounts.commentsByCluster.get(item.clusterId) || 0,
+        }))
+        .filter((item) => item.views > 0 || item.commentCount > 0)
         .sort(sortPostRankings)
 
     return {

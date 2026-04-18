@@ -18,6 +18,15 @@ export interface AdminContentInsightsWindow {
     end: string
 }
 
+export interface AdminContentInsightsTrendPoint {
+    date: string
+    start: string
+    end: string
+    views: number
+    comments: number
+    posts: number
+}
+
 export interface AdminContentInsightsSummary {
     days: AdminContentInsightsRange
     metrics: {
@@ -27,6 +36,7 @@ export interface AdminContentInsightsSummary {
     }
     currentWindow: AdminContentInsightsWindow
     previousWindow: AdminContentInsightsWindow
+    trend: AdminContentInsightsTrendPoint[]
 }
 
 export interface AdminContentInsightsCategoryRef {

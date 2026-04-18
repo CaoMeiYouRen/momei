@@ -37,6 +37,22 @@ CREATE INDEX IF NOT EXISTS "IDX_post_language" ON "momei_post" ("language");
 CREATE INDEX IF NOT EXISTS "IDX_post_author" ON "momei_post" ("author_id");
 CREATE INDEX IF NOT EXISTS "IDX_post_category" ON "momei_post" ("category_id");
 
+-- 2.1 创建小时级阅读聚合表 (momei_post_view_hourly)
+CREATE TABLE IF NOT EXISTS "momei_post_view_hourly" (
+  "id" varchar(36) NOT NULL,
+  "post_id" varchar(36) NOT NULL,
+  "bucket_hour_utc" timestamptz(6) NOT NULL,
+  "views" integer NOT NULL DEFAULT 0,
+  "created_at" timestamptz(6) NOT NULL DEFAULT now(),
+  "updated_at" timestamptz(6) NOT NULL DEFAULT now(),
+  CONSTRAINT "FK_post_view_hourly_post" FOREIGN KEY ("post_id") REFERENCES "momei_post" ("id") ON DELETE CASCADE,
+  PRIMARY KEY ("id")
+);
+
+CREATE INDEX IF NOT EXISTS "IDX_post_view_hourly_post_id" ON "momei_post_view_hourly" ("post_id");
+CREATE INDEX IF NOT EXISTS "IDX_post_view_hourly_bucket_hour_utc" ON "momei_post_view_hourly" ("bucket_hour_utc");
+CREATE UNIQUE INDEX IF NOT EXISTS "IDX_post_view_hourly_post_bucket_hour_utc" ON "momei_post_view_hourly" ("post_id", "bucket_hour_utc");
+
 -- 3. 创建评论表 (momei_comment)
 CREATE TABLE IF NOT EXISTS "momei_comment" (
   "id" varchar(36) NOT NULL,

@@ -27,10 +27,10 @@
     -   阅读量、评论量、发文量均按“当前时间窗口 vs 前一等长窗口”对比展示。
     -   未指定内容语言时，多语言文章按当前 UI 语言 fallback 链选出的代表版本去重，避免同一翻译簇重复计数。
     -   `全部内容` 口径按 `publishedAt` 优先、缺失时回退 `createdAt`；`仅公开内容` 口径只统计 `status=published && visibility=public`。
-    -   当前第一轮的阅读量 / 评论量属于“窗口内容的当前累计表现”，不代表最近 `N` 天真实新增互动事件；若要升级为事件级趋势，需要补独立的历史指标存储。
+    -   阅读量来自 `post_view_hourly` 的小时级事件聚合并按请求时区折叠自然日；评论量按 `Comment.createdAt` 聚合；发文量按 `publishedAt` 优先、缺失时回退 `createdAt`。
 -   **排行**:
-    -   热门文章：按阅读量优先、评论量次级、标题稳定排序。
-    -   热门标签 / 分类：聚合当前时间窗口内代表版本文章的阅读量、评论量与文章数。
+    -   热门文章：按当前时间窗口内的真实阅读事件优先、评论事件次级、标题稳定排序。
+    -   热门标签 / 分类：聚合当前时间窗口内代表版本文章的真实阅读事件、评论事件与文章数。
 
 ### 3.1 用户管理页 (`/admin/users`)
 
@@ -169,14 +169,14 @@
 -   `GET /api/admin/content-insights`
     -   **Query**: `range=7|30|90`, `scope=all|public`, `contentLanguage`, `timezone`
     -   **Auth**: `admin` 查看全量内容，`author` 自动收敛为本人内容。
-    -   **Response**: 返回窗口汇总指标、热门文章 / 标签 / 分类排行，以及实际使用的时区与过滤口径。
+    -   **Response**: 返回窗口汇总指标、按请求时区折叠的 `summaries[].trend` 日趋势、热门文章 / 标签 / 分类排行，以及实际使用的时区与过滤口径。
 
-### 5.5 内容洞察真实趋势升级设计（小时级稀疏聚合）
+### 5.5 内容洞察真实趋势实现（小时级稀疏聚合）
 
 #### 5.5.1 准入结论
 
--   **结论**: 属于当前 P1 看板任务的延伸设计，允许在当前范围内继续推进。
--   **目标**: 将后台首页中的“阅读量趋势”从“窗口内容累计表现”升级为“最近 N 天真实新增阅读事件趋势”。
+-   **结论**: 已按当前 P1 范围落地为小时级稀疏聚合方案。
+-   **目标**: 将后台首页中的“阅读量趋势”升级为“最近 N 天真实新增阅读事件趋势”。
 -   **约束**:
     -   必须兼容多时区展示，不能把单一服务器时区的自然日误当成所有用户的日界线。
     -   不引入逐次 pageview 明细表，避免零阅读日或高流量文章导致历史数据体量失控。
@@ -213,9 +213,9 @@
 
 -   **现状**:
     -   [server/api/posts/[id]/views.post.ts](server/api/posts/%5Bid%5D/views.post.ts) 调用 [server/utils/pv-cache.ts](server/utils/pv-cache.ts) 记录阅读。
-    -   `pvCache.flush()` 当前仅把聚合后的增量加回 `Post.views`。
--   **升级后写入口径**:
-    -   `record(postId)` 仍然只做内存 / Redis 缓冲，不在请求路径直接写 `post_view_hourly`。
+    -   `pvCache.flush()` 当前会同时把聚合后的增量写回 `Post.views` 与 `post_view_hourly`。
+-   **当前写入口径**:
+    -   `record(postId)` 默认仍然只做内存 / Redis 缓冲；仅在无 Redis 的 serverless 回退分支里，会直接事务写入 `Post.views` 与 `post_view_hourly` 以避免丢数。
     -   `flush()` 在拿到待刷入增量后，同时完成两件事：
         -   `Post.views += count`
         -   `post_view_hourly(postId, bucketHourUtc).views += count`
@@ -236,8 +236,8 @@
     -   例：用户时区为 `Asia/Tokyo`，则 `2026-04-18 00:00~23:59 JST` 会映射到一段 UTC 小时区间；服务端聚合时用同一时区把每个 `bucketHourUtc` 转回本地日期后求和。
     -   缺失的天在 API 层补 `0`，而不是落库存零值行。
 -   **排行逻辑**:
-    -   热门文章 / 标签 / 分类的“趋势窗口阅读量”应改为聚合 `post_view_hourly` 在窗口内的新增值，而不是继续使用 `Post.views` 总量。
-    -   若需要同时保留“累计阅读排行”，可在响应中拆分为 `totalViews` 与 `windowViews`，避免语义混淆。
+    -   热门文章 / 标签 / 分类的“趋势窗口阅读量”当前已改为聚合 `post_view_hourly` 在窗口内的新增值，而不是继续使用 `Post.views` 总量。
+    -   当前接口中的排行数值默认表示所选窗口内的新增事件值。
 -   **评论趋势**:
     -   评论已有 `createdAt`，优先直接按 `Comment.createdAt` 聚合，不新增评论历史表。
     -   若后续要支持“评论被删除 / 审核状态变化”带来的回放一致性，再单独评估评论小时聚合表。
