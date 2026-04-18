@@ -459,6 +459,7 @@ export {
     assertSupportedAuditReport,
     evaluateDependencyRiskGate,
     loadAuditReport,
+    main,
     normalizeAllowlistDefinition,
     normalizeSeverity,
     parseArgs,

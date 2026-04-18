@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useTheme, PRESETS } from './use-theme'
 import { useAppFetch } from './use-app-fetch'
+
+const { mockUseHead } = vi.hoisted(() => ({
+    mockUseHead: vi.fn(),
+}))
+
+mockNuxtImport('useHead', () => mockUseHead)
 
 // Mock useAppFetch
 vi.mock('./use-app-fetch', () => ({
@@ -15,12 +22,16 @@ vi.mock('@vueuse/core', () => ({
 describe('useTheme', () => {
     let sharedSettings: any
     let sharedSettingsLoaded: any
+    let sharedPreviewSettings: any
+    let sharedLocks: any
 
     beforeEach(() => {
         vi.clearAllMocks()
         const theme = useTheme()
         sharedSettings = theme.settings
         sharedSettingsLoaded = theme.settingsLoaded
+        sharedPreviewSettings = theme.previewSettings
+        sharedLocks = theme.locks
         sharedSettings.value = {
             themePreset: 'default',
             themePrimaryColor: null,
@@ -38,6 +49,8 @@ describe('useTheme', () => {
             themeBackgroundType: 'none',
             themeBackgroundValue: null,
         }
+        sharedPreviewSettings.value = null
+        sharedLocks.value = {}
         sharedSettingsLoaded.value = false
     })
 
@@ -146,5 +159,73 @@ describe('useTheme', () => {
         await fetchTheme()
 
         expect(useAppFetch).not.toHaveBeenCalled()
+    })
+
+    it('should merge lock metadata and re-fetch when forced', async () => {
+        vi.mocked(useAppFetch).mockReturnValue({
+            data: {
+                value: {
+                    data: {
+                        themePreset: 'green',
+                        themeFaviconUrl: '/favicon-green.ico',
+                    },
+                    meta: {
+                        themePreset: { isLocked: true },
+                        themeFaviconUrl: { isLocked: false },
+                    },
+                },
+            },
+        } as any)
+
+        const { fetchTheme, locks, isLocked } = useTheme()
+
+        await fetchTheme({ force: true })
+
+        expect(locks.value).toEqual({
+            themePreset: true,
+            themeFaviconUrl: false,
+        })
+        expect(isLocked('themePreset')).toBe(true)
+        expect(isLocked('themeBackgroundType')).toBe(false)
+    })
+
+    it('should allow preview settings to override persisted settings', () => {
+        const { settings, previewSettings, effectiveSettings } = useTheme()
+        settings.value!.themePrimaryColor = '#111111'
+        previewSettings.value = {
+            ...settings.value!,
+            themePrimaryColor: '#222222',
+        }
+
+        expect(effectiveSettings.value?.themePrimaryColor).toBe('#222222')
+        expect(useTheme().customStyles.value).toContain('--p-primary-500: #222222')
+    })
+
+    it('should apply head metadata with style and favicon links', () => {
+        const { settings, applyTheme } = useTheme()
+        settings.value!.themeFaviconUrl = '/favicon.ico'
+
+        applyTheme()
+
+        expect(mockUseHead).toHaveBeenCalledTimes(1)
+        const payload = mockUseHead.mock.calls[0]?.[0] as {
+            style: { id: string, innerHTML: { value: string } }[]
+            link: { value: { rel: string, href: string }[] }
+        }
+        expect(payload.style[0]?.id).toBe('momei-theme-custom')
+        expect(payload.style[0]?.innerHTML.value).toContain('@layer momei-overrides')
+        expect(payload.link.value).toEqual([{ rel: 'icon', href: '/favicon.ico' }])
+    })
+
+    it('should fall back when custom colors are blank-like strings and use readable contrast for bright primary', () => {
+        const { settings, customStyles } = useTheme()
+        settings.value!.themePrimaryColor = ' #ffe411 '
+        settings.value!.themeAccentColor = 'undefined'
+        settings.value!.themeSurfaceColor = 'null'
+
+        const styles = customStyles.value
+        expect(styles).toContain('--p-primary-500: #ffe411')
+        expect(styles).toContain('--p-primary-contrast-color: #000')
+        expect(styles).toContain(`--m-accent-color: ${PRESETS.default.accent.light}`)
     })
 })

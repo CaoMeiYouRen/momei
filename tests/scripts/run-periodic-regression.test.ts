@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+    buildEvidence,
     LOG_WINDOW_LIMITS,
     PERIODIC_REGRESSION_PROFILES,
     assessRegressionLogWindow,
@@ -108,5 +109,42 @@ describe('run-periodic-regression', () => {
         expect(summary.conclusion).toBe('Pass')
         expect(summary.blockers).toHaveLength(0)
         expect(summary.warnings).toEqual(['duplicate-code:check failed'])
+    })
+
+    it('builds markdown evidence with command status and review-gate findings', () => {
+        const profile = resolveRegressionProfile('weekly')
+        const evidence = buildEvidence({
+            artifactJsonPath: '/tmp/weekly.json',
+            artifactMarkdownPath: '/tmp/weekly.md',
+            dryRun: true,
+            logHealth: {
+                entryCount: 3,
+                lineCount: 120,
+                reasons: [],
+                shouldArchive: false,
+            },
+            mode: 'warn',
+            profile,
+            results: profile.steps.slice(0, 2).map((step, index) => ({
+                ...step,
+                ok: index === 0,
+                skipped: index === 1,
+            })),
+            summary: {
+                blockers: [],
+                conclusion: 'Prepared',
+                warnings: ['duplicate-code:check failed'],
+            },
+        })
+
+        expect(evidence).toContain('Review Gate Record — weekly periodic regression')
+        expect(evidence).toContain('- 结果: PASS')
+        expect(evidence).toContain('- 结果: DRY RUN')
+        expect(evidence).toContain('- 结论: Prepared')
+        expect(evidence).toContain('- duplicate-code:check failed')
+    })
+
+    it('throws for unsupported regression profiles', () => {
+        expect(() => resolveRegressionProfile('nightly' as never)).toThrow(/Unsupported regression profile/)
     })
 })

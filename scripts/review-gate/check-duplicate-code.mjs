@@ -475,6 +475,7 @@ async function main() {
 
 export {
     evaluateDuplicateCodeGate,
+    main,
     normalizeJscpdReport,
     parseArgs,
     previewFragment,

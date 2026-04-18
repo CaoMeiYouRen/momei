@@ -1,5 +1,16 @@
 import { describe, it, expect } from 'vitest'
-import { addMillisecondsToDate, addSecondsToDate, durationToSeconds, formatDate, formatDateTime, getDateTimestamp, getUtcDateParts, secondsToDuration } from '@/utils/shared/date'
+import {
+    addMillisecondsToDate,
+    addSecondsToDate,
+    durationToSeconds,
+    formatDate,
+    formatDateTime,
+    getDateTimestamp,
+    getRelativeTime,
+    getUtcDateParts,
+    isFutureDate,
+    secondsToDuration,
+} from '@/utils/shared/date'
 
 describe('Date Utils', () => {
     describe('formatDate', () => {
@@ -131,6 +142,48 @@ describe('Date Utils', () => {
             expect(getDateTimestamp('invalid-date', 123)).toBe(123)
             expect(getDateTimestamp(null, 456)).toBe(456)
         })
+
+        it('supports timezone-aware parsing when requested', () => {
+            expect(getDateTimestamp('2024-01-01T00:00:00.000Z', 0, 'Asia/Shanghai')).toBeGreaterThan(0)
+        })
+    })
+
+    describe('getRelativeTime', () => {
+        it('returns relative time within the max day window', () => {
+            const result = getRelativeTime('2024-01-02T00:00:00.000Z', {
+                baseDate: '2024-01-01T00:00:00.000Z',
+                locale: 'en',
+                maxDays: 7,
+            })
+
+            expect(result).toBe('in a day')
+        })
+
+        it('falls back to formatted date beyond the max day window', () => {
+            const result = getRelativeTime('2024-02-20T00:00:00.000Z', {
+                baseDate: '2024-01-01T00:00:00.000Z',
+                locale: 'en',
+                maxDays: 7,
+                fallbackFormat: 'YYYY/MM/DD',
+            })
+
+            expect(result).toBe('2024/02/20')
+        })
+
+        it('returns empty string for empty values', () => {
+            expect(getRelativeTime(undefined)).toBe('')
+        })
+    })
+
+    describe('isFutureDate', () => {
+        it('detects future and non-future dates', () => {
+            expect(isFutureDate('2024-01-02T00:00:00.000Z', '2024-01-01T00:00:00.000Z')).toBe(true)
+            expect(isFutureDate('2024-01-01T00:00:00.000Z', '2024-01-02T00:00:00.000Z')).toBe(false)
+        })
+
+        it('returns false for empty values', () => {
+            expect(isFutureDate(undefined)).toBe(false)
+        })
     })
 
     describe('addSecondsToDate', () => {
@@ -157,6 +210,13 @@ describe('Date Utils', () => {
         it('returns null for invalid dates', () => {
             expect(getUtcDateParts('invalid-date')).toBeNull()
             expect(getUtcDateParts(null)).toBeNull()
+        })
+    })
+
+    describe('durationToSeconds', () => {
+        it('treats invalid trailing segments as zero', () => {
+            expect(durationToSeconds('01:02:invalid')).toBe(3720)
+            expect(durationToSeconds('invalid:20')).toBe(20)
         })
     })
 })

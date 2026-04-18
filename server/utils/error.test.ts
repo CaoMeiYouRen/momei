@@ -1,7 +1,22 @@
-import { describe, it, expect } from 'vitest'
-import { APIError, Errors } from './error'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+const { mockTranslate } = vi.hoisted(() => ({
+    mockTranslate: vi.fn(async (key: string) => `translated:${key}`),
+}))
+
+vi.mock('./i18n', () => ({
+    t: mockTranslate,
+    getLocale: () => 'en-US',
+}))
+
+import { APIError, Errors, createLocalizedResponse, throwLocalizedError } from './error'
 
 describe('server/utils/error', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        vi.stubGlobal('createError', vi.fn((options: Record<string, unknown>) => Object.assign(new Error(String(options.statusMessage)), options)))
+    })
+
     describe('APIError', () => {
         it('creates an error with key and default status 400', () => {
             const err = new APIError('error.unauthorized')
@@ -49,6 +64,58 @@ describe('server/utils/error', () => {
         it('RATE_LIMITED returns 429 error', () => {
             const err = Errors.RATE_LIMITED()
             expect(err.statusCode).toBe(429)
+        })
+    })
+
+    describe('throwLocalizedError', () => {
+        it('throws a localized h3-compatible error payload', async () => {
+            await expect(throwLocalizedError('error.forbidden', 403, { scope: 'admin' })).rejects.toMatchObject({
+                statusCode: 403,
+                statusMessage: 'translated:error.forbidden',
+                data: {
+                    code: 403,
+                    message: 'translated:error.forbidden',
+                    locale: 'en-US',
+                    key: 'error.forbidden',
+                },
+            })
+
+            expect(mockTranslate).toHaveBeenCalledWith('error.forbidden', { scope: 'admin' })
+        })
+    })
+
+    describe('createLocalizedResponse', () => {
+        it('localizes APIError instances', async () => {
+            await expect(createLocalizedResponse(new APIError('error.notFound', 404, { resource: 'Post' }))).resolves.toEqual({
+                code: 404,
+                message: 'translated:error.notFound',
+                locale: 'en-US',
+                data: null,
+            })
+        })
+
+        it('reuses embedded keys for preprocessed errors', async () => {
+            await expect(createLocalizedResponse({
+                statusCode: 422,
+                data: {
+                    key: 'error.validation',
+                    params: { field: 'title' },
+                },
+            })).resolves.toEqual({
+                code: 422,
+                message: 'translated:error.validation',
+                locale: 'en-US',
+                data: null,
+            })
+        })
+
+        it('falls back to internal errors for generic exceptions', async () => {
+            await expect(createLocalizedResponse(new Error('boom'))).resolves.toEqual({
+                code: 500,
+                message: 'translated:error.internal',
+                locale: 'en-US',
+                data: null,
+            })
         })
     })
 })

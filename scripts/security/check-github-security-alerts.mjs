@@ -88,6 +88,7 @@ async function main() {
 export {
     classifyAlert,
     evaluateSecurityAlertGate,
+    main,
     mapAuditRiskToDependabotAlert,
     normalizeCodeScanningAlert,
     normalizeDependabotAlert,

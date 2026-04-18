@@ -1,10 +1,12 @@
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import { describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
     classifyAlert,
     evaluateSecurityAlertGate,
+    main as securityAlertMain,
     mapAuditRiskToDependabotAlert,
     normalizeCodeScanningAlert,
     normalizeDependabotAlert,
@@ -12,9 +14,22 @@ import {
     resolveGitHubToken,
 } from '@/scripts/security/check-github-security-alerts.mjs'
 import { loadLocalEnvFile, parseDotEnvFile } from '@/scripts/security/load-local-env.mjs'
-import { fetchRepositoryAlerts } from '@/scripts/security/security-alert-gate-shared.mjs'
+import {
+    buildArtifactPaths,
+    countByBucket,
+    fetchRepositoryAlerts,
+    loadInputSnapshot,
+    writeArtifacts,
+} from '@/scripts/security/security-alert-gate-shared.mjs'
 
 describe('check-github-security-alerts', () => {
+    beforeEach(() => {
+        vi.restoreAllMocks()
+        delete process.env.SECURITY_ALERTS_TOKEN
+        delete process.env.GH_TOKEN
+        delete process.env.GITHUB_TOKEN
+    })
+
     it('classifies open Dependabot alerts with patches as immediate fixes', () => {
         const alert = normalizeDependabotAlert({
             number: 12,
@@ -208,6 +223,290 @@ describe('check-github-security-alerts', () => {
         expect(result.excepted).toHaveLength(1)
         expect(result.blocking).toHaveLength(1)
         expect(result.blocking[0]).toBe(immediateFixAlert)
+    })
+
+    it('prefers SECURITY_ALERTS_TOKEN over other GitHub tokens', () => {
+        process.env.GITHUB_TOKEN = 'github-token'
+        process.env.GH_TOKEN = 'gh-token'
+        process.env.SECURITY_ALERTS_TOKEN = 'security-token'
+
+        expect(resolveGitHubToken()).toBe('security-token')
+
+        delete process.env.SECURITY_ALERTS_TOKEN
+        expect(resolveGitHubToken()).toBe('gh-token')
+
+        delete process.env.GH_TOKEN
+        expect(resolveGitHubToken()).toBe('github-token')
+    })
+
+    it('returns a missing-token status without calling GitHub when token is absent', async () => {
+        const fetchSpy = vi.fn()
+        vi.stubGlobal('fetch', fetchSpy)
+
+        const result = await fetchRepositoryAlerts({
+            endpoint: 'dependabot/alerts',
+            failureResolver: vi.fn(),
+            normalizer: vi.fn(),
+            owner: 'CaoMeiYouRen',
+            perPage: 100,
+            repo: 'momei',
+            token: null,
+        })
+
+        expect(result).toEqual({
+            alerts: [],
+            sourceStatus: {
+                detail: 'No GitHub token available; official repository alerts skipped.',
+                kind: 'missing-token',
+                sourceName: 'github-api',
+            },
+        })
+        expect(fetchSpy).not.toHaveBeenCalled()
+    })
+
+    it('paginates GitHub alert responses until the final short page', async () => {
+        vi.stubGlobal('fetch', vi.fn()
+            .mockResolvedValueOnce({
+                ok: true,
+                status: 200,
+                text: async () => JSON.stringify([{ number: 1 }, { number: 2 }]),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                status: 200,
+                text: async () => JSON.stringify([{ number: 3 }]),
+            }))
+
+        const result = await fetchRepositoryAlerts({
+            endpoint: 'dependabot/alerts',
+            failureResolver: vi.fn(),
+            normalizer: (alert: { number: number }) => ({ alertNumber: String(alert.number) }),
+            owner: 'CaoMeiYouRen',
+            perPage: 2,
+            repo: 'momei',
+            token: 'token-123',
+        })
+
+        expect(result).toEqual({
+            alerts: [
+                { alertNumber: '1' },
+                { alertNumber: '2' },
+                { alertNumber: '3' },
+            ],
+            sourceStatus: {
+                detail: 'Fetched 3 open alerts.',
+                kind: 'ok',
+                sourceName: 'github-api',
+            },
+        })
+    })
+
+    it('uses the provided failure resolver when GitHub responds with an error', async () => {
+        const failureResolver = vi.fn(() => ({ kind: 'permission-denied', sourceName: 'github-api', detail: 'forbidden' }))
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+            ok: false,
+            status: 403,
+            text: async () => JSON.stringify({ message: 'forbidden' }),
+        }))
+
+        const result = await fetchRepositoryAlerts({
+            endpoint: 'code-scanning/alerts',
+            failureResolver,
+            normalizer: vi.fn(),
+            owner: 'CaoMeiYouRen',
+            perPage: 100,
+            repo: 'momei',
+            token: 'token-123',
+        })
+
+        expect(failureResolver).toHaveBeenCalledWith({ message: 'forbidden' }, 403)
+        expect(result).toEqual({
+            alerts: [],
+            sourceStatus: {
+                kind: 'permission-denied',
+                sourceName: 'github-api',
+                detail: 'forbidden',
+            },
+        })
+    })
+
+    it('parses alert input snapshots and normalizes source statuses', async () => {
+        const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'momei-alert-snapshot-'))
+        const snapshotPath = path.join(tempRoot, 'snapshot.json')
+
+        try {
+            await writeFile(snapshotPath, JSON.stringify({
+                repository: { owner: 'CaoMeiYouRen', repo: 'momei' },
+                dependabotAlerts: [{
+                    number: 9,
+                    state: 'open',
+                    dependency: { package: { ecosystem: 'npm', name: 'vite' } },
+                    security_advisory: { severity: 'high', summary: 'vite vulnerability' },
+                    security_vulnerability: {
+                        package: { ecosystem: 'npm', name: 'vite' },
+                        severity: 'high',
+                        first_patched_version: { identifier: '7.3.9' },
+                    },
+                }],
+                codeScanningAlerts: [{
+                    number: 7,
+                    state: 'open',
+                    rule: { id: 'js/xss', severity: 'error', security_severity_level: 'high' },
+                    tool: { name: 'CodeQL' },
+                    most_recent_instance: { location: { path: 'server/api/posts.get.ts' }, classifications: [] },
+                }],
+                sourceStatuses: {
+                    dependabot: { kind: 'fallback', sourceName: 'pnpm-audit', detail: 'fallback active' },
+                },
+            }), 'utf8')
+
+            const snapshot = await loadInputSnapshot(snapshotPath)
+
+            expect(snapshot.repository).toEqual({ owner: 'CaoMeiYouRen', repo: 'momei' })
+            expect(snapshot.dependabotAlerts[0]).toMatchObject({
+                alertNumber: '9',
+                packageName: 'vite',
+            })
+            expect(snapshot.codeScanningAlerts[0]).toMatchObject({
+                alertNumber: '7',
+                ruleId: 'js/xss',
+            })
+            expect(snapshot.sourceStatuses).toEqual({
+                dependabot: { kind: 'fallback', sourceName: 'pnpm-audit', detail: 'fallback active' },
+                codeScanning: { kind: 'ok', sourceName: 'input', detail: '' },
+            })
+        } finally {
+            await rm(tempRoot, { force: true, recursive: true })
+        }
+    })
+
+    it('builds artifact paths and writes both JSON and markdown outputs', async () => {
+        const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'momei-alert-artifacts-'))
+
+        try {
+            const artifactPaths = {
+                json: path.join(tempRoot, 'artifacts', 'alerts.json'),
+                md: path.join(tempRoot, 'artifacts', 'alerts.md'),
+            }
+            const alerts = [{
+                alertNumber: '12',
+                classification: { bucket: 'immediate-fix', reason: 'patched version available' },
+                htmlUrl: 'https://example.com/alert/12',
+                packageName: 'vite',
+                patchedVersion: '7.3.9',
+                severity: 'high',
+                source: 'dependabot',
+            }]
+
+            expect(buildArtifactPaths({
+                outputJson: null,
+                outputMd: null,
+            }, process.cwd())).toEqual({
+                json: path.join(process.cwd(), 'artifacts', 'review-gate', '2026-04-18-security-alerts.json'),
+                md: path.join(process.cwd(), 'artifacts', 'review-gate', '2026-04-18-security-alerts.md'),
+            })
+
+            expect(countByBucket(alerts)).toEqual({
+                defer: 0,
+                'immediate-fix': 1,
+                observe: 0,
+            })
+
+            await writeArtifacts({
+                alerts,
+                artifactPaths,
+                gateConclusion: 'Reject',
+                minSeverity: 'high',
+                repoRoot: tempRoot,
+                repository: { owner: 'CaoMeiYouRen', repo: 'momei' },
+                result: {
+                    blocking: alerts,
+                    excepted: [],
+                    observe: [],
+                    relevantAlerts: alerts,
+                },
+                sourceStatuses: {
+                    dependabot: { kind: 'ok', sourceName: 'github-api', detail: 'Fetched 1 open alerts.' },
+                    codeScanning: { kind: 'ok', sourceName: 'github-api', detail: 'Fetched 0 open alerts.' },
+                },
+            })
+
+            const jsonArtifact = JSON.parse(readFileSync(artifactPaths.json, 'utf8'))
+            const markdownArtifact = readFileSync(artifactPaths.md, 'utf8')
+
+            expect(jsonArtifact.summary).toEqual({
+                defer: 0,
+                'immediate-fix': 1,
+                observe: 0,
+            })
+            expect(markdownArtifact).toContain('Review Gate Record — security-alerts')
+            expect(markdownArtifact).toContain('vite (12) [high] -> immediate-fix')
+        } finally {
+            await rm(tempRoot, { force: true, recursive: true })
+        }
+    })
+
+    it('runs the security alert main flow with snapshot input and writes gate artifacts', async () => {
+        const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'momei-security-main-'))
+        const inputPath = path.join(tempRoot, 'snapshot.json')
+        const exceptionsPath = path.join(tempRoot, 'exceptions.json')
+        const outputJsonPath = path.join(tempRoot, 'artifacts', 'alerts.json')
+        const outputMdPath = path.join(tempRoot, 'artifacts', 'alerts.md')
+        const originalArgv = process.argv
+        const originalExitCode = process.exitCode
+        const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
+
+        try {
+            await writeFile(inputPath, JSON.stringify({
+                repository: { owner: 'CaoMeiYouRen', repo: 'momei' },
+                dependabotAlerts: [{
+                    number: 12,
+                    state: 'open',
+                    html_url: 'https://example.com/alert/12',
+                    dependency: { package: { ecosystem: 'npm', name: 'vite' } },
+                    security_advisory: { severity: 'high', summary: 'vite vulnerability' },
+                    security_vulnerability: {
+                        package: { ecosystem: 'npm', name: 'vite' },
+                        severity: 'high',
+                        first_patched_version: { identifier: '7.3.9' },
+                    },
+                }],
+                codeScanningAlerts: [],
+                sourceStatuses: {
+                    dependabot: { kind: 'ok', sourceName: 'input', detail: 'snapshot' },
+                    codeScanning: { kind: 'ok', sourceName: 'input', detail: 'snapshot' },
+                },
+            }), 'utf8')
+            await writeFile(exceptionsPath, JSON.stringify({ entries: [] }), 'utf8')
+
+            process.argv = [
+                process.argv[0] || 'node',
+                'check-github-security-alerts.mjs',
+                `--input=${inputPath}`,
+                `--exceptions=${exceptionsPath}`,
+                `--output-json=${outputJsonPath}`,
+                `--output-md=${outputMdPath}`,
+                '--min-severity=high',
+                '--mode=error',
+            ]
+            process.exitCode = undefined
+
+            await securityAlertMain()
+
+            const jsonArtifact = JSON.parse(readFileSync(outputJsonPath, 'utf8'))
+            const markdownArtifact = readFileSync(outputMdPath, 'utf8')
+
+            expect(process.exitCode).toBe(1)
+            expect(jsonArtifact.gateConclusion).toBe('Reject')
+            expect(jsonArtifact.results.blocking).toHaveLength(1)
+            expect(markdownArtifact).toContain('Review Gate Record — security-alerts')
+            expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('Security Alert Gate'))
+        } finally {
+            process.argv = originalArgv
+            process.exitCode = originalExitCode
+            infoSpy.mockRestore()
+            await rm(tempRoot, { force: true, recursive: true })
+        }
     })
 
     it('rejects malformed exception entries', () => {

@@ -1,7 +1,22 @@
-import { describe, expect, it } from 'vitest'
-import { ensureFound, fail, paginate, success } from './response'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+const { mockTranslate } = vi.hoisted(() => ({
+    mockTranslate: vi.fn(async (key: string) => `translated:${key}`),
+}))
+
+vi.mock('./i18n', () => ({
+    t: mockTranslate,
+    getLocale: () => 'en-US',
+}))
+
+import { ensureFound, fail, localizedFail, localizedSuccess, paginate, success } from './response'
 
 describe('response utils', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        vi.stubGlobal('createError', vi.fn((options: Record<string, unknown>) => Object.assign(new Error(String(options.statusMessage)), options)))
+    })
+
     describe('success', () => {
         it('should return success response with default code 200', () => {
             const data = { id: 1, name: 'Test' }
@@ -10,7 +25,7 @@ describe('response utils', () => {
             expect(response).toEqual({
                 code: 200,
                 data,
-                locale: 'zh-CN',
+                locale: 'en-US',
             })
         })
 
@@ -21,7 +36,7 @@ describe('response utils', () => {
             expect(response).toEqual({
                 code: 201,
                 data,
-                locale: 'zh-CN',
+                locale: 'en-US',
             })
         })
 
@@ -31,7 +46,7 @@ describe('response utils', () => {
             expect(response).toEqual({
                 code: 200,
                 data: null,
-                locale: 'zh-CN',
+                locale: 'en-US',
             })
         })
 
@@ -42,18 +57,55 @@ describe('response utils', () => {
             expect(response).toEqual({
                 code: 200,
                 data,
-                locale: 'zh-CN',
+                locale: 'en-US',
             })
         })
     })
 
     describe('fail', () => {
         it('should throw error with default status code 400', () => {
-            expect(() => fail('Error message')).toThrow()
+            expect(() => fail('Error message')).toThrowError('Error message')
         })
 
         it('should throw error with custom status code', () => {
-            expect(() => fail('Not found', 404)).toThrow()
+            expect(() => fail('Not found', 404)).toThrowError('Not found')
+        })
+
+        it('should expose locale-aware payload in thrown errors', () => {
+            expect(() => fail('Conflict', 409)).toThrow(expect.objectContaining({
+                statusCode: 409,
+                data: {
+                    code: 409,
+                    message: 'Conflict',
+                    locale: 'en-US',
+                },
+            }))
+        })
+    })
+
+    describe('localizedSuccess', () => {
+        it('should resolve translated success messages', async () => {
+            await expect(localizedSuccess({ id: 1 }, 'common.saved', { scope: 'post' }, 201)).resolves.toEqual({
+                code: 201,
+                data: { id: 1 },
+                message: 'translated:common.saved',
+                locale: 'en-US',
+            })
+        })
+    })
+
+    describe('localizedFail', () => {
+        it('should throw translated localized errors', async () => {
+            await expect(localizedFail('error.validation', 422, { field: 'title' })).rejects.toMatchObject({
+                statusCode: 422,
+                statusMessage: 'translated:error.validation',
+                data: {
+                    code: 422,
+                    message: 'translated:error.validation',
+                    locale: 'en-US',
+                    key: 'error.validation',
+                },
+            })
         })
     })
 
@@ -66,7 +118,13 @@ describe('response utils', () => {
         })
 
         it('should throw 404 error when entity is null', () => {
-            expect(() => ensureFound(null, 'User')).toThrow()
+            expect(() => ensureFound(null, 'User')).toThrow(expect.objectContaining({
+                statusCode: 404,
+                data: expect.objectContaining({
+                    flag: 'NOT_FOUND',
+                    params: { resource: 'User' },
+                }),
+            }))
         })
 
         it('should throw 404 error when entity is undefined', () => {

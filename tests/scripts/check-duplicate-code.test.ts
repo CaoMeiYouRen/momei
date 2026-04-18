@@ -1,11 +1,12 @@
 import { execFile } from 'node:child_process'
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { promisify } from 'node:util'
 import { describe, expect, it } from 'vitest'
 import {
     evaluateDuplicateCodeGate,
+    main as duplicateCodeMain,
     normalizeJscpdReport,
     parseArgs,
     previewFragment,
@@ -176,6 +177,66 @@ describe('check-duplicate-code', () => {
             })
         } finally {
             await rm(directory, { force: true, recursive: true })
+        }
+    })
+
+    it('runs the main flow with an input report and writes review-gate artifacts', async () => {
+        const directory = await mkdtemp(join(tmpdir(), 'duplicate-code-main-'))
+        const inputPath = resolve(directory, 'report.json')
+        const configPath = resolve(directory, 'jscpd.json')
+        const baselinePath = resolve(directory, 'baseline.json')
+        const scope = `duplicate-code-test-${Date.now()}`
+        const dateStr = new Date().toISOString().slice(0, 10)
+        const artifactJsonPath = resolve(process.cwd(), 'artifacts', 'review-gate', `${dateStr}-${scope}.json`)
+        const artifactMarkdownPath = resolve(process.cwd(), 'artifacts', 'review-gate', `${dateStr}-${scope}.md`)
+        const originalArgv = process.argv
+        const originalExitCode = process.exitCode
+        const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
+
+        await writeFile(inputPath, JSON.stringify(sampleReport), 'utf8')
+        await writeFile(configPath, JSON.stringify({
+            files: ['server/**/*.ts'],
+            ignore: ['tests/**'],
+            minLines: 5,
+            minTokens: 40,
+            path: ['server'],
+        }), 'utf8')
+        await writeFile(baselinePath, JSON.stringify({
+            clones: 10,
+            toleranceClones: 1,
+            tolerancePercentage: 1,
+            totalPercentage: 40,
+            updatedAt: '2026-04-01T00:00:00.000Z',
+        }), 'utf8')
+
+        process.argv = [
+            process.argv[0] || 'node',
+            'check-duplicate-code.mjs',
+            `--input=${inputPath}`,
+            `--config=${configPath}`,
+            `--baseline=${baselinePath}`,
+            '--mode=warn',
+            `--scope=${scope}`,
+        ]
+        process.exitCode = undefined
+
+        try {
+            await duplicateCodeMain()
+
+            const artifact = JSON.parse(await readFile(artifactJsonPath, 'utf8'))
+            const markdown = await readFile(artifactMarkdownPath, 'utf8')
+
+            expect(artifact.gate.gateConclusion).toBe('Pass')
+            expect(artifact.report.totalDuplicates).toBe(1)
+            expect(markdown).toContain('Review Gate Record — duplicate-code')
+            expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('Duplicate Code Gate'))
+        } finally {
+            process.argv = originalArgv
+            process.exitCode = originalExitCode
+            infoSpy.mockRestore()
+            await rm(directory, { force: true, recursive: true })
+            await rm(artifactJsonPath, { force: true })
+            await rm(artifactMarkdownPath, { force: true })
         }
     })
 })
