@@ -228,4 +228,57 @@ describe('GET /api/admin/content-insights', () => {
         })
         expect(result).toEqual({ empty: true })
     })
+
+    it('应将空 contentLanguage 查询参数视为未设置', async () => {
+        const publishedPostQueryBuilder = createRawQueryBuilder([])
+        const commentQueryBuilder = createRawQueryBuilder([])
+        const viewQueryBuilder = createRawQueryBuilder([])
+        const postRepo = {
+            createQueryBuilder: vi.fn().mockReturnValueOnce(publishedPostQueryBuilder),
+        }
+
+        vi.mocked(requireAdminOrAuthor).mockResolvedValue({
+            user: {
+                id: 'admin-1',
+                role: 'admin',
+            },
+        } as never)
+        vi.mocked(resolveAdminContentInsightsTimeZone).mockReturnValue('UTC')
+        vi.mocked(buildAdminContentInsights).mockReturnValue({ empty: true } as never)
+        vi.mocked(dataSource.getRepository).mockImplementation((entity: unknown) => {
+            if (entity === Post) {
+                return postRepo as never
+            }
+
+            if (entity === Comment) {
+                return {
+                    createQueryBuilder: vi.fn(() => commentQueryBuilder),
+                } as never
+            }
+
+            if (entity === PostViewHourly) {
+                return {
+                    createQueryBuilder: vi.fn(() => viewQueryBuilder),
+                } as never
+            }
+
+            throw new Error('Unexpected repository request')
+        })
+
+        const result = await handler({
+            query: {
+                contentLanguage: '',
+            },
+        } as never)
+
+        expect(publishedPostQueryBuilder.andWhere).not.toHaveBeenCalledWith('post.language = :contentLanguage', expect.anything())
+        expect(buildAdminContentInsights).toHaveBeenCalledWith([], [], [], {
+            selectedRange: 30,
+            scope: 'all',
+            timezone: 'UTC',
+            preferredLocale: undefined,
+            contentLanguage: undefined,
+        })
+        expect(result).toEqual({ empty: true })
+    })
 })

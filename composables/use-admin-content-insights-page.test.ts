@@ -149,4 +149,21 @@ describe('useAdminContentInsightsPage', () => {
             fallbackKey: 'pages.admin.dashboard.feedback.load_failed',
         })
     })
+
+    it('未选择内容语言时不应发送空筛选参数', async () => {
+        fetchMock.mockResolvedValue({
+            ...sampleResponse,
+            contentLanguage: null,
+        })
+        mockContentLanguage.value = ''
+
+        await mountComposable()
+
+        expect(fetchMock).toHaveBeenCalledWith('/api/admin/content-insights', {
+            query: expect.objectContaining({
+                contentLanguage: undefined,
+                language: 'zh-CN',
+            }),
+        })
+    })
 })

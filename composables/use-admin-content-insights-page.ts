@@ -3,6 +3,7 @@ import type {
     AdminContentInsightsResponse,
     AdminContentInsightsScope,
 } from '@/types/admin-content-insights'
+import { normalizeOptionalString } from '@/utils/shared/coerce'
 
 const DEFAULT_RANGE: AdminContentInsightsRange = 30
 const DEFAULT_SCOPE: AdminContentInsightsScope = 'all'
@@ -44,11 +45,13 @@ export function useAdminContentInsightsPage() {
         loading.value = true
 
         try {
+            const normalizedContentLanguage = normalizeOptionalString(contentLanguage.value)
+
             dashboard.value = await $appFetch<AdminContentInsightsResponse>('/api/admin/content-insights', {
                 query: {
                     range: selectedRange.value,
                     scope: scope.value,
-                    contentLanguage: contentLanguage.value,
+                    contentLanguage: normalizedContentLanguage || undefined,
                     language: locale.value,
                     timezone: timezone.value,
                 },

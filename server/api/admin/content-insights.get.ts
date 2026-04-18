@@ -17,6 +17,7 @@ import {
     type AdminContentInsightsScope,
 } from '@/types/admin-content-insights'
 import { PostStatus, PostVisibility } from '@/types/post'
+import { normalizeOptionalString } from '@/utils/shared/coerce'
 import { isAdmin } from '@/utils/shared/roles'
 
 function applyPostFilters<T extends ObjectLiteral>(
@@ -48,7 +49,10 @@ function applyPostFilters<T extends ObjectLiteral>(
 const querySchema = z.object({
     range: z.enum(['7', '30', '90']).optional().default('30'),
     scope: z.enum(['all', 'public']).optional().default('all'),
-    contentLanguage: z.string().trim().min(1).max(20).optional(),
+    contentLanguage: z.preprocess(
+        (value) => normalizeOptionalString(value) || undefined,
+        z.string().max(20).optional(),
+    ),
     timezone: z.string().trim().min(1).max(64).optional(),
     language: z.string().trim().min(1).max(20).optional(),
 })
