@@ -1,5 +1,55 @@
 # momei
 
+# [1.14.0](https://github.com/CaoMeiYouRen/momei/compare/v1.13.0...v1.14.0) (2026-04-18)
+
+
+### ✨ 新功能
+
+* **admin-content-insights:** 添加内容洞察趋势点功能 ([24faa23](https://github.com/CaoMeiYouRen/momei/commit/24faa23))
+* **admin:** 添加内容洞察 API 及相关功能 ([f6fc530](https://github.com/CaoMeiYouRen/momei/commit/f6fc530))
+* **api:** 增强 PostgreSQL 查询与数据库出网流量治理功能 ([e77c202](https://github.com/CaoMeiYouRen/momei/commit/e77c202))
+* **api:** 增强分类和标签的帖子计数查询功能 ([8b8006e](https://github.com/CaoMeiYouRen/momei/commit/8b8006e))
+* **api:** 增强缓存机制与性能优化 ([1639afc](https://github.com/CaoMeiYouRen/momei/commit/1639afc))
+* **api:** 增强缓存机制与接口优化 ([3dc01ec](https://github.com/CaoMeiYouRen/momei/commit/3dc01ec))
+* **api:** 增强缓存机制以提高性能 ([069cacb](https://github.com/CaoMeiYouRen/momei/commit/069cacb))
+* **api:** 提取公共分页逻辑到 useTaxonomyPostPage 组合式函数 ([9358176](https://github.com/CaoMeiYouRen/momei/commit/9358176))
+* **api:** 收紧 ESLint 规则与优化类型参数使用 ([5de43e8](https://github.com/CaoMeiYouRen/momei/commit/5de43e8))
+* **article-share:** 添加文章分享功能 ([ea5f3d8](https://github.com/CaoMeiYouRen/momei/commit/ea5f3d8))
+* **components:** 添加商业链接管理器的测试用例 ([dc4e969](https://github.com/CaoMeiYouRen/momei/commit/dc4e969))
+* **config:** 增强配置加载逻辑与测试用例 ([8728d06](https://github.com/CaoMeiYouRen/momei/commit/8728d06))
+* **distribution:** 增强分发功能与观察机制 ([7d26899](https://github.com/CaoMeiYouRen/momei/commit/7d26899))
+* **i18n:** 添加重复文案审计脚本及测试用例 ([a1415de](https://github.com/CaoMeiYouRen/momei/commit/a1415de))
+* **i18n:** 统一社交平台名称管理 ([e152975](https://github.com/CaoMeiYouRen/momei/commit/e152975))
+* **search:** 增强搜索功能与快捷键支持 ([66bf8a4](https://github.com/CaoMeiYouRen/momei/commit/66bf8a4))
+* **share:** 优化分享功能与样式 ([62a3e56](https://github.com/CaoMeiYouRen/momei/commit/62a3e56))
+* **wechatsync:** 添加微信同步观察功能及相关结构 ([cb564d6](https://github.com/CaoMeiYouRen/momei/commit/cb564d6))
+
+
+### 🐛 Bug 修复
+
+* **api:** 处理空内容语言查询参数 ([bd61b59](https://github.com/CaoMeiYouRen/momei/commit/bd61b59))
+* **app-header:** 修复管理员链接图标位置 ([0544ef5](https://github.com/CaoMeiYouRen/momei/commit/0544ef5))
+* **feed:** 修复生成的 Feed 描述和版权信息 ([3fb853f](https://github.com/CaoMeiYouRen/momei/commit/3fb853f))
+* **i18n:** 添加小红书兼容性支持 ([4a17887](https://github.com/CaoMeiYouRen/momei/commit/4a17887))
+* **middleware:** 添加数据库准备中间件及其测试 ([ba1101d](https://github.com/CaoMeiYouRen/momei/commit/ba1101d))
+* **posts:** 修复分发失败错误信息提示 ([0f8620d](https://github.com/CaoMeiYouRen/momei/commit/0f8620d))
+* **posts:** 更新离开确认提示信息 ([37c4cd5](https://github.com/CaoMeiYouRen/momei/commit/37c4cd5))
+* **share:** 修复分享链接生成逻辑 ([d883ee3](https://github.com/CaoMeiYouRen/momei/commit/d883ee3))
+* 修复分类/标签页与 RSS/站点地图链路异常 ([6aa5fa4](https://github.com/CaoMeiYouRen/momei/commit/6aa5fa4))
+* 添加微信同步和分发预览相关测试用例 ([d2b4a2d](https://github.com/CaoMeiYouRen/momei/commit/d2b4a2d))
+
+
+### 📦 代码重构
+
+* **ai:** 优化配额策略逻辑与注释 ([39475d6](https://github.com/CaoMeiYouRen/momei/commit/39475d6))
+* **api:** 统一查询字段命名规范 ([b54349e](https://github.com/CaoMeiYouRen/momei/commit/b54349e))
+* **api:** 重构缓存逻辑与接口 ([8e2d583](https://github.com/CaoMeiYouRen/momei/commit/8e2d583))
+* 优化 TypeScript 规则配置 ([20f03e2](https://github.com/CaoMeiYouRen/momei/commit/20f03e2))
+* 优化接口缓存逻辑与异步导入 ([0a1179d](https://github.com/CaoMeiYouRen/momei/commit/0a1179d))
+* 优化注释与代码逻辑 ([4a3ab39](https://github.com/CaoMeiYouRen/momei/commit/4a3ab39))
+* 简化微信同步 Markdown 处理逻辑 ([b83ba2f](https://github.com/CaoMeiYouRen/momei/commit/b83ba2f))
+* 重构分类和标签查询逻辑 ([c320fc0](https://github.com/CaoMeiYouRen/momei/commit/c320fc0))
+
 # [1.13.0](https://github.com/CaoMeiYouRen/momei/compare/v1.12.0...v1.13.0) (2026-04-11)
 
 
