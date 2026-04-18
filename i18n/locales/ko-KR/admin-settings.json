@@ -190,6 +190,14 @@
                         "saved": "현재 변경 사항이 저장되었습니다",
                         "unsaved": "저장되지 않은 변경 사항이 있습니다"
                     },
+                    "fields": {
+                        "external_feed_cache_ttl_seconds": "외부 업데이트 캐시 TTL",
+                        "external_feed_enabled": "외부 업데이트 집계 활성화",
+                        "external_feed_home_enabled": "홈에 외부 업데이트 표시",
+                        "external_feed_home_limit": "홈 외부 업데이트 개수",
+                        "external_feed_sources": "외부 업데이트 소스 설정 JSON",
+                        "external_feed_stale_while_error_seconds": "외부 업데이트 실패 폴백 창"
+                    },
                     "hints": {
                         "ai_alert_thresholds": "예시:\n｛\n  \"enabled\": true,\n  \"quotaUsageRatios\": [0.5, 0.8, 1],\n  \"costUsageRatios\": [0.8, 1],\n  \"failureBurst\": ｛\n    \"enabled\": true,\n    \"windowMinutes\": 10,\n    \"maxFailures\": 3,\n    \"categories\": [\"image\", \"asr\", \"tts\", \"podcast\"]\n  ｝,\n  \"dedupeWindowMinutes\": 1440,\n  \"maxAlerts\": 10\n｝",
                         "ai_alert_thresholds_description": "폼 기반 편집기로 사용량, 비용 사용률, 단시간 실패 급증 알림 기준을 설정합니다.",
@@ -199,6 +207,7 @@
                         "audio_upload_size_placeholder": "예: 100MiB",
                         "audio_upload_size_value": "필요하면 오디오 파일에 더 큰 전용 한도를 설정하세요. 100MiB, 256MB 같은 단위 값을 지원합니다.",
                         "canvas_nest_options_json": "예: {'{'}\n  \"color\": \"0,0,0\",\n  \"pointColor\": \"0,0,0\",\n  \"opacity\": 0.7,\n  \"count\": 88,\n  \"zIndex\": -1\n{'}'}",
+                        "comment_interval": "댓글 최소 간격입니다. 30s, 5m, 1h 같은 사람이 읽기 쉬운 기간과 기존 초 단위 입력을 모두 지원합니다.",
                         "email_daily_limit": "제한 창 안에서 사이트 전체가 보낼 수 있는 최대 이메일 수입니다.",
                         "email_limit_window": "이메일 발송 제한을 집계하는 시간 창입니다. 15m, 1d 같은 사람이 읽기 쉬운 기간과 기존 초 단위 입력을 모두 지원합니다.",
                         "email_single_user_daily_limit": "제한 창 안에서 단일 주소가 받을 수 있는 최대 이메일 수입니다.",

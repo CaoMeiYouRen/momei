@@ -2,7 +2,70 @@
     "pages": {
         "admin": {
             "users": {
-                "title": "User Management"
+                "actions": "Actions",
+                "active": "Active",
+                "ban": "Ban User",
+                "ban_expiry": "Expiry Date",
+                "ban_reason": "Reason for Ban",
+                "ban_reason_placeholder": "Please enter the reason for violation",
+                "ban_user": "Ban User",
+                "banned": "Banned",
+                "confirm_delete": "Are you sure you want to permanently delete user \"{name}\"? This action cannot be undone!",
+                "confirm_impersonate": "Are you sure you want to log in as \"{name}\"? This will open a new session.",
+                "confirm_revoke_all": "Are you sure you want to force this user to log out from all devices?",
+                "created_at": "Registration Time",
+                "delete_user": "Delete User",
+                "edit_role": "Change Role",
+                "expires_at": "Expiry Date",
+                "expiry": {
+                    "never": "Never",
+                    "one_day": "1 Day",
+                    "one_month": "1 Month",
+                    "one_week": "1 Week"
+                },
+                "feedback": {
+                    "ban_user_failed": "Failed to ban user",
+                    "ban_user_success": "User has been banned",
+                    "delete_user_failed": "Failed to delete user",
+                    "delete_user_success": "User deleted successfully",
+                    "impersonate_user_failed": "Failed to impersonate login",
+                    "load_sessions_failed": "Failed to load user sessions",
+                    "revoke_all_sessions_failed": "Failed to revoke all sessions",
+                    "revoke_all_sessions_success": "All sessions for this user have been revoked",
+                    "revoke_session_failed": "Failed to revoke session",
+                    "revoke_session_success": "Session revoked",
+                    "unban_user_failed": "Failed to unban user",
+                    "unban_user_success": "User has been unbanned",
+                    "update_role_failed": "Failed to update user role",
+                    "update_role_success": "User role updated successfully"
+                },
+                "filter_role": "All Roles",
+                "filter_status": "All Statuses",
+                "impersonate": "Impersonate",
+                "last_active": "Last Active",
+                "no_active_sessions": "No active sessions",
+                "refresh": "Refresh",
+                "revoke_all": "Revoke All Sessions",
+                "role": "Role",
+                "roles": {
+                    "admin": "Administrator",
+                    "all": "All Roles",
+                    "author": "Author",
+                    "user": "User"
+                },
+                "search_placeholder": "Search name or email...",
+                "select_role": "Select New Role",
+                "sessions": "Active Sessions",
+                "status": "Status",
+                "status_options": {
+                    "active": "Active",
+                    "all": "All Statuses",
+                    "banned": "Banned"
+                },
+                "title": "User Management",
+                "unban_user": "Unban User",
+                "user": "User",
+                "view_sessions": "View Sessions"
             }
         }
     }

@@ -2,7 +2,55 @@
     "pages": {
         "admin": {
             "marketing": {
-                "title": "Marketing Center"
+                "actions": {
+                    "send_failed": "Failed to start push",
+                    "send_now": "Send Now",
+                    "send_success": "Push task started"
+                },
+                "campaign_list": "Push History",
+                "create_btn": "Create Campaign",
+                "create_campaign": "Create Marketing Campaign",
+                "edit_campaign": "Edit Marketing Campaign",
+                "form": {
+                    "categories": "Categories",
+                    "content": "Content",
+                    "placeholder_content": "Supports Markdown/HTML...",
+                    "placeholder_title": "Please enter the email subject",
+                    "scheduled_at": "Scheduled Time",
+                    "scheduled_at_help": "If a scheduled time is set, the push will automatically start at that time. Leave empty to save as draft or send manually.",
+                    "scheduled_at_placeholder": "Select scheduled time",
+                    "send_test": "Send Test Email",
+                    "send_test_success": "Test email has been sent to your inbox",
+                    "tags": "Tags",
+                    "target_all": "All Subscribers",
+                    "target_criteria": "Targeted Push (Categories/Tags)",
+                    "targets": "Target Selector",
+                    "title": "Campaign Subject",
+                    "type": "Campaign Type",
+                    "type_placeholder": "Please select campaign type"
+                },
+                "stats": {
+                    "delivered": "Delivered",
+                    "marketing_enabled": "Marketable Users",
+                    "total_campaigns": "Total Campaigns",
+                    "total_subscribers": "Total Subscribers"
+                },
+                "status": {
+                    "completed": "Completed",
+                    "draft": "Draft",
+                    "failed": "Failed",
+                    "scheduled": "Scheduled",
+                    "sending": "Sending"
+                },
+                "title": "Marketing Center",
+                "type": {
+                    "blog_post": "New Post",
+                    "feature": "Feature",
+                    "maintenance": "Maintenance",
+                    "promotion": "Promotion",
+                    "service": "Service Change",
+                    "update": "Version Update"
+                }
             }
         }
     }

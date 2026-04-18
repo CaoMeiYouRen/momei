@@ -190,6 +190,14 @@
                         "saved": "目前內容已儲存",
                         "unsaved": "仍有尚未儲存的變更"
                     },
+                    "fields": {
+                        "external_feed_cache_ttl_seconds": "外部動態快取 TTL",
+                        "external_feed_enabled": "啟用外部動態聚合",
+                        "external_feed_home_enabled": "在首頁顯示外部動態",
+                        "external_feed_home_limit": "首頁外部動態數量",
+                        "external_feed_sources": "外部動態來源設定 JSON",
+                        "external_feed_stale_while_error_seconds": "外部動態失敗回退視窗"
+                    },
                     "hints": {
                         "ai_alert_thresholds": "示例:\n｛\n  \"enabled\": true,\n  \"quotaUsageRatios\": [0.5, 0.8, 1],\n  \"costUsageRatios\": [0.8, 1],\n  \"failureBurst\": ｛\n    \"enabled\": true,\n    \"windowMinutes\": 10,\n    \"maxFailures\": 3,\n    \"categories\": [\"image\", \"asr\", \"tts\", \"podcast\"]\n  ｝,\n  \"dedupeWindowMinutes\": 1440,\n  \"maxAlerts\": 10\n｝",
                         "ai_alert_thresholds_description": "透過表單設定額度使用率、成本使用率與短時間失敗暴增的告警閾值。",
@@ -199,6 +207,7 @@
                         "audio_upload_size_placeholder": "例如: 100MiB",
                         "audio_upload_size_value": "建議為音訊單獨設定更大的限制，支援 100MiB、256MB 等格式。",
                         "canvas_nest_options_json": "例如: {'{'}\n  \"color\": \"0,0,0\",\n  \"pointColor\": \"0,0,0\",\n  \"opacity\": 0.7,\n  \"count\": 88,\n  \"zIndex\": -1\n{'}'}",
+                        "comment_interval": "評論最小間隔，支援 30s、5m、1h 等可讀時長，也相容舊有秒數輸入。",
                         "email_daily_limit": "限制整個站點在統計視窗內可發送的郵件總數。",
                         "email_limit_window": "用於統計郵件發送次數的時間視窗，支援 15m、1d 等可讀時長，也相容舊有秒數輸入。",
                         "email_single_user_daily_limit": "限制單一信箱在統計視窗內可接收的郵件次數。",

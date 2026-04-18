@@ -2,7 +2,119 @@
     "pages": {
         "admin": {
             "ai": {
-                "title": "AI Tasks & Stats"
+                "actual_cost": "Actual Cost",
+                "alerts": {
+                    "details": {
+                        "cost_usage": "Used {used} / Limit {limit}",
+                        "failure_burst": "Threshold {limit}, Range {window} min",
+                        "quota_usage": "Used {used} / Limit {limit}"
+                    },
+                    "messages": {
+                        "cost_usage": "{name} has reached {percent} of the {period}{scope} cost limit",
+                        "failure_burst": "{name} occurred {count} failed tasks in the last {window} minutes",
+                        "quota_usage": "{name} has reached {percent} of the {period}{scope} quota limit"
+                    },
+                    "periods": {
+                        "day": "Daily",
+                        "month": "Monthly",
+                        "rolling": "Rolling Window"
+                    },
+                    "severity": {
+                        "critical": "Critical",
+                        "info": "Info",
+                        "warning": "Warning"
+                    },
+                    "title": "Governance Alerts"
+                },
+                "all_scope": "All Capabilities",
+                "audio_duration": "Duration",
+                "audio_preview": "Audio Preview",
+                "audio_size": "Audio Size",
+                "category": "Task Category",
+                "charge_status": "Quota Status",
+                "charge_statuses": {
+                    "actual": "Actual",
+                    "estimated": "Estimated",
+                    "none": "Uncharged",
+                    "waived": "Waived"
+                },
+                "chart_category": "Quota Distribution by Category",
+                "chart_charge_status": "Quota Status Distribution",
+                "chart_failure_stage": "Failure Stage Distribution",
+                "chart_status": "Task Status Distribution",
+                "delete_confirm": "Are you sure you want to delete the selected AI records? This action cannot be undone.",
+                "duration_ms": "Execution Duration",
+                "error": "Failure Reason",
+                "estimated_cost": "Estimated Cost",
+                "estimated_quota_units": "Estimated Quota",
+                "failure_stage": "Failure Stage",
+                "failure_stages": {
+                    "post_process": "Post-processing Failed",
+                    "preflight": "Preflight Validation Failed",
+                    "provider_processing": "Provider Processing Failed",
+                    "provider_rejected": "Provider Rejected"
+                },
+                "feedback": {
+                    "delete_task_failed": "Failed to delete AI task",
+                    "delete_task_success": "AI task deleted",
+                    "delete_tasks_failed": "Failed to batch delete AI tasks",
+                    "delete_tasks_success": "AI tasks batch deleted",
+                    "load_stats_failed": "Failed to load AI statistics",
+                    "load_tasks_failed": "Failed to load AI tasks"
+                },
+                "images": "Images",
+                "language": "Recognition Language",
+                "model": "Model",
+                "no_stats": "No statistics available",
+                "prompt": "Params / Prompt",
+                "provider": "Provider",
+                "quota_units": "Quota Units",
+                "result": "Result Data",
+                "stats": "Usage Stats",
+                "status": "Status",
+                "statuses": {
+                    "completed": "Completed",
+                    "failed": "Failed",
+                    "pending": "Pending",
+                    "processing": "Processing"
+                },
+                "success_rate": "Success Rate",
+                "task_detail": {
+                    "back_to_previous": "Back",
+                    "copy_task_id": "Copy Task ID",
+                    "copy_task_id_success": "Task ID copied",
+                    "page_title": "AI Task {id}",
+                    "task_id": "Task ID",
+                    "title": "AI Task Details"
+                },
+                "tasks": "Task Records",
+                "text_length": "Text Length",
+                "title": "AI Tasks & Stats",
+                "type": "Task Type",
+                "types": {
+                    "asr": "Speech Recognition",
+                    "async_transcription": "Async Transcription",
+                    "expand_section": "Expand Section",
+                    "generate_scaffold": "Generate Writing Scaffold",
+                    "image": "Image Generation",
+                    "image_generation": "Image Generation",
+                    "optimize_manuscript": "Optimize Manuscript",
+                    "podcast": "AI Podcast",
+                    "recommend_tags": "Recommend Tags",
+                    "refine_voice": "Refine Voice Script",
+                    "suggest_image_prompt": "Suggest Image Prompt",
+                    "suggest_slug": "Suggest Slug",
+                    "suggest_titles": "Suggest Titles",
+                    "summarize": "Summarize",
+                    "text": "Text Generation",
+                    "text_generation": "Text Generation",
+                    "transcription": "Transcription",
+                    "translate": "Translate",
+                    "translate_name": "Translate Name",
+                    "translate_name_batch": "Batch Translate Names",
+                    "tts": "Text to Speech"
+                },
+                "usage_snapshot": "Usage Snapshot"
             }
         }
     }

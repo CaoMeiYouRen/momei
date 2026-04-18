@@ -2,15 +2,50 @@
     "pages": {
         "admin": {
             "categories": {
+                "create": "Create Category",
+                "delete_confirm": "Are you sure you want to delete this category?",
+                "delete_confirm_title": "Confirm Delete Category",
+                "delete_success": "Category deleted successfully",
+                "save_success": "Category saved successfully",
+                "search_placeholder": "Search categories...",
+                "sync_to_all_languages": "Sync create corresponding versions in other languages",
                 "title": "Categories Management"
             },
             "comments": {
+                "approve": "Approve",
+                "author": "Author",
+                "content": "Content",
+                "created_at": "Posted At",
+                "delete_confirm": "Are you sure you want to permanently delete this comment?",
+                "post": "Post",
+                "reject": "Mark as Spam",
+                "search_placeholder": "Search content, author...",
+                "status": "Status",
+                "status_pending": "Pending",
+                "status_published": "Published",
+                "status_spam": "Spam",
                 "title": "Comments"
             },
             "subscribers": {
-                "title": "Subscribers"
+                "active": "Active",
+                "active_status": "Active Status",
+                "delete_confirm": "Are you sure you want to delete this subscriber?",
+                "export": "Export CSV",
+                "inactive": "Inactive",
+                "join_date": "Join Date",
+                "not_associated": "Not Associated",
+                "search_placeholder": "Search email...",
+                "title": "Subscribers",
+                "user_associated": "User Associated"
             },
             "tags": {
+                "create": "Create Tag",
+                "delete_confirm": "Are you sure you want to delete this tag?",
+                "delete_confirm_title": "Confirm Delete Tag",
+                "delete_success": "Tag deleted successfully",
+                "save_success": "Tag saved successfully",
+                "search_placeholder": "Search tags...",
+                "sync_to_all_languages": "Sync create corresponding versions in other languages",
                 "title": "Tags"
             }
         }

@@ -190,6 +190,14 @@
                         "saved": "現在の内容は保存済みです",
                         "unsaved": "未保存の変更があります"
                     },
+                    "fields": {
+                        "external_feed_cache_ttl_seconds": "外部更新キャッシュ TTL",
+                        "external_feed_enabled": "外部更新集約を有効化",
+                        "external_feed_home_enabled": "ホームで外部更新を表示",
+                        "external_feed_home_limit": "ホーム外部更新件数",
+                        "external_feed_sources": "外部更新ソース設定 JSON",
+                        "external_feed_stale_while_error_seconds": "外部更新の失敗時フォールバック時間"
+                    },
                     "hints": {
                         "ai_alert_thresholds": "例:\n｛\n  \"enabled\": true,\n  \"quotaUsageRatios\": [0.5, 0.8, 1],\n  \"costUsageRatios\": [0.8, 1],\n  \"failureBurst\": ｛\n    \"enabled\": true,\n    \"windowMinutes\": 10,\n    \"maxFailures\": 3,\n    \"categories\": [\"image\", \"asr\", \"tts\", \"podcast\"]\n  ｝,\n  \"dedupeWindowMinutes\": 1440,\n  \"maxAlerts\": 10\n｝",
                         "ai_alert_thresholds_description": "フォームでクォータ使用率、コスト使用率、短時間の失敗急増アラートしきい値を設定します。",
@@ -199,6 +207,7 @@
                         "audio_upload_size_placeholder": "例: 100MiB",
                         "audio_upload_size_value": "音声にはより大きな制限を個別設定することを推奨します。100MiB、256MB などの形式をサポートします。",
                         "canvas_nest_options_json": "例: {'{'}\n  \"color\": \"0,0,0\",\n  \"pointColor\": \"0,0,0\",\n  \"opacity\": 0.7,\n  \"count\": 88,\n  \"zIndex\": -1\n{'}'}",
+                        "comment_interval": "コメントの最小間隔です。30s、5m、1h のような可読時長を受け付け、従来の秒数入力とも互換です。",
                         "email_daily_limit": "集計ウィンドウ内でサイト全体が送信できるメール総数を制限します。",
                         "email_limit_window": "メール送信回数を集計する時間ウィンドウです。15m や 1d のような可読時長を受け付け、従来の秒数入力とも互換です。",
                         "email_single_user_daily_limit": "集計ウィンドウ内で 1 つのメールアドレスが受信できる回数を制限します。",

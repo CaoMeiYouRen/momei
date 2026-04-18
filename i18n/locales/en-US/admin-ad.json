@@ -3,9 +3,73 @@
         "admin": {
             "ad": {
                 "campaigns": {
+                    "clicks": "Clicks",
+                    "empty": "No ad campaigns found",
+                    "end_date": "End Date",
+                    "impressions": "Impressions",
+                    "messages": {
+                        "create_success": "Ad campaign created successfully",
+                        "delete_confirm": "Are you sure you want to delete this ad campaign?",
+                        "delete_failed": "Failed to delete ad campaign",
+                        "delete_success": "Ad campaign deleted successfully",
+                        "load_failed": "Failed to load ad campaigns",
+                        "name_required": "Name is required",
+                        "save_failed": "Failed to save ad campaign",
+                        "update_success": "Ad campaign updated successfully"
+                    },
+                    "revenue": "Revenue",
+                    "start_date": "Start Date",
+                    "status": "Status",
+                    "statuses": {
+                        "active": "Active",
+                        "draft": "Draft",
+                        "ended": "Ended",
+                        "paused": "Paused"
+                    },
                     "title": "Ad Campaigns"
                 },
                 "placements": {
+                    "adapter": "Adapter",
+                    "disabled": "Disabled",
+                    "empty": "No ad placements found",
+                    "enabled": "Enabled",
+                    "format": "Format",
+                    "formats": {
+                        "display": "Display",
+                        "native": "Native",
+                        "responsive": "Responsive",
+                        "video": "Video"
+                    },
+                    "location": "Location",
+                    "locations": {
+                        "content_bottom": "Bottom of Content",
+                        "content_middle": "Middle of Content",
+                        "content_top": "Top of Content",
+                        "footer": "Footer",
+                        "header": "Header",
+                        "sidebar": "Sidebar"
+                    },
+                    "messages": {
+                        "adapter_required": "Adapter is required",
+                        "create_success": "Ad placement created successfully",
+                        "delete_confirm": "Are you sure you want to delete this ad placement?",
+                        "delete_failed": "Failed to delete ad placement",
+                        "delete_success": "Ad placement deleted successfully",
+                        "disable_success": "Ad placement disabled",
+                        "enable_success": "Ad placement enabled",
+                        "format_required": "Format is required",
+                        "load_failed": "Failed to load ad placements",
+                        "location_required": "Location is required",
+                        "name_required": "Name is required",
+                        "save_failed": "Failed to save ad placement",
+                        "update_failed": "Failed to update ad placement",
+                        "update_success": "Ad placement updated successfully"
+                    },
+                    "priority": "Priority",
+                    "slot_id": "Ad Slot ID",
+                    "slot_id_hint": "Please enter the Ad Slot ID from your advertising platform",
+                    "slot_id_placeholder": "Example: ca-pub-1234567890/1234567890",
+                    "status": "Status",
                     "title": "Ad Placements"
                 },
                 "title": "Ad Monetization"

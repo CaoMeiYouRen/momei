@@ -190,6 +190,14 @@
                         "saved": "当前内容已保存",
                         "unsaved": "存在未保存的更改"
                     },
+                    "fields": {
+                        "external_feed_cache_ttl_seconds": "外部动态缓存 TTL",
+                        "external_feed_enabled": "启用外部动态聚合",
+                        "external_feed_home_enabled": "在首页显示外部动态",
+                        "external_feed_home_limit": "首页外部动态数量",
+                        "external_feed_sources": "外部动态源配置 JSON",
+                        "external_feed_stale_while_error_seconds": "外部动态失败回退窗口"
+                    },
                     "hints": {
                         "ai_alert_thresholds": "示例:\n｛\n  \"enabled\": true,\n  \"quotaUsageRatios\": [0.5, 0.8, 1],\n  \"costUsageRatios\": [0.8, 1],\n  \"failureBurst\": ｛\n    \"enabled\": true,\n    \"windowMinutes\": 10,\n    \"maxFailures\": 3,\n    \"categories\": [\"image\", \"asr\", \"tts\", \"podcast\"]\n  ｝,\n  \"dedupeWindowMinutes\": 1440,\n  \"maxAlerts\": 10\n｝",
                         "ai_alert_thresholds_description": "通过表单配置额度使用率、成本使用率与短窗口失败突增告警阈值。",
@@ -199,6 +207,7 @@
                         "audio_upload_size_placeholder": "例如: 100MiB",
                         "audio_upload_size_value": "建议为音频单独设置更大的限制，支持 100MiB、256MB 等格式。",
                         "canvas_nest_options_json": "例如: {'{'}\n  \"color\": \"0,0,0\",\n  \"pointColor\": \"0,0,0\",\n  \"opacity\": 0.7,\n  \"count\": 88,\n  \"zIndex\": -1\n{'}'}",
+                        "comment_interval": "评论最小间隔，支持 30s、5m、1h 等可读时长，也兼容旧值秒数。",
                         "email_daily_limit": "限制整个站点在统计窗口内可发送的邮件总数。",
                         "email_limit_window": "用于统计邮件发送次数的时间窗口，支持 15m、1d 等可读时长，也兼容旧值秒数。",
                         "email_single_user_daily_limit": "限制单个邮箱在统计窗口内可接收的邮件次数。",

@@ -2,6 +2,26 @@
     "pages": {
         "admin": {
             "submissions": {
+                "accept": "Accept",
+                "admin_note": "Reviewer Note",
+                "admin_note_placeholder": "Internal reviewer notes, visible only to admins",
+                "article_title": "Article Title",
+                "category": "Category",
+                "contributor": "Contributor",
+                "created_at": "Submitted At",
+                "delete_failed": "Failed to delete submission",
+                "delete_success": "Submission deleted successfully",
+                "language": "Publish Language",
+                "publish_immediately": "Publish article immediately",
+                "reject": "Reject",
+                "review": "Review",
+                "review_failed": "Failed to review submission",
+                "review_success": "Operation successful",
+                "search_placeholder": "Search title or content...",
+                "status": "Status",
+                "status_accepted": "Accepted",
+                "status_pending": "Pending",
+                "status_rejected": "Rejected",
                 "title": "Submissions"
             }
         }
