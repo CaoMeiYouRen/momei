@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const initializeDB = vi.fn(() => Promise.resolve(undefined))
+const loggerWarn = vi.fn()
 const dataSourceState = {
     isInitialized: false,
 }
@@ -27,7 +28,7 @@ vi.mock('@/server/database', () => ({
 vi.mock('@/server/utils/logger', () => ({
     default: {
         info: vi.fn(),
-        warn: vi.fn(),
+        warn: loggerWarn,
         error: vi.fn(),
     },
 }))
@@ -85,6 +86,8 @@ describe('db ready middleware', () => {
         expect(shouldWarmupDatabase('/')).toBe(false)
         expect(shouldWarmupDatabase('/posts')).toBe(false)
         expect(shouldWarmupDatabase('/_nuxt/app.js')).toBe(false)
+        expect(shouldWarmupDatabase('/uploads/avatar.webp')).toBe(false)
+        expect(shouldWarmupDatabase('/favicon.ico')).toBe(false)
 
         await ensureRequestDatabaseReady(createEvent('/zh-CN/installation'))
         await ensureRequestDatabaseReady(createEvent('/ja-JP/installation'))
@@ -93,6 +96,8 @@ describe('db ready middleware', () => {
         await ensureRequestDatabaseReady(createEvent('/'))
         await ensureRequestDatabaseReady(createEvent('/posts'))
         await ensureRequestDatabaseReady(createEvent('/_nuxt/app.js'))
+        await ensureRequestDatabaseReady(createEvent('/uploads/avatar.webp'))
+        await ensureRequestDatabaseReady(createEvent('/favicon.ico'))
 
         expect(initializeDB).not.toHaveBeenCalled()
     })
@@ -103,5 +108,16 @@ describe('db ready middleware', () => {
         await ensureRequestDatabaseReady(createEvent('/feed.atom'))
 
         expect(initializeDB).not.toHaveBeenCalled()
+    })
+
+    it('should warn when initialization still leaves the data source unavailable', async () => {
+        initializeDB.mockImplementationOnce(async () => {
+            dataSourceState.isInitialized = false
+        })
+
+        await ensureRequestDatabaseReady(createEvent('/api/posts'))
+
+        expect(initializeDB).toHaveBeenCalledTimes(1)
+        expect(loggerWarn).toHaveBeenCalledWith('[DBReady] Database warmup did not finish before handling /api/posts')
     })
 })

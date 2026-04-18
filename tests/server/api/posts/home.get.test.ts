@@ -126,4 +126,100 @@ describe('/api/posts/home', () => {
         expect(first).toEqual(second)
         expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=60')
     })
+
+    it('should bypass shared runtime cache for authenticated homepage requests', async () => {
+        const setHeader = vi.fn()
+        const event = {
+            context: {
+                auth: {
+                    user: {
+                        id: author.id,
+                    },
+                },
+                user: {
+                    id: author.id,
+                    role: 'author',
+                },
+            },
+            node: {
+                req: { headers: { cookie: 'better-auth.session_token=test' } },
+                res: { setHeader },
+            },
+            req: { headers: { cookie: 'better-auth.session_token=test' } },
+            query: {
+                language: 'zh-CN',
+            },
+        } as any
+
+        const first = await homePostsHandler(event)
+
+        const postRepo = dataSource.getRepository(Post)
+        const uncachedProbePost = new Post()
+        uncachedProbePost.title = `Uncached home probe ${generateRandomString(4)}`
+        uncachedProbePost.slug = generateRandomString(10)
+        uncachedProbePost.content = 'Uncached home probe content'
+        uncachedProbePost.summary = 'Uncached home probe summary'
+        uncachedProbePost.status = PostStatus.PUBLISHED
+        uncachedProbePost.author = author
+        uncachedProbePost.category = category
+        uncachedProbePost.language = 'zh-CN'
+        uncachedProbePost.publishedAt = new Date('2026-04-12T00:00:00.000Z')
+        await postRepo.save(uncachedProbePost)
+
+        const second = await homePostsHandler(event)
+        const secondItems = second.data?.items || []
+
+        expect(first).not.toEqual(second)
+        expect(secondItems.some((item: Post) => item.id === uncachedProbePost.id)).toBe(true)
+        expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'private, no-store')
+    })
+
+    it('should prefer zh-CN fallback content when zh-TW homepage translations are missing', async () => {
+        const postRepo = dataSource.getRepository(Post)
+        const translationId = generateRandomString(12)
+
+        const zhFallbackPost = new Post()
+        zhFallbackPost.title = `繁体缺失时使用简体 ${generateRandomString(4)}`
+        zhFallbackPost.slug = generateRandomString(10)
+        zhFallbackPost.content = 'Traditional fallback content'
+        zhFallbackPost.summary = 'Traditional fallback summary'
+        zhFallbackPost.status = PostStatus.PUBLISHED
+        zhFallbackPost.author = author
+        zhFallbackPost.category = category
+        zhFallbackPost.language = 'zh-CN'
+        zhFallbackPost.translationId = translationId
+        zhFallbackPost.publishedAt = new Date('2026-04-13T00:00:00.000Z')
+        await postRepo.save(zhFallbackPost)
+
+        const enFallbackPost = new Post()
+        enFallbackPost.title = `English fallback should lose ${generateRandomString(4)}`
+        enFallbackPost.slug = generateRandomString(10)
+        enFallbackPost.content = 'English fallback content'
+        enFallbackPost.summary = 'English fallback summary'
+        enFallbackPost.status = PostStatus.PUBLISHED
+        enFallbackPost.author = author
+        enFallbackPost.category = category
+        enFallbackPost.language = 'en-US'
+        enFallbackPost.translationId = translationId
+        enFallbackPost.publishedAt = new Date('2026-04-12T12:00:00.000Z')
+        await postRepo.save(enFallbackPost)
+
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                language: 'zh-TW',
+            },
+        } as any
+
+        const result = await homePostsHandler(event)
+        const items = result.data?.items || []
+
+        expect(items.some((item: Post) => item.id === zhFallbackPost.id)).toBe(true)
+        expect(items.some((item: Post) => item.id === enFallbackPost.id)).toBe(false)
+    })
 })

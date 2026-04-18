@@ -7,6 +7,10 @@ const getSession = vi.fn().mockResolvedValue({
     },
 })
 const initializeDB = vi.fn().mockResolvedValue(undefined)
+const loggerError = vi.fn()
+const dataSourceState = {
+    isInitialized: false,
+}
 
 vi.mock('h3', async () => {
     const actual = await vi.importActual<typeof import('h3')>('h3')
@@ -20,7 +24,9 @@ vi.mock('h3', async () => {
 
 vi.mock('@/server/database', () => ({
     dataSource: {
-        isInitialized: false,
+        get isInitialized() {
+            return dataSourceState.isInitialized
+        },
     },
     initializeDB,
 }))
@@ -35,7 +41,7 @@ vi.mock('@/lib/auth', () => ({
 
 vi.mock('@/server/utils/logger', () => ({
     default: {
-        error: vi.fn(),
+        error: loggerError,
     },
 }))
 
@@ -58,6 +64,7 @@ function createEvent(path: string, cookieHeader?: string) {
 describe('auth optional session middleware', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        dataSourceState.isInitialized = false
     })
 
     it('should only resolve optional sessions for targeted public routes', () => {
@@ -80,6 +87,24 @@ describe('auth optional session middleware', () => {
         expect(event.context.auth).toBeUndefined()
     })
 
+    it('should skip targeted public routes when no session cookie is present', async () => {
+        const event = createEvent('/api/posts?scope=public')
+
+        await authMiddleware(event)
+
+        expect(initializeDB).not.toHaveBeenCalled()
+        expect(getSession).not.toHaveBeenCalled()
+    })
+
+    it('should skip targeted public routes when cookies do not contain a session marker', async () => {
+        const event = createEvent('/api/search?q=nuxt', 'theme=dark; locale=zh-CN')
+
+        await authMiddleware(event)
+
+        expect(initializeDB).not.toHaveBeenCalled()
+        expect(getSession).not.toHaveBeenCalled()
+    })
+
     it('should hydrate context for targeted optional-session routes', async () => {
         const event = createEvent('/api/posts?scope=public', 'better-auth.session_token=test')
 
@@ -88,5 +113,27 @@ describe('auth optional session middleware', () => {
         expect(initializeDB).toHaveBeenCalledTimes(1)
         expect(getSession).toHaveBeenCalledTimes(1)
         expect(event.context.user).toMatchObject({ id: 'user-1', role: 'author' })
+    })
+
+    it('should avoid redundant database initialization when the datasource is already ready', async () => {
+        dataSourceState.isInitialized = true
+        const event = createEvent('/api/search?q=nuxt', 'better-auth.session_token=test')
+
+        await authMiddleware(event)
+
+        expect(initializeDB).not.toHaveBeenCalled()
+        expect(getSession).toHaveBeenCalledTimes(1)
+        expect(event.context.auth).toBeTruthy()
+    })
+
+    it('should log and swallow session lookup failures', async () => {
+        getSession.mockRejectedValueOnce(new Error('session lookup failed'))
+        const event = createEvent('/api/posts?scope=public', 'better-auth.session_token=test')
+
+        await authMiddleware(event)
+
+        expect(loggerError).toHaveBeenCalledWith('Auth middleware error:', expect.any(Error))
+        expect(event.context.auth).toBeUndefined()
+        expect(event.context.user).toBeUndefined()
     })
 })

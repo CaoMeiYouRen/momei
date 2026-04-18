@@ -248,6 +248,25 @@ describe('usePostEditorVoice', () => {
         expect(localStorage.getItem('momei_voice_mode')).toBe('web-speech')
     })
 
+    it('falls back to web speech when saved cloud mode is disabled by server config', async () => {
+        localStorage.setItem('momei_voice_mode', 'cloud-stream')
+        mockFetch.mockImplementation((url: string) => {
+            if (url === '/api/ai/asr/config') {
+                return Promise.resolve({
+                    enabled: false,
+                    siliconflow: false,
+                    volcengine: false,
+                })
+            }
+
+            return Promise.reject(new Error(`unexpected fetch: ${url}`))
+        })
+
+        const voice = await mountVoice()
+
+        expect(voice.mode.value).toBe('web-speech')
+    })
+
     it('starts web speech recognition, normalizes language and commits final transcript on end', async () => {
         const voice = await mountVoice()
 
@@ -372,6 +391,37 @@ describe('usePostEditorVoice', () => {
         expect(voice.finalTranscript.value).toBe('proxy transcript')
     })
 
+    it('keeps direct batch transcription results when direct mode succeeds', async () => {
+        directBatchMock.transcribeBatch.mockResolvedValueOnce('direct transcript')
+
+        Object.defineProperty(window, 'SpeechRecognition', {
+            configurable: true,
+            writable: true,
+            value: undefined,
+        })
+        Object.defineProperty(window, 'webkitSpeechRecognition', {
+            configurable: true,
+            writable: true,
+            value: undefined,
+        })
+
+        const voice = await mountVoice({ directMode: true })
+
+        voice.mode.value = 'cloud-batch'
+        await nextTick()
+        voice.startListening('zh-CN')
+        await flushVoiceUpdates()
+
+        vi.useFakeTimers()
+        voice.stopListening()
+        await vi.runAllTimersAsync()
+        await flushVoiceUpdates()
+
+        expect(directBatchMock.transcribeBatch).toHaveBeenCalledTimes(1)
+        expect(mockFetch).not.toHaveBeenCalledWith('/api/ai/asr/transcribe', expect.anything())
+        expect(voice.finalTranscript.value).toBe('direct transcript')
+    })
+
     it('returns not_supported when neither web speech nor recording fallback is available', async () => {
         Object.defineProperty(window, 'SpeechRecognition', {
             configurable: true,
@@ -443,6 +493,26 @@ describe('usePostEditorVoice', () => {
 
         ws?.onmessage?.({ data: JSON.stringify({ type: 'error', message: 'stream_failed' }) })
         expect(voice.error.value).toBe('stream_failed')
+        expect(voice.isListening.value).toBe(false)
+        expect(ws?.closed).toBe(true)
+    })
+
+    it('aborts proxy cloud-stream sessions when the start handshake keeps timing out', async () => {
+        vi.useFakeTimers()
+        const voice = await mountVoice()
+
+        voice.mode.value = 'cloud-stream'
+        await nextTick()
+        voice.startListening('zh-CN')
+        await flushVoiceUpdates()
+
+        const ws = MockWebSocket.instances[0]
+        ws?.onopen?.()
+
+        await vi.advanceTimersByTimeAsync(21 * 300)
+        await flushVoiceUpdates()
+
+        expect(voice.error.value).toBe('cloud_stream_start_timeout')
         expect(voice.isListening.value).toBe(false)
         expect(ws?.closed).toBe(true)
     })
