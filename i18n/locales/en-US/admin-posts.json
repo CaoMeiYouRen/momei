@@ -2,11 +2,28 @@
     "pages": {
         "admin": {
             "posts": {
+                "ai_error": "AI service request failed",
+                "back_to_list": "Back to posts",
+                "cover_column": "Cover",
+                "create": "Create Post",
+                "export_selected": "Export Selected",
                 "floating_actions": {
                     "leave_confirm": "You have unsaved changes on this page. Are you sure you want to leave?",
                     "saved": "All changes are saved",
                     "unsaved": "You have unsaved changes"
                 },
+                "media": {
+                    "audio_missing": "No audio",
+                    "cover_missing": "No cover"
+                },
+                "pinned": "Pinned",
+                "podcast_column": "Podcast",
+                "repush": "Send Again",
+                "repush_confirm_message": "Are you sure you want to send this post to subscribers again? A new email notification will be created.",
+                "repush_confirm_title": "Confirm Resend",
+                "repush_success": "Push task started",
+                "search_placeholder": "Search titles...",
+                "status": "Status",
                 "title": "Post Management",
                 "distribution": {
                     "preview": {

@@ -138,7 +138,7 @@ describe('AppHeader', () => {
         expect(mockEnsureLocaleMessageModules).toHaveBeenCalledWith(
             expect.objectContaining({
                 locale: expect.any(String),
-                modules: ['admin'],
+                modules: ['admin', 'admin-posts'],
             }),
         )
         expect(wrapper.text()).toContain('文章管理')

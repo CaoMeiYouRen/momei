@@ -3,6 +3,21 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import AdminPostsPage from './index.vue'
 
+const { mockEnsureLocaleMessageModules } = vi.hoisted(() => ({
+    mockEnsureLocaleMessageModules: vi.fn(),
+}))
+
+vi.mock('@/i18n/config/locale-runtime-loader', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@/i18n/config/locale-runtime-loader')>()
+
+    return {
+        ...actual,
+        ensureLocaleMessageModules: vi.fn(async (options) => {
+            mockEnsureLocaleMessageModules(options)
+        }),
+    }
+})
+
 // Stub components
 const stubs = {
     AdminPageHeader: {
@@ -81,6 +96,12 @@ describe('AdminPostsPage', () => {
         })
 
         expect(wrapper.find('.admin-header').exists()).toBe(true)
+        expect(mockEnsureLocaleMessageModules).toHaveBeenCalledWith(
+            expect.objectContaining({
+                locale: 'en',
+                modules: ['admin-posts'],
+            }),
+        )
     })
 
     it('renders create button', async () => {

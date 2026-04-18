@@ -270,6 +270,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import PostMediaPreviewCell from '@/components/admin/posts/post-media-preview-cell.vue'
 import { useAdminI18n } from '@/composables/use-admin-i18n'
+import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
 import type { Post } from '@/types/post'
 import { useAdminList } from '@/composables/use-admin-list'
 import { useI18nDate } from '@/composables/use-i18n-date'
@@ -281,10 +282,17 @@ definePageMeta({
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
+const nuxtApp = useNuxtApp()
 const { formatDateTime, relativeTime, isFuture } = useI18nDate()
 const confirm = useConfirm()
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
 const { contentLanguage } = useAdminI18n()
+
+void ensureLocaleMessageModules({
+    i18n: nuxtApp.$i18n as object,
+    locale: locale.value,
+    modules: ['admin-posts'],
+})
 
 const selectedItems = ref<Post[]>([])
 const { exporting, exportPost, exportBatch } = usePostExport()

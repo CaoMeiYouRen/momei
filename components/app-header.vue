@@ -591,7 +591,7 @@ watch(
         await ensureLocaleMessageModules({
             i18n: nuxtApp.$i18n as object,
             locale: currentLocale,
-            modules: ['admin'],
+            modules: ['admin', 'admin-posts'],
         })
 
         adminLocaleReady.value = true
@@ -607,6 +607,8 @@ watch(
 
 .nav-link {
     @include nav-link;
+
+    white-space: nowrap;
 }
 
 .app-header {
@@ -625,6 +627,7 @@ watch(
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: $spacing-md;
 
         @media (width >= 768px) and (width < 1024px) {
             padding-left: $spacing-md;
@@ -636,18 +639,34 @@ watch(
         display: flex;
         align-items: center;
         gap: $spacing-md;
+        flex: 1;
+        justify-content: flex-end;
+        min-width: 0;
     }
 
     &__nav {
         display: flex;
-        gap: $spacing-lg;
+        align-items: center;
+        gap: $spacing-md;
         margin-right: $spacing-md;
+        min-width: 0;
+
+        > * {
+            flex-shrink: 0;
+        }
+
+        @media (width >= 1024px) and (width < 1360px) {
+            gap: $spacing-sm;
+            margin-right: $spacing-sm;
+            font-size: 0.95rem;
+        }
     }
 
     &__action-group {
         display: flex;
         align-items: center;
         gap: $spacing-xs;
+        flex-shrink: 0;
     }
 
     &__admin-link {
@@ -656,7 +675,7 @@ watch(
         gap: $spacing-xs;
         white-space: nowrap;
 
-        @media (width >= 1280px) {
+        @media (width >= 1440px) {
             display: inline-flex;
         }
     }
@@ -666,7 +685,7 @@ watch(
     }
 
     &__compact-admin-posts {
-        @media (width >= 1280px) {
+        @media (width >= 1440px) {
             display: none;
         }
     }
