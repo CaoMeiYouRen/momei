@@ -171,7 +171,7 @@ describe('Date Utils', () => {
         })
 
         it('returns empty string for empty values', () => {
-            expect(getRelativeTime(undefined)).toBe('')
+            expect(getRelativeTime('')).toBe('')
         })
     })
 
@@ -182,7 +182,7 @@ describe('Date Utils', () => {
         })
 
         it('returns false for empty values', () => {
-            expect(isFutureDate(undefined)).toBe(false)
+            expect(isFutureDate('')).toBe(false)
         })
     })
 

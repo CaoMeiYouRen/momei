@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { mockTranslate } = vi.hoisted(() => ({
-    mockTranslate: vi.fn(async (key: string) => `translated:${key}`),
+    mockTranslate: vi.fn((key: string) => Promise.resolve(`translated:${key}`)),
 }))
 
 vi.mock('./i18n', () => ({

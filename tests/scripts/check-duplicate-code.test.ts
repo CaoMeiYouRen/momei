@@ -3,7 +3,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { promisify } from 'node:util'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
     evaluateDuplicateCodeGate,
     main as duplicateCodeMain,
@@ -191,7 +191,7 @@ describe('check-duplicate-code', () => {
         const artifactMarkdownPath = resolve(process.cwd(), 'artifacts', 'review-gate', `${dateStr}-${scope}.md`)
         const originalArgv = process.argv
         const originalExitCode = process.exitCode
-        const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
+        const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
 
         await writeFile(inputPath, JSON.stringify(sampleReport), 'utf8')
         await writeFile(configPath, JSON.stringify({

@@ -12,8 +12,9 @@ vi.mock('@/i18n/config/locale-runtime-loader', async (importOriginal) => {
 
     return {
         ...actual,
-        ensureLocaleMessageModules: vi.fn(async (options) => {
+        ensureLocaleMessageModules: vi.fn((options) => {
             mockEnsureLocaleMessageModules(options)
+            return Promise.resolve()
         }),
     }
 })

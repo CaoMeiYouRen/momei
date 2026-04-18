@@ -269,12 +269,12 @@ describe('check-github-security-alerts', () => {
             .mockResolvedValueOnce({
                 ok: true,
                 status: 200,
-                text: async () => JSON.stringify([{ number: 1 }, { number: 2 }]),
+                text: () => Promise.resolve(JSON.stringify([{ number: 1 }, { number: 2 }])),
             })
             .mockResolvedValueOnce({
                 ok: true,
                 status: 200,
-                text: async () => JSON.stringify([{ number: 3 }]),
+                text: () => Promise.resolve(JSON.stringify([{ number: 3 }])),
             }))
 
         const result = await fetchRepositoryAlerts({
@@ -306,7 +306,7 @@ describe('check-github-security-alerts', () => {
         vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
             ok: false,
             status: 403,
-            text: async () => JSON.stringify({ message: 'forbidden' }),
+            text: () => Promise.resolve(JSON.stringify({ message: 'forbidden' })),
         }))
 
         const result = await fetchRepositoryAlerts({
@@ -454,7 +454,7 @@ describe('check-github-security-alerts', () => {
         const outputMdPath = path.join(tempRoot, 'artifacts', 'alerts.md')
         const originalArgv = process.argv
         const originalExitCode = process.exitCode
-        const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
+        const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
 
         try {
             await writeFile(inputPath, JSON.stringify({

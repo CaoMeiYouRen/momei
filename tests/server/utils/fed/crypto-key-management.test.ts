@@ -4,7 +4,7 @@ const { mockFedKeyRepo } = vi.hoisted(() => ({
     mockFedKeyRepo: {
         findOne: vi.fn(),
         create: vi.fn((payload: Record<string, unknown>) => payload),
-        save: vi.fn(async (payload: Record<string, unknown>) => payload),
+        save: vi.fn((payload: Record<string, unknown>) => Promise.resolve(payload)),
     },
 }))
 

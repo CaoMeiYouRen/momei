@@ -308,7 +308,7 @@ describe('check-dependency-risk', () => {
         const allowlistPath = resolve(directory, 'allowlist.json')
         const originalArgv = process.argv
         const originalExitCode = process.exitCode
-        const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
+        const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
 
         await writeFile(inputPath, JSON.stringify({
             vulnerabilities: {
@@ -369,7 +369,7 @@ describe('check-dependency-risk', () => {
         const allowlistPath = resolve(directory, 'allowlist.json')
         const originalArgv = process.argv
         const originalExitCode = process.exitCode
-        const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
+        const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
 
         await writeFile(inputPath, JSON.stringify({
             vulnerabilities: {

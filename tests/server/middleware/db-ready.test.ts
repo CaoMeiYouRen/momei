@@ -113,8 +113,9 @@ describe('db ready middleware', () => {
     })
 
     it('should warn when initialization still leaves the data source unavailable', async () => {
-        initializeDB.mockImplementationOnce(async () => {
+        initializeDB.mockImplementationOnce(() => {
             dataSourceState.isInitialized = false
+            return Promise.resolve(undefined)
         })
 
         await ensureRequestDatabaseReady(createEvent('/api/posts'))
