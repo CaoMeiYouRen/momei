@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-04-13
+last_sync: 2026-04-18
 ---
 
 # Momei - Project Roadmap
@@ -19,6 +19,7 @@ This document outlines the development blueprint for the project. For specific t
 - **Stage 24 has now been audited and archived**: The four governance tracks promoted in the Chinese source of truth have completed their first execution slice and phase-close evidence capture, and the official closure is now recorded in the canonical roadmap and archive docs.
 - **Stage 25 has now been audited and archived**: Deployment and initialization experience consolidation, the second closure pass for the editor and article rendering chain, deeper build and bundle performance work, Cloudflare runtime boundary research, and the AI-assisted initialization / configuration helper evaluation have all been closed in the Chinese source of truth and archive docs.
 - **Stage 26 has now been audited and archived**: The governance slice is fully closed across all five tracks. Workspace-wide coverage has reached the phase target (about `72%`), and recent production monitoring confirms PostgreSQL query and connection pressure has been significantly reduced after the query-shaping and caching hardening work.
+- **Stage 27 has now been audited and archived**: Channel distribution regression hardening, article sharing and icon system cleanup, cache reuse expansion, first-round performance baseline work, and the first E2E coverage matrix have all been closed in the Chinese source of truth and archive docs.
 - **Scope note**: Full acceptance criteria and task decomposition remain Chinese-only in the canonical [roadmap](../../../plan/roadmap.md) and [todo](../../../plan/todo.md).
 
 ## 1. Project Overview

@@ -2251,3 +2251,46 @@
     - 验收: 形成 `posts / archive / categories / tags / search / external posts` 热点清单，并完成最小字段集与短 TTL 缓存收敛。
     - 验收: 基于运行期监控补齐“查询与连接压力已显著缓解”的阶段证据。
     - 结果: 已完成热点读链路收敛、初始化边界与匿名鉴权触发面收口；结合后台监控数据，PostgreSQL 查询与连接压力显著下降，主线关闭。
+
+## 第二十七阶段：渠道稳定性与体验性能推进 (已审计归档)
+
+> 审计结论: 第二十七阶段围绕渠道分发回归加固、文章页分享与图标系统收口、接口缓存复用扩面、首屏性能阶段一优化与 E2E 覆盖矩阵第一轮五条主线，已在实现代码、定向测试、回归记录、性能基线与规划文档中完成闭环，满足归档条件。WechatSync 微博 / 小红书链路、RSS 防回归、分享入口与图标映射、性能口径与 E2E 基线均已收口，阶段正式归档。
+
+### 1. 主线：渠道分发回归加固（含 RSS 防回归补测） (P0)
+
+- [x] **收敛 WechatSync 在微博 / 小红书平台的同步回归问题，并补齐 RSS 防回归测试**
+    - 验收: WechatSync 在微博 / 小红书链路完成根因收敛与修复，不破坏既有成功平台。
+    - 验收: 已确认修复的 RSS 路由补齐定向测试（taxonomy 排序 / feed 路由 / 发现链路），避免同类问题再次出现。
+    - 验收: 至少保留一轮定向测试与联调证据。
+    - 结果: 已完成微博 / 小红书分发回归收口，WechatSync 运行时桥接与共享分发模板已按实际兼容边界回写；RSS 防回归补测覆盖 taxonomy 排序、feed 路由默认 XML / Atom / JSON 输出与分类页 / 标签页发现链路。
+    - 验证: `pnpm exec eslint server/utils/feed.test.ts server/utils/feed-taxonomy-route.test.ts tests/pages/taxonomy-rss-discovery.test.ts` 与 `pnpm exec vitest run server/utils/feed.test.ts server/utils/feed-taxonomy-route.test.ts tests/pages/taxonomy-rss-discovery.test.ts` 通过。
+
+### 2. 主线：文章页一键分享与图标系统修复 (P1)
+
+- [x] **文章页分享入口能力与图标库映射统一打包推进**
+    - 验收: 文章页提供统一分享入口，覆盖主流平台并保证移动端可用。
+    - 验收: 社交 / 打赏图标映射统一，新增第三方图标库与 fallback 策略。
+    - 结果: 已完成文章页分享卡片、分享弹窗与平台图标映射收口，移动端原生分享、桌面端分享面板、主流平台拼链与国内平台复制式分享均已落地；微博在当前阶段统一按复制式分享处理。
+    - 设计入口: 分享系统设计草案见 [post-sharing.md](../design/modules/post-sharing.md)。
+
+### 3. 主线：接口缓存逻辑复用与可缓存接口扩面切片 (P1) (已完成)
+
+- [x] **抽离缓存复用层并对高收益公开读接口完成至少一组扩面验证**
+    - 验收: 抽离缓存复用层（TTL / 失效 / 键策略 / 权限边界），减少重复实现。
+    - 验收: 输出一组高收益接口扩面清单并完成至少 1 组落地验证。
+    - 结果: 已统一接入 `settings/public`、`friend-links/index`、`posts/archive`、`categories/index`、`tags/index`，并补齐缓存清单与回归证据，见 [cacheable-api-inventory.md](../design/modules/cacheable-api-inventory.md) 与 [regression-log.md](./regression-log.md)。
+
+### 4. 主线：首屏性能阶段一优化（Lighthouse >= 50） (P0)
+
+- [x] **聚焦关键页面性能瓶颈并建立统一采样口径**
+    - 验收: 建立当前瓶颈分解与采样口径，核心页面性能评分稳定达到 >= 50。
+    - 验收: 沉淀“措施 - 收益 - 副作用”记录，作为后续冲刺 >= 90 的基线。
+    - 结果: 已完成公共壳、文章卡片与编辑器依赖拆分后的基线复核，当前性能预算口径已调整为“非 vendor 异步页面 chunk”；`pnpm build` 与 `pnpm test:perf:budget` 通过，当前预算结果为 `coreEntryJs 139.65KB / 260KB`、`maxAsyncChunkJs 0KB / 120KB`、`keyCss 11.36KB / 70KB`。
+
+### 5. 主线：E2E 覆盖矩阵第一轮 (P1)
+
+- [x] **建立页面与接口覆盖矩阵并补齐首轮稳定基线**
+    - 验收: 建立页面与接口覆盖矩阵并明确优先级。
+    - 验收: 完成关键交易路径与高风险接口的首轮稳定用例。
+    - 结果: 已补齐注册校验、投稿表单失败 / 成功提交流程、`/feedback` 与 `/friend-links` 等公共页 reachability，以及后台 `users`、`comments`、`submissions`、`subscribers`、`friend-links`、`external-links`、`notifications`、`ai`、taxonomy 搜索 / 聚合开关等首轮稳定用例。
+    - 证据: 定向命令 `pnpm exec playwright test tests/e2e/submit.e2e.test.ts tests/e2e/user-workflow.e2e.test.ts tests/e2e/admin.e2e.test.ts tests/e2e/public-pages.e2e.test.ts --project=chromium` 已验证 `33 passed / 3 skipped`，详见 [e2e-coverage-matrix.md](../design/modules/e2e-coverage-matrix.md) 与 [regression-log.md](./regression-log.md)。
