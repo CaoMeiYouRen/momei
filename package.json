@@ -17,6 +17,7 @@
     "ai:check": "node scripts/ai/check-governance.mjs",
     "i18n:audit": "node scripts/i18n/audit-locale-keys.mjs",
     "i18n:check-sync": "node scripts/i18n/check-locale-parity.mjs",
+    "i18n:verify:runtime": "pnpm lint:i18n && pnpm exec vitest run i18n/config/locale-modules.test.ts i18n/config/locale-runtime-loader.test.ts components/app-header.test.ts components/commercial-link-manager.test.ts pages/login.test.ts",
     "lint": "cross-env NODE_ENV=production eslint . --fix --max-warnings 10 && pnpm -r --filter \"./packages/*\" lint",
     "lint:i18n": "cross-env NODE_ENV=production ESLINT_I18N=true eslint . --quiet",
     "lint:css": "stylelint ./**/*.{html,css,scss,sass,vue} --fix",

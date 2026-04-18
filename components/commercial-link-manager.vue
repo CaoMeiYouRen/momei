@@ -9,7 +9,7 @@
                         {{ $t('pages.settings.commercial.social_links') }}
                     </h4>
                     <p class="commercial-manager__desc">
-                        {{ isAdmin ? $t('pages.admin.settings.commercial.global_social_desc') : $t('pages.settings.commercial.social_desc') }}
+                        {{ t(socialDescriptionKey) }}
                     </p>
                 </div>
                 <Button
@@ -108,7 +108,7 @@
                         {{ $t('pages.settings.commercial.donation_links') }}
                     </h4>
                     <p class="commercial-manager__desc">
-                        {{ isAdmin ? $t('pages.admin.settings.commercial.global_donation_desc') : $t('pages.settings.commercial.donation_desc') }}
+                        {{ t(donationDescriptionKey) }}
                     </p>
                 </div>
                 <Button
@@ -398,6 +398,7 @@ import {
     type DonationLink,
 } from '@/utils/shared/commercial'
 import { APP_ENABLED_LOCALES } from '@/i18n/config/locale-registry'
+import { useLocaleMessageModules } from '@/composables/use-locale-message-modules'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 
@@ -405,7 +406,9 @@ interface Props {
     isAdmin?: boolean
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+    isAdmin: false,
+})
 
 const socialLinks = defineModel<SocialLink[]>('socialLinks', { default: () => [] })
 const donationLinks = defineModel<DonationLink[]>('donationLinks', { default: () => [] })
@@ -413,6 +416,22 @@ const donationLinks = defineModel<DonationLink[]>('donationLinks', { default: ()
 const { t } = useI18n()
 const confirm = useConfirm()
 const toast = useToast()
+const { localeModulesReady: adminLocaleReady } = useLocaleMessageModules({
+    modules: ['admin-settings'],
+    enabled: computed(() => props.isAdmin),
+})
+
+const socialDescriptionKey = computed(() => (
+    props.isAdmin && adminLocaleReady.value
+        ? 'pages.admin.settings.commercial.global_social_desc'
+        : 'pages.settings.commercial.social_desc'
+))
+
+const donationDescriptionKey = computed(() => (
+    props.isAdmin && adminLocaleReady.value
+        ? 'pages.admin.settings.commercial.global_donation_desc'
+        : 'pages.settings.commercial.donation_desc'
+))
 
 const localeOptions = computed(() => APP_ENABLED_LOCALES.map((locale) => ({
     label: t(`common.languages.${locale.code}`),
