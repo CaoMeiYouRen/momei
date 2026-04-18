@@ -48,10 +48,11 @@
 	- 验收: 将 `lint:i18n` 与定向运行时验证组合成固定补跑入口，并至少补 1 轮高频页面回归验证。
 	- 完成说明: 已补 `use-locale-message-modules`、`pnpm i18n:verify:runtime`、`pnpm i18n:audit:duplicates`，并生成跨语言 cross-module 重复文案候选报告用于后续逐条收敛。
 
-5. [ ] **编辑器 Markdown 与外观一致性增强 (P1)**
+5. [x] **编辑器 Markdown 与外观一致性增强 (P1)**
 	- 验收: 在现有 `mavon-editor` 包装层上补齐工具栏、背景栏与主题变量接入，提升与后台及站点主题的一致性。
 	- 验收: 梳理并补齐编辑器 Markdown 能力与文章页渲染能力的对齐范围，优先覆盖高频语法与扩展项，而不是直接替换底层编辑器。
 	- 验收: 补齐至少 1 轮定向交互测试或视觉验证，确认不影响自动保存、上传回填与翻译工作流。
+	- 完成说明: 已保留 `mavon-editor` 并在包装层注入 shared renderer，统一工具栏矩阵、主题变量、代码组 tabs / copy 行为与只读模式增强；补齐 `markdown`、`admin-markdown-editor`、`rendered-markdown` 相关单测，并完成后台编辑器登录 smoke，确认预览区与沉浸式阅读模式都能正确渲染 GitHub alerts 与 code-group，且不影响自动保存、上传回填与翻译相关回归测试。
 
 
 ## 相关文档

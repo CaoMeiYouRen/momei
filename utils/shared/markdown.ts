@@ -48,6 +48,12 @@ hljs.registerLanguage('xml', xml)
 hljs.registerLanguage('yaml', yaml)
 hljs.registerLanguage('yml', yaml)
 
+export interface MarkdownRendererInstance extends MarkdownIt {
+    __image?: Record<string, string | undefined>
+    image_add: (key: string | number, url: string) => void
+    image_del: (key: unknown) => void
+}
+
 export interface MarkdownOptions {
     /**
      * 是否允许 HTML 标签
@@ -88,7 +94,14 @@ function mergeAllowedAttributes(tag: string, attributes: string[]) {
 const markdownSanitizeOptions: sanitizeHtml.IOptions = {
     allowedTags: Array.from(new Set([
         ...defaultAllowedTags,
+        'abbr',
+        'dd',
+        'dl',
+        'dt',
         'img',
+        'input',
+        'ins',
+        'mark',
         'button',
         'math',
         'semantics',
@@ -102,16 +115,30 @@ const markdownSanitizeOptions: sanitizeHtml.IOptions = {
         'mfrac',
         'msqrt',
         'mtext',
+        'sub',
+        'sup',
     ])),
     allowedAttributes: {
         ...defaultAllowedAttributes,
         a: mergeAllowedAttributes('a', ['class', 'id', 'rel']),
+        abbr: mergeAllowedAttributes('abbr', ['title']),
         img: mergeAllowedAttributes('img', ['loading', 'decoding']),
         code: mergeAllowedAttributes('code', ['class']),
         pre: mergeAllowedAttributes('pre', ['class', 'data-title']),
         div: mergeAllowedAttributes('div', ['class']),
+        dl: mergeAllowedAttributes('dl', ['class']),
+        dt: mergeAllowedAttributes('dt', ['class']),
+        dd: mergeAllowedAttributes('dd', ['class']),
+        input: mergeAllowedAttributes('input', ['checked', 'class', 'disabled', 'type']),
+        ins: mergeAllowedAttributes('ins', ['class']),
+        li: mergeAllowedAttributes('li', ['class']),
+        mark: mergeAllowedAttributes('mark', ['class']),
+        ol: mergeAllowedAttributes('ol', ['class']),
         p: mergeAllowedAttributes('p', ['class']),
+        section: mergeAllowedAttributes('section', ['class', 'data-footnotes']),
         span: mergeAllowedAttributes('span', ['class', 'aria-hidden']),
+        sub: mergeAllowedAttributes('sub', ['class']),
+        sup: mergeAllowedAttributes('sup', ['class']),
         button: mergeAllowedAttributes('button', ['type', 'class', 'title', 'aria-label']),
         math: mergeAllowedAttributes('math', ['xmlns', 'display']),
         annotation: mergeAllowedAttributes('annotation', ['encoding']),
@@ -127,6 +154,18 @@ const markdownSanitizeOptions: sanitizeHtml.IOptions = {
     allowedSchemesByTag: {
         img: ['http', 'https', 'data'],
     },
+}
+
+function attachMarkdownImagePlaceholderSupport(md: MarkdownRendererInstance) {
+    const imageMap = md.__image && typeof md.__image === 'object' ? md.__image : {}
+
+    md.__image = imageMap
+    md.image_add = (key, url) => {
+        imageMap[String(key)] = url
+    }
+    md.image_del = (key) => {
+        imageMap[String(key)] = undefined
+    }
 }
 
 /**
@@ -151,7 +190,9 @@ export function createMarkdownRenderer(mdOptions: MarkdownOptions = {}) {
             }
             return '' // use external default escaping
         },
-    })
+    }) as MarkdownRendererInstance
+
+    attachMarkdownImagePlaceholderSupport(md)
 
     // 为图片添加懒加载属性
     const defaultImageRender = md.renderer.rules.image || function (tokens: any, idx: number, options: any, env: any, self: any) {
@@ -161,8 +202,22 @@ export function createMarkdownRenderer(mdOptions: MarkdownOptions = {}) {
     md.renderer.rules.image = function (tokens, idx, options, env, self) {
         const token = tokens[idx]
         if (token) {
-            token.attrPush(['loading', 'lazy'])
-            token.attrPush(['decoding', 'async'])
+            const srcIndex = token.attrIndex('src')
+            if (srcIndex >= 0) {
+                const rawSrc = token.attrs?.[srcIndex]?.[1]
+                const resolvedSrc = rawSrc ? md.__image?.[rawSrc] : undefined
+
+                if (rawSrc && resolvedSrc) {
+                    token.attrSet('rel', rawSrc)
+                    const sourceAttribute = token.attrs?.[srcIndex]
+                    if (sourceAttribute) {
+                        sourceAttribute[1] = resolvedSrc
+                    }
+                }
+            }
+
+            token.attrSet('loading', 'lazy')
+            token.attrSet('decoding', 'async')
         }
         return defaultImageRender(tokens, idx, options, env, self)
     }

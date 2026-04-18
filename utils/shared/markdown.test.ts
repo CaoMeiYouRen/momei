@@ -53,6 +53,16 @@ describe('createMarkdownRenderer', () => {
         expect(html).toContain('href="#hello-world"')
     })
 
+    it('should resolve editor image placeholders through shared renderer hooks', () => {
+        const renderer = createMarkdownRenderer({ html: true })
+        renderer.image_add(2, 'https://assets.example.com/image.png')
+
+        const result = renderer.render('![demo](2)')
+
+        expect(result).toContain('src="https://assets.example.com/image.png"')
+        expect(result).toContain('rel="2"')
+    })
+
     it('should reuse shared heading slug rules', () => {
         expect(slugifyMarkdownHeading('  中文 Heading: Hello World!  ')).toBe('中文-heading-hello-world-')
     })

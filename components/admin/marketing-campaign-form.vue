@@ -30,8 +30,6 @@
                     <AdminMavonEditorClient
                         v-model="form.content"
                         :placeholder="$t('pages.admin.marketing.form.placeholder_content')"
-                        language="zh-CN"
-                        :toolbars="toolbars"
                         class="marketing-campaign-form__mavon"
                     />
                 </ClientOnly>
@@ -164,38 +162,6 @@ const campaignTypes = computed(() => [
     { label: t('pages.admin.marketing.type.maintenance'), value: MarketingCampaignType.MAINTENANCE },
     { label: t('pages.admin.marketing.type.service'), value: MarketingCampaignType.SERVICE },
 ])
-
-const toolbars = {
-    bold: true,
-    italic: true,
-    header: true,
-    underline: true,
-    strikethrough: true,
-    mark: true,
-    superscript: true,
-    subscript: true,
-    quote: true,
-    ol: true,
-    ul: true,
-    link: true,
-    imagelink: true,
-    code: true,
-    table: true,
-    fullscreen: true,
-    readmodel: true,
-    htmlcode: true,
-    help: true,
-    undo: true,
-    redo: true,
-    trash: true,
-    save: true,
-    navigation: true,
-    alignleft: true,
-    aligncenter: true,
-    alignright: true,
-    subfield: true,
-    preview: true,
-}
 
 const form = reactive({
     type: MarketingCampaignType.FEATURE,

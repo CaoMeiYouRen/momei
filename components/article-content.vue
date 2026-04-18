@@ -22,6 +22,8 @@
 </template>
 
 <script setup lang="ts">
+import { copyRenderedMarkdownCode, initRenderedMarkdownCodeGroups } from '@/utils/web/rendered-markdown'
+
 const props = defineProps<{
     content: string
 }>()
@@ -51,15 +53,9 @@ const handleContentClick = (event: MouseEvent) => {
     }
 
     // 2. 处理代码复制
-    if (target.classList.contains('copy-code-button')) {
-        const pre = target.closest('pre')
-        const code = pre?.querySelector('code')?.innerText || ''
-        navigator.clipboard.writeText(code).then(() => {
-            target.classList.add('copied')
-            setTimeout(() => {
-                target.classList.remove('copied')
-            }, 2000)
-        })
+    const copyButton = target.closest('.copy-code-button')
+    if (copyButton instanceof HTMLElement) {
+        void copyRenderedMarkdownCode(copyButton)
     }
 }
 
@@ -70,65 +66,13 @@ const md = createMarkdownRenderer({
 
 const renderedContent = computed(() => sanitizeRenderedMarkdownHtml(md.render(props.content || '')))
 
-/**
- * 初始化代码组 (Code Group) 的交互逻辑
- */
-const initCodeGroups = () => {
-    if (!articleRef.value || import.meta.server) {
-        return
-    }
-
-    const groups = articleRef.value.querySelectorAll('.code-group')
-    groups.forEach((group) => {
-        // 避重复初始化
-        if (group.querySelector('.code-group-tabs')) {
-            return
-        }
-
-        const preElements = group.querySelectorAll('pre')
-        if (preElements.length === 0) {
-            return
-        }
-
-        const tabsContainer = document.createElement('div')
-        tabsContainer.className = 'code-group-tabs'
-
-        const contentContainer = document.createElement('div')
-        contentContainer.className = 'code-group-content'
-
-        preElements.forEach((pre, index) => {
-            const title = pre.getAttribute('data-title') || (pre.classList.contains('hljs') ? pre.className.split(' ').find((c) => c !== 'hljs' && !c.startsWith('lang-'))?.replace('language-', '') : '') || `Code ${index + 1}`
-
-            const button = document.createElement('button')
-            button.innerText = title
-            if (index === 0) {
-                button.className = 'active'
-                pre.classList.add('active')
-            }
-
-            button.onclick = () => {
-                tabsContainer.querySelectorAll('button').forEach((b) => b.classList.remove('active'))
-                contentContainer.querySelectorAll('pre').forEach((p) => p.classList.remove('active'))
-                button.classList.add('active')
-                pre.classList.add('active')
-            }
-
-            tabsContainer.appendChild(button)
-            contentContainer.appendChild(pre)
-        })
-
-        group.appendChild(tabsContainer)
-        group.appendChild(contentContainer)
-    })
-}
-
 onMounted(() => {
-    initCodeGroups()
+    initRenderedMarkdownCodeGroups(articleRef.value)
 })
 
 watch(() => props.content, () => {
     nextTick(() => {
-        initCodeGroups()
+        initRenderedMarkdownCodeGroups(articleRef.value)
     })
 })
 </script>
