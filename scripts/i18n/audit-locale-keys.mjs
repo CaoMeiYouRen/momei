@@ -24,7 +24,9 @@ const IGNORED_DIRS = new Set([
 const DYNAMIC_KEY_PATTERNS = [
     /^app\./u,
     /^common\.languages\./u,
+    /^common\.platforms\./u,
     /^components\.post\.copyright\.licenses\./u,
+    /^components\.post\.share\.platforms\./u,
     /^components\.post\.sponsor\.platforms\./u,
     /^pages\.about\.meaning\.features\[\d+\]$/u,
     /^pages\.about\.features\.items\[\d+\]\.(title|desc)$/u,

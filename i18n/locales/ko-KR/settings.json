@@ -144,25 +144,7 @@
                 "empty_donation": "설정된 후원 링크가 없습니다",
                 "delete_confirm": "이 링크를 삭제하시겠습니까?",
                 "edit_social": "소셜 링크 편집",
-                "edit_donation": "후원 링크 편집",
-                "social_platforms": {
-                    "wechat_mp": "WeChat 공식 계정",
-                    "juejin": "Juejin",
-                    "xiaohongshu": "Xiaohongshu",
-                    "douyin": "Douyin",
-                    "bilibili": "Bilibili",
-                    "weibo": "Weibo",
-                    "zhihu": "Zhihu",
-                    "stack_overflow": "Stack Overflow",
-                    "x": "X (Twitter)",
-                    "youtube": "YouTube",
-                    "instagram": "Instagram",
-                    "linkedin": "LinkedIn",
-                    "twitch": "Twitch",
-                    "facebook": "Facebook",
-                    "github": "GitHub",
-                    "discord": "Discord"
-                }
+                "edit_donation": "후원 링크 편집"
             }
         }
     }

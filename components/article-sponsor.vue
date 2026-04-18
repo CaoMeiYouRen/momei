@@ -160,6 +160,10 @@ const getPlatformColor = (key: string, type: 'social' | 'donation') => getCommer
 
 const getPlatformName = (key: string, type: 'social' | 'donation') => {
     if (key === 'custom') return ''
+    if (type === 'social') {
+        return t(`common.platforms.${key}`)
+    }
+
     return t(`components.post.sponsor.platforms.${key}`)
 }
 

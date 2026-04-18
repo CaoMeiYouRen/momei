@@ -311,13 +311,13 @@
                         <template #option="slotProps">
                             <div class="commercial-manager__select-option">
                                 <i :class="slotProps.option.icon" :style="{color: slotProps.option.color}" />
-                                <span>{{ slotProps.option.key === 'custom' ? $t('common.custom') : $t(`pages.settings.commercial.social_platforms.${slotProps.option.key}`) }}</span>
+                                <span>{{ slotProps.option.key === 'custom' ? $t('common.custom') : $t(`common.platforms.${slotProps.option.key}`) }}</span>
                             </div>
                         </template>
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="commercial-manager__select-value">
                                 <i :class="getSocialIcon(slotProps.value)" :style="{color: getSocialColor(slotProps.value)}" />
-                                <span>{{ slotProps.value === 'custom' ? $t('common.custom') : $t(`pages.settings.commercial.social_platforms.${slotProps.value}`) }}</span>
+                                <span>{{ slotProps.value === 'custom' ? $t('common.custom') : $t(`common.platforms.${slotProps.value}`) }}</span>
                             </div>
                             <span v-else>{{ slotProps.placeholder }}</span>
                         </template>
@@ -508,7 +508,7 @@ const getPlatformName = (key: string) => key === 'custom' ? '' : t(`components.p
 
 const getSocialIcon = (key: string) => getCommercialPlatformIcon(key, 'social')
 const getSocialColor = (key: string) => getCommercialPlatformColor(key, 'social')
-const getSocialName = (key: string) => key === 'custom' ? '' : t(`pages.settings.commercial.social_platforms.${key}`)
+const getSocialName = (key: string) => key === 'custom' ? '' : t(`common.platforms.${key}`)
 
 const confirmDelete = (index: number) => {
     confirm.require({

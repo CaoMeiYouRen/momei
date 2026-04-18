@@ -144,25 +144,7 @@
                 "empty_donation": "尚未配置打赏链接",
                 "delete_confirm": "确定要删除此链接吗？",
                 "edit_social": "编辑社交链接",
-                "edit_donation": "编辑打赏链接",
-                "social_platforms": {
-                    "wechat_mp": "微信公众号",
-                    "juejin": "掘金",
-                    "xiaohongshu": "小红书",
-                    "douyin": "抖音",
-                    "bilibili": "Bilibili",
-                    "weibo": "微博",
-                    "zhihu": "知乎",
-                    "stack_overflow": "Stack Overflow",
-                    "x": "X (Twitter)",
-                    "youtube": "YouTube",
-                    "instagram": "Instagram",
-                    "linkedin": "LinkedIn",
-                    "twitch": "Twitch",
-                    "facebook": "Facebook",
-                    "github": "GitHub",
-                    "discord": "Discord"
-                }
+                "edit_donation": "编辑打赏链接"
             }
         }
     }

@@ -82,21 +82,6 @@
         "qr_scan_follow_tip": "모바일 앱으로 QR 코드를 스캔해 팔로우하세요",
         "qr_scan_pay_tip": "모바일 앱으로 QR 코드를 스캔해 후원하세요",
         "platforms": {
-          "wechat_mp": "WeChat 공식 계정",
-          "juejin": "Juejin",
-          "xiaohongshu": "Xiaohongshu",
-          "douyin": "Douyin",
-          "bilibili": "Bilibili",
-          "weibo": "Weibo",
-          "zhihu": "Zhihu",
-          "stack_overflow": "Stack Overflow",
-          "x": "X (Twitter)",
-          "youtube": "YouTube",
-          "instagram": "Instagram",
-          "linkedin": "LinkedIn",
-          "twitch": "Twitch",
-          "facebook": "Facebook",
-          "github": "GitHub",
           "wechat_pay": "WeChat Pay",
           "alipay": "Alipay",
           "afdian": "Afdian",
@@ -125,18 +110,7 @@
         "copy_title": "복사 후 게시",
         "copy_description": "클라이언트나 게시 화면에 직접 붙여넣어야 하는 경우에 적합합니다.",
         "platforms": {
-          "x": "X (Twitter)",
-          "facebook": "Facebook",
-          "linkedin": "LinkedIn",
-          "telegram": "Telegram",
-          "whatsapp": "WhatsApp",
-          "email": "Email",
-          "wechat_mp": "WeChat",
-          "weibo": "Weibo",
-          "xiaohongshu": "Xiaohongshu",
-          "juejin": "Juejin",
-          "bilibili": "Bilibili",
-          "zhihu": "Zhihu"
+          "wechat_mp": "WeChat"
         }
       }
     }

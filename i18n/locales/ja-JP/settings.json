@@ -144,25 +144,7 @@
                 "empty_donation": "寄付リンクはまだ設定されていません",
                 "delete_confirm": "このリンクを削除してもよろしいですか？",
                 "edit_social": "ソーシャルリンクを編集",
-                "edit_donation": "寄付リンクを編集",
-                "social_platforms": {
-                    "wechat_mp": "WeChat 公式アカウント",
-                    "juejin": "Juejin",
-                    "xiaohongshu": "Xiaohongshu",
-                    "douyin": "Douyin",
-                    "bilibili": "Bilibili",
-                    "weibo": "Weibo",
-                    "zhihu": "Zhihu",
-                    "stack_overflow": "Stack Overflow",
-                    "x": "X (Twitter)",
-                    "youtube": "YouTube",
-                    "instagram": "Instagram",
-                    "linkedin": "LinkedIn",
-                    "twitch": "Twitch",
-                    "facebook": "Facebook",
-                    "github": "GitHub",
-                    "discord": "Discord"
-                }
+                "edit_donation": "寄付リンクを編集"
             }
         }
     }

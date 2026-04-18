@@ -144,25 +144,7 @@
                 "empty_donation": "No donation links configured",
                 "delete_confirm": "Are you sure you want to delete this link?",
                 "edit_social": "Edit Social Link",
-                "edit_donation": "Edit Donation Link",
-                "social_platforms": {
-                    "wechat_mp": "WeChat Official Account",
-                    "juejin": "Juejin",
-                    "xiaohongshu": "Xiaohongshu",
-                    "douyin": "Douyin",
-                    "bilibili": "Bilibili",
-                    "weibo": "Weibo",
-                    "zhihu": "Zhihu",
-                    "stack_overflow": "Stack Overflow",
-                    "x": "X (Twitter)",
-                    "youtube": "YouTube",
-                    "instagram": "Instagram",
-                    "linkedin": "LinkedIn",
-                    "twitch": "Twitch",
-                    "facebook": "Facebook",
-                    "github": "GitHub",
-                    "discord": "Discord"
-                }
+                "edit_donation": "Edit Donation Link"
             }
         }
     }

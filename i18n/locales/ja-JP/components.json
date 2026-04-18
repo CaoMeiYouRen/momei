@@ -82,21 +82,6 @@
                 "qr_scan_follow_tip": "モバイルアプリで読み取ってフォロー",
                 "qr_scan_pay_tip": "モバイルアプリで読み取って支援",
                 "platforms": {
-                    "wechat_mp": "WeChat 公式アカウント",
-                    "juejin": "Juejin",
-                    "xiaohongshu": "Xiaohongshu",
-                    "douyin": "Douyin",
-                    "bilibili": "Bilibili",
-                    "weibo": "Weibo",
-                    "zhihu": "Zhihu",
-                    "stack_overflow": "Stack Overflow",
-                    "x": "X (Twitter)",
-                    "youtube": "YouTube",
-                    "instagram": "Instagram",
-                    "linkedin": "LinkedIn",
-                    "twitch": "Twitch",
-                    "facebook": "Facebook",
-                    "github": "GitHub",
                     "wechat_pay": "WeChat Pay",
                     "alipay": "Alipay",
                     "afdian": "Afdian",
@@ -125,18 +110,7 @@
                 "copy_title": "コピーして投稿",
                 "copy_description": "クライアントや投稿画面へ手動で貼り付ける場面に向いています。",
                 "platforms": {
-                    "x": "X (Twitter)",
-                    "facebook": "Facebook",
-                    "linkedin": "LinkedIn",
-                    "telegram": "Telegram",
-                    "whatsapp": "WhatsApp",
-                    "email": "Email",
-                    "wechat_mp": "WeChat",
-                    "weibo": "Weibo",
-                    "xiaohongshu": "Xiaohongshu",
-                    "juejin": "Juejin",
-                    "bilibili": "Bilibili",
-                    "zhihu": "Zhihu"
+                    "wechat_mp": "WeChat"
                 }
             }
         }

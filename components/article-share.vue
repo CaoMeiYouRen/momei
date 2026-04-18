@@ -153,6 +153,8 @@ const primaryActionLabel = computed(() => canUseNativeShare.value
     ? t('components.post.share.native_share')
     : t('components.post.share.open_panel'))
 
+const shareScopedPlatformKeys = new Set<SharePlatformKey>(['wechat_mp'])
+
 function refreshNativeShareCapability() {
     if (!import.meta.client) {
         canUseNativeShare.value = false
@@ -173,7 +175,9 @@ function showError(detail: string) {
 }
 
 function getPlatformLabel(platform: SharePlatformKey) {
-    return t(`components.post.share.platforms.${platform}`)
+    return shareScopedPlatformKeys.has(platform)
+        ? t(`components.post.share.platforms.${platform}`)
+        : t(`common.platforms.${platform}`)
 }
 
 async function copyText(content: string, successDetail: string) {

@@ -82,21 +82,6 @@
                 "qr_scan_follow_tip": "打开移动端 App 扫码关注",
                 "qr_scan_pay_tip": "打开移动端 App 扫码支付",
                 "platforms": {
-                    "wechat_mp": "微信公众号",
-                    "juejin": "掘金",
-                    "xiaohongshu": "小红书",
-                    "douyin": "抖音",
-                    "bilibili": "Bilibili",
-                    "weibo": "微博",
-                    "zhihu": "知乎",
-                    "stack_overflow": "Stack Overflow",
-                    "x": "X (Twitter)",
-                    "youtube": "YouTube",
-                    "instagram": "Instagram",
-                    "linkedin": "LinkedIn",
-                    "twitch": "Twitch",
-                    "facebook": "Facebook",
-                    "github": "GitHub",
                     "wechat_pay": "微信支付",
                     "alipay": "支付宝",
                     "afdian": "爱发电",
@@ -125,18 +110,7 @@
                 "copy_title": "复制后发布",
                 "copy_description": "适用于需要手动粘贴到客户端或内容平台的场景。",
                 "platforms": {
-                    "x": "X (Twitter)",
-                    "facebook": "Facebook",
-                    "linkedin": "LinkedIn",
-                    "telegram": "Telegram",
-                    "whatsapp": "WhatsApp",
-                    "email": "Email",
-                    "wechat_mp": "微信",
-                    "weibo": "微博",
-                    "xiaohongshu": "小红书",
-                    "juejin": "掘金",
-                    "bilibili": "Bilibili",
-                    "zhihu": "知乎"
+                    "wechat_mp": "微信"
                 }
             }
         }

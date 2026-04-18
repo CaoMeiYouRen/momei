@@ -82,21 +82,6 @@
         "qr_scan_follow_tip": "Open mobile app to scan and follow",
         "qr_scan_pay_tip": "Open mobile app to scan and pay",
         "platforms": {
-          "wechat_mp": "WeChat Official Account",
-          "juejin": "Juejin",
-          "xiaohongshu": "Xiaohongshu",
-          "douyin": "Douyin",
-          "bilibili": "Bilibili",
-          "weibo": "Weibo",
-          "zhihu": "Zhihu",
-          "stack_overflow": "Stack Overflow",
-          "x": "X (Twitter)",
-          "youtube": "YouTube",
-          "instagram": "Instagram",
-          "linkedin": "LinkedIn",
-          "twitch": "Twitch",
-          "facebook": "Facebook",
-          "github": "GitHub",
           "wechat_pay": "WeChat Pay",
           "alipay": "Alipay",
           "afdian": "Afdian",
@@ -125,18 +110,7 @@
         "copy_title": "Copy and Post",
         "copy_description": "Best for platforms that expect you to paste the content manually.",
         "platforms": {
-          "x": "X (Twitter)",
-          "facebook": "Facebook",
-          "linkedin": "LinkedIn",
-          "telegram": "Telegram",
-          "whatsapp": "WhatsApp",
-          "email": "Email",
-          "wechat_mp": "WeChat",
-          "weibo": "Weibo",
-          "xiaohongshu": "Xiaohongshu",
-          "juejin": "Juejin",
-          "bilibili": "Bilibili",
-          "zhihu": "Zhihu"
+          "wechat_mp": "WeChat"
         }
       }
     }
