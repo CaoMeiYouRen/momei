@@ -170,3 +170,109 @@
     -   **Query**: `range=7|30|90`, `scope=all|public`, `contentLanguage`, `timezone`
     -   **Auth**: `admin` 查看全量内容，`author` 自动收敛为本人内容。
     -   **Response**: 返回窗口汇总指标、热门文章 / 标签 / 分类排行，以及实际使用的时区与过滤口径。
+
+### 5.5 内容洞察真实趋势升级设计（小时级稀疏聚合）
+
+#### 5.5.1 准入结论
+
+-   **结论**: 属于当前 P1 看板任务的延伸设计，允许在当前范围内继续推进。
+-   **目标**: 将后台首页中的“阅读量趋势”从“窗口内容累计表现”升级为“最近 N 天真实新增阅读事件趋势”。
+-   **约束**:
+    -   必须兼容多时区展示，不能把单一服务器时区的自然日误当成所有用户的日界线。
+    -   不引入逐次 pageview 明细表，避免零阅读日或高流量文章导致历史数据体量失控。
+    -   继续复用现有 `pvCache` 批量写回链路，避免把高频读请求改回逐次写库。
+
+#### 5.5.2 设计结论
+
+-   **采用方案**: 小时级稀疏聚合表。
+-   **核心思想**:
+    -   写入层只记录“发生过阅读”的 UTC 小时桶，不为零阅读小时写记录。
+    -   查询层按请求传入的时区，把 UTC 小时桶重新折叠为“用户视角下的自然日”趋势。
+    -   公开趋势与全部内容趋势共享同一套阅读历史表，公开状态过滤在查询文章范围时完成，而不是复制一份公开专用历史。
+
+#### 5.5.3 数据模型
+
+-   **新增实体建议**: `server/entities/post-view-hourly.ts`
+-   **建议表名**: `post_view_hourly`
+-   **字段建议**:
+    -   `id`: 复用基础实体 Snowflake 主键。
+    -   `postId`: 文章 ID，非空，索引。
+    -   `bucketHourUtc`: UTC 小时桶起始时间，例如 `2026-04-18T10:00:00.000Z`，非空，索引。
+    -   `views`: 当前小时桶累计阅读数，非空，默认 `0`。
+    -   `createdAt` / `updatedAt`: 复用基础实体时间列。
+-   **唯一约束建议**:
+    -   `(postId, bucketHourUtc)` 唯一，确保 flush 时可以安全 upsert / increment。
+-   **索引建议**:
+    -   `(postId, bucketHourUtc)` 唯一索引。
+    -   `(bucketHourUtc)` 普通索引，用于全局范围趋势查询。
+-   **不建议新增字段**:
+    -   不存 `timezone`，因为时区只是查询时的折叠视角，不是事件事实。
+    -   不存 `date_local` / `hour_local`，避免同一事实在多时区下重复膨胀。
+
+#### 5.5.4 写入链路设计
+
+-   **现状**:
+    -   [server/api/posts/[id]/views.post.ts](server/api/posts/%5Bid%5D/views.post.ts) 调用 [server/utils/pv-cache.ts](server/utils/pv-cache.ts) 记录阅读。
+    -   `pvCache.flush()` 当前仅把聚合后的增量加回 `Post.views`。
+-   **升级后写入口径**:
+    -   `record(postId)` 仍然只做内存 / Redis 缓冲，不在请求路径直接写 `post_view_hourly`。
+    -   `flush()` 在拿到待刷入增量后，同时完成两件事：
+        -   `Post.views += count`
+        -   `post_view_hourly(postId, bucketHourUtc).views += count`
+-   **关键改造点**:
+    -   `pvCache` 当前只按 `postId -> count` 聚合，需要升级为按 `(postId, bucketHourUtc) -> count` 聚合。
+    -   Redis key 也从 `buf:${postId}` 升级为 `buf:${bucketHourUtc}:${postId}` 或等价可拆分结构。
+    -   flush 时建议先按小时桶聚合，再批量 upsert，避免同一轮 flush 内重复命中相同行。
+-   **时间桶口径**:
+    -   统一使用 `dayjs().utc().startOf('hour')` 作为事实桶。
+    -   无论请求来自哪个用户时区，写入都只认 UTC 小时桶，展示时再折叠。
+
+#### 5.5.5 查询与展示设计
+
+-   **读取范围**:
+    -   `7 / 30 / 90` 天趋势查询时，先把用户请求时区对应的自然日窗口转换为 UTC 边界。
+    -   从 `post_view_hourly` 中查询该 UTC 范围内的小时桶，再按目标时区折叠成天。
+-   **折叠逻辑**:
+    -   例：用户时区为 `Asia/Tokyo`，则 `2026-04-18 00:00~23:59 JST` 会映射到一段 UTC 小时区间；服务端聚合时用同一时区把每个 `bucketHourUtc` 转回本地日期后求和。
+    -   缺失的天在 API 层补 `0`，而不是落库存零值行。
+-   **排行逻辑**:
+    -   热门文章 / 标签 / 分类的“趋势窗口阅读量”应改为聚合 `post_view_hourly` 在窗口内的新增值，而不是继续使用 `Post.views` 总量。
+    -   若需要同时保留“累计阅读排行”，可在响应中拆分为 `totalViews` 与 `windowViews`，避免语义混淆。
+-   **评论趋势**:
+    -   评论已有 `createdAt`，优先直接按 `Comment.createdAt` 聚合，不新增评论历史表。
+    -   若后续要支持“评论被删除 / 审核状态变化”带来的回放一致性，再单独评估评论小时聚合表。
+
+#### 5.5.6 性能与数据量控制
+
+-   **稀疏存储**:
+    -   只有发生阅读的小时才写行；零阅读小时不落库。
+    -   即使 90 天窗口要展示 90 个自然日，存储层也不需要 90 * 24 个固定桶。
+-   **写放大控制**:
+    -   继续通过 `pvCache` 合并同一小时同一文章的增量，再统一 flush。
+    -   若单篇文章在一小时内有大量访问，最终只会形成一条小时桶 upsert，而不是 N 次插入。
+-   **查询体量控制**:
+    -   后台首页默认只查最近 `90` 天内的小时桶，避免无界扫描。
+    -   可先按文章范围过滤，再关联 `post_view_hourly` 聚合，减少无关小时桶读取。
+-   **归档策略（可选）**:
+    -   第一阶段不强制做归档或降采样。
+    -   若后续数据量增长明显，可新增离线任务把超过 `180` 或 `365` 天的小时桶汇总进日表，再删除旧小时桶。
+
+#### 5.5.7 受影响文件清单
+
+-   `server/entities/post-view-hourly.ts`: 新增小时级阅读聚合实体。
+-   `server/utils/pv-cache.ts`: 将缓存键从单 `postId` 升级为 `(postId, bucketHourUtc)` 聚合，并在 flush 时同时写总量与小时桶。
+-   `server/plugins/pv-flush.ts`: flush 调度逻辑可保持不变，但要复用新的小时桶写入实现。
+-   `server/api/admin/content-insights.get.ts`: 查询真实趋势时改读 `post_view_hourly`。
+-   `server/utils/admin-content-insights.ts`: 新增趋势序列聚合逻辑，并把阅读指标从累计总量拆成 `totalViews` 与 `windowViews` 的清晰口径。
+-   `types/admin-content-insights.ts`: 响应结构需要新增 `dailyViewTrend` 或等价趋势字段。
+-   `server/api/posts/[id]/views.post.ts`: 保持请求路径不变，但返回值说明仍是“当前累计阅读数估计值”。
+-   `docs/design/modules/admin.md` / `docs/plan/todo.md`: 同步真实趋势设计与任务阶段说明。
+
+#### 5.5.8 风险与回退
+
+-   **风险 1**: 若直接把当前 `pvCache` 的 key 结构改掉，Redis 中旧格式缓冲值可能残留，需要设计一次兼容读取或清理窗口。
+-   **风险 2**: 后台首页若同时查文章、标签、分类和小时趋势，查询复杂度会上升，需要优先控制 90 天范围和文章集大小。
+-   **风险 3**: 若先做“小时桶趋势”但 UI 文案仍写“阅读量”，用户可能混淆新增阅读与总阅读，需要同步文案说明。
+-   **回退策略**:
+    -   若小时级趋势链路未通过验证，可继续保留第一版 `Post.views` 累计口径，不影响现有看板可用性。
+    -   `Post.views` 总量字段继续作为权威累计值，不因趋势表失败而回退整条阅读计数链路。
