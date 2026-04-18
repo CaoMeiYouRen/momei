@@ -34,6 +34,7 @@ import {
     type SettingResolvedItem,
     type SettingValue,
 } from '@/types/setting'
+import { clearRuntimeCache, getRuntimeCache, setRuntimeCache } from '@/server/utils/runtime-cache'
 
 export {
     FORCED_ENV_LOCKED_KEYS,
@@ -61,6 +62,37 @@ interface ParsedLocalizedSettingState {
     structured: boolean
     legacyFormat: boolean
     availableLocales: string[]
+}
+
+interface CachedSettingRecordEnvelope {
+    setting: Setting | null
+}
+
+const SETTING_RECORD_CACHE_TTL_SECONDS = 60
+const SETTING_RECORD_CACHE_KEY_PREFIX = 'settings:record:'
+
+function getSettingRecordCacheKey(key: string) {
+    return `${SETTING_RECORD_CACHE_KEY_PREFIX}${key}`
+}
+
+function readCachedSettingRecord(key: string) {
+    return getRuntimeCache(getSettingRecordCacheKey(key)) as CachedSettingRecordEnvelope | undefined
+}
+
+function writeCachedSettingRecord(key: string, setting: Setting | null) {
+    setRuntimeCache(getSettingRecordCacheKey(key), { setting }, SETTING_RECORD_CACHE_TTL_SECONDS)
+}
+
+function invalidateSettingRecordCache(key: string) {
+    clearRuntimeCache(getSettingRecordCacheKey(key))
+}
+
+function invalidateSettingRecordCaches(keys: string[]) {
+    keys.forEach((key) => {
+        getSettingLookupKeys(key).forEach((lookupKey) => {
+            invalidateSettingRecordCache(lookupKey)
+        })
+    })
 }
 
 function isSettingWriteEnvelope(value: unknown): value is {
@@ -185,8 +217,15 @@ async function fetchSettingsMap(keys: (SettingKey | string)[]) {
 }
 
 async function findSettingRecord(key: string) {
+    const cachedSetting = readCachedSettingRecord(key)
+    if (cachedSetting) {
+        return cachedSetting.setting
+    }
+
     const settingsMap = await fetchSettingsMap([key])
-    return resolveSettingRecordFromMap(settingsMap, key)
+    const setting = resolveSettingRecordFromMap(settingsMap, key)
+    writeCachedSettingRecord(key, setting)
+    return setting
 }
 
 function normalizeSettingValue(value: unknown): string | null {
@@ -486,10 +525,30 @@ export const getSettings = async (keys: (SettingKey | string)[]): Promise<Record
             return result
         }
 
-        const settingsMap = await fetchSettingsMap(unresolvedKeys)
+        const keysToLoadFromDatabase: (SettingKey | string)[] = []
 
-        keys.forEach((key) => {
+        unresolvedKeys.forEach((key) => {
+            const cachedSetting = readCachedSettingRecord(key)
+
+            if (!cachedSetting) {
+                keysToLoadFromDatabase.push(key)
+                return
+            }
+
+            if (cachedSetting.setting && !isInternalOnlySettingKey(cachedSetting.setting.key)) {
+                result[key] = cachedSetting.setting.value
+            }
+        })
+
+        if (keysToLoadFromDatabase.length === 0) {
+            return result
+        }
+
+        const settingsMap = await fetchSettingsMap(keysToLoadFromDatabase)
+
+        keysToLoadFromDatabase.forEach((key) => {
             const setting = resolveSettingRecordFromMap(settingsMap, key)
+            writeCachedSettingRecord(key, setting)
             if (result[key] === null && setting && !isInternalOnlySettingKey(setting.key)) {
                 result[key] = setting.value
             }
@@ -693,4 +752,6 @@ export const setSettings = async (settings: Record<string, any>, auditContext?: 
     if (auditChanges.length > 0) {
         await recordSettingAuditLogs(auditChanges, auditContext)
     }
+
+    invalidateSettingRecordCaches(entries.map(([key]) => key))
 }

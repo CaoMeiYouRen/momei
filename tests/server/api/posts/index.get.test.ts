@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { User } from '@/server/entities/user'
@@ -7,6 +7,7 @@ import { Tag } from '@/server/entities/tag'
 import { PostStatus, type Post as PostRecord } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
 import postsHandler from '@/server/api/posts/index.get'
+import { invalidateRuntimeApiCacheNamespace, resetRuntimeApiCacheStats } from '@/server/utils/api-runtime-cache'
 
 // Mock auth
 vi.mock('@/lib/auth', () => ({
@@ -25,6 +26,11 @@ describe('/api/posts', () => {
     let popularPostId = ''
     const translationClusterId = generateRandomString(12)
     const mediaTranslationClusterId = generateRandomString(12)
+
+    beforeEach(() => {
+        invalidateRuntimeApiCacheNamespace('posts:public-list')
+        resetRuntimeApiCacheStats('posts:public-list')
+    })
 
     beforeAll(async () => {
         // Initialize DB
@@ -159,6 +165,39 @@ describe('/api/posts', () => {
         expect(result.data).toHaveProperty('items')
         expect(result.data).toHaveProperty('total')
         expect(result.data!.items[0]?.content).toBeUndefined()
+    })
+
+    it('should reuse runtime cache for anonymous public post list requests', async () => {
+        const setHeader = vi.fn()
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader },
+            },
+            req: { headers: {} },
+            query: {
+                scope: 'public',
+            },
+        } as any
+
+        const first = await postsHandler(event)
+
+        const postRepo = dataSource.getRepository(Post)
+        const post = new Post()
+        post.title = `Cached post list probe ${generateRandomString(4)}`
+        post.slug = generateRandomString(12)
+        post.content = 'Cached post list probe content'
+        post.summary = 'Cached post list probe summary'
+        post.status = PostStatus.PUBLISHED
+        post.author = author
+        post.publishedAt = new Date('2026-04-11T00:00:00.000Z')
+        await postRepo.save(post)
+
+        const second = await postsHandler(event)
+
+        expect(first).toEqual(second)
+        expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=60')
     })
 
     it('should support pagination', async () => {

@@ -1,7 +1,6 @@
 import { defineEventHandler, getRequestURL, type H3Event } from 'h3'
 import logger from '@/server/utils/logger'
 
-const STATIC_ASSET_PATTERN = /\.(?:css|js|mjs|map|png|jpe?g|gif|svg|ico|woff2?|ttf|eot|webp|avif|txt|webmanifest)$/i
 const INSTALLATION_PAGE_PATTERN = /^(?:\/[a-z]{2}-[A-Z]{2})?\/installation(?:\/|$)/
 
 function normalizePathname(pathname: string) {
@@ -19,11 +18,17 @@ export function shouldWarmupDatabase(pathname: string) {
         return false
     }
 
-    if (normalizedPath.startsWith('/feed') || normalizedPath.startsWith('/api') || normalizedPath.startsWith('/.well-known') || normalizedPath.startsWith('/sitemap')) {
+    if (
+        normalizedPath.startsWith('/feed')
+        || normalizedPath.startsWith('/api')
+        || normalizedPath.startsWith('/.well-known')
+        || normalizedPath.startsWith('/sitemap')
+        || normalizedPath.startsWith('/fed')
+    ) {
         return true
     }
 
-    return !STATIC_ASSET_PATTERN.test(normalizedPath)
+    return false
 }
 
 export async function ensureRequestDatabaseReady(event: H3Event) {

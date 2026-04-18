@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import * as settingService from './setting'
 import { dataSource } from '@/server/database'
 import { SettingKey } from '@/types/setting'
+import { clearRuntimeCache } from '@/server/utils/runtime-cache'
 
 // Mock dataSource
 vi.mock('@/server/database', () => ({
@@ -35,6 +36,7 @@ describe('settingService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks()
+        clearRuntimeCache()
         process.env = { ...originalEnv }
         mockSettingRepo.find.mockResolvedValue([])
         ;(dataSource.getRepository as any).mockImplementation((entity: any) => {
@@ -90,6 +92,17 @@ describe('settingService', () => {
             const result = await settingService.getSetting(SettingKey.SITE_TITLE)
 
             expect(result).toBe('DbTitle')
+            expect(mockSettingRepo.find).toHaveBeenCalledTimes(1)
+        })
+
+        it('should reuse runtime cache for repeated setting reads', async () => {
+            mockSettingRepo.find.mockResolvedValue([{ key: SettingKey.SITE_TITLE, value: 'Momei' }])
+
+            const first = await settingService.getSetting(SettingKey.SITE_TITLE)
+            const second = await settingService.getSetting(SettingKey.SITE_TITLE)
+
+            expect(first).toBe('Momei')
+            expect(second).toBe('Momei')
             expect(mockSettingRepo.find).toHaveBeenCalledTimes(1)
         })
 
@@ -413,6 +426,32 @@ describe('settingService', () => {
     })
 
     describe('setSetting', () => {
+        it('should invalidate cached setting after single-key update', async () => {
+            const cachedRecord = {
+                id: 'cache-1',
+                key: SettingKey.SITE_TITLE,
+                value: 'Old',
+                description: '',
+                maskType: 'none',
+            }
+            const refreshedRecord = {
+                ...cachedRecord,
+                value: 'New',
+            }
+
+            mockSettingRepo.find
+                .mockResolvedValueOnce([cachedRecord])
+                .mockResolvedValueOnce([refreshedRecord])
+
+            const beforeUpdate = await settingService.getSetting(SettingKey.SITE_TITLE)
+            await settingService.setSetting(SettingKey.SITE_TITLE, 'New')
+            const afterUpdate = await settingService.getSetting(SettingKey.SITE_TITLE)
+
+            expect(beforeUpdate).toBe('Old')
+            expect(afterUpdate).toBe('New')
+            expect(mockSettingRepo.find).toHaveBeenCalledTimes(2)
+        })
+
         it('should update existing setting', async () => {
             const existing = { id: '1', key: 'title', value: 'Old', maskType: 'none' }
             mockSettingRepo.find.mockResolvedValue([existing])
@@ -473,6 +512,60 @@ describe('settingService', () => {
     })
 
     describe('setSettings', () => {
+        it('should invalidate cached settings after batched updates', async () => {
+            const cachedTitle = {
+                id: 'batched-1',
+                key: SettingKey.SITE_TITLE,
+                value: 'Old Title',
+                description: '',
+                maskType: 'none',
+            }
+            const cachedDescription = {
+                id: 'batched-2',
+                key: SettingKey.SITE_DESCRIPTION,
+                value: 'Old Description',
+                description: '',
+                maskType: 'none',
+            }
+            const refreshedTitle = {
+                ...cachedTitle,
+                value: 'New Title',
+            }
+            const refreshedDescription = {
+                ...cachedDescription,
+                value: 'New Description',
+            }
+
+            mockSettingRepo.find
+                .mockResolvedValueOnce([cachedTitle, cachedDescription])
+                .mockResolvedValueOnce([refreshedTitle, refreshedDescription])
+
+            const beforeUpdate = await settingService.getSettings([
+                SettingKey.SITE_TITLE,
+                SettingKey.SITE_DESCRIPTION,
+            ])
+
+            await settingService.setSettings({
+                [SettingKey.SITE_TITLE]: 'New Title',
+                [SettingKey.SITE_DESCRIPTION]: 'New Description',
+            })
+
+            const afterUpdate = await settingService.getSettings([
+                SettingKey.SITE_TITLE,
+                SettingKey.SITE_DESCRIPTION,
+            ])
+
+            expect(beforeUpdate).toEqual({
+                [SettingKey.SITE_TITLE]: 'Old Title',
+                [SettingKey.SITE_DESCRIPTION]: 'Old Description',
+            })
+            expect(afterUpdate).toEqual({
+                [SettingKey.SITE_TITLE]: 'New Title',
+                [SettingKey.SITE_DESCRIPTION]: 'New Description',
+            })
+            expect(mockSettingRepo.find).toHaveBeenCalledTimes(2)
+        })
+
         it('should update multiple settings', async () => {
             mockSettingRepo.find.mockResolvedValue([])
             mockSettingRepo.create.mockImplementation((data) => data)

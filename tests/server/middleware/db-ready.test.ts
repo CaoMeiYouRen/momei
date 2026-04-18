@@ -64,11 +64,13 @@ describe('db ready middleware', () => {
     it('should warm up anonymous metadata routes such as sitemap and webfinger', async () => {
         expect(shouldWarmupDatabase('/sitemap.xml')).toBe(true)
         expect(shouldWarmupDatabase('/.well-known/webfinger')).toBe(true)
+        expect(shouldWarmupDatabase('/fed/actor/test-user')).toBe(true)
 
         await ensureRequestDatabaseReady(createEvent('/sitemap.xml'))
         await ensureRequestDatabaseReady(createEvent('/.well-known/webfinger?resource=acct:test@example.com'))
+        await ensureRequestDatabaseReady(createEvent('/fed/actor/test-user'))
 
-        expect(initializeDB).toHaveBeenCalledTimes(2)
+        expect(initializeDB).toHaveBeenCalledTimes(3)
     })
 
     it('should skip installation and static asset requests', async () => {
@@ -80,12 +82,16 @@ describe('db ready middleware', () => {
         expect(shouldWarmupDatabase('/ja-JP/installation')).toBe(false)
         expect(shouldWarmupDatabase('/api/install/status')).toBe(false)
         expect(shouldWarmupDatabase('/robots.txt')).toBe(false)
+        expect(shouldWarmupDatabase('/')).toBe(false)
+        expect(shouldWarmupDatabase('/posts')).toBe(false)
         expect(shouldWarmupDatabase('/_nuxt/app.js')).toBe(false)
 
         await ensureRequestDatabaseReady(createEvent('/zh-CN/installation'))
         await ensureRequestDatabaseReady(createEvent('/ja-JP/installation'))
         await ensureRequestDatabaseReady(createEvent('/api/install/status'))
         await ensureRequestDatabaseReady(createEvent('/robots.txt'))
+        await ensureRequestDatabaseReady(createEvent('/'))
+        await ensureRequestDatabaseReady(createEvent('/posts'))
         await ensureRequestDatabaseReady(createEvent('/_nuxt/app.js'))
 
         expect(initializeDB).not.toHaveBeenCalled()

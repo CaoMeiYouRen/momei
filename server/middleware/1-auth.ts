@@ -1,6 +1,13 @@
+import { defineEventHandler, getHeader } from 'h3'
 import logger from '@/server/utils/logger'
 
-function shouldResolveSession(pathname: string, cookieHeader: string | null | undefined) {
+const OPTIONAL_SESSION_ROUTE_PATTERNS = [
+    /^\/api\/posts(?:\/|$)/,
+    /^\/api\/search(?:\/|$)/,
+    /^\/api\/friend-links\/applications(?:\/|$)/,
+]
+
+export function shouldResolveSession(pathname: string, cookieHeader: string | null | undefined) {
     if (pathname.startsWith('/api/auth')) {
         return true
     }
@@ -9,7 +16,11 @@ function shouldResolveSession(pathname: string, cookieHeader: string | null | un
         return false
     }
 
-    return /(better-auth|session)/i.test(cookieHeader)
+    if (!/(better-auth|session)/i.test(cookieHeader)) {
+        return false
+    }
+
+    return OPTIONAL_SESSION_ROUTE_PATTERNS.some((pattern) => pattern.test(pathname))
 }
 
 /**

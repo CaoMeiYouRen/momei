@@ -28,6 +28,9 @@ export async function requireAuth(event: H3Event) {
         })
     }
 
+    event.context.auth = session
+    event.context.user = session.user
+
     return session
 }
 
