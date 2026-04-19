@@ -99,7 +99,7 @@ const ButtonStub = defineComponent({
 const MenuStub = defineComponent({
     inheritAttrs: false,
     setup(_, { attrs, expose }) {
-        const id = String(attrs.id ?? '')
+        const id = typeof attrs.id === 'string' ? attrs.id : ''
 
         expose({
             toggle(event: Event) {

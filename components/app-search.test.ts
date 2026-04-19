@@ -166,7 +166,7 @@ describe('AppSearch', () => {
     })
 
     it('falls back to the empty state on search errors and navigates to the first result on enter', async () => {
-        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
         appFetchMock
             .mockRejectedValueOnce(new Error('search failed'))
             .mockResolvedValueOnce({

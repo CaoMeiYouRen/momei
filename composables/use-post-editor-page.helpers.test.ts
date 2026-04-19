@@ -421,7 +421,7 @@ describe('preloadSourcePost', () => {
     })
 
     it('continues with translation workflow when source preload fails', async () => {
-        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
         const options = createLoadOptions({
             route: {
                 query: {
@@ -544,7 +544,7 @@ describe('loadExistingPostDetail', () => {
     })
 
     it('keeps editor usable when loading the source snapshot fails', async () => {
-        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
         const options = createLoadOptions({
             route: {
                 query: {

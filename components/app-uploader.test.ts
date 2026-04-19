@@ -66,7 +66,7 @@ describe('AppUploader', () => {
         })
 
         const fileInput = wrapper.find('input[type="file"]').element as HTMLInputElement
-        const clickSpy = vi.spyOn(fileInput, 'click').mockImplementation(() => {})
+        const clickSpy = vi.spyOn(fileInput, 'click').mockImplementation(() => undefined)
 
         await wrapper.find('button').trigger('click')
 

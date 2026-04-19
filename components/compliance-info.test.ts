@@ -1,4 +1,3 @@
-import { computed, ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import ComplianceInfo from './compliance-info.vue'
@@ -83,4 +82,5 @@ describe('ComplianceInfo', () => {
         expect(wrapper.text()).toContain('京ICP备12345678号')
         expect(wrapper.text()).toContain('京公网安备11000002000001号')
     })
+
 })

@@ -5,6 +5,7 @@ import { AITask } from '@/server/entities/ai-task'
 import { TTSService } from '@/server/services/ai'
 import { assertAIQuotaAllowance } from '@/server/services/ai/quota-governance'
 import { calculateQuotaUnits, deriveChargeStatus, normalizeUsageSnapshot } from '@/server/utils/ai/cost-governance'
+import { isServerlessEnvironment } from '@/server/utils/env'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { isAdmin } from '@/utils/shared/roles'
 
@@ -125,10 +126,14 @@ export default defineEventHandler(async (event) => {
 
     await taskRepo.save(task)
 
-    // 异步处理任务
-    TTSService.processTask(task.id).catch((err) => {
+    const backgroundTask = TTSService.processTask(task.id).catch((err) => {
         console.error('TTS Background Task Error:', err)
     })
+
+    if (isServerlessEnvironment()) {
+        // 在 Vercel 等 Serverless 运行时里显式登记后台任务，避免响应结束后任务被直接回收。
+        event.waitUntil?.(backgroundTask)
+    }
 
     return {
         taskId: task.id,

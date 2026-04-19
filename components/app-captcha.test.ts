@@ -16,8 +16,8 @@ const { runtimeConfigState, routerState, routeState } = vi.hoisted(() => ({
         },
     },
     routerState: {
-        push: vi.fn(async () => undefined),
-        replace: vi.fn(async () => undefined),
+        push: vi.fn(() => Promise.resolve(undefined)),
+        replace: vi.fn(() => Promise.resolve(undefined)),
         afterEach: vi.fn(),
         beforeEach: vi.fn(),
         beforeResolve: vi.fn(),
@@ -320,7 +320,7 @@ describe('AppCaptcha', () => {
     it('warns when provider reset or removal fails', async () => {
         setCaptchaConfig('cloudflare-turnstile')
 
-        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
         ;(window as any).turnstile = {
             render: vi.fn(() => 'warn-widget'),

@@ -5,6 +5,7 @@ import { AITask } from '@/server/entities/ai-task'
 import { TTSService } from '@/server/services/ai'
 import { assertAIQuotaAllowance } from '@/server/services/ai/quota-governance'
 import { calculateQuotaUnits, deriveChargeStatus, normalizeUsageSnapshot } from '@/server/utils/ai/cost-governance'
+import { isServerlessEnvironment } from '@/server/utils/env'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
 import { isAdmin } from '@/utils/shared/roles'
 
@@ -107,9 +108,13 @@ export default defineEventHandler(async (event) => {
 
     await taskRepo.save(task)
 
-    TTSService.processTask(task.id).catch((error) => {
+    const backgroundTask = TTSService.processTask(task.id).catch((error) => {
         console.error('TTS Background Task Error:', error)
     })
+
+    if (isServerlessEnvironment()) {
+        event.waitUntil?.(backgroundTask)
+    }
 
     return {
         code: 200,

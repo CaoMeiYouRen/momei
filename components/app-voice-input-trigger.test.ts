@@ -1,6 +1,6 @@
 import { defineComponent, h, nextTick } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { mountSuspended } from '@nuxt/test-utils/runtime'
 import AppVoiceInputTrigger from './app-voice-input-trigger.vue'
 
 const {
@@ -144,8 +144,8 @@ describe('AppVoiceInputTrigger', () => {
         textarea.value = 'Draft'
         textarea.selectionStart = 5
         textarea.selectionEnd = 5
-        const focusSpy = vi.spyOn(textarea, 'focus').mockImplementation(() => {})
-        const setSelectionRangeSpy = vi.spyOn(textarea, 'setSelectionRange').mockImplementation(() => {})
+        const focusSpy = vi.spyOn(textarea, 'focus').mockImplementation(() => undefined)
+        const setSelectionRangeSpy = vi.spyOn(textarea, 'setSelectionRange').mockImplementation(() => undefined)
 
         const wrapper = await mountSuspended(AppVoiceInputTrigger, {
             props: {
