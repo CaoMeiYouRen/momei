@@ -1,4 +1,4 @@
-import { Brackets } from 'typeorm'
+import { Brackets, type SelectQueryBuilder } from 'typeorm'
 import { notifyAdmins, sendInAppNotification } from './notification'
 import { dataSource } from '@/server/database'
 import { limiterStorage } from '@/server/database/storage'
@@ -22,6 +22,12 @@ interface CreateCommentInput {
     authorId?: string | null
     ip?: string | null
     userAgent?: string | null
+}
+
+interface CommentViewerOptions {
+    isAdmin?: boolean
+    viewerEmail?: string
+    viewerId?: string
 }
 
 function normalizeCommentInterval(value: string | null | undefined) {
@@ -59,6 +65,35 @@ async function enforceCommentInterval(data: CreateCommentInput, intervalValue: s
     }
 }
 
+function applyCommentViewerVisibilityFilter(
+    qb: SelectQueryBuilder<Comment>,
+    options: CommentViewerOptions,
+) {
+    if (options.isAdmin) {
+        return qb
+    }
+
+    qb.andWhere(new Brackets((qbInner) => {
+        qbInner.where('comment.status = :published', { published: CommentStatus.PUBLISHED })
+
+        if (options.viewerEmail) {
+            qbInner.orWhere('(comment.status = :pending AND comment.authorEmail = :email)', {
+                pending: CommentStatus.PENDING,
+                email: options.viewerEmail,
+            })
+        }
+
+        if (options.viewerId) {
+            qbInner.orWhere('(comment.status = :pending AND comment.authorId = :userId)', {
+                pending: CommentStatus.PENDING,
+                userId: options.viewerId,
+            })
+        }
+    }))
+
+    return qb
+}
+
 /**
  * 评论服务
  */
@@ -66,11 +101,7 @@ export const commentService = {
     /**
      * 获取指定文章的评论列表（嵌套结构）
      */
-    async getCommentsByPostId(postId: string, options: {
-        isAdmin?: boolean
-        viewerEmail?: string
-        viewerId?: string
-    } = {}) {
+    async getCommentsByPostId(postId: string, options: CommentViewerOptions = {}) {
         const commentRepo = dataSource.getRepository(Comment)
 
         const qb = commentRepo.createQueryBuilder('comment')
@@ -79,31 +110,26 @@ export const commentService = {
             .orderBy('comment.isSticked', 'DESC')
             .addOrderBy('comment.createdAt', 'ASC')
 
-        if (!options.isAdmin) {
-            // 普通用户：只能看到“已发布”的，或者“自己发布的待审核”评论
-            qb.andWhere(new Brackets((qbInner) => {
-                qbInner.where('comment.status = :published', { published: CommentStatus.PUBLISHED })
-
-                if (options.viewerEmail) {
-                    qbInner.orWhere('(comment.status = :pending AND comment.authorEmail = :email)', {
-                        pending: CommentStatus.PENDING,
-                        email: options.viewerEmail,
-                    })
-                }
-
-                if (options.viewerId) {
-                    qbInner.orWhere('(comment.status = :pending AND comment.authorId = :userId)', {
-                        pending: CommentStatus.PENDING,
-                        userId: options.viewerId,
-                    })
-                }
-            }))
-        }
+        applyCommentViewerVisibilityFilter(qb, options)
 
         const allComments = await qb.getMany()
 
         // 构建树形结构并处理隐私
         return await this.buildCommentTree(allComments, options.isAdmin)
+    },
+
+    /**
+     * 获取单条评论并复用评论可见性规则。
+     */
+    async getCommentById(commentId: string, options: CommentViewerOptions = {}) {
+        const commentRepo = dataSource.getRepository(Comment)
+        const qb = commentRepo.createQueryBuilder('comment')
+            .leftJoinAndSelect('comment.author', 'author')
+            .where('comment.id = :commentId', { commentId })
+
+        applyCommentViewerVisibilityFilter(qb, options)
+
+        return await qb.getOne()
     },
 
     /**
@@ -242,6 +268,7 @@ export const commentService = {
 
             // 处理作者隐私及哈希 (SHA256)
             item = await processAuthorPrivacy(item, isAdmin, 'authorEmail', 'authorEmailHash')
+            delete item.translationCache
 
             // 隐私保护：非管理员隐藏 IP 和 UserAgent
             if (!isAdmin) {

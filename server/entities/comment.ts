@@ -3,7 +3,7 @@ import { CustomColumn } from '../decorators/custom-column'
 import { BaseEntity } from './base-entity'
 import { User } from './user'
 import { Post } from './post'
-import { CommentStatus } from '@/types/comment'
+import { CommentStatus, type CommentTranslationCacheMap } from '@/types/comment'
 
 @Entity('comment')
 export class Comment extends BaseEntity {
@@ -48,6 +48,9 @@ export class Comment extends BaseEntity {
 
     @CustomColumn({ type: 'integer', default: 0 })
     likes: number
+
+    @CustomColumn({ type: 'simple-json', nullable: true })
+    translationCache: CommentTranslationCacheMap | null
 
     // ========== 关系定义 ==========
 

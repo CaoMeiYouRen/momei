@@ -151,6 +151,7 @@ CREATE TABLE `momei_comment` (
   `user_agent` text DEFAULT NULL,
   `is_sticked` tinyint(1) NOT NULL DEFAULT 0,
   `likes` int NOT NULL DEFAULT 0,
+  `translation_cache` text DEFAULT NULL,
   `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   PRIMARY KEY (`id`),

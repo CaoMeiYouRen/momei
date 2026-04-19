@@ -131,6 +131,10 @@
         "replying_to": "正在回复",
         "no_comments": "暂无评论，快来抢沙发吧！",
         "pending_audit": "您的评论已提交，正在等待管理员审核展示。",
-        "sticked": "置顶"
+        "sticked": "置顶",
+        "view_translation": "查看翻译",
+        "view_original": "查看原文",
+        "translation_disclaimer": "AI 翻译结果仅供参考。",
+        "translation_failed": "翻译暂时不可用，请稍后重试。"
     }
 }

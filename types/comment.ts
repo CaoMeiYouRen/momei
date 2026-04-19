@@ -1,3 +1,5 @@
+import type { AppLocaleCode } from '@/i18n/config/locale-registry'
+
 /**
  * 评论状态枚举
  */
@@ -14,6 +16,21 @@ export enum CommentStatus {
      * 已标记为垃圾
      */
     SPAM = 'spam',
+}
+
+export interface CommentTranslationCacheEntry {
+    content: string
+    updatedAt: string
+}
+
+export type CommentTranslationCacheMap = Partial<Record<AppLocaleCode, CommentTranslationCacheEntry>>
+
+export interface CommentTranslationResult {
+    commentId: string
+    targetLanguage: AppLocaleCode
+    content: string
+    updatedAt: string
+    fromCache: boolean
 }
 
 /**

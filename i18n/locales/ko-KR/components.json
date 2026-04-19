@@ -131,6 +131,10 @@
     "replying_to": "답글 작성 중",
     "no_comments": "아직 댓글이 없습니다. 첫 의견을 남겨 보세요!",
     "pending_audit": "댓글이 제출되었으며 관리자 검토를 기다리고 있습니다.",
-    "sticked": "고정됨"
+    "sticked": "고정됨",
+    "view_translation": "번역 보기",
+    "view_original": "원문 보기",
+    "translation_disclaimer": "AI 번역 결과는 참고용입니다.",
+    "translation_failed": "번역을 지금 사용할 수 없습니다. 잠시 후 다시 시도해 주세요."
   }
 }

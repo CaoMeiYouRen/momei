@@ -131,6 +131,10 @@
         "replying_to": "返信先",
         "no_comments": "まだコメントはありません。最初の感想を投稿しましょう。",
         "pending_audit": "コメントを送信しました。現在、審査待ちです。",
-        "sticked": "固定済み"
+        "sticked": "固定済み",
+        "view_translation": "翻訳を見る",
+        "view_original": "原文を見る",
+        "translation_disclaimer": "AI 翻訳は参考情報としてご利用ください。",
+        "translation_failed": "翻訳は現在利用できません。しばらくしてから再度お試しください。"
     }
 }

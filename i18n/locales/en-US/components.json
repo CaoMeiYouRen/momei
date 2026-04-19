@@ -131,6 +131,10 @@
     "replying_to": "Replying to",
     "no_comments": "No comments yet. Be the first to share your thoughts!",
     "pending_audit": "Your comment has been submitted and is pending moderation.",
-    "sticked": "Sticked"
+    "sticked": "Sticked",
+    "view_translation": "View Translation",
+    "view_original": "View Original",
+    "translation_disclaimer": "AI translation is provided for reference only.",
+    "translation_failed": "Translation is temporarily unavailable. Please try again later."
   }
 }

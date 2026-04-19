@@ -121,6 +121,7 @@ CREATE TABLE "momei_comment" (
   "user_agent" text,
   "is_sticked" boolean NOT NULL DEFAULT (0),
   "likes" integer NOT NULL DEFAULT (0),
+  "translation_cache" text,
   "created_at" datetime NOT NULL DEFAULT (DATETIME('now')),
   "updated_at" datetime NOT NULL DEFAULT (DATETIME('now')),
   CONSTRAINT "FK_comment_post" FOREIGN KEY ("post_id") REFERENCES "momei_post" ("id") ON DELETE CASCADE,

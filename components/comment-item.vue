@@ -60,6 +60,18 @@
                     class="comment-item__text"
                     v-html="renderedContent"
                 />
+                <p
+                    v-if="isShowingTranslation"
+                    class="comment-item__translation-feedback comment-item__translation-feedback--muted"
+                >
+                    {{ $t('comments.translation_disclaimer') }}
+                </p>
+                <p
+                    v-else-if="translationError"
+                    class="comment-item__translation-feedback comment-item__translation-feedback--error"
+                >
+                    {{ translationError }}
+                </p>
             </div>
 
             <div class="comment-item__actions">
@@ -69,6 +81,15 @@
                     text
                     size="small"
                     @click="$emit('reply', comment)"
+                />
+                <Button
+                    v-if="canToggleTranslation"
+                    icon="pi pi-language"
+                    :label="translationActionLabel"
+                    text
+                    size="small"
+                    :loading="isTranslating"
+                    @click="toggleTranslation"
                 />
                 <!-- 后续可以增加点赞功能 -->
             </div>
@@ -90,7 +111,7 @@
 <script setup lang="ts">
 import Tag from 'primevue/tag'
 import Button from 'primevue/button'
-import type { Comment } from '@/types/comment'
+import type { Comment, CommentTranslationResult } from '@/types/comment'
 
 const props = defineProps<{
     comment: Comment
@@ -103,14 +124,80 @@ defineEmits<{
     (e: 'reply', comment: Comment): void
 }>()
 
+const { locale, t } = useI18n()
 const { formatDateTime } = useI18nDate()
+const translatedContents = ref<Record<string, string>>({})
+const isShowingTranslation = ref(false)
+const isTranslating = ref(false)
+const translationError = ref<string | null>(null)
 
 // 简单的 Markdown 渲染
 const md = createMarkdownRenderer({
     html: false, // 禁止 HTML 注入
 })
 
-const renderedContent = computed(() => md.render(props.comment.content || ''))
+const canToggleTranslation = computed(() => props.comment.content.trim().length > 0)
+
+const currentTargetLocale = computed(() => locale.value)
+
+const displayedContent = computed(() => {
+    if (!isShowingTranslation.value) {
+        return props.comment.content || ''
+    }
+
+    return translatedContents.value[currentTargetLocale.value] || props.comment.content || ''
+})
+
+const translationActionLabel = computed(() => {
+    if (isShowingTranslation.value) {
+        return t('comments.view_original')
+    }
+
+    return t('comments.view_translation')
+})
+
+const renderedContent = computed(() => md.render(displayedContent.value))
+
+const toggleTranslation = async () => {
+    if (isShowingTranslation.value) {
+        isShowingTranslation.value = false
+        translationError.value = null
+        return
+    }
+
+    translationError.value = null
+    const cachedTranslation = translatedContents.value[currentTargetLocale.value]
+    if (cachedTranslation) {
+        isShowingTranslation.value = true
+        return
+    }
+
+    isTranslating.value = true
+    try {
+        const response = await $fetch<{ code: number, data: CommentTranslationResult }>('/api/ai/comment-translation', {
+            method: 'POST',
+            body: {
+                commentId: props.comment.id,
+                targetLanguage: currentTargetLocale.value,
+            },
+        })
+        translatedContents.value = {
+            ...translatedContents.value,
+            [response.data.targetLanguage]: response.data.content,
+        }
+        isShowingTranslation.value = true
+    } catch {
+        translationError.value = t('comments.translation_failed')
+        isShowingTranslation.value = false
+    } finally {
+        isTranslating.value = false
+    }
+}
+
+watch(currentTargetLocale, () => {
+    isShowingTranslation.value = false
+    translationError.value = null
+})
 
 // 格式化日期
 const formatDate = (date: string) => {
@@ -242,6 +329,19 @@ const formatDate = (date: string) => {
   &__actions {
     display: flex;
     gap: $spacing-md;
+  }
+
+  &__translation-feedback {
+    margin-top: $spacing-sm;
+    font-size: 0.875rem;
+  }
+
+  &__translation-feedback--muted {
+    color: var(--p-text-muted-color);
+  }
+
+  &__translation-feedback--error {
+    color: var(--p-red-500);
   }
 
   &__replies {

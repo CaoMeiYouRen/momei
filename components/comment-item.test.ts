@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, vi } from 'vitest'
+import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 import CommentItem from './comment-item.vue'
 import { CommentStatus, type Comment } from '@/types/comment'
 
@@ -108,5 +108,76 @@ describe('CommentItem', () => {
         const emitted = wrapper.emitted('reply')
         expect(emitted).toBeTruthy()
         expect(emitted?.[0]?.[0]).toEqual(mockComment)
+    })
+
+    it('toggles translated content and can switch back to original', async () => {
+        registerEndpoint('/api/ai/comment-translation', () => ({
+            code: 200,
+            data: {
+                commentId: mockComment.id,
+                targetLanguage: 'zh-CN',
+                content: '翻译后的评论',
+                updatedAt: new Date().toISOString(),
+                fromCache: false,
+            },
+        }))
+
+        const wrapper = await mountSuspended(CommentItem, {
+            props: {
+                comment: mockComment,
+            },
+        })
+
+        const buttons = wrapper.findAll('button')
+        const translateButton = buttons[1]
+        expect(translateButton?.text()).toContain('查看翻译')
+
+        await translateButton!.trigger('click')
+
+        await vi.waitFor(() => {
+            if (wrapper.text().includes('翻译后的评论')) {
+                return true
+            }
+            throw new Error('Translated content not found')
+        })
+
+        expect(wrapper.text()).toContain('AI 翻译结果仅供参考')
+        expect(wrapper.text()).toContain('查看原文')
+
+        await translateButton!.trigger('click')
+
+        await vi.waitFor(() => {
+            if (wrapper.text().includes('Test content')) {
+                return true
+            }
+            throw new Error('Original content not restored')
+        })
+    })
+
+    it('keeps original content when translation request fails', async () => {
+        registerEndpoint('/api/ai/comment-translation', () => {
+            throw createError({
+                statusCode: 500,
+                statusMessage: 'Translation failed',
+            })
+        })
+
+        const wrapper = await mountSuspended(CommentItem, {
+            props: {
+                comment: mockComment,
+            },
+        })
+
+        const buttons = wrapper.findAll('button')
+        await buttons[1]!.trigger('click')
+
+        await vi.waitFor(() => {
+            if (wrapper.text().includes('翻译暂时不可用，请稍后重试')) {
+                return true
+            }
+            throw new Error('Translation error not rendered')
+        })
+
+        expect(wrapper.text()).toContain('Test content')
     })
 })
