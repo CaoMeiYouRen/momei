@@ -43,6 +43,12 @@
                         size="small"
                         class="comment-item__sticked-tag"
                     />
+                    <Tag
+                        v-if="showSourceLanguageTag"
+                        :value="sourceLanguageLabel"
+                        size="small"
+                        class="comment-item__language-tag"
+                    />
                 </div>
                 <div class="comment-item__meta">
                     <time :datetime="comment.createdAt" class="comment-item__date">
@@ -60,6 +66,12 @@
                     class="comment-item__text"
                     v-html="renderedContent"
                 />
+                <p
+                    v-if="crossLocaleHintKey && crossLocaleHintParams"
+                    class="comment-item__translation-feedback comment-item__translation-feedback--muted"
+                >
+                    {{ $t(crossLocaleHintKey, crossLocaleHintParams) }}
+                </p>
                 <p
                     v-if="isShowingTranslation"
                     class="comment-item__translation-feedback comment-item__translation-feedback--muted"
@@ -112,6 +124,7 @@
 import Tag from 'primevue/tag'
 import Button from 'primevue/button'
 import type { Comment, CommentTranslationResult } from '@/types/comment'
+import { getLocaleRegistryItem, resolveAppLocaleCode } from '@/i18n/config/locale-registry'
 
 const props = defineProps<{
     comment: Comment
@@ -138,7 +151,25 @@ const md = createMarkdownRenderer({
 
 const canToggleTranslation = computed(() => props.comment.content.trim().length > 0)
 
-const currentTargetLocale = computed(() => locale.value)
+const currentTargetLocale = computed(() => resolveAppLocaleCode(locale.value))
+
+const sourceLanguageLabel = computed(() => {
+    if (!props.comment.sourceLanguage) {
+        return ''
+    }
+
+    return $t('common.languages.' + props.comment.sourceLanguage)
+})
+
+const showSourceLanguageTag = computed(() => Boolean(props.comment.isCrossLocaleFallback && sourceLanguageLabel.value))
+
+const preferredTranslation = computed(() => {
+    if (props.comment.preferredTranslation?.targetLanguage !== currentTargetLocale.value) {
+        return null
+    }
+
+    return props.comment.preferredTranslation
+})
 
 const displayedContent = computed(() => {
     if (!isShowingTranslation.value) {
@@ -156,7 +187,38 @@ const translationActionLabel = computed(() => {
     return t('comments.view_translation')
 })
 
+const crossLocaleHintKey = computed(() => {
+    if (!props.comment.isCrossLocaleFallback || !sourceLanguageLabel.value) {
+        return ''
+    }
+
+    return isShowingTranslation.value ? 'comments.cross_locale_translation_hint' : 'comments.cross_locale_original_hint'
+})
+
+const crossLocaleHintParams = computed(() => {
+    if (!crossLocaleHintKey.value || !sourceLanguageLabel.value) {
+        return null
+    }
+
+    return {
+        language: sourceLanguageLabel.value,
+    }
+})
+
 const renderedContent = computed(() => md.render(displayedContent.value))
+
+function applyPreferredTranslationState() {
+    const nextPreferredTranslation = preferredTranslation.value
+    if (nextPreferredTranslation) {
+        translatedContents.value = {
+            ...translatedContents.value,
+            [nextPreferredTranslation.targetLanguage]: nextPreferredTranslation.content,
+        }
+    }
+
+    isShowingTranslation.value = Boolean(props.comment.isCrossLocaleFallback && nextPreferredTranslation)
+    translationError.value = null
+}
 
 const toggleTranslation = async () => {
     if (isShowingTranslation.value) {
@@ -194,10 +256,15 @@ const toggleTranslation = async () => {
     }
 }
 
-watch(currentTargetLocale, () => {
-    isShowingTranslation.value = false
-    translationError.value = null
-})
+watch([
+    currentTargetLocale,
+    () => props.comment.id,
+    () => props.comment.isCrossLocaleFallback,
+    () => props.comment.preferredTranslation?.targetLanguage,
+    () => props.comment.preferredTranslation?.content,
+], () => {
+    applyPreferredTranslationState()
+}, { immediate: true })
 
 // 格式化日期
 const formatDate = (date: string) => {
@@ -336,6 +403,11 @@ const formatDate = (date: string) => {
     font-size: 0.875rem;
   }
 
+  &__language-tag {
+    background-color: var(--p-surface-100);
+    color: var(--p-text-muted-color);
+  }
+
   &__translation-feedback--muted {
     color: var(--p-text-muted-color);
   }
@@ -361,6 +433,11 @@ const formatDate = (date: string) => {
 
   .comment-item__author-link {
     color: var(--p-primary-color);
+  }
+
+  .comment-item__language-tag {
+    background-color: var(--p-surface-700);
+    color: var(--p-surface-100);
   }
 
   &__pending {

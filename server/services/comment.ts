@@ -1,16 +1,18 @@
-import { Brackets, type SelectQueryBuilder } from 'typeorm'
+import { Brackets, In, type SelectQueryBuilder } from 'typeorm'
 import { notifyAdmins, sendInAppNotification } from './notification'
 import { dataSource } from '@/server/database'
 import { limiterStorage } from '@/server/database/storage'
-import { Comment } from '@/server/entities/comment'
+import { Comment as CommentEntity } from '@/server/entities/comment'
 import { Post } from '@/server/entities/post'
-import { CommentStatus } from '@/types/comment'
+import { resolveAppLocaleCode, type AppLocaleCode } from '@/i18n/config/locale-registry'
+import { CommentStatus, type Comment, type CommentPreferredTranslation } from '@/types/comment'
 import { processAuthorPrivacy } from '@/server/utils/author'
 import { getSettings } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
 import { assignDefined, toPlainObject } from '@/server/utils/object'
 import { normalizeDurationSeconds } from '@/utils/shared/duration'
 import { AdminNotificationEvent, NotificationType } from '@/utils/shared/notification'
+import { PostStatus, PostVisibility } from '@/types/post'
 
 interface CreateCommentInput {
     postId: string
@@ -66,7 +68,7 @@ async function enforceCommentInterval(data: CreateCommentInput, intervalValue: s
 }
 
 function applyCommentViewerVisibilityFilter(
-    qb: SelectQueryBuilder<Comment>,
+    qb: SelectQueryBuilder<CommentEntity>,
     options: CommentViewerOptions,
 ) {
     if (options.isAdmin) {
@@ -94,6 +96,104 @@ function applyCommentViewerVisibilityFilter(
     return qb
 }
 
+interface CommentReadContext {
+    currentPostId: string
+    currentLanguage: AppLocaleCode
+}
+
+async function resolveCommentReadContext(postId: string): Promise<{
+    context: CommentReadContext
+    postIds: string[]
+}> {
+    const postRepo = dataSource.getRepository(Post)
+    const currentPost = await postRepo.findOne({
+        where: { id: postId },
+        select: ['id', 'language', 'translationId', 'slug', 'title', 'status', 'visibility'],
+    })
+
+    if (!currentPost) {
+        return {
+            context: {
+                currentPostId: postId,
+                currentLanguage: resolveAppLocaleCode(),
+            },
+            postIds: [postId],
+        }
+    }
+
+    const siblingWhere = currentPost.translationId
+        ? {
+            translationId: currentPost.translationId,
+            status: PostStatus.PUBLISHED,
+            visibility: PostVisibility.PUBLIC,
+        }
+        : {
+            slug: currentPost.slug,
+            status: PostStatus.PUBLISHED,
+            visibility: PostVisibility.PUBLIC,
+        }
+
+    const siblingPosts = await postRepo.find({
+        where: siblingWhere,
+        select: ['id'],
+    })
+
+    const postIds = Array.from(new Set([
+        currentPost.id,
+        ...siblingPosts.map((post) => post.id),
+    ]))
+
+    return {
+        context: {
+            currentPostId: currentPost.id,
+            currentLanguage: resolveAppLocaleCode(currentPost.language),
+        },
+        postIds,
+    }
+}
+
+function mapPreferredTranslation(comment: CommentEntity, contextLanguage: AppLocaleCode): CommentPreferredTranslation | null {
+    const cachedTranslation = comment.translationCache?.[contextLanguage]
+    if (!cachedTranslation) {
+        return null
+    }
+
+    return {
+        targetLanguage: contextLanguage,
+        content: cachedTranslation.content,
+        updatedAt: cachedTranslation.updatedAt,
+    }
+}
+
+function compareCommentThreads(left: Comment, right: Comment, context: CommentReadContext) {
+    const leftLanguagePriority = left.sourceLanguage === context.currentLanguage ? 0 : 1
+    const rightLanguagePriority = right.sourceLanguage === context.currentLanguage ? 0 : 1
+
+    if (leftLanguagePriority !== rightLanguagePriority) {
+        return leftLanguagePriority - rightLanguagePriority
+    }
+
+    const leftPinned = left.isSticked ? 0 : 1
+    const rightPinned = right.isSticked ? 0 : 1
+    if (leftPinned !== rightPinned) {
+        return leftPinned - rightPinned
+    }
+
+    return new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
+}
+
+function serializeCommentDate(value: Date | string | null | undefined) {
+    if (typeof value === 'string') {
+        return value
+    }
+
+    if (value instanceof Date) {
+        return value.toISOString()
+    }
+
+    return new Date().toISOString()
+}
+
 /**
  * 评论服务
  */
@@ -102,11 +202,18 @@ export const commentService = {
      * 获取指定文章的评论列表（嵌套结构）
      */
     async getCommentsByPostId(postId: string, options: CommentViewerOptions = {}) {
-        const commentRepo = dataSource.getRepository(Comment)
+        const commentRepo = dataSource.getRepository(CommentEntity)
+        const { context, postIds } = await resolveCommentReadContext(postId)
+
+        if (postIds.length === 0) {
+            return []
+        }
 
         const qb = commentRepo.createQueryBuilder('comment')
             .leftJoinAndSelect('comment.author', 'author')
-            .where('comment.postId = :postId', { postId })
+            .leftJoin('comment.post', 'post')
+            .addSelect(['post.id', 'post.title', 'post.language'])
+            .where({ postId: In(postIds) })
             .orderBy('comment.isSticked', 'DESC')
             .addOrderBy('comment.createdAt', 'ASC')
 
@@ -115,14 +222,14 @@ export const commentService = {
         const allComments = await qb.getMany()
 
         // 构建树形结构并处理隐私
-        return await this.buildCommentTree(allComments, options.isAdmin)
+        return await this.buildCommentTree(allComments, options.isAdmin, context)
     },
 
     /**
      * 获取单条评论并复用评论可见性规则。
      */
     async getCommentById(commentId: string, options: CommentViewerOptions = {}) {
-        const commentRepo = dataSource.getRepository(Comment)
+        const commentRepo = dataSource.getRepository(CommentEntity)
         const qb = commentRepo.createQueryBuilder('comment')
             .leftJoinAndSelect('comment.author', 'author')
             .where('comment.id = :commentId', { commentId })
@@ -137,7 +244,7 @@ export const commentService = {
      */
     async createComment(data: CreateCommentInput) {
         const postRepo = dataSource.getRepository(Post)
-        const commentRepo = dataSource.getRepository(Comment)
+        const commentRepo = dataSource.getRepository(CommentEntity)
 
         // 检查文章是否存在
         const post = await postRepo.findOne({ where: { id: data.postId } })
@@ -163,7 +270,7 @@ export const commentService = {
 
         await enforceCommentInterval(data, settings[SettingKey.COMMENT_INTERVAL])
 
-        const comment = new Comment()
+        const comment = new CommentEntity()
         assignDefined(comment, data, [
             'postId',
             'parentId',
@@ -252,22 +359,31 @@ export const commentService = {
      * 删除评论
      */
     async deleteComment(id: string) {
-        const commentRepo = dataSource.getRepository(Comment)
+        const commentRepo = dataSource.getRepository(CommentEntity)
         await commentRepo.delete(id)
     },
 
     /**
      * 辅助方法：构建评论树
      */
-    async buildCommentTree(comments: Comment[], isAdmin: boolean = false) {
-        const map = new Map<string, any>()
-        const tree: any[] = []
+    async buildCommentTree(comments: CommentEntity[], isAdmin: boolean = false, context?: CommentReadContext) {
+        const map = new Map<string, Comment>()
+        const tree: Comment[] = []
 
         for (const comment of comments) {
-            let item = Object.assign(toPlainObject(comment), { replies: [] as any[] }) as any
+            let item = Object.assign(toPlainObject(comment), {
+                createdAt: serializeCommentDate(comment.createdAt),
+                updatedAt: serializeCommentDate(comment.updatedAt),
+                replies: [] as Comment[],
+                sourceLanguage: comment.post?.language ? resolveAppLocaleCode(comment.post.language) : undefined,
+                sourcePostId: comment.postId,
+                sourcePostTitle: comment.post?.title || null,
+                isCrossLocaleFallback: context ? comment.postId !== context.currentPostId : false,
+                preferredTranslation: context ? mapPreferredTranslation(comment, context.currentLanguage) : null,
+            }) as Comment & { translationCache?: unknown }
 
             // 处理作者隐私及哈希 (SHA256)
-            item = await processAuthorPrivacy(item, isAdmin, 'authorEmail', 'authorEmailHash')
+            item = await processAuthorPrivacy(item, isAdmin, 'authorEmail', 'authorEmailHash') as Comment & { translationCache?: unknown }
             delete item.translationCache
 
             // 隐私保护：非管理员隐藏 IP 和 UserAgent
@@ -281,12 +397,21 @@ export const commentService = {
 
         comments.forEach((comment) => {
             const item = map.get(comment.id)
-            if (comment.parentId && map.has(comment.parentId)) {
-                map.get(comment.parentId).replies.push(item)
+            if (!item) {
+                return
+            }
+
+            const parent = comment.parentId ? map.get(comment.parentId) : null
+            if (parent) {
+                parent.replies?.push(item)
             } else {
                 tree.push(item)
             }
         })
+
+        if (context) {
+            tree.sort((left, right) => compareCommentThreads(left, right, context))
+        }
 
         return tree
     },

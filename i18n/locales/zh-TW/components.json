@@ -134,6 +134,8 @@
         "sticked": "置頂",
         "view_translation": "查看翻譯",
         "view_original": "查看原文",
+        "cross_locale_original_hint": "此留言來自 {language} 版本。",
+        "cross_locale_translation_hint": "此留言來自 {language} 版本，當前顯示翻譯。",
         "translation_disclaimer": "AI 翻譯結果僅供參考。",
         "translation_failed": "翻譯暫時不可用，請稍後再試。"
     }

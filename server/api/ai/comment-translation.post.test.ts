@@ -21,11 +21,11 @@ describe('POST /api/ai/comment-translation', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         readBodyMock.mockResolvedValue({
-            commentId: '123456789012345678',
+            commentId: '5fd0e68d1f80001',
             targetLanguage: 'en-US',
         })
         vi.mocked(commentTranslationService.getOrCreateTranslation).mockResolvedValue({
-            commentId: '123456789012345678',
+            commentId: '5fd0e68d1f80001',
             targetLanguage: 'en-US',
             content: 'Translated comment',
             updatedAt: '2026-04-20T00:00:00.000Z',

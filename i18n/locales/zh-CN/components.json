@@ -134,6 +134,8 @@
         "sticked": "置顶",
         "view_translation": "查看翻译",
         "view_original": "查看原文",
+        "cross_locale_original_hint": "来自{language}版本评论。",
+        "cross_locale_translation_hint": "来自{language}版本评论，当前显示译文。",
         "translation_disclaimer": "AI 翻译结果仅供参考。",
         "translation_failed": "翻译暂时不可用，请稍后重试。"
     }

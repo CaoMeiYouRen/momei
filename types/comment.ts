@@ -33,6 +33,10 @@ export interface CommentTranslationResult {
     fromCache: boolean
 }
 
+export interface CommentPreferredTranslation extends CommentTranslationCacheEntry {
+    targetLanguage: AppLocaleCode
+}
+
 /**
  * 评论实体接口
  */
@@ -53,6 +57,11 @@ export interface Comment {
     likes: number
     createdAt: string
     updatedAt: string
+    sourceLanguage?: AppLocaleCode
+    sourcePostId?: string
+    sourcePostTitle?: string | null
+    isCrossLocaleFallback?: boolean
+    preferredTranslation?: CommentPreferredTranslation | null
     // 关联数据
     author?: {
         name: string

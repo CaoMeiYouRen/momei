@@ -6,6 +6,8 @@ import { Post } from '@/server/entities/post'
 import { PostViewHourly } from '@/server/entities/post-view-hourly'
 import { dataSource } from '@/server/database'
 
+const snowflakeGenerateIdMock = vi.hoisted(() => vi.fn(() => 'generated-hourly-id'))
+
 vi.mock('@/server/database', () => ({
     dataSource: {
         getRepository: vi.fn(),
@@ -23,6 +25,12 @@ vi.mock('@/server/utils/logger', () => ({
 
 vi.mock('./env', () => ({
     isServerlessEnvironment: vi.fn(),
+}))
+
+vi.mock('./snowflake', () => ({
+    snowflake: {
+        generateId: snowflakeGenerateIdMock,
+    },
 }))
 
 vi.mock('ioredis', () => {
@@ -55,6 +63,7 @@ describe('PVCache - Extended Coverage', () => {
     beforeEach(async () => {
         vi.clearAllMocks()
         await pvCache.clear()
+        snowflakeGenerateIdMock.mockReturnValue('generated-hourly-id')
         // @ts-expect-error test-internal
         pvCache.redis = null
     })
@@ -104,6 +113,7 @@ describe('PVCache - Extended Coverage', () => {
             await pvCache.record('post-serverless')
             expect(mockPostRepo.increment).toHaveBeenCalledWith({ id: 'post-serverless' }, 'views', 1)
             expect(mockHourlyRepo.insert).toHaveBeenCalledWith(expect.objectContaining({
+                id: 'generated-hourly-id',
                 postId: 'post-serverless',
                 views: 1,
             }))
@@ -179,6 +189,7 @@ describe('PVCache - Extended Coverage', () => {
             await pvCache.flush()
             expect(mockPostRepo.increment).toHaveBeenCalledWith({ id: 'post-redis' }, 'views', 25)
             expect(mockHourlyRepo.insert).toHaveBeenCalledWith(expect.objectContaining({
+                id: 'generated-hourly-id',
                 postId: 'post-redis',
                 views: 25,
             }))

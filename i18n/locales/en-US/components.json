@@ -134,6 +134,8 @@
     "sticked": "Sticked",
     "view_translation": "View Translation",
     "view_original": "View Original",
+    "cross_locale_original_hint": "This comment was posted on the {language} version.",
+    "cross_locale_translation_hint": "This comment was posted on the {language} version. The translation is currently shown.",
     "translation_disclaimer": "AI translation is provided for reference only.",
     "translation_failed": "Translation is temporarily unavailable. Please try again later."
   }

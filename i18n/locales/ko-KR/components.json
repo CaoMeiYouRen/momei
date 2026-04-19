@@ -134,6 +134,8 @@
     "sticked": "고정됨",
     "view_translation": "번역 보기",
     "view_original": "원문 보기",
+    "cross_locale_original_hint": "이 댓글은 {language} 버전에 작성되었습니다.",
+    "cross_locale_translation_hint": "이 댓글은 {language} 버전에 작성되었으며 현재 번역본이 표시되고 있습니다.",
     "translation_disclaimer": "AI 번역 결과는 참고용입니다.",
     "translation_failed": "번역을 지금 사용할 수 없습니다. 잠시 후 다시 시도해 주세요."
   }

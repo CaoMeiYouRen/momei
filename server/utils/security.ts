@@ -30,16 +30,17 @@ export const verifyCookieValue = (signedValue: string | undefined): string | nul
         return null
     }
 
-    const parts = signedValue.split('.')
-    if (parts.length !== 2) {
-        // 如果没有签名部分，但在开发环境下没有密钥，则降级处理（可选，但为了安全建议严格校验）
-        if (!AUTH_SECRET) {
-            return signedValue
-        }
+    if (!AUTH_SECRET) {
+        return signedValue
+    }
+
+    const separatorIndex = signedValue.lastIndexOf('.')
+    if (separatorIndex === -1) {
         return null
     }
 
-    const [value, signature] = parts
+    const value = signedValue.slice(0, separatorIndex)
+    const signature = signedValue.slice(separatorIndex + 1)
     if (!value || !signature) {
         return null
     }

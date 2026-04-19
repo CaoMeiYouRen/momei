@@ -180,4 +180,26 @@ describe('CommentItem', () => {
 
         expect(wrapper.text()).toContain('Test content')
     })
+
+    it('prefers cached current-language translation for cross-locale fallback comments', async () => {
+        const wrapper = await mountSuspended(CommentItem, {
+            props: {
+                comment: {
+                    ...mockComment,
+                    content: 'Foreign content',
+                    sourceLanguage: 'en-US',
+                    isCrossLocaleFallback: true,
+                    preferredTranslation: {
+                        targetLanguage: 'zh-CN',
+                        content: '当前语言译文',
+                        updatedAt: new Date().toISOString(),
+                    },
+                },
+            },
+        })
+
+        expect(wrapper.text()).toContain('当前语言译文')
+        expect(wrapper.text()).toContain('来自English版本评论，当前显示译文。')
+        expect(wrapper.text()).toContain('查看原文')
+    })
 })

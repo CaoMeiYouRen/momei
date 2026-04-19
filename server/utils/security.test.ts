@@ -115,6 +115,14 @@ describe('security.ts', () => {
             const verified = verifyCookieValue(signed)
             expect(verified).toBe(value)
         })
+
+        it('should verify values containing dots such as guest emails', () => {
+            const value = 'guest.user@example.com'
+            const signed = signCookieValue(value)
+            const verified = verifyCookieValue(signed)
+
+            expect(verified).toBe(value)
+        })
     })
 
     describe('Integration tests', () => {

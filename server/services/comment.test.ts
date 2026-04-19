@@ -46,6 +46,7 @@ describe('commentService', () => {
     }
     const mockPostRepo = {
         findOne: vi.fn(),
+        find: vi.fn(),
     }
     const mockSettingRepo = {
         find: vi.fn().mockResolvedValue([]),
@@ -76,13 +77,44 @@ describe('commentService', () => {
 
     describe('getCommentsByPostId', () => {
         it('should fetch comments and build a tree for admin', async () => {
+            mockPostRepo.findOne.mockResolvedValue({
+                id: mockPostId,
+                language: 'zh-CN',
+                translationId: 'cluster-1',
+                slug: 'sample-post',
+                title: '中文文章',
+            })
+            mockPostRepo.find.mockResolvedValue([{ id: mockPostId }])
+
             const mockComments = [
-                { id: '1', postId: mockPostId, content: 'Comment 1', parentId: null, status: CommentStatus.PUBLISHED, authorEmail: '1@test.com' },
-                { id: '2', postId: mockPostId, content: 'Comment 2', parentId: '1', status: CommentStatus.PUBLISHED, authorEmail: '2@test.com' },
+                {
+                    id: '1',
+                    postId: mockPostId,
+                    content: 'Comment 1',
+                    parentId: null,
+                    status: CommentStatus.PUBLISHED,
+                    authorEmail: '1@test.com',
+                    isSticked: false,
+                    createdAt: '2026-04-20T00:00:00.000Z',
+                    post: { id: mockPostId, language: 'zh-CN', title: '中文文章' },
+                },
+                {
+                    id: '2',
+                    postId: mockPostId,
+                    content: 'Comment 2',
+                    parentId: '1',
+                    status: CommentStatus.PUBLISHED,
+                    authorEmail: '2@test.com',
+                    isSticked: false,
+                    createdAt: '2026-04-20T00:10:00.000Z',
+                    post: { id: mockPostId, language: 'zh-CN', title: '中文文章' },
+                },
             ]
 
             const mockQueryBuilder = {
                 leftJoinAndSelect: vi.fn().mockReturnThis(),
+                leftJoin: vi.fn().mockReturnThis(),
+                addSelect: vi.fn().mockReturnThis(),
                 where: vi.fn().mockReturnThis(),
                 orderBy: vi.fn().mockReturnThis(),
                 addOrderBy: vi.fn().mockReturnThis(),
@@ -95,21 +127,48 @@ describe('commentService', () => {
             const result = await commentService.getCommentsByPostId(mockPostId, { isAdmin: true })
 
             expect(result).toHaveLength(1)
-            expect(result[0].id).toBe('1')
-            expect(result[0].replies).toHaveLength(1)
-            expect(result[0].replies[0].id).toBe('2')
-            expect(result[0].authorEmail).toBe('1@test.com') // Admin should see email
+            expect(result[0]!.id).toBe('1')
+            expect(result[0]!.replies).toHaveLength(1)
+            expect(result[0]!.replies?.[0]!.id).toBe('2')
+            expect(result[0]!.authorEmail).toBe('1@test.com') // Admin should see email
         })
 
         it('should filter pending comments for non-admin viewers (Privacy Control)', async () => {
             const viewerEmail = 'viewer@test.com'
+            mockPostRepo.findOne.mockResolvedValue({
+                id: mockPostId,
+                language: 'zh-CN',
+                translationId: 'cluster-1',
+                slug: 'sample-post',
+                title: '中文文章',
+            })
+            mockPostRepo.find.mockResolvedValue([{ id: mockPostId }])
             const mockComments = [
-                { id: '1', postId: mockPostId, content: 'Published', status: CommentStatus.PUBLISHED },
-                { id: '2', postId: mockPostId, content: 'My Pending', status: CommentStatus.PENDING, authorEmail: viewerEmail },
+                {
+                    id: '1',
+                    postId: mockPostId,
+                    content: 'Published',
+                    status: CommentStatus.PUBLISHED,
+                    isSticked: false,
+                    createdAt: '2026-04-20T00:00:00.000Z',
+                    post: { id: mockPostId, language: 'zh-CN', title: '中文文章' },
+                },
+                {
+                    id: '2',
+                    postId: mockPostId,
+                    content: 'My Pending',
+                    status: CommentStatus.PENDING,
+                    authorEmail: viewerEmail,
+                    isSticked: false,
+                    createdAt: '2026-04-20T00:10:00.000Z',
+                    post: { id: mockPostId, language: 'zh-CN', title: '中文文章' },
+                },
             ]
 
             const mockQueryBuilder = {
                 leftJoinAndSelect: vi.fn().mockReturnThis(),
+                leftJoin: vi.fn().mockReturnThis(),
+                addSelect: vi.fn().mockReturnThis(),
                 where: vi.fn().mockReturnThis(),
                 orderBy: vi.fn().mockReturnThis(),
                 addOrderBy: vi.fn().mockReturnThis(),
@@ -126,7 +185,79 @@ describe('commentService', () => {
 
             expect(mockQueryBuilder.andWhere).toHaveBeenCalled()
             expect(result).toHaveLength(2)
-            expect(result[0].authorEmail).toBeUndefined() // Non-admin should NOT see email
+            expect(result[0]!.authorEmail).toBeUndefined() // Non-admin should NOT see email
+        })
+
+        it('should prioritize current language threads and expose fallback translation metadata', async () => {
+            mockPostRepo.findOne.mockResolvedValue({
+                id: mockPostId,
+                language: 'en-US',
+                translationId: 'cluster-1',
+                slug: 'sample-post',
+                title: 'English Post',
+            })
+            mockPostRepo.find.mockResolvedValue([
+                { id: mockPostId },
+                { id: 'post-2' },
+            ])
+
+            const mockComments = [
+                {
+                    id: '2',
+                    postId: 'post-2',
+                    content: '中文评论',
+                    parentId: null,
+                    status: CommentStatus.PUBLISHED,
+                    isSticked: false,
+                    createdAt: '2026-04-20T00:05:00.000Z',
+                    translationCache: {
+                        'en-US': {
+                            content: 'Translated Chinese comment',
+                            updatedAt: '2026-04-20T00:06:00.000Z',
+                        },
+                    },
+                    post: { id: 'post-2', language: 'zh-CN', title: '中文文章' },
+                },
+                {
+                    id: '1',
+                    postId: mockPostId,
+                    content: 'English comment',
+                    parentId: null,
+                    status: CommentStatus.PUBLISHED,
+                    isSticked: false,
+                    createdAt: '2026-04-20T00:00:00.000Z',
+                    translationCache: null,
+                    post: { id: mockPostId, language: 'en-US', title: 'English Post' },
+                },
+            ]
+
+            const mockQueryBuilder = {
+                leftJoinAndSelect: vi.fn().mockReturnThis(),
+                leftJoin: vi.fn().mockReturnThis(),
+                addSelect: vi.fn().mockReturnThis(),
+                where: vi.fn().mockReturnThis(),
+                orderBy: vi.fn().mockReturnThis(),
+                addOrderBy: vi.fn().mockReturnThis(),
+                andWhere: vi.fn().mockReturnThis(),
+                getMany: vi.fn().mockResolvedValue(mockComments),
+            }
+
+            mockCommentRepo.createQueryBuilder.mockReturnValue(mockQueryBuilder)
+
+            const result = await commentService.getCommentsByPostId(mockPostId, {
+                isAdmin: false,
+            })
+
+            expect(result).toHaveLength(2)
+            expect(result[0]!.id).toBe('1')
+            expect(result[1]!.id).toBe('2')
+            expect(result[1]!.sourceLanguage).toBe('zh-CN')
+            expect(result[1]!.isCrossLocaleFallback).toBe(true)
+            expect(result[1]!.preferredTranslation).toEqual({
+                targetLanguage: 'en-US',
+                content: 'Translated Chinese comment',
+                updatedAt: '2026-04-20T00:06:00.000Z',
+            })
         })
     })
 
@@ -234,11 +365,11 @@ describe('commentService', () => {
             const tree = await commentService.buildCommentTree(comments, false)
 
             expect(tree).toHaveLength(1)
-            expect(tree[0].id).toBe('1')
-            expect(tree[0].replies).toHaveLength(1)
-            expect(tree[0].replies[0].id).toBe('2')
-            expect(tree[0].authorEmail).toBeUndefined()
-            expect(tree[0].ip).toBeUndefined()
+            expect(tree[0]!.id).toBe('1')
+            expect(tree[0]!.replies).toHaveLength(1)
+            expect(tree[0]!.replies?.[0]!.id).toBe('2')
+            expect(tree[0]!.authorEmail).toBeUndefined()
+            expect(tree[0]!.ip).toBeUndefined()
         })
     })
 })

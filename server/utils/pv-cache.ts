@@ -2,6 +2,7 @@ import dayjs from 'dayjs'
 import { Redis } from 'ioredis'
 import type { Repository } from 'typeorm'
 import { isServerlessEnvironment } from './env'
+import { snowflake } from './snowflake'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { PostViewHourly } from '@/server/entities/post-view-hourly'
@@ -68,6 +69,7 @@ async function incrementHourlyBucket(
 
     try {
         await repo.insert({
+            id: snowflake.generateId(),
             postId,
             bucketHourUtc: bucketDate,
             views: count,

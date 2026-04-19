@@ -23,6 +23,7 @@ interface GetOrCreateCommentTranslationOptions extends CommentTranslationViewerO
 
 const COMMENT_TRANSLATION_TASK_POLL_LIMIT = 8
 const commentTranslationInflight = new Map<string, Promise<CommentTranslationResult>>()
+type TextTaskStatus = Awaited<ReturnType<typeof TextService.getTaskStatus>>
 
 function buildCommentTranslationInflightKey(commentId: string, targetLanguage: AppLocaleCode) {
     return `${commentId}:${targetLanguage}`
@@ -52,6 +53,10 @@ function extractTranslatedTaskContent(result: unknown) {
     return typeof taskResult.content === 'string' ? taskResult.content : ''
 }
 
+function hasTaskResult(taskStatus: TextTaskStatus): taskStatus is TextTaskStatus & { result: unknown } {
+    return 'result' in taskStatus
+}
+
 async function translateCommentContent(
     content: string,
     targetLanguage: AppLocaleCode,
@@ -73,7 +78,9 @@ async function translateCommentContent(
         })
 
         if (taskStatus.status === 'completed') {
-            const translatedContent = extractTranslatedTaskContent(taskStatus.result)
+            const translatedContent = extractTranslatedTaskContent(
+                hasTaskResult(taskStatus) ? taskStatus.result : undefined,
+            )
             if (translatedContent) {
                 return translatedContent
             }
