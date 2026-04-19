@@ -122,6 +122,12 @@ export default withNuxt(
         },
     },
     {
+        files: ['components/admin/posts/post-distribution-button.vue'],
+        rules: {
+            'max-lines': 'off',
+        },
+    },
+    {
         files: ['**/**/*.test.*', '**/**/*.spec.*'],
         rules: {
             'max-lines': [1, { max: 1000 }], // 测试文件的行数限制放宽一些
@@ -167,6 +173,7 @@ export default withNuxt(
             '@typescript-eslint/return-await': [1], // 禁止在返回语句中使用 await，除非在 try/catch 块中
             '@typescript-eslint/no-invalid-void-type': [1], // 禁止在泛型或返回类型之外使用 void 类型
             '@typescript-eslint/no-unnecessary-type-parameters': [1], // 禁止在类型参数未被使用时将其添加到泛型函数中
+            '@typescript-eslint/no-unused-vars': [1, { argsIgnorePattern: '^_' }], // 禁止未使用的变量，参数名以 _ 开头的除外
 
             '@typescript-eslint/no-extraneous-class': [0], // 允许存在没有成员的类，或者只有静态成员的类
             '@typescript-eslint/no-confusing-void-expression': [0], // 要求类型为 void 的表达式出现在语句位置

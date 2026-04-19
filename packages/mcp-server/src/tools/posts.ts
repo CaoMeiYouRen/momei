@@ -91,7 +91,7 @@ export function registerPostTools(server: McpServer, config: MomeiApiConfig) {
         },
         async ({ id, ...data }) => {
             try {
-                const result = await api.updatePost(id, data)
+                await api.updatePost(id, data)
                 return {
                     content: [{ type: 'text', text: `Post ${id} updated successfully.` }],
                 }

@@ -10,7 +10,7 @@ describe('MomeiApi Performance', () => {
     })
 
     // Mock global fetch for controlled benchmarking
-    globalThis.fetch = ((url: string, options: RequestInit) =>
+    globalThis.fetch = (() =>
         // Simulate a small delay for network-like behavior
         // await new Promise(resolve => setTimeout(resolve, 10));
         Promise.resolve({

@@ -311,7 +311,7 @@ function getVisibleGroups(groups, limit, crossModuleOnly) {
     return filteredGroups.slice(0, limit)
 }
 
-function buildReport(options, localeCodes, sharedKeys, totalDistinctKeys, incompleteKeyCount, groups) {
+function buildReport(options, groups, summaryInput) {
     const visibleGroups = getVisibleGroups(groups, options.limit, options.crossModuleOnly)
     const crossModuleGroupCount = groups.filter((group) => group.crossModule).length
     const totalKeysInGroups = groups.reduce((sum, group) => sum + group.keyCount, 0)
@@ -327,11 +327,11 @@ function buildReport(options, localeCodes, sharedKeys, totalDistinctKeys, incomp
         summary: {
             crossModuleGroupCount,
             duplicateGroupCount: groups.length,
-            incompleteKeyCount,
-            locales: localeCodes,
-            sharedKeyCount: sharedKeys.length,
+            incompleteKeyCount: summaryInput.incompleteKeyCount,
+            locales: summaryInput.localeCodes,
+            sharedKeyCount: summaryInput.sharedKeyCount,
             shownGroupCount: visibleGroups.length,
-            totalDistinctKeyCount: totalDistinctKeys,
+            totalDistinctKeyCount: summaryInput.totalDistinctKeys,
             totalKeysInGroups,
         },
     }
@@ -455,7 +455,12 @@ async function main() {
 
     const { incompleteKeyCount, sharedKeys, totalDistinctKeys } = getSharedKeys(localeCodes, localeMessageMaps)
     const groups = buildDuplicateGroups(localeCodes, localeMessageMaps, sharedKeys, options.minGroupSize)
-    const report = buildReport(options, localeCodes, sharedKeys, totalDistinctKeys, incompleteKeyCount, groups)
+    const report = buildReport(options, groups, {
+        incompleteKeyCount,
+        localeCodes,
+        sharedKeyCount: sharedKeys.length,
+        totalDistinctKeys,
+    })
     const renderedReport = renderReport(report, options.format)
 
     if (options.outputPath) {

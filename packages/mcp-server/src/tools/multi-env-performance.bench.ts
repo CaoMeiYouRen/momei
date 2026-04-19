@@ -23,7 +23,7 @@ describe('Momei Online API Stress Test', () => {
     bench(`Stress Test against ${url}`, async () => {
         try {
             await api.listPosts({ page: 1, limit: 10 })
-        } catch (error) {
+        } catch {
             // Handle or ignore errors in bench
         }
     })

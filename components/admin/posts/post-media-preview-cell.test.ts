@@ -1,6 +1,5 @@
-import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { describe, expect, it, vi } from 'vitest'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { describe, expect, it } from 'vitest'
 import PostMediaPreviewCell from './post-media-preview-cell.vue'
 import { PostStatus, PostVisibility, type Post } from '@/types/post'
 
