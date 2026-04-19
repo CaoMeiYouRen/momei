@@ -1,6 +1,6 @@
 import { Brackets, type SelectQueryBuilder, type WhereExpressionBuilder } from 'typeorm'
 import { z } from 'zod'
-import { dataSource } from '@/server/database'
+import { dataSource, ensureDatabaseReady } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { processAuthorsPrivacy } from '@/server/utils/author'
 import { applyPostVisibilityFilter, rethrowPostAccessError } from '@/server/utils/post-access'
@@ -41,8 +41,12 @@ export default defineEventHandler(async (event) => {
         ttlSeconds: HOME_POSTS_CACHE_TTL_SECONDS,
         isSharedPublicResponse,
         loader: async () => {
-            if (!dataSource.isInitialized) {
-                return success({ items: [] })
+            const databaseReady = await ensureDatabaseReady()
+            if (!databaseReady) {
+                throw createError({
+                    statusCode: 503,
+                    statusMessage: 'Database unavailable',
+                })
             }
 
             const postRepo = dataSource.getRepository(Post)

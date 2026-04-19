@@ -3,9 +3,17 @@ import publicSettingsHandler from '@/server/api/settings/public.get'
 import { clearRuntimeCache } from '@/server/utils/runtime-cache'
 import { SettingKey } from '@/types/setting'
 
+const { ensureDatabaseReady } = vi.hoisted(() => ({
+    ensureDatabaseReady: vi.fn().mockResolvedValue(true),
+}))
+
 vi.mock('~/server/services/setting', () => ({
     getSettings: vi.fn(),
     resolveLocalizedSettingsFromValues: vi.fn(),
+}))
+
+vi.mock('@/server/database', () => ({
+    ensureDatabaseReady,
 }))
 
 vi.mock('~/server/utils/locale', () => ({
@@ -23,6 +31,7 @@ describe('GET /api/settings/public', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         clearRuntimeCache()
+        ensureDatabaseReady.mockResolvedValue(true)
         vi.mocked(getSettings).mockResolvedValue({
             [SettingKey.SITE_NAME]: 'Momei',
             [SettingKey.SITE_TITLE]: null,
@@ -124,6 +133,7 @@ describe('GET /api/settings/public', () => {
         const result = await publicSettingsHandler({} as any)
 
         expect(result.code).toBe(200)
+        expect(ensureDatabaseReady).toHaveBeenCalledTimes(1)
         expect(getSettings).toHaveBeenCalledTimes(1)
         expect(resolveLocalizedSettingsFromValues).toHaveBeenCalledTimes(1)
         expect(result.data.postCopyright).toBe('all-rights-reserved')
@@ -150,7 +160,17 @@ describe('GET /api/settings/public', () => {
         const second = await publicSettingsHandler({} as any)
 
         expect(first).toEqual(second)
+        expect(ensureDatabaseReady).toHaveBeenCalledTimes(1)
         expect(getSettings).toHaveBeenCalledTimes(1)
         expect(resolveLocalizedSettingsFromValues).toHaveBeenCalledTimes(1)
+    })
+
+    it('should not cache fallback settings when database bootstrap fails', async () => {
+        ensureDatabaseReady.mockResolvedValueOnce(false)
+
+        await expect(publicSettingsHandler({} as any)).rejects.toMatchObject({
+            statusCode: 503,
+        })
+        expect(getSettings).not.toHaveBeenCalled()
     })
 })

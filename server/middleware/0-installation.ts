@@ -3,7 +3,9 @@ import { TEST_MODE } from '@/utils/shared/env'
 import { getRuntimeCache, setRuntimeCache } from '@/server/utils/runtime-cache'
 
 const INSTALLATION_STATUS_CACHE_KEY = 'installation:status'
-const INSTALLATION_STATUS_CACHE_TTL_SECONDS = 30
+// Keep the installed-state probe above common managed Postgres autosuspend windows
+// so regular page traffic does not keep waking the database just for installation checks.
+const INSTALLATION_STATUS_CACHE_TTL_SECONDS = 60 * 10
 
 function resolveEnvInstallationFlag() {
     if (process.env.MOMEI_INSTALLED === 'true') {

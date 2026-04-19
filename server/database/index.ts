@@ -273,4 +273,13 @@ export const initializeDB = async () => {
     return initializationPromise
 }
 
+export const ensureDatabaseReady = async () => {
+    if (dataSource.isInitialized) {
+        return true
+    }
+
+    await initializeDB()
+    return dataSource.isInitialized
+}
+
 export const dataSource: DataSource = getDataSourceContext().dataSource

@@ -1,4 +1,4 @@
-import { dataSource } from '@/server/database'
+import { dataSource, ensureDatabaseReady } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
 import { tagQuerySchema } from '@/utils/schemas/tag'
 import { applyPagination } from '@/server/utils/pagination'
@@ -44,6 +44,14 @@ export default defineEventHandler(async (event) => {
         ttlSeconds: TAG_PUBLIC_LIST_CACHE_TTL_SECONDS,
         isSharedPublicResponse: true,
         loader: async () => {
+            const databaseReady = await ensureDatabaseReady()
+            if (!databaseReady) {
+                throw createError({
+                    statusCode: 503,
+                    statusMessage: 'Database unavailable',
+                })
+            }
+
             const tagRepo = dataSource.getRepository(Tag)
             const baseQueryBuilder = tagRepo.createQueryBuilder('tag')
 

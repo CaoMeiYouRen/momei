@@ -1,4 +1,4 @@
-import { dataSource } from '@/server/database'
+import { dataSource, ensureDatabaseReady } from '@/server/database'
 import { Category } from '@/server/entities/category'
 import { categoryQuerySchema } from '@/utils/schemas/category'
 import { applyPagination } from '@/server/utils/pagination'
@@ -46,6 +46,14 @@ export default defineEventHandler(async (event) => {
         ttlSeconds: CATEGORY_PUBLIC_LIST_CACHE_TTL_SECONDS,
         isSharedPublicResponse: true,
         loader: async () => {
+            const databaseReady = await ensureDatabaseReady()
+            if (!databaseReady) {
+                throw createError({
+                    statusCode: 503,
+                    statusMessage: 'Database unavailable',
+                })
+            }
+
             const categoryRepo = dataSource.getRepository(Category)
             const baseQueryBuilder = categoryRepo.createQueryBuilder('category')
                 .leftJoin('category.parent', 'parent')

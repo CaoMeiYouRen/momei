@@ -1,7 +1,11 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { H3Event } from 'h3'
 import { requireAdmin, requireAdminOrAuthor, requireAuth, requireRole, requireWsAdminOrAuthor, requireWsAuth, requireWsRole } from './permission'
 import { UserRole } from '@/utils/shared/roles'
+
+const { ensureDatabaseReady } = vi.hoisted(() => ({
+    ensureDatabaseReady: vi.fn().mockResolvedValue(true),
+}))
 
 // Mock auth module
 vi.mock('@/lib/auth', () => ({
@@ -12,7 +16,16 @@ vi.mock('@/lib/auth', () => ({
     },
 }))
 
+vi.mock('@/server/database', () => ({
+    ensureDatabaseReady,
+}))
+
 describe('permission utils', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        ensureDatabaseReady.mockResolvedValue(true)
+    })
+
     describe('requireAuth', () => {
         it('应该在用户已登录时返回 session', async () => {
             const mockSession = {
@@ -25,6 +38,7 @@ describe('permission utils', () => {
 
             const result = await requireAuth(mockEvent)
             expect(result).toEqual(mockSession)
+            expect(ensureDatabaseReady).not.toHaveBeenCalled()
         })
 
         it('应该在用户未登录时抛出 401 错误', async () => {
@@ -37,6 +51,7 @@ describe('permission utils', () => {
             vi.mocked(auth.api.getSession).mockResolvedValue(null)
 
             await expect(requireAuth(mockEvent)).rejects.toThrow()
+            expect(ensureDatabaseReady).toHaveBeenCalledTimes(1)
         })
 
         it('应该在 session 存在但无 user 时抛出 401 错误', async () => {
@@ -47,6 +62,18 @@ describe('permission utils', () => {
 
             const { auth } = await import('@/lib/auth')
             vi.mocked(auth.api.getSession).mockResolvedValue({} as any)
+
+            await expect(requireAuth(mockEvent)).rejects.toThrow()
+            expect(ensureDatabaseReady).toHaveBeenCalledTimes(1)
+        })
+
+        it('应该在数据库未就绪时抛出 503 错误', async () => {
+            const mockEvent = {
+                context: {},
+                headers: new Headers(),
+            } as unknown as H3Event
+
+            ensureDatabaseReady.mockResolvedValueOnce(false)
 
             await expect(requireAuth(mockEvent)).rejects.toThrow()
         })
@@ -174,6 +201,7 @@ describe('permission utils', () => {
 
             const result = await requireWsAuth(request)
             expect(result).toEqual(mockSession)
+            expect(ensureDatabaseReady).toHaveBeenCalledTimes(1)
         })
 
         it('应该在 WS 未登录时抛出 401 错误', async () => {

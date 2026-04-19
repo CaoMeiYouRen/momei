@@ -1,5 +1,6 @@
 import type { H3Event } from 'h3'
 import { auth } from '@/lib/auth'
+import { ensureDatabaseReady } from '@/server/database'
 import { hasRole, UserRole } from '@/utils/shared/roles'
 
 function normalizeRequestHeaders(request: Request) {
@@ -17,9 +18,21 @@ function normalizeRequestHeaders(request: Request) {
  * @param event H3Event
  */
 export async function requireAuth(event: H3Event) {
-    const session = event.context.auth || await auth.api.getSession({
-        headers: event.headers,
-    })
+    let session = event.context.auth
+
+    if (!session) {
+        const databaseReady = await ensureDatabaseReady()
+        if (!databaseReady) {
+            throw createError({
+                statusCode: 503,
+                statusMessage: 'Database unavailable',
+            })
+        }
+
+        session = await auth.api.getSession({
+            headers: event.headers,
+        })
+    }
 
     if (!session?.user) {
         throw createError({
@@ -77,6 +90,14 @@ export async function requireWsAuth(request: Request | undefined) {
         throw createError({
             statusCode: 401,
             statusMessage: 'Unauthorized',
+        })
+    }
+
+    const databaseReady = await ensureDatabaseReady()
+    if (!databaseReady) {
+        throw createError({
+            statusCode: 503,
+            statusMessage: 'Database unavailable',
         })
     }
 

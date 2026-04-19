@@ -5,6 +5,7 @@ import { detectRequestAuthLocale, mapAuthLocaleToAppLocale } from '~/server/util
 import { getLocalizedFallbackChain, serializeLocalizedStringList } from '~/utils/shared/localized-settings'
 import { PUBLIC_SETTING_KEYS, SettingKey, type ResolvedLocalizedSetting } from '~/types/setting'
 import { buildRuntimeApiCacheKey, withRuntimeApiCache } from '@/server/utils/api-runtime-cache'
+import { ensureDatabaseReady } from '@/server/database'
 
 const PUBLIC_SETTINGS_CACHE_TTL_SECONDS = 60
 const PUBLIC_SETTINGS_CACHE_NAMESPACE = 'settings:public'
@@ -28,6 +29,14 @@ export default defineEventHandler(async (event) => {
             ttlSeconds: PUBLIC_SETTINGS_CACHE_TTL_SECONDS,
             isSharedPublicResponse: true,
             loader: async () => {
+                const databaseReady = await ensureDatabaseReady()
+                if (!databaseReady) {
+                    throw createError({
+                        statusCode: 503,
+                        statusMessage: 'Database unavailable',
+                    })
+                }
+
                 const fallbackChain = getLocalizedFallbackChain(requestedLocale)
                 const settings = await getSettings([...PUBLIC_SETTING_KEYS, SettingKey.COMMERCIAL_SPONSORSHIP])
                 const localizedSettings = resolveLocalizedSettingsFromValues(settings, [
@@ -148,7 +157,11 @@ export default defineEventHandler(async (event) => {
                 }
             },
         })
-    } catch {
+    } catch (error: unknown) {
+        if (typeof error === 'object' && error !== null && 'statusCode' in error) {
+            throw error
+        }
+
         throw createError({
             statusCode: 500,
             statusMessage: 'Failed to fetch public settings',
