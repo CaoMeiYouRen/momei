@@ -5,6 +5,7 @@ import {
     buildSavePayload,
     getPostStatusLabel,
     getPostStatusSeverity,
+    handlePreviewOpen,
     loadExistingPostDetail,
     persistPost,
     preloadSourcePost,
@@ -340,6 +341,51 @@ describe('preloadSourcePost', () => {
         expect(options.post.value.categoryId).toBe('matched-category')
     })
 
+    it('keeps source snapshot but skips prefill when autoTranslate is enabled', async () => {
+        const options = createLoadOptions({
+            route: {
+                query: {
+                    sourceId: 'source-1',
+                    autoTranslate: 'true',
+                    translationScopes: ['title'],
+                },
+                params: {},
+            } as never,
+        })
+
+        fetchMock.mockResolvedValueOnce({
+            data: {
+                id: 'source-1',
+                title: 'Source Title',
+                summary: 'Source Summary',
+                content: 'Source Content',
+                coverImage: 'https://example.com/source-cover.jpg',
+                tags: [{ id: 'tag-1', name: 'Tag A', slug: 'tag-a', translationId: 'tag-translation-1' }],
+                category: { id: 'category-9', name: 'Source Category', slug: 'source-category', translationId: 'cat-translation-1' },
+                language: 'ja-JP',
+                slug: 'source-title',
+                translationId: 'translation-2',
+                copyright: 'CC BY',
+            },
+        })
+
+        await preloadSourcePost(options as never)
+
+        expect(options.sourcePostSnapshot.value).toMatchObject({ id: 'source-1', title: 'Source Title' })
+        expect(options.loadCategories).not.toHaveBeenCalled()
+        expect(options.loadTags).not.toHaveBeenCalled()
+        expect(options.applyTagBindings).not.toHaveBeenCalled()
+        expect(options.post.value.title).toBe('Title')
+        expect(options.post.value.slug).toBe('source-title')
+        expect(options.post.value.translationId).toBe('translation-2')
+        expect(options.translationDialogVisible.value).toBe(true)
+        expect(options.translationWorkflowDefaults.value).toMatchObject({
+            sourcePostId: 'source-1',
+            targetLanguage: 'zh-CN',
+            scopes: ['title'],
+        })
+    })
+
     it('only fetches translations when source id is absent', async () => {
         const options = createLoadOptions({
             route: {
@@ -372,6 +418,30 @@ describe('preloadSourcePost', () => {
             targetLanguage: 'zh-CN',
             scopes: ['title', 'content'],
         })
+    })
+
+    it('continues with translation workflow when source preload fails', async () => {
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+        const options = createLoadOptions({
+            route: {
+                query: {
+                    sourceId: 'source-1',
+                    translationId: 'translation-9',
+                    autoTranslate: 'true',
+                },
+                params: {},
+            } as never,
+        })
+
+        fetchMock.mockRejectedValueOnce(new Error('source fetch failed'))
+
+        await preloadSourcePost(options as never)
+
+        expect(options.fetchTranslations).toHaveBeenCalledWith('translation-9')
+        expect(options.translationDialogVisible.value).toBe(true)
+        expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to pre-fill from source post', expect.any(Error))
+
+        consoleErrorSpy.mockRestore()
     })
 })
 
@@ -443,6 +513,72 @@ describe('loadExistingPostDetail', () => {
         expect(vi.mocked(options.confirm.require)).toHaveBeenCalledOnce()
         expect(options.translationDialogVisible.value).toBe(true)
     })
+
+    it('still applies translation workflow and draft recovery when detail payload is empty', async () => {
+        const options = createLoadOptions({
+            route: {
+                query: {
+                    autoTranslate: 'true',
+                    translationScopes: 'summary',
+                },
+                params: {
+                    id: 'post-2',
+                },
+            } as never,
+            hasRecoverableDraft: vi.fn().mockReturnValue(true),
+        })
+
+        fetchMock.mockResolvedValueOnce({ data: null })
+
+        await loadExistingPostDetail(options as never)
+
+        expect(options.fetchTranslations).not.toHaveBeenCalled()
+        expect(options.applyTagBindings).not.toHaveBeenCalled()
+        expect(vi.mocked(options.confirm.require)).not.toHaveBeenCalled()
+        expect(options.translationDialogVisible.value).toBe(false)
+        expect(options.translationWorkflowDefaults.value).toMatchObject({
+            sourcePostId: null,
+            targetLanguage: '',
+            scopes: [],
+        })
+    })
+
+    it('keeps editor usable when loading the source snapshot fails', async () => {
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+        const options = createLoadOptions({
+            route: {
+                query: {
+                    sourceId: 'source-2',
+                },
+                params: {
+                    id: 'post-1',
+                },
+            } as never,
+        })
+
+        fetchMock
+            .mockResolvedValueOnce({
+                data: {
+                    id: 'post-1',
+                    title: 'Existing Title',
+                    content: 'Existing Content',
+                    slug: 'existing-title',
+                    language: 'en-US',
+                    tags: [],
+                    category: null,
+                    translationId: null,
+                },
+            })
+            .mockRejectedValueOnce(new Error('snapshot failed'))
+
+        await loadExistingPostDetail(options as never)
+
+        expect(options.post.value.title).toBe('Existing Title')
+        expect(options.sourcePostSnapshot.value).toBeNull()
+        expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load translation source snapshot', expect.any(Error))
+
+        consoleErrorSpy.mockRestore()
+    })
 })
 
 describe('buildSavePayload', () => {
@@ -474,6 +610,25 @@ describe('buildSavePayload', () => {
             syncToMemos: true,
             pushOption: 'now',
             pushCriteria: { categoryIds: ['category-1'] },
+        })
+    })
+
+    it('keeps status unchanged when saving without publish intent', () => {
+        const result = buildSavePayload({
+            post: createPost({
+                status: PostStatus.DRAFT,
+                metadata: undefined,
+            }),
+            tagBindings: [],
+            publish: false,
+            pushOption: 'draft',
+        })
+
+        expect(result.isFuture).toBe(false)
+        expect(result.payload.status).toBe(PostStatus.DRAFT)
+        expect(result.publishIntent).toEqual({
+            pushOption: 'draft',
+            pushCriteria: undefined,
         })
     })
 })
@@ -535,6 +690,46 @@ describe('persistPost', () => {
         expect(clearLocalDraft).toHaveBeenCalledOnce()
         expect(showSuccessToast).toHaveBeenCalledWith('common.save_success')
     })
+
+    it('leaves draft state unchanged when an update is saved without publishing', async () => {
+        const post = ref(createPost({ status: PostStatus.DRAFT }))
+
+        await persistPost({
+            post,
+            isNew: false,
+            route: { params: { id: 'post-1' } } as never,
+            localePath: (path: string) => path,
+            clearLocalDraft: vi.fn(),
+            showSuccessToast: vi.fn(),
+        }, false, { title: 'updated' }, true)
+
+        expect(post.value.status).toBe(PostStatus.DRAFT)
+    })
+
+    it('does not clear draft or redirect when create response has no id', async () => {
+        const post = ref(createPost({ id: undefined, status: PostStatus.DRAFT }))
+        const clearLocalDraft = vi.fn()
+        const showSuccessToast = vi.fn()
+
+        fetchMock.mockResolvedValueOnce({
+            code: 200,
+            data: {},
+        })
+
+        await persistPost({
+            post,
+            isNew: true,
+            route: { params: {} } as never,
+            localePath: (path: string) => path,
+            clearLocalDraft,
+            showSuccessToast,
+        }, false, { title: 'payload' }, false)
+
+        expect(post.value.id).toBeUndefined()
+        expect(clearLocalDraft).not.toHaveBeenCalled()
+        expect(showSuccessToast).not.toHaveBeenCalled()
+        expect(navigateToMock).not.toHaveBeenCalled()
+    })
 })
 
 describe('editor state helpers', () => {
@@ -585,5 +780,19 @@ describe('editor state helpers', () => {
         expect(getPostStatusLabel(t, 'unknown')).toBe('unknown')
         expect(getPostStatusSeverity('draft')).toBe('secondary')
         expect(getPostStatusSeverity('unknown')).toBe('info')
+    })
+
+    it('opens preview only when the post is addressable', () => {
+        const windowOpenSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
+        const newPost = ref(createPost({ id: undefined, slug: '' }))
+        const existingPost = ref(createPost({ id: 'post-8', slug: 'preview-me' }))
+
+        handlePreviewOpen(true, newPost, (path: string) => `/en-US${path}`)
+        handlePreviewOpen(false, existingPost, (path: string) => `/en-US${path}`)
+
+        expect(windowOpenSpy).toHaveBeenCalledTimes(1)
+        expect(windowOpenSpy).toHaveBeenCalledWith('/en-US/posts/preview-me', '_blank')
+
+        windowOpenSpy.mockRestore()
     })
 })
