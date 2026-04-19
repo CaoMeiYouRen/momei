@@ -377,8 +377,14 @@ describe('AppHeader', () => {
         await mobileSearchTrigger.trigger('click')
         expect(mockOpenSearch).toHaveBeenCalledTimes(1)
 
-        const keydownHandler = addEventListenerSpy.mock.calls.find(([eventName]) => eventName === 'keydown')?.[1] as ((event: KeyboardEvent) => void) | undefined
+        const addEventListenerCalls = addEventListenerSpy.mock.calls as [string, EventListenerOrEventListenerObject][]
+        const keydownCall = addEventListenerCalls.find(([eventName]) => eventName === 'keydown')
+        const keydownHandler = typeof keydownCall?.[1] === 'function'
+            ? keydownCall[1] as (event: KeyboardEvent) => void
+            : undefined
         const preventDefault = vi.fn()
+
+        expect(keydownHandler).toBeDefined()
 
         keydownHandler?.({
             ctrlKey: true,
@@ -428,7 +434,9 @@ describe('AppHeader', () => {
             }
         }
 
-        userMenuItems[0].command()
+        const settingsMenuItem = userMenuItems.at(0)
+        expect(settingsMenuItem).toBeDefined()
+        settingsMenuItem?.command?.()
 
         expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin')
         expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/posts')
@@ -466,11 +474,14 @@ describe('AppHeader', () => {
 
         const userMenuItems = (wrapper.vm as any).userMenuItems as Record<string, any>[]
 
+        const logoutMenuItem = userMenuItems.at(1)
+        expect(logoutMenuItem).toBeDefined()
+
         mockSignOut.mockResolvedValueOnce({ error: true })
-        await userMenuItems[1].command()
+        await logoutMenuItem?.command?.()
 
         mockSignOut.mockRejectedValueOnce(new Error('network failed'))
-        await userMenuItems[1].command()
+        await logoutMenuItem?.command?.()
 
         expect(mockInvalidateAuthSessionState).toHaveBeenCalledTimes(2)
         expect(mockRefreshAuthSession).toHaveBeenCalledTimes(2)

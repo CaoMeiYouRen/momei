@@ -296,13 +296,13 @@ describe('usePostEditorIO', () => {
 
         io.onDragOver({
             dataTransfer: { types: ['Files'] },
-        } as DragEvent)
+        } as unknown as DragEvent)
         expect(io.isDragging.value).toBe(true)
 
         io.onDragLeave({
             currentTarget,
             relatedTarget: null,
-        } as DragEvent)
+        } as unknown as DragEvent)
         expect(io.isDragging.value).toBe(false)
     })
 

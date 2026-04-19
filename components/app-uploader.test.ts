@@ -2,6 +2,7 @@ import { defineComponent } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import AppUploader from './app-uploader.vue'
+import { UploadType } from '@/composables/use-upload'
 
 const { uploadFileMock, uploadingRef } = vi.hoisted(() => ({
     uploadFileMock: vi.fn(),
@@ -80,7 +81,7 @@ describe('AppUploader', () => {
             props: {
                 modelValue: '',
                 postId: 'post-1',
-                type: 'image',
+                type: UploadType.IMAGE,
             },
             global: {
                 stubs: {
