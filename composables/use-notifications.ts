@@ -283,7 +283,7 @@ export function useNotifications() {
             notifications.value = []
             unreadCount.value = 0
         }
-    }, { immediate: true })
+    })
 
     watch([
         authStatus,

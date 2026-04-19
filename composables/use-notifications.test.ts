@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 const { lifecycle, intervalState, appFetchMock } = vi.hoisted(() => ({
@@ -95,6 +95,14 @@ interface MockPushSubscription {
 
 import { useNotifications } from './use-notifications'
 
+const emptyNotificationPage = {
+    items: [],
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 0,
+}
+
 async function flushPromises() {
     await Promise.resolve()
     await Promise.resolve()
@@ -125,6 +133,7 @@ describe('useNotifications', () => {
         intervalState.pause.mockReset()
         intervalState.resume.mockReset()
         appFetchMock.mockReset()
+        appFetchMock.mockResolvedValue(emptyNotificationPage)
         sessionRef.value = { data: null }
         siteConfigRef.value = {
             webPushEnabled: false,
@@ -179,6 +188,11 @@ describe('useNotifications', () => {
                 }),
             },
         })
+    })
+
+    afterEach(() => {
+        lifecycle.beforeUnmount.forEach((callback) => callback())
+        sessionRef.value = { data: null }
     })
 
     it('认证用户应拉取通知、建立 SSE，并在消息到达时更新本地列表', async () => {
@@ -258,13 +272,7 @@ describe('useNotifications', () => {
 
     it('SSE 失败时应关闭连接并回退到轮询', async () => {
         sessionRef.value = { data: { userId: 'user-2' } }
-        appFetchMock.mockResolvedValueOnce({
-            items: [],
-            total: 0,
-            page: 1,
-            limit: 10,
-            totalPages: 0,
-        })
+        appFetchMock.mockResolvedValueOnce(emptyNotificationPage)
 
         const notifications = useNotifications()
         lifecycle.mounted.forEach((callback) => callback())

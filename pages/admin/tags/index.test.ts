@@ -145,6 +145,15 @@ vi.stubGlobal('useAdminList', () => ({
 vi.stubGlobal('$fetch', fetchMock)
 
 describe('AdminTagsPage', () => {
+    const mountPage = () => mountSuspended(AdminTagsPage, {
+        global: {
+            mocks: {
+                $t: (key: string) => key,
+            },
+            stubs,
+        },
+    })
+
     beforeEach(() => {
         vi.clearAllMocks()
         listItems.value = []
@@ -152,63 +161,39 @@ describe('AdminTagsPage', () => {
     })
 
     it('renders page header correctly', async () => {
-        const wrapper = await mountSuspended(AdminTagsPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountPage()
 
         expect(wrapper.find('.admin-header').exists()).toBe(true)
     })
 
     it('renders create button', async () => {
-        const wrapper = await mountSuspended(AdminTagsPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountPage()
 
         const html = wrapper.html()
         expect(html).toContain('pi-plus')
     })
 
     it('renders search input', async () => {
-        const wrapper = await mountSuspended(AdminTagsPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountPage()
 
         const html = wrapper.html()
         expect(html).toContain('pi-search')
     })
 
     it('renders data table', async () => {
-        const wrapper = await mountSuspended(AdminTagsPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountPage()
 
         expect(wrapper.find('.datatable').exists()).toBe(true)
     })
 
     it('has correct CSS class structure', async () => {
-        const wrapper = await mountSuspended(AdminTagsPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountPage()
 
         expect(wrapper.find('.admin-page-container').exists()).toBe(true)
     })
 
     it('shows aligned sync controls when opening the create dialog', async () => {
-        const wrapper = await mountSuspended(AdminTagsPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountPage()
 
         await wrapper.find('button.pi-plus').trigger('click')
         await nextTick()
@@ -233,11 +218,7 @@ describe('AdminTagsPage', () => {
             return Promise.resolve({ data: { items: [] } })
         })
 
-        const wrapper = await mountSuspended(AdminTagsPage, {
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountPage()
 
         await wrapper.find('button.pi-plus').trigger('click')
         await nextTick()

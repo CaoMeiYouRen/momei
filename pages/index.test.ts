@@ -84,7 +84,7 @@ describe('IndexPage', () => {
                 stubs: {
                     ArticleCard: { template: '<div class="article-card">{{ post.title }}</div>', props: ['post'] },
                     LazySubscriberForm: { template: '<div />' },
-                    LazyExternalFeedPanel: { template: '<div>{{ items[0]?.title }} {{ items[0]?.sourceTitle }}</div>', props: ['items'] },
+                    LazyHomeExternalFeedPanel: { template: '<div>{{ items[0]?.title }} {{ items[0]?.sourceTitle }}</div>', props: ['items'] },
                     Skeleton: { template: '<div />' },
                     Tag: { template: '<div><slot />{{ value }}</div>', props: ['value'] },
                     Message: { template: '<div><slot /></div>' },
@@ -137,7 +137,7 @@ describe('IndexPage', () => {
         const wrapper = await mountSuspended(IndexPage, {
             global: {
                 stubs: {
-                    LazyExternalFeedPanel: { template: '<div />' },
+                    LazyHomeExternalFeedPanel: { template: '<div />' },
                     LazySubscriberForm: { template: '<div />' },
                     Skeleton: { template: '<div class="skeleton" />' },
                 },
@@ -168,7 +168,7 @@ describe('IndexPage', () => {
         const wrapper = await mountSuspended(IndexPage, {
             global: {
                 stubs: {
-                    LazyExternalFeedPanel: { template: '<div />' },
+                    LazyHomeExternalFeedPanel: { template: '<div />' },
                     LazySubscriberForm: { template: '<div />' },
                 },
             },

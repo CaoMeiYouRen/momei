@@ -7,6 +7,9 @@ const stubs = {
     AppVoiceInputTrigger: {
         template: '<button class="voice-trigger-stub" />',
     },
+    AdminPostsPostDistributionButton: {
+        template: '<button class="distribution-button-stub" />',
+    },
 }
 
 describe('PostEditorHeader', () => {
@@ -33,13 +36,18 @@ describe('PostEditorHeader', () => {
         titleSuggestions: [],
     }
 
-    it('renders title input correctly', async () => {
-        const wrapper = await mountSuspended(PostEditorHeader, {
-            props: defaultProps,
-            global: {
-                stubs,
+    const mountHeader = (props = defaultProps) => mountSuspended(PostEditorHeader, {
+        props,
+        global: {
+            mocks: {
+                $t: (key: string) => key,
             },
-        })
+            stubs,
+        },
+    })
+
+    it('renders title input correctly', async () => {
+        const wrapper = await mountHeader()
 
         const input = wrapper.find('.title-input')
         expect(input.exists()).toBe(true)
@@ -47,12 +55,7 @@ describe('PostEditorHeader', () => {
     })
 
     it('groups AI tools in ButtonGroup', async () => {
-        const wrapper = await mountSuspended(PostEditorHeader, {
-            props: defaultProps,
-            global: {
-                stubs,
-            },
-        })
+        const wrapper = await mountHeader()
 
         const aiGroup = wrapper.find('.ai-tools-group')
         expect(aiGroup.exists()).toBe(true)
@@ -60,14 +63,9 @@ describe('PostEditorHeader', () => {
     })
 
     it('renders status tag and translation badges in right bar', async () => {
-        const wrapper = await mountSuspended(PostEditorHeader, {
-            props: {
-                ...defaultProps,
-                post: { ...mockPost, status: PostStatus.PUBLISHED },
-            },
-            global: {
-                stubs,
-            },
+        const wrapper = await mountHeader({
+            ...defaultProps,
+            post: { ...mockPost, status: PostStatus.PUBLISHED },
         })
 
         const rightBar = wrapper.find('.top-bar-right')

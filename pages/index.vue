@@ -115,7 +115,7 @@
 
         <section v-if="shouldHydrateSecondarySections && (externalFeedPending || externalFeedError || externalFeedItems.length > 0)" class="external-feed section">
             <div class="container">
-                <LazyExternalFeedPanel
+                <LazyHomeExternalFeedPanel
                     :items="externalFeedItems"
                     :pending="externalFeedPending"
                     :has-error="Boolean(externalFeedError)"

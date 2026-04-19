@@ -1,4 +1,5 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { describe, expect, it, vi } from 'vitest'
 import PostMediaPreviewCell from './post-media-preview-cell.vue'
 import { PostStatus, PostVisibility, type Post } from '@/types/post'
@@ -15,8 +16,18 @@ const stubs = {
     },
 }
 
-vi.stubGlobal('useI18n', () => ({
-    t: (key: string) => key,
+const translations: Record<string, string> = {
+    'common.languages.zh-CN': '简体中文',
+    'common.languages.en-US': '英语',
+    'common.close': '关闭',
+    'common.preview': '预览',
+    'pages.admin.posts.cover_column': '封面',
+    'pages.admin.posts.media.cover_missing': '缺少封面',
+    'pages.admin.posts.media.audio_missing': '缺少音频',
+}
+
+mockNuxtImport('useI18n', () => () => ({
+    t: (key: string) => translations[key] || key,
 }))
 
 function createPost(overrides: Partial<Post> = {}): Post {
@@ -65,6 +76,9 @@ describe('PostMediaPreviewCell', () => {
                 }),
             },
             global: {
+                mocks: {
+                    $t: (key: string) => key,
+                },
                 stubs,
             },
         })
@@ -99,6 +113,9 @@ describe('PostMediaPreviewCell', () => {
                 }),
             },
             global: {
+                mocks: {
+                    $t: (key: string) => key,
+                },
                 stubs,
             },
         })

@@ -36,6 +36,12 @@ vi.mock('vue-i18n', async (importOriginal) => {
     }
 })
 
+vi.mock('@/composables/use-unsaved-changes-guard', () => ({
+    useUnsavedChangesGuard: vi.fn(() => ({
+        confirmIfDirty: vi.fn().mockResolvedValue(true),
+    })),
+}))
+
 const mockToast = {
     add: vi.fn(),
 }
