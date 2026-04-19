@@ -1,12 +1,27 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ref, nextTick } from 'vue'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { defineComponent, h, nextTick, ref } from 'vue'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import AppHeader from './app-header.vue'
 import { authClient } from '@/lib/auth-client'
 
-const { mockEnsureLocaleMessageModules } = vi.hoisted(() => ({
+const {
+    mockEnsureLocaleMessageModules,
+    navigateToMock,
+    localePathMock,
+    adminMenuToggleMock,
+    userMenuToggleMock,
+    mockSignOut,
+} = vi.hoisted(() => ({
     mockEnsureLocaleMessageModules: vi.fn(),
+    navigateToMock: vi.fn(),
+    localePathMock: vi.fn((path: string) => `/zh-CN${path}`),
+    adminMenuToggleMock: vi.fn(),
+    userMenuToggleMock: vi.fn(),
+    mockSignOut: vi.fn(),
 }))
+
+mockNuxtImport('navigateTo', () => navigateToMock)
+mockNuxtImport('useLocalePath', () => () => localePathMock)
 
 const { mockInvalidateAuthSessionState, mockRefreshAuthSession } = vi.hoisted(() => ({
     mockInvalidateAuthSessionState: vi.fn(),
@@ -31,25 +46,111 @@ vi.mock('@/i18n/config/locale-runtime-loader', async (importOriginal) => {
 })
 
 // Mock PrimeVue components
-const stubs = {
-    AppLogo: { template: '<div class="app-logo" />' },
-    AppNotifications: { template: '<div class="app-notifications" />' },
-    TravellingsLink: { template: '<a class="travellings-link-stub">Travellings</a>' },
-    NuxtLink: { template: '<a><slot /></a>' },
-    Button: { template: '<button @click="$emit(\'click\', $event)"><slot /></button>' },
-    Menu: {
-        template: '<div />',
-        methods: { toggle: vi.fn() },
+const AppLogoStub = defineComponent({
+    template: '<div class="app-logo" />',
+})
+
+const AppNotificationsStub = defineComponent({
+    template: '<div class="app-notifications" />',
+})
+
+const TravellingsLinkStub = defineComponent({
+    template: '<a class="travellings-link-stub">Travellings</a>',
+})
+
+const NuxtLinkStub = defineComponent({
+    inheritAttrs: false,
+    props: {
+        to: {
+            type: [String, Object],
+            default: '',
+        },
     },
-    Drawer: { template: '<div><slot /></div>' },
-    Divider: { template: '<hr />' },
-    LanguageSwitcher: { template: '<div />' },
+    emits: ['click'],
+    setup(props, { attrs, emit, slots }) {
+        return () => h(
+            'a',
+            {
+                ...attrs,
+                href: typeof props.to === 'string' ? props.to : '#',
+                onClick: (event: Event) => emit('click', event),
+            },
+            slots.default?.(),
+        )
+    },
+})
+
+const ButtonStub = defineComponent({
+    inheritAttrs: false,
+    props: {
+        icon: {
+            type: String,
+            default: '',
+        },
+        label: {
+            type: String,
+            default: '',
+        },
+    },
+    emits: ['click'],
+    template: '<button type="button" v-bind="$attrs" :icon="icon" :label="label" @click="$emit(\'click\', $event)"><slot />{{ label }}</button>',
+})
+
+const MenuStub = defineComponent({
+    inheritAttrs: false,
+    setup(_, { attrs, expose }) {
+        const id = String(attrs.id ?? '')
+
+        expose({
+            toggle(event: Event) {
+                if (id === 'admin_menu') {
+                    adminMenuToggleMock(event)
+                    return
+                }
+
+                userMenuToggleMock(event)
+            },
+        })
+
+        return () => h('div', { class: 'menu-stub', ...attrs })
+    },
+})
+
+const DrawerStub = defineComponent({
+    props: {
+        visible: {
+            type: Boolean,
+            default: false,
+        },
+    },
+    template: '<div v-if="visible" class="drawer-stub"><slot /></div>',
+})
+
+const DividerStub = defineComponent({
+    template: '<hr />',
+})
+
+const LanguageSwitcherStub = defineComponent({
+    template: '<div />',
+})
+
+const stubs = {
+    AppLogo: AppLogoStub,
+    AppNotifications: AppNotificationsStub,
+    TravellingsLink: TravellingsLinkStub,
+    NuxtLink: NuxtLinkStub,
+    Button: ButtonStub,
+    Menu: MenuStub,
+    Drawer: DrawerStub,
+    Divider: DividerStub,
+    LanguageSwitcher: LanguageSwitcherStub,
 }
 
 // Mock authClient
 vi.mock('@/lib/auth-client', () => ({
     authClient: {
         useSession: vi.fn(() => ({ value: { data: null, isPending: false } })),
+        signOut: mockSignOut,
     },
 }))
 
@@ -86,6 +187,7 @@ describe('AppHeader', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         mockIsDarkRef.value = false
+        localePathMock.mockImplementation((path: string) => `/zh-CN${path}`)
         sessionState.value = {
             data: null,
             isPending: false,
@@ -100,11 +202,10 @@ describe('AppHeader', () => {
         })
 
         expect(wrapper.find('.app-logo').exists()).toBe(true)
-        // Adjust for translated text if i18n is active
-        const text = wrapper.text()
-        expect(text.includes('pages.posts.title') || text.includes('文章列表')).toBe(true)
-        expect(text.includes('pages.archives.title') || text.includes('归档')).toBe(true)
-        expect(text.includes('common.friend_link_application') || text.includes('友链申请')).toBe(true)
+        expect(wrapper.find('#nav-home').attributes('href')).toBe('/zh-CN/')
+        expect(wrapper.find('#nav-posts').attributes('href')).toBe('/zh-CN/posts')
+        expect(wrapper.find('#nav-archives').attributes('href')).toBe('/zh-CN/archives')
+        expect(wrapper.find('#nav-friend-link-application').attributes('href')).toBe('/zh-CN/friend-links')
     })
 
     it('shows login button when not logged in', async () => {
@@ -141,7 +242,7 @@ describe('AppHeader', () => {
                 modules: ['admin', 'admin-posts'],
             }),
         )
-        expect(wrapper.text()).toContain('文章管理')
+        expect(wrapper.text()).toMatch(/文章管理|Post Management/)
         expect(wrapper.text()).not.toContain('pages.admin.posts.title')
     })
 
@@ -165,7 +266,7 @@ describe('AppHeader', () => {
         expect(wrapper.find('#admin-posts-shortcut').exists()).toBe(true)
         expect(wrapper.find('#mobile-admin-posts-btn').exists()).toBe(true)
         expect(wrapper.find('#admin-menu-btn').exists()).toBe(true)
-        expect(wrapper.text()).toContain('文章管理')
+        expect(wrapper.text()).toMatch(/文章管理|Post Management/)
         expect(wrapper.text()).not.toContain('pages.admin.posts.title')
     })
 
@@ -246,5 +347,132 @@ describe('AppHeader', () => {
 
         await wrapper.find('#theme-switcher').trigger('click')
         expect(mockToggleDark).toHaveBeenCalled()
+    })
+
+    it('dispatches mobile search, keyboard shortcuts and menu toggles', async () => {
+        sessionState.value = {
+            data: {
+                user: { id: '8', role: 'admin', name: 'Admin' },
+            },
+            isPending: false,
+        }
+
+        const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
+        const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
+
+        const wrapper = await mountSuspended(AppHeader, {
+            global: { stubs },
+        })
+
+        expect(addEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
+
+        const mobileMenuButton = wrapper.findAll('button').find((button) => button.attributes('icon') === 'pi pi-bars')
+        expect(mobileMenuButton).toBeDefined()
+
+        await mobileMenuButton!.trigger('click')
+        await nextTick()
+        expect(wrapper.find('.drawer-stub').exists()).toBe(true)
+
+        const mobileSearchTrigger = wrapper.find('.mobile-menu > .mobile-nav-link')
+        await mobileSearchTrigger.trigger('click')
+        expect(mockOpenSearch).toHaveBeenCalledTimes(1)
+
+        const keydownHandler = addEventListenerSpy.mock.calls.find(([eventName]) => eventName === 'keydown')?.[1] as ((event: KeyboardEvent) => void) | undefined
+        const preventDefault = vi.fn()
+
+        keydownHandler?.({
+            ctrlKey: true,
+            metaKey: false,
+            key: 'k',
+            preventDefault,
+        } as unknown as KeyboardEvent)
+
+        expect(preventDefault).toHaveBeenCalledTimes(1)
+        expect(mockOpenSearch).toHaveBeenCalledTimes(2)
+
+        const fakeEvent = new Event('click')
+        await wrapper.find('#admin-menu-btn').trigger('click', fakeEvent)
+        await wrapper.find('#user-menu-btn').trigger('click', fakeEvent)
+
+        expect(adminMenuToggleMock).toHaveBeenCalledTimes(1)
+        expect(userMenuToggleMock).toHaveBeenCalledTimes(1)
+
+        wrapper.unmount()
+        expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', keydownHandler)
+    })
+
+    it('executes admin and user menu commands with localized navigation targets', async () => {
+        sessionState.value = {
+            data: {
+                user: { id: '6', role: 'admin', name: 'Admin' },
+            },
+            isPending: false,
+        }
+
+        const wrapper = await mountSuspended(AppHeader, {
+            global: { stubs },
+        })
+
+        await vi.waitFor(() => {
+            expect(wrapper.find('#admin-menu-btn').exists()).toBe(true)
+        })
+
+        const adminMenuItems = (wrapper.vm as any).adminMenuItems as Record<string, any>[]
+        const userMenuItems = (wrapper.vm as any).userMenuItems as Record<string, any>[]
+
+        for (const item of adminMenuItems) {
+            item.command?.()
+
+            for (const child of item.items ?? []) {
+                child.command?.()
+            }
+        }
+
+        userMenuItems[0].command()
+
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/posts')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/snippets')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/categories')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/tags')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/comments')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/submissions')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/ai')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/users')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/subscribers')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/ad/campaigns')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/ad/placements')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/external-links')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/migrations/link-governance')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/friend-links')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/marketing')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/notifications')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/settings/theme')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/admin/settings')
+        expect(navigateToMock).toHaveBeenCalledWith('/zh-CN/settings')
+    })
+
+    it('refreshes auth session when logout reports an error or throws', async () => {
+        sessionState.value = {
+            data: {
+                user: { id: '7', role: 'user', name: 'User' },
+            },
+            isPending: false,
+        }
+
+        const wrapper = await mountSuspended(AppHeader, {
+            global: { stubs },
+        })
+
+        const userMenuItems = (wrapper.vm as any).userMenuItems as Record<string, any>[]
+
+        mockSignOut.mockResolvedValueOnce({ error: true })
+        await userMenuItems[1].command()
+
+        mockSignOut.mockRejectedValueOnce(new Error('network failed'))
+        await userMenuItems[1].command()
+
+        expect(mockInvalidateAuthSessionState).toHaveBeenCalledTimes(2)
+        expect(mockRefreshAuthSession).toHaveBeenCalledTimes(2)
     })
 })
