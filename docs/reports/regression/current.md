@@ -44,6 +44,52 @@
 - 继续优先处理 cross-module report 中已经具备单一语义来源的基础按钮文案，例如 `refresh`、`retry`、`back_to_home`。
 - 对 `email`、`language` 等高频词条，需要先确认页面语义是否允许继续合并，避免误把字段标签和动作文案混为同一来源。
 
+## 2026-04-20 第二十八阶段收口复核
+
+### 范围
+
+- 目标：核对第二十八阶段五条主线是否已与当前代码、测试与运行期证据对齐，并为阶段归档提供统一事实源。
+- 本轮复核：覆盖后台内容洞察看板、Postgres 查询 / CPU / 连接生命周期平衡治理、全仓 coverage `> 76%`、国际化运行时加载治理，以及编辑器 Markdown / 外观一致性增强。
+- 受影响事实源：`docs/plan/todo.md`、`docs/plan/todo-archive.md`、`docs/plan/roadmap.md`、`docs/i18n/*/plan/roadmap.md` 与 `docs/plan/backlog.md`。
+
+### 基线对比
+
+- 复核前：`todo.md` 仍保留 PostgreSQL 平衡治理与 coverage 治理两条未关闭主线，阶段状态仍为“执行中”。
+- 复核后：五条主线均满足关闭条件，第二十八阶段可以从“执行中”切换为“已审计归档”。
+- 长期主线状态：coverage 治理与 Postgres 平衡治理继续保留在 backlog 中，但第二十八阶段切片本身已完成，不再占用当前执行面。
+
+### 实施说明
+
+- 后台内容洞察主线已完成 `/admin` 首页切换、`GET /api/admin/content-insights`、`post_view_hourly` 真实趋势聚合与对应测试，能力边界与设计文档保持一致。
+- Postgres 主线已在代码中完成请求级数据库预热收紧、匿名公开链路按需会话解析，以及公开设置 / 友链读取的短 TTL 运行时缓存；对应入口与测试分别落在 `server/middleware/0b-db-ready.ts`、`server/middleware/1-auth.ts`、`server/api/settings/public.get.ts`、`server/api/friend-links/index.get.ts`、`tests/server/middleware/db-ready.test.ts`、`tests/server/middleware/auth-optional-session.test.ts` 与 `tests/server/api/settings/public.get.test.ts`。
+- coverage 主线已补齐后台统计、数据库中间件边界、编辑器语音回退与运行时加载相关高风险测试；本轮以最新全仓 coverage 结果超过 `76%` 为关闭口径，并据此解除第二十八阶段的覆盖率 blocker。
+- 国际化运行时加载与编辑器 Markdown / 外观一致性两条主线已在现有代码、设计文档与定向测试中闭环，无需继续保留为当前阶段尾项。
+
+### 已执行验证
+
+- 代码与测试对照：已逐项核对后台内容洞察、数据库预热 / 会话解析 / 短 TTL 缓存、编辑器语音回退与 i18n 运行时相关实现和测试文件，未发现与第二十八阶段验收标准冲突的缺口。
+- 文档结构检查：`pnpm exec lint-md` 已对本轮变更的规划、回归与多语路线图摘要文件通过校验。
+- 文档目录检查：`pnpm docs:check:i18n` 已通过，确认未引入旧目录回流或重复翻译页。
+- 类型状态：`pnpm exec nuxt typecheck` 已通过，当前归档涉及的规划文档未见新的编辑器诊断错误。
+- 运行期证据：Postgres 平衡治理结合既有热点基线文档与后台最新观测数据复核后，已能支持“查询次数、重复读取与连接活跃窗口下降趋势已成立”的关闭结论。
+- 覆盖率结论：依据最新全仓 coverage 收口结果与本轮复核，coverage 已高于 `76%` 目标线，可关闭本轮 coverage 主线。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；当前剩余事项仅为长期主线的下一轮候选切片，不再阻塞第二十八阶段归档。
+
+### 未覆盖边界
+
+- 当前活动回归窗口只记录了阶段关闭结论，没有把全仓 coverage 的精确四维百分比重新固化成单独 JSON 摘要；若后续继续上收 coverage 主线，建议补充机器可读的 summary artifact 以降低复查成本。
+- Postgres 主线本轮已满足关闭条件，但若未来继续上收下一轮平衡治理，仍应补更长窗口的 `pg_stat_statements` 或等价 live sample，而不是复用本轮关闭结论直接代替新阶段证据。
+
+### 后续候选
+
+- 下一阶段若继续切 coverage 主线，优先围绕 `76%+` 之后的高风险模块深挖，而不是回到平均铺量测试。
+- 下一阶段若继续切 Postgres 主线，优先补更长窗口运行期样本、热点 SQL 分组与连接寿命对比，而不是先扩写新的查询裁剪工程。
+
 ## 2026-04-18 admin-posts parity 与缺词门禁上收
 
 ### 范围

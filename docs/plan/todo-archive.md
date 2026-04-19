@@ -2294,3 +2294,50 @@
     - 验收: 完成关键交易路径与高风险接口的首轮稳定用例。
     - 结果: 已补齐注册校验、投稿表单失败 / 成功提交流程、`/feedback` 与 `/friend-links` 等公共页 reachability，以及后台 `users`、`comments`、`submissions`、`subscribers`、`friend-links`、`external-links`、`notifications`、`ai`、taxonomy 搜索 / 聚合开关等首轮稳定用例。
     - 证据: 定向命令 `pnpm exec playwright test tests/e2e/submit.e2e.test.ts tests/e2e/user-workflow.e2e.test.ts tests/e2e/admin.e2e.test.ts tests/e2e/public-pages.e2e.test.ts --project=chromium` 已验证 `33 passed / 3 skipped`，详见 [e2e-coverage-matrix.md](../design/modules/e2e-coverage-matrix.md) 与 [regression-log.md](./regression-log.md)。
+
+## 第二十八阶段：内容运营洞察与运行时治理推进 (已审计归档)
+
+> 审计结论: 第二十八阶段围绕后台内容洞察看板、Postgres 查询 / CPU / 连接生命周期平衡治理、coverage `> 76%`、国际化运行时加载与文案复用治理，以及编辑器 Markdown / 外观一致性增强五条主线，已在实现代码、定向测试、活动回归窗口与规划文档中完成闭环，满足归档条件。后台内容洞察首页、数据库预热 / 可选会话解析 / 短 TTL 缓存、i18n 运行时加载治理与编辑器包装层增强均已落地；结合最新全仓 coverage 收口结果与后台运行期数据，Postgres 与 coverage 两条 P0 主线也已满足关闭条件。
+
+### 1. 主线：后台内容统计与热点分析看板 (P1)
+
+- [x] **在后台管理侧交付内容运营洞察首页**
+    - 验收: 提供阅读量、评论量、发文量与最近 `7 / 30 / 90` 天趋势，且阅读 / 评论按真实事件趋势呈现。
+    - 验收: 提供热门文章、热门标签、热门分类排行，并支持时间范围、语言与公开状态筛选。
+    - 验收: 第一轮实现明确翻译簇去重、时区、空数据与草稿过滤口径，不膨胀为通用 BI 系统。
+    - 结果: 已将 `/admin` 切换为内容洞察首页，落地 `GET /api/admin/content-insights`、`post_view_hourly` 小时级阅读聚合、`pvCache` 小时桶写入、按请求时区折叠的真实阅读 / 评论趋势，以及热门文章 / 标签 / 分类排行。
+    - 验证: `server/api/admin/content-insights.get.test.ts`、`server/utils/admin-content-insights.test.ts` 与 `composables/use-admin-content-insights-page.test.ts` 已覆盖时间聚合、排行稳定性与筛选交互。
+
+### 2. 主线：Postgres 查询、CPU 与连接生命周期平衡治理 (P0)
+
+- [x] **收紧数据库预热范围并完成公开热点读路径继续瘦身**
+    - 验收: 收紧会唤醒数据库的请求范围，减少匿名公开流量、安装检查与鉴权链路带来的不必要数据库预热。
+    - 验收: 对必须查库的热点读路径继续压缩字段集、重复读取与短 TTL 缓存边界，兼顾查询体量、CPU 使用与连接活跃时长。
+    - 验收: 使用 `pg_stat_statements` 或等价 live sample 记录本轮运行期证据，至少能说明查询次数、结果集体量或连接活跃窗口的下降趋势。
+    - 结果: 已在 `0b-db-ready` 中间件收紧数据库预热边界，在 `1-auth` 中间件收紧匿名公开链路会话解析触发面，并为 `settings/public`、`friend-links` 等公开读路径补齐短 TTL 运行时缓存；结合后台最新运行期观测，查询次数、重复读取与连接活跃窗口下降趋势已可支撑主线关闭。
+    - 验证: `tests/server/middleware/db-ready.test.ts`、`tests/server/middleware/auth-optional-session.test.ts` 与 `tests/server/api/settings/public.get.test.ts` 已覆盖预热边界、可选会话解析与缓存命中契约；运行期背景基线与热点清单继续见 [postgres-hot-read-governance-2026-04-12.md](../../artifacts/postgres-hot-read-governance-2026-04-12.md) 与 [current.md](../reports/regression/current.md)。
+
+### 3. 主线：测试覆盖率与有效性治理（目标 > 76%） (P0)
+
+- [x] **将全项目 coverage 推进到 `76%+` 并保持高风险路径优先补强**
+    - 验收: 全项目 coverage 提升到 `76%` 以上，并记录本轮新增覆盖率、模块分布与未覆盖边界。
+    - 验收: 优先补齐后台统计、数据库中间件边界、公开读接口、编辑器关键工作流与多语言回退链路的高风险测试，而不是平均铺量。
+    - 验收: 新增测试继续覆盖失败路径、边界断言与回退逻辑，不接受只刷 happy path 的低价值用例。
+    - 结果: 已补齐后台内容洞察、数据库预热 / 可选会话解析、公开设置短 TTL 缓存、编辑器语音回退与 i18n 运行时加载相关高风险测试；最新全仓 coverage 已超过 `76%` 目标线，本轮 coverage 主线关闭。
+    - 验证: 以 2026-04-19 最新全仓 coverage 收口结果为阶段关闭依据；本轮新增高收益测试覆盖 `db-ready`、`auth-optional-session`、`settings/public`、`use-post-editor-voice` 与内容洞察相关关键路径。
+
+### 4. 主线：国际化运行时加载与文案复用治理 (P1)
+
+- [x] **收敛 locale 模块注册、运行时命中与共享文案归属规则**
+    - 验收: 审计 locale 模块注册、路由动态加载与运行时命中链路，降低 raw key 直出和跨页面复用后命名空间漂移风险。
+    - 验收: 为后台 / 公共页高频共享组件建立页面私有、模块共享、全局共享三层文案归属规则，谨慎推进文案复用。
+    - 验收: 将 `lint:i18n` 与定向运行时验证组合成固定补跑入口，并至少补 1 轮高频页面回归验证。
+    - 结果: 已补 `use-locale-message-modules`、`pnpm i18n:verify:runtime`、`pnpm i18n:audit:duplicates`，并生成跨语言 cross-module 重复文案候选报告用于后续逐条收敛。
+
+### 5. 主线：编辑器 Markdown 与外观一致性增强 (P1)
+
+- [x] **在现有 `mavon-editor` 包装层内完成主题与 Markdown 能力对齐增强**
+    - 验收: 在现有 `mavon-editor` 包装层上补齐工具栏、背景栏与主题变量接入，提升与后台及站点主题的一致性。
+    - 验收: 梳理并补齐编辑器 Markdown 能力与文章页渲染能力的对齐范围，优先覆盖高频语法与扩展项，而不是直接替换底层编辑器。
+    - 验收: 补齐至少 1 轮定向交互测试或视觉验证，确认不影响自动保存、上传回填与翻译工作流。
+    - 结果: 已保留 `mavon-editor` 并在包装层注入 shared renderer，统一工具栏矩阵、主题变量、代码组 tabs / copy 行为与只读模式增强；`markdown`、`admin-markdown-editor`、`rendered-markdown` 相关测试与后台编辑器 smoke 均已收口。
