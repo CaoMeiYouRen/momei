@@ -25,6 +25,37 @@ const mockFetchSiteConfig = vi.fn(() => {
 
 let appConfigPayload = createDefaultSiteConfig()
 
+const createInstallStatusPayload = (overrides: Partial<Record<string, unknown>> = {}) => ({
+    installed: true,
+    databaseConnected: true,
+    hasUsers: true,
+    hasInstallationFlag: true,
+    envInstallationFlag: false,
+    nodeVersion: '20.0.0',
+    os: 'linux',
+    databaseType: 'sqlite',
+    databaseVersion: '3.0.0',
+    isServerless: false,
+    isNodeVersionSafe: true,
+    runtime: 'local-dev',
+    envSettings: {},
+    deploymentDiagnostics: {
+        runtime: 'local-dev',
+        platformSupported: true,
+        blockerCount: 0,
+        warningCount: 0,
+        hasBlockingIssues: false,
+        issues: [],
+    },
+    ...overrides,
+})
+
+const registerInstallStatusEndpoint = (overrides: Partial<Record<string, unknown>> = {}) => {
+    registerEndpoint('/api/install/status', () => ({
+        data: createInstallStatusPayload(overrides),
+    }))
+}
+
 mockNuxtImport('useMomeiConfig', () => () => ({
     siteConfig: mockSiteConfig,
     fetchSiteConfig: mockFetchSiteConfig,
@@ -41,22 +72,7 @@ describe('app.vue', () => {
         vi.clearAllMocks()
         appConfigPayload = createDefaultSiteConfig()
         mockSiteConfig.value = createDefaultSiteConfig()
-        registerEndpoint('/api/install/status', () => ({
-            data: {
-                installed: false,
-                databaseConnected: false,
-                hasUsers: false,
-                hasInstallationFlag: false,
-                envInstallationFlag: false,
-                nodeVersion: '20.0.0',
-                os: 'linux',
-                databaseType: 'sqlite',
-                databaseVersion: '3.0.0',
-                isServerless: false,
-                isNodeVersionSafe: true,
-                envSettings: {},
-            },
-        }))
+        registerInstallStatusEndpoint()
     })
 
     it('should render the app layout with main components', async () => {
@@ -72,6 +88,13 @@ describe('app.vue', () => {
     })
 
     it('should render on installation page', async () => {
+        registerInstallStatusEndpoint({
+            installed: false,
+            databaseConnected: false,
+            hasUsers: false,
+            hasInstallationFlag: false,
+        })
+
         const wrapper = await mountSuspended(App, {
             route: '/installation',
         })

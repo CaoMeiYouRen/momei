@@ -36,13 +36,17 @@ function getCurrentBranch() {
     }
 }
 
+function toArtifactPath(filePath) {
+    return path.relative(repoRoot, filePath).split(path.sep).join('/')
+}
+
 export function formatTimestamp(date) {
-    const year = date.getFullYear()
-    const month = `${date.getMonth() + 1}`.padStart(2, '0')
-    const day = `${date.getDate()}`.padStart(2, '0')
-    const hours = `${date.getHours()}`.padStart(2, '0')
-    const minutes = `${date.getMinutes()}`.padStart(2, '0')
-    const seconds = `${date.getSeconds()}`.padStart(2, '0')
+    const year = date.getUTCFullYear()
+    const month = `${date.getUTCMonth() + 1}`.padStart(2, '0')
+    const day = `${date.getUTCDate()}`.padStart(2, '0')
+    const hours = `${date.getUTCHours()}`.padStart(2, '0')
+    const minutes = `${date.getUTCMinutes()}`.padStart(2, '0')
+    const seconds = `${date.getUTCSeconds()}`.padStart(2, '0')
 
     return `${year}${month}${day}-${hours}${minutes}${seconds}`
 }
@@ -200,12 +204,12 @@ export function buildArtifactManifest({
             criticalScenarios,
         },
         artifactNaming: {
-            root: path.relative(repoRoot, runDir),
-            evidence: path.relative(repoRoot, evidencePath),
-            manifest: path.relative(repoRoot, path.join(runDir, 'manifest.json')),
-            log: path.relative(repoRoot, logPath),
-            testResults: path.relative(repoRoot, outputDir),
-            htmlReport: path.relative(repoRoot, htmlDir),
+            root: toArtifactPath(runDir),
+            evidence: toArtifactPath(evidencePath),
+            manifest: toArtifactPath(path.join(runDir, 'manifest.json')),
+            log: toArtifactPath(logPath),
+            testResults: toArtifactPath(outputDir),
+            htmlReport: toArtifactPath(htmlDir),
         },
         attribution,
     }
@@ -259,12 +263,12 @@ async function runBaseline({ runDir, htmlDir, outputDir, scope }) {
 }
 
 export function buildEvidence({ scope, timestamp, runDir, outputDir, htmlDir, logPath, evidencePath, manifestPath, ok, failureSummary, attribution }) {
-    const relativeRunDir = path.relative(repoRoot, runDir)
-    const relativeOutputDir = path.relative(repoRoot, outputDir)
-    const relativeHtmlDir = path.relative(repoRoot, htmlDir)
-    const relativeLogPath = path.relative(repoRoot, logPath)
-    const relativeEvidencePath = path.relative(repoRoot, evidencePath)
-    const relativeManifestPath = path.relative(repoRoot, manifestPath)
+    const relativeRunDir = toArtifactPath(runDir)
+    const relativeOutputDir = toArtifactPath(outputDir)
+    const relativeHtmlDir = toArtifactPath(htmlDir)
+    const relativeLogPath = toArtifactPath(logPath)
+    const relativeEvidencePath = toArtifactPath(evidencePath)
+    const relativeManifestPath = toArtifactPath(manifestPath)
 
     const lines = [
         '# UI Real Environment Baseline Record',

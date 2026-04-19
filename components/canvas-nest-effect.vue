@@ -7,7 +7,6 @@
 </template>
 
 <script setup lang="ts">
-import CanvasNest from 'canvas-nest.js'
 import { toBoolean, toNumber } from '@/utils/shared/coerce'
 
 const { siteConfig } = useMomeiConfig()
@@ -16,6 +15,11 @@ const { canLoadEffect, runWhenIdle } = useClientEffectGuard()
 const containerRef = ref<HTMLElement | null>(null)
 const isInitialized = ref(false)
 let canvasNestInstance: { destroy: () => void } | null = null
+
+type CanvasNestConstructor = new (
+    container: HTMLElement,
+    options: CanvasNestConfig,
+) => { destroy: () => void }
 
 interface CanvasNestConfig {
     color?: string
@@ -104,6 +108,7 @@ const initCanvasNest = async () => {
     }
 
     try {
+        const { default: CanvasNest } = await import('canvas-nest.js') as { default: CanvasNestConstructor }
         const defaultOptions: CanvasNestConfig = {
             color: '0,0,0',
             pointColor: '0,0,0',

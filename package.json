@@ -32,7 +32,7 @@
     "typecheck": "nuxt typecheck",
     "commit": "cz",
     "prepare": "husky",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "cross-env NODE_OPTIONS=--max-old-space-size=6144 vitest run --coverage",
     "test:perf": "lhci autorun",
     "test:perf:budget": "node scripts/perf/check-bundle-budget.mjs --mode=warn --output=.lighthouseci/bundle-budget-report.json --baseline=.github/perf/bundle-baseline.json",
     "test:perf:budget:strict": "node scripts/perf/check-bundle-budget.mjs --mode=error --output=.lighthouseci/bundle-budget-report.json --baseline=.github/perf/bundle-baseline.json",

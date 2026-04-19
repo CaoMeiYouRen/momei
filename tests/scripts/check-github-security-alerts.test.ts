@@ -30,6 +30,8 @@ describe('check-github-security-alerts', () => {
         delete process.env.GITHUB_TOKEN
     })
 
+    const currentDate = new Date().toISOString().slice(0, 10)
+
     it('classifies open Dependabot alerts with patches as immediate fixes', () => {
         const alert = normalizeDependabotAlert({
             number: 12,
@@ -402,8 +404,8 @@ describe('check-github-security-alerts', () => {
                 outputJson: null,
                 outputMd: null,
             }, process.cwd())).toEqual({
-                json: path.join(process.cwd(), 'artifacts', 'review-gate', '2026-04-18-security-alerts.json'),
-                md: path.join(process.cwd(), 'artifacts', 'review-gate', '2026-04-18-security-alerts.md'),
+                json: path.join(process.cwd(), 'artifacts', 'review-gate', `${currentDate}-security-alerts.json`),
+                md: path.join(process.cwd(), 'artifacts', 'review-gate', `${currentDate}-security-alerts.md`),
             })
 
             expect(countByBucket(alerts)).toEqual({
