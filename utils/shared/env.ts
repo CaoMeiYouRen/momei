@@ -2,6 +2,7 @@ import { parse } from 'better-bytes'
 import { ms, type StringValue } from 'ms'
 import { normalizeDurationSeconds } from './duration'
 import { generateRandomString } from './random'
+import { splitAndNormalizeStringList } from './string-list'
 import { isAbsoluteHttpUrl, joinBaseUrlAndPath } from './url'
 
 /**
@@ -58,10 +59,9 @@ export const AXIOM_API_TOKEN = process.env.AXIOM_API_TOKEN
  * 管理员配置
  */
 // 管理员用户ID列表
-export const ADMIN_USER_IDS =
-    process.env.ADMIN_USER_IDS?.split(',')
-        .map((e) => e.trim())
-        .filter(Boolean) || []
+export const ADMIN_USER_IDS = splitAndNormalizeStringList(process.env.ADMIN_USER_IDS, {
+    delimiters: ',',
+})
 
 /**
  * Demo 模式配置

@@ -2,6 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { MomeiApi } from '../lib/api'
 import type { MomeiApiConfig } from '../lib/config'
+import { getErrorMessage } from '../lib/error'
 
 function extractTagNames(post: Record<string, unknown>) {
     const tags = Array.isArray(post.tags) ? post.tags : []
@@ -20,7 +21,7 @@ function extractTagNames(post: Record<string, unknown>) {
         .filter((tag): tag is string => Boolean(tag))
 }
 
-export function registerAutomationTools(server: McpServer, config: MomeiApiConfig) {
+export function registerAutomationTools(server: McpServer, config: MomeiApiConfig): void {
     const api = new MomeiApi(config)
 
     server.registerTool(
@@ -41,8 +42,8 @@ export function registerAutomationTools(server: McpServer, config: MomeiApiConfi
                 return {
                     content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
                 }
-            } catch (error: any) {
-                return { content: [{ type: 'text', text: error.message }], isError: true }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
             }
         },
     )
@@ -66,8 +67,8 @@ export function registerAutomationTools(server: McpServer, config: MomeiApiConfi
                 return {
                     content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
                 }
-            } catch (error: any) {
-                return { content: [{ type: 'text', text: error.message }], isError: true }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
             }
         },
     )
@@ -94,8 +95,8 @@ export function registerAutomationTools(server: McpServer, config: MomeiApiConfi
                 return {
                     content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
                 }
-            } catch (error: any) {
-                return { content: [{ type: 'text', text: error.message }], isError: true }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
             }
         },
     )
@@ -125,8 +126,8 @@ export function registerAutomationTools(server: McpServer, config: MomeiApiConfi
                 return {
                     content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
                 }
-            } catch (error: any) {
-                return { content: [{ type: 'text', text: error.message }], isError: true }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
             }
         },
     )
@@ -160,8 +161,8 @@ export function registerAutomationTools(server: McpServer, config: MomeiApiConfi
                 return {
                     content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
                 }
-            } catch (error: any) {
-                return { content: [{ type: 'text', text: error.message }], isError: true }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
             }
         },
     )
@@ -192,8 +193,8 @@ export function registerAutomationTools(server: McpServer, config: MomeiApiConfi
                 return {
                     content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
                 }
-            } catch (error: any) {
-                return { content: [{ type: 'text', text: error.message }], isError: true }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
             }
         },
     )
@@ -212,8 +213,8 @@ export function registerAutomationTools(server: McpServer, config: MomeiApiConfi
                 return {
                     content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
                 }
-            } catch (error: any) {
-                return { content: [{ type: 'text', text: error.message }], isError: true }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
             }
         },
     )

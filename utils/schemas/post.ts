@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { splitAndNormalizeStringList } from '../shared/string-list'
 import { isSnowflakeId, isValidCustomUrl } from '../shared/validate'
 import { paginationSchema } from './pagination'
 import { PostStatus, PostVisibility } from '@/types/post'
@@ -108,9 +109,9 @@ const stringArrayQuerySchema = z.preprocess((val) => {
     const values = Array.isArray(val) ? val : [val]
 
     return values
-        .flatMap((item) => typeof item === 'string' ? item.split(',') : [])
-        .map((item) => item.trim())
-        .filter(Boolean)
+        .flatMap((item) => typeof item === 'string'
+            ? splitAndNormalizeStringList(item, { delimiters: ',' })
+            : [])
 }, z.array(z.string()).optional())
 
 const postMetadataSchema = z.object({

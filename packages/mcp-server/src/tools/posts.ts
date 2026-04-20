@@ -2,8 +2,9 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { MomeiApi } from '../lib/api'
 import type { MomeiApiConfig } from '../lib/config'
+import { getErrorMessage } from '../lib/error'
 
-export function registerPostTools(server: McpServer, config: MomeiApiConfig) {
+export function registerPostTools(server: McpServer, config: MomeiApiConfig): void {
     const api = new MomeiApi(config)
 
     // 1. List Posts
@@ -25,8 +26,8 @@ export function registerPostTools(server: McpServer, config: MomeiApiConfig) {
                 return {
                     content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
                 }
-            } catch (error: any) {
-                return { content: [{ type: 'text', text: error.message }], isError: true }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
             }
         },
     )
@@ -46,8 +47,8 @@ export function registerPostTools(server: McpServer, config: MomeiApiConfig) {
                 return {
                     content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
                 }
-            } catch (error: any) {
-                return { content: [{ type: 'text', text: error.message }], isError: true }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
             }
         },
     )
@@ -71,8 +72,8 @@ export function registerPostTools(server: McpServer, config: MomeiApiConfig) {
                 return {
                     content: [{ type: 'text', text: `Post created successfully! ID: ${result.data.id}` }],
                 }
-            } catch (error: any) {
-                return { content: [{ type: 'text', text: error.message }], isError: true }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
             }
         },
     )
@@ -95,8 +96,8 @@ export function registerPostTools(server: McpServer, config: MomeiApiConfig) {
                 return {
                     content: [{ type: 'text', text: `Post ${id} updated successfully.` }],
                 }
-            } catch (error: any) {
-                return { content: [{ type: 'text', text: error.message }], isError: true }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
             }
         },
     )
@@ -116,8 +117,8 @@ export function registerPostTools(server: McpServer, config: MomeiApiConfig) {
                 return {
                     content: [{ type: 'text', text: `Post ${id} has been published.` }],
                 }
-            } catch (error: any) {
-                return { content: [{ type: 'text', text: error.message }], isError: true }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
             }
         },
     )
@@ -138,8 +139,8 @@ export function registerPostTools(server: McpServer, config: MomeiApiConfig) {
                     return {
                         content: [{ type: 'text', text: `Post ${id} deleted successfully.` }],
                     }
-                } catch (error: any) {
-                    return { content: [{ type: 'text', text: error.message }], isError: true }
+                } catch (error: unknown) {
+                    return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
                 }
             },
         )

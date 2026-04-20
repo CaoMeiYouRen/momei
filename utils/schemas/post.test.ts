@@ -475,6 +475,17 @@ describe('utils/schemas/post', () => {
                 expect(result.data.excludeIds).toEqual(['post-1', 'post-2'])
             }
         })
+
+        it('应该解析数组形式的排除 ID 并忽略空白项', () => {
+            const result = postQuerySchema.safeParse({
+                excludeIds: [' post-1, post-2 ', 'post-3,,'],
+            })
+
+            expect(result.success).toBe(true)
+            if (result.success) {
+                expect(result.data.excludeIds).toEqual(['post-1', 'post-2', 'post-3'])
+            }
+        })
     })
 
     describe('updatePostStatusSchema', () => {

@@ -9,6 +9,113 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-04-20 共享复用层 CSV 列表解析收敛
+
+### 范围
+
+- 目标：在不新增 shared API surface 的前提下，优先收敛一组高收益的列表型查询 / 查询参数处理重复区，把手写的 CSV 解析逻辑统一回收到现有 `splitAndNormalizeStringList`。
+- 本轮覆盖：`utils/shared/roles.ts`、`utils/shared/env.ts`、`utils/schemas/post.ts`、`composables/use-post-editor-translation.ts`、`server/database/index.ts`、`server/utils/ai/tts-volcengine.ts`。
+- 约束：所有新调用点都显式固定 `delimiters: ','`，避免把 `splitAndNormalizeStringList` 默认支持的分号、全角逗号、顿号等语义外溢到本轮原本只接受英文逗号的链路。
+
+### 基线对比
+
+- 典型手写模式基线：`split(',').map(trim).filter(Boolean)` 在运行时源码中命中 `4` 处，分别位于 `utils/shared/roles.ts`、`server/database/index.ts`、`server/utils/ai/tts-volcengine.ts` 与 `packages/cli/src/cli-shared.ts`。
+- 收敛后：运行时源码中仅剩 `packages/cli/src/cli-shared.ts` `1` 处保留；其余 `3` 处已统一切回 shared helper。
+- 相邻重复区：`utils/schemas/post.ts` 中的数组查询参数拆分与 `composables/use-post-editor-translation.ts` 中的翻译范围解析也同步回收至同一 helper，避免“同语义、不同实现”继续扩散。
+
+### 实施说明
+
+- `utils/shared/roles.ts` 与 `server/database/index.ts` 不再各自维护角色 CSV 解析细节，统一使用 `splitAndNormalizeStringList` 处理角色串。
+- `utils/shared/env.ts` 把 `ADMIN_USER_IDS` 的环境变量解析收回 shared helper，避免启动期配置解析继续保留手写 split / trim / filter 链。
+- `utils/schemas/post.ts` 将列表型查询参数解析改为复用 shared helper，继续保持仅按英文逗号拆分的既有行为。
+- `composables/use-post-editor-translation.ts` 将翻译范围解析切回 shared helper，并保留去重、白名单过滤与默认回退逻辑。
+- `server/utils/ai/tts-volcengine.ts` 统一复用 shared helper 解析字符串形式的 podcast speaker 输入。
+- `packages/cli/src/cli-shared.ts` 暂未跟进：该包使用独立 `tsconfig.json` 与 `rootDir=src`，本轮不跨包拉取应用层 shared 依赖，避免为了复用一个纯函数而破坏包边界。
+
+### 抽象收益
+
+- 统一了“CSV 字符串 -> 干净字符串数组”的实现来源，减少角色串、环境变量、查询参数与翻译范围等相近链路的局部漂移风险。
+- 没有新增新的工具层接口，只是把既有 helper 真正用到重复区，符合“先收敛、后扩面”的窄边界治理原则。
+
+### 已执行验证
+
+- 定向基线复核：使用 grep 复核后，典型手写 `split(',').map(trim).filter(Boolean)` 运行时命中从 `4` 处降为 `1` 处。
+- 根仓定向 ESLint：`pnpm exec eslint utils/shared/roles.ts utils/shared/env.ts composables/use-post-editor-translation.ts utils/schemas/post.ts server/database/index.ts server/utils/ai/tts-volcengine.ts utils/shared/string-list.test.ts utils/schemas/post.test.ts --max-warnings 0`
+	- 结果：通过，输出 `ESLINT_OK`。
+- 定向 Vitest：`pnpm exec vitest run utils/shared/roles.test.ts utils/shared/string-list.test.ts utils/schemas/post.test.ts composables/use-post-editor-translation.test.ts server/utils/ai/tts-volcengine.test.ts`
+	- 结果：通过，`5` 个测试文件、`113` 个测试全部通过。
+- 根仓类型检查：`pnpm exec nuxt typecheck`
+	- 结果：通过，输出 `TYPECHECK_OK`。
+- 编辑器诊断：本轮受影响文件经诊断检查后无新增错误。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；本轮抽象未扩大既有输入语义，也没有跨出 CLI 包的独立构建边界。
+
+### 未覆盖边界
+
+- `packages/cli/src/cli-shared.ts` 仍保留手写 CSV 解析；若后续要继续收敛，应优先在 `packages/cli/src` 内部补一个同构 helper，或先统一包间共享代码策略，而不是直接引用主应用 shared 目录。
+- `utils/shared/env.ts` 与 `server/database/index.ts` 这两条链路本轮未新增专门测试，只依赖等价替换、编辑器诊断与类型检查兜底；后续若继续深挖配置装配 / 启动链路，可再补更直接的单测。
+
+## 2026-04-20 mcp-server ESLint / 类型债治理首批收紧
+
+### 范围
+
+- 目标：以最小边界先完成一轮可回滚的 ESLint / 类型债收紧，不把治理扩写成全仓规则改造。
+- 本轮上收：仅在 `packages/mcp-server` 生产源码范围启用 `@typescript-eslint/no-explicit-any` 与 `@typescript-eslint/explicit-module-boundary-types`。
+- 回滚边界：仅涉及 `packages/mcp-server/eslint.config.js` 与该包 `src/**` 下的 4 个源码文件；`src/**/*.test.ts` 与 `src/**/*.bench.ts` 继续显式排除在本轮收紧范围之外。
+
+### 命中清单
+
+- `@typescript-eslint/no-explicit-any`：共命中 `16` 处。
+- 命中文件：`packages/mcp-server/src/lib/api.ts` `3` 处、`packages/mcp-server/src/tools/automation.ts` `7` 处、`packages/mcp-server/src/tools/posts.ts` `6` 处。
+- `@typescript-eslint/explicit-module-boundary-types`：共命中 `15` 处。
+- 命中文件：`packages/mcp-server/src/lib/api.ts` `13` 处、`packages/mcp-server/src/tools/automation.ts` `1` 处、`packages/mcp-server/src/tools/posts.ts` `1` 处。
+
+### 最小验证矩阵
+
+- 验证层级：`V0 + V1 + V2 + RG`。
+- V0：记录规则命中清单、回滚边界与受影响文件。
+- V1：执行包内 `lint`、`typecheck` 与根仓 `lint:md`，并确认改动文件无编辑器诊断。
+- V2：执行包内 `test`，确认工具注册与 API 包装链路未被本轮类型收紧破坏。
+- RG：本轮 Review Gate 结论为 `Pass`。
+
+### 实施说明
+
+- `packages/mcp-server/eslint.config.js` 新增生产源码作用域，仅对 `src/**/*.{ts,tsx,mts,cts}` 上收两条规则，继续排除测试与 bench，保证回滚面清晰。
+- `packages/mcp-server/src/lib/api.ts` 收敛为带泛型的 API envelope 包装，移除 `any` 查询 / 入参，补齐 MCP API 类对外方法的显式返回类型。
+- 新增 `packages/mcp-server/src/lib/error.ts` 统一处理 `unknown` 异常消息，避免工具注册文件继续使用 `catch (error: any)`。
+- `packages/mcp-server/src/tools/posts.ts` 与 `packages/mcp-server/src/tools/automation.ts` 改为 `unknown` 异常处理，并为对外注册函数补显式返回类型。
+
+### 已执行验证
+
+- `packages/mcp-server`: `pnpm lint`
+	- 结果：通过；新上收规则命中已清零。
+- `packages/mcp-server`: `pnpm typecheck`
+	- 结果：通过；API 包装层补充类型后未引入新的类型错误。
+- `packages/mcp-server`: `pnpm test`
+	- 结果：通过，`2` 个测试文件、`7` 个测试全部通过。
+- 根仓：`pnpm lint:md`
+	- 结果：通过；`todo.md` 与回归窗口文档改动未引入新的 Markdown 结构问题。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；当前剩余 ESLint / 类型债仍主要分布在主应用仓库的共享工具层、服务层与前端组件层，不再阻塞本轮包内规则上收闭环。
+
+### 未覆盖边界
+
+- 本轮只治理 `packages/mcp-server` 生产源码，未继续上收该包的 `test` / `bench` 文件规则，也未触碰主应用根仓的共享工具层和服务层历史类型债。
+- 根仓 Flat Config 通过 CLI 临时注入插件规则的方式不适合作为采样入口；后续若继续推进全仓治理，应优先按目录或包级边界增量上收，而不是重新尝试全仓命令行覆盖。
+
+### 后续候选
+
+- 下一轮优先考虑 `utils/shared` 这类复用层的窄边界，继续上收 `@typescript-eslint/no-explicit-any` 或等价高 ROI 规则，并优先处理像 `utils/shared/markdown.ts` 这种少量集中命中。
+- 若继续推进 `packages/mcp-server`，可再评估是否把同一组规则扩展到 `src/**/*.test.ts` 与 `src/**/*.bench.ts`，但应先确认 benchmark mock 与测试桩是否值得同步收紧。
+
 ## 2026-04-18 i18n 重复文案抽取
 
 ### 范围
