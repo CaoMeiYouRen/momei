@@ -247,6 +247,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 3. 若阶段状态发生变化（例如“规划中”变为“已审计归档”），必须同步检查 `docs/i18n/*/plan/roadmap.md` 的摘要是否需要更新。
 4. `todo.md` 与 `backlog.md` 默认保持中文，不为阶段归档单独创建翻译件。
 5. 若本阶段伴随规范、指南、README 或模块设计文档漂移，必须在归档前一并判断是否需要同步，不能把“文档补写”留作隐性尾项。
+6. 若本阶段新增或重写设计文档，必须同步判断其应进入 `docs/design/modules/` 还是 `docs/design/governance/`，禁止为了省事继续把专项治理文档塞回模块目录。
 
 #### Step 4. 文件更新顺序
 
@@ -319,3 +320,4 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 -   [待办事项](../plan/todo.md)
 -   [开发规范](./development.md)
 -   [设计文档汇总](../design/modules/index.md)
+-   [专项设计与治理索引](../design/governance/index.md)

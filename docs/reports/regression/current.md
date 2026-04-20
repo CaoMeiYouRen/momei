@@ -14,7 +14,7 @@
 ### 范围
 
 - 目标：完成第二十九阶段 P1“文档事实源、回归记录与深度归档治理”的首轮可落地收敛，不把本轮扩写成全量历史搬迁工程。
-- 本轮覆盖：`docs/design/modules/` 的代表性专项文档去 Todo 化与索引补齐、`docs/reports/regression/**` 与 `docs/plan/regression-log*.md` 的入口边界收敛，以及 `roadmap.md` / `todo-archive.md` 的深度归档阈值文档化。
+- 本轮覆盖：`docs/design/modules/` 与 `docs/design/governance/` 的目录分层、代表性专项文档去 Todo 化与索引重组、`docs/reports/regression/**` 与 `docs/plan/regression-log*.md` 的入口边界收敛，以及 `roadmap.md` / `todo-archive.md` 的深度归档阈值文档化。
 - 约束：保留旧 `docs/plan/regression-log*.md` 的历史回看能力，但禁止继续把它们作为新的正式回归写入入口。
 
 ### 基线对比
@@ -28,7 +28,7 @@
 - `docs/reports/regression/index.md` 与 `docs/reports/regression/archive/index.md` 已进一步明确“活动窗口 / 历史归档 / 兼容入口”三层职责，并把旧 `docs/plan/regression-log*.md` 降级为冻结兼容入口。
 - `docs/plan/regression-log-index.md` 已收敛为薄兼容页，不再维护具体窗口数字；`docs/plan/regression-log.md` 与 `docs/plan/regression-log-archive.md` 顶部说明也改为“历史快照，只读回看”。
 - 新增 `docs/plan/archive/index.md`，正式定义 `roadmap.md` 与 `todo-archive.md` 的 warning / 强制分片阈值、主窗口保留策略与后续阶段区间分片方案。
-- `docs/design/modules/index.md` 已补齐 `cacheable-api-inventory.md` 与 `e2e-coverage-matrix.md` 的索引入口；`cacheable-api-inventory.md`、`demo-mode.md` 与 `i18n-seo-unification.md` 也同步完成首轮去 Todo 化收敛。
+- `docs/design/modules/index.md` 已收敛为纯模块总设计索引，专项治理、执行矩阵与阶段复盘统一迁移到 `docs/design/governance/index.md`；`cacheable-api-inventory.md`、`demo-mode.md` 与 `i18n-seo-unification.md` 也同步完成首轮去 Todo 化收敛。
 
 ### 已执行验证
 

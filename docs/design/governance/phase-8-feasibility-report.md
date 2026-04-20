@@ -13,10 +13,10 @@
 | 主题 | 当前状态 | 主文档 |
 | :--- | :--- | :--- |
 | 系统配置统一化 | 已落地三层读取、锁定与审计，剩余 UI 可解释性增强 | [系统配置深度解耦与统一化](./system-config-unification.md) |
-| 商业化与广告 | 已落地作者/全局商业化配置、广告位基础设施与外链跳转门 | [商业化与社交集成设计文档](./commercial.md)、[广告投放与外链跳转](./ad-network-integration.md) |
-| 开放发布协议 | 已落地 WebFinger、Actor、Note、Outbox 只读端点 | [开放发布协议支持](./federation-protocols.md) |
-| ASR 体验优化 | 已落地临时凭证、浏览器侧轻量压缩、异步任务追踪 | [语音识别系统](./asr.md)、[ASR 性能与体验优化](./asr-performance-optimization.md) |
-| 定时任务与 Serverless 适配 | 已落地统一任务引擎、Webhook 触发和平台适配 | [定时任务与发布功能设计](./scheduled-publication.md) |
+| 商业化与广告 | 已落地作者/全局商业化配置、广告位基础设施与外链跳转门 | [商业化与社交集成设计文档](../modules/commercial.md)、[广告投放与外链跳转](../modules/ad-network-integration.md) |
+| 开放发布协议 | 已落地 WebFinger、Actor、Note、Outbox 只读端点 | [开放发布协议支持](../modules/federation-protocols.md) |
+| ASR 体验优化 | 已落地临时凭证、浏览器侧轻量压缩、异步任务追踪 | [语音识别系统](../modules/asr.md)、[ASR 性能与体验优化](./asr-performance-optimization.md) |
+| 定时任务与 Serverless 适配 | 已落地统一任务引擎、Webhook 触发和平台适配 | [定时任务与发布功能设计](../modules/scheduled-publication.md) |
 
 ## 3. 本轮文档治理结果
 

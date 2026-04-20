@@ -194,7 +194,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
   - 如需内置 Cron，可使用 `TASK_CRON_EXPRESSION` 自定义主任务频率，并用 `FRIEND_LINKS_CHECK_CRON` 单独调整友链巡检节奏。
 - **Cloudflare（外围能力接入）**:
   - 当前版本暂不支持将应用主体完整部署到 Cloudflare Pages / Workers，根因是项目仍依赖 TypeORM 与 Node 运行时能力。
-  - 研究结论与止损条件见 [Cloudflare 运行时兼容研究与止损结论](../design/modules/cloudflare-runtime-study.md)。
+  - 研究结论与止损条件见 [Cloudflare 运行时兼容研究与止损结论](../design/governance/cloudflare-runtime-study.md)。
   - Cloudflare R2 可继续作为对象存储接入。
   - Scheduled Events 相关触发适配与 [wrangler.toml](../../wrangler.toml) 配置当前保留为外围能力设计 / 实验入口，不应解读为整站 Cloudflare 运行时已受支持。
   - `pnpm deploy:wrangler` 当前仅用于 wrangler 侧适配调试，不应作为生产环境整站部署命令。
@@ -214,7 +214,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **Vercel / Netlify 首启后数据重置或管理员丢失**: 先确认当前是否仍在使用 SQLite 默认值。Serverless 路径必须切换到外部 `DATABASE_URL`。
 - **Vercel / Netlify 能打开站点但上传失败**: 多半仍在使用 `STORAGE_TYPE=local`。这属于已知组合冲突，请改为 `s3`、`r2` 或 `vercel_blob`。
 - **Cloudflare Pages / Workers 运行时报 TypeORM / Node 兼容错误**: 这是当前已知边界，不是部署步骤遗漏。请改用 Vercel、Docker 或自托管 Node 环境作为应用主体；如需 Cloudflare，当前仅保留 R2 / Scheduled Events 等外围能力接入。
-- **Cloudflare D1 是否能直接替代当前数据库**: 不能。当前主栈仍围绕 TypeORM 与 `sqlite/mysql/postgres` 三类驱动组织，D1 只应继续保留为后续条件触发型研究项，详见 [Cloudflare 运行时兼容研究与止损结论](../design/modules/cloudflare-runtime-study.md)。
+- **Cloudflare D1 是否能直接替代当前数据库**: 不能。当前主栈仍围绕 TypeORM 与 `sqlite/mysql/postgres` 三类驱动组织，D1 只应继续保留为后续条件触发型研究项，详见 [Cloudflare 运行时兼容研究与止损结论](../design/governance/cloudflare-runtime-study.md)。
 
 ## 7. 更多参考资源 (References)
 

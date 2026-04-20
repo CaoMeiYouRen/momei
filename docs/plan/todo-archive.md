@@ -943,7 +943,7 @@
 
 ### 3. 国际化语言扩展与配置模块化 (I18n Expansion & Modularization) (P1)
 
-> 当前执行策略: 本轮不将“国际化语言扩展与配置模块化”和“多语言 SEO 深度优化”拆成两份孤立方案，而是以 Locale Registry 为统一事实源进行一体化设计。设计重点是先收敛默认语言、回退链、Locale 元数据、翻译模块拆分与语言准入规则，再让页面 Head、结构化数据和站点地图共享同一套语言配置。当前已继续补齐公开页 SEO 相关词条，文章列表、分类列表、标签列表、归档、关于、投稿、用户协议与隐私政策页已接入统一 `usePageSeo` 链路；同时已将翻译模块进一步细分为 `public / auth / admin / settings / home / demo / installation / legal`，并通过全局路由中间件按当前路径与 demo 模式渐进加载额外模块，默认首屏仅保留核心词条。下一步继续推进冗余词条清理与旧结构迁移收口。专项设计见 [国际化扩展与多语言 SEO 统一设计](../design/modules/i18n-seo-unification.md)。
+> 当前执行策略: 本轮不将“国际化语言扩展与配置模块化”和“多语言 SEO 深度优化”拆成两份孤立方案，而是以 Locale Registry 为统一事实源进行一体化设计。设计重点是先收敛默认语言、回退链、Locale 元数据、翻译模块拆分与语言准入规则，再让页面 Head、结构化数据和站点地图共享同一套语言配置。当前已继续补齐公开页 SEO 相关词条，文章列表、分类列表、标签列表、归档、关于、投稿、用户协议与隐私政策页已接入统一 `usePageSeo` 链路；同时已将翻译模块进一步细分为 `public / auth / admin / settings / home / demo / installation / legal`，并通过全局路由中间件按当前路径与 demo 模式渐进加载额外模块，默认首屏仅保留核心词条。下一步继续推进冗余词条清理与旧结构迁移收口。专项设计见 [国际化扩展与多语言 SEO 统一设计](../design/governance/i18n-seo-unification.md)。
 
 - [x] **多语言配置中心化**
     - [x] 将当前双语言能力抽象为可配置 Locale 集合，支持默认语言、回退策略与 Locale 元数据集中管理
@@ -958,7 +958,7 @@
 
 ### 4. 多语言 SEO 深度优化 (Multilingual SEO) (P1)
 
-> 当前执行策略: 已完成首轮基础设施落地，并复用 Locale Registry 收敛共享页面 SEO 契约。当前已补齐共享 absolute URL / SEO 图片 / JSON-LD 构建器，首页已切到统一 `usePageSeo` 链路，动态 sitemap 已支持语言变体 alternates；本轮又继续把文章列表、分类列表、标签列表、归档、关于、投稿、用户协议与隐私政策页切到统一 SEO 管线，并将上述静态公开页纳入多语言 sitemap alternates 覆盖，相关定向测试与本轮 `typecheck` 已通过；下一步继续补齐更高层级的自动化回归校验。专项设计见 [国际化扩展与多语言 SEO 统一设计](../design/modules/i18n-seo-unification.md)。
+> 当前执行策略: 已完成首轮基础设施落地，并复用 Locale Registry 收敛共享页面 SEO 契约。当前已补齐共享 absolute URL / SEO 图片 / JSON-LD 构建器，首页已切到统一 `usePageSeo` 链路，动态 sitemap 已支持语言变体 alternates；本轮又继续把文章列表、分类列表、标签列表、归档、关于、投稿、用户协议与隐私政策页切到统一 SEO 管线，并将上述静态公开页纳入多语言 sitemap alternates 覆盖，相关定向测试与本轮 `typecheck` 已通过；下一步继续补齐更高层级的自动化回归校验。专项设计见 [国际化扩展与多语言 SEO 统一设计](../design/governance/i18n-seo-unification.md)。
 
 - [x] **多语言元标签增强**
     - [x] 自动生成并校验 `hreflang`、canonical、Open Graph、Twitter Card 的多语言版本
@@ -1241,7 +1241,7 @@
 
 ### 2. 迁移链接治理与云端资源重写 (P0)
 
-> 当前执行策略: 已完成“范围与契约冻结”“旧链接映射与承接机制”“资源重写与校验报告”“测试与验证计划”。专项设计见 [迁移链接治理与云端资源重写](../design/modules/migration-link-governance.md)。当前已补齐服务/API/CLI/后台入口的定向验证，并为治理报告新增后台查看入口。
+> 当前执行策略: 已完成“范围与契约冻结”“旧链接映射与承接机制”“资源重写与校验报告”“测试与验证计划”。专项设计见 [迁移链接治理与云端资源重写](../design/governance/migration-link-governance.md)。当前已补齐服务/API/CLI/后台入口的定向验证，并为治理报告新增后台查看入口。
 
 - [x] **迁移链接治理范围与契约冻结**
     - 验收: 明确治理范围覆盖资源 URL、文章内链、分类/标签/归档链接、独立页面及历史 permalink 规则。
@@ -1279,7 +1279,7 @@
 
 ### 4. 第三方分发解耦与投递控制 (P1)
 
-> 当前执行策略: 先以文章 `metadata.integration.distribution` 建立统一分发状态层与时间线审计，不新增独立数据表；Memos 由服务端接管首次同步、更新原内容、重推新内容与失败重试，WechatSync 保持浏览器插件执行但补齐服务端状态登记、人工终止与结果回写。后台统一收敛到文章编辑页分发面板，并在文章列表提供显式入口跳转；专项设计见 [第三方分发解耦与投递控制](../design/modules/content-distribution-governance.md)。
+> 当前执行策略: 先以文章 `metadata.integration.distribution` 建立统一分发状态层与时间线审计，不新增独立数据表；Memos 由服务端接管首次同步、更新原内容、重推新内容与失败重试，WechatSync 保持浏览器插件执行但补齐服务端状态登记、人工终止与结果回写。后台统一收敛到文章编辑页分发面板，并在文章列表提供显式入口跳转；专项设计见 [第三方分发解耦与投递控制](../design/governance/content-distribution-governance.md)。
 
 - [x] **分发状态模型与操作边界梳理**
     - 验收: 明确首次同步、重新推送、更新原内容、失败重试、人工终止等状态机与转换条件。
@@ -1299,7 +1299,7 @@
 
 ### 5. CLI / MCP 自动化能力扩展 (P1)
 
-> 当前执行策略: 已完成统一外部自动化契约设计，并落地 API Key 驱动的外部 AI 自动化接口、CLI 命令面、MCP 工具面、配套设计文档、预览确认流、分类建议能力与定向测试闭环。当前可使用标题建议、标签推荐、分类推荐、整篇翻译、封面图生成、音频生成、任务查询与发布编排；专项设计见 [CLI / MCP 自动化能力扩展](../design/modules/cli-mcp-automation.md)。
+> 当前执行策略: 已完成统一外部自动化契约设计，并落地 API Key 驱动的外部 AI 自动化接口、CLI 命令面、MCP 工具面、配套设计文档、预览确认流、分类建议能力与定向测试闭环。当前可使用标题建议、标签推荐、分类推荐、整篇翻译、封面图生成、音频生成、任务查询与发布编排；专项设计见 [CLI / MCP 自动化能力扩展](../design/governance/cli-mcp-automation.md)。
 
 - [x] **自动化能力分层与命令面设计**
     - 验收: 将 CLI 与 MCP 能力按“内容生成 / 翻译 / 媒体回填 / 发布编排 / 审计”进行能力分层，避免一轮迭代内命令面失控。
@@ -1372,7 +1372,7 @@
 
 ### 2. 渠道分发内容模板与标签适配 (P0)
 
-> 进展: 已完成现状调研，确认当前 Memos 模板在服务端生成、WechatSync 模板在前端生成，且 WechatSync 插件因“单份 post + 多账户”入参限制，必须通过账户分组来承载差异化标签格式。执行方案见 [渠道分发模板与标签适配方案](../design/modules/content-distribution-template-tag-adaptation.md)。
+> 进展: 已完成现状调研，确认当前 Memos 模板在服务端生成、WechatSync 模板在前端生成，且 WechatSync 插件因“单份 post + 多账户”入参限制，必须通过账户分组来承载差异化标签格式。执行方案见 [渠道分发模板与标签适配方案](../design/governance/content-distribution-template-tag-adaptation.md)。
 
 - [x] **渠道导出模板分层**
     - 进展: 已新增统一分发素材包与渠道模板构建逻辑，Memos 改为服务端统一输出标题、封面、摘要、阅读全文、标签与版权尾注，WechatSync 改为基于统一素材包派生正文 / 摘要 / 封面字段，并保持现有手动同步与审计回写链路不变。
@@ -1999,7 +1999,7 @@
 - [x] **完成批量翻译编排边界评估**
     - 验收: 明确文章范围选择、目标语言矩阵、预览确认、失败重入、人工重试与已存在目标语言草稿时的覆盖策略。
     - 验收: 说明该能力如何复用现有 `translationId`、翻译范围、标签 / 分类映射与任务状态模型，而不是另起旁路实现。
-    - 结果: 评估结论与边界已沉淀到 `docs/design/modules/batch-translation-orchestration.md`。
+    - 结果: 评估结论与边界已沉淀到 `docs/design/governance/batch-translation-orchestration.md`。
 - [x] **输出最小可行方案与风险清单**
     - 验收: 至少产出配额 / 成本预算、并发上限、Serverless 超时预算与取消策略的首轮结论。
     - 验收: 若本阶段不直接进入实现，也必须形成下一步是否准入开发的明确判断。
@@ -2192,7 +2192,7 @@
     - 验收: 面向 Cloudflare Pages / Workers / D1 路线输出可追溯的阻塞清单，至少覆盖 TypeORM、Node 运行时依赖、数据库契约、文件存储与定时任务差异。
     - 验收: 若存在最小样机路径，需明确它只代表技术可行性研究，不代表当前项目已支持整站 Cloudflare 部署。
     - 验收: 研究产物至少能够支撑“继续推进 / 暂停投入 / 仅保留外围能力接入”三选一的方向结论。
-    - 结果: 已新增 [docs/design/modules/cloudflare-runtime-study.md](../design/modules/cloudflare-runtime-study.md)，并把唯一推荐的最小样机路径收敛为“Cloudflare 仅做外围能力与任务触发，应用主体继续运行在 Vercel / Docker / 自托管 Node”。
+    - 结果: 已新增 [docs/design/governance/cloudflare-runtime-study.md](../design/governance/cloudflare-runtime-study.md)，并把唯一推荐的最小样机路径收敛为“Cloudflare 仅做外围能力与任务触发，应用主体继续运行在 Vercel / Docker / 自托管 Node”。
 - [x] **Cloudflare 平台边界说明与止损结论收口**
     - 验收: 若研究结论仍为短期不适合推进，需进一步收敛对外说明、内部设计约束与后续触发条件，避免未来重复投入同类预研却缺少止损结论。
     - 验收: 若研究结论允许继续推进，也必须先定义下一阶段的技术闸门与替代成本，不得在本阶段直接扩写为整站适配开发。
@@ -2271,14 +2271,14 @@
     - 验收: 文章页提供统一分享入口，覆盖主流平台并保证移动端可用。
     - 验收: 社交 / 打赏图标映射统一，新增第三方图标库与 fallback 策略。
     - 结果: 已完成文章页分享卡片、分享弹窗与平台图标映射收口，移动端原生分享、桌面端分享面板、主流平台拼链与国内平台复制式分享均已落地；微博在当前阶段统一按复制式分享处理。
-    - 设计入口: 分享系统设计草案见 [post-sharing.md](../design/modules/post-sharing.md)。
+    - 设计入口: 分享系统设计草案见 [post-sharing.md](../design/governance/post-sharing.md)。
 
 ### 3. 主线：接口缓存逻辑复用与可缓存接口扩面切片 (P1) (已完成)
 
 - [x] **抽离缓存复用层并对高收益公开读接口完成至少一组扩面验证**
     - 验收: 抽离缓存复用层（TTL / 失效 / 键策略 / 权限边界），减少重复实现。
     - 验收: 输出一组高收益接口扩面清单并完成至少 1 组落地验证。
-    - 结果: 已统一接入 `settings/public`、`friend-links/index`、`posts/archive`、`categories/index`、`tags/index`，并补齐缓存清单与回归证据，见 [cacheable-api-inventory.md](../design/modules/cacheable-api-inventory.md) 与 [regression-log.md](./regression-log.md)。
+    - 结果: 已统一接入 `settings/public`、`friend-links/index`、`posts/archive`、`categories/index`、`tags/index`，并补齐缓存清单与回归证据，见 [cacheable-api-inventory.md](../design/governance/cacheable-api-inventory.md) 与 [regression-log.md](./regression-log.md)。
 
 ### 4. 主线：首屏性能阶段一优化（Lighthouse >= 50） (P0)
 
@@ -2293,7 +2293,7 @@
     - 验收: 建立页面与接口覆盖矩阵并明确优先级。
     - 验收: 完成关键交易路径与高风险接口的首轮稳定用例。
     - 结果: 已补齐注册校验、投稿表单失败 / 成功提交流程、`/feedback` 与 `/friend-links` 等公共页 reachability，以及后台 `users`、`comments`、`submissions`、`subscribers`、`friend-links`、`external-links`、`notifications`、`ai`、taxonomy 搜索 / 聚合开关等首轮稳定用例。
-    - 证据: 定向命令 `pnpm exec playwright test tests/e2e/submit.e2e.test.ts tests/e2e/user-workflow.e2e.test.ts tests/e2e/admin.e2e.test.ts tests/e2e/public-pages.e2e.test.ts --project=chromium` 已验证 `33 passed / 3 skipped`，详见 [e2e-coverage-matrix.md](../design/modules/e2e-coverage-matrix.md) 与 [regression-log.md](./regression-log.md)。
+    - 证据: 定向命令 `pnpm exec playwright test tests/e2e/submit.e2e.test.ts tests/e2e/user-workflow.e2e.test.ts tests/e2e/admin.e2e.test.ts tests/e2e/public-pages.e2e.test.ts --project=chromium` 已验证 `33 passed / 3 skipped`，详见 [e2e-coverage-matrix.md](../design/governance/e2e-coverage-matrix.md) 与 [regression-log.md](./regression-log.md)。
 
 ## 第二十八阶段：内容运营洞察与运行时治理推进 (已审计归档)
 

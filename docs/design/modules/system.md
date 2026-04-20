@@ -86,4 +86,4 @@
 
 ---
 
-> 相关设计延伸: [系统配置深度解耦与统一化](./system-config-unification.md) | [配置项多语言国际化与回退治理](./settings-i18n-fallback-governance.md)
+> 相关设计延伸: [系统配置深度解耦与统一化](../governance/system-config-unification.md) | [配置项多语言国际化与回退治理](../governance/settings-i18n-fallback-governance.md)

@@ -104,7 +104,7 @@
         - V1 / 接口扩面: 分类公开列表与标签公开列表已接入统一缓存层，并在各自新增 / 更新 / 删除接口中补上 namespace 失效，避免只能依赖 TTL 自然过期。
         - V1 / 定向测试: 上述 5 个测试文件通过，覆盖缓存命中、旁路统计、namespace 失效，以及 archive / settings / categories / tags 的公开接口缓存边界。
         - V1 / 类型层: `pnpm exec nuxt typecheck` 通过。
-        - V1 / 证据层: 已新增 [cacheable-api-inventory.md](../../design/modules/cacheable-api-inventory.md)，统一记录接口、TTL、共享边界、失效策略与观测 namespace。
+        - V1 / 证据层: 已新增 [cacheable-api-inventory.md](../../design/governance/cacheable-api-inventory.md)，统一记录接口、TTL、共享边界、失效策略与观测 namespace。
     - 结果摘要:
         - 当前阶段已接入统一缓存层的接口共 `5` 组：`settings/public`、`friend-links/index`、`posts/archive`、`categories/index`、`tags/index`。
         - 其中分类 / 标签公开列表已形成“读缓存 + 写失效”的第一组完整落地验证；设置、友链与归档则继续采用短 TTL + 权限边界控制，避免当前阶段扩写为跨部署缓存一致性工程。

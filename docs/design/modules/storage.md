@@ -158,7 +158,7 @@ export interface DirectUploadCapability {
 
 ## 7. 存量资源迁移与重写 (Migration & Rewrite)
 
-资源 URL 已不再作为孤立问题处理。第十一阶段开始，资源域名切换、对象键映射、正文内资源链接修复与旧站内容链接治理统一进入 [迁移链接治理与云端资源重写](./migration-link-governance.md) 这份专项设计。
+资源 URL 已不再作为孤立问题处理。第十一阶段开始，资源域名切换、对象键映射、正文内资源链接修复与旧站内容链接治理统一进入 [迁移链接治理与云端资源重写](../governance/migration-link-governance.md) 这份专项设计。
 
 本模块继续只负责以下事实：
 

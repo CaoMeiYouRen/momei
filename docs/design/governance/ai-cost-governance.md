@@ -588,8 +588,8 @@ $$
 
 ## 13. 相关文档 (Related Docs)
 
-- [AI 辅助功能模块](./ai.md)
-- [AI 图像生成模块](./ai-image.md)
-- [语音识别系统](./asr.md)
-- [音频处理与播客系统](./audio.md)
-- [系统能力与设置](./system.md)
+- [AI 辅助功能模块](../modules/ai.md)
+- [AI 图像生成模块](../modules/ai-image.md)
+- [语音识别系统](../modules/asr.md)
+- [音频处理与播客系统](../modules/audio.md)
+- [系统能力与设置](../modules/system.md)

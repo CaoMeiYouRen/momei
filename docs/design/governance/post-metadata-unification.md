@@ -179,9 +179,9 @@ flowchart TD
 
 ## 9. 关联文档 (Related Documents)
 
-- [系统能力与设置](./system.md)
-- [音频与播客](./audio.md)
-- [迁移与集成](./migration.md)
+- [系统能力与设置](../modules/system.md)
+- [音频与播客](../modules/audio.md)
+- [迁移与集成](../modules/migration.md)
 - [API 规范](../../standards/api.md)
 - [开发规范](../../standards/development.md)
 - [测试规范](../../standards/testing.md)

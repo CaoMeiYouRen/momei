@@ -1,6 +1,6 @@
 # 配置项多语言国际化与回退治理 (Localized Settings & Fallback Governance)
 
-本文档是 [系统能力与设置](./system.md) 与 [国际化系统](./i18n.md) 的专项治理补充，聚焦“管理员可编辑配置项”的多语言存储、回退链、兼容迁移与统一消费口径。
+本文档是 [系统能力与设置](../modules/system.md) 与 [国际化系统](../modules/i18n.md) 的专项治理补充，聚焦“管理员可编辑配置项”的多语言存储、回退链、兼容迁移与统一消费口径。
 
 本专题不重复描述整套系统设置能力，也不替代协议正文、文章翻译或 UI 文案翻译主文档。
 
@@ -340,7 +340,7 @@ interface PublicSettingsResponse {
 
 ## 11. 相关文档
 
-- [系统能力与设置](./system.md)
+- [系统能力与设置](../modules/system.md)
 - [系统配置深度解耦与统一化](./system-config-unification.md)
-- [国际化系统](./i18n.md)
-- [法律合规相关设计](./system.md#25-协议版本治理-agreement-governance)
+- [国际化系统](../modules/i18n.md)
+- [法律合规相关设计](../modules/system.md#25-协议版本治理-agreement-governance)

@@ -337,7 +337,7 @@ interface TranslatePostBatchChildPayload extends TranslatePostTaskInput {
 
 关联文档：
 
-- [AI 辅助功能模块](./ai.md)
+- [AI 辅助功能模块](../modules/ai.md)
 - [CLI / MCP 自动化能力扩展设计](./cli-mcp-automation.md)
-- [国际化系统](./i18n.md)
-- [分类与标签聚合页设计](./taxonomy.md)
+- [国际化系统](../modules/i18n.md)
+- [分类与标签聚合页设计](../modules/taxonomy.md)

@@ -8,7 +8,7 @@
 2. 各平台应采用“直接拼接分享链接”还是“复制链接 / 二维码 / 手动发布”的形式。
 3. 分享时的链接口径应该如何与当前 locale、SEO canonical 与公开访问边界保持一致。
 
-为避免职责重叠，作者社交链接、打赏配置与文章页赞助展示仍以 [商业化与社交集成设计文档](./commercial.md) 为主；本文只描述“页面分享”能力，不重复作者社交资料展示逻辑。
+为避免职责重叠，作者社交链接、打赏配置与文章页赞助展示仍以 [商业化与社交集成设计文档](../modules/commercial.md) 为主；本文只描述“页面分享”能力，不重复作者社交资料展示逻辑。
 
 ## 2. 设计目标
 
@@ -243,6 +243,6 @@ function buildShareCanonicalUrl(options: {
 
 ## 11. 相关文档
 
-- [商业化与社交集成设计文档](./commercial.md)
+- [商业化与社交集成设计文档](../modules/commercial.md)
 - [开发规范](../../standards/development.md)
 - [测试规范](../../standards/testing.md)

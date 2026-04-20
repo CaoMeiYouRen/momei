@@ -9,7 +9,8 @@
 所有文档必须存放于 `docs/` 目录下，并遵循以下分类逻辑：
 
 -   `docs/design/`: 技术架构、UI/UX 设计、API 设计及各功能模块的深度解析。
-    -  `docs/design/modules/`: 各核心模块（如认证、文章管理、评论系统）的设计文档。
+    -  `docs/design/modules/`: 各核心模块（如认证、文章管理、评论系统）的总设计文档，只保留稳定高层入口。
+    -  `docs/design/governance/`: 专项治理、专项设计、迁移方案、执行矩阵与阶段复盘文档。
 -   `docs/guide/`: 用户手册、快速开始、部署指南、开发入门及 AI 协同指南。
 -   `docs/plan/`: 项目路线图 (`roadmap.md`)、长期积压 (`backlog.md`)、待办事项 (`todo.md`) 及规划侧摘要与兼容入口。
 -   `docs/reports/regression/`: 回归记录管理、活动回归窗口与按模块 / 日期归档。
@@ -86,7 +87,8 @@
 | `docs/guide/` | **强制全部** | 用户手册（快速开始、部署、特性）必须保持双语。 |
 | `docs/standards/` | **高度推荐** | 开发规范相对稳定，应提供翻译以指导全球参与者。 |
 | `docs/design/` | **高层翻译** | 仅翻译全局设计（UI、数据库、API），不深入模块。 |
-| `docs/design/modules/` | **暂不翻译** | 模块设计变动频繁，保持中文原文。 |
+| `docs/design/modules/` | **暂不翻译** | 模块总设计变动频繁，保持中文原文。 |
+| `docs/design/governance/` | **暂不翻译** | 专项治理与阶段复盘迭代更快，只保留中文事实源。 |
 | `docs/plan/` | **部分翻译** | 仅翻译 `roadmap.md` 已完成的阶段；`backlog.md` 与 `todo.md` 默认保持中文。 |
 | `docs/plan/todo.md` | **不翻译** | 任务管理文件，仅保留中文。 |
 
@@ -122,18 +124,20 @@
 
 ## 5. 特殊文件维护 (Special File Maintenance)
 
-### 5.0 模块设计文档治理 (Module Design Doc Governance)
+### 5.0 模块设计与专项治理分层 (Module vs Governance Layering)
 
-`docs/design/modules/` 中的文档必须区分“模块总设计”与“专项治理 / 阶段复盘”两类角色，避免多个文件同时充当同一主题的完整说明书。
+`docs/design/modules/` 与 `docs/design/governance/` 必须承担不同角色，禁止再把两类文档混放在同一目录下。
 
 约束如下：
 
-1.  **每个主题只保留一个总设计文档**: 例如 `system.md`、`i18n.md`、`migration.md` 应承担高层总览职责。
-2.  **专项文档只记录增量结论**: 如 `*-governance.md`、`*-unification.md`、`*-optimization.md`、`*-report.md` 只应记录阶段性收敛、治理契约、迁移方案或审计复盘，不重复整份模块概述。
-3.  **专项文档必须回链主文档**: 所有专项文档都应显式说明对应主文档或唯一事实源，避免读者误把专项文档当作全量设计入口。
-4.  **设计文档不得承接 Todo 职责**: `docs/design/modules/` 中不应再保留直接指向 `todo.md` 的“待办清单”式内容；尚未实施的后续工作应写为“后续增强方向”或回到 `docs/plan/roadmap.md`。
-5.  **阶段报告与设计文档分层**: 阶段复盘类文档应只保留结论、偏差与索引，不重复展开已收敛到主文档中的实现细节。
-6.  **严重漂移处理**: 如果专项治理文档已经无法代表当前实现，优先重写为只保留增量结论的 delta 文档；若已无参考价值，则迁移到归档或直接删除，不保留与事实源脱节的完整说明书。
+1.  **模块总设计单独存放**: `docs/design/modules/` 只保留每个主题的稳定高层入口，例如 `system.md`、`i18n.md`、`migration.md`。
+2.  **专项治理单独存放**: `docs/design/governance/` 统一承接 `*-governance.md`、`*-unification.md`、`*-optimization.md`、`*-report.md`、执行矩阵和跨模块专项评估文档。
+3.  **每个主题只保留一个总设计文档**: 模块总设计负责定义边界、核心流程与主入口；专项文档不得再重复整份模块概述。
+4.  **专项文档必须回链主文档**: 所有治理 / 迁移 / 评估文档都应显式说明对应主文档或唯一事实源，避免读者误把专项文档当作全量设计入口。
+5.  **设计文档不得承接 Todo 职责**: `docs/design/modules/` 与 `docs/design/governance/` 中都不应保留直接指向 `todo.md` 的“待办清单”式内容；尚未实施的后续工作应写为“后续增强方向”或回到 `docs/plan/roadmap.md`。
+6.  **阶段报告继续独立**: 阶段复盘类文档统一放在 `docs/design/governance/`，只保留结论、偏差与索引，不重复展开已收敛到主文档中的实现细节。
+7.  **新增文档先判目录归属**: 新建设计文档时，必须先判断它属于“稳定模块总设计”还是“专项治理 / 增量设计 / 阶段复盘”；判断不清时，不得默认写入 `docs/design/modules/`。
+8.  **严重漂移处理**: 如果专项治理文档已经无法代表当前实现，优先重写为只保留增量结论的 delta 文档；若已无参考价值，则迁移到归档或直接删除，不保留与事实源脱节的完整说明书。
 
 ### 5.1 回归记录文档治理 (Regression Record Governance)
 
@@ -166,6 +170,7 @@
 
 -   `roadmap.md`、`backlog.md` 与 `todo.md` 的维护必须严格遵循 [项目规划规范](./planning.md)。
 -   回归记录正式迁移到 [回归记录管理与深度归档](../reports/regression/index.md)；规划文档仅保留与当前阶段直接相关的摘要和入口链接。
+-   模块总设计与专项治理文档必须分目录维护：稳定高层入口留在 `docs/design/modules/`，增量治理 / 迁移方案 / 阶段复盘统一落在 `docs/design/governance/`。
  -   活动回归窗口默认只保留最近 1 - 2 个阶段或最近 6 - 8 条完整记录；更早的历史记录应按滚动归档规则迁移到 `docs/reports/regression/archive/`。
 -   规划文档、规范文档与其他 Markdown 文档在提交前同样必须经过至少一轮 review，不能因为“只改文档”而跳过审查。
 -   任何阶段性的功能完成，必须在 `todo.md` 中标记并在 `roadmap.md` 中体现进度。

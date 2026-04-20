@@ -54,6 +54,9 @@ features:
     - title: 功能模块
       details: 涵盖博客内容、认证、AI、邮件、主题等各个业务模块的深度解析。
       link: /design/modules/index
+    - title: 专项设计与治理
+      details: 收录迁移方案、治理契约、执行矩阵与阶段复盘，避免与模块总设计混放。
+      link: /design/governance/index
     - title: 测试规范
       details: 学习单元测试与端到端测试的编写标准。
       link: /standards/testing

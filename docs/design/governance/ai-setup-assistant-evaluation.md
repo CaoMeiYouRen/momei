@@ -149,7 +149,7 @@
 - 设置解释层与锁定规则：`server/services/setting.constants.ts`、`server/services/setting.ts`
 - 锁定文案与错误反馈：`utils/shared/installation-env-setting.ts`、`utils/shared/request-feedback.ts`
 - 只读知识检索约束：`.github/skills/qa-assistant/SKILL.md`
-- 文档知识源：`docs/guide/quick-start.md`、`docs/guide/deploy.md`、`docs/guide/variables.md`、`docs/design/modules/system.md`、`docs/design/modules/system-config-unification.md`
+- 文档知识源：`docs/guide/quick-start.md`、`docs/guide/deploy.md`、`docs/guide/variables.md`、`docs/design/modules/system.md`、`docs/design/governance/system-config-unification.md`
 
 这些资产已经覆盖字段定义、锁定规则、用户文案、错误归因和只读问答边界。下一轮实现应只增加“编排与展示层”，不新增第二套配置知识。
 

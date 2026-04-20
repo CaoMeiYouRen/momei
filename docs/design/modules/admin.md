@@ -266,7 +266,7 @@
 -   `server/utils/admin-content-insights.ts`: 新增趋势序列聚合逻辑，并把阅读指标从累计总量拆成 `totalViews` 与 `windowViews` 的清晰口径。
 -   `types/admin-content-insights.ts`: 响应结构需要新增 `dailyViewTrend` 或等价趋势字段。
 -   `server/api/posts/[id]/views.post.ts`: 保持请求路径不变，但返回值说明仍是“当前累计阅读数估计值”。
--   `docs/design/modules/admin.md` / `docs/plan/todo.md`: 同步真实趋势设计与任务阶段说明。
+-   `docs/design/modules/admin.md`：同步真实趋势设计口径；若后续存在专项治理或阶段任务，再分别落到 `docs/design/governance/` 与 `docs/plan/todo.md`。
 
 #### 5.5.8 风险与回退
 

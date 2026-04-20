@@ -6,7 +6,7 @@
 1. **独立迁移工具 (Migration CLI)**：一个轻量级的脚本工具，用于本地解析 Markdown 文件并通过 API 导入。
 2. **引导安装向导 (Installation Wizard)**：系统首运行时的初始化流程，集成迁移选项。
 
-> 第十一阶段新增的“迁移链接治理与云端资源重写”已拆分为独立专项设计，见 [迁移链接治理与云端资源重写](./migration-link-governance.md)。本文档继续承担迁移入口与导入流程总览，不重复定义链接治理契约。
+> 第十一阶段新增的“迁移链接治理与云端资源重写”已拆分为独立专项设计，见 [迁移链接治理与云端资源重写](../governance/migration-link-governance.md)。本文档继续承担迁移入口与导入流程总览，不重复定义链接治理契约。
 
 ## 2. 独立迁移工具 (Momei CLI)
 
@@ -41,7 +41,7 @@
 - 生成 `MappingSeed` 并调用站内治理入口执行 `dry-run / apply / report`。
 - 将旧域名和路径规则治理与正文导入解耦，避免“导入时顺手改链接”导致无法审计。
 
-具体契约、数据结构与职责边界以 [迁移链接治理与云端资源重写](./migration-link-governance.md) 为准。
+具体契约、数据结构与职责边界以 [迁移链接治理与云端资源重写](../governance/migration-link-governance.md) 为准。
 
 ## 3. 引导安装向导 (Installation Wizard)
 

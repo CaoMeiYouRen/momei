@@ -12,7 +12,7 @@
 - WechatSync 内容目前由 `components/admin/posts/post-distribution-button.vue` 内部的 `buildWechatSyncPost()` 在前端生成，输出 `markdown`、`content`、`desc`、`thumb` 四段通用字段，但没有渠道级模板分层，也没有标签格式差异化处理。
 - WechatSync 插件的 `addTask()` 当前接收的是“单份文章内容 + 多个账户”，这意味着如果 B 站、微博和小红书同时勾选，现状无法给不同平台发送不同标签策略。
 - 现有分发状态机、时间线、失败分类和回写端点已经在 [content-distribution-governance.md](./content-distribution-governance.md) 中收敛完成，本轮方案不能破坏 `attemptId`、手动重试、人工终止和审计时间线。
-- 标签翻译簇当前已明确要求按 `translationId -> slug -> id` 收口，见 [taxonomy.md](./taxonomy.md) 第 6 节；因此分发场景不能再按“标签显示名字符串”直接导出，否则会把同簇标签重复输出到渠道正文中。
+- 标签翻译簇当前已明确要求按 `translationId -> slug -> id` 收口，见 [taxonomy.md](../modules/taxonomy.md) 第 6 节；因此分发场景不能再按“标签显示名字符串”直接导出，否则会把同簇标签重复输出到渠道正文中。
 
 ### 1.2 根因判断
 

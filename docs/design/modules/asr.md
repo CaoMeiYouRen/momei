@@ -4,7 +4,7 @@
 
 本文档是语音识别模块的主文档，只保留当前已经落地的能力总览、入口链路与治理边界。
 
-前端直连凭证、轻量压缩、流式协议细节与异步任务追踪等优化实现，统一收敛到 [ASR 性能与体验优化](./asr-performance-optimization.md)，避免两篇文档重复描述同一条链路。
+前端直连凭证、轻量压缩、流式协议细节与异步任务追踪等优化实现，统一收敛到 [ASR 性能与体验优化](../governance/asr-performance-optimization.md)，避免两篇文档重复描述同一条链路。
 
 ## 2. 当前支持的识别模式
 
@@ -82,6 +82,6 @@ ASR 配置已经接入系统设置服务，凭证生成会优先读取专用 ASR
 
 ## 6. 相关文档
 
-- [ASR 性能与体验优化](./asr-performance-optimization.md)
+- [ASR 性能与体验优化](../governance/asr-performance-optimization.md)
 - [AI 辅助](./ai.md)
 - [系统能力与设置](./system.md)

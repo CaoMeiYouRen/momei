@@ -23,7 +23,7 @@
 
 ### 3.1 外部发布文章 (Publish Post)
 
-当前已落地的最小能力是 `POST /api/external/posts`。若后续需要继续扩展迁移治理、批量导入或自动化链路，请以 [项目计划](../../plan/roadmap.md) 和 [迁移链接治理与云端资源重写](./migration-link-governance.md) 为准。
+当前已落地的最小能力是 `POST /api/external/posts`。若后续需要继续扩展迁移治理、批量导入或自动化链路，请以 [项目计划](../../plan/roadmap.md) 和 [迁移链接治理与云端资源重写](../governance/migration-link-governance.md) 为准。
 
 专门用于第三方工具（如 Obsidian, VSCode 插件, CI/CD 脚本）发布文章。
 
@@ -93,7 +93,7 @@
 
 ### 3.2 迁移链接治理 (Migration Link Governance)
 
-迁移链接治理的最小 Open API 已落地，统一复用 API Key 鉴权，并以 [迁移链接治理与云端资源重写](./migration-link-governance.md) 作为契约事实源。
+迁移链接治理的最小 Open API 已落地，统一复用 API Key 鉴权，并以 [迁移链接治理与云端资源重写](../governance/migration-link-governance.md) 作为契约事实源。
 
 #### `POST /api/external/migrations/link-governance/dry-run`
 

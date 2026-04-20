@@ -48,7 +48,7 @@
 - 将“货币成本”和“配额额度”拆开处理，避免直接把厂商单价映射为用户额度。
 - 第一阶段优先落地终态结算与失败归因，不引入复杂的预扣费与退款流水。
 
-详细方案请参考 [AI 成本治理与多用户配额](./ai-cost-governance.md)。
+详细方案请参考 [AI 成本治理与多用户配额](../governance/ai-cost-governance.md)。
 
 ### 3.3 环境变量配置
 
@@ -144,6 +144,6 @@ AI_TEMPERATURE=0.7
 ## 8. 相关文档 (Related Docs)
 
 - [AI 图像生成模块](./ai-image.md)
-- [AI 成本治理与多用户配额](./ai-cost-governance.md)
+- [AI 成本治理与多用户配额](../governance/ai-cost-governance.md)
 - [语音识别系统](./asr.md)
 - [音频处理与播客系统](./audio.md)

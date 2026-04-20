@@ -374,8 +374,8 @@ interface UpdateSettingsRequest {
 
 ## 8. 相关文档 (Related Docs)
 
-- [系统模块设计](./system.md)
-- [认证模块设计](./auth.md)
+- [系统模块设计](../modules/system.md)
+- [认证模块设计](../modules/auth.md)
 - [环境变量指南](../../guide/variables.md)
 - [API 设计规范](../../standards/api.md)
 - [安全规范](../../standards/security.md)

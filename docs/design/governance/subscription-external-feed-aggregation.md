@@ -1,6 +1,6 @@
 # 外部 RSS / RSSHub 聚合挂载设计 (External Feed Aggregation)
 
-> 本文档是 [订阅系统设计文档](./subscription.md) 的专项增量设计，只负责定义“外部 RSS / RSSHub 资源如何被安全接入、缓存、降级并挂载到正式页面”的治理边界，不重复描述站内自有 Feed 输出能力。
+> 本文档是 [订阅系统设计文档](../modules/subscription.md) 的专项增量设计，只负责定义“外部 RSS / RSSHub 资源如何被安全接入、缓存、降级并挂载到正式页面”的治理边界，不重复描述站内自有 Feed 输出能力。
 
 ## 1. 概述
 
@@ -346,8 +346,8 @@ interface ExternalFeedItem {
 
 ## 12. 相关文档
 
-- [订阅系统设计文档](./subscription.md)
-- [友链系统](./friend-links.md)
+- [订阅系统设计文档](../modules/subscription.md)
+- [友链系统](../modules/friend-links.md)
 - [功能模块索引](./index.md)
 - [项目待办](../../plan/todo.md)
 - [项目规划](../../plan/roadmap.md)

@@ -4,7 +4,7 @@
 
 本文档只记录已经落地的 ASR 性能优化实现，不再保留与现状脱节的 FFmpeg.wasm、BullMQ 或 Redis 预案描述。
 
-模块总览、驱动分类与治理边界请参考 [语音识别系统](./asr.md)。
+模块总览、驱动分类与治理边界请参考 [语音识别系统](../modules/asr.md)。
 
 ## 2. 前端直连凭证
 
@@ -109,5 +109,5 @@ Volcengine 当前采用 STS JWT + Query 鉴权模式：
 
 ## 7. 相关文档
 
-- [语音识别系统](./asr.md)
-- [AI 辅助](./ai.md)
+- [语音识别系统](../modules/asr.md)
+- [AI 辅助](../modules/ai.md)
