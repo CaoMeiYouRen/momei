@@ -67,7 +67,6 @@
         },
         "user_agreement": {
             "title": "User Agreement",
-            "last_updated": "Last updated: January 18, 2026",
             "version_label": "Version: {version}",
             "effective_date_label": "Effective date: {date}",
             "last_updated_label": "Last updated: {date}",
@@ -86,7 +85,6 @@
         },
         "privacy_policy": {
             "title": "Privacy Policy",
-            "last_updated": "Last updated: January 18, 2026",
             "version_label": "Version: {version}",
             "effective_date_label": "Effective date: {date}",
             "last_updated_label": "Last updated: {date}",

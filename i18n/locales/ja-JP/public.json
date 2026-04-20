@@ -67,7 +67,6 @@
         },
         "user_agreement": {
             "title": "利用規約",
-            "last_updated": "最終更新: 2026年1月18日",
             "version_label": "バージョン: {version}",
             "effective_date_label": "施行日: {date}",
             "last_updated_label": "最終更新日: {date}",
@@ -86,7 +85,6 @@
         },
         "privacy_policy": {
             "title": "プライバシーポリシー",
-            "last_updated": "最終更新: 2026年1月18日",
             "version_label": "バージョン: {version}",
             "effective_date_label": "施行日: {date}",
             "last_updated_label": "最終更新日: {date}",

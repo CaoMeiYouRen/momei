@@ -67,7 +67,6 @@
         },
         "user_agreement": {
             "title": "이용 약관",
-            "last_updated": "최종 업데이트: 2026년 1월 18일",
             "version_label": "버전: {version}",
             "effective_date_label": "효력 발생일: {date}",
             "last_updated_label": "최근 수정: {date}",
@@ -86,7 +85,6 @@
         },
         "privacy_policy": {
             "title": "개인정보 처리방침",
-            "last_updated": "최종 업데이트: 2026년 1월 18일",
             "version_label": "버전: {version}",
             "effective_date_label": "효력 발생일: {date}",
             "last_updated_label": "최근 수정: {date}",

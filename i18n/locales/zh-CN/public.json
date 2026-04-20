@@ -67,7 +67,6 @@
         },
         "user_agreement": {
             "title": "用户协议",
-            "last_updated": "最后更新日期：2026年1月18日",
             "version_label": "版本：{version}",
             "effective_date_label": "生效日期：{date}",
             "last_updated_label": "最近更新：{date}",
@@ -86,7 +85,6 @@
         },
         "privacy_policy": {
             "title": "隐私政策",
-            "last_updated": "最后更新日期：2026年1月18日",
             "version_label": "版本：{version}",
             "effective_date_label": "生效日期：{date}",
             "last_updated_label": "最近更新：{date}",

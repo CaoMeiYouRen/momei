@@ -16,7 +16,6 @@
     },
     "footer": {
       "docs": "문서",
-      "copyright": "© 2026 모메이 블로그 - AI와 함께, 전 세계를 향한 창작",
       "powered_by": "Powered by {name}",
       "compliance": {
         "icp": "ICP 등록",
@@ -97,7 +96,6 @@
       "share": {
         "eyebrow": "게시글 공유",
         "title": "이 글 공유하기",
-        "description": "현재 글의 링크나 공유 문구를 자주 사용하는 플랫폼으로 보낼 수 있습니다. 모바일에서는 기본 공유를 우선 사용합니다.",
         "dialog_title": "공유 방법",
         "native_share": "지금 공유",
         "open_panel": "공유 패널 열기",

@@ -16,7 +16,6 @@
     },
     "footer": {
       "docs": "Docs",
-      "copyright": "© 2026 Momei Blog - AI-powered, Global Creation",
       "powered_by": "Powered by {name}",
       "compliance": {
         "icp": "ICP License",
@@ -97,7 +96,6 @@
       "share": {
         "eyebrow": "Post Sharing",
         "title": "Share This Post",
-        "description": "Send this post to your favorite platforms or copy a ready-to-paste sharing snippet.",
         "dialog_title": "Share Options",
         "native_share": "Share Now",
         "open_panel": "Open Share Panel",

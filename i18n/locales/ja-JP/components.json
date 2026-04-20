@@ -16,7 +16,6 @@
         },
         "footer": {
             "docs": "ドキュメント",
-            "copyright": "© 2026 Momei Blog - AI Powered, Global Creation",
             "powered_by": "Powered by {name}",
             "compliance": {
                 "icp": "ICP 登録番号",
@@ -97,7 +96,6 @@
             "share": {
                 "eyebrow": "記事共有",
                 "title": "この記事を共有",
-                "description": "この記事のリンクや共有文面をよく使うプラットフォームへ送れます。モバイルではネイティブ共有を優先します。",
                 "dialog_title": "共有方法",
                 "native_share": "今すぐ共有",
                 "open_panel": "共有パネルを開く",

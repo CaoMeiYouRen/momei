@@ -16,7 +16,6 @@
         },
         "footer": {
             "docs": "文件",
-            "copyright": "© 2026 墨梅部落格 - AI 賦能，全球創作",
             "powered_by": "由 {name} 強力驅動",
             "compliance": {
                 "icp": "ICP 備案",
@@ -97,7 +96,6 @@
             "share": {
                 "eyebrow": "文章分享",
                 "title": "分享這篇文章",
-                "description": "將目前文章連結或分享文案發送到常用平台，行動端優先使用原生分享。",
                 "dialog_title": "分享方式",
                 "native_share": "立即分享",
                 "open_panel": "開啟分享面板",
